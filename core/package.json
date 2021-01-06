@@ -1,4 +1,9 @@
 {
   "name": "slowreader-core",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@logux/client": "logux/client#next",
+    "@logux/core": "logux/core#next",
+    "@logux/state": "logux/state#main"
+  }
 }
