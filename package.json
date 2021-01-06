@@ -5,7 +5,8 @@
     "test": "eslint . && npm audit"
   },
   "workspaces": [
-    "core"
+    "core",
+    "server"
   ],
   "devDependencies": {
     "@logux/eslint-config": "^44.0.1",
