@@ -1,5 +1,8 @@
 {
   "extends": [
     "@logux/eslint-config/ts"
-  ]
+  ],
+  "rules": {
+    "import/extensions": "off"
+  }
 }
