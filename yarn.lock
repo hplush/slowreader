@@ -225,9 +225,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@logux/eslint-config@npm:^44.0.1":
-  version: 44.0.1
-  resolution: "@logux/eslint-config@npm:44.0.1"
+"@logux/eslint-config@npm:^44.0.2":
+  version: 44.0.2
+  resolution: "@logux/eslint-config@npm:44.0.2"
   dependencies:
     globals: ^13.5.0
   peerDependencies:
@@ -240,8 +240,8 @@ __metadata:
     eslint-plugin-prettierx: ^0.14.0
     eslint-plugin-promise: ^4.2.1
     eslint-plugin-security: ^1.4.0
-    eslint-plugin-unicorn: ^25.0.1
-  checksum: 11cbac103f273870161ee2c692f6cebd15edf3b2e1ac33b2811299fd4059eeed5a3725690784836a664265b5f3e8f48b872246392935c9da2f551fbeda2775ee
+    eslint-plugin-unicorn: ^26.0.0
+  checksum: d36a217460cc18759057d31a99170acaf1fbcf721201b9558fdf92d711db5da8d6f2e21442b3fa2fb5b8e9956f246a671790ed36ef694d14c9cb9d90b4827d16
   languageName: node
   linkType: hard
 
@@ -1331,16 +1331,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-unicorn@npm:^25.0.1":
-  version: 25.0.1
-  resolution: "eslint-plugin-unicorn@npm:25.0.1"
+"eslint-plugin-unicorn@npm:^26.0.0":
+  version: 26.0.0
+  resolution: "eslint-plugin-unicorn@npm:26.0.0"
   dependencies:
     ci-info: ^2.0.0
     clean-regexp: ^1.0.0
     eslint-ast-utils: ^1.1.0
-    eslint-template-visitor: ^2.2.1
+    eslint-template-visitor: ^2.2.2
     eslint-utils: ^2.1.0
-    import-modules: ^2.0.0
+    import-modules: ^2.1.0
     lodash: ^4.17.20
     pluralize: ^8.0.0
     read-pkg-up: ^7.0.1
@@ -1349,8 +1349,8 @@ __metadata:
     safe-regex: ^2.1.1
     semver: ^7.3.4
   peerDependencies:
-    eslint: ">=7.15.0"
-  checksum: dba34c42a143e491959c75cf1f924f487433c9f2015750f4352ddc765161e359a076bf3ae127ac5bfc595906db7677798e70fd8f1b8ecaea1662990d89b9d45a
+    eslint: ">=7.17.0"
+  checksum: 7ff2ad7de7d7c1c0fce09230d0df6ebf49f4221a5963fbbc7f1296ad10ffcd5afe35d25992b3fe707d388100377267f3982bf70a94681d955ebf29a2f5485cb7
   languageName: node
   linkType: hard
 
@@ -1364,7 +1364,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-template-visitor@npm:^2.2.1":
+"eslint-template-visitor@npm:^2.2.2":
   version: 2.2.2
   resolution: "eslint-template-visitor@npm:2.2.2"
   dependencies:
@@ -1996,7 +1996,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"import-modules@npm:^2.0.0":
+"import-modules@npm:^2.1.0":
   version: 2.1.0
   resolution: "import-modules@npm:2.1.0"
   checksum: d9d551623ab92453b98049177e7fe6dc6213a7920d43e62250577928115af6b176eed51ef422c717a6c3b8d172275f7409c5cbc26346ae44b6ba26b39a1e9580
@@ -3549,7 +3549,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "slowreader@workspace:."
   dependencies:
-    "@logux/eslint-config": ^44.0.1
+    "@logux/eslint-config": ^44.0.2
     "@typescript-eslint/eslint-plugin": ^4.12.0
     "@typescript-eslint/parser": ^4.12.0
     eslint: ^7.17.0
@@ -3561,7 +3561,7 @@ __metadata:
     eslint-plugin-prettierx: ^0.14.0
     eslint-plugin-promise: ^4.2.1
     eslint-plugin-security: ^1.4.0
-    eslint-plugin-unicorn: ^25.0.1
+    eslint-plugin-unicorn: ^26.0.0
     husky: ^4.3.7
     lint-staged: ^10.5.3
     typescript: ^4.1.3
