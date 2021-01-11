@@ -1,0 +1,21 @@
+name: Test
+env:
+  FORCE_COLOR: 2
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Install Node.js
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: 12
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1
+      - name: Run tests
+        run: yarn test
