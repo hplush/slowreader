@@ -15,6 +15,12 @@ jobs:
         uses: actions/setup-node@v2-beta
         with:
           node-version: 14
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ./.yarn/cache
+          key: ${{ runner.os }}-${{ hashFiles('./yarn.lock') }}
       - name: Install dependencies
         run: yarn install --immutable --skip-builds
       - name: Run tests
