@@ -8,7 +8,7 @@ beforeEach(() => {
 
 it('converts URL and stringify params', async () => {
   await request('wss://example.com/', 'test', { one: '1' })
-  expect(global.fetch).toHaveBeenCalledWith('https://example.com/test', {
+  expect(fetch).toHaveBeenCalledWith('https://example.com/test', {
     method: 'POST',
     body: '{"one":"1"}'
   })
@@ -16,7 +16,7 @@ it('converts URL and stringify params', async () => {
 
 it('supports HTTP', async () => {
   await request('ws://127.0.0.1/', 'test', { one: '1' })
-  expect(global.fetch).toHaveBeenCalledWith('http://127.0.0.1/test', {
+  expect(fetch).toHaveBeenCalledWith('http://127.0.0.1/test', {
     method: 'POST',
     body: '{"one":"1"}'
   })
