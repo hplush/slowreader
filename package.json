@@ -2,7 +2,7 @@
   "name": "slowreader",
   "private": true,
   "scripts": {
-    "test": "eslint . && yarn npm audit"
+    "test": "eslint . && yarn npm audit && cd api && yarn test"
   },
   "workspaces": [
     "api",

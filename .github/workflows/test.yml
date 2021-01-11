@@ -20,7 +20,7 @@ jobs:
         with:
           path: |
             ./.yarn/cache
-          key: ${{ runner.os }}-${{ hashFiles('./yarn.lock') }}
+          key: ${{ hashFiles('./yarn.lock') }}
       - name: Install dependencies
         run: yarn install --immutable --skip-builds
       - name: Run tests
