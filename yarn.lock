@@ -218,10 +218,10 @@ __metadata:
 
 "@logux/core@logux/core#next":
   version: 0.6.2
-  resolution: "@logux/core@https://github.com/logux/core.git#commit=2e619b0426ade8d8a2efd690c2c7c03f944cb89a"
+  resolution: "@logux/core@https://github.com/logux/core.git#commit=34f58cae95941089d86182ec323fee375df11572"
   dependencies:
     nanoevents: ^5.1.10
-  checksum: d486628a837469c18fbe4ebd1c1ad7a03cdfd19fe65086fbdc05db1e9f47d552eb33376507bc064d4e7b63d570464e3e363e70530b8e165eb2f5325d839e0d3d
+  checksum: f47ce1d2fd5efb50d7e1eeefef8c8522ea25527c7576bba20bfda6b59b498cf7ead0a5b885a01128de9aeafb342c986e3e609fb5b4d43f2e1c6cc4960a7e7a56
   languageName: node
   linkType: hard
 
