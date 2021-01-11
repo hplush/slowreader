@@ -16,6 +16,6 @@ jobs:
         with:
           node-version: 14
       - name: Install dependencies
-        uses: yarn install --immutable
+        run: yarn install --immutable
       - name: Run tests
         run: yarn test
