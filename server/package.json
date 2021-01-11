@@ -1,5 +1,5 @@
 {
-  "name": "slowreader-server",
+  "name": "@slowreader/server",
   "private": true,
   "dependencies": {
     "@logux/server": "logux/server#next"

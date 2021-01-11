@@ -1,9 +1,11 @@
 {
-  "name": "slowreader-core",
+  "name": "@slowreader/core",
   "private": true,
   "dependencies": {
     "@logux/client": "logux/client#next",
     "@logux/core": "logux/core#next",
-    "@logux/state": "logux/state#main"
+    "@logux/state": "logux/state#main",
+    "@slowreader/api": "workspace:api",
+    "nanoid": "^3.1.20"
   }
 }

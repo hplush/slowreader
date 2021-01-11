@@ -204,7 +204,7 @@ __metadata:
 
 "@logux/client@logux/client#next":
   version: 0.9.3
-  resolution: "@logux/client@https://github.com/logux/client.git#commit=0ca1f0a81de4e656bae786d05523240afc8945b9"
+  resolution: "@logux/client@https://github.com/logux/client.git#commit=08d5c7e4cf3ce0a4c8bfedb780aaaa2dec9e3236"
   dependencies:
     fast-json-stable-stringify: ^2.1.0
     nanodelay: ^1.0.6
@@ -212,7 +212,7 @@ __metadata:
     nanoid: ^3.1.20
   peerDependencies:
     "@logux/core": ^0.6.2
-  checksum: b1e04856a49639ee4f409e3f64add6d0a22d83a8e6f49bce93ac299889e4489ce294bbad61a3c76a7983631d60e77969649c1a7d472feb59efef40905a87f73b
+  checksum: 8e61115d1647e21d4ea0c01afa44d2510328f47247f80e92a41830d125348408759fdacd2df25ea4a1bca58cb69d5b884fbd31b988f2b01f690cbaf0637e7324
   languageName: node
   linkType: hard
 
@@ -247,45 +247,39 @@ __metadata:
 
 "@logux/server@logux/server#next":
   version: 0.9.6
-  resolution: "@logux/server@https://github.com/logux/server.git#commit=95dcd0f6d74f396a8dad5011e17beb681dcf79a3"
+  resolution: "@logux/server@https://github.com/logux/server.git#commit=e0fa482da9d7b85310fc27f4aadf1051e5a4e14d"
   dependencies:
     "@logux/core": "logux/core#next"
     JSONStream: ^1.3.5
     colorette: ^1.2.1
     cookie: ^0.4.1
     dotenv: ^8.2.0
-    globby: ^11.0.1
+    globby: ^11.0.2
     ip: ^1.1.5
     nanoevents: ^5.1.10
-    nanoid: ^3.1.19
-    pino: ^6.7.0
-    semver: ^7.3.2
+    nanoid: ^3.1.20
+    pino: ^6.10.0
+    semver: ^7.3.4
     strip-ansi: ^6.0.0
     url-pattern: ^1.0.3
-    ws: ^7.4.0
-    yargs: ^16.1.1
+    ws: ^7.4.2
+    yargs: ^16.2.0
     yyyy-mm-dd: ^1.0.2
-  checksum: a7332d74165e522f45950685aff5106b7afb0b8c3e4d163dadbcd60afb5cc2e978362ee3ff976951584fd89557254b0514a10dba16eaade3f068aa6d3296367d
+  checksum: d3fcc86830863df923bd1724f07b3f8335ddb5fa843a424a5d9f5d4ca12ae97e0a91e23e77c0f042f437a830f3e713cb0fa9ac66f3eb439387c2e1f6a4dbebcf
   languageName: node
   linkType: hard
 
 "@logux/state@logux/state#main":
   version: 0.0.0
-  resolution: "@logux/state@https://github.com/logux/state.git#commit=130b2507237f53997c9e88eab2520796f569167b"
-  dependencies:
-    nanodelay: ^1.0.6
-    nanoevents: ^5.1.10
+  resolution: "@logux/state@https://github.com/logux/state.git#commit=828888490f239bea46db34760c3c1544f86b01bd"
   peerDependencies:
     "@logux/client": ^0.9.2
     "@logux/core": ^0.6.2
-    preact: ^10.0.0
     react: ^16.8.0
   peerDependenciesMeta:
-    preact:
-      optional: true
     react:
       optional: true
-  checksum: 7ce9dfe7848fe660a1c19dc0ca33d6552e0fbf24ba737a89ecf02860ccd08d0d433bdf0464718f48f46f03ca6ba9b25a62577b2b264eebbc13238010aee97f3d
+  checksum: 5346683a09a49aa220f444e7c24812cdb77601aac3b8825edd0a29ebbe8b6898065049952500e5fad5cda8939b6b5036ade698130e965ec866cc69e8e18023be
   languageName: node
   linkType: hard
 
@@ -322,6 +316,32 @@ __metadata:
   checksum: 11405bfca97a7d0a098d4fa2a81d0a9cec3f195f517b7bb107e89e181c89b85198a0257d13c10e25946babecb398d43e43f8fa98703a42da50b6f3b14795c092
   languageName: node
   linkType: hard
+
+"@slowreader/api@workspace:api":
+  version: 0.0.0-use.local
+  resolution: "@slowreader/api@workspace:api"
+  languageName: unknown
+  linkType: soft
+
+"@slowreader/core@workspace:core":
+  version: 0.0.0-use.local
+  resolution: "@slowreader/core@workspace:core"
+  dependencies:
+    "@logux/client": "logux/client#next"
+    "@logux/core": "logux/core#next"
+    "@logux/state": "logux/state#main"
+    "@slowreader/api": "workspace:api"
+    nanoid: ^3.1.20
+  languageName: unknown
+  linkType: soft
+
+"@slowreader/server@workspace:server":
+  version: 0.0.0-use.local
+  resolution: "@slowreader/server@workspace:server"
+  dependencies:
+    "@logux/server": "logux/server#next"
+  languageName: unknown
+  linkType: soft
 
 "@types/json-schema@npm:^7.0.3":
   version: 7.0.6
@@ -1629,7 +1649,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"find-up@npm:^4.0.0, find-up@npm:^4.1.0":
+"find-up@npm:^4.1.0":
   version: 4.1.0
   resolution: "find-up@npm:4.1.0"
   dependencies:
@@ -1639,12 +1659,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"find-versions@npm:^3.2.0":
-  version: 3.2.0
-  resolution: "find-versions@npm:3.2.0"
+"find-up@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "find-up@npm:5.0.0"
   dependencies:
-    semver-regex: ^2.0.0
-  checksum: 2ddc16b4265184e2b7ab68bfd9d84835178fef4193abd957ebe328e0de98e8ca3b31e2a19201c1c8308e24786faa295aab46c0bc21fa89440e2a1bc8174987f0
+    locate-path: ^6.0.0
+    path-exists: ^4.0.0
+  checksum: cd0b77415bc59e5af31e4e1b29c6ff8d965d9ca3c60a4b74161f8f116c0d1ad8d35bc6e53bf8f92c69e704e98183f1628a363ed7d519eb28eff54378b8f167a7
+  languageName: node
+  linkType: hard
+
+"find-versions@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "find-versions@npm:4.0.0"
+  dependencies:
+    semver-regex: ^3.1.2
+  checksum: 05174128349e522f0746cc343a509f2ce1c8c765e24968ff2ac6f82fda4e4c680f5f71c6a781ce28406d19addc32a205116ac14ee83cb2e336635dd803f56cbd
   languageName: node
   linkType: hard
 
@@ -1810,6 +1840,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"globby@npm:^11.0.2":
+  version: 11.0.2
+  resolution: "globby@npm:11.0.2"
+  dependencies:
+    array-union: ^2.1.0
+    dir-glob: ^3.0.1
+    fast-glob: ^3.1.1
+    ignore: ^5.1.4
+    merge2: ^1.3.0
+    slash: ^3.0.0
+  checksum: d23f2a6b8897b97fb27422cde243e0fd406ebbaa821929293b27c977d169884f8112494cda4f456a51d0ec1e133e3ac703ec24bfed484e327305ea34a665eb06
+  languageName: node
+  linkType: hard
+
 "graceful-fs@npm:^4.1.2":
   version: 4.2.4
   resolution: "graceful-fs@npm:4.2.4"
@@ -1907,24 +1951,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"husky@npm:^4.3.6":
-  version: 4.3.6
-  resolution: "husky@npm:4.3.6"
+"husky@npm:^4.3.7":
+  version: 4.3.7
+  resolution: "husky@npm:4.3.7"
   dependencies:
     chalk: ^4.0.0
     ci-info: ^2.0.0
     compare-versions: ^3.6.0
     cosmiconfig: ^7.0.0
-    find-versions: ^3.2.0
+    find-versions: ^4.0.0
     opencollective-postinstall: ^2.0.2
-    pkg-dir: ^4.2.0
+    pkg-dir: ^5.0.0
     please-upgrade-node: ^3.2.0
     slash: ^3.0.0
     which-pm-runs: ^1.0.0
   bin:
     husky-run: bin/run.js
     husky-upgrade: lib/upgrader/bin.js
-  checksum: 3c8708887822c93094c4af22608df00a3bdd74784172d13cd08c5d1ed3e7a602f6016bce9982de206f060661f1ea801362edf5658c18fc4a3866d605c47ecaf9
+  checksum: 799b1484e47f868760a612d8578f0bc2cf8848a55719ad00bfbd6bec3d094afaca024631949157390a05616a1c83242c3d917f33c049d9161f7af3ec313b6870
   languageName: node
   linkType: hard
 
@@ -2401,6 +2445,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"locate-path@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "locate-path@npm:6.0.0"
+  dependencies:
+    p-locate: ^5.0.0
+  checksum: 4c379638152e0e5fda9a8cc07005702f81fcb9899db0f66d691ac1e64193dea670af14e96c50f14d82d45959daa4c400cb712c158cffe22ae265bfc1b1e3a221
+  languageName: node
+  linkType: hard
+
 "lodash.get@npm:^4.4.2":
   version: 4.4.2
   resolution: "lodash.get@npm:4.4.2"
@@ -2584,7 +2637,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^3.1.19, nanoid@npm:^3.1.20":
+"nanoid@npm:^3.1.20":
   version: 3.1.20
   resolution: "nanoid@npm:3.1.20"
   bin:
@@ -2739,6 +2792,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"p-limit@npm:^3.0.2":
+  version: 3.1.0
+  resolution: "p-limit@npm:3.1.0"
+  dependencies:
+    yocto-queue: ^0.1.0
+  checksum: 5301db6a34fc1fe3714ae562c100a0567d8c16ce9db800f547bbe75efc045c40cd74c4a4c893279975dcf15afc1217c8d2c93fe957a156a3a43d7cce98eaad2e
+  languageName: node
+  linkType: hard
+
 "p-locate@npm:^2.0.0":
   version: 2.0.0
   resolution: "p-locate@npm:2.0.0"
@@ -2754,6 +2816,15 @@ __metadata:
   dependencies:
     p-limit: ^2.2.0
   checksum: 57f9abef0b29f02ff88c0936a392c9a1fbdd08169e636e0d85b7407c108014d71578c0c6fe93fa49b5bf3857b20d6f16b96389e2b356f7f599d4d2150505844f
+  languageName: node
+  linkType: hard
+
+"p-locate@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "p-locate@npm:5.0.0"
+  dependencies:
+    p-limit: ^3.0.2
+  checksum: a233d775c870e00c734adabd29f66f93824df076683c0d5a2dc16e5285b02d80c1bf3bab43b9881e4a5b16b37bb86f1922aebb094674703d30a4973041d5c0f6
   languageName: node
   linkType: hard
 
@@ -2889,26 +2960,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pino-std-serializers@npm:^2.4.2":
-  version: 2.5.0
-  resolution: "pino-std-serializers@npm:2.5.0"
-  checksum: c7605e6b9dd3b2e6898059da0bca93277ed9139f0b884d9f7c922f22f011ba4a930389a71728e7c682ee5c3bf786aa67a90f10b1eb8eadc0467c5b78883a43bc
+"pino-std-serializers@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "pino-std-serializers@npm:3.1.0"
+  checksum: 9e5e8e9f483690596c7e45ba36d638a6599cefd176a9c8ad586ac1c78132b77299297c6801b81cfdcd83c500998598cd4e6fe92a6d3f6ae629c33034a19c5b32
   languageName: node
   linkType: hard
 
-"pino@npm:^6.7.0":
-  version: 6.9.0
-  resolution: "pino@npm:6.9.0"
+"pino@npm:^6.10.0":
+  version: 6.10.0
+  resolution: "pino@npm:6.10.0"
   dependencies:
     fast-redact: ^3.0.0
     fast-safe-stringify: ^2.0.7
     flatstr: ^1.0.12
-    pino-std-serializers: ^2.4.2
+    pino-std-serializers: ^3.1.0
     quick-format-unescaped: ^4.0.1
     sonic-boom: ^1.0.2
   bin:
     pino: bin.js
-  checksum: 841b6ba6ac2efabaf9b40d425f508074d2b2044b1f9518508203b3d1040007e30c89f22d46eb9e85daee0a39cd96c96c6ebd1bbc3e0c2c7acfae85953e79bbd8
+  checksum: 178a18b1e26463db61a6bb270631a691cbcc8052585f915de6ee0a62fb8d82261702930a6ce8ce91389ed7e6e624160f20edec45be299f55a98b87adc3b553d8
   languageName: node
   linkType: hard
 
@@ -2921,12 +2992,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pkg-dir@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "pkg-dir@npm:4.2.0"
+"pkg-dir@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "pkg-dir@npm:5.0.0"
   dependencies:
-    find-up: ^4.0.0
-  checksum: 1956ebf3cf5cc36a5d20e93851fcadd5a786774eb08667078561e72e0ab8ace91fc36a028d5305f0bfe7c89f9bf51886e2a3c8cb2c2620accfa3feb8da3c256b
+    find-up: ^5.0.0
+  checksum: 86f6ecee1787d8fe1606fd831f823f967c6ea0d760ce714af6afd2fec076ce71fbedcb57b339d93b84edf90ccdd81d4e6e2c10fcde21684ef3ffee5e05fd37dc
   languageName: node
   linkType: hard
 
@@ -3372,10 +3443,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver-regex@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "semver-regex@npm:2.0.0"
-  checksum: 9b96cc8bd559c1d46968b334ccc88115a2d9d2f7a2125d6838471114ed0c52057e77aae760fbe4932aee06687584733b32aed6d2c9654b2db33e383bfb8f26ce
+"semver-regex@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "semver-regex@npm:3.1.2"
+  checksum: 6a83740f3fc24379629be068e677c71c57e0d9df4977eb56d863f26a7830b85f14d9f1af71ca3a84df9ac70fcd9ce8821466064f5652ffa0dc343b50ded86698
   languageName: node
   linkType: hard
 
@@ -3474,24 +3545,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"slowreader-core@workspace:core":
-  version: 0.0.0-use.local
-  resolution: "slowreader-core@workspace:core"
-  dependencies:
-    "@logux/client": "logux/client#next"
-    "@logux/core": "logux/core#next"
-    "@logux/state": "logux/state#main"
-  languageName: unknown
-  linkType: soft
-
-"slowreader-server@workspace:server":
-  version: 0.0.0-use.local
-  resolution: "slowreader-server@workspace:server"
-  dependencies:
-    "@logux/server": "logux/server#next"
-  languageName: unknown
-  linkType: soft
-
 "slowreader@workspace:.":
   version: 0.0.0-use.local
   resolution: "slowreader@workspace:."
@@ -3509,7 +3562,7 @@ __metadata:
     eslint-plugin-promise: ^4.2.1
     eslint-plugin-security: ^1.4.0
     eslint-plugin-unicorn: ^25.0.1
-    husky: ^4.3.6
+    husky: ^4.3.7
     lint-staged: ^10.5.3
     typescript: ^4.1.3
   languageName: unknown
@@ -4085,7 +4138,7 @@ typescript@^4.1.3:
   languageName: node
   linkType: hard
 
-"ws@npm:^7.4.0":
+"ws@npm:^7.4.2":
   version: 7.4.2
   resolution: "ws@npm:7.4.2"
   peerDependencies:
@@ -4153,7 +4206,7 @@ typescript@^4.1.3:
   languageName: node
   linkType: hard
 
-"yargs@npm:^16.1.1":
+"yargs@npm:^16.2.0":
   version: 16.2.0
   resolution: "yargs@npm:16.2.0"
   dependencies:
@@ -4165,6 +4218,13 @@ typescript@^4.1.3:
     y18n: ^5.0.5
     yargs-parser: ^20.2.2
   checksum: a79ce1f043021cd645de1ffebb6149541d382ba68f4a6b5eca5d2ad65af51893371bbd78e240dc3b6cf0cbb419511ba5bda715dec992e4266e6863ea49f14feb
+  languageName: node
+  linkType: hard
+
+"yocto-queue@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "yocto-queue@npm:0.1.0"
+  checksum: 096c3b40beb2804659539be1605a35c58eb0c85285f94b77b3e924f42ee265c1a40bf9f4153770039517146b469a964d51742395f35ca8135fc9f7e4982b785d
   languageName: node
   linkType: hard
 
