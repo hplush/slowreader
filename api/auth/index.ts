@@ -3,10 +3,10 @@ import { request } from '../utils'
 export async function signIn (
   wsUrl: string,
   userId: string,
-  accessPassword: string
+  accessSecret: string
 ) {
   try {
-    await request('PUT', wsUrl, `token`, { userId, accessPassword })
+    await request('PUT', wsUrl, `token`, { userId, accessSecret })
   } catch (e) {
     if (e.message === 'Response code 404') {
       return false
@@ -20,9 +20,9 @@ export async function signIn (
 export async function signUp (
   wsUrl: string,
   userId: string,
-  accessPassword: string
+  accessSecret: string
 ) {
-  await request('POST', wsUrl, `users`, { userId, accessPassword })
+  await request('POST', wsUrl, `users`, { userId, accessSecret })
 }
 
 export async function signOut (wsUrl: string) {

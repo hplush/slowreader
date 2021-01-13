@@ -2,10 +2,21 @@
   "name": "@slowreader/core",
   "version": "0.0.0",
   "private": true,
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "engines": {
+    "node": ">=14"
+  },
   "dependencies": {
     "@logux/client": "logux/client#next",
     "@logux/core": "logux/core#next",
     "@logux/state": "logux/state#main",
     "nanoid": "^3.1.20"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.20",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.4.4"
   }
 }

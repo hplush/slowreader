@@ -10,7 +10,7 @@ it('sends sign-up request', async () => {
   await signUp('wss://example.com/', 'user_id', 'secret')
   expect(fetch).toHaveBeenCalledWith('https://example.com/users', {
     method: 'POST',
-    body: '{"userId":"user_id","accessPassword":"secret"}'
+    body: '{"userId":"user_id","accessSecret":"secret"}'
   })
 })
 
@@ -27,7 +27,7 @@ it('sends sign-in request', async () => {
   expect(result).toBe(true)
   expect(fetch).toHaveBeenCalledWith('https://example.com/token', {
     method: 'PUT',
-    body: '{"userId":"user_id","accessPassword":"secret"}'
+    body: '{"userId":"user_id","accessSecret":"secret"}'
   })
 })
 

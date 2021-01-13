@@ -1,8 +1,14 @@
 {
   "name": "slowreader",
   "private": true,
+  "engines": {
+    "node": ">=14"
+  },
   "scripts": {
-    "test": "eslint . && yarn audit && cd api && npm test"
+    "test:all": "npx eslint . && yarn audit",
+    "test:api": "cd api && yarn test",
+    "test:core": "cd core && yarn test",
+    "test": "yarn test:all && yarn test:api && yarn test:core"
   },
   "workspaces": [
     "api",
@@ -11,6 +17,7 @@
   ],
   "devDependencies": {
     "@logux/eslint-config": "^44.0.2",
+    "@types/jest": "^26.0.20",
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
     "eslint": "^7.17.0",
