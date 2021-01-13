@@ -38,3 +38,11 @@ it('returns false on wrong user/password', async () => {
   let result = await signIn('wss://example.com/', 'user_id', 'secret')
   expect(result).toBe(false)
 })
+
+it('throws received error', async () => {
+  let error = new Error('test')
+  jest.spyOn(global, 'fetch').mockReturnValue(Promise.reject(error))
+  await expect(
+    signIn('wss://example.com/', 'user_id', 'secret')
+  ).rejects.toThrow(error)
+})
