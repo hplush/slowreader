@@ -1,5 +1,7 @@
+let base = require('../jest.config')
+
 module.exports = {
-  preset: 'ts-jest',
+  ...base,
   testEnvironment: 'node',
   coverageThreshold: {
     global: {

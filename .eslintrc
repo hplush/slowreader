@@ -3,6 +3,7 @@
     "@logux/eslint-config/ts"
   ],
   "rules": {
+    "node/no-unpublished-require": "off",
     "import/extensions": "off"
   }
 }
