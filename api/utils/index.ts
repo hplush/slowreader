@@ -3,15 +3,17 @@ interface RequestParams {
 }
 
 export async function request (
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   wsUrl: string,
   path: string,
-  data: RequestParams
+  data?: RequestParams
 ) {
   let url = wsUrl.replace(/^wss:/, 'https:').replace(/^ws:/, 'http:') + path
-  let response = await fetch(url, {
-    method: 'POST',
-    body: JSON.stringify(data)
-  })
+  let body
+  if (typeof data !== 'undefined') {
+    body = JSON.stringify(data)
+  }
+  let response = await fetch(url, { method, body })
   if (response.status < 200 || response.status > 299) {
     throw new Error(`Response code ${response.status}`)
   }

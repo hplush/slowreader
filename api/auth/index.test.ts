@@ -1,4 +1,4 @@
-import { signUp, signIn } from '../'
+import { signOut, signUp, signIn } from '../'
 
 global.fetch = () => Promise.resolve({ status: 200 } as Response)
 
@@ -8,17 +8,25 @@ beforeEach(() => {
 
 it('sends sign-up request', async () => {
   await signUp('wss://example.com/', 'user_id', 'secret')
-  expect(fetch).toHaveBeenCalledWith('https://example.com/signup', {
+  expect(fetch).toHaveBeenCalledWith('https://example.com/users', {
     method: 'POST',
     body: '{"userId":"user_id","accessPassword":"secret"}'
+  })
+})
+
+it('sends sign-out request', async () => {
+  await signOut('wss://example.com/')
+  expect(fetch).toHaveBeenCalledWith('https://example.com/token', {
+    method: 'DELETE',
+    body: undefined
   })
 })
 
 it('sends sign-in request', async () => {
   let result = await signIn('wss://example.com/', 'user_id', 'secret')
   expect(result).toBe(true)
-  expect(fetch).toHaveBeenCalledWith('https://example.com/signin', {
-    method: 'POST',
+  expect(fetch).toHaveBeenCalledWith('https://example.com/token', {
+    method: 'PUT',
     body: '{"userId":"user_id","accessPassword":"secret"}'
   })
 })

@@ -6,7 +6,7 @@ export async function signIn (
   accessPassword: string
 ) {
   try {
-    await request(wsUrl, 'signin', { userId, accessPassword })
+    await request('PUT', wsUrl, `token`, { userId, accessPassword })
   } catch (e) {
     if (e.message === 'Response code 404') {
       return false
@@ -22,5 +22,9 @@ export async function signUp (
   userId: string,
   accessPassword: string
 ) {
-  await request(wsUrl, 'signup', { userId, accessPassword })
+  await request('POST', wsUrl, `users`, { userId, accessPassword })
+}
+
+export async function signOut (wsUrl: string) {
+  await request('DELETE', wsUrl, 'token')
 }
