@@ -33,7 +33,6 @@ export class LocalSettings extends LocalStore {
   readonly encryptSecret: string | undefined
 
   private accessSecret: string | undefined
-  private unbind: () => void
 
   constructor () {
     super()
@@ -48,7 +47,7 @@ export class LocalSettings extends LocalStore {
       }
     }
     for (let i of KEYS) set(i, storage.get(i))
-    this.unbind = storage.subscribe(set)
+    this[destroy] = storage.subscribe(set)
   }
 
   async signIn (userId: string, password: string) {
@@ -129,9 +128,5 @@ export class LocalSettings extends LocalStore {
   private setSignedUp () {
     this[change]('signedUp', true)
     LocalSettings.getStorage().set('signedUp', '1')
-  }
-
-  [destroy] () {
-    this.unbind()
   }
 }
