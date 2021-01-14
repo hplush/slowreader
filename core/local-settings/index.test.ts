@@ -13,9 +13,7 @@ jest.mock('../../api', () => ({
 }))
 
 let storage: { [key in string]?: string }
-let storageListener:
-  | undefined
-  | ((key: string, value: string | undefined) => void)
+let storageListener: (key: string, value: string | undefined) => void = () => {}
 
 let testStorage: PersistentStorage = {
   get (key) {
@@ -30,7 +28,7 @@ let testStorage: PersistentStorage = {
   subscribe (callback) {
     storageListener = callback
     return () => {
-      storageListener = undefined
+      storageListener = () => {}
     }
   }
 }
@@ -41,7 +39,7 @@ function privateMethods (obj: any): any {
 
 afterEach(() => {
   storage = {}
-  storageListener = undefined
+  storageListener = () => {}
   LocalSettings.storage = testStorage
   cleanStores(LocalSettings)
 })
@@ -78,19 +76,19 @@ it('loads data from storage', () => {
 it('listens for changes', () => {
   let settings = LocalSettings.load()
 
-  storageListener?.('serverUrl', 'ws://localhost/')
-  storageListener?.('signedUp', '1')
+  storageListener('serverUrl', 'ws://localhost/')
+  storageListener('signedUp', '1')
   expect(settings.serverUrl).toEqual('ws://localhost/')
   expect(settings.signedUp).toBe(true)
 
   cleanStores(LocalSettings)
-  storageListener?.('serverUrl', 'wss://example.com')
+  storageListener('serverUrl', 'wss://example.com')
   expect(settings.serverUrl).toEqual('ws://localhost/')
 })
 
 it('ignores unkown key changes', () => {
   let settings = LocalSettings.load()
-  storageListener?.('unknown', '1')
+  storageListener('unknown', '1')
   expect(privateMethods(settings).unknown).toBeUndefined()
 })
 
