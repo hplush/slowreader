@@ -102,7 +102,7 @@ export class LocalSettings extends LocalStore {
 
   private getStorage (): PersistentStorage {
     if (!LocalSettings.storage) {
-      throw new SlowReaderError('missed-settings-store')
+      throw new Error('Set LocalSettings.storage')
     }
     return LocalSettings.storage
   }

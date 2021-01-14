@@ -50,7 +50,7 @@ it('throws on missed storage', () => {
   LocalSettings.storage = undefined
   expect(() => {
     LocalSettings.load()
-  }).toThrow(new SlowReaderError('missed-settings-store'))
+  }).toThrow('Set LocalSettings.storage')
 })
 
 it('is empty from start', () => {

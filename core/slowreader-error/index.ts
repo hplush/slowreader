@@ -1,4 +1,4 @@
-export type ErrorCode = 'missed-settings-store' | 'wrong-password'
+export type ErrorCode = 'wrong-password'
 
 export class SlowReaderError extends Error {
   constructor (code: ErrorCode) {
