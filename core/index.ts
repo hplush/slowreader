@@ -1,2 +1,2 @@
-export * from './slowreader-error/index'
-export * from './credentials/index'
+export * from './slowreader-error'
+export * from './local-settings'

@@ -4,32 +4,21 @@ import { nanoid } from 'nanoid'
 
 import { SlowReaderError } from '../slowreader-error'
 
-export type CredentialsKey =
-  | 'serverUrl'
-  | 'userId'
-  | 'encryptSecret'
-  | 'signedUp'
-
-export interface CredentialsStorage {
-  get(key: CredentialsKey): string | undefined
-  set(key: CredentialsKey, value: string): void
-  delete(key: CredentialsKey): void
+export interface PersistentStorage {
+  get(key: string): string | undefined
+  set(key: string, value: string): void
+  delete(key: string): void
   subscribe(
-    callback: (key: CredentialsKey, value: string | undefined) => void
+    callback: (key: string, value: string | undefined) => void
   ): () => void
 }
 
-const KEYS: CredentialsKey[] = [
-  'serverUrl',
-  'signedUp',
-  'userId',
-  'encryptSecret'
-]
+const KEYS = ['serverUrl', 'signedUp', 'userId', 'encryptSecret']
 
 export const DEFAULT_URL = 'wss://slowreader.app/'
 
-export class Credentials extends LocalStore {
-  static storage: CredentialsStorage | undefined
+export class LocalSettings extends LocalStore {
+  static storage: PersistentStorage | undefined
 
   readonly serverUrl: string = DEFAULT_URL
   readonly signedUp: boolean = false
@@ -42,12 +31,12 @@ export class Credentials extends LocalStore {
   constructor () {
     super()
     let storage = this.getStorage()
-    let set = (key: CredentialsKey, value: string | undefined) => {
+    let set = (key: string, value: string | undefined) => {
       if (key === 'serverUrl') {
         this[change](key, value ?? DEFAULT_URL)
       } else if (key === 'signedUp') {
         this[change](key, !!value)
-      } else {
+      } else if (key === 'userId' || key === 'encryptSecret') {
         this[change](key, value)
       }
     }
@@ -111,11 +100,11 @@ export class Credentials extends LocalStore {
     return `${this.getAccessSecret()}:${this.encryptSecret}`
   }
 
-  private getStorage (): CredentialsStorage {
-    if (!Credentials.storage) {
+  private getStorage (): PersistentStorage {
+    if (!LocalSettings.storage) {
       throw new SlowReaderError('missed-settings-store')
     }
-    return Credentials.storage
+    return LocalSettings.storage
   }
 
   private getAccessSecret (): string {
@@ -128,7 +117,10 @@ export class Credentials extends LocalStore {
     return this.accessSecret
   }
 
-  private change (key: Exclude<CredentialsKey, 'signedUp'>, value: string) {
+  private change (
+    key: 'userId' | 'serverUrl' | 'encryptSecret',
+    value: string
+  ) {
     this[change](key, value)
     this.getStorage().set(key, value)
   }
