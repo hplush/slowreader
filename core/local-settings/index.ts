@@ -20,6 +20,13 @@ export const DEFAULT_URL = 'wss://slowreader.app/'
 export class LocalSettings extends LocalStore {
   static storage: PersistentStorage | undefined
 
+  private static getStorage (): PersistentStorage {
+    if (!LocalSettings.storage) {
+      throw new Error('Set LocalSettings.storage')
+    }
+    return LocalSettings.storage
+  }
+
   readonly serverUrl: string = DEFAULT_URL
   readonly signedUp: boolean = false
   readonly userId: string | undefined
@@ -30,7 +37,7 @@ export class LocalSettings extends LocalStore {
 
   constructor () {
     super()
-    let storage = this.getStorage()
+    let storage = LocalSettings.getStorage()
     let set = (key: string, value: string | undefined) => {
       if (key === 'serverUrl') {
         this[change](key, value ?? DEFAULT_URL)
@@ -60,13 +67,14 @@ export class LocalSettings extends LocalStore {
   }
 
   signOut () {
+    let storage = LocalSettings.getStorage()
     signOut(this.serverUrl)
     this[change]('signedUp', false)
-    this.getStorage().delete('signedUp')
+    storage.delete('signedUp')
     this[change]('userId', undefined)
-    this.getStorage().delete('userId')
+    storage.delete('userId')
     this[change]('encryptSecret', undefined)
-    this.getStorage().delete('encryptSecret')
+    storage.delete('encryptSecret')
   }
 
   async signUp () {
@@ -100,13 +108,6 @@ export class LocalSettings extends LocalStore {
     return `${this.getAccessSecret()}:${this.encryptSecret}`
   }
 
-  private getStorage (): PersistentStorage {
-    if (!LocalSettings.storage) {
-      throw new Error('Set LocalSettings.storage')
-    }
-    return LocalSettings.storage
-  }
-
   private getAccessSecret (): string {
     if (this.signedUp) {
       throw new Error('No way to get access password for existed user')
@@ -122,12 +123,12 @@ export class LocalSettings extends LocalStore {
     value: string
   ) {
     this[change](key, value)
-    this.getStorage().set(key, value)
+    LocalSettings.getStorage().set(key, value)
   }
 
   private setSignedUp () {
     this[change]('signedUp', true)
-    this.getStorage().set('signedUp', '1')
+    LocalSettings.getStorage().set('signedUp', '1')
   }
 
   [destroy] () {
