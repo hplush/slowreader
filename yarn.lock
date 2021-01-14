@@ -572,7 +572,7 @@
 
 "@logux/state@logux/state#main":
   version "0.0.0"
-  resolved "https://codeload.github.com/logux/state/tar.gz/1d899ee9a2c9a1a2efba7eddd3dd547b86e45469"
+  resolved "https://codeload.github.com/logux/state/tar.gz/4822e969d3acced1e44bc2c3629e3387202075d9"
 
 "@nodelib/fs.scandir@2.1.4":
   version "2.1.4"
