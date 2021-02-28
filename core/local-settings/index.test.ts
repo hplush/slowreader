@@ -1,16 +1,9 @@
 import { cleanStores } from '@logux/state'
-import { signOut, signUp, signIn } from '@slowreader/api'
+import { jest } from '@jest/globals'
 
 import { SlowReaderError, LocalSettings, PersistentStorage } from '..'
 
-jest.mock('../../api', () => ({
-  __esModule: true,
-  signOut: jest.fn(),
-  signUp: jest.fn(),
-  signIn: jest.fn(async (wsUrl, userId, accessSecret) => {
-    return accessSecret === 'good'
-  })
-}))
+global.fetch = () => Promise.resolve({ ok: true } as Response)
 
 let storage: { [key in string]?: string }
 let storageListener: (key: string, value: string | undefined) => void = () => {}
@@ -37,10 +30,15 @@ function privateMethods (obj: any): any {
   return obj
 }
 
-afterEach(() => {
+beforeEach(() => {
   storage = {}
-  storageListener = () => {}
   LocalSettings.storage = testStorage
+  jest.spyOn(global, 'fetch')
+})
+
+afterEach(() => {
+  jest.clearAllMocks()
+  storageListener = () => {}
   cleanStores(LocalSettings)
 })
 
@@ -149,7 +147,10 @@ it('signes out', async () => {
   }
   let settings = LocalSettings.load()
   settings.signOut()
-  expect(signOut).toHaveBeenCalledWith('ws://localhost/')
+  expect(fetch).toHaveBeenCalledWith('http://localhost/token', {
+    method: 'DELETE',
+    body: undefined
+  })
   expect(settings.serverUrl).toEqual('ws://localhost/')
   expect(settings.signedUp).toBe(false)
   expect(settings.userId).toBeUndefined()
@@ -173,7 +174,7 @@ it('does not sign up without user ID', async () => {
 it('signes up', async () => {
   let settings = LocalSettings.load()
   settings.generate()
-  let password = settings.getPassword()
+  let accessSecret = settings.getPassword().split(':')[0]
   await settings.signUp()
   expect(settings.signedUp).toBe(true)
   expect(typeof settings.userId).toEqual('string')
@@ -182,11 +183,10 @@ it('signes up', async () => {
   expect(storage.userId).toEqual(settings.userId)
   expect(storage.encryptSecret).toEqual(settings.encryptSecret)
   expect(privateMethods(settings).accessSecret).toBeUndefined()
-  expect(signUp).toHaveBeenCalledWith(
-    settings.serverUrl,
-    settings.userId,
-    password.split(':')[0]
-  )
+  expect(fetch).toHaveBeenCalledWith('https://slowreader.app/users', {
+    method: 'POST',
+    body: `{"userId":"${settings.userId}","accessSecret":"${accessSecret}"}`
+  })
 })
 
 it('checks password while signing in', async () => {
@@ -207,10 +207,16 @@ it('signs in', async () => {
   expect(storage.userId).toEqual('user')
   expect(storage.encryptSecret).toEqual('encrypt')
   expect(privateMethods(settings).accessSecret).toBeUndefined()
-  expect(signIn).toHaveBeenCalledWith(settings.serverUrl, 'user', 'good')
+  expect(fetch).toHaveBeenCalledWith('https://slowreader.app/token', {
+    method: 'PUT',
+    body: `{"userId":"user","accessSecret":"good"}`
+  })
 })
 
 it('reacts on wrong password during signing in', async () => {
+  jest
+    .spyOn(global, 'fetch')
+    .mockReturnValue(Promise.resolve({ ok: false, status: 400 } as Response))
   let settings = LocalSettings.load()
   let result = await settings.signIn('user', 'bad:encrypt')
   expect(result).toBe(false)

@@ -1,6 +1,8 @@
+import { jest } from '@jest/globals'
+
 import { signOut, signUp, signIn } from '../'
 
-global.fetch = () => Promise.resolve({ status: 200 } as Response)
+global.fetch = () => Promise.resolve({ ok: true } as Response)
 
 beforeEach(() => {
   jest.spyOn(global, 'fetch')
@@ -34,7 +36,7 @@ it('sends sign-in request', async () => {
 it('returns false on wrong user/password', async () => {
   jest
     .spyOn(global, 'fetch')
-    .mockReturnValue(Promise.resolve({ status: 404 } as Response))
+    .mockReturnValue(Promise.resolve({ status: 400 } as Response))
   let result = await signIn('wss://example.com/', 'user_id', 'secret')
   expect(result).toBe(false)
 })

@@ -1,9 +1,15 @@
-import { request } from './'
+import { jest } from '@jest/globals'
 
-global.fetch = () => Promise.resolve({} as Response)
+import { request } from '.'
+
+global.fetch = () => Promise.resolve({ ok: true } as Response)
 
 beforeEach(() => {
   jest.spyOn(global, 'fetch')
+})
+
+afterEach(() => {
+  jest.clearAllMocks()
 })
 
 it('converts URL and stringify params', async () => {
@@ -25,7 +31,7 @@ it('supports HTTP', async () => {
 it('throws on non-2xx response state', async () => {
   jest
     .spyOn(global, 'fetch')
-    .mockReturnValue(Promise.resolve({ status: 404 } as Response))
+    .mockReturnValue(Promise.resolve({ ok: false, status: 404 } as Response))
   await expect(
     request('POST', 'wss://example.com/', 'test', { one: '1' })
   ).rejects.toEqual(new Error('Response code 404'))
@@ -34,7 +40,7 @@ it('throws on non-2xx response state', async () => {
 it('supports other 2xx statuses', async () => {
   jest
     .spyOn(global, 'fetch')
-    .mockReturnValue(Promise.resolve({ status: 201 } as Response))
+    .mockReturnValue(Promise.resolve({ ok: true, status: 201 } as Response))
   await request('POST', 'wss://example.com/', 'test', { one: '1' })
 })
 

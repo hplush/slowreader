@@ -14,7 +14,7 @@ export async function request (
     body = JSON.stringify(data)
   }
   let response = await fetch(url, { method, body })
-  if (response.status < 200 || response.status > 299) {
+  if (!response.ok) {
     throw new Error(`Response code ${response.status}`)
   }
 }

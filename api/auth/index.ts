@@ -8,7 +8,7 @@ export async function signIn (
   try {
     await request('PUT', wsUrl, `token`, { userId, accessSecret })
   } catch (e) {
-    if (e.message === 'Response code 404') {
+    if (e.message === 'Response code 400') {
       return false
     } else {
       throw e
