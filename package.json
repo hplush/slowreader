@@ -30,8 +30,8 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-security": "^1.4.0",
     "eslint-plugin-unicorn": "^26.0.1",
-    "husky": "^4.3.7",
     "lint-staged": "^10.5.3",
+    "simple-pre-commit": "^1.2.1",
     "typescript": "^4.1.3"
   }
 }
