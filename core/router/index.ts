@@ -17,7 +17,7 @@ export type BaseRouter = Router<Routes>
 
 let baseRouter: BaseRouter
 
-export function setBaseRouter (base: BaseRouter) {
+export function setBaseRouter (base: BaseRouter): void {
   baseRouter = base
 }
 
@@ -63,7 +63,7 @@ function getRoute (
 }
 
 export const router = createStore<Route>(() => {
-  function change () {
+  function change (): void {
     router.set(getRoute(getValue(baseRouter), getValue(localSettings)))
   }
   baseRouter.listen(change)

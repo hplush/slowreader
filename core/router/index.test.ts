@@ -24,7 +24,7 @@ let testRouter = createStore<
 function changeBaseRoute<R extends keyof Routes> (
   route: R,
   ...params: RouteParams<Routes, R>
-) {
+): void {
   testRouter.set({ route, params: params[0] ?? {}, path: '' } as Page)
 }
 

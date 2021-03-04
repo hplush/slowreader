@@ -4,7 +4,7 @@ export async function sendSignIn (
   wsUrl: string,
   userId: string,
   accessSecret: string
-) {
+): Promise<boolean> {
   try {
     await request('PUT', wsUrl, `token`, { userId, accessSecret })
   } catch (e) {
@@ -21,10 +21,10 @@ export async function sendSignUp (
   wsUrl: string,
   userId: string,
   accessSecret: string
-) {
+): Promise<void> {
   await request('POST', wsUrl, `users`, { userId, accessSecret })
 }
 
-export async function sendSignOut (wsUrl: string) {
+export async function sendSignOut (wsUrl: string): Promise<void> {
   await request('DELETE', wsUrl, 'token')
 }

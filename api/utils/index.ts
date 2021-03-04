@@ -7,7 +7,7 @@ export async function request (
   wsUrl: string,
   path: string,
   data?: RequestParams
-) {
+): Promise<void> {
   let url = wsUrl.replace(/^wss:/, 'https:').replace(/^ws:/, 'http:') + path
   let body
   if (typeof data !== 'undefined') {
