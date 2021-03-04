@@ -5,15 +5,5 @@
   "rules": {
     "node/no-unpublished-require": "off",
     "import/extensions": "off"
-  },
-  "overrides": [
-    {
-      "files": ["*.ts", "*.tsx"],
-      "rules": {
-        "@typescript-eslint/explicit-function-return-type":  ["error", {
-          "allowExpressions": true
-        }]
-      }
-    }
-  ]
+  }
 }
