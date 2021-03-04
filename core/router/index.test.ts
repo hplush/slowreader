@@ -1,19 +1,31 @@
 import {
   cleanStores,
   RouteParams,
-  CurrentPage,
-  LocalStore,
-  change
+  createStore,
+  getValue,
+  Page
 } from '@logux/state'
-import { delay } from 'nanodelay'
 
-import { Router, LocalSettings, Routes } from '../'
+import {
+  setLocalSettingsStorage,
+  localSettings,
+  setBaseRouter,
+  Routes,
+  router
+} from '../'
 
-class TestRouter extends LocalStore {
-  page: CurrentPage<Routes> = { name: 'home', params: {} }
-  change<N extends keyof Routes> (name: N, ...params: RouteParams<Routes, N>) {
-    this[change]('page', { name, params: params[0] } as CurrentPage)
-  }
+let testRouter = createStore<
+  Page<Routes> | undefined,
+  { routes: []; open(): void }
+>(() => {
+  testRouter.set({ route: 'home', params: {}, path: '' })
+})
+
+function changeBaseRoute<R extends keyof Routes> (
+  route: R,
+  ...params: RouteParams<Routes, R>
+) {
+  testRouter.set({ route, params: params[0] ?? {}, path: '' } as Page)
 }
 
 let storageListener: (key: string, value: string | undefined) => void = () => {}
@@ -29,63 +41,82 @@ let testStorage = {
   }
 }
 
-afterEach(async () => {
-  await cleanStores(Router, LocalSettings, TestRouter)
+afterEach(() => {
+  cleanStores(router, localSettings, testRouter)
 })
 
 beforeEach(() => {
-  LocalSettings.storage = testStorage
-  Router.Base = TestRouter
+  setLocalSettingsStorage(testStorage)
+  setBaseRouter(testRouter)
 })
 
-it('throws on missed base router', () => {
-  Router.Base = undefined
-  expect(() => {
-    Router.load()
-  }).toThrow('Set Router.Base')
+it('opens 404', () => {
+  router.listen(() => {})
+  testRouter.set(undefined)
+  expect(getValue(router)).toEqual({
+    route: 'notFound',
+    params: {},
+    redirect: false
+  })
 })
 
-it('transforms routers for guest', async () => {
-  let base = TestRouter.load()
-  let router = Router.load()
-  expect(router.page.name).toEqual('start')
-  expect(router.redirect).toBe(false)
+it('transforms routers for guest', () => {
+  router.listen(() => {})
+  expect(getValue(router)).toEqual({
+    route: 'start',
+    params: {},
+    redirect: false
+  })
 
-  base.change('slowAll')
-  await delay(1)
-  expect(router.page.name).toEqual('start')
-  expect(router.redirect).toBe(false)
+  changeBaseRoute('slowAll')
+  expect(getValue(router)).toEqual({
+    route: 'start',
+    params: {},
+    redirect: false
+  })
 
-  base.change('signin')
-  await delay(1)
-  expect(router.page.name).toEqual('signin')
-  expect(router.redirect).toBe(false)
+  changeBaseRoute('signin')
+  expect(getValue(router)).toEqual({
+    route: 'signin',
+    params: {},
+    redirect: false
+  })
 })
 
-it('transforms routers for users', async () => {
-  let base = TestRouter.load()
-  let router = Router.load()
+it('transforms routers for users', () => {
+  router.listen(() => {})
   storageListener('userId', '10')
-  await delay(1)
-  expect(router.page.name).toEqual('slowAll')
-  expect(router.redirect).toBe(true)
+  expect(getValue(router)).toEqual({
+    route: 'slowAll',
+    params: {},
+    redirect: true
+  })
 
-  base.change('fast')
-  await delay(1)
-  expect(router.page.name).toEqual('fast')
-  expect(router.redirect).toBe(false)
+  changeBaseRoute('fast')
+  expect(getValue(router)).toEqual({
+    route: 'fast',
+    params: {},
+    redirect: false
+  })
 
-  base.change('home')
-  await delay(1)
-  expect(router.page.name).toEqual('slowAll')
-  expect(router.redirect).toBe(true)
+  changeBaseRoute('home')
+  expect(getValue(router)).toEqual({
+    route: 'slowAll',
+    params: {},
+    redirect: true
+  })
 
-  base.change('signin')
-  await delay(1)
-  expect(router.page.name).toEqual('slowAll')
-  expect(router.redirect).toBe(true)
+  changeBaseRoute('signin')
+  expect(getValue(router)).toEqual({
+    route: 'slowAll',
+    params: {},
+    redirect: true
+  })
 
   storageListener('userId', undefined)
-  await delay(1)
-  expect(router.page.name).toEqual('signin')
+  expect(getValue(router)).toEqual({
+    route: 'signin',
+    params: {},
+    redirect: false
+  })
 })

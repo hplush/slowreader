@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-import { signOut, signUp, signIn } from '../'
+import { sendSignOut, sendSignUp, sendSignIn } from '../'
 
 global.fetch = () => Promise.resolve({ ok: true } as Response)
 
@@ -9,7 +9,7 @@ beforeEach(() => {
 })
 
 it('sends sign-up request', async () => {
-  await signUp('wss://example.com/', 'user_id', 'secret')
+  await sendSignUp('wss://example.com/', 'user_id', 'secret')
   expect(fetch).toHaveBeenCalledWith('https://example.com/users', {
     method: 'POST',
     body: '{"userId":"user_id","accessSecret":"secret"}'
@@ -17,7 +17,7 @@ it('sends sign-up request', async () => {
 })
 
 it('sends sign-out request', async () => {
-  await signOut('wss://example.com/')
+  await sendSignOut('wss://example.com/')
   expect(fetch).toHaveBeenCalledWith('https://example.com/token', {
     method: 'DELETE',
     body: undefined
@@ -25,7 +25,7 @@ it('sends sign-out request', async () => {
 })
 
 it('sends sign-in request', async () => {
-  let result = await signIn('wss://example.com/', 'user_id', 'secret')
+  let result = await sendSignIn('wss://example.com/', 'user_id', 'secret')
   expect(result).toBe(true)
   expect(fetch).toHaveBeenCalledWith('https://example.com/token', {
     method: 'PUT',
@@ -37,7 +37,7 @@ it('returns false on wrong user/password', async () => {
   jest
     .spyOn(global, 'fetch')
     .mockReturnValue(Promise.resolve({ status: 400 } as Response))
-  let result = await signIn('wss://example.com/', 'user_id', 'secret')
+  let result = await sendSignIn('wss://example.com/', 'user_id', 'secret')
   expect(result).toBe(false)
 })
 
@@ -45,6 +45,6 @@ it('throws received error', async () => {
   let error = new Error('test')
   jest.spyOn(global, 'fetch').mockReturnValue(Promise.reject(error))
   await expect(
-    signIn('wss://example.com/', 'user_id', 'secret')
+    sendSignIn('wss://example.com/', 'user_id', 'secret')
   ).rejects.toThrow(error)
 })

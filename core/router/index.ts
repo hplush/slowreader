@@ -1,15 +1,9 @@
-import {
-  LocalStoreConstructor,
-  LocalStoreClass,
-  RouteParams,
-  CurrentPage,
-  LocalStore,
-  connect
-} from '@logux/state'
+import { RouteParams, createStore, getValue, Router, Page } from '@logux/state'
 
-import { LocalSettings } from '../local-settings'
+import { localSettings, LocalSettingsValue } from '../local-settings'
 
 export interface Routes {
+  notFound: void
   home: void
   slowAll: void
   fast: void
@@ -19,62 +13,60 @@ export interface Routes {
 
 const GUEST = new Set(['start', 'signin'])
 
-function page (
-  name: string,
+export type BaseRouter = Router<Routes>
+
+let baseRouter: BaseRouter
+
+export function setBaseRouter (base: BaseRouter) {
+  baseRouter = base
+}
+
+export type Route = Omit<Page<Routes>, 'path'> & { redirect: boolean }
+
+function data (
+  route: string,
   params?: { [key: string]: string }
-): CurrentPage<Routes> {
-  return { name, params: params ?? {} }
+): Omit<Page<Routes>, 'path'> {
+  return { route, params: params ?? {} }
 }
 
 function redirect<N extends keyof Routes> (
-  name: N,
+  route: N,
   ...params: RouteParams<Routes, N>
-) {
-  return { page: page(name, params[0]), redirect: true }
+): Route {
+  return { ...data(route, params[0]), redirect: true }
 }
 
 function open<N extends keyof Routes> (
-  name: N,
+  route: N,
   ...params: RouteParams<Routes, N>
-) {
-  return { page: page(name, params[0]), redirect: false }
+): Route {
+  return { ...data(route, params[0]), redirect: false }
 }
 
-export interface BaseRouter extends LocalStore {
-  page: CurrentPage<Routes>
-}
-
-export class Router extends LocalStore {
-  static Base: LocalStoreConstructor<BaseRouter> | undefined
-
-  private static getBase () {
-    if (!Router.Base) {
-      throw new Error('Set Router.Base')
+function getRoute (
+  page: Page<Routes> | undefined,
+  settings: LocalSettingsValue
+): Route {
+  if (!page) {
+    return open('notFound')
+  } else if (settings.userId) {
+    if (GUEST.has(page.route)) {
+      return redirect('slowAll')
+    } else if (page.route === 'home') {
+      return redirect('slowAll')
     }
-    return Router.Base as LocalStoreClass<BaseRouter>
+  } else if (!GUEST.has(page.route)) {
+    return open('start')
   }
-
-  readonly page: CurrentPage<Routes> = page('home')
-  readonly redirect = false
-
-  constructor () {
-    super()
-    connect(
-      this,
-      [Router.getBase().load(), LocalSettings.load()],
-      (base, settings) => {
-        let name = base.page.name
-        if (settings.userId) {
-          if (GUEST.has(name)) {
-            return redirect('slowAll')
-          } else if (name === 'home') {
-            return redirect('slowAll')
-          }
-        } else if (!GUEST.has(name)) {
-          return open('start')
-        }
-        return { page: base.page, redirect: false }
-      }
-    )
-  }
+  return { route: page.route, params: page.params, redirect: false }
 }
+
+export const router = createStore<Route>(() => {
+  function change () {
+    router.set(getRoute(getValue(baseRouter), getValue(localSettings)))
+  }
+  baseRouter.listen(change)
+  localSettings.listen(change)
+  change()
+})
