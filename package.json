@@ -17,13 +17,13 @@
     "server"
   ],
   "devDependencies": {
-    "@logux/eslint-config": "^45.0.0",
-    "@typescript-eslint/eslint-plugin": "^4.16.1",
-    "@typescript-eslint/parser": "^4.16.1",
+    "@logux/eslint-config": "^45.2.0",
+    "@typescript-eslint/eslint-plugin": "^4.17.0",
+    "@typescript-eslint/parser": "^4.17.0",
     "eslint": "^7.21.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jest": "^24.1.5",
+    "eslint-plugin-jest": "^24.2.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prefer-let": "^1.1.0",
     "eslint-plugin-prettierx": "^0.17.1",
@@ -31,7 +31,8 @@
     "eslint-plugin-security": "^1.4.0",
     "eslint-plugin-unicorn": "^28.0.2",
     "lint-staged": "^10.5.4",
-    "simple-pre-commit": "^1.2.1",
-    "typescript": "^4.2.2"
+    "prettier": "^2.2.1",
+    "simple-git-hooks": "^2.0.2",
+    "typescript": "^4.2.3"
   }
 }

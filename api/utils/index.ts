@@ -2,7 +2,7 @@ interface RequestParams {
   [key: string]: string
 }
 
-export async function request (
+export async function request(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   wsUrl: string,
   path: string,

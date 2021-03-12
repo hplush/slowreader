@@ -1,6 +1,6 @@
 import { request } from '../utils'
 
-export async function sendSignIn (
+export async function sendSignIn(
   wsUrl: string,
   userId: string,
   accessSecret: string
@@ -17,7 +17,7 @@ export async function sendSignIn (
   return true
 }
 
-export async function sendSignUp (
+export async function sendSignUp(
   wsUrl: string,
   userId: string,
   accessSecret: string
@@ -25,6 +25,6 @@ export async function sendSignUp (
   await request('POST', wsUrl, `users`, { userId, accessSecret })
 }
 
-export async function sendSignOut (wsUrl: string): Promise<void> {
+export async function sendSignOut(wsUrl: string): Promise<void> {
   await request('DELETE', wsUrl, 'token')
 }

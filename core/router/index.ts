@@ -17,34 +17,34 @@ export type BaseRouter = Router<Routes>
 
 let baseRouter: BaseRouter
 
-export function setBaseRouter (base: BaseRouter): void {
+export function setBaseRouter(base: BaseRouter): void {
   baseRouter = base
 }
 
 export type Route = Omit<Page<Routes>, 'path'> & { redirect: boolean }
 
-function data (
+function data(
   route: string,
   params?: { [key: string]: string }
 ): Omit<Page<Routes>, 'path'> {
   return { route, params: params ?? {} }
 }
 
-function redirect<N extends keyof Routes> (
+function redirect<N extends keyof Routes>(
   route: N,
   ...params: RouteParams<Routes, N>
 ): Route {
   return { ...data(route, params[0]), redirect: true }
 }
 
-function open<N extends keyof Routes> (
+function open<N extends keyof Routes>(
   route: N,
   ...params: RouteParams<Routes, N>
 ): Route {
   return { ...data(route, params[0]), redirect: false }
 }
 
-function getRoute (
+function getRoute(
   page: Page<Routes> | undefined,
   settings: LocalSettingsValue
 ): Route {
@@ -63,7 +63,7 @@ function getRoute (
 }
 
 export const router = createStore<Route>(() => {
-  function change (): void {
+  function change(): void {
     router.set(getRoute(getValue(baseRouter), getValue(localSettings)))
   }
   baseRouter.listen(change)

@@ -20,16 +20,16 @@ let storage: { [key in string]?: string }
 let storageListener: (key: string, value: string | undefined) => void = () => {}
 
 let testStorage: LocalSettingsStorage = {
-  get (key) {
+  get(key) {
     return storage[key]
   },
-  set (key, value) {
+  set(key, value) {
     storage[key] = value
   },
-  delete (key) {
+  delete(key) {
     delete storage[key]
   },
-  subscribe (callback) {
+  subscribe(callback) {
     storageListener = callback
     return () => {
       storageListener = () => {}

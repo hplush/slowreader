@@ -26,7 +26,7 @@ export interface LocalSettingsValue {
 
 let storage: LocalSettingsStorage
 
-export function setLocalSettingsStorage (value: LocalSettingsStorage): void {
+export function setLocalSettingsStorage(value: LocalSettingsStorage): void {
   storage = value
 }
 
@@ -44,7 +44,7 @@ export let localSettings = createMap<LocalSettingsValue>(() => {
   return storage.subscribe(set)
 })
 
-function change (
+function change(
   key: 'userId' | 'serverUrl' | 'encryptSecret',
   value: string
 ): void {
@@ -52,13 +52,13 @@ function change (
   storage.set(key, value)
 }
 
-function setSignedUp (): void {
+function setSignedUp(): void {
   localSettings.setKey('signedUp', true)
   storage.set('signedUp', '1')
 }
 
 let nextAccessSecret: string | undefined
-function getAccessSecret (): string {
+function getAccessSecret(): string {
   if (getValue(localSettings).signedUp) {
     throw new Error('No way to get access password for existed user')
   }
@@ -68,7 +68,7 @@ function getAccessSecret (): string {
   return nextAccessSecret
 }
 
-export async function signIn (
+export async function signIn(
   userId: string,
   password: string
 ): Promise<boolean> {
@@ -90,7 +90,7 @@ export async function signIn (
   return correct
 }
 
-export function signOut (): void {
+export function signOut(): void {
   sendSignOut(getValue(localSettings).serverUrl)
   localSettings.setKey('signedUp', false)
   storage.delete('signedUp')
@@ -100,7 +100,7 @@ export function signOut (): void {
   storage.delete('encryptSecret')
 }
 
-export async function signUp (): Promise<void> {
+export async function signUp(): Promise<void> {
   let { signedUp, userId, serverUrl } = getValue(localSettings)
   if (signedUp) {
     throw new Error('User was already signed up')
@@ -113,19 +113,19 @@ export async function signUp (): Promise<void> {
   nextAccessSecret = undefined
 }
 
-export function generateCredentials (): void {
+export function generateCredentials(): void {
   change('userId', nanoid(10))
   change('encryptSecret', nanoid(16))
 }
 
-export function changeServerUrl (serverUrl: string): void {
+export function changeServerUrl(serverUrl: string): void {
   if (getValue(localSettings).signedUp) {
     throw new Error('Server can’t be changed for existed user')
   }
   change('serverUrl', serverUrl)
 }
 
-export function getPassword (): string {
+export function getPassword(): string {
   if (!getValue(localSettings).encryptSecret) {
     generateCredentials()
   }
