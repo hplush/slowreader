@@ -7,7 +7,7 @@
     "test": "node --experimental-vm-modules node_modules/.bin/jest --coverage"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",

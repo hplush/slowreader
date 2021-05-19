@@ -7,7 +7,7 @@
     "test": "node --experimental-vm-modules node_modules/.bin/jest --coverage"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   },
   "dependencies": {
     "@logux/client": "^0.11.0",
