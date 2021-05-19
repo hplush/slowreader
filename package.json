@@ -9,7 +9,7 @@
     "test:all": "tsc --noEmit && npx eslint . && yarn audit",
     "test:api": "cd api && yarn test",
     "test:core": "cd core && yarn test",
-    "test": "yarn test:api && yarn test:core && yarn test:all"
+    "test": "yarn test:all && yarn test:api && yarn test:core"
   },
   "workspaces": [
     "api",
