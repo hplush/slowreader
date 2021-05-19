@@ -4,6 +4,6 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@logux/server": "logux/server#next"
+    "@logux/server": "^0.10.0"
   }
 }
