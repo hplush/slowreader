@@ -671,19 +671,16 @@
   resolved "https://registry.yarnpkg.com/@logux/actions/-/actions-0.1.0.tgz#4ee83b3d26101f2fde21b3a198e6605fb032fd8b"
   integrity sha512-TPz7g3fW7BhmwMU4XEEe2y9dSimPMutw64AjpHTNHqIVgRL4KyUHc1tkOxSursdq05zGJtnSmy5y1R2PleVmNw==
 
-"@logux/actions@logux/actions":
-  version "0.0.0"
-  resolved "https://codeload.github.com/logux/actions/tar.gz/c8b909c2453d2283a24fbc64d4ad75dbf377ea67"
-
-"@logux/client@logux/client#next":
-  version "0.9.3"
-  resolved "https://codeload.github.com/logux/client/tar.gz/456d184afbc82295f7aa15307b01516f105c9bdc"
+"@logux/client@^0.11.0":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@logux/client/-/client-0.11.1.tgz#1e4c9d44b05e68986faf26516f0b6f9a5a42f5a3"
+  integrity sha512-/QFy2J6vnlkXXMMx/pi0M6/oeGPjQGve4O6CJEdKd8P8z6CnM9h4qy4ctS8lKXLM4aJtp2ufB3k8q7SrODQewg==
   dependencies:
-    "@logux/actions" logux/actions
+    "@logux/actions" "^0.1.0"
     fast-json-stable-stringify "^2.1.0"
-    nanodelay "^1.0.6"
-    nanoevents "^5.1.12"
-    nanoid "^3.1.20"
+    nanodelay "^2.0.0"
+    nanoevents "^6.0.0"
+    nanoid "^3.1.23"
 
 "@logux/core@^0.7.0":
   version "0.7.0"
@@ -691,12 +688,6 @@
   integrity sha512-vUpJ3KBlPoIqSpvNxf9hTUVT8zn1eNRAE8p4mbHbaOyNVEE9LQpYnBqxm6yQxcojhz/I/3NdeaBY0F2XbAwJsg==
   dependencies:
     nanoevents "^6.0.0"
-
-"@logux/core@logux/core#next":
-  version "0.6.2"
-  resolved "https://codeload.github.com/logux/core/tar.gz/dada469ca981524c75732f844d5f171dd9f16a66"
-  dependencies:
-    nanoevents "^5.1.12"
 
 "@logux/eslint-config@^45.4.3":
   version "45.4.3"
@@ -730,9 +721,10 @@
     ws "^7.4.5"
     yyyy-mm-dd "^1.0.2"
 
-"@logux/state@logux/state#main":
-  version "0.0.0"
-  resolved "https://codeload.github.com/logux/state/tar.gz/98ea4ed6c07e42ca8f7a8d7922fd6a97aa27ec1d"
+"@logux/state@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@logux/state/-/state-0.1.0.tgz#cdcc154dfb6449fea383565163a3574ac928df76"
+  integrity sha512-3wOu8h7juuniom8mUYaBrf5IERpyercIFnNpCPNv8u+MC9qIAV4RkXbDc/6Ggo8L3R31TBxW56CNrlQihHOg4g==
 
 "@nodelib/fs.scandir@2.1.4":
   version "2.1.4"
@@ -3424,30 +3416,15 @@ multimap@^1.1.0:
   resolved "https://registry.yarnpkg.com/multimap/-/multimap-1.1.0.tgz#5263febc085a1791c33b59bb3afc6a76a2a10ca8"
   integrity sha512-0ZIR9PasPxGXmRsEF8jsDzndzHDj7tIav+JUmvIFB/WHswliFnquxECT/De7GR4yg99ky/NlRKJT82G1y271bw==
 
-nanodelay@^1.0.6:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/nanodelay/-/nanodelay-1.0.7.tgz#d61ab3759b7cbb352779c23570f3284eb087e810"
-  integrity sha512-BVnz3R2AzemaXxegMcBgmX1umXZ628InSo8mjmaRhfaCCWdxH3xJiT1qBXGeqvBqZ6mi5UXtNQqE/SBWcxnVGQ==
-
 nanodelay@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/nanodelay/-/nanodelay-2.0.0.tgz#e9c676d085b1dd2813da21ef377f3c0783657537"
   integrity sha512-kwm0xaJQpmkxl9RLg83kMmqqZ9BoL51nvWEF8Grd9xChHU18utE9NHU1Nzx7OiC92M1iW5JCl4xxxbXs7P3Ujg==
 
-nanoevents@^5.1.12:
-  version "5.1.12"
-  resolved "https://registry.yarnpkg.com/nanoevents/-/nanoevents-5.1.12.tgz#fc1e0dd66e0d81186674265f3c78bbfd41161172"
-  integrity sha512-Tzfk8ooKL/aLuF5uWqgBa+u+TjdHQwfFyWKTpaYHHBfGOTxc68K4prj77TBAW5MN2RCMVwk9XK1K0RRgHO6T4Q==
-
 nanoevents@^6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/nanoevents/-/nanoevents-6.0.0.tgz#82454023f448a1eab0df103df59d5813ac16035b"
   integrity sha512-0ASElaiZR21yBjhmBiRboCXeNirfIVuiKIxikn6a3H/9zUL+q2HBq+4B3Cb2UdCctoGx5YSwxTXypslD/olJKA==
-
-nanoid@^3.1.20:
-  version "3.1.21"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.21.tgz#25bfee7340ac4185866fbfb2c9006d299da1be7f"
-  integrity sha512-A6oZraK4DJkAOICstsGH98dvycPr/4GGDH7ZWKmMdd3vGcOurZ6JmWFUt0DA5bzrrn2FrUjmv6mFNWvv8jpppA==
 
 nanoid@^3.1.22, nanoid@^3.1.23:
   version "3.1.23"
