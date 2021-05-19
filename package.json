@@ -9,7 +9,7 @@
     "test:all": "npx eslint . && yarn audit",
     "test:api": "cd api && yarn test",
     "test:core": "cd core && yarn test",
-    "test": "yarn test:all && yarn test:api && yarn test:core"
+    "test": "yarn test:api && yarn test:core && yarn test:all"
   },
   "workspaces": [
     "api",
@@ -17,21 +17,21 @@
     "server"
   ],
   "devDependencies": {
-    "@logux/eslint-config": "^45.2.0",
-    "@typescript-eslint/eslint-plugin": "^4.17.0",
-    "@typescript-eslint/parser": "^4.17.0",
-    "eslint": "^7.21.0",
+    "@logux/eslint-config": "^45.4.3",
+    "@typescript-eslint/eslint-plugin": "^4.24.0",
+    "@typescript-eslint/parser": "^4.24.0",
+    "eslint": "^7.26.0",
     "eslint-config-standard": "^16.0.2",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jest": "^24.2.1",
+    "eslint-plugin-import": "^2.23.2",
+    "eslint-plugin-jest": "^24.3.6",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prefer-let": "^1.1.0",
-    "eslint-plugin-promise": "^4.3.1",
+    "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-security": "^1.4.0",
-    "eslint-plugin-unicorn": "^28.0.2",
-    "lint-staged": "^10.5.4",
-    "prettier": "^2.2.1",
-    "simple-git-hooks": "^2.0.2",
-    "typescript": "^4.2.3"
+    "eslint-plugin-unicorn": "^32.0.1",
+    "lint-staged": "^11.0.0",
+    "prettier": "^2.3.0",
+    "simple-git-hooks": "^2.4.1",
+    "typescript": "^4.2.4"
   }
 }

@@ -13,10 +13,10 @@
     "@logux/client": "logux/client#next",
     "@logux/core": "logux/core#next",
     "@logux/state": "logux/state#main",
-    "nanoid": "^3.1.21"
+    "nanoid": "^3.1.23"
   },
   "devDependencies": {
-    "@babel/core": "^7.13.10",
+    "@babel/core": "^7.14.3",
     "@types/jest": "^26.0.20",
     "jest": "^27.0.0-next.3",
     "ts-jest": "^27.0.0-next.7"
