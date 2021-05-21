@@ -2,8 +2,22 @@
   "extends": [
     "@logux/eslint-config/esm"
   ],
+  "plugins": [
+    "svelte3"
+  ],
   "rules": {
     "node/no-unpublished-require": "off",
     "import/extensions": "off"
+  },
+  "overrides": [
+    {
+      "files": [
+        "*.svelte"
+      ],
+      "processor": "svelte3/svelte3"
+    }
+  ],
+  "settings": {
+    "svelte3/typescript": true
   }
 }

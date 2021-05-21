@@ -1658,6 +1658,11 @@ eslint-plugin-security@^1.4.0:
   dependencies:
     safe-regex "^1.1.0"
 
+eslint-plugin-svelte3@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-svelte3/-/eslint-plugin-svelte3-3.2.0.tgz#a6deb4ead4b31a647ea88a3823d7c96578f74683"
+  integrity sha512-qdWB1QN21dEozsJFdR8XlEhMnsS6aKHjsXWuNmchYwxoet5I6QdCr1Xcq62++IzRBMCNCeH4waXqSOAdqrZzgA==
+
 eslint-plugin-unicorn@^32.0.1:
   version "32.0.1"
   resolved "https://registry.yarnpkg.com/eslint-plugin-unicorn/-/eslint-plugin-unicorn-32.0.1.tgz#a7cb9f538441b78936a96261eea4392d76526d77"
