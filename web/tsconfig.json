@@ -17,7 +17,7 @@
   "include": [
     "main/**/*.d.ts",
     "main/**/*.ts",
-    "main/**/*.js",
-    "main/**/*.svelte"
+    "main/**/*.svelte",
+    "stores/**/*.ts",
   ]
 }
