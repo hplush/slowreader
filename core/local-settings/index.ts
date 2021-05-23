@@ -5,12 +5,10 @@ import { nanoid } from 'nanoid'
 import { SlowReaderError } from '../slowreader-error'
 
 export interface LocalSettingsStorage {
-  get(key: string): string | undefined
+  get(key: string): string | null
   set(key: string, value: string): void
   delete(key: string): void
-  subscribe(
-    callback: (key: string, value: string | undefined) => void
-  ): () => void
+  subscribe(callback: (key: string, value: string | null) => void): () => void
 }
 
 const KEYS = ['serverUrl', 'signedUp', 'userId', 'encryptSecret']
@@ -20,8 +18,8 @@ export const DEFAULT_URL = 'wss://slowreader.app/'
 export interface LocalSettingsValue {
   readonly serverUrl: string
   readonly signedUp: boolean
-  readonly userId: string | undefined
-  readonly encryptSecret: string | undefined
+  readonly userId: string | null
+  readonly encryptSecret: string | null
 }
 
 let storage: LocalSettingsStorage
@@ -31,7 +29,7 @@ export function setLocalSettingsStorage(value: LocalSettingsStorage): void {
 }
 
 export let localSettings = createMap<LocalSettingsValue>(() => {
-  let set = (key: string, value: string | undefined): void => {
+  let set = (key: string, value: string | null): void => {
     if (key === 'serverUrl') {
       localSettings.setKey(key, value ?? DEFAULT_URL)
     } else if (key === 'signedUp') {
@@ -94,9 +92,9 @@ export function signOut(): void {
   sendSignOut(getValue(localSettings).serverUrl)
   localSettings.setKey('signedUp', false)
   storage.delete('signedUp')
-  localSettings.setKey('userId', undefined)
+  localSettings.setKey('userId', null)
   storage.delete('userId')
-  localSettings.setKey('encryptSecret', undefined)
+  localSettings.setKey('encryptSecret', null)
   storage.delete('encryptSecret')
 }
 

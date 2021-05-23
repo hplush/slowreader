@@ -28,12 +28,12 @@ function changeBaseRoute<R extends keyof Routes>(
   testRouter.set({ route, params: params[0] ?? {}, path: '' } as Page)
 }
 
-let storageListener: (key: string, value: string | undefined) => void = () => {}
+let storageListener: (key: string, value: string | null) => void = () => {}
 let testStorage = {
-  get: () => undefined,
-  set: () => undefined,
-  delete: () => undefined,
-  subscribe: (cb: (key: string, value: string | undefined) => void) => {
+  get: () => null,
+  set: () => null,
+  delete: () => null,
+  subscribe: (cb: (key: string, value: string | null) => void) => {
     storageListener = cb
     return () => {
       storageListener = () => {}
@@ -113,7 +113,7 @@ it('transforms routers for users', () => {
     redirect: true
   })
 
-  storageListener('userId', undefined)
+  storageListener('userId', null)
   expect(getValue(router)).toEqual({
     route: 'signin',
     params: {},

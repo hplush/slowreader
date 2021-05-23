@@ -12,7 +12,7 @@ setLocalSettingsStorage({
   },
   subscribe(callback) {
     let listener = (e: StorageEvent): void => {
-      callback(e.key, e.newValue)
+      if (e.key) callback(e.key, e.newValue)
     }
     window.addEventListener('storage', listener)
     return () => {

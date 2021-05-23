@@ -17,11 +17,11 @@ import {
 global.fetch = () => Promise.resolve({ ok: true } as Response)
 
 let storage: { [key in string]?: string }
-let storageListener: (key: string, value: string | undefined) => void = () => {}
+let storageListener: (key: string, value: string | null) => void = () => {}
 
 let testStorage: LocalSettingsStorage = {
   get(key) {
-    return storage[key]
+    return storage[key] ?? null
   },
   set(key, value) {
     storage[key] = value
@@ -54,8 +54,8 @@ it('is empty from start', () => {
   expect(getValue(localSettings)).toEqual({
     serverUrl: 'wss://slowreader.app/',
     signedUp: false,
-    userId: undefined,
-    encryptSecret: undefined
+    userId: null,
+    encryptSecret: null
   })
 })
 
@@ -151,8 +151,8 @@ it('signes out', async () => {
   expect(getValue(localSettings)).toEqual({
     serverUrl: 'ws://localhost/',
     signedUp: false,
-    userId: undefined,
-    encryptSecret: undefined
+    userId: null,
+    encryptSecret: null
   })
   expect(storage).toEqual({ serverUrl: 'ws://localhost/' })
 })
@@ -221,7 +221,7 @@ it('reacts on wrong password during signing in', async () => {
   expect(getValue(localSettings)).toEqual({
     serverUrl: 'wss://slowreader.app/',
     signedUp: false,
-    userId: undefined,
-    encryptSecret: undefined
+    userId: null,
+    encryptSecret: null
   })
 })
