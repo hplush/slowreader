@@ -10,7 +10,8 @@
     "node": ">=16"
   },
   "exports": {
-    ".": "./index"
+    ".": "./index",
+    "./package.json": "./package.json"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",
