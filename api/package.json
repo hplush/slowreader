@@ -9,6 +9,9 @@
   "engines": {
     "node": ">=16"
   },
+  "exports": {
+    ".": "./index"
+  },
   "devDependencies": {
     "@babel/core": "^7.14.3",
     "@types/jest": "^26.0.23",

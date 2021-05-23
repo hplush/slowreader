@@ -9,6 +9,9 @@
   "engines": {
     "node": ">=16"
   },
+  "exports": {
+    ".": "./index"
+  },
   "dependencies": {
     "@logux/client": "^0.11.0",
     "@logux/core": "^0.7.0",
