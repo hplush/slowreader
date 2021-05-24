@@ -3,8 +3,6 @@ import './local-settings'
 import { setBaseRouter, Routes } from '@slowreader/core'
 import { createRouter } from '@logux/state'
 
-export { router } from '@slowreader/core'
-
 let urlRouter = createRouter<Routes>({
   home: '/',
   signin: '/signin',
@@ -15,3 +13,5 @@ let urlRouter = createRouter<Routes>({
 })
 
 setBaseRouter(urlRouter)
+
+export { router } from '@slowreader/core'

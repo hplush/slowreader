@@ -20,3 +20,5 @@ setLocalSettingsStorage({
     }
   }
 })
+
+export { localSettings } from '@slowreader/core'
