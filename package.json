@@ -6,7 +6,7 @@
     "node": ">=16"
   },
   "scripts": {
-    "test:all": "tsc --noEmit && eslint . && stylelint **/*.svelte && yarn audit",
+    "test:all": "tsc --noEmit && eslint . && stylelint **/*.svelte && yarn audit --groups dependencies",
     "test:api": "cd api && yarn test",
     "test:core": "cd core && yarn test",
     "test:web": "cd web && yarn test",
