@@ -1,6 +1,7 @@
 {
   "*.(js|ts|svelte)": [
     "prettier --write",
+    "stylelint --fix",
     "eslint --fix"
   ]
 }

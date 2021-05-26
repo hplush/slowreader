@@ -1,0 +1,6 @@
+{
+  "extends": "@logux/stylelint-config",
+  "ignoreFiles": [
+    "dist/**/*"
+  ]
+}

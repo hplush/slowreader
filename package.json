@@ -6,7 +6,7 @@
     "node": ">=16"
   },
   "scripts": {
-    "test:all": "tsc --noEmit && npx eslint . && yarn audit",
+    "test:all": "tsc --noEmit && eslint . && stylelint **/*.svelte && yarn audit",
     "test:api": "cd api && yarn test",
     "test:core": "cd core && yarn test",
     "test:web": "cd web && yarn test",
@@ -20,6 +20,7 @@
   ],
   "devDependencies": {
     "@logux/eslint-config": "^45.4.3",
+    "@logux/stylelint-config": "^0.3.1",
     "@typescript-eslint/eslint-plugin": "^4.25.0",
     "@typescript-eslint/parser": "^4.25.0",
     "eslint": "^7.27.0",
@@ -36,6 +37,7 @@
     "prettier": "^2.3.0",
     "prettier-plugin-svelte": "^2.3.0",
     "simple-git-hooks": "^2.4.1",
+    "stylelint": "^13.13.1",
     "typescript": "^4.2.4"
   }
 }
