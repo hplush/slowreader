@@ -14,6 +14,7 @@
       "files": [
         "*.svelte"
       ],
+      "parser": "@typescript-eslint/parser",
       "processor": "svelte3/svelte3",
       "rules": {
         "import/first": "off"
