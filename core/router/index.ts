@@ -1,4 +1,4 @@
-import { RouteParams, createStore, getValue, Router, Page } from '@logux/state'
+import { RouteParams, createStore, getValue, Router, Page } from 'nanostores'
 
 import { localSettings, LocalSettingsValue } from '../local-settings'
 

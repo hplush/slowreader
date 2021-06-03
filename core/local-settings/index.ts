@@ -1,5 +1,5 @@
 import { sendSignIn, sendSignUp, sendSignOut } from '@slowreader/api'
-import { createMap, getValue } from '@logux/state'
+import { createMap, getValue } from 'nanostores'
 import { nanoid } from 'nanoid'
 
 import { SlowReaderError } from '../slowreader-error'

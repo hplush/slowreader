@@ -1,4 +1,4 @@
-import { cleanStores, getValue } from '@logux/state'
+import { cleanStores, getValue } from 'nanostores'
 import { jest } from '@jest/globals'
 
 import {

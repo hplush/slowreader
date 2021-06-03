@@ -4,7 +4,7 @@ import {
   createStore,
   getValue,
   Page
-} from '@logux/state'
+} from 'nanostores'
 
 import {
   setLocalSettingsStorage,

@@ -1,7 +1,7 @@
 import './local-settings'
 
 import { setBaseRouter, Routes } from '@slowreader/core'
-import { createRouter } from '@logux/state'
+import { createRouter } from 'nanostores'
 
 let urlRouter = createRouter<Routes>({
   home: '/',
