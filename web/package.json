@@ -7,7 +7,7 @@
     "start": "vite",
     "build": "vite build",
     "build:start": "vite preview",
-    "test": "yarn build && size-limit"
+    "test": "svelte-check && yarn build && size-limit"
   },
   "dependencies": {
     "@logux/state": "^0.1.0",
@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@size-limit/file": "^4.11.0",
-    "size-limit": "^4.11.0"
+    "size-limit": "^4.11.0",
+    "svelte-check": "^2.1.0"
   }
 }
