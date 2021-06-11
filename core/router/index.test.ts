@@ -3,15 +3,15 @@ import {
   RouteParams,
   createStore,
   getValue,
-  Page
+  Page,
+  ReadableStore
 } from 'nanostores'
 
 import {
   setLocalSettingsStorage,
   localSettings,
-  setBaseRouter,
-  Routes,
-  router
+  createAppRouter,
+  Routes
 } from '../'
 
 let testRouter = createStore<
@@ -41,13 +41,15 @@ let testStorage = {
   }
 }
 
+let router: ReadableStore
+
 afterEach(() => {
   cleanStores(router, localSettings, testRouter)
 })
 
 beforeEach(() => {
   setLocalSettingsStorage(testStorage)
-  setBaseRouter(testRouter)
+  router = createAppRouter(testRouter)
 })
 
 it('opens 404', () => {

@@ -1,4 +1,10 @@
-import { RouteParams, createStore, getValue, Router, Page } from 'nanostores'
+import {
+  RouteParams,
+  createDerived,
+  Router,
+  Page,
+  ReadableStore
+} from 'nanostores'
 
 import { localSettings, LocalSettingsValue } from '../local-settings'
 
@@ -11,15 +17,9 @@ export interface Routes {
   signin: void
 }
 
-const GUEST = new Set(['start', 'signin'])
+const GUEST = new Set(['start', 'signin'] as const)
 
 export type BaseRouter = Router<Routes>
-
-let baseRouter: BaseRouter
-
-export function setBaseRouter(base: BaseRouter): void {
-  baseRouter = base
-}
 
 export type Route = Omit<Page<Routes>, 'path'> & { redirect: boolean }
 
@@ -62,11 +62,6 @@ function getRoute(
   return { route: page.route, params: page.params, redirect: false }
 }
 
-export const router = createStore<Route>(() => {
-  function change(): void {
-    router.set(getRoute(getValue(baseRouter), getValue(localSettings)))
-  }
-  baseRouter.listen(change)
-  localSettings.listen(change)
-  change()
-})
+export function createAppRouter(base: BaseRouter): ReadableStore {
+  return createDerived([base, localSettings], getRoute)
+}

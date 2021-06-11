@@ -1,6 +1,6 @@
 import './local-settings'
 
-import { setBaseRouter, Routes } from '@slowreader/core'
+import { createAppRouter, Routes } from '@slowreader/core'
 import { createRouter } from 'nanostores'
 
 let urlRouter = createRouter<Routes>({
@@ -12,6 +12,4 @@ let urlRouter = createRouter<Routes>({
   slowAll: '/slow'
 })
 
-setBaseRouter(urlRouter)
-
-export { router } from '@slowreader/core'
+export const router = createAppRouter(urlRouter)
