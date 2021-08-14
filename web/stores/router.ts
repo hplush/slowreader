@@ -1,7 +1,5 @@
-import './local-settings'
-
 import { createAppRouter, Routes } from '@slowreader/core'
-import { createRouter } from 'nanostores'
+import { createRouter } from '@nanostores/router'
 
 let urlRouter = createRouter<Routes>({
   home: '/',

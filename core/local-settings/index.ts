@@ -1,58 +1,43 @@
 import { sendSignIn, sendSignUp, sendSignOut } from '@slowreader/api'
-import { createMap, getValue } from 'nanostores'
+import { getValue, createDerived } from 'nanostores'
+import { createPersistentMap } from '@nanostores/persistent'
 import { nanoid } from 'nanoid'
 
 import { SlowReaderError } from '../slowreader-error'
 
-export interface LocalSettingsStorage {
-  get(key: string): string | null
-  set(key: string, value: string): void
-  delete(key: string): void
-  subscribe(callback: (key: string, value: string | null) => void): () => void
-}
-
-const KEYS = ['serverUrl', 'signedUp', 'userId', 'encryptSecret']
-
 export const DEFAULT_URL = 'wss://slowreader.app/'
 
-export interface LocalSettingsValue {
-  readonly serverUrl: string
-  readonly signedUp: boolean
-  readonly userId: string | null
-  readonly encryptSecret: string | null
+export type LocalSettingsValue = {
+  serverUrl: string
+  signedUp: boolean
+  userId?: string
+  encryptSecret?: string
 }
 
-let storage: LocalSettingsStorage
-
-export function setLocalSettingsStorage(value: LocalSettingsStorage): void {
-  storage = value
+type SettingsStorageValue = Omit<
+  LocalSettingsValue,
+  'signedUp' | 'serverUrl'
+> & {
+  serverUrl?: string
+  signedUp?: 'yes'
 }
 
-export let localSettings = createMap<LocalSettingsValue>(() => {
-  let set = (key: string, value: string | null): void => {
-    if (key === 'serverUrl') {
-      localSettings.setKey(key, value ?? DEFAULT_URL)
-    } else if (key === 'signedUp') {
-      localSettings.setKey(key, !!value)
-    } else if (key === 'userId' || key === 'encryptSecret') {
-      localSettings.setKey(key, value)
-    }
-  }
-  for (let i of KEYS) set(i, storage.get(i))
-  return storage.subscribe(set)
-})
+let settingsStorage = createPersistentMap<SettingsStorageValue>(
+  'slowreader:',
+  {}
+)
 
-function change(
-  key: 'userId' | 'serverUrl' | 'encryptSecret',
-  value: string
-): void {
-  localSettings.setKey(key, value)
-  storage.set(key, value)
-}
+export let localSettings = createDerived<
+  LocalSettingsValue,
+  typeof settingsStorage
+>(settingsStorage, storage => ({
+  ...storage,
+  serverUrl: storage.serverUrl || DEFAULT_URL,
+  signedUp: !!storage.signedUp
+}))
 
 function setSignedUp(): void {
-  localSettings.setKey('signedUp', true)
-  storage.set('signedUp', '1')
+  settingsStorage.setKey('signedUp', 'yes')
 }
 
 let nextAccessSecret: string | undefined
@@ -82,20 +67,17 @@ export async function signIn(
   )
   if (correct) {
     setSignedUp()
-    change('userId', userId)
-    change('encryptSecret', encryptSecret)
+    settingsStorage.setKey('userId', userId)
+    settingsStorage.setKey('encryptSecret', encryptSecret)
   }
   return correct
 }
 
 export function signOut(): void {
   sendSignOut(getValue(localSettings).serverUrl)
-  localSettings.setKey('signedUp', false)
-  storage.delete('signedUp')
-  localSettings.setKey('userId', null)
-  storage.delete('userId')
-  localSettings.setKey('encryptSecret', null)
-  storage.delete('encryptSecret')
+  settingsStorage.setKey('signedUp', undefined)
+  settingsStorage.setKey('userId', undefined)
+  settingsStorage.setKey('encryptSecret', undefined)
 }
 
 export async function signUp(): Promise<void> {
@@ -112,15 +94,15 @@ export async function signUp(): Promise<void> {
 }
 
 export function generateCredentials(): void {
-  change('userId', nanoid(10))
-  change('encryptSecret', nanoid(16))
+  settingsStorage.setKey('userId', nanoid(10))
+  settingsStorage.setKey('encryptSecret', nanoid(16))
 }
 
 export function changeServerUrl(serverUrl: string): void {
   if (getValue(localSettings).signedUp) {
     throw new Error('Server can’t be changed for existed user')
   }
-  change('serverUrl', serverUrl)
+  settingsStorage.setKey('serverUrl', serverUrl)
 }
 
 export function getPassword(): string {

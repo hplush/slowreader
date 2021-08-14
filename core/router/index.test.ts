@@ -1,18 +1,12 @@
 import {
-  cleanStores,
-  RouteParams,
-  createStore,
-  getValue,
-  Page,
-  ReadableStore
-} from 'nanostores'
+  useTestStorageEngine,
+  setTestStorageKey,
+  cleanTestStorage
+} from '@nanostores/persistent'
+import { cleanStores, createStore, getValue, ReadableStore } from 'nanostores'
+import { RouteParams, Page } from '@nanostores/router'
 
-import {
-  setLocalSettingsStorage,
-  localSettings,
-  createAppRouter,
-  Routes
-} from '../'
+import { localSettings, createAppRouter, Routes } from '../'
 
 let testRouter = createStore<
   Page<Routes> | undefined,
@@ -28,27 +22,18 @@ function changeBaseRoute<R extends keyof Routes>(
   testRouter.set({ route, params: params[0] ?? {}, path: '' } as Page)
 }
 
-let storageListener: (key: string, value: string | null) => void = () => {}
-let testStorage = {
-  get: () => null,
-  set: () => null,
-  delete: () => null,
-  subscribe: (cb: (key: string, value: string | null) => void) => {
-    storageListener = cb
-    return () => {
-      storageListener = () => {}
-    }
-  }
-}
-
 let router: ReadableStore
+
+beforeAll(() => {
+  useTestStorageEngine()
+})
 
 afterEach(() => {
   cleanStores(router, localSettings, testRouter)
+  cleanTestStorage()
 })
 
 beforeEach(() => {
-  setLocalSettingsStorage(testStorage)
   router = createAppRouter(testRouter)
 })
 
@@ -87,7 +72,7 @@ it('transforms routers for guest', () => {
 
 it('transforms routers for users', () => {
   router.listen(() => {})
-  storageListener('userId', '10')
+  setTestStorageKey('slowreader:userId', '10')
   expect(getValue(router)).toEqual({
     route: 'slowAll',
     params: {},
@@ -115,7 +100,7 @@ it('transforms routers for users', () => {
     redirect: true
   })
 
-  storageListener('userId', null)
+  setTestStorageKey('slowreader:userId', undefined)
   expect(getValue(router)).toEqual({
     route: 'signin',
     params: {},

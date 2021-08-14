@@ -1,10 +1,5 @@
-import {
-  RouteParams,
-  createDerived,
-  Router,
-  Page,
-  ReadableStore
-} from 'nanostores'
+import { createDerived, ReadableStore } from 'nanostores'
+import { RouteParams, Router, Page } from '@nanostores/router'
 
 import { localSettings, LocalSettingsValue } from '../local-settings'
 
@@ -62,6 +57,6 @@ function getRoute(
   return { route: page.route, params: page.params, redirect: false }
 }
 
-export function createAppRouter(base: BaseRouter): ReadableStore {
+export function createAppRouter(base: BaseRouter): ReadableStore<Route> {
   return createDerived([base, localSettings], getRoute)
 }

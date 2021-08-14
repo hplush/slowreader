@@ -14,16 +14,16 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@logux/client": "^0.12.0",
-    "@logux/core": "^0.7.0",
-    "nanoid": "^3.1.23",
-    "nanostores": "^0.3.2"
+    "@logux/client": "^0.13.1",
+    "@logux/core": "^0.7.1",
+    "@nanostores/persistent": "^0.2.1",
+    "@nanostores/router": "^0.1.1",
+    "nanoid": "^3.1.25",
+    "nanostores": "^0.4.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.14.3",
-    "@types/jest": "^26.0.20",
-    "@types/ws": "^7.4.4",
-    "jest": "^27.0.4",
-    "ts-jest": "^27.0.3"
+    "@babel/core": "^7.15.0",
+    "jest": "^27.0.6",
+    "ts-jest": "^27.0.4"
   }
 }
