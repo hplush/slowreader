@@ -1,5 +1,6 @@
 {
   "extends": "@logux/stylelint-config",
+  "customSyntax": "postcss-html",
   "ignoreFiles": [
     "dist/**/*"
   ]

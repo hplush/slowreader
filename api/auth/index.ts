@@ -8,7 +8,7 @@ export async function sendSignIn(
   try {
     await request('PUT', wsUrl, `token`, { userId, accessSecret })
   } catch (e) {
-    if (e.message === 'Response code 400') {
+    if (e instanceof Error && e.message === 'Response code 400') {
       return false
     } else {
       throw e
