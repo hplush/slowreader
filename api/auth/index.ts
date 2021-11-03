@@ -1,4 +1,4 @@
-import { request } from '../utils'
+import { request } from '../utils/index.js'
 
 export async function sendSignIn(
   wsUrl: string,

@@ -1,7 +1,7 @@
 import { createDerived, ReadableStore } from 'nanostores'
 import { RouteParams, Router, Page } from '@nanostores/router'
 
-import { localSettings, LocalSettingsValue } from '../local-settings'
+import { localSettings, LocalSettingsValue } from '../local-settings/index.js'
 
 export interface Routes {
   notFound: void

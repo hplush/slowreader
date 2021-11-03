@@ -1,53 +1,62 @@
-import { jest } from '@jest/globals'
+import { equal } from 'uvu/assert'
+import { test } from 'uvu'
 
-import { request } from '.'
+import { mockFetch } from '../index.js'
+import { request } from './index.js'
 
-global.fetch = () => Promise.resolve({ ok: true } as Response)
+let requests: object[] = []
 
-beforeEach(() => {
-  jest.spyOn(global, 'fetch')
+test.before.each(() => {
+  requests = mockFetch()
 })
 
-afterEach(() => {
-  jest.clearAllMocks()
-})
-
-it('converts URL and stringify params', async () => {
+test('converts URL and stringify params', async () => {
   await request('POST', 'wss://example.com/', 'test', { one: '1' })
-  expect(fetch).toHaveBeenCalledWith('https://example.com/test', {
-    method: 'POST',
-    body: '{"one":"1"}'
-  })
+  equal(requests, [
+    {
+      url: 'https://example.com/test',
+      method: 'POST',
+      body: '{"one":"1"}'
+    }
+  ])
 })
 
-it('supports HTTP', async () => {
+test('supports HTTP', async () => {
   await request('PUT', 'ws://127.0.0.1/', 'test', { one: '1' })
-  expect(fetch).toHaveBeenCalledWith('http://127.0.0.1/test', {
-    method: 'PUT',
-    body: '{"one":"1"}'
-  })
+  equal(requests, [
+    {
+      url: 'http://127.0.0.1/test',
+      method: 'PUT',
+      body: '{"one":"1"}'
+    }
+  ])
 })
 
-it('throws on non-2xx response state', async () => {
-  jest
-    .spyOn(global, 'fetch')
-    .mockReturnValue(Promise.resolve({ ok: false, status: 404 } as Response))
-  await expect(
-    request('POST', 'wss://example.com/', 'test', { one: '1' })
-  ).rejects.toEqual(new Error('Response code 404'))
+test('throws on non-2xx response state', async () => {
+  mockFetch(404)
+  let catched
+  try {
+    await request('POST', 'wss://example.com/', 'test', { one: '1' })
+  } catch (e) {
+    catched = e
+  }
+  equal(catched, new Error('Response code 404'))
 })
 
-it('supports other 2xx statuses', async () => {
-  jest
-    .spyOn(global, 'fetch')
-    .mockReturnValue(Promise.resolve({ ok: true, status: 201 } as Response))
+test('supports other 2xx statuses', async () => {
+  mockFetch(201)
   await request('POST', 'wss://example.com/', 'test', { one: '1' })
 })
 
-it('supports body-less requests', async () => {
+test('supports body-less requests', async () => {
   await request('POST', 'ws://127.0.0.1/', 'test')
-  expect(fetch).toHaveBeenCalledWith('http://127.0.0.1/test', {
-    method: 'POST',
-    body: undefined
-  })
+  equal(requests, [
+    {
+      url: 'http://127.0.0.1/test',
+      method: 'POST',
+      body: undefined
+    }
+  ])
 })
+
+test.run()

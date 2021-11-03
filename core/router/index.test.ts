@@ -5,8 +5,10 @@ import {
 } from '@nanostores/persistent'
 import { cleanStores, createStore, getValue, ReadableStore } from 'nanostores'
 import { RouteParams, Page } from '@nanostores/router'
+import { equal } from 'uvu/assert'
+import { test } from 'uvu'
 
-import { localSettings, createAppRouter, Routes } from '../'
+import { localSettings, createAppRouter, Routes } from '../index.js'
 
 let testRouter = createStore<
   Page<Routes> | undefined,
@@ -22,88 +24,90 @@ function changeBaseRoute<R extends keyof Routes>(
   testRouter.set({ route, params: params[0] ?? {}, path: '' } as Page)
 }
 
-let router: ReadableStore
-
-beforeAll(() => {
+test.before(() => {
   useTestStorageEngine()
 })
 
-afterEach(() => {
+let router: ReadableStore
+
+test.before.each(() => {
+  router = createAppRouter(testRouter)
+})
+
+test.after.each(() => {
   cleanStores(router, localSettings, testRouter)
   cleanTestStorage()
 })
 
-beforeEach(() => {
-  router = createAppRouter(testRouter)
-})
-
-it('opens 404', () => {
+test('opens 404', () => {
   router.listen(() => {})
   testRouter.set(undefined)
-  expect(getValue(router)).toEqual({
+  equal(getValue(router), {
     route: 'notFound',
     params: {},
     redirect: false
   })
 })
 
-it('transforms routers for guest', () => {
+test('transforms routers for guest', () => {
   router.listen(() => {})
-  expect(getValue(router)).toEqual({
+  equal(getValue(router), {
     route: 'start',
     params: {},
     redirect: false
   })
 
   changeBaseRoute('slowAll')
-  expect(getValue(router)).toEqual({
+  equal(getValue(router), {
     route: 'start',
     params: {},
     redirect: false
   })
 
   changeBaseRoute('signin')
-  expect(getValue(router)).toEqual({
+  equal(getValue(router), {
     route: 'signin',
     params: {},
     redirect: false
   })
 })
 
-it('transforms routers for users', () => {
+test('transforms routers for users', () => {
   router.listen(() => {})
   setTestStorageKey('slowreader:userId', '10')
-  expect(getValue(router)).toEqual({
+  equal(getValue(router), {
     route: 'slowAll',
     params: {},
     redirect: true
   })
 
   changeBaseRoute('fast')
-  expect(getValue(router)).toEqual({
+  equal(getValue(router), {
     route: 'fast',
     params: {},
     redirect: false
   })
 
   changeBaseRoute('home')
-  expect(getValue(router)).toEqual({
+  equal(getValue(router), {
     route: 'slowAll',
     params: {},
     redirect: true
   })
 
   changeBaseRoute('signin')
-  expect(getValue(router)).toEqual({
+  equal(getValue(router), {
     route: 'slowAll',
     params: {},
     redirect: true
   })
 
   setTestStorageKey('slowreader:userId', undefined)
-  expect(getValue(router)).toEqual({
+  equal(getValue(router), {
     route: 'signin',
     params: {},
     redirect: false
   })
 })
+
+test.run()

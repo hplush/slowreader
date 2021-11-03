@@ -4,8 +4,10 @@ import {
   cleanTestStorage,
   getTestStorage
 } from '@nanostores/persistent'
+import { equal, is, match, ok, throws, type } from 'uvu/assert'
 import { cleanStores, getValue } from 'nanostores'
-import { jest } from '@jest/globals'
+import { mockFetch } from '@slowreader/api'
+import { test } from 'uvu'
 
 import {
   generateCredentials,
@@ -17,43 +19,61 @@ import {
   signOut,
   signUp,
   signIn
-} from '..'
+} from '../index.js'
 
-global.fetch = () => Promise.resolve({ ok: true } as Response)
+test.before(() => {
+  useTestStorageEngine()
+})
+
+let requests: object[] = []
+
+test.before.each(() => {
+  requests = mockFetch()
+})
+
+test.after.each(() => {
+  cleanStores(localSettings)
+  cleanTestStorage()
+})
 
 function getStorageKey(key: keyof LocalSettingsValue): string | undefined {
   return getTestStorage()['slowreader:' + key]
 }
 
-beforeAll(() => {
-  useTestStorageEngine()
-})
+async function rejects(
+  cb: () => Promise<unknown>,
+  error: Error | string
+): Promise<void> {
+  let catched: Error | undefined
+  try {
+    await cb()
+  } catch (e) {
+    if (e instanceof Error) {
+      catched = e
+    }
+  }
+  if (typeof error === 'string') {
+    equal(catched?.message, error)
+  } else {
+    equal(catched, error)
+  }
+}
 
-beforeEach(() => {
-  jest.spyOn(global, 'fetch')
-})
-
-afterEach(() => {
-  jest.clearAllMocks()
-  cleanStores(localSettings)
-  cleanTestStorage()
-})
-
-it('is empty from start', () => {
+test('is empty from start', () => {
   localSettings.listen(() => {})
-  expect(getValue(localSettings)).toEqual({
+  equal(getValue(localSettings), {
     serverUrl: 'wss://slowreader.app/',
     signedUp: false
   })
 })
 
-it('loads data from storage', () => {
+test('loads data from storage', () => {
   setTestStorageKey('slowreader:serverUrl', 'ws://localhost/')
   setTestStorageKey('slowreader:signedUp', 'yes')
   setTestStorageKey('slowreader:userId', '10')
   setTestStorageKey('slowreader:encryptSecret', 'secret')
   localSettings.listen(() => {})
-  expect(getValue(localSettings)).toEqual({
+  equal(getValue(localSettings), {
     serverUrl: 'ws://localhost/',
     signedUp: true,
     userId: '10',
@@ -61,133 +81,139 @@ it('loads data from storage', () => {
   })
 })
 
-it('generates user data', () => {
+test('generates user data', () => {
   localSettings.listen(() => {})
   generateCredentials()
-  expect(getValue(localSettings).signedUp).toBe(false)
-  expect(typeof getValue(localSettings).userId).toEqual('string')
-  expect(typeof getValue(localSettings).encryptSecret).toEqual('string')
+  is(getValue(localSettings).signedUp, false)
+  equal(typeof getValue(localSettings).userId, 'string')
+  equal(typeof getValue(localSettings).encryptSecret, 'string')
   let password = getPassword()
-  expect(password).toMatch(/[\w-]+:[\w-]+/)
-  expect(password).toEqual(getPassword())
-  expect(getStorageKey('userId')).toEqual(getValue(localSettings).userId)
-  expect(getStorageKey('encryptSecret')).toEqual(
-    getValue(localSettings).encryptSecret
-  )
+  match(password, /[\w-]+:[\w-]+/)
+  equal(password, getPassword())
+  equal(getStorageKey('userId'), getValue(localSettings).userId)
+  equal(getStorageKey('encryptSecret'), getValue(localSettings).encryptSecret)
 })
 
-it('generates user data on password access', () => {
+test('generates user data on password access', () => {
   localSettings.listen(() => {})
   let password = getPassword()
-  expect(typeof getValue(localSettings).userId).toEqual('string')
-  expect(typeof getValue(localSettings).encryptSecret).toEqual('string')
-  expect(password).toContain(getValue(localSettings).encryptSecret)
+  type(getValue(localSettings).userId, 'string')
+  type(getValue(localSettings).encryptSecret, 'string')
+  ok(password.endsWith(getValue(localSettings).encryptSecret!))
 })
 
-it('does not allow to see password after signing up', () => {
+test('does not allow to see password after signing up', () => {
   setTestStorageKey('slowreader:signedUp', 'yes')
-  expect(() => {
+  throws(() => {
     getPassword()
-  }).toThrow('No way to get access password for existed user')
+  }, 'No way to get access password for existed user')
 })
 
-it('changes server URL', () => {
+test('changes server URL', () => {
   localSettings.listen(() => {})
   changeServerUrl('ws://localhost/')
-  expect(getValue(localSettings).serverUrl).toEqual('ws://localhost/')
-  expect(getStorageKey('serverUrl')).toEqual('ws://localhost/')
+  equal(getValue(localSettings).serverUrl, 'ws://localhost/')
+  equal(getStorageKey('serverUrl'), 'ws://localhost/')
 })
 
-it('does not allow to change server URL after signing up', () => {
+test('does not allow to change server URL after signing up', () => {
   setTestStorageKey('slowreader:signedUp', 'yes')
-  expect(() => {
+  throws(() => {
     changeServerUrl('ws://localhost/')
-  }).toThrow('Server can’t be changed for existed user')
+  }, 'Server can’t be changed for existed user')
 })
 
-it('signes out', async () => {
+test('signes out', async () => {
   setTestStorageKey('slowreader:serverUrl', 'ws://localhost/')
   setTestStorageKey('slowreader:signedUp', 'yes')
   setTestStorageKey('slowreader:userId', '10')
   setTestStorageKey('slowreader:encryptSecret', 'secret')
   localSettings.listen(() => {})
   signOut()
-  expect(fetch).toHaveBeenCalledWith('http://localhost/token', {
-    method: 'DELETE',
-    body: undefined
-  })
-  expect(getValue(localSettings)).toEqual({
+  equal(requests, [
+    {
+      url: 'http://localhost/token',
+      method: 'DELETE',
+      body: undefined
+    }
+  ])
+  equal(getValue(localSettings), {
     serverUrl: 'ws://localhost/',
     signedUp: false
   })
-  expect(getTestStorage()).toEqual({
+  equal(getTestStorage(), {
     'slowreader:serverUrl': 'ws://localhost/'
   })
 })
 
-it('does not sign up existed user', async () => {
+test('does not sign up existed user', async () => {
   setTestStorageKey('slowreader:signedUp', 'yes')
-  await expect(signUp()).rejects.toThrow('User was already signed up')
+  await rejects(() => signUp(), 'User was already signed up')
 })
 
-it('does not sign up without user ID', async () => {
-  await expect(signUp()).rejects.toThrow('Generate credentials first')
+test('does not sign up without user ID', async () => {
+  await rejects(() => signUp(), 'Generate credentials first')
 })
 
-it('signes up', async () => {
+test('signes up', async () => {
   localSettings.listen(() => {})
   generateCredentials()
   let accessSecret = getPassword().split(':')[0]
   await signUp()
   let userId = getValue(localSettings).userId
-  expect(getValue(localSettings).signedUp).toBe(true)
-  expect(typeof userId).toEqual('string')
-  expect(typeof getValue(localSettings).encryptSecret).toEqual('string')
-  expect(getStorageKey('signedUp')).toBe('yes')
-  expect(getStorageKey('userId')).toEqual(userId)
-  expect(getStorageKey('encryptSecret')).toEqual(
-    getValue(localSettings).encryptSecret
-  )
-  expect(fetch).toHaveBeenCalledWith('https://slowreader.app/users', {
-    method: 'POST',
-    body: `{"userId":"${userId}","accessSecret":"${accessSecret}"}`
-  })
+  is(getValue(localSettings).signedUp, true)
+  type(userId, 'string')
+  type(getValue(localSettings).encryptSecret, 'string')
+  equal(getStorageKey('signedUp'), 'yes')
+  equal(getStorageKey('userId'), userId)
+  equal(getStorageKey('encryptSecret'), getValue(localSettings).encryptSecret)
+  equal(requests, [
+    {
+      url: 'https://slowreader.app/users',
+      method: 'POST',
+      body: `{"userId":"${userId}","accessSecret":"${accessSecret}"}`
+    }
+  ])
 })
 
-it('checks password while signing in', async () => {
-  await expect(signIn('user', 'qwerty')).rejects.toThrow(
+test('checks password while signing in', async () => {
+  await rejects(
+    () => signIn('user', 'qwerty'),
     new SlowReaderError('wrong-password')
   )
 })
 
-it('signs in', async () => {
+test('signs in', async () => {
   localSettings.listen(() => {})
   let result = await signIn('user', 'good:encrypt')
-  expect(result).toBe(true)
-  expect(getValue(localSettings)).toEqual({
+  is(result, true)
+  equal(getValue(localSettings), {
     serverUrl: 'wss://slowreader.app/',
     signedUp: true,
     userId: 'user',
     encryptSecret: 'encrypt'
   })
-  expect(getStorageKey('signedUp')).toBe('yes')
-  expect(getStorageKey('userId')).toEqual('user')
-  expect(getStorageKey('encryptSecret')).toEqual('encrypt')
-  expect(fetch).toHaveBeenCalledWith('https://slowreader.app/token', {
-    method: 'PUT',
-    body: `{"userId":"user","accessSecret":"good"}`
-  })
+  equal(getStorageKey('signedUp'), 'yes')
+  equal(getStorageKey('userId'), 'user')
+  equal(getStorageKey('encryptSecret'), 'encrypt')
+  equal(requests, [
+    {
+      url: 'https://slowreader.app/token',
+      method: 'PUT',
+      body: `{"userId":"user","accessSecret":"good"}`
+    }
+  ])
 })
 
-it('reacts on wrong password during signing in', async () => {
-  jest
-    .spyOn(global, 'fetch')
-    .mockReturnValue(Promise.resolve({ ok: false, status: 400 } as Response))
+test('reacts on wrong password during signing in', async () => {
+  mockFetch(400)
   localSettings.listen(() => {})
   let result = await signIn('user', 'bad:encrypt')
-  expect(result).toBe(false)
-  expect(getValue(localSettings)).toEqual({
+  is(result, false)
+  equal(getValue(localSettings), {
     serverUrl: 'wss://slowreader.app/',
     signedUp: false
   })
 })
+
+test.run()

@@ -1,0 +1,5 @@
+{
+  "exclude": ["**/*.test.*"],
+  "lines": 100,
+  "check-coverage": true
+}

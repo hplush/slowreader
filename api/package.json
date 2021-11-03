@@ -4,19 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/.bin/jest --coverage"
+    "unit": "tsm ../node_modules/uvu/bin.js . '\\.test\\.(ts|js)$'",
+    "test": "c8 yarn unit"
   },
   "engines": {
     "node": ">=16"
   },
   "exports": {
-    ".": "./index",
+    ".": "./index.ts",
     "./package.json": "./package.json"
   },
   "devDependencies": {
-    "@babel/core": "^7.16.0",
-    "@types/jest": "^27.0.2",
-    "jest": "^27.3.1",
-    "ts-jest": "^27.0.7"
+    "c8": "^7.10.0",
+    "tsm": "^2.1.4",
+    "uvu": "^0.5.2"
   }
 }

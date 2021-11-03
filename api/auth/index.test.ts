@@ -1,50 +1,66 @@
-import { jest } from '@jest/globals'
+import { equal, is } from 'uvu/assert'
+import { test } from 'uvu'
 
-import { sendSignOut, sendSignUp, sendSignIn } from '../'
+import { sendSignOut, sendSignUp, sendSignIn, mockFetch } from '../index.js'
 
-global.fetch = () => Promise.resolve({ ok: true } as Response)
+let requests: object[] = []
 
-beforeEach(() => {
-  jest.spyOn(global, 'fetch')
+test.before.each(() => {
+  requests = mockFetch()
 })
 
-it('sends sign-up request', async () => {
+test('sends sign-up request', async () => {
   await sendSignUp('wss://example.com/', 'user_id', 'secret')
-  expect(fetch).toHaveBeenCalledWith('https://example.com/users', {
-    method: 'POST',
-    body: '{"userId":"user_id","accessSecret":"secret"}'
-  })
+  equal(requests, [
+    {
+      url: 'https://example.com/users',
+      method: 'POST',
+      body: '{"userId":"user_id","accessSecret":"secret"}'
+    }
+  ])
 })
 
-it('sends sign-out request', async () => {
+test('sends sign-out request', async () => {
   await sendSignOut('wss://example.com/')
-  expect(fetch).toHaveBeenCalledWith('https://example.com/token', {
-    method: 'DELETE',
-    body: undefined
-  })
+  equal(requests, [
+    {
+      url: 'https://example.com/token',
+      method: 'DELETE',
+      body: undefined
+    }
+  ])
 })
 
-it('sends sign-in request', async () => {
+test('sends sign-in request', async () => {
   let result = await sendSignIn('wss://example.com/', 'user_id', 'secret')
-  expect(result).toBe(true)
-  expect(fetch).toHaveBeenCalledWith('https://example.com/token', {
-    method: 'PUT',
-    body: '{"userId":"user_id","accessSecret":"secret"}'
-  })
+  is(result, true)
+  equal(requests, [
+    {
+      url: 'https://example.com/token',
+      method: 'PUT',
+      body: '{"userId":"user_id","accessSecret":"secret"}'
+    }
+  ])
 })
 
-it('returns false on wrong user/password', async () => {
-  jest
-    .spyOn(global, 'fetch')
-    .mockReturnValue(Promise.resolve({ status: 400 } as Response))
+test('returns false on wrong user/password', async () => {
+  mockFetch(400)
   let result = await sendSignIn('wss://example.com/', 'user_id', 'secret')
-  expect(result).toBe(false)
+  is(result, false)
 })
 
-it('throws received error', async () => {
+test('throws received error', async () => {
   let error = new Error('test')
-  jest.spyOn(global, 'fetch').mockReturnValue(Promise.reject(error))
-  await expect(
-    sendSignIn('wss://example.com/', 'user_id', 'secret')
-  ).rejects.toThrow(error)
+  global.fetch = async () => {
+    throw error
+  }
+  let catched
+  try {
+    await sendSignIn('wss://example.com/', 'user_id', 'secret')
+  } catch (e) {
+    catched = e
+  }
+  equal(catched, error)
 })
+
+test.run()

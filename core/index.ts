@@ -1,3 +1,3 @@
-export * from './slowreader-error'
-export * from './local-settings'
-export * from './router'
+export * from './slowreader-error/index.js'
+export * from './local-settings/index.js'
+export * from './router/index.js'

@@ -3,7 +3,7 @@ import { getValue, createDerived } from 'nanostores'
 import { createPersistentMap } from '@nanostores/persistent'
 import { nanoid } from 'nanoid'
 
-import { SlowReaderError } from '../slowreader-error'
+import { SlowReaderError } from '../slowreader-error/index.js'
 
 export const DEFAULT_URL = 'wss://slowreader.app/'
 
