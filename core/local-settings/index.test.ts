@@ -5,7 +5,7 @@ import {
   getTestStorage
 } from '@nanostores/persistent'
 import { equal, is, match, ok, throws, type } from 'uvu/assert'
-import { cleanStores, getValue } from 'nanostores'
+import { cleanStores } from 'nanostores'
 import { mockFetch } from '@slowreader/api'
 import { test } from 'uvu'
 
@@ -61,7 +61,7 @@ async function rejects(
 
 test('is empty from start', () => {
   localSettings.listen(() => {})
-  equal(getValue(localSettings), {
+  equal(localSettings.get(), {
     serverUrl: 'wss://slowreader.app/',
     signedUp: false
   })
@@ -73,7 +73,7 @@ test('loads data from storage', () => {
   setTestStorageKey('slowreader:userId', '10')
   setTestStorageKey('slowreader:encryptSecret', 'secret')
   localSettings.listen(() => {})
-  equal(getValue(localSettings), {
+  equal(localSettings.get(), {
     serverUrl: 'ws://localhost/',
     signedUp: true,
     userId: '10',
@@ -84,22 +84,22 @@ test('loads data from storage', () => {
 test('generates user data', () => {
   localSettings.listen(() => {})
   generateCredentials()
-  is(getValue(localSettings).signedUp, false)
-  equal(typeof getValue(localSettings).userId, 'string')
-  equal(typeof getValue(localSettings).encryptSecret, 'string')
+  is(localSettings.get().signedUp, false)
+  equal(typeof localSettings.get().userId, 'string')
+  equal(typeof localSettings.get().encryptSecret, 'string')
   let password = getPassword()
   match(password, /[\w-]+:[\w-]+/)
   equal(password, getPassword())
-  equal(getStorageKey('userId'), getValue(localSettings).userId)
-  equal(getStorageKey('encryptSecret'), getValue(localSettings).encryptSecret)
+  equal(getStorageKey('userId'), localSettings.get().userId)
+  equal(getStorageKey('encryptSecret'), localSettings.get().encryptSecret)
 })
 
 test('generates user data on password access', () => {
   localSettings.listen(() => {})
   let password = getPassword()
-  type(getValue(localSettings).userId, 'string')
-  type(getValue(localSettings).encryptSecret, 'string')
-  ok(password.endsWith(getValue(localSettings).encryptSecret!))
+  type(localSettings.get().userId, 'string')
+  type(localSettings.get().encryptSecret, 'string')
+  ok(password.endsWith(localSettings.get().encryptSecret!))
 })
 
 test('does not allow to see password after signing up', () => {
@@ -112,7 +112,7 @@ test('does not allow to see password after signing up', () => {
 test('changes server URL', () => {
   localSettings.listen(() => {})
   changeServerUrl('ws://localhost/')
-  equal(getValue(localSettings).serverUrl, 'ws://localhost/')
+  equal(localSettings.get().serverUrl, 'ws://localhost/')
   equal(getStorageKey('serverUrl'), 'ws://localhost/')
 })
 
@@ -137,7 +137,7 @@ test('signes out', async () => {
       body: undefined
     }
   ])
-  equal(getValue(localSettings), {
+  equal(localSettings.get(), {
     serverUrl: 'ws://localhost/',
     signedUp: false
   })
@@ -160,13 +160,13 @@ test('signes up', async () => {
   generateCredentials()
   let accessSecret = getPassword().split(':')[0]
   await signUp()
-  let userId = getValue(localSettings).userId
-  is(getValue(localSettings).signedUp, true)
+  let userId = localSettings.get().userId
+  is(localSettings.get().signedUp, true)
   type(userId, 'string')
-  type(getValue(localSettings).encryptSecret, 'string')
+  type(localSettings.get().encryptSecret, 'string')
   equal(getStorageKey('signedUp'), 'yes')
   equal(getStorageKey('userId'), userId)
-  equal(getStorageKey('encryptSecret'), getValue(localSettings).encryptSecret)
+  equal(getStorageKey('encryptSecret'), localSettings.get().encryptSecret)
   equal(requests, [
     {
       url: 'https://slowreader.app/users',
@@ -187,7 +187,7 @@ test('signs in', async () => {
   localSettings.listen(() => {})
   let result = await signIn('user', 'good:encrypt')
   is(result, true)
-  equal(getValue(localSettings), {
+  equal(localSettings.get(), {
     serverUrl: 'wss://slowreader.app/',
     signedUp: true,
     userId: 'user',
@@ -210,7 +210,7 @@ test('reacts on wrong password during signing in', async () => {
   localSettings.listen(() => {})
   let result = await signIn('user', 'bad:encrypt')
   is(result, false)
-  equal(getValue(localSettings), {
+  equal(localSettings.get(), {
     serverUrl: 'wss://slowreader.app/',
     signedUp: false
   })

@@ -1,6 +1,6 @@
 import { sendSignIn, sendSignUp, sendSignOut } from '@slowreader/api'
-import { getValue, createDerived } from 'nanostores'
-import { createPersistentMap } from '@nanostores/persistent'
+import { persistentMap } from '@nanostores/persistent'
+import { computed } from 'nanostores'
 import { nanoid } from 'nanoid'
 
 import { SlowReaderError } from '../slowreader-error/index.js'
@@ -22,15 +22,9 @@ type SettingsStorageValue = Omit<
   signedUp?: 'yes'
 }
 
-let settingsStorage = createPersistentMap<SettingsStorageValue>(
-  'slowreader:',
-  {}
-)
+let settingsStorage = persistentMap<SettingsStorageValue>('slowreader:', {})
 
-export let localSettings = createDerived<
-  LocalSettingsValue,
-  typeof settingsStorage
->(settingsStorage, storage => ({
+export let localSettings = computed(settingsStorage, storage => ({
   ...storage,
   serverUrl: storage.serverUrl || DEFAULT_URL,
   signedUp: !!storage.signedUp
@@ -42,7 +36,7 @@ function setSignedUp(): void {
 
 let nextAccessSecret: string | undefined
 function getAccessSecret(): string {
-  if (getValue(localSettings).signedUp) {
+  if (localSettings.get().signedUp) {
     throw new Error('No way to get access password for existed user')
   }
   if (!nextAccessSecret) {
@@ -61,7 +55,7 @@ export async function signIn(
   }
   let [accessSecret, encryptSecret] = passwordParts
   let correct = await sendSignIn(
-    getValue(localSettings).serverUrl,
+    localSettings.get().serverUrl,
     userId,
     accessSecret
   )
@@ -74,14 +68,14 @@ export async function signIn(
 }
 
 export function signOut(): void {
-  sendSignOut(getValue(localSettings).serverUrl)
+  sendSignOut(localSettings.get().serverUrl)
   settingsStorage.setKey('signedUp', undefined)
   settingsStorage.setKey('userId', undefined)
   settingsStorage.setKey('encryptSecret', undefined)
 }
 
 export async function signUp(): Promise<void> {
-  let { signedUp, userId, serverUrl } = getValue(localSettings)
+  let { signedUp, userId, serverUrl } = localSettings.get()
   if (signedUp) {
     throw new Error('User was already signed up')
   }
@@ -99,15 +93,15 @@ export function generateCredentials(): void {
 }
 
 export function changeServerUrl(serverUrl: string): void {
-  if (getValue(localSettings).signedUp) {
+  if (localSettings.get().signedUp) {
     throw new Error('Server can’t be changed for existed user')
   }
   settingsStorage.setKey('serverUrl', serverUrl)
 }
 
 export function getPassword(): string {
-  if (!getValue(localSettings).encryptSecret) {
+  if (!localSettings.get().encryptSecret) {
     generateCredentials()
   }
-  return `${getAccessSecret()}:${getValue(localSettings).encryptSecret}`
+  return `${getAccessSecret()}:${localSettings.get().encryptSecret}`
 }

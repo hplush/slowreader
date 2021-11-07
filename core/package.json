@@ -15,12 +15,12 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@logux/client": "^0.13.1",
+    "@logux/client": "^0.14.2",
     "@logux/core": "^0.7.2",
-    "@nanostores/persistent": "^0.2.1",
-    "@nanostores/router": "^0.1.1",
+    "@nanostores/persistent": "^0.5.0",
+    "@nanostores/router": "^0.2.1",
     "nanoid": "^3.1.30",
-    "nanostores": "^0.4.3"
+    "nanostores": "^0.5.6"
   },
   "devDependencies": {
     "c8": "^7.10.0",

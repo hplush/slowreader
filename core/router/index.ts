@@ -1,5 +1,5 @@
-import { createDerived, ReadableStore } from 'nanostores'
 import { RouteParams, Router, Page } from '@nanostores/router'
+import { computed, ReadableAtom } from 'nanostores'
 
 import { localSettings, LocalSettingsValue } from '../local-settings/index.js'
 
@@ -57,6 +57,6 @@ function getRoute(
   return { route: page.route, params: page.params, redirect: false }
 }
 
-export function createAppRouter(base: BaseRouter): ReadableStore<Route> {
-  return createDerived([base, localSettings], getRoute)
+export function createAppRouter(base: BaseRouter): ReadableAtom<Route> {
+  return computed([base, localSettings], getRoute)
 }
