@@ -15,7 +15,7 @@ jobs:
           node-version: 16
           cache: yarn
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
       - name: Run tests
         run: yarn test
         env:

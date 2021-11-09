@@ -6,7 +6,7 @@
     "node": ">=16"
   },
   "scripts": {
-    "test:all": "tsc --noEmit && eslint . && stylelint **/*.svelte && yarn audit --groups dependencies",
+    "test:all": "tsc --noEmit && eslint . && stylelint **/*.svelte && yarn npm audit --environment production",
     "test:api": "cd api && yarn test",
     "test:core": "cd core && yarn test",
     "test:web": "cd web && yarn test",
@@ -41,5 +41,6 @@
     "stylelint": "^14.0.1",
     "svelte": "^3.44.1",
     "typescript": "^4.4.4"
-  }
+  },
+  "packageManager": "yarn@3.1.0"
 }
