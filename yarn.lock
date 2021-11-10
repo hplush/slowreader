@@ -2041,7 +2041,7 @@ __metadata:
     svelte-check: ^2.2.8
     svelte-loader: ^3.1.2
     svelte-preprocess: ^4.9.8
-    vite: 2.6.13
+    vite: 2.6.14
   languageName: unknown
   linkType: soft
 
@@ -5851,9 +5851,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.564, electron-to-chromium@npm:^1.3.886":
-  version: 1.3.892
-  resolution: "electron-to-chromium@npm:1.3.892"
-  checksum: 330a185e712dc9e2e5eca40138ce2e425408f7ff76ec28e8d8e7a487d59d160a1446aa54229b8e6a58cb2900181b1ff1280afbf538a8a5c0cc6102d0b6909ce8
+  version: 1.3.894
+  resolution: "electron-to-chromium@npm:1.3.894"
+  checksum: 62f11a71403a5a2dee7725c51b727e84608a4a6f4ca27e9f4fc4ac605910247ef59e7d0625a31ab0062367616bf2ff84458341c8420ce4a198defa7e9609b964
   languageName: node
   linkType: hard
 
@@ -6330,7 +6330,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-module-utils@npm:^2.7.0":
+"eslint-module-utils@npm:^2.7.1":
   version: 2.7.1
   resolution: "eslint-module-utils@npm:2.7.1"
   dependencies:
@@ -6353,18 +6353,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-import@npm:^2.25.2":
-  version: 2.25.2
-  resolution: "eslint-plugin-import@npm:2.25.2"
+"eslint-plugin-import@npm:^2.25.3":
+  version: 2.25.3
+  resolution: "eslint-plugin-import@npm:2.25.3"
   dependencies:
     array-includes: ^3.1.4
     array.prototype.flat: ^1.2.5
     debug: ^2.6.9
     doctrine: ^2.1.0
     eslint-import-resolver-node: ^0.3.6
-    eslint-module-utils: ^2.7.0
+    eslint-module-utils: ^2.7.1
     has: ^1.0.3
-    is-core-module: ^2.7.0
+    is-core-module: ^2.8.0
     is-glob: ^4.0.3
     minimatch: ^3.0.4
     object.values: ^1.1.5
@@ -6372,7 +6372,7 @@ __metadata:
     tsconfig-paths: ^3.11.0
   peerDependencies:
     eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8
-  checksum: 4ca36e37faf72fb1ed25361ea8a6abbcc9daa65f3a9ac1dc0a660029000456e8c8b98a87b8cc2316541b13c6e5915df41d2dc4a1d7fe0729d9b72b9a3bd5b909
+  checksum: 8bdf4b1fafb0e5c8f57a1673f72d84307d32c06a23942990d198c8b32a85a5ae0098872d1ef5bf80d7dfe8ec542f6a671e3c5e706731a80b493c9015f7a147f5
   languageName: node
   linkType: hard
 
@@ -8430,7 +8430,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-core-module@npm:^2.2.0, is-core-module@npm:^2.5.0, is-core-module@npm:^2.7.0":
+"is-core-module@npm:^2.2.0, is-core-module@npm:^2.5.0, is-core-module@npm:^2.8.0":
   version: 2.8.0
   resolution: "is-core-module@npm:2.8.0"
   dependencies:
@@ -12560,7 +12560,7 @@ __metadata:
     "@typescript-eslint/parser": ^5.3.1
     eslint: ^8.2.0
     eslint-config-standard: ^16.0.3
-    eslint-plugin-import: ^2.25.2
+    eslint-plugin-import: ^2.25.3
     eslint-plugin-node: ^11.1.0
     eslint-plugin-prefer-let: ^3.0.1
     eslint-plugin-promise: ^5.1.1
@@ -13129,13 +13129,13 @@ __metadata:
   linkType: hard
 
 "stylelint-config-recess-order@npm:^2.5.0":
-  version: 2.5.0
-  resolution: "stylelint-config-recess-order@npm:2.5.0"
+  version: 2.6.0
+  resolution: "stylelint-config-recess-order@npm:2.6.0"
   dependencies:
     stylelint-order: 4.1.x
   peerDependencies:
     stylelint: ">=9"
-  checksum: 66f1062416cf2ed60cb90a5f51dff066b22b9d4430d1d1f4c5977adaebed5af21e14bb9ebc8f35792df0e7ecd10d70d2a3ae12e4fdddd20d1fea54e92c0bdc8c
+  checksum: cfc9cbe55d76c4bc6cd48354028e2e842b503ee9cef6ec48601117d869cb6d190aab08d4a9af162818d39350faa816e0abbb5c9029eb4a1d4f12cb92981009e2
   languageName: node
   linkType: hard
 
@@ -14314,9 +14314,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:2.6.13":
-  version: 2.6.13
-  resolution: "vite@npm:2.6.13"
+"vite@npm:2.6.14":
+  version: 2.6.14
+  resolution: "vite@npm:2.6.14"
   dependencies:
     esbuild: ^0.13.2
     fsevents: ~2.3.2
@@ -14339,7 +14339,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 59e09d8650328eac44990de9aaa9f49011113e3c1d8c3b54d9b8550496c8d290ec14149048bbbd49b39f78a80f23c4019130bd55924bfd139f63423be8d4754a
+  checksum: 4bf2b7407771440de81546932cf0b1bd74f9254e6056665a596b9310f37b2d34a65728a2a0525300ef48fa1f3e2ec5a3366326eecf31db7b86c19463e22186a8
   languageName: node
   linkType: hard
 
