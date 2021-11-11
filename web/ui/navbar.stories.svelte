@@ -1,11 +1,11 @@
 <script>
   import { Meta, Story } from '@storybook/addon-svelte-csf'
 
-  import Button from './button.svelte'
+  import Navbar from './navbar.svelte'
 </script>
 
-<Meta title="button" component={Button} />
+<Meta title="Navbar" component={Navbar} />
 
 <Story name="Base">
-  <Button>Button</Button>
+  <Navbar />
 </Story>
