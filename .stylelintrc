@@ -4,10 +4,13 @@
     "web/dist/**/*",
     "storybook-static/**/*"
   ],
+  "rules": {
+    "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"]
+  },
   "overrides": [
     {
         "files": ["**/*.svelte"],
         "customSyntax": "postcss-html"
     }
-]
+  ]
 }

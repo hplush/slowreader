@@ -28,6 +28,7 @@
     "@storybook/addon-svelte-csf": "^1.1.0",
     "@storybook/svelte": "^6.3.12",
     "babel-loader": "^8.2.3",
+    "postcss-lab-function": "^4.0.0",
     "size-limit": "^6.0.4",
     "svelte-check": "^2.2.8",
     "svelte-loader": "^3.1.2"

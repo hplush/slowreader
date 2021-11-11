@@ -1481,6 +1481,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@csstools/convert-colors@npm:2.0.0":
+  version: 2.0.0
+  resolution: "@csstools/convert-colors@npm:2.0.0"
+  checksum: 6ce595d17f98489e621bacd8e948a17315436e8eab9039a653ff8a75bc06cefe6c636db32c25018cb5479ea1f072fef055db768dc31750f153bdd98099f4a718
+  languageName: node
+  linkType: hard
+
 "@discoveryjs/json-ext@npm:^0.5.3":
   version: 0.5.5
   resolution: "@discoveryjs/json-ext@npm:0.5.5"
@@ -1785,16 +1792,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@logux/stylelint-config@npm:^0.5.0":
-  version: 0.5.0
-  resolution: "@logux/stylelint-config@npm:0.5.0"
+"@logux/stylelint-config@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "@logux/stylelint-config@npm:0.8.0"
   dependencies:
-    stylelint-config-recess-order: ^2.5.0
+    stylelint-config-recess-order: ^2.6.0
     stylelint-config-standard: ^23.0.0
     stylelint-order: ^5.0.0
   peerDependencies:
     stylelint: ^14.0.0
-  checksum: 97468df357475d391100a7af824374fa801bd0e242f415265c7a7e407ec4581ef58790615d4bf0a2615ebe22b5bc464f72c35ee9417d86c74fe4c8247cf73c19
+  checksum: 12bde75356f661539fcf1ce996d8d4f1077b59746b27bf7acaec65823856ae5333bc9d88b74dc556745b021ba0b33556d33844e1a917926ca2ffa481e524764f
   languageName: node
   linkType: hard
 
@@ -2035,6 +2042,7 @@ __metadata:
     browserslist: ^4.17.6
     nanostores: ^0.5.6
     postcss: ^8.3.11
+    postcss-lab-function: ^4.0.0
     rollup: ^2.59.0
     size-limit: ^6.0.4
     svelte: ^3.44.1
@@ -4949,7 +4957,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color-name@npm:~1.1.4":
+"color-name@npm:^1.1.4, color-name@npm:~1.1.4":
   version: 1.1.4
   resolution: "color-name@npm:1.1.4"
   checksum: b0445859521eb4021cd0fb0cc1a75cecf67fceecae89b63f62b201cca8d345baf8b952c966862a9d9a2632987d4f6581f0ec8d957dfacece86f0a7919316f610
@@ -5851,9 +5859,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.564, electron-to-chromium@npm:^1.3.886":
-  version: 1.3.894
-  resolution: "electron-to-chromium@npm:1.3.894"
-  checksum: 62f11a71403a5a2dee7725c51b727e84608a4a6f4ca27e9f4fc4ac605910247ef59e7d0625a31ab0062367616bf2ff84458341c8420ce4a198defa7e9609b964
+  version: 1.3.895
+  resolution: "electron-to-chromium@npm:1.3.895"
+  checksum: 8280c14eb79bf202ecb34714757df6d551553db45b27e36a33cb4652b7c04a9e95ab6a2f1d3097cae5039b99282ab4ccb99f7a4990fcee45d8eea757fb398cb2
   languageName: node
   linkType: hard
 
@@ -8046,14 +8054,14 @@ __metadata:
   linkType: hard
 
 "htmlparser2@npm:^7.1.2":
-  version: 7.1.2
-  resolution: "htmlparser2@npm:7.1.2"
+  version: 7.2.0
+  resolution: "htmlparser2@npm:7.2.0"
   dependencies:
     domelementtype: ^2.0.1
     domhandler: ^4.2.2
     domutils: ^2.8.0
     entities: ^3.0.1
-  checksum: 80374dce981d94ff03155733cda289534878e2d05cb435cc9eddc64716e617abf720938d813f18a16878254c8eb5873c7d9e2964bf240202f0a5b71b8e06069f
+  checksum: 96563d9965729cfcb3f5f19c26d013c6831b4cb38d79d8c185e9cd669ea6a9ffe8fb9ccc74d29a068c9078aa0e2767053ed6b19aa32723c41550340d0094bea0
   languageName: node
   linkType: hard
 
@@ -8762,6 +8770,13 @@ __metadata:
   version: 1.0.0
   resolution: "is-typedarray@npm:1.0.0"
   checksum: 3508c6cd0a9ee2e0df2fa2e9baabcdc89e911c7bd5cf64604586697212feec525aa21050e48affb5ffc3df20f0f5d2e2cf79b08caa64e1ccc9578e251763aef7
+  languageName: node
+  linkType: hard
+
+"is-url-superb@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "is-url-superb@npm:4.0.0"
+  checksum: fd55e91c96349acb0d688f95fcb1ac67450e5db934976e3a8ff13ef446841e779a6f4d18b15f02331f05a3429c8fdaba2382ac1ab444059e86e9ffcde1ec8db0
   languageName: node
   linkType: hard
 
@@ -10966,6 +10981,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"postcss-lab-function@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "postcss-lab-function@npm:4.0.0"
+  dependencies:
+    "@csstools/convert-colors": 2.0.0
+    postcss-values-parser: 6.0.0
+  peerDependencies:
+    postcss: ^8.3
+  checksum: 05d1246a2b762814874b15e5e43ec1f459e3c7354e7ffbe3ca90a8d2d169445455dc116c9f6df6f654ad336809dcd25633302a3230e83e3348b4de1bab5dd85c
+  languageName: node
+  linkType: hard
+
 "postcss-loader@npm:^4.2.0":
   version: 4.3.0
   resolution: "postcss-loader@npm:4.3.0"
@@ -11079,6 +11106,19 @@ __metadata:
   version: 4.1.0
   resolution: "postcss-value-parser@npm:4.1.0"
   checksum: 68a9ea27c780fa3cc350be37b47cc46385c61dd9627990909230e0e9c3debf6d5beb49006bd743a2e506cdd6fa7d07637f2d9504a394f67cc3011d1ff0134886
+  languageName: node
+  linkType: hard
+
+"postcss-values-parser@npm:6.0.0":
+  version: 6.0.0
+  resolution: "postcss-values-parser@npm:6.0.0"
+  dependencies:
+    color-name: ^1.1.4
+    is-url-superb: ^4.0.0
+    quote-unquote: ^1.0.0
+  peerDependencies:
+    postcss: ^8.2.9
+  checksum: e7bcfd40b599b728cefd2d253bbe0d3b53ca675d992d89826bc4d0242da45a292683e489a2da420d276aa0bddf42a47606c174bdf38b233e468e275f4388a097
   languageName: node
   linkType: hard
 
@@ -11415,6 +11455,13 @@ __metadata:
   version: 4.0.1
   resolution: "quick-lru@npm:4.0.1"
   checksum: bea46e1abfaa07023e047d3cf1716a06172c4947886c053ede5c50321893711577cb6119360f810cc3ffcd70c4d7db4069c3cee876b358ceff8596e062bd1154
+  languageName: node
+  linkType: hard
+
+"quote-unquote@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "quote-unquote@npm:1.0.0"
+  checksum: 955a2ead534f5b6a3f8d4dc5a4b95ac6468213d3fb11f8c1592a0a56345c45a3d14d5ca04d3de2bc9891493fcac38c03dfa91c48a6159aef50124e9c5afcea49
   languageName: node
   linkType: hard
 
@@ -12552,7 +12599,7 @@ __metadata:
   resolution: "slowreader@workspace:."
   dependencies:
     "@logux/eslint-config": ^46.1.0
-    "@logux/stylelint-config": ^0.5.0
+    "@logux/stylelint-config": ^0.8.0
     "@types/jest": ^27.0.2
     "@types/node": ^16.11.7
     "@types/ws": ^8.2.0
@@ -13128,7 +13175,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint-config-recess-order@npm:^2.5.0":
+"stylelint-config-recess-order@npm:^2.6.0":
   version: 2.6.0
   resolution: "stylelint-config-recess-order@npm:2.6.0"
   dependencies:

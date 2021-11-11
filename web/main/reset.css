@@ -52,18 +52,18 @@ select {
   font: inherit;
 }
 
+/* Fix clickable styling in iOS and Safari */
+
+button {
+  -webkit-appearance: button;
+}
+
 /* Pointer cursor for all interactive elements */
 
 a,
 select:not(:disabled),
 button:not(:disabled) {
   cursor: pointer;
-}
-
-/* Fix clickable styling in iOS and Safari */
-
-button {
-  -webkit-appearance: button;
 }
 
 /* Remove border in Firefox */
