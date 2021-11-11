@@ -1,4 +1,5 @@
-import { createAppRouter, Routes } from '@slowreader/core'
+import type { Routes } from '@slowreader/core'
+import { createAppRouter } from '@slowreader/core'
 import { createRouter } from '@nanostores/router'
 
 let urlRouter = createRouter<Routes>({
