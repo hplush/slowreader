@@ -6,7 +6,7 @@
     "node": ">=16"
   },
   "scripts": {
-    "test:all": "tsc --noEmit && eslint . && stylelint **/*.svelte **/*.css && yarn npm audit --environment production",
+    "test:all": "tsc --noEmit && eslint . && stylelint **/*.css **/*.svelte && yarn npm audit --environment production",
     "test:api": "cd api && yarn test",
     "test:core": "cd core && yarn test",
     "test:web": "cd web && yarn test",

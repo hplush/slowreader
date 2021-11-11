@@ -1,7 +1,13 @@
 {
   "extends": "@logux/stylelint-config",
-  "customSyntax": "postcss-html",
   "ignoreFiles": [
-    "dist/**/*"
-  ]
+    "web/dist/**/*",
+    "storybook-static/**/*"
+  ],
+  "overrides": [
+    {
+        "files": ["**/*.svelte"],
+        "customSyntax": "postcss-html"
+    }
+]
 }
