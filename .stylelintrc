@@ -9,8 +9,8 @@
   },
   "overrides": [
     {
-        "files": ["**/*.svelte"],
-        "customSyntax": "postcss-html"
+      "files": ["**/*.svelte"],
+      "customSyntax": "postcss-html"
     }
   ]
 }
