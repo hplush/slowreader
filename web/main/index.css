@@ -1,3 +1,4 @@
 body {
+  padding: 0 250px;
   background: var(--app-background);
 }

@@ -2,7 +2,7 @@
   "extends": "@logux/stylelint-config",
   "ignoreFiles": [
     "web/dist/**/*",
-    "storybook-static/**/*"
+    "web/storybook-static/**/*"
   ],
   "rules": {
     "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"]

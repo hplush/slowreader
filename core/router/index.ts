@@ -10,13 +10,14 @@ export interface Routes {
   fast: void
   start: void
   signin: void
+  add: void
 }
 
 const GUEST = new Set(['start', 'signin'] as const)
 
 export type BaseRouter = Router<Routes>
 
-export type Route = Omit<Page<Routes>, 'path'> & { redirect: boolean }
+export type AppRoute = Omit<Page<Routes>, 'path'> & { redirect: boolean }
 
 function data(
   route: string,
@@ -28,21 +29,21 @@ function data(
 function redirect<N extends keyof Routes>(
   route: N,
   ...params: RouteParams<Routes, N>
-): Route {
+): AppRoute {
   return { ...data(route, params[0]), redirect: true }
 }
 
 function open<N extends keyof Routes>(
   route: N,
   ...params: RouteParams<Routes, N>
-): Route {
+): AppRoute {
   return { ...data(route, params[0]), redirect: false }
 }
 
 function getRoute(
   page: Page<Routes> | undefined,
   settings: LocalSettingsValue
-): Route {
+): AppRoute {
   if (!page) {
     return open('notFound')
   } else if (settings.userId) {
@@ -57,6 +58,14 @@ function getRoute(
   return { route: page.route, params: page.params, redirect: false }
 }
 
-export function createAppRouter(base: BaseRouter): ReadableAtom<Route> {
+export function createAppRouter(base: BaseRouter): ReadableAtom<AppRoute> {
   return computed([base, localSettings], getRoute)
+}
+
+export function isFastRoutes(route: AppRoute): boolean {
+  return route.route === 'fast'
+}
+
+export function isSlowRoutes(route: AppRoute): boolean {
+  return route.route === 'slowAll'
 }

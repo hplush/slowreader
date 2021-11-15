@@ -5,10 +5,17 @@ import {
 } from '@nanostores/persistent'
 import { cleanStores, atom, ReadableAtom } from 'nanostores'
 import { RouteParams, Page } from '@nanostores/router'
-import { equal } from 'uvu/assert'
+import { equal, is } from 'uvu/assert'
 import { test } from 'uvu'
 
-import { localSettings, createAppRouter, Routes } from '../index.js'
+import {
+  createAppRouter,
+  localSettings,
+  isFastRoutes,
+  isSlowRoutes,
+  AppRoute,
+  Routes
+} from '../index.js'
 
 let testRouter = atom<Page<Routes> | undefined, { routes: []; open(): void }>()
 
@@ -23,7 +30,7 @@ test.before(() => {
   useTestStorageEngine()
 })
 
-let router: ReadableAtom
+let router: ReadableAtom<AppRoute>
 
 test.before.each(() => {
   testRouter.set({ route: 'home', params: {}, path: '' })
@@ -104,6 +111,22 @@ test('transforms routers for users', () => {
     params: {},
     redirect: false
   })
+})
+
+test('has routes groups', () => {
+  router.listen(() => {})
+  setTestStorageKey('slowreader:userId', '10')
+  changeBaseRoute('add')
+  is(isFastRoutes(router.get()), false)
+  is(isSlowRoutes(router.get()), false)
+
+  changeBaseRoute('slowAll')
+  is(isFastRoutes(router.get()), false)
+  is(isSlowRoutes(router.get()), true)
+
+  changeBaseRoute('fast')
+  is(isFastRoutes(router.get()), true)
+  is(isSlowRoutes(router.get()), false)
 })
 
 test.run()
