@@ -17,7 +17,9 @@ const GUEST = new Set(['start', 'signin'] as const)
 
 export type BaseRouter = Router<Routes>
 
-export type AppRoute = Omit<Page<Routes>, 'path'> & { redirect: boolean }
+export type AppRoute = Omit<Page<Routes, keyof Routes>, 'path'> & {
+  redirect: boolean
+}
 
 function data(
   route: string,

@@ -5,7 +5,8 @@
     "web/storybook-static/**/*"
   ],
   "rules": {
-    "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"]
+    "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"],
+    "alpha-value-notation": "percentage"
   },
   "overrides": [
     {

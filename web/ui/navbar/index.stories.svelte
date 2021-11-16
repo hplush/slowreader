@@ -1,7 +1,7 @@
 <script>
   import { Meta, Story } from '@storybook/addon-svelte-csf'
 
-  import Navbar from './navbar.svelte'
+  import Navbar from './index.svelte'
 </script>
 
 <Meta title="Navbar" component={Navbar} />

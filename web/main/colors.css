@@ -1,4 +1,5 @@
 :root {
-  --app-background: lch(95% 10 90);
-  --navbar-background: lch(90% 10 90);
+  --app-background: lch(98% 0 0);
+  --navbar-border: lch(0% 0 0 / 10%);
+  --reading-background: lch(98% 7 86);
 }

@@ -17,6 +17,8 @@
       "parser": "@typescript-eslint/parser",
       "processor": "svelte3/svelte3",
       "rules": {
+        "no-use-before-define": "off",
+        "no-undef-init": "off",
         "import/first": "off"
       }
     }

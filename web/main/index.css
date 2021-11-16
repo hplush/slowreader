@@ -1,4 +1,13 @@
 body {
-  padding: 0 250px;
+  padding-top: var(--navbar-height);
   background: var(--app-background);
+}
+
+body,
+input {
+  font-family: system-ui;
+}
+
+body.is-slow {
+  --app-background: var(--reading-background);
 }
