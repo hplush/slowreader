@@ -17,6 +17,7 @@
   "dependencies": {
     "@logux/client": "^0.14.2",
     "@logux/core": "^0.7.2",
+    "@nanostores/i18n": "^0.1.0",
     "@nanostores/persistent": "^0.5.0",
     "@nanostores/router": "^0.2.1",
     "nanoid": "^3.1.30",

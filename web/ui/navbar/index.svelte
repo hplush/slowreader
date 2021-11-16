@@ -1,12 +1,16 @@
 <script>
-  import { isFastRoutes, isSlowRoutes } from '@slowreader/core'
+  import {
+    navbarMessages as t,
+    isFastRoutes,
+    isSlowRoutes
+  } from '@slowreader/core'
 
   import { router, getURL } from '../../stores/router'
   import Button from './button.svelte'
 </script>
 
 <nav>
-  <Button>Refresh</Button>
+  <Button>{$t.refresh}</Button>
   <div>
     <Button
       href={getURL('slowAll')}
@@ -14,15 +18,17 @@
       swicther
       slow
     >
-      Slow
+      {$t.slow}
     </Button>
     <Button href={getURL('fast')} current={isFastRoutes($router)} swicther>
-      Fast
+      {$t.fast}
     </Button>
   </div>
   <div>
-    <Button href={getURL('add')} current={$router.route === 'add'}>Add</Button>
-    <Button>Menu</Button>
+    <Button href={getURL('add')} current={$router.route === 'add'}>
+      {$t.add}
+    </Button>
+    <Button>{$t.menu}</Button>
   </div>
 </nav>
 

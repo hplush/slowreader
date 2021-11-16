@@ -1887,6 +1887,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nanostores/i18n@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@nanostores/i18n@npm:0.1.0"
+  peerDependencies:
+    nanostores: ^0.5.0
+  checksum: 4b7f376d7d207dc6c88821e75eb2eb2f9925a89586fab03b1f06061d140734834995a6e38bcf08119a9d34c640c0909479c7bcb7014b7262238fddb49aeed1b6
+  languageName: node
+  linkType: hard
+
 "@nanostores/persistent@npm:^0.5.0":
   version: 0.5.0
   resolution: "@nanostores/persistent@npm:0.5.0"
@@ -2047,6 +2056,7 @@ __metadata:
   dependencies:
     "@logux/client": ^0.14.2
     "@logux/core": ^0.7.2
+    "@nanostores/i18n": ^0.1.0
     "@nanostores/persistent": ^0.5.0
     "@nanostores/router": ^0.2.1
     c8: ^7.10.0
@@ -2071,6 +2081,7 @@ __metadata:
   dependencies:
     "@babel/core": ^7.16.0
     "@mdx-js/react": ^1.6.22
+    "@nanostores/i18n": ^0.1.0
     "@rollup/plugin-node-resolve": ^13.0.6
     "@size-limit/file": ^6.0.4
     "@storybook/addon-svelte-csf": ^1.1.0
