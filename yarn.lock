@@ -2029,14 +2029,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@size-limit/file@npm:^6.0.4":
-  version: 6.0.4
-  resolution: "@size-limit/file@npm:6.0.4"
+"@size-limit/file@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@size-limit/file@npm:7.0.0"
   dependencies:
     semver: 7.3.5
   peerDependencies:
-    size-limit: 6.0.4
-  checksum: c2f0b1fc3059a62abaf856148a1c9cce1a735007dbbb740f8e9ceeba49385a203898b15e92a28bd9af3dfa3c1c178cbe7595a7cbfc272bd9b0ef72cd8147ef75
+    size-limit: 7.0.0
+  checksum: a3b9b0dad75e7eedcecb031b60805a88addd2e05d1d2bd1f8ad7da31540c8e87d3c09224cc3828259db18c2958afc0eb5160eb2d5b11742cc173c5fb9637bb46
   languageName: node
   linkType: hard
 
@@ -2083,7 +2083,7 @@ __metadata:
     "@mdx-js/react": ^1.6.22
     "@nanostores/i18n": ^0.1.0
     "@rollup/plugin-node-resolve": ^13.0.6
-    "@size-limit/file": ^6.0.4
+    "@size-limit/file": ^7.0.0
     "@storybook/addon-svelte-csf": ^1.1.0
     "@storybook/svelte": ^6.3.12
     "@sveltejs/vite-plugin-svelte": 1.0.0-next.30
@@ -2094,10 +2094,10 @@ __metadata:
     postcss: ^8.3.11
     postcss-lab-function: ^4.0.0
     rollup: ^2.60.0
-    size-limit: ^6.0.4
-    storybook-builder-vite: ^0.1.6
+    size-limit: ^7.0.0
+    storybook-builder-vite: ^0.1.7
     svelte: ^3.44.1
-    svelte-check: ^2.2.9
+    svelte-check: ^2.2.10
     svelte-loader: ^3.1.2
     svelte-preprocess: ^4.9.8
     vite: 2.6.14
@@ -12816,20 +12816,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"size-limit@npm:^6.0.4":
-  version: 6.0.4
-  resolution: "size-limit@npm:6.0.4"
+"size-limit@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "size-limit@npm:7.0.0"
   dependencies:
     bytes-iec: ^3.1.1
     chokidar: ^3.5.2
     ci-job-number: ^1.2.2
     globby: ^11.0.4
     lilconfig: ^2.0.3
+    mkdirp: ^1.0.4
     nanospinner: ^0.4.0
     picocolors: ^1.0.0
   bin:
     size-limit: bin.js
-  checksum: b595828f295b37a8cb5a0a3f4275e93356e477a6046ef7b259ee23b2328007add2e1cc0f73ab02b0fef6a424340b10f01133cfff6a1b7ded62a011b589070d68
+  checksum: 561ab8235b727a5f55c94ddbd4789453d81e7277b8a8534c0250fd667bb8ba6c8671d9a66cc2508d8504669f92064180885c29ebb5a4d82cda377cdd6ed139be
   languageName: node
   linkType: hard
 
@@ -13201,9 +13202,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"storybook-builder-vite@npm:^0.1.6":
-  version: 0.1.6
-  resolution: "storybook-builder-vite@npm:0.1.6"
+"storybook-builder-vite@npm:^0.1.7":
+  version: 0.1.7
+  resolution: "storybook-builder-vite@npm:0.1.7"
   dependencies:
     "@mdx-js/mdx": ^1.6.22
     "@storybook/csf-tools": ^6.3.3
@@ -13215,7 +13216,7 @@ __metadata:
     vite-plugin-mdx: ^3.5.6
   peerDependencies:
     vite: ">=2.6.7"
-  checksum: df860ee44964e66d39bf6ad55b1e51ad2b474b309c845663467b78787eb87b601a81291168b3d4f7983fcaaedb9818de09b0f04bfff1341de343c22fc8ed4045
+  checksum: ecd8bfbdab1af8cae99630a46cad4eeb3953d94493735fe4abff8e799d2226dd418236eebd2ceb07aff5651201d66b5b2b38964c595c32aecf878f1316b6c20b
   languageName: node
   linkType: hard
 
@@ -13620,9 +13621,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svelte-check@npm:^2.2.9":
-  version: 2.2.9
-  resolution: "svelte-check@npm:2.2.9"
+"svelte-check@npm:^2.2.10":
+  version: 2.2.10
+  resolution: "svelte-check@npm:2.2.10"
   dependencies:
     chalk: ^4.0.0
     chokidar: ^3.4.1
@@ -13637,7 +13638,7 @@ __metadata:
     svelte: ^3.24.0
   bin:
     svelte-check: bin/svelte-check
-  checksum: 893c01987b732162ccf9622e95dc3d40e2faa7c9a004bf34ce4ec9e12ed135edc8e6d024be0ffc55a70ba40eef361195fbcc9ded287d2709634f3c31420b1467
+  checksum: cc182f7cf4e6370ca02f404495ed3d7cbaf85bd726bc849462953ae848036ef67806d0e665d37a3d52fc1743ba23021165303e0c73d63772b2220e12c864d0b2
   languageName: node
   linkType: hard
 
