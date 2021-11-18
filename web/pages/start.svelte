@@ -1,9 +1,9 @@
 <script>
-  import { generateCredentials } from '@slowreader/core'
+  import { generateCredentials, startMessages as t } from '@slowreader/core'
 </script>
 
 <main>
-  <button on:click={generateCredentials}>Start local demo</button>
+  <button on:click={generateCredentials}>{$t.local}</button>
 </main>
 
 <style>
