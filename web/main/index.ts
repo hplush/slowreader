@@ -1,18 +1,19 @@
-import { isSlowRoutes } from '@slowreader/core'
+import { isSlowRoute, isGuestRoute } from '@slowreader/core'
 
 import './reset.css'
 import './colors.css'
 import './index.css'
 import '../stores/locale.js'
 import { router } from '../stores/router'
-import App from './App.svelte'
+import Main from './main.svelte'
 
 router.subscribe(route => {
-  document.body.classList.toggle('is-slow', isSlowRoutes(route))
+  document.body.classList.toggle('is-slow', isSlowRoute(route))
+  document.body.classList.toggle('is-guest', isGuestRoute(route))
 })
 
-const app = new App({
-  target: document.getElementById('app')!
+const main = new Main({
+  target: document.getElementById('main')!
 })
 
-export default app
+export default main

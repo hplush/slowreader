@@ -1,8 +1,8 @@
 <script>
   import {
     navbarMessages as t,
-    isFastRoutes,
-    isSlowRoutes
+    isFastRoute,
+    isSlowRoute
   } from '@slowreader/core'
 
   import { router, getURL } from '../../stores/router'
@@ -14,13 +14,13 @@
   <div>
     <Button
       href={getURL('slowAll')}
-      current={isSlowRoutes($router)}
+      current={isSlowRoute($router)}
       swicther
       slow
     >
       {$t.slow}
     </Button>
-    <Button href={getURL('fast')} current={isFastRoutes($router)} swicther>
+    <Button href={getURL('fast')} current={isFastRoute($router)} swicther>
       {$t.fast}
     </Button>
   </div>
@@ -33,10 +33,6 @@
 </nav>
 
 <style>
-  :root {
-    --navbar-height: 51px;
-  }
-
   nav {
     position: fixed;
     top: 0;

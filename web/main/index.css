@@ -1,6 +1,10 @@
 body {
+  --navbar-height: 51px;
+
+  display: flex;
   padding-top: var(--navbar-height);
   background: var(--app-background);
+  scroll-margin-top: var(--navbar-height);
 }
 
 body,
@@ -10,4 +14,13 @@ input {
 
 body.is-slow {
   --app-background: var(--reading-background);
+}
+
+body.is-guest {
+  --navbar-height: 0;
+}
+
+#main {
+  width: 100%;
+  min-height: 100%;
 }

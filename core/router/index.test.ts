@@ -11,8 +11,9 @@ import { test } from 'uvu'
 import {
   createAppRouter,
   localSettings,
-  isFastRoutes,
-  isSlowRoutes,
+  isGuestRoute,
+  isFastRoute,
+  isSlowRoute,
   AppRoute,
   Routes
 } from '../index.js'
@@ -115,18 +116,25 @@ test('transforms routers for users', () => {
 
 test('has routes groups', () => {
   router.listen(() => {})
+  is(isFastRoute(router.get()), false)
+  is(isSlowRoute(router.get()), false)
+  is(isGuestRoute(router.get()), true)
+
   setTestStorageKey('slowreader:userId', '10')
   changeBaseRoute('add')
-  is(isFastRoutes(router.get()), false)
-  is(isSlowRoutes(router.get()), false)
+  is(isFastRoute(router.get()), false)
+  is(isSlowRoute(router.get()), false)
+  is(isGuestRoute(router.get()), false)
 
   changeBaseRoute('slowAll')
-  is(isFastRoutes(router.get()), false)
-  is(isSlowRoutes(router.get()), true)
+  is(isFastRoute(router.get()), false)
+  is(isSlowRoute(router.get()), true)
+  is(isGuestRoute(router.get()), false)
 
   changeBaseRoute('fast')
-  is(isFastRoutes(router.get()), true)
-  is(isSlowRoutes(router.get()), false)
+  is(isFastRoute(router.get()), true)
+  is(isSlowRoute(router.get()), false)
+  is(isGuestRoute(router.get()), false)
 })
 
 test.run()

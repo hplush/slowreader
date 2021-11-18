@@ -13,7 +13,7 @@ export interface Routes {
   add: void
 }
 
-const GUEST = new Set(['start', 'signin'] as const)
+const GUEST = new Set<AppRoute['route']>(['start', 'signin'])
 
 export type BaseRouter = Router<Routes>
 
@@ -64,10 +64,14 @@ export function createAppRouter(base: BaseRouter): ReadableAtom<AppRoute> {
   return computed([base, localSettings], getRoute)
 }
 
-export function isFastRoutes(route: AppRoute): boolean {
+export function isFastRoute(route: AppRoute): boolean {
   return route.route === 'fast'
 }
 
-export function isSlowRoutes(route: AppRoute): boolean {
+export function isSlowRoute(route: AppRoute): boolean {
   return route.route === 'slowAll'
+}
+
+export function isGuestRoute(route: AppRoute): boolean {
+  return GUEST.has(route.route)
 }
