@@ -19,20 +19,20 @@
     "nanostores": "^0.5.6",
     "postcss": "^8.3.11",
     "rollup": "^2.60.0",
-    "svelte": "^3.44.1",
+    "svelte": "^3.44.2",
     "svelte-preprocess": "^4.9.8",
     "vite": "2.6.14"
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",
     "@mdx-js/react": "^1.6.22",
-    "@size-limit/file": "^7.0.1",
+    "@size-limit/file": "^7.0.3",
     "@storybook/addon-svelte-csf": "^1.1.0",
     "@storybook/svelte": "^6.3.12",
     "babel-loader": "^8.2.3",
     "postcss-lab-function": "^4.0.1",
-    "size-limit": "^7.0.1",
-    "storybook-builder-vite": "^0.1.8",
+    "size-limit": "^7.0.3",
+    "storybook-builder-vite": "0.1.8",
     "svelte-check": "^2.2.10",
     "svelte-loader": "^3.1.2"
   }

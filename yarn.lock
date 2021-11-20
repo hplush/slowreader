@@ -2029,14 +2029,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@size-limit/file@npm:^7.0.1":
-  version: 7.0.1
-  resolution: "@size-limit/file@npm:7.0.1"
+"@size-limit/file@npm:^7.0.3":
+  version: 7.0.3
+  resolution: "@size-limit/file@npm:7.0.3"
   dependencies:
     semver: 7.3.5
   peerDependencies:
-    size-limit: 7.0.1
-  checksum: a8db13c04029aedd9892ce064c4fa817becf09eccc985232e4d1f3279b1c0a6cd17036284580e1c8b2514619e37aebbc7b5afccc4771ffe65ab2f95eb51a34af
+    size-limit: 7.0.3
+  checksum: 2d01221fe10241e125a2325f38ff3a16cbbbde230cb51ad92d9acf49e89076678523884a984da25e8d9dec85d9d7ad46b4cabe89af2ff629d8bafaa4ffcf84d2
   languageName: node
   linkType: hard
 
@@ -2083,7 +2083,7 @@ __metadata:
     "@mdx-js/react": ^1.6.22
     "@nanostores/i18n": ^0.1.0
     "@rollup/plugin-node-resolve": ^13.0.6
-    "@size-limit/file": ^7.0.1
+    "@size-limit/file": ^7.0.3
     "@storybook/addon-svelte-csf": ^1.1.0
     "@storybook/svelte": ^6.3.12
     "@sveltejs/vite-plugin-svelte": 1.0.0-next.30
@@ -2094,9 +2094,9 @@ __metadata:
     postcss: ^8.3.11
     postcss-lab-function: ^4.0.1
     rollup: ^2.60.0
-    size-limit: ^7.0.1
-    storybook-builder-vite: ^0.1.8
-    svelte: ^3.44.1
+    size-limit: ^7.0.3
+    storybook-builder-vite: 0.1.8
+    svelte: ^3.44.2
     svelte-check: ^2.2.10
     svelte-loader: ^3.1.2
     svelte-preprocess: ^4.9.8
@@ -2995,10 +2995,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^16.11.8":
-  version: 16.11.8
-  resolution: "@types/node@npm:16.11.8"
-  checksum: c60418498f0affd0fb69351fd04ec0d8c684d1892d6d548d95fc2288b157c4e2e3e0bd3b6da6802ba128cb34ea2144c08e8683469e08cf58c61d5fb6ab9db4b5
+"@types/node@npm:^16.11.9":
+  version: 16.11.9
+  resolution: "@types/node@npm:16.11.9"
+  checksum: baec2e6471ee58fd1e9874e6f47ab95a918a0f46b42424392e4c13e3e07f078f8b72b6b48073b0b14f710ed66c5f1b2e497df43f28151000f11f5f299382cfe2
   languageName: node
   linkType: hard
 
@@ -5898,9 +5898,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.564, electron-to-chromium@npm:^1.3.896":
-  version: 1.3.902
-  resolution: "electron-to-chromium@npm:1.3.902"
-  checksum: d5a10392598151187149f8eee95025147ed98a2c734f8dfc8eb1b68aa393d984e2e551de97d24ce936ba32ca6130a9eee54b1d622d89fb1cb347afc5ad64e199
+  version: 1.3.904
+  resolution: "electron-to-chromium@npm:1.3.904"
+  checksum: 51cd8de455721c921ab5522e868071f7ea53eeff20938b7186283b50f3c5aad98ff10c9d6b991d98d0bef09db8206bfab63d0458adba33b25104ead9bcd395de
   languageName: node
   linkType: hard
 
@@ -12613,9 +12613,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"size-limit@npm:^7.0.1":
-  version: 7.0.1
-  resolution: "size-limit@npm:7.0.1"
+"size-limit@npm:^7.0.3":
+  version: 7.0.3
+  resolution: "size-limit@npm:7.0.3"
   dependencies:
     bytes-iec: ^3.1.1
     chokidar: ^3.5.2
@@ -12627,7 +12627,7 @@ __metadata:
     picocolors: ^1.0.0
   bin:
     size-limit: bin.js
-  checksum: 38bb1ad120192db6233c7a7eec4d8b546d286d4f472892178ffadeb3f3b541b327d2b1c8ecf339fbcd7824152a45a26eca903b01aba25c0876717dc3b9ad8e06
+  checksum: cdf8edd4fd8ef4db305b726a175902db0e63fea47d72a99435174a7bea3a982d2689013e3ee09990b1ffcd3899533df5774ef5667b039e5015988c1d7901f386
   languageName: node
   linkType: hard
 
@@ -12674,7 +12674,7 @@ __metadata:
     "@logux/eslint-config": ^46.1.0
     "@logux/stylelint-config": ^0.8.0
     "@types/jest": ^27.0.3
-    "@types/node": ^16.11.8
+    "@types/node": ^16.11.9
     "@types/ws": ^8.2.0
     "@typescript-eslint/eslint-plugin": ^5.4.0
     "@typescript-eslint/parser": ^5.4.0
@@ -12691,8 +12691,8 @@ __metadata:
     prettier-plugin-svelte: ^2.5.0
     simple-git-hooks: ^2.7.0
     stylelint: ^14.1.0
-    svelte: ^3.44.1
-    typescript: ~4.4.4
+    svelte: ^3.44.2
+    typescript: ~4.5.2
   languageName: unknown
   linkType: soft
 
@@ -12812,12 +12812,12 @@ __metadata:
   linkType: hard
 
 "source-map-support@npm:^0.5.16, source-map-support@npm:~0.5.12, source-map-support@npm:~0.5.20":
-  version: 0.5.20
-  resolution: "source-map-support@npm:0.5.20"
+  version: 0.5.21
+  resolution: "source-map-support@npm:0.5.21"
   dependencies:
     buffer-from: ^1.0.0
     source-map: ^0.6.0
-  checksum: 43946aff452011960d16154304b11011e0185549493e65dd90da045959409fb2d266ba1c854fff3d5949f8e59382e3fcc7f7c5fa66136007a6750ad06c6c0baa
+  checksum: 43e98d700d79af1d36f859bdb7318e601dfc918c7ba2e98456118ebc4c4872b327773e5a1df09b0524e9e5063bb18f0934538eace60cca2710d1fa687645d137
   languageName: node
   linkType: hard
 
@@ -12978,7 +12978,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"storybook-builder-vite@npm:^0.1.8":
+"storybook-builder-vite@npm:0.1.8":
   version: 0.1.8
   resolution: "storybook-builder-vite@npm:0.1.8"
   dependencies:
@@ -13462,10 +13462,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svelte@npm:^3.44.1":
-  version: 3.44.1
-  resolution: "svelte@npm:3.44.1"
-  checksum: 851f597c3e15b06261a9a907b7ddeb678ecf992070f06988dc9ba1445d437be19b11b6eea0eef839a932fdfe34c6a6132bed230a14fb0925ee795cfc66660662
+"svelte@npm:^3.44.2":
+  version: 3.44.2
+  resolution: "svelte@npm:3.44.2"
+  checksum: 912b186e113bbcc58442066be43a9c9d2ada43945eacfb90733c7454e6c5286014f66ced4222f8040e0c930289a47c83b4cda10226e2805479f8bfba9076812a
   languageName: node
   linkType: hard
 
@@ -13940,7 +13940,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:*":
+"typescript@npm:*, typescript@npm:~4.5.2":
   version: 4.5.2
   resolution: "typescript@npm:4.5.2"
   bin:
@@ -13950,33 +13950,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:~4.4.4":
-  version: 4.4.4
-  resolution: "typescript@npm:4.4.4"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 89ecb8436bb48ef5594d49289f5f89103071716b6e4844278f4fb3362856e31203e187a9c76d205c3f0b674d221a058fd28310dbcbcf5d95e9a57229bb5203f1
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@*#~builtin<compat/typescript>":
+"typescript@patch:typescript@*#~builtin<compat/typescript>, typescript@patch:typescript@~4.5.2#~builtin<compat/typescript>":
   version: 4.5.2
   resolution: "typescript@patch:typescript@npm%3A4.5.2#~builtin<compat/typescript>::version=4.5.2&hash=ddd1e8"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 24a439e062a05e3285a4f0e8a40644116ecdca89f3e908bed01e5a01b9aee747e3bcf0e85fe9e017e5ebf0c0863437c39479f2616f55a244c2d82d37022cdc4f
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@~4.4.4#~builtin<compat/typescript>":
-  version: 4.4.4
-  resolution: "typescript@patch:typescript@npm%3A4.4.4#~builtin<compat/typescript>::version=4.4.4&hash=ddd1e8"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: bd629ad0da4a15d79aaad56baf3ee7d96f6a181760d430ae77f8c5325df7bffd9edee57544a3970e3651e8b796fe03a5838a7eb39c6d46cc3866c0b23d36a0dd
   languageName: node
   linkType: hard
 
