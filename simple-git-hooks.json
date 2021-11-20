@@ -1,3 +1,3 @@
 {
-  "pre-commit": "./node_modules/.bin/nano-staged"
+  "pre-commit": "npx nano-staged"
 }

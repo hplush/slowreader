@@ -10131,14 +10131,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nano-staged@npm:^0.1.2":
-  version: 0.1.2
-  resolution: "nano-staged@npm:0.1.2"
+"nano-staged@npm:^0.1.3":
+  version: 0.1.3
+  resolution: "nano-staged@npm:0.1.3"
   dependencies:
     picocolors: ^1.0.0
   bin:
     nano-staged: bin/index.js
-  checksum: 6ea87461d09189cfe0465ccc4359274985533b7a9cebcb14d3fa3517d92860246a9b5719db3a34aa412285ae5fa290c73c1a65245b5c2a1de784147d90f3a575
+  checksum: e4e6af9dc6b609428cf76496aea675c17d49dcf0a2a921ec4dc6058aa4ae9e38b94f2417caf6ccede07bae65225a5224febb8b7cbba55ef0f56596427811eee1
   languageName: node
   linkType: hard
 
@@ -12685,7 +12685,7 @@ __metadata:
     eslint-plugin-prefer-let: ^3.0.1
     eslint-plugin-promise: ^5.1.1
     eslint-plugin-svelte3: ^3.2.1
-    nano-staged: ^0.1.2
+    nano-staged: ^0.1.3
     postcss-html: ^1.2.0
     prettier: ^2.4.1
     prettier-plugin-svelte: ^2.5.0
