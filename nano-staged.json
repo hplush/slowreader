@@ -1,0 +1,5 @@
+{
+  "*.(js|ts)": ["prettier --write"],
+  "*.css": ["stylelint --fix"],
+  "*.svelte": ["prettier --write", "stylelint --fix"]
+}
