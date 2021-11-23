@@ -5923,9 +5923,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.564, electron-to-chromium@npm:^1.3.896":
-  version: 1.3.904
-  resolution: "electron-to-chromium@npm:1.3.904"
-  checksum: 51cd8de455721c921ab5522e868071f7ea53eeff20938b7186283b50f3c5aad98ff10c9d6b991d98d0bef09db8206bfab63d0458adba33b25104ead9bcd395de
+  version: 1.3.906
+  resolution: "electron-to-chromium@npm:1.3.906"
+  checksum: 087330249a424066cbdb882890164b3cb944f0ea293838a1445274428549e5b6c5edd25c353fed733d20d055ba276d4e3b069554b5e06ebfe511134c4f68cf87
   languageName: node
   linkType: hard
 
@@ -7414,8 +7414,8 @@ __metadata:
   linkType: hard
 
 "fork-ts-checker-webpack-plugin@npm:^6.0.4":
-  version: 6.4.0
-  resolution: "fork-ts-checker-webpack-plugin@npm:6.4.0"
+  version: 6.4.2
+  resolution: "fork-ts-checker-webpack-plugin@npm:6.4.2"
   dependencies:
     "@babel/code-frame": ^7.8.3
     "@types/json-schema": ^7.0.5
@@ -7440,7 +7440,7 @@ __metadata:
       optional: true
     vue-template-compiler:
       optional: true
-  checksum: feba541453d4bdeaa743388541e125204789369920909f0152b11cfd1801a75fb2f6c708eae0174c9810ab4334fa21dea761037629440a647046581e7df62b8c
+  checksum: c8b970f27a1723d31fe56f30945d5f8d3cc391bf5bd1b186fb022cf0bce12d59ca7b170695b5d91bfeaf5515f3af50e71487a6bbb79cd3c3f44caae38e216016
   languageName: node
   linkType: hard
 
@@ -10173,14 +10173,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nano-staged@npm:^0.2.1":
-  version: 0.2.1
-  resolution: "nano-staged@npm:0.2.1"
+"nano-staged@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "nano-staged@npm:0.3.0"
   dependencies:
     picocolors: ^1.0.0
   bin:
     nano-staged: bin/index.js
-  checksum: 0482bc1aa3cc01260f018ad7af2d2ed3b3db77b4168136f449645694e3d0cdfb3a3576dbdc791f05b70d44680a3fd84f9b07d6075b439050b3f43ddb1dbae332
+  checksum: aa3ae50cbed71d5ef0272b7b74b29e97dac04fa3ef6d3812ed67c8c61d1b2e1ab63aa1046cf78c37ffb60e6064986227b36aca75cb7545f446de95c07ecdbe34
   languageName: node
   linkType: hard
 
@@ -12729,7 +12729,7 @@ __metadata:
     eslint-plugin-prefer-let: ^3.0.1
     eslint-plugin-promise: ^5.1.1
     eslint-plugin-svelte3: ^3.2.1
-    nano-staged: ^0.2.1
+    nano-staged: ^0.3.0
     postcss-html: ^1.2.0
     prettier: ^2.4.1
     prettier-plugin-svelte: ^2.5.0
@@ -12784,13 +12784,13 @@ __metadata:
   linkType: hard
 
 "socks-proxy-agent@npm:^6.0.0":
-  version: 6.1.0
-  resolution: "socks-proxy-agent@npm:6.1.0"
+  version: 6.1.1
+  resolution: "socks-proxy-agent@npm:6.1.1"
   dependencies:
     agent-base: ^6.0.2
     debug: ^4.3.1
     socks: ^2.6.1
-  checksum: 32ea0d62c848b5c246955e8d6c34832fe6cd8c5f3b66f5ace3a9bd7387bafae3e67d96474d41291723ba7135e2da46d65e008a8a35a793dfa5cb0f4ac05429df
+  checksum: 9a8a4f791bba0060315cf7291ca6f9db37d6fc280fd0860d73d8887d3efe4c22e823aa25a8d5375f6079279f8dc91b50c075345179bf832bfe3c7c26d3582e3c
   languageName: node
   linkType: hard
 
