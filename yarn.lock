@@ -2090,7 +2090,7 @@ __metadata:
     babel-loader: ^8.2.3
     browserslist: ^4.18.1
     nanostores: ^0.5.6
-    postcss: ^8.3.11
+    postcss: ^8.4.0
     postcss-lab-function: ^4.0.1
     rollup: ^2.60.1
     size-limit: ^7.0.3
@@ -2994,10 +2994,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^16.11.9":
-  version: 16.11.9
-  resolution: "@types/node@npm:16.11.9"
-  checksum: baec2e6471ee58fd1e9874e6f47ab95a918a0f46b42424392e4c13e3e07f078f8b72b6b48073b0b14f710ed66c5f1b2e497df43f28151000f11f5f299382cfe2
+"@types/node@npm:^16.11.10":
+  version: 16.11.10
+  resolution: "@types/node@npm:16.11.10"
+  checksum: 9c79419c5c3d92d5825bffa30f3668533f598d8b63a73ea7fc24e47f162bdbed92b0f8e4f4261cc3314b39cee050e303366d2aa154abc95c63a572a110b8c160
   languageName: node
   linkType: hard
 
@@ -5923,9 +5923,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.564, electron-to-chromium@npm:^1.3.896":
-  version: 1.3.906
-  resolution: "electron-to-chromium@npm:1.3.906"
-  checksum: 087330249a424066cbdb882890164b3cb944f0ea293838a1445274428549e5b6c5edd25c353fed733d20d055ba276d4e3b069554b5e06ebfe511134c4f68cf87
+  version: 1.4.0
+  resolution: "electron-to-chromium@npm:1.4.0"
+  checksum: 8ff6bfad86f56c970a6325b239a10bdf8eb353aadf02db3d3ab26737d148c590b52be75e3c735b02956180342fbdad0538b4d3a23ef13b044290841c8beeeeeb
   languageName: node
   linkType: hard
 
@@ -11278,14 +11278,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.3.11, postcss@npm:^8.3.8":
-  version: 8.3.11
-  resolution: "postcss@npm:8.3.11"
+"postcss@npm:^8.3.11, postcss@npm:^8.3.8, postcss@npm:^8.4.0":
+  version: 8.4.0
+  resolution: "postcss@npm:8.4.0"
   dependencies:
     nanoid: ^3.1.30
     picocolors: ^1.0.0
-    source-map-js: ^0.6.2
-  checksum: 1a230553d74c66aa9585c90781ed8ea75f19cefea405d2117b67fbeb24b5b5e0e17be2e0c5a07db31dd085643a13394127ab2222e940771b70498331bf20f35e
+    source-map-js: ^1.0.1
+  checksum: 5139eb1b8708a98cbc5240d1540b9333de5a6bde2737e946ec3d680968df42937ef43c54ed6eb50f1077b4de0394031bbecec290ebf8b4f5650cd4657e63b5d6
   languageName: node
   linkType: hard
 
@@ -12718,7 +12718,7 @@ __metadata:
     "@logux/eslint-config": ^46.1.0
     "@logux/stylelint-config": ^0.8.1
     "@types/jest": ^27.0.3
-    "@types/node": ^16.11.9
+    "@types/node": ^16.11.10
     "@types/ws": ^8.2.0
     "@typescript-eslint/eslint-plugin": ^5.4.0
     "@typescript-eslint/parser": ^5.4.0
@@ -12835,10 +12835,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"source-map-js@npm:^0.6.2":
-  version: 0.6.2
-  resolution: "source-map-js@npm:0.6.2"
-  checksum: 9c8151a29e00fd8d3ba87709fdf9a9ce48313d653f4a29a39b4ae53d346ac79e005de624796ff42eff55cbaf26d2e87f4466001ca87831d400d818c5cf146a0e
+"source-map-js@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "source-map-js@npm:1.0.1"
+  checksum: 22606113d62bbd468712b0cb0c46e9a8629de7eb081049c62a04d977a211abafd7d61455617f8b78daba0b6c0c7e7c88f8c6b5aaeacffac0a6676ecf5caac5ce
   languageName: node
   linkType: hard
 
@@ -14785,8 +14785,8 @@ __metadata:
   linkType: hard
 
 "ws@npm:^8.2.3":
-  version: 8.2.3
-  resolution: "ws@npm:8.2.3"
+  version: 8.3.0
+  resolution: "ws@npm:8.3.0"
   peerDependencies:
     bufferutil: ^4.0.1
     utf-8-validate: ^5.0.2
@@ -14795,7 +14795,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: c869296ccb45f218ac6d32f8f614cd85b50a21fd434caf11646008eef92173be53490810c5c23aea31bc527902261fbfd7b062197eea341b26128d4be56a85e4
+  checksum: 71f6919e3cb2c60ae53e00b13d7782bb77005750641855153a1716c23b7011259fe3a29a432522a3044dc7c579a7e2f5a495bb79ba9f823ce6c2e763300ef99b
   languageName: node
   linkType: hard
 

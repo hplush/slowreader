@@ -17,7 +17,7 @@
     "autoprefixer": "^10.4.0",
     "browserslist": "^4.18.1",
     "nanostores": "^0.5.6",
-    "postcss": "^8.3.11",
+    "postcss": "^8.4.0",
     "rollup": "^2.60.1",
     "svelte": "^3.44.2",
     "svelte-preprocess": "^4.9.8",

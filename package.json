@@ -23,7 +23,7 @@
     "@logux/eslint-config": "^46.1.0",
     "@logux/stylelint-config": "^0.8.1",
     "@types/jest": "^27.0.3",
-    "@types/node": "^16.11.9",
+    "@types/node": "^16.11.10",
     "@types/ws": "^8.2.0",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
