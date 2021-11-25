@@ -1820,16 +1820,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@logux/stylelint-config@npm:^0.8.1":
-  version: 0.8.1
-  resolution: "@logux/stylelint-config@npm:0.8.1"
+"@logux/stylelint-config@npm:^0.9.0":
+  version: 0.9.0
+  resolution: "@logux/stylelint-config@npm:0.9.0"
   dependencies:
     stylelint-config-recess-order: ^3.0.0
     stylelint-config-standard: ^24.0.0
     stylelint-order: ^5.0.0
   peerDependencies:
     stylelint: ^14.1.0
-  checksum: 50c41b3d017779e3820f0697666ecf75f9500118dd16b2665249abe8c5ef0791fca6753f3c2b622c749296230d3bdf9c880a7faf41bd4aa2a4962c9ff9c03644
+  checksum: 7202f763fe664ee3a6f3221d239d0459dd0f14489e5fecfd99118477a3e1387ccfbf7ba3d26e724d1636d5d57acf357b7269dce5f29449442ae6312c71709c6b
   languageName: node
   linkType: hard
 
@@ -2090,11 +2090,11 @@ __metadata:
     babel-loader: ^8.2.3
     browserslist: ^4.18.1
     nanostores: ^0.5.6
-    postcss: ^8.4.0
+    postcss: ^8.4.1
     postcss-lab-function: ^4.0.1
     rollup: ^2.60.1
     size-limit: ^7.0.3
-    storybook-builder-vite: 0.1.8
+    storybook-builder-vite: ^0.1.10
     svelte: ^3.44.2
     svelte-check: ^2.2.10
     svelte-loader: ^3.1.2
@@ -4745,9 +4745,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001109, caniuse-lite@npm:^1.0.30001125, caniuse-lite@npm:^1.0.30001272, caniuse-lite@npm:^1.0.30001280":
-  version: 1.0.30001282
-  resolution: "caniuse-lite@npm:1.0.30001282"
-  checksum: 62797fd756e88bfa01f0f983bea9de7814293b209456e8f0b20596b03d2880246f63dc90f947a1fa63f92806ebefbb86fc7811dbecb7839927886d07996938be
+  version: 1.0.30001283
+  resolution: "caniuse-lite@npm:1.0.30001283"
+  checksum: a13916f1b5ea0d75fe34d1ac8b8b841f88da69f98b1fd5178fd350291fdc1794daebcaaf57c3d3bc60f33aa27ecdf8e0909dc1a013475754c5416515f9bc32c2
   languageName: node
   linkType: hard
 
@@ -5923,9 +5923,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.564, electron-to-chromium@npm:^1.3.896":
-  version: 1.4.0
-  resolution: "electron-to-chromium@npm:1.4.0"
-  checksum: 8ff6bfad86f56c970a6325b239a10bdf8eb353aadf02db3d3ab26737d148c590b52be75e3c735b02956180342fbdad0538b4d3a23ef13b044290841c8beeeeeb
+  version: 1.4.1
+  resolution: "electron-to-chromium@npm:1.4.1"
+  checksum: cd2e5dad2c377d41859501bc39f131a5104fb87a130ba209a57ae3c2bddca0c882067e91c35a7ee77d71481867576d9e68dc8a5a11d6327b5d29c6ea8b94246e
   languageName: node
   linkType: hard
 
@@ -9771,11 +9771,11 @@ __metadata:
   linkType: hard
 
 "memfs@npm:^3.1.2":
-  version: 3.3.0
-  resolution: "memfs@npm:3.3.0"
+  version: 3.4.0
+  resolution: "memfs@npm:3.4.0"
   dependencies:
     fs-monkey: 1.0.3
-  checksum: 9e9eb71cfc077fd5e14ad2f497f5a8791689b64f307cf379ed6737c5781652a7af0509395c0dfba43c4e413dbc7cd7010e9ca002168ec329e6df178414b96268
+  checksum: 56ed70e1bdbc67d0c3758fa76c7ef25cd48c93c192f20c492e6b9811d783fdc453528d7ea91d9a79d5e6e121efa865adffd13fda30db0fa2b894ab91dfd1d653
   languageName: node
   linkType: hard
 
@@ -11126,14 +11126,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-html@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "postcss-html@npm:1.2.0"
+"postcss-html@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "postcss-html@npm:1.3.0"
   dependencies:
     htmlparser2: ^7.1.2
-    postcss: ^8.3.11
+    postcss: ^8.4.0
     postcss-safe-parser: ^6.0.0
-  checksum: c5fb13a2805d6f7e799ff6adee3a523ff6693951d1172cc4824bee48d4d8677a13b5af194575bd47d0b4566bee87b06aa12d28f45f9ea2c36f978825fe7640f6
+  checksum: bc1ff45e3abd4623d666981faf195230ffa68384217960e586fde18a60793c5abbe4a180bbe86dc4b9351a9d6791ae59cd6b2dee7ad8249f8896f8dd459898d3
   languageName: node
   linkType: hard
 
@@ -11278,14 +11278,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.3.11, postcss@npm:^8.3.8, postcss@npm:^8.4.0":
-  version: 8.4.0
-  resolution: "postcss@npm:8.4.0"
+"postcss@npm:^8.3.11, postcss@npm:^8.3.8, postcss@npm:^8.4.0, postcss@npm:^8.4.1":
+  version: 8.4.1
+  resolution: "postcss@npm:8.4.1"
   dependencies:
     nanoid: ^3.1.30
     picocolors: ^1.0.0
     source-map-js: ^1.0.1
-  checksum: 5139eb1b8708a98cbc5240d1540b9333de5a6bde2737e946ec3d680968df42937ef43c54ed6eb50f1077b4de0394031bbecec290ebf8b4f5650cd4657e63b5d6
+  checksum: 89ede712ccca478f3d3bc4137eac8efa9cc434ab193ae5348dfba343ab5144faa39a71e3cf53e2b45bc01e705829259706f9610d7c7c46a7a3affccd56b3e74f
   languageName: node
   linkType: hard
 
@@ -11306,12 +11306,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.4.1":
-  version: 2.4.1
-  resolution: "prettier@npm:2.4.1"
+"prettier@npm:^2.5.0":
+  version: 2.5.0
+  resolution: "prettier@npm:2.5.0"
   bin:
     prettier: bin-prettier.js
-  checksum: cc6830588b401b0d742862fe9c46bc9118204fb307c3abe0e49e95b35ed23629573807ffdf9cdd65289c252a0bb51fc0171437f6626ee36378dea80f0ee80b91
+  checksum: aad1b35b73e7c14596d389d90977a83dad0db689ba5802a0ef319c357b7867f55b885db197972aa6a56c30f53088c9f8e0d7f7930ae074c275a4e9cbe091d21d
   languageName: node
   linkType: hard
 
@@ -12716,7 +12716,7 @@ __metadata:
   resolution: "slowreader@workspace:."
   dependencies:
     "@logux/eslint-config": ^46.1.0
-    "@logux/stylelint-config": ^0.8.1
+    "@logux/stylelint-config": ^0.9.0
     "@types/jest": ^27.0.3
     "@types/node": ^16.11.10
     "@types/ws": ^8.2.0
@@ -12730,8 +12730,8 @@ __metadata:
     eslint-plugin-promise: ^5.1.1
     eslint-plugin-svelte3: ^3.2.1
     nano-staged: ^0.3.0
-    postcss-html: ^1.2.0
-    prettier: ^2.4.1
+    postcss-html: ^1.3.0
+    prettier: ^2.5.0
     prettier-plugin-svelte: ^2.5.0
     simple-git-hooks: ^2.7.0
     stylelint: ^14.1.0
@@ -13022,9 +13022,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"storybook-builder-vite@npm:0.1.8":
-  version: 0.1.8
-  resolution: "storybook-builder-vite@npm:0.1.8"
+"storybook-builder-vite@npm:^0.1.10":
+  version: 0.1.10
+  resolution: "storybook-builder-vite@npm:0.1.10"
   dependencies:
     "@mdx-js/mdx": ^1.6.22
     "@storybook/csf-tools": ^6.3.3
@@ -13036,7 +13036,7 @@ __metadata:
     vite-plugin-mdx: ^3.5.6
   peerDependencies:
     vite: ">=2.6.7"
-  checksum: 25adc102d2a6e6572afbd3a9f321a0387bec49a9f734bc582ea7fa1bad71e5df54a83b6c76d1f5360e52be39772d9dd4db9fefcc13f873e324fb885b9e91cee1
+  checksum: 7a73b7846862265329d798a416d1cee15e901ec0a5911e29436e14a82fc2662e1017b5579b5729a70c7c270b1947d94a9835268a5cd46460657a809f699a7d6e
   languageName: node
   linkType: hard
 
