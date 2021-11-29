@@ -12,6 +12,14 @@ input {
   font-family: system-ui;
 }
 
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus-color);
+}
+
 body.is-slow {
   --app-background: var(--reading-background);
 }

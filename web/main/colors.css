@@ -2,4 +2,5 @@
   --app-background: lch(98% 0 0);
   --navbar-border: lch(0% 0 0 / 10%);
   --reading-background: lch(98% 7 86);
+  --focus-color: lch(70% 42 243 / 30%);
 }
