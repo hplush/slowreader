@@ -2,12 +2,12 @@
   {
     "name": "Files to download",
     "path": "dist/**/*",
-    "limit": "10 KB"
+    "limit": "15 KB"
   },
   {
     "name": "All scripts to execute",
     "path": "dist/assets/*.js",
     "gzip": false,
-    "limit": "20 KB"
+    "limit": "25 KB"
   }
 ]
