@@ -1,5 +1,5 @@
-import type { Routes } from '@slowreader/core'
 import type { RouteParams } from '@nanostores/router'
+import type { Routes } from '@slowreader/core'
 import { createRouter, getPagePath } from '@nanostores/router'
 import { createAppRouter } from '@slowreader/core'
 
