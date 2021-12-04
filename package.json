@@ -5,13 +5,13 @@
   "engines": {
     "node": ">=16"
   },
-  "packageManager": "yarn@3.1.0",
+  "packageManager": "pnpm@3.1.0",
   "scripts": {
-    "test:all": "tsc --noEmit && eslint . && stylelint **/*.css **/*.svelte && yarn npm audit --environment production",
-    "test:api": "cd api && yarn test",
-    "test:core": "cd core && yarn test",
-    "test:web": "cd web && yarn test",
-    "test": "yarn test:all && yarn test:api && yarn test:core && yarn test:web"
+    "test:all": "tsc --noEmit && eslint . && stylelint **/*.css **/*.svelte && pnpm audit --prod",
+    "test:api": "cd api && pnpm test",
+    "test:core": "cd core && pnpm test",
+    "test:web": "cd web && pnpm test",
+    "test": "pnpm test:all && pnpm test:api && pnpm test:core && pnpm test:web"
   },
   "workspaces": [
     "api",

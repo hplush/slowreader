@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "unit": "tsm ../node_modules/uvu/bin.js . '\\.test\\.(ts|js)$'",
-    "test": "c8 yarn unit"
+    "unit": "tsm ./node_modules/uvu/bin.js . '\\.test\\.(ts|js)$'",
+    "test": "c8 pnpm unit"
   },
   "engines": {
     "node": ">=16"
@@ -20,6 +20,7 @@
     "@nanostores/i18n": "^0.1.1",
     "@nanostores/persistent": "^0.5.0",
     "@nanostores/router": "^0.2.1",
+    "@slowreader/api": "link:../api",
     "nanoid": "^3.1.30",
     "nanostores": "^0.5.7"
   },

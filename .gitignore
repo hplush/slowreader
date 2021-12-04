@@ -2,11 +2,3 @@ node_modules/
 coverage/
 dist/
 storybook-static/
-
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
