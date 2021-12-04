@@ -5,7 +5,6 @@
   "engines": {
     "node": ">=16"
   },
-  "packageManager": "pnpm@3.1.0",
   "scripts": {
     "test:all": "tsc --noEmit && eslint . && stylelint **/*.css **/*.svelte && pnpm audit --prod",
     "test:api": "cd api && pnpm test",
