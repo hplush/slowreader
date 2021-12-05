@@ -1,5 +1,6 @@
 {
-  "*.(js|ts)": ["prettier --write"],
-  "*.css": ["stylelint --fix"],
-  "*.svelte": ["prettier --write", "stylelint --fix"]
+  "*.(js|ts)": "prettier --write",
+  "*.css": "stylelint --fix",
+  "*.svelte": ["prettier --write", "stylelint --fix"],
+  ".tool-versions": "node ./scripts/check-versions.js"
 }
