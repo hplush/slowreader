@@ -6,11 +6,7 @@
     "node": ">=16"
   },
   "scripts": {
-    "test:all": "tsc --noEmit && eslint . && stylelint **/*.css **/*.svelte && pnpm audit --prod",
-    "test:api": "cd api && pnpm test",
-    "test:core": "cd core && pnpm test",
-    "test:web": "cd web && pnpm test",
-    "test": "pnpm test:all && pnpm test:api && pnpm test:core && pnpm test:web"
+    "test": "tsc --noEmit && eslint . && stylelint **/*.css **/*.svelte && pnpm audit --prod"
   },
   "workspaces": [
     "api",
