@@ -4,7 +4,6 @@
     isFastRoute,
     isSlowRoute
   } from '@slowreader/core'
-  import AddIcon from 'iconoir/icons/add-circled-outline.svg?component'
 
   import { router, getURL } from '../../stores/router'
   import Button from './button.svelte'
@@ -27,7 +26,6 @@
   </div>
   <div>
     <Button href={getURL('add')} current={$router.route === 'add'}>
-      <AddIcon />
       {$t.add}
     </Button>
     <Button>{$t.menu}</Button>
