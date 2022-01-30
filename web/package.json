@@ -7,8 +7,7 @@
     "start": "vite",
     "build": "vite build",
     "build:start": "vite preview",
-    "test": "svelte-check && pnpm build && size-limit && build-storybook",
-    "storybook": "start-storybook -p 6006"
+    "test": "svelte-check && pnpm build && size-limit"
   },
   "dependencies": {
     "@nanostores/i18n": "^0.2.0",
@@ -27,27 +26,10 @@
   },
   "devDependencies": {
     "@babel/core": "^7.16.12",
-    "@emotion/core": "^11.0.0",
-    "@emotion/is-prop-valid": "^1.1.1",
-    "@emotion/react": "^11.7.1",
-    "@emotion/styled": "^11.6.0",
-    "@mdx-js/react": "^1.6.22",
     "@size-limit/file": "^7.0.5",
-    "@storybook/addon-svelte-csf": "^1.1.0",
-    "@storybook/addons": "^6.4.16",
-    "@storybook/api": "^6.4.16",
-    "@storybook/client-api": "^6.4.16",
-    "@storybook/client-logger": "^6.4.16",
-    "@storybook/components": "^6.4.16",
-    "@storybook/core-common": "^6.4.16",
-    "@storybook/core-events": "^6.4.16",
-    "@storybook/svelte": "^6.4.16",
-    "@storybook/theming": "^6.4.16",
-    "babel-loader": "^8.2.3",
     "postcss-lab-function": "^4.0.3",
     "react": "^17.0.2",
     "size-limit": "^7.0.5",
-    "storybook-builder-vite": "^0.1.14",
     "svelte-check": "^2.3.0",
     "svelte-loader": "^3.1.2"
   }
