@@ -3,9 +3,7 @@
 </script>
 
 <form>
-  <input type="text" />
-  &nbsp;
-  <button>{$t.add}</button>
+  <input type="text" />&nbsp;<button>{$t.add}</button>
 </form>
 
 <style>
