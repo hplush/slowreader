@@ -17,12 +17,12 @@
   "dependencies": {
     "@logux/client": "^0.14.6",
     "@logux/core": "^0.7.2",
-    "@nanostores/i18n": "^0.2.0",
+    "@nanostores/i18n": "^0.2.1",
     "@nanostores/persistent": "^0.5.1",
     "@nanostores/router": "^0.3.0",
     "@slowreader/api": "link:../api",
     "nanoid": "^3.2.0",
-    "nanostores": "^0.5.8"
+    "nanostores": "^0.5.9"
   },
   "devDependencies": {
     "c8": "^7.11.0",
