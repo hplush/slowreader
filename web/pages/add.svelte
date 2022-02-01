@@ -1,9 +1,13 @@
-<script>
-  import { addMessages as t } from '@slowreader/core'
+<script type="ts">
+  import { addMessages as t, getSourceFromUrl } from '@slowreader/core'
+
+  let url = ''
 </script>
 
 <form>
-  <input type="text" />&nbsp;<button>{$t.add}</button>
+  <input type="text" bind:value={url} />&nbsp;<button>
+    {$t[getSourceFromUrl(url) + 'Add']}
+  </button>
 </form>
 
 <style>
