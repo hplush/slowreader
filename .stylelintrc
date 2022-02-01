@@ -1,7 +1,8 @@
 {
   "extends": "@logux/stylelint-config",
   "ignoreFiles": [
-    "web/dist/**/*"
+    "web/dist/**/*",
+    "*/coverage/lcov-report/*"
   ],
   "rules": {
     "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"],
