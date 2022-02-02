@@ -1,13 +1,22 @@
 <script type="ts">
-  import { addMessages as t, getSourceFromUrl } from '@slowreader/core'
+  import {
+    addMessages as t,
+    getSourceFromUrl,
+    normalizeUrl
+  } from '@slowreader/core'
 
   let url = ''
 </script>
 
 <form>
-  <input type="text" bind:value={url} />&nbsp;<button>
-    {$t[getSourceFromUrl(url) + 'Add']}
-  </button>
+  <div>
+    <input type="text" bind:value={url} />&nbsp;<button>
+      {$t[getSourceFromUrl(url) + 'Add']}
+    </button>
+    {#if normalizeUrl(url) === 'invalid'}
+      <div class="error">{$t.invalidUrl}</div>
+    {/if}
+  </div>
 </form>
 
 <style>
@@ -16,5 +25,9 @@
     align-items: center;
     justify-content: center;
     min-height: 100%;
+  }
+
+  .error {
+    color: var(--error-text);
   }
 </style>

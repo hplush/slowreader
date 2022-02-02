@@ -5,6 +5,8 @@ const TWEET_PATTERN = /^twitter\.com\/[^/]+\/status\/\d+/
 const USER_PATTERN = /^twitter\.com\/[^/]+\/?(\?.*)?$/
 
 export const twitter: Source = {
+  alwaysUseHttps: true,
+
   isMineUrl(dirtyUrl) {
     let trimmed = removeProtocol(dirtyUrl)
     return TWEET_PATTERN.test(trimmed) || USER_PATTERN.test(trimmed)
