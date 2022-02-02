@@ -6,15 +6,24 @@
   } from '@slowreader/core'
 
   let url = ''
+  $: invalid = normalizeUrl(url) === 'invalid'
 </script>
 
 <form>
   <div>
-    <input type="text" bind:value={url} />&nbsp;<button>
+    <input
+      type="text"
+      bind:value={url}
+      aria-invalid={invalid}
+      required
+      aria-errormessage="pages-add-invalid"
+    />&nbsp;<button>
       {$t[getSourceFromUrl(url) + 'Add']}
     </button>
-    {#if normalizeUrl(url) === 'invalid'}
-      <div class="error">{$t.invalidUrl}</div>
+    {#if invalid}
+      <div class="error" role="alert" id="pages-add-invalid">
+        {$t.invalidUrl}
+      </div>
     {/if}
   </div>
 </form>
