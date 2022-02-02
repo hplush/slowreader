@@ -14,8 +14,8 @@
     <input
       type="text"
       bind:value={url}
-      aria-invalid={invalid}
       required
+      aria-invalid={invalid}
       aria-errormessage="pages-add-invalid"
     />&nbsp;<button>
       {$t[getSourceFromUrl(url) + 'Add']}
