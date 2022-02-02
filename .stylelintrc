@@ -6,7 +6,8 @@
   ],
   "rules": {
     "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"],
-    "alpha-value-notation": "percentage"
+    "alpha-value-notation": "percentage",
+    "color-named": "never"
   },
   "overrides": [
     {
