@@ -35,13 +35,8 @@ function data<Name extends keyof Routes>(
   ...params: RouteParams<Routes, Name>
 ): Route {
   // Types are too tricky here
-  if (params[0]) {
-    // @ts-expect-error
-    return { route, params: params[0] }
-  } else {
-    // @ts-expect-error
-    return { route }
-  }
+  // @ts-expect-error
+  return { route, params: params.length > 0 ? params[0] : {} }
 }
 
 function redirect<Name extends keyof Routes>(
