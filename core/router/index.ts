@@ -1,4 +1,4 @@
-import { RouteParams, Router, Page } from '@nanostores/router'
+import { RouteParams, Router, Page, Params } from '@nanostores/router'
 import { computed, ReadableAtom } from 'nanostores'
 
 import { localSettings, LocalSettingsValue } from '../local-settings/index.js'
@@ -11,6 +11,7 @@ export interface Routes {
   start: void
   signin: void
   add: void
+  adding: 'url'
 }
 
 const GUEST = new Set<AppRoute['route']>(['start', 'signin'])
@@ -21,31 +22,46 @@ export type AppRoute = Omit<Page<Routes, keyof Routes>, 'path'> & {
   redirect: boolean
 }
 
-function data(
-  route: string,
-  params?: { [key: string]: string }
-): Omit<Page<Routes>, 'path'> {
-  return { route, params: params ?? {} }
+export type Route<Name extends keyof Routes = keyof Routes> = Name extends never
+  ? never
+  : {
+      route: Name
+      params: Routes[Name] extends string ? Params<Routes[Name]> : never
+      redirect: boolean
+    }
+
+function data<Name extends keyof Routes>(
+  route: Name,
+  ...params: RouteParams<Routes, Name>
+): Route {
+  // Types are too tricky here
+  if (params[0]) {
+    // @ts-expect-error
+    return { route, params: params[0] }
+  } else {
+    // @ts-expect-error
+    return { route }
+  }
 }
 
-function redirect<N extends keyof Routes>(
-  route: N,
-  ...params: RouteParams<Routes, N>
-): AppRoute {
-  return { ...data(route, params[0]), redirect: true }
+function redirect<Name extends keyof Routes>(
+  route: Name,
+  ...params: RouteParams<Routes, Name>
+): Route {
+  return { ...data(route, ...params), redirect: true }
 }
 
-function open<N extends keyof Routes>(
-  route: N,
-  ...params: RouteParams<Routes, N>
-): AppRoute {
-  return { ...data(route, params[0]), redirect: false }
+function open<Name extends keyof Routes>(
+  route: Name,
+  ...params: RouteParams<Routes, Name>
+): Route {
+  return { ...data(route, ...params), redirect: false }
 }
 
 function getRoute(
   page: Page<Routes> | undefined,
   settings: LocalSettingsValue
-): AppRoute {
+): Route {
   if (!page) {
     return open('notFound')
   } else if (settings.userId) {
@@ -60,7 +76,7 @@ function getRoute(
   return { route: page.route, params: page.params, redirect: false }
 }
 
-export function createAppRouter(base: BaseRouter): ReadableAtom<AppRoute> {
+export function createAppRouter(base: BaseRouter): ReadableAtom<Route> {
   return computed([base, localSettings], getRoute)
 }
 
