@@ -10,7 +10,8 @@ let urlRouter = createRouter<Routes>({
   start: '/start',
   fast: '/fast',
   slowAll: '/slow',
-  add: '/add'
+  add: '/add',
+  adding: '/add/:url'
 })
 
 export const router = createAppRouter(urlRouter)
@@ -20,4 +21,11 @@ export function getURL<PageName extends keyof Routes>(
   ...params: RouteParams<Routes, PageName>
 ): string {
   return getPagePath(urlRouter, name, ...params)
+}
+
+export function openURL<PageName extends keyof Routes>(
+  name: PageName,
+  ...params: RouteParams<Routes, PageName>
+): void {
+  urlRouter.open(getURL(name, ...params))
 }

@@ -5,22 +5,35 @@
     normalizeUrl
   } from '@slowreader/core'
 
+  import { openURL } from '../stores/router'
+
   let url = ''
-  $: invalid = normalizeUrl(url) === 'invalid'
+  $: normalized = normalizeUrl(url)
+
+  let input: HTMLInputElement
+
+  function onSubmit(): void {
+    if (normalized instanceof URL) {
+      openURL('adding', { url: normalized.toString() })
+    } else {
+      input.focus()
+    }
+  }
 </script>
 
-<form>
+<form on:submit|stopPropagation={onSubmit}>
   <div>
     <input
       type="text"
       bind:value={url}
+      bind:this={input}
       required
-      aria-invalid={invalid}
+      aria-invalid={normalized === 'invalid'}
       aria-errormessage="pages-add-invalid"
     />&nbsp;<button>
       {$t[getSourceFromUrl(url) + 'Add']}
     </button>
-    {#if invalid}
+    {#if normalized === 'invalid'}
       <div class="error" role="alert" id="pages-add-invalid">
         {$t.invalidUrl}
       </div>
