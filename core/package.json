@@ -22,7 +22,7 @@
     "@nanostores/router": "^0.3.1",
     "@slowreader/api": "link:../api",
     "nanoid": "^3.2.0",
-    "nanostores": "^0.5.9"
+    "nanostores": "^0.5.10"
   },
   "devDependencies": {
     "c8": "^7.11.0",
