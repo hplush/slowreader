@@ -14,7 +14,7 @@
 
   function onSubmit(): void {
     if (normalized instanceof URL) {
-      openURL('adding', { url: normalized.toString() })
+      openURL('preview', { url: normalized.toString() })
     } else {
       input.focus()
     }

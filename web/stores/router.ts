@@ -11,7 +11,7 @@ let urlRouter = createRouter<Routes>({
   fast: '/fast',
   slowAll: '/slow',
   add: '/add',
-  adding: '/add/:url'
+  preview: '/preview/:url'
 })
 
 export const router = createAppRouter(urlRouter)

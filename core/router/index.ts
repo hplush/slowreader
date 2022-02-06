@@ -11,7 +11,7 @@ export interface Routes {
   start: void
   signin: void
   add: void
-  adding: 'url'
+  preview: 'url'
 }
 
 const GUEST = new Set<AppRoute['route']>(['start', 'signin'])
