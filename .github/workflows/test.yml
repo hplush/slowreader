@@ -9,15 +9,16 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
+      - name: Install tools
+        uses: asdf-vm/actions/install@v1
+      - name: Cache pnpm modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-pnpm-modules
         with:
-          version: 6.30.1
-      - name: Install Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16.14.0
-          cache: pnpm
+          path: ~/.pnpm-store
+          key: pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
       - name: Run tests
