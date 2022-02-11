@@ -19,18 +19,18 @@
     "browserslist": "^4.19.1",
     "nanostores": "^0.5.10",
     "postcss": "^8.4.6",
-    "rollup": "^2.67.0",
+    "rollup": "^2.67.2",
     "svelte": "^3.46.4",
-    "svelte-preprocess": "^4.10.2",
-    "vite": "2.7.13"
+    "svelte-preprocess": "^4.10.3",
+    "vite": "2.8.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.0",
+    "@babel/core": "^7.17.2",
     "@size-limit/file": "^7.0.8",
     "postcss-lab-function": "^4.0.4",
     "react": "^17.0.2",
     "size-limit": "^7.0.8",
-    "svelte-check": "^2.4.2",
+    "svelte-check": "^2.4.3",
     "svelte-loader": "^3.1.2"
   }
 }

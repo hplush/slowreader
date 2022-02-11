@@ -15,7 +15,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@logux/client": "^0.14.6",
+    "@logux/client": "^0.14.7",
     "@logux/core": "^0.7.2",
     "@nanostores/i18n": "^0.2.1",
     "@nanostores/persistent": "^0.5.1",
