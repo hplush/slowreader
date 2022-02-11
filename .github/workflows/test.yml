@@ -12,11 +12,11 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 6.29.2
+          version: 6.30.1
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 16.13.2
+          node-version: 16.14.0
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
