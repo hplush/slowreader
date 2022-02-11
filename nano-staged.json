@@ -1,6 +1,5 @@
 {
   "*.(js|ts)": "prettier --write",
   "*.css": "stylelint --fix",
-  "*.svelte": ["prettier --plugin-search-dir=. --write", "stylelint --fix"],
-  ".tool-versions": "node ./scripts/check-versions.js"
+  "*.svelte": ["prettier --plugin-search-dir=. --write", "stylelint --fix"]
 }
