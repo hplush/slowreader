@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
+      - name: Install asdf
+        uses: asdf-vm/actions/setup@v1
       - name: Cache asdf
         uses: actions/cache@v2
         with:
