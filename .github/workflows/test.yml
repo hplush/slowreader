@@ -9,6 +9,13 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
+      - name: Cache tools
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.asdf/installs
+            ~/.asdf/plugins
+          key: ${{ runner.os }}-${{ hashFiles('**/.tool-versions') }}
       - name: Install tools
         uses: asdf-vm/actions/install@v1
       - name: Cache pnpm modules
