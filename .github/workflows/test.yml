@@ -15,7 +15,7 @@ jobs:
         id: asdf-cache
         uses: actions/cache@v2
         with:
-          path: ~/.asdf/
+          path: ~/.asdf
           key: asdf-${{ hashFiles('**/.tool-versions') }}
       - name: Install asdf tools
         if: steps.asdf-cache.outputs.cache-hit != 'true'
