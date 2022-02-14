@@ -22,12 +22,12 @@
     "rollup": "^2.67.2",
     "svelte": "^3.46.4",
     "svelte-preprocess": "^4.10.3",
-    "vite": "2.8.1"
+    "vite": "2.8.2"
   },
   "devDependencies": {
     "@babel/core": "^7.17.2",
     "@size-limit/file": "^7.0.8",
-    "postcss-lab-function": "^4.0.4",
+    "postcss-lab-function": "^4.1.0",
     "react": "^17.0.2",
     "size-limit": "^7.0.8",
     "svelte-check": "^2.4.3",
