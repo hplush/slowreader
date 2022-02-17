@@ -33,6 +33,6 @@ export function createResource(dirtyUrl: string): DirtyResource {
   }
 }
 
-export function checkResource(dirty: DirtyResource): dirty is Resource {
+export function isValidResource(dirty: DirtyResource): dirty is Resource {
   return dirty !== 'emptyUrl' && dirty !== 'invalidUrl'
 }

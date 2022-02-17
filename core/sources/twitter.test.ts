@@ -1,12 +1,16 @@
 import { equal } from 'uvu/assert'
 import { test } from 'uvu'
 
-import { createResource, checkResource, sources } from '../index.js'
+import { createResource, isValidResource, sources } from '../index.js'
 
 test('detects own URLs', () => {
   function isMine(url: string): boolean {
     let resource = createResource(url)
-    return checkResource(resource) ? sources.twitter.isMineUrl(resource) : false
+    if (isValidResource(resource)) {
+      return sources.twitter.isMineUrl(resource)
+    } else {
+      return false
+    }
   }
 
   equal(isMine('https://twitter.com/user'), true)

@@ -1,7 +1,7 @@
 import { equal, is } from 'uvu/assert'
 import { test } from 'uvu'
 
-import { createResource, checkResource } from '../index.js'
+import { createResource, isValidResource } from '../index.js'
 
 test('creates resource', () => {
   equal(createResource('https://example.com/'), {
@@ -25,9 +25,9 @@ test('creates resource', () => {
 })
 
 test('validates resource', () => {
-  is(checkResource(createResource('')), false)
-  is(checkResource(createResource('not URL')), false)
-  is(checkResource(createResource('example.com')), true)
+  is(isValidResource(createResource('')), false)
+  is(isValidResource(createResource('not URL')), false)
+  is(isValidResource(createResource('example.com')), true)
 })
 
 test.run()

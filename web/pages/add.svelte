@@ -2,8 +2,8 @@
   import {
     addMessages as t,
     getSourceFromUrl,
-    createResource,
-    checkResource
+    isValidResource,
+    createResource
   } from '@slowreader/core'
 
   import { openURL } from '../stores/router'
@@ -14,7 +14,7 @@
   let input: HTMLInputElement
 
   function onSubmit(): void {
-    if (checkResource(resource)) {
+    if (isValidResource(resource)) {
       openURL('preview', { url: resource.url.href })
     } else {
       input.focus()
