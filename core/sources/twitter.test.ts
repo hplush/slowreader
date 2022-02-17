@@ -1,19 +1,25 @@
 import { test } from 'uvu'
 import { is } from 'uvu/assert'
 
+import { createResource, checkResource } from '../resource/index.js'
 import { twitter } from './twitter.js'
 
 test('detects own URLs', () => {
-  is(twitter.isMineUrl('https://twitter.com/user'), true)
-  is(twitter.isMineUrl('http://twitter.com/user'), true)
-  is(twitter.isMineUrl('http://twitter.com/user/'), true)
-  is(twitter.isMineUrl('twitter.com/user'), true)
-  is(twitter.isMineUrl('http://twitter.com/user?utm=test'), true)
-  is(twitter.isMineUrl('https://twitter.com/user/status/1500'), true)
-  is(twitter.isMineUrl('https://twitter.com/user/status/1500?utm'), true)
+  function isMine(url: string): boolean {
+    let resource = createResource(url)
+    return checkResource(resource) ? twitter.isMineUrl(resource) : false
+  }
 
-  is(twitter.isMineUrl('nottwitter.com/user'), false)
-  is(twitter.isMineUrl('https://twitter.com/i/bookmarks'), false)
+  is(isMine('https://twitter.com/user'), true)
+  is(isMine('http://twitter.com/user'), true)
+  is(isMine('http://twitter.com/user/'), true)
+  is(isMine('twitter.com/user'), true)
+  is(isMine('http://twitter.com/user?utm=test'), true)
+  is(isMine('https://twitter.com/user/status/1500'), true)
+  is(isMine('https://twitter.com/user/status/1500?utm'), true)
+
+  is(isMine('nottwitter.com/user'), false)
+  is(isMine('https://twitter.com/i/bookmarks'), false)
 })
 
 test.run()

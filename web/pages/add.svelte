@@ -2,19 +2,20 @@
   import {
     addMessages as t,
     getSourceFromUrl,
-    normalizeUrl
+    createResource,
+    checkResource
   } from '@slowreader/core'
 
   import { openURL } from '../stores/router'
 
   let url = ''
-  $: normalized = normalizeUrl(url)
+  $: resource = createResource(url)
 
   let input: HTMLInputElement
 
   function onSubmit(): void {
-    if (normalized instanceof URL) {
-      openURL('preview', { url: normalized.toString() })
+    if (checkResource(resource)) {
+      openURL('preview', { url: resource.url.href })
     } else {
       input.focus()
     }
@@ -28,12 +29,12 @@
       bind:value={url}
       bind:this={input}
       required
-      aria-invalid={normalized === 'invalid'}
+      aria-invalid={resource === 'invalidUrl'}
       aria-errormessage="pages-add-invalid"
     />&nbsp;<button>
       {$t[getSourceFromUrl(url) + 'Add']}
     </button>
-    {#if normalized === 'invalid'}
+    {#if resource === 'invalidUrl'}
       <div class="error" role="alert" id="pages-add-invalid">
         {$t.invalidUrl}
       </div>

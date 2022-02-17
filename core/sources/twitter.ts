@@ -1,14 +1,16 @@
-import { removeProtocol } from '../utils/index.js'
 import { Source } from '../source/index.js'
 
-const TWEET_PATTERN = /^twitter\.com\/[^/]+\/status\/\d+/
-const USER_PATTERN = /^twitter\.com\/[^/]+\/?(\?.*)?$/
+const TWEET_PATTERN = /^\/[^/]+\/status\/\d+/
+const USER_PATTERN = /^\/[^/]+\/?(\?.*)?$/
 
 export const twitter: Source = {
   alwaysUseHttps: true,
 
-  isMineUrl(dirtyUrl) {
-    let trimmed = removeProtocol(dirtyUrl)
-    return TWEET_PATTERN.test(trimmed) || USER_PATTERN.test(trimmed)
+  isMineUrl(url) {
+    return (
+      url.url.hostname === 'twitter.com' &&
+      (TWEET_PATTERN.test(url.url.pathname) ||
+        USER_PATTERN.test(url.url.pathname))
+    )
   }
 }
