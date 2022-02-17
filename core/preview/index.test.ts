@@ -1,7 +1,7 @@
 import { equal } from 'uvu/assert'
 import { test } from 'uvu'
 
-import { getSourceFromUrl } from './index.js'
+import { getSourceFromUrl } from '../index.js'
 
 test('iterates through sources', () => {
   equal(getSourceFromUrl('twitter.com/user'), 'twitter')

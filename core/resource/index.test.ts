@@ -1,7 +1,7 @@
 import { equal, is } from 'uvu/assert'
 import { test } from 'uvu'
 
-import { createResource, checkResource } from './index.js'
+import { createResource, checkResource } from '../index.js'
 
 test('creates resource', () => {
   equal(createResource('https://example.com/'), {

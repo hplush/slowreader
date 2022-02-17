@@ -4,7 +4,7 @@ import {
   cleanTestStorage,
   getTestStorage
 } from '@nanostores/persistent'
-import { equal, is, match, ok, throws, type } from 'uvu/assert'
+import { equal, match, ok, throws, type } from 'uvu/assert'
 import { cleanStores } from 'nanostores'
 import { mockFetch } from '@slowreader/api'
 import { test } from 'uvu'
@@ -84,7 +84,7 @@ test('loads data from storage', () => {
 test('generates user data', () => {
   localSettings.listen(() => {})
   generateCredentials()
-  is(localSettings.get().signedUp, false)
+  equal(localSettings.get().signedUp, false)
   equal(typeof localSettings.get().userId, 'string')
   equal(typeof localSettings.get().encryptSecret, 'string')
   let password = getPassword()
@@ -161,7 +161,7 @@ test('signes up', async () => {
   let accessSecret = getPassword().split(':')[0]
   await signUp()
   let userId = localSettings.get().userId
-  is(localSettings.get().signedUp, true)
+  equal(localSettings.get().signedUp, true)
   type(userId, 'string')
   type(localSettings.get().encryptSecret, 'string')
   equal(getStorageKey('signedUp'), 'yes')
@@ -186,7 +186,7 @@ test('checks password while signing in', async () => {
 test('signs in', async () => {
   localSettings.listen(() => {})
   let result = await signIn('user', 'good:encrypt')
-  is(result, true)
+  equal(result, true)
   equal(localSettings.get(), {
     serverUrl: 'wss://slowreader.app/',
     signedUp: true,
@@ -209,7 +209,7 @@ test('reacts on wrong password during signing in', async () => {
   mockFetch(400)
   localSettings.listen(() => {})
   let result = await signIn('user', 'bad:encrypt')
-  is(result, false)
+  equal(result, false)
   equal(localSettings.get(), {
     serverUrl: 'wss://slowreader.app/',
     signedUp: false

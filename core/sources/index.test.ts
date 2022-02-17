@@ -1,8 +1,7 @@
 import { equal, is } from 'uvu/assert'
 import { test } from 'uvu'
 
-import { findSource } from './index.js'
-import { twitter } from './twitter.js'
+import { findSource, sources } from '../index.js'
 
 test('iterates through sources', () => {
   is(
@@ -10,7 +9,7 @@ test('iterates through sources', () => {
     undefined
   )
   equal(
-    findSource(i => i === twitter),
+    findSource(i => i === sources.twitter),
     'twitter'
   )
 })

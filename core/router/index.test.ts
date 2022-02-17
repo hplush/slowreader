@@ -5,7 +5,7 @@ import {
 } from '@nanostores/persistent'
 import { cleanStores, atom, ReadableAtom } from 'nanostores'
 import { RouteParams, Page } from '@nanostores/router'
-import { equal, is } from 'uvu/assert'
+import { equal } from 'uvu/assert'
 import { test } from 'uvu'
 
 import {
@@ -116,25 +116,25 @@ test('transforms routers for users', () => {
 
 test('has routes groups', () => {
   router.listen(() => {})
-  is(isFastRoute(router.get()), false)
-  is(isSlowRoute(router.get()), false)
-  is(isGuestRoute(router.get()), true)
+  equal(isFastRoute(router.get()), false)
+  equal(isSlowRoute(router.get()), false)
+  equal(isGuestRoute(router.get()), true)
 
   setTestStorageKey('slowreader:userId', '10')
   changeBaseRoute('add')
-  is(isFastRoute(router.get()), false)
-  is(isSlowRoute(router.get()), false)
-  is(isGuestRoute(router.get()), false)
+  equal(isFastRoute(router.get()), false)
+  equal(isSlowRoute(router.get()), false)
+  equal(isGuestRoute(router.get()), false)
 
   changeBaseRoute('slowAll')
-  is(isFastRoute(router.get()), false)
-  is(isSlowRoute(router.get()), true)
-  is(isGuestRoute(router.get()), false)
+  equal(isFastRoute(router.get()), false)
+  equal(isSlowRoute(router.get()), true)
+  equal(isGuestRoute(router.get()), false)
 
   changeBaseRoute('fast')
-  is(isFastRoute(router.get()), true)
-  is(isSlowRoute(router.get()), false)
-  is(isGuestRoute(router.get()), false)
+  equal(isFastRoute(router.get()), true)
+  equal(isSlowRoute(router.get()), false)
+  equal(isGuestRoute(router.get()), false)
 })
 
 test.run()
