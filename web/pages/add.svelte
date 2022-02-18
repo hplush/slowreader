@@ -23,23 +23,27 @@
 </script>
 
 <form on:submit|stopPropagation={onSubmit}>
-  <div>
+  <label>
+    {$t.url}
+    <!-- Field has good description, user will be in context -->
+    <!-- svelte-ignore a11y-autofocus -->
     <input
       type="text"
       bind:value={url}
       bind:this={input}
       required
+      autofocus
       aria-invalid={resource === 'invalidUrl'}
       aria-errormessage="pages-add-invalid"
-    />&nbsp;<button>
-      {$t[getSourceFromUrl(url) + 'Add']}
-    </button>
-    {#if resource === 'invalidUrl'}
-      <div class="error" role="alert" id="pages-add-invalid">
-        {$t.invalidUrl}
-      </div>
-    {/if}
-  </div>
+    /></label
+  >&nbsp;<button>
+    {$t[getSourceFromUrl(url) + 'Add']}
+  </button>
+  {#if resource === 'invalidUrl'}
+    <div class="error" role="alert" id="pages-add-invalid">
+      {$t.invalidUrl}
+    </div>
+  {/if}
 </form>
 
 <style>
