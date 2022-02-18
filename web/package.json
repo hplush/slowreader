@@ -19,10 +19,10 @@
     "browserslist": "^4.19.1",
     "nanostores": "^0.5.10",
     "postcss": "^8.4.6",
-    "rollup": "^2.67.2",
+    "rollup": "^2.67.3",
     "svelte": "^3.46.4",
     "svelte-preprocess": "^4.10.3",
-    "vite": "2.8.3"
+    "vite": "2.8.4"
   },
   "devDependencies": {
     "@babel/core": "^7.17.5",
