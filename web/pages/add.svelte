@@ -1,20 +1,20 @@
 <script type="ts">
   import {
-    addMessages as t,
-    getSourceFromUrl,
-    isValidResource,
-    createResource
+    getSourceFromPreviewUrl,
+    isValidPreviewUrl,
+    createPreviewUrl,
+    addMessages as t
   } from '@slowreader/core'
 
   import { openURL } from '../stores/router'
 
   let url = ''
-  $: resource = createResource(url)
+  $: resource = createPreviewUrl(url)
 
   let input: HTMLInputElement
 
   function onSubmit(): void {
-    if (isValidResource(resource)) {
+    if (isValidPreviewUrl(resource)) {
       openURL('preview', { url: resource.url.href })
     } else {
       input.focus()
@@ -37,7 +37,7 @@
       aria-errormessage="pages-add-invalid"
     /></label
   >&nbsp;<button>
-    {$t[getSourceFromUrl(url) + 'Add']}
+    {$t[getSourceFromPreviewUrl(resource) + 'Add']}
   </button>
   {#if resource === 'invalidUrl'}
     <div class="error" role="alert" id="pages-add-invalid">

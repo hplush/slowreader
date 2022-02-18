@@ -1,13 +1,13 @@
 import { equal } from 'uvu/assert'
 import { test } from 'uvu'
 
-import { createResource, isValidResource, sources } from '../index.js'
+import { isValidPreviewUrl, createPreviewUrl, sources } from '../index.js'
 
 test('detects own URLs', () => {
   function isMine(url: string): boolean {
-    let resource = createResource(url)
-    if (isValidResource(resource)) {
-      return sources.twitter.isMineUrl(resource)
+    let previewUrl = createPreviewUrl(url)
+    if (isValidPreviewUrl(previewUrl)) {
+      return sources.twitter.isMineUrl(previewUrl)
     } else {
       return false
     }

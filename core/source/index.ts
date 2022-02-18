@@ -1,6 +1,6 @@
-import { Resource } from '../resource/index.js'
+import { PreviewUrl } from '../preview/url/index.js'
 
 export interface Source {
   alwaysUseHttps: boolean
-  isMineUrl(dirtyUrl: Resource): boolean
+  isMineUrl(url: PreviewUrl): boolean
 }
