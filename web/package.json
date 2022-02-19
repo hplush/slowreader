@@ -16,7 +16,7 @@
     "@slowreader/core": "link:../core",
     "@sveltejs/vite-plugin-svelte": "1.0.0-next.37",
     "autoprefixer": "^10.4.2",
-    "browserslist": "^4.19.2",
+    "browserslist": "^4.19.3",
     "nanostores": "^0.5.10",
     "postcss": "^8.4.6",
     "rollup": "^2.67.3",
