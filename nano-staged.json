@@ -1,5 +1,6 @@
 {
-  "*.(js|ts)": "prettier --write",
+  "*.js": "prettier --write",
+  "*.ts": "prettier --write",
   "*.css": "stylelint --fix",
   "*.svelte": ["prettier --plugin-search-dir=. --write", "stylelint --fix"]
 }
