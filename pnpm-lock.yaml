@@ -107,7 +107,6 @@ importers:
       nanostores: ^0.5.12
       postcss: ^8.4.12
       postcss-lab-function: ^4.1.2
-      react: ^18.0.0
       rollup: ^2.70.1
       size-limit: ^7.0.8
       svelte: ^3.46.6
@@ -127,13 +126,12 @@ importers:
       postcss: 8.4.12
       rollup: 2.70.1
       svelte: 3.46.6
-      svelte-preprocess: 4.10.4_0daceb5ac16036e87bb7b2e744d71e23
+      svelte-preprocess: 4.10.4_9f0648eb65813f1833b8da89ce3b030e
       vite: 2.9.1
     devDependencies:
       '@babel/core': 7.17.8
       '@size-limit/file': 7.0.8_size-limit@7.0.8
       postcss-lab-function: 4.1.2_postcss@8.4.12
-      react: 18.0.0
       size-limit: 7.0.8
       svelte-check: 2.4.6_9f0648eb65813f1833b8da89ce3b030e
       svelte-loader: 3.1.2_svelte@3.46.6
@@ -2450,13 +2448,6 @@ packages:
     resolution: {integrity: sha1-WjUNoLERO4N+z//VgSy+WNbq4ZM=}
     dev: true
 
-  /loose-envify/1.4.0:
-    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
-    hasBin: true
-    dependencies:
-      js-tokens: 4.0.0
-    dev: true
-
   /lru-cache/6.0.0:
     resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
     engines: {node: '>=10'}
@@ -2942,13 +2933,6 @@ packages:
 
   /react-is/17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
-    dev: true
-
-  /react/18.0.0:
-    resolution: {integrity: sha512-x+VL6wbT4JRVPm7EGxXhZ8w8LTROaxPXOqhlGyVSrv0sB1jkyFGgXxJ8LVoPRLvPR6/CIZGFmfzqUa2NYeMr2A==}
-    engines: {node: '>=0.10.0'}
-    dependencies:
-      loose-envify: 1.4.0
     dev: true
 
   /read-pkg-up/7.0.1:
@@ -3480,6 +3464,59 @@ packages:
       strip-indent: 3.0.0
       svelte: 3.46.6
       typescript: 4.6.3
+    dev: true
+
+  /svelte-preprocess/4.10.4_9f0648eb65813f1833b8da89ce3b030e:
+    resolution: {integrity: sha512-fuwol0N4UoHsNQolLFbMqWivqcJ9N0vfWO9IuPAiX/5okfoGXURyJ6nECbuEIv0nU3M8Xe2I1ONNje2buk7l6A==}
+    engines: {node: '>= 9.11.2'}
+    requiresBuild: true
+    peerDependencies:
+      '@babel/core': ^7.10.2
+      coffeescript: ^2.5.1
+      less: ^3.11.3 || ^4.0.0
+      node-sass: '*'
+      postcss: ^7 || ^8
+      postcss-load-config: ^2.1.0 || ^3.0.0
+      pug: ^3.0.0
+      sass: ^1.26.8
+      stylus: ^0.55.0
+      sugarss: ^2.0.0
+      svelte: ^3.23.0
+      typescript: ^3.9.5 || ^4.0.0
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      coffeescript:
+        optional: true
+      less:
+        optional: true
+      node-sass:
+        optional: true
+      postcss:
+        optional: true
+      postcss-load-config:
+        optional: true
+      pug:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      '@babel/core': 7.17.8
+      '@types/pug': 2.0.6
+      '@types/sass': 1.43.1
+      detect-indent: 6.1.0
+      magic-string: 0.25.9
+      postcss: 8.4.12
+      sorcery: 0.10.0
+      strip-indent: 3.0.0
+      svelte: 3.46.6
+    dev: false
 
   /svelte/3.46.6:
     resolution: {integrity: sha512-o9nNft/OzCz/9kJpmWa1S52GAM+huCjPIsNWydYmgei74ZWlOA9/hN9+Z12INdklghu31seEXZMRHhS1+8DETw==}
