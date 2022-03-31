@@ -18,7 +18,7 @@ export function setTranslationLoader(loader: TranslationLoader): void {
 }
 
 export let i18n = createI18n(localeProxy, {
-  get(code) {
-    return translationLoader(code)
+  get(code, components) {
+    return translationLoader(code, components)
   }
 })
