@@ -15,10 +15,10 @@
     "web"
   ],
   "devDependencies": {
-    "@logux/eslint-config": "^47.0.0",
+    "@logux/eslint-config": "^47.2.0",
     "@logux/stylelint-config": "^0.9.2",
     "@types/jest": "^27.4.1",
-    "@types/node": "^17.0.25",
+    "@types/node": "^17.0.26",
     "@types/ws": "^8.5.3",
     "@typescript-eslint/eslint-plugin": "^5.20.0",
     "@typescript-eslint/parser": "^5.20.0",
@@ -29,7 +29,7 @@
     "eslint-plugin-prefer-let": "^3.0.1",
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-svelte3": "^3.4.1",
-    "nano-staged": "^0.7.0",
+    "nano-staged": "^0.8.0",
     "postcss-html": "^1.4.1",
     "prettier": "^2.6.2",
     "prettier-plugin-svelte": "^2.7.0",
