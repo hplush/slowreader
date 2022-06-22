@@ -15,8 +15,8 @@
     "./package.json": "./package.json"
   },
   "devDependencies": {
-    "c8": "^7.11.2",
+    "c8": "^7.11.3",
     "tsm": "^2.2.1",
-    "uvu": "^0.5.3"
+    "uvu": "^0.5.4"
   }
 }
