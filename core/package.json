@@ -15,14 +15,14 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@logux/client": "^0.15.3",
-    "@logux/core": "^0.7.3",
-    "@nanostores/i18n": "^0.5.1",
-    "@nanostores/persistent": "^0.5.3",
-    "@nanostores/router": "^0.5.0",
+    "@logux/client": "^0.18.1",
+    "@logux/core": "^0.8.0",
+    "@nanostores/i18n": "^0.6.0",
+    "@nanostores/persistent": "^0.6.2",
+    "@nanostores/router": "^0.6.0",
     "@slowreader/api": "link:../api",
     "nanoid": "^4.0.0",
-    "nanostores": "^0.5.13"
+    "nanostores": "^0.6.0"
   },
   "devDependencies": {
     "c8": "^7.12.0",
