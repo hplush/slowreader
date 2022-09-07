@@ -4,6 +4,8 @@ on:
     branches:
       - main
   pull_request:
+permissions:
+  contents: read
 jobs:
   test:
     name: Test
@@ -11,27 +13,9 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
-      - name: Install asdf
-        uses: asdf-vm/actions/setup@v1
-      - name: Cache asdf
-        id: asdf-cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.asdf
-          key: asdf-${{ hashFiles('**/.tool-versions') }}
-      - name: Install asdf tools
-        if: steps.asdf-cache.outputs.cache-hit != 'true'
-        uses: asdf-vm/actions/install@v1
-      - name: Cache pnpm modules
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-pnpm-modules
-        with:
-          path: ~/.local/share/pnpm/
-          key: pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install tools from asdf config
+        uses: ai/asdf-cache-action@v1
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
       - name: Run tests
         run: pnpm test -r --include-workspace-root
-        env:
-          FORCE_COLOR: 2
