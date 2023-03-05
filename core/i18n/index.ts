@@ -1,7 +1,5 @@
-import type { TranslationLoader } from '@nanostores/i18n'
-import type { ReadableAtom } from 'nanostores'
-import { createI18n } from '@nanostores/i18n'
-import { atom } from 'nanostores'
+import { createI18n, TranslationLoader } from '@nanostores/i18n'
+import { atom, ReadableAtom } from 'nanostores'
 
 let localeProxy = atom('en')
 

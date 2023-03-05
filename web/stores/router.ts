@@ -1,9 +1,12 @@
-import type { RouteParams } from '@nanostores/router'
-import type { Routes } from '@slowreader/core'
-import { createRouter, getPagePath } from '@nanostores/router'
+import {
+  ConfigFromRouter,
+  createRouter,
+  getPagePath,
+  ParamsArg
+} from '@nanostores/router'
 import { createAppRouter } from '@slowreader/core'
 
-let urlRouter = createRouter<Routes>({
+let urlRouter = createRouter({
   home: '/',
   signin: '/signin',
   notFound: '/404',
@@ -12,20 +15,22 @@ let urlRouter = createRouter<Routes>({
   slowAll: '/slow',
   add: '/add',
   preview: '/preview/:url'
-})
+} as const)
+
+type UrlConfig = ConfigFromRouter<typeof urlRouter>
 
 export const router = createAppRouter(urlRouter)
 
-export function getURL<PageName extends keyof Routes>(
-  name: PageName,
-  ...params: RouteParams<Routes, PageName>
+export function getURL<Name extends keyof UrlConfig>(
+  name: Name,
+  ...params: ParamsArg<UrlConfig, Name>
 ): string {
   return getPagePath(urlRouter, name, ...params)
 }
 
-export function openURL<PageName extends keyof Routes>(
-  name: PageName,
-  ...params: RouteParams<Routes, PageName>
+export function openURL<Name extends keyof UrlConfig>(
+  name: Name,
+  ...params: ParamsArg<UrlConfig, Name>
 ): void {
   urlRouter.open(getURL(name, ...params))
 }

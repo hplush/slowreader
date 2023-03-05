@@ -1,77 +1,64 @@
-import { RouteParams, Router, Page, Params } from '@nanostores/router'
 import { computed, ReadableAtom } from 'nanostores'
 
 import { localSettings, LocalSettingsValue } from '../local-settings/index.js'
 
 export interface Routes {
-  notFound: void
-  home: void
-  slowAll: void
-  fast: void
-  start: void
-  signin: void
-  add: void
-  preview: 'url'
+  notFound: {}
+  home: {}
+  slowAll: {}
+  fast: {}
+  start: {}
+  signin: {}
+  add: {}
+  preview: { url: string }
+}
+
+export type BaseRoute<Name extends keyof Routes = keyof Routes> =
+  Name extends string ? { route: Name; params: Routes[Name] } : never
+
+export type BaseRouter = ReadableAtom<BaseRoute | undefined>
+
+export type AppRoute = BaseRoute & {
+  redirect: boolean
 }
 
 const GUEST = new Set<AppRoute['route']>(['start', 'signin'])
 
-export type BaseRouter = Router<Routes>
-
-export type AppRoute = Omit<Page<Routes, keyof Routes>, 'path'> & {
-  redirect: boolean
-}
-
-export type Route<Name extends keyof Routes = keyof Routes> = Name extends never
-  ? never
-  : {
-      route: Name
-      params: Routes[Name] extends string ? Params<Routes[Name]> : never
-      redirect: boolean
-    }
-
-function data<Name extends keyof Routes>(
-  route: Name,
-  ...params: RouteParams<Routes, Name>
-): Route {
-  // Types are too tricky here
-  // @ts-expect-error
-  return { route, params: params.length > 0 ? params[0] : {} }
-}
-
 function redirect<Name extends keyof Routes>(
   route: Name,
-  ...params: RouteParams<Routes, Name>
-): Route {
-  return { ...data(route, ...params), redirect: true }
+  params: Routes[Name]
+): AppRoute {
+  // @ts-expect-error Too complex types
+  return { route, params, redirect: true }
 }
 
 function open<Name extends keyof Routes>(
   route: Name,
-  ...params: RouteParams<Routes, Name>
-): Route {
-  return { ...data(route, ...params), redirect: false }
+  params: Routes[Name]
+): AppRoute {
+  // @ts-expect-error Too complex types
+  return { route, params, redirect: false }
 }
 
 function getRoute(
-  page: Page<Routes> | undefined,
+  page: BaseRoute | undefined,
   settings: LocalSettingsValue
-): Route {
+): AppRoute {
   if (!page) {
-    return open('notFound')
+    return open('notFound', {})
   } else if (settings.userId) {
     if (GUEST.has(page.route)) {
-      return redirect('slowAll')
+      return redirect('slowAll', {})
     } else if (page.route === 'home') {
-      return redirect('slowAll')
+      return redirect('slowAll', {})
     }
   } else if (!GUEST.has(page.route)) {
-    return open('start')
+    return open('start', {})
   }
-  return { route: page.route, params: page.params, redirect: false }
+  return open(page.route, page.params)
 }
 
-export function createAppRouter(base: BaseRouter): ReadableAtom<Route> {
+export function createAppRouter(base: BaseRouter): ReadableAtom<AppRoute> {
   return computed([base, localSettings], getRoute)
 }
 
