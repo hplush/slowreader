@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
+    "importsNotUsedAsValues": "error",
     "moduleResolution": "node",
     "target": "esnext",
     "module": "esnext",
-    "importsNotUsedAsValues": "error",
     "isolatedModules": true,
     "resolveJsonModule": true,
     "sourceMap": true,
