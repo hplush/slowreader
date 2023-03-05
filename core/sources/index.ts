@@ -1,4 +1,5 @@
-import { Source } from '../source/index.js'
+import type { Source } from '../source/index.js'
+
 import { twitter } from './twitter.js'
 
 export const sources = {

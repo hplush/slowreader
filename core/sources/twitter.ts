@@ -1,4 +1,4 @@
-import { Source } from '../source/index.js'
+import type { Source } from '../source/index.js'
 
 const TWEET_PATTERN = /^\/[^/]+\/status\/\d+/
 const USER_PATTERN = /^\/[^/]+\/?(\?.*)?$/

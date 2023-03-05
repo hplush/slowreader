@@ -1,4 +1,4 @@
-import { PreviewUrl } from '../preview/url/index.js'
+import type { PreviewUrl } from '../preview/url/index.js'
 
 export interface Source {
   alwaysUseHttps: boolean
