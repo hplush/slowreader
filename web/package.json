@@ -11,25 +11,25 @@
   },
   "dependencies": {
     "@nanostores/i18n": "^0.8.0",
-    "@nanostores/router": "^0.8.2",
+    "@nanostores/router": "^0.8.3",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@slowreader/core": "link:../core",
-    "@sveltejs/vite-plugin-svelte": "2.0.3",
-    "autoprefixer": "^10.4.13",
+    "@sveltejs/vite-plugin-svelte": "2.0.4",
+    "autoprefixer": "^10.4.14",
     "browserslist": "^4.21.5",
     "nanostores": "^0.7.4",
     "postcss": "^8.4.21",
-    "rollup": "^3.18.0",
-    "svelte": "^3.55.1",
-    "svelte-preprocess": "^5.0.1",
-    "vite": "4.1.4"
+    "rollup": "^3.20.2",
+    "svelte": "^3.58.0",
+    "svelte-preprocess": "^5.0.3",
+    "vite": "4.2.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.21.0",
+    "@babel/core": "^7.21.4",
     "@size-limit/file": "^8.2.4",
-    "postcss-lab-function": "^5.1.0",
+    "postcss-lab-function": "^5.2.0",
     "size-limit": "^8.2.4",
-    "svelte-check": "^3.0.4",
+    "svelte-check": "^3.1.4",
     "svelte-loader": "^3.1.7"
   }
 }

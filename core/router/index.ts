@@ -1,6 +1,9 @@
-import { computed, ReadableAtom } from 'nanostores'
+import { computed, type ReadableAtom } from 'nanostores'
 
-import { localSettings, LocalSettingsValue } from '../local-settings/index.js'
+import {
+  type LocalSettingsValue,
+  localSettings
+} from '../local-settings/index.js'
 
 export interface Routes {
   notFound: {}

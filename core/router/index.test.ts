@@ -3,19 +3,19 @@ import {
   setTestStorageKey,
   cleanTestStorage
 } from '@nanostores/persistent'
-import { cleanStores, atom, ReadableAtom } from 'nanostores'
+import { cleanStores, atom, type ReadableAtom } from 'nanostores'
 import { equal } from 'uvu/assert'
 import { test } from 'uvu'
 
 import {
+  type BaseRoute,
+  type AppRoute,
+  type Routes,
   createAppRouter,
   localSettings,
   isGuestRoute,
   isFastRoute,
-  isSlowRoute,
-  BaseRoute,
-  AppRoute,
-  Routes
+  isSlowRoute
 } from '../index.js'
 
 let testRouter = atom<BaseRoute | undefined>()

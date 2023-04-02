@@ -1,8 +1,8 @@
 import {
-  ConfigFromRouter,
+  type ConfigFromRouter,
+  type ParamsArg,
   createRouter,
-  getPagePath,
-  ParamsArg
+  getPagePath
 } from '@nanostores/router'
 import { createAppRouter } from '@slowreader/core'
 

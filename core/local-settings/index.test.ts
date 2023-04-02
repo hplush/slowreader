@@ -10,8 +10,8 @@ import { mockFetch } from '@slowreader/api'
 import { test } from 'uvu'
 
 import {
+  type LocalSettingsValue,
   generateCredentials,
-  LocalSettingsValue,
   SlowReaderError,
   changeServerUrl,
   localSettings,

@@ -1,4 +1,4 @@
-import { findSource, SourceName } from '../../sources/index.js'
+import { findSource, type SourceName } from '../../sources/index.js'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 
