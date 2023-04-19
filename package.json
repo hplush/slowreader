@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "test": "tsc --noEmit && eslint . && stylelint **/*.css **/*.svelte && pnpm audit --prod"
