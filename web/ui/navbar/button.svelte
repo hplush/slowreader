@@ -37,6 +37,7 @@
   div {
     display: flex;
     align-items: center;
+    height: 100%;
     padding: 0 16px;
     border: 1px solid var(--navbar-border);
     border-radius: 8px;
