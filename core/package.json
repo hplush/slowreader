@@ -7,9 +7,6 @@
     "unit": "tsm ./node_modules/uvu/bin.js . '\\.test\\.(ts|js)$'",
     "test": "c8 pnpm unit"
   },
-  "engines": {
-    "node": ">=16"
-  },
   "exports": {
     ".": "./index",
     "./package.json": "./package.json"
