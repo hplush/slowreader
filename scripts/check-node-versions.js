@@ -10,14 +10,14 @@ function read(...parts) {
   return readFileSync(join(ROOT, ...parts)).toString()
 }
 
-let pkg = JSON.parse(read('api', 'package.json'))
-let index = read('api', 'index.ts')
+let pkg = read('package.json')
+let versions = read('.tool-versions')
 
-let minor = pkg.version.replace(/\.\d+$/, '')
+let minor = versions.match(/nodejs (\d+.\d+)\./)[1]
 
-if (!index.includes(`SUBPROTOCOL = '${minor}`)) {
+if (!pkg.includes(`"node": "~${minor}.`)) {
   process.stderr.write(
-    'api/index.ts and api/package.json have different minor subprotocol\n'
+    '.tool-versions and package.json have different Node.js minor version\n'
   )
   process.exit(1)
 }
