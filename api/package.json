@@ -3,10 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "scripts": {
-    "unit": "tsm ./node_modules/uvu/bin.js . '\\.test\\.(ts|js)$'",
-    "test": "c8 pnpm unit"
-  },
   "exports": {
     ".": "./index.ts",
     "./package.json": "./package.json"
