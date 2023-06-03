@@ -10,26 +10,26 @@
     "test": "svelte-check && pnpm build && size-limit"
   },
   "dependencies": {
-    "@nanostores/i18n": "^0.8.0",
-    "@nanostores/router": "^0.8.3",
-    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@nanostores/i18n": "^0.10.0",
+    "@nanostores/router": "^0.10.0",
+    "@rollup/plugin-node-resolve": "^15.1.0",
     "@slowreader/core": "link:../core",
-    "@sveltejs/vite-plugin-svelte": "2.0.4",
+    "@sveltejs/vite-plugin-svelte": "2.4.1",
     "autoprefixer": "^10.4.14",
-    "browserslist": "^4.21.5",
-    "nanostores": "^0.7.4",
-    "postcss": "^8.4.21",
-    "rollup": "^3.20.2",
-    "svelte": "^3.58.0",
-    "svelte-preprocess": "^5.0.3",
-    "vite": "4.2.1"
+    "browserslist": "^4.21.7",
+    "nanostores": "^0.9.1",
+    "postcss": "^8.4.24",
+    "rollup": "^3.23.0",
+    "svelte": "^3.59.1",
+    "svelte-preprocess": "^5.0.4",
+    "vite": "4.3.9"
   },
   "devDependencies": {
-    "@babel/core": "^7.21.4",
+    "@babel/core": "^7.22.1",
     "@size-limit/file": "^8.2.4",
-    "postcss-lab-function": "^5.2.0",
+    "postcss-lab-function": "^5.2.3",
     "size-limit": "^8.2.4",
-    "svelte-check": "^3.1.4",
-    "svelte-loader": "^3.1.7"
+    "svelte-check": "^3.4.3",
+    "svelte-loader": "^3.1.8"
   }
 }

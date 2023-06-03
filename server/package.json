@@ -4,6 +4,6 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@logux/server": "^0.12.2"
+    "@logux/server": "^0.12.3"
   }
 }
