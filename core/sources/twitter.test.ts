@@ -4,7 +4,7 @@ import { test } from 'uvu'
 import { isValidPreviewUrl, createPreviewUrl, sources } from '../index.js'
 
 test('detects own URLs', () => {
-  function isMine(url: string): boolean {
+  function isMine(url: string): boolean | undefined {
     let previewUrl = createPreviewUrl(url)
     if (isValidPreviewUrl(previewUrl)) {
       return sources.twitter.isMineUrl(previewUrl)

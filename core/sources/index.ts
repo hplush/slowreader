@@ -1,20 +1,26 @@
-import type { Source } from '../source/index.js'
+import type { PreviewUrl } from '../preview/url/index.js'
 
 import { twitter } from './twitter.js'
+import { rss } from './rss.js'
 
 export const sources = {
-  twitter
+  twitter,
+  rss
 }
 
 export type SourceName = keyof typeof sources
 
-// We need this function to avoid TS limit for for-in key types
-export function findSource(
-  test: (source: Source) => boolean
-): SourceName | undefined {
-  for (let i in sources) {
-    let name = i as SourceName
-    if (test(sources[name as SourceName])) return name
+export function getSourcesFromUrl(url: PreviewUrl): SourceName[] {
+  let names = Object.keys(sources) as SourceName[]
+  let possible: SourceName[] = []
+  for (let name of names) {
+    let source = sources[name]
+    let status = source.isMineUrl(url)
+    if (status === true) {
+      return [name]
+    } else if (status !== false) {
+      possible.push(name)
+    }
   }
-  return undefined
+  return possible
 }

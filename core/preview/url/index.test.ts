@@ -12,7 +12,6 @@ test('iterates through sources', () => {
     getSourceFromPreviewUrl(createPreviewUrl('twitter.com/user')),
     'twitter'
   )
-  equal(getSourceFromPreviewUrl(createPreviewUrl('example.com')), 'unknown')
   equal(getSourceFromPreviewUrl(createPreviewUrl('')), 'unknown')
 })
 

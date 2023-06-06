@@ -1,17 +1,19 @@
-import { equal, is } from 'uvu/assert'
+import { equal } from 'uvu/assert'
 import { test } from 'uvu'
 
-import { findSource, sources } from '../index.js'
+import {
+  getSourcesFromUrl,
+  createPreviewUrl,
+  type PreviewUrl
+} from '../index.js'
 
-test('iterates through sources', () => {
-  is(
-    findSource(() => false),
-    undefined
-  )
-  equal(
-    findSource(i => i === sources.twitter),
-    'twitter'
-  )
+function url(href: string): PreviewUrl {
+  return createPreviewUrl(href) as PreviewUrl
+}
+
+test('finds sources by URL', () => {
+  equal(getSourcesFromUrl(url('https://twitter.com/user')), ['twitter'])
+  equal(getSourcesFromUrl(url('https://dev.to')), ['rss'])
 })
 
 test.run()

@@ -1,17 +1,10 @@
-import { findSource, type SourceName } from '../../sources/index.js'
+import { getSourcesFromUrl, type SourceName } from '../../sources/index.js'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 
-export type PreviewUrl =
-  | {
-      url: URL
-    }
-  | {
-      url: URL
-      contentType: string
-      headers: Record<string, string>
-      body: string
-    }
+export type PreviewUrl = {
+  url: URL
+}
 
 export type DirtyPreviewUrl = PreviewUrl | 'invalidUrl' | 'emptyUrl'
 
@@ -46,9 +39,7 @@ export function isValidPreviewUrl(dirty: DirtyPreviewUrl): dirty is PreviewUrl {
 export function getSourceFromPreviewUrl(
   dirty: DirtyPreviewUrl
 ): SourceName | 'unknown' {
-  if (isValidPreviewUrl(dirty)) {
-    return findSource(i => i.isMineUrl(dirty)) || 'unknown'
-  } else {
-    return 'unknown'
-  }
+  if (!isValidPreviewUrl(dirty)) return 'unknown'
+  let list = getSourcesFromUrl(dirty)
+  return list.length === 1 ? list[0] : 'unknown'
 }
