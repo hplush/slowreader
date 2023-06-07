@@ -1,6 +1,6 @@
 <script lang="ts">
   import {
-    getSourceFromPreviewUrl,
+    getRealSourceFromPreviewUrl,
     isValidPreviewUrl,
     createPreviewUrl,
     addMessages as t
@@ -37,7 +37,7 @@
       aria-errormessage="pages-add-invalid"
     /></label
   >&nbsp;<button>
-    {$t[getSourceFromPreviewUrl(resource) + 'Add']}
+    {$t[getRealSourceFromPreviewUrl(resource) + 'Add']}
   </button>
   {#if resource === 'invalidUrl'}
     <div class="error" role="alert" id="pages-add-invalid">

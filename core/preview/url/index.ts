@@ -1,4 +1,4 @@
-import { getSourcesFromUrl, type SourceName } from '../../sources/index.js'
+import { sources, type SourceName } from '../../sources/index.js'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 
@@ -36,10 +36,17 @@ export function isValidPreviewUrl(dirty: DirtyPreviewUrl): dirty is PreviewUrl {
   return dirty !== 'emptyUrl' && dirty !== 'invalidUrl'
 }
 
-export function getSourceFromPreviewUrl(
+export function getRealSourceFromPreviewUrl(
   dirty: DirtyPreviewUrl
 ): SourceName | 'unknown' {
   if (!isValidPreviewUrl(dirty)) return 'unknown'
-  let list = getSourcesFromUrl(dirty)
-  return list.length === 1 ? list[0] : 'unknown'
+
+  let names = Object.keys(sources) as SourceName[]
+  for (let name of names) {
+    if (sources[name].isMineUrl(dirty) === true) {
+      return name
+    }
+  }
+
+  return 'unknown'
 }

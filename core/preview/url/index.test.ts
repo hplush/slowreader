@@ -2,17 +2,18 @@ import { equal } from 'uvu/assert'
 import { test } from 'uvu'
 
 import {
-  getSourceFromPreviewUrl,
+  getRealSourceFromPreviewUrl,
   isValidPreviewUrl,
   createPreviewUrl
 } from '../../index.js'
 
 test('iterates through sources', () => {
   equal(
-    getSourceFromPreviewUrl(createPreviewUrl('twitter.com/user')),
+    getRealSourceFromPreviewUrl(createPreviewUrl('twitter.com/user')),
     'twitter'
   )
-  equal(getSourceFromPreviewUrl(createPreviewUrl('')), 'unknown')
+  equal(getRealSourceFromPreviewUrl(createPreviewUrl('dev.to')), 'unknown')
+  equal(getRealSourceFromPreviewUrl(createPreviewUrl('')), 'unknown')
 })
 
 test('creates resource', () => {
