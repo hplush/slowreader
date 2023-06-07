@@ -22,8 +22,8 @@
     "@logux/stylelint-config": "^0.15.1",
     "@types/node": "^20.2.5",
     "@types/ws": "^8.5.4",
-    "@typescript-eslint/eslint-plugin": "^5.59.8",
-    "@typescript-eslint/parser": "^5.59.8",
+    "@typescript-eslint/eslint-plugin": "^5.59.9",
+    "@typescript-eslint/parser": "^5.59.9",
     "eslint": "^8.42.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.27.5",
@@ -36,7 +36,7 @@
     "prettier": "^2.8.8",
     "prettier-plugin-svelte": "^2.10.1",
     "simple-git-hooks": "^2.8.1",
-    "stylelint": "^15.6.3",
+    "stylelint": "^15.7.0",
     "svelte": "^3.59.1",
     "typescript": "~5.1.3"
   }
