@@ -15,12 +15,12 @@
     <Button
       href={getURL('slowAll')}
       current={isSlowRoute($router)}
-      swicther
+      switcher
       slow
     >
       {$t.slow}
     </Button>
-    <Button href={getURL('fast')} current={isFastRoute($router)} swicther>
+    <Button href={getURL('fast')} current={isFastRoute($router)} switcher>
       {$t.fast}
     </Button>
   </div>

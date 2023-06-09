@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let swicther: boolean = false
+  export let switcher: boolean = false
   export let current: boolean = false
   export let slow: boolean = false
   export let href: string | undefined = undefined
@@ -7,7 +7,7 @@
 
 {#if href}
   <a
-    class:is-switcher={swicther}
+    class:is-switcher={switcher}
     class:is-slow={slow}
     {href}
     aria-current={current ? 'page' : null}
