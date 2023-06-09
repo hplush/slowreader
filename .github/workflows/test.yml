@@ -18,4 +18,4 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
       - name: Run tests
-        run: pnpm test -r --include-workspace-root
+        run: pnpm test

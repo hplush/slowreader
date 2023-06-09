@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "unit": "tsm ./node_modules/uvu/bin.js . '\\.test\\.(ts|js)$'",
-    "test": "c8 pnpm unit"
+    "test:run": "c8 pnpm unit",
+    "test": "pnpm run test:run"
   },
   "exports": {
     ".": "./index",

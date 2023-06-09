@@ -9,7 +9,8 @@
     "clean": "rm -rf api/coverage core/coverage web/coverage web/dist",
     "lint": "tsc --noEmit && eslint . && stylelint **/*.css **/*.svelte",
     "checks": "node ./scripts/check-subprotocol.js && node ./scripts/check-node-versions.js",
-    "test": "pnpm lint && pnpm checks && pnpm audit --prod"
+    "test:run": "pnpm lint && pnpm checks && pnpm audit --prod",
+    "test": "pnpm run --recursive --include-workspace-root test:run"
   },
   "workspaces": [
     "api",
