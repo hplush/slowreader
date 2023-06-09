@@ -1,11 +1,11 @@
 <script>
   import {
-    navbarMessages as t,
     isFastRoute,
-    isSlowRoute
+    isSlowRoute,
+    navbarMessages as t
   } from '@slowreader/core'
 
-  import { router, getURL } from '../../stores/router'
+  import { getURL, router } from '../../stores/router'
   import Button from './button.svelte'
 </script>
 

@@ -1,21 +1,21 @@
 import {
-  useTestStorageEngine,
+  cleanTestStorage,
   setTestStorageKey,
-  cleanTestStorage
+  useTestStorageEngine
 } from '@nanostores/persistent'
-import { cleanStores, atom, type ReadableAtom } from 'nanostores'
-import { equal } from 'uvu/assert'
+import { atom, cleanStores, type ReadableAtom } from 'nanostores'
 import { test } from 'uvu'
+import { equal } from 'uvu/assert'
 
 import {
-  type BaseRoute,
   type AppRoute,
-  type Routes,
+  type BaseRoute,
   createAppRouter,
-  localSettings,
-  isGuestRoute,
   isFastRoute,
-  isSlowRoute
+  isGuestRoute,
+  isSlowRoute,
+  localSettings,
+  type Routes
 } from '../index.js'
 
 let testRouter = atom<BaseRoute | undefined>()
@@ -24,7 +24,7 @@ function changeBaseRoute<Name extends keyof Routes>(
   route: Name,
   params: Routes[Name]
 ): void {
-  testRouter.set({ route, params } as BaseRoute)
+  testRouter.set({ params, route } as BaseRoute)
 }
 
 test.before(() => {
@@ -34,7 +34,7 @@ test.before(() => {
 let router: ReadableAtom<AppRoute>
 
 test.before.each(() => {
-  testRouter.set({ route: 'home', params: {} } as BaseRoute)
+  testRouter.set({ params: {}, route: 'home' } as BaseRoute)
   router = createAppRouter(testRouter)
 })
 
@@ -47,32 +47,32 @@ test('opens 404', () => {
   router.listen(() => {})
   testRouter.set(undefined)
   equal(router.get(), {
-    route: 'notFound',
     params: {},
-    redirect: false
+    redirect: false,
+    route: 'notFound'
   })
 })
 
 test('transforms routers for guest', () => {
   router.listen(() => {})
   equal(router.get(), {
-    route: 'start',
     params: {},
-    redirect: false
+    redirect: false,
+    route: 'start'
   })
 
   changeBaseRoute('slowAll', {})
   equal(router.get(), {
-    route: 'start',
     params: {},
-    redirect: false
+    redirect: false,
+    route: 'start'
   })
 
   changeBaseRoute('signin', {})
   equal(router.get(), {
-    route: 'signin',
     params: {},
-    redirect: false
+    redirect: false,
+    route: 'signin'
   })
 })
 
@@ -80,37 +80,37 @@ test('transforms routers for users', () => {
   router.listen(() => {})
   setTestStorageKey('slowreader:userId', '10')
   equal(router.get(), {
-    route: 'slowAll',
     params: {},
-    redirect: true
+    redirect: true,
+    route: 'slowAll'
   })
 
   changeBaseRoute('fast', {})
   equal(router.get(), {
-    route: 'fast',
     params: {},
-    redirect: false
+    redirect: false,
+    route: 'fast'
   })
 
   changeBaseRoute('home', {})
   equal(router.get(), {
-    route: 'slowAll',
     params: {},
-    redirect: true
+    redirect: true,
+    route: 'slowAll'
   })
 
   changeBaseRoute('signin', {})
   equal(router.get(), {
-    route: 'slowAll',
     params: {},
-    redirect: true
+    redirect: true,
+    route: 'slowAll'
   })
 
   setTestStorageKey('slowreader:userId', undefined)
   equal(router.get(), {
-    route: 'signin',
     params: {},
-    redirect: false
+    redirect: false,
+    route: 'signin'
   })
 })
 

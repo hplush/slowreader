@@ -1,23 +1,23 @@
 import { computed, type ReadableAtom } from 'nanostores'
 
 import {
-  type LocalSettingsValue,
-  localSettings
+  localSettings,
+  type LocalSettingsValue
 } from '../local-settings/index.js'
 
 export interface Routes {
-  notFound: {}
-  home: {}
-  slowAll: {}
-  fast: {}
-  start: {}
-  signin: {}
   add: {}
+  fast: {}
+  home: {}
+  notFound: {}
   preview: { url: string }
+  signin: {}
+  slowAll: {}
+  start: {}
 }
 
 export type BaseRoute<Name extends keyof Routes = keyof Routes> =
-  Name extends string ? { route: Name; params: Routes[Name] } : never
+  Name extends string ? { params: Routes[Name]; route: Name } : never
 
 export type BaseRouter = ReadableAtom<BaseRoute | undefined>
 
@@ -32,7 +32,7 @@ function redirect<Name extends keyof Routes>(
   params: Routes[Name]
 ): AppRoute {
   // @ts-expect-error Too complex types
-  return { route, params, redirect: true }
+  return { params, redirect: true, route }
 }
 
 function open<Name extends keyof Routes>(
@@ -40,7 +40,7 @@ function open<Name extends keyof Routes>(
   params: Routes[Name]
 ): AppRoute {
   // @ts-expect-error Too complex types
-  return { route, params, redirect: false }
+  return { params, redirect: false, route }
 }
 
 function getRoute(

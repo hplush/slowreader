@@ -1,17 +1,17 @@
 import {
-  useTestStorageEngine,
-  setTestStorageKey,
   cleanTestStorage,
-  getTestStorage
+  getTestStorage,
+  setTestStorageKey,
+  useTestStorageEngine
 } from '@nanostores/persistent'
 import { cleanStores } from 'nanostores'
-import { equal } from 'uvu/assert'
 import { test } from 'uvu'
+import { equal } from 'uvu/assert'
 
 import {
-  type LocalSettingsValue,
   generateCredentials,
   localSettings,
+  type LocalSettingsValue,
   signOut
 } from '../index.js'
 

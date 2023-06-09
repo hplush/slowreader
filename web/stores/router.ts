@@ -1,20 +1,20 @@
 import {
   type ConfigFromRouter,
-  type ParamsArg,
   createRouter,
-  getPagePath
+  getPagePath,
+  type ParamsArg
 } from '@nanostores/router'
 import { createAppRouter } from '@slowreader/core'
 
 let urlRouter = createRouter({
-  home: '/',
-  signin: '/signin',
-  notFound: '/404',
-  start: '/start',
-  fast: '/fast',
-  slowAll: '/slow',
   add: '/add',
-  preview: '/preview/:url'
+  fast: '/fast',
+  home: '/',
+  notFound: '/404',
+  preview: '/preview/:url',
+  signin: '/signin',
+  slowAll: '/slow',
+  start: '/start'
 } as const)
 
 type UrlConfig = ConfigFromRouter<typeof urlRouter>

@@ -25,7 +25,7 @@
     "vite": "4.3.9"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.1",
+    "@babel/core": "^7.22.5",
     "@size-limit/file": "^8.2.4",
     "postcss-lab-function": "^5.2.3",
     "size-limit": "^8.2.4",

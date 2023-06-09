@@ -1,7 +1,7 @@
-import { equal } from 'uvu/assert'
 import { test } from 'uvu'
+import { equal } from 'uvu/assert'
 
-import { isValidPreviewUrl, createPreviewUrl, sources } from '../index.js'
+import { createPreviewUrl, isValidPreviewUrl, sources } from '../index.js'
 
 test('detects own URLs', () => {
   function isMine(url: string): boolean | undefined {

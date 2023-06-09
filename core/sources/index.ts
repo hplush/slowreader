@@ -1,11 +1,10 @@
 import type { PreviewUrl } from '../preview/url/index.js'
-
-import { twitter } from './twitter.js'
 import { rss } from './rss.js'
+import { twitter } from './twitter.js'
 
 export const sources = {
-  twitter,
-  rss
+  rss,
+  twitter
 }
 
 export type SourceName = keyof typeof sources

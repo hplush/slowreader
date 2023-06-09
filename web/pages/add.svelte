@@ -1,8 +1,8 @@
 <script lang="ts">
   import {
+    createPreviewUrl,
     getRealSourceFromPreviewUrl,
     isValidPreviewUrl,
-    createPreviewUrl,
     addMessages as t
   } from '@slowreader/core'
 

@@ -1,10 +1,10 @@
-import { equal } from 'uvu/assert'
 import { test } from 'uvu'
+import { equal } from 'uvu/assert'
 
 import {
+  createPreviewUrl,
   getRealSourceFromPreviewUrl,
-  isValidPreviewUrl,
-  createPreviewUrl
+  isValidPreviewUrl
 } from '../../index.js'
 
 test('iterates through sources', () => {

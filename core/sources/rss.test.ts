@@ -1,7 +1,7 @@
-import { type } from 'uvu/assert'
 import { test } from 'uvu'
+import { type } from 'uvu/assert'
 
-import { type PreviewUrl, createPreviewUrl, sources } from '../index.js'
+import { createPreviewUrl, type PreviewUrl, sources } from '../index.js'
 
 test('detects own URLs', () => {
   let previewUrl = createPreviewUrl('https://dev.to/') as PreviewUrl

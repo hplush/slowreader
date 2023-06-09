@@ -1,9 +1,9 @@
 import { i18n } from '../../i18n/index.js'
 
 export let addMessages = i18n('add', {
-  url: 'URL to follow',
-  unknownAdd: 'Add',
-  twitterAdd: 'Add Twitter',
+  invalidUrl: 'Doesn’t look like web page address',
   rssAdd: 'Add RSS',
-  invalidUrl: 'Doesn’t look like web page address'
+  twitterAdd: 'Add Twitter',
+  unknownAdd: 'Add',
+  url: 'URL to follow'
 })

@@ -1,10 +1,10 @@
 <script lang="ts">
   import { isGuestRoute } from '@slowreader/core'
 
-  import PreviewPage from '../pages/preview.svelte'
-  import { router } from '../stores/router'
-  import StartPage from '../pages/start.svelte'
   import AddPage from '../pages/add.svelte'
+  import PreviewPage from '../pages/preview.svelte'
+  import StartPage from '../pages/start.svelte'
+  import { router } from '../stores/router'
   import Navbar from '../ui/navbar/index.svelte'
 </script>
 
