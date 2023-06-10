@@ -1,4 +1,4 @@
-import type { Source } from '../source/index.js'
+import type { Source } from '../index.js'
 
 export const rss: Source = {
   isMineUrl() {

@@ -1,6 +1,6 @@
 import { syncMapTemplate } from '@logux/client'
 
-import type { SourceName } from '../sources/index.js'
+import type { SourceName } from '../source/index.js'
 
 export type SubscriptionValue = {
   source: SourceName

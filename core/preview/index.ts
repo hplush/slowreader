@@ -1,4 +1,4 @@
-import type { SourceName } from '../sources/index.js'
+import type { SourceName } from '../source/index.js'
 import type { PreviewUrl } from './url/index.js'
 
 export interface PreviewCandidate {
