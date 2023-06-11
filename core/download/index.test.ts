@@ -76,8 +76,7 @@ test('aborts requests', async () => {
 
   equal(calls, '')
 
-  reply1(200)
-  await setTimeout(10)
+  await reply1(200)
   equal(calls, '1:ok ')
 
   task1.abortAll()
@@ -85,8 +84,7 @@ test('aborts requests', async () => {
   equal(calls, '1:ok 2:AbortError 3:AbortError ')
 
   reply2(200)
-  reply4(200)
-  await setTimeout(10)
+  await reply4(200)
   equal(calls, '1:ok 2:AbortError 3:AbortError 4:ok ')
 })
 

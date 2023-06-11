@@ -12,7 +12,7 @@ export const request: RequestMethod = (...args) => {
 
 export interface RequestMock {
   andRespond(status: number, body?: string): void
-  andWait(): (status: number, body?: string) => void
+  andWait(): (status: number, body?: string) => Promise<void>
 }
 
 interface RequestExpect {
@@ -76,6 +76,9 @@ export function expectRequest(url: string): RequestMock {
         expect.status = status
         expect.response = body
         resolveWait()
+        return new Promise(resolve => {
+          setTimeout(resolve, 10)
+        })
       }
     }
   }
