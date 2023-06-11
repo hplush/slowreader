@@ -1,5 +1,5 @@
 import { test } from 'uvu'
-import { equal, match, throws, unreachable } from 'uvu/assert'
+import { equal, throws } from 'uvu/assert'
 
 import {
   checkAndRemoveRequestMock,
@@ -8,6 +8,7 @@ import {
   request,
   setRequestMethod
 } from '../index.js'
+import { rejects } from '../test/utils.js'
 
 test.after.each(() => {
   setRequestMethod(fetch)
@@ -44,13 +45,10 @@ test('checks mocks order', async () => {
   expectRequest('https://one.com').andRespond(200)
   expectRequest('https://two.com').andRespond(200)
 
-  try {
-    await request('https://two.com')
-    unreachable()
-  } catch (err) {
-    if (!(err instanceof Error)) throw err
-    match(err.message, 'https://one.com instead of https://two.com')
-  }
+  await rejects(
+    request('https://two.com'),
+    'https://one.com instead of https://two.com'
+  )
 })
 
 test('is ready for unexpected requests', async () => {
@@ -59,13 +57,10 @@ test('is ready for unexpected requests', async () => {
   expectRequest('https://one.com').andRespond(200)
 
   equal((await request('https://one.com')).status, 200)
-  try {
-    await request('https://two.com')
-    unreachable()
-  } catch (err) {
-    if (!(err instanceof Error)) throw err
-    match(err.message, 'Unexpected request https://two.com')
-  }
+  await rejects(
+    request('https://one.com'),
+    'Unexpected request https://one.com'
+  )
 })
 
 test.run()
