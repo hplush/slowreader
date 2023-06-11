@@ -10,9 +10,14 @@ export const request: RequestMethod = (...args) => {
   return currentMethod(...args)
 }
 
+export interface RequestWaiter {
+  (status: number, body?: string): Promise<void>
+  aborted?: true
+}
+
 export interface RequestMock {
   andRespond(status: number, body?: string): void
-  andWait(): (status: number, body?: string) => Promise<void>
+  andWait(): RequestWaiter
 }
 
 interface RequestExpect {
@@ -20,6 +25,7 @@ interface RequestExpect {
   status: number
   url: string
   wait: Promise<void>
+  waiter: RequestWaiter | undefined
 }
 
 let requestExpects: RequestExpect[] = []
@@ -36,6 +42,7 @@ let fetchMock: RequestMethod = async (url, opts = {}) => {
       throwError = reject
     })
     function abortCallback(): void {
+      if (expect?.waiter) expect.waiter.aborted = true
       throwError(new DOMException('', 'AbortError'))
     }
 
@@ -59,7 +66,8 @@ export function expectRequest(url: string): RequestMock {
     response: '',
     status: 200,
     url,
-    wait: Promise.resolve()
+    wait: Promise.resolve(),
+    waiter: undefined
   }
   requestExpects.push(expect)
   return {
@@ -72,7 +80,7 @@ export function expectRequest(url: string): RequestMock {
       expect.wait = new Promise(resolve => {
         resolveWait = resolve
       })
-      return (status, body = '') => {
+      expect.waiter = (status, body = '') => {
         expect.status = status
         expect.response = body
         resolveWait()
@@ -80,6 +88,7 @@ export function expectRequest(url: string): RequestMock {
           setTimeout(resolve, 10)
         })
       }
+      return expect.waiter
     }
   }
 }

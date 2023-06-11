@@ -1,3 +1,4 @@
+import { setTimeout } from 'node:timers/promises'
 import { test } from 'uvu'
 import { equal, throws } from 'uvu/assert'
 
@@ -61,6 +62,22 @@ test('is ready for unexpected requests', async () => {
     request('https://one.com'),
     'Unexpected request https://one.com'
   )
+})
+
+test('marks requests as aborted', async () => {
+  mockRequest()
+  let reply = expectRequest('https://one.com').andWait()
+
+  let aborted = ''
+  let controller = new AbortController()
+  request('https://one.com', { signal: controller.signal }).catch(e => {
+    if (e instanceof Error) aborted = e.name
+  })
+
+  controller.abort()
+  await setTimeout(10)
+  equal(aborted, 'AbortError')
+  equal(reply.aborted, true)
 })
 
 test.run()
