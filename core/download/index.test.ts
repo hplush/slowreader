@@ -6,8 +6,10 @@ import {
   checkAndRemoveRequestMock,
   createDownloadTask,
   expectRequest,
-  mockRequest
+  mockRequest,
+  setRequestMethod
 } from '../index.js'
+import { rejects } from '../test/utils.js'
 
 test.before.each(() => {
   mockRequest()
@@ -86,6 +88,40 @@ test('aborts requests', async () => {
   reply4(200)
   await setTimeout(10)
   equal(calls, '1:ok 2:AbortError 3:AbortError 4:ok ')
+})
+
+test('can download text by keeping eyes on abort signal', async () => {
+  let task = createDownloadTask()
+
+  expectRequest('https://example.com').andRespond(200, 'Hi')
+  let response1 = await task.text('https://example.com')
+
+  equal(response1.ok, true)
+  equal(response1.status, 200)
+  equal(response1.url, 'https://example.com')
+  equal(response1.text, 'Hi')
+
+  let sendText: ((text: string) => void) | undefined
+  setRequestMethod(async url => {
+    return {
+      ok: true,
+      status: 200,
+      text() {
+        return new Promise(resolve => {
+          sendText = resolve
+        })
+      },
+      url: url.toString()
+    } as Response
+  })
+
+  let response2 = task.text('https://example.com')
+  await setTimeout(10)
+  task.abortAll()
+  sendText?.('Done')
+  await rejects(response2, e => {
+    equal(e.name, 'AbortError')
+  })
 })
 
 test.run()

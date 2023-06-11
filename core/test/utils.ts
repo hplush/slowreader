@@ -2,7 +2,7 @@ import { match, unreachable } from 'uvu/assert'
 
 export async function rejects(
   wait: Promise<unknown>,
-  pattern: RegExp | string
+  test: ((e: Error) => void) | RegExp | string
 ): Promise<void> {
   try {
     await wait
@@ -14,6 +14,10 @@ export async function rejects(
     if (err.message === 'Assertion: Expected not to be reached!') {
       throw new Error('Error was not thrown from Promise')
     }
-    match(err.message, pattern)
+    if (typeof test === 'function') {
+      test(err)
+    } else {
+      match(err.message, test)
+    }
   }
 }

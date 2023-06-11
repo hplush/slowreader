@@ -25,11 +25,11 @@ interface RequestExpect {
 let requestExpects: RequestExpect[] = []
 
 let fetchMock: RequestMethod = async (url, opts = {}) => {
-  let nextExpect = requestExpects.shift()
-  if (!nextExpect) {
+  let expect = requestExpects.shift()
+  if (!expect) {
     throw new Error(`Unexpected request ${url} ${JSON.stringify(opts)}`)
-  } else if (nextExpect.url !== url) {
-    throw new Error(`Expected request ${nextExpect.url} instead of ${url}`)
+  } else if (expect.url !== url) {
+    throw new Error(`Expected request ${expect.url} instead of ${url}`)
   } else {
     let throwError: (e: Error) => void
     let waitForError = new Promise((resolve, reject) => {
@@ -40,10 +40,12 @@ let fetchMock: RequestMethod = async (url, opts = {}) => {
     }
 
     opts.signal?.addEventListener('abort', abortCallback)
-    await Promise.race([nextExpect.wait, waitForError])
+    await Promise.race([expect.wait, waitForError])
     opts.signal?.removeEventListener('abort', abortCallback)
 
-    return new Response(nextExpect.response, { status: nextExpect.status })
+    let response = new Response(expect.response, { status: expect.status })
+    Object.defineProperty(response, 'url', { value: url.toString() })
+    return response
   }
 }
 
