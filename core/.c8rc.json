@@ -1,5 +1,5 @@
 {
-  "exclude": ["**/*.test.*"],
+  "exclude": ["**/*.test.*", "test/*"],
   "lines": 100,
   "reporter": "lcov",
   "check-coverage": true
