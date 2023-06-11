@@ -1,5 +1,6 @@
 export * from './local-settings/index.js'
 export * from './subscription/index.js'
+export * from './download/index.js'
 export * from './preview/index.js'
 export * from './request/index.js'
 export * from './source/index.js'
