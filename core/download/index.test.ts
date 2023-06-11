@@ -5,6 +5,7 @@ import { equal } from 'uvu/assert'
 import {
   checkAndRemoveRequestMock,
   createDownloadTask,
+  createTextResponse,
   expectRequest,
   mockRequest,
   setRequestMethod
@@ -120,6 +121,14 @@ test('can download text by keeping eyes on abort signal', async () => {
   await rejects(response2, e => {
     equal(e.name, 'AbortError')
   })
+})
+
+test('allows to create text response mocks', async () => {
+  let task = createDownloadTask()
+  expectRequest('https://example.com').andRespond(200, 'Example')
+  let response1 = await task.text('https://example.com')
+  let response2 = createTextResponse('Example', { url: 'https://example.com' })
+  equal(response1, response2)
 })
 
 test.run()

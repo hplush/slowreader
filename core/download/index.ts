@@ -14,6 +14,20 @@ export interface DownloadTask {
   text(...args: Parameters<typeof request>): Promise<TextResponse>
 }
 
+export function createTextResponse(
+  text: string,
+  other: Partial<TextResponse>
+): TextResponse {
+  return {
+    headers: new Headers(),
+    ok: true,
+    status: 200,
+    url: 'https://example.com',
+    ...other,
+    text
+  }
+}
+
 export function createDownloadTask(): DownloadTask {
   let controller = new AbortController()
   return {
