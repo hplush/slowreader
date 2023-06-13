@@ -1,3 +1,5 @@
+import '../test/dom-parser.js'
+
 import { setTimeout } from 'node:timers/promises'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
@@ -123,15 +125,30 @@ test('can download text by keeping eyes on abort signal', async () => {
   })
 })
 
-test('allows to create text response mocks', async () => {
-  let task = createDownloadTask()
-  expectRequest('https://example.com').andRespond(404, 'Example')
-  let response1 = await task.text('https://example.com')
-  let response2 = createTextResponse('Example', {
-    status: 404,
-    url: 'https://example.com'
+test('parses content', async () => {
+  let text = createTextResponse('<html><body>Test</body></html>')
+  equal(text.parse().firstChild?.firstChild?.nodeName, 'body')
+  equal(text.parse().firstChild?.firstChild?.textContent, 'Test')
+
+  let simple = createTextResponse('<test></test>', {
+    headers: new Headers({ 'content-type': 'application/xml' })
   })
-  equal(response1, response2)
+  equal(simple.parse().firstChild?.nodeName, 'test')
+
+  let rss = createTextResponse('<rss></rss>', {
+    headers: new Headers({ 'content-type': 'application/rss+xml' })
+  })
+  equal(rss.parse().firstChild?.nodeName, 'rss')
+
+  let image = createTextResponse('<jpeg></jpeg>', {
+    headers: new Headers({ 'content-type': 'image/jpeg' })
+  })
+  equal(image.parse().textContent, null)
+
+  let broken = createTextResponse('<test', {
+    headers: new Headers({ 'content-type': 'application/xml' })
+  })
+  equal(broken.parse().textContent, null)
 })
 
 test.run()

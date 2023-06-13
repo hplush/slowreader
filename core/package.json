@@ -19,6 +19,7 @@
     "@nanostores/persistent": "^0.9.0",
     "@nanostores/router": "^0.10.0",
     "@slowreader/api": "link:../api",
+    "@xmldom/xmldom": "^0.8.8",
     "nanoid": "^4.0.2",
     "nanostores": "^0.9.1"
   },
