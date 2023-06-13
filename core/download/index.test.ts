@@ -125,9 +125,12 @@ test('can download text by keeping eyes on abort signal', async () => {
 
 test('allows to create text response mocks', async () => {
   let task = createDownloadTask()
-  expectRequest('https://example.com').andRespond(200, 'Example')
+  expectRequest('https://example.com').andRespond(404, 'Example')
   let response1 = await task.text('https://example.com')
-  let response2 = createTextResponse('Example', { url: 'https://example.com' })
+  let response2 = createTextResponse('Example', {
+    status: 404,
+    url: 'https://example.com'
+  })
   equal(response1, response2)
 })
 

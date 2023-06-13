@@ -16,15 +16,15 @@ export interface DownloadTask {
 
 export function createTextResponse(
   text: string,
-  other: Partial<TextResponse>
+  other: Partial<Omit<TextResponse, 'ok' | 'text'>>
 ): TextResponse {
+  let status = other.status ?? 200
   return {
-    headers: new Headers(),
-    ok: true,
-    status: 200,
-    url: 'https://example.com',
-    ...other,
-    text
+    headers: other.headers ?? new Headers(),
+    ok: status >= 200 && status < 300,
+    status,
+    text,
+    url: other.url ?? 'https://example.com'
   }
 }
 
@@ -47,13 +47,11 @@ export function createDownloadTask(): DownloadTask {
       if (controller.signal.aborted) {
         throw new DOMException('', 'AbortError')
       }
-      return {
+      return createTextResponse(text, {
         headers: response.headers,
-        ok: response.ok,
         status: response.status,
-        text,
         url: response.url
-      }
+      })
     }
   }
 }
