@@ -45,13 +45,13 @@ export function createTextResponse(
           } else {
             return emptyDocument()
           }
-        } catch (e) {
           /* c8 ignore start */
+        } catch (e) {
           // eslint-disable-next-line no-console
           console.error(e)
           return emptyDocument()
-          /* c8 ignore stop */
         }
+        /* c8 ignore stop */
       }
       return bodyCache
     },
