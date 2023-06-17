@@ -3,7 +3,7 @@ import { request } from '../request/index.js'
 export interface TextResponse {
   readonly headers: Headers
   readonly ok: boolean
-  parse(): Document
+  parse(): Document | XMLDocument
   readonly status: number
   readonly text: string
   readonly url: string
@@ -25,7 +25,7 @@ export function createTextResponse(
 ): TextResponse {
   let status = other.status ?? 200
   let headers = other.headers ?? new Headers()
-  let bodyCache: Document | undefined
+  let bodyCache: Document | undefined | XMLDocument
   return {
     headers,
     ok: status >= 200 && status < 300,
@@ -35,23 +35,15 @@ export function createTextResponse(
         if (parseType.includes('+xml')) {
           parseType = 'application/xml'
         }
-        try {
-          if (
-            parseType === 'text/html' ||
-            parseType === 'application/xml' ||
-            parseType === 'text/xml'
-          ) {
-            bodyCache = new DOMParser().parseFromString(text, parseType)
-          } else {
-            return emptyDocument()
-          }
-          /* c8 ignore start */
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.error(e)
+        if (
+          parseType === 'text/html' ||
+          parseType === 'application/xml' ||
+          parseType === 'text/xml'
+        ) {
+          bodyCache = new DOMParser().parseFromString(text, parseType)
+        } else {
           return emptyDocument()
         }
-        /* c8 ignore stop */
       }
       return bodyCache
     },
