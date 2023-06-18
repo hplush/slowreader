@@ -11,16 +11,17 @@ export const request: RequestMethod = (...args) => {
 }
 
 export interface RequestWaiter {
-  (status: number, body?: string): Promise<void>
+  (status: number, body?: string, contentType?: string): Promise<void>
   aborted?: true
 }
 
 export interface RequestMock {
-  andRespond(status: number, body?: string): void
+  andRespond(status: number, body?: string, contentType?: string): void
   andWait(): RequestWaiter
 }
 
 interface RequestExpect {
+  contentType: string
   response: string
   status: number
   url: string
@@ -50,7 +51,10 @@ let fetchMock: RequestMethod = async (url, opts = {}) => {
     await Promise.race([expect.wait, waitForError])
     opts.signal?.removeEventListener('abort', abortCallback)
 
-    let response = new Response(expect.response, { status: expect.status })
+    let response = new Response(expect.response, {
+      headers: { 'Content-Type': expect.contentType },
+      status: expect.status
+    })
     Object.defineProperty(response, 'url', { value: url.toString() })
     return response
   }
@@ -63,6 +67,7 @@ export function mockRequest(): void {
 
 export function expectRequest(url: string): RequestMock {
   let expect: RequestExpect = {
+    contentType: 'text/html',
     response: '',
     status: 200,
     url,
@@ -71,7 +76,8 @@ export function expectRequest(url: string): RequestMock {
   }
   requestExpects.push(expect)
   return {
-    andRespond(status, body = '') {
+    andRespond(status, body = '', contentType = 'text/html') {
+      expect.contentType = contentType
       expect.status = status
       expect.response = body
     },
@@ -80,7 +86,8 @@ export function expectRequest(url: string): RequestMock {
       expect.wait = new Promise(resolve => {
         resolveWait = resolve
       })
-      expect.waiter = (status, body = '') => {
+      expect.waiter = (status, body = '', contentType = 'text/html') => {
+        expect.contentType = contentType
         expect.status = status
         expect.response = body
         resolveWait()

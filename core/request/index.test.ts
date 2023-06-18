@@ -80,4 +80,21 @@ test('marks requests as aborted', async () => {
   equal(reply.aborted, true)
 })
 
+test('sets content type', async () => {
+  mockRequest()
+
+  expectRequest('https://one.com').andRespond(200, 'Hi')
+  let response1 = await request('https://one.com')
+  equal(response1.headers.get('content-type'), 'text/html')
+
+  expectRequest('https://two.com').andRespond(200, 'Hi', 'text/plain')
+  let response2 = await request('https://two.com')
+  equal(response2.headers.get('content-type'), 'text/plain')
+
+  let reply3 = expectRequest('https://two.com').andWait()
+  reply3(200, 'Hi', 'text/html; charset=utf-8')
+  let response3 = await request('https://two.com')
+  equal(response3.headers.get('content-type'), 'text/html; charset=utf-8')
+})
+
 test.run()

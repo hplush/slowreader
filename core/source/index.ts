@@ -1,9 +1,11 @@
-import type { PreviewUrl } from '../preview/url/index.js'
+import type { TextResponse } from '../download/index.js'
 import { rss } from './rss.js'
 import { twitter } from './twitter.js'
 
-export interface Source {
-  isMineUrl(url: PreviewUrl): boolean | undefined
+export type Source = {
+  getMineLinksFromText(response: TextResponse): string[]
+  isMineText(response: TextResponse): false | string
+  isMineUrl(url: URL): false | string | undefined
 }
 
 export const sources = {
@@ -12,18 +14,3 @@ export const sources = {
 }
 
 export type SourceName = keyof typeof sources
-
-export function getSourcesFromUrl(url: PreviewUrl): SourceName[] {
-  let names = Object.keys(sources) as SourceName[]
-  let possible: SourceName[] = []
-  for (let name of names) {
-    let source = sources[name]
-    let status = source.isMineUrl(url)
-    if (status === true) {
-      return [name]
-    } else if (status !== false) {
-      possible.push(name)
-    }
-  }
-  return possible
-}

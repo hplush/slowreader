@@ -1,21 +1,20 @@
 <script lang="ts">
   import {
-    createPreviewUrl,
-    getRealSourceFromPreviewUrl,
-    isValidPreviewUrl,
+    previewUrlError,
+    setPreviewUrl,
     addMessages as t
   } from '@slowreader/core'
 
   import { openURL } from '../stores/router'
 
   let url = ''
-  $: resource = createPreviewUrl(url)
+  $: setPreviewUrl(url)
 
   let input: HTMLInputElement
 
   function onSubmit(): void {
-    if (isValidPreviewUrl(resource)) {
-      openURL('preview', { url: resource.url.href })
+    if (!previewUrlError.get()) {
+      openURL('preview', { url })
     } else {
       input.focus()
     }
@@ -33,13 +32,13 @@
       bind:this={input}
       required
       autofocus
-      aria-invalid={resource === 'invalidUrl'}
+      aria-invalid={$previewUrlError === 'invalid'}
       aria-errormessage="pages-add-invalid"
     /></label
   >&nbsp;<button>
-    {$t[getRealSourceFromPreviewUrl(resource) + 'Add']}
+    {$t.add}
   </button>
-  {#if resource === 'invalidUrl'}
+  {#if $previewUrlError === 'invalid'}
     <div class="error" role="alert" id="pages-add-invalid">
       {$t.invalidUrl}
     </div>
