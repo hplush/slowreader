@@ -127,8 +127,8 @@ test('can download text by keeping eyes on abort signal', async () => {
 
 test('parses content', async () => {
   let text = createTextResponse('<html><body>Test</body></html>')
-  equal(text.parse().firstChild?.firstChild?.nodeName, 'body')
-  equal(text.parse().firstChild?.firstChild?.textContent, 'Test')
+  equal(text.parse().firstChild?.lastChild?.nodeName, 'BODY')
+  equal(text.parse().firstChild?.lastChild?.textContent, 'Test')
 
   let simple = createTextResponse('<test></test>', {
     headers: new Headers({ 'content-type': 'application/xml' })

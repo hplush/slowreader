@@ -1,3 +1,3 @@
-import { DOMParser } from '@xmldom/xmldom'
+import { JSDOM } from 'jsdom'
 
-global.DOMParser = DOMParser
+global.DOMParser = new JSDOM().window.DOMParser

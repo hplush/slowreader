@@ -19,12 +19,13 @@
     "@nanostores/persistent": "^0.9.0",
     "@nanostores/router": "^0.10.0",
     "@slowreader/api": "link:../api",
-    "@xmldom/xmldom": "^0.8.8",
     "nanoid": "^4.0.2",
     "nanostores": "^0.9.1"
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.1",
     "c8": "^8.0.0",
+    "jsdom": "^22.1.0",
     "tsm": "^2.3.0",
     "uvu": "^0.5.6"
   }
