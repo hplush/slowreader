@@ -32,6 +32,9 @@ export function createTextResponse(
     parse() {
       if (!bodyCache) {
         let parseType = headers.get('content-type') ?? 'text/html'
+        if (parseType.includes(';')) {
+          parseType = parseType.split(';')[0]
+        }
         if (parseType.includes('+xml')) {
           parseType = 'application/xml'
         }
@@ -42,6 +45,8 @@ export function createTextResponse(
         ) {
           bodyCache = new DOMParser().parseFromString(text, parseType)
         } else {
+          // eslint-disable-next-line no-console
+          console.error('Unknown content type', parseType)
           return emptyDocument()
         }
       }

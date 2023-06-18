@@ -130,6 +130,11 @@ test('parses content', async () => {
   equal(text.parse().firstChild?.lastChild?.nodeName, 'BODY')
   equal(text.parse().firstChild?.lastChild?.textContent, 'Test')
 
+  let charset = createTextResponse('<html><body>Test</body></html>', {
+    headers: new Headers({ 'content-type': 'text/html;charset=UTF-8' })
+  })
+  equal(charset.parse().firstChild?.lastChild?.textContent, 'Test')
+
   let simple = createTextResponse('<test></test>', {
     headers: new Headers({ 'content-type': 'application/xml' })
   })
