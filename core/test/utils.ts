@@ -2,22 +2,22 @@ import { match, unreachable } from 'uvu/assert'
 
 export async function rejects(
   wait: Promise<unknown>,
-  test: ((e: Error) => void) | RegExp | string
+  test: ((error: Error) => void) | RegExp | string
 ): Promise<void> {
   try {
     await wait
     unreachable()
-  } catch (err) {
-    if (!(err instanceof Error)) {
-      throw err
+  } catch (error) {
+    if (!(error instanceof Error)) {
+      throw error
     }
-    if (err.message === 'Assertion: Expected not to be reached!') {
+    if (error.message === 'Assertion: Expected not to be reached!') {
       throw new Error('Error was not thrown from Promise')
     }
     if (typeof test === 'function') {
-      test(err)
+      test(error)
     } else {
-      match(err.message, test)
+      match(error.message, test)
     }
   }
 }
