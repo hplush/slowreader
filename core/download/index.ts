@@ -15,10 +15,6 @@ export interface DownloadTask {
   text(...args: Parameters<typeof request>): Promise<TextResponse>
 }
 
-function emptyDocument(): Document {
-  return new DOMParser().parseFromString('<html></html>', 'text/html')
-}
-
 export function createTextResponse(
   text: string,
   other: Partial<Omit<TextResponse, 'ok' | 'text'>> = {}
@@ -47,7 +43,10 @@ export function createTextResponse(
         } else {
           // eslint-disable-next-line no-console
           console.error('Unknown content type', parseType)
-          return emptyDocument()
+          return new DOMParser().parseFromString(
+            'Unknown content type',
+            'text/html'
+          )
         }
       }
       return bodyCache
