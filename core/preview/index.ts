@@ -80,9 +80,12 @@ function getSourceForUrl(url: string): false | PreviewCandidate {
   let parsed = new URL(url)
   for (let name of names) {
     let title = sources[name].isMineUrl(parsed)
+    // Until we will have source for specific domain
+    /* c8 ignore start */
     if (typeof title === 'string') {
       return { source: name, title, url }
     }
+    /* c8 ignore end */
   }
   return false
 }
@@ -142,6 +145,8 @@ export async function addLink(url: string, deep = false): Promise<void> {
 
   let byUrl = getSourceForUrl(url)
   if (byUrl !== false) {
+    // Until we will have source for specific domain
+    /* c8 ignore next */
     addCandidate(url, byUrl)
   } else {
     $links.setKey(url, { state: 'loading' })

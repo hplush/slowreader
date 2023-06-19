@@ -65,54 +65,46 @@ test('validates URL', () => {
   equal(previewUrlError.get(), 'invalidUrl')
 })
 
-test('detects Twitter links', () => {
-  previewUrlError.listen(() => {})
+test('uses HTTPS for specific domains', async () => {
   previewLoading.listen(() => {})
   previewCandidates.listen(() => {})
 
-  let userTwitter = {
-    source: 'twitter',
-    title: '@user',
-    url: 'https://twitter.com/user'
-  }
+  expectRequest('https://twitter.com/blog').andRespond(200, '')
+  expectRequest('https://twitter.com/feed').andRespond(404)
+  expectRequest('https://twitter.com/rss').andRespond(404)
+  expectRequest('https://twitter.com/atom').andRespond(404)
+  setPreviewUrl('twitter.com/blog')
 
-  setPreviewUrl('twitter.com/user')
-  equal(previewUrlError.get(), undefined)
+  await setTimeout(10)
   equal(previewLoading.get(), false)
-  equal(previewCandidates.get(), [userTwitter])
+  equal(previewCandidates.get(), [])
 
-  setPreviewUrl('http://twitter.com/user')
-  equal(previewUrlError.get(), undefined)
-  equal(previewLoading.get(), false)
-  equal(previewCandidates.get(), [userTwitter])
+  expectRequest('https://twitter.com/blog').andRespond(200, '')
+  expectRequest('https://twitter.com/feed').andRespond(404)
+  expectRequest('https://twitter.com/rss').andRespond(404)
+  expectRequest('https://twitter.com/atom').andRespond(404)
+  setPreviewUrl('http://twitter.com/blog')
 
-  setPreviewUrl('twitter.com/user')
-  equal(previewUrlError.get(), undefined)
+  await setTimeout(10)
   equal(previewLoading.get(), false)
-  equal(previewCandidates.get(), [userTwitter])
-
-  setPreviewUrl('twitter.com/other')
-  equal(previewUrlError.get(), undefined)
-  equal(previewLoading.get(), false)
-  equal(previewCandidates.get(), [
-    {
-      source: 'twitter',
-      title: '@other',
-      url: 'https://twitter.com/other'
-    }
-  ])
+  equal(previewCandidates.get(), [])
 })
 
-test('cleans state', () => {
+test('cleans state', async () => {
   previewUrlError.listen(() => {})
   previewCandidates.listen(() => {})
 
-  setPreviewUrl('twitter.com/user')
+  let reply = expectRequest('http://example.com').andWait()
+  setPreviewUrl('example.com')
+  await setTimeout(10)
+
   clearPreview()
   equal(previewUrlError.get(), undefined)
   equal(previewCandidates.get(), [])
+  equal(reply.aborted, true)
 
   setPreviewUrl('not URL')
+
   clearPreview()
   equal(previewUrlError.get(), undefined)
   equal(previewCandidates.get(), [])

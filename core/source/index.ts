@@ -1,6 +1,5 @@
 import type { TextResponse } from '../download/index.js'
 import { rss } from './rss.js'
-import { twitter } from './twitter.js'
 
 export type Source = {
   getMineLinksFromText(response: TextResponse): string[]
@@ -9,8 +8,7 @@ export type Source = {
 }
 
 export const sources = {
-  rss,
-  twitter
+  rss
 }
 
 export type SourceName = keyof typeof sources
