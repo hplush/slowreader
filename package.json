@@ -7,10 +7,12 @@
   },
   "scripts": {
     "clean": "rm -rf api/coverage core/coverage web/coverage web/dist",
-    "lint": "tsc --noEmit && eslint . && stylelint **/*.css **/*.svelte",
-    "checks": "node ./scripts/check-subprotocol.js && node ./scripts/check-node-versions.js",
-    "test:run": "pnpm lint && pnpm checks && pnpm audit --prod",
-    "test": "pnpm run --recursive --include-workspace-root test:run"
+    "test:js": "eslint .",
+    "test:styles": "stylelint **/*.css **/*.svelte",
+    "test:types": "tsc --noEmit",
+    "test:checks": "node ./scripts/check-subprotocol.js && node ./scripts/check-node-versions.js",
+    "test:audit": "pnpm audit --prod",
+    "test": "pnpm run --recursive --include-workspace-root /^test:/"
   },
   "workspaces": [
     "api",
