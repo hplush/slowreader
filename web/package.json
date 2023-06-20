@@ -7,8 +7,9 @@
     "start": "vite",
     "build": "vite build",
     "build:start": "vite preview",
-    "test:run": "svelte-check && pnpm build && size-limit",
-    "test": "pnpm run test:run"
+    "test:check": "svelte-check",
+    "test:build": "pnpm build && size-limit",
+    "test": "pnpm run --parallel --aggregate-output /^test:/"
   },
   "dependencies": {
     "@nanostores/i18n": "^0.10.0",
