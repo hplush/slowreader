@@ -6,7 +6,7 @@
   "scripts": {
     "unit": "tsm ./node_modules/uvu/bin.js . '\\.test\\.(ts|js)$'",
     "test:run": "c8 pnpm unit",
-    "test": "pnpm run --parallel /^test:/"
+    "test": "pnpm run --parallel --filter . /^test:/"
   },
   "exports": {
     ".": "./index",
