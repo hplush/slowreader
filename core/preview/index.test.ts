@@ -12,7 +12,7 @@ import {
   mockRequest,
   type PreviewCandidate,
   previewCandidates,
-  previewLoading,
+  previewCandidatesLoading,
   previewUrlError,
   setPreviewUrl
 } from '../index.js'
@@ -22,7 +22,7 @@ test.before.each(() => {
 })
 
 test.after.each(() => {
-  cleanStores(previewUrlError, previewLoading, previewCandidates)
+  cleanStores(previewUrlError, previewCandidatesLoading, previewCandidates)
   clearPreview()
   checkAndRemoveRequestMock()
 })
@@ -38,11 +38,11 @@ function equalWithText(a: PreviewCandidate[], b: PreviewCandidate[]): void {
 
 test('empty from beginning', () => {
   previewUrlError.listen(() => {})
-  previewLoading.listen(() => {})
+  previewCandidatesLoading.listen(() => {})
   previewCandidates.listen(() => {})
 
   equal(previewUrlError.get(), undefined)
-  equal(previewLoading.get(), false)
+  equal(previewCandidatesLoading.get(), false)
   equal(previewCandidates.get(), [])
 })
 
@@ -66,7 +66,7 @@ test('validates URL', () => {
 })
 
 test('uses HTTPS for specific domains', async () => {
-  previewLoading.listen(() => {})
+  previewCandidatesLoading.listen(() => {})
   previewCandidates.listen(() => {})
 
   expectRequest('https://twitter.com/blog').andRespond(200, '')
@@ -76,7 +76,7 @@ test('uses HTTPS for specific domains', async () => {
   setPreviewUrl('twitter.com/blog')
 
   await setTimeout(10)
-  equal(previewLoading.get(), false)
+  equal(previewCandidatesLoading.get(), false)
   equal(previewCandidates.get(), [])
 
   expectRequest('https://twitter.com/blog').andRespond(200, '')
@@ -86,7 +86,7 @@ test('uses HTTPS for specific domains', async () => {
   setPreviewUrl('http://twitter.com/blog')
 
   await setTimeout(10)
-  equal(previewLoading.get(), false)
+  equal(previewCandidatesLoading.get(), false)
   equal(previewCandidates.get(), [])
 })
 
@@ -111,21 +111,21 @@ test('cleans state', async () => {
 })
 
 test('is ready for network errors', async () => {
-  previewLoading.listen(() => {})
+  previewCandidatesLoading.listen(() => {})
   previewUrlError.listen(() => {})
 
   let reply = expectRequest('http://example.com').andWait()
   setPreviewUrl('example.com')
 
-  equal(previewLoading.get(), true)
+  equal(previewCandidatesLoading.get(), true)
   equal(previewUrlError.get(), undefined)
 
   await reply(404)
-  equal(previewLoading.get(), false)
+  equal(previewCandidatesLoading.get(), false)
   equal(previewUrlError.get(), 'unloadable')
 
   setPreviewUrl('')
-  equal(previewLoading.get(), false)
+  equal(previewCandidatesLoading.get(), false)
   equal(previewUrlError.get(), 'emptyUrl')
 })
 
@@ -146,14 +146,14 @@ test('aborts all HTTP requests on URL change', async () => {
 })
 
 test('detects RSS links', async () => {
-  previewLoading.listen(() => {})
+  previewCandidatesLoading.listen(() => {})
   previewUrlError.listen(() => {})
   previewCandidates.listen(() => {})
 
   let replyHtml = expectRequest('http://example.com').andWait()
   setPreviewUrl('example.com')
   await setTimeout(10)
-  equal(previewLoading.get(), true)
+  equal(previewCandidatesLoading.get(), true)
   equal(previewUrlError.get(), undefined)
   equal(previewCandidates.get(), [])
 
@@ -165,14 +165,14 @@ test('detects RSS links', async () => {
       '</head></html>'
   )
   await setTimeout(10)
-  equal(previewLoading.get(), true)
+  equal(previewCandidatesLoading.get(), true)
   equal(previewUrlError.get(), undefined)
   equal(previewCandidates.get(), [])
 
   let rss = '<rss><channel><title>News</title></channel></rss>'
   replyRss(200, rss, 'application/rss+xml')
   await setTimeout(10)
-  equal(previewLoading.get(), false)
+  equal(previewCandidatesLoading.get(), false)
   equal(previewUrlError.get(), undefined)
   equalWithText(previewCandidates.get(), [
     {
@@ -184,7 +184,7 @@ test('detects RSS links', async () => {
 })
 
 test('is ready for empty title', async () => {
-  previewLoading.listen(() => {})
+  previewCandidatesLoading.listen(() => {})
   previewUrlError.listen(() => {})
   previewCandidates.listen(() => {})
 
@@ -197,7 +197,7 @@ test('is ready for empty title', async () => {
 
   setPreviewUrl('example.com')
   await setTimeout(10)
-  equal(previewLoading.get(), false)
+  equal(previewCandidatesLoading.get(), false)
   equal(previewUrlError.get(), undefined)
   equalWithText(previewCandidates.get(), [
     {
@@ -209,7 +209,7 @@ test('is ready for empty title', async () => {
 })
 
 test('looks for popular RSS places', async () => {
-  previewLoading.listen(() => {})
+  previewCandidatesLoading.listen(() => {})
   previewUrlError.listen(() => {})
   previewCandidates.listen(() => {})
 
@@ -222,7 +222,7 @@ test('looks for popular RSS places', async () => {
   setPreviewUrl('example.com')
 
   await setTimeout(10)
-  equal(previewLoading.get(), false)
+  equal(previewCandidatesLoading.get(), false)
   equal(previewUrlError.get(), undefined)
   equalWithText(previewCandidates.get(), [
     {
@@ -234,7 +234,7 @@ test('looks for popular RSS places', async () => {
 })
 
 test('shows if unknown URL', async () => {
-  previewLoading.listen(() => {})
+  previewCandidatesLoading.listen(() => {})
   previewUrlError.listen(() => {})
   previewCandidates.listen(() => {})
 
@@ -246,7 +246,7 @@ test('shows if unknown URL', async () => {
   setPreviewUrl('example.com')
 
   await setTimeout(10)
-  equal(previewLoading.get(), false)
+  equal(previewCandidatesLoading.get(), false)
   equal(previewUrlError.get(), undefined)
   equal(previewCandidates.get(), [])
 })

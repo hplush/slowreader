@@ -51,7 +51,7 @@ export const previewUrlError = computed($links, links => {
   return undefined
 })
 
-export const previewLoading = computed($links, links => {
+export const previewCandidatesLoading = computed($links, links => {
   return Object.keys(links).some(url => links[url].state === 'loading')
 })
 
