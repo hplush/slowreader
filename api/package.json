@@ -6,10 +6,5 @@
   "exports": {
     ".": "./index.ts",
     "./package.json": "./package.json"
-  },
-  "devDependencies": {
-    "c8": "^8.0.0",
-    "tsm": "^2.3.0",
-    "uvu": "^0.5.6"
   }
 }

@@ -42,6 +42,7 @@
     "simple-git-hooks": "^2.8.1",
     "stylelint": "^15.8.0",
     "svelte": "^3.59.1",
+    "tsm": "^2.3.0",
     "typescript": "~5.1.3"
   }
 }

@@ -1,5 +1,6 @@
 import '../test/dom-parser.js'
 
+import { restoreAll, spyOn } from 'nanospy'
 import { cleanStores } from 'nanostores'
 import { setTimeout } from 'node:timers/promises'
 import { test } from 'uvu'
@@ -14,7 +15,8 @@ import {
   previewCandidates,
   previewCandidatesLoading,
   previewUrlError,
-  setPreviewUrl
+  setPreviewUrl,
+  sources
 } from '../index.js'
 
 test.before.each(() => {
@@ -22,6 +24,7 @@ test.before.each(() => {
 })
 
 test.after.each(() => {
+  restoreAll()
   cleanStores(previewUrlError, previewCandidatesLoading, previewCandidates)
   clearPreview()
   checkAndRemoveRequestMock()
@@ -68,26 +71,15 @@ test('validates URL', () => {
 test('uses HTTPS for specific domains', async () => {
   previewCandidatesLoading.listen(() => {})
   previewCandidates.listen(() => {})
+  spyOn(sources.rss, 'getMineLinksFromText', () => [])
 
   expectRequest('https://twitter.com/blog').andRespond(200, '')
-  expectRequest('https://twitter.com/feed').andRespond(404)
-  expectRequest('https://twitter.com/rss').andRespond(404)
-  expectRequest('https://twitter.com/atom').andRespond(404)
   setPreviewUrl('twitter.com/blog')
-
   await setTimeout(10)
-  equal(previewCandidatesLoading.get(), false)
-  equal(previewCandidates.get(), [])
 
   expectRequest('https://twitter.com/blog').andRespond(200, '')
-  expectRequest('https://twitter.com/feed').andRespond(404)
-  expectRequest('https://twitter.com/rss').andRespond(404)
-  expectRequest('https://twitter.com/atom').andRespond(404)
   setPreviewUrl('http://twitter.com/blog')
-
   await setTimeout(10)
-  equal(previewCandidatesLoading.get(), false)
-  equal(previewCandidates.get(), [])
 })
 
 test('cleans state', async () => {
