@@ -2,13 +2,14 @@ import '../test/dom-parser.js'
 
 import { setTimeout } from 'node:timers/promises'
 import { test } from 'uvu'
-import { equal } from 'uvu/assert'
+import { equal, throws } from 'uvu/assert'
 
 import {
   checkAndRemoveRequestMock,
   createDownloadTask,
   createTextResponse,
   expectRequest,
+  ignoreAbortError,
   mockRequest,
   setRequestMethod
 } from '../index.js'
@@ -154,6 +155,39 @@ test('parses content', async () => {
     headers: new Headers({ 'content-type': 'application/xml' })
   })
   equal(broken.parse().textContent, null)
+})
+
+test('has helper to ignore abort errors', async () => {
+  let task = createDownloadTask()
+
+  task.abortAll()
+
+  let error1 = new Error('Test')
+  throws(() => {
+    try {
+      throw error1
+    } catch (e) {
+      ignoreAbortError(e)
+    }
+  }, error1)
+
+  let error2 = 'message'
+  throws(() => {
+    try {
+      throw error2
+    } catch (e) {
+      ignoreAbortError(e)
+    }
+  }, error2)
+
+  let error3: any
+  expectRequest('https://example.com').andWait()
+  task.text('https://example.com').catch(e => {
+    error3 = e
+  })
+  task.abortAll()
+
+  ignoreAbortError(error3)
 })
 
 test.run()

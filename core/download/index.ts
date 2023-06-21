@@ -84,3 +84,7 @@ export function createDownloadTask(): DownloadTask {
     }
   }
 }
+
+export function ignoreAbortError(error: unknown): void {
+  if (!(error instanceof Error) || error.name !== 'AbortError') throw error
+}

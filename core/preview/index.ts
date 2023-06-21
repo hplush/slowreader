@@ -7,7 +7,11 @@ import {
   type ReadableAtom
 } from 'nanostores'
 
-import { createDownloadTask, type TextResponse } from '../download/index.js'
+import {
+  createDownloadTask,
+  ignoreAbortError,
+  type TextResponse
+} from '../download/index.js'
 import { type SourceName, sources } from '../source/index.js'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
@@ -168,7 +172,7 @@ export async function addLink(url: string, deep = false): Promise<void> {
         }
       }
     } catch (error) {
-      if (!(error instanceof Error) || error.name !== 'AbortError') throw error
+      ignoreAbortError(error)
     }
   }
 }
