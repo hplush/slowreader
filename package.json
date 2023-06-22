@@ -41,7 +41,7 @@
     "prettier-plugin-svelte": "^2.10.1",
     "simple-git-hooks": "^2.8.1",
     "stylelint": "^15.8.0",
-    "svelte": "^3.59.2",
+    "svelte": "^4.0.0",
     "tsm": "^2.3.0",
     "typescript": "~5.1.3"
   }
