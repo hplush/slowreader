@@ -17,7 +17,7 @@
     "@logux/core": "^0.8.1",
     "@nanostores/i18n": "^0.10.0",
     "@nanostores/persistent": "^0.9.0",
-    "@nanostores/router": "^0.10.0",
+    "@nanostores/router": "^0.11.0",
     "@slowreader/api": "link:../api",
     "nanoid": "^4.0.2",
     "nanostores": "^0.9.2"
