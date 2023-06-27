@@ -21,7 +21,7 @@
     "browserslist": "^4.21.9",
     "nanostores": "^0.9.2",
     "postcss": "^8.4.24",
-    "rollup": "^3.25.2",
+    "rollup": "^3.25.3",
     "svelte": "^4.0.0",
     "svelte-preprocess": "^5.0.4",
     "vite": "4.3.9"
@@ -32,6 +32,6 @@
     "postcss-lab-function": "^5.2.3",
     "size-limit": "^8.2.6",
     "svelte-check": "^3.4.4",
-    "svelte-loader": "^3.1.8"
+    "svelte-loader": "^3.1.9"
   }
 }
