@@ -25,6 +25,10 @@ export const rss: Source = {
     }
   },
 
+  async getPosts() {
+    return []
+  },
+
   isMineText(text) {
     let document = text.parse()
     let root = document.firstChild?.nodeName ?? ''

@@ -12,6 +12,7 @@ import {
   ignoreAbortError,
   type TextResponse
 } from '../download/index.js'
+import type { Post } from '../post/index.js'
 import { type SourceName, sources } from '../source/index.js'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
@@ -71,6 +72,9 @@ let $candidates = atom<PreviewCandidate[]>([])
 function addCandidate(url: string, candidate: PreviewCandidate): void {
   $links.setKey(url, { state: 'processed' })
   $candidates.set([...$candidates.get(), candidate])
+  if ($candidates.get().length === 1) {
+    setPreviewCandidate(url)
+  }
 }
 
 onMount($candidates, () => {
@@ -177,9 +181,27 @@ export async function addLink(url: string, deep = false): Promise<void> {
   }
 }
 
+let $candidate = atom<string | undefined>()
+
+export const previewCandidate: ReadableAtom<string | undefined> = $candidate
+
+let postsCache = new Map<string, Post[]>()
+
+let $posts = atom<Post[]>([])
+
+export const previewPosts: ReadableAtom<Post[]> = $posts
+
+let $postsLoading = atom(false)
+
+export const previewPostsLoading: ReadableAtom<boolean> = $postsLoading
+
 export function clearPreview(): void {
   $links.set({})
   $candidates.set([])
+  $candidate.set(undefined)
+  $posts.set([])
+  $postsLoading.set(false)
+  postsCache.clear()
   task.abortAll()
   task = createDownloadTask()
 }
@@ -187,4 +209,32 @@ export function clearPreview(): void {
 export async function setPreviewUrl(dirty: string): Promise<void> {
   clearPreview()
   await addLink(dirty)
+}
+
+export async function setPreviewCandidate(url: string): Promise<void> {
+  let candidate = $candidates.get().find(i => i.url === url)
+  if (candidate) {
+    $candidate.set(url)
+    if (postsCache.has(url)) {
+      $posts.set(postsCache.get(url)!)
+      $postsLoading.set(false)
+    } else {
+      $posts.set([])
+      $postsLoading.set(true)
+      try {
+        let posts = await sources[candidate.source].getPosts(
+          task,
+          url,
+          candidate.text
+        )
+        if ($candidate.get() === url) {
+          $posts.set(posts)
+          $postsLoading.set(false)
+          postsCache.set(url, posts)
+        }
+      } catch (error) {
+        ignoreAbortError(error)
+      }
+    }
+  }
 }
