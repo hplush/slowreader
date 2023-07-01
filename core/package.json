@@ -20,7 +20,7 @@
     "@nanostores/router": "^0.11.0",
     "@slowreader/api": "link:../api",
     "nanoid": "^4.0.2",
-    "nanostores": "^0.9.2"
+    "nanostores": "^0.9.3"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.1",
