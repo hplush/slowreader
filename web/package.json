@@ -9,7 +9,7 @@
     "build:start": "vite preview",
     "test:check": "svelte-check",
     "test:build": "pnpm build && size-limit",
-    "test": "pnpm run --parallel --filter . /^test:/"
+    "test": "pnpm run /^test:/"
   },
   "dependencies": {
     "@nanostores/i18n": "^0.10.0",
