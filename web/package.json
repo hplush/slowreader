@@ -20,18 +20,18 @@
     "autoprefixer": "^10.4.14",
     "browserslist": "^4.21.9",
     "nanostores": "^0.9.3",
-    "postcss": "^8.4.24",
-    "rollup": "^3.26.0",
-    "svelte": "^4.0.1",
+    "postcss": "^8.4.25",
+    "rollup": "^3.26.2",
+    "svelte": "^4.0.5",
     "svelte-preprocess": "^5.0.4",
-    "vite": "4.3.9"
+    "vite": "4.4.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.5",
+    "@babel/core": "^7.22.8",
     "@size-limit/file": "^8.2.6",
-    "postcss-lab-function": "^5.2.3",
+    "postcss-lab-function": "^6.0.0",
     "size-limit": "^8.2.6",
-    "svelte-check": "^3.4.4",
+    "svelte-check": "^3.4.5",
     "svelte-loader": "^3.1.9"
   }
 }
