@@ -2,7 +2,7 @@ import type { DownloadTask, TextResponse } from '../download/index.js'
 import type { Post } from '../post/index.js'
 import { rss } from './rss.js'
 
-export type Source = {
+export type Loader = {
   getMineLinksFromText(response: TextResponse): string[]
   getPosts(
     task: DownloadTask,
@@ -13,8 +13,8 @@ export type Source = {
   isMineUrl(url: URL): false | string | undefined
 }
 
-export const sources = {
+export const loaders = {
   rss
 }
 
-export type SourceName = keyof typeof sources
+export type LoaderName = keyof typeof loaders

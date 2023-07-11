@@ -1,4 +1,4 @@
-import type { Source } from '../index.js'
+import type { Loader } from '../index.js'
 
 const TYPES = new Set(['application/rss+xml', 'application/atom+xml'])
 
@@ -8,7 +8,7 @@ function isUrl(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
-export const rss: Source = {
+export const rss: Loader = {
   getMineLinksFromText(text) {
     let links = [...text.parse().querySelectorAll('link')]
       .filter(link => {

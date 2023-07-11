@@ -12,8 +12,8 @@ import {
   ignoreAbortError,
   type TextResponse
 } from '../download/index.js'
+import { type LoaderName, loaders } from '../loader/index.js'
 import type { Post } from '../post/index.js'
-import { type SourceName, sources } from '../source/index.js'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 
@@ -61,7 +61,7 @@ export const previewCandidatesLoading = computed($links, links => {
 })
 
 export interface PreviewCandidate {
-  source: SourceName
+  loader: LoaderName
   text?: TextResponse
   title: string
   url: string
@@ -83,29 +83,29 @@ onMount($candidates, () => {
 
 export const previewCandidates: ReadableAtom<PreviewCandidate[]> = $candidates
 
-function getSourceForUrl(url: string): false | PreviewCandidate {
-  let names = Object.keys(sources) as SourceName[]
+function getLoaderForUrl(url: string): false | PreviewCandidate {
+  let names = Object.keys(loaders) as LoaderName[]
   let parsed = new URL(url)
   for (let name of names) {
-    let title = sources[name].isMineUrl(parsed)
-    // Until we will have source for specific domain
+    let title = loaders[name].isMineUrl(parsed)
+    // Until we will have loader for specific domain
     /* c8 ignore start */
     if (typeof title === 'string') {
-      return { source: name, title, url }
+      return { loader: name, title, url }
     }
     /* c8 ignore end */
   }
   return false
 }
 
-function getSourceForText(response: TextResponse): false | PreviewCandidate {
-  let names = Object.keys(sources) as SourceName[]
+function getLoaderForText(response: TextResponse): false | PreviewCandidate {
+  let names = Object.keys(loaders) as LoaderName[]
   let parsed = new URL(response.url)
   for (let name of names) {
-    if (sources[name].isMineUrl(parsed) !== false) {
-      let title = sources[name].isMineText(response)
+    if (loaders[name].isMineUrl(parsed) !== false) {
+      let title = loaders[name].isMineText(response)
       if (title !== false) {
-        return { source: name, text: response, title, url: response.url }
+        return { loader: name, text: response, title, url: response.url }
       }
     }
   }
@@ -113,9 +113,9 @@ function getSourceForText(response: TextResponse): false | PreviewCandidate {
 }
 
 function getLinksFromText(response: TextResponse): string[] {
-  let names = Object.keys(sources) as SourceName[]
+  let names = Object.keys(loaders) as LoaderName[]
   return names.reduce<string[]>((links, name) => {
-    return links.concat(sources[name].getMineLinksFromText(response))
+    return links.concat(loaders[name].getMineLinksFromText(response))
   }, [])
 }
 
@@ -151,9 +151,9 @@ export async function addLink(url: string, deep = false): Promise<void> {
     return
   }
 
-  let byUrl = getSourceForUrl(url)
+  let byUrl = getLoaderForUrl(url)
   if (byUrl !== false) {
-    // Until we will have source for specific domain
+    // Until we will have loader for specific domain
     /* c8 ignore next */
     addCandidate(url, byUrl)
   } else {
@@ -164,7 +164,7 @@ export async function addLink(url: string, deep = false): Promise<void> {
       if (!response.ok) {
         $links.setKey(url, { state: 'unloadable' })
       } else {
-        let byText = getSourceForText(response)
+        let byText = getLoaderForText(response)
         if (byText !== false) {
           addCandidate(url, byText)
         } else {
@@ -222,7 +222,7 @@ export async function setPreviewCandidate(url: string): Promise<void> {
       $posts.set([])
       $postsLoading.set(true)
       try {
-        let posts = await sources[candidate.source].getPosts(
+        let posts = await loaders[candidate.loader].getPosts(
           task,
           url,
           candidate.text

@@ -3,15 +3,15 @@ import '../test/dom-parser.js'
 import { test } from 'uvu'
 import { equal, type } from 'uvu/assert'
 
-import { createTextResponse, sources } from '../index.js'
+import { createTextResponse, loaders } from '../index.js'
 
 test('detects own URLs', () => {
-  type(sources.rss.isMineUrl(new URL('https://dev.to/')), 'undefined')
+  type(loaders.rss.isMineUrl(new URL('https://dev.to/')), 'undefined')
 })
 
 test('detects links', () => {
   equal(
-    sources.rss.getMineLinksFromText(
+    loaders.rss.getMineLinksFromText(
       createTextResponse(
         '<!DOCTYPE html><html><head>' +
           '<link rel="alternate" type="application/rss+xml" href="/a">' +
@@ -36,7 +36,7 @@ test('detects links', () => {
 
 test('returns default links', () => {
   equal(
-    sources.rss.getMineLinksFromText(
+    loaders.rss.getMineLinksFromText(
       createTextResponse(
         '<!DOCTYPE html><html><head>' +
           '<link rel="alternate" type="application/rss+xml" href="">' +
@@ -57,10 +57,10 @@ test('returns default links', () => {
 test('detects titles', () => {
   function check(
     text: string,
-    expected: ReturnType<typeof sources.rss.isMineText>
+    expected: ReturnType<typeof loaders.rss.isMineText>
   ): void {
     equal(
-      sources.rss.isMineText(
+      loaders.rss.isMineText(
         createTextResponse(text, {
           headers: new Headers({ 'Content-Type': 'application/rss+xml' })
         })

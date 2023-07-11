@@ -10,6 +10,7 @@ import {
   checkAndRemoveRequestMock,
   clearPreview,
   expectRequest,
+  loaders,
   mockRequest,
   previewCandidate,
   type PreviewCandidate,
@@ -19,8 +20,7 @@ import {
   previewPostsLoading,
   previewUrlError,
   setPreviewCandidate,
-  setPreviewUrl,
-  sources
+  setPreviewUrl
 } from '../index.js'
 
 test.before.each(() => {
@@ -75,7 +75,7 @@ test('validates URL', () => {
 test('uses HTTPS for specific domains', async () => {
   previewCandidatesLoading.listen(() => {})
   previewCandidates.listen(() => {})
-  spyOn(sources.rss, 'getMineLinksFromText', () => [])
+  spyOn(loaders.rss, 'getMineLinksFromText', () => [])
 
   expectRequest('https://twitter.com/blog').andRespond(200, '')
   setPreviewUrl('twitter.com/blog')
@@ -178,7 +178,7 @@ test('detects RSS links', async () => {
   equal(previewUrlError.get(), undefined)
   equalWithText(previewCandidates.get(), [
     {
-      source: 'rss',
+      loader: 'rss',
       title: 'News',
       url: 'http://example.com/news'
     }
@@ -203,7 +203,7 @@ test('is ready for empty title', async () => {
   equal(previewUrlError.get(), undefined)
   equalWithText(previewCandidates.get(), [
     {
-      source: 'rss',
+      loader: 'rss',
       title: '',
       url: 'http://other.com/atom'
     }
@@ -228,7 +228,7 @@ test('looks for popular RSS places', async () => {
   equal(previewUrlError.get(), undefined)
   equalWithText(previewCandidates.get(), [
     {
-      source: 'rss',
+      loader: 'rss',
       title: '',
       url: 'http://example.com/atom'
     }
@@ -259,7 +259,7 @@ test('tracks current candidate', async () => {
   previewCandidates.listen(() => {})
   previewCandidate.listen(() => {})
   previewPostsLoading.listen(() => {})
-  let getPosts = spyOn(sources.rss, 'getPosts')
+  let getPosts = spyOn(loaders.rss, 'getPosts')
 
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('http://example.com/feed').andRespond(404)

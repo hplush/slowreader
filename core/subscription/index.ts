@@ -1,9 +1,9 @@
 import { syncMapTemplate } from '@logux/client'
 
-import type { SourceName } from '../source/index.js'
+import type { LoaderName } from '../loader/index.js'
 
 export type SubscriptionValue = {
-  source: SourceName
+  loader: LoaderName
   title: string
   url: string
 }
