@@ -76,6 +76,7 @@ test('uses HTTPS for specific domains', async () => {
   previewCandidatesLoading.listen(() => {})
   previewCandidates.listen(() => {})
   spyOn(loaders.rss, 'getMineLinksFromText', () => [])
+  spyOn(loaders.atom, 'getMineLinksFromText', () => [])
 
   expectRequest('https://twitter.com/blog').andRespond(200, '')
   setPreviewUrl('twitter.com/blog')
@@ -203,23 +204,23 @@ test('is ready for empty title', async () => {
   equal(previewUrlError.get(), undefined)
   equalWithText(previewCandidates.get(), [
     {
-      loader: 'rss',
+      loader: 'atom',
       title: '',
       url: 'http://other.com/atom'
     }
   ])
 })
 
-test('looks for popular RSS places', async () => {
+test('looks for popular RSS and Atom places', async () => {
   previewCandidatesLoading.listen(() => {})
   previewUrlError.listen(() => {})
   previewCandidates.listen(() => {})
 
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
-  let rss = '<feed><title></title></feed>'
+  let atom = '<feed><title></title></feed>'
+  expectRequest('http://example.com/atom').andRespond(200, atom, 'text/xml')
   expectRequest('http://example.com/feed').andRespond(404)
   expectRequest('http://example.com/rss').andRespond(404)
-  expectRequest('http://example.com/atom').andRespond(200, rss, 'text/xml')
 
   setPreviewUrl('example.com')
 
@@ -228,7 +229,7 @@ test('looks for popular RSS places', async () => {
   equal(previewUrlError.get(), undefined)
   equalWithText(previewCandidates.get(), [
     {
-      loader: 'rss',
+      loader: 'atom',
       title: '',
       url: 'http://example.com/atom'
     }
@@ -241,9 +242,9 @@ test('shows if unknown URL', async () => {
   previewCandidates.listen(() => {})
 
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('http://example.com/atom').andRespond(404)
   expectRequest('http://example.com/feed').andRespond(404)
   expectRequest('http://example.com/rss').andRespond(404)
-  expectRequest('http://example.com/atom').andRespond(404)
 
   setPreviewUrl('example.com')
 
@@ -259,64 +260,65 @@ test('tracks current candidate', async () => {
   previewCandidates.listen(() => {})
   previewCandidate.listen(() => {})
   previewPostsLoading.listen(() => {})
-  let getPosts = spyOn(loaders.rss, 'getPosts')
+  let getAtomPosts = spyOn(loaders.atom, 'getPosts')
+  let getRssPosts = spyOn(loaders.rss, 'getPosts')
 
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('http://example.com/atom').andRespond(
+    200,
+    '<feed><title>Atom</title></feed>',
+    'application/rss+xml'
+  )
   expectRequest('http://example.com/feed').andRespond(404)
   expectRequest('http://example.com/rss').andRespond(
     200,
     '<rss><title>RSS</title></rss>',
     'application/rss+xml'
   )
-  expectRequest('http://example.com/atom').andRespond(
-    200,
-    '<feed><title>Atom</title></feed>',
-    'application/rss+xml'
-  )
-  let resolvePosts1 = getPosts.nextResolve()
+  let resolvePosts1 = getAtomPosts.nextResolve()
   setPreviewUrl('example.com')
   await setTimeout(10)
 
   equal(previewCandidatesLoading.get(), false)
   equal(previewUrlError.get(), undefined)
   equal(previewCandidates.get().length, 2)
-  equal(previewCandidate.get(), 'http://example.com/rss')
+  equal(previewCandidate.get(), 'http://example.com/atom')
   equal(previewPostsLoading.get(), true)
   equal(previewPosts.get(), [])
-  equal(getPosts.calls.length, 1)
-  equal(getPosts.calls[0][1], 'http://example.com/rss')
+  equal(getAtomPosts.calls.length, 1)
+  equal(getAtomPosts.calls[0][1], 'http://example.com/atom')
 
   await resolvePosts1([{ id: '1' }])
   equal(previewPostsLoading.get(), false)
   equal(previewPosts.get(), [{ id: '1' }])
 
-  getPosts.nextResolve()
-  setPreviewCandidate('http://example.com/atom')
-  await setTimeout(10)
-
-  equal(previewCandidate.get(), 'http://example.com/atom')
-  equal(previewPostsLoading.get(), true)
-  equal(previewPosts.get(), [])
-  equal(getPosts.calls.length, 2)
-  equal(getPosts.calls[1][1], 'http://example.com/atom')
-
+  getRssPosts.nextResolve()
   setPreviewCandidate('http://example.com/rss')
   await setTimeout(10)
 
   equal(previewCandidate.get(), 'http://example.com/rss')
-  equal(previewPostsLoading.get(), false)
-  equal(previewPosts.get(), [{ id: '1' }])
-  equal(getPosts.calls.length, 2)
+  equal(previewPostsLoading.get(), true)
+  equal(previewPosts.get(), [])
+  equal(getRssPosts.calls.length, 1)
+  equal(getRssPosts.calls[0][1], 'http://example.com/rss')
 
-  let resolvePosts2 = getPosts.nextResolve()
   setPreviewCandidate('http://example.com/atom')
   await setTimeout(10)
-  await resolvePosts2([{ id: '2' }])
 
   equal(previewCandidate.get(), 'http://example.com/atom')
   equal(previewPostsLoading.get(), false)
+  equal(previewPosts.get(), [{ id: '1' }])
+  equal(getAtomPosts.calls.length, 1)
+
+  let resolvePosts2 = getRssPosts.nextResolve()
+  setPreviewCandidate('http://example.com/rss')
+  await setTimeout(10)
+  await resolvePosts2([{ id: '2' }])
+
+  equal(previewCandidate.get(), 'http://example.com/rss')
+  equal(previewPostsLoading.get(), false)
   equal(previewPosts.get(), [{ id: '2' }])
-  equal(getPosts.calls.length, 3)
+  equal(getRssPosts.calls.length, 2)
 })
 
 test.run()

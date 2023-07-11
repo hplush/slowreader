@@ -1,5 +1,6 @@
 import type { DownloadTask, TextResponse } from '../download/index.js'
 import type { Post } from '../post/index.js'
+import { atom } from './atom.js'
 import { rss } from './rss.js'
 
 export type Loader = {
@@ -14,6 +15,7 @@ export type Loader = {
 }
 
 export const loaders = {
+  atom,
   rss
 }
 

@@ -1,14 +1,14 @@
 import type { Loader } from '../index.js'
 import { findLink } from './utils.js'
 
-export const rss: Loader = {
+export const atom: Loader = {
   getMineLinksFromText(text) {
-    let links = findLink(text, 'application/rss+xml')
+    let links = findLink(text, 'application/atom+xml')
     if (links.length > 0) {
       return links
-    } else if (findLink(text, 'application/atom+xml').length === 0) {
+    } else if (findLink(text, 'application/rss+xml').length === 0) {
       let { origin } = new URL(text.url)
-      return [new URL('/feed', origin).href, new URL('/rss', origin).href]
+      return [new URL('/atom', origin).href]
     } else {
       return []
     }
@@ -20,8 +20,8 @@ export const rss: Loader = {
 
   isMineText(text) {
     let document = text.parse()
-    if (document.firstChild?.nodeName === 'rss') {
-      return document.querySelector('channel > title')?.textContent ?? ''
+    if (document.firstChild?.nodeName === 'feed') {
+      return document.querySelector(':root > title')?.textContent ?? ''
     } else {
       return false
     }
