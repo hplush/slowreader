@@ -11,7 +11,7 @@ let urlRouter = createRouter({
   fast: '/fast',
   home: '/',
   notFound: '/404',
-  preview: '/preview/:url',
+  preview: '/add/:url',
   signin: '/signin',
   slowAll: '/slow',
   start: '/start'
