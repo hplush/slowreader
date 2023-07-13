@@ -1,4 +1,5 @@
 import '../stores/locale.js'
+import '../stores/request.js'
 
 import { isGuestRoute, isSlowRoute } from '@slowreader/core'
 
