@@ -7,7 +7,8 @@
 
   import { openURL } from '../stores/router'
 
-  let url = ''
+  export let url = ''
+  setPreviewUrl(url)
   $: setPreviewUrl(url)
 
   let input: HTMLInputElement
