@@ -23,7 +23,7 @@
   "devDependencies": {
     "@logux/eslint-config": "^51.0.0",
     "@logux/stylelint-config": "^0.15.1",
-    "@types/node": "^20.4.1",
+    "@types/node": "^20.4.2",
     "@types/ws": "^8.5.5",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
@@ -31,7 +31,7 @@
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-n": "^16.0.1",
-    "eslint-plugin-perfectionist": "^1.4.0",
+    "eslint-plugin-perfectionist": "^1.5.0",
     "eslint-plugin-prefer-let": "^3.0.1",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-svelte3": "^4.0.0",
