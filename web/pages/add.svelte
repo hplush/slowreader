@@ -58,8 +58,9 @@
             setPreviewCandidate(candidate.url)
           }}
           disabled={$previewCandidate === candidate.url}
-          >{candidate.title}</button
         >
+          {candidate.title}
+        </button>
       </li>
     {/each}
   </ul>
