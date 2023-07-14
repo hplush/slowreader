@@ -1,7 +1,5 @@
 :root {
-  --app-background: lch(98% 0 0);
-  --navbar-border: lch(0% 0 0 / 10%);
-  --reading-background: lch(98% 7 86);
-  --focus-color: lch(70% 42 243 / 30%);
-  --error-text: lch(47% 74 33);
+  --app-background: oklch(98.28% 0 0);
+  --reading-background: oklch(98% 0.02 86);
+  --focus-color: oklch(74% 0.13 234 / 30%);
 }

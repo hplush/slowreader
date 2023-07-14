@@ -1,10 +1,9 @@
 body {
-  --navbar-height: 51px;
+  --navbar-width: 150px;
+  --app-padding: 8px;
 
   display: flex;
-  padding-top: var(--navbar-height);
   background: var(--app-background);
-  scroll-margin-top: var(--navbar-height);
 }
 
 body,
@@ -25,10 +24,9 @@ body.is-slow {
 }
 
 body.is-guest {
-  --navbar-height: 0;
+  --navbar-width: 0;
 }
 
 #main {
-  width: 100%;
-  min-height: 100%;
+  padding-left: calc(var(--navbar-width) + var(--app-padding));
 }

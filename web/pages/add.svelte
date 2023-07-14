@@ -45,16 +45,3 @@
     </div>
   {/if}
 </form>
-
-<style>
-  form {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100%;
-  }
-
-  .error {
-    color: var(--error-text);
-  }
-</style>

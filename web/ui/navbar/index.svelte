@@ -6,29 +6,33 @@
   } from '@slowreader/core'
 
   import { getURL, router } from '../../stores/router'
-  import Button from './button.svelte'
 </script>
 
 <nav>
-  <Button>{$t.refresh}</Button>
   <div>
-    <Button
-      href={getURL('slowAll')}
-      current={isSlowRoute($router)}
-      switcher
-      slow
-    >
-      {$t.slow}
-    </Button>
-    <Button href={getURL('fast')} current={isFastRoute($router)} switcher>
-      {$t.fast}
-    </Button>
+    <a href={getURL('slowAll')}>
+      {#if isSlowRoute($router)}
+        <strong>{$t.slow}</strong>
+      {:else}
+        {$t.slow}
+      {/if}
+    </a>
+    <a href={getURL('fast')}>
+      {#if isFastRoute($router)}
+        <strong>{$t.fast}</strong>
+      {:else}
+        {$t.fast}
+      {/if}
+    </a>
   </div>
   <div>
-    <Button href={getURL('add')} current={$router.route === 'add'}>
-      {$t.add}
-    </Button>
-    <Button>{$t.menu}</Button>
+    <a href={getURL('add')}>
+      {#if $router.route === 'add' || $router.route === 'preview'}
+        <strong>{$t.add}</strong>
+      {:else}
+        {$t.add}
+      {/if}
+    </a>
   </div>
 </nav>
 
@@ -36,17 +40,9 @@
   nav {
     position: fixed;
     top: 0;
-    right: 0;
+    bottom: 0;
     left: 0;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: space-between;
-    height: var(--navbar-height);
-    background: var(--app-background);
-    border-bottom: 1px solid var(--navbar-border);
-  }
-
-  div {
-    display: flex;
+    width: var(--navbar-width);
+    padding: var(--app-padding);
   }
 </style>
