@@ -288,9 +288,9 @@ test('tracks current candidate', async () => {
   equal(getAtomPosts.calls.length, 1)
   equal(getAtomPosts.calls[0][1], 'http://example.com/atom')
 
-  await resolvePosts1([{ id: '1' }])
+  await resolvePosts1([{ id: '1', url: '1' }])
   equal(previewPostsLoading.get(), false)
-  equal(previewPosts.get(), [{ id: '1' }])
+  equal(previewPosts.get(), [{ id: '1', url: '1' }])
 
   getRssPosts.nextResolve()
   setPreviewCandidate('http://example.com/rss')
@@ -307,17 +307,17 @@ test('tracks current candidate', async () => {
 
   equal(previewCandidate.get(), 'http://example.com/atom')
   equal(previewPostsLoading.get(), false)
-  equal(previewPosts.get(), [{ id: '1' }])
+  equal(previewPosts.get(), [{ id: '1', url: '1' }])
   equal(getAtomPosts.calls.length, 1)
 
   let resolvePosts2 = getRssPosts.nextResolve()
   setPreviewCandidate('http://example.com/rss')
   await setTimeout(10)
-  await resolvePosts2([{ id: '2' }])
+  await resolvePosts2([{ id: '2', url: '2' }])
 
   equal(previewCandidate.get(), 'http://example.com/rss')
   equal(previewPostsLoading.get(), false)
-  equal(previewPosts.get(), [{ id: '2' }])
+  equal(previewPosts.get(), [{ id: '2', url: '2' }])
   equal(getRssPosts.calls.length, 2)
 })
 
