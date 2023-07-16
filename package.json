@@ -12,7 +12,8 @@
     "test:types": "tsc --noEmit",
     "test:checks": "node ./scripts/check-subprotocol.js && node ./scripts/check-versions.js",
     "test:audit": "pnpm audit --prod",
-    "test": "pnpm run --recursive --include-workspace-root /^test:/"
+    "test": "pnpm run --recursive --include-workspace-root /^test:/",
+    "start": "pnpm run --recursive start"
   },
   "workspaces": [
     "api",
