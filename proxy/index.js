@@ -15,10 +15,10 @@ const server = http.createServer(async (req, res) => {
     })
 
     res.writeHead(proxy.status, {
-      ...proxy.headers,
       'Access-Control-Allow-Headers': '*',
       'Access-Control-Allow-Methods': 'OPTIONS, POST, GET, PUT, DELETE',
-      'Access-Control-Allow-Origin': '*'
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': proxy.headers.get('content-type') ?? 'text/plain'
     })
     sent = true
     res.write(await proxy.text())
