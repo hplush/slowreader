@@ -34,6 +34,15 @@
       {/if}
     </a>
   </div>
+  <div>
+    <a href={getURL('subscriptions')}>
+      {#if $router.route === 'subscriptions'}
+        <strong>{$t.subscriptions}</strong>
+      {:else}
+        {$t.subscriptions}
+      {/if}
+    </a>
+  </div>
 </nav>
 
 <style>

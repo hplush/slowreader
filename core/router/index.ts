@@ -14,6 +14,7 @@ export interface Routes {
   signin: {}
   slowAll: {}
   start: {}
+  subscriptions: {}
 }
 
 export type BaseRoute<Name extends keyof Routes = keyof Routes> =

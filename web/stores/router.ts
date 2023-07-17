@@ -14,7 +14,8 @@ let urlRouter = createRouter({
   preview: '/add/:url',
   signin: '/signin',
   slowAll: '/slow',
-  start: '/start'
+  start: '/start',
+  subscriptions: '/subscriptions'
 } as const)
 
 type UrlConfig = ConfigFromRouter<typeof urlRouter>
