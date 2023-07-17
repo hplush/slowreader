@@ -4,7 +4,18 @@ import { spyOn } from 'nanospy'
 import { test } from 'uvu'
 import { equal, type } from 'uvu/assert'
 
-import { createDownloadTask, createTextResponse, loaders } from '../index.js'
+import {
+  createDownloadTask,
+  createTextResponse,
+  loaders,
+  type TextResponse
+} from '../index.js'
+
+function exampleRss(xml: string): TextResponse {
+  return createTextResponse(xml, {
+    headers: new Headers({ 'Content-Type': 'application/rss+xml' })
+  })
+}
 
 test('detects own URLs', () => {
   type(loaders.rss.isMineUrl(new URL('https://dev.to/')), 'undefined')
@@ -14,13 +25,16 @@ test('detects links', () => {
   equal(
     loaders.rss.getMineLinksFromText(
       createTextResponse(
-        '<!DOCTYPE html><html><head>' +
-          '<link rel="alternate" type="application/rss+xml" href="/a">' +
-          '<link rel="alternate" type="application/rss+xml" href="">' +
-          '<link rel="alternate" type="application/rss+xml" href="./b">' +
-          '<link rel="alternate" type="application/rss+xml" href="../c">' +
-          '<link type="application/rss+xml" href="http://other.com/d">' +
-          '</head></html>',
+        `<!DOCTYPE html>
+        <html>
+          <head>
+            <link rel="alternate" type="application/rss+xml" href="/a">
+            <link rel="alternate" type="application/rss+xml" href="">
+            <link rel="alternate" type="application/rss+xml" href="./b">
+            <link rel="alternate" type="application/rss+xml" href="../c">
+            <link type="application/rss+xml" href="http://other.com/d">
+          </head>
+        </html>`,
         {
           url: 'https://example.com/news/'
         }
@@ -50,9 +64,12 @@ test('ignores default URL on Atom link', () => {
   equal(
     loaders.rss.getMineLinksFromText(
       createTextResponse(
-        '<!DOCTYPE html><html><head>' +
-          '<link rel="alternate" type="application/atom+xml" href="/atom">' +
-          '</head></html>',
+        `<!DOCTYPE html>
+        <html>
+          <head>
+            <link rel="alternate" type="application/atom+xml" href="/atom">
+          </head>
+        </html>`,
         {
           url: 'https://example.com/news/'
         }
@@ -63,27 +80,24 @@ test('ignores default URL on Atom link', () => {
 })
 
 test('detects titles', () => {
-  function check(
-    text: string,
-    expected: ReturnType<typeof loaders.rss.isMineText>
-  ): void {
-    equal(
-      loaders.rss.isMineText(
-        createTextResponse(text, {
-          headers: new Headers({ 'Content-Type': 'application/rss+xml' })
-        })
-      ),
-      expected
-    )
-  }
-
-  check(
-    '<?xml version="1.0"?><rss version="2.0">' +
-      '<channel><title>Test 1</title></channel></rss>',
+  equal(
+    loaders.rss.isMineText(
+      exampleRss(
+        `<?xml version="1.0"?>
+        <rss version="2.0">
+          <channel>
+            <title>Test 1</title>
+          </channel>
+        </rss>`
+      )
+    ),
     'Test 1'
   )
-  check('<rss version="2.0"></rss>', '')
-  check('<unknown><title>No</title></unknown>', false)
+  equal(loaders.rss.isMineText(exampleRss('<rss version="2.0"></rss>')), '')
+  equal(
+    loaders.rss.isMineText(exampleRss('<unknown><title>No</title></unknown>')),
+    false
+  )
 })
 
 test('parses posts', async () => {
@@ -92,18 +106,26 @@ test('parses posts', async () => {
     await loaders.rss.getPosts(
       task,
       'https://example.com/news/',
-      createTextResponse(
-        '<?xml version="1.0"?><rss version="2.0">' +
-          '<channel><title>Feed</title>' +
-          '<item><title>1</title><link>https://example.com/1</link>' +
-          '<description>Post 1</description></item>' +
-          '<item><title>2</title><link>https://example.com/2</link>' +
-          '<guid>2</guid></item>' +
-          '<item><title>3</title></item>' +
-          '</channel></rss>',
-        {
-          headers: new Headers({ 'Content-Type': 'application/rss+xml' })
-        }
+      exampleRss(
+        `<?xml version="1.0"?>
+        <rss version="2.0">
+          <channel>
+            <title>Feed</title>
+            <item>
+              <title>1</title>
+              <link>https://example.com/1</link>
+              <description>Post 1</description>
+            </item>
+            <item>
+              <title>2</title>
+              <link>https://example.com/2</link>
+              <guid>2</guid>
+            </item>
+            <item>
+              <title>3</title>
+            </item>
+          </channel>
+        </rss>`
       )
     ),
     [
@@ -126,14 +148,17 @@ test('parses posts', async () => {
 test('loads text to parse posts', async () => {
   let task = createDownloadTask()
   let text = spyOn(task, 'text', async () =>
-    createTextResponse(
-      '<?xml version="1.0"?><rss version="2.0">' +
-        '<channel><title>Feed</title>' +
-        '<item><title>1</title><link>https://example.com/1</link></item>' +
-        '</channel></rss>',
-      {
-        headers: new Headers({ 'Content-Type': 'application/rss+xml' })
-      }
+    exampleRss(
+      `<?xml version="1.0"?>
+      <rss version="2.0">
+        <channel>
+          <title>Feed</title>
+          <item>
+            <title>1</title>
+            <link>https://example.com/1</link>
+          </item>
+        </channel>
+      </rss>`
     )
   )
 
