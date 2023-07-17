@@ -21,7 +21,7 @@
     "browserslist": "^4.21.9",
     "nanostores": "^0.9.3",
     "postcss": "^8.4.26",
-    "rollup": "^3.26.2",
+    "rollup": "^3.26.3",
     "svelte": "^4.0.5",
     "svelte-preprocess": "^5.0.4",
     "vite": "4.4.4"
