@@ -104,7 +104,10 @@ test('parses posts', async () => {
           '<entry><title>2</title><id>2</id>' +
           '<link rel="related" href="https://example.com/2" />' +
           '</entry>' +
-          '<entry><title>3</title></entry>' +
+          '<entry><title>3</title><id>3</id>' +
+          '<link href="https://example.com/3" />' +
+          '</entry>' +
+          '<entry><title>4</title></entry>' +
           '</feed>',
         {
           headers: new Headers({ 'Content-Type': 'application/rss+xml' })
@@ -125,6 +128,13 @@ test('parses posts', async () => {
         intro: undefined,
         title: '2',
         url: undefined
+      },
+      {
+        full: undefined,
+        id: '3',
+        intro: undefined,
+        title: '3',
+        url: 'https://example.com/3'
       }
     ]
   )

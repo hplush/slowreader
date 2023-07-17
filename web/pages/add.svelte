@@ -74,7 +74,11 @@
     <ul>
       {#each $previewPosts as post}
         <li>
-          <a href={post.url}>{post.title ?? post.intro ?? post.full}</a>
+          {#if post.url}
+            <a href={post.url}>{post.title ?? post.intro ?? post.full}</a>
+          {:else}
+            {post.title ?? post.intro ?? post.full}
+          {/if}
         </li>
       {/each}
     </ul>

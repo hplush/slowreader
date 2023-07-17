@@ -25,8 +25,9 @@ export const atom: Loader = {
         intro: entry.querySelector('summary')?.textContent ?? undefined,
         title: entry.querySelector('title')?.textContent ?? undefined,
         url:
-          entry.querySelector('link[rel=alternate]')?.getAttribute('href') ??
-          undefined
+          entry
+            .querySelector('link[rel=alternate], link:not([rel])')
+            ?.getAttribute('href') ?? undefined
       }))
   },
 
