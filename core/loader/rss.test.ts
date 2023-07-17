@@ -1,9 +1,10 @@
 import '../test/dom-parser.js'
 
+import { spyOn } from 'nanospy'
 import { test } from 'uvu'
 import { equal, type } from 'uvu/assert'
 
-import { createTextResponse, loaders } from '../index.js'
+import { createDownloadTask, createTextResponse, loaders } from '../index.js'
 
 test('detects own URLs', () => {
   type(loaders.rss.isMineUrl(new URL('https://dev.to/')), 'undefined')
@@ -83,6 +84,68 @@ test('detects titles', () => {
   )
   check('<rss version="2.0"></rss>', '')
   check('<unknown><title>No</title></unknown>', false)
+})
+
+test('parses posts', async () => {
+  let task = createDownloadTask()
+  equal(
+    await loaders.rss.getPosts(
+      task,
+      'https://example.com/news/',
+      createTextResponse(
+        '<?xml version="1.0"?><rss version="2.0">' +
+          '<channel><title>Feed</title>' +
+          '<item><title>1</title><link>https://example.com/1</link>' +
+          '<description>Post 1</description></item>' +
+          '<item><title>2</title><link>https://example.com/2</link>' +
+          '<guid>2</guid></item>' +
+          '<item><title>3</title></item>' +
+          '</channel></rss>',
+        {
+          headers: new Headers({ 'Content-Type': 'application/rss+xml' })
+        }
+      )
+    ),
+    [
+      {
+        full: 'Post 1',
+        id: 'https://example.com/1',
+        title: '1',
+        url: 'https://example.com/1'
+      },
+      {
+        full: undefined,
+        id: '2',
+        title: '2',
+        url: 'https://example.com/2'
+      }
+    ]
+  )
+})
+
+test('loads text to parse posts', async () => {
+  let task = createDownloadTask()
+  let text = spyOn(task, 'text', async () =>
+    createTextResponse(
+      '<?xml version="1.0"?><rss version="2.0">' +
+        '<channel><title>Feed</title>' +
+        '<item><title>1</title><link>https://example.com/1</link></item>' +
+        '</channel></rss>',
+      {
+        headers: new Headers({ 'Content-Type': 'application/rss+xml' })
+      }
+    )
+  )
+
+  equal(await loaders.rss.getPosts(task, 'https://example.com/news/'), [
+    {
+      full: undefined,
+      id: 'https://example.com/1',
+      title: '1',
+      url: 'https://example.com/1'
+    }
+  ])
+  equal(text.calls, [['https://example.com/news/']])
 })
 
 test.run()

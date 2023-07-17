@@ -3,5 +3,5 @@ export interface Post {
   id: string
   intro?: string
   title?: string
-  url: string
+  url?: string
 }

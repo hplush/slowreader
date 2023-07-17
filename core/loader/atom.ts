@@ -14,8 +14,20 @@ export const atom: Loader = {
     }
   },
 
-  async getPosts() {
-    return []
+  async getPosts(task, url, text) {
+    if (!text) text = await task.text(url)
+    let document = text.parse()
+    return [...document.querySelectorAll('entry')]
+      .filter(entry => entry.querySelector('id')?.textContent)
+      .map(entry => ({
+        full: entry.querySelector('content')?.textContent ?? undefined,
+        id: entry.querySelector('id')!.textContent!,
+        intro: entry.querySelector('summary')?.textContent ?? undefined,
+        title: entry.querySelector('title')?.textContent ?? undefined,
+        url:
+          entry.querySelector('link[rel=alternate]')?.getAttribute('href') ??
+          undefined
+      }))
   },
 
   isMineText(text) {

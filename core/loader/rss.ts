@@ -14,8 +14,23 @@ export const rss: Loader = {
     }
   },
 
-  async getPosts() {
-    return []
+  async getPosts(task, url, text) {
+    if (!text) text = await task.text(url)
+    let document = text.parse()
+    return [...document.querySelectorAll('item')]
+      .filter(
+        item =>
+          item.querySelector('guid')?.textContent ??
+          item.querySelector('link')?.textContent
+      )
+      .map(item => ({
+        full: item.querySelector('description')?.textContent ?? undefined,
+        id:
+          item.querySelector('guid')?.textContent ??
+          item.querySelector('link')!.textContent!,
+        title: item.querySelector('title')?.textContent ?? undefined,
+        url: item.querySelector('link')?.textContent ?? undefined
+      }))
   },
 
   isMineText(text) {
