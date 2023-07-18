@@ -14,8 +14,8 @@ import {
   isFastRoute,
   isGuestRoute,
   isSlowRoute,
-  localSettings,
-  type Routes
+  type Routes,
+  userId
 } from '../index.js'
 
 let testRouter = atom<BaseRoute | undefined>()
@@ -39,7 +39,7 @@ test.before.each(() => {
 })
 
 test.after.each(() => {
-  cleanStores(router, localSettings, testRouter)
+  cleanStores(router, userId, testRouter)
   cleanTestStorage()
 })
 

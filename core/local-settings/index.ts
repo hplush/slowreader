@@ -1,16 +1,12 @@
-import { persistentMap } from '@nanostores/persistent'
+import { persistentAtom } from '@nanostores/persistent'
 import { nanoid } from 'nanoid'
 
-export type LocalSettingsValue = {
-  userId?: string
-}
-
-export let localSettings = persistentMap<LocalSettingsValue>('slowreader:', {})
+export let userId = persistentAtom<string | undefined>('slowreader:userId')
 
 export function signOut(): void {
-  localSettings.setKey('userId', undefined)
+  userId.set(undefined)
 }
 
 export function generateCredentials(): void {
-  localSettings.setKey('userId', nanoid(10))
+  userId.set(nanoid(10))
 }

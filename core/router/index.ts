@@ -1,9 +1,6 @@
 import { computed, type ReadableAtom } from 'nanostores'
 
-import {
-  localSettings,
-  type LocalSettingsValue
-} from '../local-settings/index.js'
+import { userId } from '../local-settings/index.js'
 
 export interface Routes {
   add: {}
@@ -46,11 +43,11 @@ function open<Name extends keyof Routes>(
 
 function getRoute(
   page: BaseRoute | undefined,
-  settings: LocalSettingsValue
+  user: string | undefined
 ): AppRoute {
   if (!page) {
     return open('notFound', {})
-  } else if (settings.userId) {
+  } else if (user) {
     if (GUEST.has(page.route)) {
       return redirect('slowAll', {})
     } else if (page.route === 'home') {
@@ -63,7 +60,7 @@ function getRoute(
 }
 
 export function createAppRouter(base: BaseRouter): ReadableAtom<AppRoute> {
-  return computed([base, localSettings], getRoute)
+  return computed([base, userId], getRoute)
 }
 
 export function isFastRoute(route: AppRoute): boolean {
