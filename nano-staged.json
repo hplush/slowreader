@@ -1,7 +1,7 @@
 {
   "*.{js,ts}": "prettier --write",
   "*.css": "stylelint --fix",
-  "*.svelte": ["prettier --plugin-search-dir=. --write", "stylelint --fix"],
+  "*.svelte": ["prettier --write", "stylelint --fix"],
   "api/{index.ts,package.json}": "node ./scripts/check-subprotocol.js",
   ".tool-versions": "node ./scripts/check-versions.js",
   "package.json": "node ./scripts/check-versions.js"
