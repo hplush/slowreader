@@ -14,8 +14,11 @@ export interface Routes {
   subscriptions: {}
 }
 
-export type BaseRoute<Name extends keyof Routes = keyof Routes> =
-  Name extends string ? { params: Routes[Name]; route: Name } : never
+export type RouteName = keyof Routes
+
+export type BaseRoute<Name extends RouteName = RouteName> = Name extends string
+  ? { params: Routes[Name]; route: Name }
+  : never
 
 export type BaseRouter = ReadableAtom<BaseRoute | undefined>
 
