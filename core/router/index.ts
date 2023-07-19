@@ -1,4 +1,4 @@
-import { computed, type ReadableAtom } from 'nanostores'
+import { computed, type ReadableAtom, type StoreValue } from 'nanostores'
 
 import { userId } from '../local-settings/index.js'
 
@@ -62,7 +62,21 @@ function getRoute(
   return open(page.route, page.params)
 }
 
-export function createAppRouter(base: BaseRouter): ReadableAtom<AppRoute> {
+type RouterRoutes<Router extends BaseRouter> = {
+  [R in Exclude<StoreValue<Router>, undefined> as R['route']]: R['params']
+}
+
+type ExactType<Good, A, B> = A extends B ? (B extends A ? Good : never) : never
+
+type ValidateRouter<Router extends BaseRouter> = ExactType<
+  Router,
+  RouterRoutes<Router>,
+  Routes
+>
+
+export function createAppRouter<Router extends BaseRouter>(
+  base: ValidateRouter<Router>
+): ReadableAtom<AppRoute> {
   return computed([base, userId], getRoute)
 }
 

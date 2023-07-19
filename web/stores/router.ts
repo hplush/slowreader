@@ -4,7 +4,7 @@ import {
   getPagePath,
   type ParamsArg
 } from '@nanostores/router'
-import { createAppRouter, type RouteName } from '@slowreader/core'
+import { createAppRouter } from '@slowreader/core'
 
 let urlRouter = createRouter({
   add: '/add',
@@ -16,7 +16,7 @@ let urlRouter = createRouter({
   slowAll: '/slow',
   start: '/start',
   subscriptions: '/subscriptions'
-} as const satisfies Record<RouteName, string>)
+})
 
 type UrlConfig = ConfigFromRouter<typeof urlRouter>
 
