@@ -10,15 +10,19 @@
   },
   "overrides": [
     {
-      "files": [
-        "*.svelte"
-      ],
+      "files": ["*.svelte"],
       "parser": "@typescript-eslint/parser",
       "processor": "svelte3/svelte3",
       "rules": {
         "no-use-before-define": "off",
         "no-undef-init": "off",
         "import/first": "off"
+      }
+    },
+    {
+      "files": ["*/test/*"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off"
       }
     }
   ],

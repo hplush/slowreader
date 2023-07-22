@@ -5,6 +5,7 @@ export * from './preview/index.js'
 export * from './request/index.js'
 export * from './loader/index.js'
 export * from './router/index.js'
+export * from './client/index.js'
 export * from './post/index.js'
 export * from './i18n/index.js'
 

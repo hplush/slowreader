@@ -9,12 +9,16 @@ let prevClient: Client | undefined
 export let client = computed(userId, user => {
   prevClient?.destroy()
   if (user) {
-    return new Client({
+    let logux = new Client({
       prefix: 'slowreader',
-      server: import.meta.env.VITE_LOGUX_URL,
+      server: 'ws://localhost:31337/',
       subprotocol: SUBPROTOCOL,
       userId: user
     })
+    logux.start()
+    logux.node.connection.disconnect()
+    prevClient = logux
+    return logux
   } else {
     return undefined
   }
