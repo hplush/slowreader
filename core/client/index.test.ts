@@ -1,10 +1,15 @@
 import '../test/ws.js'
 
 import { spyOn } from 'nanospy'
+import { cleanStores } from 'nanostores'
 import { test } from 'uvu'
-import { equal, match } from 'uvu/assert'
+import { equal, match, throws } from 'uvu/assert'
 
-import { client, userId } from '../index.js'
+import { client, getClient, userId } from '../index.js'
+
+test.after.each(() => {
+  cleanStores(userId, client)
+})
 
 test('re-create client on user ID changes', () => {
   client.listen(() => {})
@@ -22,6 +27,15 @@ test('re-create client on user ID changes', () => {
   userId.set(undefined)
   equal(client.get(), undefined)
   equal(destroy11.callCount, 1)
+})
+
+test('has helper for client area', () => {
+  throws(() => {
+    getClient()
+  }, /SlowReaderError: SlowReaderNoClient/)
+
+  userId.set('10')
+  match(getClient().clientId, /^10:/)
 })
 
 test.run()
