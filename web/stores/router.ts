@@ -4,7 +4,7 @@ import {
   getPagePath,
   type ParamsArg
 } from '@nanostores/router'
-import { createAppRouter } from '@slowreader/core'
+import { router, setBaseRouter } from '@slowreader/core'
 
 let urlRouter = createRouter({
   add: '/add',
@@ -18,9 +18,21 @@ let urlRouter = createRouter({
   subscriptions: '/subscriptions'
 })
 
-type UrlConfig = ConfigFromRouter<typeof urlRouter>
+setBaseRouter(urlRouter)
 
-export const router = createAppRouter(urlRouter)
+router.subscribe(page => {
+  if (page.redirect) {
+    let href
+    if (page.route === 'preview') {
+      href = getPagePath(urlRouter, page.route, page.params)
+    } else {
+      href = getPagePath(urlRouter, page.route)
+    }
+    urlRouter.open(href)
+  }
+})
+
+type UrlConfig = ConfigFromRouter<typeof urlRouter>
 
 export function getURL<Name extends keyof UrlConfig>(
   name: Name,

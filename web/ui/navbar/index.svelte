@@ -2,10 +2,11 @@
   import {
     isFastRoute,
     isSlowRoute,
+    router,
     navbarMessages as t
   } from '@slowreader/core'
 
-  import { getURL, router } from '../../stores/router'
+  import { getURL } from '../../stores/router'
 </script>
 
 <nav>

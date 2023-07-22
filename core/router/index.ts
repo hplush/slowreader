@@ -1,4 +1,4 @@
-import { computed, type ReadableAtom, type StoreValue } from 'nanostores'
+import { atom, type ReadableAtom, type StoreValue } from 'nanostores'
 
 import { userId } from '../local-settings/index.js'
 
@@ -62,6 +62,10 @@ function getRoute(
   return open(page.route, page.params)
 }
 
+let $router = atom<AppRoute>(open('start', {}))
+
+export const router: ReadableAtom<AppRoute> = $router
+
 type RouterRoutes<Router extends BaseRouter> = {
   [R in Exclude<StoreValue<Router>, undefined> as R['route']]: R['params']
 }
@@ -74,10 +78,26 @@ type ValidateRouter<Router extends BaseRouter> = ExactType<
   Routes
 >
 
-export function createAppRouter<Router extends BaseRouter>(
+let unbindPrev: (() => void) | undefined
+
+export function setBaseRouter<Router extends BaseRouter>(
   base: ValidateRouter<Router>
-): ReadableAtom<AppRoute> {
-  return computed([base, userId], getRoute)
+): void {
+  if (unbindPrev) {
+    unbindPrev()
+  }
+
+  function set(): void {
+    $router.set(getRoute(base.get(), userId.get()))
+  }
+
+  let unbindRouter = base.listen(set)
+  let unbindUser = userId.listen(set)
+  unbindPrev = () => {
+    unbindRouter()
+    unbindUser()
+  }
+  set()
 }
 
 export function isFastRoute(route: AppRoute): boolean {

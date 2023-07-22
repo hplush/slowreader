@@ -1,9 +1,9 @@
 import '../stores/locale.js'
 import '../stores/request.js'
+import '../stores/router.js'
 
-import { isGuestRoute, isSlowRoute } from '@slowreader/core'
+import { isGuestRoute, isSlowRoute, router } from '@slowreader/core'
 
-import { router } from '../stores/router'
 import Main from './main.svelte'
 
 import './colors.css'

@@ -3,18 +3,18 @@ import {
   setTestStorageKey,
   useTestStorageEngine
 } from '@nanostores/persistent'
-import { atom, cleanStores, type ReadableAtom } from 'nanostores'
+import { atom, cleanStores } from 'nanostores'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
 import {
-  type AppRoute,
   type BaseRoute,
-  createAppRouter,
   isFastRoute,
   isGuestRoute,
   isSlowRoute,
+  router,
   type Routes,
+  setBaseRouter,
   userId
 } from '../index.js'
 
@@ -31,11 +31,9 @@ test.before(() => {
   useTestStorageEngine()
 })
 
-let router: ReadableAtom<AppRoute>
-
 test.before.each(() => {
   testRouter.set({ params: {}, route: 'home' } as BaseRoute)
-  router = createAppRouter(testRouter)
+  setBaseRouter(testRouter)
 })
 
 test.after.each(() => {

@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { isGuestRoute } from '@slowreader/core'
+  import { isGuestRoute, router } from '@slowreader/core'
 
   import AddPage from '../pages/add.svelte'
   import StartPage from '../pages/start.svelte'
-  import { router } from '../stores/router'
   import Navbar from '../ui/navbar/index.svelte'
 </script>
 
@@ -17,4 +16,6 @@
   <AddPage />
 {:else if $router.route === 'preview'}
   <AddPage url={$router.params.url} />
+{:else if $router.route === 'notFound'}
+  404
 {/if}
