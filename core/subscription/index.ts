@@ -8,6 +8,9 @@ export type SubscriptionValue = {
   url: string
 }
 
-export let Subscription = syncMapTemplate<SubscriptionValue>('subscriptions', {
-  offline: true
-})
+export const Subscription = syncMapTemplate<SubscriptionValue>(
+  'subscriptions',
+  {
+    offline: true
+  }
+)

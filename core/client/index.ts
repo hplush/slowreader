@@ -7,7 +7,7 @@ import { userId } from '../local-settings/index.js'
 
 let prevClient: Client | undefined
 
-export let client = computed(userId, user => {
+export const client = computed(userId, user => {
   prevClient?.destroy()
 
   if (user) {

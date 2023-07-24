@@ -1,7 +1,7 @@
 import { persistentAtom } from '@nanostores/persistent'
 import { nanoid } from 'nanoid'
 
-export let userId = persistentAtom<string | undefined>('slowreader:userId')
+export const userId = persistentAtom<string | undefined>('slowreader:userId')
 
 export function signOut(): void {
   userId.set(undefined)
