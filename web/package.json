@@ -16,7 +16,7 @@
     "@nanostores/router": "^0.11.0",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@slowreader/core": "link:../core",
-    "@sveltejs/vite-plugin-svelte": "2.4.2",
+    "@sveltejs/vite-plugin-svelte": "2.4.3",
     "autoprefixer": "^10.4.14",
     "browserslist": "^4.21.9",
     "nanostores": "^0.9.3",
@@ -24,12 +24,12 @@
     "rollup": "^3.26.3",
     "svelte": "^4.1.1",
     "svelte-preprocess": "^5.0.4",
-    "vite": "4.4.6"
+    "vite": "4.4.7"
   },
   "devDependencies": {
     "@babel/core": "^7.22.9",
     "@size-limit/file": "^8.2.6",
-    "postcss-lab-function": "^6.0.0",
+    "postcss-lab-function": "^6.0.1",
     "size-limit": "^8.2.6",
     "svelte-check": "^3.4.6",
     "svelte-loader": "^3.1.9"
