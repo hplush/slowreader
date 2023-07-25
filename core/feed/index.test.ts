@@ -10,7 +10,6 @@ import {
   Feed,
   feedsStore,
   type FeedValue,
-  getClient,
   hasFeedStore,
   userId
 } from '../index.js'
@@ -20,8 +19,6 @@ test.before.each(() => {
 })
 
 test.after.each(async () => {
-  await getClient().clean()
-  getClient().destroy()
   cleanStores(Feed, userId)
 })
 
