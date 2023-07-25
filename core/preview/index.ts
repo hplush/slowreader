@@ -12,7 +12,7 @@ import {
   ignoreAbortError,
   type TextResponse
 } from '../download/index.js'
-import { hasFeedStore } from '../feed/index.js'
+import { feedsStore } from '../feed/index.js'
 import { type LoaderName, loaders } from '../loader/index.js'
 import type { Post } from '../post/index.js'
 
@@ -188,9 +188,10 @@ let $candidate = atom<string | undefined>()
 
 export const previewCandidate: ReadableAtom<string | undefined> = $candidate
 
-let $added = atom<boolean | undefined>(false)
+let $added = atom<false | string | undefined>(false)
 
-export const previewAdded: ReadableAtom<boolean | undefined> = $added
+export const previewCandidateAdded: ReadableAtom<false | string | undefined> =
+  $added
 
 let postsCache = new Map<string, Post[]>()
 
@@ -229,8 +230,15 @@ export async function setPreviewCandidate(url: string): Promise<void> {
 
     $added.set(undefined)
     prevHasUnbind?.()
-    prevHasUnbind = hasFeedStore(url).subscribe(hasFeed => {
-      $added.set(hasFeed)
+
+    prevHasUnbind = feedsStore({ url }).subscribe(feeds => {
+      if (feeds.isLoading) {
+        $added.set(undefined)
+      } else if (feeds.isEmpty) {
+        $added.set(false)
+      } else {
+        $added.set(feeds.list[0].id)
+      }
     })
 
     if (postsCache.has(url)) {

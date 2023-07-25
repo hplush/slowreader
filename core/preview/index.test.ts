@@ -15,9 +15,9 @@ import {
   Feed,
   loaders,
   mockRequest,
-  previewAdded,
   previewCandidate,
   type PreviewCandidate,
+  previewCandidateAdded,
   previewCandidates,
   previewCandidatesLoading,
   previewPosts,
@@ -330,7 +330,7 @@ test('tracks current candidate', async () => {
 })
 
 test('tracks added status of candidate', async () => {
-  previewAdded.listen(() => {})
+  previewCandidateAdded.listen(() => {})
 
   expectRequest('https://a.com/atom').andRespond(
     200,
@@ -338,16 +338,21 @@ test('tracks added status of candidate', async () => {
     'text/xml'
   )
   setPreviewUrl('https://a.com/atom')
-  equal(previewAdded.get(), undefined)
+  equal(previewCandidateAdded.get(), undefined)
 
   await setTimeout(10)
-  equal(previewAdded.get(), false)
+  equal(previewCandidateAdded.get(), false)
 
   await addFeed({ loader: 'rss', title: 'RSS', url: 'https://a.com/rss' })
-  equal(previewAdded.get(), false)
+  equal(previewCandidateAdded.get(), false)
 
-  await addFeed({ loader: 'atom', title: 'Atom', url: 'https://a.com/atom' })
-  equal(previewAdded.get(), true)
+  await addFeed({
+    id: 'id',
+    loader: 'atom',
+    title: 'Atom',
+    url: 'https://a.com/atom'
+  })
+  equal(previewCandidateAdded.get(), 'id')
 
   expectRequest('https://b.com/atom').andRespond(
     200,
@@ -355,7 +360,7 @@ test('tracks added status of candidate', async () => {
     'text/xml'
   )
   setPreviewUrl('https://b.com/atom')
-  equal(previewAdded.get(), undefined)
+  equal(previewCandidateAdded.get(), undefined)
 })
 
 test.run()

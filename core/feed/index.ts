@@ -6,7 +6,6 @@ import {
   syncMapTemplate
 } from '@logux/client'
 import { nanoid } from 'nanoid'
-import { computed, type ReadableAtom } from 'nanostores'
 
 import { getClient } from '../client/index.js'
 import type { LoaderName } from '../loader/index.js'
@@ -28,18 +27,9 @@ export function feedsStore(
   return createFilter(getClient(), Feed, filter)
 }
 
-export function hasFeedStore(url: string): ReadableAtom<boolean | undefined> {
-  let $feedsWithUrl = feedsStore({ url })
-  return computed($feedsWithUrl, feeds => {
-    if (feeds.isLoading) {
-      return undefined
-    } else {
-      return !feeds.isEmpty
-    }
-  })
-}
-
-export async function addFeed(fields: FeedValue): Promise<void> {
+export async function addFeed(
+  fields: FeedValue | (FeedValue & { id: string })
+): Promise<void> {
   return createSyncMap(getClient(), Feed, {
     id: nanoid(),
     ...fields

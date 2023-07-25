@@ -1,5 +1,4 @@
 import { cleanStores } from 'nanostores'
-import { setTimeout } from 'timers/promises'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
@@ -9,7 +8,6 @@ import {
   Feed,
   feedsStore,
   type FeedValue,
-  hasFeedStore,
   userId
 } from '../index.js'
 
@@ -37,25 +35,6 @@ test('adds feed', async () => {
   let after = await getFeeds()
   equal(after.length, 1)
   equal(after[0].title, 'RSS')
-})
-
-test('tracks feed adding', async () => {
-  let $example = hasFeedStore('https://example.com/')
-  let $another = hasFeedStore('https://another.com/')
-  $example.listen(() => {})
-  $another.listen(() => {})
-
-  equal($example.get(), undefined)
-  equal($another.get(), undefined)
-
-  await setTimeout(10)
-  equal($example.get(), false)
-  equal($another.get(), false)
-
-  await addFeed({ loader: 'rss', title: 'RSS', url: 'https://example.com/' })
-
-  equal($example.get(), true)
-  equal($another.get(), false)
 })
 
 test.run()
