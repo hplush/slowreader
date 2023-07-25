@@ -185,6 +185,10 @@ let $candidate = atom<string | undefined>()
 
 export const previewCandidate: ReadableAtom<string | undefined> = $candidate
 
+let $added = atom<boolean | undefined>(false)
+
+export const previewAdded: ReadableAtom<boolean | undefined> = $added
+
 let postsCache = new Map<string, Post[]>()
 
 let $posts = atom<Post[]>([])
@@ -215,6 +219,7 @@ export async function setPreviewCandidate(url: string): Promise<void> {
   let candidate = $candidates.get().find(i => i.url === url)
   if (candidate) {
     $candidate.set(url)
+    $added.set(undefined)
     if (postsCache.has(url)) {
       $posts.set(postsCache.get(url)!)
       $postsLoading.set(false)

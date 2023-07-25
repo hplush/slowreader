@@ -1,5 +1,4 @@
 export * from './local-settings/index.js'
-export * from './subscription/index.js'
 export * from './download/index.js'
 export * from './preview/index.js'
 export * from './request/index.js'
@@ -7,6 +6,7 @@ export * from './loader/index.js'
 export * from './router/index.js'
 export * from './client/index.js'
 export * from './error/index.js'
+export * from './feed/index.js'
 export * from './post/index.js'
 export * from './i18n/index.js'
 
