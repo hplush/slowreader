@@ -7,11 +7,15 @@ import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
 import {
+  addFeed,
   checkAndRemoveRequestMock,
   clearPreview,
+  enableClientTest,
   expectRequest,
+  Feed,
   loaders,
   mockRequest,
+  previewAdded,
   previewCandidate,
   type PreviewCandidate,
   previewCandidates,
@@ -20,14 +24,18 @@ import {
   previewPostsLoading,
   previewUrlError,
   setPreviewCandidate,
-  setPreviewUrl
+  setPreviewUrl,
+  userId
 } from '../index.js'
 
 test.before.each(() => {
+  enableClientTest()
+  userId.set('10')
   mockRequest()
 })
 
 test.after.each(() => {
+  cleanStores(userId, Feed)
   restoreAll()
   cleanStores(previewUrlError, previewCandidatesLoading, previewCandidates)
   clearPreview()
@@ -319,6 +327,35 @@ test('tracks current candidate', async () => {
   equal(previewPostsLoading.get(), false)
   equal(previewPosts.get(), [{ id: '2', url: '2' }])
   equal(getRssPosts.calls.length, 2)
+})
+
+test('tracks added status of candidate', async () => {
+  previewAdded.listen(() => {})
+
+  expectRequest('https://a.com/atom').andRespond(
+    200,
+    '<feed><title>RSS</title></feed>',
+    'text/xml'
+  )
+  setPreviewUrl('https://a.com/atom')
+  equal(previewAdded.get(), undefined)
+
+  await setTimeout(10)
+  equal(previewAdded.get(), false)
+
+  await addFeed({ loader: 'rss', title: 'RSS', url: 'https://a.com/rss' })
+  equal(previewAdded.get(), false)
+
+  await addFeed({ loader: 'atom', title: 'Atom', url: 'https://a.com/atom' })
+  equal(previewAdded.get(), true)
+
+  expectRequest('https://b.com/atom').andRespond(
+    200,
+    '<feed><title>RSS</title></feed>',
+    'text/xml'
+  )
+  setPreviewUrl('https://b.com/atom')
+  equal(previewAdded.get(), undefined)
 })
 
 test.run()

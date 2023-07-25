@@ -1,10 +1,14 @@
 import type { DownloadTask, TextResponse } from '../download/index.js'
 import type { Post } from '../post/index.js'
+import type { PreviewCandidate } from '../preview/index.js'
 import { atom } from './atom.js'
 import { rss } from './rss.js'
 
 export type Loader = {
-  getMineLinksFromText(response: TextResponse): string[]
+  getMineLinksFromText(
+    response: TextResponse,
+    found: PreviewCandidate[]
+  ): string[]
   getPosts(
     task: DownloadTask,
     url: string,

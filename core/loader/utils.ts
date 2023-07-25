@@ -1,4 +1,4 @@
-import type { TextResponse } from '../index.js'
+import type { PreviewCandidate, TextResponse } from '../index.js'
 
 export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
@@ -12,4 +12,17 @@ export function findLink(text: TextResponse, type: string): string[] {
         isString(link.getAttribute('href'))
     )
     .map(i => new URL(i.getAttribute('href')!, text.url).href)
+}
+
+export function hasAnyFeed(
+  text: TextResponse,
+  found: PreviewCandidate[]
+): boolean {
+  return (
+    findLink(text, 'application/atom+xml').length > 0 ||
+    findLink(text, 'application/rss+xml').length > 0 ||
+    // TODO: Replace when we will have more loaders
+    // found.some(i => i.loader === 'rss' || i.loader === 'atom')
+    found.length > 0
+  )
 }

@@ -1,12 +1,12 @@
 import type { Loader } from '../index.js'
-import { findLink } from './utils.js'
+import { findLink, hasAnyFeed } from './utils.js'
 
 export const rss: Loader = {
-  getMineLinksFromText(text) {
+  getMineLinksFromText(text, found) {
     let links = findLink(text, 'application/rss+xml')
     if (links.length > 0) {
       return links
-    } else if (findLink(text, 'application/atom+xml').length === 0) {
+    } else if (!hasAnyFeed(text, found)) {
       let { origin } = new URL(text.url)
       return [new URL('/feed', origin).href, new URL('/rss', origin).href]
     } else {

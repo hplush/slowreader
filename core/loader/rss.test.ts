@@ -38,7 +38,8 @@ test('detects links', () => {
         {
           url: 'https://example.com/news/'
         }
-      )
+      ),
+      []
     ),
     [
       'https://example.com/a',
@@ -54,7 +55,8 @@ test('returns default links', () => {
     loaders.rss.getMineLinksFromText(
       createTextResponse('<!DOCTYPE html><html><head></head></html>', {
         url: 'https://example.com/news/'
-      })
+      }),
+      []
     ),
     ['https://example.com/feed', 'https://example.com/rss']
   )
@@ -69,11 +71,19 @@ test('ignores default URL on Atom link', () => {
           <head>
             <link rel="alternate" type="application/atom+xml" href="/atom">
           </head>
-        </html>`,
-        {
-          url: 'https://example.com/news/'
-        }
-      )
+        </html>`
+      ),
+      []
+    ),
+    []
+  )
+  equal(
+    loaders.atom.getMineLinksFromText(
+      createTextResponse(
+        `<!DOCTYPE html>
+        <html></html>`
+      ),
+      [{ loader: 'atom', title: 'Atom', url: 'https://example.com/atom' }]
     ),
     []
   )

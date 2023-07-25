@@ -12,6 +12,7 @@ import {
   ignoreAbortError,
   type TextResponse
 } from '../download/index.js'
+import { hasFeedStore } from '../feed/index.js'
 import { type LoaderName, loaders } from '../loader/index.js'
 import type { Post } from '../post/index.js'
 
@@ -115,7 +116,9 @@ function getLoaderForText(response: TextResponse): false | PreviewCandidate {
 function getLinksFromText(response: TextResponse): string[] {
   let names = Object.keys(loaders) as LoaderName[]
   return names.reduce<string[]>((links, name) => {
-    return links.concat(loaders[name].getMineLinksFromText(response))
+    return links.concat(
+      loaders[name].getMineLinksFromText(response, $candidates.get())
+    )
   }, [])
 }
 
@@ -199,10 +202,14 @@ let $postsLoading = atom(false)
 
 export const previewPostsLoading: ReadableAtom<boolean> = $postsLoading
 
+let prevHasUnbind: (() => void) | undefined
+
 export function clearPreview(): void {
+  prevHasUnbind?.()
   $links.set({})
   $candidates.set([])
   $candidate.set(undefined)
+  $added.set(undefined)
   $posts.set([])
   $postsLoading.set(false)
   postsCache.clear()
@@ -219,7 +226,13 @@ export async function setPreviewCandidate(url: string): Promise<void> {
   let candidate = $candidates.get().find(i => i.url === url)
   if (candidate) {
     $candidate.set(url)
+
     $added.set(undefined)
+    prevHasUnbind?.()
+    prevHasUnbind = hasFeedStore(url).subscribe(hasFeed => {
+      $added.set(hasFeed)
+    })
+
     if (postsCache.has(url)) {
       $posts.set(postsCache.get(url)!)
       $postsLoading.set(false)
