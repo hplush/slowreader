@@ -1,11 +1,13 @@
-import '../test/ws.js'
-
 import { spyOn } from 'nanospy'
 import { cleanStores } from 'nanostores'
 import { test } from 'uvu'
 import { equal, match, throws } from 'uvu/assert'
 
-import { client, getClient, userId } from '../index.js'
+import { client, enableClientTest, getClient, userId } from '../index.js'
+
+test.before.each(() => {
+  enableClientTest()
+})
 
 test.after.each(() => {
   cleanStores(userId, client)

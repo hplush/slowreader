@@ -1,5 +1,3 @@
-import '../test/ws.js'
-
 import { cleanStores } from 'nanostores'
 import { setTimeout } from 'timers/promises'
 import { test } from 'uvu'
@@ -7,6 +5,7 @@ import { equal } from 'uvu/assert'
 
 import {
   addFeed,
+  enableClientTest,
   Feed,
   feedsStore,
   type FeedValue,
@@ -15,6 +14,7 @@ import {
 } from '../index.js'
 
 test.before.each(() => {
+  enableClientTest()
   userId.set('10')
 })
 
