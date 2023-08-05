@@ -42,8 +42,7 @@ export const client = computed(userId, user => {
       time: testTime,
       userId: user
     })
-    logux.start()
-    logux.node.connection.disconnect()
+    logux.start(false)
     prevClient = logux
     return logux
   } else {
