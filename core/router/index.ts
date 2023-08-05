@@ -5,6 +5,8 @@ import { userId } from '../local-settings/index.js'
 export interface Routes {
   add: {}
   fast: {}
+  feed: { id: string }
+  feeds: {}
   home: {}
   notFound: {}
   preview: { url: string }

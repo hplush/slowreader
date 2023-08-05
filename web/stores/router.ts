@@ -9,6 +9,8 @@ import { router, setBaseRouter } from '@slowreader/core'
 let urlRouter = createRouter({
   add: '/add',
   fast: '/fast',
+  feed: '/feeds/:id',
+  feeds: '/feeds',
   home: '/',
   notFound: '/404',
   preview: '/add/:url',

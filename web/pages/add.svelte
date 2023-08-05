@@ -13,7 +13,7 @@
     addMessages as t
   } from '@slowreader/core'
 
-  import { openURL } from '../stores/router'
+  import { openURL } from '../stores/router.js'
 
   export let url = ''
   setPreviewUrl(url)

@@ -36,11 +36,11 @@
     </a>
   </div>
   <div>
-    <a href={getURL('subscriptions')}>
-      {#if $router.route === 'subscriptions'}
-        <strong>{$t.subscriptions}</strong>
+    <a href={getURL('feeds')}>
+      {#if $router.route === 'feeds' || $router.route === 'feed'}
+        <strong>{$t.feeds}</strong>
       {:else}
-        {$t.subscriptions}
+        {$t.feeds}
       {/if}
     </a>
   </div>
