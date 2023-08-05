@@ -12,7 +12,7 @@ import {
   ignoreAbortError,
   type TextResponse
 } from '../download/index.js'
-import { feedsStore } from '../feed/index.js'
+import { addFeed, feedsStore } from '../feed/index.js'
 import { type LoaderName, loaders } from '../loader/index.js'
 import type { Post } from '../post/index.js'
 
@@ -262,5 +262,17 @@ export async function setPreviewCandidate(url: string): Promise<void> {
         ignoreAbortError(error)
       }
     }
+  }
+}
+
+export async function addPreviewCandidate(): Promise<void> {
+  let url = $candidate.get()
+  if (url) {
+    let candidate = $candidates.get().find(i => i.url === url)!
+    await addFeed({
+      loader: candidate.loader,
+      title: candidate.title,
+      url
+    })
   }
 }

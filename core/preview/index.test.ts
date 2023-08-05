@@ -8,11 +8,13 @@ import { equal } from 'uvu/assert'
 
 import {
   addFeed,
+  addPreviewCandidate,
   checkAndRemoveRequestMock,
   clearPreview,
   enableClientTest,
   expectRequest,
   Feed,
+  feedsStore,
   loaders,
   mockRequest,
   previewCandidate,
@@ -361,6 +363,27 @@ test('tracks added status of candidate', async () => {
   )
   setPreviewUrl('https://b.com/atom')
   equal(previewCandidateAdded.get(), undefined)
+})
+
+test('adds current preview candidate', async () => {
+  previewCandidateAdded.listen(() => {})
+  let $feeds = feedsStore()
+  $feeds.listen(() => {})
+  await $feeds.loading
+
+  expectRequest('https://a.com/atom').andRespond(
+    200,
+    '<feed><title>RSS</title></feed>',
+    'text/xml'
+  )
+  setPreviewUrl('https://a.com/atom')
+  await setTimeout(10)
+  equal($feeds.get().list.length, 0)
+
+  await addPreviewCandidate()
+
+  equal(typeof previewCandidateAdded.get(), 'string')
+  equal($feeds.get().list.length, 1)
 })
 
 test.run()

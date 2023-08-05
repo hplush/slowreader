@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+    addPreviewCandidate,
     previewCandidate,
     previewCandidateAdded,
     previewCandidates,
@@ -71,7 +72,7 @@
   {#if $previewCandidateAdded === undefined}
     {$t.loading}
   {:else if $previewCandidateAdded === false}
-    <button>{$t.add}</button>
+    <button on:click={addPreviewCandidate}>{$t.add}</button>
   {:else}
     {$t.alreadyAdded}
   {/if}
