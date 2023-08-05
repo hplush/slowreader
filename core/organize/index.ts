@@ -1,9 +1,22 @@
-import { computed } from 'nanostores'
+import { atom, computed, onMount, type StoreValue } from 'nanostores'
 
 import { feedsStore } from '../feed/index.js'
 
-let $list = feedsStore()
+type OrganizeFeeds = StoreValue<ReturnType<typeof feedsStore>>
 
-export const organizeLoading = computed($list, list => list.isLoading)
+let $list = atom<OrganizeFeeds>({
+  isEmpty: true,
+  isLoading: true,
+  list: [],
+  stores: new Map()
+})
 
-export const organizeFeeds = computed($list, list => list.list)
+onMount($list, () => {
+  return feedsStore().subscribe(feeds => {
+    $list.set(feeds)
+  })
+})
+
+export let organizeLoading = computed($list, list => list.isLoading)
+
+export let organizeFeeds = computed($list, list => list.list)
