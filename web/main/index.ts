@@ -1,4 +1,5 @@
 import '../stores/locale.js'
+import '../stores/log.js'
 import '../stores/request.js'
 import '../stores/router.js'
 

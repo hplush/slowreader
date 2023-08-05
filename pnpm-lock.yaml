@@ -140,6 +140,9 @@ importers:
 
   web:
     dependencies:
+      '@logux/client':
+        specifier: ^0.20.0
+        version: 0.20.0(@logux/core@0.8.3)(nanostores@0.9.3)
       '@nanostores/i18n':
         specifier: ^0.10.0
         version: 0.10.0(nanostores@0.9.3)
