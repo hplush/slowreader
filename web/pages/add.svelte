@@ -17,26 +17,22 @@
 
   export let url = ''
   setPreviewUrl(url)
-  $: setPreviewUrl(url)
-
-  let input: HTMLInputElement
-
-  function onSubmit(): void {
-    if (!previewUrlError.get()) {
-      openURL('preview', { url })
+  $: {
+    setPreviewUrl(url)
+    if (url === '') {
+      openURL('add')
     } else {
-      input.focus()
+      openURL('preview', { url })
     }
   }
 </script>
 
-<form on:submit|stopPropagation={onSubmit}>
+<form on:submit|preventDefault>
   <!-- Field has good description, user will be in context -->
   <!-- svelte-ignore a11y-autofocus -->
   <input
     type="text"
     bind:value={url}
-    bind:this={input}
     required
     autofocus
     aria-invalid={$previewUrlError === 'invalid'}
