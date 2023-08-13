@@ -10,6 +10,7 @@ import {
   Feed,
   feedsStore,
   type FeedValue,
+  getFeed,
   userId
 } from '../index.js'
 
@@ -31,13 +32,15 @@ async function getFeeds(): Promise<LoadedSyncMapValue<FeedValue>[]> {
   return feeds
 }
 
-test('adds and removes feed', async () => {
+test('adds, loads and removes feed', async () => {
   equal(await getFeeds(), [])
 
   await addFeed({ loader: 'rss', title: 'RSS', url: 'https://example.com/' })
   let added = await getFeeds()
   equal(added.length, 1)
   equal(added[0].title, 'RSS')
+
+  equal(getFeed(added[0].id).get(), added[0])
 
   await deleteFeed(added[0].id)
   let deleted = await getFeeds()

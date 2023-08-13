@@ -4,6 +4,7 @@ import {
   deleteSyncMapById,
   type Filter,
   type FilterStore,
+  type SyncMapStore,
   syncMapTemplate
 } from '@logux/client'
 import { nanoid } from 'nanoid'
@@ -39,4 +40,8 @@ export async function addFeed(
 
 export async function deleteFeed(feedId: string): Promise<void> {
   return deleteSyncMapById(getClient(), Feed, feedId)
+}
+
+export function getFeed(feedId: string): SyncMapStore<FeedValue> {
+  return Feed(feedId, getClient())
 }
