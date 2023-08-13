@@ -1,6 +1,7 @@
 import {
   createFilter,
   createSyncMap,
+  deleteSyncMapById,
   type Filter,
   type FilterStore,
   syncMapTemplate
@@ -34,4 +35,8 @@ export async function addFeed(
     id: nanoid(),
     ...fields
   })
+}
+
+export async function deleteFeed(feedId: string): Promise<void> {
+  return deleteSyncMapById(getClient(), Feed, feedId)
 }

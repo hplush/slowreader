@@ -1,11 +1,12 @@
 <script lang="ts">
   import {
+    deleteFeed,
     organizeFeeds,
     organizeLoading,
     organizeMessages as t
   } from '@slowreader/core'
 
-  import { getURL } from '../stores/router.js'
+  import { getURL, openURL } from '../stores/router.js'
 
   export let feedId: string | undefined = undefined
 </script>
@@ -22,4 +23,10 @@
 
 {#if feedId}
   <h1>{feedId}</h1>
+  <button
+    on:click={() => {
+      deleteFeed(feedId)
+      openURL('feeds')
+    }}>{$t.delete}</button
+  >
 {/if}
