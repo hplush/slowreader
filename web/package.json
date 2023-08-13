@@ -12,27 +12,27 @@
     "test": "pnpm run /^test:/"
   },
   "dependencies": {
-    "@logux/client": "logux/client#next",
+    "@logux/client": "github:logux/client#next",
     "@nanostores/i18n": "^0.10.0",
     "@nanostores/router": "^0.11.0",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@slowreader/core": "link:../core",
-    "@sveltejs/vite-plugin-svelte": "2.4.3",
-    "autoprefixer": "^10.4.14",
+    "@sveltejs/vite-plugin-svelte": "2.4.5",
+    "autoprefixer": "^10.4.15",
     "browserslist": "^4.21.10",
     "nanostores": "^0.9.3",
     "postcss": "^8.4.27",
-    "rollup": "^3.27.2",
-    "svelte": "^4.1.2",
+    "rollup": "^3.28.0",
+    "svelte": "^4.2.0",
     "svelte-preprocess": "^5.0.4",
-    "vite": "4.4.8"
+    "vite": "4.4.9"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.9",
+    "@babel/core": "^7.22.10",
     "@size-limit/file": "^8.2.6",
     "postcss-lab-function": "^6.0.1",
     "size-limit": "^8.2.6",
-    "svelte-check": "^3.4.6",
+    "svelte-check": "^3.5.0",
     "svelte-loader": "^3.1.9"
   }
 }
