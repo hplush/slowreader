@@ -1,7 +1,7 @@
 import '../test/dom-parser.js'
 
 import { restoreAll, spyOn } from 'nanospy'
-import { cleanStores } from 'nanostores'
+import { cleanStores, keepMount } from 'nanostores'
 import { setTimeout } from 'node:timers/promises'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
@@ -54,9 +54,9 @@ function equalWithText(a: PreviewCandidate[], b: PreviewCandidate[]): void {
 }
 
 test('empty from beginning', () => {
-  previewUrlError.listen(() => {})
-  previewCandidatesLoading.listen(() => {})
-  previewCandidates.listen(() => {})
+  keepMount(previewUrlError)
+  keepMount(previewCandidatesLoading)
+  keepMount(previewCandidates)
 
   equal(previewUrlError.get(), undefined)
   equal(previewCandidatesLoading.get(), false)
@@ -64,7 +64,7 @@ test('empty from beginning', () => {
 })
 
 test('validates URL', () => {
-  previewUrlError.listen(() => {})
+  keepMount(previewUrlError)
 
   setPreviewUrl('')
   equal(previewUrlError.get(), 'emptyUrl')
@@ -83,8 +83,8 @@ test('validates URL', () => {
 })
 
 test('uses HTTPS for specific domains', async () => {
-  previewCandidatesLoading.listen(() => {})
-  previewCandidates.listen(() => {})
+  keepMount(previewCandidatesLoading)
+  keepMount(previewCandidates)
   spyOn(loaders.rss, 'getMineLinksFromText', () => [])
   spyOn(loaders.atom, 'getMineLinksFromText', () => [])
 
@@ -98,11 +98,11 @@ test('uses HTTPS for specific domains', async () => {
 })
 
 test('cleans state', async () => {
-  previewUrlError.listen(() => {})
-  previewCandidates.listen(() => {})
-  previewPosts.listen(() => {})
-  previewPostsLoading.listen(() => {})
-  previewCandidate.listen(() => {})
+  keepMount(previewUrlError)
+  keepMount(previewCandidates)
+  keepMount(previewPosts)
+  keepMount(previewPostsLoading)
+  keepMount(previewCandidate)
 
   let reply = expectRequest('http://example.com').andWait()
   setPreviewUrl('example.com')
@@ -124,8 +124,8 @@ test('cleans state', async () => {
 })
 
 test('is ready for network errors', async () => {
-  previewCandidatesLoading.listen(() => {})
-  previewUrlError.listen(() => {})
+  keepMount(previewCandidatesLoading)
+  keepMount(previewUrlError)
 
   let reply = expectRequest('http://example.com').andWait()
   setPreviewUrl('example.com')
@@ -159,9 +159,9 @@ test('aborts all HTTP requests on URL change', async () => {
 })
 
 test('detects RSS links', async () => {
-  previewCandidatesLoading.listen(() => {})
-  previewUrlError.listen(() => {})
-  previewCandidates.listen(() => {})
+  keepMount(previewCandidatesLoading)
+  keepMount(previewUrlError)
+  keepMount(previewCandidates)
 
   let replyHtml = expectRequest('http://example.com').andWait()
   setPreviewUrl('example.com')
@@ -197,9 +197,9 @@ test('detects RSS links', async () => {
 })
 
 test('is ready for empty title', async () => {
-  previewCandidatesLoading.listen(() => {})
-  previewUrlError.listen(() => {})
-  previewCandidates.listen(() => {})
+  keepMount(previewCandidatesLoading)
+  keepMount(previewUrlError)
+  keepMount(previewCandidates)
 
   expectRequest('http://example.com').andRespond(
     200,
@@ -222,9 +222,9 @@ test('is ready for empty title', async () => {
 })
 
 test('looks for popular RSS and Atom places', async () => {
-  previewCandidatesLoading.listen(() => {})
-  previewUrlError.listen(() => {})
-  previewCandidates.listen(() => {})
+  keepMount(previewCandidatesLoading)
+  keepMount(previewUrlError)
+  keepMount(previewCandidates)
 
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
   let atom = '<feed><title></title></feed>'
@@ -247,9 +247,9 @@ test('looks for popular RSS and Atom places', async () => {
 })
 
 test('shows if unknown URL', async () => {
-  previewCandidatesLoading.listen(() => {})
-  previewUrlError.listen(() => {})
-  previewCandidates.listen(() => {})
+  keepMount(previewCandidatesLoading)
+  keepMount(previewUrlError)
+  keepMount(previewCandidates)
 
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('http://example.com/atom').andRespond(404)
@@ -265,11 +265,11 @@ test('shows if unknown URL', async () => {
 })
 
 test('tracks current candidate', async () => {
-  previewCandidatesLoading.listen(() => {})
-  previewUrlError.listen(() => {})
-  previewCandidates.listen(() => {})
-  previewCandidate.listen(() => {})
-  previewPostsLoading.listen(() => {})
+  keepMount(previewCandidatesLoading)
+  keepMount(previewUrlError)
+  keepMount(previewCandidates)
+  keepMount(previewCandidate)
+  keepMount(previewPostsLoading)
   let getAtomPosts = spyOn(loaders.atom, 'getPosts')
   let getRssPosts = spyOn(loaders.rss, 'getPosts')
 
@@ -332,7 +332,7 @@ test('tracks current candidate', async () => {
 })
 
 test('tracks added status of candidate', async () => {
-  previewCandidateAdded.listen(() => {})
+  keepMount(previewCandidateAdded)
 
   expectRequest('https://a.com/atom').andRespond(
     200,
@@ -366,9 +366,9 @@ test('tracks added status of candidate', async () => {
 })
 
 test('adds current preview candidate', async () => {
-  previewCandidateAdded.listen(() => {})
+  keepMount(previewCandidateAdded)
   let $feeds = feedsStore()
-  $feeds.listen(() => {})
+  keepMount($feeds)
   await $feeds.loading
 
   expectRequest('https://a.com/atom').andRespond(

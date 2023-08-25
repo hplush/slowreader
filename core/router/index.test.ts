@@ -3,7 +3,7 @@ import {
   setTestStorageKey,
   useTestStorageEngine
 } from '@nanostores/persistent'
-import { atom, cleanStores } from 'nanostores'
+import { atom, cleanStores, keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
@@ -42,7 +42,7 @@ test.after.each(() => {
 })
 
 test('opens 404', () => {
-  router.listen(() => {})
+  keepMount(router)
   testRouter.set(undefined)
   equal(router.get(), {
     params: {},
@@ -52,7 +52,7 @@ test('opens 404', () => {
 })
 
 test('transforms routers for guest', () => {
-  router.listen(() => {})
+  keepMount(router)
   equal(router.get(), {
     params: {},
     redirect: false,
@@ -75,7 +75,7 @@ test('transforms routers for guest', () => {
 })
 
 test('transforms routers for users', () => {
-  router.listen(() => {})
+  keepMount(router)
   setTestStorageKey('slowreader:userId', '10')
   equal(router.get(), {
     params: {},
@@ -113,7 +113,7 @@ test('transforms routers for users', () => {
 })
 
 test('has routes groups', () => {
-  router.listen(() => {})
+  keepMount(router)
   equal(isFastRoute(router.get()), false)
   equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), true)

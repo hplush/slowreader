@@ -1,4 +1,4 @@
-import { cleanStores } from 'nanostores'
+import { cleanStores, keepMount } from 'nanostores'
 import { setTimeout } from 'timers/promises'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
@@ -22,8 +22,8 @@ test.after.each(async () => {
 })
 
 test('adds feed', async () => {
-  organizeLoading.listen(() => {})
-  organizeFeeds.listen(() => {})
+  keepMount(organizeLoading)
+  keepMount(organizeFeeds)
 
   equal(organizeLoading.get(), true)
 

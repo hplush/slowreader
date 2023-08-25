@@ -4,7 +4,7 @@ import {
   setTestStorageKey,
   useTestStorageEngine
 } from '@nanostores/persistent'
-import { cleanStores } from 'nanostores'
+import { cleanStores, keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
@@ -24,18 +24,18 @@ function getStorageKey(key: string): string | undefined {
 }
 
 test('is empty from start', () => {
-  userId.listen(() => {})
+  keepMount(userId)
   equal(userId.get(), undefined)
 })
 
 test('loads data from storage', () => {
   setTestStorageKey('slowreader:userId', '10')
-  userId.listen(() => {})
+  keepMount(userId)
   equal(userId.get(), '10')
 })
 
 test('generates user data', () => {
-  userId.listen(() => {})
+  keepMount(userId)
   generateCredentials()
   equal(typeof userId.get(), 'string')
   equal(getStorageKey('userId'), userId.get())
@@ -43,7 +43,7 @@ test('generates user data', () => {
 
 test('signes out', async () => {
   setTestStorageKey('slowreader:userId', '10')
-  userId.listen(() => {})
+  keepMount(userId)
   signOut()
   equal(userId.get(), undefined)
   equal(getTestStorage(), {})

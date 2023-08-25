@@ -1,6 +1,6 @@
 import { MemoryStore } from '@logux/core'
 import { spyOn } from 'nanospy'
-import { cleanStores } from 'nanostores'
+import { cleanStores, keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal, match, throws } from 'uvu/assert'
 
@@ -22,7 +22,7 @@ test.after.each(() => {
 })
 
 test('re-create client on user ID changes', () => {
-  client.listen(() => {})
+  keepMount(client)
   userId.set(undefined)
   equal(client.get(), undefined)
 

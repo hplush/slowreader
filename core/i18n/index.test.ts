@@ -1,4 +1,4 @@
-import { atom } from 'nanostores'
+import { atom, keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
@@ -18,7 +18,7 @@ test('sets locale and loader', async () => {
   let messages = i18n('component', {
     test: 'test'
   })
-  messages.listen(() => {})
+  keepMount(messages)
   equal(loaded, [['fr', 'component']])
 
   locale.set('ru')
