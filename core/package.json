@@ -23,7 +23,7 @@
     "nanostores": "^0.9.3"
   },
   "devDependencies": {
-    "@types/jsdom": "^21.1.1",
+    "@types/jsdom": "^21.1.2",
     "c8": "^8.0.1",
     "jsdom": "^22.1.0",
     "nanospy": "^1.0.0",
