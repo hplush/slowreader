@@ -34,6 +34,7 @@ test('adds feed', async () => {
   await addFeed({
     id: 'id',
     loader: 'rss',
+    reading: 'fast',
     title: 'RSS',
     url: 'https://example.com/'
   })
@@ -42,6 +43,7 @@ test('adds feed', async () => {
       id: 'id',
       isLoading: false,
       loader: 'rss',
+      reading: 'fast',
       title: 'RSS',
       url: 'https://example.com/'
     }

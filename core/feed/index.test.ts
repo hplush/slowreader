@@ -35,7 +35,12 @@ async function getFeeds(): Promise<LoadedSyncMapValue<FeedValue>[]> {
 test('adds, loads and removes feed', async () => {
   equal(await getFeeds(), [])
 
-  await addFeed({ loader: 'rss', title: 'RSS', url: 'https://example.com/' })
+  await addFeed({
+    loader: 'rss',
+    reading: 'fast',
+    title: 'RSS',
+    url: 'https://example.com/'
+  })
   let added = await getFeeds()
   equal(added.length, 1)
   equal(added[0].title, 'RSS')

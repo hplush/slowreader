@@ -12,9 +12,9 @@ import {
   ignoreAbortError,
   type TextResponse
 } from '../download/index.js'
-import { addFeed, feedsStore } from '../feed/index.js'
+import { addFeed, feedsStore, type FeedValue } from '../feed/index.js'
 import { type LoaderName, loaders } from '../loader/index.js'
-import type { Post } from '../post/index.js'
+import type { PostValue } from '../post/index.js'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 
@@ -193,11 +193,11 @@ let $added = atom<false | string | undefined>(false)
 export const previewCandidateAdded: ReadableAtom<false | string | undefined> =
   $added
 
-let postsCache = new Map<string, Post[]>()
+let postsCache = new Map<string, PostValue[]>()
 
-let $posts = atom<Post[]>([])
+let $posts = atom<PostValue[]>([])
 
-export const previewPosts: ReadableAtom<Post[]> = $posts
+export const previewPosts: ReadableAtom<PostValue[]> = $posts
 
 let $postsLoading = atom(false)
 
@@ -211,6 +211,7 @@ export function clearPreview(): void {
   $candidates.set([])
   $candidate.set(undefined)
   $added.set(undefined)
+  $draft.set(DEFAULT_DRAFT)
   $posts.set([])
   $postsLoading.set(false)
   postsCache.clear()
@@ -228,6 +229,7 @@ export async function setPreviewCandidate(url: string): Promise<void> {
   if (candidate) {
     $candidate.set(url)
 
+    $draft.set({ ...DEFAULT_DRAFT, title: candidate.title })
     $added.set(undefined)
     prevHasUnbind?.()
 
@@ -265,13 +267,37 @@ export async function setPreviewCandidate(url: string): Promise<void> {
   }
 }
 
+interface PreviewDraft {
+  reading: FeedValue['reading']
+  title: FeedValue['title']
+}
+
+const DEFAULT_DRAFT: PreviewDraft = {
+  reading: 'fast',
+  title: ''
+}
+
+let $draft = map<PreviewDraft>(DEFAULT_DRAFT)
+
+export const previewDraft: ReadableAtom<PreviewDraft> = $draft
+
+export function setPreviewReading(reading: FeedValue['reading']): void {
+  $draft.setKey('reading', reading)
+}
+
+export function setPreviewTitle(title: FeedValue['title']): void {
+  $draft.setKey('title', title)
+}
+
 export async function addPreviewCandidate(): Promise<void> {
   let url = $candidate.get()
   if (url) {
     let candidate = $candidates.get().find(i => i.url === url)!
+    let draft = $draft.get()
     await addFeed({
       loader: candidate.loader,
-      title: candidate.title,
+      reading: draft.reading,
+      title: draft.title,
       url
     })
   }

@@ -14,6 +14,7 @@ import type { LoaderName } from '../loader/index.js'
 
 export type FeedValue = {
   loader: LoaderName
+  reading: 'fast' | 'slow'
   title: string
   url: string
 }

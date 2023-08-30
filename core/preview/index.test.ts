@@ -22,10 +22,13 @@ import {
   previewCandidateAdded,
   previewCandidates,
   previewCandidatesLoading,
+  previewDraft,
   previewPosts,
   previewPostsLoading,
   previewUrlError,
   setPreviewCandidate,
+  setPreviewReading,
+  setPreviewTitle,
   setPreviewUrl,
   userId
 } from '../index.js'
@@ -282,7 +285,7 @@ test('tracks current candidate', async () => {
   expectRequest('http://example.com/feed').andRespond(404)
   expectRequest('http://example.com/rss').andRespond(
     200,
-    '<rss><title>RSS</title></rss>',
+    '<rss><channel><title>RSS</title></channel></rss>',
     'application/rss+xml'
   )
   let resolvePosts1 = getAtomPosts.nextResolve()
@@ -336,7 +339,7 @@ test('tracks added status of candidate', async () => {
 
   expectRequest('https://a.com/atom').andRespond(
     200,
-    '<feed><title>RSS</title></feed>',
+    '<feed><title>Atom</title></feed>',
     'text/xml'
   )
   setPreviewUrl('https://a.com/atom')
@@ -345,12 +348,18 @@ test('tracks added status of candidate', async () => {
   await setTimeout(10)
   equal(previewCandidateAdded.get(), false)
 
-  await addFeed({ loader: 'rss', title: 'RSS', url: 'https://a.com/rss' })
+  await addFeed({
+    loader: 'rss',
+    reading: 'fast',
+    title: 'RSS',
+    url: 'https://a.com/rss'
+  })
   equal(previewCandidateAdded.get(), false)
 
   await addFeed({
     id: 'id',
     loader: 'atom',
+    reading: 'fast',
     title: 'Atom',
     url: 'https://a.com/atom'
   })
@@ -358,7 +367,7 @@ test('tracks added status of candidate', async () => {
 
   expectRequest('https://b.com/atom').andRespond(
     200,
-    '<feed><title>RSS</title></feed>',
+    '<feed><title>Atom</title></feed>',
     'text/xml'
   )
   setPreviewUrl('https://b.com/atom')
@@ -373,7 +382,7 @@ test('adds current preview candidate', async () => {
 
   expectRequest('https://a.com/atom').andRespond(
     200,
-    '<feed><title>RSS</title></feed>',
+    '<feed><title>Atom</title></feed>',
     'text/xml'
   )
   setPreviewUrl('https://a.com/atom')
@@ -384,6 +393,48 @@ test('adds current preview candidate', async () => {
 
   equal(typeof previewCandidateAdded.get(), 'string')
   equal($feeds.get().list.length, 1)
+})
+
+test('tracks draft for new feed', async () => {
+  keepMount(previewDraft)
+
+  expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('http://example.com/atom').andRespond(
+    200,
+    '<feed><title>Atom</title></feed>',
+    'application/rss+xml'
+  )
+  expectRequest('http://example.com/feed').andRespond(404)
+  expectRequest('http://example.com/rss').andRespond(
+    200,
+    '<rss><channel><title>RSS</title></channel></rss>',
+    'application/rss+xml'
+  )
+  setPreviewUrl('example.com')
+  await setTimeout(10)
+  equal(previewDraft.get(), {
+    reading: 'fast',
+    title: 'Atom'
+  })
+
+  setPreviewReading('slow')
+  setPreviewTitle('Another')
+  equal(previewDraft.get(), {
+    reading: 'slow',
+    title: 'Another'
+  })
+
+  setPreviewCandidate('http://example.com/rss')
+  equal(previewDraft.get(), {
+    reading: 'fast',
+    title: 'RSS'
+  })
+
+  setPreviewCandidate('http://example.com/atom')
+  equal(previewDraft.get(), {
+    reading: 'fast',
+    title: 'Atom'
+  })
 })
 
 test.run()

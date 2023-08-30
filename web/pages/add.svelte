@@ -5,15 +5,20 @@
     previewCandidateAdded,
     previewCandidates,
     previewCandidatesLoading,
+    previewDraft,
     previewPosts,
     previewPostsLoading,
     previewUrlError,
     setPreviewCandidate,
+    setPreviewReading,
+    setPreviewTitle,
     setPreviewUrl,
     addMessages as t
   } from '@slowreader/core'
 
-  import { openURL } from '../stores/router.js'
+  import { getURL, openURL } from '../stores/router.js'
+  import OrganizeEdit from './organize/edit.svelte'
+  import OrganizePosts from './organize/posts.svelte'
 
   export let url = ''
   setPreviewUrl(url)
@@ -65,26 +70,23 @@
 {/if}
 
 {#if $previewCandidate}
-  {#if $previewCandidateAdded === undefined}
-    {$t.loading}
-  {:else if $previewCandidateAdded === false}
-    <button on:click={addPreviewCandidate}>{$t.add}</button>
-  {:else}
-    {$t.alreadyAdded}
-  {/if}
-  {#if $previewPostsLoading}
-    {$t.loading}
-  {:else}
-    <ul>
-      {#each $previewPosts as post}
-        <li>
-          {#if post.url}
-            <a href={post.url}>{post.title ?? post.intro ?? post.full}</a>
-          {:else}
-            {post.title ?? post.intro ?? post.full}
-          {/if}
-        </li>
-      {/each}
-    </ul>
-  {/if}
+  <form>
+    {#if $previewCandidateAdded === undefined}
+      {$t.loading}
+    {:else if $previewCandidateAdded === false}
+      <button on:click={addPreviewCandidate}>{$t.add}</button>
+
+      <OrganizeEdit
+        title={$previewDraft.title}
+        reading={$previewDraft.reading}
+        setReading={setPreviewReading}
+        setTitle={setPreviewTitle}
+      />
+    {:else}
+      {$t.alreadyAdded}
+      <a href={getURL('feed', { id: $previewCandidateAdded })}>{$t.edit}</a>
+    {/if}
+  </form>
+
+  <OrganizePosts posts={$previewPosts} postsLoading={$previewPostsLoading} />
 {/if}

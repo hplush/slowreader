@@ -1,4 +1,4 @@
-export interface Post {
+export interface PostValue {
   full?: string
   id: string
   intro?: string
