@@ -1,10 +1,12 @@
-import type { LoadedSyncMapValue } from '@logux/client'
-import { cleanStores } from 'nanostores'
+import type { SyncMapValues } from '@logux/actions'
+import type { LoadedSyncMapValue, SyncMapValue } from '@logux/client'
+import { cleanStores, keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
 import {
   addFeed,
+  changeFeed,
   deleteFeed,
   enableClientTest,
   Feed,
@@ -32,7 +34,17 @@ async function getFeeds(): Promise<LoadedSyncMapValue<FeedValue>[]> {
   return feeds
 }
 
-test('adds, loads and removes feed', async () => {
+function ensureLoaded<Value extends SyncMapValues>(
+  value: SyncMapValue<Value>
+): LoadedSyncMapValue<Value> {
+  if (value.isLoading) {
+    throw new Error('Store was not loaded yet')
+  } else {
+    return value
+  }
+}
+
+test('adds, loads, changes and removes feed', async () => {
   equal(await getFeeds(), [])
 
   await addFeed({
@@ -45,7 +57,12 @@ test('adds, loads and removes feed', async () => {
   equal(added.length, 1)
   equal(added[0].title, 'RSS')
 
-  equal(getFeed(added[0].id).get(), added[0])
+  let feed = getFeed(added[0].id)
+  keepMount(feed)
+  equal(feed.get(), added[0])
+
+  await changeFeed(added[0].id, 'title', 'New title')
+  equal(ensureLoaded(feed.get()).title, 'New title')
 
   await deleteFeed(added[0].id)
   let deleted = await getFeeds()
