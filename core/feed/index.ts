@@ -48,10 +48,9 @@ export function getFeed(feedId: string): SyncMapStore<FeedValue> {
   return Feed(feedId, getClient())
 }
 
-export async function changeFeed<Key extends keyof FeedValue>(
+export async function changeFeed(
   feedId: string,
-  key: Key,
-  value: FeedValue[Key]
+  changes: Partial<FeedValue>
 ): Promise<void> {
-  return changeSyncMapById(getClient(), Feed, feedId, key, value)
+  return changeSyncMapById(getClient(), Feed, feedId, changes)
 }

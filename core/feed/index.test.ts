@@ -61,7 +61,7 @@ test('adds, loads, changes and removes feed', async () => {
   keepMount(feed)
   equal(feed.get(), added[0])
 
-  await changeFeed(added[0].id, 'title', 'New title')
+  await changeFeed(added[0].id, { title: 'New title' })
   equal(ensureLoaded(feed.get()).title, 'New title')
 
   await deleteFeed(added[0].id)
