@@ -70,7 +70,7 @@
 {/if}
 
 {#if $previewCandidate}
-  <form>
+  <form on:submit|preventDefault>
     {#if $previewCandidateAdded === undefined}
       {$t.loading}
     {:else if $previewCandidateAdded === false}
