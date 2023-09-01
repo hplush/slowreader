@@ -1,6 +1,6 @@
 import { atom, type ReadableAtom, type StoreValue } from 'nanostores'
 
-import { userId } from './local-settings.js'
+import { userId } from './settings.js'
 
 export interface Routes {
   add: {}

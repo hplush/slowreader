@@ -5,7 +5,7 @@ import { SUBPROTOCOL } from '@slowreader/api'
 import { computed } from 'nanostores'
 
 import { SlowReaderError } from './error.js'
-import { userId } from './local-settings.js'
+import { userId } from './settings.js'
 
 let testTime: TestTime | undefined
 

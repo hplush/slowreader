@@ -1,4 +1,4 @@
-export * from './local-settings.js'
+export * from './settings.js'
 export * from './download.js'
 export * from './organize.js'
 export * from './preview.js'
