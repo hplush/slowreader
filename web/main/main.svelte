@@ -1,6 +1,7 @@
 <script lang="ts">
   import { isGuestRoute, router } from '@slowreader/core'
 
+  import NotFoundPage from '../pages/not-found.svelte'
   import OrganizeFeedPage from '../pages/organize/feed.svelte'
   import OrganizePage from '../pages/organize/index.svelte'
   import PreviewPage from '../pages/preview.svelte'
@@ -23,5 +24,5 @@
 {:else if $router.route === 'feed'}
   <OrganizeFeedPage feedId={$router.params.id} />
 {:else if $router.route === 'notFound'}
-  404
+  <NotFoundPage />
 {/if}
