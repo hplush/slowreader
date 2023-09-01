@@ -1,9 +1,9 @@
 <script lang="ts">
   import { isGuestRoute, router } from '@slowreader/core'
 
-  import AddPage from '../pages/add.svelte'
   import OrganizeFeedPage from '../pages/organize/feed.svelte'
   import OrganizePage from '../pages/organize/index.svelte'
+  import PreviewPage from '../pages/preview.svelte'
   import StartPage from '../pages/start.svelte'
   import Navbar from '../ui/navbar/index.svelte'
 </script>
@@ -15,9 +15,9 @@
 {#if $router.route === 'start'}
   <StartPage />
 {:else if $router.route === 'add'}
-  <AddPage />
+  <PreviewPage />
 {:else if $router.route === 'preview'}
-  <AddPage url={$router.params.url} />
+  <PreviewPage url={$router.params.url} />
 {:else if $router.route === 'feeds'}
   <OrganizePage />
 {:else if $router.route === 'feed'}
