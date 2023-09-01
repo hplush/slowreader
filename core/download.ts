@@ -1,4 +1,4 @@
-import { request } from '../request/index.js'
+import { request } from './request.js'
 
 export interface TextResponse {
   readonly headers: Headers

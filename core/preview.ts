@@ -11,10 +11,10 @@ import {
   createDownloadTask,
   ignoreAbortError,
   type TextResponse
-} from '../download/index.js'
-import { addFeed, feedsStore, type FeedValue } from '../feed/index.js'
-import { type LoaderName, loaders } from '../loader/index.js'
-import type { PostValue } from '../post/index.js'
+} from './download.js'
+import { addFeed, feedsStore, type FeedValue } from './feed.js'
+import { type LoaderName, loaders } from './loader/index.js'
+import type { PostValue } from './post.js'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 

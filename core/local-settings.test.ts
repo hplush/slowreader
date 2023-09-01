@@ -8,7 +8,7 @@ import { cleanStores, keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
-import { generateCredentials, signOut, userId } from '../index.js'
+import { generateCredentials, signOut, userId } from './index.js'
 
 test.before(() => {
   useTestStorageEngine()

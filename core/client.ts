@@ -4,8 +4,8 @@ import { MemoryStore, TestPair, TestTime } from '@logux/core'
 import { SUBPROTOCOL } from '@slowreader/api'
 import { computed } from 'nanostores'
 
-import { SlowReaderError } from '../error/index.js'
-import { userId } from '../local-settings/index.js'
+import { SlowReaderError } from './error.js'
+import { userId } from './local-settings.js'
 
 let testTime: TestTime | undefined
 

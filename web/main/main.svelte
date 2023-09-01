@@ -6,7 +6,7 @@
   import OrganizePage from '../pages/organize/index.svelte'
   import PreviewPage from '../pages/preview.svelte'
   import StartPage from '../pages/start.svelte'
-  import Navbar from '../ui/navbar/index.svelte'
+  import Navbar from '../ui/navbar.svelte'
 </script>
 
 {#if !isGuestRoute($router)}

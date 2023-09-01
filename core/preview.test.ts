@@ -1,4 +1,4 @@
-import '../test/dom-parser.js'
+import './test/dom-parser.js'
 
 import { restoreAll, spyOn } from 'nanospy'
 import { cleanStores, keepMount } from 'nanostores'
@@ -31,7 +31,7 @@ import {
   setPreviewTitle,
   setPreviewUrl,
   userId
-} from '../index.js'
+} from './index.js'
 
 test.before.each(() => {
   enableClientTest()

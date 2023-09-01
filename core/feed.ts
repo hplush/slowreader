@@ -10,8 +10,8 @@ import {
 } from '@logux/client'
 import { nanoid } from 'nanoid'
 
-import { getClient } from '../client/index.js'
-import type { LoaderName } from '../loader/index.js'
+import { getClient } from './client.js'
+import type { LoaderName } from './loader/index.js'
 
 export type FeedValue = {
   loader: LoaderName

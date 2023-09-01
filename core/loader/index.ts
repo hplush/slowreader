@@ -1,6 +1,6 @@
-import type { DownloadTask, TextResponse } from '../download/index.js'
-import type { PostValue } from '../post/index.js'
-import type { PreviewCandidate } from '../preview/index.js'
+import type { DownloadTask, TextResponse } from '../download.js'
+import type { PostValue } from '../post.js'
+import type { PreviewCandidate } from '../preview.js'
 import { atom } from './atom.js'
 import { rss } from './rss.js'
 

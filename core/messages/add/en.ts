@@ -1,4 +1,4 @@
-import { i18n } from '../../i18n/index.js'
+import { i18n } from '../../i18n.js'
 
 export const addMessages = i18n('add', {
   add: 'Add',

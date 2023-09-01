@@ -1,6 +1,6 @@
 import { atom, computed, onMount, type StoreValue } from 'nanostores'
 
-import { feedsStore } from '../feed/index.js'
+import { feedsStore } from './feed.js'
 
 type OrganizeFeeds = StoreValue<ReturnType<typeof feedsStore>>
 

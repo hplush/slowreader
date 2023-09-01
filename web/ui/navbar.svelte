@@ -6,7 +6,7 @@
     navbarMessages as t
   } from '@slowreader/core'
 
-  import { getURL } from '../../stores/router'
+  import { getURL } from '../stores/router'
 </script>
 
 <nav>

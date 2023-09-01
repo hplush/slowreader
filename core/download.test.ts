@@ -1,4 +1,4 @@
-import '../test/dom-parser.js'
+import './test/dom-parser.js'
 
 import { setTimeout } from 'node:timers/promises'
 import { test } from 'uvu'
@@ -12,8 +12,8 @@ import {
   ignoreAbortError,
   mockRequest,
   setRequestMethod
-} from '../index.js'
-import { rejects } from '../test/utils.js'
+} from './index.js'
+import { rejects } from './test/utils.js'
 
 test.before.each(() => {
   mockRequest()
