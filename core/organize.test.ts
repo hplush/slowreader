@@ -1,5 +1,5 @@
 import { cleanStores, keepMount } from 'nanostores'
-import { setTimeout } from 'timers/promises'
+import { setTimeout } from 'node:timers/promises'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
