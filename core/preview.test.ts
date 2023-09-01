@@ -356,14 +356,13 @@ test('tracks added status of candidate', async () => {
   })
   equal(previewCandidateAdded.get(), false)
 
-  await addFeed({
-    id: 'id',
+  let id = await addFeed({
     loader: 'atom',
     reading: 'fast',
     title: 'Atom',
     url: 'https://a.com/atom'
   })
-  equal(previewCandidateAdded.get(), 'id')
+  equal(previewCandidateAdded.get(), id)
 
   expectRequest('https://b.com/atom').andRespond(
     200,

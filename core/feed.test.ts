@@ -2,7 +2,7 @@ import type { SyncMapValues } from '@logux/actions'
 import type { LoadedSyncMapValue, SyncMapValue } from '@logux/client'
 import { cleanStores, keepMount } from 'nanostores'
 import { test } from 'uvu'
-import { equal } from 'uvu/assert'
+import { equal, type } from 'uvu/assert'
 
 import {
   addFeed,
@@ -47,24 +47,25 @@ function ensureLoaded<Value extends SyncMapValues>(
 test('adds, loads, changes and removes feed', async () => {
   equal(await getFeeds(), [])
 
-  await addFeed({
+  let id = await addFeed({
     loader: 'rss',
     reading: 'fast',
     title: 'RSS',
     url: 'https://example.com/'
   })
+  type(id, 'string')
   let added = await getFeeds()
   equal(added.length, 1)
   equal(added[0].title, 'RSS')
 
-  let feed = getFeed(added[0].id)
+  let feed = getFeed(id)
   keepMount(feed)
   equal(feed.get(), added[0])
 
-  await changeFeed(added[0].id, { title: 'New title' })
+  await changeFeed(id, { title: 'New title' })
   equal(ensureLoaded(feed.get()).title, 'New title')
 
-  await deleteFeed(added[0].id)
+  await deleteFeed(id)
   let deleted = await getFeeds()
   equal(deleted.length, 0)
 })

@@ -31,13 +31,10 @@ export function feedsStore(
   return createFilter(getClient(), Feed, filter)
 }
 
-export async function addFeed(
-  fields: FeedValue | (FeedValue & { id: string })
-): Promise<void> {
-  return createSyncMap(getClient(), Feed, {
-    id: nanoid(),
-    ...fields
-  })
+export async function addFeed(fields: FeedValue): Promise<string> {
+  let id = nanoid()
+  await createSyncMap(getClient(), Feed, { id, ...fields })
+  return id
 }
 
 export async function deleteFeed(feedId: string): Promise<void> {

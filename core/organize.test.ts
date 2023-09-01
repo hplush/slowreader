@@ -31,8 +31,7 @@ test('adds feed', async () => {
   equal(organizeLoading.get(), false)
   equal(organizeFeeds.get(), [])
 
-  await addFeed({
-    id: 'id',
+  let id = await addFeed({
     loader: 'rss',
     reading: 'fast',
     title: 'RSS',
@@ -40,7 +39,7 @@ test('adds feed', async () => {
   })
   equal(organizeFeeds.get(), [
     {
-      id: 'id',
+      id,
       isLoading: false,
       loader: 'rss',
       reading: 'fast',
