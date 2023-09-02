@@ -1,8 +1,8 @@
 <script lang="ts">
   import {
-    FeedValue,
-    setPreviewReading,
-    setPreviewTitle,
+    type FeedValue,
+    type setPreviewReading,
+    type setPreviewTitle,
     organizeMessages as t
   } from '@slowreader/core'
 
@@ -16,7 +16,9 @@
 <input
   type="text"
   value={title}
-  on:change={e => setTitle(e.currentTarget.value)}
+  on:change={e => {
+    setTitle(e.currentTarget.value)
+  }}
 />
 
 <label>
@@ -24,7 +26,9 @@
     type="radio"
     value="fast"
     checked={reading === 'fast'}
-    on:click={() => setReading('fast')}
+    on:click={() => {
+      setReading('fast')
+    }}
   />
   {$t.fast}
 </label>
@@ -33,7 +37,9 @@
     type="radio"
     value="slow"
     checked={reading === 'slow'}
-    on:click={() => setReading('slow')}
+    on:click={() => {
+      setReading('slow')
+    }}
   />
   {$t.slow}
 </label>

@@ -2,7 +2,7 @@
   import {
     changeFeed,
     deleteFeed,
-    FeedValue,
+    type FeedValue,
     getFeed,
     organizeMessages as t
   } from '@slowreader/core'
@@ -15,10 +15,10 @@
 
   $: feed = getFeed(feedId)
 
-  function setReading(reading: FeedValue['reading']) {
+  function setReading(reading: FeedValue['reading']): void {
     changeFeed(feedId, { reading })
   }
-  function setTitle(title: FeedValue['title']) {
+  function setTitle(title: FeedValue['title']): void {
     changeFeed(feedId, { title })
   }
 </script>
@@ -32,7 +32,7 @@
   }}>{$t.delete}</button
 >
 
-{#if $feed.isLoading === false}
+{#if !$feed.isLoading}
   <OrganizeEdit
     title={$feed.title}
     reading={$feed.reading}

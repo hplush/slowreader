@@ -1,18 +1,19 @@
 {
-  "extends": [
-    "@logux/eslint-config/esm"
-  ],
-  "plugins": [
-    "svelte3"
-  ],
+  "extends": ["@logux/eslint-config/esm"],
   "rules": {
     "import/extensions": "off"
+  },
+  "parserOptions": {
+    "extraFileExtensions": [".svelte"]
   },
   "overrides": [
     {
       "files": ["*.svelte"],
-      "parser": "@typescript-eslint/parser",
-      "processor": "svelte3/svelte3",
+      "extends": ["plugin:svelte/recommended"],
+      "parser": "svelte-eslint-parser",
+      "parserOptions": {
+        "parser": "@typescript-eslint/parser"
+      },
       "rules": {
         "no-use-before-define": "off",
         "no-undef-init": "off",
