@@ -1,6 +1,6 @@
 import autoprefixer from 'autoprefixer'
-import labFunction from 'postcss-lab-function'
+import oklabFunction from '@csstools/postcss-oklab-function'
 
 export default {
-  plugins: [labFunction, autoprefixer]
+  plugins: [oklabFunction, autoprefixer]
 }
