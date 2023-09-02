@@ -1,7 +1,12 @@
-export interface PostValue {
+export type OriginPost = {
   full?: string
-  id: string
   intro?: string
   title?: string
   url?: string
+}
+
+export type PostValue = OriginPost & {
+  feedId: string
+  id: string
+  reading: 'fast' | 'slow'
 }

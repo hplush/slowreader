@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { PostValue, organizeMessages as t } from '@slowreader/core'
+  import { OriginPost, organizeMessages as t } from '@slowreader/core'
 
   export let postsLoading: boolean
-  export let posts: readonly PostValue[]
+  export let posts: readonly OriginPost[]
 </script>
 
 {#if postsLoading}
