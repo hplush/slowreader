@@ -3,6 +3,7 @@
     "verbatimModuleSyntax": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "allowJs": true,
     "target": "es2018",
     "module": "esnext",
