@@ -87,7 +87,7 @@ importers:
     dependencies:
       '@logux/client':
         specifier: github:logux/client#next
-        version: github.com/logux/client/0d280bec758bba97fc1209fda5c195b93ae8d396(@logux/core@0.8.5)(nanostores@0.9.3)
+        version: github.com/logux/client/9f79df895caddd16d68097265aa891ca6ea66050(@logux/core@0.8.5)(nanostores@0.9.3)
       '@logux/core':
         specifier: ^0.8.5
         version: 0.8.5
@@ -145,7 +145,7 @@ importers:
     dependencies:
       '@logux/client':
         specifier: github:logux/client#next
-        version: github.com/logux/client/0d280bec758bba97fc1209fda5c195b93ae8d396(@logux/core@0.8.5)(nanostores@0.9.3)
+        version: github.com/logux/client/9f79df895caddd16d68097265aa891ca6ea66050(@logux/core@0.8.5)(nanostores@0.9.3)
       '@nanostores/i18n':
         specifier: ^0.10.0
         version: 0.10.0(nanostores@0.9.3)
@@ -4834,9 +4834,9 @@ packages:
     resolution: {integrity: sha512-xHhOFKT1Y29Jc4/6To1hmIUswKhCKplPSbkCyIabAAZ5q/9GmZvlN3WNcafcq3zze3CzYU66XNeSBLCD8Oickw==}
     dev: false
 
-  github.com/logux/client/0d280bec758bba97fc1209fda5c195b93ae8d396(@logux/core@0.8.5)(nanostores@0.9.3):
-    resolution: {tarball: https://codeload.github.com/logux/client/tar.gz/0d280bec758bba97fc1209fda5c195b93ae8d396}
-    id: github.com/logux/client/0d280bec758bba97fc1209fda5c195b93ae8d396
+  github.com/logux/client/9f79df895caddd16d68097265aa891ca6ea66050(@logux/core@0.8.5)(nanostores@0.9.3):
+    resolution: {tarball: https://codeload.github.com/logux/client/tar.gz/9f79df895caddd16d68097265aa891ca6ea66050}
+    id: github.com/logux/client/9f79df895caddd16d68097265aa891ca6ea66050
     name: '@logux/client'
     version: 0.20.1
     engines: {node: ^18.0.0 || >=20.0.0}

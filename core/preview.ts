@@ -14,7 +14,7 @@ import {
 } from './download.js'
 import { addFeed, feedsStore, type FeedValue } from './feed.js'
 import { type LoaderName, loaders } from './loader/index.js'
-import type { PostValue } from './post.js'
+import type { OriginPost } from './post.js'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 
@@ -193,11 +193,11 @@ let $added = atom<false | string | undefined>(false)
 export const previewCandidateAdded: ReadableAtom<false | string | undefined> =
   $added
 
-let postsCache = new Map<string, PostValue[]>()
+let postsCache = new Map<string, OriginPost[]>()
 
-let $posts = atom<PostValue[]>([])
+let $posts = atom<OriginPost[]>([])
 
-export const previewPosts: ReadableAtom<PostValue[]> = $posts
+export const previewPosts: ReadableAtom<OriginPost[]> = $posts
 
 let $postsLoading = atom(false)
 

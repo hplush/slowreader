@@ -1,14 +1,11 @@
-import { atom, computed, onMount, type StoreValue } from 'nanostores'
+import type { FilterValue } from '@logux/client'
+import { atom, computed, onMount } from 'nanostores'
 
+import type { FeedValue } from './feed.js'
 import { feedsStore } from './feed.js'
 
-type OrganizeFeeds = StoreValue<ReturnType<typeof feedsStore>>
-
-let $list = atom<OrganizeFeeds>({
-  isEmpty: true,
-  isLoading: true,
-  list: [],
-  stores: new Map()
+let $list = atom<FilterValue<FeedValue>>({
+  isLoading: true
 })
 
 onMount($list, () => {
@@ -19,4 +16,6 @@ onMount($list, () => {
 
 export let organizeLoading = computed($list, list => list.isLoading)
 
-export let organizeFeeds = computed($list, list => list.list)
+export let organizeFeeds = computed($list, list => {
+  return list.isLoading ? [] : list.list
+})

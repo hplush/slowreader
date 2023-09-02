@@ -1,5 +1,6 @@
 import './test/dom-parser.js'
 
+import { ensureLoaded } from '@logux/client'
 import { restoreAll, spyOn } from 'nanospy'
 import { cleanStores, keepMount } from 'nanostores'
 import { setTimeout } from 'node:timers/promises'
@@ -301,9 +302,9 @@ test('tracks current candidate', async () => {
   equal(getAtomPosts.calls.length, 1)
   equal(getAtomPosts.calls[0][1], 'http://example.com/atom')
 
-  await resolvePosts1([{ id: '1', url: '1' }])
+  await resolvePosts1([{ url: '1' }])
   equal(previewPostsLoading.get(), false)
-  equal(previewPosts.get(), [{ id: '1', url: '1' }])
+  equal(previewPosts.get(), [{ url: '1' }])
 
   getRssPosts.nextResolve()
   setPreviewCandidate('http://example.com/rss')
@@ -320,17 +321,17 @@ test('tracks current candidate', async () => {
 
   equal(previewCandidate.get(), 'http://example.com/atom')
   equal(previewPostsLoading.get(), false)
-  equal(previewPosts.get(), [{ id: '1', url: '1' }])
+  equal(previewPosts.get(), [{ url: '1' }])
   equal(getAtomPosts.calls.length, 1)
 
   let resolvePosts2 = getRssPosts.nextResolve()
   setPreviewCandidate('http://example.com/rss')
   await setTimeout(10)
-  await resolvePosts2([{ id: '2', url: '2' }])
+  await resolvePosts2([{ url: '2' }])
 
   equal(previewCandidate.get(), 'http://example.com/rss')
   equal(previewPostsLoading.get(), false)
-  equal(previewPosts.get(), [{ id: '2', url: '2' }])
+  equal(previewPosts.get(), [{ url: '2' }])
   equal(getRssPosts.calls.length, 2)
 })
 
@@ -386,12 +387,12 @@ test('adds current preview candidate', async () => {
   )
   setPreviewUrl('https://a.com/atom')
   await setTimeout(10)
-  equal($feeds.get().list.length, 0)
+  equal(ensureLoaded($feeds.get()).list.length, 0)
 
   await addPreviewCandidate()
 
   equal(typeof previewCandidateAdded.get(), 'string')
-  equal($feeds.get().list.length, 1)
+  equal(ensureLoaded($feeds.get()).list.length, 1)
 })
 
 test('tracks draft for new feed', async () => {
