@@ -1,5 +1,4 @@
-import type { SyncMapValues } from '@logux/actions'
-import type { LoadedSyncMapValue, SyncMapValue } from '@logux/client'
+import { ensureLoaded, type LoadedSyncMapValue } from '@logux/client'
 import { cleanStores, keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal, type } from 'uvu/assert'
@@ -32,16 +31,6 @@ async function getFeeds(): Promise<LoadedSyncMapValue<FeedValue>[]> {
   let feeds = $feeds.get().list
   unbind()
   return feeds
-}
-
-function ensureLoaded<Value extends SyncMapValues>(
-  value: SyncMapValue<Value>
-): LoadedSyncMapValue<Value> {
-  if (value.isLoading) {
-    throw new Error('Store was not loaded yet')
-  } else {
-    return value
-  }
 }
 
 test('adds, loads, changes and removes feed', async () => {
