@@ -23,9 +23,9 @@
 
 <label>
   <input
+    checked={reading === 'fast'}
     type="radio"
     value="fast"
-    checked={reading === 'fast'}
     on:click={() => {
       setReading('fast')
     }}
@@ -34,9 +34,9 @@
 </label>
 <label>
   <input
+    checked={reading === 'slow'}
     type="radio"
     value="slow"
-    checked={reading === 'slow'}
     on:click={() => {
       setReading('slow')
     }}

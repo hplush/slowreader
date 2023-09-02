@@ -36,15 +36,15 @@
   <!-- Field has good description, user will be in context -->
   <!-- svelte-ignore a11y-autofocus -->
   <input
+    aria-errormessage="pages-add-invalid"
+    aria-invalid={$previewUrlError === 'invalid'}
+    autofocus
+    required
     type="text"
     bind:value={url}
-    required
-    autofocus
-    aria-invalid={$previewUrlError === 'invalid'}
-    aria-errormessage="pages-add-invalid"
   />
   {#if $previewUrlError === 'invalid'}
-    <div class="error" role="alert" id="pages-add-invalid">
+    <div id="pages-add-invalid" role="alert">
       {$t.invalidUrl}
     </div>
   {/if}
@@ -54,13 +54,13 @@
   {$t.loading}
 {:else}
   <ul>
-    {#each $previewCandidates as candidate}
+    {#each $previewCandidates as candidate (candidate.url)}
       <li>
         <button
+          disabled={$previewCandidate === candidate.url}
           on:click={() => {
             setPreviewCandidate(candidate.url)
           }}
-          disabled={$previewCandidate === candidate.url}
         >
           {candidate.title}
         </button>
@@ -77,10 +77,10 @@
       <button on:click={addPreviewCandidate}>{$t.add}</button>
 
       <OrganizeEdit
-        title={$previewDraft.title}
         reading={$previewDraft.reading}
         setReading={setPreviewReading}
         setTitle={setPreviewTitle}
+        title={$previewDraft.title}
       />
     {:else}
       {$t.alreadyAdded}

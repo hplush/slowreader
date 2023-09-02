@@ -15,6 +15,18 @@
         "parser": "@typescript-eslint/parser"
       },
       "rules": {
+        "svelte/require-optimized-style-attribute": "error",
+        "svelte/no-extra-reactive-curlies": "error",
+        "svelte/infinite-reactive-loop": "error",
+        "svelte/prefer-class-directive": "error",
+        "svelte/no-reactive-reassign": "error",
+        "svelte/no-reactive-literals": "error",
+        "svelte/no-unused-class-name": "error",
+        "svelte/spaced-html-comment": "error",
+        "svelte/require-each-key": "error",
+        "svelte/no-at-debug-tags": "error",
+        "svelte/sort-attributes": "error",
+        "svelte/block-lang": ["error", { "script": "ts" }],
         "no-use-before-define": "off",
         "no-undef-init": "off",
         "import/first": "off"

@@ -34,9 +34,9 @@
 
 {#if !$feed.isLoading}
   <OrganizeEdit
-    title={$feed.title}
     reading={$feed.reading}
     {setReading}
     {setTitle}
+    title={$feed.title}
   />
 {/if}

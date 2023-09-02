@@ -8,7 +8,7 @@
 
 {#if !$organizeLoading}
   <ul>
-    {#each $organizeFeeds as feed}
+    {#each $organizeFeeds as feed (feed.id)}
       <li>
         {#if currentFeed === feed.id}
           <strong>{feed.title}</strong>

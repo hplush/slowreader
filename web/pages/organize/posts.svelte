@@ -9,7 +9,7 @@
   {$t.loading}
 {:else}
   <ul>
-    {#each posts as post}
+    {#each posts as post (post.url)}
       <li>
         {#if post.url}
           <a href={post.url}>{post.title ?? post.intro ?? post.full}</a>

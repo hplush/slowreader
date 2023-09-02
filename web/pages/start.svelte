@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { generateCredentials, startMessages as t } from '@slowreader/core'
 </script>
 
