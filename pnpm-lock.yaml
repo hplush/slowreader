@@ -70,7 +70,7 @@ importers:
         version: 2.9.0
       stylelint:
         specifier: ^15.10.3
-        version: 15.10.3(typescript@5.2.2)
+        version: 15.10.3
       svelte:
         specifier: ^4.2.0
         version: 4.2.0
@@ -193,8 +193,8 @@ importers:
         specifier: ^8.2.6
         version: 8.2.6(size-limit@8.2.6)
       postcss-lab-function:
-        specifier: ^6.0.2
-        version: 6.0.2(postcss@8.4.29)
+        specifier: ^6.0.3
+        version: 6.0.3(postcss@8.4.29)
       size-limit:
         specifier: ^8.2.6
         version: 8.2.6
@@ -396,8 +396,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@csstools/color-helpers@3.0.1:
-    resolution: {integrity: sha512-Tsp6FcSPaPN/+4T7iBPxBVopJUs7bimnNx4yuWeGXkH084Vro/y8fmrGg1LGSWH8SU6YuH20fP5Rtqtb979jyw==}
+  /@csstools/color-helpers@3.0.2:
+    resolution: {integrity: sha512-NMVs/l7Y9eIKL5XjbCHEgGcG8LOUT2qVcRjX6EzkCdlvftHVKr2tHIPzHavfrULRZ5Q2gxrJ9f44dAlj6fX97Q==}
     engines: {node: ^14 || ^16 || >=18}
     dev: true
 
@@ -412,14 +412,14 @@ packages:
       '@csstools/css-tokenizer': 2.2.0
     dev: true
 
-  /@csstools/css-color-parser@1.3.0(@csstools/css-parser-algorithms@2.3.1)(@csstools/css-tokenizer@2.2.0):
-    resolution: {integrity: sha512-jgudbE+TXZLssSTGFRCkJF9gAM8ABZ2c9/gbLupwA8Y1SpcddxK2z74/MOSdWuboUHbshei8uSQNbp9Wu1Bx+Q==}
+  /@csstools/css-color-parser@1.3.1(@csstools/css-parser-algorithms@2.3.1)(@csstools/css-tokenizer@2.2.0):
+    resolution: {integrity: sha512-cehc/DQCyb4hL4fspvyL7WiY+uAy8Iuaz0yTyndC/AyBmxkNpgtSgCSsr0aR4vkaSFVZfNNVlKbjHFwOsPGB1Q==}
     engines: {node: ^14 || ^16 || >=18}
     peerDependencies:
       '@csstools/css-parser-algorithms': ^2.3.1
       '@csstools/css-tokenizer': ^2.2.0
     dependencies:
-      '@csstools/color-helpers': 3.0.1
+      '@csstools/color-helpers': 3.0.2
       '@csstools/css-calc': 1.1.3(@csstools/css-parser-algorithms@2.3.1)(@csstools/css-tokenizer@2.2.0)
       '@csstools/css-parser-algorithms': 2.3.1(@csstools/css-tokenizer@2.2.0)
       '@csstools/css-tokenizer': 2.2.0
@@ -818,7 +818,7 @@ packages:
     peerDependencies:
       stylelint: ^15.5.0
     dependencies:
-      stylelint: 15.10.3(typescript@5.2.2)
+      stylelint: 15.10.3
       stylelint-config-recess-order: 4.3.0(stylelint@15.10.3)
       stylelint-config-standard: 34.0.0(stylelint@15.10.3)
       stylelint-gamut: 1.3.3(stylelint@15.10.3)
@@ -1634,20 +1634,14 @@ packages:
     engines: {node: '>= 0.6'}
     dev: false
 
-  /cosmiconfig@8.3.0(typescript@5.2.2):
-    resolution: {integrity: sha512-kLfJx14+dZY3x65/LrdDXNt8r7VkoARRofiMgZhZ9qoKtJsGTjBKrbSBPwtxfNF9oWr7HC9x228/GYrwCnZLrQ==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      typescript: '>=4.9.5'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
+  /cosmiconfig@8.2.0:
+    resolution: {integrity: sha512-3rTMnFJA1tCOPwRxtgF4wd7Ab2qvDbL8jX+3smjIbS4HlZBagTlpERbdN7iAbWlrfxE3M8c27kTwTawQ7st+OQ==}
+    engines: {node: '>=14'}
     dependencies:
       import-fresh: 3.3.0
       js-yaml: 4.1.0
       parse-json: 5.2.0
       path-type: 4.0.0
-      typescript: 5.2.2
     dev: true
 
   /cross-spawn@7.0.3:
@@ -3638,13 +3632,13 @@ packages:
       postcss-safe-parser: 6.0.0(postcss@8.4.29)
     dev: true
 
-  /postcss-lab-function@6.0.2(postcss@8.4.29):
-    resolution: {integrity: sha512-OfjeI/1rQWtj38Quy3+D9+mpOReOX3vOXfQNCfsmFIl6xK1AAJ1ta1uGjAswYwsN8uJ9Y52K8U53Jk8QJWfJLg==}
+  /postcss-lab-function@6.0.3(postcss@8.4.29):
+    resolution: {integrity: sha512-+0WxmblCb2Khfj9wpJQKd/9QhtHK/ImIqfnXX4HEoTDmjdtI6IUjXnC83bYX0CaHitpPjWnoQjoasW7qb1TCHw==}
     engines: {node: ^14 || ^16 || >=18}
     peerDependencies:
       postcss: ^8.4
     dependencies:
-      '@csstools/css-color-parser': 1.3.0(@csstools/css-parser-algorithms@2.3.1)(@csstools/css-tokenizer@2.2.0)
+      '@csstools/css-color-parser': 1.3.1(@csstools/css-parser-algorithms@2.3.1)(@csstools/css-tokenizer@2.2.0)
       '@csstools/css-parser-algorithms': 2.3.1(@csstools/css-tokenizer@2.2.0)
       '@csstools/css-tokenizer': 2.2.0
       '@csstools/postcss-progressive-custom-properties': 3.0.0(postcss@8.4.29)
@@ -4137,7 +4131,7 @@ packages:
     peerDependencies:
       stylelint: '>=15'
     dependencies:
-      stylelint: 15.10.3(typescript@5.2.2)
+      stylelint: 15.10.3
       stylelint-order: 6.0.3(stylelint@15.10.3)
     dev: true
 
@@ -4147,7 +4141,7 @@ packages:
     peerDependencies:
       stylelint: ^15.10.0
     dependencies:
-      stylelint: 15.10.3(typescript@5.2.2)
+      stylelint: 15.10.3
     dev: true
 
   /stylelint-config-standard@34.0.0(stylelint@15.10.3):
@@ -4156,7 +4150,7 @@ packages:
     peerDependencies:
       stylelint: ^15.10.0
     dependencies:
-      stylelint: 15.10.3(typescript@5.2.2)
+      stylelint: 15.10.3
       stylelint-config-recommended: 13.0.0(stylelint@15.10.3)
     dev: true
 
@@ -4167,7 +4161,7 @@ packages:
       stylelint: ^14.0.0 || ^15.0.0
     dependencies:
       colorjs.io: 0.4.5
-      stylelint: 15.10.3(typescript@5.2.2)
+      stylelint: 15.10.3
     dev: true
 
   /stylelint-order@6.0.3(stylelint@15.10.3):
@@ -4177,10 +4171,10 @@ packages:
     dependencies:
       postcss: 8.4.29
       postcss-sorting: 8.0.2(postcss@8.4.29)
-      stylelint: 15.10.3(typescript@5.2.2)
+      stylelint: 15.10.3
     dev: true
 
-  /stylelint@15.10.3(typescript@5.2.2):
+  /stylelint@15.10.3:
     resolution: {integrity: sha512-aBQMMxYvFzJJwkmg+BUUg3YfPyeuCuKo2f+LOw7yYbU8AZMblibwzp9OV4srHVeQldxvSFdz0/Xu8blq2AesiA==}
     engines: {node: ^14.13.1 || >=16.0.0}
     hasBin: true
@@ -4191,7 +4185,7 @@ packages:
       '@csstools/selector-specificity': 3.0.0(postcss-selector-parser@6.0.13)
       balanced-match: 2.0.0
       colord: 2.9.3
-      cosmiconfig: 8.3.0(typescript@5.2.2)
+      cosmiconfig: 8.2.0
       css-functions-list: 3.2.0
       css-tree: 2.3.1
       debug: 4.3.4
@@ -4227,7 +4221,6 @@ packages:
       write-file-atomic: 5.0.1
     transitivePeerDependencies:
       - supports-color
-      - typescript
     dev: true
 
   /supports-color@5.5.0:
