@@ -23,6 +23,7 @@ export const atom: Loader = {
         full: entry.querySelector('content')?.textContent ?? undefined,
         id: entry.querySelector('id')!.textContent!,
         intro: entry.querySelector('summary')?.textContent ?? undefined,
+        media: [],
         title: entry.querySelector('title')?.textContent ?? undefined,
         url:
           entry

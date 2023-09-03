@@ -28,6 +28,7 @@ export const rss: Loader = {
         id:
           item.querySelector('guid')?.textContent ??
           item.querySelector('link')!.textContent!,
+        media: [],
         title: item.querySelector('title')?.textContent ?? undefined,
         url: item.querySelector('link')?.textContent ?? undefined
       }))

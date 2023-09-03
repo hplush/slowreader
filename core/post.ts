@@ -1,6 +1,7 @@
 export type OriginPost = {
   full?: string
   intro?: string
+  media: string[]
   title?: string
   url?: string
 }
