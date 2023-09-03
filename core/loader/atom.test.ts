@@ -148,6 +148,7 @@ test('parses posts', async () => {
         full: 'Full 1',
         id: '1',
         intro: 'Post 1',
+        media: [],
         title: '1',
         url: 'https://example.com/1'
       },
@@ -155,6 +156,7 @@ test('parses posts', async () => {
         full: undefined,
         id: '2',
         intro: undefined,
+        media: [],
         title: '2',
         url: undefined
       },
@@ -162,6 +164,7 @@ test('parses posts', async () => {
         full: undefined,
         id: '3',
         intro: undefined,
+        media: [],
         title: '3',
         url: 'https://example.com/3'
       }
@@ -189,6 +192,7 @@ test('loads text to parse posts', async () => {
       full: undefined,
       id: '1',
       intro: undefined,
+      media: [],
       title: '1',
       url: undefined
     }

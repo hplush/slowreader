@@ -304,7 +304,7 @@ test('tracks current candidate', async () => {
 
   await resolvePosts1([{ media: [], url: '1' }])
   equal(previewPostsLoading.get(), false)
-  equal(previewPosts.get(), [{ url: '1' }])
+  equal(previewPosts.get(), [{ media: [], url: '1' }])
 
   getRssPosts.nextResolve()
   setPreviewCandidate('http://example.com/rss')

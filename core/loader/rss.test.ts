@@ -142,12 +142,14 @@ test('parses posts', async () => {
       {
         full: 'Post 1',
         id: 'https://example.com/1',
+        media: [],
         title: '1',
         url: 'https://example.com/1'
       },
       {
         full: undefined,
         id: '2',
+        media: [],
         title: '2',
         url: 'https://example.com/2'
       }
@@ -176,6 +178,7 @@ test('loads text to parse posts', async () => {
     {
       full: undefined,
       id: 'https://example.com/1',
+      media: [],
       title: '1',
       url: 'https://example.com/1'
     }
