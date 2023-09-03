@@ -38,8 +38,5 @@
         "@typescript-eslint/no-explicit-any": "off"
       }
     }
-  ],
-  "settings": {
-    "svelte3/typescript": true
-  }
+  ]
 }
