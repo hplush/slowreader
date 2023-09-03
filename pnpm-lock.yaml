@@ -53,6 +53,9 @@ importers:
       eslint-plugin-svelte:
         specifier: ^2.33.0
         version: 2.33.0(eslint@8.48.0)(svelte@4.2.0)
+      eslint-plugin-uvu:
+        specifier: ^0.1.1
+        version: 0.1.1(eslint@8.48.0)(typescript@5.2.2)
       nano-staged:
         specifier: ^0.8.0
         version: 0.8.0
@@ -2358,6 +2361,16 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - ts-node
+    dev: true
+
+  /eslint-plugin-uvu@0.1.1(eslint@8.48.0)(typescript@5.2.2):
+    resolution: {integrity: sha512-Rvz1GlPter/9LD7lbmdnhvMa/J4q1k47KiuZQO7yf0AkjY3AdKnjqKslkVozGh57kA4lVGQyEi/uOSz8TIMkug==}
+    dependencies:
+      '@typescript-eslint/utils': 5.62.0(eslint@8.48.0)(typescript@5.2.2)
+    transitivePeerDependencies:
+      - eslint
+      - supports-color
+      - typescript
     dev: true
 
   /eslint-scope@5.1.1:

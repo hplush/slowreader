@@ -1,5 +1,6 @@
 {
   "extends": ["@logux/eslint-config/esm"],
+  "plugins": ["uvu"],
   "rules": {
     "import/extensions": "off"
   },
@@ -33,9 +34,10 @@
       }
     },
     {
-      "files": ["*/test/*"],
+      "files": ["*/test/*", "*.test.*"],
       "rules": {
-        "@typescript-eslint/no-explicit-any": "off"
+        "@typescript-eslint/no-explicit-any": "off",
+        "uvu/no-identical-titles": "error"
       }
     }
   ]
