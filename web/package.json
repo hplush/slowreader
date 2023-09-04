@@ -28,7 +28,6 @@
     "vite": "4.4.9"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.11",
     "@size-limit/file": "^8.2.6",
     "browserslist": "^4.21.10",
     "size-limit": "^8.2.6",
