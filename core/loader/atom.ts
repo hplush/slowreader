@@ -1,4 +1,4 @@
-import type { Loader } from '../index.js'
+import type { Loader } from './index.js'
 import { findLink, hasAnyFeed } from './utils.js'
 
 export const atom: Loader = {
