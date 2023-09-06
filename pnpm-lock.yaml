@@ -12,8 +12,8 @@ importers:
   .:
     devDependencies:
       '@logux/eslint-config':
-        specifier: ^51.0.3
-        version: 51.0.3(eslint-config-standard@17.1.0)(eslint-plugin-import@2.28.1)(eslint-plugin-n@16.0.2)(eslint-plugin-perfectionist@2.0.0)(eslint-plugin-prefer-let@3.0.1)(eslint-plugin-promise@6.1.1)(eslint@8.48.0)
+        specifier: ^52.0.0
+        version: 52.0.0(eslint-config-standard@17.1.0)(eslint-plugin-import@2.28.1)(eslint-plugin-n@16.0.2)(eslint-plugin-perfectionist@2.0.0)(eslint-plugin-prefer-let@3.0.1)(eslint-plugin-prefer-node-builtin-imports@0.0.3)(eslint-plugin-promise@6.1.1)(eslint@8.48.0)
       '@logux/stylelint-config':
         specifier: ^0.16.0
         version: 0.16.0(stylelint@15.10.3)
@@ -623,8 +623,8 @@ packages:
       nanoevents: 7.0.1
     dev: false
 
-  /@logux/eslint-config@51.0.3(eslint-config-standard@17.1.0)(eslint-plugin-import@2.28.1)(eslint-plugin-n@16.0.2)(eslint-plugin-perfectionist@2.0.0)(eslint-plugin-prefer-let@3.0.1)(eslint-plugin-promise@6.1.1)(eslint@8.48.0):
-    resolution: {integrity: sha512-/QQPxqFzJBaolmio6PfZKcDX7knyGSnZpa/fsP4NMTZRCAbctzQ/MSF6aXsNF6GTfoovpIqQ1f1PE09S44IJqA==}
+  /@logux/eslint-config@52.0.0(eslint-config-standard@17.1.0)(eslint-plugin-import@2.28.1)(eslint-plugin-n@16.0.2)(eslint-plugin-perfectionist@2.0.0)(eslint-plugin-prefer-let@3.0.1)(eslint-plugin-prefer-node-builtin-imports@0.0.3)(eslint-plugin-promise@6.1.1)(eslint@8.48.0):
+    resolution: {integrity: sha512-p5Ql9b7jf6JCWe3W/Tfo2bkvBjRhDRTFWkth0cxPamfbLsXb9xx8E7K6pXSDoHEIFJd5kLdDT+3zKbXJPynhuw==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       eslint: ^8.48.0
@@ -633,6 +633,7 @@ packages:
       eslint-plugin-n: ^16.0.2
       eslint-plugin-perfectionist: ^2.0.0
       eslint-plugin-prefer-let: ^3.0.1
+      eslint-plugin-prefer-node-builtin-imports: ^0.0.3
       eslint-plugin-promise: ^6.1.1
     dependencies:
       eslint: 8.48.0
@@ -641,6 +642,7 @@ packages:
       eslint-plugin-n: 16.0.2(eslint@8.48.0)
       eslint-plugin-perfectionist: 2.0.0(eslint@8.48.0)(svelte@4.2.0)(typescript@5.2.2)
       eslint-plugin-prefer-let: 3.0.1
+      eslint-plugin-prefer-node-builtin-imports: 0.0.3(eslint@8.48.0)
       eslint-plugin-promise: 6.1.1(eslint@8.48.0)
     dev: true
 
@@ -2191,6 +2193,15 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       requireindex: 1.2.0
+    dev: true
+
+  /eslint-plugin-prefer-node-builtin-imports@0.0.3(eslint@8.48.0):
+    resolution: {integrity: sha512-teo8L8gmjyggs9jScstOJ5Id3K6SCXYFjIRGARAfcGRl6s/wAFPxujc27nPwBJmEI1IYHElZD6X5SICfq7ATxQ==}
+    engines: {node: ^14.17.0 || ^16.0.0 || >= 18.0.0}
+    peerDependencies:
+      eslint: '>=7'
+    dependencies:
+      eslint: 8.48.0
     dev: true
 
   /eslint-plugin-promise@6.1.1(eslint@8.48.0):

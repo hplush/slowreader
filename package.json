@@ -22,7 +22,7 @@
     "web"
   ],
   "devDependencies": {
-    "@logux/eslint-config": "^51.0.3",
+    "@logux/eslint-config": "^52.0.0",
     "@logux/stylelint-config": "^0.16.0",
     "@types/node": "^20.5.9",
     "@types/ws": "^8.5.5",
