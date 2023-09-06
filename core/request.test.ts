@@ -16,15 +16,19 @@ test.after.each(() => {
 })
 
 test('replaces request method', () => {
+  let result = new Promise<Response>(resolve => {
+    resolve(new Response())
+  })
+
   let calls: string[] = []
   setRequestMethod(url => {
     if (typeof url === 'string') {
       calls.push(url)
     }
-    return 'result' as any
+    return result
   })
 
-  equal(request('https://example.com'), 'result')
+  equal(request('https://example.com'), result)
   equal(calls, ['https://example.com'])
 })
 

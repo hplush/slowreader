@@ -1,5 +1,6 @@
 export type OriginPost = {
   full?: string
+  id: string
   intro?: string
   media: string[]
   title?: string
@@ -8,6 +9,5 @@ export type OriginPost = {
 
 export type PostValue = OriginPost & {
   feedId: string
-  id: string
   reading: 'fast' | 'slow'
 }
