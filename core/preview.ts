@@ -1,11 +1,4 @@
-import {
-  atom,
-  computed,
-  map,
-  onMount,
-  onStop,
-  type ReadableAtom
-} from 'nanostores'
+import { atom, computed, map, onMount, onStop } from 'nanostores'
 
 import {
   createDownloadTask,
@@ -15,6 +8,7 @@ import {
 import { addFeed, feedsStore, type FeedValue } from './feed.js'
 import { type LoaderName, loaders } from './loader/index.js'
 import type { OriginPost } from './post.js'
+import { readonlyExport } from './utils/stores.js'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 
@@ -82,7 +76,7 @@ onMount($candidates, () => {
   return $links.listen(() => {})
 })
 
-export const previewCandidates: ReadableAtom<PreviewCandidate[]> = $candidates
+export const previewCandidates = readonlyExport($candidates)
 
 function getLoaderForUrl(url: string): false | PreviewCandidate {
   let names = Object.keys(loaders) as LoaderName[]
@@ -186,22 +180,21 @@ export async function addLink(url: string, deep = false): Promise<void> {
 
 let $candidate = atom<string | undefined>()
 
-export const previewCandidate: ReadableAtom<string | undefined> = $candidate
+export const previewCandidate = readonlyExport($candidate)
 
 let $added = atom<false | string | undefined>(false)
 
-export const previewCandidateAdded: ReadableAtom<false | string | undefined> =
-  $added
+export const previewCandidateAdded = readonlyExport($added)
 
 let postsCache = new Map<string, OriginPost[]>()
 
 let $posts = atom<OriginPost[]>([])
 
-export const previewPosts: ReadableAtom<OriginPost[]> = $posts
+export const previewPosts = readonlyExport($posts)
 
 let $postsLoading = atom(false)
 
-export const previewPostsLoading: ReadableAtom<boolean> = $postsLoading
+export const previewPostsLoading = readonlyExport($postsLoading)
 
 let prevHasUnbind: (() => void) | undefined
 
@@ -279,7 +272,7 @@ const DEFAULT_DRAFT: PreviewDraft = {
 
 let $draft = map<PreviewDraft>(DEFAULT_DRAFT)
 
-export const previewDraft: ReadableAtom<PreviewDraft> = $draft
+export const previewDraft = readonlyExport($draft)
 
 export function setPreviewReading(reading: FeedValue['reading']): void {
   $draft.setKey('reading', reading)
