@@ -47,6 +47,9 @@ importers:
       eslint-plugin-prefer-let:
         specifier: ^3.0.1
         version: 3.0.1
+      eslint-plugin-prefer-node-builtin-imports:
+        specifier: ^0.0.3
+        version: 0.0.3(eslint@8.48.0)
       eslint-plugin-promise:
         specifier: ^6.1.1
         version: 6.1.1(eslint@8.48.0)
