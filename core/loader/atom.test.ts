@@ -1,6 +1,7 @@
 import '../test/dom-parser.js'
 
 import { spyOn } from 'nanospy'
+import { setTimeout } from 'node:timers/promises'
 import { test } from 'uvu'
 import { equal, type } from 'uvu/assert'
 
@@ -113,11 +114,12 @@ test('detects titles', () => {
 test('parses posts', async () => {
   let task = createDownloadTask()
   equal(
-    await loaders.atom.getPosts(
-      task,
-      'https://example.com/news/',
-      exampleAtom(
-        `<?xml version="1.0"?>
+    loaders.atom
+      .getPosts(
+        task,
+        'https://example.com/news/',
+        exampleAtom(
+          `<?xml version="1.0"?>
         <feed xmlns="http://www.w3.org/2005/Atom">
           <title>Feed</title>
           <entry>
@@ -141,34 +143,39 @@ test('parses posts', async () => {
             <title>4</title>
           </entry>
         </feed>`
+        )
       )
-    ),
-    [
-      {
-        full: 'Full 1',
-        id: '1',
-        intro: 'Post 1',
-        media: [],
-        title: '1',
-        url: 'https://example.com/1'
-      },
-      {
-        full: undefined,
-        id: '2',
-        intro: undefined,
-        media: [],
-        title: '2',
-        url: undefined
-      },
-      {
-        full: undefined,
-        id: '3',
-        intro: undefined,
-        media: [],
-        title: '3',
-        url: 'https://example.com/3'
-      }
-    ]
+      .get(),
+    {
+      hasNext: false,
+      isLoading: false,
+      list: [
+        {
+          full: 'Full 1',
+          id: '1',
+          intro: 'Post 1',
+          media: [],
+          title: '1',
+          url: 'https://example.com/1'
+        },
+        {
+          full: undefined,
+          id: '2',
+          intro: undefined,
+          media: [],
+          title: '2',
+          url: undefined
+        },
+        {
+          full: undefined,
+          id: '3',
+          intro: undefined,
+          media: [],
+          title: '3',
+          url: 'https://example.com/3'
+        }
+      ]
+    }
   )
 })
 
@@ -186,17 +193,28 @@ test('loads text to parse posts', async () => {
       </feed>`
     )
   )
+  let page = loaders.atom.getPosts(task, 'https://example.com/news/')
+  equal(page.get(), {
+    hasNext: true,
+    isLoading: true,
+    list: []
+  })
 
-  equal(await loaders.atom.getPosts(task, 'https://example.com/news/'), [
-    {
-      full: undefined,
-      id: '1',
-      intro: undefined,
-      media: [],
-      title: '1',
-      url: undefined
-    }
-  ])
+  await setTimeout(100)
+  equal(page.get(), {
+    hasNext: false,
+    isLoading: false,
+    list: [
+      {
+        full: undefined,
+        id: '1',
+        intro: undefined,
+        media: [],
+        title: '1',
+        url: undefined
+      }
+    ]
+  })
   equal(text.calls, [['https://example.com/news/']])
 })
 

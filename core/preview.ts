@@ -7,7 +7,7 @@ import {
 } from './download.js'
 import { addFeed, feedsStore, type FeedValue } from './feed.js'
 import { type LoaderName, loaders } from './loader/index.js'
-import type { OriginPost } from './post.js'
+import type { PostsPage } from './posts-page.js'
 import { readonlyExport } from './utils/stores.js'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
@@ -186,15 +186,11 @@ let $added = atom<false | string | undefined>(false)
 
 export const previewCandidateAdded = readonlyExport($added)
 
-let postsCache = new Map<string, OriginPost[]>()
+let postsCache = new Map<string, PostsPage>()
 
-let $posts = atom<OriginPost[]>([])
+let $posts = atom<PostsPage | undefined>()
 
 export const previewPosts = readonlyExport($posts)
-
-let $postsLoading = atom(false)
-
-export const previewPostsLoading = readonlyExport($postsLoading)
 
 let prevHasUnbind: (() => void) | undefined
 
@@ -205,8 +201,7 @@ export function clearPreview(): void {
   $candidate.set(undefined)
   $added.set(undefined)
   $draft.set(DEFAULT_DRAFT)
-  $posts.set([])
-  $postsLoading.set(false)
+  $posts.set(undefined)
   postsCache.clear()
   task.abortAll()
   task = createDownloadTask()
@@ -237,25 +232,11 @@ export async function setPreviewCandidate(url: string): Promise<void> {
     })
 
     if (postsCache.has(url)) {
-      $posts.set(postsCache.get(url)!)
-      $postsLoading.set(false)
+      $posts.set(postsCache.get(url))
     } else {
-      $posts.set([])
-      $postsLoading.set(true)
-      try {
-        let posts = await loaders[candidate.loader].getPosts(
-          task,
-          url,
-          candidate.text
-        )
-        if ($candidate.get() === url) {
-          $posts.set(posts)
-          $postsLoading.set(false)
-          postsCache.set(url, posts)
-        }
-      } catch (error) {
-        ignoreAbortError(error)
-      }
+      let posts = loaders[candidate.loader].getPosts(task, url, candidate.text)
+      $posts.set(posts)
+      postsCache.set(url, posts)
     }
   }
 }

@@ -1,6 +1,7 @@
 import '../test/dom-parser.js'
 
 import { spyOn } from 'nanospy'
+import { setTimeout } from 'node:timers/promises'
 import { test } from 'uvu'
 import { equal, type } from 'uvu/assert'
 
@@ -113,11 +114,12 @@ test('detects titles', () => {
 test('parses posts', async () => {
   let task = createDownloadTask()
   equal(
-    await loaders.rss.getPosts(
-      task,
-      'https://example.com/news/',
-      exampleRss(
-        `<?xml version="1.0"?>
+    loaders.rss
+      .getPosts(
+        task,
+        'https://example.com/news/',
+        exampleRss(
+          `<?xml version="1.0"?>
         <rss version="2.0">
           <channel>
             <title>Feed</title>
@@ -136,28 +138,33 @@ test('parses posts', async () => {
             </item>
           </channel>
         </rss>`
+        )
       )
-    ),
-    [
-      {
-        full: 'Post 1',
-        id: 'https://example.com/1',
-        media: [],
-        title: '1',
-        url: 'https://example.com/1'
-      },
-      {
-        full: undefined,
-        id: '2',
-        media: [],
-        title: '2',
-        url: 'https://example.com/2'
-      }
-    ]
+      .get(),
+    {
+      hasNext: false,
+      isLoading: false,
+      list: [
+        {
+          full: 'Post 1',
+          id: 'https://example.com/1',
+          media: [],
+          title: '1',
+          url: 'https://example.com/1'
+        },
+        {
+          full: undefined,
+          id: '2',
+          media: [],
+          title: '2',
+          url: 'https://example.com/2'
+        }
+      ]
+    }
   )
 })
 
-test('loads text to parse posts', async () => {
+test.only('loads text to parse posts', async () => {
   let task = createDownloadTask()
   let text = spyOn(task, 'text', async () =>
     exampleRss(
@@ -173,16 +180,27 @@ test('loads text to parse posts', async () => {
       </rss>`
     )
   )
+  let page = loaders.rss.getPosts(task, 'https://example.com/news/')
+  equal(page.get(), {
+    hasNext: true,
+    isLoading: true,
+    list: []
+  })
 
-  equal(await loaders.rss.getPosts(task, 'https://example.com/news/'), [
-    {
-      full: undefined,
-      id: 'https://example.com/1',
-      media: [],
-      title: '1',
-      url: 'https://example.com/1'
-    }
-  ])
+  await setTimeout(10)
+  equal(page.get(), {
+    hasNext: false,
+    isLoading: false,
+    list: [
+      {
+        full: undefined,
+        id: 'https://example.com/1',
+        media: [],
+        title: '1',
+        url: 'https://example.com/1'
+      }
+    ]
+  })
   equal(text.calls, [['https://example.com/news/']])
 })
 

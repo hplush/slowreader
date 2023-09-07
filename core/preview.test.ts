@@ -18,6 +18,7 @@ import {
   feedsStore,
   loaders,
   mockRequest,
+  postsPage,
   previewCandidate,
   type PreviewCandidate,
   previewCandidateAdded,
@@ -25,7 +26,6 @@ import {
   previewCandidatesLoading,
   previewDraft,
   previewPosts,
-  previewPostsLoading,
   previewUrlError,
   setPreviewCandidate,
   setPreviewReading,
@@ -105,7 +105,6 @@ test('cleans state', async () => {
   keepMount(previewUrlError)
   keepMount(previewCandidates)
   keepMount(previewPosts)
-  keepMount(previewPostsLoading)
   keepMount(previewCandidate)
 
   let reply = expectRequest('http://example.com').andWait()
@@ -116,8 +115,7 @@ test('cleans state', async () => {
   equal(previewUrlError.get(), undefined)
   equal(previewCandidates.get(), [])
   equal(reply.aborted, true)
-  equal(previewPosts.get(), [])
-  equal(previewPostsLoading.get(), false)
+  equal(previewPosts.get(), undefined)
   equal(previewCandidate.get(), undefined)
 
   setPreviewUrl('not URL')
@@ -273,7 +271,6 @@ test('tracks current candidate', async () => {
   keepMount(previewUrlError)
   keepMount(previewCandidates)
   keepMount(previewCandidate)
-  keepMount(previewPostsLoading)
   let getAtomPosts = spyOn(loaders.atom, 'getPosts')
   let getRssPosts = spyOn(loaders.rss, 'getPosts')
 
@@ -289,7 +286,9 @@ test('tracks current candidate', async () => {
     '<rss><channel><title>RSS</title></channel></rss>',
     'application/rss+xml'
   )
-  let resolvePosts1 = getAtomPosts.nextResolve()
+  getAtomPosts.nextResult(
+    postsPage([{ id: '1', media: [], url: '1' }], undefined)
+  )
   setPreviewUrl('example.com')
   await setTimeout(10)
 
@@ -297,22 +296,26 @@ test('tracks current candidate', async () => {
   equal(previewUrlError.get(), undefined)
   equal(previewCandidates.get().length, 2)
   equal(previewCandidate.get(), 'http://example.com/atom')
-  equal(previewPostsLoading.get(), true)
-  equal(previewPosts.get(), [])
+  equal(previewPosts.get()!.get(), {
+    hasNext: false,
+    isLoading: false,
+    list: [{ id: '1', media: [], url: '1' }]
+  })
   equal(getAtomPosts.calls.length, 1)
   equal(getAtomPosts.calls[0][1], 'http://example.com/atom')
 
-  await resolvePosts1([{ id: '1', media: [], url: '1' }])
-  equal(previewPostsLoading.get(), false)
-  equal(previewPosts.get(), [{ id: '1', media: [], url: '1' }])
-
-  getRssPosts.nextResolve()
+  getRssPosts.nextResult(
+    postsPage([{ id: '2', media: [], url: '2' }], undefined)
+  )
   setPreviewCandidate('http://example.com/rss')
   await setTimeout(10)
 
   equal(previewCandidate.get(), 'http://example.com/rss')
-  equal(previewPostsLoading.get(), true)
-  equal(previewPosts.get(), [])
+  equal(previewPosts.get()!.get(), {
+    hasNext: false,
+    isLoading: false,
+    list: [{ id: '2', media: [], url: '2' }]
+  })
   equal(getRssPosts.calls.length, 1)
   equal(getRssPosts.calls[0][1], 'http://example.com/rss')
 
@@ -320,19 +323,23 @@ test('tracks current candidate', async () => {
   await setTimeout(10)
 
   equal(previewCandidate.get(), 'http://example.com/atom')
-  equal(previewPostsLoading.get(), false)
-  equal(previewPosts.get(), [{ id: '1', media: [], url: '1' }])
+  equal(previewPosts.get()!.get(), {
+    hasNext: false,
+    isLoading: false,
+    list: [{ id: '1', media: [], url: '1' }]
+  })
   equal(getAtomPosts.calls.length, 1)
 
-  let resolvePosts2 = getRssPosts.nextResolve()
   setPreviewCandidate('http://example.com/rss')
   await setTimeout(10)
-  await resolvePosts2([{ id: '1', media: [], url: '2' }])
 
   equal(previewCandidate.get(), 'http://example.com/rss')
-  equal(previewPostsLoading.get(), false)
-  equal(previewPosts.get(), [{ id: '1', media: [], url: '2' }])
-  equal(getRssPosts.calls.length, 2)
+  equal(previewPosts.get()!.get(), {
+    hasNext: false,
+    isLoading: false,
+    list: [{ id: '2', media: [], url: '2' }]
+  })
+  equal(getRssPosts.calls.length, 1)
 })
 
 test('tracks added status of candidate', async () => {

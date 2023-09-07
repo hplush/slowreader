@@ -7,7 +7,6 @@
     previewCandidatesLoading,
     previewDraft,
     previewPosts,
-    previewPostsLoading,
     previewUrlError,
     setPreviewCandidate,
     setPreviewReading,
@@ -88,5 +87,7 @@
     {/if}
   </form>
 
-  <OrganizePosts posts={$previewPosts} postsLoading={$previewPostsLoading} />
+  {#if $previewPosts}
+    <OrganizePosts posts={$previewPosts} />
+  {/if}
 {/if}

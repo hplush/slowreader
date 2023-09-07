@@ -1,5 +1,27 @@
+import type { TextResponse } from '../download.js'
+import type { OriginPost } from '../post.js'
+import { postsPage } from '../posts-page.js'
 import type { Loader } from './index.js'
 import { findLink, hasAnyFeed } from './utils.js'
+
+function parsePosts(text: TextResponse): OriginPost[] {
+  let document = text.parse()
+  return [...document.querySelectorAll('item')]
+    .filter(
+      item =>
+        item.querySelector('guid')?.textContent ??
+        item.querySelector('link')?.textContent
+    )
+    .map(item => ({
+      full: item.querySelector('description')?.textContent ?? undefined,
+      id:
+        item.querySelector('guid')?.textContent ??
+        item.querySelector('link')!.textContent!,
+      media: [],
+      title: item.querySelector('title')?.textContent ?? undefined,
+      url: item.querySelector('link')?.textContent ?? undefined
+    }))
+}
 
 export const rss: Loader = {
   getMineLinksFromText(text, found) {
@@ -14,24 +36,14 @@ export const rss: Loader = {
     }
   },
 
-  async getPosts(task, url, text) {
-    if (!text) text = await task.text(url)
-    let document = text.parse()
-    return [...document.querySelectorAll('item')]
-      .filter(
-        item =>
-          item.querySelector('guid')?.textContent ??
-          item.querySelector('link')?.textContent
-      )
-      .map(item => ({
-        full: item.querySelector('description')?.textContent ?? undefined,
-        id:
-          item.querySelector('guid')?.textContent ??
-          item.querySelector('link')!.textContent!,
-        media: [],
-        title: item.querySelector('title')?.textContent ?? undefined,
-        url: item.querySelector('link')?.textContent ?? undefined
-      }))
+  getPosts(task, url, text) {
+    if (text) {
+      return postsPage(parsePosts(text), undefined)
+    } else {
+      return postsPage(undefined, async () => {
+        return [parsePosts(await task.text(url)), undefined]
+      })
+    }
   },
 
   isMineText(text) {

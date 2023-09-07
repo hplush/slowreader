@@ -1,17 +1,16 @@
 <script lang="ts">
-  import { type OriginPost, organizeMessages as t } from '@slowreader/core'
+  import { type PostsPage, organizeMessages as t } from '@slowreader/core'
 
   import UIPostCard from '../../ui/post-card.svelte'
 
-  export let postsLoading: boolean
-  export let posts: readonly OriginPost[]
+  export let posts: PostsPage
 </script>
 
-{#if postsLoading}
+{#if $posts.isLoading}
   {$t.loading}
 {:else}
   <ul>
-    {#each posts as post (post.url)}
+    {#each $posts.list as post (post.url)}
       <li>
         <UIPostCard {post} />
       </li>

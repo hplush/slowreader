@@ -1,5 +1,25 @@
+import type { TextResponse } from '../download.js'
+import type { OriginPost } from '../post.js'
+import { postsPage } from '../posts-page.js'
 import type { Loader } from './index.js'
 import { findLink, hasAnyFeed } from './utils.js'
+
+function parsePosts(text: TextResponse): OriginPost[] {
+  let document = text.parse()
+  return [...document.querySelectorAll('entry')]
+    .filter(entry => entry.querySelector('id')?.textContent)
+    .map(entry => ({
+      full: entry.querySelector('content')?.textContent ?? undefined,
+      id: entry.querySelector('id')!.textContent!,
+      intro: entry.querySelector('summary')?.textContent ?? undefined,
+      media: [],
+      title: entry.querySelector('title')?.textContent ?? undefined,
+      url:
+        entry
+          .querySelector('link[rel=alternate], link:not([rel])')
+          ?.getAttribute('href') ?? undefined
+    }))
+}
 
 export const atom: Loader = {
   getMineLinksFromText(text, found) {
@@ -14,22 +34,14 @@ export const atom: Loader = {
     }
   },
 
-  async getPosts(task, url, text) {
-    if (!text) text = await task.text(url)
-    let document = text.parse()
-    return [...document.querySelectorAll('entry')]
-      .filter(entry => entry.querySelector('id')?.textContent)
-      .map(entry => ({
-        full: entry.querySelector('content')?.textContent ?? undefined,
-        id: entry.querySelector('id')!.textContent!,
-        intro: entry.querySelector('summary')?.textContent ?? undefined,
-        media: [],
-        title: entry.querySelector('title')?.textContent ?? undefined,
-        url:
-          entry
-            .querySelector('link[rel=alternate], link:not([rel])')
-            ?.getAttribute('href') ?? undefined
-      }))
+  getPosts(task, url, text) {
+    if (text) {
+      return postsPage(parsePosts(text), undefined)
+    } else {
+      return postsPage(undefined, async () => {
+        return [parsePosts(await task.text(url)), undefined]
+      })
+    }
   },
 
   isMineText(text) {
