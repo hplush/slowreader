@@ -8,8 +8,8 @@ import {
   mockRequest,
   request,
   setRequestMethod
-} from './index.js'
-import { rejects } from './test/utils.js'
+} from '../index.js'
+import { rejects } from './utils.js'
 
 test.after.each(() => {
   setRequestMethod(fetch)

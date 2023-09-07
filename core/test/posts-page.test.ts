@@ -2,7 +2,7 @@ import { setTimeout } from 'node:timers/promises'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
-import { type OriginPost, postsPage } from './index.js'
+import { type OriginPost, postsPage } from '../index.js'
 
 const POST1: OriginPost = {
   full: '1',

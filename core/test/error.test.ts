@@ -1,7 +1,7 @@
 import { test } from 'uvu'
 import { equal, match } from 'uvu/assert'
 
-import { SlowReaderError } from './index.js'
+import { SlowReaderError } from '../index.js'
 
 test('formats error', () => {
   let error = new SlowReaderError('Test')

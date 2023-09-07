@@ -2,7 +2,7 @@ import { atom, keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
-import { i18n, setLocale, setTranslationLoader } from './index.js'
+import { i18n, setLocale, setTranslationLoader } from '../index.js'
 
 test('sets locale and loader', async () => {
   let loaded: string[][] = []

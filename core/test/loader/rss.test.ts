@@ -1,4 +1,4 @@
-import '../test/dom-parser.js'
+import '../dom-parser.js'
 
 import { spyOn } from 'nanospy'
 import { setTimeout } from 'node:timers/promises'
@@ -10,7 +10,7 @@ import {
   createTextResponse,
   loaders,
   type TextResponse
-} from '../index.js'
+} from '../../index.js'
 
 function exampleRss(xml: string): TextResponse {
   return createTextResponse(xml, {
@@ -164,7 +164,7 @@ test('parses posts', async () => {
   )
 })
 
-test.only('loads text to parse posts', async () => {
+test('loads text to parse posts', async () => {
   let task = createDownloadTask()
   let text = spyOn(task, 'text', async () =>
     exampleRss(

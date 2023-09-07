@@ -18,7 +18,7 @@ import {
   prepareFilters,
   sortFilters,
   userId
-} from './index.js'
+} from '../index.js'
 
 test.before.each(() => {
   enableClientTest()

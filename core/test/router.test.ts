@@ -16,7 +16,7 @@ import {
   type Routes,
   setBaseRouter,
   userId
-} from './index.js'
+} from '../index.js'
 
 let testRouter = atom<BaseRoute | undefined>()
 
