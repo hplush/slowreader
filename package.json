@@ -10,7 +10,7 @@
     "test:js": "eslint .",
     "test:css": "stylelint **/*.css **/*.svelte",
     "test:types": "tsc --noEmit",
-    "test:checks": "node ./scripts/check-subprotocol.js && node ./scripts/check-versions.js",
+    "test:checks": "for file in scripts/check-*.js; do node $file; done",
     "test:audit": "pnpm audit --prod",
     "test": "pnpm run --recursive --include-workspace-root /^test:/",
     "start": "pnpm run --recursive start"
