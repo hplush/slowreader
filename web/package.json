@@ -23,6 +23,7 @@
     "nanostores": "^0.9.3",
     "postcss": "^8.4.29",
     "postcss-dark-theme-class": "^1.0.0",
+    "postcss-nesting": "^12.0.1",
     "rollup": "^3.29.0",
     "svelte": "^4.2.0",
     "svelte-preprocess": "^5.0.4",
