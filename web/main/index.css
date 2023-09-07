@@ -1,5 +1,13 @@
 :root {
   color-scheme: light dark;
+
+  &.is-light {
+    color-scheme: light;
+  }
+
+  &.is-dark {
+    color-scheme: dark;
+  }
 }
 
 body {
@@ -9,6 +17,14 @@ body {
   display: flex;
   color: var(--text-color);
   background: var(--app-background);
+
+  &.is-slow {
+    --app-background: var(--reading-background);
+  }
+
+  &.is-guest {
+    --navbar-width: 0;
+  }
 }
 
 body,
@@ -22,14 +38,6 @@ input {
 
 :focus-visible {
   outline: 3px solid var(--focus-color);
-}
-
-body.is-slow {
-  --app-background: var(--reading-background);
-}
-
-body.is-guest {
-  --navbar-width: 0;
 }
 
 #main {
