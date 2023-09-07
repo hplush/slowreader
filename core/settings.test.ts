@@ -8,7 +8,7 @@ import { cleanStores, keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
-import { generateCredentials, signOut, userId } from './index.js'
+import { generateCredentials, signOut, theme, userId } from './index.js'
 
 test.before(() => {
   useTestStorageEngine()
@@ -47,6 +47,10 @@ test('signes out', async () => {
   signOut()
   equal(userId.get(), undefined)
   equal(getTestStorage(), {})
+})
+
+test('has store for theme', () => {
+  equal(theme.get(), 'system')
 })
 
 test.run()

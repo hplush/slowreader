@@ -176,6 +176,9 @@ importers:
       postcss:
         specifier: ^8.4.29
         version: 8.4.29
+      postcss-dark-theme-class:
+        specifier: ^1.0.0
+        version: 1.0.0(postcss@8.4.29)
       rollup:
         specifier: ^3.29.0
         version: 3.29.0
@@ -3514,6 +3517,15 @@ packages:
       safe-stable-stringify: 2.4.3
       sonic-boom: 3.3.0
       thread-stream: 2.4.0
+    dev: false
+
+  /postcss-dark-theme-class@1.0.0(postcss@8.4.29):
+    resolution: {integrity: sha512-7XiFx8Ahvot3YmHjs4/jlxyUggomSNZzoF1hyS5xIZpLyfcPY8vb/3q4QPP8CqhnnA911OrDOZL7OTkjHoEjdw==}
+    engines: {node: '>=18.0'}
+    peerDependencies:
+      postcss: ^8.2.14
+    dependencies:
+      postcss: 8.4.29
     dev: false
 
   /postcss-html@1.5.0:

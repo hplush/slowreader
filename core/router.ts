@@ -10,6 +10,7 @@ export interface Routes {
   home: {}
   notFound: {}
   preview: { url: string }
+  settings: {}
   signin: {}
   slowAll: {}
   start: {}

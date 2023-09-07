@@ -14,6 +14,7 @@ export * from './feed.js'
 export * from './post.js'
 export * from './i18n.js'
 
+export * from './messages/settings/en.js'
 export * from './messages/organize/en.js'
 export * from './messages/navbar/en.js'
 export * from './messages/start/en.js'

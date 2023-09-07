@@ -44,6 +44,15 @@
       {/if}
     </a>
   </div>
+  <div>
+    <a href={getURL('settings')}>
+      {#if $router.route === 'settings'}
+        <strong>{$t.settings}</strong>
+      {:else}
+        {$t.settings}
+      {/if}
+    </a>
+  </div>
 </nav>
 
 <style>

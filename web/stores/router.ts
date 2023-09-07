@@ -14,6 +14,7 @@ let urlRouter = createRouter({
   home: '/',
   notFound: '/404',
   preview: '/add/:url',
+  settings: '/settings',
   signin: '/signin',
   slowAll: '/slow',
   start: '/start',

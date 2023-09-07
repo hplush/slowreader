@@ -5,6 +5,7 @@
   import OrganizeFeedPage from '../pages/organize/feed.svelte'
   import OrganizePage from '../pages/organize/index.svelte'
   import PreviewPage from '../pages/preview.svelte'
+  import SettingsPage from '../pages/settings.svelte'
   import StartPage from '../pages/start.svelte'
   import Navbar from '../ui/navbar.svelte'
 </script>
@@ -23,6 +24,8 @@
   <OrganizePage />
 {:else if $router.route === 'feed'}
   <OrganizeFeedPage feedId={$router.params.id} />
+{:else if $router.route === 'settings'}
+  <SettingsPage />
 {:else if $router.route === 'notFound'}
   <NotFoundPage />
 {/if}

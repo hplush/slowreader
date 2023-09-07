@@ -1,8 +1,13 @@
+:root {
+  color-scheme: light dark;
+}
+
 body {
   --navbar-width: 150px;
   --app-padding: 8px;
 
   display: flex;
+  color: var(--text-color);
   background: var(--app-background);
 }
 
