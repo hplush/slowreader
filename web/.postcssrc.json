@@ -1,0 +1,7 @@
+{
+  "plugins": {
+    "@csstools/postcss-oklab-function": {},
+    "autoprefixer": {},
+    "postcss-dark-theme-class": {}
+  }
+}
