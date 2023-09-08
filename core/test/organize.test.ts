@@ -18,7 +18,7 @@ test.before.each(() => {
 })
 
 test.after.each(async () => {
-  cleanStores(Feed, userId, organizeFeeds, organizeLoading)
+  cleanStores(Feed, organizeFeeds, organizeLoading)
 })
 
 test('adds feed', async () => {

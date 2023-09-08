@@ -1,22 +1,11 @@
-import { createI18n, type TranslationLoader } from '@nanostores/i18n'
-import { atom, type ReadableAtom } from 'nanostores'
+import { createI18n } from '@nanostores/i18n'
 
-let localeProxy = atom('en')
+import { onEnvironment } from './setup.js'
 
-let translationLoader: TranslationLoader = async () => ({})
+export let i18n: ReturnType<typeof createI18n>
 
-export function setLocale(locale: ReadableAtom<string>): void {
-  locale.subscribe(code => {
-    localeProxy.set(code)
+onEnvironment(({ locale, translationLoader }) => {
+  i18n = createI18n(locale, {
+    get: translationLoader
   })
-}
-
-export function setTranslationLoader(loader: TranslationLoader): void {
-  translationLoader = loader
-}
-
-export const i18n = createI18n(localeProxy, {
-  get(code, components) {
-    return translationLoader(code, components)
-  }
 })

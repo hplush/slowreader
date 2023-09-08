@@ -1,24 +1,16 @@
-import { MemoryStore } from '@logux/core'
 import { spyOn } from 'nanospy'
 import { cleanStores, keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal, match, throws } from 'uvu/assert'
 
-import {
-  client,
-  enableClientTest,
-  getClient,
-  setLogStore,
-  userId
-} from '../index.js'
+import { client, enableClientTest, getClient, userId } from '../index.js'
 
 test.before.each(() => {
   enableClientTest()
 })
 
 test.after.each(() => {
-  cleanStores(userId, client)
-  setLogStore(() => new MemoryStore())
+  cleanStores(client)
 })
 
 test('re-create client on user ID changes', () => {
@@ -48,15 +40,6 @@ test('has helper for client area', () => {
 
   userId.set('10')
   match(getClient().clientId, /^10:/)
-})
-
-test('changes log store', () => {
-  userId.set('10')
-  let store = new MemoryStore()
-
-  setLogStore(() => store)
-
-  equal(getClient().log.store, store)
 })
 
 test.run()

@@ -1,4 +1,18 @@
-import { setRequestMethod } from '@slowreader/core'
+import { IndexedStore } from '@logux/client'
+import { windowPersistentEvents } from '@nanostores/persistent'
+import { setRequestMethod, setupEnvironment } from '@slowreader/core'
+
+import { locale } from '../stores/locale.js'
+import { urlRouter } from '../stores/router.js'
+
+setupEnvironment({
+  baseRouter: urlRouter,
+  locale,
+  logStoreCreator: () => new IndexedStore(),
+  persistentEvents: windowPersistentEvents,
+  persistentStore: localStorage,
+  translationLoader: async () => ({})
+})
 
 function proxyUrl(url: string | URL): string {
   return 'http://localhost:5284/' + encodeURIComponent(url.toString())

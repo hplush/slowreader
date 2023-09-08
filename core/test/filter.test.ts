@@ -26,7 +26,7 @@ test.before.each(() => {
 })
 
 test.after.each(async () => {
-  cleanStores(Filter, userId)
+  cleanStores(Filter)
 })
 
 test('adds, loads, changes and removes filters', async () => {

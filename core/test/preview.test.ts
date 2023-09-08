@@ -41,7 +41,7 @@ test.before.each(() => {
 })
 
 test.after.each(() => {
-  cleanStores(userId, Feed)
+  cleanStores(Feed)
   restoreAll()
   cleanStores(previewUrlError, previewCandidatesLoading, previewCandidates)
   clearPreview()
