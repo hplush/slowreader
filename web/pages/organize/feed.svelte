@@ -1,26 +1,11 @@
 <script lang="ts">
-  import {
-    changeFeed,
-    deleteFeed,
-    type FeedValue,
-    getFeed,
-    organizeMessages as t
-  } from '@slowreader/core'
+  import { deleteFeed, organizeMessages as t } from '@slowreader/core'
 
   import { openURL } from '../../stores/router.js'
   import OrganizeEdit from './edit.svelte'
   import OrganizeMenu from './menu.svelte'
 
   export let feedId: string
-
-  $: feed = getFeed(feedId)
-
-  function setReading(reading: FeedValue['reading']): void {
-    changeFeed(feedId, { reading })
-  }
-  function setTitle(title: FeedValue['title']): void {
-    changeFeed(feedId, { title })
-  }
 </script>
 
 <OrganizeMenu currentFeed={feedId} />
@@ -32,11 +17,4 @@
   }}>{$t.delete}</button
 >
 
-{#if !$feed.isLoading}
-  <OrganizeEdit
-    reading={$feed.reading}
-    {setReading}
-    {setTitle}
-    title={$feed.title}
-  />
-{/if}
+<OrganizeEdit {feedId} />

@@ -12,24 +12,21 @@ import {
   addPreviewCandidate,
   checkAndRemoveRequestMock,
   clearPreview,
+  createPostsPage,
   enableClientTest,
   expectRequest,
   Feed,
   feedsStore,
   loaders,
   mockRequest,
-  postsPage,
   previewCandidate,
   type PreviewCandidate,
   previewCandidateAdded,
   previewCandidates,
   previewCandidatesLoading,
-  previewDraft,
   previewPosts,
   previewUrlError,
   setPreviewCandidate,
-  setPreviewReading,
-  setPreviewTitle,
   setPreviewUrl,
   userId
 } from '../index.js'
@@ -287,7 +284,7 @@ test('tracks current candidate', async () => {
     'application/rss+xml'
   )
   getAtomPosts.nextResult(
-    postsPage([{ id: '1', media: [], url: '1' }], undefined)
+    createPostsPage([{ id: '1', media: [], url: '1' }], undefined)
   )
   setPreviewUrl('example.com')
   await setTimeout(10)
@@ -305,7 +302,7 @@ test('tracks current candidate', async () => {
   equal(getAtomPosts.calls[0][1], 'http://example.com/atom')
 
   getRssPosts.nextResult(
-    postsPage([{ id: '2', media: [], url: '2' }], undefined)
+    createPostsPage([{ id: '2', media: [], url: '2' }], undefined)
   )
   setPreviewCandidate('http://example.com/rss')
   await setTimeout(10)
@@ -400,48 +397,6 @@ test('adds current preview candidate', async () => {
 
   equal(typeof previewCandidateAdded.get(), 'string')
   equal(ensureLoaded($feeds.get()).list.length, 1)
-})
-
-test('tracks draft for new feed', async () => {
-  keepMount(previewDraft)
-
-  expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
-  expectRequest('http://example.com/atom').andRespond(
-    200,
-    '<feed><title>Atom</title></feed>',
-    'application/rss+xml'
-  )
-  expectRequest('http://example.com/feed').andRespond(404)
-  expectRequest('http://example.com/rss').andRespond(
-    200,
-    '<rss><channel><title>RSS</title></channel></rss>',
-    'application/rss+xml'
-  )
-  setPreviewUrl('example.com')
-  await setTimeout(10)
-  equal(previewDraft.get(), {
-    reading: 'fast',
-    title: 'Atom'
-  })
-
-  setPreviewReading('slow')
-  setPreviewTitle('Another')
-  equal(previewDraft.get(), {
-    reading: 'slow',
-    title: 'Another'
-  })
-
-  setPreviewCandidate('http://example.com/rss')
-  equal(previewDraft.get(), {
-    reading: 'fast',
-    title: 'RSS'
-  })
-
-  setPreviewCandidate('http://example.com/atom')
-  equal(previewDraft.get(), {
-    reading: 'fast',
-    title: 'Atom'
-  })
 })
 
 test.run()

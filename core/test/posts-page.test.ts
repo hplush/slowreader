@@ -2,7 +2,7 @@ import { setTimeout } from 'node:timers/promises'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
-import { type OriginPost, postsPage } from '../index.js'
+import { createPostsPage, type OriginPost } from '../index.js'
 
 const POST1: OriginPost = {
   full: '1',
@@ -17,7 +17,7 @@ const POST2: OriginPost = {
 }
 
 test('works with cached posts without next page', () => {
-  let posts = postsPage([POST1], undefined)
+  let posts = createPostsPage([POST1], undefined)
   equal(posts.get(), {
     hasNext: false,
     isLoading: false,
@@ -33,7 +33,7 @@ test('works with cached posts without next page', () => {
 })
 
 test('works without posts', async () => {
-  let posts = postsPage(undefined, async () => {
+  let posts = createPostsPage(undefined, async () => {
     return [[POST1], async () => [[POST2], undefined]]
   })
   equal(posts.get(), {
@@ -72,7 +72,7 @@ test('works without posts', async () => {
 })
 
 test('is ready for double calls', async () => {
-  let posts = postsPage(undefined, async () => {
+  let posts = createPostsPage(undefined, async () => {
     return [[POST1], async () => [[POST2], undefined]]
   })
   posts.nextPage()
@@ -100,7 +100,7 @@ test('is ready for double calls', async () => {
 })
 
 test('works with cached posts with next page loader', async () => {
-  let posts = postsPage([POST1], async () => {
+  let posts = createPostsPage([POST1], async () => {
     return [[POST2], undefined]
   })
   equal(posts.get(), {

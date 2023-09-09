@@ -21,7 +21,7 @@ interface CreatePostsPage {
   (posts: undefined, loadNext: PostsPageLoader): PostsPage
 }
 
-export const postsPage: CreatePostsPage = (posts, loadNext) => {
+export const createPostsPage: CreatePostsPage = (posts, loadNext) => {
   let $store = map<StoreValue<PostsPage>>({
     hasNext: true,
     isLoading: true,

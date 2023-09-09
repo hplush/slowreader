@@ -5,17 +5,14 @@
     previewCandidateAdded,
     previewCandidates,
     previewCandidatesLoading,
-    previewDraft,
     previewPosts,
     previewUrlError,
     setPreviewCandidate,
-    setPreviewReading,
-    setPreviewTitle,
     setPreviewUrl,
     addMessages as t
   } from '@slowreader/core'
 
-  import { getURL, openURL } from '../stores/router.js'
+  import { openURL } from '../stores/router.js'
   import OrganizeEdit from './organize/edit.svelte'
   import OrganizePosts from './organize/posts.svelte'
 
@@ -72,22 +69,17 @@
   <form on:submit|preventDefault>
     {#if $previewCandidateAdded === undefined}
       {$t.loading}
+      {#if $previewPosts}
+        <OrganizePosts posts={$previewPosts} />
+      {/if}
     {:else if $previewCandidateAdded === false}
       <button on:click={addPreviewCandidate}>{$t.add}</button>
-
-      <OrganizeEdit
-        reading={$previewDraft.reading}
-        setReading={setPreviewReading}
-        setTitle={setPreviewTitle}
-        title={$previewDraft.title}
-      />
+      {#if $previewPosts}
+        <OrganizePosts posts={$previewPosts} />
+      {/if}
     {:else}
       {$t.alreadyAdded}
-      <a href={getURL('feed', { id: $previewCandidateAdded })}>{$t.edit}</a>
+      <OrganizeEdit feedId={$previewCandidateAdded} posts={$previewPosts} />
     {/if}
   </form>
-
-  {#if $previewPosts}
-    <OrganizePosts posts={$previewPosts} />
-  {/if}
 {/if}

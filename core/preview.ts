@@ -5,7 +5,7 @@ import {
   ignoreAbortError,
   type TextResponse
 } from './download.js'
-import { addFeed, feedsStore, type FeedValue } from './feed.js'
+import { addFeed, feedsStore } from './feed.js'
 import { type LoaderName, loaders } from './loader/index.js'
 import type { PostsPage } from './posts-page.js'
 import { readonlyExport } from './utils/stores.js'
@@ -200,7 +200,6 @@ export function clearPreview(): void {
   $candidates.set([])
   $candidate.set(undefined)
   $added.set(undefined)
-  $draft.set(DEFAULT_DRAFT)
   $posts.set(undefined)
   postsCache.clear()
   task.abortAll()
@@ -217,7 +216,6 @@ export async function setPreviewCandidate(url: string): Promise<void> {
   if (candidate) {
     $candidate.set(url)
 
-    $draft.set({ ...DEFAULT_DRAFT, title: candidate.title })
     $added.set(undefined)
     prevHasUnbind?.()
 
@@ -241,37 +239,14 @@ export async function setPreviewCandidate(url: string): Promise<void> {
   }
 }
 
-interface PreviewDraft {
-  reading: FeedValue['reading']
-  title: FeedValue['title']
-}
-
-const DEFAULT_DRAFT: PreviewDraft = {
-  reading: 'fast',
-  title: ''
-}
-
-let $draft = map<PreviewDraft>(DEFAULT_DRAFT)
-
-export const previewDraft = readonlyExport($draft)
-
-export function setPreviewReading(reading: FeedValue['reading']): void {
-  $draft.setKey('reading', reading)
-}
-
-export function setPreviewTitle(title: FeedValue['title']): void {
-  $draft.setKey('title', title)
-}
-
 export async function addPreviewCandidate(): Promise<void> {
   let url = $candidate.get()
   if (url) {
     let candidate = $candidates.get().find(i => i.url === url)!
-    let draft = $draft.get()
     await addFeed({
       loader: candidate.loader,
-      reading: draft.reading,
-      title: draft.title,
+      reading: 'fast',
+      title: candidate.title,
       url
     })
   }

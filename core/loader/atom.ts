@@ -1,6 +1,6 @@
 import type { TextResponse } from '../download.js'
 import type { OriginPost } from '../post.js'
-import { postsPage } from '../posts-page.js'
+import { createPostsPage } from '../posts-page.js'
 import type { Loader } from './index.js'
 import { findLink, hasAnyFeed } from './utils.js'
 
@@ -36,9 +36,9 @@ export const atom: Loader = {
 
   getPosts(task, url, text) {
     if (text) {
-      return postsPage(parsePosts(text), undefined)
+      return createPostsPage(parsePosts(text), undefined)
     } else {
-      return postsPage(undefined, async () => {
+      return createPostsPage(undefined, async () => {
         return [parsePosts(await task.text(url)), undefined]
       })
     }
