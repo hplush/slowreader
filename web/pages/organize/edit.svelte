@@ -15,7 +15,6 @@
 
   $: feed = getFeed(feedId)
   $: if (!posts && !$feed.isLoading) {
-    console.log($feed)
     posts = loaders[$feed.loader].getPosts(createDownloadTask(), $feed.url)
   }
 </script>
