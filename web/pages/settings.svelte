@@ -1,7 +1,17 @@
 <script lang="ts">
-  import { settingsMessages as t, theme } from '@slowreader/core'
+  import { preloadImages, settingsMessages as t, theme } from '@slowreader/core'
 
+  import { detectNetworkType } from '../lib/network.js'
   import UiRadio from '../ui/radio.svelte'
+
+  let preloadOptions: [string, string][] = [
+    ['always', $t.always],
+    ['free', $t.freeNetwork],
+    ['never', $t.never]
+  ]
+  if (detectNetworkType() === 'undetectable') {
+    preloadOptions = preloadOptions.filter(([value]) => value !== 'free')
+  }
 </script>
 
 <UiRadio
@@ -12,4 +22,10 @@
     ['light', $t.light],
     ['dark', $t.dark]
   ]}
+/>
+
+<UiRadio
+  store={preloadImages}
+  title={$t.preloadImages}
+  values={preloadOptions}
 />

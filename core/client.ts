@@ -4,9 +4,9 @@ import { TestPair, TestTime } from '@logux/core'
 import { SUBPROTOCOL } from '@slowreader/api'
 import { computed, type ReadableAtom } from 'nanostores'
 
+import { onEnvironment } from './environment.js'
 import { SlowReaderError } from './error.js'
 import { userId } from './settings.js'
-import { onEnvironment } from './setup.js'
 
 let testTime: TestTime | undefined
 

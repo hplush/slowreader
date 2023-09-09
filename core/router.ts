@@ -1,7 +1,7 @@
 import { computed, type ReadableAtom } from 'nanostores'
 
+import { onEnvironment } from './environment.js'
 import { userId } from './settings.js'
-import { onEnvironment } from './setup.js'
 
 export interface Routes {
   add: {}

@@ -2,6 +2,7 @@ import { IndexedStore } from '@logux/client'
 import { windowPersistentEvents } from '@nanostores/persistent'
 import { setRequestMethod, setupEnvironment } from '@slowreader/core'
 
+import { detectNetworkType } from '../lib/network.js'
 import { locale } from '../stores/locale.js'
 import { urlRouter } from '../stores/router.js'
 
@@ -9,6 +10,7 @@ setupEnvironment({
   baseRouter: urlRouter,
   locale,
   logStoreCreator: () => new IndexedStore(),
+  networkType: detectNetworkType,
   persistentEvents: windowPersistentEvents,
   persistentStore: localStorage,
   translationLoader: async () => ({})

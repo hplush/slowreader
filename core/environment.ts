@@ -8,6 +8,7 @@ import {
 } from '@nanostores/persistent'
 import { atom, type ReadableAtom, type StoreValue } from 'nanostores'
 
+import type { NetworkTypeDetector } from './refresh.js'
 import type { BaseRouter, Routes } from './router.js'
 
 interface LogStoreCreator {
@@ -34,6 +35,7 @@ interface Environment {
   baseRouter: BaseRouter
   locale: ReadableAtom<string>
   logStoreCreator: LogStoreCreator
+  networkType: NetworkTypeDetector
   translationLoader: TranslationLoader
 }
 
@@ -41,6 +43,7 @@ let testEnvironment: Environment = {
   baseRouter: atom(undefined),
   locale: atom('en'),
   logStoreCreator: () => new MemoryStore(),
+  networkType: () => 'undetectable',
   translationLoader: async () => ({})
 }
 

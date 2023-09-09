@@ -2,8 +2,8 @@
   import type { ReadableAtom } from 'nanostores'
 
   export let title: string
-  export let values: [string, string][]
   export let store: ReadableAtom<string>
+  export let values: [string, string][]
 </script>
 
 <fieldset>
