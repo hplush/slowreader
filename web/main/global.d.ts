@@ -4,7 +4,8 @@
 interface Navigator {
   connection:
     | {
-        type:
+        saveData?: boolean
+        type?:
           | 'bluetooth'
           | 'cellular'
           | 'ethernet'

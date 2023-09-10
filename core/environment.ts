@@ -43,11 +43,11 @@ let testEnvironment: Environment = {
   baseRouter: atom(undefined),
   locale: atom('en'),
   logStoreCreator: () => new MemoryStore(),
-  networkType: () => 'undetectable',
+  networkType: () => ({ saveData: undefined, type: undefined }),
   translationLoader: async () => ({})
 }
 
-let currentEnvironment = testEnvironment
+let currentEnvironment = { ...testEnvironment }
 
 let listeners: EnvironmentListener[] = []
 

@@ -9,7 +9,7 @@
     ['free', $t.freeNetwork],
     ['never', $t.never]
   ]
-  if (detectNetworkType() === 'undetectable') {
+  if (typeof detectNetworkType() === 'undefined') {
     preloadOptions = preloadOptions.filter(([value]) => value !== 'free')
   }
 </script>

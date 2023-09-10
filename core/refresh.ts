@@ -1,5 +1,8 @@
-export type NetworkType = 'free' | 'paid' | 'undetectable' | 'unknown'
+export type NetworkType = 'free' | 'paid' | 'unknown' | undefined
 
 export interface NetworkTypeDetector {
-  (): NetworkType
+  (): {
+    saveData: boolean | undefined
+    type: NetworkType
+  }
 }
