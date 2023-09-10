@@ -7,12 +7,12 @@
     deleteFilter,
     getFeed,
     getFiltersForFeed,
+    isValidFilterQuery,
     loaders,
     moveFilterDown,
-    isValidFilterQuery,
     moveFilterUp,
-    sortFilters,
     type PostsPage,
+    sortFilters,
     organizeMessages as t
   } from '@slowreader/core'
 
