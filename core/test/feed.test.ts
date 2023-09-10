@@ -9,8 +9,8 @@ import {
   deleteFeed,
   enableClientTest,
   Feed,
-  feedsStore,
   getFeed,
+  getFeeds,
   userId
 } from '../index.js'
 
@@ -24,7 +24,7 @@ test.after.each(async () => {
 })
 
 test('adds, loads, changes and removes feed', async () => {
-  equal((await loadValue(feedsStore())).list, [])
+  equal((await loadValue(getFeeds())).list, [])
 
   let id = await addFeed({
     loader: 'rss',
@@ -33,7 +33,7 @@ test('adds, loads, changes and removes feed', async () => {
     url: 'https://example.com/'
   })
   type(id, 'string')
-  let added = (await loadValue(feedsStore())).list
+  let added = (await loadValue(getFeeds())).list
   equal(added.length, 1)
   equal(added[0].title, 'RSS')
 
@@ -45,7 +45,7 @@ test('adds, loads, changes and removes feed', async () => {
   equal(ensureLoaded(feed.get()).title, 'New title')
 
   await deleteFeed(id)
-  let deleted = (await loadValue(feedsStore())).list
+  let deleted = (await loadValue(getFeeds())).list
   equal(deleted.length, 0)
 })
 

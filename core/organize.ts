@@ -2,14 +2,14 @@ import type { FilterValue } from '@logux/client'
 import { atom, computed, onMount } from 'nanostores'
 
 import type { FeedValue } from './feed.js'
-import { feedsStore } from './feed.js'
+import { getFeeds } from './feed.js'
 
 let $list = atom<FilterValue<FeedValue>>({
   isLoading: true
 })
 
 onMount($list, () => {
-  return feedsStore().subscribe(feeds => {
+  return getFeeds().subscribe(feeds => {
     $list.set(feeds)
   })
 })

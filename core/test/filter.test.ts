@@ -10,8 +10,8 @@ import {
   deleteFilter,
   enableClientTest,
   Filter,
-  filtersForFeed,
   type FilterValue,
+  getFiltersForFeed,
   isValidFilterQuery,
   moveFilterDown,
   moveFilterUp,
@@ -30,7 +30,7 @@ test.after.each(async () => {
 })
 
 test('adds, loads, changes and removes filters', async () => {
-  let filters10 = filtersForFeed('10')
+  let filters10 = getFiltersForFeed('10')
   keepMount(filters10)
   equal((await loadValue(filters10)).list, [])
 
@@ -145,7 +145,7 @@ test('sorts filters', () => {
 })
 
 test('moves filters in sorting order', async () => {
-  let filters10 = filtersForFeed('10')
+  let filters10 = getFiltersForFeed('10')
   keepMount(filters10)
   function getSorted(): string[] {
     return sortFilters(ensureLoaded(filters10.get()).list).map(i => i.id)

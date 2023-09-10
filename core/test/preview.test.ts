@@ -16,7 +16,7 @@ import {
   enableClientTest,
   expectRequest,
   Feed,
-  feedsStore,
+  getFeeds,
   loaders,
   mockRequest,
   previewCandidate,
@@ -380,7 +380,7 @@ test('tracks added status of candidate', async () => {
 
 test('adds current preview candidate', async () => {
   keepMount(previewCandidateAdded)
-  let $feeds = feedsStore()
+  let $feeds = getFeeds()
   keepMount($feeds)
   await $feeds.loading
 

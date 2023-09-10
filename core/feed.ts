@@ -25,7 +25,7 @@ export const Feed = syncMapTemplate<FeedValue>('feeds', {
   remote: false
 })
 
-export function feedsStore(
+export function getFeeds(
   filter: Filter<FeedValue> = {}
 ): FilterStore<FeedValue> {
   return createFilter(getClient(), Feed, filter)

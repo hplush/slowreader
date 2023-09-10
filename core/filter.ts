@@ -58,7 +58,7 @@ export const Filter = syncMapTemplate<FilterValue>('filters', {
   remote: false
 })
 
-export function filtersForFeed(feedId: string): FilterStore<FilterValue> {
+export function getFiltersForFeed(feedId: string): FilterStore<FilterValue> {
   return createFilter(getClient(), Filter, { feedId })
 }
 
@@ -66,7 +66,7 @@ export async function addFilter(
   fields: Omit<FilterValue, 'priority'>
 ): Promise<string> {
   let id = nanoid()
-  let other = await loadValue(filtersForFeed(fields.feedId))
+  let other = await loadValue(getFiltersForFeed(fields.feedId))
   let priority = maxPriority(other.list) + 100
   await createSyncMap(getClient(), Filter, { id, priority, ...fields })
   return id
@@ -100,7 +100,7 @@ export function sortFilters(
 async function move(filterId: string, diff: -1 | 1): Promise<void> {
   let filter = Filter(filterId, getClient())
   let feedId = (await loadValue(filter)).feedId
-  let sorted = sortFilters((await loadValue(filtersForFeed(feedId))).list)
+  let sorted = sortFilters((await loadValue(getFiltersForFeed(feedId))).list)
   let last = sorted.length - 1
   let index = sorted.findIndex(i => i.id === filterId)
   let next = index + diff

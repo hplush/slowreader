@@ -5,7 +5,7 @@ import {
   ignoreAbortError,
   type TextResponse
 } from './download.js'
-import { addFeed, feedsStore } from './feed.js'
+import { addFeed, getFeeds } from './feed.js'
 import { type LoaderName, loaders } from './loader/index.js'
 import type { PostsPage } from './posts-page.js'
 import { readonlyExport } from './utils/stores.js'
@@ -219,7 +219,7 @@ export async function setPreviewCandidate(url: string): Promise<void> {
     $added.set(undefined)
     prevHasUnbind?.()
 
-    prevHasUnbind = feedsStore({ url }).subscribe(feeds => {
+    prevHasUnbind = getFeeds({ url }).subscribe(feeds => {
       if (feeds.isLoading) {
         $added.set(undefined)
       } else if (feeds.isEmpty) {
