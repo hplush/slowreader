@@ -31,8 +31,17 @@ function check(all, part, filename, message) {
   }
 }
 
-findFiles(ROOT, /\.test\.(js|ts)$/, async filename => {
+async function checkFile(filename) {
   let code = await readFile(filename)
   check(code, 'test.only(', filename, 'has focused test')
   check(code, 'test.skip(', filename, 'has skipped test')
-})
+}
+
+if (process.argv.length > 2) {
+  let files = process.argv.slice(2)
+  for (let filename of files) {
+    checkFile(filename)
+  }
+} else {
+  findFiles(ROOT, /\.test\.(js|ts)$/, checkFile)
+}

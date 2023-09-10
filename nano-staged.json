@@ -4,5 +4,6 @@
   "*.svelte": ["prettier --write", "stylelint --fix"],
   "api/{index.ts,package.json}": "node ./scripts/check-subprotocol.js",
   ".tool-versions": "node ./scripts/check-versions.js",
-  "package.json": "node ./scripts/check-versions.js"
+  "package.json": "node ./scripts/check-versions.js",
+  "*.test.ts": "node ./scripts/check-focused-tests.js"
 }
