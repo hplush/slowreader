@@ -1,16 +1,20 @@
-import type { LoadedSyncMapValue } from '@logux/client'
-import { ensureLoaded, loadValue } from '@logux/client'
+import { ensureLoaded, type LoadedSyncMapValue, loadValue } from '@logux/client'
 import { cleanStores, keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
 import {
+  addFeed,
   addFilter,
+  addFilterForFeed,
   changeFilter,
   deleteFilter,
   enableClientTest,
+  Feed,
   Filter,
   type FilterValue,
+  getClient,
+  getFeed,
   getFiltersForFeed,
   isValidFilterQuery,
   moveFilterDown,
@@ -26,7 +30,8 @@ test.before.each(() => {
 })
 
 test.after.each(async () => {
-  cleanStores(Filter)
+  cleanStores(Filter, Feed)
+  await getClient().log.store.clean()
 })
 
 test('adds, loads, changes and removes filters', async () => {
@@ -107,6 +112,52 @@ test('adds, loads, changes and removes filters', async () => {
     query: 'hasMedia'
   })
   equal(ensureLoaded(filters10.get()).list, before)
+})
+
+test('adds filter for feed', async () => {
+  // TODO: Replace for better log management
+  let unbind = getClient().log.on('preadd', (action, meta) => {
+    meta.reasons.push('test')
+  })
+
+  let feedId1 = await addFeed({
+    loader: 'rss',
+    reading: 'fast',
+    title: 'Feed 1',
+    url: 'https://example.com/feed1'
+  })
+  let feedId2 = await addFeed({
+    loader: 'rss',
+    reading: 'slow',
+    title: 'Feed 2',
+    url: 'https://example.com/feed2'
+  })
+
+  let filterId1 = await addFilterForFeed(await loadValue(getFeed(feedId1)))
+  let filterId2 = await addFilterForFeed(await loadValue(getFeed(feedId2)))
+
+  equal((await loadValue(getFiltersForFeed(feedId1))).list, [
+    {
+      action: 'slow',
+      feedId: feedId1,
+      id: filterId1,
+      isLoading: false,
+      priority: 100,
+      query: ''
+    }
+  ])
+  equal((await loadValue(getFiltersForFeed(feedId2))).list, [
+    {
+      action: 'fast',
+      feedId: feedId2,
+      id: filterId2,
+      isLoading: false,
+      priority: 100,
+      query: ''
+    }
+  ])
+
+  unbind()
 })
 
 test('sorts filters', () => {
