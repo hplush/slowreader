@@ -66,20 +66,18 @@
 {/if}
 
 {#if $previewCandidate}
-  <form on:submit|preventDefault>
-    {#if $previewCandidateAdded === undefined}
-      {$t.loading}
-      {#if $previewPosts}
-        <OrganizePosts posts={$previewPosts} />
-      {/if}
-    {:else if $previewCandidateAdded === false}
-      <button on:click={addPreviewCandidate}>{$t.add}</button>
-      {#if $previewPosts}
-        <OrganizePosts posts={$previewPosts} />
-      {/if}
-    {:else}
-      {$t.alreadyAdded}
-      <OrganizeEdit feedId={$previewCandidateAdded} posts={$previewPosts} />
+  {#if $previewCandidateAdded === undefined}
+    {$t.loading}
+    {#if $previewPosts}
+      <OrganizePosts posts={$previewPosts} />
     {/if}
-  </form>
+  {:else if $previewCandidateAdded === false}
+    <button on:click={addPreviewCandidate}>{$t.add}</button>
+    {#if $previewPosts}
+      <OrganizePosts posts={$previewPosts} />
+    {/if}
+  {:else}
+    {$t.alreadyAdded}
+    <OrganizeEdit feedId={$previewCandidateAdded} posts={$previewPosts} />
+  {/if}
 {/if}

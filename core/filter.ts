@@ -11,6 +11,7 @@ import {
 import { nanoid } from 'nanoid'
 
 import { getClient } from './client.js'
+import type { FeedValue } from './feed.js'
 import type { OriginPost } from './post.js'
 
 const QUERY_REGEXP = /^(not\s+)?([\w]+)(?:\(([^]+)\))?$/
@@ -70,6 +71,16 @@ export async function addFilter(
   let priority = maxPriority(other.list) + 100
   await createSyncMap(getClient(), Filter, { id, priority, ...fields })
   return id
+}
+
+export async function addFilterForFeed(
+  feed: LoadedSyncMapValue<FeedValue>
+): Promise<string> {
+  return addFilter({
+    action: feed.reading === 'fast' ? 'slow' : 'fast',
+    feedId: feed.id,
+    query: ''
+  })
 }
 
 export async function deleteFilter(filterId: string): Promise<void> {

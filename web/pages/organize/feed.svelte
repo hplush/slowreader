@@ -14,7 +14,7 @@
   on:click={() => {
     openURL('feeds')
     deleteFeed(feedId)
-  }}>{$t.delete}</button
+  }}>{$t.deleteFeed}</button
 >
 
 <OrganizeEdit {feedId} />
