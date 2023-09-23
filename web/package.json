@@ -12,29 +12,29 @@
     "test": "pnpm run /^test:/"
   },
   "dependencies": {
-    "@csstools/postcss-oklab-function": "^3.0.3",
+    "@csstools/postcss-oklab-function": "^3.0.4",
     "@logux/client": "github:logux/client#next",
     "@nanostores/i18n": "^0.10.0",
     "@nanostores/persistent": "^0.9.1",
     "@nanostores/router": "^0.11.0",
     "@rollup/plugin-node-resolve": "^15.2.1",
     "@slowreader/core": "link:../core",
-    "@sveltejs/vite-plugin-svelte": "2.4.5",
-    "autoprefixer": "^10.4.15",
+    "@sveltejs/vite-plugin-svelte": "2.4.6",
+    "autoprefixer": "^10.4.16",
     "nanostores": "^0.9.3",
-    "postcss": "^8.4.29",
+    "postcss": "^8.4.30",
     "postcss-dark-theme-class": "^1.0.0",
     "postcss-nesting": "^12.0.1",
-    "rollup": "^3.29.1",
-    "svelte": "^4.2.0",
+    "rollup": "^3.29.2",
+    "svelte": "^4.2.1",
     "svelte-preprocess": "^5.0.4",
     "vite": "4.4.9"
   },
   "devDependencies": {
     "@size-limit/file": "^9.0.0",
-    "browserslist": "^4.21.10",
+    "browserslist": "^4.21.11",
     "size-limit": "^9.0.0",
-    "svelte-check": "^3.5.1",
+    "svelte-check": "^3.5.2",
     "vite-plugin-rewrite-all": "^1.0.1"
   }
 }

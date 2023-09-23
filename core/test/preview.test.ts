@@ -16,6 +16,7 @@ import {
   enableClientTest,
   expectRequest,
   Feed,
+  getClient,
   getFeeds,
   loaders,
   mockRequest,
@@ -38,6 +39,7 @@ test.before.each(() => {
 })
 
 test.after.each(() => {
+  getClient().log.store.clean()
   cleanStores(Feed)
   restoreAll()
   cleanStores(previewUrlError, previewCandidatesLoading, previewCandidates)
