@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "unit": "for file in test/{**/,}*.test.ts; do tsm $file; done",
-    "fast": "c8 tsm ./node_modules/uvu/bin.js . test.ts",
+    "unit": "../scripts/tsm-every ./test/{**/,}*.test.ts",
+    "fast": "c8 tsm ./node_modules/uvu/bin.js test test.ts",
     "test:coverage": "c8 pnpm unit",
     "test": "pnpm run /^test:/"
   },
