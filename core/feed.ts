@@ -5,13 +5,16 @@ import {
   deleteSyncMapById,
   type Filter,
   type FilterStore,
+  type LoadedSyncMapValue,
   type SyncMapStore,
   syncMapTemplate
 } from '@logux/client'
 import { nanoid } from 'nanoid'
 
 import { getClient } from './client.js'
-import type { LoaderName } from './loader/index.js'
+import { createDownloadTask } from './download.js'
+import { type LoaderName, loaders } from './loader/index.js'
+import type { PostsPage } from './posts-page.js'
 
 export type FeedValue = {
   loader: LoaderName
@@ -50,4 +53,10 @@ export async function changeFeed(
   changes: Partial<FeedValue>
 ): Promise<void> {
   return changeSyncMapById(getClient(), Feed, feedId, changes)
+}
+
+export function getFeedLatestPosts(
+  feed: LoadedSyncMapValue<FeedValue>
+): PostsPage {
+  return loaders[feed.loader].getPosts(createDownloadTask(), feed.url)
 }

@@ -1,9 +1,19 @@
 import { ensureLoaded, loadValue } from '@logux/client'
+import { restoreAll, spyOn } from 'nanospy'
 import { keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal, type } from 'uvu/assert'
 
-import { addFeed, changeFeed, deleteFeed, getFeed, getFeeds } from '../index.js'
+import {
+  addFeed,
+  changeFeed,
+  createPostsPage,
+  deleteFeed,
+  getFeed,
+  getFeedLatestPosts,
+  getFeeds,
+  loaders
+} from '../index.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
 test.before.each(() => {
@@ -12,6 +22,7 @@ test.before.each(() => {
 
 test.after.each(async () => {
   await cleanClientTest()
+  restoreAll()
 })
 
 test('adds, loads, changes and removes feed', async () => {
@@ -38,6 +49,23 @@ test('adds, loads, changes and removes feed', async () => {
   await deleteFeed(id)
   let deleted = (await loadValue(getFeeds())).list
   equal(deleted.length, 0)
+})
+
+test('loads latest posts', async () => {
+  let page = createPostsPage([], undefined)
+  let getPage = spyOn(loaders.rss, 'getPosts', () => page)
+
+  let id = await addFeed({
+    loader: 'rss',
+    reading: 'fast',
+    title: 'RSS',
+    url: 'https://example.com/'
+  })
+  let feed = await loadValue(getFeed(id))
+
+  equal(getFeedLatestPosts(feed), page)
+  equal(getPage.calls.length, 1)
+  equal(getPage.calls[0][1], 'https://example.com/')
 })
 
 test.run()

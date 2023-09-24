@@ -3,12 +3,11 @@
     addFilterForFeed,
     changeFeed,
     changeFilter,
-    createDownloadTask,
     deleteFilter,
     getFeed,
+    getFeedLatestPosts,
     getFiltersForFeed,
     isValidFilterQuery,
-    loaders,
     moveFilterDown,
     moveFilterUp,
     type PostsPage,
@@ -20,11 +19,14 @@
 
   export let feedId: string
   export let posts: PostsPage | undefined = undefined
+  let loadedPosts: PostsPage | undefined = undefined
 
   $: feed = getFeed(feedId)
   $: filters = getFiltersForFeed(feedId)
-  $: if (!posts && !$feed.isLoading) {
-    posts = loaders[$feed.loader].getPosts(createDownloadTask(), $feed.url)
+  $: if (posts) {
+    loadedPosts = posts
+  } else if (!$feed.isLoading) {
+    loadedPosts = getFeedLatestPosts($feed)
   }
 </script>
 
@@ -120,11 +122,11 @@
     >
   </form>
 
-  {#if posts}
+  {#if loadedPosts}
     <OrganizePosts
       defaultReading={$feed.reading}
       filters={$filters.list}
-      {posts}
+      posts={loadedPosts}
     />
   {/if}
 {/if}
