@@ -2,6 +2,20 @@
 
 find "$1" -type f -name "$2" | xargs -I {} -P $(nproc) bash -c '{
   output=$(echo "> {}"; NODE_NO_WARNINGS=1 pnpm tsm {})
+
+  if [[ $? -ne 0 ]]; then
+    echo "$output"
+    exit 1
+  fi
   echo "$output"
+
+  uvu_tests="\(([0-9]+) \/ ([0-9]+)\)"
+  if [[ $output =~ $uvu_tests ]]; then
+    passed_tests="${BASH_REMATCH[1]}"
+    total_tests="${BASH_REMATCH[2]}"
+    if [[ "$passed_tests" != "$total_tests" ]]; then
+      exit 1
+    fi
+  fi
 }'
 
