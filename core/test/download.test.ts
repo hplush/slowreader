@@ -181,11 +181,12 @@ test('has helper to ignore abort errors', async () => {
   }, error2)
 
   let error3: any
-  expectRequest('https://example.com').andWait()
+  expectRequest('https://example.com').andRespond(400)
   task.text('https://example.com').catch(e => {
     error3 = e
   })
   task.abortAll()
+  await setTimeout(10)
 
   ignoreAbortError(error3)
 })
