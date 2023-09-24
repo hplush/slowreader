@@ -1,6 +1,8 @@
-import { computed, type ReadableAtom } from 'nanostores'
+import { atom, computed, type ReadableAtom } from 'nanostores'
 
+import { client } from './client.js'
 import { onEnvironment } from './environment.js'
+import { getFeeds } from './feed.js'
 import { userId } from './settings.js'
 
 export interface Routes {
@@ -16,6 +18,7 @@ export interface Routes {
   slowAll: {}
   start: {}
   subscriptions: {}
+  welcome: {}
 }
 
 export type RouteName = keyof Routes
@@ -50,14 +53,19 @@ function open<Name extends keyof Routes>(
 
 function getRoute(
   page: BaseRoute | undefined,
-  user: string | undefined
+  user: string | undefined,
+  hasFeeds: boolean | undefined
 ): AppRoute {
   if (!page) {
     return open('notFound', {})
   } else if (user) {
-    if (GUEST.has(page.route)) {
-      return redirect('slowAll', {})
-    } else if (page.route === 'home') {
+    if (GUEST.has(page.route) || page.route === 'home') {
+      if (hasFeeds) {
+        return redirect('slowAll', {})
+      } else {
+        return redirect('welcome', {})
+      }
+    } else if (page.route === 'welcome' && hasFeeds) {
       return redirect('slowAll', {})
     }
   } else if (!GUEST.has(page.route)) {
@@ -69,7 +77,28 @@ function getRoute(
 export let router: ReadableAtom<AppRoute>
 
 onEnvironment(({ baseRouter }) => {
-  router = computed([userId, baseRouter], (user, page) => getRoute(page, user))
+  let $hasFeeds = atom<boolean | undefined>(false)
+
+  let unbindFeeds: (() => void) | undefined
+  let unbindClient = client.subscribe(enabled => {
+    if (enabled) {
+      unbindFeeds = getFeeds().subscribe(feeds => {
+        $hasFeeds.set(!feeds.isLoading && !feeds.isEmpty)
+      })
+    } else {
+      unbindFeeds?.()
+      unbindFeeds = undefined
+    }
+  })
+
+  router = computed([baseRouter, userId, $hasFeeds], (page, user, hasFeeds) => {
+    return getRoute(page, user, hasFeeds)
+  })
+
+  return () => {
+    unbindClient()
+    unbindFeeds?.()
+  }
 })
 
 export function isFastRoute(route: AppRoute): boolean {

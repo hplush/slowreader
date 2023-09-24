@@ -23,8 +23,6 @@ let prevClient: Client | undefined
 export let client: ReadableAtom<Client | undefined>
 
 onEnvironment(({ logStoreCreator }) => {
-  prevClient?.destroy()
-
   client = computed(userId, user => {
     prevClient?.destroy()
 
@@ -44,6 +42,9 @@ onEnvironment(({ logStoreCreator }) => {
       return undefined
     }
   })
+  return () => {
+    prevClient?.destroy()
+  }
 })
 
 export function getClient(): Client {

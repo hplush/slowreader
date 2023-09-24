@@ -7,6 +7,7 @@
   import PreviewPage from '../pages/preview.svelte'
   import SettingsPage from '../pages/settings.svelte'
   import StartPage from '../pages/start.svelte'
+  import WelcomePage from '../pages/welcome.svelte'
   import Navbar from '../ui/navbar.svelte'
 </script>
 
@@ -28,4 +29,6 @@
   <OrganizeFeedPage feedId={$router.params.id} />
 {:else if $router.route === 'settings'}
   <SettingsPage />
+{:else if $router.route === 'welcome'}
+  <WelcomePage />
 {/if}

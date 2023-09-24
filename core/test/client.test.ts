@@ -1,23 +1,20 @@
-import './environment.js'
-
 import { spyOn } from 'nanospy'
 import { cleanStores, keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal, match, throws } from 'uvu/assert'
 
-import { client, enableTestTime, getClient, userId } from '../index.js'
+import { client, getClient, userId } from '../index.js'
+import { enableClientTest } from './utils.js'
 
-test.before.each(() => {
-  enableTestTime()
-})
+enableClientTest()
 
 test.after.each(() => {
   cleanStores(client)
 })
 
 test('re-create client on user ID changes', () => {
-  keepMount(client)
   userId.set(undefined)
+  keepMount(client)
   equal(client.get(), undefined)
 
   userId.set('10')

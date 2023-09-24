@@ -17,7 +17,8 @@ export const urlRouter = createRouter({
   signin: '/signin',
   slowAll: '/slow',
   start: '/start',
-  subscriptions: '/subscriptions'
+  subscriptions: '/subscriptions',
+  welcome: '/welcome'
 })
 
 type UrlConfig = ConfigFromRouter<typeof urlRouter>

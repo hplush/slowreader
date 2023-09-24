@@ -2,24 +2,29 @@ import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
 import {
+  addFeed,
+  deleteFeed,
   isFastRoute,
   isGuestRoute,
   isSlowRoute,
   router,
-  setupEnvironment,
   userId
 } from '../index.js'
-import { getTestEnvironment, setBaseRoute, testRouter } from './utils.js'
+import {
+  cleanClientTest,
+  enableClientTest,
+  setBaseRoute,
+  testRouter
+} from './utils.js'
 
 test.before.each(() => {
-  setupEnvironment({
-    ...getTestEnvironment(),
+  enableClientTest({
     baseRouter: testRouter
   })
 })
 
-test.after.each(() => {
-  setupEnvironment(getTestEnvironment())
+test.after.each(async () => {
+  await cleanClientTest()
 })
 
 test('opens 404', () => {
@@ -61,7 +66,7 @@ test('transforms routers for users', () => {
   equal(router.get(), {
     params: {},
     redirect: true,
-    route: 'slowAll'
+    route: 'welcome'
   })
 
   setBaseRoute({ params: {}, route: 'fast' })
@@ -75,14 +80,14 @@ test('transforms routers for users', () => {
   equal(router.get(), {
     params: {},
     redirect: true,
-    route: 'slowAll'
+    route: 'welcome'
   })
 
   setBaseRoute({ params: {}, route: 'signin' })
   equal(router.get(), {
     params: {},
     redirect: true,
-    route: 'slowAll'
+    route: 'welcome'
   })
 
   userId.set(undefined)
@@ -90,6 +95,43 @@ test('transforms routers for users', () => {
     params: {},
     redirect: false,
     route: 'signin'
+  })
+})
+
+test('transforms routers for users with feeds', async () => {
+  userId.set('10')
+  setBaseRoute({ params: {}, route: 'home' })
+  equal(router.get(), {
+    params: {},
+    redirect: true,
+    route: 'welcome'
+  })
+
+  let id = await addFeed({
+    loader: 'rss',
+    reading: 'slow',
+    title: 'Test',
+    url: 'https://example.com'
+  })
+  equal(router.get(), {
+    params: {},
+    redirect: true,
+    route: 'slowAll'
+  })
+
+  setBaseRoute({ params: {}, route: 'welcome' })
+  equal(router.get(), {
+    params: {},
+    redirect: true,
+    route: 'slowAll'
+  })
+
+  setBaseRoute({ params: {}, route: 'home' })
+  await deleteFeed(id)
+  equal(router.get(), {
+    params: {},
+    redirect: true,
+    route: 'welcome'
   })
 })
 
