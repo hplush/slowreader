@@ -5,8 +5,8 @@
     type PostsPage,
     prepareFilters
   } from '@slowreader/core'
-  import { organizeMessages as t } from '@slowreader/core/messages'
 
+  import UiLoader from '../../ui/loader.svelte'
   import UIPostCard from '../../ui/post-card.svelte'
 
   export let posts: PostsPage
@@ -18,7 +18,7 @@
 </script>
 
 {#if $posts.isLoading}
-  {$t.loading}
+  <UiLoader />
 {:else}
   <ul>
     {#each $posts.list as post (post.url)}

@@ -15,6 +15,7 @@
   import { onDestroy } from 'svelte'
 
   import { openURL } from '../stores/router.js'
+  import UiLoader from '../ui/loader.svelte'
   import OrganizeEdit from './organize/edit.svelte'
   import OrganizePosts from './organize/posts.svelte'
 
@@ -53,7 +54,7 @@
 </form>
 
 {#if $previewCandidatesLoading}
-  {$t.loading}
+  <UiLoader />
 {:else}
   <ul>
     {#each $previewCandidates as candidate (candidate.url)}
@@ -73,7 +74,7 @@
 
 {#if $previewCandidate}
   {#if $previewCandidateAdded === undefined}
-    {$t.loading}
+    <UiLoader />
     {#if $previewPosts}
       <OrganizePosts posts={$previewPosts} />
     {/if}

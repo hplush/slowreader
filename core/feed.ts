@@ -10,11 +10,13 @@ import {
   syncMapTemplate
 } from '@logux/client'
 import { nanoid } from 'nanoid'
+import { atom, onMount } from 'nanostores'
 
-import { getClient } from './client.js'
+import { client, getClient } from './client.js'
 import { createDownloadTask } from './download.js'
 import { type LoaderName, loaders } from './loader/index.js'
 import type { PostsPage } from './posts-page.js'
+import { readonlyExport } from './utils/stores.js'
 
 export type FeedValue = {
   loader: LoaderName
@@ -60,3 +62,29 @@ export function getFeedLatestPosts(
 ): PostsPage {
   return loaders[feed.loader].getPosts(createDownloadTask(), feed.url)
 }
+
+let $hasFeeds = atom<boolean | undefined>(false)
+onMount($hasFeeds, () => {
+  let unbindFeeds: (() => void) | undefined
+  let unbindClient = client.subscribe(enabled => {
+    if (enabled) {
+      unbindFeeds = getFeeds().subscribe(feeds => {
+        if (feeds.isLoading) {
+          $hasFeeds.set(undefined)
+        } else {
+          $hasFeeds.set(!feeds.isEmpty)
+        }
+      })
+    } else {
+      unbindFeeds?.()
+      unbindFeeds = undefined
+    }
+  })
+
+  return () => {
+    unbindClient()
+    unbindFeeds?.()
+  }
+})
+
+export const hasFeeds = readonlyExport($hasFeeds)

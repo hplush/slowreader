@@ -1,6 +1,7 @@
 import { ensureLoaded, loadValue } from '@logux/client'
 import { restoreAll, spyOn } from 'nanospy'
 import { keepMount } from 'nanostores'
+import { setTimeout } from 'node:timers/promises'
 import { test } from 'uvu'
 import { equal, type } from 'uvu/assert'
 
@@ -12,6 +13,7 @@ import {
   getFeed,
   getFeedLatestPosts,
   getFeeds,
+  hasFeeds,
   loaders
 } from '../index.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
@@ -21,8 +23,8 @@ test.before.each(() => {
 })
 
 test.after.each(async () => {
-  await cleanClientTest()
   restoreAll()
+  await cleanClientTest()
 })
 
 test('adds, loads, changes and removes feed', async () => {
@@ -66,6 +68,23 @@ test('loads latest posts', async () => {
   equal(getFeedLatestPosts(feed), page)
   equal(getPage.calls.length, 1)
   equal(getPage.calls[0][1], 'https://example.com/')
+})
+
+test('shows that user has any feeds', async () => {
+  equal(hasFeeds.get(), undefined)
+  await setTimeout(10)
+  equal(hasFeeds.get(), false)
+
+  let id = await addFeed({
+    loader: 'rss',
+    reading: 'fast',
+    title: 'RSS',
+    url: 'https://example.com/'
+  })
+  equal(hasFeeds.get(), true)
+
+  await deleteFeed(id)
+  equal(hasFeeds.get(), false)
 })
 
 test.run()

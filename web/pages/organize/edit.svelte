@@ -15,6 +15,7 @@
   } from '@slowreader/core'
   import { organizeMessages as t } from '@slowreader/core/messages'
 
+  import UiLoader from '../../ui/loader.svelte'
   import OrganizePosts from './posts.svelte'
 
   export let feedId: string
@@ -31,7 +32,7 @@
 </script>
 
 {#if $feed.isLoading || $filters.isLoading}
-  {$t.loading}
+  <UiLoader />
 {:else}
   <form on:submit|preventDefault>
     <input

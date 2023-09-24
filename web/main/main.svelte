@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { isGuestRoute, notFound, router } from '@slowreader/core'
+  import { appLoading, isGuestRoute, notFound, router } from '@slowreader/core'
 
   import NotFoundPage from '../pages/not-found.svelte'
   import OrganizeFeedPage from '../pages/organize/feed.svelte'
@@ -8,27 +8,32 @@
   import SettingsPage from '../pages/settings.svelte'
   import StartPage from '../pages/start.svelte'
   import WelcomePage from '../pages/welcome.svelte'
-  import Navbar from '../ui/navbar.svelte'
+  import UiLoader from '../ui/loader.svelte'
+  import UiNavbar from '../ui/navbar.svelte'
 </script>
 
-{#if !isGuestRoute($router)}
-  <Navbar />
-{/if}
+{#if $appLoading}
+  <UiLoader />
+{:else}
+  {#if !isGuestRoute($router)}
+    <UiNavbar />
+  {/if}
 
-{#if $notFound || $router.route === 'notFound'}
-  <NotFoundPage />
-{:else if $router.route === 'start'}
-  <StartPage />
-{:else if $router.route === 'add'}
-  <PreviewPage />
-{:else if $router.route === 'preview'}
-  <PreviewPage url={$router.params.url} />
-{:else if $router.route === 'feeds'}
-  <OrganizePage />
-{:else if $router.route === 'feed'}
-  <OrganizeFeedPage feedId={$router.params.id} />
-{:else if $router.route === 'settings'}
-  <SettingsPage />
-{:else if $router.route === 'welcome'}
-  <WelcomePage />
+  {#if $notFound || $router.route === 'notFound'}
+    <NotFoundPage />
+  {:else if $router.route === 'start'}
+    <StartPage />
+  {:else if $router.route === 'add'}
+    <PreviewPage />
+  {:else if $router.route === 'preview'}
+    <PreviewPage url={$router.params.url} />
+  {:else if $router.route === 'feeds'}
+    <OrganizePage />
+  {:else if $router.route === 'feed'}
+    <OrganizeFeedPage feedId={$router.params.id} />
+  {:else if $router.route === 'settings'}
+    <SettingsPage />
+  {:else if $router.route === 'welcome'}
+    <WelcomePage />
+  {/if}
 {/if}
