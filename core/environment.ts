@@ -7,6 +7,7 @@ import {
 } from '@nanostores/persistent'
 import type { ReadableAtom, StoreValue } from 'nanostores'
 
+import { SlowReaderError } from './error.js'
 import type { NetworkTypeDetector } from './refresh.js'
 import type { BaseRouter, Routes } from './router.js'
 
@@ -43,6 +44,7 @@ export interface Environment {
   locale: ReadableAtom<string>
   logStoreCreator: LogStoreCreator
   networkType: NetworkTypeDetector
+  restartApp: () => void
   translationLoader: TranslationLoader
 }
 
@@ -75,10 +77,18 @@ export function setupEnvironment<Router extends BaseRouter>(
     locale: env.locale,
     logStoreCreator: env.logStoreCreator,
     networkType: env.networkType,
+    restartApp: env.restartApp,
     translationLoader: env.translationLoader
   }
 
   for (let listener of listeners) {
     unbinds.push(listener(currentEnvironment))
   }
+}
+
+export function getEnvironment(): Environment {
+  if (!currentEnvironment) {
+    throw new SlowReaderError('NoEnvironment')
+  }
+  return currentEnvironment
 }

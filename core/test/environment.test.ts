@@ -1,12 +1,14 @@
 import { atom } from 'nanostores'
 import { test } from 'uvu'
-import { equal } from 'uvu/assert'
+import { equal, throws } from 'uvu/assert'
 
-import { onEnvironment, setupEnvironment } from '../index.js'
+import { getEnvironment, onEnvironment, setupEnvironment } from '../index.js'
 import { getTestEnvironment } from './utils.js'
 
-test.after.each(() => {
-  setupEnvironment(getTestEnvironment())
+test('throws on current environment if it is not set', () => {
+  throws(() => {
+    getEnvironment()
+  }, /^SlowReaderNoEnvironment$/)
 })
 
 test('runs callback when environment will be set', () => {
@@ -34,6 +36,12 @@ test('runs callback when environment will be set', () => {
   })
   equal(after, ['ru'])
   equal(cleans, 1)
+})
+
+test('returns current environment', () => {
+  let locale = atom('fr')
+  setupEnvironment({ ...getTestEnvironment(), locale })
+  equal(getEnvironment().locale, locale)
 })
 
 test.run()
