@@ -2,13 +2,13 @@ import http from 'node:http'
 import pico from 'picocolors'
 
 const server = http.createServer(async (req, res) => {
-  let url = decodeURIComponent(req.url.slice(1))
+  let url = decodeURIComponent(req.url!.slice(1))
   let sent = false
 
   try {
     let proxy = await fetch(url, {
       headers: {
-        ...req.headers,
+        ...(req.headers as HeadersInit),
         host: new URL(url).host
       },
       method: req.method
@@ -24,10 +24,14 @@ const server = http.createServer(async (req, res) => {
     res.write(await proxy.text())
     res.end()
   } catch (e) {
-    process.stderr.write(pico.red(e.stack) + '\n')
-    if (!sent) {
-      res.writeHead(500, { 'Content-Type': 'text/plain' })
-      res.end('Internal Server Error')
+    if (e instanceof Error) {
+      process.stderr.write(pico.red(e.stack) + '\n')
+      if (!sent) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' })
+        res.end('Internal Server Error')
+      }
+    } else if (typeof e === 'string') {
+      process.stderr.write(pico.red(e) + '\n')
     }
   }
 })
