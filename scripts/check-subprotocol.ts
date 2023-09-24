@@ -3,6 +3,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import pico from 'picocolors'
 
 const ROOT = join(fileURLToPath(import.meta.url), '..', '..')
 
@@ -17,7 +18,9 @@ let minor = pkg.version.replace(/\.\d+$/, '')
 
 if (!index.includes(`SUBPROTOCOL = '${minor}`)) {
   process.stderr.write(
-    'api/index.ts and api/package.json have different minor subprotocol\n'
+    pico.red(
+      'api/index.ts and api/package.json have different minor subprotocol\n'
+    )
   )
   process.exit(1)
 }

@@ -3,6 +3,7 @@
 import { lstat, readdir, readFile } from 'node:fs/promises'
 import { join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import pico from 'picocolors'
 
 const ROOT = join(fileURLToPath(import.meta.url), '..', '..')
 
@@ -35,7 +36,7 @@ function check(
     let lines = all.toString().split('\n')
     let line = lines.findIndex(i => i.includes(part)) + 1
     let path = relative(ROOT, filename)
-    process.stderr.write(`${path}:${line} ${message} \n`)
+    process.stderr.write(pico.red(`${path}:${line} ${message} \n`))
     process.exit(1)
   }
 }

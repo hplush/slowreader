@@ -62,6 +62,9 @@ importers:
       nano-staged:
         specifier: ^0.8.0
         version: 0.8.0
+      picocolors:
+        specifier: ^1.0.0
+        version: 1.0.0
       postcss-html:
         specifier: ^1.5.0
         version: 1.5.0
@@ -196,7 +199,7 @@ importers:
         version: 5.0.4(postcss@8.4.30)(svelte@4.2.1)(typescript@5.2.2)
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.6.4)
     devDependencies:
       '@size-limit/file':
         specifier: ^9.0.0
@@ -796,7 +799,7 @@ packages:
       '@sveltejs/vite-plugin-svelte': 2.4.6(svelte@4.2.1)(vite@4.4.9)
       debug: 4.3.4
       svelte: 4.2.1
-      vite: 4.4.9
+      vite: 4.4.9(@types/node@20.6.4)
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -815,7 +818,7 @@ packages:
       magic-string: 0.30.3
       svelte: 4.2.1
       svelte-hmr: 0.15.3(svelte@4.2.1)
-      vite: 4.4.9
+      vite: 4.4.9(@types/node@20.6.4)
       vitefu: 0.2.4(vite@4.4.9)
     transitivePeerDependencies:
       - supports-color
@@ -855,7 +858,6 @@ packages:
 
   /@types/node@20.6.4:
     resolution: {integrity: sha512-nU6d9MPY0NBUMiE/nXd2IIoC4OLvsLpwAjheoAeuzgvDZA1Cb10QYg+91AF6zQiKWRN5i1m07x6sMe0niBznoQ==}
-    dev: true
 
   /@types/normalize-package-data@2.4.2:
     resolution: {integrity: sha512-lqa4UEhhv/2sjjIQgjX8B+RBjj47eo0mzGasklVJ78UKGQY1r0VpB9XHDaZZO9qzEFDdy4MrXLuEaSmPrPSe/A==}
@@ -4579,10 +4581,10 @@ packages:
       vite: ^2.0.0 || ^3.0.0 || ^4.0.0
     dependencies:
       connect-history-api-fallback: 1.6.0
-      vite: 4.4.9
+      vite: 4.4.9(@types/node@20.6.4)
     dev: true
 
-  /vite@4.4.9:
+  /vite@4.4.9(@types/node@20.6.4):
     resolution: {integrity: sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -4610,6 +4612,7 @@ packages:
       terser:
         optional: true
     dependencies:
+      '@types/node': 20.6.4
       esbuild: 0.18.20
       postcss: 8.4.30
       rollup: 3.29.3
@@ -4624,7 +4627,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 4.4.9
+      vite: 4.4.9(@types/node@20.6.4)
     dev: false
 
   /w3c-xmlserializer@4.0.0:

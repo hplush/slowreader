@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import pico from 'picocolors'
 
 const ROOT = join(fileURLToPath(import.meta.url), '..', '..')
 
@@ -15,7 +16,9 @@ let nodeMinor = toolVersions.match(/nodejs (\d+\.\d+)\./)![1]
 
 if (!pkg.includes(`"node": "~${nodeMinor}.`)) {
   process.stderr.write(
-    '.tool-versions and package.json have different Node.js minor version\n'
+    pico.red(
+      '.tool-versions and package.json have different Node.js minor version\n'
+    )
   )
   process.exit(1)
 }
