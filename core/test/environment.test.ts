@@ -11,22 +11,29 @@ test.after.each(() => {
 
 test('runs callback when environment will be set', () => {
   let calls: string[] = []
+  let cleans = 0
   onEnvironment(env => {
     calls.push(env.locale.get())
+    return () => {
+      cleans += 1
+    }
   })
   equal(calls, [])
 
   setupEnvironment({ ...getTestEnvironment(), locale: atom('fr') })
   equal(calls, ['fr'])
+  equal(cleans, 0)
 
   setupEnvironment({ ...getTestEnvironment(), locale: atom('ru') })
   equal(calls, ['fr', 'ru'])
+  equal(cleans, 1)
 
   let after: string[] = []
   onEnvironment(env => {
     after.push(env.locale.get())
   })
   equal(after, ['ru'])
+  equal(cleans, 1)
 })
 
 test.run()
