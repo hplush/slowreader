@@ -35,7 +35,7 @@ test('has helper for client area', () => {
   userId.set(undefined)
   throws(() => {
     getClient()
-  }, 'SlowReaderNoClient')
+  }, /^SlowReaderNoClient$/)
 
   userId.set('10')
   match(getClient().clientId, /^10:/)
