@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-find "$1" -type f -name "$2" | xargs -I {} -P 8 bash -c '{
+find "$1" -type f -name "$2" | xargs -I {} -P $(nproc) bash -c '{
   output=$(echo "> {}"; NODE_NO_WARNINGS=1 FORCE_COLOR=1 pnpm tsm {})
   echo "$output"
 }'
