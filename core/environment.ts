@@ -31,8 +31,16 @@ interface EnvironmentListener {
   (env: Environment): void
 }
 
+interface ErrorEvents {
+  addEventListener(
+    event: 'unhandledrejection',
+    listener: (event: { reason: unknown }) => void
+  ): void
+}
+
 interface Environment {
   baseRouter: BaseRouter
+  errorEvents: ErrorEvents
   locale: ReadableAtom<string>
   logStoreCreator: LogStoreCreator
   networkType: NetworkTypeDetector
@@ -41,6 +49,7 @@ interface Environment {
 
 let testEnvironment: Environment = {
   baseRouter: atom(undefined),
+  errorEvents: { addEventListener() {} },
   locale: atom('en'),
   logStoreCreator: () => new MemoryStore(),
   networkType: () => ({ saveData: undefined, type: undefined }),
@@ -68,6 +77,8 @@ export function setupEnvironment<Router extends BaseRouter>(
   currentEnvironment.locale = env.locale
   currentEnvironment.logStoreCreator = env.logStoreCreator
   currentEnvironment.translationLoader = env.translationLoader
+  currentEnvironment.networkType = env.networkType
+  currentEnvironment.errorEvents = env.errorEvents
   for (let listener of listeners) {
     listener(currentEnvironment)
   }

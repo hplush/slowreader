@@ -8,6 +8,7 @@ import { urlRouter } from '../stores/router.js'
 
 setupEnvironment({
   baseRouter: urlRouter,
+  errorEvents: window,
   locale,
   logStoreCreator: () => new IndexedStore(),
   networkType: detectNetworkType,

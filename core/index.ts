@@ -1,6 +1,7 @@
 export * from './loader/index.js'
 export * from './environment.js'
 export * from './posts-page.js'
+export * from './not-found.js'
 export * from './settings.js'
 export * from './download.js'
 export * from './organize.js'
