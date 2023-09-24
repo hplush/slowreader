@@ -1,8 +1,9 @@
 {
-  "exclude": ["**/*.test.*", "test/*"],
-  "lines": 100,
+  "all": true,
   "check-coverage": true,
+  "clean": true,
+  "exclude": ["**/*.test.*", "test/*", "coverage/"],
+  "lines": 100,
   "reporter": ["text", "lcov"],
-  "skip-full": true,
-  "clean": true
+  "skip-full": true
 }
