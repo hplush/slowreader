@@ -142,6 +142,9 @@ test('parses posts', async () => {
           <entry>
             <title>4</title>
           </entry>
+          <entry>
+            <id>5</id>
+          </entry>
         </feed>`
         )
       )
@@ -173,6 +176,14 @@ test('parses posts', async () => {
           media: [],
           title: '3',
           url: 'https://example.com/3'
+        },
+        {
+          full: undefined,
+          id: '5',
+          intro: undefined,
+          media: [],
+          title: undefined,
+          url: undefined
         }
       ]
     }

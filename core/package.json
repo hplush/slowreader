@@ -7,7 +7,7 @@
     "unit": "../scripts/tsm-every test *.test.ts",
     "fast": "c8 tsm ./node_modules/uvu/bin.js test .test.ts",
     "test:coverage": "c8 pnpm unit",
-    "test": "pnpm run /^test:/"
+    "test": "FORCE_COLOR=1 pnpm run /^test:/"
   },
   "exports": {
     ".": "./index",

@@ -4,6 +4,6 @@
   "clean": true,
   "exclude": ["**/*.test.*", "test/*", "coverage/"],
   "lines": 100,
-  "reporter": ["text", "lcov"],
+  "reporter": ["text-summary", "text", "lcov"],
   "skip-full": true
 }
