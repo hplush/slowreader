@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 
-for file in $(find $1 -type f -name "$2"); do
-  echo "> $file"
-  NODE_NO_WARNINGS=1 pnpm tsm $file
-done
+find "$1" -type f -name "$2" | xargs -I {} -P 8 bash -c '{
+  output=$(echo "> {}"; NODE_NO_WARNINGS=1 FORCE_COLOR=1 pnpm tsm {})
+  echo "$output"
+}'
+
