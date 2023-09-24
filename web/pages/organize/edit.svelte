@@ -121,6 +121,10 @@
   </form>
 
   {#if posts}
-    <OrganizePosts {posts} />
+    <OrganizePosts
+      defaultReading={$feed.reading}
+      filters={$filters.list}
+      {posts}
+    />
   {/if}
 {/if}
