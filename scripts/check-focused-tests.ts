@@ -34,7 +34,7 @@ function check(
     let lines = all.toString().split('\n')
     let line = lines.findIndex(i => i.includes(part)) + 1
     let path = relative(ROOT, filename)
-    process.stderr.write(pico.red(`${path}:${line} ${message} \n`))
+    process.stderr.write(pico.red(`${path}:${line} ${message}\n`))
     process.exit(1)
   }
 }
@@ -51,5 +51,5 @@ if (process.argv.length > 2) {
     checkFile(filename)
   }
 } else {
-  findFiles(ROOT, /\.test\.(js|ts)$/, checkFile)
+  findFiles(ROOT, /\.test\.ts$/, checkFile)
 }
