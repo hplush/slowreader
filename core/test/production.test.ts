@@ -10,6 +10,7 @@ global.WebSocket = function () {} as any
 
 test.after.each(() => {
   cleanStores(client)
+  userId.set(undefined)
 })
 
 test('uses real server in production', () => {

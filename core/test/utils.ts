@@ -3,6 +3,7 @@ import { atom, cleanStores } from 'nanostores'
 import { match, unreachable } from 'uvu/assert'
 
 import {
+  type BaseRoute,
   client,
   enableTestTime,
   type EnvironmentAndStore,
@@ -57,4 +58,10 @@ export function getTestEnvironment(): EnvironmentAndStore {
     persistentStore: {},
     translationLoader: async () => ({})
   }
+}
+
+export const testRouter = atom<BaseRoute | undefined>()
+
+export function setBaseRoute(route: BaseRoute | undefined): void {
+  testRouter.set(route)
 }

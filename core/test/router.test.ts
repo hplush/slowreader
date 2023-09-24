@@ -1,9 +1,7 @@
-import { atom } from 'nanostores'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
 import {
-  type BaseRoute,
   isFastRoute,
   isGuestRoute,
   isSlowRoute,
@@ -11,13 +9,7 @@ import {
   setupEnvironment,
   userId
 } from '../index.js'
-import { getTestEnvironment } from './utils.js'
-
-let testRouter = atom<BaseRoute | undefined>()
-
-function setBaseRoute(route: BaseRoute | undefined): void {
-  testRouter.set(route)
-}
+import { getTestEnvironment, setBaseRoute, testRouter } from './utils.js'
 
 test.before.each(() => {
   setupEnvironment({

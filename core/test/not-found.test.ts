@@ -1,17 +1,16 @@
-import { atom, keepMount } from 'nanostores'
+import { keepMount } from 'nanostores'
 import process from 'node:process'
 import { setTimeout } from 'node:timers/promises'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
-import { type BaseRoute, Feed, getClient, notFound } from '../index.js'
-import { cleanClientTest, enableClientTest } from './utils.js'
-
-let testRouter = atom<BaseRoute | undefined>()
-
-function setBaseRoute(route: BaseRoute | undefined): void {
-  testRouter.set(route)
-}
+import { Feed, getClient, notFound } from '../index.js'
+import {
+  cleanClientTest,
+  enableClientTest,
+  setBaseRoute,
+  testRouter
+} from './utils.js'
 
 test.before.each(() => {
   enableClientTest({
@@ -30,7 +29,7 @@ test.after.each(async () => {
   await cleanClientTest()
 })
 
-test('has i18n', async () => {
+test('listens for not found error', async () => {
   setBaseRoute({ params: { id: 'unknown' }, route: 'feed' })
   equal(notFound.get(), false)
 
