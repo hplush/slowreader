@@ -14,6 +14,9 @@ setupEnvironment({
   networkType: detectNetworkType,
   persistentEvents: windowPersistentEvents,
   persistentStore: localStorage,
+  restartApp() {
+    location.reload()
+  },
   translationLoader: async () => ({})
 })
 

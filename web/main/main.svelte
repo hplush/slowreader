@@ -5,6 +5,7 @@
   import OrganizeFeedPage from '../pages/organize/feed.svelte'
   import OrganizePage from '../pages/organize/index.svelte'
   import PreviewPage from '../pages/preview.svelte'
+  import ProfilePage from '../pages/profile.svelte'
   import SettingsPage from '../pages/settings.svelte'
   import StartPage from '../pages/start.svelte'
   import WelcomePage from '../pages/welcome.svelte'
@@ -33,6 +34,8 @@
     <OrganizeFeedPage feedId={$router.params.id} />
   {:else if $router.route === 'settings'}
     <SettingsPage />
+  {:else if $router.route === 'profile'}
+    <ProfilePage />
   {:else if $router.route === 'welcome'}
     <WelcomePage />
   {/if}

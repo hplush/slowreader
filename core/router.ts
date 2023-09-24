@@ -12,6 +12,7 @@ export interface Routes {
   home: {}
   notFound: {}
   preview: { url: string }
+  profile: {}
   settings: {}
   signin: {}
   slowAll: {}

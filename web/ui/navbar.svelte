@@ -49,6 +49,15 @@
       {/if}
     </a>
   </div>
+  <div>
+    <a href={getURL('profile')}>
+      {#if $router.route === 'profile'}
+        <strong>{$t.profile}</strong>
+      {:else}
+        {$t.profile}
+      {/if}
+    </a>
+  </div>
 </nav>
 
 <style>

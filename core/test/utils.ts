@@ -43,7 +43,7 @@ export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
 
 export async function cleanClientTest(): Promise<void> {
   setupEnvironment(getTestEnvironment())
-  await client.get()?.log.store.clean()
+  await client.get()?.clean()
   cleanStores(Feed, Filter)
 }
 
@@ -56,6 +56,7 @@ export function getTestEnvironment(): EnvironmentAndStore {
     networkType: () => ({ saveData: undefined, type: undefined }),
     persistentEvents: { addEventListener() {}, removeEventListener() {} },
     persistentStore: {},
+    restartApp: () => {},
     translationLoader: async () => ({})
   }
 }

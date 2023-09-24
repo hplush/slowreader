@@ -13,6 +13,7 @@ export const urlRouter = createRouter({
   home: '/',
   notFound: '/404',
   preview: '/add/:url',
+  profile: '/profile',
   settings: '/settings',
   signin: '/signin',
   slowAll: '/slow',

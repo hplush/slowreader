@@ -1,44 +1,55 @@
-import {
-  cleanTestStorage,
-  getTestStorage,
-  setTestStorageKey,
-  useTestStorageEngine
-} from '@nanostores/persistent'
 import { keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
-import { generateCredentials, signOut, theme, userId } from '../index.js'
+import {
+  generateCredentials,
+  preloadImages,
+  signOut,
+  theme,
+  userId
+} from '../index.js'
+import { cleanClientTest, enableClientTest } from '../test/utils.js'
 
-test.before(() => {
-  useTestStorageEngine()
+let restarts = 0
+
+test.before.each(() => {
+  enableClientTest({
+    restartApp() {
+      restarts += 1
+    }
+  })
 })
 
-test.after.each(() => {
-  cleanTestStorage()
+test.after.each(async () => {
+  await cleanClientTest()
+  restarts = 0
 })
-
-function getStorageKey(key: string): string | undefined {
-  return getTestStorage()['slowreader:' + key]
-}
 
 test('generates user data', () => {
+  userId.set(undefined)
   keepMount(userId)
+
   generateCredentials()
   equal(typeof userId.get(), 'string')
-  equal(getStorageKey('userId'), userId.get())
 })
 
-test('signes out', async () => {
-  setTestStorageKey('slowreader:userId', '10')
+test('signs out', async () => {
+  userId.set('10')
   keepMount(userId)
-  signOut()
+  equal(restarts, 0)
+
+  await signOut()
   equal(userId.get(), undefined)
-  equal(getTestStorage(), {})
+  equal(restarts, 1)
 })
 
 test('has store for theme', () => {
   equal(theme.get(), 'system')
+})
+
+test('has store for images preload settings', () => {
+  equal(preloadImages.get(), 'always')
 })
 
 test.run()
