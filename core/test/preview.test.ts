@@ -2,7 +2,7 @@ import './dom-parser.js'
 
 import { ensureLoaded } from '@logux/client'
 import { restoreAll, spyOn } from 'nanospy'
-import { cleanStores, keepMount } from 'nanostores'
+import { keepMount } from 'nanostores'
 import { setTimeout } from 'node:timers/promises'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
@@ -13,10 +13,7 @@ import {
   checkAndRemoveRequestMock,
   clearPreview,
   createPostsPage,
-  enableClientTest,
   expectRequest,
-  Feed,
-  getClient,
   getFeeds,
   loaders,
   mockRequest,
@@ -28,21 +25,18 @@ import {
   previewPosts,
   previewUrlError,
   setPreviewCandidate,
-  setPreviewUrl,
-  userId
+  setPreviewUrl
 } from '../index.js'
+import { cleanClientTest, enableClientTest } from './utils.js'
 
 test.before.each(() => {
   enableClientTest()
-  userId.set('10')
   mockRequest()
 })
 
-test.after.each(() => {
-  getClient().log.store.clean()
-  cleanStores(Feed)
+test.after.each(async () => {
+  await cleanClientTest()
   restoreAll()
-  cleanStores(previewUrlError, previewCandidatesLoading, previewCandidates)
   clearPreview()
   checkAndRemoveRequestMock()
 })

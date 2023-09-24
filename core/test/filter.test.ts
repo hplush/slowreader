@@ -1,5 +1,5 @@
 import { ensureLoaded, type LoadedSyncMapValue, loadValue } from '@logux/client'
-import { cleanStores, keepMount } from 'nanostores'
+import { keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
@@ -9,9 +9,6 @@ import {
   addFilterForFeed,
   changeFilter,
   deleteFilter,
-  enableClientTest,
-  Feed,
-  Filter,
   type FilterValue,
   getClient,
   getFeed,
@@ -20,18 +17,16 @@ import {
   moveFilterDown,
   moveFilterUp,
   prepareFilters,
-  sortFilters,
-  userId
+  sortFilters
 } from '../index.js'
+import { cleanClientTest, enableClientTest } from './utils.js'
 
 test.before.each(() => {
   enableClientTest()
-  userId.set('10')
 })
 
 test.after.each(async () => {
-  cleanStores(Filter, Feed)
-  await getClient().log.store.clean()
+  await cleanClientTest()
 })
 
 test('adds, loads, changes and removes filters', async () => {

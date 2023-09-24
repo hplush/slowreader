@@ -3,10 +3,10 @@ import { cleanStores, keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal, match, throws } from 'uvu/assert'
 
-import { client, enableClientTest, getClient, userId } from '../index.js'
+import { client, enableTestTime, getClient, userId } from '../index.js'
 
 test.before.each(() => {
-  enableClientTest()
+  enableTestTime()
 })
 
 test.after.each(() => {

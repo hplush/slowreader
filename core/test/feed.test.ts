@@ -1,26 +1,17 @@
 import { ensureLoaded, loadValue } from '@logux/client'
-import { cleanStores, keepMount } from 'nanostores'
+import { keepMount } from 'nanostores'
 import { test } from 'uvu'
 import { equal, type } from 'uvu/assert'
 
-import {
-  addFeed,
-  changeFeed,
-  deleteFeed,
-  enableClientTest,
-  Feed,
-  getFeed,
-  getFeeds,
-  userId
-} from '../index.js'
+import { addFeed, changeFeed, deleteFeed, getFeed, getFeeds } from '../index.js'
+import { cleanClientTest, enableClientTest } from './utils.js'
 
 test.before.each(() => {
   enableClientTest()
-  userId.set('10')
 })
 
 test.after.each(async () => {
-  cleanStores(Feed)
+  await cleanClientTest()
 })
 
 test('adds, loads, changes and removes feed', async () => {

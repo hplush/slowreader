@@ -1,4 +1,4 @@
-import { atom, computed, map, onMount, onStop } from 'nanostores'
+import { atom, computed, map, onMount } from 'nanostores'
 
 import {
   createDownloadTask,
@@ -33,10 +33,6 @@ export type PreviewLinksValue = Record<
 >
 
 let $links = map<PreviewLinksValue>({})
-
-onStop($links, () => {
-  clearPreview()
-})
 
 export const previewUrlError = computed($links, links => {
   let first = Object.keys(links)[0]

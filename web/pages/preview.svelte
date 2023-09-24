@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     addPreviewCandidate,
+    clearPreview,
     previewCandidate,
     previewCandidateAdded,
     previewCandidates,
@@ -11,10 +12,15 @@
     setPreviewUrl,
     addMessages as t
   } from '@slowreader/core'
+  import { onDestroy } from 'svelte'
 
   import { openURL } from '../stores/router.js'
   import OrganizeEdit from './organize/edit.svelte'
   import OrganizePosts from './organize/posts.svelte'
+
+  onDestroy(() => {
+    clearPreview()
+  })
 
   export let url = ''
   setPreviewUrl(url)

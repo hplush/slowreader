@@ -10,7 +10,7 @@ import { userId } from './settings.js'
 
 let testTime: TestTime | undefined
 
-export function enableClientTest(): TestTime {
+export function enableTestTime(): TestTime {
   testTime = new TestTime()
   return testTime
 }

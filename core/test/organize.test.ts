@@ -3,22 +3,16 @@ import { setTimeout } from 'node:timers/promises'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
-import {
-  addFeed,
-  enableClientTest,
-  Feed,
-  organizeFeeds,
-  organizeLoading,
-  userId
-} from '../index.js'
+import { addFeed, organizeFeeds, organizeLoading } from '../index.js'
+import { cleanClientTest, enableClientTest } from './utils.js'
 
 test.before.each(() => {
   enableClientTest()
-  userId.set('10')
 })
 
 test.after.each(async () => {
-  cleanStores(Feed, organizeFeeds, organizeLoading)
+  await cleanClientTest()
+  cleanStores(organizeFeeds, organizeLoading)
 })
 
 test('adds feed', async () => {
