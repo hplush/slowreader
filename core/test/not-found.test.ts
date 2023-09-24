@@ -4,18 +4,8 @@ import { setTimeout } from 'node:timers/promises'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
 
-import {
-  type BaseRoute,
-  Feed,
-  getClient,
-  notFound,
-  setupEnvironment
-} from '../index.js'
-import {
-  cleanClientTest,
-  enableClientTest,
-  getTestEnvironment
-} from './utils.js'
+import { type BaseRoute, Feed, getClient, notFound } from '../index.js'
+import { cleanClientTest, enableClientTest } from './utils.js'
 
 let testRouter = atom<BaseRoute | undefined>()
 
@@ -24,8 +14,7 @@ function setBaseRoute(route: BaseRoute | undefined): void {
 }
 
 test.before.each(() => {
-  setupEnvironment({
-    ...getTestEnvironment(),
+  enableClientTest({
     baseRouter: testRouter,
     errorEvents: {
       addEventListener(event, cb) {
@@ -35,12 +24,10 @@ test.before.each(() => {
       }
     }
   })
-  enableClientTest()
 })
 
 test.after.each(async () => {
   await cleanClientTest()
-  setupEnvironment(getTestEnvironment())
 })
 
 test('has i18n', async () => {

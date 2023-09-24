@@ -1,3 +1,5 @@
+import './environment.js'
+
 import { spyOn } from 'nanospy'
 import { cleanStores, keepMount } from 'nanostores'
 import { test } from 'uvu'
