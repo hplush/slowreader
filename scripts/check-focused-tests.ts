@@ -8,7 +8,11 @@ const ROOT = join(fileURLToPath(import.meta.url), '..', '..')
 
 const IGNORE = new Set(['node_modules', 'coverage', 'dist', '.git', '.github'])
 
-async function findFiles(dir, filter, callback) {
+async function findFiles(
+  dir: string,
+  filter: RegExp,
+  callback: (filename: string) => void
+): Promise<void> {
   for (let name of await readdir(dir)) {
     if (IGNORE.has(name)) continue
     let filename = join(dir, name)
@@ -21,7 +25,12 @@ async function findFiles(dir, filter, callback) {
   }
 }
 
-function check(all, part, filename, message) {
+function check(
+  all: Buffer,
+  part: string,
+  filename: string,
+  message: string
+): void {
   if (all.includes(part)) {
     let lines = all.toString().split('\n')
     let line = lines.findIndex(i => i.includes(part)) + 1
@@ -31,7 +40,7 @@ function check(all, part, filename, message) {
   }
 }
 
-async function checkFile(filename) {
+async function checkFile(filename: string): Promise<void> {
   let code = await readFile(filename)
   check(code, 'test.only(', filename, 'has focused test')
   check(code, 'test.skip(', filename, 'has skipped test')

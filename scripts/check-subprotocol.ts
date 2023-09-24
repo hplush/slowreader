@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 
 const ROOT = join(fileURLToPath(import.meta.url), '..', '..')
 
-function read(...parts) {
+function read(...parts: string[]): string {
   return readFileSync(join(ROOT, ...parts)).toString()
 }
 

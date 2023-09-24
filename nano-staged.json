@@ -2,8 +2,8 @@
   "*.{js,ts}": "prettier --write",
   "*.css": "stylelint --fix",
   "*.svelte": ["prettier --write", "stylelint --fix"],
-  "api/{index.ts,package.json}": "node ./scripts/check-subprotocol.js",
-  ".tool-versions": "node ./scripts/check-versions.js",
-  "package.json": "node ./scripts/check-versions.js",
-  "*.test.ts": "node ./scripts/check-focused-tests.js"
+  "api/{index.ts,package.json}": "tsm ./scripts/check-subprotocol.ts",
+  ".tool-versions": "tsm ./scripts/check-versions.ts",
+  "package.json": "tsm ./scripts/check-versions.ts",
+  "*.test.ts": "tsm ./scripts/check-focused-tests.ts"
 }

@@ -5,13 +5,13 @@ import { fileURLToPath } from 'node:url'
 
 const ROOT = join(fileURLToPath(import.meta.url), '..', '..')
 
-function read(...parts) {
+function read(...parts: string[]): string {
   return readFileSync(join(ROOT, ...parts)).toString()
 }
 let pkg = read('package.json')
 let toolVersions = read('.tool-versions')
 
-let nodeMinor = toolVersions.match(/nodejs (\d+\.\d+)\./)[1]
+let nodeMinor = toolVersions.match(/nodejs (\d+\.\d+)\./)![1]
 
 if (!pkg.includes(`"node": "~${nodeMinor}.`)) {
   process.stderr.write(

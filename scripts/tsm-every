@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+
+GRAY='\033[0;30m'
+NO_COLOR='\033[0m'
+
+for file in $@; do
+  printf "$GRAY$file$NO_COLOR\n"
+  NODE_NO_WARNINGS=1 pnpm tsm $file
+done
