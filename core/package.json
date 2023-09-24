@@ -4,8 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "unit": "../scripts/tsm-every test *.test.ts",
-    "fast": "c8 tsm ./node_modules/uvu/bin.js test .test.ts",
+    "unit": "FORCE_COLOR=1 ../scripts/tsm-every test *.test.ts",
     "test:coverage": "c8 pnpm unit",
     "test": "FORCE_COLOR=1 pnpm run /^test:/"
   },
