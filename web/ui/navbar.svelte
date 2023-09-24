@@ -1,10 +1,6 @@
 <script lang="ts">
-  import {
-    isFastRoute,
-    isSlowRoute,
-    router,
-    navbarMessages as t
-  } from '@slowreader/core'
+  import { isFastRoute, isSlowRoute, router } from '@slowreader/core'
+  import { navbarMessages as t } from '@slowreader/core/messages'
 
   import { getURL } from '../stores/router.js'
 </script>

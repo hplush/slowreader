@@ -4,15 +4,14 @@ import { equal } from 'uvu/assert'
 
 import {
   type BaseRoute,
-  getEnvironment,
   isFastRoute,
   isGuestRoute,
   isSlowRoute,
-  resetTestEnvironment,
   router,
   setupEnvironment,
   userId
 } from '../index.js'
+import { getTestEnvironment } from './utils.js'
 
 let testRouter = atom<BaseRoute | undefined>()
 
@@ -22,15 +21,13 @@ function setBaseRoute(route: BaseRoute | undefined): void {
 
 test.before.each(() => {
   setupEnvironment({
-    ...getEnvironment(),
-    baseRouter: testRouter,
-    persistentEvents: { addEventListener() {}, removeEventListener() {} },
-    persistentStore: {}
+    ...getTestEnvironment(),
+    baseRouter: testRouter
   })
 })
 
 test.after.each(() => {
-  resetTestEnvironment()
+  setupEnvironment(getTestEnvironment())
 })
 
 test('opens 404', () => {

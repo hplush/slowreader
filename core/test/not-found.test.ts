@@ -8,12 +8,14 @@ import {
   type BaseRoute,
   Feed,
   getClient,
-  getEnvironment,
   notFound,
-  resetTestEnvironment,
   setupEnvironment
 } from '../index.js'
-import { cleanClientTest, enableClientTest } from './utils.js'
+import {
+  cleanClientTest,
+  enableClientTest,
+  getTestEnvironment
+} from './utils.js'
 
 let testRouter = atom<BaseRoute | undefined>()
 
@@ -23,7 +25,7 @@ function setBaseRoute(route: BaseRoute | undefined): void {
 
 test.before.each(() => {
   setupEnvironment({
-    ...getEnvironment(),
+    ...getTestEnvironment(),
     baseRouter: testRouter,
     errorEvents: {
       addEventListener(event, cb) {
@@ -31,16 +33,14 @@ test.before.each(() => {
           cb({ reason: reason as Error })
         })
       }
-    },
-    persistentEvents: { addEventListener() {}, removeEventListener() {} },
-    persistentStore: {}
+    }
   })
   enableClientTest()
 })
 
 test.after.each(async () => {
   await cleanClientTest()
-  resetTestEnvironment()
+  setupEnvironment(getTestEnvironment())
 })
 
 test('has i18n', async () => {

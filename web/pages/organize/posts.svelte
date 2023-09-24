@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { type PostsPage, organizeMessages as t } from '@slowreader/core'
+  import type { PostsPage } from '@slowreader/core'
+  import { organizeMessages as t } from '@slowreader/core/messages'
 
   import UIPostCard from '../../ui/post-card.svelte'
 

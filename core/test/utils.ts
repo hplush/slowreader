@@ -1,7 +1,15 @@
-import { cleanStores } from 'nanostores'
+import { MemoryStore } from '@logux/core'
+import { atom, cleanStores } from 'nanostores'
 import { match, unreachable } from 'uvu/assert'
 
-import { client, enableTestTime, Feed, Filter, userId } from '../index.js'
+import {
+  client,
+  enableTestTime,
+  type EnvironmentAndStore,
+  Feed,
+  Filter,
+  userId
+} from '../index.js'
 
 export async function rejects(
   wait: Promise<unknown>,
@@ -33,4 +41,17 @@ export function enableClientTest(): void {
 export async function cleanClientTest(): Promise<void> {
   await client.get()?.log.store.clean()
   cleanStores(Feed, Filter)
+}
+
+export function getTestEnvironment(): EnvironmentAndStore {
+  return {
+    baseRouter: atom(undefined),
+    errorEvents: { addEventListener() {} },
+    locale: atom('en'),
+    logStoreCreator: () => new MemoryStore(),
+    networkType: () => ({ saveData: undefined, type: undefined }),
+    persistentEvents: { addEventListener() {}, removeEventListener() {} },
+    persistentStore: {},
+    translationLoader: async () => ({})
+  }
 }

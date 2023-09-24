@@ -1,0 +1,5 @@
+export * from './settings/en.js'
+export * from './organize/en.js'
+export * from './preview/en.js'
+export * from './navbar/en.js'
+export * from './start/en.js'

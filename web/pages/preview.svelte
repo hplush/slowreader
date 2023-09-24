@@ -9,9 +9,9 @@
     previewPosts,
     previewUrlError,
     setPreviewCandidate,
-    setPreviewUrl,
-    addMessages as t
+    setPreviewUrl
   } from '@slowreader/core'
+  import { previewMessages as t } from '@slowreader/core/messages'
   import { onDestroy } from 'svelte'
 
   import { openURL } from '../stores/router.js'

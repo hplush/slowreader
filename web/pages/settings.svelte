@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { preloadImages, settingsMessages as t, theme } from '@slowreader/core'
+  import { preloadImages, theme } from '@slowreader/core'
+  import { settingsMessages as t } from '@slowreader/core/messages'
 
   import { detectNetworkType } from '../lib/network.js'
   import UiRadio from '../ui/radio.svelte'

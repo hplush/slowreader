@@ -12,9 +12,9 @@
     moveFilterDown,
     moveFilterUp,
     type PostsPage,
-    sortFilters,
-    organizeMessages as t
+    sortFilters
   } from '@slowreader/core'
+  import { organizeMessages as t } from '@slowreader/core/messages'
 
   import OrganizePosts from './posts.svelte'
 

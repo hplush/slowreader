@@ -1,12 +1,11 @@
 import type { ClientOptions } from '@logux/client'
-import { MemoryStore } from '@logux/core'
 import type { TranslationLoader } from '@nanostores/i18n'
 import {
   type PersistentEvents,
   type PersistentStore,
   setPersistentEngine
 } from '@nanostores/persistent'
-import { atom, type ReadableAtom, type StoreValue } from 'nanostores'
+import type { ReadableAtom, StoreValue } from 'nanostores'
 
 import type { NetworkTypeDetector } from './refresh.js'
 import type { BaseRouter, Routes } from './router.js'
@@ -38,7 +37,7 @@ interface ErrorEvents {
   ): void
 }
 
-interface Environment {
+export interface Environment {
   baseRouter: BaseRouter
   errorEvents: ErrorEvents
   locale: ReadableAtom<string>
@@ -47,51 +46,35 @@ interface Environment {
   translationLoader: TranslationLoader
 }
 
-let testEnvironment: Environment = {
-  baseRouter: atom(undefined),
-  errorEvents: { addEventListener() {} },
-  locale: atom('en'),
-  logStoreCreator: () => new MemoryStore(),
-  networkType: () => ({ saveData: undefined, type: undefined }),
-  translationLoader: async () => ({})
+export type EnvironmentAndStore = Environment & {
+  persistentEvents: PersistentEvents
+  persistentStore: PersistentStore
 }
 
-let currentEnvironment = { ...testEnvironment }
+let currentEnvironment: Environment | undefined
 
 let listeners: EnvironmentListener[] = []
 
 export function onEnvironment(ch: EnvironmentListener): void {
-  ch(currentEnvironment)
+  if (currentEnvironment) ch(currentEnvironment)
   listeners.push(ch)
 }
 
 export function setupEnvironment<Router extends BaseRouter>(
-  env: Environment & {
+  env: EnvironmentAndStore & {
     baseRouter: ValidateRouter<Router>
-    persistentEvents: PersistentEvents
-    persistentStore: PersistentStore
   }
 ): void {
   setPersistentEngine(env.persistentStore, env.persistentEvents)
-  currentEnvironment.baseRouter = env.baseRouter
-  currentEnvironment.locale = env.locale
-  currentEnvironment.logStoreCreator = env.logStoreCreator
-  currentEnvironment.translationLoader = env.translationLoader
-  currentEnvironment.networkType = env.networkType
-  currentEnvironment.errorEvents = env.errorEvents
+  currentEnvironment = {
+    baseRouter: env.baseRouter,
+    errorEvents: env.errorEvents,
+    locale: env.locale,
+    logStoreCreator: env.logStoreCreator,
+    networkType: env.networkType,
+    translationLoader: env.translationLoader
+  }
   for (let listener of listeners) {
     listener(currentEnvironment)
   }
-}
-
-export function resetTestEnvironment(): void {
-  setupEnvironment({
-    ...testEnvironment,
-    persistentEvents: { addEventListener() {}, removeEventListener() {} },
-    persistentStore: {}
-  })
-}
-
-export function getEnvironment(): Environment {
-  return currentEnvironment
 }

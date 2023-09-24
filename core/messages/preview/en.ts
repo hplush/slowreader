@@ -1,6 +1,6 @@
 import { i18n } from '../../i18n.js'
 
-export const addMessages = i18n('add', {
+export const previewMessages = i18n('add', {
   add: 'Add',
   alreadyAdded: 'The feed was added',
   edit: 'Edit',

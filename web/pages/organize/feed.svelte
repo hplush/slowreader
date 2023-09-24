@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { deleteFeed, organizeMessages as t } from '@slowreader/core'
+  import { deleteFeed } from '@slowreader/core'
+  import { organizeMessages as t } from '@slowreader/core/messages'
 
   import { openURL } from '../../stores/router.js'
   import OrganizeEdit from './edit.svelte'
