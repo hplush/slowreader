@@ -10,7 +10,6 @@ import {
   changeFilter,
   deleteFilter,
   type FilterValue,
-  getClient,
   getFeed,
   getFiltersForFeed,
   isValidFilterQuery,
@@ -110,11 +109,6 @@ test('adds, loads, changes and removes filters', async () => {
 })
 
 test('adds filter for feed', async () => {
-  // TODO: Replace for better log management
-  let unbind = getClient().log.on('preadd', (action, meta) => {
-    meta.reasons.push('test')
-  })
-
   let feedId1 = await addFeed({
     loader: 'rss',
     reading: 'fast',
@@ -151,8 +145,6 @@ test('adds filter for feed', async () => {
       query: ''
     }
   ])
-
-  unbind()
 })
 
 test('sorts filters', () => {
