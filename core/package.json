@@ -4,8 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "unit": "node ../scripts/test.js test/{**/,}*.ts",
-    "test:coverage": "c8 pnpm unit",
+    "test:coverage": "c8 pnpm bnt",
     "test": "FORCE_COLOR=1 pnpm run /^test:/"
   },
   "exports": {
