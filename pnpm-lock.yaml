@@ -30,8 +30,8 @@ importers:
         specifier: ^6.7.3
         version: 6.7.3(eslint@8.50.0)(typescript@5.2.2)
       better-node-test:
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.1.1
+        version: 0.1.1
       eslint:
         specifier: ^8.50.0
         version: 8.50.0
@@ -1301,8 +1301,8 @@ packages:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
     dev: false
 
-  /better-node-test@0.1.0:
-    resolution: {integrity: sha512-oDZG6ijkCXDYpKX26o4aO+/sIHHZJMoNXdKbfDy83X9/CCc44eVxP8KmEE6PBdWw48utXh3ABbsmICRkAED2SQ==}
+  /better-node-test@0.1.1:
+    resolution: {integrity: sha512-Jmg3wHUjzHe75JGORyBjWl2m+TAhSk2HHUxB7B7+mpfaBW29KZMvSGBqk/qMS/VkpA//jADHGWBIC2ncQg6pyQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     dev: true
