@@ -3,9 +3,9 @@ import './dom-parser.js'
 import { ensureLoaded } from '@logux/client'
 import { restoreAll, spyOn } from 'nanospy'
 import { keepMount } from 'nanostores'
+import { deepStrictEqual, equal } from 'node:assert'
+import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
-import { test } from 'uvu'
-import { equal } from 'uvu/assert'
 
 import {
   addFeed,
@@ -29,12 +29,12 @@ import {
 } from '../index.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
-test.before.each(() => {
+beforeEach(() => {
   enableClientTest()
   mockRequest()
 })
 
-test.after.each(async () => {
+afterEach(async () => {
   await cleanClientTest()
   restoreAll()
   clearPreview()
@@ -46,7 +46,7 @@ function equalWithText(a: PreviewCandidate[], b: PreviewCandidate[]): void {
   for (let i = 0; i < a.length; i++) {
     let aFix = { ...a[i], text: undefined }
     let bFix = { ...b[i], text: undefined }
-    equal(aFix, bFix)
+    deepStrictEqual(aFix, bFix)
   }
 }
 
@@ -57,7 +57,7 @@ test('empty from beginning', () => {
 
   equal(previewUrlError.get(), undefined)
   equal(previewCandidatesLoading.get(), false)
-  equal(previewCandidates.get(), [])
+  deepStrictEqual(previewCandidates.get(), [])
 })
 
 test('validates URL', () => {
@@ -106,7 +106,7 @@ test('cleans state', async () => {
 
   clearPreview()
   equal(previewUrlError.get(), undefined)
-  equal(previewCandidates.get(), [])
+  deepStrictEqual(previewCandidates.get(), [])
   equal(reply.aborted, true)
   equal(previewPosts.get(), undefined)
   equal(previewCandidate.get(), undefined)
@@ -115,7 +115,7 @@ test('cleans state', async () => {
 
   clearPreview()
   equal(previewUrlError.get(), undefined)
-  equal(previewCandidates.get(), [])
+  deepStrictEqual(previewCandidates.get(), [])
 })
 
 test('is ready for network errors', async () => {
@@ -163,7 +163,7 @@ test('detects RSS links', async () => {
   await setTimeout(10)
   equal(previewCandidatesLoading.get(), true)
   equal(previewUrlError.get(), undefined)
-  equal(previewCandidates.get(), [])
+  deepStrictEqual(previewCandidates.get(), [])
 
   let replyRss = expectRequest('http://example.com/news').andWait()
   replyHtml(
@@ -175,7 +175,7 @@ test('detects RSS links', async () => {
   await setTimeout(10)
   equal(previewCandidatesLoading.get(), true)
   equal(previewUrlError.get(), undefined)
-  equal(previewCandidates.get(), [])
+  deepStrictEqual(previewCandidates.get(), [])
 
   let rss = '<rss><channel><title>News</title></channel></rss>'
   replyRss(200, rss, 'application/rss+xml')
@@ -256,7 +256,7 @@ test('shows if unknown URL', async () => {
   await setTimeout(10)
   equal(previewCandidatesLoading.get(), false)
   equal(previewUrlError.get(), undefined)
-  equal(previewCandidates.get(), [])
+  deepStrictEqual(previewCandidates.get(), [])
 })
 
 test('tracks current candidate', async () => {
@@ -289,7 +289,7 @@ test('tracks current candidate', async () => {
   equal(previewUrlError.get(), undefined)
   equal(previewCandidates.get().length, 2)
   equal(previewCandidate.get(), 'http://example.com/atom')
-  equal(previewPosts.get()!.get(), {
+  deepStrictEqual(previewPosts.get()!.get(), {
     hasNext: false,
     isLoading: false,
     list: [{ id: '1', media: [], url: '1' }]
@@ -304,7 +304,7 @@ test('tracks current candidate', async () => {
   await setTimeout(10)
 
   equal(previewCandidate.get(), 'http://example.com/rss')
-  equal(previewPosts.get()!.get(), {
+  deepStrictEqual(previewPosts.get()!.get(), {
     hasNext: false,
     isLoading: false,
     list: [{ id: '2', media: [], url: '2' }]
@@ -316,7 +316,7 @@ test('tracks current candidate', async () => {
   await setTimeout(10)
 
   equal(previewCandidate.get(), 'http://example.com/atom')
-  equal(previewPosts.get()!.get(), {
+  deepStrictEqual(previewPosts.get()!.get(), {
     hasNext: false,
     isLoading: false,
     list: [{ id: '1', media: [], url: '1' }]
@@ -327,7 +327,7 @@ test('tracks current candidate', async () => {
   await setTimeout(10)
 
   equal(previewCandidate.get(), 'http://example.com/rss')
-  equal(previewPosts.get()!.get(), {
+  deepStrictEqual(previewPosts.get()!.get(), {
     hasNext: false,
     isLoading: false,
     list: [{ id: '2', media: [], url: '2' }]
@@ -394,5 +394,3 @@ test('adds current preview candidate', async () => {
   equal(typeof previewCandidateAdded.get(), 'string')
   equal(ensureLoaded($feeds.get()).list.length, 1)
 })
-
-test.run()

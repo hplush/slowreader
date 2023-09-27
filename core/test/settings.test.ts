@@ -1,6 +1,6 @@
 import { keepMount } from 'nanostores'
-import { test } from 'uvu'
-import { equal } from 'uvu/assert'
+import { equal } from 'node:assert'
+import { afterEach, beforeEach, test } from 'node:test'
 
 import {
   generateCredentials,
@@ -13,7 +13,7 @@ import { cleanClientTest, enableClientTest } from '../test/utils.js'
 
 let restarts = 0
 
-test.before.each(() => {
+beforeEach(() => {
   enableClientTest({
     restartApp() {
       restarts += 1
@@ -21,7 +21,7 @@ test.before.each(() => {
   })
 })
 
-test.after.each(async () => {
+afterEach(async () => {
   await cleanClientTest()
   restarts = 0
 })
@@ -51,5 +51,3 @@ test('has store for theme', () => {
 test('has store for images preload settings', () => {
   equal(preloadImages.get(), 'always')
 })
-
-test.run()

@@ -1,7 +1,7 @@
 import { ensureLoaded, type LoadedSyncMapValue, loadValue } from '@logux/client'
 import { keepMount } from 'nanostores'
-import { test } from 'uvu'
-import { equal } from 'uvu/assert'
+import { deepStrictEqual, equal } from 'node:assert'
+import { afterEach, beforeEach, test } from 'node:test'
 
 import {
   addFeed,
@@ -21,25 +21,25 @@ import {
 } from '../index.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
-test.before.each(() => {
+beforeEach(() => {
   enableClientTest()
 })
 
-test.after.each(async () => {
+afterEach(async () => {
   await cleanClientTest()
 })
 
 test('adds, loads, changes and removes filters', async () => {
   let filters10 = getFiltersForFeed('10')
   keepMount(filters10)
-  equal((await loadValue(filters10)).list, [])
+  deepStrictEqual((await loadValue(filters10)).list, [])
 
   let id1 = await addFilter({
     action: 'fast',
     feedId: '10',
     query: 'include(some text)'
   })
-  equal(ensureLoaded(filters10.get()).list, [
+  deepStrictEqual(ensureLoaded(filters10.get()).list, [
     {
       action: 'fast',
       feedId: '10',
@@ -55,7 +55,7 @@ test('adds, loads, changes and removes filters', async () => {
     feedId: '10',
     query: 'hasMedia'
   })
-  equal(ensureLoaded(filters10.get()).list, [
+  deepStrictEqual(ensureLoaded(filters10.get()).list, [
     {
       action: 'fast',
       feedId: '10',
@@ -81,7 +81,7 @@ test('adds, loads, changes and removes filters', async () => {
     feedId: '10',
     query: 'include(third)'
   })
-  equal(ensureLoaded(filters10.get()).list, [
+  deepStrictEqual(ensureLoaded(filters10.get()).list, [
     {
       action: 'delete',
       feedId: '10',
@@ -106,7 +106,7 @@ test('adds, loads, changes and removes filters', async () => {
     feedId: '20',
     query: 'hasMedia'
   })
-  equal(ensureLoaded(filters10.get()).list, before)
+  deepStrictEqual(ensureLoaded(filters10.get()).list, before)
 })
 
 test('adds filter for feed', async () => {
@@ -131,7 +131,7 @@ test('adds filter for feed', async () => {
   let filterId1 = await addFilterForFeed(await loadValue(getFeed(feedId1)))
   let filterId2 = await addFilterForFeed(await loadValue(getFeed(feedId2)))
 
-  equal((await loadValue(getFiltersForFeed(feedId1))).list, [
+  deepStrictEqual((await loadValue(getFiltersForFeed(feedId1))).list, [
     {
       action: 'slow',
       feedId: feedId1,
@@ -141,7 +141,7 @@ test('adds filter for feed', async () => {
       query: ''
     }
   ])
-  equal((await loadValue(getFiltersForFeed(feedId2))).list, [
+  deepStrictEqual((await loadValue(getFiltersForFeed(feedId2))).list, [
     {
       action: 'fast',
       feedId: feedId2,
@@ -182,7 +182,7 @@ test('sorts filters', () => {
     id: '300',
     priority: 300
   }
-  equal(sortFilters([filter200a, filter300, filter100, filter200b]), [
+  deepStrictEqual(sortFilters([filter200a, filter300, filter100, filter200b]), [
     filter100,
     filter200a,
     filter200b,
@@ -211,28 +211,28 @@ test('moves filters in sorting order', async () => {
   let id1 = await addFilter({ ...common })
   let id2 = await addFilter({ ...common })
   let id3 = await addFilter({ ...common })
-  equal(getSorted(), [id1, id2, id3])
-  equal(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 300 })
+  deepStrictEqual(getSorted(), [id1, id2, id3])
+  deepStrictEqual(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 300 })
 
   await moveFilterUp(id3)
-  equal(getSorted(), [id1, id3, id2])
-  equal(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 150 })
+  deepStrictEqual(getSorted(), [id1, id3, id2])
+  deepStrictEqual(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 150 })
 
   await moveFilterUp(id3)
-  equal(getSorted(), [id3, id1, id2])
-  equal(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 0 })
+  deepStrictEqual(getSorted(), [id3, id1, id2])
+  deepStrictEqual(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 0 })
 
   await moveFilterUp(id3)
-  equal(getSorted(), [id3, id1, id2])
-  equal(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 0 })
+  deepStrictEqual(getSorted(), [id3, id1, id2])
+  deepStrictEqual(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 0 })
 
   await moveFilterDown(id1)
-  equal(getSorted(), [id3, id2, id1])
-  equal(getPriorities(), { [id1]: 300, [id2]: 200, [id3]: 0 })
+  deepStrictEqual(getSorted(), [id3, id2, id1])
+  deepStrictEqual(getPriorities(), { [id1]: 300, [id2]: 200, [id3]: 0 })
 
   await moveFilterDown(id1)
-  equal(getSorted(), [id3, id2, id1])
-  equal(getPriorities(), { [id1]: 300, [id2]: 200, [id3]: 0 })
+  deepStrictEqual(getSorted(), [id3, id2, id1])
+  deepStrictEqual(getPriorities(), { [id1]: 300, [id2]: 200, [id3]: 0 })
 })
 
 test('validates filter query', () => {
@@ -451,5 +451,3 @@ test('is ready for broken filters', () => {
     undefined
   )
 })
-
-test.run()

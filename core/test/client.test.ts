@@ -1,14 +1,14 @@
 import { spyOn } from 'nanospy'
 import { cleanStores, keepMount } from 'nanostores'
-import { test } from 'uvu'
-import { equal, match, throws } from 'uvu/assert'
+import { equal, match, throws } from 'node:assert'
+import { afterEach, test } from 'node:test'
 
 import { client, getClient, userId } from '../index.js'
 import { enableClientTest } from './utils.js'
 
 enableClientTest()
 
-test.after.each(() => {
+afterEach(() => {
   cleanStores(client)
 })
 
@@ -35,10 +35,8 @@ test('has helper for client area', () => {
   userId.set(undefined)
   throws(() => {
     getClient()
-  }, /^SlowReaderNoClient$/)
+  }, 'SlowReaderError: SlowReaderNoClient')
 
   userId.set('10')
   match(getClient().clientId, /^10:/)
 })
-
-test.run()

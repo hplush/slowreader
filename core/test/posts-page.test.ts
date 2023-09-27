@@ -1,6 +1,6 @@
+import { deepStrictEqual } from 'node:assert'
+import { test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
-import { test } from 'uvu'
-import { equal } from 'uvu/assert'
 
 import { createPostsPage, type OriginPost } from '../index.js'
 
@@ -18,14 +18,14 @@ const POST2: OriginPost = {
 
 test('works with cached posts without next page', () => {
   let posts = createPostsPage([POST1], undefined)
-  equal(posts.get(), {
+  deepStrictEqual(posts.get(), {
     hasNext: false,
     isLoading: false,
     list: [POST1]
   })
 
   posts.nextPage()
-  equal(posts.get(), {
+  deepStrictEqual(posts.get(), {
     hasNext: false,
     isLoading: false,
     list: [POST1]
@@ -36,35 +36,35 @@ test('works without posts', async () => {
   let posts = createPostsPage(undefined, async () => {
     return [[POST1], async () => [[POST2], undefined]]
   })
-  equal(posts.get(), {
+  deepStrictEqual(posts.get(), {
     hasNext: true,
     isLoading: true,
     list: []
   })
 
   await setTimeout(1)
-  equal(posts.get(), {
+  deepStrictEqual(posts.get(), {
     hasNext: true,
     isLoading: false,
     list: [POST1]
   })
 
   posts.nextPage()
-  equal(posts.get(), {
+  deepStrictEqual(posts.get(), {
     hasNext: true,
     isLoading: true,
     list: [POST1]
   })
 
   await setTimeout(1)
-  equal(posts.get(), {
+  deepStrictEqual(posts.get(), {
     hasNext: false,
     isLoading: false,
     list: [POST1, POST2]
   })
 
   posts.nextPage()
-  equal(posts.get(), {
+  deepStrictEqual(posts.get(), {
     hasNext: false,
     isLoading: false,
     list: [POST1, POST2]
@@ -77,7 +77,7 @@ test('is ready for double calls', async () => {
   })
   posts.nextPage()
   await setTimeout(1)
-  equal(posts.get(), {
+  deepStrictEqual(posts.get(), {
     hasNext: true,
     isLoading: false,
     list: [POST1]
@@ -85,14 +85,14 @@ test('is ready for double calls', async () => {
 
   posts.nextPage()
   posts.nextPage()
-  equal(posts.get(), {
+  deepStrictEqual(posts.get(), {
     hasNext: true,
     isLoading: true,
     list: [POST1]
   })
 
   await setTimeout(1)
-  equal(posts.get(), {
+  deepStrictEqual(posts.get(), {
     hasNext: false,
     isLoading: false,
     list: [POST1, POST2]
@@ -103,25 +103,23 @@ test('works with cached posts with next page loader', async () => {
   let posts = createPostsPage([POST1], async () => {
     return [[POST2], undefined]
   })
-  equal(posts.get(), {
+  deepStrictEqual(posts.get(), {
     hasNext: true,
     isLoading: false,
     list: [POST1]
   })
 
   posts.nextPage()
-  equal(posts.get(), {
+  deepStrictEqual(posts.get(), {
     hasNext: true,
     isLoading: true,
     list: [POST1]
   })
 
   await setTimeout(1)
-  equal(posts.get(), {
+  deepStrictEqual(posts.get(), {
     hasNext: false,
     isLoading: false,
     list: [POST1, POST2]
   })
 })
-
-test.run()
