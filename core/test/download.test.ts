@@ -1,8 +1,8 @@
 import './dom-parser.js'
 
+import { equal, rejects, throws } from 'node:assert'
+import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
-import { test } from 'uvu'
-import { equal, throws } from 'uvu/assert'
 
 import {
   checkAndRemoveRequestMock,
@@ -13,13 +13,12 @@ import {
   mockRequest,
   setRequestMethod
 } from '../index.js'
-import { rejects } from './utils.js'
 
-test.before.each(() => {
+beforeEach(() => {
   mockRequest()
 })
 
-test.after.each(() => {
+afterEach(() => {
   checkAndRemoveRequestMock()
 })
 
@@ -121,9 +120,7 @@ test('can download text by keeping eyes on abort signal', async () => {
   await setTimeout(10)
   task.abortAll()
   sendText?.('Done')
-  await rejects(response2, e => {
-    equal(e.name, 'AbortError')
-  })
+  await rejects(response2, (e: Error) => e.name === 'AbortError')
 })
 
 test('parses content', async () => {
@@ -172,13 +169,16 @@ test('has helper to ignore abort errors', async () => {
   }, error1)
 
   let error2 = 'message'
-  throws(() => {
-    try {
-      throw error2
-    } catch (e) {
-      ignoreAbortError(e)
-    }
-  }, error2)
+  throws(
+    () => {
+      try {
+        throw error2
+      } catch (e) {
+        ignoreAbortError(e)
+      }
+    },
+    e => e === error2
+  )
 
   let error3: any
   expectRequest('https://example.com').andRespond(400)
@@ -190,5 +190,3 @@ test('has helper to ignore abort errors', async () => {
 
   ignoreAbortError(error3)
 })
-
-test.run()

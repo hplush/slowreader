@@ -1,10 +1,8 @@
-import { keepMount } from 'nanostores'
-import process from 'node:process'
-import { setTimeout } from 'node:timers/promises'
-import { test } from 'uvu'
-import { equal } from 'uvu/assert'
+import { LoguxUndoError } from '@logux/client'
+import { equal } from 'node:assert'
+import { afterEach, beforeEach, test } from 'node:test'
 
-import { Feed, getClient, notFound } from '../index.js'
+import { notFound } from '../index.js'
 import {
   cleanClientTest,
   enableClientTest,
@@ -12,20 +10,20 @@ import {
   testRouter
 } from './utils.js'
 
-test.before.each(() => {
+let listener: (e: { reason: Error }) => void
+
+beforeEach(() => {
   enableClientTest({
     baseRouter: testRouter,
     errorEvents: {
       addEventListener(event, cb) {
-        process.on(event.replace('rejection', 'Rejection'), reason => {
-          cb({ reason: reason as Error })
-        })
+        listener = cb
       }
     }
   })
 })
 
-test.after.each(async () => {
+afterEach(async () => {
   await cleanClientTest()
 })
 
@@ -33,13 +31,16 @@ test('listens for not found error', async () => {
   setBaseRoute({ params: { id: 'unknown' }, route: 'feed' })
   equal(notFound.get(), false)
 
-  let unknown = Feed('unknown', getClient())
-  keepMount(unknown)
-  await setTimeout(10)
+  listener({
+    reason: new LoguxUndoError({
+      action: { channel: 'feeds/unknown', type: 'logux/subscribe' },
+      id: '1 1:0:0 0',
+      reason: 'notFound',
+      type: 'logux/undo'
+    })
+  })
   equal(notFound.get(), true)
 
   setBaseRoute({ params: { id: 'another' }, route: 'feed' })
   equal(notFound.get(), false)
 })
-
-test.run()

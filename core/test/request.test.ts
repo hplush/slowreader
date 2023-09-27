@@ -1,6 +1,6 @@
+import { deepStrictEqual, equal, rejects, throws } from 'node:assert'
+import { afterEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
-import { test } from 'uvu'
-import { equal, throws } from 'uvu/assert'
 
 import {
   checkAndRemoveRequestMock,
@@ -9,9 +9,8 @@ import {
   request,
   setRequestMethod
 } from '../index.js'
-import { rejects } from './utils.js'
 
-test.after.each(() => {
+afterEach(() => {
   setRequestMethod(fetch)
 })
 
@@ -29,7 +28,7 @@ test('replaces request method', () => {
   })
 
   equal(request('https://example.com'), result)
-  equal(calls, ['https://example.com'])
+  deepStrictEqual(calls, ['https://example.com'])
 })
 
 test('checks that all mock requests was called', async () => {
@@ -52,7 +51,7 @@ test('checks mocks order', async () => {
 
   await rejects(
     request('https://two.com'),
-    'https://one.com instead of https://two.com'
+    /https:\/\/one\.com instead of https:\/\/two\.com/
   )
 })
 
@@ -64,7 +63,7 @@ test('is ready for unexpected requests', async () => {
   equal((await request('https://one.com')).status, 200)
   await rejects(
     request('https://one.com'),
-    'Unexpected request https://one.com'
+    /Unexpected request https:\/\/one.com/
   )
 })
 
@@ -100,5 +99,3 @@ test('sets content type', async () => {
   let response3 = await request('https://two.com')
   equal(response3.headers.get('content-type'), 'text/html; charset=utf-8')
 })
-
-test.run()

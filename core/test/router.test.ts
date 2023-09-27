@@ -1,5 +1,5 @@
-import { test } from 'uvu'
-import { equal } from 'uvu/assert'
+import { deepStrictEqual, equal } from 'node:assert'
+import { afterEach, beforeEach, test } from 'node:test'
 
 import {
   addFeed,
@@ -17,19 +17,19 @@ import {
   testRouter
 } from './utils.js'
 
-test.before.each(() => {
+beforeEach(() => {
   enableClientTest({
     baseRouter: testRouter
   })
 })
 
-test.after.each(async () => {
+afterEach(async () => {
   await cleanClientTest()
 })
 
 test('opens 404', () => {
   setBaseRoute(undefined)
-  equal(router.get(), {
+  deepStrictEqual(router.get(), {
     params: {},
     redirect: false,
     route: 'notFound'
@@ -39,21 +39,21 @@ test('opens 404', () => {
 test('transforms routers for guest', () => {
   userId.set(undefined)
   setBaseRoute({ params: {}, route: 'home' })
-  equal(router.get(), {
+  deepStrictEqual(router.get(), {
     params: {},
     redirect: false,
     route: 'start'
   })
 
   setBaseRoute({ params: {}, route: 'slowAll' })
-  equal(router.get(), {
+  deepStrictEqual(router.get(), {
     params: {},
     redirect: false,
     route: 'start'
   })
 
   setBaseRoute({ params: {}, route: 'signin' })
-  equal(router.get(), {
+  deepStrictEqual(router.get(), {
     params: {},
     redirect: false,
     route: 'signin'
@@ -63,35 +63,35 @@ test('transforms routers for guest', () => {
 test('transforms routers for users', () => {
   userId.set('10')
   setBaseRoute({ params: {}, route: 'home' })
-  equal(router.get(), {
+  deepStrictEqual(router.get(), {
     params: {},
     redirect: true,
     route: 'welcome'
   })
 
   setBaseRoute({ params: {}, route: 'fast' })
-  equal(router.get(), {
+  deepStrictEqual(router.get(), {
     params: {},
     redirect: false,
     route: 'fast'
   })
 
   setBaseRoute({ params: {}, route: 'home' })
-  equal(router.get(), {
+  deepStrictEqual(router.get(), {
     params: {},
     redirect: true,
     route: 'welcome'
   })
 
   setBaseRoute({ params: {}, route: 'signin' })
-  equal(router.get(), {
+  deepStrictEqual(router.get(), {
     params: {},
     redirect: true,
     route: 'welcome'
   })
 
   userId.set(undefined)
-  equal(router.get(), {
+  deepStrictEqual(router.get(), {
     params: {},
     redirect: false,
     route: 'signin'
@@ -101,7 +101,7 @@ test('transforms routers for users', () => {
 test('transforms routers for users with feeds', async () => {
   userId.set('10')
   setBaseRoute({ params: {}, route: 'home' })
-  equal(router.get(), {
+  deepStrictEqual(router.get(), {
     params: {},
     redirect: true,
     route: 'welcome'
@@ -113,14 +113,14 @@ test('transforms routers for users with feeds', async () => {
     title: 'Test',
     url: 'https://example.com'
   })
-  equal(router.get(), {
+  deepStrictEqual(router.get(), {
     params: {},
     redirect: true,
     route: 'slowAll'
   })
 
   setBaseRoute({ params: {}, route: 'welcome' })
-  equal(router.get(), {
+  deepStrictEqual(router.get(), {
     params: {},
     redirect: true,
     route: 'slowAll'
@@ -128,7 +128,7 @@ test('transforms routers for users with feeds', async () => {
 
   setBaseRoute({ params: {}, route: 'home' })
   await deleteFeed(id)
-  equal(router.get(), {
+  deepStrictEqual(router.get(), {
     params: {},
     redirect: true,
     route: 'welcome'
@@ -158,5 +158,3 @@ test('has routes groups', () => {
   equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), false)
 })
-
-test.run()

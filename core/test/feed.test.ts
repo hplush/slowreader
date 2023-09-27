@@ -1,9 +1,9 @@
 import { ensureLoaded, loadValue } from '@logux/client'
 import { restoreAll, spyOn } from 'nanospy'
 import { keepMount } from 'nanostores'
+import { deepStrictEqual, equal } from 'node:assert'
+import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
-import { test } from 'uvu'
-import { equal, type } from 'uvu/assert'
 
 import {
   addFeed,
@@ -18,17 +18,17 @@ import {
 } from '../index.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
-test.before.each(() => {
+beforeEach(() => {
   enableClientTest()
 })
 
-test.after.each(async () => {
+afterEach(async () => {
   restoreAll()
   await cleanClientTest()
 })
 
 test('adds, loads, changes and removes feed', async () => {
-  equal((await loadValue(getFeeds())).list, [])
+  deepStrictEqual((await loadValue(getFeeds())).list, [])
 
   let id = await addFeed({
     loader: 'rss',
@@ -36,7 +36,7 @@ test('adds, loads, changes and removes feed', async () => {
     title: 'RSS',
     url: 'https://example.com/'
   })
-  type(id, 'string')
+  equal(typeof id, 'string')
   let added = (await loadValue(getFeeds())).list
   equal(added.length, 1)
   equal(added[0].title, 'RSS')
@@ -86,5 +86,3 @@ test('shows that user has any feeds', async () => {
   await deleteFeed(id)
   equal(hasFeeds.get(), false)
 })
-
-test.run()

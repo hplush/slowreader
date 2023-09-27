@@ -1,6 +1,5 @@
 import { MemoryStore } from '@logux/core'
 import { atom, cleanStores } from 'nanostores'
-import { match, unreachable } from 'uvu/assert'
 
 import {
   type BaseRoute,
@@ -12,28 +11,6 @@ import {
   setupEnvironment,
   userId
 } from '../index.js'
-
-export async function rejects(
-  wait: Promise<unknown>,
-  test: ((error: Error) => void) | RegExp | string
-): Promise<void> {
-  try {
-    await wait
-    unreachable()
-  } catch (error) {
-    if (!(error instanceof Error)) {
-      throw error
-    }
-    if (error.message === 'Assertion: Expected not to be reached!') {
-      throw new Error('Error was not thrown from Promise')
-    }
-    if (typeof test === 'function') {
-      test(error)
-    } else {
-      match(error.message, test)
-    }
-  }
-}
 
 export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
   setupEnvironment({ ...getTestEnvironment(), ...env })

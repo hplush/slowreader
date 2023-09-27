@@ -1,9 +1,9 @@
 import '../dom-parser.js'
 
 import { spyOn } from 'nanospy'
+import { deepStrictEqual, equal } from 'node:assert'
+import { test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
-import { test } from 'uvu'
-import { equal, type } from 'uvu/assert'
 
 import {
   createDownloadTask,
@@ -19,11 +19,11 @@ function exampleRss(xml: string): TextResponse {
 }
 
 test('detects own URLs', () => {
-  type(loaders.rss.isMineUrl(new URL('https://dev.to/')), 'undefined')
+  equal(typeof loaders.rss.isMineUrl(new URL('https://dev.to/')), 'undefined')
 })
 
 test('detects links', () => {
-  equal(
+  deepStrictEqual(
     loaders.rss.getMineLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
@@ -52,7 +52,7 @@ test('detects links', () => {
 })
 
 test('returns default links', () => {
-  equal(
+  deepStrictEqual(
     loaders.rss.getMineLinksFromText(
       createTextResponse('<!DOCTYPE html><html><head></head></html>', {
         url: 'https://example.com/news/'
@@ -64,7 +64,7 @@ test('returns default links', () => {
 })
 
 test('ignores default URL on Atom link', () => {
-  equal(
+  deepStrictEqual(
     loaders.rss.getMineLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
@@ -78,7 +78,7 @@ test('ignores default URL on Atom link', () => {
     ),
     []
   )
-  equal(
+  deepStrictEqual(
     loaders.atom.getMineLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
@@ -113,7 +113,7 @@ test('detects titles', () => {
 
 test('parses posts', async () => {
   let task = createDownloadTask()
-  equal(
+  deepStrictEqual(
     loaders.rss
       .getPosts(
         task,
@@ -191,14 +191,14 @@ test('loads text to parse posts', async () => {
     )
   )
   let page = loaders.rss.getPosts(task, 'https://example.com/news/')
-  equal(page.get(), {
+  deepStrictEqual(page.get(), {
     hasNext: true,
     isLoading: true,
     list: []
   })
 
   await setTimeout(10)
-  equal(page.get(), {
+  deepStrictEqual(page.get(), {
     hasNext: false,
     isLoading: false,
     list: [
@@ -211,7 +211,5 @@ test('loads text to parse posts', async () => {
       }
     ]
   })
-  equal(text.calls, [['https://example.com/news/']])
+  deepStrictEqual(text.calls, [['https://example.com/news/']])
 })
-
-test.run()

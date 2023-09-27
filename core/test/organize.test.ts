@@ -1,16 +1,16 @@
 import { cleanStores, keepMount } from 'nanostores'
+import { deepStrictEqual, equal } from 'node:assert'
+import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
-import { test } from 'uvu'
-import { equal } from 'uvu/assert'
 
 import { addFeed, organizeFeeds, organizeLoading } from '../index.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
-test.before.each(() => {
+beforeEach(() => {
   enableClientTest()
 })
 
-test.after.each(async () => {
+afterEach(async () => {
   await cleanClientTest()
   cleanStores(organizeFeeds, organizeLoading)
 })
@@ -23,7 +23,7 @@ test('adds feed', async () => {
 
   await setTimeout(10)
   equal(organizeLoading.get(), false)
-  equal(organizeFeeds.get(), [])
+  deepStrictEqual(organizeFeeds.get(), [])
 
   let id = await addFeed({
     loader: 'rss',
@@ -31,7 +31,7 @@ test('adds feed', async () => {
     title: 'RSS',
     url: 'https://example.com/'
   })
-  equal(organizeFeeds.get(), [
+  deepStrictEqual(organizeFeeds.get(), [
     {
       id,
       isLoading: false,
@@ -42,5 +42,3 @@ test('adds feed', async () => {
     }
   ])
 })
-
-test.run()
