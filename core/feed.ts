@@ -19,6 +19,7 @@ import type { PostsPage } from './posts-page.js'
 import { readonlyExport } from './utils/stores.js'
 
 export type FeedValue = {
+  categoryId?: string
   loader: LoaderName
   reading: 'fast' | 'slow'
   title: string
