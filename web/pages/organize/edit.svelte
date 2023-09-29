@@ -1,9 +1,11 @@
 <script lang="ts">
   import {
+    addCategory,
     addFilterForFeed,
     changeFeed,
     changeFilter,
     deleteFilter,
+    getCategories,
     getFeed,
     getFeedLatestPosts,
     getFiltersForFeed,
@@ -24,6 +26,7 @@
 
   $: feed = getFeed(feedId)
   $: filters = getFiltersForFeed(feedId)
+  $: categories = getCategories()
   $: if (posts) {
     loadedPosts = posts
   } else if (!$feed.isLoading) {
@@ -31,7 +34,7 @@
   }
 </script>
 
-{#if $feed.isLoading || $filters.isLoading}
+{#if $feed.isLoading || $filters.isLoading || $categories.isLoading}
   <UiLoader />
 {:else}
   <form on:submit|preventDefault>
@@ -64,6 +67,42 @@
           }}
         />
         {$t.fast}
+      </label>
+      <label>
+        <input
+          checked={$feed.reading === 'fast'}
+          type="radio"
+          value="fast"
+          on:click={() => {
+            changeFeed(feedId, { reading: 'fast' })
+          }}
+        />
+        {$t.fast}
+      </label>
+      <label>
+        {$t.category}
+        <select
+          value={$feed.categoryId ?? 'general'}
+          on:change={async e => {
+            if (e.currentTarget.value === 'new') {
+              let title = prompt($t.categoryName)
+              if (title) {
+                let categoryId = await addCategory({ title })
+                changeFeed(feedId, { categoryId })
+              }
+            } else if (e.currentTarget.value === '') {
+              changeFeed(feedId, { categoryId: undefined })
+            } else {
+              changeFeed(feedId, { categoryId: e.currentTarget.value })
+            }
+          }}
+        >
+          <option value="general">{$t.generalCategory}</option>
+          {#each $categories.list as category (category.id)}
+            <option value={category.id}>{category.title}</option>
+          {/each}
+          <option value="new">{$t.addCategory}</option>
+        </select>
       </label>
     </fieldset>
 
