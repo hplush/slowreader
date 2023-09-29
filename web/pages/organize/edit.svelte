@@ -5,6 +5,7 @@
     changeFeed,
     changeFilter,
     deleteFilter,
+    feedCategory,
     getCategories,
     getFeed,
     getFeedLatestPosts,
@@ -22,11 +23,12 @@
 
   export let feedId: string
   export let posts: PostsPage | undefined = undefined
+
   let loadedPosts: PostsPage | undefined = undefined
+  let categories = getCategories()
 
   $: feed = getFeed(feedId)
   $: filters = getFiltersForFeed(feedId)
-  $: categories = getCategories()
   $: if (posts) {
     loadedPosts = posts
   } else if (!$feed.isLoading) {
@@ -69,20 +71,9 @@
         {$t.fast}
       </label>
       <label>
-        <input
-          checked={$feed.reading === 'fast'}
-          type="radio"
-          value="fast"
-          on:click={() => {
-            changeFeed(feedId, { reading: 'fast' })
-          }}
-        />
-        {$t.fast}
-      </label>
-      <label>
         {$t.category}
         <select
-          value={$feed.categoryId ?? 'general'}
+          value={feedCategory($feed.categoryId, $categories)}
           on:change={async e => {
             if (e.currentTarget.value === 'new') {
               let title = prompt($t.categoryName)

@@ -4,7 +4,8 @@ export const organizeMessages = i18n('organize', {
   addCategory: 'Add category…',
   addFilter: 'Add filter',
   category: 'Category',
-  categoryName: 'New category name',
+  categoryName: 'Category name',
+  deleteCategory: 'Delete',
   deleteFeed: 'Delete feed',
   deleteFilter: 'Delete filter',
   fast: 'Fast-food reading (fun, but not useful)',
@@ -17,5 +18,6 @@ export const organizeMessages = i18n('organize', {
   invalidFilter: 'Filter query is invalid',
   moveFilterDown: 'Move down',
   moveFilterUp: 'Move up',
+  renameCategory: 'Rename',
   slow: 'Slow reading (deep and useful)'
 })

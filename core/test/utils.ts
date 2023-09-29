@@ -3,6 +3,7 @@ import { atom, cleanStores } from 'nanostores'
 
 import {
   type BaseRoute,
+  Category,
   client,
   enableTestTime,
   type EnvironmentAndStore,
@@ -21,7 +22,7 @@ export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
 export async function cleanClientTest(): Promise<void> {
   setupEnvironment(getTestEnvironment())
   await client.get()?.clean()
-  cleanStores(Feed, Filter)
+  cleanStores(Feed, Filter, Category)
 }
 
 export function getTestEnvironment(): EnvironmentAndStore {
