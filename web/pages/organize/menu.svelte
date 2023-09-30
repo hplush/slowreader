@@ -4,8 +4,7 @@
     deleteCategory,
     feedsByCategory,
     getCategories,
-    organizeFeeds,
-    organizeLoading
+    getFeeds
   } from '@slowreader/core'
   import { organizeMessages as t } from '@slowreader/core/messages'
 
@@ -15,13 +14,14 @@
   export let currentFeed: string | undefined = undefined
 
   let categories = getCategories()
+  let allFeeds = getFeeds()
 </script>
 
-{#if $organizeLoading || $categories.isLoading}
+{#if $allFeeds.isLoading || $categories.isLoading}
   <UiLoader />
 {:else}
   <ul>
-    {#each feedsByCategory($categories, $organizeFeeds) as [category, feeds] (category.id)}
+    {#each feedsByCategory($categories, $allFeeds.list) as [category, feeds] (category.id)}
       <li>
         {#if category.id === 'general'}
           <h2>{$t.generalCategory}</h2>
