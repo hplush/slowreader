@@ -24,7 +24,7 @@
   "devDependencies": {
     "@logux/eslint-config": "^52.0.1",
     "@logux/stylelint-config": "^0.16.0",
-    "@types/node": "^20.7.2",
+    "@types/node": "^20.8.0",
     "@types/ws": "^8.5.6",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@typescript-eslint/parser": "^6.7.3",
