@@ -46,3 +46,29 @@ export function createQueue<Types extends TaskTypes>(
     tasks
   }
 }
+
+export async function retryOnError<Result>(
+  cb: () => Promise<Result>,
+  onFirstError: () => void,
+  attempts = 3
+): Promise<Result | undefined> {
+  let result: Result | undefined
+  try {
+    result = await cb()
+  } catch (e) {
+    if (e instanceof Error) {
+      if (e.name === 'AbortError') {
+        return undefined
+      } else {
+        attempts -= 1
+        if (attempts === 0) {
+          return undefined
+        } else {
+          onFirstError()
+          return retryOnError(cb, () => {}, attempts)
+        }
+      }
+    }
+  }
+  return result
+}

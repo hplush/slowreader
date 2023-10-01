@@ -2,7 +2,7 @@ import { equal } from 'node:assert'
 import { test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import { createQueue } from '../../utils/queue.js'
+import { createQueue, retryOnError } from '../../utils/queue.js'
 
 test('increase keys', async () => {
   let events = ''
@@ -105,4 +105,82 @@ test('stops queue', async () => {
   equal(events, 'a1 a2 ')
   equal(resolves.length, 2)
   equal(finished, true)
+})
+
+test('reties on error', async () => {
+  let errorReport = 0
+  let attempts = 0
+  let result = await retryOnError(
+    () => {
+      attempts += 1
+      throw new Error('test')
+    },
+    () => {
+      errorReport += 1
+    }
+  )
+
+  equal(result, undefined)
+  equal(attempts, 3)
+  equal(errorReport, 1)
+})
+
+test('fails on AbortError', async () => {
+  let errorReport = 0
+  let attempts = 0
+  let result = await retryOnError(
+    () => {
+      attempts += 1
+      let error = new Error()
+      error.name = 'AbortError'
+      throw error
+    },
+    () => {
+      errorReport += 1
+    }
+  )
+
+  equal(result, undefined)
+  equal(attempts, 1)
+  equal(errorReport, 0)
+})
+
+test('returns value after error', async () => {
+  let errorReport = 0
+  let attempts = 0
+  let result = await retryOnError(
+    async () => {
+      attempts += 1
+      if (attempts === 2) {
+        return 'ok'
+      } else {
+        throw new Error('test')
+      }
+    },
+    () => {
+      errorReport += 1
+    }
+  )
+
+  equal(result, 'ok')
+  equal(attempts, 2)
+  equal(errorReport, 1)
+})
+
+test('returns value on no error', async () => {
+  let errorReport = 0
+  let attempts = 0
+  let result = await retryOnError(
+    async () => {
+      attempts += 1
+      return 'ok'
+    },
+    () => {
+      errorReport += 1
+    }
+  )
+
+  equal(result, 'ok')
+  equal(attempts, 1)
+  equal(errorReport, 0)
 })
