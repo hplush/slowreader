@@ -13,6 +13,7 @@ import {
   getFeed,
   getFiltersForFeed,
   isValidFilterQuery,
+  loadAndPrepareFilters,
   moveFilterDown,
   moveFilterUp,
   prepareFilters,
@@ -442,4 +443,23 @@ test('is ready for broken filters', () => {
     }),
     undefined
   )
+})
+
+test('loads and prepares filters', async () => {
+  let post = {
+    full: 'a',
+    media: [],
+    originId: 'a'
+  }
+
+  await addFilter({
+    action: 'fast',
+    feedId: '10',
+    query: 'include(a)'
+  })
+  let checker10 = await loadAndPrepareFilters('10')
+  equal(checker10(post), 'fast')
+
+  let checker11 = await loadAndPrepareFilters('11')
+  equal(checker11(post), undefined)
 })

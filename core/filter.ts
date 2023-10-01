@@ -210,3 +210,8 @@ export function prepareFilters(
     return undefined
   }
 }
+
+export async function loadAndPrepareFilters(feedId: string): Promise<Checker> {
+  let filters = await loadValue(getFiltersForFeed(feedId))
+  return prepareFilters(filters.list)
+}
