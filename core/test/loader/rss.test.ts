@@ -150,22 +150,22 @@ test('parses posts', async () => {
       list: [
         {
           full: 'Post 1',
-          id: 'https://example.com/1',
           media: [],
+          originId: 'https://example.com/1',
           title: '1',
           url: 'https://example.com/1'
         },
         {
           full: undefined,
-          id: '2',
           media: [],
+          originId: '2',
           title: '2',
           url: 'https://example.com/2'
         },
         {
           full: undefined,
-          id: '4',
           media: [],
+          originId: '4',
           title: undefined,
           url: undefined
         }
@@ -204,8 +204,8 @@ test('loads text to parse posts', async () => {
     list: [
       {
         full: undefined,
-        id: 'https://example.com/1',
         media: [],
+        originId: 'https://example.com/1',
         title: '1',
         url: 'https://example.com/1'
       }

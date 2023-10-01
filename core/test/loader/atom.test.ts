@@ -155,33 +155,33 @@ test('parses posts', async () => {
       list: [
         {
           full: 'Full 1',
-          id: '1',
           intro: 'Post 1',
           media: [],
+          originId: '1',
           title: '1',
           url: 'https://example.com/1'
         },
         {
           full: undefined,
-          id: '2',
           intro: undefined,
           media: [],
+          originId: '2',
           title: '2',
           url: undefined
         },
         {
           full: undefined,
-          id: '3',
           intro: undefined,
           media: [],
+          originId: '3',
           title: '3',
           url: 'https://example.com/3'
         },
         {
           full: undefined,
-          id: '5',
           intro: undefined,
           media: [],
+          originId: '5',
           title: undefined,
           url: undefined
         }
@@ -218,9 +218,9 @@ test('loads text to parse posts', async () => {
     list: [
       {
         full: undefined,
-        id: '1',
         intro: undefined,
         media: [],
+        originId: '1',
         title: '1',
         url: undefined
       }
