@@ -1,6 +1,5 @@
 import { deepStrictEqual } from 'node:assert'
 import { test } from 'node:test'
-import { setTimeout } from 'node:timers/promises'
 
 import { createPostsPage, type OriginPost } from '../index.js'
 
@@ -42,7 +41,7 @@ test('works without posts', async () => {
     list: []
   })
 
-  await setTimeout(1)
+  await posts.loading
   deepStrictEqual(posts.get(), {
     hasNext: true,
     isLoading: false,
@@ -56,7 +55,7 @@ test('works without posts', async () => {
     list: [POST1]
   })
 
-  await setTimeout(1)
+  await posts.loading
   deepStrictEqual(posts.get(), {
     hasNext: false,
     isLoading: false,
@@ -76,7 +75,7 @@ test('is ready for double calls', async () => {
     return [[POST1], async () => [[POST2], undefined]]
   })
   posts.nextPage()
-  await setTimeout(1)
+  await posts.loading
   deepStrictEqual(posts.get(), {
     hasNext: true,
     isLoading: false,
@@ -91,7 +90,7 @@ test('is ready for double calls', async () => {
     list: [POST1]
   })
 
-  await setTimeout(1)
+  await posts.loading
   deepStrictEqual(posts.get(), {
     hasNext: false,
     isLoading: false,
@@ -116,7 +115,7 @@ test('works with cached posts with next page loader', async () => {
     list: [POST1]
   })
 
-  await setTimeout(1)
+  await posts.loading
   deepStrictEqual(posts.get(), {
     hasNext: false,
     isLoading: false,
