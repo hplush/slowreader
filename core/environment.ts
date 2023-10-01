@@ -8,11 +8,19 @@ import {
 import type { ReadableAtom, StoreValue } from 'nanostores'
 
 import { SlowReaderError } from './error.js'
-import type { NetworkTypeDetector } from './refresh.js'
 import type { BaseRouter, Routes } from './router.js'
 
 interface LogStoreCreator {
   (): ClientOptions['store']
+}
+
+export type NetworkType = 'free' | 'paid' | 'unknown' | undefined
+
+export interface NetworkTypeDetector {
+  (): {
+    saveData: boolean | undefined
+    type: NetworkType
+  }
 }
 
 type RouterRoutes<Router extends BaseRouter> = {
