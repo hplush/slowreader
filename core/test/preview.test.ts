@@ -292,7 +292,7 @@ test('tracks current candidate', async () => {
   deepStrictEqual(previewPosts.get()!.get(), {
     hasNext: false,
     isLoading: false,
-    list: [{ id: '1', media: [], url: '1' }]
+    list: [{ media: [], originId: '1', url: '1' }]
   })
   equal(getAtomPosts.calls.length, 1)
   equal(getAtomPosts.calls[0][1], 'http://example.com/atom')
@@ -307,7 +307,7 @@ test('tracks current candidate', async () => {
   deepStrictEqual(previewPosts.get()!.get(), {
     hasNext: false,
     isLoading: false,
-    list: [{ id: '2', media: [], url: '2' }]
+    list: [{ media: [], originId: '2', url: '2' }]
   })
   equal(getRssPosts.calls.length, 1)
   equal(getRssPosts.calls[0][1], 'http://example.com/rss')
@@ -319,7 +319,7 @@ test('tracks current candidate', async () => {
   deepStrictEqual(previewPosts.get()!.get(), {
     hasNext: false,
     isLoading: false,
-    list: [{ id: '1', media: [], url: '1' }]
+    list: [{ media: [], originId: '1', url: '1' }]
   })
   equal(getAtomPosts.calls.length, 1)
 
@@ -330,7 +330,7 @@ test('tracks current candidate', async () => {
   deepStrictEqual(previewPosts.get()!.get(), {
     hasNext: false,
     isLoading: false,
-    list: [{ id: '2', media: [], url: '2' }]
+    list: [{ media: [], originId: '2', url: '2' }]
   })
   equal(getRssPosts.calls.length, 1)
 })
