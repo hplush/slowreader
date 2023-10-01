@@ -59,9 +59,10 @@ export async function changeFeed(
 }
 
 export function getFeedLatestPosts(
-  feed: LoadedSyncMapValue<FeedValue>
+  feed: LoadedSyncMapValue<FeedValue>,
+  task = createDownloadTask()
 ): PostsPage {
-  return loaders[feed.loader].getPosts(createDownloadTask(), feed.url)
+  return loaders[feed.loader].getPosts(task, feed.url)
 }
 
 let $hasFeeds = atom<boolean | undefined>(false)
