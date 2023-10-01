@@ -9,8 +9,8 @@ export interface PostsPageValue {
 }
 
 export type PostsPage = ReadableAtom<PostsPageValue> & {
-  loading: Promise<void>
-  nextPage(): Promise<void>
+  loading: Promise<OriginPost[]>
+  nextPage(): Promise<OriginPost[]>
 }
 
 export interface PostsPageLoader {
@@ -28,24 +28,29 @@ export const createPostsPage: CreatePostsPage = (posts, loadNext) => {
     isLoading: true,
     list: []
   })
-  let $store = { ...$map, loading: Promise.resolve(), nextPage }
+  let $store = {
+    ...$map,
+    loading: Promise.resolve([]) as PostsPage['loading'],
+    nextPage
+  }
 
   let isLoading = false
-  async function nextPage(): Promise<void> {
-    if (loadNext && !isLoading) {
-      isLoading = true
-      $store.setKey('isLoading', true)
-      $store.loading = loadNext().then(([nextPosts, next]) => {
-        loadNext = next
-        isLoading = false
-        $store.set({
-          hasNext: !!next,
-          isLoading: false,
-          list: $store.get().list.concat(nextPosts)
-        })
+  async function nextPage(): ReturnType<PostsPage['nextPage']> {
+    if (!loadNext) return Promise.resolve([])
+    if (isLoading) return $store.loading
+    isLoading = true
+    $store.setKey('isLoading', true)
+    $store.loading = loadNext().then(([nextPosts, next]) => {
+      loadNext = next
+      isLoading = false
+      $store.set({
+        hasNext: !!next,
+        isLoading: false,
+        list: $store.get().list.concat(nextPosts)
       })
-      await $store.loading
-    }
+      return nextPosts
+    })
+    return $store.loading
   }
 
   if (posts) {

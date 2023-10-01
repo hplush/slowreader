@@ -15,7 +15,7 @@ const POST2: OriginPost = {
   media: []
 }
 
-test('works with cached posts without next page', () => {
+test('works with cached posts without next page', async () => {
   let posts = createPostsPage([POST1], undefined)
   deepStrictEqual(posts.get(), {
     hasNext: false,
@@ -23,12 +23,13 @@ test('works with cached posts without next page', () => {
     list: [POST1]
   })
 
-  posts.nextPage()
+  let promise = posts.nextPage()
   deepStrictEqual(posts.get(), {
     hasNext: false,
     isLoading: false,
     list: [POST1]
   })
+  deepStrictEqual(await promise, [])
 })
 
 test('works without posts', async () => {
@@ -41,14 +42,15 @@ test('works without posts', async () => {
     list: []
   })
 
-  await posts.loading
+  let next1 = await posts.loading
   deepStrictEqual(posts.get(), {
     hasNext: true,
     isLoading: false,
     list: [POST1]
   })
+  deepStrictEqual(next1, [POST1])
 
-  posts.nextPage()
+  let promise2 = posts.nextPage()
   deepStrictEqual(posts.get(), {
     hasNext: true,
     isLoading: true,
@@ -61,13 +63,15 @@ test('works without posts', async () => {
     isLoading: false,
     list: [POST1, POST2]
   })
+  deepStrictEqual(await promise2, [POST2])
 
-  posts.nextPage()
+  let promise3 = posts.nextPage()
   deepStrictEqual(posts.get(), {
     hasNext: false,
     isLoading: false,
     list: [POST1, POST2]
   })
+  deepStrictEqual(await promise3, [])
 })
 
 test('is ready for double calls', async () => {
@@ -82,8 +86,8 @@ test('is ready for double calls', async () => {
     list: [POST1]
   })
 
-  posts.nextPage()
-  posts.nextPage()
+  let promise1 = posts.nextPage()
+  let promise2 = posts.nextPage()
   deepStrictEqual(posts.get(), {
     hasNext: true,
     isLoading: true,
@@ -96,6 +100,8 @@ test('is ready for double calls', async () => {
     isLoading: false,
     list: [POST1, POST2]
   })
+  deepStrictEqual(await promise1, [POST2])
+  deepStrictEqual(await promise2, [POST2])
 })
 
 test('works with cached posts with next page loader', async () => {
