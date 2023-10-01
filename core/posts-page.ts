@@ -9,6 +9,7 @@ export interface PostsPageValue {
 }
 
 export type PostsPage = ReadableAtom<PostsPageValue> & {
+  loading: Promise<void>
   nextPage(): Promise<void>
 }
 
@@ -22,25 +23,28 @@ interface CreatePostsPage {
 }
 
 export const createPostsPage: CreatePostsPage = (posts, loadNext) => {
-  let $store = map<StoreValue<PostsPage>>({
+  let $map = map<StoreValue<PostsPage>>({
     hasNext: true,
     isLoading: true,
     list: []
   })
+  let $store = { ...$map, loading: Promise.resolve(), nextPage }
 
-  let loading = false
+  let isLoading = false
   async function nextPage(): Promise<void> {
-    if (loadNext && !loading) {
-      loading = true
+    if (loadNext && !isLoading) {
+      isLoading = true
       $store.setKey('isLoading', true)
-      let [nextPosts, next] = await loadNext()
-      loadNext = next
-      loading = false
-      $store.set({
-        hasNext: !!next,
-        isLoading: false,
-        list: $store.get().list.concat(nextPosts)
+      $store.loading = loadNext().then(([nextPosts, next]) => {
+        loadNext = next
+        isLoading = false
+        $store.set({
+          hasNext: !!next,
+          isLoading: false,
+          list: $store.get().list.concat(nextPosts)
+        })
       })
+      await $store.loading
     }
   }
 
@@ -54,5 +58,5 @@ export const createPostsPage: CreatePostsPage = (posts, loadNext) => {
     nextPage()
   }
 
-  return { ...$store, nextPage }
+  return $store
 }
