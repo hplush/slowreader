@@ -5,14 +5,14 @@ import { createPostsPage, type OriginPost } from '../index.js'
 
 const POST1: OriginPost = {
   full: '1',
-  id: '1',
-  media: []
+  media: [],
+  originId: '1'
 }
 
 const POST2: OriginPost = {
   full: '2',
-  id: '2',
-  media: []
+  media: [],
+  originId: '2'
 }
 
 test('works with cached posts without next page', async () => {

@@ -10,9 +10,9 @@ function parsePosts(text: TextResponse): OriginPost[] {
     .filter(entry => entry.querySelector('id')?.textContent)
     .map(entry => ({
       full: entry.querySelector('content')?.textContent ?? undefined,
-      id: entry.querySelector('id')!.textContent!,
       intro: entry.querySelector('summary')?.textContent ?? undefined,
       media: [],
+      originId: entry.querySelector('id')!.textContent!,
       title: entry.querySelector('title')?.textContent ?? undefined,
       url:
         entry

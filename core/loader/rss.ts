@@ -14,10 +14,10 @@ function parsePosts(text: TextResponse): OriginPost[] {
     )
     .map(item => ({
       full: item.querySelector('description')?.textContent ?? undefined,
-      id:
+      media: [],
+      originId:
         item.querySelector('guid')?.textContent ??
         item.querySelector('link')!.textContent!,
-      media: [],
       title: item.querySelector('title')?.textContent ?? undefined,
       url: item.querySelector('link')?.textContent ?? undefined
     }))
