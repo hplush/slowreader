@@ -127,6 +127,7 @@ test('parses posts', async () => {
               <title>1</title>
               <link>https://example.com/1</link>
               <description>Post 1</description>
+              <pubDate>Mon, 01 Jan 2023 00:00:00 GMT</pubDate>
             </item>
             <item>
               <title>2</title>
@@ -152,6 +153,7 @@ test('parses posts', async () => {
           full: 'Post 1',
           media: [],
           originId: 'https://example.com/1',
+          publishedAt: 1672531200,
           title: '1',
           url: 'https://example.com/1'
         },
@@ -159,6 +161,7 @@ test('parses posts', async () => {
           full: undefined,
           media: [],
           originId: '2',
+          publishedAt: undefined,
           title: '2',
           url: 'https://example.com/2'
         },
@@ -166,6 +169,7 @@ test('parses posts', async () => {
           full: undefined,
           media: [],
           originId: '4',
+          publishedAt: undefined,
           title: undefined,
           url: undefined
         }
@@ -206,6 +210,7 @@ test('loads text to parse posts', async () => {
         full: undefined,
         media: [],
         originId: 'https://example.com/1',
+        publishedAt: undefined,
         title: '1',
         url: 'https://example.com/1'
       }

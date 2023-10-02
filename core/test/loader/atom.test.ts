@@ -128,11 +128,14 @@ test('parses posts', async () => {
             <content>Full 1</content>
             <id>1</id>
             <summary>Post 1</summary>
+            <published>2023-01-01T00:00:00Z</published>
+            <updated>2023-06-01T00:00:00Z</updated>
           </entry>
           <entry>
             <title>2</title>
             <id>2</id>
             <link rel="related" href="https://example.com/2" />
+            <updated>2023-06-01T00:00:00Z</updated>
           </entry>
           <entry>
             <title>3</title>
@@ -158,6 +161,7 @@ test('parses posts', async () => {
           intro: 'Post 1',
           media: [],
           originId: '1',
+          publishedAt: 1672531200,
           title: '1',
           url: 'https://example.com/1'
         },
@@ -166,6 +170,7 @@ test('parses posts', async () => {
           intro: undefined,
           media: [],
           originId: '2',
+          publishedAt: 1685577600,
           title: '2',
           url: undefined
         },
@@ -174,6 +179,7 @@ test('parses posts', async () => {
           intro: undefined,
           media: [],
           originId: '3',
+          publishedAt: undefined,
           title: '3',
           url: 'https://example.com/3'
         },
@@ -182,6 +188,7 @@ test('parses posts', async () => {
           intro: undefined,
           media: [],
           originId: '5',
+          publishedAt: undefined,
           title: undefined,
           url: undefined
         }
@@ -221,6 +228,7 @@ test('loads text to parse posts', async () => {
         intro: undefined,
         media: [],
         originId: '1',
+        publishedAt: undefined,
         title: '1',
         url: undefined
       }

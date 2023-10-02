@@ -16,6 +16,7 @@ export type OriginPost = {
   intro?: string
   media: string[]
   originId: string
+  publishedAt?: number
   title?: string
   url?: string
 }

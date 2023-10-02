@@ -2,7 +2,7 @@ import type { TextResponse } from '../download.js'
 import type { OriginPost } from '../post.js'
 import { createPostsPage } from '../posts-page.js'
 import type { Loader } from './index.js'
-import { findLink, hasAnyFeed } from './utils.js'
+import { findLink, hasAnyFeed, toTime } from './utils.js'
 
 function parsePosts(text: TextResponse): OriginPost[] {
   let document = text.parse()
@@ -13,6 +13,10 @@ function parsePosts(text: TextResponse): OriginPost[] {
       intro: entry.querySelector('summary')?.textContent ?? undefined,
       media: [],
       originId: entry.querySelector('id')!.textContent!,
+      publishedAt: toTime(
+        entry.querySelector('published')?.textContent ??
+          entry.querySelector('updated')?.textContent
+      ),
       title: entry.querySelector('title')?.textContent ?? undefined,
       url:
         entry
