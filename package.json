@@ -8,7 +8,6 @@
   "scripts": {
     "clean": "rm -rf api/coverage core/coverage web/coverage web/dist",
     "test:js": "eslint .",
-    "test:css": "stylelint **/*.css **/*.svelte",
     "test:types": "tsc --noEmit",
     "test:checks": "./scripts/tsm-every scripts check-*.ts",
     "test:audit": "pnpm audit --prod",
@@ -23,7 +22,6 @@
   ],
   "devDependencies": {
     "@logux/eslint-config": "^52.0.1",
-    "@logux/stylelint-config": "^0.16.0",
     "@types/node": "^20.8.0",
     "@types/ws": "^8.5.6",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
@@ -45,7 +43,6 @@
     "prettier": "^3.0.3",
     "prettier-plugin-svelte": "^3.0.3",
     "simple-git-hooks": "^2.9.0",
-    "stylelint": "^15.10.3",
     "svelte": "^4.2.1",
     "tsm": "^2.3.0",
     "typescript": "~5.2.2"
