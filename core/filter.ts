@@ -176,15 +176,15 @@ export function isValidFilterQuery(query: string): boolean {
   return isValidQuery(parseQuery(query))
 }
 
-interface Checker {
+export interface FilterChecker {
   (post: OriginPost): FilterAction | undefined
 }
 
 export function prepareFilters(
   filters: LoadedSyncMapValue<FilterValue>[]
-): Checker {
+): FilterChecker {
   let checkers = sortFilters(filters)
-    .map<Checker | undefined>(filter => {
+    .map<FilterChecker | undefined>(filter => {
       let parsed = parseQuery(filter.query)
       if (isValidQuery(parsed)) {
         let { name, not, param } = parsed
@@ -201,7 +201,7 @@ export function prepareFilters(
         return undefined
       }
     })
-    .filter((i): i is Checker => i !== undefined)
+    .filter((i): i is FilterChecker => i !== undefined)
   return post => {
     for (let checker of checkers) {
       let action = checker(post)
@@ -211,7 +211,9 @@ export function prepareFilters(
   }
 }
 
-export async function loadAndPrepareFilters(feedId: string): Promise<Checker> {
+export async function loadAndPrepareFilters(
+  feedId: string
+): Promise<FilterChecker> {
   let filters = await loadValue(getFiltersForFeed(feedId))
   return prepareFilters(filters.list)
 }
