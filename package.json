@@ -13,9 +13,6 @@
     "test:checks": "./scripts/tsm-every scripts check-*.ts",
     "test:audit": "pnpm audit --prod",
     "test": "FORCE_COLOR=1 pnpm run -r --include-workspace-root /^test:/",
-    "test-root": "FORCE_COLOR=1 pnpm run /^test:/",
-    "test-core": "cd core && FORCE_COLOR=1 pnpm run /^test:/",
-    "test-web": "cd web && FORCE_COLOR=1 pnpm run /^test:/",
     "start": "FORCE_COLOR=1 pnpm run -r start"
   },
   "workspaces": [

@@ -26,4 +26,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
       - name: Run tests
-        run: pnpm test-core
+        run: cd web && pnpm test
+        env:
+          FORCE_COLOR: 1
