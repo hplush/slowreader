@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:start": "vite preview",
     "test:check": "svelte-check",
+    "test:css": "stylelint **/*.css **/*.svelte",
     "test:build": "pnpm build && size-limit",
     "test": "pnpm run /^test:/"
   },
@@ -31,9 +32,11 @@
     "vite": "4.4.9"
   },
   "devDependencies": {
+    "@logux/stylelint-config": "^0.16.0",
     "@size-limit/file": "^9.0.0",
     "browserslist": "^4.22.1",
     "size-limit": "^9.0.0",
+    "stylelint": "^15.10.3",
     "svelte-check": "^3.5.2",
     "vite-plugin-rewrite-all": "^1.0.1"
   }

@@ -14,9 +14,6 @@ importers:
       '@logux/eslint-config':
         specifier: ^52.0.1
         version: 52.0.1(eslint-config-standard@17.1.0)(eslint-plugin-import@2.28.1)(eslint-plugin-n@16.1.0)(eslint-plugin-node-import@1.0.4)(eslint-plugin-perfectionist@2.1.0)(eslint-plugin-prefer-let@3.0.1)(eslint-plugin-promise@6.1.1)(eslint@8.50.0)
-      '@logux/stylelint-config':
-        specifier: ^0.16.0
-        version: 0.16.0(stylelint@15.10.3)
       '@types/node':
         specifier: ^20.8.0
         version: 20.8.0
@@ -80,9 +77,6 @@ importers:
       simple-git-hooks:
         specifier: ^2.9.0
         version: 2.9.0
-      stylelint:
-        specifier: ^15.10.3
-        version: 15.10.3(typescript@5.2.2)
       svelte:
         specifier: ^4.2.1
         version: 4.2.1
@@ -204,6 +198,9 @@ importers:
         specifier: 4.4.9
         version: 4.4.9(@types/node@20.8.0)
     devDependencies:
+      '@logux/stylelint-config':
+        specifier: ^0.16.0
+        version: 0.16.0(stylelint@15.10.3)
       '@size-limit/file':
         specifier: ^9.0.0
         version: 9.0.0(size-limit@9.0.0)
@@ -213,6 +210,9 @@ importers:
       size-limit:
         specifier: ^9.0.0
         version: 9.0.0
+      stylelint:
+        specifier: ^15.10.3
+        version: 15.10.3(typescript@5.2.2)
       svelte-check:
         specifier: ^3.5.2
         version: 3.5.2(postcss@8.4.31)(svelte@4.2.1)
