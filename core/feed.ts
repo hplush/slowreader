@@ -20,6 +20,8 @@ import { readonlyExport } from './utils/stores.js'
 
 export type FeedValue = {
   categoryId?: string
+  lastOriginId?: string
+  lastPublishedAt?: number
   loader: LoaderName
   reading: 'fast' | 'slow'
   title: string

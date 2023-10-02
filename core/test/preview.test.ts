@@ -3,7 +3,7 @@ import './dom-parser.js'
 import { ensureLoaded } from '@logux/client'
 import { restoreAll, spyOn } from 'nanospy'
 import { keepMount } from 'nanostores'
-import { deepStrictEqual, equal } from 'node:assert'
+import { deepStrictEqual, equal, ok } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -382,6 +382,32 @@ test('adds current preview candidate', async () => {
 
   expectRequest('https://a.com/atom').andRespond(
     200,
+    '<feed><title>Atom</title>' +
+      '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
+      '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
+      '</feed>',
+    'text/xml'
+  )
+  setPreviewUrl('https://a.com/atom')
+  await setTimeout(10)
+  equal(ensureLoaded($feeds.get()).list.length, 0)
+
+  await addPreviewCandidate()
+
+  equal(typeof previewCandidateAdded.get(), 'string')
+  equal(ensureLoaded($feeds.get()).list.length, 1)
+  equal(ensureLoaded($feeds.get()).list[0].lastOriginId, '2')
+  equal(ensureLoaded($feeds.get()).list[0].lastPublishedAt, 1688169600)
+})
+
+test('adds current preview candidate without posts', async () => {
+  keepMount(previewCandidateAdded)
+  let $feeds = getFeeds()
+  keepMount($feeds)
+  await $feeds.loading
+
+  expectRequest('https://a.com/atom').andRespond(
+    200,
     '<feed><title>Atom</title></feed>',
     'text/xml'
   )
@@ -393,4 +419,10 @@ test('adds current preview candidate', async () => {
 
   equal(typeof previewCandidateAdded.get(), 'string')
   equal(ensureLoaded($feeds.get()).list.length, 1)
+  equal(ensureLoaded($feeds.get()).list[0].lastOriginId, undefined)
+
+  let lastPublishedAt = ensureLoaded($feeds.get()).list[0].lastPublishedAt!
+  let now = Date.now() / 1000
+  ok(lastPublishedAt <= now)
+  ok(lastPublishedAt > now / 1000 - 2000)
 })
