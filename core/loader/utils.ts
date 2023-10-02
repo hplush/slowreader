@@ -30,9 +30,10 @@ export function hasAnyFeed(
 
 export function toTime(date: null | string | undefined): number | undefined {
   if (!date) return undefined
-  try {
-    return new Date(date).getTime() / 1000
-  } catch {
+  let time = new Date(date).getTime() / 1000
+  if (isNaN(time)) {
     return undefined
+  } else {
+    return time
   }
 }

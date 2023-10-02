@@ -141,9 +141,11 @@ test('parses posts', async () => {
             <title>3</title>
             <id>3</id>
             <link href="https://example.com/3" />
+            <published>broken</published>
           </entry>
           <entry>
             <title>4</title>
+            <published></published>
           </entry>
           <entry>
             <id>5</id>
