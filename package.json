@@ -8,7 +8,7 @@
   "scripts": {
     "clean": "rm -rf api/coverage core/coverage web/coverage web/dist",
     "test:js": "eslint .",
-    "test:types": "tsc --noEmit",
+    "test:types": "svelte-check",
     "test:checks": "./scripts/tsm-every scripts check-*.ts",
     "test:audit": "pnpm audit --prod",
     "test": "FORCE_COLOR=1 pnpm run -r --include-workspace-root /^test:/",
@@ -44,6 +44,7 @@
     "prettier-plugin-svelte": "^3.0.3",
     "simple-git-hooks": "^2.9.0",
     "svelte": "^4.2.1",
+    "svelte-check": "^3.5.2",
     "tsm": "^2.3.0",
     "typescript": "~5.2.2"
   },
