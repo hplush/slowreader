@@ -7,12 +7,14 @@ import { setTimeout } from 'node:timers/promises'
 
 import {
   addFeed,
+  addPost,
   changeFeed,
   createPostsPage,
   deleteFeed,
   getFeed,
   getFeedLatestPosts,
   getFeeds,
+  getPosts,
   hasFeeds,
   loaders
 } from '../index.js'
@@ -51,6 +53,51 @@ test('adds, loads, changes and removes feed', async () => {
   await deleteFeed(id)
   let deleted = (await loadValue(getFeeds())).list
   equal(deleted.length, 0)
+})
+
+test('removes feed posts too', async () => {
+  let posts = getPosts()
+  posts.listen(() => {})
+
+  let feed1 = await addFeed({
+    loader: 'rss',
+    reading: 'fast',
+    title: 'RSS',
+    url: 'https://example.com/'
+  })
+  let feed2 = await addFeed({
+    loader: 'atom',
+    reading: 'fast',
+    title: 'Atom',
+    url: 'https://example.com/atom'
+  })
+  await addPost({
+    feedId: feed1,
+    media: [],
+    originId: '1',
+    reading: 'fast',
+    title: '1'
+  })
+  await addPost({
+    feedId: feed1,
+    media: [],
+    originId: '2',
+    reading: 'fast',
+    title: '2'
+  })
+  let post3 = await addPost({
+    feedId: feed2,
+    media: [],
+    originId: '3',
+    reading: 'fast',
+    title: '3'
+  })
+
+  await deleteFeed(feed1)
+  deepStrictEqual(
+    ensureLoaded(posts.get()).list.map(i => i.id),
+    [post3]
+  )
 })
 
 test('loads latest posts', async () => {

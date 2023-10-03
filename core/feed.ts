@@ -5,6 +5,7 @@ import {
   deleteSyncMapById,
   type Filter,
   type FilterStore,
+  loadValue,
   type SyncMapStore,
   syncMapTemplate
 } from '@logux/client'
@@ -14,6 +15,7 @@ import { atom, onMount } from 'nanostores'
 import { client, getClient } from './client.js'
 import { createDownloadTask } from './download.js'
 import { type LoaderName, loaders } from './loader/index.js'
+import { deletePost, getPosts } from './post.js'
 import type { PostsPage } from './posts-page.js'
 import { readonlyExport } from './utils/stores.js'
 
@@ -46,6 +48,8 @@ export async function addFeed(fields: Omit<FeedValue, 'id'>): Promise<string> {
 }
 
 export async function deleteFeed(feedId: string): Promise<void> {
+  let posts = await loadValue(getPosts({ feedId }))
+  await Promise.all(posts.list.map(post => deletePost(post.id)))
   return deleteSyncMapById(getClient(), Feed, feedId)
 }
 
