@@ -57,7 +57,7 @@ test('adds, loads, changes and removes feed', async () => {
 
 test('removes feed posts too', async () => {
   let posts = getPosts()
-  posts.listen(() => {})
+  keepMount(posts)
 
   let feed1 = await addFeed({
     loader: 'rss',
