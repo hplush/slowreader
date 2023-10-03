@@ -12,6 +12,7 @@ import { nanoid } from 'nanoid'
 import { getClient } from './client.js'
 import type { FeedValue } from './feed.js'
 import type { OriginPost } from './post.js'
+import { loadList } from './utils/stores.js'
 
 const QUERY_REGEXP = /^(not\s+)?([\w]+)(?:\(([^]+)\))?$/
 
@@ -107,7 +108,7 @@ export function sortFilters(filters: FilterValue[]): FilterValue[] {
 async function move(filterId: string, diff: -1 | 1): Promise<void> {
   let filter = Filter(filterId, getClient())
   let feedId = (await loadValue(filter)).feedId
-  let sorted = sortFilters((await loadValue(getFiltersForFeed(feedId))).list)
+  let sorted = sortFilters(await loadList(getFiltersForFeed(feedId)))
   let last = sorted.length - 1
   let index = sorted.findIndex(i => i.id === filterId)
   let next = index + diff

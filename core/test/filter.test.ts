@@ -19,6 +19,7 @@ import {
   prepareFilters,
   sortFilters
 } from '../index.js'
+import { loadList } from '../utils/stores.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
 beforeEach(() => {
@@ -32,7 +33,7 @@ afterEach(async () => {
 test('adds, loads, changes and removes filters', async () => {
   let filters10 = getFiltersForFeed('10')
   keepMount(filters10)
-  deepStrictEqual((await loadValue(filters10)).list, [])
+  deepStrictEqual(await loadList(filters10), [])
 
   let id1 = await addFilter({
     action: 'fast',
@@ -126,7 +127,7 @@ test('adds filter for feed', async () => {
   let filterId1 = await addFilterForFeed(await loadValue(getFeed(feedId1)))
   let filterId2 = await addFilterForFeed(await loadValue(getFeed(feedId2)))
 
-  deepStrictEqual((await loadValue(getFiltersForFeed(feedId1))).list, [
+  deepStrictEqual(await loadList(getFiltersForFeed(feedId1)), [
     {
       action: 'slow',
       feedId: feedId1,
@@ -136,7 +137,7 @@ test('adds filter for feed', async () => {
       query: ''
     }
   ])
-  deepStrictEqual((await loadValue(getFiltersForFeed(feedId2))).list, [
+  deepStrictEqual(await loadList(getFiltersForFeed(feedId2)), [
     {
       action: 'fast',
       feedId: feedId2,

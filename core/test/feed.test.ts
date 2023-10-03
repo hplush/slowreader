@@ -18,6 +18,7 @@ import {
   hasFeeds,
   loaders
 } from '../index.js'
+import { loadList } from '../utils/stores.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
 beforeEach(() => {
@@ -30,7 +31,7 @@ afterEach(async () => {
 })
 
 test('adds, loads, changes and removes feed', async () => {
-  deepStrictEqual((await loadValue(getFeeds())).list, [])
+  deepStrictEqual(await loadList(getFeeds()), [])
 
   let id = await addFeed({
     loader: 'rss',
@@ -39,7 +40,7 @@ test('adds, loads, changes and removes feed', async () => {
     url: 'https://example.com/'
   })
   equal(typeof id, 'string')
-  let added = (await loadValue(getFeeds())).list
+  let added = await loadList(getFeeds())
   equal(added.length, 1)
   equal(added[0].title, 'RSS')
 
@@ -51,8 +52,7 @@ test('adds, loads, changes and removes feed', async () => {
   equal(ensureLoaded(feed.get()).title, 'New title')
 
   await deleteFeed(id)
-  let deleted = (await loadValue(getFeeds())).list
-  equal(deleted.length, 0)
+  deepStrictEqual(await loadList(getFeeds()), [])
 })
 
 test('removes feed posts too', async () => {
