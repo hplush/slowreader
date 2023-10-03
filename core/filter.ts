@@ -4,7 +4,6 @@ import {
   createSyncMap,
   deleteSyncMapById,
   type FilterStore,
-  type LoadedSyncMapValue,
   loadValue,
   syncMapTemplate
 } from '@logux/client'
@@ -50,6 +49,7 @@ function maxPriority(filters: FilterValue[]): number {
 export type FilterValue = {
   action: FilterAction
   feedId: string
+  id: string
   priority: number
   query: string
 }
@@ -64,7 +64,7 @@ export function getFiltersForFeed(feedId: string): FilterStore<FilterValue> {
 }
 
 export async function addFilter(
-  fields: Omit<FilterValue, 'priority'>
+  fields: Omit<FilterValue, 'id' | 'priority'>
 ): Promise<string> {
   let id = nanoid()
   let other = await loadValue(getFiltersForFeed(fields.feedId))
@@ -73,9 +73,7 @@ export async function addFilter(
   return id
 }
 
-export async function addFilterForFeed(
-  feed: LoadedSyncMapValue<FeedValue>
-): Promise<string> {
+export async function addFilterForFeed(feed: FeedValue): Promise<string> {
   return addFilter({
     action: feed.reading === 'fast' ? 'slow' : 'fast',
     feedId: feed.id,
@@ -94,9 +92,7 @@ export async function changeFilter(
   return changeSyncMapById(getClient(), Filter, filterId, changes)
 }
 
-export function sortFilters(
-  filters: LoadedSyncMapValue<FilterValue>[]
-): LoadedSyncMapValue<FilterValue>[] {
+export function sortFilters(filters: FilterValue[]): FilterValue[] {
   return filters.sort((a, b) => {
     if (a.priority > b.priority) {
       return 1
@@ -180,9 +176,7 @@ export interface FilterChecker {
   (post: OriginPost): FilterAction | undefined
 }
 
-export function prepareFilters(
-  filters: LoadedSyncMapValue<FilterValue>[]
-): FilterChecker {
+export function prepareFilters(filters: FilterValue[]): FilterChecker {
   let checkers = sortFilters(filters)
     .map<FilterChecker | undefined>(filter => {
       let parsed = parseQuery(filter.query)

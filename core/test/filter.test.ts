@@ -1,4 +1,4 @@
-import { ensureLoaded, type LoadedSyncMapValue, loadValue } from '@logux/client'
+import { ensureLoaded, loadValue } from '@logux/client'
 import { keepMount } from 'nanostores'
 import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
@@ -155,22 +155,22 @@ test('sorts filters', () => {
     isLoading: false,
     query: 'include(some text)'
   } as const
-  let filter100: LoadedSyncMapValue<FilterValue> = {
+  let filter100: FilterValue = {
     ...common,
     id: '100',
     priority: 100
   }
-  let filter200a: LoadedSyncMapValue<FilterValue> = {
+  let filter200a: FilterValue = {
     ...common,
     id: '200',
     priority: 200
   }
-  let filter200b: LoadedSyncMapValue<FilterValue> = {
+  let filter200b: FilterValue = {
     ...common,
     id: '400',
     priority: 200
   }
-  let filter300: LoadedSyncMapValue<FilterValue> = {
+  let filter300: FilterValue = {
     ...common,
     id: '300',
     priority: 300
@@ -245,27 +245,24 @@ test('validates filter query', () => {
 })
 
 test('applies filters to posts', () => {
-  let filterImage: LoadedSyncMapValue<FilterValue> = {
+  let filterImage: FilterValue = {
     action: 'fast',
     feedId: '10',
     id: '1',
-    isLoading: false,
     priority: 100,
     query: 'hasMedia'
   }
-  let filterSpecial: LoadedSyncMapValue<FilterValue> = {
+  let filterSpecial: FilterValue = {
     action: 'slow',
     feedId: '10',
     id: '2',
-    isLoading: false,
     priority: 200,
     query: 'include(Special Text)'
   }
-  let filterOther: LoadedSyncMapValue<FilterValue> = {
+  let filterOther: FilterValue = {
     action: 'delete',
     feedId: '10',
     id: '3',
-    isLoading: false,
     priority: 300,
     query: 'include(other text)'
   }
@@ -349,19 +346,17 @@ test('applies filters to posts', () => {
 })
 
 test('supports not in filters', () => {
-  let filterA: LoadedSyncMapValue<FilterValue> = {
+  let filterA: FilterValue = {
     action: 'fast',
     feedId: '10',
     id: '1',
-    isLoading: false,
     priority: 100,
     query: 'include(a)'
   }
-  let filterNotB: LoadedSyncMapValue<FilterValue> = {
+  let filterNotB: FilterValue = {
     action: 'slow',
     feedId: '10',
     id: '2',
-    isLoading: false,
     priority: 200,
     query: 'not include(b)'
   }
@@ -408,19 +403,17 @@ test('supports not in filters', () => {
 })
 
 test('is ready for broken filters', () => {
-  let filterA: LoadedSyncMapValue<FilterValue> = {
+  let filterA: FilterValue = {
     action: 'fast',
     feedId: '10',
     id: '1',
-    isLoading: false,
     priority: 100,
     query: 'broken'
   }
-  let filterNotB: LoadedSyncMapValue<FilterValue> = {
+  let filterNotB: FilterValue = {
     action: 'slow',
     feedId: '10',
     id: '2',
-    isLoading: false,
     priority: 200,
     query: 'include(a)'
   }

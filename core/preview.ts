@@ -1,3 +1,4 @@
+import { loadValue } from '@logux/client'
 import { atom, computed, map, onMount } from 'nanostores'
 
 import {
@@ -238,9 +239,8 @@ export async function setPreviewCandidate(url: string): Promise<void> {
 export async function addPreviewCandidate(): Promise<void> {
   let url = $candidate.get()
   if (url) {
-    let $page = $posts.get()!
-    if ($page.get().isLoading) await $page.loading
-    let lastPost = $page.get().list[0] ?? {}
+    let page = await loadValue($posts.get()!)
+    let lastPost = page.list[0] ?? {}
     let candidate = $candidates.get().find(i => i.url === url)!
     await addFeed({
       lastOriginId: lastPost.originId,

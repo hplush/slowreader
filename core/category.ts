@@ -5,7 +5,6 @@ import {
   deleteSyncMapById,
   type FilterStore,
   type LoadedFilterValue,
-  type LoadedSyncMapValue,
   syncMapTemplate
 } from '@logux/client'
 import { nanoid } from 'nanoid'
@@ -14,6 +13,7 @@ import { getClient } from './client.js'
 import type { FeedValue } from './feed.js'
 
 export type CategoryValue = {
+  id: string
   title: string
 }
 
@@ -26,7 +26,9 @@ export function getCategories(): FilterStore<CategoryValue> {
   return createFilter(getClient(), Category)
 }
 
-export async function addCategory(fields: CategoryValue): Promise<string> {
+export async function addCategory(
+  fields: Omit<CategoryValue, 'id'>
+): Promise<string> {
   let id = nanoid()
   await createSyncMap(getClient(), Category, { id, ...fields })
   return id
@@ -58,16 +60,15 @@ export function feedCategory(
 
 export function feedsByCategory(
   categories: LoadedFilterValue<CategoryValue>,
-  feeds: readonly LoadedSyncMapValue<FeedValue>[]
-): [LoadedSyncMapValue<CategoryValue>, LoadedSyncMapValue<FeedValue>[]][] {
-  let allCategories: LoadedSyncMapValue<CategoryValue>[] = [
+  feeds: readonly FeedValue[]
+): [CategoryValue, FeedValue[]][] {
+  let allCategories: CategoryValue[] = [
     {
       id: 'general',
-      isLoading: false,
       title: 'General'
-    } satisfies LoadedSyncMapValue<CategoryValue>
+    } satisfies CategoryValue
   ].concat(...categories.list.sort((a, b) => a.title.localeCompare(b.title)))
-  let byId: Record<string, LoadedSyncMapValue<FeedValue>[]> = {
+  let byId: Record<string, FeedValue[]> = {
     general: []
   }
   for (let category of allCategories) {

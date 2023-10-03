@@ -23,6 +23,7 @@ export type OriginPost = {
 
 export type PostValue = OriginPost & {
   feedId: string
+  id: string
   reading: 'fast' | 'slow'
 }
 
@@ -31,7 +32,7 @@ export const Post = syncMapTemplate<PostValue>('categories', {
   remote: false
 })
 
-export async function addPost(fields: PostValue): Promise<string> {
+export async function addPost(fields: Omit<PostValue, 'id'>): Promise<string> {
   let id = nanoid()
   await createSyncMap(getClient(), Post, { id, ...fields })
   return id

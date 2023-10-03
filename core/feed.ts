@@ -5,7 +5,6 @@ import {
   deleteSyncMapById,
   type Filter,
   type FilterStore,
-  type LoadedSyncMapValue,
   type SyncMapStore,
   syncMapTemplate
 } from '@logux/client'
@@ -20,6 +19,7 @@ import { readonlyExport } from './utils/stores.js'
 
 export type FeedValue = {
   categoryId?: string
+  id: string
   lastOriginId?: string
   lastPublishedAt?: number
   loader: LoaderName
@@ -39,7 +39,7 @@ export function getFeeds(
   return createFilter(getClient(), Feed, filter)
 }
 
-export async function addFeed(fields: FeedValue): Promise<string> {
+export async function addFeed(fields: Omit<FeedValue, 'id'>): Promise<string> {
   let id = nanoid()
   await createSyncMap(getClient(), Feed, { id, ...fields })
   return id
@@ -61,7 +61,7 @@ export async function changeFeed(
 }
 
 export function getFeedLatestPosts(
-  feed: LoadedSyncMapValue<FeedValue>,
+  feed: FeedValue,
   task = createDownloadTask()
 ): PostsPage {
   return loaders[feed.loader].getPosts(task, feed.url)

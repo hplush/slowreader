@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { LoadedSyncMapValue } from '@logux/client'
   import {
     type FilterValue,
     type PostsPage,
@@ -10,7 +9,7 @@
   import UIPostCard from '../../ui/post-card.svelte'
 
   export let posts: PostsPage
-  export let filters: LoadedSyncMapValue<FilterValue>[] = []
+  export let filters: FilterValue[] = []
   export let defaultReading: 'fast' | 'slow' = 'fast'
 
   let checker: ReturnType<typeof prepareFilters>
