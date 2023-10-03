@@ -1,6 +1,6 @@
 import { ensureLoaded, loadValue } from '@logux/client'
 import { restoreAll, spyOn } from 'nanospy'
-import { cleanStores, keepMount } from 'nanostores'
+import { keepMount } from 'nanostores'
 import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -16,8 +16,7 @@ import {
   getFeeds,
   getPosts,
   hasFeeds,
-  loaders,
-  Post
+  loaders
 } from '../index.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
@@ -57,6 +56,9 @@ test('adds, loads, changes and removes feed', async () => {
 })
 
 test('removes feed posts too', async () => {
+  let posts = getPosts()
+  posts.listen(() => {})
+
   let feed1 = await addFeed({
     loader: 'rss',
     reading: 'fast',
@@ -92,9 +94,8 @@ test('removes feed posts too', async () => {
   })
 
   await deleteFeed(feed1)
-  cleanStores(Post)
   deepStrictEqual(
-    (await loadValue(getPosts())).list.map(i => i.id),
+    ensureLoaded(posts.get()).list.map(i => i.id),
     [post3]
   )
 })
