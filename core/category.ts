@@ -75,9 +75,9 @@ export function feedsByCategory(
     byId[category.id] = []
   }
   for (let feed of feeds) {
-    byId[feedCategory(feed.categoryId, categories)].push(feed)
+    byId[feedCategory(feed.categoryId, categories)]!.push(feed)
   }
   return allCategories.map(category => {
-    return [category, byId[category.id]]
+    return [category, byId[category.id]!]
   })
 }

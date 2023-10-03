@@ -26,7 +26,7 @@ test('adds, loads and removes posts', async () => {
   equal(typeof id, 'string')
   let added = await loadList(getPosts())
   equal(added.length, 1)
-  equal(added[0].reading, 'fast')
+  equal(added[0]!.reading, 'fast')
 
   let post = getPost(id)
   keepMount(post)

@@ -32,12 +32,12 @@ test('adds, changes and removes categories', async () => {
   equal(typeof id, 'string')
   let added = ensureLoaded(all.get()).list
   equal(added.length, 1)
-  equal(added[0].title, 'Fun')
+  equal(added[0]!.title, 'Fun')
 
   await changeCategory(id, { title: 'Memes' })
   let changed = ensureLoaded(all.get()).list
   equal(changed.length, 1)
-  equal(changed[0].title, 'Memes')
+  equal(changed[0]!.title, 'Memes')
 
   await deleteCategory(id)
   deepStrictEqual(ensureLoaded(all.get()).list, [])

@@ -295,7 +295,7 @@ test('tracks current candidate', async () => {
     list: [{ media: [], originId: '1', url: '1' }]
   })
   equal(getAtomPosts.calls.length, 1)
-  equal(getAtomPosts.calls[0][1], 'http://example.com/atom')
+  equal(getAtomPosts.calls[0]![1], 'http://example.com/atom')
 
   getRssPosts.nextResult(
     createPostsPage([{ media: [], originId: '2', url: '2' }], undefined)
@@ -310,7 +310,7 @@ test('tracks current candidate', async () => {
     list: [{ media: [], originId: '2', url: '2' }]
   })
   equal(getRssPosts.calls.length, 1)
-  equal(getRssPosts.calls[0][1], 'http://example.com/rss')
+  equal(getRssPosts.calls[0]![1], 'http://example.com/rss')
 
   setPreviewCandidate('http://example.com/atom')
   await setTimeout(10)
@@ -396,8 +396,8 @@ test('adds current preview candidate', async () => {
 
   equal(typeof previewCandidateAdded.get(), 'string')
   equal(ensureLoaded($feeds.get()).list.length, 1)
-  equal(ensureLoaded($feeds.get()).list[0].lastOriginId, '2')
-  equal(ensureLoaded($feeds.get()).list[0].lastPublishedAt, 1688169600)
+  equal(ensureLoaded($feeds.get()).list[0]!.lastOriginId, '2')
+  equal(ensureLoaded($feeds.get()).list[0]!.lastPublishedAt, 1688169600)
 })
 
 test('adds current preview candidate without posts', async () => {
@@ -419,9 +419,9 @@ test('adds current preview candidate without posts', async () => {
 
   equal(typeof previewCandidateAdded.get(), 'string')
   equal(ensureLoaded($feeds.get()).list.length, 1)
-  equal(ensureLoaded($feeds.get()).list[0].lastOriginId, undefined)
+  equal(ensureLoaded($feeds.get()).list[0]!.lastOriginId, undefined)
 
-  let lastPublishedAt = ensureLoaded($feeds.get()).list[0].lastPublishedAt!
+  let lastPublishedAt = ensureLoaded($feeds.get()).list[0]!.lastPublishedAt!
   let now = Date.now() / 1000
   ok(lastPublishedAt <= now)
   ok(lastPublishedAt > now / 1000 - 2000)

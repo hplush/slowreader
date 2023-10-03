@@ -42,7 +42,7 @@ test('adds, loads, changes and removes feed', async () => {
   equal(typeof id, 'string')
   let added = await loadList(getFeeds())
   equal(added.length, 1)
-  equal(added[0].title, 'RSS')
+  equal(added[0]!.title, 'RSS')
 
   let feed = getFeed(id)
   keepMount(feed)
@@ -114,7 +114,7 @@ test('loads latest posts', async () => {
 
   equal(getFeedLatestPosts(feed), page)
   equal(getPage.calls.length, 1)
-  equal(getPage.calls[0][1], 'https://example.com/')
+  equal(getPage.calls[0]![1], 'https://example.com/')
 })
 
 test('shows that user has any feeds', async () => {

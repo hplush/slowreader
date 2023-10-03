@@ -38,7 +38,7 @@ let $links = map<PreviewLinksValue>({})
 export const previewUrlError = computed($links, links => {
   let first = Object.keys(links)[0]
   if (typeof first !== 'undefined') {
-    let link = links[first]
+    let link = links[first]!
     if (link.state === 'invalid') {
       return link.error
     } else if (link.state === 'unloadable') {
@@ -49,7 +49,7 @@ export const previewUrlError = computed($links, links => {
 })
 
 export const previewCandidatesLoading = computed($links, links => {
-  return Object.keys(links).some(url => links[url].state === 'loading')
+  return Object.keys(links).some(url => links[url]!.state === 'loading')
 })
 
 export interface PreviewCandidate {
@@ -222,7 +222,7 @@ export async function setPreviewCandidate(url: string): Promise<void> {
       } else if (feeds.isEmpty) {
         $added.set(false)
       } else {
-        $added.set(feeds.list[0].id)
+        $added.set(feeds.list[0]!.id)
       }
     })
 
@@ -240,11 +240,11 @@ export async function addPreviewCandidate(): Promise<void> {
   let url = $candidate.get()
   if (url) {
     let page = await loadValue($posts.get()!)
-    let lastPost = page.list[0] ?? {}
+    let lastPost = page.list[0]
     let candidate = $candidates.get().find(i => i.url === url)!
     await addFeed({
-      lastOriginId: lastPost.originId,
-      lastPublishedAt: lastPost.publishedAt ?? Date.now() / 1000,
+      lastOriginId: lastPost?.originId,
+      lastPublishedAt: lastPost?.publishedAt ?? Date.now() / 1000,
       loader: candidate.loader,
       reading: 'fast',
       title: candidate.title,

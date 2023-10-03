@@ -115,11 +115,11 @@ async function move(filterId: string, diff: -1 | 1): Promise<void> {
   if (next >= 0 && next < sorted.length) {
     let nextPriority
     if (next === 0) {
-      nextPriority = sorted[0].priority - 100
+      nextPriority = sorted[0]!.priority - 100
     } else if (next === last) {
-      nextPriority = sorted[last].priority + 100
+      nextPriority = sorted[last]!.priority + 100
     } else {
-      nextPriority = (sorted[next - 1].priority + sorted[next].priority) / 2
+      nextPriority = (sorted[next - 1]!.priority + sorted[next]!.priority) / 2
     }
     await changeFilter(filterId, { priority: nextPriority })
   }
@@ -155,14 +155,14 @@ function parseQuery(
     return { invalid: true }
   } else {
     let [, not, name, param] = match
-    if (isValidQueryName(name)) {
+    if (isValidQueryName(name!)) {
       let hasParams = name in QUERIES_WITH_PARAM
       if (hasParams && !param) {
         return { invalid: true }
       } else if (!hasParams && param) {
         return { invalid: true }
       }
-      return { name, not: !!not, param }
+      return { name, not: !!not, param: param! }
     } else {
       return { invalid: true }
     }

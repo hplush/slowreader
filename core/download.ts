@@ -29,7 +29,7 @@ export function createTextResponse(
       if (!bodyCache) {
         let parseType = headers.get('content-type') ?? 'text/html'
         if (parseType.includes(';')) {
-          parseType = parseType.split(';')[0]
+          parseType = parseType.split(';')[0]!
         }
         if (parseType.includes('+xml')) {
           parseType = 'application/xml'
