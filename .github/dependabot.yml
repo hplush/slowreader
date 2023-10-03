@@ -1,20 +1,6 @@
 version: 2
 updates:
-  - package-ecosystem: pnpm
-    directory: '/'
-    versioning-strategy: increase
-    schedule:
-      interval: weekly
-      day: monday
-      time: '08:00'
-      timezone: 'Europe/Madrid'
-    groups:
-      all:
-        patterns: '*'
   - package-ecosystem: github-actions
     directory: '/'
     schedule:
       interval: weekly
-      day: monday
-      time: '08:00'
-      timezone: 'Europe/Madrid'
