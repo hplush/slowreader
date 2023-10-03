@@ -4,16 +4,16 @@ on:
     branches:
       - main
     paths:
-      - pnpm-lock.yaml
-      - .tool-versions
-      - .github/workflows/core.yml
-      - core/**
+      - 'pnpm-lock.yaml'
+      - '.tool-versions'
+      - '.github/workflows/core.yml'
+      - 'core/**'
   pull_request:
     paths:
-      - pnpm-lock.yaml
-      - .tool-versions
-      - .github/workflows/core.yml
-      - core/**
+      - 'pnpm-lock.yaml'
+      - '.tool-versions'
+      - '.github/workflows/core.yml'
+      - 'core/**'
 permissions:
   contents: read
 jobs:

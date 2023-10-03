@@ -4,18 +4,18 @@ on:
     branches:
       - main
     paths:
-      - pnpm-lock.yaml
-      - .tool-versions
-      - .github/workflows/web.yml
-      - core/**
-      - web/**
+      - 'pnpm-lock.yaml'
+      - ''.tool-versions'
+      - ''.github/workflows/web.yml'
+      - 'core/**'
+      - 'web/**'
   pull_request:
     paths:
-      - pnpm-lock.yaml
-      - .tool-versions
-      - .github/workflows/web.yml
-      - core/**
-      - web/**
+      - 'pnpm-lock.yaml'
+      - '.tool-versions'
+      - .github/workflows/web.yml'
+      - 'core/**'
+      - 'web/**'
 permissions:
   contents: read
 jobs:
