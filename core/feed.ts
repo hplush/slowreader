@@ -48,6 +48,8 @@ export async function addFeed(fields: Omit<FeedValue, 'id'>): Promise<string> {
 }
 
 export async function deleteFeed(feedId: string): Promise<void> {
+  let feed = Feed.cache[feedId]
+  if (feed) feed.deleted = true
   let posts = await loadValue(getPosts({ feedId }))
   await Promise.all(posts.list.map(post => deletePost(post.id)))
   return deleteSyncMapById(getClient(), Feed, feedId)

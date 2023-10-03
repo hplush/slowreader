@@ -92,8 +92,10 @@ test('removes feed posts too', async () => {
     reading: 'fast',
     title: '3'
   })
+  let store1 = getFeed(feed1)
 
   await deleteFeed(feed1)
+  equal(store1.deleted, true)
   deepStrictEqual(
     ensureLoaded(posts.get()).list.map(i => i.id),
     [post3]
