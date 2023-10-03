@@ -77,6 +77,9 @@ importers:
       simple-git-hooks:
         specifier: ^2.9.0
         version: 2.9.0
+      stylelint:
+        specifier: ^15.10.3
+        version: 15.10.3(typescript@5.2.2)
       svelte:
         specifier: ^4.2.1
         version: 4.2.1
@@ -96,7 +99,7 @@ importers:
     dependencies:
       '@logux/client':
         specifier: github:logux/client#next
-        version: github.com/logux/client/555a8a04219e6fb7e490fea65b9ba49b04ac3dd1(@logux/core@0.8.5)(nanostores@0.9.3)
+        version: github.com/logux/client/74d9e769dbb44488393ea4ebbeebd604825be162(@logux/core@0.8.5)(nanostores@0.9.3)
       '@logux/core':
         specifier: ^0.8.5
         version: 0.8.5
@@ -154,7 +157,7 @@ importers:
         version: 3.0.6(postcss@8.4.31)
       '@logux/client':
         specifier: github:logux/client#next
-        version: github.com/logux/client/a33c7dab5d92020bb21de5a3feb4ff696f72fa45(@logux/core@0.8.5)(nanostores@0.9.3)
+        version: github.com/logux/client/74d9e769dbb44488393ea4ebbeebd604825be162(@logux/core@0.8.5)(nanostores@0.9.3)
       '@nanostores/i18n':
         specifier: ^0.10.0
         version: 0.10.0(nanostores@0.9.3)
@@ -196,10 +199,10 @@ importers:
         version: 4.2.1
       svelte-preprocess:
         specifier: ^5.0.4
-        version: 5.0.4(postcss@8.4.31)(svelte@4.2.1)
+        version: 5.0.4(postcss@8.4.31)(svelte@4.2.1)(typescript@5.2.2)
       vite:
         specifier: 4.4.9
-        version: 4.4.9
+        version: 4.4.9(@types/node@20.8.2)
     devDependencies:
       '@logux/stylelint-config':
         specifier: ^0.16.0
@@ -215,7 +218,7 @@ importers:
         version: 9.0.0
       stylelint:
         specifier: ^15.10.3
-        version: 15.10.3
+        version: 15.10.3(typescript@5.2.2)
       vite-plugin-rewrite-all:
         specifier: ^1.0.1
         version: 1.0.1(vite@4.4.9)
@@ -694,7 +697,7 @@ packages:
     peerDependencies:
       stylelint: ^15.5.0
     dependencies:
-      stylelint: 15.10.3
+      stylelint: 15.10.3(typescript@5.2.2)
       stylelint-config-recess-order: 4.3.0(stylelint@15.10.3)
       stylelint-config-standard: 34.0.0(stylelint@15.10.3)
       stylelint-gamut: 1.3.3(stylelint@15.10.3)
@@ -800,7 +803,7 @@ packages:
       '@sveltejs/vite-plugin-svelte': 2.4.6(svelte@4.2.1)(vite@4.4.9)
       debug: 4.3.4
       svelte: 4.2.1
-      vite: 4.4.9
+      vite: 4.4.9(@types/node@20.8.2)
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -819,7 +822,7 @@ packages:
       magic-string: 0.30.4
       svelte: 4.2.1
       svelte-hmr: 0.15.3(svelte@4.2.1)
-      vite: 4.4.9
+      vite: 4.4.9(@types/node@20.8.2)
       vitefu: 0.2.4(vite@4.4.9)
     transitivePeerDependencies:
       - supports-color
@@ -859,7 +862,6 @@ packages:
 
   /@types/node@20.8.2:
     resolution: {integrity: sha512-Vvycsc9FQdwhxE3y3DzeIxuEJbWGDsnrxvMADzTDF/lcdR9/K+AQIeAghTQsHtotg/q0j3WEOYS/jQgSdWue3w==}
-    dev: true
 
   /@types/normalize-package-data@2.4.2:
     resolution: {integrity: sha512-lqa4UEhhv/2sjjIQgjX8B+RBjj47eo0mzGasklVJ78UKGQY1r0VpB9XHDaZZO9qzEFDdy4MrXLuEaSmPrPSe/A==}
@@ -1519,7 +1521,7 @@ packages:
     engines: {node: '>= 0.6'}
     dev: false
 
-  /cosmiconfig@8.3.6:
+  /cosmiconfig@8.3.6(typescript@5.2.2):
     resolution: {integrity: sha512-kcZ6+W5QzcJ3P1Mt+83OUv/oHFqZHIx8DuxG6eZ5RGMERoLqp4BuGjhHLYGK+Kf5XVkQvqBSmAy/nGWN3qDgEA==}
     engines: {node: '>=14'}
     peerDependencies:
@@ -1532,6 +1534,7 @@ packages:
       js-yaml: 4.1.0
       parse-json: 5.2.0
       path-type: 4.0.0
+      typescript: 5.2.2
     dev: true
 
   /cross-spawn@7.0.3:
@@ -4078,7 +4081,7 @@ packages:
     peerDependencies:
       stylelint: '>=15'
     dependencies:
-      stylelint: 15.10.3
+      stylelint: 15.10.3(typescript@5.2.2)
       stylelint-order: 6.0.3(stylelint@15.10.3)
     dev: true
 
@@ -4088,7 +4091,7 @@ packages:
     peerDependencies:
       stylelint: ^15.10.0
     dependencies:
-      stylelint: 15.10.3
+      stylelint: 15.10.3(typescript@5.2.2)
     dev: true
 
   /stylelint-config-standard@34.0.0(stylelint@15.10.3):
@@ -4097,7 +4100,7 @@ packages:
     peerDependencies:
       stylelint: ^15.10.0
     dependencies:
-      stylelint: 15.10.3
+      stylelint: 15.10.3(typescript@5.2.2)
       stylelint-config-recommended: 13.0.0(stylelint@15.10.3)
     dev: true
 
@@ -4108,7 +4111,7 @@ packages:
       stylelint: ^14.0.0 || ^15.0.0
     dependencies:
       colorjs.io: 0.4.5
-      stylelint: 15.10.3
+      stylelint: 15.10.3(typescript@5.2.2)
     dev: true
 
   /stylelint-order@6.0.3(stylelint@15.10.3):
@@ -4118,10 +4121,10 @@ packages:
     dependencies:
       postcss: 8.4.31
       postcss-sorting: 8.0.2(postcss@8.4.31)
-      stylelint: 15.10.3
+      stylelint: 15.10.3(typescript@5.2.2)
     dev: true
 
-  /stylelint@15.10.3:
+  /stylelint@15.10.3(typescript@5.2.2):
     resolution: {integrity: sha512-aBQMMxYvFzJJwkmg+BUUg3YfPyeuCuKo2f+LOw7yYbU8AZMblibwzp9OV4srHVeQldxvSFdz0/Xu8blq2AesiA==}
     engines: {node: ^14.13.1 || >=16.0.0}
     hasBin: true
@@ -4132,7 +4135,7 @@ packages:
       '@csstools/selector-specificity': 3.0.0(postcss-selector-parser@6.0.13)
       balanced-match: 2.0.0
       colord: 2.9.3
-      cosmiconfig: 8.3.6
+      cosmiconfig: 8.3.6(typescript@5.2.2)
       css-functions-list: 3.2.0
       css-tree: 2.3.1
       debug: 4.3.4
@@ -4250,53 +4253,6 @@ packages:
       svelte: 4.2.1
     dev: false
 
-  /svelte-preprocess@5.0.4(postcss@8.4.31)(svelte@4.2.1):
-    resolution: {integrity: sha512-ABia2QegosxOGsVlsSBJvoWeXy1wUKSfF7SWJdTjLAbx/Y3SrVevvvbFNQqrSJw89+lNSsM58SipmZJ5SRi5iw==}
-    engines: {node: '>= 14.10.0'}
-    requiresBuild: true
-    peerDependencies:
-      '@babel/core': ^7.10.2
-      coffeescript: ^2.5.1
-      less: ^3.11.3 || ^4.0.0
-      postcss: ^7 || ^8
-      postcss-load-config: ^2.1.0 || ^3.0.0 || ^4.0.0
-      pug: ^3.0.0
-      sass: ^1.26.8
-      stylus: ^0.55.0
-      sugarss: ^2.0.0 || ^3.0.0 || ^4.0.0
-      svelte: ^3.23.0 || ^4.0.0-next.0 || ^4.0.0
-      typescript: '>=3.9.5 || ^4.0.0 || ^5.0.0'
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-      coffeescript:
-        optional: true
-      less:
-        optional: true
-      postcss:
-        optional: true
-      postcss-load-config:
-        optional: true
-      pug:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      typescript:
-        optional: true
-    dependencies:
-      '@types/pug': 2.0.7
-      detect-indent: 6.1.0
-      magic-string: 0.27.0
-      postcss: 8.4.31
-      sorcery: 0.11.0
-      strip-indent: 3.0.0
-      svelte: 4.2.1
-    dev: false
-
   /svelte-preprocess@5.0.4(postcss@8.4.31)(svelte@4.2.1)(typescript@5.2.2):
     resolution: {integrity: sha512-ABia2QegosxOGsVlsSBJvoWeXy1wUKSfF7SWJdTjLAbx/Y3SrVevvvbFNQqrSJw89+lNSsM58SipmZJ5SRi5iw==}
     engines: {node: '>= 14.10.0'}
@@ -4343,7 +4299,6 @@ packages:
       strip-indent: 3.0.0
       svelte: 4.2.1
       typescript: 5.2.2
-    dev: true
 
   /svelte@4.2.1:
     resolution: {integrity: sha512-LpLqY2Jr7cRxkrTc796/AaaoMLF/1ax7cto8Ot76wrvKQhrPmZ0JgajiWPmg9mTSDqO16SSLiD17r9MsvAPTmw==}
@@ -4531,7 +4486,6 @@ packages:
     resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
     engines: {node: '>=14.17'}
     hasBin: true
-    dev: true
 
   /unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
@@ -4601,10 +4555,10 @@ packages:
       vite: ^2.0.0 || ^3.0.0 || ^4.0.0
     dependencies:
       connect-history-api-fallback: 1.6.0
-      vite: 4.4.9
+      vite: 4.4.9(@types/node@20.8.2)
     dev: true
 
-  /vite@4.4.9:
+  /vite@4.4.9(@types/node@20.8.2):
     resolution: {integrity: sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -4632,6 +4586,7 @@ packages:
       terser:
         optional: true
     dependencies:
+      '@types/node': 20.8.2
       esbuild: 0.18.20
       postcss: 8.4.31
       rollup: 3.29.4
@@ -4646,7 +4601,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 4.4.9
+      vite: 4.4.9(@types/node@20.8.2)
     dev: false
 
   /w3c-xmlserializer@4.0.0:
@@ -4808,50 +4763,9 @@ packages:
     resolution: {integrity: sha512-xHhOFKT1Y29Jc4/6To1hmIUswKhCKplPSbkCyIabAAZ5q/9GmZvlN3WNcafcq3zze3CzYU66XNeSBLCD8Oickw==}
     dev: false
 
-  github.com/logux/client/555a8a04219e6fb7e490fea65b9ba49b04ac3dd1(@logux/core@0.8.5)(nanostores@0.9.3):
-    resolution: {tarball: https://codeload.github.com/logux/client/tar.gz/555a8a04219e6fb7e490fea65b9ba49b04ac3dd1}
-    id: github.com/logux/client/555a8a04219e6fb7e490fea65b9ba49b04ac3dd1
-    name: '@logux/client'
-    version: 0.20.1
-    engines: {node: ^18.0.0 || >=20.0.0}
-    peerDependencies:
-      '@logux/core': ^0.8.0
-      '@nanostores/preact': '>=0.0.0'
-      '@nanostores/react': '>=0.0.0'
-      '@nanostores/vue': '>=0.0.0'
-      nanostores: ^0.9.0
-      preact: '>=10.0.0'
-      react: '>=18.0.0'
-      react-dom: '>=16.8.0'
-      vue: '>=3.3.2'
-    peerDependenciesMeta:
-      '@nanostores/preact':
-        optional: true
-      '@nanostores/react':
-        optional: true
-      '@nanostores/vue':
-        optional: true
-      preact:
-        optional: true
-      react:
-        optional: true
-      react-dom:
-        optional: true
-      vue:
-        optional: true
-    dependencies:
-      '@logux/actions': 0.3.1(@logux/core@0.8.5)
-      '@logux/core': 0.8.5
-      fast-json-stable-stringify: 2.1.0
-      nanodelay: 2.0.2
-      nanoevents: 8.0.0
-      nanoid: 5.0.1
-      nanostores: 0.9.3
-    dev: false
-
-  github.com/logux/client/a33c7dab5d92020bb21de5a3feb4ff696f72fa45(@logux/core@0.8.5)(nanostores@0.9.3):
-    resolution: {tarball: https://codeload.github.com/logux/client/tar.gz/a33c7dab5d92020bb21de5a3feb4ff696f72fa45}
-    id: github.com/logux/client/a33c7dab5d92020bb21de5a3feb4ff696f72fa45
+  github.com/logux/client/74d9e769dbb44488393ea4ebbeebd604825be162(@logux/core@0.8.5)(nanostores@0.9.3):
+    resolution: {tarball: https://codeload.github.com/logux/client/tar.gz/74d9e769dbb44488393ea4ebbeebd604825be162}
+    id: github.com/logux/client/74d9e769dbb44488393ea4ebbeebd604825be162
     name: '@logux/client'
     version: 0.20.1
     engines: {node: ^18.0.0 || >=20.0.0}
