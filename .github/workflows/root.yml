@@ -4,11 +4,11 @@ on:
     branches:
       - main
     paths-ignore:
-      - '*.md"
+      - '*.md'
       - '.github/*.yml'
   pull_request:
     paths-ignore:
-      - '*.md"
+      - '*.md'
       - '.github/*.yml'
 permissions:
   contents: read

@@ -5,15 +5,15 @@ on:
       - main
     paths:
       - 'pnpm-lock.yaml'
-      - ''.tool-versions'
-      - ''.github/workflows/web.yml'
+      - '.tool-versions'
+      - '.github/workflows/web.yml'
       - 'core/**'
       - 'web/**'
   pull_request:
     paths:
       - 'pnpm-lock.yaml'
       - '.tool-versions'
-      - .github/workflows/web.yml'
+      - '.github/workflows/web.yml'
       - 'core/**'
       - 'web/**'
 permissions:
