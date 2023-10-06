@@ -51,24 +51,25 @@ export async function retryOnError<Result>(
   cb: () => Promise<Result>,
   onFirstError: () => void,
   attempts = 3
-): Promise<Result | undefined> {
+): Promise<'abort' | 'error' | Result> {
   let result: Result | undefined
   try {
     result = await cb()
+    return result
   } catch (e) {
     if (e instanceof Error) {
       if (e.name === 'AbortError') {
-        return undefined
+        return 'abort'
       } else {
         attempts -= 1
         if (attempts === 0) {
-          return undefined
+          return 'error'
         } else {
           onFirstError()
           return retryOnError(cb, () => {}, attempts)
         }
       }
     }
+    throw e
   }
-  return result
 }

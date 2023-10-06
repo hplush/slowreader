@@ -1,4 +1,4 @@
-import { equal } from 'node:assert'
+import { equal, fail, rejects } from 'node:assert'
 import { test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -120,9 +120,27 @@ test('reties on error', async () => {
     }
   )
 
-  equal(result, undefined)
+  equal(result, 'error')
   equal(attempts, 3)
   equal(errorReport, 1)
+})
+
+test('passes thrown string', async () => {
+  let attempts = 0
+  rejects(async () => {
+    await retryOnError(
+      () => {
+        attempts += 1
+        // eslint-disable-next-line no-throw-literal
+        throw 'error string'
+      },
+      () => {
+        fail()
+      }
+    )
+  }, /error string/)
+
+  equal(attempts, 1)
 })
 
 test('fails on AbortError', async () => {
@@ -140,7 +158,7 @@ test('fails on AbortError', async () => {
     }
   )
 
-  equal(result, undefined)
+  equal(result, 'abort')
   equal(attempts, 1)
   equal(errorReport, 0)
 })
