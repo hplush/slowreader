@@ -13,8 +13,10 @@ export type PostsPage = ReadableAtom<PostsPageValue> & {
   nextPage(): Promise<OriginPost[]>
 }
 
+export type PostsPageResult = [OriginPost[], PostsPageLoader | undefined]
+
 export interface PostsPageLoader {
-  (): Promise<[OriginPost[], PostsPageLoader | undefined]>
+  (): Promise<PostsPageResult>
 }
 
 interface CreatePostsPage {
