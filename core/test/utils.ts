@@ -9,6 +9,7 @@ import {
   type EnvironmentAndStore,
   Feed,
   Filter,
+  Post,
   setupEnvironment,
   userId
 } from '../index.js'
@@ -22,7 +23,7 @@ export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
 export async function cleanClientTest(): Promise<void> {
   setupEnvironment(getTestEnvironment())
   await client.get()?.clean()
-  cleanStores(Feed, Filter, Category)
+  cleanStores(Feed, Filter, Category, Post)
 }
 
 export function getTestEnvironment(): EnvironmentAndStore {
