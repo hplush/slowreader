@@ -1,5 +1,6 @@
 import { MemoryStore } from '@logux/core'
 import { atom, cleanStores } from 'nanostores'
+import { fail } from 'node:assert'
 
 import {
   type BaseRoute,
@@ -44,4 +45,27 @@ export const testRouter = atom<BaseRoute | undefined>()
 
 export function setBaseRoute(route: BaseRoute | undefined): void {
   testRouter.set(route)
+}
+
+interface PromiseMock<Result> {
+  next(): PromiseMock<Result>
+  promise(): Promise<Result>
+  resolve(result: Result): void
+}
+
+export function createPromise<Result>(): PromiseMock<Result> {
+  let result: PromiseMock<Result> = {
+    next() {
+      return createPromise<Result>()
+    },
+    promise() {
+      return new Promise<Result>(resolve => {
+        result.resolve = resolve
+      })
+    },
+    resolve() {
+      fail()
+    }
+  }
+  return result
 }

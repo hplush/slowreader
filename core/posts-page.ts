@@ -62,7 +62,9 @@ export const createPostsPage: CreatePostsPage = (posts, loadNext) => {
       list: posts
     })
   } else {
-    nextPage()
+    nextPage().catch(() => {
+      isLoading = false
+    })
   }
 
   return $store
