@@ -1,6 +1,7 @@
 <script lang="ts">
   import { appLoading, isGuestRoute, notFound, router } from '@slowreader/core'
 
+  import AboutPage from '../pages/about.svelte'
   import NotFoundPage from '../pages/not-found.svelte'
   import OrganizeFeedPage from '../pages/organize/feed.svelte'
   import OrganizePage from '../pages/organize/index.svelte'
@@ -38,5 +39,7 @@
     <ProfilePage />
   {:else if $router.route === 'welcome'}
     <WelcomePage />
+  {:else if $router.route === 'about'}
+    <AboutPage />
   {/if}
 {/if}

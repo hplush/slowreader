@@ -5,6 +5,7 @@ import { hasFeeds } from './feed.js'
 import { userId } from './settings.js'
 
 export interface Routes {
+  about: {}
   add: {}
   fast: {}
   feed: { id: string }
