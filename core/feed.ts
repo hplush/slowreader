@@ -35,6 +35,32 @@ export const Feed = syncMapTemplate<FeedValue>('feeds', {
   remote: false
 })
 
+let $hasFeeds = atom<boolean | undefined>(false)
+export const hasFeeds = readonlyExport($hasFeeds)
+
+onMount($hasFeeds, () => {
+  let unbindFeeds: (() => void) | undefined
+  let unbindClient = client.subscribe(enabled => {
+    if (enabled) {
+      unbindFeeds = getFeeds().subscribe(feeds => {
+        if (feeds.isLoading) {
+          $hasFeeds.set(undefined)
+        } else {
+          $hasFeeds.set(!feeds.isEmpty)
+        }
+      })
+    } else {
+      unbindFeeds?.()
+      unbindFeeds = undefined
+    }
+  })
+
+  return () => {
+    unbindClient()
+    unbindFeeds?.()
+  }
+})
+
 export function getFeeds(
   filter: Filter<FeedValue> = {}
 ): FilterStore<FeedValue> {
@@ -72,29 +98,3 @@ export function getFeedLatestPosts(
 ): PostsPage {
   return loaders[feed.loader].getPosts(task, feed.url)
 }
-
-let $hasFeeds = atom<boolean | undefined>(false)
-onMount($hasFeeds, () => {
-  let unbindFeeds: (() => void) | undefined
-  let unbindClient = client.subscribe(enabled => {
-    if (enabled) {
-      unbindFeeds = getFeeds().subscribe(feeds => {
-        if (feeds.isLoading) {
-          $hasFeeds.set(undefined)
-        } else {
-          $hasFeeds.set(!feeds.isEmpty)
-        }
-      })
-    } else {
-      unbindFeeds?.()
-      unbindFeeds = undefined
-    }
-  })
-
-  return () => {
-    unbindClient()
-    unbindFeeds?.()
-  }
-})
-
-export const hasFeeds = readonlyExport($hasFeeds)

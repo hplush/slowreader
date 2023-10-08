@@ -15,7 +15,6 @@ import { createQueue, type Queue, retryOnError } from './utils/queue.js'
 import { increaseKey, readonlyExport } from './utils/stores.js'
 
 let $isRefreshing = atom(false)
-
 export const isRefreshing = readonlyExport($isRefreshing)
 
 let startStats = {
@@ -29,7 +28,6 @@ let startStats = {
 }
 
 let $stats = map({ ...startStats })
-
 export const refreshStatistics = readonlyExport($stats)
 
 export const refreshProgress = computed($stats, stats => {

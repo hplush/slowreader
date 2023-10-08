@@ -33,6 +33,13 @@ export type PreviewLinksValue = Record<
     }
 >
 
+export interface PreviewCandidate {
+  loader: LoaderName
+  text?: TextResponse
+  title: string
+  url: string
+}
+
 let $links = map<PreviewLinksValue>({})
 
 export const previewUrlError = computed($links, links => {
@@ -52,14 +59,37 @@ export const previewCandidatesLoading = computed($links, links => {
   return Object.keys(links).some(url => links[url]!.state === 'loading')
 })
 
-export interface PreviewCandidate {
-  loader: LoaderName
-  text?: TextResponse
-  title: string
-  url: string
-}
-
 let $candidates = atom<PreviewCandidate[]>([])
+export const previewCandidates = readonlyExport($candidates)
+
+onMount($candidates, () => {
+  return $links.listen(() => {})
+})
+
+let $candidate = atom<string | undefined>()
+export const previewCandidate = readonlyExport($candidate)
+
+let $added = atom<false | string | undefined>(false)
+export const previewCandidateAdded = readonlyExport($added)
+
+let $posts = atom<PostsPage | undefined>()
+export const previewPosts = readonlyExport($posts)
+
+let prevHasUnbind: (() => void) | undefined
+
+let postsCache = new Map<string, PostsPage>()
+
+export function clearPreview(): void {
+  prevHasUnbind?.()
+  $links.set({})
+  $candidates.set([])
+  $candidate.set(undefined)
+  $added.set(undefined)
+  $posts.set(undefined)
+  postsCache.clear()
+  task.abortAll()
+  task = createDownloadTask()
+}
 
 function addCandidate(url: string, candidate: PreviewCandidate): void {
   $links.setKey(url, { state: 'processed' })
@@ -68,12 +98,6 @@ function addCandidate(url: string, candidate: PreviewCandidate): void {
     setPreviewCandidate(url)
   }
 }
-
-onMount($candidates, () => {
-  return $links.listen(() => {})
-})
-
-export const previewCandidates = readonlyExport($candidates)
 
 function getLoaderForUrl(url: string): false | PreviewCandidate {
   let names = Object.keys(loaders) as LoaderName[]
@@ -173,34 +197,6 @@ export async function addLink(url: string, deep = false): Promise<void> {
       ignoreAbortError(error)
     }
   }
-}
-
-let $candidate = atom<string | undefined>()
-
-export const previewCandidate = readonlyExport($candidate)
-
-let $added = atom<false | string | undefined>(false)
-
-export const previewCandidateAdded = readonlyExport($added)
-
-let postsCache = new Map<string, PostsPage>()
-
-let $posts = atom<PostsPage | undefined>()
-
-export const previewPosts = readonlyExport($posts)
-
-let prevHasUnbind: (() => void) | undefined
-
-export function clearPreview(): void {
-  prevHasUnbind?.()
-  $links.set({})
-  $candidates.set([])
-  $candidate.set(undefined)
-  $added.set(undefined)
-  $posts.set(undefined)
-  postsCache.clear()
-  task.abortAll()
-  task = createDownloadTask()
 }
 
 export async function setPreviewUrl(dirty: string): Promise<void> {
