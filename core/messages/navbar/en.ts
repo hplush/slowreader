@@ -6,6 +6,8 @@ export const navbarMessages = i18n('navbar', {
   fast: 'Fast',
   feeds: 'Feeds',
   profile: 'Profile',
+  refresh: 'Refresh',
+  refreshing: 'Post updating',
   settings: 'Local Settings',
   slow: 'Slow'
 })

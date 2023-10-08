@@ -14,9 +14,9 @@ import { addPost, type OriginPost } from './post.js'
 import { createQueue, type Queue, retryOnError } from './utils/queue.js'
 import { increaseKey, readonlyExport } from './utils/stores.js'
 
-let $refreshing = atom(false)
+let $isRefreshing = atom(false)
 
-export const refreshing = readonlyExport($refreshing)
+export const isRefreshing = readonlyExport($isRefreshing)
 
 let startStats = {
   errors: 0,
@@ -30,13 +30,13 @@ let startStats = {
 
 let $stats = map({ ...startStats })
 
-export const refreshingStatistics = readonlyExport($stats)
+export const refreshStatistics = readonlyExport($stats)
 
-export const refreshingProgress = computed($stats, stats => {
+export const refreshProgress = computed($stats, stats => {
   if (stats.initializing || stats.totalFeeds === 0) {
     return undefined
   } else {
-    return stats.processedFeeds / stats.totalFeeds
+    return Math.floor((stats.processedFeeds / stats.totalFeeds) * 100)
   }
 })
 
@@ -52,8 +52,8 @@ function wasAlreadyAdded(feed: FeedValue, origin: OriginPost): boolean {
 }
 
 export async function refreshPosts(): Promise<void> {
-  if ($refreshing.get()) return
-  $refreshing.set(true)
+  if ($isRefreshing.get()) return
+  $isRefreshing.set(true)
   $stats.set({ ...startStats, initializing: true })
 
   task = createDownloadTask()
@@ -132,12 +132,12 @@ export async function refreshPosts(): Promise<void> {
       await end()
     }
   })
-  $refreshing.set(false)
+  $isRefreshing.set(false)
 }
 
 export function stopRefreshing(): void {
-  if (!$refreshing.get()) return
-  $refreshing.set(false)
+  if (!$isRefreshing.get()) return
+  $isRefreshing.set(false)
   queue.stop()
   task.abortAll()
 }

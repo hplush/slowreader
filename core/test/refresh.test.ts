@@ -13,14 +13,14 @@ import {
   expectRequest,
   getFeed,
   getPosts,
+  isRefreshing,
   loaders,
   mockRequest,
   type PostsPageResult,
   type PostValue,
-  refreshing,
-  refreshingProgress,
-  refreshingStatistics,
   refreshPosts,
+  refreshProgress,
+  refreshStatistics,
   stopRefreshing
 } from '../index.js'
 import { loadList } from '../utils/stores.js'
@@ -73,9 +73,9 @@ test('updates posts', async () => {
   let feed1 = getFeed(feedId1)
   let feed2 = getFeed(feedId2)
 
-  equal(refreshing.get(), false)
-  equal(refreshingProgress.get(), undefined)
-  deepStrictEqual(refreshingStatistics.get(), {
+  equal(isRefreshing.get(), false)
+  equal(refreshProgress.get(), undefined)
+  deepStrictEqual(refreshStatistics.get(), {
     errors: 0,
     foundFast: 0,
     foundSlow: 0,
@@ -98,8 +98,8 @@ test('updates posts', async () => {
   refreshPosts().then(() => {
     finished = true
   })
-  equal(refreshingProgress.get(), undefined)
-  deepStrictEqual(refreshingStatistics.get(), {
+  equal(refreshProgress.get(), undefined)
+  deepStrictEqual(refreshStatistics.get(), {
     errors: 0,
     foundFast: 0,
     foundSlow: 0,
@@ -110,8 +110,8 @@ test('updates posts', async () => {
   })
 
   await setTimeout(10)
-  equal(refreshingProgress.get(), 0)
-  deepStrictEqual(refreshingStatistics.get(), {
+  equal(refreshProgress.get(), 0)
+  deepStrictEqual(refreshStatistics.get(), {
     errors: 0,
     foundFast: 0,
     foundSlow: 0,
@@ -136,8 +136,8 @@ test('updates posts', async () => {
     undefined
   ])
   await setTimeout(10)
-  equal(refreshingProgress.get(), 0.5)
-  deepStrictEqual(refreshingStatistics.get(), {
+  equal(refreshProgress.get(), 50)
+  deepStrictEqual(refreshStatistics.get(), {
     errors: 0,
     foundFast: 0,
     foundSlow: 2,
@@ -163,8 +163,8 @@ test('updates posts', async () => {
   ])
   await setTimeout(10)
   equal(finished, false)
-  equal(refreshingProgress.get(), 0.5)
-  deepStrictEqual(refreshingStatistics.get(), {
+  equal(refreshProgress.get(), 50)
+  deepStrictEqual(refreshStatistics.get(), {
     errors: 0,
     foundFast: 1,
     foundSlow: 3,
@@ -193,9 +193,9 @@ test('updates posts', async () => {
   deepStrictEqual(ensureLoaded(feed2.get()).lastOriginId, 'post9')
   deepStrictEqual(ensureLoaded(feed2.get()).lastPublishedAt, 9000)
   equal(finished, true)
-  equal(refreshing.get(), false)
-  equal(refreshingProgress.get(), 1)
-  deepStrictEqual(refreshingStatistics.get(), {
+  equal(isRefreshing.get(), false)
+  equal(refreshProgress.get(), 100)
+  deepStrictEqual(refreshStatistics.get(), {
     errors: 0,
     foundFast: 2,
     foundSlow: 3,
@@ -223,9 +223,9 @@ test('updates posts', async () => {
   })
 
   refreshPosts()
-  equal(refreshing.get(), true)
-  equal(refreshingProgress.get(), undefined)
-  deepStrictEqual(refreshingStatistics.get(), {
+  equal(isRefreshing.get(), true)
+  equal(refreshProgress.get(), undefined)
+  deepStrictEqual(refreshStatistics.get(), {
     errors: 0,
     foundFast: 0,
     foundSlow: 0,
@@ -235,7 +235,7 @@ test('updates posts', async () => {
     totalFeeds: 0
   })
   await setTimeout(10)
-  equal(refreshingProgress.get(), 1)
+  equal(refreshProgress.get(), 100)
   deepStrictEqual(await loadPosts('title'), ['2', '3', '8 slow', '7', '6'])
 })
 
@@ -267,7 +267,7 @@ test('is ready to feed deletion during refreshing', async () => {
 
   await deleteFeed(feedId)
   await setTimeout(10)
-  equal(refreshing.get(), false)
+  equal(isRefreshing.get(), false)
   deepStrictEqual(await loadPosts('title'), [])
 })
 
@@ -287,9 +287,9 @@ test('cancels refreshing', async () => {
   await setTimeout(10)
 
   stopRefreshing()
-  equal(refreshing.get(), false)
+  equal(isRefreshing.get(), false)
   equal(rss.aborted, true)
-  deepStrictEqual(refreshingStatistics.get(), {
+  deepStrictEqual(refreshStatistics.get(), {
     errors: 0,
     foundFast: 0,
     foundSlow: 0,
@@ -299,7 +299,7 @@ test('cancels refreshing', async () => {
     totalFeeds: 1
   })
   stopRefreshing()
-  equal(refreshing.get(), false)
+  equal(isRefreshing.get(), false)
 })
 
 test('is ready for network errors', async () => {
@@ -339,7 +339,7 @@ test('is ready for network errors', async () => {
   refreshPosts()
   await setTimeout(10)
 
-  deepStrictEqual(refreshingStatistics.get(), {
+  deepStrictEqual(refreshStatistics.get(), {
     errors: 2,
     foundFast: 0,
     foundSlow: 0,
@@ -374,7 +374,7 @@ test('is ready to not found previous ID and time', async () => {
 
   refreshPosts()
   await setTimeout(10)
-  equal(refreshing.get(), false)
+  equal(isRefreshing.get(), false)
   deepStrictEqual(await loadPosts('title'), ['4', '5', '6'])
 
   let feed = getFeed(feedId)
@@ -409,7 +409,7 @@ test('sorts posts', async () => {
 
   refreshPosts()
   await setTimeout(10)
-  equal(refreshing.get(), false)
+  equal(isRefreshing.get(), false)
   deepStrictEqual(await loadPosts('title'), ['2', '3', '4'])
 
   let feed = getFeed(feedId)

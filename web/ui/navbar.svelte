@@ -1,11 +1,31 @@
 <script lang="ts">
-  import { isFastRoute, isSlowRoute, router } from '@slowreader/core'
+  import {
+    isFastRoute,
+    isRefreshing,
+    isSlowRoute,
+    refreshPosts,
+    refreshProgress,
+    router
+  } from '@slowreader/core'
   import { navbarMessages as t } from '@slowreader/core/messages'
 
   import { getURL } from '../stores/router.js'
 </script>
 
 <nav>
+  <div>
+    {#if $isRefreshing}
+      <progress
+        aria-label={$t.refreshing}
+        max="100"
+        value={$refreshProgress ?? 0}
+      >
+        {$refreshProgress}%
+      </progress>
+    {:else}
+      <button on:click={refreshPosts}>{$t.refresh}</button>
+    {/if}
+  </div>
   <div>
     <a href={getURL('slowAll')}>
       {#if isSlowRoute($router)}
