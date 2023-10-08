@@ -32,7 +32,7 @@ export const refreshStatistics = readonlyExport($stats)
 
 export const refreshProgress = computed($stats, stats => {
   if (stats.initializing || stats.totalFeeds === 0) {
-    return undefined
+    return 0
   } else {
     return Math.floor((stats.processedFeeds / stats.totalFeeds) * 100)
   }

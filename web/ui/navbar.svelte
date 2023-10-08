@@ -15,11 +15,7 @@
 <nav>
   <div>
     {#if $isRefreshing}
-      <progress
-        aria-label={$t.refreshing}
-        max="100"
-        value={$refreshProgress ?? 0}
-      >
+      <progress aria-label={$t.refreshing} max="100" value={$refreshProgress}>
         {$refreshProgress}%
       </progress>
     {:else}

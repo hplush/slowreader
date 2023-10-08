@@ -74,7 +74,7 @@ test('updates posts', async () => {
   let feed2 = getFeed(feedId2)
 
   equal(isRefreshing.get(), false)
-  equal(refreshProgress.get(), undefined)
+  equal(refreshProgress.get(), 0)
   deepStrictEqual(refreshStatistics.get(), {
     errors: 0,
     foundFast: 0,
@@ -98,7 +98,7 @@ test('updates posts', async () => {
   refreshPosts().then(() => {
     finished = true
   })
-  equal(refreshProgress.get(), undefined)
+  equal(refreshProgress.get(), 0)
   deepStrictEqual(refreshStatistics.get(), {
     errors: 0,
     foundFast: 0,
@@ -224,7 +224,7 @@ test('updates posts', async () => {
 
   refreshPosts()
   equal(isRefreshing.get(), true)
-  equal(refreshProgress.get(), undefined)
+  equal(refreshProgress.get(), 0)
   deepStrictEqual(refreshStatistics.get(), {
     errors: 0,
     foundFast: 0,
