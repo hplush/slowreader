@@ -27,7 +27,7 @@ export type PostValue = OriginPost & {
   reading: 'fast' | 'slow'
 }
 
-export const Post = syncMapTemplate<PostValue>('categories', {
+export const Post = syncMapTemplate<PostValue>('posts', {
   offline: true,
   remote: false
 })
