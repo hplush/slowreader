@@ -14,6 +14,7 @@ export interface Routes {
   notFound: {}
   preview: { url: string }
   profile: {}
+  refresh: {}
   settings: {}
   signin: {}
   slowAll: {}

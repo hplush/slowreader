@@ -15,6 +15,7 @@ export const urlRouter = createRouter({
   notFound: '/404',
   preview: '/add/:url',
   profile: '/profile',
+  refresh: '/refresh',
   settings: '/settings',
   signin: '/signin',
   slowAll: '/slow',

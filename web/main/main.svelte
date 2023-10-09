@@ -7,6 +7,7 @@
   import OrganizePage from '../pages/organize/index.svelte'
   import PreviewPage from '../pages/preview.svelte'
   import ProfilePage from '../pages/profile.svelte'
+  import RefreshPage from '../pages/refresh.svelte'
   import SettingsPage from '../pages/settings.svelte'
   import StartPage from '../pages/start.svelte'
   import WelcomePage from '../pages/welcome.svelte'
@@ -39,6 +40,8 @@
     <ProfilePage />
   {:else if $router.route === 'welcome'}
     <WelcomePage />
+  {:else if $router.route === 'refresh'}
+    <RefreshPage />
   {:else if $router.route === 'about'}
     <AboutPage />
   {/if}

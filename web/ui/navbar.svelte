@@ -15,9 +15,11 @@
 <nav>
   <div>
     {#if $isRefreshing}
-      <progress aria-label={$t.refreshing} max="100" value={$refreshProgress}>
-        {$refreshProgress}%
-      </progress>
+      <a href={getURL('refresh')}>
+        <progress aria-label={$t.refreshing} max="100" value={$refreshProgress}>
+          {$refreshProgress}%
+        </progress>
+      </a>
     {:else}
       <button on:click={refreshPosts}>{$t.refresh}</button>
     {/if}
