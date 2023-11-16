@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "~20.8.0"
+    "node": "~20.9.0"
   },
   "scripts": {
     "clean": "rm -rf api/coverage core/coverage web/coverage web/dist",
