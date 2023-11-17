@@ -121,7 +121,12 @@ function getLoaderForText(response: TextResponse): false | PreviewCandidate {
     if (loaders[name].isMineUrl(parsed) !== false) {
       let title = loaders[name].isMineText(response)
       if (title !== false) {
-        return { loader: name, text: response, title, url: response.url }
+        return {
+          loader: name,
+          text: response,
+          title: title.trim(),
+          url: response.url
+        }
       }
     }
   }

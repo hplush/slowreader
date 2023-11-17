@@ -177,7 +177,7 @@ test('detects RSS links', async () => {
   equal(previewUrlError.get(), undefined)
   deepStrictEqual(previewCandidates.get(), [])
 
-  let rss = '<rss><channel><title>News</title></channel></rss>'
+  let rss = '<rss><channel><title> News </title></channel></rss>'
   replyRss(200, rss, 'application/rss+xml')
   await setTimeout(10)
   equal(previewCandidatesLoading.get(), false)
