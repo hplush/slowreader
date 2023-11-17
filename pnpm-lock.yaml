@@ -12,82 +12,82 @@ importers:
   .:
     devDependencies:
       '@logux/eslint-config':
-        specifier: ^52.0.2
+        specifier: 52.0.2
         version: 52.0.2(eslint-config-standard@17.1.0)(eslint-plugin-import@2.29.0)(eslint-plugin-n@16.3.1)(eslint-plugin-node-import@1.0.4)(eslint-plugin-perfectionist@2.4.0)(eslint-plugin-prefer-let@3.0.1)(eslint-plugin-promise@6.1.1)(eslint@8.53.0)
       '@types/node':
-        specifier: ^20.9.1
+        specifier: 20.9.1
         version: 20.9.1
       '@types/ws':
-        specifier: ^8.5.9
+        specifier: 8.5.9
         version: 8.5.9
       '@typescript-eslint/eslint-plugin':
-        specifier: ^6.11.0
+        specifier: 6.11.0
         version: 6.11.0(@typescript-eslint/parser@6.11.0)(eslint@8.53.0)(typescript@5.2.2)
       '@typescript-eslint/parser':
-        specifier: ^6.11.0
+        specifier: 6.11.0
         version: 6.11.0(eslint@8.53.0)(typescript@5.2.2)
       better-node-test:
-        specifier: ^0.3.1
+        specifier: 0.3.1
         version: 0.3.1
       eslint:
-        specifier: ^8.53.0
+        specifier: 8.53.0
         version: 8.53.0
       eslint-config-standard:
-        specifier: ^17.1.0
+        specifier: 17.1.0
         version: 17.1.0(eslint-plugin-import@2.29.0)(eslint-plugin-n@16.3.1)(eslint-plugin-promise@6.1.1)(eslint@8.53.0)
       eslint-plugin-import:
-        specifier: ^2.29.0
+        specifier: 2.29.0
         version: 2.29.0(@typescript-eslint/parser@6.11.0)(eslint@8.53.0)
       eslint-plugin-n:
-        specifier: ^16.3.1
+        specifier: 16.3.1
         version: 16.3.1(eslint@8.53.0)
       eslint-plugin-node-import:
-        specifier: ^1.0.4
+        specifier: 1.0.4
         version: 1.0.4(eslint@8.53.0)
       eslint-plugin-perfectionist:
-        specifier: ^2.4.0
+        specifier: 2.4.0
         version: 2.4.0(eslint@8.53.0)(svelte@4.2.4)(typescript@5.2.2)
       eslint-plugin-prefer-let:
-        specifier: ^3.0.1
+        specifier: 3.0.1
         version: 3.0.1
       eslint-plugin-promise:
-        specifier: ^6.1.1
+        specifier: 6.1.1
         version: 6.1.1(eslint@8.53.0)
       eslint-plugin-svelte:
-        specifier: ^2.35.0
+        specifier: 2.35.0
         version: 2.35.0(eslint@8.53.0)(svelte@4.2.4)
       eslint-plugin-uvu:
-        specifier: ^0.1.1
+        specifier: 0.1.1
         version: 0.1.1(eslint@8.53.0)(typescript@5.2.2)
       nano-staged:
-        specifier: ^0.8.0
+        specifier: 0.8.0
         version: 0.8.0
       picocolors:
-        specifier: ^1.0.0
+        specifier: 1.0.0
         version: 1.0.0
       postcss-html:
-        specifier: ^1.5.0
+        specifier: 1.5.0
         version: 1.5.0
       prettier:
-        specifier: ^3.1.0
+        specifier: 3.1.0
         version: 3.1.0
       prettier-plugin-svelte:
-        specifier: ^3.1.0
+        specifier: 3.1.0
         version: 3.1.0(prettier@3.1.0)(svelte@4.2.4)
       simple-git-hooks:
-        specifier: ^2.9.0
+        specifier: 2.9.0
         version: 2.9.0
       stylelint:
-        specifier: ^15.11.0
+        specifier: 15.11.0
         version: 15.11.0(typescript@5.2.2)
       svelte:
-        specifier: ^4.2.4
+        specifier: 4.2.4
         version: 4.2.4
       svelte-check:
-        specifier: ^3.6.0
+        specifier: 3.6.0
         version: 3.6.0(postcss@8.4.31)(svelte@4.2.4)
       tsm:
-        specifier: ^2.3.0
+        specifier: 2.3.0
         version: 2.3.0
       typescript:
         specifier: ~5.2.2
@@ -101,77 +101,77 @@ importers:
         specifier: github:logux/client#next
         version: github.com/logux/client/6fb34f0faa0bb04d1e53c87728559674457b8719(@logux/core@0.8.5)(nanostores@0.9.5)
       '@logux/core':
-        specifier: ^0.8.5
+        specifier: 0.8.5
         version: 0.8.5
       '@nanostores/i18n':
-        specifier: ^0.12.0
+        specifier: 0.12.0
         version: 0.12.0(nanostores@0.9.5)
       '@nanostores/persistent':
-        specifier: ^0.9.1
+        specifier: 0.9.1
         version: 0.9.1(nanostores@0.9.5)
       '@nanostores/router':
-        specifier: ^0.11.0
+        specifier: 0.11.0
         version: 0.11.0(nanostores@0.9.5)
       '@slowreader/api':
         specifier: link:../api
         version: link:../api
       nanoid:
-        specifier: ^5.0.3
+        specifier: 5.0.3
         version: 5.0.3
       nanostores:
-        specifier: ^0.9.5
+        specifier: 0.9.5
         version: 0.9.5
     devDependencies:
       '@logux/actions':
-        specifier: ^0.3.1
+        specifier: 0.3.1
         version: 0.3.1(@logux/core@0.8.5)
       '@types/jsdom':
-        specifier: ^21.1.5
+        specifier: 21.1.5
         version: 21.1.5
       c8:
-        specifier: ^8.0.1
+        specifier: 8.0.1
         version: 8.0.1
       jsdom:
-        specifier: ^22.1.0
+        specifier: 22.1.0
         version: 22.1.0
       nanospy:
-        specifier: ^1.0.0
+        specifier: 1.0.0
         version: 1.0.0
 
   proxy:
     dependencies:
       picocolors:
-        specifier: ^1.0.0
+        specifier: 1.0.0
         version: 1.0.0
       tsm:
-        specifier: ^2.3.0
+        specifier: 2.3.0
         version: 2.3.0
 
   server:
     dependencies:
       '@logux/server':
-        specifier: ^0.12.6
+        specifier: 0.12.6
         version: 0.12.6
 
   web:
     dependencies:
       '@csstools/postcss-oklab-function':
-        specifier: ^3.0.7
+        specifier: 3.0.7
         version: 3.0.7(postcss@8.4.31)
       '@logux/client':
         specifier: github:logux/client#next
         version: github.com/logux/client/6fb34f0faa0bb04d1e53c87728559674457b8719(@logux/core@0.8.5)(nanostores@0.9.5)
       '@nanostores/i18n':
-        specifier: ^0.12.0
+        specifier: 0.12.0
         version: 0.12.0(nanostores@0.9.5)
       '@nanostores/persistent':
-        specifier: ^0.9.1
+        specifier: 0.9.1
         version: 0.9.1(nanostores@0.9.5)
       '@nanostores/router':
-        specifier: ^0.11.0
+        specifier: 0.11.0
         version: 0.11.0(nanostores@0.9.5)
       '@rollup/plugin-node-resolve':
-        specifier: ^15.2.3
+        specifier: 15.2.3
         version: 15.2.3(rollup@4.4.1)
       '@slowreader/core':
         specifier: link:../core
@@ -180,47 +180,47 @@ importers:
         specifier: 3.0.0
         version: 3.0.0(svelte@4.2.4)(vite@5.0.0)
       autoprefixer:
-        specifier: ^10.4.16
+        specifier: 10.4.16
         version: 10.4.16(postcss@8.4.31)
       nanostores:
-        specifier: ^0.9.5
+        specifier: 0.9.5
         version: 0.9.5
       postcss:
-        specifier: ^8.4.31
+        specifier: 8.4.31
         version: 8.4.31
       postcss-dark-theme-class:
-        specifier: ^1.0.0
+        specifier: 1.0.0
         version: 1.0.0(postcss@8.4.31)
       postcss-nesting:
-        specifier: ^12.0.1
+        specifier: 12.0.1
         version: 12.0.1(postcss@8.4.31)
       rollup:
-        specifier: ^4.4.1
+        specifier: 4.4.1
         version: 4.4.1
       svelte:
-        specifier: ^4.2.4
+        specifier: 4.2.4
         version: 4.2.4
       svelte-preprocess:
-        specifier: ^5.1.0
+        specifier: 5.1.0
         version: 5.1.0(postcss@8.4.31)(svelte@4.2.4)(typescript@5.2.2)
       vite:
         specifier: 5.0.0
         version: 5.0.0(@types/node@20.9.1)
     devDependencies:
       '@logux/stylelint-config':
-        specifier: ^0.16.0
+        specifier: 0.16.0
         version: 0.16.0(stylelint@15.11.0)
       '@size-limit/file':
-        specifier: ^11.0.0
+        specifier: 11.0.0
         version: 11.0.0(size-limit@11.0.0)
       browserslist:
-        specifier: ^4.22.1
+        specifier: 4.22.1
         version: 4.22.1
       size-limit:
-        specifier: ^11.0.0
+        specifier: 11.0.0
         version: 11.0.0
       stylelint:
-        specifier: ^15.11.0
+        specifier: 15.11.0
         version: 15.11.0(typescript@5.2.2)
 
 packages:

@@ -7,7 +7,7 @@
     "start": "NODE_NO_WARNINGS=1 tsm ./index.ts"
   },
   "dependencies": {
-    "picocolors": "^1.0.0",
-    "tsm": "^2.3.0"
+    "picocolors": "1.0.0",
+    "tsm": "2.3.0"
   }
 }
