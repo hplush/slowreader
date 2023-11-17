@@ -1,4 +1,6 @@
-export type RequestMethod = typeof fetch
+export interface RequestMethod {
+  (url: string, opts?: RequestInit): Promise<Response>
+}
 
 export let request: RequestMethod
 

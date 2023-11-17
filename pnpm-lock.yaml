@@ -15,8 +15,8 @@ importers:
         specifier: ^52.0.2
         version: 52.0.2(eslint-config-standard@17.1.0)(eslint-plugin-import@2.29.0)(eslint-plugin-n@16.3.1)(eslint-plugin-node-import@1.0.4)(eslint-plugin-perfectionist@2.4.0)(eslint-plugin-prefer-let@3.0.1)(eslint-plugin-promise@6.1.1)(eslint@8.53.0)
       '@types/node':
-        specifier: 20.8.3
-        version: 20.8.3
+        specifier: ^20.9.1
+        version: 20.9.1
       '@types/ws':
         specifier: ^8.5.9
         version: 8.5.9
@@ -45,7 +45,7 @@ importers:
         specifier: ^1.0.4
         version: 1.0.4(eslint@8.53.0)
       eslint-plugin-perfectionist:
-        specifier: ~2.4.0
+        specifier: ^2.4.0
         version: 2.4.0(eslint@8.53.0)(svelte@4.2.4)(typescript@5.2.2)
       eslint-plugin-prefer-let:
         specifier: ^3.0.1
@@ -205,7 +205,7 @@ importers:
         version: 5.1.0(postcss@8.4.31)(svelte@4.2.4)(typescript@5.2.2)
       vite:
         specifier: 5.0.0
-        version: 5.0.0(@types/node@20.8.3)
+        version: 5.0.0(@types/node@20.9.1)
     devDependencies:
       '@logux/stylelint-config':
         specifier: ^0.16.0
@@ -923,7 +923,7 @@ packages:
       '@sveltejs/vite-plugin-svelte': 3.0.0(svelte@4.2.4)(vite@5.0.0)
       debug: 4.3.4
       svelte: 4.2.4
-      vite: 5.0.0(@types/node@20.8.3)
+      vite: 5.0.0(@types/node@20.9.1)
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -942,7 +942,7 @@ packages:
       magic-string: 0.30.5
       svelte: 4.2.4
       svelte-hmr: 0.15.3(svelte@4.2.4)
-      vite: 5.0.0(@types/node@20.8.3)
+      vite: 5.0.0(@types/node@20.9.1)
       vitefu: 0.2.5(vite@5.0.0)
     transitivePeerDependencies:
       - supports-color
@@ -980,14 +980,10 @@ packages:
     resolution: {integrity: sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==}
     dev: true
 
-  /@types/node@20.8.3:
-    resolution: {integrity: sha512-jxiZQFpb+NlH5kjW49vXxvxTjeeqlbsnTAdBTKpzEdPs9itay7MscYXz3Fo9VYFEsfQ6LJFitHad3faerLAjCw==}
-
   /@types/node@20.9.1:
     resolution: {integrity: sha512-HhmzZh5LSJNS5O8jQKpJ/3ZcrrlG6L70hpGqMIAoM9YVD0YBRNWYsfwcXq8VnSjlNpCpgLzMXdiPo+dxcvSmiA==}
     dependencies:
       undici-types: 5.26.5
-    dev: true
 
   /@types/normalize-package-data@2.4.4:
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -1011,7 +1007,7 @@ packages:
   /@types/ws@8.5.9:
     resolution: {integrity: sha512-jbdrY0a8lxfdTp/+r7Z4CkycbOFN8WX+IOchLJr3juT/xzbJ8URyTVSJ/hvNdadTgM1mnedb47n+Y31GsFnQlg==}
     dependencies:
-      '@types/node': 20.8.3
+      '@types/node': 20.9.1
     dev: true
 
   /@typescript-eslint/eslint-plugin@6.11.0(@typescript-eslint/parser@6.11.0)(eslint@8.53.0)(typescript@5.2.2):
@@ -4686,7 +4682,6 @@ packages:
 
   /undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
-    dev: true
 
   /unicorn-magic@0.1.0:
     resolution: {integrity: sha512-lRfVq8fE8gz6QMBuDM6a+LO3IAzTi05H6gCVaUpir2E1Rwpo4ZUog45KpNXKC/Mn3Yb9UDuHumeFTo9iV/D9FQ==}
@@ -4745,7 +4740,7 @@ packages:
       spdx-expression-parse: 3.0.1
     dev: true
 
-  /vite@5.0.0(@types/node@20.8.3):
+  /vite@5.0.0(@types/node@20.9.1):
     resolution: {integrity: sha512-ESJVM59mdyGpsiNAeHQOR/0fqNoOyWPYesFto8FFZugfmhdHx8Fzd8sF3Q/xkVhZsyOxHfdM7ieiVAorI9RjFw==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -4773,7 +4768,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.8.3
+      '@types/node': 20.9.1
       esbuild: 0.19.5
       postcss: 8.4.31
       rollup: 4.4.1
@@ -4789,7 +4784,7 @@ packages:
       vite:
         optional: true
     dependencies:
-      vite: 5.0.0(@types/node@20.8.3)
+      vite: 5.0.0(@types/node@20.9.1)
     dev: false
 
   /w3c-xmlserializer@4.0.0:
