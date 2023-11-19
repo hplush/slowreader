@@ -2,6 +2,7 @@
   "*.{js,ts}": "prettier --write",
   "*.css": "stylelint --fix",
   "*.svelte": ["prettier --write", "stylelint --fix"],
+  "*.svg": "svgo",
   "api/{index.ts,package.json}": "tsm ./scripts/check-subprotocol.ts",
   ".tool-versions": "tsm ./scripts/check-versions.ts",
   "package.json": "tsm ./scripts/check-versions.ts",
