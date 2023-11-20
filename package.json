@@ -7,7 +7,7 @@
     "node": "~20.9.0"
   },
   "scripts": {
-    "clean": "rm -rf api/coverage core/coverage web/coverage web/dist",
+    "clean": "pnpm run -r clean",
     "test:js": "eslint .",
     "test:types": "svelte-check",
     "test:checks": "./scripts/tsm-every scripts check-*.ts",

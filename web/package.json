@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "clean": "rm -rf dist",
     "start": "vite",
     "build": "vite build",
     "build:start": "vite preview",
