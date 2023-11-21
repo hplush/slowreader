@@ -21,8 +21,8 @@ router.subscribe(page => {
 })
 
 router.subscribe(route => {
-  document.body.classList.toggle('is-slow', isSlowRoute(route))
-  document.body.classList.toggle('is-guest', isGuestRoute(route))
+  document.documentElement.classList.toggle('is-slow', isSlowRoute(route))
+  document.documentElement.classList.toggle('is-guest', isGuestRoute(route))
 })
 
 theme.subscribe(themeValue => {

@@ -37,6 +37,7 @@
     "@logux/stylelint-config": "0.16.0",
     "@size-limit/file": "11.0.0",
     "@storybook/addon-svelte-csf": "^4.0.12",
+    "@storybook/addon-themes": "^7.5.3",
     "@storybook/svelte": "^7.5.3",
     "@storybook/svelte-vite": "^7.5.3",
     "browserslist": "4.22.1",
