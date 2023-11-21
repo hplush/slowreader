@@ -3,7 +3,7 @@
 
   export const meta = {
     component: Loader,
-    title: 'Loader'
+    title: 'UI/Loader'
   }
 </script>
 
