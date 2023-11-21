@@ -1,8 +1,8 @@
 <script context="module" lang="ts">
-  import Loader from '../../ui/loader.svelte'
+  import UiLoader from '../../ui/loader.svelte'
 
   export const meta = {
-    component: Loader,
+    component: UiLoader,
     title: 'UI/Loader'
   }
 </script>
@@ -12,7 +12,7 @@
 </script>
 
 <Template let:args>
-  <Loader {...args} />
+  <UiLoader {...args} />
 </Template>
 
 <Story name="Base" args={{}} />
