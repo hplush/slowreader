@@ -6,9 +6,7 @@ import { isGuestRoute, isSlowRoute, router, theme } from '@slowreader/core'
 import { urlRouter } from '../stores/router.js'
 import Main from './main.svelte'
 
-import './colors.css'
 import './index.css'
-import './reset.css'
 
 router.subscribe(page => {
   if (page.redirect) {
