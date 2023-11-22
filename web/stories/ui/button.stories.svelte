@@ -8,13 +8,13 @@
 </script>
 
 <script lang="ts">
-  import { Story, Template } from '@storybook/addon-svelte-csf'
+  import { Story } from '@storybook/addon-svelte-csf'
 </script>
 
-<Template let:args>
-  <UiButton {...args}>Test</UiButton>
-</Template>
+<Story name="Base" args={{}}>
+  <UiButton>Test</UiButton>
+</Story>
 
-<Story name="Base" args={{}} />
-
-<Story name="Hover" args={{}} parameters={{ pseudo: { hover: true } }} />
+<Story name="Hover" parameters={{ pseudo: { hover: true } }}>
+  <UiButton>Test</UiButton>
+</Story>

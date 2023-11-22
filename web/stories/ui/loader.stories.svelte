@@ -8,11 +8,9 @@
 </script>
 
 <script lang="ts">
-  import { Story, Template } from '@storybook/addon-svelte-csf'
+  import { Story } from '@storybook/addon-svelte-csf'
 </script>
 
-<Template let:args>
-  <UiLoader {...args} />
-</Template>
-
-<Story name="Base" args={{}} />
+<Story name="Base">
+  <UiLoader />
+</Story>
