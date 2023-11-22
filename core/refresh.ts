@@ -17,7 +17,7 @@ import { increaseKey, readonlyExport } from './utils/stores.js'
 let $isRefreshing = atom(false)
 export const isRefreshing = readonlyExport($isRefreshing)
 
-let startStats = {
+export const DEFAULT_REFRESH_STATISTICS = {
   errors: 0,
   foundFast: 0,
   foundSlow: 0,
@@ -27,7 +27,9 @@ let startStats = {
   totalFeeds: 0
 }
 
-let $stats = map({ ...startStats })
+export type RefreshStatistics = typeof DEFAULT_REFRESH_STATISTICS
+
+let $stats = map({ ...DEFAULT_REFRESH_STATISTICS })
 export const refreshStatistics = readonlyExport($stats)
 
 export const refreshProgress = computed($stats, stats => {
@@ -52,7 +54,7 @@ function wasAlreadyAdded(feed: FeedValue, origin: OriginPost): boolean {
 export async function refreshPosts(): Promise<void> {
   if ($isRefreshing.get()) return
   $isRefreshing.set(true)
-  $stats.set({ ...startStats, initializing: true })
+  $stats.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: true })
 
   task = createDownloadTask()
   let feeds = await loadValue(getFeeds())
