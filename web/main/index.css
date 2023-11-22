@@ -1,4 +1,10 @@
+@import url('./reset.css');
+@import url('./colors.css');
+
 :root {
+  --navbar-width: 150px;
+  --app-padding: 8px;
+
   color-scheme: light dark;
 
   &.is-light {
@@ -8,15 +14,6 @@
   &.is-dark {
     color-scheme: dark;
   }
-}
-
-body {
-  --navbar-width: 150px;
-  --app-padding: 8px;
-
-  display: flex;
-  color: var(--text-color);
-  background: var(--app-background);
 
   &.is-slow {
     --app-background: var(--reading-background);
@@ -25,6 +22,12 @@ body {
   &.is-guest {
     --navbar-width: 0;
   }
+}
+
+body {
+  display: flex;
+  color: var(--text-color);
+  background: var(--app-background);
 }
 
 body,

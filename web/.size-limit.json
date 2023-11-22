@@ -1,7 +1,7 @@
 [
   {
     "name": "Files to download",
-    "path": "dist/**/*",
+    "path": ["dist/**/*", "!dist/ui/**"],
     "limit": "50 KB"
   },
   {
