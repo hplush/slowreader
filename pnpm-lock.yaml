@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  semver@<7.5.2: '>=7.5.2'
-
 importers:
 
   .:
@@ -87,13 +84,13 @@ importers:
         specifier: 3.6.1
         version: 3.6.1(postcss@8.4.31)(svelte@4.2.7)
       svgo:
-        specifier: ^3.0.4
+        specifier: 3.0.4
         version: 3.0.4
       tsm:
         specifier: 2.3.0
         version: 2.3.0
       typescript:
-        specifier: ~5.3.2
+        specifier: 5.3.2
         version: 5.3.2
 
   api: {}
@@ -217,16 +214,16 @@ importers:
         specifier: 11.0.0
         version: 11.0.0(size-limit@11.0.0)
       '@storybook/addon-svelte-csf':
-        specifier: ^4.0.13
+        specifier: 4.0.13
         version: 4.0.13(@storybook/svelte@7.5.3)(@storybook/theming@7.5.3)(@sveltejs/vite-plugin-svelte@3.0.1)(svelte@4.2.7)(vite@5.0.2)
       '@storybook/addon-themes':
-        specifier: ^7.5.3
+        specifier: 7.5.3
         version: 7.5.3(react-dom@18.2.0)(react@18.2.0)
       '@storybook/svelte':
-        specifier: ^7.5.3
+        specifier: 7.5.3
         version: 7.5.3(svelte@4.2.7)
       '@storybook/svelte-vite':
-        specifier: ^7.5.3
+        specifier: 7.5.3
         version: 7.5.3(@babel/core@7.23.3)(postcss@8.4.31)(svelte@4.2.7)(typescript@5.3.2)(vite@5.0.2)
       browserslist:
         specifier: 4.22.1
@@ -235,10 +232,10 @@ importers:
         specifier: 11.0.0
         version: 11.0.0
       storybook:
-        specifier: ^7.5.3
+        specifier: 7.5.3
         version: 7.5.3
       storybook-addon-pseudo-states:
-        specifier: ^2.1.2
+        specifier: 2.1.2
         version: 2.1.2(@storybook/components@7.5.3)(@storybook/core-events@7.5.3)(@storybook/manager-api@7.5.3)(@storybook/preview-api@7.5.3)(@storybook/theming@7.5.3)(react-dom@18.2.0)(react@18.2.0)
       stylelint:
         specifier: 15.11.0
@@ -294,7 +291,7 @@ packages:
       debug: 4.3.4
       gensync: 1.0.0-beta.2
       json5: 2.2.3
-      semver: 7.5.4
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
 
@@ -329,7 +326,7 @@ packages:
       '@babel/helper-validator-option': 7.22.15
       browserslist: 4.22.1
       lru-cache: 5.1.1
-      semver: 7.5.4
+      semver: 6.3.1
 
   /@babel/helper-create-class-features-plugin@7.22.15(@babel/core@7.23.3):
     resolution: {integrity: sha512-jKkwA59IXcvSaiK2UN45kKwSC9o+KuoXsBDvHvU/7BecYIp8GQ2UwrVvFgJASUT+hBnwJx6MhvMCuMzwZZ7jlg==}
@@ -346,7 +343,7 @@ packages:
       '@babel/helper-replace-supers': 7.22.20(@babel/core@7.23.3)
       '@babel/helper-skip-transparent-expression-wrappers': 7.22.5
       '@babel/helper-split-export-declaration': 7.22.6
-      semver: 7.5.4
+      semver: 6.3.1
     dev: true
 
   /@babel/helper-create-regexp-features-plugin@7.22.15(@babel/core@7.23.3):
@@ -358,7 +355,7 @@ packages:
       '@babel/core': 7.23.3
       '@babel/helper-annotate-as-pure': 7.22.5
       regexpu-core: 5.3.2
-      semver: 7.5.4
+      semver: 6.3.1
     dev: true
 
   /@babel/helper-define-polyfill-provider@0.4.3(@babel/core@7.23.3):
@@ -1440,7 +1437,7 @@ packages:
       babel-plugin-polyfill-corejs3: 0.8.6(@babel/core@7.23.3)
       babel-plugin-polyfill-regenerator: 0.5.3(@babel/core@7.23.3)
       core-js-compat: 3.33.3
-      semver: 7.5.4
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4353,7 +4350,7 @@ packages:
       '@babel/compat-data': 7.23.3
       '@babel/core': 7.23.3
       '@babel/helper-define-polyfill-provider': 0.4.3(@babel/core@7.23.3)
-      semver: 7.5.4
+      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -5702,7 +5699,7 @@ packages:
       object.fromentries: 2.0.7
       object.groupby: 1.0.1
       object.values: 1.1.7
-      semver: 7.5.4
+      semver: 6.3.1
       tsconfig-paths: 3.14.2
     transitivePeerDependencies:
       - eslint-import-resolver-typescript
@@ -7376,14 +7373,14 @@ packages:
     engines: {node: '>=6'}
     dependencies:
       pify: 4.0.1
-      semver: 7.5.4
+      semver: 5.7.2
     dev: true
 
   /make-dir@3.1.0:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}
     engines: {node: '>=8'}
     dependencies:
-      semver: 7.5.4
+      semver: 6.3.1
     dev: true
 
   /make-dir@4.0.0:
@@ -7709,7 +7706,7 @@ packages:
     dependencies:
       hosted-git-info: 2.8.9
       resolve: 1.22.8
-      semver: 7.5.4
+      semver: 5.7.2
       validate-npm-package-license: 3.0.4
     dev: true
 
@@ -8750,6 +8747,15 @@ packages:
     resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
     dependencies:
       loose-envify: 1.4.0
+
+  /semver@5.7.2:
+    resolution: {integrity: sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==}
+    hasBin: true
+    dev: true
+
+  /semver@6.3.1:
+    resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
+    hasBin: true
 
   /semver@7.5.4:
     resolution: {integrity: sha512-1bCSESV6Pv+i21Hvpxp3Dx+pSD8lIPt8uVjRrxAUt/nbswYc+tK6Y2btiULjd4+fnq15PX+nqQDC7Oft7WkwcA==}

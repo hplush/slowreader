@@ -5,6 +5,7 @@
   "*.svg": "svgo",
   ".tool-versions": "tsm ./scripts/check-versions.ts",
   "package.json": "tsm ./scripts/check-versions.ts",
+  "*/package.json": "tsm ./scripts/check-versions.ts",
   "*.test.ts": "tsm ./scripts/check-focused-tests.ts",
   "core/messages/*/en.ts": "tsm ./scripts/check-messages.ts"
 }
