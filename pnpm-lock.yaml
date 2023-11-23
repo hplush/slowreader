@@ -158,6 +158,9 @@ importers:
       '@csstools/postcss-oklab-function':
         specifier: 3.0.7
         version: 3.0.7(postcss@8.4.31)
+      '@evilmartians/harmony':
+        specifier: ^1.1.0
+        version: 1.1.0
       '@logux/client':
         specifier: github:logux/client#next
         version: github.com/logux/client/6fb34f0faa0bb04d1e53c87728559674457b8719(@logux/core@0.8.5)(nanostores@0.9.5)(react-dom@18.2.0)(react@18.2.0)
@@ -2087,6 +2090,10 @@ packages:
     resolution: {integrity: sha512-ut5V+D+fOoWPgGGNj83GGjnntO39xDy6DWxO0wb7Jp3DcMX0TfIqdzHF85VTQkerdyGmuuMD9AKAo5KiNlf/AQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
+
+  /@evilmartians/harmony@1.1.0:
+    resolution: {integrity: sha512-yci5pFdR26Boi5hElDkWME8Egp4xrhlKrlA1R1xknuvZV8QOjpIWIlZk/dvRZsY3QZulRVBthBMpBiDyq5kBCQ==}
+    dev: false
 
   /@fal-works/esbuild-plugin-global-externals@2.1.2:
     resolution: {integrity: sha512-cEee/Z+I12mZcFJshKcCqC8tuX5hG3s+d+9nZ3LabqKF1vKdF41B92pJVCBggjAGORAeOzyyDDKrZwIkLffeOQ==}

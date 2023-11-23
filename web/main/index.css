@@ -15,10 +15,6 @@
     color-scheme: dark;
   }
 
-  &.is-slow {
-    --app-background: var(--reading-background);
-  }
-
   &.is-guest {
     --navbar-width: 0;
   }
@@ -27,7 +23,7 @@
 body {
   display: flex;
   color: var(--text-color);
-  background: var(--app-background);
+  background: var(--land-color);
 }
 
 body,

@@ -1,14 +1,22 @@
-:root {
-  --app-background: oklch(98% 0 0);
-  --reading-background: oklch(98% 0.02 86);
-  --focus-color: oklch(74% 0.13 234 / 30%);
-  --text-color: oklch(0% 0 0);
-}
+@import url('@evilmartians/harmony/css/blue.css');
+@import url('@evilmartians/harmony/css/sand.css');
+@import url('@evilmartians/harmony/css/neutral.css');
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --app-background: oklch(20% 0 0);
-    --reading-background: oklch(25% 0.02 86);
-    --text-color: oklch(90% 0 0);
+:root {
+  --focus-color: var(--blue-500);
+  --land-color: var(--neutral-100);
+  --text-color: var(--neutral-950);
+
+  @media (prefers-color-scheme: dark) {
+    --land-color: var(--neutral-900);
+    --text-color: var(--neutral-50);
+  }
+
+  &.is-slow {
+    --land-color: var(--sand-100);
+
+    @media (prefers-color-scheme: dark) {
+      --land-color: var(--sand-900);
+    }
   }
 }

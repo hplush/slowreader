@@ -15,7 +15,7 @@
 
 <style>
   .is-slow {
-    background: var(--reading-background);
+    font-weight: bold;
   }
 
   .is-deleted {

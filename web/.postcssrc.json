@@ -1,8 +1,8 @@
 {
   "plugins": {
     "@csstools/postcss-oklab-function": {},
+    "postcss-dark-theme-class": {},
     "postcss-nesting": {},
-    "autoprefixer": {},
-    "postcss-dark-theme-class": {}
+    "autoprefixer": {}
   }
 }
