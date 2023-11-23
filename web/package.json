@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "clean": "rm -rf dist",
-    "start:build": "vite preview",
+    "start:production": "pnpm build && vite preview",
     "start:ui": "storybook dev",
     "start": "vite",
     "build:ui": "storybook build",
