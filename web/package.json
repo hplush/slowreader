@@ -7,9 +7,12 @@
     "start:production": "pnpm build && vite preview",
     "start:ui": "storybook dev",
     "start": "vite",
+    "process:css": "tsm ./scripts/clean-vars.ts ./dist/assets/*.css",
+    "process:ui": "mv ./storybook-static ./dist/ui",
+    "process": "pnpm run /^process:/",
     "build:ui": "storybook build",
     "build:web": "vite build",
-    "build": "pnpm run /^build:/ && mv ./storybook-static ./dist/ui",
+    "build": "pnpm run /^build:/ && pnpm run process",
     "test:css": "stylelint **/*.css **/*.svelte",
     "test:build": "pnpm build && size-limit",
     "test": "pnpm run /^test:/"
