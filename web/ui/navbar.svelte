@@ -88,12 +88,16 @@
 </nav>
 
 <style>
+  :root {
+    --navbar-width: calc(19 * var(--step));
+  }
+
   nav {
     position: fixed;
     top: 0;
     bottom: 0;
     left: 0;
     width: var(--navbar-width);
-    padding: var(--app-padding);
+    padding: var(--step);
   }
 </style>

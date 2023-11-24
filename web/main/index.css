@@ -1,10 +1,8 @@
 @import url('./reset.css');
 @import url('./colors.css');
+@import url('./common.css');
 
 :root {
-  --navbar-width: 150px;
-  --app-padding: 8px;
-
   color-scheme: light dark;
 
   &.is-light {
@@ -13,10 +11,6 @@
 
   &.is-dark {
     color-scheme: dark;
-  }
-
-  &.is-guest {
-    --navbar-width: 0;
   }
 }
 
@@ -40,5 +34,9 @@ input {
 }
 
 #main {
-  padding-left: calc(var(--navbar-width) + var(--app-padding));
+  padding-left: calc(var(--navbar-width) + var(--step));
+
+  :root.is-guest & {
+    padding-left: var(--step);
+  }
 }
