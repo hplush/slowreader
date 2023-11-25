@@ -1,12 +1,12 @@
 import './environment.js'
 
+import './index.css'
+
 import { getPagePath } from '@nanostores/router'
 import { isGuestRoute, isSlowRoute, router, theme } from '@slowreader/core'
 
 import { urlRouter } from '../stores/router.js'
 import Main from './main.svelte'
-
-import './index.css'
 
 router.subscribe(page => {
   if (page.redirect) {
