@@ -32,7 +32,7 @@
     margin: 0 auto;
     overflow: hidden;
     appearance: none;
-    background: oklch(0% 0 0 / 10%);
+    background: var(--zone-color);
     border: none;
     border-radius: 2px;
   }
