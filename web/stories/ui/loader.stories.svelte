@@ -11,6 +11,14 @@
   import { Story } from '@storybook/addon-svelte-csf'
 </script>
 
-<Story name="Base">
+<Story name="Light">
   <UiLoader />
+</Story>
+
+<Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
+  <UiLoader />
+</Story>
+
+<Story name="Value">
+  <UiLoader value={0.5} />
 </Story>
