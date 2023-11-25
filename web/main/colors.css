@@ -1,6 +1,4 @@
-@import url('@evilmartians/harmony/css/blue.css');
-@import url('@evilmartians/harmony/css/sand.css');
-@import url('@evilmartians/harmony/css/neutral.css');
+@import url('@evilmartians/harmony/css/index.css');
 
 :root {
   --focus-color: var(--blue-500);

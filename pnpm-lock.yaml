@@ -159,8 +159,8 @@ importers:
         specifier: 3.0.7
         version: 3.0.7(postcss@8.4.31)
       '@evilmartians/harmony':
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: 1.2.0
+        version: 1.2.0
       '@logux/client':
         specifier: github:logux/client#next
         version: github.com/logux/client/6fb34f0faa0bb04d1e53c87728559674457b8719(@logux/core@0.8.5)(nanostores@0.9.5)(react-dom@18.2.0)(react@18.2.0)
@@ -2094,8 +2094,8 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /@evilmartians/harmony@1.1.0:
-    resolution: {integrity: sha512-yci5pFdR26Boi5hElDkWME8Egp4xrhlKrlA1R1xknuvZV8QOjpIWIlZk/dvRZsY3QZulRVBthBMpBiDyq5kBCQ==}
+  /@evilmartians/harmony@1.2.0:
+    resolution: {integrity: sha512-Ua8gpC+28Eo9D2/xynTrrZIrSawgtobwtRLLYq4wH8N19qoMspWZ1vqfsDDVPgQFa+iHsVAk/SbdmoPAj6OH1g==}
     dev: false
 
   /@fal-works/esbuild-plugin-global-externals@2.1.2:
