@@ -34,9 +34,9 @@ input {
 }
 
 #main {
-  padding-left: calc(var(--navbar-width) + var(--step));
+  padding-left: calc(var(--navbar-width) + var(--padding-m));
 
   :root.is-guest & {
-    padding-left: var(--step);
+    padding-left: var(--padding-m);
   }
 }

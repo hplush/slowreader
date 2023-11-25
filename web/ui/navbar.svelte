@@ -89,7 +89,7 @@
 
 <style>
   :root {
-    --navbar-width: calc(19 * var(--step));
+    --navbar-width: 150px;
   }
 
   nav {
@@ -98,6 +98,6 @@
     bottom: 0;
     left: 0;
     width: var(--navbar-width);
-    padding: var(--step);
+    padding: var(--padding-m);
   }
 </style>
