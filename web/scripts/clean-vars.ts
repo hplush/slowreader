@@ -9,7 +9,7 @@ function removeWithEmptyParent(node: Node): void {
   let parent = node.parent as Container
   node.remove()
   if (parent.nodes.length === 0) {
-    removeWithEmptyParent(node)
+    removeWithEmptyParent(parent)
   }
 }
 
