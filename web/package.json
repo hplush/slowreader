@@ -5,7 +5,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "start:production": "pnpm build && vite preview",
-    "start:ui": "storybook dev",
+    "start:ui": "storybook dev -p 6006",
     "start": "vite",
     "process:css": "tsm ./scripts/clean-vars.ts ./dist/assets/*.css",
     "process:ui": "mv ./storybook-static ./dist/ui",
