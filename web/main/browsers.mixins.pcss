@@ -1,0 +1,13 @@
+@define-mixin chromium-only {
+  @supports (not (-moz-appearance: none)) and
+    (not (background: -webkit-named-image(i))) {
+    @mixin-content;
+  }
+}
+
+@define-mixin safari-only {
+  @supports (not (-moz-appearance: none)) and
+    (background: -webkit-named-image(i)) {
+    @mixin-content;
+  }
+}
