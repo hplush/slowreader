@@ -1,6 +1,5 @@
 /* Remove default padding */
 
-/* Uncomment when we will start having design
 body,
 h1,
 h2,
@@ -20,7 +19,7 @@ button,
 fieldset {
   padding: 0;
   margin: 0;
-} */
+}
 
 /* Use screen height */
 
