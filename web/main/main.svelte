@@ -2,6 +2,7 @@
   import { appLoading, isGuestRoute, notFound, router } from '@slowreader/core'
 
   import AboutPage from '../pages/about.svelte'
+  import LoadingPage from '../pages/loading.svelte'
   import NotFoundPage from '../pages/not-found.svelte'
   import OrganizeFeedPage from '../pages/organize/feed.svelte'
   import OrganizePage from '../pages/organize/index.svelte'
@@ -11,12 +12,11 @@
   import SettingsPage from '../pages/settings.svelte'
   import StartPage from '../pages/start.svelte'
   import WelcomePage from '../pages/welcome.svelte'
-  import UiLoader from '../ui/loader.svelte'
   import UiNavbar from '../ui/navbar.svelte'
 </script>
 
 {#if $appLoading}
-  <UiLoader />
+  <LoadingPage />
 {:else}
   {#if !isGuestRoute($router)}
     <UiNavbar />
