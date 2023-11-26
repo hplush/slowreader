@@ -2,21 +2,29 @@
 
 :root {
   --focus-color: var(--blue-500);
-  --land-color: var(--neutral-100);
+  --land-color: var(--neutral-200);
   --text-color: var(--neutral-950);
+  --card-color: var(--neutral-50);
   --zone-color: oklch(0% 0 0 / 10%);
+  --top-edge-color: oklch(100% 0 0);
+  --bottom-edge-color: oklch(0% 0 0 / 20%);
 
   @media (prefers-color-scheme: dark) {
     --land-color: var(--neutral-900);
     --text-color: var(--neutral-50);
+    --card-color: var(--neutral-950);
     --zone-color: oklch(100% 0 0 / 10%);
+    --top-edge-color: oklch(100% 0 0 / 20%);
+    --bottom-edge-color: oklch(0% 0 0);
   }
 
   &.is-slow {
-    --land-color: var(--sand-100);
+    --land-color: var(--sand-200);
+    --card-color: var(--sand-50);
 
     @media (prefers-color-scheme: dark) {
       --land-color: var(--sand-900);
+      --card-color: var(--sand-950);
     }
   }
 }
