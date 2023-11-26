@@ -9,16 +9,30 @@
 
 <script lang="ts">
   import { Story } from '@storybook/addon-svelte-csf'
+
+  import Section from '../section.svelte'
+
+  let progress: number | undefined
+  setInterval(() => {
+    progress = progress === undefined ? 0.25 : progress + 0.25
+    if (progress > 1) {
+      progress = undefined
+    }
+  }, 1000)
 </script>
 
 <Story name="Light">
-  <UiLoader />
+  <Section>
+    <UiLoader />
+  </Section>
+  <Section>
+    <UiLoader value={0.5} />
+  </Section>
+  <Section>
+    <UiLoader value={progress} />
+  </Section>
 </Story>
 
 <Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
   <UiLoader />
-</Story>
-
-<Story name="Value">
-  <UiLoader value={0.5} />
 </Story>
