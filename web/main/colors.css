@@ -10,9 +10,9 @@
   --bottom-edge-color: oklch(0% 0 0 / 20%);
 
   @media (prefers-color-scheme: dark) {
-    --land-color: var(--neutral-900);
+    --land-color: var(--neutral-950);
     --text-color: var(--neutral-50);
-    --card-color: var(--neutral-950);
+    --card-color: var(--neutral-900);
     --zone-color: oklch(100% 0 0 / 10%);
     --top-edge-color: oklch(100% 0 0 / 20%);
     --bottom-edge-color: oklch(0% 0 0);
@@ -23,8 +23,8 @@
     --card-color: var(--sand-50);
 
     @media (prefers-color-scheme: dark) {
-      --land-color: var(--sand-900);
-      --card-color: var(--sand-950);
+      --land-color: var(--sand-950);
+      --card-color: var(--sand-900);
     }
   }
 }
