@@ -6,8 +6,7 @@
 }
 
 @define-mixin safari-only {
-  @supports (not (-moz-appearance: none)) and
-    (background: -webkit-named-image(i)) {
+  @supports (background: -webkit-named-image(i)) {
     @mixin-content;
   }
 }
