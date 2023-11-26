@@ -1,6 +1,7 @@
 {
   "*.{js,ts,html}": "prettier --write",
   "*.css": "stylelint --fix",
+  "*.pcss": "stylelint --fix",
   "*.svelte": ["prettier --write", "stylelint --fix"],
   "*.svg": "svgo",
   ".tool-versions": "tsm ./scripts/check-versions.ts",
