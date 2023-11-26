@@ -31,6 +31,9 @@
   <Section>
     <UiLoader value={progress} />
   </Section>
+  <Section height={100} width={100}>
+    <UiLoader />
+  </Section>
 </Story>
 
 <Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>

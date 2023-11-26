@@ -7,6 +7,12 @@
       "rules": {
         "uvu/no-identical-titles": "error"
       }
+    },
+    {
+      "files": ["*.svelte"],
+      "rules": {
+        "svelte/no-inline-styles": "off"
+      }
     }
   ],
   "rules": {

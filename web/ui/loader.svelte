@@ -28,6 +28,7 @@
   .loader {
     position: relative;
     display: block;
+    max-width: 100%;
     height: 4px;
     margin: 0 auto;
     overflow: hidden;
@@ -55,8 +56,7 @@
   @supports (background: -webkit-named-image(i)) {
     .loader:indeterminate::-webkit-progress-value {
       transform: translateX(-50%);
-      animation: loader-indeterminate 1.8s infinite
-        cubic-bezier(0.45, 0, 0.55, 1);
+      animation: indeterminate 1.8s infinite cubic-bezier(0.45, 0, 0.55, 1);
     }
   }
 
@@ -74,38 +74,37 @@
       background: var(--text-color);
       border-radius: 2px;
       transform: translateX(-50%);
-      animation: loader-indeterminate 1.8s infinite
-        cubic-bezier(0.45, 0, 0.55, 1);
+      animation: indeterminate 1.8s infinite cubic-bezier(0.45, 0, 0.55, 1);
     }
   }
 
   .loader:indeterminate::-moz-progress-bar {
     transform: translateX(-50%);
-    animation: loader-indeterminate 1.8s infinite cubic-bezier(0.45, 0, 0.55, 1);
+    animation: indeterminate 1.8s infinite cubic-bezier(0.45, 0, 0.55, 1);
   }
 
-  @keyframes loader-indeterminate {
+  @keyframes indeterminate {
     0% {
-      width: 40px;
-      margin-left: 20px;
+      width: 25%;
+      margin-left: 12.5%;
     }
 
     25% {
-      width: 80px;
+      width: 50%;
     }
 
     50% {
-      width: 40px;
-      margin-left: calc(100% - 20px);
+      width: 25%;
+      margin-left: 87.5%;
     }
 
     75% {
-      width: 80px;
+      width: 50%;
     }
 
     100% {
-      width: 40px;
-      margin-left: 20px;
+      width: 25%;
+      margin-left: 12.5%;
     }
   }
 </style>
