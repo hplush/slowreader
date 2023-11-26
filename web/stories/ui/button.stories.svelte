@@ -11,7 +11,7 @@
   import { Story } from '@storybook/addon-svelte-csf'
 </script>
 
-<Story name="Base" args={{}}>
+<Story name="Base">
   <UiButton>Test</UiButton>
 </Story>
 
