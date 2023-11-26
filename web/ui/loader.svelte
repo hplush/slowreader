@@ -24,7 +24,7 @@
 >
 </progress>
 
-<style global>
+<style>
   .loader {
     position: relative;
     display: block;
@@ -51,7 +51,18 @@
     border-radius: 2px;
   }
 
-  @mixin chromium-only {
+  /* Safari only */
+  @supports (background: -webkit-named-image(i)) {
+    .loader:indeterminate::-webkit-progress-value {
+      transform: translateX(-50%);
+      animation: loader-indeterminate 1.8s infinite
+        cubic-bezier(0.45, 0, 0.55, 1);
+    }
+  }
+
+  /* Chromium only */
+  @supports (not (-moz-appearance: none)) and
+    (not (background: -webkit-named-image(i))) {
     .loader:indeterminate::-webkit-progress-value {
       background: transparent;
     }
@@ -62,14 +73,6 @@
       content: '';
       background: var(--text-color);
       border-radius: 2px;
-      transform: translateX(-50%);
-      animation: loader-indeterminate 1.8s infinite
-        cubic-bezier(0.45, 0, 0.55, 1);
-    }
-  }
-
-  @mixin safari-only {
-    .loader:indeterminate::-webkit-progress-value {
       transform: translateX(-50%);
       animation: loader-indeterminate 1.8s infinite
         cubic-bezier(0.45, 0, 0.55, 1);

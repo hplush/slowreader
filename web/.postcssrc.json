@@ -1,8 +1,5 @@
 {
   "plugins": {
-    "postcss-mixins": {
-      "mixinsFiles": "./main/*.mixins.pcss"
-    },
     "@csstools/postcss-oklab-function": {},
     "./scripts/svelte-nesting-css-fixer.cjs": {},
     "postcss-dark-theme-class": {},
