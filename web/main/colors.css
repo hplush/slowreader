@@ -6,16 +6,14 @@
   --text-color: var(--neutral-950);
   --card-color: var(--neutral-50);
   --zone-color: oklch(0% 0 0 / 10%);
-  --top-edge-color: oklch(100% 0 0);
-  --bottom-edge-color: oklch(0% 0 0 / 20%);
+  --card-shadow: inset 0 -1px 0 oklch(0% 0 0 / 20%);
 
   @media (prefers-color-scheme: dark) {
     --land-color: var(--neutral-950);
     --text-color: var(--neutral-50);
-    --card-color: var(--neutral-900);
     --zone-color: oklch(100% 0 0 / 10%);
-    --top-edge-color: oklch(100% 0 0 / 20%);
-    --bottom-edge-color: oklch(0% 0 0);
+    --card-color: var(--neutral-900);
+    --card-shadow: inset 0 1px 0 oklch(100% 0 0 / 10%);
   }
 
   &.is-slow {
