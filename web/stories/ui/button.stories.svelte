@@ -9,12 +9,39 @@
 
 <script lang="ts">
   import { Story } from '@storybook/addon-svelte-csf'
+
+  import UiCard from '../../ui/card.svelte'
+  import Section from '../section.svelte'
 </script>
 
 <Story name="Base">
-  <UiButton>Test</UiButton>
+  <Section><UiButton>Base</UiButton></Section>
+  <Section><UiCard><UiButton>Inside card</UiButton></UiCard></Section>
+  <Section hover><UiButton>Hover</UiButton></Section>
+  <Section focus><UiButton>Focus</UiButton></Section>
+  <Section active><UiButton>Pressed</UiButton></Section>
 </Story>
 
-<Story name="Hover" parameters={{ pseudo: { hover: true } }}>
-  <UiButton>Test</UiButton>
+<Story name="Slow" parameters={{ themes: { themeOverride: 'lightSlow' } }}>
+  <Section><UiButton>Base</UiButton></Section>
+  <Section><UiCard><UiButton>Inside card</UiButton></UiCard></Section>
+  <Section hover><UiButton>Hover</UiButton></Section>
+  <Section focus><UiButton>Focus</UiButton></Section>
+  <Section active><UiButton>Pressed</UiButton></Section>
+</Story>
+
+<Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
+  <Section><UiButton>Base</UiButton></Section>
+  <Section><UiCard><UiButton>Inside card</UiButton></UiCard></Section>
+  <Section hover><UiButton>Hover</UiButton></Section>
+  <Section focus><UiButton>Focus</UiButton></Section>
+  <Section active><UiButton>Pressed</UiButton></Section>
+</Story>
+
+<Story name="Dark Slow" parameters={{ themes: { themeOverride: 'darkSlow' } }}>
+  <Section><UiButton>Base</UiButton></Section>
+  <Section><UiCard><UiButton>Inside card</UiButton></UiCard></Section>
+  <Section hover><UiButton>Hover</UiButton></Section>
+  <Section focus><UiButton>Focus</UiButton></Section>
+  <Section active><UiButton>Pressed</UiButton></Section>
 </Story>

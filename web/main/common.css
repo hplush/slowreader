@@ -1,5 +1,7 @@
 :root {
   --padding-m: 8px;
   --padding-l: 16px;
-  --radius: 8px;
+  --inner-radius: 8px;
+  --outer-radius: 8px;
+  --control-height: 40px;
 }

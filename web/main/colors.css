@@ -5,24 +5,45 @@
   --land-color: var(--neutral-200);
   --text-color: var(--neutral-950);
   --card-color: var(--neutral-50);
+  --hover-color: var(--sand-50);
   --zone-color: oklch(0% 0 0 / 10%);
-  --card-shadow: inset 0 -1px 0 oklch(0% 0 0 / 20%);
+  --card-shadow: inset 0 -1px oklch(0% 0 0 / 20%);
+  --button-shadow:
+    inset 0 0 0 1px oklch(0% 0 0 / 15%),
+    inset 0 -5px 5px oklch(0% 0 0 / 8%),
+    0 1px 2px oklch(0% 0 0 / 8%);
+  --button-active-shadow:
+    inset 0 2px 5px oklch(0% 0 0 / 25%),
+    0 -1px oklch(0% 0 0 / 20%),
+    0 1px oklch(100% 0 0),
+    inset 0 -5px 5px oklch(0% 0 0 / 8%);
 
   @media (prefers-color-scheme: dark) {
     --land-color: var(--neutral-950);
     --text-color: var(--neutral-50);
     --zone-color: oklch(100% 0 0 / 10%);
     --card-color: var(--neutral-900);
-    --card-shadow: inset 0 1px 0 oklch(100% 0 0 / 10%);
+    --hover-color: var(--neutral-800);
+    --card-shadow: inset 0 1px oklch(100% 0 0 / 10%);
+    --button-shadow:
+      inset 0 0 0 1px oklch(100% 0 0 / 10%),
+      inset 0 -5px 5px oklch(0% 0 0 / 20%),
+      0 1px 2px oklch(0% 0 0);
+    --button-active-shadow:
+      inset 0 2px 5px oklch(0% 0 0 / 90%),
+      0 1px oklch(100% 0 0 / 20%),
+      inset 0 -5px 5px oklch(0% 0 0 / 20%);
   }
 
   &.is-slow {
     --land-color: var(--sand-200);
     --card-color: var(--sand-50);
+    --hover-color: var(--neutral-50);
 
     @media (prefers-color-scheme: dark) {
       --land-color: var(--sand-950);
       --card-color: var(--sand-900);
+      --hover-color: var(--sand-800);
     }
   }
 }
