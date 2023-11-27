@@ -1,4 +1,14 @@
-<button class="button"><slot /></button>
+<script lang="ts">
+  import { createEventDispatcher } from 'svelte'
+
+  let dispatch = createEventDispatcher()
+
+  function onClick(): void {
+    dispatch('click')
+  }
+</script>
+
+<button class="button" on:click={onClick}><slot /></button>
 
 <style>
   .button {
