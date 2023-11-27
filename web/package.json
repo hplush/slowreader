@@ -32,6 +32,7 @@
     "postcss": "8.4.31",
     "postcss-dark-theme-class": "1.0.0",
     "postcss-nesting": "12.0.1",
+    "postcss-pseudo-classes": "0.2.1",
     "rollup": "4.6.0",
     "svelte": "4.2.7",
     "svelte-preprocess": "5.1.1",
@@ -47,7 +48,6 @@
     "browserslist": "4.22.1",
     "size-limit": "11.0.0",
     "storybook": "7.5.3",
-    "storybook-addon-pseudo-states": "2.1.2",
     "stylelint": "15.11.0"
   }
 }

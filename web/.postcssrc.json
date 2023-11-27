@@ -1,9 +1,12 @@
 {
   "plugins": {
-    "@csstools/postcss-oklab-function": {},
     "./scripts/svelte-nesting-css-fixer.cjs": {},
+    "@csstools/postcss-oklab-function": {},
     "postcss-dark-theme-class": {},
     "postcss-nesting": {},
+    "postcss-pseudo-classes": {
+      "prefix": "is-state-"
+    },
     "autoprefixer": {}
   }
 }
