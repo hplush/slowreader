@@ -1,12 +1,31 @@
 {
   "extends": "@logux/stylelint-config",
-  "ignoreFiles": [
-    "web/dist/**/*",
-    "*/coverage/lcov-report/*"
-  ],
+  "ignoreFiles": ["web/dist/**/*", "*/coverage/lcov-report/*"],
+  "plugins": ["stylelint-use-logical"],
   "rules": {
     "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"],
     "alpha-value-notation": "percentage",
+    "csstools/use-logical": [
+      "always",
+      {
+        "except": [
+          "width",
+          "max-width",
+          "min-width",
+          "height",
+          "max-height",
+          "min-height",
+          "top",
+          "bottom",
+          "padding-top",
+          "padding-bottom",
+          "margin-top",
+          "margin-bottom",
+          "border-top",
+          "border-bottom"
+        ]
+      }
+    ],
     "color-named": "never"
   },
   "overrides": [

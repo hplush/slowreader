@@ -94,9 +94,8 @@
 
   nav {
     position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
+    inset-block: 0;
+    inset-inline-start: 0;
     width: var(--navbar-width);
     padding: var(--padding-m);
   }

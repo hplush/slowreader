@@ -87,7 +87,7 @@
   @keyframes indeterminate {
     0% {
       width: 25%;
-      margin-left: 12.5%;
+      margin-inline-start: 12.5%;
     }
 
     25% {
@@ -96,7 +96,7 @@
 
     50% {
       width: 25%;
-      margin-left: 87.5%;
+      margin-inline-start: 87.5%;
     }
 
     75% {
@@ -105,7 +105,7 @@
 
     100% {
       width: 25%;
-      margin-left: 12.5%;
+      margin-inline-start: 12.5%;
     }
   }
 </style>
