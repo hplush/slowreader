@@ -1,7 +1,7 @@
 #!/bin/sh
 
 find "$1" -type f -name "$2" | xargs -I {} -P $(nproc) bash -c '{
-  output=$(echo "> {}"; NODE_NO_WARNINGS=1 pnpm tsm {})
+  output=$(echo "> {}"; pnpm tsx {})
 
   if [[ $? -ne 0 ]]; then
     echo "$output"
