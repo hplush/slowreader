@@ -8,6 +8,7 @@
 </script>
 
 <script lang="ts">
+  import { mdiPlusCircleOutline } from '@mdi/js'
   import { Story } from '@storybook/addon-svelte-csf'
 
   import UiCard from '../../ui/card.svelte'
@@ -20,6 +21,7 @@
   <Section hover><UiButton>Hover</UiButton></Section>
   <Section focus><UiButton>Focus</UiButton></Section>
   <Section active><UiButton>Pressed</UiButton></Section>
+  <Section><UiButton icon={mdiPlusCircleOutline}>Icon</UiButton></Section>
 </Story>
 
 <Story name="Slow" parameters={{ themes: { themeOverride: 'lightSlow' } }}>
