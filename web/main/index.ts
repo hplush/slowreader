@@ -5,6 +5,7 @@ import './index.css'
 import { getPagePath } from '@nanostores/router'
 import { isGuestRoute, isSlowRoute, router, theme } from '@slowreader/core'
 
+import { locale } from '../stores/locale.js'
 import { urlRouter } from '../stores/router.js'
 import Main from './main.svelte'
 
@@ -30,6 +31,10 @@ router.subscribe(route => {
 theme.subscribe(themeValue => {
   root.classList.toggle('is-dark', themeValue === 'dark')
   root.classList.toggle('is-light', themeValue === 'light')
+})
+
+locale.subscribe(localeValue => {
+  root.lang = localeValue
 })
 
 const main = new Main({ target: document.getElementById('main')! })
