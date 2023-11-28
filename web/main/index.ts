@@ -37,6 +37,7 @@ locale.subscribe(localeValue => {
   root.lang = localeValue
 })
 
+document.getElementById('loader')?.remove()
 const main = new Main({ target: document.getElementById('main')! })
 
 export default main

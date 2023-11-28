@@ -28,7 +28,8 @@
   .loader {
     position: relative;
     display: block;
-    max-width: 100%;
+    width: 100%;
+    max-width: 160px;
     height: 4px;
     margin: 0 auto;
     overflow: hidden;
