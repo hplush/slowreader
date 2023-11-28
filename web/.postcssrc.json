@@ -5,7 +5,7 @@
     "postcss-dark-theme-class": {},
     "postcss-nesting": {},
     "postcss-pseudo-classes": {
-      "prefix": "is-state-"
+      "prefix": "is-pseudo-"
     },
     "autoprefixer": {}
   }

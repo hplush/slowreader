@@ -22,9 +22,9 @@
   }
 
   onMount(() => {
-    if (hover) addClass(hover, 'is-state-hover')
-    if (focus) addClass(focus, 'is-state-focus-visible')
-    if (active) addClass(active, 'is-state-active')
+    if (hover) addClass(hover, 'is-pseudo-hover')
+    if (focus) addClass(focus, 'is-pseudo-focus-visible')
+    if (active) addClass(active, 'is-pseudo-active')
   })
 </script>
 
