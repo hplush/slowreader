@@ -1,5 +1,5 @@
 import { getPagePath } from '@nanostores/router'
-import { isGuestRoute, isSlowRoute, router, theme } from '@slowreader/core'
+import { isSlowRoute, router, theme } from '@slowreader/core'
 
 import { locale } from '../stores/locale.js'
 import { urlRouter } from '../stores/router.js'
@@ -20,7 +20,6 @@ let root = document.documentElement
 
 router.subscribe(route => {
   root.classList.toggle('is-slow', isSlowRoute(route))
-  root.classList.toggle('is-guest', isGuestRoute(route))
 })
 
 theme.subscribe(themeValue => {

@@ -35,8 +35,4 @@ input {
 
 #main {
   padding-inline-start: calc(var(--navbar-width) + var(--padding-m));
-
-  :root.is-guest & {
-    padding-inline-start: var(--padding-m);
-  }
 }
