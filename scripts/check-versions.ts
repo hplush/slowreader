@@ -8,18 +8,24 @@ const ROOT = join(fileURLToPath(import.meta.url), '..', '..')
 function read(...parts: string[]): string {
   return readFileSync(join(ROOT, ...parts)).toString()
 }
-let pkg = read('package.json')
-let toolVersions = read('.tool-versions')
-
-let nodeMinor = toolVersions.match(/nodejs (\d+\.\d+)\./)![1]
 
 function error(msg: string): void {
   process.stderr.write(pico.red(`${msg}\n`))
   process.exit(1)
 }
 
-if (!pkg.includes(`"node": "~${nodeMinor}.`)) {
-  error('.tool-versions and package.json have different Node.js minor version')
+let pkg = read('package.json')
+let toolVersions = read('.tool-versions')
+
+let nodeMajor = toolVersions.match(/nodejs (\d+)\./)![1]
+let pnpmMajor = toolVersions.match(/pnpm (\d+)\./)![1]
+
+if (!pkg.includes(`"node": "^${nodeMajor}.`)) {
+  error('.tool-versions and package.json have different Node.js major version')
+}
+
+if (!pkg.includes(`"pnpm": "^${pnpmMajor}.`)) {
+  error('.tool-versions and package.json have different pnpm major version')
 }
 
 function checkDependencies(file: string, content: string): void {
