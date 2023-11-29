@@ -1,9 +1,11 @@
 name: Daily Visual Test
-on: push
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs at midnight UTC every day
 jobs:
-  check-commits:
+  chromatic:
+    name: Chromatic
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
