@@ -25,12 +25,12 @@ input {
   font: var(--font-base);
 }
 
-:focus {
-  outline: none;
-}
-
 :focus-visible {
   outline: 3px solid var(--focus-color);
+  outline-offset: 3px;
+  transition:
+    outline-width 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    outline-offset 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 #main {
