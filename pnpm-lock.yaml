@@ -240,6 +240,9 @@ importers:
       browserslist:
         specifier: 4.22.1
         version: 4.22.1
+      chromatic:
+        specifier: 9.1.0
+        version: 9.1.0
       size-limit:
         specifier: 11.0.0
         version: 11.0.0
@@ -3905,6 +3908,11 @@ packages:
   /chownr@2.0.0:
     resolution: {integrity: sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==}
     engines: {node: '>=10'}
+    dev: true
+
+  /chromatic@9.1.0:
+    resolution: {integrity: sha512-9ib8k4LIfg/88kKufxz1N8vgCB7nlLhJqmx+Vx55cM/6DCB/M6oqroirVRXfdeC7qaZuhyUemPF2QHxBh7GXtQ==}
+    hasBin: true
     dev: true
 
   /clean-stack@2.2.0:
