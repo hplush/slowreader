@@ -6,6 +6,7 @@
   export let hover: boolean | string = false
   export let focus: boolean | string = false
   export let active: boolean | string = false
+  export let border: boolean = false
 
   let section: HTMLElement
 
@@ -31,6 +32,7 @@
 <section
   bind:this={section}
   style=" width: {width}px;height: {height}px"
+  class:is-bordered={border}
   class:is-sized={width !== undefined || height !== undefined}
 >
   <slot />
@@ -47,6 +49,9 @@
 
     &.is-sized {
       margin-inline: auto;
+    }
+
+    &.is-bordered {
       outline: 1px solid var(--zone-color);
     }
   }

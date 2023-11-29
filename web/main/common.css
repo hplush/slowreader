@@ -1,6 +1,10 @@
 :root {
   --padding-m: 8px;
   --padding-l: 16px;
+  --padding-xl: 24px;
+  --font-base: 1rem/1.6 system-ui;
+  --font-card-title: 1.2rem bold serif;
+  --font-page-title: 1.4rem normal serif;
   --inner-radius: 8px;
   --outer-radius: 8px;
   --control-height: 40px;

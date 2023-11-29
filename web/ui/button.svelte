@@ -4,6 +4,7 @@
   import UiIcon from './icon.svelte'
 
   export let icon: string | undefined = undefined
+  export let wide: boolean = false
 
   let dispatch = createEventDispatcher()
 
@@ -12,7 +13,7 @@
   }
 </script>
 
-<button class="button" on:click={onClick}>
+<button class="button" class:is-wide={wide} on:click={onClick}>
   {#if icon}
     <UiIcon path={icon} />
   {/if}
@@ -25,6 +26,7 @@
     display: inline-flex;
     gap: var(--padding-m);
     align-items: center;
+    justify-content: center;
     height: var(--control-height);
     padding: 0 var(--padding-l);
     font-weight: 600;
@@ -42,6 +44,10 @@
     &:active {
       padding-top: 2px;
       box-shadow: var(--button-active-shadow);
+    }
+
+    &.is-wide {
+      width: 100%;
     }
   }
 </style>

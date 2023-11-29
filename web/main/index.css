@@ -22,7 +22,7 @@ body {
 
 body,
 input {
-  font-family: system-ui;
+  font: var(--font-base);
 }
 
 :focus {
@@ -34,5 +34,7 @@ input {
 }
 
 #main {
+  box-sizing: border-box;
+  width: 100%;
   padding-inline-start: calc(var(--navbar-width) + var(--padding-m));
 }

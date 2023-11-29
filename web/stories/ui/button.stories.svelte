@@ -22,6 +22,7 @@
   <Section focus><UiButton>Focus</UiButton></Section>
   <Section active><UiButton>Pressed</UiButton></Section>
   <Section><UiButton icon={mdiPlusCircleOutline}>Icon</UiButton></Section>
+  <Section><UiButton wide>Wide</UiButton></Section>
 </Story>
 
 <Story name="Slow" parameters={{ themes: { themeOverride: 'lightSlow' } }}>
