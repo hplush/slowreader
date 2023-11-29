@@ -3,12 +3,17 @@
   import { profileMessages as t } from '@slowreader/core/messages'
 
   import UiButton from '../ui/button.svelte'
+  import UiCardTitle from '../ui/card-title.svelte'
+  import UiCard from '../ui/card.svelte'
 </script>
 
-<UiButton
-  on:click={() => {
-    signOut()
-  }}
->
-  {$t.delete}
-</UiButton>
+<UiCard>
+  <UiCardTitle>{$t.delete}</UiCardTitle>
+  <UiButton
+    on:click={() => {
+      signOut()
+    }}
+  >
+    {$t.delete}
+  </UiButton>
+</UiCard>
