@@ -9,16 +9,24 @@
 
 <script lang="ts">
   import { Story } from '@storybook/addon-svelte-csf'
+  import { onDestroy, onMount } from 'svelte'
 
   import Section from '../section.svelte'
 
   let progress: number | undefined
-  setInterval(() => {
-    progress = progress === undefined ? 0.25 : progress + 0.25
-    if (progress > 1) {
-      progress = undefined
-    }
-  }, 1000)
+  let interval: NodeJS.Timeout
+
+  onMount(() => {
+    interval = setInterval(() => {
+      progress = progress === undefined ? 0.25 : progress + 0.25
+      if (progress > 1) {
+        progress = undefined
+      }
+    }, 1000)
+  })
+  onDestroy(() => {
+    clearInterval(interval)
+  })
 </script>
 
 <Story name="Light">
