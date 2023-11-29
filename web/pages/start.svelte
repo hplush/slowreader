@@ -35,6 +35,6 @@
   }
 
   .start_options {
-    max-width: 280px;
+    max-width: 240px;
   }
 </style>
