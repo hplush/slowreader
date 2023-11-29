@@ -14,10 +14,10 @@
   import Section from '../section.svelte'
 
   let progress: number | undefined
-  let interval: NodeJS.Timeout
+  let loaderAnimation: NodeJS.Timeout
 
   onMount(() => {
-    interval = setInterval(() => {
+    loaderAnimation = setInterval(() => {
       progress = progress === undefined ? 0.25 : progress + 0.25
       if (progress > 1) {
         progress = undefined
@@ -25,7 +25,7 @@
     }, 1000)
   })
   onDestroy(() => {
-    clearInterval(interval)
+    clearInterval(loaderAnimation)
   })
 </script>
 
