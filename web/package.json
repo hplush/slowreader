@@ -37,20 +37,20 @@
     "rollup": "4.6.0",
     "svelte": "4.2.7",
     "svelte-preprocess": "5.1.1",
-    "tsx": "4.6.0",
-    "vite": "5.0.3"
+    "tsx": "4.6.1",
+    "vite": "5.0.4"
   },
   "devDependencies": {
     "@logux/stylelint-config": "0.16.0",
     "@size-limit/file": "11.0.0",
     "@storybook/addon-svelte-csf": "4.0.13",
-    "@storybook/addon-themes": "7.6.0",
-    "@storybook/svelte": "7.6.0",
-    "@storybook/svelte-vite": "7.6.0",
+    "@storybook/addon-themes": "7.6.1",
+    "@storybook/svelte": "7.6.1",
+    "@storybook/svelte-vite": "7.6.1",
     "browserslist": "4.22.1",
     "chromatic": "9.1.0",
     "size-limit": "11.0.0",
-    "storybook": "7.6.0",
+    "storybook": "7.6.1",
     "stylelint": "15.11.0",
     "stylelint-use-logical": "2.1.0"
   }
