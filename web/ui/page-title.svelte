@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, onMount } from 'svelte'
+  import { onMount } from 'svelte'
 
   export let title: string
   export let page: string | undefined = undefined
@@ -8,9 +8,9 @@
 
   onMount(() => {
     document.title = (page ?? title) + ' › ' + prevTitle
-  })
-  onDestroy(() => {
-    document.title = prevTitle
+    return () => {
+      document.title = prevTitle
+    }
   })
 </script>
 

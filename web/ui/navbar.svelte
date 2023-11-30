@@ -8,15 +8,15 @@
     router
   } from '@slowreader/core'
   import { navbarMessages as t } from '@slowreader/core/messages'
-  import { onDestroy, onMount } from 'svelte'
+  import { onMount } from 'svelte'
 
   import { getURL } from '../stores/router.js'
 
   onMount(() => {
     document.documentElement.classList.add('has-navbar')
-  })
-  onDestroy(() => {
-    document.documentElement.classList.remove('has-navbar')
+    return () => {
+      document.documentElement.classList.remove('has-navbar')
+    }
   })
 </script>
 

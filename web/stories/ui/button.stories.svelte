@@ -10,16 +10,15 @@
 <script lang="ts">
   import { mdiPlusCircleOutline } from '@mdi/js'
   import { Story } from '@storybook/addon-svelte-csf'
-  import { onDestroy, onMount } from 'svelte'
+  import { onMount } from 'svelte'
 
   import UiCard from '../../ui/card.svelte'
   import Section from '../section.svelte'
 
   let focus: HTMLDivElement | undefined
-  let focusAnimation: NodeJS.Timeout
 
   onMount(() => {
-    focusAnimation = setInterval(() => {
+    let focusAnimation = setInterval(() => {
       if (focus) {
         focus
           .querySelector(':first-child')!
@@ -29,9 +28,9 @@
           .classList.toggle('is-pseudo-focus-visible')
       }
     }, 2000)
-  })
-  onDestroy(() => {
-    clearInterval(focusAnimation)
+    return () => {
+      clearInterval(focusAnimation)
+    }
   })
 </script>
 
