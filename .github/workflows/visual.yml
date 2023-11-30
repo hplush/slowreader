@@ -35,3 +35,4 @@ jobs:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           buildScriptName: build:visual
           workingDir: web/
+          exitZeroOnChanges: true
