@@ -2,10 +2,10 @@
   --padding-m: 8px;
   --padding-l: 16px;
   --padding-xl: 24px;
-  --font-base: 1rem/1.6 system-ui;
-  --font-card-title: bold 1.2rem serif;
-  --font-page-title: normal 1.4rem serif;
-  --font-hotkey: bold 0.7rem/1 system-ui;
+  --base-font: 1rem/1.6 system-ui;
+  --card-title-font: bold 1.2rem serif;
+  --page-title-font: normal 1.4rem serif;
+  --hotkey-font: bold 0.7rem/1 system-ui;
   --inner-radius: 8px;
   --outer-radius: 8px;
   --control-height: 40px;

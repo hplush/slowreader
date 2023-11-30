@@ -19,6 +19,6 @@
 <style>
   .page-title {
     margin-bottom: var(--padding-xl);
-    font: var(--font-page-title);
+    font: var(--page-title-font);
   }
 </style>

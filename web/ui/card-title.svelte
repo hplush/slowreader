@@ -5,6 +5,6 @@
 <style>
   .card-title {
     margin-bottom: var(--padding-m);
-    font: var(--font-card-title);
+    font: var(--card-title-font);
   }
 </style>

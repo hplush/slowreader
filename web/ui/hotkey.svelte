@@ -10,7 +10,7 @@
     top: -6px;
     display: block;
     margin-inline: -3px -7px;
-    font: var(--font-hotkey);
+    font: var(--hotkey-font);
     color: var(--hotkey-color);
     text-transform: uppercase;
   }
