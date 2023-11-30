@@ -17,6 +17,9 @@
 
   let focus: HTMLDivElement | undefined
 
+  let clicks = 0
+  let keyups = 0
+
   onMount(() => {
     let focusAnimation = setInterval(() => {
       if (focus) {
@@ -35,7 +38,14 @@
 </script>
 
 <Story name="Base">
-  <Section><UiButton>Base</UiButton></Section>
+  <Section>
+    <UiButton
+      on:click={() => {
+        clicks += 1
+      }}>Base</UiButton
+    >
+    <div class="counter">{clicks}</div>
+  </Section>
   <Section><UiCard><UiButton>Inside card</UiButton></UiCard></Section>
   <Section hover><UiButton>Hover</UiButton></Section>
   <Section focus="button:first-child">
@@ -47,7 +57,15 @@
   <Section active><UiButton>Pressed</UiButton></Section>
   <Section><UiButton icon={mdiPlusCircleOutline}>Icon</UiButton></Section>
   <Section><UiButton wide>Wide</UiButton></Section>
-  <Section><UiButton hotkey="k">Hot Key</UiButton></Section>
+  <Section
+    ><UiButton
+      hotkey="k"
+      on:click={() => {
+        keyups += 1
+      }}>Hot Key</UiButton
+    >
+    <div class="counter">{keyups}</div></Section
+  >
   <Section hotkeys={false}>
     <UiButton hotkey="p">Hot Key on phone</UiButton>
   </Section>
@@ -84,5 +102,13 @@
   .buttons {
     display: flex;
     gap: var(--padding-m);
+  }
+
+  .counter {
+    position: absolute;
+    display: inline-block;
+    height: var(--control-height);
+    margin-inline-start: var(--padding-l);
+    line-height: var(--control-height);
   }
 </style>
