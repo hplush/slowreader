@@ -57,15 +57,15 @@
   <Section active><UiButton>Pressed</UiButton></Section>
   <Section><UiButton icon={mdiPlusCircleOutline}>Icon</UiButton></Section>
   <Section><UiButton wide>Wide</UiButton></Section>
-  <Section
-    ><UiButton
+  <Section>
+    <UiButton
       hotkey="k"
       on:click={() => {
         keyups += 1
       }}>Hot Key</UiButton
     >
-    <div class="counter">{keyups}</div></Section
-  >
+    <div class="counter">{keyups}</div>
+  </Section>
   <Section hotkeys={false}>
     <UiButton hotkey="p">Hot Key on phone</UiButton>
   </Section>
