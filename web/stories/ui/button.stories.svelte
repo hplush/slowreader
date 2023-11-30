@@ -48,6 +48,9 @@
   <Section><UiButton icon={mdiPlusCircleOutline}>Icon</UiButton></Section>
   <Section><UiButton wide>Wide</UiButton></Section>
   <Section><UiButton hotkey="k">Hot Key</UiButton></Section>
+  <Section hotkeys={false}>
+    <UiButton hotkey="p">Hot Key on phone</UiButton>
+  </Section>
 </Story>
 
 <Story name="Slow" parameters={{ themes: { themeOverride: 'lightSlow' } }}>

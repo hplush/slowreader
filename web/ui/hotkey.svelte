@@ -14,4 +14,8 @@
     color: var(--hotkey-color);
     text-transform: uppercase;
   }
+
+  :global(.is-hotkey-disabled) .hotkey {
+    display: none;
+  }
 </style>

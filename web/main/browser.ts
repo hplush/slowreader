@@ -1,6 +1,7 @@
 import { getPagePath } from '@nanostores/router'
 import { isSlowRoute, router, theme } from '@slowreader/core'
 
+import { likelyToHavePhysicalKeyboard } from '../lib/hotkeys.js'
 import { locale } from '../stores/locale.js'
 import { urlRouter } from '../stores/router.js'
 
@@ -30,3 +31,7 @@ theme.subscribe(themeValue => {
 locale.subscribe(localeValue => {
   root.lang = localeValue
 })
+
+if (!likelyToHavePhysicalKeyboard()) {
+  root.classList.add('is-hotkey-disabled')
+}

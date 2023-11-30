@@ -7,6 +7,7 @@
   export let focus: boolean | string = false
   export let active: boolean | string = false
   export let border: boolean = false
+  export let hotkeys: boolean = true
 
   let section: HTMLElement
 
@@ -26,6 +27,7 @@
     if (hover) addClass(hover, 'is-pseudo-hover')
     if (focus) addClass(focus, 'is-pseudo-focus-visible')
     if (active) addClass(active, 'is-pseudo-active')
+    if (!hotkeys) section.classList.add('is-hotkey-disabled')
   })
 </script>
 

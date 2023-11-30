@@ -73,3 +73,8 @@ export function addHotkey(
     }
   }
 }
+
+export function likelyToHavePhysicalKeyboard(): boolean {
+  let agent = navigator.userAgent.toLowerCase()
+  return !['iphone', 'ipad', 'android'].some(device => agent.includes(device))
+}
