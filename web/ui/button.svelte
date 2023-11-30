@@ -1,27 +1,47 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
+  import { createEventDispatcher, onMount } from 'svelte'
 
+  import { addHotkey } from '../lib/hotkeys.js'
+  import UiHotkey from './hotkey.svelte'
   import UiIcon from './icon.svelte'
 
   export let icon: string | undefined = undefined
   export let wide: boolean = false
+  export let hotkey: string | undefined = undefined
+
+  let element: HTMLButtonElement
 
   let dispatch = createEventDispatcher()
 
   function onClick(): void {
     dispatch('click')
   }
+
+  onMount(() => {
+    if (hotkey) {
+      return addHotkey(hotkey, element, onClick)
+    }
+  })
 </script>
 
-<button class="button" class:is-wide={wide} on:click={onClick}>
+<button
+  bind:this={element}
+  class="button"
+  class:is-wide={wide}
+  on:click={onClick}
+>
   {#if icon}
     <UiIcon path={icon} />
   {/if}
   <slot />
+  {#if hotkey}
+    <UiHotkey {hotkey} />
+  {/if}
 </button>
 
 <style>
   .button {
+    position: relative;
     box-sizing: border-box;
     display: inline-flex;
     gap: var(--padding-m);

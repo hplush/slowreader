@@ -1,0 +1,17 @@
+<script lang="ts">
+  export let hotkey: string
+</script>
+
+<kbd class="hotkey">{hotkey}</kbd>
+
+<style>
+  .hotkey {
+    position: relative;
+    top: -6px;
+    display: block;
+    margin-inline: -3px -7px;
+    font: var(--font-hotkey);
+    color: var(--hotkey-color);
+    text-transform: uppercase;
+  }
+</style>

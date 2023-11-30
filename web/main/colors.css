@@ -4,6 +4,7 @@
   --focus-color: var(--blue-500);
   --land-color: var(--neutral-200);
   --text-color: var(--neutral-950);
+  --hotkey-color: var(--neutral-500);
   --card-color: var(--neutral-50);
   --hover-color: color-mix(in oklch, var(--neutral-50), var(--sand-50));
   --zone-color: oklch(0% 0 0 / 10%);

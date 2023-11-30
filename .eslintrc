@@ -11,7 +11,8 @@
     {
       "files": ["*.svelte"],
       "rules": {
-        "svelte/no-inline-styles": "off"
+        "svelte/no-inline-styles": "off",
+        "consistent-return": "off"
       }
     }
   ],
