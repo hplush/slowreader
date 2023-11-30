@@ -14,6 +14,8 @@
     "test:checks": "./scripts/every scripts check-*.ts",
     "test:audit": "pnpm audit --prod",
     "test": "FORCE_COLOR=1 pnpm run -r --include-workspace-root /^test:/",
+    "format:prettier": "prettier -w **/*.{js,json,md,ts,svelte,html} *.md *.json",
+    "format": "pnpm run -r --include-workspace-root /^format:/",
     "start": "FORCE_COLOR=1 pnpm run -r start"
   },
   "workspaces": [
