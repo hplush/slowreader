@@ -1,5 +1,7 @@
 name: Monthly Format Check
-on: push
+on:
+  schedule:
+    - cron: '0 0 1 * *'
 jobs:
   format-check:
     runs-on: ubuntu-latest
