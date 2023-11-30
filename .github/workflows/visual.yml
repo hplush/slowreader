@@ -1,7 +1,7 @@
 name: Daily Visual Test
 on:
   schedule:
-    - cron: '0 0 * * *' # Runs at midnight UTC every day
+    - cron: '50 23 * * *' # Runs at midnight UTC every day
 jobs:
   chromatic:
     name: Chromatic
