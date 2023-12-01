@@ -137,8 +137,8 @@
       box-shadow: var(--button-active-shadow);
     }
 
-    &[aria-current] .navbar-switcher_button,
-    &[aria-current]:hover .navbar-switcher_button {
+    &[aria-current='page'] .navbar-switcher_button,
+    &[aria-current='page']:hover .navbar-switcher_button {
       cursor: default;
       background: var(--card-color);
       box-shadow: var(--button-pressed-shadow);
@@ -146,7 +146,7 @@
 
     @media (prefers-color-scheme: light) {
       &:active .navbar-switcher_button,
-      &[aria-current] .navbar-switcher_button {
+      &[aria-current='page'] .navbar-switcher_button {
         height: calc(var(--control-height) - 2px);
         margin-block: 1px;
       }
@@ -155,14 +155,14 @@
         padding-top: 1px;
       }
 
-      &[aria-current] .navbar-switcher_button {
+      &[aria-current='page'] .navbar-switcher_button {
         padding-top: 0;
       }
     }
 
     @media (prefers-color-scheme: dark) {
       &:active .navbar-switcher_button,
-      &[aria-current] .navbar-switcher_button {
+      &[aria-current='page'] .navbar-switcher_button {
         height: calc(var(--control-height) - 1px);
         margin-bottom: 1px;
       }
@@ -171,7 +171,7 @@
         padding-top: 2px;
       }
 
-      &[aria-current] .navbar-switcher_button {
+      &[aria-current='page'] .navbar-switcher_button {
         padding-top: 1px;
       }
     }
