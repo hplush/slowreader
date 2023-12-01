@@ -8,7 +8,7 @@
 
 <style>
   :root {
-    --icon-size: 24px;
+    --icon-size: 16px;
   }
 
   svg {
