@@ -74,6 +74,7 @@
     }
 
     &:last-child {
+      margin-inline-start: -1px;
       border-start-start-radius: 0;
       border-end-start-radius: 0;
     }
@@ -138,7 +139,6 @@
 
     &[aria-current] .navbar-switcher_button,
     &[aria-current]:hover .navbar-switcher_button {
-      z-index: 1;
       cursor: default;
       background: var(--card-color);
       box-shadow: var(--button-pressed-shadow);

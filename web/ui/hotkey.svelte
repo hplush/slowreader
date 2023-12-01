@@ -15,7 +15,7 @@
   .hotkey_float {
     position: absolute;
     inset-inline-end: var(--padding-m);
-    top: calc(var(--padding-m) - 1px);
+    margin-top: -13px;
     font: var(--hotkey-font);
     color: var(--hotkey-color);
     text-transform: uppercase;
