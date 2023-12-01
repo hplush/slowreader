@@ -10,7 +10,8 @@
   import { onMount } from 'svelte'
 
   export let refreshing: false | Partial<RefreshStatistics> = false
-  export let route: BaseRoute = { params: {}, route: 'home' }
+  export let route: BaseRoute = { route: 'fast', params: {} }
+  export let slow = false
 
   onMount(() => {
     // TODO: Replace with Nano Stores Context
@@ -26,8 +27,20 @@
       refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS })
     }
 
-    // @ts-expect-error
-    router.set(route)
+    if (slow) {
+      // @ts-expect-error
+      router.set({ route: 'slowAll' })
+    } else {
+      // @ts-expect-error
+      router.set(route)
+    }
+
+    return () => {
+      // @ts-expect-error
+      isRefreshing.set(false)
+      // @ts-expect-error
+      router.set({ route: 'fast' })
+    }
   })
 </script>
 

@@ -3,15 +3,14 @@ import { withThemeByClassName } from '@storybook/addon-themes'
 
 import '../main/index.css'
 import '../main/environment.js'
+import '../main/browser.js'
 
 export default {
   decorators: [
     withThemeByClassName({
       themes: {
         light: 'is-light',
-        lightSlow: 'is-light is-slow',
-        dark: 'is-dark',
-        darkSlow: 'is-dark is-slow'
+        dark: 'is-dark'
       },
       defaultTheme: 'light'
     })

@@ -14,6 +14,7 @@
 
   import UiCard from '../../ui/card.svelte'
   import Section from '../section.svelte'
+  import Scene from '../scene.svelte'
 
   let focus: HTMLDivElement | undefined
 
@@ -71,13 +72,15 @@
   </Section>
 </Story>
 
-<Story name="Slow" parameters={{ themes: { themeOverride: 'lightSlow' } }}>
-  <Section><UiButton>Base</UiButton></Section>
-  <Section><UiCard><UiButton>Inside card</UiButton></UiCard></Section>
-  <Section hover><UiButton>Hover</UiButton></Section>
-  <Section focus><UiButton>Focus</UiButton></Section>
-  <Section active><UiButton>Pressed</UiButton></Section>
-  <Section><UiButton hotkey="k">Hot Key</UiButton></Section>
+<Story name="Slow" parameters={{ themes: { themeOverride: 'light' } }}>
+  <Scene slow>
+    <Section><UiButton>Base</UiButton></Section>
+    <Section><UiCard><UiButton>Inside card</UiButton></UiCard></Section>
+    <Section hover><UiButton>Hover</UiButton></Section>
+    <Section focus><UiButton>Focus</UiButton></Section>
+    <Section active><UiButton>Pressed</UiButton></Section>
+    <Section><UiButton hotkey="k">Hot Key</UiButton></Section>
+  </Scene>
 </Story>
 
 <Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
@@ -89,13 +92,15 @@
   <Section><UiButton hotkey="k">Hot Key</UiButton></Section>
 </Story>
 
-<Story name="Dark Slow" parameters={{ themes: { themeOverride: 'darkSlow' } }}>
-  <Section><UiButton>Base</UiButton></Section>
-  <Section><UiCard><UiButton>Inside card</UiButton></UiCard></Section>
-  <Section hover><UiButton>Hover</UiButton></Section>
-  <Section focus><UiButton>Focus</UiButton></Section>
-  <Section active><UiButton>Pressed</UiButton></Section>
-  <Section><UiButton hotkey="k">Hot Key</UiButton></Section>
+<Story name="Dark Slow" parameters={{ themes: { themeOverride: 'dark' } }}>
+  <Scene slow>
+    <Section><UiButton>Base</UiButton></Section>
+    <Section><UiCard><UiButton>Inside card</UiButton></UiCard></Section>
+    <Section hover><UiButton>Hover</UiButton></Section>
+    <Section focus><UiButton>Focus</UiButton></Section>
+    <Section active><UiButton>Pressed</UiButton></Section>
+    <Section><UiButton hotkey="k">Hot Key</UiButton></Section>
+  </Scene>
 </Story>
 
 <style>
