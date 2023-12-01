@@ -1,5 +1,11 @@
 <script lang="ts">
   import {
+    mdiCogOutline,
+    mdiPlaylistEdit,
+    mdiPlusCircleOutline,
+    mdiRefresh
+  } from '@mdi/js'
+  import {
     isRefreshing,
     refreshPosts,
     refreshProgress,
@@ -9,6 +15,8 @@
   import { onMount } from 'svelte'
 
   import { getURL } from '../../stores/router.js'
+  import UiLoader from '../loader.svelte'
+  import UiNavbarItem from './item.svelte'
   import UiNavbarSwitcher from './switcher.svelte'
 
   onMount(() => {
@@ -19,63 +27,53 @@
   })
 </script>
 
-<nav>
+<nav class="navbar">
   <UiNavbarSwitcher />
-  <div>
+  <div class="navbar_submenu"></div>
+  <div class="navbar_other">
     {#if $isRefreshing}
-      <a href={getURL('refresh')}>
-        <progress aria-label={$t.refreshing} max="100" value={$refreshProgress}>
-          {$refreshProgress}%
-        </progress>
-      </a>
+      <UiNavbarItem
+        current={$router.route === 'refresh'}
+        href={getURL('refresh')}
+      >
+        <UiLoader label={$t.refreshing} value={$refreshProgress} />
+      </UiNavbarItem>
     {:else}
-      <button on:click={refreshPosts}>{$t.refresh}</button>
+      <UiNavbarItem
+        current={$router.route === 'refresh'}
+        hotkey="r"
+        icon={mdiRefresh}
+        on:click={() => {
+          refreshPosts()
+        }}
+      >
+        {$t.refresh}
+      </UiNavbarItem>
     {/if}
-  </div>
-  <div>
-    <a href={getURL('add')}>
-      {#if $router.route === 'add' || $router.route === 'preview'}
-        <strong>{$t.add}</strong>
-      {:else}
-        {$t.add}
-      {/if}
-    </a>
-  </div>
-  <div>
-    <a href={getURL('feeds')}>
-      {#if $router.route === 'feeds' || $router.route === 'feed'}
-        <strong>{$t.feeds}</strong>
-      {:else}
-        {$t.feeds}
-      {/if}
-    </a>
-  </div>
-  <div>
-    <a href={getURL('settings')}>
-      {#if $router.route === 'settings'}
-        <strong>{$t.settings}</strong>
-      {:else}
-        {$t.settings}
-      {/if}
-    </a>
-  </div>
-  <div>
-    <a href={getURL('profile')}>
-      {#if $router.route === 'profile'}
-        <strong>{$t.profile}</strong>
-      {:else}
-        {$t.profile}
-      {/if}
-    </a>
-  </div>
-  <div>
-    <a href={getURL('about')}>
-      {#if $router.route === 'about'}
-        <strong>{$t.about}</strong>
-      {:else}
-        {$t.about}
-      {/if}
-    </a>
+    <UiNavbarItem
+      current={$router.route === 'add' || $router.route === 'preview'}
+      hotkey="a"
+      href={getURL('add')}
+      icon={mdiPlusCircleOutline}
+    >
+      {$t.add}
+    </UiNavbarItem>
+    <UiNavbarItem
+      current={$router.route === 'feeds' || $router.route === 'feed'}
+      hotkey="l"
+      href={getURL('feeds')}
+      icon={mdiPlaylistEdit}
+    >
+      {$t.feeds}
+    </UiNavbarItem>
+    <UiNavbarItem
+      current={$router.route === 'settings'}
+      hotkey="s"
+      href={getURL('settings')}
+      icon={mdiCogOutline}
+    >
+      {$t.settings}
+    </UiNavbarItem>
   </div>
 </nav>
 
@@ -88,12 +86,24 @@
     --navbar-width: 200px;
   }
 
-  nav {
+  .navbar {
     position: fixed;
     inset-block: 0;
     inset-inline-start: 0;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
     width: var(--navbar-width);
     padding: var(--padding-m);
+  }
+
+  .navbar_submenu {
+    flex-grow: 1;
+  }
+
+  .navbar_other {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 </style>

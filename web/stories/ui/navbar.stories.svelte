@@ -39,7 +39,10 @@
 </Story>
 
 <Story name="Refreshing" parameters={{ layout: 'fullscreen' }}>
-  <Scene refreshing={{}} route={{ params: {}, route: 'fast' }}>
+  <Scene
+    refreshing={{ processedFeeds: 2, totalFeeds: 4 }}
+    route={{ params: {}, route: 'fast' }}
+  >
     <UiNavbar />
   </Scene>
 </Story>
@@ -62,10 +65,19 @@
   </Scene>
 </Story>
 
-<Story name="Focus" parameters={{ layout: 'fullscreen' }}>
+<Story
+  name="Dark Add"
+  parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
+>
+  <Scene route={{ params: {}, route: 'add' }}>
+    <UiNavbar />
+  </Scene>
+</Story>
+
+<Story name="Focus Slow" parameters={{ layout: 'fullscreen' }}>
   <Scene route={{ params: {}, route: 'slowAll' }}>
     <Section focus=".navbar-switcher_link:first-child">
-      <UiNavbar /></Section
-    >
+      <UiNavbar />
+    </Section>
   </Scene>
 </Story>
