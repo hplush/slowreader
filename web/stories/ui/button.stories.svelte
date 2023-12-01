@@ -15,6 +15,7 @@
   import UiCard from '../../ui/card.svelte'
   import Section from '../section.svelte'
   import Scene from '../scene.svelte'
+  import { getURL } from '../../stores/router'
 
   let focus: HTMLDivElement | undefined
 
@@ -23,14 +24,14 @@
 
   onMount(() => {
     let focusAnimation = setInterval(() => {
-      if (focus) {
-        focus
-          .querySelector(':first-child')!
-          .classList.toggle('is-pseudo-focus-visible')
-        focus
-          .querySelector(':last-child')!
-          .classList.toggle('is-pseudo-focus-visible')
-      }
+      // if (focus) {
+      //   focus
+      //     .querySelector(':first-child')!
+      //     .classList.toggle('is-pseudo-focus-visible')
+      //   focus
+      //     .querySelector(':last-child')!
+      //     .classList.toggle('is-pseudo-focus-visible')
+      // }
     }, 2000)
     return () => {
       clearInterval(focusAnimation)
@@ -69,6 +70,16 @@
   </Section>
   <Section hotkeys={false}>
     <UiButton hotkey="p">Hot Key on phone</UiButton>
+  </Section>
+  <Section>
+    <UiButton
+      href={getURL('slowAll')}
+      wide
+      icon={mdiPlusCircleOutline}
+      hotkey="l"
+    >
+      Link
+    </UiButton>
   </Section>
 </Story>
 

@@ -8,8 +8,9 @@
   export let icon: string | undefined = undefined
   export let wide: boolean = false
   export let hotkey: string | undefined = undefined
+  export let href: string | undefined = undefined
 
-  let element: HTMLButtonElement
+  let element: HTMLButtonElement | HTMLAnchorElement
 
   let dispatch = createEventDispatcher()
 
@@ -24,20 +25,38 @@
   })
 </script>
 
-<button
-  bind:this={element}
-  class="button"
-  class:is-wide={wide}
-  on:click={onClick}
->
-  {#if icon}
-    <UiIcon path={icon} />
-  {/if}
-  <slot />
-  {#if hotkey}
-    <UiHotkey {hotkey} />
-  {/if}
-</button>
+{#if href}
+  <a
+    bind:this={element}
+    {href}
+    class="button"
+    class:is-wide={wide}
+    on:click={onClick}
+  >
+    {#if icon}
+      <UiIcon path={icon} />
+    {/if}
+    <slot />
+    {#if hotkey}
+      <UiHotkey {hotkey} />
+    {/if}
+  </a>
+{:else}
+  <button
+    bind:this={element}
+    class="button"
+    class:is-wide={wide}
+    on:click={onClick}
+  >
+    {#if icon}
+      <UiIcon path={icon} />
+    {/if}
+    <slot />
+    {#if hotkey}
+      <UiHotkey {hotkey} />
+    {/if}
+  </button>
+{/if}
 
 <style>
   .button {
@@ -50,6 +69,10 @@
     height: var(--control-height);
     padding: 0 var(--padding-l);
     font-weight: 600;
+    color: var(--text-color);
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
     background: var(--card-color);
     border: none;
     border-radius: var(--inner-radius);
@@ -62,12 +85,27 @@
     }
 
     &:active {
-      padding-top: 2px;
       box-shadow: var(--button-active-shadow);
     }
 
     &.is-wide {
       width: 100%;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      &:active {
+        height: calc(var(--control-height) - 1px);
+        padding-top: 2px;
+        margin-bottom: 1px;
+      }
+    }
+
+    @media (prefers-color-scheme: light) {
+      &:active {
+        height: calc(var(--control-height) - 2px);
+        padding-top: 1px;
+        margin: 1px 0;
+      }
     }
   }
 </style>
