@@ -28,8 +28,8 @@
 
 <div class="navbar-switcher">
   <a
-    class="navbar-switcher_link"
     bind:this={slow}
+    class="navbar-switcher_link"
     aria-current={$router.route === 'slowAll' ? 'page' : null}
     href={getURL('slowAll')}
   >
@@ -42,8 +42,8 @@
     </div>
   </a>
   <a
-    class="navbar-switcher_link"
     bind:this={fast}
+    class="navbar-switcher_link"
     aria-current={$router.route === 'fast' ? 'page' : null}
     href={getURL('fast')}
   >
