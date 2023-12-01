@@ -4,7 +4,7 @@
   --focus-color: var(--blue-500);
   --land-color: var(--neutral-200);
   --text-color: var(--neutral-950);
-  --hotkey-color: var(--neutral-500);
+  --hotkey-color: var(--neutral-400);
   --card-color: var(--neutral-50);
   --hover-color: color-mix(in oklch, var(--neutral-50), var(--sand-50));
   --zone-color: oklch(0% 0 0 / 10%);
@@ -22,6 +22,7 @@
   @media (prefers-color-scheme: dark) {
     --land-color: var(--neutral-950);
     --text-color: var(--neutral-50);
+    --hotkey-color: var(--neutral-800);
     --zone-color: oklch(100% 0 0 / 10%);
     --card-color: var(--neutral-900);
     --hover-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));
