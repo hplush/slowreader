@@ -10,7 +10,7 @@
   import { onMount } from 'svelte'
 
   export let refreshing: false | Partial<RefreshStatistics> = false
-  export let route: BaseRoute = { route: 'fast', params: {} }
+  export let route: BaseRoute = { params: {}, route: 'fast' }
   export let slow = false
 
   onMount(() => {

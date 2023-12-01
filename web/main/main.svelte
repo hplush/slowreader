@@ -12,7 +12,7 @@
   import SettingsPage from '../pages/settings.svelte'
   import StartPage from '../pages/start.svelte'
   import WelcomePage from '../pages/welcome.svelte'
-  import UiNavbar from '../ui/navbar.svelte'
+  import UiNavbar from '../ui/navbar/index.svelte'
 </script>
 
 {#if $appLoading}

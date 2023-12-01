@@ -12,10 +12,10 @@
   import { Story } from '@storybook/addon-svelte-csf'
   import { onMount } from 'svelte'
 
+  import { getURL } from '../../stores/router.js'
   import UiCard from '../../ui/card.svelte'
-  import Section from '../section.svelte'
   import Scene from '../scene.svelte'
-  import { getURL } from '../../stores/router'
+  import Section from '../section.svelte'
 
   let focus: HTMLDivElement | undefined
 
@@ -24,14 +24,14 @@
 
   onMount(() => {
     let focusAnimation = setInterval(() => {
-      // if (focus) {
-      //   focus
-      //     .querySelector(':first-child')!
-      //     .classList.toggle('is-pseudo-focus-visible')
-      //   focus
-      //     .querySelector(':last-child')!
-      //     .classList.toggle('is-pseudo-focus-visible')
-      // }
+      if (focus) {
+        focus
+          .querySelector(':first-child')!
+          .classList.toggle('is-pseudo-focus-visible')
+        focus
+          .querySelector(':last-child')!
+          .classList.toggle('is-pseudo-focus-visible')
+      }
     }, 2000)
     return () => {
       clearInterval(focusAnimation)
@@ -73,10 +73,10 @@
   </Section>
   <Section>
     <UiButton
-      href={getURL('slowAll')}
-      wide
-      icon={mdiPlusCircleOutline}
       hotkey="l"
+      href={getURL('slowAll')}
+      icon={mdiPlusCircleOutline}
+      wide
     >
       Link
     </UiButton>

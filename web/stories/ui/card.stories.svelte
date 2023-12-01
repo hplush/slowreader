@@ -14,8 +14,8 @@
   import UiCardActions from '../../ui/card-actions.svelte'
   import UiCardTitle from '../../ui/card-title.svelte'
   import UiParagraph from '../../ui/paragraph.svelte'
-  import Section from '../section.svelte'
   import Scene from '../scene.svelte'
+  import Section from '../section.svelte'
 </script>
 
 <Story name="Base">

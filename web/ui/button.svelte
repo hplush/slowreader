@@ -10,7 +10,7 @@
   export let hotkey: string | undefined = undefined
   export let href: string | undefined = undefined
 
-  let element: HTMLButtonElement | HTMLAnchorElement
+  let element: HTMLAnchorElement | HTMLButtonElement
 
   let dispatch = createEventDispatcher()
 
@@ -28,9 +28,9 @@
 {#if href}
   <a
     bind:this={element}
-    {href}
     class="button"
     class:is-wide={wide}
+    {href}
     on:click={onClick}
   >
     {#if icon}

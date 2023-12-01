@@ -1,8 +1,6 @@
 <script lang="ts">
   import {
-    isFastRoute,
     isRefreshing,
-    isSlowRoute,
     refreshPosts,
     refreshProgress,
     router
@@ -10,7 +8,8 @@
   import { navbarMessages as t } from '@slowreader/core/messages'
   import { onMount } from 'svelte'
 
-  import { getURL } from '../stores/router.js'
+  import { getURL } from '../../stores/router.js'
+  import UiNavbarSwitcher from './switcher.svelte'
 
   onMount(() => {
     document.documentElement.classList.add('has-navbar')
@@ -21,6 +20,7 @@
 </script>
 
 <nav>
+  <UiNavbarSwitcher />
   <div>
     {#if $isRefreshing}
       <a href={getURL('refresh')}>
@@ -31,22 +31,6 @@
     {:else}
       <button on:click={refreshPosts}>{$t.refresh}</button>
     {/if}
-  </div>
-  <div>
-    <a href={getURL('slowAll')}>
-      {#if isSlowRoute($router)}
-        <strong>{$t.slow}</strong>
-      {:else}
-        {$t.slow}
-      {/if}
-    </a>
-    <a href={getURL('fast')}>
-      {#if isFastRoute($router)}
-        <strong>{$t.fast}</strong>
-      {:else}
-        {$t.fast}
-      {/if}
-    </a>
   </div>
   <div>
     <a href={getURL('add')}>
@@ -101,13 +85,14 @@
   }
 
   :root.has-navbar {
-    --navbar-width: 150px;
+    --navbar-width: 200px;
   }
 
   nav {
     position: fixed;
     inset-block: 0;
     inset-inline-start: 0;
+    box-sizing: border-box;
     width: var(--navbar-width);
     padding: var(--padding-m);
   }
