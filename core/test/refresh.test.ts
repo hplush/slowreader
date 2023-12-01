@@ -136,7 +136,7 @@ test('updates posts', async () => {
     undefined
   ])
   await setTimeout(10)
-  equal(refreshProgress.get(), 50)
+  equal(refreshProgress.get(), 0.5)
   deepStrictEqual(refreshStatistics.get(), {
     errors: 0,
     foundFast: 0,
@@ -163,7 +163,7 @@ test('updates posts', async () => {
   ])
   await setTimeout(10)
   equal(finished, false)
-  equal(refreshProgress.get(), 50)
+  equal(refreshProgress.get(), 0.5)
   deepStrictEqual(refreshStatistics.get(), {
     errors: 0,
     foundFast: 1,
@@ -194,7 +194,7 @@ test('updates posts', async () => {
   deepStrictEqual(ensureLoaded(feed2.get()).lastPublishedAt, 9000)
   equal(finished, true)
   equal(isRefreshing.get(), false)
-  equal(refreshProgress.get(), 100)
+  equal(refreshProgress.get(), 1)
   deepStrictEqual(refreshStatistics.get(), {
     errors: 0,
     foundFast: 2,
@@ -235,7 +235,7 @@ test('updates posts', async () => {
     totalFeeds: 0
   })
   await setTimeout(10)
-  equal(refreshProgress.get(), 100)
+  equal(refreshProgress.get(), 1)
   deepStrictEqual(await loadPosts('title'), ['2', '3', '8 slow', '7', '6'])
 })
 

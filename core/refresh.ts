@@ -36,7 +36,7 @@ export const refreshProgress = computed($stats, stats => {
   if (stats.initializing || stats.totalFeeds === 0) {
     return 0
   } else {
-    return Math.floor((stats.processedFeeds / stats.totalFeeds) * 100)
+    return Math.floor((stats.processedFeeds / stats.totalFeeds) * 100) / 100
   }
 })
 
