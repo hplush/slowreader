@@ -7,6 +7,7 @@
   } from '@mdi/js'
   import {
     isRefreshing,
+    isSettingsRoute,
     refreshPosts,
     refreshProgress,
     router
@@ -17,6 +18,7 @@
   import { getURL } from '../../stores/router.js'
   import UiLoader from '../loader.svelte'
   import UiNavbarItem from './item.svelte'
+  import UiNavbarSettings from './settings.svelte'
   import UiNavbarSwitcher from './switcher.svelte'
 
   onMount(() => {
@@ -29,7 +31,11 @@
 
 <nav class="navbar">
   <UiNavbarSwitcher />
-  <div class="navbar_submenu"></div>
+  <div class="navbar_submenu">
+    {#if isSettingsRoute($router)}
+      <UiNavbarSettings />
+    {/if}
+  </div>
   <div class="navbar_other">
     {#if $isRefreshing}
       <UiNavbarItem
@@ -67,7 +73,7 @@
       {$t.feeds}
     </UiNavbarItem>
     <UiNavbarItem
-      current={$router.route === 'settings'}
+      current={isSettingsRoute($router)}
       hotkey="p"
       href={getURL('settings')}
       icon={mdiCogOutline}
@@ -97,13 +103,14 @@
     padding: var(--padding-m);
   }
 
-  .navbar_submenu {
-    flex-grow: 1;
-  }
-
+  .navbar_submenu,
   .navbar_other {
     display: flex;
     flex-direction: column;
     gap: 2px;
+  }
+
+  .navbar_submenu {
+    flex-grow: 1;
   }
 </style>

@@ -9,6 +9,7 @@
   export let current: boolean
   export let hotkey: string | undefined = undefined
   export let icon: string | undefined = undefined
+  export let secondary = false
 
   let element: HTMLAnchorElement | HTMLButtonElement
 
@@ -31,6 +32,7 @@
   <a
     bind:this={element}
     class="navbar-item"
+    class:is-secondary={secondary}
     aria-current={current ? 'page' : null}
     {href}
     on:click={onClick}
@@ -47,6 +49,7 @@
   <button
     bind:this={element}
     class="navbar-item"
+    class:is-secondary={secondary}
     aria-current={current ? 'page' : null}
     on:click={onClick}
   >
@@ -78,6 +81,10 @@
     background: transparent;
     border: none;
     border-radius: var(--inner-radius);
+
+    &.is-secondary {
+      font-weight: normal;
+    }
 
     &:hover,
     &:focus-visible,
