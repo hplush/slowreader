@@ -83,7 +83,7 @@
   }
 
   :root.has-navbar {
-    --navbar-width: 200px;
+    --navbar-width: 210px;
   }
 
   .navbar {
