@@ -9,12 +9,12 @@
 <style>
   .hotkey {
     display: block;
-    margin-inline-start: -4px;
+    margin-inline-start: -2px;
   }
 
   .hotkey_float {
     position: absolute;
-    inset-inline-end: var(--padding-m);
+    inset-inline-end: 9px;
     margin-top: -13px;
     font: var(--hotkey-font);
     color: var(--hotkey-color);
