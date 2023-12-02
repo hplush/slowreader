@@ -27,22 +27,18 @@
 </Story>
 
 <Story name="Add" parameters={{ layout: 'fullscreen' }}>
-  <Scene route={{ params: {}, route: 'add' }}>
-    <UiNavbar />
+  <Scene
+    refreshing={{ processedFeeds: 2, totalFeeds: 4 }}
+    route={{ params: {}, route: 'add' }}
+  >
+    <Section border={false} focus=".navbar-switcher_link:first-child">
+      <UiNavbar />
+    </Section>
   </Scene>
 </Story>
 
 <Story name="Settings" parameters={{ layout: 'fullscreen' }}>
   <Scene route={{ params: {}, route: 'settings' }}>
-    <UiNavbar />
-  </Scene>
-</Story>
-
-<Story name="Refreshing" parameters={{ layout: 'fullscreen' }}>
-  <Scene
-    refreshing={{ processedFeeds: 2, totalFeeds: 4 }}
-    route={{ params: {}, route: 'fast' }}
-  >
     <UiNavbar />
   </Scene>
 </Story>
@@ -71,13 +67,5 @@
 >
   <Scene route={{ params: {}, route: 'add' }}>
     <UiNavbar />
-  </Scene>
-</Story>
-
-<Story name="Focus Slow" parameters={{ layout: 'fullscreen' }}>
-  <Scene route={{ params: {}, route: 'slowAll' }}>
-    <Section focus=".navbar-switcher_link:first-child">
-      <UiNavbar />
-    </Section>
   </Scene>
 </Story>
