@@ -1,7 +1,5 @@
 name: Daily Visual Test
-on:
-  schedule:
-    - cron: '00 23 * * *' # Runs at midnight UTC every day
+on: push
 jobs:
   chromatic:
     name: Chromatic
@@ -17,9 +15,9 @@ jobs:
           today=$(date -u +"%Y-%m-%d")
           last_commit_date=$(git log -1 --format=%cd --date=short)
           if [ "$today" == "$last_commit_date" ]; then
-            echo "commits=true" >> "$GITHUB_OUTPUT"
+            echo "has_commits=true" >> "$GITHUB_OUTPUT"
           else
-            echo "commits=false" >> "$GITHUB_OUTPUT"
+            echo "has_commits=false" >> "$GITHUB_OUTPUT"
             echo "No commits today. Stopping the workflow."
           fi
       - name: Install tools from asdf config
