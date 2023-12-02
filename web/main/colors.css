@@ -7,6 +7,7 @@
   --hotkey-color: var(--neutral-400);
   --card-color: var(--neutral-50);
   --hover-color: color-mix(in oklch, var(--neutral-50), var(--sand-50));
+  --flat-hover-color: color-mix(in srgb, var(--hover-color) 40%, transparent);
   --zone-color: oklch(0% 0 0 / 10%);
   --card-shadow: inset 0 -1px oklch(0% 0 0 / 20%);
   --fire-color: oklch(70% 0.15 65);
@@ -24,10 +25,9 @@
     0 -1px oklch(0% 0 0 / 20%),
     0 1px oklch(100% 0 0),
     inset 0 -5px 5px oklch(0% 0 0 / 8%);
-  --link-active-shadow:
+  --flat-active-shadow:
     inset 0 1px 2px oklch(0% 0 0 / 15%),
     0 -1px oklch(0% 0 0 / 20%);
-  --link-pressed-shadow: 0 -1px oklch(0% 0 0 / 20%);
 
   @media (prefers-color-scheme: dark) {
     --land-color: var(--neutral-950);
@@ -36,6 +36,7 @@
     --zone-color: oklch(100% 0 0 / 10%);
     --card-color: var(--neutral-900);
     --hover-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));
+    --flat-hover-color: color-mix(in srgb, var(--hover-color) 30%, transparent);
     --card-shadow: inset 0 1px oklch(100% 0 0 / 10%);
     --button-shadow:
       inset 0 0 0 1px oklch(100% 0 0 / 10%),
@@ -51,10 +52,9 @@
       inset 0 1px 3px oklch(0% 0 0 / 85%),
       0 1px oklch(100% 0 0 / 20%),
       inset 0 -5px 5px oklch(0% 0 0 / 20%);
-    --link-active-shadow:
+    --flat-active-shadow:
       inset 0 1px 2px oklch(0% 0 0 / 80%),
       inset 0 -1px oklch(100% 0 0 / 10%);
-    --link-pressed-shadow: inset 0 -1px oklch(100% 0 0 / 10%);
   }
 
   &.is-slow {

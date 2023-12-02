@@ -64,7 +64,7 @@
   .navbar-item {
     position: relative;
     box-sizing: border-box;
-    display: inline-flex;
+    display: flex;
     gap: var(--padding-m);
     align-items: center;
     justify-content: flex-start;
@@ -83,19 +83,19 @@
     &:focus-visible,
     &:active,
     &[aria-current='page'] {
-      background: var(--card-color);
+      background: var(--flat-hover-color);
     }
 
     &:active {
       padding-top: 1px;
-      box-shadow: var(--link-active-shadow);
+      box-shadow: var(--flat-active-shadow);
     }
 
     &[aria-current='page'],
     &[aria-current='page']:active {
       padding-top: 0;
       cursor: default;
-      box-shadow: var(--link-pressed-shadow);
+      background: var(--card-color);
     }
   }
 </style>
