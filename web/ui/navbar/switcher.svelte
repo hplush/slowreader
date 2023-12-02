@@ -117,7 +117,6 @@
     }
 
     &:first-child .navbar-switcher_button {
-      margin-inline-start: -1px;
       border-start-end-radius: 0;
       border-end-end-radius: 0;
     }
