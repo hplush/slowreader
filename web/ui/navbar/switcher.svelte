@@ -126,7 +126,7 @@
       --icon-move: -7px -5px;
 
       position: absolute;
-      inset-inline-start: 21px;
+      inset-inline-start: 20px;
       z-index: 2;
       display: none;
       width: 6px;
