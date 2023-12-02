@@ -37,6 +37,8 @@ export type AppRoute = BaseRoute & {
 
 const GUEST = new Set<AppRoute['route']>(['start', 'signin'])
 
+const SETTINGS = new Set<AppRoute['route']>(['settings', 'profile', 'about'])
+
 function redirect<Name extends keyof Routes>(
   route: Name,
   params: Routes[Name]
@@ -94,4 +96,8 @@ export function isSlowRoute(route: AppRoute): boolean {
 
 export function isGuestRoute(route: AppRoute): boolean {
   return GUEST.has(route.route)
+}
+
+export function isSettingsRoute(route: AppRoute): boolean {
+  return SETTINGS.has(route.route)
 }
