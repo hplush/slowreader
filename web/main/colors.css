@@ -9,6 +9,7 @@
   --hover-color: color-mix(in oklch, var(--neutral-50), var(--sand-50));
   --zone-color: oklch(0% 0 0 / 10%);
   --card-shadow: inset 0 -1px oklch(0% 0 0 / 20%);
+  --fire-color: oklch(70% 0.15 65);
   --button-shadow:
     inset 0 0 0 1px oklch(0% 0 0 / 15%),
     inset 0 -5px 5px oklch(0% 0 0 / 8%),

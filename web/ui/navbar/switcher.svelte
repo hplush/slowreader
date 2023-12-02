@@ -35,6 +35,9 @@
   >
     <div class="navbar-switcher_overflow">
       <div class="navbar-switcher_button">
+        <div class="navbar-switcher_fire">
+          <UiIcon path={mdiFireplace} />
+        </div>
         <UiIcon compensate={1} path={mdiFireplace} />
         {$t.slow}
         <UiHotkey hotkey="s" />
@@ -114,6 +117,30 @@
       border: none;
       border-radius: var(--inner-radius);
       box-shadow: var(--button-shadow);
+    }
+
+    & .navbar-switcher_fire {
+      --icon-move: -7px -5px;
+
+      position: absolute;
+      inset-inline-start: 21px;
+      z-index: 2;
+      display: none;
+      width: 6px;
+      height: 6px;
+      margin-top: 6px;
+      overflow: hidden;
+      color: var(--fire-color);
+      background: var(--hover-color);
+    }
+
+    &:hover .navbar-switcher_fire,
+    &:focus-visible .navbar-switcher_fire {
+      display: block;
+    }
+
+    &[aria-current='page'] .navbar-switcher_fire {
+      display: none;
     }
 
     &:first-child .navbar-switcher_button {
