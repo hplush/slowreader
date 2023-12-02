@@ -31,7 +31,7 @@
     "@sveltejs/vite-plugin-svelte": "3.0.1",
     "autoprefixer": "10.4.16",
     "nanostores": "0.9.5",
-    "postcss": "8.4.31",
+    "postcss": "8.4.32",
     "postcss-dark-theme-class": "1.1.0",
     "postcss-nesting": "12.0.1",
     "postcss-pseudo-classes": "0.4.0",

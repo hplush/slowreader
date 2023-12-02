@@ -19,7 +19,7 @@
     "@nanostores/persistent": "0.9.1",
     "@nanostores/router": "0.11.0",
     "@slowreader/api": "link:../api",
-    "nanoid": "5.0.3",
+    "nanoid": "5.0.4",
     "nanostores": "0.9.5"
   },
   "devDependencies": {
