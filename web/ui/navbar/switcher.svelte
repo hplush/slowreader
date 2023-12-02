@@ -62,21 +62,23 @@
 
 <style>
   .navbar-switcher {
+    position: relative;
     display: flex;
     padding-bottom: var(--padding-m);
   }
 
   .navbar-switcher_link {
     position: relative;
-    flex-grow: 1;
     border-radius: var(--inner-radius);
 
     &:first-child {
+      width: 50%;
       border-start-end-radius: 0;
       border-end-end-radius: 0;
     }
 
     &:last-child {
+      width: calc(50% + 1px);
       margin-inline-start: -1px;
       border-start-start-radius: 0;
       border-end-start-radius: 0;
@@ -106,6 +108,7 @@
       gap: var(--padding-m);
       align-items: center;
       justify-content: center;
+      width: 100%;
       height: var(--control-height);
       padding: 0 var(--padding-l);
       font-weight: 600;
