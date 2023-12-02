@@ -20,7 +20,9 @@
 
   onMount(() => {
     if (hotkey) {
-      return addHotkey(hotkey, element, onClick)
+      return addHotkey(hotkey, element, () => {
+        element.click()
+      })
     }
   })
 </script>

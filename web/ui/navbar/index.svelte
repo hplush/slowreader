@@ -68,7 +68,7 @@
     </UiNavbarItem>
     <UiNavbarItem
       current={$router.route === 'settings'}
-      hotkey="s"
+      hotkey="p"
       href={getURL('settings')}
       icon={mdiCogOutline}
     >
