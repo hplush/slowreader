@@ -7,6 +7,7 @@
     "production": "pnpm build && vite preview",
     "visual": "storybook dev -p 6006 --no-open",
     "start": "vite",
+    "size": "pnpm build:web && size-limit",
     "process:css": "tsx ./scripts/clean-vars.ts ./dist/assets/*.css",
     "process:visual": "mv ./storybook-static ./dist/ui",
     "process": "pnpm run /^process:/",
