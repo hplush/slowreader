@@ -62,10 +62,12 @@
 </Story>
 
 <Story
-  name="Dark Add"
+  name="Dark Settings"
   parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
 >
-  <Scene route={{ params: {}, route: 'add' }}>
-    <UiNavbar />
+  <Scene route={{ params: {}, route: 'appearance' }}>
+    <Section border={false} pressKey="p">
+      <UiNavbar />
+    </Section>
   </Scene>
 </Story>

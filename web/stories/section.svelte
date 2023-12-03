@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import { onMount, tick } from 'svelte'
 
   export let height: number | undefined = undefined
   export let width: number | undefined = undefined
@@ -8,6 +8,7 @@
   export let active: boolean | string = false
   export let border: boolean = false
   export let hotkeys: boolean = true
+  export let pressKey: string | undefined = undefined
 
   let section: HTMLElement
 
@@ -28,6 +29,11 @@
     if (focus) addClass(focus, 'is-pseudo-focus-visible')
     if (active) addClass(active, 'is-pseudo-active')
     if (!hotkeys) section.classList.add('is-hotkey-disabled')
+    if (pressKey) {
+      tick().then(() => {
+        window.dispatchEvent(new KeyboardEvent('keyup', { key: pressKey }))
+      })
+    }
   })
 </script>
 
