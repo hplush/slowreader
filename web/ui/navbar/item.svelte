@@ -115,4 +115,16 @@
       background: var(--card-color);
     }
   }
+
+  .navbar-item.is-secondary:focus-visible::after {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: var(--padding-m);
+    display: flex;
+    align-items: center;
+    font: var(--hotkey-font);
+    font-weight: bold;
+    color: var(--hotkey-color);
+    content: '↵';
+  }
 </style>

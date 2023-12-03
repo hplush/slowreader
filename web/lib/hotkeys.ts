@@ -17,9 +17,8 @@ function getListener(
   cb: (listener: KeyListener) => void
 ): void {
   if (!ignoreTags(e)) {
-    let key = e.key
     if (e.altKey || e.shiftKey || e.ctrlKey || e.metaKey) return
-    let keyListeners = hotkeys[key]
+    let keyListeners = hotkeys[e.key]
     if (keyListeners) {
       let firstListener = keyListeners[0]
       if (firstListener) {

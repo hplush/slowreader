@@ -1,6 +1,7 @@
 <script lang="ts">
   import { tick } from 'svelte'
 
+  let start = false
   let element: HTMLDivElement
 
   let prevFocus: HTMLAnchorElement | null = null
@@ -18,7 +19,10 @@
     for (let child of children) {
       child.setAttribute('tabindex', '0')
     }
-    children[0]?.focus()
+    if (children[0]) {
+      children[0].focus()
+      start = true
+    }
   }
 
   function onExit(): void {
@@ -52,6 +56,7 @@
   }
 
   function onBlur(): void {
+    start = false
     if (!element.contains(document.activeElement)) {
       onExit()
     }
@@ -60,6 +65,8 @@
 
 <div
   bind:this={element}
+  class="navbar-submenu"
+  class:is-start={start}
   role="menu"
   tabindex="-1"
   on:keyup={keyUp}
@@ -67,3 +74,23 @@
 >
   <slot />
 </div>
+
+<style>
+  .navbar-submenu {
+    position: relative;
+  }
+
+  .navbar-submenu.is-start::after {
+    position: absolute;
+    inset-inline-end: calc(-16px - 6px);
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: var(--control-height);
+    font: var(--hotkey-font);
+    color: var(--hotkey-color);
+    content: '↓';
+  }
+</style>
