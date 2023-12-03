@@ -4,19 +4,24 @@
   import { addHotkey } from '../../lib/hotkeys.js'
   import UiHotkey from '../hotkey.svelte'
   import UiIcon from '../icon.svelte'
+  import type UiNavbarSubmenu from './submenu.svelte'
 
   export let href: string | undefined = undefined
   export let current: boolean
   export let hotkey: string | undefined = undefined
   export let icon: string | undefined = undefined
   export let secondary = false
+  export let submenu: UiNavbarSubmenu | undefined = undefined
 
   let element: HTMLAnchorElement | HTMLButtonElement
 
   let dispatch = createEventDispatcher()
 
-  function onClick(): void {
+  function onClick(e: MouseEvent): void {
     dispatch('click')
+    if (e.screenX === 0 && e.screenY === 0) {
+      submenu?.focus()
+    }
   }
 
   onMount(() => {
@@ -34,7 +39,10 @@
     class="navbar-item"
     class:is-secondary={secondary}
     aria-current={current ? 'page' : null}
+    aria-haspopup={submenu ? 'menu' : null}
     {href}
+    role={submenu ? 'menuitem' : null}
+    tabindex={secondary ? -1 : null}
     on:click={onClick}
   >
     {#if icon}
@@ -51,6 +59,8 @@
     class="navbar-item"
     class:is-secondary={secondary}
     aria-current={current ? 'page' : null}
+    aria-haspopup={submenu ? 'menu' : null}
+    tabindex={secondary ? -1 : null}
     on:click={onClick}
   >
     {#if icon}

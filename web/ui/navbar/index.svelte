@@ -19,7 +19,10 @@
   import UiLoader from '../loader.svelte'
   import UiNavbarItem from './item.svelte'
   import UiNavbarSettings from './settings.svelte'
+  import UiNavbarSubmenu from './submenu.svelte'
   import UiNavbarSwitcher from './switcher.svelte'
+
+  let submenu: UiNavbarSubmenu
 
   onMount(() => {
     document.documentElement.classList.add('has-navbar')
@@ -32,9 +35,11 @@
 <nav class="navbar">
   <UiNavbarSwitcher />
   <div class="navbar_submenu">
-    {#if isSettingsRoute($router)}
-      <UiNavbarSettings />
-    {/if}
+    <UiNavbarSubmenu bind:this={submenu}>
+      {#if isSettingsRoute($router)}
+        <UiNavbarSettings />
+      {/if}
+    </UiNavbarSubmenu>
   </div>
   <div class="navbar_other">
     {#if $isRefreshing}
@@ -77,6 +82,7 @@
       hotkey="p"
       href={getURL('appearance')}
       icon={mdiCogOutline}
+      {submenu}
     >
       {$t.settings}
     </UiNavbarItem>
