@@ -38,7 +38,7 @@
 </Story>
 
 <Story name="Settings" parameters={{ layout: 'fullscreen' }}>
-  <Scene route={{ params: {}, route: 'settings' }}>
+  <Scene route={{ params: {}, route: 'appearance' }}>
     <UiNavbar />
   </Scene>
 </Story>

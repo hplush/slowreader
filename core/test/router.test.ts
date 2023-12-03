@@ -136,6 +136,16 @@ test('transforms routers for users with feeds', async () => {
   })
 })
 
+test('transforms settings to first settings page', () => {
+  userId.set('10')
+  setBaseRoute({ params: {}, route: 'settings' })
+  deepStrictEqual(router.get(), {
+    params: {},
+    redirect: true,
+    route: 'appearance'
+  })
+})
+
 test('has routes groups', () => {
   userId.set(undefined)
   setBaseRoute({ params: {}, route: 'home' })

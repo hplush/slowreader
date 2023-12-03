@@ -6,15 +6,16 @@ import {
 } from '@nanostores/router'
 
 export const urlRouter = createRouter({
-  about: '/about',
+  about: '/settings/about',
   add: '/add',
+  appearance: '/settings/appearance',
   fast: '/fast',
   feed: '/feeds/:id',
   feeds: '/feeds',
   home: '/',
   notFound: '/404',
   preview: '/add/:url',
-  profile: '/profile',
+  profile: '/settings/profile',
   refresh: '/refresh',
   settings: '/settings',
   signin: '/signin',

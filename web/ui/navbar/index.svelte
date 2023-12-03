@@ -75,7 +75,7 @@
     <UiNavbarItem
       current={isSettingsRoute($router)}
       hotkey="p"
-      href={getURL('settings')}
+      href={getURL('appearance')}
       icon={mdiCogOutline}
     >
       {$t.settings}

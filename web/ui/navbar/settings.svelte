@@ -8,8 +8,8 @@
 </script>
 
 <UiNavbarItem
-  current={$router.route === 'settings'}
-  href={getURL('settings')}
+  current={$router.route === 'appearance'}
+  href={getURL('appearance')}
   icon={mdiPalette}
   secondary
 >
