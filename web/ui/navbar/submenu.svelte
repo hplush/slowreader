@@ -80,12 +80,15 @@
 <style>
   .navbar-submenu {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
   .navbar-submenu.is-start::after {
     position: absolute;
-    inset-inline-end: calc(-16px - 6px);
-    top: 0;
+    inset-inline-end: var(--padding-m);
+    top: calc(var(--control-height) + 2px);
     display: flex;
     align-items: center;
     justify-content: center;

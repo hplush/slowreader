@@ -122,8 +122,9 @@
     inset-inline-end: var(--padding-m);
     display: flex;
     align-items: center;
+    justify-content: center;
+    width: 16px;
     font: var(--hotkey-font);
-    font-weight: bold;
     color: var(--hotkey-color);
     content: '↵';
   }
