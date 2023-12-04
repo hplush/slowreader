@@ -2,7 +2,7 @@
   import { appLoading, isGuestRoute, notFound, router } from '@slowreader/core'
 
   import AboutPage from '../pages/about.svelte'
-  import AppearancePage from '../pages/appearance.svelte'
+  import InterfacePage from '../pages/interface.svelte'
   import LoadingPage from '../pages/loading.svelte'
   import NotFoundPage from '../pages/not-found.svelte'
   import OrganizeFeedPage from '../pages/organize/feed.svelte'
@@ -34,8 +34,8 @@
     <OrganizePage />
   {:else if $router.route === 'feed'}
     <OrganizeFeedPage feedId={$router.params.id} />
-  {:else if $router.route === 'appearance'}
-    <AppearancePage />
+  {:else if $router.route === 'interface'}
+    <InterfacePage />
   {:else if $router.route === 'profile'}
     <ProfilePage />
   {:else if $router.route === 'welcome'}

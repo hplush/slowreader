@@ -8,12 +8,12 @@
 </script>
 
 <UiNavbarItem
-  current={$router.route === 'appearance'}
-  href={getURL('appearance')}
+  current={$router.route === 'interface'}
+  href={getURL('interface')}
   icon={mdiPalette}
   secondary
 >
-  {$t.appearance}
+  {$t.interface}
 </UiNavbarItem>
 
 <UiNavbarItem

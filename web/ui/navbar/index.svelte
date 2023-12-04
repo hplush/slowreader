@@ -80,7 +80,7 @@
     <UiNavbarItem
       current={isSettingsRoute($router)}
       hotkey="p"
-      href={getURL('appearance')}
+      href={getURL('interface')}
       icon={mdiCogOutline}
       {submenu}
     >

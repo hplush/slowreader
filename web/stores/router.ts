@@ -8,11 +8,11 @@ import {
 export const urlRouter = createRouter({
   about: '/settings/about',
   add: '/add',
-  appearance: '/settings/appearance',
   fast: '/fast',
   feed: '/feeds/:id',
   feeds: '/feeds',
   home: '/',
+  interface: '/settings/ui',
   notFound: '/404',
   preview: '/add/:url',
   profile: '/settings/profile',

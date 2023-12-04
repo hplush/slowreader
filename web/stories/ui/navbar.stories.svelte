@@ -38,7 +38,7 @@
 </Story>
 
 <Story name="Settings" parameters={{ layout: 'fullscreen' }}>
-  <Scene route={{ params: {}, route: 'appearance' }}>
+  <Scene route={{ params: {}, route: 'interface' }}>
     <UiNavbar />
   </Scene>
 </Story>
@@ -65,7 +65,7 @@
   name="Dark Settings"
   parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
 >
-  <Scene route={{ params: {}, route: 'appearance' }}>
+  <Scene route={{ params: {}, route: 'interface' }}>
     <Section border={false} pressKey="p">
       <UiNavbar />
     </Section>

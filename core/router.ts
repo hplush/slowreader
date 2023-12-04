@@ -7,11 +7,11 @@ import { userId } from './settings.js'
 export interface Routes {
   about: {}
   add: {}
-  appearance: {}
   fast: {}
   feed: { id: string }
   feeds: {}
   home: {}
+  interface: {}
   notFound: {}
   preview: { url: string }
   profile: {}
@@ -38,7 +38,7 @@ export type AppRoute = BaseRoute & {
 
 const GUEST = new Set<AppRoute['route']>(['start', 'signin'])
 
-const SETTINGS = new Set<AppRoute['route']>(['appearance', 'profile', 'about'])
+const SETTINGS = new Set<AppRoute['route']>(['interface', 'profile', 'about'])
 
 function redirect<Name extends keyof Routes>(
   route: Name,
@@ -73,7 +73,7 @@ function getRoute(
     } else if (page.route === 'welcome' && withFeeds) {
       return redirect('slowAll', {})
     } else if (page.route === 'settings') {
-      return redirect('appearance', {})
+      return redirect('interface', {})
     }
   } else if (!GUEST.has(page.route)) {
     return open('start', {})
