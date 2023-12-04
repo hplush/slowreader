@@ -142,7 +142,7 @@ test('transforms settings to first settings page', () => {
   deepStrictEqual(router.get(), {
     params: {},
     redirect: true,
-    route: 'appearance'
+    route: 'interface'
   })
 })
 
