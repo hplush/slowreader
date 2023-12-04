@@ -21,7 +21,9 @@
     }
     if (children[0]) {
       children[0].focus()
-      start = true
+      if (children.length > 1) {
+        start = true
+      }
     }
   }
 
