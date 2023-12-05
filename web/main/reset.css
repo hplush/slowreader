@@ -39,7 +39,8 @@ body {
 /* Fix default display */
 
 img,
-label {
+label,
+legend {
   display: block;
 }
 
@@ -62,7 +63,8 @@ button {
 
 a,
 select:not(:disabled),
-button:not(:disabled) {
+button:not(:disabled),
+label[tabindex] {
   cursor: pointer;
 }
 
