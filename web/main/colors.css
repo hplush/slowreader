@@ -9,24 +9,27 @@
   --hover-color: color-mix(in oklch, var(--neutral-50), var(--sand-50));
   --flat-hover-color: color-mix(in srgb, var(--hover-color) 40%, transparent);
   --zone-color: oklch(0% 0 0 / 10%);
-  --card-shadow: inset 0 -1px oklch(0% 0 0 / 20%);
+  --shadow-color: oklch(15% 0.1 265);
+  --card-shadow: inset 0 -1px oklch(from var(--shadow-color) l c h / 20%);
   --fire-color: oklch(70% 0.15 65);
   --button-shadow:
     inset 0 0 0 1px oklch(0% 0 0 / 15%),
-    inset 0 -5px 5px oklch(0% 0 0 / 8%),
-    0 1px 2px oklch(0% 0 0 / 8%);
+    inset 0 -5px 5px oklch(from var(--shadow-color) l c h / 8%),
+    0 0 1px oklch(from var(--shadow-color) l c h / 10%);
   --button-active-shadow:
-    inset 0 2px 5px oklch(0% 0 0 / 25%),
+    inset 0 1px 2px oklch(from var(--shadow-color) l c h / 15%),
+    inset 0 2px 5px oklch(from var(--shadow-color) l c h / 15%),
     0 -1px oklch(0% 0 0 / 20%),
     0 1px oklch(100% 0 0),
-    inset 0 -5px 5px oklch(0% 0 0 / 8%);
+    inset 0 -5px 5px oklch(from var(--shadow-color) l c h / 8%);
   --button-pressed-shadow:
-    inset 0 1px 3px oklch(0% 0 0 / 20%),
+    inset 0 1px 1px oklch(from var(--shadow-color) l c h / 10%),
+    inset 0 1px 3px oklch(from var(--shadow-color) l c h / 10%),
     0 -1px oklch(0% 0 0 / 20%),
     0 1px oklch(100% 0 0),
-    inset 0 -5px 5px oklch(0% 0 0 / 8%);
+    inset 0 -5px 5px oklch(from var(--shadow-color) l c h / 8%);
   --flat-active-shadow:
-    inset 0 1px 2px oklch(0% 0 0 / 15%),
+    inset 0 1px 2px oklch(from var(--shadow-color) l c h / 15%),
     0 -1px oklch(0% 0 0 / 20%);
 
   @media (prefers-color-scheme: dark) {
@@ -39,17 +42,19 @@
     --flat-hover-color: color-mix(in srgb, var(--hover-color) 30%, transparent);
     --card-shadow: inset 0 1px oklch(100% 0 0 / 10%);
     --button-shadow:
-      inset 0 0 0 1px oklch(100% 0 0 / 10%),
+      inset 0 0 0 1px oklch(100% 0 0 / 8%),
       inset 0 -5px 5px oklch(0% 0 0 / 20%),
-      0 1px 2px oklch(0% 0 0);
+      0 1px 1px oklch(0% 0 0);
     --button-active-shadow:
       inset 0 0 1px oklch(100% 0 0 / 30%),
-      inset 0 2px 5px oklch(0% 0 0 / 90%),
+      inset 0 1px 2px oklch(0% 0 0 / 60%),
+      inset 0 2px 5px oklch(0% 0 0 / 60%),
       0 1px oklch(100% 0 0 / 20%),
-      inset 0 -5px 5px oklch(0% 0 0 / 20%);
+      inset 0 -5px 5px oklch(0% 0 0 / 10%);
     --button-pressed-shadow:
       inset 0 0 1px oklch(100% 0 0 / 30%),
-      inset 0 1px 3px oklch(0% 0 0 / 85%),
+      inset 0 1px 1px oklch(0% 0 0 / 50%),
+      inset 0 1px 4px oklch(0% 0 0 / 50%),
       0 1px oklch(100% 0 0 / 20%),
       inset 0 -5px 5px oklch(0% 0 0 / 20%);
     --flat-active-shadow:
