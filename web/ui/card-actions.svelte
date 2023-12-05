@@ -7,6 +7,13 @@
     display: flex;
     gap: var(--padding-m);
     padding-bottom: var(--card-text-fix);
-    margin-top: var(--padding-l);
+
+    &:first-child {
+      padding-top: var(--card-text-fix);
+    }
+
+    &:not(:first-child) {
+      margin-top: var(--padding-l);
+    }
   }
 </style>
