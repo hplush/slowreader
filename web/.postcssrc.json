@@ -4,6 +4,7 @@
     "@csstools/postcss-oklab-function": {},
     "postcss-dark-theme-class": {},
     "postcss-nesting": {},
+    "postcss-relative-opacity": {},
     "postcss-pseudo-classes": {
       "prefix": "is-pseudo-",
       "restrictTo": [":focus", ":hover", ":active", ":focus-visible"]
