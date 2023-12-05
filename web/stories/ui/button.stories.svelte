@@ -13,6 +13,7 @@
   import { onMount } from 'svelte'
 
   import { getURL } from '../../stores/router.js'
+  import UiCardActions from '../../ui/card-actions.svelte'
   import UiCard from '../../ui/card.svelte'
   import Scene from '../scene.svelte'
   import Section from '../section.svelte'
@@ -48,7 +49,11 @@
     >
     <div class="counter">{clicks}</div>
   </Section>
-  <Section><UiCard><UiButton>Inside card</UiButton></UiCard></Section>
+  <Section>
+    <UiCard>
+      <UiCardActions><UiButton>Inside card</UiButton></UiCardActions>
+    </UiCard>
+  </Section>
   <Section hover><UiButton>Hover</UiButton></Section>
   <Section focus="button:first-child">
     <div bind:this={focus} class="buttons">
