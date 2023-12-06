@@ -103,6 +103,29 @@
     }
   }
 
+  .radio_value:not(:first-of-type):focus-visible::before,
+  .radio_value:not(:last-of-type):focus-visible::after {
+    position: absolute;
+    inset-inline-end: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 100%;
+    font: var(--hotkey-font);
+    color: var(--hotkey-color);
+  }
+
+  .radio_value:not(:first-of-type):focus-visible::before {
+    bottom: calc(100% + 1px);
+    content: '↑';
+  }
+
+  .radio_value:not(:last-of-type):focus-visible::after {
+    top: calc(100% + 1px);
+    content: '↓';
+  }
+
   .radio_input {
     display: none;
   }
