@@ -41,17 +41,17 @@
     "svelte": "4.2.8",
     "svelte-preprocess": "5.1.1",
     "tsx": "4.6.2",
-    "vite": "5.0.5"
+    "vite": "5.0.6"
   },
   "devDependencies": {
     "@logux/stylelint-config": "0.16.0",
-    "@size-limit/file": "11.0.0",
+    "@size-limit/file": "11.0.1",
     "@storybook/addon-svelte-csf": "4.0.13",
     "@storybook/addon-themes": "7.6.3",
     "@storybook/svelte": "7.6.3",
     "@storybook/svelte-vite": "7.6.3",
     "browserslist": "4.22.2",
-    "size-limit": "11.0.0",
+    "size-limit": "11.0.1",
     "storybook": "7.6.3",
     "stylelint": "15.11.0",
     "stylelint-use-logical": "2.1.0"
