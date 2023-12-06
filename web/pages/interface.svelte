@@ -3,7 +3,9 @@
   import { settingsMessages as t } from '@slowreader/core/messages'
 
   import { detectNetworkType } from '../lib/network.js'
+  import UiCard from '../ui/card.svelte'
   import UiRadio from '../ui/radio.svelte'
+  import UiSettings from '../ui/settings.svelte'
 
   let preloadOptions: [string, string][] = [
     ['always', $t.always],
@@ -15,18 +17,24 @@
   }
 </script>
 
-<UiRadio
-  store={theme}
-  title={$t.theme}
-  values={[
-    ['system', $t.system],
-    ['light', $t.light],
-    ['dark', $t.dark]
-  ]}
-/>
+<UiSettings title={$t.interface}>
+  <UiCard>
+    <UiRadio
+      store={theme}
+      title={$t.theme}
+      values={[
+        ['system', $t.system],
+        ['light', $t.light],
+        ['dark', $t.dark]
+      ]}
+    />
+  </UiCard>
 
-<UiRadio
-  store={preloadImages}
-  title={$t.preloadImages}
-  values={preloadOptions}
-/>
+  <UiCard>
+    <UiRadio
+      store={preloadImages}
+      title={$t.preloadImages}
+      values={preloadOptions}
+    />
+  </UiCard>
+</UiSettings>
