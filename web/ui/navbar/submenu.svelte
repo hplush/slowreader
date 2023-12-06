@@ -124,4 +124,8 @@
     color: var(--hotkey-color);
     content: '↓';
   }
+
+  :global(.is-hotkey-disabled) .navbar-submenu.is-start::after {
+    display: none;
+  }
 </style>

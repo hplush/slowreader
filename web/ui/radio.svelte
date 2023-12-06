@@ -84,7 +84,7 @@
     cursor: pointer;
     border-top: 1px solid var(--zone-color);
 
-    &:last-child {
+    &:last-of-type {
       border-bottom: 1px solid var(--zone-color);
     }
 
@@ -124,6 +124,13 @@
   .radio_value:not(:last-of-type):focus-visible::after {
     top: calc(100% + 1px);
     content: '↓';
+  }
+
+  :global(.is-hotkey-disabled)
+    .radio_value:not(:first-of-type):focus-visible::before,
+  :global(.is-hotkey-disabled)
+    .radio_value:not(:last-of-type):focus-visible::after {
+    display: none;
   }
 
   .radio_input {

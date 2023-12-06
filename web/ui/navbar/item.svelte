@@ -128,4 +128,8 @@
     color: var(--hotkey-color);
     content: '↵';
   }
+
+  :global(.is-hotkey-disabled) .navbar-item.is-secondary:focus-visible::after {
+    display: none;
+  }
 </style>
