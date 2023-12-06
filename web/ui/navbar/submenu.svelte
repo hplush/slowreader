@@ -34,6 +34,20 @@
     }
   }
 
+  function focusPage(): void {
+    let page = document.querySelector('.navbar')!
+      .nextElementSibling as HTMLDivElement
+    page.setAttribute('tabindex', '0')
+    window.addEventListener(
+      'focusout',
+      () => {
+        page.setAttribute('tabindex', '-1')
+      },
+      { once: true }
+    )
+    page.focus()
+  }
+
   function keyUp(e: KeyboardEvent): void {
     let children = element.querySelectorAll<HTMLAnchorElement>('a, button')
     if (e.key === 'Escape') {
@@ -54,6 +68,18 @@
       let prev = (getCurrent()?.nextElementSibling ||
         children[0]) as HTMLAnchorElement
       prev.focus()
+    } else if (e.key === 'Enter') {
+      let main = document.querySelector('main')
+      if (main) {
+        let next = main.querySelector<HTMLButtonElement>(
+          'button, a, input, select, textarea, [tabindex]'
+        )
+        if (next) {
+          next.focus()
+          return
+        }
+      }
+      focusPage()
     }
   }
 
