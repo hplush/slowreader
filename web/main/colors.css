@@ -42,7 +42,9 @@
     --card-color: var(--neutral-900);
     --hover-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));
     --flat-hover-color: color-mix(in srgb, var(--hover-color) 30%, transparent);
-    --card-shadow: inset 0 1px oklch(100% 0 0 / 10%);
+    --card-shadow:
+      0 1px 2px oklch(0% 0 0),
+      inset 0 1px oklch(100% 0 0 / 10%);
     --button-shadow:
       inset 0 0 0 1px oklch(100% 0 0 / 8%),
       inset 0 -5px 5px oklch(0% 0 0 / 20%),
