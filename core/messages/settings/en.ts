@@ -7,8 +7,9 @@ export const settingsMessages = i18n('settings', {
   freeNetwork: 'On Wi-Fi',
   interface: 'User Interface',
   light: 'Light',
+  load: 'Feed Loading',
   never: 'Never',
-  preloadImages: 'Preload images for posts',
+  preloadImages: 'Preload posts images',
   profile: 'Profile',
   system: 'System',
   theme: 'Application theme'

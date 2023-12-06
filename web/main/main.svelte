@@ -3,6 +3,7 @@
 
   import AboutPage from '../pages/about.svelte'
   import InterfacePage from '../pages/interface.svelte'
+  import LoadPage from '../pages/load.svelte'
   import LoadingPage from '../pages/loading.svelte'
   import NotFoundPage from '../pages/not-found.svelte'
   import OrganizeFeedPage from '../pages/organize/feed.svelte'
@@ -36,6 +37,8 @@
     <OrganizeFeedPage feedId={$router.params.id} />
   {:else if $router.route === 'interface'}
     <InterfacePage />
+  {:else if $router.route === 'load'}
+    <LoadPage />
   {:else if $router.route === 'profile'}
     <ProfilePage />
   {:else if $router.route === 'welcome'}

@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { mdiAccount, mdiInformationOutline, mdiPalette } from '@mdi/js'
+  import {
+    mdiAccount,
+    mdiFileDownloadOutline,
+    mdiInformationOutline,
+    mdiPalette
+  } from '@mdi/js'
   import { router } from '@slowreader/core'
   import { settingsMessages as t } from '@slowreader/core/messages'
 
@@ -14,6 +19,15 @@
   secondary
 >
   {$t.interface}
+</UiNavbarItem>
+
+<UiNavbarItem
+  current={$router.route === 'load'}
+  href={getURL('load')}
+  icon={mdiFileDownloadOutline}
+  secondary
+>
+  {$t.load}
 </UiNavbarItem>
 
 <UiNavbarItem

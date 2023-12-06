@@ -12,6 +12,7 @@ export interface Routes {
   feeds: {}
   home: {}
   interface: {}
+  load: {}
   notFound: {}
   preview: { url: string }
   profile: {}
@@ -38,7 +39,12 @@ export type AppRoute = BaseRoute & {
 
 const GUEST = new Set<AppRoute['route']>(['start', 'signin'])
 
-const SETTINGS = new Set<AppRoute['route']>(['interface', 'profile', 'about'])
+const SETTINGS = new Set<AppRoute['route']>([
+  'interface',
+  'profile',
+  'about',
+  'load'
+])
 
 function redirect<Name extends keyof Routes>(
   route: Name,

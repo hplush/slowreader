@@ -13,6 +13,7 @@ export const urlRouter = createRouter({
   feeds: '/feeds',
   home: '/',
   interface: '/settings/ui',
+  load: '/settings/load',
   notFound: '/404',
   preview: '/add/:url',
   profile: '/settings/profile',
