@@ -89,4 +89,43 @@
       <UiParagraph>After</UiParagraph>
     </UiCard>
   </Section>
+  <Section hover="label:first-of-type" width={500}>
+    <UiCard>
+      <UiRadio
+        {store}
+        title="Hover"
+        values={[
+          ['1', 'First option'],
+          ['2', 'Second option']
+        ]}
+      />
+      <UiParagraph>After</UiParagraph>
+    </UiCard>
+  </Section>
+  <Section active="label:first-of-type" width={500}>
+    <UiCard>
+      <UiRadio
+        {store}
+        title="Active"
+        values={[
+          ['1', 'First option'],
+          ['2', 'Second option']
+        ]}
+      />
+      <UiParagraph>After</UiParagraph>
+    </UiCard>
+  </Section>
+  <Section focus="label:first-of-type" width={500}>
+    <UiCard>
+      <UiRadio
+        {store}
+        title="Focus"
+        values={[
+          ['1', 'First option'],
+          ['2', 'Second option']
+        ]}
+      />
+      <UiParagraph>After</UiParagraph>
+    </UiCard>
+  </Section>
 </Story>
