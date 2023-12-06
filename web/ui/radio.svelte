@@ -110,7 +110,6 @@
   .radio_fake {
     position: absolute;
     inset-inline-start: var(--padding-l);
-    top: calc(50% - var(--padding-l) / 2);
     box-sizing: border-box;
     display: absolute;
     display: flex;
@@ -118,6 +117,7 @@
     justify-content: center;
     width: var(--padding-l);
     height: var(--padding-l);
+    margin-top: 5px;
     vertical-align: middle;
     border: 2px solid var(--zone-color);
     border-radius: 50%;
