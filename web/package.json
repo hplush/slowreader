@@ -49,6 +49,7 @@
     "@storybook/addon-themes": "7.6.3",
     "@storybook/svelte": "7.6.3",
     "@storybook/svelte-vite": "7.6.3",
+    "better-node-test": "0.4.1",
     "browserslist": "4.22.2",
     "size-limit": "11.0.1",
     "storybook": "7.6.3",

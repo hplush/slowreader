@@ -25,6 +25,7 @@
   "devDependencies": {
     "@logux/actions": "0.3.1",
     "@types/jsdom": "21.1.6",
+    "better-node-test": "0.4.1",
     "c8": "8.0.1",
     "jsdom": "23.0.1",
     "nanospy": "1.0.0"
