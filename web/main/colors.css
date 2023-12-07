@@ -55,7 +55,7 @@
   }
 }
 
-.is-slow {
+.is-slow-theme {
   @media (prefers-color-scheme: light) {
     --land-color: var(--sand-200);
     --card-color: var(--sand-50);

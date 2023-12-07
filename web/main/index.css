@@ -5,11 +5,11 @@
 :root {
   color-scheme: light dark;
 
-  &.is-light {
+  &.is-light-theme {
     color-scheme: light;
   }
 
-  &.is-dark {
+  &.is-dark-theme {
     color-scheme: dark;
   }
 }

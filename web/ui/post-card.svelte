@@ -5,7 +5,10 @@
   export let action: FilterAction | undefined = undefined
 </script>
 
-<div class:is-deleted={action === 'delete'} class:is-slow={action === 'slow'}>
+<div
+  class:is-deleted={action === 'delete'}
+  class:is-slow-theme={action === 'slow'}
+>
   {#if post.url}
     <a href={post.url}>{post.title ?? post.intro ?? post.full}</a>
   {:else}
@@ -14,7 +17,7 @@
 </div>
 
 <style>
-  .is-slow {
+  .is-slow-theme {
     font-weight: bold;
   }
 

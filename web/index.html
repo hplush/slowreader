@@ -23,21 +23,21 @@
           }
         }
       }
-      .is-light {
+      .is-light-theme {
         color-scheme: light;
         background: #e4e4e4;
         @media (color-gamut: p3) {
           background: oklch(0.92 0 0);
         }
       }
-      .is-dark {
+      .is-dark-theme {
         color-scheme: dark;
         background: #141414;
         @media (color-gamut: p3) {
           background: oklch(0.19 0 0);
         }
       }
-      .is-slow {
+      .is-slow-theme {
         @media (prefers-color-scheme: light) {
           background: #e9e3db;
           @media (color-gamut: p3) {
@@ -50,13 +50,13 @@
             background: oklch(0.19 0.012 75);
           }
         }
-        &.is-light {
+        &.is-light-theme {
           background: #e9e3db;
           @media (color-gamut: p3) {
             background: oklch(0.92 0.012 75);
           }
         }
-        &.is-dark {
+        &.is-dark-theme {
           background: #18140f;
           @media (color-gamut: p3) {
             background: oklch(0.19 0.012 75);
@@ -82,11 +82,11 @@
     <script>
       let root = document.documentElement
       if (location.pathname.startsWith('/slow')) {
-        root.classList.add('is-slow')
+        root.classList.add('is-slow-theme')
       }
       let theme = localStorage.getItem('slowreader:theme') || 'system'
-      root.classList.toggle('is-dark', theme === 'dark')
-      root.classList.toggle('is-light', theme === 'light')
+      root.classList.toggle('is-dark-theme', theme === 'dark')
+      root.classList.toggle('is-light-theme', theme === 'light')
     </script>
   </head>
 

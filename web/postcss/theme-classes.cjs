@@ -80,9 +80,9 @@ module.exports = {
   AtRule: {
     media(atrule, { Rule }) {
       if (IS_DARK.test(atrule.params)) {
-        cloneToRule(Rule, atrule, '.is-dark')
+        cloneToRule(Rule, atrule, '.is-dark-theme')
       } else if (IS_LIGHT.test(atrule.params)) {
-        cloneToRule(Rule, atrule, '.is-light')
+        cloneToRule(Rule, atrule, '.is-light-theme')
       }
     }
   },

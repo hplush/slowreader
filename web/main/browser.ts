@@ -20,12 +20,12 @@ router.subscribe(page => {
 let root = document.documentElement
 
 router.subscribe(route => {
-  root.classList.toggle('is-slow', isSlowRoute(route))
+  root.classList.toggle('is-slow-theme', isSlowRoute(route))
 })
 
 theme.subscribe(themeValue => {
-  root.classList.toggle('is-dark', themeValue === 'dark')
-  root.classList.toggle('is-light', themeValue === 'light')
+  root.classList.toggle('is-dark-theme', themeValue === 'dark')
+  root.classList.toggle('is-light-theme', themeValue === 'light')
 })
 
 locale.subscribe(localeValue => {
