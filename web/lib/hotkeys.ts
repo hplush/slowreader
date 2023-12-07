@@ -54,7 +54,7 @@ export function addHotkey(
 ): () => void {
   let listener = { command, element }
   if (import.meta.env.DEV) {
-    if (hotkeys[key]) {
+    if (hotkeys[key] && hotkeys[key]!.length > 1) {
       alert(`Hotkey ${key} was used multiple times`)
     }
   }
