@@ -3,8 +3,7 @@
     "./postcss/html-keeper.cjs": {},
     "./postcss/svelte-nesting-css-fixer.cjs": {},
     "@csstools/postcss-oklab-function": {},
-    "postcss-dark-theme-class": {},
-    "postcss-nesting": {},
+    "./postcss/theme-classes.cjs": {},
     "postcss-relative-opacity": {},
     "postcss-pseudo-classes": {
       "prefix": "is-pseudo-",

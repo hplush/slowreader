@@ -92,19 +92,19 @@
       width: 100%;
     }
 
-    @media (prefers-color-scheme: dark) {
-      &:active {
-        height: calc(var(--control-height) - 1px);
-        padding-top: 2px;
-        margin-bottom: 1px;
-      }
-    }
-
     @media (prefers-color-scheme: light) {
       &:active {
         height: calc(var(--control-height) - 2px);
         padding-top: 1px;
         margin: 1px 0;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      &:active {
+        height: calc(var(--control-height) - 1px);
+        padding-top: 2px;
+        margin-bottom: 1px;
       }
     }
   }

@@ -10,11 +10,11 @@
     <style>
       :root {
         color-scheme: light dark;
-      }
-      body {
-        background: #e4e4e4;
-        @media (color-gamut: p3) {
-          background: oklch(0.92 0 0);
+        @media (prefers-color-scheme: light) {
+          background: #e4e4e4;
+          @media (color-gamut: p3) {
+            background: oklch(0.92 0 0);
+          }
         }
         @media (prefers-color-scheme: dark) {
           background: #141414;
@@ -23,12 +23,40 @@
           }
         }
       }
-      html.is-slow body {
-        background: #e9e3db;
+      .is-light {
+        color-scheme: light;
+        background: #e4e4e4;
         @media (color-gamut: p3) {
-          background: oklch(0.92 0.012 75);
+          background: oklch(0.92 0 0);
+        }
+      }
+      .is-dark {
+        color-scheme: dark;
+        background: #141414;
+        @media (color-gamut: p3) {
+          background: oklch(0.19 0 0);
+        }
+      }
+      .is-slow {
+        @media (prefers-color-scheme: light) {
+          background: #e9e3db;
+          @media (color-gamut: p3) {
+            background: oklch(0.92 0.012 75);
+          }
         }
         @media (prefers-color-scheme: dark) {
+          background: #18140f;
+          @media (color-gamut: p3) {
+            background: oklch(0.19 0.012 75);
+          }
+        }
+        &.is-light {
+          background: #e9e3db;
+          @media (color-gamut: p3) {
+            background: oklch(0.92 0.012 75);
+          }
+        }
+        &.is-dark {
           background: #18140f;
           @media (color-gamut: p3) {
             background: oklch(0.19 0.012 75);
@@ -43,7 +71,9 @@
         height: 4px;
         width: 160px;
         border-radius: 2px;
-        background: #0000001a;
+        @media (prefers-color-scheme: light) {
+          background: #0000001a;
+        }
         @media (prefers-color-scheme: dark) {
           background: #ffffff1a;
         }
