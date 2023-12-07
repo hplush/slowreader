@@ -1,6 +1,6 @@
 {
   "plugins": {
-    "./scripts/svelte-nesting-css-fixer.cjs": {},
+    "./postcss/svelte-nesting-css-fixer.cjs": {},
     "@csstools/postcss-oklab-function": {},
     "postcss-dark-theme-class": {},
     "postcss-nesting": {},
