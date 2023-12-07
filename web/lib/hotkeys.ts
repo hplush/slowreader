@@ -53,6 +53,11 @@ export function addHotkey(
   command: KeyListener['command']
 ): () => void {
   let listener = { command, element }
+  if (import.meta.env.DEV) {
+    if (hotkeys[key]) {
+      alert(`Hotkey ${key} was used multiple times`)
+    }
+  }
   if (!hotkeys[key]) hotkeys[key] = []
   hotkeys[key]!.unshift(listener)
 
