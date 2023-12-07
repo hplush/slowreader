@@ -62,8 +62,8 @@ test('adds theme classes to media inside component', () => {
       '@media (prefers-color-scheme:light) {--a: 1}' +
       '@media (prefers-color-scheme:dark) {--a: 1}' +
       '}' +
-      ':where(.is-dark-theme) .block, .block:where(.is-dark-theme) {--a: 1}' +
-      ':where(.is-light-theme) .block, .block:where(.is-light-theme) {--a: 1}'
+      ':where(.is-dark-theme) .block {--a: 1}' +
+      ':where(.is-light-theme) .block {--a: 1}'
   )
 })
 
@@ -77,10 +77,10 @@ test('adds theme classes to media inside components', () => {
       '@media (prefers-color-scheme:light) {--a: 1}' +
       '@media (prefers-color-scheme:dark) {--a: 1}' +
       '}' +
-      ':where(.is-dark-theme) .a, .a:where(.is-dark-theme),' +
-      ':where(.is-dark-theme) .b, .b:where(.is-dark-theme) {--a: 1}' +
-      ':where(.is-light-theme) .a, .a:where(.is-light-theme),' +
-      ':where(.is-light-theme) .b, .b:where(.is-light-theme) {--a: 1}'
+      ':where(.is-dark-theme) .a,' +
+      ':where(.is-dark-theme) .b {--a: 1}' +
+      ':where(.is-light-theme) .a,' +
+      ':where(.is-light-theme) .b {--a: 1}'
   )
 })
 
@@ -90,7 +90,7 @@ test('adds theme classes to media outside of component', () => {
       '@media (prefers-color-scheme:dark) {.block {--a: 1}}',
     '@media (prefers-color-scheme:light) {.block {--a: 1}}' +
       '@media (prefers-color-scheme:dark) {.block {--a: 1}}' +
-      ':where(.is-light-theme) .block, .block:where(.is-light-theme) {--a: 1}' +
-      ':where(.is-dark-theme) .block, .block:where(.is-dark-theme) {--a: 1}'
+      ':where(.is-light-theme) .block {--a: 1}' +
+      ':where(.is-dark-theme) .block {--a: 1}'
   )
 })
