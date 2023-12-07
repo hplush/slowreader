@@ -15,6 +15,19 @@ function findNext(node, cb) {
 }
 
 /**
+ * @param {string} selector
+ * @param {string} modifier
+ * @returns string
+ */
+function wrapSelector(selector, modifier) {
+  if (selector.includes('.is-slow-theme')) {
+    return `:where(${modifier}) ${selector}, ${selector}:where(${modifier})`
+  } else {
+    return `:where(${modifier}) ${selector}`
+  }
+}
+
+/**
  * @param {typeof import('postcss').Rule} Rule
  * @param {import('postcss').AtRule} atrule
  * @param {string} selector
@@ -33,7 +46,7 @@ function cloneToRule(Rule, atrule, selector) {
       let childCopy = child.clone()
       if (childCopy.type === 'rule') {
         childCopy.selectors = childCopy.selectors.map(i => {
-          return `:where(${selector}) ${i}`
+          return wrapSelector(i, selector)
         })
       }
       copy.push(childCopy)
@@ -41,7 +54,7 @@ function cloneToRule(Rule, atrule, selector) {
   } else {
     if (atrule.parent.type === 'rule' && atrule.parent.selector !== ':root') {
       selector = atrule.parent.selectors
-        .map(i => `:where(${selector}) ${i}`)
+        .map(i => wrapSelector(i, selector))
         .join(',')
     }
     copy = new Rule({

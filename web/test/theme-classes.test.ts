@@ -67,6 +67,23 @@ test('adds theme classes to media inside component', () => {
   )
 })
 
+test('adds theme classes to media inside slow theme', () => {
+  run(
+    '.is-slow-theme {' +
+      '@media (prefers-color-scheme:light) {--a: 1}' +
+      '@media (prefers-color-scheme:dark) {--a: 1}' +
+      '}',
+    '.is-slow-theme {' +
+      '@media (prefers-color-scheme:light) {--a: 1}' +
+      '@media (prefers-color-scheme:dark) {--a: 1}' +
+      '}' +
+      ':where(.is-dark-theme) .is-slow-theme, ' +
+      '.is-slow-theme:where(.is-dark-theme) {--a: 1}' +
+      ':where(.is-light-theme) .is-slow-theme, ' +
+      '.is-slow-theme:where(.is-light-theme) {--a: 1}'
+  )
+})
+
 test('adds theme classes to media inside components', () => {
   run(
     '.a, .b {' +
