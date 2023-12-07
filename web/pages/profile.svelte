@@ -1,19 +1,24 @@
 <script lang="ts">
   import { signOut } from '@slowreader/core'
-  import { profileMessages as t } from '@slowreader/core/messages'
+  import { settingsMessages as t } from '@slowreader/core/messages'
 
   import UiButton from '../ui/button.svelte'
-  import UiCardTitle from '../ui/card-title.svelte'
+  import UiCardActions from '../ui/card-actions.svelte'
   import UiCard from '../ui/card.svelte'
+  import UiSettings from '../ui/settings.svelte'
 </script>
 
-<UiCard>
-  <UiCardTitle>{$t.delete}</UiCardTitle>
-  <UiButton
-    on:click={() => {
-      signOut()
-    }}
-  >
-    {$t.delete}
-  </UiButton>
-</UiCard>
+<UiSettings title={$t.profile}>
+  <UiCard>
+    <UiCardActions>
+      <UiButton
+        on:click={() => {
+          if (!confirm($t.deleteProfileConfirm)) return
+          signOut()
+        }}
+      >
+        {$t.deleteProfile}
+      </UiButton>
+    </UiCardActions>
+  </UiCard>
+</UiSettings>

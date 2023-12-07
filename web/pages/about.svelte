@@ -1,9 +1,14 @@
 <script lang="ts">
-  import { aboutMessages as t } from '@slowreader/core/messages'
+  import { settingsMessages as t } from '@slowreader/core/messages'
 
   import UiCard from '../ui/card.svelte'
+  import UiSettings from '../ui/settings.svelte'
 </script>
 
-<UiCard>
-  <a href="https://github.com/hplush/slowreader" target="_blank">{$t.source}</a>
-</UiCard>
+<UiSettings title={$t.about}>
+  <UiCard>
+    <a href="https://github.com/hplush/slowreader" target="_blank">
+      {$t.source}
+    </a>
+  </UiCard>
+</UiSettings>

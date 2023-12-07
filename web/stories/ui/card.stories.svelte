@@ -12,7 +12,6 @@
 
   import UiButton from '../../ui/button.svelte'
   import UiCardActions from '../../ui/card-actions.svelte'
-  import UiCardTitle from '../../ui/card-title.svelte'
   import UiParagraph from '../../ui/paragraph.svelte'
   import Scene from '../scene.svelte'
   import Section from '../section.svelte'
@@ -21,7 +20,6 @@
 <Story name="Base">
   <Section width={500}>
     <UiCard>
-      <UiCardTitle>Fireplace</UiCardTitle>
       <UiParagraph>
         A fireplace or hearth is a structure made of brick, stone or metal
         designed to contain a fire. Fireplaces are used for the relaxing
@@ -51,7 +49,6 @@
   <Scene slow>
     <Section width={500}>
       <UiCard>
-        <UiCardTitle>Fireplace</UiCardTitle>
         <UiParagraph>
           A fireplace or hearth is a structure made of brick, stone or metal
           designed to contain a fire. Fireplaces are used for the relaxing
@@ -81,7 +78,6 @@
 <Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
   <Section width={500}>
     <UiCard>
-      <UiCardTitle>Fireplace</UiCardTitle>
       <UiParagraph>
         A fireplace or hearth is a structure made of brick, stone or metal
         designed to contain a fire. Fireplaces are used for the relaxing
@@ -111,7 +107,6 @@
   <Scene slow>
     <Section width={500}>
       <UiCard>
-        <UiCardTitle>Fireplace</UiCardTitle>
         <UiParagraph>
           A fireplace or hearth is a structure made of brick, stone or metal
           designed to contain a fire. Fireplaces are used for the relaxing
