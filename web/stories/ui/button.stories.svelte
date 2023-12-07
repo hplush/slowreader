@@ -91,7 +91,11 @@
 <Story name="Slow" parameters={{ themes: { themeOverride: 'light' } }}>
   <Scene slow>
     <Section><UiButton>Base</UiButton></Section>
-    <Section><UiCard><UiButton>Inside card</UiButton></UiCard></Section>
+    <Section>
+      <UiCard>
+        <UiCardActions><UiButton>Inside card</UiButton></UiCardActions>
+      </UiCard>
+    </Section>
     <Section hover><UiButton>Hover</UiButton></Section>
     <Section focus><UiButton>Focus</UiButton></Section>
     <Section active><UiButton>Pressed</UiButton></Section>
@@ -101,7 +105,11 @@
 
 <Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
   <Section><UiButton>Base</UiButton></Section>
-  <Section><UiCard><UiButton>Inside card</UiButton></UiCard></Section>
+  <Section>
+    <UiCard>
+      <UiCardActions><UiButton>Inside card</UiButton></UiCardActions>
+    </UiCard>
+  </Section>
   <Section hover><UiButton>Hover</UiButton></Section>
   <Section focus><UiButton>Focus</UiButton></Section>
   <Section active><UiButton>Pressed</UiButton></Section>
@@ -111,7 +119,11 @@
 <Story name="Dark Slow" parameters={{ themes: { themeOverride: 'dark' } }}>
   <Scene slow>
     <Section><UiButton>Base</UiButton></Section>
-    <Section><UiCard><UiButton>Inside card</UiButton></UiCard></Section>
+    <Section>
+      <UiCard>
+        <UiCardActions><UiButton>Inside card</UiButton></UiCardActions>
+      </UiCard>
+    </Section>
     <Section hover><UiButton>Hover</UiButton></Section>
     <Section focus><UiButton>Focus</UiButton></Section>
     <Section active><UiButton>Pressed</UiButton></Section>
