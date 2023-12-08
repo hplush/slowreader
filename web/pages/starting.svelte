@@ -2,12 +2,12 @@
   import UiLoader from '../ui/loader.svelte'
 </script>
 
-<div class="loading">
+<div class="starting">
   <UiLoader zoneId="main" />
 </div>
 
 <style>
-  .loading {
+  .starting {
     position: absolute;
     inset: 0;
     display: flex;
