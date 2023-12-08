@@ -20,6 +20,7 @@
 <UiSettings title={$t.load}>
   <UiCard>
     <UiRadio
+      cardEnd
       store={preloadImages}
       title={$t.preloadImages}
       values={preloadOptions}

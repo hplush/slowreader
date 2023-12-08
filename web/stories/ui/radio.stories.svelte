@@ -72,6 +72,32 @@
       <UiParagraph>After</UiParagraph>
     </UiCard>
   </Section>
+  <Section width={500}>
+    <UiCard>
+      <UiRadio
+        cardEnd
+        {store}
+        title="Hover"
+        values={[
+          ['1', 'First option'],
+          ['2', 'Second option']
+        ]}
+      />
+    </UiCard>
+  </Section>
+  <Section active="label:last-of-type" width={500}>
+    <UiCard>
+      <UiRadio
+        cardEnd
+        {store}
+        title="Hover"
+        values={[
+          ['1', 'First option'],
+          ['2', 'Second option']
+        ]}
+      />
+    </UiCard>
+  </Section>
 </Story>
 
 <Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>

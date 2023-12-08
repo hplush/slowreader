@@ -4,6 +4,7 @@
   export let title: string
   export let store: ReadableAtom<string>
   export let values: [string, string][]
+  export let cardEnd = false
 
   function nextLabel(label: HTMLLabelElement): HTMLLabelElement {
     let next = label.nextElementSibling as HTMLLabelElement | undefined
@@ -40,7 +41,7 @@
   }
 </script>
 
-<fieldset class="radio" role="radiogroup">
+<fieldset class="radio" class:is-card-end={cardEnd} role="radiogroup">
   <legend class="radio_label">{title}</legend>
   {#each values as [value, name] (value)}
     <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
@@ -69,6 +70,10 @@
     margin-bottom: calc(
       var(--outer-radius) - var(--padding-l) + var(--card-text-fix)
     );
+
+    &.is-card-end {
+      margin-bottom: 0;
+    }
   }
 
   .radio_label {
@@ -94,12 +99,7 @@
 
     &:active {
       padding-block: calc(var(--padding-l) + 1px) calc(var(--padding-l) - 1px);
-      box-shadow:
-        inset -2px 0 0 var(--land-color),
-        inset 2px 0 0 var(--land-color),
-        5px 0 0 var(--land-color),
-        -5px 0 0 var(--land-color),
-        inset 0 1px 2px oklch(from var(--shadow-color) l c h / 20%);
+      box-shadow: var(--card-item-pressed-shadow);
     }
   }
 
@@ -114,6 +114,18 @@
     height: 100%;
     font: var(--hotkey-font);
     color: var(--hotkey-color);
+  }
+
+  .radio.is-card-end .radio_value:last-child {
+    margin-bottom: calc(-1 * var(--padding-l) + var(--card-text-fix));
+    border-bottom: none;
+    border-radius: 0 0 var(--outer-radius) var(--outer-radius);
+
+    &:active {
+      box-shadow:
+        var(--card-item-pressed-shadow),
+        0 5px 0 var(--land-color);
+    }
   }
 
   .radio_value:not(:first-of-type):focus-visible::before {
