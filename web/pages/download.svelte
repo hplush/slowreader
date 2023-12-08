@@ -13,7 +13,6 @@
     ['never', $t.never]
   ]
   onMount(() => {
-    console.log('component')
     if (typeof getEnvironment().networkType().type === 'undefined') {
       preloadOptions = preloadOptions.filter(([value]) => value !== 'free')
     }
