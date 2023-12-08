@@ -9,8 +9,18 @@
 
 <script lang="ts">
   import { Story } from '@storybook/addon-svelte-csf'
+
+  import Scene from '../scene.svelte'
 </script>
 
 <Story name="Base" parameters={{ layout: 'fullscreen' }}>
-  <DownloadPage />
+  <Scene>
+    <DownloadPage />
+  </Scene>
+</Story>
+
+<Story name="No Network Type" parameters={{ layout: 'fullscreen' }}>
+  <Scene networkType={{ saveData: undefined, type: undefined }}>
+    <DownloadPage />
+  </Scene>
 </Story>

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { preloadImages } from '@slowreader/core'
+  import { getEnvironment, preloadImages } from '@slowreader/core'
   import { settingsMessages as t } from '@slowreader/core/messages'
+  import { onMount } from 'svelte'
 
-  import { detectNetworkType } from '../lib/network.js'
   import UiCard from '../ui/card.svelte'
   import UiRadio from '../ui/radio.svelte'
   import UiSettings from '../ui/settings.svelte'
@@ -12,9 +12,12 @@
     ['free', $t.freeNetwork],
     ['never', $t.never]
   ]
-  if (typeof detectNetworkType() === 'undefined') {
-    preloadOptions = preloadOptions.filter(([value]) => value !== 'free')
-  }
+  onMount(() => {
+    console.log('component')
+    if (typeof getEnvironment().networkType().type === 'undefined') {
+      preloadOptions = preloadOptions.filter(([value]) => value !== 'free')
+    }
+  })
 </script>
 
 <UiSettings title={$t.download}>

@@ -16,7 +16,12 @@ export const persistentStore = {
   'slowreader:userId': 'user'
 }
 
-export const networkType: ReturnType<NetworkTypeDetector> = {
+export function setNetworkType(network: ReturnType<NetworkTypeDetector>): void {
+  console.log('set', network)
+  networkType = network
+}
+
+let networkType: ReturnType<NetworkTypeDetector> = {
   saveData: false,
   type: 'free'
 }

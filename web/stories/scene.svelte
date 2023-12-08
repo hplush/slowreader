@@ -3,18 +3,25 @@
     type BaseRoute,
     DEFAULT_REFRESH_STATISTICS,
     isRefreshing,
+    type NetworkTypeDetector,
     refreshStatistics,
     type RefreshStatistics
   } from '@slowreader/core'
   import { onMount } from 'svelte'
 
-  import { router } from './environment.js'
+  import { router, setNetworkType } from './environment.js'
+
+  const DEFAULT_NETWORK: ReturnType<NetworkTypeDetector> = {
+    saveData: false,
+    type: 'free'
+  }
 
   export let refreshing: false | Partial<RefreshStatistics> = false
   export let route: BaseRoute = { params: {}, route: 'fast' }
   export let slow = false
+  export let networkType = DEFAULT_NETWORK
 
-  onMount(() => {
+  $: {
     // TODO: Replace with Nano Stores Context
     if (refreshing) {
       // @ts-expect-error
@@ -34,11 +41,16 @@
       router.set(route)
     }
 
+    setNetworkType(networkType)
+  }
+
+  onMount(() => {
     return () => {
       // @ts-expect-error
       isRefreshing.set(false)
       // @ts-expect-error
       router.set({ route: 'fast' })
+      setNetworkType(DEFAULT_NETWORK)
     }
   })
 </script>
