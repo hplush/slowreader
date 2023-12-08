@@ -4,10 +4,11 @@
     DEFAULT_REFRESH_STATISTICS,
     isRefreshing,
     refreshStatistics,
-    type RefreshStatistics,
-    router
+    type RefreshStatistics
   } from '@slowreader/core'
   import { onMount } from 'svelte'
+
+  import { router } from './environment.js'
 
   export let refreshing: false | Partial<RefreshStatistics> = false
   export let route: BaseRoute = { params: {}, route: 'fast' }
@@ -28,10 +29,8 @@
     }
 
     if (slow) {
-      // @ts-expect-error
-      router.set({ route: 'slowAll' })
+      router.set({ params: {}, route: 'slowAll' })
     } else {
-      // @ts-expect-error
       router.set(route)
     }
 

@@ -167,6 +167,9 @@ importers:
       '@logux/client':
         specifier: github:logux/client#next
         version: github.com/logux/client/84f1781c8466018e8e3283b1eb529ee221b107b1(@logux/core@0.8.5)(nanostores@0.9.5)(react-dom@18.2.0)(react@18.2.0)
+      '@logux/core':
+        specifier: 0.8.5
+        version: 0.8.5
       '@mdi/js':
         specifier: 7.3.67
         version: 7.3.67

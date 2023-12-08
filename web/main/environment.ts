@@ -2,13 +2,14 @@ import { IndexedStore } from '@logux/client'
 import { windowPersistentEvents } from '@nanostores/persistent'
 import {
   type RequestMethod,
+  router,
   setRequestMethod,
   setupEnvironment
 } from '@slowreader/core'
 
 import { detectNetworkType } from '../lib/network.js'
 import { locale } from '../stores/locale.js'
-import { urlRouter } from '../stores/router.js'
+import { openURL, urlRouter } from '../stores/router.js'
 
 setupEnvironment({
   baseRouter: urlRouter,
@@ -21,7 +22,17 @@ setupEnvironment({
   restartApp() {
     location.reload()
   },
-  translationLoader: async () => ({})
+  async translationLoader() {
+    return {}
+  }
+})
+
+router.subscribe(page => {
+  if (page.redirect) {
+    // Too complex types
+    // @ts-expect-error
+    openURL(page.route, ...page.params)
+  }
 })
 
 function proxyUrl(url: string | URL): string {

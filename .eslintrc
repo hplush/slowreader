@@ -14,6 +14,12 @@
         "svelte/no-inline-styles": "off",
         "consistent-return": "off"
       }
+    },
+    {
+      "files": ["web/stories/*.ts"],
+      "rules": {
+        "no-console": "off"
+      }
     }
   ],
   "rules": {
