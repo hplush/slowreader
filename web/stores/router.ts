@@ -8,12 +8,12 @@ import {
 export const urlRouter = createRouter({
   about: '/settings/about',
   add: '/add',
+  download: '/settings/download',
   fast: '/fast',
   feed: '/feeds/:id',
   feeds: '/feeds',
   home: '/',
   interface: '/settings/ui',
-  load: '/settings/load',
   notFound: '/404',
   preview: '/add/:url',
   profile: '/settings/profile',

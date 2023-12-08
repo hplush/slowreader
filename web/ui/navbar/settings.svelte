@@ -22,12 +22,12 @@
 </UiNavbarItem>
 
 <UiNavbarItem
-  current={$router.route === 'load'}
-  href={getURL('load')}
+  current={$router.route === 'download'}
+  href={getURL('download')}
   icon={mdiFileDownloadOutline}
   secondary
 >
-  {$t.load}
+  {$t.download}
 </UiNavbarItem>
 
 <UiNavbarItem

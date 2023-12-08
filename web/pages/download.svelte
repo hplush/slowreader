@@ -17,7 +17,7 @@
   }
 </script>
 
-<UiSettings title={$t.load}>
+<UiSettings title={$t.download}>
   <UiCard>
     <UiRadio
       cardEnd

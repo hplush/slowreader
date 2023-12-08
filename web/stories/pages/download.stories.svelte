@@ -1,9 +1,9 @@
 <script context="module" lang="ts">
-  import LoadPage from '../../pages/load.svelte'
+  import DownloadPage from '../../pages/download.svelte'
 
   export const meta = {
-    component: LoadPage,
-    title: 'Pages/Load'
+    component: DownloadPage,
+    title: 'Pages/Download'
   }
 </script>
 
@@ -12,5 +12,5 @@
 </script>
 
 <Story name="Base" parameters={{ layout: 'fullscreen' }}>
-  <LoadPage />
+  <DownloadPage />
 </Story>

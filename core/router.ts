@@ -7,12 +7,12 @@ import { userId } from './settings.js'
 export interface Routes {
   about: {}
   add: {}
+  download: {}
   fast: {}
   feed: { id: string }
   feeds: {}
   home: {}
   interface: {}
-  load: {}
   notFound: {}
   preview: { url: string }
   profile: {}
@@ -43,7 +43,7 @@ const SETTINGS = new Set<AppRoute['route']>([
   'interface',
   'profile',
   'about',
-  'load'
+  'download'
 ])
 
 function redirect<Name extends keyof Routes>(
