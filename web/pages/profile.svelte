@@ -6,10 +6,12 @@
   import UiCardActions from '../ui/card-actions.svelte'
   import UiCard from '../ui/card.svelte'
   import UiSettings from '../ui/settings.svelte'
+  import UiUnderConstruction from '../ui/under-construction.svelte'
 </script>
 
 <UiSettings title={$t.profile}>
   <UiCard>
+    <UiUnderConstruction />
     <UiCardActions>
       <UiButton
         on:click={() => {

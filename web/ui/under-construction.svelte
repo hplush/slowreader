@@ -6,6 +6,7 @@
     align-items: center;
     justify-content: center;
     height: 100%;
+    min-height: 100px;
     font-size: 1.2rem;
     background: repeating-linear-gradient(
       -45deg,
