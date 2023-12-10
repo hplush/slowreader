@@ -67,8 +67,10 @@ export function getFeeds(
   return createFilter(getClient(), Feed, filter)
 }
 
-export async function addFeed(fields: Omit<FeedValue, 'id'>): Promise<string> {
-  let id = nanoid()
+type OptionalId<Value> = Omit<Value, 'id'> & { id?: string }
+
+export async function addFeed(fields: OptionalId<FeedValue>): Promise<string> {
+  let id = fields.id ?? nanoid()
   await createSyncMap(getClient(), Feed, { id, ...fields })
   return id
 }
