@@ -5,6 +5,7 @@
     type BaseRoute,
     Category,
     type CategoryValue,
+    clearPreview,
     client,
     DEFAULT_REFRESH_STATISTICS,
     Feed,
@@ -21,7 +22,12 @@
   import { cleanStores } from 'nanostores'
   import { onMount } from 'svelte'
 
-  import { router, setNetworkType } from './environment.js'
+  import {
+    type PreparedResponse,
+    prepareResponses,
+    router,
+    setNetworkType
+  } from './environment.js'
 
   const DEFAULT_NETWORK: ReturnType<NetworkTypeDetector> = {
     saveData: false,
@@ -32,10 +38,14 @@
   export let route: BaseRoute = { params: {}, route: 'fast' }
   export let slow = false
   export let networkType = DEFAULT_NETWORK
+
   export let categories: CategoryValue[] = []
   export let feeds: Partial<FeedValue>[] = [{ title: 'Example' }]
 
+  export let responses: Record<string, PreparedResponse | string> = {}
+
   function cleanLogux(): void {
+    clearPreview()
     client.get()?.clean()
     cleanStores(Feed, Filter, Category, Post, hasFeeds)
   }
@@ -70,6 +80,7 @@
     for (let feed of feeds) {
       addFeed(testFeed(feed))
     }
+    prepareResponses(responses)
   }
 
   onMount(() => {

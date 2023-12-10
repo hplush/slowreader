@@ -8,6 +8,7 @@
     previewCandidatesLoading,
     previewPosts,
     previewUrlError,
+    router,
     setPreviewCandidate,
     setPreviewUrl
   } from '@slowreader/core'
@@ -24,13 +25,20 @@
   })
 
   export let url = ''
-  setPreviewUrl(url)
   $: {
-    setPreviewUrl(url)
+    let page = router.get()
     if (url === '') {
-      openURL('add')
+      if (page.route !== 'add') {
+        openURL('add')
+      }
     } else {
-      openURL('preview', { url })
+      setPreviewUrl(url)
+      if (
+        page.route === 'add' ||
+        (page.route === 'preview' && page.params.url !== url)
+      ) {
+        openURL('preview', { url })
+      }
     }
   }
 </script>
@@ -46,7 +54,7 @@
     type="text"
     bind:value={url}
   />
-  {#if $previewUrlError === 'invalid'}
+  {#if $previewUrlError === 'invalidUrl'}
     <div id="pages-add-invalid" role="alert">
       {$t.invalidUrl}
     </div>
