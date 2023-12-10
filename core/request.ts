@@ -53,7 +53,7 @@ let fetchMock: RequestMethod = async (url, opts = {}) => {
       headers: { 'Content-Type': expect.contentType },
       status: expect.status
     })
-    Object.defineProperty(response, 'url', { value: url.toString() })
+    Object.defineProperty(response, 'url', { value: url })
     return response
   }
 }
