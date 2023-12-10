@@ -17,7 +17,6 @@ export const persistentStore = {
 }
 
 export function setNetworkType(network: ReturnType<NetworkTypeDetector>): void {
-  console.log('set', network)
   networkType = network
 }
 
