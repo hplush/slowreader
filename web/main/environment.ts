@@ -31,7 +31,7 @@ router.subscribe(page => {
   if (page.redirect) {
     // Too complex types
     // @ts-expect-error
-    openURL(page.route, ...page.params)
+    openURL(page.route, page.params)
   }
 })
 
