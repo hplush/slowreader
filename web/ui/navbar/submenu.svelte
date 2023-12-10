@@ -68,7 +68,7 @@
       let prev = (getCurrent()?.nextElementSibling ||
         children[0]) as HTMLAnchorElement
       prev.focus()
-    } else if (e.key === 'Enter') {
+    } else if (e.key === 'Enter' || e.key === ' ') {
       let main = document.querySelector('main')
       if (main) {
         let next = main.querySelector<HTMLButtonElement>(
