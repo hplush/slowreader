@@ -98,3 +98,19 @@ export function getFeedLatestPosts(
 ): PostsPage {
   return loaders[feed.loader].getPosts(task, feed.url)
 }
+
+let testFeedId = 0
+
+export function testFeed(feed: Partial<FeedValue> = {}): FeedValue {
+  testFeedId += 1
+  return {
+    categoryId: undefined,
+    lastOriginId: undefined,
+    lastPublishedAt: undefined,
+    loader: 'rss',
+    reading: 'fast',
+    title: `Test ${testFeedId}`,
+    url: `http://example.com/${testFeedId}`,
+    ...feed
+  }
+}

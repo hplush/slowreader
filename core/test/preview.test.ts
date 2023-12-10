@@ -25,7 +25,8 @@ import {
   previewPosts,
   previewUrlError,
   setPreviewCandidate,
-  setPreviewUrl
+  setPreviewUrl,
+  testFeed
 } from '../index.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
@@ -349,20 +350,22 @@ test('tracks added status of candidate', async () => {
   await setTimeout(10)
   equal(previewCandidateAdded.get(), false)
 
-  await addFeed({
-    loader: 'rss',
-    reading: 'fast',
-    title: 'RSS',
-    url: 'https://a.com/rss'
-  })
+  await addFeed(
+    testFeed({
+      loader: 'rss',
+      title: 'RSS',
+      url: 'https://a.com/rss'
+    })
+  )
   equal(previewCandidateAdded.get(), false)
 
-  let id = await addFeed({
-    loader: 'atom',
-    reading: 'fast',
-    title: 'Atom',
-    url: 'https://a.com/atom'
-  })
+  let id = await addFeed(
+    testFeed({
+      loader: 'atom',
+      title: 'Atom',
+      url: 'https://a.com/atom'
+    })
+  )
   equal(previewCandidateAdded.get(), id)
 
   expectRequest('https://b.com/atom').andRespond(

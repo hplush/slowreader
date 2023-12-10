@@ -9,6 +9,7 @@ import {
   isSettingsRoute,
   isSlowRoute,
   router,
+  testFeed,
   userId
 } from '../index.js'
 import {
@@ -108,12 +109,7 @@ test('transforms routers for users with feeds', async () => {
     route: 'welcome'
   })
 
-  let id = await addFeed({
-    loader: 'rss',
-    reading: 'slow',
-    title: 'Test',
-    url: 'https://example.com'
-  })
+  let id = await addFeed(testFeed())
   deepStrictEqual(router.get(), {
     params: {},
     redirect: true,

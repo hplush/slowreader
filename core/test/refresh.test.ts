@@ -21,7 +21,8 @@ import {
   refreshPosts,
   refreshProgress,
   refreshStatistics,
-  stopRefreshing
+  stopRefreshing,
+  testFeed
 } from '../index.js'
 import { loadList } from '../utils/stores.js'
 import { cleanClientTest, createPromise, enableClientTest } from './utils.js'
@@ -45,21 +46,23 @@ async function loadPosts<Key extends keyof PostValue>(
 }
 
 test('updates posts', async () => {
-  let feedId1 = await addFeed({
-    lastOriginId: 'post1',
-    loader: 'rss',
-    reading: 'slow',
-    title: '1',
-    url: 'https://one.com/'
-  })
-  let feedId2 = await addFeed({
-    lastOriginId: 'post2',
-    lastPublishedAt: 5000,
-    loader: 'atom',
-    reading: 'fast',
-    title: '2',
-    url: 'https://two.com/'
-  })
+  let feedId1 = await addFeed(
+    testFeed({
+      lastOriginId: 'post1',
+      loader: 'rss',
+      reading: 'slow',
+      url: 'https://one.com/'
+    })
+  )
+  let feedId2 = await addFeed(
+    testFeed({
+      lastOriginId: 'post2',
+      lastPublishedAt: 5000,
+      loader: 'atom',
+      reading: 'fast',
+      url: 'https://two.com/'
+    })
+  )
   await addFilter({
     action: 'slow',
     feedId: feedId2,
@@ -272,13 +275,12 @@ test('is ready to feed deletion during refreshing', async () => {
 })
 
 test('cancels refreshing', async () => {
-  await addFeed({
-    lastOriginId: 'post1',
-    loader: 'rss',
-    reading: 'slow',
-    title: '1',
-    url: 'https://one.com/'
-  })
+  await addFeed(
+    testFeed({
+      lastOriginId: 'post1',
+      url: 'https://one.com/'
+    })
+  )
 
   let rss = expectRequest('https://one.com/').andWait()
   refreshPosts()
@@ -303,13 +305,12 @@ test('cancels refreshing', async () => {
 })
 
 test('is ready for network errors', async () => {
-  await addFeed({
-    lastOriginId: 'post1',
-    loader: 'rss',
-    reading: 'slow',
-    title: '1',
-    url: 'https://one.com/'
-  })
+  await addFeed(
+    testFeed({
+      lastOriginId: 'post1',
+      url: 'https://one.com/'
+    })
+  )
   await addFeed({
     lastOriginId: 'post2',
     lastPublishedAt: 5000,
@@ -351,14 +352,13 @@ test('is ready for network errors', async () => {
 })
 
 test('is ready to not found previous ID and time', async () => {
-  let feedId = await addFeed({
-    lastOriginId: 'post1',
-    lastPublishedAt: 1000,
-    loader: 'rss',
-    reading: 'slow',
-    title: '1',
-    url: 'https://one.com/'
-  })
+  let feedId = await addFeed(
+    testFeed({
+      lastOriginId: 'post1',
+      lastPublishedAt: 1000,
+      url: 'https://one.com/'
+    })
+  )
   spyOn(loaders.rss, 'getPosts', () => {
     return createPostsPage(undefined, async () => {
       return [
@@ -383,14 +383,13 @@ test('is ready to not found previous ID and time', async () => {
 })
 
 test('sorts posts', async () => {
-  let feedId = await addFeed({
-    lastOriginId: 'post1',
-    lastPublishedAt: 1000,
-    loader: 'rss',
-    reading: 'slow',
-    title: '1',
-    url: 'https://one.com/'
-  })
+  let feedId = await addFeed(
+    testFeed({
+      lastOriginId: 'post1',
+      lastPublishedAt: 1000,
+      url: 'https://one.com/'
+    })
+  )
   spyOn(loaders.rss, 'getPosts', () => {
     return createPostsPage(undefined, async () => {
       return [

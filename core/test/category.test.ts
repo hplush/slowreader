@@ -11,7 +11,8 @@ import {
   feedsByCategory,
   getCategories,
   getFeed,
-  getFeeds
+  getFeeds,
+  testFeed
 } from '../index.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
@@ -56,40 +57,11 @@ test('groups feeds', async () => {
   let idA = await addCategory({ title: 'A' })
   let idC = await addCategory({ title: 'C' })
   let idB = await addCategory({ title: 'B' })
-  let feed1 = await addFeed({
-    categoryId: idA,
-    loader: 'rss',
-    reading: 'fast',
-    title: '1',
-    url: 'http://example.com/1'
-  })
-  let feed2 = await addFeed({
-    categoryId: idA,
-    loader: 'rss',
-    reading: 'fast',
-    title: '2',
-    url: 'http://example.com/2'
-  })
-  let feed3 = await addFeed({
-    categoryId: idB,
-    loader: 'rss',
-    reading: 'fast',
-    title: '1',
-    url: 'http://example.com/1'
-  })
-  let feed4 = await addFeed({
-    loader: 'rss',
-    reading: 'fast',
-    title: '1',
-    url: 'http://example.com/1'
-  })
-  let feed5 = await addFeed({
-    categoryId: 'unknown',
-    loader: 'rss',
-    reading: 'fast',
-    title: '1',
-    url: 'http://example.com/1'
-  })
+  let feed1 = await addFeed(testFeed({ categoryId: idA, title: '1' }))
+  let feed2 = await addFeed(testFeed({ categoryId: idA, title: '2' }))
+  let feed3 = await addFeed(testFeed({ categoryId: idB, title: '1' }))
+  let feed4 = await addFeed(testFeed({ title: '1' }))
+  let feed5 = await addFeed(testFeed({ categoryId: 'unknown', title: '1' }))
 
   let feeds = await loadValue(getFeeds())
   let categories = await loadValue(getCategories())
