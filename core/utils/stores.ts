@@ -2,6 +2,8 @@ import type { SyncMapValues } from '@logux/actions'
 import { type FilterStore, loadValue } from '@logux/client'
 import type { MapStore, ReadableAtom, StoreValue } from 'nanostores'
 
+export type OptionalId<Value> = Omit<Value, 'id'> & { id?: string }
+
 export function readonlyExport<Store extends ReadableAtom>(
   store: Store
 ): ReadableAtom<StoreValue<Store>> {

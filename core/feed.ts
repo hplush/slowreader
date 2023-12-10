@@ -17,7 +17,7 @@ import { createDownloadTask } from './download.js'
 import { type LoaderName, loaders } from './loader/index.js'
 import { deletePost, getPosts } from './post.js'
 import type { PostsPage } from './posts-page.js'
-import { readonlyExport } from './utils/stores.js'
+import { type OptionalId, readonlyExport } from './utils/stores.js'
 
 export type FeedValue = {
   categoryId?: string
@@ -66,8 +66,6 @@ export function getFeeds(
 ): FilterStore<FeedValue> {
   return createFilter(getClient(), Feed, filter)
 }
-
-type OptionalId<Value> = Omit<Value, 'id'> & { id?: string }
 
 export async function addFeed(fields: OptionalId<FeedValue>): Promise<string> {
   let id = fields.id ?? nanoid()
