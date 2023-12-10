@@ -1,12 +1,24 @@
 <script lang="ts">
   import {
+    addCategory,
+    addFeed,
     type BaseRoute,
+    Category,
+    type CategoryValue,
+    client,
     DEFAULT_REFRESH_STATISTICS,
+    Feed,
+    type FeedValue,
+    Filter,
+    hasFeeds,
     isRefreshing,
     type NetworkTypeDetector,
+    Post,
     refreshStatistics,
-    type RefreshStatistics
+    type RefreshStatistics,
+    testFeed
   } from '@slowreader/core'
+  import { cleanStores } from 'nanostores'
   import { onMount } from 'svelte'
 
   import { router, setNetworkType } from './environment.js'
@@ -20,8 +32,17 @@
   export let route: BaseRoute = { params: {}, route: 'fast' }
   export let slow = false
   export let networkType = DEFAULT_NETWORK
+  export let categories: CategoryValue[] = []
+  export let feeds: Partial<FeedValue>[] = [{ title: 'Example' }]
+
+  function cleanLogux(): void {
+    client.get()?.clean()
+    cleanStores(Feed, Filter, Category, Post, hasFeeds)
+  }
 
   $: {
+    cleanLogux()
+
     // TODO: Replace with Nano Stores Context
     if (refreshing) {
       // @ts-expect-error
@@ -42,6 +63,13 @@
     }
 
     setNetworkType(networkType)
+
+    for (let category of categories) {
+      addCategory(category)
+    }
+    for (let feed of feeds) {
+      addFeed(testFeed(feed))
+    }
   }
 
   onMount(() => {
@@ -51,6 +79,7 @@
       // @ts-expect-error
       router.set({ route: 'fast' })
       setNetworkType(DEFAULT_NETWORK)
+      cleanLogux()
     }
   })
 </script>

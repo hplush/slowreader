@@ -6,6 +6,7 @@
     mdiRefresh
   } from '@mdi/js'
   import {
+    hasFeeds,
     isRefreshing,
     isSettingsRoute,
     refreshPosts,
@@ -42,24 +43,26 @@
     </UiNavbarSubmenu>
   </div>
   <div class="navbar_other">
-    {#if $isRefreshing}
-      <UiNavbarItem
-        current={$router.route === 'refresh'}
-        href={getURL('refresh')}
-      >
-        <UiLoader label={$t.refreshing} value={$refreshProgress} />
-      </UiNavbarItem>
-    {:else}
-      <UiNavbarItem
-        current={$router.route === 'refresh'}
-        hotkey="r"
-        icon={mdiRefresh}
-        on:click={() => {
-          refreshPosts()
-        }}
-      >
-        {$t.refresh}
-      </UiNavbarItem>
+    {#if $hasFeeds}
+      {#if $isRefreshing}
+        <UiNavbarItem
+          current={$router.route === 'refresh'}
+          href={getURL('refresh')}
+        >
+          <UiLoader label={$t.refreshing} value={$refreshProgress} />
+        </UiNavbarItem>
+      {:else}
+        <UiNavbarItem
+          current={$router.route === 'refresh'}
+          hotkey="r"
+          icon={mdiRefresh}
+          on:click={() => {
+            refreshPosts()
+          }}
+        >
+          {$t.refresh}
+        </UiNavbarItem>
+      {/if}
     {/if}
     <UiNavbarItem
       current={$router.route === 'add' || $router.route === 'preview'}
