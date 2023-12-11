@@ -11,7 +11,7 @@
     "process:css": "tsx ./scripts/clean-vars.ts ./dist/assets/*.css",
     "process:visual": "mv ./storybook-static ./dist/ui",
     "process": "pnpm run /^process:/",
-    "build:visual": "storybook build",
+    "build:visual": "NODE_ENV=test storybook build",
     "build:web": "vite build",
     "build": "pnpm run /^build:/ && pnpm run process",
     "test:unit": "pnpm bnt",
