@@ -121,5 +121,6 @@
 
   .navbar_submenu {
     flex-grow: 1;
+    overflow: scroll;
   }
 </style>
