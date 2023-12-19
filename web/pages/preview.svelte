@@ -57,9 +57,9 @@
         type="text"
         bind:value={url}
       />
-      {#if $previewUrlError === 'invalidUrl'}
+      {#if $previewUrlError}
         <div id="pages-add-invalid" role="alert">
-          {$t.invalidUrl}
+          {$previewUrlError}
         </div>
       {/if}
     </form>
