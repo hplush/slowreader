@@ -1,7 +1,7 @@
 <script lang="ts">
   import { commonMessages as t } from '@slowreader/core/messages'
   import { nanoid } from 'nanoid/non-secure'
-  import { createEventDispatcher, onMount } from 'svelte'
+  import { onMount } from 'svelte'
 
   export let type: 'email' | 'password' | 'text' | 'url' = 'text'
   export let error: string | undefined = undefined
@@ -10,7 +10,6 @@
   export let required = false
   export let value = ''
 
-  let dispatch = createEventDispatcher()
   let inputError: string | undefined = error
 
   let id = nanoid()
@@ -26,7 +25,6 @@
       inputError = t.get().noUrl
     } else {
       inputError = error
-      dispatch('validate', value)
     }
   }
 
