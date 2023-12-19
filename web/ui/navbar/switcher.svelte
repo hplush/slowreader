@@ -64,7 +64,7 @@
   .navbar-switcher {
     position: relative;
     display: flex;
-    padding-bottom: var(--padding-m);
+    padding: var(--padding-m);
   }
 
   .navbar-switcher_link {

@@ -109,7 +109,6 @@
     display: flex;
     flex-direction: column;
     width: var(--navbar-width);
-    padding: var(--padding-m);
   }
 
   .navbar_submenu,
@@ -117,10 +116,15 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+    padding: var(--padding-m);
   }
 
   .navbar_submenu {
     flex-grow: 1;
     overflow: scroll;
+  }
+
+  .navbar_other {
+    padding-top: 0;
   }
 </style>
