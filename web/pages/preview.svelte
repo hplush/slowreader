@@ -16,8 +16,11 @@
   import { onDestroy } from 'svelte'
 
   import { openURL } from '../stores/router.js'
+  import UiCard from '../ui/card.svelte'
   import UiLoader from '../ui/loader.svelte'
+  import UiTextField from '../ui/text-field.svelte'
   import UiTwoSteps from '../ui/two-steps.svelte'
+  import UiUnderConstruction from '../ui/under-construction.svelte'
   import OrganizeEdit from './organize/edit.svelte'
   import OrganizePosts from './organize/posts.svelte'
 
@@ -46,23 +49,16 @@
 
 <UiTwoSteps>
   <div slot="one">
-    <form on:submit|preventDefault>
-      <!-- Field has good description, user will be in context -->
-      <!-- svelte-ignore a11y-autofocus -->
-      <input
-        aria-errormessage="pages-add-invalid"
-        aria-invalid={$previewUrlError === 'invalid'}
-        autofocus
-        required
-        type="text"
-        bind:value={url}
-      />
-      {#if $previewUrlError}
-        <div id="pages-add-invalid" role="alert">
-          {$previewUrlError}
-        </div>
-      {/if}
-    </form>
+    <UiCard>
+      <form on:submit|preventDefault>
+        <UiTextField
+          error={$previewUrlError}
+          required
+          type="url"
+          bind:value={url}
+        />
+      </form>
+    </UiCard>
 
     {#if $previewCandidatesLoading}
       <UiLoader />
@@ -99,6 +95,8 @@
         {$t.alreadyAdded}
         <OrganizeEdit feedId={$previewCandidateAdded} posts={$previewPosts} />
       {/if}
+    {:else}
+      <UiUnderConstruction />
     {/if}
   </div>
 </UiTwoSteps>
