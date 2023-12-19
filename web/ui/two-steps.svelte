@@ -12,6 +12,7 @@
     box-sizing: border-box;
     display: flex;
     gap: var(--padding-l);
+    justify-content: center;
     width: 100%;
     min-height: 100%;
     padding: var(--padding-m) 0;
@@ -19,6 +20,7 @@
 
   .two-steps_step {
     width: 50%;
+    max-width: 600px;
     min-height: 100%;
   }
 </style>
