@@ -4,12 +4,7 @@
   --focus-color: var(--blue-500);
   --shadow-color: oklch(15% 0.1 265);
   --fire-color: oklch(70% 0.15 65);
-  --card-item-pressed-shadow:
-    inset -2px 0 0 var(--land-color),
-    inset 2px 0 0 var(--land-color),
-    5px 0 0 var(--land-color),
-    -5px 0 0 var(--land-color),
-    inset 0 1px 2px oklch(from var(--shadow-color) l c h / 20%);
+  --error-color: var(--red-600);
 
   @media (prefers-color-scheme: light) {
     --land-color: var(--neutral-200);
@@ -20,6 +15,12 @@
     --hover-color: color-mix(in oklch, var(--neutral-50), var(--sand-50));
     --card-shadow: 0 1px 5px oklch(from var(--shadow-color) l c h / 8%),
       0 1px 1px oklch(from var(--shadow-color) l c h / 15%);
+    --card-item-pressed-shadow:
+      inset -2px 0 0 var(--land-color),
+      inset 2px 0 0 var(--land-color),
+      5px 0 0 var(--land-color),
+      -5px 0 0 var(--land-color),
+      inset 0 1px 2px oklch(from var(--shadow-color) l c h / 20%);
     --button-shadow: inset 0 0 0 1px oklch(0% 0 0 / 15%),
       inset 0 -5px 5px oklch(from var(--shadow-color) l c h / 8%),
       0 0 1px oklch(from var(--shadow-color) l c h / 10%);
@@ -37,6 +38,10 @@
     --flat-active-shadow: inset 0 1px 2px
         oklch(from var(--shadow-color) l c h / 15%),
       0 -1px oklch(0% 0 0 / 20%);
+    --field-color: oklch(100% 0 0);
+    --field-border-color: var(--neutral-400);
+    --field-shadow: inset 0 1px 5px oklch(from var(--shadow-color) l c h / 8%),
+      inset 0 1px 1px oklch(from var(--shadow-color) l c h / 15%);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -47,6 +52,12 @@
     --card-color: var(--neutral-900);
     --hover-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));
     --card-shadow: 0 1px 2px oklch(0% 0 0), inset 0 1px oklch(100% 0 0 / 10%);
+    --card-item-pressed-shadow:
+      inset -2px 0 0 var(--land-color),
+      inset 2px 0 0 var(--land-color),
+      5px 0 0 var(--land-color),
+      -5px 0 0 var(--land-color),
+      inset 0 1px 2px oklch(0% 0 0);
     --button-shadow: inset 0 0 0 1px oklch(100% 0 0 / 8%),
       inset 0 -5px 5px oklch(0% 0 0 / 20%), 0 1px 1px oklch(0% 0 0);
     --button-active-shadow: inset 0 0 1px oklch(100% 0 0 / 30%),
@@ -58,6 +69,9 @@
     --flat-hover-color: color-mix(in srgb, var(--hover-color) 30%, transparent);
     --flat-active-shadow: inset 0 1px 2px oklch(0% 0 0 / 80%),
       inset 0 -1px oklch(100% 0 0 / 10%);
+    --field-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));
+    --field-border-color: var(--neutral-700);
+    --field-shadow: inset 0 1px 2px oklch(0% 0 0);
   }
 }
 

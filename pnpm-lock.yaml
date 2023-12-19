@@ -194,6 +194,9 @@ importers:
       autoprefixer:
         specifier: 10.4.16
         version: 10.4.16(postcss@8.4.32)
+      nanoid:
+        specifier: 5.0.4
+        version: 5.0.4
       nanostores:
         specifier: 0.9.5
         version: 0.9.5

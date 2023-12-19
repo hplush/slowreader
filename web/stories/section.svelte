@@ -5,6 +5,7 @@
   export let width: number | undefined = undefined
   export let hover: boolean | string = false
   export let focus: boolean | string = false
+  export let blur: boolean | string = false
   export let active: boolean | string = false
   export let border: boolean = false
   export let hotkeys: boolean = true
@@ -29,6 +30,20 @@
     if (focus) addClass(focus, 'is-pseudo-focus-visible')
     if (active) addClass(active, 'is-pseudo-active')
     if (!hotkeys) section.classList.add('is-hotkey-disabled')
+    if (blur) {
+      let selector: string
+      if (blur === true) {
+        selector = 'button, a, input'
+      } else {
+        selector = blur
+      }
+      for (let el of section.querySelectorAll<HTMLInputElement>(selector)) {
+        el.focus()
+        tick().then(() => {
+          el.blur()
+        })
+      }
+    }
     if (pressKey) {
       tick().then(() => {
         window.dispatchEvent(new KeyboardEvent('keyup', { key: pressKey }))
