@@ -17,6 +17,7 @@
 
   import { openURL } from '../stores/router.js'
   import UiLoader from '../ui/loader.svelte'
+  import UiTwoSteps from '../ui/two-steps.svelte'
   import OrganizeEdit from './organize/edit.svelte'
   import OrganizePosts from './organize/posts.svelte'
 
@@ -43,56 +44,61 @@
   }
 </script>
 
-<form on:submit|preventDefault>
-  <!-- Field has good description, user will be in context -->
-  <!-- svelte-ignore a11y-autofocus -->
-  <input
-    aria-errormessage="pages-add-invalid"
-    aria-invalid={$previewUrlError === 'invalid'}
-    autofocus
-    required
-    type="text"
-    bind:value={url}
-  />
-  {#if $previewUrlError === 'invalidUrl'}
-    <div id="pages-add-invalid" role="alert">
-      {$t.invalidUrl}
-    </div>
-  {/if}
-</form>
+<UiTwoSteps>
+  <div slot="one">
+    <form on:submit|preventDefault>
+      <!-- Field has good description, user will be in context -->
+      <!-- svelte-ignore a11y-autofocus -->
+      <input
+        aria-errormessage="pages-add-invalid"
+        aria-invalid={$previewUrlError === 'invalid'}
+        autofocus
+        required
+        type="text"
+        bind:value={url}
+      />
+      {#if $previewUrlError === 'invalidUrl'}
+        <div id="pages-add-invalid" role="alert">
+          {$t.invalidUrl}
+        </div>
+      {/if}
+    </form>
 
-{#if $previewCandidatesLoading}
-  <UiLoader />
-{:else}
-  <ul>
-    {#each $previewCandidates as candidate (candidate.url)}
-      <li>
-        <button
-          disabled={$previewCandidate === candidate.url}
-          on:click={() => {
-            setPreviewCandidate(candidate.url)
-          }}
-        >
-          {candidate.title}
-        </button>
-      </li>
-    {/each}
-  </ul>
-{/if}
-
-{#if $previewCandidate}
-  {#if $previewCandidateAdded === undefined}
-    <UiLoader />
-    {#if $previewPosts}
-      <OrganizePosts posts={$previewPosts} />
+    {#if $previewCandidatesLoading}
+      <UiLoader />
+    {:else}
+      <ul>
+        {#each $previewCandidates as candidate (candidate.url)}
+          <li>
+            <button
+              disabled={$previewCandidate === candidate.url}
+              on:click={() => {
+                setPreviewCandidate(candidate.url)
+              }}
+            >
+              {candidate.title}
+            </button>
+          </li>
+        {/each}
+      </ul>
     {/if}
-  {:else if $previewCandidateAdded === false}
-    <button on:click={addPreviewCandidate}>{$t.add}</button>
-    {#if $previewPosts}
-      <OrganizePosts posts={$previewPosts} />
+  </div>
+  <div slot="two">
+    {#if $previewCandidate}
+      {#if $previewCandidateAdded === undefined}
+        <UiLoader />
+        {#if $previewPosts}
+          <OrganizePosts posts={$previewPosts} />
+        {/if}
+      {:else if $previewCandidateAdded === false}
+        <button on:click={addPreviewCandidate}>{$t.add}</button>
+        {#if $previewPosts}
+          <OrganizePosts posts={$previewPosts} />
+        {/if}
+      {:else}
+        {$t.alreadyAdded}
+        <OrganizeEdit feedId={$previewCandidateAdded} posts={$previewPosts} />
+      {/if}
     {/if}
-  {:else}
-    {$t.alreadyAdded}
-    <OrganizeEdit feedId={$previewCandidateAdded} posts={$previewPosts} />
-  {/if}
-{/if}
+  </div>
+</UiTwoSteps>

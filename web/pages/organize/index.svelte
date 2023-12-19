@@ -1,5 +1,8 @@
 <script lang="ts">
+  import UiTwoSteps from '../../ui/two-steps.svelte'
   import OrganizeMenu from './menu.svelte'
 </script>
 
-<OrganizeMenu />
+<UiTwoSteps>
+  <OrganizeMenu slot="one" />
+</UiTwoSteps>

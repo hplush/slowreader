@@ -23,6 +23,6 @@
     flex-direction: column;
     gap: var(--padding-l);
     max-width: 500px;
-    margin: var(--padding-l) auto;
+    margin: var(--padding-m) auto;
   }
 </style>
