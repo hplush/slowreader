@@ -200,6 +200,9 @@ importers:
       nanostores:
         specifier: 0.9.5
         version: 0.9.5
+      picocolors:
+        specifier: 1.0.0
+        version: 1.0.0
       postcss:
         specifier: 8.4.32
         version: 8.4.32

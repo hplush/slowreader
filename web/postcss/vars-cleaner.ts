@@ -10,7 +10,10 @@ function removeWithEmptyParent(node: Node): void {
   }
 }
 
-let cleaner: Plugin = {
+let globalUsed = new Set<string>()
+let globalVars = new Set<string>()
+
+export let cleaner: Plugin = {
   postcssPlugin: 'clean-vars',
   prepare() {
     let used = new Set<string>()
@@ -20,11 +23,13 @@ let cleaner: Plugin = {
         if (decl.prop.startsWith('--')) {
           let nodes = vars.has(decl.prop) ? vars.get(decl.prop)! : []
           vars.set(decl.prop, nodes.concat(decl))
+          globalVars.add(decl.prop)
           decl.raws.between = ':'
         }
         if (decl.value.includes('var(--')) {
           let name = decl.value.match(/var\((--[^)]+)\)/)![1]!
           used.add(name)
+          globalUsed.add(name)
         }
       },
       OnceExit() {
@@ -32,8 +37,6 @@ let cleaner: Plugin = {
           if (!used.has(name)) {
             if (SILENT.test(name)) {
               for (let decl of decls) removeWithEmptyParent(decl)
-            } else {
-              throw decls[0]!.error(`Unused CSS variable ${name}`)
             }
           }
         }
@@ -42,4 +45,14 @@ let cleaner: Plugin = {
   }
 }
 
-export default cleaner
+export function checkUsed(): string[] {
+  let unused = []
+  for (let name of globalVars) {
+    if (!globalUsed.has(name)) {
+      if (!SILENT.test(name)) {
+        unused.push(name)
+      }
+    }
+  }
+  return unused
+}
