@@ -89,7 +89,7 @@
   }
 
   :global(.card) > .text-field_label:first-child {
-    margin-top: calc(var(--card-text-fix) - var(--padding-s));
+    margin-top: calc(var(--card-text-fix) - 4px);
   }
 
   .text-field_input {

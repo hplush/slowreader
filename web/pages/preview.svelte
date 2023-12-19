@@ -49,16 +49,19 @@
 
 <UiTwoSteps>
   <div slot="one">
-    <UiCard>
-      <form on:submit|preventDefault>
-        <UiTextField
-          error={$previewUrlError}
-          required
-          type="url"
-          bind:value={url}
-        />
-      </form>
-    </UiCard>
+    <form novalidate on:submit|preventDefault>
+      <UiCard>
+        <form on:submit|preventDefault>
+          <UiTextField
+            error={$previewUrlError}
+            label={$t.urlLabel}
+            placeholder="https://mastodon.social/@hplushlab"
+            required
+            bind:value={url}
+          />
+        </form>
+      </UiCard>
+    </form>
 
     {#if $previewCandidatesLoading}
       <UiLoader />
@@ -78,6 +81,7 @@
         {/each}
       </ul>
     {/if}
+    <UiUnderConstruction />
   </div>
   <div slot="two">
     {#if $previewCandidate}
