@@ -67,9 +67,7 @@
 
 <style>
   .radio {
-    margin-bottom: calc(
-      var(--outer-radius) - var(--padding-l) + var(--card-text-fix)
-    );
+    margin-bottom: calc(var(--outer-radius) - var(--padding-l));
 
     &.is-card-end {
       margin-bottom: 0;
@@ -117,7 +115,7 @@
   }
 
   .radio.is-card-end .radio_value:last-child {
-    margin-bottom: calc(-1 * var(--padding-l) + var(--card-text-fix));
+    margin-bottom: calc(-1 * var(--padding-l));
     border-bottom: none;
     border-radius: 0 0 var(--outer-radius) var(--outer-radius);
 
