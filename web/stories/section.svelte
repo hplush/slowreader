@@ -15,7 +15,7 @@
   function addClass(option: string | true, cls: string): void {
     let selector: string
     if (option === true) {
-      selector = 'button, a'
+      selector = 'button, a, input'
     } else {
       selector = option
     }
