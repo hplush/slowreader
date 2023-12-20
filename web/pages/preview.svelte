@@ -81,7 +81,10 @@
         {/each}
       </ul>
     {/if}
-    <UiUnderConstruction />
+
+    {#if url === ''}
+      <UiUnderConstruction />
+    {/if}
   </div>
   <div slot="two">
     {#if $previewCandidate}
