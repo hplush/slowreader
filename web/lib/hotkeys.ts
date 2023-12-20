@@ -77,7 +77,7 @@ export function likelyToHavePhysicalKeyboard(): boolean {
   return !['iphone', 'ipad', 'android'].some(device => agent.includes(device))
 }
 
-export function markPressed(element: Element | null): void {
+export function markPressed(element: Element | null | undefined): void {
   if (element instanceof HTMLElement) {
     element.classList.add('is-pseudo-active')
     pressed.push(element)
