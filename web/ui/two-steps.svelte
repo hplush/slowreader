@@ -1,11 +1,11 @@
-<div class="two-steps">
+<main class="two-steps">
   <div class="two-steps_step">
     <slot name="one" />
   </div>
   <div class="two-steps_step">
     <slot name="two" />
   </div>
-</div>
+</main>
 
 <style>
   .two-steps {

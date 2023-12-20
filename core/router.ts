@@ -46,6 +46,8 @@ const SETTINGS = new Set<AppRoute['route']>([
   'download'
 ])
 
+const MANAGE = new Set<AppRoute['route']>(['add', 'preview', 'feeds', 'feed'])
+
 function redirect<Name extends keyof Routes>(
   route: Name,
   params: Routes[Name]
@@ -109,4 +111,8 @@ export function isGuestRoute(route: AppRoute): boolean {
 
 export function isSettingsRoute(route: AppRoute): boolean {
   return SETTINGS.has(route.route)
+}
+
+export function isManageRoute(route: AppRoute): boolean {
+  return MANAGE.has(route.route)
 }

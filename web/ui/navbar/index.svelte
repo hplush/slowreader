@@ -1,12 +1,8 @@
 <script lang="ts">
-  import {
-    mdiCogOutline,
-    mdiPlaylistEdit,
-    mdiPlusCircleOutline,
-    mdiRefresh
-  } from '@mdi/js'
+  import { mdiCogOutline, mdiPlaylistEdit, mdiRefresh } from '@mdi/js'
   import {
     hasFeeds,
+    isManageRoute,
     isRefreshing,
     isSettingsRoute,
     refreshPosts,
@@ -19,6 +15,7 @@
   import { getURL } from '../../stores/router.js'
   import UiLoader from '../loader.svelte'
   import UiNavbarItem from './item.svelte'
+  import UiNavbarManage from './manage.svelte'
   import UiNavbarSettings from './settings.svelte'
   import UiNavbarSubmenu from './submenu.svelte'
   import UiNavbarSwitcher from './switcher.svelte'
@@ -39,6 +36,8 @@
     <UiNavbarSubmenu bind:this={submenu}>
       {#if isSettingsRoute($router)}
         <UiNavbarSettings />
+      {:else if isManageRoute($router)}
+        <UiNavbarManage />
       {/if}
     </UiNavbarSubmenu>
   </div>
@@ -65,18 +64,11 @@
       {/if}
     {/if}
     <UiNavbarItem
-      current={$router.route === 'add' || $router.route === 'preview'}
-      hotkey="a"
-      href={getURL('add')}
-      icon={mdiPlusCircleOutline}
-    >
-      {$t.add}
-    </UiNavbarItem>
-    <UiNavbarItem
-      current={$router.route === 'feeds' || $router.route === 'feed'}
+      current={isManageRoute($router)}
       hotkey="l"
-      href={getURL('feeds')}
+      href={getURL('add')}
       icon={mdiPlaylistEdit}
+      {submenu}
     >
       {$t.feeds}
     </UiNavbarItem>
