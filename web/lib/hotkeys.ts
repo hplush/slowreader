@@ -30,20 +30,14 @@ function getListener(
 
 function onKeyDown(e: KeyboardEvent): void {
   getListener(e, ({ element }) => {
-    if (element) {
-      element.classList.add('is-pseudo-active')
-      pressed.push(element)
-    }
+    markPressed(element)
   })
 }
 
 function onKeyUp(e: KeyboardEvent): void {
   getListener(e, ({ command }) => {
+    unmarkPressed()
     command(e)
-    for (let element of pressed) {
-      element.classList.remove('is-pseudo-active')
-    }
-    pressed = []
   })
 }
 
@@ -81,4 +75,18 @@ export function addHotkey(
 export function likelyToHavePhysicalKeyboard(): boolean {
   let agent = navigator.userAgent.toLowerCase()
   return !['iphone', 'ipad', 'android'].some(device => agent.includes(device))
+}
+
+export function markPressed(element: Element | null): void {
+  if (element instanceof HTMLElement) {
+    element.classList.add('is-pseudo-active')
+    pressed.push(element)
+  }
+}
+
+export function unmarkPressed(): void {
+  for (let element of pressed) {
+    element.classList.remove('is-pseudo-active')
+  }
+  pressed = []
 }

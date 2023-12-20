@@ -1,6 +1,8 @@
 <script lang="ts">
   import { tick } from 'svelte'
 
+  import { markPressed, unmarkPressed } from '../../lib/hotkeys.js'
+
   let start = false
   let element: HTMLDivElement
 
@@ -48,7 +50,8 @@
     page.focus()
   }
 
-  function keyUp(e: KeyboardEvent): void {
+  function onKeyUp(e: KeyboardEvent): void {
+    unmarkPressed()
     let children = element.querySelectorAll<HTMLAnchorElement>('a, button')
     if (e.key === 'Escape') {
       getCurrent()?.blur()
@@ -68,11 +71,14 @@
       let prev = (getCurrent()?.nextElementSibling ||
         children[0]) as HTMLAnchorElement
       prev.focus()
-    } else if (e.key === 'Enter' || e.key === ' ') {
+    } else if (e.key === 'Enter') {
       let main = document.querySelector('main')
       if (main) {
         let next = main.querySelector<HTMLButtonElement>(
-          'button, a, input, select, textarea, [tabindex]'
+          'button:not([tabindex="-1"]), ' +
+            'a:not([tabindex="-1"]), ' +
+            'input:not([tabindex="-1"]), ' +
+            '[tabindex="0"]'
         )
         if (next) {
           next.focus()
@@ -80,6 +86,12 @@
         }
       }
       focusPage()
+    }
+  }
+
+  export function onKeyDown(e: KeyboardEvent): void {
+    if (e.key === 'Enter') {
+      markPressed(document.activeElement)
     }
   }
 
@@ -97,7 +109,8 @@
   class:is-start={start}
   role="menu"
   tabindex="-1"
-  on:keyup={keyUp}
+  on:keyup={onKeyUp}
+  on:keydown={onKeyDown}
   on:focusout={onBlur}
 >
   <slot />

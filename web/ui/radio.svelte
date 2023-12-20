@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { ReadableAtom } from 'nanostores'
 
+  import { markPressed, unmarkPressed } from '../lib/hotkeys.js'
+
   export let title: string
   export let store: ReadableAtom<string>
   export let values: [string, string][]
@@ -17,7 +19,7 @@
 
   function prevLabel(label: HTMLLabelElement): HTMLLabelElement {
     let prev = label.previousElementSibling as HTMLLabelElement | undefined
-    if (prev) {
+    if (prev && prev.tagName === 'LABEL') {
       return prev
     } else {
       return label.parentElement!.querySelector<HTMLLabelElement>(
@@ -26,10 +28,10 @@
     }
   }
 
-  function keyUp(e: KeyboardEvent): void {
+  function onKeyUp(e: KeyboardEvent): void {
+    unmarkPressed()
     let label = e.target as HTMLLabelElement
     if (e.key === 'ArrowUp') {
-      e.preventDefault()
       let prev = prevLabel(label)
       prev.click()
       prev.focus()
@@ -37,6 +39,15 @@
       let next = nextLabel(label)
       next.click()
       next.focus()
+    }
+  }
+
+  function onKeyDown(e: KeyboardEvent): void {
+    let label = e.target as HTMLLabelElement
+    if (e.key === 'ArrowUp') {
+      markPressed(prevLabel(label))
+    } else if (e.key === 'ArrowDown') {
+      markPressed(nextLabel(label))
     }
   }
 </script>
@@ -50,7 +61,8 @@
       aria-checked={$store === value}
       role="radio"
       tabindex={$store === value ? 0 : -1}
-      on:keyup={keyUp}
+      on:keyup={onKeyUp}
+      on:keydown={onKeyDown}
     >
       <input
         class="radio_input"

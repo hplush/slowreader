@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte'
 
-  import { addHotkey } from '../lib/hotkeys.js'
+  import { addHotkey, markPressed, unmarkPressed } from '../lib/hotkeys.js'
   import UiHotkey from './hotkey.svelte'
   import UiIcon from './icon.svelte'
 
@@ -18,6 +18,20 @@
     dispatch('click')
   }
 
+  function onKeyDown(e: KeyboardEvent): void {
+    if (e.key === 'Enter') {
+      markPressed(element)
+      e.preventDefault()
+    }
+  }
+
+  function onKeyUp(e: KeyboardEvent): void {
+    unmarkPressed()
+    if (e.key === 'Enter') {
+      element.click()
+    }
+  }
+
   onMount(() => {
     if (hotkey) {
       return addHotkey(hotkey, element, onClick)
@@ -32,6 +46,8 @@
     class:is-wide={wide}
     {href}
     on:click={onClick}
+    on:keyup={onKeyUp}
+    on:keydown={onKeyDown}
   >
     {#if icon}
       <UiIcon path={icon} />
@@ -47,6 +63,8 @@
     class="button"
     class:is-wide={wide}
     on:click={onClick}
+    on:keyup={onKeyUp}
+    on:keydown={onKeyDown}
   >
     {#if icon}
       <UiIcon path={icon} />
