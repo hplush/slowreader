@@ -49,38 +49,40 @@
 
 <UiTwoSteps>
   <div slot="one">
-    <form novalidate on:submit|preventDefault>
-      <UiCard>
-        <form on:submit|preventDefault>
-          <UiTextField
-            error={$previewUrlError}
-            label={$t.urlLabel}
-            placeholder="https://mastodon.social/@hplushlab"
-            required
-            bind:value={url}
-          />
-        </form>
-      </UiCard>
-    </form>
+    <UiCard>
+      <form id="preview_query" novalidate on:submit|preventDefault>
+        <UiTextField
+          error={$previewUrlError}
+          label={$t.urlLabel}
+          placeholder="https://mastodon.social/@hplushlab"
+          required
+          bind:value={url}
+        />
+      </form>
 
-    {#if $previewCandidatesLoading}
-      <UiLoader />
-    {:else}
-      <ul>
-        {#each $previewCandidates as candidate (candidate.url)}
-          <li>
-            <button
-              disabled={$previewCandidate === candidate.url}
-              on:click={() => {
-                setPreviewCandidate(candidate.url)
-              }}
-            >
-              {candidate.title}
-            </button>
-          </li>
-        {/each}
-      </ul>
-    {/if}
+      {#if $previewCandidates.length > 0}
+        <ul>
+          {#each $previewCandidates as candidate (candidate.url)}
+            <li>
+              <button
+                disabled={$previewCandidate === candidate.url}
+                on:click={() => {
+                  setPreviewCandidate(candidate.url)
+                }}
+              >
+                {candidate.title}
+              </button>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+
+      {#if $previewCandidatesLoading}
+        <div class="preview_loading">
+          <UiLoader zoneId="preview_query" />
+        </div>
+      {/if}
+    </UiCard>
 
     {#if url === ''}
       <UiUnderConstruction />
@@ -107,3 +109,9 @@
     {/if}
   </div>
 </UiTwoSteps>
+
+<style>
+  .preview_loading {
+    margin-top: var(--padding-l);
+  }
+</style>
