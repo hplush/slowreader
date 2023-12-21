@@ -90,3 +90,53 @@ export function unmarkPressed(): void {
   }
   pressed = []
 }
+
+interface KeyboardListener {
+  (event: KeyboardEvent): void
+}
+
+export function generateMenuListeners(callbacks: {
+  first(el: HTMLElement): Element
+  last(el: HTMLElement): Element
+  next(el: HTMLElement): Element | null | undefined
+  prev(el: HTMLElement): Element | null | undefined
+  select(el: HTMLElement): void
+}): [KeyboardListener, KeyboardListener] {
+  function focus(prev: HTMLElement, next: HTMLElement): void {
+    next.tabIndex = 0
+    next.focus()
+    prev.tabIndex = -1
+    callbacks.select(next)
+  }
+
+  let up: KeyboardListener = e => {
+    unmarkPressed()
+    let current = e.target as HTMLElement
+    if (e.key === 'ArrowUp') {
+      let prev = callbacks.prev(current) || callbacks.last(current)
+      focus(current, prev as HTMLElement)
+    } else if (e.key === 'ArrowDown') {
+      let next = callbacks.next(current) || callbacks.first(current)
+      focus(current, next as HTMLElement)
+    } else if (e.key === 'Home') {
+      focus(current, callbacks.first(current) as HTMLElement)
+    } else if (e.key === 'End') {
+      focus(current, callbacks.last(current) as HTMLElement)
+    }
+  }
+
+  let down: KeyboardListener = e => {
+    let current = e.target as HTMLElement
+    if (e.key === 'ArrowUp') {
+      markPressed(callbacks.prev(current) || callbacks.last(current))
+    } else if (e.key === 'ArrowDown') {
+      markPressed(callbacks.next(current) || callbacks.first(current))
+    } else if (e.key === 'Home') {
+      markPressed(callbacks.first(current))
+    } else if (e.key === 'End') {
+      markPressed(callbacks.last(current))
+    }
+  }
+
+  return [down, up]
+}

@@ -16,6 +16,8 @@
   import { onDestroy } from 'svelte'
 
   import { openURL } from '../stores/router.js'
+  import UiCardLink from '../ui/card-link.svelte'
+  import UiCardLinks from '../ui/card-links.svelte'
   import UiCard from '../ui/card.svelte'
   import UiLoader from '../ui/loader.svelte'
   import UiTextField from '../ui/text-field.svelte'
@@ -49,8 +51,8 @@
 
 <UiTwoSteps>
   <div slot="one">
-    <UiCard>
-      <form id="preview_query" novalidate on:submit|preventDefault>
+    <form id="preview_query" novalidate on:submit|preventDefault>
+      <UiCard>
         <UiTextField
           error={$previewUrlError}
           label={$t.urlLabel}
@@ -58,35 +60,28 @@
           required
           bind:value={url}
         />
-      </form>
 
-      {#if $previewCandidates.length > 0}
-        <ul>
-          {#each $previewCandidates as candidate (candidate.url)}
-            <li>
-              <button
-                disabled={$previewCandidate === candidate.url}
+        {#if $previewCandidates.length > 0}
+          <UiCardLinks>
+            {#each $previewCandidates as candidate (candidate.url)}
+              <UiCardLink
+                name={candidate.title}
+                current={$previewCandidate === candidate.url}
                 on:click={() => {
                   setPreviewCandidate(candidate.url)
                 }}
-              >
-                {candidate.title}
-              </button>
-            </li>
-          {/each}
-        </ul>
-      {/if}
+              />
+            {/each}
+          </UiCardLinks>
+        {/if}
 
-      {#if $previewCandidatesLoading}
-        <div class="preview_loading">
-          <UiLoader zoneId="preview_query" />
-        </div>
-      {/if}
-    </UiCard>
-
-    {#if url === ''}
-      <UiUnderConstruction />
-    {/if}
+        {#if $previewCandidatesLoading}
+          <div class="preview_loading">
+            <UiLoader zoneId="preview_query" />
+          </div>
+        {/if}
+      </UiCard>
+    </form>
   </div>
   <div slot="two">
     {#if $previewCandidate}

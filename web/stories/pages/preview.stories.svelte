@@ -24,6 +24,16 @@
       <body></body>
     </html>
   `
+  const HTML_WITH_LINK = `
+    <html>
+      <head>
+        <title>Example</title>
+        <link rel="alternate" type="application/atom+xml"
+          href="https://example.com/news.atom" />
+      </head>
+      <body></body>
+    </html>
+  `
   const ATOM = {
     body: `<?xml version="1.0" encoding="utf-8"?>
     <feed xmlns="http://www.w3.org/2005/Atom">
@@ -105,8 +115,7 @@
   <Scene
     feeds={[{ url: 'https://example.com/news.atom' }]}
     responses={{
-      'https://example.com': HTML_WITH_LINKS,
-      'https://example.com/comments.rss': RSS,
+      'https://example.com': HTML_WITH_LINK,
       'https://example.com/news.atom': ATOM
     }}
   >

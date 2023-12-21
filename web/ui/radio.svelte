@@ -1,54 +1,35 @@
 <script lang="ts">
   import type { ReadableAtom } from 'nanostores'
 
-  import { markPressed, unmarkPressed } from '../lib/hotkeys.js'
+  import { generateMenuListeners } from '../lib/hotkeys.js'
 
   export let title: string
   export let store: ReadableAtom<string>
   export let values: [string, string][]
 
-  function nextLabel(label: HTMLLabelElement): HTMLLabelElement {
-    let next = label.nextElementSibling as HTMLLabelElement | undefined
-    if (next) {
-      return next
-    } else {
-      return label.parentElement!.querySelector<HTMLLabelElement>('label')!
+  let [onKeyDown, onKeyUp] = generateMenuListeners({
+    first(el) {
+      return el.parentElement!.querySelector('label:first-child')!
+    },
+    last(el) {
+      return el.parentElement!.querySelector('label:last-child')!
+    },
+    next(el) {
+      let next = el.nextElementSibling
+      if (next) {
+        return next
+      }
+    },
+    prev(el) {
+      let prev = el.previousElementSibling
+      if (prev && prev.tagName === 'LABEL') {
+        return prev
+      }
+    },
+    select(el) {
+      el.click()
     }
-  }
-
-  function prevLabel(label: HTMLLabelElement): HTMLLabelElement {
-    let prev = label.previousElementSibling as HTMLLabelElement | undefined
-    if (prev && prev.tagName === 'LABEL') {
-      return prev
-    } else {
-      return label.parentElement!.querySelector<HTMLLabelElement>(
-        'label:last-child'
-      )!
-    }
-  }
-
-  function onKeyUp(e: KeyboardEvent): void {
-    unmarkPressed()
-    let label = e.target as HTMLLabelElement
-    if (e.key === 'ArrowUp') {
-      let prev = prevLabel(label)
-      prev.click()
-      prev.focus()
-    } else if (e.key === 'ArrowDown') {
-      let next = nextLabel(label)
-      next.click()
-      next.focus()
-    }
-  }
-
-  function onKeyDown(e: KeyboardEvent): void {
-    let label = e.target as HTMLLabelElement
-    if (e.key === 'ArrowUp') {
-      markPressed(prevLabel(label))
-    } else if (e.key === 'ArrowDown') {
-      markPressed(nextLabel(label))
-    }
-  }
+  })
 </script>
 
 <fieldset class="radio" role="radiogroup">
@@ -107,8 +88,25 @@
     }
 
     &:active {
-      padding-block: calc(var(--padding-l) + 1px) calc(var(--padding-l) - 1px);
+      padding-block: calc(var(--padding-l) + 2px) calc(var(--padding-l) - 1px);
+      border-top: none;
       box-shadow: var(--card-item-pressed-shadow);
+    }
+
+    &:focus-visible {
+      outline-offset: 0;
+    }
+  }
+
+  :global(.card) > .radio:last-child .radio_value:last-child {
+    margin-bottom: calc(-1 * var(--padding-l));
+    border-bottom: none;
+    border-radius: 0 0 var(--outer-radius) var(--outer-radius);
+
+    &:active {
+      box-shadow:
+        var(--card-item-pressed-shadow),
+        0 5px 0 var(--land-color);
     }
   }
 
@@ -123,18 +121,6 @@
     height: 100%;
     font: var(--hotkey-font);
     color: var(--hotkey-color);
-  }
-
-  :global(.card) > .radio:last-child .radio_value:last-child {
-    margin-bottom: calc(-1 * var(--padding-l));
-    border-bottom: none;
-    border-radius: 0 0 var(--outer-radius) var(--outer-radius);
-
-    &:active {
-      box-shadow:
-        var(--card-item-pressed-shadow),
-        0 5px 0 var(--land-color);
-    }
   }
 
   .radio_value:not(:first-of-type):focus-visible::before {
