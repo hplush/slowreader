@@ -22,7 +22,6 @@
 <UiSettings title={$t.download}>
   <UiCard>
     <UiRadio
-      cardEnd
       store={preloadImages}
       title={$t.preloadImages}
       values={preloadOptions}

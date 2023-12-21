@@ -10,7 +10,6 @@
 <UiSettings title={$t.interface}>
   <UiCard>
     <UiRadio
-      cardEnd
       store={theme}
       title={$t.theme}
       values={[
