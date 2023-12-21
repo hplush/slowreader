@@ -75,7 +75,6 @@
   <Section width={500}>
     <UiCard>
       <UiRadio
-        cardEnd
         {store}
         title="Hover"
         values={[
@@ -88,7 +87,6 @@
   <Section active="label:last-of-type" width={500}>
     <UiCard>
       <UiRadio
-        cardEnd
         {store}
         title="Hover"
         values={[

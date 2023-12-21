@@ -6,7 +6,6 @@
   export let title: string
   export let store: ReadableAtom<string>
   export let values: [string, string][]
-  export let cardEnd = false
 
   function nextLabel(label: HTMLLabelElement): HTMLLabelElement {
     let next = label.nextElementSibling as HTMLLabelElement | undefined
@@ -52,7 +51,7 @@
   }
 </script>
 
-<fieldset class="radio" class:is-card-end={cardEnd} role="radiogroup">
+<fieldset class="radio" role="radiogroup">
   <legend class="radio_label">{title}</legend>
   {#each values as [value, name] (value)}
     <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
@@ -80,10 +79,10 @@
 <style>
   .radio {
     margin-bottom: calc(var(--outer-radius) - var(--padding-l));
+  }
 
-    &.is-card-end {
-      margin-bottom: 0;
-    }
+  :global(.card) > .radio:last-child {
+    margin-bottom: 0;
   }
 
   .radio_label {
@@ -126,7 +125,7 @@
     color: var(--hotkey-color);
   }
 
-  .radio.is-card-end .radio_value:last-child {
+  :global(.card) > .radio:last-child .radio_value:last-child {
     margin-bottom: calc(-1 * var(--padding-l));
     border-bottom: none;
     border-radius: 0 0 var(--outer-radius) var(--outer-radius);
