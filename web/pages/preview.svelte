@@ -14,6 +14,7 @@
     setPreviewUrl
   } from '@slowreader/core'
   import { previewMessages as t } from '@slowreader/core/messages'
+  import debounce from 'just-debounce-it'
   import { onDestroy } from 'svelte'
 
   import { openURL } from '../stores/router.js'
@@ -29,25 +30,27 @@
 
   export let url: string
 
+  let updateSearch = debounce((value: string) => {
+    setPreviewUrl(value)
+    let page = router.get()
+    if (
+      page.route === 'add' ||
+      (page.route === 'preview' && page.params.url !== url)
+    ) {
+      openURL('preview', { url })
+    }
+  }, 500)
+
   onDestroy(() => {
     clearPreview()
   })
-  $: {
-    let page = router.get()
-    if (url === '') {
-      clearPreview()
-      if (page.route !== 'add') {
-        openURL('add')
-      }
-    } else {
-      setPreviewUrl(url)
-      if (
-        page.route === 'add' ||
-        (page.route === 'preview' && page.params.url !== url)
-      ) {
-        openURL('preview', { url })
-      }
+  $: if (url === '') {
+    clearPreview()
+    if (router.get().route !== 'add') {
+      openURL('add')
     }
+  } else {
+    updateSearch(url)
   }
 </script>
 
