@@ -1,11 +1,11 @@
-<script lang="ts">
-  import type { ReadableAtom } from 'nanostores'
+<script generics="Value extends string" lang="ts">
+  import { createEventDispatcher } from 'svelte'
 
   import { generateMenuListeners } from '../lib/hotkeys.js'
 
   export let title: string
-  export let store: ReadableAtom<string>
-  export let values: [string, string][]
+  export let current: string
+  export let values: [Value, string][]
 
   let [onKeyDown, onKeyUp] = generateMenuListeners({
     getItems(el) {
@@ -13,6 +13,11 @@
     },
     selectOnFocus: true
   })
+  let dispatch = createEventDispatcher<{ change: Value }>()
+
+  function onInput(e: Event & { currentTarget: HTMLInputElement }): void {
+    dispatch('change', e.currentTarget.value as Value)
+  }
 </script>
 
 <fieldset class="radio" role="radiogroup">
@@ -21,18 +26,19 @@
     <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
     <label
       class="radio_value"
-      aria-checked={$store === value}
+      aria-checked={current === value}
       role="radio"
-      tabindex={$store === value ? 0 : -1}
+      tabindex={current === value ? 0 : -1}
       on:keyup={onKeyUp}
       on:keydown={onKeyDown}
     >
       <input
         class="radio_input"
+        checked={current === value}
         tabindex="-1"
         type="radio"
         {value}
-        bind:group={$store}
+        on:input={onInput}
       />
       <div class="radio_fake"></div>
       {name}
@@ -42,7 +48,12 @@
 
 <style>
   .radio {
+    margin-top: var(--padding-l);
     margin-bottom: calc(var(--outer-radius) - var(--padding-l));
+  }
+
+  :global(.card) > .radio:first-child {
+    margin-top: 0;
   }
 
   :global(.card) > .radio:last-child {

@@ -22,13 +22,16 @@
   <Section width={500}>
     <UiCard>
       <UiRadio
-        {store}
+        current={$store}
         title="Normal radio"
         values={[
           ['1', 'First option'],
           ['2', 'Second option'],
           ['3', 'Third option']
         ]}
+        on:change={e => {
+          store.set(e.detail)
+        }}
       />
       <UiParagraph>After</UiParagraph>
     </UiCard>
@@ -36,47 +39,32 @@
   <Section hover="label:first-of-type" width={500}>
     <UiCard>
       <UiRadio
-        {store}
+        current="1"
         title="Hover"
         values={[
           ['1', 'First option'],
           ['2', 'Second option']
         ]}
       />
-      <UiParagraph>After</UiParagraph>
     </UiCard>
   </Section>
   <Section active="label:first-of-type" width={500}>
     <UiCard>
       <UiRadio
-        {store}
+        current="1"
         title="Active"
         values={[
           ['1', 'First option'],
           ['2', 'Second option']
         ]}
       />
-      <UiParagraph>After</UiParagraph>
     </UiCard>
   </Section>
   <Section focus="label:first-of-type" width={500}>
     <UiCard>
       <UiRadio
-        {store}
+        current="1"
         title="Focus"
-        values={[
-          ['1', 'First option'],
-          ['2', 'Second option']
-        ]}
-      />
-      <UiParagraph>After</UiParagraph>
-    </UiCard>
-  </Section>
-  <Section width={500}>
-    <UiCard>
-      <UiRadio
-        {store}
-        title="Hover"
         values={[
           ['1', 'First option'],
           ['2', 'Second option']
@@ -86,8 +74,22 @@
   </Section>
   <Section active="label:last-of-type" width={500}>
     <UiCard>
+      <UiParagraph>Before</UiParagraph>
       <UiRadio
-        {store}
+        current="1"
+        title="Hover"
+        values={[
+          ['1', 'First option'],
+          ['2', 'Second option']
+        ]}
+      />
+    </UiCard>
+  </Section>
+  <Section width={500}>
+    <UiCard>
+      <UiParagraph>Before</UiParagraph>
+      <UiRadio
+        current="1"
         title="Hover"
         values={[
           ['1', 'First option'],
@@ -102,13 +104,16 @@
   <Section width={500}>
     <UiCard>
       <UiRadio
-        {store}
+        current={$store}
         title="Normal radio"
         values={[
           ['1', 'First option'],
           ['2', 'Second option'],
           ['3', 'Third option']
         ]}
+        on:change={e => {
+          store.set(e.detail)
+        }}
       />
       <UiParagraph>After</UiParagraph>
     </UiCard>
@@ -116,40 +121,37 @@
   <Section hover="label:first-of-type" width={500}>
     <UiCard>
       <UiRadio
-        {store}
+        current="1"
         title="Hover"
         values={[
           ['1', 'First option'],
           ['2', 'Second option']
         ]}
       />
-      <UiParagraph>After</UiParagraph>
     </UiCard>
   </Section>
   <Section active="label:first-of-type" width={500}>
     <UiCard>
       <UiRadio
-        {store}
+        current="1"
         title="Active"
         values={[
           ['1', 'First option'],
           ['2', 'Second option']
         ]}
       />
-      <UiParagraph>After</UiParagraph>
     </UiCard>
   </Section>
   <Section focus="label:first-of-type" width={500}>
     <UiCard>
       <UiRadio
-        {store}
+        current="1"
         title="Focus"
         values={[
           ['1', 'First option'],
           ['2', 'Second option']
         ]}
       />
-      <UiParagraph>After</UiParagraph>
     </UiCard>
   </Section>
 </Story>

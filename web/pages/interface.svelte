@@ -10,13 +10,16 @@
 <UiPage title={$t.interface} type="settings">
   <UiCard>
     <UiRadio
-      store={theme}
+      current={$theme}
       title={$t.theme}
       values={[
         ['system', $t.system],
         ['light', $t.light],
         ['dark', $t.dark]
       ]}
+      on:change={e => {
+        theme.set(e.detail)
+      }}
     />
   </UiCard>
 </UiPage>

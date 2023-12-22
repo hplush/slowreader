@@ -20,6 +20,7 @@
 
   import UiCard from '../../ui/card.svelte'
   import UiLoader from '../../ui/loader.svelte'
+  import UiRadio from '../../ui/radio.svelte'
   import UiTextField from '../../ui/text-field.svelte'
   import OrganizePosts from './posts.svelte'
 
@@ -60,29 +61,18 @@
           if (e.detail.valid) changeFeed(feedId, { url: e.detail.value })
         }}
       />
+      <UiRadio
+        current={$feed.reading}
+        title={$t.type}
+        values={[
+          ['slow', $t.slow],
+          ['fast', $t.fast]
+        ]}
+        on:change={e => {
+          changeFeed(feedId, { reading: e.detail })
+        }}
+      />
       <fieldset>
-        <label>
-          <input
-            checked={$feed.reading === 'slow'}
-            type="radio"
-            value="slow"
-            on:click={() => {
-              changeFeed(feedId, { reading: 'slow' })
-            }}
-          />
-          {$t.slow}
-        </label>
-        <label>
-          <input
-            checked={$feed.reading === 'fast'}
-            type="radio"
-            value="fast"
-            on:click={() => {
-              changeFeed(feedId, { reading: 'fast' })
-            }}
-          />
-          {$t.fast}
-        </label>
         <label>
           {$t.category}
           <select

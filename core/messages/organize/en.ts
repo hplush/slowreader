@@ -22,5 +22,6 @@ export const organizeMessages = i18n('organize', {
   name: 'Feed Name',
   renameCategory: 'Rename',
   slow: 'Slow reading (deep and useful)',
+  type: 'Feed type',
   url: 'Feed URL'
 })
