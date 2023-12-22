@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiArrowRight } from '@mdi/js'
+  import { mdiChevronRight } from '@mdi/js'
   import { createEventDispatcher } from 'svelte'
 
   import { generateMenuListeners } from '../lib/hotkeys.js'
@@ -57,7 +57,7 @@
     >
       {name}
       {#if current}
-        <UiIcon compensate={2} path={mdiArrowRight} />
+        <UiIcon path={mdiChevronRight} />
       {/if}
     </a>
   {:else}
@@ -72,7 +72,7 @@
     >
       {name}
       {#if current}
-        <UiIcon compensate={4} path={mdiArrowRight} />
+        <UiIcon path={mdiChevronRight} />
       {/if}
     </button>
   {/if}
@@ -83,6 +83,7 @@
     position: relative;
     box-sizing: border-box;
     display: inline-flex;
+    align-items: center;
     justify-content: space-between;
     width: calc(100% + 2 * var(--padding-l));
     padding: var(--padding-l);
