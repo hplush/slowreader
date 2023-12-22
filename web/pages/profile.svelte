@@ -5,11 +5,11 @@
   import UiButton from '../ui/button.svelte'
   import UiCardActions from '../ui/card-actions.svelte'
   import UiCard from '../ui/card.svelte'
-  import UiSettings from '../ui/settings.svelte'
+  import UiPage from '../ui/page.svelte'
   import UiUnderConstruction from '../ui/under-construction.svelte'
 </script>
 
-<UiSettings title={$t.profile}>
+<UiPage title={$t.profile} type="settings">
   <UiCard>
     <UiUnderConstruction />
     <UiCardActions>
@@ -23,4 +23,4 @@
       </UiButton>
     </UiCardActions>
   </UiCard>
-</UiSettings>
+</UiPage>

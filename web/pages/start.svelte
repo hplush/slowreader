@@ -6,12 +6,13 @@
   import UiCardActions from '../ui/card-actions.svelte'
   import UiCard from '../ui/card.svelte'
   import UiPageTitle from '../ui/page-title.svelte'
+  import UiPage from '../ui/page.svelte'
   import UiParagraph from '../ui/paragraph.svelte'
 </script>
 
-<main class="start">
-  <UiPageTitle page={$t.pageTitle} title={$t.title} />
-  <div class="start_options">
+<UiPage title={$t.pageTitle} type="center">
+  <UiPageTitle>{$t.title}</UiPageTitle>
+  <div class="start">
     <UiCard>
       <UiParagraph>{$t.localDescription1}</UiParagraph>
       <UiParagraph>{$t.localDescription2}</UiParagraph>
@@ -22,19 +23,10 @@
       </UiCardActions>
     </UiCard>
   </div>
-</main>
+</UiPage>
 
 <style>
   .start {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    margin: 0 auto;
-  }
-
-  .start_options {
     max-width: 240px;
   }
 </style>

@@ -1,8 +1,10 @@
 <script lang="ts">
-  import UiTwoSteps from '../../ui/two-steps.svelte'
+  import { organizeMessages as t } from '@slowreader/core/messages'
+
+  import UiTwoStepsPage from '../../ui/two-steps-page.svelte'
   import OrganizeMenu from './menu.svelte'
 </script>
 
-<UiTwoSteps>
+<UiTwoStepsPage title={$t.byCategoryTitle}>
   <OrganizeMenu slot="one" />
-</UiTwoSteps>
+</UiTwoStepsPage>

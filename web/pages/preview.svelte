@@ -21,7 +21,7 @@
   import UiCard from '../ui/card.svelte'
   import UiLoader from '../ui/loader.svelte'
   import UiTextField from '../ui/text-field.svelte'
-  import UiTwoSteps from '../ui/two-steps.svelte'
+  import UiTwoStepsPage from '../ui/two-steps-page.svelte'
   import UiUnderConstruction from '../ui/under-construction.svelte'
   import OrganizeEdit from './organize/edit.svelte'
   import OrganizePosts from './organize/posts.svelte'
@@ -49,7 +49,7 @@
   }
 </script>
 
-<UiTwoSteps>
+<UiTwoStepsPage title={$t.title}>
   <div slot="one">
     <form id="preview_query" novalidate on:submit|preventDefault>
       <UiCard>
@@ -106,7 +106,7 @@
       <UiUnderConstruction />
     {/if}
   </div>
-</UiTwoSteps>
+</UiTwoStepsPage>
 
 <style>
   .preview_loading {

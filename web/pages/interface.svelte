@@ -3,11 +3,11 @@
   import { settingsMessages as t } from '@slowreader/core/messages'
 
   import UiCard from '../ui/card.svelte'
+  import UiPage from '../ui/page.svelte'
   import UiRadio from '../ui/radio.svelte'
-  import UiSettings from '../ui/settings.svelte'
 </script>
 
-<UiSettings title={$t.interface}>
+<UiPage title={$t.interface} type="settings">
   <UiCard>
     <UiRadio
       store={theme}
@@ -19,4 +19,4 @@
       ]}
     />
   </UiCard>
-</UiSettings>
+</UiPage>

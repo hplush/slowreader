@@ -4,8 +4,8 @@
   import { onMount } from 'svelte'
 
   import UiCard from '../ui/card.svelte'
+  import UiPage from '../ui/page.svelte'
   import UiRadio from '../ui/radio.svelte'
-  import UiSettings from '../ui/settings.svelte'
 
   let preloadOptions: [string, string][] = [
     ['always', $t.always],
@@ -19,7 +19,7 @@
   })
 </script>
 
-<UiSettings title={$t.download}>
+<UiPage title={$t.download} type="settings">
   <UiCard>
     <UiRadio
       store={preloadImages}
@@ -27,4 +27,4 @@
       values={preloadOptions}
     />
   </UiCard>
-</UiSettings>
+</UiPage>
