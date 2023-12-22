@@ -19,6 +19,8 @@ export const organizeMessages = i18n('organize', {
   invalidFilter: 'Filter query is invalid',
   moveFilterDown: 'Move down',
   moveFilterUp: 'Move up',
+  name: 'Feed Name',
   renameCategory: 'Rename',
-  slow: 'Slow reading (deep and useful)'
+  slow: 'Slow reading (deep and useful)',
+  url: 'Feed URL'
 })

@@ -20,6 +20,7 @@
 
   import UiCard from '../../ui/card.svelte'
   import UiLoader from '../../ui/loader.svelte'
+  import UiTextField from '../../ui/text-field.svelte'
   import OrganizePosts from './posts.svelte'
 
   export let feedId: string
@@ -42,11 +43,21 @@
 {:else}
   <form on:submit|preventDefault>
     <UiCard>
-      <input
-        type="text"
+      <UiTextField
+        label={$t.name}
+        required
         value={$feed.title}
         on:change={e => {
-          changeFeed(feedId, { title: e.currentTarget.value })
+          if (e.detail.valid) changeFeed(feedId, { title: e.detail.value })
+        }}
+      />
+      <UiTextField
+        label={$t.url}
+        required
+        type="url"
+        value={$feed.url}
+        on:change={e => {
+          if (e.detail.valid) changeFeed(feedId, { url: e.detail.value })
         }}
       />
       <fieldset>

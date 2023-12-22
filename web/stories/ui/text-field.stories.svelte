@@ -34,14 +34,11 @@
       <UiTextField error="The value is wrong" label="Wrong" value="Wrong" />
     </UiCard>
   </Section>
-  <Section focus width={500}>
+  <Section focus="input:first-of-type" width={500}>
     <UiCard>
       <UiTextField label="Focus" />
-    </UiCard>
-  </Section>
-  <Section width={500}>
-    <UiCard>
       <UiTextField label="Required" required value="" />
+      <UiTextField label="Wrong URL" type="url" value="No a link" />
     </UiCard>
   </Section>
   <Section blur width={500}>
@@ -49,11 +46,7 @@
       <UiTextField label="Required and Blur" required value="" />
     </UiCard>
   </Section>
-  <Section width={500}>
-    <UiCard>
-      <UiTextField label="Wrong URL" type="url" value="No a link" />
-    </UiCard>
-  </Section>
+  <Section width={500}></Section>
 </Story>
 
 <Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
