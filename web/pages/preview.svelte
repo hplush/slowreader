@@ -51,37 +51,34 @@
 
 <UiTwoStepsPage title={$t.title}>
   <div slot="one">
-    <form id="preview_query" novalidate on:submit|preventDefault>
-      <UiCard>
-        <UiTextField
-          error={$previewUrlError}
-          label={$t.urlLabel}
-          placeholder="https://mastodon.social/@hplushlab"
-          required
-          bind:value={url}
-        />
+    <UiCard>
+      <UiTextField
+        error={$previewUrlError}
+        label={$t.urlLabel}
+        placeholder="https://mastodon.social/@hplushlab"
+        bind:value={url}
+      />
 
-        {#if $previewCandidates.length > 0}
-          <UiCardLinks>
-            {#each $previewCandidates as candidate (candidate.url)}
-              <UiCardLink
-                name={candidate.title}
-                current={$previewCandidate === candidate.url}
-                on:click={() => {
-                  setPreviewCandidate(candidate.url)
-                }}
-              />
-            {/each}
-          </UiCardLinks>
-        {/if}
+      {#if $previewCandidates.length > 0}
+        <UiCardLinks>
+          {#each $previewCandidates as candidate (candidate.url)}
+            <UiCardLink
+              name={candidate.title}
+              current={$previewCandidate === candidate.url}
+              on:click={() => {
+                setPreviewCandidate(candidate.url)
+              }}
+            />
+          {/each}
+        </UiCardLinks>
+      {/if}
 
-        {#if $previewCandidatesLoading}
-          <div class="preview_loading">
-            <UiLoader zoneId="preview_query" />
-          </div>
-        {/if}
-      </UiCard>
-    </form>
+      {#if $previewCandidatesLoading}
+        <div class="preview_loading">
+          <UiLoader zoneId="preview_query" />
+        </div>
+      {/if}
+    </UiCard>
   </div>
   <div slot="two">
     {#if $previewCandidate}
