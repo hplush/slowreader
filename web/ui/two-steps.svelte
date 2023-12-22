@@ -12,7 +12,7 @@
     box-sizing: border-box;
     display: flex;
     gap: var(--padding-l);
-    justify-content: center;
+    justify-content: space-around;
     width: 100%;
     min-height: 100%;
     padding: var(--padding-m) 0;

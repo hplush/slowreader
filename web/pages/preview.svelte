@@ -86,17 +86,20 @@
   <div slot="two">
     {#if $previewCandidate}
       {#if $previewCandidateAdded === undefined}
-        <UiLoader />
+        <UiCard>
+          <UiLoader />
+        </UiCard>
         {#if $previewPosts}
           <OrganizePosts posts={$previewPosts} />
         {/if}
       {:else if $previewCandidateAdded === false}
-        <button on:click={addPreviewCandidate}>{$t.add}</button>
+        <UiCard>
+          <button on:click={addPreviewCandidate}>{$t.add}</button>
+        </UiCard>
         {#if $previewPosts}
           <OrganizePosts posts={$previewPosts} />
         {/if}
       {:else}
-        {$t.alreadyAdded}
         <OrganizeEdit feedId={$previewCandidateAdded} posts={$previewPosts} />
       {/if}
     {:else}

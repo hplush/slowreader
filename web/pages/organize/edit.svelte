@@ -18,6 +18,7 @@
   } from '@slowreader/core'
   import { organizeMessages as t } from '@slowreader/core/messages'
 
+  import UiCard from '../../ui/card.svelte'
   import UiLoader from '../../ui/loader.svelte'
   import OrganizePosts from './posts.svelte'
 
@@ -40,117 +41,121 @@
   <UiLoader />
 {:else}
   <form on:submit|preventDefault>
-    <input
-      type="text"
-      value={$feed.title}
-      on:change={e => {
-        changeFeed(feedId, { title: e.currentTarget.value })
-      }}
-    />
-    <fieldset>
-      <label>
-        <input
-          checked={$feed.reading === 'slow'}
-          type="radio"
-          value="slow"
-          on:click={() => {
-            changeFeed(feedId, { reading: 'slow' })
-          }}
-        />
-        {$t.slow}
-      </label>
-      <label>
-        <input
-          checked={$feed.reading === 'fast'}
-          type="radio"
-          value="fast"
-          on:click={() => {
-            changeFeed(feedId, { reading: 'fast' })
-          }}
-        />
-        {$t.fast}
-      </label>
-      <label>
-        {$t.category}
-        <select
-          value={feedCategory($feed.categoryId, $categories)}
-          on:change={async e => {
-            if (e.currentTarget.value === 'new') {
-              let title = prompt($t.categoryName)
-              if (title) {
-                let categoryId = await addCategory({ title })
-                changeFeed(feedId, { categoryId })
+    <UiCard>
+      <input
+        type="text"
+        value={$feed.title}
+        on:change={e => {
+          changeFeed(feedId, { title: e.currentTarget.value })
+        }}
+      />
+      <fieldset>
+        <label>
+          <input
+            checked={$feed.reading === 'slow'}
+            type="radio"
+            value="slow"
+            on:click={() => {
+              changeFeed(feedId, { reading: 'slow' })
+            }}
+          />
+          {$t.slow}
+        </label>
+        <label>
+          <input
+            checked={$feed.reading === 'fast'}
+            type="radio"
+            value="fast"
+            on:click={() => {
+              changeFeed(feedId, { reading: 'fast' })
+            }}
+          />
+          {$t.fast}
+        </label>
+        <label>
+          {$t.category}
+          <select
+            value={feedCategory($feed.categoryId, $categories)}
+            on:change={async e => {
+              if (e.currentTarget.value === 'new') {
+                let title = prompt($t.categoryName)
+                if (title) {
+                  let categoryId = await addCategory({ title })
+                  changeFeed(feedId, { categoryId })
+                }
+              } else if (e.currentTarget.value === '') {
+                changeFeed(feedId, { categoryId: undefined })
+              } else {
+                changeFeed(feedId, { categoryId: e.currentTarget.value })
               }
-            } else if (e.currentTarget.value === '') {
-              changeFeed(feedId, { categoryId: undefined })
-            } else {
-              changeFeed(feedId, { categoryId: e.currentTarget.value })
-            }
-          }}
-        >
-          <option value="general">{$t.generalCategory}</option>
-          {#each $categories.list as category (category.id)}
-            <option value={category.id}>{category.title}</option>
+            }}
+          >
+            <option value="general">{$t.generalCategory}</option>
+            {#each $categories.list as category (category.id)}
+              <option value={category.id}>{category.title}</option>
+            {/each}
+            <option value="new">{$t.addCategory}</option>
+          </select>
+        </label>
+      </fieldset>
+
+      {#if !$filters.isEmpty}
+        <ol>
+          {#each sortFilters($filters.list) as filter (filter.id)}
+            <li>
+              <input
+                title={$t.filterQuery}
+                value={filter.query}
+                on:change={e => {
+                  changeFilter(filter.id, { query: e.currentTarget.value })
+                }}
+              />
+              {#if !isValidFilterQuery(filter.query)}
+                {$t.invalidFilter}
+              {/if}
+              <select
+                title={$t.filterAction}
+                bind:value={filter.action}
+                on:change={() => {
+                  changeFilter(filter.id, { action: filter.action })
+                }}
+              >
+                <option value="slow">{$t.filterActionSlow}</option>
+                <option value="fast">{$t.filterActionFast}</option>
+                <option value="delete">{$t.filterActionDelete}</option>
+              </select>
+              <button
+                type="button"
+                on:click={() => {
+                  moveFilterUp(filter.id)
+                }}>{$t.moveFilterUp}</button
+              >
+              <button
+                type="button"
+                on:click={() => {
+                  moveFilterDown(filter.id)
+                }}>{$t.moveFilterDown}</button
+              >
+              <button
+                type="button"
+                on:click={() => {
+                  deleteFilter(filter.id)
+                }}>{$t.deleteFilter}</button
+              >
+            </li>
           {/each}
-          <option value="new">{$t.addCategory}</option>
-        </select>
-      </label>
-    </fieldset>
+        </ol>
+      {/if}
 
-    {#if !$filters.isEmpty}
-      <ol>
-        {#each sortFilters($filters.list) as filter (filter.id)}
-          <li>
-            <input
-              title={$t.filterQuery}
-              value={filter.query}
-              on:change={e => {
-                changeFilter(filter.id, { query: e.currentTarget.value })
-              }}
-            />
-            {#if !isValidFilterQuery(filter.query)}
-              {$t.invalidFilter}
-            {/if}
-            <select
-              title={$t.filterAction}
-              bind:value={filter.action}
-              on:change={() => {
-                changeFilter(filter.id, { action: filter.action })
-              }}
-            >
-              <option value="slow">{$t.filterActionSlow}</option>
-              <option value="fast">{$t.filterActionFast}</option>
-              <option value="delete">{$t.filterActionDelete}</option>
-            </select>
-            <button
-              type="button"
-              on:click={() => {
-                moveFilterUp(filter.id)
-              }}>{$t.moveFilterUp}</button
-            >
-            <button
-              type="button"
-              on:click={() => {
-                moveFilterDown(filter.id)
-              }}>{$t.moveFilterDown}</button
-            >
-            <button
-              type="button"
-              on:click={() => {
-                deleteFilter(filter.id)
-              }}>{$t.deleteFilter}</button
-            >
-          </li>
-        {/each}
-      </ol>
-    {/if}
-
-    <button
-      type="button"
-      on:click={() => {
-        if (!$feed.isLoading) addFilterForFeed($feed)
-      }}>{$t.addFilter}</button
-    >
+      <button
+        type="button"
+        on:click={() => {
+          if (!$feed.isLoading) addFilterForFeed($feed)
+        }}
+      >
+        {$t.addFilter}
+      </button>
+    </UiCard>
   </form>
 
   {#if loadedPosts}
