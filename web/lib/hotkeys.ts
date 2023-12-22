@@ -84,9 +84,17 @@ export function markPressed(element: Element | null | undefined): void {
   }
 }
 
+function markHovered(element: Element | null | undefined): void {
+  if (element instanceof HTMLElement) {
+    element.classList.add('is-pseudo-hover')
+    pressed.push(element)
+  }
+}
+
 export function unmarkPressed(): void {
   for (let element of pressed) {
     element.classList.remove('is-pseudo-active')
+    element.classList.remove('is-pseudo-hover')
   }
   pressed = []
 }
@@ -95,46 +103,60 @@ interface KeyboardListener {
   (event: KeyboardEvent): void
 }
 
-export function generateMenuListeners(callbacks: {
+export function generateMenuListeners(opts: {
   first(el: HTMLElement): Element
   last(el: HTMLElement): Element
   next(el: HTMLElement): Element | null | undefined
   prev(el: HTMLElement): Element | null | undefined
-  select(el: HTMLElement): void
+  select?: (el: HTMLElement) => void
+  selectOnFocus?: boolean
 }): [KeyboardListener, KeyboardListener] {
   function focus(prev: HTMLElement, next: HTMLElement): void {
     next.tabIndex = 0
     next.focus()
     prev.tabIndex = -1
-    callbacks.select(next)
+    if (opts.selectOnFocus) next.click()
   }
 
   let up: KeyboardListener = e => {
     unmarkPressed()
     let current = e.target as HTMLElement
     if (e.key === 'ArrowUp') {
-      let prev = callbacks.prev(current) || callbacks.last(current)
+      let prev = opts.prev(current) || opts.last(current)
       focus(current, prev as HTMLElement)
     } else if (e.key === 'ArrowDown') {
-      let next = callbacks.next(current) || callbacks.first(current)
+      let next = opts.next(current) || opts.first(current)
       focus(current, next as HTMLElement)
     } else if (e.key === 'Home') {
-      focus(current, callbacks.first(current) as HTMLElement)
+      focus(current, opts.first(current) as HTMLElement)
     } else if (e.key === 'End') {
-      focus(current, callbacks.last(current) as HTMLElement)
+      focus(current, opts.last(current) as HTMLElement)
+    } else if (e.key === 'Enter') {
+      if (opts.select) opts.select(current)
     }
   }
 
   let down: KeyboardListener = e => {
     let current = e.target as HTMLElement
-    if (e.key === 'ArrowUp') {
-      markPressed(callbacks.prev(current) || callbacks.last(current))
+    let next: Element | undefined
+    if (e.key === 'Enter') {
+      if (opts.selectOnFocus) markPressed(current)
+    } else if (e.key === 'ArrowUp') {
+      next = opts.prev(current) || opts.last(current)
     } else if (e.key === 'ArrowDown') {
-      markPressed(callbacks.next(current) || callbacks.first(current))
+      next = opts.next(current) || opts.first(current)
     } else if (e.key === 'Home') {
-      markPressed(callbacks.first(current))
+      next = opts.first(current)
     } else if (e.key === 'End') {
-      markPressed(callbacks.last(current))
+      next = opts.last(current)
+    }
+    if (next) {
+      e.preventDefault()
+      if (opts.selectOnFocus) {
+        markPressed(next)
+      } else {
+        markHovered(next)
+      }
     }
   }
 

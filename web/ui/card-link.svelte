@@ -36,9 +36,6 @@
       if (prev) {
         return prev.firstElementChild
       }
-    },
-    select() {
-      // TODO: Focus on next page
     }
   })
 </script>
@@ -116,6 +113,10 @@
       &:hover {
         background: none;
       }
+    }
+
+    &[aria-current='page'].is-pseudo-hover {
+      background: var(--hover-color);
     }
   }
 

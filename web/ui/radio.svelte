@@ -26,9 +26,7 @@
         return prev
       }
     },
-    select(el) {
-      el.click()
-    }
+    selectOnFocus: true
   })
 </script>
 
