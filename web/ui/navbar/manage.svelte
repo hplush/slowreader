@@ -1,6 +1,6 @@
 <script lang="ts">
   import { mdiFileTree, mdiPlusCircleOutline } from '@mdi/js'
-  import { router } from '@slowreader/core'
+  import { hasFeeds, router } from '@slowreader/core'
   import { navbarMessages as t } from '@slowreader/core/messages'
 
   import { getURL } from '../../stores/router.js'
@@ -16,11 +16,13 @@
   {$t.add}
 </UiNavbarItem>
 
-<UiNavbarItem
-  current={$router.route === 'feeds' || $router.route === 'feed'}
-  href={getURL('feeds')}
-  icon={mdiFileTree}
-  secondary
->
-  {$t.feedsByCategory}
-</UiNavbarItem>
+{#if $hasFeeds}
+  <UiNavbarItem
+    current={$router.route === 'feeds' || $router.route === 'feed'}
+    href={getURL('feeds')}
+    icon={mdiFileTree}
+    secondary
+  >
+    {$t.feedsByCategory}
+  </UiNavbarItem>
+{/if}
