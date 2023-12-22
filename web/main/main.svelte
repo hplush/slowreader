@@ -27,10 +27,10 @@
     <NotFoundPage />
   {:else if $router.route === 'start'}
     <StartPage />
-  {:else if $router.route === 'add'}
-    <PreviewPage />
-  {:else if $router.route === 'preview'}
-    <PreviewPage url={$router.params.url} />
+  {:else if $router.route === 'preview' || $router.route === 'add'}
+    <PreviewPage
+      url={$router.route === 'preview' ? $router.params.url : undefined}
+    />
   {:else if $router.route === 'feeds'}
     <OrganizePage />
   {:else if $router.route === 'feed'}

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { commonMessages as t } from '@slowreader/core/messages'
   import { nanoid } from 'nanoid/non-secure'
-  import { onMount } from 'svelte'
+  import { createEventDispatcher, onMount } from 'svelte'
 
   export let type: 'email' | 'password' | 'text' | 'url' = 'text'
   export let error: string | undefined = undefined
@@ -11,7 +11,7 @@
   export let value = ''
 
   let inputError: string | undefined = error
-
+  let dispatch = createEventDispatcher()
   let id = nanoid()
 
   function onInput(e: Event & { currentTarget: HTMLInputElement }): void {
@@ -31,6 +31,7 @@
   function onKeyUp(e: KeyboardEvent): void {
     if (e.key === 'Enter') {
       validate()
+      dispatch('submit', { value })
     } else if (required) {
       if (!value) {
         inputError = t.get().empty
