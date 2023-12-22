@@ -69,7 +69,7 @@
 
 <Story name="Empty" parameters={{ layout: 'fullscreen' }}>
   <Scene>
-    <PreviewPage />
+    <PreviewPage url="" />
   </Scene>
 </Story>
 
