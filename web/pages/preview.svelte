@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { mdiPlusCircleOutline } from '@mdi/js'
   import {
     addPreviewCandidate,
     clearPreview,
@@ -16,24 +17,25 @@
   import { onDestroy } from 'svelte'
 
   import { openURL } from '../stores/router.js'
+  import UiButton from '../ui/button.svelte'
   import UiCardLink from '../ui/card-link.svelte'
   import UiCardLinks from '../ui/card-links.svelte'
   import UiCard from '../ui/card.svelte'
   import UiLoader from '../ui/loader.svelte'
   import UiTextField from '../ui/text-field.svelte'
   import UiTwoStepsPage from '../ui/two-steps-page.svelte'
-  import UiUnderConstruction from '../ui/under-construction.svelte'
   import OrganizeEdit from './organize/edit.svelte'
   import OrganizePosts from './organize/posts.svelte'
+
+  export let url: string
 
   onDestroy(() => {
     clearPreview()
   })
-
-  export let url = ''
   $: {
     let page = router.get()
     if (url === '') {
+      clearPreview()
       if (page.route !== 'add') {
         openURL('add')
       }
@@ -74,39 +76,56 @@
       {/if}
 
       {#if $previewCandidatesLoading}
-        <div class="preview_loading">
+        <div class="preview_url-loading">
           <UiLoader zoneId="preview_query" />
         </div>
       {/if}
     </UiCard>
+
+    {#if url === ''}
+      <div class="preview_guide">
+        {$t.searchGuide}
+      </div>
+    {/if}
   </div>
-  <div slot="two">
+  <div id="preview_feed" slot="two">
     {#if $previewCandidate}
       {#if $previewCandidateAdded === undefined}
-        <UiCard>
-          <UiLoader />
-        </UiCard>
+        <div class="preview_feed-loading">
+          <UiLoader zoneId="preview_feed" />
+        </div>
         {#if $previewPosts}
           <OrganizePosts posts={$previewPosts} />
         {/if}
       {:else if $previewCandidateAdded === false}
-        <UiCard>
-          <button on:click={addPreviewCandidate}>{$t.add}</button>
-        </UiCard>
+        <UiButton icon={mdiPlusCircleOutline} on:click={addPreviewCandidate}>
+          {$t.add}
+        </UiButton>
         {#if $previewPosts}
           <OrganizePosts posts={$previewPosts} />
         {/if}
       {:else}
         <OrganizeEdit feedId={$previewCandidateAdded} posts={$previewPosts} />
       {/if}
-    {:else}
-      <UiUnderConstruction />
     {/if}
   </div>
 </UiTwoStepsPage>
 
 <style>
-  .preview_loading {
+  .preview_url-loading {
     margin-top: var(--padding-l);
+  }
+
+  .preview_guide {
+    max-width: 450px;
+    padding-top: 100px;
+    margin: 0 auto;
+  }
+
+  .preview_feed-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--control-height);
   }
 </style>

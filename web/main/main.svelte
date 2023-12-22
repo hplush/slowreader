@@ -28,9 +28,7 @@
   {:else if $router.route === 'start'}
     <StartPage />
   {:else if $router.route === 'preview' || $router.route === 'add'}
-    <PreviewPage
-      url={$router.route === 'preview' ? $router.params.url : undefined}
-    />
+    <PreviewPage url={$router.route === 'preview' ? $router.params.url : ''} />
   {:else if $router.route === 'feeds'}
     <OrganizePage />
   {:else if $router.route === 'feed'}

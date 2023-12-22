@@ -26,7 +26,7 @@
   .page {
     box-sizing: border-box;
     min-height: 100%;
-    padding: var(--padding-m) 0;
+    padding: var(--padding-l) 0;
 
     &.is-settings {
       display: flex;

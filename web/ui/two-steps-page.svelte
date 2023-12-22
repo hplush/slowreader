@@ -30,7 +30,7 @@
     justify-content: space-around;
     width: 100%;
     min-height: 100%;
-    padding: var(--padding-m) 0;
+    padding: var(--padding-l) 0;
   }
 
   .two-steps-page_step {
