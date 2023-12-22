@@ -104,33 +104,49 @@ interface KeyboardListener {
 }
 
 export function generateMenuListeners(opts: {
-  first(el: HTMLElement): Element
-  last(el: HTMLElement): Element
-  next(el: HTMLElement): Element | null | undefined
-  prev(el: HTMLElement): Element | null | undefined
+  getItems: (el: HTMLElement) => NodeListOf<HTMLElement>
   select?: (el: HTMLElement) => void
   selectOnFocus?: boolean
 }): [KeyboardListener, KeyboardListener] {
-  function focus(prev: HTMLElement, next: HTMLElement): void {
-    next.tabIndex = 0
-    next.focus()
-    prev.tabIndex = -1
-    if (opts.selectOnFocus) next.click()
+  function focus(prevEl: HTMLElement, nextEl: HTMLElement): void {
+    nextEl.tabIndex = 0
+    nextEl.focus()
+    prevEl.tabIndex = -1
+    if (opts.selectOnFocus) nextEl.click()
+  }
+
+  function first(current: HTMLElement): HTMLElement {
+    return opts.getItems(current)[0] as HTMLElement
+  }
+
+  function last(current: HTMLElement): HTMLElement {
+    let items = opts.getItems(current)
+    return items[items.length - 1] as HTMLElement
+  }
+
+  function prev(current: HTMLElement): HTMLElement | undefined {
+    let items = opts.getItems(current)
+    let index = Array.from(items).indexOf(current)
+    return items[index - 1] as HTMLElement | undefined
+  }
+
+  function next(current: HTMLElement): HTMLElement | undefined {
+    let items = opts.getItems(current)
+    let index = Array.from(items).indexOf(current)
+    return items[index + 1] as HTMLElement | undefined
   }
 
   let up: KeyboardListener = e => {
     unmarkPressed()
     let current = e.target as HTMLElement
     if (e.key === 'ArrowUp') {
-      let prev = opts.prev(current) || opts.last(current)
-      focus(current, prev as HTMLElement)
+      focus(current, prev(current) || last(current))
     } else if (e.key === 'ArrowDown') {
-      let next = opts.next(current) || opts.first(current)
-      focus(current, next as HTMLElement)
+      focus(current, next(current) || first(current))
     } else if (e.key === 'Home') {
-      focus(current, opts.first(current) as HTMLElement)
+      focus(current, first(current))
     } else if (e.key === 'End') {
-      focus(current, opts.last(current) as HTMLElement)
+      focus(current, last(current))
     } else if (e.key === 'Enter') {
       if (opts.select) opts.select(current)
     }
@@ -138,24 +154,24 @@ export function generateMenuListeners(opts: {
 
   let down: KeyboardListener = e => {
     let current = e.target as HTMLElement
-    let next: Element | undefined
+    let future: HTMLElement | undefined
     if (e.key === 'Enter') {
       if (opts.selectOnFocus) markPressed(current)
     } else if (e.key === 'ArrowUp') {
-      next = opts.prev(current) || opts.last(current)
+      future = prev(current) || last(current)
     } else if (e.key === 'ArrowDown') {
-      next = opts.next(current) || opts.first(current)
+      future = next(current) || first(current)
     } else if (e.key === 'Home') {
-      next = opts.first(current)
+      future = first(current)
     } else if (e.key === 'End') {
-      next = opts.last(current)
+      future = last(current)
     }
-    if (next) {
+    if (future) {
       e.preventDefault()
       if (opts.selectOnFocus) {
-        markPressed(next)
+        markPressed(future)
       } else {
-        markHovered(next)
+        markHovered(future)
       }
     }
   }

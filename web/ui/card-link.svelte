@@ -17,25 +17,8 @@
   }
 
   let [onKeyDown, onKeyUp] = generateMenuListeners({
-    first(el) {
-      return el.parentElement!.parentElement!.firstElementChild!
-        .firstElementChild!
-    },
-    last(el) {
-      return el.parentElement!.parentElement!.lastElementChild!
-        .firstElementChild!
-    },
-    next(el) {
-      let next = el.parentElement!.nextElementSibling
-      if (next) {
-        return next.firstElementChild
-      }
-    },
-    prev(el) {
-      let prev = el.parentElement!.previousElementSibling
-      if (prev) {
-        return prev.firstElementChild
-      }
+    getItems(el) {
+      return el.parentElement!.parentElement!.querySelectorAll('.card-link')
     }
   })
 </script>

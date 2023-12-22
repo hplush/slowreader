@@ -28,17 +28,8 @@
   }
 
   let [onKeyDown, onKeyUp] = generateMenuListeners({
-    first() {
-      return element.querySelector(':is(a, button):first-child')!
-    },
-    last() {
-      return element.querySelector(':is(a, button):last-child')!
-    },
-    next(el) {
-      return el.nextElementSibling
-    },
-    prev(el) {
-      return el.previousElementSibling
+    getItems() {
+      return element.querySelectorAll<HTMLAnchorElement>('a, button')
     },
     select() {
       let main = document.querySelector('main')

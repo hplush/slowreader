@@ -8,23 +8,8 @@
   export let values: [string, string][]
 
   let [onKeyDown, onKeyUp] = generateMenuListeners({
-    first(el) {
-      return el.parentElement!.querySelector('label:first-child')!
-    },
-    last(el) {
-      return el.parentElement!.querySelector('label:last-child')!
-    },
-    next(el) {
-      let next = el.nextElementSibling
-      if (next) {
-        return next
-      }
-    },
-    prev(el) {
-      let prev = el.previousElementSibling
-      if (prev && prev.tagName === 'LABEL') {
-        return prev
-      }
+    getItems(el) {
+      return el.parentElement!.querySelectorAll('.radio_value')
     },
     selectOnFocus: true
   })
