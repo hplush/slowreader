@@ -97,12 +97,12 @@ test('detects titles', () => {
         `<?xml version="1.0"?>
         <rss version="2.0">
           <channel>
-            <title>Test 1</title>
+            <title>Test 1 <b>XSS</b></title>
           </channel>
         </rss>`
       )
     ),
-    'Test 1'
+    'Test 1 XSS'
   )
   equal(loaders.rss.isMineText(exampleRss('<rss version="2.0"></rss>')), '')
   equal(
@@ -124,9 +124,9 @@ test('parses posts', async () => {
           <channel>
             <title>Feed</title>
             <item>
-              <title>1</title>
+              <title>1 <b>XSS</b></title>
               <link>https://example.com/1</link>
-              <description>Post 1</description>
+              <description>Post 1 <b>XSS</b></description>
               <pubDate>Mon, 01 Jan 2023 00:00:00 GMT</pubDate>
             </item>
             <item>
@@ -150,11 +150,11 @@ test('parses posts', async () => {
       isLoading: false,
       list: [
         {
-          full: 'Post 1',
+          full: 'Post 1 XSS',
           media: [],
           originId: 'https://example.com/1',
           publishedAt: 1672531200,
-          title: '1',
+          title: '1 XSS',
           url: 'https://example.com/1'
         },
         {

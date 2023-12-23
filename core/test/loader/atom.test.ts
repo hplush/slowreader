@@ -123,11 +123,11 @@ test('parses posts', async () => {
         <feed xmlns="http://www.w3.org/2005/Atom">
           <title>Feed</title>
           <entry>
-            <title>1</title>
+            <title>1 <b>XSS</b></title>
             <link rel="alternate" href="https://example.com/1" />
             <content>Full 1</content>
             <id>1</id>
-            <summary>Post 1</summary>
+            <summary>Post 1 <b>XSS</b></summary>
             <published>2023-01-01T00:00:00Z</published>
             <updated>2023-06-01T00:00:00Z</updated>
           </entry>
@@ -160,11 +160,11 @@ test('parses posts', async () => {
       list: [
         {
           full: 'Full 1',
-          intro: 'Post 1',
+          intro: 'Post 1 XSS',
           media: [],
           originId: '1',
           publishedAt: 1672531200,
-          title: '1',
+          title: '1 XSS',
           url: 'https://example.com/1'
         },
         {
