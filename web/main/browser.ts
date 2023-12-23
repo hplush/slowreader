@@ -1,6 +1,6 @@
 import { isSlowRoute, router, theme } from '@slowreader/core'
 
-import { likelyToHavePhysicalKeyboard } from '../lib/hotkeys.js'
+import { jumpBack, likelyToHavePhysicalKeyboard } from '../lib/hotkeys.js'
 import { locale } from '../stores/locale.js'
 
 let root = document.documentElement
@@ -21,3 +21,9 @@ locale.subscribe(localeValue => {
 if (!likelyToHavePhysicalKeyboard()) {
   root.classList.add('is-hotkey-disabled')
 }
+
+document.body.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (!e.defaultPrevented) jumpBack()
+  }
+})

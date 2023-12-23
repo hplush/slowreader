@@ -2,7 +2,6 @@
   import { mdiChevronRight } from '@mdi/js'
   import { createEventDispatcher } from 'svelte'
 
-  import { generateMenuListeners } from '../lib/hotkeys.js'
   import UiIcon from './icon.svelte'
 
   export let href: string | undefined = undefined
@@ -10,17 +9,11 @@
   export let current = false
   export let first = false
 
-  let dispatch = createEventDispatcher()
+  let dispatch = createEventDispatcher<{ click: null }>()
 
   function onClick(): void {
     dispatch('click')
   }
-
-  let [onKeyDown, onKeyUp] = generateMenuListeners({
-    getItems(el) {
-      return el.parentElement!.parentElement!.querySelectorAll('.card-link')
-    }
-  })
 </script>
 
 <li role="presentation">
@@ -32,8 +25,6 @@
       role="menuitem"
       tabindex={current || first ? null : -1}
       on:click={onClick}
-      on:keydown={onKeyDown}
-      on:keyup={onKeyUp}
     >
       {name}
       {#if current}
@@ -47,8 +38,6 @@
       role="menuitem"
       tabindex={current || first ? null : -1}
       on:click={onClick}
-      on:keydown={onKeyDown}
-      on:keyup={onKeyUp}
     >
       {name}
       {#if current}

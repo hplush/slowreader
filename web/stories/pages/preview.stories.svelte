@@ -99,7 +99,7 @@
   </Scene>
 </Story>
 
-<Story name="Feed" parameters={{ layout: 'fullscreen' }}>
+<Story name="Feeds" parameters={{ layout: 'fullscreen' }}>
   <Scene
     responses={{
       'https://example.com': HTML_WITH_LINKS,

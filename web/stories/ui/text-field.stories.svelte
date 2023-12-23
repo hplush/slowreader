@@ -36,9 +36,9 @@
   </Section>
   <Section focus="input:first-of-type" width={500}>
     <UiCard>
-      <UiTextField label="Focus" />
+      <UiTextField enterHint label="Focus" />
       <UiTextField label="Required" required value="" />
-      <UiTextField label="Wrong URL" type="url" value="No a link" />
+      <UiTextField enterHint label="Wrong URL" type="url" value="No a link" />
     </UiCard>
   </Section>
   <Section blur width={500}>
@@ -68,7 +68,7 @@
   </Section>
   <Section focus width={500}>
     <UiCard>
-      <UiTextField label="Focus" />
+      <UiTextField enterHint label="Focus" />
     </UiCard>
   </Section></Story
 >

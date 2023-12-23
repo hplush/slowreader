@@ -9,11 +9,12 @@
   export let placeholder = ''
   export let required = false
   export let value = ''
+  export let enterHint = false
 
   let inputError: string | undefined = error
   let dispatch = createEventDispatcher<{
     change: { valid: boolean; value: string }
-    submit: { valid: boolean; value: string }
+    enter: { valid: boolean; value: string }
   }>()
   let id = nanoid()
 
@@ -41,7 +42,7 @@
     if (e.key === 'Enter') {
       validate()
       dispatch('change', { valid: !!inputError, value })
-      dispatch('submit', { valid: !!inputError, value })
+      dispatch('enter', { valid: !!inputError, value })
     } else if (required) {
       if (!value) {
         inputError = t.get().empty
@@ -71,36 +72,45 @@
   })
 </script>
 
-{#if label}
-  <label class="text-field_label" for={id}>{label}</label>
-{/if}
-<input
-  id={label ? id : null}
-  class="text-field_input"
-  aria-errormessage={inputError ? `${id}-error` : null}
-  aria-invalid={inputError ? true : null}
-  {placeholder}
-  {required}
-  {type}
-  {value}
-  on:input={onInput}
-  on:keyup={onKeyUp}
-  on:blur={onBlur}
-  on:change={onChange}
-/>
-{#if inputError}
-  <div id={`${id}-error`} class="text-field_error">{inputError}</div>
-{/if}
+<div class="text-field">
+  {#if label}
+    <label class="text-field_label" for={id}>{label}</label>
+  {/if}
+  <input
+    id={label ? id : null}
+    class="text-field_input"
+    aria-errormessage={inputError ? `${id}-error` : null}
+    aria-invalid={inputError ? true : null}
+    {placeholder}
+    {required}
+    {type}
+    {value}
+    on:input={onInput}
+    on:keyup={onKeyUp}
+    on:blur={onBlur}
+    on:change={onChange}
+  />
+  {#if enterHint}
+    <span class="text-field_hotkey">↵</span>
+  {/if}
+  {#if inputError}
+    <div id={`${id}-error`} class="text-field_error">{inputError}</div>
+  {/if}
+</div>
 
 <style>
-  .text-field_label {
-    padding: 0 var(--padding-m) var(--padding-m) var(--padding-m);
+  .text-field {
+    position: relative;
     margin-top: var(--padding-l);
-    font-weight: bold;
   }
 
-  :global(.card) > .text-field_label:first-child {
+  :global(.card) > .text-field:first-child {
     margin-top: calc(var(--card-text-fix) - 4px);
+  }
+
+  .text-field_label {
+    padding: 0 var(--padding-m) var(--padding-m) var(--padding-m);
+    font-weight: bold;
   }
 
   .text-field_input {
@@ -131,5 +141,28 @@
 
   :global(.card) > .text-field_error:last-child {
     margin-bottom: var(--card-text-fix);
+  }
+
+  .text-field_hotkey {
+    position: absolute;
+    inset-inline-end: var(--padding-m);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 10px;
+    height: var(--control-height);
+    margin-top: calc(-1 * var(--control-height));
+    font: var(--hotkey-font);
+    color: color-mix(in oklab, var(--hotkey-color), var(--text-color));
+  }
+
+  .text-field_input:focus-visible + .text-field_hotkey {
+    display: flex;
+  }
+
+  :global(.is-hotkey-disabled)
+    .text-field_input:focus-visible
+    + .text-field_hotkey {
+    display: none;
   }
 </style>

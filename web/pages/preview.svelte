@@ -17,6 +17,7 @@
   import debounce from 'just-debounce-it'
   import { onDestroy } from 'svelte'
 
+  import { jumpInto } from '../lib/hotkeys.js'
   import { openURL } from '../stores/router.js'
   import UiButton from '../ui/button.svelte'
   import UiCardLink from '../ui/card-link.svelte'
@@ -29,6 +30,8 @@
   import OrganizePosts from './organize/posts.svelte'
 
   export let url: string
+  let links: HTMLUListElement
+  let feed: HTMLDivElement
 
   let updateSearch = debounce((value: string) => {
     setPreviewUrl(value)
@@ -41,9 +44,20 @@
     }
   }, 500)
 
+  function onSearchEnter(): void {
+    if ($previewCandidates.length > 0) {
+      jumpInto(links)
+    }
+  }
+
+  function onLinkEnter(): void {
+    jumpInto(feed)
+  }
+
   onDestroy(() => {
     clearPreview()
   })
+
   $: if (url === '') {
     clearPreview()
     if (router.get().route !== 'add') {
@@ -58,14 +72,16 @@
   <div slot="one">
     <UiCard>
       <UiTextField
+        enterHint={$previewCandidates.length > 0}
         error={$previewUrlError}
         label={$t.urlLabel}
         placeholder="https://mastodon.social/@hplushlab"
         bind:value={url}
+        on:enter={onSearchEnter}
       />
 
       {#if $previewCandidates.length > 0}
-        <UiCardLinks>
+        <UiCardLinks bind:node={links} on:enter={onLinkEnter}>
           {#each $previewCandidates as candidate (candidate.url)}
             <UiCardLink
               name={candidate.title}
@@ -91,7 +107,7 @@
       </div>
     {/if}
   </div>
-  <div id="preview_feed" slot="two">
+  <div bind:this={feed} id="preview_feed" slot="two">
     {#if $previewCandidate}
       {#if $previewCandidateAdded === undefined}
         <div class="preview_feed-loading">

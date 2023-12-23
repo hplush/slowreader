@@ -1,19 +1,19 @@
 <script lang="ts">
   import { tick } from 'svelte'
 
-  import { generateMenuListeners } from '../../lib/hotkeys.js'
+  import { generateMenuListeners, jumpInto } from '../../lib/hotkeys.js'
 
   let start = false
   let element: HTMLDivElement
 
   export async function focus(): Promise<void> {
     await tick()
-    let children = element.querySelectorAll<HTMLAnchorElement>('a, button')
+    let children = element.querySelectorAll('a, button')
     for (let child of children) {
       child.setAttribute('tabindex', '0')
     }
     if (children[0]) {
-      children[0].focus()
+      jumpInto(element)
       if (children.length > 1) {
         start = true
       }
@@ -21,29 +21,17 @@
   }
 
   function onExit(): void {
-    let children = element.querySelectorAll<HTMLAnchorElement>('a, button')
-    for (let child of children) {
+    for (let child of element.querySelectorAll('a, button')) {
       child.setAttribute('tabindex', '-1')
     }
   }
 
   let [onKeyDown, onKeyUp] = generateMenuListeners({
     getItems() {
-      return element.querySelectorAll<HTMLAnchorElement>('a, button')
+      return element.querySelectorAll('a, button')
     },
     select() {
-      let main = document.querySelector('main')
-      if (main) {
-        let next = main.querySelector<HTMLButtonElement>(
-          'button:not([tabindex="-1"]), ' +
-            'a:not([tabindex="-1"]), ' +
-            'input:not([tabindex="-1"]), ' +
-            '[tabindex="0"]'
-        )
-        if (next) {
-          next.focus()
-        }
-      }
+      jumpInto(document.querySelector('main'))
     }
   })
 

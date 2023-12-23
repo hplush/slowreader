@@ -178,3 +178,37 @@ export function generateMenuListeners(opts: {
 
   return [down, up]
 }
+
+let jumps: WeakRef<HTMLElement>[] = []
+
+export function jumpInto(el: HTMLElement | null | undefined): void {
+  let current = document.activeElement
+  if (current instanceof HTMLElement && current !== document.body) {
+    jumps.push(new WeakRef(current))
+  }
+  if (el) {
+    let focusable = el.querySelector(
+      'button:not([tabindex="-1"]), ' +
+        'a:not([tabindex="-1"]), ' +
+        'input:not([tabindex="-1"]), ' +
+        '[tabindex="0"]'
+    )
+    if (focusable instanceof HTMLElement) focusable.focus()
+  }
+}
+
+export function jumpBack(): void {
+  let ref = jumps.pop()
+  if (!ref) {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur()
+    }
+    return
+  }
+  let el = ref.deref()
+  if (el) {
+    el.focus()
+  } else {
+    jumpBack()
+  }
+}
