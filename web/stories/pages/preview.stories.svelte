@@ -41,7 +41,7 @@
       <updated>2021-01-01T00:00:00Z</updated>
       <id>https://example.com/ews.atom</id>
       <entry>
-        <title>A big changes for Example</title>
+        <title>A big changes for Example with <i>XSS</i></title>
         <link href="https://example.com/news/1" />
         <id>https://example.com/news/1</id>
         <updated>2021-01-01T00:00:00Z</updated>
@@ -53,7 +53,7 @@
     body: `<?xml version="1.0" encoding="utf-8"?>
     <rss version="2.0">
       <channel>
-        <title>Example Comments</title>
+        <title>Feed with &lt;i&gt;<b>XSS</b>&lt;/i&gt;</title>
         <link>https://example.com/comments.rss</link>
         <item>
           <title>Comment</title>
