@@ -19,10 +19,6 @@
 {#if $starting}
   <StartingPage />
 {:else}
-  {#if !isGuestRoute($router)}
-    <UiNavbar />
-  {/if}
-
   {#if $notFound || $router.route === 'notFound'}
     <NotFoundPage />
   {:else if $router.route === 'start'}
@@ -45,5 +41,8 @@
     <RefreshPage />
   {:else if $router.route === 'about'}
     <AboutPage />
+  {/if}
+  {#if !isGuestRoute($router)}
+    <UiNavbar />
   {/if}
 {/if}
