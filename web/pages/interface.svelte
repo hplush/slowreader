@@ -4,14 +4,14 @@
 
   import UiCard from '../ui/card.svelte'
   import UiPage from '../ui/page.svelte'
-  import UiRadio from '../ui/radio.svelte'
+  import UiRadioField from '../ui/radio-field.svelte'
 </script>
 
 <UiPage title={$t.interface} type="settings">
   <UiCard>
-    <UiRadio
+    <UiRadioField
       current={$theme}
-      title={$t.theme}
+      label={$t.theme}
       values={[
         ['system', $t.system],
         ['light', $t.light],

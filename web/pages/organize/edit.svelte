@@ -20,7 +20,7 @@
 
   import UiCard from '../../ui/card.svelte'
   import UiLoader from '../../ui/loader.svelte'
-  import UiRadio from '../../ui/radio.svelte'
+  import UiRadioField from '../../ui/radio-field.svelte'
   import UiTextField from '../../ui/text-field.svelte'
   import OrganizePosts from './posts.svelte'
 
@@ -45,6 +45,7 @@
   <form on:submit|preventDefault>
     <UiCard>
       <UiTextField
+        hideLabel
         label={$t.name}
         required
         value={$feed.title}
@@ -53,6 +54,7 @@
         }}
       />
       <UiTextField
+        hideLabel
         label={$t.url}
         required
         type="url"
@@ -61,9 +63,10 @@
           if (e.detail.valid) changeFeed(feedId, { url: e.detail.value })
         }}
       />
-      <UiRadio
+      <UiRadioField
         current={$feed.reading}
-        title={$t.type}
+        hideLabel
+        label={$t.type}
         values={[
           ['slow', $t.slow],
           ['fast', $t.fast]

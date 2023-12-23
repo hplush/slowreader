@@ -5,11 +5,12 @@
 
   export let type: 'email' | 'password' | 'text' | 'url' = 'text'
   export let error: string | undefined = undefined
-  export let label: string | undefined = undefined
+  export let label: string
   export let placeholder = ''
   export let required = false
   export let value = ''
   export let enterHint = false
+  export let hideLabel = false
 
   let inputError: string | undefined = error
   let dispatch = createEventDispatcher<{
@@ -73,7 +74,7 @@
 </script>
 
 <div class="text-field">
-  {#if label}
+  {#if label && !hideLabel}
     <label class="text-field_label" for={id}>{label}</label>
   {/if}
   <input
@@ -81,6 +82,7 @@
     class="text-field_input"
     aria-errormessage={inputError ? `${id}-error` : null}
     aria-invalid={inputError ? true : null}
+    aria-label={hideLabel ? label : null}
     {placeholder}
     {required}
     {type}
@@ -118,6 +120,7 @@
     width: 100%;
     height: var(--control-height);
     padding: 0 var(--padding-m);
+    margin-top: var(--padding-m);
     background-color: var(--field-color);
     border: 1px solid var(--field-border-color);
     border-radius: var(--inner-radius);
@@ -132,6 +135,10 @@
       outline: 3px solid oklch(from var(--focus-color) l c h / 50%);
       outline-offset: 0;
     }
+  }
+
+  .text-field_label + .text-field_input {
+    margin-top: 0;
   }
 
   .text-field_error {

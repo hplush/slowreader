@@ -1,9 +1,9 @@
 <script context="module" lang="ts">
-  import UiRadio from '../../ui/radio.svelte'
+  import UiRadioField from '../../ui/radio-field.svelte'
 
   export const meta = {
-    component: UiRadio,
-    title: 'UI/Radio'
+    component: UiRadioField,
+    title: 'UI/RadioField'
   }
 </script>
 
@@ -21,9 +21,9 @@
 <Story name="Base">
   <Section width={500}>
     <UiCard>
-      <UiRadio
+      <UiRadioField
         current={$store}
-        title="Normal radio"
+        label="Normal radio"
         values={[
           ['1', 'First option'],
           ['2', 'Second option'],
@@ -38,9 +38,9 @@
   </Section>
   <Section hover="label:first-of-type" width={500}>
     <UiCard>
-      <UiRadio
+      <UiRadioField
         current="1"
-        title="Hover"
+        label="Hover"
         values={[
           ['1', 'First option'],
           ['2', 'Second option']
@@ -50,9 +50,9 @@
   </Section>
   <Section active="label:first-of-type" width={500}>
     <UiCard>
-      <UiRadio
+      <UiRadioField
         current="1"
-        title="Active"
+        label="Active"
         values={[
           ['1', 'First option'],
           ['2', 'Second option']
@@ -62,9 +62,9 @@
   </Section>
   <Section focus="label:first-of-type" width={500}>
     <UiCard>
-      <UiRadio
+      <UiRadioField
         current="1"
-        title="Focus"
+        label="Focus"
         values={[
           ['1', 'First option'],
           ['2', 'Second option']
@@ -75,9 +75,9 @@
   <Section active="label:last-of-type" width={500}>
     <UiCard>
       <UiParagraph>Before</UiParagraph>
-      <UiRadio
+      <UiRadioField
         current="1"
-        title="Hover"
+        label="Hover"
         values={[
           ['1', 'First option'],
           ['2', 'Second option']
@@ -88,9 +88,10 @@
   <Section width={500}>
     <UiCard>
       <UiParagraph>Before</UiParagraph>
-      <UiRadio
+      <UiRadioField
         current="1"
-        title="Hover"
+        hideLabel
+        label="Label"
         values={[
           ['1', 'First option'],
           ['2', 'Second option']
@@ -103,9 +104,9 @@
 <Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
   <Section width={500}>
     <UiCard>
-      <UiRadio
+      <UiRadioField
         current={$store}
-        title="Normal radio"
+        label="Normal radio"
         values={[
           ['1', 'First option'],
           ['2', 'Second option'],
@@ -120,9 +121,9 @@
   </Section>
   <Section hover="label:first-of-type" width={500}>
     <UiCard>
-      <UiRadio
+      <UiRadioField
         current="1"
-        title="Hover"
+        label="Hover"
         values={[
           ['1', 'First option'],
           ['2', 'Second option']
@@ -132,9 +133,9 @@
   </Section>
   <Section active="label:first-of-type" width={500}>
     <UiCard>
-      <UiRadio
+      <UiRadioField
         current="1"
-        title="Active"
+        label="Active"
         values={[
           ['1', 'First option'],
           ['2', 'Second option']
@@ -144,9 +145,9 @@
   </Section>
   <Section focus="label:first-of-type" width={500}>
     <UiCard>
-      <UiRadio
+      <UiRadioField
         current="1"
-        title="Focus"
+        label="Focus"
         values={[
           ['1', 'First option'],
           ['2', 'Second option']

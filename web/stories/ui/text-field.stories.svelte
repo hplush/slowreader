@@ -26,7 +26,7 @@
   </Section>
   <Section width={500}>
     <UiCard>
-      <UiTextField placeholder="Empty" value="" />
+      <UiTextField hideLabel label="Label" placeholder="Empty" value="" />
     </UiCard>
   </Section>
   <Section width={500}>
@@ -46,7 +46,6 @@
       <UiTextField label="Required and Blur" required value="" />
     </UiCard>
   </Section>
-  <Section width={500}></Section>
 </Story>
 
 <Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
@@ -58,12 +57,12 @@
   </Section>
   <Section width={500}>
     <UiCard>
-      <UiTextField value="Text" />
+      <UiTextField label="Label" value="Text" />
     </UiCard>
   </Section>
   <Section width={500}>
     <UiCard>
-      <UiTextField error="The value is wrong" value="Wrong" />
+      <UiTextField error="The value is wrong" label="Wrong" value="Wrong" />
     </UiCard>
   </Section>
   <Section focus width={500}>

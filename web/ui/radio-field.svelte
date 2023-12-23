@@ -3,9 +3,10 @@
 
   import { generateMenuListeners } from '../lib/hotkeys.js'
 
-  export let title: string
-  export let current: string
+  export let label: string
+  export let current: Value
   export let values: [Value, string][]
+  export let hideLabel = false
 
   let [onKeyDown, onKeyUp] = generateMenuListeners({
     getItems(el) {
@@ -20,8 +21,14 @@
   }
 </script>
 
-<fieldset class="radio" role="radiogroup">
-  <legend class="radio_label">{title}</legend>
+<fieldset
+  class="radio"
+  aria-label={hideLabel ? label : undefined}
+  role="radiogroup"
+>
+  {#if !hideLabel}
+    <legend class="radio_label">{label}</legend>
+  {/if}
   {#each values as [value, name] (value)}
     <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
     <label
@@ -63,6 +70,10 @@
   .radio_label {
     padding-bottom: var(--padding-l);
     font-weight: bold;
+
+    &.is-hidden {
+      display: none;
+    }
   }
 
   .radio_value {

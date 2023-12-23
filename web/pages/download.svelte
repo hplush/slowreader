@@ -6,7 +6,7 @@
 
   import UiCard from '../ui/card.svelte'
   import UiPage from '../ui/page.svelte'
-  import UiRadio from '../ui/radio.svelte'
+  import UiRadioField from '../ui/radio-field.svelte'
 
   let preloadOptions: [StoreValue<typeof preloadImages>, string][] = [
     ['always', $t.always],
@@ -22,9 +22,9 @@
 
 <UiPage title={$t.download} type="settings">
   <UiCard>
-    <UiRadio
+    <UiRadioField
       current={$preloadImages}
-      title={$t.preloadImages}
+      label={$t.preloadImages}
       values={preloadOptions}
       on:change={e => {
         preloadImages.set(e.detail)
