@@ -3,7 +3,7 @@
 
   import { generateMenuListeners } from '../lib/hotkeys.js'
 
-  export let node: HTMLUListElement
+  export let node: HTMLUListElement | null = null
 
   let dispatch = createEventDispatcher<{ enter: null }>()
 
