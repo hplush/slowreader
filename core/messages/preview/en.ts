@@ -4,8 +4,8 @@ export const previewMessages = i18n('preview', {
   add: 'Add',
   edit: 'Edit',
   searchGuide:
-    'For now we support RSS and Atom feeds. ' +
-    'Social networks are coming soon, but you can use RSS wrappers for them.',
+    'For now we support RSS and Atom feeds.\n\n' +
+    'Social networks are coming soon, but you can use RSS wrappers for them.',
   title: 'Add',
   urlLabel: 'Web page URL or social account handle'
 })

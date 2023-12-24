@@ -24,6 +24,7 @@
   import UiCardLinks from '../ui/card-links.svelte'
   import UiCard from '../ui/card.svelte'
   import UiLoader from '../ui/loader.svelte'
+  import UiRichTranslation from '../ui/rich-translation.svelte'
   import UiTextField from '../ui/text-field.svelte'
   import UiTwoStepsPage from '../ui/two-steps-page.svelte'
   import OrganizeEdit from './organize/edit.svelte'
@@ -103,7 +104,7 @@
 
     {#if url === ''}
       <div class="preview_guide">
-        {$t.searchGuide}
+        <UiRichTranslation text={$t.searchGuide} />
       </div>
     {/if}
   </div>
