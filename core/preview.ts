@@ -60,7 +60,11 @@ export const previewCandidatesLoading = computed($links, links => {
 })
 
 let $candidates = atom<PreviewCandidate[]>([])
-export const previewCandidates = readonlyExport($candidates)
+export const previewCandidates = computed($candidates, candidates => {
+  return candidates.sort((a, b) => {
+    return a.title.localeCompare(b.title)
+  })
+})
 
 onMount($candidates, () => {
   return $links.listen(() => {})

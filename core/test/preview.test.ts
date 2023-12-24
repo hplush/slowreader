@@ -260,6 +260,48 @@ test('shows if unknown URL', async () => {
   deepStrictEqual(previewCandidates.get(), [])
 })
 
+test('always keep the same order of candidates', async () => {
+  keepMount(previewCandidates)
+  expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('http://example.com/atom').andRespond(
+    200,
+    '<feed><title>Atom</title></feed>',
+    'application/rss+xml'
+  )
+  expectRequest('http://example.com/feed').andRespond(404)
+  expectRequest('http://example.com/rss').andRespond(
+    200,
+    '<rss><channel><title>RSS</title></channel></rss>',
+    'application/rss+xml'
+  )
+  setPreviewUrl('example.com')
+  await setTimeout(10)
+
+  deepStrictEqual(
+    previewCandidates.get().map(i => i.title),
+    ['Atom', 'RSS']
+  )
+
+  clearPreview()
+  expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
+  let atom = expectRequest('http://example.com/atom').andWait()
+  expectRequest('http://example.com/feed').andRespond(404)
+  expectRequest('http://example.com/rss').andRespond(
+    200,
+    '<rss><channel><title>RSS</title></channel></rss>',
+    'application/rss+xml'
+  )
+  setPreviewUrl('example.com')
+  await setTimeout(10)
+  atom(200, '<feed><title>Atom</title></feed>', 'application/rss+xml')
+  await setTimeout(10)
+
+  deepStrictEqual(
+    previewCandidates.get().map(i => i.title),
+    ['Atom', 'RSS']
+  )
+})
+
 test('tracks current candidate', async () => {
   keepMount(previewCandidatesLoading)
   keepMount(previewUrlError)
