@@ -200,9 +200,8 @@ export function jumpInto(el: HTMLElement | null | undefined): void {
 export function jumpBack(): void {
   let ref = jumps.pop()
   if (!ref) {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur()
-    }
+    document.documentElement.focus()
+    document.documentElement.blur()
     return
   }
   let el = ref.deref()
