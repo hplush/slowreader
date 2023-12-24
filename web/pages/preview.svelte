@@ -33,8 +33,10 @@
   export let url: string
   let links: HTMLUListElement
   let feed: HTMLDivElement
+  let requested = false
 
-  let updateSearch = debounce((value: string) => {
+  let updateUrl = debounce((value: string) => {
+    requested = true
     setPreviewUrl(value)
     let page = router.get()
     if (
@@ -60,12 +62,13 @@
   })
 
   $: if (url === '') {
+    requested = false
     clearPreview()
     if (router.get().route !== 'add') {
       openURL('add')
     }
   } else {
-    updateSearch(url)
+    updateUrl(url)
   }
 </script>
 
@@ -74,7 +77,7 @@
     <UiCard>
       <UiTextField
         enterHint={$previewCandidates.length > 0}
-        error={$previewUrlError}
+        error={$previewUrlError ? $t[$previewUrlError] : undefined}
         label={$t.urlLabel}
         placeholder="https://mastodon.social/@hplushlab"
         bind:value={url}
@@ -98,6 +101,15 @@
       {#if $previewCandidatesLoading}
         <div class="preview_url-loading">
           <UiLoader zoneId="preview_query" />
+        </div>
+      {/if}
+
+      {#if !$previewCandidatesLoading && url !== '' && $previewCandidates.length === 0 && requested && !$previewUrlError}
+        <div class="preview_no-results">
+          <UiRichTranslation
+            text={$t.noResults}
+            url="https://github.com/hplush/slowreader/issues"
+          />
         </div>
       {/if}
     </UiCard>
@@ -147,5 +159,18 @@
     align-items: center;
     justify-content: center;
     height: var(--control-height);
+  }
+
+  .preview_no-results {
+    margin-top: var(--padding-l);
+    color: var(--error-color);
+  }
+
+  .preview_no-results :global(:any-link) {
+    color: var(--error-color);
+
+    &:hover {
+      text-decoration: none;
+    }
   }
 </style>

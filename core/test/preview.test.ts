@@ -64,12 +64,6 @@ test('empty from beginning', () => {
 test('validates URL', () => {
   keepMount(previewUrlError)
 
-  setPreviewUrl('')
-  equal(previewUrlError.get(), 'emptyUrl')
-
-  setPreviewUrl(' ')
-  equal(previewUrlError.get(), 'emptyUrl')
-
   setPreviewUrl('mailto:user@example.com')
   equal(previewUrlError.get(), 'invalidUrl')
 
@@ -135,7 +129,7 @@ test('is ready for network errors', async () => {
 
   setPreviewUrl('')
   equal(previewCandidatesLoading.get(), false)
-  equal(previewUrlError.get(), 'emptyUrl')
+  equal(previewUrlError.get(), undefined)
 })
 
 test('aborts all HTTP requests on URL change', async () => {

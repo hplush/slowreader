@@ -26,4 +26,7 @@
   <Section>
     <UiRichTranslation text={'two\n\nlines'} />
   </Section>
+  <Section>
+    <UiRichTranslation text={'[link]\n\nwith markdown'} url="#" />
+  </Section>
 </Story>

@@ -16,7 +16,7 @@ const ALWAYS_HTTPS = [/^twitter\.com\//]
 export type PreviewLinksValue = Record<
   string,
   | {
-      error: 'emptyUrl' | 'invalidUrl'
+      error: 'invalidUrl'
       state: 'invalid'
     }
   | {
@@ -42,7 +42,10 @@ export interface PreviewCandidate {
 
 let $links = map<PreviewLinksValue>({})
 
-export const previewUrlError = computed($links, links => {
+export const previewUrlError = computed<
+  'invalidUrl' | 'unloadable' | undefined,
+  typeof $links
+>($links, links => {
   let first = Object.keys(links)[0]
   if (typeof first !== 'undefined') {
     let link = links[first]!
@@ -150,10 +153,7 @@ let task = createDownloadTask()
 
 export async function addLink(url: string, deep = false): Promise<void> {
   url = url.trim()
-  if (url === '') {
-    $links.setKey(url, { error: 'emptyUrl', state: 'invalid' })
-    return
-  }
+  if (url === '') return
 
   if (url.startsWith('http://')) {
     let methodLess = url.slice('http://'.length)

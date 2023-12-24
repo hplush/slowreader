@@ -19,6 +19,18 @@
   }>()
   let id = nanoid()
 
+  function validate(): void {
+    if (required && !value) {
+      inputError = t.get().empty
+    } else if (type === 'url' && !isValidUrl()) {
+      inputError = t.get().noUrl
+    }
+  }
+
+  function isValid(): boolean {
+    return !inputError || !error
+  }
+
   function onInput(e: Event & { currentTarget: HTMLInputElement }): void {
     value = e.currentTarget.value
   }
@@ -26,29 +38,17 @@
   function onChange(e: Event & { currentTarget: HTMLInputElement }): void {
     value = e.currentTarget.value
     validate()
-    dispatch('change', { valid: !!inputError, value })
-  }
-
-  function validate(): void {
-    if (required && !value) {
-      inputError = t.get().empty
-    } else if (type === 'url' && !isValidUrl()) {
-      inputError = t.get().noUrl
-    } else {
-      inputError = error
-    }
+    dispatch('change', { valid: isValid(), value })
   }
 
   function onKeyUp(e: KeyboardEvent): void {
     if (e.key === 'Enter') {
       validate()
-      dispatch('change', { valid: !!inputError, value })
-      dispatch('enter', { valid: !!inputError, value })
+      dispatch('change', { valid: isValid(), value })
+      dispatch('enter', { valid: isValid(), value })
     } else if (required) {
       if (!value) {
         inputError = t.get().empty
-      } else {
-        inputError = error
       }
     }
   }
@@ -80,8 +80,8 @@
   <input
     id={label ? id : null}
     class="text-field_input"
-    aria-errormessage={inputError ? `${id}-error` : null}
-    aria-invalid={inputError ? true : null}
+    aria-errormessage={inputError || error ? `${id}-error` : null}
+    aria-invalid={inputError || error ? true : null}
     aria-label={hideLabel ? label : null}
     {placeholder}
     {required}
@@ -97,6 +97,8 @@
   {/if}
   {#if inputError}
     <div id={`${id}-error`} class="text-field_error">{inputError}</div>
+  {:else if error}
+    <div id={`${id}-error`} class="text-field_error">{error}</div>
   {/if}
 </div>
 
