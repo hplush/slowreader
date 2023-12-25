@@ -27,6 +27,7 @@
   <Section width={500}>
     <UiCard>
       <UiTextField hideLabel label="Label" placeholder="Empty" value="" />
+      <UiTextField hideLabel label="Label" placeholder="Another" value="" />
     </UiCard>
   </Section>
   <Section width={500}>

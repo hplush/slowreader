@@ -12,12 +12,12 @@
   export let enterHint = false
   export let hideLabel = false
 
+  let id = nanoid()
   let inputError: string | undefined = error
   let dispatch = createEventDispatcher<{
     change: { valid: boolean; value: string }
     enter: { valid: boolean; value: string }
   }>()
-  let id = nanoid()
 
   function validate(): void {
     if (required && !value) {
@@ -107,6 +107,10 @@
     position: relative;
     width: 100%;
     margin-top: var(--padding-l);
+
+    &:not(:has(.text-field_label)) {
+      margin-top: var(--padding-m);
+    }
   }
 
   .text-field:first-child {
