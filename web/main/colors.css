@@ -7,7 +7,7 @@
   --error-color: var(--red-600);
 
   @media (prefers-color-scheme: light) {
-    --land-color: var(--neutral-200);
+    --land-color: color-mix(in oklab, var(--neutral-100), var(--neutral-200));
     --text-color: var(--neutral-950);
     --hotkey-color: var(--neutral-400);
     --zone-color: oklch(0% 0 0 / 10%);
@@ -77,7 +77,7 @@
 
 .is-slow-theme {
   @media (prefers-color-scheme: light) {
-    --land-color: var(--sand-200);
+    --land-color: color-mix(in oklab, var(--sand-100), var(--sand-200));
     --card-color: var(--sand-50);
     --hover-color: color-mix(in oklch, var(--sand-50), var(--neutral-50));
   }
