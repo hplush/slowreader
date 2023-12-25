@@ -4,6 +4,21 @@
   "rules": {
     "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"],
     "alpha-value-notation": "percentage",
+    "property-disallowed-list": [
+      [
+        "left",
+        "right",
+        "margin-left",
+        "margin-right",
+        "padding-left",
+        "padding-right",
+        "/^border-left/",
+        "/^border-right/"
+      ],
+      {
+        "message": "Use logical properties for better RTL support"
+      }
+    ],
     "no-descending-specificity": null,
     "color-named": "never"
   },
