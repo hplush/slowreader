@@ -57,6 +57,10 @@
   .radio-field {
     margin-top: var(--padding-l);
     margin-bottom: calc(var(--outer-radius) - var(--padding-l));
+
+    &:not(:has(.radio-field_label)) {
+      margin-top: var(--padding-m);
+    }
   }
 
   .radio-field:first-child {
