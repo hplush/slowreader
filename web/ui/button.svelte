@@ -9,6 +9,7 @@
   export let wide: boolean = false
   export let hotkey: string | undefined = undefined
   export let href: string | undefined = undefined
+  export let secondary = false
 
   let element: HTMLAnchorElement | HTMLButtonElement
 
@@ -43,6 +44,7 @@
   <a
     bind:this={element}
     class="button"
+    class:is-secondary={secondary}
     class:is-wide={wide}
     {href}
     on:click={onClick}
@@ -61,6 +63,7 @@
   <button
     bind:this={element}
     class="button"
+    class:is-secondary={secondary}
     class:is-wide={wide}
     on:click={onClick}
     on:keyup={onKeyUp}
@@ -110,19 +113,35 @@
       width: 100%;
     }
 
-    @media (prefers-color-scheme: light) {
-      &:active {
-        height: calc(var(--control-height) - 2px);
-        padding-top: 1px;
-        margin: 1px 0;
+    &:not(.is-secondary) {
+      @media (prefers-color-scheme: light) {
+        &:active {
+          height: calc(var(--control-height) - 2px);
+          padding-top: 1px;
+          margin: 1px 0;
+        }
+      }
+
+      @media (prefers-color-scheme: dark) {
+        &:active {
+          height: calc(var(--control-height) - 1px);
+          padding-top: 2px;
+          margin-bottom: 1px;
+        }
       }
     }
 
-    @media (prefers-color-scheme: dark) {
+    &.is-secondary {
+      background: var(--secondary-button-color);
+      box-shadow: none;
+
+      &:hover {
+        background: var(--secondary-button-hover-color);
+      }
+
       &:active {
-        height: calc(var(--control-height) - 1px);
-        padding-top: 2px;
-        margin-bottom: 1px;
+        padding-top: 1px;
+        box-shadow: var(--flat-active-shadow);
       }
     }
   }
