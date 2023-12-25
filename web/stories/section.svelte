@@ -11,12 +11,14 @@
   export let hotkeys: boolean = true
   export let pressKey: string | undefined = undefined
 
+  const INTERACTIVE_ELEMENTS = 'button, a, input, select'
+
   let section: HTMLElement
 
   function addClass(option: string | true, cls: string): void {
     let selector: string
     if (option === true) {
-      selector = 'button, a, input'
+      selector = INTERACTIVE_ELEMENTS
     } else {
       selector = option
     }
@@ -33,7 +35,7 @@
     if (blur) {
       let selector: string
       if (blur === true) {
-        selector = 'button, a, input'
+        selector = INTERACTIVE_ELEMENTS
       } else {
         selector = blur
       }

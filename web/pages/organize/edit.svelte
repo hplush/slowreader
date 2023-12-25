@@ -25,6 +25,7 @@
   import UiCard from '../../ui/card.svelte'
   import UiLoader from '../../ui/loader.svelte'
   import UiRadioField from '../../ui/radio-field.svelte'
+  import UiSelectField from '../../ui/select-field.svelte'
   import UiTextField from '../../ui/text-field.svelte'
   import OrganizePosts from './posts.svelte'
 
@@ -34,6 +35,34 @@
   let loadedPosts: PostsPage | undefined = undefined
   let categories = getCategories()
   let dispatch = createEventDispatcher<{ delete: null }>()
+
+  let categoryOptions: [string, string][]
+  categories.subscribe(value => {
+    let options = [['general', $t.generalCategory]] as [string, string][]
+    if (!value.isLoading) {
+      options.push(
+        ...value.list.map(
+          category => [category.id, category.title] as [string, string]
+        )
+      )
+    }
+    options.push(['new', $t.addCategory])
+    categoryOptions = options
+  })
+
+  async function onCategoryChange(e: CustomEvent): Promise<void> {
+    if (e.detail === 'new') {
+      let title = prompt($t.categoryName)
+      if (title) {
+        let categoryId = await addCategory({ title })
+        changeFeed(feedId, { categoryId })
+      }
+    } else if (e.detail === '') {
+      changeFeed(feedId, { categoryId: undefined })
+    } else {
+      changeFeed(feedId, { categoryId: e.detail })
+    }
+  }
 
   $: feed = getFeed(feedId)
   $: filters = getFiltersForFeed(feedId)
@@ -79,33 +108,12 @@
           if (e.detail.valid) changeFeed(feedId, { url: e.detail.value })
         }}
       />
-      <fieldset>
-        <label>
-          {$t.category}
-          <select
-            value={feedCategory($feed.categoryId, $categories)}
-            on:change={async e => {
-              if (e.currentTarget.value === 'new') {
-                let title = prompt($t.categoryName)
-                if (title) {
-                  let categoryId = await addCategory({ title })
-                  changeFeed(feedId, { categoryId })
-                }
-              } else if (e.currentTarget.value === '') {
-                changeFeed(feedId, { categoryId: undefined })
-              } else {
-                changeFeed(feedId, { categoryId: e.currentTarget.value })
-              }
-            }}
-          >
-            <option value="general">{$t.generalCategory}</option>
-            {#each $categories.list as category (category.id)}
-              <option value={category.id}>{category.title}</option>
-            {/each}
-            <option value="new">{$t.addCategory}</option>
-          </select>
-        </label>
-      </fieldset>
+      <UiSelectField
+        current={feedCategory($feed.categoryId, $categories)}
+        label={$t.category}
+        values={categoryOptions}
+        on:change={onCategoryChange}
+      />
       <UiRadioField
         current={$feed.reading}
         hideLabel
@@ -196,7 +204,6 @@
     display: flex;
     gap: var(--padding-m);
     align-items: baseline;
-    margin-bottom: calc(-1 * var(--padding-m));
   }
 
   .organize_filters {
