@@ -112,7 +112,7 @@
     <UiButton secondary>Focus</UiButton>
     <UiButton secondary>Pressed</UiButton>
     <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
-    <UiButton hotkey="f" secondary>Hot Key</UiButton>
+    <UiButton hotkey="l" secondary>Hot Key</UiButton>
   </Section>
 </Story>
 
@@ -154,7 +154,7 @@
       <UiButton secondary>Focus</UiButton>
       <UiButton secondary>Pressed</UiButton>
       <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
-      <UiButton hotkey="f" secondary>Hot Key</UiButton>
+      <UiButton hotkey="l" secondary>Hot Key</UiButton>
     </Section>
   </Scene>
 </Story>
@@ -196,7 +196,7 @@
     <UiButton secondary>Focus</UiButton>
     <UiButton secondary>Pressed</UiButton>
     <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
-    <UiButton hotkey="f" secondary>Hot Key</UiButton>
+    <UiButton hotkey="l" secondary>Hot Key</UiButton>
   </Section>
 </Story>
 
@@ -238,7 +238,7 @@
       <UiButton secondary>Focus</UiButton>
       <UiButton secondary>Pressed</UiButton>
       <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
-      <UiButton hotkey="f" secondary>Hot Key</UiButton>
+      <UiButton hotkey="l" secondary>Hot Key</UiButton>
     </Section>
   </Scene>
 </Story>
