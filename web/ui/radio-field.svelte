@@ -59,11 +59,11 @@
     margin-bottom: calc(var(--outer-radius) - var(--padding-l));
   }
 
-  :global(.card) > .radio:first-child {
+  .radio:first-child {
     margin-top: 0;
   }
 
-  :global(.card) > .radio:last-child {
+  .radio:last-child {
     margin-bottom: 0;
   }
 

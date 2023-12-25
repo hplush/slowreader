@@ -105,10 +105,11 @@
 <style>
   .text-field {
     position: relative;
+    width: 100%;
     margin-top: var(--padding-l);
   }
 
-  :global(.card) > .text-field:first-child {
+  .text-field:first-child {
     margin-top: calc(var(--card-text-fix) - 4px);
   }
 

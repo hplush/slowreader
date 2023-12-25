@@ -84,6 +84,7 @@
     position: relative;
     box-sizing: border-box;
     display: inline-flex;
+    flex-shrink: 0;
     gap: var(--padding-m);
     align-items: center;
     justify-content: center;
@@ -92,6 +93,7 @@
     font-weight: 600;
     color: var(--text-color);
     text-decoration: none;
+    text-wrap: nowrap;
     cursor: pointer;
     user-select: none;
     background: var(--card-color);
