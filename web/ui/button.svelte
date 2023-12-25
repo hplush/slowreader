@@ -137,7 +137,9 @@
       background: var(--secondary-button-color);
       box-shadow: none;
 
-      &:hover {
+      &:hover,
+      &:focus-visible,
+      &:active {
         background: var(--secondary-button-hover-color);
       }
 
