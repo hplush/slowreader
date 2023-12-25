@@ -1,7 +1,7 @@
 import { i18n } from '../../i18n.js'
 
 export const previewMessages = i18n('preview', {
-  add: 'Add',
+  add: 'Subscribe to feed',
   edit: 'Edit',
   invalidUrl: 'URL has an mistake, please check it',
   noResults:
