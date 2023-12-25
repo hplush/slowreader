@@ -22,17 +22,17 @@
 </script>
 
 <fieldset
-  class="radio"
+  class="radio-field"
   aria-label={hideLabel ? label : undefined}
   role="radiogroup"
 >
   {#if !hideLabel}
-    <legend class="radio_label">{label}</legend>
+    <legend class="radio-field_label">{label}</legend>
   {/if}
   {#each values as [value, name] (value)}
     <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
     <label
-      class="radio_value"
+      class="radio-field_value"
       aria-checked={current === value}
       role="radio"
       tabindex={current === value ? 0 : -1}
@@ -40,34 +40,34 @@
       on:keydown={onKeyDown}
     >
       <input
-        class="radio_input"
+        class="radio-field_input"
         checked={current === value}
         tabindex="-1"
         type="radio"
         {value}
         on:input={onInput}
       />
-      <div class="radio_fake"></div>
+      <div class="radio-field_fake"></div>
       {name}
     </label>
   {/each}
 </fieldset>
 
 <style>
-  .radio {
+  .radio-field {
     margin-top: var(--padding-l);
     margin-bottom: calc(var(--outer-radius) - var(--padding-l));
   }
 
-  .radio:first-child {
+  .radio-field:first-child {
     margin-top: 0;
   }
 
-  .radio:last-child {
+  .radio-field:last-child {
     margin-bottom: 0;
   }
 
-  .radio_label {
+  .radio-field_label {
     padding-bottom: var(--padding-l);
     font-weight: bold;
 
@@ -76,7 +76,7 @@
     }
   }
 
-  .radio_value {
+  .radio-field_value {
     position: relative;
     padding-block: var(--padding-l);
     padding-inline: calc(3 * var(--padding-l)) var(--padding-l);
@@ -103,7 +103,7 @@
     }
   }
 
-  :global(.card) > .radio:last-child .radio_value:last-child {
+  :global(.card) > .radio-field:last-child .radio-field_value:last-child {
     margin-bottom: calc(-1 * var(--padding-l));
     border-bottom: none;
     border-radius: 0 0 var(--outer-radius) var(--outer-radius);
@@ -115,8 +115,8 @@
     }
   }
 
-  .radio_value:not(:first-of-type):focus-visible::before,
-  .radio_value:not(:last-of-type):focus-visible::after {
+  .radio-field_value:not(:first-of-type):focus-visible::before,
+  .radio-field_value:not(:last-of-type):focus-visible::after {
     position: absolute;
     inset-inline-end: 0;
     display: flex;
@@ -128,28 +128,28 @@
     color: var(--hotkey-color);
   }
 
-  .radio_value:not(:first-of-type):focus-visible::before {
+  .radio-field_value:not(:first-of-type):focus-visible::before {
     bottom: calc(100% + 1px);
     content: '↑';
   }
 
-  .radio_value:not(:last-of-type):focus-visible::after {
+  .radio-field_value:not(:last-of-type):focus-visible::after {
     top: calc(100% + 1px);
     content: '↓';
   }
 
   :global(.is-hotkey-disabled)
-    .radio_value:not(:first-of-type):focus-visible::before,
+    .radio-field_value:not(:first-of-type):focus-visible::before,
   :global(.is-hotkey-disabled)
-    .radio_value:not(:last-of-type):focus-visible::after {
+    .radio-field_value:not(:last-of-type):focus-visible::after {
     display: none;
   }
 
-  .radio_input {
+  .radio-field_input {
     display: none;
   }
 
-  .radio_fake {
+  .radio-field_fake {
     position: absolute;
     inset-inline-start: var(--padding-l);
     box-sizing: border-box;
@@ -166,11 +166,11 @@
     transition: border 200ms;
   }
 
-  input:checked + .radio_fake {
+  input:checked + .radio-field_fake {
     border-color: var(--text-color);
   }
 
-  .radio_fake::after {
+  .radio-field_fake::after {
     display: block;
     width: 0;
     height: 0;
@@ -182,7 +182,7 @@
       width 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  input:checked + .radio_fake::after {
+  input:checked + .radio-field_fake::after {
     width: var(--padding-m);
     height: var(--padding-m);
   }
