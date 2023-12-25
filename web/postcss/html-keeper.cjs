@@ -22,10 +22,8 @@ module.exports = {
         },
         OnceExit(root) {
           root.raws = {}
-          root.removeAll()
-          for (let child of before.nodes) {
-            root.append(child)
-          }
+          root.nodes = []
+          root.append(before.nodes)
         }
       }
     } else {
