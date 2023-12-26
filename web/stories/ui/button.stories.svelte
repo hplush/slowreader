@@ -89,6 +89,7 @@
         <UiButton secondary>Pressed</UiButton>
         <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
         <UiButton hotkey="h" secondary>Hot Key</UiButton>
+        <UiButton hiddenLabel="Icon" icon={mdiPlusCircleOutline} secondary />
       </UiCardActions>
     </UiCard>
   </Section>
@@ -103,7 +104,7 @@
     <UiButton secondary>Pressed</UiButton>
     <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
     <UiButton hotkey="l" secondary>Hot Key</UiButton>
-    <UiButton href="#" secondary>Link</UiButton>
+    <UiButton hiddenLabel="Icon" icon={mdiPlusCircleOutline} secondary />
   </Section>
   <Section>
     <UiButton
@@ -114,6 +115,13 @@
     >
       Link
     </UiButton>
+    <UiButton
+      hiddenLabel="Labelless"
+      href={getURL('slowAll')}
+      icon={mdiPlusCircleOutline}
+      secondary
+    />
+    <UiButton href="#" secondary>Link</UiButton>
   </Section>
 </Story>
 

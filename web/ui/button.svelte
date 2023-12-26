@@ -10,6 +10,7 @@
   export let hotkey: string | undefined = undefined
   export let href: string | undefined = undefined
   export let secondary = false
+  export let hiddenLabel: string | undefined = undefined
 
   let element: HTMLAnchorElement | HTMLButtonElement
 
@@ -44,9 +45,11 @@
   <a
     bind:this={element}
     class="button"
+    class:is-labelless={hiddenLabel}
     class:is-secondary={secondary}
     class:is-wide={wide}
     {href}
+    title={hiddenLabel}
     on:click={onClick}
     on:keyup={onKeyUp}
     on:keydown={onKeyDown}
@@ -54,7 +57,9 @@
     {#if icon}
       <UiIcon path={icon} />
     {/if}
-    <slot />
+    {#if !hiddenLabel}
+      <slot />
+    {/if}
     {#if hotkey}
       <UiHotkey {hotkey} />
     {/if}
@@ -63,8 +68,10 @@
   <button
     bind:this={element}
     class="button"
+    class:is-labelless={hiddenLabel}
     class:is-secondary={secondary}
     class:is-wide={wide}
+    title={hiddenLabel}
     on:click={onClick}
     on:keyup={onKeyUp}
     on:keydown={onKeyDown}
@@ -72,7 +79,9 @@
     {#if icon}
       <UiIcon path={icon} />
     {/if}
-    <slot />
+    {#if !hiddenLabel}
+      <slot />
+    {/if}
     {#if hotkey}
       <UiHotkey {hotkey} />
     {/if}
@@ -113,6 +122,11 @@
 
     &.is-wide {
       width: 100%;
+    }
+
+    &.is-labelless {
+      width: var(--control-height);
+      padding-inline: 0;
     }
 
     &:not(.is-secondary) {
