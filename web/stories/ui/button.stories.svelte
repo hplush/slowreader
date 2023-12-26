@@ -76,16 +76,6 @@
   <Section hotkeys={false}>
     <UiButton hotkey="p">Hot Key on phone</UiButton>
   </Section>
-  <Section>
-    <UiButton
-      hotkey="l"
-      href={getURL('slowAll')}
-      icon={mdiPlusCircleOutline}
-      wide
-    >
-      Link
-    </UiButton>
-  </Section>
   <Section
     active="button:nth-child(4)"
     focus="button:nth-child(3)"
@@ -113,6 +103,17 @@
     <UiButton secondary>Pressed</UiButton>
     <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
     <UiButton hotkey="l" secondary>Hot Key</UiButton>
+    <UiButton href="#" secondary>Link</UiButton>
+  </Section>
+  <Section>
+    <UiButton
+      hotkey="l"
+      href={getURL('slowAll')}
+      icon={mdiPlusCircleOutline}
+      wide
+    >
+      Link
+    </UiButton>
   </Section>
 </Story>
 
