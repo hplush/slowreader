@@ -8,7 +8,7 @@
 </script>
 
 <script lang="ts">
-  import { mdiPlusCircleOutline } from '@mdi/js'
+  import { mdiPlusCircleOutline, mdiTrashCanOutline } from '@mdi/js'
   import { Story } from '@storybook/addon-svelte-csf'
   import { onMount } from 'svelte'
 
@@ -56,6 +56,7 @@
       <UiButton>Hover</UiButton>
       <UiButton>Pressed</UiButton>
       <UiButton icon={mdiPlusCircleOutline}>Icon</UiButton>
+      <UiButton dangerous icon={mdiTrashCanOutline}>Delete</UiButton>
     </UiCardActions>
   </Section>
   <Section focus="button:first-child">
@@ -88,6 +89,7 @@
         <UiButton>Hover</UiButton>
         <UiButton>Focus</UiButton>
         <UiButton>Pressed</UiButton>
+        <UiButton dangerous icon={mdiTrashCanOutline}>Delete</UiButton>
       </UiCardActions>
     </UiCard>
   </Section>
@@ -105,6 +107,9 @@
         <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
         <UiButton hotkey="h" secondary>Hot Key</UiButton>
         <UiButton hiddenLabel="Icon" icon={mdiPlusCircleOutline} secondary />
+        <UiButton dangerous icon={mdiTrashCanOutline} secondary>
+          Delete
+        </UiButton>
       </UiCardActions>
     </UiCard>
   </Section>
@@ -121,6 +126,7 @@
       <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
       <UiButton hotkey="l" secondary>Hot Key</UiButton>
       <UiButton hiddenLabel="Icon" icon={mdiPlusCircleOutline} secondary />
+      <UiButton dangerous icon={mdiTrashCanOutline} secondary>Delete</UiButton>
     </UiCardActions>
   </Section>
   <Section>
@@ -157,6 +163,7 @@
         <UiButton>Focus</UiButton>
         <UiButton>Pressed</UiButton>
         <UiButton hotkey="k">Hot Key</UiButton>
+        <UiButton dangerous icon={mdiTrashCanOutline}>Delete</UiButton>
       </UiCardActions>
     </Section>
     <Section
@@ -170,6 +177,7 @@
           <UiButton>Hover</UiButton>
           <UiButton>Focus</UiButton>
           <UiButton>Pressed</UiButton>
+          <UiButton dangerous icon={mdiTrashCanOutline}>Delete</UiButton>
         </UiCardActions>
       </UiCard>
     </Section>
@@ -185,6 +193,9 @@
         <UiButton secondary>Pressed</UiButton>
         <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
         <UiButton hotkey="l" secondary>Hot Key</UiButton>
+        <UiButton dangerous icon={mdiTrashCanOutline} secondary>
+          Delete
+        </UiButton>
       </UiCardActions>
     </Section>
     <Section
@@ -200,6 +211,9 @@
           <UiButton secondary>Pressed</UiButton>
           <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
           <UiButton hotkey="h" secondary>Hot Key</UiButton>
+          <UiButton dangerous icon={mdiTrashCanOutline} secondary>
+            Delete
+          </UiButton>
         </UiCardActions>
       </UiCard>
     </Section>
@@ -217,6 +231,7 @@
       <UiButton>Hover</UiButton>
       <UiButton>Focus</UiButton>
       <UiButton>Pressed</UiButton>
+      <UiButton dangerous icon={mdiTrashCanOutline}>Delete</UiButton>
     </UiCardActions>
   </Section>
   <Section
@@ -230,6 +245,7 @@
         <UiButton>Hover</UiButton>
         <UiButton>Focus</UiButton>
         <UiButton>Pressed</UiButton>
+        <UiButton dangerous icon={mdiTrashCanOutline}>Delete</UiButton>
       </UiCardActions>
     </UiCard>
   </Section>
@@ -245,6 +261,7 @@
       <UiButton secondary>Pressed</UiButton>
       <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
       <UiButton hotkey="l" secondary>Hot Key</UiButton>
+      <UiButton dangerous icon={mdiTrashCanOutline} secondary>Delete</UiButton>
     </UiCardActions>
   </Section>
   <Section
@@ -260,6 +277,9 @@
         <UiButton secondary>Pressed</UiButton>
         <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
         <UiButton hotkey="h" secondary>Hot Key</UiButton>
+        <UiButton dangerous icon={mdiTrashCanOutline} secondary>
+          Delete
+        </UiButton>
       </UiCardActions>
     </UiCard>
   </Section>
@@ -278,6 +298,7 @@
         <UiButton>Focus</UiButton>
         <UiButton>Pressed</UiButton>
         <UiButton hotkey="k">Hot Key</UiButton>
+        <UiButton dangerous icon={mdiTrashCanOutline}>Delete</UiButton>
       </UiCardActions>
     </Section>
     <Section
@@ -291,6 +312,7 @@
           <UiButton>Hover</UiButton>
           <UiButton>Focus</UiButton>
           <UiButton>Pressed</UiButton>
+          <UiButton dangerous icon={mdiTrashCanOutline}>Delete</UiButton>
         </UiCardActions>
       </UiCard>
     </Section>
@@ -306,6 +328,9 @@
         <UiButton secondary>Pressed</UiButton>
         <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
         <UiButton hotkey="l" secondary>Hot Key</UiButton>
+        <UiButton dangerous icon={mdiTrashCanOutline} secondary>
+          Delete
+        </UiButton>
       </UiCardActions>
     </Section>
     <Section
@@ -321,6 +346,9 @@
           <UiButton secondary>Pressed</UiButton>
           <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
           <UiButton hotkey="h" secondary>Hot Key</UiButton>
+          <UiButton dangerous icon={mdiTrashCanOutline} secondary>
+            Delete
+          </UiButton>
         </UiCardActions>
       </UiCard>
     </Section>

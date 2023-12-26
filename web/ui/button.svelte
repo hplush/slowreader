@@ -11,6 +11,7 @@
   export let href: string | undefined = undefined
   export let secondary = false
   export let hiddenLabel: string | undefined = undefined
+  export let dangerous = false
 
   let element: HTMLAnchorElement | HTMLButtonElement
 
@@ -45,8 +46,9 @@
   <a
     bind:this={element}
     class="button"
-    class:is-labelless={hiddenLabel}
+    class:is-dangerous={dangerous}
     class:is-secondary={secondary}
+    class:is-square={hiddenLabel}
     class:is-wide={wide}
     {href}
     title={hiddenLabel}
@@ -68,8 +70,9 @@
   <button
     bind:this={element}
     class="button"
-    class:is-labelless={hiddenLabel}
+    class:is-dangerous={dangerous}
     class:is-secondary={secondary}
+    class:is-square={hiddenLabel}
     class:is-wide={wide}
     title={hiddenLabel}
     on:click={onClick}
@@ -121,10 +124,11 @@
     }
 
     &.is-wide {
+      flex-shrink: 1;
       width: 100%;
     }
 
-    &.is-labelless {
+    &.is-square {
       width: var(--control-height);
       padding-inline: 0;
     }
@@ -147,6 +151,17 @@
       }
     }
 
+    &.is-dangerous {
+      color: var(--dangerous-text-color);
+      background: var(--dangerous-card-color);
+
+      &:hover,
+      &:focus-visible,
+      &:active {
+        background: var(--dangerous-card-hover-color);
+      }
+    }
+
     &.is-secondary {
       background: var(--secondary-button-color);
       box-shadow: none;
@@ -160,6 +175,16 @@
       &:active {
         padding-top: 1px;
         box-shadow: var(--flat-active-shadow);
+      }
+
+      &.is-dangerous {
+        background: var(--secondary-dangerous-button-color);
+
+        &:hover,
+        &:focus-visible,
+        &:active {
+          background: var(--secondary-dangerous-button-hover-color);
+        }
       }
     }
   }

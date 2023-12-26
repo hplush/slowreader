@@ -94,6 +94,7 @@
           }}
         />
         <UiButton
+          dangerous
           secondary
           on:click={() => {
             if (confirm($t.deleteConform)) {
@@ -178,6 +179,7 @@
                 }}
               />
               <UiButton
+                dangerous
                 hiddenLabel={$t.deleteFilter}
                 icon={mdiTrashCanOutline}
                 secondary

@@ -14,6 +14,7 @@
     <UiUnderConstruction />
     <UiCardActions>
       <UiButton
+        dangerous
         on:click={() => {
           if (!confirm($t.deleteProfileConfirm)) return
           signOut()

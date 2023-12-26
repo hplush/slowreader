@@ -11,8 +11,8 @@
     --text-color: var(--neutral-950);
     --hotkey-color: var(--neutral-400);
     --zone-color: oklch(0% 0 0 / 10%);
-    --card-color: var(--neutral-50);
     --hover-color: color-mix(in oklch, var(--neutral-50), var(--sand-50));
+    --card-color: var(--neutral-50);
     --card-shadow: 0 1px 5px oklch(from var(--shadow-color) l c h / 8%),
       0 1px 1px oklch(from var(--shadow-color) l c h / 15%);
     --card-item-pressed-shadow:
@@ -21,6 +21,9 @@
       5px 0 0 var(--land-color),
       -5px 0 0 var(--land-color),
       inset 0 1px 2px oklch(from var(--shadow-color) l c h / 20%);
+    --dangerous-card-color: var(--red-100);
+    --dangerous-card-hover-color: color-mix(in oklab, var(--red-100), var(--sand-100));
+    --dangerous-text-color: var(--red-700);
     --button-shadow: inset 0 0 0 1px oklch(0% 0 0 / 15%),
       inset 0 -5px 5px oklch(from var(--shadow-color) l c h / 8%),
       0 0 1px oklch(from var(--shadow-color) l c h / 10%);
@@ -36,7 +39,9 @@
       inset 0 -5px 5px oklch(from var(--shadow-color) l c h / 8%);
     --secondary-button-color: oklch(0% 0 0 / 5%);
     --secondary-button-hover-color: oklch(0% 0 0 / 10%);
-    --flat-hover-color: color-mix(in srgb, var(--hover-color) 40%, transparent);
+    --secondary-dangerous-button-color: oklch(from var(--red-500) l c h / 15%);
+    --secondary-dangerous-button-hover-color: oklch(from var(--red-500) l c h / 20%);
+    --flat-hover-color: oklch(from var(--hover-color) l c h / 40%);
     --flat-active-shadow: inset 0 1px 2px
         oklch(from var(--shadow-color) l c h / 15%),
       0 -1px oklch(0% 0 0 / 20%);
@@ -51,8 +56,8 @@
     --text-color: var(--neutral-50);
     --hotkey-color: var(--neutral-800);
     --zone-color: oklch(100% 0 0 / 10%);
-    --card-color: var(--neutral-900);
     --hover-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));
+    --card-color: var(--neutral-900);
     --card-shadow: 0 1px 2px oklch(0% 0 0), inset 0 1px oklch(100% 0 0 / 10%);
     --card-item-pressed-shadow:
       inset -2px 0 0 var(--land-color),
@@ -60,6 +65,9 @@
       5px 0 0 var(--land-color),
       -5px 0 0 var(--land-color),
       inset 0 1px 2px oklch(0% 0 0);
+    --dangerous-card-color: var(--red-900);
+    --dangerous-card-hover-color: color-mix(in oklab, var(--red-900), var(--red-800));
+    --dangerous-text-color: var(--red-200);
     --button-shadow: inset 0 0 0 1px oklch(100% 0 0 / 8%),
       inset 0 -5px 5px oklch(0% 0 0 / 20%), 0 1px 1px oklch(0% 0 0);
     --button-active-shadow: inset 0 0 1px oklch(100% 0 0 / 30%),
@@ -70,7 +78,9 @@
       0 1px oklch(100% 0 0 / 20%), inset 0 -5px 5px oklch(0% 0 0 / 20%);
     --secondary-button-color: oklch(100% 0 0 / 10%);
     --secondary-button-hover-color: oklch(100% 0 0 / 15%);
-    --flat-hover-color: color-mix(in srgb, var(--hover-color) 30%, transparent);
+    --secondary-dangerous-button-color: oklch(from var(--red-500) l c h / 15%);
+    --secondary-dangerous-button-hover-color: oklch(from var(--red-500) l c h / 20%);
+    --flat-hover-color: oklch(from var(--hover-color) l c h / 30%);
     --flat-active-shadow: inset 0 1px 2px oklch(0% 0 0 / 80%),
       inset 0 -1px oklch(100% 0 0 / 10%);
     --field-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));
