@@ -74,4 +74,16 @@
       ]}
     />
   </Section>
+  <Section hover width={200}>
+    <UiSelectField
+      current="2"
+      hideLabel
+      label="Label"
+      values={[
+        ['1', 'First'],
+        ['2', 'Second'],
+        ['3', 'Third']
+      ]}
+    />
+  </Section>
 </Story>

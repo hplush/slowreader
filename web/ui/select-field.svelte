@@ -8,6 +8,7 @@
   export let label: string
   export let values: [Value, string][]
   export let current: Value
+  export let hideLabel = false
 
   let id = nanoid()
   let dispatch = createEventDispatcher<{ change: Value }>()
@@ -24,11 +25,18 @@
 </script>
 
 <label class="select-field">
-  <label for={id}>{label}</label>
+  {#if !hideLabel}
+    <label for={id}>{label}</label>
+  {/if}
   <div class="select-field_fake">
     <div class="select-field_text">{currentName}</div>
     <UiIcon path={mdiChevronDown} />
-    <select {id} class="select-field_select" on:change={onChange}>
+    <select
+      {id}
+      class="select-field_select"
+      aria-label={hideLabel ? label : null}
+      on:change={onChange}
+    >
       {#each values as [value, name] (value)}
         <option selected={current === value} {value}>{name}</option>
       {/each}
