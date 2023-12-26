@@ -54,7 +54,7 @@
   @media (prefers-color-scheme: dark) {
     --land-color: var(--neutral-950);
     --text-color: var(--neutral-50);
-    --hotkey-color: var(--neutral-800);
+    --hotkey-color: var(--neutral-700);
     --zone-color: oklch(100% 0 0 / 10%);
     --hover-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));
     --card-color: var(--neutral-900);
@@ -76,10 +76,10 @@
     --button-pressed-shadow: inset 0 0 1px oklch(100% 0 0 / 30%),
       inset 0 1px 1px oklch(0% 0 0 / 50%), inset 0 1px 4px oklch(0% 0 0 / 50%),
       0 1px oklch(100% 0 0 / 20%), inset 0 -5px 5px oklch(0% 0 0 / 20%);
-    --secondary-button-color: oklch(100% 0 0 / 10%);
-    --secondary-button-hover-color: oklch(100% 0 0 / 15%);
-    --secondary-dangerous-button-color: oklch(from var(--red-500) l c h / 15%);
-    --secondary-dangerous-button-hover-color: oklch(from var(--red-500) l c h / 20%);
+    --secondary-button-color: oklch(100% 0 0 / 7%);
+    --secondary-button-hover-color: oklch(100% 0 0 / 12%);
+    --secondary-dangerous-button-color: oklch(from var(--red-500) l c h / 10%);
+    --secondary-dangerous-button-hover-color: oklch(from var(--red-500) l c h / 15%);
     --flat-hover-color: oklch(from var(--hover-color) l c h / 30%);
     --flat-active-shadow: inset 0 1px 2px oklch(0% 0 0 / 80%),
       inset 0 -1px oklch(100% 0 0 / 10%);
