@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { mdiFilterPlusOutline } from '@mdi/js'
+  import {
+    mdiArrowDownBoldOutline,
+    mdiArrowUpBoldOutline,
+    mdiFilterPlusOutline,
+    mdiTrashCanOutline
+  } from '@mdi/js'
   import {
     addCategory,
     addFilterForFeed,
@@ -131,62 +136,74 @@
         {#if !$filters.isEmpty}
           <ol>
             {#each sortFilters($filters.list) as filter (filter.id)}
-              <li>
-                <input
-                  title={$t.filterQuery}
+              <li class="organize_filter">
+                <UiTextField
+                  error={!isValidFilterQuery(filter.query)
+                    ? $t.invalidFilter
+                    : undefined}
+                  hideLabel
+                  label={$t.filterQuery}
                   value={filter.query}
                   on:change={e => {
-                    changeFilter(filter.id, { query: e.currentTarget.value })
+                    if (e.detail.valid) {
+                      changeFilter(filter.id, { query: e.detail.value })
+                    }
                   }}
                 />
-                {#if !isValidFilterQuery(filter.query)}
-                  {$t.invalidFilter}
-                {/if}
-                <select
-                  title={$t.filterAction}
-                  bind:value={filter.action}
-                  on:change={() => {
-                    changeFilter(filter.id, { action: filter.action })
+                <UiSelectField
+                  current={filter.action}
+                  hideLabel
+                  label={$t.filterAction}
+                  values={[
+                    ['slow', $t.filterActionSlow],
+                    ['fast', $t.filterActionFast],
+                    ['delete', $t.filterActionDelete]
+                  ]}
+                  on:change={e => {
+                    changeFilter(filter.id, { action: e.detail })
                   }}
-                >
-                  <option value="slow">{$t.filterActionSlow}</option>
-                  <option value="fast">{$t.filterActionFast}</option>
-                  <option value="delete">{$t.filterActionDelete}</option>
-                </select>
-                <button
-                  type="button"
+                />
+                <UiButton
+                  hiddenLabel={$t.moveFilterUp}
+                  icon={mdiArrowUpBoldOutline}
+                  secondary
                   on:click={() => {
                     moveFilterUp(filter.id)
-                  }}>{$t.moveFilterUp}</button
-                >
-                <button
-                  type="button"
+                  }}
+                />
+                <UiButton
+                  hiddenLabel={$t.moveFilterDown}
+                  icon={mdiArrowDownBoldOutline}
+                  secondary
                   on:click={() => {
                     moveFilterDown(filter.id)
-                  }}>{$t.moveFilterDown}</button
-                >
-                <button
-                  type="button"
+                  }}
+                />
+                <UiButton
+                  hiddenLabel={$t.deleteFilter}
+                  icon={mdiTrashCanOutline}
+                  secondary
                   on:click={() => {
                     deleteFilter(filter.id)
-                  }}>{$t.deleteFilter}</button
-                >
+                  }}
+                />
               </li>
             {/each}
           </ol>
         {/if}
       </div>
-
-      <UiButton
-        icon={mdiFilterPlusOutline}
-        secondary
-        wide
-        on:click={() => {
-          if (!$feed.isLoading) addFilterForFeed($feed)
-        }}
-      >
-        {$t.addFilter}
-      </UiButton>
+      <div class="organize_add-filter">
+        <UiButton
+          icon={mdiFilterPlusOutline}
+          secondary
+          wide
+          on:click={() => {
+            if (!$feed.isLoading) addFilterForFeed($feed)
+          }}
+        >
+          {$t.addFilter}
+        </UiButton>
+      </div>
     </UiCard>
   </form>
 
@@ -206,7 +223,13 @@
     align-items: baseline;
   }
 
-  .organize_filters {
+  .organize_filter {
+    display: flex;
+    gap: 4px;
+    align-items: baseline;
+  }
+
+  .organize_add-filter {
     margin-top: var(--padding-l);
   }
 </style>
