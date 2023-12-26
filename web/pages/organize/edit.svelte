@@ -131,67 +131,64 @@
           changeFeed(feedId, { reading: e.detail })
         }}
       />
-
-      <div class="organize_filters">
-        {#if !$filters.isEmpty}
-          <ol>
-            {#each sortFilters($filters.list) as filter (filter.id)}
-              <li class="organize_filter">
-                <UiTextField
-                  error={!isValidFilterQuery(filter.query)
-                    ? $t.invalidFilter
-                    : undefined}
-                  hideLabel
-                  label={$t.filterQuery}
-                  value={filter.query}
-                  on:change={e => {
-                    if (e.detail.valid) {
-                      changeFilter(filter.id, { query: e.detail.value })
-                    }
-                  }}
-                />
-                <UiSelectField
-                  current={filter.action}
-                  hideLabel
-                  label={$t.filterAction}
-                  values={[
-                    ['slow', $t.filterActionSlow],
-                    ['fast', $t.filterActionFast],
-                    ['delete', $t.filterActionDelete]
-                  ]}
-                  on:change={e => {
-                    changeFilter(filter.id, { action: e.detail })
-                  }}
-                />
-                <UiButton
-                  hiddenLabel={$t.moveFilterUp}
-                  icon={mdiArrowUpBoldOutline}
-                  secondary
-                  on:click={() => {
-                    moveFilterUp(filter.id)
-                  }}
-                />
-                <UiButton
-                  hiddenLabel={$t.moveFilterDown}
-                  icon={mdiArrowDownBoldOutline}
-                  secondary
-                  on:click={() => {
-                    moveFilterDown(filter.id)
-                  }}
-                />
-                <UiButton
-                  hiddenLabel={$t.deleteFilter}
-                  icon={mdiTrashCanOutline}
-                  secondary
-                  on:click={() => {
-                    deleteFilter(filter.id)
-                  }}
-                />
-              </li>
-            {/each}
-          </ol>
-        {/if}
-      </div>
+      {#if !$filters.isEmpty}
+        <ol>
+          {#each sortFilters($filters.list) as filter (filter.id)}
+            <li class="organize_filter">
+              <UiTextField
+                error={!isValidFilterQuery(filter.query)
+                  ? $t.invalidFilter
+                  : undefined}
+                hideLabel
+                label={$t.filterQuery}
+                value={filter.query}
+                on:change={e => {
+                  if (e.detail.valid) {
+                    changeFilter(filter.id, { query: e.detail.value })
+                  }
+                }}
+              />
+              <UiSelectField
+                current={filter.action}
+                hideLabel
+                label={$t.filterAction}
+                values={[
+                  ['slow', $t.filterActionSlow],
+                  ['fast', $t.filterActionFast],
+                  ['delete', $t.filterActionDelete]
+                ]}
+                on:change={e => {
+                  changeFilter(filter.id, { action: e.detail })
+                }}
+              />
+              <UiButton
+                hiddenLabel={$t.moveFilterUp}
+                icon={mdiArrowUpBoldOutline}
+                secondary
+                on:click={() => {
+                  moveFilterUp(filter.id)
+                }}
+              />
+              <UiButton
+                hiddenLabel={$t.moveFilterDown}
+                icon={mdiArrowDownBoldOutline}
+                secondary
+                on:click={() => {
+                  moveFilterDown(filter.id)
+                }}
+              />
+              <UiButton
+                hiddenLabel={$t.deleteFilter}
+                icon={mdiTrashCanOutline}
+                secondary
+                on:click={() => {
+                  deleteFilter(filter.id)
+                }}
+              />
+            </li>
+          {/each}
+        </ol>
+      {/if}
       <div class="organize_add-filter">
         <UiButton
           icon={mdiFilterPlusOutline}
