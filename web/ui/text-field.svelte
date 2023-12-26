@@ -107,10 +107,6 @@
     position: relative;
     width: 100%;
     margin-top: var(--padding-l);
-
-    &:not(:has(.text-field_label)) {
-      margin-top: var(--padding-m);
-    }
   }
 
   .text-field:first-child {
@@ -127,7 +123,6 @@
     width: 100%;
     height: var(--control-height);
     padding: 0 var(--padding-m);
-    margin-top: var(--padding-m);
     background-color: var(--field-color);
     border: 1px solid var(--field-border-color);
     border-radius: var(--inner-radius);
@@ -142,10 +137,6 @@
       outline: 3px solid oklch(from var(--focus-color) l c h / 50%);
       outline-offset: 0;
     }
-  }
-
-  .text-field_label + .text-field_input {
-    margin-top: 0;
   }
 
   .text-field_error {

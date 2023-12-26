@@ -50,8 +50,7 @@
     gap: var(--padding-m);
     align-items: center;
     justify-content: space-between;
-    padding-block: var(--padding-m);
-    margin-top: var(--padding-m);
+    margin-top: var(--padding-l);
 
     &:first-child {
       margin-top: 0;
