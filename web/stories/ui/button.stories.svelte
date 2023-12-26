@@ -45,24 +45,25 @@
     <UiButton
       on:click={() => {
         clicks += 1
-      }}>Base</UiButton
+      }}
     >
+      Base
+    </UiButton>
     <div class="counter">{clicks}</div>
   </Section>
-  <Section>
-    <UiCard>
-      <UiCardActions><UiButton>Inside card</UiButton></UiCardActions>
-    </UiCard>
+  <Section active="button:nth-child(2)" hover="button:nth-child(1)">
+    <UiCardActions>
+      <UiButton>Hover</UiButton>
+      <UiButton>Pressed</UiButton>
+      <UiButton icon={mdiPlusCircleOutline}>Icon</UiButton>
+    </UiCardActions>
   </Section>
-  <Section hover><UiButton>Hover</UiButton></Section>
   <Section focus="button:first-child">
     <div bind:this={focus} class="buttons">
       <UiButton>Focus</UiButton>
       <UiButton>Animation</UiButton>
     </div>
   </Section>
-  <Section active><UiButton>Pressed</UiButton></Section>
-  <Section><UiButton icon={mdiPlusCircleOutline}>Icon</UiButton></Section>
   <Section><UiButton wide>Wide</UiButton></Section>
   <Section>
     <UiButton
@@ -75,6 +76,20 @@
   </Section>
   <Section hotkeys={false}>
     <UiButton hotkey="p">Hot Key on phone</UiButton>
+  </Section>
+  <Section
+    active="button:nth-child(4)"
+    focus="button:nth-child(3)"
+    hover="button:nth-child(2)"
+  >
+    <UiCard>
+      <UiCardActions>
+        <UiButton>In card</UiButton>
+        <UiButton>Hover</UiButton>
+        <UiButton>Focus</UiButton>
+        <UiButton>Pressed</UiButton>
+      </UiCardActions>
+    </UiCard>
   </Section>
   <Section
     active="button:nth-child(4)"
@@ -98,45 +113,80 @@
     focus="button:nth-child(3)"
     hover="button:nth-child(2)"
   >
-    <UiButton secondary>Secondary</UiButton>
-    <UiButton secondary>Hover</UiButton>
-    <UiButton secondary>Focus</UiButton>
-    <UiButton secondary>Pressed</UiButton>
-    <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
-    <UiButton hotkey="l" secondary>Hot Key</UiButton>
-    <UiButton hiddenLabel="Icon" icon={mdiPlusCircleOutline} secondary />
+    <UiCardActions>
+      <UiButton secondary>Secondary</UiButton>
+      <UiButton secondary>Hover</UiButton>
+      <UiButton secondary>Focus</UiButton>
+      <UiButton secondary>Pressed</UiButton>
+      <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
+      <UiButton hotkey="l" secondary>Hot Key</UiButton>
+      <UiButton hiddenLabel="Icon" icon={mdiPlusCircleOutline} secondary />
+    </UiCardActions>
   </Section>
   <Section>
-    <UiButton
-      hotkey="l"
-      href={getURL('slowAll')}
-      icon={mdiPlusCircleOutline}
-      wide
-    >
-      Link
-    </UiButton>
-    <UiButton
-      hiddenLabel="Labelless"
-      href={getURL('slowAll')}
-      icon={mdiPlusCircleOutline}
-      secondary
-    />
-    <UiButton href="#" secondary>Link</UiButton>
+    <UiCardActions>
+      <UiButton href="#" secondary>Link</UiButton>
+      <UiButton
+        hiddenLabel="Labelless"
+        href={getURL('slowAll')}
+        icon={mdiPlusCircleOutline}
+        secondary
+      />
+      <UiButton
+        hotkey="l"
+        href={getURL('slowAll')}
+        icon={mdiPlusCircleOutline}
+        wide
+      >
+        Link
+      </UiButton>
+    </UiCardActions>
   </Section>
 </Story>
 
 <Story name="Slow" parameters={{ themes: { themeOverride: 'light' } }}>
   <Scene slow>
-    <Section><UiButton>Base</UiButton></Section>
-    <Section>
+    <Section
+      active="button:nth-child(4)"
+      focus="button:nth-child(3)"
+      hover="button:nth-child(2)"
+    >
+      <UiCardActions>
+        <UiButton>Base</UiButton>
+        <UiButton>Hover</UiButton>
+        <UiButton>Focus</UiButton>
+        <UiButton>Pressed</UiButton>
+        <UiButton hotkey="k">Hot Key</UiButton>
+      </UiCardActions>
+    </Section>
+    <Section
+      active="button:nth-child(4)"
+      focus="button:nth-child(3)"
+      hover="button:nth-child(2)"
+    >
       <UiCard>
-        <UiCardActions><UiButton>Inside card</UiButton></UiCardActions>
+        <UiCardActions>
+          <UiButton>In card</UiButton>
+          <UiButton>Hover</UiButton>
+          <UiButton>Focus</UiButton>
+          <UiButton>Pressed</UiButton>
+        </UiCardActions>
       </UiCard>
     </Section>
-    <Section hover><UiButton>Hover</UiButton></Section>
-    <Section focus><UiButton>Focus</UiButton></Section>
-    <Section active><UiButton>Pressed</UiButton></Section>
-    <Section><UiButton hotkey="k">Hot Key</UiButton></Section>
+    <Section
+      active="button:nth-child(4)"
+      focus="button:nth-child(3)"
+      hover="button:nth-child(2)"
+    >
+      <UiCardActions>
+        <UiButton secondary>Secondary</UiButton>
+        <UiButton secondary>Hover</UiButton>
+        <UiButton secondary>Focus</UiButton>
+        <UiButton secondary>Pressed</UiButton>
+        <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
+        <UiButton hotkey="l" secondary>Hot Key</UiButton>
+      </UiCardActions>
+    </Section>
     <Section
       active="button:nth-child(4)"
       focus="button:nth-child(3)"
@@ -153,32 +203,50 @@
         </UiCardActions>
       </UiCard>
     </Section>
-    <Section
-      active="button:nth-child(4)"
-      focus="button:nth-child(3)"
-      hover="button:nth-child(2)"
-    >
+  </Scene>
+</Story>
+
+<Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
+  <Section
+    active="button:nth-child(4)"
+    focus="button:nth-child(3)"
+    hover="button:nth-child(2)"
+  >
+    <UiCardActions>
+      <UiButton>Base</UiButton>
+      <UiButton>Hover</UiButton>
+      <UiButton>Focus</UiButton>
+      <UiButton>Pressed</UiButton>
+    </UiCardActions>
+  </Section>
+  <Section
+    active="button:nth-child(4)"
+    focus="button:nth-child(3)"
+    hover="button:nth-child(2)"
+  >
+    <UiCard>
+      <UiCardActions>
+        <UiButton>In card</UiButton>
+        <UiButton>Hover</UiButton>
+        <UiButton>Focus</UiButton>
+        <UiButton>Pressed</UiButton>
+      </UiCardActions>
+    </UiCard>
+  </Section>
+  <Section
+    active="button:nth-child(4)"
+    focus="button:nth-child(3)"
+    hover="button:nth-child(2)"
+  >
+    <UiCardActions>
       <UiButton secondary>Secondary</UiButton>
       <UiButton secondary>Hover</UiButton>
       <UiButton secondary>Focus</UiButton>
       <UiButton secondary>Pressed</UiButton>
       <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
       <UiButton hotkey="l" secondary>Hot Key</UiButton>
-    </Section>
-  </Scene>
-</Story>
-
-<Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
-  <Section><UiButton>Base</UiButton></Section>
-  <Section>
-    <UiCard>
-      <UiCardActions><UiButton>Inside card</UiButton></UiCardActions>
-    </UiCard>
+    </UiCardActions>
   </Section>
-  <Section hover><UiButton>Hover</UiButton></Section>
-  <Section focus><UiButton>Focus</UiButton></Section>
-  <Section active><UiButton>Pressed</UiButton></Section>
-  <Section><UiButton hotkey="k">Hot Key</UiButton></Section>
   <Section
     active="button:nth-child(4)"
     focus="button:nth-child(3)"
@@ -195,32 +263,51 @@
       </UiCardActions>
     </UiCard>
   </Section>
-  <Section
-    active="button:nth-child(4)"
-    focus="button:nth-child(3)"
-    hover="button:nth-child(2)"
-  >
-    <UiButton secondary>Secondary</UiButton>
-    <UiButton secondary>Hover</UiButton>
-    <UiButton secondary>Focus</UiButton>
-    <UiButton secondary>Pressed</UiButton>
-    <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
-    <UiButton hotkey="l" secondary>Hot Key</UiButton>
-  </Section>
 </Story>
 
 <Story name="Dark Slow" parameters={{ themes: { themeOverride: 'dark' } }}>
   <Scene slow>
-    <Section><UiButton>Base</UiButton></Section>
-    <Section>
+    <Section
+      active="button:nth-child(4)"
+      focus="button:nth-child(3)"
+      hover="button:nth-child(2)"
+    >
+      <UiCardActions>
+        <UiButton>Base</UiButton>
+        <UiButton>Hover</UiButton>
+        <UiButton>Focus</UiButton>
+        <UiButton>Pressed</UiButton>
+        <UiButton hotkey="k">Hot Key</UiButton>
+      </UiCardActions>
+    </Section>
+    <Section
+      active="button:nth-child(4)"
+      focus="button:nth-child(3)"
+      hover="button:nth-child(2)"
+    >
       <UiCard>
-        <UiCardActions><UiButton>Inside card</UiButton></UiCardActions>
+        <UiCardActions>
+          <UiButton>In card</UiButton>
+          <UiButton>Hover</UiButton>
+          <UiButton>Focus</UiButton>
+          <UiButton>Pressed</UiButton>
+        </UiCardActions>
       </UiCard>
     </Section>
-    <Section hover><UiButton>Hover</UiButton></Section>
-    <Section focus><UiButton>Focus</UiButton></Section>
-    <Section active><UiButton>Pressed</UiButton></Section>
-    <Section><UiButton hotkey="k">Hot Key</UiButton></Section>
+    <Section
+      active="button:nth-child(4)"
+      focus="button:nth-child(3)"
+      hover="button:nth-child(2)"
+    >
+      <UiCardActions>
+        <UiButton secondary>Secondary</UiButton>
+        <UiButton secondary>Hover</UiButton>
+        <UiButton secondary>Focus</UiButton>
+        <UiButton secondary>Pressed</UiButton>
+        <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
+        <UiButton hotkey="l" secondary>Hot Key</UiButton>
+      </UiCardActions>
+    </Section>
     <Section
       active="button:nth-child(4)"
       focus="button:nth-child(3)"
@@ -236,18 +323,6 @@
           <UiButton hotkey="h" secondary>Hot Key</UiButton>
         </UiCardActions>
       </UiCard>
-    </Section>
-    <Section
-      active="button:nth-child(4)"
-      focus="button:nth-child(3)"
-      hover="button:nth-child(2)"
-    >
-      <UiButton secondary>Secondary</UiButton>
-      <UiButton secondary>Hover</UiButton>
-      <UiButton secondary>Focus</UiButton>
-      <UiButton secondary>Pressed</UiButton>
-      <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
-      <UiButton hotkey="l" secondary>Hot Key</UiButton>
     </Section>
   </Scene>
 </Story>
