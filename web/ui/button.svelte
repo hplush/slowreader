@@ -50,6 +50,7 @@
     class:is-secondary={secondary}
     class:is-square={hiddenLabel}
     class:is-wide={wide}
+    aria-keyshortcuts={hotkey}
     {href}
     title={hiddenLabel}
     on:click={onClick}
@@ -74,6 +75,7 @@
     class:is-secondary={secondary}
     class:is-square={hiddenLabel}
     class:is-wide={wide}
+    aria-keyshortcuts={hotkey}
     title={hiddenLabel}
     on:click={onClick}
     on:keyup={onKeyUp}

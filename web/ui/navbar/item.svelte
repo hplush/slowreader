@@ -40,6 +40,7 @@
     class:is-secondary={secondary}
     aria-current={current ? 'page' : null}
     aria-haspopup={submenu ? 'menu' : null}
+    aria-keyshortcuts={hotkey}
     {href}
     role={submenu ? 'mentem' : null}
     tabindex={secondary ? -1 : null}
@@ -60,6 +61,7 @@
     class:is-secondary={secondary}
     aria-current={current ? 'page' : null}
     aria-haspopup={submenu ? 'menu' : null}
+    aria-keyshortcuts={hotkey}
     tabindex={secondary ? -1 : null}
     on:click={onClick}
   >

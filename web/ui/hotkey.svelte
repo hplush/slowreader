@@ -2,7 +2,7 @@
   export let hotkey: string
 </script>
 
-<kbd class="hotkey">
+<kbd class="hotkey" aria-hidden="true">
   <div class="hotkey_float">{hotkey}</div>
 </kbd>
 
