@@ -9,7 +9,7 @@
   export let feedId: string
 
   function onDelete(): void {
-    openURL('feeds')
+    openURL('categories')
   }
 </script>
 

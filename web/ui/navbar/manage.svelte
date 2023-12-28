@@ -18,8 +18,9 @@
 
 {#if $hasFeeds}
   <NavbarItem
-    current={$router.route === 'feeds' || $router.route === 'feed'}
-    href={getURL('feeds')}
+    current={$router.route === 'categories' ||
+      $router.route === 'categoriesFeed'}
+    href={getURL('categories')}
     icon={mdiFileTree}
     secondary
   >

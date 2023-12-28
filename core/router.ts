@@ -7,9 +7,10 @@ import { userId } from './settings.js'
 export interface Routes {
   about: {}
   add: {}
+  categories: {}
+  categoriesFeed: { id: string }
   download: {}
   fast: {}
-  feed: { id: string }
   feeds: {}
   home: {}
   interface: {}
@@ -46,7 +47,12 @@ const SETTINGS = new Set<AppRoute['route']>([
   'download'
 ])
 
-const MANAGE = new Set<AppRoute['route']>(['add', 'preview', 'feeds', 'feed'])
+const MANAGE = new Set<AppRoute['route']>([
+  'add',
+  'preview',
+  'categories',
+  'categoriesFeed'
+])
 
 function redirect<Name extends keyof Routes>(
   route: Name,
@@ -82,6 +88,8 @@ function getRoute(
       return redirect('slowAll', {})
     } else if (page.route === 'settings') {
       return redirect('interface', {})
+    } else if (page.route === 'feeds') {
+      return redirect('categories', {})
     }
   } else if (!GUEST.has(page.route)) {
     return open('start', {})

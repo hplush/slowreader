@@ -25,9 +25,9 @@
     <Start />
   {:else if $router.route === 'preview' || $router.route === 'add'}
     <Preview url={$router.route === 'preview' ? $router.params.url : ''} />
-  {:else if $router.route === 'feeds'}
+  {:else if $router.route === 'categories'}
     <Organize />
-  {:else if $router.route === 'feed'}
+  {:else if $router.route === 'categoriesFeed'}
     <OrganizeFeed feedId={$router.params.id} />
   {:else if $router.route === 'interface'}
     <Interface />

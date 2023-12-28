@@ -46,7 +46,9 @@
             {#if currentFeed === feed.id}
               <strong>{feed.title}</strong>
             {:else}
-              <a href={getURL('feed', { id: feed.id })}>{feed.title}</a>
+              <a href={getURL('categoriesFeed', { id: feed.id })}>
+                {feed.title}
+              </a>
             {/if}
           </li>
         {/each}
