@@ -1,9 +1,9 @@
 <script context="module" lang="ts">
-  import InterfacePage from '../../pages/interface.svelte'
+  import SettingsInterface from '../../../pages/settings/interface.svelte'
 
   export const meta = {
-    component: InterfacePage,
-    title: 'Pages/Interface'
+    component: SettingsInterface,
+    title: 'Pages/Settings/Interface'
   }
 </script>
 
@@ -12,5 +12,5 @@
 </script>
 
 <Story name="Base" parameters={{ layout: 'fullscreen' }}>
-  <InterfacePage />
+  <SettingsInterface />
 </Story>

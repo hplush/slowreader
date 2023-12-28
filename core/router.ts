@@ -47,7 +47,7 @@ const SETTINGS = new Set<AppRoute['route']>([
   'download'
 ])
 
-const MANAGE = new Set<AppRoute['route']>([
+const ORGANIZE = new Set<AppRoute['route']>([
   'add',
   'preview',
   'categories',
@@ -121,6 +121,6 @@ export function isSettingsRoute(route: AppRoute): boolean {
   return SETTINGS.has(route.route)
 }
 
-export function isManageRoute(route: AppRoute): boolean {
-  return MANAGE.has(route.route)
+export function isOrganizeRoute(route: AppRoute): boolean {
+  return ORGANIZE.has(route.route)
 }

@@ -32,7 +32,7 @@
   import RadioField from '../../ui/radio-field.svelte'
   import SelectField from '../../ui/select-field.svelte'
   import TextField from '../../ui/text-field.svelte'
-  import OrganizePosts from './posts.svelte'
+  import FeedsPosts from './posts.svelte'
 
   export let feedId: string
   export let posts: PostsPage | undefined = undefined
@@ -83,7 +83,7 @@
 {:else}
   <form on:submit|preventDefault>
     <Card>
-      <div class="organize_top">
+      <div class="feeds-edit_top">
         <TextField
           hideLabel
           label={$t.name}
@@ -135,7 +135,7 @@
       {#if !$filters.isEmpty}
         <ol>
           {#each sortFilters($filters.list) as filter (filter.id)}
-            <li class="organize_filter">
+            <li class="feeds-edit_filter">
               <TextField
                 error={!isValidFilterQuery(filter.query)
                   ? $t.invalidFilter
@@ -191,7 +191,7 @@
           {/each}
         </ol>
       {/if}
-      <div class="organize_add-filter">
+      <div class="feeds-edit_add-filter">
         <Button
           icon={mdiFilterPlusOutline}
           secondary
@@ -207,7 +207,7 @@
   </form>
 
   {#if loadedPosts}
-    <OrganizePosts
+    <FeedsPosts
       defaultReading={$feed.reading}
       filters={$filters.list}
       posts={loadedPosts}
@@ -216,19 +216,19 @@
 {/if}
 
 <style>
-  .organize_top {
+  .feeds-edit_top {
     display: flex;
     gap: var(--padding-m);
     align-items: baseline;
   }
 
-  .organize_filter {
+  .feeds-edit_filter {
     display: flex;
     gap: 4px;
     align-items: baseline;
   }
 
-  .organize_add-filter {
+  .feeds-edit_add-filter {
     margin-top: var(--padding-l);
   }
 </style>

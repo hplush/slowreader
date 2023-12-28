@@ -6,6 +6,7 @@ import {
   deleteFeed,
   isFastRoute,
   isGuestRoute,
+  isOrganizeRoute,
   isSettingsRoute,
   isSlowRoute,
   router,
@@ -149,29 +150,41 @@ test('has routes groups', () => {
   equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), true)
   equal(isSettingsRoute(router.get()), false)
+  equal(isOrganizeRoute(router.get()), false)
 
   userId.set('10')
-  setBaseRoute({ params: {}, route: 'add' })
+  setBaseRoute({ params: {}, route: 'refresh' })
   equal(isFastRoute(router.get()), false)
   equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), false)
   equal(isSettingsRoute(router.get()), false)
+  equal(isOrganizeRoute(router.get()), false)
 
   setBaseRoute({ params: {}, route: 'slowAll' })
   equal(isFastRoute(router.get()), false)
   equal(isSlowRoute(router.get()), true)
   equal(isGuestRoute(router.get()), false)
   equal(isSettingsRoute(router.get()), false)
+  equal(isOrganizeRoute(router.get()), false)
 
   setBaseRoute({ params: {}, route: 'fast' })
   equal(isFastRoute(router.get()), true)
   equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), false)
   equal(isSettingsRoute(router.get()), false)
+  equal(isOrganizeRoute(router.get()), false)
 
   setBaseRoute({ params: {}, route: 'profile' })
   equal(isFastRoute(router.get()), false)
   equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), false)
   equal(isSettingsRoute(router.get()), true)
+  equal(isOrganizeRoute(router.get()), false)
+
+  setBaseRoute({ params: {}, route: 'categories' })
+  equal(isFastRoute(router.get()), false)
+  equal(isSlowRoute(router.get()), false)
+  equal(isGuestRoute(router.get()), false)
+  equal(isSettingsRoute(router.get()), false)
+  equal(isOrganizeRoute(router.get()), true)
 })

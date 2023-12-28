@@ -4,9 +4,9 @@
   import type { StoreValue } from 'nanostores'
   import { onMount } from 'svelte'
 
-  import Card from '../ui/card.svelte'
-  import Page from '../ui/page.svelte'
-  import RadioField from '../ui/radio-field.svelte'
+  import Card from '../../ui/card.svelte'
+  import Page from '../../ui/page.svelte'
+  import RadioField from '../../ui/radio-field.svelte'
 
   let preloadOptions: [StoreValue<typeof preloadImages>, string][] = [
     ['always', $t.always],

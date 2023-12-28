@@ -1,16 +1,16 @@
 <script context="module" lang="ts">
-  import PreviewPage from '../../pages/preview.svelte'
+  import FeedsPreview from '../../../pages/feeds/preview.svelte'
 
   export const meta = {
-    component: PreviewPage,
-    title: 'Pages/Preview'
+    component: FeedsPreview,
+    title: 'Pages/Feeds/Preview'
   }
 </script>
 
 <script lang="ts">
   import { Story } from '@storybook/addon-svelte-csf'
 
-  import Scene from '../scene.svelte'
+  import Scene from '../../scene.svelte'
 
   const HTML_WITH_LINKS = `
     <html>
@@ -69,25 +69,25 @@
 
 <Story name="Empty" parameters={{ layout: 'fullscreen' }}>
   <Scene>
-    <PreviewPage url="" />
+    <FeedsPreview url="" />
   </Scene>
 </Story>
 
 <Story name="URL Loading" parameters={{ layout: 'fullscreen' }}>
   <Scene responses={{ 'https://example.com': { loading: true } }}>
-    <PreviewPage url="https://example.com" />
+    <FeedsPreview url="https://example.com" />
   </Scene>
 </Story>
 
 <Story name="URL Error" parameters={{ layout: 'fullscreen' }}>
   <Scene>
-    <PreviewPage url="not a URL" />
+    <FeedsPreview url="not a URL" />
   </Scene>
 </Story>
 
 <Story name="Loading Error" parameters={{ layout: 'fullscreen' }}>
   <Scene responses={{ 'https://example.com': { status: 404 } }}>
-    <PreviewPage url="https://example.com" />
+    <FeedsPreview url="https://example.com" />
   </Scene>
 </Story>
 
@@ -95,7 +95,7 @@
   <Scene
     responses={{ '*': { status: 404 }, 'https://example.com': '<html></html>' }}
   >
-    <PreviewPage url="https://example.com" />
+    <FeedsPreview url="https://example.com" />
   </Scene>
 </Story>
 
@@ -107,7 +107,7 @@
       'https://example.com/news.atom': ATOM
     }}
   >
-    <PreviewPage url="https://example.com" />
+    <FeedsPreview url="https://example.com" />
   </Scene>
 </Story>
 
@@ -119,7 +119,7 @@
       'https://example.com/news.atom': ATOM
     }}
   >
-    <PreviewPage url="https://example.com" />
+    <FeedsPreview url="https://example.com" />
   </Scene>
 </Story>
 
@@ -134,6 +134,6 @@
       'https://example.com/news.atom': ATOM
     }}
   >
-    <PreviewPage url="https://example.com" />
+    <FeedsPreview url="https://example.com" />
   </Scene>
 </Story>

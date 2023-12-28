@@ -8,8 +8,8 @@
   } from '@slowreader/core'
   import { organizeMessages as t } from '@slowreader/core/messages'
 
-  import { getURL } from '../../stores/router.js'
-  import Loader from '../../ui/loader.svelte'
+  import { getURL } from '../../../stores/router.js'
+  import Loader from '../../../ui/loader.svelte'
 
   export let currentFeed: string | undefined = undefined
 

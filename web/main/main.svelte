@@ -1,15 +1,15 @@
 <script lang="ts">
   import { isGuestRoute, notFound, router, starting } from '@slowreader/core'
 
-  import About from '../pages/about.svelte'
-  import Download from '../pages/download.svelte'
-  import Interface from '../pages/interface.svelte'
+  import FeedsCategoriesFeed from '../pages/feeds/categories/feed.svelte'
+  import FeedsCategories from '../pages/feeds/categories/index.svelte'
+  import Preview from '../pages/feeds/preview.svelte'
   import NotFound from '../pages/not-found.svelte'
-  import OrganizeFeed from '../pages/organize/feed.svelte'
-  import Organize from '../pages/organize/index.svelte'
-  import Preview from '../pages/preview.svelte'
-  import Profile from '../pages/profile.svelte'
   import Refresh from '../pages/refresh.svelte'
+  import SettingsAbout from '../pages/settings/about.svelte'
+  import SettingsDownload from '../pages/settings/download.svelte'
+  import SettingsInterface from '../pages/settings/interface.svelte'
+  import SettingsProfile from '../pages/settings/profile.svelte'
   import Start from '../pages/start.svelte'
   import Starting from '../pages/starting.svelte'
   import Welcome from '../pages/welcome.svelte'
@@ -26,21 +26,21 @@
   {:else if $router.route === 'preview' || $router.route === 'add'}
     <Preview url={$router.route === 'preview' ? $router.params.url : ''} />
   {:else if $router.route === 'categories'}
-    <Organize />
+    <FeedsCategories />
   {:else if $router.route === 'categoriesFeed'}
-    <OrganizeFeed feedId={$router.params.id} />
+    <FeedsCategoriesFeed feedId={$router.params.id} />
   {:else if $router.route === 'interface'}
-    <Interface />
+    <SettingsInterface />
   {:else if $router.route === 'download'}
-    <Download />
+    <SettingsDownload />
   {:else if $router.route === 'profile'}
-    <Profile />
+    <SettingsProfile />
+  {:else if $router.route === 'about'}
+    <SettingsAbout />
   {:else if $router.route === 'welcome'}
     <Welcome />
   {:else if $router.route === 'refresh'}
     <Refresh />
-  {:else if $router.route === 'about'}
-    <About />
   {/if}
   {#if !isGuestRoute($router)}
     <Navbar />

@@ -7,7 +7,7 @@ import {
 
 export const urlRouter = createRouter({
   about: '/settings/about',
-  add: '/add',
+  add: '/feeds/add',
   categories: '/feeds/categories',
   categoriesFeed: '/feeds/categories/:id',
   download: '/settings/download',
@@ -16,7 +16,7 @@ export const urlRouter = createRouter({
   home: '/',
   interface: '/settings/ui',
   notFound: '/404',
-  preview: '/add/:url',
+  preview: '/feeds/add/:url',
   profile: '/settings/profile',
   refresh: '/refresh',
   settings: '/settings',

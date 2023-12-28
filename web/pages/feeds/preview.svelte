@@ -17,18 +17,18 @@
   import debounce from 'just-debounce-it'
   import { onDestroy } from 'svelte'
 
-  import { jumpInto } from '../lib/hotkeys.js'
-  import { openURL } from '../stores/router.js'
-  import Button from '../ui/button.svelte'
-  import CardLink from '../ui/card-link.svelte'
-  import CardLinks from '../ui/card-links.svelte'
-  import Card from '../ui/card.svelte'
-  import Loader from '../ui/loader.svelte'
-  import RichTranslation from '../ui/rich-translation.svelte'
-  import TextField from '../ui/text-field.svelte'
-  import TwoStepsPage from '../ui/two-steps-page.svelte'
-  import OrganizeEdit from './organize/edit.svelte'
-  import OrganizePosts from './organize/posts.svelte'
+  import { jumpInto } from '../../lib/hotkeys.js'
+  import { openURL } from '../../stores/router.js'
+  import Button from '../../ui/button.svelte'
+  import CardLink from '../../ui/card-link.svelte'
+  import CardLinks from '../../ui/card-links.svelte'
+  import Card from '../../ui/card.svelte'
+  import Loader from '../../ui/loader.svelte'
+  import RichTranslation from '../../ui/rich-translation.svelte'
+  import TextField from '../../ui/text-field.svelte'
+  import TwoStepsPage from '../../ui/two-steps-page.svelte'
+  import FeedsEdit from './edit.svelte'
+  import FeedsPosts from './posts.svelte'
 
   export let url: string
   let links: HTMLUListElement
@@ -127,17 +127,17 @@
           <Loader zoneId="preview_feed" />
         </div>
         {#if $previewPosts}
-          <OrganizePosts posts={$previewPosts} />
+          <FeedsPosts posts={$previewPosts} />
         {/if}
       {:else if $previewCandidateAdded === false}
         <Button icon={mdiPlusCircleOutline} on:click={addPreviewCandidate}>
           {$t.add}
         </Button>
         {#if $previewPosts}
-          <OrganizePosts posts={$previewPosts} />
+          <FeedsPosts posts={$previewPosts} />
         {/if}
       {:else}
-        <OrganizeEdit feedId={$previewCandidateAdded} posts={$previewPosts} />
+        <FeedsEdit feedId={$previewCandidateAdded} posts={$previewPosts} />
       {/if}
     {/if}
   </div>
