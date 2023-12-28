@@ -1,8 +1,8 @@
 <script context="module" lang="ts">
-  import UiRadioField from '../../ui/radio-field.svelte'
+  import RadioField from '../../ui/radio-field.svelte'
 
   export const meta = {
-    component: UiRadioField,
+    component: RadioField,
     title: 'UI/RadioField'
   }
 </script>
@@ -11,8 +11,8 @@
   import { Story } from '@storybook/addon-svelte-csf'
   import { atom } from 'nanostores'
 
-  import UiCard from '../../ui/card.svelte'
-  import UiParagraph from '../../ui/paragraph.svelte'
+  import Card from '../../ui/card.svelte'
+  import Paragraph from '../../ui/paragraph.svelte'
   import Section from '../section.svelte'
 
   let store = atom<string>('1')
@@ -20,8 +20,8 @@
 
 <Story name="Base">
   <Section width={500}>
-    <UiCard>
-      <UiRadioField
+    <Card>
+      <RadioField
         current={$store}
         label="Normal radio"
         values={[
@@ -33,12 +33,12 @@
           store.set(e.detail)
         }}
       />
-      <UiParagraph>After</UiParagraph>
-    </UiCard>
+      <Paragraph>After</Paragraph>
+    </Card>
   </Section>
   <Section hover="label:first-of-type" width={500}>
-    <UiCard>
-      <UiRadioField
+    <Card>
+      <RadioField
         current="1"
         label="Hover"
         values={[
@@ -46,11 +46,11 @@
           ['2', 'Second option']
         ]}
       />
-    </UiCard>
+    </Card>
   </Section>
   <Section active="label:first-of-type" width={500}>
-    <UiCard>
-      <UiRadioField
+    <Card>
+      <RadioField
         current="1"
         label="Active"
         values={[
@@ -58,11 +58,11 @@
           ['2', 'Second option']
         ]}
       />
-    </UiCard>
+    </Card>
   </Section>
   <Section focus="label:first-of-type" width={500}>
-    <UiCard>
-      <UiRadioField
+    <Card>
+      <RadioField
         current="1"
         label="Focus"
         values={[
@@ -70,12 +70,12 @@
           ['2', 'Second option']
         ]}
       />
-    </UiCard>
+    </Card>
   </Section>
   <Section active="label:last-of-type" width={500}>
-    <UiCard>
-      <UiParagraph>Before</UiParagraph>
-      <UiRadioField
+    <Card>
+      <Paragraph>Before</Paragraph>
+      <RadioField
         current="1"
         label="Hover"
         values={[
@@ -83,12 +83,12 @@
           ['2', 'Second option']
         ]}
       />
-    </UiCard>
+    </Card>
   </Section>
   <Section width={500}>
-    <UiCard>
-      <UiParagraph>Before</UiParagraph>
-      <UiRadioField
+    <Card>
+      <Paragraph>Before</Paragraph>
+      <RadioField
         current="1"
         hideLabel
         label="Label"
@@ -97,14 +97,14 @@
           ['2', 'Second option']
         ]}
       />
-    </UiCard>
+    </Card>
   </Section>
 </Story>
 
 <Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
   <Section width={500}>
-    <UiCard>
-      <UiRadioField
+    <Card>
+      <RadioField
         current={$store}
         label="Normal radio"
         values={[
@@ -116,12 +116,12 @@
           store.set(e.detail)
         }}
       />
-      <UiParagraph>After</UiParagraph>
-    </UiCard>
+      <Paragraph>After</Paragraph>
+    </Card>
   </Section>
   <Section hover="label:first-of-type" width={500}>
-    <UiCard>
-      <UiRadioField
+    <Card>
+      <RadioField
         current="1"
         label="Hover"
         values={[
@@ -129,11 +129,11 @@
           ['2', 'Second option']
         ]}
       />
-    </UiCard>
+    </Card>
   </Section>
   <Section active="label:first-of-type" width={500}>
-    <UiCard>
-      <UiRadioField
+    <Card>
+      <RadioField
         current="1"
         label="Active"
         values={[
@@ -141,11 +141,11 @@
           ['2', 'Second option']
         ]}
       />
-    </UiCard>
+    </Card>
   </Section>
   <Section focus="label:first-of-type" width={500}>
-    <UiCard>
-      <UiRadioField
+    <Card>
+      <RadioField
         current="1"
         label="Focus"
         values={[
@@ -153,6 +153,6 @@
           ['2', 'Second option']
         ]}
       />
-    </UiCard>
+    </Card>
   </Section>
 </Story>

@@ -19,14 +19,14 @@
 
   import { jumpInto } from '../lib/hotkeys.js'
   import { openURL } from '../stores/router.js'
-  import UiButton from '../ui/button.svelte'
-  import UiCardLink from '../ui/card-link.svelte'
-  import UiCardLinks from '../ui/card-links.svelte'
-  import UiCard from '../ui/card.svelte'
-  import UiLoader from '../ui/loader.svelte'
-  import UiRichTranslation from '../ui/rich-translation.svelte'
-  import UiTextField from '../ui/text-field.svelte'
-  import UiTwoStepsPage from '../ui/two-steps-page.svelte'
+  import Button from '../ui/button.svelte'
+  import CardLink from '../ui/card-link.svelte'
+  import CardLinks from '../ui/card-links.svelte'
+  import Card from '../ui/card.svelte'
+  import Loader from '../ui/loader.svelte'
+  import RichTranslation from '../ui/rich-translation.svelte'
+  import TextField from '../ui/text-field.svelte'
+  import TwoStepsPage from '../ui/two-steps-page.svelte'
   import OrganizeEdit from './organize/edit.svelte'
   import OrganizePosts from './organize/posts.svelte'
 
@@ -72,10 +72,10 @@
   }
 </script>
 
-<UiTwoStepsPage title={$t.title}>
+<TwoStepsPage title={$t.title}>
   <div slot="one">
-    <UiCard>
-      <UiTextField
+    <Card>
+      <TextField
         enterHint={$previewCandidates.length > 0}
         error={$previewUrlError ? $t[$previewUrlError] : undefined}
         label={$t.urlLabel}
@@ -85,9 +85,9 @@
       />
 
       {#if $previewCandidates.length > 0}
-        <UiCardLinks bind:node={links} on:enter={onLinkEnter}>
+        <CardLinks bind:node={links} on:enter={onLinkEnter}>
           {#each $previewCandidates as candidate (candidate.url)}
-            <UiCardLink
+            <CardLink
               name={candidate.title}
               current={$previewCandidate === candidate.url}
               on:click={() => {
@@ -95,28 +95,28 @@
               }}
             />
           {/each}
-        </UiCardLinks>
+        </CardLinks>
       {/if}
 
       {#if $previewCandidatesLoading}
         <div class="preview_url-loading">
-          <UiLoader zoneId="preview_query" />
+          <Loader zoneId="preview_query" />
         </div>
       {/if}
 
       {#if !$previewCandidatesLoading && url !== '' && $previewCandidates.length === 0 && requested && !$previewUrlError}
         <div class="preview_no-results">
-          <UiRichTranslation
+          <RichTranslation
             text={$t.noResults}
             url="https://github.com/hplush/slowreader/issues"
           />
         </div>
       {/if}
-    </UiCard>
+    </Card>
 
     {#if url === ''}
       <div class="preview_guide">
-        <UiRichTranslation text={$t.searchGuide} />
+        <RichTranslation text={$t.searchGuide} />
       </div>
     {/if}
   </div>
@@ -124,15 +124,15 @@
     {#if $previewCandidate}
       {#if $previewCandidateAdded === undefined}
         <div class="preview_feed-loading">
-          <UiLoader zoneId="preview_feed" />
+          <Loader zoneId="preview_feed" />
         </div>
         {#if $previewPosts}
           <OrganizePosts posts={$previewPosts} />
         {/if}
       {:else if $previewCandidateAdded === false}
-        <UiButton icon={mdiPlusCircleOutline} on:click={addPreviewCandidate}>
+        <Button icon={mdiPlusCircleOutline} on:click={addPreviewCandidate}>
           {$t.add}
-        </UiButton>
+        </Button>
         {#if $previewPosts}
           <OrganizePosts posts={$previewPosts} />
         {/if}
@@ -141,7 +141,7 @@
       {/if}
     {/if}
   </div>
-</UiTwoStepsPage>
+</TwoStepsPage>
 
 <style>
   .preview_url-loading {

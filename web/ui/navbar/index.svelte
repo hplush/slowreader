@@ -13,14 +13,14 @@
   import { onMount } from 'svelte'
 
   import { getURL } from '../../stores/router.js'
-  import UiLoader from '../loader.svelte'
-  import UiNavbarItem from './item.svelte'
-  import UiNavbarManage from './manage.svelte'
-  import UiNavbarSettings from './settings.svelte'
-  import UiNavbarSubmenu from './submenu.svelte'
-  import UiNavbarSwitcher from './switcher.svelte'
+  import Loader from '../loader.svelte'
+  import NavbarItem from './item.svelte'
+  import NavbarManage from './manage.svelte'
+  import NavbarSettings from './settings.svelte'
+  import NavbarSubmenu from './submenu.svelte'
+  import NavbarSwitcher from './switcher.svelte'
 
-  let submenu: UiNavbarSubmenu
+  let submenu: NavbarSubmenu
 
   onMount(() => {
     document.documentElement.classList.add('has-navbar')
@@ -31,27 +31,27 @@
 </script>
 
 <nav class="navbar">
-  <UiNavbarSwitcher />
+  <NavbarSwitcher />
   <div class="navbar_submenu">
-    <UiNavbarSubmenu bind:this={submenu}>
+    <NavbarSubmenu bind:this={submenu}>
       {#if isSettingsRoute($router)}
-        <UiNavbarSettings />
+        <NavbarSettings />
       {:else if isManageRoute($router)}
-        <UiNavbarManage />
+        <NavbarManage />
       {/if}
-    </UiNavbarSubmenu>
+    </NavbarSubmenu>
   </div>
   <div class="navbar_other">
     {#if $hasFeeds}
       {#if $isRefreshing}
-        <UiNavbarItem
+        <NavbarItem
           current={$router.route === 'refresh'}
           href={getURL('refresh')}
         >
-          <UiLoader label={$t.refreshing} value={$refreshProgress} />
-        </UiNavbarItem>
+          <Loader label={$t.refreshing} value={$refreshProgress} />
+        </NavbarItem>
       {:else}
-        <UiNavbarItem
+        <NavbarItem
           current={$router.route === 'refresh'}
           hotkey="r"
           icon={mdiRefresh}
@@ -60,10 +60,10 @@
           }}
         >
           {$t.refresh}
-        </UiNavbarItem>
+        </NavbarItem>
       {/if}
     {/if}
-    <UiNavbarItem
+    <NavbarItem
       current={isManageRoute($router)}
       hotkey="l"
       href={getURL('add')}
@@ -71,8 +71,8 @@
       {submenu}
     >
       {$t.feeds}
-    </UiNavbarItem>
-    <UiNavbarItem
+    </NavbarItem>
+    <NavbarItem
       current={isSettingsRoute($router)}
       hotkey="p"
       href={getURL('interface')}
@@ -80,7 +80,7 @@
       {submenu}
     >
       {$t.settings}
-    </UiNavbarItem>
+    </NavbarItem>
   </div>
 </nav>
 

@@ -2,8 +2,8 @@
   import { createEventDispatcher, onMount } from 'svelte'
 
   import { addHotkey, markPressed, unmarkPressed } from '../lib/hotkeys.js'
-  import UiHotkey from './hotkey.svelte'
-  import UiIcon from './icon.svelte'
+  import Hotkey from './hotkey.svelte'
+  import Icon from './icon.svelte'
 
   export let icon: string | undefined = undefined
   export let wide: boolean = false
@@ -57,13 +57,13 @@
     on:keydown={onKeyDown}
   >
     {#if icon}
-      <UiIcon path={icon} />
+      <Icon path={icon} />
     {/if}
     {#if !hiddenLabel}
       <slot />
     {/if}
     {#if hotkey}
-      <UiHotkey {hotkey} />
+      <Hotkey {hotkey} />
     {/if}
   </a>
 {:else}
@@ -80,13 +80,13 @@
     on:keydown={onKeyDown}
   >
     {#if icon}
-      <UiIcon path={icon} />
+      <Icon path={icon} />
     {/if}
     {#if !hiddenLabel}
       <slot />
     {/if}
     {#if hotkey}
-      <UiHotkey {hotkey} />
+      <Hotkey {hotkey} />
     {/if}
   </button>
 {/if}

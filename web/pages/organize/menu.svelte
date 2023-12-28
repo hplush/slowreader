@@ -9,7 +9,7 @@
   import { organizeMessages as t } from '@slowreader/core/messages'
 
   import { getURL } from '../../stores/router.js'
-  import UiLoader from '../../ui/loader.svelte'
+  import Loader from '../../ui/loader.svelte'
 
   export let currentFeed: string | undefined = undefined
 
@@ -18,7 +18,7 @@
 </script>
 
 {#if $allFeeds.isLoading || $categories.isLoading}
-  <UiLoader />
+  <Loader />
 {:else}
   <ul>
     {#each feedsByCategory($categories, $allFeeds.list) as [category, feeds] (category.id)}

@@ -2,18 +2,18 @@
   import { signOut } from '@slowreader/core'
   import { settingsMessages as t } from '@slowreader/core/messages'
 
-  import UiButton from '../ui/button.svelte'
-  import UiCardActions from '../ui/card-actions.svelte'
-  import UiCard from '../ui/card.svelte'
-  import UiPage from '../ui/page.svelte'
-  import UiUnderConstruction from '../ui/under-construction.svelte'
+  import Button from '../ui/button.svelte'
+  import CardActions from '../ui/card-actions.svelte'
+  import Card from '../ui/card.svelte'
+  import Page from '../ui/page.svelte'
+  import UnderConstruction from '../ui/under-construction.svelte'
 </script>
 
-<UiPage title={$t.profile} type="settings">
-  <UiCard>
-    <UiUnderConstruction />
-    <UiCardActions>
-      <UiButton
+<Page title={$t.profile} type="settings">
+  <Card>
+    <UnderConstruction />
+    <CardActions>
+      <Button
         dangerous
         on:click={() => {
           if (!confirm($t.deleteProfileConfirm)) return
@@ -21,7 +21,7 @@
         }}
       >
         {$t.deleteProfile}
-      </UiButton>
-    </UiCardActions>
-  </UiCard>
-</UiPage>
+      </Button>
+    </CardActions>
+  </Card>
+</Page>

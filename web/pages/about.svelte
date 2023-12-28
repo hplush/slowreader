@@ -1,16 +1,16 @@
 <script lang="ts">
   import { settingsMessages as t } from '@slowreader/core/messages'
 
-  import UiCard from '../ui/card.svelte'
-  import UiPage from '../ui/page.svelte'
-  import UiUnderConstruction from '../ui/under-construction.svelte'
+  import Card from '../ui/card.svelte'
+  import Page from '../ui/page.svelte'
+  import UnderConstruction from '../ui/under-construction.svelte'
 </script>
 
-<UiPage title={$t.about} type="settings">
-  <UiCard>
-    <UiUnderConstruction />
+<Page title={$t.about} type="settings">
+  <Card>
+    <UnderConstruction />
     <a href="https://github.com/hplush/slowreader" target="_blank">
       {$t.source}
     </a>
-  </UiCard>
-</UiPage>
+  </Card>
+</Page>

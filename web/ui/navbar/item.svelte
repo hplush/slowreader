@@ -2,16 +2,16 @@
   import { createEventDispatcher, onMount } from 'svelte'
 
   import { addHotkey } from '../../lib/hotkeys.js'
-  import UiHotkey from '../hotkey.svelte'
-  import UiIcon from '../icon.svelte'
-  import type UiNavbarSubmenu from './submenu.svelte'
+  import Hotkey from '../hotkey.svelte'
+  import Icon from '../icon.svelte'
+  import type NavbarSubmenu from './submenu.svelte'
 
   export let href: string | undefined = undefined
   export let current: boolean
   export let hotkey: string | undefined = undefined
   export let icon: string | undefined = undefined
   export let secondary = false
-  export let submenu: UiNavbarSubmenu | undefined = undefined
+  export let submenu: NavbarSubmenu | undefined = undefined
 
   let element: HTMLAnchorElement | HTMLButtonElement
 
@@ -41,16 +41,16 @@
     aria-current={current ? 'page' : null}
     aria-haspopup={submenu ? 'menu' : null}
     {href}
-    role={submenu ? 'menuitem' : null}
+    role={submenu ? 'mentem' : null}
     tabindex={secondary ? -1 : null}
     on:click={onClick}
   >
     {#if icon}
-      <UiIcon path={icon} />
+      <Icon path={icon} />
     {/if}
     <slot />
     {#if hotkey}
-      <UiHotkey {hotkey} />
+      <Hotkey {hotkey} />
     {/if}
   </a>
 {:else}
@@ -64,11 +64,11 @@
     on:click={onClick}
   >
     {#if icon}
-      <UiIcon path={icon} />
+      <Icon path={icon} />
     {/if}
     <slot />
     {#if hotkey}
-      <UiHotkey {hotkey} />
+      <Hotkey {hotkey} />
     {/if}
   </button>
 {/if}

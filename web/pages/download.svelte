@@ -4,9 +4,9 @@
   import type { StoreValue } from 'nanostores'
   import { onMount } from 'svelte'
 
-  import UiCard from '../ui/card.svelte'
-  import UiPage from '../ui/page.svelte'
-  import UiRadioField from '../ui/radio-field.svelte'
+  import Card from '../ui/card.svelte'
+  import Page from '../ui/page.svelte'
+  import RadioField from '../ui/radio-field.svelte'
 
   let preloadOptions: [StoreValue<typeof preloadImages>, string][] = [
     ['always', $t.always],
@@ -20,9 +20,9 @@
   })
 </script>
 
-<UiPage title={$t.download} type="settings">
-  <UiCard>
-    <UiRadioField
+<Page title={$t.download} type="settings">
+  <Card>
+    <RadioField
       current={$preloadImages}
       label={$t.preloadImages}
       values={preloadOptions}
@@ -30,5 +30,5 @@
         preloadImages.set(e.detail)
       }}
     />
-  </UiCard>
-</UiPage>
+  </Card>
+</Page>

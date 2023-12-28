@@ -2,28 +2,28 @@
   import { generateCredentials } from '@slowreader/core'
   import { startMessages as t } from '@slowreader/core/messages'
 
-  import UiButton from '../ui/button.svelte'
-  import UiCardActions from '../ui/card-actions.svelte'
-  import UiCard from '../ui/card.svelte'
-  import UiPageTitle from '../ui/page-title.svelte'
-  import UiPage from '../ui/page.svelte'
-  import UiParagraph from '../ui/paragraph.svelte'
+  import Button from '../ui/button.svelte'
+  import CardActions from '../ui/card-actions.svelte'
+  import Card from '../ui/card.svelte'
+  import PageTitle from '../ui/page-title.svelte'
+  import Page from '../ui/page.svelte'
+  import Paragraph from '../ui/paragraph.svelte'
 </script>
 
-<UiPage title={$t.pageTitle} type="center">
-  <UiPageTitle>{$t.title}</UiPageTitle>
+<Page title={$t.pageTitle} type="center">
+  <PageTitle>{$t.title}</PageTitle>
   <div class="start">
-    <UiCard>
-      <UiParagraph>{$t.localDescription1}</UiParagraph>
-      <UiParagraph>{$t.localDescription2}</UiParagraph>
-      <UiCardActions>
-        <UiButton wide on:click={generateCredentials}>
+    <Card>
+      <Paragraph>{$t.localDescription1}</Paragraph>
+      <Paragraph>{$t.localDescription2}</Paragraph>
+      <CardActions>
+        <Button wide on:click={generateCredentials}>
           {$t.localButton}
-        </UiButton>
-      </UiCardActions>
-    </UiCard>
+        </Button>
+      </CardActions>
+    </Card>
   </div>
-</UiPage>
+</Page>
 
 <style>
   .start {

@@ -3,7 +3,7 @@
   import { nanoid } from 'nanoid/non-secure'
   import { createEventDispatcher } from 'svelte'
 
-  import UiIcon from './icon.svelte'
+  import Icon from './icon.svelte'
 
   export let label: string
   export let values: [Value, string][]
@@ -30,7 +30,7 @@
   {/if}
   <div class="select-field_fake">
     <div class="select-field_text">{currentName}</div>
-    <UiIcon path={mdiChevronDown} />
+    <Icon path={mdiChevronDown} />
     <select
       {id}
       class="select-field_select"

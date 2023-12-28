@@ -1,8 +1,8 @@
 <script context="module" lang="ts">
-  import UiTextField from '../../ui/text-field.svelte'
+  import TextField from '../../ui/text-field.svelte'
 
   export const meta = {
-    component: UiTextField,
+    component: TextField,
     title: 'UI/TextField'
   }
 </script>
@@ -10,8 +10,8 @@
 <script lang="ts">
   import { Story } from '@storybook/addon-svelte-csf'
 
-  import UiCard from '../../ui/card.svelte'
-  import UiParagraph from '../../ui/paragraph.svelte'
+  import Card from '../../ui/card.svelte'
+  import Paragraph from '../../ui/paragraph.svelte'
   import Section from '../section.svelte'
 
   let value = 'Value'
@@ -19,56 +19,56 @@
 
 <Story name="Base">
   <Section width={500}>
-    <UiCard>
-      <UiTextField label="Base" required bind:value />
-    </UiCard>
-    <UiParagraph>{value}</UiParagraph>
+    <Card>
+      <TextField label="Base" required bind:value />
+    </Card>
+    <Paragraph>{value}</Paragraph>
   </Section>
   <Section width={500}>
-    <UiCard>
-      <UiTextField hideLabel label="Label" placeholder="Empty" value="" />
-      <UiTextField hideLabel label="Label" placeholder="Another" value="" />
-    </UiCard>
+    <Card>
+      <TextField hideLabel label="Label" placeholder="Empty" value="" />
+      <TextField hideLabel label="Label" placeholder="Another" value="" />
+    </Card>
   </Section>
   <Section width={500}>
-    <UiCard>
-      <UiTextField error="The value is wrong" label="Wrong" value="Wrong" />
-    </UiCard>
+    <Card>
+      <TextField error="The value is wrong" label="Wrong" value="Wrong" />
+    </Card>
   </Section>
   <Section focus="input:first-of-type" width={500}>
-    <UiCard>
-      <UiTextField enterHint label="Focus" />
-      <UiTextField label="Required" required value="" />
-      <UiTextField enterHint label="Wrong URL" type="url" value="No a link" />
-    </UiCard>
+    <Card>
+      <TextField enterHint label="Focus" />
+      <TextField label="Required" required value="" />
+      <TextField enterHint label="Wrong URL" type="url" value="No a link" />
+    </Card>
   </Section>
   <Section blur width={500}>
-    <UiCard>
-      <UiTextField label="Required and Blur" required value="" />
-    </UiCard>
+    <Card>
+      <TextField label="Required and Blur" required value="" />
+    </Card>
   </Section>
 </Story>
 
 <Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
   <Section width={500}>
-    <UiCard>
-      <UiTextField label="Empty" bind:value />
-      <UiParagraph>{value}</UiParagraph>
-    </UiCard>
+    <Card>
+      <TextField label="Empty" bind:value />
+      <Paragraph>{value}</Paragraph>
+    </Card>
   </Section>
   <Section width={500}>
-    <UiCard>
-      <UiTextField label="Label" value="Text" />
-    </UiCard>
+    <Card>
+      <TextField label="Label" value="Text" />
+    </Card>
   </Section>
   <Section width={500}>
-    <UiCard>
-      <UiTextField error="The value is wrong" label="Wrong" value="Wrong" />
-    </UiCard>
+    <Card>
+      <TextField error="The value is wrong" label="Wrong" value="Wrong" />
+    </Card>
   </Section>
   <Section focus width={500}>
-    <UiCard>
-      <UiTextField enterHint label="Focus" />
-    </UiCard>
+    <Card>
+      <TextField enterHint label="Focus" />
+    </Card>
   </Section></Story
 >

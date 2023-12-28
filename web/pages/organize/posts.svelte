@@ -5,7 +5,7 @@
     prepareFilters
   } from '@slowreader/core'
 
-  import UiLoader from '../../ui/loader.svelte'
+  import Loader from '../../ui/loader.svelte'
   import UIPostCard from '../../ui/post-card.svelte'
 
   export let posts: PostsPage
@@ -17,7 +17,7 @@
 </script>
 
 {#if $posts.isLoading}
-  <UiLoader />
+  <Loader />
 {:else}
   <ul>
     {#each $posts.list as post (post.url)}

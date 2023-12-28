@@ -1,8 +1,8 @@
 <script context="module" lang="ts">
-  import UiButton from '../../ui/button.svelte'
+  import Button from '../../ui/button.svelte'
 
   export const meta = {
-    component: UiButton,
+    component: Button,
     title: 'UI/Button'
   }
 </script>
@@ -13,8 +13,8 @@
   import { onMount } from 'svelte'
 
   import { getURL } from '../../stores/router.js'
-  import UiCardActions from '../../ui/card-actions.svelte'
-  import UiCard from '../../ui/card.svelte'
+  import CardActions from '../../ui/card-actions.svelte'
+  import Card from '../../ui/card.svelte'
   import Scene from '../scene.svelte'
   import Section from '../section.svelte'
 
@@ -42,111 +42,109 @@
 
 <Story name="Base">
   <Section>
-    <UiButton
+    <Button
       on:click={() => {
         clicks += 1
       }}
     >
       Base
-    </UiButton>
+    </Button>
     <div class="counter">{clicks}</div>
   </Section>
   <Section active="button:nth-child(2)" hover="button:nth-child(1)">
-    <UiCardActions>
-      <UiButton>Hover</UiButton>
-      <UiButton>Pressed</UiButton>
-      <UiButton icon={mdiPlusCircleOutline}>Icon</UiButton>
-      <UiButton dangerous icon={mdiTrashCanOutline}>Delete</UiButton>
-    </UiCardActions>
+    <CardActions>
+      <Button>Hover</Button>
+      <Button>Pressed</Button>
+      <Button icon={mdiPlusCircleOutline}>Icon</Button>
+      <Button dangerous icon={mdiTrashCanOutline}>Delete</Button>
+    </CardActions>
   </Section>
   <Section focus="button:first-child">
     <div bind:this={focus} class="buttons">
-      <UiButton>Focus</UiButton>
-      <UiButton>Animation</UiButton>
+      <Button>Focus</Button>
+      <Button>Animation</Button>
     </div>
   </Section>
-  <Section><UiButton wide>Wide</UiButton></Section>
+  <Section><Button wide>Wide</Button></Section>
   <Section>
-    <UiButton
+    <Button
       hotkey="k"
       on:click={() => {
         keyups += 1
-      }}>Hot Key</UiButton
+      }}>Hot Key</Button
     >
     <div class="counter">{keyups}</div>
   </Section>
   <Section hotkeys={false}>
-    <UiButton hotkey="p">Hot Key on phone</UiButton>
+    <Button hotkey="p">Hot Key on phone</Button>
   </Section>
   <Section
     active="button:nth-child(4)"
     focus="button:nth-child(3)"
     hover="button:nth-child(2)"
   >
-    <UiCard>
-      <UiCardActions>
-        <UiButton>In card</UiButton>
-        <UiButton>Hover</UiButton>
-        <UiButton>Focus</UiButton>
-        <UiButton>Pressed</UiButton>
-        <UiButton dangerous icon={mdiTrashCanOutline}>Delete</UiButton>
-      </UiCardActions>
-    </UiCard>
+    <Card>
+      <CardActions>
+        <Button>In card</Button>
+        <Button>Hover</Button>
+        <Button>Focus</Button>
+        <Button>Pressed</Button>
+        <Button dangerous icon={mdiTrashCanOutline}>Delete</Button>
+      </CardActions>
+    </Card>
   </Section>
   <Section
     active="button:nth-child(4)"
     focus="button:nth-child(3)"
     hover="button:nth-child(2)"
   >
-    <UiCard>
-      <UiCardActions>
-        <UiButton secondary>Secondary</UiButton>
-        <UiButton secondary>Hover</UiButton>
-        <UiButton secondary>Focus</UiButton>
-        <UiButton secondary>Pressed</UiButton>
-        <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
-        <UiButton hotkey="h" secondary>Hot Key</UiButton>
-        <UiButton hiddenLabel="Icon" icon={mdiPlusCircleOutline} secondary />
-        <UiButton dangerous icon={mdiTrashCanOutline} secondary>
-          Delete
-        </UiButton>
-      </UiCardActions>
-    </UiCard>
+    <Card>
+      <CardActions>
+        <Button secondary>Secondary</Button>
+        <Button secondary>Hover</Button>
+        <Button secondary>Focus</Button>
+        <Button secondary>Pressed</Button>
+        <Button icon={mdiPlusCircleOutline} secondary>Icon</Button>
+        <Button hotkey="h" secondary>Hot Key</Button>
+        <Button hiddenLabel="Icon" icon={mdiPlusCircleOutline} secondary />
+        <Button dangerous icon={mdiTrashCanOutline} secondary>Delete</Button>
+      </CardActions>
+    </Card>
   </Section>
   <Section
     active="button:nth-child(4)"
     focus="button:nth-child(3)"
     hover="button:nth-child(2)"
   >
-    <UiCardActions>
-      <UiButton secondary>Secondary</UiButton>
-      <UiButton secondary>Hover</UiButton>
-      <UiButton secondary>Focus</UiButton>
-      <UiButton secondary>Pressed</UiButton>
-      <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
-      <UiButton hotkey="l" secondary>Hot Key</UiButton>
-      <UiButton hiddenLabel="Icon" icon={mdiPlusCircleOutline} secondary />
-      <UiButton dangerous icon={mdiTrashCanOutline} secondary>Delete</UiButton>
-    </UiCardActions>
+    <CardActions>
+      <Button secondary>Secondary</Button>
+      <Button secondary>Hover</Button>
+      <Button secondary>Focus</Button>
+      <Button secondary>Pressed</Button>
+      <Button icon={mdiPlusCircleOutline} secondary>Icon</Button>
+      <Button hotkey="l" secondary>Hot Key</Button>
+      <Button hiddenLabel="Icon" icon={mdiPlusCircleOutline} secondary />
+      <Button dangerous icon={mdiTrashCanOutline} secondary>Delete</Button>
+    </CardActions>
   </Section>
   <Section>
-    <UiCardActions>
-      <UiButton href="#" secondary>Link</UiButton>
-      <UiButton
+    <CardActions>
+      <Button href="#" secondary>Link</Button>
+      <Button
         hiddenLabel="Labelless"
         href={getURL('slowAll')}
         icon={mdiPlusCircleOutline}
         secondary
       />
-      <UiButton
+      <Button
         hotkey="l"
         href={getURL('slowAll')}
         icon={mdiPlusCircleOutline}
         wide
       >
         Link
-      </UiButton>
-    </UiCardActions>
+      </Button>
+    </CardActions>
   </Section>
 </Story>
 
@@ -157,65 +155,61 @@
       focus="button:nth-child(3)"
       hover="button:nth-child(2)"
     >
-      <UiCardActions>
-        <UiButton>Base</UiButton>
-        <UiButton>Hover</UiButton>
-        <UiButton>Focus</UiButton>
-        <UiButton>Pressed</UiButton>
-        <UiButton hotkey="k">Hot Key</UiButton>
-        <UiButton dangerous icon={mdiTrashCanOutline}>Delete</UiButton>
-      </UiCardActions>
+      <CardActions>
+        <Button>Base</Button>
+        <Button>Hover</Button>
+        <Button>Focus</Button>
+        <Button>Pressed</Button>
+        <Button hotkey="k">Hot Key</Button>
+        <Button dangerous icon={mdiTrashCanOutline}>Delete</Button>
+      </CardActions>
     </Section>
     <Section
       active="button:nth-child(4)"
       focus="button:nth-child(3)"
       hover="button:nth-child(2)"
     >
-      <UiCard>
-        <UiCardActions>
-          <UiButton>In card</UiButton>
-          <UiButton>Hover</UiButton>
-          <UiButton>Focus</UiButton>
-          <UiButton>Pressed</UiButton>
-          <UiButton dangerous icon={mdiTrashCanOutline}>Delete</UiButton>
-        </UiCardActions>
-      </UiCard>
+      <Card>
+        <CardActions>
+          <Button>In card</Button>
+          <Button>Hover</Button>
+          <Button>Focus</Button>
+          <Button>Pressed</Button>
+          <Button dangerous icon={mdiTrashCanOutline}>Delete</Button>
+        </CardActions>
+      </Card>
     </Section>
     <Section
       active="button:nth-child(4)"
       focus="button:nth-child(3)"
       hover="button:nth-child(2)"
     >
-      <UiCardActions>
-        <UiButton secondary>Secondary</UiButton>
-        <UiButton secondary>Hover</UiButton>
-        <UiButton secondary>Focus</UiButton>
-        <UiButton secondary>Pressed</UiButton>
-        <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
-        <UiButton hotkey="l" secondary>Hot Key</UiButton>
-        <UiButton dangerous icon={mdiTrashCanOutline} secondary>
-          Delete
-        </UiButton>
-      </UiCardActions>
+      <CardActions>
+        <Button secondary>Secondary</Button>
+        <Button secondary>Hover</Button>
+        <Button secondary>Focus</Button>
+        <Button secondary>Pressed</Button>
+        <Button icon={mdiPlusCircleOutline} secondary>Icon</Button>
+        <Button hotkey="l" secondary>Hot Key</Button>
+        <Button dangerous icon={mdiTrashCanOutline} secondary>Delete</Button>
+      </CardActions>
     </Section>
     <Section
       active="button:nth-child(4)"
       focus="button:nth-child(3)"
       hover="button:nth-child(2)"
     >
-      <UiCard>
-        <UiCardActions>
-          <UiButton secondary>Secondary</UiButton>
-          <UiButton secondary>Hover</UiButton>
-          <UiButton secondary>Focus</UiButton>
-          <UiButton secondary>Pressed</UiButton>
-          <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
-          <UiButton hotkey="h" secondary>Hot Key</UiButton>
-          <UiButton dangerous icon={mdiTrashCanOutline} secondary>
-            Delete
-          </UiButton>
-        </UiCardActions>
-      </UiCard>
+      <Card>
+        <CardActions>
+          <Button secondary>Secondary</Button>
+          <Button secondary>Hover</Button>
+          <Button secondary>Focus</Button>
+          <Button secondary>Pressed</Button>
+          <Button icon={mdiPlusCircleOutline} secondary>Icon</Button>
+          <Button hotkey="h" secondary>Hot Key</Button>
+          <Button dangerous icon={mdiTrashCanOutline} secondary>Delete</Button>
+        </CardActions>
+      </Card>
     </Section>
   </Scene>
 </Story>
@@ -226,62 +220,60 @@
     focus="button:nth-child(3)"
     hover="button:nth-child(2)"
   >
-    <UiCardActions>
-      <UiButton>Base</UiButton>
-      <UiButton>Hover</UiButton>
-      <UiButton>Focus</UiButton>
-      <UiButton>Pressed</UiButton>
-      <UiButton dangerous icon={mdiTrashCanOutline}>Delete</UiButton>
-    </UiCardActions>
+    <CardActions>
+      <Button>Base</Button>
+      <Button>Hover</Button>
+      <Button>Focus</Button>
+      <Button>Pressed</Button>
+      <Button dangerous icon={mdiTrashCanOutline}>Delete</Button>
+    </CardActions>
   </Section>
   <Section
     active="button:nth-child(4)"
     focus="button:nth-child(3)"
     hover="button:nth-child(2)"
   >
-    <UiCard>
-      <UiCardActions>
-        <UiButton>In card</UiButton>
-        <UiButton>Hover</UiButton>
-        <UiButton>Focus</UiButton>
-        <UiButton>Pressed</UiButton>
-        <UiButton dangerous icon={mdiTrashCanOutline}>Delete</UiButton>
-      </UiCardActions>
-    </UiCard>
+    <Card>
+      <CardActions>
+        <Button>In card</Button>
+        <Button>Hover</Button>
+        <Button>Focus</Button>
+        <Button>Pressed</Button>
+        <Button dangerous icon={mdiTrashCanOutline}>Delete</Button>
+      </CardActions>
+    </Card>
   </Section>
   <Section
     active="button:nth-child(4)"
     focus="button:nth-child(3)"
     hover="button:nth-child(2)"
   >
-    <UiCardActions>
-      <UiButton secondary>Secondary</UiButton>
-      <UiButton secondary>Hover</UiButton>
-      <UiButton secondary>Focus</UiButton>
-      <UiButton secondary>Pressed</UiButton>
-      <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
-      <UiButton hotkey="l" secondary>Hot Key</UiButton>
-      <UiButton dangerous icon={mdiTrashCanOutline} secondary>Delete</UiButton>
-    </UiCardActions>
+    <CardActions>
+      <Button secondary>Secondary</Button>
+      <Button secondary>Hover</Button>
+      <Button secondary>Focus</Button>
+      <Button secondary>Pressed</Button>
+      <Button icon={mdiPlusCircleOutline} secondary>Icon</Button>
+      <Button hotkey="l" secondary>Hot Key</Button>
+      <Button dangerous icon={mdiTrashCanOutline} secondary>Delete</Button>
+    </CardActions>
   </Section>
   <Section
     active="button:nth-child(4)"
     focus="button:nth-child(3)"
     hover="button:nth-child(2)"
   >
-    <UiCard>
-      <UiCardActions>
-        <UiButton secondary>Secondary</UiButton>
-        <UiButton secondary>Hover</UiButton>
-        <UiButton secondary>Focus</UiButton>
-        <UiButton secondary>Pressed</UiButton>
-        <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
-        <UiButton hotkey="h" secondary>Hot Key</UiButton>
-        <UiButton dangerous icon={mdiTrashCanOutline} secondary>
-          Delete
-        </UiButton>
-      </UiCardActions>
-    </UiCard>
+    <Card>
+      <CardActions>
+        <Button secondary>Secondary</Button>
+        <Button secondary>Hover</Button>
+        <Button secondary>Focus</Button>
+        <Button secondary>Pressed</Button>
+        <Button icon={mdiPlusCircleOutline} secondary>Icon</Button>
+        <Button hotkey="h" secondary>Hot Key</Button>
+        <Button dangerous icon={mdiTrashCanOutline} secondary>Delete</Button>
+      </CardActions>
+    </Card>
   </Section>
 </Story>
 
@@ -292,65 +284,61 @@
       focus="button:nth-child(3)"
       hover="button:nth-child(2)"
     >
-      <UiCardActions>
-        <UiButton>Base</UiButton>
-        <UiButton>Hover</UiButton>
-        <UiButton>Focus</UiButton>
-        <UiButton>Pressed</UiButton>
-        <UiButton hotkey="k">Hot Key</UiButton>
-        <UiButton dangerous icon={mdiTrashCanOutline}>Delete</UiButton>
-      </UiCardActions>
+      <CardActions>
+        <Button>Base</Button>
+        <Button>Hover</Button>
+        <Button>Focus</Button>
+        <Button>Pressed</Button>
+        <Button hotkey="k">Hot Key</Button>
+        <Button dangerous icon={mdiTrashCanOutline}>Delete</Button>
+      </CardActions>
     </Section>
     <Section
       active="button:nth-child(4)"
       focus="button:nth-child(3)"
       hover="button:nth-child(2)"
     >
-      <UiCard>
-        <UiCardActions>
-          <UiButton>In card</UiButton>
-          <UiButton>Hover</UiButton>
-          <UiButton>Focus</UiButton>
-          <UiButton>Pressed</UiButton>
-          <UiButton dangerous icon={mdiTrashCanOutline}>Delete</UiButton>
-        </UiCardActions>
-      </UiCard>
+      <Card>
+        <CardActions>
+          <Button>In card</Button>
+          <Button>Hover</Button>
+          <Button>Focus</Button>
+          <Button>Pressed</Button>
+          <Button dangerous icon={mdiTrashCanOutline}>Delete</Button>
+        </CardActions>
+      </Card>
     </Section>
     <Section
       active="button:nth-child(4)"
       focus="button:nth-child(3)"
       hover="button:nth-child(2)"
     >
-      <UiCardActions>
-        <UiButton secondary>Secondary</UiButton>
-        <UiButton secondary>Hover</UiButton>
-        <UiButton secondary>Focus</UiButton>
-        <UiButton secondary>Pressed</UiButton>
-        <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
-        <UiButton hotkey="l" secondary>Hot Key</UiButton>
-        <UiButton dangerous icon={mdiTrashCanOutline} secondary>
-          Delete
-        </UiButton>
-      </UiCardActions>
+      <CardActions>
+        <Button secondary>Secondary</Button>
+        <Button secondary>Hover</Button>
+        <Button secondary>Focus</Button>
+        <Button secondary>Pressed</Button>
+        <Button icon={mdiPlusCircleOutline} secondary>Icon</Button>
+        <Button hotkey="l" secondary>Hot Key</Button>
+        <Button dangerous icon={mdiTrashCanOutline} secondary>Delete</Button>
+      </CardActions>
     </Section>
     <Section
       active="button:nth-child(4)"
       focus="button:nth-child(3)"
       hover="button:nth-child(2)"
     >
-      <UiCard>
-        <UiCardActions>
-          <UiButton secondary>Secondary</UiButton>
-          <UiButton secondary>Hover</UiButton>
-          <UiButton secondary>Focus</UiButton>
-          <UiButton secondary>Pressed</UiButton>
-          <UiButton icon={mdiPlusCircleOutline} secondary>Icon</UiButton>
-          <UiButton hotkey="h" secondary>Hot Key</UiButton>
-          <UiButton dangerous icon={mdiTrashCanOutline} secondary>
-            Delete
-          </UiButton>
-        </UiCardActions>
-      </UiCard>
+      <Card>
+        <CardActions>
+          <Button secondary>Secondary</Button>
+          <Button secondary>Hover</Button>
+          <Button secondary>Focus</Button>
+          <Button secondary>Pressed</Button>
+          <Button icon={mdiPlusCircleOutline} secondary>Icon</Button>
+          <Button hotkey="h" secondary>Hot Key</Button>
+          <Button dangerous icon={mdiTrashCanOutline} secondary>Delete</Button>
+        </CardActions>
+      </Card>
     </Section>
   </Scene>
 </Story>

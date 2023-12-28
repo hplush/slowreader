@@ -1,48 +1,48 @@
 <script lang="ts">
   import { isGuestRoute, notFound, router, starting } from '@slowreader/core'
 
-  import AboutPage from '../pages/about.svelte'
-  import DownloadPage from '../pages/download.svelte'
-  import InterfacePage from '../pages/interface.svelte'
-  import NotFoundPage from '../pages/not-found.svelte'
-  import OrganizeFeedPage from '../pages/organize/feed.svelte'
-  import OrganizePage from '../pages/organize/index.svelte'
-  import PreviewPage from '../pages/preview.svelte'
-  import ProfilePage from '../pages/profile.svelte'
-  import RefreshPage from '../pages/refresh.svelte'
-  import StartPage from '../pages/start.svelte'
-  import StartingPage from '../pages/starting.svelte'
-  import WelcomePage from '../pages/welcome.svelte'
-  import UiNavbar from '../ui/navbar/index.svelte'
+  import About from '../pages/about.svelte'
+  import Download from '../pages/download.svelte'
+  import Interface from '../pages/interface.svelte'
+  import NotFound from '../pages/not-found.svelte'
+  import OrganizeFeed from '../pages/organize/feed.svelte'
+  import Organize from '../pages/organize/index.svelte'
+  import Preview from '../pages/preview.svelte'
+  import Profile from '../pages/profile.svelte'
+  import Refresh from '../pages/refresh.svelte'
+  import Start from '../pages/start.svelte'
+  import Starting from '../pages/starting.svelte'
+  import Welcome from '../pages/welcome.svelte'
+  import Navbar from '../ui/navbar/index.svelte'
 </script>
 
 {#if $starting}
-  <StartingPage />
+  <Starting />
 {:else}
   {#if $notFound || $router.route === 'notFound'}
-    <NotFoundPage />
+    <NotFound />
   {:else if $router.route === 'start'}
-    <StartPage />
+    <Start />
   {:else if $router.route === 'preview' || $router.route === 'add'}
-    <PreviewPage url={$router.route === 'preview' ? $router.params.url : ''} />
+    <Preview url={$router.route === 'preview' ? $router.params.url : ''} />
   {:else if $router.route === 'feeds'}
-    <OrganizePage />
+    <Organize />
   {:else if $router.route === 'feed'}
-    <OrganizeFeedPage feedId={$router.params.id} />
+    <OrganizeFeed feedId={$router.params.id} />
   {:else if $router.route === 'interface'}
-    <InterfacePage />
+    <Interface />
   {:else if $router.route === 'download'}
-    <DownloadPage />
+    <Download />
   {:else if $router.route === 'profile'}
-    <ProfilePage />
+    <Profile />
   {:else if $router.route === 'welcome'}
-    <WelcomePage />
+    <Welcome />
   {:else if $router.route === 'refresh'}
-    <RefreshPage />
+    <Refresh />
   {:else if $router.route === 'about'}
-    <AboutPage />
+    <About />
   {/if}
   {#if !isGuestRoute($router)}
-    <UiNavbar />
+    <Navbar />
   {/if}
 {/if}

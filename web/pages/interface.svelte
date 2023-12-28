@@ -2,14 +2,14 @@
   import { theme } from '@slowreader/core'
   import { settingsMessages as t } from '@slowreader/core/messages'
 
-  import UiCard from '../ui/card.svelte'
-  import UiPage from '../ui/page.svelte'
-  import UiRadioField from '../ui/radio-field.svelte'
+  import Card from '../ui/card.svelte'
+  import Page from '../ui/page.svelte'
+  import RadioField from '../ui/radio-field.svelte'
 </script>
 
-<UiPage title={$t.interface} type="settings">
-  <UiCard>
-    <UiRadioField
+<Page title={$t.interface} type="settings">
+  <Card>
+    <RadioField
       current={$theme}
       label={$t.theme}
       values={[
@@ -21,5 +21,5 @@
         theme.set(e.detail)
       }}
     />
-  </UiCard>
-</UiPage>
+  </Card>
+</Page>

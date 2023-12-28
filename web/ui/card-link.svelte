@@ -2,7 +2,7 @@
   import { mdiChevronRight } from '@mdi/js'
   import { createEventDispatcher } from 'svelte'
 
-  import UiIcon from './icon.svelte'
+  import Icon from './icon.svelte'
 
   export let href: string | undefined = undefined
   export let name: string
@@ -28,7 +28,7 @@
     >
       {name}
       {#if current}
-        <UiIcon path={mdiChevronRight} />
+        <Icon path={mdiChevronRight} />
       {/if}
     </a>
   {:else}
@@ -41,7 +41,7 @@
     >
       {name}
       {#if current}
-        <UiIcon path={mdiChevronRight} />
+        <Icon path={mdiChevronRight} />
       {/if}
     </button>
   {/if}

@@ -1,8 +1,8 @@
 <script context="module" lang="ts">
-  import UiLoader from '../../ui/loader.svelte'
+  import Loader from '../../ui/loader.svelte'
 
   export const meta = {
-    component: UiLoader,
+    component: Loader,
     title: 'UI/Loader'
   }
 </script>
@@ -29,19 +29,19 @@
 
 <Story name="Light">
   <Section>
-    <UiLoader />
+    <Loader />
   </Section>
   <Section>
-    <UiLoader value={0.5} />
+    <Loader value={0.5} />
   </Section>
   <Section>
-    <UiLoader value={progress} />
+    <Loader value={progress} />
   </Section>
   <Section border height={100} width={100}>
-    <UiLoader />
+    <Loader />
   </Section>
 </Story>
 
 <Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
-  <UiLoader />
+  <Loader />
 </Story>

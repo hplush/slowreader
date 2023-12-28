@@ -6,8 +6,8 @@
 
   import { addHotkey } from '../../lib/hotkeys.js'
   import { getURL } from '../../stores/router.js'
-  import UiHotkey from '../hotkey.svelte'
-  import UiIcon from '../icon.svelte'
+  import Hotkey from '../hotkey.svelte'
+  import Icon from '../icon.svelte'
 
   let slow: HTMLElement
   let fast: HTMLElement
@@ -36,11 +36,11 @@
     <div class="navbar-switcher_overflow">
       <div class="navbar-switcher_button">
         <div class="navbar-switcher_fire">
-          <UiIcon path={mdiFireplace} />
+          <Icon path={mdiFireplace} />
         </div>
-        <UiIcon compensate={1} path={mdiFireplace} />
+        <Icon compensate={1} path={mdiFireplace} />
         {$t.slow}
-        <UiHotkey hotkey="s" />
+        <Hotkey hotkey="s" />
       </div>
     </div>
   </a>
@@ -52,9 +52,9 @@
   >
     <div class="navbar-switcher_overflow">
       <div class="navbar-switcher_button">
-        <UiIcon path={mdiFood} />
+        <Icon path={mdiFood} />
         {$t.fast}
-        <UiHotkey hotkey="f" />
+        <Hotkey hotkey="f" />
       </div>
     </div>
   </a>

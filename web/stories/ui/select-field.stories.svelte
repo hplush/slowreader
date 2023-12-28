@@ -1,8 +1,8 @@
 <script context="module" lang="ts">
-  import UiSelectField from '../../ui/select-field.svelte'
+  import SelectField from '../../ui/select-field.svelte'
 
   export const meta = {
-    component: UiSelectField,
+    component: SelectField,
     title: 'UI/SelectField'
   }
 </script>
@@ -17,7 +17,7 @@
 
 <Story name="Base">
   <Section width={200}>
-    <UiSelectField
+    <SelectField
       current={selectValue}
       label="Label"
       values={[
@@ -31,7 +31,7 @@
     />
   </Section>
   <Section hover width={200}>
-    <UiSelectField
+    <SelectField
       current="2"
       label="Label"
       values={[
@@ -42,7 +42,7 @@
     />
   </Section>
   <Section focus width={200}>
-    <UiSelectField
+    <SelectField
       current="2"
       label="Label"
       values={[
@@ -53,7 +53,7 @@
     />
   </Section>
   <Section active width={200}>
-    <UiSelectField
+    <SelectField
       current="2"
       label="Label"
       values={[
@@ -64,7 +64,7 @@
     />
   </Section>
   <Section width={200}>
-    <UiSelectField
+    <SelectField
       current="2"
       label="Label"
       values={[
@@ -75,7 +75,7 @@
     />
   </Section>
   <Section hover width={200}>
-    <UiSelectField
+    <SelectField
       current="2"
       hideLabel
       label="Label"

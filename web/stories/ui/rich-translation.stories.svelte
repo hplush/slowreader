@@ -1,8 +1,8 @@
 <script context="module" lang="ts">
-  import UiRichTranslation from '../../ui/rich-translation.svelte'
+  import RichTranslation from '../../ui/rich-translation.svelte'
 
   export const meta = {
-    component: UiRichTranslation,
+    component: RichTranslation,
     title: 'UI/RichTranslation'
   }
 </script>
@@ -15,18 +15,18 @@
 
 <Story name="Base">
   <Section>
-    <UiRichTranslation text={'simple text'} />
+    <RichTranslation text={'simple text'} />
   </Section>
   <Section>
-    <UiRichTranslation text={'<b>&lt;i&gt;XSS&lt;/i&gt;</b>'} />
+    <RichTranslation text={'<b>&lt;i&gt;XSS&lt;/i&gt;</b>'} />
   </Section>
   <Section>
-    <UiRichTranslation text={'- list\n- with\n- many\n- items'} />
+    <RichTranslation text={'- list\n- with\n- many\n- items'} />
   </Section>
   <Section>
-    <UiRichTranslation text={'two\n\nlines'} />
+    <RichTranslation text={'two\n\nlines'} />
   </Section>
   <Section>
-    <UiRichTranslation text={'[link]\n\nwith markdown'} url="#" />
+    <RichTranslation text={'[link]\n\nwith markdown'} url="#" />
   </Section>
 </Story>

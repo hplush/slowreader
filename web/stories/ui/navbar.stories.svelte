@@ -1,8 +1,8 @@
 <script context="module" lang="ts">
-  import UiNavbar from '../../ui/navbar/index.svelte'
+  import Navbar from '../../ui/navbar/index.svelte'
 
   export const meta = {
-    component: UiNavbar,
+    component: Navbar,
     title: 'UI/Navbar'
   }
 </script>
@@ -16,13 +16,13 @@
 
 <Story name="Slow" parameters={{ layout: 'fullscreen' }}>
   <Scene route={{ params: {}, route: 'slowAll' }}>
-    <UiNavbar />
+    <Navbar />
   </Scene>
 </Story>
 
 <Story name="Fast" parameters={{ layout: 'fullscreen' }}>
   <Scene route={{ params: {}, route: 'fast' }}>
-    <UiNavbar />
+    <Navbar />
   </Scene>
 </Story>
 
@@ -32,14 +32,14 @@
     route={{ params: {}, route: 'add' }}
   >
     <Section border={false} focus=".navbar-switcher_link:first-child">
-      <UiNavbar />
+      <Navbar />
     </Section>
   </Scene>
 </Story>
 
 <Story name="Settings" parameters={{ layout: 'fullscreen' }}>
   <Scene feeds={[]} route={{ params: {}, route: 'interface' }}>
-    <UiNavbar />
+    <Navbar />
   </Scene>
 </Story>
 
@@ -48,7 +48,7 @@
   parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
 >
   <Scene route={{ params: {}, route: 'slowAll' }}>
-    <UiNavbar />
+    <Navbar />
   </Scene>
 </Story>
 
@@ -57,7 +57,7 @@
   parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
 >
   <Scene route={{ params: {}, route: 'fast' }}>
-    <UiNavbar />
+    <Navbar />
   </Scene>
 </Story>
 
@@ -67,7 +67,7 @@
 >
   <Scene route={{ params: {}, route: 'interface' }}>
     <Section border={false} pressKey="p">
-      <UiNavbar />
+      <Navbar />
     </Section>
   </Scene>
 </Story>

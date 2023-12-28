@@ -1,9 +1,9 @@
 <script lang="ts">
-  import UiLoader from '../ui/loader.svelte'
+  import Loader from '../ui/loader.svelte'
 </script>
 
 <div class="starting">
-  <UiLoader zoneId="main" />
+  <Loader zoneId="main" />
 </div>
 
 <style>

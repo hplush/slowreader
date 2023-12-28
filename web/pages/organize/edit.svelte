@@ -26,12 +26,12 @@
   import { organizeMessages as t } from '@slowreader/core/messages'
   import { createEventDispatcher } from 'svelte'
 
-  import UiButton from '../../ui/button.svelte'
-  import UiCard from '../../ui/card.svelte'
-  import UiLoader from '../../ui/loader.svelte'
-  import UiRadioField from '../../ui/radio-field.svelte'
-  import UiSelectField from '../../ui/select-field.svelte'
-  import UiTextField from '../../ui/text-field.svelte'
+  import Button from '../../ui/button.svelte'
+  import Card from '../../ui/card.svelte'
+  import Loader from '../../ui/loader.svelte'
+  import RadioField from '../../ui/radio-field.svelte'
+  import SelectField from '../../ui/select-field.svelte'
+  import TextField from '../../ui/text-field.svelte'
   import OrganizePosts from './posts.svelte'
 
   export let feedId: string
@@ -79,12 +79,12 @@
 </script>
 
 {#if $feed.isLoading || $filters.isLoading || $categories.isLoading}
-  <UiLoader />
+  <Loader />
 {:else}
   <form on:submit|preventDefault>
-    <UiCard>
+    <Card>
       <div class="organize_top">
-        <UiTextField
+        <TextField
           hideLabel
           label={$t.name}
           required
@@ -93,7 +93,7 @@
             if (e.detail.valid) changeFeed(feedId, { title: e.detail.value })
           }}
         />
-        <UiButton
+        <Button
           dangerous
           secondary
           on:click={() => {
@@ -101,10 +101,10 @@
               dispatch('delete')
               deleteFeed(feedId)
             }
-          }}>{$t.deleteFeed}</UiButton
+          }}>{$t.deleteFeed}</Button
         >
       </div>
-      <UiTextField
+      <TextField
         hideLabel
         label={$t.url}
         required
@@ -114,13 +114,13 @@
           if (e.detail.valid) changeFeed(feedId, { url: e.detail.value })
         }}
       />
-      <UiSelectField
+      <SelectField
         current={feedCategory($feed.categoryId, $categories)}
         label={$t.category}
         values={categoryOptions}
         on:change={onCategoryChange}
       />
-      <UiRadioField
+      <RadioField
         current={$feed.reading}
         hideLabel
         label={$t.type}
@@ -136,7 +136,7 @@
         <ol>
           {#each sortFilters($filters.list) as filter (filter.id)}
             <li class="organize_filter">
-              <UiTextField
+              <TextField
                 error={!isValidFilterQuery(filter.query)
                   ? $t.invalidFilter
                   : undefined}
@@ -149,7 +149,7 @@
                   }
                 }}
               />
-              <UiSelectField
+              <SelectField
                 current={filter.action}
                 hideLabel
                 label={$t.filterAction}
@@ -162,7 +162,7 @@
                   changeFilter(filter.id, { action: e.detail })
                 }}
               />
-              <UiButton
+              <Button
                 hiddenLabel={$t.moveFilterUp}
                 icon={mdiArrowUpBoldOutline}
                 secondary
@@ -170,7 +170,7 @@
                   moveFilterUp(filter.id)
                 }}
               />
-              <UiButton
+              <Button
                 hiddenLabel={$t.moveFilterDown}
                 icon={mdiArrowDownBoldOutline}
                 secondary
@@ -178,7 +178,7 @@
                   moveFilterDown(filter.id)
                 }}
               />
-              <UiButton
+              <Button
                 dangerous
                 hiddenLabel={$t.deleteFilter}
                 icon={mdiTrashCanOutline}
@@ -192,7 +192,7 @@
         </ol>
       {/if}
       <div class="organize_add-filter">
-        <UiButton
+        <Button
           icon={mdiFilterPlusOutline}
           secondary
           wide
@@ -201,9 +201,9 @@
           }}
         >
           {$t.addFilter}
-        </UiButton>
+        </Button>
       </div>
-    </UiCard>
+    </Card>
   </form>
 
   {#if loadedPosts}
