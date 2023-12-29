@@ -39,11 +39,8 @@
     requested = true
     setPreviewUrl(value)
     let page = router.get()
-    if (
-      page.route === 'add' ||
-      (page.route === 'preview' && page.params.url !== url)
-    ) {
-      openURL('preview', { url })
+    if (page.route === 'add' && page.params.url !== url) {
+      openURL('add', { url })
     }
   }, 500)
 
@@ -64,7 +61,8 @@
   $: if (url === '') {
     requested = false
     clearPreview()
-    if (router.get().route !== 'add') {
+    let page = router.get()
+    if (page.route === 'add' && page.params.url) {
       openURL('add')
     }
   } else {
@@ -99,13 +97,13 @@
       {/if}
 
       {#if $previewCandidatesLoading}
-        <div class="preview_url-loading">
-          <Loader zoneId="preview_query" />
+        <div class="add_url-loading">
+          <Loader zoneId="add_query" />
         </div>
       {/if}
 
       {#if !$previewCandidatesLoading && url !== '' && $previewCandidates.length === 0 && requested && !$previewUrlError}
-        <div class="preview_no-results">
+        <div class="add_no-results">
           <RichTranslation
             text={$t.noResults}
             url="https://github.com/hplush/slowreader/issues"
@@ -115,16 +113,16 @@
     </Card>
 
     {#if url === ''}
-      <div class="preview_guide">
+      <div class="add_guide">
         <RichTranslation text={$t.searchGuide} />
       </div>
     {/if}
   </div>
-  <div bind:this={feed} id="preview_feed" slot="two">
+  <div bind:this={feed} id="add_feed" slot="two">
     {#if $previewCandidate}
       {#if $previewCandidateAdded === undefined}
-        <div class="preview_feed-loading">
-          <Loader zoneId="preview_feed" />
+        <div class="add_feed-loading">
+          <Loader zoneId="add_feed" />
         </div>
         {#if $previewPosts}
           <FeedsPosts posts={$previewPosts} />
@@ -144,29 +142,29 @@
 </TwoStepsPage>
 
 <style>
-  .preview_url-loading {
+  .add_url-loading {
     margin-top: var(--padding-l);
   }
 
-  .preview_guide {
+  .add_guide {
     max-width: 450px;
     padding-top: 100px;
     margin: 0 auto;
   }
 
-  .preview_feed-loading {
+  .add_feed-loading {
     display: flex;
     align-items: center;
     justify-content: center;
     height: var(--control-height);
   }
 
-  .preview_no-results {
+  .add_no-results {
     margin-top: var(--padding-l);
     color: var(--error-color);
   }
 
-  .preview_no-results :global(:any-link) {
+  .add_no-results :global(:any-link) {
     color: var(--error-color);
 
     &:hover {

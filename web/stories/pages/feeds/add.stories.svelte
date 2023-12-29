@@ -1,9 +1,9 @@
 <script context="module" lang="ts">
-  import FeedsPreview from '../../../pages/feeds/preview.svelte'
+  import FeedsAdd from '../../../pages/feeds/add.svelte'
 
   export const meta = {
-    component: FeedsPreview,
-    title: 'Pages/Feeds/Preview'
+    component: FeedsAdd,
+    title: 'Pages/Feeds/Add'
   }
 </script>
 
@@ -69,25 +69,25 @@
 
 <Story name="Empty" parameters={{ layout: 'fullscreen' }}>
   <Scene>
-    <FeedsPreview url="" />
+    <FeedsAdd url="" />
   </Scene>
 </Story>
 
 <Story name="URL Loading" parameters={{ layout: 'fullscreen' }}>
   <Scene responses={{ 'https://example.com': { loading: true } }}>
-    <FeedsPreview url="https://example.com" />
+    <FeedsAdd url="https://example.com" />
   </Scene>
 </Story>
 
 <Story name="URL Error" parameters={{ layout: 'fullscreen' }}>
   <Scene>
-    <FeedsPreview url="not a URL" />
+    <FeedsAdd url="not a URL" />
   </Scene>
 </Story>
 
 <Story name="Loading Error" parameters={{ layout: 'fullscreen' }}>
   <Scene responses={{ 'https://example.com': { status: 404 } }}>
-    <FeedsPreview url="https://example.com" />
+    <FeedsAdd url="https://example.com" />
   </Scene>
 </Story>
 
@@ -95,7 +95,7 @@
   <Scene
     responses={{ '*': { status: 404 }, 'https://example.com': '<html></html>' }}
   >
-    <FeedsPreview url="https://example.com" />
+    <FeedsAdd url="https://example.com" />
   </Scene>
 </Story>
 
@@ -107,7 +107,7 @@
       'https://example.com/news.atom': ATOM
     }}
   >
-    <FeedsPreview url="https://example.com" />
+    <FeedsAdd url="https://example.com" />
   </Scene>
 </Story>
 
@@ -119,7 +119,7 @@
       'https://example.com/news.atom': ATOM
     }}
   >
-    <FeedsPreview url="https://example.com" />
+    <FeedsAdd url="https://example.com" />
   </Scene>
 </Story>
 
@@ -134,6 +134,6 @@
       'https://example.com/news.atom': ATOM
     }}
   >
-    <FeedsPreview url="https://example.com" />
+    <FeedsAdd url="https://example.com" />
   </Scene>
 </Story>

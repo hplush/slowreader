@@ -6,16 +6,14 @@ import { userId } from './settings.js'
 
 export interface Routes {
   about: {}
-  add: {}
-  categories: {}
-  categoriesFeed: { id: string }
+  add: { url?: string }
+  categories: { id?: string }
   download: {}
   fast: {}
   feeds: {}
   home: {}
   interface: {}
   notFound: {}
-  preview: { url: string }
   profile: {}
   refresh: {}
   settings: {}
@@ -47,12 +45,7 @@ const SETTINGS = new Set<AppRoute['route']>([
   'download'
 ])
 
-const ORGANIZE = new Set<AppRoute['route']>([
-  'add',
-  'preview',
-  'categories',
-  'categoriesFeed'
-])
+const ORGANIZE = new Set<AppRoute['route']>(['add', 'categories'])
 
 function redirect<Name extends keyof Routes>(
   route: Name,

@@ -50,7 +50,7 @@
                 {#if feedId === feed.id}
                   <strong>{feed.title}</strong>
                 {:else}
-                  <a href={getURL('categoriesFeed', { id: feed.id })}>
+                  <a href={getURL('categories', { id: feed.id })}>
                     {feed.title}
                   </a>
                 {/if}
