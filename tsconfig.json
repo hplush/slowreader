@@ -2,12 +2,12 @@
   "compilerOptions": {
     "noUncheckedIndexedAccess": true,
     "verbatimModuleSyntax": true,
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "allowJs": true,
     "target": "es2021",
-    "module": "esnext",
+    "module": "node16",
     "strict": true,
     "noEmit": true
   },

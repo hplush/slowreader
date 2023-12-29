@@ -8,8 +8,8 @@
     "test": "FORCE_COLOR=1 pnpm run /^test:/"
   },
   "exports": {
-    ".": "./index",
-    "./messages": "./messages/index",
+    ".": "./index.js",
+    "./messages": "./messages/index.js",
     "./package.json": "./package.json"
   },
   "dependencies": {
