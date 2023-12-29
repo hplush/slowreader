@@ -130,7 +130,7 @@
           <FeedsPosts posts={$previewPosts} />
         {/if}
       {:else if $previewCandidateAdded === false}
-        <Button icon={mdiPlusCircleOutline} on:click={addPreviewCandidate}>
+        <Button icon={mdiPlusCircleOutline} wide on:click={addPreviewCandidate}>
           {$t.add}
         </Button>
         {#if $previewPosts}
