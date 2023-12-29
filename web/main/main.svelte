@@ -1,8 +1,7 @@
 <script lang="ts">
   import { isGuestRoute, notFound, router, starting } from '@slowreader/core'
 
-  import FeedsCategoriesFeed from '../pages/feeds/categories/feed.svelte'
-  import FeedsCategories from '../pages/feeds/categories/index.svelte'
+  import FeedsCategories from '../pages/feeds/categories.svelte'
   import Preview from '../pages/feeds/preview.svelte'
   import NotFound from '../pages/not-found.svelte'
   import Refresh from '../pages/refresh.svelte'
@@ -25,10 +24,10 @@
     <Start />
   {:else if $router.route === 'preview' || $router.route === 'add'}
     <Preview url={$router.route === 'preview' ? $router.params.url : ''} />
-  {:else if $router.route === 'categories'}
-    <FeedsCategories />
-  {:else if $router.route === 'categoriesFeed'}
-    <FeedsCategoriesFeed feedId={$router.params.id} />
+  {:else if $router.route === 'categories' || $router.route === 'categoriesFeed'}
+    <FeedsCategories
+      feedId={$router.route === 'categories' ? undefined : $router.params.id}
+    />
   {:else if $router.route === 'interface'}
     <SettingsInterface />
   {:else if $router.route === 'download'}
