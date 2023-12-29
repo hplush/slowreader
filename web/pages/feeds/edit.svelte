@@ -30,6 +30,7 @@
   import Card from '../../ui/card.svelte'
   import Loader from '../../ui/loader.svelte'
   import RadioField from '../../ui/radio-field.svelte'
+  import Row from '../../ui/row.svelte'
   import SelectField from '../../ui/select-field.svelte'
   import TextField from '../../ui/text-field.svelte'
   import FeedsPosts from './posts.svelte'
@@ -83,7 +84,7 @@
 {:else}
   <form on:submit|preventDefault>
     <Card>
-      <div class="feeds-edit_top">
+      <Row compact>
         <TextField
           hideLabel
           label={$t.name}
@@ -103,7 +104,7 @@
             }
           }}>{$t.deleteFeed}</Button
         >
-      </div>
+      </Row>
       <TextField
         hideLabel
         label={$t.url}
@@ -216,16 +217,11 @@
 {/if}
 
 <style>
-  .feeds-edit_top {
-    display: flex;
-    gap: var(--padding-m);
-    align-items: baseline;
-  }
-
   .feeds-edit_filter {
     display: flex;
     gap: 4px;
     align-items: baseline;
+    list-style: none;
   }
 
   .feeds-edit_add-filter {
