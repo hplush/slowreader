@@ -49,7 +49,7 @@
   "devDependencies": {
     "@logux/stylelint-config": "0.18.0",
     "@size-limit/file": "11.0.1",
-    "@storybook/addon-svelte-csf": "4.0.13",
+    "@storybook/addon-svelte-csf": "4.1.0",
     "@storybook/addon-themes": "7.6.6",
     "@storybook/svelte": "7.6.6",
     "@storybook/svelte-vite": "7.6.6",
