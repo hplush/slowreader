@@ -98,9 +98,7 @@
       {/if}
 
       {#if $previewCandidatesLoading}
-        <div class="feeds-add_url-loading">
-          <Loader zoneId="add_query" />
-        </div>
+        <Loader zoneId="add_query" />
       {/if}
 
       {#if !$previewCandidatesLoading && url !== '' && $previewCandidates.length === 0 && requested && !$previewUrlError}
@@ -122,9 +120,7 @@
   <div bind:this={feed} id="add_feed" slot="two">
     {#if $previewCandidate}
       {#if $previewCandidateAdded === undefined}
-        <div class="feeds-add_feed-loading">
-          <Loader zoneId="add_feed" />
-        </div>
+        <Loader zoneId="add_feed" />
         {#if $previewPosts}
           <FeedsPosts posts={$previewPosts} />
         {/if}
@@ -143,21 +139,10 @@
 </TwoStepsPage>
 
 <style>
-  .feeds-add_url-loading {
-    margin-top: var(--padding-l);
-  }
-
   .feeds-add_guide {
     max-width: 450px;
     padding-top: 100px;
     margin: 0 auto;
-  }
-
-  .feeds-add_feed-loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: var(--control-height);
   }
 
   .feeds-add_no-results {

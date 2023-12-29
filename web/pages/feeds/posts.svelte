@@ -17,9 +17,7 @@
 </script>
 
 {#if $posts.isLoading}
-  <div class="feeds-posts_loader">
-    <Loader />
-  </div>
+  <Loader />
 {:else}
   <ul>
     {#each $posts.list as post (post.url)}
@@ -29,9 +27,3 @@
     {/each}
   </ul>
 {/if}
-
-<style>
-  .feeds-posts_loader {
-    margin-top: var(--padding-l);
-  }
-</style>

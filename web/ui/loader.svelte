@@ -4,6 +4,7 @@
   export let label: string = $t.loading
   export let zoneId: string | undefined = undefined
   export let value: number | undefined = undefined
+  export let margin = true
 
   let progress: HTMLProgressElement | undefined
 
@@ -19,6 +20,7 @@
 <progress
   bind:this={progress}
   class="loader"
+  class:is-margin={margin}
   aria-describedby={zoneId}
   aria-label={label}
 >
@@ -37,6 +39,14 @@
     background: var(--zone-color);
     border: none;
     border-radius: 2px;
+
+    &.is-margin {
+      margin-block: var(--padding-l);
+    }
+  }
+
+  :global(.card) > .loader:last-child {
+    margin-bottom: 0;
   }
 
   .loader::-webkit-progress-bar {
