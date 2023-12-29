@@ -33,7 +33,7 @@ function somePrevClass(node: Node, cb: (node: Node) => boolean): boolean {
   return false
 }
 
-const ALLOW_GLOBAL = /^(has-[-\w]+|is-[-\w]+|card)$/
+const ALLOW_GLOBAL = /^(has-[a-z-]+|is-[a-z-]+|card)$/
 
 function isGlobalModifier(node: ClassName): boolean {
   return (
@@ -50,14 +50,14 @@ function isElement(node: Node, prefix: string): boolean {
   return (
     node.type === 'class' &&
     node.value.startsWith(prefix) &&
-    /^[\w-]+_[\w-]+$/.test(node.value)
+    /^[a-z-]+_[a-z-]+$/.test(node.value)
   )
 }
 
 function isModifier(node: Node, prefix: string): boolean {
   return (
     node.type === 'class' &&
-    /is-[-\w]+/.test(node.value) &&
+    /is-[a-z-]+/.test(node.value) &&
     somePrevClass(node, i => isBlock(i, prefix) || isElement(i, prefix))
   )
 }
