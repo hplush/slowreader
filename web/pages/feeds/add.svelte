@@ -98,13 +98,13 @@
       {/if}
 
       {#if $previewCandidatesLoading}
-        <div class="add_url-loading">
+        <div class="feeds-add_url-loading">
           <Loader zoneId="add_query" />
         </div>
       {/if}
 
       {#if !$previewCandidatesLoading && url !== '' && $previewCandidates.length === 0 && requested && !$previewUrlError}
-        <div class="add_no-results">
+        <div class="feeds-add_no-results">
           <RichTranslation
             text={$t.noResults}
             url="https://github.com/hplush/slowreader/issues"
@@ -114,7 +114,7 @@
     </Card>
 
     {#if url === ''}
-      <div class="add_guide">
+      <div class="feeds-add_guide">
         <RichTranslation text={$t.searchGuide} />
       </div>
     {/if}
@@ -122,7 +122,7 @@
   <div bind:this={feed} id="add_feed" slot="two">
     {#if $previewCandidate}
       {#if $previewCandidateAdded === undefined}
-        <div class="add_feed-loading">
+        <div class="feeds-add_feed-loading">
           <Loader zoneId="add_feed" />
         </div>
         {#if $previewPosts}
@@ -143,29 +143,29 @@
 </TwoStepsPage>
 
 <style>
-  .add_url-loading {
+  .feeds-add_url-loading {
     margin-top: var(--padding-l);
   }
 
-  .add_guide {
+  .feeds-add_guide {
     max-width: 450px;
     padding-top: 100px;
     margin: 0 auto;
   }
 
-  .add_feed-loading {
+  .feeds-add_feed-loading {
     display: flex;
     align-items: center;
     justify-content: center;
     height: var(--control-height);
   }
 
-  .add_no-results {
+  .feeds-add_no-results {
     margin-top: var(--padding-l);
     color: var(--error-color);
   }
 
-  .add_no-results :global(:any-link) {
+  .feeds-add_no-results :global(:any-link) {
     color: var(--error-color);
 
     &:hover {

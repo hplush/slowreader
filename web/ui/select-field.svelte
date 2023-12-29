@@ -70,23 +70,23 @@
     background: var(--secondary-button-color);
     border-radius: var(--inner-radius);
 
-    &:has(:hover),
-    &:has(.is-pseudo-hover),
-    &:has(:focus-visible),
-    &:has(.is-pseudo-focus-visible),
-    &:has(:active),
-    &:has(.is-pseudo-active) {
+    &:has(.select-field_select:hover),
+    &:has(.select-field_select.is-pseudo-hover),
+    &:has(.select-field_select:focus-visible),
+    &:has(.select-field_select.is-pseudo-focus-visible),
+    &:has(.select-field_select:active),
+    &:has(.select-field_select.is-pseudo-active) {
       background: var(--secondary-button-hover-color);
     }
 
-    &:has(:focus-visible),
-    &:has(.is-pseudo-focus-visible) {
+    &:has(.select-field_select:focus-visible),
+    &:has(.select-field_select.is-pseudo-focus-visible) {
       outline: 3px solid var(--focus-color);
       outline-offset: 3px;
     }
 
-    &:has(:active),
-    &:has(.is-pseudo-active) {
+    &:has(.select-field_select:active),
+    &:has(.select-field_select.is-pseudo-active) {
       padding-top: 1px;
       box-shadow: var(--flat-active-shadow);
     }

@@ -14,15 +14,15 @@ async function processCss(dir: string): Promise<void> {
   let items = await readdir(dir)
   await Promise.all(
     items.map(async name => {
-      let filename = join(dir, name)
-      let stat = await lstat(filename)
+      let path = join(dir, name)
+      let stat = await lstat(path)
       if (stat.isDirectory()) {
-        await processCss(filename)
+        await processCss(path)
       } else if (extname(name) === '.css') {
-        let css = await readFile(filename)
+        let css = await readFile(path)
         try {
-          let fixed = await cssCleaner.process(css, { from: filename })
-          await writeFile(filename, fixed.css)
+          let fixed = await cssCleaner.process(css, { from: path })
+          await writeFile(path, fixed.css)
         } catch (e) {
           if (!(e instanceof Error)) {
             printError(`${e}`)

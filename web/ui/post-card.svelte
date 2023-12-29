@@ -6,6 +6,7 @@
 </script>
 
 <div
+  class="post-card"
   class:is-deleted={action === 'delete'}
   class:is-slow-theme={action === 'slow'}
 >
@@ -17,11 +18,11 @@
 </div>
 
 <style>
-  .is-slow-theme {
+  .post-card.is-slow-theme {
     font-weight: bold;
   }
 
-  .is-deleted {
+  .post-card.is-deleted {
     opacity: 80%;
   }
 </style>

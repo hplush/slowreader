@@ -255,6 +255,15 @@ importers:
       browserslist:
         specifier: 4.22.2
         version: 4.22.2
+      postcss-html:
+        specifier: 1.5.0
+        version: 1.5.0
+      postcss-nesting:
+        specifier: 12.0.2
+        version: 12.0.2(postcss@8.4.32)
+      postcss-selector-parser:
+        specifier: 6.0.15
+        version: 6.0.15
       size-limit:
         specifier: 11.0.1
         version: 11.0.1
@@ -1611,13 +1620,13 @@ packages:
       postcss-value-parser: 4.2.0
     dev: false
 
-  /@csstools/selector-specificity@3.0.1(postcss-selector-parser@6.0.14):
+  /@csstools/selector-specificity@3.0.1(postcss-selector-parser@6.0.15):
     resolution: {integrity: sha512-NPljRHkq4a14YzZ3YD406uaxh7s0g6eAq3L9aLOWywoqe8PkYamAvtsh7KNX6c++ihDrJ0RiU+/z7rGnhlZ5ww==}
     engines: {node: ^14 || ^16 || >=18}
     peerDependencies:
       postcss-selector-parser: ^6.0.13
     dependencies:
-      postcss-selector-parser: 6.0.14
+      postcss-selector-parser: 6.0.15
     dev: true
 
   /@discoveryjs/json-ext@0.5.7:
@@ -4906,7 +4915,7 @@ packages:
       postcss: 8.4.32
       postcss-load-config: 3.1.4(postcss@8.4.32)
       postcss-safe-parser: 6.0.0(postcss@8.4.32)
-      postcss-selector-parser: 6.0.14
+      postcss-selector-parser: 6.0.15
       semver: 7.5.4
       svelte: 4.2.8
       svelte-eslint-parser: 0.33.1(svelte@4.2.8)
@@ -7223,6 +7232,17 @@ packages:
       yaml: 1.10.2
     dev: true
 
+  /postcss-nesting@12.0.2(postcss@8.4.32):
+    resolution: {integrity: sha512-63PpJHSeNs93S3ZUIyi+7kKx4JqOIEJ6QYtG3x+0qA4J03+4n0iwsyA1GAHyWxsHYljQS4/4ZK1o2sMi70b5wQ==}
+    engines: {node: ^14 || ^16 || >=18}
+    peerDependencies:
+      postcss: ^8.4
+    dependencies:
+      '@csstools/selector-specificity': 3.0.1(postcss-selector-parser@6.0.15)
+      postcss: 8.4.32
+      postcss-selector-parser: 6.0.15
+    dev: true
+
   /postcss-pseudo-classes@0.4.0(postcss@8.4.32):
     resolution: {integrity: sha512-k1MTMzMdBg3eW05QV/W3rZyuzOFJ3HU3AMbMamillv5G/5NuepHdMl6jO+6GHnjxH12/sNmBqdOI+zYIP86kZg==}
     peerDependencies:
@@ -7271,8 +7291,8 @@ packages:
       postcss: 8.4.32
     dev: true
 
-  /postcss-selector-parser@6.0.14:
-    resolution: {integrity: sha512-65xXYsT40i9GyWzlHQ5ShZoK7JZdySeOozi/tz2EezDo6c04q6+ckYMeoY7idaie1qp2dT5KoYQ2yky6JuoHnA==}
+  /postcss-selector-parser@6.0.15:
+    resolution: {integrity: sha512-rEYkQOMUCEMhsKbK66tbEU9QVIxbhN18YiniAwA7XQYTVBqrBy+P2p5JcdqsHgKM2zWylp8d7J6eszocfds5Sw==}
     engines: {node: '>=4'}
     dependencies:
       cssesc: 3.0.0
@@ -8168,7 +8188,7 @@ packages:
       '@csstools/css-parser-algorithms': 2.4.0(@csstools/css-tokenizer@2.2.2)
       '@csstools/css-tokenizer': 2.2.2
       '@csstools/media-query-list-parser': 2.1.6(@csstools/css-parser-algorithms@2.4.0)(@csstools/css-tokenizer@2.2.2)
-      '@csstools/selector-specificity': 3.0.1(postcss-selector-parser@6.0.14)
+      '@csstools/selector-specificity': 3.0.1(postcss-selector-parser@6.0.15)
       balanced-match: 2.0.0
       colord: 2.9.3
       cosmiconfig: 9.0.0(typescript@5.3.3)
@@ -8194,7 +8214,7 @@ packages:
       postcss: 8.4.32
       postcss-resolve-nested-selector: 0.1.1
       postcss-safe-parser: 7.0.0(postcss@8.4.32)
-      postcss-selector-parser: 6.0.14
+      postcss-selector-parser: 6.0.15
       postcss-value-parser: 4.2.0
       resolve-from: 5.0.0
       string-width: 4.2.3

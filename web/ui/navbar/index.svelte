@@ -89,7 +89,7 @@
     --navbar-width: 0;
   }
 
-  :root.has-navbar {
+  :global(:root.has-navbar) {
     --navbar-width: 210px;
   }
 
