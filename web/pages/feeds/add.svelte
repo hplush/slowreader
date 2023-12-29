@@ -31,6 +31,7 @@
   import FeedsPosts from './posts.svelte'
 
   export let url: string
+
   let links: HTMLUListElement
   let feed: HTMLDivElement
   let requested = false
