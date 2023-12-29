@@ -38,7 +38,7 @@
       0 -1px oklch(0% 0 0 / 20%), 0 1px oklch(100% 0 0),
       inset 0 -5px 5px oklch(from var(--shadow-color) l c h / 8%);
     --secondary-button-color: oklch(0% 0 0 / 5%);
-    --secondary-button-hover-color: oklch(0% 0 0 / 10%);
+    --secondary-button-hover-color: oklch(0% 0 0 / 8%);
     --secondary-dangerous-button-color: oklch(from var(--red-500) l c h / 15%);
     --secondary-dangerous-button-hover-color: oklch(from var(--red-500) l c h / 20%);
     --flat-hover-color: oklch(from var(--hover-color) l c h / 40%);
