@@ -7,6 +7,8 @@ export const organizeMessages = i18n('organize', {
   category: 'Category',
   categoryName: 'Category name',
   deleteCategory: 'Delete',
+  deleteCategoryConform:
+    'All feeds in this category will be moved to General. Are you sure?',
   deleteConform:
     'We will delete feed statistics and posts. ' +
     'It cannot be undone. Are you sure?',

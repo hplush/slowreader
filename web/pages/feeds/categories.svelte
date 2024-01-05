@@ -59,7 +59,9 @@
                   dangerous
                   secondary
                   on:click={() => {
-                    deleteCategory(category.id)
+                    if (confirm($t.deleteCategoryConform)) {
+                      deleteCategory(category.id)
+                    }
                   }}
                   >{$t.deleteCategory}
                 </Button>
