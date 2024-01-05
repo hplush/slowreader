@@ -130,7 +130,9 @@
     &[aria-current='page'] {
       padding-top: calc(var(--padding-l) + 1px);
       background: var(--card-color);
-      box-shadow: 0 0 0 5px var(--land-color);
+      box-shadow:
+        var(--card-item-pressed-shadow),
+        0 0 0 5px var(--land-color);
     }
   }
 
