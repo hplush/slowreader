@@ -103,7 +103,7 @@
     align-items: center;
     justify-content: center;
     height: var(--control-height);
-    padding: 0 var(--padding-l);
+    padding: 0 var(--padding-xl);
     font: var(--control-font);
     color: var(--text-color);
     text-decoration: none;
