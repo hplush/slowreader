@@ -5,6 +5,7 @@
 
   export let type: 'email' | 'password' | 'text' | 'url' = 'text'
   export let error: string | undefined = undefined
+  export let errorId: string | undefined = undefined
   export let label: string
   export let placeholder = ''
   export let required = false
@@ -28,7 +29,7 @@
   }
 
   function isValid(): boolean {
-    return !inputError || !error
+    return !inputError || !error || !errorId
   }
 
   function onInput(e: Event & { currentTarget: HTMLInputElement }): void {
@@ -80,8 +81,8 @@
   <input
     id={label ? id : null}
     class="text-field_input"
-    aria-errormessage={inputError || error ? `${id}-error` : null}
-    aria-invalid={inputError || error ? true : null}
+    aria-errormessage={errorId || (inputError || error ? `${id}-error` : null)}
+    aria-invalid={inputError || error || errorId ? true : null}
     aria-label={hideLabel ? label : null}
     {placeholder}
     {required}

@@ -77,6 +77,13 @@
       <TextField
         enterHint={$previewCandidates.length > 0}
         error={$previewUrlError ? $t[$previewUrlError] : undefined}
+        errorId={!$previewCandidatesLoading &&
+        url !== '' &&
+        $previewCandidates.length === 0 &&
+        requested &&
+        !$previewUrlError
+          ? 'feeds-add-no-results'
+          : undefined}
         label={$t.urlLabel}
         placeholder="https://mastodon.social/@hplushlab"
         bind:value={url}
@@ -102,7 +109,7 @@
       {/if}
 
       {#if !$previewCandidatesLoading && url !== '' && $previewCandidates.length === 0 && requested && !$previewUrlError}
-        <div class="feeds-add_no-results">
+        <div id="feeds-add-no-results" class="feeds-add_no-results">
           <RichTranslation
             text={$t.noResults}
             url="https://github.com/hplush/slowreader/issues"
@@ -146,7 +153,7 @@
   }
 
   .feeds-add_no-results {
-    margin-top: var(--padding-l);
+    margin-top: var(--padding-m);
     color: var(--error-color);
   }
 

@@ -33,13 +33,15 @@
   <Section width={500}>
     <Card>
       <TextField error="The value is wrong" label="Wrong" value="Wrong" />
+      <TextField errorId="error" label="Other error <div>" />
+      <div id="error">Error</div>
     </Card>
   </Section>
   <Section focus="input:first-of-type" width={500}>
     <Card>
       <TextField enterHint label="Focus" />
       <TextField label="Required" required value="" />
-      <TextField enterHint label="Wrong URL" type="url" value="No a link" />
+      <TextField label="Wrong URL" type="url" value="No a link" />
     </Card>
   </Section>
   <Section blur width={500}>
