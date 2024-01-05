@@ -5,10 +5,7 @@
     "@csstools/postcss-oklab-function": {},
     "./postcss/theme-classes.cjs": {},
     "postcss-relative-opacity": {},
-    "postcss-pseudo-classes": {
-      "prefix": "is-pseudo-",
-      "restrictTo": [":focus", ":hover", ":active", ":focus-visible"]
-    },
+    "./postcss/pseudo-classes.cjs": {},
     "autoprefixer": {}
   }
 }

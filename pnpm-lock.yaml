@@ -209,9 +209,6 @@ importers:
       postcss:
         specifier: 8.4.33
         version: 8.4.33
-      postcss-pseudo-classes:
-        specifier: 0.4.0
-        version: 0.4.0(postcss@8.4.33)
       postcss-relative-opacity:
         specifier: 0.1.0
         version: 0.1.0(postcss@8.4.33)
@@ -7233,14 +7230,6 @@ packages:
       postcss: 8.4.33
       postcss-selector-parser: 6.0.15
     dev: true
-
-  /postcss-pseudo-classes@0.4.0(postcss@8.4.33):
-    resolution: {integrity: sha512-k1MTMzMdBg3eW05QV/W3rZyuzOFJ3HU3AMbMamillv5G/5NuepHdMl6jO+6GHnjxH12/sNmBqdOI+zYIP86kZg==}
-    peerDependencies:
-      postcss: ^8.0.0
-    dependencies:
-      postcss: 8.4.33
-    dev: false
 
   /postcss-relative-opacity@0.1.0(postcss@8.4.33):
     resolution: {integrity: sha512-ytW8KWO81ImsHeeQ2rSfU6v5/7hFaIsUVdg6CGKzS+jmzN9yRp6aewhF/nSIrkr6ZCdFthublgfQph91WF+Tpw==}

@@ -71,22 +71,17 @@
     border-radius: var(--inner-radius);
 
     &:has(.select-field_select:hover),
-    &:has(.select-field_select.is-pseudo-hover),
     &:has(.select-field_select:focus-visible),
-    &:has(.select-field_select.is-pseudo-focus-visible),
-    &:has(.select-field_select:active),
-    &:has(.select-field_select.is-pseudo-active) {
+    &:has(.select-field_select:active) {
       background: var(--secondary-button-hover-color);
     }
 
-    &:has(.select-field_select:focus-visible),
-    &:has(.select-field_select.is-pseudo-focus-visible) {
+    &:has(.select-field_select:focus-visible) {
       outline: 3px solid var(--focus-color);
       outline-offset: 3px;
     }
 
-    &:has(.select-field_select:active),
-    &:has(.select-field_select.is-pseudo-active) {
+    &:has(.select-field_select:active) {
       padding-top: 1px;
       box-shadow: var(--flat-active-shadow);
     }
