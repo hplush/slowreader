@@ -66,7 +66,7 @@
     height: var(--control-height);
     padding-inline: var(--padding-l) var(--padding-m);
     overflow: hidden;
-    font-weight: 600;
+    font: var(--control-font);
     background: var(--secondary-button-color);
     border-radius: var(--inner-radius);
 

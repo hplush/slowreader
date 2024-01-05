@@ -104,7 +104,7 @@
     justify-content: center;
     height: var(--control-height);
     padding: 0 var(--padding-l);
-    font-weight: 600;
+    font: var(--control-font);
     color: var(--text-color);
     text-decoration: none;
     text-wrap: nowrap;

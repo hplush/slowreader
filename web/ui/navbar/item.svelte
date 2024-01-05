@@ -85,7 +85,7 @@
     justify-content: flex-start;
     height: var(--control-height);
     padding: 0 var(--padding-l);
-    font-weight: 600;
+    font: var(--control-font);
     color: var(--text-color);
     text-decoration: none;
     cursor: pointer;

@@ -9,7 +9,9 @@
   import { organizeMessages as t } from '@slowreader/core/messages'
 
   import { getURL, openURL } from '../../stores/router.js'
+  import Button from '../../ui/button.svelte'
   import Loader from '../../ui/loader.svelte'
+  import Row from '../../ui/row.svelte'
   import TwoStepsPage from '../../ui/two-steps-page.svelte'
   import FeedsEdit from './edit.svelte'
 
@@ -30,20 +32,29 @@
             {#if category.id === 'general'}
               <h2>{$t.generalCategory}</h2>
             {:else}
-              <h2>{category.title}</h2>
-              <button
-                on:click={() => {
-                  let title = prompt($t.categoryName, category.title)
-                  if (title) {
-                    changeCategory(category.id, { title })
-                  }
-                }}>{$t.renameCategory}</button
-              >
-              <button
-                on:click={() => {
-                  deleteCategory(category.id)
-                }}>{$t.deleteCategory}</button
-              >
+              <h2>
+                <Row>
+                  {category.title}
+                  <Button
+                    secondary
+                    on:click={() => {
+                      let title = prompt($t.categoryName, category.title)
+                      if (title) {
+                        changeCategory(category.id, { title })
+                      }
+                    }}
+                    >{$t.renameCategory}
+                  </Button>
+                  <Button
+                    dangerous
+                    secondary
+                    on:click={() => {
+                      deleteCategory(category.id)
+                    }}
+                    >{$t.deleteCategory}
+                  </Button>
+                </Row>
+              </h2>
             {/if}
             {#each feeds as feed (feed.id)}
               <li>
