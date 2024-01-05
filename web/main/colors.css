@@ -15,12 +15,12 @@
     --card-color: var(--neutral-50);
     --card-shadow: 0 1px 5px oklch(from var(--shadow-color) l c h / 8%),
       0 1px 1px oklch(from var(--shadow-color) l c h / 15%);
+    --card-item-above-shadow: inset 0 1px 2px oklch(from var(--shadow-color) l c h / 20%);
     --card-item-pressed-shadow:
       inset -2px 0 0 var(--land-color),
       inset 2px 0 0 var(--land-color),
       5px 0 0 var(--land-color),
-      -5px 0 0 var(--land-color),
-      inset 0 1px 2px oklch(from var(--shadow-color) l c h / 20%);
+      -5px 0 0 var(--land-color);
     --dangerous-card-color: var(--red-100);
     --dangerous-card-hover-color: color-mix(in oklab, var(--red-100), var(--sand-100));
     --dangerous-text-color: var(--red-700);
@@ -59,6 +59,7 @@
     --hover-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));
     --card-color: var(--neutral-900);
     --card-shadow: 0 1px 2px oklch(0% 0 0), inset 0 1px oklch(100% 0 0 / 10%);
+    --card-item-above-shadow: inset 0 1px 2px oklch(0% 0 0);
     --card-item-pressed-shadow:
       inset -2px 0 0 var(--land-color),
       inset 2px 0 0 var(--land-color),

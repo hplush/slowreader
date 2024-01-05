@@ -95,7 +95,7 @@
     &:active {
       padding-block: calc(var(--padding-l) + 2px) calc(var(--padding-l) - 1px);
       border-top: none;
-      box-shadow: var(--card-item-pressed-shadow);
+      box-shadow: var(--card-item-pressed-shadow), var(--card-item-above-shadow);
     }
 
     &:focus-visible {
@@ -111,6 +111,7 @@
     &:active {
       box-shadow:
         var(--card-item-pressed-shadow),
+        var(--card-item-above-shadow),
         0 5px 0 var(--land-color);
     }
   }

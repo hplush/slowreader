@@ -72,7 +72,7 @@
     &[aria-current='page'] {
       padding-block: calc(var(--padding-l) + 2px) calc(var(--padding-l) - 1px);
       border-top: 0;
-      box-shadow: var(--card-item-pressed-shadow);
+      box-shadow: var(--card-item-pressed-shadow), var(--card-item-above-shadow);
     }
 
     &:focus-visible {
@@ -117,7 +117,20 @@
     &[aria-current='page'] {
       box-shadow:
         var(--card-item-pressed-shadow),
+        var(--card-item-above-shadow),
         0 5px 0 var(--land-color);
+    }
+  }
+
+  :global(.card > ul:first-child > li:first-child:last-child) > .card-link {
+    border: none;
+    border-radius: var(--outer-radius);
+
+    &:active,
+    &[aria-current='page'] {
+      padding-top: calc(var(--padding-l) + 1px);
+      background: var(--card-color);
+      box-shadow: 0 0 0 5px var(--land-color);
     }
   }
 

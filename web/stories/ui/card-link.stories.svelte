@@ -88,6 +88,14 @@
       <Paragraph>After</Paragraph>
     </Card>
   </Section>
+
+  <Section hover width={500}>
+    <Card>
+      <CardLinks>
+        <CardLink name="First" current first />
+      </CardLinks>
+    </Card>
+  </Section>
 </Story>
 
 <Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
@@ -147,6 +155,22 @@
         <CardLink name="Focus" first href="#" />
         <CardLink name="Second" href="#" />
         <CardLink name="Third" href="#" />
+      </CardLinks>
+    </Card>
+  </Section>
+
+  <Section hover width={500}>
+    <Card>
+      <CardLinks>
+        <CardLink name="First" current first />
+      </CardLinks>
+    </Card>
+  </Section>
+
+  <Section width={500}>
+    <Card>
+      <CardLinks>
+        <CardLink name="First" current first />
       </CardLinks>
     </Card>
   </Section>
