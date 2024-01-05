@@ -27,9 +27,14 @@ export let cleaner: Plugin = {
           decl.raws.between = ':'
         }
         if (decl.value.includes('var(--')) {
-          let name = decl.value.match(/var\((--[^)]+)\)/)![1]!
-          used.add(name)
-          globalUsed.add(name)
+          let found = decl.value.match(/var\((--[^)]+)\)/g)
+          if (found) {
+            for (let variable of found) {
+              let name = variable.slice(4, -1)
+              used.add(name)
+              globalUsed.add(name)
+            }
+          }
         }
       },
       OnceExit() {
