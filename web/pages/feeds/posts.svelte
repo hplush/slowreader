@@ -19,7 +19,7 @@
 {#if $posts.isLoading}
   <Loader />
 {:else}
-  <ul>
+  <ul role="list">
     {#each $posts.list as post (post.url)}
       <li>
         <UIPostCard action={checker(post) ?? defaultReading} {post} />

@@ -26,7 +26,7 @@
     {#if $allFeeds.isLoading || $categories.isLoading}
       <Loader />
     {:else}
-      <ul>
+      <ul role="list">
         {#each feedsByCategory($categories, $allFeeds.list) as [category, feeds] (category.id)}
           <li>
             {#if category.id === 'general'}
@@ -56,17 +56,19 @@
                 </Row>
               </h2>
             {/if}
-            {#each feeds as feed (feed.id)}
-              <li>
-                {#if feedId === feed.id}
-                  <strong>{feed.title}</strong>
-                {:else}
-                  <a href={getURL('categories', { id: feed.id })}>
-                    {feed.title}
-                  </a>
-                {/if}
-              </li>
-            {/each}
+            <ul role="list">
+              {#each feeds as feed (feed.id)}
+                <li>
+                  {#if feedId === feed.id}
+                    <strong>{feed.title}</strong>
+                  {:else}
+                    <a href={getURL('categories', { id: feed.id })}>
+                      {feed.title}
+                    </a>
+                  {/if}
+                </li>
+              {/each}
+            </ul>
           </li>
         {/each}
       </ul>

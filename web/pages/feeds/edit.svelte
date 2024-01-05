@@ -134,7 +134,7 @@
         }}
       />
       {#if !$filters.isEmpty}
-        <ol>
+        <ol role="list">
           {#each sortFilters($filters.list) as filter (filter.id)}
             <li class="feeds-edit_filter">
               <TextField
@@ -221,7 +221,6 @@
     display: flex;
     gap: 4px;
     align-items: baseline;
-    list-style: none;
   }
 
   .feeds-edit_add-filter {
