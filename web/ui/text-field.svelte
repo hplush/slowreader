@@ -162,7 +162,8 @@
     color: color-mix(in oklab, var(--hotkey-color), var(--text-color));
   }
 
-  .text-field_input:focus-visible + .text-field_hotkey {
+  .text-field_input:focus-visible + .text-field_hotkey,
+  .text-field_input:global(.is-pseudo-focus-visible) + .text-field_hotkey {
     display: flex;
   }
 
