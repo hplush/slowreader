@@ -11,7 +11,7 @@ import {
 import { nanoid } from 'nanoid'
 import { atom, onMount } from 'nanostores'
 
-import { getClient } from './client.js'
+import { client, getClient } from './client.js'
 import { type FeedValue, getFeed, getFeeds } from './feed.js'
 import { getFilters } from './filter.js'
 import { loadList } from './utils/stores.js'
@@ -89,7 +89,13 @@ export function feedsByCategory(
   })
 }
 
-async function findFastCategories(): Promise<CategoryValue[]> {
+function notEmpty<Value>(array: Value[]): array is [Value, ...Value[]] {
+  return array.length > 0
+}
+
+async function findFastCategories(): Promise<
+  [CategoryValue, ...CategoryValue[]]
+> {
   let [fastFeeds, fastFilters, categories] = await Promise.all([
     loadList(getFeeds({ reading: 'fast' })),
     loadList(getFilters({ action: 'fast' })),
@@ -114,7 +120,7 @@ async function findFastCategories(): Promise<CategoryValue[]> {
     return a.title.localeCompare(b.title)
   })
 
-  if (list.length > 0) {
+  if (notEmpty(list)) {
     return list
   } else {
     return [GENERAL_CATEGORY]
@@ -122,19 +128,34 @@ async function findFastCategories(): Promise<CategoryValue[]> {
 }
 
 export type FastCategoriesValue =
-  | { categories: CategoryValue[]; isLoading: false }
+  | { categories: [CategoryValue, ...CategoryValue[]]; isLoading: false }
   | { isLoading: true }
 
 export const fastCategories = atom<FastCategoriesValue>({ isLoading: true })
 
 onMount(fastCategories, () => {
   fastCategories.set({ isLoading: true })
-  findFastCategories().then(categories => {
-    fastCategories.set({ categories, isLoading: false })
+
+  let unbindLog: (() => void) | undefined
+  let unbindClient = client.subscribe(loguxClient => {
+    unbindLog?.()
+    unbindLog = undefined
+
+    if (loguxClient) {
+      findFastCategories().then(categories => {
+        fastCategories.set({ categories, isLoading: false })
+      })
+
+      unbindLog = loguxClient.log.on('add', () => {
+        findFastCategories().then(categories => {
+          fastCategories.set({ categories, isLoading: false })
+        })
+      })
+    }
   })
-  return getClient().log.on('add', () => {
-    findFastCategories().then(categories => {
-      fastCategories.set({ categories, isLoading: false })
-    })
-  })
+
+  return () => {
+    unbindLog?.()
+    unbindClient()
+  }
 })

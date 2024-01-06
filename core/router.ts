@@ -1,5 +1,6 @@
 import { computed, type ReadableAtom } from 'nanostores'
 
+import { fastCategories, type FastCategoriesValue } from './category.js'
 import { onEnvironment } from './environment.js'
 import { hasFeeds } from './feed.js'
 import { userId } from './settings.js'
@@ -66,7 +67,8 @@ function open<Name extends keyof Routes>(
 function getRoute(
   page: BaseRoute | undefined,
   user: string | undefined,
-  withFeeds: boolean | undefined
+  withFeeds: boolean | undefined,
+  fast: FastCategoriesValue
 ): AppRoute {
   if (!page) {
     return open('notFound', {})
@@ -83,6 +85,10 @@ function getRoute(
       return redirect('interface', {})
     } else if (page.route === 'feeds') {
       return redirect('categories', {})
+    } else if (page.route === 'fast') {
+      if (!page.params.category && !fast.isLoading) {
+        return redirect('fast', { category: fast.categories[0].id })
+      }
     }
   } else if (!GUEST.has(page.route)) {
     return open('start', {})
@@ -93,9 +99,12 @@ function getRoute(
 export let router: ReadableAtom<AppRoute>
 
 onEnvironment(({ baseRouter }) => {
-  router = computed([baseRouter, userId, hasFeeds], (page, user, withFeeds) => {
-    return getRoute(page, user, withFeeds)
-  })
+  router = computed(
+    [baseRouter, userId, hasFeeds, fastCategories],
+    (page, user, withFeeds, fast) => {
+      return getRoute(page, user, withFeeds, fast)
+    }
+  )
 })
 
 export function isFastRoute(route: AppRoute): boolean {

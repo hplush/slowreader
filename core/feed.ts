@@ -41,6 +41,9 @@ export const hasFeeds = readonlyExport($hasFeeds)
 onMount($hasFeeds, () => {
   let unbindFeeds: (() => void) | undefined
   let unbindClient = client.subscribe(enabled => {
+    unbindFeeds?.()
+    unbindFeeds = undefined
+
     if (enabled) {
       unbindFeeds = getFeeds().subscribe(feeds => {
         if (feeds.isLoading) {
@@ -49,9 +52,6 @@ onMount($hasFeeds, () => {
           $hasFeeds.set(!feeds.isEmpty)
         }
       })
-    } else {
-      unbindFeeds?.()
-      unbindFeeds = undefined
     }
   })
 

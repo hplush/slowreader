@@ -1,7 +1,9 @@
 import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
 
 import {
+  addCategory,
   addFeed,
   deleteFeed,
   isFastRoute,
@@ -140,6 +142,28 @@ test('transforms settings to first settings page', () => {
     params: {},
     redirect: true,
     route: 'interface'
+  })
+})
+
+test('transforms routers to first fast category', async () => {
+  userId.set('10')
+  let idA = await addCategory({ title: 'A' })
+  let idB = await addCategory({ title: 'B' })
+  await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
+  await addFeed(testFeed({ categoryId: idB, reading: 'fast' }))
+
+  setBaseRoute({ params: {}, route: 'fast' })
+  deepStrictEqual(router.get(), {
+    params: {},
+    redirect: false,
+    route: 'fast'
+  })
+
+  await setTimeout(100)
+  deepStrictEqual(router.get(), {
+    params: { category: idA },
+    redirect: true,
+    route: 'fast'
   })
 })
 
