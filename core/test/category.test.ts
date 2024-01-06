@@ -67,7 +67,7 @@ test('groups feeds', async () => {
   let categories = await loadValue(getCategories())
   deepStrictEqual(feedsByCategory(categories, feeds.list), [
     [
-      { id: 'general', title: 'General' },
+      { id: 'general', title: '' },
       [getFeed(feed5).get(), getFeed(feed4).get()]
     ],
     [

@@ -58,16 +58,19 @@ export function feedCategory(
   }
 }
 
+const GENERAL_CATEGORY: CategoryValue = {
+  id: 'general',
+  title: ''
+}
+
 export function feedsByCategory(
   categories: LoadedFilterValue<CategoryValue>,
   feeds: readonly FeedValue[]
 ): [CategoryValue, FeedValue[]][] {
-  let allCategories: CategoryValue[] = [
-    {
-      id: 'general',
-      title: 'General'
-    } satisfies CategoryValue
-  ].concat(...categories.list.sort((a, b) => a.title.localeCompare(b.title)))
+  let allCategories = [
+    GENERAL_CATEGORY,
+    ...categories.list.sort((a, b) => a.title.localeCompare(b.title))
+  ]
   let byId: Record<string, FeedValue[]> = {
     general: []
   }
