@@ -41,9 +41,7 @@
         oklch(from var(--shadow-color) l c h / 15%),
         0 -1px oklch(0% 0 0 / 20%);
     --field-color: oklch(100% 0 0);
-    --field-border-color: var(--neutral-400);
-    --field-shadow: inset 0 1px 5px oklch(from var(--shadow-color) l c h / 8%),
-      inset 0 1px 1px oklch(from var(--shadow-color) l c h / 15%);
+    --field-shadow: inset 0 1px 2px oklch(from var(--shadow-color) l c h / 8%);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -75,8 +73,7 @@
     --flat-hover-color: oklch(from var(--hover-color) l c h / 30%);
     --flat-active-shadow: inset 0 1px 2px oklch(0% 0 0 / 80%);
     --field-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));
-    --field-border-color: var(--neutral-700);
-    --field-shadow: inset 0 1px 2px oklch(0% 0 0);
+    --field-shadow: inset 0 1px 2px oklch(0% 0 0 / 60%);
   }
 }
 

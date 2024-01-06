@@ -131,7 +131,7 @@
     height: var(--control-height);
     padding: 0 var(--padding-m);
     background-color: var(--field-color);
-    border: 1px solid var(--field-border-color);
+    border: 1px solid var(--zone-color);
     border-radius: var(--inner-radius);
     box-shadow: var(--field-shadow);
 
