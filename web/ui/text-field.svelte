@@ -112,8 +112,12 @@
     margin-top: var(--padding-l);
   }
 
-  .text-field:first-child {
+  :global(.card) > .text-field:first-child {
     margin-top: calc(var(--card-text-fix) - 4px);
+  }
+
+  .text-field:first-child:not(:has(.text-field_label)) {
+    margin-top: 0;
   }
 
   .text-field_label {
