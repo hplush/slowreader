@@ -72,9 +72,9 @@ test('transforms routers for users', () => {
     route: 'welcome'
   })
 
-  setBaseRoute({ params: {}, route: 'fast' })
+  setBaseRoute({ params: { category: 'general' }, route: 'fast' })
   deepStrictEqual(router.get(), {
-    params: {},
+    params: { category: 'general' },
     redirect: false,
     route: 'fast'
   })
@@ -167,7 +167,7 @@ test('has routes groups', () => {
   equal(isSettingsRoute(router.get()), false)
   equal(isOrganizeRoute(router.get()), false)
 
-  setBaseRoute({ params: {}, route: 'fast' })
+  setBaseRoute({ params: { category: 'general' }, route: 'fast' })
   equal(isFastRoute(router.get()), true)
   equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), false)

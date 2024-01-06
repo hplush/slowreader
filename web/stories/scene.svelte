@@ -36,7 +36,10 @@
   }
 
   export let refreshing: false | Partial<RefreshStatistics> = false
-  export let route: BaseRoute = { params: {}, route: 'fast' }
+  export let route: BaseRoute = {
+    params: { category: 'general' },
+    route: 'fast'
+  }
   export let slow = false
   export let networkType = DEFAULT_NETWORK
 

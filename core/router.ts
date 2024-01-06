@@ -9,7 +9,7 @@ export interface Routes {
   add: { url?: string }
   categories: { feed?: string }
   download: {}
-  fast: {}
+  fast: { category?: string }
   feeds: {}
   home: {}
   interface: {}

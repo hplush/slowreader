@@ -8,7 +8,10 @@ import {
 } from '@slowreader/core'
 import { atom } from 'nanostores'
 
-export const router = atom<BaseRoute>({ params: {}, route: 'fast' })
+export const router = atom<BaseRoute>({
+  params: { category: 'general' },
+  route: 'fast'
+})
 
 export const locale = atom('en')
 

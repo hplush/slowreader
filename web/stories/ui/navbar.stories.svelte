@@ -21,7 +21,7 @@
 </Story>
 
 <Story name="Fast" parameters={{ layout: 'fullscreen' }}>
-  <Scene route={{ params: {}, route: 'fast' }}>
+  <Scene route={{ params: { category: 'general' }, route: 'fast' }}>
     <Navbar />
   </Scene>
 </Story>
@@ -56,7 +56,7 @@
   name="Dark Fast"
   parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
 >
-  <Scene route={{ params: {}, route: 'fast' }}>
+  <Scene route={{ params: { category: 'general' }, route: 'fast' }}>
     <Navbar />
   </Scene>
 </Story>
