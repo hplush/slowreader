@@ -18,6 +18,7 @@
   let dispatch = createEventDispatcher<{
     change: { valid: boolean; value: string }
     enter: { valid: boolean; value: string }
+    input: { valid: boolean; value: string }
   }>()
 
   function validate(): void {
@@ -34,6 +35,7 @@
 
   function onInput(e: Event & { currentTarget: HTMLInputElement }): void {
     value = e.currentTarget.value
+    dispatch('input', { valid: isValid(), value })
   }
 
   function onChange(e: Event & { currentTarget: HTMLInputElement }): void {

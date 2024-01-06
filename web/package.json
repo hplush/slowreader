@@ -34,7 +34,6 @@
     "@slowreader/core": "link:../core",
     "@sveltejs/vite-plugin-svelte": "3.0.1",
     "autoprefixer": "10.4.16",
-    "just-debounce-it": "3.2.0",
     "nanoid": "5.0.4",
     "nanostores": "0.9.5",
     "picocolors": "1.0.0",

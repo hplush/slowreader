@@ -115,6 +115,9 @@ importers:
       '@slowreader/api':
         specifier: link:../api
         version: link:../api
+      just-debounce-it:
+        specifier: 3.2.0
+        version: 3.2.0
       nanoid:
         specifier: 5.0.4
         version: 5.0.4
@@ -194,9 +197,6 @@ importers:
       autoprefixer:
         specifier: 10.4.16
         version: 10.4.16(postcss@8.4.33)
-      just-debounce-it:
-        specifier: 3.2.0
-        version: 3.2.0
       nanoid:
         specifier: 5.0.4
         version: 5.0.4

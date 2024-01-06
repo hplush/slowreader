@@ -17,12 +17,15 @@ import {
   getFeeds,
   loaders,
   mockRequest,
+  onPreviewUrlType,
   previewCandidate,
   type PreviewCandidate,
   previewCandidateAdded,
   previewCandidates,
   previewCandidatesLoading,
+  previewNoResults,
   previewPosts,
+  previewUrl,
   previewUrlError,
   setPreviewCandidate,
   setPreviewUrl,
@@ -72,6 +75,8 @@ test('validates URL', () => {
 
   setPreviewUrl('not URL')
   equal(previewUrlError.get(), 'invalidUrl')
+
+  equal(previewNoResults.get(), false)
 })
 
 test('uses HTTPS for specific domains', async () => {
@@ -122,14 +127,17 @@ test('is ready for network errors', async () => {
 
   equal(previewCandidatesLoading.get(), true)
   equal(previewUrlError.get(), undefined)
+  equal(previewNoResults.get(), false)
 
   await reply(404)
   equal(previewCandidatesLoading.get(), false)
   equal(previewUrlError.get(), 'unloadable')
+  equal(previewNoResults.get(), false)
 
   setPreviewUrl('')
   equal(previewCandidatesLoading.get(), false)
   equal(previewUrlError.get(), undefined)
+  equal(previewNoResults.get(), false)
 })
 
 test('aborts all HTTP requests on URL change', async () => {
@@ -159,6 +167,7 @@ test('detects RSS links', async () => {
   equal(previewCandidatesLoading.get(), true)
   equal(previewUrlError.get(), undefined)
   deepStrictEqual(previewCandidates.get(), [])
+  equal(previewNoResults.get(), false)
 
   let replyRss = expectRequest('http://example.com/news').andWait()
   replyHtml(
@@ -171,6 +180,7 @@ test('detects RSS links', async () => {
   equal(previewCandidatesLoading.get(), true)
   equal(previewUrlError.get(), undefined)
   deepStrictEqual(previewCandidates.get(), [])
+  equal(previewNoResults.get(), false)
 
   let rss = '<rss><channel><title> News </title></channel></rss>'
   replyRss(200, rss, 'application/rss+xml')
@@ -184,6 +194,7 @@ test('detects RSS links', async () => {
       url: 'http://example.com/news'
     }
   ])
+  equal(previewNoResults.get(), false)
 })
 
 test('is ready for empty title', async () => {
@@ -252,6 +263,7 @@ test('shows if unknown URL', async () => {
   equal(previewCandidatesLoading.get(), false)
   equal(previewUrlError.get(), undefined)
   deepStrictEqual(previewCandidates.get(), [])
+  equal(previewNoResults.get(), true)
 })
 
 test('always keep the same order of candidates', async () => {
@@ -464,4 +476,42 @@ test('adds current preview candidate without posts', async () => {
   let now = Date.now() / 1000
   ok(lastPublishedAt <= now)
   ok(lastPublishedAt > now / 1000 - 2000)
+})
+
+test('changes URL during typing in the field', async () => {
+  equal(previewUrl.get(), '')
+
+  setPreviewUrl('')
+  equal(previewUrl.get(), '')
+
+  expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('http://example.com/atom').andRespond(404)
+  expectRequest('http://example.com/feed').andRespond(404)
+  expectRequest('http://example.com/rss').andRespond(404)
+  setPreviewUrl('example.com')
+  equal(previewUrl.get(), 'http://example.com')
+  await setTimeout(10)
+
+  onPreviewUrlType('other')
+  equal(previewUrl.get(), 'http://example.com')
+
+  onPreviewUrlType('other.')
+  equal(previewUrl.get(), 'http://example.com')
+
+  expectRequest('http://other.net').andRespond(200, '<html>Nothing</html>')
+  expectRequest('http://other.net/atom').andRespond(404)
+  expectRequest('http://other.net/feed').andRespond(404)
+  expectRequest('http://other.net/rss').andRespond(404)
+  onPreviewUrlType('other.net')
+  await setTimeout(500)
+  equal(previewUrl.get(), 'http://other.net')
+
+  expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('http://example.com/atom').andRespond(404)
+  expectRequest('http://example.com/feed').andRespond(404)
+  expectRequest('http://example.com/rss').andRespond(404)
+  onPreviewUrlType('other.net/some')
+  setPreviewUrl('example.com')
+  await setTimeout(500)
+  equal(previewUrl.get(), 'http://example.com')
 })

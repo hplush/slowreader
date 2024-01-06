@@ -3,18 +3,20 @@
   import {
     addPreviewCandidate,
     clearPreview,
+    onPreviewUrlType,
     previewCandidate,
     previewCandidateAdded,
     previewCandidates,
     previewCandidatesLoading,
+    previewNoResults,
     previewPosts,
+    previewUrl,
     previewUrlError,
     router,
     setPreviewCandidate,
     setPreviewUrl
   } from '@slowreader/core'
   import { previewMessages as t } from '@slowreader/core/messages'
-  import debounce from 'just-debounce-it'
   import { onDestroy } from 'svelte'
 
   import { jumpInto } from '../../lib/hotkeys.js'
@@ -34,41 +36,21 @@
 
   let links: HTMLUListElement
   let feed: HTMLDivElement
-  let requested = false
 
-  let updateUrl = debounce((value: string) => {
-    requested = true
-    setPreviewUrl(value)
+  previewUrl.listen(link => {
     let page = router.get()
-    if (page.route === 'add' && page.params.url !== url) {
-      openURL('add', { url })
+    if (page.route === 'add' && page.params.url !== link) {
+      openURL('add', { url: link })
     }
-  }, 500)
+  })
 
-  function onSearchEnter(): void {
-    if ($previewCandidates.length > 0) {
-      jumpInto(links)
-    }
-  }
-
-  function onLinkEnter(): void {
-    jumpInto(feed)
+  $: if (url !== previewUrl.get()) {
+    setPreviewUrl(url)
   }
 
   onDestroy(() => {
     clearPreview()
   })
-
-  $: if (url === '') {
-    requested = false
-    clearPreview()
-    let page = router.get()
-    if (page.route === 'add' && page.params.url) {
-      openURL('add')
-    }
-  } else {
-    updateUrl(url)
-  }
 </script>
 
 <TwoStepsPage title={$t.title}>
@@ -77,21 +59,28 @@
       <TextField
         enterHint={$previewCandidates.length > 0}
         error={$previewUrlError ? $t[$previewUrlError] : undefined}
-        errorId={!$previewCandidatesLoading &&
-        url !== '' &&
-        $previewCandidates.length === 0 &&
-        requested &&
-        !$previewUrlError
-          ? 'feeds-add-no-results'
-          : undefined}
+        errorId={$previewNoResults ? 'feeds-add-no-results' : undefined}
         label={$t.urlLabel}
         placeholder="https://mastodon.social/@hplushlab"
-        bind:value={url}
-        on:enter={onSearchEnter}
+        value={url}
+        on:input={e => {
+          onPreviewUrlType(e.detail.value)
+        }}
+        on:enter={e => {
+          setPreviewUrl(e.detail.value)
+          if ($previewCandidates.length > 0) {
+            jumpInto(links)
+          }
+        }}
       />
 
       {#if $previewCandidates.length > 0}
-        <CardLinks bind:node={links} on:enter={onLinkEnter}>
+        <CardLinks
+          bind:node={links}
+          on:enter={() => {
+            jumpInto(feed)
+          }}
+        >
           {#each $previewCandidates as candidate (candidate.url)}
             <CardLink
               name={candidate.title}
@@ -108,7 +97,7 @@
         <Loader zoneId="add_query" />
       {/if}
 
-      {#if !$previewCandidatesLoading && url !== '' && $previewCandidates.length === 0 && requested && !$previewUrlError}
+      {#if $previewNoResults}
         <div id="feeds-add-no-results" class="feeds-add_no-results">
           <RichTranslation
             text={$t.noResults}

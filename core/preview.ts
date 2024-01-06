@@ -1,4 +1,5 @@
 import { loadValue } from '@logux/client'
+import debounce from 'just-debounce-it'
 import { atom, computed, map, onMount } from 'nanostores'
 
 import {
@@ -42,6 +43,8 @@ export interface PreviewCandidate {
 
 let $links = map<PreviewLinksValue>({})
 
+export const previewUrl = computed($links, links => Object.keys(links)[0] ?? '')
+
 export const previewUrlError = computed<
   'invalidUrl' | 'unloadable' | undefined,
   typeof $links
@@ -81,6 +84,13 @@ export const previewCandidateAdded = readonlyExport($added)
 
 let $posts = atom<PostsPage | undefined>()
 export const previewPosts = readonlyExport($posts)
+
+export const previewNoResults = computed(
+  [previewCandidatesLoading, previewUrl, $candidates, previewUrlError],
+  (loading, url, candidates, error) => {
+    return !loading && !!url && candidates.length === 0 && !error
+  }
+)
 
 let prevHasUnbind: (() => void) | undefined
 
@@ -208,10 +218,20 @@ export async function addLink(url: string, deep = false): Promise<void> {
   }
 }
 
-export async function setPreviewUrl(dirty: string): Promise<void> {
+export async function setPreviewUrl(url: string): Promise<void> {
+  if (url === previewUrl.get()) return
+  onPreviewUrlType.cancel()
   clearPreview()
-  await addLink(dirty)
+  await addLink(url)
 }
+
+export const onPreviewUrlType = debounce((value: string) => {
+  if (value === '') {
+    clearPreview()
+  } else {
+    setPreviewUrl(value)
+  }
+}, 500)
 
 export async function setPreviewCandidate(url: string): Promise<void> {
   let candidate = $candidates.get().find(i => i.url === url)
