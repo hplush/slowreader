@@ -168,6 +168,10 @@
       border: 1px solid var(--zone-color);
       box-shadow: none;
 
+      &:not(.is-square) {
+        padding-inline: calc(var(--padding-xl) - 1px);
+      }
+
       &.is-dangerous {
         box-shadow: var(--flat-dangerous-shadow);
       }
