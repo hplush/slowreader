@@ -11,7 +11,7 @@ import {
   deleteFilter,
   type FilterValue,
   getFeed,
-  getFiltersForFeed,
+  getFilters,
   isValidFilterQuery,
   loadAndPrepareFilters,
   moveFilterDown,
@@ -31,7 +31,7 @@ afterEach(async () => {
 })
 
 test('adds, loads, changes and removes filters', async () => {
-  let filters10 = getFiltersForFeed('10')
+  let filters10 = getFilters({ feedId: '10' })
   keepMount(filters10)
   deepStrictEqual(await loadList(filters10), [])
 
@@ -127,7 +127,7 @@ test('adds filter for feed', async () => {
   let filterId1 = await addFilterForFeed(await loadValue(getFeed(feedId1)))
   let filterId2 = await addFilterForFeed(await loadValue(getFeed(feedId2)))
 
-  deepStrictEqual(await loadList(getFiltersForFeed(feedId1)), [
+  deepStrictEqual(await loadList(getFilters({ feedId: feedId1 })), [
     {
       action: 'slow',
       feedId: feedId1,
@@ -137,7 +137,7 @@ test('adds filter for feed', async () => {
       query: ''
     }
   ])
-  deepStrictEqual(await loadList(getFiltersForFeed(feedId2)), [
+  deepStrictEqual(await loadList(getFilters({ feedId: feedId2 })), [
     {
       action: 'fast',
       feedId: feedId2,
@@ -185,7 +185,7 @@ test('sorts filters', () => {
 })
 
 test('moves filters in sorting order', async () => {
-  let filters10 = getFiltersForFeed('10')
+  let filters10 = getFilters({ feedId: '10' })
   keepMount(filters10)
   function getSorted(): string[] {
     return sortFilters(ensureLoaded(filters10.get()).list).map(i => i.id)

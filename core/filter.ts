@@ -5,6 +5,7 @@ import {
   deleteSyncMapById,
   type FilterStore,
   loadValue,
+  type Filter as LoguxFilter,
   syncMapTemplate
 } from '@logux/client'
 import { nanoid } from 'nanoid'
@@ -60,15 +61,17 @@ export const Filter = syncMapTemplate<FilterValue>('filters', {
   remote: false
 })
 
-export function getFiltersForFeed(feedId: string): FilterStore<FilterValue> {
-  return createFilter(getClient(), Filter, { feedId })
+export function getFilters(
+  filter: LoguxFilter<FilterValue> = {}
+): FilterStore<FilterValue> {
+  return createFilter(getClient(), Filter, filter)
 }
 
 export async function addFilter(
   fields: Omit<FilterValue, 'id' | 'priority'>
 ): Promise<string> {
   let id = nanoid()
-  let other = await loadValue(getFiltersForFeed(fields.feedId))
+  let other = await loadValue(getFilters({ feedId: fields.feedId }))
   let priority = maxPriority(other.list) + 100
   await createSyncMap(getClient(), Filter, { id, priority, ...fields })
   return id
@@ -108,7 +111,7 @@ export function sortFilters(filters: FilterValue[]): FilterValue[] {
 async function move(filterId: string, diff: -1 | 1): Promise<void> {
   let filter = Filter(filterId, getClient())
   let feedId = (await loadValue(filter)).feedId
-  let sorted = sortFilters(await loadList(getFiltersForFeed(feedId)))
+  let sorted = sortFilters(await loadList(getFilters({ feedId })))
   let last = sorted.length - 1
   let index = sorted.findIndex(i => i.id === filterId)
   let next = index + diff
@@ -209,6 +212,6 @@ export function prepareFilters(filters: FilterValue[]): FilterChecker {
 export async function loadAndPrepareFilters(
   feedId: string
 ): Promise<FilterChecker> {
-  let filters = await loadValue(getFiltersForFeed(feedId))
+  let filters = await loadValue(getFilters({ feedId }))
   return prepareFilters(filters.list)
 }

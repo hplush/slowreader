@@ -8,6 +8,7 @@
     clearPreview,
     client,
     DEFAULT_REFRESH_STATISTICS,
+    fastCategories,
     Feed,
     type FeedValue,
     Filter,
@@ -47,7 +48,7 @@
   function cleanLogux(): void {
     clearPreview()
     client.get()?.clean()
-    cleanStores(Feed, Filter, Category, Post, hasFeeds)
+    cleanStores(Feed, Filter, Category, Post, hasFeeds, fastCategories)
   }
 
   $: {

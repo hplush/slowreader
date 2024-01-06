@@ -8,6 +8,7 @@ import {
   client,
   enableTestTime,
   type EnvironmentAndStore,
+  fastCategories,
   Feed,
   Filter,
   Post,
@@ -24,7 +25,7 @@ export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
 export async function cleanClientTest(): Promise<void> {
   setupEnvironment(getTestEnvironment())
   await client.get()?.clean()
-  cleanStores(Feed, Filter, Category, Post)
+  cleanStores(Feed, Filter, Category, Post, fastCategories)
 }
 
 export function getTestEnvironment(): EnvironmentAndStore {

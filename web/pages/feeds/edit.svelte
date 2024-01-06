@@ -71,7 +71,7 @@
   }
 
   $: feed = getFeed(feedId)
-  $: filters = getFiltersForFeed(feedId)
+  $: filters = getFilters({ feedId })
   $: if (posts) {
     loadedPosts = posts
   } else if (!$feed.isLoading) {
