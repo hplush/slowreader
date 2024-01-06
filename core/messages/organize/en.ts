@@ -12,7 +12,7 @@ export const organizeMessages = i18n('organize', {
   deleteConform:
     'We will delete feed statistics and posts. ' +
     'It cannot be undone. Are you sure?',
-  deleteFeed: 'Delete feed',
+  deleteFeed: 'Delete',
   deleteFilter: 'Delete filter',
   fast: 'Fast-food reading (fun, but not useful)',
   filterAction: 'Filter action',
