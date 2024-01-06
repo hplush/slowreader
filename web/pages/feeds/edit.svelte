@@ -16,14 +16,17 @@
     getCategories,
     getFeed,
     getFeedLatestPosts,
-    getFiltersForFeed,
+    getFilters,
     isValidFilterQuery,
     moveFilterDown,
     moveFilterUp,
     type PostsPage,
     sortFilters
   } from '@slowreader/core'
-  import { organizeMessages as t } from '@slowreader/core/messages'
+  import {
+    commonMessages as common,
+    organizeMessages as t
+  } from '@slowreader/core/messages'
   import { createEventDispatcher } from 'svelte'
 
   import Button from '../../ui/button.svelte'
@@ -44,7 +47,7 @@
 
   let categoryOptions: [string, string][]
   categories.subscribe(value => {
-    let options = [['general', $t.generalCategory]] as [string, string][]
+    let options = [['general', $common.generalCategory]] as [string, string][]
     if (!value.isLoading) {
       options.push(
         ...value.list.map(

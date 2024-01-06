@@ -20,7 +20,6 @@ export const organizeMessages = i18n('organize', {
   filterActionFast: 'Move to fast',
   filterActionSlow: 'Move to slow',
   filterQuery: 'Filter query',
-  generalCategory: 'General',
   invalidFilter: 'Filter query is invalid',
   moveFilterDown: 'Move down',
   moveFilterUp: 'Move up',

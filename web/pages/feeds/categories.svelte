@@ -7,7 +7,10 @@
     getCategories,
     getFeeds
   } from '@slowreader/core'
-  import { organizeMessages as t } from '@slowreader/core/messages'
+  import {
+    commonMessages as common,
+    organizeMessages as t
+  } from '@slowreader/core/messages'
 
   import { getURL, openURL } from '../../stores/router.js'
   import Button from '../../ui/button.svelte'
@@ -39,7 +42,7 @@
         {#each feedsByCategory($categories, $allFeeds.list) as [category, feeds] (category.id)}
           <li class="feeds-categories_category">
             {#if category.id === 'general'}
-              <h2 class="feeds-categories_title">{$t.generalCategory}</h2>
+              <h2 class="feeds-categories_title">{$common.generalCategory}</h2>
             {:else}
               <Row compact>
                 <h2 class="feeds-categories_title">
