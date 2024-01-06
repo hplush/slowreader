@@ -165,28 +165,16 @@
     }
 
     &.is-secondary {
-      background: var(--secondary-button-color);
+      border: 1px solid var(--zone-color);
       box-shadow: none;
 
-      &:hover,
-      &:focus-visible,
-      &:active {
-        background: var(--secondary-button-hover-color);
+      &.is-dangerous {
+        box-shadow: var(--flat-dangerous-shadow);
       }
 
       &:active {
         padding-top: 1px;
         box-shadow: var(--flat-active-shadow);
-      }
-
-      &.is-dangerous {
-        background: var(--secondary-dangerous-button-color);
-
-        &:hover,
-        &:focus-visible,
-        &:active {
-          background: var(--secondary-dangerous-button-hover-color);
-        }
       }
     }
   }

@@ -64,16 +64,17 @@
     gap: var(--padding-m);
     align-items: center;
     height: var(--control-height);
-    padding-inline: var(--padding-l) var(--padding-m);
+    padding-inline: var(--padding-xl) var(--padding-m);
     overflow: hidden;
     font: var(--control-font);
-    background: var(--secondary-button-color);
+    background: var(--card-color);
+    border: 1px solid var(--zone-color);
     border-radius: var(--inner-radius);
 
     &:has(.select-field_select:hover),
     &:has(.select-field_select:focus-visible),
     &:has(.select-field_select:active) {
-      background: var(--secondary-button-hover-color);
+      background: var(--hover-color);
     }
 
     &:has(.select-field_select:focus-visible) {
