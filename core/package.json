@@ -27,7 +27,7 @@
     "@types/jsdom": "21.1.6",
     "better-node-test": "0.4.1",
     "c8": "9.0.0",
-    "jsdom": "23.0.1",
+    "jsdom": "23.1.0",
     "nanospy": "1.0.0"
   }
 }
