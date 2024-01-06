@@ -133,7 +133,7 @@
       background: var(--card-color);
       box-shadow:
         var(--card-item-pressed-shadow),
-        0 -5px 0 var(--land-color),
+        0 0 0 5px var(--land-color),
         inset 0 1px 0 var(--land-color);
     }
   }
