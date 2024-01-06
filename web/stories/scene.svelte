@@ -91,8 +91,7 @@
     return () => {
       // @ts-expect-error
       isRefreshing.set(false)
-      // @ts-expect-error
-      router.set({ route: 'fast' })
+      router.set({ params: {}, route: 'fast' })
       setNetworkType(DEFAULT_NETWORK)
       cleanLogux()
     }
