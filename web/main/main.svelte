@@ -25,7 +25,7 @@
   {:else if $router.route === 'add'}
     <FeedsAdd url={$router.params.url ?? ''} />
   {:else if $router.route === 'categories'}
-    <FeedsCategories feedId={$router.params.id} />
+    <FeedsCategories feedId={$router.params.feed} />
   {:else if $router.route === 'interface'}
     <SettingsInterface />
   {:else if $router.route === 'download'}

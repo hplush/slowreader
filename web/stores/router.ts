@@ -8,7 +8,7 @@ import {
 export const urlRouter = createRouter({
   about: '/settings/about',
   add: '/feeds/add/:url?',
-  categories: '/feeds/categories/:id?',
+  categories: '/feeds/categories/:feed?',
   download: '/settings/download',
   fast: '/fast',
   feeds: '/feeds',

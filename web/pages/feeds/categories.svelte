@@ -75,7 +75,7 @@
                       name={feed.title}
                       current={feed.id === feedId}
                       first={feed.id === firstId(feeds)}
-                      href={getURL('categories', { id: feed.id })}
+                      href={getURL('categories', { feed: feed.id })}
                     ></CardLink>
                   {/each}
                 </CardLinks>

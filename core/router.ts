@@ -7,7 +7,7 @@ import { userId } from './settings.js'
 export interface Routes {
   about: {}
   add: { url?: string }
-  categories: { id?: string }
+  categories: { feed?: string }
   download: {}
   fast: {}
   feeds: {}
