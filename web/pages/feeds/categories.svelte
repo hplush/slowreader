@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { mdiRenameOutline, mdiTrashCanOutline } from '@mdi/js'
   import {
     changeCategory,
     deleteCategory,
@@ -49,6 +50,7 @@
                   {category.title}
                 </h2>
                 <Button
+                  icon={mdiRenameOutline}
                   secondary
                   on:click={() => {
                     let title = prompt($t.categoryName, category.title)
@@ -60,6 +62,7 @@
                 </Button>
                 <Button
                   dangerous
+                  icon={mdiTrashCanOutline}
                   secondary
                   on:click={() => {
                     if (confirm($t.deleteCategoryConform)) {

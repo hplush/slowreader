@@ -3,6 +3,7 @@
     mdiArrowDownBoldOutline,
     mdiArrowUpBoldOutline,
     mdiFilterPlusOutline,
+    mdiFilterRemoveOutline,
     mdiTrashCanOutline
   } from '@mdi/js'
   import {
@@ -99,6 +100,7 @@
         />
         <Button
           dangerous
+          icon={mdiTrashCanOutline}
           secondary
           on:click={() => {
             if (confirm($t.deleteConform)) {
@@ -185,7 +187,7 @@
               <Button
                 dangerous
                 hiddenLabel={$t.deleteFilter}
-                icon={mdiTrashCanOutline}
+                icon={mdiFilterRemoveOutline}
                 secondary
                 on:click={() => {
                   deleteFilter(filter.id)
