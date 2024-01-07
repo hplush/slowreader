@@ -61,7 +61,7 @@
       <Icon path={icon} />
     {/if}
     {#if !hiddenLabel}
-      <slot />
+      <span><slot /></span>
     {/if}
     {#if hotkey}
       <Hotkey {hotkey} />
@@ -85,7 +85,7 @@
       <Icon path={icon} />
     {/if}
     {#if !hiddenLabel}
-      <slot />
+      <span><slot /></span>
     {/if}
     {#if hotkey}
       <Hotkey {hotkey} />
@@ -123,6 +123,10 @@
 
     &:active {
       box-shadow: var(--button-active-shadow);
+
+      & > * {
+        transform: translateY(1px);
+      }
     }
 
     &.is-wide {
@@ -133,24 +137,6 @@
     &.is-square {
       width: var(--control-height);
       padding-inline: 0;
-    }
-
-    &:not(.is-secondary) {
-      @media (prefers-color-scheme: light) {
-        &:active {
-          height: calc(var(--control-height) - 2px);
-          padding-top: 1px;
-          margin: 1px 0;
-        }
-      }
-
-      @media (prefers-color-scheme: dark) {
-        &:active {
-          height: calc(var(--control-height) - 1px);
-          padding-top: 2px;
-          margin-bottom: 1px;
-        }
-      }
     }
 
     &.is-dangerous {
@@ -177,7 +163,6 @@
       }
 
       &:active {
-        padding-top: 1px;
         box-shadow: var(--flat-active-shadow);
       }
     }
