@@ -2,6 +2,7 @@
   import { mdiCogOutline, mdiPlaylistEdit, mdiRefresh } from '@mdi/js'
   import {
     hasFeeds,
+    isFastRoute,
     isOrganizeRoute,
     isRefreshing,
     isSettingsRoute,
@@ -14,6 +15,7 @@
 
   import { getURL } from '../../stores/router.js'
   import Loader from '../loader.svelte'
+  import NavbarFast from './fast.svelte'
   import NavbarFeeds from './feeds.svelte'
   import NavbarItem from './item.svelte'
   import NavbarSettings from './settings.svelte'
@@ -31,10 +33,12 @@
 </script>
 
 <nav class="navbar">
-  <NavbarSwitcher />
+  <NavbarSwitcher {submenu} />
   <div class="navbar_submenu">
     <NavbarSubmenu bind:this={submenu}>
-      {#if isSettingsRoute($router)}
+      {#if isFastRoute($router)}
+        <NavbarFast />
+      {:else if isSettingsRoute($router)}
         <NavbarSettings />
       {:else if isOrganizeRoute($router)}
         <NavbarFeeds />

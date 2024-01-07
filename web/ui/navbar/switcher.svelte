@@ -8,9 +8,18 @@
   import { getURL } from '../../stores/router.js'
   import Hotkey from '../hotkey.svelte'
   import Icon from '../icon.svelte'
+  import type NavbarSubmenu from './submenu.svelte'
+
+  export let submenu: NavbarSubmenu
 
   let slow: HTMLElement
   let fast: HTMLElement
+
+  function onClick(e: MouseEvent): void {
+    if (e.screenX === 0 && e.screenY === 0) {
+      submenu.focus()
+    }
+  }
 
   onMount(() => {
     let slowUnbind = addHotkey('s', slow, () => {
@@ -49,6 +58,7 @@
     class="navbar-switcher_link"
     aria-current={$router.route === 'fast' ? 'page' : null}
     href={getURL('fast')}
+    on:click={onClick}
   >
     <div class="navbar-switcher_overflow">
       <div class="navbar-switcher_button">
