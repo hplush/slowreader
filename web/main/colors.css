@@ -10,7 +10,7 @@
     --land-color: color-mix(in oklab, var(--neutral-100), var(--neutral-200));
     --text-color: var(--neutral-950);
     --hotkey-color: var(--neutral-400);
-    --zone-color: oklch(0% 0 0 / 10%);
+    --border-color: oklch(0% 0 0 / 15%);
     --hover-color: color-mix(in oklch, var(--neutral-50), var(--sand-50));
     --card-color: var(--neutral-50);
     --card-shadow: 0 1px 5px oklch(from var(--shadow-color) l c h / 8%),
@@ -48,7 +48,7 @@
     --land-color: var(--neutral-950);
     --text-color: var(--neutral-50);
     --hotkey-color: var(--neutral-700);
-    --zone-color: oklch(100% 0 0 / 10%);
+    --border-color: oklch(100% 0 0 / 15%);
     --hover-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));
     --card-color: var(--neutral-900);
     --card-shadow: 0 1px 2px oklch(0% 0 0), inset 0 1px oklch(100% 0 0 / 10%);

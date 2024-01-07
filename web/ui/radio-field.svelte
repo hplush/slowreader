@@ -82,10 +82,10 @@
     padding-inline: calc(3 * var(--padding-l)) var(--padding-l);
     margin-inline: calc(-1 * var(--padding-l));
     cursor: pointer;
-    border-top: 1px solid var(--zone-color);
+    border-top: 1px solid var(--border-color);
 
     &:last-of-type {
-      border-bottom: 1px solid var(--zone-color);
+      border-bottom: 1px solid var(--border-color);
     }
 
     &:hover {
@@ -162,7 +162,7 @@
     height: var(--padding-l);
     margin-top: 5px;
     vertical-align: middle;
-    border: 2px solid var(--zone-color);
+    border: 2px solid var(--border-color);
     border-radius: 50%;
     transition: border 200ms;
   }

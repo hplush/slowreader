@@ -62,7 +62,7 @@
     text-decoration: none;
     background: none;
     border: none;
-    border-top: 1px solid var(--zone-color);
+    border-top: 1px solid var(--border-color);
 
     &:hover {
       background: var(--hover-color);
@@ -93,7 +93,7 @@
   }
 
   li:last-child > .card-link {
-    border-bottom: 1px solid var(--zone-color);
+    border-bottom: 1px solid var(--border-color);
   }
 
   :global(.card > ul:first-child > li:first-child) > .card-link {

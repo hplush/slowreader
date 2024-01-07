@@ -36,7 +36,7 @@
     margin: 0 auto;
     overflow: hidden;
     appearance: none;
-    background: var(--zone-color);
+    background: var(--border-color);
     border: none;
     border-radius: 2px;
 

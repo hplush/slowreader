@@ -165,7 +165,7 @@
     }
 
     &.is-secondary {
-      border: 1px solid var(--zone-color);
+      border: 1px solid var(--border-color);
       box-shadow: none;
 
       &:not(.is-square) {

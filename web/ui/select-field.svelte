@@ -68,7 +68,7 @@
     overflow: hidden;
     font: var(--control-font);
     background: var(--card-color);
-    border: 1px solid var(--zone-color);
+    border: 1px solid var(--border-color);
     border-radius: var(--inner-radius);
 
     &:has(.select-field_select:hover),

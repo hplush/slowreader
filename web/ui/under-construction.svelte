@@ -12,8 +12,8 @@
       -45deg,
       transparent,
       transparent 20px,
-      var(--zone-color) 20px,
-      var(--zone-color) 40px
+      var(--border-color) 20px,
+      var(--border-color) 40px
     );
   }
 </style>

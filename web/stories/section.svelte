@@ -77,7 +77,7 @@
     }
 
     &.is-bordered {
-      outline: 1px solid var(--zone-color);
+      outline: 1px solid var(--border-color);
     }
   }
 </style>
