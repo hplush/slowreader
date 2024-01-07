@@ -89,6 +89,15 @@
     </Card>
   </Section>
 
+  <Section focus width={300}>
+    <Card>
+      <Paragraph>Before</Paragraph>
+      <CardLinks>
+        <CardLink name="Only" first />
+      </CardLinks>
+    </Card>
+  </Section>
+
   <Section hover width={500}>
     <Card>
       <CardLinks>

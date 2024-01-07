@@ -161,7 +161,7 @@
     content: '↓';
   }
 
-  li:last-child > .card-link:focus-visible::after {
+  li:last-child:not(:first-child) > .card-link:focus-visible::after {
     bottom: calc(100% + 1px);
     content: '↑';
   }
