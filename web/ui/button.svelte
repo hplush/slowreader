@@ -103,7 +103,7 @@
     align-items: center;
     justify-content: center;
     height: var(--control-height);
-    padding: 0 var(--padding-xl);
+    padding: 0 var(--padding-l);
     font: var(--control-font);
     color: var(--text-color);
     text-decoration: none;
@@ -169,7 +169,7 @@
       box-shadow: none;
 
       &:not(.is-square) {
-        padding-inline: calc(var(--padding-xl) - 1px);
+        padding-inline: calc(var(--padding-l) - 1px);
       }
 
       &.is-dangerous {

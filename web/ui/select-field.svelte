@@ -64,7 +64,7 @@
     gap: var(--padding-m);
     align-items: center;
     height: var(--control-height);
-    padding-inline: var(--padding-xl) var(--padding-m);
+    padding-inline: var(--padding-l) var(--padding-m);
     overflow: hidden;
     font: var(--control-font);
     background: var(--card-color);
