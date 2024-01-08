@@ -49,7 +49,7 @@
     {#if icon}
       <Icon path={icon} />
     {/if}
-    <slot />
+    <span class="navbar-item_text"><slot /></span>
     {#if hotkey}
       <Hotkey {hotkey} />
     {/if}
@@ -68,7 +68,7 @@
     {#if icon}
       <Icon path={icon} />
     {/if}
-    <slot />
+    <span class="navbar-item_text"><slot /></span>
     {#if hotkey}
       <Hotkey {hotkey} />
     {/if}
@@ -85,6 +85,7 @@
     justify-content: flex-start;
     height: var(--control-height);
     padding: 0 var(--padding-l);
+    overflow: hidden;
     font: var(--control-font);
     color: var(--text-color);
     text-decoration: none;
@@ -116,6 +117,12 @@
       cursor: default;
       background: var(--card-color);
     }
+  }
+
+  .navbar-item_text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .navbar-item.is-secondary:focus-visible::after {

@@ -21,7 +21,13 @@
 </Story>
 
 <Story name="Fast" parameters={{ layout: 'fullscreen' }}>
-  <Scene route={{ params: { category: 'general' }, route: 'fast' }}>
+  <Scene
+    categories={[
+      { id: 'a', title: 'Pneumonoultramicroscopicsilicovolcanoconiosis' }
+    ]}
+    feeds={[{ categoryId: 'a', reading: 'fast' }, { reading: 'fast' }]}
+    route={{ params: { category: 'general' }, route: 'fast' }}
+  >
     <Navbar />
   </Scene>
 </Story>

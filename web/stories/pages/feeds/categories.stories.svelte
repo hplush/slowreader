@@ -24,7 +24,8 @@
     {
       categoryId: 'code',
       title:
-        'Very long title of the feed where we discuss should we use TypeScript or a better typed language'
+        'Pneumonoultramicroscopicsilicovolcanoconiosis' +
+        'Pneumonoultramicroscopicsilicovolcanoconiosis'
     },
     { categoryId: 'unknown', title: 'Broken category' },
     { title: 'My friend' }

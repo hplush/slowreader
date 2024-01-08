@@ -98,10 +98,14 @@
     </Card>
   </Section>
 
-  <Section hover width={500}>
+  <Section hover width={300}>
     <Card>
       <CardLinks>
-        <CardLink name="First" current first />
+        <CardLink
+          name="Pneumonoultramicroscopicsilicovolcanoconiosis"
+          current
+          first
+        />
       </CardLinks>
     </Card>
   </Section>

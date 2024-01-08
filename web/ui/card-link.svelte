@@ -60,6 +60,7 @@
     color: inherit;
     text-align: left;
     text-decoration: none;
+    word-break: break-all;
     background: none;
     border: none;
     border-top: 1px solid var(--border-color);
