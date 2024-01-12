@@ -66,11 +66,11 @@ importers:
         specifier: 1.6.0
         version: 1.6.0
       prettier:
-        specifier: 3.2.0
-        version: 3.2.0
+        specifier: 3.2.1
+        version: 3.2.1
       prettier-plugin-svelte:
         specifier: 3.1.2
-        version: 3.1.2(prettier@3.2.0)(svelte@4.2.8)
+        version: 3.1.2(prettier@3.2.1)(svelte@4.2.8)
       simple-git-hooks:
         specifier: 2.9.0
         version: 2.9.0
@@ -99,7 +99,7 @@ importers:
     dependencies:
       '@logux/client':
         specifier: github:logux/client#next
-        version: github.com/logux/client/e8e4f1f01c7b6540e48d54e8a5da0221efe4ae43(@logux/core@0.8.5)(nanostores@0.9.5)(react-dom@18.2.0)(react@18.2.0)
+        version: github.com/logux/client/707ebad4be44bac6ee74e78cfcc44716d4601325(@logux/core@0.8.5)(nanostores@0.9.5)(react-dom@18.2.0)(react@18.2.0)
       '@logux/core':
         specifier: 0.8.5
         version: 0.8.5
@@ -169,7 +169,7 @@ importers:
         version: 1.2.0
       '@logux/client':
         specifier: github:logux/client#next
-        version: github.com/logux/client/e8e4f1f01c7b6540e48d54e8a5da0221efe4ae43(@logux/core@0.8.5)(nanostores@0.9.5)(react-dom@18.2.0)(react@18.2.0)
+        version: github.com/logux/client/707ebad4be44bac6ee74e78cfcc44716d4601325(@logux/core@0.8.5)(nanostores@0.9.5)(react-dom@18.2.0)(react@18.2.0)
       '@logux/core':
         specifier: 0.8.5
         version: 0.8.5
@@ -3829,7 +3829,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001576
-      electron-to-chromium: 1.4.629
+      electron-to-chromium: 1.4.630
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.22.2)
 
@@ -4497,8 +4497,8 @@ packages:
       jake: 10.8.7
     dev: true
 
-  /electron-to-chromium@1.4.629:
-    resolution: {integrity: sha512-5UUkr3k3CZ/k+9Sw7vaaIMyOzMC0XbPyprKI3n0tbKDqkzTDOjK4izm7DxlkueRMim6ZZQ1ja9F7hoFVplHihA==}
+  /electron-to-chromium@1.4.630:
+    resolution: {integrity: sha512-osHqhtjojpCsACVnuD11xO5g9xaCyw7Qqn/C2KParkMv42i8jrJJgx3g7mkHfpxwhy9MnOJr8+pKOdZ7qzgizg==}
 
   /emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -7312,13 +7312,13 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
-  /prettier-plugin-svelte@3.1.2(prettier@3.2.0)(svelte@4.2.8):
+  /prettier-plugin-svelte@3.1.2(prettier@3.2.1)(svelte@4.2.8):
     resolution: {integrity: sha512-7xfMZtwgAWHMT0iZc8jN4o65zgbAQ3+O32V6W7pXrqNvKnHnkoyQCGCbKeUyXKZLbYE0YhFRnamfxfkEGxm8qA==}
     peerDependencies:
       prettier: ^3.0.0
       svelte: ^3.2.0 || ^4.0.0-next.0 || ^5.0.0-next.0
     dependencies:
-      prettier: 3.2.0
+      prettier: 3.2.1
       svelte: 4.2.8
     dev: true
 
@@ -7328,8 +7328,8 @@ packages:
     hasBin: true
     dev: true
 
-  /prettier@3.2.0:
-    resolution: {integrity: sha512-/vBUecTGaPlRVwyZVROVC58bYIScqaoEJzZmzQXXrZOzqn0TwWz0EnOozOlFO/YAImRnb7XsKpTCd3m1SjS2Ww==}
+  /prettier@3.2.1:
+    resolution: {integrity: sha512-qSUWshj1IobVbKc226Gw2pync27t0Kf0EdufZa9j7uBSJay1CC+B3K5lAAZoqgX3ASiKuWsk6OmzKRetXNObWg==}
     engines: {node: '>=14'}
     hasBin: true
     dev: true
@@ -9123,9 +9123,9 @@ packages:
     resolution: {integrity: sha512-xHhOFKT1Y29Jc4/6To1hmIUswKhCKplPSbkCyIabAAZ5q/9GmZvlN3WNcafcq3zze3CzYU66XNeSBLCD8Oickw==}
     dev: false
 
-  github.com/logux/client/e8e4f1f01c7b6540e48d54e8a5da0221efe4ae43(@logux/core@0.8.5)(nanostores@0.9.5)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {tarball: https://codeload.github.com/logux/client/tar.gz/e8e4f1f01c7b6540e48d54e8a5da0221efe4ae43}
-    id: github.com/logux/client/e8e4f1f01c7b6540e48d54e8a5da0221efe4ae43
+  github.com/logux/client/707ebad4be44bac6ee74e78cfcc44716d4601325(@logux/core@0.8.5)(nanostores@0.9.5)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {tarball: https://codeload.github.com/logux/client/tar.gz/707ebad4be44bac6ee74e78cfcc44716d4601325}
+    id: github.com/logux/client/707ebad4be44bac6ee74e78cfcc44716d4601325
     name: '@logux/client'
     version: 0.20.1
     engines: {node: ^18.0.0 || >=20.0.0}
