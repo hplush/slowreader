@@ -44,7 +44,7 @@
     "nano-staged": "0.8.0",
     "picocolors": "1.0.0",
     "postcss-html": "1.6.0",
-    "prettier": "3.1.1",
+    "prettier": "3.2.0",
     "prettier-plugin-svelte": "3.1.2",
     "simple-git-hooks": "2.9.0",
     "stylelint": "16.1.0",

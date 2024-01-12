@@ -49,16 +49,16 @@
     "@logux/stylelint-config": "0.18.0",
     "@size-limit/file": "11.0.1",
     "@storybook/addon-svelte-csf": "4.1.0",
-    "@storybook/addon-themes": "7.6.7",
-    "@storybook/svelte": "7.6.7",
-    "@storybook/svelte-vite": "7.6.7",
+    "@storybook/addon-themes": "7.6.8",
+    "@storybook/svelte": "7.6.8",
+    "@storybook/svelte-vite": "7.6.8",
     "better-node-test": "0.4.1",
     "browserslist": "4.22.2",
     "postcss-html": "1.6.0",
     "postcss-nesting": "12.0.2",
     "postcss-selector-parser": "6.0.15",
     "size-limit": "11.0.1",
-    "storybook": "7.6.7",
+    "storybook": "7.6.8",
     "stylelint": "16.1.0"
   }
 }
