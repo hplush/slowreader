@@ -1,6 +1,5 @@
 import { lstat, readdir, readFile, writeFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import pico from 'picocolors'
 import postcss from 'postcss'
 
@@ -38,8 +37,7 @@ async function processCss(dir: string): Promise<void> {
   )
 }
 
-const ROOT = join(fileURLToPath(import.meta.url), '..', '..')
-const DIST = join(ROOT, 'dist')
+const DIST = join(import.meta.dirname!, '..', 'dist')
 
 let cssCleaner = postcss([cleaner])
 

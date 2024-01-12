@@ -1,6 +1,5 @@
 import { lstat, readdir, readFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import pico from 'picocolors'
 import postcss from 'postcss'
 import postcssHtml from 'postcss-html'
@@ -116,7 +115,7 @@ async function processComponents(dir: string, base: string): Promise<void> {
   )
 }
 
-const ROOT = join(fileURLToPath(import.meta.url), '..', '..')
+const ROOT = join(import.meta.dirname!, '..')
 
 await Promise.all([
   processComponents(join(ROOT, 'ui'), ROOT),

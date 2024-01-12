@@ -1,9 +1,8 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import pico from 'picocolors'
 
-const ROOT = join(fileURLToPath(import.meta.url), '..', '..')
+const ROOT = join(import.meta.dirname!, '..')
 
 function read(...parts: string[]): string {
   return readFileSync(join(ROOT, ...parts)).toString()
