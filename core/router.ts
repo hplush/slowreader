@@ -1,7 +1,7 @@
 import { computed, type ReadableAtom } from 'nanostores'
 
-import { fastCategories, type FastCategoriesValue } from './category.js'
 import { onEnvironment } from './environment.js'
+import { fastCategories, type FastCategoriesValue } from './fast.js'
 import { hasFeeds } from './feed.js'
 import { userId } from './settings.js'
 
