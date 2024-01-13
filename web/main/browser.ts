@@ -1,4 +1,4 @@
-import { isSlowRoute, router, theme } from '@slowreader/core'
+import { isFastRoute, router, theme } from '@slowreader/core'
 
 import { jumpBack, likelyToHavePhysicalKeyboard } from '../lib/hotkeys.js'
 import { locale } from '../stores/locale.js'
@@ -6,7 +6,7 @@ import { locale } from '../stores/locale.js'
 let root = document.documentElement
 
 router.subscribe(route => {
-  root.classList.toggle('is-slow-theme', isSlowRoute(route))
+  root.classList.toggle('is-slow-theme', !isFastRoute(route))
 })
 
 theme.subscribe(themeValue => {

@@ -37,10 +37,10 @@
 
   export let refreshing: false | Partial<RefreshStatistics> = false
   export let route: BaseRoute = {
-    params: { category: 'general' },
-    route: 'fast'
+    params: {},
+    route: 'slowAll'
   }
-  export let slow = false
+  export let fast = false
   export let networkType = DEFAULT_NETWORK
 
   export let categories: CategoryValue[] = []
@@ -70,8 +70,11 @@
       refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS })
     }
 
-    if (slow) {
-      router.set({ params: {}, route: 'slowAll' })
+    if (fast) {
+      router.set({
+        params: { category: 'general' },
+        route: 'fast'
+      })
     } else {
       router.set(route)
     }
@@ -91,7 +94,7 @@
     return () => {
       // @ts-expect-error
       isRefreshing.set(false)
-      router.set({ params: {}, route: 'fast' })
+      router.set({ params: {}, route: 'slowAll' })
       setNetworkType(DEFAULT_NETWORK)
       cleanLogux()
     }

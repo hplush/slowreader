@@ -148,8 +148,8 @@
   </Section>
 </Story>
 
-<Story name="Slow" parameters={{ themes: { themeOverride: 'light' } }}>
-  <Scene slow>
+<Story name="Fast">
+  <Scene fast>
     <Section
       active="button:nth-child(4)"
       focus="button:nth-child(3)"
@@ -277,8 +277,8 @@
   </Section>
 </Story>
 
-<Story name="Dark Slow" parameters={{ themes: { themeOverride: 'dark' } }}>
-  <Scene slow>
+<Story name="Dark Fast" parameters={{ themes: { themeOverride: 'dark' } }}>
+  <Scene fast>
     <Section
       active="button:nth-child(4)"
       focus="button:nth-child(3)"
