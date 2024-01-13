@@ -135,6 +135,7 @@
   }
 
   .navbar-item_text {
+    padding: 4px 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
