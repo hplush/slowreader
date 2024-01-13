@@ -8,6 +8,7 @@
 
   export let href: string | undefined = undefined
   export let current: boolean
+  export let name: string | undefined = undefined
   export let hotkey: string | undefined = undefined
   export let icon: string | undefined = undefined
   export let secondary = false
@@ -44,12 +45,19 @@
     {href}
     role={submenu ? 'mentem' : null}
     tabindex={secondary ? -1 : null}
+    title={name && name.length > 15 ? name : null}
     on:click={onClick}
   >
     {#if icon}
       <Icon path={icon} />
     {/if}
-    <span class="navbar-item_text"><slot /></span>
+    <span class="navbar-item_text">
+      {#if name}
+        {name}
+      {:else}
+        <slot />
+      {/if}
+    </span>
     {#if hotkey}
       <Hotkey {hotkey} />
     {/if}
@@ -63,12 +71,19 @@
     aria-haspopup={submenu ? 'menu' : null}
     aria-keyshortcuts={hotkey}
     tabindex={secondary ? -1 : null}
+    title={name && name.length > 15 ? name : null}
     on:click={onClick}
   >
     {#if icon}
       <Icon path={icon} />
     {/if}
-    <span class="navbar-item_text"><slot /></span>
+    <span class="navbar-item_text">
+      {#if name}
+        {name}
+      {:else}
+        <slot />
+      {/if}
+    </span>
     {#if hotkey}
       <Hotkey {hotkey} />
     {/if}

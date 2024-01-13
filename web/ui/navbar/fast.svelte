@@ -12,16 +12,11 @@
 {:else if $fastCategories.categories.length > 0}
   {#each $fastCategories.categories as category (category.id)}
     <NavbarItem
+      name={category.id === 'general' ? $t.generalCategory : category.title}
       current={$router.route === 'fast' &&
         $router.params.category === category.id}
       href={getURL('fast', { category: category.id })}
       secondary
-    >
-      {#if category.id === 'general'}
-        {$t.generalCategory}
-      {:else}
-        {category.title}
-      {/if}
-    </NavbarItem>
+    />
   {/each}
 {/if}

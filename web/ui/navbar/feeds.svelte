@@ -8,21 +8,19 @@
 </script>
 
 <NavbarItem
+  name={$t.add}
   current={$router.route === 'add'}
   href={getURL('add')}
   icon={mdiPlusCircleOutline}
   secondary
->
-  {$t.add}
-</NavbarItem>
+/>
 
 {#if $hasFeeds}
   <NavbarItem
+    name={$t.feedsByCategory}
     current={$router.route === 'categories'}
     href={getURL('categories')}
     icon={mdiFileTree}
     secondary
-  >
-    {$t.feedsByCategory}
-  </NavbarItem>
+  />
 {/if}

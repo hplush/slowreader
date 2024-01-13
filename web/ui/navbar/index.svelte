@@ -56,35 +56,32 @@
         </NavbarItem>
       {:else}
         <NavbarItem
+          name={$t.refresh}
           current={$router.route === 'refresh'}
           hotkey="r"
           icon={mdiRefresh}
           on:click={() => {
             refreshPosts()
           }}
-        >
-          {$t.refresh}
-        </NavbarItem>
+        />
       {/if}
     {/if}
     <NavbarItem
+      name={$t.feeds}
       current={isOrganizeRoute($router)}
       hotkey="l"
       href={getURL('add')}
       icon={mdiPlaylistEdit}
       {submenu}
-    >
-      {$t.feeds}
-    </NavbarItem>
+    />
     <NavbarItem
+      name={$t.settings}
       current={isSettingsRoute($router)}
       hotkey="p"
       href={getURL('interface')}
       icon={mdiCogOutline}
       {submenu}
-    >
-      {$t.settings}
-    </NavbarItem>
+    />
   </div>
 </nav>
 

@@ -13,37 +13,33 @@
 </script>
 
 <NavbarItem
+  name={$t.interface}
   current={$router.route === 'interface'}
   href={getURL('interface')}
   icon={mdiPalette}
   secondary
->
-  {$t.interface}
-</NavbarItem>
+/>
 
 <NavbarItem
+  name={$t.download}
   current={$router.route === 'download'}
   href={getURL('download')}
   icon={mdiFileDownloadOutline}
   secondary
->
-  {$t.download}
-</NavbarItem>
+/>
 
 <NavbarItem
+  name={$t.profile}
   current={$router.route === 'profile'}
   href={getURL('profile')}
   icon={mdiAccount}
   secondary
->
-  {$t.profile}
-</NavbarItem>
+/>
 
 <NavbarItem
+  name={$t.about}
   current={$router.route === 'about'}
   href={getURL('about')}
   icon={mdiInformationOutline}
   secondary
->
-  {$t.about}
-</NavbarItem>
+/>
