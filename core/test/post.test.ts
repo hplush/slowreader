@@ -21,6 +21,7 @@ test('adds, loads and removes posts', async () => {
     feedId: '1',
     media: [],
     originId: '1',
+    publishedAt: 0,
     reading: 'fast'
   })
   equal(typeof id, 'string')

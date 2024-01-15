@@ -21,9 +21,10 @@ export type OriginPost = {
   url?: string
 }
 
-export type PostValue = OriginPost & {
+export type PostValue = Omit<OriginPost, 'publishedAt'> & {
   feedId: string
   id: string
+  publishedAt: number
   reading: 'fast' | 'slow'
 }
 

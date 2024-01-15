@@ -118,6 +118,7 @@ export async function refreshPosts(): Promise<void> {
               await addPost({
                 ...origin,
                 feedId: feed.id,
+                publishedAt: origin.publishedAt ?? Date.now(),
                 reading
               })
               if (reading === 'fast') {

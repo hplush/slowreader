@@ -1,6 +1,6 @@
 import { ensureLoaded } from '@logux/client'
 import { restoreAll, spyOn } from 'nanospy'
-import { deepStrictEqual, equal, fail } from 'node:assert'
+import { deepStrictEqual, equal, fail, ok } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -152,6 +152,7 @@ test('updates posts', async () => {
   deepStrictEqual(await loadPosts('title'), ['2', '3'])
   deepStrictEqual(await loadPosts('reading'), ['slow', 'slow'])
   deepStrictEqual(await loadPosts('feedId'), [feedId1, feedId1])
+  ok((await loadPosts('publishedAt'))[0]! + 100 > Date.now())
   deepStrictEqual(ensureLoaded(feed1.get()).lastOriginId, 'post3')
   deepStrictEqual(ensureLoaded(feed1.get()).lastPublishedAt, undefined)
 

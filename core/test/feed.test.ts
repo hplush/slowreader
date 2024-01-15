@@ -75,6 +75,7 @@ test('removes feed posts too', async () => {
     feedId: feed1,
     media: [],
     originId: '1',
+    publishedAt: 0,
     reading: 'fast',
     title: '1'
   })
@@ -82,6 +83,7 @@ test('removes feed posts too', async () => {
     feedId: feed1,
     media: [],
     originId: '2',
+    publishedAt: 0,
     reading: 'fast',
     title: '2'
   })
@@ -89,6 +91,7 @@ test('removes feed posts too', async () => {
     feedId: feed2,
     media: [],
     originId: '3',
+    publishedAt: 0,
     reading: 'fast',
     title: '3'
   })
