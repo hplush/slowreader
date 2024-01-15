@@ -16,7 +16,8 @@ import {
   getFeeds,
   getPosts,
   hasFeeds,
-  loaders
+  loaders,
+  testPost
 } from '../index.js'
 import { loadList } from '../utils/stores.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
@@ -71,30 +72,9 @@ test('removes feed posts too', async () => {
     title: 'Atom',
     url: 'https://example.com/atom'
   })
-  await addPost({
-    feedId: feed1,
-    media: [],
-    originId: '1',
-    publishedAt: 0,
-    reading: 'fast',
-    title: '1'
-  })
-  await addPost({
-    feedId: feed1,
-    media: [],
-    originId: '2',
-    publishedAt: 0,
-    reading: 'fast',
-    title: '2'
-  })
-  let post3 = await addPost({
-    feedId: feed2,
-    media: [],
-    originId: '3',
-    publishedAt: 0,
-    reading: 'fast',
-    title: '3'
-  })
+  await addPost(testPost({ feedId: feed1 }))
+  await addPost(testPost({ feedId: feed1 }))
+  let post3 = await addPost(testPost({ feedId: feed2 }))
   let store1 = getFeed(feed1)
 
   await deleteFeed(feed1)

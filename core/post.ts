@@ -10,6 +10,7 @@ import {
 import { nanoid } from 'nanoid'
 
 import { getClient } from './client.js'
+import type { OptionalId } from './utils/stores.js'
 
 export type OriginPost = {
   full?: string
@@ -33,8 +34,8 @@ export const Post = syncMapTemplate<PostValue>('posts', {
   remote: false
 })
 
-export async function addPost(fields: Omit<PostValue, 'id'>): Promise<string> {
-  let id = nanoid()
+export async function addPost(fields: OptionalId<PostValue>): Promise<string> {
+  let id = fields.id ?? nanoid()
   await createSyncMap(getClient(), Post, { id, ...fields })
   return id
 }
@@ -51,4 +52,21 @@ export function getPost(feedId: string): SyncMapStore<PostValue> {
 
 export function deletePost(postId: string): Promise<void> {
   return deleteSyncMapById(getClient(), Post, postId)
+}
+
+let testPostId = 0
+
+export function testPost(feed: Partial<PostValue> = {}): PostValue {
+  testPostId += 1
+  return {
+    feedId: 'feed-1',
+    id: `post-${testPostId}`,
+    intro: `Post ${testPostId}`,
+    media: [],
+    originId: `test-${testPostId}`,
+    publishedAt: 1000,
+    reading: 'fast',
+    url: `http://example.com/${testPostId}`,
+    ...feed
+  }
 }

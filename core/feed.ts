@@ -105,7 +105,7 @@ export function testFeed(feed: Partial<FeedValue> = {}): FeedValue {
   testFeedId += 1
   return {
     categoryId: undefined,
-    id: `test-${testFeedId}`,
+    id: `feed-${testFeedId}`,
     lastOriginId: undefined,
     lastPublishedAt: undefined,
     loader: 'rss',
