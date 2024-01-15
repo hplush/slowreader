@@ -62,6 +62,7 @@
         errorId={$previewNoResults ? 'feeds-add-no-results' : undefined}
         label={$t.urlLabel}
         placeholder="https://mastodon.social/@hplushlab"
+        spellcheck={false}
         value={url}
         on:input={e => {
           onPreviewUrlType(e.detail.value)

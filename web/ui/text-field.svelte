@@ -12,6 +12,7 @@
   export let value = ''
   export let enterHint = false
   export let hideLabel = false
+  export let spellcheck = true
 
   let id = nanoid()
   let inputError: string | undefined = error
@@ -88,6 +89,7 @@
     aria-label={hideLabel ? label : null}
     {placeholder}
     {required}
+    spellcheck={spellcheck ? null : 'false'}
     {type}
     {value}
     on:input={onInput}
