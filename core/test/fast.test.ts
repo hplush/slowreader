@@ -6,6 +6,7 @@ import {
   addCategory,
   addFeed,
   addFilter,
+  deleteFilter,
   fastCategories,
   testFeed
 } from '../index.js'
@@ -38,12 +39,12 @@ test('returns fast categories', async () => {
   let feed2 = await addFeed(testFeed({ categoryId: idB, reading: 'slow' }))
   await addFeed(testFeed({ categoryId: idC, reading: 'slow' }))
 
-  await addFilter({
+  let filter1 = await addFilter({
     action: 'fast',
     feedId: feed2,
     query: 'includes(some)'
   })
-  await addFilter({
+  let filter2 = await addFilter({
     action: 'fast',
     feedId: feed2,
     query: 'includes(other)'
@@ -56,6 +57,16 @@ test('returns fast categories', async () => {
       { id: 'general', title: '' },
       { id: idA, isLoading: false, title: 'A' },
       { id: idB, isLoading: false, title: 'B' }
+    ],
+    isLoading: false
+  })
+
+  await deleteFilter(filter1)
+  await deleteFilter(filter2)
+  deepStrictEqual(fastCategories.get(), {
+    categories: [
+      { id: 'general', title: '' },
+      { id: idA, isLoading: false, title: 'A' }
     ],
     isLoading: false
   })
