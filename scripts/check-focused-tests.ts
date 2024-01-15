@@ -2,7 +2,7 @@ import { lstat, readdir, readFile } from 'node:fs/promises'
 import { join, relative } from 'node:path'
 import pico from 'picocolors'
 
-const ROOT = join(import.meta.dirname!, '..')
+const ROOT = join(import.meta.dirname, '..')
 
 const IGNORE = new Set(['node_modules', 'coverage', 'dist', '.git', '.github'])
 

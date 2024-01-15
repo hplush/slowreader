@@ -37,7 +37,7 @@ async function processCss(dir: string): Promise<void> {
   )
 }
 
-const DIST = join(import.meta.dirname!, '..', 'dist')
+const DIST = join(import.meta.dirname, '..', 'dist')
 
 let cssCleaner = postcss([cleaner])
 

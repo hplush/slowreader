@@ -115,7 +115,7 @@ async function processComponents(dir: string, base: string): Promise<void> {
   )
 }
 
-const ROOT = join(import.meta.dirname!, '..')
+const ROOT = join(import.meta.dirname, '..')
 
 await Promise.all([
   processComponents(join(ROOT, 'ui'), ROOT),
