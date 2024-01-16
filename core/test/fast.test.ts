@@ -1,4 +1,5 @@
-import { deepStrictEqual } from 'node:assert'
+import { cleanStores } from 'nanostores'
+import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -6,10 +7,22 @@ import {
   addCategory,
   addFeed,
   addFilter,
+  addPost,
+  clearFast,
+  constantFastReading,
   deleteFilter,
   fastCategories,
-  testFeed
+  fastLoading,
+  fastPosts,
+  getPosts,
+  loadFastPost,
+  markReadAndLoadNextFastPosts,
+  nextFastSince,
+  setFastPostsPerPage,
+  testFeed,
+  testPost
 } from '../index.js'
+import { loadList } from '../utils/stores.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
 beforeEach(() => {
@@ -17,6 +30,14 @@ beforeEach(() => {
 })
 
 afterEach(async () => {
+  clearFast()
+  cleanStores(
+    constantFastReading,
+    fastPosts,
+    fastLoading,
+    nextFastSince,
+    fastCategories
+  )
   await cleanClientTest()
 })
 
@@ -95,4 +116,222 @@ test('is ready for unknown categories in fast category', async () => {
     categories: [{ id: 'general', title: '' }],
     isLoading: false
   })
+})
+
+test('loads page when we have no fast posts', async () => {
+  constantFastReading.listen(() => {})
+  fastPosts.listen(() => {})
+  fastLoading.listen(() => {})
+  nextFastSince.listen(() => {})
+
+  let promise = loadFastPost('general')
+  equal(fastLoading.get(), 'init')
+  await promise
+  equal(fastLoading.get(), false)
+  deepStrictEqual(fastPosts.get(), [])
+  equal(constantFastReading.get(), 0)
+  equal(nextFastSince.get(), undefined)
+})
+
+test('loads page when we have fast posts', async () => {
+  constantFastReading.listen(() => {})
+  fastPosts.listen(() => {})
+  fastLoading.listen(() => {})
+  nextFastSince.listen(() => {})
+  setFastPostsPerPage(5)
+
+  let category1 = await addCategory({ title: '1' })
+  let feed1 = await addFeed(testFeed({ categoryId: category1 }))
+  let feed2 = await addFeed(testFeed({ categoryId: category1 }))
+  let feed3 = await addFeed(testFeed({ categoryId: 'general' }))
+
+  for (let [feedIndex, feed] of [feed1, feed2].entries()) {
+    for (let i = 0; i < 6; i++) {
+      await addPost(
+        testPost({
+          feedId: feed,
+          publishedAt: 1000 * i + feedIndex,
+          reading: 'fast',
+          title: `F${feedIndex} P${i}`
+        })
+      )
+    }
+  }
+  await addPost(testPost({ feedId: feed1, reading: 'slow' }))
+  await addPost(
+    testPost({
+      feedId: feed3,
+      publishedAt: 1000,
+      reading: 'fast',
+      title: `F3 P0`
+    })
+  )
+
+  await loadFastPost(category1)
+  equal(fastLoading.get(), false)
+  equal(constantFastReading.get(), 0)
+  equal(nextFastSince.get(), 3001)
+  deepStrictEqual(
+    fastPosts.get().map(i => i.title),
+    ['F1 P5', 'F0 P5', 'F1 P4', 'F0 P4', 'F1 P3']
+  )
+
+  let promise1 = markReadAndLoadNextFastPosts()
+  equal(fastLoading.get(), 'next')
+  await promise1
+  equal(fastLoading.get(), false)
+  equal(constantFastReading.get(), 1)
+  equal(nextFastSince.get(), 1000)
+  deepStrictEqual(
+    fastPosts.get().map(i => i.title),
+    ['F0 P3', 'F1 P2', 'F0 P2', 'F1 P1', 'F0 P1']
+  )
+
+  await addPost(
+    testPost({
+      feedId: feed1,
+      publishedAt: 100000,
+      reading: 'fast',
+      title: `F1 P100`
+    })
+  )
+
+  await markReadAndLoadNextFastPosts()
+  equal(fastLoading.get(), false)
+  equal(constantFastReading.get(), 2)
+  equal(nextFastSince.get(), undefined)
+  deepStrictEqual(
+    fastPosts.get().map(i => i.title),
+    ['F1 P0', 'F0 P0']
+  )
+
+  let promise2 = markReadAndLoadNextFastPosts()
+  equal(fastLoading.get(), 'next')
+  await promise2
+  equal(fastLoading.get(), false)
+  equal(constantFastReading.get(), 3)
+  deepStrictEqual(
+    fastPosts.get().map(i => i.title),
+    []
+  )
+
+  deepStrictEqual((await loadList(getPosts({ reading: 'fast' }))).length, 2)
+  deepStrictEqual((await loadList(getPosts({ reading: 'slow' }))).length, 1)
+
+  await loadFastPost(category1)
+  deepStrictEqual(
+    fastPosts.get().map(i => i.title),
+    ['F1 P100']
+  )
+  equal(constantFastReading.get(), 0)
+  equal(nextFastSince.get(), undefined)
+
+  await markReadAndLoadNextFastPosts()
+
+  deepStrictEqual((await loadList(getPosts({ reading: 'fast' }))).length, 1)
+  await loadFastPost(category1)
+  deepStrictEqual(
+    fastPosts.get().map(i => i.title),
+    []
+  )
+  equal(constantFastReading.get(), 0)
+  equal(nextFastSince.get(), undefined)
+})
+
+test('allows to change category in the middle', async () => {
+  constantFastReading.listen(() => {})
+  fastPosts.listen(() => {})
+  fastLoading.listen(() => {})
+  nextFastSince.listen(() => {})
+  setFastPostsPerPage(5)
+
+  let category1 = await addCategory({ title: '1' })
+  let feed1 = await addFeed(testFeed({ categoryId: category1 }))
+  let feed2 = await addFeed(testFeed({ categoryId: category1 }))
+  let feed3 = await addFeed(testFeed({ categoryId: 'general' }))
+
+  for (let [feedIndex, feed] of [feed1, feed2, feed3].entries()) {
+    for (let i = 0; i < 6; i++) {
+      await addPost(
+        testPost({
+          feedId: feed,
+          publishedAt: 1000 * i + feedIndex,
+          reading: 'fast',
+          title: `F${feedIndex} P${i}`
+        })
+      )
+      await addPost(testPost({ feedId: feed, reading: 'slow' }))
+    }
+  }
+
+  await loadFastPost(category1)
+  equal(constantFastReading.get(), 0)
+
+  await markReadAndLoadNextFastPosts()
+  equal(constantFastReading.get(), 1)
+
+  let promise = loadFastPost('general')
+  equal(fastLoading.get(), 'init')
+  await promise
+  equal(fastLoading.get(), false)
+  equal(constantFastReading.get(), 0)
+  deepStrictEqual(
+    fastPosts.get().map(i => i.title),
+    ['F2 P5', 'F2 P4', 'F2 P3', 'F2 P2', 'F2 P1']
+  )
+})
+
+test('allows to preview next page without marking as read', async () => {
+  constantFastReading.listen(() => {})
+  fastPosts.listen(() => {})
+  fastLoading.listen(() => {})
+  nextFastSince.listen(() => {})
+  setFastPostsPerPage(5)
+
+  let feed1 = await addFeed(testFeed({ categoryId: 'general' }))
+  let feed2 = await addFeed(testFeed({ categoryId: 'general' }))
+
+  for (let [feedIndex, feed] of [feed1, feed2].entries()) {
+    for (let i = 0; i < 6; i++) {
+      await addPost(
+        testPost({
+          feedId: feed,
+          publishedAt: 1000 * i + feedIndex,
+          reading: 'fast',
+          title: `F${feedIndex} P${i}`
+        })
+      )
+    }
+  }
+
+  await loadFastPost('general')
+  equal(constantFastReading.get(), 0)
+  equal(nextFastSince.get(), 3001)
+  deepStrictEqual(
+    fastPosts.get().map(i => i.title),
+    ['F1 P5', 'F0 P5', 'F1 P4', 'F0 P4', 'F1 P3']
+  )
+
+  await loadFastPost('general', nextFastSince.get())
+  equal(constantFastReading.get(), 0)
+  equal(nextFastSince.get(), 1000)
+  deepStrictEqual(
+    fastPosts.get().map(i => i.title),
+    ['F0 P3', 'F1 P2', 'F0 P2', 'F1 P1', 'F0 P1']
+  )
+
+  await markReadAndLoadNextFastPosts()
+  equal(constantFastReading.get(), 1)
+  equal(nextFastSince.get(), undefined)
+  deepStrictEqual(
+    fastPosts.get().map(i => i.title),
+    ['F1 P0', 'F0 P0']
+  )
+
+  await markReadAndLoadNextFastPosts()
+  equal(constantFastReading.get(), 2)
+  deepStrictEqual(
+    fastPosts.get().map(i => i.title),
+    []
+  )
 })
