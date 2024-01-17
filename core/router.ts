@@ -10,7 +10,7 @@ export interface Routes {
   add: { url?: string }
   categories: { feed?: string }
   download: {}
-  fast: { category?: string }
+  fast: { category?: string; since?: number }
   feeds: {}
   home: {}
   interface: {}
@@ -27,8 +27,12 @@ export interface Routes {
 
 export type RouteName = keyof Routes
 
+type StringParams<Object> = {
+  [K in keyof Object]: Object[K] extends string ? Object[K] : Object[K] | string
+}
+
 export type BaseRoute<Name extends RouteName = RouteName> = Name extends string
-  ? { params: Routes[Name]; route: Name }
+  ? { params: StringParams<Routes[Name]>; route: Name }
   : never
 
 export type BaseRouter = ReadableAtom<BaseRoute | undefined>
@@ -64,6 +68,10 @@ function open<Name extends keyof Routes>(
   return { params, redirect: false, route }
 }
 
+function isNumber(value: number | string): boolean {
+  return typeof value === 'number' || /^\d+$/.test(value)
+}
+
 function getRoute(
   page: BaseRoute | undefined,
   user: string | undefined,
@@ -88,6 +96,17 @@ function getRoute(
     } else if (page.route === 'fast') {
       if (!page.params.category && !fast.isLoading) {
         return redirect('fast', { category: fast.categories[0].id })
+      }
+      if (page.params.since) {
+        let since = page.params.since
+        if (isNumber(since)) {
+          return open('fast', {
+            category: page.params.category,
+            since: typeof since === 'number' ? since : parseInt(since)
+          })
+        } else {
+          return open('notFound', {})
+        }
       }
     }
   } else if (!GUEST.has(page.route)) {

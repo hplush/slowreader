@@ -212,3 +212,22 @@ test('has routes groups', () => {
   equal(isSettingsRoute(router.get()), false)
   equal(isOrganizeRoute(router.get()), true)
 })
+
+test('converts since to number', async () => {
+  userId.set('10')
+  let idA = await addCategory({ title: 'A' })
+
+  setBaseRoute({ params: { category: idA, since: '1000' }, route: 'fast' })
+  deepStrictEqual(router.get(), {
+    params: { category: idA, since: 1000 },
+    redirect: false,
+    route: 'fast'
+  })
+
+  setBaseRoute({ params: { category: idA, since: '1000k' }, route: 'fast' })
+  deepStrictEqual(router.get(), {
+    params: {},
+    redirect: false,
+    route: 'notFound'
+  })
+})

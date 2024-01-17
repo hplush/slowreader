@@ -23,6 +23,10 @@ export interface NetworkTypeDetector {
   }
 }
 
+type NormalizeParams<Params> = {
+  [K in keyof Params]: Params[K] extends number ? Params[K] : string
+}
+
 type RouterRoutes<Router extends BaseRouter> = {
   [R in Exclude<StoreValue<Router>, undefined> as R['route']]: R['params']
 }
@@ -31,8 +35,8 @@ type ExactType<Good, A, B> = A extends B ? (B extends A ? Good : never) : never
 
 type ValidateRouter<Router extends BaseRouter> = ExactType<
   Router,
-  RouterRoutes<Router>,
-  Routes
+  NormalizeParams<RouterRoutes<Router>>,
+  NormalizeParams<Routes>
 >
 
 interface EnvironmentListener {
