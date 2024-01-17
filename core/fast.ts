@@ -21,16 +21,29 @@ function notEmpty<Value>(array: Value[]): array is [Value, ...Value[]] {
 async function findFastCategories(): Promise<
   [CategoryValue, ...CategoryValue[]]
 > {
-  let [fastFeeds, fastFilters, categories] = await Promise.all([
+  let [fastFeeds, fastFilters, categories, fastPosts] = await Promise.all([
     loadList(getFeeds({ reading: 'fast' })),
     loadList(getFilters({ action: 'fast' })),
-    loadValue(getCategories())
+    loadValue(getCategories()),
+    loadList(getPosts({ reading: 'fast' }))
   ])
   let filterFeeds = await Promise.all(
     fastFilters.map(i => loadValue(getFeed(i.feedId)))
   )
+  let missedFeedIds = fastPosts
+    .map(i => i.feedId)
+    .filter(feedId => {
+      return (
+        !fastFeeds.some(i => i.id === feedId) &&
+        !filterFeeds.some(i => i.id === feedId)
+      )
+    })
+  let missedFeeds = await Promise.all(
+    missedFeedIds.map(id => loadValue(getFeed(id)))
+  )
+
   let uniqueCategories: Record<string, CategoryValue> = {}
-  for (let feed of [...fastFeeds, ...filterFeeds]) {
+  for (let feed of [...fastFeeds, ...filterFeeds, ...missedFeeds]) {
     let id = feed.categoryId
     if (!uniqueCategories[id]) {
       if (id === 'general') {

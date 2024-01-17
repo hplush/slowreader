@@ -122,6 +122,20 @@ test('is ready for unknown categories in fast category', async () => {
   })
 })
 
+test('is ready for fast post in slow feed', async () => {
+  let categoryA = await addCategory({ title: 'A' })
+  let feed = await addFeed(testFeed({ categoryId: categoryA, reading: 'slow' }))
+  await addPost(testPost({ feedId: feed, reading: 'fast' }))
+
+  fastCategories.listen(() => {})
+  await setTimeout(100)
+
+  deepStrictEqual(fastCategories.get(), {
+    categories: [{ id: categoryA, isLoading: false, title: 'A' }],
+    isLoading: false
+  })
+})
+
 test('loads page when we have no fast posts', async () => {
   constantFastReading.listen(() => {})
   fastPosts.listen(() => {})
