@@ -97,6 +97,12 @@ function getRoute(
       if (!page.params.category && !fast.isLoading) {
         return redirect('fast', { category: fast.categories[0].id })
       }
+      if (page.params.category && !fast.isLoading) {
+        let category = fast.categories.find(i => i.id === page.params.category)
+        if (!category) {
+          return open('notFound', {})
+        }
+      }
       if (page.params.since) {
         let since = page.params.since
         if (isNumber(since)) {

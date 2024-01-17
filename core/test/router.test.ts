@@ -216,6 +216,7 @@ test('has routes groups', () => {
 test('converts since to number', async () => {
   userId.set('10')
   let idA = await addCategory({ title: 'A' })
+  await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
 
   setBaseRoute({ params: { category: idA, since: '1000' }, route: 'fast' })
   deepStrictEqual(router.get(), {
@@ -229,5 +230,33 @@ test('converts since to number', async () => {
     params: {},
     redirect: false,
     route: 'notFound'
+  })
+})
+
+test('checks that category exists', async () => {
+  userId.set('10')
+  let idA = await addCategory({ title: 'A' })
+  await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
+
+  setBaseRoute({ params: { category: 'unknown', since: 100 }, route: 'fast' })
+  deepStrictEqual(router.get(), {
+    params: { category: 'unknown', since: 100 },
+    redirect: false,
+    route: 'fast'
+  })
+
+  await setTimeout(100)
+  deepStrictEqual(router.get(), {
+    params: {},
+    redirect: false,
+    route: 'notFound'
+  })
+
+  setBaseRoute({ params: { category: idA, since: 100 }, route: 'fast' })
+  await setTimeout(100)
+  deepStrictEqual(router.get(), {
+    params: { category: idA, since: 100 },
+    redirect: false,
+    route: 'fast'
   })
 })
