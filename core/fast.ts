@@ -3,7 +3,6 @@ import { atom, onMount } from 'nanostores'
 
 import {
   type CategoryValue,
-  feedCategory,
   GENERAL_CATEGORY,
   getCategories
 } from './category.js'
@@ -31,7 +30,7 @@ async function findFastCategories(): Promise<
   )
   let uniqueCategories: Record<string, CategoryValue> = {}
   for (let feed of [...fastFeeds, ...filterFeeds]) {
-    let id = feedCategory(feed.categoryId, categories)
+    let id = feed.categoryId
     if (!uniqueCategories[id]) {
       if (id === 'general') {
         uniqueCategories[id] = GENERAL_CATEGORY

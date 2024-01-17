@@ -13,7 +13,6 @@
     changeFilter,
     deleteFeed,
     deleteFilter,
-    feedCategory,
     getCategories,
     getFeed,
     getFeedLatestPosts,
@@ -119,7 +118,7 @@
         }}
       />
       <SelectField
-        current={feedCategory($feed.categoryId, $categories)}
+        current={$feed.categoryId}
         label={$t.category}
         values={categoryOptions}
         on:change={onCategoryChange}

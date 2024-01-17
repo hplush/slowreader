@@ -45,22 +45,13 @@ export async function deleteCategory(categoryId: string): Promise<void> {
   return deleteSyncMapById(getClient(), Category, categoryId)
 }
 
-export function feedCategory(
-  categoryId: string | undefined,
-  categories: LoadedFilterValue<CategoryValue>
-): string {
-  if (
-    typeof categoryId === 'string' &&
-    categories.list.some(i => i.id === categoryId)
-  ) {
-    return categoryId
-  } else {
-    return 'general'
-  }
-}
-
 export const GENERAL_CATEGORY: CategoryValue = {
   id: 'general',
+  title: ''
+}
+
+const BROKEN_CATEGORY: CategoryValue = {
+  id: 'broken',
   title: ''
 }
 
@@ -68,20 +59,38 @@ export function feedsByCategory(
   categories: LoadedFilterValue<CategoryValue>,
   feeds: readonly FeedValue[]
 ): [CategoryValue, FeedValue[]][] {
-  let allCategories = [
-    GENERAL_CATEGORY,
-    ...categories.list.sort((a, b) => a.title.localeCompare(b.title))
-  ]
+  let allCategories = categories.list.sort((a, b) => {
+    return a.title.localeCompare(b.title)
+  })
+
+  let general: FeedValue[] = []
+  let broken: FeedValue[] = []
+
   let byId: Record<string, FeedValue[]> = {
     general: []
   }
   for (let category of allCategories) {
     byId[category.id] = []
   }
+
   for (let feed of feeds) {
-    byId[feedCategory(feed.categoryId, categories)]!.push(feed)
+    if (feed.categoryId === 'general') {
+      general.push(feed)
+    } else if (categories.list.some(i => i.id === feed.categoryId)) {
+      byId[feed.categoryId]!.push(feed)
+    } else {
+      broken.push(feed)
+    }
   }
-  return allCategories.map(category => {
+
+  let result: [CategoryValue, FeedValue[]][] = allCategories.map(category => {
     return [category, byId[category.id]!]
   })
+  if (general.length > 0) {
+    result.unshift([GENERAL_CATEGORY, general])
+  }
+  if (broken.length > 0) {
+    result.push([BROKEN_CATEGORY, broken])
+  }
+  return result
 }
