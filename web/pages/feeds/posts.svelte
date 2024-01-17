@@ -6,7 +6,7 @@
   } from '@slowreader/core'
 
   import Loader from '../../ui/loader.svelte'
-  import UIPostCard from '../../ui/post-card.svelte'
+  import PostCard from '../../ui/post-card.svelte'
 
   export let posts: PostsPage
   export let filters: FilterValue[] = []
@@ -20,9 +20,9 @@
   <Loader />
 {:else}
   <ul role="list">
-    {#each $posts.list as post (post.url)}
+    {#each $posts.list as post (post.originId)}
       <li>
-        <UIPostCard action={checker(post) ?? defaultReading} {post} />
+        <PostCard action={checker(post) ?? defaultReading} {post} />
       </li>
     {/each}
   </ul>
