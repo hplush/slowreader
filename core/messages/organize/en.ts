@@ -3,7 +3,6 @@ import { i18n } from '../../i18n.js'
 export const organizeMessages = i18n('organize', {
   addCategory: 'Add category…',
   addFilter: 'Add filter',
-  brokenCategory: 'Broken category',
   byCategoryTitle: 'Feeds by Category',
   category: 'Category',
   categoryName: 'Category name',

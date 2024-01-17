@@ -54,9 +54,7 @@
     {/each}
   </ul>
   {#if $fastLoading === 'next'}
-    <Button wide>
-      <Loader />
-    </Button>
+    <Loader />
   {:else}
     <Button
       wide
@@ -66,16 +64,16 @@
     >
       {$t.readNext}
     </Button>
-  {/if}
-  {#if $nextFastSince}
-    <Button
-      href={getURL('fast', {
-        category: $fastCategory,
-        since: String($nextFastSince)
-      })}
-      secondary
-    >
-      {$t.showNext}
-    </Button>
+    {#if $nextFastSince}
+      <Button
+        href={getURL('fast', {
+          category: $fastCategory,
+          since: String($nextFastSince)
+        })}
+        secondary
+      >
+        {$t.showNext}
+      </Button>
+    {/if}
   {/if}
 {/if}

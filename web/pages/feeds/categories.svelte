@@ -45,7 +45,7 @@
             {#if category.id === 'general'}
               <h2 class="feeds-categories_title">{$common.generalCategory}</h2>
             {:else if category.id === 'broken'}
-              <h2 class="feeds-categories_title">{$t.brokenCategory}</h2>
+              <h2 class="feeds-categories_title">{$common.brokenCategory}</h2>
             {:else}
               <Row compact>
                 <h2 class="feeds-categories_title">

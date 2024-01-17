@@ -2,6 +2,7 @@ import { loadValue } from '@logux/client'
 import { atom, onMount } from 'nanostores'
 
 import {
+  BROKEN_CATEGORY,
   type CategoryValue,
   GENERAL_CATEGORY,
   getCategories
@@ -35,7 +36,8 @@ async function findFastCategories(): Promise<
       if (id === 'general') {
         uniqueCategories[id] = GENERAL_CATEGORY
       } else {
-        uniqueCategories[id] = categories.list.find(i => i.id === id)!
+        uniqueCategories[id] =
+          categories.list.find(i => i.id === id) ?? BROKEN_CATEGORY
       }
     }
   }

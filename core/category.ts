@@ -50,7 +50,7 @@ export const GENERAL_CATEGORY: CategoryValue = {
   title: ''
 }
 
-const BROKEN_CATEGORY: CategoryValue = {
+export const BROKEN_CATEGORY: CategoryValue = {
   id: 'broken',
   title: ''
 }

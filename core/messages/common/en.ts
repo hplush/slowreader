@@ -1,6 +1,7 @@
 import { i18n } from '../../i18n.js'
 
 export const commonMessages = i18n('common', {
+  brokenCategory: 'Broken category',
   empty: 'The value is required',
   generalCategory: 'General',
   loading: 'Loading',

@@ -117,7 +117,7 @@ test('is ready for unknown categories in fast category', async () => {
   await setTimeout(100)
 
   deepStrictEqual(fastCategories.get(), {
-    categories: [{ id: 'general', title: '' }],
+    categories: [{ id: 'broken', title: '' }],
     isLoading: false
   })
 })
