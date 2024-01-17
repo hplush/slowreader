@@ -27,6 +27,10 @@ export interface Routes {
 
 export type RouteName = keyof Routes
 
+export type AppRoute<Name extends RouteName = RouteName> = Name extends string
+  ? { params: Routes[Name]; redirect: boolean; route: Name }
+  : never
+
 type StringParams<Object> = {
   [K in keyof Object]: Object[K] extends string ? Object[K] : Object[K] | string
 }
@@ -36,10 +40,6 @@ export type BaseRoute<Name extends RouteName = RouteName> = Name extends string
   : never
 
 export type BaseRouter = ReadableAtom<BaseRoute | undefined>
-
-export type AppRoute = BaseRoute & {
-  redirect: boolean
-}
 
 const GUEST = new Set<AppRoute['route']>(['start', 'signin'])
 
