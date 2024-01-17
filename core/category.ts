@@ -49,9 +49,10 @@ export function feedCategory(
   categoryId: string | undefined,
   categories: LoadedFilterValue<CategoryValue>
 ): string {
-  if (typeof categoryId === 'undefined') {
-    return 'general'
-  } else if (categories.list.some(i => i.id === categoryId)) {
+  if (
+    typeof categoryId === 'string' &&
+    categories.list.some(i => i.id === categoryId)
+  ) {
     return categoryId
   } else {
     return 'general'

@@ -268,6 +268,7 @@ export async function addPreviewCandidate(): Promise<void> {
     let lastPost = page.list[0]
     let candidate = $candidates.get().find(i => i.url === url)!
     await addFeed({
+      categoryId: 'general',
       lastOriginId: lastPost?.originId,
       lastPublishedAt: lastPost?.publishedAt ?? Date.now() / 1000,
       loader: candidate.loader,

@@ -67,8 +67,6 @@
         let categoryId = await addCategory({ title })
         changeFeed(feedId, { categoryId })
       }
-    } else if (e.detail === '') {
-      changeFeed(feedId, { categoryId: undefined })
     } else {
       changeFeed(feedId, { categoryId: e.detail })
     }

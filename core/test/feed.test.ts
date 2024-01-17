@@ -17,6 +17,7 @@ import {
   getPosts,
   hasFeeds,
   loaders,
+  testFeed,
   testPost
 } from '../index.js'
 import { loadList } from '../utils/stores.js'
@@ -35,6 +36,7 @@ test('adds, loads, changes and removes feed', async () => {
   deepStrictEqual(await loadList(getFeeds()), [])
 
   let id = await addFeed({
+    categoryId: 'general',
     loader: 'rss',
     reading: 'fast',
     title: 'RSS',
@@ -60,18 +62,8 @@ test('removes feed posts too', async () => {
   let posts = getPosts()
   keepMount(posts)
 
-  let feed1 = await addFeed({
-    loader: 'rss',
-    reading: 'fast',
-    title: 'RSS',
-    url: 'https://example.com/'
-  })
-  let feed2 = await addFeed({
-    loader: 'atom',
-    reading: 'fast',
-    title: 'Atom',
-    url: 'https://example.com/atom'
-  })
+  let feed1 = await addFeed(testFeed())
+  let feed2 = await addFeed(testFeed())
   await addPost(testPost({ feedId: feed1 }))
   await addPost(testPost({ feedId: feed1 }))
   let post3 = await addPost(testPost({ feedId: feed2 }))
@@ -89,12 +81,12 @@ test('loads latest posts', async () => {
   let page = createPostsPage([], undefined)
   let getPage = spyOn(loaders.rss, 'getPosts', () => page)
 
-  let id = await addFeed({
-    loader: 'rss',
-    reading: 'fast',
-    title: 'RSS',
-    url: 'https://example.com/'
-  })
+  let id = await addFeed(
+    testFeed({
+      loader: 'rss',
+      url: 'https://example.com/'
+    })
+  )
   let feed = await loadValue(getFeed(id))
 
   equal(getFeedLatestPosts(feed), page)
@@ -107,12 +99,7 @@ test('shows that user has any feeds', async () => {
   await setTimeout(10)
   equal(hasFeeds.get(), false)
 
-  let id = await addFeed({
-    loader: 'rss',
-    reading: 'fast',
-    title: 'RSS',
-    url: 'https://example.com/'
-  })
+  let id = await addFeed(testFeed())
   equal(hasFeeds.get(), true)
 
   await deleteFeed(id)

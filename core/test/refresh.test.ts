@@ -244,13 +244,13 @@ test('updates posts', async () => {
 })
 
 test('is ready to feed deletion during refreshing', async () => {
-  let feedId = await addFeed({
-    lastOriginId: 'post1',
-    loader: 'rss',
-    reading: 'slow',
-    title: '1',
-    url: 'https://one.com/'
-  })
+  let feedId = await addFeed(
+    testFeed({
+      lastOriginId: 'post1',
+      loader: 'rss',
+      reading: 'slow'
+    })
+  )
   let rss1 = createPromise<PostsPageResult>()
   spyOn(loaders.rss, 'getPosts', () => {
     return createPostsPage(undefined, () => rss1.promise())
@@ -312,14 +312,13 @@ test('is ready for network errors', async () => {
       url: 'https://one.com/'
     })
   )
-  await addFeed({
-    lastOriginId: 'post2',
-    lastPublishedAt: 5000,
-    loader: 'atom',
-    reading: 'fast',
-    title: '2',
-    url: 'https://two.com/'
-  })
+  await addFeed(
+    testFeed({
+      lastOriginId: 'post2',
+      lastPublishedAt: 5000,
+      loader: 'atom'
+    })
+  )
 
   let rssHadError = false
   spyOn(loaders.rss, 'getPosts', () => {

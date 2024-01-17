@@ -17,7 +17,8 @@ import {
   moveFilterDown,
   moveFilterUp,
   prepareFilters,
-  sortFilters
+  sortFilters,
+  testFeed
 } from '../index.js'
 import { loadList } from '../utils/stores.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
@@ -111,18 +112,8 @@ test('adds, loads, changes and removes filters', async () => {
 })
 
 test('adds filter for feed', async () => {
-  let feedId1 = await addFeed({
-    loader: 'rss',
-    reading: 'fast',
-    title: 'Feed 1',
-    url: 'https://example.com/feed1'
-  })
-  let feedId2 = await addFeed({
-    loader: 'rss',
-    reading: 'slow',
-    title: 'Feed 2',
-    url: 'https://example.com/feed2'
-  })
+  let feedId1 = await addFeed(testFeed({ reading: 'fast' }))
+  let feedId2 = await addFeed(testFeed({ reading: 'slow' }))
 
   let filterId1 = await addFilterForFeed(await loadValue(getFeed(feedId1)))
   let filterId2 = await addFilterForFeed(await loadValue(getFeed(feedId2)))

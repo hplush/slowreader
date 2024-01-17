@@ -20,7 +20,7 @@ import type { PostsPage } from './posts-page.js'
 import { type OptionalId, readonlyExport } from './utils/stores.js'
 
 export type FeedValue = {
-  categoryId?: string
+  categoryId: string
   id: string
   lastOriginId?: string
   lastPublishedAt?: number
@@ -104,7 +104,7 @@ let testFeedId = 0
 export function testFeed(feed: Partial<FeedValue> = {}): FeedValue {
   testFeedId += 1
   return {
-    categoryId: undefined,
+    categoryId: 'general',
     id: `feed-${testFeedId}`,
     lastOriginId: undefined,
     lastPublishedAt: undefined,
