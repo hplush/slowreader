@@ -27,8 +27,8 @@ export interface Routes {
 
 export type RouteName = keyof Routes
 
-export type AppRoute<Name extends RouteName = RouteName> = Name extends string
-  ? { params: Routes[Name]; redirect: boolean; route: Name }
+export type Route<Name extends RouteName = RouteName> = Name extends string
+  ? { params: Routes[Name]; redirect?: boolean; route: Name }
   : never
 
 type StringParams<Object> = {
@@ -41,21 +41,21 @@ export type BaseRoute<Name extends RouteName = RouteName> = Name extends string
 
 export type BaseRouter = ReadableAtom<BaseRoute | undefined>
 
-const GUEST = new Set<AppRoute['route']>(['start', 'signin'])
+const GUEST = new Set<Route['route']>(['start', 'signin'])
 
-const SETTINGS = new Set<AppRoute['route']>([
+const SETTINGS = new Set<Route['route']>([
   'interface',
   'profile',
   'about',
   'download'
 ])
 
-const ORGANIZE = new Set<AppRoute['route']>(['add', 'categories'])
+const ORGANIZE = new Set<Route['route']>(['add', 'categories'])
 
 function redirect<Name extends keyof Routes>(
   route: Name,
   params: Routes[Name]
-): AppRoute {
+): Route {
   // @ts-expect-error Too complex types
   return { params, redirect: true, route }
 }
@@ -63,9 +63,9 @@ function redirect<Name extends keyof Routes>(
 function open<Name extends keyof Routes>(
   route: Name,
   params: Routes[Name]
-): AppRoute {
+): Route {
   // @ts-expect-error Too complex types
-  return { params, redirect: false, route }
+  return { params, route }
 }
 
 function isNumber(value: number | string): boolean {
@@ -77,7 +77,7 @@ function getRoute(
   user: string | undefined,
   withFeeds: boolean | undefined,
   fast: FastCategoriesValue
-): AppRoute {
+): Route {
   if (!page) {
     return open('notFound', {})
   } else if (user) {
@@ -121,7 +121,7 @@ function getRoute(
   return open(page.route, page.params)
 }
 
-export let router: ReadableAtom<AppRoute>
+export let router: ReadableAtom<Route>
 
 onEnvironment(({ baseRouter }) => {
   router = computed(
@@ -132,22 +132,22 @@ onEnvironment(({ baseRouter }) => {
   )
 })
 
-export function isFastRoute(route: AppRoute): boolean {
+export function isFastRoute(route: Route): boolean {
   return route.route === 'fast'
 }
 
-export function isSlowRoute(route: AppRoute): boolean {
+export function isSlowRoute(route: Route): boolean {
   return route.route === 'slowAll'
 }
 
-export function isGuestRoute(route: AppRoute): boolean {
+export function isGuestRoute(route: Route): boolean {
   return GUEST.has(route.route)
 }
 
-export function isSettingsRoute(route: AppRoute): boolean {
+export function isSettingsRoute(route: Route): boolean {
   return SETTINGS.has(route.route)
 }
 
-export function isOrganizeRoute(route: AppRoute): boolean {
+export function isOrganizeRoute(route: Route): boolean {
   return ORGANIZE.has(route.route)
 }

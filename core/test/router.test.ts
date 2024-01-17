@@ -36,7 +36,6 @@ test('opens 404', () => {
   setBaseRoute(undefined)
   deepStrictEqual(router.get(), {
     params: {},
-    redirect: false,
     route: 'notFound'
   })
 })
@@ -46,21 +45,18 @@ test('transforms routers for guest', () => {
   setBaseRoute({ params: {}, route: 'home' })
   deepStrictEqual(router.get(), {
     params: {},
-    redirect: false,
     route: 'start'
   })
 
   setBaseRoute({ params: {}, route: 'slowAll' })
   deepStrictEqual(router.get(), {
     params: {},
-    redirect: false,
     route: 'start'
   })
 
   setBaseRoute({ params: {}, route: 'signin' })
   deepStrictEqual(router.get(), {
     params: {},
-    redirect: false,
     route: 'signin'
   })
 })
@@ -77,7 +73,6 @@ test('transforms routers for users', () => {
   setBaseRoute({ params: { category: 'general' }, route: 'fast' })
   deepStrictEqual(router.get(), {
     params: { category: 'general' },
-    redirect: false,
     route: 'fast'
   })
 
@@ -98,7 +93,6 @@ test('transforms routers for users', () => {
   userId.set(undefined)
   deepStrictEqual(router.get(), {
     params: {},
-    redirect: false,
     route: 'signin'
   })
 })
@@ -155,7 +149,6 @@ test('transforms routers to first fast category', async () => {
   setBaseRoute({ params: {}, route: 'fast' })
   deepStrictEqual(router.get(), {
     params: {},
-    redirect: false,
     route: 'fast'
   })
 
@@ -221,14 +214,12 @@ test('converts since to number', async () => {
   setBaseRoute({ params: { category: idA, since: '1000' }, route: 'fast' })
   deepStrictEqual(router.get(), {
     params: { category: idA, since: 1000 },
-    redirect: false,
     route: 'fast'
   })
 
   setBaseRoute({ params: { category: idA, since: '1000k' }, route: 'fast' })
   deepStrictEqual(router.get(), {
     params: {},
-    redirect: false,
     route: 'notFound'
   })
 })
@@ -241,14 +232,12 @@ test('checks that category exists', async () => {
   setBaseRoute({ params: { category: 'unknown', since: 100 }, route: 'fast' })
   deepStrictEqual(router.get(), {
     params: { category: 'unknown', since: 100 },
-    redirect: false,
     route: 'fast'
   })
 
   await setTimeout(100)
   deepStrictEqual(router.get(), {
     params: {},
-    redirect: false,
     route: 'notFound'
   })
 
@@ -256,7 +245,6 @@ test('checks that category exists', async () => {
   await setTimeout(100)
   deepStrictEqual(router.get(), {
     params: { category: idA, since: 100 },
-    redirect: false,
     route: 'fast'
   })
 })

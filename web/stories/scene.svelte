@@ -2,7 +2,6 @@
   import {
     addCategory,
     addFeed,
-    type BaseRoute,
     Category,
     type CategoryValue,
     clearPreview,
@@ -18,6 +17,7 @@
     Post,
     refreshStatistics,
     type RefreshStatistics,
+    type Route,
     testFeed
   } from '@slowreader/core'
   import { cleanStores } from 'nanostores'
@@ -36,7 +36,7 @@
   }
 
   export let refreshing: false | Partial<RefreshStatistics> = false
-  export let route: BaseRoute = {
+  export let route: Route = {
     params: {},
     route: 'slowAll'
   }
