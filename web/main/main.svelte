@@ -1,6 +1,7 @@
 <script lang="ts">
   import { isGuestRoute, notFound, router, starting } from '@slowreader/core'
 
+  import Fast from '../pages/fast.svelte'
   import FeedsAdd from '../pages/feeds/add.svelte'
   import FeedsCategories from '../pages/feeds/categories.svelte'
   import NotFound from '../pages/not-found.svelte'
@@ -22,6 +23,8 @@
     <NotFound />
   {:else if $router.route === 'start'}
     <Start />
+  {:else if $router.route === 'fast'}
+    <Fast categoryId={$router.params.category} since={$router.params.since} />
   {:else if $router.route === 'add'}
     <FeedsAdd url={$router.params.url ?? ''} />
   {:else if $router.route === 'categories'}

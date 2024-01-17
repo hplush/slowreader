@@ -101,6 +101,14 @@ let $reading = atom(0)
 
 export const constantFastReading = readonlyExport($reading)
 
+let $currentSince = atom<number | undefined>(undefined)
+
+export const fastSince = readonlyExport($currentSince)
+
+let $currentCategory = atom<string | undefined>(undefined)
+
+export const fastCategory = readonlyExport($currentCategory)
+
 onMount($posts, () => {
   return () => {
     clearFast()
@@ -109,13 +117,13 @@ onMount($posts, () => {
 
 let POSTS_PER_PAGE = 50
 
-let currentCategoryId: string | undefined
-
 export function setFastPostsPerPage(value: number): void {
   POSTS_PER_PAGE = value
 }
 
 async function loadPosts(categoryId: string, since?: number): Promise<void> {
+  $currentSince.set(since)
+
   let [allFastPosts, categoryFeeds] = await Promise.all([
     loadList(getPosts({ reading: 'fast' })),
     loadList(getFeeds({ categoryId }))
@@ -140,19 +148,20 @@ export async function loadFastPost(
   categoryId: string,
   since?: number
 ): Promise<void> {
-  currentCategoryId = categoryId
+  $currentCategory.set(categoryId)
   $loading.set('init')
   $reading.set(0)
   await loadPosts(categoryId, since)
 }
 
 export async function markReadAndLoadNextFastPosts(): Promise<void> {
-  if (currentCategoryId) {
+  let category = $currentCategory.get()
+  if (category) {
     $loading.set('next')
     $reading.set($reading.get() + 1)
     await Promise.all($posts.get().map(({ id }) => deletePost(id)))
     if ($nextSince.get()) {
-      await loadPosts(currentCategoryId, $nextSince.get())
+      await loadPosts(category, $nextSince.get())
     } else {
       $posts.set([])
       $loading.set(false)
@@ -161,7 +170,8 @@ export async function markReadAndLoadNextFastPosts(): Promise<void> {
 }
 
 export function clearFast(): void {
-  currentCategoryId = undefined
+  $currentCategory.set(undefined)
+  $currentSince.set(undefined)
   $loading.set('init')
   $posts.set([])
   $nextSince.set(undefined)

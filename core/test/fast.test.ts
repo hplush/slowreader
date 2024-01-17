@@ -12,8 +12,10 @@ import {
   constantFastReading,
   deleteFilter,
   fastCategories,
+  fastCategory,
   fastLoading,
   fastPosts,
+  fastSince,
   getPosts,
   loadFastPost,
   markReadAndLoadNextFastPosts,
@@ -36,7 +38,9 @@ afterEach(async () => {
     fastPosts,
     fastLoading,
     nextFastSince,
-    fastCategories
+    fastCategories,
+    fastCategory,
+    fastSince
   )
   await cleanClientTest()
 })
@@ -138,6 +142,8 @@ test('loads page when we have fast posts', async () => {
   fastPosts.listen(() => {})
   fastLoading.listen(() => {})
   nextFastSince.listen(() => {})
+  fastCategory.listen(() => {})
+  fastSince.listen(() => {})
   setFastPostsPerPage(5)
 
   let category1 = await addCategory({ title: '1' })
@@ -169,6 +175,8 @@ test('loads page when we have fast posts', async () => {
 
   await loadFastPost(category1)
   equal(fastLoading.get(), false)
+  equal(fastCategory.get(), category1)
+  equal(fastSince.get(), undefined)
   equal(constantFastReading.get(), 0)
   equal(nextFastSince.get(), 3001)
   deepStrictEqual(
@@ -180,6 +188,8 @@ test('loads page when we have fast posts', async () => {
   equal(fastLoading.get(), 'next')
   await promise1
   equal(fastLoading.get(), false)
+  equal(fastCategory.get(), category1)
+  equal(fastSince.get(), 3001)
   equal(constantFastReading.get(), 1)
   equal(nextFastSince.get(), 1000)
   deepStrictEqual(
@@ -274,6 +284,8 @@ test('allows to change category in the middle', async () => {
   equal(fastLoading.get(), 'init')
   await promise
   equal(fastLoading.get(), false)
+  equal(fastCategory.get(), 'general')
+  equal(fastSince.get(), undefined)
   equal(constantFastReading.get(), 0)
   deepStrictEqual(
     fastPosts.get().map(i => i.title),
