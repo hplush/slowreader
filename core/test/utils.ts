@@ -25,7 +25,6 @@ export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
 export async function cleanClientTest(): Promise<void> {
   cleanStores(fastCategories, Feed, Filter, Category, Post)
   await client.get()?.clean()
-  setupEnvironment(getTestEnvironment())
 }
 
 export function getTestEnvironment(): EnvironmentAndStore {
