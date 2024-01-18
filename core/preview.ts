@@ -7,9 +7,11 @@ import {
   ignoreAbortError,
   type TextResponse
 } from './download.js'
+import { getEnvironment, onEnvironment } from './environment.js'
 import { addFeed, getFeeds } from './feed.js'
 import { type LoaderName, loaders } from './loader/index.js'
 import type { PostsPage } from './posts-page.js'
+import { router } from './router.js'
 import { readonlyExport } from './utils/stores.js'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
@@ -278,3 +280,31 @@ export async function addPreviewCandidate(): Promise<void> {
     })
   }
 }
+
+let inPreview = false
+
+onEnvironment(() => {
+  let unbindPreview = previewUrl.listen(link => {
+    let page = router.get()
+    if (page.route === 'add' && page.params.url !== link) {
+      getEnvironment().openRoute({ params: { url: link }, route: 'add' })
+    }
+  })
+
+  let unbindRouter = router.listen(({ params, route }) => {
+    if (route === 'add' && params.url !== previewUrl.get()) {
+      setPreviewUrl(params.url ?? '')
+    }
+    if (route === 'add') {
+      inPreview = true
+    } else if (inPreview) {
+      inPreview = false
+      clearPreview()
+    }
+  })
+
+  return () => {
+    unbindPreview()
+    unbindRouter()
+  }
+})

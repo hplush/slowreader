@@ -8,7 +8,7 @@ import {
 import type { ReadableAtom, StoreValue } from 'nanostores'
 
 import { SlowReaderError } from './error.js'
-import type { BaseRouter, Routes } from './router.js'
+import type { BaseRouter, Route, Routes } from './router.js'
 
 interface LogStoreCreator {
   (): ClientOptions['store']
@@ -56,6 +56,7 @@ export interface Environment {
   locale: ReadableAtom<string>
   logStoreCreator: LogStoreCreator
   networkType: NetworkTypeDetector
+  openRoute(page: Route): void
   restartApp: () => void
   translationLoader: TranslationLoader
 }
@@ -89,6 +90,7 @@ export function setupEnvironment<Router extends BaseRouter>(
     locale: env.locale,
     logStoreCreator: env.logStoreCreator,
     networkType: env.networkType,
+    openRoute: env.openRoute,
     restartApp: env.restartApp,
     translationLoader: env.translationLoader
   }

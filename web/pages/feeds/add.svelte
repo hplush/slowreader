@@ -2,7 +2,6 @@
   import { mdiPlusCircleOutline } from '@mdi/js'
   import {
     addPreviewCandidate,
-    clearPreview,
     onPreviewUrlType,
     previewCandidate,
     previewCandidateAdded,
@@ -10,17 +9,13 @@
     previewCandidatesLoading,
     previewNoResults,
     previewPosts,
-    previewUrl,
     previewUrlError,
-    router,
     setPreviewCandidate,
     setPreviewUrl
   } from '@slowreader/core'
   import { previewMessages as t } from '@slowreader/core/messages'
-  import { onDestroy } from 'svelte'
 
   import { jumpInto } from '../../lib/hotkeys.js'
-  import { openURL } from '../../stores/router.js'
   import Button from '../../ui/button.svelte'
   import CardLink from '../../ui/card-link.svelte'
   import CardLinks from '../../ui/card-links.svelte'
@@ -36,21 +31,6 @@
 
   let links: HTMLUListElement
   let feed: HTMLDivElement
-
-  previewUrl.listen(link => {
-    let page = router.get()
-    if (page.route === 'add' && page.params.url !== link) {
-      openURL('add', { url: link })
-    }
-  })
-
-  $: if (url !== previewUrl.get()) {
-    setPreviewUrl(url)
-  }
-
-  onDestroy(() => {
-    clearPreview()
-  })
 </script>
 
 <TwoStepsPage title={$t.title}>

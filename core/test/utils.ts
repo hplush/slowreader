@@ -34,6 +34,7 @@ export function getTestEnvironment(): EnvironmentAndStore {
     locale: atom('en'),
     logStoreCreator: () => new MemoryStore(),
     networkType: () => ({ saveData: undefined, type: undefined }),
+    openRoute: setBaseRoute,
     persistentEvents: { addEventListener() {}, removeEventListener() {} },
     persistentStore: {},
     restartApp: () => {},

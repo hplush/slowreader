@@ -17,6 +17,11 @@ setupEnvironment({
   locale,
   logStoreCreator: () => new IndexedStore(),
   networkType: detectNetworkType,
+  openRoute(page) {
+    // Too complex types
+    // @ts-expect-error
+    openURL(page.route, page.params)
+  },
   persistentEvents: windowPersistentEvents,
   persistentStore: localStorage,
   restartApp() {

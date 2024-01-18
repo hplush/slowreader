@@ -36,6 +36,9 @@ setupEnvironment({
   networkType() {
     return networkType
   },
+  openRoute(page) {
+    router.set(page)
+  },
   persistentEvents: {
     addEventListener() {},
     removeEventListener() {}
