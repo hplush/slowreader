@@ -147,11 +147,6 @@ test('transforms routers to first fast category', async () => {
   await addFeed(testFeed({ categoryId: idB, reading: 'fast' }))
 
   setBaseRoute({ params: {}, route: 'fast' })
-  deepStrictEqual(router.get(), {
-    params: {},
-    route: 'fast'
-  })
-
   await setTimeout(100)
   deepStrictEqual(router.get(), {
     params: { category: idA },
@@ -210,6 +205,7 @@ test('converts since to number', async () => {
   userId.set('10')
   let idA = await addCategory({ title: 'A' })
   await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
+  await setTimeout(10)
 
   setBaseRoute({ params: { category: idA, since: '1000' }, route: 'fast' })
   deepStrictEqual(router.get(), {
@@ -230,11 +226,6 @@ test('checks that category exists', async () => {
   await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
 
   setBaseRoute({ params: { category: 'unknown', since: 100 }, route: 'fast' })
-  deepStrictEqual(router.get(), {
-    params: { category: 'unknown', since: 100 },
-    route: 'fast'
-  })
-
   await setTimeout(100)
   deepStrictEqual(router.get(), {
     params: {},

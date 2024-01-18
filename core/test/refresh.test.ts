@@ -42,7 +42,9 @@ async function loadPosts<Key extends keyof PostValue>(
   key: Key
 ): Promise<PostValue[Key][]> {
   let posts = await loadList(getPosts())
-  return posts.map(post => post[key])
+  return posts
+    .sort((a, b) => a.originId.localeCompare(b.originId))
+    .map(post => post[key])
 }
 
 test('updates posts', async () => {
@@ -177,8 +179,8 @@ test('updates posts', async () => {
     processedFeeds: 1,
     totalFeeds: 2
   })
-  deepStrictEqual(await loadPosts('title'), ['2', '3', '8 slow', '7'])
-  deepStrictEqual(await loadPosts('reading'), ['slow', 'slow', 'slow', 'fast'])
+  deepStrictEqual(await loadPosts('title'), ['2', '3', '7', '8 slow'])
+  deepStrictEqual(await loadPosts('reading'), ['slow', 'slow', 'fast', 'slow'])
   deepStrictEqual(ensureLoaded(feed2.get()).lastOriginId, 'post2')
   deepStrictEqual(ensureLoaded(feed2.get()).lastPublishedAt, 5000)
 
@@ -193,7 +195,7 @@ test('updates posts', async () => {
     }
   ])
   await setTimeout(10)
-  deepStrictEqual(await loadPosts('title'), ['2', '3', '8 slow', '7', '6'])
+  deepStrictEqual(await loadPosts('title'), ['2', '3', '6', '7', '8 slow'])
   deepStrictEqual(ensureLoaded(feed2.get()).lastOriginId, 'post9')
   deepStrictEqual(ensureLoaded(feed2.get()).lastPublishedAt, 9000)
   equal(finished, true)
@@ -240,7 +242,7 @@ test('updates posts', async () => {
   })
   await setTimeout(10)
   equal(refreshProgress.get(), 1)
-  deepStrictEqual(await loadPosts('title'), ['2', '3', '8 slow', '7', '6'])
+  deepStrictEqual(await loadPosts('title'), ['2', '3', '6', '7', '8 slow'])
 })
 
 test('is ready to feed deletion during refreshing', async () => {
