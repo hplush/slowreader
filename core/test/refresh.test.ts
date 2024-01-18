@@ -10,10 +10,10 @@ import {
   createPostsPage,
   deleteFeed,
   expectRequest,
-  getPosts,
   isRefreshing,
   loaders,
   loadFeed,
+  loadPosts,
   mockRequest,
   type PostsPageResult,
   type PostValue,
@@ -23,7 +23,6 @@ import {
   stopRefreshing,
   testFeed
 } from '../index.js'
-import { loadList } from '../utils/stores.js'
 import { cleanClientTest, createPromise, enableClientTest } from './utils.js'
 
 beforeEach(() => {
@@ -37,10 +36,10 @@ afterEach(async () => {
   checkAndRemoveRequestMock()
 })
 
-async function loadPosts<Key extends keyof PostValue>(
+async function getPostKeys<Key extends keyof PostValue>(
   key: Key
 ): Promise<PostValue[Key][]> {
-  let posts = await loadList(getPosts())
+  let posts = await loadPosts()
   return posts
     .sort((a, b) => a.originId.localeCompare(b.originId))
     .map(post => post[key])
@@ -148,10 +147,10 @@ test('updates posts', async () => {
     processedFeeds: 1,
     totalFeeds: 2
   })
-  deepStrictEqual(await loadPosts('title'), ['2', '3'])
-  deepStrictEqual(await loadPosts('reading'), ['slow', 'slow'])
-  deepStrictEqual(await loadPosts('feedId'), [feedId1, feedId1])
-  ok((await loadPosts('publishedAt'))[0]! + 100 > Date.now())
+  deepStrictEqual(await getPostKeys('title'), ['2', '3'])
+  deepStrictEqual(await getPostKeys('reading'), ['slow', 'slow'])
+  deepStrictEqual(await getPostKeys('feedId'), [feedId1, feedId1])
+  ok((await getPostKeys('publishedAt'))[0]! + 100 > Date.now())
   deepStrictEqual((await loadFeed(feedId1))!.lastOriginId, 'post3')
   deepStrictEqual((await loadFeed(feedId1))!.lastPublishedAt, undefined)
 
@@ -176,8 +175,13 @@ test('updates posts', async () => {
     processedFeeds: 1,
     totalFeeds: 2
   })
-  deepStrictEqual(await loadPosts('title'), ['2', '3', '7', '8 slow'])
-  deepStrictEqual(await loadPosts('reading'), ['slow', 'slow', 'fast', 'slow'])
+  deepStrictEqual(await getPostKeys('title'), ['2', '3', '7', '8 slow'])
+  deepStrictEqual(await getPostKeys('reading'), [
+    'slow',
+    'slow',
+    'fast',
+    'slow'
+  ])
   deepStrictEqual((await loadFeed(feedId2))!.lastOriginId, 'post2')
   deepStrictEqual((await loadFeed(feedId2))!.lastPublishedAt, 5000)
 
@@ -192,7 +196,7 @@ test('updates posts', async () => {
     }
   ])
   await setTimeout(10)
-  deepStrictEqual(await loadPosts('title'), ['2', '3', '6', '7', '8 slow'])
+  deepStrictEqual(await getPostKeys('title'), ['2', '3', '6', '7', '8 slow'])
   deepStrictEqual((await loadFeed(feedId2))!.lastOriginId, 'post9')
   deepStrictEqual((await loadFeed(feedId2))!.lastPublishedAt, 9000)
   equal(finished, true)
@@ -239,7 +243,7 @@ test('updates posts', async () => {
   })
   await setTimeout(10)
   equal(refreshProgress.get(), 1)
-  deepStrictEqual(await loadPosts('title'), ['2', '3', '6', '7', '8 slow'])
+  deepStrictEqual(await getPostKeys('title'), ['2', '3', '6', '7', '8 slow'])
 })
 
 test('is ready to feed deletion during refreshing', async () => {
@@ -271,7 +275,7 @@ test('is ready to feed deletion during refreshing', async () => {
   await deleteFeed(feedId)
   await setTimeout(10)
   equal(isRefreshing.get(), false)
-  deepStrictEqual(await loadPosts('title'), [])
+  deepStrictEqual(await getPostKeys('title'), [])
 })
 
 test('cancels refreshing', async () => {
@@ -374,7 +378,7 @@ test('is ready to not found previous ID and time', async () => {
   refreshPosts()
   await setTimeout(10)
   equal(isRefreshing.get(), false)
-  deepStrictEqual(await loadPosts('title'), ['4', '5', '6'])
+  deepStrictEqual(await getPostKeys('title'), ['4', '5', '6'])
 
   let feed = await loadFeed(feedId)
   deepStrictEqual(feed!.lastOriginId, 'post6')
@@ -408,7 +412,7 @@ test('sorts posts', async () => {
   refreshPosts()
   await setTimeout(10)
   equal(isRefreshing.get(), false)
-  deepStrictEqual(await loadPosts('title'), ['2', '3', '4'])
+  deepStrictEqual(await getPostKeys('title'), ['2', '3', '4'])
 
   let feed = await loadFeed(feedId)
   deepStrictEqual(feed!.lastOriginId, 'post4')

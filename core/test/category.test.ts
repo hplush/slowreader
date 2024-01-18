@@ -9,8 +9,9 @@ import {
   deleteCategory,
   feedsByCategory,
   getCategories,
-  getFeeds,
+  loadCategories,
   loadFeed,
+  loadFeeds,
   testFeed
 } from '../index.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
@@ -34,6 +35,10 @@ test('adds, changes and removes categories', async () => {
   equal(added.length, 1)
   equal(added[0]!.title, 'Fun')
 
+  let loaded = await loadCategories()
+  equal(loaded.length, 1)
+  equal(loaded[0]!.title, 'Fun')
+
   await changeCategory(id, { title: 'Memes' })
   let changed = ensureLoaded(all.get()).list
   equal(changed.length, 1)
@@ -48,9 +53,7 @@ test('groups feeds in simple case', async () => {
   let feed1 = await addFeed(testFeed({ categoryId: idA, title: '1' }))
   let feed2 = await addFeed(testFeed({ categoryId: idA, title: '2' }))
 
-  let feeds = await loadValue(getFeeds())
-  let categories = await loadValue(getCategories())
-  deepStrictEqual(feedsByCategory(categories, feeds.list), [
+  deepStrictEqual(feedsByCategory(await loadCategories(), await loadFeeds()), [
     [
       { id: idA, isLoading: false, title: 'A' },
       [await loadFeed(feed1), await loadFeed(feed2)]
@@ -68,9 +71,7 @@ test('groups feeds in complex case', async () => {
   let feed4 = await addFeed(testFeed({ categoryId: 'general', title: '1' }))
   let feed5 = await addFeed(testFeed({ categoryId: 'unknown', title: '1' }))
 
-  let feeds = await loadValue(getFeeds())
-  let categories = await loadValue(getCategories())
-  deepStrictEqual(feedsByCategory(categories, feeds.list), [
+  deepStrictEqual(feedsByCategory(await loadCategories(), await loadFeeds()), [
     [{ id: 'general', title: '' }, [await loadFeed(feed4)]],
     [
       { id: idA, isLoading: false, title: 'A' },

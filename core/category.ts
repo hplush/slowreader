@@ -4,7 +4,7 @@ import {
   createSyncMap,
   deleteSyncMapById,
   type FilterStore,
-  type LoadedFilterValue,
+  loadValue,
   syncMapTemplate
 } from '@logux/client'
 import { nanoid } from 'nanoid'
@@ -24,6 +24,11 @@ export const Category = syncMapTemplate<CategoryValue>('categories', {
 
 export function getCategories(): FilterStore<CategoryValue> {
   return createFilter(getClient(), Category)
+}
+
+export async function loadCategories(): Promise<CategoryValue[]> {
+  let value = await loadValue(getCategories())
+  return value.list
 }
 
 export async function addCategory(
@@ -56,10 +61,10 @@ export const BROKEN_CATEGORY: CategoryValue = {
 }
 
 export function feedsByCategory(
-  categories: LoadedFilterValue<CategoryValue>,
-  feeds: readonly FeedValue[]
+  categories: CategoryValue[],
+  feeds: FeedValue[]
 ): [CategoryValue, FeedValue[]][] {
-  let allCategories = categories.list.sort((a, b) => {
+  let allCategories = categories.sort((a, b) => {
     return a.title.localeCompare(b.title)
   })
 
@@ -76,7 +81,7 @@ export function feedsByCategory(
   for (let feed of feeds) {
     if (feed.categoryId === 'general') {
       general.push(feed)
-    } else if (categories.list.some(i => i.id === feed.categoryId)) {
+    } else if (categories.some(i => i.id === feed.categoryId)) {
       byId[feed.categoryId]!.push(feed)
     } else {
       broken.push(feed)

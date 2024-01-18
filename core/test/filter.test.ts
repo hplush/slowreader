@@ -12,15 +12,14 @@ import {
   type FilterValue,
   getFilters,
   isValidFilterQuery,
-  loadAndPrepareFilters,
   loadFeed,
+  loadFilters,
   moveFilterDown,
   moveFilterUp,
   prepareFilters,
   sortFilters,
   testFeed
 } from '../index.js'
-import { loadList } from '../utils/stores.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
 beforeEach(() => {
@@ -34,7 +33,8 @@ afterEach(async () => {
 test('adds, loads, changes and removes filters', async () => {
   let filters10 = getFilters({ feedId: '10' })
   keepMount(filters10)
-  deepStrictEqual(await loadList(filters10), [])
+  await filters10.loading
+  deepStrictEqual(ensureLoaded(filters10.get()).list, [])
 
   let id1 = await addFilter({
     action: 'fast',
@@ -118,7 +118,7 @@ test('adds filter for feed', async () => {
   let filterId1 = await addFilterForFeed((await loadFeed(feedId1))!)
   let filterId2 = await addFilterForFeed((await loadFeed(feedId2))!)
 
-  deepStrictEqual(await loadList(getFilters({ feedId: feedId1 })), [
+  deepStrictEqual(await loadFilters({ feedId: feedId1 }), [
     {
       action: 'slow',
       feedId: feedId1,
@@ -128,7 +128,7 @@ test('adds filter for feed', async () => {
       query: ''
     }
   ])
-  deepStrictEqual(await loadList(getFilters({ feedId: feedId2 })), [
+  deepStrictEqual(await loadFilters({ feedId: feedId2 }), [
     {
       action: 'fast',
       feedId: feedId2,
@@ -428,23 +428,4 @@ test('is ready for broken filters', () => {
     }),
     undefined
   )
-})
-
-test('loads and prepares filters', async () => {
-  let post = {
-    full: 'a',
-    media: [],
-    originId: 'a'
-  }
-
-  await addFilter({
-    action: 'fast',
-    feedId: '10',
-    query: 'include(a)'
-  })
-  let checker10 = await loadAndPrepareFilters('10')
-  equal(checker10(post), 'fast')
-
-  let checker11 = await loadAndPrepareFilters('11')
-  equal(checker11(post), undefined)
 })

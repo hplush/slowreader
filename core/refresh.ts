@@ -1,4 +1,3 @@
-import { loadValue } from '@logux/client'
 import { atom, computed, map } from 'nanostores'
 
 import { createDownloadTask, type DownloadTask } from './download.js'
@@ -7,9 +6,9 @@ import {
   type FeedValue,
   getFeed,
   getFeedLatestPosts,
-  getFeeds
+  loadFeeds
 } from './feed.js'
-import { type FilterChecker, loadAndPrepareFilters } from './filter.js'
+import { type FilterChecker, loadFilters, prepareFilters } from './filter.js'
 import { addPost, type OriginPost } from './post.js'
 import { createQueue, type Queue, retryOnError } from './utils/queue.js'
 import { increaseKey, readonlyExport } from './utils/stores.js'
@@ -57,14 +56,14 @@ export async function refreshPosts(): Promise<void> {
   $stats.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: true })
 
   task = createDownloadTask()
-  let feeds = await loadValue(getFeeds())
+  let feeds = await loadFeeds()
   $stats.set({
     ...$stats.get(),
     initializing: false,
-    totalFeeds: feeds.list.length
+    totalFeeds: feeds.length
   })
 
-  queue = createQueue(feeds.list.map(feed => ({ payload: feed, type: 'feed' })))
+  queue = createQueue(feeds.map(feed => ({ payload: feed, type: 'feed' })))
   await queue.start(4, {
     async feed(feed) {
       let feedStore = getFeed(feed.id)
@@ -107,7 +106,9 @@ export async function refreshPosts(): Promise<void> {
               firstNew = posts[0]
             }
           }
-          if (!filters) filters = await loadAndPrepareFilters(feed.id)
+          if (!filters) {
+            filters = prepareFilters(await loadFilters({ feedId: feed.id }))
+          }
           for (let origin of posts) {
             if (feedStore.deleted || wasAlreadyAdded(feed, origin)) {
               await end()

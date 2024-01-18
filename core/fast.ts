@@ -1,18 +1,17 @@
-import { loadValue } from '@logux/client'
 import { atom, onMount } from 'nanostores'
 
 import {
   BROKEN_CATEGORY,
   type CategoryValue,
   GENERAL_CATEGORY,
-  getCategories
+  loadCategories
 } from './category.js'
 import { client } from './client.js'
-import { getFeeds, loadFeed } from './feed.js'
-import { getFilters } from './filter.js'
-import { deletePost, getPosts } from './post.js'
+import { loadFeed, loadFeeds } from './feed.js'
+import { loadFilters } from './filter.js'
+import { deletePost, loadPosts } from './post.js'
 import type { PostValue } from './post.js'
-import { loadList, readonlyExport } from './utils/stores.js'
+import { readonlyExport } from './utils/stores.js'
 
 function notEmpty<Value>(array: Value[]): array is [Value, ...Value[]] {
   return array.length > 0
@@ -22,10 +21,10 @@ async function findFastCategories(): Promise<
   [CategoryValue, ...CategoryValue[]]
 > {
   let [fastFeeds, fastFilters, categories, fastPosts] = await Promise.all([
-    loadList(getFeeds({ reading: 'fast' })),
-    loadList(getFilters({ action: 'fast' })),
-    loadValue(getCategories()),
-    loadList(getPosts({ reading: 'fast' }))
+    loadFeeds({ reading: 'fast' }),
+    loadFilters({ action: 'fast' }),
+    loadCategories(),
+    loadPosts({ reading: 'fast' })
   ])
   let filterFeeds = await Promise.all(fastFilters.map(i => loadFeed(i.feedId)))
   let missedFeedIds = fastPosts
@@ -47,7 +46,7 @@ async function findFastCategories(): Promise<
         uniqueCategories[id] = GENERAL_CATEGORY
       } else {
         uniqueCategories[id] =
-          categories.list.find(i => i.id === id) ?? BROKEN_CATEGORY
+          categories.find(i => i.id === id) ?? BROKEN_CATEGORY
       }
     }
   }
@@ -139,12 +138,12 @@ export function setFastPostsPerPage(value: number): void {
   POSTS_PER_PAGE = value
 }
 
-async function loadPosts(categoryId: string, since?: number): Promise<void> {
+async function load(categoryId: string, since?: number): Promise<void> {
   $currentSince.set(since)
 
   let [allFastPosts, categoryFeeds] = await Promise.all([
-    loadList(getPosts({ reading: 'fast' })),
-    loadList(getFeeds({ categoryId }))
+    loadPosts({ reading: 'fast' }),
+    loadFeeds({ categoryId })
   ])
 
   let feedIds = new Set(categoryFeeds.map(i => i.id))
@@ -169,7 +168,7 @@ export async function loadFastPost(
   $currentCategory.set(categoryId)
   $loading.set('init')
   $reading.set(0)
-  await loadPosts(categoryId, since)
+  await load(categoryId, since)
 }
 
 export async function markReadAndLoadNextFastPosts(): Promise<void> {
@@ -179,7 +178,7 @@ export async function markReadAndLoadNextFastPosts(): Promise<void> {
     $reading.set($reading.get() + 1)
     await Promise.all($posts.get().map(({ id }) => deletePost(id)))
     if ($nextSince.get()) {
-      await loadPosts(category, $nextSince.get())
+      await load(category, $nextSince.get())
     } else {
       $posts.set([])
       $loading.set(false)

@@ -40,7 +40,7 @@
       <Loader />
     {:else}
       <ul role="list">
-        {#each feedsByCategory($categories, $allFeeds.list) as [category, feeds] (category.id)}
+        {#each feedsByCategory($categories.list, $allFeeds.list) as [category, feeds] (category.id)}
           <li class="feeds-categories_category">
             {#if category.id === 'general'}
               <h2 class="feeds-categories_title">{$common.generalCategory}</h2>

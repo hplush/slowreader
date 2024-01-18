@@ -13,15 +13,14 @@ import {
   deleteFeed,
   getFeed,
   getFeedLatestPosts,
-  getFeeds,
   getPosts,
   hasFeeds,
   loaders,
   loadFeed,
+  loadFeeds,
   testFeed,
   testPost
 } from '../index.js'
-import { loadList } from '../utils/stores.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
 beforeEach(() => {
@@ -34,7 +33,7 @@ afterEach(async () => {
 })
 
 test('adds, loads, changes and removes feed', async () => {
-  deepStrictEqual(await loadList(getFeeds()), [])
+  deepStrictEqual(await loadFeeds(), [])
 
   let id = await addFeed({
     categoryId: 'general',
@@ -44,7 +43,7 @@ test('adds, loads, changes and removes feed', async () => {
     url: 'https://example.com/'
   })
   equal(typeof id, 'string')
-  let added = await loadList(getFeeds())
+  let added = await loadFeeds()
   equal(added.length, 1)
   equal(added[0]!.title, 'RSS')
 
@@ -58,7 +57,7 @@ test('adds, loads, changes and removes feed', async () => {
   equal(ensureLoaded(feed.get()).title, 'New title')
 
   await deleteFeed(id)
-  deepStrictEqual(await loadList(getFeeds()), [])
+  deepStrictEqual(await loadFeeds(), [])
 
   equal(await loadFeed('unknown'), undefined)
 })

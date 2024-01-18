@@ -15,7 +15,7 @@ import { atom, onMount } from 'nanostores'
 import { client, getClient } from './client.js'
 import { createDownloadTask } from './download.js'
 import { type LoaderName, loaders } from './loader/index.js'
-import { deletePost, getPosts } from './post.js'
+import { deletePost, loadPosts } from './post.js'
 import type { PostsPage } from './posts-page.js'
 import { type OptionalId, readonlyExport } from './utils/stores.js'
 
@@ -67,6 +67,13 @@ export function getFeeds(
   return createFilter(getClient(), Feed, filter)
 }
 
+export async function loadFeeds(
+  filter: Filter<FeedValue> = {}
+): Promise<FeedValue[]> {
+  let value = await loadValue(getFeeds(filter))
+  return value.list
+}
+
 export async function addFeed(fields: OptionalId<FeedValue>): Promise<string> {
   let id = fields.id ?? nanoid()
   await createSyncMap(getClient(), Feed, { id, ...fields })
@@ -76,8 +83,8 @@ export async function addFeed(fields: OptionalId<FeedValue>): Promise<string> {
 export async function deleteFeed(feedId: string): Promise<void> {
   let feed = Feed.cache[feedId]
   if (feed) feed.deleted = true
-  let posts = await loadValue(getPosts({ feedId }))
-  await Promise.all(posts.list.map(post => deletePost(post.id)))
+  let posts = await loadPosts({ feedId })
+  await Promise.all(posts.map(post => deletePost(post.id)))
   return deleteSyncMapById(getClient(), Feed, feedId)
 }
 

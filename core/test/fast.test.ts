@@ -16,15 +16,14 @@ import {
   fastLoading,
   fastPosts,
   fastSince,
-  getPosts,
   loadFastPost,
+  loadPosts,
   markReadAndLoadNextFastPosts,
   nextFastSince,
   setFastPostsPerPage,
   testFeed,
   testPost
 } from '../index.js'
-import { loadList } from '../utils/stores.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
 beforeEach(() => {
@@ -251,8 +250,8 @@ test('loads page when we have fast posts', async () => {
     []
   )
 
-  deepStrictEqual((await loadList(getPosts({ reading: 'fast' }))).length, 2)
-  deepStrictEqual((await loadList(getPosts({ reading: 'slow' }))).length, 1)
+  deepStrictEqual((await loadPosts({ reading: 'fast' })).length, 2)
+  deepStrictEqual((await loadPosts({ reading: 'slow' })).length, 1)
 
   await loadFastPost(category1)
   deepStrictEqual(
@@ -264,7 +263,7 @@ test('loads page when we have fast posts', async () => {
 
   await markReadAndLoadNextFastPosts()
 
-  deepStrictEqual((await loadList(getPosts({ reading: 'fast' }))).length, 1)
+  deepStrictEqual((await loadPosts({ reading: 'fast' })).length, 1)
   await loadFastPost(category1)
   deepStrictEqual(
     fastPosts.get().map(i => i.title),

@@ -13,7 +13,6 @@ import { nanoid } from 'nanoid'
 import { getClient } from './client.js'
 import type { FeedValue } from './feed.js'
 import type { OriginPost } from './post.js'
-import { loadList } from './utils/stores.js'
 
 const QUERY_REGEXP = /^(not\s+)?([\w]+)(?:\(([^]+)\))?$/
 
@@ -67,12 +66,19 @@ export function getFilters(
   return createFilter(getClient(), Filter, filter)
 }
 
+export async function loadFilters(
+  filter: LoguxFilter<FilterValue> = {}
+): Promise<FilterValue[]> {
+  let value = await loadValue(getFilters(filter))
+  return value.list
+}
+
 export async function addFilter(
   fields: Omit<FilterValue, 'id' | 'priority'>
 ): Promise<string> {
   let id = nanoid()
-  let other = await loadValue(getFilters({ feedId: fields.feedId }))
-  let priority = maxPriority(other.list) + 100
+  let other = await loadFilters({ feedId: fields.feedId })
+  let priority = maxPriority(other) + 100
   await createSyncMap(getClient(), Filter, { id, priority, ...fields })
   return id
 }
@@ -113,7 +119,7 @@ async function move(filterId: string, diff: -1 | 1): Promise<void> {
   let filter = await loadValue(store)
   if (!filter) return
   let feedId = filter.feedId
-  let sorted = sortFilters(await loadList(getFilters({ feedId })))
+  let sorted = sortFilters(await loadFilters({ feedId }))
   let last = sorted.length - 1
   let index = sorted.findIndex(i => i.id === filterId)
   let next = index + diff
@@ -209,11 +215,4 @@ export function prepareFilters(filters: FilterValue[]): FilterChecker {
     }
     return undefined
   }
-}
-
-export async function loadAndPrepareFilters(
-  feedId: string
-): Promise<FilterChecker> {
-  let filters = await loadValue(getFilters({ feedId }))
-  return prepareFilters(filters.list)
 }

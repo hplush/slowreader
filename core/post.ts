@@ -4,6 +4,7 @@ import {
   deleteSyncMapById,
   type Filter,
   type FilterStore,
+  loadValue,
   type SyncMapStore,
   syncMapTemplate
 } from '@logux/client'
@@ -44,6 +45,13 @@ export function getPosts(
   filter: Filter<PostValue> = {}
 ): FilterStore<PostValue> {
   return createFilter(getClient(), Post, filter)
+}
+
+export async function loadPosts(
+  filter: Filter<PostValue> = {}
+): Promise<PostValue[]> {
+  let value = await loadValue(getPosts(filter))
+  return value.list
 }
 
 export function getPost(feedId: string): SyncMapStore<PostValue> {
