@@ -92,5 +92,10 @@ export function feedsByCategory(
   if (broken.length > 0) {
     result.push([BROKEN_CATEGORY, broken])
   }
+
+  for (let i of result) {
+    i[1] = i[1].sort((a, b) => a.title.localeCompare(b.title))
+  }
+
   return result
 }

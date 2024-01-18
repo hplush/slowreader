@@ -53,7 +53,7 @@ test('groups feeds in simple case', async () => {
   deepStrictEqual(feedsByCategory(categories, feeds.list), [
     [
       { id: idA, isLoading: false, title: 'A' },
-      [getFeed(feed2).get(), getFeed(feed1).get()]
+      [getFeed(feed1).get(), getFeed(feed2).get()]
     ]
   ])
 })
@@ -74,7 +74,7 @@ test('groups feeds in complex case', async () => {
     [{ id: 'general', title: '' }, [getFeed(feed4).get()]],
     [
       { id: idA, isLoading: false, title: 'A' },
-      [getFeed(feed2).get(), getFeed(feed1).get()]
+      [getFeed(feed1).get(), getFeed(feed2).get()]
     ],
     [{ id: idB, isLoading: false, title: 'B' }, [getFeed(feed3).get()]],
     [{ id: idC, isLoading: false, title: 'C' }, []],
