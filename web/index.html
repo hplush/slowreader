@@ -87,7 +87,7 @@
     </style>
     <script>
       let root = document.documentElement
-      if (location.pathname.startsWith('/slow')) {
+      if (!location.pathname.startsWith('/fast')) {
         root.classList.add('is-slow-theme')
       }
       let theme = localStorage.getItem('slowreader:theme') || 'system'
