@@ -85,10 +85,17 @@ onMount(fastCategories, () => {
         fastCategories.set({ categories, isLoading: false })
       })
 
-      unbindLog = loguxClient.log.on('add', () => {
-        findFastCategories().then(categories => {
-          fastCategories.set({ categories, isLoading: false })
-        })
+      unbindLog = loguxClient.log.on('add', action => {
+        if (
+          action.type.startsWith('categories/') ||
+          action.type.startsWith('feeds/') ||
+          action.type.startsWith('posts/') ||
+          action.type.startsWith('filters/')
+        ) {
+          findFastCategories().then(categories => {
+            fastCategories.set({ categories, isLoading: false })
+          })
+        }
       })
     }
   })
