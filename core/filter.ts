@@ -109,8 +109,10 @@ export function sortFilters(filters: FilterValue[]): FilterValue[] {
 }
 
 async function move(filterId: string, diff: -1 | 1): Promise<void> {
-  let filter = Filter(filterId, getClient())
-  let feedId = (await loadValue(filter)).feedId
+  let store = Filter(filterId, getClient())
+  let filter = await loadValue(store)
+  if (!filter) return
+  let feedId = filter.feedId
   let sorted = sortFilters(await loadList(getFilters({ feedId })))
   let last = sorted.length - 1
   let index = sorted.findIndex(i => i.id === filterId)

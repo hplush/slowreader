@@ -136,6 +136,18 @@ test('is ready for fast post in slow feed', async () => {
   })
 })
 
+test('is ready for broken fast post', async () => {
+  await addPost(testPost({ feedId: 'missed', reading: 'fast' }))
+
+  fastCategories.listen(() => {})
+  await setTimeout(100)
+
+  deepStrictEqual(fastCategories.get(), {
+    categories: [{ id: 'general', title: '' }],
+    isLoading: false
+  })
+})
+
 test('loads page when we have no fast posts', async () => {
   constantFastReading.listen(() => {})
   fastPosts.listen(() => {})

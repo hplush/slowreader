@@ -9,8 +9,8 @@ import {
   deleteCategory,
   feedsByCategory,
   getCategories,
-  getFeed,
   getFeeds,
+  loadFeed,
   testFeed
 } from '../index.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
@@ -53,7 +53,7 @@ test('groups feeds in simple case', async () => {
   deepStrictEqual(feedsByCategory(categories, feeds.list), [
     [
       { id: idA, isLoading: false, title: 'A' },
-      [getFeed(feed1).get(), getFeed(feed2).get()]
+      [await loadFeed(feed1), await loadFeed(feed2)]
     ]
   ])
 })
@@ -71,13 +71,13 @@ test('groups feeds in complex case', async () => {
   let feeds = await loadValue(getFeeds())
   let categories = await loadValue(getCategories())
   deepStrictEqual(feedsByCategory(categories, feeds.list), [
-    [{ id: 'general', title: '' }, [getFeed(feed4).get()]],
+    [{ id: 'general', title: '' }, [await loadFeed(feed4)]],
     [
       { id: idA, isLoading: false, title: 'A' },
-      [getFeed(feed1).get(), getFeed(feed2).get()]
+      [await loadFeed(feed1), await loadFeed(feed2)]
     ],
-    [{ id: idB, isLoading: false, title: 'B' }, [getFeed(feed3).get()]],
+    [{ id: idB, isLoading: false, title: 'B' }, [await loadFeed(feed3)]],
     [{ id: idC, isLoading: false, title: 'C' }, []],
-    [{ id: 'broken', title: '' }, [getFeed(feed5).get()]]
+    [{ id: 'broken', title: '' }, [await loadFeed(feed5)]]
   ])
 })

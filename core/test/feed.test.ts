@@ -1,4 +1,4 @@
-import { ensureLoaded, loadValue } from '@logux/client'
+import { ensureLoaded } from '@logux/client'
 import { restoreAll, spyOn } from 'nanospy'
 import { cleanStores, keepMount } from 'nanostores'
 import { deepStrictEqual, equal } from 'node:assert'
@@ -17,6 +17,7 @@ import {
   getPosts,
   hasFeeds,
   loaders,
+  loadFeed,
   testFeed,
   testPost
 } from '../index.js'
@@ -47,6 +48,8 @@ test('adds, loads, changes and removes feed', async () => {
   equal(added.length, 1)
   equal(added[0]!.title, 'RSS')
 
+  equal(await loadFeed(id), added[0])
+
   let feed = getFeed(id)
   keepMount(feed)
   equal(feed.get(), added[0])
@@ -56,6 +59,8 @@ test('adds, loads, changes and removes feed', async () => {
 
   await deleteFeed(id)
   deepStrictEqual(await loadList(getFeeds()), [])
+
+  equal(await loadFeed('unknown'), undefined)
 })
 
 test('removes feed posts too', async () => {
@@ -87,9 +92,9 @@ test('loads latest posts', async () => {
       url: 'https://example.com/'
     })
   )
-  let feed = await loadValue(getFeed(id))
+  let feed = await loadFeed(id)
 
-  equal(getFeedLatestPosts(feed), page)
+  equal(getFeedLatestPosts(feed!), page)
   equal(getPage.calls.length, 1)
   equal(getPage.calls[0]![1], 'https://example.com/')
 })

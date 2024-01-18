@@ -8,7 +8,7 @@ import {
   getCategories
 } from './category.js'
 import { client } from './client.js'
-import { getFeed, getFeeds } from './feed.js'
+import { getFeeds, loadFeed } from './feed.js'
 import { getFilters } from './filter.js'
 import { deletePost, getPosts } from './post.js'
 import type { PostValue } from './post.js'
@@ -27,23 +27,20 @@ async function findFastCategories(): Promise<
     loadValue(getCategories()),
     loadList(getPosts({ reading: 'fast' }))
   ])
-  let filterFeeds = await Promise.all(
-    fastFilters.map(i => loadValue(getFeed(i.feedId)))
-  )
+  let filterFeeds = await Promise.all(fastFilters.map(i => loadFeed(i.feedId)))
   let missedFeedIds = fastPosts
     .map(i => i.feedId)
     .filter(feedId => {
       return (
         !fastFeeds.some(i => i.id === feedId) &&
-        !filterFeeds.some(i => i.id === feedId)
+        !filterFeeds.some(i => i && i.id === feedId)
       )
     })
-  let missedFeeds = await Promise.all(
-    missedFeedIds.map(id => loadValue(getFeed(id)))
-  )
+  let missedFeeds = await Promise.all(missedFeedIds.map(id => loadFeed(id)))
 
   let uniqueCategories: Record<string, CategoryValue> = {}
   for (let feed of [...fastFeeds, ...filterFeeds, ...missedFeeds]) {
+    if (!feed) continue
     let id = feed.categoryId
     if (!uniqueCategories[id]) {
       if (id === 'general') {

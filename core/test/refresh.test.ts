@@ -1,4 +1,3 @@
-import { ensureLoaded } from '@logux/client'
 import { restoreAll, spyOn } from 'nanospy'
 import { deepStrictEqual, equal, fail, ok } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
@@ -11,10 +10,10 @@ import {
   createPostsPage,
   deleteFeed,
   expectRequest,
-  getFeed,
   getPosts,
   isRefreshing,
   loaders,
+  loadFeed,
   mockRequest,
   type PostsPageResult,
   type PostValue,
@@ -75,8 +74,6 @@ test('updates posts', async () => {
     feedId: feedId2,
     query: 'include(delete)'
   })
-  let feed1 = getFeed(feedId1)
-  let feed2 = getFeed(feedId2)
 
   equal(isRefreshing.get(), false)
   equal(refreshProgress.get(), 0)
@@ -155,8 +152,8 @@ test('updates posts', async () => {
   deepStrictEqual(await loadPosts('reading'), ['slow', 'slow'])
   deepStrictEqual(await loadPosts('feedId'), [feedId1, feedId1])
   ok((await loadPosts('publishedAt'))[0]! + 100 > Date.now())
-  deepStrictEqual(ensureLoaded(feed1.get()).lastOriginId, 'post3')
-  deepStrictEqual(ensureLoaded(feed1.get()).lastPublishedAt, undefined)
+  deepStrictEqual((await loadFeed(feedId1))!.lastOriginId, 'post3')
+  deepStrictEqual((await loadFeed(feedId1))!.lastPublishedAt, undefined)
 
   let atom2 = atom1.next()
   atom1.resolve([
@@ -181,8 +178,8 @@ test('updates posts', async () => {
   })
   deepStrictEqual(await loadPosts('title'), ['2', '3', '7', '8 slow'])
   deepStrictEqual(await loadPosts('reading'), ['slow', 'slow', 'fast', 'slow'])
-  deepStrictEqual(ensureLoaded(feed2.get()).lastOriginId, 'post2')
-  deepStrictEqual(ensureLoaded(feed2.get()).lastPublishedAt, 5000)
+  deepStrictEqual((await loadFeed(feedId2))!.lastOriginId, 'post2')
+  deepStrictEqual((await loadFeed(feedId2))!.lastPublishedAt, 5000)
 
   atom2.resolve([
     [
@@ -196,8 +193,8 @@ test('updates posts', async () => {
   ])
   await setTimeout(10)
   deepStrictEqual(await loadPosts('title'), ['2', '3', '6', '7', '8 slow'])
-  deepStrictEqual(ensureLoaded(feed2.get()).lastOriginId, 'post9')
-  deepStrictEqual(ensureLoaded(feed2.get()).lastPublishedAt, 9000)
+  deepStrictEqual((await loadFeed(feedId2))!.lastOriginId, 'post9')
+  deepStrictEqual((await loadFeed(feedId2))!.lastPublishedAt, 9000)
   equal(finished, true)
   equal(isRefreshing.get(), false)
   equal(refreshProgress.get(), 1)
@@ -379,9 +376,9 @@ test('is ready to not found previous ID and time', async () => {
   equal(isRefreshing.get(), false)
   deepStrictEqual(await loadPosts('title'), ['4', '5', '6'])
 
-  let feed = getFeed(feedId)
-  deepStrictEqual(ensureLoaded(feed.get()).lastOriginId, 'post6')
-  deepStrictEqual(ensureLoaded(feed.get()).lastPublishedAt, 6000)
+  let feed = await loadFeed(feedId)
+  deepStrictEqual(feed!.lastOriginId, 'post6')
+  deepStrictEqual(feed!.lastPublishedAt, 6000)
 })
 
 test('sorts posts', async () => {
@@ -413,7 +410,7 @@ test('sorts posts', async () => {
   equal(isRefreshing.get(), false)
   deepStrictEqual(await loadPosts('title'), ['2', '3', '4'])
 
-  let feed = getFeed(feedId)
-  deepStrictEqual(ensureLoaded(feed.get()).lastOriginId, 'post4')
-  deepStrictEqual(ensureLoaded(feed.get()).lastPublishedAt, 4000)
+  let feed = await loadFeed(feedId)
+  deepStrictEqual(feed!.lastOriginId, 'post4')
+  deepStrictEqual(feed!.lastPublishedAt, 4000)
 })
