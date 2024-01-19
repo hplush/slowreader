@@ -8,7 +8,7 @@ import {
 } from '@slowreader/core'
 import { atom } from 'nanostores'
 
-export const router = atom<BaseRoute>({
+export const baseRouter = atom<BaseRoute>({
   params: { category: 'general' },
   route: 'fast'
 })
@@ -29,7 +29,7 @@ let networkType: ReturnType<NetworkTypeDetector> = {
 }
 
 setupEnvironment({
-  baseRouter: router,
+  baseRouter,
   errorEvents: window,
   locale,
   logStoreCreator: () => new MemoryStore(),
@@ -37,7 +37,7 @@ setupEnvironment({
     return networkType
   },
   openRoute(page) {
-    router.set(page)
+    baseRouter.set(page)
   },
   persistentEvents: {
     addEventListener() {},

@@ -1,7 +1,6 @@
 <script lang="ts">
   import { mdiFireplace, mdiFood } from '@mdi/js'
-  import { router } from '@slowreader/core'
-  import { navbarMessages as t } from '@slowreader/core/messages'
+  import { router, navbarMessages as t } from '@slowreader/core'
   import { onMount } from 'svelte'
 
   import { addHotkey } from '../../lib/hotkeys.js'

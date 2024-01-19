@@ -1,7 +1,6 @@
 <script lang="ts">
   import { mdiFileTree, mdiPlusCircleOutline } from '@mdi/js'
-  import { hasFeeds, router } from '@slowreader/core'
-  import { navbarMessages as t } from '@slowreader/core/messages'
+  import { hasFeeds, router, navbarMessages as t } from '@slowreader/core'
 
   import { getURL } from '../../stores/router.js'
   import NavbarItem from './item.svelte'

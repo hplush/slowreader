@@ -1,6 +1,10 @@
 <script lang="ts">
-  import { type CategoryValue, fastCategories, router } from '@slowreader/core'
-  import { commonMessages as t } from '@slowreader/core/messages'
+  import {
+    type CategoryValue,
+    fastCategories,
+    router,
+    commonMessages as t
+  } from '@slowreader/core'
 
   import { getURL } from '../../stores/router.js'
   import Loader from '../loader.svelte'

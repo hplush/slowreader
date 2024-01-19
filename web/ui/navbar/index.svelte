@@ -8,9 +8,9 @@
     isSettingsRoute,
     refreshPosts,
     refreshProgress,
-    router
+    router,
+    navbarMessages as t
   } from '@slowreader/core'
-  import { navbarMessages as t } from '@slowreader/core/messages'
   import { onMount } from 'svelte'
 
   import { getURL } from '../../stores/router.js'

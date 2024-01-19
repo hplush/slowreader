@@ -2,11 +2,12 @@ import type { ClientOptions } from '@logux/client'
 import { Client } from '@logux/client'
 import { TestPair, TestTime } from '@logux/core'
 import { SUBPROTOCOL } from '@slowreader/api'
-import { atom, computed, type ReadableAtom } from 'nanostores'
+import { atom } from 'nanostores'
 
 import { onEnvironment } from './environment.js'
 import { SlowReaderError } from './error.js'
 import { userId } from './settings.js'
+import { computeFrom, readonlyExport } from './utils/stores.js'
 
 let testTime: TestTime | undefined
 
@@ -20,10 +21,11 @@ function getServer(): ClientOptions['server'] {
 }
 
 let prevClient: Client | undefined
-export let client: ReadableAtom<Client | undefined> = atom()
+let $client = atom<Client | undefined>()
+export const client = readonlyExport($client)
 
 onEnvironment(({ logStoreCreator }) => {
-  client = computed(userId, user => {
+  let unbindUserId = computeFrom($client, [userId], user => {
     prevClient?.destroy()
 
     if (user) {
@@ -43,6 +45,7 @@ onEnvironment(({ logStoreCreator }) => {
     }
   })
   return () => {
+    unbindUserId()
     prevClient?.destroy()
   }
 })

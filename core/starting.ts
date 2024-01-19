@@ -2,4 +2,4 @@ import { computed } from 'nanostores'
 
 import { hasFeeds } from './feed.js'
 
-export let starting = computed(hasFeeds, feeds => typeof feeds === 'undefined')
+export const starting = computed(hasFeeds, v => typeof v === 'undefined')

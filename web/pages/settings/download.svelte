@@ -1,6 +1,9 @@
 <script lang="ts">
-  import { getEnvironment, preloadImages } from '@slowreader/core'
-  import { settingsMessages as t } from '@slowreader/core/messages'
+  import {
+    getEnvironment,
+    preloadImages,
+    settingsMessages as t
+  } from '@slowreader/core'
   import type { StoreValue } from 'nanostores'
   import { onMount } from 'svelte'
 

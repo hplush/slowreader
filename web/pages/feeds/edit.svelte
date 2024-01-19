@@ -11,6 +11,7 @@
     addFilterForFeed,
     changeFeed,
     changeFilter,
+    commonMessages as common,
     deleteFeed,
     deleteFilter,
     getCategories,
@@ -21,12 +22,9 @@
     moveFilterDown,
     moveFilterUp,
     type PostsPage,
-    sortFilters
-  } from '@slowreader/core'
-  import {
-    commonMessages as common,
+    sortFilters,
     organizeMessages as t
-  } from '@slowreader/core/messages'
+  } from '@slowreader/core'
   import { createEventDispatcher } from 'svelte'
 
   import Button from '../../ui/button.svelte'

@@ -9,7 +9,6 @@
   },
   "exports": {
     ".": "./index.js",
-    "./messages": "./messages/index.js",
     "./package.json": "./package.json"
   },
   "dependencies": {

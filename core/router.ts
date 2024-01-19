@@ -1,9 +1,10 @@
-import { computed, type ReadableAtom } from 'nanostores'
+import { atom, type ReadableAtom } from 'nanostores'
 
 import { onEnvironment } from './environment.js'
 import { fastCategories, type FastCategoriesValue } from './fast.js'
 import { hasFeeds } from './feed.js'
 import { userId } from './settings.js'
+import { computeFrom, readonlyExport } from './utils/stores.js'
 
 export interface Routes {
   about: {}
@@ -121,14 +122,15 @@ function getRoute(
   return open(page.route, page.params)
 }
 
-export let router: ReadableAtom<Route>
+let $router = atom<Route>({ params: {}, route: 'home' })
+
+export const router = readonlyExport($router)
 
 onEnvironment(({ baseRouter }) => {
-  router = computed(
+  return computeFrom(
+    $router,
     [baseRouter, userId, hasFeeds, fastCategories],
-    (page, user, withFeeds, fast) => {
-      return getRoute(page, user, withFeeds, fast)
-    }
+    (page, user, withFeeds, fast) => getRoute(page, user, withFeeds, fast)
   )
 })
 

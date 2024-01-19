@@ -5,8 +5,7 @@
     mdiInformationOutline,
     mdiPalette
   } from '@mdi/js'
-  import { router } from '@slowreader/core'
-  import { navbarMessages as t } from '@slowreader/core/messages'
+  import { router, navbarMessages as t } from '@slowreader/core'
 
   import { getURL } from '../../stores/router.js'
   import NavbarItem from './item.svelte'

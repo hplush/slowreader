@@ -24,9 +24,9 @@
   import { onMount } from 'svelte'
 
   import {
+    baseRouter,
     type PreparedResponse,
     prepareResponses,
-    router,
     setNetworkType
   } from './environment.js'
 
@@ -71,12 +71,12 @@
     }
 
     if (fast) {
-      router.set({
+      baseRouter.set({
         params: { category: 'general' },
         route: 'fast'
       })
     } else {
-      router.set(route)
+      baseRouter.set(route)
     }
 
     setNetworkType(networkType)
@@ -94,7 +94,7 @@
     return () => {
       // @ts-expect-error
       isRefreshing.set(false)
-      router.set({ params: {}, route: 'slowAll' })
+      baseRouter.set({ params: {}, route: 'slowAll' })
       setNetworkType(DEFAULT_NETWORK)
       cleanLogux()
     }

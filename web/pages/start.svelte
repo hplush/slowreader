@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { generateCredentials } from '@slowreader/core'
-  import { startMessages as t } from '@slowreader/core/messages'
+  import { generateCredentials, startMessages as t } from '@slowreader/core'
 
   import Button from '../ui/button.svelte'
   import CardActions from '../ui/card-actions.svelte'

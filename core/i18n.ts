@@ -1,11 +1,21 @@
-import { createI18n } from '@nanostores/i18n'
+import { createI18n, type TranslationLoader } from '@nanostores/i18n'
+import { atom } from 'nanostores'
 
 import { onEnvironment } from './environment.js'
 
-export let i18n: ReturnType<typeof createI18n>
+let $locale = atom('en')
+
+let loader: TranslationLoader
+
+export const i18n = createI18n($locale, {
+  get(...args) {
+    return loader(...args)
+  }
+})
 
 onEnvironment(({ locale, translationLoader }) => {
-  i18n = createI18n(locale, {
-    get: translationLoader
+  loader = translationLoader
+  return locale.listen(value => {
+    $locale.set(value)
   })
 })

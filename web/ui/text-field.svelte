@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { commonMessages as t } from '@slowreader/core/messages'
+  import { commonMessages as t } from '@slowreader/core'
   import { nanoid } from 'nanoid/non-secure'
   import { createEventDispatcher, onMount } from 'svelte'
 

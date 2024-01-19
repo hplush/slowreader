@@ -1,6 +1,9 @@
 <script lang="ts">
-  import { isRefreshing, stopRefreshing } from '@slowreader/core'
-  import { refreshMessages as t } from '@slowreader/core/messages'
+  import {
+    isRefreshing,
+    stopRefreshing,
+    refreshMessages as t
+  } from '@slowreader/core'
 </script>
 
 {#if $isRefreshing}

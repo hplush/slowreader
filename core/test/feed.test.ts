@@ -1,6 +1,6 @@
 import { ensureLoaded } from '@logux/client'
 import { restoreAll, spyOn } from 'nanospy'
-import { cleanStores, keepMount } from 'nanostores'
+import { keepMount } from 'nanostores'
 import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -99,7 +99,8 @@ test('loads latest posts', async () => {
 })
 
 test('shows that user has any feeds', async () => {
-  cleanStores(hasFeeds)
+  await cleanClientTest()
+  enableClientTest()
   equal(hasFeeds.get(), undefined)
   await setTimeout(10)
   equal(hasFeeds.get(), false)

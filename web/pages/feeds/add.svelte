@@ -11,9 +11,9 @@
     previewPosts,
     previewUrlError,
     setPreviewCandidate,
-    setPreviewUrl
+    setPreviewUrl,
+    previewMessages as t
   } from '@slowreader/core'
-  import { previewMessages as t } from '@slowreader/core/messages'
 
   import { jumpInto } from '../../lib/hotkeys.js'
   import Button from '../../ui/button.svelte'

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { commonMessages as t } from '@slowreader/core/messages'
+  import { commonMessages as t } from '@slowreader/core'
 
   export let label: string = $t.loading
   export let zoneId: string | undefined = undefined

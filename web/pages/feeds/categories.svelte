@@ -2,16 +2,14 @@
   import { mdiRenameOutline, mdiTrashCanOutline } from '@mdi/js'
   import {
     changeCategory,
+    commonMessages as common,
     deleteCategory,
     feedsByCategory,
     type FeedValue,
     getCategories,
-    getFeeds
-  } from '@slowreader/core'
-  import {
-    commonMessages as common,
+    getFeeds,
     organizeMessages as t
-  } from '@slowreader/core/messages'
+  } from '@slowreader/core'
 
   import { getURL, openURL } from '../../stores/router.js'
   import Button from '../../ui/button.svelte'

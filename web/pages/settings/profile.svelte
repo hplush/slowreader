@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { signOut } from '@slowreader/core'
-  import { settingsMessages as t } from '@slowreader/core/messages'
+  import { signOut, settingsMessages as t } from '@slowreader/core'
 
   import Button from '../../ui/button.svelte'
   import CardActions from '../../ui/card-actions.svelte'

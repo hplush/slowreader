@@ -1,3 +1,4 @@
+export * from './messages/index.js'
 export * from './loader/index.js'
 export * from './environment.js'
 export * from './posts-page.js'

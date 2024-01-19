@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { theme } from '@slowreader/core'
-  import { settingsMessages as t } from '@slowreader/core/messages'
+  import { settingsMessages as t, theme } from '@slowreader/core'
 
   import Card from '../../ui/card.svelte'
   import Page from '../../ui/page.svelte'

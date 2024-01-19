@@ -8,9 +8,9 @@
     loadFastPost,
     markReadAndLoadNextFastPosts,
     nextFastSince,
-    router
+    router,
+    fastMessages as t
   } from '@slowreader/core'
-  import { fastMessages as t } from '@slowreader/core/messages'
   import { onDestroy } from 'svelte'
 
   import { getURL, openURL } from '../stores/router.js'
