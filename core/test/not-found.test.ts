@@ -3,18 +3,12 @@ import { equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 
 import { notFound } from '../index.js'
-import {
-  cleanClientTest,
-  enableClientTest,
-  setBaseRoute,
-  testRouter
-} from './utils.js'
+import { cleanClientTest, enableClientTest, setBaseRoute } from './utils.js'
 
 let listener: (e: { reason: Error }) => void
 
 beforeEach(() => {
   enableClientTest({
-    baseRouter: testRouter,
     errorEvents: {
       addEventListener(event, cb) {
         listener = cb

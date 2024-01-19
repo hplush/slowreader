@@ -15,17 +15,10 @@ import {
   testFeed,
   userId
 } from '../index.js'
-import {
-  cleanClientTest,
-  enableClientTest,
-  setBaseRoute,
-  testRouter
-} from './utils.js'
+import { cleanClientTest, enableClientTest, setBaseRoute } from './utils.js'
 
 beforeEach(() => {
-  enableClientTest({
-    baseRouter: testRouter
-  })
+  enableClientTest()
 })
 
 afterEach(async () => {

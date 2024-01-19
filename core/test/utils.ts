@@ -27,9 +27,15 @@ export async function cleanClientTest(): Promise<void> {
   await client.get()?.clean()
 }
 
+const testRouter = atom<BaseRoute | undefined>()
+
+export function setBaseRoute(route: BaseRoute | undefined): void {
+  testRouter.set(route)
+}
+
 export function getTestEnvironment(): EnvironmentAndStore {
   return {
-    baseRouter: atom(undefined),
+    baseRouter: testRouter,
     errorEvents: { addEventListener() {} },
     locale: atom('en'),
     logStoreCreator: () => new MemoryStore(),
@@ -40,12 +46,6 @@ export function getTestEnvironment(): EnvironmentAndStore {
     restartApp: () => {},
     translationLoader: async () => ({})
   }
-}
-
-export const testRouter = atom<BaseRoute | undefined>()
-
-export function setBaseRoute(route: BaseRoute | undefined): void {
-  testRouter.set(route)
 }
 
 interface PromiseMock<Result> {
