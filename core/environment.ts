@@ -40,7 +40,7 @@ type ValidateRouter<Router extends BaseRouter> = ExactType<
 >
 
 interface EnvironmentListener {
-  (env: Environment): (() => void) | void
+  (env: Environment): (() => void)[] | (() => void) | void
 }
 
 interface ErrorEvents {
@@ -72,7 +72,14 @@ let listeners: EnvironmentListener[] = []
 let unbinds: ((() => void) | void)[] = []
 
 export function onEnvironment(ch: EnvironmentListener): void {
-  if (currentEnvironment) unbinds.push(ch(currentEnvironment))
+  if (currentEnvironment) {
+    let unbind = ch(currentEnvironment)
+    if (Array.isArray(unbind)) {
+      unbinds.push(...unbind)
+    } else {
+      unbinds.push(unbind)
+    }
+  }
   listeners.push(ch)
 }
 
@@ -96,7 +103,12 @@ export function setupEnvironment<Router extends BaseRouter>(
   }
 
   for (let listener of listeners) {
-    unbinds.push(listener(currentEnvironment))
+    let unbind = listener(currentEnvironment)
+    if (Array.isArray(unbind)) {
+      unbinds.push(...unbind)
+    } else {
+      unbinds.push(unbind)
+    }
   }
 }
 
