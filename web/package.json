@@ -59,6 +59,6 @@
     "postcss-selector-parser": "6.0.15",
     "size-limit": "11.0.2",
     "storybook": "7.6.10",
-    "stylelint": "16.1.0"
+    "stylelint": "16.2.0"
   }
 }
