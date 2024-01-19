@@ -85,34 +85,41 @@
 </script>
 
 <Story name="Empty" parameters={{ layout: 'fullscreen' }}>
-  <Scene>
-    <FeedsAdd url="" />
+  <Scene route={{ params: {}, route: 'add' }}>
+    <FeedsAdd />
   </Scene>
 </Story>
 
 <Story name="URL Loading" parameters={{ layout: 'fullscreen' }}>
-  <Scene responses={{ 'https://example.com': { loading: true } }}>
-    <FeedsAdd url="https://example.com" />
+  <Scene
+    responses={{ 'https://example.com': { loading: true } }}
+    route={{ params: { url: 'https://example.com' }, route: 'add' }}
+  >
+    <FeedsAdd />
   </Scene>
 </Story>
 
 <Story name="URL Error" parameters={{ layout: 'fullscreen' }}>
-  <Scene>
-    <FeedsAdd url="not a URL" />
+  <Scene route={{ params: { url: 'not a URL' }, route: 'add' }}>
+    <FeedsAdd />
   </Scene>
 </Story>
 
 <Story name="Loading Error" parameters={{ layout: 'fullscreen' }}>
-  <Scene responses={{ 'https://example.com': { status: 404 } }}>
-    <FeedsAdd url="https://example.com" />
+  <Scene
+    responses={{ 'https://example.com': { status: 404 } }}
+    route={{ params: { url: 'https://example.com' }, route: 'add' }}
+  >
+    <FeedsAdd />
   </Scene>
 </Story>
 
 <Story name="No Feeds" parameters={{ layout: 'fullscreen' }}>
   <Scene
     responses={{ '*': { status: 404 }, 'https://example.com': '<html></html>' }}
+    route={{ params: { url: 'https://example.com' }, route: 'add' }}
   >
-    <FeedsAdd url="https://example.com" />
+    <FeedsAdd />
   </Scene>
 </Story>
 
@@ -125,7 +132,7 @@
       'https://example.com/news.atom': ATOM
     }}
   >
-    <FeedsAdd url="https://example.com" />
+    <FeedsAdd />
   </Scene>
 </Story>
 
@@ -136,8 +143,9 @@
       'https://example.com': HTML_WITH_LINK,
       'https://example.com/news.atom': ATOM
     }}
+    route={{ params: { url: 'https://example.com' }, route: 'add' }}
   >
-    <FeedsAdd url="https://example.com" />
+    <FeedsAdd />
   </Scene>
 </Story>
 
@@ -151,7 +159,8 @@
       'https://example.com': HTML_WITH_LINK,
       'https://example.com/news.atom': ATOM
     }}
+    route={{ params: { url: 'https://example.com' }, route: 'add' }}
   >
-    <FeedsAdd url="https://example.com" />
+    <FeedsAdd />
   </Scene>
 </Story>

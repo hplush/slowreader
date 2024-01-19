@@ -9,6 +9,7 @@
     previewCandidatesLoading,
     previewNoResults,
     previewPosts,
+    previewUrl,
     previewUrlError,
     setPreviewCandidate,
     setPreviewUrl,
@@ -27,8 +28,6 @@
   import FeedsEdit from './edit.svelte'
   import FeedsPosts from './posts.svelte'
 
-  export let url: string
-
   let links: HTMLUListElement
   let feed: HTMLDivElement
 </script>
@@ -43,7 +42,7 @@
         label={$t.urlLabel}
         placeholder="https://mastodon.social/@hplushlab"
         spellcheck={false}
-        value={url}
+        value={$previewUrl}
         on:input={e => {
           onPreviewUrlType(e.detail.value)
         }}
@@ -88,7 +87,7 @@
       {/if}
     </Card>
 
-    {#if url === ''}
+    {#if $previewUrl === ''}
       <div class="feeds-add_guide">
         <RichTranslation text={$t.searchGuide} />
       </div>

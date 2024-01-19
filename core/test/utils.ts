@@ -20,6 +20,7 @@ export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
   setupEnvironment({ ...getTestEnvironment(), ...env })
   enableTestTime()
   userId.set('10')
+  setBaseRoute({ params: {}, route: 'home' })
 }
 
 export async function cleanClientTest(): Promise<void> {

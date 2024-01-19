@@ -7,11 +7,13 @@ import {
   loadCategories
 } from './category.js'
 import { client } from './client.js'
+import { onEnvironment } from './environment.js'
 import { loadFeed, loadFeeds } from './feed.js'
 import { loadFilters } from './filter.js'
 import { deletePost, loadPosts } from './post.js'
 import type { PostValue } from './post.js'
-import { readonlyExport } from './utils/stores.js'
+import { type Route, router } from './router.js'
+import { listenMany, readonlyExport } from './utils/stores.js'
 
 function notEmpty<Value>(array: Value[]): array is [Value, ...Value[]] {
   return array.length > 0
@@ -126,12 +128,6 @@ let $currentCategory = atom<string | undefined>(undefined)
 
 export const fastCategory = readonlyExport($currentCategory)
 
-onMount($posts, () => {
-  return () => {
-    clearFast()
-  }
-})
-
 let POSTS_PER_PAGE = 50
 
 export function setFastPostsPerPage(value: number): void {
@@ -161,16 +157,6 @@ async function load(categoryId: string, since?: number): Promise<void> {
   $posts.set(posts)
 }
 
-export async function loadFastPost(
-  categoryId: string,
-  since?: number
-): Promise<void> {
-  $currentCategory.set(categoryId)
-  $loading.set('init')
-  $reading.set(0)
-  await load(categoryId, since)
-}
-
 export async function markReadAndLoadNextFastPosts(): Promise<void> {
   let category = $currentCategory.get()
   if (category) {
@@ -186,6 +172,13 @@ export async function markReadAndLoadNextFastPosts(): Promise<void> {
   }
 }
 
+async function loadFastPost(categoryId: string, since?: number): Promise<void> {
+  $currentCategory.set(categoryId)
+  $loading.set('init')
+  $reading.set(0)
+  await load(categoryId, since)
+}
+
 export function clearFast(): void {
   $currentCategory.set(undefined)
   $currentSince.set(undefined)
@@ -195,3 +188,37 @@ export function clearFast(): void {
   $reading.set(0)
   POSTS_PER_PAGE = 50
 }
+
+function notSynced(page: Route): page is Route<'fast'> {
+  return (
+    page.route === 'fast' &&
+    (page.params.category !== $currentCategory.get() ||
+      page.params.since !== $currentSince.get())
+  )
+}
+
+let inFast = false
+
+onEnvironment(({ openRoute }) => {
+  return [
+    listenMany([$currentCategory, $currentSince], (category, since) => {
+      if (notSynced(router.get())) {
+        openRoute({
+          params: { category, since },
+          route: 'fast'
+        })
+      }
+    }),
+    router.listen(page => {
+      if (notSynced(page) && page.params.category) {
+        loadFastPost(page.params.category, page.params.since)
+      }
+      if (page.route === 'fast') {
+        inFast = true
+      } else if (inFast) {
+        inFast = false
+        clearFast()
+      }
+    })
+  ]
+})

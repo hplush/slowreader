@@ -30,14 +30,12 @@ import {
   router,
   setPreviewCandidate,
   setPreviewUrl,
-  testFeed,
-  userId
+  testFeed
 } from '../index.js'
 import { cleanClientTest, enableClientTest, setBaseRoute } from './utils.js'
 
 beforeEach(() => {
   enableClientTest()
-  userId.set('10')
   mockRequest()
   setBaseRoute({ params: {}, route: 'add' })
 })

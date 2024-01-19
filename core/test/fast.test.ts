@@ -16,15 +16,15 @@ import {
   fastLoading,
   fastPosts,
   fastSince,
-  loadFastPost,
   loadPosts,
   markReadAndLoadNextFastPosts,
   nextFastSince,
+  router,
   setFastPostsPerPage,
   testFeed,
   testPost
 } from '../index.js'
-import { cleanClientTest, enableClientTest } from './utils.js'
+import { cleanClientTest, enableClientTest, setBaseRoute } from './utils.js'
 
 beforeEach(() => {
   enableClientTest()
@@ -41,6 +41,7 @@ afterEach(async () => {
     fastCategory,
     fastSince
   )
+  await setTimeout(10)
   await cleanClientTest()
 })
 
@@ -153,9 +154,9 @@ test('loads page when we have no fast posts', async () => {
   fastLoading.listen(() => {})
   nextFastSince.listen(() => {})
 
-  let promise = loadFastPost('general')
+  setBaseRoute({ params: { category: 'general' }, route: 'fast' })
   equal(fastLoading.get(), 'init')
-  await promise
+  await setTimeout(10)
   equal(fastLoading.get(), false)
   deepStrictEqual(fastPosts.get(), [])
   equal(constantFastReading.get(), 0)
@@ -198,7 +199,8 @@ test('loads page when we have fast posts', async () => {
     })
   )
 
-  await loadFastPost(category1)
+  setBaseRoute({ params: { category: category1 }, route: 'fast' })
+  await setTimeout(10)
   equal(fastLoading.get(), false)
   equal(fastCategory.get(), category1)
   equal(fastSince.get(), undefined)
@@ -253,7 +255,8 @@ test('loads page when we have fast posts', async () => {
   deepStrictEqual((await loadPosts({ reading: 'fast' })).length, 2)
   deepStrictEqual((await loadPosts({ reading: 'slow' })).length, 1)
 
-  await loadFastPost(category1)
+  setBaseRoute({ params: { category: category1 }, route: 'fast' })
+  await setTimeout(10)
   deepStrictEqual(
     fastPosts.get().map(i => i.title),
     ['F1 P100']
@@ -262,9 +265,11 @@ test('loads page when we have fast posts', async () => {
   equal(nextFastSince.get(), undefined)
 
   await markReadAndLoadNextFastPosts()
-
   deepStrictEqual((await loadPosts({ reading: 'fast' })).length, 1)
-  await loadFastPost(category1)
+
+  setBaseRoute({ params: {}, route: 'home' })
+  setBaseRoute({ params: { category: category1 }, route: 'fast' })
+  await setTimeout(10)
   deepStrictEqual(
     fastPosts.get().map(i => i.title),
     []
@@ -277,7 +282,6 @@ test('allows to change category in the middle', async () => {
   constantFastReading.listen(() => {})
   fastPosts.listen(() => {})
   fastLoading.listen(() => {})
-  nextFastSince.listen(() => {})
   setFastPostsPerPage(5)
 
   let category1 = await addCategory({ title: '1' })
@@ -299,15 +303,16 @@ test('allows to change category in the middle', async () => {
     }
   }
 
-  await loadFastPost(category1)
+  setBaseRoute({ params: { category: category1 }, route: 'fast' })
+  await setTimeout(10)
   equal(constantFastReading.get(), 0)
 
   await markReadAndLoadNextFastPosts()
   equal(constantFastReading.get(), 1)
 
-  let promise = loadFastPost('general')
+  setBaseRoute({ params: { category: 'general' }, route: 'fast' })
   equal(fastLoading.get(), 'init')
-  await promise
+  await setTimeout(10)
   equal(fastLoading.get(), false)
   equal(fastCategory.get(), 'general')
   equal(fastSince.get(), undefined)
@@ -321,7 +326,6 @@ test('allows to change category in the middle', async () => {
 test('allows to preview next page without marking as read', async () => {
   constantFastReading.listen(() => {})
   fastPosts.listen(() => {})
-  fastLoading.listen(() => {})
   nextFastSince.listen(() => {})
   setFastPostsPerPage(5)
 
@@ -341,7 +345,8 @@ test('allows to preview next page without marking as read', async () => {
     }
   }
 
-  await loadFastPost('general')
+  setBaseRoute({ params: { category: 'general' }, route: 'fast' })
+  await setTimeout(10)
   equal(constantFastReading.get(), 0)
   equal(nextFastSince.get(), 3001)
   deepStrictEqual(
@@ -349,7 +354,11 @@ test('allows to preview next page without marking as read', async () => {
     ['F1 P5', 'F0 P5', 'F1 P4', 'F0 P4', 'F1 P3']
   )
 
-  await loadFastPost('general', nextFastSince.get())
+  setBaseRoute({
+    params: { category: 'general', since: nextFastSince.get() },
+    route: 'fast'
+  })
+  await setTimeout(10)
   equal(constantFastReading.get(), 0)
   equal(nextFastSince.get(), 1000)
   deepStrictEqual(
@@ -371,4 +380,49 @@ test('allows to preview next page without marking as read', async () => {
     fastPosts.get().map(i => i.title),
     []
   )
+})
+
+test('syncs fast category and since with URL', async () => {
+  fastPosts.listen(() => {})
+  fastCategory.listen(() => {})
+  fastSince.listen(() => {})
+  nextFastSince.listen(() => {})
+  setFastPostsPerPage(5)
+
+  let category1 = await addCategory({ title: '1' })
+  let feedId = await addFeed(testFeed({ categoryId: category1 }))
+
+  for (let i = 0; i < 10; i++) {
+    await addPost(testPost({ feedId, publishedAt: 1000 * i, reading: 'fast' }))
+  }
+
+  setBaseRoute({
+    params: { category: category1 },
+    route: 'fast'
+  })
+  equal(fastCategory.get(), category1)
+  equal(fastSince.get(), undefined)
+  await setTimeout(10)
+  equal(nextFastSince.get(), 5000)
+
+  await markReadAndLoadNextFastPosts()
+  deepStrictEqual(router.get(), {
+    params: { category: category1, since: 5000 },
+    route: 'fast'
+  })
+
+  setBaseRoute({
+    params: { category: category1, since: 100 },
+    route: 'fast'
+  })
+  equal(fastCategory.get(), category1)
+  equal(fastSince.get(), 100)
+
+  setBaseRoute({
+    params: {},
+    route: 'home'
+  })
+  equal(fastCategory.get(), undefined)
+  equal(fastSince.get(), undefined)
+  deepStrictEqual(fastPosts.get(), [])
 })

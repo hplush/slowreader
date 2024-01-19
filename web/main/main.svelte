@@ -24,9 +24,9 @@
   {:else if $router.route === 'start'}
     <Start />
   {:else if $router.route === 'fast'}
-    <Fast categoryId={$router.params.category} since={$router.params.since} />
+    <Fast />
   {:else if $router.route === 'add'}
-    <FeedsAdd url={$router.params.url ?? ''} />
+    <FeedsAdd />
   {:else if $router.route === 'categories'}
     <FeedsCategories feedId={$router.params.feed} />
   {:else if $router.route === 'interface'}
