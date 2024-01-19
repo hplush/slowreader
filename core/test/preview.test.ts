@@ -27,15 +27,19 @@ import {
   previewPosts,
   previewUrl,
   previewUrlError,
+  router,
   setPreviewCandidate,
   setPreviewUrl,
-  testFeed
+  testFeed,
+  userId
 } from '../index.js'
-import { cleanClientTest, enableClientTest } from './utils.js'
+import { cleanClientTest, enableClientTest, setBaseRoute } from './utils.js'
 
 beforeEach(() => {
   enableClientTest()
+  userId.set('10')
   mockRequest()
+  setBaseRoute({ params: {}, route: 'add' })
 })
 
 afterEach(async () => {
@@ -514,4 +518,34 @@ test('changes URL during typing in the field', async () => {
   setPreviewUrl('example.com')
   await setTimeout(500)
   equal(previewUrl.get(), 'http://example.com')
+})
+
+test('syncs URL with router', async () => {
+  deepStrictEqual(router.get(), { params: {}, route: 'add' })
+
+  expectRequest('http://example.com').andRespond(404)
+  setPreviewUrl('example.com')
+  deepStrictEqual(router.get(), {
+    params: { url: 'http://example.com' },
+    route: 'add'
+  })
+
+  expectRequest('https://other.com').andRespond(404)
+  setPreviewUrl('https://other.com')
+  deepStrictEqual(router.get(), {
+    params: { url: 'https://other.com' },
+    route: 'add'
+  })
+
+  expectRequest('http://example.com').andRespond(404)
+  setBaseRoute({ params: { url: 'http://example.com' }, route: 'add' })
+  deepStrictEqual(previewUrl.get(), 'http://example.com')
+
+  setBaseRoute({ params: {}, route: 'add' })
+  deepStrictEqual(previewUrl.get(), '')
+
+  expectRequest('https://new.com').andRespond(404)
+  setPreviewUrl('https://new.com')
+  setBaseRoute({ params: {}, route: 'home' })
+  deepStrictEqual(previewUrl.get(), '')
 })
