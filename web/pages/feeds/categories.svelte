@@ -11,7 +11,7 @@
     organizeMessages as t
   } from '@slowreader/core'
 
-  import { getURL, openURL } from '../../stores/router.js'
+  import { getURL, openRoute } from '../../stores/router.js'
   import Button from '../../ui/button.svelte'
   import CardLink from '../../ui/card-link.svelte'
   import CardLinks from '../../ui/card-links.svelte'
@@ -97,7 +97,7 @@
       <FeedsEdit
         {feedId}
         on:delete={() => {
-          openURL('categories')
+          openRoute({ params: {}, route: 'categories' })
         }}
       />
     {/if}

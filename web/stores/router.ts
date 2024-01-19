@@ -4,6 +4,7 @@ import {
   getPagePath,
   type ParamsArg
 } from '@nanostores/router'
+import type { BaseRoute } from '@slowreader/core'
 
 export const urlRouter = createRouter({
   about: '/settings/about',
@@ -34,9 +35,6 @@ export function getURL<Name extends keyof UrlConfig>(
   return getPagePath(urlRouter, name, ...params)
 }
 
-export function openURL<Name extends keyof UrlConfig>(
-  name: Name,
-  ...params: ParamsArg<UrlConfig, Name>
-): void {
-  urlRouter.open(getURL(name, ...params))
+export function openRoute(route: BaseRoute): void {
+  urlRouter.open(getPagePath(urlRouter, route))
 }

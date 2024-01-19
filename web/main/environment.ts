@@ -9,7 +9,7 @@ import {
 
 import { detectNetworkType } from '../lib/network.js'
 import { locale } from '../stores/locale.js'
-import { openURL, urlRouter } from '../stores/router.js'
+import { openRoute, urlRouter } from '../stores/router.js'
 
 setupEnvironment({
   baseRouter: urlRouter,
@@ -17,11 +17,7 @@ setupEnvironment({
   locale,
   logStoreCreator: () => new IndexedStore(),
   networkType: detectNetworkType,
-  openRoute(page) {
-    // Too complex types
-    // @ts-expect-error
-    openURL(page.route, page.params)
-  },
+  openRoute,
   persistentEvents: windowPersistentEvents,
   persistentStore: localStorage,
   restartApp() {
@@ -34,9 +30,7 @@ setupEnvironment({
 
 router.subscribe(page => {
   if (page.redirect) {
-    // Too complex types
-    // @ts-expect-error
-    openURL(page.route, page.params)
+    openRoute(page)
   }
 })
 

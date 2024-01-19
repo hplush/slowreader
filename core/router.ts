@@ -28,6 +28,12 @@ export interface Routes {
 
 export type RouteName = keyof Routes
 
+type EmptyObject = Record<string, never>
+
+type ParamlessRouteName = {
+  [K in RouteName]: Routes[K] extends EmptyObject ? K : never
+}[RouteName]
+
 export type Route<Name extends RouteName = RouteName> = Name extends string
   ? { params: Routes[Name]; redirect?: boolean; route: Name }
   : never
@@ -42,31 +48,24 @@ export type BaseRoute<Name extends RouteName = RouteName> = Name extends string
 
 export type BaseRouter = ReadableAtom<BaseRoute | undefined>
 
-const GUEST = new Set<Route['route']>(['start', 'signin'])
+const GUEST = new Set<RouteName>(['start', 'signin'])
 
-const SETTINGS = new Set<Route['route']>([
+const SETTINGS = new Set<RouteName>([
   'interface',
   'profile',
   'about',
   'download'
 ])
 
-const ORGANIZE = new Set<Route['route']>(['add', 'categories'])
+const ORGANIZE = new Set<RouteName>(['add', 'categories'])
 
-function redirect<Name extends keyof Routes>(
-  route: Name,
-  params: Routes[Name]
-): Route {
-  // @ts-expect-error Too complex types
-  return { params, redirect: true, route }
+function open(route: ParamlessRouteName | Route): Route {
+  if (typeof route === 'string') route = { params: {}, route } as Route
+  return route
 }
 
-function open<Name extends keyof Routes>(
-  route: Name,
-  params: Routes[Name]
-): Route {
-  // @ts-expect-error Too complex types
-  return { params, route }
+function redirect(route: ParamlessRouteName | Route): Route {
+  return { ...open(route), redirect: true }
 }
 
 function isNumber(value: number | string): boolean {
@@ -83,48 +82,54 @@ onEnvironment(({ baseRouter }) => {
     [baseRouter, userId, hasFeeds, fastCategories],
     (page, user, withFeeds, fast) => {
       if (!page) {
-        return open('notFound', {})
+        return open('notFound')
       } else if (user) {
         if (GUEST.has(page.route) || page.route === 'home') {
           if (withFeeds) {
-            return redirect('slowAll', {})
+            return redirect('slowAll')
           } else {
-            return redirect('welcome', {})
+            return redirect('welcome')
           }
         } else if (page.route === 'welcome' && withFeeds) {
-          return redirect('slowAll', {})
+          return redirect('slowAll')
         } else if (page.route === 'settings') {
-          return redirect('interface', {})
+          return redirect('interface')
         } else if (page.route === 'feeds') {
-          return redirect('categories', {})
+          return redirect({ params: {}, route: 'categories' })
         } else if (page.route === 'fast') {
           if (!page.params.category && !fast.isLoading) {
-            return redirect('fast', { category: fast.categories[0].id })
+            return redirect({
+              params: { category: fast.categories[0].id },
+              route: 'fast'
+            })
           }
           if (page.params.category && !fast.isLoading) {
             let category = fast.categories.find(
               i => i.id === page.params.category
             )
             if (!category) {
-              return open('notFound', {})
+              return open('notFound')
             }
           }
           if (page.params.since) {
             let since = page.params.since
             if (isNumber(since)) {
-              return open('fast', {
-                category: page.params.category,
-                since: typeof since === 'number' ? since : parseInt(since)
+              return open({
+                params: {
+                  category: page.params.category,
+                  since: typeof since === 'number' ? since : parseInt(since)
+                },
+                route: 'fast'
               })
             } else {
-              return open('notFound', {})
+              return open('notFound')
             }
           }
         }
       } else if (!GUEST.has(page.route)) {
-        return open('start', {})
+        return open('start')
       }
-      return open(page.route, page.params)
+      return page
     }
   )
 })
