@@ -28,21 +28,27 @@ export function increaseKey<Store extends MapStore>(
   store.setKey(key, store.get()[key] + 1)
 }
 
+export function listenMany<SourceStores extends ReadableAtom[]>(
+  stores: [...SourceStores],
+  cb: (...values: StoreValues<SourceStores>) => void
+): () => void {
+  function listener(): void {
+    let values = stores.map(store => store.get()) as StoreValues<SourceStores>
+    cb(...values)
+  }
+  let unbinds = stores.map(store => store.listen(listener))
+  listener()
+  return () => {
+    for (let unbind of unbinds) unbind()
+  }
+}
+
 export function computeFrom<Value, SourceStores extends ReadableAtom[]>(
   to: WritableAtom<Value>,
   stores: [...SourceStores],
   compute: (...values: StoreValues<SourceStores>) => Value
 ): () => void {
-  function listener(): void {
-    let values = stores.map(store => store.get()) as StoreValues<SourceStores>
+  return listenMany(stores, (...values) => {
     to.set(compute(...values))
-  }
-  let unbinds: (() => void)[] = []
-  for (let store of stores) {
-    unbinds.push(store.listen(listener))
-  }
-  listener()
-  return () => {
-    for (let unbind of unbinds) unbind()
-  }
+  })
 }
