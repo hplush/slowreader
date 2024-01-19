@@ -283,12 +283,12 @@ export async function addPreviewCandidate(): Promise<void> {
 
 let inPreview = false
 
-onEnvironment(() => {
+onEnvironment(({ openRoute }) => {
   return [
     previewUrl.listen(link => {
       let page = router.get()
       if (page.route === 'add' && page.params.url !== link) {
-        getEnvironment().openRoute({ params: { url: link }, route: 'add' })
+        openRoute({ params: { url: link }, route: 'add' })
       }
     }),
     router.listen(({ params, route }) => {
