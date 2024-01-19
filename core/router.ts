@@ -1,7 +1,7 @@
 import { atom, type ReadableAtom } from 'nanostores'
 
 import { onEnvironment } from './environment.js'
-import { fastCategories, type FastCategoriesValue } from './fast.js'
+import { fastCategories } from './fast.js'
 import { hasFeeds } from './feed.js'
 import { userId } from './settings.js'
 import { computeFrom, readonlyExport } from './utils/stores.js'
@@ -73,55 +73,6 @@ function isNumber(value: number | string): boolean {
   return typeof value === 'number' || /^\d+$/.test(value)
 }
 
-function getRoute(
-  page: BaseRoute | undefined,
-  user: string | undefined,
-  withFeeds: boolean | undefined,
-  fast: FastCategoriesValue
-): Route {
-  if (!page) {
-    return open('notFound', {})
-  } else if (user) {
-    if (GUEST.has(page.route) || page.route === 'home') {
-      if (withFeeds) {
-        return redirect('slowAll', {})
-      } else {
-        return redirect('welcome', {})
-      }
-    } else if (page.route === 'welcome' && withFeeds) {
-      return redirect('slowAll', {})
-    } else if (page.route === 'settings') {
-      return redirect('interface', {})
-    } else if (page.route === 'feeds') {
-      return redirect('categories', {})
-    } else if (page.route === 'fast') {
-      if (!page.params.category && !fast.isLoading) {
-        return redirect('fast', { category: fast.categories[0].id })
-      }
-      if (page.params.category && !fast.isLoading) {
-        let category = fast.categories.find(i => i.id === page.params.category)
-        if (!category) {
-          return open('notFound', {})
-        }
-      }
-      if (page.params.since) {
-        let since = page.params.since
-        if (isNumber(since)) {
-          return open('fast', {
-            category: page.params.category,
-            since: typeof since === 'number' ? since : parseInt(since)
-          })
-        } else {
-          return open('notFound', {})
-        }
-      }
-    }
-  } else if (!GUEST.has(page.route)) {
-    return open('start', {})
-  }
-  return open(page.route, page.params)
-}
-
 let $router = atom<Route>({ params: {}, route: 'home' })
 
 export const router = readonlyExport($router)
@@ -130,7 +81,51 @@ onEnvironment(({ baseRouter }) => {
   return computeFrom(
     $router,
     [baseRouter, userId, hasFeeds, fastCategories],
-    (page, user, withFeeds, fast) => getRoute(page, user, withFeeds, fast)
+    (page, user, withFeeds, fast) => {
+      if (!page) {
+        return open('notFound', {})
+      } else if (user) {
+        if (GUEST.has(page.route) || page.route === 'home') {
+          if (withFeeds) {
+            return redirect('slowAll', {})
+          } else {
+            return redirect('welcome', {})
+          }
+        } else if (page.route === 'welcome' && withFeeds) {
+          return redirect('slowAll', {})
+        } else if (page.route === 'settings') {
+          return redirect('interface', {})
+        } else if (page.route === 'feeds') {
+          return redirect('categories', {})
+        } else if (page.route === 'fast') {
+          if (!page.params.category && !fast.isLoading) {
+            return redirect('fast', { category: fast.categories[0].id })
+          }
+          if (page.params.category && !fast.isLoading) {
+            let category = fast.categories.find(
+              i => i.id === page.params.category
+            )
+            if (!category) {
+              return open('notFound', {})
+            }
+          }
+          if (page.params.since) {
+            let since = page.params.since
+            if (isNumber(since)) {
+              return open('fast', {
+                category: page.params.category,
+                since: typeof since === 'number' ? since : parseInt(since)
+              })
+            } else {
+              return open('notFound', {})
+            }
+          }
+        }
+      } else if (!GUEST.has(page.route)) {
+        return open('start', {})
+      }
+      return open(page.route, page.params)
+    }
   )
 })
 
