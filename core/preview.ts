@@ -7,7 +7,7 @@ import {
   ignoreAbortError,
   type TextResponse
 } from './download.js'
-import { getEnvironment, onEnvironment } from './environment.js'
+import { onEnvironment } from './environment.js'
 import { addFeed, getFeeds } from './feed.js'
 import { type LoaderName, loaders } from './loader/index.js'
 import type { PostsPage } from './posts-page.js'
