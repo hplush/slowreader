@@ -22,10 +22,10 @@
     moveFilterDown,
     moveFilterUp,
     type PostsPage,
+    removeFeedFromRoute,
     sortFilters,
     organizeMessages as t
   } from '@slowreader/core'
-  import { createEventDispatcher } from 'svelte'
 
   import Button from '../../ui/button.svelte'
   import Card from '../../ui/card.svelte'
@@ -41,7 +41,6 @@
 
   let loadedPosts: PostsPage | undefined = undefined
   let categories = getCategories()
-  let dispatch = createEventDispatcher<{ delete: null }>()
 
   let categoryOptions: [string, string][]
   categories.subscribe(value => {
@@ -99,7 +98,7 @@
           secondary
           on:click={() => {
             if (confirm($t.deleteConform)) {
-              dispatch('delete')
+              removeFeedFromRoute()
               deleteFeed(feedId)
             }
           }}>{$t.deleteFeed}</Button

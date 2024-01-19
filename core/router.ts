@@ -1,6 +1,6 @@
 import { atom, type ReadableAtom } from 'nanostores'
 
-import { onEnvironment } from './environment.js'
+import { getEnvironment, onEnvironment } from './environment.js'
 import { fastCategories } from './fast.js'
 import { hasFeeds } from './feed.js'
 import { userId } from './settings.js'
@@ -152,4 +152,14 @@ export function isSettingsRoute(route: Route): boolean {
 
 export function isOrganizeRoute(route: Route): boolean {
   return ORGANIZE.has(route.route)
+}
+
+export function removeFeedFromRoute(): void {
+  let page = router.get()
+  if (page.route === 'categories') {
+    getEnvironment().openRoute({
+      params: {},
+      route: page.route
+    })
+  }
 }

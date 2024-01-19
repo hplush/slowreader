@@ -11,7 +11,7 @@
     organizeMessages as t
   } from '@slowreader/core'
 
-  import { getURL, openRoute } from '../../stores/router.js'
+  import { getURL } from '../../stores/router.js'
   import Button from '../../ui/button.svelte'
   import CardLink from '../../ui/card-link.svelte'
   import CardLinks from '../../ui/card-links.svelte'
@@ -94,12 +94,7 @@
   </div>
   <div slot="two">
     {#if feedId}
-      <FeedsEdit
-        {feedId}
-        on:delete={() => {
-          openRoute({ params: {}, route: 'categories' })
-        }}
-      />
+      <FeedsEdit {feedId} />
     {/if}
   </div>
 </TwoStepsPage>

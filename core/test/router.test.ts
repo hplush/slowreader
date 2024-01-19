@@ -11,6 +11,7 @@ import {
   isOrganizeRoute,
   isSettingsRoute,
   isSlowRoute,
+  removeFeedFromRoute,
   router,
   testFeed,
   userId
@@ -230,5 +231,18 @@ test('checks that category exists', async () => {
   deepStrictEqual(router.get(), {
     params: { category: idA, since: 100 },
     route: 'fast'
+  })
+})
+
+test('has helper on feed removing', async () => {
+  userId.set('10')
+  let feed = await addFeed(testFeed())
+  setBaseRoute({ params: { feed }, route: 'categories' })
+
+  removeFeedFromRoute()
+
+  deepStrictEqual(router.get(), {
+    params: {},
+    route: 'categories'
   })
 })
