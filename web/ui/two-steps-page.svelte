@@ -29,13 +29,14 @@
     gap: var(--padding-l);
     justify-content: space-around;
     width: 100%;
-    min-height: 100%;
-    padding: var(--padding-l);
   }
 
   .two-steps-page_step {
+    box-sizing: border-box;
     width: 50%;
     max-width: 600px;
-    min-height: 100%;
+    height: 100vh;
+    padding: var(--padding-l);
+    overflow-x: auto;
   }
 </style>
