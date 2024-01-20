@@ -6,7 +6,7 @@
   import RadioField from '../../ui/radio-field.svelte'
 </script>
 
-<Page title={$t.interface} type="settings">
+<Page title={$t.interface} type="list">
   <Card>
     <RadioField
       current={$theme}

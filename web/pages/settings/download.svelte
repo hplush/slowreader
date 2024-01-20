@@ -23,7 +23,7 @@
   })
 </script>
 
-<Page title={$t.download} type="settings">
+<Page title={$t.download} type="list">
   <Card>
     <RadioField
       current={$preloadImages}

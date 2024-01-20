@@ -21,9 +21,15 @@
 {:else}
   <ul role="list">
     {#each $posts.list as post (post.originId)}
-      <li>
+      <li class="feeds-posts_post">
         <PostCard action={checker(post) ?? defaultReading} {post} />
       </li>
     {/each}
   </ul>
 {/if}
+
+<style>
+  .feeds-posts_post {
+    margin-top: var(--padding-l);
+  }
+</style>

@@ -8,7 +8,7 @@
   import UnderConstruction from '../../ui/under-construction.svelte'
 </script>
 
-<Page title={$t.profile} type="settings">
+<Page title={$t.profile} type="list">
   <Card>
     <UnderConstruction />
     <CardActions>

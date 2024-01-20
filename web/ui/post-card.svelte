@@ -1,21 +1,29 @@
 <script lang="ts">
-  import type { FilterAction, OriginPost } from '@slowreader/core'
+  import type { FeedValue, FilterAction, OriginPost } from '@slowreader/core'
+
+  import Card from './card.svelte'
 
   export let post: OriginPost
+  export let author: FeedValue | undefined = undefined
   export let action: FilterAction | undefined = undefined
 </script>
 
-<div
-  class="post-card"
-  class:is-deleted={action === 'delete'}
-  class:is-slow-theme={action === 'slow'}
->
-  {#if post.url}
-    <a href={post.url}>{post.title ?? post.intro ?? post.full}</a>
-  {:else}
-    {post.title ?? post.intro ?? post.full}
-  {/if}
-</div>
+<Card>
+  <div
+    class="post-card"
+    class:is-deleted={action === 'delete'}
+    class:is-slow-theme={action === 'slow'}
+  >
+    {#if author}
+      {author.title}:
+    {/if}
+    {#if post.url}
+      <a href={post.url}>{post.title ?? post.intro ?? post.full}</a>
+    {:else}
+      {post.title ?? post.intro ?? post.full}
+    {/if}
+  </div>
+</Card>
 
 <style>
   .post-card.is-slow-theme {

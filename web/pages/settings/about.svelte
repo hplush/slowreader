@@ -6,7 +6,7 @@
   import UnderConstruction from '../../ui/under-construction.svelte'
 </script>
 
-<Page title={$t.about} type="settings">
+<Page title={$t.about} type="list">
   <Card>
     <UnderConstruction />
     <a href="https://github.com/hplush/slowreader" target="_blank">

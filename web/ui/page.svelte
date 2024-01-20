@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
 
   export let title: string
-  export let type: 'center' | 'normal' | 'settings' = 'normal'
+  export let type: 'center' | 'list' | 'normal' = 'normal'
 
   let prevTitle = document.title
 
@@ -17,7 +17,7 @@
 <main
   class="page"
   class:is-center={type === 'center'}
-  class:is-settings={type === 'settings'}
+  class:is-list={type === 'list'}
 >
   <slot />
 </main>
@@ -28,7 +28,7 @@
     min-height: 100%;
     padding: var(--padding-l);
 
-    &.is-settings {
+    &.is-list {
       display: flex;
       flex-direction: column;
       gap: var(--padding-l);
