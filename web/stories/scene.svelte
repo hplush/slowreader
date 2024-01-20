@@ -56,6 +56,16 @@
 
   $: {
     cleanLogux()
+    prepareResponses(responses)
+
+    setNetworkType(networkType)
+
+    for (let category of categories) {
+      addCategory(category)
+    }
+    for (let feed of feeds) {
+      addFeed(testFeed(feed))
+    }
 
     // TODO: Replace with Nano Stores Context
     if (refreshing) {
@@ -78,16 +88,6 @@
     } else {
       baseRouter.set(route)
     }
-
-    setNetworkType(networkType)
-
-    for (let category of categories) {
-      addCategory(category)
-    }
-    for (let feed of feeds) {
-      addFeed(testFeed(feed))
-    }
-    prepareResponses(responses)
   }
 
   onMount(() => {

@@ -131,6 +131,7 @@
       'https://example.com/long.atom': LONG_ATOM,
       'https://example.com/news.atom': ATOM
     }}
+    route={{ params: { url: 'https://example.com' }, route: 'add' }}
   >
     <FeedsAdd />
   </Scene>
