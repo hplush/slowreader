@@ -2,7 +2,7 @@
   /* We escape and have XSS tests */
   /* eslint svelte/no-at-html-tags: "off" */
 
-  import { parseLink, simpleMarkdown } from '../lib/text.js'
+  import { parseLink, parseRichTranslation } from '@slowreader/core'
 
   export let text: string
   export let url: string | undefined = undefined
@@ -10,9 +10,9 @@
 
 <div class="rich-translation">
   {#if url}
-    {@html parseLink(simpleMarkdown(text), url)}
+    {@html parseLink(parseRichTranslation(text), url)}
   {:else}
-    {@html simpleMarkdown(text)}
+    {@html parseRichTranslation(text)}
   {/if}
 </div>
 

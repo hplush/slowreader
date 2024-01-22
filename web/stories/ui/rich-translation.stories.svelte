@@ -21,6 +21,9 @@
     <RichTranslation text={'<b>&lt;i&gt;XSS&lt;/i&gt;</b>'} />
   </Section>
   <Section>
+    <RichTranslation text={'alert<iframe//src=jAva&Tab;script:alert(3)>'} />
+  </Section>
+  <Section>
     <RichTranslation text={'- list\n- with\n- many\n- items'} />
   </Section>
   <Section>

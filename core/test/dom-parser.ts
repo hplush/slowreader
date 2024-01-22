@@ -1,3 +1,6 @@
 import { JSDOM } from 'jsdom'
 
-global.DOMParser = new JSDOM().window.DOMParser
+let window = new JSDOM().window
+// @ts-expect-error
+global.window = window
+global.DOMParser = window.DOMParser

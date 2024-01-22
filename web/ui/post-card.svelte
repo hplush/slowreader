@@ -1,5 +1,13 @@
 <script lang="ts">
-  import type { FeedValue, FilterAction, OriginPost } from '@slowreader/core'
+  /* We escape and have XSS tests */
+  /* eslint svelte/no-at-html-tags: "off" */
+
+  import {
+    type FeedValue,
+    type FilterAction,
+    type OriginPost,
+    sanitizeHTML
+  } from '@slowreader/core'
 
   import Card from './card.svelte'
 
@@ -17,11 +25,16 @@
     {#if author}
       {author.title}:
     {/if}
-    {#if post.url}
-      <a href={post.url}>{post.title ?? post.intro ?? post.full}</a>
-    {:else}
-      {post.title ?? post.intro ?? post.full}
+    {#if post.title}
+      <h1>
+        {#if post.url}
+          <a href={post.url}>{post.title}</a>
+        {:else}
+          {post.title}
+        {/if}
+      </h1>
     {/if}
+    {@html sanitizeHTML(post.intro ?? post.full ?? '')}
   </div>
 </Card>
 
