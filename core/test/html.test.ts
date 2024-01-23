@@ -3,16 +3,16 @@ import './dom-parser.js'
 import { equal } from 'node:assert'
 import { test } from 'node:test'
 
-import { parseLink, parseRichTranslation, sanitizeHTML } from '../index.js'
+import { parseLink, parseRichTranslation, sanitizeDOM } from '../index.js'
 
 test('sanitizes HTML', () => {
   equal(
-    sanitizeHTML(
+    sanitizeDOM(
       '<script>alert("XSS")</script>' +
         '<b>Safe</b>' +
         '<form></form>' +
         '<iframe//src=jAva&Tab;script:alert(3)>'
-    ),
+    ).innerHTML,
     '<b>Safe</b>'
   )
 })

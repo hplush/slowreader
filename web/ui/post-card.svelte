@@ -1,15 +1,8 @@
 <script lang="ts">
-  /* We escape and have XSS tests */
-  /* eslint svelte/no-at-html-tags: "off" */
-
-  import {
-    type FeedValue,
-    type FilterAction,
-    type OriginPost,
-    sanitizeHTML
-  } from '@slowreader/core'
+  import type { FeedValue, FilterAction, OriginPost } from '@slowreader/core'
 
   import Card from './card.svelte'
+  import FormattedText from './formatted-text.svelte'
 
   export let post: OriginPost
   export let author: FeedValue | undefined = undefined
@@ -34,7 +27,7 @@
         {/if}
       </h1>
     {/if}
-    {@html sanitizeHTML(post.intro ?? post.full ?? '')}
+    <FormattedText html={post.intro ?? post.full ?? ''} />
   </div>
 </Card>
 
