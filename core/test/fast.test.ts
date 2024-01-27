@@ -207,7 +207,7 @@ test('loads page when we have fast posts', async () => {
   equal(constantFastReading.get(), 0)
   equal(nextFastSince.get(), 3001)
   deepStrictEqual(
-    fastPosts.get().map(i => i.title),
+    fastPosts.get().map(i => i.post.title),
     ['F1 P5', 'F0 P5', 'F1 P4', 'F0 P4', 'F1 P3']
   )
 
@@ -220,7 +220,7 @@ test('loads page when we have fast posts', async () => {
   equal(constantFastReading.get(), 1)
   equal(nextFastSince.get(), 1000)
   deepStrictEqual(
-    fastPosts.get().map(i => i.title),
+    fastPosts.get().map(i => i.post.title),
     ['F0 P3', 'F1 P2', 'F0 P2', 'F1 P1', 'F0 P1']
   )
 
@@ -238,7 +238,7 @@ test('loads page when we have fast posts', async () => {
   equal(constantFastReading.get(), 2)
   equal(nextFastSince.get(), undefined)
   deepStrictEqual(
-    fastPosts.get().map(i => i.title),
+    fastPosts.get().map(i => i.post.title),
     ['F1 P0', 'F0 P0']
   )
 
@@ -248,7 +248,7 @@ test('loads page when we have fast posts', async () => {
   equal(fastLoading.get(), false)
   equal(constantFastReading.get(), 3)
   deepStrictEqual(
-    fastPosts.get().map(i => i.title),
+    fastPosts.get().map(i => i.post.title),
     []
   )
 
@@ -258,7 +258,7 @@ test('loads page when we have fast posts', async () => {
   setBaseRoute({ params: { category: category1 }, route: 'fast' })
   await setTimeout(10)
   deepStrictEqual(
-    fastPosts.get().map(i => i.title),
+    fastPosts.get().map(i => i.post.title),
     ['F1 P100']
   )
   equal(constantFastReading.get(), 0)
@@ -271,7 +271,7 @@ test('loads page when we have fast posts', async () => {
   setBaseRoute({ params: { category: category1 }, route: 'fast' })
   await setTimeout(10)
   deepStrictEqual(
-    fastPosts.get().map(i => i.title),
+    fastPosts.get().map(i => i.post.title),
     []
   )
   equal(constantFastReading.get(), 0)
@@ -318,7 +318,7 @@ test('allows to change category in the middle', async () => {
   equal(fastSince.get(), undefined)
   equal(constantFastReading.get(), 0)
   deepStrictEqual(
-    fastPosts.get().map(i => i.title),
+    fastPosts.get().map(i => i.post.title),
     ['F2 P5', 'F2 P4', 'F2 P3', 'F2 P2', 'F2 P1']
   )
 })
@@ -350,7 +350,7 @@ test('allows to preview next page without marking as read', async () => {
   equal(constantFastReading.get(), 0)
   equal(nextFastSince.get(), 3001)
   deepStrictEqual(
-    fastPosts.get().map(i => i.title),
+    fastPosts.get().map(i => i.post.title),
     ['F1 P5', 'F0 P5', 'F1 P4', 'F0 P4', 'F1 P3']
   )
 
@@ -362,7 +362,7 @@ test('allows to preview next page without marking as read', async () => {
   equal(constantFastReading.get(), 0)
   equal(nextFastSince.get(), 1000)
   deepStrictEqual(
-    fastPosts.get().map(i => i.title),
+    fastPosts.get().map(i => i.post.title),
     ['F0 P3', 'F1 P2', 'F0 P2', 'F1 P1', 'F0 P1']
   )
 
@@ -370,14 +370,14 @@ test('allows to preview next page without marking as read', async () => {
   equal(constantFastReading.get(), 1)
   equal(nextFastSince.get(), undefined)
   deepStrictEqual(
-    fastPosts.get().map(i => i.title),
+    fastPosts.get().map(i => i.post.title),
     ['F1 P0', 'F0 P0']
   )
 
   await markReadAndLoadNextFastPosts()
   equal(constantFastReading.get(), 2)
   deepStrictEqual(
-    fastPosts.get().map(i => i.title),
+    fastPosts.get().map(i => i.post.title),
     []
   )
 })

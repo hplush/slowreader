@@ -22,9 +22,9 @@
     {$t.noPosts}
   {:else}
     <ul role="list">
-      {#each $fastPosts as post (post.id)}
+      {#each $fastPosts as entry (entry.post.id)}
         <li class="fast_post">
-          <PostCard {post} />
+          <PostCard author={entry.feed} post={entry.post} />
         </li>
       {/each}
     </ul>

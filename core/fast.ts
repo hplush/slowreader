@@ -8,7 +8,7 @@ import {
 } from './category.js'
 import { client } from './client.js'
 import { onEnvironment } from './environment.js'
-import { loadFeed, loadFeeds } from './feed.js'
+import { type FeedValue, loadFeed, loadFeeds, MISSED_FEED } from './feed.js'
 import { loadFilters } from './filter.js'
 import { deletePost, loadPosts } from './post.js'
 import type { PostValue } from './post.js'
@@ -68,10 +68,12 @@ export type FastCategoriesValue =
   | { categories: [CategoryValue, ...CategoryValue[]]; isLoading: false }
   | { isLoading: true }
 
-export const fastCategories = atom<FastCategoriesValue>({ isLoading: true })
+let $categories = atom<FastCategoriesValue>({ isLoading: true })
+
+export const fastCategories = readonlyExport($categories)
 
 onMount(fastCategories, () => {
-  fastCategories.set({ isLoading: true })
+  $categories.set({ isLoading: true })
 
   let unbindLog: (() => void) | undefined
   let unbindClient = client.subscribe(loguxClient => {
@@ -80,7 +82,7 @@ onMount(fastCategories, () => {
 
     if (loguxClient) {
       findFastCategories().then(categories => {
-        fastCategories.set({ categories, isLoading: false })
+        $categories.set({ categories, isLoading: false })
       })
 
       unbindLog = loguxClient.log.on('add', action => {
@@ -91,7 +93,7 @@ onMount(fastCategories, () => {
           action.type.startsWith('filters/')
         ) {
           findFastCategories().then(categories => {
-            fastCategories.set({ categories, isLoading: false })
+            $categories.set({ categories, isLoading: false })
           })
         }
       })
@@ -108,7 +110,12 @@ let $loading = atom<'init' | 'next' | false>('init')
 
 export const fastLoading = readonlyExport($loading)
 
-let $posts = atom<PostValue[]>([])
+export interface FastEntry {
+  feed: FeedValue
+  post: PostValue
+}
+
+let $posts = atom<FastEntry[]>([])
 
 export const fastPosts = readonlyExport($posts)
 
@@ -152,9 +159,15 @@ async function load(categoryId: string, since?: number): Promise<void> {
     lastSince = posts[posts.length - 1]?.publishedAt
   }
 
+  let entries = await Promise.all(
+    posts.map(async post => {
+      return { feed: (await loadFeed(post.feedId)) ?? MISSED_FEED, post }
+    })
+  )
+
   $nextSince.set(lastSince)
   $loading.set(false)
-  $posts.set(posts)
+  $posts.set(entries)
 }
 
 export async function markReadAndLoadNextFastPosts(): Promise<void> {
@@ -162,7 +175,7 @@ export async function markReadAndLoadNextFastPosts(): Promise<void> {
   if (category) {
     $loading.set('next')
     $reading.set($reading.get() + 1)
-    await Promise.all($posts.get().map(({ id }) => deletePost(id)))
+    await Promise.all($posts.get().map(({ post }) => deletePost(post.id)))
     if ($nextSince.get()) {
       await load(category, $nextSince.get())
     } else {

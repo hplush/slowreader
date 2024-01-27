@@ -126,3 +126,14 @@ export function testFeed(feed: Partial<FeedValue> = {}): FeedValue {
     ...feed
   }
 }
+
+export const MISSED_FEED: FeedValue = {
+  categoryId: 'general',
+  id: 'missed',
+  lastOriginId: undefined,
+  lastPublishedAt: undefined,
+  loader: 'atom',
+  reading: 'fast',
+  title: 'Missed',
+  url: ''
+}
