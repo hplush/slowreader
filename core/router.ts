@@ -133,6 +133,12 @@ onEnvironment(({ baseRouter }) => {
         return open('start')
       }
       return page
+    },
+    (oldRoute, newRoute) => {
+      return (
+        oldRoute.route === newRoute.route &&
+        JSON.stringify(oldRoute.params) === JSON.stringify(newRoute.params)
+      )
     }
   )
 })

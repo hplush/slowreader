@@ -46,9 +46,13 @@ export function listenMany<SourceStores extends ReadableAtom[]>(
 export function computeFrom<Value, SourceStores extends ReadableAtom[]>(
   to: WritableAtom<Value>,
   stores: [...SourceStores],
-  compute: (...values: StoreValues<SourceStores>) => Value
+  compute: (...values: StoreValues<SourceStores>) => Value,
+  compare?: (a: Value, b: Value) => boolean
 ): () => void {
   return listenMany(stores, (...values) => {
-    to.set(compute(...values))
+    let newValue = compute(...values)
+    if (!compare || !compare(newValue, to.get())) {
+      to.set(newValue)
+    }
   })
 }
