@@ -8,6 +8,6 @@
     "name": "All scripts to execute",
     "path": "dist/assets/*.js",
     "brotli": false,
-    "limit": "190 KB"
+    "limit": "195 KB"
   }
 ]

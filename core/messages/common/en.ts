@@ -5,5 +5,6 @@ export const commonMessages = i18n('common', {
   empty: 'The value is required',
   generalCategory: 'General',
   loading: 'Loading',
-  noUrl: 'Doesn’t look like web page address'
+  noUrl: 'Doesn’t look like web page address',
+  openPost: 'Open post'
 })

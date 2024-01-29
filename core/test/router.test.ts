@@ -5,6 +5,7 @@ import { setTimeout } from 'node:timers/promises'
 import {
   addCategory,
   addFeed,
+  addPost,
   deleteFeed,
   isFastRoute,
   isGuestRoute,
@@ -14,6 +15,7 @@ import {
   removeFeedFromRoute,
   router,
   testFeed,
+  testPost,
   userId
 } from '../index.js'
 import { cleanClientTest, enableClientTest, setBaseRoute } from './utils.js'
@@ -198,14 +200,31 @@ test('has routes groups', () => {
 test('converts since to number', async () => {
   userId.set('10')
   let idA = await addCategory({ title: 'A' })
-  await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
+  let feed = await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
+  let post = await addPost(testPost({ feedId: feed }))
   await setTimeout(10)
+
+  setBaseRoute({ params: { category: idA, since: 1000 }, route: 'fast' })
+  deepStrictEqual(router.get(), {
+    params: { category: idA, since: 1000 },
+    route: 'fast'
+  })
 
   setBaseRoute({ params: { category: idA, since: '1000' }, route: 'fast' })
   deepStrictEqual(router.get(), {
     params: { category: idA, since: 1000 },
     route: 'fast'
   })
+
+  setBaseRoute({
+    params: { category: idA, post, since: '1000' },
+    route: 'fast'
+  })
+  deepStrictEqual(router.get(), {
+    params: { category: idA, post, since: 1000 },
+    route: 'fast'
+  })
+  await setTimeout(10)
 
   setBaseRoute({ params: { category: idA, since: '1000k' }, route: 'fast' })
   deepStrictEqual(router.get(), {

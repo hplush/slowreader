@@ -1,12 +1,19 @@
 <script lang="ts">
-  import type { FeedValue, FilterAction, OriginPost } from '@slowreader/core'
+  import {
+    type FeedValue,
+    type FilterAction,
+    type OriginPost,
+    commonMessages as t
+  } from '@slowreader/core'
 
+  import Button from './button.svelte'
   import Card from './card.svelte'
   import FormattedText from './formatted-text.svelte'
 
   export let post: OriginPost
   export let author: FeedValue | undefined = undefined
   export let action: FilterAction | undefined = undefined
+  export let open: string | undefined = undefined
 </script>
 
 <Card>
@@ -28,6 +35,9 @@
       </h1>
     {/if}
     <FormattedText html={post.intro ?? post.full ?? ''} />
+    {#if open}
+      <Button href={open} secondary>{$t.openPost}</Button>
+    {/if}
   </div>
 </Card>
 

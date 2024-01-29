@@ -19,6 +19,8 @@ import {
   loadPosts,
   markReadAndLoadNextFastPosts,
   nextFastSince,
+  openedFastPost,
+  type PostValue,
   router,
   setFastPostsPerPage,
   testFeed,
@@ -39,7 +41,8 @@ afterEach(async () => {
     nextFastSince,
     fastCategories,
     fastCategory,
-    fastSince
+    fastSince,
+    openedFastPost
   )
   await setTimeout(10)
   await cleanClientTest()
@@ -425,4 +428,56 @@ test('syncs fast category and since with URL', async () => {
   equal(fastCategory.get(), undefined)
   equal(fastSince.get(), undefined)
   deepStrictEqual(fastPosts.get(), [])
+})
+
+test('tracks current post', async () => {
+  openedFastPost.listen(() => {})
+  equal(openedFastPost.get(), undefined)
+
+  let feedId = await addFeed(testFeed({ categoryId: 'general' }))
+  let post1 = await addPost(testPost({ feedId, reading: 'fast', title: '1' }))
+  let post2 = await addPost(testPost({ feedId, reading: 'fast', title: '2' }))
+  let post3 = await addPost(testPost({ feedId, reading: 'slow', title: '3' }))
+
+  setBaseRoute({
+    params: { category: 'general' },
+    route: 'fast'
+  })
+  await setTimeout(10)
+  equal(openedFastPost.get(), undefined)
+
+  setBaseRoute({
+    params: { category: 'general', post: post1, since: 0 },
+    route: 'fast'
+  })
+  equal(openedFastPost.get()?.id, post1)
+  equal(openedFastPost.get()?.isLoading, false)
+  equal((openedFastPost.get() as PostValue).title, '1')
+
+  setBaseRoute({
+    params: { category: 'general', since: 0 },
+    route: 'fast'
+  })
+  equal(openedFastPost.get(), undefined)
+
+  setBaseRoute({
+    params: { category: 'general', post: post2, since: 0 },
+    route: 'fast'
+  })
+  equal((openedFastPost.get() as PostValue).title, '2')
+  setBaseRoute({
+    params: { category: 'general', post: post1, since: 0 },
+    route: 'fast'
+  })
+  equal((openedFastPost.get() as PostValue).title, '1')
+
+  setBaseRoute({
+    params: { category: 'general', post: post3, since: 0 },
+    route: 'fast'
+  })
+  equal(openedFastPost.get()?.id, post3)
+  equal(openedFastPost.get()?.isLoading, true)
+  await setTimeout(10)
+  equal(openedFastPost.get()?.isLoading, false)
+  equal((openedFastPost.get() as PostValue).title, '3')
 })

@@ -1,3 +1,4 @@
+import type { SyncMapValue } from '@logux/client'
 import { atom, onMount } from 'nanostores'
 
 import {
@@ -10,7 +11,7 @@ import { client } from './client.js'
 import { onEnvironment } from './environment.js'
 import { type FeedValue, loadFeed, loadFeeds, MISSED_FEED } from './feed.js'
 import { loadFilters } from './filter.js'
-import { deletePost, loadPosts } from './post.js'
+import { deletePost, getPost, loadPosts } from './post.js'
 import type { PostValue } from './post.js'
 import { type Route, router } from './router.js'
 import { listenMany, readonlyExport } from './utils/stores.js'
@@ -199,8 +200,17 @@ export function clearFast(): void {
   $posts.set([])
   $nextSince.set(undefined)
   $reading.set(0)
+  postUnbind?.()
+  $post.set(undefined)
+  postUnbind = undefined
   POSTS_PER_PAGE = 50
 }
+
+let postUnbind: (() => void) | undefined
+
+let $post = atom<SyncMapValue<PostValue> | undefined>(undefined)
+
+export const openedFastPost = readonlyExport($post)
 
 function notSynced(page: Route): page is Route<'fast'> {
   return (
@@ -227,6 +237,18 @@ onEnvironment(({ openRoute }) => {
         loadFastPost(page.params.category, page.params.since)
       }
       if (page.route === 'fast') {
+        if (page.params.post) {
+          if ($post.get()?.id !== page.params.post) {
+            let store = getPost(page.params.post)
+            postUnbind = store.subscribe(value => {
+              $post.set(value)
+            })
+          }
+        } else {
+          postUnbind?.()
+          postUnbind = undefined
+          $post.set(undefined)
+        }
         inFast = true
       } else if (inFast) {
         inFast = false

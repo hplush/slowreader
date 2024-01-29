@@ -11,7 +11,7 @@ export interface Routes {
   add: { url?: string }
   categories: { feed?: string }
   download: {}
-  fast: { category?: string; since?: number }
+  fast: { category?: string; post?: string; since?: number }
   feeds: {}
   home: {}
   interface: {}
@@ -112,12 +112,15 @@ onEnvironment(({ baseRouter }) => {
             }
           }
           if (page.params.since) {
-            let since = page.params.since
-            if (isNumber(since)) {
+            if (isNumber(page.params.since)) {
+              let since =
+                typeof page.params.since === 'number'
+                  ? page.params.since
+                  : parseInt(page.params.since)
               return open({
                 params: {
-                  category: page.params.category,
-                  since: typeof since === 'number' ? since : parseInt(since)
+                  ...page.params,
+                  since
                 },
                 route: 'fast'
               })

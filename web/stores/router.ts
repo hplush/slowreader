@@ -11,7 +11,7 @@ export const urlRouter = createRouter({
   add: '/feeds/add/:url?',
   categories: '/feeds/categories/:feed?',
   download: '/settings/download',
-  fast: '/fast/:category?/:since?',
+  fast: '/fast/:category?/:since?/:post?',
   feeds: '/feeds',
   home: '/',
   interface: '/settings/ui',
