@@ -1,4 +1,4 @@
-import { cleanStores } from 'nanostores'
+import { cleanStores, keepMount } from 'nanostores'
 import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -78,7 +78,7 @@ test('returns fast categories', async () => {
     query: 'includes(other)'
   })
 
-  fastCategories.listen(() => {})
+  keepMount(fastCategories)
   await setTimeout(100)
   deepStrictEqual(fastCategories.get(), {
     categories: [
@@ -104,7 +104,7 @@ test('returns fast category without general', async () => {
   let idA = await addCategory({ title: 'A' })
   await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
 
-  fastCategories.listen(() => {})
+  keepMount(fastCategories)
   await setTimeout(100)
 
   deepStrictEqual(fastCategories.get(), {
@@ -116,7 +116,7 @@ test('returns fast category without general', async () => {
 test('is ready for unknown categories in fast category', async () => {
   await addFeed(testFeed({ categoryId: 'unknown', reading: 'fast' }))
 
-  fastCategories.listen(() => {})
+  keepMount(fastCategories)
   await setTimeout(100)
 
   deepStrictEqual(fastCategories.get(), {
@@ -130,7 +130,7 @@ test('is ready for fast post in slow feed', async () => {
   let feed = await addFeed(testFeed({ categoryId: categoryA, reading: 'slow' }))
   await addPost(testPost({ feedId: feed, reading: 'fast' }))
 
-  fastCategories.listen(() => {})
+  keepMount(fastCategories)
   await setTimeout(100)
 
   deepStrictEqual(fastCategories.get(), {
@@ -142,7 +142,7 @@ test('is ready for fast post in slow feed', async () => {
 test('is ready for broken fast post', async () => {
   await addPost(testPost({ feedId: 'missed', reading: 'fast' }))
 
-  fastCategories.listen(() => {})
+  keepMount(fastCategories)
   await setTimeout(100)
 
   deepStrictEqual(fastCategories.get(), {
@@ -152,10 +152,10 @@ test('is ready for broken fast post', async () => {
 })
 
 test('loads page when we have no fast posts', async () => {
-  constantFastReading.listen(() => {})
-  fastPosts.listen(() => {})
-  fastLoading.listen(() => {})
-  nextFastSince.listen(() => {})
+  keepMount(constantFastReading)
+  keepMount(fastPosts)
+  keepMount(fastLoading)
+  keepMount(nextFastSince)
 
   setBaseRoute({ params: { category: 'general' }, route: 'fast' })
   equal(fastLoading.get(), 'init')
@@ -167,12 +167,12 @@ test('loads page when we have no fast posts', async () => {
 })
 
 test('loads page when we have fast posts', async () => {
-  constantFastReading.listen(() => {})
-  fastPosts.listen(() => {})
-  fastLoading.listen(() => {})
-  nextFastSince.listen(() => {})
-  fastCategory.listen(() => {})
-  fastSince.listen(() => {})
+  keepMount(constantFastReading)
+  keepMount(fastPosts)
+  keepMount(fastLoading)
+  keepMount(nextFastSince)
+  keepMount(fastCategory)
+  keepMount(fastSince)
   setFastPostsPerPage(5)
 
   let category1 = await addCategory({ title: '1' })
@@ -282,9 +282,9 @@ test('loads page when we have fast posts', async () => {
 })
 
 test('allows to change category in the middle', async () => {
-  constantFastReading.listen(() => {})
-  fastPosts.listen(() => {})
-  fastLoading.listen(() => {})
+  keepMount(constantFastReading)
+  keepMount(fastPosts)
+  keepMount(fastLoading)
   setFastPostsPerPage(5)
 
   let category1 = await addCategory({ title: '1' })
@@ -327,9 +327,9 @@ test('allows to change category in the middle', async () => {
 })
 
 test('allows to preview next page without marking as read', async () => {
-  constantFastReading.listen(() => {})
-  fastPosts.listen(() => {})
-  nextFastSince.listen(() => {})
+  keepMount(constantFastReading)
+  keepMount(fastPosts)
+  keepMount(nextFastSince)
   setFastPostsPerPage(5)
 
   let feed1 = await addFeed(testFeed({ categoryId: 'general' }))
@@ -386,10 +386,10 @@ test('allows to preview next page without marking as read', async () => {
 })
 
 test('syncs fast category and since with URL', async () => {
-  fastPosts.listen(() => {})
-  fastCategory.listen(() => {})
-  fastSince.listen(() => {})
-  nextFastSince.listen(() => {})
+  keepMount(fastPosts)
+  keepMount(fastCategory)
+  keepMount(fastSince)
+  keepMount(nextFastSince)
   setFastPostsPerPage(5)
 
   let category1 = await addCategory({ title: '1' })
@@ -431,7 +431,7 @@ test('syncs fast category and since with URL', async () => {
 })
 
 test('tracks current post', async () => {
-  openedFastPost.listen(() => {})
+  keepMount(openedFastPost)
   equal(openedFastPost.get(), undefined)
 
   let feedId = await addFeed(testFeed({ categoryId: 'general' }))
