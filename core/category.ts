@@ -51,9 +51,9 @@ export async function deleteCategory(categoryId: string): Promise<void> {
 }
 
 export async function loadCategory(
-  feedId: string
+  categoryId: string
 ): Promise<CategoryValue | undefined> {
-  return loadValue(Category(feedId))
+  return loadValue(Category(categoryId, getClient()))
 }
 
 export const GENERAL_CATEGORY: CategoryValue = {

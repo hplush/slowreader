@@ -54,8 +54,12 @@ export async function loadPosts(
   return value.list
 }
 
-export function getPost(feedId: string): SyncMapStore<PostValue> {
-  return Post(feedId, getClient())
+export function getPost(postId: string): SyncMapStore<PostValue> {
+  return Post(postId, getClient())
+}
+
+export async function loadPost(postId: string): Promise<PostValue | undefined> {
+  return loadValue(Post(postId, getClient()))
 }
 
 export function deletePost(postId: string): Promise<void> {

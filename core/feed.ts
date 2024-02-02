@@ -93,7 +93,7 @@ export function getFeed(feedId: string): SyncMapStore<FeedValue> {
 }
 
 export async function loadFeed(feedId: string): Promise<FeedValue | undefined> {
-  return loadValue(getFeed(feedId))
+  return loadValue(Feed(feedId, getClient()))
 }
 
 export async function changeFeed(
