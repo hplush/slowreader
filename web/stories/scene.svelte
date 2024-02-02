@@ -38,7 +38,7 @@
   export let refreshing: false | Partial<RefreshStatistics> = false
   export let route: Route = {
     params: {},
-    route: 'slowAll'
+    route: 'slow'
   }
   export let fast = false
   export let networkType = DEFAULT_NETWORK
@@ -94,7 +94,7 @@
     return () => {
       // @ts-expect-error
       isRefreshing.set(false)
-      baseRouter.set({ params: {}, route: 'slowAll' })
+      baseRouter.set({ params: {}, route: 'slow' })
       setNetworkType(DEFAULT_NETWORK)
       cleanLogux()
     }

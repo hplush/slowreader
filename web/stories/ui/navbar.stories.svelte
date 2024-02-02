@@ -15,7 +15,7 @@
 </script>
 
 <Story name="Slow" parameters={{ layout: 'fullscreen' }}>
-  <Scene route={{ params: {}, route: 'slowAll' }}>
+  <Scene route={{ params: {}, route: 'slow' }}>
     <Navbar />
   </Scene>
 </Story>
@@ -53,7 +53,7 @@
   name="Dark Slow"
   parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
 >
-  <Scene route={{ params: {}, route: 'slowAll' }}>
+  <Scene route={{ params: {}, route: 'slow' }}>
     <Navbar />
   </Scene>
 </Story>

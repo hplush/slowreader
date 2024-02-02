@@ -6,6 +6,7 @@
     isOrganizeRoute,
     isRefreshing,
     isSettingsRoute,
+    isSlowRoute,
     refreshPosts,
     refreshProgress,
     router,
@@ -19,6 +20,7 @@
   import NavbarFeeds from './feeds.svelte'
   import NavbarItem from './item.svelte'
   import NavbarSettings from './settings.svelte'
+  import NavbarSlow from './slow.svelte'
   import NavbarSubmenu from './submenu.svelte'
   import NavbarSwitcher from './switcher.svelte'
 
@@ -34,9 +36,11 @@
 
 <nav class="navbar">
   <NavbarSwitcher {submenu} />
-  <div class="navbar_submenu">
+  <div id="navbar_submenu" class="navbar_submenu">
     <NavbarSubmenu bind:this={submenu}>
-      {#if isFastRoute($router)}
+      {#if isSlowRoute($router)}
+        <NavbarSlow />
+      {:else if isFastRoute($router)}
         <NavbarFast />
       {:else if isSettingsRoute($router)}
         <NavbarSettings />

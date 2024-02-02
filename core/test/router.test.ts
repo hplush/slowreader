@@ -44,7 +44,7 @@ test('transforms routers for guest', () => {
     route: 'start'
   })
 
-  setBaseRoute({ params: {}, route: 'slowAll' })
+  setBaseRoute({ params: {}, route: 'slow' })
   deepStrictEqual(router.get(), {
     params: {},
     route: 'start'
@@ -106,14 +106,14 @@ test('transforms routers for users with feeds', async () => {
   deepStrictEqual(router.get(), {
     params: {},
     redirect: true,
-    route: 'slowAll'
+    route: 'slow'
   })
 
   setBaseRoute({ params: {}, route: 'welcome' })
   deepStrictEqual(router.get(), {
     params: {},
     redirect: true,
-    route: 'slowAll'
+    route: 'slow'
   })
 
   setBaseRoute({ params: {}, route: 'home' })
@@ -168,7 +168,7 @@ test('has routes groups', () => {
   equal(isSettingsRoute(router.get()), false)
   equal(isOrganizeRoute(router.get()), false)
 
-  setBaseRoute({ params: {}, route: 'slowAll' })
+  setBaseRoute({ params: {}, route: 'slow' })
   equal(isFastRoute(router.get()), false)
   equal(isSlowRoute(router.get()), true)
   equal(isGuestRoute(router.get()), false)

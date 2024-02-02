@@ -20,7 +20,7 @@ export interface Routes {
   refresh: {}
   settings: {}
   signin: {}
-  slowAll: {}
+  slow: { feed?: string; post?: string }
   start: {}
   subscriptions: {}
   welcome: {}
@@ -86,12 +86,12 @@ onEnvironment(({ baseRouter }) => {
       } else if (user) {
         if (GUEST.has(page.route) || page.route === 'home') {
           if (withFeeds) {
-            return redirect('slowAll')
+            return redirect({ params: {}, route: 'slow' })
           } else {
             return redirect('welcome')
           }
         } else if (page.route === 'welcome' && withFeeds) {
-          return redirect('slowAll')
+          return redirect({ params: {}, route: 'slow' })
         } else if (page.route === 'settings') {
           return redirect('interface')
         } else if (page.route === 'feeds') {
@@ -148,7 +148,7 @@ export function isFastRoute(route: Route): boolean {
 }
 
 export function isSlowRoute(route: Route): boolean {
-  return route.route === 'slowAll'
+  return route.route === 'slow'
 }
 
 export function isGuestRoute(route: Route): boolean {

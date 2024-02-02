@@ -132,16 +132,11 @@
       <Button href="#" secondary>Link</Button>
       <Button
         hiddenLabel="Labelless"
-        href={getURL('slowAll')}
+        href={getURL('slow')}
         icon={mdiPlusCircleOutline}
         secondary
       />
-      <Button
-        hotkey="l"
-        href={getURL('slowAll')}
-        icon={mdiPlusCircleOutline}
-        wide
-      >
+      <Button hotkey="l" href={getURL('slow')} icon={mdiPlusCircleOutline} wide>
         Link
       </Button>
     </CardActions>

@@ -22,7 +22,7 @@
 </script>
 
 {#if $fastCategories.isLoading}
-  <Loader />
+  <Loader zoneId="navbar_submenu" />
 {:else if $fastCategories.categories.length > 0}
   {#each $fastCategories.categories as category (category.id)}
     <NavbarItem

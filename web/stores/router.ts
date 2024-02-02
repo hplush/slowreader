@@ -20,7 +20,7 @@ export const urlRouter = createRouter({
   refresh: '/refresh',
   settings: '/settings',
   signin: '/signin',
-  slowAll: '/slow',
+  slow: '/slow/:feed?/:post?',
   start: '/start',
   subscriptions: '/subscriptions',
   welcome: '/welcome'

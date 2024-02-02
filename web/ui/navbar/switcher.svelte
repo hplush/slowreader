@@ -38,8 +38,8 @@
   <a
     bind:this={slow}
     class="navbar-switcher_link"
-    aria-current={$router.route === 'slowAll' ? 'page' : null}
-    href={getURL('slowAll')}
+    aria-current={$router.route === 'slow' ? 'page' : null}
+    href={getURL('slow')}
   >
     <div class="navbar-switcher_overflow">
       <div class="navbar-switcher_button">
