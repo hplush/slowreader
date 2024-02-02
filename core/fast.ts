@@ -9,7 +9,7 @@ import {
 } from './category.js'
 import { client } from './client.js'
 import { onEnvironment } from './environment.js'
-import { type FeedValue, loadFeed, loadFeeds, MISSED_FEED } from './feed.js'
+import { BROKEN_FEED, type FeedValue, loadFeed, loadFeeds } from './feed.js'
 import { loadFilters } from './filter.js'
 import { deletePost, getPost, loadPosts } from './post.js'
 import type { PostValue } from './post.js'
@@ -162,7 +162,7 @@ async function load(categoryId: string, since?: number): Promise<void> {
 
   let entries = await Promise.all(
     posts.map(async post => {
-      return { feed: (await loadFeed(post.feedId)) ?? MISSED_FEED, post }
+      return { feed: (await loadFeed(post.feedId)) ?? BROKEN_FEED, post }
     })
   )
 
