@@ -10,6 +10,7 @@ import {
   feedsByCategory,
   getCategories,
   loadCategories,
+  loadCategory,
   loadFeed,
   loadFeeds,
   testFeed
@@ -38,6 +39,8 @@ test('adds, changes and removes categories', async () => {
   let loaded = await loadCategories()
   equal(loaded.length, 1)
   equal(loaded[0]!.title, 'Fun')
+
+  deepStrictEqual(await loadCategory(id), added[0])
 
   await changeCategory(id, { title: 'Memes' })
   let changed = ensureLoaded(all.get()).list

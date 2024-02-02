@@ -50,6 +50,12 @@ export async function deleteCategory(categoryId: string): Promise<void> {
   return deleteSyncMapById(getClient(), Category, categoryId)
 }
 
+export async function loadCategory(
+  feedId: string
+): Promise<CategoryValue | undefined> {
+  return loadValue(Category(feedId))
+}
+
 export const GENERAL_CATEGORY: CategoryValue = {
   id: 'general',
   title: ''
