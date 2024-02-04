@@ -14,18 +14,21 @@ import {
   GENERAL_CATEGORY,
   loadCategory,
   loadFeed,
+  loadPost,
+  openedSlowPost,
   slowCategories,
+  slowPosts,
   testFeed,
   testPost
 } from '../index.js'
-import { cleanClientTest, enableClientTest } from './utils.js'
+import { cleanClientTest, enableClientTest, setBaseRoute } from './utils.js'
 
 beforeEach(() => {
   enableClientTest()
 })
 
 afterEach(async () => {
-  cleanStores(slowCategories)
+  cleanStores(slowCategories, slowPosts, openedSlowPost)
   await setTimeout(10)
   await cleanClientTest()
 })
@@ -101,4 +104,66 @@ test('returns slow feeds', async () => {
       [BROKEN_CATEGORY, [[await loadFeed(feedD), 1]]]
     ]
   })
+})
+
+test('loads posts from URL', async () => {
+  keepMount(slowPosts)
+  keepMount(openedSlowPost)
+
+  let feedA = await addFeed(testFeed())
+  let feedB = await addFeed(testFeed())
+  let postA1 = await addPost(testPost({ feedId: feedA, title: 'A1' }))
+  let postA2 = await addPost(testPost({ feedId: feedA, title: 'A2' }))
+  let postB = await addPost(testPost({ feedId: feedB, title: 'B' }))
+
+  setBaseRoute({ params: {}, route: 'about' })
+  deepStrictEqual(slowPosts.get(), { isLoading: true })
+  deepStrictEqual(openedSlowPost.get(), undefined)
+
+  setBaseRoute({ params: {}, route: 'slow' })
+  deepStrictEqual(slowPosts.get(), { isLoading: false, list: [] })
+  deepStrictEqual(openedSlowPost.get(), undefined)
+
+  setBaseRoute({ params: { feed: feedA }, route: 'slow' })
+  deepStrictEqual(slowPosts.get(), { isLoading: true })
+  deepStrictEqual(openedSlowPost.get(), undefined)
+
+  await setTimeout(10)
+  deepStrictEqual(slowPosts.get(), {
+    isLoading: false,
+    list: [await loadPost(postA1), await loadPost(postA2)]
+  })
+  deepStrictEqual(openedSlowPost.get(), undefined)
+
+  setBaseRoute({ params: { feed: feedA, post: postA1 }, route: 'slow' })
+  deepStrictEqual(slowPosts.get(), {
+    isLoading: false,
+    list: [await loadPost(postA1), await loadPost(postA2)]
+  })
+  deepStrictEqual(openedSlowPost.get(), await loadPost(postA1))
+
+  setBaseRoute({ params: { feed: feedA, post: postA2 }, route: 'slow' })
+  deepStrictEqual(slowPosts.get(), {
+    isLoading: false,
+    list: [await loadPost(postA1), await loadPost(postA2)]
+  })
+  deepStrictEqual(openedSlowPost.get(), await loadPost(postA2))
+
+  setBaseRoute({ params: { feed: feedA, post: postB }, route: 'slow' })
+  deepStrictEqual(slowPosts.get(), {
+    isLoading: false,
+    list: [await loadPost(postA1), await loadPost(postA2)]
+  })
+  deepStrictEqual(openedSlowPost.get(), await loadPost(postB))
+
+  setBaseRoute({ params: { feed: feedA }, route: 'slow' })
+  deepStrictEqual(slowPosts.get(), {
+    isLoading: false,
+    list: [await loadPost(postA1), await loadPost(postA2)]
+  })
+  deepStrictEqual(openedSlowPost.get(), undefined)
+
+  setBaseRoute({ params: {}, route: 'slow' })
+  deepStrictEqual(slowPosts.get(), { isLoading: false, list: [] })
+  deepStrictEqual(openedSlowPost.get(), undefined)
 })

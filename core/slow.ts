@@ -1,3 +1,4 @@
+import type { SyncMapValue } from '@logux/client'
 import { atom, onMount } from 'nanostores'
 
 import {
@@ -7,8 +8,10 @@ import {
   loadCategories
 } from './category.js'
 import { client } from './client.js'
+import { onEnvironment } from './environment.js'
 import { BROKEN_FEED, type FeedValue, loadFeed } from './feed.js'
-import { loadPosts } from './post.js'
+import { getPost, getPosts, loadPosts, type PostValue } from './post.js'
+import { router } from './router.js'
 import { readonlyExport } from './utils/stores.js'
 
 export type SlowCategoriesTree = [CategoryValue, [FeedValue, number][]][]
@@ -108,3 +111,76 @@ onMount($categories, () => {
 })
 
 export const slowCategories = readonlyExport($categories)
+
+export type SlowPostsValue =
+  | { isLoading: false; list: PostValue[] }
+  | { isLoading: true }
+
+let $posts = atom<SlowPostsValue>({ isLoading: true })
+
+export const slowPosts = readonlyExport($posts)
+
+let $post = atom<SyncMapValue<PostValue> | undefined>()
+
+export const openedSlowPost = readonlyExport($post)
+
+let inSlow = false
+
+let currentFeed: string | undefined
+
+export function clearSlow(): void {
+  postsUnbind?.()
+  postUnbind?.()
+  currentFeed = undefined
+  $post.set(undefined)
+  $posts.set({ isLoading: true })
+  $post.set(undefined)
+}
+
+let postsUnbind: (() => void) | undefined
+let postUnbind: (() => void) | undefined
+
+onEnvironment(() => {
+  return router.listen(page => {
+    if (page.route === 'slow') {
+      if (page.params.feed) {
+        if (currentFeed !== page.params.feed) {
+          postsUnbind?.()
+          postsUnbind = getPosts({ feedId: page.params.feed }).subscribe(
+            posts => {
+              if (posts.isLoading) {
+                $posts.set({ isLoading: true })
+              } else {
+                $posts.set({ isLoading: false, list: posts.list })
+              }
+            }
+          )
+        }
+      } else {
+        postsUnbind?.()
+        postsUnbind = undefined
+        $posts.set({
+          isLoading: false,
+          list: []
+        })
+      }
+      if (page.params.post) {
+        if ($post.get()?.id !== page.params.post) {
+          let store = getPost(page.params.post)
+          postUnbind?.()
+          postUnbind = store.subscribe(value => {
+            $post.set(value)
+          })
+        }
+      } else {
+        postUnbind?.()
+        postUnbind = undefined
+        $post.set(undefined)
+      }
+      inSlow = true
+    } else if (inSlow) {
+      inSlow = false
+      clearSlow()
+    }
+  })
+})
