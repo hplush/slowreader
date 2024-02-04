@@ -10,6 +10,7 @@
   import SettingsDownload from '../pages/settings/download.svelte'
   import SettingsInterface from '../pages/settings/interface.svelte'
   import SettingsProfile from '../pages/settings/profile.svelte'
+  import Slow from '../pages/slow.svelte'
   import Start from '../pages/start.svelte'
   import Starting from '../pages/starting.svelte'
   import Welcome from '../pages/welcome.svelte'
@@ -25,6 +26,8 @@
     <Start />
   {:else if $router.route === 'fast'}
     <Fast />
+  {:else if $router.route === 'slow'}
+    <Slow />
   {:else if $router.route === 'add'}
     <FeedsAdd />
   {:else if $router.route === 'categories'}
