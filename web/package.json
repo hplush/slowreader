@@ -34,7 +34,7 @@
     "@slowreader/core": "link:../core",
     "@sveltejs/vite-plugin-svelte": "3.0.2",
     "autoprefixer": "10.4.17",
-    "nanoid": "5.0.4",
+    "nanoid": "5.0.5",
     "nanostores": "0.9.5",
     "picocolors": "1.0.0",
     "postcss": "8.4.33",
@@ -48,17 +48,17 @@
   "devDependencies": {
     "@logux/stylelint-config": "0.18.0",
     "@size-limit/file": "11.0.2",
-    "@storybook/addon-svelte-csf": "4.1.0",
-    "@storybook/addon-themes": "7.6.11",
-    "@storybook/svelte": "7.6.11",
-    "@storybook/svelte-vite": "7.6.11",
+    "@storybook/addon-svelte-csf": "4.1.1",
+    "@storybook/addon-themes": "7.6.12",
+    "@storybook/svelte": "7.6.12",
+    "@storybook/svelte-vite": "7.6.12",
     "better-node-test": "0.5.0",
     "browserslist": "4.22.3",
     "postcss-html": "1.6.0",
     "postcss-nesting": "12.0.2",
     "postcss-selector-parser": "6.0.15",
     "size-limit": "11.0.2",
-    "storybook": "7.6.11",
-    "stylelint": "16.2.0"
+    "storybook": "7.6.12",
+    "stylelint": "16.2.1"
   }
 }

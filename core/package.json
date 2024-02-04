@@ -19,7 +19,7 @@
     "@slowreader/api": "link:../api",
     "dompurify": "3.0.8",
     "just-debounce-it": "3.2.0",
-    "nanoid": "5.0.4",
+    "nanoid": "5.0.5",
     "nanostores": "0.9.5"
   },
   "devDependencies": {
