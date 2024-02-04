@@ -130,7 +130,11 @@ export const constantFastReading = readonlyExport($reading)
 
 let $currentSince = atom<number | undefined>(undefined)
 
+export const fastSince = readonlyExport($currentSince)
+
 let $currentCategory = atom<string | undefined>(undefined)
+
+export const fastCategory = readonlyExport($currentCategory)
 
 let POSTS_PER_PAGE = 50
 
