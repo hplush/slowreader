@@ -202,8 +202,6 @@ export function clearFast(): void {
   POSTS_PER_PAGE = 50
 }
 
-let postUnbind: (() => void) | undefined
-
 let $post = atom<SyncMapValue<PostValue> | undefined>(undefined)
 
 export const openedFastPost = readonlyExport($post)
@@ -215,6 +213,8 @@ function notSynced(page: Route): page is Route<'fast'> {
       page.params.since !== $currentSince.get())
   )
 }
+
+let postUnbind: (() => void) | undefined
 
 let inFast = false
 
@@ -236,6 +236,7 @@ onEnvironment(({ openRoute }) => {
         if (page.params.post) {
           if ($post.get()?.id !== page.params.post) {
             let store = getPost(page.params.post)
+            postUnbind?.()
             postUnbind = store.subscribe(value => {
               $post.set(value)
             })
