@@ -12,10 +12,8 @@ import {
   constantFastReading,
   deleteFilter,
   fastCategories,
-  fastCategory,
   fastLoading,
   fastPosts,
-  fastSince,
   loadPosts,
   markReadAndLoadNextFastPosts,
   nextFastSince,
@@ -40,8 +38,6 @@ afterEach(async () => {
     fastLoading,
     nextFastSince,
     fastCategories,
-    fastCategory,
-    fastSince,
     openedFastPost
   )
   await setTimeout(10)
@@ -171,8 +167,6 @@ test('loads page when we have fast posts', async () => {
   keepMount(fastPosts)
   keepMount(fastLoading)
   keepMount(nextFastSince)
-  keepMount(fastCategory)
-  keepMount(fastSince)
   setFastPostsPerPage(5)
 
   let category1 = await addCategory({ title: '1' })
@@ -205,8 +199,6 @@ test('loads page when we have fast posts', async () => {
   setBaseRoute({ params: { category: category1 }, route: 'fast' })
   await setTimeout(10)
   equal(fastLoading.get(), false)
-  equal(fastCategory.get(), category1)
-  equal(fastSince.get(), undefined)
   equal(constantFastReading.get(), 0)
   equal(nextFastSince.get(), 3001)
   deepStrictEqual(
@@ -218,8 +210,6 @@ test('loads page when we have fast posts', async () => {
   equal(fastLoading.get(), 'next')
   await promise1
   equal(fastLoading.get(), false)
-  equal(fastCategory.get(), category1)
-  equal(fastSince.get(), 3001)
   equal(constantFastReading.get(), 1)
   equal(nextFastSince.get(), 1000)
   deepStrictEqual(
@@ -317,8 +307,6 @@ test('allows to change category in the middle', async () => {
   equal(fastLoading.get(), 'init')
   await setTimeout(10)
   equal(fastLoading.get(), false)
-  equal(fastCategory.get(), 'general')
-  equal(fastSince.get(), undefined)
   equal(constantFastReading.get(), 0)
   deepStrictEqual(
     fastPosts.get().map(i => i.post.title),
@@ -387,8 +375,6 @@ test('allows to preview next page without marking as read', async () => {
 
 test('syncs fast category and since with URL', async () => {
   keepMount(fastPosts)
-  keepMount(fastCategory)
-  keepMount(fastSince)
   keepMount(nextFastSince)
   setFastPostsPerPage(5)
 
@@ -403,8 +389,6 @@ test('syncs fast category and since with URL', async () => {
     params: { category: category1 },
     route: 'fast'
   })
-  equal(fastCategory.get(), category1)
-  equal(fastSince.get(), undefined)
   await setTimeout(10)
   equal(nextFastSince.get(), 5000)
 
@@ -415,18 +399,9 @@ test('syncs fast category and since with URL', async () => {
   })
 
   setBaseRoute({
-    params: { category: category1, since: 100 },
-    route: 'fast'
-  })
-  equal(fastCategory.get(), category1)
-  equal(fastSince.get(), 100)
-
-  setBaseRoute({
     params: {},
     route: 'home'
   })
-  equal(fastCategory.get(), undefined)
-  equal(fastSince.get(), undefined)
   deepStrictEqual(fastPosts.get(), [])
 })
 
