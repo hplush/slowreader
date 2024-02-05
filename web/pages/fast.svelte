@@ -56,7 +56,7 @@
             markReadAndLoadNextFastPosts()
           }}
         >
-          {$t.readNext}
+          {$nextFastSince ? $t.readNext : $t.readLast}
         </Button>
         {#if $nextFastSince}
           <Button
