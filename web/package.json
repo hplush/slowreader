@@ -37,7 +37,7 @@
     "nanoid": "5.0.5",
     "nanostores": "0.9.5",
     "picocolors": "1.0.0",
-    "postcss": "8.4.33",
+    "postcss": "8.4.34",
     "postcss-relative-opacity": "0.1.0",
     "rollup": "4.9.6",
     "svelte": "4.2.10",

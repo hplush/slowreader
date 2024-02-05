@@ -82,7 +82,7 @@ importers:
         version: 4.2.10
       svelte-check:
         specifier: 3.6.3
-        version: 3.6.3(postcss@8.4.33)(svelte@4.2.10)
+        version: 3.6.3(postcss@8.4.34)(svelte@4.2.10)
       svgo:
         specifier: 3.2.0
         version: 3.2.0
@@ -166,7 +166,7 @@ importers:
     dependencies:
       '@csstools/postcss-oklab-function':
         specifier: 3.0.9
-        version: 3.0.9(postcss@8.4.33)
+        version: 3.0.9(postcss@8.4.34)
       '@evilmartians/harmony':
         specifier: 1.2.0
         version: 1.2.0
@@ -199,7 +199,7 @@ importers:
         version: 3.0.2(svelte@4.2.10)(vite@5.0.12)
       autoprefixer:
         specifier: 10.4.17
-        version: 10.4.17(postcss@8.4.33)
+        version: 10.4.17(postcss@8.4.34)
       nanoid:
         specifier: 5.0.5
         version: 5.0.5
@@ -210,11 +210,11 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       postcss:
-        specifier: 8.4.33
-        version: 8.4.33
+        specifier: 8.4.34
+        version: 8.4.34
       postcss-relative-opacity:
         specifier: 0.1.0
-        version: 0.1.0(postcss@8.4.33)
+        version: 0.1.0(postcss@8.4.34)
       rollup:
         specifier: 4.9.6
         version: 4.9.6
@@ -223,7 +223,7 @@ importers:
         version: 4.2.10
       svelte-preprocess:
         specifier: 5.1.3
-        version: 5.1.3(@babel/core@7.23.9)(postcss@8.4.33)(svelte@4.2.10)(typescript@5.3.3)
+        version: 5.1.3(@babel/core@7.23.9)(postcss@8.4.34)(svelte@4.2.10)(typescript@5.3.3)
       tsx:
         specifier: 4.7.0
         version: 4.7.0
@@ -248,7 +248,7 @@ importers:
         version: 7.6.12(svelte@4.2.10)
       '@storybook/svelte-vite':
         specifier: 7.6.12
-        version: 7.6.12(@babel/core@7.23.9)(postcss@8.4.33)(svelte@4.2.10)(typescript@5.3.3)(vite@5.0.12)
+        version: 7.6.12(@babel/core@7.23.9)(postcss@8.4.34)(svelte@4.2.10)(typescript@5.3.3)(vite@5.0.12)
       better-node-test:
         specifier: 0.5.0
         version: 0.5.0
@@ -260,7 +260,7 @@ importers:
         version: 1.6.0
       postcss-nesting:
         specifier: 12.0.2
-        version: 12.0.2(postcss@8.4.33)
+        version: 12.0.2(postcss@8.4.34)
       postcss-selector-parser:
         specifier: 6.0.15
         version: 6.0.15
@@ -1596,7 +1596,7 @@ packages:
       '@csstools/css-tokenizer': 2.2.3
     dev: true
 
-  /@csstools/postcss-oklab-function@3.0.9(postcss@8.4.33):
+  /@csstools/postcss-oklab-function@3.0.9(postcss@8.4.34):
     resolution: {integrity: sha512-l639gpcBfL3ogJe+og1M5FixQn8iGX8+29V7VtTSCUB37VzpzOC05URfde7INIdiJT65DkHzgdJ64/QeYggU8A==}
     engines: {node: ^14 || ^16 || >=18}
     peerDependencies:
@@ -1605,17 +1605,17 @@ packages:
       '@csstools/css-color-parser': 1.5.1(@csstools/css-parser-algorithms@2.5.0)(@csstools/css-tokenizer@2.2.3)
       '@csstools/css-parser-algorithms': 2.5.0(@csstools/css-tokenizer@2.2.3)
       '@csstools/css-tokenizer': 2.2.3
-      '@csstools/postcss-progressive-custom-properties': 3.0.3(postcss@8.4.33)
-      postcss: 8.4.33
+      '@csstools/postcss-progressive-custom-properties': 3.0.3(postcss@8.4.34)
+      postcss: 8.4.34
     dev: false
 
-  /@csstools/postcss-progressive-custom-properties@3.0.3(postcss@8.4.33):
+  /@csstools/postcss-progressive-custom-properties@3.0.3(postcss@8.4.34):
     resolution: {integrity: sha512-WipTVh6JTMQfeIrzDV4wEPsV9NTzMK2jwXxyH6CGBktuWdivHnkioP/smp1x/0QDPQyx7NTS14RB+GV3zZZYEw==}
     engines: {node: ^14 || ^16 || >=18}
     peerDependencies:
       postcss: ^8.4
     dependencies:
-      postcss: 8.4.33
+      postcss: 8.4.34
       postcss-value-parser: 4.2.0
     dev: false
 
@@ -2808,7 +2808,7 @@ packages:
     resolution: {integrity: sha512-7vbeqQY3X+FCt/ccgCuBmj4rkbQebLHGEBAt8elcX0E2pr7SGW57lWhnasU3jeMaz7tNrkcs0gfl4hyVRWUHDg==}
     dev: true
 
-  /@storybook/svelte-vite@7.6.12(@babel/core@7.23.9)(postcss@8.4.33)(svelte@4.2.10)(typescript@5.3.3)(vite@5.0.12):
+  /@storybook/svelte-vite@7.6.12(@babel/core@7.23.9)(postcss@8.4.34)(svelte@4.2.10)(typescript@5.3.3)(vite@5.0.12):
     resolution: {integrity: sha512-UFig1OKnCl+0372h4IEio1BoSISJdsinReU4w8VTeH8f0z0V6Ry7rQDwAxuV8dkuVEH90oyNnyQuzMWJDZ85aQ==}
     engines: {node: ^14.18 || >=16}
     peerDependencies:
@@ -2821,7 +2821,7 @@ packages:
       '@sveltejs/vite-plugin-svelte': 2.5.3(svelte@4.2.10)(vite@5.0.12)
       magic-string: 0.30.7
       svelte: 4.2.10
-      svelte-preprocess: 5.1.3(@babel/core@7.23.9)(postcss@8.4.33)(svelte@4.2.10)(typescript@5.3.3)
+      svelte-preprocess: 5.1.3(@babel/core@7.23.9)(postcss@8.4.34)(svelte@4.2.10)(typescript@5.3.3)
       sveltedoc-parser: 4.2.1
       ts-dedent: 2.2.0
       vite: 5.0.12(@types/node@20.11.16)
@@ -3664,7 +3664,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dev: false
 
-  /autoprefixer@10.4.17(postcss@8.4.33):
+  /autoprefixer@10.4.17(postcss@8.4.34):
     resolution: {integrity: sha512-/cpVNRLSfhOtcGflT13P2794gVSgmPgTR+erw5ifnMLZb0UnSlkK4tquLmkd3BhA+nLo5tX8Cu0upUsGKvKbmg==}
     engines: {node: ^10 || ^12 || >=14}
     hasBin: true
@@ -3676,7 +3676,7 @@ packages:
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.0.0
-      postcss: 8.4.33
+      postcss: 8.4.34
       postcss-value-parser: 4.2.0
     dev: false
 
@@ -3840,7 +3840,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001584
-      electron-to-chromium: 1.4.656
+      electron-to-chromium: 1.4.657
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.22.3)
 
@@ -4512,8 +4512,8 @@ packages:
       jake: 10.8.7
     dev: true
 
-  /electron-to-chromium@1.4.656:
-    resolution: {integrity: sha512-9AQB5eFTHyR3Gvt2t/NwR0le2jBSUNwCnMbUCejFWHD+so4tH40/dRLgoE+jxlPeWS43XJewyvCv+I8LPMl49Q==}
+  /electron-to-chromium@1.4.657:
+    resolution: {integrity: sha512-On2ymeleg6QbRuDk7wNgDdXtNqlJLM2w4Agx1D/RiTmItiL+a9oq5p7HUa2ZtkAtGBe/kil2dq/7rPfkbe0r5w==}
 
   /emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -4945,9 +4945,9 @@ packages:
       eslint-compat-utils: 0.1.2(eslint@8.56.0)
       esutils: 2.0.3
       known-css-properties: 0.29.0
-      postcss: 8.4.33
-      postcss-load-config: 3.1.4(postcss@8.4.33)
-      postcss-safe-parser: 6.0.0(postcss@8.4.33)
+      postcss: 8.4.34
+      postcss-load-config: 3.1.4(postcss@8.4.34)
+      postcss-safe-parser: 6.0.0(postcss@8.4.34)
       postcss-selector-parser: 6.0.15
       semver: 7.6.0
       svelte: 4.2.10
@@ -7239,11 +7239,11 @@ packages:
     dependencies:
       htmlparser2: 8.0.2
       js-tokens: 8.0.3
-      postcss: 8.4.33
-      postcss-safe-parser: 6.0.0(postcss@8.4.33)
+      postcss: 8.4.34
+      postcss-safe-parser: 6.0.0(postcss@8.4.34)
     dev: true
 
-  /postcss-load-config@3.1.4(postcss@8.4.33):
+  /postcss-load-config@3.1.4(postcss@8.4.34):
     resolution: {integrity: sha512-6DiM4E7v4coTE4uzA8U//WhtPwyhiim3eyjEMFCnUpzbrkK9wJHgKDT2mR+HbtSrd/NubVaYTOpSpjUl8NQeRg==}
     engines: {node: '>= 10'}
     peerDependencies:
@@ -7256,59 +7256,59 @@ packages:
         optional: true
     dependencies:
       lilconfig: 2.1.0
-      postcss: 8.4.33
+      postcss: 8.4.34
       yaml: 1.10.2
     dev: true
 
-  /postcss-nesting@12.0.2(postcss@8.4.33):
+  /postcss-nesting@12.0.2(postcss@8.4.34):
     resolution: {integrity: sha512-63PpJHSeNs93S3ZUIyi+7kKx4JqOIEJ6QYtG3x+0qA4J03+4n0iwsyA1GAHyWxsHYljQS4/4ZK1o2sMi70b5wQ==}
     engines: {node: ^14 || ^16 || >=18}
     peerDependencies:
       postcss: ^8.4
     dependencies:
       '@csstools/selector-specificity': 3.0.1(postcss-selector-parser@6.0.15)
-      postcss: 8.4.33
+      postcss: 8.4.34
       postcss-selector-parser: 6.0.15
     dev: true
 
-  /postcss-relative-opacity@0.1.0(postcss@8.4.33):
+  /postcss-relative-opacity@0.1.0(postcss@8.4.34):
     resolution: {integrity: sha512-ytW8KWO81ImsHeeQ2rSfU6v5/7hFaIsUVdg6CGKzS+jmzN9yRp6aewhF/nSIrkr6ZCdFthublgfQph91WF+Tpw==}
     engines: {node: '>=18.0'}
     peerDependencies:
       postcss: ^8.4.0
     dependencies:
-      postcss: 8.4.33
+      postcss: 8.4.34
     dev: false
 
   /postcss-resolve-nested-selector@0.1.1:
     resolution: {integrity: sha512-HvExULSwLqHLgUy1rl3ANIqCsvMS0WHss2UOsXhXnQaZ9VCc2oBvIpXrl00IUFT5ZDITME0o6oiXeiHr2SAIfw==}
     dev: true
 
-  /postcss-safe-parser@6.0.0(postcss@8.4.33):
+  /postcss-safe-parser@6.0.0(postcss@8.4.34):
     resolution: {integrity: sha512-FARHN8pwH+WiS2OPCxJI8FuRJpTVnn6ZNFiqAM2aeW2LwTHWWmWgIyKC6cUo0L8aeKiF/14MNvnpls6R2PBeMQ==}
     engines: {node: '>=12.0'}
     peerDependencies:
       postcss: ^8.3.3
     dependencies:
-      postcss: 8.4.33
+      postcss: 8.4.34
     dev: true
 
-  /postcss-safe-parser@7.0.0(postcss@8.4.33):
+  /postcss-safe-parser@7.0.0(postcss@8.4.34):
     resolution: {integrity: sha512-ovehqRNVCpuFzbXoTb4qLtyzK3xn3t/CUBxOs8LsnQjQrShaB4lKiHoVqY8ANaC0hBMHq5QVWk77rwGklFUDrg==}
     engines: {node: '>=18.0'}
     peerDependencies:
       postcss: ^8.4.31
     dependencies:
-      postcss: 8.4.33
+      postcss: 8.4.34
     dev: true
 
-  /postcss-scss@4.0.9(postcss@8.4.33):
+  /postcss-scss@4.0.9(postcss@8.4.34):
     resolution: {integrity: sha512-AjKOeiwAitL/MXxQW2DliT28EKukvvbEWx3LBmJIRN8KfBGZbRTxNYW0kSqi1COiTZ57nZ9NW06S6ux//N1c9A==}
     engines: {node: '>=12.0'}
     peerDependencies:
       postcss: ^8.4.29
     dependencies:
-      postcss: 8.4.33
+      postcss: 8.4.34
     dev: true
 
   /postcss-selector-parser@6.0.15:
@@ -7319,19 +7319,19 @@ packages:
       util-deprecate: 1.0.2
     dev: true
 
-  /postcss-sorting@8.0.2(postcss@8.4.33):
+  /postcss-sorting@8.0.2(postcss@8.4.34):
     resolution: {integrity: sha512-M9dkSrmU00t/jK7rF6BZSZauA5MAaBW4i5EnJXspMwt4iqTh/L9j6fgMnbElEOfyRyfLfVbIHj/R52zHzAPe1Q==}
     peerDependencies:
       postcss: ^8.4.20
     dependencies:
-      postcss: 8.4.33
+      postcss: 8.4.34
     dev: true
 
   /postcss-value-parser@4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
 
-  /postcss@8.4.33:
-    resolution: {integrity: sha512-Kkpbhhdjw2qQs2O2DGX+8m5OVqEcbB9HRBvuYM9pgrjEFUg30A9LmXNlTAUj4S9kgtGyrMbTzVjH7E+s5Re2yg==}
+  /postcss@8.4.34:
+    resolution: {integrity: sha512-4eLTO36woPSocqZ1zIrFD2K1v6wH7pY1uBh0JIM2KKfrVtGvPFiAku6aNOP0W1Wr9qwnaCsF0Z+CrVnryB2A8Q==}
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
       nanoid: 3.3.7
@@ -8192,8 +8192,8 @@ packages:
     peerDependencies:
       stylelint: ^14.0.0 || ^15.0.0 || ^16.0.1
     dependencies:
-      postcss: 8.4.33
-      postcss-sorting: 8.0.2(postcss@8.4.33)
+      postcss: 8.4.34
+      postcss-sorting: 8.0.2(postcss@8.4.34)
       stylelint: 16.2.1(typescript@5.3.3)
     dev: true
 
@@ -8228,9 +8228,9 @@ packages:
       micromatch: 4.0.5
       normalize-path: 3.0.0
       picocolors: 1.0.0
-      postcss: 8.4.33
+      postcss: 8.4.34
       postcss-resolve-nested-selector: 0.1.1
-      postcss-safe-parser: 7.0.0(postcss@8.4.33)
+      postcss-safe-parser: 7.0.0(postcss@8.4.34)
       postcss-selector-parser: 6.0.15
       postcss-value-parser: 4.2.0
       resolve-from: 5.0.0
@@ -8270,7 +8270,7 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  /svelte-check@3.6.3(postcss@8.4.33)(svelte@4.2.10):
+  /svelte-check@3.6.3(postcss@8.4.34)(svelte@4.2.10):
     resolution: {integrity: sha512-Q2nGnoysxUnB9KjnjpQLZwdjK62DHyW6nuH/gm2qteFnDk0lCehe/6z8TsIvYeKjC6luKaWxiNGyOcWiLLPSwA==}
     hasBin: true
     peerDependencies:
@@ -8283,7 +8283,7 @@ packages:
       picocolors: 1.0.0
       sade: 1.8.1
       svelte: 4.2.10
-      svelte-preprocess: 5.1.3(@babel/core@7.23.9)(postcss@8.4.33)(svelte@4.2.10)(typescript@5.3.3)
+      svelte-preprocess: 5.1.3(@babel/core@7.23.9)(postcss@8.4.34)(svelte@4.2.10)(typescript@5.3.3)
       typescript: 5.3.3
     transitivePeerDependencies:
       - '@babel/core'
@@ -8309,8 +8309,8 @@ packages:
       eslint-scope: 7.2.2
       eslint-visitor-keys: 3.4.3
       espree: 9.6.1
-      postcss: 8.4.33
-      postcss-scss: 4.0.9(postcss@8.4.33)
+      postcss: 8.4.34
+      postcss-scss: 4.0.9(postcss@8.4.34)
       svelte: 4.2.10
     dev: true
 
@@ -8322,7 +8322,7 @@ packages:
     dependencies:
       svelte: 4.2.10
 
-  /svelte-preprocess@5.1.3(@babel/core@7.23.9)(postcss@8.4.33)(svelte@4.2.10)(typescript@5.3.3):
+  /svelte-preprocess@5.1.3(@babel/core@7.23.9)(postcss@8.4.34)(svelte@4.2.10)(typescript@5.3.3):
     resolution: {integrity: sha512-xxAkmxGHT+J/GourS5mVJeOXZzne1FR5ljeOUAMXUkfEhkLEllRreXpbl3dIYJlcJRfL1LO1uIAPpBpBfiqGPw==}
     engines: {node: '>= 16.0.0', pnpm: ^8.0.0}
     requiresBuild: true
@@ -8364,7 +8364,7 @@ packages:
       '@types/pug': 2.0.10
       detect-indent: 6.1.0
       magic-string: 0.30.7
-      postcss: 8.4.33
+      postcss: 8.4.34
       sorcery: 0.11.0
       strip-indent: 3.0.0
       svelte: 4.2.10
@@ -8896,7 +8896,7 @@ packages:
     dependencies:
       '@types/node': 20.11.16
       esbuild: 0.19.12
-      postcss: 8.4.33
+      postcss: 8.4.34
       rollup: 4.9.6
     optionalDependencies:
       fsevents: 2.3.3

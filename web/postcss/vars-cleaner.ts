@@ -5,7 +5,7 @@ const SILENT = /^--[a-z]+-\d\d\d?$/
 function removeWithEmptyParent(node: Node): void {
   let parent = node.parent as Container
   node.remove()
-  if (parent.nodes.length === 0) {
+  if (parent.nodes && parent.nodes.length === 0) {
     removeWithEmptyParent(parent)
   }
 }
