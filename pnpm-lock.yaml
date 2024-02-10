@@ -186,8 +186,8 @@ importers:
         specifier: 0.9.1
         version: 0.9.1(nanostores@0.9.5)
       '@nanostores/router':
-        specifier: 0.13.0
-        version: 0.13.0(nanostores@0.9.5)
+        specifier: 0.14.0
+        version: 0.14.0(nanostores@0.9.5)
       '@rollup/plugin-node-resolve':
         specifier: 15.2.3
         version: 15.2.3(rollup@4.9.6)
@@ -2261,8 +2261,8 @@ packages:
       nanostores: 0.9.5
     dev: false
 
-  /@nanostores/router@0.13.0(nanostores@0.9.5):
-    resolution: {integrity: sha512-oMFlgPLM2iswDbDDxwQ2loA1GRFrkEPMwKPRN+D7Ixihu/gWWwMX4na0EAYogHgpl2+nU5AqplwftiikNZ/4GA==}
+  /@nanostores/router@0.14.0(nanostores@0.9.5):
+    resolution: {integrity: sha512-kHDnvKOWFhRi564unrwy9bmnFlycX1ImKBB6G2BBcE6D2tH4wb27IV6KWZgJ7xqNAefVF2Bak+/WFvfOVly+KA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
       nanostores: ^0.9.0

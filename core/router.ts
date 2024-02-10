@@ -30,8 +30,15 @@ export type RouteName = keyof Routes
 
 type EmptyObject = Record<string, never>
 
-type ParamlessRouteName = {
-  [K in RouteName]: Routes[K] extends EmptyObject ? K : never
+type RequiredKeys<T> = {
+  [K in keyof T]-?: {} extends Pick<T, K> ? never : K
+}[keyof T]
+
+// Constructing a type without optional keys
+type WithoutOptional<T> = Pick<T, RequiredKeys<T>>
+
+export type ParamlessRouteName = {
+  [K in RouteName]: WithoutOptional<Routes[K]> extends EmptyObject ? K : never
 }[RouteName]
 
 export type Route<Name extends RouteName = RouteName> = Name extends string
@@ -91,11 +98,11 @@ onEnvironment(({ baseRouter }) => {
             return redirect('welcome')
           }
         } else if (page.route === 'welcome' && withFeeds) {
-          return redirect({ params: {}, route: 'slow' })
+          return redirect('slow')
         } else if (page.route === 'settings') {
           return redirect('interface')
         } else if (page.route === 'feeds') {
-          return redirect({ params: {}, route: 'categories' })
+          return redirect('categories')
         } else if (page.route === 'fast') {
           if (!page.params.category && !fast.isLoading) {
             return redirect({

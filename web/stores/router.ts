@@ -2,16 +2,17 @@ import {
   type ConfigFromRouter,
   createRouter,
   getPagePath,
-  type ParamsArg
+  type ParamsFromConfig
 } from '@nanostores/router'
-import type { BaseRoute } from '@slowreader/core'
+import type { ParamlessRouteName, Route, Routes } from '@slowreader/core'
+import { computed } from 'nanostores'
 
-export const urlRouter = createRouter({
+const pathRouter = createRouter({
   about: '/settings/about',
   add: '/feeds/add/:url?',
   categories: '/feeds/categories/:feed?',
   download: '/settings/download',
-  fast: '/fast/:category?/:since?/:post?',
+  fast: '/fast/:category?',
   feeds: '/feeds',
   home: '/',
   interface: '/settings/ui',
@@ -20,21 +21,81 @@ export const urlRouter = createRouter({
   refresh: '/refresh',
   settings: '/settings',
   signin: '/signin',
-  slow: '/slow/:feed?/:post?',
+  slow: '/slow/:feed?',
   start: '/start',
   subscriptions: '/subscriptions',
   welcome: '/welcome'
 })
 
-type UrlConfig = ConfigFromRouter<typeof urlRouter>
+type PathParams = ParamsFromConfig<ConfigFromRouter<typeof pathRouter>>
 
-export function getURL<Name extends keyof UrlConfig>(
-  name: Name,
-  ...params: ParamsArg<UrlConfig, Name>
+export const urlRouter = computed(pathRouter, path => {
+  if (!path) {
+    return undefined
+  } else if (path.route === 'fast') {
+    let params: Routes['fast'] = path.params
+    if ('since' in path.search) params.since = Number(path.search.since)
+    if ('post' in path.search) params.post = path.search.post
+    return {
+      params,
+      route: path.route
+    }
+  } else if (path.route === 'slow') {
+    let params: Routes['slow'] = path.params
+    if ('post' in path.search) params.post = path.search.post
+    return {
+      params,
+      route: path.route
+    }
+  } else {
+    return path
+  }
+})
+
+function moveToSearch<Page extends Route>(
+  page: Page,
+  move: {
+    [key in Exclude<
+      keyof Page['params'],
+      keyof PathParams[Page['route']]
+    >]: true
+  }
 ): string {
-  return getPagePath(urlRouter, name, ...params)
+  let search = {}
+  let rest = {}
+  for (let key in page.params) {
+    // Too complex to type
+    // @ts-expect-error
+    if (move[key]) {
+      // @ts-expect-error
+      if (typeof page.params[key] !== 'undefined') {
+        // @ts-expect-error
+        search[key] = page.params[key]
+      }
+    } else {
+      // @ts-expect-error
+      rest[key] = page.params[key]
+    }
+  }
+  return getPagePath(pathRouter, page.route, rest, search)
 }
 
-export function openRoute(route: BaseRoute): void {
-  urlRouter.open(getPagePath(urlRouter, route))
+export function getURL(to: ParamlessRouteName | Route): string {
+  let page: Route
+  if (typeof to === 'string') {
+    page = { params: {}, route: to }
+  } else {
+    page = to
+  }
+  if (page.route === 'fast') {
+    return moveToSearch(page, { post: true, since: true })
+  } else if (page.route === 'slow') {
+    return moveToSearch(page, { post: true })
+  } else {
+    return getPagePath(pathRouter, page)
+  }
+}
+
+export function openRoute(route: Route): void {
+  pathRouter.open(getURL(route))
 }

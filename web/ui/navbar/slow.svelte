@@ -35,7 +35,7 @@
       <NavbarItem
         name={`${feed.title} (${unread})`}
         current={isCurrentFeed($router, feed.id)}
-        href={getURL('slow', { feed: feed.id })}
+        href={getURL({ params: { feed: feed.id }, route: 'slow' })}
         secondary
       />
     {/each}

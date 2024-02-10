@@ -14,9 +14,6 @@
   import Loader from '../ui/loader.svelte'
   import Page from '../ui/page.svelte'
   import PostCard from '../ui/post-card.svelte'
-
-  let since = Date.now()
-  $: since = ($fastPosts[0]?.post.publishedAt ?? Date.now()) + 1
 </script>
 
 <Page title={$t.pageTitle} type="list">
@@ -37,10 +34,12 @@
           <li class="fast_post">
             <PostCard
               author={entry.feed}
-              open={getURL('fast', {
-                category: $fastCategory,
-                post: entry.post.id,
-                since
+              open={getURL({
+                params: {
+                  category: $fastCategory,
+                  post: entry.post.id
+                },
+                route: 'fast'
               })}
               post={entry.post}
             />
@@ -60,9 +59,12 @@
         </Button>
         {#if $nextFastSince}
           <Button
-            href={getURL('fast', {
-              category: $fastCategory,
-              since: $nextFastSince
+            href={getURL({
+              params: {
+                category: $fastCategory,
+                since: $nextFastSince
+              },
+              route: 'fast'
             })}
             secondary
           >

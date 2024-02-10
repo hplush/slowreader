@@ -28,9 +28,12 @@
         {#each $slowPosts.list as post (post.id)}
           <li class="slow_post">
             <PostCard
-              open={getURL('slow', {
-                feed: post.feedId,
-                post: post.id
+              open={getURL({
+                params: {
+                  feed: post.feedId,
+                  post: post.id
+                },
+                route: 'slow'
               })}
               {post}
             />

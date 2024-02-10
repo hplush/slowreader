@@ -29,7 +29,7 @@
       name={categoryName(category)}
       current={$router.route === 'fast' &&
         $router.params.category === category.id}
-      href={getURL('fast', { category: category.id })}
+      href={getURL({ params: { category: category.id }, route: 'fast' })}
       secondary
     />
   {/each}
