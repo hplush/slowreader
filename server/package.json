@@ -3,6 +3,6 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@logux/server": "0.12.7"
+    "@logux/server": "0.12.10"
   }
 }
