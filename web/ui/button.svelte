@@ -77,6 +77,7 @@
     class:is-wide={wide}
     aria-keyshortcuts={hotkey}
     title={hiddenLabel}
+    type="button"
     on:click={onClick}
     on:keyup={onKeyUp}
     on:keydown={onKeyDown}
