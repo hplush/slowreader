@@ -132,7 +132,7 @@
     }
 
     & .navbar-switcher_fire {
-      --icon-move: -7px -5px;
+      --icon-move: -7px -4.5px;
 
       position: absolute;
       inset-inline-start: 20px;
