@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from 'svelte'
+  import { createEventDispatcher } from 'svelte'
 
-  import { addHotkey, markPressed, unmarkPressed } from '../lib/hotkeys.js'
   import Hotkey from './hotkey.svelte'
   import Icon from './icon.svelte'
 
@@ -13,38 +12,15 @@
   export let hiddenLabel: string | undefined = undefined
   export let dangerous = false
 
-  let element: HTMLAnchorElement | HTMLButtonElement
-
   let dispatch = createEventDispatcher()
 
   function onClick(): void {
     dispatch('click')
   }
-
-  function onKeyDown(e: KeyboardEvent): void {
-    if (e.key === 'Enter') {
-      markPressed(element)
-      e.preventDefault()
-    }
-  }
-
-  function onKeyUp(e: KeyboardEvent): void {
-    unmarkPressed()
-    if (e.key === 'Enter') {
-      element.click()
-    }
-  }
-
-  onMount(() => {
-    if (hotkey) {
-      return addHotkey(hotkey, element, onClick)
-    }
-  })
 </script>
 
 {#if href}
   <a
-    bind:this={element}
     class="button"
     class:is-dangerous={dangerous}
     class:is-secondary={secondary}
@@ -54,8 +30,6 @@
     {href}
     title={hiddenLabel}
     on:click={onClick}
-    on:keyup={onKeyUp}
-    on:keydown={onKeyDown}
   >
     {#if icon}
       <Icon path={icon} />
@@ -69,7 +43,6 @@
   </a>
 {:else}
   <button
-    bind:this={element}
     class="button"
     class:is-dangerous={dangerous}
     class:is-secondary={secondary}
@@ -79,8 +52,6 @@
     title={hiddenLabel}
     type="button"
     on:click={onClick}
-    on:keyup={onKeyUp}
-    on:keydown={onKeyDown}
   >
     {#if icon}
       <Icon path={icon} />

@@ -1,29 +1,9 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
-
-  import { generateMenuListeners } from '../lib/hotkeys.js'
-
   export let node: HTMLUListElement | null = null
-
-  let dispatch = createEventDispatcher<{ enter: null }>()
-
-  let [onKeyDown, onKeyUp] = generateMenuListeners({
-    getItems(el) {
-      return el.parentElement!.parentElement!.querySelectorAll('.card-link')
-    },
-    select() {
-      dispatch('enter')
-    }
-  })
+  export let id: string | undefined = undefined
 </script>
 
-<ul
-  bind:this={node}
-  class="card-links"
-  role="menu"
-  on:keydown={onKeyDown}
-  on:keyup={onKeyUp}
->
+<ul bind:this={node} {id} class="card-links" role="menu">
   <slot />
 </ul>
 

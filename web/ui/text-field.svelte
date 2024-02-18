@@ -13,12 +13,12 @@
   export let enterHint = false
   export let hideLabel = false
   export let spellcheck = true
+  export let controls: string | undefined = undefined
 
   let id = nanoid()
   let inputError: string | undefined = error
   let dispatch = createEventDispatcher<{
     change: { valid: boolean; value: string }
-    enter: { valid: boolean; value: string }
     input: { valid: boolean; value: string }
   }>()
 
@@ -45,12 +45,8 @@
     dispatch('change', { valid: isValid(), value })
   }
 
-  function onKeyUp(e: KeyboardEvent): void {
-    if (e.key === 'Enter') {
-      validate()
-      dispatch('change', { valid: isValid(), value })
-      dispatch('enter', { valid: isValid(), value })
-    } else if (required) {
+  function onKeyUp(): void {
+    if (required) {
       if (!value) {
         inputError = t.get().empty
       }
@@ -84,6 +80,7 @@
   <input
     id={label ? id : null}
     class="text-field_input"
+    aria-controls={controls}
     aria-errormessage={errorId || (inputError || error ? `${id}-error` : null)}
     aria-invalid={inputError || error || errorId ? true : null}
     aria-label={hideLabel ? label : null}

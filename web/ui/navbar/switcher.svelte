@@ -1,44 +1,19 @@
 <script lang="ts">
   import { mdiFireplace, mdiFood } from '@mdi/js'
   import { router, navbarMessages as t } from '@slowreader/core'
-  import { onMount } from 'svelte'
 
-  import { addHotkey } from '../../lib/hotkeys.js'
   import { getURL } from '../../stores/router.js'
   import Hotkey from '../hotkey.svelte'
   import Icon from '../icon.svelte'
-  import type NavbarSubmenu from './submenu.svelte'
-
-  export let submenu: NavbarSubmenu
-
-  let slow: HTMLElement
-  let fast: HTMLElement
-
-  function onClick(e: MouseEvent): void {
-    if (e.screenX === 0 && e.screenY === 0) {
-      submenu.focus()
-    }
-  }
-
-  onMount(() => {
-    let slowUnbind = addHotkey('s', slow, () => {
-      slow.click()
-    })
-    let fastUnbind = addHotkey('f', fast, () => {
-      fast.click()
-    })
-    return () => {
-      slowUnbind()
-      fastUnbind()
-    }
-  })
 </script>
 
 <div class="navbar-switcher">
   <a
-    bind:this={slow}
     class="navbar-switcher_link"
+    aria-controls="navbar-submenu"
     aria-current={$router.route === 'slow' ? 'page' : null}
+    aria-haspopup="menu"
+    aria-keyshortcuts="s"
     href={getURL('slow')}
   >
     <div class="navbar-switcher_overflow">
@@ -53,11 +28,12 @@
     </div>
   </a>
   <a
-    bind:this={fast}
     class="navbar-switcher_link"
+    aria-controls="navbar-submenu"
     aria-current={$router.route === 'fast' ? 'page' : null}
+    aria-haspopup="menu"
+    aria-keyshortcuts="f"
     href={getURL('fast')}
-    on:click={onClick}
   >
     <div class="navbar-switcher_overflow">
       <div class="navbar-switcher_button">
@@ -171,15 +147,15 @@
       background: var(--hover-color);
     }
 
-    &:active .navbar-switcher_button {
-      box-shadow: var(--button-active-shadow);
-    }
-
     &[aria-current='page'] .navbar-switcher_button,
     &[aria-current='page']:hover .navbar-switcher_button {
       cursor: default;
       background: var(--card-color);
       box-shadow: var(--button-pressed-shadow);
+    }
+
+    &:active .navbar-switcher_button {
+      box-shadow: var(--button-active-shadow);
     }
 
     @media (prefers-color-scheme: light) {

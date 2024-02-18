@@ -12,11 +12,9 @@
     previewUrl,
     previewUrlError,
     setPreviewCandidate,
-    setPreviewUrl,
     previewMessages as t
   } from '@slowreader/core'
 
-  import { jumpInto } from '../../lib/hotkeys.js'
   import Button from '../../ui/button.svelte'
   import CardLink from '../../ui/card-link.svelte'
   import CardLinks from '../../ui/card-links.svelte'
@@ -28,7 +26,6 @@
   import FeedsEdit from './edit.svelte'
   import FeedsPosts from './posts.svelte'
 
-  let links: HTMLUListElement
   let feed: HTMLDivElement
 </script>
 
@@ -36,6 +33,7 @@
   <div slot="one">
     <Card>
       <TextField
+        controls="feeds-add_links"
         enterHint={$previewCandidates.length > 0}
         error={$previewUrlError ? $t[$previewUrlError] : undefined}
         errorId={$previewNoResults ? 'feeds-add-no-results' : undefined}
@@ -46,24 +44,14 @@
         on:input={e => {
           onPreviewUrlType(e.detail.value)
         }}
-        on:enter={e => {
-          setPreviewUrl(e.detail.value)
-          if ($previewCandidates.length > 0) {
-            jumpInto(links)
-          }
-        }}
       />
 
       {#if $previewCandidates.length > 0}
-        <CardLinks
-          bind:node={links}
-          on:enter={() => {
-            jumpInto(feed)
-          }}
-        >
+        <CardLinks id="feeds-add_links">
           {#each $previewCandidates as candidate (candidate.url)}
             <CardLink
               name={candidate.title}
+              controls="feeds-add_feed"
               current={$previewCandidate === candidate.url}
               on:click={() => {
                 setPreviewCandidate(candidate.url)
@@ -93,10 +81,10 @@
       </div>
     {/if}
   </div>
-  <div bind:this={feed} id="add_feed" slot="two">
+  <div bind:this={feed} id="feeds-add_feed" slot="two">
     {#if $previewCandidate}
       {#if $previewCandidateAdded === undefined}
-        <Loader zoneId="add_feed" />
+        <Loader zoneId="feeds-add_feed" />
         {#if $previewPosts}
           <FeedsPosts posts={$previewPosts} />
         {/if}

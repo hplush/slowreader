@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { getHotKeyHint } from 'keyux'
+
   export let hotkey: string
 </script>
 
 <kbd class="hotkey" aria-hidden="true">
-  <div class="hotkey_float">{hotkey}</div>
+  <div class="hotkey_float">{getHotKeyHint(window, hotkey)}</div>
 </kbd>
 
 <style>

@@ -13,7 +13,7 @@
   })
 </script>
 
-<main class="two-steps-page">
+<main id="page" class="two-steps-page">
   <div class="two-steps-page_step">
     <slot name="one" />
   </div>

@@ -200,6 +200,9 @@ importers:
       autoprefixer:
         specifier: 10.4.17
         version: 10.4.17(postcss@8.4.35)
+      keyux:
+        specifier: 0.1.2
+        version: 0.1.2
       nanoid:
         specifier: 5.0.5
         version: 5.0.5
@@ -6445,6 +6448,11 @@ packages:
 
   /just-debounce-it@3.2.0:
     resolution: {integrity: sha512-WXzwLL0745uNuedrCsCs3rpmfD6DBaf7uuVwaq98/8dafURfgQaBsSpjiPp5+CW6Vjltwy9cOGI6qE71b3T8iQ==}
+    dev: false
+
+  /keyux@0.1.2:
+    resolution: {integrity: sha512-hUXhSIdiI2BRboxv7Kn00VZCC1G5odFhzt+BY0rJH/tnJfr8jL/bULBP0J2TR9cjaFMIukoqxjP/2/I8B+Knkg==}
+    engines: {node: ^18.0.0 || >=20.0.0}
     dev: false
 
   /keyv@4.5.4:

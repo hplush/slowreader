@@ -24,8 +24,6 @@
   import NavbarSubmenu from './submenu.svelte'
   import NavbarSwitcher from './switcher.svelte'
 
-  let submenu: NavbarSubmenu
-
   onMount(() => {
     document.documentElement.classList.add('has-navbar')
     return () => {
@@ -35,9 +33,9 @@
 </script>
 
 <nav class="navbar">
-  <NavbarSwitcher {submenu} />
-  <div id="navbar_submenu" class="navbar_submenu">
-    <NavbarSubmenu bind:this={submenu}>
+  <NavbarSwitcher />
+  <div class="navbar_submenu">
+    <NavbarSubmenu>
       {#if isSlowRoute($router)}
         <NavbarSlow />
       {:else if isFastRoute($router)}
@@ -76,7 +74,7 @@
       hotkey="l"
       href={getURL('add')}
       icon={mdiPlaylistEdit}
-      {submenu}
+      submenu
     />
     <NavbarItem
       name={$t.settings}
@@ -84,7 +82,7 @@
       hotkey="p"
       href={getURL('interface')}
       icon={mdiCogOutline}
-      {submenu}
+      submenu
     />
   </div>
 </nav>

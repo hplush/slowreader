@@ -15,6 +15,7 @@
 </script>
 
 <main
+  id="page"
   class="page"
   class:is-center={type === 'center'}
   class:is-list={type === 'list'}

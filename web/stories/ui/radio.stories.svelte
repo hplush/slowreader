@@ -60,7 +60,7 @@
       />
     </Card>
   </Section>
-  <Section focus="label:first-of-type" width={500}>
+  <Section focus="label:first-of-type input" width={500}>
     <Card>
       <RadioField
         current="1"
@@ -143,7 +143,7 @@
       />
     </Card>
   </Section>
-  <Section focus="label:first-of-type" width={500}>
+  <Section focus="label:first-of-type input" width={500}>
     <Card>
       <RadioField
         current="1"

@@ -5,6 +5,7 @@
   import Icon from './icon.svelte'
 
   export let href: string | undefined = undefined
+  export let controls: string | undefined = undefined
   export let name: string
   export let current = false
   export let first = false
@@ -20,6 +21,7 @@
   {#if href}
     <a
       class="card-link"
+      aria-controls={controls}
       aria-current={current ? 'page' : null}
       {href}
       role="menuitem"
@@ -34,6 +36,7 @@
   {:else}
     <button
       class="card-link"
+      aria-controls={controls}
       aria-current={current ? 'page' : null}
       role="menuitem"
       tabindex={current || first ? null : -1}
@@ -137,40 +140,5 @@
         0 0 0 5px var(--land-color),
         inset 0 1px 0 var(--land-color);
     }
-  }
-
-  .card-link:focus-visible::before,
-  .card-link:focus-visible::after {
-    position: absolute;
-    inset-inline-end: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 10px;
-    height: 100%;
-    font: var(--hotkey-font);
-    color: var(--hotkey-color);
-  }
-
-  .card-link:focus-visible::before {
-    top: 0;
-    content: '↵';
-  }
-
-  li:not(:last-child) > .card-link:focus-visible::after {
-    top: calc(100% + 1px);
-    content: '↓';
-  }
-
-  li:last-child:not(:first-child) > .card-link:focus-visible::after {
-    bottom: calc(100% + 1px);
-    content: '↑';
-  }
-
-  :global(.is-hotkey-disabled)
-    .card-link:not(:first-of-type):focus-visible::before,
-  :global(.is-hotkey-disabled)
-    .card-link:not(:last-of-type):focus-visible::after {
-    display: none;
   }
 </style>

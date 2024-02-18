@@ -1,19 +1,14 @@
 <script generics="Value extends string" lang="ts">
+  import { nanoid } from 'nanoid/non-secure'
   import { createEventDispatcher } from 'svelte'
-
-  import { generateMenuListeners } from '../lib/hotkeys.js'
 
   export let label: string
   export let current: Value
   export let values: [Value, string][]
   export let hideLabel = false
 
-  let [onKeyDown, onKeyUp] = generateMenuListeners({
-    getItems(el) {
-      return el.parentElement!.querySelectorAll('.radio_value')
-    },
-    selectOnFocus: true
-  })
+  let id = nanoid()
+
   let dispatch = createEventDispatcher<{ change: Value }>()
 
   function onInput(e: Event & { currentTarget: HTMLInputElement }): void {
@@ -30,19 +25,11 @@
     <legend class="radio-field_label">{label}</legend>
   {/if}
   {#each values as [value, name] (value)}
-    <!-- svelte-ignore a11y-no-noninteractive-element-to-interactive-role -->
-    <label
-      class="radio-field_value"
-      aria-checked={current === value}
-      role="radio"
-      tabindex={current === value ? 0 : -1}
-      on:keyup={onKeyUp}
-      on:keydown={onKeyDown}
-    >
+    <label class="radio-field_value">
       <input
+        name={id}
         class="radio-field_input"
         checked={current === value}
-        tabindex="-1"
         type="radio"
         {value}
         on:input={onInput}
@@ -98,7 +85,9 @@
       box-shadow: var(--card-item-pressed-shadow), var(--card-item-above-shadow);
     }
 
-    &:focus-visible {
+    &:has(input:focus-visible) {
+      z-index: 10;
+      outline: 3px solid var(--focus-color);
       outline-offset: 0;
     }
   }
@@ -116,38 +105,12 @@
     }
   }
 
-  .radio-field_value:not(:first-of-type):focus-visible::before,
-  .radio-field_value:not(:last-of-type):focus-visible::after {
-    position: absolute;
-    inset-inline-end: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 50px;
-    height: 100%;
-    font: var(--hotkey-font);
-    color: var(--hotkey-color);
-  }
-
-  .radio-field_value:not(:first-of-type):focus-visible::before {
-    bottom: calc(100% + 1px);
-    content: '↑';
-  }
-
-  .radio-field_value:not(:last-of-type):focus-visible::after {
-    top: calc(100% + 1px);
-    content: '↓';
-  }
-
-  :global(.is-hotkey-disabled)
-    .radio-field_value:not(:first-of-type):focus-visible::before,
-  :global(.is-hotkey-disabled)
-    .radio-field_value:not(:last-of-type):focus-visible::after {
-    display: none;
-  }
-
   .radio-field_input {
-    display: none;
+    position: absolute;
+    width: 0;
+    height: 0;
+    appearance: none;
+    opacity: 0%;
   }
 
   .radio-field_fake {

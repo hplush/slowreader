@@ -1,6 +1,14 @@
 import { isFastRoute, router, theme } from '@slowreader/core'
+import {
+  hiddenKeyUX,
+  hotkeyKeyUX,
+  jumpKeyUX,
+  likelyWithKeyboard,
+  menuKeyUX,
+  pressKeyUX,
+  startKeyUX
+} from 'keyux'
 
-import { jumpBack, likelyToHavePhysicalKeyboard } from '../lib/hotkeys.js'
 import { locale } from '../stores/locale.js'
 
 let root = document.documentElement
@@ -18,12 +26,14 @@ locale.subscribe(localeValue => {
   root.lang = localeValue
 })
 
-if (!likelyToHavePhysicalKeyboard()) {
+if (!likelyWithKeyboard(window)) {
   root.classList.add('is-hotkey-disabled')
 }
 
-document.body.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    if (!e.defaultPrevented) jumpBack()
-  }
-})
+startKeyUX(window, [
+  pressKeyUX('is-pseudo-active'),
+  hotkeyKeyUX(),
+  menuKeyUX(),
+  jumpKeyUX(),
+  hiddenKeyUX()
+])

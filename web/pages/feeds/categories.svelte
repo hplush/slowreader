@@ -79,6 +79,7 @@
                   {#each feeds as feed (feed.id)}
                     <CardLink
                       name={feed.title}
+                      controls="feeds-categories_edit"
                       current={feed.id === feedId}
                       first={feed.id === firstId(feeds)}
                       href={getURL({
@@ -95,7 +96,7 @@
       </ul>
     {/if}
   </div>
-  <div slot="two">
+  <div id="feeds-categories_edit" slot="two">
     {#if feedId}
       <FeedsEdit {feedId} />
     {/if}
