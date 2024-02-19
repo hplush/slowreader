@@ -69,6 +69,7 @@
     padding-inline: calc(3 * var(--padding-l)) var(--padding-l);
     margin-inline: calc(-1 * var(--padding-l));
     cursor: pointer;
+    user-select: none;
     border-top: 1px solid var(--border-color);
 
     &:last-of-type {
