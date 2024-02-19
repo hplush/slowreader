@@ -61,7 +61,7 @@
     padding: var(--padding-l);
     margin-inline: calc(-1 * var(--padding-l));
     color: inherit;
-    text-align: left;
+    text-align: start;
     text-decoration: none;
     word-break: break-all;
     background: none;
