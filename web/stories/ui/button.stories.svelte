@@ -27,10 +27,10 @@
     let focusAnimation = setInterval(() => {
       if (focus) {
         focus
-          .querySelector(':first-child')!
+          .querySelector('button:first-child')!
           .classList.toggle('is-pseudo-focus-visible')
         focus
-          .querySelector(':last-child')!
+          .querySelector('button:last-child')!
           .classList.toggle('is-pseudo-focus-visible')
       }
     }, 2000)
