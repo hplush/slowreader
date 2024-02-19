@@ -22,7 +22,7 @@
     "format:stylelint": "stylelint --fix **/*.{css,pcss,svelte}"
   },
   "dependencies": {
-    "@csstools/postcss-oklab-function": "3.0.9",
+    "@csstools/postcss-oklab-function": "3.0.10",
     "@evilmartians/harmony": "1.2.0",
     "@logux/client": "github:logux/client#next",
     "@logux/core": "0.8.5",
@@ -56,7 +56,7 @@
     "better-node-test": "0.5.0",
     "browserslist": "4.23.0",
     "postcss-html": "1.6.0",
-    "postcss-nesting": "12.0.2",
+    "postcss-nesting": "12.0.3",
     "postcss-selector-parser": "6.0.15",
     "size-limit": "11.0.2",
     "storybook": "7.6.16",
