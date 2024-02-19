@@ -106,16 +106,14 @@
       background: var(--flat-hover-color);
     }
 
+    &[aria-current='page'] {
+      cursor: default;
+      background: var(--card-color);
+    }
+
     &:active {
       padding-top: 1px;
       box-shadow: var(--flat-active-shadow);
-    }
-
-    &[aria-current='page'],
-    &[aria-current='page']:active {
-      padding-top: 0;
-      cursor: default;
-      background: var(--card-color);
     }
   }
 
