@@ -105,6 +105,7 @@
 
     &.is-square {
       width: 44px;
+      height: 44px;
     }
 
     &.is-dangerous {

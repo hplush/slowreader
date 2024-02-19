@@ -111,13 +111,15 @@
     }
 
     &:active {
-      padding-top: 1px;
       box-shadow: var(--flat-active-shadow);
+
+      & > * {
+        transform: translateY(1px);
+      }
     }
   }
 
   .navbar-item_text {
-    padding: 4px 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

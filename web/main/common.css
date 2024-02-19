@@ -3,8 +3,8 @@
   --padding-l: 16px;
   --padding-xl: 24px;
   --base-font: 1rem/1.6 system-ui;
-  --control-font: bold 100%/1.6 system-ui;
-  --page-title-font: 140% serif;
-  --hotkey-font: bold 90%/1 system-ui;
+  --control-font: bold 1rem/1.6 system-ui;
+  --page-title-font: 1.4rem serif;
+  --hotkey-font: bold 0.9rem/1 system-ui;
   --radius: 8px;
 }

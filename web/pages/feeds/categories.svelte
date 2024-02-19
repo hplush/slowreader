@@ -17,7 +17,6 @@
   import CardLinks from '../../ui/card-links.svelte'
   import Card from '../../ui/card.svelte'
   import Loader from '../../ui/loader.svelte'
-  import Row from '../../ui/row.svelte'
   import TwoStepsPage from '../../ui/two-steps-page.svelte'
   import FeedsEdit from './edit.svelte'
 
@@ -45,7 +44,7 @@
             {:else if category.id === 'broken'}
               <h2 class="feeds-categories_title">{$common.brokenCategory}</h2>
             {:else}
-              <Row compact>
+              <div class="feeds-categories_row">
                 <h2 class="feeds-categories_title">
                   {category.title}
                 </h2>
@@ -71,7 +70,7 @@
                   }}
                   >{$t.deleteCategory}
                 </Button>
-              </Row>
+              </div>
             {/if}
             {#if feeds.length > 0}
               <Card>
@@ -111,7 +110,13 @@
   .feeds-categories_title {
     flex-grow: 1;
     padding-inline-start: var(--padding-l);
-    margin-bottom: var(--padding-l);
+    padding-bottom: var(--padding-l);
     font: var(--page-title-font);
+  }
+
+  .feeds-categories_row {
+    display: flex;
+    gap: var(--padding-m);
+    align-items: baseline;
   }
 </style>

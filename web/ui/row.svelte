@@ -10,7 +10,7 @@
   .row {
     display: flex;
     gap: var(--padding-l);
-    align-items: baseline;
+    align-items: center;
 
     &.is-compact {
       gap: var(--padding-m);
