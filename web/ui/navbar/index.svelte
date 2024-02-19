@@ -19,10 +19,9 @@
   import NavbarFast from './fast.svelte'
   import NavbarFeeds from './feeds.svelte'
   import NavbarItem from './item.svelte'
+  import NavbarMain from './main.svelte'
   import NavbarSettings from './settings.svelte'
   import NavbarSlow from './slow.svelte'
-  import NavbarSubmenu from './submenu.svelte'
-  import NavbarSwitcher from './switcher.svelte'
 
   onMount(() => {
     document.documentElement.classList.add('has-navbar')
@@ -33,19 +32,22 @@
 </script>
 
 <nav class="navbar">
-  <NavbarSwitcher />
-  <div class="navbar_submenu">
-    <NavbarSubmenu>
-      {#if isSlowRoute($router)}
-        <NavbarSlow />
-      {:else if isFastRoute($router)}
-        <NavbarFast />
-      {:else if isSettingsRoute($router)}
-        <NavbarSettings />
-      {:else if isOrganizeRoute($router)}
-        <NavbarFeeds />
-      {/if}
-    </NavbarSubmenu>
+  <NavbarMain />
+  <div
+    id="navbar_submenu"
+    class="navbar_submenu"
+    aria-hidden="true"
+    role="menu"
+  >
+    {#if isSlowRoute($router)}
+      <NavbarSlow />
+    {:else if isFastRoute($router)}
+      <NavbarFast />
+    {:else if isSettingsRoute($router)}
+      <NavbarSettings />
+    {:else if isOrganizeRoute($router)}
+      <NavbarFeeds />
+    {/if}
   </div>
   <div class="navbar_other">
     {#if $hasFeeds}
@@ -115,7 +117,11 @@
   }
 
   .navbar_submenu {
+    position: relative;
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
+    gap: 2px;
     overflow: scroll;
   }
 

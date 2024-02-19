@@ -23,7 +23,7 @@
   <a
     class="navbar-item"
     class:is-secondary={secondary}
-    aria-controls={submenu ? 'navbar-submenu' : 'page'}
+    aria-controls={submenu ? 'navbar_submenu' : 'page'}
     aria-current={current ? 'page' : null}
     aria-haspopup={submenu ? 'menu' : null}
     aria-keyshortcuts={hotkey}
@@ -51,7 +51,7 @@
   <button
     class="navbar-item"
     class:is-secondary={secondary}
-    aria-controls={submenu ? 'navbar-submenu' : 'page'}
+    aria-controls={submenu ? 'navbar_submenu' : 'page'}
     aria-current={current ? 'page' : null}
     aria-haspopup={submenu ? 'menu' : null}
     aria-keyshortcuts={hotkey}
