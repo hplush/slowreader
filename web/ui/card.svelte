@@ -12,7 +12,7 @@
     background-color: var(--card-color);
     border-top: 1px solid var(--top-edge-color);
     border-bottom: 1px solid var(--bottom-edge-color);
-    border-radius: var(--outer-radius);
+    border-radius: var(--radius);
     box-shadow: var(--card-shadow);
   }
 </style>

@@ -39,7 +39,7 @@
   </Section>
   <Section focus="input:first-of-type" width={500}>
     <Card>
-      <TextField enterHint label="Focus" />
+      <TextField label="Focus" />
       <TextField label="Required" required value="" />
       <TextField label="Wrong URL" type="url" value="No a link" />
     </Card>
@@ -70,7 +70,7 @@
   </Section>
   <Section focus width={500}>
     <Card>
-      <TextField enterHint label="Focus" />
+      <TextField label="Focus" />
     </Card>
   </Section></Story
 >

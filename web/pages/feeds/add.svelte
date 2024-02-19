@@ -34,7 +34,6 @@
     <Card>
       <TextField
         controls="feeds-add_links"
-        enterHint={$previewCandidates.length > 0}
         error={$previewUrlError ? $t[$previewUrlError] : undefined}
         errorId={$previewNoResults ? 'feeds-add-no-results' : undefined}
         label={$t.urlLabel}

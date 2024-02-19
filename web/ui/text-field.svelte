@@ -10,7 +10,6 @@
   export let placeholder = ''
   export let required = false
   export let value = ''
-  export let enterHint = false
   export let hideLabel = false
   export let spellcheck = true
   export let controls: string | undefined = undefined
@@ -94,9 +93,6 @@
     on:blur={onBlur}
     on:change={onChange}
   />
-  {#if enterHint}
-    <span class="text-field_hotkey">↵</span>
-  {/if}
   {#if inputError}
     <div id={`${id}-error`} class="text-field_error">{inputError}</div>
   {:else if error}
@@ -127,11 +123,10 @@
   .text-field_input {
     box-sizing: border-box;
     width: 100%;
-    height: var(--control-height);
-    padding: 0 var(--padding-m);
+    padding: var(--padding-m);
     background-color: var(--field-color);
     border: 1px solid var(--border-color);
-    border-radius: var(--inner-radius);
+    border-radius: var(--radius);
     box-shadow: var(--field-shadow);
 
     &[aria-invalid='true'] {
@@ -152,28 +147,5 @@
 
   :global(.card) > .text-field_error:last-child {
     margin-bottom: var(--card-text-fix);
-  }
-
-  .text-field_hotkey {
-    position: absolute;
-    inset-inline-end: var(--padding-m);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    width: 10px;
-    height: var(--control-height);
-    margin-top: calc(-1 * var(--control-height));
-    font: var(--hotkey-font);
-    color: color-mix(in oklab, var(--hotkey-color), var(--text-color));
-  }
-
-  .text-field_input:focus-visible + .text-field_hotkey {
-    display: flex;
-  }
-
-  :global(.is-hotkey-disabled)
-    .text-field_input:focus-visible
-    + .text-field_hotkey {
-    display: none;
   }
 </style>

@@ -5,19 +5,14 @@
 </script>
 
 <kbd class="hotkey" aria-hidden="true">
-  <div class="hotkey_float">{getHotKeyHint(window, hotkey)}</div>
+  {getHotKeyHint(window, hotkey)}
 </kbd>
 
 <style>
   .hotkey {
-    display: block;
-    margin-inline-start: -2px;
-  }
-
-  .hotkey_float {
     position: absolute;
-    inset-inline-end: 9px;
-    margin-top: -15px;
+    inset-inline-end: 6px;
+    top: 4px;
     font: var(--hotkey-font);
     font-variant-caps: all-small-caps;
     color: var(--hotkey-color);

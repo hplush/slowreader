@@ -63,13 +63,12 @@
     display: flex;
     gap: var(--padding-m);
     align-items: center;
-    height: var(--control-height);
-    padding-inline: var(--padding-l) var(--padding-m);
+    padding: var(--padding-m) var(--padding-m) var(--padding-m) var(--padding-l);
     overflow: hidden;
     font: var(--control-font);
     background: var(--card-color);
     border: 1px solid var(--border-color);
-    border-radius: var(--inner-radius);
+    border-radius: var(--radius);
 
     &:has(.select-field_select:hover),
     &:has(.select-field_select:focus-visible),
@@ -83,7 +82,8 @@
     }
 
     &:has(.select-field_select:active) {
-      padding-top: 1px;
+      padding-top: calc(var(--padding-m) + 1px);
+      padding-bottom: calc(var(--padding-m) - 1px);
       box-shadow: var(--flat-active-shadow);
     }
   }

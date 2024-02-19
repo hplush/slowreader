@@ -70,21 +70,18 @@
     position: relative;
     box-sizing: border-box;
     display: inline-flex;
-    flex-shrink: 0;
     gap: var(--padding-m);
     align-items: center;
     justify-content: center;
-    height: var(--control-height);
-    padding: 0 var(--padding-l);
+    padding: var(--padding-m) var(--padding-l);
     font: var(--control-font);
     color: var(--text-color);
     text-decoration: none;
-    text-wrap: nowrap;
     cursor: pointer;
     user-select: none;
     background: var(--card-color);
     border: none;
-    border-radius: var(--inner-radius);
+    border-radius: var(--radius);
     box-shadow: var(--button-shadow);
 
     &:hover,
@@ -107,8 +104,7 @@
     }
 
     &.is-square {
-      width: var(--control-height);
-      padding-inline: 0;
+      width: 44px;
     }
 
     &.is-dangerous {

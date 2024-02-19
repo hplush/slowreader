@@ -83,8 +83,7 @@
     gap: var(--padding-m);
     align-items: center;
     justify-content: flex-start;
-    height: var(--control-height);
-    padding: 0 var(--padding-l);
+    padding: var(--padding-m) var(--padding-l);
     overflow: hidden;
     font: var(--control-font);
     color: var(--text-color);
@@ -93,7 +92,7 @@
     user-select: none;
     background: transparent;
     border: none;
-    border-radius: var(--inner-radius);
+    border-radius: var(--radius);
 
     &.is-secondary {
       font-weight: normal;

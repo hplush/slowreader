@@ -346,9 +346,8 @@
 
   .counter {
     position: absolute;
+    top: 0;
     display: inline-block;
-    height: var(--control-height);
-    margin-inline-start: var(--padding-l);
-    line-height: var(--control-height);
+    padding: var(--padding-m);
   }
 </style>

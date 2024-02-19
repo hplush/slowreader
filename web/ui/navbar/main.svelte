@@ -22,7 +22,7 @@
           <Icon path={mdiFireplace} />
         </div>
         <Icon compensate={1} path={mdiFireplace} />
-        {$t.slow}
+        <span>{$t.slow}</span>
         <Hotkey hotkey="s" />
       </div>
     </div>
@@ -38,7 +38,7 @@
     <div class="navbar-main_overflow">
       <div class="navbar-main_button">
         <Icon path={mdiFood} />
-        {$t.fast}
+        <span>{$t.fast}</span>
         <Hotkey hotkey="f" />
       </div>
     </div>
@@ -54,7 +54,7 @@
 
   .navbar-main_link {
     position: relative;
-    border-radius: var(--inner-radius);
+    border-radius: var(--radius);
 
     &:first-child {
       width: 50%;
@@ -94,8 +94,7 @@
       align-items: center;
       justify-content: center;
       width: 100%;
-      height: var(--control-height);
-      padding: 0 var(--padding-l);
+      padding: var(--padding-m) var(--padding-l);
       font-weight: 600;
       color: var(--text-color);
       text-decoration: none;
@@ -103,7 +102,7 @@
       user-select: none;
       background: var(--card-color);
       border: none;
-      border-radius: var(--inner-radius);
+      border-radius: var(--radius);
       box-shadow: var(--button-shadow);
     }
 
@@ -156,37 +155,25 @@
 
     &:active .navbar-main_button {
       box-shadow: var(--button-active-shadow);
+
+      & > * {
+        transform: translateY(1px);
+      }
     }
 
     @media (prefers-color-scheme: light) {
       &:active .navbar-main_button,
       &[aria-current='page'] .navbar-main_button {
-        height: calc(var(--control-height) - 2px);
+        padding-block: calc(var(--padding-m) - 1px);
         margin-block: 1px;
-      }
-
-      &:active .navbar-main_button {
-        padding-top: 1px;
-      }
-
-      &[aria-current='page'] .navbar-main_button {
-        padding-top: 0;
       }
     }
 
     @media (prefers-color-scheme: dark) {
       &:active .navbar-main_button,
       &[aria-current='page'] .navbar-main_button {
-        height: calc(var(--control-height) - 1px);
+        padding-block: var(--padding-m) calc(var(--padding-m) - 1px);
         margin-bottom: 1px;
-      }
-
-      &:active .navbar-main_button {
-        padding-top: 2px;
-      }
-
-      &[aria-current='page'] .navbar-main_button {
-        padding-top: 1px;
       }
     }
   }

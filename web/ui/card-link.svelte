@@ -102,7 +102,7 @@
 
   :global(.card > ul:first-child > li:first-child) > .card-link {
     border-top: none;
-    border-radius: var(--outer-radius) var(--outer-radius) 0 0;
+    border-radius: var(--radius) var(--radius) 0 0;
 
     &:active,
     &[aria-current='page'] {
@@ -116,7 +116,7 @@
 
   :global(.card > ul:last-child > li:last-child) > .card-link {
     border-bottom: none;
-    border-radius: 0 0 var(--outer-radius) var(--outer-radius);
+    border-radius: 0 0 var(--radius) var(--radius);
 
     &:active,
     &[aria-current='page'] {
@@ -129,7 +129,7 @@
 
   :global(.card > ul:first-child > li:first-child:last-child) > .card-link {
     border: none;
-    border-radius: var(--outer-radius);
+    border-radius: var(--radius);
 
     &:active,
     &[aria-current='page'] {

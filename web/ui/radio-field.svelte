@@ -43,7 +43,7 @@
 <style>
   .radio-field {
     margin-top: var(--padding-l);
-    margin-bottom: calc(var(--outer-radius) - var(--padding-l));
+    margin-bottom: calc(var(--radius) - var(--padding-l));
   }
 
   .radio-field:first-child {
@@ -96,7 +96,7 @@
   :global(.card) > .radio-field:last-child .radio-field_value:last-child {
     margin-bottom: calc(-1 * var(--padding-l));
     border-bottom: none;
-    border-radius: 0 0 var(--outer-radius) var(--outer-radius);
+    border-radius: 0 0 var(--radius) var(--radius);
 
     &:active {
       box-shadow:
