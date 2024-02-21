@@ -3,7 +3,8 @@
 :root {
   --focus-color: var(--blue-500);
   --shadow-color: oklch(15% 0.1 265);
-  --fire-color: oklch(70% 0.15 65);
+  --fire1-color: oklch(70% 0.15 65);
+  --fire2-color: oklch(58% 0.2 29);
   --error-color: var(--red-600);
 
   @media (prefers-color-scheme: light) {

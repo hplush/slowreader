@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { mdiFireplace, mdiFood } from '@mdi/js'
+  import { mdiFood } from '@mdi/js'
   import { router, navbarMessages as t } from '@slowreader/core'
 
   import { getURL } from '../../stores/router.js'
   import Hotkey from '../hotkey.svelte'
   import Icon from '../icon.svelte'
+  import NavbarFireplace from '../navbar/fireplace.svelte'
 </script>
 
 <div class="navbar-main">
@@ -18,10 +19,7 @@
   >
     <div class="navbar-main_overflow">
       <div class="navbar-main_button">
-        <div class="navbar-main_fire">
-          <Icon path={mdiFireplace} />
-        </div>
-        <Icon compensate={1} path={mdiFireplace} />
+        <NavbarFireplace />
         <span>{$t.slow}</span>
         <Hotkey hotkey="s" />
       </div>
@@ -104,30 +102,6 @@
       border: none;
       border-radius: var(--radius);
       box-shadow: var(--button-shadow);
-    }
-
-    & .navbar-main_fire {
-      --icon-move: -7px -4.5px;
-
-      position: absolute;
-      inset-inline-start: 20px;
-      z-index: 2;
-      display: none;
-      width: 6px;
-      height: 6px;
-      margin-top: 6px;
-      overflow: hidden;
-      color: var(--fire-color);
-      background: var(--hover-color);
-    }
-
-    &:hover .navbar-main_fire,
-    &:focus-visible .navbar-main_fire {
-      display: block;
-    }
-
-    &[aria-current='page'] .navbar-main_fire {
-      display: none;
     }
 
     &:first-child .navbar-main_button {

@@ -37,7 +37,7 @@
     refreshing={{ processedFeeds: 2, totalFeeds: 4 }}
     route={{ params: {}, route: 'add' }}
   >
-    <Section border={false} focus=".navbar-switcher_link:first-child">
+    <Section border={false} focus=".navbar-main_link:first-child">
       <Navbar />
     </Section>
   </Scene>
