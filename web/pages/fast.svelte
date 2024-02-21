@@ -12,21 +12,15 @@
   import { getURL } from '../stores/router.js'
   import Button from '../ui/button.svelte'
   import Loader from '../ui/loader.svelte'
-  import Page from '../ui/page.svelte'
   import PostCard from '../ui/post-card.svelte'
+  import TwoStepsPage from '../ui/two-steps-page.svelte'
 </script>
 
-<Page title={$t.pageTitle} type="list">
-  {#if $fastCategory === undefined || $fastLoading === 'init' || ($openedFastPost && $openedFastPost.isLoading)}
-    <Loader />
-  {:else}
-    <div>
-      {#if $openedFastPost}
-        <PostCard post={$openedFastPost} />
-        <hr />
-      {/if}
-    </div>
-    {#if $fastPosts.length === 0}
+<TwoStepsPage title={$t.pageTitle}>
+  <div slot="one">
+    {#if $fastCategory === undefined || $fastLoading === 'init'}
+      <Loader />
+    {:else if $fastPosts.length === 0}
       {$t.noPosts}
     {:else}
       <ul role="list">
@@ -73,8 +67,17 @@
         {/if}
       {/if}
     {/if}
-  {/if}
-</Page>
+  </div>
+  <div slot="two">
+    {#if $openedFastPost}
+      {#if $openedFastPost.isLoading}
+        <Loader />
+      {:else}
+        <PostCard post={$openedFastPost} />
+      {/if}
+    {/if}
+  </div>
+</TwoStepsPage>
 
 <style>
   .fast_post {

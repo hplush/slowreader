@@ -7,21 +7,15 @@
 
   import { getURL } from '../stores/router.js'
   import Loader from '../ui/loader.svelte'
-  import Page from '../ui/page.svelte'
   import PostCard from '../ui/post-card.svelte'
+  import TwoStepsPage from '../ui/two-steps-page.svelte'
 </script>
 
-<Page title={$t.pageTitle} type="list">
-  {#if $slowPosts.isLoading || $openedSlowPost?.isLoading}
-    <Loader />
-  {:else}
-    <div>
-      {#if $openedSlowPost}
-        <PostCard post={$openedSlowPost} />
-        <hr />
-      {/if}
-    </div>
-    {#if $slowPosts.list.length === 0}
+<TwoStepsPage title={$t.pageTitle}>
+  <div slot="one">
+    {#if $slowPosts.isLoading}
+      <Loader />
+    {:else if $slowPosts.list.length === 0}
       {$t.noPosts}
     {:else}
       <ul role="list">
@@ -41,8 +35,17 @@
         {/each}
       </ul>
     {/if}
-  {/if}
-</Page>
+  </div>
+  <div slot="two">
+    {#if $openedSlowPost}
+      {#if $openedSlowPost.isLoading}
+        <Loader />
+      {:else}
+        <PostCard post={$openedSlowPost} />
+      {/if}
+    {/if}
+  </div>
+</TwoStepsPage>
 
 <style>
   .slow_post {
