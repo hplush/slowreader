@@ -37,18 +37,14 @@
   :global(a:hover) .navbar-fireplace_fire.is-main,
   :global(a:focus-visible) .navbar-fireplace_fire.is-main {
     z-index: 2;
-    animation:
-      navbar-fire-moving 1.7s infinite ease-in-out,
-      navbar-fire-rotating 1.1s infinite ease-in-out;
+    animation: navbar-fire-rotating 2s infinite ease-in-out;
   }
 
   :global(a:hover) .navbar-fireplace_fire.is-second,
   :global(a:focus-visible) .navbar-fireplace_fire.is-second {
     z-index: 1;
     color: var(--fire2-color);
-    animation:
-      navbar-fire-moving 0.9s infinite ease-in-out 0.5s,
-      navbar-fire-rotating 1.2s infinite ease-in-out 0.5s;
+    animation: navbar-fire-rotating 3s infinite ease-in-out 0.5s;
   }
 
   :global(a:hover) .navbar-fireplace::after,
@@ -62,27 +58,9 @@
     background: var(--hover-color);
   }
 
-  @keyframes navbar-fire-moving {
-    25% {
-      translate: 0.5px 0;
-    }
-
-    50% {
-      translate: 0 0;
-    }
-
-    75% {
-      translate: -0.5px 0;
-    }
-
-    100% {
-      translate: 0 0;
-    }
-  }
-
   @keyframes navbar-fire-rotating {
     25% {
-      rotate: 15deg;
+      rotate: 20deg;
     }
 
     50% {
@@ -90,7 +68,7 @@
     }
 
     75% {
-      rotate: -15deg;
+      rotate: -20deg;
     }
 
     100% {
