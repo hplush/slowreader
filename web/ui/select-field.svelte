@@ -96,8 +96,8 @@
 
   .select-field_select {
     position: absolute;
-    inset: 0;
-    width: 100%;
+    inset: -1px;
+    width: calc(100% + 2px);
     opacity: 0%;
   }
 </style>

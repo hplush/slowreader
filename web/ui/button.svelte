@@ -31,11 +31,18 @@
     title={hiddenLabel}
     on:click={onClick}
   >
-    {#if icon}
-      <Icon path={icon} />
-    {/if}
     {#if !hiddenLabel}
+      {#if icon}
+        <Icon path={icon} />
+      {/if}
       <span><slot /></span>
+    {:else}
+      {#if icon}
+        <div class="button_center">
+          <Icon path={icon} />
+        </div>
+      {/if}
+      <span class="button_sizer" aria-hidden="true">x</span>
     {/if}
     {#if hotkey}
       <Hotkey {hotkey} />
@@ -53,11 +60,18 @@
     type="button"
     on:click={onClick}
   >
-    {#if icon}
-      <Icon path={icon} />
-    {/if}
     {#if !hiddenLabel}
+      {#if icon}
+        <Icon path={icon} />
+      {/if}
       <span><slot /></span>
+    {:else}
+      {#if icon}
+        <div class="button_center">
+          <Icon path={icon} />
+        </div>
+      {/if}
+      <span class="button_sizer" aria-hidden="true">x</span>
     {/if}
     {#if hotkey}
       <Hotkey {hotkey} />
@@ -104,8 +118,9 @@
     }
 
     &.is-square {
-      width: 44px;
-      height: 44px;
+      width: auto;
+      height: fit-content;
+      aspect-ratio: 1;
     }
 
     &.is-dangerous {
@@ -135,5 +150,17 @@
         box-shadow: var(--flat-active-shadow);
       }
     }
+  }
+
+  .button_center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .button_sizer {
+    visibility: hidden;
   }
 </style>
