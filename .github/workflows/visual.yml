@@ -30,7 +30,7 @@ jobs:
         run: pnpm install --frozen-lockfile --ignore-scripts
       - name: Publish to Chromatic
         if: steps.today.outputs.has_commits == 'true'
-        uses: chromaui/action@v10
+        uses: chromaui/action@v11
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           buildScriptName: build:visual
