@@ -34,7 +34,7 @@
     "@slowreader/core": "link:../core",
     "@sveltejs/vite-plugin-svelte": "3.0.2",
     "autoprefixer": "10.4.17",
-    "keyux": "0.3.0",
+    "keyux": "0.3.1",
     "nanoid": "5.0.6",
     "nanostores": "0.10.0",
     "picocolors": "1.0.0",
