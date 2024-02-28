@@ -28,7 +28,7 @@
   ],
   "devDependencies": {
     "@logux/eslint-config": "52.0.2",
-    "@types/node": "20.11.20",
+    "@types/node": "20.11.22",
     "@types/ws": "8.5.10",
     "@typescript-eslint/eslint-plugin": "7.1.0",
     "@typescript-eslint/parser": "7.1.0",
@@ -47,11 +47,11 @@
     "picocolors": "1.0.0",
     "postcss-html": "1.6.0",
     "prettier": "3.2.5",
-    "prettier-plugin-svelte": "3.2.1",
+    "prettier-plugin-svelte": "3.2.2",
     "simple-git-hooks": "2.9.0",
     "stylelint": "16.2.1",
     "svelte": "4.2.12",
-    "svelte-check": "3.6.4",
+    "svelte-check": "3.6.5",
     "svgo": "3.2.0",
     "tsx": "4.7.1",
     "typescript": "5.3.3"
