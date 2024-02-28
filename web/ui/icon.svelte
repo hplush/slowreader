@@ -21,7 +21,6 @@
     position: relative;
     top: var(--icon-compensate);
     display: block;
-    flex-shrink: 0;
     width: var(--icon-size);
     height: var(--icon-size);
     margin: var(--icon-move);

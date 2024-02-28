@@ -10,6 +10,7 @@
   @media (prefers-color-scheme: light) {
     --land-color: color-mix(in oklab, var(--neutral-100), var(--neutral-200));
     --text-color: var(--neutral-950);
+    --secondary-text-color: var(--neutral-700);
     --hotkey-color: var(--neutral-400);
     --border-color: oklch(0% 0 0 / 15%);
     --hover-color: color-mix(in oklch, var(--neutral-50), var(--sand-50));
@@ -48,6 +49,7 @@
   @media (prefers-color-scheme: dark) {
     --land-color: var(--neutral-950);
     --text-color: var(--neutral-50);
+    --secondary-text-color: var(--neutral-600);
     --hotkey-color: var(--neutral-700);
     --border-color: oklch(100% 0 0 / 15%);
     --hover-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));

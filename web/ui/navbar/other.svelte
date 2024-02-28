@@ -2,14 +2,39 @@
   import {
     mdiAccount,
     mdiFileDownloadOutline,
+    mdiFileTree,
     mdiInformationOutline,
-    mdiPalette
+    mdiPalette,
+    mdiPlusCircleOutline
   } from '@mdi/js'
-  import { router, navbarMessages as t } from '@slowreader/core'
+  import { hasFeeds, router, navbarMessages as t } from '@slowreader/core'
 
   import { getURL } from '../../stores/router.js'
+  import NavbarCategory from './category.svelte'
   import NavbarItem from './item.svelte'
 </script>
+
+<NavbarCategory name={$t.feeds} />
+
+<NavbarItem
+  name={$t.add}
+  current={$router.route === 'add'}
+  href={getURL('add')}
+  icon={mdiPlusCircleOutline}
+  secondary
+/>
+
+{#if $hasFeeds}
+  <NavbarItem
+    name={$t.feedsByCategory}
+    current={$router.route === 'categories'}
+    href={getURL('categories')}
+    icon={mdiFileTree}
+    secondary
+  />
+{/if}
+
+<NavbarCategory name={$t.settings} />
 
 <NavbarItem
   name={$t.interface}

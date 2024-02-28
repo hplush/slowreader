@@ -1,11 +1,9 @@
 <script lang="ts">
-  import { mdiCogOutline, mdiPlaylistEdit, mdiRefresh } from '@mdi/js'
+  import { mdiFood, mdiMenu, mdiRefresh } from '@mdi/js'
   import {
-    hasFeeds,
     isFastRoute,
-    isOrganizeRoute,
+    isOtherRoute,
     isRefreshing,
-    isSettingsRoute,
     isSlowRoute,
     refreshPosts,
     refreshProgress,
@@ -15,12 +13,13 @@
   import { onMount } from 'svelte'
 
   import { getURL } from '../../stores/router.js'
-  import Loader from '../loader.svelte'
+  import Hotkey from '../hotkey.svelte'
+  import Icon from '../icon.svelte'
+  import NavbarFireplace from '../navbar/fireplace.svelte'
   import NavbarFast from './fast.svelte'
-  import NavbarFeeds from './feeds.svelte'
   import NavbarItem from './item.svelte'
-  import NavbarMain from './main.svelte'
-  import NavbarSettings from './settings.svelte'
+  import NavbarOther from './other.svelte'
+  import NavbarProgress from './progress.svelte'
   import NavbarSlow from './slow.svelte'
 
   onMount(() => {
@@ -32,7 +31,75 @@
 </script>
 
 <nav class="navbar">
-  <NavbarMain />
+  <div class="navbar_main" aria-orientation="horizontal" role="menu">
+    {#if $isRefreshing}
+      <NavbarItem
+        name={$t.refresh}
+        current={$router.route === 'refresh'}
+        hotkey="r"
+        href={getURL('refresh')}
+        small
+      >
+        <NavbarProgress value={$refreshProgress} />
+      </NavbarItem>
+    {:else}
+      <NavbarItem
+        name={$t.refresh}
+        current={$router.route === 'refresh'}
+        hotkey="r"
+        icon={mdiRefresh}
+        small
+        on:click={() => {
+          refreshPosts()
+        }}
+      />
+    {/if}
+    <div class="navbar_switcher">
+      <a
+        class="navbar_link"
+        aria-controls="navbar_submenu"
+        aria-current={$router.route === 'slow' ? 'page' : null}
+        aria-haspopup="menu"
+        aria-keyshortcuts="s"
+        href={getURL('slow')}
+        role="menuitem"
+      >
+        <div class="navbar_overflow">
+          <div class="navbar_button">
+            <NavbarFireplace />
+            <span>{$t.slow}</span>
+            <Hotkey hotkey="s" />
+          </div>
+        </div>
+      </a>
+      <a
+        class="navbar_link"
+        aria-controls="navbar_submenu"
+        aria-current={$router.route === 'fast' ? 'page' : null}
+        aria-haspopup="menu"
+        aria-keyshortcuts="f"
+        href={getURL('fast')}
+        role="menuitem"
+      >
+        <div class="navbar_overflow">
+          <div class="navbar_button">
+            <Icon path={mdiFood} />
+            <span>{$t.fast}</span>
+            <Hotkey hotkey="f" />
+          </div>
+        </div>
+      </a>
+    </div>
+    <NavbarItem
+      name={$t.menu}
+      current={isOtherRoute($router)}
+      hotkey="m"
+      href={getURL('add')}
+      icon={mdiMenu}
+      small
+      submenu
+    />
+  </div>
   <div
     id="navbar_submenu"
     class="navbar_submenu"
@@ -43,49 +110,9 @@
       <NavbarSlow />
     {:else if isFastRoute($router)}
       <NavbarFast />
-    {:else if isSettingsRoute($router)}
-      <NavbarSettings />
-    {:else if isOrganizeRoute($router)}
-      <NavbarFeeds />
+    {:else if isOtherRoute($router)}
+      <NavbarOther />
     {/if}
-  </div>
-  <div class="navbar_other">
-    {#if $hasFeeds}
-      {#if $isRefreshing}
-        <NavbarItem
-          current={$router.route === 'refresh'}
-          href={getURL('refresh')}
-        >
-          <Loader label={$t.refreshing} value={$refreshProgress} />
-        </NavbarItem>
-      {:else}
-        <NavbarItem
-          name={$t.refresh}
-          current={$router.route === 'refresh'}
-          hotkey="r"
-          icon={mdiRefresh}
-          on:click={() => {
-            refreshPosts()
-          }}
-        />
-      {/if}
-    {/if}
-    <NavbarItem
-      name={$t.feeds}
-      current={isOrganizeRoute($router)}
-      hotkey="l"
-      href={getURL('add')}
-      icon={mdiPlaylistEdit}
-      submenu
-    />
-    <NavbarItem
-      name={$t.settings}
-      current={isSettingsRoute($router)}
-      hotkey="p"
-      href={getURL('interface')}
-      icon={mdiCogOutline}
-      submenu
-    />
   </div>
 </nav>
 
@@ -95,7 +122,7 @@
   }
 
   :global(:root.has-navbar) {
-    --navbar-width: 210px;
+    --navbar-width: 290px;
   }
 
   .navbar {
@@ -108,12 +135,11 @@
     width: var(--navbar-width);
   }
 
-  .navbar_submenu,
-  .navbar_other {
+  .navbar_main {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: var(--padding-m);
+    gap: var(--padding-s);
+    justify-content: stretch;
+    padding: var(--padding-m) var(--padding-m) 0 var(--padding-m);
   }
 
   .navbar_submenu {
@@ -121,11 +147,117 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    flex-shrink: 1;
     gap: 2px;
+    padding: var(--padding-m);
     overflow: scroll;
   }
 
-  .navbar_other {
-    padding-top: 0;
+  .navbar_switcher {
+    position: relative;
+    display: flex;
+    flex-grow: 1;
+  }
+
+  .navbar_link {
+    position: relative;
+    border-radius: var(--radius);
+
+    &:first-child {
+      width: 50%;
+      border-start-end-radius: 0;
+      border-end-end-radius: 0;
+    }
+
+    &:last-child {
+      width: calc(50% + 1px);
+      margin-inline-start: -1px;
+      border-start-start-radius: 0;
+      border-end-start-radius: 0;
+    }
+
+    & .navbar_overflow {
+      padding: 5px;
+      margin: -5px;
+      overflow: hidden;
+      background: var(--land-color);
+    }
+
+    &:first-child .navbar_overflow {
+      padding-inline-end: 0;
+      margin-inline-end: 0;
+    }
+
+    &:last-child .navbar_overflow {
+      padding-inline-start: 0;
+      margin-inline-start: 0;
+    }
+
+    & .navbar_button {
+      position: relative;
+      box-sizing: border-box;
+      display: inline-flex;
+      gap: var(--padding-m);
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: var(--padding-m) var(--padding-l);
+      font-weight: 600;
+      color: var(--text-color);
+      text-decoration: none;
+      cursor: pointer;
+      user-select: none;
+      background: var(--card-color);
+      border: none;
+      border-radius: var(--radius);
+      box-shadow: var(--button-shadow);
+    }
+
+    &:first-child .navbar_button {
+      border-start-end-radius: 0;
+      border-end-end-radius: 0;
+    }
+
+    &:last-child .navbar_button {
+      border-start-start-radius: 0;
+      border-end-start-radius: 0;
+    }
+
+    &:hover .navbar_button,
+    &:focus-visible .navbar_button,
+    &:active .navbar_button {
+      background: var(--hover-color);
+    }
+
+    &[aria-current='page'] .navbar_button,
+    &[aria-current='page']:hover .navbar_button {
+      cursor: default;
+      background: var(--card-color);
+      box-shadow: var(--button-pressed-shadow);
+    }
+
+    &:active .navbar_button {
+      box-shadow: var(--button-active-shadow);
+
+      & > * {
+        transform: translateY(1px);
+      }
+    }
+
+    @media (prefers-color-scheme: light) {
+      &:active .navbar_button,
+      &[aria-current='page'] .navbar_button {
+        padding-block: calc(var(--padding-m) - 1px);
+        margin-block: 1px;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      &:active .navbar_button,
+      &[aria-current='page'] .navbar_button {
+        padding-block: var(--padding-m) calc(var(--padding-m) - 1px);
+        margin-bottom: 1px;
+      }
+    }
   }
 </style>

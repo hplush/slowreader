@@ -37,7 +37,15 @@
     refreshing={{ processedFeeds: 2, totalFeeds: 4 }}
     route={{ params: {}, route: 'add' }}
   >
-    <Section border={false} focus=".navbar-main_link:first-child">
+    <Section border={false} focus=".navbar_link:first-child">
+      <Navbar />
+    </Section>
+  </Scene>
+</Story>
+
+<Story name="Scroll" parameters={{ layout: 'fullscreen' }}>
+  <Scene route={{ params: {}, route: 'interface' }}>
+    <Section border={false} height={300}>
       <Navbar />
     </Section>
   </Scene>

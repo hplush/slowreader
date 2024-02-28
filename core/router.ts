@@ -162,12 +162,8 @@ export function isGuestRoute(route: Route): boolean {
   return GUEST.has(route.route)
 }
 
-export function isSettingsRoute(route: Route): boolean {
-  return SETTINGS.has(route.route)
-}
-
-export function isOrganizeRoute(route: Route): boolean {
-  return ORGANIZE.has(route.route)
+export function isOtherRoute(route: Route): boolean {
+  return SETTINGS.has(route.route) || ORGANIZE.has(route.route)
 }
 
 export function removeFeedFromRoute(): void {

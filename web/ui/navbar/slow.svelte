@@ -9,6 +9,7 @@
 
   import { getURL } from '../../stores/router.js'
   import Loader from '../loader.svelte'
+  import NavbarCategory from './category.svelte'
   import NavbarItem from './item.svelte'
 
   function categoryName(category: CategoryValue): string {
@@ -30,7 +31,7 @@
   <Loader zoneId="navbar_submenu" />
 {:else}
   {#each $slowCategories.tree as [category, feeds] (category.id)}
-    <div class="navbar-slow_category">{categoryName(category)}</div>
+    <NavbarCategory name={categoryName(category)} />
     {#each feeds as [feed, unread] (feed.id)}
       <NavbarItem
         name={`${feed.title} (${unread})`}
@@ -41,9 +42,3 @@
     {/each}
   {/each}
 {/if}
-
-<style>
-  .navbar-slow_category {
-    padding: 0 var(--padding-l);
-  }
-</style>

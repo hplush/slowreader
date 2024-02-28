@@ -56,7 +56,7 @@
 
 <section
   bind:this={section}
-  style=" width: {width}px;height: {height}px"
+  style="width: {width}px; height: {height}px"
   class:is-bordered={border}
   class:is-sized={width !== undefined || height !== undefined}
 >
@@ -74,6 +74,8 @@
 
     &.is-sized {
       margin-inline: auto;
+      overflow: hidden;
+      transform: scale(1);
     }
 
     &.is-bordered {

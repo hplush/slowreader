@@ -9,8 +9,7 @@ import {
   deleteFeed,
   isFastRoute,
   isGuestRoute,
-  isOrganizeRoute,
-  isSettingsRoute,
+  isOtherRoute,
   isSlowRoute,
   removeFeedFromRoute,
   router,
@@ -157,44 +156,38 @@ test('has routes groups', () => {
   equal(isFastRoute(router.get()), false)
   equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), true)
-  equal(isSettingsRoute(router.get()), false)
-  equal(isOrganizeRoute(router.get()), false)
+  equal(isOtherRoute(router.get()), false)
 
   userId.set('10')
   setBaseRoute({ params: {}, route: 'refresh' })
   equal(isFastRoute(router.get()), false)
   equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), false)
-  equal(isSettingsRoute(router.get()), false)
-  equal(isOrganizeRoute(router.get()), false)
+  equal(isOtherRoute(router.get()), false)
 
   setBaseRoute({ params: {}, route: 'slow' })
   equal(isFastRoute(router.get()), false)
   equal(isSlowRoute(router.get()), true)
   equal(isGuestRoute(router.get()), false)
-  equal(isSettingsRoute(router.get()), false)
-  equal(isOrganizeRoute(router.get()), false)
+  equal(isOtherRoute(router.get()), false)
 
   setBaseRoute({ params: { category: 'general' }, route: 'fast' })
   equal(isFastRoute(router.get()), true)
   equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), false)
-  equal(isSettingsRoute(router.get()), false)
-  equal(isOrganizeRoute(router.get()), false)
+  equal(isOtherRoute(router.get()), false)
 
   setBaseRoute({ params: {}, route: 'profile' })
   equal(isFastRoute(router.get()), false)
   equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), false)
-  equal(isSettingsRoute(router.get()), true)
-  equal(isOrganizeRoute(router.get()), false)
+  equal(isOtherRoute(router.get()), true)
 
   setBaseRoute({ params: {}, route: 'categories' })
   equal(isFastRoute(router.get()), false)
   equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), false)
-  equal(isSettingsRoute(router.get()), false)
-  equal(isOrganizeRoute(router.get()), true)
+  equal(isOtherRoute(router.get()), true)
 })
 
 test('converts since to number', async () => {

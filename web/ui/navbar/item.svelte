@@ -11,6 +11,7 @@
   export let icon: string | undefined = undefined
   export let secondary = false
   export let submenu = false
+  export let small = false
 
   let dispatch = createEventDispatcher()
 
@@ -22,27 +23,31 @@
 {#if href}
   <a
     class="navbar-item"
-    class:is-secondary={secondary}
+    class:is-small={small}
     aria-controls={submenu ? 'navbar_submenu' : 'page'}
     aria-current={current ? 'page' : null}
     aria-haspopup={submenu ? 'menu' : null}
     aria-keyshortcuts={hotkey}
     {href}
     role="menuitem"
-    tabindex={secondary ? -1 : null}
-    title={name && name.length > 15 ? name : null}
+    tabindex={secondary || !current ? -1 : null}
+    title={small || (name && name.length > 15) ? name : null}
     on:click={onClick}
   >
     {#if icon}
       <Icon path={icon} />
     {/if}
-    <span class="navbar-item_text">
-      {#if name}
-        {name}
-      {:else}
-        <slot />
-      {/if}
-    </span>
+    {#if !small}
+      <span class="navbar-item_text">
+        {#if name}
+          {name}
+        {:else}
+          <slot />
+        {/if}
+      </span>
+    {:else}
+      <slot />
+    {/if}
     {#if hotkey}
       <Hotkey {hotkey} />
     {/if}
@@ -50,25 +55,30 @@
 {:else}
   <button
     class="navbar-item"
-    class:is-secondary={secondary}
+    class:is-small={small}
     aria-controls={submenu ? 'navbar_submenu' : 'page'}
     aria-current={current ? 'page' : null}
     aria-haspopup={submenu ? 'menu' : null}
     aria-keyshortcuts={hotkey}
+    role="menuitem"
     tabindex={secondary ? -1 : null}
-    title={name && name.length > 15 ? name : null}
+    title={small || (name && name.length > 15) ? name : null}
     on:click={onClick}
   >
     {#if icon}
       <Icon path={icon} />
     {/if}
-    <span class="navbar-item_text">
-      {#if name}
-        {name}
-      {:else}
-        <slot />
-      {/if}
-    </span>
+    {#if !small}
+      <span class="navbar-item_text">
+        {#if name}
+          {name}
+        {:else}
+          <slot />
+        {/if}
+      </span>
+    {:else}
+      <slot />
+    {/if}
     {#if hotkey}
       <Hotkey {hotkey} />
     {/if}
@@ -83,9 +93,10 @@
     gap: var(--padding-m);
     align-items: center;
     justify-content: flex-start;
-    padding: var(--padding-m) var(--padding-l);
+    padding: var(--padding-m) 13px;
     overflow: hidden;
     font: var(--control-font);
+    font-weight: normal;
     color: var(--text-color);
     text-decoration: none;
     cursor: pointer;
@@ -94,8 +105,11 @@
     border: none;
     border-radius: var(--radius);
 
-    &.is-secondary {
-      font-weight: normal;
+    &.is-small {
+      justify-content: center;
+      height: auto;
+      aspect-ratio: 1;
+      padding: 0;
     }
 
     &:hover,
