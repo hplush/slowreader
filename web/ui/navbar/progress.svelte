@@ -15,7 +15,6 @@
     stroke-dasharray={CIRCUMFERENCE}
     stroke-dashoffset={CIRCUMFERENCE - value * CIRCUMFERENCE}
     stroke-width="16"
-    transform="rotate(-90 60 60)"
   />
 </svg>
 
