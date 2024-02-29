@@ -150,7 +150,7 @@
     flex-shrink: 1;
     gap: 2px;
     padding: var(--padding-m);
-    overflow: scroll;
+    overflow-y: auto;
   }
 
   .navbar_switcher {
