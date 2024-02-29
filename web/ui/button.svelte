@@ -42,7 +42,7 @@
           <Icon path={icon} />
         </div>
       {/if}
-      <span class="button_sizer" aria-hidden="true">x</span>
+      <span class="button_size" aria-hidden="true">x</span>
     {/if}
     {#if hotkey}
       <Hotkey {hotkey} />
@@ -71,7 +71,7 @@
           <Icon path={icon} />
         </div>
       {/if}
-      <span class="button_sizer" aria-hidden="true">x</span>
+      <span class="button_size" aria-hidden="true">x</span>
     {/if}
     {#if hotkey}
       <Hotkey {hotkey} />
@@ -160,7 +160,7 @@
     justify-content: center;
   }
 
-  .button_sizer {
+  .button_size {
     visibility: hidden;
   }
 </style>
