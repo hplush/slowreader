@@ -74,7 +74,6 @@
 
     &.is-sized {
       margin-inline: auto;
-      overflow: hidden;
       transform: scale(1);
     }
 
