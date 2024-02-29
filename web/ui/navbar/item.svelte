@@ -106,6 +106,7 @@
     border-radius: var(--radius);
 
     &.is-small {
+      flex-grow: 2;
       justify-content: center;
       height: auto;
       aspect-ratio: 1;
