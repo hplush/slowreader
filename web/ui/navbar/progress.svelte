@@ -1,20 +1,20 @@
 <script lang="ts">
   export let value: number
 
-  const RADIUS = 50
+  const RADIUS = 4.8
   const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 </script>
 
-<svg height="120" viewBox="0 0 120 120" width="120">
-  <circle cx="60" cy="60" fill="none" r={RADIUS} stroke-width="16" />
+<svg viewBox="0 0 12 12">
+  <circle cx="6" cy="6" fill="none" r={RADIUS} stroke-width="1.3" />
   <circle
-    cx="60"
-    cy="60"
+    cx="6"
+    cy="6"
     fill="none"
     r={RADIUS}
     stroke-dasharray={CIRCUMFERENCE}
     stroke-dashoffset={CIRCUMFERENCE - value * CIRCUMFERENCE}
-    stroke-width="16"
+    stroke-width="1.3"
   />
 </svg>
 
