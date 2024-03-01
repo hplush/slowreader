@@ -6,7 +6,7 @@
 
 <style>
   .navbar-category {
-    padding: var(--padding-m) var(--padding-l) 0 var(--padding-l);
+    padding: var(--padding-m) 13px 0 13px;
     font: var(--secondary-font);
     color: var(--secondary-text-color);
 
