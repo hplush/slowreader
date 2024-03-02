@@ -135,6 +135,7 @@
   }
 
   .navbar-item_text {
+    flex-shrink: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
