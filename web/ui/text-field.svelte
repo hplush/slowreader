@@ -103,6 +103,7 @@
 <style>
   .text-field {
     position: relative;
+    flex-shrink: 1;
     width: 100%;
     margin-top: var(--padding-l);
   }
