@@ -37,7 +37,9 @@
     {#if icon}
       <Icon path={icon} />
     {/if}
-    {#if !small}
+    {#if small}
+      <slot />
+    {:else}
       <span class="navbar-item_text">
         {#if name}
           {name}
@@ -45,8 +47,6 @@
           <slot />
         {/if}
       </span>
-    {:else}
-      <slot />
     {/if}
     {#if hotkey}
       <Hotkey {hotkey} />
@@ -68,7 +68,9 @@
     {#if icon}
       <Icon path={icon} />
     {/if}
-    {#if !small}
+    {#if small}
+      <slot />
+    {:else}
       <span class="navbar-item_text">
         {#if name}
           {name}
@@ -76,8 +78,6 @@
           <slot />
         {/if}
       </span>
-    {:else}
-      <slot />
     {/if}
     {#if hotkey}
       <Hotkey {hotkey} />
@@ -93,7 +93,8 @@
     gap: var(--padding-m);
     align-items: center;
     justify-content: flex-start;
-    padding: var(--padding-m) 13px;
+    height: var(--navbar-item);
+    padding: 0 13px;
     overflow: hidden;
     font: var(--control-font);
     font-weight: normal;
@@ -106,10 +107,9 @@
     border-radius: var(--radius);
 
     &.is-small {
-      flex-grow: 2;
       justify-content: center;
-      height: auto;
-      aspect-ratio: 1;
+      width: var(--navbar-item);
+      height: var(--navbar-item);
       padding: 0;
     }
 

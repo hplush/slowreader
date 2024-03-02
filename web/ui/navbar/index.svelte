@@ -119,6 +119,7 @@
 <style>
   :root {
     --navbar-width: 0;
+    --navbar-item: 40px;
   }
 
   :global(:root.has-navbar) {
@@ -201,8 +202,10 @@
       align-items: center;
       justify-content: center;
       width: 100%;
-      padding: var(--padding-m) var(--padding-l);
+      height: var(--navbar-item);
+      padding-inline: var(--padding-l);
       font-weight: 600;
+      line-height: var(--navbar-item);
       color: var(--text-color);
       text-decoration: none;
       cursor: pointer;
@@ -247,7 +250,7 @@
     @media (prefers-color-scheme: light) {
       &:active .navbar_button,
       &[aria-current='page'] .navbar_button {
-        padding-block: calc(var(--padding-m) - 1px);
+        height: calc(var(--navbar-item) - 2px);
         margin-block: 1px;
       }
     }
@@ -255,7 +258,7 @@
     @media (prefers-color-scheme: dark) {
       &:active .navbar_button,
       &[aria-current='page'] .navbar_button {
-        padding-block: var(--padding-m) calc(var(--padding-m) - 1px);
+        height: calc(var(--navbar-item) - 1px);
         margin-bottom: 1px;
       }
     }
