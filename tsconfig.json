@@ -11,5 +11,5 @@
     "strict": true,
     "noEmit": true
   },
-  "include": ["**/*.ts", "web/**/*.svelte"]
+  "include": ["**/*.ts", "web/**/*.svelte", "web/.storybook/*.ts"]
 }
