@@ -1,13 +1,6 @@
 {
   "extends": ["@logux/eslint-config/svelte"],
-  "plugins": ["uvu"],
   "overrides": [
-    {
-      "files": ["*.test.*"],
-      "rules": {
-        "uvu/no-identical-titles": "error"
-      }
-    },
     {
       "files": ["*.svelte"],
       "rules": {
