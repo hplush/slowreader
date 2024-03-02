@@ -1,18 +1,19 @@
-import type { Preview } from '@storybook/svelte'
-import { withThemeByClassName } from '@storybook/addon-themes'
+import '../main/browser.js'
+import '../stories/environment.js'
 
 import '../main/index.css'
-import '../stories/environment.js'
-import '../main/browser.js'
+
+import { withThemeByClassName } from '@storybook/addon-themes'
+import type { Preview } from '@storybook/svelte'
 
 export default {
   decorators: [
     withThemeByClassName({
+      defaultTheme: 'light',
       themes: {
-        light: 'is-light-theme',
-        dark: 'is-dark-theme'
-      },
-      defaultTheme: 'light'
+        dark: 'is-dark-theme',
+        light: 'is-light-theme'
+      }
     })
   ],
   parameters: {}
