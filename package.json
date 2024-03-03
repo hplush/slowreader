@@ -38,7 +38,7 @@
     "postcss-html": "1.6.0",
     "prettier": "3.2.5",
     "prettier-plugin-svelte": "3.2.2",
-    "simple-git-hooks": "2.9.0",
+    "simple-git-hooks": "2.10.0",
     "stylelint": "16.2.1",
     "svelte": "4.2.12",
     "svelte-check": "3.6.6",
