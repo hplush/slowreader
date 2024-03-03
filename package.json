@@ -8,6 +8,7 @@
     "pnpm": "^8.0.0"
   },
   "scripts": {
+    "prepare": "husky",
     "clean": "pnpm run -r clean",
     "test:js": "eslint .",
     "test:types": "svelte-check",
@@ -33,12 +34,12 @@
     "better-node-test": "0.5.0",
     "eslint": "8.57.0",
     "eslint-plugin-svelte": "^2.35.1",
+    "husky": "^9.0.11",
     "nano-staged": "0.8.0",
     "picocolors": "1.0.0",
     "postcss-html": "1.6.0",
     "prettier": "3.2.5",
     "prettier-plugin-svelte": "3.2.2",
-    "simple-git-hooks": "2.10.0",
     "stylelint": "16.2.1",
     "svelte": "4.2.12",
     "svelte-check": "3.6.6",
