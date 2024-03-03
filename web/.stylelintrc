@@ -1,22 +1,29 @@
 {
   "extends": "@logux/stylelint-config",
   "ignoreFiles": ["web/dist/**/*", "*/coverage/lcov-report/*"],
+  "plugins": ["stylelint-use-logical"],
   "rules": {
     "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"],
     "alpha-value-notation": "percentage",
-    "property-disallowed-list": [
-      [
-        "left",
-        "right",
-        "margin-left",
-        "margin-right",
-        "padding-left",
-        "padding-right",
-        "/^border-left/",
-        "/^border-right/"
-      ],
+    "csstools/use-logical": [
+      "always",
       {
-        "message": "Use logical properties for better RTL support"
+        "except": [
+          "height",
+          "width",
+          "min-height",
+          "min-width",
+          "max-height",
+          "max-width",
+          "top",
+          "bottom",
+          "margin-top",
+          "margin-bottom",
+          "padding-top",
+          "padding-bottom",
+          "border-top",
+          "border-bottom"
+        ]
       }
     ],
     "no-descending-specificity": null,

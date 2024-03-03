@@ -246,6 +246,9 @@ importers:
       stylelint:
         specifier: 16.2.1
         version: 16.2.1(typescript@5.3.3)
+      stylelint-use-logical:
+        specifier: 2.1.2
+        version: 2.1.2(stylelint@16.2.1)
 
 packages:
 
@@ -8235,6 +8238,15 @@ packages:
     dependencies:
       postcss: 8.4.35
       postcss-sorting: 8.0.2(postcss@8.4.35)
+      stylelint: 16.2.1(typescript@5.3.3)
+    dev: true
+
+  /stylelint-use-logical@2.1.2(stylelint@16.2.1):
+    resolution: {integrity: sha512-4ffvPNk/swH4KS3izExWuzQOuzLmi0gb0uOhvxWJ20vDA5W5xKCjcHHtLoAj1kKvTIX6eGIN5xGtaVin9PD0wg==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      stylelint: '>= 11 < 17'
+    dependencies:
       stylelint: 16.2.1(typescript@5.3.3)
     dev: true
 
