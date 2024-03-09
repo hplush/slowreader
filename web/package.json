@@ -19,7 +19,7 @@
     "test:css": "stylelint **/*.css **/*.svelte",
     "test:build": "pnpm build && size-limit",
     "test": "pnpm run /^test:/",
-    "format:stylelint": "stylelint --fix **/*.{css,pcss,svelte}"
+    "format:stylelint": "stylelint --fix **/*.{css,svelte}"
   },
   "dependencies": {
     "@csstools/postcss-oklab-function": "3.0.10",
