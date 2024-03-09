@@ -30,7 +30,7 @@ if (!pkg.includes(`"pnpm": "^${pnpmMajor}.`)) {
 function checkDependencies(file: string, content: string): void {
   let match = content.match(/"[^"]+": "[\^~][^"]+"/)
   if (match && !match[0].startsWith('"node":')) {
-    let line = content.split('\n').findIndex(i => i.includes(match![0])) + 1
+    let line = content.split('\n').findIndex(i => i.includes(match[0])) + 1
     error(`Not locked version in ${file}:${line}: ${pico.yellow(match[0])}`)
   }
 }
