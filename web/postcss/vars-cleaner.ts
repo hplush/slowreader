@@ -1,3 +1,6 @@
+// PostCSS plugin for ../script/clean-vars.ts to remove unused palette colors
+// and throw error on unused CSS Custom Properties.
+
 import type { Node, Plugin } from 'postcss'
 
 const SILENT = /^--[a-z]+-\d\d\d?$/

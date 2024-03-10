@@ -1,3 +1,7 @@
+// PostCSS plugin to allow enabling @media prefers-color-scheme: dark/light
+// by changing classes (is-dark-theme, is-light-theme) in the HTML.
+// It is like postcss-dark-theme-class but solved our unique case.
+
 const IS_DARK = /^\(prefers-color-scheme:\s*dark\)$/
 const IS_LIGHT = /^\(prefers-color-scheme:\s*light\)$/
 

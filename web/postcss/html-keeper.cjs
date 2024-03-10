@@ -1,3 +1,11 @@
+// PostCSS plugin to avoid any CSS changes by Vite in index.html inline styles.
+// We use this inline styles to show some loading state.
+//
+// These changes are not useful in our case. So we save CSS document before
+// any other PostCSS plugin and then restore it after all other plugins.
+//
+// Also we remove all whitespaces.
+
 /**
  * @type {import('postcss').Plugin}
  */
