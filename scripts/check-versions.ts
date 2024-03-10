@@ -1,3 +1,8 @@
+// Script to check that:
+// - All dependencies has "1.2.3" requirement and not "^1.2.3" used by npm.
+//   It prevents unexpected updates on lock file issues.
+// - Node.js and pnpm versions in .tool-versions and package.json are the same.
+
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import pico from 'picocolors'

@@ -1,3 +1,7 @@
+// Check that all CSS classes in Svelte files follow our BEM name system:
+// ui/foo/bar.svelte should have only classes like: .foo-bar, .foo-bar_element,
+// .foo-bar_element.is-modifier
+
 import { lstat, readdir, readFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
 import pico from 'picocolors'

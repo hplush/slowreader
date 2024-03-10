@@ -1,3 +1,6 @@
+// Remove unused colors from palette (as CSS Custom Properties)
+// and throw and error if other CSS Custom Properties are unused.
+
 import { lstat, readdir, readFile, writeFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
 import pico from 'picocolors'

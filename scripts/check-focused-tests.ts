@@ -1,3 +1,7 @@
+// Script to avoid focused tests in the codebase.
+// The developer could focus test by using test.only() and forget to unfocus
+// it before committing the code.
+
 import { lstat, readdir, readFile } from 'node:fs/promises'
 import { join, relative } from 'node:path'
 import pico from 'picocolors'

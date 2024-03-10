@@ -1,3 +1,6 @@
+// Script to check that all core/messages/*.en.ts files have the right name.
+// core/messages/foo.en.ts should exports fooMessages with 'foo' name.
+
 import { lstat, readdir, readFile } from 'node:fs/promises'
 import { dirname, join, relative } from 'node:path'
 import pico from 'picocolors'
