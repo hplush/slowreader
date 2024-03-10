@@ -1,3 +1,6 @@
+# Config to synchronize text editor settings.
+# For VS Code we also duplicate them in .vscode/settings.json.
+
 root = true
 
 [*]
