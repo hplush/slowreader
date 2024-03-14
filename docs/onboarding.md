@@ -8,6 +8,14 @@ You can start by using any TOTP application (that app with 6-digit codes). We ju
 
 The best way to have 2FA is with a hardware key. Remember to store Recovery codes in a secure place in case you lose the key.
 
+## Encrypt Your Laptop
+
+Your SSH key to access the repository is stored on your laptop.
+
+All core team members _must_ enable file system encryption for the machine.
+
+Check the documentation for your operating system.
+
 ## Enable signing git commits
 
 By default, anybody can make commits with your name.
@@ -31,11 +39,3 @@ Then add your SSH key _also_ as the commit signing key:
 1. Open [New SSH Key](https://github.com/settings/ssh/new) page.
 2. Select `Key type`: `Signing key`.
 3. Copy the content of `~/.ssh/id_rsa.pub` file (or other file you used in `user.signingKey` above).
-
-## Encrypt Your Laptop
-
-Your SSH key to access the repository is stored on your laptop.
-
-All core team members _must_ enable file system encryption for the machine.
-
-Check the documentation for your operating system.
