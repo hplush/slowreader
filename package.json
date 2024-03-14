@@ -29,7 +29,7 @@
   ],
   "devDependencies": {
     "@logux/eslint-config": "53.0.0",
-    "@types/node": "20.11.25",
+    "@types/node": "20.11.27",
     "@types/ws": "8.5.10",
     "better-node-test": "0.5.1",
     "eslint": "8.57.0",
@@ -42,7 +42,7 @@
     "prettier-plugin-svelte": "3.2.2",
     "stylelint": "16.2.1",
     "svelte": "4.2.12",
-    "svelte-check": "3.6.6",
+    "svelte-check": "3.6.7",
     "svgo": "3.2.0",
     "tsx": "4.7.1",
     "typescript": "5.4.2"
