@@ -12,7 +12,7 @@ The best way to have 2FA is with a hardware key. Remember to store Recovery code
 
 By default, anybody can make commits with your name.
 
-You can enable signing git commits to verify that these are commits really made by you.
+We recommend enable signing git commits to verify that these are commits really made by you.
 
 ```sh
 git config --global commit.gpgsign true
@@ -34,6 +34,8 @@ Then add your SSH key _also_ as the commit signing key:
 
 ## Encrypt Your Laptop
 
-Your SSH key to access the repository is stored on your laptop. Enabling file system encryption for the machine is always a good idea.
+Your SSH key to access the repository is stored on your laptop.
+
+All core team members _must_ enable file system encryption for the machine.
 
 Check the documentation for your operating system.
