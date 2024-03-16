@@ -95,3 +95,21 @@ If you don’t want just to fix a specific bug, but want to join core team, here
 Always, feel free to ask [maintainer](https://t.me/sitnik) about your next task.
 
 In return to your participation, we will mentor you, so don’t afraid to ask any questions.
+
+## Commits
+
+We really care about good commit messages. Try to think about them and describe more:
+
+```diff
+- git commit -m 'Fix issue'
++ git commit -m 'Fix <Loader> style in Safari'
+```
+
+In commit’s messages example **why** you did changes, **not what** you changed:
+
+```diff
+- git commit -m 'Add .editorconfig'
++ git commit -m 'Add .editorconfig to sync text editor settings'
+```
+
+We recommend sign [your commits](./docs/onboarding.md#enable-signing-git-commits).
