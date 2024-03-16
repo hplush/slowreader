@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "clean": "rm -rf dist",
+    "test": "FORCE_COLOR=1 pnpm run /^test:/",
     "test:coverage": "c8 pnpm bnt",
-    "test": "FORCE_COLOR=1 pnpm run /^test:/"
+    "clean:coverage": "rm -rf coverage"
   },
   "exports": {
     ".": "./index.js",
