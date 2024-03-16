@@ -171,3 +171,11 @@ Where it is not possible, we should use old style 3D with rich visual feedback a
 Slow mode should always use yellow newspaper like background (on color screens).
 
 We are using [Material Design Icons](https://pictogrammers.com/library/mdi/) icons.
+
+On desktop, we care not only about mouse UX, but also about keyboard UX.
+
+- Create a path: what keys user should press to do some action. Try to make the path shorter and more useful.
+- Make hotkeys and non-standard keys visible for user.
+- Think about focus. If user start to interact with keyboard, move focus to the next most possible control.
+- <kbd>Esc</kbd> should work in as many cases as possible.
+- Don’t use only <kbd>Tab</kbd> to navigate. Mix it with arrows and hotkeys for list items.
