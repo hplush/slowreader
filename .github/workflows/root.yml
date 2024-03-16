@@ -27,3 +27,7 @@ jobs:
         run: pnpm run /^test:/
         env:
           FORCE_COLOR: 1
+      - name: Test clean script
+        run: pnpm clean
+        env:
+          FORCE_COLOR: 1
