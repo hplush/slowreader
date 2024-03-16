@@ -8,10 +8,10 @@
     "pnpm": "^8.0.0"
   },
   "scripts": {
-    "clean": "pnpm run -r --include-workspace-root /^clean:/",
+    "test": "FORCE_COLOR=1 pnpm run -r --include-workspace-root /^test:/",
     "start": "FORCE_COLOR=1 pnpm run -r start",
     "format": "pnpm run -r --include-workspace-root /^format:/",
-    "test": "FORCE_COLOR=1 pnpm run -r --include-workspace-root /^test:/",
+    "clean": "pnpm run -r --include-workspace-root /^clean:/",
     "format:prettier": "prettier -w **/*.{js,ts,html,md,cjs,json} *.md *.json",
     "test:js": "eslint .",
     "test:types": "svelte-check",
