@@ -4,27 +4,27 @@ _See the [full architecture guide](../README.md) first._
 
 We are using **Svelte** as UI framework and **Vite** as builder.
 
-- [`web/main/`](./main): app entry point and global things like design tokens.
-  - [`web/main/colors.css`](./main/colors.css): color tokens.
-  - [`web/main/common.css`](./main/common.css): other design tokens.
-  - [`web/main/reset.css`](./main/reset.css): CSS reset to minimize difference between browser’s styles.
-  - [`web/main/index.css`](./main/index.css): global styles.
-  - [`web/main/index.ts`](./main/index.ts): JS entry point.
-  - [`web/main/environment.ts`](./main/environment.ts): how client core should work with browser environment.
-  - [`web/main/browser.ts`](./main/browser.ts): connect core stores to global browsers settings like `document.title` or dark/light theme class on `<html>`.
-- [`web/pages/`](./pages/): Svelte components for pages.
-- [`web/ui/`](./ui/): shared components between different pages. Some people call it “UI kit”.
-- [`web/public/`](./public/): static files like favicon and manifests.
-- [`web/stores/`](./stores/): web client’s own smart stores. For instance, router on top of URL using [Nano Stores Router](https://github.com/nanostores/router).
-- [`web/postcss/`](./postcss/): [PostCSS](https://postcss.org/) plugins to check CSS and optimize it. Check plugin’s descriptions for more information.
-- [`web/stories/`](./stories/): visual tests for pages and UI components by [Storybook](https://storybook.js.org/). The main way to test web client.
-- [`web/scripts/`](./scripts/): scripts to check for popular errors and optimize files after Vite build. Check script’s descriptions for further details.
-- [`web/test/`](./test/): unit tests for some isolated parts of web client.
+- [`main/`](./main): app entry point and global things like design tokens.
+  - [`colors.css`](./main/colors.css): color tokens.
+  - [`common.css`](./main/common.css): other design tokens.
+  - [`reset.css`](./main/reset.css): CSS reset to minimize difference between browser’s styles.
+  - [`index.css`](./main/index.css): global styles.
+  - [`index.ts`](./main/index.ts): JS entry point.
+  - [`environment.ts`](./main/environment.ts): how client core should work with browser environment.
+  - [`browser.ts`](./main/browser.ts): connect core stores to global browsers settings like `document.title` or dark/light theme class on `<html>`.
+- [`pages/`](./pages/): Svelte components for pages.
+- [`ui/`](./ui/): shared components between different pages. Some people call it “UI kit”.
+- [`public/`](./public/): static files like favicon and manifests.
+- [`stores/`](./stores/): web client’s own smart stores. For instance, router on top of URL using [Nano Stores Router](https://github.com/nanostores/router).
+- [`postcss/`](./postcss/): [PostCSS](https://postcss.org/) plugins to check CSS and optimize it. Check plugin’s descriptions for more information.
+- [`stories/`](./stories/): visual tests for pages and UI components by [Storybook](https://storybook.js.org/). The main way to test web client.
+- [`scripts/`](./scripts/): scripts to check for popular errors and optimize files after Vite build. Check script’s descriptions for further details.
+- [`test/`](./test/): unit tests for some isolated parts of web client.
 - `web/dist/`: `pnpm build` will build result here for deploy.
-- [`web/.storybook/`](./.storybook/): Storybook’s config.
-- [`web/index.html`](./index.html): builder entry point. It also contains styles for app loading state.
-- [`web/.browserslistrc](./.browserslistrc): browsers, which we support. See [actual browsers list](https://browsersl.ist/#q=defaults+and+supports+es6-module).
-- [`web/.size-limit.json`]: budget for size of JS bundles and whole webpage. Don’t afraid to tune the limit. We put it so tight so make you feel a small pain every time to add significant amount of code.
+- [`.storybook/`](./.storybook/): Storybook’s config.
+- [`index.html`](./index.html): builder entry point. It also contains styles for app loading state.
+- [`.browserslistrc](./.browserslistrc): browsers, which we support. See [actual browsers list](https://browsersl.ist/#q=defaults+and+supports+es6-module).
+- [`.size-limit.json`]: budget for size of JS bundles and whole webpage. Don’t afraid to tune the limit. We put it so tight so make you feel a small pain every time to add significant amount of code.
 
 ## Tools
 
@@ -43,11 +43,11 @@ We are using **Svelte** as UI framework and **Vite** as builder.
 
 ## Design System
 
-All **colors** must be declared in [`web/main/colors.css`](./main/colors.css). We are using [Harmony Color Palette](https://github.com/evilmartians/harmony) and `oklch()` format.
+All **colors** must be declared in [`main/colors.css`](./main/colors.css). We are using [Harmony Color Palette](https://github.com/evilmartians/harmony) and `oklch()` format.
 
-**Sizes** and paddings should use `--padding-s`…`--padding-xl` tokens from [`web/main/common.css`](./main/common.css).
+**Sizes** and paddings should use `--padding-s`…`--padding-xl` tokens from [`main/common.css`](./main/common.css).
 
-**Fonts** are declared in the same [`web/main/common.css`](./main/common.css). We are using system font to support all different writing systems in posts.
+**Fonts** are declared in the same [`main/common.css`](./main/common.css). We are using system font to support all different writing systems in posts.
 
 For **icons**, we use [Material Design Icons](https://pictogrammers.com/library/mdi/) and [`<Icon>`](./ui/icon.svelte) component.
 

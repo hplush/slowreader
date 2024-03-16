@@ -6,14 +6,14 @@ All clients share the logic from the core. This core logic is defined as **[Nano
 
 In the best scenario, client should just subscribe to stores, render UI according to the stores, and call core’s function on user’s actions.
 
-- [`core/loader/`](./loader/): support of each social network or news format.
-- [`core/messages/`](./messages/): translations for text in client’s UI.
+- [`loader/`](./loader/): support of each social network or news format.
+- [`messages/`](./messages/): translations for text in client’s UI.
   - We are using [Nano Stores I18n](https://github.com/nanostores/i18n) to
     support different languages in UI.
   - Nano Stores I18n has 2 types of translations: JS files with messages structure for base locale (English), and JSON files for other languages following structure from that JS file.
   - For now, we support only English. We will add more languages later, when we stabilize UI a little.
-- [`core/lib/`](./lib/): shared functions used in multiple core modules.
-- [`core/test/`](./test/): unit tests for modules, loaders and utilities.
+- [`lib/`](./lib/): shared functions used in multiple core modules.
+- [`test/`](./test/): unit tests for modules, loaders and utilities.
 - `core/{MODULE}.ts`: client’s logic separated by modules.
   - We keep logic in smart stores from [Nano Stores](https://github.com/nanostores/nanostores).
   - Stores do things, which we often do UI components. For instance, pagination or validation.
