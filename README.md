@@ -2,7 +2,7 @@
 
 Web app to combine feeds from social networks and RSS and to help read more meaningful and deep content.
 
-- **[Join the Team](./CONTRIBUTING.md)**
+**[Join the Team](./CONTRIBUTING.md)**
 
 ## License
 
@@ -17,7 +17,7 @@ Local-first means that client store all data locally and do most of the job. Eve
 In our case it means, that:
 
 - Client stores all feeds and posts. You can read posts offline.
-- Clients checks feeds for new posts.
+- Clients checks feed for new posts.
 - You will need cloud only to sync data between clients.
 
 Read [Local-first manifest](https://www.inkandswitch.com/local-first/) for inspiration.
@@ -39,7 +39,7 @@ The source of truth in client is a list of changes (action’s log). An action i
   "type": "feeds/changed",
   "id": "kc4VfXpvw3vZZBu_ugGlC",
   "fields": {
-    "reading: "slow"
+    "reading": "slow"
   }
 }
 ```

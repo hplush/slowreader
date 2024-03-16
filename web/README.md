@@ -65,6 +65,8 @@ Since any clients don’t have a lot of logic (we moved logic to the client core
 
 We can use only visual tests to test web clients UI. We are using **Storybook** and **[Chromatic snapshots](https://www.chromatic.com/builds?appId=65678843aa11589739e8fbee)**.
 
-But those visual can be very complex. We not just test buttons in different states. We test the whole pages by mocking network requests and stores states.
+But those visual can be very complex. We not just test buttons in different states. We test the whole pages by mocking network requests and stores states. We use small JS in stories to test animations or some JS code.
 
 You can use [`<Scene>`](./stories/scene.svelte) to change core stores and mock HTTP.
+
+Since we are using free plan, we run Chromatic only once per day on CI.
