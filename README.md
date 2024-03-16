@@ -111,7 +111,7 @@ Clients keep list of changes (action log) as the source of truth and then send n
 
 The server doesn’t see those actions, because clients encrypt them before sending and decrypt on receiving. The server see only actions like:
 
-```json
+```js
 // Add encrypted action to the server log
 {
   "type": "0",
@@ -120,7 +120,7 @@ The server doesn’t see those actions, because clients encrypt them before send
 }
 ```
 
-```json
+```js
 // Remove action from server log
 {
   "type": "0/clean",
