@@ -6,19 +6,15 @@ All clients share the logic from the core. This core logic is defined as **[Nano
 
 In the best scenario, client should just subscribe to stores, render UI according to the stores, and call core’s function on user’s actions.
 
-- [`core/loader/`](../core/loader/): support of each social network or news format.
-- [`core/messages/`](../core/messages/): translations for text in client’s UI.
+- [`core/loader/`](./loader/): support of each social network or news format.
+- [`core/messages/`](./messages/): translations for text in client’s UI.
   - We are using [Nano Stores I18n](https://github.com/nanostores/i18n) to
     support different languages in UI.
   - Nano Stores I18n has 2 types of translations: JS files with messages structure for base locale (English), and JSON files for other languages following structure from that JS file.
   - For now, we support only English. We will add more languages later, when we stabilize UI a little.
-- [`core/lib/`](../core/lib/): shared functions used in multiple core modules.
-- [`core/test/`](../core/test/): tests for modules, loaders and utilities.
-  - We are using `node --test` (with [`better-node-test`](https://github.com/ai/better-node-test) for TypeScript and sugar).
-  - We are using [`c8`](https://github.com/bcoe/c8) to check that tests execute every line of code (100% line coverage).
-  - All tests import functions/stores from `core/index.ts` to test exports.
-  - Tests are emulation user’s interaction with UI.
-- [`core/{MODULE}.ts`](../core/): client’s logic separated by modules.
+- [`core/lib/`](./lib/): shared functions used in multiple core modules.
+- [`core/test/`](./test/): unit tests for modules, loaders and utilities.
+- `core/{MODULE}.ts`: client’s logic separated by modules.
   - We keep logic in smart stores from [Nano Stores](https://github.com/nanostores/nanostores).
   - Stores do things, which we often do UI components. For instance, pagination or validation.
   - Each page should have its own module.
@@ -27,3 +23,20 @@ In the best scenario, client should just subscribe to stores, render UI accordin
 ## Scripts
 
 - `cd core && pnpm test`: run core unit tests.
+
+## Client Environments
+
+Core depends on the platform environment (like storage to store settings). Before using any store, client must call [`setEnvironment`](./environment.ts) to define how core should interact with platform.
+
+- [Test environment](./test/environment.ts)
+- [Web environment](../web/main/environment.ts)
+
+## Test Strategy
+
+We are using unit tests to emulate real user interactions. We mock network requests and use special [test environment](./test/environment.ts). But we call the same functions as clients UI will call and check the same stores, which clients will use to render UI.
+
+All units test import functions/stores from `core/index.ts` to test exports and to test the whole stores compositions.
+
+We run unit tests by `node --test` with [`better-node-test`](https://github.com/ai/better-node-test) for TypeScript and sugar.
+
+[`c8`](https://github.com/bcoe/c8) checks that tests execute every line of code (100% line coverage).
