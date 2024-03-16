@@ -89,10 +89,14 @@ We are using [pnpm’s monorepo](https://pnpm.io/workspaces). Each project has o
 
 ## Tools
 
+Global development tools:
+
 - [TypeScript](./tsconfig.json) for strict type checking.
 - [Prettier](./.prettierrc) to use the same code style formatting.
 - [ESLint](./eslint.config.js) to check for popular mistakes in JavaScript.
 - [asdf](./.tool-versions) to synchronize Node.js and pnpm versions across the team and CI.
+
+Each project has its own tools too.
 
 ## Scripts
 
@@ -101,7 +105,7 @@ We are using [pnpm’s monorepo](https://pnpm.io/workspaces). Each project has o
 - `pnpm format`: run code style formatting tool for all files.
 - `pnpm clean`: remove all temporary files.
 
-We use pnpm’s feature to run scripts in parallel by having scripts like `test:types`, `test:audit` and then run all those scripts by prefix.
+We use pnpm’s feature to run scripts in parallel by having scripts like `test:types`, `test:audit` and then run all `test:*` scripts in all projects by prefix.
 
 ## Synchronization Protocol
 
