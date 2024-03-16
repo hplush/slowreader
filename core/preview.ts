@@ -9,10 +9,10 @@ import {
 } from './download.js'
 import { onEnvironment } from './environment.js'
 import { addFeed, getFeeds } from './feed.js'
+import { readonlyExport } from './lib/stores.js'
 import { type LoaderName, loaders } from './loader/index.js'
 import type { PostsPage } from './posts-page.js'
 import { router } from './router.js'
-import { readonlyExport } from './utils/stores.js'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 

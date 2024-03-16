@@ -2,7 +2,7 @@ import { atom, map } from 'nanostores'
 import { deepStrictEqual } from 'node:assert'
 import { test } from 'node:test'
 
-import { computeFrom, increaseKey, listenMany } from '../../utils/stores.js'
+import { computeFrom, increaseKey, listenMany } from '../../lib/stores.js'
 
 test('increases keys', () => {
   let $map = map({ a: 0, b: 0 })

@@ -9,9 +9,9 @@ import {
   loadFeeds
 } from './feed.js'
 import { type FilterChecker, loadFilters, prepareFilters } from './filter.js'
+import { createQueue, type Queue, retryOnError } from './lib/queue.js'
+import { increaseKey, readonlyExport } from './lib/stores.js'
 import { addPost, type OriginPost } from './post.js'
-import { createQueue, type Queue, retryOnError } from './utils/queue.js'
-import { increaseKey, readonlyExport } from './utils/stores.js'
 
 let $isRefreshing = atom(false)
 export const isRefreshing = readonlyExport($isRefreshing)

@@ -11,7 +11,7 @@ import {
 import { nanoid } from 'nanoid'
 
 import { getClient } from './client.js'
-import type { OptionalId } from './utils/stores.js'
+import type { OptionalId } from './lib/stores.js'
 
 export type OriginPost = {
   full?: string

@@ -10,9 +10,9 @@ import {
 import { client } from './client.js'
 import { onEnvironment } from './environment.js'
 import { BROKEN_FEED, type FeedValue, loadFeed } from './feed.js'
+import { readonlyExport } from './lib/stores.js'
 import { getPost, getPosts, loadPosts, type PostValue } from './post.js'
 import { router } from './router.js'
-import { readonlyExport } from './utils/stores.js'
 
 export type SlowCategoriesTree = [CategoryValue, [FeedValue, number][]][]
 

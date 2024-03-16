@@ -11,10 +11,10 @@ import { client } from './client.js'
 import { onEnvironment } from './environment.js'
 import { BROKEN_FEED, type FeedValue, loadFeed, loadFeeds } from './feed.js'
 import { loadFilters } from './filter.js'
+import { listenMany, readonlyExport } from './lib/stores.js'
 import { deletePost, getPost, loadPosts } from './post.js'
 import type { PostValue } from './post.js'
 import { type Route, router } from './router.js'
-import { listenMany, readonlyExport } from './utils/stores.js'
 
 function notEmpty<Value>(array: Value[]): array is [Value, ...Value[]] {
   return array.length > 0

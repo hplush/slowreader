@@ -3,8 +3,8 @@ import { atom, type ReadableAtom } from 'nanostores'
 import { getEnvironment, onEnvironment } from './environment.js'
 import { fastCategories } from './fast.js'
 import { hasFeeds } from './feed.js'
+import { computeFrom, readonlyExport } from './lib/stores.js'
 import { userId } from './settings.js'
-import { computeFrom, readonlyExport } from './utils/stores.js'
 
 export interface Routes {
   about: {}

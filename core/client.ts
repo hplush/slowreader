@@ -6,8 +6,8 @@ import { atom } from 'nanostores'
 
 import { onEnvironment } from './environment.js'
 import { SlowReaderError } from './error.js'
+import { computeFrom, readonlyExport } from './lib/stores.js'
 import { userId } from './settings.js'
-import { computeFrom, readonlyExport } from './utils/stores.js'
 
 let testTime: TestTime | undefined
 
