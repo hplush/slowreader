@@ -29,7 +29,7 @@
   ],
   "devDependencies": {
     "@logux/eslint-config": "53.0.0",
-    "@types/node": "20.11.27",
+    "@types/node": "20.11.28",
     "@types/ws": "8.5.10",
     "better-node-test": "0.5.1",
     "eslint": "8.57.0",

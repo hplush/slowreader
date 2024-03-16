@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@logux/stylelint-config": "0.18.0",
-    "@size-limit/file": "11.1.0",
+    "@size-limit/file": "11.1.1",
     "@storybook/addon-svelte-csf": "4.1.2",
     "@storybook/addon-themes": "8.0.0",
     "@storybook/svelte": "8.0.0",
@@ -60,7 +60,7 @@
     "postcss-selector-parser": "6.0.16",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "size-limit": "11.1.0",
+    "size-limit": "11.1.1",
     "storybook": "8.0.0",
     "stylelint": "16.2.1",
     "stylelint-use-logical": "2.1.2"
