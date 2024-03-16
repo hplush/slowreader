@@ -2,7 +2,7 @@
 
 Web app to combine feeds from social networks and RSS and to help read more meaningful and deep content.
 
-**[Join the Team](./CONTRIBUTING.md)**
+**[How to contribute and join the team](./CONTRIBUTING.md)**
 
 ## License
 
