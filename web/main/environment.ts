@@ -1,15 +1,37 @@
 import { IndexedStore } from '@logux/client'
 import { windowPersistentEvents } from '@nanostores/persistent'
 import {
+  type NetworkType,
+  type NetworkTypeDetector,
   type RequestMethod,
   router,
   setRequestMethod,
   setupEnvironment
 } from '@slowreader/core'
 
-import { detectNetworkType } from '../lib/network.js'
 import { locale } from '../stores/locale.js'
 import { openRoute, urlRouter } from '../stores/router.js'
+
+export const detectNetworkType: NetworkTypeDetector = () => {
+  let type: NetworkType
+  let saveData: boolean | undefined
+
+  if (navigator.connection) {
+    saveData = navigator.connection.saveData
+    if (navigator.connection.type === 'cellular') {
+      type = 'paid'
+    } else if (
+      navigator.connection.type === 'wifi' ||
+      navigator.connection.type === 'ethernet'
+    ) {
+      type = 'free'
+    } else {
+      type = 'unknown'
+    }
+  }
+
+  return { saveData, type }
+}
 
 setupEnvironment({
   baseRouter: urlRouter,
