@@ -21,7 +21,7 @@
     "clean:dist": "rm -rf dist"
   },
   "dependencies": {
-    "@csstools/postcss-oklab-function": "3.0.11",
+    "@csstools/postcss-oklab-function": "3.0.12",
     "@evilmartians/harmony": "1.2.0",
     "@logux/client": "github:logux/client#next",
     "@logux/core": "0.8.5",
@@ -37,7 +37,7 @@
     "nanoid": "5.0.6",
     "nanostores": "0.10.0",
     "picocolors": "1.0.0",
-    "postcss": "8.4.35",
+    "postcss": "8.4.36",
     "postcss-relative-opacity": "0.1.0",
     "rollup": "4.13.0",
     "svelte": "4.2.12",
@@ -49,9 +49,9 @@
     "@logux/stylelint-config": "0.18.0",
     "@size-limit/file": "11.1.1",
     "@storybook/addon-svelte-csf": "4.1.2",
-    "@storybook/addon-themes": "8.0.0",
-    "@storybook/svelte": "8.0.0",
-    "@storybook/svelte-vite": "8.0.0",
+    "@storybook/addon-themes": "8.0.1",
+    "@storybook/svelte": "8.0.1",
+    "@storybook/svelte-vite": "8.0.1",
     "better-node-test": "0.5.1",
     "browserslist": "4.23.0",
     "postcss-html": "1.6.0",
@@ -60,7 +60,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "size-limit": "11.1.1",
-    "storybook": "8.0.0",
+    "storybook": "8.0.1",
     "stylelint": "16.2.1",
     "stylelint-use-logical": "2.1.2"
   }
