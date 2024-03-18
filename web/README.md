@@ -40,6 +40,7 @@ We are using **Svelte** as UI framework and **Vite** as builder.
 - `cd web && pnpm start`: start web client development server.
 - `cd web && pnpm production`: start web client production build locally.
 - `cd web && pnpm build`: build production files in `web/dist/`.
+- `cd web && pnpm size`: check JS bundle size of production build.
 
 ## Design System
 

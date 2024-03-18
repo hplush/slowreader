@@ -8,6 +8,7 @@
     "start": "vite",
     "visual": "storybook dev -p 6006 --no-open",
     "production": "pnpm build && vite preview",
+    "size": "pnpm build:web && size-limit",
     "test:unit": "pnpm bnt",
     "test:names": "tsx ./scripts/check-names.ts",
     "test:css": "stylelint **/*.css **/*.svelte",
