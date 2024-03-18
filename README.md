@@ -179,3 +179,7 @@ On desktop, we care not only about mouse UX, but also about keyboard UX.
 - Think about focus. If user start to interact with keyboard, move focus to the next most possible control.
 - <kbd>Esc</kbd> should work in as many cases as possible.
 - Don’t use only <kbd>Tab</kbd> to navigate. Mix it with arrows and hotkeys for list items.
+
+## Guides
+
+- [How to Add New Page to Web Client?](./docs/new_page.md)
