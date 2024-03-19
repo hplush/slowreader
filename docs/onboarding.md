@@ -20,13 +20,13 @@ Check the documentation for your operating system.
 
 By default, anybody can make commits with your name.
 
-We recommend enable signing git commits to verify that these are commits really made by you.
+We recommend enabling signing git commits to verify that these are commits really made by you.
 
 ```sh
 git config --global commit.gpgsign true
 ```
 
-If you don’t have a GPG key, you can use an SSH-key (the same key you sign to GitHub):
+If you don’t have a GPG key, you can use an SSH key (the same key you sign to GitHub):
 
 ```sh
 git config --global gpg.format ssh

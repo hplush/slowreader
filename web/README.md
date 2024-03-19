@@ -2,29 +2,29 @@
 
 _See the [full architecture guide](../README.md) first._
 
-We are using **Svelte** as UI framework and **Vite** as builder.
+We use **Svelte** as the UI framework and **Vite** as the builder.
 
 - [`main/`](./main): app entry point and global things like design tokens.
   - [`colors.css`](./main/colors.css): color tokens.
   - [`common.css`](./main/common.css): other design tokens.
-  - [`reset.css`](./main/reset.css): CSS reset to minimize difference between browser’s styles.
+  - [`reset.css`](./main/reset.css): CSS reset to minimize the difference between browser.
   - [`index.css`](./main/index.css): global styles.
   - [`index.ts`](./main/index.ts): JS entry point.
   - [`environment.ts`](./main/environment.ts): how client core should work with browser environment.
-  - [`browser.ts`](./main/browser.ts): connect core stores to global browsers settings like `document.title` or dark/light theme class on `<html>`.
+  - [`browser.ts`](./main/browser.ts): connect core stores to global browser settings like `document.title` or dark/light theme class on `<html>`.
 - [`pages/`](./pages/): Svelte components for pages.
 - [`ui/`](./ui/): shared components between different pages. Some people call it “UI kit”.
 - [`public/`](./public/): static files like favicon and manifests.
 - [`stores/`](./stores/): web client’s own smart stores. For instance, router on top of URL using [Nano Stores Router](https://github.com/nanostores/router).
-- [`postcss/`](./postcss/): [PostCSS](https://postcss.org/) plugins to check CSS and optimize it. Check plugin’s descriptions for more information.
+- [`postcss/`](./postcss/): [PostCSS](https://postcss.org/) plugins to check CSS and optimize it. Check the plugin’s descriptions for more information.
 - [`stories/`](./stories/): visual tests for pages and UI components by [Storybook](https://storybook.js.org/). The main way to test web client.
-- [`scripts/`](./scripts/): scripts to check for popular errors and optimize files after Vite build. Check script’s descriptions for further details.
-- [`test/`](./test/): unit tests for some isolated parts of web client.
-- `web/dist/`: `pnpm build` will build result here for deploy.
+- [`scripts/`](./scripts/): scripts to check for popular errors and optimize files after Vite build. Check the script’s descriptions for further details.
+- [`test/`](./test/): unit tests for some isolated parts of the web client.
+- `web/dist/`: `pnpm build` will build the result here for deployment.
 - [`.storybook/`](./.storybook/): Storybook’s config.
-- [`index.html`](./index.html): builder entry point. It also contains styles for app loading state.
+- [`index.html`](./index.html): builder entry point. It also contains styles for the app loading state.
 - [`.browserslistrc](./.browserslistrc): browsers, which we support. See [actual browsers list](https://browsersl.ist/#q=defaults+and+supports+es6-module).
-- [`.size-limit.json`]: budget for size of JS bundles and whole webpage. Don’t afraid to tune the limit. We put it so tight so make you feel a small pain every time to add significant amount of code.
+- [`.size-limit.json`]: budget for JS bundles and whole webpage size. Don’t be afraid to tune the limit. We put it so tight that it makes you feel a small pain every time you add a significant amount of code.
 
 ## Tools
 
@@ -40,7 +40,7 @@ We are using **Svelte** as UI framework and **Vite** as builder.
 - `cd web && pnpm start`: start web client development server.
 - `cd web && pnpm production`: start web client production build locally.
 - `cd web && pnpm build`: build production files in `web/dist/`.
-- `cd web && pnpm size`: check JS bundle size of production build.
+- `cd web && pnpm size`: check the JS bundle size of the production build.
 
 ## Design System
 
@@ -62,12 +62,12 @@ For **icons**, we use [Material Design Icons](https://pictogrammers.com/library/
 
 ## Test Strategy
 
-Since any clients don’t have a lot of logic (we moved logic to the client core), we don’t need to use unit tests.
+Since clients don’t have much logic (we moved logic to the client core), we don’t need to use unit tests.
 
-We can use only visual tests to test web clients UI. We are using **Storybook** and **[Chromatic snapshots](https://www.chromatic.com/builds?appId=65678843aa11589739e8fbee)**.
+We can use only visual tests to test web clients’ UI. We are using **Storybook** and **[Chromatic snapshots](https://www.chromatic.com/builds?appId=65678843aa11589739e8fbee)**.
 
-But those visual can be very complex. We not just test buttons in different states. We test the whole pages by mocking network requests and stores states. We use small JS in stories to test animations or some JS code.
+But those visuals can be very complex. We do not just test buttons in different states. We test whole pages by mocking network requests and store states. We use small JS in stories to test animations or some JS code.
 
 You can use [`<Scene>`](./stories/scene.svelte) to change core stores and mock HTTP.
 
-Since we are using free plan, we run Chromatic only once per day on CI.
+Since we use a free plan, we run Chromatic only once daily on CI.

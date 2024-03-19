@@ -1,4 +1,4 @@
-# Config for asdf, the tool to install right Node.js and pnpm versions.
+# Config for asdf the tool to install the right Node.js and pnpm versions.
 # It is like nvm, but for all the tools.
 
 nodejs 20.11.1
