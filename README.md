@@ -4,6 +4,21 @@ Web app to combine feeds from social networks and RSS and to help read more mean
 
 **[How to contribute and join the team](./CONTRIBUTING.md)**
 
+- [License](#license)
+- [Principles](#principles)
+  - [Local-first: Clients Do All the Job](#local-first-clients-do-all-the-job)
+  - [Zero-Knowledge Synchronization](#zero-knowledge-synchronization)
+  - [Event-Sourcing and CRDT](#event-sourcing-and-crdt)
+  - [Client Core: Reusing All Logic Between Different Platforms](#client-core-reusing-all-logic-between-different-platforms)
+- [Project Structure](#project-structure)
+- [Tools](#tools)
+- [Scripts](#scripts)
+- [Synchronization Protocol](#synchronization-protocol)
+- [Client Storage](#client-storage)
+- [Test Strategy](#test-strategy)
+- [Visual Language](#visual-language)
+- [Guides](#guides)
+
 ## License
 
 Slow Reader is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License (version 3 or any later). For details see the [`LICENSE.md`](./LICENSE.md) file in this directory.
@@ -17,14 +32,14 @@ Local-first means the client stores all data locally and does most of the job. E
 In our case, it means that:
 
 - Client stores all feeds and posts. You can read posts offline.
-- Clients check the feed for new posts.
-- You will only need the cloud to sync data between clients.
+- Client checks feeds for new posts.
+- You need the cloud to sync data between clients.
 
-Read [Local-first manifest](https://www.inkandswitch.com/local-first/) for inspiration.
+[Local-first manifest](https://www.inkandswitch.com/local-first/) tells more philosophy behind that idea.
 
 ### Zero-Knowledge Synchronization
 
-Clients use end-to-end encryption during sync by cloud. It means the cloud can’t know what feeds you are reading or what posts you like.
+Clients use end-to-end encryption during cloud sync. It means the cloud can’t know what feeds you are reading or what posts you like.
 
 You can check [encryption source code](https://github.com/logux/client/blob/main/encrypt-actions/index.js).
 
@@ -48,53 +63,48 @@ To render the UI, the client reduces actions from the log into the state (object
 
 The log simplifies synchronization. We just need to track the last synchronized action and send all actions after that one.
 
-We use [Logux](https://logux.org/) to work with log and log synchronization.
+We use [Logux](https://logux.org/) to work with log and synchronization.
 
 ### Client Core: Reusing All Logic Between Different Platforms
 
 For now, we have only a web client. But we want to have native clients for different platforms.
 
-To make client porting easier, we separate core logic and UI. Core logic will be the same for every client. The client just needs to bind this logic to the UI using native components.
+To make client porting easier, we separate core logic and UI. Core logic is the same for every client. The client just needs to bind this logic to the UI using native components.
 
-We write logic in JavaScript as smart stores in the [Nano Stores](https://github.com/nanostores/nanostores) state manager. The client needs to subscribe to store changes and render UI according to the store.
+We write logic in TypeScript as smart stores in the [Nano Stores](https://github.com/nanostores/nanostores) state manager. The client needs to subscribe to stores and render UI according to the store.
 
 We try to move to the store as much as possible: app routing, validations, and UI helpers. The client should be as thin as possible. The ideal client is just a UI renderer.
 
-Core depends on the platform environment (like storage to store settings). Before using any store, the client must call [`setEnvironment`](./core/environment.ts) to define how the core should interact with the platform.
+Core depends on the platform environment (like storage to store settings). Before using any store, the client must call [`setEnvironment()`](./core/environment.ts) to define how the core should interact with the platform.
 
 ## Project Structure
 
-Slow Reader is a local-first app. Clients do most of the work, and the server just syncs data between users' devices (with end-to-end encryption).
-
-Main folders:
+Slow Reader is a local-first app. Clients do most of the work, and the server just syncs data between users’ devices (with end-to-end encryption).
 
 - **Clients.**
-  - [`core/`](./core/): shared logic between clients and i18n translations. Clients for specific platforms should have a simple UI around this core to simplify supporting many platforms.
+  - [`core/`](./core/): client’s logic and i18n translations. Clients for specific platforms is just a UI around this core to simplify porting
     - See **[`core/README.md`](./core/README.md)** for core architecture.
-  - [`web/`](./web/): The version of Slow Reader is to be run in the browser. Both for desktop and mobile.
+  - [`web/`](./web/): the client to be run in the browser. Both for desktop and mobile.
     - See **[`web/README.md`](./web/README.md)** for web client architecture.
 - [`server/`](./server/): a small server that syncs data between users’ devices.
-- [`proxy/`](./proxy/): HTTP-server to proxy all RSS fetching requests from web clients. Users could use it to bypass censorship or to try web clients before they install the upcoming extensions (to bypass the CORS limit of the web apps).
+- [`proxy/`](./proxy/): HTTP proxy server to bypass censorship or to try web clients before they install the upcoming extensions (to bypass the CORS limit of the web apps).
 - [`api/`](./api/): types and constants shared between clients and server.
-- [`docs/](./docs/): guides for developers.
-
-Other:
-
+- [`docs/`](./docs/): guides for developers.
 - [`scripts/`](./scripts/): scripts to test project. Check the script’s descriptions for further details.
-- [`.github/`](./.github/): scripts to test projects on CI on every commit or every day.
+- [`.github/`](./.github/): scripts to test projects on CI.
 - [`.husky/`](./.husky/): scripts to call on `git commit` command to avoid popular errors.
 - [`.vscode/`](./.vscode/): VS Code settings to reduce code format errors for new contributors.
 
-We are using [pnpm’s monorepo](https://pnpm.io/workspaces). Each project has its dependencies, tools, and configs.
+We are using [pnpm monorepo](https://pnpm.io/workspaces). Each project has its dependencies, tools, and configs. Read `README.md` in each project for project’s files and architecture.
 
 ## Tools
 
 Global development tools:
 
-- [TypeScript](./tsconfig.json) for strict type checking.
-- [Prettier](./.prettierrc) to use the same code style formatting.
-- [ESLint](./eslint.config.js) to check for popular mistakes in JavaScript.
 - [asdf](./.tool-versions) to synchronize Node.js and pnpm versions across the team and CI.
+- [Prettier](./.prettierrc) to use the same code style formatting.
+- [TypeScript](./tsconfig.json) for strict type checking.
+- [ESLint](./eslint.config.js) to check for popular mistakes in JavaScript.
 
 Each project has its own tools, too.
 
@@ -102,10 +112,10 @@ Each project has its own tools, too.
 
 - `pnpm test`: run all tests.
 - `pnpm start`: run proxy and web client development server.
-- `pnpm format`: run code style formatting tool for all files.
+- `pnpm format`: fix code style in all files.
 - `pnpm clean`: remove all temporary files.
 
-We use pnpm’s feature to run scripts in parallel, having scripts like `test:types` and `test:audit`. Then, we run all `test:*` scripts in all projects by prefix.
+We use pnpm feature to run scripts in parallel, having scripts like `test:types` and `test:audit`. Then, we run all scripts in all projects by `test:*` prefix.
 
 ## Synchronization Protocol
 
@@ -113,7 +123,7 @@ We use [Logux WebSocket protocol](https://logux.org/protocols/ws/spec/) to synch
 
 Clients keep a list of changes (action log) as the source of truth and then send new actions to the server. The server then sends all new actions to other clients.
 
-The server doesn’t see those actions because clients encrypt them before sending them and decrypt them upon receiving them. The server sees only actions like:
+The server doesn’t see those actions because clients encrypt them before sending and decrypt them upon receiving. The server sees only actions like:
 
 ```js
 // Add encrypted action to the server log
@@ -125,7 +135,7 @@ The server doesn’t see those actions because clients encrypt them before sendi
 ```
 
 ```js
-// Remove action from server log
+// Remove action from the server log
 {
   "type": "0/clean",
   "id": "action ID"
@@ -134,9 +144,9 @@ The server doesn’t see those actions because clients encrypt them before sendi
 
 ## Client Storage
 
-The clients store a list of changes (action log). During the start, the client reduces all necessary actions from the log to the [Logux SyncMap store](https://logux.org/web-api/#globals-syncmaptemplate).
+The clients store a list of changes (action log). During the start, the client reduces all necessary actions from the log to the [Logux SyncMap stores](https://logux.org/web-api/#globals-syncmaptemplate).
 
-For simple things like client settings, we use [Nano Store Persistent](https://github.com/nanostores/persistent).
+For simple things like client local settings, we use [Nano Store Persistent](https://github.com/nanostores/persistent).
 
 The web client uses IndexedDB to store log and `localStorage` for the client’s settings.
 
@@ -145,7 +155,7 @@ The web client uses IndexedDB to store log and `localStorage` for the client’s
 If any mistake happens a few times, we should add an automatic tool to **prevent mistakes** in the future. Possible strategies:
 
 1. Types.
-2. [Scripts](./scripts/), custom ESLint and Stylelint plugins.
+2. [Scripts](./scripts/), custom ESLint or Stylelint plugins.
 3. Unit-tests.
 4. [Pull request checklist](./docs/pull_request_template.md).
 
@@ -155,7 +165,7 @@ Types should try to use precise **types** and explain data relations with them:
 
 ```diff
 - { type: string, error?: Error }
-+ { type: 'error', error: Error } | { type: 'ok' }
++ { type: 'ok' } | { type: 'error', error: Error }
 ```
 
 We are using unit tests for **client core**. We mock network requests and the platform environment but emulate user interaction and test the composition of all stores.
@@ -164,19 +174,19 @@ For the platform’s clients, we mostly use **visual tests**. But they could be 
 
 ## Visual Language
 
-We should prefer the platform’s native look and feel where possible.
+We prefer the platform native look and feel where possible.
 
-Where not possible, we should use old-style 3D with rich visual feedback and a z-axis.
+Where not possible, we use old-style 3D with rich visual feedback and a z-axis.
 
 The slow mode should always use a yellow newspaper-like background (on color screens).
 
 We are using [Material Design Icons](https://pictogrammers.com/library/mdi/) icons.
 
-On desktops, we care not only about mouse UX but also about keyboard UX.
+On desktops, we care not only about mouse UX but also about keyboard UX. Our keyboard UX rules:
 
-- Create a path: what keys can the user press to do some action? Try to make the path shorter and more useful.
+- Create a path: what keys can the user press to do some action? Try to make the path shorter.
 - Make hotkeys and non-standard keys visible to the user.
-- Think about focus. If the user starts to interact with the keyboard, move the focus to the next most possible control.
+- Think about focus. If the user starts to interact with the keyboard, move the focus to the next control.
 - <kbd>Esc</kbd> should work in as many cases as possible.
 - Don’t use only <kbd>Tab</kbd> to navigate. Mix it with arrows and hotkeys for list items.
 

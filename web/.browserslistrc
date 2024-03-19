@@ -1,4 +1,6 @@
 # Browsers that we support
 # See actual browsers: https://browsersl.ist/#q=defaults+and+supports+es6-module
+#
+# Don’t forget to update links on changes.
 
 defaults and supports es6-module

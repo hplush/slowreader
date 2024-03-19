@@ -1,5 +1,9 @@
 # Core Team Onboarding
 
+- [Enable 2FA on GitHub](#enable-2fa-on-github)
+- [Encrypt Your Laptop](#encrypt-your-laptop)
+- [Enable signing git commits](#enable-signing-git-commits)
+
 ## Enable 2FA on GitHub
 
 All core team members _must_ [enable two-factor authentication](https://github.com/settings/security) on GitHub (and any related platform).
