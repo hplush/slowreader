@@ -28,7 +28,7 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
 
 ## Install Environment
 
-1. Install Node.js and pnpm:
+1. Install [Node.js](https://nodejs.org/en/download) and [pnpm](https://pnpm.io/installation):
 
    - The recommended way is to install [`asdf`](https://asdf-vm.com/guide/getting-started.html) and then run:
 
