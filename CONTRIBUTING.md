@@ -1,7 +1,7 @@
 # Contributing
 
 - [Language](#language)
-- [Where Ask Question](#where-ask-question)
+- [Where to Ask Questions](#where-to-ask-questions)
 - [Install Environment](#install-environment)
 - [Run Web Client](#run-web-client)
 - [Text Editor Settings](#text-editor-settings)
@@ -16,7 +16,7 @@
 - Most contributors are _not native speaker_. Don’t be afraid of your language if you are not a native English speaker too.
 - Feel free to use _automatic translators_. Use [DeepL to write issues](https://www.deepl.com/translator) and the browser’s translation to read docs.
 
-## Where Ask Question
+## Where to Ask Questions
 
 - Don’t know anything and need assistance?
 - Have some unknown issue running the project server for development?
