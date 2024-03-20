@@ -70,11 +70,6 @@ label[tabindex] {
 
 /* Remove border in Firefox */
 
-::-moz-focus-inner {
-  padding: 0;
-  border-style: none;
-}
-
 fieldset {
   border: none;
 }
