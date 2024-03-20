@@ -8,7 +8,7 @@ Fixes # (issue)
 
 ## Screenshot or video
 
-<!-- Delete if it is not appropriated -->
+<!-- Delete if it is not relevant -->
 
 ## Checklist
 
