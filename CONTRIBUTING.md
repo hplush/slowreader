@@ -24,7 +24,7 @@
 
 You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.me/sitnik)**. You can ask in _English_, _Russian_, or _Spanish_.
 
-> Our mentoring is a basic payback for your time and contribution to the project. Even a simple question can improve the guide for other beginners.
+> Our mentoring is a basic payback for your time and contribution to the project. Even a simple question can improve the guide for other beginners.
 
 ## Install Environment
 
