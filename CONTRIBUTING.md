@@ -38,19 +38,19 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
    asdf install
    ```
 
-- But for one-time work, you can manually install versions according to [`.tool-versions`](./.tool-versions) file.
+   - But for one-time work, you can manually install versions according to [`.tool-versions`](./.tool-versions) file.
 
 2. Then install all npm dependencies by `pnpm`:
 
-```sh
-pnpm install
-```
+   ```sh
+   pnpm install
+   ```
 
 3. Run tests to be sure that everything is OK (open issue if tests don’t work in your environment):
 
-```sh
-pnpm test
-```
+   ```sh
+   pnpm test
+   ```
 
 ## Run Web Client
 
