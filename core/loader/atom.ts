@@ -50,7 +50,7 @@ export const atom: Loader = {
 
   isMineText(text) {
     let document = text.parse()
-    if (document.firstChild?.nodeName === 'feed') {
+    if (document.firstElementChild?.nodeName === 'feed') {
       return document.querySelector(':root > title')?.textContent ?? ''
     } else {
       return false

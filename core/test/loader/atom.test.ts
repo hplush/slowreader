@@ -111,6 +111,17 @@ test('detects titles', () => {
   )
 })
 
+test('ignores text & comment nodes when probing', () => {
+  equal(
+    loaders.atom.isMineText(
+      exampleAtom(
+        '<?xml-stylesheet type="text/xsl" href="/nope"?><feed><title>Test</title></feed>'
+      )
+    ),
+    'Test'
+  )
+})
+
 test('parses posts', async () => {
   let task = createDownloadTask()
   deepStrictEqual(

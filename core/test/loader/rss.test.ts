@@ -111,6 +111,22 @@ test('detects titles', () => {
   )
 })
 
+test('ignores text & comment nodes when probing', () => {
+  equal(
+    loaders.rss.isMineText(
+      exampleRss(
+        `<?xml-stylesheet type="text/xsl" href="/nope"?>
+        <rss version="2.0">
+          <channel>
+            <title>Test</title>
+          </channel>
+        </rss>`
+      )
+    ),
+    'Test'
+  )
+})
+
 test('parses posts', async () => {
   let task = createDownloadTask()
   deepStrictEqual(
