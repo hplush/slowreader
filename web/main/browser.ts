@@ -1,10 +1,10 @@
 import { isFastRoute, router, theme } from '@slowreader/core'
 import {
+  focusGroupKeyUX,
   hiddenKeyUX,
   hotkeyKeyUX,
   jumpKeyUX,
   likelyWithKeyboard,
-  menuKeyUX,
   pressKeyUX,
   startKeyUX
 } from 'keyux'
@@ -33,7 +33,7 @@ if (!likelyWithKeyboard(window)) {
 startKeyUX(window, [
   pressKeyUX('is-pseudo-active'),
   hotkeyKeyUX(),
-  menuKeyUX(),
+  focusGroupKeyUX(),
   jumpKeyUX(),
   hiddenKeyUX()
 ])
