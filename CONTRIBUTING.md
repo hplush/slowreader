@@ -32,11 +32,11 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
 
    - The recommended way is to install [`asdf`](https://asdf-vm.com/guide/getting-started.html) and then run:
 
-   ```sh
-   asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-   asdf plugin-add pnpm https://github.com/jonathanmorley/asdf-pnpm.git
-   asdf install
-   ```
+     ```sh
+     asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+     asdf plugin-add pnpm https://github.com/jonathanmorley/asdf-pnpm.git
+     asdf install
+     ```
 
    - But for one-time work, you can manually install versions according to [`.tool-versions`](./.tool-versions) file.
 
