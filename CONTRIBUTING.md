@@ -1,7 +1,7 @@
 # Contributing
 
 - [Language](#language)
-- [Where To Ask Questions](#where-to-ask-questions)
+- [Where to Ask Questions](#where-to-ask-questions)
 - [Install Environment](#install-environment)
 - [Run Web Client](#run-web-client)
 - [Text Editor Settings](#text-editor-settings)
