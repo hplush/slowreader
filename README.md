@@ -2,6 +2,8 @@
 
 Web app to combine feeds from social networks and RSS and to help read more meaningful and deep content.
 
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/fork/github/hplush/slowreader?file=web/pages/start.svelte)
+
 **[How to contribute and join the team](./CONTRIBUTING.md)**
 
 ---
