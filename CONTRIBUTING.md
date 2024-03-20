@@ -28,7 +28,7 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
 
 ## Install Environment
 
-1. Install [Node.js](https://nodejs.org/en/download) and [pnpm](https://pnpm.io/installation):
+1. Install environment:
 
    - The recommended way is to install [`asdf`](https://asdf-vm.com/guide/getting-started.html) and then run:
 
@@ -38,7 +38,7 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
      asdf install
      ```
 
-   - But for one-time work, you can manually install versions according to [`.tool-versions`](./.tool-versions) file.
+   - But for one-time work, you can manually install [Node.js](https://nodejs.org/en/download) and [pnpm](https://pnpm.io/installation) versions according to [`.tool-versions`](./.tool-versions) file.
 
 2. Then install all npm dependencies by `pnpm`:
 
