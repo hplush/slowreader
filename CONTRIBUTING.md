@@ -28,29 +28,29 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
 
 ## Install Environment
 
-1. Install Node.js and pnpm:
+1. Install environment:
 
    - The recommended way is to install [`asdf`](https://asdf-vm.com/guide/getting-started.html) and then run:
 
-   ```sh
-   asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-   asdf plugin-add pnpm https://github.com/jonathanmorley/asdf-pnpm.git
-   asdf install
-   ```
+     ```sh
+     asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+     asdf plugin-add pnpm https://github.com/jonathanmorley/asdf-pnpm.git
+     asdf install
+     ```
 
-- But for one-time work, you can manually install versions according to [`.tool-versions`](./.tool-versions) file.
+   - But for one-time work, you can manually install [Node.js](https://nodejs.org/en/download) and [pnpm](https://pnpm.io/installation) versions according to [`.tool-versions`](./.tool-versions) file.
 
 2. Then install all npm dependencies by `pnpm`:
 
-```sh
-pnpm install
-```
+   ```sh
+   pnpm install
+   ```
 
 3. Run tests to be sure that everything is OK (open issue if tests don’t work in your environment):
 
-```sh
-pnpm test
-```
+   ```sh
+   pnpm test
+   ```
 
 ## Run Web Client
 
