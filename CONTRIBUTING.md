@@ -30,7 +30,9 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
 
 1. Install environment:
 
-   - The recommended way is to install [`asdf`](https://asdf-vm.com/guide/getting-started.html) and then run:
+   - To fix a small bug you can run app directly in your browser via [StackBlitz](https://stackblitz.com/fork/github/hplush/slowreader?file=web/main/main.svelte).
+
+   - For lond-term contribution we recommend installing [`asdf`](https://asdf-vm.com/guide/getting-started.html) and then run:
 
      ```sh
      asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
@@ -38,9 +40,7 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
      asdf install
      ```
 
-   - But for one-time work, you can manually install [Node.js](https://nodejs.org/en/download) and [pnpm](https://pnpm.io/installation) versions according to [`.tool-versions`](./.tool-versions) file.
-
-   - For an initial overview and run the project without downloading, you can try the online sandbox on [StackBlitz](https://stackblitz.com/fork/github/hplush/slowreader?file=web/main/main.svelte).
+   - You can also manually install [Node.js](https://nodejs.org/en/download) and [pnpm](https://pnpm.io/installation) versions according to [`.tool-versions`](./.tool-versions) file.
 
 2. Then install all npm dependencies by `pnpm`:
 
