@@ -40,6 +40,8 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
 
    - But for one-time work, you can manually install [Node.js](https://nodejs.org/en/download) and [pnpm](https://pnpm.io/installation) versions according to [`.tool-versions`](./.tool-versions) file.
 
+   - For an initial overview and run the project without downloading, you can try the online sandbox on [StackBlitz](https://stackblitz.com/fork/github/hplush/slowreader?file=web/main/main.svelte).
+
 2. Then install all npm dependencies by `pnpm`:
 
    ```sh
