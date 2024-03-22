@@ -98,7 +98,6 @@ Read our **[checklist for pull requests](./docs/pull_request_template.md)**. It 
 
 If you are not just fixing a bug but want to join the core team, here is the path:
 
-<!--
 1. Your first task is to test `pnpm test` in your environment and report issue.
 2. Go to our [Tasks plan](https://github.com/orgs/hplush/projects/1) and take next task from `Onboarding` column.
    1. Choose any task that fits the best to you.
@@ -106,7 +105,6 @@ If you are not just fixing a bug but want to join the core team, here is the pat
    3. The task will be reserved for you for a week.
    4. Don’t worry if a week is not enough. Just make a [draft PR](https://github.blog/2019-02-14-introducing-draft-pull-requests/).
 3. After the onboarding, you can take tasks from the `Ready to Take` column. See the discussions in issues to pick next one.
--->
 
 Feel free to ask [maintainer](https://t.me/sitnik) about your next task.
 
