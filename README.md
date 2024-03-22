@@ -2,12 +2,12 @@
 
 Web app to combine feeds from social networks and RSS and to help read more meaningful and deep content.
 
-Right now, it is just a prototype. We plan to have features:
+Right now, it is just a _prototype_. We plan to have features:
 
 - Combine all feeds (social media, RSS) in a single app.
+- Track how each subscription is useful for you.
 - Split subscriptions to **slow** (something useful, deep) and **fast-food** (fun and small).
 - Spend more time on slow content by blocking fast in the evening, etc.
-- Track how each subscription is useful for you.
 
 <a href="https://stackblitz.com/fork/github/hplush/slowreader?file=web/main/main.svelte"><img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt="Open in StackBlitz" width="162" height="32" /></a>
 
