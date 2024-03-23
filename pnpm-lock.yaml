@@ -131,6 +131,10 @@ importers:
       '@logux/server':
         specifier: 0.12.10
         version: 0.12.10
+    devDependencies:
+      tsx:
+        specifier: 4.7.1
+        version: 4.7.1
 
   web:
     dependencies:

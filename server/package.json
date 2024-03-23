@@ -2,7 +2,13 @@
   "name": "@slowreader/server",
   "private": true,
   "type": "module",
+  "scripts": {
+    "start": "tsx --watch index.ts"
+  },
   "dependencies": {
     "@logux/server": "0.12.10"
+  },
+  "devDependencies": {
+    "tsx": "4.7.1"
   }
 }
