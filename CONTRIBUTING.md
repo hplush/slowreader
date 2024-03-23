@@ -1,5 +1,11 @@
 # Contributing
 
+We are very welcome for new developers.
+
+We will try to give you **good feedback** in pull requests with explanations and guidance to learn something new.
+
+Also, feel free to ask any questions about career and development. If you are helping us, we will try to **mentor you**.
+
 - [Language](#language)
 - [Where to Ask Questions](#where-to-ask-questions)
 - [Install Environment](#install-environment)
