@@ -1,15 +1,9 @@
-name: Linters
+name: Test
 on:
   push:
     branches:
       - main
-    paths-ignore:
-      - '*.md'
-      - '.github/*.yml'
   pull_request:
-    paths-ignore:
-      - '*.md'
-      - '.github/*.yml'
 permissions:
   contents: read
 jobs:
@@ -24,10 +18,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --ignore-scripts
       - name: Run tests
-        run: pnpm run /^test:/
-        env:
-          FORCE_COLOR: 1
-      - name: Test clean script
-        run: pnpm clean
+        run: pnpm test
         env:
           FORCE_COLOR: 1

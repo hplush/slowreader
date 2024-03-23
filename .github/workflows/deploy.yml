@@ -2,9 +2,7 @@ name: Deploy Staging
 on:
   workflow_run:
     workflows:
-      - Core Tests
-      - Linters
-      - Web Tests
+      - Test
     types:
       - completed
     branches:
