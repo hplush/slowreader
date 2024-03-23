@@ -30,7 +30,6 @@ jobs:
         with:
           project_id: slowreader
           workload_identity_provider: projects/265562628911/locations/global/workloadIdentityPools/github/providers/slowreader
-          service_account: github-deploy@slowreader.iam.gserviceaccount.com
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
