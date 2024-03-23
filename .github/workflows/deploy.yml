@@ -1,13 +1,14 @@
-name: Deploy Staging
+name: Staging Deploy
 on:
-  workflow_run:
-    workflows:
-      - Test
-    types:
-      - completed
-    branches:
-      - main
-      - deploy
+  pull_request:
+  # workflow_run:
+  #   workflows:
+  #     - Test
+  #   types:
+  #     - completed
+  #   branches:
+  #     - main
+  #     - deploy
 permissions:
   contents: read
   id-token: write
