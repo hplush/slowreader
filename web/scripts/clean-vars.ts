@@ -40,11 +40,11 @@ async function processCss(dir: string): Promise<void> {
   )
 }
 
-const DIST = join(import.meta.dirname, '..', 'dist')
+const ASSETS = join(import.meta.dirname, '..', 'dist', 'assets')
 
 let cssCleaner = postcss([cleaner])
 
-await processCss(DIST)
+await processCss(ASSETS)
 
 let unused = checkUsed()
 if (unused.length > 0) {

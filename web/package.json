@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "pnpm run /^test:/",
-    "build": "pnpm run /^build:/ && tsx ./scripts/clean-vars.ts && mv ./storybook-static ./dist/ui",
+    "build": "pnpm run /^build:/ && mv ./storybook-static ./dist/ui",
     "start": "vite",
     "visual": "storybook dev -p 6006 --no-open",
     "production": "pnpm build && vite preview",
@@ -14,7 +14,7 @@
     "test:css": "stylelint **/*.css **/*.svelte",
     "test:build": "pnpm build && size-limit",
     "build:visual": "NODE_ENV=test storybook build",
-    "build:web": "vite build",
+    "build:web": "vite build && tsx ./scripts/clean-vars.ts",
     "format:stylelint": "stylelint --fix **/*.{css,svelte}",
     "clean:dist": "rm -rf dist"
   },
