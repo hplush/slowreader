@@ -8,6 +8,6 @@ const server = new Server(
   })
 )
 
-server.auth(() => false)
+await server.autoloadModules('modules/*.ts')
 
 server.listen()

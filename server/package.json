@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "tsx --watch index.ts"
+    "start": "tsx watch index.ts"
   },
   "dependencies": {
     "@logux/server": "0.12.10"
