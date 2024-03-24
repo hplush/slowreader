@@ -33,7 +33,7 @@ jobs:
       - name: Delete image
         run: |
           tagged=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/staging/staging --include-tags --format="get(version)" --filter="tags = 'preview-${{ github.event.number }}'")
-          for digest in $untagged; do
+          for digest in $tagged; do
             image=$REGION-docker.pkg.dev/$PROJECT_ID/staging/staging@$digest
             echo "Deleting unused image: $image"
             gcloud artifacts docker images delete $image --delete-tags --quiet
