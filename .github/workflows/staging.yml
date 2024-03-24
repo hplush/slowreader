@@ -48,9 +48,6 @@ jobs:
           service: staging
           region: ${{ env.REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }}
-          flags: |
-            --allow-unauthenticated
-            --service-account=github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
       - name: Make service public
         run: |
           gcloud run services add-iam-policy-binding staging \
