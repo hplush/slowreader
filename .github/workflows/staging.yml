@@ -2,12 +2,12 @@ name: Staging Deploy
 on:
   workflow_run:
     workflows:
-      - Test
+      - test
     types:
       - completed
-    branches:
-      - main
-      - deploy
+    # branches:
+    #   - main
+    #   - deploy
 permissions:
   contents: read
   id-token: write
