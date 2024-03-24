@@ -32,6 +32,6 @@ jobs:
         with:
           retention-days: 1
           name: preview-assets
-          path:
-            - ./web/dist/
-            - ./preview-id
+          path: |
+            ./web/dist/
+            ./preview-id
