@@ -59,6 +59,6 @@ jobs:
             image=$REGION-docker.pkg.dev/$PROJECT_ID/run/staging@$digest
             if [[ ! " $active_images " =~ " $image " ]]; then
               echo "Deleting unused image: $image"
-              cloud artifacts docker images delete $image --quiet
+              gcloud artifacts docker images delete $image --quiet
             fi
           done
