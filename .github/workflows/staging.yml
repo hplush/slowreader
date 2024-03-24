@@ -19,8 +19,6 @@ jobs:
     env:
       PROJECT_ID: slowreader-418211
       REGION: europe-west6
-      SERVICE: staging
-      REPOSITORY: run
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -47,6 +45,7 @@ jobs:
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: dev
+          service: staging
           region: europe-west6
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }}
+          flags: '--allow-unauthenticated'
