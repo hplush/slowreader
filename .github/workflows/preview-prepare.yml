@@ -19,5 +19,6 @@ jobs:
         run: cd web && pnpm build
       - name: Save web assets for deploy
         uses: actions/upload-artifact@v4
-        name: preview-${{ github.event.number }}
-        path: ./web/dist/
+        with:
+          name: preview-${{ github.event.number }}
+          path: ./web/dist/
