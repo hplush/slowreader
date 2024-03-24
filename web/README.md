@@ -86,7 +86,7 @@ You can use [`<Scene>`](./stories/scene.svelte) to change core stores and mock H
 
 ## Deploy
 
-1. **Pull request preview:** the CI will publish a link to preview deploy to pull request events.
+1. **Pull request preview:** the CI will publish a `View deployment` link to pull request events in 2 minutes.
 2. **Staging**: `main` branch is on [`dev.slowreader.app`](https://dev.slowreader.app).
 
 Both preview and staging have Storybook at `/ui/` route.
