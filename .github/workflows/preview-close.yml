@@ -8,12 +8,14 @@ permissions:
   deployments: write
 jobs:
   close:
+    name: Close
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: slowreader-418220
       REGION: europe-west1
     steps:
       - name: Clean from GitHub
+        continue-on-error: true
         uses: bobheadxi/deployments@v1
         with:
           step: delete-env

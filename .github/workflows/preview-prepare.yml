@@ -12,8 +12,8 @@ permissions:
   contents: read
   id-token: write
 jobs:
-  deploy:
-    name: Deploy
+  prepare:
+    name: Prepare
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
