@@ -5,6 +5,7 @@ on:
       - closed
 permissions:
   deployments: write
+  id-token: write
 jobs:
   close:
     name: Close
