@@ -7,6 +7,7 @@ on:
       - completed
 permissions:
   id-token: write
+  contents: read
   deployments: write
 jobs:
   deploy:
@@ -35,6 +36,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: refs/pull/${{ env.PR_NUMBER }}/merge
           env: preview-${{ env.PR_NUMBER }}
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:
