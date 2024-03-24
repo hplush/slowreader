@@ -48,4 +48,12 @@ jobs:
           service: staging
           region: europe-west6
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }}
-          flags: '--allow-unauthenticated'
+          flags: |
+            --allow-unauthenticated
+            --service-account=github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+      - name: Delete previous images
+        run: |
+          IMAGES=$(gcloud artifacts docker images list ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run --format="get(digest)")
+          for IMAGE in $IMAGES; do
+            gcloud artifacts docker images delete $REGION-docker.pkg.dev/$PROJECT_ID/run@$IMAGE --quiet
+          done
