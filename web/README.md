@@ -74,18 +74,22 @@ Since clients don’t have much logic (we moved logic to the client core), we do
 
 We can use only visual tests to test web clients UI. We are using **[Storybook](https://storybook.js.org/)** and **[Chromatic snapshots](https://www.chromatic.com/builds?appId=65678843aa11589739e8fbee)**.
 
+Since we use a free plan, we run Chromatic on CI only daily.
+
+We deploy the latest Storybook of `main` branch to staging: [dev.slowreader.app/ui/](https://dev.slowreader.app/ui/)
+
+You can check Storybook of pull request by adding `/ui/` to the preview deploy URL: like <code>https://preview-100---staging-3ryqvfpd5q-ew.a.run.app<b>/ui/</b></code>
+
 But those visuals can be very complex. We do not just test buttons in different states. We test whole pages by mocking network requests and stores states. We use small JS in stories to test animations or some JS code.
 
 You can use [`<Scene>`](./stories/scene.svelte) to change core stores and mock HTTP.
 
-Since we use a free plan, we run Chromatic on CI only daily.
-
 ## Deploy
 
-We deploy:
+1. **Pull request preview:** the CI will publish a link to preview deploy to pull request events.
+2. **Staging**: `main` branch is on [`dev.slowreader.app`](https://dev.slowreader.app).
 
-1. Every pull request to preview server.
-2. `main` branch to [`dev.slowreader.app`](https://dev.slowreader.app).
+Both preview and staging have Storybook at `/ui/` route.
 
 We are using **Google Cloud Run** to run Nginx server with assets of web client.
 
