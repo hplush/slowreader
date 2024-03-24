@@ -2,7 +2,7 @@ name: Staging Deploy
 on:
   workflow_run:
     workflows:
-      - Test
+      - Code Test
     types:
       - completed
     branches:

@@ -1,9 +1,17 @@
-name: Test
+name: Code Test
 on:
   push:
     branches:
       - main
+    paths-ignore:
+      - './**/*.md'
+      - './.vscode/**'
+      - './.husky/**'
   pull_request:
+    paths-ignore:
+      - './**/*.md'
+      - './.vscode/**'
+      - './.husky/**'
 permissions:
   contents: read
 jobs:
