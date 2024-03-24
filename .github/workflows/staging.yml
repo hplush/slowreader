@@ -5,9 +5,8 @@ on:
       - Test
     types:
       - completed
-    # branches:
-    #   - main
-    #   - deploy
+    branches:
+      - main
 permissions:
   contents: read
   id-token: write
