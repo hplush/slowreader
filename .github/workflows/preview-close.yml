@@ -4,7 +4,6 @@ on:
     types:
       - closed
 permissions:
-  contents: read
   deployments: write
 jobs:
   close:
@@ -21,12 +20,6 @@ jobs:
           step: deactivate-env
           token: ${{ secrets.GITHUB_TOKEN }}
           env: preview-${{ github.event.number }}
-      - name: Checkout the repository
-        uses: actions/checkout@v3
-      - name: Install tools from asdf config
-        uses: ai/asdf-cache-action@v1
-      - name: Install dependencies
-        run: pnpm install --ignore-scripts
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:
