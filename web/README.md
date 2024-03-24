@@ -7,6 +7,7 @@ _See the [full architecture guide](../README.md) first._
 - [Scripts](#scripts)
 - [Design System](#design-system)
 - [Test Strategy](#test-strategy)
+- [Deploy](#deploy)
 
 ## Project Structure
 
@@ -26,7 +27,7 @@ We use **Svelte** as the UI framework and **Vite** as the builder.
 - [`stores/`](./stores/): web client’s own smart stores. For instance, router on top of URL using [Nano Stores Router](https://github.com/nanostores/router).
 - [`postcss/`](./postcss/): [PostCSS](https://postcss.org/) plugins to check CSS and optimize it. Check the plugin’s descriptions for more information.
 - [`stories/`](./stories/): visual tests for pages and UI components by [Storybook](https://storybook.js.org/). The main way to test web client.
-- [`scripts/`](./scripts/): scripts to check for popular errors and optimize files after Vite build. Check the script’s descriptions for further details.
+- [`scripts/`](./scripts/): scripts to check for popular errors, optimize files after Vite build, and deploy. Check the script’s descriptions for further details.
 - [`test/`](./test/): unit tests for some parts of the web client.
 - `dist/`: `pnpm build` will build the result here for deployment.
 - [`.storybook/`](./.storybook/): Storybook’s config.
@@ -78,3 +79,14 @@ But those visuals can be very complex. We do not just test buttons in different 
 You can use [`<Scene>`](./stories/scene.svelte) to change core stores and mock HTTP.
 
 Since we use a free plan, we run Chromatic on CI only daily.
+
+## Deploy
+
+We deploy:
+
+1. Every pull request to preview server.
+2. `main` branch to [`dev.slowreader.app`](https://dev.slowreader.app).
+
+We are using **Google Cloud Run** to run Nginx server with assets of web client.
+
+All Google Cloud settings are documented in [script](../scripts/prepare-google-cloud.sh).

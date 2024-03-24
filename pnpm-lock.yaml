@@ -241,12 +241,6 @@ importers:
       postcss-selector-parser:
         specifier: 6.0.16
         version: 6.0.16
-      react:
-        specifier: 18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
       size-limit:
         specifier: 11.1.2
         version: 11.1.2
