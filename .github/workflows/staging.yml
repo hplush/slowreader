@@ -19,6 +19,8 @@ jobs:
     env:
       PROJECT_ID: slowreader-418211
       REGION: europe-west6
+      SERVICE: staging
+      REPOSITORY: run
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,15 +38,15 @@ jobs:
       - name: Install Google Cloud
         uses: google-github-actions/setup-gcloud@v2
       - name: Auth Docker
-        run: gcloud auth configure-docker ${{ env.REGION }}.pkg.dev --quiet
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
       - name: Build Docker image
-        run: docker build -t ${{ env.REGION }}.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }} ./web
+        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }} ./web
       - name: Push Docker image
-        run: docker push ${{ env.REGION }}.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }}
+        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }}
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: dev
           region: europe-west6
-          image: ${{ env.REGION }}.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }}
