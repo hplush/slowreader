@@ -7,6 +7,8 @@ PROJECT_ID=test-418219
 REGION=europe-west6
 WORKFLOWS=(
   ".github/workflows/staging.yml"
+  ".github/workflows/preview-close.yml"
+  ".github/workflows/preview-deploy.yml"
 )
 
 # Set project as default in CLI

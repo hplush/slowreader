@@ -1,0 +1,77 @@
+name: Deploy Preview
+on:
+  workflow_run:
+    workflows:
+      - Prepare Preview
+    types:
+      - completed
+permissions:
+  contents: read
+  id-token: write
+  deployments: write
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: test-418219
+      REGION: europe-west6
+    steps:
+      - name: Notify about new deployment
+        uses: bobheadxi/deployments@v1
+        id: status
+        with:
+          step: start
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref }}
+          env: preview-${{ github.event.number }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Download web assets from prepare step
+        uses: actions/download-artifact@v4
+        with:
+          name: preview-${{ github.event.number }}
+          path: ./web/dist/
+      - name: Auth Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/324609295769/locations/global/workloadIdentityPools/github/providers/slowreader
+          service_account: github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+      - name: Install Google Cloud
+        uses: google-github-actions/setup-gcloud@v2
+      - name: Auth Docker
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+      - name: Build Docker image
+        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:preview-${{ github.event.number }} ./web
+      - name: Push Docker image
+        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:preview-${{ github.event.number }}
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: staging
+          region: ${{ env.REGION }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:preview-${{ github.event.number }}
+          tag: preview-${{ github.event.number }}
+          no_traffic: true
+          flags: |
+            --allow-unauthenticated
+            --service-account=github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+      - name: Update deployment status
+        uses: bobheadxi/deployments@v1
+        if: always()
+        with:
+          step: finish
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          env: ${{ steps.status.outputs.env }}
+          env_url: ${{ steps.deploy.outputs.url }}
+          deployment_id: ${{ steps.status.outputs.deployment_id }}
+      - name: Delete previous images
+        run: |
+          untagged=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/staging/staging --include-tags --format="get(version)" --filter="tags = ''")
+          for digest in $untagged; do
+            image=$REGION-docker.pkg.dev/$PROJECT_ID/staging/staging@$digest
+            echo "Deleting unused image: $image"
+            gcloud artifacts docker images delete $image --quiet
+          done
