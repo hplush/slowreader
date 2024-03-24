@@ -53,11 +53,12 @@ jobs:
             --service-account=github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
       - name: Delete previous images
         run: |
-          active_images=$(gcloud run services list --platform managed --region $REGION --format='value(status.latestCreatedRevision.spec.containers.image)')
-          all_images=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/run/staging --format='get(name)')
-          for image in $all_images; do
+          active_images=$(gcloud run revisions list --service staging --platform managed --region $REGION --filter="metadata.labels['serving.knative.dev/route'] = 'staging'" --format="value(status.imageDigest)")
+          all_digests=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/run/staging --format='get(version)')
+          for digest in $all_digests; do
+            image=$REGION-docker.pkg.dev/$PROJECT_ID/run/staging@$digest
             if [[ ! " $active_images " =~ " $image " ]]; then
               echo "Deleting unused image: $image"
-              gcloud artifacts docker images delete $image --quiet
+              cloud artifacts docker images delete $image --quiet
             fi
           done
