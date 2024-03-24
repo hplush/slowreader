@@ -6,7 +6,6 @@ on:
     types:
       - completed
 permissions:
-  contents: read
   id-token: write
   deployments: write
 jobs:
@@ -24,14 +23,16 @@ jobs:
           step: start
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.head_ref }}
-          env: preview-${{ github.event.number }}
-      - name: Checkout code
-        uses: actions/checkout@v4
+          env: preview-${{ env.PR_NUMBER }}
       - name: Download web assets from prepare step
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v3
         with:
-          name: preview-${{ github.event.number }}
-          path: ./web/dist/
+          workflow: ${{ github.event.workflow_run.workflow_id }}
+          run_id: ${{ github.event.workflow_run.id }}
+      - name: Extract PR number
+        run: |
+          PR_NUMBER=$(cat ./preview-id)
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -42,17 +43,17 @@ jobs:
       - name: Auth Docker
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
       - name: Build Docker image
-        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:preview-${{ github.event.number }} ./web
+        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:preview-${{ env.PR_NUMBER }} ./web
       - name: Push Docker image
-        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:preview-${{ github.event.number }}
+        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:preview-${{ env.PR_NUMBER }}
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: staging
           region: ${{ env.REGION }}
-          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:preview-${{ github.event.number }}
-          tag: preview-${{ github.event.number }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:preview-${{ env.PR_NUMBER }}
+          tag: preview-${{ env.PR_NUMBER }}
           no_traffic: true
           flags: |
             --allow-unauthenticated
