@@ -1,6 +1,13 @@
 name: Prepare Preview
 on:
   pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - 'proxy/**'
+      - 'server/**'
+      - '.vscode/**'
+      - '.husky/**'
+      - '.github/**'
 permissions:
   contents: read
   id-token: write
