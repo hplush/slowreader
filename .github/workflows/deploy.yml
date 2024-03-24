@@ -28,13 +28,20 @@ jobs:
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          project_id: slowreader
           workload_identity_provider: projects/265562628911/locations/global/workloadIdentityPools/github/providers/slowreader
           service_account: github-deploy@slowreader.iam.gserviceaccount.com
+      - name: Install Google Cloud=
+        uses: google-github-actions/setup-gcloud@v2
+      - name: Auth Docker
+        run: gcloud auth configure-docker europe-west6-docker.pkg.dev --quiet
+      - name: Build Docker image
+        run: docker build -t europe-west6-docker.pkg.dev/slowreader/dev/web:latest ./web
+      - name: Push Docker image
+        run: docker push europe-west6-docker.pkg.dev/slowreader/dev/web:latest
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: dev
           region: europe-west6
-          source: ./web/
+          image: europe-west6-docker.pkg.dev/slowreader/dev/web:latest
