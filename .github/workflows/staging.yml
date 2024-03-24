@@ -38,16 +38,16 @@ jobs:
       - name: Auth Docker
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
       - name: Build Docker image
-        run: docker build -t staging -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }} ./web
+        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:latest ./web
       - name: Push Docker image
-        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }} --all-tags
+        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:latest
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: staging
           region: ${{ env.REGION }}
-          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:latest
           flags: |
             --allow-unauthenticated
             --service-account=github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
