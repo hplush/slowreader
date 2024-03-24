@@ -46,14 +46,25 @@ jobs:
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: staging
-          region: europe-west6
+          region: ${{ env.REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }}
           flags: |
             --allow-unauthenticated
             --service-account=github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+      - name: Make service public
+        run: |
+          gcloud run services add-iam-policy-binding staging \
+          --member="allUsers" \
+          --role="roles/run.invoker" \
+          --region=${{ env.REGION }} \
+          --platform=managed
       - name: Delete previous images
         run: |
-          IMAGES=$(gcloud artifacts docker images list ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run --format="get(digest)")
-          for IMAGE in $IMAGES; do
-            gcloud artifacts docker images delete $REGION-docker.pkg.dev/$PROJECT_ID/run@$IMAGE --quiet
+          active_images=$(gcloud run services list --platform managed --region $REGION --format='value(status.latestCreatedRevision.spec.containers.image)')
+          all_images=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/run/staging --format='get(name)')
+          for image in $all_images; do
+            if [[ ! " $active_images " =~ " $image " ]]; then
+              echo "Deleting unused image: $image"
+              gcloud artifacts docker images delete $image --quiet
+            fi
           done
