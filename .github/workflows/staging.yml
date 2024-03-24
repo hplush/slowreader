@@ -36,15 +36,15 @@ jobs:
       - name: Install Google Cloud
         uses: google-github-actions/setup-gcloud@v2
       - name: Auth Docker
-        run: gcloud auth configure-docker ${REGION}.pkg.dev --quiet
+        run: gcloud auth configure-docker ${{ env.REGION }}.pkg.dev --quiet
       - name: Build Docker image
-        run: docker build -t ${REGION}.pkg.dev/${PROJECT_ID}/run/staging:${{ github.sha }} ./web
+        run: docker build -t ${{ env.REGION }}.pkg.dev/{{ env.PROJECT_ID }}/run/staging:${{ github.sha }} ./web
       - name: Push Docker image
-        run: docker push ${REGION}.pkg.dev/${PROJECT_ID}/run/staging:${{ github.sha }}
+        run: docker push ${{ env.REGION }}.pkg.dev/{{ env.PROJECT_ID }}/run/staging:${{ github.sha }}
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: dev
           region: europe-west6
-          image: ${REGION}.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }}
+          image: ${{ env.REGION }}.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }}
