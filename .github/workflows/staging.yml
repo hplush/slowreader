@@ -17,7 +17,7 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     env:
-      PROJECT_ID: slowreader-418211
+      PROJECT_ID: slowreader-418218
       REGION: europe-west6
     steps:
       - name: Checkout code
@@ -31,34 +31,34 @@ jobs:
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: projects/561289464863/locations/global/workloadIdentityPools/github/providers/slowreader
+          workload_identity_provider: projects/262379548720/locations/global/workloadIdentityPools/github/providers/slowreader
           service_account: github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
       - name: Install Google Cloud
         uses: google-github-actions/setup-gcloud@v2
       - name: Auth Docker
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
       - name: Build Docker image
-        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:latest ./web
+        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:latest ./web
       - name: Push Docker image
-        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:latest
+        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:latest
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: staging
           region: ${{ env.REGION }}
-          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:latest
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:latest
           flags: |
             --allow-unauthenticated
             --service-account=github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
-      - name: Delete previous images
-        run: |
-          active_images=$(gcloud run revisions list --service staging --platform managed --region $REGION --filter="metadata.labels['serving.knative.dev/route'] = 'staging'" --format="value(status.imageDigest)")
-          all_digests=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/run/staging --format='get(version)')
-          for digest in $all_digests; do
-            image=$REGION-docker.pkg.dev/$PROJECT_ID/run/staging@$digest
-            if [[ ! " $active_images " =~ " $image " ]]; then
-              echo "Deleting unused image: $image"
-              gcloud artifacts docker images delete $image --delete-tags --quiet
-            fi
-          done
+      # - name: Delete previous images
+      #   run: |
+      #     active_images=$(gcloud run revisions list --service staging --platform managed --region $REGION --filter="metadata.labels['serving.knative.dev/route'] = 'staging'" --format="value(status.imageDigest)")
+      #     all_digests=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/staging/staging --format='get(version)')
+      #     for digest in $all_digests; do
+      #       image=$REGION-docker.pkg.dev/$PROJECT_ID/staging/staging@$digest
+      #       if [[ ! " $active_images " =~ " $image " ]]; then
+      #         echo "Deleting unused image: $image"
+      #         gcloud artifacts docker images delete $image --delete-tags --quiet
+      #       fi
+      #     done
