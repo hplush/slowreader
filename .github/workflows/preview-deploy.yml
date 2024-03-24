@@ -16,23 +16,25 @@ jobs:
       PROJECT_ID: slowreader-418220
       REGION: europe-west1
     steps:
+      - name: Download web assets from prepare step
+        uses: actions/download-artifact@v4
+        with:
+          name: preview-assets
+          repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
+          run_id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.PREVIEW_ARTIFACT_PAT }}
+      - name: Extract PR number
+        run: |
+          PR_NUMBER=$(cat ./preview-id)
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
       - name: Notify about new deployment
         uses: bobheadxi/deployments@v1
         id: status
         with:
           step: start
           token: ${{ secrets.GITHUB_TOKEN }}
-          ref: ${{ github.head_ref }}
+          ref: refs/pull/${{ env.PR_NUMBER }}/merge
           env: preview-${{ env.PR_NUMBER }}
-      - name: Download web assets from prepare step
-        uses: dawidd6/action-download-artifact@v3
-        with:
-          workflow: ${{ github.event.workflow_run.workflow_id }}
-          run_id: ${{ github.event.workflow_run.id }}
-      - name: Extract PR number
-        run: |
-          PR_NUMBER=$(cat ./preview-id)
-          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:
