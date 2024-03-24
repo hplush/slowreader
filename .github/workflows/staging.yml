@@ -38,9 +38,9 @@ jobs:
       - name: Auth Docker
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
       - name: Build Docker image
-        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }} ./web
+        run: docker build -t staging -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }} ./web
       - name: Push Docker image
-        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }}
+        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/run/staging:${{ github.sha }} --all-tags
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
@@ -59,6 +59,6 @@ jobs:
             image=$REGION-docker.pkg.dev/$PROJECT_ID/run/staging@$digest
             if [[ ! " $active_images " =~ " $image " ]]; then
               echo "Deleting unused image: $image"
-              gcloud artifacts docker images delete $image --quiet
+              gcloud artifacts docker images delete $image --delete-tags --quiet
             fi
           done
