@@ -1,8 +1,10 @@
 #!/bin/bash
-# Configures Google Cloud project for Slow Reader deployment
+# Configures Google Cloud project for Slow Reader deployment.
+# Google Cloud settings can be complex. We have this file to not forget them.
+# Do not change Google Cloud by web. Always use `gcloud` and update this script.
 
 PROJECT_ID=test-418219
-REGION=europe-west1
+REGION=europe-west6
 WORKFLOWS=(
   ".github/workflows/staging.yml"
 )
