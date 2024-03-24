@@ -3,8 +3,8 @@
 # Google Cloud settings can be complex. We have this file to not forget them.
 # Do not change Google Cloud by web. Always use `gcloud` and update this script.
 
-PROJECT_ID=test-418219
-REGION=europe-west6
+PROJECT_ID=slowreader-418220
+REGION=europe-west1
 WORKFLOWS=(
   ".github/workflows/staging.yml"
   ".github/workflows/preview-close.yml"
@@ -75,10 +75,10 @@ for file in "${WORKFLOWS[@]}"; do
 done
 
 echo ""
-echo "\033[0;33m\033[1mAfter first deploy:\033[0m"
+echo -e "\033[0;33m\033[1mAfter first deploy:\033[0m"
 echo ""
-echo "1. Open https://console.cloud.google.com/run"
-echo "2. Switch to \033[1m*@slowreader.app\033[0m account"
-echo "3. Click on \033[1mManage Custom Domains\033[0m"
-echo "4. Click on \033[1mAdd Mapping\033[0m"
-echo "5. Add \033[1mdev.slowreader.app\033[0m domain to \033[1mstaging\033[0m"
+echo -e "1. Open https://console.cloud.google.com/run"
+echo -e "2. Switch to \033[1m*@slowreader.app\033[0m account"
+echo -e "3. Click on \033[1mManage Custom Domains\033[0m"
+echo -e "4. Click on \033[1mAdd Mapping\033[0m"
+echo -e "5. Add \033[1mdev.slowreader.app\033[0m to \033[1mstaging\033[0m"

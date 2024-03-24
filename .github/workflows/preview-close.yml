@@ -10,8 +10,8 @@ jobs:
   close:
     runs-on: ubuntu-latest
     env:
-      PROJECT_ID: test-418219
-      REGION: europe-west6
+      PROJECT_ID: slowreader-418220
+      REGION: europe-west1
     steps:
       - name: Clean from GitHub
         uses: bobheadxi/deployments@v1
@@ -28,7 +28,7 @@ jobs:
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: projects/324609295769/locations/global/workloadIdentityPools/github/providers/slowreader
+          workload_identity_provider: projects/225773869708/locations/global/workloadIdentityPools/github/providers/slowreader
           service_account: github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
       - name: Install Google Cloud
         uses: google-github-actions/setup-gcloud@v2
