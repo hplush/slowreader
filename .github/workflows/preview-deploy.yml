@@ -21,7 +21,7 @@ jobs:
         with:
           name: preview-assets
           repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
-          run_id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.PREVIEW_ARTIFACT_PAT }}
       - name: Extract PR number
         run: |
