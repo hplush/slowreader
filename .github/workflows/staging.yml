@@ -16,6 +16,9 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: slowreader-418211
+      REGION: europe-west6
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,19 +32,19 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: projects/561289464863/locations/global/workloadIdentityPools/github/providers/slowreader
-          service_account: github-deploy@slowreader.iam.gserviceaccount.com
+          service_account: github-deploy@$PROJECT_ID.iam.gserviceaccount.com
       - name: Install Google Cloud
         uses: google-github-actions/setup-gcloud@v2
       - name: Auth Docker
-        run: gcloud auth configure-docker europe-west6-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker $REGION.pkg.dev --quiet
       - name: Build Docker image
-        run: docker build -t europe-west6-docker.pkg.dev/slowreader/staging/staging:${{ github.sha }} ./web
+        run: docker build -t $REGION.pkg.dev/$PROJECT_ID/run/staging:${{ github.sha }} ./web
       - name: Push Docker image
-        run: docker push europe-west6-docker.pkg.dev/slowreader/staging/staging:${{ github.sha }}
+        run: docker push $REGION.pkg.dev/$PROJECT_ID/run/staging:${{ github.sha }}
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: dev
           region: europe-west6
-          image: europe-west6-docker.pkg.dev/slowreader/staging/staging:${{ github.sha }}
+          image: $REGION.pkg.dev/$PROJECT_ID/run/staging:${{ github.sha }}
