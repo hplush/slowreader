@@ -51,7 +51,7 @@ export function computeFrom<Value, SourceStores extends ReadableAtom[]>(
 ): () => void {
   return listenMany(stores, (...values) => {
     let newValue = compute(...values)
-    if (!compare || !compare(newValue, to.get())) {
+    if (!compare?.(newValue, to.get())) {
       to.set(newValue)
     }
   })
