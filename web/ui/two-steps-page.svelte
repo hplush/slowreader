@@ -28,7 +28,7 @@
     display: flex;
     gap: var(--padding-l);
     justify-content: space-around;
-    width: 100%;
+    width: calc(100% - var(--padding-l));
   }
 
   .two-steps-page_step {
