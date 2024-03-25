@@ -14,7 +14,7 @@ Also, feel free to ask any questions about career and development. If you are he
 - [Learn App Architecture](#learn-app-architecture)
 - [Check Our Checklist](#check-our-checklist)
 - [How to Find Next Task](#how-to-find-next-task)
-- [Commits](#commits)
+- [Git Commits and Branches](#git-commits-and-branches)
 
 ## Language
 
@@ -116,7 +116,7 @@ Feel free to ask [maintainer](https://t.me/sitnik) about your next task.
 
 > We will mentor you in return for your participation, so don’t be afraid to ask questions.
 
-## Commits
+## Git Commits and Branches
 
 We care about good commit messages. Try to think about them and describe more:
 
@@ -133,3 +133,5 @@ In commit’s messages example **why** you did changes, **not what** you changed
 ```
 
 We recommend signing [your commits](./docs/onboarding.md#enable-signing-git-commits).
+
+There is no any specific rules about git branch names.
