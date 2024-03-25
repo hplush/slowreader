@@ -3,6 +3,15 @@ on:
   pull_request:
     types:
       - closed
+    paths-ignore:
+      - './**/*.md'
+      - './proxy/**'
+      - './server/**'
+      - './scripts/**'
+      - './.vscode/**'
+      - './.husky/**'
+      - './.github/**'
+      - './core/test/**'
 jobs:
   close:
     name: Close
