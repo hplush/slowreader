@@ -22,8 +22,8 @@ theme.subscribe(themeValue => {
   root.classList.toggle('is-light-theme', themeValue === 'light')
 })
 
-locale.subscribe(localeValue => {
-  root.lang = localeValue
+locale.subscribe(lang => {
+  root.lang = lang
 })
 
 if (!likelyWithKeyboard(window)) {
