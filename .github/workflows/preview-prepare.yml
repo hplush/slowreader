@@ -25,8 +25,7 @@ jobs:
       - name: Build assets
         run: cd web && pnpm build
       - name: Save PR number
-        run: |
-          echo "${{ github.event.pull_request.number }}" > ./preview-id
+        run: echo "${{ github.event.pull_request.number }}" > ./preview-id
       - name: Save web assets for deploy
         uses: actions/upload-artifact@v4
         with:

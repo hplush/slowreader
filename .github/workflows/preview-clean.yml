@@ -16,13 +16,24 @@ jobs:
       PROJECT_ID: slowreader-418220
       REGION: europe-west1
     steps:
+      - name: Download PR number from prepare step
+        uses: actions/download-artifact@v4
+        with:
+          name: preview-assets
+          repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.PREVIEW_ARTIFACT_PAT }}
+      - name: Extract PR number
+        run: |
+          PR_NUMBER=$(cat ./preview-id)
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
       - name: Clean from GitHub
         continue-on-error: true
         uses: bobheadxi/deployments@v1
         with:
           step: deactivate-env
           token: ${{ secrets.GITHUB_TOKEN }}
-          env: preview-${{ github.event.number }}
+          env: preview-${{ env.PR_NUMBER }}
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -31,10 +42,10 @@ jobs:
       - name: Install Google Cloud
         uses: google-github-actions/setup-gcloud@v2
       - name: Shut down Cloud Run
-        run: gcloud run services update-traffic staging --region=${{ env.REGION }} --project=${{ env.PROJECT_ID }} --remove-tags preview-${{ github.event.number }} --async
+        run: gcloud run services update-traffic staging --region=${{ env.REGION }} --project=${{ env.PROJECT_ID }} --remove-tags preview-${{ env.PR_NUMBER }} --async
       - name: Delete image
         run: |
-          tagged=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/staging/staging --include-tags --format="get(version)" --filter="tags = 'preview-${{ github.event.number }}'")
+          tagged=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/staging/staging --include-tags --format="get(version)" --filter="tags = 'preview-${{ env.PR_NUMBER }}'")
           for digest in $tagged; do
             image=$REGION-docker.pkg.dev/$PROJECT_ID/staging/staging@$digest
             echo "Deleting unused image: $image"

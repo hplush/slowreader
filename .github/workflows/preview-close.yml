@@ -8,5 +8,12 @@ jobs:
     name: Close
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Preview Clean
-        run: echo "Trigger another workflow with full access to secrets"
+      - name: Save PR number
+        run: echo "${{ github.event.pull_request.number }}" > ./preview-id
+      - name: Save data for another workflow
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
+          name: preview-id
+          path: |
+            ./preview-id
