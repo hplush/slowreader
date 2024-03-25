@@ -1,0 +1,42 @@
+name: Clean Preview
+on:
+  workflow_run:
+    workflows:
+      - Close Preview
+    types:
+      - completed
+permissions:
+  deployments: write
+  id-token: write
+jobs:
+  close:
+    name: Close
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: slowreader-418220
+      REGION: europe-west1
+    steps:
+      - name: Clean from GitHub
+        continue-on-error: true
+        uses: bobheadxi/deployments@v1
+        with:
+          step: deactivate-env
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env: preview-${{ github.event.number }}
+      - name: Auth Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/225773869708/locations/global/workloadIdentityPools/github/providers/slowreader
+          service_account: github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+      - name: Install Google Cloud
+        uses: google-github-actions/setup-gcloud@v2
+      - name: Shut down Cloud Run
+        run: gcloud run services update-traffic staging --region=${{ env.REGION }} --project=${{ env.PROJECT_ID }} --remove-tags preview-${{ github.event.number }} --async
+      - name: Delete image
+        run: |
+          tagged=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/staging/staging --include-tags --format="get(version)" --filter="tags = 'preview-${{ github.event.number }}'")
+          for digest in $tagged; do
+            image=$REGION-docker.pkg.dev/$PROJECT_ID/staging/staging@$digest
+            echo "Deleting unused image: $image"
+            gcloud artifacts docker images delete $image --delete-tags --quiet
+          done
