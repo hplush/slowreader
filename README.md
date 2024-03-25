@@ -29,6 +29,7 @@ Right now, it is just a _prototype_. We plan to have features:
 - [Client Storage](#client-storage)
 - [Test Strategy](#test-strategy)
 - [Visual Language](#visual-language)
+- [Dependencies](#dependencies)
 - [Guides](#guides)
 
 ## License
@@ -201,6 +202,29 @@ On desktops, we care not only about mouse UX but also about keyboard UX. Our key
 - Think about focus. If the user starts to interact with the keyboard, move the focus to the next control.
 - <kbd>Esc</kbd> should work in as many cases as possible.
 - Don’t use only <kbd>Tab</kbd> to navigate. Mix it with arrows and hotkeys for list items.
+
+## Dependencies
+
+How we choose dependencies:
+
+1. Always checking alternatives from npm search, not just take the most popular one.
+2. By project activity looking at their repository/issues/PR.
+3. By [JS bundle size](https://bundlejs.com/) if it is a web client dependency.
+4. By [`node_modules` size](https://packagephobia.com/) and [number of subdependencies](https://npmgraph.js.org).
+
+After adding a web client dependency, do not forget to call `cd web && pnpm size` to check the real size of dependency in our JS bundle.
+
+We put to `dependencies` only dependencies we need for production deploy. All other dependencies you should put to `devDependencies`. During production deploy we will use `pnpm install --prod` to reduce security risks of having malicious code in some dependency.
+
+We are using in `package.json` `1.0.0` version requirement and not `^1.0.0` to not get unexpected dependencies updates (at least, direct dependencies) if we will break the pnpm lock file. The `./scripts/check-versions.ts` in `pre-commit` hook will check that you do not forget this rule.
+
+To update specific dependency use:
+
+```js
+pnpm update DEPENDENCY
+```
+
+We can update all dependencies at least once per week.
 
 ## Guides
 
