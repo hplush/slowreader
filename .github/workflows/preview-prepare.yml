@@ -9,6 +9,7 @@ on:
       - './.vscode/**'
       - './.husky/**'
       - './.github/**'
+      - './core/test/**'
 permissions:
   contents: read
 jobs:
