@@ -1,3 +1,4 @@
+# Used only for staging and pull request preview
 FROM nginx:alpine
 ENV PORT=8080
 RUN rm -R /etc/nginx/conf.d
