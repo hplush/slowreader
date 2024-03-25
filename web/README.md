@@ -32,6 +32,7 @@ We use **Svelte** as the UI framework and **Vite** as the builder.
 - `dist/`: `pnpm build` will build the result here for deployment.
 - [`.storybook/`](./.storybook/): Storybook’s config.
 - [`index.html`](./index.html): builder entry point. It also contains styles for the app loading state.
+- [`Dockerfile`](./Dockerfile) and [`nginx.conf`](./nginx.conf): web server to serve web client for staging and pull request preview servers.
 - [`.browserslistrc`](./.browserslistrc): browsers, which we support. See [actual browsers list](https://browsersl.ist/#q=defaults+and+supports+es6-module).
 - [`.size-limit.json`](./.size-limit.json): budget for JS bundles and whole webpage size. Don’t be afraid to tune the limit. We put it so tight that it makes you feel a small pain every time you add a significant amount of code.
 
