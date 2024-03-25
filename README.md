@@ -221,8 +221,15 @@ We are using in `package.json` `1.0.0` version requirement and not `^1.0.0` to n
 
 To update specific dependency use:
 
-```js
+```sh
 pnpm update DEPENDENCY
+```
+
+To update all dependencies:
+
+```sh
+pnpm update --interactive --latest -r --include-workspace-root
+pnpm update -r --include-workspace-root
 ```
 
 We can update all dependencies at least once per week.
