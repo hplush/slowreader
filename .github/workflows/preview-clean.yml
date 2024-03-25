@@ -27,7 +27,7 @@ jobs:
         run: |
           PR_NUMBER=$(cat ./preview-id)
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
-      - name: Clean from GitHub
+      - name: Disable deploy at GitHub
         continue-on-error: true
         uses: bobheadxi/deployments@v1
         with:
