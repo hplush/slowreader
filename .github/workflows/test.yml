@@ -74,7 +74,7 @@ jobs:
         run: |
           gcloud run services update-traffic staging \
             --project ${{ env.PROJECT_ID }} \
-            --region ${{ env.REGION }}
+            --region ${{ env.REGION }} \
             --to-latest
       - name: Delete previous images
         run: |
