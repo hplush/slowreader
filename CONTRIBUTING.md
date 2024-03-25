@@ -61,6 +61,8 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
    pnpm test
    ```
 
+   Only run tests if the project path does not contain `non-Latin` characters.
+
 ## Run Web Client
 
 To run web clients, just call in the root of the project:
