@@ -11,8 +11,9 @@ Right now, it is just a _prototype_. We plan to have features:
 
 <a href="https://stackblitz.com/fork/github/hplush/slowreader?file=web/main/main.svelte"><img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt="Open in StackBlitz" width="162" height="32" /></a>
 
-- [Pre-alpha prototype](https://dev.slowreader.app/)
-- **[↬ How to contribute and join the team](./CONTRIBUTING.md)**
+[Pre-alpha prototype](https://dev.slowreader.app/)
+
+**[↬ How to contribute and join the team](./CONTRIBUTING.md)**
 
 ---
 
