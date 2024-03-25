@@ -44,17 +44,17 @@ Then add your SSH key _also_ as the commit signing key:
 2. Select `Key type`: `Signing key`.
 3. Copy the content of `~/.ssh/id_rsa.pub` file (or other file you used in `user.signingKey` above).
 
-If you're on WSL2, this may help:
+If you’re on **Windows Subsystem for Linux 2**, this may help:
 
-- Add those lines to `~/.gnupg/gpg.conf`
+1. Add those lines to `~/.gnupg/gpg.conf`
 
-```sh
-use-agent
-pinentry-mode loopback
-```
+   ```sh
+   use-agent
+   pinentry-mode loopback
+   ```
 
-- Add this line to `~/.gnupg/gpg-agent.conf`
+2. Add this line to `~/.gnupg/gpg-agent.conf`
 
-```sh
-allow-loopback-pinentry
-```
+   ```sh
+   allow-loopback-pinentry
+   ```

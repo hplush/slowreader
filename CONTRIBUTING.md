@@ -55,13 +55,12 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
    ```
 
 3. Run tests to be sure that everything is OK (open issue if tests don’t work in your environment):
-   &ensp; Before you run test be shure that the project located at path without any non-Latin letters in it.
 
    ```sh
    pnpm test
    ```
 
-   Only run tests if the project path does not contain `non-Latin` characters.
+   If you have strange error, check that all folders in the path to the project use **only Latin symbols**.
 
 ## Run Web Client
 
