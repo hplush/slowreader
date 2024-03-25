@@ -3,6 +3,9 @@ import type { StorybookConfig } from '@storybook/svelte-vite'
 export default {
   addons: ['@storybook/addon-svelte-csf', '@storybook/addon-themes'],
   framework: '@storybook/svelte-vite',
-  staticDirs: ['../public'],
-  stories: ['../stories/**/*.stories.svelte']
+  stories: ['../stories/**/*.stories.svelte'],
+  async viteFinal(config) {
+    config.publicDir = false
+    return config
+  }
 } satisfies StorybookConfig

@@ -1,15 +1,17 @@
-name: Linters
+name: Code Test
 on:
   push:
     branches:
       - main
     paths-ignore:
-      - '*.md'
-      - '.github/*.yml'
+      - './**/*.md'
+      - './.vscode/**'
+      - './.husky/**'
   pull_request:
     paths-ignore:
-      - '*.md'
-      - '.github/*.yml'
+      - './**/*.md'
+      - './.vscode/**'
+      - './.husky/**'
 permissions:
   contents: read
 jobs:
@@ -24,10 +26,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --ignore-scripts
       - name: Run tests
-        run: pnpm run /^test:/
-        env:
-          FORCE_COLOR: 1
-      - name: Test clean script
-        run: pnpm clean
+        run: pnpm test
         env:
           FORCE_COLOR: 1

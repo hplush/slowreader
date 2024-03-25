@@ -1,0 +1,37 @@
+name: Prepare Preview
+on:
+  pull_request:
+    paths-ignore:
+      - './**/*.md'
+      - './proxy/**'
+      - './server/**'
+      - './scripts/**'
+      - './.vscode/**'
+      - './.husky/**'
+      - './.github/**'
+permissions:
+  contents: read
+jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install tools from asdf config
+        uses: ai/asdf-cache-action@v1
+      - name: Install dependencies
+        run: pnpm install --ignore-scripts
+      - name: Build assets
+        run: cd web && pnpm build
+      - name: Save PR number
+        run: |
+          echo "${{ github.event.pull_request.number }}" > ./preview-id
+      - name: Save web assets for deploy
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
+          name: preview-assets
+          path: |
+            ./web/dist/
+            ./preview-id

@@ -11,7 +11,8 @@ Right now, it is just a _prototype_. We plan to have features:
 
 <a href="https://stackblitz.com/fork/github/hplush/slowreader?file=web/main/main.svelte"><img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt="Open in StackBlitz" width="162" height="32" /></a>
 
-**[↬ How to contribute and join the team](./CONTRIBUTING.md)**
+- [Pre-alpha prototype](https://dev.slowreader.app/)
+- **[↬ How to contribute and join the team](./CONTRIBUTING.md)**
 
 ---
 
@@ -101,7 +102,7 @@ Slow Reader is a local-first app. Clients do most of the work, and the server ju
 - [`proxy/`](./proxy/): HTTP proxy server to bypass censorship or to try web clients before they install the upcoming extensions (to bypass the CORS limit of the web apps).
 - [`api/`](./api/): types and constants shared between clients and server.
 - [`docs/`](./docs/): guides for developers.
-- [`scripts/`](./scripts/): scripts to test project. Check the script’s descriptions for further details.
+- [`scripts/`](./scripts/): scripts to test project and configure Google Cloud. Check the script’s descriptions for further details.
 - [`.github/`](./.github/): scripts to test projects on CI.
 - [`.husky/`](./.husky/): scripts to call on `git commit` command to avoid popular errors.
 - [`.vscode/`](./.vscode/): VS Code settings to reduce code format errors for new contributors.

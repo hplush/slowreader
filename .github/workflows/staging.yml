@@ -1,0 +1,60 @@
+name: Staging Deploy
+on:
+  workflow_run:
+    workflows:
+      - Code Test
+    types:
+      - completed
+    branches:
+      - main
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    env:
+      PROJECT_ID: slowreader-418220
+      REGION: europe-west1
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install tools from asdf config
+        uses: ai/asdf-cache-action@v1
+      - name: Install dependencies
+        run: pnpm install --ignore-scripts
+      - name: Build assets
+        run: cd web && pnpm build
+      - name: Auth Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/225773869708/locations/global/workloadIdentityPools/github/providers/slowreader
+          service_account: github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+      - name: Install Google Cloud
+        uses: google-github-actions/setup-gcloud@v2
+      - name: Auth Docker
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+      - name: Build Docker image
+        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:latest ./web
+      - name: Push Docker image
+        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:latest
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: staging
+          region: ${{ env.REGION }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:latest
+          flags: |
+            --allow-unauthenticated
+            --service-account=github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+      - name: Delete previous images
+        run: |
+          untagged=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/staging/staging --include-tags --format="get(version)" --filter="tags = ''")
+          for digest in $untagged; do
+            image=$REGION-docker.pkg.dev/$PROJECT_ID/staging/staging@$digest
+            echo "Deleting unused image: $image"
+            gcloud artifacts docker images delete $image --quiet
+          done
