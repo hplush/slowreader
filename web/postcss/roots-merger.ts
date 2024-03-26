@@ -30,17 +30,13 @@ export const rootsMerger: Plugin = {
           return
         }
 
-        cssRule.nodes.forEach(node => {
-          if (node.type !== 'decl') {
-            return
-          }
-
+        cssRule.walkDecls(decl => {
           // remove rule from the map to preserve the rules order
-          if (rootNodes.has(node.prop)) {
-            rootNodes.delete(node.prop)
+          if (rootNodes.has(decl.prop)) {
+            rootNodes.delete(decl.prop)
           }
 
-          rootNodes.set(node.prop, node)
+          rootNodes.set(decl.prop, decl)
         })
 
         rulesToRemove.push(cssRule)
