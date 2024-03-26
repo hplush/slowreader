@@ -26,7 +26,7 @@ export const rootsMerger: Plugin = {
           return
         }
 
-        if (cssRule.parent && cssRule.parent.type === 'atrule') {
+        if (cssRule.parent?.type === 'atrule') {
           return
         }
 
