@@ -14,7 +14,7 @@
     "test:css": "stylelint **/*.css **/*.svelte",
     "test:build": "pnpm build && size-limit",
     "build:visual": "NODE_ENV=test storybook build",
-    "build:web": "vite build && tsx ./scripts/clean-vars.ts",
+    "build:web": "vite build && tsx ./scripts/clean-css.ts",
     "format:stylelint": "stylelint --fix **/*.{css,svelte}",
     "clean:dist": "rm -rf dist"
   },
