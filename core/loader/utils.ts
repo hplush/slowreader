@@ -5,31 +5,26 @@ export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
-function retrieveAllURLSegments(link: HTMLLinkElement): string[] {
+function buildFullURL(link: HTMLLinkElement, baseUrl: string): string {
   let href = link.getAttribute('href')!
   let urlSegments: string[] = [href]
   let parent: Element | null = link.parentElement
   while (parent) {
     let path = parent.getAttribute('xml:base') || ''
-    parent = parent.parentElement
     urlSegments.push(path)
+    parent = parent.parentElement
 
     if (path.startsWith('/') || path.startsWith('http')) {
       break
     }
   }
-  return urlSegments
-}
-
-function buildFullURL(link: HTMLLinkElement, baseUrl: string): string {
-  let urlSegments = retrieveAllURLSegments(link)
   return urlSegments.reduceRight(
-    (base, href) => new URL(href, base).href,
+    (base, url) => new URL(url, base).href,
     baseUrl
   )
 }
 
-export function findLink(text: TextResponse, type: string): string[] {
+export function findLinks(text: TextResponse, type: string): string[] {
   return [...text.parse().querySelectorAll('link')]
     .filter(
       link =>
@@ -44,8 +39,8 @@ export function hasAnyFeed(
   found: PreviewCandidate[]
 ): boolean {
   return (
-    findLink(text, 'application/atom+xml').length > 0 ||
-    findLink(text, 'application/rss+xml').length > 0 ||
+    findLinks(text, 'application/atom+xml').length > 0 ||
+    findLinks(text, 'application/rss+xml').length > 0 ||
     // TODO: Replace when we will have more loaders
     // found.some(i => i.loader === 'rss' || i.loader === 'atom')
     found.length > 0
