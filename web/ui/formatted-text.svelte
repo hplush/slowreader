@@ -19,5 +19,6 @@
 <style>
   .formatted-text :global(img) {
     max-width: 100%;
+    height: auto;
   }
 </style>
