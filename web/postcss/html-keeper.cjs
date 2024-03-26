@@ -12,7 +12,7 @@
 module.exports = {
   postcssPlugin: 'html-keeper',
   prepare(result) {
-    if (result.opts.from.includes('index.html')) {
+    if (result.opts.from.includes('.html')) {
       let before
       return {
         Once(root) {
