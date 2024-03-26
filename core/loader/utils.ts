@@ -5,57 +5,28 @@ export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
-type UrlSegmentType = 'relative' | 'absolute' | 'explicit'
-
-interface UrlSegment {
-  path: string
-  type: UrlSegmentType
-}
-
-function determineURLType(path: string): UrlSegmentType {
-  if (path.startsWith('/')) {
-    return 'absolute'
-  } else if (path.startsWith('https://') || path.startsWith('http://')) {
-    return 'explicit'
-  }
-  return 'relative'
-}
-
-function retrieveAllURLSegments(link: HTMLLinkElement): UrlSegment[] {
+function retrieveAllURLSegments(link: HTMLLinkElement): string[] {
+  let href = link.getAttribute('href')!
+  let urlSegments: string[] = [href]
   let parent: Element | null = link.parentElement
-  const urlSegments: UrlSegment[] = []
-
   while (parent) {
-    const path = parent.getAttribute('xml:base')
+    let path = parent.getAttribute('xml:base') || ''
     parent = parent.parentElement
-    if (!path) {
-      continue
-    }
+    urlSegments.push(path)
 
-    const type = determineURLType(path)
-    urlSegments.push({ path, type })
-    if (type !== 'relative') {
+    if (path.startsWith('/') || path.startsWith('http')) {
       break
     }
   }
   return urlSegments
 }
 
-function buildBaseURLFromSegments(
-  urlSegments: UrlSegment[],
-  baseUrl: string
-): string {
-  while (urlSegments.length > 0) {
-    const segment = urlSegments.pop()
-    baseUrl = new URL(segment?.path!, baseUrl).href
-  }
-  return baseUrl
-}
-
 function buildFullURL(link: HTMLLinkElement, baseUrl: string): string {
-  const urlSegments = retrieveAllURLSegments(link)
-  baseUrl = buildBaseURLFromSegments(urlSegments, baseUrl)
-  return new URL(link.getAttribute('href')!, baseUrl).href
+  let urlSegments = retrieveAllURLSegments(link)
+  return urlSegments.reduceRight(
+    (base, href) => new URL(href, base).href,
+    baseUrl
+  )
 }
 
 export function findLink(text: TextResponse, type: string): string[] {
