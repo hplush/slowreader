@@ -20,24 +20,24 @@ beforeEach(() => {
 })
 
 test('clean unused palette colors', () => {
-  run(
+  let error = run(
     ':root {' +
       '--red-100: #f00;' +
       '--green-200: #0f0;' +
       '--blue-300: #00f;' +
-      '--some-error: #00f;' +
       '}' +
       '.selector {' +
       ' color: var(--red-100)' +
       '}',
     ':root {' +
       '--red-100:#f00;' +
-      '--some-error:#00f;' +
       '}' +
       '.selector {' +
       ' color: var(--red-100)' +
       '}'
   )
+
+  equal(error, undefined)
 })
 
 test('return error if unused css variables found', () => {
