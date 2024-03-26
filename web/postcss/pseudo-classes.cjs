@@ -24,8 +24,7 @@ module.exports = {
     }
 
     extra = extra.filter(selector => !rule.selectors.includes(selector))
-
-    if (extra.length) {
+    if (extra.length > 0) {
       rule.selectors = rule.selectors.concat(...extra)
     }
   }
