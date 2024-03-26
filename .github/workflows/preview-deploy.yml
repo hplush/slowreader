@@ -72,7 +72,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: ${{ job.status }}
           env: ${{ steps.status.outputs.env }}
-          env_url: ${{ steps.deploy.outputs.url }}
+          env_url: ${{ steps.deploy.outputs.url }}/ui/
           deployment_id: ${{ steps.status.outputs.deployment_id }}
       - name: Delete previous images
         run: |
