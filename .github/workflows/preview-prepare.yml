@@ -1,4 +1,4 @@
-name: Prepare Preview
+name: Start Preview Deployment
 on:
   pull_request:
     paths-ignore:

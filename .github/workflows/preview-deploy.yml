@@ -2,7 +2,7 @@ name: Deploy Preview
 on:
   workflow_run:
     workflows:
-      - Prepare Preview
+      - Start Preview Deployment
     types:
       - completed
 permissions:
