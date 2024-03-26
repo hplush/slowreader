@@ -60,6 +60,8 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
    pnpm test
    ```
 
+   If you have strange error, check that all folders in the path to the project use **only Latin symbols**.
+
 ## Run Web Client
 
 To run web clients, just call in the root of the project:
