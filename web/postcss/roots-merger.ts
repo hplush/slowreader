@@ -1,7 +1,6 @@
 // PostCSS plugin for ../script/clean-css.ts to merge all rules
 // with :root selector into the single rule in the beginning of the file
 
-import { rule } from 'postcss'
 import type { ChildNode, Plugin, Rule } from 'postcss'
 
 export const rootsMerger: Plugin = {
@@ -11,26 +10,26 @@ export const rootsMerger: Plugin = {
     let rulesToRemove: Rule[] = []
 
     return {
-      OnceExit(root) {
-        rulesToRemove.forEach(cssRule => cssRule.remove())
+      OnceExit(root, { Rule }) {
+        rulesToRemove.forEach(rule => rule.remove())
 
-        let rootRule = rule({ selector: ':root' })
+        let rootRule = new Rule({ selector: ':root' })
 
         rootRule.append(...rootNodes.values())
         if (rootRule.nodes.length > 0) {
           root.prepend(rootRule)
         }
       },
-      Rule(cssRule) {
-        if (cssRule.selector !== ':root') {
+      Rule(rule) {
+        if (rule.selector !== ':root') {
           return
         }
 
-        if (cssRule.parent?.type === 'atrule') {
+        if (rule.parent?.type === 'atrule') {
           return
         }
 
-        cssRule.walkDecls(decl => {
+        rule.walkDecls(decl => {
           // remove rule from the map to preserve the rules order
           if (rootNodes.has(decl.prop)) {
             rootNodes.delete(decl.prop)
@@ -39,7 +38,7 @@ export const rootsMerger: Plugin = {
           rootNodes.set(decl.prop, decl)
         })
 
-        rulesToRemove.push(cssRule)
+        rulesToRemove.push(rule)
       }
     }
   }
