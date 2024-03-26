@@ -31,8 +31,8 @@ jobs:
         continue-on-error: true
         uses: bobheadxi/deployments@v1
         with:
-          step: deactivate-env
-          token: ${{ secrets.GITHUB_TOKEN }}
+          step: delete-env
+          token: ${{ secrets.PREVIEW_DEPLOYMENT_PAT }}
           env: preview-${{ env.PR_NUMBER }}
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
