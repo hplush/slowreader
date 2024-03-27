@@ -5,16 +5,27 @@
 
   let prevTitle = document.title
 
+  let stepOneElement: HTMLDivElement
+
+  function loadNextFastHandler() {
+    stepOneElement.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  }
+
   onMount(() => {
     document.title = title + ' › ' + prevTitle
+    window.addEventListener('loadNextFast', loadNextFastHandler)
     return () => {
       document.title = prevTitle
+      window.removeEventListener('loadNextFast', loadNextFastHandler)
     }
   })
 </script>
 
 <main id="page" class="two-steps-page">
-  <div class="two-steps-page_step">
+  <div class="two-steps-page_step" bind:this={stepOneElement}>
     <slot name="one" />
   </div>
   <div class="two-steps-page_step">
