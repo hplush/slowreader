@@ -25,7 +25,7 @@
 </script>
 
 <main id="page" class="two-steps-page">
-  <div class="two-steps-page_step" bind:this={stepOneElement}>
+  <div bind:this={stepOneElement} class="two-steps-page_step">
     <slot name="one" />
   </div>
   <div class="two-steps-page_step">
