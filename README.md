@@ -105,6 +105,7 @@ Slow Reader is a local-first app. Clients do most of the work, and the server ju
 - [`api/`](./api/): types and constants shared between clients and server.
 - [`docs/`](./docs/): guides for developers.
 - [`scripts/`](./scripts/): scripts to test project and configure Google Cloud. Check the script’s descriptions for further details.
+- [`loader-tests/`](./loader-tests/): loader testing tool for OPML files.
 - [`.github/`](./.github/): scripts to test projects on CI.
 - [`.husky/`](./.husky/): scripts to call on `git commit` command to avoid popular errors.
 - [`.vscode/`](./.vscode/): VS Code settings to reduce code format errors for new contributors.
