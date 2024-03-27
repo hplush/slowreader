@@ -5,18 +5,10 @@ import { deepStrictEqual, equal } from 'node:assert'
 import { test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import {
-  createDownloadTask,
-  createTextResponse,
-  loaders,
-  type TextResponse
-} from '../../index.js'
+import { createDownloadTask, createTextResponse, loaders } from '../../index.js'
+import { getResponseCreator } from '../utils.js'
 
-function exampleRss(xml: string): TextResponse {
-  return createTextResponse(xml, {
-    headers: new Headers({ 'Content-Type': 'application/rss+xml' })
-  })
-}
+const exampleRss = getResponseCreator('rss')
 
 test('detects own URLs', () => {
   equal(typeof loaders.rss.isMineUrl(new URL('https://dev.to/')), 'undefined')

@@ -5,18 +5,10 @@ import { deepStrictEqual, equal } from 'node:assert'
 import { test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import {
-  createDownloadTask,
-  createTextResponse,
-  loaders,
-  type TextResponse
-} from '../../index.js'
+import { createDownloadTask, createTextResponse, loaders } from '../../index.js'
+import { getResponseCreator } from '../utils.js'
 
-function exampleAtom(xml: string): TextResponse {
-  return createTextResponse(xml, {
-    headers: new Headers({ 'Content-Type': 'application/atom+xml' })
-  })
-}
+const exampleAtom = getResponseCreator('atom')
 
 test('detects xml:base attribute', () => {
   deepStrictEqual(
