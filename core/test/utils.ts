@@ -13,7 +13,9 @@ import {
   Filter,
   Post,
   setupEnvironment,
-  userId
+  userId,
+  type TextResponse,
+  createTextResponse
 } from '../index.js'
 
 export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
@@ -70,4 +72,14 @@ export function createPromise<Result>(): PromiseMock<Result> {
     }
   }
   return result
+}
+
+export function getResponseCreator(responseType: 'atom' | 'rss') {
+  return function createResponse(responseBody: string): TextResponse {
+    return createTextResponse(responseBody, {
+      headers: new Headers({
+        'Content-Type': `application/${responseType}+xml`
+      })
+    })
+  }
 }
