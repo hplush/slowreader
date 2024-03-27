@@ -18,6 +18,72 @@ function exampleAtom(xml: string): TextResponse {
   })
 }
 
+test('detects xml:base attribute', () => {
+  deepStrictEqual(
+    loaders.atom.getMineLinksFromText(
+      createTextResponse(
+        `<?xml version="1.0"?>
+        <doc xml:base="http://example.com/today/"
+          xmlns:xlink="http://www.w3.org/1999/xlink">
+        <head>
+          <title>Virtual Library</title>
+        </head>
+        <body>
+          <olist>
+            <item>
+              <link type="application/atom+xml" href="1.xml">1</link>
+            </item>
+          </olist>
+          <parent xml:base="/hotpicks/">
+            <olist xml:base="fresh/">
+              <item>
+                <link type="application/atom+xml" href="2.xml">2</link>
+              </item>
+              <parent xml:base="fruit/">
+                <item>
+                  <link type="application/atom+xml" href="./3.xml">3</link>
+                </item>
+                <item>
+                  <link type="application/atom+xml" href="../4.xml">4</link>
+                </item>
+              </parent>
+            </olist>
+          </parent>
+          <olist xml:base="http://other.com/new/">
+            <item>
+              <link type="application/atom+xml" href="../5.xml">#5</link>
+            </item>
+            <parent xml:base="/timeless/">
+              <item>
+                <link type="application/atom+xml" href="6.xml">#6</link>
+              </item>
+            </parent>
+            <parent xml:base="cars/">
+              <item>
+                <link type="application/atom+xml" href="7.xml">#7</link>
+              </item>
+            </parent>
+          </olist>
+        </body>
+        </doc>`,
+        {
+          url: 'http://example.com'
+        }
+      ),
+      []
+    ),
+    [
+      'http://example.com/today/1.xml',
+      'http://example.com/hotpicks/fresh/2.xml',
+      'http://example.com/hotpicks/fresh/fruit/3.xml',
+      'http://example.com/hotpicks/fresh/4.xml',
+      'http://other.com/5.xml',
+      'http://example.com/timeless/6.xml',
+      'http://other.com/new/cars/7.xml'
+    ]
+  )
+})
+
 test('detects own URLs', () => {
   equal(typeof loaders.atom.isMineUrl(new URL('https://dev.to/')), 'undefined')
 })

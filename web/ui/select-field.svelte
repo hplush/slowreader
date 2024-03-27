@@ -98,6 +98,8 @@
     position: absolute;
     inset: -1px;
     width: calc(100% + 2px);
+    font: revert;
+    appearance: none;
     opacity: 0%;
   }
 </style>
