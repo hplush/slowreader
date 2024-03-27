@@ -2,7 +2,7 @@ import type { TextResponse } from '../download.js'
 import type { OriginPost } from '../post.js'
 import { createPostsPage } from '../posts-page.js'
 import type { Loader } from './index.js'
-import { findLink, hasAnyFeed, toTime } from './utils.js'
+import { findLinks, hasAnyFeed, toTime } from './utils.js'
 
 function parsePosts(text: TextResponse): OriginPost[] {
   let document = text.parse()
@@ -27,7 +27,7 @@ function parsePosts(text: TextResponse): OriginPost[] {
 
 export const atom: Loader = {
   getMineLinksFromText(text, found) {
-    let links = findLink(text, 'application/atom+xml')
+    let links = findLinks(text, 'application/atom+xml')
     if (links.length > 0) {
       return links
     } else if (!hasAnyFeed(text, found)) {
