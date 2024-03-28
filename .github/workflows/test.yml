@@ -4,14 +4,14 @@ on:
     branches:
       - main
     paths-ignore:
-      - './**/*.md'
-      - './.vscode/**'
-      - './.husky/**'
+      - "./**/*.md"
+      - "./.vscode/**"
+      - "./.husky/**"
   pull_request:
     paths-ignore:
-      - './**/*.md'
-      - './.vscode/**'
-      - './.husky/**'
+      - "./**/*.md"
+      - "./.vscode/**"
+      - "./.husky/**"
 jobs:
   test:
     permissions:
@@ -29,6 +29,13 @@ jobs:
         run: pnpm test
         env:
           FORCE_COLOR: 1
+      - name: Upload artifacts
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-client-assets-${{ github.sha }}
+          path: web/dist/
+          retention-days: 1
   staging:
     needs: test
     if: github.ref == 'refs/heads/main'
@@ -43,12 +50,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Install tools from asdf config
-        uses: ai/asdf-cache-action@v1
-      - name: Install dependencies
-        run: pnpm install --ignore-scripts
-      - name: Build assets
-        run: cd web && pnpm build
+      - name: Download built assets artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: web-client-assets-${{ github.sha }}
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:
