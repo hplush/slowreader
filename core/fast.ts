@@ -179,9 +179,6 @@ export async function markReadAndLoadNextFastPosts(): Promise<void> {
     await Promise.all($posts.get().map(({ post }) => deletePost(post.id)))
     if ($nextSince.get()) {
       await load(category, $nextSince.get())
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('loadNextFast'))
-      }
     } else {
       $posts.set([])
       $loading.set(false)
