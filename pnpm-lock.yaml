@@ -131,6 +131,9 @@ importers:
       '@logux/server':
         specifier: 0.12.10
         version: 0.12.10
+      '@slowreader/api':
+        specifier: link:../api
+        version: link:../api
     devDependencies:
       tsx:
         specifier: 4.7.1

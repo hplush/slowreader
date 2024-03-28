@@ -6,7 +6,8 @@
     "start": "tsx watch index.ts"
   },
   "dependencies": {
-    "@logux/server": "0.12.10"
+    "@logux/server": "0.12.10",
+    "@slowreader/api": "link:../api"
   },
   "devDependencies": {
     "tsx": "4.7.1"
