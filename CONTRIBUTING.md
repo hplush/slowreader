@@ -19,6 +19,7 @@ Also, feel free to ask any questions about career and development. If you are he
 - [Guidelines](#guidelines)
   - [Commits](#commits)
   - [Branches](#branches)
+  - [Pull Requests](#pull-requests)
 
 ## Language
 
@@ -149,3 +150,9 @@ We recommend signing [your commits](./docs/onboarding.md#enable-signing-git-comm
 ### Branches
 
 There is no any specific rules about git branch names.
+
+### Pull Requests
+
+Run `pnpm test` before creating pull request.
+
+Use [`Draft`](<(https://github.blog/2019-02-14-introducing-draft-pull-requests/)>) pull request when it is not ready to review. When it will be ready press `Ready for review` button.
