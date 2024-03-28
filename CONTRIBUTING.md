@@ -8,13 +8,17 @@ Also, feel free to ask any questions about career and development. If you are he
 
 - [Language](#language)
 - [Where to Ask Questions](#where-to-ask-questions)
-- [Install Environment](#install-environment)
-- [Run Web Client](#run-web-client)
-- [Text Editor Settings](#text-editor-settings)
-- [Learn App Architecture](#learn-app-architecture)
-- [Check Our Checklist](#check-our-checklist)
+- [Hot to Start](#hot-to-start)
+  - [Install Environment](#install-environment)
+  - [Run Web Client](#run-web-client)
+- [Learn the Project](#learn-the-project)
+  - [Text Editor Settings](#text-editor-settings)
+  - [Learn App Architecture](#learn-app-architecture)
+  - [Check Our Checklist](#check-our-checklist)
 - [How to Find Next Task](#how-to-find-next-task)
-- [Git Commits and Branches](#git-commits-and-branches)
+- [Guidelines](#guidelines)
+  - [Commits](#commits)
+  - [Branches](#branches)
 
 ## Language
 
@@ -32,7 +36,9 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
 
 > Our mentoring is a basic payback for your time and contribution to the project. Even a simple question can improve the guide for other beginners.
 
-## Install Environment
+## Hot to Start
+
+### Install Environment
 
 1. Install environment:
 
@@ -62,7 +68,7 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
 
    If you have strange error, check that all folders in the path to the project use **only Latin symbols**.
 
-## Run Web Client
+### Run Web Client
 
 To run web clients, just call in the root of the project:
 
@@ -81,7 +87,9 @@ pnpm visual
 
 It will show all UI components and all possible states of pages. It is the best tool to test browser compatibility or change CSS.
 
-## Text Editor Settings
+## Learn the Project
+
+### Text Editor Settings
 
 To work with the project, we recommend adding to your IDE or text editor:
 
@@ -92,11 +100,11 @@ You may also install Prettier and ESLint plugins or just use [`precommit` hook](
 
 If you write docs, we recommend installing [LanguageTool](https://dev.languagetool.org/software-that-supports-languagetool-as-a-plug-in-or-add-on.html) for grammar check. For VS Code, [`davidlday.languagetool-linter`](https://marketplace.visualstudio.com/items?itemName=davidlday.languagetool-linter).
 
-## Learn App Architecture
+### Learn App Architecture
 
 Before any significant changes, read all **[`README.md`](README.md)** to understand app architecture.
 
-## Check Our Checklist
+### Check Our Checklist
 
 Read our **[checklist for pull requests](./docs/pull_request_template.md)**. It contains things you should think about and can speed up code review a lot.
 
@@ -118,7 +126,9 @@ Feel free to ask [maintainer](https://t.me/sitnik) about your next task.
 
 > We will mentor you in return for your participation, so don’t be afraid to ask questions.
 
-## Git Commits and Branches
+## Guidelines
+
+### Commits
 
 We care about good commit messages. Try to think about them and describe more:
 
@@ -135,5 +145,7 @@ In commit’s messages example **why** you did changes, **not what** you changed
 ```
 
 We recommend signing [your commits](./docs/onboarding.md#enable-signing-git-commits).
+
+### Branches
 
 There is no any specific rules about git branch names.
