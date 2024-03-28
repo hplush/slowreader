@@ -8,6 +8,7 @@
     openedFastPost,
     fastMessages as t
   } from '@slowreader/core'
+  import { onMount } from 'svelte'
 
   import { getURL } from '../stores/router.js'
   import Button from '../ui/button.svelte'
@@ -17,9 +18,14 @@
 
   let twoStepsPageInstance: TwoStepsPage
 
-  fastPosts.subscribe(() => {
-    if ($fastPosts.length > 0) {
-      twoStepsPageInstance.scrollFirstToTop()
+  onMount(() => {
+    const unbindFast = fastPosts.subscribe(() => {
+      if ($fastPosts.length > 0) {
+        twoStepsPageInstance.scrollFirstToTop()
+      }
+    })
+    return () => {
+      unbindFast()
     }
   })
 </script>
