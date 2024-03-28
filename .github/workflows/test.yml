@@ -29,7 +29,7 @@ jobs:
         run: pnpm test
         env:
           FORCE_COLOR: 1
-      - name: Upload artifacts
+      - name: Upload web assets
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
@@ -50,10 +50,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Download built assets artifacts
+      - name: Download web assets from test step
         uses: actions/download-artifact@v4
         with:
           name: web-client-assets-${{ github.sha }}
+          path: web/dist/
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:
