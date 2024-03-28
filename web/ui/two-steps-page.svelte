@@ -9,21 +9,17 @@
   let second: HTMLDivElement
 
   export function scrollFirstToTop() {
-    if (first instanceof HTMLElement) {
-      first.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      })
-    }
+    first?.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
   }
 
   export function scrollSecondToTop() {
-    if (second instanceof HTMLElement) {
-      second.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      })
-    }
+    second?.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
   }
 
   onMount(() => {
