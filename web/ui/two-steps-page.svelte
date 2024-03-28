@@ -5,30 +5,39 @@
 
   let prevTitle = document.title
 
-  let stepOneElement: HTMLDivElement
+  let stepFirstElement: HTMLDivElement
+  let stepSecondElement: HTMLDivElement
 
-  function loadNextFastHandler() {
-    stepOneElement.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    })
+  function scrollToTop(element: HTMLDivElement) {
+    if (element instanceof HTMLElement) {
+      element.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      })
+    }
+  }
+
+  export function scrollFirstToTop() {
+    scrollToTop(stepFirstElement)
+  }
+
+  export function scrollSecondToTop() {
+    scrollToTop(stepSecondElement)
   }
 
   onMount(() => {
     document.title = title + ' › ' + prevTitle
-    window.addEventListener('loadNextFast', loadNextFastHandler)
     return () => {
       document.title = prevTitle
-      window.removeEventListener('loadNextFast', loadNextFastHandler)
     }
   })
 </script>
 
 <main id="page" class="two-steps-page">
-  <div bind:this={stepOneElement} class="two-steps-page_step">
+  <div bind:this={stepFirstElement} class="two-steps-page_step">
     <slot name="one" />
   </div>
-  <div class="two-steps-page_step">
+  <div bind:this={stepSecondElement} class="two-steps-page_step">
     <slot name="two" />
   </div>
 </main>

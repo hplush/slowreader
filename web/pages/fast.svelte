@@ -14,9 +14,17 @@
   import Loader from '../ui/loader.svelte'
   import PostCard from '../ui/post-card.svelte'
   import TwoStepsPage from '../ui/two-steps-page.svelte'
+
+  let twoStepsPageInstance: TwoStepsPage
+
+  fastPosts.subscribe(() => {
+    if ($fastPosts.length > 0) {
+      twoStepsPageInstance.scrollFirstToTop()
+    }
+  })
 </script>
 
-<TwoStepsPage title={$t.pageTitle}>
+<TwoStepsPage bind:this={twoStepsPageInstance} title={$t.pageTitle}>
   <div slot="one">
     {#if $fastCategory === undefined || $fastLoading === 'init'}
       <Loader />
