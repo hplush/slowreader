@@ -3,6 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "tsx ./index.ts"
+  },
+  "dependencies": {
+    "@slowreader/core": "link:../core",
+    "picocolors": "1.0.0",
+    "tsx": "4.7.1"
   }
 }

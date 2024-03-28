@@ -25,7 +25,8 @@
     "api",
     "core",
     "server",
-    "web"
+    "web",
+    "loader-tests"
   ],
   "devDependencies": {
     "@logux/eslint-config": "53.0.0",
