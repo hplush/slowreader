@@ -8,15 +8,26 @@
     openedFastPost,
     fastMessages as t
   } from '@slowreader/core'
+  import { onMount } from 'svelte'
 
   import { getURL } from '../stores/router.js'
   import Button from '../ui/button.svelte'
   import Loader from '../ui/loader.svelte'
   import PostCard from '../ui/post-card.svelte'
   import TwoStepsPage from '../ui/two-steps-page.svelte'
+
+  let layout: TwoStepsPage
+
+  onMount(() => {
+    return fastPosts.subscribe(() => {
+      if ($fastPosts.length > 0) {
+        layout.scrollFirstToTop()
+      }
+    })
+  })
 </script>
 
-<TwoStepsPage title={$t.pageTitle}>
+<TwoStepsPage bind:this={layout} title={$t.pageTitle}>
   <div slot="one">
     {#if $fastCategory === undefined || $fastLoading === 'init'}
       <Loader />
