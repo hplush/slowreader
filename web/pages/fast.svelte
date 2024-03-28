@@ -18,16 +18,13 @@
 
   let twoStepsPageInstance: TwoStepsPage
 
-  onMount(() => {
-    const unbindFast = fastPosts.subscribe(() => {
+  onMount(() =>
+    fastPosts.subscribe(() => {
       if ($fastPosts.length > 0) {
         twoStepsPageInstance.scrollFirstToTop()
       }
     })
-    return () => {
-      unbindFast()
-    }
-  })
+  )
 </script>
 
 <TwoStepsPage bind:this={twoStepsPageInstance} title={$t.pageTitle}>
