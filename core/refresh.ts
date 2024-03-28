@@ -110,7 +110,7 @@ export async function refreshPosts(): Promise<void> {
             filters = prepareFilters(await loadFilters({ feedId: feed.id }))
           }
           for (let origin of posts) {
-            if (feedStore.deleted) {
+            if (feedStore.deleted || wasAlreadyAdded(feed, origin)) {
               await end()
               return
             }
