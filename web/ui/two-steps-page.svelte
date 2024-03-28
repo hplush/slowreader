@@ -5,24 +5,25 @@
 
   let prevTitle = document.title
 
-  let stepFirstElement: HTMLDivElement
-  let stepSecondElement: HTMLDivElement
+  let first: HTMLDivElement
+  let second: HTMLDivElement
 
-  function scrollToTop(element: HTMLDivElement) {
-    if (element instanceof HTMLElement) {
-      element.scrollTo({
+  export function scrollFirstToTop() {
+    if (first instanceof HTMLElement) {
+      first.scrollTo({
         top: 0,
         behavior: 'smooth'
       })
     }
   }
 
-  export function scrollFirstToTop() {
-    scrollToTop(stepFirstElement)
-  }
-
   export function scrollSecondToTop() {
-    scrollToTop(stepSecondElement)
+    if (second instanceof HTMLElement) {
+      second.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      })
+    }
   }
 
   onMount(() => {
@@ -34,10 +35,10 @@
 </script>
 
 <main id="page" class="two-steps-page">
-  <div bind:this={stepFirstElement} class="two-steps-page_step">
+  <div bind:this={first} class="two-steps-page_step">
     <slot name="one" />
   </div>
-  <div bind:this={stepSecondElement} class="two-steps-page_step">
+  <div bind:this={second} class="two-steps-page_step">
     <slot name="two" />
   </div>
 </main>
