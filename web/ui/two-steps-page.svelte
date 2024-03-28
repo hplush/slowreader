@@ -8,17 +8,17 @@
   let first: HTMLDivElement
   let second: HTMLDivElement
 
-  export function scrollFirstToTop() {
-    first?.scrollTo({
-      top: 0,
-      behavior: 'smooth'
+  export function scrollFirstToTop(): void {
+    first.scrollTo({
+      behavior: 'smooth',
+      top: 0
     })
   }
 
-  export function scrollSecondToTop() {
-    second?.scrollTo({
-      top: 0,
-      behavior: 'smooth'
+  export function scrollSecondToTop(): void {
+    second.scrollTo({
+      behavior: 'smooth',
+      top: 0
     })
   }
 
