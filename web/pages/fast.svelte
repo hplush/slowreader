@@ -16,18 +16,18 @@
   import PostCard from '../ui/post-card.svelte'
   import TwoStepsPage from '../ui/two-steps-page.svelte'
 
-  let twoStepsPageInstance: TwoStepsPage
+  let layout: TwoStepsPage
 
-  onMount(() =>
-    fastPosts.subscribe(() => {
+  onMount(() => {
+    return fastPosts.subscribe(() => {
       if ($fastPosts.length > 0) {
-        twoStepsPageInstance.scrollFirstToTop()
+        layout.scrollFirstToTop()
       }
     })
-  )
+  })
 </script>
 
-<TwoStepsPage bind:this={twoStepsPageInstance} title={$t.pageTitle}>
+<TwoStepsPage bind:this={layout} title={$t.pageTitle}>
   <div slot="one">
     {#if $fastCategory === undefined || $fastLoading === 'init'}
       <Loader />
