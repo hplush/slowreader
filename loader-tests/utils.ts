@@ -1,11 +1,10 @@
-import pico from 'picocolors'
-
 import {
-  loaders,
   type Loader,
   type LoaderName,
+  loaders,
   type TextResponse
 } from '@slowreader/core'
+import pico from 'picocolors'
 
 const supportedExtensions = ['.xml', '.opml']
 
@@ -18,7 +17,7 @@ export function isString(attr: null | string): attr is string {
 }
 
 export function getLoader(text: TextResponse): Loader | null {
-  const loaderNames = Object.keys(loaders) as LoaderName[]
+  let loaderNames = Object.keys(loaders) as LoaderName[]
   for (let name of loaderNames) {
     if (loaders[name].isMineText(text) !== false) {
       return loaders[name]
@@ -27,14 +26,14 @@ export function getLoader(text: TextResponse): Loader | null {
   return null
 }
 
-interface PicoLogger {
+interface Logger {
   err(msg: string): void
   log(msg: string): void
   succ(msg: string): void
   warn(msg: string): void
 }
 
-export const picoLogger: PicoLogger = {
+export const logger: Logger = {
   err(msg) {
     this.log(pico.red(msg))
   },

@@ -118,7 +118,7 @@ importers:
         version: 1.0.0
 
   loader-tests:
-    dependencies:
+    devDependencies:
       '@slowreader/core':
         specifier: link:../core
         version: link:../core

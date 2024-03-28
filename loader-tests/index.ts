@@ -1,8 +1,8 @@
+import { createDownloadTask, createTextResponse } from '@slowreader/core'
 import { readFile } from 'node:fs/promises'
 
-import { createDownloadTask, createTextResponse } from '@slowreader/core'
 import { LoaderNotFoundError, UnsupportedFileExtError } from './errors.js'
-import { getLoader, isString, isSupportedExt, picoLogger } from './utils.js'
+import { getLoader, isString, isSupportedExt, logger } from './utils.js'
 
 async function parseOPML(path: string): Promise<void> {
   try {
@@ -19,11 +19,13 @@ async function parseOPML(path: string): Promise<void> {
       }))
 
     await Promise.all([...feeds.map(feed => fetchAndParseFeed(feed))])
-  } catch (error: any) {
-    if (error?.code === 'ENOENT') {
-      picoLogger.err(`File not found, path: ${path}. \n`)
+  } catch (e) {
+    if (e && typeof e === 'object' && 'code' in e && e.code === 'ENOENT') {
+      logger.err(`File not found, path: ${path}. \n`)
+    } else if (e instanceof Error) {
+      logger.err(`${e.message}\n`)
     } else {
-      picoLogger.err(`${error.message}\n`)
+      logger.err(`${e}\n`)
     }
   }
 }
@@ -42,11 +44,13 @@ async function fetchAndParseFeed(feed: Feed): Promise<void> {
       throw new LoaderNotFoundError(feed.title)
     }
     let links = loader.getMineLinksFromText(text, [])
-    picoLogger.succ(
-      `Successfully found ${links.length} posts for ${feed.title}!\n`
-    )
-  } catch (error: any) {
-    picoLogger.err(`${error.message}\n`)
+    logger.succ(`Successfully found ${links.length} posts for ${feed.title}!\n`)
+  } catch (e) {
+    if (e instanceof Error) {
+      logger.err(`${e.message}\n`)
+    } else if (typeof e === 'string') {
+      logger.err(`${e}\n`)
+    }
   }
 }
 
