@@ -26,3 +26,25 @@ export function getLoader(text: TextResponse): Loader | null {
   }
   return null
 }
+
+interface PicoLogger {
+  err(msg: string): void
+  log(msg: string): void
+  succ(msg: string): void
+  warn(msg: string): void
+}
+
+export const picoLogger: PicoLogger = {
+  err(msg) {
+    this.log(pico.red(msg))
+  },
+  log(msg) {
+    process.stderr.write(msg)
+  },
+  succ(msg) {
+    this.log(pico.green(msg))
+  },
+  warn(msg) {
+    this.log(pico.yellow(msg))
+  }
+}
