@@ -1,15 +1,30 @@
-import { createDownloadTask, createTextResponse } from '@slowreader/core'
+import './dom-parser.js'
+
+import {
+  createDownloadTask,
+  createTextResponse,
+  getLoaderForText,
+  getTestEnvironment,
+  loaders,
+  type PreviewCandidate,
+  setRequestMethod,
+  setupEnvironment
+} from '@slowreader/core'
 import { readFile } from 'node:fs/promises'
 
 import { LoaderNotFoundError, UnsupportedFileExtError } from './errors.js'
-import { getLoader, isString, isSupportedExt, logger } from './utils.js'
+import { isString, isSupportedExt, logger, resolvePath } from './utils.js'
 
-async function parseOPML(path: string): Promise<void> {
+setupEnvironment({ ...getTestEnvironment() })
+
+setRequestMethod(fetch)
+
+async function parseFeedsFromFile(path: string): Promise<void> {
   try {
     if (!isSupportedExt(path)) {
       throw new UnsupportedFileExtError(path)
     }
-    let buffer = await readFile(path)
+    let buffer = await readFile(resolvePath(path))
     let text = createTextResponse(buffer.toString('utf-8'))
     let feeds: Feed[] = [...text.parse().querySelectorAll('[type="rss"]')]
       .filter(feed => isString(feed.getAttribute('xmlUrl')))
@@ -24,8 +39,8 @@ async function parseOPML(path: string): Promise<void> {
       logger.err(`File not found, path: ${path}. \n`)
     } else if (e instanceof Error) {
       logger.err(`${e.message}\n`)
-    } else {
-      logger.err(`${e}\n`)
+    } else if (typeof e === 'string') {
+      logger.err(e)
     }
   }
 }
@@ -38,13 +53,15 @@ interface Feed {
 async function fetchAndParseFeed(feed: Feed): Promise<void> {
   try {
     let task = createDownloadTask()
-    let text = await task.text(feed.url)
-    let loader = getLoader(text)
-    if (!loader) {
+    let textResponse = await task.text(feed.url)
+    let candidate: false | PreviewCandidate = getLoaderForText(textResponse)
+    if (!candidate) {
       throw new LoaderNotFoundError(feed.title)
     }
-    let links = loader.getMineLinksFromText(text, [])
-    logger.succ(`Successfully found ${links.length} posts for ${feed.title}!\n`)
+    let loader = loaders[candidate.loader]
+    let { list: posts } = loader.getPosts(task, feed.url, textResponse).get()
+    logger.succ(`[Feed] - ${feed.title} - ${feed.url}\n`)
+    logger.succ(`• Found ${posts.length} post(s)\n`)
   } catch (e) {
     if (e instanceof Error) {
       logger.err(`${e.message}\n`)
@@ -56,7 +73,7 @@ async function fetchAndParseFeed(feed: Feed): Promise<void> {
 
 if (process.argv.length > 2) {
   let path = process.argv[2] || ''
-  parseOPML(path)
+  parseFeedsFromFile(path)
 } else {
   /**
    *  TODO: Handle errors & show help
