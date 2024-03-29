@@ -19,7 +19,7 @@
     "test:focused": "tsx ./scripts/check-focused-tests.ts",
     "test:messages": "tsx ./scripts/check-messages.ts",
     "test:versions": "tsx ./scripts/check-versions.ts",
-    "test:loaders": "pnpm --prefix loader-tests start",
+    "feed-loader": "pnpm --prefix loader-tests start",
     "prepare": "husky"
   },
   "workspaces": [
