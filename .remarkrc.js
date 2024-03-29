@@ -1,7 +1,5 @@
-/*
-File for setting up the markdown linter configuration.
-Add the required plugin to the plugins array.
-*/
+// File for setting up the markdown linter configuration.
+// Add the required plugin to the plugins array.
 
 const preset = {
   plugins: [
