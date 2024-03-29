@@ -1,9 +1,4 @@
-import {
-  type Loader,
-  type LoaderName,
-  loaders,
-  type TextResponse
-} from '@slowreader/core'
+import { isAbsolute, join, resolve } from 'node:path'
 import pico from 'picocolors'
 
 const supportedExtensions = ['.xml', '.opml']
@@ -16,14 +11,11 @@ export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
-export function getLoader(text: TextResponse): Loader | null {
-  let loaderNames = Object.keys(loaders) as LoaderName[]
-  for (let name of loaderNames) {
-    if (loaders[name].isMineText(text) !== false) {
-      return loaders[name]
-    }
+export function resolvePath(path: string): string {
+  if (isAbsolute(path)) {
+    return path
   }
-  return null
+  return resolve(join(process.cwd(), '..', path))
 }
 
 interface Logger {
