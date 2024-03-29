@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "tsx ./index.ts"
+    "start": "tsx index.ts"
   },
   "devDependencies": {
     "@slowreader/core": "link:../core",
