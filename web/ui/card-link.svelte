@@ -17,14 +17,14 @@
   }
 </script>
 
-<li role="presentation">
+<li role="none">
   {#if href}
     <a
       class="card-link"
       aria-controls={controls}
       aria-current={current ? 'page' : null}
       {href}
-      role="menuitem"
+      role="option"
       tabindex={current || first ? null : -1}
       on:click={onClick}
     >
@@ -38,7 +38,7 @@
       class="card-link"
       aria-controls={controls}
       aria-current={current ? 'page' : null}
-      role="menuitem"
+      role="option"
       tabindex={current || first ? null : -1}
       on:click={onClick}
     >

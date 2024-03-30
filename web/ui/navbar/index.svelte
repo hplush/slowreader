@@ -31,7 +31,7 @@
 </script>
 
 <nav class="navbar">
-  <div class="navbar_main" aria-orientation="horizontal" role="menu">
+  <div class="navbar_main" aria-orientation="horizontal" role="menubar">
     {#if $isRefreshing}
       <NavbarItem
         name={$t.refresh}
@@ -104,7 +104,7 @@
     id="navbar_submenu"
     class="navbar_submenu"
     aria-hidden="true"
-    role="menu"
+    role="menubar"
   >
     {#if isSlowRoute($router)}
       <NavbarSlow />
