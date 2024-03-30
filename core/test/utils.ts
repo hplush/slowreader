@@ -11,8 +11,8 @@ import {
   Filter,
   getTestEnvironment,
   Post,
-  setupEnvironment,
   setBaseRoute,
+  setupEnvironment,
   userId
 } from '../index.js'
 

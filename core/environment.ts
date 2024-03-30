@@ -128,7 +128,7 @@ export function setBaseRoute(route: BaseRoute | undefined): void {
 
 export function getTestEnvironment(): EnvironmentAndStore {
   return {
-    baseRouter: atom<BaseRoute | undefined>(),
+    baseRouter: testRouter,
     errorEvents: { addEventListener() {} },
     locale: atom('en'),
     logStoreCreator: () => new MemoryStore(),

@@ -122,6 +122,9 @@ importers:
       '@slowreader/core':
         specifier: link:../core
         version: link:../core
+      jsdom:
+        specifier: 24.0.0
+        version: 24.0.0
       picocolors:
         specifier: 1.0.0
         version: 1.0.0
