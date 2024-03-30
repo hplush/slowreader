@@ -22,11 +22,12 @@ import {
   openedFastPost,
   type PostValue,
   router,
+  setBaseRoute,
   setFastPostsPerPage,
   testFeed,
   testPost
 } from '../index.js'
-import { cleanClientTest, enableClientTest, setBaseRoute } from './utils.js'
+import { cleanClientTest, enableClientTest } from './utils.js'
 
 beforeEach(() => {
   enableClientTest()

@@ -13,11 +13,12 @@ import {
   isSlowRoute,
   removeFeedFromRoute,
   router,
+  setBaseRoute,
   testFeed,
   testPost,
   userId
 } from '../index.js'
-import { cleanClientTest, enableClientTest, setBaseRoute } from './utils.js'
+import { cleanClientTest, enableClientTest } from './utils.js'
 
 beforeEach(() => {
   enableClientTest()

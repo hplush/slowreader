@@ -16,12 +16,13 @@ import {
   loadFeed,
   loadPost,
   openedSlowPost,
+  setBaseRoute,
   slowCategories,
   slowPosts,
   testFeed,
   testPost
 } from '../index.js'
-import { cleanClientTest, enableClientTest, setBaseRoute } from './utils.js'
+import { cleanClientTest, enableClientTest } from './utils.js'
 
 beforeEach(() => {
   enableClientTest()

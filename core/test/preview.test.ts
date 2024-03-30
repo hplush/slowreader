@@ -28,11 +28,12 @@ import {
   previewUrl,
   previewUrlError,
   router,
+  setBaseRoute,
   setPreviewCandidate,
   setPreviewUrl,
   testFeed
 } from '../index.js'
-import { cleanClientTest, enableClientTest, setBaseRoute } from './utils.js'
+import { cleanClientTest, enableClientTest } from './utils.js'
 
 beforeEach(() => {
   enableClientTest()

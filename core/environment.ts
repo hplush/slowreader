@@ -1,14 +1,15 @@
 import type { ClientOptions } from '@logux/client'
+import { MemoryStore } from '@logux/core'
 import type { TranslationLoader } from '@nanostores/i18n'
 import {
   type PersistentEvents,
   type PersistentStore,
   setPersistentEngine
 } from '@nanostores/persistent'
-import type { ReadableAtom, StoreValue } from 'nanostores'
+import { atom, type ReadableAtom, type StoreValue } from 'nanostores'
 
 import { SlowReaderError } from './error.js'
-import type { BaseRouter, Route, Routes } from './router.js'
+import type { BaseRoute, BaseRouter, Route, Routes } from './router.js'
 
 interface LogStoreCreator {
   (): ClientOptions['store']
@@ -117,4 +118,25 @@ export function getEnvironment(): Environment {
     throw new SlowReaderError('NoEnvironment')
   }
   return currentEnvironment
+}
+
+const testRouter = atom<BaseRoute | undefined>()
+
+export function setBaseRoute(route: BaseRoute | undefined): void {
+  testRouter.set(route)
+}
+
+export function getTestEnvironment(): EnvironmentAndStore {
+  return {
+    baseRouter: atom<BaseRoute | undefined>(),
+    errorEvents: { addEventListener() {} },
+    locale: atom('en'),
+    logStoreCreator: () => new MemoryStore(),
+    networkType: () => ({ saveData: undefined, type: undefined }),
+    openRoute: setBaseRoute,
+    persistentEvents: { addEventListener() {}, removeEventListener() {} },
+    persistentStore: {},
+    restartApp: () => {},
+    translationLoader: async () => ({})
+  }
 }
