@@ -1,14 +1,16 @@
 <script lang="ts">
-  import { mdiChevronRight } from '@mdi/js'
+  import { mdiChevronRight, mdiListBox } from '@mdi/js'
   import { createEventDispatcher } from 'svelte'
 
   import Icon from './icon.svelte'
+  import type { AriaRole } from 'svelte/elements'
 
   export let href: string | undefined = undefined
   export let controls: string | undefined = undefined
   export let name: string
   export let current = false
   export let first = false
+  export let role: AriaRole = 'option'
 
   let dispatch = createEventDispatcher<{ click: null }>()
 
@@ -24,7 +26,7 @@
       aria-controls={controls}
       aria-current={current ? 'page' : null}
       {href}
-      role="option"
+      {role}
       tabindex={current || first ? null : -1}
       on:click={onClick}
     >
@@ -38,7 +40,7 @@
       class="card-link"
       aria-controls={controls}
       aria-current={current ? 'page' : null}
-      role="option"
+      {role}
       tabindex={current || first ? null : -1}
       on:click={onClick}
     >

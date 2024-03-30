@@ -4,10 +4,25 @@
   export let node: HTMLUListElement | null = null
   export let id: string | undefined = undefined
   export let role: AriaRole | undefined = 'listbox'
+
+  let sub_role: AriaRole | undefined = undefined
+  // move to utils/tools?
+  switch (role) {
+    case 'listbox':
+      sub_role = 'option'
+      break
+    case 'menu':
+    case 'menubar':
+      sub_role = 'menuitem'
+      break
+    case 'tablist':
+      sub_role = 'tab'
+      break
+  }
 </script>
 
 <ul bind:this={node} {id} class="card-links" {role}>
-  <slot />
+  <slot role={sub_role} />
 </ul>
 
 <style>
