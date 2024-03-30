@@ -105,6 +105,7 @@
     class="navbar_submenu"
     aria-hidden="true"
     role="menubar"
+    aria-orientation="vertical"
   >
     {#if isSlowRoute($router)}
       <NavbarSlow />
