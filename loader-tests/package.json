@@ -7,6 +7,7 @@
   },
   "devDependencies": {
     "@slowreader/core": "link:../core",
+    "jsdom": "24.0.0",
     "picocolors": "1.0.0",
     "tsx": "4.7.1"
   }

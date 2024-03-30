@@ -19,6 +19,11 @@ setupEnvironment({ ...getTestEnvironment() })
 
 setRequestMethod(fetch)
 
+interface Feed {
+  title: string
+  url: string
+}
+
 async function parseFeedsFromFile(path: string): Promise<void> {
   try {
     if (!isSupportedExt(path)) {
@@ -32,11 +37,10 @@ async function parseFeedsFromFile(path: string): Promise<void> {
         title: f.getAttribute('title') || '',
         url: f.getAttribute('xmlUrl')!
       }))
-
-    await Promise.all([...feeds.map(feed => fetchAndParseFeed(feed))])
+    await Promise.all([...feeds.map(feed => fetchAndParsePosts(feed))])
   } catch (e) {
-    if (e && typeof e === 'object' && 'code' in e && e.code === 'ENOENT') {
-      logger.err(`File not found, path: ${path}. \n`)
+    if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
+      logger.err(`File not found on path: "${path}". \n`)
     } else if (e instanceof Error) {
       logger.err(`${e.message}\n`)
     } else if (typeof e === 'string') {
@@ -45,12 +49,7 @@ async function parseFeedsFromFile(path: string): Promise<void> {
   }
 }
 
-interface Feed {
-  title: string
-  url: string
-}
-
-async function fetchAndParseFeed(feed: Feed): Promise<void> {
+async function fetchAndParsePosts(feed: Feed): Promise<void> {
   try {
     let task = createDownloadTask()
     let textResponse = await task.text(feed.url)
@@ -71,11 +70,10 @@ async function fetchAndParseFeed(feed: Feed): Promise<void> {
   }
 }
 
-if (process.argv.length > 2) {
+if (process.argv.length < 3) {
+  logger.info('Please provide a path to the file.\n')
+  logger.info('Example usage: $ pnpm feed-loader <path_to_your_file> \n')
+} else {
   let path = process.argv[2] || ''
   parseFeedsFromFile(path)
-} else {
-  /**
-   *  TODO: Handle errors & show help
-   * */
 }

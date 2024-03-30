@@ -20,6 +20,7 @@ export function resolvePath(path: string): string {
 
 interface Logger {
   err(msg: string): void
+  info(msg: string): void
   log(msg: string): void
   succ(msg: string): void
   warn(msg: string): void
@@ -28,6 +29,9 @@ interface Logger {
 export const logger: Logger = {
   err(msg) {
     this.log(pico.red(msg))
+  },
+  info(msg) {
+    this.log(pico.blue(msg))
   },
   log(msg) {
     process.stderr.write(msg)
