@@ -11,28 +11,28 @@ import {
 
 import { locale } from '../stores/locale.js'
 
-const actualizeThemeColor = (themeColorTag: Element | null): void => {
-  let backgroundColor = window
+let root = document.documentElement
+let themeTag = document.querySelector('meta[name="theme-color"]')
+
+function updateTheme(themeNode: Element | null): void {
+  let background = window
     .getComputedStyle(document.body)
     .getPropertyValue('background-color')
 
-  if (themeColorTag && backgroundColor) {
-    themeColorTag.setAttribute('content', backgroundColor)
+  if (themeNode && background) {
+    themeNode.setAttribute('content', background)
   }
 }
 
-let root = document.documentElement
-let themeColorTag = document.querySelector('meta[name="theme-color"]')
-
 router.subscribe(route => {
   root.classList.toggle('is-slow-theme', !isFastRoute(route))
-  actualizeThemeColor(themeColorTag)
+  updateTheme(themeTag)
 })
 
 theme.subscribe(themeValue => {
   root.classList.toggle('is-dark-theme', themeValue === 'dark')
   root.classList.toggle('is-light-theme', themeValue === 'light')
-  actualizeThemeColor(themeColorTag)
+  updateTheme(themeTag)
 })
 
 locale.subscribe(localeValue => {
@@ -43,9 +43,9 @@ if (!likelyWithKeyboard(window)) {
   root.classList.add('is-hotkey-disabled')
 }
 
-window.onload = () => {
-  actualizeThemeColor(themeColorTag)
-}
+window.addEventListener('load', () => {
+  updateTheme(themeTag)
+})
 
 startKeyUX(window, [
   pressKeyUX('is-pseudo-active'),
