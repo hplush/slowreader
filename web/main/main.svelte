@@ -1,6 +1,5 @@
 <script lang="ts">
   import { isGuestRoute, notFound, router, starting } from '@slowreader/core'
-  import { actualizeThemeColor } from './helpers.js'
 
   import Fast from '../pages/fast.svelte'
   import FeedsAdd from '../pages/feeds/add.svelte'
@@ -16,8 +15,6 @@
   import Starting from '../pages/starting.svelte'
   import Welcome from '../pages/welcome.svelte'
   import Navbar from '../ui/navbar/index.svelte'
-
-  actualizeThemeColor()
 </script>
 
 {#if $starting}

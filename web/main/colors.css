@@ -9,7 +9,6 @@
 
   @media (prefers-color-scheme: light) {
     --land-color: color-mix(in oklab, var(--neutral-100), var(--neutral-200));
-    --theme-color: oklch(94% 0 0);
     --text-color: var(--neutral-950);
     --secondary-text-color: var(--neutral-700);
     --hotkey-color: var(--neutral-400);
@@ -52,7 +51,6 @@
 
   @media (prefers-color-scheme: dark) {
     --land-color: var(--neutral-950);
-    --theme-color: oklch(19% 0 0);
     --text-color: var(--neutral-50);
     --secondary-text-color: var(--neutral-600);
     --hotkey-color: var(--neutral-700);
@@ -89,14 +87,12 @@
 .is-slow-theme {
   @media (prefers-color-scheme: light) {
     --land-color: color-mix(in oklab, var(--sand-100), var(--sand-200));
-    --theme-color: oklch(94.15% 0.01 82.4);
     --card-color: var(--sand-50);
     --hover-color: color-mix(in oklch, var(--sand-50), var(--neutral-50));
   }
 
   @media (prefers-color-scheme: dark) {
     --land-color: var(--sand-950);
-    --theme-color: oklch(19.4% 0.01 73.2);
     --card-color: var(--sand-900);
     --hover-color: color-mix(in oklch, var(--sand-900), var(--sand-800));
   }

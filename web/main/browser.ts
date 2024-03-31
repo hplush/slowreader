@@ -8,21 +8,31 @@ import {
   pressKeyUX,
   startKeyUX
 } from 'keyux'
-import { actualizeThemeColor } from './helpers.js'
 
 import { locale } from '../stores/locale.js'
 
+const actualizeThemeColor = (themeColorTag: Element | null): void => {
+  let backgroundColor = window
+    .getComputedStyle(document.body)
+    .getPropertyValue('background-color')
+
+  if (themeColorTag && backgroundColor) {
+    themeColorTag.setAttribute('content', backgroundColor)
+  }
+}
+
 let root = document.documentElement
+let themeColorTag = document.querySelector('meta[name="theme-color"]')
 
 router.subscribe(route => {
   root.classList.toggle('is-slow-theme', !isFastRoute(route))
-  actualizeThemeColor()
+  actualizeThemeColor(themeColorTag)
 })
 
 theme.subscribe(themeValue => {
   root.classList.toggle('is-dark-theme', themeValue === 'dark')
   root.classList.toggle('is-light-theme', themeValue === 'light')
-  actualizeThemeColor()
+  actualizeThemeColor(themeColorTag)
 })
 
 locale.subscribe(localeValue => {
@@ -31,6 +41,10 @@ locale.subscribe(localeValue => {
 
 if (!likelyWithKeyboard(window)) {
   root.classList.add('is-hotkey-disabled')
+}
+
+window.onload = () => {
+  actualizeThemeColor(themeColorTag)
 }
 
 startKeyUX(window, [
