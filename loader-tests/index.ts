@@ -17,6 +17,7 @@ import {
   setupEnvironment,
   userId
 } from '@slowreader/core'
+import { createSpinner } from 'nanospinner'
 import { keepMount } from 'nanostores'
 import { readFile } from 'node:fs/promises'
 import { setTimeout } from 'node:timers/promises'
@@ -47,7 +48,14 @@ async function parseFeedsFromFile(path: string): Promise<void> {
         url: f.getAttribute('xmlUrl')!
       }))
     await Promise.all([...feeds.map(feed => fetchAndParsePosts(feed))])
+    let spinner = createSpinner()
+    spinner.start({
+      text:
+        'Resolving RSS urls from home. ' +
+        `Will last around ${timerDurationSeconds} seconds. \n`
+    })
     await Promise.all([...feeds.map(feed => findRSSfromHome(feed))])
+    spinner.success({ text: 'Done!' })
   } catch (e) {
     if (e instanceof Error && 'code' in e && e.code === 'ENOENT') {
       logger.err(`File not found on path: "${path}". \n`)
