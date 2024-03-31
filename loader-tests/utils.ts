@@ -28,18 +28,18 @@ interface Logger {
 
 export const logger: Logger = {
   err(msg) {
-    this.log(pico.red(msg))
+    this.log(pico.red(`Error: ${msg}`))
   },
   info(msg) {
     this.log(pico.blue(msg))
   },
   log(msg) {
-    process.stderr.write(msg)
+    process.stderr.write(`${msg}\n`)
   },
   succ(msg) {
     this.log(pico.green(msg))
   },
   warn(msg) {
-    this.log(pico.yellow(msg))
+    this.log(pico.yellow(`Warning: ${msg}`))
   }
 }
