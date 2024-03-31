@@ -14,25 +14,25 @@ import { locale } from '../stores/locale.js'
 let root = document.documentElement
 let themeTag = document.querySelector('meta[name="theme-color"]')
 
-function updateTheme(themeNode: Element | null): void {
+function updateTheme(): void {
   let background = window
     .getComputedStyle(document.body)
     .getPropertyValue('background-color')
 
-  if (themeNode && background) {
-    themeNode.setAttribute('content', background)
+  if (themeTag && background) {
+    themeTag.setAttribute('content', background)
   }
 }
 
 router.subscribe(route => {
   root.classList.toggle('is-slow-theme', !isFastRoute(route))
-  updateTheme(themeTag)
+  updateTheme()
 })
 
 theme.subscribe(themeValue => {
   root.classList.toggle('is-dark-theme', themeValue === 'dark')
   root.classList.toggle('is-light-theme', themeValue === 'light')
-  updateTheme(themeTag)
+  updateTheme()
 })
 
 locale.subscribe(localeValue => {
@@ -44,7 +44,7 @@ if (!likelyWithKeyboard(window)) {
 }
 
 window.addEventListener('load', () => {
-  updateTheme(themeTag)
+  updateTheme()
 })
 
 startKeyUX(window, [
