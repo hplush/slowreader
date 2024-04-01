@@ -25,23 +25,11 @@
     margin: 0 auto;
   }
 
-  /* .formatted-text :global(image) { */
-
-  /* } */
-
   /** layout */
 
   .formatted-text :global(p) {
     margin: 0 0 0.857em;
   }
-
-  /* .formatted-text :global(div) { */
-
-  /* } */
-
-  /* .formatted-text :global(span) { */
-
-  /* } */
 
   /** headers
     step 1.125 between each heading
@@ -101,122 +89,6 @@
     font-weight: 600;
   }
 
-  /* .formatted-text :global(mark) { */
-
-  /*  background-color: #ff0; */
-
-  /*  color: #000; */
-
-  /* } */
-
-  /* .formatted-text :global(q) { */
-
-  /*  quotes: '"' '"'; */
-
-  /* } */
-
-  /* .formatted-text :global(strong) { */
-
-  /*  font-weight: bold; */
-
-  /* } */
-
-  /* .formatted-text :global(sub) { */
-
-  /*  vertical-align: sub; */
-
-  /*  font-size: smaller; */
-
-  /* } */
-
-  /* .formatted-text :global(sup) { */
-
-  /*  vertical-align: super; */
-
-  /*  font-size: smaller; */
-
-  /* } */
-
-  /* .formatted-text :global(small) { */
-
-  /*  font-size: 80%; */
-
-  /* } */
-
-  /* .formatted-text :global(i) { */
-
-  /*  font-style: italic; */
-
-  /* } */
-
-  /* .formatted-text :global(b) { */
-
-  /*  font-weight: bold; */
-
-  /* } */
-
-  /* .formatted-text :global(bdi) { */
-
-  /*  direction: rtl; */
-
-  /*  unicode-bidi: isolate; */
-
-  /* } */
-
-  /* .formatted-text :global(bdo) { */
-
-  /*  direction: rtl; */
-
-  /*  unicode-bidi: bidi-override; */
-
-  /* } */
-
-  /* .formatted-text :global(cite) { */
-
-  /*  font-style: italic; */
-
-  /* } */
-
-  /* .formatted-text :global(data) { */
-
-  /*  color: #333; */
-
-  /* } */
-
-  /* .formatted-text :global(del) { */
-
-  /*  text-decoration: line-through; */
-
-  /* } */
-
-  /* .formatted-text :global(ins) { */
-
-  /*  text-decoration: underline; */
-
-  /* } */
-
-  /* .formatted-text :global(s) { */
-
-  /*  text-decoration: line-through; */
-
-  /* } */
-
-  /* .formatted-text :global(samp) { */
-
-  /*  font-family: monospace; */
-
-  /* } */
-
-  /* !** behavioral *! */
-
-  /* .formatted-text :global(br) { */
-
-  /* } */
-
-  /* .formatted-text :global(hr) { */
-
-  /* } */
-
   /* !** lists *! */
 
   .formatted-text :global(ul) {
@@ -256,53 +128,9 @@
     margin: 1em 2.5em;
   }
 
-  /* .formatted-text :global(abbr) { */
-
-  /* } */
-
-  /* .formatted-text :global(address) { */
-
-  /* } */
-
-  /* .formatted-text :global(datalist) { */
-
-  /* } */
-
   .formatted-text :global(dd) {
     margin-inline-start: 2.5em;
   }
-
-  /* .formatted-text :global(dl) { */
-
-  /* } */
-
-  /* .formatted-text :global(details) { */
-
-  /* } */
-
-  /* .formatted-text :global(summary) { */
-
-  /* } */
-
-  /* .formatted-text :global(dfn) { */
-
-  /* } */
-
-  /* .formatted-text :global(kbd) { */
-
-  /* } */
-
-  /* .formatted-text :global(rt) { */
-
-  /* } */
-
-  /* .formatted-text :global(ruby) { */
-
-  /* } */
-
-  /* .formatted-text :global(rp) { */
-
-  /* } */
 
   /* !** media *! */
 
@@ -318,20 +146,6 @@
     width: 100%;
     margin: 1em 0;
   }
-
-  /* .formatted-text :global(source) { */
-
-  /* } */
-
-  /* !** @deprecated *! */
-
-  /* .formatted-text :global(center) { */
-
-  /* } */
-
-  /* .formatted-text :global(dir) { */
-
-  /* } */
 
   /* !** code block *! */
 
