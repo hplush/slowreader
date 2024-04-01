@@ -18,3 +18,9 @@ pnpm start
 ```shell
 curl localhost:5284/https://hplush.dev
 ```
+
+## Additional info:
+
+### Discussing security and protection from span
+
+- https://github.com/hplush/slowreader/issues/100
