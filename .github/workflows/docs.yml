@@ -1,0 +1,18 @@
+name: Markdown Tests
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.md'
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Install Markdown linter and plugins
+        run: pnpm install remark-cli remark-lint-no-dead-urls remark-validate-links --ignore-scripts
+      - name: Run tests
+        run: pnpm test:markdown

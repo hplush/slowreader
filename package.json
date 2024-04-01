@@ -19,7 +19,7 @@
     "test:focused": "tsx ./scripts/check-focused-tests.ts",
     "test:messages": "tsx ./scripts/check-messages.ts",
     "test:versions": "tsx ./scripts/check-versions.ts",
-    "test:markdown": "remark .",
+    "test:markdown": "remark . --frail",
     "prepare": "husky"
   },
   "workspaces": [
@@ -42,7 +42,6 @@
     "prettier": "3.2.5",
     "prettier-plugin-svelte": "3.2.2",
     "remark-cli": "^12.0.0",
-    "remark-lint-code-block-style": "^3.1.2",
     "remark-lint-no-dead-urls": "^1.1.0",
     "remark-validate-links": "^13.0.0",
     "stylelint": "16.3.1",
