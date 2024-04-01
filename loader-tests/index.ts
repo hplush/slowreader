@@ -11,7 +11,8 @@ import {
   loaders,
   type PreviewCandidate,
   previewCandidates,
-  setBaseRoute,
+  previewCandidatesLoading,
+  setBaseTestRoute,
   setPreviewUrl,
   setRequestMethod,
   setupEnvironment,
@@ -19,10 +20,15 @@ import {
 } from '@slowreader/core'
 import { keepMount } from 'nanostores'
 import { readFile } from 'node:fs/promises'
-import { setTimeout } from 'node:timers/promises'
 
 import { LoaderNotFoundError, UnsupportedFileExtError } from './errors.js'
-import { isString, isSupportedExt, logger, resolvePath } from './utils.js'
+import {
+  isString,
+  isSupportedExt,
+  logger,
+  resolvePath,
+  waitForStoreResolve
+} from './utils.js'
 
 interface Feed {
   htmlUrl: string
@@ -83,8 +89,16 @@ async function fetchAndParsePosts(feed: Feed): Promise<void> {
 async function findRSSfromHome(feed: Feed): Promise<void> {
   try {
     keepMount(previewCandidates)
+    keepMount(previewCandidatesLoading)
     await setPreviewUrl(feed.htmlUrl)
-    await setTimeout(timerDurationInSec * 1000)
+    await Promise.race([
+      waitForStoreResolve(previewCandidatesLoading),
+      new Promise(resolve =>
+        setTimeout(() => {
+          resolve(false)
+        }, timerDurationInSec * 1000)
+      )
+    ])
     if (previewCandidates.get().length === 0) {
       logger.warn(`For feed ${feed.title} couldn't find RSS from home url.`)
     }
@@ -99,7 +113,7 @@ function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
   setupEnvironment({ ...getTestEnvironment(), ...env })
   enableTestTime()
   userId.set('10')
-  setBaseRoute({ params: {}, route: 'home' })
+  setBaseTestRoute({ params: {}, route: 'home' })
 }
 
 enableClientTest()

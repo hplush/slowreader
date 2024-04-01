@@ -116,7 +116,7 @@ Read our **[checklist for pull requests](./docs/pull_request_template.md)**. It 
 If you are not just fixing a bug but want to join the core team, here is the path:
 
 1. Your first task is to test `pnpm test` in your environment and report issue.
-2. If you have a RSS Reader, your second task is to export all your subscriptions from your reader in a file. Then, check if our [loader-tests](./loader-tests/) project supports testing of your specific file type. If it does, run the `loader-test` script for your file and make sure all posts are returned correctly.
+2. If you have an RSS Reader, export all your subscriptions from your reader in an OPML file. Then run the `loader-test` script for your file and make sure all posts are returned correctly.
 3. Go to our [Tasks plan](https://github.com/orgs/hplush/projects/1) and take next task from `Onboarding` column. If `Onboarding` is empty, you can look in `Ready to Take`.
    1. Choose any task that fits the best to you.
    2. Write there `I want to take it`.

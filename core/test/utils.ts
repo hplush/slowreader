@@ -11,7 +11,7 @@ import {
   Filter,
   getTestEnvironment,
   Post,
-  setBaseRoute,
+  setBaseTestRoute,
   setupEnvironment,
   userId
 } from '../index.js'
@@ -20,7 +20,7 @@ export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
   setupEnvironment({ ...getTestEnvironment(), ...env })
   enableTestTime()
   userId.set('10')
-  setBaseRoute({ params: {}, route: 'home' })
+  setBaseTestRoute({ params: {}, route: 'home' })
 }
 
 export async function cleanClientTest(): Promise<void> {

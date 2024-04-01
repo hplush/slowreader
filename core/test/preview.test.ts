@@ -28,7 +28,7 @@ import {
   previewUrl,
   previewUrlError,
   router,
-  setBaseRoute,
+  setBaseTestRoute,
   setPreviewCandidate,
   setPreviewUrl,
   testFeed
@@ -38,7 +38,7 @@ import { cleanClientTest, enableClientTest } from './utils.js'
 beforeEach(() => {
   enableClientTest()
   mockRequest()
-  setBaseRoute({ params: {}, route: 'add' })
+  setBaseTestRoute({ params: {}, route: 'add' })
 })
 
 afterEach(async () => {
@@ -537,14 +537,14 @@ test('syncs URL with router', async () => {
   })
 
   expectRequest('http://example.com').andRespond(404)
-  setBaseRoute({ params: { url: 'http://example.com' }, route: 'add' })
+  setBaseTestRoute({ params: { url: 'http://example.com' }, route: 'add' })
   deepStrictEqual(previewUrl.get(), 'http://example.com')
 
-  setBaseRoute({ params: {}, route: 'add' })
+  setBaseTestRoute({ params: {}, route: 'add' })
   deepStrictEqual(previewUrl.get(), '')
 
   expectRequest('https://new.com').andRespond(404)
   setPreviewUrl('https://new.com')
-  setBaseRoute({ params: {}, route: 'home' })
+  setBaseTestRoute({ params: {}, route: 'home' })
   deepStrictEqual(previewUrl.get(), '')
 })

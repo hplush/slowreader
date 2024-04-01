@@ -1,3 +1,4 @@
+import type { ReadableAtom } from 'nanostores'
 import { isAbsolute, join, resolve } from 'node:path'
 import pico from 'picocolors'
 
@@ -16,6 +17,23 @@ export function resolvePath(path: string): string {
     return path
   }
   return resolve(join(process.cwd(), '..', path))
+}
+
+export function waitForStoreResolve(
+  store: ReadableAtom<boolean>
+): Promise<boolean> {
+  return new Promise(_resolve => {
+    let loadingComparison = 'idle'
+    let unbind = store.listen(value => {
+      if (value && loadingComparison === 'idle') {
+        loadingComparison = 'loading'
+      }
+      if (!value && loadingComparison === 'loading') {
+        unbind()
+        _resolve(value)
+      }
+    })
+  })
 }
 
 interface Logger {

@@ -7,7 +7,6 @@ This project allows testing of different types of web feed aggregators on the In
 ## Currently supported formats:
 
 - `.opml`
-- `.xml`
 
 ## Running the tool for OPML files
 
@@ -16,5 +15,5 @@ This project allows testing of different types of web feed aggregators on the In
 - Once in the root you can run:
 
 ```sh
-$ pnpm feed-loader <path_to_your_file.opml>
+pnpm feed-loader PATH_TO_YOUR_FILE.opml
 ```

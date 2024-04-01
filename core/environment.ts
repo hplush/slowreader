@@ -122,7 +122,7 @@ export function getEnvironment(): Environment {
 
 const testRouter = atom<BaseRoute | undefined>()
 
-export function setBaseRoute(route: BaseRoute | undefined): void {
+export function setBaseTestRoute(route: BaseRoute | undefined): void {
   testRouter.set(route)
 }
 
@@ -133,7 +133,7 @@ export function getTestEnvironment(): EnvironmentAndStore {
     locale: atom('en'),
     logStoreCreator: () => new MemoryStore(),
     networkType: () => ({ saveData: undefined, type: undefined }),
-    openRoute: setBaseRoute,
+    openRoute: setBaseTestRoute,
     persistentEvents: { addEventListener() {}, removeEventListener() {} },
     persistentStore: {},
     restartApp: () => {},
