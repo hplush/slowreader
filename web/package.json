@@ -19,7 +19,7 @@
     "clean:dist": "rm -rf dist"
   },
   "dependencies": {
-    "@csstools/postcss-oklab-function": "3.0.12",
+    "@csstools/postcss-oklab-function": "3.0.13",
     "@evilmartians/harmony": "1.2.0",
     "@logux/client": "github:logux/client#next",
     "@logux/core": "0.8.5",
@@ -53,7 +53,7 @@
     "better-node-test": "0.5.1",
     "browserslist": "4.23.0",
     "postcss-html": "1.6.0",
-    "postcss-nesting": "12.1.0",
+    "postcss-nesting": "12.1.1",
     "postcss-selector-parser": "6.0.16",
     "size-limit": "11.1.2",
     "storybook": "8.0.5",
