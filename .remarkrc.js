@@ -1,12 +1,10 @@
-// File for setting up the markdown linter configuration.
-// Add the required plugin to the plugins array.
+// Configuration file used to set up a tool to find mistakes in .md files.
+// Add the name of the plugin you want to use to the list of plugins.
 
-const preset = {
+export default {
   plugins: [
     'remark-lint-no-dead-urls',
     'remark-validate-links',
     'remark-lint-code-block-style'
   ]
 }
-
-export default preset
