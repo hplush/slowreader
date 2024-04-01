@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "tsx ./index.ts"
+    "start": "tsx ./proxy.ts"
   },
   "dependencies": {
     "tsx": "4.7.2"
