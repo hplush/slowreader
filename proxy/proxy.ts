@@ -1,3 +1,5 @@
+// noinspection ExceptionCaughtLocallyJS
+
 import { createServer } from 'node:http'
 import { styleText } from 'node:util'
 
