@@ -1,28 +1,41 @@
+import {
+  enableTestTime,
+  getTestEnvironment,
+  setBaseTestRoute,
+  setRequestMethod,
+  setupEnvironment,
+  userId
+} from '@slowreader/core'
 import type { ReadableAtom } from 'nanostores'
-import { isAbsolute, join, resolve } from 'node:path'
+import { readFile } from 'node:fs/promises'
+import { isAbsolute, join } from 'node:path'
 import pico from 'picocolors'
 
-const supportedExtensions = ['.xml', '.opml']
-
-export function isSupportedExt(path: string): boolean {
-  return supportedExtensions.some(ext => path.endsWith(ext))
+export async function readText(path: string): Promise<string> {
+  let absolute = path
+  if (!isAbsolute(absolute)) {
+    absolute = join(process.env.INIT_CWD!, path)
+  }
+  let buffer = await readFile(absolute)
+  return buffer.toString('utf-8')
 }
 
 export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
-export function resolvePath(path: string): string {
-  if (isAbsolute(path)) {
-    return path
-  }
-  return resolve(join(process.cwd(), '..', path))
+export function enableTestClient(): void {
+  setupEnvironment(getTestEnvironment())
+  enableTestTime()
+  userId.set('10')
+  setBaseTestRoute({ params: {}, route: 'home' })
+  setRequestMethod(fetch)
 }
 
 export function waitForStoreResolve(
   store: ReadableAtom<boolean>
 ): Promise<boolean> {
-  return new Promise(_resolve => {
+  return new Promise(resolve => {
     let loadingComparison = 'idle'
     let unbind = store.listen(value => {
       if (value && loadingComparison === 'idle') {
@@ -30,34 +43,49 @@ export function waitForStoreResolve(
       }
       if (!value && loadingComparison === 'loading') {
         unbind()
-        _resolve(value)
+        resolve(value)
       }
     })
   })
 }
 
-interface Logger {
-  err(msg: string): void
-  info(msg: string): void
-  log(msg: string): void
-  succ(msg: string): void
-  warn(msg: string): void
+interface NoFileError extends Error {
+  code: string
+  path: string
 }
 
-export const logger: Logger = {
-  err(msg) {
-    this.log(pico.red(`Error: ${msg}`))
-  },
-  info(msg) {
-    this.log(pico.blue(msg))
-  },
-  log(msg) {
-    process.stderr.write(`${msg}\n`)
-  },
-  succ(msg) {
-    this.log(pico.green(msg))
-  },
-  warn(msg) {
-    this.log(pico.yellow(`Warning: ${msg}`))
+function isNoFileError(e: unknown): e is NoFileError {
+  return e instanceof Error && `code` in e && e.code === 'ENOENT'
+}
+
+export function print(msg: string): void {
+  process.stderr.write(`${msg}\n`)
+}
+
+export function error(msg: string | unknown): void {
+  if (typeof msg === 'string') {
+    print(pico.red(msg))
+  } else if (msg instanceof OurError) {
+    print(pico.red(msg.message))
+  } else if (isNoFileError(msg)) {
+    print(pico.red(`File not found: ${msg.path}`))
+  } else if (msg instanceof Error) {
+    print(pico.red(msg.stack))
+  }
+}
+
+export function warn(msg: string): void {
+  print(pico.yellow(msg))
+}
+
+export function success(msg: string): void {
+  print(pico.green(msg))
+}
+
+export class OurError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = this.constructor.name
+    Error.captureStackTrace(this, this.constructor)
   }
 }

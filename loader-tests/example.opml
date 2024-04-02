@@ -6,7 +6,7 @@
   <body>
     <outline text="AppSignal" xmlUrl="https://blog.appsignal.com/feed.xml"
       htmlUrl="https://blog.appsignal.com" type="rss" title="AppSignal" />
-    <outline type="rss" text="Bartosz Ciechanowski" htmlUrl="https://ciechanow.ski/"
+    <!-- <outline type="rss" text="Bartosz Ciechanowski" htmlUrl="https://ciechanow.ski/"
       xmlUrl="https://ciechanow.ski/atom.xml" title="Bartosz Ciechanowski" />
     <outline text="Fabien Sanglard" xmlUrl="https://fabiensanglard.net/rss.xml"
       type="rss" title="Fabien Sanglard" htmlUrl="https://fabiensanglard.net" />
@@ -32,6 +32,6 @@
       text="Wikipedia: Portal: Current events"
       xmlUrl="https://www.to-rss.xyz/wikipedia/current_events/" />
     <outline title="Zero Credibility" htmlUrl="https://www.spakhm.com"
-      text="Zero Credibility" type="rss" xmlUrl="https://www.spakhm.com/feed/" />
+      text="Zero Credibility" type="rss" xmlUrl="https://www.spakhm.com/feed/" /> -->
   </body>
 </opml>
