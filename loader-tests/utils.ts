@@ -6,6 +6,7 @@ import {
   setupEnvironment,
   userId
 } from '@slowreader/core'
+import type { ReadableAtom } from 'nanostores'
 import { readFile } from 'node:fs/promises'
 import { isAbsolute, join } from 'node:path'
 import pico from 'picocolors'
@@ -43,6 +44,20 @@ export function timeout<Value>(
       }, ms)
     )
   ])
+}
+
+export function waitFor<Value>(
+  store: ReadableAtom,
+  value: Value
+): Promise<void> {
+  return new Promise<void>(resolve => {
+    let unbind = store.subscribe(state => {
+      if (state === value) {
+        unbind()
+        resolve()
+      }
+    })
+  })
 }
 
 interface NoFileError extends Error {
