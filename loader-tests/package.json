@@ -1,0 +1,15 @@
+{
+  "name": "@slowreader/loader-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx index.ts"
+  },
+  "devDependencies": {
+    "@slowreader/core": "link:../core",
+    "jsdom": "24.0.0",
+    "nanostores": "0.10.0",
+    "picocolors": "1.0.0",
+    "tsx": "4.7.1"
+  }
+}

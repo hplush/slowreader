@@ -19,13 +19,15 @@
     "test:focused": "tsx ./scripts/check-focused-tests.ts",
     "test:messages": "tsx ./scripts/check-messages.ts",
     "test:versions": "tsx ./scripts/check-versions.ts",
+    "feed-loader": "pnpm --prefix loader-tests start",
     "prepare": "husky"
   },
   "workspaces": [
     "api",
     "core",
     "server",
-    "web"
+    "web",
+    "loader-tests"
   ],
   "devDependencies": {
     "@logux/eslint-config": "53.0.0",

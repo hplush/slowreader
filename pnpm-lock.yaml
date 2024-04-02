@@ -117,6 +117,24 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
 
+  loader-tests:
+    devDependencies:
+      '@slowreader/core':
+        specifier: link:../core
+        version: link:../core
+      jsdom:
+        specifier: 24.0.0
+        version: 24.0.0
+      nanostores:
+        specifier: 0.10.0
+        version: 0.10.0
+      picocolors:
+        specifier: 1.0.0
+        version: 1.0.0
+      tsx:
+        specifier: 4.7.1
+        version: 4.7.1
+
   proxy:
     dependencies:
       picocolors:
@@ -6803,7 +6821,6 @@ packages:
   /nanostores@0.10.2:
     resolution: {integrity: sha512-Z/nqsDGQvjYTXZcVge06IS8OAJ8Lzb1jLUSAbDDomDBtlSXh88M4toUKW3iKwN+BfblEXhft0KlwJ+bgGi/Ysw==}
     engines: {node: ^18.0.0 || >=20.0.0}
-    dev: false
 
   /natural-compare-lite@1.4.0:
     resolution: {integrity: sha512-Tj+HTDSJJKaZnfiuw+iaF9skdPpTo2GtEly5JHnWV/hfv2Qj/9RKsGISQtLh2ox3l5EAGw487hnBee0sIJ6v2g==}

@@ -133,7 +133,9 @@ function getLoaderForUrl(url: string): false | PreviewCandidate {
   return false
 }
 
-function getLoaderForText(response: TextResponse): false | PreviewCandidate {
+export function getLoaderForText(
+  response: TextResponse
+): false | PreviewCandidate {
   let names = Object.keys(loaders) as LoaderName[]
   let parsed = new URL(response.url)
   for (let name of names) {
