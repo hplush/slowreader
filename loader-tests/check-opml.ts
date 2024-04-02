@@ -1,7 +1,6 @@
 import './dom-parser.js'
 
 import {
-  clearPreview,
   createDownloadTask,
   createTextResponse,
   getLoaderForText,
@@ -11,7 +10,6 @@ import {
   previewCandidatesLoading,
   setPreviewUrl
 } from '@slowreader/core'
-import { keepMount } from 'nanostores'
 
 import {
   enableTestClient,
@@ -20,6 +18,7 @@ import {
   OurError,
   readText,
   success,
+  timeout,
   waitForStoreResolve,
   warn
 } from './utils.js'
@@ -30,27 +29,21 @@ interface OpmlFeed {
   url: string
 }
 
-async function parseFeedsFromFile(path: string): Promise<void> {
-  try {
-    if (!path.endsWith('.opml') && !path.endsWith('.xml')) {
-      throw new OurError(`Unsupported file extension found on ${path}`)
-    }
-    let text = createTextResponse(await readText(path))
-    let feeds = [...text.parse().querySelectorAll('[type="rss"]')]
-      .filter(feed => isString(feed.getAttribute('xmlUrl')))
-      .map(
-        f =>
-          ({
-            htmlUrl: f.getAttribute('htmlUrl')!,
-            title: f.getAttribute('title') || '',
-            url: f.getAttribute('xmlUrl')!
-          }) as OpmlFeed
-      )
-    await Promise.all([...feeds.map(feed => fetchAndParsePosts(feed))])
-    await Promise.all([...feeds.map(feed => findRSSfromHome(feed))])
-  } catch (e) {
-    error(e)
+async function parseFeedsFromFile(path: string): Promise<OpmlFeed[]> {
+  if (!path.endsWith('.opml') && !path.endsWith('.xml')) {
+    throw new OurError(`Unsupported file extension found on ${path}`)
   }
+  let text = createTextResponse(await readText(path))
+  return [...text.parse().querySelectorAll('[type="rss"]')]
+    .filter(feed => isString(feed.getAttribute('xmlUrl')))
+    .map(
+      f =>
+        ({
+          htmlUrl: f.getAttribute('htmlUrl')!,
+          title: f.getAttribute('title') || '',
+          url: f.getAttribute('xmlUrl')!
+        }) as OpmlFeed
+    )
 }
 
 async function fetchAndParsePosts(feed: OpmlFeed): Promise<void> {
@@ -71,18 +64,17 @@ async function fetchAndParsePosts(feed: OpmlFeed): Promise<void> {
 }
 
 async function findRSSfromHome(feed: OpmlFeed): Promise<void> {
+  let unbindPreview = previewCandidates.listen(() => {})
   try {
-    keepMount(previewCandidates)
-    keepMount(previewCandidatesLoading)
     await setPreviewUrl(feed.htmlUrl)
-    await waitForStoreResolve(previewCandidatesLoading)
+    await timeout(5000, waitForStoreResolve(previewCandidatesLoading))
     if (previewCandidates.get().length === 0) {
       warn(`For feed ${feed.title} couldn't find RSS from home url`)
     }
   } catch {
     warn(`For feed ${feed.title} couldn't find RSS from home url`)
   } finally {
-    clearPreview()
+    unbindPreview()
   }
 }
 
@@ -91,7 +83,16 @@ enableTestClient()
 if (process.argv.length < 3) {
   error('Please provide a path to the file')
   error('Example usage: $ pnpm check-opml PATH_TO_YOUR_FILE.opml')
+  process.exit(1)
 } else {
-  let path = process.argv[2] || ''
-  parseFeedsFromFile(path)
+  try {
+    let feeds = await parseFeedsFromFile(process.argv[2]!)
+    await Promise.all(feeds.map(feed => fetchAndParsePosts(feed)))
+    for (let feed of feeds) {
+      await findRSSfromHome(feed)
+    }
+  } catch (e) {
+    error(e)
+    process.exit(1)
+  }
 }

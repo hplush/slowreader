@@ -49,6 +49,20 @@ export function waitForStoreResolve(
   })
 }
 
+export function timeout<Value>(
+  ms: number,
+  promise: Promise<Value>
+): Promise<Value> {
+  return Promise.race([
+    promise,
+    new Promise<Value>((resolve, reject) =>
+      setTimeout(() => {
+        reject(new Error('Timeout'))
+      }, ms)
+    )
+  ])
+}
+
 interface NoFileError extends Error {
   code: string
   path: string
