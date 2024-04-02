@@ -17,7 +17,6 @@
 <div bind:this={node} class="formatted-text"></div>
 
 <style>
-  /** images */
   .formatted-text :global(img) {
     max-width: 100%;
     height: auto;
@@ -25,15 +24,10 @@
     margin: 0 auto;
   }
 
-  /** layout */
-
   .formatted-text :global(p) {
     margin: 0 0 0.857em;
   }
 
-  /** headers
-    step 1.125 between each heading
-  */
   .formatted-text :global(h1) {
     margin: 1em 0;
     font-size: 1.476em;
@@ -64,12 +58,14 @@
     font-size: 1.067em;
   }
 
-  /* !** inline text formatting *! */
   .formatted-text :global(a) {
     color: var(--link-color);
     text-decoration: none;
     word-wrap: break-word;
-    transition: color 0.2s ease-in-out;
+    opacity: 100%;
+    transition:
+      color 0.2s ease-in-out,
+      opacity 0.2s ease-in-out;
   }
 
   .formatted-text :global(a:visited) {
@@ -77,8 +73,8 @@
   }
 
   .formatted-text :global(a:hover) {
-    color: var(--link-color-hover);
-    transition: color 0.2s ease-in-out;
+    opacity: 85%;
+    transition: opacity 0.2s ease-in-out;
   }
 
   .formatted-text :global(a:active) {
@@ -89,8 +85,6 @@
     font-style: italic;
     font-weight: 600;
   }
-
-  /* !** lists *! */
 
   .formatted-text :global(ul) {
     padding-inline-start: 1.25em;
@@ -105,8 +99,6 @@
   .formatted-text :global(li) {
     margin-bottom: 0.625em;
   }
-
-  /* !** content *! */
 
   .formatted-text :global(blockquote) {
     padding: 0.625em 1.25em;
@@ -133,8 +125,6 @@
     margin-inline-start: 2.5em;
   }
 
-  /* !** media *! */
-
   .formatted-text :global(video) {
     display: block;
     max-width: 100%;
@@ -148,8 +138,6 @@
     margin: 1em 0;
   }
 
-  /* !** code block *! */
-
   .formatted-text :global(pre) {
     padding: 1em;
     margin: 0.8em 0;
@@ -162,10 +150,6 @@
   .formatted-text :global(code) {
     padding: 0.3em;
     line-height: 1.8;
-
-    /* color: var(--code-inline-color); */
-
-    /* background: var(--code-inline-bg-color); */
     border-radius: var(--radius);
   }
 
@@ -177,14 +161,12 @@
   }
 
   .formatted-text :global(p code) {
-    padding: 0.3em;
-    font-size: 80%;
-    color: var(--code-inline-color);
-    background: var(--code-inline-bg-color);
-    border-radius: var(--radius);
+    padding: 0.2em 0.4em;
+    font-size: 85%;
+    white-space: break-spaces;
+    background-color: var(--code-inline-bg-color);
+    border-radius: 6px;
   }
-
-  /* !** table *! */
 
   .formatted-text :global(table) {
     width: 100%;
