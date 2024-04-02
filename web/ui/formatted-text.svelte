@@ -66,22 +66,23 @@
 
   /* !** inline text formatting *! */
   .formatted-text :global(a) {
-    color: oklch(49.77% 0.224 271.1);
+    color: var(--link-color);
+    text-decoration: none;
     word-wrap: break-word;
     transition: color 0.2s ease-in-out;
   }
 
   .formatted-text :global(a:visited) {
-    color: oklch(42.09% 0.193 328.36);
+    color: var(--link-color-visited);
   }
 
   .formatted-text :global(a:hover) {
-    color: oklch(37.73% 0.224 271.1);
+    color: var(--link-color-hover);
     transition: color 0.2s ease-in-out;
   }
 
   .formatted-text :global(a:active) {
-    color: oklch(57.97% 0.224 271.1);
+    color: var(--link-color-active);
   }
 
   .formatted-text :global(em) {
@@ -161,12 +162,14 @@
   .formatted-text :global(code) {
     padding: 0.3em;
     line-height: 1.8;
-    color: var(--text-color);
-    background: var(--field-color);
+
+    /* color: var(--code-inline-color); */
+
+    /* background: var(--code-inline-bg-color); */
     border-radius: var(--radius);
   }
 
-  .formatted-text :global(pre > code) {
+  .formatted-text :global(pre code) {
     max-width: 100%;
     padding: 0.1em 0.25em;
     font-size: 0.89em;
@@ -176,6 +179,8 @@
   .formatted-text :global(p code) {
     padding: 0.3em;
     font-size: 80%;
+    color: var(--code-inline-color);
+    background: var(--code-inline-bg-color);
     border-radius: var(--radius);
   }
 
