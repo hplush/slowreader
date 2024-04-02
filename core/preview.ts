@@ -205,15 +205,15 @@ export async function addLink(url: string, deep = false): Promise<void> {
       if (!response.ok) {
         $links.setKey(url, { state: 'unloadable' })
       } else {
+        if (!deep) {
+          let links = getLinksFromText(response)
+          await Promise.all(links.map(i => addLink(i, true)))
+        }
         let byText = getLoaderForText(response)
         if (byText !== false) {
           addCandidate(url, byText)
         } else {
           $links.setKey(url, { state: 'unknown' })
-        }
-        if (!deep) {
-          let links = getLinksFromText(response)
-          await Promise.all(links.map(i => addLink(i, true)))
         }
       }
     } catch (error) {
