@@ -19,7 +19,6 @@ import {
   readText,
   success,
   timeout,
-  waitForStoreResolve,
   warn
 } from './utils.js'
 
@@ -63,16 +62,33 @@ async function fetchAndParsePosts(feed: OpmlFeed): Promise<void> {
   }
 }
 
+let loadingPromises: (() => void)[] = []
+
+previewCandidatesLoading.listen(loading => {
+  if (!loading) {
+    for (let resolve of loadingPromises) {
+      resolve()
+    }
+    loadingPromises = []
+  }
+})
+
+function waitForCandidates(): Promise<void> {
+  return new Promise<void>(resolve => {
+    loadingPromises.push(resolve)
+  })
+}
+
 async function findRSSfromHome(feed: OpmlFeed): Promise<void> {
   let unbindPreview = previewCandidates.listen(() => {})
   try {
-    await setPreviewUrl(feed.htmlUrl)
-    await timeout(5000, waitForStoreResolve(previewCandidatesLoading))
+    setPreviewUrl(feed.htmlUrl)
+    await timeout(5000, waitForCandidates())
     if (previewCandidates.get().length === 0) {
       warn(`For feed ${feed.title} couldn't find RSS from home url`)
     }
-  } catch {
-    warn(`For feed ${feed.title} couldn't find RSS from home url`)
+  } catch (e) {
+    error(e)
   } finally {
     unbindPreview()
   }

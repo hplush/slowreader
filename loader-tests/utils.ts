@@ -6,7 +6,6 @@ import {
   setupEnvironment,
   userId
 } from '@slowreader/core'
-import type { ReadableAtom } from 'nanostores'
 import { readFile } from 'node:fs/promises'
 import { isAbsolute, join } from 'node:path'
 import pico from 'picocolors'
@@ -32,23 +31,6 @@ export function enableTestClient(): void {
   setRequestMethod(fetch)
 }
 
-export function waitForStoreResolve(
-  store: ReadableAtom<boolean>
-): Promise<boolean> {
-  return new Promise(resolve => {
-    let loadingComparison = 'idle'
-    let unbind = store.listen(value => {
-      if (value && loadingComparison === 'idle') {
-        loadingComparison = 'loading'
-      }
-      if (!value && loadingComparison === 'loading') {
-        unbind()
-        resolve(value)
-      }
-    })
-  })
-}
-
 export function timeout<Value>(
   ms: number,
   promise: Promise<Value>
@@ -57,7 +39,7 @@ export function timeout<Value>(
     promise,
     new Promise<Value>((resolve, reject) =>
       setTimeout(() => {
-        reject(new Error('Timeout'))
+        reject(new OurError('Timeout'))
       }, ms)
     )
   ])
