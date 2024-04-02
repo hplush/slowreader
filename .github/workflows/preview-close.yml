@@ -1,0 +1,28 @@
+name: Close Preview
+on:
+  pull_request:
+    types:
+      - closed
+    paths-ignore:
+      - './**/*.md'
+      - './proxy/**'
+      - './server/**'
+      - './scripts/**'
+      - './.vscode/**'
+      - './.husky/**'
+      - './.github/**'
+      - './core/test/**'
+jobs:
+  close:
+    name: Close
+    runs-on: ubuntu-latest
+    steps:
+      - name: Save PR number
+        run: echo "${{ github.event.pull_request.number }}" > ./preview-id
+      - name: Save data for another workflow
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
+          name: preview-id
+          path: |
+            ./preview-id

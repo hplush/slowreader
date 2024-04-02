@@ -25,8 +25,6 @@
   import TwoStepsPage from '../../ui/two-steps-page.svelte'
   import FeedsEdit from './edit.svelte'
   import FeedsPosts from './posts.svelte'
-
-  let feed: HTMLDivElement
 </script>
 
 <TwoStepsPage title={$t.title}>
@@ -80,7 +78,7 @@
       </div>
     {/if}
   </div>
-  <div bind:this={feed} id="feeds-add_feed" slot="two">
+  <div id="feeds-add_feed" slot="two">
     {#if $previewCandidate}
       {#if $previewCandidateAdded === undefined}
         <Loader zoneId="feeds-add_feed" />

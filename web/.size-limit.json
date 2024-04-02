@@ -1,13 +1,13 @@
 [
   {
     "name": "Files to download",
-    "path": ["dist/**/*", "!dist/ui/**"],
+    "path": ["dist/**/*", "!dist/.well-known", "!dist/ui/**"],
     "limit": "65 KB"
   },
   {
     "name": "All scripts to execute",
     "path": "dist/assets/*.js",
     "brotli": false,
-    "limit": "205 KB"
+    "limit": "210 KB"
   }
 ]

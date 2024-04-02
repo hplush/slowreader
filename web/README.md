@@ -7,6 +7,7 @@ _See the [full architecture guide](../README.md) first._
 - [Scripts](#scripts)
 - [Design System](#design-system)
 - [Test Strategy](#test-strategy)
+- [Deploy](#deploy)
 
 ## Project Structure
 
@@ -26,11 +27,12 @@ We use **Svelte** as the UI framework and **Vite** as the builder.
 - [`stores/`](./stores/): web client’s own smart stores. For instance, router on top of URL using [Nano Stores Router](https://github.com/nanostores/router).
 - [`postcss/`](./postcss/): [PostCSS](https://postcss.org/) plugins to check CSS and optimize it. Check the plugin’s descriptions for more information.
 - [`stories/`](./stories/): visual tests for pages and UI components by [Storybook](https://storybook.js.org/). The main way to test web client.
-- [`scripts/`](./scripts/): scripts to check for popular errors and optimize files after Vite build. Check the script’s descriptions for further details.
+- [`scripts/`](./scripts/): scripts to check for popular errors, optimize files after Vite build, and deploy. Check the script’s descriptions for further details.
 - [`test/`](./test/): unit tests for some parts of the web client.
 - `dist/`: `pnpm build` will build the result here for deployment.
 - [`.storybook/`](./.storybook/): Storybook’s config.
 - [`index.html`](./index.html): builder entry point. It also contains styles for the app loading state.
+- [`Dockerfile`](./Dockerfile) and [`nginx.conf`](./nginx.conf): web server to serve web client for staging and pull request preview servers.
 - [`.browserslistrc`](./.browserslistrc): browsers, which we support. See [actual browsers list](https://browsersl.ist/#q=defaults+and+supports+es6-module).
 - [`.size-limit.json`](./.size-limit.json): budget for JS bundles and whole webpage size. Don’t be afraid to tune the limit. We put it so tight that it makes you feel a small pain every time you add a significant amount of code.
 
@@ -73,8 +75,23 @@ Since clients don’t have much logic (we moved logic to the client core), we do
 
 We can use only visual tests to test web clients UI. We are using **[Storybook](https://storybook.js.org/)** and **[Chromatic snapshots](https://www.chromatic.com/builds?appId=65678843aa11589739e8fbee)**.
 
+Since we use a free plan, we run Chromatic on CI only daily.
+
+We deploy the latest Storybook of `main` branch to staging: [dev.slowreader.app/ui/](https://dev.slowreader.app/ui/)
+
+You can check Storybook of pull request by adding `/ui/` to the preview deploy URL: like <code>https://preview-100---staging-3ryqvfpd5q-ew.a.run.app<b>/ui/</b></code>
+
 But those visuals can be very complex. We do not just test buttons in different states. We test whole pages by mocking network requests and stores states. We use small JS in stories to test animations or some JS code.
 
 You can use [`<Scene>`](./stories/scene.svelte) to change core stores and mock HTTP.
 
-Since we use a free plan, we run Chromatic on CI only daily.
+## Deploy
+
+1. **Pull request preview:** the CI will publish a `View deployment` link to pull request events in 2 minutes.
+2. **Staging**: `main` branch is on [`dev.slowreader.app`](https://dev.slowreader.app).
+
+Both preview and staging have Storybook at `/ui/` route.
+
+We are using **Google Cloud Run** to run Nginx server with assets of web client.
+
+All Google Cloud settings are documented in [script](../scripts/prepare-google-cloud.sh).

@@ -24,7 +24,7 @@ Check the documentation for your operating system.
 
 By default, anybody can make commits with your name.
 
-We recommend enabling signing git commits to verify that these are commits really made by you.
+We recommend enabling signing git commits to verify that these are commits really made by you:
 
 ```sh
 git config --global commit.gpgsign true
@@ -43,3 +43,18 @@ Then add your SSH key _also_ as the commit signing key:
 1. Open [New SSH Key](https://github.com/settings/ssh/new) page.
 2. Select `Key type`: `Signing key`.
 3. Copy the content of `~/.ssh/id_rsa.pub` file (or other file you used in `user.signingKey` above).
+
+If you’re on **Windows Subsystem for Linux 2**, this may help:
+
+1. Add those lines to `~/.gnupg/gpg.conf:
+
+   ```sh
+   use-agent
+   pinentry-mode loopback
+   ```
+
+2. Add this line to `~/.gnupg/gpg-agent.conf`:
+
+   ```sh
+   allow-loopback-pinentry
+   ```

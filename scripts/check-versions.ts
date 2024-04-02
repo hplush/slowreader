@@ -21,11 +21,11 @@ function error(msg: string): void {
 let pkg = read('package.json')
 let toolVersions = read('.tool-versions')
 
-let nodeMajor = toolVersions.match(/nodejs (\d+)\./)![1]
+let nodeMinor = toolVersions.match(/nodejs (\d+\.\d+)\./)![1]
 let pnpmMajor = toolVersions.match(/pnpm (\d+)\./)![1]
 
-if (!pkg.includes(`"node": "^${nodeMajor}.`)) {
-  error('.tool-versions and package.json have different Node.js major version')
+if (!pkg.includes(`"node": "^${nodeMinor}.`)) {
+  error('.tool-versions and package.json have different Node.js minor version')
 }
 
 if (!pkg.includes(`"pnpm": "^${pnpmMajor}.`)) {

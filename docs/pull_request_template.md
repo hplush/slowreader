@@ -13,17 +13,14 @@ Fixes # (issue)
 ## Checklist
 
 - [ ] Don’t rush. Check all changes in PR again.
+- [ ] Run `pnpm test`.
 - [ ] Think about changing documentation.
   - If you added a script to `scripts/`, add a comment with a description.
   - If you added a new folder, add its description to the project’s `README.md`.
   - If you added config, describe how we use this tool in the config’s comment.
   - If you added something to the project’s architecture, describe it in the project’s `README.md`.
   - Try to focus on “why?”, not “how?”.
-- If you added a new dependency:
-  - [ ] Look for alternatives, not just take the most popular one.
-  - [ ] Check alternatives for [bundle size](https://bundlejs.com/), [`node_modules` size](https://packagephobia.com/), and [subdependencies number](https://npmgraph.js.org).
-  - [ ] Check that the project is active by their repository/issues/PR.
-  - [ ] Run `cd web && pnpm size`, check the JS bundle size changes, about limits if necessary.
+- [ ] If you added a new dependency, check our [requirements](../README.md#dependencies).
 - [ ] Think about testing
   - If you added a feature, add unit tests.
   - If you added a new state to the UI, add visual tests.

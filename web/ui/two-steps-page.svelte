@@ -5,6 +5,23 @@
 
   let prevTitle = document.title
 
+  let first: HTMLDivElement
+  let second: HTMLDivElement
+
+  export function scrollFirstToTop(): void {
+    first.scrollTo({
+      behavior: 'smooth',
+      top: 0
+    })
+  }
+
+  export function scrollSecondToTop(): void {
+    second.scrollTo({
+      behavior: 'smooth',
+      top: 0
+    })
+  }
+
   onMount(() => {
     document.title = title + ' › ' + prevTitle
     return () => {
@@ -14,10 +31,10 @@
 </script>
 
 <main id="page" class="two-steps-page">
-  <div class="two-steps-page_step">
+  <div bind:this={first} class="two-steps-page_step">
     <slot name="one" />
   </div>
-  <div class="two-steps-page_step">
+  <div bind:this={second} class="two-steps-page_step">
     <slot name="two" />
   </div>
 </main>
@@ -28,7 +45,7 @@
     display: flex;
     gap: var(--padding-l);
     justify-content: space-around;
-    width: 100%;
+    width: calc(100% - var(--padding-l));
   }
 
   .two-steps-page_step {

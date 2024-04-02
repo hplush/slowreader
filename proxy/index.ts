@@ -1,7 +1,7 @@
-import http from 'node:http'
+import { createServer } from 'node:http'
 import pico from 'picocolors'
 
-const server = http.createServer(async (req, res) => {
+const server = createServer(async (req, res) => {
   let url = decodeURIComponent(req.url!.slice(1))
   let sent = false
 
