@@ -40,7 +40,7 @@ export function timeout<Value>(
     promise,
     new Promise<Value>((resolve, reject) =>
       setTimeout(() => {
-        reject(new OurError('Timeout'))
+        reject(new Error('Timeout'))
       }, ms)
     )
   ])
