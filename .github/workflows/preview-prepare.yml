@@ -10,6 +10,7 @@ on:
       - './.husky/**'
       - './.github/**'
       - './core/test/**'
+      - './loader-tests/**'
 permissions:
   contents: read
 jobs:

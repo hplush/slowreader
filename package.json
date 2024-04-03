@@ -20,7 +20,7 @@
     "test:messages": "tsx ./scripts/check-messages.ts",
     "test:versions": "tsx ./scripts/check-versions.ts",
     "test:markdown": "remark . --frail",
-    "check-opml": "pnpm --prefix loader-tests check-opml",
+    "check-opml": "tsx loader-tests/check-opml.ts",
     "prepare": "husky"
   },
   "workspaces": [
