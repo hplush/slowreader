@@ -78,9 +78,7 @@ let errors = 0
 export function error(err: string | unknown, details?: string): void {
   errors += 1
   let msg: string
-  if (err instanceof OurError) {
-    msg = err.message
-  } else if (isNoFileError(err)) {
+  if (isNoFileError(err)) {
     msg = `File not found: ${err.path}`
   } else if (err instanceof Error) {
     msg = err.stack ?? err.message
@@ -108,12 +106,4 @@ export function success(msg: string, details?: string): void {
     msg += ` ${pico.gray(details)}`
   }
   print(pico.green(pico.bold('✓ ') + msg))
-}
-
-export class OurError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = this.constructor.name
-    Error.captureStackTrace(this, this.constructor)
-  }
 }

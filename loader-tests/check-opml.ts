@@ -16,7 +16,6 @@ import {
   error,
   finish,
   isString,
-  OurError,
   readText,
   success,
   timeout,
@@ -31,7 +30,8 @@ interface OpmlFeed {
 
 async function parseFeedsFromFile(path: string): Promise<OpmlFeed[]> {
   if (!path.endsWith('.opml') && !path.endsWith('.xml')) {
-    throw new OurError(`Unsupported file extension found on ${path}`)
+    error(`Unsupported file extension found on ${path}`)
+    process.exit(1)
   }
   let text = createTextResponse(await readText(path))
   return [...text.parse().querySelectorAll('[type="rss"]')]
@@ -52,16 +52,18 @@ async function fetchAndParsePosts(feed: OpmlFeed): Promise<void> {
     let textResponse = await task.text(feed.url)
     let candidate: false | PreviewCandidate = getLoaderForText(textResponse)
     if (!candidate) {
-      throw new OurError(`Can not found loader for feed ${feed.url}`)
+      error(`Can not found loader for feed ${feed.url}`)
+      return
     }
     let loader = loaders[candidate.loader]
     let { list } = loader.getPosts(task, feed.url, textResponse).get()
     if (list.length === 0) {
-      throw new OurError(`Can not found posts for feed ${feed.url}`)
+      error(`Can not found posts for feed ${feed.url}`)
+      return
     }
     success(feed.url, list.length + (list.length > 1 ? ' posts' : ' post'))
   } catch (e) {
-    error(e)
+    error(e, `During loading posts for ${feed.url}`)
   }
 }
 
@@ -89,7 +91,12 @@ async function findRSSfromHome(feed: OpmlFeed): Promise<void> {
       )
     }
   } catch (e) {
-    error(e)
+    error(
+      e,
+      `During searching for feed from home URL\n` +
+        `Home URL: ${feed.htmlUrl}\n` +
+        `Feed URL: ${feed.url}`
+    )
   } finally {
     unbindPreview()
   }
