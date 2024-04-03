@@ -241,6 +241,9 @@ importers:
       '@storybook/addon-themes':
         specifier: 8.0.5
         version: 8.0.5
+      '@storybook/addon-viewport':
+        specifier: ^8.0.5
+        version: 8.0.5
       '@storybook/svelte':
         specifier: 8.0.5
         version: 8.0.5(svelte@4.2.12)
@@ -2527,6 +2530,12 @@ packages:
     resolution: {integrity: sha512-NIqjpdU3XwuaUYMp0woE8d8S6d2nlddTU/Q727VqrBJIkMYyqSD1NmoafpHEXiLiPX0bfOxGyD5uhPQCyGUVAw==}
     dependencies:
       ts-dedent: 2.2.0
+    dev: true
+
+  /@storybook/addon-viewport@8.0.5:
+    resolution: {integrity: sha512-Y2sTsNeQctfLBPQYuOjMGSQY4lUycZRZblToU0q6siJ030QjgpuEMcu1yDt654T6jnp/s4VwRS6yaZHnqZ97Mw==}
+    dependencies:
+      memoizerific: 1.11.3
     dev: true
 
   /@storybook/builder-manager@8.0.5:

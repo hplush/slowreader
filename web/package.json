@@ -48,6 +48,7 @@
     "@size-limit/file": "11.1.2",
     "@storybook/addon-svelte-csf": "4.1.2",
     "@storybook/addon-themes": "8.0.5",
+    "@storybook/addon-viewport": "8.0.5",
     "@storybook/svelte": "8.0.5",
     "@storybook/svelte-vite": "8.0.5",
     "better-node-test": "0.5.1",
