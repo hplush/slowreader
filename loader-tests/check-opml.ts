@@ -14,13 +14,13 @@ import {
 import {
   enableTestClient,
   error,
+  exit,
   isString,
   OurError,
   readText,
   success,
   timeout,
-  waitFor,
-  warn
+  waitFor
 } from './utils.js'
 
 interface OpmlFeed {
@@ -52,12 +52,14 @@ async function fetchAndParsePosts(feed: OpmlFeed): Promise<void> {
     let textResponse = await task.text(feed.url)
     let candidate: false | PreviewCandidate = getLoaderForText(textResponse)
     if (!candidate) {
-      throw new OurError(`Loader not found for feed ${feed.title}`)
+      throw new OurError(`Can not found loader for feed ${feed.url}`)
     }
     let loader = loaders[candidate.loader]
-    let { list: posts } = loader.getPosts(task, feed.url, textResponse).get()
-    success(`[Feed] - ${feed.title} - ${feed.url}`)
-    success(`• Found ${posts.length} post(s)\n`)
+    let { list } = loader.getPosts(task, feed.url, textResponse).get()
+    if (list.length === 0) {
+      throw new OurError(`Can not found posts for feed ${feed.url}`)
+    }
+    success(feed.url, list.length + (list.length > 1 ? ' posts' : ' post'))
   } catch (e) {
     error(e)
   }
@@ -68,8 +70,13 @@ async function findRSSfromHome(feed: OpmlFeed): Promise<void> {
   try {
     setPreviewUrl(feed.htmlUrl)
     await timeout(5000, waitFor(previewCandidatesLoading, false))
-    if (previewCandidates.get().length === 0) {
-      warn(`For feed ${feed.title} couldn't find RSS from home url`)
+    if (previewCandidates.get().length > 0) {
+      success(`Feed ${feed.title} was found from home URL`)
+    } else {
+      error(
+        `Can’t find ${feed.title} feed from home URL`,
+        `Home URL: ${feed.htmlUrl}\nFeed URL: ${feed.url}`
+      )
     }
   } catch (e) {
     error(e)
@@ -81,8 +88,10 @@ async function findRSSfromHome(feed: OpmlFeed): Promise<void> {
 enableTestClient()
 
 if (process.argv.length < 3) {
-  error('Please provide a path to the file')
-  error('Example usage: $ pnpm check-opml PATH_TO_YOUR_FILE.opml')
+  error(
+    'Please provide a path to the file',
+    'Example usage:\n$ pnpm check-opml PATH_TO_YOUR_FILE.opml'
+  )
   process.exit(1)
 } else {
   try {
@@ -91,6 +100,7 @@ if (process.argv.length < 3) {
     for (let feed of feeds) {
       await findRSSfromHome(feed)
     }
+    exit()
   } catch (e) {
     error(e)
     process.exit(1)

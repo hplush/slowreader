@@ -73,24 +73,35 @@ export function print(msg: string): void {
   process.stderr.write(`${msg}\n`)
 }
 
-export function error(msg: string | unknown): void {
-  if (typeof msg === 'string') {
-    print(pico.red(msg))
-  } else if (msg instanceof OurError) {
-    print(pico.red(msg.message))
-  } else if (isNoFileError(msg)) {
-    print(pico.red(`File not found: ${msg.path}`))
-  } else if (msg instanceof Error) {
-    print(pico.red(msg.stack))
+let hadError = false
+
+export function error(err: string | unknown, details?: string): void {
+  hadError = true
+  let msg: string
+  if (err instanceof OurError) {
+    msg = err.message
+  } else if (isNoFileError(err)) {
+    msg = `File not found: ${err.path}`
+  } else if (err instanceof Error) {
+    msg = err.stack ?? err.message
+  } else {
+    msg = String(err)
   }
+  print('')
+  print(pico.bold(pico.bgRed(' ERROR ')) + ' ' + pico.red(msg))
+  if (details) print(details)
+  print('')
 }
 
-export function warn(msg: string): void {
-  print(pico.yellow(msg))
+export function exit(): void {
+  process.exit(hadError ? 1 : 0)
 }
 
-export function success(msg: string): void {
-  print(pico.green(msg))
+export function success(msg: string, details?: string): void {
+  if (details) {
+    msg += ` ${pico.gray(details)}`
+  }
+  print(pico.green(pico.bold('✓ ') + msg))
 }
 
 export class OurError extends Error {
