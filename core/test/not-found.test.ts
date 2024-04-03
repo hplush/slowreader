@@ -2,8 +2,8 @@ import { LoguxUndoError } from '@logux/client'
 import { equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 
-import { notFound } from '../index.js'
-import { cleanClientTest, enableClientTest, setBaseRoute } from './utils.js'
+import { notFound, setBaseTestRoute } from '../index.js'
+import { cleanClientTest, enableClientTest } from './utils.js'
 
 let listener: (e: { reason: Error }) => void
 
@@ -22,7 +22,7 @@ afterEach(async () => {
 })
 
 test('listens for not found error', async () => {
-  setBaseRoute({ params: { feed: 'unknown' }, route: 'categories' })
+  setBaseTestRoute({ params: { feed: 'unknown' }, route: 'categories' })
   equal(notFound.get(), false)
 
   listener({
@@ -35,6 +35,6 @@ test('listens for not found error', async () => {
   })
   equal(notFound.get(), true)
 
-  setBaseRoute({ params: { feed: 'another' }, route: 'categories' })
+  setBaseTestRoute({ params: { feed: 'another' }, route: 'categories' })
   equal(notFound.get(), false)
 })

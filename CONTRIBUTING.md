@@ -116,12 +116,13 @@ Read our **[checklist for pull requests](./docs/pull_request_template.md)**. It 
 If you are not just fixing a bug but want to join the core team, here is the path:
 
 1. Your first task is to test `pnpm test` in your environment and report issue.
-2. Go to our [Tasks plan](https://github.com/orgs/hplush/projects/1) and take next task from `Onboarding` column. If `Onboarding` is empty, you can look in `Ready to Take`.
+2. If you have an RSS Reader, export all your subscriptions from your reader in an OPML file. Then run the [`check-opml` script](./loader-tests/README.md#check-loaders-opml-files) and open an issue on any problem.
+3. Go to our [Tasks plan](https://github.com/orgs/hplush/projects/1) and take next task from `Onboarding` column. If `Onboarding` is empty, you can look in `Ready to Take`.
    1. Choose any task that fits the best to you.
    2. Write there `I want to take it`.
    3. The task will be reserved for you for a week.
    4. Don’t worry if a week is not enough. Just make a [draft PR](https://github.blog/2019-02-14-introducing-draft-pull-requests/).
-3. After the onboarding, you can take tasks from the `Ready to Take` column. See the discussions in issues to pick next one.
+4. After the onboarding, you can take tasks from the `Ready to Take` column. See the discussions in issues to pick next one.
 
 Feel free to ask [maintainer](https://t.me/sitnik) about your next task.
 
@@ -156,3 +157,6 @@ There is no any specific rules about git branch names.
 Run `pnpm test` before creating pull request.
 
 Use [`Draft`](https://github.blog/2019-02-14-introducing-draft-pull-requests/) pull request when it is not ready to review. When it will be ready press `Ready for review` button.
+
+After fixing issue mentioned in PR conversation, press `Resolve conversation` button.
+

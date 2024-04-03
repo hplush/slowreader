@@ -133,7 +133,9 @@ function getLoaderForUrl(url: string): false | PreviewCandidate {
   return false
 }
 
-function getLoaderForText(response: TextResponse): false | PreviewCandidate {
+export function getLoaderForText(
+  response: TextResponse
+): false | PreviewCandidate {
   let names = Object.keys(loaders) as LoaderName[]
   let parsed = new URL(response.url)
   for (let name of names) {
@@ -206,12 +208,13 @@ export async function addLink(url: string, deep = false): Promise<void> {
         let byText = getLoaderForText(response)
         if (byText !== false) {
           addCandidate(url, byText)
-        } else {
-          $links.setKey(url, { state: 'unknown' })
         }
         if (!deep) {
           let links = getLinksFromText(response)
           await Promise.all(links.map(i => addLink(i, true)))
+        }
+        if (byText === false) {
+          $links.setKey(url, { state: 'unknown' })
         }
       }
     } catch (error) {

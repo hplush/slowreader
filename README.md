@@ -105,6 +105,7 @@ Slow Reader is a local-first app. Clients do most of the work, and the server ju
 - [`api/`](./api/): types and constants shared between clients and server.
 - [`docs/`](./docs/): guides for developers.
 - [`scripts/`](./scripts/): scripts to test project and configure Google Cloud. Check the script’s descriptions for further details.
+- [`loader-tests/`](./loader-tests/): integration tests for each social network or news format.
 - [`.github/`](./.github/): scripts to test projects on CI.
 - [`.husky/`](./.husky/): scripts to call on `git commit` command to avoid popular errors.
 - [`.vscode/`](./.vscode/): VS Code settings to reduce code format errors for new contributors.
@@ -119,7 +120,7 @@ Global development tools:
 - [Prettier](./.prettierrc) to use the same code style formatting.
 - [TypeScript](./tsconfig.json) for strict type checking.
 - [ESLint](./eslint.config.js) to check for popular mistakes in JavaScript.
-- [remark](./.remarkrc.js) to find mistakes in .md files.
+- [remark](./.remarkrc.js) to find mistakes in `.md` files.
 
 Each project has its own tools, too.
 
@@ -129,6 +130,7 @@ Each project has its own tools, too.
 - `pnpm start`: run proxy and web client development server.
 - `pnpm format`: fix code style in all files.
 - `pnpm clean`: remove all temporary files.
+- `pnpm check-opml`: test loaders with user’s OPML RSS export.
 
 We use pnpm feature to run scripts in parallel, having scripts like `test:types` and `test:audit`. Then, we run all scripts in all projects by `test:*` prefix.
 

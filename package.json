@@ -20,17 +20,19 @@
     "test:messages": "tsx ./scripts/check-messages.ts",
     "test:versions": "tsx ./scripts/check-versions.ts",
     "test:markdown": "remark . --frail",
+    "check-opml": "pnpm --prefix loader-tests check-opml",
     "prepare": "husky"
   },
   "workspaces": [
     "api",
     "core",
     "server",
-    "web"
+    "web",
+    "loader-tests"
   ],
   "devDependencies": {
     "@logux/eslint-config": "53.0.0",
-    "@types/node": "20.11.30",
+    "@types/node": "20.12.2",
     "@types/ws": "8.5.10",
     "better-node-test": "0.5.1",
     "eslint": "8.57.0",
@@ -46,7 +48,7 @@
     "remark-validate-links": "^13.0.0",
     "stylelint": "16.3.1",
     "svelte": "4.2.12",
-    "svelte-check": "3.6.8",
+    "svelte-check": "3.6.9",
     "svgo": "3.2.0",
     "tsx": "4.7.1",
     "typescript": "5.4.3"

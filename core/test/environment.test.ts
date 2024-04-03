@@ -2,8 +2,12 @@ import { atom } from 'nanostores'
 import { deepStrictEqual, equal, throws } from 'node:assert'
 import { test } from 'node:test'
 
-import { getEnvironment, onEnvironment, setupEnvironment } from '../index.js'
-import { getTestEnvironment } from './utils.js'
+import {
+  getEnvironment,
+  getTestEnvironment,
+  onEnvironment,
+  setupEnvironment
+} from '../index.js'
 
 test('throws on current environment if it is not set', () => {
   throws(() => {

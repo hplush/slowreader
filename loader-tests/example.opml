@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+  <head>
+    <title>Feeds</title>
+  </head>
+  <body>
+    <outline text="AppSignal" xmlUrl="https://blog.appsignal.com/feed.xml"
+      htmlUrl="https://blog.appsignal.com" type="rss" title="AppSignal" />
+    <outline type="rss" text="Bartosz Ciechanowski" htmlUrl="https://ciechanow.ski/"
+      xmlUrl="https://ciechanow.ski/atom.xml" title="Bartosz Ciechanowski" />
+    <outline text="Fabien Sanglard" xmlUrl="https://fabiensanglard.net/rss.xml"
+      type="rss" title="Fabien Sanglard" htmlUrl="https://fabiensanglard.net" />
+    <outline htmlUrl="https://fs.blog/" title="Farnam Street"
+      text="Farnam Street" type="rss" xmlUrl="https://fs.blog/rss" />
+    <outline text="Ferd.ca" title="Ferd.ca" xmlUrl="https://ferd.ca/feed.rss"
+       type="rss" htmlUrl="https://ferd.ca/" />
+    <outline title="Hauleth's blog" type="rss" text="Hauleth's blog"
+      htmlUrl="https://hauleth.dev/atom.xml" xmlUrl="https://hauleth.dev/atom.xml" />
+    <outline title="Južne vesti" type="rss" text="Južne vesti"
+      htmlUrl="https://www.juznevesti.com/" xmlUrl="https://feeds.feedburner.com/juznevesti" />
+    <outline htmlUrl="https://www.krik.rs/" text="KRIK"
+      xmlUrl="https://krik.rs/rss" title="KRIK" type="rss" />
+    <outline title="Netokracija.rs" xmlUrl="https://www.netokracija.rs/feed"
+      text="Netokracija.rs" type="rss" htmlUrl="https://www.netokracija.rs" />
+    <outline title="overreacted — A blog by Dan Abramov"
+      text="overreacted — A blog by Dan Abramov" type="rss"
+      htmlUrl="https://overreacted.io/" xmlUrl="https://overreacted.io/rss.xml" />
+    <outline type="rss" text="The Fly Blog" htmlUrl="https://fly.io/blog/"
+      xmlUrl="https://fly.io/blog/feed.xml" title="The Fly Blog" />
+    <outline type="rss" title="Wikipedia: Portal: Current events"
+      htmlUrl="https://en.wikipedia.org/wiki/Portal:Current_events"
+      text="Wikipedia: Portal: Current events"
+      xmlUrl="https://www.to-rss.xyz/wikipedia/current_events/" />
+    <outline title="Zero Credibility" htmlUrl="https://www.spakhm.com"
+      text="Zero Credibility" type="rss" xmlUrl="https://www.spakhm.com/feed/" />
+  </body>
+</opml>
