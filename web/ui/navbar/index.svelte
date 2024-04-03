@@ -116,7 +116,7 @@
   <div
     id="navbar_submenu"
     class="navbar_submenu"
-    class:navbar_submenu_opened={isMenuOpened}
+    class:is-opened={isMenuOpened}
     aria-hidden="true"
     role="menu"
   >
@@ -184,10 +184,10 @@
       display: none;
       order: -1;
     }
-  }
 
-  .navbar_submenu_opened {
-    display: flex;
+    &.is-opened {
+      display: flex;
+    }
   }
 
   .navbar_switcher {
