@@ -14,7 +14,7 @@ import {
 import {
   enableTestClient,
   error,
-  exit,
+  finish,
   isString,
   OurError,
   readText,
@@ -69,7 +69,7 @@ async function findRSSfromHome(feed: OpmlFeed): Promise<void> {
   let unbindPreview = previewCandidates.listen(() => {})
   try {
     setPreviewUrl(feed.htmlUrl)
-    await timeout(5000, waitFor(previewCandidatesLoading, false))
+    await timeout(10_000, waitFor(previewCandidatesLoading, false))
     if (previewCandidates.get().some(c => c.url === feed.url)) {
       success(`Feed ${feed.title} has no feeds at home URL`)
     } else if (previewCandidates.get().length === 0) {
@@ -110,7 +110,7 @@ if (process.argv.length < 3) {
     for (let feed of feeds) {
       await findRSSfromHome(feed)
     }
-    exit()
+    finish(`${feeds.length} ${feeds.length === 1 ? 'feed' : 'feeds'} checked`)
   } catch (e) {
     error(e)
     process.exit(1)

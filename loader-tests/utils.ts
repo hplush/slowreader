@@ -73,10 +73,10 @@ export function print(msg: string): void {
   process.stderr.write(`${msg}\n`)
 }
 
-let hadError = false
+let errors = 0
 
 export function error(err: string | unknown, details?: string): void {
-  hadError = true
+  errors += 1
   let msg: string
   if (err instanceof OurError) {
     msg = err.message
@@ -88,13 +88,19 @@ export function error(err: string | unknown, details?: string): void {
     msg = String(err)
   }
   print('')
-  print(pico.bold(pico.bgRed(' ERROR ')) + ' ' + pico.red(msg))
+  print(pico.bold(pico.bgRed(' ERROR ')) + ' ' + pico.bold(pico.red(msg)))
   if (details) print(details)
   print('')
 }
 
-export function exit(): void {
-  process.exit(hadError ? 1 : 0)
+export function finish(msg: string): void {
+  print('')
+  let postfix = ''
+  if (errors > 0) {
+    postfix = ', ' + pico.red(pico.bold(`${errors} errors found`))
+  }
+  print(pico.gray(msg + postfix))
+  process.exit(errors > 0 ? 1 : 0)
 }
 
 export function success(msg: string, details?: string): void {
