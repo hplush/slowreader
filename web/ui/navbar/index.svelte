@@ -31,8 +31,12 @@
     }
   })
 
-  function changeMenuVisibility() {
-    isMenuOpened = !isMenuOpened
+  function openMenu(): void {
+    isMenuOpened = true
+  }
+
+  function closeMenu(): void {
+    isMenuOpened = false
   }
 </script>
 
@@ -69,6 +73,7 @@
         aria-keyshortcuts="s"
         href={getURL('slow')}
         role="menuitem"
+        on:click={openMenu}
       >
         <div class="navbar_overflow">
           <div class="navbar_button">
@@ -86,6 +91,7 @@
         aria-keyshortcuts="f"
         href={getURL('fast')}
         role="menuitem"
+        on:click={openMenu}
       >
         <div class="navbar_overflow">
           <div class="navbar_button">
@@ -104,22 +110,22 @@
       icon={mdiMenu}
       small
       submenu
-      on:click={changeMenuVisibility}
+      on:click={openMenu}
     />
   </div>
   <div
     id="navbar_submenu"
     class="navbar_submenu"
-    class:navbar_submenu_opened={isMenuOpened || !isOtherRoute($router)}
+    class:navbar_submenu_opened={isMenuOpened}
     aria-hidden="true"
     role="menu"
   >
     {#if isSlowRoute($router)}
       <NavbarSlow />
     {:else if isFastRoute($router)}
-      <NavbarFast />
+      <NavbarFast on:click={closeMenu} />
     {:else if isOtherRoute($router)}
-      <NavbarOther on:click={changeMenuVisibility} />
+      <NavbarOther on:click={closeMenu} />
     {/if}
   </div>
 </nav>
@@ -132,6 +138,7 @@
 
   :global(:root.has-navbar) {
     --navbar-width: 290px;
+    --navbar-height: 56px;
   }
 
   .navbar {
@@ -148,6 +155,7 @@
       bottom: 0;
       width: 100%;
       background-color: var(--land-color);
+      box-shadow: 0 -1px 0 oklch(from var(--shadow-color) l c h / 8%);
     }
   }
 
@@ -175,8 +183,6 @@
     @media (width <=1024px) {
       display: none;
       order: -1;
-      border-radius: var(--radius);
-      box-shadow: 0 -5px 5px oklch(from var(--shadow-color) l c h / 8%);
     }
   }
 
