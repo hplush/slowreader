@@ -13,6 +13,7 @@ Fixes # (issue)
 ## Checklist
 
 - [ ] Don’t rush. Check all changes in PR again.
+- [ ] Run `pnpm test`.
 - [ ] Think about changing documentation.
   - If you added a script to `scripts/`, add a comment with a description.
   - If you added a new folder, add its description to the project’s `README.md`.

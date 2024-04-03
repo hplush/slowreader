@@ -1,4 +1,3 @@
-import { setupEnvironment } from '../index.js'
-import { getTestEnvironment } from './utils.js'
+import { getTestEnvironment, setupEnvironment } from '../index.js'
 
 setupEnvironment(getTestEnvironment())

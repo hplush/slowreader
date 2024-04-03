@@ -18,5 +18,6 @@ jobs:
         run: |
           if [[ `git status --porcelain` ]]; then
             echo "Uncommitted changes found after running format"
+            git status
             exit 1
           fi

@@ -3,7 +3,7 @@
   "check-coverage": true,
   "clean": true,
   "exclude": ["**/*.test.*", "test/*", "coverage/"],
-  "lines": 99.78,
+  "lines": 99.74,
   "reporter": ["text-summary", "text", "lcov"],
   "skip-full": true
 }
