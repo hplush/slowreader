@@ -156,6 +156,7 @@ There is no any specific rules about git branch names.
 
 Run `pnpm test` before creating pull request.
 
-Use [`Draft`](<(https://github.blog/2019-02-14-introducing-draft-pull-requests/)>) pull request when it is not ready to review. When it will be ready press `Ready for review` button.
+Use [`Draft`](https://github.blog/2019-02-14-introducing-draft-pull-requests/) pull request when it is not ready to review. When it will be ready press `Ready for review` button.
 
 After fixing issue mentioned in PR conversation, press `Resolve conversation` button.
+

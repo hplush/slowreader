@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --ignore-scripts
       - name: Run tests
-        run: pnpm test
+        run: pnpm run -r --include-workspace-root '/^test:(?!markdown\b)/'
         env:
           FORCE_COLOR: 1
       - name: Upload web assets

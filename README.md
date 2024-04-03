@@ -120,6 +120,7 @@ Global development tools:
 - [Prettier](./.prettierrc) to use the same code style formatting.
 - [TypeScript](./tsconfig.json) for strict type checking.
 - [ESLint](./eslint.config.js) to check for popular mistakes in JavaScript.
+- [remark](./.remarkrc.js) to find mistakes in `.md` files.
 
 Each project has its own tools, too.
 

@@ -19,6 +19,7 @@
     "test:focused": "tsx ./scripts/check-focused-tests.ts",
     "test:messages": "tsx ./scripts/check-messages.ts",
     "test:versions": "tsx ./scripts/check-versions.ts",
+    "test:markdown": "remark . --frail",
     "check-opml": "tsx loader-tests/check-opml.ts",
     "prepare": "husky"
   },
@@ -42,6 +43,9 @@
     "postcss-html": "1.6.0",
     "prettier": "3.2.5",
     "prettier-plugin-svelte": "3.2.2",
+    "remark-cli": "^12.0.0",
+    "remark-lint-no-dead-urls": "^1.1.0",
+    "remark-validate-links": "^13.0.0",
     "stylelint": "16.3.1",
     "svelte": "4.2.12",
     "svelte-check": "3.6.9",
