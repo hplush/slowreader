@@ -60,12 +60,8 @@
 
   .formatted-text :global(a) {
     color: var(--link-color);
-    text-decoration: none;
     word-wrap: break-word;
     opacity: 100%;
-    transition:
-      color 0.2s ease-in-out,
-      opacity 0.2s ease-in-out;
   }
 
   .formatted-text :global(a:visited) {
@@ -74,11 +70,10 @@
 
   .formatted-text :global(a:hover) {
     opacity: 85%;
-    transition: opacity 0.2s ease-in-out;
   }
 
   .formatted-text :global(a:active) {
-    color: var(--link-color-active);
+    opacity: 87%;
   }
 
   .formatted-text :global(em) {
@@ -164,7 +159,7 @@
     padding: 0.2em 0.4em;
     font-size: 85%;
     white-space: break-spaces;
-    background-color: var(--code-inline-bg-color);
+    background-color: var(--inline-code-color);
     border-radius: 6px;
   }
 

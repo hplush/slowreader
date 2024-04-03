@@ -48,7 +48,8 @@
   let unorderedList =
     '<ul>\n' +
     '  <li>Simple list item</li>\n' +
-    '  <li><a href="https://example.com">Item with link</a></li>\n' +
+    '  <li><a href="https://example + random + .com">Item with not visited link</a></li>\n' +
+    '  <li><a href="">Item with visited link</a></li>\n' +
     '  <li><strong>Strong list item</strong></li>\n' +
     '  <li>Item <i>with itallic formatt</i></li>\n' +
     '</ul>'
