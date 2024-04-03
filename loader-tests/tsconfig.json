@@ -1,9 +1,0 @@
-{
-  "extends": "../tsconfig.json",
-  "compilerOptions": {
-    "baseUrl": "./",
-    "paths": {
-      "@slowreader/core": ["node_modules/@slowreader/core/index"]
-    }
-  }
-}

@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "tsx index.ts"
+    "check-opml": "tsx check-opml.ts"
   },
   "devDependencies": {
     "@slowreader/core": "link:../core",

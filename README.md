@@ -129,6 +129,7 @@ Each project has its own tools, too.
 - `pnpm start`: run proxy and web client development server.
 - `pnpm format`: fix code style in all files.
 - `pnpm clean`: remove all temporary files.
+- `pnpm check-opml`: test loaders with user’s OPML RSS export.
 
 We use pnpm feature to run scripts in parallel, having scripts like `test:types` and `test:audit`. Then, we run all scripts in all projects by `test:*` prefix.
 

@@ -19,7 +19,7 @@
     "test:focused": "tsx ./scripts/check-focused-tests.ts",
     "test:messages": "tsx ./scripts/check-messages.ts",
     "test:versions": "tsx ./scripts/check-versions.ts",
-    "feed-loader": "pnpm --prefix loader-tests start",
+    "check-opml": "pnpm --prefix loader-tests check-opml",
     "prepare": "husky"
   },
   "workspaces": [
