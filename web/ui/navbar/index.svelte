@@ -22,12 +22,18 @@
   import NavbarProgress from './progress.svelte'
   import NavbarSlow from './slow.svelte'
 
+  let isMenuOpened = false
+
   onMount(() => {
     document.documentElement.classList.add('has-navbar')
     return () => {
       document.documentElement.classList.remove('has-navbar')
     }
   })
+
+  function changeMenuVisibility() {
+    isMenuOpened = !isMenuOpened
+  }
 </script>
 
 <nav class="navbar">
@@ -94,15 +100,17 @@
       name={$t.menu}
       current={isOtherRoute($router)}
       hotkey="m"
-      href={getURL('add')}
+      href={isOtherRoute($router) ? undefined : getURL('add')}
       icon={mdiMenu}
       small
       submenu
+      on:click={changeMenuVisibility}
     />
   </div>
   <div
     id="navbar_submenu"
     class="navbar_submenu"
+    class:navbar_submenu_opened={isMenuOpened || !isOtherRoute($router)}
     aria-hidden="true"
     role="menu"
   >
@@ -111,7 +119,7 @@
     {:else if isFastRoute($router)}
       <NavbarFast />
     {:else if isOtherRoute($router)}
-      <NavbarOther />
+      <NavbarOther on:click={changeMenuVisibility} />
     {/if}
   </div>
 </nav>
@@ -134,6 +142,13 @@
     display: flex;
     flex-direction: column;
     width: var(--navbar-width);
+
+    @media (width <=1024px) {
+      inset-block: unset;
+      bottom: 0;
+      width: 100%;
+      background-color: var(--land-color);
+    }
   }
 
   .navbar_main {
@@ -141,6 +156,10 @@
     gap: var(--padding-s);
     justify-content: stretch;
     padding: var(--padding-m) var(--padding-m) 0 var(--padding-m);
+
+    @media (width <=1024px) {
+      padding: var(--padding-m);
+    }
   }
 
   .navbar_submenu {
@@ -152,6 +171,17 @@
     gap: 2px;
     padding: var(--padding-m);
     overflow-y: auto;
+
+    @media (width <=1024px) {
+      display: none;
+      order: -1;
+      border-radius: var(--radius);
+      box-shadow: 0 -5px 5px oklch(from var(--shadow-color) l c h / 8%);
+    }
+  }
+
+  .navbar_submenu_opened {
+    display: flex;
   }
 
   .navbar_switcher {
