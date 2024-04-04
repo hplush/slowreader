@@ -34,7 +34,6 @@
     "keyux": "0.6.2",
     "nanoid": "5.0.6",
     "nanostores": "0.10.2",
-    "picocolors": "1.0.0",
     "postcss": "8.4.38",
     "postcss-relative-opacity": "0.1.0",
     "rollup": "4.14.0",
