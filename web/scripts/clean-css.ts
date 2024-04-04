@@ -5,14 +5,14 @@
 
 import { lstat, readdir, readFile, writeFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
-import pico from 'picocolors'
+import { styleText } from 'node:util'
 import postcss from 'postcss'
 
 import { rootsMerger } from '../postcss/roots-merger.js'
 import { getVarsCleanerError, varsCleaner } from '../postcss/vars-cleaner.js'
 
 function printError(message: string | undefined): void {
-  process.stderr.write(pico.red(message) + '\n')
+  process.stderr.write(styleText('red', message) + '\n')
 }
 
 async function processCss(dir: string): Promise<void> {

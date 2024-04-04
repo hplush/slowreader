@@ -9,7 +9,7 @@ import {
 import type { ReadableAtom } from 'nanostores'
 import { readFile } from 'node:fs/promises'
 import { isAbsolute, join } from 'node:path'
-import pico from 'picocolors'
+import { styleText } from 'node:util'
 
 export async function readText(path: string): Promise<string> {
   let absolute = path
@@ -86,7 +86,11 @@ export function error(err: string | unknown, details?: string): void {
     msg = String(err)
   }
   print('')
-  print(pico.bold(pico.bgRed(' ERROR ')) + ' ' + pico.bold(pico.red(msg)))
+  print(
+    styleText('bold', styleText('bgRed', ' ERROR ')) +
+      ' ' +
+      styleText('bold', styleText('red', msg))
+  )
   if (details) print(details)
   print('')
 }
@@ -95,15 +99,16 @@ export function finish(msg: string): void {
   print('')
   let postfix = ''
   if (errors > 0) {
-    postfix = ', ' + pico.red(pico.bold(`${errors} errors found`))
+    postfix =
+      ', ' + styleText('red', styleText('bold', `${errors} errors found`))
   }
-  print(pico.gray(msg + postfix))
+  print(styleText('gray', msg + postfix))
   process.exit(errors > 0 ? 1 : 0)
 }
 
 export function success(msg: string, details?: string): void {
   if (details) {
-    msg += ` ${pico.gray(details)}`
+    msg += ` ${styleText('gray', details)}`
   }
-  print(pico.green(pico.bold('✓ ') + msg))
+  print(styleText('green', styleText('bold', '✓ ') + msg))
 }

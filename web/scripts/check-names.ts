@@ -4,7 +4,7 @@
 
 import { lstat, readdir, readFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
-import pico from 'picocolors'
+import { styleText } from 'node:util'
 import postcss from 'postcss'
 import postcssHtml from 'postcss-html'
 import nesting from 'postcss-nesting'
@@ -100,10 +100,11 @@ async function processComponents(dir: string, base: string): Promise<void> {
                 !isModifier(node, prefix)
               ) {
                 let line = rule.source!.start!.line
-                process.stderr.write(pico.yellow(`${path}:${line}\n`))
+                process.stderr.write(styleText('yellow', `${path}:${line}\n`))
                 process.stderr.write(
-                  pico.red(
-                    `Selector ${pico.yellow('.' + node.value)} does not ` +
+                  styleText(
+                    'red',
+                    `Selector ${styleText('yellow', '.' + node.value)} does not ` +
                       `follow our BEM name system\n`
                   )
                 )

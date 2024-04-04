@@ -32,9 +32,6 @@ importers:
       nano-staged:
         specifier: 0.8.0
         version: 0.8.0
-      picocolors:
-        specifier: 1.0.0
-        version: 1.0.0
       postcss-html:
         specifier: 1.6.0
         version: 1.6.0
@@ -137,18 +134,12 @@ importers:
       nanostores:
         specifier: 0.10.2
         version: 0.10.2
-      picocolors:
-        specifier: 1.0.0
-        version: 1.0.0
       tsx:
         specifier: 4.7.1
         version: 4.7.1
 
   proxy:
     dependencies:
-      picocolors:
-        specifier: 1.0.0
-        version: 1.0.0
       tsx:
         specifier: 4.7.1
         version: 4.7.1
@@ -213,9 +204,6 @@ importers:
       nanostores:
         specifier: 0.10.2
         version: 0.10.2
-      picocolors:
-        specifier: 1.0.0
-        version: 1.0.0
       postcss:
         specifier: 8.4.38
         version: 8.4.38
