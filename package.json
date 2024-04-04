@@ -12,7 +12,7 @@
     "start": "FORCE_COLOR=1 pnpm run -r start",
     "format": "pnpm run -r --include-workspace-root /^format:/",
     "clean": "pnpm run -r --include-workspace-root /^clean:/",
-    "format:prettier": "prettier -w **/*.{js,ts,html,md,cjs,json} *.md *.json",
+    "format:prettier": "prettier -w **/*.{js,ts,html,md,cjs,json} *.{js,json,md}",
     "test:js": "eslint .",
     "test:types": "svelte-check",
     "test:audit": "pnpm audit --prod",
@@ -20,6 +20,7 @@
     "test:messages": "tsx ./scripts/check-messages.ts",
     "test:versions": "tsx ./scripts/check-versions.ts",
     "test:markdown": "remark . --frail",
+    "test:format": "prettier --check **/*.{js,ts,html,md,cjs,json} *.{js,json,md}",
     "check-opml": "tsx loader-tests/check-opml.ts",
     "prepare": "husky"
   },
