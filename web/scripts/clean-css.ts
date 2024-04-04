@@ -11,7 +11,7 @@ import postcss from 'postcss'
 import { rootsMerger } from '../postcss/roots-merger.js'
 import { getVarsCleanerError, varsCleaner } from '../postcss/vars-cleaner.js'
 
-function printError(message: string | undefined): void {
+function printError(message: string): void {
   process.stderr.write(styleText('red', message) + '\n')
 }
 
@@ -39,7 +39,7 @@ async function processCss(dir: string): Promise<void> {
           } else if (e.name === 'CssSyntaxError') {
             printError(e.message)
           } else {
-            printError(e.stack)
+            printError(e.stack ?? e.message)
           }
           process.exit(1)
         }
@@ -54,7 +54,8 @@ const cssCleaner = postcss([rootsMerger, varsCleaner])
 
 await processCss(ASSETS)
 
-if (getVarsCleanerError()) {
-  printError(getVarsCleanerError())
+let error = getVarsCleanerError()
+if (error) {
+  printError(error)
   process.exit(1)
 }

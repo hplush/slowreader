@@ -25,7 +25,7 @@ const server = createServer(async (req, res) => {
     res.end()
   } catch (e) {
     if (e instanceof Error) {
-      process.stderr.write(styleText('red', e.stack) + '\n')
+      process.stderr.write(styleText('red', e.stack ?? e.message) + '\n')
       if (!sent) {
         res.writeHead(500, { 'Content-Type': 'text/plain' })
         res.end('Internal Server Error')
