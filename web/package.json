@@ -50,6 +50,7 @@
     "@storybook/addon-themes": "8.0.5",
     "@storybook/svelte": "8.0.5",
     "@storybook/svelte-vite": "8.0.5",
+    "@stylistic/stylelint-config": "1.0.1",
     "better-node-test": "0.5.1",
     "browserslist": "4.23.0",
     "postcss-html": "1.6.0",
