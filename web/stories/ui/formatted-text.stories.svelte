@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
-  import imgExample2 from '../../public/stories-assets/images/long_width_example.avif'
-  import imgExample1 from '../../public/stories-assets/images/short_width_example.png'
   import FormattedText from '../../ui/formatted-text.svelte'
+  import imgExample2 from '../assets/long_width_example.jpeg'
+  import imgExample1 from '../assets/short_width_example.png'
 
   export const meta = {
     component: FormattedText,
