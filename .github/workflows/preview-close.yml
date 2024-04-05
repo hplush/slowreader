@@ -12,6 +12,7 @@ on:
       - './.husky/**'
       - './.github/**'
       - './core/test/**'
+      - './loader-tests/**'
 jobs:
   close:
     name: Close

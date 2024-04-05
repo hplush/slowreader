@@ -9,7 +9,7 @@ import {
 import type { ReadableAtom } from 'nanostores'
 import { readFile } from 'node:fs/promises'
 import { isAbsolute, join } from 'node:path'
-import pico from 'picocolors'
+import { styleText } from 'node:util'
 
 export async function readText(path: string): Promise<string> {
   let absolute = path
@@ -40,7 +40,7 @@ export function timeout<Value>(
     promise,
     new Promise<Value>((resolve, reject) =>
       setTimeout(() => {
-        reject(new OurError('Timeout'))
+        reject(new Error('Timeout'))
       }, ms)
     )
   ])
@@ -73,30 +73,42 @@ export function print(msg: string): void {
   process.stderr.write(`${msg}\n`)
 }
 
-export function error(msg: string | unknown): void {
-  if (typeof msg === 'string') {
-    print(pico.red(msg))
-  } else if (msg instanceof OurError) {
-    print(pico.red(msg.message))
-  } else if (isNoFileError(msg)) {
-    print(pico.red(`File not found: ${msg.path}`))
-  } else if (msg instanceof Error) {
-    print(pico.red(msg.stack))
+let errors = 0
+
+export function error(err: string | unknown, details?: string): void {
+  errors += 1
+  let msg: string
+  if (isNoFileError(err)) {
+    msg = `File not found: ${err.path}`
+  } else if (err instanceof Error) {
+    msg = err.stack ?? err.message
+  } else {
+    msg = String(err)
   }
+  print('')
+  print(
+    styleText('bold', styleText('bgRed', ' ERROR ')) +
+      ' ' +
+      styleText('bold', styleText('red', msg))
+  )
+  if (details) print(details)
+  print('')
 }
 
-export function warn(msg: string): void {
-  print(pico.yellow(msg))
-}
-
-export function success(msg: string): void {
-  print(pico.green(msg))
-}
-
-export class OurError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = this.constructor.name
-    Error.captureStackTrace(this, this.constructor)
+export function finish(msg: string): void {
+  print('')
+  let postfix = ''
+  if (errors > 0) {
+    postfix =
+      ', ' + styleText('red', styleText('bold', `${errors} errors found`))
   }
+  print(styleText('gray', msg + postfix))
+  process.exit(errors > 0 ? 1 : 0)
+}
+
+export function success(msg: string, details?: string): void {
+  if (details) {
+    msg += ` ${styleText('gray', details)}`
+  }
+  print(styleText('green', styleText('bold', '✓ ') + msg))
 }

@@ -14,13 +14,12 @@ import {
 import {
   enableTestClient,
   error,
+  finish,
   isString,
-  OurError,
   readText,
   success,
   timeout,
-  waitFor,
-  warn
+  waitFor
 } from './utils.js'
 
 interface OpmlFeed {
@@ -31,7 +30,8 @@ interface OpmlFeed {
 
 async function parseFeedsFromFile(path: string): Promise<OpmlFeed[]> {
   if (!path.endsWith('.opml') && !path.endsWith('.xml')) {
-    throw new OurError(`Unsupported file extension found on ${path}`)
+    error(`Unsupported file extension found on ${path}`)
+    process.exit(1)
   }
   let text = createTextResponse(await readText(path))
   return [...text.parse().querySelectorAll('[type="rss"]')]
@@ -52,14 +52,18 @@ async function fetchAndParsePosts(feed: OpmlFeed): Promise<void> {
     let textResponse = await task.text(feed.url)
     let candidate: false | PreviewCandidate = getLoaderForText(textResponse)
     if (!candidate) {
-      throw new OurError(`Loader not found for feed ${feed.title}`)
+      error(`Can not found loader for feed ${feed.url}`)
+      return
     }
     let loader = loaders[candidate.loader]
-    let { list: posts } = loader.getPosts(task, feed.url, textResponse).get()
-    success(`[Feed] - ${feed.title} - ${feed.url}`)
-    success(`• Found ${posts.length} post(s)\n`)
+    let { list } = loader.getPosts(task, feed.url, textResponse).get()
+    if (list.length === 0) {
+      error(`Can not found posts for feed ${feed.url}`)
+      return
+    }
+    success(feed.url, list.length + (list.length > 1 ? ' posts' : ' post'))
   } catch (e) {
-    error(e)
+    error(e, `During loading posts for ${feed.url}`)
   }
 }
 
@@ -67,12 +71,32 @@ async function findRSSfromHome(feed: OpmlFeed): Promise<void> {
   let unbindPreview = previewCandidates.listen(() => {})
   try {
     setPreviewUrl(feed.htmlUrl)
-    await timeout(5000, waitFor(previewCandidatesLoading, false))
-    if (previewCandidates.get().length === 0) {
-      warn(`For feed ${feed.title} couldn't find RSS from home url`)
+    await timeout(10_000, waitFor(previewCandidatesLoading, false))
+    if (previewCandidates.get().some(c => c.url === feed.url)) {
+      success(`Feed ${feed.title} has no feeds at home URL`)
+    } else if (previewCandidates.get().length === 0) {
+      error(
+        `Can’t find any feed from home URL or ${feed.title}`,
+        `Home URL: ${feed.htmlUrl}\nFeed URL: ${feed.url}`
+      )
+    } else {
+      error(
+        `Can’t find ${feed.title} feed from home URL`,
+        `Home URL: ${feed.htmlUrl}\n` +
+          `Found: ${previewCandidates
+            .get()
+            .map(i => i.url)
+            .join('\n       ')}\n` +
+          `Feed URL: ${feed.url}`
+      )
     }
   } catch (e) {
-    error(e)
+    error(
+      e,
+      `During searching for feed from home URL\n` +
+        `Home URL: ${feed.htmlUrl}\n` +
+        `Feed URL: ${feed.url}`
+    )
   } finally {
     unbindPreview()
   }
@@ -81,8 +105,10 @@ async function findRSSfromHome(feed: OpmlFeed): Promise<void> {
 enableTestClient()
 
 if (process.argv.length < 3) {
-  error('Please provide a path to the file')
-  error('Example usage: $ pnpm check-opml PATH_TO_YOUR_FILE.opml')
+  error(
+    'Please provide a path to the file',
+    'Example usage:\n$ pnpm check-opml PATH_TO_YOUR_FILE.opml'
+  )
   process.exit(1)
 } else {
   try {
@@ -91,6 +117,7 @@ if (process.argv.length < 3) {
     for (let feed of feeds) {
       await findRSSfromHome(feed)
     }
+    finish(`${feeds.length} ${feeds.length === 1 ? 'feed' : 'feeds'} checked`)
   } catch (e) {
     error(e)
     process.exit(1)
