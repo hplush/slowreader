@@ -6,6 +6,6 @@
     "start": "tsx ./index.ts"
   },
   "dependencies": {
-    "tsx": "4.7.1"
+    "tsx": "4.7.2"
   }
 }

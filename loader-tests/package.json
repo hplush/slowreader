@@ -8,7 +8,7 @@
   "devDependencies": {
     "@slowreader/core": "link:../core",
     "jsdom": "24.0.0",
-    "nanostores": "0.10.2",
-    "tsx": "4.7.1"
+    "nanostores": "0.10.3",
+    "tsx": "4.7.2"
   }
 }
