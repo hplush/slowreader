@@ -5,6 +5,7 @@ import { fastCategories } from './fast.js'
 import { hasFeeds } from './feed.js'
 import { computeFrom, readonlyExport } from './lib/stores.js'
 import { userId } from './settings.js'
+import { slowFeeds } from './slow.js'
 
 export interface Routes {
   about: {}
@@ -20,7 +21,7 @@ export interface Routes {
   refresh: {}
   settings: {}
   signin: {}
-  slow: { feed?: string; post?: string }
+  slow: { feed?: string; post?: string; since?: number }
   start: {}
   subscriptions: {}
   welcome: {}
@@ -86,8 +87,8 @@ export const router = readonlyExport($router)
 onEnvironment(({ baseRouter }) => {
   return computeFrom(
     $router,
-    [baseRouter, userId, hasFeeds, fastCategories],
-    (page, user, withFeeds, fast) => {
+    [baseRouter, userId, hasFeeds, fastCategories, slowFeeds],
+    (page, user, withFeeds, fast, slow) => {
       if (!page) {
         return open('notFound')
       } else if (user) {
@@ -130,6 +131,37 @@ onEnvironment(({ baseRouter }) => {
                   since
                 },
                 route: 'fast'
+              })
+            } else {
+              return open('notFound')
+            }
+          }
+        } else if (page.route === 'slow') {
+          if (!page.params.feed && !slow.isLoading) {
+            return redirect({
+              params: { feed: slow.feeds[0]?.id || '' },
+              route: 'slow'
+            })
+          }
+          if (page.params.feed && !slow.isLoading) {
+            let feed = slow.feeds.find(f => f.id === page.params.feed)
+            if (!feed) {
+              return open('notFound')
+            }
+          }
+
+          if (page.params.since) {
+            if (isNumber(page.params.since)) {
+              let since =
+                typeof page.params.since === 'number'
+                  ? page.params.since
+                  : parseInt(page.params.since)
+              return open({
+                params: {
+                  ...page.params,
+                  since
+                },
+                route: 'slow'
               })
             } else {
               return open('notFound')
