@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
   import FormattedText from '../../ui/formatted-text.svelte'
-  import imgExample2 from '../assets/long_width_example.jpeg'
-  import imgExample1 from '../assets/short_width_example.png'
+  import imgExample2 from '../assets/long_width_example.avif'
+  import imgExample1 from '../assets/short_width_example.avif'
 
   export const meta = {
     component: FormattedText,
@@ -45,11 +45,17 @@
     '  <p><sub>Subscript text</sub> and <sup>superscript text</sup> can also be used for scientific notation.</p>\n' +
     '  <p>For more information, visit our <a href="https://example.com">website</a>.</p>\n'
 
+  // get document.referrer if our story inside iframe
+  const currHref =
+    window.location !== window.parent.location
+      ? document.referrer
+      : document.location.href
+
   let unorderedList =
     '<ul>\n' +
     '  <li>Simple list item</li>\n' +
-    '  <li><a href="https://example + random + .com">Item with not visited link</a></li>\n' +
-    '  <li><a href="">Item with visited link</a></li>\n' +
+    `  <li><a href="https://example${Math.round(Math.random() * 1000)}.com">Item with not visited link</a></li>\n` +
+    `  <li><a href="${currHref}">Item with visited link</a></li>\n` +
     '  <li><strong>Strong list item</strong></li>\n' +
     '  <li>Item <i>with itallic formatt</i></li>\n' +
     '</ul>'

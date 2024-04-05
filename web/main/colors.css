@@ -46,7 +46,7 @@
     --field-color: oklch(100% 0 0);
     --field-shadow: inset 0 1px 2px oklch(from var(--shadow-color) l c h / 8%);
     --link-color: var(--blue-700);
-    --link-color-visited: var(--violet-700);
+    --link-color-visited: var(--fuchsia-700);
     --inline-code-color: oklch(from var(--neutral-200) l c h / 55%);
   }
 
@@ -82,7 +82,7 @@
     --field-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));
     --field-shadow: inset 0 1px 2px oklch(0% 0 0 / 60%);
     --link-color: var(--blue-400);
-    --link-color-visited: var(--violet-400);
+    --link-color-visited: var(--fuchsia-400);
     --inline-code-color: oklch(from var(--zinc-800) l c h / 60%);
   }
 }
