@@ -1,0 +1,20 @@
+export default {
+  a: true,
+  an: true,
+  the: true,
+  and: true,
+  but: true,
+  or: true,
+  nor: true,
+  for: true,
+  so: true,
+  yet: true,
+  to: true,
+  as: true,
+  at: true,
+  by: true,
+  in: true,
+  of: true,
+  on: true,
+  with: true
+}
