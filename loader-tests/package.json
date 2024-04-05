@@ -1,0 +1,14 @@
+{
+  "name": "@slowreader/loader-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check-opml": "tsx check-opml.ts"
+  },
+  "devDependencies": {
+    "@slowreader/core": "link:../core",
+    "jsdom": "24.0.0",
+    "nanostores": "0.10.2",
+    "tsx": "4.7.1"
+  }
+}

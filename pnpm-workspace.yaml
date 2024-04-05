@@ -4,3 +4,4 @@ packages:
   - server
   - web
   - proxy
+  - loader-tests

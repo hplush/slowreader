@@ -16,12 +16,13 @@ import {
   loadFeed,
   loadPost,
   openedSlowPost,
+  setBaseTestRoute,
   slowCategories,
   slowPosts,
   testFeed,
   testPost
 } from '../index.js'
-import { cleanClientTest, enableClientTest, setBaseRoute } from './utils.js'
+import { cleanClientTest, enableClientTest } from './utils.js'
 
 beforeEach(() => {
   enableClientTest()
@@ -116,15 +117,15 @@ test('loads posts from URL', async () => {
   let postA2 = await addPost(testPost({ feedId: feedA, title: 'A2' }))
   let postB = await addPost(testPost({ feedId: feedB, title: 'B' }))
 
-  setBaseRoute({ params: {}, route: 'about' })
+  setBaseTestRoute({ params: {}, route: 'about' })
   deepStrictEqual(slowPosts.get(), { isLoading: true })
   deepStrictEqual(openedSlowPost.get(), undefined)
 
-  setBaseRoute({ params: {}, route: 'slow' })
+  setBaseTestRoute({ params: {}, route: 'slow' })
   deepStrictEqual(slowPosts.get(), { isLoading: false, list: [] })
   deepStrictEqual(openedSlowPost.get(), undefined)
 
-  setBaseRoute({ params: { feed: feedA }, route: 'slow' })
+  setBaseTestRoute({ params: { feed: feedA }, route: 'slow' })
   deepStrictEqual(slowPosts.get(), { isLoading: true })
   deepStrictEqual(openedSlowPost.get(), undefined)
 
@@ -135,35 +136,35 @@ test('loads posts from URL', async () => {
   })
   deepStrictEqual(openedSlowPost.get(), undefined)
 
-  setBaseRoute({ params: { feed: feedA, post: postA1 }, route: 'slow' })
+  setBaseTestRoute({ params: { feed: feedA, post: postA1 }, route: 'slow' })
   deepStrictEqual(slowPosts.get(), {
     isLoading: false,
     list: [await loadPost(postA1), await loadPost(postA2)]
   })
   deepStrictEqual(openedSlowPost.get(), await loadPost(postA1))
 
-  setBaseRoute({ params: { feed: feedA, post: postA2 }, route: 'slow' })
+  setBaseTestRoute({ params: { feed: feedA, post: postA2 }, route: 'slow' })
   deepStrictEqual(slowPosts.get(), {
     isLoading: false,
     list: [await loadPost(postA1), await loadPost(postA2)]
   })
   deepStrictEqual(openedSlowPost.get(), await loadPost(postA2))
 
-  setBaseRoute({ params: { feed: feedA, post: postB }, route: 'slow' })
+  setBaseTestRoute({ params: { feed: feedA, post: postB }, route: 'slow' })
   deepStrictEqual(slowPosts.get(), {
     isLoading: false,
     list: [await loadPost(postA1), await loadPost(postA2)]
   })
   deepStrictEqual(openedSlowPost.get(), await loadPost(postB))
 
-  setBaseRoute({ params: { feed: feedA }, route: 'slow' })
+  setBaseTestRoute({ params: { feed: feedA }, route: 'slow' })
   deepStrictEqual(slowPosts.get(), {
     isLoading: false,
     list: [await loadPost(postA1), await loadPost(postA2)]
   })
   deepStrictEqual(openedSlowPost.get(), undefined)
 
-  setBaseRoute({ params: {}, route: 'slow' })
+  setBaseTestRoute({ params: {}, route: 'slow' })
   deepStrictEqual(slowPosts.get(), { isLoading: false, list: [] })
   deepStrictEqual(openedSlowPost.get(), undefined)
 })

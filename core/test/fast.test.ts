@@ -22,11 +22,12 @@ import {
   openedFastPost,
   type PostValue,
   router,
+  setBaseTestRoute,
   setFastPostsPerPage,
   testFeed,
   testPost
 } from '../index.js'
-import { cleanClientTest, enableClientTest, setBaseRoute } from './utils.js'
+import { cleanClientTest, enableClientTest } from './utils.js'
 
 beforeEach(() => {
   enableClientTest()
@@ -157,7 +158,7 @@ test('loads page when we have no fast posts', async () => {
   keepMount(fastLoading)
   keepMount(nextFastSince)
 
-  setBaseRoute({ params: { category: 'general' }, route: 'fast' })
+  setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
   equal(fastLoading.get(), 'init')
   await setTimeout(10)
   equal(fastLoading.get(), false)
@@ -202,7 +203,7 @@ test('loads page when we have fast posts', async () => {
     })
   )
 
-  setBaseRoute({ params: { category: category1 }, route: 'fast' })
+  setBaseTestRoute({ params: { category: category1 }, route: 'fast' })
   await setTimeout(10)
   equal(fastLoading.get(), false)
   equal(fastCategory.get(), category1)
@@ -258,7 +259,7 @@ test('loads page when we have fast posts', async () => {
   deepStrictEqual((await loadPosts({ reading: 'fast' })).length, 2)
   deepStrictEqual((await loadPosts({ reading: 'slow' })).length, 1)
 
-  setBaseRoute({ params: { category: category1 }, route: 'fast' })
+  setBaseTestRoute({ params: { category: category1 }, route: 'fast' })
   await setTimeout(10)
   deepStrictEqual(
     fastPosts.get().map(i => i.post.title),
@@ -270,8 +271,8 @@ test('loads page when we have fast posts', async () => {
   await markReadAndLoadNextFastPosts()
   deepStrictEqual((await loadPosts({ reading: 'fast' })).length, 1)
 
-  setBaseRoute({ params: {}, route: 'home' })
-  setBaseRoute({ params: { category: category1 }, route: 'fast' })
+  setBaseTestRoute({ params: {}, route: 'home' })
+  setBaseTestRoute({ params: { category: category1 }, route: 'fast' })
   await setTimeout(10)
   deepStrictEqual(
     fastPosts.get().map(i => i.post.title),
@@ -306,14 +307,14 @@ test('allows to change category in the middle', async () => {
     }
   }
 
-  setBaseRoute({ params: { category: category1 }, route: 'fast' })
+  setBaseTestRoute({ params: { category: category1 }, route: 'fast' })
   await setTimeout(10)
   equal(constantFastReading.get(), 0)
 
   await markReadAndLoadNextFastPosts()
   equal(constantFastReading.get(), 1)
 
-  setBaseRoute({ params: { category: 'general' }, route: 'fast' })
+  setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
   equal(fastLoading.get(), 'init')
   await setTimeout(10)
   equal(fastLoading.get(), false)
@@ -348,7 +349,7 @@ test('allows to preview next page without marking as read', async () => {
     }
   }
 
-  setBaseRoute({ params: { category: 'general' }, route: 'fast' })
+  setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
   await setTimeout(10)
   equal(constantFastReading.get(), 0)
   equal(nextFastSince.get(), 3001)
@@ -357,7 +358,7 @@ test('allows to preview next page without marking as read', async () => {
     ['F1 P5', 'F0 P5', 'F1 P4', 'F0 P4', 'F1 P3']
   )
 
-  setBaseRoute({
+  setBaseTestRoute({
     params: { category: 'general', since: nextFastSince.get() },
     route: 'fast'
   })
@@ -399,7 +400,7 @@ test('syncs fast category and since with URL', async () => {
     await addPost(testPost({ feedId, publishedAt: 1000 * i, reading: 'fast' }))
   }
 
-  setBaseRoute({
+  setBaseTestRoute({
     params: { category: category1 },
     route: 'fast'
   })
@@ -414,14 +415,14 @@ test('syncs fast category and since with URL', async () => {
     route: 'fast'
   })
 
-  setBaseRoute({
+  setBaseTestRoute({
     params: { category: category1, since: 100 },
     route: 'fast'
   })
   equal(fastCategory.get(), category1)
   equal(fastSince.get(), 100)
 
-  setBaseRoute({
+  setBaseTestRoute({
     params: {},
     route: 'home'
   })
@@ -439,14 +440,14 @@ test('tracks current post', async () => {
   let post2 = await addPost(testPost({ feedId, reading: 'fast', title: '2' }))
   let post3 = await addPost(testPost({ feedId, reading: 'slow', title: '3' }))
 
-  setBaseRoute({
+  setBaseTestRoute({
     params: { category: 'general' },
     route: 'fast'
   })
   await setTimeout(10)
   equal(openedFastPost.get(), undefined)
 
-  setBaseRoute({
+  setBaseTestRoute({
     params: { category: 'general', post: post1, since: 0 },
     route: 'fast'
   })
@@ -454,24 +455,24 @@ test('tracks current post', async () => {
   equal(openedFastPost.get()?.isLoading, false)
   equal((openedFastPost.get() as PostValue).title, '1')
 
-  setBaseRoute({
+  setBaseTestRoute({
     params: { category: 'general', since: 0 },
     route: 'fast'
   })
   equal(openedFastPost.get(), undefined)
 
-  setBaseRoute({
+  setBaseTestRoute({
     params: { category: 'general', post: post2, since: 0 },
     route: 'fast'
   })
   equal((openedFastPost.get() as PostValue).title, '2')
-  setBaseRoute({
+  setBaseTestRoute({
     params: { category: 'general', post: post1, since: 0 },
     route: 'fast'
   })
   equal((openedFastPost.get() as PostValue).title, '1')
 
-  setBaseRoute({
+  setBaseTestRoute({
     params: { category: 'general', post: post3, since: 0 },
     route: 'fast'
   })
