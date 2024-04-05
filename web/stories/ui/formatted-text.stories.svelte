@@ -106,11 +106,9 @@
     '  </audio>\n'
 
   let code =
-    ' <pre><code>\n' +
-    '    function helloWorld() {\n' +
-    '      console.log("Hello, world!");\n' +
-    '    }\n' +
-    '  </code></pre>'
+    ' <pre><code>function helloWorld() {\n' +
+    '  console.log("Hello, world!");\n' +
+    '}</code></pre>'
 
   let codeInline =
     '<p>This is a paragraph of text. Here is an example of inline code: <code>console.log("Hello, world!");</code></p>'
