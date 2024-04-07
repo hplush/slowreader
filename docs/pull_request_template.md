@@ -28,10 +28,11 @@ Fixes # (issue)
 - If you changed web client:
   - [ ] Think about moving code to `core/`. What code will also be useful on other platforms?
   - [ ] Run `pnpm size` and check the difference in the JS bundle size. Is it relevant to the changes? Change the limit in `web/.size-limit.json` if necessary.
+  - [ ] The UI was checked in Chrome and Firefox (and Safari or Epiphany if you have them).
   - [ ] Think about keyboard UX. Is it easy to use the new feature with only one hand on a keyboard? Is it easy to understand what keys to press?
   - [ ] Think about HTML semantics.
   - [ ] Think about accessibility. Check a11y recommendations. Think about how screen reader users will use the tool. Is it easy to use on a screen with bad contrast?
-  - [ ] Think about translations. Will
+  - [ ] Think about translations.
   - [ ] Think about right-to-left languages. What parts of the screen should be mirrored for Arabic or Hebrew languages?
 - If you changed the colors token in the web client:
   - [ ] Think about app loading styles inlined in `index.html`.
