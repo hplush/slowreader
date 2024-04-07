@@ -136,7 +136,7 @@ let $slowFeeds = atom<SlowFeedsValue>({ isLoading: true })
 
 export const slowFeeds = readonlyExport($slowFeeds)
 
-let POSTS_PER_PAGE = 2
+let POSTS_PER_PAGE = 50
 
 export function setSlowPostsPerPage(value: number): void {
   POSTS_PER_PAGE = value
