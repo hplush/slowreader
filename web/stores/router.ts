@@ -7,7 +7,7 @@ import {
 import type { ParamlessRouteName, Route, Routes } from '@slowreader/core'
 import { computed } from 'nanostores'
 
-const pathRouter = createRouter({
+export const pathRouter = createRouter({
   about: '/settings/about',
   add: '/feeds/add/:url?',
   categories: '/feeds/categories/:feed?',
