@@ -17,6 +17,10 @@
 <div bind:this={node} class="formatted-text"></div>
 
 <style>
+  .formatted-text {
+    overflow-x: auto;
+  }
+
   .formatted-text :global(img) {
     max-width: 100%;
     height: auto;
