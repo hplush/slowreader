@@ -1,9 +1,10 @@
-import { before, test, describe } from 'node:test'
 import { equal } from 'node:assert'
 import { createServer } from 'node:http'
-import { initTestHttpServer, getTestHttpServer } from './utils.js'
+import { before, describe, test } from 'node:test'
+import { URL } from 'node:url'
+
 import createProxyServer from '../proxy.js'
-import { URL } from 'url'
+import { getTestHttpServer, initTestHttpServer } from './utils.js'
 
 /**
  * Proxy is tested with a service that outputs request and response data.
@@ -11,10 +12,10 @@ import { URL } from 'url'
  * <local client> -> <proxy> -> <targetServer>
  */
 const targetServer = createServer((req, res) => {
-  const parsedUrl = new URL(req.url || '', `http://${req.headers.host}`)
+  let parsedUrl = new URL(req.url || '', `http://${req.headers.host}`)
 
-  const queryParams = Object.fromEntries(parsedUrl.searchParams.entries())
-  const requestPath = parsedUrl.pathname
+  let queryParams = Object.fromEntries(parsedUrl.searchParams.entries())
+  let requestPath = parsedUrl.pathname
 
   res.writeHead(200, {
     'Content-Type': 'text/json'
@@ -22,14 +23,14 @@ const targetServer = createServer((req, res) => {
 
   res.end(
     JSON.stringify({
-      response: 'ok',
       request: {
         headers: req.headers,
         method: req.method,
-        url: req.url,
         queryParams,
-        requestPath
-      }
+        requestPath,
+        url: req.url
+      },
+      response: 'ok'
     })
   )
 })
@@ -37,7 +38,7 @@ const targetServer = createServer((req, res) => {
 describe('proxy tests', async () => {
   await initTestHttpServer(
     'proxy',
-    createProxyServer({ silentMode: true, hostnameWhitelist: ['localhost'] })
+    createProxyServer({ hostnameWhitelist: ['localhost'], silentMode: true })
   )
   await initTestHttpServer('target', targetServer)
 
@@ -45,12 +46,12 @@ describe('proxy tests', async () => {
   let targetServerUrl = ''
 
   before(() => {
-    const proxy = getTestHttpServer('proxy')
+    let proxy = getTestHttpServer('proxy')
     if (proxy) {
       proxyServerUrl = proxy.baseUrl
     }
 
-    const target = getTestHttpServer('target')
+    let target = getTestHttpServer('target')
     if (target) {
       targetServerUrl = target.baseUrl
     }
@@ -63,18 +64,18 @@ describe('proxy tests', async () => {
   })
 
   await test('proxy works', async () => {
-    const response = await fetch(`${proxyServerUrl}/${targetServerUrl}`)
-    const parsedResponse = await response.json()
+    let response = await fetch(`${proxyServerUrl}/${targetServerUrl}`)
+    let parsedResponse = await response.json()
     // @ts-ignore
     equal(response.status, 200)
     equal(parsedResponse?.response, 'ok')
   })
 
   await test('proxy transfers query params and path', async () => {
-    const response = await fetch(
+    let response = await fetch(
       `${proxyServerUrl}/${targetServerUrl}/foo/bar?foo=bar&bar=foo`
     )
-    const parsedResponse = await response.json()
+    let parsedResponse = await response.json()
     // @ts-ignore
     equal(response.status, 200)
     equal(parsedResponse?.response, 'ok')
@@ -85,11 +86,11 @@ describe('proxy tests', async () => {
 
   await describe('security', async () => {
     await test('can use only GET ', async () => {
-      const forbiddenMethods = ['DELETE', 'HEAD', 'OPTIONS', 'POST', 'PUT']
+      let forbiddenMethods = ['DELETE', 'HEAD', 'OPTIONS', 'POST', 'PUT']
 
-      for (const method of forbiddenMethods) {
+      for (let method of forbiddenMethods) {
         await test(`can not use ${method}`, async () => {
-          const response = await fetch(`${proxyServerUrl}/${targetServerUrl}`, {
+          let response = await fetch(`${proxyServerUrl}/${targetServerUrl}`, {
             method
           })
           equal(response.status, 500)
@@ -98,7 +99,7 @@ describe('proxy tests', async () => {
     })
 
     await test('can use only http or https protocols', async () => {
-      const forbiddenProtocols = [
+      let forbiddenProtocols = [
         'ssh',
         'ftp',
         'sftp',
@@ -112,9 +113,9 @@ describe('proxy tests', async () => {
         'snmp'
       ]
 
-      for (const protocol of forbiddenProtocols) {
+      for (let protocol of forbiddenProtocols) {
         await test(`can not use ${protocol}`, async () => {
-          const response = await fetch(
+          let response = await fetch(
             `${proxyServerUrl}/${targetServerUrl.replace('http', protocol)}`,
             {}
           )
@@ -124,7 +125,7 @@ describe('proxy tests', async () => {
     })
 
     await test('can not use proxy to query local address', async () => {
-      const response = await fetch(
+      let response = await fetch(
         `${proxyServerUrl}/${targetServerUrl.replace('localhost', '127.0.0.1')}`,
         {}
       )
@@ -133,25 +134,25 @@ describe('proxy tests', async () => {
 
     await describe('cookies', async () => {
       await test('proxy clears set-cookie header', async () => {
-        const response = await fetch(`${proxyServerUrl}/${targetServerUrl}`, {
+        let response = await fetch(`${proxyServerUrl}/${targetServerUrl}`, {
           headers: { 'set-cookie': 'accessToken=1234abc; userId=1234' }
         })
 
         equal(response.status, 200)
-        const parsedResponse = await response.json()
+        let parsedResponse = await response.json()
         // @ts-ignore
         equal(parsedResponse?.['set-cookie'], undefined)
         // @ts-ignore
-        equal(parsedResponse?.['cookie'], undefined)
+        equal(parsedResponse?.cookie, undefined)
       })
 
       await test('proxy clears cookie header', async () => {
-        const response = await fetch(`${proxyServerUrl}/${targetServerUrl}`, {
+        let response = await fetch(`${proxyServerUrl}/${targetServerUrl}`, {
           headers: { cookie: 'accessToken=1234abc; userId=1234' }
         })
 
         equal(response.status, 200)
-        const parsedResponse = await response.json()
+        let parsedResponse = await response.json()
         // @ts-ignore
         equal(parsedResponse?.['set-cookie'], undefined)
         // @ts-ignore

@@ -1,12 +1,12 @@
-import http from 'http'
+import type http from 'node:http'
 import { after, before } from 'node:test'
 
 const __testServers: {
   [key: string]: {
-    server: http.Server
     address: string
-    port: number
     baseUrl: string
+    port: number
+    server: http.Server
   }
 } = {}
 
@@ -31,27 +31,27 @@ const __testServers: {
 export async function initTestHttpServer(
   name: string,
   server: any,
-  opts?: { protocol?: string; port?: number }
+  opts?: { port?: number; protocol?: string }
 ) {
   await before(async () => {
-    const port = opts?.port || 0
-    const protocol = opts?.protocol || 'http'
+    let port = opts?.port || 0
+    let protocol = opts?.protocol || 'http'
 
     // port=0 is <any free port>
-    const testServerInstance = await server.listen(port)
+    let testServerInstance = await server.listen(port)
     // @ts-ignore
-    const addressInfo: { address: string; family: string; port: number } =
+    let addressInfo: { address: string; family: string; port: number } =
       testServerInstance.address()
 
-    const testServerAddress =
-      addressInfo?.address === '::' ? 'localhost' : addressInfo.address
-    const testServerPort = addressInfo?.port
+    let testServerAddress =
+      addressInfo.address === '::' ? 'localhost' : addressInfo.address
+    let testServerPort = addressInfo.port
 
     __testServers[name] = {
-      server: testServerInstance,
       address: testServerAddress,
+      baseUrl: `${protocol}://${testServerAddress}:${testServerPort}`,
       port: testServerPort,
-      baseUrl: `${protocol}://${testServerAddress}:${testServerPort}`
+      server: testServerInstance
     }
   })
 

@@ -1,7 +1,7 @@
-import { createServer } from 'node:http'
-import { styleText } from 'node:util'
 // @ts-ignore
 import isMartianIP from 'martian-cidr'
+import { createServer } from 'node:http'
+import { styleText } from 'node:util'
 
 /**
  * Creates proxy server
@@ -23,16 +23,16 @@ import isMartianIP from 'martian-cidr'
  */
 const createProxyServer = (
   config: {
+    hostnameWhitelist?: string[]
     isProduction?: boolean
-    silentMode?: boolean
-    hostnameWhitelist?: Array<string>
     productionDomainSuffix?: string
+    silentMode?: boolean
   } = {}
 ) => {
-  const isProduction = config.isProduction || false
-  const silentMode = config.silentMode || false
-  const hostnameWhitelist = config.hostnameWhitelist || []
-  const productionDomainSuffix = config.productionDomainSuffix || ''
+  let isProduction = config.isProduction || false
+  let silentMode = config.silentMode || false
+  let hostnameWhitelist = config.hostnameWhitelist || []
+  let productionDomainSuffix = config.productionDomainSuffix || ''
 
   return createServer(async (req, res) => {
     let url = decodeURIComponent(req.url!.slice(1))
@@ -51,13 +51,13 @@ const createProxyServer = (
 
       // In production mode we only allow request from production domain
       if (isProduction) {
-        const origin = req.headers.origin
-        if (!origin || !origin.endsWith(productionDomainSuffix)) {
+        let origin = req.headers.origin
+        if (!origin?.endsWith(productionDomainSuffix)) {
           throw new Error('Unauthorized origin.')
         }
       }
 
-      const requestUrl = new URL(url)
+      let requestUrl = new URL(url)
       if (!hostnameWhitelist.includes(requestUrl.hostname)) {
         // Do not allow requests to addresses that are reserved:
         // 127.*
