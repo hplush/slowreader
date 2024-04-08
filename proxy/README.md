@@ -13,12 +13,6 @@ pnpm start
 # // Proxy server running on port 5284
 ```
 
-### Make a request
-
-```shell
-curl localhost:5284/https://hplush.dev
-```
-
 ## Additional info:
 
 ### Discussing security and protection from span
