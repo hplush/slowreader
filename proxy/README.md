@@ -8,7 +8,7 @@ User could use it to bypass censorship or to try web client before they install 
 
 ### Start Proxy
 
-```shell
+```sh
 pnpm start
 # // Proxy server running on port 5284
 ```
