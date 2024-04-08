@@ -10,6 +10,9 @@ let routerRegexes = router.routes.map(route => ({
   source: route[1].source
 }))
 
-let routesFilePath = join(import.meta.dirname, '../.nginx/routes.json')
+let routesFilePath = join(import.meta.dirname, '../.nginx/routes.js')
 
-writeFileSync(routesFilePath, JSON.stringify(routerRegexes, null, 2))
+writeFileSync(
+  routesFilePath,
+  `export default ${JSON.stringify(routerRegexes, null, 2)}`
+)

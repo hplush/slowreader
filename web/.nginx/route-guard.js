@@ -1,12 +1,9 @@
 // Code in this file is in NJS language https://nginx.org/en/docs/njs/
 
 // eslint-disable-next-line
-let rawRegExps = require('fs').readFileSync(
-  '/etc/nginx/njs/routes.json',
-  'utf-8'
-)
+import rawRegExps from '/etc/nginx/njs/routes.js'
 
-const ROUTE_REGEXPS = JSON.parse(rawRegExps).map(
+const ROUTE_REGEXPS = rawRegExps.map(
   route => new RegExp(route.source, route.flags)
 )
 
