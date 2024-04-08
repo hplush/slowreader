@@ -56,7 +56,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: web-client-assets-${{ github.sha }}
-          path: web/dist/
+          path: web/
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:
