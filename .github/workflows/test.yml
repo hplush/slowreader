@@ -4,14 +4,14 @@ on:
     branches:
       - main
     paths-ignore:
-      - './**/*.md'
-      - './.vscode/**'
-      - './.husky/**'
+      - '**/*.md'
+      - '.vscode/**'
+      - '.husky/**'
   pull_request:
     paths-ignore:
-      - './**/*.md'
-      - './.vscode/**'
-      - './.husky/**'
+      - '**/*.md'
+      - '.vscode/**'
+      - '.husky/**'
 jobs:
   test:
     permissions:

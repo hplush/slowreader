@@ -2,15 +2,15 @@ name: Start Preview Deployment
 on:
   pull_request:
     paths-ignore:
-      - './**/*.md'
-      - './proxy/**'
-      - './server/**'
-      - './scripts/**'
-      - './.vscode/**'
-      - './.husky/**'
-      - './.github/**'
-      - './core/test/**'
-      - './loader-tests/**'
+      - '**/*.md'
+      - 'proxy/**'
+      - 'server/**'
+      - 'scripts/**'
+      - '.vscode/**'
+      - '.husky/**'
+      - '.github/**'
+      - 'core/test/**'
+      - 'loader-tests/**'
 permissions:
   contents: read
 jobs:
