@@ -1,13 +1,15 @@
 import type http from 'node:http'
 import { after, before } from 'node:test'
 
+interface TestServer {
+  address: string
+  baseUrl: string
+  port: number
+  server: http.Server
+}
+
 const __testServers: {
-  [key: string]: {
-    address: string
-    baseUrl: string
-    port: number
-    server: http.Server
-  }
+  [key: string]: TestServer
 } = {}
 
 /**
@@ -32,8 +34,9 @@ export async function initTestHttpServer(
   name: string,
   server: any,
   opts?: { port?: number; protocol?: string }
-) {
-  await before(async () => {
+): Promise<void> {
+  //
+  before(async () => {
     let port = opts?.port || 0
     let protocol = opts?.protocol || 'http'
 
@@ -55,7 +58,7 @@ export async function initTestHttpServer(
     }
   })
 
-  await after(async () => {
+  after(async () => {
     if (__testServers[name]) {
       // @ts-ignore
       __testServers[name].server.close()
@@ -68,6 +71,6 @@ export async function initTestHttpServer(
  * Use it to get server initialized by initTestHttpServer function
  * @param name
  */
-export function getTestHttpServer(name: string) {
+export function getTestHttpServer(name: string): TestServer | undefined {
   return __testServers[name]
 }
