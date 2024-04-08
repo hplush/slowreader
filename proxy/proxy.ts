@@ -11,7 +11,7 @@ import isMartianIP from 'martian-cidr'
  *
  * silentMode - will silent the output. Useful for testing
  *
- * hostnameWhitelist - Sometimes you need to allow request to certain ips like localhost for testing purposes, like localhost
+ * hostnameWhitelist - Sometimes you need to allow request to certain ips like localhost for testing purposes.
  *
  * productionDomainSuffix - if isProduction, then only request from origins that match this param are allowed
  *
