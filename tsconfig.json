@@ -9,7 +9,10 @@
     "target": "es2021",
     "module": "node16",
     "strict": true,
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@slowreader/core": ["./core"]
+    }
   },
   "include": ["**/*.ts", "web/**/*.svelte", "web/.storybook/*.ts"]
 }

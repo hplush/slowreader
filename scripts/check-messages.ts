@@ -3,7 +3,7 @@
 
 import { lstat, readdir, readFile } from 'node:fs/promises'
 import { dirname, join, relative } from 'node:path'
-import pico from 'picocolors'
+import { styleText } from 'node:util'
 
 const ROOT = join(import.meta.dirname, '..')
 const MESSAGES = join(ROOT, 'core', 'messages')
@@ -30,7 +30,7 @@ async function findFiles(
 function check(all: Buffer, part: string, filename: string): void {
   if (!all.includes(part)) {
     let path = relative(ROOT, filename)
-    process.stderr.write(pico.red(`${path} has no "${part}"\n`))
+    process.stderr.write(styleText('red', `${path} has no "${part}"\n`))
     process.exit(1)
   }
 }

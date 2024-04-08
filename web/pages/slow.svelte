@@ -1,11 +1,15 @@
 <script lang="ts">
   import {
+    nextSlowSince,
     openedSlowPost,
+    slowFeed,
     slowPosts,
+    slowSince,
     slowMessages as t
   } from '@slowreader/core'
 
   import { getURL } from '../stores/router.js'
+  import Button from '../ui/button.svelte'
   import Loader from '../ui/loader.svelte'
   import PostCard from '../ui/post-card.svelte'
   import TwoStepsPage from '../ui/two-steps-page.svelte'
@@ -25,7 +29,8 @@
               open={getURL({
                 params: {
                   feed: post.feedId,
-                  post: post.id
+                  post: post.id,
+                  since: $slowSince
                 },
                 route: 'slow'
               })}
@@ -34,6 +39,22 @@
           </li>
         {/each}
       </ul>
+      {#if $slowPosts.isLoading}
+        <Loader />
+      {:else if $nextSlowSince}
+        <Button
+          href={getURL({
+            params: {
+              feed: $slowFeed,
+              since: $nextSlowSince
+            },
+            route: 'slow'
+          })}
+          secondary
+        >
+          {$t.showNext}
+        </Button>
+      {/if}
     {/if}
   </div>
   <div slot="two">

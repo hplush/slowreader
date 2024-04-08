@@ -1,10 +1,11 @@
 {
-  "extends": "@logux/stylelint-config",
+  "extends": ["@logux/stylelint-config", "@stylistic/stylelint-config"],
   "ignoreFiles": ["web/dist/**/*", "*/coverage/lcov-report/*"],
-  "plugins": ["stylelint-use-logical"],
+  "plugins": ["stylelint-use-logical", "@stylistic/stylelint-plugin"],
   "rules": {
     "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"],
     "alpha-value-notation": "percentage",
+    "@stylistic/string-quotes": "single",
     "csstools/use-logical": [
       "always",
       {

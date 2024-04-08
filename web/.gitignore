@@ -2,3 +2,4 @@ coverage/
 dist/
 storybook-static/
 vite.config.ts.timestamp*
+.nginx/routes.js

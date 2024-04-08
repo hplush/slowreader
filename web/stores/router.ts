@@ -7,7 +7,7 @@ import {
 import type { ParamlessRouteName, Route, Routes } from '@slowreader/core'
 import { computed } from 'nanostores'
 
-const pathRouter = createRouter({
+export const pathRouter = createRouter({
   about: '/settings/about',
   add: '/feeds/add/:url?',
   categories: '/feeds/categories/:feed?',
@@ -42,6 +42,7 @@ export const urlRouter = computed(pathRouter, path => {
     }
   } else if (path.route === 'slow') {
     let params: Routes['slow'] = path.params
+    if ('since' in path.search) params.since = Number(path.search.since)
     if ('post' in path.search) params.post = path.search.post
     return {
       params,
@@ -90,7 +91,7 @@ export function getURL(to: ParamlessRouteName | Route): string {
   if (page.route === 'fast') {
     return moveToSearch(page, { post: true, since: true })
   } else if (page.route === 'slow') {
-    return moveToSearch(page, { post: true })
+    return moveToSearch(page, { post: true, since: true })
   } else {
     return getPagePath(pathRouter, page)
   }

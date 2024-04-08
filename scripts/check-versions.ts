@@ -5,7 +5,7 @@
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import pico from 'picocolors'
+import { styleText } from 'node:util'
 
 const ROOT = join(import.meta.dirname, '..')
 
@@ -14,7 +14,7 @@ function read(...parts: string[]): string {
 }
 
 function error(msg: string): void {
-  process.stderr.write(pico.red(`${msg}\n`))
+  process.stderr.write(styleText('red', `${msg}\n`))
   process.exit(1)
 }
 
@@ -36,7 +36,9 @@ function checkDependencies(file: string, content: string): void {
   let match = content.match(/"[^"]+": "[\^~][^"]+"/)
   if (match && !match[0].startsWith('"node":')) {
     let line = content.split('\n').findIndex(i => i.includes(match[0])) + 1
-    error(`Not locked version in ${file}:${line}: ${pico.yellow(match[0])}`)
+    error(
+      `Not locked version in ${file}:${line}: ${styleText('yellow', match[0])}`
+    )
   }
 }
 

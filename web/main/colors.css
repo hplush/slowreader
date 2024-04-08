@@ -15,7 +15,8 @@
     --border-color: oklch(0% 0 0 / 15%);
     --hover-color: color-mix(in oklch, var(--neutral-50), var(--sand-50));
     --card-color: var(--neutral-50);
-    --card-shadow: 0 1px 5px oklch(from var(--shadow-color) l c h / 8%),
+    --card-shadow:
+      0 1px 5px oklch(from var(--shadow-color) l c h / 8%),
       0 1px 1px oklch(from var(--shadow-color) l c h / 15%);
     --card-item-above-shadow: inset 0 1px 2px oklch(from var(--shadow-color) l c h / 20%);
     --card-item-pressed-shadow:
@@ -24,27 +25,35 @@
       5px 0 0 var(--land-color),
       -5px 0 0 var(--land-color);
     --dangerous-card-color: var(--red-100);
-    --dangerous-card-hover-color:
-      color-mix(in oklab, var(--red-100), var(--sand-100));
+    --dangerous-card-hover-color: color-mix(in oklab, var(--red-100), var(--sand-100));
     --dangerous-text-color: var(--red-700);
-    --button-shadow: inset 0 0 0 1px oklch(0% 0 0 / 15%),
+    --button-shadow:
+      inset 0 0 0 1px oklch(0% 0 0 / 15%),
       inset 0 -5px 5px oklch(from var(--shadow-color) l c h / 8%);
-    --button-active-shadow: inset 0 1px 2px
+    --button-active-shadow:
+      inset 0 1px 2px
       oklch(from var(--shadow-color) l c h / 15%),
       inset 0 2px 5px oklch(from var(--shadow-color) l c h / 15%),
-      0 -1px oklch(0% 0 0 / 20%), 0 1px oklch(100% 0 0),
+      0 -1px oklch(0% 0 0 / 20%),
+      0 1px oklch(100% 0 0),
       inset 0 -5px 5px oklch(from var(--shadow-color) l c h / 8%);
-    --button-pressed-shadow: inset 0 1px 1px
+    --button-pressed-shadow:
+      inset 0 1px 1px
       oklch(from var(--shadow-color) l c h / 10%),
       inset 0 1px 3px oklch(from var(--shadow-color) l c h / 10%),
-      0 -1px oklch(0% 0 0 / 20%), 0 1px oklch(100% 0 0),
+      0 -1px oklch(0% 0 0 / 20%),
+      0 1px oklch(100% 0 0),
       inset 0 -5px 5px oklch(from var(--shadow-color) l c h / 8%);
     --flat-hover-color: oklch(from var(--hover-color) l c h / 40%);
-    --flat-active-shadow: inset 0 1px 2px
+    --flat-active-shadow:
+      inset 0 1px 2px
       oklch(from var(--shadow-color) l c h / 15%),
       0 -1px oklch(0% 0 0 / 20%);
     --field-color: oklch(100% 0 0);
     --field-shadow: inset 0 1px 2px oklch(from var(--shadow-color) l c h / 8%);
+    --link-color: var(--blue-700);
+    --link-color-visited: var(--fuchsia-700);
+    --inline-code-color: oklch(from var(--neutral-200) l c h / 55%);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -66,18 +75,29 @@
     --dangerous-card-color: var(--red-900);
     --dangerous-card-hover-color: color-mix(in oklab, var(--red-900), var(--red-800));
     --dangerous-text-color: var(--red-200);
-    --button-shadow: inset 0 0 0 1px oklch(100% 0 0 / 8%),
-      inset 0 -5px 5px oklch(0% 0 0 / 20%), 0 1px 1px oklch(0% 0 0);
-    --button-active-shadow: inset 0 0 1px oklch(100% 0 0 / 30%),
-      inset 0 1px 2px oklch(0% 0 0 / 60%), inset 0 2px 5px oklch(0% 0 0 / 60%),
-      0 1px oklch(100% 0 0 / 20%), inset 0 -5px 5px oklch(0% 0 0 / 10%);
-    --button-pressed-shadow: inset 0 0 1px oklch(100% 0 0 / 30%),
-      inset 0 1px 1px oklch(0% 0 0 / 50%), inset 0 1px 4px oklch(0% 0 0 / 50%),
-      0 1px oklch(100% 0 0 / 20%), inset 0 -5px 5px oklch(0% 0 0 / 20%);
+    --button-shadow:
+      inset 0 0 0 1px oklch(100% 0 0 / 8%),
+      inset 0 -5px 5px oklch(0% 0 0 / 20%),
+      0 1px 1px oklch(0% 0 0);
+    --button-active-shadow:
+      inset 0 0 1px oklch(100% 0 0 / 30%),
+      inset 0 1px 2px oklch(0% 0 0 / 60%),
+      inset 0 2px 5px oklch(0% 0 0 / 60%),
+      0 1px oklch(100% 0 0 / 20%),
+      inset 0 -5px 5px oklch(0% 0 0 / 10%);
+    --button-pressed-shadow:
+      inset 0 0 1px oklch(100% 0 0 / 30%),
+      inset 0 1px 1px oklch(0% 0 0 / 50%),
+      inset 0 1px 4px oklch(0% 0 0 / 50%),
+      0 1px oklch(100% 0 0 / 20%),
+      inset 0 -5px 5px oklch(0% 0 0 / 20%);
     --flat-hover-color: oklch(from var(--hover-color) l c h / 30%);
     --flat-active-shadow: inset 0 1px 2px oklch(0% 0 0 / 80%);
     --field-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));
     --field-shadow: inset 0 1px 2px oklch(0% 0 0 / 60%);
+    --link-color: var(--blue-400);
+    --link-color-visited: var(--fuchsia-400);
+    --inline-code-color: oklch(from var(--zinc-800) l c h / 60%);
   }
 }
 

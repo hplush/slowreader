@@ -13,7 +13,7 @@
 - **Appreciate and accommodate our differences.** Be respectful of people with different cultural practices, personal habits to clothing, attitudes, and beliefs. Respect the way how people ask you to communicate with them.
 - **Judge ideas, not people.** Every idea counts for its merit, not who brings it up.
 
-## Where does it of conduct take effect?
+## Where Does It of Conduct Take Effect?
 
 This Code of Conduct applies both within project spaces and in public spaces when an individual is representing the project or its community.
 
@@ -23,7 +23,7 @@ This Code of Conduct applies both within project spaces and in public spaces whe
 
 <!-- TODO: Add community platform when we will have it -->
 
-## How can you report violations?
+## How Can You Report Violations?
 
 Unacceptable behavior may be reported to the community leaders responsible for enforcement at [andrey@sitnik.ru](mailto:andrey@sitnik.ru).
 

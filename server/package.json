@@ -10,6 +10,6 @@
     "@slowreader/api": "link:../api"
   },
   "devDependencies": {
-    "tsx": "4.7.1"
+    "tsx": "4.7.2"
   }
 }

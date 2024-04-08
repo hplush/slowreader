@@ -4,14 +4,14 @@ on:
     branches:
       - main
     paths-ignore:
-      - './**/*.md'
-      - './.vscode/**'
-      - './.husky/**'
+      - '**/*.md'
+      - '.vscode/**'
+      - '.husky/**'
   pull_request:
     paths-ignore:
-      - './**/*.md'
-      - './.vscode/**'
-      - './.husky/**'
+      - '**/*.md'
+      - '.vscode/**'
+      - '.husky/**'
 jobs:
   test:
     permissions:
@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --ignore-scripts
       - name: Run tests
-        run: pnpm test
+        run: pnpm run -r --include-workspace-root '/^test:(?!markdown\b)/'
         env:
           FORCE_COLOR: 1
       - name: Upload web assets
@@ -34,7 +34,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: web-client-assets-${{ github.sha }}
-          path: web/dist/
+          path: |
+            web/dist/
+            web/.nginx/routes.js
           retention-days: 1
   staging:
     needs: test
@@ -54,7 +56,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: web-client-assets-${{ github.sha }}
-          path: web/dist/
+          path: web/
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:

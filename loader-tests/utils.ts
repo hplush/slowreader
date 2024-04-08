@@ -1,63 +1,114 @@
+import {
+  enableTestTime,
+  getTestEnvironment,
+  setBaseTestRoute,
+  setRequestMethod,
+  setupEnvironment,
+  userId
+} from '@slowreader/core'
 import type { ReadableAtom } from 'nanostores'
-import { isAbsolute, join, resolve } from 'node:path'
-import pico from 'picocolors'
+import { readFile } from 'node:fs/promises'
+import { isAbsolute, join } from 'node:path'
+import { styleText } from 'node:util'
 
-const supportedExtensions = ['.xml', '.opml']
-
-export function isSupportedExt(path: string): boolean {
-  return supportedExtensions.some(ext => path.endsWith(ext))
+export async function readText(path: string): Promise<string> {
+  let absolute = path
+  if (!isAbsolute(absolute)) {
+    absolute = join(process.env.INIT_CWD!, path)
+  }
+  let buffer = await readFile(absolute)
+  return buffer.toString('utf-8')
 }
 
 export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
-export function resolvePath(path: string): string {
-  if (isAbsolute(path)) {
-    return path
-  }
-  return resolve(join(process.cwd(), '..', path))
+export function enableTestClient(): void {
+  setupEnvironment(getTestEnvironment())
+  enableTestTime()
+  userId.set('10')
+  setBaseTestRoute({ params: {}, route: 'home' })
+  setRequestMethod(fetch)
 }
 
-export function waitForStoreResolve(
-  store: ReadableAtom<boolean>
-): Promise<boolean> {
-  return new Promise(_resolve => {
-    let loadingComparison = 'idle'
-    let unbind = store.listen(value => {
-      if (value && loadingComparison === 'idle') {
-        loadingComparison = 'loading'
-      }
-      if (!value && loadingComparison === 'loading') {
+export function timeout<Value>(
+  ms: number,
+  promise: Promise<Value>
+): Promise<Value> {
+  return Promise.race([
+    promise,
+    new Promise<Value>((resolve, reject) =>
+      setTimeout(() => {
+        reject(new Error('Timeout'))
+      }, ms)
+    )
+  ])
+}
+
+export function waitFor<Value>(
+  store: ReadableAtom,
+  value: Value
+): Promise<void> {
+  return new Promise<void>(resolve => {
+    let unbind = store.subscribe(state => {
+      if (state === value) {
         unbind()
-        _resolve(value)
+        resolve()
       }
     })
   })
 }
 
-interface Logger {
-  err(msg: string): void
-  info(msg: string): void
-  log(msg: string): void
-  succ(msg: string): void
-  warn(msg: string): void
+interface NoFileError extends Error {
+  code: string
+  path: string
 }
 
-export const logger: Logger = {
-  err(msg) {
-    this.log(pico.red(`Error: ${msg}`))
-  },
-  info(msg) {
-    this.log(pico.blue(msg))
-  },
-  log(msg) {
-    process.stderr.write(`${msg}\n`)
-  },
-  succ(msg) {
-    this.log(pico.green(msg))
-  },
-  warn(msg) {
-    this.log(pico.yellow(`Warning: ${msg}`))
+function isNoFileError(e: unknown): e is NoFileError {
+  return e instanceof Error && `code` in e && e.code === 'ENOENT'
+}
+
+export function print(msg: string): void {
+  process.stderr.write(`${msg}\n`)
+}
+
+let errors = 0
+
+export function error(err: string | unknown, details?: string): void {
+  errors += 1
+  let msg: string
+  if (isNoFileError(err)) {
+    msg = `File not found: ${err.path}`
+  } else if (err instanceof Error) {
+    msg = err.stack ?? err.message
+  } else {
+    msg = String(err)
   }
+  print('')
+  print(
+    styleText('bold', styleText('bgRed', ' ERROR ')) +
+      ' ' +
+      styleText('bold', styleText('red', msg))
+  )
+  if (details) print(details)
+  print('')
+}
+
+export function finish(msg: string): void {
+  print('')
+  let postfix = ''
+  if (errors > 0) {
+    postfix =
+      ', ' + styleText('red', styleText('bold', `${errors} errors found`))
+  }
+  print(styleText('gray', msg + postfix))
+  process.exit(errors > 0 ? 1 : 0)
+}
+
+export function success(msg: string, details?: string): void {
+  if (details) {
+    msg += ` ${styleText('gray', details)}`
+  }
+  print(styleText('green', styleText('bold', '✓ ') + msg))
 }

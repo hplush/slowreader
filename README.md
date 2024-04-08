@@ -19,7 +19,7 @@ Pre-alpha prototype: [`dev.slowreader.app`](https://dev.slowreader.app/)
 
 - [License](#license)
 - [Principles](#principles)
-  - [Local-first: Clients Do All the Job](#local-first-clients-do-all-the-job)
+  - [Local-First: Clients Do All the Job](#local-first-clients-do-all-the-job)
   - [Zero-Knowledge Synchronization](#zero-knowledge-synchronization)
   - [Event-Sourcing and CRDT](#event-sourcing-and-crdt)
   - [Client Core: Reusing All Logic Between Different Platforms](#client-core-reusing-all-logic-between-different-platforms)
@@ -39,7 +39,7 @@ Slow Reader is free software: you can redistribute it and/or modify it under the
 
 ## Principles
 
-### Local-first: Clients Do All the Job
+### Local-First: Clients Do All the Job
 
 Local-first means the client stores all data locally and does most of the job. Even if we decide to close the cloud, you can still use the Slow Reader client.
 
@@ -120,6 +120,7 @@ Global development tools:
 - [Prettier](./.prettierrc) to use the same code style formatting.
 - [TypeScript](./tsconfig.json) for strict type checking.
 - [ESLint](./eslint.config.js) to check for popular mistakes in JavaScript.
+- [remark](./.remarkrc.js) to find mistakes in `.md` files.
 
 Each project has its own tools, too.
 
@@ -129,6 +130,7 @@ Each project has its own tools, too.
 - `pnpm start`: run proxy and web client development server.
 - `pnpm format`: fix code style in all files.
 - `pnpm clean`: remove all temporary files.
+- `pnpm check-opml`: test loaders with user’s OPML RSS export.
 
 We use pnpm feature to run scripts in parallel, having scripts like `test:types` and `test:audit`. Then, we run all scripts in all projects by `test:*` prefix.
 
@@ -211,7 +213,7 @@ How we choose dependencies:
 
 1. Always checking alternatives from npm search, not just take the most popular one.
 2. By project activity looking at their repository/issues/PR.
-3. By [JS bundle size](https://bundlejs.com/) if it is a web client dependency.
+3. By [JS bundle size](https://bundlejs.com/) for web client dependency.
 4. By [`node_modules` size](https://packagephobia.com/) and [number of subdependencies](https://npmgraph.js.org).
 
 After adding a web client dependency, do not forget to call `cd web && pnpm size` to check the real size of dependency in our JS bundle.

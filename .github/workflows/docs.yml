@@ -1,0 +1,33 @@
+name: Markdown Linter
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.md'
+      - '.remarkrc.js'
+      - '.remarkignore'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    paths:
+      - '**/*.md'
+      - '.remarkrc.js'
+      - '.remarkignore'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/docs.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Install tools from asdf config
+        uses: ai/asdf-cache-action@v1
+      - name: Install dependencies
+        run: pnpm install --ignore-scripts
+      - name: Run test
+        run: pnpm test:markdown
