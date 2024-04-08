@@ -35,4 +35,7 @@ jobs:
           name: preview-assets
           path: |
             ./web/dist/
+            ./web/nginx.conf
+            ./web/Dockerfile
+            ./web/.nginx/
             ./preview-id
