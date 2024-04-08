@@ -6,15 +6,15 @@ User could use it to bypass censorship or to try web client before they install 
 
 ## Usage
 
-### Start proxy
+### Start Proxy
 
 ```shell
 pnpm start
 # // Proxy server running on port 5284
 ```
 
-## Additional info:
+## Additional Info:
 
-### Discussing security and protection from span
+### Discussing Security and Protection from Spam
 
 - https://github.com/hplush/slowreader/issues/100
