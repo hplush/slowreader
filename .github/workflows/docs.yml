@@ -5,9 +5,11 @@ on:
       - main
     paths:
       - './**/*.md'
+      - '.remarkrc.js'
   pull_request:
     paths:
       - './**/*.md'
+      - '.remarkrc.js'
 permissions:
   contents: read
 jobs:
