@@ -213,7 +213,7 @@ How we choose dependencies:
 
 1. Always checking alternatives from npm search, not just take the most popular one.
 2. By project activity looking at their repository/issues/PR.
-3. By [JS bundle size](https://bundlejs.com/) if it is a web client dependency.
+3. By [JS bundle size](https://bundlejs.com/) for web client dependency.
 4. By [`node_modules` size](https://packagephobia.com/) and [number of subdependencies](https://npmgraph.js.org).
 
 After adding a web client dependency, do not forget to call `cd web && pnpm size` to check the real size of dependency in our JS bundle.
