@@ -34,7 +34,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: web-client-assets-${{ github.sha }}
-          path: web/dist/
+          path: |
+            web/dist/
+            web/.nginx/routes.js
           retention-days: 1
   staging:
     needs: test
