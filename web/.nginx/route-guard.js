@@ -17,12 +17,11 @@ async function check(r) {
   let requestPath = r.uri.split('?')[0]
   let routeExists = ROUTE_REGEXPS.find(route => route.test(requestPath))
 
-  let appIndex = await r.subrequest('/index.html', r.variables.args)
-
   if (routeExists) {
+    let appIndex = await r.subrequest('/index.html', r.variables.args)
     return r.return(200, appIndex.responseText)
   } else {
-    return r.return(404, appIndex.responseText)
+    return r.return(404)
   }
 }
 
