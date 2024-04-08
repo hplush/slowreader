@@ -150,7 +150,7 @@
     flex-direction: column;
     width: var(--navbar-width);
 
-    @media (width <=1024px) {
+    @media (width <= 1024px) {
       inset-block: unset;
       bottom: 0;
       width: 100%;
@@ -165,7 +165,7 @@
     justify-content: stretch;
     padding: var(--padding-m) var(--padding-m) 0 var(--padding-m);
 
-    @media (width <=1024px) {
+    @media (width <= 1024px) {
       padding: var(--padding-m);
     }
   }
@@ -180,7 +180,7 @@
     padding: var(--padding-m);
     overflow-y: auto;
 
-    @media (width <=1024px) {
+    @media (width <= 1024px) {
       display: none;
       order: -1;
     }

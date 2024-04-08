@@ -29,8 +29,9 @@
     min-height: 100%;
     padding: var(--padding-l);
 
-    @media (width <=1024px) {
-      padding: var(--padding-l) var(--padding-l) var(--navbar-height)
+    @media (width <= 1024px) {
+      padding:
+        var(--padding-l) var(--padding-l) var(--navbar-height)
         var(--padding-l);
     }
 
