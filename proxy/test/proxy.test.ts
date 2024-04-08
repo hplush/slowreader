@@ -37,10 +37,9 @@ const targetServer = createServer((req, res) => {
 describe('proxy tests', async () => {
   await initTestHttpServer(
     'proxy',
-    createProxyServer({ silentMode: true, hostnameWhitelist: ['localhost'] }),
-    { port: 3999 }
+    createProxyServer({ silentMode: true, hostnameWhitelist: ['localhost'] })
   )
-  await initTestHttpServer('target', targetServer, { port: 4000 })
+  await initTestHttpServer('target', targetServer)
 
   let proxyServerUrl = ''
   let targetServerUrl = ''
@@ -61,9 +60,6 @@ describe('proxy tests', async () => {
         "Couldn't set up target server or proxy server. Something is misconfigured. Please check out 'proxy.test.js'"
       )
     }
-
-    console.log(`Proxy server running on ${proxyServerUrl}`)
-    console.log(`Target test server running on ${targetServerUrl}`)
   })
 
   await test('proxy works', async () => {
@@ -125,6 +121,14 @@ describe('proxy tests', async () => {
           equal(response.status, 500)
         })
       }
+    })
+
+    await test('can not use proxy to query local address', async () => {
+      const response = await fetch(
+        `${proxyServerUrl}/${targetServerUrl.replace('localhost', '127.0.0.1')}`,
+        {}
+      )
+      equal(response.status, 500)
     })
 
     await describe('cookies', async () => {

@@ -8,7 +8,6 @@ import isMartianIP from 'martian-cidr'
  *
  * isProduction - main toggle for production features:
  * - will allow only request that match productionDomainSuffix
- * - will debounce requests with
  *
  * silentMode - will silent the output. Useful for testing
  *
@@ -36,7 +35,6 @@ const createProxyServer = (
   const productionDomainSuffix = config.productionDomainSuffix || ''
 
   return createServer(async (req, res) => {
-    // Todo (@toplenboren) what about adding a rate limiter?
     let url = decodeURIComponent(req.url!.slice(1))
     let sent = false
 
@@ -77,7 +75,7 @@ const createProxyServer = (
       delete req.headers['set-cookie']
       delete req.headers.host
 
-      let proxy = await fetch(url, {
+      let targetResponse = await fetch(url, {
         headers: {
           ...(req.headers as HeadersInit),
           host: new URL(url).host
@@ -85,14 +83,15 @@ const createProxyServer = (
         method: req.method
       })
 
-      res.writeHead(proxy.status, {
+      res.writeHead(targetResponse.status, {
         'Access-Control-Allow-Headers': '*',
         'Access-Control-Allow-Methods': 'OPTIONS, POST, GET, PUT, DELETE',
         'Access-Control-Allow-Origin': '*',
-        'Content-Type': proxy.headers.get('content-type') ?? 'text/plain'
+        'Content-Type':
+          targetResponse.headers.get('content-type') ?? 'text/plain'
       })
       sent = true
-      res.write(await proxy.text())
+      res.write(await targetResponse.text())
       res.end()
     } catch (e) {
       if (e instanceof Error) {
