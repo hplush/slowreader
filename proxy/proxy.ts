@@ -1,74 +1,119 @@
 import { createServer } from 'node:http'
 import { styleText } from 'node:util'
+// @ts-ignore
+import isMartianIP from 'martian-cidr'
 
-const IS_PRODUCTION = process.env.mode === 'production'
-const PRODUCTION_DOMAIN_SUFFIX = '.slowreader.app'
+/**
+ * Creates proxy server
+ *
+ * isProduction - main toggle for production features:
+ * - will allow only request that match productionDomainSuffix
+ * - will debounce requests with
+ *
+ * silentMode - will silent the output. Useful for testing
+ *
+ * hostnameWhitelist - Sometimes you need to allow request to certain ips like localhost for testing purposes, like localhost
+ *
+ * productionDomainSuffix - if isProduction, then only request from origins that match this param are allowed
+ *
+ * @example
+ * const p = createProxyServer()
+ * p.listen(5555).then(() => console.log('running on 5555'))
+ *
+ * @param { isProduction, silentMode, hostnameWhitelist, productionDomainSuffix } config
+ */
+const createProxyServer = (
+  config: {
+    isProduction?: boolean
+    silentMode?: boolean
+    hostnameWhitelist?: Array<string>
+    productionDomainSuffix?: string
+  } = {}
+) => {
+  const isProduction = config.isProduction || false
+  const silentMode = config.silentMode || false
+  const hostnameWhitelist = config.hostnameWhitelist || []
+  const productionDomainSuffix = config.productionDomainSuffix || ''
 
-const proxy = createServer(async (req, res) => {
-  // Todo (@toplenboren) what about other protocols? We do not want ssh for example
-  // Todo (@toplenboren) what about adding a rate limiter?
-  let url = decodeURIComponent(req.url!.slice(1))
-  let sent = false
+  return createServer(async (req, res) => {
+    // Todo (@toplenboren) what about adding a rate limiter?
+    let url = decodeURIComponent(req.url!.slice(1))
+    let sent = false
 
-  try {
-    // Other requests are typically used to modify the data, and we do not typically need them to load RSS
-    if (req.method !== 'GET') {
-      throw new Error('Only GET requests are allowed.')
-    }
+    try {
+      // Only http or https protocols are allowed
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        throw new Error('Only http or https requests are allowed.')
+      }
 
-    // In production mode we only allow request from production domain
-    if (IS_PRODUCTION) {
-      const origin = req.headers.origin
-      if (!origin || !origin.endsWith(PRODUCTION_DOMAIN_SUFFIX)) {
-        throw new Error('Unauthorized origin.')
+      // Other requests are typically used to modify the data, and we do not typically need them to load RSS
+      if (req.method !== 'GET') {
+        throw new Error('Only GET requests are allowed.')
+      }
+
+      // In production mode we only allow request from production domain
+      if (isProduction) {
+        const origin = req.headers.origin
+        if (!origin || !origin.endsWith(productionDomainSuffix)) {
+          throw new Error('Unauthorized origin.')
+        }
+      }
+
+      const requestUrl = new URL(url)
+      if (!hostnameWhitelist.includes(requestUrl.hostname)) {
+        // Do not allow requests to addresses that are reserved:
+        // 127.*
+        // 192.168.*,*
+        // https://en.wikipedia.org/wiki/Reserved_IP_addresses
+        if (isMartianIP(requestUrl.hostname)) {
+          throw new Error(
+            'Requests to IPs from local or reserved subnets are not allowed.'
+          )
+        }
+      }
+
+      // Remove all cookie headers and host header from request
+      delete req.headers.cookie
+      delete req.headers['set-cookie']
+      delete req.headers.host
+
+      let proxy = await fetch(url, {
+        headers: {
+          ...(req.headers as HeadersInit),
+          host: new URL(url).host
+        },
+        method: req.method
+      })
+
+      res.writeHead(proxy.status, {
+        'Access-Control-Allow-Headers': '*',
+        'Access-Control-Allow-Methods': 'OPTIONS, POST, GET, PUT, DELETE',
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': proxy.headers.get('content-type') ?? 'text/plain'
+      })
+      sent = true
+      res.write(await proxy.text())
+      res.end()
+    } catch (e) {
+      if (e instanceof Error) {
+        if (!silentMode) {
+          process.stderr.write(styleText('red', e.stack ?? e.message) + '\n')
+        }
+        if (!sent) {
+          res.writeHead(500, { 'Content-Type': 'text/plain' })
+          res.end('Internal Server Error')
+        }
+      } else if (typeof e === 'string') {
+        if (!silentMode) {
+          process.stderr.write(styleText('red', e) + '\n')
+        }
+        if (!sent) {
+          res.writeHead(500, { 'Content-Type': 'text/plain' })
+          res.end('Internal Server Error')
+        }
       }
     }
+  })
+}
 
-    // Todo (@toplenboren) what to do with ipv6?
-    // Todo (@toplenboren) what about those: https://en.wikipedia.org/wiki/Reserved_IP_addresses
-    // Do not allow requests to addresses that are reserved:
-    // 127.*
-    // 192.168.*,*
-    const localhostRegex =
-      /^(127\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3})$/
-    const requestUrl = new URL(url)
-    if (localhostRegex.test(requestUrl.hostname)) {
-      throw new Error('Requests to localhost IP addresses are not allowed.')
-    }
-
-    // Remove all cookie headers and host header from request
-    delete req.headers.cookie
-    delete req.headers['set-cookie']
-    delete req.headers.host
-
-    let proxy = await fetch(url, {
-      headers: {
-        ...(req.headers as HeadersInit),
-        host: new URL(url).host
-      },
-      method: req.method
-    })
-
-    res.writeHead(proxy.status, {
-      'Access-Control-Allow-Headers': '*',
-      'Access-Control-Allow-Methods': 'OPTIONS, POST, GET, PUT, DELETE',
-      'Access-Control-Allow-Origin': '*',
-      'Content-Type': proxy.headers.get('content-type') ?? 'text/plain'
-    })
-    sent = true
-    res.write(await proxy.text())
-    res.end()
-  } catch (e) {
-    if (e instanceof Error) {
-      process.stderr.write(styleText('red', e.stack ?? e.message) + '\n')
-      if (!sent) {
-        res.writeHead(500, { 'Content-Type': 'text/plain' })
-        res.end('Internal Server Error')
-      }
-    } else if (typeof e === 'string') {
-      process.stderr.write(styleText('red', e) + '\n')
-    }
-  }
-})
-
-export default proxy
+export default createProxyServer

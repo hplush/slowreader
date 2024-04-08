@@ -1,9 +1,9 @@
 import { before, test, describe } from 'node:test'
 import { equal } from 'node:assert'
-import proxy from '../proxy.js'
-import fetch from 'node-fetch'
 import { createServer } from 'node:http'
 import { initTestHttpServer, getTestHttpServer } from './utils.js'
+import createProxyServer from '../proxy.js'
+import { URL } from 'url'
 
 /**
  * Proxy is tested with a service that outputs request and response data.
@@ -11,6 +11,11 @@ import { initTestHttpServer, getTestHttpServer } from './utils.js'
  * <local client> -> <proxy> -> <targetServer>
  */
 const targetServer = createServer((req, res) => {
+  const parsedUrl = new URL(req.url || '', `http://${req.headers.host}`)
+
+  const queryParams = Object.fromEntries(parsedUrl.searchParams.entries())
+  const requestPath = parsedUrl.pathname
+
   res.writeHead(200, {
     'Content-Type': 'text/json'
   })
@@ -18,13 +23,23 @@ const targetServer = createServer((req, res) => {
   res.end(
     JSON.stringify({
       response: 'ok',
-      request: { headers: req.headers, method: req.method, url: req.url }
+      request: {
+        headers: req.headers,
+        method: req.method,
+        url: req.url,
+        queryParams,
+        requestPath
+      }
     })
   )
 })
 
 describe('proxy tests', async () => {
-  await initTestHttpServer('proxy', proxy, { port: 3999 })
+  await initTestHttpServer(
+    'proxy',
+    createProxyServer({ silentMode: true, hostnameWhitelist: ['localhost'] }),
+    { port: 3999 }
+  )
   await initTestHttpServer('target', targetServer, { port: 4000 })
 
   let proxyServerUrl = ''
@@ -55,18 +70,58 @@ describe('proxy tests', async () => {
     const response = await fetch(`${proxyServerUrl}/${targetServerUrl}`)
     const parsedResponse = await response.json()
     // @ts-ignore
+    equal(response.status, 200)
     equal(parsedResponse?.response, 'ok')
+  })
+
+  await test('proxy transfers query params and path', async () => {
+    const response = await fetch(
+      `${proxyServerUrl}/${targetServerUrl}/foo/bar?foo=bar&bar=foo`
+    )
+    const parsedResponse = await response.json()
+    // @ts-ignore
+    equal(response.status, 200)
+    equal(parsedResponse?.response, 'ok')
+    equal(parsedResponse?.request?.requestPath, '/foo/bar')
+    equal(parsedResponse?.request?.queryParams?.foo, 'bar')
+    equal(parsedResponse?.request?.queryParams?.bar, 'foo')
   })
 
   await describe('security', async () => {
     await test('can use only GET ', async () => {
-      const methods = ['DELETE', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'TRACE']
+      const forbiddenMethods = ['DELETE', 'HEAD', 'OPTIONS', 'POST', 'PUT']
 
-      for (const method of methods) {
+      for (const method of forbiddenMethods) {
         await test(`can not use ${method}`, async () => {
           const response = await fetch(`${proxyServerUrl}/${targetServerUrl}`, {
             method
           })
+          equal(response.status, 500)
+        })
+      }
+    })
+
+    await test('can use only http or https protocols', async () => {
+      const forbiddenProtocols = [
+        'ssh',
+        'ftp',
+        'sftp',
+        'rdp',
+        'arp',
+        'smtp',
+        'pop3',
+        'imap',
+        'dns',
+        'dhcp',
+        'snmp'
+      ]
+
+      for (const protocol of forbiddenProtocols) {
+        await test(`can not use ${protocol}`, async () => {
+          const response = await fetch(
+            `${proxyServerUrl}/${targetServerUrl.replace('http', protocol)}`,
+            {}
+          )
           equal(response.status, 500)
         })
       }
@@ -77,6 +132,8 @@ describe('proxy tests', async () => {
         const response = await fetch(`${proxyServerUrl}/${targetServerUrl}`, {
           headers: { 'set-cookie': 'accessToken=1234abc; userId=1234' }
         })
+
+        equal(response.status, 200)
         const parsedResponse = await response.json()
         // @ts-ignore
         equal(parsedResponse?.['set-cookie'], undefined)
@@ -88,6 +145,8 @@ describe('proxy tests', async () => {
         const response = await fetch(`${proxyServerUrl}/${targetServerUrl}`, {
           headers: { cookie: 'accessToken=1234abc; userId=1234' }
         })
+
+        equal(response.status, 200)
         const parsedResponse = await response.json()
         // @ts-ignore
         equal(parsedResponse?.['set-cookie'], undefined)

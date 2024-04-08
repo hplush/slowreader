@@ -9,7 +9,7 @@
     "clean:coverage": "rm -rf coverage"
   },
   "dependencies": {
-    "node-fetch": "3.3.2",
+    "martian-cidr": "2.0.3",
     "tsx": "4.7.2"
   },
   "devDependencies": {
