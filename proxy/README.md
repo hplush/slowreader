@@ -15,6 +15,6 @@ pnpm start
 
 ## Additional Info:
 
-### Discussing Security and Protection from Spam
+### Discussing Security and Protection From Spam
 
 - https://github.com/hplush/slowreader/issues/100
