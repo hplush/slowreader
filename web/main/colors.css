@@ -24,7 +24,7 @@
       inset 2px 0 0 var(--land-color),
       5px 0 0 var(--land-color),
       -5px 0 0 var(--land-color);
-    --navbar-shadow: 0 -1px 0 oklch(from var(--shadow-color) l c h / 8%);
+    --float-shadow: 0 -1px 0 oklch(from var(--shadow-color) l c h / 8%);
     --dangerous-card-color: var(--red-100);
     --dangerous-card-hover-color: color-mix(in oklab, var(--red-100), var(--sand-100));
     --dangerous-text-color: var(--red-700);
@@ -70,7 +70,7 @@
       5px 0 0 var(--land-color),
       -5px 0 0 var(--land-color),
       inset 0 1px 2px oklch(0% 0 0);
-    --navbar-shadow: 0 -1px 0 oklch(from var(--shadow-color) l c h / 20%);
+    --float-shadow: 0 -1px 0 oklch(from var(--shadow-color) l c h / 20%);
     --dangerous-card-color: var(--red-900);
     --dangerous-card-hover-color: color-mix(in oklab, var(--red-900), var(--red-800));
     --dangerous-text-color: var(--red-200);

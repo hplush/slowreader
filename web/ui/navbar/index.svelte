@@ -155,7 +155,7 @@
       bottom: 0;
       width: 100%;
       background-color: var(--land-color);
-      box-shadow: var(--navbar-shadow);
+      box-shadow: var(--float-shadow);
     }
   }
 
