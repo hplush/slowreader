@@ -1,5 +1,6 @@
 // @ts-ignore
 import isMartianIP from 'martian-cidr'
+import type http from 'node:http'
 import { createServer } from 'node:http'
 import { styleText } from 'node:util'
 
@@ -28,7 +29,7 @@ const createProxyServer = (
     productionDomainSuffix?: string
     silentMode?: boolean
   } = {}
-) => {
+): http.Server => {
   let isProduction = config.isProduction || false
   let silentMode = config.silentMode || false
   let hostnameWhitelist = config.hostnameWhitelist || []
