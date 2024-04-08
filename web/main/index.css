@@ -48,7 +48,7 @@ ol[role='list'] {
   width: 100%;
   padding-inline-start: var(--navbar-width);
 
-  @media (width <=1024px) {
+  @media (width <= 1024px) {
     padding-inline-start: unset;
   }
 }
