@@ -167,9 +167,16 @@ importers:
 
   proxy:
     dependencies:
+      node-fetch:
+        specifier: 3.3.2
+        version: 3.3.2
       tsx:
         specifier: 4.7.2
         version: 4.7.2
+    devDependencies:
+      c8:
+        specifier: 9.1.0
+        version: 9.1.0
 
   server:
     dependencies:

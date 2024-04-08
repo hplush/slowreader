@@ -30,7 +30,8 @@
     "core",
     "server",
     "web",
-    "loader-tests"
+    "loader-tests",
+    "proxy"
   ],
   "devDependencies": {
     "@logux/eslint-config": "53.0.1",

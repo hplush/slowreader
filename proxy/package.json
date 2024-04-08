@@ -3,9 +3,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "tsx ./index.ts"
+    "start": "tsx ./index.ts",
+    "test": "FORCE_COLOR=1 pnpm run /^test:/",
+    "test:coverage": "c8 pnpm bnt",
+    "clean:coverage": "rm -rf coverage"
   },
   "dependencies": {
+    "node-fetch": "3.3.2",
     "tsx": "4.7.2"
+  },
+  "devDependencies": {
+    "c8": "9.1.0"
   }
 }
