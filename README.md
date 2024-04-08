@@ -19,7 +19,7 @@ Pre-alpha prototype: [`dev.slowreader.app`](https://dev.slowreader.app/)
 
 - [License](#license)
 - [Principles](#principles)
-  - [Local-first: Clients Do All the Job](#local-first-clients-do-all-the-job)
+  - [Local-First: Clients Do All the Job](#local-first-clients-do-all-the-job)
   - [Zero-Knowledge Synchronization](#zero-knowledge-synchronization)
   - [Event-Sourcing and CRDT](#event-sourcing-and-crdt)
   - [Client Core: Reusing All Logic Between Different Platforms](#client-core-reusing-all-logic-between-different-platforms)
@@ -39,7 +39,7 @@ Slow Reader is free software: you can redistribute it and/or modify it under the
 
 ## Principles
 
-### Local-first: Clients Do All the Job
+### Local-First: Clients Do All the Job
 
 Local-first means the client stores all data locally and does most of the job. Even if we decide to close the cloud, you can still use the Slow Reader client.
 

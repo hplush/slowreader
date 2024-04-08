@@ -6,7 +6,7 @@ Fixes # (issue)
 
 <!-- Why did you make these changes? -->
 
-## Screenshot or video
+## Screenshot or Video
 
 <!-- Delete if it is not relevant -->
 

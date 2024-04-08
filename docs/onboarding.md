@@ -2,7 +2,7 @@
 
 - [Enable 2FA on GitHub](#enable-2fa-on-github)
 - [Encrypt Your Laptop](#encrypt-your-laptop)
-- [Enable signing git commits](#enable-signing-git-commits)
+- [Enable Signing Git Commits](#enable-signing-git-commits)
 
 ## Enable 2FA on GitHub
 
@@ -20,7 +20,7 @@ All core team members _must_ enable file system encryption for the machine.
 
 Check the documentation for your operating system.
 
-## Enable signing git commits
+## Enable Signing Git Commits
 
 By default, anybody can make commits with your name.
 

@@ -1,10 +1,10 @@
-# Slow Reader Loader tests
+# Slow Reader Loader Tests
 
 Integration tests for each social network or news format.
 
 This project allows testing of different types of web feed aggregators on the Internet and provides assurance that our reader can load tests from real feeds.
 
-## Check Loaders OPML files
+## Check Loaders by User’s OPML
 
 Test that Slow Reader can work with all feeds from your RSS reader by using OPML feeds export.
 
