@@ -6,10 +6,12 @@ on:
     paths:
       - './**/*.md'
       - '.remarkrc.js'
+      - 'pnpm-lock.yaml'
   pull_request:
     paths:
       - './**/*.md'
       - '.remarkrc.js'
+      - 'pnpm-lock.yaml'
 permissions:
   contents: read
 jobs:
