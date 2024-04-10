@@ -5,7 +5,10 @@ export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
-function buildFullURL(link: HTMLLinkElement, baseUrl: string): string {
+function buildFullURL(
+  link: HTMLLinkElement | HTMLAnchorElement,
+  baseUrl: string
+): string {
   let href = link.getAttribute('href')!
   let urlSegments: string[] = [href]
   let parent: Element | null = link.parentElement
@@ -25,13 +28,36 @@ function buildFullURL(link: HTMLLinkElement, baseUrl: string): string {
 }
 
 export function findLinks(text: TextResponse, type: string): string[] {
-  return [...text.parse().querySelectorAll('link')]
-    .filter(
-      link =>
-        link.getAttribute('type') === type &&
-        isString(link.getAttribute('href'))
-    )
-    .map(link => buildFullURL(link, text.url))
+  let links: string[] = []
+
+  links.push(
+    ...[...text.parse().querySelectorAll('link')]
+      .filter(
+        link =>
+          link.getAttribute('type') === type &&
+          isString(link.getAttribute('href'))
+      )
+      .map(link => buildFullURL(link, text.url))
+  )
+
+  links.push(
+    ...[...text.parse().querySelectorAll('a')]
+      .filter(a => {
+        let href = a.getAttribute('href')
+        if (!href) return false
+        return (
+          href.includes('feed.') ||
+          href.includes('feed.xml') ||
+          href.includes('.rss') ||
+          href.includes('.atom') ||
+          href.includes('/rss') ||
+          href.includes('/atom')
+        )
+      })
+      .map(a => buildFullURL(a, text.url))
+  )
+
+  return links
 }
 
 export function hasAnyFeed(

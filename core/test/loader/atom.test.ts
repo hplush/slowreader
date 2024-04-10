@@ -117,6 +117,34 @@ test('detects links', () => {
   )
 })
 
+test('finds atom links in <a> elements based on criteria', () => {
+  deepStrictEqual(
+    loaders.atom.getMineLinksFromText(
+      createTextResponse(
+        `<!DOCTYPE html>
+        <html>
+          <body>
+            <a href="/atom">Atom Feed</a>
+            <a href="https://example.com/blog/feed.xml">Feed XML</a>
+            <a href="/something.atom">Feed Atom</a>
+            <a href="/feed.something">Feed Atom</a>
+          </body>
+        </html>`,
+        {
+          url: 'https://example.com/news'
+        }
+      ),
+      []
+    ),
+    [
+      'https://example.com/atom',
+      'https://example.com/blog/feed.xml',
+      'https://example.com/something.atom',
+      'https://example.com/feed.something'
+    ]
+  )
+})
+
 test('returns default links', () => {
   deepStrictEqual(
     loaders.atom.getMineLinksFromText(
