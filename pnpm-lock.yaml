@@ -45,8 +45,8 @@ importers:
         specifier: ^12.0.0
         version: 12.0.0
       remark-lint-heading-capitalization:
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.1.0
+        version: 1.1.0
       remark-lint-no-dead-urls:
         specifier: ^1.1.0
         version: 1.1.0
@@ -8474,8 +8474,8 @@ packages:
       - supports-color
     dev: true
 
-  /remark-lint-heading-capitalization@1.0.0:
-    resolution: {integrity: sha512-Ym/72Uskiglbe0e2uVDxgeS9bkwBxoz90yVmMFxfoRbwlP3kzO87ZHf0AqBBmUag4iAkuDeS+6hOB5k9baDD3A==}
+  /remark-lint-heading-capitalization@1.1.0:
+    resolution: {integrity: sha512-KCBkpRugHY4xXoQMTvRwjuEvg6i+f5cjuIajmHsXqWjEQQK7nZrEoIO9SEk7QCkaMVfAqWHBrhD3srPH4PqrAw==}
     engines: {node: ^18.0.0 || >=20.0.0}
     dependencies:
       unified-lint-rule: 2.1.2
