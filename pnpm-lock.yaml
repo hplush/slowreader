@@ -44,6 +44,9 @@ importers:
       remark-cli:
         specifier: ^12.0.0
         version: 12.0.0
+      remark-lint-code-block-split-list:
+        specifier: ^1.0.0
+        version: 1.0.0
       remark-lint-heading-capitalization:
         specifier: ^1.1.0
         version: 1.1.0
@@ -8474,6 +8477,15 @@ packages:
       - supports-color
     dev: true
 
+  /remark-lint-code-block-split-list@1.0.0:
+    resolution: {integrity: sha512-Am4fZFVKTsJ1SyjyGDmbI2IYMNrrNcVk58/fH5MYbIS+efFLlhVd8U+RYSiTjjOmNDct7XfQxI92DsS8taDYug==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    dependencies:
+      unified-lint-rule: 2.1.2
+      unist-util-parents: 3.0.0
+      unist-util-visit: 5.0.0
+    dev: true
+
   /remark-lint-heading-capitalization@1.1.0:
     resolution: {integrity: sha512-KCBkpRugHY4xXoQMTvRwjuEvg6i+f5cjuIajmHsXqWjEQQK7nZrEoIO9SEk7QCkaMVfAqWHBrhD3srPH4PqrAw==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -9820,6 +9832,12 @@ packages:
 
   /unist-util-is@6.0.0:
     resolution: {integrity: sha512-2qCTHimwdxLfz+YzdGfkqNlH0tLi9xjTnHddPmJwtIG9MGsdbutfTc4P+haPD7l7Cjxf/WZj+we5qfVPvvxfYw==}
+    dependencies:
+      '@types/unist': 3.0.2
+    dev: true
+
+  /unist-util-parents@3.0.0:
+    resolution: {integrity: sha512-3DVSfp+MkJhcJbGn/W7aOlZYVpsMQQ054cpfbPHZAqYPu/lvu5rCdzjuIt4eEMriLkCWLcnJjax97Awm1Bkhtg==}
     dependencies:
       '@types/unist': 3.0.2
     dev: true
