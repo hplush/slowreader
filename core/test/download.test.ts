@@ -152,6 +152,22 @@ test('parses content', async () => {
     headers: new Headers({ 'content-type': 'application/xml' })
   })
   equal(broken.parse().textContent, null)
+
+  let json = createTextResponse(
+    '{ "items": [], "version": "1.1", "title": "test_title" }',
+    {
+      headers: new Headers({ 'content-type': 'application/json' })
+    }
+  )
+  equal(json.parseJson()?.version, '1.1')
+
+  let brokenJson = createTextResponse(
+    '{ "items": [], "version": 1.1", "title": "test_title" }',
+    {
+      headers: new Headers({ 'content-type': 'application/json' })
+    }
+  )
+  equal(brokenJson.parseJson(), null)
 })
 
 test('has helper to ignore abort errors', async () => {

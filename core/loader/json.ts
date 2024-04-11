@@ -2,17 +2,73 @@ import type { TextResponse } from '../download.js'
 import type { OriginPost } from '../post.js'
 import { createPostsPage } from '../posts-page.js'
 import type { Loader } from './index.js'
-import { findLinks, hasAnyFeed } from './utils.js'
+import { findLinks, hasAnyFeed, toTime } from './utils.js'
+
+export type Author = {
+  avatar?: string
+  name?: string
+  url?: string
+}
+
+export type Item = {
+  /** deprecated from 1.1 version */
+  author?: Author
+  authors?: Author[]
+  banner_image?: string
+  content_html?: string
+  content_text?: string
+  date_modified?: string
+  date_published?: string
+  external_url?: string
+  id: string
+  image?: string
+  summary?: string
+  tags?: string[]
+  title?: string
+  url?: string
+}
+
+export type JsonFeed = {
+  /** deprecated from 1.1 version */
+  author?: Author
+  authors?: Author[]
+  description?: string
+  favicon?: string
+  feed_url?: string
+  home_page_url?: string
+  icon?: string
+  items: Item[]
+  next_url?: string
+  title?: string
+  user_comment?: string
+  version: string
+}
+
+let existJsonFeedVersions = ['1', '1.1']
+
+function isValidJsonFeed(json: unknown): json is JsonFeed {
+  if (typeof json === 'object' && json !== null && 'version' in json) {
+    let ver = (json as JsonFeed).version.split('/').pop()
+    return existJsonFeedVersions.includes(ver!)
+  } else {
+    // eslint-disable-next-line no-console
+    console.error('Invalid JSON feed format', json)
+  }
+  return false
+}
 
 function parsePosts(text: TextResponse): OriginPost[] {
-  let document = text.parse()
-  return [...document.querySelectorAll('items')].map(() => ({
-    full: undefined,
+  let jsonParsedFeed = text.parseJson()
+  if (!isValidJsonFeed(jsonParsedFeed)) return []
+
+  return jsonParsedFeed.items.map(item => ({
+    full: (item.content_html || item.content_text) ?? undefined,
+    intro: item.summary ?? undefined,
     media: [],
-    originId: '',
-    publishedAt: 1,
-    title: undefined,
-    url: undefined
+    originId: item.id,
+    publishedAt: toTime(item.date_published) ?? undefined,
+    title: item.title,
+    url: item.url ?? undefined
   }))
 }
 
@@ -23,7 +79,7 @@ export const json: Loader = {
       return links
     } else if (!hasAnyFeed(text, found)) {
       let { origin } = new URL(text.url)
-      return [new URL('/json', origin).href]
+      return [new URL('/feed.json', origin).href]
     } else {
       return []
     }
@@ -39,7 +95,11 @@ export const json: Loader = {
     }
   },
 
-  isMineText() {
+  isMineText(text) {
+    let parsedJson = text.parseJson()
+    if (isValidJsonFeed(parsedJson)) {
+      return parsedJson.title ?? ''
+    }
     return false
   },
 

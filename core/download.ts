@@ -1,9 +1,11 @@
+import type { JsonFeed } from './loader/json.js'
 import { request } from './request.js'
 
 export interface TextResponse {
   readonly headers: Headers
   readonly ok: boolean
   parse(): Document | XMLDocument
+  parseJson(): JsonFeed | null
   readonly status: number
   readonly text: string
   readonly url: string
@@ -50,6 +52,25 @@ export function createTextResponse(
         }
       }
       return bodyCache
+    },
+    parseJson() {
+      // if (bodyCache) {
+      //   return bodyCache as JsonFeed;
+      // }
+
+      let parseType = headers.get('content-type')
+      if (parseType !== 'application/json') {
+        return null
+      }
+
+      try {
+        let x = JSON.parse(text)
+        return x as JsonFeed
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Parse JSON error', e)
+        return null
+      }
     },
     status,
     text,
