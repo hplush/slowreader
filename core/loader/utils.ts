@@ -6,7 +6,7 @@ export function isString(attr: null | string): attr is string {
 }
 
 function buildFullURL(
-  link: HTMLLinkElement | HTMLAnchorElement,
+  link: HTMLAnchorElement | HTMLLinkElement,
   baseUrl: string
 ): string {
   let href = link.getAttribute('href')!
