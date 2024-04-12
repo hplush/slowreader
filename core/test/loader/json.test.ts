@@ -91,6 +91,27 @@ test('detects links', () => {
       'http://other.com/d'
     ]
   )
+
+  deepStrictEqual(
+    loaders.json.getMineLinksFromText(
+      createTextResponse(
+        `<!DOCTYPE html>
+        <html>
+          <head>
+            <link rel="alternate" type="application/feed+json" href="/a">
+            <link rel="alternate" type="application/feed+json" href="./b">
+            <link type="application/json" href="http://other.com/d">
+            <link type="application/json" href="http://other.com/m">
+          </head>
+        </html>`,
+        {
+          url: 'https://example.com/news/'
+        }
+      ),
+      []
+    ),
+    ['https://example.com/a', 'https://example.com/news/b']
+  )
 })
 
 test('returns default links', () => {
@@ -235,9 +256,32 @@ test('parses posts', async () => {
 test('loads text to parse posts', async () => {
   let task = createDownloadTask()
   let text = spyOn(task, 'text', async () =>
-    exampleJson(JSON.stringify(jsonStub))
+    exampleJson(
+      JSON.stringify({
+        ...jsonStub,
+        items: [
+          {
+            content_html: '<p>Priority Content</p>',
+            content_text: '<p>Skipped content</p>',
+            date_published: '2022-01-04T00:00:00Z',
+            id: 'somehashid',
+            summary: 'summary',
+            title: 'title_1',
+            url: 'https://example.com/'
+          },
+          {
+            content_html: undefined,
+            content_text: '<p>Alternative content</p>',
+            date_published: '2022-01-04T00:00:00Z',
+            id: 'somehashid2',
+            title: 'title_2',
+            url: 'https://example.com/2'
+          }
+        ]
+      })
+    )
   )
-  let page = loaders.json.getPosts(task, 'https://example.com/news/')
+  let page = loaders.json.getPosts(task, 'https://example.com/')
   deepStrictEqual(page.get(), {
     hasNext: true,
     isLoading: true,
@@ -248,18 +292,26 @@ test('loads text to parse posts', async () => {
   deepStrictEqual(page.get(), {
     hasNext: false,
     isLoading: false,
-    list: []
-    // list: [
-    //   {
-    //     full: undefined,
-    //     media: [undefined],
-    //     originId: 'https://example.com/news',
-    //     publishedAt: undefined,
-    //     summary: undefined,
-    //     title: '1',
-    //     url: 'https://example.com/news'
-    //   },
-    // ]
+    list: [
+      {
+        full: '<p>Priority Content</p>',
+        intro: 'summary',
+        media: [],
+        originId: 'somehashid',
+        publishedAt: 1641254400,
+        title: 'title_1',
+        url: 'https://example.com/'
+      },
+      {
+        full: '<p>Alternative content</p>',
+        intro: undefined,
+        media: [],
+        originId: 'somehashid2',
+        publishedAt: 1641254400,
+        title: 'title_2',
+        url: 'https://example.com/2'
+      }
+    ]
   })
-  deepStrictEqual(text.calls, [['https://example.com/news/']])
+  deepStrictEqual(text.calls, [['https://example.com/']])
 })

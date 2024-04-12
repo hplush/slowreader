@@ -87,6 +87,7 @@ test('uses HTTPS for specific domains', async () => {
   keepMount(previewCandidates)
   spyOn(loaders.rss, 'getMineLinksFromText', () => [])
   spyOn(loaders.atom, 'getMineLinksFromText', () => [])
+  spyOn(loaders.json, 'getMineLinksFromText', () => [])
   spyOn(loaders.rss, 'getSuggestedLinksFromText', () => [])
   spyOn(loaders.atom, 'getSuggestedLinksFromText', () => [])
 
@@ -227,7 +228,7 @@ test('is ready for empty title', async () => {
   ])
 })
 
-test('looks for popular RSS and Atom places', async () => {
+test('looks for popular RSS, Atom and JsonFeed places', async () => {
   keepMount(previewCandidatesLoading)
   keepMount(previewUrlError)
   keepMount(previewCandidates)
@@ -236,6 +237,7 @@ test('looks for popular RSS and Atom places', async () => {
   let atom = '<feed><title></title></feed>'
   expectRequest('http://example.com/feed').andRespond(404)
   expectRequest('http://example.com/atom').andRespond(200, atom, 'text/xml')
+  expectRequest('http://example.com/feed.json').andRespond(404)
   expectRequest('http://example.com/rss').andRespond(404)
 
   setPreviewUrl('example.com')
@@ -260,6 +262,7 @@ test('shows if unknown URL', async () => {
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('http://example.com/feed').andRespond(404)
   expectRequest('http://example.com/atom').andRespond(404)
+  expectRequest('http://example.com/feed.json').andRespond(404)
   expectRequest('http://example.com/rss').andRespond(404)
 
   setPreviewUrl('example.com')
@@ -274,11 +277,15 @@ test('shows if unknown URL', async () => {
 test('always keep the same order of candidates', async () => {
   keepMount(previewCandidates)
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
-  expectRequest('http://example.com/feed').andRespond(404)
   expectRequest('http://example.com/atom').andRespond(
     200,
     '<feed><title>Atom</title></feed>',
     'application/rss+xml'
+  )
+  expectRequest('http://example.com/feed.json').andRespond(
+    200,
+    '{ "version": "https://jsonfeed.org/version/1.1", "title": "JsonFeed" }',
+    'application/json'
   )
   expectRequest('http://example.com/rss').andRespond(
     200,
@@ -290,13 +297,14 @@ test('always keep the same order of candidates', async () => {
 
   deepStrictEqual(
     previewCandidates.get().map(i => i.title),
-    ['Atom', 'RSS']
+    ['Atom', 'JsonFeed', 'RSS']
   )
 
   clearPreview()
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('http://example.com/feed').andRespond(404)
   let atom = expectRequest('http://example.com/atom').andWait()
+  let jsonFeed = expectRequest('http://example.com/feed.json').andWait()
   expectRequest('http://example.com/rss').andRespond(
     200,
     '<rss><channel><title>RSS</title></channel></rss>',
@@ -305,11 +313,16 @@ test('always keep the same order of candidates', async () => {
   setPreviewUrl('example.com')
   await setTimeout(10)
   atom(200, '<feed><title>Atom</title></feed>', 'application/rss+xml')
+  jsonFeed(
+    200,
+    '{ "version": "https://jsonfeed.org/version/1.1", "title": "JsonFeed" }',
+    'application/json'
+  )
   await setTimeout(10)
 
   deepStrictEqual(
     previewCandidates.get().map(i => i.title),
-    ['Atom', 'RSS']
+    ['Atom', 'JsonFeed', 'RSS']
   )
 })
 
@@ -320,6 +333,7 @@ test('tracks current candidate', async () => {
   keepMount(previewCandidate)
   let getAtomPosts = spyOn(loaders.atom, 'getPosts')
   let getRssPosts = spyOn(loaders.rss, 'getPosts')
+  let getJsonFeedPosts = spyOn(loaders.json, 'getPosts')
 
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('http://example.com/feed').andRespond(404)
@@ -327,6 +341,11 @@ test('tracks current candidate', async () => {
     200,
     '<feed><title>Atom</title></feed>',
     'application/rss+xml'
+  )
+  expectRequest('http://example.com/feed.json').andRespond(
+    200,
+    '{ "version": "https://jsonfeed.org/version/1.1", "title": "JsonFeed" }',
+    'application/json'
   )
   expectRequest('http://example.com/rss').andRespond(
     200,
@@ -341,7 +360,7 @@ test('tracks current candidate', async () => {
 
   equal(previewCandidatesLoading.get(), false)
   equal(previewUrlError.get(), undefined)
-  equal(previewCandidates.get().length, 2)
+  equal(previewCandidates.get().length, 3)
   equal(previewCandidate.get(), 'http://example.com/atom')
   deepStrictEqual(previewPosts.get()!.get(), {
     hasNext: false,
@@ -366,6 +385,21 @@ test('tracks current candidate', async () => {
   equal(getRssPosts.calls.length, 1)
   equal(getRssPosts.calls[0]![1], 'http://example.com/rss')
 
+  getJsonFeedPosts.nextResult(
+    createPostsPage([{ media: [], originId: '3', url: '3' }], undefined)
+  )
+  setPreviewCandidate('http://example.com/feed.json')
+  await setTimeout(10)
+
+  equal(previewCandidate.get(), 'http://example.com/feed.json')
+  deepStrictEqual(previewPosts.get()!.get(), {
+    hasNext: false,
+    isLoading: false,
+    list: [{ media: [], originId: '3', url: '3' }]
+  })
+  equal(getJsonFeedPosts.calls.length, 1)
+  equal(getJsonFeedPosts.calls[0]![1], 'http://example.com/feed.json')
+
   setPreviewCandidate('http://example.com/atom')
   await setTimeout(10)
 
@@ -387,6 +421,17 @@ test('tracks current candidate', async () => {
     list: [{ media: [], originId: '2', url: '2' }]
   })
   equal(getRssPosts.calls.length, 1)
+
+  setPreviewCandidate('http://example.com/feed.json')
+  await setTimeout(10)
+
+  equal(previewCandidate.get(), 'http://example.com/feed.json')
+  deepStrictEqual(previewPosts.get()!.get(), {
+    hasNext: false,
+    isLoading: false,
+    list: [{ media: [], originId: '3', url: '3' }]
+  })
+  equal(getJsonFeedPosts.calls.length, 1)
 })
 
 test('tracks added status of candidate', async () => {
@@ -492,6 +537,7 @@ test('changes URL during typing in the field', async () => {
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('http://example.com/feed').andRespond(404)
   expectRequest('http://example.com/atom').andRespond(404)
+  expectRequest('http://example.com/feed.json').andRespond(404)
   expectRequest('http://example.com/rss').andRespond(404)
   setPreviewUrl('example.com')
   equal(previewUrl.get(), 'http://example.com')
@@ -506,6 +552,7 @@ test('changes URL during typing in the field', async () => {
   expectRequest('http://other.net').andRespond(200, '<html>Nothing</html>')
   expectRequest('http://other.net/feed').andRespond(404)
   expectRequest('http://other.net/atom').andRespond(404)
+  expectRequest('http://other.net/feed.json').andRespond(404)
   expectRequest('http://other.net/rss').andRespond(404)
   onPreviewUrlType('other.net')
   await setTimeout(500)
@@ -514,6 +561,7 @@ test('changes URL during typing in the field', async () => {
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('http://example.com/feed').andRespond(404)
   expectRequest('http://example.com/atom').andRespond(404)
+  expectRequest('http://other.net/feed.json').andRespond(404)
   expectRequest('http://example.com/rss').andRespond(404)
   onPreviewUrlType('other.net/some')
   setPreviewUrl('example.com')

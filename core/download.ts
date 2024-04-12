@@ -62,7 +62,10 @@ export function createTextResponse(
     parseJson() {
       let parseType = getContentMediaType(headers)
 
-      if (parseType !== 'application/json') {
+      if (
+        parseType !== 'application/json' &&
+        parseType !== 'application/feed+json'
+      ) {
         return null
       }
 

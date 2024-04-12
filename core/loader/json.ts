@@ -38,7 +38,7 @@ export type JsonFeed = {
   feed_url?: string
   home_page_url?: string
   icon?: string
-  items: Item[]
+  items?: Item[]
   next_url?: string
   title?: string
   user_comment?: string
@@ -59,22 +59,24 @@ function parsePosts(text: TextResponse): OriginPost[] {
   let jsonParsedFeed = text.parseJson()
   if (!isValidJsonFeed(jsonParsedFeed)) return []
 
-  return jsonParsedFeed.items.map(item => ({
-    full: (item.content_html || item.content_text) ?? undefined,
-    intro: item.summary ?? undefined,
-    media: [],
-    originId: item.id,
-    publishedAt: toTime(item.date_published) ?? undefined,
-    title: item.title ?? '',
-    url: item.url ?? undefined
-  }))
+  return (
+    jsonParsedFeed.items?.map(item => ({
+      full: (item.content_html || item.content_text) ?? undefined,
+      intro: item.summary ?? undefined,
+      media: [],
+      originId: item.id,
+      publishedAt: toTime(item.date_published) ?? undefined,
+      title: item.title ?? '',
+      url: item.url ?? undefined
+    })) || []
+  )
 }
 
 export const json: Loader = {
   getMineLinksFromText(text, found) {
     let links = [
       findLinks(text, 'application/feed+json'),
-      // check application/json media type because some websites uses this type instead standard feed+json
+      // check application/json media type because some resources uses this type instead standard feed+json
       findLinks(text, 'application/json')
     ].filter(i => i.length > 0)
     if (links.length > 0) {
