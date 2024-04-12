@@ -56,11 +56,11 @@ function isValidJsonFeed(json: unknown): json is JsonFeed {
 }
 
 function parsePosts(text: TextResponse): OriginPost[] {
-  let jsonParsedFeed = text.parseJson()
-  if (!isValidJsonFeed(jsonParsedFeed)) return []
+  let parsedJsonFeed = text.parseJson()
+  if (!isValidJsonFeed(parsedJsonFeed)) return []
 
   return (
-    jsonParsedFeed.items?.map(item => ({
+    parsedJsonFeed.items?.map(item => ({
       full: (item.content_html || item.content_text) ?? undefined,
       intro: item.summary ?? undefined,
       media: [],
@@ -72,7 +72,7 @@ function parsePosts(text: TextResponse): OriginPost[] {
   )
 }
 
-export const json: Loader = {
+export const jsonFeed: Loader = {
   getMineLinksFromText(text, found) {
     let links = [
       findLinks(text, 'application/feed+json'),

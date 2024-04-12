@@ -1,4 +1,4 @@
-import type { JsonFeed } from './loader/json.js'
+import type { JsonFeed } from './loader/json-feed.js'
 import { request } from './request.js'
 
 export interface TextResponse {

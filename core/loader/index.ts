@@ -1,7 +1,7 @@
 import type { DownloadTask, TextResponse } from '../download.js'
 import type { PostsPage } from '../posts-page.js'
 import { atom } from './atom.js'
-import { json } from './json.js'
+import { jsonFeed } from './json-feed.js'
 import { rss } from './rss.js'
 
 export type Loader = {
@@ -14,7 +14,7 @@ export type Loader = {
 
 export const loaders = {
   atom,
-  json,
+  jsonFeed,
   rss
 }
 
