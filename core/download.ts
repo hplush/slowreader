@@ -17,6 +17,14 @@ export interface DownloadTask {
   text(...args: Parameters<typeof request>): Promise<TextResponse>
 }
 
+function getContentMediaType(headers: Headers): string {
+  let contentType = headers.get('content-type') ?? 'text/html'
+  if (contentType.includes(';')) {
+    contentType = contentType.split(';')[0]!
+  }
+  return contentType
+}
+
 export function createTextResponse(
   text: string,
   other: Partial<Omit<TextResponse, 'ok' | 'text'>> = {}
@@ -29,10 +37,8 @@ export function createTextResponse(
     ok: status >= 200 && status < 300,
     parse() {
       if (!bodyCache) {
-        let parseType = headers.get('content-type') ?? 'text/html'
-        if (parseType.includes(';')) {
-          parseType = parseType.split(';')[0]!
-        }
+        let parseType = getContentMediaType(headers)
+
         if (parseType.includes('+xml')) {
           parseType = 'application/xml'
         }
@@ -54,18 +60,14 @@ export function createTextResponse(
       return bodyCache
     },
     parseJson() {
-      // if (bodyCache) {
-      //   return bodyCache as JsonFeed;
-      // }
+      let parseType = getContentMediaType(headers)
 
-      let parseType = headers.get('content-type')
       if (parseType !== 'application/json') {
         return null
       }
 
       try {
-        let x = JSON.parse(text)
-        return x as JsonFeed
+        return JSON.parse(text)
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('Parse JSON error', e)

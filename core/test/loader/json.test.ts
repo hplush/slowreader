@@ -1,16 +1,12 @@
 import '../dom-parser.js'
 
-// import { spyOn } from 'nanospy'
+import { spyOn } from 'nanospy'
 import { deepStrictEqual, equal } from 'node:assert'
 import { test } from 'node:test'
-// import { setTimeout } from 'node:timers/promises'
-
-import { spyOn } from 'nanospy'
 import { setTimeout } from 'node:timers/promises'
 
 import {
   createDownloadTask,
-  // createDownloadTask,
   createTextResponse,
   loaders,
   type TextResponse
@@ -52,6 +48,34 @@ test('detects links', () => {
             <link rel="alternate" type="application/feed+json" href="./b">
             <link rel="alternate" type="application/feed+json" href="../c">
             <link type="application/feed+json" href="http://other.com/d">
+          </head>
+        </html>`,
+        {
+          url: 'https://example.com/news/'
+        }
+      ),
+      []
+    ),
+    [
+      'https://example.com/a',
+      'https://example.com/news/b',
+      'https://example.com/c',
+      'http://other.com/d'
+    ]
+  )
+  // some website can provide JSON feed with application/json type, it's not a standard
+  // but it's possible
+  deepStrictEqual(
+    loaders.json.getMineLinksFromText(
+      createTextResponse(
+        `<!DOCTYPE html>
+        <html>
+          <head>
+            <link rel="alternate" type="application/json" href="/a">
+            <link rel="alternate" type="application/json" href="">
+            <link rel="alternate" type="application/json" href="./b">
+            <link rel="alternate" type="application/json" href="../c">
+            <link type="application/json" href="http://other.com/d">
           </head>
         </html>`,
         {
