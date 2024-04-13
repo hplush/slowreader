@@ -12,9 +12,9 @@ export default defineConfig(() => ({
       extensions: ['.js', '.ts']
     }),
     {
+      enforce: 'pre' as const,
       // Deploy section.
       name: 'html-transform',
-      enforce: 'pre' as const,
       // Changing the favicon depending on the environment mode
       transformIndexHtml: (html: string) => {
         return html.replace(
