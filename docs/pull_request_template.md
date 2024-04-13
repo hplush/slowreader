@@ -2,15 +2,15 @@ Fixes # (issue)
 
 <!-- Describe what did you change -->
 
-## Motivation
+# Motivation
 
 <!-- Why did you make these changes? -->
 
-## Screenshot or Video
+# Screenshot or Video
 
 <!-- Delete if it is not relevant -->
 
-## Checklist
+# Checklist
 
 - [ ] Don’t rush. Check all changes in PR again.
 - [ ] Run `pnpm test`.
