@@ -51,9 +51,9 @@ test('detects links', () => {
   )
 })
 
-test('finds atom links in <a> elements', () => {
+test('finds rss links in <a> elements', () => {
   deepStrictEqual(
-    loaders.atom.getMineLinksFromText(
+    loaders.rss.getMineLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
         <html>

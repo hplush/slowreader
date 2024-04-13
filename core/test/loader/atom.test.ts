@@ -117,7 +117,7 @@ test('detects links', () => {
   )
 })
 
-test('finds atom links in <a> elements based on criteria', () => {
+test('finds atom links in <a> elements', () => {
   deepStrictEqual(
     loaders.atom.getMineLinksFromText(
       createTextResponse(

@@ -1,6 +1,11 @@
 import type { TextResponse } from '../download.js'
 import type { PreviewCandidate } from '../preview.js'
 
+export const HREF_PATTERNS = {
+  atom: /feed\.|\.atom|\/atom/i,
+  rss: /feed\.|\.rss|\/rss/i
+}
+
 export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
@@ -27,7 +32,11 @@ function buildFullURL(
   )
 }
 
-export function findLinks(text: TextResponse, type: string): string[] {
+export function findLinks(
+  text: TextResponse,
+  type: string,
+  hrefPattern: RegExp
+): string[] {
   let links: string[] = []
 
   links.push(
@@ -45,14 +54,7 @@ export function findLinks(text: TextResponse, type: string): string[] {
       .filter(a => {
         let href = a.getAttribute('href')
         if (!href) return false
-        return (
-          href.includes('feed.') ||
-          href.includes('feed.xml') ||
-          href.includes('.rss') ||
-          href.includes('.atom') ||
-          href.includes('/rss') ||
-          href.includes('/atom')
-        )
+        return hrefPattern.test(href)
       })
       .map(a => buildFullURL(a, text.url))
   )
@@ -65,8 +67,8 @@ export function hasAnyFeed(
   found: PreviewCandidate[]
 ): boolean {
   return (
-    findLinks(text, 'application/atom+xml').length > 0 ||
-    findLinks(text, 'application/rss+xml').length > 0 ||
+    findLinks(text, 'application/atom+xml', HREF_PATTERNS.atom).length > 0 ||
+    findLinks(text, 'application/rss+xml', HREF_PATTERNS.rss).length > 0 ||
     // TODO: Replace when we will have more loaders
     // found.some(i => i.loader === 'rss' || i.loader === 'atom')
     found.length > 0
