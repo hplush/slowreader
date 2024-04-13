@@ -87,7 +87,7 @@ test('uses HTTPS for specific domains', async () => {
   keepMount(previewCandidates)
   spyOn(loaders.rss, 'getMineLinksFromText', () => [])
   spyOn(loaders.atom, 'getMineLinksFromText', () => [])
-  spyOn(loaders.json, 'getMineLinksFromText', () => [])
+  spyOn(loaders.jsonFeed, 'getMineLinksFromText', () => [])
   spyOn(loaders.rss, 'getSuggestedLinksFromText', () => [])
   spyOn(loaders.atom, 'getSuggestedLinksFromText', () => [])
 
@@ -277,6 +277,7 @@ test('shows if unknown URL', async () => {
 test('always keep the same order of candidates', async () => {
   keepMount(previewCandidates)
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('http://example.com/feed').andRespond(404)
   expectRequest('http://example.com/atom').andRespond(
     200,
     '<feed><title>Atom</title></feed>',
@@ -333,7 +334,7 @@ test('tracks current candidate', async () => {
   keepMount(previewCandidate)
   let getAtomPosts = spyOn(loaders.atom, 'getPosts')
   let getRssPosts = spyOn(loaders.rss, 'getPosts')
-  let getJsonFeedPosts = spyOn(loaders.json, 'getPosts')
+  let getJsonFeedPosts = spyOn(loaders.jsonFeed, 'getPosts')
 
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('http://example.com/feed').andRespond(404)

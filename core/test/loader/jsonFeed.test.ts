@@ -33,12 +33,15 @@ let jsonStub = {
 }
 
 test('detects own URLs', () => {
-  equal(typeof loaders.json.isMineUrl(new URL('https://dev.to/')), 'undefined')
+  equal(
+    typeof loaders.jsonFeed.isMineUrl(new URL('https://dev.to/')),
+    'undefined'
+  )
 })
 
 test('detects links', () => {
   deepStrictEqual(
-    loaders.json.getMineLinksFromText(
+    loaders.jsonFeed.getMineLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
         <html>
@@ -66,7 +69,7 @@ test('detects links', () => {
   // some website can provide JSON feed with application/json type, it's not a standard
   // but it's possible
   deepStrictEqual(
-    loaders.json.getMineLinksFromText(
+    loaders.jsonFeed.getMineLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
         <html>
@@ -93,7 +96,7 @@ test('detects links', () => {
   )
 
   deepStrictEqual(
-    loaders.json.getMineLinksFromText(
+    loaders.jsonFeed.getMineLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
         <html>
@@ -116,7 +119,7 @@ test('detects links', () => {
 
 test('returns default links', () => {
   deepStrictEqual(
-    loaders.json.getMineLinksFromText(
+    loaders.jsonFeed.getMineLinksFromText(
       createTextResponse('<!DOCTYPE html><html><head></head></html>', {
         url: 'https://example.com/news/'
       }),
@@ -128,11 +131,11 @@ test('returns default links', () => {
 
 test('detects titles', () => {
   equal(
-    loaders.json.isMineText(exampleJson(JSON.stringify(jsonStub))),
+    loaders.jsonFeed.isMineText(exampleJson(JSON.stringify(jsonStub))),
     'Some JSON Feed title'
   )
   deepStrictEqual(
-    loaders.json.isMineText(
+    loaders.jsonFeed.isMineText(
       exampleJson(
         JSON.stringify({
           author: {
@@ -147,7 +150,7 @@ test('detects titles', () => {
     'Title JSON feed version 1'
   )
   deepStrictEqual(
-    loaders.json.isMineText(
+    loaders.jsonFeed.isMineText(
       exampleJson(
         JSON.stringify({
           author: {
@@ -161,7 +164,7 @@ test('detects titles', () => {
     ''
   )
   deepStrictEqual(
-    loaders.json.isMineText(
+    loaders.jsonFeed.isMineText(
       exampleJson(
         JSON.stringify({
           author: {
@@ -177,7 +180,7 @@ test('detects titles', () => {
   )
 
   deepStrictEqual(
-    loaders.json.isMineText(
+    loaders.jsonFeed.isMineText(
       exampleJson(
         JSON.stringify({
           author: {
@@ -195,7 +198,7 @@ test('detects titles', () => {
 test('parses posts', async () => {
   let task = createDownloadTask()
   deepStrictEqual(
-    loaders.json
+    loaders.jsonFeed
       .getPosts(
         task,
         'https://example.com/',
@@ -281,7 +284,7 @@ test('loads text to parse posts', async () => {
       })
     )
   )
-  let page = loaders.json.getPosts(task, 'https://example.com/')
+  let page = loaders.jsonFeed.getPosts(task, 'https://example.com/')
   deepStrictEqual(page.get(), {
     hasNext: true,
     isLoading: true,
