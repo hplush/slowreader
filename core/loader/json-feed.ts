@@ -74,14 +74,13 @@ function parsePosts(text: TextResponse): OriginPost[] {
 
 export const jsonFeed: Loader = {
   getMineLinksFromText(text, found) {
-    let links = [
-      findLinks(text, 'application/feed+json'),
-      // check application/json media type because some resources uses this type instead standard feed+json
-      findLinks(text, 'application/json')
-    ].filter(i => i.length > 0)
+    let links = findLinks(text, 'application/feed+json')
+    if (links.length === 0) {
+      // if we haven't found any feed+json links, try to find json links
+      links = findLinks(text, 'application/json')
+    }
     if (links.length > 0) {
-      // if we have both types of links, we should use feed+json
-      return links[0]!
+      return links
     } else if (!hasAnyFeed(text, found)) {
       let { origin } = new URL(text.url)
       return [new URL('/feed.json', origin).href]

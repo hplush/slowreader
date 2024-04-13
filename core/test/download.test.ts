@@ -153,13 +153,10 @@ test('parses content', async () => {
   })
   equal(broken.parse().textContent, null)
 
-  let json = createTextResponse(
-    '{ "items": [], "version": "1.1", "title": "test_title" }',
-    {
-      headers: new Headers({ 'content-type': 'application/json' })
-    }
-  )
-  equal(json.parseJson()?.version, '1.1')
+  let json = createTextResponse('{ "version": "1.1", "title": "test_title" }', {
+    headers: new Headers({ 'content-type': 'application/json' })
+  })
+  equal((json.parseJson() as { title: string; version: string }).version, '1.1')
 
   let brokenJson = createTextResponse(
     '{ "items": [], "version": 1.1", "title": "test_title" }',

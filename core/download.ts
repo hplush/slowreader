@@ -1,11 +1,10 @@
-import type { JsonFeed } from './loader/json-feed.js'
 import { request } from './request.js'
 
 export interface TextResponse {
   readonly headers: Headers
   readonly ok: boolean
   parse(): Document | XMLDocument
-  parseJson(): JsonFeed | null
+  parseJson(): null | object
   readonly status: number
   readonly text: string
   readonly url: string
