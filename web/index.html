@@ -2,7 +2,6 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/main/icon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,59 +10,76 @@
     <style>
       :root {
         color-scheme: light dark;
+
         @media (prefers-color-scheme: light) {
           background: #e4e4e4;
+
           @media (color-gamut: p3) {
             background: oklch(0.92 0 0);
           }
         }
+
         @media (prefers-color-scheme: dark) {
           background: #141414;
+
           @media (color-gamut: p3) {
             background: oklch(0.19 0 0);
           }
         }
       }
+
       .is-light-theme {
         color-scheme: light;
         background: #e4e4e4;
+
         @media (color-gamut: p3) {
           background: oklch(0.92 0 0);
         }
       }
+
       .is-dark-theme {
         color-scheme: dark;
         background: #141414;
+
         @media (color-gamut: p3) {
           background: oklch(0.19 0 0);
         }
       }
+
       .is-slow-theme {
         @media (prefers-color-scheme: light) {
           background: #e9e3db;
+
           @media (color-gamut: p3) {
             background: oklch(0.92 0.012 75);
           }
         }
+
         @media (prefers-color-scheme: dark) {
           background: #18140f;
+
           @media (color-gamut: p3) {
             background: oklch(0.19 0.012 75);
           }
         }
+
         &.is-light-theme {
           background: #e9e3db;
+
           @media (color-gamut: p3) {
             background: oklch(0.92 0.012 75);
           }
         }
+
         &.is-dark-theme {
           background: #18140f;
+
           @media (color-gamut: p3) {
             background: oklch(0.19 0.012 75);
           }
         }
       }
+
       #loader {
         position: absolute;
         top: 50%;
@@ -72,15 +88,19 @@
         height: 4px;
         width: 160px;
         border-radius: 2px;
+
         @media (prefers-color-scheme: light) {
           background: #0000001a;
         }
+
         @media (prefers-color-scheme: dark) {
           background: #ffffff1a;
         }
+
         .is-light-theme & {
           background: #0000001a;
         }
+
         .is-dark-theme & {
           background: #ffffff1a;
         }
