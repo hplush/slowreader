@@ -32,17 +32,13 @@ export function findLinks(
   type: string,
   hrefPattern: RegExp
 ): string[] {
-  let links: string[] = []
-
-  links.push(
-    ...[...text.parse().querySelectorAll('link')]
-      .filter(
-        link =>
-          link.getAttribute('type') === type &&
-          isString(link.getAttribute('href'))
-      )
-      .map(link => buildFullURL(link, text.url))
-  )
+  let links = [...text.parse().querySelectorAll('link')]
+    .filter(
+      link =>
+        link.getAttribute('type') === type &&
+        isString(link.getAttribute('href'))
+    )
+    .map(link => buildFullURL(link, text.url))
 
   links.push(
     ...[...text.parse().querySelectorAll('a')]
