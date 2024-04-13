@@ -32,7 +32,7 @@ export const atom: Loader = {
       return links
     } else if (!hasAnyFeed(text, found)) {
       let { origin } = new URL(text.url)
-      return [new URL('/atom', origin).href]
+      return [new URL('/feed', origin).href, new URL('/atom', origin).href]
     } else {
       return []
     }

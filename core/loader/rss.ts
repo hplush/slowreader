@@ -31,7 +31,7 @@ export const rss: Loader = {
       return links
     } else if (!hasAnyFeed(text, found)) {
       let { origin } = new URL(text.url)
-      return [new URL('/feed', origin).href, new URL('/rss', origin).href]
+      return [new URL('/rss', origin).href]
     } else {
       return []
     }
