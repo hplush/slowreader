@@ -51,6 +51,27 @@ test('detects links', () => {
   )
 })
 
+test('finds rss links in <a> elements', () => {
+  deepStrictEqual(
+    loaders.rss.getMineLinksFromText(
+      createTextResponse(
+        `<!DOCTYPE html>
+        <html>
+          <body>
+            <a href="/rss">RSS Feed</a>
+            <a href="/something.rss">Feed RSS</a>
+          </body>
+        </html>`,
+        {
+          url: 'https://example.com/news'
+        }
+      ),
+      []
+    ),
+    ['https://example.com/rss', 'https://example.com/something.rss']
+  )
+})
+
 test('returns default links', () => {
   deepStrictEqual(
     loaders.rss.getMineLinksFromText(

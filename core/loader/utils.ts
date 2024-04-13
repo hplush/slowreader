@@ -5,7 +5,10 @@ export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
-function buildFullURL(link: HTMLLinkElement, baseUrl: string): string {
+function buildFullURL(
+  link: HTMLAnchorElement | HTMLLinkElement,
+  baseUrl: string
+): string {
   let href = link.getAttribute('href')!
   let urlSegments: string[] = [href]
   let parent: Element | null = link.parentElement
@@ -24,14 +27,34 @@ function buildFullURL(link: HTMLLinkElement, baseUrl: string): string {
   )
 }
 
-export function findLinks(text: TextResponse, type: string): string[] {
-  return [...text.parse().querySelectorAll('link')]
-    .filter(
-      link =>
-        link.getAttribute('type') === type &&
-        isString(link.getAttribute('href'))
-    )
-    .map(link => buildFullURL(link, text.url))
+export function findLinks(
+  text: TextResponse,
+  type: string,
+  hrefPattern: RegExp
+): string[] {
+  let links: string[] = []
+
+  links.push(
+    ...[...text.parse().querySelectorAll('link')]
+      .filter(
+        link =>
+          link.getAttribute('type') === type &&
+          isString(link.getAttribute('href'))
+      )
+      .map(link => buildFullURL(link, text.url))
+  )
+
+  links.push(
+    ...[...text.parse().querySelectorAll('a')]
+      .filter(a => {
+        let href = a.getAttribute('href')
+        if (!href) return false
+        return hrefPattern.test(href)
+      })
+      .map(a => buildFullURL(a, text.url))
+  )
+
+  return links
 }
 
 export function hasAnyFeed(
@@ -39,8 +62,9 @@ export function hasAnyFeed(
   found: PreviewCandidate[]
 ): boolean {
   return (
-    findLinks(text, 'application/atom+xml').length > 0 ||
-    findLinks(text, 'application/rss+xml').length > 0 ||
+    findLinks(text, 'application/atom+xml', /feed\.|\.atom|\/atom/i).length >
+      0 ||
+    findLinks(text, 'application/rss+xml', /\.rss|\/rss/i).length > 0 ||
     // TODO: Replace when we will have more loaders
     // found.some(i => i.loader === 'rss' || i.loader === 'atom')
     found.length > 0

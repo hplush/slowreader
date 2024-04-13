@@ -27,7 +27,7 @@ function parsePosts(text: TextResponse): OriginPost[] {
 
 export const atom: Loader = {
   getMineLinksFromText(text, found) {
-    let links = findLinks(text, 'application/atom+xml')
+    let links = findLinks(text, 'application/atom+xml', /feed\.|\.atom|\/atom/i)
     if (links.length > 0) {
       return links
     } else if (!hasAnyFeed(text, found)) {

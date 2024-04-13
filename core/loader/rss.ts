@@ -26,7 +26,7 @@ function parsePosts(text: TextResponse): OriginPost[] {
 
 export const rss: Loader = {
   getMineLinksFromText(text, found) {
-    let links = findLinks(text, 'application/rss+xml')
+    let links = findLinks(text, 'application/rss+xml', /\.rss|\/rss/i)
     if (links.length > 0) {
       return links
     } else if (!hasAnyFeed(text, found)) {
