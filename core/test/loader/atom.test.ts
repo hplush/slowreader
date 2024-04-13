@@ -69,8 +69,7 @@ test('detects xml:base attribute', () => {
         {
           url: 'http://example.com'
         }
-      ),
-      []
+      )
     ),
     [
       'http://example.com/today/1.xml',
@@ -105,8 +104,7 @@ test('detects links', () => {
         {
           url: 'https://example.com/news/'
         }
-      ),
-      []
+      )
     ),
     [
       'https://example.com/a',
@@ -133,8 +131,7 @@ test('finds atom links in <a> elements', () => {
         {
           url: 'https://example.com/news'
         }
-      ),
-      []
+      )
     ),
     [
       'https://example.com/atom',
@@ -147,40 +144,12 @@ test('finds atom links in <a> elements', () => {
 
 test('returns default links', () => {
   deepStrictEqual(
-    loaders.atom.getMineLinksFromText(
+    loaders.atom.getSuggestedLinksFromText(
       createTextResponse('<!DOCTYPE html><html><head></head></html>', {
         url: 'https://example.com/news/'
-      }),
-      []
+      })
     ),
-    ['https://example.com/atom']
-  )
-})
-
-test('ignores default URL on RSS link', () => {
-  deepStrictEqual(
-    loaders.atom.getMineLinksFromText(
-      createTextResponse(
-        `<!DOCTYPE html>
-        <html>
-          <head>
-            <link rel="alternate" type="application/rss+xml" href="/rss">
-          </head>
-        </html>`
-      ),
-      []
-    ),
-    []
-  )
-  deepStrictEqual(
-    loaders.atom.getMineLinksFromText(
-      createTextResponse(
-        `<!DOCTYPE html>
-        <html></html>`
-      ),
-      [{ loader: 'rss', title: 'RSS', url: 'https://example.com/rss' }]
-    ),
-    []
+    ['https://example.com/feed', 'https://example.com/atom']
   )
 })
 

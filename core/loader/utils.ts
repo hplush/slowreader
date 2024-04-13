@@ -1,5 +1,4 @@
 import type { TextResponse } from '../download.js'
-import type { PreviewCandidate } from '../preview.js'
 
 export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
@@ -27,44 +26,27 @@ function buildFullURL(
   )
 }
 
-export function findLinks(
-  text: TextResponse,
-  type: string,
-  hrefPattern: RegExp
-): string[] {
-  let links = [...text.parse().querySelectorAll('link')]
+export function findLinksByType(text: TextResponse, type: string): string[] {
+  return [...text.parse().querySelectorAll('link')]
     .filter(
       link =>
         link.getAttribute('type') === type &&
         isString(link.getAttribute('href'))
     )
     .map(link => buildFullURL(link, text.url))
-
-  links.push(
-    ...[...text.parse().querySelectorAll('a')]
-      .filter(a => {
-        let href = a.getAttribute('href')
-        if (!href) return false
-        return hrefPattern.test(href)
-      })
-      .map(a => buildFullURL(a, text.url))
-  )
-
-  return links
 }
 
-export function hasAnyFeed(
+export function findAnchorHrefs(
   text: TextResponse,
-  found: PreviewCandidate[]
-): boolean {
-  return (
-    findLinks(text, 'application/atom+xml', /feed\.|\.atom|\/atom/i).length >
-      0 ||
-    findLinks(text, 'application/rss+xml', /\.rss|\/rss/i).length > 0 ||
-    // TODO: Replace when we will have more loaders
-    // found.some(i => i.loader === 'rss' || i.loader === 'atom')
-    found.length > 0
-  )
+  hrefPattern: RegExp
+): string[] {
+  return [...text.parse().querySelectorAll('a')]
+    .filter(a => {
+      let href = a.getAttribute('href')
+      if (!href) return false
+      return hrefPattern.test(href)
+    })
+    .map(a => buildFullURL(a, text.url))
 }
 
 export function toTime(date: null | string | undefined): number | undefined {

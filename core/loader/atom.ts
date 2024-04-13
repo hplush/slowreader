@@ -2,7 +2,7 @@ import type { TextResponse } from '../download.js'
 import type { OriginPost } from '../post.js'
 import { createPostsPage } from '../posts-page.js'
 import type { Loader } from './index.js'
-import { findLinks, hasAnyFeed, toTime } from './utils.js'
+import { findAnchorHrefs, findLinksByType, toTime } from './utils.js'
 
 function parsePosts(text: TextResponse): OriginPost[] {
   let document = text.parse()
@@ -26,16 +26,11 @@ function parsePosts(text: TextResponse): OriginPost[] {
 }
 
 export const atom: Loader = {
-  getMineLinksFromText(text, found) {
-    let links = findLinks(text, 'application/atom+xml', /feed\.|\.atom|\/atom/i)
-    if (links.length > 0) {
-      return links
-    } else if (!hasAnyFeed(text, found)) {
-      let { origin } = new URL(text.url)
-      return [new URL('/feed', origin).href, new URL('/atom', origin).href]
-    } else {
-      return []
-    }
+  getMineLinksFromText(text) {
+    return [
+      ...findLinksByType(text, 'application/atom+xml'),
+      ...findAnchorHrefs(text, /feed\.|\.atom|\/atom/i)
+    ]
   },
 
   getPosts(task, url, text) {
@@ -46,6 +41,11 @@ export const atom: Loader = {
         return [parsePosts(await task.text(url)), undefined]
       })
     }
+  },
+
+  getSuggestedLinksFromText(text) {
+    let { origin } = new URL(text.url)
+    return [new URL('/feed', origin).href, new URL('/atom', origin).href]
   },
 
   isMineText(text) {

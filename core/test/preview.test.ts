@@ -87,6 +87,8 @@ test('uses HTTPS for specific domains', async () => {
   keepMount(previewCandidates)
   spyOn(loaders.rss, 'getMineLinksFromText', () => [])
   spyOn(loaders.atom, 'getMineLinksFromText', () => [])
+  spyOn(loaders.rss, 'getSuggestedLinksFromText', () => [])
+  spyOn(loaders.atom, 'getSuggestedLinksFromText', () => [])
 
   expectRequest('https://twitter.com/blog').andRespond(200, '')
   setPreviewUrl('twitter.com/blog')
@@ -232,8 +234,8 @@ test('looks for popular RSS and Atom places', async () => {
 
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
   let atom = '<feed><title></title></feed>'
-  expectRequest('http://example.com/atom').andRespond(200, atom, 'text/xml')
   expectRequest('http://example.com/feed').andRespond(404)
+  expectRequest('http://example.com/atom').andRespond(200, atom, 'text/xml')
   expectRequest('http://example.com/rss').andRespond(404)
 
   setPreviewUrl('example.com')
@@ -256,8 +258,8 @@ test('shows if unknown URL', async () => {
   keepMount(previewCandidates)
 
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
-  expectRequest('http://example.com/atom').andRespond(404)
   expectRequest('http://example.com/feed').andRespond(404)
+  expectRequest('http://example.com/atom').andRespond(404)
   expectRequest('http://example.com/rss').andRespond(404)
 
   setPreviewUrl('example.com')
@@ -272,12 +274,12 @@ test('shows if unknown URL', async () => {
 test('always keep the same order of candidates', async () => {
   keepMount(previewCandidates)
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('http://example.com/feed').andRespond(404)
   expectRequest('http://example.com/atom').andRespond(
     200,
     '<feed><title>Atom</title></feed>',
     'application/rss+xml'
   )
-  expectRequest('http://example.com/feed').andRespond(404)
   expectRequest('http://example.com/rss').andRespond(
     200,
     '<rss><channel><title>RSS</title></channel></rss>',
@@ -293,8 +295,8 @@ test('always keep the same order of candidates', async () => {
 
   clearPreview()
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
-  let atom = expectRequest('http://example.com/atom').andWait()
   expectRequest('http://example.com/feed').andRespond(404)
+  let atom = expectRequest('http://example.com/atom').andWait()
   expectRequest('http://example.com/rss').andRespond(
     200,
     '<rss><channel><title>RSS</title></channel></rss>',
@@ -320,12 +322,12 @@ test('tracks current candidate', async () => {
   let getRssPosts = spyOn(loaders.rss, 'getPosts')
 
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('http://example.com/feed').andRespond(404)
   expectRequest('http://example.com/atom').andRespond(
     200,
     '<feed><title>Atom</title></feed>',
     'application/rss+xml'
   )
-  expectRequest('http://example.com/feed').andRespond(404)
   expectRequest('http://example.com/rss').andRespond(
     200,
     '<rss><channel><title>RSS</title></channel></rss>',
@@ -488,8 +490,8 @@ test('changes URL during typing in the field', async () => {
   equal(previewUrl.get(), '')
 
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
-  expectRequest('http://example.com/atom').andRespond(404)
   expectRequest('http://example.com/feed').andRespond(404)
+  expectRequest('http://example.com/atom').andRespond(404)
   expectRequest('http://example.com/rss').andRespond(404)
   setPreviewUrl('example.com')
   equal(previewUrl.get(), 'http://example.com')
@@ -502,16 +504,16 @@ test('changes URL during typing in the field', async () => {
   equal(previewUrl.get(), 'http://example.com')
 
   expectRequest('http://other.net').andRespond(200, '<html>Nothing</html>')
-  expectRequest('http://other.net/atom').andRespond(404)
   expectRequest('http://other.net/feed').andRespond(404)
+  expectRequest('http://other.net/atom').andRespond(404)
   expectRequest('http://other.net/rss').andRespond(404)
   onPreviewUrlType('other.net')
   await setTimeout(500)
   equal(previewUrl.get(), 'http://other.net')
 
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
-  expectRequest('http://example.com/atom').andRespond(404)
   expectRequest('http://example.com/feed').andRespond(404)
+  expectRequest('http://example.com/atom').andRespond(404)
   expectRequest('http://example.com/rss').andRespond(404)
   onPreviewUrlType('other.net/some')
   setPreviewUrl('example.com')
