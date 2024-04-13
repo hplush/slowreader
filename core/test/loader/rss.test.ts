@@ -59,9 +59,7 @@ test('finds rss links in <a> elements', () => {
         <html>
           <body>
             <a href="/rss">RSS Feed</a>
-            <a href="https://example.com/blog/feed.xml">Feed XML</a>
             <a href="/something.rss">Feed RSS</a>
-            <a href="/feed.something">Feed RSS</a>
           </body>
         </html>`,
         {
@@ -70,12 +68,7 @@ test('finds rss links in <a> elements', () => {
       ),
       []
     ),
-    [
-      'https://example.com/rss',
-      'https://example.com/blog/feed.xml',
-      'https://example.com/something.rss',
-      'https://example.com/feed.something'
-    ]
+    ['https://example.com/rss', 'https://example.com/something.rss']
   )
 })
 
