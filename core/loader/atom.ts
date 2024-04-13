@@ -29,7 +29,7 @@ export const atom: Loader = {
   getMineLinksFromText(text) {
     return [
       ...findLinksByType(text, 'application/atom+xml'),
-      ...findAnchorHrefs(text, /feed\.|\.atom|\/atom/i)
+      ...findAnchorHrefs(text, /feeds?\.|\.atom|\/atom/i)
     ]
   },
 
