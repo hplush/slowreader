@@ -17,7 +17,7 @@ export default defineConfig(() => ({
       transformIndexHtml: (html: string) => {
         return html.replace(
           '/main/icon.svg',
-          process.env.NODE_ENV === 'development'
+          process.env.NODE_ENV === 'development' || process.env.STAGING
             ? '/main/campfire.svg'
             : '/main/icon.svg'
         )
