@@ -76,7 +76,6 @@ export const jsonFeed: Loader = {
   getMineLinksFromText(text, found) {
     let links = findLinks(text, 'application/feed+json')
     if (links.length === 0) {
-      // if we haven't found any feed+json links, try to find json links
       links = findLinks(text, 'application/json')
     }
     if (links.length > 0) {
