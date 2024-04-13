@@ -8,10 +8,10 @@ export interface PostsPageValue {
   list: OriginPost[]
 }
 
-export type PostsPage = ReadableAtom<PostsPageValue> & {
+export type PostsPage = {
   loading: Promise<OriginPost[]>
   nextPage(): Promise<OriginPost[]>
-}
+} & ReadableAtom<PostsPageValue>
 
 export type PostsPageResult = [OriginPost[], PostsPageLoader | undefined]
 

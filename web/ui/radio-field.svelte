@@ -11,7 +11,7 @@
 
   let dispatch = createEventDispatcher<{ change: Value }>()
 
-  function onInput(e: Event & { currentTarget: HTMLInputElement }): void {
+  function onInput(e: { currentTarget: HTMLInputElement } & Event): void {
     dispatch('change', e.currentTarget.value as Value)
   }
 </script>

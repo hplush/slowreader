@@ -13,7 +13,7 @@
   let id = nanoid()
   let dispatch = createEventDispatcher<{ change: Value }>()
 
-  function onChange(e: Event & { currentTarget: HTMLSelectElement }): void {
+  function onChange(e: { currentTarget: HTMLSelectElement } & Event): void {
     dispatch('change', e.currentTarget.value as Value)
   }
 
