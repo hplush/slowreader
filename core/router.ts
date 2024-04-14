@@ -21,7 +21,7 @@ export interface Routes {
   refresh: {}
   settings: {}
   signin: {}
-  slow: { feed?: string; post?: string; since?: number }
+  slow: { currentPage?: number; feed?: string; post?: string }
   start: {}
   subscriptions: {}
   welcome: {}
@@ -150,16 +150,16 @@ onEnvironment(({ baseRouter }) => {
             }
           }
 
-          if (page.params.since) {
-            if (isNumber(page.params.since)) {
-              let since =
-                typeof page.params.since === 'number'
-                  ? page.params.since
-                  : parseInt(page.params.since)
+          if (page.params.currentPage) {
+            if (isNumber(page.params.currentPage)) {
+              let currentPage =
+                typeof page.params.currentPage === 'number'
+                  ? page.params.currentPage
+                  : parseInt(page.params.currentPage)
               return open({
                 params: {
                   ...page.params,
-                  since
+                  currentPage
                 },
                 route: 'slow'
               })
