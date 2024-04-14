@@ -285,7 +285,7 @@ test('always keep the same order of candidates', async () => {
   )
   expectRequest('http://example.com/feed.json').andRespond(
     200,
-    '{ "version": "https://jsonfeed.org/version/1.1", "title": "JsonFeed" }',
+    '{ "version": "https://jsonfeed.org/version/1.1", "title": "JsonFeed", "items": [] }',
     'application/json'
   )
   expectRequest('http://example.com/rss').andRespond(
@@ -316,7 +316,7 @@ test('always keep the same order of candidates', async () => {
   atom(200, '<feed><title>Atom</title></feed>', 'application/rss+xml')
   jsonFeed(
     200,
-    '{ "version": "https://jsonfeed.org/version/1.1", "title": "JsonFeed" }',
+    '{ "version": "https://jsonfeed.org/version/1.1", "title": "JsonFeed", "items": [] }',
     'application/json'
   )
   await setTimeout(10)
@@ -345,7 +345,7 @@ test('tracks current candidate', async () => {
   )
   expectRequest('http://example.com/feed.json').andRespond(
     200,
-    '{ "version": "https://jsonfeed.org/version/1.1", "title": "JsonFeed" }',
+    '{ "version": "https://jsonfeed.org/version/1.1", "title": "JsonFeed", "items": [] }',
     'application/json'
   )
   expectRequest('http://example.com/rss').andRespond(

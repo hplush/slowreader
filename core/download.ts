@@ -4,7 +4,7 @@ export interface TextResponse {
   readonly headers: Headers
   readonly ok: boolean
   parse(): Document | XMLDocument
-  parseJson(): null | object
+  parseJson(): null | unknown
   readonly status: number
   readonly text: string
   readonly url: string

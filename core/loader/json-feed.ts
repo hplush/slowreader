@@ -38,38 +38,61 @@ export type JsonFeed = {
   feed_url?: string
   home_page_url?: string
   icon?: string
-  items?: Item[]
+  items: Item[]
   next_url?: string
-  title?: string
+  title: string
   user_comment?: string
   version: string
 }
 
+type ValidationRules = {
+  [key: string]: (value: unknown) => boolean
+}
+
+function isObjValid<ValidatedType>(
+  obj: unknown,
+  rules: ValidationRules
+): obj is ValidatedType {
+  if (typeof obj !== 'object' || obj === null) return false
+
+  for (let field in rules) {
+    if (!(field in obj) || !rules[field]!((obj as never)[field])) {
+      // eslint-disable-next-line no-console
+      console.error(
+        `json ${field} field with value ${(obj as never)[field]} is not valid`
+      )
+      return false
+    }
+  }
+
+  return true
+}
+
 let existJsonFeedVersions = ['1', '1.1']
 
-function isValidJsonFeed(json: unknown): json is JsonFeed {
-  if (typeof json === 'object' && json !== null && 'version' in json) {
-    let ver = (json as JsonFeed).version.split('/').pop()
-    return existJsonFeedVersions.includes(ver!)
+let jsonFeedValidationRules: ValidationRules = {
+  items: (value: unknown): boolean => Array.isArray(value),
+  title: (value: unknown): boolean => typeof value === 'string',
+  version: (value: unknown): boolean => {
+    if (typeof value !== 'string' || !value.includes('jsonfeed')) return false
+    let version = value.split('/').pop()
+    return existJsonFeedVersions.includes(version!)
   }
-  return false
 }
 
 function parsePosts(text: TextResponse): OriginPost[] {
-  let parsedJsonFeed = text.parseJson()
-  if (!isValidJsonFeed(parsedJsonFeed)) return []
+  let parsedJson = text.parseJson()
+  if (!isObjValid<JsonFeed>(parsedJson, jsonFeedValidationRules)) return []
 
-  return (
-    parsedJsonFeed.items?.map(item => ({
-      full: (item.content_html || item.content_text) ?? undefined,
-      intro: item.summary ?? undefined,
-      media: [],
-      originId: item.id,
-      publishedAt: toTime(item.date_published) ?? undefined,
-      title: item.title ?? '',
-      url: item.url ?? undefined
-    })) || []
-  )
+  return parsedJson.items.map(item => ({
+    full: (item.content_html || item.content_text) ?? undefined,
+    intro: item.summary ?? undefined,
+    media: [],
+    originId: item.id,
+    publishedAt: toTime(item.date_published) ?? undefined,
+    title: item.title,
+    url: item.url ?? undefined
+  }))
 }
 
 export const jsonFeed: Loader = {
@@ -100,8 +123,8 @@ export const jsonFeed: Loader = {
 
   isMineText(text) {
     let parsedJson = text.parseJson()
-    if (isValidJsonFeed(parsedJson)) {
-      return parsedJson.title ?? ''
+    if (isObjValid<JsonFeed>(parsedJson, jsonFeedValidationRules)) {
+      return parsedJson.title
     }
     return false
   },

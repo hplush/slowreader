@@ -142,6 +142,7 @@ test('detects titles', () => {
             name: 'name',
             url: 'https://example.com/'
           },
+          items: [],
           title: 'Title JSON feed version 1',
           version: 'https://jsonfeed.org/version/1'
         })
@@ -157,11 +158,12 @@ test('detects titles', () => {
             name: 'name',
             url: 'https://example.com/'
           },
+          items: [],
           version: 'https://jsonfeed.org/version/1.1'
         })
       )
     ),
-    ''
+    false
   )
   deepStrictEqual(
     loaders.jsonFeed.isMineText(
@@ -171,6 +173,7 @@ test('detects titles', () => {
             name: 'name',
             url: 'https://example.com/'
           },
+          items: [],
           title: '',
           version: 'https://jsonfeed.org/version/1.1'
         })
@@ -178,24 +181,9 @@ test('detects titles', () => {
     ),
     ''
   )
-
-  deepStrictEqual(
-    loaders.jsonFeed.isMineText(
-      exampleJson(
-        JSON.stringify({
-          author: {
-            name: 'name',
-            url: 'https://example.com/'
-          },
-          title: ''
-        })
-      )
-    ),
-    false
-  )
 })
 
-test('parses posts', async () => {
+test('validate json feed format', async () => {
   let task = createDownloadTask()
   deepStrictEqual(
     loaders.jsonFeed
@@ -317,4 +305,162 @@ test('loads text to parse posts', async () => {
     ]
   })
   deepStrictEqual(text.calls, [['https://example.com/']])
+})
+
+test('validate wrong json feed format', async () => {
+  let task = createDownloadTask()
+
+  let notValidDataValues = [1, true, false, null, []]
+
+  for (let notValidData of notValidDataValues) {
+    // not valid data
+    deepStrictEqual(
+      loaders.jsonFeed
+        .getPosts(
+          task,
+          'https://example.com/',
+          exampleJson(JSON.stringify(notValidData))
+        )
+        .get(),
+      {
+        hasNext: false,
+        isLoading: false,
+        list: []
+      }
+    )
+  }
+
+  // not valid versions
+  let notValidDataVersions = [
+    'https://somejson.org/version/1.1',
+    'https://jsonfeed.org/version/2.1',
+    '',
+    'https://example.com'
+  ]
+
+  for (let version of notValidDataVersions) {
+    deepStrictEqual(
+      loaders.jsonFeed
+        .getPosts(
+          task,
+          'https://example.com/',
+          exampleJson(
+            JSON.stringify({
+              items: [
+                {
+                  content_html: '<p>Priority Content</p>',
+                  content_text: '<p>Skipped content</p>',
+                  date_published: '2022-01-04T00:00:00Z',
+                  id: 'somehashid',
+                  summary: 'summary',
+                  title: 'title_1',
+                  url: 'https://example.com/'
+                }
+              ],
+              title: 'Some JSON Feed title',
+              version
+            })
+          )
+        )
+        .get(),
+      {
+        hasNext: false,
+        isLoading: false,
+        list: []
+      }
+    )
+  }
+
+  // not valid title
+  deepStrictEqual(
+    loaders.jsonFeed
+      .getPosts(
+        task,
+        'https://example.com/',
+        exampleJson(
+          JSON.stringify({
+            items: [
+              {
+                content_html: '<p>Priority Content</p>',
+                content_text: '<p>Skipped content</p>',
+                date_published: '2022-01-04T00:00:00Z',
+                id: 'somehashid',
+                summary: 'summary',
+                title: 'title_1',
+                url: 'https://example.com/'
+              }
+            ],
+            title: [],
+            version: 'https://jsonfeed.org/version/1.1'
+          })
+        )
+      )
+      .get(),
+    {
+      hasNext: false,
+      isLoading: false,
+      list: []
+    }
+  )
+
+  let notValidItems = [{}, 4, 'someString', false]
+  for (let notValidItem of notValidItems) {
+    deepStrictEqual(
+      loaders.jsonFeed
+        .getPosts(
+          task,
+          'https://example.com/',
+          exampleJson(
+            JSON.stringify({
+              items: notValidItem,
+              title: 'Some JSONFeed title',
+              version: 'https://jsonfeed.org/version/1.1'
+            })
+          )
+        )
+        .get(),
+      {
+        hasNext: false,
+        isLoading: false,
+        list: []
+      }
+    )
+  }
+
+  deepStrictEqual(
+    loaders.jsonFeed
+      .getPosts(
+        task,
+        'https://example.com/',
+        exampleJson(
+          JSON.stringify({
+            items: [
+              {
+                id: 'somehashid',
+                some_wrong_name_item: '<p>Priority Content</p>',
+                some_wrong_name_item_2: '<p>Skipped content</p>'
+              }
+            ],
+            title: 'JSON feed title',
+            version: 'https://jsonfeed.org/version/1.1'
+          })
+        )
+      )
+      .get(),
+    {
+      hasNext: false,
+      isLoading: false,
+      list: [
+        {
+          full: undefined,
+          intro: undefined,
+          media: [],
+          originId: 'somehashid',
+          publishedAt: undefined,
+          title: undefined,
+          url: undefined
+        }
+      ]
+    }
+  )
 })
