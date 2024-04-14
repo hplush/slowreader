@@ -12,6 +12,7 @@
     "start": "FORCE_COLOR=1 pnpm run -r start",
     "format": "pnpm run -r --include-workspace-root /^format:/",
     "clean": "pnpm run -r --include-workspace-root /^clean:/",
+    "build": "pnpm run -r build",
     "format:prettier": "prettier -w **/*.{js,ts,html,md,cjs,json} *.{js,json,md}",
     "test:js": "eslint .",
     "test:types": "svelte-check",
