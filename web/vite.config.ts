@@ -13,9 +13,7 @@ export default defineConfig(() => ({
     }),
     {
       enforce: 'pre' as const,
-      // Deploy section.
       name: 'html-transform',
-      // Changing the favicon depending on the environment mode
       transformIndexHtml: (html: string) => {
         return html.replace(
           '/main/icon.svg',
