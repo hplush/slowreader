@@ -36,7 +36,7 @@ jobs:
           name: web-client-assets-${{ github.sha }}
           path: |
             web/dist/
-            web/.nginx/routes.js
+            web/routes.regexp
           retention-days: 1
   staging:
     needs: test

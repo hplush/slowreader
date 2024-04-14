@@ -34,8 +34,8 @@ jobs:
           retention-days: 1
           name: preview-assets
           path: |
-            ./web/dist/
-            ./web/nginx.conf
-            ./web/Dockerfile
-            ./web/.nginx/
-            ./preview-id
+            web/dist/
+            web/nginx.conf
+            web/Dockerfile
+            web/routes.regexp
+            preview-id

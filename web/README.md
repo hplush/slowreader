@@ -33,7 +33,6 @@ We use **Svelte** as the UI framework and **Vite** as the builder.
 - [`.storybook/`](./.storybook/): visual tests tool config.
 - [`index.html`](./index.html): builder entry point. It also contains styles for the app loading state.
 - [`Dockerfile`](./Dockerfile) and [`nginx.conf`](./nginx.conf): web server to serve web client for staging and pull request preview servers.
-- [`.nginx/`](./.nginx/): preview server related scripts.
 - [`.browserslistrc`](./.browserslistrc): browsers, which we support. See [actual browsers list](https://browsersl.ist/#q=defaults+and+supports+es6-module).
 - [`.size-limit.json`](./.size-limit.json): budget for JS bundles and whole webpage size. Don’t be afraid to tune the limit. We put it so tight that it makes you feel a small pain every time you add a significant amount of code.
 
@@ -91,10 +90,10 @@ You can use [`<Scene>`](./stories/scene.svelte) to change core stores and mock H
 1. **Pull request preview:** the CI will publish a `View deployment` link to pull request events in 2 minutes.
 2. **Staging**: `main` branch is on [`dev.slowreader.app`](https://dev.slowreader.app).
 
+To return app HTML on app’s routes, we [export](./scripts/export-routes.ts) RegExp of all routes from web client and use it in [`nginx.conf`](./nginx.conf).
+
 Both preview and staging have Storybook at `/ui/` route.
 
 We are using **Google Cloud Run** to run Nginx server with assets of web client.
 
 All Google Cloud settings are documented in [script](../scripts/prepare-google-cloud.sh).
-
-Nginx server validates each request against application routes and return 404 if requested path is not supported by application. See [`nginx.conf`](./nginx.conf), [`.nginx/route-guard.js`](./.nginx/route-guard.js) and [`scripts/export-routes.ts`](./scripts/export-routes.ts) for details.
