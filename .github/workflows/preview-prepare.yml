@@ -34,6 +34,7 @@ jobs:
           retention-days: 1
           name: preview-assets
           path: |
+            web/.dockerignore
             web/dist/
             web/nginx.conf
             web/Dockerfile
