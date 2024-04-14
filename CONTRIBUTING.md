@@ -117,12 +117,13 @@ If you are not just fixing a bug but want to join the core team, here is the pat
 
 1. Your first task is to test `pnpm test` in your environment and report issue.
 2. If you read RSS, export all your feeds to an OPML file. Run the [`check-opml` script](./loader-tests/README.md#check-loaders-by-users-opml) and open an issue on a problem.
-3. Go to our [Tasks plan](https://github.com/orgs/hplush/projects/1) and take next task from `Onboarding` column. If `Onboarding` is empty, you can look in `Ready to Take`.
+3. [Join our Discord](https://discord.gg/ZUV7JmN9) and write what do you want from mentorship in `#introduction` channel. You can write introduction in your native language.
+4. Go to our [Tasks plan](https://github.com/orgs/hplush/projects/1) and take next task from `Onboarding` column. If `Onboarding` is empty, you can look in `Ready to Take`.
    1. Choose any task that fits the best to you. Labels can help you focus on your category.
    2. Write there `I want to take it`.
    3. The task will be reserved for you for a week.
    4. Don’t worry if a week is not enough. Just make a [draft PR](https://github.blog/2019-02-14-introducing-draft-pull-requests/).
-4. After the onboarding, you can take tasks from the `Ready to Take` column. See the discussions in issues to pick next one.
+5. After the onboarding, you can take tasks from the `Ready to Take` column. See the discussions in issues to pick next one.
 
 Feel free to ask [maintainer](https://t.me/sitnik) about your next task.
 
