@@ -10,6 +10,7 @@ export default {
     'remark-lint-first-heading-level',
     'remark-lint-heading-increment',
     'remark-lint-no-shell-dollars',
-    ['remark-lint-match-punctuation', ['“”', '()']]
+    ['remark-lint-match-punctuation', ['“”', '()']],
+    'remark-lint-check-toc'
   ]
 }
