@@ -159,9 +159,14 @@ export function getLoaderForText(
 function getLinksFromText(response: TextResponse): string[] {
   let names = Object.keys(loaders) as LoaderName[]
   return names.reduce<string[]>((links, name) => {
-    return links.concat(
-      loaders[name].getMineLinksFromText(response, $candidates.get())
-    )
+    return links.concat(loaders[name].getMineLinksFromText(response))
+  }, [])
+}
+
+function getSuggestedLinksFromText(response: TextResponse): string[] {
+  let names = Object.keys(loaders) as LoaderName[]
+  return names.reduce<string[]>((links, name) => {
+    return links.concat(loaders[name].getSuggestedLinksFromText(response))
   }, [])
 }
 
@@ -213,7 +218,12 @@ export async function addLink(url: string, deep = false): Promise<void> {
         }
         if (!deep) {
           let links = getLinksFromText(response)
-          await Promise.all(links.map(i => addLink(i, true)))
+          if (links.length > 0) {
+            await Promise.all(links.map(i => addLink(i, true)))
+          } else if ($candidates.get().length === 0) {
+            let suggested = getSuggestedLinksFromText(response)
+            await Promise.all(suggested.map(i => addLink(i, true)))
+          }
         }
         if (byText === false) {
           $links.setKey(url, { state: 'unknown' })

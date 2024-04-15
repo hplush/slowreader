@@ -62,10 +62,10 @@ export interface Environment {
   translationLoader: TranslationLoader
 }
 
-export type EnvironmentAndStore = Environment & {
+export type EnvironmentAndStore = {
   persistentEvents: PersistentEvents
   persistentStore: PersistentStore
-}
+} & Environment
 
 let currentEnvironment: Environment | undefined
 
@@ -85,9 +85,9 @@ export function onEnvironment(ch: EnvironmentListener): void {
 }
 
 export function setupEnvironment<Router extends BaseRouter>(
-  env: EnvironmentAndStore & {
+  env: {
     baseRouter: ValidateRouter<Router>
-  }
+  } & EnvironmentAndStore
 ): void {
   for (let unbind of unbinds) unbind?.()
 

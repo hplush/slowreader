@@ -33,12 +33,12 @@
     return !inputError || !error || !errorId
   }
 
-  function onInput(e: Event & { currentTarget: HTMLInputElement }): void {
+  function onInput(e: { currentTarget: HTMLInputElement } & Event): void {
     value = e.currentTarget.value
     dispatch('input', { valid: isValid(), value })
   }
 
-  function onChange(e: Event & { currentTarget: HTMLInputElement }): void {
+  function onChange(e: { currentTarget: HTMLInputElement } & Event): void {
     value = e.currentTarget.value
     validate()
     dispatch('change', { valid: isValid(), value })

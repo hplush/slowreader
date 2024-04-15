@@ -73,7 +73,7 @@ async function findRSSfromHome(feed: OpmlFeed): Promise<void> {
     setPreviewUrl(feed.htmlUrl)
     await timeout(10_000, waitFor(previewCandidatesLoading, false))
     if (previewCandidates.get().some(c => c.url === feed.url)) {
-      success(`Feed ${feed.title} has no feeds at home URL`)
+      success(`Feed ${feed.title} has feed URL at home`)
     } else if (previewCandidates.get().length === 0) {
       error(
         `Can’t find any feed from home URL or ${feed.title}`,

@@ -26,6 +26,8 @@ jobs:
         run: pnpm install --no-frozen-lockfile --ignore-scripts
       - name: Build assets
         run: cd web && pnpm build
+        env:
+          STAGING: 1
       - name: Save PR number
         run: echo "${{ github.event.pull_request.number }}" > ./preview-id
       - name: Save web assets for deploy
@@ -34,8 +36,9 @@ jobs:
           retention-days: 1
           name: preview-assets
           path: |
-            ./web/dist/
-            ./web/nginx.conf
-            ./web/Dockerfile
-            ./web/.nginx/
-            ./preview-id
+            web/.dockerignore
+            web/dist/
+            web/nginx.conf
+            web/Dockerfile
+            web/routes.regexp
+            preview-id

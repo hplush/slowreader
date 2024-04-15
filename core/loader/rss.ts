@@ -2,7 +2,7 @@ import type { TextResponse } from '../download.js'
 import type { OriginPost } from '../post.js'
 import { createPostsPage } from '../posts-page.js'
 import type { Loader } from './index.js'
-import { findLinks, hasAnyFeed, toTime } from './utils.js'
+import { findAnchorHrefs, findLinksByType, toTime } from './utils.js'
 
 function parsePosts(text: TextResponse): OriginPost[] {
   let document = text.parse()
@@ -25,16 +25,11 @@ function parsePosts(text: TextResponse): OriginPost[] {
 }
 
 export const rss: Loader = {
-  getMineLinksFromText(text, found) {
-    let links = findLinks(text, 'application/rss+xml')
-    if (links.length > 0) {
-      return links
-    } else if (!hasAnyFeed(text, found)) {
-      let { origin } = new URL(text.url)
-      return [new URL('/feed', origin).href, new URL('/rss', origin).href]
-    } else {
-      return []
-    }
+  getMineLinksFromText(text) {
+    return [
+      ...findLinksByType(text, 'application/rss+xml'),
+      ...findAnchorHrefs(text, /\.rss|\/rss/i)
+    ]
   },
 
   getPosts(task, url, text) {
@@ -45,6 +40,10 @@ export const rss: Loader = {
         return [parsePosts(await task.text(url)), undefined]
       })
     }
+  },
+
+  getSuggestedLinksFromText(text) {
+    return [new URL('/rss', new URL(text.url).origin).href]
   },
 
   isMineText(text) {

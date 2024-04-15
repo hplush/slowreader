@@ -69,8 +69,7 @@ test('detects xml:base attribute', () => {
         {
           url: 'http://example.com'
         }
-      ),
-      []
+      )
     ),
     [
       'http://example.com/today/1.xml',
@@ -105,8 +104,7 @@ test('detects links', () => {
         {
           url: 'https://example.com/news/'
         }
-      ),
-      []
+      )
     ),
     [
       'https://example.com/a',
@@ -117,42 +115,41 @@ test('detects links', () => {
   )
 })
 
-test('returns default links', () => {
-  deepStrictEqual(
-    loaders.atom.getMineLinksFromText(
-      createTextResponse('<!DOCTYPE html><html><head></head></html>', {
-        url: 'https://example.com/news/'
-      }),
-      []
-    ),
-    ['https://example.com/atom']
-  )
-})
-
-test('ignores default URL on RSS link', () => {
+test('finds atom links in <a> elements', () => {
   deepStrictEqual(
     loaders.atom.getMineLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
         <html>
-          <head>
-            <link rel="alternate" type="application/rss+xml" href="/rss">
-          </head>
-        </html>`
-      ),
-      []
+          <body>
+            <a href="/atom">Atom Feed</a>
+            <a href="https://example.com/blog/feed.xml">Feed XML</a>
+            <a href="/something.atom">Feed Atom</a>
+            <a href="/feed.something">Feed Atom</a>
+          </body>
+        </html>`,
+        {
+          url: 'https://example.com/news'
+        }
+      )
     ),
-    []
+    [
+      'https://example.com/atom',
+      'https://example.com/blog/feed.xml',
+      'https://example.com/something.atom',
+      'https://example.com/feed.something'
+    ]
   )
+})
+
+test('returns default links', () => {
   deepStrictEqual(
-    loaders.atom.getMineLinksFromText(
-      createTextResponse(
-        `<!DOCTYPE html>
-        <html></html>`
-      ),
-      [{ loader: 'rss', title: 'RSS', url: 'https://example.com/rss' }]
+    loaders.atom.getSuggestedLinksFromText(
+      createTextResponse('<!DOCTYPE html><html><head></head></html>', {
+        url: 'https://example.com/news/'
+      })
     ),
-    []
+    ['https://example.com/feed', 'https://example.com/atom']
   )
 })
 

@@ -18,10 +18,9 @@
 This Code of Conduct applies both within project spaces and in public spaces when an individual is representing the project or its community.
 
 - All communications in GitHub.
+- Conversations in our Discord.
 - Git commits and code comments.
 - Project’s social accounts.
-
-<!-- TODO: Add community platform when we will have it -->
 
 ## How Can You Report Violations?
 
