@@ -53,7 +53,9 @@ function isObjValid<ValidatedType>(
   obj: unknown,
   rules: ValidationRules
 ): obj is ValidatedType {
-  if (typeof obj !== 'object' || obj === null) return false
+  if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+    return false
+  }
 
   let objRecord = obj as Record<string, unknown>
 
