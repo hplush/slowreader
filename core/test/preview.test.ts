@@ -15,6 +15,7 @@ import {
   createPostsPage,
   expectRequest,
   getFeeds,
+  getPosts,
   loaders,
   mockRequest,
   onPreviewUrlType,
@@ -447,13 +448,35 @@ test('adds current preview candidate', async () => {
   setPreviewUrl('https://a.com/atom')
   await setTimeout(10)
   equal(ensureLoaded($feeds.get()).list.length, 0)
-
   await addPreviewCandidate()
 
   equal(typeof previewCandidateAdded.get(), 'string')
   equal(ensureLoaded($feeds.get()).list.length, 1)
   equal(ensureLoaded($feeds.get()).list[0]!.lastOriginId, '2')
   equal(ensureLoaded($feeds.get()).list[0]!.lastPublishedAt, 1688169600)
+})
+
+test('adds last post for current preview', async () => {
+  keepMount(previewCandidateAdded)
+  let $posts = getPosts({})
+  keepMount($posts)
+  await $posts.loading
+  expectRequest('https://a.com/atom').andRespond(
+    200,
+    '<feed><title>Atom</title>' +
+      '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
+      '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
+      '</feed>',
+    'text/xml'
+  )
+  setPreviewUrl('https://a.com/atom')
+  await setTimeout(10)
+  equal(ensureLoaded($posts.get()).list.length, 0)
+
+  await addPreviewCandidate()
+
+  equal(ensureLoaded($posts.get()).list.length, 1)
+  equal(ensureLoaded($posts.get()).list[0]!.originId, '2')
 })
 
 test('adds current preview candidate without posts', async () => {
