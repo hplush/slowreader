@@ -12,9 +12,9 @@
   }
 </script>
 
-<div class="pagination">
+<div class="pagination-bar">
   <input
-    class="pagination-bar"
+    class="pagination-bar_input"
     id="pagination"
     max={totalPages}
     min="1"
@@ -27,7 +27,7 @@
 </div>
 
 <style>
-  .pagination {
+  .pagination-bar {
     display: flex;
     gap: var(--padding-l);
     width: 100%;
@@ -35,7 +35,7 @@
     padding-bottom: var(--padding-l);
   }
 
-  .pagination-bar {
+  .pagination-bar_input {
     flex: 1;
   }
 </style>

@@ -139,7 +139,7 @@ onEnvironment(({ baseRouter }) => {
         } else if (page.route === 'slow') {
           if (!page.params.feed && !slow.isLoading) {
             return redirect({
-              params: { feed: slow.feeds[0]?.id || '' },
+              params: { currentPage: 1, feed: slow.feeds[0]?.id || '' },
               route: 'slow'
             })
           }
@@ -166,6 +166,14 @@ onEnvironment(({ baseRouter }) => {
             } else {
               return open('notFound')
             }
+          } else {
+            return open({
+              params: {
+                ...page.params,
+                currentPage: 1
+              },
+              route: 'slow'
+            })
           }
         }
       } else if (!GUEST.has(page.route)) {
