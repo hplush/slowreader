@@ -44,6 +44,9 @@ importers:
       remark-cli:
         specifier: ^12.0.0
         version: 12.0.0
+      remark-lint-check-toc:
+        specifier: ^1.0.0
+        version: 1.0.0
       remark-lint-code-block-split-list:
         specifier: ^1.0.0
         version: 1.0.0
@@ -6958,6 +6961,10 @@ packages:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
     dev: true
 
+  /lodash.iteratee@4.7.0:
+    resolution: {integrity: sha512-yv3cSQZmfpbIKo4Yo45B1taEvxjNvcpF1CEOc0Y6dEyvhPIfEJE3twDwPgWTPQubcSgXyBwBKG6wpQvWMDOf6Q==}
+    dev: true
+
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
     dev: true
@@ -8607,6 +8614,17 @@ packages:
       - supports-color
     dev: true
 
+  /remark-lint-check-toc@1.0.0:
+    resolution: {integrity: sha512-C1lTc6z0qGLizFl4nixtX5Iyny9UOMhe4zpw7GpAj5am/TWiVZHYK0AKsWA23McThxmJUP7na7nkJs1kWveaww==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    dependencies:
+      github-slugger: 2.0.0
+      unified-lint-rule: 2.1.2
+      unist-util-find: 3.0.0
+      unist-util-visit: 5.0.0
+      unist-util-visit-parents: 6.0.1
+    dev: true
+
   /remark-lint-code-block-split-list@1.0.0:
     resolution: {integrity: sha512-Am4fZFVKTsJ1SyjyGDmbI2IYMNrrNcVk58/fH5MYbIS+efFLlhVd8U+RYSiTjjOmNDct7XfQxI92DsS8taDYug==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -10022,6 +10040,14 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       crypto-random-string: 2.0.0
+    dev: true
+
+  /unist-util-find@3.0.0:
+    resolution: {integrity: sha512-T7ZqS7immLjYyC4FCp2hDo3ksZ1v+qcbb+e5+iWxc2jONgHOLXPCpms1L8VV4hVxCXgWTxmBHDztuEZFVwC+Gg==}
+    dependencies:
+      '@types/unist': 3.0.2
+      lodash.iteratee: 4.7.0
+      unist-util-visit: 5.0.0
     dev: true
 
   /unist-util-generated@1.1.6:
