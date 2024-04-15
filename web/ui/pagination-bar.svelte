@@ -14,11 +14,11 @@
 
 <div class="pagination-bar">
   <input
-    class="pagination-bar_input"
     id="pagination"
+    name="pagination"
+    class="pagination-bar_input"
     max={totalPages}
     min="1"
-    name="pagination"
     type="range"
     value={currentPage}
     on:change={onChange}

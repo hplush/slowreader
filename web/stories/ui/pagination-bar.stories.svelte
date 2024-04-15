@@ -31,9 +31,9 @@
         <label for="currentPage">Current page:</label>
         <input
           id="currentPage"
+          name="currentPage"
           max={totalPages}
           min="1"
-          name="currentPage"
           type="number"
           bind:value={currentPage}
         />
@@ -42,24 +42,24 @@
       <div class="text-group">
         <label for="postsPerPage">Posts per page:</label>
         <input
-          bind:value={postsPerPage}
           id="postsPerPage"
+          name="totalPages"
           max={1000}
           min="1"
-          name="totalPages"
           type="number"
+          bind:value={postsPerPage}
         />
       </div>
 
       <div class="text-group">
         <label for="totalPosts">Total posts:</label>
         <input
-          bind:value={totalPosts}
           id="totalPosts"
+          name="totalPosts"
           max={10000}
           min="0"
-          name="totalPosts"
           type="number"
+          bind:value={totalPosts}
         />
       </div>
 
@@ -75,10 +75,10 @@
       <PaginationBar
         {currentPage}
         label={`${totalPosts} posts`}
+        {totalPages}
         on:change={e => {
           currentPage = e.detail
         }}
-        {totalPages}
       />
     </Card>
   </Section>

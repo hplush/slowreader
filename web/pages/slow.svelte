@@ -30,9 +30,9 @@
             <PostCard
               open={getURL({
                 params: {
+                  currentPage: $currentSlowPage,
                   feed: post.feedId,
-                  post: post.id,
-                  currentPage: $currentSlowPage
+                  post: post.id
                 },
                 route: 'slow'
               })}
@@ -48,23 +48,24 @@
         <PaginationBar
           currentPage={$currentSlowPage}
           label={`${$totalSlowPosts} ${$t.posts}`}
-          on:change={e =>
+          totalPages={$totalSlowPages}
+          on:change={e => {
             openRoute({
               params: {
-                feed: $slowFeed,
-                currentPage: e.detail
+                currentPage: e.detail,
+                feed: $slowFeed
               },
               route: 'slow'
-            })}
-          totalPages={$totalSlowPages}
+            })
+          }}
         />
       {/if}
       {#if $currentSlowPage < $totalSlowPages}
         <Button
           href={getURL({
             params: {
-              feed: $slowFeed,
-              currentPage: $currentSlowPage + 1
+              currentPage: $currentSlowPage + 1,
+              feed: $slowFeed
             },
             route: 'slow'
           })}
