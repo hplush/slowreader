@@ -9,6 +9,7 @@ import {
 } from './download.js'
 import { onEnvironment } from './environment.js'
 import { addFeed, getFeeds } from './feed.js'
+import { loadFilters, prepareFilters } from './filter.js'
 import { readonlyExport } from './lib/stores.js'
 import { type LoaderName, loaders } from './loader/index.js'
 import { addPost } from './post.js'
@@ -283,13 +284,16 @@ export async function addPreviewCandidate(): Promise<void> {
       url
     })
     if (lastPost) {
-      // add last post to the feed
-      await addPost({
-        ...lastPost,
-        feedId,
-        publishedAt: lastPost.publishedAt ?? Date.now(),
-        reading: 'fast'
-      })
+      let filters = prepareFilters(await loadFilters({ feedId }))
+      let reading = filters(lastPost) ?? 'fast'
+      if (reading !== 'delete') {
+        await addPost({
+          ...lastPost,
+          feedId,
+          publishedAt: lastPost.publishedAt ?? Date.now(),
+          reading
+        })
+      }
     }
   }
 }
