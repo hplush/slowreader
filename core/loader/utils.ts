@@ -58,3 +58,13 @@ export function toTime(date: null | string | undefined): number | undefined {
     return time
   }
 }
+
+export function findImageByAttr(
+  attr: 'src' | 'url',
+  elements?: Iterable<Element> | null
+): string[] {
+  return [...(elements || [])].reduce<string[]>((urls, element) => {
+    const url = element.getAttribute(attr)
+    return url ? urls.concat(url) : urls
+  }, [])
+}
