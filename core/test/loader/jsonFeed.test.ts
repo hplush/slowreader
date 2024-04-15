@@ -56,8 +56,7 @@ test('detects links', () => {
         {
           url: 'https://example.com/news/'
         }
-      ),
-      []
+      )
     ),
     [
       'https://example.com/a',
@@ -84,8 +83,7 @@ test('detects links', () => {
         {
           url: 'https://example.com/news/'
         }
-      ),
-      []
+      )
     ),
     [
       'https://example.com/a',
@@ -110,8 +108,7 @@ test('detects links', () => {
         {
           url: 'https://example.com/news/'
         }
-      ),
-      []
+      )
     ),
     ['https://example.com/a', 'https://example.com/news/b']
   )
@@ -119,11 +116,17 @@ test('detects links', () => {
 
 test('returns default links', () => {
   deepStrictEqual(
-    loaders.jsonFeed.getMineLinksFromText(
-      createTextResponse('<!DOCTYPE html><html><head></head></html>', {
-        url: 'https://example.com/news/'
-      }),
-      []
+    loaders.jsonFeed.getSuggestedLinksFromText(
+      createTextResponse(
+        `<!DOCTYPE html>
+        <html>
+          <head>
+          </head>
+        </html>`,
+        {
+          url: 'https://example.com/news/'
+        }
+      )
     ),
     ['https://example.com/feed.json']
   )

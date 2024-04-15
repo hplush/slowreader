@@ -90,6 +90,7 @@ test('uses HTTPS for specific domains', async () => {
   spyOn(loaders.jsonFeed, 'getMineLinksFromText', () => [])
   spyOn(loaders.rss, 'getSuggestedLinksFromText', () => [])
   spyOn(loaders.atom, 'getSuggestedLinksFromText', () => [])
+  spyOn(loaders.jsonFeed, 'getSuggestedLinksFromText', () => [])
 
   expectRequest('https://twitter.com/blog').andRespond(200, '')
   setPreviewUrl('twitter.com/blog')
@@ -562,7 +563,7 @@ test('changes URL during typing in the field', async () => {
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('http://example.com/feed').andRespond(404)
   expectRequest('http://example.com/atom').andRespond(404)
-  expectRequest('http://other.net/feed.json').andRespond(404)
+  expectRequest('http://example.com/feed.json').andRespond(404)
   expectRequest('http://example.com/rss').andRespond(404)
   onPreviewUrlType('other.net/some')
   setPreviewUrl('example.com')

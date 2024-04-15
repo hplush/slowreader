@@ -2,7 +2,7 @@ import type { TextResponse } from '../download.js'
 import type { OriginPost } from '../post.js'
 import { createPostsPage } from '../posts-page.js'
 import type { Loader } from './index.js'
-import { findLinks, hasAnyFeed, toTime } from './utils.js'
+import { findAnchorHrefs, findLinksByType, toTime } from './utils.js'
 
 // https://www.jsonfeed.org/version/1.1/
 export type Author = {
@@ -55,11 +55,13 @@ function isObjValid<ValidatedType>(
 ): obj is ValidatedType {
   if (typeof obj !== 'object' || obj === null) return false
 
+  let objRecord = obj as Record<string, unknown>
+
   for (let field in rules) {
-    if (!(field in obj) || !rules[field]!((obj as never)[field])) {
+    if (!(field in objRecord) || !rules[field]!(objRecord[field])) {
       // eslint-disable-next-line no-console
       console.error(
-        `json ${field} field with value ${(obj as never)[field]} is not valid`
+        `Value ${objRecord[field]} of object field ${field} is not valid`
       )
       return false
     }
@@ -96,19 +98,13 @@ function parsePosts(text: TextResponse): OriginPost[] {
 }
 
 export const jsonFeed: Loader = {
-  getMineLinksFromText(text, found) {
-    let links = findLinks(text, 'application/feed+json')
-    if (links.length === 0) {
-      links = findLinks(text, 'application/json')
+  getMineLinksFromText(text) {
+    let linksByType = findLinksByType(text, 'application/feed+json')
+    if (linksByType.length === 0) {
+      linksByType = findLinksByType(text, 'application/json')
     }
-    if (links.length > 0) {
-      return links
-    } else if (!hasAnyFeed(text, found)) {
-      let { origin } = new URL(text.url)
-      return [new URL('/feed.json', origin).href]
-    } else {
-      return []
-    }
+
+    return [...linksByType, ...findAnchorHrefs(text, /feeds?\.json/i)]
   },
 
   getPosts(task, url, text) {
@@ -119,6 +115,10 @@ export const jsonFeed: Loader = {
         return [parsePosts(await task.text(url)), undefined]
       })
     }
+  },
+
+  getSuggestedLinksFromText(text) {
+    return [new URL('/feed.json', new URL(text.url).origin).href]
   },
 
   isMineText(text) {
