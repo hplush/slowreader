@@ -2,7 +2,15 @@ import type { TextResponse } from '../download.js'
 import type { OriginPost } from '../post.js'
 import { createPostsPage } from '../posts-page.js'
 import type { Loader } from './index.js'
-import { findAnchorHrefs, findLinksByType, toTime } from './utils.js'
+import {
+  findAnchorHrefs,
+  findImageByAttr,
+  findLinksByType,
+  toTime,
+  unique
+} from './utils.js'
+
+const MEDIA_NS_URI = 'http://search.yahoo.com/mrss/'
 
 function parsePosts(text: TextResponse): OriginPost[] {
   let document = text.parse()
@@ -12,16 +20,28 @@ function parsePosts(text: TextResponse): OriginPost[] {
         item.querySelector('guid')?.textContent ??
         item.querySelector('link')?.textContent
     )
-    .map(item => ({
-      full: item.querySelector('description')?.textContent ?? undefined,
-      media: [],
-      originId:
-        item.querySelector('guid')?.textContent ??
-        item.querySelector('link')!.textContent!,
-      publishedAt: toTime(item.querySelector('pubDate')?.textContent),
-      title: item.querySelector('title')?.textContent ?? undefined,
-      url: item.querySelector('link')?.textContent ?? undefined
-    }))
+    .map(item => {
+      let description = item.querySelector('description')
+
+      let descriptionImageElements = description?.querySelectorAll('img')
+      let descriptionImages = findImageByAttr('src', descriptionImageElements)
+
+      let mediaImageElements = [
+        ...item.getElementsByTagNameNS(MEDIA_NS_URI, 'content')
+      ].filter(element => element.getAttribute('medium') === 'image')
+      let mediaImages = findImageByAttr('url', mediaImageElements)
+
+      return {
+        full: description?.textContent ?? undefined,
+        media: unique([...descriptionImages, ...mediaImages]),
+        originId:
+          item.querySelector('guid')?.textContent ??
+          item.querySelector('link')!.textContent!,
+        publishedAt: toTime(item.querySelector('pubDate')?.textContent),
+        title: item.querySelector('title')?.textContent ?? undefined,
+        url: item.querySelector('link')?.textContent ?? undefined
+      }
+    })
 }
 
 export const rss: Loader = {
