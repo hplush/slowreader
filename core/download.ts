@@ -4,6 +4,7 @@ export interface TextResponse {
   readonly headers: Headers
   readonly ok: boolean
   parse(): Document | XMLDocument
+  parseJson(): null | unknown
   readonly status: number
   readonly text: string
   readonly url: string
@@ -13,6 +14,14 @@ export interface DownloadTask {
   abortAll(): void
   request: typeof request
   text(...args: Parameters<typeof request>): Promise<TextResponse>
+}
+
+function getContentMediaType(headers: Headers): string {
+  let contentType = headers.get('content-type') ?? 'text/html'
+  if (contentType.includes(';')) {
+    contentType = contentType.split(';')[0]!
+  }
+  return contentType
 }
 
 export function createTextResponse(
@@ -27,10 +36,8 @@ export function createTextResponse(
     ok: status >= 200 && status < 300,
     parse() {
       if (!bodyCache) {
-        let parseType = headers.get('content-type') ?? 'text/html'
-        if (parseType.includes(';')) {
-          parseType = parseType.split(';')[0]!
-        }
+        let parseType = getContentMediaType(headers)
+
         if (parseType.includes('+xml')) {
           parseType = 'application/xml'
         }
@@ -50,6 +57,24 @@ export function createTextResponse(
         }
       }
       return bodyCache
+    },
+    parseJson() {
+      let parseType = getContentMediaType(headers)
+
+      if (
+        parseType !== 'application/json' &&
+        parseType !== 'application/feed+json'
+      ) {
+        return null
+      }
+
+      try {
+        return JSON.parse(text)
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Parse JSON error', e)
+        return null
+      }
     },
     status,
     text,
