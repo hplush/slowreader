@@ -21,7 +21,9 @@
         class="pagination-bar_segment"
         class:is-active={page === currentPage}
         class:is-past={page < currentPage}
-        on:click={() => onPageChange(page)}
+        on:click={() => {
+          onPageChange(page)
+        }}
       >
       </button>
     {/each}
