@@ -76,7 +76,68 @@
         {currentPage}
         label={`${totalPosts} posts`}
         {totalPages}
-        on:change={e => {
+        on:click={e => {
+          currentPage = e.detail
+        }}
+      />
+    </Card>
+  </Section>
+</Story>
+
+<Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
+  <Section width={500}>
+    <Card>
+      <Paragraph>Pagination controls</Paragraph>
+      <div class="text-group">
+        <label for="currentPage">Current page:</label>
+        <input
+          id="currentPage"
+          name="currentPage"
+          max={totalPages}
+          min="1"
+          type="number"
+          bind:value={currentPage}
+        />
+      </div>
+
+      <div class="text-group">
+        <label for="postsPerPage">Posts per page:</label>
+        <input
+          id="postsPerPage"
+          name="totalPages"
+          max={1000}
+          min="1"
+          type="number"
+          bind:value={postsPerPage}
+        />
+      </div>
+
+      <div class="text-group">
+        <label for="totalPosts">Total posts:</label>
+        <input
+          id="totalPosts"
+          name="totalPosts"
+          max={10000}
+          min="0"
+          type="number"
+          bind:value={totalPosts}
+        />
+      </div>
+
+      <div class="text-group">
+        <Paragraph>Total pages: {totalPages}</Paragraph>
+        <Paragraph>Reading posts: {postsFrom} - {postsTo}</Paragraph>
+      </div>
+    </Card>
+  </Section>
+  <Section width={500}>
+    <Card>
+      <Paragraph>Pagination bar</Paragraph>
+      <PaginationBar
+        {currentPage}
+        label={`${totalPosts} posts`}
+        {totalPages}
+        on:click={e => {
           currentPage = e.detail
         }}
       />

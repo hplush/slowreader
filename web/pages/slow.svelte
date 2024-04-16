@@ -48,16 +48,15 @@
         <PaginationBar
           currentPage={$currentSlowPage}
           label={`${$totalSlowPosts} ${$t.posts}`}
-          totalPages={$totalSlowPages}
-          on:change={e => {
+          on:click={e =>
             openRoute({
               params: {
                 currentPage: e.detail,
                 feed: $slowFeed
               },
               route: 'slow'
-            })
-          }}
+            })}
+          totalPages={$totalSlowPages}
         />
       {/if}
       {#if $currentSlowPage < $totalSlowPages}
