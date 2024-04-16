@@ -64,13 +64,13 @@ export function findImageByAttr(
   elements?: Iterable<Element> | null
 ): string[] {
   return [...(elements || [])].reduce<string[]>((urls, element) => {
-    const url = element.getAttribute(attr)
+    let url = element.getAttribute(attr)
     return url ? urls.concat(url) : urls
   }, [])
 }
 
-export function unique<T extends string | number = string>(
-  collection: Iterable<T | null | undefined>
+export function unique<T extends number | string = string>(
+  collection: Iterable<null | T | undefined>
 ): T[] {
   return [...new Set([...collection].filter(str => str != null))] as T[]
 }

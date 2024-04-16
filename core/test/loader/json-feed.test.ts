@@ -476,29 +476,29 @@ test('parses media', async () => {
         ...jsonStub,
         items: [
           {
+            banner_image: 'https://example.com/banner_image.webp',
             content_html:
               '<p>HTML<img src="https://example.com/img_h.webp" /></p>',
             content_text:
               '<p>Text<img src="https://example.com/img_t.webp" /></p>',
             date_published: '2022-01-04T00:00:00Z',
             id: 'somehashid',
+            image: 'https://example.com/image.webp',
             summary: 'summary',
             title: 'title_1',
-            url: 'https://example.com/',
-            image: 'https://example.com/image.webp',
-            banner_image: 'https://example.com/banner_image.webp'
+            url: 'https://example.com/'
           },
           {
+            banner_image: 'https://example.com/img.webp',
             content_html: undefined,
             content_text:
               '<p><img src="https://example.com/img_0.webp">Text' +
               '<img src="https://example.com/img_1.webp"></p>',
             date_published: '2022-01-04T00:00:00Z',
             id: 'somehashid2',
-            title: 'title_2',
-            url: 'https://example.com/2',
             image: 'https://example.com/img.webp',
-            banner_image: 'https://example.com/img.webp'
+            title: 'title_2',
+            url: 'https://example.com/2'
           }
         ]
       })

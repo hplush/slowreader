@@ -21,15 +21,15 @@ function parsePosts(text: TextResponse): OriginPost[] {
         item.querySelector('link')?.textContent
     )
     .map(item => {
-      const description = item.querySelector('description')
+      let description = item.querySelector('description')
 
-      const descriptionImageElements = description?.querySelectorAll('img')
-      const descriptionImages = findImageByAttr('src', descriptionImageElements)
+      let descriptionImageElements = description?.querySelectorAll('img')
+      let descriptionImages = findImageByAttr('src', descriptionImageElements)
 
-      const mediaImageElements = [
+      let mediaImageElements = [
         ...item.getElementsByTagNameNS(MEDIA_NS_URI, 'content')
       ].filter(element => element.getAttribute('medium') === 'image')
-      const mediaImages = findImageByAttr('url', mediaImageElements)
+      let mediaImages = findImageByAttr('url', mediaImageElements)
 
       return {
         full: description?.textContent ?? undefined,

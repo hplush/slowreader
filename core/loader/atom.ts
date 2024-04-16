@@ -14,7 +14,7 @@ function parsePosts(text: TextResponse): OriginPost[] {
   return [...document.querySelectorAll('entry')]
     .filter(entry => entry.querySelector('id')?.textContent)
     .map(entry => {
-      const content = entry.querySelector('content')
+      let content = entry.querySelector('content')
       return {
         full: content?.textContent ?? undefined,
         intro: entry.querySelector('summary')?.textContent ?? undefined,

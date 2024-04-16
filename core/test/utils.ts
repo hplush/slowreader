@@ -4,6 +4,7 @@ import { fail } from 'node:assert'
 import {
   Category,
   client,
+  createTextResponse,
   enableTestTime,
   type EnvironmentAndStore,
   fastCategories,
@@ -13,9 +14,8 @@ import {
   Post,
   setBaseTestRoute,
   setupEnvironment,
-  userId,
   type TextResponse,
-  createTextResponse
+  userId
 } from '../index.js'
 
 export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {

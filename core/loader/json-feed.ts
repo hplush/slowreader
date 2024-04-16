@@ -96,16 +96,16 @@ function parsePosts(text: TextResponse): OriginPost[] {
   if (!validate<JsonFeed>(parsedJson, JSON_FEED_VALIDATORS)) return []
 
   return parsedJson.items.map(item => {
-    const full = (item.content_html || item.content_text) ?? undefined
-    const allImages: (string | null | undefined)[] = [
+    let full = (item.content_html || item.content_text) ?? undefined
+    let allImages: (null | string | undefined)[] = [
       item.banner_image,
       item.image
     ]
 
     if (full) {
-      const parser = new DOMParser()
-      const fullDocument = parser.parseFromString(full, 'text/html')
-      const contentImages = [...fullDocument.querySelectorAll('img')].map(
+      let parser = new DOMParser()
+      let fullDocument = parser.parseFromString(full, 'text/html')
+      let contentImages = [...fullDocument.querySelectorAll('img')].map(
         element => element.getAttribute('src')
       )
       allImages.push(...contentImages)
