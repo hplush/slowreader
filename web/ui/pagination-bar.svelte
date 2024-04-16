@@ -1,6 +1,8 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte'
 
+  import Paragraph from './paragraph.svelte'
+
   export let currentPage: number
   export let totalPages: number
   export let label: string
@@ -28,7 +30,7 @@
       </button>
     {/each}
   </div>
-  <label for="pagination">{label}</label>
+  <Paragraph>{label}</Paragraph>
 </div>
 
 <style>
@@ -36,8 +38,7 @@
     display: flex;
     gap: var(--padding-l);
     width: 100%;
-    padding-top: var(--padding-l);
-    padding-bottom: var(--padding-l);
+    padding: var(--padding-l) 0;
   }
 
   .pagination-bar_progress {
