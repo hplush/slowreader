@@ -45,7 +45,7 @@ interface JsonFeedItem {
   url?: string
 }
 
-type ValidationRules = {
+interface ValidationRules {
   [key: string]: (value: unknown) => boolean
 }
 
