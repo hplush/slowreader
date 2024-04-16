@@ -49,21 +49,27 @@ type ValidationRules = {
   [key: string]: (value: unknown) => boolean
 }
 
-function isObjValid<ValidatedType>(
-  obj: unknown,
+function isObject(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+function stringify(value: unknown): string {
+  return typeof value === 'object' ? JSON.stringify(value) : `${value}`
+}
+
+function validate<ValidatedType>(
+  value: unknown,
   rules: ValidationRules
-): obj is ValidatedType {
-  if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+): value is ValidatedType {
+  if (!isObject(value)) {
     return false
   }
 
-  let objRecord = obj as Record<string, unknown>
-
   for (let field in rules) {
-    if (!(field in objRecord) || !rules[field]!(objRecord[field])) {
+    if (!(field in value) || !rules[field]!(value[field])) {
       // eslint-disable-next-line no-console
       console.error(
-        `Value ${objRecord[field]} of object field ${field} is not valid`
+        `JSON feed field '${field}' is not valid with value: ${stringify(value[field])}`
       )
       return false
     }
@@ -72,21 +78,21 @@ function isObjValid<ValidatedType>(
   return true
 }
 
-let existJsonFeedVersions = ['1', '1.1']
+const JSON_FEED_VERSIONS = ['1', '1.1']
 
 let jsonFeedValidationRules: ValidationRules = {
-  items: (value: unknown): boolean => Array.isArray(value),
-  title: (value: unknown): boolean => typeof value === 'string',
-  version: (value: unknown): boolean => {
+  items: (value): boolean => Array.isArray(value),
+  title: (value): boolean => typeof value === 'string',
+  version: (value): boolean => {
     if (typeof value !== 'string' || !value.includes('jsonfeed')) return false
     let version = value.split('/').pop()
-    return existJsonFeedVersions.includes(version!)
+    return JSON_FEED_VERSIONS.includes(version!)
   }
 }
 
 function parsePosts(text: TextResponse): OriginPost[] {
   let parsedJson = text.parseJson()
-  if (!isObjValid<JsonFeed>(parsedJson, jsonFeedValidationRules)) return []
+  if (!validate<JsonFeed>(parsedJson, jsonFeedValidationRules)) return []
 
   return parsedJson.items.map(item => ({
     full: (item.content_html || item.content_text) ?? undefined,
@@ -125,7 +131,7 @@ export const jsonFeed: Loader = {
 
   isMineText(text) {
     let parsedJson = text.parseJson()
-    if (isObjValid<JsonFeed>(parsedJson, jsonFeedValidationRules)) {
+    if (validate<JsonFeed>(parsedJson, jsonFeedValidationRules)) {
       return parsedJson.title
     }
     return false
