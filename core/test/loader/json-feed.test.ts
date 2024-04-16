@@ -467,3 +467,84 @@ test('validate wrong json feed format', async () => {
     }
   )
 })
+
+test('parses media', async () => {
+  let task = createDownloadTask()
+  let text = spyOn(task, 'text', async () =>
+    exampleJson(
+      JSON.stringify({
+        ...jsonStub,
+        items: [
+          {
+            content_html:
+              '<p>HTML<img src="https://example.com/img_h.webp" /></p>',
+            content_text:
+              '<p>Text<img src="https://example.com/img_t.webp" /></p>',
+            date_published: '2022-01-04T00:00:00Z',
+            id: 'somehashid',
+            summary: 'summary',
+            title: 'title_1',
+            url: 'https://example.com/',
+            image: 'https://example.com/image.webp',
+            banner_image: 'https://example.com/banner_image.webp'
+          },
+          {
+            content_html: undefined,
+            content_text:
+              '<p><img src="https://example.com/img_0.webp">Text' +
+              '<img src="https://example.com/img_1.webp"></p>',
+            date_published: '2022-01-04T00:00:00Z',
+            id: 'somehashid2',
+            title: 'title_2',
+            url: 'https://example.com/2',
+            image: 'https://example.com/img.webp',
+            banner_image: 'https://example.com/img.webp'
+          }
+        ]
+      })
+    )
+  )
+  let page = loaders.jsonFeed.getPosts(task, 'https://example.com/')
+  deepStrictEqual(page.get(), {
+    hasNext: true,
+    isLoading: true,
+    list: []
+  })
+
+  await setTimeout(10)
+  deepStrictEqual(page.get(), {
+    hasNext: false,
+    isLoading: false,
+    list: [
+      {
+        full: '<p>HTML<img src="https://example.com/img_h.webp" /></p>',
+        intro: 'summary',
+        media: [
+          'https://example.com/banner_image.webp',
+          'https://example.com/image.webp',
+          'https://example.com/img_h.webp'
+        ],
+        originId: 'somehashid',
+        publishedAt: 1641254400,
+        title: 'title_1',
+        url: 'https://example.com/'
+      },
+      {
+        full:
+          '<p><img src="https://example.com/img_0.webp">Text' +
+          '<img src="https://example.com/img_1.webp"></p>',
+        intro: undefined,
+        media: [
+          'https://example.com/img.webp',
+          'https://example.com/img_0.webp',
+          'https://example.com/img_1.webp'
+        ],
+        originId: 'somehashid2',
+        publishedAt: 1641254400,
+        title: 'title_2',
+        url: 'https://example.com/2'
+      }
+    ]
+  })
+  deepStrictEqual(text.calls, [['https://example.com/']])
+})

@@ -2,7 +2,7 @@ import type { TextResponse } from '../download.js'
 import type { OriginPost } from '../post.js'
 import { createPostsPage } from '../posts-page.js'
 import type { Loader } from './index.js'
-import { findAnchorHrefs, findLinksByType, toTime } from './utils.js'
+import { findAnchorHrefs, findLinksByType, toTime, unique } from './utils.js'
 
 // https://www.jsonfeed.org/version/1.1/
 interface JsonFeed {
@@ -95,15 +95,32 @@ function parsePosts(text: TextResponse): OriginPost[] {
   let parsedJson = text.parseJson()
   if (!validate<JsonFeed>(parsedJson, JSON_FEED_VALIDATORS)) return []
 
-  return parsedJson.items.map(item => ({
-    full: (item.content_html || item.content_text) ?? undefined,
-    intro: item.summary ?? undefined,
-    media: [],
-    originId: item.id,
-    publishedAt: toTime(item.date_published) ?? undefined,
-    title: item.title,
-    url: item.url ?? undefined
-  }))
+  return parsedJson.items.map(item => {
+    const full = (item.content_html || item.content_text) ?? undefined
+    const allImages: (string | null | undefined)[] = [
+      item.banner_image,
+      item.image
+    ]
+
+    if (full) {
+      const parser = new DOMParser()
+      const fullDocument = parser.parseFromString(full, 'text/html')
+      const contentImages = [...fullDocument.querySelectorAll('img')].map(
+        element => element.getAttribute('src')
+      )
+      allImages.push(...contentImages)
+    }
+
+    return {
+      full,
+      intro: item.summary ?? undefined,
+      media: unique(allImages),
+      originId: item.id,
+      publishedAt: toTime(item.date_published) ?? undefined,
+      title: item.title,
+      url: item.url ?? undefined
+    }
+  })
 }
 
 export const jsonFeed: Loader = {

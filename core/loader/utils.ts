@@ -68,3 +68,9 @@ export function findImageByAttr(
     return url ? urls.concat(url) : urls
   }, [])
 }
+
+export function unique<T extends string | number = string>(
+  collection: Iterable<T | null | undefined>
+): T[] {
+  return [...new Set([...collection].filter(str => str != null))] as T[]
+}

@@ -6,7 +6,8 @@ import {
   findAnchorHrefs,
   findImageByAttr,
   findLinksByType,
-  toTime
+  toTime,
+  unique
 } from './utils.js'
 
 const MEDIA_NS_URI = 'http://search.yahoo.com/mrss/'
@@ -32,7 +33,7 @@ function parsePosts(text: TextResponse): OriginPost[] {
 
       return {
         full: description?.textContent ?? undefined,
-        media: [...new Set([...descriptionImages, ...mediaImages])],
+        media: unique([...descriptionImages, ...mediaImages]),
         originId:
           item.querySelector('guid')?.textContent ??
           item.querySelector('link')!.textContent!,
