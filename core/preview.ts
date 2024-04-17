@@ -9,7 +9,6 @@ import {
 } from './download.js'
 import { onEnvironment } from './environment.js'
 import { addFeed, getFeeds } from './feed.js'
-import { loadFilters, prepareFilters } from './filter.js'
 import { readonlyExport } from './lib/stores.js'
 import { type LoaderName, loaders } from './loader/index.js'
 import { addPost } from './post.js'
@@ -284,26 +283,23 @@ export async function addPreviewCandidate(): Promise<void> {
     let page = await loadValue($posts.get()!)
     let lastPost = page.list[0]
     let candidate = $candidates.get().find(i => i.url === url)!
+    let reading = 'fast' as const
     let feedId = await addFeed({
       categoryId: 'general',
       lastOriginId: lastPost?.originId,
       lastPublishedAt: lastPost?.publishedAt ?? Date.now() / 1000,
       loader: candidate.loader,
-      reading: 'fast',
+      reading,
       title: candidate.title,
       url
     })
     if (lastPost) {
-      let filters = prepareFilters(await loadFilters({ feedId }))
-      let reading = filters(lastPost) ?? 'fast'
-      if (reading !== 'delete') {
-        await addPost({
-          ...lastPost,
-          feedId,
-          publishedAt: lastPost.publishedAt ?? Date.now(),
-          reading
-        })
-      }
+      await addPost({
+        ...lastPost,
+        feedId,
+        publishedAt: lastPost.publishedAt ?? Date.now(),
+        reading
+      })
     }
   }
 }
