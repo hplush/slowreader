@@ -75,7 +75,15 @@ export const previewCandidates = computed($candidates, candidates => {
 })
 
 onMount($candidates, () => {
-  return $links.listen(() => {})
+  let unsubscribeRouter = router.subscribe(page => {
+    if (page.route === 'add') {
+      setPreviewUrl(page.params.url!)
+    }
+  })
+
+  return () => {
+    unsubscribeRouter()
+  }
 })
 
 let $candidate = atom<string | undefined>()
