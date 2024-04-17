@@ -1,11 +1,13 @@
 <script lang="ts">
+  import { commonMessages as t } from '@slowreader/core'
   import { createEventDispatcher } from 'svelte'
 
+  import Button from './button.svelte'
   import Paragraph from './paragraph.svelte'
 
   export let currentPage: number
-  export let totalPages: number
   export let label: string
+  export let totalPages: number
 
   $: pages = Array.from({ length: totalPages }, (_, i) => i + 1)
 
@@ -32,6 +34,16 @@
   </div>
   <Paragraph>{label}</Paragraph>
 </div>
+{#if currentPage < totalPages}
+  <Button
+    secondary
+    on:click={() => {
+      onPageChange(currentPage + 1)
+    }}
+  >
+    {$t.showNext}
+  </Button>
+{/if}
 
 <style>
   .pagination-bar {

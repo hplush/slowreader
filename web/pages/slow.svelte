@@ -10,7 +10,6 @@
   } from '@slowreader/core'
 
   import { getURL, openRoute } from '../stores/router.js'
-  import Button from '../ui/button.svelte'
   import Loader from '../ui/loader.svelte'
   import PaginationBar from '../ui/pagination-bar.svelte'
   import PostCard from '../ui/post-card.svelte'
@@ -59,20 +58,6 @@
             })
           }}
         />
-      {/if}
-      {#if $currentSlowPage < $totalSlowPages}
-        <Button
-          href={getURL({
-            params: {
-              currentPage: $currentSlowPage + 1,
-              feed: $slowFeed
-            },
-            route: 'slow'
-          })}
-          secondary
-        >
-          {$t.showNext}
-        </Button>
       {/if}
     {/if}
   </div>
