@@ -11,6 +11,7 @@ export default {
     'remark-lint-heading-increment',
     'remark-lint-no-shell-dollars',
     ['remark-lint-match-punctuation', ['“”', '()']],
-    'remark-lint-check-toc'
+    'remark-lint-check-toc',
+    'remark-lint-smarty-pants-typography'
   ]
 }
