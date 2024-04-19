@@ -2,8 +2,8 @@
 import isMartianIP from 'martian-cidr'
 import type http from 'node:http'
 import { createServer } from 'node:http'
+import { isIP } from 'node:net'
 import { styleText } from 'node:util'
-import { isIP } from 'net'
 
 export const createProxyServer = (
   config: {
@@ -84,7 +84,7 @@ export const createProxyServer = (
       res.writeHead(targetResponse.status, {
         'Access-Control-Allow-Headers': '*',
         'Access-Control-Allow-Methods': 'OPTIONS, POST, GET, PUT, DELETE',
-        'Access-Control-Allow-Origin': req.headers['Origin'] || '*',
+        'Access-Control-Allow-Origin': req.headers.Origin || '*',
         'Content-Type':
           targetResponse.headers.get('content-type') ?? 'text/plain'
       })
