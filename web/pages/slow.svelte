@@ -1,7 +1,6 @@
 <script lang="ts">
   import {
     openedSlowPost,
-    slowFeed,
     slowPage,
     slowPosts,
     slowMessages as t,
@@ -9,7 +8,7 @@
     totalSlowPosts
   } from '@slowreader/core'
 
-  import { getURL, openRoute } from '../stores/router.js'
+  import { getURL } from '../stores/router.js'
   import Loader from '../ui/loader.svelte'
   import PaginationBar from '../ui/pagination-bar.svelte'
   import PostCard from '../ui/post-card.svelte'
@@ -48,15 +47,6 @@
           currentPage={$slowPage}
           label={`${$totalSlowPosts} ${$t.posts}`}
           totalPages={$totalSlowPages}
-          on:click={e => {
-            openRoute({
-              params: {
-                feed: $slowFeed,
-                page: e.detail
-              },
-              route: 'slow'
-            })
-          }}
         />
       {/if}
     {/if}

@@ -22,15 +22,16 @@
   <div class="pagination-bar">
     <div class="pagination-bar_progress">
       {#each pages as page (page)}
-        <button
+        <a
           class="pagination-bar_segment"
           class:is-active={page === currentPage}
           class:is-past={page < currentPage}
+          href={`?page=${page}`}
           on:click={() => {
             onPageChange(page)
           }}
         >
-        </button>
+        </a>
       {/each}
     </div>
     <Paragraph>{label}</Paragraph>
@@ -38,6 +39,7 @@
 {/if}
 {#if currentPage < totalPages}
   <Button
+    href={`?page=${currentPage + 1}`}
     secondary
     on:click={() => {
       onPageChange(currentPage + 1)
