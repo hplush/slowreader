@@ -6,11 +6,6 @@ import { URL } from 'node:url'
 import { createProxyServer } from '../proxy.js'
 import { getTestHttpServer, initTestHttpServer } from './utils.js'
 
-/**
- * Proxy is tested with a service that outputs request and response data.
- *
- * <local client> -> <proxy> -> <targetServer>
- */
 const targetServer = createServer((req, res) => {
   let parsedUrl = new URL(req.url || '', `http://${req.headers.host}`)
 
@@ -58,7 +53,7 @@ describe('proxy tests', async () => {
 
     if (!target || !proxy) {
       throw new Error(
-        "Couldn't set up target server or proxy server. Something is misconfigured. Please check out 'proxy.test.js'"
+        "Couldn't set up target server or proxy server. Please check out 'proxy.test.js'"
       )
     }
   })
@@ -66,7 +61,6 @@ describe('proxy tests', async () => {
   await test('proxy works', async () => {
     let response = await fetch(`${proxyServerUrl}/${targetServerUrl}`)
     let parsedResponse = await response.json()
-    // @ts-ignore
     equal(response.status, 200)
     equal(parsedResponse?.response, 'ok')
   })
@@ -76,7 +70,6 @@ describe('proxy tests', async () => {
       `${proxyServerUrl}/${targetServerUrl}/foo/bar?foo=bar&bar=foo`
     )
     let parsedResponse = await response.json()
-    // @ts-ignore
     equal(response.status, 200)
     equal(parsedResponse?.response, 'ok')
     equal(parsedResponse?.request?.requestPath, '/foo/bar')
@@ -93,7 +86,7 @@ describe('proxy tests', async () => {
           let response = await fetch(`${proxyServerUrl}/${targetServerUrl}`, {
             method
           })
-          equal(response.status, 500)
+          equal(response.status, 400)
         })
       }
     })
@@ -119,7 +112,7 @@ describe('proxy tests', async () => {
             `${proxyServerUrl}/${targetServerUrl.replace('http', protocol)}`,
             {}
           )
-          equal(response.status, 500)
+          equal(response.status, 400)
         })
       }
     })
@@ -129,7 +122,7 @@ describe('proxy tests', async () => {
         `${proxyServerUrl}/${targetServerUrl.replace('localhost', '127.0.0.1')}`,
         {}
       )
-      equal(response.status, 500)
+      equal(response.status, 400)
     })
 
     await describe('cookies', async () => {
@@ -140,9 +133,7 @@ describe('proxy tests', async () => {
 
         equal(response.status, 200)
         let parsedResponse = await response.json()
-        // @ts-ignore
         equal(parsedResponse?.['set-cookie'], undefined)
-        // @ts-ignore
         equal(parsedResponse?.cookie, undefined)
       })
 
@@ -153,9 +144,7 @@ describe('proxy tests', async () => {
 
         equal(response.status, 200)
         let parsedResponse = await response.json()
-        // @ts-ignore
         equal(parsedResponse?.['set-cookie'], undefined)
-        // @ts-ignore
         equal(parsedResponse?.cookie, undefined)
       })
     })
