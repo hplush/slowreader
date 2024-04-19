@@ -3,7 +3,7 @@ import { createServer } from 'node:http'
 import { before, describe, test } from 'node:test'
 import { URL } from 'node:url'
 
-import createProxyServer from '../proxy.js'
+import { createProxyServer } from '../proxy.js'
 import { getTestHttpServer, initTestHttpServer } from './utils.js'
 
 /**

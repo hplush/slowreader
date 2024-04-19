@@ -22,7 +22,7 @@ import { styleText } from 'node:util'
  *
  * @param { isProduction, silentMode, hostnameWhitelist, productionDomainSuffix } config
  */
-const createProxyServer = (
+export const createProxyServer = (
   config: {
     hostnameWhitelist?: string[]
     isProduction?: boolean
@@ -115,5 +115,3 @@ const createProxyServer = (
     }
   })
 }
-
-export default createProxyServer
