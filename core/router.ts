@@ -21,7 +21,7 @@ export interface Routes {
   refresh: {}
   settings: {}
   signin: {}
-  slow: { currentPage?: number; feed?: string; post?: string }
+  slow: { feed?: string; page?: number; post?: string }
   start: {}
   subscriptions: {}
   welcome: {}
@@ -139,7 +139,7 @@ onEnvironment(({ baseRouter }) => {
         } else if (page.route === 'slow') {
           if (!page.params.feed && !slow.isLoading) {
             return redirect({
-              params: { currentPage: 1, feed: slow.feeds[0]?.id || '' },
+              params: { feed: slow.feeds[0]?.id || '', page: 1 },
               route: 'slow'
             })
           }
@@ -150,16 +150,16 @@ onEnvironment(({ baseRouter }) => {
             }
           }
 
-          if (page.params.currentPage) {
-            if (isNumber(page.params.currentPage)) {
+          if (page.params.page) {
+            if (isNumber(page.params.page)) {
               let currentPage =
-                typeof page.params.currentPage === 'number'
-                  ? page.params.currentPage
-                  : parseInt(page.params.currentPage)
+                typeof page.params.page === 'number'
+                  ? page.params.page
+                  : parseInt(page.params.page)
               return open({
                 params: {
                   ...page.params,
-                  currentPage
+                  page: currentPage
                 },
                 route: 'slow'
               })
@@ -170,7 +170,7 @@ onEnvironment(({ baseRouter }) => {
             return open({
               params: {
                 ...page.params,
-                currentPage: 1
+                page: 1
               },
               route: 'slow'
             })

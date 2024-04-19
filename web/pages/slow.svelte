@@ -1,8 +1,8 @@
 <script lang="ts">
   import {
-    currentSlowPage,
     openedSlowPost,
     slowFeed,
+    slowPage,
     slowPosts,
     slowMessages as t,
     totalSlowPages,
@@ -29,8 +29,8 @@
             <PostCard
               open={getURL({
                 params: {
-                  currentPage: $currentSlowPage,
                   feed: post.feedId,
+                  page: $slowPage,
                   post: post.id
                 },
                 route: 'slow'
@@ -45,14 +45,14 @@
       {/if}
       {#if $totalSlowPages > 1}
         <PaginationBar
-          currentPage={$currentSlowPage}
+          currentPage={$slowPage}
           label={`${$totalSlowPosts} ${$t.posts}`}
           totalPages={$totalSlowPages}
           on:click={e => {
             openRoute({
               params: {
-                currentPage: e.detail,
-                feed: $slowFeed
+                feed: $slowFeed,
+                page: e.detail
               },
               route: 'slow'
             })

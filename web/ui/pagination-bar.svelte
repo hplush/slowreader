@@ -18,22 +18,24 @@
   }
 </script>
 
-<div class="pagination-bar">
-  <div class="pagination-bar_progress">
-    {#each pages as page (page)}
-      <button
-        class="pagination-bar_segment"
-        class:is-active={page === currentPage}
-        class:is-past={page < currentPage}
-        on:click={() => {
-          onPageChange(page)
-        }}
-      >
-      </button>
-    {/each}
+{#if totalPages > 1}
+  <div class="pagination-bar">
+    <div class="pagination-bar_progress">
+      {#each pages as page (page)}
+        <button
+          class="pagination-bar_segment"
+          class:is-active={page === currentPage}
+          class:is-past={page < currentPage}
+          on:click={() => {
+            onPageChange(page)
+          }}
+        >
+        </button>
+      {/each}
+    </div>
+    <Paragraph>{label}</Paragraph>
   </div>
-  <Paragraph>{label}</Paragraph>
-</div>
+{/if}
 {#if currentPage < totalPages}
   <Button
     secondary
@@ -57,6 +59,7 @@
     display: flex;
     flex: 1;
     padding: 1px;
+    overflow-x: auto;
     background-color: var(--border-color);
     border-radius: var(--radius);
   }
@@ -66,6 +69,7 @@
     box-sizing: border-box;
     display: inline-flex;
     flex: 1;
+    min-width: 10px;
     font: var(--control-font);
     color: var(--text-color);
     text-decoration: none;
@@ -73,7 +77,6 @@
     user-select: none;
     background: var(--card-color);
     border: none;
-    border-inline-end: 1px solid var(--border-color);
     box-shadow: var(--button-shadow);
 
     &:first-child {
@@ -105,8 +108,6 @@
     &.is-active {
       z-index: 10;
       border: 2px solid var(--text-color);
-      border-radius: var(--radius);
-      transform: scale(1.2);
     }
   }
 </style>

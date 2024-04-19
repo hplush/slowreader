@@ -142,9 +142,9 @@ let $totalPages = atom<number>(1)
 
 export const totalSlowPages = readonlyExport($totalPages)
 
-let $currentPage = atom<number>(1)
+let $page = atom<number>(1)
 
-export const currentSlowPage = readonlyExport($currentPage)
+export const slowPage = readonlyExport($page)
 
 let $post = atom<SyncMapValue<PostValue> | undefined>()
 
@@ -165,22 +165,22 @@ export function clearSlow(): void {
   $post.set(undefined)
   $totalPosts.set(0)
   $totalPages.set(1)
-  $currentPage.set(1)
+  $page.set(1)
   POSTS_PER_PAGE = 50
 }
 
 let postsUnbind: (() => void) | undefined
 let postUnbind: (() => void) | undefined
 
-async function load(feedId: string, currentPage: number = 1): Promise<void> {
-  $currentPage.set(currentPage)
+async function load(feedId: string, page: number = 1): Promise<void> {
+  $page.set(page)
 
   let [feedPosts, feeds] = await Promise.all([
     loadPosts({ feedId, reading: 'slow' }),
     loadFeeds({ reading: 'slow' })
   ])
   let sorted = feedPosts.sort((a, b) => b.publishedAt - a.publishedAt)
-  let fromIndex = (currentPage - 1) * POSTS_PER_PAGE
+  let fromIndex = (page - 1) * POSTS_PER_PAGE
   let posts = sorted.slice(fromIndex, fromIndex + POSTS_PER_PAGE)
 
   $posts.set({ isLoading: false, list: posts })
@@ -189,36 +189,33 @@ async function load(feedId: string, currentPage: number = 1): Promise<void> {
   $totalPages.set(Math.ceil(feedPosts.length / POSTS_PER_PAGE))
 }
 
-async function loadSlowPosts(
-  feedId: string,
-  currentPage?: number
-): Promise<void> {
+async function loadSlowPosts(feedId: string, page?: number): Promise<void> {
   $currentFeed.set(feedId)
   $posts.set({ isLoading: true })
-  await load(feedId, currentPage)
+  await load(feedId, page)
 }
 
 function notSynced(page: Route): page is Route<'slow'> {
   return (
     page.route === 'slow' &&
     (page.params.feed !== $currentFeed.get() ||
-      page.params.currentPage !== $currentPage.get())
+      page.params.page !== $page.get())
   )
 }
 
 onEnvironment(({ openRoute }) => {
   return [
-    listenMany([$currentFeed, $currentPage], (feed, currentPage) => {
+    listenMany([$currentFeed, $page], (feed, page) => {
       if (notSynced(router.get())) {
         openRoute({
-          params: { currentPage, feed },
+          params: { feed, page },
           route: 'slow'
         })
       }
     }),
     router.listen(page => {
       if (notSynced(page) && page.params.feed) {
-        loadSlowPosts(page.params.feed, page.params.currentPage)
+        loadSlowPosts(page.params.feed, page.params.page)
       }
       if (page.route === 'slow') {
         if (page.params.feed) {
