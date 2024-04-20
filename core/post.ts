@@ -69,9 +69,9 @@ export function deletePost(postId: string): Promise<void> {
 
 export async function changePost(
   postId: string,
-  fields: Partial<PostValue>
+  changes: Partial<PostValue>
 ): Promise<void> {
-  return changeSyncMapById(getClient(), Post, postId, fields)
+  return changeSyncMapById(getClient(), Post, postId, changes)
 }
 
 let testPostId = 0

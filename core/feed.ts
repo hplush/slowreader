@@ -105,7 +105,7 @@ export async function changeFeed(
     await Promise.all(
       posts.map(post =>
         changePost(post.id, {
-          reading: changes.reading ?? post.reading
+          reading: changes.reading
         })
       )
     )
