@@ -41,9 +41,9 @@ describe('proxy tests', async () => {
   await initTestHttpServer(
     'proxy',
     createProxyServer({
+      fetchTimeout: 100,
       hostnameWhitelist: ['localhost'],
-      silentMode: true,
-      fetchTimeout: 100
+      silentMode: true
     })
   )
 

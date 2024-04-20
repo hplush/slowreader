@@ -8,16 +8,17 @@ import { styleText } from 'node:util'
 class BadRequestError extends Error {
   constructor(message: string) {
     super(message)
+    this.name = 'BadRequestError'
   }
 }
 
 export const createProxyServer = (
   config: {
+    fetchTimeout?: number
     hostnameWhitelist?: string[]
     isProduction?: boolean
     productionDomainSuffix?: string
     silentMode?: boolean
-    fetchTimeout?: number
   } = {}
 ): http.Server => {
   // Main toggle for production features
@@ -119,7 +120,6 @@ export const createProxyServer = (
       if (!sent) {
         res.writeHead(500, { 'Content-Type': 'text/plain' })
         res.end('Internal Server Error')
-        return
       }
     }
   })
