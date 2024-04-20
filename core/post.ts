@@ -1,4 +1,5 @@
 import {
+  changeSyncMapById,
   createFilter,
   createSyncMap,
   deleteSyncMapById,
@@ -64,6 +65,13 @@ export async function loadPost(postId: string): Promise<PostValue | undefined> {
 
 export function deletePost(postId: string): Promise<void> {
   return deleteSyncMapById(getClient(), Post, postId)
+}
+
+export async function changePost(
+  postId: string,
+  fields: Partial<PostValue>
+): Promise<void> {
+  return changeSyncMapById(getClient(), Post, postId, fields)
 }
 
 let testPostId = 0

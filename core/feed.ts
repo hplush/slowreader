@@ -16,7 +16,7 @@ import { client, getClient } from './client.js'
 import { createDownloadTask } from './download.js'
 import { type OptionalId, readonlyExport } from './lib/stores.js'
 import { type LoaderName, loaders } from './loader/index.js'
-import { deletePost, loadPosts } from './post.js'
+import { changePost, deletePost, loadPosts } from './post.js'
 import type { PostsPage } from './posts-page.js'
 
 export type FeedValue = {
@@ -100,6 +100,16 @@ export async function changeFeed(
   feedId: string,
   changes: Partial<FeedValue>
 ): Promise<void> {
+  if (changes.reading) {
+    let posts = await loadPosts({ feedId })
+    await Promise.all(
+      posts.map(post =>
+        changePost(post.id, {
+          reading: changes.reading ?? post.reading
+        })
+      )
+    )
+  }
   return changeSyncMapById(getClient(), Feed, feedId, changes)
 }
 
