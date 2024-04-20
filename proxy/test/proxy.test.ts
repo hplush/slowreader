@@ -6,10 +6,17 @@ import { URL } from 'node:url'
 import { createProxyServer } from '../proxy.js'
 import { getTestHttpServer, initTestHttpServer } from './utils.js'
 
-const targetServer = createServer((req, res) => {
+const targetServer = createServer(async (req, res) => {
   let parsedUrl = new URL(req.url || '', `http://${req.headers.host}`)
 
   let queryParams = Object.fromEntries(parsedUrl.searchParams.entries())
+
+  if (queryParams.sleep) {
+    await new Promise(resolve =>
+      setTimeout(resolve, parseInt(queryParams.sleep || '0'))
+    )
+  }
+
   let requestPath = parsedUrl.pathname
 
   res.writeHead(200, {
@@ -33,8 +40,13 @@ const targetServer = createServer((req, res) => {
 describe('proxy tests', async () => {
   await initTestHttpServer(
     'proxy',
-    createProxyServer({ hostnameWhitelist: ['localhost'], silentMode: true })
+    createProxyServer({
+      hostnameWhitelist: ['localhost'],
+      silentMode: true,
+      fetchTimeout: 100
+    })
   )
+
   await initTestHttpServer('target', targetServer)
 
   let proxyServerUrl = ''
@@ -63,6 +75,14 @@ describe('proxy tests', async () => {
     let parsedResponse = await response.json()
     equal(response.status, 200)
     equal(parsedResponse?.response, 'ok')
+  })
+
+  await test('proxy timeout works', async () => {
+    let response = await fetch(
+      `${proxyServerUrl}/${targetServerUrl}?sleep=500`,
+      {}
+    )
+    equal(response.status, 400)
   })
 
   await test('proxy transfers query params and path', async () => {

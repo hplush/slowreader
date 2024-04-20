@@ -5,12 +5,19 @@ import { createServer } from 'node:http'
 import { isIP } from 'node:net'
 import { styleText } from 'node:util'
 
+class BadRequestError extends Error {
+  constructor(message: string) {
+    super(message)
+  }
+}
+
 export const createProxyServer = (
   config: {
     hostnameWhitelist?: string[]
     isProduction?: boolean
     productionDomainSuffix?: string
     silentMode?: boolean
+    fetchTimeout?: number
   } = {}
 ): http.Server => {
   // Main toggle for production features
@@ -21,6 +28,7 @@ export const createProxyServer = (
   let hostnameWhitelist = config.hostnameWhitelist || []
   // if isProduction, then only request from origins that match this param are allowed
   let productionDomainSuffix = config.productionDomainSuffix || ''
+  let fetchTimeout = config.fetchTimeout || 2500
 
   return createServer(async (req, res) => {
     let url = decodeURIComponent(req.url!.slice(1))
@@ -29,25 +37,19 @@ export const createProxyServer = (
     try {
       // Only http or https protocols are allowed
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        res.writeHead(400, { 'Content-Type': 'text/plain' })
-        res.end('Bad Request: Only HTTP or HTTPS are supported')
-        return
+        throw new BadRequestError('Only HTTP or HTTPS are supported')
       }
 
       // Other requests are typically used to modify the data, and we do not typically need them to load RSS
       if (req.method !== 'GET') {
-        res.writeHead(400, { 'Content-Type': 'text/plain' })
-        res.end('Bad Request: Only GET requests are allowed')
-        return
+        throw new BadRequestError('Only GET requests are allowed')
       }
 
       // In production mode we only allow request from production domain
       if (isProduction) {
         let origin = req.headers.origin
         if (!origin?.endsWith(productionDomainSuffix)) {
-          res.writeHead(400, { 'Content-Type': 'text/plain' })
-          res.end('Bad Request: Unauthorized origin')
-          return
+          throw new BadRequestError('Unauthorized Origin')
         }
       }
 
@@ -62,9 +64,7 @@ export const createProxyServer = (
             isIP(requestUrl.hostname) === 6) &&
           isMartianIP(requestUrl.hostname)
         ) {
-          res.writeHead(400, { 'Content-Type': 'text/plain' })
-          res.end('Bad Request: Requests to reserved IPs are not allowed')
-          return
+          throw new BadRequestError('Requests to reserved ips are not allowed')
         }
       }
 
@@ -78,7 +78,8 @@ export const createProxyServer = (
           ...(req.headers as HeadersInit),
           host: new URL(url).host
         },
-        method: req.method
+        method: req.method,
+        signal: AbortSignal.timeout(fetchTimeout)
       })
 
       res.writeHead(targetResponse.status, {
@@ -92,12 +93,25 @@ export const createProxyServer = (
       res.write(await targetResponse.text())
       res.end()
     } catch (e) {
-      if (e instanceof Error) {
-        if (!silentMode) {
+      // Known errors:
+      if (e instanceof Error && e.name === 'TimeoutError') {
+        res.writeHead(400, { 'Content-Type': 'text/plain' })
+        res.end('Bad Request: Request was aborted due to timeout')
+        return
+      }
+
+      if (e instanceof BadRequestError) {
+        res.writeHead(400, { 'Content-Type': 'text/plain' })
+        res.end(`Bad Request: ${e.message}`)
+        return
+      }
+
+      // Unknown or internal errors:
+
+      if (!silentMode) {
+        if (e instanceof Error) {
           process.stderr.write(styleText('red', e.stack ?? e.message) + '\n')
-        }
-      } else if (typeof e === 'string') {
-        if (!silentMode) {
+        } else if (typeof e === 'string') {
           process.stderr.write(styleText('red', e) + '\n')
         }
       }
@@ -105,6 +119,7 @@ export const createProxyServer = (
       if (!sent) {
         res.writeHead(500, { 'Content-Type': 'text/plain' })
         res.end('Internal Server Error')
+        return
       }
     }
   })
