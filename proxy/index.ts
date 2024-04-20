@@ -4,7 +4,7 @@ import { createProxyServer } from './proxy.js'
 
 const PORT = 5284
 
-const IS_PRODUCTION = process.env.mode === 'production'
+const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 const PRODUCTION_DOMAIN_SUFFIX = '.slowreader.app'
 
 const proxy = createProxyServer({
