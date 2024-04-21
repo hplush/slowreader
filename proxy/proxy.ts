@@ -1,4 +1,3 @@
-// @ts-ignore
 import isMartianIP from 'martian-cidr'
 import type http from 'node:http'
 import { createServer } from 'node:http'
@@ -12,7 +11,7 @@ class BadRequestError extends Error {
   }
 }
 
-export const createProxyServer = (
+export function createProxyServer(
   config: {
     fetchTimeout?: number
     hostnameWhitelist?: string[]
@@ -20,14 +19,10 @@ export const createProxyServer = (
     productionDomainSuffix?: string
     silentMode?: boolean
   } = {}
-): http.Server => {
-  // Main toggle for production features
+): http.Server {
   let isProduction = config.isProduction || false
-  // Silence the output. Used for testing
   let silentMode = config.silentMode || false
-  // Allow request to certain ips like 'localhost'. Used for testing purposes
   let hostnameWhitelist = config.hostnameWhitelist || []
-  // if isProduction, then only request from origins that match this param are allowed
   let productionDomainSuffix = config.productionDomainSuffix || ''
   let fetchTimeout = config.fetchTimeout || 2500
 
@@ -56,7 +51,7 @@ export const createProxyServer = (
 
       let requestUrl = new URL(url)
       if (!hostnameWhitelist.includes(requestUrl.hostname)) {
-        // Do not allow requests to addresses that are reserved:
+        // Do not allow requests to addresses inside our cloud:
         // 127.*
         // 192.168.*,*
         // https://en.wikipedia.org/wiki/Reserved_IP_addresses
@@ -65,11 +60,11 @@ export const createProxyServer = (
             isIP(requestUrl.hostname) === 6) &&
           isMartianIP(requestUrl.hostname)
         ) {
-          throw new BadRequestError('Requests to reserved ips are not allowed')
+          throw new BadRequestError('Requests to in-cloud ips are not allowed')
         }
       }
 
-      // Remove all cookie headers and host header from request
+      // Remove all cookie headers so they will not be set on proxy domain
       delete req.headers.cookie
       delete req.headers['set-cookie']
       delete req.headers.host

@@ -1,15 +1,3 @@
-//  Use this function if you need to init local http server for testing. Express is supported. Server will be closed automatically after tests finish
-//
-//  Usage: in your *.test.ts file
-//
-//  await describe('test', async () => {
-//  await initTestHttpServer('test', ...)
-//
-//  await test('test', async () => {
-//    fetch(getTestHttpServer('test'))
-//  })})
-//
-
 import type http from 'node:http'
 import { after, before } from 'node:test'
 

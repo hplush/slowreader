@@ -16,10 +16,10 @@ pnpm start
 ## Abuse Protection
 
 - Proxy allows only GET requests
-- Proxy do not allow requests to reserved ip addresses like `127.0.0.1`
-- Proxy allows only http or https
+- Proxy do not allow requests to in-cloud ip addresses like `127.0.0.1`
+- Proxy allows only HTTP or HTTPS protocols
 - Proxy removes cookie headers
 
 ## Test Strategy
 
-Proxy is tested using e2e testing. To write tests `initTestHttpServer` should be used
+To test proxy we emulate the real HTTP servers (end-to-end testing).
