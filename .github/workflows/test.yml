@@ -48,7 +48,7 @@ jobs:
     name: Staging Deploy
     runs-on: ubuntu-latest
     env:
-      PROJECT_ID: slowreader-418220
+      PROJECT_ID: slowreader-421120
       REGION: europe-west1
     steps:
       - name: Checkout code
