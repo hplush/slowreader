@@ -6,8 +6,8 @@
 PROJECT_ID=slowreader-421120
 REGION=europe-west1
 WORKFLOWS=(
-  ".github/workflows/staging.yml"
-  ".github/workflows/preview-close.yml"
+  ".github/workflows/test.yml"
+  ".github/workflows/preview-clean.yml"
   ".github/workflows/preview-deploy.yml"
 )
 
