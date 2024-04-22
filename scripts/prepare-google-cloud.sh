@@ -63,7 +63,7 @@ gcloud iam service-accounts add-iam-policy-binding "$ACCOUNT_EMAIL" \
 gcloud services enable run.googleapis.com --project=$PROJECT_ID
 
 # Use workload_identity_provider in workflows
-IDENTITY=`gcloud iam workload-identity-pools providers describe "slowreader" \
+IDENTITY=`gcloud iam workload-identity-pools providers describe "hplush" \
   --project=$PROJECT_ID \
   --location="global" \
   --workload-identity-pool="github" \
