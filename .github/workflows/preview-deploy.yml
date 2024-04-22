@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     env:
-      PROJECT_ID: slowreader-418220
+      PROJECT_ID: slowreader-421120
       REGION: europe-west1
     steps:
       - name: Checkout code
@@ -42,7 +42,7 @@ jobs:
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: projects/225773869708/locations/global/workloadIdentityPools/github/providers/slowreader
+          workload_identity_provider: projects/223708816691/locations/global/workloadIdentityPools/github/providers/hplush
           service_account: github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
       - name: Install Google Cloud
         uses: google-github-actions/setup-gcloud@v2
