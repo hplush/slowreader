@@ -3,11 +3,11 @@ import { createTextResponse } from '@slowreader/core'
 import {
   enableTestClient,
   error,
-  type LoaderTestFeed as OpmlFeed,
   fetchAndParsePosts,
   findRSSfromHome,
   finish,
   isString,
+  type LoaderTestFeed as OpmlFeed,
   readText
 } from './utils.js'
 

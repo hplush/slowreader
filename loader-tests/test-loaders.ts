@@ -3,10 +3,10 @@ import yaml from 'yaml'
 import {
   enableTestClient,
   error,
-  type LoaderTestFeed,
   fetchAndParsePosts,
   findRSSfromHome,
   finish,
+  type LoaderTestFeed,
   readText
 } from './utils.js'
 
