@@ -19,6 +19,7 @@
 <style>
   .formatted-text {
     overflow-x: auto;
+    text-wrap: pretty;
   }
 
   .formatted-text :global(img) {
@@ -29,37 +30,44 @@
   }
 
   .formatted-text :global(p) {
-    margin: 0 0 0.857em;
+    margin: 0 0 0.8em;
+  }
+
+  .formatted-text :global(h1),
+  .formatted-text :global(h2),
+  .formatted-text :global(h3),
+  .formatted-text :global(h4),
+  .formatted-text :global(h5),
+  .formatted-text :global(h6) {
+    margin: 1.6em 0 0.8em;
+    font-weight: bold;
   }
 
   .formatted-text :global(h1) {
-    margin: 1em 0;
-    font-size: 1.476em;
+    font: var(--card-title-font);
   }
 
   .formatted-text :global(h2) {
-    margin: 1em 0;
     font-size: 1.429em;
+    line-height: 1.2;
   }
 
   .formatted-text :global(h3) {
-    margin: 1em 0;
     font-size: 1.296em;
+    line-height: 1.2;
   }
 
   .formatted-text :global(h4) {
-    margin: 1em 0;
     font-size: 1.215em;
+    line-height: 1.2;
   }
 
   .formatted-text :global(h5) {
-    margin: 1em 0;
     font-size: 1.138em;
   }
 
   .formatted-text :global(h6) {
-    margin: 1em 0;
-    font-size: 1.067em;
+    font-size: 1em;
   }
 
   .formatted-text :global(a) {
