@@ -133,10 +133,6 @@
     text-align: center;
   }
 
-  .formatted-text :global(figure) {
-    margin: 1em 2.5em;
-  }
-
   .formatted-text :global(dd) {
     margin-inline-start: 2.5em;
   }
