@@ -1,5 +1,23 @@
 name: Daily Loaders Test
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'loader-tests/test-loaders.ts'
+      - 'loader-tests/utils.ts'
+      - 'loader-tests/feeds.yml'
+      - 'core/loader/*.ts'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/test-loaders.yml'
+  pull_request:
+    paths:
+      - 'loader-tests/test-loaders.ts'
+      - 'loader-tests/utils.ts'
+      - 'loader-tests/feeds.yml'
+      - 'core/loader/*.ts'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/test-loaders.yml'
   schedule:
     - cron: '00 23 * * *' # Runs at midnight UTC every day
 jobs:
