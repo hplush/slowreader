@@ -20,5 +20,6 @@ Test that Slow Reader can work with all feeds from your RSS reader by using OPML
 Test that Slow Reader can work with different feeds from popular blogging platforms.
 
 ```sh
+cd loader-tests/
 pnpm test-loaders
 ```
