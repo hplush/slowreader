@@ -57,7 +57,7 @@
     "remark-lint-no-shell-dollars": "^4.0.0",
     "remark-lint-smarty-pants-typography": "^1.1.0",
     "remark-validate-links": "^13.0.1",
-    "stylelint": "16.3.1",
+    "stylelint": "16.4.0",
     "svelte": "4.2.15",
     "svelte-check": "3.6.9",
     "svgo": "3.2.0",

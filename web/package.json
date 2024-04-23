@@ -37,7 +37,7 @@
     "nanostores": "0.10.3",
     "postcss": "8.4.38",
     "postcss-relative-opacity": "0.1.0",
-    "rollup": "4.16.3",
+    "rollup": "4.16.4",
     "svelte": "4.2.15",
     "svelte-preprocess": "5.1.4",
     "tsx": "4.7.2",
@@ -58,7 +58,7 @@
     "postcss-selector-parser": "6.0.16",
     "size-limit": "11.1.2",
     "storybook": "8.0.9",
-    "stylelint": "16.3.1",
+    "stylelint": "16.4.0",
     "stylelint-use-logical": "2.1.2"
   }
 }
