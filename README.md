@@ -15,6 +15,8 @@ Pre-alpha prototype: [`dev.slowreader.app`](https://dev.slowreader.app/)
 
 **[↬ How to contribute and join the team](./CONTRIBUTING.md)**
 
+To ask any question: **[h+h lab Discord](https://discord.gg/ZUV7JmN9)**
+
 ---
 
 - [License](#license)
@@ -131,6 +133,7 @@ Each project has its own tools, too.
 - `pnpm format`: fix code style in all files.
 - `pnpm clean`: remove all temporary files.
 - `pnpm check-opml`: test loaders with user’s OPML RSS export.
+- `pnpm test-loaders`: test loaders with different blogging platforms.
 
 We use pnpm feature to run scripts in parallel, having scripts like `test:types` and `test:audit`. Then, we run all scripts in all projects by `test:*` prefix.
 

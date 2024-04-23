@@ -23,12 +23,12 @@ export type OriginPost = {
   url?: string
 }
 
-export type PostValue = Omit<OriginPost, 'publishedAt'> & {
+export type PostValue = {
   feedId: string
   id: string
   publishedAt: number
   reading: 'fast' | 'slow'
-}
+} & Omit<OriginPost, 'publishedAt'>
 
 export const Post = syncMapTemplate<PostValue>('posts', {
   offline: true,

@@ -29,5 +29,5 @@ jobs:
         uses: ai/asdf-cache-action@v1
       - name: Install dependencies
         run: pnpm install --ignore-scripts
-      - name: Run test
+      - name: Check docs
         run: pnpm test:markdown

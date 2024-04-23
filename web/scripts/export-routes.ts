@@ -1,18 +1,21 @@
-// Export application router regexps to json file
+// Save web client pages for server to return HTML on GET request to this routes
 
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { pathRouter as router } from '../stores/router.js'
+import { pathRouter } from '../stores/router.js'
 
-let routerRegexes = router.routes.map(route => ({
-  flags: route[1].flags,
-  source: route[1].source
-}))
+const ROUTES = join(import.meta.dirname, '../routes.regexp')
 
-let routesFilePath = join(import.meta.dirname, '../.nginx/routes.js')
+function removeNamingGroup(regexp: string): string {
+  return regexp.replace(/\(\?<(\w+?)>/g, '(')
+}
 
 writeFileSync(
-  routesFilePath,
-  `export default ${JSON.stringify(routerRegexes, null, 2)}`
+  ROUTES,
+  '(' +
+    pathRouter.routes
+      .map(([, regexp]) => removeNamingGroup(regexp.source))
+      .join('|') +
+    ')'
 )

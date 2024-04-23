@@ -5,7 +5,7 @@ import type {
   WritableAtom
 } from 'nanostores'
 
-export type OptionalId<Value> = Omit<Value, 'id'> & { id?: string }
+export type OptionalId<Value> = { id?: string } & Omit<Value, 'id'>
 
 type StoreValues<Stores extends ReadableAtom[]> = {
   [Index in keyof Stores]: StoreValue<Stores[Index]>

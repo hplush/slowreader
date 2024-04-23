@@ -4,7 +4,8 @@ FROM nginx:alpine
 ENV PORT=8080
 RUN rm -R /etc/nginx/conf.d
 COPY ./nginx.conf /etc/nginx/nginx.template
-COPY ./.nginx/route-guard.js /etc/nginx/njs/route-guard.js
-COPY ./.nginx/routes.js /etc/nginx/njs/routes.js
+COPY ./routes.regexp /etc/nginx/routes.regexp
+RUN awk 'NR==FNR{a=$0;next} {gsub("__ROUTES__", a)}1' /etc/nginx/routes.regexp /etc/nginx/nginx.template > /etc/nginx/filled.template
+RUN mv /etc/nginx/filled.template /etc/nginx/nginx.template
 COPY ./dist/ /var/www/
 CMD envsubst \$PORT < /etc/nginx/nginx.template > /etc/nginx/nginx.conf && nginx

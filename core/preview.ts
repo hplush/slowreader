@@ -11,6 +11,7 @@ import { onEnvironment } from './environment.js'
 import { addFeed, getFeeds } from './feed.js'
 import { readonlyExport } from './lib/stores.js'
 import { type LoaderName, loaders } from './loader/index.js'
+import { addPost } from './post.js'
 import type { PostsPage } from './posts-page.js'
 import { router } from './router.js'
 
@@ -157,9 +158,14 @@ export function getLoaderForText(
 function getLinksFromText(response: TextResponse): string[] {
   let names = Object.keys(loaders) as LoaderName[]
   return names.reduce<string[]>((links, name) => {
-    return links.concat(
-      loaders[name].getMineLinksFromText(response, $candidates.get())
-    )
+    return links.concat(loaders[name].getMineLinksFromText(response))
+  }, [])
+}
+
+function getSuggestedLinksFromText(response: TextResponse): string[] {
+  let names = Object.keys(loaders) as LoaderName[]
+  return names.reduce<string[]>((links, name) => {
+    return links.concat(loaders[name].getSuggestedLinksFromText(response))
   }, [])
 }
 
@@ -211,7 +217,12 @@ export async function addLink(url: string, deep = false): Promise<void> {
         }
         if (!deep) {
           let links = getLinksFromText(response)
-          await Promise.all(links.map(i => addLink(i, true)))
+          if (links.length > 0) {
+            await Promise.all(links.map(i => addLink(i, true)))
+          } else if ($candidates.get().length === 0) {
+            let suggested = getSuggestedLinksFromText(response)
+            await Promise.all(suggested.map(i => addLink(i, true)))
+          }
         }
         if (byText === false) {
           $links.setKey(url, { state: 'unknown' })
@@ -272,15 +283,24 @@ export async function addPreviewCandidate(): Promise<void> {
     let page = await loadValue($posts.get()!)
     let lastPost = page.list[0]
     let candidate = $candidates.get().find(i => i.url === url)!
-    await addFeed({
+    let reading = 'fast' as const
+    let feedId = await addFeed({
       categoryId: 'general',
       lastOriginId: lastPost?.originId,
       lastPublishedAt: lastPost?.publishedAt ?? Date.now() / 1000,
       loader: candidate.loader,
-      reading: 'fast',
+      reading,
       title: candidate.title,
       url
     })
+    if (lastPost) {
+      await addPost({
+        ...lastPost,
+        feedId,
+        publishedAt: lastPost.publishedAt ?? Date.now(),
+        reading
+      })
+    }
   }
 }
 

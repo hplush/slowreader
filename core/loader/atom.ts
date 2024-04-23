@@ -2,40 +2,43 @@ import type { TextResponse } from '../download.js'
 import type { OriginPost } from '../post.js'
 import { createPostsPage } from '../posts-page.js'
 import type { Loader } from './index.js'
-import { findLinks, hasAnyFeed, toTime } from './utils.js'
+import {
+  findAnchorHrefs,
+  findImageByAttr,
+  findLinksByType,
+  toTime
+} from './utils.js'
 
 function parsePosts(text: TextResponse): OriginPost[] {
   let document = text.parse()
   return [...document.querySelectorAll('entry')]
     .filter(entry => entry.querySelector('id')?.textContent)
-    .map(entry => ({
-      full: entry.querySelector('content')?.textContent ?? undefined,
-      intro: entry.querySelector('summary')?.textContent ?? undefined,
-      media: [],
-      originId: entry.querySelector('id')!.textContent!,
-      publishedAt: toTime(
-        entry.querySelector('published')?.textContent ??
-          entry.querySelector('updated')?.textContent
-      ),
-      title: entry.querySelector('title')?.textContent ?? undefined,
-      url:
-        entry
-          .querySelector('link[rel=alternate], link:not([rel])')
-          ?.getAttribute('href') ?? undefined
-    }))
+    .map(entry => {
+      let content = entry.querySelector('content')
+      return {
+        full: content?.textContent ?? undefined,
+        intro: entry.querySelector('summary')?.textContent ?? undefined,
+        media: findImageByAttr('src', content?.querySelectorAll('img')),
+        originId: entry.querySelector('id')!.textContent!,
+        publishedAt: toTime(
+          entry.querySelector('published')?.textContent ??
+            entry.querySelector('updated')?.textContent
+        ),
+        title: entry.querySelector('title')?.textContent ?? undefined,
+        url:
+          entry
+            .querySelector('link[rel=alternate], link:not([rel])')
+            ?.getAttribute('href') ?? undefined
+      }
+    })
 }
 
 export const atom: Loader = {
-  getMineLinksFromText(text, found) {
-    let links = findLinks(text, 'application/atom+xml')
-    if (links.length > 0) {
-      return links
-    } else if (!hasAnyFeed(text, found)) {
-      let { origin } = new URL(text.url)
-      return [new URL('/atom', origin).href]
-    } else {
-      return []
-    }
+  getMineLinksFromText(text) {
+    return [
+      ...findLinksByType(text, 'application/atom+xml'),
+      ...findAnchorHrefs(text, /feeds?\.|\.atom|\/atom/i)
+    ]
   },
 
   getPosts(task, url, text) {
@@ -46,6 +49,11 @@ export const atom: Loader = {
         return [parsePosts(await task.text(url)), undefined]
       })
     }
+  },
+
+  getSuggestedLinksFromText(text) {
+    let { origin } = new URL(text.url)
+    return [new URL('/feed', origin).href, new URL('/atom', origin).href]
   },
 
   isMineText(text) {

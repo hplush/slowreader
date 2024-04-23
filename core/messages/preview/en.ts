@@ -8,7 +8,7 @@ export const previewMessages = i18n('preview', {
     'Feeds were not found on this website.\n\n' +
     'Please check URL and [open an issue] if it’s correct.',
   searchGuide:
-    'For now we support RSS and Atom feeds.\n\n' +
+    'For now we support RSS, Atom and JSON Feed feeds.\n\n' +
     'Social networks are coming soon, but you can use RSS wrappers for them.',
   title: 'Add',
   unloadable: 'Can’t open this website',

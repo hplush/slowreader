@@ -1,11 +1,13 @@
 import type { TextResponse } from '../download.js'
-import type { PreviewCandidate } from '../preview.js'
 
 export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
-function buildFullURL(link: HTMLLinkElement, baseUrl: string): string {
+function buildFullURL(
+  link: HTMLAnchorElement | HTMLLinkElement,
+  baseUrl: string
+): string {
   let href = link.getAttribute('href')!
   let urlSegments: string[] = [href]
   let parent: Element | null = link.parentElement
@@ -24,7 +26,7 @@ function buildFullURL(link: HTMLLinkElement, baseUrl: string): string {
   )
 }
 
-export function findLinks(text: TextResponse, type: string): string[] {
+export function findLinksByType(text: TextResponse, type: string): string[] {
   return [...text.parse().querySelectorAll('link')]
     .filter(
       link =>
@@ -34,17 +36,17 @@ export function findLinks(text: TextResponse, type: string): string[] {
     .map(link => buildFullURL(link, text.url))
 }
 
-export function hasAnyFeed(
+export function findAnchorHrefs(
   text: TextResponse,
-  found: PreviewCandidate[]
-): boolean {
-  return (
-    findLinks(text, 'application/atom+xml').length > 0 ||
-    findLinks(text, 'application/rss+xml').length > 0 ||
-    // TODO: Replace when we will have more loaders
-    // found.some(i => i.loader === 'rss' || i.loader === 'atom')
-    found.length > 0
-  )
+  hrefPattern: RegExp
+): string[] {
+  return [...text.parse().querySelectorAll('a')]
+    .filter(a => {
+      let href = a.getAttribute('href')
+      if (!href) return false
+      return hrefPattern.test(href)
+    })
+    .map(a => buildFullURL(a, text.url))
 }
 
 export function toTime(date: null | string | undefined): number | undefined {
@@ -55,4 +57,20 @@ export function toTime(date: null | string | undefined): number | undefined {
   } else {
     return time
   }
+}
+
+export function findImageByAttr(
+  attr: 'src' | 'url',
+  elements?: Iterable<Element> | null
+): string[] {
+  return [...(elements || [])].reduce<string[]>((urls, element) => {
+    let url = element.getAttribute(attr)
+    return url ? urls.concat(url) : urls
+  }, [])
+}
+
+export function unique<T extends number | string = string>(
+  collection: Iterable<null | T | undefined>
+): T[] {
+  return [...new Set([...collection].filter(str => str != null))] as T[]
 }

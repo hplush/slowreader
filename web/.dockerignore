@@ -3,5 +3,4 @@
 *
 !dist/
 !nginx.conf
-!.nginx/route-guard.js
-!.nginx/routes.js
+!routes.regexp
