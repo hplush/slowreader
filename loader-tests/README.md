@@ -14,3 +14,15 @@ Test that Slow Reader can work with all feeds from your RSS reader by using OPML
    ```sh
    pnpm check-opml PATH_TO_YOUR_FILE.opml
    ```
+
+## Check Loaders by Different Blog Platforms
+
+Test that Slow Reader can work with different feeds from popular blogging platforms.
+
+1. Check out [`feeds.yml`](./feeds.yml) for the structure of `.yml` file.
+2. Add your favorite blogging platforms.
+3. Once in the root you can run:
+
+   ```sh
+   pnpm check-feeds
+   ```
