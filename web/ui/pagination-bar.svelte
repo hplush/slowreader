@@ -24,8 +24,7 @@
       {#each pages as page (page)}
         <a
           class="pagination-bar_segment"
-          class:is-active={page === currentPage}
-          class:is-past={page < currentPage}
+          class:is-past={page <= currentPage}
           href={`?page=${page}`}
           on:click={() => {
             onPageChange(page)
@@ -45,7 +44,7 @@
       onPageChange(currentPage + 1)
     }}
   >
-    {$t.showNext}
+    {$t.showNextPage}
   </Button>
 {/if}
 
@@ -60,9 +59,7 @@
   .pagination-bar_progress {
     display: flex;
     flex: 1;
-    padding: 1px;
     overflow-x: auto;
-    background-color: var(--border-color);
     border-radius: var(--radius);
   }
 
@@ -79,22 +76,22 @@
     user-select: none;
     background: var(--card-color);
     border: none;
-    box-shadow: var(--button-shadow);
+    border-inline-end: 1px solid var(--land-color);
 
     &:first-child {
-      border-start-start-radius: var(--radius);
-      border-end-start-radius: var(--radius);
+      border-start-start-radius: 50%;
+      border-end-start-radius: 50%;
     }
 
     &:last-child {
       border-inline-end: none;
-      border-start-end-radius: var(--radius);
-      border-end-end-radius: var(--radius);
+      border-start-end-radius: 50%;
+      border-end-end-radius: 50%;
     }
 
     &:hover,
     &:focus-visible {
-      opacity: 80%;
+      background-color: var(--hover-color);
     }
 
     &:active {
@@ -103,13 +100,8 @@
     }
 
     &.is-past {
-      background-color: var(--border-color);
-      border-inline-end-color: var(--card-color);
-    }
-
-    &.is-active {
-      z-index: 10;
-      border: 2px solid var(--text-color);
+      background-color: var(--accent-color);
+      border-inline-end: 1px solid var(--accent-color);
     }
   }
 </style>

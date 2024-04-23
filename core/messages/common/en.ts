@@ -7,5 +7,5 @@ export const commonMessages = i18n('common', {
   loading: 'Loading',
   noUrl: 'Doesn’t look like web page address',
   openPost: 'Open post',
-  showNext: 'Show next'
+  showNextPage: 'Show next page'
 })
