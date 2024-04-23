@@ -1,4 +1,4 @@
-name: Daily Check Feeds
+name: Daily Loaders Test
 on:
   schedule:
     - cron: '00 23 * * *' # Runs at midnight UTC every day
@@ -13,5 +13,5 @@ jobs:
         uses: ai/asdf-cache-action@v1
       - name: Install dependencies
         run: pnpm install --ignore-scripts
-      - name: Check feeds
-        run: pnpm check-feeds
+      - name: Loaders Test
+        run: pnpm test-loaders

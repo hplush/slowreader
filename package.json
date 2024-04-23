@@ -23,7 +23,7 @@
     "test:markdown": "remark . --frail",
     "test:format": "prettier --check **/*.{js,ts,html,md,cjs,json} *.{js,json,md}",
     "check-opml": "tsx loader-tests/check-opml.ts",
-    "check-feeds": "tsx loader-tests/check-feeds.ts loader-tests/feeds.yml",
+    "test-loaders": "tsx loader-tests/test-loaders.ts loader-tests/feeds.yml",
     "prepare": "husky"
   },
   "workspaces": [
