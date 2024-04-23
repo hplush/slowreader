@@ -166,6 +166,7 @@
     padding: var(--padding-m) var(--padding-m) 0 var(--padding-m);
 
     @media (width <= 1024px) {
+      justify-content: space-between;
       padding: var(--padding-m);
     }
   }
@@ -194,6 +195,10 @@
     position: relative;
     display: flex;
     flex-grow: 1;
+
+    @media (width <= 1024px) {
+      max-width: 540px;
+    }
   }
 
   .navbar_link {
