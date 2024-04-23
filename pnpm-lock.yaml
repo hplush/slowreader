@@ -165,7 +165,7 @@ importers:
         specifier: 4.7.2
         version: 4.7.2
       yaml:
-        specifier: ^2.4.1
+        specifier: 2.4.1
         version: 2.4.1
 
   proxy:
