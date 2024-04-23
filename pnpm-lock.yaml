@@ -268,6 +268,9 @@ importers:
       '@storybook/addon-themes':
         specifier: 8.0.9
         version: 8.0.9
+      '@storybook/addon-viewport':
+        specifier: 8.0.9
+        version: 8.0.9
       '@storybook/svelte':
         specifier: 8.0.9
         version: 8.0.9(svelte@4.2.15)
@@ -1626,6 +1629,9 @@ packages:
 
   '@storybook/addon-themes@8.0.9':
     resolution: {integrity: sha512-aAbKIT//bqKbMeRLKtVStwndi+XrYxeg94tDKTFrIv2W1It6QJlO/5FMjI+cgtHHBi6w/4ThKDYwjupasaBdlg==}
+
+  '@storybook/addon-viewport@8.0.9':
+    resolution: {integrity: sha512-Ao4+D56cO7biaw+iTlMU1FBec1idX0cmdosDeCFZin06MSawcPkeBlRBeruaSQYdLes8TBMdZPFgfuqI5yIk6g==}
 
   '@storybook/builder-manager@8.0.9':
     resolution: {integrity: sha512-/PxDwZIfMc/PSRZcasb6SIdGr3azIlenzx7dBF7Imt8i4jLHiAf1t00GvghlfJsvsrn4DNp95rbRbXTDyTj7tQ==}
@@ -7139,6 +7145,10 @@ snapshots:
   '@storybook/addon-themes@8.0.9':
     dependencies:
       ts-dedent: 2.2.0
+
+  '@storybook/addon-viewport@8.0.9':
+    dependencies:
+      memoizerific: 1.11.3
 
   '@storybook/builder-manager@8.0.9':
     dependencies:
