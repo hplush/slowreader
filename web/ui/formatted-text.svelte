@@ -43,6 +43,15 @@
     font-weight: bold;
   }
 
+  .formatted-text > :global(h1:first-child),
+  .formatted-text > :global(h2:first-child),
+  .formatted-text > :global(h3:first-child),
+  .formatted-text > :global(h4:first-child),
+  .formatted-text > :global(h5:first-child),
+  .formatted-text > :global(h6:first-child) {
+    margin-top: 0;
+  }
+
   .formatted-text :global(h1) {
     font: var(--card-title-font);
   }
