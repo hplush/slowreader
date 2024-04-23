@@ -1,1 +1,77 @@
-404
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/main/icon.svg" type="image/svg+xml" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="var(--land-color)" />
+    <title>404 › Slow Reader</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        height: 100%;
+        @media (prefers-color-scheme: light) {
+          background: #e4e4e4;
+          color: #141414;
+        }
+        @media (prefers-color-scheme: dark) {
+          background: #141414;
+          color: #fbfbfb;
+        }
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100%;
+        gap: 1em;
+        margin: 0;
+        font: 1rem/1.6 system-ui;
+      }
+      h1 {
+        font: 2rem/1.6 system-ui;
+      }
+      img {
+        width: 300px;
+        height: 271px;
+      }
+      a {
+        padding: 8px 16px;
+        color: currentColor;
+        text-decoration: none;
+        border-radius: 8px;
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        &:hover {
+          background: rgba(253 250 247 / 0.4);
+
+          @media (prefers-color-scheme: dark) {
+            background: rgba(60, 60, 60, 0.3);
+          }
+        }
+      }
+      svg {
+        width: 16px;
+        height: 16px;
+        position: relative;
+        top: 2px;
+        fill: currentColor;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="/">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path
+          d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"
+        />
+      </svg>
+      Home
+    </a>
+    <img src="./error.avif" alt="" />
+    <h1>Page not found</h1>
+  </body>
+</html>

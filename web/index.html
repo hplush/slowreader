@@ -12,55 +12,43 @@
       :root {
         color-scheme: light dark;
         @media (prefers-color-scheme: light) {
-          background: #e4e4e4;
-          @media (color-gamut: p3) {
-            background: oklch(0.92 0 0);
-          }
+          background: #ebebeb;
         }
         @media (prefers-color-scheme: dark) {
           background: #141414;
-          @media (color-gamut: p3) {
-            background: oklch(0.19 0 0);
-          }
         }
       }
       .is-light-theme {
         color-scheme: light;
-        background: #e4e4e4;
-        @media (color-gamut: p3) {
-          background: oklch(0.92 0 0);
-        }
+        background: #ebebeb;
       }
       .is-dark-theme {
         color-scheme: dark;
         background: #141414;
-        @media (color-gamut: p3) {
-          background: oklch(0.19 0 0);
-        }
       }
       .is-slow-theme {
         @media (prefers-color-scheme: light) {
-          background: #e9e3db;
+          background: #f0eae3;
           @media (color-gamut: p3) {
-            background: oklch(0.92 0.012 75);
+            background: #e9e4dc;
           }
         }
         @media (prefers-color-scheme: dark) {
           background: #18140f;
           @media (color-gamut: p3) {
-            background: oklch(0.19 0.012 75);
+            background: #17130e;
           }
         }
         &.is-light-theme {
-          background: #e9e3db;
+          background: #f0eae3;
           @media (color-gamut: p3) {
-            background: oklch(0.92 0.012 75);
+            background: #e9e4dc;
           }
         }
         &.is-dark-theme {
           background: #18140f;
           @media (color-gamut: p3) {
-            background: oklch(0.19 0.012 75);
+            background: #17130e;
           }
         }
       }
