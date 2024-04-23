@@ -3,14 +3,14 @@ import yaml from 'yaml'
 import {
   enableTestClient,
   error,
-  type Feed,
+  type LoaderTestFeed,
   fetchAndParsePosts,
   findRSSfromHome,
   finish,
   readText
 } from './utils.js'
 
-interface YamlFeed extends Feed {
+interface YamlFeed extends LoaderTestFeed {
   findFromHome: boolean
 }
 

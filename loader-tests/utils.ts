@@ -20,7 +20,7 @@ import { readFile } from 'node:fs/promises'
 import { isAbsolute, join } from 'node:path'
 import { styleText } from 'node:util'
 
-export interface Feed {
+export interface LoaderTestFeed {
   htmlUrl: string
   title: string
   url: string
@@ -149,7 +149,7 @@ export async function fetchAndParsePosts(url: string): Promise<void> {
   }
 }
 
-export async function findRSSfromHome(feed: Feed): Promise<void> {
+export async function findRSSfromHome(feed: LoaderTestFeed): Promise<void> {
   let unbindPreview = previewCandidates.listen(() => {})
   try {
     setPreviewUrl(feed.htmlUrl)

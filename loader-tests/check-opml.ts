@@ -3,7 +3,7 @@ import { createTextResponse } from '@slowreader/core'
 import {
   enableTestClient,
   error,
-  type Feed,
+  type LoaderTestFeed as OpmlFeed,
   fetchAndParsePosts,
   findRSSfromHome,
   finish,
@@ -11,7 +11,7 @@ import {
   readText
 } from './utils.js'
 
-async function parseFeedsFromFile(path: string): Promise<Feed[]> {
+async function parseFeedsFromFile(path: string): Promise<OpmlFeed[]> {
   if (!path.endsWith('.opml') && !path.endsWith('.xml')) {
     error(`Unsupported file extension found on ${path}`)
     process.exit(1)
@@ -25,7 +25,7 @@ async function parseFeedsFromFile(path: string): Promise<Feed[]> {
           htmlUrl: f.getAttribute('htmlUrl')!,
           title: f.getAttribute('title') || '',
           url: f.getAttribute('xmlUrl')!
-        }) as Feed
+        }) as OpmlFeed
     )
 }
 
