@@ -133,6 +133,7 @@ Each project has its own tools, too.
 - `pnpm format`: fix code style in all files.
 - `pnpm clean`: remove all temporary files.
 - `pnpm check-opml`: test loaders with user’s OPML RSS export.
+- `pnpm test-loaders`: test loaders with different blogging platforms.
 
 We use pnpm feature to run scripts in parallel, having scripts like `test:types` and `test:audit`. Then, we run all scripts in all projects by `test:*` prefix.
 
