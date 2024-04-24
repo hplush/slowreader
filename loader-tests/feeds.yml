@@ -44,4 +44,9 @@ feeds:
     url: https://evilmartians.com/chronicles.atom
     findFromHome: true
 
+  - title: LiveJournal Vintage Ads
+    homeUrl: https://vintage-ads.livejournal.com/
+    url: https://vintage-ads.livejournal.com/data/atom
+    findFromHome: true
+
   # Add more feeds as needed
