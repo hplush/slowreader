@@ -29,4 +29,19 @@ feeds:
     url: https://blog.codinghorror.com/rss/
     findFromHome: false
 
+  - title: The Verge
+    htmlUrl: https://www.theverge.com/
+    url: https://www.theverge.com/rss/index.xml
+    findFromHome: true
+
+  - title: Aegea in Feed JSON
+    htmlUrl: https://ilyabirman.ru/meanwhile/
+    url: https://ilyabirman.ru/meanwhile/json/
+    findFromHome: true
+
+  - title: Evil Martians
+    htmlUrl: https://evilmartians.com
+    url: https://evilmartians.com/chronicles.atom
+    findFromHome: true
+
   # Add more feeds as needed
