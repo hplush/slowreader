@@ -13,7 +13,8 @@ import {
 const MEDIA_NS_URI = 'http://search.yahoo.com/mrss/'
 
 function parsePosts(text: TextResponse): OriginPost[] {
-  let document = text.parse()
+  let document = text.parseXml()
+  if (!document) return []
   return [...document.querySelectorAll('item')]
     .filter(
       item =>
@@ -67,8 +68,8 @@ export const rss: Loader = {
   },
 
   isMineText(text) {
-    let document = text.parse()
-    if (document.firstElementChild?.nodeName === 'rss') {
+    let document = text.parseXml()
+    if (document && document.firstElementChild?.nodeName === 'rss') {
       return document.querySelector('channel > title')?.textContent ?? ''
     } else {
       return false

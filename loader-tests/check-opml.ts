@@ -17,7 +17,7 @@ async function parseFeedsFromFile(path: string): Promise<OpmlFeed[]> {
     process.exit(1)
   }
   let text = createTextResponse(await readText(path))
-  return [...text.parse().querySelectorAll('[type="rss"]')]
+  return [...text.parseXml()!.querySelectorAll('[type="rss"]')]
     .filter(feed => isString(feed.getAttribute('xmlUrl')))
     .map(
       f =>

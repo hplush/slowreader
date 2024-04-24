@@ -129,7 +129,6 @@ export const jsonFeed: Loader = {
     if (linksByType.length === 0) {
       linksByType = findLinksByType(text, 'application/json')
     }
-
     return [...linksByType, ...findAnchorHrefs(text, /feeds?\.json/i)]
   },
 
