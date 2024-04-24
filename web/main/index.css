@@ -47,4 +47,8 @@ ol[role='list'] {
   box-sizing: border-box;
   width: 100%;
   padding-inline-start: var(--navbar-width);
+
+  @media (width <= 1024px) {
+    padding-inline-start: unset;
+  }
 }

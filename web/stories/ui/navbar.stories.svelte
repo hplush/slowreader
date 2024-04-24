@@ -51,6 +51,28 @@
   </Scene>
 </Story>
 
+<Story
+  name="Mobile"
+  parameters={{
+    viewport: { defaultViewport: 'mobile1' }
+  }}
+>
+  <Scene route={{ params: {}, route: 'interface' }}>
+    <Navbar />
+  </Scene>
+</Story>
+
+<Story
+  name="Tablet"
+  parameters={{
+    viewport: { defaultViewport: 'tablet' }
+  }}
+>
+  <Scene route={{ params: {}, route: 'interface' }}>
+    <Navbar />
+  </Scene>
+</Story>
+
 <Story name="Settings" parameters={{ layout: 'fullscreen' }}>
   <Scene feeds={[]} route={{ params: {}, route: 'interface' }}>
     <Navbar />

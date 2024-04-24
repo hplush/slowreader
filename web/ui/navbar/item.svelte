@@ -132,6 +132,12 @@
         transform: translateY(1px);
       }
     }
+
+    @media (width <= 1024px) {
+      &[aria-current='page'] {
+        cursor: pointer;
+      }
+    }
   }
 
   .navbar-item_text {

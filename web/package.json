@@ -48,6 +48,7 @@
     "@size-limit/file": "11.1.2",
     "@storybook/addon-svelte-csf": "4.1.2",
     "@storybook/addon-themes": "8.0.9",
+    "@storybook/addon-viewport": "8.0.9",
     "@storybook/svelte": "8.0.9",
     "@storybook/svelte-vite": "8.0.9",
     "@stylistic/stylelint-config": "1.0.1",
