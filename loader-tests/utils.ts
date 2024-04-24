@@ -21,7 +21,7 @@ import { isAbsolute, join } from 'node:path'
 import { styleText } from 'node:util'
 
 export interface LoaderTestFeed {
-  htmlUrl: string
+  homeUrl: string
   title: string
   url: string
 }
@@ -66,7 +66,7 @@ export function waitFor<Value>(
   value: Value
 ): Promise<void> {
   return new Promise<void>(resolve => {
-    let unbind = store.subscribe(state => {
+    let unbind = store.listen(state => {
       if (state === value) {
         unbind()
         resolve()
@@ -152,19 +152,19 @@ export async function fetchAndParsePosts(url: string): Promise<void> {
 export async function findRSSfromHome(feed: LoaderTestFeed): Promise<void> {
   let unbindPreview = previewCandidates.listen(() => {})
   try {
-    setPreviewUrl(feed.htmlUrl)
+    setPreviewUrl(feed.homeUrl)
     await timeout(10_000, waitFor(previewCandidatesLoading, false))
     if (previewCandidates.get().some(c => c.url === feed.url)) {
       success(`Feed ${feed.title} has feed URL at home`)
     } else if (previewCandidates.get().length === 0) {
       error(
         `Can’t find any feed from home URL or ${feed.title}`,
-        `Home URL: ${feed.htmlUrl}\nFeed URL: ${feed.url}`
+        `Home URL: ${feed.homeUrl}\nFeed URL: ${feed.url}`
       )
     } else {
       error(
         `Can’t find ${feed.title} feed from home URL`,
-        `Home URL: ${feed.htmlUrl}\n` +
+        `Home URL: ${feed.homeUrl}\n` +
           `Found: ${previewCandidates
             .get()
             .map(i => i.url)
@@ -176,7 +176,7 @@ export async function findRSSfromHome(feed: LoaderTestFeed): Promise<void> {
     error(
       e,
       `During searching for feed from home URL\n` +
-        `Home URL: ${feed.htmlUrl}\n` +
+        `Home URL: ${feed.homeUrl}\n` +
         `Feed URL: ${feed.url}`
     )
   } finally {

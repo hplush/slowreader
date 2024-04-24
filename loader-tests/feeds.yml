@@ -1,46 +1,46 @@
 feeds:
   - title: DEV Community
-    htmlUrl: https://dev.to/
+    homeUrl: https://dev.to/
     url: https://dev.to/feed
     findFromHome: true
 
   - title: Tumblr
-    htmlUrl: https://thecollectibles.tumblr.com
+    homeUrl: https://thecollectibles.tumblr.com
     url: https://thecollectibles.tumblr.com/rss/
     findFromHome: false
 
   - title: WordPress Official Blog
-    htmlUrl: https://wordpress.org/news/
+    homeUrl: https://wordpress.org/news/
     url: https://wordpress.org/news/feed/
     findFromHome: true
 
   - title: GitHub Blog
-    htmlUrl: https://github.blog/
+    homeUrl: https://github.blog/
     url: https://github.blog/all.atom/
     findFromHome: false
 
   - title: Stack Overflow
-    htmlUrl: https://stackoverflow.blog/
+    homeUrl: https://stackoverflow.blog/
     url: https://stackoverflow.blog/feed/
     findFromHome: true
 
   - title: Coding Horror
-    htmlUrl: https://blog.codinghorror.com/
+    homeUrl: https://blog.codinghorror.com/
     url: https://blog.codinghorror.com/rss/
     findFromHome: false
 
   - title: The Verge
-    htmlUrl: https://www.theverge.com/
+    homeUrl: https://www.theverge.com/
     url: https://www.theverge.com/rss/index.xml
     findFromHome: true
 
   - title: Aegea in Feed JSON
-    htmlUrl: https://ilyabirman.ru/meanwhile/
+    homeUrl: https://ilyabirman.ru/meanwhile/
     url: https://ilyabirman.ru/meanwhile/json/
     findFromHome: true
 
   - title: Evil Martians
-    htmlUrl: https://evilmartians.com
+    homeUrl: https://evilmartians.com
     url: https://evilmartians.com/chronicles.atom
     findFromHome: true
 

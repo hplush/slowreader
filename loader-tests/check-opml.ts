@@ -22,7 +22,7 @@ async function parseFeedsFromFile(path: string): Promise<OpmlFeed[]> {
     .map(
       f =>
         ({
-          htmlUrl: f.getAttribute('htmlUrl')!,
+          homeUrl: f.getAttribute('htmlUrl')!,
           title: f.getAttribute('title') || '',
           url: f.getAttribute('xmlUrl')!
         }) as OpmlFeed
