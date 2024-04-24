@@ -54,7 +54,7 @@
 <Story
   name="Mobile"
   parameters={{
-    viewport: { defaultViewport: 'mobile1' }
+    viewport: { defaultViewport: 'iphone5' }
   }}
 >
   <Scene route={{ params: {}, route: 'interface' }}>
@@ -65,7 +65,7 @@
 <Story
   name="Tablet"
   parameters={{
-    viewport: { defaultViewport: 'tablet' }
+    viewport: { defaultViewport: 'ipad' }
   }}
 >
   <Scene route={{ params: {}, route: 'interface' }}>
