@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "check-opml": "tsx check-opml.ts",
-    "test-loaders": "tsx test-loaders.ts feeds.yml"
+    "test": "tsx test-loaders.ts feeds.yml"
   },
   "devDependencies": {
     "@slowreader/core": "link:../core",
