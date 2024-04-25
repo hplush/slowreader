@@ -31,7 +31,6 @@
         $router.params.category === category.id}
       href={getURL({ params: { category: category.id }, route: 'fast' })}
       secondary
-      on:click
     />
   {/each}
 {/if}

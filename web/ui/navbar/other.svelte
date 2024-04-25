@@ -22,7 +22,6 @@
   href={getURL('add')}
   icon={mdiPlusCircleOutline}
   secondary
-  on:click
 />
 
 {#if $hasFeeds}
@@ -32,7 +31,6 @@
     href={getURL('categories')}
     icon={mdiFileTree}
     secondary
-    on:click
   />
 {/if}
 
@@ -44,7 +42,6 @@
   href={getURL('interface')}
   icon={mdiPalette}
   secondary
-  on:click
 />
 
 <NavbarItem
@@ -53,7 +50,6 @@
   href={getURL('download')}
   icon={mdiFileDownloadOutline}
   secondary
-  on:click
 />
 
 <NavbarItem
@@ -62,7 +58,6 @@
   href={getURL('profile')}
   icon={mdiAccount}
   secondary
-  on:click
 />
 
 <NavbarItem
@@ -71,5 +66,4 @@
   href={getURL('about')}
   icon={mdiInformationOutline}
   secondary
-  on:click
 />

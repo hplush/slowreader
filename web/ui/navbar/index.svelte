@@ -24,19 +24,26 @@
 
   let isMenuOpened = false
 
+  function closeOnAnyClick(): void {
+    if (isMenuOpened) {
+      isMenuOpened = false
+      document.removeEventListener('click', closeOnAnyClick)
+    }
+  }
+
   onMount(() => {
     document.documentElement.classList.add('has-navbar')
     return () => {
+      document.removeEventListener('click', closeOnAnyClick)
       document.documentElement.classList.remove('has-navbar')
     }
   })
 
   function openMenu(): void {
     isMenuOpened = true
-  }
-
-  function closeMenu(): void {
-    isMenuOpened = false
+    setTimeout(() => {
+      document.addEventListener('click', closeOnAnyClick)
+    }, 1)
   }
 </script>
 
@@ -123,9 +130,9 @@
     {#if isSlowRoute($router)}
       <NavbarSlow />
     {:else if isFastRoute($router)}
-      <NavbarFast on:click={closeMenu} />
+      <NavbarFast />
     {:else if isOtherRoute($router)}
-      <NavbarOther on:click={closeMenu} />
+      <NavbarOther />
     {/if}
   </div>
 </nav>
