@@ -1,16 +1,16 @@
 <script lang="ts">
   import {
-    nextSlowSince,
     openedSlowPost,
-    slowFeed,
+    slowPage,
     slowPosts,
-    slowSince,
-    slowMessages as t
+    slowMessages as t,
+    totalSlowPages,
+    totalSlowPosts
   } from '@slowreader/core'
 
   import { getURL } from '../stores/router.js'
-  import Button from '../ui/button.svelte'
   import Loader from '../ui/loader.svelte'
+  import PaginationBar from '../ui/pagination-bar.svelte'
   import PostCard from '../ui/post-card.svelte'
   import TwoStepsPage from '../ui/two-steps-page.svelte'
 </script>
@@ -29,8 +29,8 @@
               open={getURL({
                 params: {
                   feed: post.feedId,
-                  post: post.id,
-                  since: $slowSince
+                  page: $slowPage,
+                  post: post.id
                 },
                 route: 'slow'
               })}
@@ -41,19 +41,13 @@
       </ul>
       {#if $slowPosts.isLoading}
         <Loader />
-      {:else if $nextSlowSince}
-        <Button
-          href={getURL({
-            params: {
-              feed: $slowFeed,
-              since: $nextSlowSince
-            },
-            route: 'slow'
-          })}
-          secondary
-        >
-          {$t.showNext}
-        </Button>
+      {/if}
+      {#if $totalSlowPages > 1}
+        <PaginationBar
+          currentPage={$slowPage}
+          label={`${$totalSlowPosts} ${$t.posts}`}
+          totalPages={$totalSlowPages}
+        />
       {/if}
     {/if}
   </div>
