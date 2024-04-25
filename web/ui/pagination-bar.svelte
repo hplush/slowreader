@@ -51,25 +51,24 @@
 <style>
   .pagination-bar {
     display: flex;
-    gap: var(--padding-l);
+    gap: var(--padding-m);
     width: 100%;
-    padding: var(--padding-l) 0;
+    padding-bottom: var(--padding-m);
   }
 
   .pagination-bar_progress {
     display: flex;
     flex: 1;
+    align-items: center;
     overflow-x: auto;
     border-radius: var(--radius);
   }
 
   .pagination-bar_segment {
     position: relative;
-    box-sizing: border-box;
-    display: inline-flex;
+    display: block;
     flex: 1;
-    min-width: 10px;
-    font: var(--control-font);
+    height: 12px;
     color: var(--text-color);
     text-decoration: none;
     cursor: pointer;
@@ -79,14 +78,14 @@
     border-inline-end: 1px solid var(--land-color);
 
     &:first-child {
-      border-start-start-radius: 50%;
-      border-end-start-radius: 50%;
+      border-start-start-radius: 6px;
+      border-end-start-radius: 6px;
     }
 
     &:last-child {
       border-inline-end: none;
-      border-start-end-radius: 50%;
-      border-end-end-radius: 50%;
+      border-start-end-radius: 6px;
+      border-end-end-radius: 6px;
     }
 
     &:hover,
