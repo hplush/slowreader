@@ -39,7 +39,6 @@
 {#if currentPage < totalPages}
   <Button
     href={`?page=${currentPage + 1}`}
-    secondary
     on:click={() => {
       onPageChange(currentPage + 1)
     }}
