@@ -28,7 +28,9 @@
     {#if post.title}
       <h1 class="post-card_title">
         {#if post.url}
-          <a href={post.url}>{post.title}</a>
+          <a href={post.url} rel="noopener noreferrer" target="_blank">
+            {post.title}
+          </a>
         {:else}
           {post.title}
         {/if}
