@@ -2,6 +2,8 @@
   import {
     type FeedValue,
     type FilterAction,
+    getPostContent,
+    getPostIntro,
     type OriginPost,
     commonMessages as t
   } from '@slowreader/core'
@@ -14,6 +16,7 @@
   export let author: FeedValue | undefined = undefined
   export let action: FilterAction | undefined = undefined
   export let open: string | undefined = undefined
+  export let full = false
 </script>
 
 <Card>
@@ -36,7 +39,11 @@
         {/if}
       </h1>
     {/if}
-    <FormattedText html={post.intro ?? post.full ?? ''} />
+    {#if full}
+      <FormattedText html={getPostContent(post)} />
+    {:else}
+      <FormattedText html={getPostIntro(post)} />
+    {/if}
     {#if open}
       <Button href={open} secondary>{$t.openPost}</Button>
     {/if}

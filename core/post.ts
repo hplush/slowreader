@@ -66,6 +66,34 @@ export function deletePost(postId: string): Promise<void> {
   return deleteSyncMapById(getClient(), Post, postId)
 }
 
+export function processOriginPost(
+  origin: OriginPost,
+  feedId: string,
+  reading: PostValue['reading']
+): PostValue {
+  return {
+    ...origin,
+    feedId,
+    id: nanoid(),
+    publishedAt: origin.publishedAt ?? Date.now(),
+    reading
+  }
+}
+
+export function getPostContent(post: OriginPost): string {
+  return post.full ?? post.intro ?? ''
+}
+
+export function getPostIntro(post: OriginPost): string {
+  if (post.intro) {
+    return post.intro
+  } else if (post.full && post.full.length <= 500) {
+    return post.full
+  } else {
+    return ''
+  }
+}
+
 let testPostId = 0
 
 export function testPost(feed: Partial<PostValue> = {}): PostValue {
