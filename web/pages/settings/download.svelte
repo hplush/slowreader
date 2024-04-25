@@ -12,9 +12,9 @@
   import RadioField from '../../ui/radio-field.svelte'
 
   let preloadOptions: [StoreValue<typeof preloadImages>, string][] = [
-    ['always', $t.always],
-    ['free', $t.freeNetwork],
-    ['never', $t.never]
+    ['always', $t.preloadAlways],
+    ['free', $t.preloadFree],
+    ['never', $t.preloadNever]
   ]
   onMount(() => {
     if (typeof getEnvironment().networkType().type === 'undefined') {
@@ -23,7 +23,7 @@
   })
 </script>
 
-<Page title={$t.download} type="list">
+<Page title={$t.preload} type="list">
   <Card>
     <RadioField
       current={$preloadImages}
