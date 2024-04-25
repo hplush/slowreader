@@ -2,51 +2,39 @@ feeds:
   - title: DEV Community
     homeUrl: https://dev.to/
     url: https://dev.to/feed
-    findFromHome: true
 
   - title: Tumblr
     homeUrl: https://thecollectibles.tumblr.com
-    url: https://thecollectibles.tumblr.com/rss/
-    findFromHome: false
+    url: https://thecollectibles.tumblr.com/rss
 
   - title: WordPress Official Blog
     homeUrl: https://wordpress.org/news/
     url: https://wordpress.org/news/feed/
-    findFromHome: true
 
   - title: GitHub Blog
     homeUrl: https://github.blog/
-    url: https://github.blog/all.atom/
-    findFromHome: false
+    url: https://github.blog/feed/
 
   - title: Stack Overflow
     homeUrl: https://stackoverflow.blog/
     url: https://stackoverflow.blog/feed/
-    findFromHome: true
 
   - title: Coding Horror
     homeUrl: https://blog.codinghorror.com/
     url: https://blog.codinghorror.com/rss/
-    findFromHome: false
 
   - title: The Verge
     homeUrl: https://www.theverge.com/
     url: https://www.theverge.com/rss/index.xml
-    findFromHome: true
 
   - title: Aegea in Feed JSON
     homeUrl: https://ilyabirman.ru/meanwhile/
     url: https://ilyabirman.ru/meanwhile/json/
-    findFromHome: true
 
   - title: Evil Martians
     homeUrl: https://evilmartians.com
     url: https://evilmartians.com/chronicles.atom
-    findFromHome: true
 
   - title: LiveJournal Vintage Ads
     homeUrl: https://vintage-ads.livejournal.com/
     url: https://vintage-ads.livejournal.com/data/atom
-    findFromHome: true
-
-  # Add more feeds as needed
