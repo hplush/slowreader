@@ -20,7 +20,7 @@ Fixes # (PUT ISSUE NUMBER AFTER #)
   - If you added config, describe how we use this tool in the config’s comment.
   - If you added something to the project’s architecture, describe it in the project’s `README.md`.
   - Try to focus on “why?”, not “how?”.
-- [ ] If you added a new dependency, check our [requirements](/hplush/slowreader/blob/main/README.md#dependencies).
+- [ ] If you added a new dependency, check our [requirements](https://github.com/hplush/slowreader/blob/main/README.md#dependencies).
 - [ ] Think about testing
   - If you added a feature, add unit tests.
   - If you added a new state to the UI, add visual tests.
