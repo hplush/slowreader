@@ -25,7 +25,8 @@ let target = createServer(async (req, res) => {
   let requestPath = parsedUrl.pathname
 
   res.writeHead(200, {
-    'Content-Type': 'text/json'
+    'Content-Type': 'text/json',
+    'Set-Cookie': 'test=1'
   })
 
   res.end(
@@ -91,7 +92,7 @@ test('can use only GET ', async () => {
   equal(response.status, 400)
 })
 
-test('can use only http or https protocols', async () => {
+test('can use only HTTP or HTTPS protocols', async () => {
   let response = await fetch(
     `${proxyUrl}/${targetUrl.replace('http', 'ftp')}`,
     {}
@@ -109,12 +110,12 @@ test('can not use proxy to query local address', async () => {
 
 test('proxy clears set-cookie header', async () => {
   let response = await request(targetUrl, {
-    headers: { 'set-cookie': 'accessToken=1234abc; userId=1234' }
+    headers: { Cookie: 'a=1' }
   })
 
   equal(response.status, 200)
+  equal(response.headers.get('set-cookie'), null)
   let parsedResponse = await response.json()
-  equal(parsedResponse?.['set-cookie'], undefined)
   equal(parsedResponse?.cookie, undefined)
 })
 
