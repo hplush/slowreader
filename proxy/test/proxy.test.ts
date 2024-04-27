@@ -42,9 +42,8 @@ target.listen(0)
 
 let proxy = createProxyServer({
   allowsFrom: 'test.app',
-  fetchTimeout: 100,
-  hostnameWhitelist: ['localhost'],
-  silentMode: true
+  silent: true,
+  timeout: 100
 })
 proxy.listen(0)
 

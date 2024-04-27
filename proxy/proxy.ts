@@ -13,14 +13,9 @@ class BadRequestError extends Error {
 
 export function createProxyServer(config: {
   allowsFrom: string
-  fetchTimeout?: number
-  hostnameWhitelist?: string[]
-  silentMode?: boolean
+  silent?: boolean
+  timeout: number
 }): http.Server {
-  let silentMode = config.silentMode || false
-  let hostnameWhitelist = config.hostnameWhitelist || []
-  let fetchTimeout = config.fetchTimeout || 2500
-
   return createServer(async (req, res) => {
     let sent = false
 
@@ -57,14 +52,11 @@ export function createProxyServer(config: {
       }
 
       let requestUrl = new URL(url)
-      if (!hostnameWhitelist.includes(requestUrl.hostname)) {
-        if (
-          (isIP(requestUrl.hostname) === 4 ||
-            isIP(requestUrl.hostname) === 6) &&
-          isMartianIP(requestUrl.hostname)
-        ) {
-          throw new BadRequestError('Requests to internal IPs are not allowed')
-        }
+      if (
+        (isIP(requestUrl.hostname) === 4 || isIP(requestUrl.hostname) === 6) &&
+        isMartianIP(requestUrl.hostname)
+      ) {
+        throw new BadRequestError('Requests to internal IPs are not allowed')
       }
 
       // Remove all cookie headers so they will not be set on proxy domain
@@ -78,7 +70,7 @@ export function createProxyServer(config: {
           host: new URL(url).host
         },
         method: req.method,
-        signal: AbortSignal.timeout(fetchTimeout)
+        signal: AbortSignal.timeout(config.timeout)
       })
 
       res.writeHead(targetResponse.status, {
@@ -103,7 +95,7 @@ export function createProxyServer(config: {
       }
 
       // Unknown or internal errors
-      if (!silentMode) {
+      if (!config.silent) {
         if (e instanceof Error) {
           process.stderr.write(styleText('red', e.stack ?? e.message) + '\n')
         } else if (typeof e === 'string') {
