@@ -308,7 +308,7 @@ onEnvironment(({ openRoute }) => {
         openRoute({ params: { url: link }, route: 'add' })
       }
     }),
-    router.listen(({ params, route }) => {
+    router.subscribe(({ params, route }) => {
       if (route === 'add' && params.url !== previewUrl.get()) {
         setPreviewUrl(params.url ?? '')
       }
