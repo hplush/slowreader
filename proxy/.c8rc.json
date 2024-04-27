@@ -1,0 +1,9 @@
+{
+  "all": true,
+  "check-coverage": true,
+  "clean": true,
+  "exclude": ["**/*.test.*", "test/*", "coverage/", "*.d.ts", "index.ts"],
+  "lines": 100,
+  "reporter": ["text-summary", "text", "lcov"],
+  "skip-full": true
+}
