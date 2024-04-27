@@ -62,6 +62,23 @@ test('finds rss links in <a> elements', () => {
   )
 })
 
+test('ignores non-HTML documents for link search', () => {
+  deepStrictEqual(
+    loaders.rss.getMineLinksFromText(
+      createTextResponse(
+        `<rss>
+          <link rel="alternate" type="application/rss+xml" href="/a">
+          <a href="/rss">Feed</a>
+        </rss>`,
+        {
+          url: 'https://example.com/news'
+        }
+      )
+    ),
+    []
+  )
+})
+
 test('returns default links', () => {
   deepStrictEqual(
     loaders.rss.getSuggestedLinksFromText(

@@ -6,6 +6,7 @@ import {
   findAnchorHrefs,
   findImageByAttr,
   findLinksByType,
+  isHTML,
   toTime,
   unique
 } from './utils.js'
@@ -47,6 +48,7 @@ function parsePosts(text: TextResponse): OriginPost[] {
 
 export const rss: Loader = {
   getMineLinksFromText(text) {
+    if (!isHTML(text)) return []
     return [
       ...findLinksByType(text, 'application/rss+xml'),
       ...findAnchorHrefs(text, /\.rss|\/rss/i)

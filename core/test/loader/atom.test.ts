@@ -14,8 +14,7 @@ test('detects xml:base attribute', () => {
   deepStrictEqual(
     loaders.atom.getMineLinksFromText(
       createTextResponse(
-        `<?xml version="1.0"?>
-        <doc xml:base="http://example.com/today/"
+        `<html xml:base="http://example.com/today/"
           xmlns:xlink="http://www.w3.org/1999/xlink">
         <head>
           <title>Virtual Library</title>
@@ -57,7 +56,7 @@ test('detects xml:base attribute', () => {
             </parent>
           </olist>
         </body>
-        </doc>`,
+        </html>`,
         {
           url: 'http://example.com'
         }
@@ -131,6 +130,23 @@ test('finds atom links in <a> elements', () => {
       'https://example.com/something.atom',
       'https://example.com/feed.something'
     ]
+  )
+})
+
+test('ignores non-HTML documents for link search', () => {
+  deepStrictEqual(
+    loaders.rss.getMineLinksFromText(
+      createTextResponse(
+        `<rss>
+          <link rel="alternate" type="application/atom+xml" href="/a">
+          <a href="/atom">Feed</a>
+        </rss>`,
+        {
+          url: 'https://example.com/news'
+        }
+      )
+    ),
+    []
   )
 })
 

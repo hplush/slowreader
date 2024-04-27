@@ -114,6 +114,23 @@ test('detects links', () => {
   )
 })
 
+test('ignores non-HTML documents for link search', () => {
+  deepStrictEqual(
+    loaders.rss.getMineLinksFromText(
+      createTextResponse(
+        `<rss>
+          <link rel="alternate" type="application/feed+json" href="/a">
+          <a href="/feeds.json">Feed</a>
+        </rss>`,
+        {
+          url: 'https://example.com/news'
+        }
+      )
+    ),
+    []
+  )
+})
+
 test('returns default links', () => {
   deepStrictEqual(
     loaders.jsonFeed.getSuggestedLinksFromText(

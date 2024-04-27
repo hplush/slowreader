@@ -4,6 +4,10 @@ export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
+export function isHTML(text: TextResponse): boolean {
+  return text.text.toLocaleLowerCase().includes('<html')
+}
+
 function buildFullURL(
   link: HTMLAnchorElement | HTMLLinkElement,
   baseUrl: string
