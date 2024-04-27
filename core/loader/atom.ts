@@ -40,7 +40,7 @@ export const atom: Loader = {
     if (!isHTML(text)) return []
     return [
       ...findLinksByType(text, 'application/atom+xml'),
-      ...findAnchorHrefs(text, /feeds?\.|\.atom|\/atom/i)
+      ...findAnchorHrefs(text, /feed\.|\.atom|\/atom/i)
     ]
   },
 
