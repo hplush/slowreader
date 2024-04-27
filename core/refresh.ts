@@ -11,7 +11,7 @@ import {
 import { type FilterChecker, loadFilters, prepareFilters } from './filter.js'
 import { createQueue, type Queue, retryOnError } from './lib/queue.js'
 import { increaseKey, readonlyExport } from './lib/stores.js'
-import { addPost, type OriginPost } from './post.js'
+import { addPost, type OriginPost, processOriginPost } from './post.js'
 
 let $isRefreshing = atom(false)
 export const isRefreshing = readonlyExport($isRefreshing)
@@ -116,12 +116,7 @@ export async function refreshPosts(): Promise<void> {
             }
             let reading = filters(origin) ?? feed.reading
             if (reading !== 'delete') {
-              await addPost({
-                ...origin,
-                feedId: feed.id,
-                publishedAt: origin.publishedAt ?? Date.now(),
-                reading
-              })
+              await addPost(processOriginPost(origin, feed.id, reading))
               if (reading === 'fast') {
                 increaseKey($stats, 'foundFast')
               } else {

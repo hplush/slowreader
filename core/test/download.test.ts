@@ -123,39 +123,47 @@ test('can download text by keeping eyes on abort signal', async () => {
   await rejects(response2, (e: Error) => e.name === 'AbortError')
 })
 
-test('parses content', async () => {
+test('parses XML content', async () => {
   let text = createTextResponse('<html><body>Test</body></html>')
-  equal(text.parse().firstChild?.lastChild?.nodeName, 'BODY')
-  equal(text.parse().firstChild?.lastChild?.textContent, 'Test')
+  equal(text.parseXml()!.firstChild?.lastChild?.nodeName, 'BODY')
+  equal(text.parseXml()!.firstChild?.lastChild?.textContent, 'Test')
 
   let charset = createTextResponse('<html><body>Test</body></html>', {
     headers: new Headers({ 'content-type': 'text/html;charset=UTF-8' })
   })
-  equal(charset.parse().firstChild?.lastChild?.textContent, 'Test')
+  equal(charset.parseXml()!.firstChild?.lastChild?.textContent, 'Test')
 
   let simple = createTextResponse('<test></test>', {
     headers: new Headers({ 'content-type': 'application/xml' })
   })
-  equal(simple.parse().firstChild?.nodeName, 'test')
+  equal(simple.parseXml()!.firstChild?.nodeName, 'test')
 
   let rss = createTextResponse('<rss></rss>', {
     headers: new Headers({ 'content-type': 'application/rss+xml' })
   })
-  equal(rss.parse().firstChild?.nodeName, 'rss')
+  equal(rss.parseXml()!.firstChild?.nodeName, 'rss')
 
   let image = createTextResponse('<jpeg></jpeg>', {
     headers: new Headers({ 'content-type': 'image/jpeg' })
   })
-  equal(image.parse().textContent, null)
+  equal(image.parseXml(), null)
+
+  let json = createTextResponse('{}', {
+    headers: new Headers({ 'content-type': 'application/json' })
+  })
+  equal(json.parseXml(), null)
 
   let broken = createTextResponse('<test', {
     headers: new Headers({ 'content-type': 'application/xml' })
   })
-  equal(broken.parse().textContent, null)
+  equal(broken.parseXml()!.textContent, null)
+})
 
+test('parses JSON content', async () => {
   let json = createTextResponse('{ "version": "1.1", "title": "test_title" }', {
     headers: new Headers({ 'content-type': 'application/json' })
   })
+
   equal((json.parseJson() as { title: string; version: string }).version, '1.1')
 
   let brokenJson = createTextResponse(

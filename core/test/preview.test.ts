@@ -212,7 +212,9 @@ test('is ready for empty title', async () => {
 
   expectRequest('http://example.com').andRespond(
     200,
-    '<link type="application/atom+xml" href="http://other.com/atom">'
+    `<html>
+      <link type="application/atom+xml" href="http://other.com/atom">
+    </html>`
   )
   let rss = '<feed><title></title></feed>'
   expectRequest('http://other.com/atom').andRespond(200, rss, 'text/xml')
@@ -225,6 +227,34 @@ test('is ready for empty title', async () => {
     {
       loader: 'atom',
       title: '',
+      url: 'http://other.com/atom'
+    }
+  ])
+})
+
+test('ignores duplicate links', async () => {
+  keepMount(previewCandidatesLoading)
+  keepMount(previewUrlError)
+  keepMount(previewCandidates)
+
+  expectRequest('http://example.com').andRespond(
+    200,
+    `<html>
+      <link type="application/atom+xml" href="http://other.com/atom">
+      <a href="http://other.com/atom">Feed</a>
+    </html>`
+  )
+  let rss = '<feed><title>Feed</title></feed>'
+  expectRequest('http://other.com/atom').andRespond(200, rss, 'text/xml')
+
+  setPreviewUrl('example.com')
+  await setTimeout(10)
+  equal(previewCandidatesLoading.get(), false)
+  equal(previewUrlError.get(), undefined)
+  equalWithText(previewCandidates.get(), [
+    {
+      loader: 'atom',
+      title: 'Feed',
       url: 'http://other.com/atom'
     }
   ])

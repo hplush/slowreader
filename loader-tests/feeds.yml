@@ -1,0 +1,40 @@
+feeds:
+  - title: DEV Community
+    homeUrl: https://dev.to/
+    url: https://dev.to/feed
+
+  - title: Tumblr
+    homeUrl: https://thecollectibles.tumblr.com
+    url: https://thecollectibles.tumblr.com/rss
+
+  - title: WordPress Official Blog
+    homeUrl: https://wordpress.org/news/
+    url: https://wordpress.org/news/feed/
+
+  - title: GitHub Blog
+    homeUrl: https://github.blog/
+    url: https://github.blog/feed/
+
+  - title: Stack Overflow
+    homeUrl: https://stackoverflow.blog/
+    url: https://stackoverflow.blog/feed/
+
+  - title: Coding Horror
+    homeUrl: https://blog.codinghorror.com/
+    url: https://blog.codinghorror.com/rss/
+
+  - title: The Verge
+    homeUrl: https://www.theverge.com/
+    url: https://www.theverge.com/rss/index.xml
+
+  - title: Aegea in Feed JSON
+    homeUrl: https://ilyabirman.ru/meanwhile/
+    url: https://ilyabirman.ru/meanwhile/json/
+
+  - title: Evil Martians
+    homeUrl: https://evilmartians.com
+    url: https://evilmartians.com/chronicles.atom
+
+  - title: LiveJournal Vintage Ads
+    homeUrl: https://vintage-ads.livejournal.com/
+    url: https://vintage-ads.livejournal.com/data/atom

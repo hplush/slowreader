@@ -86,7 +86,7 @@
       {#if $openedFastPost.isLoading}
         <Loader />
       {:else}
-        <PostCard post={$openedFastPost} />
+        <PostCard full post={$openedFastPost} />
       {/if}
     {/if}
   </div>

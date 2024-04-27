@@ -6,6 +6,7 @@ import {
   findAnchorHrefs,
   findImageByAttr,
   findLinksByType,
+  isHTML,
   toTime,
   unique
 } from './utils.js'
@@ -13,7 +14,8 @@ import {
 const MEDIA_NS_URI = 'http://search.yahoo.com/mrss/'
 
 function parsePosts(text: TextResponse): OriginPost[] {
-  let document = text.parse()
+  let document = text.parseXml()
+  if (!document) return []
   return [...document.querySelectorAll('item')]
     .filter(
       item =>
@@ -46,6 +48,7 @@ function parsePosts(text: TextResponse): OriginPost[] {
 
 export const rss: Loader = {
   getMineLinksFromText(text) {
+    if (!isHTML(text)) return []
     return [
       ...findLinksByType(text, 'application/rss+xml'),
       ...findAnchorHrefs(text, /\.rss|\/rss/i)
@@ -67,8 +70,8 @@ export const rss: Loader = {
   },
 
   isMineText(text) {
-    let document = text.parse()
-    if (document.firstElementChild?.nodeName === 'rss') {
+    let document = text.parseXml()
+    if (document?.firstElementChild?.nodeName === 'rss') {
       return document.querySelector('channel > title')?.textContent ?? ''
     } else {
       return false

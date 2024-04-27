@@ -12,6 +12,22 @@ import {
 import { locale } from '../stores/locale.js'
 import { openRoute, urlRouter } from '../stores/router.js'
 
+function proxyUrl(url: string | URL): string {
+  return 'http://localhost:5284/' + encodeURIComponent(url.toString())
+}
+
+let devProxy: RequestMethod = async (url, opts = {}) => {
+  let originUrl = url
+  let nextUrl = proxyUrl(url)
+  let response = await fetch(nextUrl, opts)
+  Object.defineProperty(response, 'url', {
+    value: originUrl
+  })
+  return response
+}
+
+setRequestMethod(devProxy)
+
 export const detectNetworkType: NetworkTypeDetector = () => {
   let type: NetworkType
   let saveData: boolean | undefined
@@ -55,19 +71,3 @@ router.subscribe(page => {
     openRoute(page)
   }
 })
-
-function proxyUrl(url: string | URL): string {
-  return 'http://localhost:5284/' + encodeURIComponent(url.toString())
-}
-
-let devProxy: RequestMethod = async (url, opts = {}) => {
-  let originUrl = url
-  let nextUrl = proxyUrl(url)
-  let response = await fetch(nextUrl, opts)
-  Object.defineProperty(response, 'url', {
-    value: originUrl
-  })
-  return response
-}
-
-setRequestMethod(devProxy)

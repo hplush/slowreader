@@ -7,7 +7,15 @@ import { pathRouter } from '../stores/router.js'
 
 const ROUTES = join(import.meta.dirname, '../routes.regexp')
 
+function removeNamingGroup(regexp: string): string {
+  return regexp.replace(/\(\?<(\w+?)>/g, '(')
+}
+
 writeFileSync(
   ROUTES,
-  '(' + pathRouter.routes.map(([, regexp]) => regexp.source).join('|') + ')'
+  '(' +
+    pathRouter.routes
+      .map(([, regexp]) => removeNamingGroup(regexp.source))
+      .join('|') +
+    ')'
 )
