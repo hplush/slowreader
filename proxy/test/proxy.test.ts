@@ -2,6 +2,7 @@ import { equal } from 'node:assert'
 import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { after, test } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
 import { URL } from 'node:url'
 
 import { createProxyServer } from '../proxy.js'
@@ -15,34 +16,47 @@ let target = createServer(async (req, res) => {
   let parsedUrl = new URL(req.url || '', `http://${req.headers.host}`)
   let queryParams = Object.fromEntries(parsedUrl.searchParams.entries())
   if (queryParams.sleep) {
-    await new Promise(resolve =>
-      setTimeout(resolve, parseInt(queryParams.sleep || '0'))
-    )
+    await setTimeout(parseInt(queryParams.sleep))
   }
 
-  res.writeHead(200, {
-    'Content-Type': 'text/json',
-    'Set-Cookie': 'test=1'
-  })
-
-  res.end(
-    JSON.stringify({
-      request: {
-        headers: req.headers,
-        method: req.method,
-        queryParams,
-        requestPath: parsedUrl.pathname,
-        url: req.url
-      },
-      response: 'ok'
+  if (queryParams.big === 'file') {
+    res.writeHead(200, {
+      'Content-Length': '2000',
+      'Content-Type': 'text/text'
     })
-  )
+    res.end('a'.repeat(2000))
+  } else if (queryParams.big === 'stream') {
+    res.writeHead(200, {
+      'Content-Type': 'text/text'
+    })
+    res.write('a'.repeat(150))
+    await setTimeout(10)
+    res.write('a'.repeat(150))
+  } else {
+    res.writeHead(200, {
+      'Content-Type': 'text/json',
+      'Set-Cookie': 'test=1'
+    })
+    res.end(
+      JSON.stringify({
+        request: {
+          headers: req.headers,
+          method: req.method,
+          queryParams,
+          requestPath: parsedUrl.pathname,
+          url: req.url
+        },
+        response: 'ok'
+      })
+    )
+  }
 })
 target.listen(0)
 
 let proxy = createProxyServer({
   allowLocalhost: true,
   allowsFrom: 'test.app',
+  maxSize: 100,
   silent: true,
   timeout: 100
 })
@@ -146,4 +160,14 @@ test('sends user IP to destination', async () => {
   equal(response2.status, 200)
   let json2 = await response2.json()
   equal(json2.request.headers['x-forwarded-for'], '4.4.4.4, ::1')
+})
+
+test('checks response size', async () => {
+  let response1 = await request(targetUrl + '?big=file', {})
+  equal(response1.status, 400)
+
+  let response2 = await request(targetUrl + '?big=stream', {})
+  equal(response2.status, 200)
+  let body2 = await response2.text()
+  equal(body2.length, 150)
 })

@@ -7,6 +7,7 @@ const PORT = 5284
 let proxy = createProxyServer({
   allowsFrom:
     process.env.NODE_ENV === 'production' ? 'slowreader.app' : 'localhost:5173',
+  maxSize: 10 * 1024 * 1024,
   timeout: 2500
 })
 

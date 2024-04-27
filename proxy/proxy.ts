@@ -14,6 +14,7 @@ class BadRequestError extends Error {
 export function createProxyServer(config: {
   allowLocalhost?: boolean
   allowsFrom: string
+  maxSize: number
   silent?: boolean
   timeout: number
 }): http.Server {
@@ -75,6 +76,14 @@ export function createProxyServer(config: {
         signal: AbortSignal.timeout(config.timeout)
       })
 
+      let length: number | undefined
+      if (targetResponse.headers.has('content-length')) {
+        length = parseInt(targetResponse.headers.get('content-length')!)
+      }
+      if (length && length > config.maxSize) {
+        throw new BadRequestError('Response too large')
+      }
+
       res.writeHead(targetResponse.status, {
         'Access-Control-Allow-Headers': '*',
         'Access-Control-Allow-Methods': 'OPTIONS, POST, GET, PUT, DELETE',
@@ -83,7 +92,25 @@ export function createProxyServer(config: {
           targetResponse.headers.get('content-type') ?? 'text/plain'
       })
       sent = true
-      res.end(await targetResponse.text())
+
+      if (!targetResponse.body) {
+        res.end()
+      } else {
+        let size = 0
+        let reader = targetResponse.body.getReader()
+        let chunk: ReadableStreamReadResult<Uint8Array>
+        do {
+          chunk = await reader.read()
+          if (chunk.value) {
+            res.write(chunk.value)
+            size += chunk.value.length
+            if (size > config.maxSize) {
+              break
+            }
+          }
+        } while (!chunk.done)
+        res.end()
+      }
     } catch (e) {
       // Known errors
       if (e instanceof Error && e.name === 'TimeoutError') {
