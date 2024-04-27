@@ -112,6 +112,8 @@ export function clearPreview(): void {
 }
 
 function addCandidate(url: string, candidate: PreviewCandidate): void {
+  if ($candidates.get().some(i => i.url === url)) return
+
   $links.setKey(url, { state: 'processed' })
   $candidates.set([...$candidates.get(), candidate])
   if ($candidates.get().length === 1) {
@@ -190,6 +192,8 @@ export async function addLink(url: string, deep = false): Promise<void> {
       url = 'http://' + url
     }
   }
+
+  if ($links.get()[url]) return
 
   try {
     new URL(url)
