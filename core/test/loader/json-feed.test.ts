@@ -65,8 +65,6 @@ test('detects links', () => {
       'http://other.com/d'
     ]
   )
-  // some website can provide JSON feed with application/json type, it's not a standard
-  // but it's possible
   deepStrictEqual(
     loaders.jsonFeed.getMineLinksFromText(
       createTextResponse(
@@ -79,6 +77,9 @@ test('detects links', () => {
             <link rel="alternate" type="application/json" href="../c">
             <link type="application/json" href="http://other.com/d">
           </head>
+          <body>
+            <a href="/news/feed.json?id=12">Feed</a>s
+          </body>
         </html>`,
         {
           url: 'https://example.com/news/'
@@ -89,7 +90,8 @@ test('detects links', () => {
       'https://example.com/a',
       'https://example.com/news/b',
       'https://example.com/c',
-      'http://other.com/d'
+      'http://other.com/d',
+      'https://example.com/news/feed.json?id=12'
     ]
   )
 
