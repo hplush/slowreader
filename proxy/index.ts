@@ -1,43 +1,19 @@
-import { createServer } from 'node:http'
 import { styleText } from 'node:util'
 
-const server = createServer(async (req, res) => {
-  let url = decodeURIComponent(req.url!.slice(1))
-  let sent = false
+import { createProxyServer } from './proxy.js'
 
-  try {
-    let proxy = await fetch(url, {
-      headers: {
-        ...(req.headers as HeadersInit),
-        host: new URL(url).host
-      },
-      method: req.method
-    })
+const PORT = 5284
 
-    res.writeHead(proxy.status, {
-      'Access-Control-Allow-Headers': '*',
-      'Access-Control-Allow-Methods': 'OPTIONS, POST, GET, PUT, DELETE',
-      'Access-Control-Allow-Origin': '*',
-      'Content-Type': proxy.headers.get('content-type') ?? 'text/plain'
-    })
-    sent = true
-    res.write(await proxy.text())
-    res.end()
-  } catch (e) {
-    if (e instanceof Error) {
-      process.stderr.write(styleText('red', e.stack ?? e.message) + '\n')
-      if (!sent) {
-        res.writeHead(500, { 'Content-Type': 'text/plain' })
-        res.end('Internal Server Error')
-      }
-    } else if (typeof e === 'string') {
-      process.stderr.write(styleText('red', e) + '\n')
-    }
-  }
+const IS_PRODUCTION = process.env.NODE_ENV === 'production'
+const PRODUCTION_DOMAIN_SUFFIX = '.slowreader.app'
+
+const proxy = createProxyServer({
+  isProduction: IS_PRODUCTION,
+  productionDomainSuffix: PRODUCTION_DOMAIN_SUFFIX
 })
 
-server.listen(5284, () => {
-  process.stderr.write(
-    styleText('green', 'Proxy server running on port 5284\n')
+proxy.listen(PORT, () => {
+  process.stdout.write(
+    styleText('green', `Proxy server running on port ${PORT}`)
   )
 })
