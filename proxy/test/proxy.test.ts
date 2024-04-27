@@ -41,6 +41,7 @@ let target = createServer(async (req, res) => {
 target.listen(0)
 
 let proxy = createProxyServer({
+  allowLocalhost: true,
   allowsFrom: 'test.app',
   silent: true,
   timeout: 100

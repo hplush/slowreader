@@ -12,6 +12,7 @@ class BadRequestError extends Error {
 }
 
 export function createProxyServer(config: {
+  allowLocalhost?: boolean
   allowsFrom: string
   silent?: boolean
   timeout: number
@@ -30,6 +31,7 @@ export function createProxyServer(config: {
       } catch {
         throw new BadRequestError('Invalid URL')
       }
+      let parsedUrl = new URL(url)
 
       // Only HTTP or HTTPS protocols are allowed
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -51,10 +53,9 @@ export function createProxyServer(config: {
         }
       }
 
-      let requestUrl = new URL(url)
       if (
-        (isIP(requestUrl.hostname) === 4 || isIP(requestUrl.hostname) === 6) &&
-        isMartianIP(requestUrl.hostname)
+        (!config.allowLocalhost && parsedUrl.hostname === 'localhost') ||
+        (isIP(parsedUrl.hostname) !== 0 && isMartianIP(parsedUrl.hostname))
       ) {
         throw new BadRequestError('Requests to internal IPs are not allowed')
       }
