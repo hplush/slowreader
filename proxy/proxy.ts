@@ -5,9 +5,12 @@ import { isIP } from 'node:net'
 import { styleText } from 'node:util'
 
 class BadRequestError extends Error {
-  constructor(message: string) {
+  code: number
+
+  constructor(message: string, code = 400) {
     super(message)
     this.name = 'BadRequestError'
+    this.code = code
   }
 }
 
@@ -41,7 +44,7 @@ export function createProxyServer(config: {
 
       // We do not typically need non-GET to load RSS
       if (req.method !== 'GET') {
-        throw new BadRequestError('Only GET requests are allowed')
+        throw new BadRequestError('Only GET is allowed', 405)
       }
 
       // We only allow request from production domain
@@ -58,7 +61,7 @@ export function createProxyServer(config: {
         (!config.allowLocalhost && parsedUrl.hostname === 'localhost') ||
         (isIP(parsedUrl.hostname) !== 0 && isMartianIP(parsedUrl.hostname))
       ) {
-        throw new BadRequestError('Requests to internal IPs are not allowed')
+        throw new BadRequestError('Internal IPs are not allowed')
       }
 
       // Remove all cookie headers so they will not be set on proxy domain
@@ -81,7 +84,7 @@ export function createProxyServer(config: {
         length = parseInt(targetResponse.headers.get('content-length')!)
       }
       if (length && length > config.maxSize) {
-        throw new BadRequestError('Response too large')
+        throw new BadRequestError('Response too large', 413)
       }
 
       res.writeHead(targetResponse.status, {
@@ -115,11 +118,11 @@ export function createProxyServer(config: {
       // Known errors
       if (e instanceof Error && e.name === 'TimeoutError') {
         res.writeHead(400, { 'Content-Type': 'text/plain' })
-        res.end('Bad Request: Request was aborted due to timeout')
+        res.end('Timeout')
         return
       } else if (e instanceof BadRequestError) {
-        res.writeHead(400, { 'Content-Type': 'text/plain' })
-        res.end(`Bad Request: ${e.message}`)
+        res.writeHead(e.code, { 'Content-Type': 'text/plain' })
+        res.end(e.message)
         return
       }
 

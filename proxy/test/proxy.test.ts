@@ -80,6 +80,14 @@ function request(url: string, opts: RequestInit = {}): Promise<Response> {
   })
 }
 
+async function expectBadRequest(
+  response: Response,
+  message: string
+): Promise<void> {
+  equal(response.status, 400)
+  equal(await response.text(), message)
+}
+
 test('works', async () => {
   let response = await request(targetUrl)
   equal(response.status, 200)
@@ -89,7 +97,7 @@ test('works', async () => {
 
 test('has timeout', async () => {
   let response = await request(`${targetUrl}?sleep=500`, {})
-  equal(response.status, 400)
+  await expectBadRequest(response, 'Timeout')
 })
 
 test('transfers query params and path', async () => {
@@ -106,7 +114,8 @@ test('can use only GET ', async () => {
   let response = await request(targetUrl, {
     method: 'POST'
   })
-  equal(response.status, 400)
+  equal(response.status, 405)
+  equal(await response.text(), 'Only GET is allowed')
 })
 
 test('can use only HTTP or HTTPS protocols', async () => {
@@ -114,7 +123,7 @@ test('can use only HTTP or HTTPS protocols', async () => {
     `${proxyUrl}/${targetUrl.replace('http', 'ftp')}`,
     {}
   )
-  equal(response.status, 400)
+  await expectBadRequest(response, 'Only HTTP or HTTPS are supported')
 })
 
 test('can not use proxy to query local address', async () => {
@@ -122,7 +131,7 @@ test('can not use proxy to query local address', async () => {
     `${proxyUrl}/${targetUrl.replace('localhost', '127.0.0.1')}`,
     {}
   )
-  equal(response.status, 400)
+  await expectBadRequest(response, 'Internal IPs are not allowed')
 })
 
 test('clears cookie headers', async () => {
@@ -145,7 +154,7 @@ test('checks Origin', async () => {
   let response2 = await request(targetUrl, {
     headers: { Origin: 'anothertest.app' }
   })
-  equal(response2.status, 400)
+  await expectBadRequest(response2, 'Unauthorized Origin')
 })
 
 test('sends user IP to destination', async () => {
@@ -164,7 +173,8 @@ test('sends user IP to destination', async () => {
 
 test('checks response size', async () => {
   let response1 = await request(targetUrl + '?big=file', {})
-  equal(response1.status, 400)
+  equal(response1.status, 413)
+  equal(await response1.text(), 'Response too large')
 
   let response2 = await request(targetUrl + '?big=stream', {})
   equal(response2.status, 200)
