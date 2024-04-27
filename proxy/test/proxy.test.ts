@@ -1,12 +1,17 @@
 import { equal } from 'node:assert'
-import { createServer } from 'node:http'
-import { test } from 'node:test'
+import { createServer, type Server } from 'node:http'
+import type { AddressInfo } from 'node:net'
+import { after, test } from 'node:test'
 import { URL } from 'node:url'
 
 import { createProxyServer } from '../proxy.js'
-import { getTestHttpServer, initTestHttpServer } from './utils.js'
 
-const targetServer = createServer(async (req, res) => {
+function getURL(server: Server): string {
+  let port = (server.address() as AddressInfo).port
+  return `http://localhost:${port}`
+}
+
+let target = createServer(async (req, res) => {
   let parsedUrl = new URL(req.url || '', `http://${req.headers.host}`)
 
   let queryParams = Object.fromEntries(parsedUrl.searchParams.entries())
@@ -36,56 +41,41 @@ const targetServer = createServer(async (req, res) => {
     })
   )
 })
+target.listen(0)
 
-await initTestHttpServer(
-  'proxy',
-  createProxyServer({
-    fetchTimeout: 100,
-    hostnameWhitelist: ['localhost'],
-    silentMode: true
-  })
-)
+let proxy = createProxyServer({
+  fetchTimeout: 100,
+  hostnameWhitelist: ['localhost'],
+  silentMode: true
+})
+proxy.listen(0)
 
-await initTestHttpServer('target', targetServer)
+let proxyUrl = getURL(proxy)
+let targetUrl = getURL(target)
 
-let proxyServerUrl = ''
-let targetServerUrl = ''
+after(() => {
+  target.close()
+  proxy.close()
+})
 
-let proxy = getTestHttpServer('proxy')
-if (proxy) {
-  proxyServerUrl = proxy.baseUrl
-}
-
-let target = getTestHttpServer('target')
-if (target) {
-  targetServerUrl = target.baseUrl
-}
-
-if (!target || !proxy) {
-  throw new Error(
-    "Couldn't set up target server or proxy server. Please check out 'proxy.test.js'"
-  )
+function request(url: string, opts?: RequestInit): Promise<Response> {
+  return fetch(`${proxyUrl}/${url}`, opts)
 }
 
 test('proxy works', async () => {
-  let response = await fetch(`${proxyServerUrl}/${targetServerUrl}`)
+  let response = await request(targetUrl)
   let parsedResponse = await response.json()
   equal(response.status, 200)
   equal(parsedResponse?.response, 'ok')
 })
 
 test('proxy timeout works', async () => {
-  let response = await fetch(
-    `${proxyServerUrl}/${targetServerUrl}?sleep=500`,
-    {}
-  )
+  let response = await request(`${targetUrl}?sleep=500`, {})
   equal(response.status, 400)
 })
 
 test('proxy transfers query params and path', async () => {
-  let response = await fetch(
-    `${proxyServerUrl}/${targetServerUrl}/foo/bar?foo=bar&bar=foo`
-  )
+  let response = await request(`${targetUrl}/foo/bar?foo=bar&bar=foo`)
   let parsedResponse = await response.json()
   equal(response.status, 200)
   equal(parsedResponse?.response, 'ok')
@@ -95,7 +85,7 @@ test('proxy transfers query params and path', async () => {
 })
 
 test('can use only GET ', async () => {
-  let response = await fetch(`${proxyServerUrl}/${targetServerUrl}`, {
+  let response = await request(targetUrl, {
     method: 'POST'
   })
   equal(response.status, 400)
@@ -103,7 +93,7 @@ test('can use only GET ', async () => {
 
 test('can use only http or https protocols', async () => {
   let response = await fetch(
-    `${proxyServerUrl}/${targetServerUrl.replace('http', 'ftp')}`,
+    `${proxyUrl}/${targetUrl.replace('http', 'ftp')}`,
     {}
   )
   equal(response.status, 400)
@@ -111,14 +101,14 @@ test('can use only http or https protocols', async () => {
 
 test('can not use proxy to query local address', async () => {
   let response = await fetch(
-    `${proxyServerUrl}/${targetServerUrl.replace('localhost', '127.0.0.1')}`,
+    `${proxyUrl}/${targetUrl.replace('localhost', '127.0.0.1')}`,
     {}
   )
   equal(response.status, 400)
 })
 
 test('proxy clears set-cookie header', async () => {
-  let response = await fetch(`${proxyServerUrl}/${targetServerUrl}`, {
+  let response = await request(targetUrl, {
     headers: { 'set-cookie': 'accessToken=1234abc; userId=1234' }
   })
 
@@ -129,7 +119,7 @@ test('proxy clears set-cookie header', async () => {
 })
 
 test('proxy clears cookie header', async () => {
-  let response = await fetch(`${proxyServerUrl}/${targetServerUrl}`, {
+  let response = await request(targetUrl, {
     headers: { cookie: 'accessToken=1234abc; userId=1234' }
   })
 
