@@ -8,9 +8,7 @@ interface TestServer {
   server: http.Server
 }
 
-const testServers: {
-  [key: string]: TestServer
-} = {}
+const TEST_SERVERS: Record<string, TestServer> = {}
 
 export async function initTestHttpServer(
   name: string,
@@ -35,7 +33,7 @@ export async function initTestHttpServer(
       addressInfo.address === '::' ? 'localhost' : addressInfo.address
     let testServerPort = addressInfo.port
 
-    testServers[name] = {
+    TEST_SERVERS[name] = {
       address: testServerAddress,
       baseUrl: `${protocol}://${testServerAddress}:${testServerPort}`,
       port: testServerPort,
@@ -44,13 +42,13 @@ export async function initTestHttpServer(
   })
 
   after(async () => {
-    if (testServers[name]) {
-      testServers[name]?.server.close()
-      delete testServers[name]
+    if (TEST_SERVERS[name]) {
+      TEST_SERVERS[name]?.server.close()
+      delete TEST_SERVERS[name]
     }
   })
 }
 
 export function getTestHttpServer(name: string): TestServer | undefined {
-  return testServers[name]
+  return TEST_SERVERS[name]
 }
