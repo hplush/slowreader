@@ -15,7 +15,7 @@ Pre-alpha prototype: [`dev.slowreader.app`](https://dev.slowreader.app/)
 
 **[↬ How to contribute and join the team](./CONTRIBUTING.md)**
 
-To ask any question: **[h+h lab Discord](https://discord.gg/ZUV7JmN9)**
+To ask any question: **[h+h lab Discord](https://discord.gg/TyFTp6mAZT)**
 
 ---
 
