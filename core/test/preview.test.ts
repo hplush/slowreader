@@ -212,7 +212,9 @@ test('is ready for empty title', async () => {
 
   expectRequest('http://example.com').andRespond(
     200,
-    '<link type="application/atom+xml" href="http://other.com/atom">'
+    `<html>
+      <link type="application/atom+xml" href="http://other.com/atom">
+    </html>`
   )
   let rss = '<feed><title></title></feed>'
   expectRequest('http://other.com/atom').andRespond(200, rss, 'text/xml')
