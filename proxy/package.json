@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "martian-cidr": "2.0.3",
-    "tsx": "4.7.2"
+    "tsx": "4.7.3"
   },
   "devDependencies": {
     "c8": "9.1.0"
