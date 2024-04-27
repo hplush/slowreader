@@ -32,4 +32,4 @@ jobs:
       - name: Install dependencies
         run: pnpm install --ignore-scripts
       - name: Loaders Test
-        run: pnpm test-loaders
+        run: node --run test-loaders
