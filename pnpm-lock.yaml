@@ -177,6 +177,9 @@ importers:
         specifier: 4.7.3
         version: 4.7.3
     devDependencies:
+      better-node-test:
+        specifier: 0.5.1
+        version: 0.5.1
       c8:
         specifier: 9.1.0
         version: 9.1.0

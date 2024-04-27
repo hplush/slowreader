@@ -13,6 +13,7 @@
     "tsx": "4.7.3"
   },
   "devDependencies": {
+    "better-node-test": "0.5.1",
     "c8": "9.1.0"
   }
 }
