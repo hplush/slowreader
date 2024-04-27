@@ -68,7 +68,8 @@ export function createProxyServer(config: {
       let targetResponse = await fetch(url, {
         headers: {
           ...(req.headers as HeadersInit),
-          host: new URL(url).host
+          'host': new URL(url).host,
+          'X-Forwarded-For': req.socket.remoteAddress!
         },
         method: req.method,
         signal: AbortSignal.timeout(config.timeout)

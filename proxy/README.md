@@ -16,6 +16,7 @@ _See the [full architecture guide](../README.md) first._
 - Proxy allows only GET requests and HTTP/HTTPS protocols.
 - Proxy do not allow requests to in-cloud IP addresses like `127.0.0.1`.
 - Proxy removes cookie headers.
+- Proxy set user’s IP in `X-Forwarded-For` header.
 
 ## Test Strategy
 

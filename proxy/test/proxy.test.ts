@@ -133,3 +133,17 @@ test('checks Origin', async () => {
   })
   equal(response2.status, 400)
 })
+
+test('sends user IP to destination', async () => {
+  let response1 = await request(targetUrl)
+  equal(response1.status, 200)
+  let json1 = await response1.json()
+  equal(json1.request.headers['x-forwarded-for'], '::1')
+
+  let response2 = await request(targetUrl, {
+    headers: { 'X-Forwarded-For': '4.4.4.4' }
+  })
+  equal(response2.status, 200)
+  let json2 = await response2.json()
+  equal(json2.request.headers['x-forwarded-for'], '4.4.4.4, ::1')
+})
