@@ -5,8 +5,8 @@ import { createProxyServer } from './proxy.js'
 const PORT = 5284
 
 let proxy = createProxyServer({
-  isProduction: process.env.NODE_ENV === 'production',
-  productionDomainSuffix: '.slowreader.app'
+  allowsFrom:
+    process.env.NODE_ENV === 'production' ? 'slowreader.app' : 'localhost:5173'
 })
 
 proxy.listen(PORT, () => {

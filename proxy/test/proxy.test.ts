@@ -13,16 +13,12 @@ function getURL(server: Server): string {
 
 let target = createServer(async (req, res) => {
   let parsedUrl = new URL(req.url || '', `http://${req.headers.host}`)
-
   let queryParams = Object.fromEntries(parsedUrl.searchParams.entries())
-
   if (queryParams.sleep) {
     await new Promise(resolve =>
       setTimeout(resolve, parseInt(queryParams.sleep || '0'))
     )
   }
-
-  let requestPath = parsedUrl.pathname
 
   res.writeHead(200, {
     'Content-Type': 'text/json',
@@ -35,7 +31,7 @@ let target = createServer(async (req, res) => {
         headers: req.headers,
         method: req.method,
         queryParams,
-        requestPath,
+        requestPath: parsedUrl.pathname,
         url: req.url
       },
       response: 'ok'
@@ -45,6 +41,7 @@ let target = createServer(async (req, res) => {
 target.listen(0)
 
 let proxy = createProxyServer({
+  allowsFrom: 'test.app',
   fetchTimeout: 100,
   hostnameWhitelist: ['localhost'],
   silentMode: true
@@ -59,23 +56,29 @@ after(() => {
   proxy.close()
 })
 
-function request(url: string, opts?: RequestInit): Promise<Response> {
-  return fetch(`${proxyUrl}/${url}`, opts)
+function request(url: string, opts: RequestInit = {}): Promise<Response> {
+  return fetch(`${proxyUrl}/${url}`, {
+    ...opts,
+    headers: {
+      Origin: 'http://test.app',
+      ...opts.headers
+    }
+  })
 }
 
-test('proxy works', async () => {
+test('works', async () => {
   let response = await request(targetUrl)
-  let parsedResponse = await response.json()
   equal(response.status, 200)
+  let parsedResponse = await response.json()
   equal(parsedResponse?.response, 'ok')
 })
 
-test('proxy timeout works', async () => {
+test('has timeout', async () => {
   let response = await request(`${targetUrl}?sleep=500`, {})
   equal(response.status, 400)
 })
 
-test('proxy transfers query params and path', async () => {
+test('transfers query params and path', async () => {
   let response = await request(`${targetUrl}/foo/bar?foo=bar&bar=foo`)
   let parsedResponse = await response.json()
   equal(response.status, 200)
@@ -108,7 +111,7 @@ test('can not use proxy to query local address', async () => {
   equal(response.status, 400)
 })
 
-test('proxy clears set-cookie header', async () => {
+test('clears cookie headers', async () => {
   let response = await request(targetUrl, {
     headers: { Cookie: 'a=1' }
   })
@@ -119,13 +122,14 @@ test('proxy clears set-cookie header', async () => {
   equal(parsedResponse?.cookie, undefined)
 })
 
-test('proxy clears cookie header', async () => {
-  let response = await request(targetUrl, {
-    headers: { cookie: 'accessToken=1234abc; userId=1234' }
+test('checks Origin', async () => {
+  let response1 = await request(targetUrl, {
+    headers: { Origin: 'dev.test.app' }
   })
+  equal(response1.status, 200)
 
-  equal(response.status, 200)
-  let parsedResponse = await response.json()
-  equal(parsedResponse?.['set-cookie'], undefined)
-  equal(parsedResponse?.cookie, undefined)
+  let response2 = await request(targetUrl, {
+    headers: { Origin: 'anothertest.app' }
+  })
+  equal(response2.status, 400)
 })
