@@ -2,7 +2,7 @@ import { styleText } from 'node:util'
 
 import { createProxyServer } from './proxy.js'
 
-const PORT = 5284
+const PORT = process.env.PORT ?? 5284
 
 let allowsFrom: RegExp[]
 if (process.env.NODE_ENV !== 'production') {
