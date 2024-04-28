@@ -57,7 +57,6 @@ let proxy = createProxyServer({
   allowLocalhost: true,
   allowsFrom: 'test.app',
   maxSize: 100,
-  silent: true,
   timeout: 100
 })
 proxy.listen(0)

@@ -18,7 +18,6 @@ export function createProxyServer(config: {
   allowLocalhost?: boolean
   allowsFrom: string
   maxSize: number
-  silent?: boolean
   timeout: number
 }): http.Server {
   return createServer(async (req, res) => {
@@ -127,12 +126,10 @@ export function createProxyServer(config: {
       }
 
       // Unknown or internal errors
-      if (!config.silent) {
-        if (e instanceof Error) {
-          process.stderr.write(styleText('red', e.stack ?? e.message) + '\n')
-        } else if (typeof e === 'string') {
-          process.stderr.write(styleText('red', e) + '\n')
-        }
+      if (e instanceof Error) {
+        process.stderr.write(styleText('red', e.stack ?? e.message) + '\n')
+      } else if (typeof e === 'string') {
+        process.stderr.write(styleText('red', e) + '\n')
       }
       if (!sent) {
         res.writeHead(500, { 'Content-Type': 'text/plain' })
