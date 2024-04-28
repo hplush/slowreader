@@ -1,4 +1,4 @@
-name: Code Test
+name: Main Test
 on:
   push:
     branches:
