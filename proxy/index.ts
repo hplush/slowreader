@@ -10,7 +10,7 @@ if (process.env.NODE_ENV !== 'production') {
 } else if (process.env.STAGING) {
   allowsFrom = [
     /^https:\/\/dev.slowreader.app/,
-    /^https:\/\/(preview-\d+---)?staging-jfj4bxwwxq-ew.a.run.app/
+    /^https:\/\/(preview-\d+---)?staging-web-jfj4bxwwxq-ew.a.run.app/
   ]
 } else {
   allowsFrom = [/^https:\/\/slowreader.app/]
