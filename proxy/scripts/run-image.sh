@@ -1,7 +1,6 @@
 #!/bin/bash
 
 ERROR='\033[0;31m'
-OK='\033[1;32m'
 NC='\033[0m' # No Color
 
 command_exists() {
@@ -10,8 +9,7 @@ command_exists() {
 
 build_and_run() {
   IMAGE_ID=$($1 build . | tail -1)
-  echo -e "${OK}Web server is running on http://localhost:8080${NC}"
-  $1 run --rm -p 8080 -e PORT=8080 -it $IMAGE_ID
+  $1 run --rm -p 5284 -e PORT=5284 -it $IMAGE_ID
 }
 
 if command_exists podman; then

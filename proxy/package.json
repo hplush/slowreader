@@ -5,15 +5,19 @@
   "scripts": {
     "start": "tsx watch index.ts",
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
+    "build": "esbuild index.ts --bundle --platform=node --sourcemap --format=esm --outfile=dist/index.mjs",
+    "production": "node --run build && ./scripts/run-image.sh",
     "test:coverage": "c8 pnpm bnt",
-    "clean:coverage": "rm -rf coverage"
+    "clean:coverage": "rm -rf coverage",
+    "clean:build": "rm -rf build"
   },
   "dependencies": {
-    "martian-cidr": "2.0.3",
-    "tsx": "4.7.3"
+    "esbuild": "0.20.2",
+    "martian-cidr": "2.0.3"
   },
   "devDependencies": {
     "better-node-test": "0.5.1",
-    "c8": "9.1.0"
+    "c8": "9.1.0",
+    "tsx": "4.7.3"
   }
 }

@@ -17,7 +17,7 @@
     "build:visual": "NODE_ENV=test storybook build",
     "build:web": "vite build && tsx ./scripts/clean-css.ts",
     "format:stylelint": "stylelint --fix **/*.{css,svelte}",
-    "clean:dist": "rm -rf dist"
+    "clean:build": "rm -rf dist"
   },
   "dependencies": {
     "@csstools/postcss-oklab-function": "3.0.14",

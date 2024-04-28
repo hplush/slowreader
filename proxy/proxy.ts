@@ -1,5 +1,5 @@
 import isMartianIP from 'martian-cidr'
-import type http from 'node:http'
+import type { Server } from 'node:http'
 import { createServer } from 'node:http'
 import { isIP } from 'node:net'
 import { styleText } from 'node:util'
@@ -19,7 +19,7 @@ export function createProxyServer(config: {
   allowsFrom: RegExp[]
   maxSize: number
   timeout: number
-}): http.Server {
+}): Server {
   return createServer(async (req, res) => {
     let sent = false
 

@@ -170,12 +170,12 @@ importers:
 
   proxy:
     dependencies:
+      esbuild:
+        specifier: ^0.20.2
+        version: 0.20.2
       martian-cidr:
         specifier: 2.0.3
         version: 2.0.3
-      tsx:
-        specifier: 4.7.3
-        version: 4.7.3
     devDependencies:
       better-node-test:
         specifier: 0.5.1
@@ -183,6 +183,9 @@ importers:
       c8:
         specifier: 9.1.0
         version: 9.1.0
+      tsx:
+        specifier: 4.7.3
+        version: 4.7.3
 
   server:
     dependencies:
