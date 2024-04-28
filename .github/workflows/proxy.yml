@@ -47,6 +47,8 @@ jobs:
         run: cd proxy && pnpm install --production --ignore-scripts
       - name: Build JS file
         run: cd proxy && node --run build
+        env:
+          STAGING: 1
       - name: Upload proxy build
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
