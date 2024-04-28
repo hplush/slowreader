@@ -59,7 +59,7 @@ jobs:
     name: Proxy Staging Deploy
     needs:
       - test
-      - proxy_build
+      - build
     if: github.ref == 'refs/heads/main'
     permissions:
       contents: read
