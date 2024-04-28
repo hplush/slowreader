@@ -16,7 +16,7 @@ class BadRequestError extends Error {
 
 export function createProxyServer(config: {
   allowLocalhost?: boolean
-  allowsFrom: string
+  allowsFrom: RegExp[]
   maxSize: number
   timeout: number
 }): http.Server {
@@ -46,14 +46,12 @@ export function createProxyServer(config: {
         throw new BadRequestError('Only GET is allowed', 405)
       }
 
-      // We only allow request from production domain
-      if (req.headers.origin) {
-        if (
-          !req.headers.origin.endsWith('/' + config.allowsFrom) &&
-          !req.headers.origin.endsWith('.' + config.allowsFrom)
-        ) {
-          throw new BadRequestError('Unauthorized Origin')
-        }
+      // We only allow request from our app
+      if (
+        !req.headers.origin ||
+        !config.allowsFrom.some(allowed => allowed.test(req.headers.origin!))
+      ) {
+        throw new BadRequestError('Unauthorized Origin')
       }
 
       if (
@@ -89,7 +87,7 @@ export function createProxyServer(config: {
       res.writeHead(targetResponse.status, {
         'Access-Control-Allow-Headers': '*',
         'Access-Control-Allow-Methods': 'OPTIONS, POST, GET, PUT, DELETE',
-        'Access-Control-Allow-Origin': req.headers.Origin || '*',
+        'Access-Control-Allow-Origin': req.headers.origin,
         'Content-Type':
           targetResponse.headers.get('content-type') ?? 'text/plain'
       })

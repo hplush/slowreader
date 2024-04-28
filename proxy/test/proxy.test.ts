@@ -55,7 +55,7 @@ target.listen(0)
 
 let proxy = createProxyServer({
   allowLocalhost: true,
-  allowsFrom: 'test.app',
+  allowsFrom: [/^http:\/\/test.app/],
   maxSize: 100,
   timeout: 100
 })
@@ -126,10 +126,7 @@ test('can use only HTTP or HTTPS protocols', async () => {
 })
 
 test('can not use proxy to query local address', async () => {
-  let response = await fetch(
-    `${proxyUrl}/${targetUrl.replace('localhost', '127.0.0.1')}`,
-    {}
-  )
+  let response = await request(targetUrl.replace('localhost', '127.0.0.1'))
   await expectBadRequest(response, 'Internal IPs are not allowed')
 })
 
@@ -146,14 +143,18 @@ test('clears cookie headers', async () => {
 
 test('checks Origin', async () => {
   let response1 = await request(targetUrl, {
-    headers: { Origin: 'dev.test.app' }
+    headers: { Origin: 'http://test.app' }
   })
   equal(response1.status, 200)
+  equal(response1.headers.get('access-control-allow-origin'), 'http://test.app')
 
   let response2 = await request(targetUrl, {
     headers: { Origin: 'anothertest.app' }
   })
   await expectBadRequest(response2, 'Unauthorized Origin')
+
+  let response3 = await fetch(`${proxyUrl}/${targetUrl}`)
+  await expectBadRequest(response3, 'Unauthorized Origin')
 })
 
 test('sends user IP to destination', async () => {
