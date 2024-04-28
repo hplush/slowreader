@@ -11,7 +11,7 @@ command_exists() {
 build_and_run() {
   IMAGE_ID=$($1 build . | tail -1)
   echo -e "${OK}Web server is running on http://localhost:8080${NC}"
-  $1 run --rm -p 8080 -e PORT=8080 -it $IMAGE_ID
+  $1 run --rm -p 8080:8080 -e PORT=8080 -it $IMAGE_ID
 }
 
 if command_exists podman; then

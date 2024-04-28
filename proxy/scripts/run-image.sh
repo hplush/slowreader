@@ -9,7 +9,7 @@ command_exists() {
 
 build_and_run() {
   IMAGE_ID=$($1 build . | tail -1)
-  $1 run --rm -p 5284 -e PORT=5284 -it $IMAGE_ID
+  $1 run --rm -p 5284:5284 -e PORT=5284 -it $IMAGE_ID
 }
 
 if command_exists podman; then
