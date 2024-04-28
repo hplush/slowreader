@@ -3,7 +3,6 @@ import { windowPersistentEvents } from '@nanostores/persistent'
 import {
   type NetworkType,
   type NetworkTypeDetector,
-  type RequestMethod,
   router,
   setRequestMethod,
   setupEnvironment
@@ -12,21 +11,24 @@ import {
 import { locale } from '../stores/locale.js'
 import { openRoute, urlRouter } from '../stores/router.js'
 
-function proxyUrl(url: string | URL): string {
-  return 'http://localhost:5284/' + encodeURIComponent(url.toString())
+let PROXY_URL: string
+if (location.hostname === 'localhost') {
+  PROXY_URL = 'http://localhost:5284/'
+} else if (location.hostname === 'slowreader.app') {
+  PROXY_URL = 'https://proxy.slowreader.app/'
+} else {
+  PROXY_URL = 'https://dev-proxy.slowreader.app/'
 }
 
-let devProxy: RequestMethod = async (url, opts = {}) => {
+setRequestMethod(async (url, opts = {}) => {
   let originUrl = url
-  let nextUrl = proxyUrl(url)
+  let nextUrl = PROXY_URL + encodeURIComponent(url.toString())
   let response = await fetch(nextUrl, opts)
   Object.defineProperty(response, 'url', {
     value: originUrl
   })
   return response
-}
-
-setRequestMethod(devProxy)
+})
 
 export const detectNetworkType: NetworkTypeDetector = () => {
   let type: NetworkType
