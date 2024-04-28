@@ -7,7 +7,7 @@
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
     "build": "esbuild index.ts --bundle --platform=node --sourcemap --format=esm --outfile=dist/index.mjs",
     "production": "node --run build && ./scripts/run-image.sh",
-    "test:coverage": "c8 pnpm bnt",
+    "test:proxy-coverage": "c8 pnpm bnt",
     "clean:coverage": "rm -rf coverage",
     "clean:build": "rm -rf build"
   },
