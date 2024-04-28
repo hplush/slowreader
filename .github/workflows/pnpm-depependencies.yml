@@ -1,0 +1,21 @@
+name: pnpm Dependencies Checklist
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'pnpm-lock.yaml'
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Create a comment action step
+        uses: ./.github/actions/setup-composite
+        id: file-changes-checklist
+        with:
+          myToken: ${{ secrets.GITHUB_TOKEN }}
+          message: |
+            [ ] You have changed pnpm dependencies, please check our [requirements](https://github.com/hplush/slowreader/blob/main/README.md#dependencies)

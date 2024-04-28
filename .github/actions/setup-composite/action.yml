@@ -1,0 +1,8 @@
+name: 'Diff changes checlists'
+description: 'Post a checklist depenging on a changes in a pull request'
+inputs:
+  myToken:
+    description: 'token for github'
+runs:
+  using: 'node20'
+  main: '../../../dist/index.js'
