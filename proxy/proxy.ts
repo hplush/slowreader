@@ -1,4 +1,3 @@
-import isMartianIP from 'martian-cidr'
 import type { Server } from 'node:http'
 import { createServer } from 'node:http'
 import { isIP } from 'node:net'
@@ -56,9 +55,9 @@ export function createProxyServer(config: {
 
       if (
         (!config.allowLocalhost && parsedUrl.hostname === 'localhost') ||
-        (isIP(parsedUrl.hostname) !== 0 && isMartianIP(parsedUrl.hostname))
+        isIP(parsedUrl.hostname) !== 0
       ) {
-        throw new BadRequestError('Internal IPs are not allowed')
+        throw new BadRequestError('IP addresses are not allowed')
       }
 
       // Remove all cookie headers so they will not be set on proxy domain

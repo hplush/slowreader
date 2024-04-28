@@ -127,7 +127,7 @@ test('can use only HTTP or HTTPS protocols', async () => {
 
 test('can not use proxy to query local address', async () => {
   let response = await request(targetUrl.replace('localhost', '127.0.0.1'))
-  await expectBadRequest(response, 'Internal IPs are not allowed')
+  await expectBadRequest(response, 'IP addresses are not allowed')
 })
 
 test('clears cookie headers', async () => {
