@@ -56,7 +56,7 @@ jobs:
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: staging
+          service: staging-web
           region: ${{ env.REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/web:preview-${{ env.PR_NUMBER }}
           tag: preview-${{ env.PR_NUMBER }}
