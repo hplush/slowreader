@@ -29,7 +29,7 @@ export interface LoaderTestFeed {
 export async function readText(path: string): Promise<string> {
   let absolute = path
   if (!isAbsolute(absolute)) {
-    absolute = join(process.env.INIT_CWD!, path)
+    absolute = join(process.env.INIT_CWD ?? process.cwd(), path)
   }
   let buffer = await readFile(absolute)
   return buffer.toString('utf-8')

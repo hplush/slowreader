@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile --ignore-scripts
       - name: Build assets
-        run: cd web && pnpm build
+        run: cd web && node --run build
         env:
           STAGING: 1
       - name: Save PR number

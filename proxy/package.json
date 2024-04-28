@@ -3,9 +3,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "tsx ./index.ts"
+    "start": "tsx watch index.ts",
+    "test": "FORCE_COLOR=1 pnpm run /^test:/",
+    "test:coverage": "c8 pnpm bnt",
+    "clean:coverage": "rm -rf coverage"
   },
   "dependencies": {
+    "martian-cidr": "2.0.3",
     "tsx": "4.7.3"
+  },
+  "devDependencies": {
+    "better-node-test": "0.5.1",
+    "c8": "9.1.0"
   }
 }

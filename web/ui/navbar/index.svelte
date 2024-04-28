@@ -210,16 +210,15 @@
 
   .navbar_link {
     position: relative;
+    width: 50%;
     border-radius: var(--radius);
 
     &:first-child {
-      width: 50%;
       border-start-end-radius: 0;
       border-end-end-radius: 0;
     }
 
     &:last-child {
-      width: calc(50% + 1px);
       margin-inline-start: -1px;
       border-start-start-radius: 0;
       border-end-start-radius: 0;

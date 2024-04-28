@@ -6,6 +6,7 @@ import {
   findAnchorHrefs,
   findImageByAttr,
   findLinksByType,
+  isHTML,
   toTime
 } from './utils.js'
 
@@ -36,9 +37,10 @@ function parsePosts(text: TextResponse): OriginPost[] {
 
 export const atom: Loader = {
   getMineLinksFromText(text) {
+    if (!isHTML(text)) return []
     return [
       ...findLinksByType(text, 'application/atom+xml'),
-      ...findAnchorHrefs(text, /feeds?\.|\.atom|\/atom/i)
+      ...findAnchorHrefs(text, /feed\.|\.atom|\/atom/i)
     ]
   },
 
@@ -59,7 +61,7 @@ export const atom: Loader = {
 
   isMineText(text) {
     let document = text.parseXml()
-    if (document && document.firstElementChild?.nodeName === 'feed') {
+    if (document?.firstElementChild?.nodeName === 'feed') {
       return document.querySelector(':root > title')?.textContent ?? ''
     } else {
       return false

@@ -19,7 +19,6 @@
 }
 
 body {
-  display: flex;
   color: var(--text-color);
   background: var(--land-color);
 }
