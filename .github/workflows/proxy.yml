@@ -56,7 +56,7 @@ jobs:
             proxy/dist/
           retention-days: 1
   staging:
-    name: Proxy Staging Deploy
+    name: Staging Deploy
     needs:
       - test
       - build
