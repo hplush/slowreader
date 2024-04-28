@@ -13,7 +13,6 @@ import { locale } from '../stores/locale.js'
 import { openRoute, urlRouter } from '../stores/router.js'
 
 let PROXY_URL: string
-
 if (location.hostname === 'localhost') {
   PROXY_URL = 'http://localhost:5284/'
 } else if (location.hostname === 'slowreader.app') {
