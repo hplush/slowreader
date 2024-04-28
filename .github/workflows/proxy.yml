@@ -47,8 +47,6 @@ jobs:
         run: cd proxy && pnpm install --production --ignore-scripts
       - name: Build JS file
         run: cd proxy && node --run build
-        env:
-          STAGING: 1
       - name: Upload proxy build
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
@@ -98,7 +96,8 @@ jobs:
             --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/proxy:latest \
             --region ${{ env.REGION }} \
             --allow-unauthenticated \
-            --service-account github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+            --service-account github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
+            --set-env-vars="STAGING=1"
       - name: Move traffic to new revision
         run: |
           gcloud run services update-traffic staging-proxy \

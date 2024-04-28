@@ -23,7 +23,9 @@ let proxy = createProxyServer({
 })
 
 proxy.listen(PORT, () => {
-  process.stdout.write(
-    styleText('green', `Proxy server running on port ${PORT}`)
-  )
+  if (process.env.NODE_ENV !== 'production') {
+    process.stdout.write(
+      styleText('green', `Proxy server running on port ${PORT}`)
+    )
+  }
 })
