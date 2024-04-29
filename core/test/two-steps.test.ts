@@ -23,7 +23,7 @@ afterEach(async () => {
   await cleanClientTest()
 })
 
-test('show first step', () => {
+test('show first side', () => {
   setBaseTestRoute({ params: {}, route: 'add' })
   strictEqual(side.get(), 'first')
 
