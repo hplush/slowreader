@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { isGuestRoute, notFound, router, starting } from '@slowreader/core'
+  import { busy, isGuestRoute, notFound, router } from '@slowreader/core'
 
+  import Busy from '../pages/busy.svelte'
   import Fast from '../pages/fast.svelte'
   import FeedsAdd from '../pages/feeds/add.svelte'
   import FeedsCategories from '../pages/feeds/categories.svelte'
@@ -12,13 +13,12 @@
   import SettingsProfile from '../pages/settings/profile.svelte'
   import Slow from '../pages/slow.svelte'
   import Start from '../pages/start.svelte'
-  import Starting from '../pages/starting.svelte'
   import Welcome from '../pages/welcome.svelte'
   import Navbar from '../ui/navbar/index.svelte'
 </script>
 
-{#if $starting}
-  <Starting />
+{#if $busy}
+  <Busy />
 {:else}
   {#if $notFound || $router.route === 'notFound'}
     <NotFound />
