@@ -13,6 +13,8 @@ import { nanoid } from 'nanoid'
 
 import { getClient } from './client.js'
 import type { OptionalId } from './lib/stores.js'
+import { loadFilters, prepareFilters } from './filter.js'
+import { getFeed, type FeedValue } from './feed.js'
 
 export type OriginPost = {
   full?: string
@@ -99,6 +101,73 @@ export function getPostIntro(post: OriginPost): string {
     return post.full
   } else {
     return ''
+  }
+}
+
+export async function calcPostReading(
+  post: OriginPost,
+  feed?: FeedValue,
+  filterId?: string
+): Promise<'fast' | 'slow'> {
+  let checker = prepareFilters(
+    await loadFilters({
+      feedId: feed?.id,
+      id: filterId
+    })
+  )
+  let action = checker(post)
+
+  if (action) {
+    return action === 'fast' ? 'fast' : 'slow'
+  }
+  if (feed) {
+    return feed?.reading ?? 'fast'
+  }
+  return 'fast'
+}
+
+export async function getPostsByFilter(filterId: string): Promise<PostValue[]> {
+  let filters = await loadFilters({ id: filterId })
+
+  if (filters.length === 0) return []
+
+  let checker = prepareFilters(filters)
+  let filterPosts = await loadPosts()
+  filterPosts = filterPosts.filter(post => checker(post))
+
+  return filterPosts
+}
+
+export async function changePostsByFeed(feedId: string): Promise<void> {
+  let posts = await loadPosts({ feedId })
+  let feed = await loadValue(await getFeed(feedId))
+  for (let post of posts) {
+    let reading = await calcPostReading(post, feed)
+    await changePost(post.id, { reading })
+  }
+}
+
+export async function changePostsByFilter(filterId: string): Promise<void> {
+  let posts = await getPostsByFilter(filterId)
+  let feeds: Record<string, FeedValue | undefined> = {}
+  for (let post of posts) {
+    if (!feeds[post.feedId]) {
+      feeds[post.feedId] = await loadValue(await getFeed(post.feedId))
+    }
+    let reading = await calcPostReading(post, feeds[post.feedId], filterId)
+    await changePost(post.id, { reading })
+  }
+}
+
+export async function clearPostFilter(filterId: string): Promise<void> {
+  let filters = await loadFilters({ id: filterId })
+  if (!filters[0]) return
+  let feedId = filters[0].feedId
+  let posts = await loadPosts({ feedId })
+  for (let post of posts) {
+    let feed = await loadValue(await getFeed(feedId))
+    let reading = feed?.reading ?? 'fast'
+    await changePost(post.id, { reading })
   }
 }
 
