@@ -3,6 +3,7 @@ import { i18n } from '../../i18n.js'
 export const navbarMessages = i18n('navbar', {
   about: 'About the App',
   add: 'Add feed',
+  back: 'Back',
   download: 'Feed Loading',
   fast: 'Fast',
   feeds: 'Manage Feeds',

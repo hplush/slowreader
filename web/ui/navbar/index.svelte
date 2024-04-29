@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { mdiFood, mdiMenu, mdiRefresh } from '@mdi/js'
+  import { mdiChevronLeft, mdiFood, mdiMenu, mdiRefresh } from '@mdi/js'
   import {
+    backRoutes,
     isFastRoute,
     isOtherRoute,
     isRefreshing,
@@ -8,6 +9,7 @@
     refreshPosts,
     refreshProgress,
     router,
+    side,
     navbarMessages as t
   } from '@slowreader/core'
   import { onMount } from 'svelte'
@@ -23,7 +25,6 @@
   import NavbarSlow from './slow.svelte'
 
   let isMenuOpened = false
-
   onMount(() => {
     document.documentElement.classList.add('has-navbar')
     return () => {
@@ -42,28 +43,42 @@
 
 <nav class="navbar">
   <div class="navbar_main" aria-orientation="horizontal" role="menu">
-    {#if $isRefreshing}
+    <div
+      class={`navbar_back-btn ${$side === 'first' ? 'navbar_btn-hidden' : ''}`}
+    >
       <NavbarItem
-        name={$t.refresh}
-        current={$router.route === 'refresh'}
-        hotkey="r"
-        href={getURL('refresh')}
+        name={$t.back}
+        current={true}
+        hotkey="Esc"
+        href={backRoutes[$router.route]}
+        icon={mdiChevronLeft}
         small
-      >
-        <NavbarProgress value={$refreshProgress} />
-      </NavbarItem>
-    {:else}
-      <NavbarItem
-        name={$t.refresh}
-        current={$router.route === 'refresh'}
-        hotkey="r"
-        icon={mdiRefresh}
-        small
-        on:click={() => {
-          refreshPosts()
-        }}
       />
-    {/if}
+    </div>
+    <div class={`${$side === 'second' ? 'navbar_btn-hidden' : ''}`}>
+      {#if $isRefreshing}
+        <NavbarItem
+          name={$t.refresh}
+          current={$router.route === 'refresh'}
+          hotkey="r"
+          href={getURL('refresh')}
+          small
+        >
+          <NavbarProgress value={$refreshProgress} />
+        </NavbarItem>
+      {:else}
+        <NavbarItem
+          name={$t.refresh}
+          current={$router.route === 'refresh'}
+          hotkey="r"
+          icon={mdiRefresh}
+          small
+          on:click={() => {
+            refreshPosts()
+          }}
+        />
+      {/if}
+    </div>
     <div class="navbar_switcher">
       <a
         class="navbar_link"
@@ -168,6 +183,20 @@
     @media (width <= 1024px) {
       justify-content: space-between;
       padding: var(--padding-m);
+    }
+  }
+
+  .navbar_back-btn {
+    display: none;
+
+    @media (width <= 1024px) {
+      display: block;
+    }
+  }
+
+  .navbar_btn-hidden {
+    @media (width <= 1024px) {
+      display: none;
     }
   }
 
