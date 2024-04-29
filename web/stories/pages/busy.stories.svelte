@@ -1,9 +1,9 @@
 <script context="module" lang="ts">
-  import StartingPage from '../../pages/starting.svelte'
+  import Busy from '../../pages/busy.svelte'
 
   export const meta = {
-    component: StartingPage,
-    title: 'Pages/Starting'
+    component: Busy,
+    title: 'Pages/Busy'
   }
 </script>
 
@@ -12,5 +12,5 @@
 </script>
 
 <Story name="Base" parameters={{ layout: 'fullscreen' }}>
-  <StartingPage />
+  <Busy />
 </Story>
