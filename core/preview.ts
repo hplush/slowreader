@@ -11,7 +11,7 @@ import { onEnvironment } from './environment.js'
 import { addFeed, getFeeds } from './feed.js'
 import { readonlyExport } from './lib/stores.js'
 import { type LoaderName, loaders } from './loader/index.js'
-import { addPost } from './post.js'
+import { addPost, processOriginPost } from './post.js'
 import type { PostsPage } from './posts-page.js'
 import { router } from './router.js'
 
@@ -112,6 +112,8 @@ export function clearPreview(): void {
 }
 
 function addCandidate(url: string, candidate: PreviewCandidate): void {
+  if ($candidates.get().some(i => i.url === url)) return
+
   $links.setKey(url, { state: 'processed' })
   $candidates.set([...$candidates.get(), candidate])
   if ($candidates.get().length === 1) {
@@ -190,6 +192,8 @@ export async function addLink(url: string, deep = false): Promise<void> {
       url = 'http://' + url
     }
   }
+
+  if ($links.get()[url]) return
 
   try {
     new URL(url)
@@ -283,23 +287,17 @@ export async function addPreviewCandidate(): Promise<void> {
     let page = await loadValue($posts.get()!)
     let lastPost = page.list[0]
     let candidate = $candidates.get().find(i => i.url === url)!
-    let reading = 'fast' as const
     let feedId = await addFeed({
       categoryId: 'general',
       lastOriginId: lastPost?.originId,
       lastPublishedAt: lastPost?.publishedAt ?? Date.now() / 1000,
       loader: candidate.loader,
-      reading,
+      reading: 'fast',
       title: candidate.title,
       url
     })
     if (lastPost) {
-      await addPost({
-        ...lastPost,
-        feedId,
-        publishedAt: lastPost.publishedAt ?? Date.now(),
-        reading
-      })
+      await addPost(processOriginPost(lastPost, feedId, 'fast'))
     }
   }
 }
@@ -314,7 +312,7 @@ onEnvironment(({ openRoute }) => {
         openRoute({ params: { url: link }, route: 'add' })
       }
     }),
-    router.listen(({ params, route }) => {
+    router.subscribe(({ params, route }) => {
       if (route === 'add' && params.url !== previewUrl.get()) {
         setPreviewUrl(params.url ?? '')
       }

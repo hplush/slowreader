@@ -85,20 +85,6 @@
       />
     </Card>
   </Section>
-  <Section width={500}>
-    <Card>
-      <Paragraph>Before</Paragraph>
-      <RadioField
-        current="1"
-        hideLabel
-        label="Label"
-        values={[
-          ['1', 'First option'],
-          ['2', 'Second option']
-        ]}
-      />
-    </Card>
-  </Section>
 </Story>
 
 <Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>

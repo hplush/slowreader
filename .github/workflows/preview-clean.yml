@@ -42,12 +42,12 @@ jobs:
       - name: Install Google Cloud
         uses: google-github-actions/setup-gcloud@v2
       - name: Shut down Cloud Run
-        run: gcloud run services update-traffic staging --region=${{ env.REGION }} --project=${{ env.PROJECT_ID }} --remove-tags preview-${{ env.PR_NUMBER }} --async
+        run: gcloud run services update-traffic staging-web --region=${{ env.REGION }} --project=${{ env.PROJECT_ID }} --remove-tags preview-${{ env.PR_NUMBER }} --async
       - name: Delete image
         run: |
-          tagged=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/staging/staging --include-tags --format="get(version)" --filter="tags = 'preview-${{ env.PR_NUMBER }}'")
+          tagged=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/staging/web --include-tags --format="get(version)" --filter="tags = 'preview-${{ env.PR_NUMBER }}'")
           for digest in $tagged; do
-            image=$REGION-docker.pkg.dev/$PROJECT_ID/staging/staging@$digest
+            image=$REGION-docker.pkg.dev/$PROJECT_ID/staging/web@$digest
             echo "Deleting unused image: $image"
             gcloud artifacts docker images delete $image --delete-tags --quiet
           done

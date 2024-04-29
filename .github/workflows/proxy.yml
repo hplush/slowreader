@@ -1,0 +1,114 @@
+name: Proxy
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'proxy/**/*'
+      - '!proxy/*.md'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/proxy.yml'
+  pull_request:
+    paths:
+      - 'proxy/**/*'
+      - '!proxy/*.md'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/proxy.yml'
+jobs:
+  test:
+    name: Proxy Test
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install tools from asdf config
+        uses: ai/asdf-cache-action@v1
+      - name: Install dependencies
+        run: pnpm install --ignore-scripts
+      - name: Run tests
+        run: cd proxy && pnpm test
+  build:
+    name: Proxy Build
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install tools from asdf config
+        uses: ai/asdf-cache-action@v1
+        with:
+          dependencies-cache: proxy-production
+      - name: Allow to install only project dependencies
+        run: pnpm config set recursive-install false
+      - name: Install dependencies
+        run: cd proxy && pnpm install --production --ignore-scripts
+      - name: Build JS file
+        run: cd proxy && node --run build
+      - name: Upload proxy build
+        uses: actions/upload-artifact@v4
+        with:
+          name: proxy-build-${{ github.sha }}
+          path: |
+            proxy/dist/
+          retention-days: 1
+  staging:
+    name: Proxy Staging Deploy
+    needs:
+      - test
+      - build
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: slowreader-421120
+      REGION: europe-west1
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Download web assets from test step
+        uses: actions/download-artifact@v4
+        with:
+          name: proxy-build-${{ github.sha }}
+          path: proxy/dist/
+      - name: Auth Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/223708816691/locations/global/workloadIdentityPools/github/providers/hplush
+          service_account: github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+      - name: Install Google Cloud
+        uses: google-github-actions/setup-gcloud@v2
+      - name: Auth Docker
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+      - name: Build Docker image
+        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/proxy:latest ./proxy
+      - name: Push Docker image
+        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/proxy:latest
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy staging-proxy \
+            --project ${{ env.PROJECT_ID }} \
+            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/proxy:latest \
+            --region ${{ env.REGION }} \
+            --allow-unauthenticated \
+            --service-account github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
+            --set-env-vars="STAGING=1"
+      - name: Move traffic to new revision
+        run: |
+          gcloud run services update-traffic staging-proxy \
+            --project ${{ env.PROJECT_ID }} \
+            --region ${{ env.REGION }} \
+            --to-latest
+      - name: Delete previous images
+        run: |
+          untagged=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/staging/proxy --include-tags --format="get(version)" --filter="tags = ''")
+          for digest in $untagged; do
+            image=$REGION-docker.pkg.dev/$PROJECT_ID/staging/proxy@$digest
+            echo "Deleting unused image: $image"
+            gcloud artifacts docker images delete $image --quiet
+          done

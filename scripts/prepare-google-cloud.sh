@@ -69,9 +69,9 @@ IDENTITY=`gcloud iam workload-identity-pools providers describe "hplush" \
   --workload-identity-pool="github" \
   --format="value(name)"`
 for file in "${WORKFLOWS[@]}"; do
-  sed -i "s|identity_provider: .*|identity_provider: $IDENTITY|" "$file"
-  sed -i "s/PROJECT_ID: .*/PROJECT_ID: $PROJECT_ID/" "$file"
-  sed -i "s/REGION: .*/REGION: $REGION/" "$file"
+  sed -i "s|identity_provider: .*|identity_provider: $IDENTITY|g" "$file"
+  sed -i "s/PROJECT_ID: .*/PROJECT_ID: $PROJECT_ID/g" "$file"
+  sed -i "s/REGION: .*/REGION: $REGION/g" "$file"
 done
 
 echo ""
@@ -81,4 +81,7 @@ echo -e "1. Open https://console.cloud.google.com/run"
 echo -e "2. Switch to \033[1m*@hplush.dev\033[0m account"
 echo -e "3. Click on \033[1mManage Custom Domains\033[0m"
 echo -e "4. Click on \033[1mAdd Mapping\033[0m"
-echo -e "5. Add \033[1mdev.slowreader.app\033[0m to \033[1mstaging\033[0m"
+echo -e "5. Add \033[1mdev.slowreader.app\033[0m tostaging-web"
+echo -e "5. Add \033[1mdev-proxy.slowreader.app\033[0m to staging-proxy"
+echo -e "6. Check Cloud Run service internal URL like \033[1*.run.app\033[0m"
+echo -e "7. Set it domain pattern in \033[1mproxy/index.ts\033[0m"

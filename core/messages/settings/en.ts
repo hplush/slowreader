@@ -2,18 +2,18 @@ import { i18n } from '../../i18n.js'
 
 export const settingsMessages = i18n('settings', {
   about: 'About the App',
-  always: 'Always',
-  dark: 'Dark',
   deleteProfile: 'Delete all data',
   deleteProfileConfirm: 'Data deletion cannot be undone. Are you sure?',
-  download: 'Feed Loading',
-  freeNetwork: 'On Wi-Fi',
   interface: 'User Interface',
-  light: 'Light',
-  never: 'Never',
+  preload: 'Feed Loading',
+  preloadAlways: 'Always pre-load media',
+  preloadFree: 'Pre-load by Wi-Fi only',
   preloadImages: 'Preload posts images',
+  preloadNever: 'Never pre-load media',
   profile: 'Profile',
   source: 'Source code',
-  system: 'System',
-  theme: 'Application theme'
+  theme: 'Application theme',
+  themeDark: 'Dark theme',
+  themeLight: 'Light theme',
+  themeSystem: 'System theme'
 })

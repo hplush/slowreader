@@ -11,7 +11,7 @@ import {
 } from './utils.js'
 
 interface YamlFeed extends LoaderTestFeed {
-  findFromHome: boolean
+  findFromHome?: boolean
 }
 
 async function parseFeedsFromFile(path: string): Promise<YamlFeed[]> {
@@ -25,7 +25,7 @@ try {
   let feeds = await parseFeedsFromFile(process.argv[2]!)
   await Promise.all(feeds.map(feed => fetchAndParsePosts(feed.url)))
   for (let feed of feeds) {
-    if (feed.findFromHome) {
+    if (feed.findFromHome !== false) {
       await findRSSfromHome(feed)
     }
   }

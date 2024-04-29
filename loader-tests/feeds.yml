@@ -1,32 +1,40 @@
 feeds:
   - title: DEV Community
-    htmlUrl: https://dev.to/
+    homeUrl: https://dev.to/
     url: https://dev.to/feed
-    findFromHome: true
 
   - title: Tumblr
-    htmlUrl: https://thecollectibles.tumblr.com
-    url: https://thecollectibles.tumblr.com/rss/
-    findFromHome: false
+    homeUrl: https://thecollectibles.tumblr.com
+    url: https://thecollectibles.tumblr.com/rss
 
   - title: WordPress Official Blog
-    htmlUrl: https://wordpress.org/news/
+    homeUrl: https://wordpress.org/news/
     url: https://wordpress.org/news/feed/
-    findFromHome: true
 
   - title: GitHub Blog
-    htmlUrl: https://github.blog/
-    url: https://github.blog/all.atom/
-    findFromHome: false
+    homeUrl: https://github.blog/
+    url: https://github.blog/feed/
 
   - title: Stack Overflow
-    htmlUrl: https://stackoverflow.blog/
+    homeUrl: https://stackoverflow.blog/
     url: https://stackoverflow.blog/feed/
-    findFromHome: true
 
   - title: Coding Horror
-    htmlUrl: https://blog.codinghorror.com/
+    homeUrl: https://blog.codinghorror.com/
     url: https://blog.codinghorror.com/rss/
-    findFromHome: false
 
-  # Add more feeds as needed
+  - title: The Verge
+    homeUrl: https://www.theverge.com/
+    url: https://www.theverge.com/rss/index.xml
+
+  - title: Aegea in Feed JSON
+    homeUrl: https://ilyabirman.ru/meanwhile/
+    url: https://ilyabirman.ru/meanwhile/json/
+
+  - title: Evil Martians
+    homeUrl: https://evilmartians.com
+    url: https://evilmartians.com/chronicles.atom
+
+  - title: LiveJournal Vintage Ads
+    homeUrl: https://vintage-ads.livejournal.com/
+    url: https://vintage-ads.livejournal.com/data/atom

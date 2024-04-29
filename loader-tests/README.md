@@ -21,5 +21,5 @@ Test that Slow Reader can work with different feeds from popular blogging platfo
 
 ```sh
 cd loader-tests/
-pnpm test-loaders
+pnpm test
 ```

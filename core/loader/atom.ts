@@ -6,11 +6,13 @@ import {
   findAnchorHrefs,
   findImageByAttr,
   findLinksByType,
+  isHTML,
   toTime
 } from './utils.js'
 
 function parsePosts(text: TextResponse): OriginPost[] {
-  let document = text.parse()
+  let document = text.parseXml()
+  if (!document) return []
   return [...document.querySelectorAll('entry')]
     .filter(entry => entry.querySelector('id')?.textContent)
     .map(entry => {
@@ -35,9 +37,10 @@ function parsePosts(text: TextResponse): OriginPost[] {
 
 export const atom: Loader = {
   getMineLinksFromText(text) {
+    if (!isHTML(text)) return []
     return [
       ...findLinksByType(text, 'application/atom+xml'),
-      ...findAnchorHrefs(text, /feeds?\.|\.atom|\/atom/i)
+      ...findAnchorHrefs(text, /feed\.|\.atom|\/atom/i)
     ]
   },
 
@@ -57,8 +60,8 @@ export const atom: Loader = {
   },
 
   isMineText(text) {
-    let document = text.parse()
-    if (document.firstElementChild?.nodeName === 'feed') {
+    let document = text.parseXml()
+    if (document?.firstElementChild?.nodeName === 'feed') {
       return document.querySelector(':root > title')?.textContent ?? ''
     } else {
       return false

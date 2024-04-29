@@ -7,17 +7,17 @@
     "build": "pnpm run /^build:/ && mv ./storybook-static ./dist/ui",
     "start": "vite",
     "visual": "storybook dev -p 6006 --no-open",
-    "production": "pnpm build && ./scripts/run-image.sh",
-    "size": "pnpm build:web && size-limit",
+    "production": "node --run build && ./scripts/run-image.sh",
+    "size": "node --run build:web && size-limit",
     "test:unit": "pnpm bnt",
     "test:names": "tsx ./scripts/check-names.ts",
     "test:css": "stylelint **/*.css **/*.svelte",
-    "test:build": "pnpm build && size-limit",
+    "test:build": "node --run build && size-limit",
     "build:routes": "tsx ./scripts/export-routes.ts",
     "build:visual": "NODE_ENV=test storybook build",
     "build:web": "vite build && tsx ./scripts/clean-css.ts",
     "format:stylelint": "stylelint --fix **/*.{css,svelte}",
-    "clean:dist": "rm -rf dist"
+    "clean:build": "rm -rf dist"
   },
   "dependencies": {
     "@csstools/postcss-oklab-function": "3.0.14",
@@ -37,10 +37,10 @@
     "nanostores": "0.10.3",
     "postcss": "8.4.38",
     "postcss-relative-opacity": "0.1.0",
-    "rollup": "4.16.4",
+    "rollup": "4.17.0",
     "svelte": "4.2.15",
     "svelte-preprocess": "5.1.4",
-    "tsx": "4.7.2",
+    "tsx": "4.7.3",
     "vite": "5.2.10"
   },
   "devDependencies": {

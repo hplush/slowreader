@@ -21,7 +21,7 @@ export interface Routes {
   refresh: {}
   settings: {}
   signin: {}
-  slow: { feed?: string; post?: string; since?: number }
+  slow: { feed?: string; page?: number; post?: string }
   start: {}
   subscriptions: {}
   welcome: {}
@@ -139,7 +139,7 @@ onEnvironment(({ baseRouter }) => {
         } else if (page.route === 'slow') {
           if (!page.params.feed && !slow.isLoading) {
             return redirect({
-              params: { feed: slow.feeds[0]?.id || '' },
+              params: { feed: slow.feeds[0]?.id || '', page: 1 },
               route: 'slow'
             })
           }
@@ -150,22 +150,30 @@ onEnvironment(({ baseRouter }) => {
             }
           }
 
-          if (page.params.since) {
-            if (isNumber(page.params.since)) {
-              let since =
-                typeof page.params.since === 'number'
-                  ? page.params.since
-                  : parseInt(page.params.since)
+          if (page.params.page) {
+            if (isNumber(page.params.page)) {
+              let currentPage =
+                typeof page.params.page === 'number'
+                  ? page.params.page
+                  : parseInt(page.params.page)
               return open({
                 params: {
                   ...page.params,
-                  since
+                  page: currentPage
                 },
                 route: 'slow'
               })
             } else {
               return open('notFound')
             }
+          } else {
+            return open({
+              params: {
+                ...page.params,
+                page: 1
+              },
+              route: 'slow'
+            })
           }
         }
       } else if (!GUEST.has(page.route)) {
