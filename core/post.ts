@@ -12,9 +12,9 @@ import {
 import { nanoid } from 'nanoid'
 
 import { getClient } from './client.js'
-import type { OptionalId } from './lib/stores.js'
+import { type FeedValue, getFeed } from './feed.js'
 import { loadFilters, prepareFilters } from './filter.js'
-import { getFeed, type FeedValue } from './feed.js'
+import type { OptionalId } from './lib/stores.js'
 
 export type OriginPost = {
   full?: string
@@ -121,7 +121,7 @@ export async function calcPostReading(
     return action === 'fast' ? 'fast' : 'slow'
   }
   if (feed) {
-    return feed?.reading ?? 'fast'
+    return feed.reading
   }
   return 'fast'
 }
@@ -140,7 +140,7 @@ export async function getPostsByFilter(filterId: string): Promise<PostValue[]> {
 
 export async function changePostsByFeed(feedId: string): Promise<void> {
   let posts = await loadPosts({ feedId })
-  let feed = await loadValue(await getFeed(feedId))
+  let feed = await loadValue(getFeed(feedId))
   for (let post of posts) {
     let reading = await calcPostReading(post, feed)
     await changePost(post.id, { reading })
@@ -152,7 +152,7 @@ export async function changePostsByFilter(filterId: string): Promise<void> {
   let feeds: Record<string, FeedValue | undefined> = {}
   for (let post of posts) {
     if (!feeds[post.feedId]) {
-      feeds[post.feedId] = await loadValue(await getFeed(post.feedId))
+      feeds[post.feedId] = await loadValue(getFeed(post.feedId))
     }
     let reading = await calcPostReading(post, feeds[post.feedId], filterId)
     await changePost(post.id, { reading })
@@ -165,7 +165,7 @@ export async function clearPostFilter(filterId: string): Promise<void> {
   let feedId = filters[0].feedId
   let posts = await loadPosts({ feedId })
   for (let post of posts) {
-    let feed = await loadValue(await getFeed(feedId))
+    let feed = await loadValue(getFeed(feedId))
     let reading = feed?.reading ?? 'fast'
     await changePost(post.id, { reading })
   }

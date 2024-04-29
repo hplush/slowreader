@@ -16,12 +16,7 @@ import { client, getClient } from './client.js'
 import { createDownloadTask } from './download.js'
 import { type OptionalId, readonlyExport } from './lib/stores.js'
 import { type LoaderName, loaders } from './loader/index.js'
-import {
-  deletePost,
-  loadPosts,
-  calcPostReading,
-  changePostsByFeed
-} from './post.js'
+import { changePostsByFeed, deletePost, loadPosts } from './post.js'
 import type { PostsPage } from './posts-page.js'
 
 export type FeedValue = {

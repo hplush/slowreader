@@ -11,7 +11,7 @@ import {
 import { nanoid } from 'nanoid'
 
 import { getClient } from './client.js'
-import { type FeedValue } from './feed.js'
+import type { FeedValue } from './feed.js'
 import {
   changePostsByFilter,
   clearPostFilter,
