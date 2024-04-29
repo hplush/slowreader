@@ -79,6 +79,14 @@ pnpm start
 
 It will run a web server and proxy (the website, by default, can make HTTP requests only to its own servers; we need a proxy to send requests to RSS feeds on other servers).
 
+To fill your web clients with real posts:
+
+1. Start web client.
+2. Open [`localhost:5173/feeds/add`](http://localhost:5173/feeds/add).
+3. Add feeds from [`loader-tests/feeds.yml`](./loader-tests/feeds.yml).
+4. Open browser DevTools.
+5. Run `fillFeedsWithPosts()`.
+
 To run the visual testing tool (Storybook), run it from the `web/` folder:
 
 ```sh
