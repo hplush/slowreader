@@ -1,4 +1,4 @@
-name: Code Test
+name: Main
 on:
   push:
     branches:
@@ -14,9 +14,9 @@ on:
       - '.husky/**'
 jobs:
   test:
+    name: Test
     permissions:
       contents: read
-    name: Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --ignore-scripts
       - name: Run tests
-        run: pnpm run -r --include-workspace-root '/^test:(?!markdown\b)/'
+        run: pnpm run -r --include-workspace-root '/^test:(?!markdown\b|proxy-coverage\b)/'
         env:
           FORCE_COLOR: 1
           STAGING: 1
@@ -40,15 +40,15 @@ jobs:
             web/routes.regexp
           retention-days: 1
   staging:
+    name: Web Staging Deploy
     needs: test
     if: github.ref == 'refs/heads/main'
     permissions:
       contents: read
       id-token: write
-    name: Staging Deploy
     runs-on: ubuntu-latest
     env:
-      PROJECT_ID: slowreader-418220
+      PROJECT_ID: slowreader-421120
       REGION: europe-west1
     steps:
       - name: Checkout code
@@ -61,35 +61,35 @@ jobs:
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: projects/225773869708/locations/global/workloadIdentityPools/github/providers/slowreader
+          workload_identity_provider: projects/223708816691/locations/global/workloadIdentityPools/github/providers/hplush
           service_account: github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
       - name: Install Google Cloud
         uses: google-github-actions/setup-gcloud@v2
       - name: Auth Docker
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
       - name: Build Docker image
-        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:latest ./web
+        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/web:latest ./web
       - name: Push Docker image
-        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:latest
+        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/web:latest
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy staging \
+          gcloud run deploy staging-web \
             --project ${{ env.PROJECT_ID }} \
-            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/staging:latest \
+            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/web:latest \
             --region ${{ env.REGION }} \
             --allow-unauthenticated \
             --service-account github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
       - name: Move traffic to new revision
         run: |
-          gcloud run services update-traffic staging \
+          gcloud run services update-traffic staging-web \
             --project ${{ env.PROJECT_ID }} \
             --region ${{ env.REGION }} \
             --to-latest
       - name: Delete previous images
         run: |
-          untagged=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/staging/staging --include-tags --format="get(version)" --filter="tags = ''")
+          untagged=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/staging/web --include-tags --format="get(version)" --filter="tags = ''")
           for digest in $untagged; do
-            image=$REGION-docker.pkg.dev/$PROJECT_ID/staging/staging@$digest
+            image=$REGION-docker.pkg.dev/$PROJECT_ID/staging/web@$digest
             echo "Deleting unused image: $image"
             gcloud artifacts docker images delete $image --quiet
           done

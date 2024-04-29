@@ -122,7 +122,6 @@
       />
       <RadioField
         current={$feed.reading}
-        hideLabel
         label={$t.type}
         values={[
           ['slow', $t.slow],

@@ -4,6 +4,10 @@ export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
+export function isHTML(text: TextResponse): boolean {
+  return text.text.toLocaleLowerCase().includes('<html')
+}
+
 function buildFullURL(
   link: HTMLAnchorElement | HTMLLinkElement,
   baseUrl: string
@@ -27,7 +31,9 @@ function buildFullURL(
 }
 
 export function findLinksByType(text: TextResponse, type: string): string[] {
-  return [...text.parse().querySelectorAll('link')]
+  let document = text.parseXml()
+  if (!document) return []
+  return [...document.querySelectorAll('link')]
     .filter(
       link =>
         link.getAttribute('type') === type &&
@@ -40,7 +46,9 @@ export function findAnchorHrefs(
   text: TextResponse,
   hrefPattern: RegExp
 ): string[] {
-  return [...text.parse().querySelectorAll('a')]
+  let document = text.parseXml()
+  if (!document) return []
+  return [...document.querySelectorAll('a')]
     .filter(a => {
       let href = a.getAttribute('href')
       if (!href) return false

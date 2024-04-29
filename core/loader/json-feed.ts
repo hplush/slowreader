@@ -2,7 +2,13 @@ import type { TextResponse } from '../download.js'
 import type { OriginPost } from '../post.js'
 import { createPostsPage } from '../posts-page.js'
 import type { Loader } from './index.js'
-import { findAnchorHrefs, findLinksByType, toTime, unique } from './utils.js'
+import {
+  findAnchorHrefs,
+  findLinksByType,
+  isHTML,
+  toTime,
+  unique
+} from './utils.js'
 
 // https://www.jsonfeed.org/version/1.1/
 interface JsonFeed {
@@ -125,12 +131,12 @@ function parsePosts(text: TextResponse): OriginPost[] {
 
 export const jsonFeed: Loader = {
   getMineLinksFromText(text) {
+    if (!isHTML(text)) return []
     let linksByType = findLinksByType(text, 'application/feed+json')
     if (linksByType.length === 0) {
       linksByType = findLinksByType(text, 'application/json')
     }
-
-    return [...linksByType, ...findAnchorHrefs(text, /feeds?\.json/i)]
+    return [...linksByType, ...findAnchorHrefs(text, /feed\.json/i)]
   },
 
   getPosts(task, url, text) {

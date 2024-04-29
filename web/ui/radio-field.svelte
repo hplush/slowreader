@@ -5,7 +5,6 @@
   export let label: string
   export let current: Value
   export let values: [Value, string][]
-  export let hideLabel = false
 
   let id = nanoid()
 
@@ -16,14 +15,7 @@
   }
 </script>
 
-<fieldset
-  class="radio-field"
-  aria-label={hideLabel ? label : undefined}
-  role="radiogroup"
->
-  {#if !hideLabel}
-    <legend class="radio-field_label">{label}</legend>
-  {/if}
+<fieldset class="radio-field" aria-label={label} role="radiogroup">
   {#each values as [value, name] (value)}
     <label class="radio-field_value">
       <input
@@ -43,7 +35,7 @@
 <style>
   .radio-field {
     margin-top: var(--padding-l);
-    margin-bottom: calc(var(--radius) - var(--padding-l));
+    margin-bottom: calc(var(--padding-l) - var(--radius));
   }
 
   .radio-field:first-child {
@@ -52,15 +44,6 @@
 
   .radio-field:last-child {
     margin-bottom: 0;
-  }
-
-  .radio-field_label {
-    padding-bottom: var(--padding-l);
-    font-weight: bold;
-
-    &.is-hidden {
-      display: none;
-    }
   }
 
   .radio-field_value {
@@ -90,6 +73,20 @@
       z-index: 10;
       outline: 3px solid var(--focus-color);
       outline-offset: 0;
+    }
+  }
+
+  :global(.card) > .radio-field:first-child .radio-field_value:first-child {
+    margin-top: calc(-1 * var(--padding-l));
+    border-top: none;
+    border-radius: var(--radius) var(--radius) 0 0;
+
+    &:active {
+      padding-block: var(--padding-l) calc(var(--padding-l) - 1px);
+      margin-top: calc(-1 * var(--padding-l) + 1px);
+      box-shadow:
+        var(--card-item-pressed-shadow),
+        0 -5px 0 var(--land-color);
     }
   }
 

@@ -1,43 +1,31 @@
-import { createServer } from 'node:http'
 import { styleText } from 'node:util'
 
-const server = createServer(async (req, res) => {
-  let url = decodeURIComponent(req.url!.slice(1))
-  let sent = false
+import { createProxyServer } from './proxy.js'
 
-  try {
-    let proxy = await fetch(url, {
-      headers: {
-        ...(req.headers as HeadersInit),
-        host: new URL(url).host
-      },
-      method: req.method
-    })
+const PORT = process.env.PORT ?? 5284
 
-    res.writeHead(proxy.status, {
-      'Access-Control-Allow-Headers': '*',
-      'Access-Control-Allow-Methods': 'OPTIONS, POST, GET, PUT, DELETE',
-      'Access-Control-Allow-Origin': '*',
-      'Content-Type': proxy.headers.get('content-type') ?? 'text/plain'
-    })
-    sent = true
-    res.write(await proxy.text())
-    res.end()
-  } catch (e) {
-    if (e instanceof Error) {
-      process.stderr.write(styleText('red', e.stack ?? e.message) + '\n')
-      if (!sent) {
-        res.writeHead(500, { 'Content-Type': 'text/plain' })
-        res.end('Internal Server Error')
-      }
-    } else if (typeof e === 'string') {
-      process.stderr.write(styleText('red', e) + '\n')
-    }
-  }
+let allowsFrom: RegExp[]
+if (process.env.NODE_ENV !== 'production') {
+  allowsFrom = [/^http:\/\/localhost:5173/]
+} else if (process.env.STAGING) {
+  allowsFrom = [
+    /^https:\/\/dev.slowreader.app/,
+    /^https:\/\/(preview-\d+---)?staging-web-jfj4bxwwxq-ew.a.run.app/
+  ]
+} else {
+  allowsFrom = [/^https:\/\/slowreader.app/]
+}
+
+let proxy = createProxyServer({
+  allowsFrom,
+  maxSize: 10 * 1024 * 1024,
+  timeout: 2500
 })
 
-server.listen(5284, () => {
-  process.stderr.write(
-    styleText('green', 'Proxy server running on port 5284\n')
-  )
+proxy.listen(PORT, () => {
+  if (process.env.NODE_ENV !== 'production') {
+    process.stdout.write(
+      styleText('green', `Proxy server running on port ${PORT}`)
+    )
+  }
 })

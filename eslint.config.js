@@ -3,7 +3,7 @@ import loguxSvelteConfig from '@logux/eslint-config/svelte'
 /** @type {import('eslint').Linter.FlatConfig[]} */
 export default [
   {
-    ignores: ['web/dist/', 'web/storybook-static/']
+    ignores: ['web/dist/', 'web/storybook-static/', 'proxy/dist/']
   },
   ...loguxSvelteConfig,
   {

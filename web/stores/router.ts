@@ -42,7 +42,9 @@ export const urlRouter = computed(pathRouter, path => {
     }
   } else if (path.route === 'slow') {
     let params: Routes['slow'] = path.params
-    if ('since' in path.search) params.since = Number(path.search.since)
+    if ('page' in path.search) {
+      params.page = Number(path.search.page)
+    }
     if ('post' in path.search) params.post = path.search.post
     return {
       params,
@@ -91,7 +93,7 @@ export function getURL(to: ParamlessRouteName | Route): string {
   if (page.route === 'fast') {
     return moveToSearch(page, { post: true, since: true })
   } else if (page.route === 'slow') {
-    return moveToSearch(page, { post: true, since: true })
+    return moveToSearch(page, { page: true, post: true })
   } else {
     return getPagePath(pathRouter, page)
   }

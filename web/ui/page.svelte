@@ -27,7 +27,11 @@
   .page {
     box-sizing: border-box;
     min-height: 100%;
-    padding: var(--padding-l);
+    padding: var(--padding-m) var(--padding-l);
+
+    @media (width <= 1024px) {
+      padding-inline-start: var(--navbar-height);
+    }
 
     &.is-list {
       display: flex;

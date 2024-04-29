@@ -3,12 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check-opml": "tsx check-opml.ts"
+    "check-opml": "tsx check-opml.ts",
+    "test": "tsx test-loaders.ts feeds.yml"
   },
   "devDependencies": {
     "@slowreader/core": "link:../core",
     "jsdom": "24.0.0",
     "nanostores": "0.10.3",
-    "tsx": "4.7.2"
+    "tsx": "4.7.3",
+    "yaml": "2.4.2"
   }
 }

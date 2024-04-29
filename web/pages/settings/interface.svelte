@@ -12,9 +12,9 @@
       current={$theme}
       label={$t.theme}
       values={[
-        ['system', $t.system],
-        ['light', $t.light],
-        ['dark', $t.dark]
+        ['system', $t.themeSystem],
+        ['light', $t.themeLight],
+        ['dark', $t.themeDark]
       ]}
       on:change={e => {
         theme.set(e.detail)

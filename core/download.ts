@@ -3,8 +3,8 @@ import { request } from './request.js'
 export interface TextResponse {
   readonly headers: Headers
   readonly ok: boolean
-  parse(): Document | XMLDocument
   parseJson(): null | unknown
+  parseXml(): Document | null | XMLDocument
   readonly status: number
   readonly text: string
   readonly url: string
@@ -34,30 +34,6 @@ export function createTextResponse(
   return {
     headers,
     ok: status >= 200 && status < 300,
-    parse() {
-      if (!bodyCache) {
-        let parseType = getContentMediaType(headers)
-
-        if (parseType.includes('+xml')) {
-          parseType = 'application/xml'
-        }
-        if (
-          parseType === 'text/html' ||
-          parseType === 'application/xml' ||
-          parseType === 'text/xml'
-        ) {
-          bodyCache = new DOMParser().parseFromString(text, parseType)
-        } else {
-          // eslint-disable-next-line no-console
-          console.error('Unknown content type', parseType)
-          return new DOMParser().parseFromString(
-            'Unknown content type',
-            'text/html'
-          )
-        }
-      }
-      return bodyCache
-    },
     parseJson() {
       let parseType = getContentMediaType(headers)
 
@@ -75,6 +51,31 @@ export function createTextResponse(
         console.error('Parse JSON error', e)
         return null
       }
+    },
+    parseXml() {
+      if (!bodyCache) {
+        let parseType = getContentMediaType(headers)
+
+        if (parseType.includes('/json')) {
+          return null
+        }
+
+        if (parseType.includes('+xml')) {
+          parseType = 'application/xml'
+        }
+        if (
+          parseType === 'text/html' ||
+          parseType === 'application/xml' ||
+          parseType === 'text/xml'
+        ) {
+          bodyCache = new DOMParser().parseFromString(text, parseType)
+        } else {
+          // eslint-disable-next-line no-console
+          console.error('Unknown content type', parseType)
+          return null
+        }
+      }
+      return bodyCache
     },
     status,
     text,

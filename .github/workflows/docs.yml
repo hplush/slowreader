@@ -30,4 +30,4 @@ jobs:
       - name: Install dependencies
         run: pnpm install --ignore-scripts
       - name: Check docs
-        run: pnpm test:markdown
+        run: node --run test:markdown

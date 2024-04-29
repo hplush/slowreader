@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^20.12.0",
+    "node": "^22.0.0",
     "pnpm": "^9.0.0"
   },
   "scripts": {
@@ -23,6 +23,7 @@
     "test:markdown": "remark . --frail",
     "test:format": "prettier --check **/*.{js,ts,html,md,cjs,json} *.{js,json,md}",
     "check-opml": "tsx loader-tests/check-opml.ts",
+    "test-loaders": "tsx loader-tests/test-loaders.ts loader-tests/feeds.yml",
     "prepare": "husky"
   },
   "workspaces": [
@@ -30,7 +31,8 @@
     "core",
     "server",
     "web",
-    "loader-tests"
+    "loader-tests",
+    "proxy"
   ],
   "devDependencies": {
     "@logux/eslint-config": "53.0.1",
@@ -38,7 +40,7 @@
     "@types/ws": "8.5.10",
     "better-node-test": "0.5.1",
     "eslint": "8.57.0",
-    "eslint-plugin-svelte": "^2.37.0",
+    "eslint-plugin-svelte": "^2.38.0",
     "husky": "^9.0.11",
     "nano-staged": "0.8.0",
     "postcss-html": "1.6.0",
@@ -56,11 +58,11 @@
     "remark-lint-no-shell-dollars": "^4.0.0",
     "remark-lint-smarty-pants-typography": "^1.1.0",
     "remark-validate-links": "^13.0.1",
-    "stylelint": "16.3.1",
-    "svelte": "4.2.14",
-    "svelte-check": "3.6.9",
+    "stylelint": "16.4.0",
+    "svelte": "4.2.15",
+    "svelte-check": "3.7.0",
     "svgo": "3.2.0",
-    "tsx": "4.7.2",
+    "tsx": "4.7.3",
     "typescript": "5.4.5"
   }
 }

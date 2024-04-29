@@ -53,7 +53,11 @@
     width: 50%;
     max-width: 600px;
     height: 100vh;
-    padding: var(--padding-l);
+    padding: var(--padding-m) var(--padding-l);
     overflow-x: auto;
+
+    @media (width <= 1024px) {
+      padding-inline-start: var(--navbar-height);
+    }
   }
 </style>

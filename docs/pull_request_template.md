@@ -20,7 +20,7 @@ Fixes # (PUT ISSUE NUMBER AFTER #)
   - If you added config, describe how we use this tool in the config’s comment.
   - If you added something to the project’s architecture, describe it in the project’s `README.md`.
   - Try to focus on “why?”, not “how?”.
-- [ ] If you added a new dependency, check our [requirements](../README.md#dependencies).
+- [ ] If you added a new dependency, check our [requirements](https://github.com/hplush/slowreader/blob/main/README.md#dependencies).
 - [ ] Think about testing
   - If you added a feature, add unit tests.
   - If you added a new state to the UI, add visual tests.
@@ -34,8 +34,9 @@ Fixes # (PUT ISSUE NUMBER AFTER #)
   - [ ] Think about accessibility. Check a11y recommendations. Think about how screen reader users will use the tool. Is it easy to use on a screen with bad contrast?
   - [ ] Think about translations.
   - [ ] Think about right-to-left languages. What parts of the screen should be mirrored for Arabic or Hebrew languages?
-- If you changed the colors token in the web client:
-  - [ ] Think about app loading styles inlined in `index.html`.
+- If you changed `web/main/` files:
+  - Do you need to backport styles changes to `web/public/404.html` or `web/public/500.html`?
+  - Think about app loading styles inlined in `index.html`.
 - If you changed `core/`:
   - [ ] Think about making types more precise. Can you better explain data relations by type?
   - [ ] Think about conflict resolution. We don’t need some very smart changing merging; just 2 changes of the same item on different clients should not break the database. What if the user changes an item on one machine and removes it on another?

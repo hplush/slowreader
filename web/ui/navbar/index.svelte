@@ -22,12 +22,29 @@
   import NavbarProgress from './progress.svelte'
   import NavbarSlow from './slow.svelte'
 
+  let isMenuOpened = false
+
+  function closeOnAnyClick(): void {
+    if (isMenuOpened) {
+      isMenuOpened = false
+      document.removeEventListener('click', closeOnAnyClick)
+    }
+  }
+
   onMount(() => {
     document.documentElement.classList.add('has-navbar')
     return () => {
+      document.removeEventListener('click', closeOnAnyClick)
       document.documentElement.classList.remove('has-navbar')
     }
   })
+
+  function openMenu(): void {
+    isMenuOpened = true
+    setTimeout(() => {
+      document.addEventListener('click', closeOnAnyClick)
+    }, 1)
+  }
 </script>
 
 <nav class="navbar">
@@ -63,6 +80,7 @@
         aria-keyshortcuts="s"
         href={getURL('slow')}
         role="menuitem"
+        on:click={openMenu}
       >
         <div class="navbar_overflow">
           <div class="navbar_button">
@@ -80,6 +98,7 @@
         aria-keyshortcuts="f"
         href={getURL('fast')}
         role="menuitem"
+        on:click={openMenu}
       >
         <div class="navbar_overflow">
           <div class="navbar_button">
@@ -94,15 +113,17 @@
       name={$t.menu}
       current={isOtherRoute($router)}
       hotkey="m"
-      href={getURL('add')}
+      href={isOtherRoute($router) ? undefined : getURL('add')}
       icon={mdiMenu}
       small
       submenu
+      on:click={openMenu}
     />
   </div>
   <div
     id="navbar_submenu"
     class="navbar_submenu"
+    class:is-opened={isMenuOpened}
     aria-hidden="true"
     role="menu"
   >
@@ -124,6 +145,7 @@
 
   :global(:root.has-navbar) {
     --navbar-width: 290px;
+    --navbar-height: 56px;
   }
 
   .navbar {
@@ -134,6 +156,14 @@
     display: flex;
     flex-direction: column;
     width: var(--navbar-width);
+
+    @media (width <= 1024px) {
+      inset-block: unset;
+      bottom: 0;
+      width: 100%;
+      background-color: var(--land-color);
+      box-shadow: var(--float-shadow);
+    }
   }
 
   .navbar_main {
@@ -141,6 +171,11 @@
     gap: var(--padding-s);
     justify-content: stretch;
     padding: var(--padding-m) var(--padding-m) 0 var(--padding-m);
+
+    @media (width <= 1024px) {
+      justify-content: space-between;
+      padding: var(--padding-m);
+    }
   }
 
   .navbar_submenu {
@@ -152,26 +187,38 @@
     gap: 2px;
     padding: var(--padding-m);
     overflow-y: auto;
+
+    @media (width <= 1024px) {
+      display: none;
+      order: -1;
+    }
+
+    &.is-opened {
+      display: flex;
+    }
   }
 
   .navbar_switcher {
     position: relative;
     display: flex;
     flex-grow: 1;
+
+    @media (width <= 1024px) {
+      max-width: 540px;
+    }
   }
 
   .navbar_link {
     position: relative;
+    width: 50%;
     border-radius: var(--radius);
 
     &:first-child {
-      width: 50%;
       border-start-end-radius: 0;
       border-end-end-radius: 0;
     }
 
     &:last-child {
-      width: calc(50% + 1px);
       margin-inline-start: -1px;
       border-start-start-radius: 0;
       border-end-start-radius: 0;

@@ -49,8 +49,8 @@ test('finds rss links in <a> elements', () => {
         `<!DOCTYPE html>
         <html>
           <body>
-            <a href="/rss">RSS Feed</a>
-            <a href="/something.rss">Feed RSS</a>
+            <a href="/news/rss">RSS Feed</a>
+            <a href="/something.rss?id=1">Feed RSS</a>
           </body>
         </html>`,
         {
@@ -58,7 +58,24 @@ test('finds rss links in <a> elements', () => {
         }
       )
     ),
-    ['https://example.com/rss', 'https://example.com/something.rss']
+    ['https://example.com/news/rss', 'https://example.com/something.rss?id=1']
+  )
+})
+
+test('ignores non-HTML documents for link search', () => {
+  deepStrictEqual(
+    loaders.rss.getMineLinksFromText(
+      createTextResponse(
+        `<rss>
+          <link rel="alternate" type="application/rss+xml" href="/a">
+          <a href="/rss">Feed</a>
+        </rss>`,
+        {
+          url: 'https://example.com/news'
+        }
+      )
+    ),
+    []
   )
 })
 
