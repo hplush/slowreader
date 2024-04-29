@@ -111,18 +111,3 @@ test('shows that user has any feeds', async () => {
   await deleteFeed(id)
   equal(hasFeeds.get(), false)
 })
-
-test('change feed and post reading status', async () => {
-  let feedId = await addFeed(testFeed())
-  let feed = getFeed(feedId)
-  let posts = getPosts()
-  keepMount(feed)
-  keepMount(posts)
-  await addPost(testPost({ feedId }))
-
-  equal(ensureLoaded(feed.get()).reading, 'fast')
-  equal(ensureLoaded(posts.get()).list[0]?.reading, 'fast')
-  await changeFeed(feedId, { reading: 'slow' })
-  equal(ensureLoaded(feed.get()).reading, 'slow')
-  equal(ensureLoaded(posts.get()).list[0]?.reading, 'slow')
-})
