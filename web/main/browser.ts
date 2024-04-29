@@ -1,4 +1,4 @@
-import { isFastRoute, router, theme } from '@slowreader/core'
+import { devtools, isFastRoute, router, theme } from '@slowreader/core'
 import {
   focusGroupKeyUX,
   hiddenKeyUX,
@@ -54,3 +54,11 @@ startKeyUX(window, [
   jumpKeyUX(),
   hiddenKeyUX()
 ])
+
+declare global {
+  interface Window {
+    slowreader: typeof devtools
+  }
+}
+
+window.slowreader = devtools
