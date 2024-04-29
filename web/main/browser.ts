@@ -1,4 +1,9 @@
-import { devtools, isFastRoute, router, theme } from '@slowreader/core'
+import {
+  fillFeedsWithPosts,
+  isFastRoute,
+  router,
+  theme
+} from '@slowreader/core'
 import {
   focusGroupKeyUX,
   hiddenKeyUX,
@@ -57,8 +62,8 @@ startKeyUX(window, [
 
 declare global {
   interface Window {
-    slowreader: typeof devtools
+    fillFeedsWithPosts: typeof fillFeedsWithPosts
   }
 }
 
-window.slowreader = devtools
+window.fillFeedsWithPosts = fillFeedsWithPosts

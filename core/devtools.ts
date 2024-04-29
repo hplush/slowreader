@@ -4,27 +4,25 @@ import { getFeedLatestPosts, loadFeeds } from './feed.js'
 import { loadFilters, prepareFilters } from './filter.js'
 import { addPost, deletePost, loadPosts, processOriginPost } from './post.js'
 
-export const devtools = {
-  async fillFeedsWithPosts() {
-    await busyDuring(async () => {
-      let task = createDownloadTask()
-      let feeds = await loadFeeds()
-      await Promise.all(
-        feeds.map(async feed => {
-          let old = await loadPosts({ feedId: feed.id })
-          for (let post of old) {
-            await deletePost(post.id)
+export async function fillFeedsWithPosts(): Promise<void> {
+  await busyDuring(async () => {
+    let task = createDownloadTask()
+    let feeds = await loadFeeds()
+    await Promise.all(
+      feeds.map(async feed => {
+        let old = await loadPosts({ feedId: feed.id })
+        for (let post of old) {
+          await deletePost(post.id)
+        }
+        let posts = await getFeedLatestPosts(feed, task).nextPage()
+        let filters = prepareFilters(await loadFilters({ feedId: feed.id }))
+        for (let origin of posts) {
+          let reading = filters(origin) ?? feed.reading
+          if (reading !== 'delete') {
+            await addPost(processOriginPost(origin, feed.id, reading))
           }
-          let posts = await getFeedLatestPosts(feed, task).nextPage()
-          let filters = prepareFilters(await loadFilters({ feedId: feed.id }))
-          for (let origin of posts) {
-            let reading = filters(origin) ?? feed.reading
-            if (reading !== 'delete') {
-              await addPost(processOriginPost(origin, feed.id, reading))
-            }
-          }
-        })
-      )
-    })
-  }
+        }
+      })
+    )
+  })
 }
