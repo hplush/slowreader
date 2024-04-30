@@ -1,4 +1,9 @@
-import { isFastRoute, router, theme } from '@slowreader/core'
+import {
+  fillFeedsWithPosts,
+  isFastRoute,
+  router,
+  theme
+} from '@slowreader/core'
 import {
   focusGroupKeyUX,
   hiddenKeyUX,
@@ -54,3 +59,11 @@ startKeyUX(window, [
   jumpKeyUX(),
   hiddenKeyUX()
 ])
+
+declare global {
+  interface Window {
+    fillFeedsWithPosts: typeof fillFeedsWithPosts
+  }
+}
+
+window.fillFeedsWithPosts = fillFeedsWithPosts

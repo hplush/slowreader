@@ -2,12 +2,12 @@
   import Loader from '../ui/loader.svelte'
 </script>
 
-<div class="starting">
+<div class="busy">
   <Loader zoneId="main" />
 </div>
 
 <style>
-  .starting {
+  .busy {
     position: absolute;
     inset: 0;
     display: flex;
