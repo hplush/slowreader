@@ -71,8 +71,7 @@
 
     @media (width <= 1024px) {
       width: 100%;
-      max-width: 728px;
-      padding-inline-start: var(--navbar-height);
+      padding-bottom: var(--navbar-height);
     }
   }
 

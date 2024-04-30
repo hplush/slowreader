@@ -12,6 +12,7 @@
     previewUrl,
     previewUrlError,
     setPreviewCandidate,
+    side,
     previewMessages as t
   } from '@slowreader/core'
 
@@ -52,6 +53,7 @@
               current={$previewCandidate === candidate.url}
               on:click={() => {
                 setPreviewCandidate(candidate.url)
+                side.set('second')
               }}
             />
           {/each}

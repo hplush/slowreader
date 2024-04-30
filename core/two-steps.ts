@@ -5,14 +5,15 @@ interface BackRoutes {
   [key: string]: string
 }
 
+export type Side = 'first' | 'second'
+
 export const backRoutes: BackRoutes = {
-  add: '/feeds/add',
   categories: '/feeds/categories',
   fast: '/fast/:category',
   slow: '/slow/:feed'
 }
 
-export const side = atom<'first' | 'second'>('first')
+export const side = atom<Side>('first')
 
 export function toggleSide(event: KeyboardEvent): void {
   if (event.key === 'Escape') {
@@ -30,9 +31,7 @@ export function toggleSide(event: KeyboardEvent): void {
 }
 
 router.subscribe(route => {
-  if (route.route === 'add' && route.params.url) {
-    side.set('second')
-  } else if (route.route === 'categories' && route.params.feed) {
+  if (route.route === 'categories' && route.params.feed) {
     side.set('second')
   } else if (route.route === 'fast' && route.params.post) {
     backRoutes.fast = `/fast/${route.params.category}`

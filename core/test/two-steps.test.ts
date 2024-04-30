@@ -37,14 +37,10 @@ test('show first side', () => {
   strictEqual(side.get(), 'first')
 })
 
-// test('show second step: add/url', async () => {
-//   setBaseTestRoute({ params: { url: 'dev.to/feed' }, route: 'add' })
-//   await setTimeout(100)
-//   strictEqual(side.get(), 'second')
-// })
-
 test('show second side: categories/feed', async () => {
-  setBaseTestRoute({ params: { feed: 'feed' }, route: 'categories' })
+  let idA = await addCategory({ title: 'A' })
+  let feed = await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
+  setBaseTestRoute({ params: { feed }, route: 'categories' })
   await setTimeout(100)
   strictEqual(side.get(), 'second')
 })
