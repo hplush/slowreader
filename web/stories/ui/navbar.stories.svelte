@@ -63,6 +63,17 @@
 </Story>
 
 <Story
+  name="Mobile Back Button"
+  parameters={{
+    viewport: { defaultViewport: 'iphone5' }
+  }}
+>
+  <Scene showSide="second" route={{ params: {}, route: 'interface' }}>
+    <Navbar />
+  </Scene>
+</Story>
+
+<Story
   name="Tablet"
   parameters={{
     viewport: { defaultViewport: 'ipad' }

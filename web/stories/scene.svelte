@@ -18,6 +18,8 @@
     refreshStatistics,
     type RefreshStatistics,
     type Route,
+    type Side,
+    side,
     testFeed
   } from '@slowreader/core'
   import { cleanStores } from 'nanostores'
@@ -47,6 +49,8 @@
   export let feeds: Partial<FeedValue>[] = [{ title: 'Example' }]
 
   export let responses: Record<string, PreparedResponse | string> = {}
+
+  export let showSide: Side = 'first'
 
   function cleanLogux(): void {
     clearPreview()
@@ -87,6 +91,10 @@
       })
     } else {
       baseRouter.set(route)
+    }
+
+    if (showSide) {
+      side.set(showSide)
     }
   }
 
