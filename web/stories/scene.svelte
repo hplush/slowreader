@@ -18,8 +18,8 @@
     refreshStatistics,
     type RefreshStatistics,
     type Route,
-    type Side,
     side,
+    type Side,
     testFeed
   } from '@slowreader/core'
   import { cleanStores } from 'nanostores'
@@ -93,9 +93,7 @@
       baseRouter.set(route)
     }
 
-    if (showSide) {
-      side.set(showSide)
-    }
+    side.set(showSide)
   }
 
   onMount(() => {

@@ -61,7 +61,9 @@
         href={backRoutes[$router.route]}
         icon={mdiChevronLeft}
         small
-        on:click={() => !backRoutes[$router.route] && side.set('first')}
+        on:click={() => {
+          !backRoutes[$router.route] && side.set('first')
+        }}
       />
     </div>
     <div class={`${$side === 'second' ? 'navbar_btn-hidden' : ''}`}>
