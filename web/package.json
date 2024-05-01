@@ -15,7 +15,7 @@
     "test:build": "node --run build && size-limit",
     "build:routes": "tsx ./scripts/export-routes.ts",
     "build:visual": "NODE_ENV=test storybook build",
-    "build:web": "vite build && tsx ./scripts/clean-css.ts",
+    "build:web": "vite build && tsx ./scripts/clean-css.ts && tsx scripts/generate-csp.ts",
     "format:stylelint": "stylelint --fix **/*.{css,svelte}",
     "clean:build": "rm -rf dist"
   },
