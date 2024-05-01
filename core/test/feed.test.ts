@@ -13,6 +13,7 @@ import {
   changeFilter,
   createPostsPage,
   deleteFeed,
+  deleteFilter,
   type FilterValue,
   getFeed,
   getFeedLatestPosts,
@@ -137,8 +138,14 @@ test('change feed and post reading status', async () => {
 
   equal(ensureLoaded(feed.get()).reading, 'fast')
   equal(ensureLoaded(posts.get()).list[0]?.reading, 'fast')
+
   await changeFeed(feedId, { reading: 'slow' })
+
   equal(ensureLoaded(feed.get()).reading, 'slow')
   equal(ensureLoaded(posts.get()).list[0]?.reading, 'slow')
   equal(ensureLoaded(posts.get()).list[1]?.reading, 'fast')
+
+  await deleteFilter(filterId)
+
+  equal(ensureLoaded(posts.get()).list[1]?.reading, 'slow')
 })

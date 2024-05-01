@@ -95,11 +95,11 @@ export async function addFilterForFeed(feed: FeedValue): Promise<string> {
 
 export async function deleteFilter(filterId: string): Promise<void> {
   let filter = await loadValue(Filter(filterId, getClient()))
-  let feedId = filter?.feedId
+
   await deleteSyncMapById(getClient(), Filter, filterId)
 
-  if (feedId) {
-    await recalcPostsReading(feedId)
+  if (filter) {
+    await recalcPostsReading(filter.feedId)
   }
 }
 
@@ -109,9 +109,8 @@ export async function changeFilter(
 ): Promise<void> {
   await changeSyncMapById(getClient(), Filter, filterId, changes)
   let filter = await loadValue(Filter(filterId, getClient()))
-  let feedId = filter?.feedId
-  if (feedId) {
-    await recalcPostsReading(feedId)
+  if (filter) {
+    await recalcPostsReading(filter.feedId)
   }
 }
 

@@ -108,8 +108,11 @@ export async function recalcPostsReading(feedId: string): Promise<void> {
   let feed = await loadValue(getFeed(feedId))
   if (!feed) return
 
-  let filters = await loadFilters({ feedId })
-  let posts = await loadPosts({ feedId })
+  let [filters, posts] = await Promise.all([
+    loadFilters({ feedId }),
+    loadPosts({ feedId })
+  ])
+
   let checker = prepareFilters(filters)
 
   for (let post of posts) {
