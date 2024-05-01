@@ -4,6 +4,7 @@ import { afterEach, beforeEach, test } from 'node:test'
 
 import {
   addPost,
+  changePost,
   deletePost,
   getPost,
   getPostContent,
@@ -27,7 +28,7 @@ function longText(): string {
   return 'a'.repeat(1000)
 }
 
-test('adds, loads and removes posts', async () => {
+test('adds, loads, changes and removes posts', async () => {
   deepStrictEqual(await loadPosts(), [])
 
   let id = await addPost({
@@ -47,6 +48,10 @@ test('adds, loads and removes posts', async () => {
   let post = getPost(id)
   keepMount(post)
   equal(post.get(), added[0])
+
+  await changePost(id, { reading: 'slow' })
+  let changed = await loadPost(id)
+  equal(changed!.reading, 'slow')
 
   await deletePost(id)
   deepStrictEqual(await loadPosts(), [])

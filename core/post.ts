@@ -1,4 +1,5 @@
 import {
+  changeSyncMapById,
   createFilter,
   createSyncMap,
   deleteSyncMapById,
@@ -11,6 +12,8 @@ import {
 import { nanoid } from 'nanoid'
 
 import { getClient } from './client.js'
+import { getFeed } from './feed.js'
+import { loadFilters, prepareFilters } from './filter.js'
 import type { OptionalId } from './lib/stores.js'
 
 export type OriginPost = {
@@ -66,6 +69,13 @@ export function deletePost(postId: string): Promise<void> {
   return deleteSyncMapById(getClient(), Post, postId)
 }
 
+export async function changePost(
+  postId: string,
+  changes: Partial<PostValue>
+): Promise<void> {
+  return changeSyncMapById(getClient(), Post, postId, changes)
+}
+
 export function processOriginPost(
   origin: OriginPost,
   feedId: string,
@@ -91,6 +101,25 @@ export function getPostIntro(post: OriginPost): string {
     return post.full
   } else {
     return ''
+  }
+}
+
+export async function recalcPostsReading(feedId: string): Promise<void> {
+  let feed = await loadValue(getFeed(feedId))
+  if (!feed) return
+
+  let [filters, posts] = await Promise.all([
+    loadFilters({ feedId }),
+    loadPosts({ feedId })
+  ])
+
+  let checker = prepareFilters(filters)
+
+  for (let post of posts) {
+    let reading = checker(post) ?? feed.reading
+    if (reading !== 'delete') {
+      await changePost(post.id, { reading })
+    }
   }
 }
 
