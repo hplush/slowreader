@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "pnpm run /^test:/",
-    "build": "pnpm run /^build:/ && mv ./storybook-static ./dist/ui",
+    "build": "pnpm run /^build:/",
     "start": "vite",
     "visual": "storybook dev -p 6006 --no-open",
     "production": "node --run build && ./scripts/run-image.sh",
@@ -16,6 +16,9 @@
     "build:routes": "tsx ./scripts/export-routes.ts",
     "build:visual": "NODE_ENV=test storybook build",
     "build:web": "vite build && tsx ./scripts/clean-css.ts",
+    "postbuild": "pnpm run /^postbuild:/",
+    "postbuild:csp": "tsx scripts/generate-csp-hash.ts",
+    "postbuild:ui": "mv ./storybook-static ./dist/ui",
     "format:stylelint": "stylelint --fix **/*.{css,svelte}",
     "clean:build": "rm -rf dist"
   },
