@@ -11,6 +11,8 @@ export const pathRouter = createRouter({
   about: '/settings/about',
   add: '/feeds/add/:url?',
   categories: '/feeds/categories/:feed?',
+  export: '/feeds/export',
+  import: '/feeds/import',
   download: '/settings/download',
   fast: '/fast/:category?',
   feeds: '/feeds',

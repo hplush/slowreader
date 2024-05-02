@@ -7,6 +7,8 @@ export const navbarMessages = i18n('navbar', {
   fast: 'Fast',
   feeds: 'Manage Feeds',
   feedsByCategory: 'By Category',
+  export: 'export',
+  import: 'import',
   interface: 'User Interface',
   menu: 'Feeds & Settings',
   profile: 'Profile',

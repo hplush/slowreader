@@ -32,7 +32,21 @@
     icon={mdiFileTree}
     secondary
   />
+
+  <NavbarItem
+    name={$t.export}
+    current={$router.route === 'export'}
+    href={getURL('export')}
+    secondary
+  />
 {/if}
+
+<NavbarItem
+  name={$t.import}
+  current={$router.route === 'import'}
+  href={getURL('import')}
+  secondary
+/>
 
 <NavbarCategory name={$t.settings} />
 

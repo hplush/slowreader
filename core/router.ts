@@ -24,7 +24,9 @@ export interface Routes {
   slow: { feed?: string; page?: number; post?: string }
   start: {}
   subscriptions: {}
-  welcome: {}
+  welcome: {},
+  export: {},
+  import: {}
 }
 
 export type RouteName = keyof Routes
@@ -62,7 +64,9 @@ const SETTINGS = new Set<RouteName>([
   'interface',
   'profile',
   'about',
-  'download'
+  'download',
+  'export',
+  'import'
 ])
 
 const ORGANIZE = new Set<RouteName>(['add', 'categories'])
