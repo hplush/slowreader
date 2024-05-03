@@ -15,17 +15,14 @@
   import Card from '../../ui/card.svelte'
   import Section from '../section.svelte'
 
-  let fishText =
-    'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut culpa cumque, dolorum nobis quidem repellendus sunt! Amet assumenda aut deserunt, nest facilis nihil officiis pariatur quia quisquam sapiente tempora vitae.'
-
-  let paragraph = `<p>${fishText}</p>`
+  let paragraph = `<p>Reading is generally an individual activity, done silently, although on occasion a person reads out loud for other listeners; or reads aloud for one's own use, for better comprehension. Before the reintroduction of separated text (spaces between words) in the late Middle Ages, the ability to read silently was considered rather remarkable.</p>`
 
   let longHeadingText =
     'This is a very long heading text that goes on and on. It is meant to test the rendering of long headings in the UI. It includes many words and phrases to ensure that the heading wraps correctly and maintains its styling.'
 
   let longHeadings = `<h1>${longHeadingText}</h1><h2><a href="#">${longHeadingText}</a></h2><h3>${longHeadingText}</h3><h5>${longHeadingText}</h5><h6>${longHeadingText}</h6>`
 
-  let headingsWithParagraphs = `<h1>Heading H1</h1>${paragraph}${paragraph}<h2>Heading H2</h2><p>${paragraph}${paragraph}${paragraph}</p><h3>Heading H3</h3><p>${paragraph}</p><h4>Heading H4</h4><p>${paragraph}</p><h5>Heading H5</h5><p>${paragraph}</p><h6>Heading H6</h6><p>${paragraph}</p>`
+  let headingsWithParagraphs = `<a target="_blank" href="text.com">link</a><h1>Heading H1</h1>${paragraph}${paragraph}<h2>Heading H2</h2><p>${paragraph}${paragraph}${paragraph}</p><h3>Heading H3</h3><p>${paragraph}</p><h4>Heading H4</h4><p>${paragraph}</p><h5>Heading H5</h5><p>${paragraph}</p><h6>Heading H6</h6><p>${paragraph}</p>`
 
   let images =
     `<img src="${imgExample1}" alt="" loading="lazy">` +
