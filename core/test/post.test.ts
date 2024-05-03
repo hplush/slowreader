@@ -25,7 +25,7 @@ afterEach(async () => {
 })
 
 function longText(): string {
-  return 'a'.repeat(1000)
+  return 'a'.repeat(5000)
 }
 
 test('adds, loads, changes and removes posts', async () => {
