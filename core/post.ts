@@ -97,7 +97,7 @@ export function getPostContent(post: OriginPost): string {
 export function getPostIntro(post: OriginPost): string {
   if (post.intro) {
     return post.intro
-  } else if (post.full && post.full.length <= 500) {
+  } else if (post.full && post.full.length <= 2000) {
     return post.full
   } else {
     return ''
