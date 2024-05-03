@@ -9,8 +9,8 @@
 
 <svg
   aria-label={$t.postRefreshing}
-  role="progressbar"
   aria-valuenow={value * 100}
+  role="progressbar"
   viewBox="0 0 12 12"
 >
   <circle cx="6" cy="6" fill="none" r={RADIUS} stroke-width="1.3" />
