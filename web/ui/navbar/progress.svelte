@@ -8,7 +8,7 @@
 </script>
 
 <svg
-  aria-label={$t.loading}
+  aria-label={$t.postRefreshing}
   role="progressbar"
   aria-valuenow={value * 100}
   viewBox="0 0 12 12"
