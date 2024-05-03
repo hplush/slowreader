@@ -1,4 +1,4 @@
-FROM node:22.0.0-alpine
+FROM node:22.1.0-alpine
 
 ENV NODE_ENV production
 WORKDIR /var/www
