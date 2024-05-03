@@ -2,7 +2,7 @@
 
 export default {
   plugins: [
-    'remark-lint-no-dead-urls',
+    ['remark-lint-no-dead-urls', { skipLocalhost: true }],
     'remark-validate-links',
     'remark-lint-heading-capitalization',
     'remark-lint-code-block-split-list',

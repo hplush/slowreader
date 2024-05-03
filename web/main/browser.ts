@@ -54,3 +54,7 @@ startKeyUX(window, [
   jumpKeyUX(),
   hiddenKeyUX()
 ])
+
+window.addEventListener('load', async () => {
+  await import('./devtools.js')
+})

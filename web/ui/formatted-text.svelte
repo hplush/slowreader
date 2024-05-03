@@ -11,6 +11,11 @@
   $: if (node) {
     node.innerHTML = ''
     node.replaceChildren(...sanitizeDOM(html).childNodes)
+    let links = node.querySelectorAll('a')
+    links.forEach(link => {
+      link.setAttribute('target', '_blank')
+      link.setAttribute('rel', 'noopener')
+    })
   }
 </script>
 
