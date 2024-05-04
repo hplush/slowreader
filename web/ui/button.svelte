@@ -21,7 +21,7 @@
 
 {#if href}
   <a
-    class="button"
+    class="button {$$restProps.class}"
     class:is-dangerous={dangerous}
     class:is-secondary={secondary}
     class:is-square={hiddenLabel}
@@ -29,6 +29,7 @@
     aria-keyshortcuts={hotkey}
     {href}
     title={hiddenLabel}
+    {...$$restProps}
     on:click={onClick}
   >
     {#if !hiddenLabel}
@@ -50,14 +51,15 @@
   </a>
 {:else}
   <button
-    class="button"
+    {...$$restProps}
+    class="button {$$restProps.class}"
     class:is-dangerous={dangerous}
     class:is-secondary={secondary}
     class:is-square={hiddenLabel}
     class:is-wide={wide}
     aria-keyshortcuts={hotkey}
     title={hiddenLabel}
-    type="button"
+    type={$$restProps.type || 'button'}
     on:click={onClick}
   >
     {#if !hiddenLabel}

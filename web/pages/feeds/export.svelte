@@ -28,7 +28,7 @@
 
 <TwoStepsPage title={$t.exportTitle}>
   <div slot="one">
-    <h2 class="feeds-export_title">{$t.exportTitle}</h2>
+    <h2>{$t.exportTitle}</h2>
 
     <CardLinks>
       {#each formats as format (format.id)}
@@ -49,12 +49,3 @@
     {/if}
   </div>
 </TwoStepsPage>
-
-<style>
-  .feeds-export_title {
-    flex-grow: 1;
-    padding-inline-start: var(--padding-l);
-    padding-bottom: var(--padding-l);
-    font: var(--page-title-font);
-  }
-</style>
