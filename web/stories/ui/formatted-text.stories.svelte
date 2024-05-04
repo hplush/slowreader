@@ -22,7 +22,7 @@
 
   let longHeadings = `<h1>${longHeadingText}</h1><h2><a href="#">${longHeadingText}</a></h2><h3>${longHeadingText}</h3><h5>${longHeadingText}</h5><h6>${longHeadingText}</h6>`
 
-  let headingsWithParagraphs = `<a target="_blank" href="text.com">link</a><h1>Heading H1</h1>${paragraph}${paragraph}<h2>Heading H2</h2><p>${paragraph}${paragraph}${paragraph}</p><h3>Heading H3</h3><p>${paragraph}</p><h4>Heading H4</h4><p>${paragraph}</p><h5>Heading H5</h5><p>${paragraph}</p><h6>Heading H6</h6><p>${paragraph}</p>`
+  let headingsWithParagraphs = `<h1>Heading H1</h1>${paragraph}${paragraph}<h2>Heading H2</h2><p>${paragraph}${paragraph}${paragraph}</p><h3>Heading H3</h3><p>${paragraph}</p><h4>Heading H4</h4><p>${paragraph}</p><h5>Heading H5</h5><p>${paragraph}</p><h6>Heading H6</h6><p>${paragraph}</p>`
 
   let images =
     `<img src="${imgExample1}" alt="" loading="lazy">` +
