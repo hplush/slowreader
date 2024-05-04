@@ -24,8 +24,8 @@ export interface Routes {
   slow: { feed?: string; page?: number; post?: string }
   start: {}
   subscriptions: {}
-  welcome: {},
-  export: {},
+  welcome: {}
+  export: { format?: string }
   import: {}
 }
 
