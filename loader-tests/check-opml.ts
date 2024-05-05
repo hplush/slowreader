@@ -1,6 +1,7 @@
 import { createTextResponse } from '@slowreader/core'
 
 import {
+  completeTasks,
   enableTestClient,
   error,
   fetchAndParsePosts,
@@ -40,7 +41,7 @@ if (process.argv.length < 3) {
 } else {
   try {
     let feeds = await parseFeedsFromFile(process.argv[2]!)
-    await Promise.all(feeds.map(feed => fetchAndParsePosts(feed.url)))
+    await completeTasks(feeds.map(feed => () => fetchAndParsePosts(feed.url)))
     for (let feed of feeds) {
       await findRSSfromHome(feed)
     }
