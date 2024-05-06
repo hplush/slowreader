@@ -2,6 +2,10 @@
   "name": "@slowreader/loader-tests",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "^22.1.0",
+    "pnpm": "^9.0.0"
+  },
   "scripts": {
     "check-opml": "tsx check-opml.ts",
     "test": "tsx test-loaders.ts feeds.yml"

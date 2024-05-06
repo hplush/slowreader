@@ -2,6 +2,10 @@
   "name": "@slowreader/web",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "^22.1.0",
+    "pnpm": "^9.0.0"
+  },
   "scripts": {
     "test": "pnpm run /^test:/",
     "build": "pnpm run /^build:/ && mv ./storybook-static ./dist/ui",
