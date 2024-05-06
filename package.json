@@ -46,7 +46,7 @@
     "postcss-html": "1.6.0",
     "prettier": "3.2.5",
     "prettier-plugin-svelte": "3.2.3",
-    "remark-cli": "^12.0.0",
+    "remark-cli": "^12.0.1",
     "remark-lint-check-toc": "^1.0.0",
     "remark-lint-code-block-split-list": "^1.0.0",
     "remark-lint-fenced-code-flag": "^4.0.0",
@@ -58,11 +58,11 @@
     "remark-lint-no-shell-dollars": "^4.0.0",
     "remark-lint-smarty-pants-typography": "^1.1.0",
     "remark-validate-links": "^13.0.1",
-    "stylelint": "16.4.0",
+    "stylelint": "16.5.0",
     "svelte": "4.2.15",
-    "svelte-check": "3.7.0",
+    "svelte-check": "3.7.1",
     "svgo": "3.2.0",
-    "tsx": "4.7.3",
+    "tsx": "4.9.3",
     "typescript": "5.4.5"
   }
 }

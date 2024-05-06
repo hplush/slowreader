@@ -24,7 +24,7 @@
     "clean:build": "rm -rf dist"
   },
   "dependencies": {
-    "@csstools/postcss-oklab-function": "3.0.14",
+    "@csstools/postcss-oklab-function": "3.0.16",
     "@evilmartians/harmony": "1.2.0",
     "@logux/client": "github:logux/client#next",
     "@logux/core": "0.8.5",
@@ -41,20 +41,20 @@
     "nanostores": "0.10.3",
     "postcss": "8.4.38",
     "postcss-relative-opacity": "0.1.0",
-    "rollup": "4.17.1",
+    "rollup": "4.17.2",
     "svelte": "4.2.15",
     "svelte-preprocess": "5.1.4",
-    "tsx": "4.7.3",
-    "vite": "5.2.10"
+    "tsx": "4.9.3",
+    "vite": "5.2.11"
   },
   "devDependencies": {
     "@logux/stylelint-config": "0.18.0",
     "@size-limit/file": "11.1.2",
     "@storybook/addon-svelte-csf": "4.1.2",
-    "@storybook/addon-themes": "8.0.9",
-    "@storybook/addon-viewport": "8.0.9",
-    "@storybook/svelte": "8.0.9",
-    "@storybook/svelte-vite": "8.0.9",
+    "@storybook/addon-themes": "8.0.10",
+    "@storybook/addon-viewport": "8.0.10",
+    "@storybook/svelte": "8.0.10",
+    "@storybook/svelte-vite": "8.0.10",
     "@stylistic/stylelint-config": "1.0.1",
     "better-node-test": "0.5.1",
     "browserslist": "4.23.0",
@@ -62,8 +62,8 @@
     "postcss-nesting": "12.1.2",
     "postcss-selector-parser": "6.0.16",
     "size-limit": "11.1.2",
-    "storybook": "8.0.9",
-    "stylelint": "16.4.0",
+    "storybook": "8.0.10",
+    "stylelint": "16.5.0",
     "stylelint-use-logical": "2.1.2"
   }
 }
