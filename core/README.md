@@ -5,6 +5,7 @@ _See the [full architecture guide](../README.md) first._
 - [Project Structure](#project-structure)
 - [Scripts](#scripts)
 - [Client Environments](#client-environments)
+- [URL Routing](#url-routing)
 - [Test Strategy](#test-strategy)
 
 ## Project Structure
@@ -38,6 +39,20 @@ Core depends on the platform environment (like storage or network). Before using
 - [Web environment](../web/main/environment.ts)
 
 All networks requests should be done by [`request()`](./request.ts) to support different environment and proxy server. But we also recommend using [`DownloadTask`](./download.ts) and think about network request aborting.
+
+## URL Routing
+
+Slow Reader router is a little complicated because it needs to work in desktop/mobile apps, not only in web. This is why router is split to 2 parts:
+
+1. Every environment (like web client) has own low-level “base router”. Web client uses [URL router](../web/stores/router.ts) from [Nano Stores Router](https://github.com/nanostores/router).
+2. [Core router](./router.ts) takes “base router” and add redirects, guards, etc.
+
+This is why core code should not rely on URL routing, since not every client will use it. For instance, desktop app with use just a simple store with plain object of current route.
+
+Instead, core code should use API:
+
+- `getEnvironment().openRoute(route)` to change current page.
+- Read `router` store to get current page or subscribe to the store to listen for current page changes (for instance, to clean temporary stores when user leave the page).
 
 ## Test Strategy
 

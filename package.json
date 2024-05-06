@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^22.0.0",
+    "node": "^22.1.0",
     "pnpm": "^9.0.0"
   },
   "scripts": {
@@ -36,7 +36,7 @@
   ],
   "devDependencies": {
     "@logux/eslint-config": "53.0.1",
-    "@types/node": "20.12.7",
+    "@types/node": "20.12.8",
     "@types/ws": "8.5.10",
     "better-node-test": "0.5.1",
     "eslint": "8.57.0",

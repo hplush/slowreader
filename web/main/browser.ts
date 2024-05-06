@@ -1,9 +1,4 @@
-import {
-  fillFeedsWithPosts,
-  isFastRoute,
-  router,
-  theme
-} from '@slowreader/core'
+import { isFastRoute, router, theme } from '@slowreader/core'
 import {
   focusGroupKeyUX,
   hiddenKeyUX,
@@ -60,10 +55,6 @@ startKeyUX(window, [
   hiddenKeyUX()
 ])
 
-declare global {
-  interface Window {
-    fillFeedsWithPosts: typeof fillFeedsWithPosts
-  }
-}
-
-window.fillFeedsWithPosts = fillFeedsWithPosts
+window.addEventListener('load', async () => {
+  await import('./devtools.js')
+})

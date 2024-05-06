@@ -7,10 +7,14 @@ import { setTimeout } from 'node:timers/promises'
 
 import {
   addFeed,
+  addFilterForFeed,
   addPost,
   changeFeed,
+  changeFilter,
   createPostsPage,
   deleteFeed,
+  deleteFilter,
+  type FilterValue,
   getFeed,
   getFeedLatestPosts,
   getPosts,
@@ -110,4 +114,38 @@ test('shows that user has any feeds', async () => {
 
   await deleteFeed(id)
   equal(hasFeeds.get(), false)
+})
+
+test('change feed and post reading status', async () => {
+  let feedId = await addFeed(testFeed())
+  let feed = getFeed(feedId)
+  let posts = getPosts()
+  keepMount(feed)
+  keepMount(posts)
+  await addPost(testPost({ feedId, title: 'Feed post' }))
+  await addPost(testPost({ feedId, title: 'Filter post' }))
+
+  let filter: FilterValue = {
+    action: 'fast',
+    feedId,
+    id: '1',
+    priority: 100,
+    query: 'include(Filter)'
+  }
+
+  let filterId = await addFilterForFeed((await loadFeed(feedId))!)
+  await changeFilter(filterId, filter)
+
+  equal(ensureLoaded(feed.get()).reading, 'fast')
+  equal(ensureLoaded(posts.get()).list[0]?.reading, 'fast')
+
+  await changeFeed(feedId, { reading: 'slow' })
+
+  equal(ensureLoaded(feed.get()).reading, 'slow')
+  equal(ensureLoaded(posts.get()).list[0]?.reading, 'slow')
+  equal(ensureLoaded(posts.get()).list[1]?.reading, 'fast')
+
+  await deleteFilter(filterId)
+
+  equal(ensureLoaded(posts.get()).list[1]?.reading, 'slow')
 })

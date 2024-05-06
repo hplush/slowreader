@@ -51,7 +51,7 @@ let target = createServer(async (req, res) => {
     )
   }
 })
-target.listen(0)
+target.listen(31597)
 
 let proxy = createProxyServer({
   allowLocalhost: true,
@@ -59,7 +59,7 @@ let proxy = createProxyServer({
   maxSize: 100,
   timeout: 100
 })
-proxy.listen(0)
+proxy.listen(31598)
 
 let proxyUrl = getURL(proxy)
 let targetUrl = getURL(target)

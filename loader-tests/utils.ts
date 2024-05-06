@@ -183,3 +183,25 @@ export async function findRSSfromHome(feed: LoaderTestFeed): Promise<void> {
     unbindPreview()
   }
 }
+
+export async function completeTasks(
+  tasks: (() => Promise<void>)[]
+): Promise<void> {
+  return new Promise(resolve => {
+    let running = 4
+
+    function runTask(): void {
+      let task = tasks.pop()
+      if (task) {
+        task().then(runTask)
+      } else {
+        running -= 1
+        if (running === 0) resolve()
+      }
+    }
+
+    for (let i = 0; i < running; i++) {
+      runTask()
+    }
+  })
+}

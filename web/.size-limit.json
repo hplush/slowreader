@@ -12,8 +12,8 @@
     "limit": "70 KB"
   },
   {
-    "name": "All scripts to execute",
-    "path": "dist/assets/*.js",
+    "name": "Core scripts to execute",
+    "path": "dist/assets/index-*.js",
     "brotli": false,
     "limit": "220 KB"
   }
