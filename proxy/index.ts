@@ -29,3 +29,8 @@ proxy.listen(PORT, () => {
     )
   }
 })
+
+process.on('SIGINT', () => {
+  proxy.close()
+  process.exit(0)
+})

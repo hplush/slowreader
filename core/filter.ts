@@ -12,7 +12,7 @@ import { nanoid } from 'nanoid'
 
 import { getClient } from './client.js'
 import type { FeedValue } from './feed.js'
-import type { OriginPost } from './post.js'
+import { type OriginPost, recalcPostsReading } from './post.js'
 
 const QUERY_REGEXP = /^(not\s+)?([\w]+)(?:\(([^]+)\))?$/
 
@@ -80,6 +80,8 @@ export async function addFilter(
   let other = await loadFilters({ feedId: fields.feedId })
   let priority = maxPriority(other) + 100
   await createSyncMap(getClient(), Filter, { id, priority, ...fields })
+  await recalcPostsReading(fields.feedId)
+
   return id
 }
 
@@ -92,14 +94,24 @@ export async function addFilterForFeed(feed: FeedValue): Promise<string> {
 }
 
 export async function deleteFilter(filterId: string): Promise<void> {
-  return deleteSyncMapById(getClient(), Filter, filterId)
+  let filter = await loadValue(Filter(filterId, getClient()))
+
+  await deleteSyncMapById(getClient(), Filter, filterId)
+
+  if (filter) {
+    await recalcPostsReading(filter.feedId)
+  }
 }
 
 export async function changeFilter(
   filterId: string,
   changes: Partial<FilterValue>
 ): Promise<void> {
-  return changeSyncMapById(getClient(), Filter, filterId, changes)
+  await changeSyncMapById(getClient(), Filter, filterId, changes)
+  let filter = await loadValue(Filter(filterId, getClient()))
+  if (filter) {
+    await recalcPostsReading(filter.feedId)
+  }
 }
 
 export function sortFilters(filters: FilterValue[]): FilterValue[] {

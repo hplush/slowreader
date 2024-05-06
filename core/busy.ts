@@ -5,13 +5,21 @@ import { hasFeeds } from './feed.js'
 
 const $tasks = atom(0)
 
+async function loadFeeds(): Promise<void> {
+  if (hasFeeds.get() !== undefined) return
+  return new Promise(resolve => {
+    let unbind = hasFeeds.listen(() => {
+      if (hasFeeds.get() !== undefined) {
+        unbind()
+        resolve()
+      }
+    })
+  })
+}
+
 onEnvironment(() => {
-  $tasks.set($tasks.get() + 1)
-  let unbind = hasFeeds.listen(has => {
-    if (has !== undefined) {
-      $tasks.set($tasks.get() - 1)
-      unbind()
-    }
+  busyDuring(async () => {
+    await loadFeeds()
   })
 })
 
