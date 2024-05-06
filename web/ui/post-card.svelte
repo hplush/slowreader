@@ -5,6 +5,7 @@
     getPostContent,
     getPostIntro,
     type OriginPost,
+    showSecondStep,
     commonMessages as t
   } from '@slowreader/core'
 
@@ -45,7 +46,9 @@
       <FormattedText html={getPostIntro(post)} />
     {/if}
     {#if open}
-      <Button href={open} secondary>{$t.openPost}</Button>
+      <Button href={open} secondary on:click={showSecondStep}
+        >{$t.openPost}</Button
+      >
     {/if}
   </div>
 </Card>

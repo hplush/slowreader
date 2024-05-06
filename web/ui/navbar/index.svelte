@@ -1,7 +1,6 @@
 <script lang="ts">
   import { mdiChevronLeft, mdiFood, mdiMenu, mdiRefresh } from '@mdi/js'
   import {
-    backRoutes,
     isFastRoute,
     isOtherRoute,
     isRefreshing,
@@ -9,7 +8,8 @@
     refreshPosts,
     refreshProgress,
     router,
-    side,
+    secondStep,
+    showFirstStep,
     navbarMessages as t
   } from '@slowreader/core'
   import { onMount } from 'svelte'
@@ -51,22 +51,16 @@
 
 <nav class="navbar">
   <div class="navbar_main" aria-orientation="horizontal" role="menu">
-    <div
-      class={`navbar_back-btn ${$side === 'first' ? 'navbar_btn-hidden' : ''}`}
-    >
+    <div class={`navbar_back-button ${!$secondStep ? 'is-hidden' : ''}`}>
       <NavbarItem
         name={$t.back}
         current={true}
-        hotkey="Esc"
-        href={backRoutes[$router.route]}
         icon={mdiChevronLeft}
         small
-        on:click={() => {
-          !backRoutes[$router.route] && side.set('first')
-        }}
+        on:click={showFirstStep}
       />
     </div>
-    <div class={`${$side === 'second' ? 'navbar_btn-hidden' : ''}`}>
+    <div class={`navbar_refresh-button ${$secondStep ? 'is-hidden' : ''}`}>
       {#if $isRefreshing}
         <NavbarItem
           name={$t.refresh}
@@ -197,7 +191,7 @@
     }
   }
 
-  .navbar_back-btn {
+  .navbar_back-button {
     display: none;
 
     @media (width <= 1024px) {
@@ -205,7 +199,13 @@
     }
   }
 
-  .navbar_btn-hidden {
+  .navbar_back-button.is-hidden {
+    @media (width <= 1024px) {
+      display: none;
+    }
+  }
+
+  .navbar_refresh-button.is-hidden {
     @media (width <= 1024px) {
       display: none;
     }

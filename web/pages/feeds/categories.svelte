@@ -8,6 +8,7 @@
     type FeedValue,
     getCategories,
     getFeeds,
+    showSecondStep,
     organizeMessages as t
   } from '@slowreader/core'
 
@@ -85,6 +86,7 @@
                         params: { feed: feed.id },
                         route: 'categories'
                       })}
+                      on:click={showSecondStep}
                     ></CardLink>
                   {/each}
                 </CardLinks>

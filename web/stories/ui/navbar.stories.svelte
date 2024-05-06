@@ -68,7 +68,7 @@
     viewport: { defaultViewport: 'iphone5' }
   }}
 >
-  <Scene route={{ params: {}, route: 'interface' }} showSide="second">
+  <Scene route={{ params: {}, route: 'interface' }} showSecondStep={true}>
     <Navbar />
   </Scene>
 </Story>

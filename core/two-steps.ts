@@ -1,45 +1,27 @@
 import { router } from '@slowreader/core'
 import { atom } from 'nanostores'
 
-interface BackRoutes {
-  [key: string]: string
+export const secondStep = atom<boolean>(false)
+
+export function showSecondStep(): void {
+  secondStep.set(true)
 }
 
-export type Side = 'first' | 'second'
-
-export const backRoutes: BackRoutes = {
-  categories: '/feeds/categories',
-  fast: '/fast/:category',
-  slow: '/slow/:feed'
+export function showFirstStep(): void {
+  secondStep.set(false)
 }
 
-export const side = atom<Side>('first')
-
-export function toggleSide(event: KeyboardEvent): void {
-  if (event.key === 'Escape') {
-    switch (side.get()) {
-      case 'first':
-        side.set('second')
-        break
-      case 'second':
-        side.set('first')
-        break
-      default:
-        side.set('first')
-    }
-  }
+export function toggleSteps(): void {
+  secondStep.set(!secondStep.get())
 }
 
 router.subscribe(route => {
-  if (route.route === 'categories' && route.params.feed) {
-    side.set('second')
-  } else if (route.route === 'fast' && route.params.post) {
-    backRoutes.fast = `/fast/${route.params.category}`
-    side.set('second')
-  } else if (route.route === 'slow' && route.params.post) {
-    backRoutes.slow = `/slow/${route.params.feed}`
-    side.set('second')
-  } else {
-    side.set('first')
+  if (
+    (route.route === 'add' && !route.params.url) ||
+    (route.route === 'categories' && !route.params.feed) ||
+    (route.route === 'fast' && !route.params.post) ||
+    (route.route === 'slow' && !route.params.post)
+  ) {
+    showFirstStep()
   }
 })
