@@ -13,6 +13,12 @@ export default [
     }
   },
   {
+    files: ['web/pages/**/*', 'web/ui/**/*', 'web/main/**/*', 'core/test/**/*'],
+    rules: {
+      'n/no-unsupported-features/node-builtins': 'off'
+    }
+  },
+  {
     files: ['**/*.ts', '**/*.js', '**/*.svelte'],
     rules: {
       'perfectionist/sort-imports': [
