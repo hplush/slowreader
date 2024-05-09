@@ -1,89 +1,45 @@
 <script lang="ts">
   import {
-    commonMessages as common,
     exportMessages as t,
-    getCategories,
-    getFeeds,
-    feedsByCategory,
     selectAllFeeds,
-    clearSelections,
-    exportToOPML,
-    getCategoryTitle
+    getOPMLBlob,
+    getCategoryTitle,
+    selectedCategories,
+    selectedFeeds,
+    feedsByCategoryList,
+    toggleCategory,
+    toggleFeed
   } from '@slowreader/core'
   import Card from '../../ui/card.svelte'
   import RadioField from '../../ui/radio-field.svelte'
   import Button from '../../ui/button.svelte'
+  import { onMount } from 'svelte'
 
   let currentFeeds = 'all'
-
-  const categories = getCategories()
-  const allFeeds = getFeeds()
-
-  let { selectedCategories, selectedFeeds } = selectAllFeeds(
-    feedsByCategory(categories.value.list, allFeeds.value.list)
-  )
 
   function handleRadioChange(e) {
     currentFeeds = e.detail
     if (currentFeeds === 'all') {
-      const result = selectAllFeeds(
-        feedsByCategory(categories.value.list, allFeeds.value.list)
-      )
-      selectedCategories = result.selectedCategories
-      selectedFeeds = result.selectedFeeds
+      selectAllFeeds()
     }
-  }
-
-  function toggleCategory(categoryId) {
-    const feeds = allFeeds.value.list.filter(
-      feed => feed.categoryId === categoryId
-    )
-
-    if (selectedCategories.has(categoryId)) {
-      selectedCategories.delete(categoryId)
-      feeds.forEach(feed => selectedFeeds.delete(feed.id))
-    } else {
-      selectedCategories.add(categoryId)
-      feeds.forEach(feed => selectedFeeds.add(feed.id))
-    }
-
-    // Ensure reactivity
-    selectedFeeds = new Set(selectedFeeds)
-    selectedCategories = new Set(selectedCategories)
-  }
-
-  function toggleFeed(feedId, categoryId) {
-    if (selectedFeeds.has(feedId)) {
-      selectedFeeds.delete(feedId)
-      const remainingFeedsInCategory = allFeeds.value.list.filter(
-        feed => feed.categoryId === categoryId && selectedFeeds.has(feed.id)
-      )
-
-      // If no feeds remain selected in the category, remove the category from selectedCategories
-      if (remainingFeedsInCategory.length === 0) {
-        selectedCategories.delete(categoryId)
-      }
-    } else {
-      selectedFeeds.add(feedId)
-
-      // Add the category to selected categories if not already added
-      if (!selectedCategories.has(categoryId)) {
-        selectedCategories.add(categoryId)
-      }
-    }
-
-    // Ensure reactivity
-    selectedFeeds = new Set(selectedFeeds)
-    selectedCategories = new Set(selectedCategories)
   }
 
   function handleSubmit() {
-    exportToOPML(
-      feedsByCategory(categories.value.list, allFeeds.value.list),
-      selectedCategories,
-      selectedFeeds
-    )
+    const blob = getOPMLBlob()
+
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'feeds.opml'
+    a.click()
+    URL.revokeObjectURL(url)
   }
+
+  onMount(() => {
+    if (currentFeeds === 'all') {
+      selectAllFeeds()
+    }
+  })
 </script>
 
 <h2>{$t.OPMLTitle}</h2>
@@ -100,11 +56,11 @@
     />
   </Card>
   <ul role="list" class="export-opml_list">
-    {#each feedsByCategory($categories.list, $allFeeds.list) as [category, feeds] (category.id)}
+    {#each $feedsByCategoryList as [category, feeds] (category.id)}
       <li>
         <input
           type="checkbox"
-          checked={selectedCategories.has(category.id)}
+          checked={$selectedCategories.includes(category.id)}
           disabled={currentFeeds === 'all'}
           on:change={() => toggleCategory(category.id)}
         />
@@ -114,7 +70,7 @@
             <li>
               <input
                 type="checkbox"
-                checked={selectedFeeds.has(feed.id)}
+                checked={$selectedFeeds.includes(feed.id)}
                 disabled={currentFeeds === 'all'}
                 on:change={() => toggleFeed(feed.id, category.id)}
               />

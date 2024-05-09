@@ -8,6 +8,7 @@ import {
   syncMapTemplate
 } from '@logux/client'
 import { nanoid } from 'nanoid'
+import { commonMessages as common } from './messages/index.js'
 
 import { getClient } from './client.js'
 import type { FeedValue } from './feed.js'
@@ -16,6 +17,8 @@ export type CategoryValue = {
   id: string
   title: string
 }
+
+export type FeedsByCategory = [CategoryValue, FeedValue[]][]
 
 export const Category = syncMapTemplate<CategoryValue>('categories', {
   offline: true,
@@ -69,7 +72,7 @@ export const BROKEN_CATEGORY: CategoryValue = {
 export function feedsByCategory(
   categories: CategoryValue[],
   feeds: FeedValue[]
-): [CategoryValue, FeedValue[]][] {
+): FeedsByCategory {
   let allCategories = categories.sort((a, b) => {
     return a.title.localeCompare(b.title)
   })
@@ -109,4 +112,14 @@ export function feedsByCategory(
   }
 
   return result
+}
+
+export function getCategoryTitle(category: CategoryValue): string {
+  if (category.id === 'general') {
+    return common.value?.generalCategory || category.id
+  } else if (category.id === 'broken') {
+    return common.value?.brokenCategory || category.id
+  } else {
+    return category.title
+  }
 }
