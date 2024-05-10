@@ -220,3 +220,37 @@ function getHomeUrl(feedUrl: string): string {
   url.pathname = '/'
   return url.toString()
 }
+
+export interface CLI {
+  run(cb: (args: string[]) => Promise<void> | void): Promise<void>
+  wrongArg(message: string): void
+}
+
+export function createCLI(help: string, usage?: string): CLI {
+  return {
+    async run(cb) {
+      let args = process.argv.slice(2)
+      if (
+        args.includes('--help') ||
+        args.includes('-h') ||
+        args.includes('help')
+      ) {
+        print(help)
+        if (usage) print('Usage:\n' + usage)
+        process.exit(0)
+      } else {
+        try {
+          await cb(args)
+        } catch (e) {
+          error(e)
+          process.exit(1)
+        }
+      }
+    },
+    wrongArg(message) {
+      error(message)
+      if (usage) print('Usage:\n' + usage)
+      process.exit(1)
+    }
+  }
+}
