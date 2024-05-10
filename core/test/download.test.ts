@@ -29,6 +29,7 @@ test('makes requests', async () => {
   let response = await task.request('https://example.com')
 
   equal(response.status, 200)
+  equal(response.redirected, false)
   equal(await response.text(), 'Hi')
 })
 

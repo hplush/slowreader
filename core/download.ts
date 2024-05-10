@@ -6,6 +6,7 @@ export interface TextResponse {
   readonly ok: boolean
   parseJson(): null | unknown
   parseXml(): Document | null | XMLDocument
+  readonly redirected: boolean
   readonly status: number
   readonly text: string
   readonly url: string
@@ -97,6 +98,7 @@ export function createTextResponse(
       }
       return bodyCache
     },
+    redirected: other.redirected ?? false,
     status,
     text,
     url: other.url ?? 'https://example.com'
@@ -124,6 +126,7 @@ export function createDownloadTask(): DownloadTask {
       }
       return createTextResponse(text, {
         headers: response.headers,
+        redirected: response.redirected,
         status: response.status,
         url: response.url
       })

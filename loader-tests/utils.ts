@@ -128,22 +128,51 @@ export function success(msg: string, details?: string): void {
   print(styleText('green', styleText('bold', '✓ ') + msg))
 }
 
-export async function fetchAndParsePosts(url: string): Promise<void> {
+export function semiSuccess(msg: string, note: string): void {
+  print(
+    styleText(
+      'yellow',
+      styleText('bold', '✓ ') + msg + ' ' + styleText('bold', note)
+    )
+  )
+}
+
+export async function fetchAndParsePosts(
+  url: string,
+  badSource = false
+): Promise<void> {
   try {
     let task = createDownloadTask()
-    let textResponse = await task.text(url)
-    let candidate: false | PreviewCandidate = getLoaderForText(textResponse)
+    let response = await task.text(url)
+    if (badSource && response.status >= 400) {
+      semiSuccess(url, `${response.status}`)
+      return
+    }
+    if (
+      badSource &&
+      response.redirected &&
+      response.contentType === 'text/html' &&
+      response.text.toLocaleLowerCase().includes('<html')
+    ) {
+      semiSuccess(url, `redirect to HTML`)
+      return
+    }
+    let candidate: false | PreviewCandidate = getLoaderForText(response)
     if (!candidate) {
       error(`Can not found loader for feed ${url}`)
       return
     }
     let loader = loaders[candidate.loader]
-    let { list } = loader.getPosts(task, url, textResponse).get()
+    let { list } = loader.getPosts(task, url, response).get()
     if (list.length === 0) {
-      error(`Can not found posts for feed ${url}`)
-      return
+      if (badSource) {
+        semiSuccess(url, '0 posts')
+      } else {
+        error(`Can not found posts for feed ${url}`)
+      }
+    } else {
+      success(url, list.length + (list.length > 1 ? ' posts' : ' post'))
     }
-    success(url, list.length + (list.length > 1 ? ' posts' : ' post'))
   } catch (e) {
     error(e, `During loading posts for ${url}`)
   }

@@ -59,7 +59,9 @@ cli.run(async args => {
   }
 
   let feeds = await parseFeedsFromFile(opmlFile)
-  await completeTasks(feeds.map(feed => () => fetchAndParsePosts(feed.url)))
+  await completeTasks(
+    feeds.map(feed => () => fetchAndParsePosts(feed.url, true))
+  )
   if (home) {
     for (let feed of feeds) {
       await findRSSfromHome(feed)
