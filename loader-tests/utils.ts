@@ -21,7 +21,7 @@ import { isAbsolute, join } from 'node:path'
 import { styleText } from 'node:util'
 
 export interface LoaderTestFeed {
-  homeUrl: string
+  homeUrl?: string
   title: string
   url: string
 }
@@ -156,7 +156,7 @@ function normalizeUrl(url: string): string {
 export async function findRSSfromHome(feed: LoaderTestFeed): Promise<void> {
   let unbindPreview = previewCandidates.listen(() => {})
   try {
-    setPreviewUrl(feed.homeUrl)
+    setPreviewUrl(feed.homeUrl || getHomeUrl(feed.url))
     await timeout(10_000, waitFor(previewCandidatesLoading, false))
     let normalizedUrls = previewCandidates.get().map(i => normalizeUrl(i.url))
     if (normalizedUrls.includes(normalizeUrl(feed.url))) {
@@ -209,4 +209,10 @@ export async function completeTasks(
       runTask()
     }
   })
+}
+
+function getHomeUrl(feedUrl: string): string {
+  let url = new URL(feedUrl)
+  url.pathname = '/'
+  return url.toString()
 }
