@@ -33,13 +33,26 @@ async function parseFeedsFromFile(path: string): Promise<OpmlFeed[]> {
 
 let cli = createCLI(
   'Test all feeds from user OPML',
-  '$ pnpm check-opml PATH_TO_YOUR_FILE.opml'
+  '$ pnpm check-opml PATH_TO_YOUR_FILE.opml\n' +
+    '$ pnpm check-opml PATH_TO_YOUR_FILE.opml --home'
 )
 
 cli.run(async args => {
   enableTestClient()
 
-  let opmlFile = args[0]
+  let opmlFile: string | undefined
+  let home = false
+  for (let arg of args) {
+    if (arg === '--home') {
+      home = true
+    } else if (!opmlFile) {
+      opmlFile = arg
+    } else {
+      cli.wrongArg('Unknown argument: ' + arg)
+      return
+    }
+  }
+
   if (!opmlFile) {
     cli.wrongArg('Please provide a path to the OPML file')
     return
@@ -47,8 +60,10 @@ cli.run(async args => {
 
   let feeds = await parseFeedsFromFile(opmlFile)
   await completeTasks(feeds.map(feed => () => fetchAndParsePosts(feed.url)))
-  for (let feed of feeds) {
-    await findRSSfromHome(feed)
+  if (home) {
+    for (let feed of feeds) {
+      await findRSSfromHome(feed)
+    }
   }
 
   finish(`${feeds.length} ${feeds.length === 1 ? 'feed' : 'feeds'} checked`)
