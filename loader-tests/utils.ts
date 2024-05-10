@@ -149,12 +149,17 @@ export async function fetchAndParsePosts(url: string): Promise<void> {
   }
 }
 
+function normalizeUrl(url: string): string {
+  return url.replace(/^(https?:)?\/\//, '').replace(/\/$/, '')
+}
+
 export async function findRSSfromHome(feed: LoaderTestFeed): Promise<void> {
   let unbindPreview = previewCandidates.listen(() => {})
   try {
     setPreviewUrl(feed.homeUrl)
     await timeout(10_000, waitFor(previewCandidatesLoading, false))
-    if (previewCandidates.get().some(c => c.url === feed.url)) {
+    let normalizedUrls = previewCandidates.get().map(i => normalizeUrl(i.url))
+    if (normalizedUrls.includes(normalizeUrl(feed.url))) {
       success(`Feed ${feed.title} has feed URL at home`)
     } else if (previewCandidates.get().length === 0) {
       error(
