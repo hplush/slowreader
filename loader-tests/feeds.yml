@@ -2,7 +2,6 @@ feeds:
   # Popular feeds
 
   - title: DEV Community
-    homeUrl: https://dev.to/
     url: https://dev.to/feed
 
   - title: WordPress Official Blog
@@ -10,25 +9,20 @@ feeds:
     url: https://wordpress.org/news/feed/
 
   - title: GitHub Blog
-    homeUrl: https://github.blog/
     url: https://github.blog/feed/
 
   - title: Stack Overflow
-    homeUrl: https://stackoverflow.blog/
     url: https://stackoverflow.blog/feed/
 
   - title: The Verge
-    homeUrl: https://www.theverge.com/
     url: https://www.theverge.com/rss/index.xml
 
   # Popular blog platforms and engines
 
   - title: Tumblr
-    homeUrl: https://thecollectibles.tumblr.com
     url: https://thecollectibles.tumblr.com/rss
 
   - title: LiveJournal
-    homeUrl: https://vintage-ads.livejournal.com/
     url: https://vintage-ads.livejournal.com/data/atom
 
   - title: Aegea
@@ -36,5 +30,4 @@ feeds:
     url: https://ilyabirman.ru/meanwhile/json/
 
   - title: Pika
-    homeUrl: https://wavelengths.online
     url: https://wavelengths.online/posts_feed
