@@ -48,7 +48,7 @@
 </script>
 
 <nav class="navbar">
-  <div class="navbar_main" aria-orientation="horizontal" role="menu">
+  <div class="navbar_main" aria-orientation="horizontal" role="menubar">
     {#if $isRefreshing}
       <NavbarItem
         name={$t.refresh}
@@ -125,7 +125,8 @@
     class="navbar_submenu"
     class:is-opened={isMenuOpened}
     aria-hidden="true"
-    role="menu"
+    role="menubar"
+    aria-orientation="vertical"
   >
     {#if isSlowRoute($router)}
       <NavbarSlow />

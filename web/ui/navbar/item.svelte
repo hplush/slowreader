@@ -3,6 +3,7 @@
 
   import Hotkey from '../hotkey.svelte'
   import Icon from '../icon.svelte'
+  import type { AriaRole } from 'svelte/elements'
 
   export let href: string | undefined = undefined
   export let current: boolean
@@ -12,6 +13,7 @@
   export let secondary = false
   export let submenu = false
   export let small = false
+  export let role: AriaRole = 'menuitem'
 
   let dispatch = createEventDispatcher()
 
@@ -29,7 +31,7 @@
     aria-haspopup={submenu ? 'menu' : null}
     aria-keyshortcuts={hotkey}
     {href}
-    role="menuitem"
+    {role}
     tabindex={secondary || !current ? -1 : null}
     title={small || (name && name.length > 15) ? name : null}
     on:click={onClick}
@@ -60,7 +62,7 @@
     aria-current={current ? 'page' : null}
     aria-haspopup={submenu ? 'menu' : null}
     aria-keyshortcuts={hotkey}
-    role="menuitem"
+    {role}
     tabindex={secondary ? -1 : null}
     title={small || (name && name.length > 15) ? name : null}
     on:click={onClick}
