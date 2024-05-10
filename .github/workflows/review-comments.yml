@@ -1,0 +1,17 @@
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  review:
+    name: Post review comments
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: pull-request-auto-reviewer
+        uses: pshergie/pull-request-auto-reviewer@1.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          datapath: docs/review-comments-data.yml
