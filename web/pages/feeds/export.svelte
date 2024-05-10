@@ -12,6 +12,7 @@
   import CardLinks from '../../ui/card-links.svelte'
   import TwoStepsPage from '../../ui/two-steps-page.svelte'
   import ExportOPML from './exportOPML.svelte'
+  import ExportInternal from './exportInternal.svelte'
 
   export let formatId: string | undefined
   const formats = [
@@ -46,6 +47,9 @@
   <div id="feeds-categories_edit" slot="two">
     {#if formatId === 'opml'}
       <ExportOPML />
+    {/if}
+    {#if formatId === 'internal'}
+      <ExportInternal />
     {/if}
   </div>
 </TwoStepsPage>

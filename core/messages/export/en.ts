@@ -6,5 +6,9 @@ export const exportMessages = i18n('export', {
   allFeeds: 'All feeds',
   selectFeeds: 'Select feeds',
   type: 'Feed type',
-  submitOPML: 'Export to OPML'
+  submitOPML: 'Export to OPML',
+  exportPosts: 'Export posts',
+  allPosts: 'All posts',
+  noPosts: 'No posts',
+  exportFeeds: 'Export feeds'
 })

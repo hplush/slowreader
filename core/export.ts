@@ -8,6 +8,7 @@ import { atom, onMount } from 'nanostores'
 import { readonlyExport } from './lib/stores.js'
 import { getFeeds, type FeedValue } from './feed.js'
 import { loadValue } from '@logux/client'
+import { getPosts } from './post.js'
 
 let $categories = atom({ isLoading: true })
 let $allFeeds = atom({ isLoading: true })
@@ -23,6 +24,7 @@ onMount(feedsByCategoryList, () => {
       $feedsByCategoryList.set(
         feedsByCategory($categories.get().list, $allFeeds.get().list)
       )
+
       selectAllFeeds()
     }
   )
@@ -73,6 +75,22 @@ export function getOPMLBlob() {
   return new Blob([opml], { type: 'application/xml' })
 }
 
+export async function getInternalBlob(isIncludePosts) {
+  let posts
+  if (isIncludePosts) posts = await loadValue(getPosts())
+  const enrichedData = $feedsByCategoryList.get().map(([category, feeds]) => {
+    const categoryTitle = getCategoryTitle(category)
+    if (isIncludePosts) {
+      feeds.forEach(feed => {
+        feed.posts = posts.list.filter(post => post.feedId === feed.id)
+      })
+    }
+    return [{ ...category, title: categoryTitle }, feeds]
+  })
+  const jsonStr = JSON.stringify(enrichedData)
+  return new Blob([jsonStr], { type: 'application/json' })
+}
+
 export function toggleCategory(categoryId: string) {
   const selectedCategories = new Set($selectedCategories.get())
   const selectedFeeds = new Set($selectedFeeds.get())
@@ -99,7 +117,6 @@ export function toggleFeed(feedId: string, categoryId: string) {
 
   if (selectedFeeds.has(feedId)) {
     selectedFeeds.delete(feedId)
-    // Проверяем, остались ли еще ленты в этой категории
     const remainingFeedsInCategory = $allFeeds
       .get()
       .list.filter(
