@@ -1,7 +1,9 @@
-- paths: '**/*.*'
-  message: |
-    Self-review checklist (mark all items after checking them):
+- prependMsg: '🗯️ [pull-request-auto-reviewer]:'
+- checks:
+    - paths: '**/*.*'
+      message: |
+        Self-review checklist (mark all items after checking them):
 
-    - [ ] Don’t rush. Check all changes in PR again.
-    - [ ] Run `pnpm test`.
-    - [ ] No new errors and warning in the browser console.
+        - [ ] Don’t rush. Check all changes in PR again.
+        - [ ] Run `pnpm test`.
+        - [ ] No new errors and warning in the browser console.
