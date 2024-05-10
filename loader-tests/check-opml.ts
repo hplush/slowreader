@@ -36,9 +36,9 @@ let cli = createCLI(
   '$ pnpm check-opml PATH_TO_YOUR_FILE.opml'
 )
 
-enableTestClient()
-
 cli.run(async args => {
+  enableTestClient()
+
   let opmlFile = args[0]
   if (!opmlFile) {
     cli.wrongArg('Please provide a path to the OPML file')

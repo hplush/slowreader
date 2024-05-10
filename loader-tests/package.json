@@ -8,7 +8,8 @@
   },
   "scripts": {
     "check-opml": "tsx check-opml.ts",
-    "test": "tsx test-loaders.ts feeds.yml"
+    "test": "tsx test-loaders.ts",
+    "url": "tsx url.ts"
   },
   "devDependencies": {
     "@slowreader/core": "link:../core",

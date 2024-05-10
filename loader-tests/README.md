@@ -23,3 +23,12 @@ Test that Slow Reader can work with different feeds from popular blogging platfo
 cd loader-tests/
 pnpm test
 ```
+
+## Debug Loaders with Specific Feed
+
+A small helper for loaders debug.
+
+```sh
+cd loader-tests/
+pnpm url URL
+```
