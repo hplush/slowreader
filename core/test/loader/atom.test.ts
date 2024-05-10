@@ -5,10 +5,20 @@ import { deepStrictEqual, equal } from 'node:assert'
 import { test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import { createDownloadTask, createTextResponse, loaders } from '../../index.js'
-import { getResponseCreator } from '../utils.js'
+import {
+  createDownloadTask,
+  createTextResponse,
+  loaders,
+  type TextResponse
+} from '../../index.js'
 
-const exampleAtom = getResponseCreator('atom')
+function exampleAtom(responseBody: string): TextResponse {
+  return createTextResponse(responseBody, {
+    headers: new Headers({
+      'Content-Type': `application/atom+xml`
+    })
+  })
+}
 
 test('detects xml:base attribute', () => {
   deepStrictEqual(
@@ -164,6 +174,27 @@ test('returns default links', () => {
 })
 
 test('detects titles', () => {
+  equal(loaders.atom.isMineText(exampleAtom('<feed></feed>')), '')
+  equal(
+    loaders.atom.isMineText(
+      exampleAtom(
+        `<?xml version="1.0" encoding="utf-8"?>
+        <feed xmlns="http://www.w3.org/2005/Atom">
+          <title>Test 2</title>
+        </feed>`
+      )
+    ),
+    'Test 2'
+  )
+  equal(
+    loaders.atom.isMineText(
+      exampleAtom('<unknown><title>No</title></unknown>')
+    ),
+    false
+  )
+})
+
+test('detects tyupe', () => {
   equal(loaders.atom.isMineText(exampleAtom('<feed></feed>')), '')
   equal(
     loaders.atom.isMineText(
