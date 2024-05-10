@@ -1,6 +1,7 @@
 import { request } from './request.js'
 
 export interface TextResponse {
+  readonly contentType: string
   readonly headers: Headers
   readonly ok: boolean
   parseJson(): null | unknown
@@ -52,15 +53,15 @@ export function createTextResponse(
   let status = other.status ?? 200
   let headers = other.headers ?? new Headers()
   let bodyCache: Document | undefined | XMLDocument
+  let contentType = getContentType(text, headers)
   return {
+    contentType,
     headers,
     ok: status >= 200 && status < 300,
     parseJson() {
-      let parseType = getContentType(text, headers)
-
       if (
-        parseType !== 'application/json' &&
-        parseType !== 'application/feed+json'
+        contentType !== 'application/json' &&
+        contentType !== 'application/feed+json'
       ) {
         return null
       }
@@ -75,24 +76,22 @@ export function createTextResponse(
     },
     parseXml() {
       if (!bodyCache) {
-        let parseType = getContentType(text, headers)
-
-        if (parseType.includes('/json')) {
+        if (contentType.includes('/json')) {
           return null
         }
 
-        if (parseType.includes('+xml')) {
-          parseType = 'application/xml'
+        if (contentType.includes('+xml')) {
+          contentType = 'application/xml'
         }
         if (
-          parseType === 'text/html' ||
-          parseType === 'application/xml' ||
-          parseType === 'text/xml'
+          contentType === 'text/html' ||
+          contentType === 'application/xml' ||
+          contentType === 'text/xml'
         ) {
-          bodyCache = new DOMParser().parseFromString(text, parseType)
+          bodyCache = new DOMParser().parseFromString(text, contentType)
         } else {
           // eslint-disable-next-line no-console
-          console.error('Unknown content type', parseType)
+          console.error('Unknown content type', contentType)
           return null
         }
       }

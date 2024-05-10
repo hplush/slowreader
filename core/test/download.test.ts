@@ -211,3 +211,32 @@ test('has helper to ignore abort errors', async () => {
 
   ignoreAbortError(error3)
 })
+
+test('detects content type', async () => {
+  equal(
+    createTextResponse('custom', {
+      headers: new Headers({ 'content-type': 'application/custom' })
+    }).contentType,
+    'application/custom'
+  )
+  equal(
+    createTextResponse('<html></html>', {
+      headers: new Headers({ 'content-type': 'text/html' })
+    }).contentType,
+    'text/html'
+  )
+  equal(
+    createTextResponse('<html></html>', {
+      headers: new Headers({ 'content-type': 'text/plain' })
+    }).contentType,
+    'text/html'
+  )
+  equal(createTextResponse('<!DOCTYPE html>body').contentType, 'text/html')
+  equal(
+    createTextResponse('{"version":"https://jsonfeed.org/version/1"}')
+      .contentType,
+    'application/json'
+  )
+  equal(createTextResponse('<rss></rss>').contentType, 'application/rss+xml')
+  equal(createTextResponse('<feed></feed>').contentType, 'application/atom+xml')
+})
