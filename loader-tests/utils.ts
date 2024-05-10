@@ -160,7 +160,8 @@ function normalizeUrl(url: string): string {
 export async function findRSSfromHome(feed: LoaderTestFeed): Promise<boolean> {
   let unbindPreview = previewCandidates.listen(() => {})
   try {
-    setPreviewUrl(feed.homeUrl || getHomeUrl(feed.url))
+    let homeUrl = feed.homeUrl || getHomeUrl(feed.url)
+    setPreviewUrl(homeUrl)
     await timeout(10_000, waitFor(previewCandidatesLoading, false))
     let normalizedUrls = previewCandidates.get().map(i => normalizeUrl(i.url))
     if (normalizedUrls.includes(normalizeUrl(feed.url))) {
@@ -169,13 +170,13 @@ export async function findRSSfromHome(feed: LoaderTestFeed): Promise<boolean> {
     } else if (previewCandidates.get().length === 0) {
       error(
         `Can’t find any feed from home URL or ${feed.title}`,
-        `Home URL: ${feed.homeUrl}\nFeed URL: ${feed.url}`
+        `Home URL: ${homeUrl}\nFeed URL: ${feed.url}`
       )
       return false
     } else {
       error(
         `Can’t find ${feed.title} feed from home URL`,
-        `Home URL: ${feed.homeUrl}\n` +
+        `Home URL: ${homeUrl}\n` +
           `Found: ${previewCandidates
             .get()
             .map(i => i.url)
