@@ -5,8 +5,8 @@ feeds:
     url: https://dev.to/feed
 
   - title: WordPress Official Blog
-    homeUrl: https://wordpress.org/news/
     url: https://wordpress.org/news/feed/
+    homeUrl: https://wordpress.org/news/
 
   - title: GitHub Blog
     url: https://github.blog/feed/
@@ -26,8 +26,14 @@ feeds:
     url: https://vintage-ads.livejournal.com/data/atom
 
   - title: Aegea
-    homeUrl: https://ilyabirman.ru/meanwhile/
     url: https://ilyabirman.ru/meanwhile/json/
+    homeUrl: https://ilyabirman.ru/meanwhile/
 
   - title: Pika
     url: https://wavelengths.online/posts_feed
+
+  # Edge Cases
+
+  - title: Feed URL by icon with FeedBurner URL
+    url: https://feeds.feedburner.com/juznevesti
+    homeUrl: https://www.juznevesti.com

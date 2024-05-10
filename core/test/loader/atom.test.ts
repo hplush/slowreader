@@ -117,6 +117,7 @@ test('finds atom links in <a> elements', () => {
             <a href="https://example.com/blog/feed.xml">Feed XML</a>
             <a href="/something.atom">Feed Atom</a>
             <a href="/feed.something?id=1">Feed Atom</a>
+            <a href="https://feeds.service.com/name">Other Domain</a>
           </body>
         </html>`,
         {
@@ -128,7 +129,8 @@ test('finds atom links in <a> elements', () => {
       'https://example.com/news/atom',
       'https://example.com/blog/feed.xml',
       'https://example.com/something.atom',
-      'https://example.com/feed.something?id=1'
+      'https://example.com/feed.something?id=1',
+      'https://feeds.service.com/name'
     ]
   )
 })
