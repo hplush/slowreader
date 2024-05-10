@@ -205,6 +205,24 @@ test('detects titles', () => {
   )
 })
 
+test('detects content type by content', () => {
+  equal(
+    loaders.jsonFeed.isMineText(
+      createTextResponse(
+        JSON.stringify({
+          items: [],
+          title: 'A',
+          version: 'https://jsonfeed.org/version/1'
+        }),
+        {
+          headers: new Headers({ 'Content-Type': `text/html` })
+        }
+      )
+    ),
+    'A'
+  )
+})
+
 test('validate json feed format', async () => {
   let task = createDownloadTask()
   deepStrictEqual(

@@ -194,6 +194,26 @@ test('detects titles', () => {
   )
 })
 
+test('detects content type by content', () => {
+  equal(
+    loaders.atom.isMineText(
+      createTextResponse('<feed><title>A</title></feed>', {
+        headers: new Headers({ 'Content-Type': `text/html` })
+      })
+    ),
+    'A'
+  )
+  equal(
+    loaders.atom.isMineText(
+      createTextResponse(
+        '<?xml version="1.0" encoding="UTF-8"?> ' +
+          '<feed><title>B</title></feed>'
+      )
+    ),
+    'B'
+  )
+})
+
 test('detects tyupe', () => {
   equal(loaders.atom.isMineText(exampleAtom('<feed></feed>')), '')
   equal(

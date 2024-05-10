@@ -121,6 +121,26 @@ test('detects titles', () => {
   )
 })
 
+test('detects content type by content', () => {
+  equal(
+    loaders.rss.isMineText(
+      createTextResponse('<rss><channel><title>A</title></channel></rss>', {
+        headers: new Headers({ 'Content-Type': `text/html` })
+      })
+    ),
+    'A'
+  )
+  equal(
+    loaders.rss.isMineText(
+      createTextResponse(
+        '<?xml version="1.0" encoding="UTF-8"?> ' +
+          '<rss><channel><title>B</title></channel></rss>'
+      )
+    ),
+    'B'
+  )
+})
+
 test('ignores text & comment nodes when probing', () => {
   equal(
     loaders.rss.isMineText(

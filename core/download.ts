@@ -16,8 +16,29 @@ export interface DownloadTask {
   text(...args: Parameters<typeof request>): Promise<TextResponse>
 }
 
-function getContentMediaType(headers: Headers): string {
-  let contentType = headers.get('content-type') ?? 'text/html'
+function detectContentType(text: string): string | undefined {
+  let lower = text.toLowerCase()
+  let beginning = lower.slice(0, 100)
+  if (beginning.includes('<!doctype html') || lower.includes('<html')) {
+    return 'text/html'
+  } else if (beginning.includes('<?xml')) {
+    return 'application/xml'
+  } else if (lower.includes('<rss')) {
+    return 'application/rss+xml'
+  } else if (lower.includes('<feed')) {
+    return 'application/atom+xml'
+  } else if (
+    /^\s*\{/.test(beginning) &&
+    lower.includes('"version":"https://jsonfeed.org/version/1"')
+  ) {
+    return 'application/json'
+  }
+}
+
+function getContentType(text: string, headers: Headers): string {
+  let detected = detectContentType(text)
+  let byHeader = headers.get('content-type')
+  let contentType = detected ?? byHeader ?? 'text/plain'
   if (contentType.includes(';')) {
     contentType = contentType.split(';')[0]!
   }
@@ -35,7 +56,7 @@ export function createTextResponse(
     headers,
     ok: status >= 200 && status < 300,
     parseJson() {
-      let parseType = getContentMediaType(headers)
+      let parseType = getContentType(text, headers)
 
       if (
         parseType !== 'application/json' &&
@@ -54,7 +75,7 @@ export function createTextResponse(
     },
     parseXml() {
       if (!bodyCache) {
-        let parseType = getContentMediaType(headers)
+        let parseType = getContentType(text, headers)
 
         if (parseType.includes('/json')) {
           return null
