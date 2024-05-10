@@ -150,7 +150,11 @@ export async function fetchAndParsePosts(url: string): Promise<void> {
 }
 
 function normalizeUrl(url: string): string {
-  return url.replace(/^(https?:)?\/\//, '').replace(/\/$/, '')
+  return url
+    .replace(/^(https?:)?\/\//, '')
+    .replace(/\/\/www\./, '//')
+    .replace(/\/$/, '')
+    .toLowerCase()
 }
 
 export async function findRSSfromHome(feed: LoaderTestFeed): Promise<void> {
