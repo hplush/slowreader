@@ -39,4 +39,4 @@ feeds:
     homeUrl: https://www.juznevesti.com
 
   - title: Wrong Content Type
-    url: http://exler.ru/rss-films.xml
+    url: https://exler.ru/rss.xml
