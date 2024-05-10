@@ -1,11 +1,6 @@
-import {
-  createCLI,
-  enableTestClient,
-  fetchAndParsePosts,
-  findRSSfromHome
-} from './utils.js'
+import { createCLI, enableTestClient, fetchAndParsePosts } from './utils.js'
 
-let cli = createCLI('Debug loaders with specific feed', '$ pnpm url URL')
+let cli = createCLI('Debug post loading with specific feed', '$ pnpm url URL')
 
 cli.run(async args => {
   enableTestClient()
@@ -17,7 +12,4 @@ cli.run(async args => {
   }
 
   await fetchAndParsePosts(url)
-  if (!(await findRSSfromHome({ title: url, url }))) {
-    process.exit(1)
-  }
 })

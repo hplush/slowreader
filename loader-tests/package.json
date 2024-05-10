@@ -9,7 +9,8 @@
   "scripts": {
     "check-opml": "tsx check-opml.ts",
     "test": "tsx test-loaders.ts",
-    "url": "tsx url.ts"
+    "url": "tsx url.ts",
+    "home": "tsx home.ts"
   },
   "devDependencies": {
     "@slowreader/core": "link:../core",
