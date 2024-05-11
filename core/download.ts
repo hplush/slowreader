@@ -19,33 +19,25 @@ export interface DownloadTask {
   text(...args: Parameters<typeof request>): Promise<TextResponse>
 }
 
-function detectContentType(text: string): string | undefined {
+function detectType(text: string): string | undefined {
   let lower = text.toLowerCase()
   let beginning = lower.slice(0, 100)
-  if (beginning.includes('<!doctype html') || lower.includes('<html')) {
+  if (/^\s*<!doctype html/i.test(beginning)) {
     return 'text/html'
-  } else if (beginning.includes('<?xml')) {
+  } else if (/^\s*<\?xml/i.test(beginning)) {
     return 'application/xml'
   } else if (lower.includes('<rss')) {
     return 'application/rss+xml'
   } else if (lower.includes('<feed')) {
     return 'application/atom+xml'
+  } else if (lower.includes('<html')) {
+    return 'text/html'
   } else if (
     /^\s*\{/.test(beginning) &&
     lower.includes('"version":"https://jsonfeed.org/version/1"')
   ) {
     return 'application/json'
   }
-}
-
-function getContentType(text: string, headers: Headers): string {
-  let detected = detectContentType(text)
-  let byHeader = headers.get('content-type')
-  let contentType = detected ?? byHeader ?? 'text/plain'
-  if (contentType.includes(';')) {
-    contentType = contentType.split(';')[0]!
-  }
-  return contentType
 }
 
 export function createTextResponse(
@@ -55,7 +47,13 @@ export function createTextResponse(
   let status = other.status ?? 200
   let headers = other.headers ?? new Headers()
   let bodyCache: Document | undefined | XMLDocument
-  let contentType = getContentType(text, headers)
+
+  let contentType =
+    detectType(text) ?? headers.get('content-type') ?? 'text/plain'
+  if (contentType.includes(';')) {
+    contentType = contentType.split(';')[0]!
+  }
+
   return {
     contentType,
     headers,

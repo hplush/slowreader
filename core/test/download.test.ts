@@ -240,4 +240,9 @@ test('detects content type', async () => {
   )
   equal(createTextResponse('<rss></rss>').contentType, 'application/rss+xml')
   equal(createTextResponse('<feed></feed>').contentType, 'application/atom+xml')
+  equal(
+    createTextResponse('<rss><![CDATA[<!DOCTYPE html><html></html>]]></rss>')
+      .contentType,
+    'application/rss+xml'
+  )
 })
