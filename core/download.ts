@@ -1,3 +1,4 @@
+import { warning } from './devtools.js'
 import { request } from './request.js'
 
 export interface TextResponse {
@@ -70,9 +71,12 @@ export function createTextResponse(
       try {
         return JSON.parse(text)
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error('Parse JSON error', e)
-        return null
+        if (e instanceof SyntaxError) {
+          warning('Parse JSON error', e.message)
+          return null
+        } else {
+          throw e
+        }
       }
     },
     parseXml() {
@@ -91,8 +95,7 @@ export function createTextResponse(
         ) {
           bodyCache = new DOMParser().parseFromString(text, contentType)
         } else {
-          // eslint-disable-next-line no-console
-          console.error('Unknown content type', contentType)
+          warning('Unknown content type', contentType)
           return null
         }
       }

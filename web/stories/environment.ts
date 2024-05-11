@@ -80,7 +80,6 @@ let mockedRequest: RequestMethod = url => {
   if (prepared === undefined) prepared = preparedResponses['*']
 
   if (prepared === undefined) {
-    console.error(`No mocked response for ${url}`)
     return Promise.reject(new Error(`No mocked response for ${url}`))
   } else if ('loading' in prepared) {
     return new Promise(() => {})
