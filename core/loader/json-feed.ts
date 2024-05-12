@@ -1,3 +1,4 @@
+import { warning } from '../devtools.js'
 import type { TextResponse } from '../download.js'
 import type { OriginPost } from '../post.js'
 import { createPostsPage } from '../posts-page.js'
@@ -85,8 +86,7 @@ function validate<ValidatedType>(
 
   for (let field in rules) {
     if (!(field in value) || !rules[field]!(value[field])) {
-      // eslint-disable-next-line no-console
-      console.error(
+      warning(
         `JSON feed field '${field}' is not valid with value`,
         stringify(value[field])
       )

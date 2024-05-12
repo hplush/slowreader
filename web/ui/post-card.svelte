@@ -31,7 +31,7 @@
     {#if post.title}
       <h1 class="post-card_title">
         {#if post.url}
-          <a href={post.url} rel="noopener noreferrer" target="_blank">
+          <a href={post.url} rel="noopener" target="_blank">
             {post.title}
           </a>
         {:else}

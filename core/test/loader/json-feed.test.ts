@@ -12,8 +12,9 @@ import {
   type TextResponse
 } from '../../index.js'
 
-function exampleJson(text: string): TextResponse {
-  return createTextResponse(text, {
+function exampleJson(json: object | string): TextResponse {
+  let string = typeof json === 'string' ? json : JSON.stringify(json)
+  return createTextResponse(string, {
     headers: new Headers({ 'Content-Type': 'application/json' })
   })
 }
@@ -153,55 +154,67 @@ test('returns default links', () => {
 
 test('detects titles', () => {
   equal(
-    loaders.jsonFeed.isMineText(exampleJson(JSON.stringify(jsonStub))),
+    loaders.jsonFeed.isMineText(exampleJson(jsonStub)),
     'Some JSON Feed title'
   )
   deepStrictEqual(
     loaders.jsonFeed.isMineText(
-      exampleJson(
-        JSON.stringify({
-          author: {
-            name: 'name',
-            url: 'https://example.com/'
-          },
-          items: [],
-          title: 'Title JSON feed version 1',
-          version: 'https://jsonfeed.org/version/1'
-        })
-      )
+      exampleJson({
+        author: {
+          name: 'name',
+          url: 'https://example.com/'
+        },
+        items: [],
+        title: 'Title JSON feed version 1',
+        version: 'https://jsonfeed.org/version/1'
+      })
     ),
     'Title JSON feed version 1'
   )
   deepStrictEqual(
     loaders.jsonFeed.isMineText(
-      exampleJson(
-        JSON.stringify({
-          author: {
-            name: 'name',
-            url: 'https://example.com/'
-          },
-          items: [],
-          version: 'https://jsonfeed.org/version/1.1'
-        })
-      )
+      exampleJson({
+        author: {
+          name: 'name',
+          url: 'https://example.com/'
+        },
+        items: [],
+        version: 'https://jsonfeed.org/version/1.1'
+      })
     ),
     false
   )
   deepStrictEqual(
     loaders.jsonFeed.isMineText(
-      exampleJson(
-        JSON.stringify({
-          author: {
-            name: 'name',
-            url: 'https://example.com/'
-          },
-          items: [],
-          title: '',
-          version: 'https://jsonfeed.org/version/1.1'
-        })
-      )
+      exampleJson({
+        author: {
+          name: 'name',
+          url: 'https://example.com/'
+        },
+        items: [],
+        title: '',
+        version: 'https://jsonfeed.org/version/1.1'
+      })
     ),
     ''
+  )
+})
+
+test('detects content type by content', () => {
+  equal(
+    loaders.jsonFeed.isMineText(
+      createTextResponse(
+        JSON.stringify({
+          items: [],
+          title: 'A',
+          version: 'https://jsonfeed.org/version/1'
+        }),
+        {
+          headers: new Headers({ 'Content-Type': `text/html` })
+        }
+      )
+    ),
+    'A'
   )
 })
 
@@ -212,31 +225,29 @@ test('validate json feed format', async () => {
       .getPosts(
         task,
         'https://example.com/',
-        exampleJson(
-          JSON.stringify({
-            items: [
-              {
-                content_html: '<p>Priority Content</p>',
-                content_text: '<p>Skipped content</p>',
-                date_published: '2022-01-04T00:00:00Z',
-                id: 'somehashid',
-                summary: 'summary',
-                title: 'title_1',
-                url: 'https://example.com/'
-              },
-              {
-                content_html: undefined,
-                content_text: '<p>Alternative content</p>',
-                date_published: '2022-01-04T00:00:00Z',
-                id: 'somehashid2',
-                title: 'title_2',
-                url: 'https://example.com/2'
-              }
-            ],
-            title: 'Some JSON Feed title',
-            version: 'https://jsonfeed.org/version/1.1'
-          })
-        )
+        exampleJson({
+          items: [
+            {
+              content_html: '<p>Priority Content</p>',
+              content_text: '<p>Skipped content</p>',
+              date_published: '2022-01-04T00:00:00Z',
+              id: 'somehashid',
+              summary: 'summary',
+              title: 'title_1',
+              url: 'https://example.com/'
+            },
+            {
+              content_html: undefined,
+              content_text: '<p>Alternative content</p>',
+              date_published: '2022-01-04T00:00:00Z',
+              id: 'somehashid2',
+              title: 'title_2',
+              url: 'https://example.com/2'
+            }
+          ],
+          title: 'Some JSON Feed title',
+          version: 'https://jsonfeed.org/version/1.1'
+        })
       )
       .get(),
     {
@@ -269,30 +280,28 @@ test('validate json feed format', async () => {
 test('loads text to parse posts', async () => {
   let task = createDownloadTask()
   let text = spyOn(task, 'text', async () =>
-    exampleJson(
-      JSON.stringify({
-        ...jsonStub,
-        items: [
-          {
-            content_html: '<p>Priority Content</p>',
-            content_text: '<p>Skipped content</p>',
-            date_published: '2022-01-04T00:00:00Z',
-            id: 'somehashid',
-            summary: 'summary',
-            title: 'title_1',
-            url: 'https://example.com/'
-          },
-          {
-            content_html: undefined,
-            content_text: '<p>Alternative content</p>',
-            date_published: '2022-01-04T00:00:00Z',
-            id: 'somehashid2',
-            title: 'title_2',
-            url: 'https://example.com/2'
-          }
-        ]
-      })
-    )
+    exampleJson({
+      ...jsonStub,
+      items: [
+        {
+          content_html: '<p>Priority Content</p>',
+          content_text: '<p>Skipped content</p>',
+          date_published: '2022-01-04T00:00:00Z',
+          id: 'somehashid',
+          summary: 'summary',
+          title: 'title_1',
+          url: 'https://example.com/'
+        },
+        {
+          content_html: undefined,
+          content_text: '<p>Alternative content</p>',
+          date_published: '2022-01-04T00:00:00Z',
+          id: 'somehashid2',
+          title: 'title_2',
+          url: 'https://example.com/2'
+        }
+      ]
+    })
   )
   let page = loaders.jsonFeed.getPosts(task, 'https://example.com/')
   deepStrictEqual(page.get(), {
@@ -332,25 +341,11 @@ test('loads text to parse posts', async () => {
 test('validate wrong json feed format', async () => {
   let task = createDownloadTask()
 
-  let notValidDataValues = [1, true, false, null, []]
-
-  for (let notValidData of notValidDataValues) {
-    // not valid data
-    deepStrictEqual(
-      loaders.jsonFeed
-        .getPosts(
-          task,
-          'https://example.com/',
-          exampleJson(JSON.stringify(notValidData))
-        )
-        .get(),
-      {
-        hasNext: false,
-        isLoading: false,
-        list: []
-      }
-    )
-  }
+  deepStrictEqual(loaders.jsonFeed.isMineText(exampleJson('1')), false)
+  deepStrictEqual(loaders.jsonFeed.isMineText(exampleJson('true')), false)
+  deepStrictEqual(loaders.jsonFeed.isMineText(exampleJson('null')), false)
+  deepStrictEqual(loaders.jsonFeed.isMineText(exampleJson('[]')), false)
+  deepStrictEqual(loaders.jsonFeed.isMineText(exampleJson('{')), false)
 
   // not valid versions
   let notValidDataVersions = [
@@ -362,90 +357,60 @@ test('validate wrong json feed format', async () => {
 
   for (let version of notValidDataVersions) {
     deepStrictEqual(
-      loaders.jsonFeed
-        .getPosts(
-          task,
-          'https://example.com/',
-          exampleJson(
-            JSON.stringify({
-              items: [
-                {
-                  content_html: '<p>Priority Content</p>',
-                  content_text: '<p>Skipped content</p>',
-                  date_published: '2022-01-04T00:00:00Z',
-                  id: 'somehashid',
-                  summary: 'summary',
-                  title: 'title_1',
-                  url: 'https://example.com/'
-                }
-              ],
-              title: 'Some JSON Feed title',
-              version
-            })
-          )
-        )
-        .get(),
-      {
-        hasNext: false,
-        isLoading: false,
-        list: []
-      }
+      loaders.jsonFeed.isMineText(
+        exampleJson({
+          items: [
+            {
+              content_html: '<p>Priority Content</p>',
+              content_text: '<p>Skipped content</p>',
+              date_published: '2022-01-04T00:00:00Z',
+              id: 'somehashid',
+              summary: 'summary',
+              title: 'title_1',
+              url: 'https://example.com/'
+            }
+          ],
+          title: 'Some JSON Feed title',
+          version
+        })
+      ),
+      false
     )
   }
 
   // not valid title
   deepStrictEqual(
-    loaders.jsonFeed
-      .getPosts(
-        task,
-        'https://example.com/',
-        exampleJson(
-          JSON.stringify({
-            items: [
-              {
-                content_html: '<p>Priority Content</p>',
-                content_text: '<p>Skipped content</p>',
-                date_published: '2022-01-04T00:00:00Z',
-                id: 'somehashid',
-                summary: 'summary',
-                title: 'title_1',
-                url: 'https://example.com/'
-              }
-            ],
-            title: [],
-            version: 'https://jsonfeed.org/version/1.1'
-          })
-        )
-      )
-      .get(),
-    {
-      hasNext: false,
-      isLoading: false,
-      list: []
-    }
+    loaders.jsonFeed.isMineText(
+      exampleJson({
+        items: [
+          {
+            content_html: '<p>Priority Content</p>',
+            content_text: '<p>Skipped content</p>',
+            date_published: '2022-01-04T00:00:00Z',
+            id: 'somehashid',
+            summary: 'summary',
+            title: 'title_1',
+            url: 'https://example.com/'
+          }
+        ],
+        title: [],
+        version: 'https://jsonfeed.org/version/1.1'
+      })
+    ),
+    false
   )
 
   let notValidItems = [{}, 4, 'someString', false]
   for (let notValidItem of notValidItems) {
     deepStrictEqual(
-      loaders.jsonFeed
-        .getPosts(
-          task,
-          'https://example.com/',
-          exampleJson(
-            JSON.stringify({
-              items: notValidItem,
-              title: 'Some JSONFeed title',
-              version: 'https://jsonfeed.org/version/1.1'
-            })
-          )
-        )
-        .get(),
-      {
-        hasNext: false,
-        isLoading: false,
-        list: []
-      }
+      loaders.jsonFeed.isMineText(
+        exampleJson({
+          items: notValidItem,
+          title: 'Some JSONFeed title',
+          version: 'https://jsonfeed.org/version/1.1'
+        })
+      ),
+      false
     )
   }
 
@@ -454,19 +419,17 @@ test('validate wrong json feed format', async () => {
       .getPosts(
         task,
         'https://example.com/',
-        exampleJson(
-          JSON.stringify({
-            items: [
-              {
-                id: 'somehashid',
-                some_wrong_name_item: '<p>Priority Content</p>',
-                some_wrong_name_item_2: '<p>Skipped content</p>'
-              }
-            ],
-            title: 'JSON feed title',
-            version: 'https://jsonfeed.org/version/1.1'
-          })
-        )
+        exampleJson({
+          items: [
+            {
+              id: 'somehashid',
+              some_wrong_name_item: '<p>Priority Content</p>',
+              some_wrong_name_item_2: '<p>Skipped content</p>'
+            }
+          ],
+          title: 'JSON feed title',
+          version: 'https://jsonfeed.org/version/1.1'
+        })
       )
       .get(),
     {
@@ -490,38 +453,36 @@ test('validate wrong json feed format', async () => {
 test('parses media', async () => {
   let task = createDownloadTask()
   let text = spyOn(task, 'text', async () =>
-    exampleJson(
-      JSON.stringify({
-        ...jsonStub,
-        items: [
-          {
-            banner_image: 'https://example.com/banner_image.webp',
-            content_html:
-              '<p>HTML<img src="https://example.com/img_h.webp" /></p>',
-            content_text:
-              '<p>Text<img src="https://example.com/img_t.webp" /></p>',
-            date_published: '2022-01-04T00:00:00Z',
-            id: 'somehashid',
-            image: 'https://example.com/image.webp',
-            summary: 'summary',
-            title: 'title_1',
-            url: 'https://example.com/'
-          },
-          {
-            banner_image: 'https://example.com/img.webp',
-            content_html: undefined,
-            content_text:
-              '<p><img src="https://example.com/img_0.webp">Text' +
-              '<img src="https://example.com/img_1.webp"></p>',
-            date_published: '2022-01-04T00:00:00Z',
-            id: 'somehashid2',
-            image: 'https://example.com/img.webp',
-            title: 'title_2',
-            url: 'https://example.com/2'
-          }
-        ]
-      })
-    )
+    exampleJson({
+      ...jsonStub,
+      items: [
+        {
+          banner_image: 'https://example.com/banner_image.webp',
+          content_html:
+            '<p>HTML<img src="https://example.com/img_h.webp" /></p>',
+          content_text:
+            '<p>Text<img src="https://example.com/img_t.webp" /></p>',
+          date_published: '2022-01-04T00:00:00Z',
+          id: 'somehashid',
+          image: 'https://example.com/image.webp',
+          summary: 'summary',
+          title: 'title_1',
+          url: 'https://example.com/'
+        },
+        {
+          banner_image: 'https://example.com/img.webp',
+          content_html: undefined,
+          content_text:
+            '<p><img src="https://example.com/img_0.webp">Text' +
+            '<img src="https://example.com/img_1.webp"></p>',
+          date_published: '2022-01-04T00:00:00Z',
+          id: 'somehashid2',
+          image: 'https://example.com/img.webp',
+          title: 'title_2',
+          url: 'https://example.com/2'
+        }
+      ]
+    })
   )
   let page = loaders.jsonFeed.getPosts(task, 'https://example.com/')
   deepStrictEqual(page.get(), {

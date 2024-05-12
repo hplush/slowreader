@@ -4,7 +4,6 @@ import { fail } from 'node:assert'
 import {
   Category,
   client,
-  createTextResponse,
   enableTestTime,
   type EnvironmentAndStore,
   fastCategories,
@@ -14,7 +13,6 @@ import {
   Post,
   setBaseTestRoute,
   setupEnvironment,
-  type TextResponse,
   userId
 } from '../index.js'
 
@@ -51,14 +49,4 @@ export function createPromise<Result>(): PromiseMock<Result> {
     }
   }
   return result
-}
-
-export function getResponseCreator(responseType: 'atom' | 'rss') {
-  return function createResponse(responseBody: string): TextResponse {
-    return createTextResponse(responseBody, {
-      headers: new Headers({
-        'Content-Type': `application/${responseType}+xml`
-      })
-    })
-  }
 }

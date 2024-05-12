@@ -2,15 +2,21 @@
   "name": "@slowreader/loader-tests",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "^22.1.0",
+    "pnpm": "^9.0.0"
+  },
   "scripts": {
     "check-opml": "tsx check-opml.ts",
-    "test": "tsx test-loaders.ts feeds.yml"
+    "test": "tsx test-loaders.ts",
+    "url": "tsx url.ts",
+    "home": "tsx home.ts"
   },
   "devDependencies": {
     "@slowreader/core": "link:../core",
     "jsdom": "24.0.0",
     "nanostores": "0.10.3",
-    "tsx": "4.7.3",
+    "tsx": "4.9.3",
     "yaml": "2.4.2"
   }
 }

@@ -1,6 +1,7 @@
 import { IndexedStore } from '@logux/client'
 import { windowPersistentEvents } from '@nanostores/persistent'
 import {
+  enableWarnings,
   type NetworkType,
   type NetworkTypeDetector,
   router,
@@ -10,6 +11,8 @@ import {
 
 import { locale } from '../stores/locale.js'
 import { openRoute, urlRouter } from '../stores/router.js'
+
+enableWarnings()
 
 let PROXY_URL: string
 if (location.hostname === 'localhost') {

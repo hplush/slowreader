@@ -1,5 +1,5 @@
 # Config for asdf the tool to install the right Node.js and pnpm versions.
 # It is like nvm, but for all the tools.
 
-nodejs 22.0.0
-pnpm 9.0.6
+nodejs 22.1.0
+pnpm 9.1.0

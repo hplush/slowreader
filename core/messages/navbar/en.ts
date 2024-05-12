@@ -11,6 +11,7 @@ export const navbarMessages = i18n('navbar', {
   import: 'import',
   interface: 'User Interface',
   menu: 'Feeds & Settings',
+  postRefreshing: 'Checking feeds for new posts',
   profile: 'Profile',
   refresh: 'Check for new posts',
   refreshing: 'Post updating',

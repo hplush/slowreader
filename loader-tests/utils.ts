@@ -21,7 +21,7 @@ import { isAbsolute, join } from 'node:path'
 import { styleText } from 'node:util'
 
 export interface LoaderTestFeed {
-  homeUrl: string
+  homeUrl?: string
   title: string
   url: string
 }
@@ -128,49 +128,91 @@ export function success(msg: string, details?: string): void {
   print(styleText('green', styleText('bold', '✓ ') + msg))
 }
 
-export async function fetchAndParsePosts(url: string): Promise<void> {
+export function semiSuccess(msg: string, note: string): void {
+  print(
+    styleText(
+      'yellow',
+      styleText('bold', '✓ ') + msg + ' ' + styleText('bold', note)
+    )
+  )
+}
+
+export async function fetchAndParsePosts(
+  url: string,
+  badSource = false
+): Promise<void> {
   try {
     let task = createDownloadTask()
-    let textResponse = await task.text(url)
-    let candidate: false | PreviewCandidate = getLoaderForText(textResponse)
+    let response = await task.text(url)
+    if (badSource && response.status >= 400) {
+      semiSuccess(url, `${response.status}`)
+      return
+    }
+    if (
+      badSource &&
+      response.redirected &&
+      response.contentType === 'text/html' &&
+      response.text.toLocaleLowerCase().includes('<html')
+    ) {
+      semiSuccess(url, `redirect to HTML`)
+      return
+    }
+    let candidate: false | PreviewCandidate = getLoaderForText(response)
     if (!candidate) {
       error(`Can not found loader for feed ${url}`)
       return
     }
     let loader = loaders[candidate.loader]
-    let { list } = loader.getPosts(task, url, textResponse).get()
+    let { list } = loader.getPosts(task, url, response).get()
     if (list.length === 0) {
-      error(`Can not found posts for feed ${url}`)
-      return
+      if (badSource) {
+        semiSuccess(url, '0 posts')
+      } else {
+        error(`Can not found posts for feed ${url}`)
+      }
+    } else {
+      success(url, list.length + (list.length > 1 ? ' posts' : ' post'))
     }
-    success(url, list.length + (list.length > 1 ? ' posts' : ' post'))
   } catch (e) {
     error(e, `During loading posts for ${url}`)
   }
 }
 
-export async function findRSSfromHome(feed: LoaderTestFeed): Promise<void> {
+function normalizeUrl(url: string): string {
+  return url
+    .replace(/^(https?:)?\/\//, '')
+    .replace(/\/\/www\./, '//')
+    .replace(/\/$/, '')
+    .toLowerCase()
+}
+
+export async function findRSSfromHome(feed: LoaderTestFeed): Promise<boolean> {
   let unbindPreview = previewCandidates.listen(() => {})
   try {
-    setPreviewUrl(feed.homeUrl)
+    let homeUrl = feed.homeUrl || getHomeUrl(feed.url)
+    setPreviewUrl(homeUrl)
     await timeout(10_000, waitFor(previewCandidatesLoading, false))
-    if (previewCandidates.get().some(c => c.url === feed.url)) {
+    let normalizedUrls = previewCandidates.get().map(i => normalizeUrl(i.url))
+    if (normalizedUrls.includes(normalizeUrl(feed.url))) {
       success(`Feed ${feed.title} has feed URL at home`)
+      return true
     } else if (previewCandidates.get().length === 0) {
       error(
         `Can’t find any feed from home URL or ${feed.title}`,
-        `Home URL: ${feed.homeUrl}\nFeed URL: ${feed.url}`
+        `Home URL: ${homeUrl}\nFeed URL: ${feed.url}`
       )
+      return false
     } else {
       error(
         `Can’t find ${feed.title} feed from home URL`,
-        `Home URL: ${feed.homeUrl}\n` +
+        `Home URL: ${homeUrl}\n` +
           `Found: ${previewCandidates
             .get()
             .map(i => i.url)
             .join('\n       ')}\n` +
           `Feed URL: ${feed.url}`
       )
+      return false
     }
   } catch (e) {
     error(
@@ -179,7 +221,70 @@ export async function findRSSfromHome(feed: LoaderTestFeed): Promise<void> {
         `Home URL: ${feed.homeUrl}\n` +
         `Feed URL: ${feed.url}`
     )
+    return false
   } finally {
     unbindPreview()
+  }
+}
+
+export async function completeTasks(
+  tasks: (() => Promise<void>)[]
+): Promise<void> {
+  return new Promise(resolve => {
+    let running = 4
+
+    function runTask(): void {
+      let task = tasks.pop()
+      if (task) {
+        task().then(runTask)
+      } else {
+        running -= 1
+        if (running === 0) resolve()
+      }
+    }
+
+    for (let i = 0; i < running; i++) {
+      runTask()
+    }
+  })
+}
+
+function getHomeUrl(feedUrl: string): string {
+  let url = new URL(feedUrl)
+  url.pathname = '/'
+  return url.toString()
+}
+
+export interface CLI {
+  run(cb: (args: string[]) => Promise<void> | void): Promise<void>
+  wrongArg(message: string): void
+}
+
+export function createCLI(help: string, usage?: string): CLI {
+  return {
+    async run(cb) {
+      let args = process.argv.slice(2)
+      if (
+        args.includes('--help') ||
+        args.includes('-h') ||
+        args.includes('help')
+      ) {
+        print(help)
+        if (usage) print('Usage:\n' + usage)
+        process.exit(0)
+      } else {
+        try {
+          await cb(args)
+        } catch (e) {
+          error(e)
+          process.exit(1)
+        }
+      }
+    },
+    wrongArg(message) {
+      error(message)
+      if (usage) print('Usage:\n' + usage)
+      process.exit(1)
+    }
   }
 }

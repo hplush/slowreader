@@ -1,14 +1,18 @@
+import { join } from 'node:path'
 import yaml from 'yaml'
 
 import {
+  completeTasks,
+  createCLI,
   enableTestClient,
-  error,
   fetchAndParsePosts,
   findRSSfromHome,
   finish,
   type LoaderTestFeed,
   readText
 } from './utils.js'
+
+const FEEDS = join(import.meta.dirname, 'feeds.yml')
 
 interface YamlFeed extends LoaderTestFeed {
   findFromHome?: boolean
@@ -19,18 +23,17 @@ async function parseFeedsFromFile(path: string): Promise<YamlFeed[]> {
   return data.feeds
 }
 
-enableTestClient()
+let cli = createCLI('Run all tests on feeds.yml')
 
-try {
-  let feeds = await parseFeedsFromFile(process.argv[2]!)
-  await Promise.all(feeds.map(feed => fetchAndParsePosts(feed.url)))
+cli.run(async () => {
+  enableTestClient()
+
+  let feeds = await parseFeedsFromFile(FEEDS)
+  await completeTasks(feeds.map(feed => () => fetchAndParsePosts(feed.url)))
   for (let feed of feeds) {
     if (feed.findFromHome !== false) {
       await findRSSfromHome(feed)
     }
   }
   finish(`${feeds.length} ${feeds.length === 1 ? 'feed' : 'feeds'} checked`)
-} catch (e) {
-  error(e)
-  process.exit(1)
-}
+})
