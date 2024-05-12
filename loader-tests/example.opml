@@ -30,7 +30,7 @@
     <outline type="rss" title="Wikipedia: Portal: Current events"
       htmlUrl="https://en.wikipedia.org/wiki/Portal:Current_events"
       text="Wikipedia: Portal: Current events"
-      xmlUrl="https://en.wikipedia.org/w/api.php?hidebots=1&hidecategorization=1&hideWikibase=1&urlversion=1&days=7&limit=50&action=feedrecentchanges&feedformat=atom" />
+      xmlUrl="https://en.wikipedia.org/w/api.php?hidebots=1&amp;hidecategorization=1&amp;hideWikibase=1&amp;urlversion=1&amp;days=7&amp;limit=50&amp;action=feedrecentchanges&amp;feedformat=atom" />
     <outline title="Zero Credibility" htmlUrl="https://www.spakhm.com"
       text="Zero Credibility" type="rss" xmlUrl="https://www.spakhm.com/feed.rss" />
   </body>
