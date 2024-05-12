@@ -89,8 +89,10 @@ let progress = 0
 let totalJobs = 0
 
 export function initializeProgressBar(totalValue: number): void {
-  totalJobs = totalValue
-  renderProgressBar()
+  if (!process.env.CI) {
+    totalJobs = totalValue
+    renderProgressBar()
+  }
 }
 
 function renderProgressBar(): void {
