@@ -19,6 +19,7 @@ import type { ReadableAtom } from 'nanostores'
 import { readFile } from 'node:fs/promises'
 import { isAbsolute, join } from 'node:path'
 import { styleText } from 'node:util'
+import readline from 'node:readline'
 
 export interface LoaderTestFeed {
   homeUrl?: string
@@ -84,8 +85,44 @@ function isNoFileError(e: unknown): e is NoFileError {
   return e instanceof Error && `code` in e && e.code === 'ENOENT'
 }
 
+let progress = 0
+let totalJobs = 0
+
+export function initializeProgressBar(totalValue: number): void {
+  totalJobs = totalValue
+  renderProgressBar()
+}
+
+function renderProgressBar(): void {
+  const ratio = progress / totalJobs
+  const filledBarLength = Math.floor(ratio * process.stdout.columns)
+  const emptyBarLength = process.stdout.columns - filledBarLength
+  const filledBar = '█'.repeat(filledBarLength)
+  const emptyBar = '░'.repeat(emptyBarLength)
+  process.stderr.write(`${filledBar}${emptyBar}\n`)
+  readline.moveCursor(process.stdout, 0, 0)
+}
+
+function updateProgressBar(): void {
+  if (totalJobs > 0 && progress < totalJobs && !process.env.CI) {
+    progress += 1
+    readline.moveCursor(process.stdout, 0, -1)
+    readline.clearLine(process.stdout, 0)
+    if (progress < totalJobs) {
+      renderProgressBar()
+    }
+  }
+}
+
 export function print(msg: string): void {
-  process.stderr.write(`${msg}\n`)
+  if (totalJobs > 0 && progress < totalJobs && !process.env.CI) {
+    readline.moveCursor(process.stdout, 0, -1)
+    readline.clearLine(process.stdout, 0)
+    process.stderr.write(`${msg}\n`)
+    renderProgressBar()
+  } else {
+    process.stderr.write(`${msg}\n`)
+  }
 }
 
 let errors = 0
@@ -108,6 +145,7 @@ export function error(err: string | unknown, details?: string): void {
   )
   if (details) print(details)
   print('')
+  updateProgressBar()
 }
 
 export function finish(msg: string): void {
@@ -126,6 +164,7 @@ export function success(msg: string, details?: string): void {
     msg += ` ${styleText('gray', details)}`
   }
   print(styleText('green', styleText('bold', '✓ ') + msg))
+  updateProgressBar()
 }
 
 export function semiSuccess(msg: string, note: string): void {

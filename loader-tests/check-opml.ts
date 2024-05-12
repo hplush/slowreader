@@ -10,7 +10,8 @@ import {
   finish,
   isString,
   type LoaderTestFeed as OpmlFeed,
-  readText
+  readText,
+  initializeProgressBar
 } from './utils.js'
 
 async function parseFeedsFromFile(path: string): Promise<OpmlFeed[]> {
@@ -59,6 +60,10 @@ cli.run(async args => {
   }
 
   let feeds = await parseFeedsFromFile(opmlFile)
+
+  const jobsCount = home ? feeds.length * 2 : feeds.length
+  initializeProgressBar(jobsCount)
+
   await completeTasks(
     feeds.map(feed => () => fetchAndParsePosts(feed.url, true))
   )
