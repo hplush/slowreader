@@ -95,19 +95,19 @@ export function initializeProgressBar(totalValue: number): void {
 
 function renderProgressBar(): void {
   const ratio = progress / totalJobs
-  const filledBarLength = Math.floor(ratio * process.stdout.columns)
-  const emptyBarLength = process.stdout.columns - filledBarLength
+  const filledBarLength = Math.floor(ratio * process.stderr.columns)
+  const emptyBarLength = process.stderr.columns - filledBarLength
   const filledBar = '█'.repeat(filledBarLength)
   const emptyBar = '░'.repeat(emptyBarLength)
   process.stderr.write(`${filledBar}${emptyBar}\n`)
-  readline.moveCursor(process.stdout, 0, 0)
+  readline.moveCursor(process.stderr, 0, 0)
 }
 
 function updateProgressBar(): void {
   if (totalJobs > 0 && progress < totalJobs && !process.env.CI) {
     progress += 1
-    readline.moveCursor(process.stdout, 0, -1)
-    readline.clearLine(process.stdout, 0)
+    readline.moveCursor(process.stderr, 0, -1)
+    readline.clearLine(process.stderr, 0)
     if (progress < totalJobs) {
       renderProgressBar()
     }
@@ -116,8 +116,8 @@ function updateProgressBar(): void {
 
 export function print(msg: string): void {
   if (totalJobs > 0 && progress < totalJobs && !process.env.CI) {
-    readline.moveCursor(process.stdout, 0, -1)
-    readline.clearLine(process.stdout, 0)
+    readline.moveCursor(process.stderr, 0, -1)
+    readline.clearLine(process.stderr, 0)
     process.stderr.write(`${msg}\n`)
     renderProgressBar()
   } else {
