@@ -37,7 +37,7 @@ To ask any question: **[h+h lab Discord](https://discord.gg/TyFTp6mAZT)**
 
 ## License
 
-Slow Reader is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License (version 3 or any later). For details see the [`LICENSE.md`](./LICENSE.md) file in this directory.
+Slow Reader is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License (version 3 or any later). For details, see the [`LICENSE.md`](./LICENSE.md) file in this directory.
 
 ## Principles
 
@@ -188,7 +188,7 @@ Types should try to use precise **types** and explain data relations with them:
 + { type: 'ok' } | { type: 'error', error: Error }
 ```
 
-We are using unit tests for **client core**. We mock network requests and the platform environment but emulate user interaction and test the composition of all stores.
+We are using unit tests for **client core**. We mock network requests and the platform environment, but emulate user interaction and test the composition of all stores.
 
 For the platform’s clients, we mostly use **visual tests**. But they could be complex and test the whole pages with mocking core’s stores.
 
