@@ -33,6 +33,7 @@ test('add route', () => {
 })
 
 test('categories route', async () => {
+  secondStep.set(false)
   setBaseTestRoute({ params: {}, route: 'categories' })
   strictEqual(secondStep.get(), false)
 
@@ -49,6 +50,7 @@ test('categories route', async () => {
 })
 
 test('fast route', async () => {
+  secondStep.set(false)
   let idA = await addCategory({ title: 'A' })
   let feed = await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
   let post = await addPost(testPost({ feedId: feed }))
@@ -69,6 +71,7 @@ test('fast route', async () => {
 })
 
 test('slow route', async () => {
+  secondStep.set(false)
   let idA = await addCategory({ title: 'A' })
   let feed = await addFeed(testFeed({ categoryId: idA, reading: 'slow' }))
   let post = await addPost(testPost({ feedId: feed }))

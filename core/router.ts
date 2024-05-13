@@ -219,17 +219,17 @@ export function removeFeedFromRoute(): void {
 export const backRoute = computed<Route | undefined, typeof router>(
   router,
   route => {
-    if (route.route === 'categories') {
+    if (route.route === 'categories' && route.params.feed) {
       return {
         params: {},
         route: 'categories'
       }
-    } else if (route.route === 'fast') {
+    } else if (route.route === 'fast' && route.params.post) {
       return {
         params: { category: route.params.category },
         route: 'fast'
       }
-    } else if (route.route === 'slow') {
+    } else if (route.route === 'slow' && route.params.post) {
       return {
         params: { feed: route.params.feed },
         route: 'slow'

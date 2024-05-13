@@ -56,7 +56,6 @@
       <NavbarItem
         name={$t.back}
         current={true}
-        hotkey="Escape"
         href={$backRoute ? getURL($backRoute) : undefined}
         icon={mdiChevronLeft}
         small
