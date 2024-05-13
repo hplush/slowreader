@@ -60,9 +60,7 @@ cli.run(async args => {
   }
 
   let feeds = await parseFeedsFromFile(opmlFile)
-
-  let jobsCount = home ? feeds.length * 2 : feeds.length
-  initializeProgressBar(jobsCount)
+  initializeProgressBar(home ? feeds.length * 2 : feeds.length)
 
   await completeTasks(
     feeds.map(feed => () => fetchAndParsePosts(feed.url, true))

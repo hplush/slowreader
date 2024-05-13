@@ -96,12 +96,10 @@ export function initializeProgressBar(totalValue: number): void {
 }
 
 function renderProgressBar(): void {
-  let ratio = progress / totalJobs
-  let filledBarLength = Math.floor(ratio * process.stderr.columns)
-  let emptyBarLength = process.stderr.columns - filledBarLength
-  let filledBar = '█'.repeat(filledBarLength)
-  let emptyBar = '░'.repeat(emptyBarLength)
-  process.stderr.write(`${filledBar}${emptyBar}\n`)
+  let filled = Math.floor((process.stderr.columns * progress) / totalJobs)
+  process.stderr.write(
+    '█'.repeat(filled) + '░'.repeat(process.stderr.columns - filled) + '\n'
+  )
   readline.moveCursor(process.stderr, 0, 0)
 }
 
