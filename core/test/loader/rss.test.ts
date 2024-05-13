@@ -5,10 +5,20 @@ import { deepStrictEqual, equal } from 'node:assert'
 import { test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import { createDownloadTask, createTextResponse, loaders } from '../../index.js'
-import { getResponseCreator } from '../utils.js'
+import {
+  createDownloadTask,
+  createTextResponse,
+  loaders,
+  type TextResponse
+} from '../../index.js'
 
-const exampleRss = getResponseCreator('rss')
+function exampleRss(responseBody: string): TextResponse {
+  return createTextResponse(responseBody, {
+    headers: new Headers({
+      'Content-Type': `application/rss+xml`
+    })
+  })
+}
 
 test('detects own URLs', () => {
   equal(typeof loaders.rss.isMineUrl(new URL('https://dev.to/')), 'undefined')
@@ -108,6 +118,26 @@ test('detects titles', () => {
   equal(
     loaders.rss.isMineText(exampleRss('<unknown><title>No</title></unknown>')),
     false
+  )
+})
+
+test('detects content type by content', () => {
+  equal(
+    loaders.rss.isMineText(
+      createTextResponse('<rss><channel><title>A</title></channel></rss>', {
+        headers: new Headers({ 'Content-Type': `text/html` })
+      })
+    ),
+    'A'
+  )
+  equal(
+    loaders.rss.isMineText(
+      createTextResponse(
+        '<?xml version="1.0" encoding="UTF-8"?> ' +
+          '<rss><channel><title>B</title></channel></rss>'
+      )
+    ),
+    'B'
   )
 })
 

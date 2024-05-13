@@ -29,6 +29,7 @@ test('makes requests', async () => {
   let response = await task.request('https://example.com')
 
   equal(response.status, 200)
+  equal(response.redirected, false)
   equal(await response.text(), 'Hi')
 })
 
@@ -210,4 +211,38 @@ test('has helper to ignore abort errors', async () => {
   await setTimeout(10)
 
   ignoreAbortError(error3)
+})
+
+test('detects content type', async () => {
+  equal(
+    createTextResponse('custom', {
+      headers: new Headers({ 'content-type': 'application/custom' })
+    }).contentType,
+    'application/custom'
+  )
+  equal(
+    createTextResponse('<html></html>', {
+      headers: new Headers({ 'content-type': 'text/html' })
+    }).contentType,
+    'text/html'
+  )
+  equal(
+    createTextResponse('<html></html>', {
+      headers: new Headers({ 'content-type': 'text/plain' })
+    }).contentType,
+    'text/html'
+  )
+  equal(createTextResponse('<!DOCTYPE html>body').contentType, 'text/html')
+  equal(
+    createTextResponse('{"version":"https://jsonfeed.org/version/1"}')
+      .contentType,
+    'application/json'
+  )
+  equal(createTextResponse('<rss></rss>').contentType, 'application/rss+xml')
+  equal(createTextResponse('<feed></feed>').contentType, 'application/atom+xml')
+  equal(
+    createTextResponse('<rss><![CDATA[<!DOCTYPE html><html></html>]]></rss>')
+      .contentType,
+    'application/rss+xml'
+  )
 })

@@ -1,10 +1,13 @@
+import { warning } from './devtools.js'
 import { request } from './request.js'
 
 export interface TextResponse {
+  readonly contentType: string
   readonly headers: Headers
   readonly ok: boolean
   parseJson(): null | unknown
   parseXml(): Document | null | XMLDocument
+  readonly redirected: boolean
   readonly status: number
   readonly text: string
   readonly url: string
@@ -16,12 +19,25 @@ export interface DownloadTask {
   text(...args: Parameters<typeof request>): Promise<TextResponse>
 }
 
-function getContentMediaType(headers: Headers): string {
-  let contentType = headers.get('content-type') ?? 'text/html'
-  if (contentType.includes(';')) {
-    contentType = contentType.split(';')[0]!
+function detectType(text: string): string | undefined {
+  let lower = text.toLowerCase()
+  let beginning = lower.slice(0, 100)
+  if (/^\s*<!doctype html/i.test(beginning)) {
+    return 'text/html'
+  } else if (/^\s*<\?xml/i.test(beginning)) {
+    return 'application/xml'
+  } else if (lower.includes('<rss')) {
+    return 'application/rss+xml'
+  } else if (lower.includes('<feed')) {
+    return 'application/atom+xml'
+  } else if (lower.includes('<html')) {
+    return 'text/html'
+  } else if (
+    /^\s*\{/.test(beginning) &&
+    lower.includes('"version":"https://jsonfeed.org/version/1"')
+  ) {
+    return 'application/json'
   }
-  return contentType
 }
 
 export function createTextResponse(
@@ -31,15 +47,21 @@ export function createTextResponse(
   let status = other.status ?? 200
   let headers = other.headers ?? new Headers()
   let bodyCache: Document | undefined | XMLDocument
+
+  let contentType =
+    detectType(text) ?? headers.get('content-type') ?? 'text/plain'
+  if (contentType.includes(';')) {
+    contentType = contentType.split(';')[0]!
+  }
+
   return {
+    contentType,
     headers,
     ok: status >= 200 && status < 300,
     parseJson() {
-      let parseType = getContentMediaType(headers)
-
       if (
-        parseType !== 'application/json' &&
-        parseType !== 'application/feed+json'
+        contentType !== 'application/json' &&
+        contentType !== 'application/feed+json'
       ) {
         return null
       }
@@ -47,36 +69,37 @@ export function createTextResponse(
       try {
         return JSON.parse(text)
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error('Parse JSON error', e)
-        return null
+        if (e instanceof SyntaxError) {
+          warning('Parse JSON error', e.message)
+          return null
+        } else {
+          throw e
+        }
       }
     },
     parseXml() {
       if (!bodyCache) {
-        let parseType = getContentMediaType(headers)
-
-        if (parseType.includes('/json')) {
+        if (contentType.includes('/json')) {
           return null
         }
 
-        if (parseType.includes('+xml')) {
-          parseType = 'application/xml'
+        if (contentType.includes('+xml')) {
+          contentType = 'application/xml'
         }
         if (
-          parseType === 'text/html' ||
-          parseType === 'application/xml' ||
-          parseType === 'text/xml'
+          contentType === 'text/html' ||
+          contentType === 'application/xml' ||
+          contentType === 'text/xml'
         ) {
-          bodyCache = new DOMParser().parseFromString(text, parseType)
+          bodyCache = new DOMParser().parseFromString(text, contentType)
         } else {
-          // eslint-disable-next-line no-console
-          console.error('Unknown content type', parseType)
+          warning('Unknown content type', contentType)
           return null
         }
       }
       return bodyCache
     },
+    redirected: other.redirected ?? false,
     status,
     text,
     url: other.url ?? 'https://example.com'
@@ -104,6 +127,7 @@ export function createDownloadTask(): DownloadTask {
       }
       return createTextResponse(text, {
         headers: response.headers,
+        redirected: response.redirected,
         status: response.status,
         url: response.url
       })

@@ -5,10 +5,20 @@ import { deepStrictEqual, equal } from 'node:assert'
 import { test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import { createDownloadTask, createTextResponse, loaders } from '../../index.js'
-import { getResponseCreator } from '../utils.js'
+import {
+  createDownloadTask,
+  createTextResponse,
+  loaders,
+  type TextResponse
+} from '../../index.js'
 
-const exampleAtom = getResponseCreator('atom')
+function exampleAtom(responseBody: string): TextResponse {
+  return createTextResponse(responseBody, {
+    headers: new Headers({
+      'Content-Type': `application/atom+xml`
+    })
+  })
+}
 
 test('detects xml:base attribute', () => {
   deepStrictEqual(
@@ -117,6 +127,7 @@ test('finds atom links in <a> elements', () => {
             <a href="https://example.com/blog/feed.xml">Feed XML</a>
             <a href="/something.atom">Feed Atom</a>
             <a href="/feed.something?id=1">Feed Atom</a>
+            <a href="https://feeds.service.com/name">Other Domain</a>
           </body>
         </html>`,
         {
@@ -128,7 +139,8 @@ test('finds atom links in <a> elements', () => {
       'https://example.com/news/atom',
       'https://example.com/blog/feed.xml',
       'https://example.com/something.atom',
-      'https://example.com/feed.something?id=1'
+      'https://example.com/feed.something?id=1',
+      'https://feeds.service.com/name'
     ]
   )
 })
@@ -162,6 +174,47 @@ test('returns default links', () => {
 })
 
 test('detects titles', () => {
+  equal(loaders.atom.isMineText(exampleAtom('<feed></feed>')), '')
+  equal(
+    loaders.atom.isMineText(
+      exampleAtom(
+        `<?xml version="1.0" encoding="utf-8"?>
+        <feed xmlns="http://www.w3.org/2005/Atom">
+          <title>Test 2</title>
+        </feed>`
+      )
+    ),
+    'Test 2'
+  )
+  equal(
+    loaders.atom.isMineText(
+      exampleAtom('<unknown><title>No</title></unknown>')
+    ),
+    false
+  )
+})
+
+test('detects content type by content', () => {
+  equal(
+    loaders.atom.isMineText(
+      createTextResponse('<feed><title>A</title></feed>', {
+        headers: new Headers({ 'Content-Type': `text/html` })
+      })
+    ),
+    'A'
+  )
+  equal(
+    loaders.atom.isMineText(
+      createTextResponse(
+        '<?xml version="1.0" encoding="UTF-8"?> ' +
+          '<feed><title>B</title></feed>'
+      )
+    ),
+    'B'
+  )
+})
+
+test('detects tyupe', () => {
   equal(loaders.atom.isMineText(exampleAtom('<feed></feed>')), '')
   equal(
     loaders.atom.isMineText(
