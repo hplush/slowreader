@@ -19,6 +19,7 @@ import type { ReadableAtom } from 'nanostores'
 import { readFile } from 'node:fs/promises'
 import { isAbsolute, join } from 'node:path'
 import readline from 'node:readline'
+import { isatty } from 'node:tty'
 import { styleText } from 'node:util'
 
 export interface LoaderTestFeed {
@@ -103,8 +104,10 @@ function renderProgressBar(): void {
   readline.moveCursor(process.stderr, 0, 0)
 }
 
+const SIMPLE_SHELL = !isatty(1) || process.env.CI
+
 function updateProgressBar(): void {
-  if (totalJobs > 0 && progress < totalJobs && !process.env.CI) {
+  if (totalJobs > 0 && progress < totalJobs && !SIMPLE_SHELL) {
     progress += 1
     readline.moveCursor(process.stderr, 0, -1)
     readline.clearLine(process.stderr, 0)
@@ -115,7 +118,7 @@ function updateProgressBar(): void {
 }
 
 export function print(msg: string): void {
-  if (totalJobs > 0 && progress < totalJobs && !process.env.CI) {
+  if (totalJobs > 0 && progress < totalJobs && !SIMPLE_SHELL) {
     readline.moveCursor(process.stderr, 0, -1)
     readline.clearLine(process.stderr, 0)
     process.stderr.write(`${msg}\n`)
