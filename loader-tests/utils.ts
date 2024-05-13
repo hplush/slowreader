@@ -18,8 +18,8 @@ import {
 import type { ReadableAtom } from 'nanostores'
 import { readFile } from 'node:fs/promises'
 import { isAbsolute, join } from 'node:path'
-import { styleText } from 'node:util'
 import readline from 'node:readline'
+import { styleText } from 'node:util'
 
 export interface LoaderTestFeed {
   homeUrl?: string
@@ -96,11 +96,11 @@ export function initializeProgressBar(totalValue: number): void {
 }
 
 function renderProgressBar(): void {
-  const ratio = progress / totalJobs
-  const filledBarLength = Math.floor(ratio * process.stderr.columns)
-  const emptyBarLength = process.stderr.columns - filledBarLength
-  const filledBar = '█'.repeat(filledBarLength)
-  const emptyBar = '░'.repeat(emptyBarLength)
+  let ratio = progress / totalJobs
+  let filledBarLength = Math.floor(ratio * process.stderr.columns)
+  let emptyBarLength = process.stderr.columns - filledBarLength
+  let filledBar = '█'.repeat(filledBarLength)
+  let emptyBar = '░'.repeat(emptyBarLength)
   process.stderr.write(`${filledBar}${emptyBar}\n`)
   readline.moveCursor(process.stderr, 0, 0)
 }
