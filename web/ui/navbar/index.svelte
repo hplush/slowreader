@@ -1,6 +1,7 @@
 <script lang="ts">
   import { mdiChevronLeft, mdiFood, mdiMenu, mdiRefresh } from '@mdi/js'
   import {
+    backRoute,
     isFastRoute,
     isOtherRoute,
     isRefreshing,
@@ -55,9 +56,13 @@
       <NavbarItem
         name={$t.back}
         current={true}
+        hotkey="Escape"
+        href={$backRoute ? getURL($backRoute) : undefined}
         icon={mdiChevronLeft}
         small
-        on:click={showFirstStep}
+        on:click={() => {
+          if (!$backRoute) showFirstStep()
+        }}
       />
     </div>
     <div class={`navbar_refresh-button ${$secondStep ? 'is-hidden' : ''}`}>

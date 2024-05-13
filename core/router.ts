@@ -1,4 +1,4 @@
-import { atom, type ReadableAtom } from 'nanostores'
+import { atom, computed, type ReadableAtom } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.js'
 import { fastCategories } from './fast.js'
@@ -215,3 +215,25 @@ export function removeFeedFromRoute(): void {
     })
   }
 }
+
+export const backRoute = computed<Route | undefined, typeof router>(
+  router,
+  route => {
+    if (route.route === 'categories') {
+      return {
+        params: {},
+        route: 'categories'
+      }
+    } else if (route.route === 'fast') {
+      return {
+        params: { category: route.params.category },
+        route: 'fast'
+      }
+    } else if (route.route === 'slow') {
+      return {
+        params: { feed: route.params.feed },
+        route: 'slow'
+      }
+    }
+  }
+)

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { secondStep, toggleSteps } from '@slowreader/core'
+  import { secondStep } from '@slowreader/core'
   import { onMount } from 'svelte'
 
   export let title: string
@@ -23,17 +23,9 @@
     })
   }
 
-  function toggleStepsOnEscape(event: KeyboardEvent): void {
-    if (event.key === 'Escape' && document.activeElement?.tagName === 'BODY') {
-      toggleSteps()
-    }
-  }
-
   onMount(() => {
-    window.addEventListener('keydown', toggleStepsOnEscape)
     document.title = title + ' › ' + prevTitle
     return () => {
-      window.removeEventListener('keydown', toggleStepsOnEscape)
       document.title = prevTitle
     }
   })

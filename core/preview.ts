@@ -14,6 +14,7 @@ import { type LoaderName, loaders } from './loader/index.js'
 import { addPost, processOriginPost } from './post.js'
 import type { PostsPage } from './posts-page.js'
 import { router } from './router.js'
+import { showSecondStep } from './two-steps.js'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 
@@ -117,7 +118,7 @@ function addCandidate(url: string, candidate: PreviewCandidate): void {
   $links.setKey(url, { state: 'processed' })
   $candidates.set([...$candidates.get(), candidate])
   if ($candidates.get().length === 1) {
-    setPreviewCandidate(url)
+    setPreviewCandidate(url, false)
   }
 }
 
@@ -253,7 +254,10 @@ export const onPreviewUrlType = debounce((value: string) => {
   }
 }, 500)
 
-export async function setPreviewCandidate(url: string): Promise<void> {
+export async function setPreviewCandidate(
+  url: string,
+  toggleToSecondStep: boolean = true
+): Promise<void> {
   let candidate = $candidates.get().find(i => i.url === url)
   if (candidate) {
     $candidate.set(url)
@@ -278,6 +282,8 @@ export async function setPreviewCandidate(url: string): Promise<void> {
       $posts.set(posts)
       postsCache.set(url, posts)
     }
+
+    if (toggleToSecondStep) showSecondStep()
   }
 }
 
