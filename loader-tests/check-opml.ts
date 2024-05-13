@@ -2,6 +2,7 @@ import { createTextResponse } from '@slowreader/core'
 
 import {
   completeTasks,
+  createCLI,
   enableTestClient,
   error,
   fetchAndParsePosts,
@@ -30,24 +31,42 @@ async function parseFeedsFromFile(path: string): Promise<OpmlFeed[]> {
     )
 }
 
-enableTestClient()
+let cli = createCLI(
+  'Test all feeds from user OPML',
+  '$ pnpm check-opml PATH_TO_YOUR_FILE.opml\n' +
+    '$ pnpm check-opml PATH_TO_YOUR_FILE.opml --home'
+)
 
-if (process.argv.length < 3) {
-  error(
-    'Please provide a path to the file',
-    'Example usage:\n$ pnpm check-opml PATH_TO_YOUR_FILE.opml'
+cli.run(async args => {
+  enableTestClient()
+
+  let opmlFile: string | undefined
+  let home = false
+  for (let arg of args) {
+    if (arg === '--home') {
+      home = true
+    } else if (!opmlFile) {
+      opmlFile = arg
+    } else {
+      cli.wrongArg('Unknown argument: ' + arg)
+      return
+    }
+  }
+
+  if (!opmlFile) {
+    cli.wrongArg('Please provide a path to the OPML file')
+    return
+  }
+
+  let feeds = await parseFeedsFromFile(opmlFile)
+  await completeTasks(
+    feeds.map(feed => () => fetchAndParsePosts(feed.url, true))
   )
-  process.exit(1)
-} else {
-  try {
-    let feeds = await parseFeedsFromFile(process.argv[2]!)
-    await completeTasks(feeds.map(feed => () => fetchAndParsePosts(feed.url)))
+  if (home) {
     for (let feed of feeds) {
       await findRSSfromHome(feed)
     }
-    finish(`${feeds.length} ${feeds.length === 1 ? 'feed' : 'feeds'} checked`)
-  } catch (e) {
-    error(e)
-    process.exit(1)
   }
-}
+
+  finish(`${feeds.length} ${feeds.length === 1 ? 'feed' : 'feeds'} checked`)
+})

@@ -211,7 +211,13 @@ export async function addLink(url: string, deep = false): Promise<void> {
   } else {
     $links.setKey(url, { state: 'loading' })
     try {
-      let response = await task.text(url)
+      let response
+      try {
+        response = await task.text(url)
+      } catch (error) {
+        $links.setKey(url, { state: 'unloadable' })
+        return
+      }
 
       if (!response.ok) {
         $links.setKey(url, { state: 'unloadable' })

@@ -26,3 +26,16 @@ export async function fillFeedsWithPosts(): Promise<void> {
     )
   })
 }
+
+let warnings = false
+
+export function enableWarnings(mode = true): void {
+  warnings = mode
+}
+
+export function warning(...args: unknown[]): void {
+  if (warnings) {
+    // eslint-disable-next-line no-console
+    console.warn(...args)
+  }
+}
