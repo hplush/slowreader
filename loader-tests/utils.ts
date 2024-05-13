@@ -174,6 +174,7 @@ export function semiSuccess(msg: string, note: string): void {
       styleText('bold', '✓ ') + msg + ' ' + styleText('bold', note)
     )
   )
+  updateProgressBar()
 }
 
 export async function fetchAndParsePosts(
