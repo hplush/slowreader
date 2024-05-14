@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { mdiFood, mdiMenu, mdiRefresh } from '@mdi/js'
+  import { mdiChevronLeft, mdiFood, mdiMenu, mdiRefresh } from '@mdi/js'
   import {
+    backRoute,
     isFastRoute,
     isOtherRoute,
     isRefreshing,
@@ -8,6 +9,8 @@
     refreshPosts,
     refreshProgress,
     router,
+    secondStep,
+    showFirstStep,
     navbarMessages as t
   } from '@slowreader/core'
   import { onMount } from 'svelte'
@@ -49,28 +52,42 @@
 
 <nav class="navbar">
   <div class="navbar_main" aria-orientation="horizontal" role="menu">
-    {#if $isRefreshing}
+    <div class={`navbar_back-button ${!$secondStep ? 'is-hidden' : ''}`}>
       <NavbarItem
-        name={$t.refresh}
-        current={$router.route === 'refresh'}
-        hotkey="r"
-        href={getURL('refresh')}
-        small
-      >
-        <NavbarProgress value={$refreshProgress} />
-      </NavbarItem>
-    {:else}
-      <NavbarItem
-        name={$t.refresh}
-        current={$router.route === 'refresh'}
-        hotkey="r"
-        icon={mdiRefresh}
+        name={$t.back}
+        current={true}
+        href={$backRoute ? getURL($backRoute) : undefined}
+        icon={mdiChevronLeft}
         small
         on:click={() => {
-          refreshPosts()
+          if (!$backRoute) showFirstStep()
         }}
       />
-    {/if}
+    </div>
+    <div class={`navbar_refresh-button ${$secondStep ? 'is-hidden' : ''}`}>
+      {#if $isRefreshing}
+        <NavbarItem
+          name={$t.refresh}
+          current={$router.route === 'refresh'}
+          hotkey="r"
+          href={getURL('refresh')}
+          small
+        >
+          <NavbarProgress value={$refreshProgress} />
+        </NavbarItem>
+      {:else}
+        <NavbarItem
+          name={$t.refresh}
+          current={$router.route === 'refresh'}
+          hotkey="r"
+          icon={mdiRefresh}
+          small
+          on:click={() => {
+            refreshPosts()
+          }}
+        />
+      {/if}
+    </div>
     <div class="navbar_switcher">
       <a
         class="navbar_link"
@@ -175,6 +192,26 @@
     @media (width <= 1024px) {
       justify-content: space-between;
       padding: var(--padding-m);
+    }
+  }
+
+  .navbar_back-button {
+    display: none;
+
+    @media (width <= 1024px) {
+      display: block;
+    }
+  }
+
+  .navbar_back-button.is-hidden {
+    @media (width <= 1024px) {
+      display: none;
+    }
+  }
+
+  .navbar_refresh-button.is-hidden {
+    @media (width <= 1024px) {
+      display: none;
     }
   }
 

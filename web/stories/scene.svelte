@@ -18,6 +18,7 @@
     refreshStatistics,
     type RefreshStatistics,
     type Route,
+    secondStep,
     testFeed
   } from '@slowreader/core'
   import { cleanStores } from 'nanostores'
@@ -47,6 +48,8 @@
   export let feeds: Partial<FeedValue>[] = [{ title: 'Example' }]
 
   export let responses: Record<string, PreparedResponse | string> = {}
+
+  export let showSecondStep: boolean = false
 
   function cleanLogux(): void {
     clearPreview()
@@ -88,6 +91,8 @@
     } else {
       baseRouter.set(route)
     }
+
+    secondStep.set(showSecondStep)
   }
 
   onMount(() => {

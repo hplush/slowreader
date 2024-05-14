@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { secondStep } from '@slowreader/core'
   import { onMount } from 'svelte'
 
   export let title: string
@@ -31,10 +32,16 @@
 </script>
 
 <main id="page" class="two-steps-page">
-  <div bind:this={first} class="two-steps-page_step">
+  <div
+    bind:this={first}
+    class={`two-steps-page_step ${$secondStep ? 'is-hidden' : ''}`}
+  >
     <slot name="one" />
   </div>
-  <div bind:this={second} class="two-steps-page_step">
+  <div
+    bind:this={second}
+    class={`two-steps-page_step ${!$secondStep ? 'is-hidden' : ''}`}
+  >
     <slot name="two" />
   </div>
 </main>
@@ -46,6 +53,10 @@
     gap: var(--padding-l);
     justify-content: space-around;
     width: calc(100% - var(--padding-l));
+
+    @media (width <= 1024px) {
+      margin: 0 auto;
+    }
   }
 
   .two-steps-page_step {
@@ -57,7 +68,14 @@
     overflow-x: auto;
 
     @media (width <= 1024px) {
-      padding-inline-start: var(--navbar-height);
+      width: 100%;
+      padding-bottom: var(--navbar-height);
+    }
+  }
+
+  .two-steps-page_step.is-hidden {
+    @media (width <= 1024px) {
+      display: none;
     }
   }
 </style>
