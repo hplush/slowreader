@@ -17,7 +17,7 @@
     "@slowreader/core": "link:../core",
     "jsdom": "24.0.0",
     "nanostores": "0.10.3",
-    "tsx": "4.9.3",
+    "tsx": "4.10.2",
     "yaml": "2.4.2"
   }
 }
