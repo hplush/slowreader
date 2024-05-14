@@ -9,6 +9,7 @@ import {
   backRoute,
   secondStep,
   setBaseTestRoute,
+  showFirstStep,
   showSecondStep,
   testFeed,
   testPost
@@ -23,16 +24,19 @@ afterEach(async () => {
   await cleanClientTest()
 })
 
-test('add route', () => {
+test('adds route', () => {
   setBaseTestRoute({ params: {}, route: 'add' })
   strictEqual(secondStep.get(), false)
 
   showSecondStep()
   strictEqual(secondStep.get(), true)
   strictEqual(backRoute.get(), undefined)
+
+  showFirstStep()
+  strictEqual(secondStep.get(), false)
 })
 
-test('categories route', async () => {
+test('works with categories route', async () => {
   secondStep.set(false)
   setBaseTestRoute({ params: {}, route: 'categories' })
   strictEqual(secondStep.get(), false)
@@ -49,7 +53,7 @@ test('categories route', async () => {
   })
 })
 
-test('fast route', async () => {
+test('works withfast route', async () => {
   secondStep.set(false)
   let idA = await addCategory({ title: 'A' })
   let feed = await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
@@ -70,7 +74,7 @@ test('fast route', async () => {
   })
 })
 
-test('slow route', async () => {
+test('works with slow route', async () => {
   secondStep.set(false)
   let idA = await addCategory({ title: 'A' })
   let feed = await addFeed(testFeed({ categoryId: idA, reading: 'slow' }))
