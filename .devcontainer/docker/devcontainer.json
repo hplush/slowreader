@@ -1,0 +1,24 @@
+{
+  "build": {
+    "context": "..",
+    "dockerfile": "../Dockerfile"
+  },
+  "forwardPorts": [5173, 5284, 6006],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "connor4312.nodejs-testing",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "stylelint.vscode-stylelint",
+        "svelte.svelte-vscode",
+        "webben.browserslist",
+        "yoavbls.pretty-ts-errors",
+        "streetsidesoftware.code-spell-checker",
+        "editorconfig.editorconfig",
+        "yzhang.markdown-all-in-one",
+        "davidlday.languagetool-linter"
+      ]
+    }
+  }
+}

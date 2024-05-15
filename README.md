@@ -108,6 +108,7 @@ Slow Reader is a local-first app. Clients do most of the work, and the server ju
 - [`docs/`](./docs/): guides for developers.
 - [`scripts/`](./scripts/): scripts to test project and configure Google Cloud. Check the script’s descriptions for further details.
 - [`loader-tests/`](./loader-tests/): integration tests for each social network or news format.
+- [`.devcontainer`](./.devcontainer/): `Dockerfile` and configs to run project in Docker/Podman image on developer’s machine. It increases security (malicious dependency will not have access to the whole machine) and simplify onboarding.
 - [`.github/`](./.github/): scripts to test projects on CI.
 - [`.husky/`](./.husky/): scripts to call on `git commit` command to avoid popular errors.
 - [`.vscode/`](./.vscode/): VS Code settings to reduce code format errors for new contributors.
@@ -118,7 +119,7 @@ We are using [pnpm monorepo](https://pnpm.io/workspaces). Each project has its d
 
 Global development tools:
 
-- [asdf](./.tool-versions) to synchronize Node.js and pnpm versions across the team and CI.
+- [Dev Container](https://containers.dev) to use the same environment for all developers and isolate project from developer’s machine.
 - [Prettier](./.prettierrc) to use the same code style formatting.
 - [TypeScript](./tsconfig.json) for strict type checking.
 - [ESLint](./eslint.config.js) to check for popular mistakes in JavaScript.

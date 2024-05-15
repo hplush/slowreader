@@ -1,0 +1,42 @@
+{
+  "build": {
+    "context": "..",
+    "dockerfile": "../Dockerfile"
+  },
+  "forwardPorts": [5173, 5284, 6006],
+  "mounts": [
+    {
+      "source": "pnpm-store",
+      "target": "/home/node/.local/share/pnpm/store",
+      "type": "volume"
+    },
+    {
+      "source": "shell-history",
+      "target": "/home/node/.shell-history/",
+      "type": "volume"
+    }
+  ],
+  "workspaceMount": "",
+  "runArgs": [
+    "--userns=keep-id:uid=1000,gid=1000",
+    "--volume=${localWorkspaceFolder}:/workspaces/${localWorkspaceFolderBasename}:Z"
+  ],
+  "postCreateCommand": "pnpm config set store-dir /home/node/.local/share/pnpm/store",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "connor4312.nodejs-testing",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "stylelint.vscode-stylelint",
+        "svelte.svelte-vscode",
+        "webben.browserslist",
+        "yoavbls.pretty-ts-errors",
+        "streetsidesoftware.code-spell-checker",
+        "editorconfig.editorconfig",
+        "yzhang.markdown-all-in-one",
+        "davidlday.languagetool-linter"
+      ]
+    }
+  }
+}
