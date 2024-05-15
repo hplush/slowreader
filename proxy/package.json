@@ -13,7 +13,7 @@
     "production": "node --run build && ./scripts/run-image.sh",
     "test:proxy-coverage": "c8 bnt",
     "clean:coverage": "rm -rf coverage",
-    "clean:build": "rm -rf build"
+    "clean:build": "rm -rf dist/"
   },
   "dependencies": {
     "esbuild": "0.21.2"
