@@ -7,11 +7,13 @@ on:
       - '**/*.md'
       - '.vscode/**'
       - '.husky/**'
+      - '.devcontainer/**'
   pull_request:
     paths-ignore:
       - '**/*.md'
       - '.vscode/**'
       - '.husky/**'
+      - '.devcontainer/**'
 jobs:
   test:
     name: Test
