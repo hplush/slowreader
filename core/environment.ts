@@ -120,6 +120,12 @@ export function getEnvironment(): Environment {
   return currentEnvironment
 }
 
+export const isMobile = atom<boolean | undefined>()
+
+export function setIsMobile(isSmallScreen: boolean): void {
+  isMobile.set(isSmallScreen)
+}
+
 const testRouter = atom<BaseRoute | undefined>()
 
 export function setBaseTestRoute(route: BaseRoute | undefined): void {

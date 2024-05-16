@@ -7,7 +7,7 @@ import {
   ignoreAbortError,
   type TextResponse
 } from './download.js'
-import { onEnvironment } from './environment.js'
+import { isMobile, onEnvironment } from './environment.js'
 import { addFeed, getFeeds } from './feed.js'
 import { readonlyExport } from './lib/stores.js'
 import { type LoaderName, loaders } from './loader/index.js'
@@ -118,7 +118,7 @@ function addCandidate(url: string, candidate: PreviewCandidate): void {
   $links.setKey(url, { state: 'processed' })
   $candidates.set([...$candidates.get(), candidate])
   if ($candidates.get().length === 1) {
-    setPreviewCandidate(url, false)
+    if (!isMobile.get()) setPreviewCandidate(url)
   }
 }
 
@@ -260,10 +260,7 @@ export const onPreviewUrlType = debounce((value: string) => {
   }
 }, 500)
 
-export async function setPreviewCandidate(
-  url: string,
-  toggleToSecondStep: boolean = true
-): Promise<void> {
+export async function setPreviewCandidate(url: string): Promise<void> {
   let candidate = $candidates.get().find(i => i.url === url)
   if (candidate) {
     $candidate.set(url)
@@ -289,7 +286,7 @@ export async function setPreviewCandidate(
       postsCache.set(url, posts)
     }
 
-    if (toggleToSecondStep) showSecondStep()
+    showSecondStep()
   }
 }
 
