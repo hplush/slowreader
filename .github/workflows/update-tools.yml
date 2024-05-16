@@ -10,6 +10,7 @@ on:
       - './scripts/update-tools.ts'
 jobs:
   update-node:
+    name: Check updates
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
@@ -33,7 +34,7 @@ jobs:
             git config --global user.email 'github-actions[bot]@users.noreply.github.com'
             git checkout -b update-version
             git add .
-            if git status --porcelain | grep -q "^ M .node-version"; then
+            if git status --porcelain | grep "M .node-version"; then
               changed="Node.js"
             else
               changed="pnpm"

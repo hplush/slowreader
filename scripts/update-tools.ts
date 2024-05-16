@@ -1,3 +1,5 @@
+// Script to run on CI and update Node.js and pnpm automatically
+
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
