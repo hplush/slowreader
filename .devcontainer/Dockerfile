@@ -3,7 +3,7 @@
 
 FROM ubuntu:24.04
 
-ENV NODE_VERSION 22.1.0
+ENV NODE_VERSION 22.2.0
 ENV PNPM_VERSION 9.1.1
 
 RUN apt-get update \
