@@ -11,6 +11,9 @@ RUN sed -i 's|/node:/bin/sh|/node:/bin/zsh|' /etc/passwd
 
 USER node
 
+RUN pnpm config set store-dir /home/node/.local/share/pnpm/store \
+  && pnpm config set ignore-scripts false
+
 RUN micro -plugin install editorconfig
 RUN mkdir -p /home/node/.config \
   && echo 'eval "$(starship init zsh)"' >> /home/node/.zshrc

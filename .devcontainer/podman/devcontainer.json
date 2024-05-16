@@ -21,7 +21,6 @@
     "--userns=keep-id:uid=1000,gid=1000",
     "--volume=${localWorkspaceFolder}:/workspaces/${localWorkspaceFolderBasename}:Z"
   ],
-  "postCreateCommand": "pnpm config set store-dir /home/node/.local/share/pnpm/store",
   "customizations": {
     "vscode": {
       "extensions": [
