@@ -2,6 +2,8 @@ name: Daily Visual Test
 on:
   schedule:
     - cron: '00 23 * * *' # Runs at midnight UTC every day
+permissions:
+  contents: read
 jobs:
   chromatic:
     name: Chromatic
