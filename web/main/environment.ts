@@ -5,6 +5,7 @@ import {
   type NetworkType,
   type NetworkTypeDetector,
   router,
+  setIsMobile,
   setRequestMethod,
   setupEnvironment
 } from '@slowreader/core'
@@ -76,3 +77,11 @@ router.subscribe(page => {
     openRoute(page)
   }
 })
+
+setIsMobile(window.innerWidth < 1024)
+
+window
+  .matchMedia('(max-width: 1024px)')
+  .addEventListener('change', (event: MediaQueryListEvent) => {
+    setIsMobile(event.matches)
+  })
