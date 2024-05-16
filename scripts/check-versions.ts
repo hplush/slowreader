@@ -25,9 +25,9 @@ function getVersion(content: string, regexp: RegExp): string {
 
 let dockerfile = read('.devcontainer/Dockerfile')
 
-let nodeFull = getVersion(dockerfile, /node:(\d+\.\d+\.\d+)/)
+let nodeFull = getVersion(dockerfile, /NODE_VERSION (\d+\.\d+\.\d+)/)
 let nodeMinor = nodeFull.split('.').slice(0, 2).join('.')
-let pnpmFull = getVersion(dockerfile, /pnpm@(\d+\.\d+\.\d+)/)
+let pnpmFull = getVersion(dockerfile, /PNPM_VERSION (\d+\.\d+\.\d+)/)
 let pnpmMajor = pnpmFull.split('.')[0]
 
 function checkPackage(file: string, content: string): void {
