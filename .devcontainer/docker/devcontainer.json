@@ -3,7 +3,7 @@
     "context": "..",
     "dockerfile": "../Dockerfile"
   },
-  "postCreateCommand": "pnpm install",
+  "postCreateCommand": "pnpm install --force",
   "postStartCommand": "zsh",
   "forwardPorts": [5173, 5284, 6006, 31337],
   "customizations": {
