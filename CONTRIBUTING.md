@@ -43,8 +43,6 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
 
 1. Install environment:
 
-   - To fix a small bug, you can run the app directly in your browser via [StackBlitz](https://stackblitz.com/fork/github/hplush/slowreader?file=web/main/main.svelte).
-
    - For lond-term contribution, we recommend installing Docker and [Dev Container](https://containers.dev) plugin to your text editor. All developers will have the same environment and the development tool will be isolated from the system in the container.
 
      - [VS Code guide](https://code.visualstudio.com/docs/devcontainers/tutorial)
