@@ -5,10 +5,15 @@ import { join } from 'node:path'
 
 const ROOT = join(import.meta.dirname, '..')
 
-async function getLatestNodeVersion(): Promise<string> {
+interface Release {
+  version: string
+}
+
+async function getLatestNodeVersion(major: string): Promise<string> {
   let response = await fetch('https://nodejs.org/dist/index.json')
-  let data = await response.json()
-  return data[0].version.slice(1)
+  let data: Release[] = await response.json()
+  let filtered = data.filter(i => i.version.startsWith(`v${major}.`))
+  return filtered[0]!.version.slice(1)
 }
 
 async function getLatestPnpmVersion(): Promise<string> {
@@ -51,12 +56,12 @@ function updateProjectDockerfiles(cb: (content: string) => string): void {
   }
 }
 
-let latestNode = await getLatestNodeVersion()
-let latestPnpm = await getLatestPnpmVersion()
-
 let Dockerfile = read(join(ROOT, '.devcontainer', 'Dockerfile'))
 let currentNode = Dockerfile.match(/NODE_VERSION (.*)/)![1]!
 let currentPnpm = Dockerfile.match(/PNPM_VERSION (.*)/)![1]!
+
+let latestNode = await getLatestNodeVersion(currentNode.split('.')[0]!)
+let latestPnpm = await getLatestPnpmVersion()
 
 if (currentNode !== latestNode) {
   Dockerfile = Dockerfile.replace(

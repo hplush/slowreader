@@ -28,6 +28,7 @@ jobs:
         run: pnpm tsx ./scripts/update-tools.ts
       - name: Create pull request on changes
         run: |
+          git status --porcelain
           if [ -n "$(git status --porcelain)" ]; then
             echo "Changes detected"
             git config --global user.name 'github-actions[bot]'
@@ -39,7 +40,7 @@ jobs:
             else
               changed="pnpm"
             fi
-            git commit -m 'Update $changed version'
+            git commit -m "Update $changed version"
             git push -u origin update-version
             gh pr create --title "Update $changed version" --body ""
           else
