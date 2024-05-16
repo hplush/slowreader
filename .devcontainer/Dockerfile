@@ -1,21 +1,29 @@
 # Creates development machine inside docker
 # so every developer will have the same environment
 
-FROM node:22.1.0-alpine
+FROM ubuntu:24.04
 
-RUN apk update \
-  && apk add --no-cache zsh git eza tig ripgrep bat curl micro starship \
-  && rm -rf /var/cache/apk/*
-RUN npm install -g pnpm@9.1.1
-RUN sed -i 's|/node:/bin/sh|/node:/bin/zsh|' /etc/passwd
+ENV NODE_VERSION 22.2.0
+ENV PNPM_VERSION 9.1.1
 
-USER node
+RUN apt-get update \
+  && apt-get install -y eza zsh git tig ripgrep bat curl tar xz-utils micro \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+RUN curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz \
+  | tar -xJ -C /usr/local --strip-components=1 \
+  --exclude='*.md' --exclude='LICENSE' \
+  --exclude='share' --exclude='lib/node_modules/' \
+  --exclude='bin/npm' --exclude='bin/npx' --exclude='bin/corepack'
+RUN curl -fsSL https://github.com/pnpm/pnpm/releases/download/v$PNPM_VERSION/pnpm-linux-x64 > /usr/local/bin/pnpm \
+  && chmod a+x /usr/local/bin/pnpm
 
-RUN pnpm config set store-dir /home/node/.local/share/pnpm/store \
+RUN ls -la /usr/local/bin
+
+RUN userdel -r ubuntu
+RUN useradd -m -s /bin/zsh developer
+USER developer
+
+RUN pnpm config set store-dir /home/developer/.local/share/pnpm/store \
   && pnpm config set ignore-scripts false
-
-RUN micro -plugin install editorconfig
-RUN mkdir -p /home/node/.config \
-  && echo 'eval "$(starship init zsh)"' >> /home/node/.zshrc
-RUN printf 'format = "$directory$git_branch$line_break$character"' \
-  > /home/node/.config/starship.toml
+RUN echo 'PS1="%d$ "' > ~/.zshrc
