@@ -1,7 +1,8 @@
-// Script to run on CI and update Node.js and pnpm automatically
+// Script to update Node.js and pnpm everywhere
 
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { styleText } from 'node:util'
 
 const ROOT = join(import.meta.dirname, '..')
 
@@ -56,14 +57,23 @@ function updateProjectDockerfiles(cb: (content: string) => string): void {
   }
 }
 
+function printUpdate(tool: string, prev: string, next: string): void {
+  process.stderr.write(
+    `${tool}: ${styleText('red', prev)} -> ${styleText('green', next)}\n`
+  )
+}
+
 let Dockerfile = read(join(ROOT, '.devcontainer', 'Dockerfile'))
 let currentNode = Dockerfile.match(/NODE_VERSION (.*)/)![1]!
 let currentPnpm = Dockerfile.match(/PNPM_VERSION (.*)/)![1]!
 
-let latestNode = await getLatestNodeVersion(currentNode.split('.')[0]!)
+let latestNode = await getLatestNodeVersion(
+  process.argv[2] ?? currentNode.split('.')[0]!
+)
 let latestPnpm = await getLatestPnpmVersion()
 
 if (currentNode !== latestNode) {
+  printUpdate('Node.js', currentNode, latestNode)
   Dockerfile = Dockerfile.replace(
     /NODE_VERSION .*/,
     `NODE_VERSION ${latestNode}`
@@ -82,6 +92,7 @@ if (currentNode !== latestNode) {
 }
 
 if (currentPnpm !== latestPnpm) {
+  printUpdate('pnpm', currentPnpm, latestPnpm)
   Dockerfile = Dockerfile.replace(
     /PNPM_VERSION .*/,
     `PNPM_VERSION ${latestPnpm}`
@@ -99,4 +110,10 @@ if (currentPnpm !== latestPnpm) {
     }
     return pkg
   })
+}
+
+if (currentNode === latestNode && currentPnpm === latestPnpm) {
+  process.stderr.write(
+    styleText('gray', 'No Node.js or pnpm updates available\n')
+  )
 }
