@@ -221,6 +221,14 @@ test('detects content type', async () => {
     'application/custom'
   )
   equal(
+    createTextResponse('custom', {
+      headers: new Headers({
+        'content-type': 'text/plain; charset=utf-8'
+      })
+    }).contentType,
+    'text/plain'
+  )
+  equal(
     createTextResponse('<html></html>', {
       headers: new Headers({ 'content-type': 'text/html' })
     }).contentType,

@@ -9,9 +9,9 @@ import {
 } from './category.js'
 import { client } from './client.js'
 import { onEnvironment } from './environment.js'
-import { BROKEN_FEED, type FeedValue, loadFeed, loadFeeds } from './feed.js'
+import { BROKEN_FEED, type FeedValue, loadFeed } from './feed.js'
 import { listenMany, readonlyExport } from './lib/stores.js'
-import { getPost, getPosts, loadPosts, type PostValue } from './post.js'
+import { getPost, loadPosts, type PostValue } from './post.js'
 import { type Route, router } from './router.js'
 
 export type SlowCategoriesTree = [CategoryValue, [FeedValue, number][]][]
@@ -120,19 +120,7 @@ let $posts = atom<SlowPostsValue>({ isLoading: true })
 
 export const slowPosts = readonlyExport($posts)
 
-export type SlowFeedsValue =
-  | { feeds: FeedValue[]; isLoading: false }
-  | { isLoading: true }
-
-let $slowFeeds = atom<SlowFeedsValue>({ isLoading: true })
-
-export const slowFeeds = readonlyExport($slowFeeds)
-
 let POSTS_PER_PAGE = 100
-
-export function setSlowPostsPerPage(value: number): void {
-  POSTS_PER_PAGE = value
-}
 
 let $totalPosts = atom<number>(0)
 
@@ -175,16 +163,12 @@ let postUnbind: (() => void) | undefined
 async function load(feedId: string, page: number = 1): Promise<void> {
   $page.set(page)
 
-  let [feedPosts, feeds] = await Promise.all([
-    loadPosts({ feedId, reading: 'slow' }),
-    loadFeeds({ reading: 'slow' })
-  ])
+  let feedPosts = await loadPosts({ feedId, reading: 'slow' })
   let sorted = feedPosts.sort((a, b) => b.publishedAt - a.publishedAt)
   let fromIndex = (page - 1) * POSTS_PER_PAGE
   let posts = sorted.slice(fromIndex, fromIndex + POSTS_PER_PAGE)
 
   $posts.set({ isLoading: false, list: posts })
-  $slowFeeds.set({ feeds, isLoading: false })
   $totalPosts.set(feedPosts.length)
   $totalPages.set(Math.ceil(feedPosts.length / POSTS_PER_PAGE))
 }
@@ -214,30 +198,14 @@ onEnvironment(({ openRoute }) => {
       }
     }),
     router.listen(page => {
-      if (notSynced(page) && page.params.feed) {
-        loadSlowPosts(page.params.feed, page.params.page)
-      }
       if (page.route === 'slow') {
         if (page.params.feed) {
-          if ($currentFeed.get() !== page.params.feed) {
-            postsUnbind?.()
-            postsUnbind = getPosts({ feedId: page.params.feed }).subscribe(
-              posts => {
-                if (posts.isLoading) {
-                  $posts.set({ isLoading: true })
-                } else {
-                  $posts.set({ isLoading: false, list: posts.list })
-                }
-              }
-            )
+          if (notSynced(page)) {
+            loadSlowPosts(page.params.feed, page.params.page)
           }
         } else {
-          postsUnbind?.()
-          postsUnbind = undefined
-          $posts.set({
-            isLoading: false,
-            list: []
-          })
+          $currentFeed.set(undefined)
+          $posts.set({ isLoading: false, list: [] })
         }
         if (page.params.post) {
           if ($post.get()?.id !== page.params.post) {

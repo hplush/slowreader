@@ -32,6 +32,9 @@ let target = createServer(async (req, res) => {
     res.write('a'.repeat(150))
     await setTimeout(10)
     res.write('a'.repeat(150))
+  } else if (queryParams.error) {
+    res.writeHead(500)
+    res.end('Error')
   } else {
     res.writeHead(200, {
       'Content-Type': 'text/json',
@@ -117,6 +120,14 @@ test('can use only GET ', async () => {
   equal(await response.text(), 'Only GET is allowed')
 })
 
+test('checks URL', async () => {
+  let response1 = await fetch(`${proxyUrl}/bad`, {})
+  await expectBadRequest(response1, 'Invalid URL')
+
+  let response2 = await fetch(proxyUrl, {})
+  await expectBadRequest(response2, 'Invalid URL')
+})
+
 test('can use only HTTP or HTTPS protocols', async () => {
   let response = await fetch(
     `${proxyUrl}/${targetUrl.replace('http', 'ftp')}`,
@@ -180,4 +191,10 @@ test('checks response size', async () => {
   equal(response2.status, 200)
   let body2 = await response2.text()
   equal(body2.length, 150)
+})
+
+test('is ready for errors', async () => {
+  let response1 = await request(targetUrl + '?error=1', {})
+  equal(response1.status, 500)
+  equal(await response1.text(), 'Error')
 })
