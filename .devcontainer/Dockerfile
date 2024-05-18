@@ -7,11 +7,11 @@ ENV NODE_VERSION 22.2.0
 ENV PNPM_VERSION 9.1.1
 
 RUN apt-get update \
-  && apt-get install -y eza zsh git tig ripgrep bat curl tar xz-utils micro \
+  && apt-get install -y eza zsh git tig ripgrep bat curl tar micro \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
-RUN curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz \
-  | tar -xJ -C /usr/local --strip-components=1 \
+RUN curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz \
+  | tar -xz -C /usr/local --strip-components=1 \
   --exclude='*.md' --exclude='LICENSE' \
   --exclude='share' --exclude='lib/node_modules/' \
   --exclude='bin/npm' --exclude='bin/npx' --exclude='bin/corepack'
