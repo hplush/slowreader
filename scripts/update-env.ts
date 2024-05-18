@@ -64,8 +64,8 @@ function printUpdate(tool: string, prev: string, next: string): void {
 }
 
 let Dockerfile = read(join(ROOT, '.devcontainer', 'Dockerfile'))
-let currentNode = Dockerfile.match(/NODE_VERSION (.*)/)![1]!
-let currentPnpm = Dockerfile.match(/PNPM_VERSION (.*)/)![1]!
+let currentNode = Dockerfile.match(/NODE_VERSION (.+)/)![1]!
+let currentPnpm = Dockerfile.match(/PNPM_VERSION (.+)/)![1]!
 
 let latestNode = await getLatestNodeVersion(
   process.argv[2] ?? currentNode.split('.')[0]!
@@ -82,7 +82,7 @@ if (currentNode !== latestNode) {
   writeFileSync(join(ROOT, '.node-version'), latestNode + '\n')
 
   updateProjectDockerfiles(dockerfile => {
-    return dockerfile.replace(/node:[\d.]+-*/, `node:${latestNode}-`)
+    return dockerfile.replace(/NODE_VERSION=.+*/, `NODE_VERSION=${latestNode}`)
   })
 
   let minor = latestNode.split('.').slice(0, 2).join('.')
