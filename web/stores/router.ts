@@ -9,7 +9,7 @@ import { computed } from 'nanostores'
 
 export const pathRouter = createRouter({
   about: '/settings/about',
-  add: '/feeds/add/:url?',
+  add: '/feeds/add/:url?/:candidate?',
   categories: '/feeds/categories/:feed?',
   download: '/settings/download',
   fast: '/fast/:category?',

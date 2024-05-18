@@ -7,14 +7,13 @@ import {
   ignoreAbortError,
   type TextResponse
 } from './download.js'
-import { isMobile, onEnvironment } from './environment.js'
+import { getEnvironment, isMobile, onEnvironment } from './environment.js'
 import { addFeed, getFeeds } from './feed.js'
 import { readonlyExport } from './lib/stores.js'
 import { type LoaderName, loaders } from './loader/index.js'
 import { addPost, processOriginPost } from './post.js'
 import type { PostsPage } from './posts-page.js'
 import { router } from './router.js'
-import { showSecondStep } from './two-steps.js'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 
@@ -117,8 +116,14 @@ function addCandidate(url: string, candidate: PreviewCandidate): void {
 
   $links.setKey(url, { state: 'processed' })
   $candidates.set([...$candidates.get(), candidate])
-  if ($candidates.get().length === 1) {
-    if (!isMobile.get()) setPreviewCandidate(url)
+  if ($candidates.get().length === 1 && !isMobile.get()) {
+    getEnvironment().openRoute({
+      params: {
+        candidate: candidate.title,
+        url: previewUrl.get()
+      },
+      route: 'add'
+    })
   }
 }
 
@@ -285,8 +290,6 @@ export async function setPreviewCandidate(url: string): Promise<void> {
       $posts.set(posts)
       postsCache.set(url, posts)
     }
-
-    showSecondStep()
   }
 }
 
@@ -330,6 +333,20 @@ onEnvironment(({ openRoute }) => {
       } else if (inPreview) {
         inPreview = false
         clearPreview()
+      }
+      if (route === 'add' && params.candidate) {
+        let candidateURL = $candidates
+          .get()
+          .find(c => c.title === params.candidate)?.url
+
+        if (candidateURL) {
+          setPreviewCandidate(candidateURL)
+        } else {
+          openRoute({
+            params: { url: params.url },
+            route: 'add'
+          })
+        }
       }
     })
   ]

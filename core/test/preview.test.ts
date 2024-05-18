@@ -686,3 +686,20 @@ test('do not show candidate on mobile screen', async () => {
 
   equal(previewCandidate.get(), undefined)
 })
+
+test('redirect to candidates list if no current candidate', async () => {
+  setBaseTestRoute({
+    params: {
+      candidate: 'unknown candidate',
+      url: 'https://a.com/atom'
+    },
+    route: 'add'
+  })
+
+  await setTimeout(10)
+  equal(previewCandidate.get(), undefined)
+  deepStrictEqual(router.get(), {
+    params: { url: 'https://a.com/atom' },
+    route: 'add'
+  })
+})

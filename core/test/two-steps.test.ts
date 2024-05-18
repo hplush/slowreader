@@ -1,3 +1,5 @@
+import './dom-parser.js'
+
 import { deepStrictEqual, strictEqual } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -7,10 +9,13 @@ import {
   addFeed,
   addPost,
   backRoute,
+  checkAndRemoveRequestMock,
+  expectRequest,
+  mockRequest,
   secondStep,
   setBaseTestRoute,
-  showFirstStep,
-  showSecondStep,
+  setIsMobile,
+  setPreviewUrl,
   testFeed,
   testPost
 } from '../index.js'
@@ -18,26 +23,53 @@ import { cleanClientTest, enableClientTest } from './utils.js'
 
 beforeEach(() => {
   enableClientTest()
+  secondStep.set(false)
+  mockRequest()
 })
 
 afterEach(async () => {
   await cleanClientTest()
+  checkAndRemoveRequestMock()
 })
 
-test('adds route', () => {
-  setBaseTestRoute({ params: {}, route: 'add' })
-  strictEqual(secondStep.get(), false)
+test('works with adds route on wide screen', async () => {
+  setIsMobile(false)
+  expectRequest('https://a.com/atom').andRespond(
+    200,
+    '<feed><title>Atom</title>' +
+      '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
+      '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
+      '</feed>',
+    'text/xml'
+  )
+  setPreviewUrl('https://a.com/atom')
+  await setTimeout(10)
 
-  showSecondStep()
   strictEqual(secondStep.get(), true)
-  strictEqual(backRoute.get(), undefined)
+  deepStrictEqual(backRoute.get(), {
+    params: { url: 'https://a.com/atom' },
+    route: 'add'
+  })
+})
 
-  showFirstStep()
+test('works with adds route on mobile screen', async () => {
+  setIsMobile(true)
+  expectRequest('https://a.com/atom').andRespond(
+    200,
+    '<feed><title>Atom</title>' +
+      '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
+      '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
+      '</feed>',
+    'text/xml'
+  )
+  setPreviewUrl('https://a.com/atom')
+  await setTimeout(10)
+
   strictEqual(secondStep.get(), false)
+  strictEqual(backRoute.get(), undefined)
 })
 
 test('works with categories route', async () => {
-  secondStep.set(false)
   setBaseTestRoute({ params: {}, route: 'categories' })
   strictEqual(secondStep.get(), false)
 
@@ -53,8 +85,7 @@ test('works with categories route', async () => {
   })
 })
 
-test('works withfast route', async () => {
-  secondStep.set(false)
+test('works with fast route', async () => {
   let idA = await addCategory({ title: 'A' })
   let feed = await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
   let post = await addPost(testPost({ feedId: feed }))
@@ -75,7 +106,6 @@ test('works withfast route', async () => {
 })
 
 test('works with slow route', async () => {
-  secondStep.set(false)
   let idA = await addCategory({ title: 'A' })
   let feed = await addFeed(testFeed({ categoryId: idA, reading: 'slow' }))
   let post = await addPost(testPost({ feedId: feed }))

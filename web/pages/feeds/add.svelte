@@ -11,10 +11,10 @@
     previewPosts,
     previewUrl,
     previewUrlError,
-    setPreviewCandidate,
     previewMessages as t
   } from '@slowreader/core'
 
+  import { getURL } from '../../stores/router.js'
   import Button from '../../ui/button.svelte'
   import CardLink from '../../ui/card-link.svelte'
   import CardLinks from '../../ui/card-links.svelte'
@@ -50,9 +50,13 @@
               name={candidate.title}
               controls="feeds-add_feed"
               current={$previewCandidate === candidate.url}
-              on:click={() => {
-                setPreviewCandidate(candidate.url)
-              }}
+              href={getURL({
+                params: {
+                  candidate: candidate.title,
+                  url: $previewUrl
+                },
+                route: 'add'
+              })}
             />
           {/each}
         </CardLinks>
