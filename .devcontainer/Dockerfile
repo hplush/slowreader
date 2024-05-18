@@ -18,8 +18,6 @@ RUN curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-li
 RUN curl -fsSL https://github.com/pnpm/pnpm/releases/download/v$PNPM_VERSION/pnpm-linux-x64 > /usr/local/bin/pnpm \
   && chmod a+x /usr/local/bin/pnpm
 
-RUN ls -la /usr/local/bin
-
 RUN userdel -r ubuntu
 RUN useradd -m -s /bin/zsh developer
 USER developer
