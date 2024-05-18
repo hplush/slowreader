@@ -1,9 +1,4 @@
-import {
-  getCategoryTitle,
-  type FeedsByCategory,
-  getCategories,
-  feedsByCategory
-} from './category.js'
+import { getCategoryTitle, getCategories, feedsByCategory } from './category.js'
 import { atom, onMount } from 'nanostores'
 import { readonlyExport } from './lib/stores.js'
 import { getFeeds, type FeedValue } from './feed.js'
@@ -25,7 +20,7 @@ onMount(feedsByCategoryList, () => {
         feedsByCategory($categories.get().list, $allFeeds.get().list)
       )
 
-      selectAllFeeds()
+      selectAllExportedFeeds()
     }
   )
 })
@@ -33,10 +28,10 @@ onMount(feedsByCategoryList, () => {
 let $selectedCategories = atom<string[]>([])
 let $selectedFeeds = atom<string[]>([])
 
-export const selectedCategories = readonlyExport($selectedCategories)
-export const selectedFeeds = readonlyExport($selectedFeeds)
+export const exportedCategories = readonlyExport($selectedCategories)
+export const exportedFeeds = readonlyExport($selectedFeeds)
 
-export function selectAllFeeds() {
+export function selectAllExportedFeeds() {
   const selectedCategoriesSet = new Set<string>()
   const selectedFeedsSet = new Set<string>()
 
@@ -49,7 +44,7 @@ export function selectAllFeeds() {
   $selectedFeeds.set(Array.from(selectedFeedsSet))
 }
 
-export function clearSelections() {
+export function clearExportedSelections() {
   $selectedCategories.set(new Set())
   $selectedFeeds.set(new Set())
 }
@@ -91,7 +86,7 @@ export async function getInternalBlob(isIncludePosts) {
   return new Blob([jsonStr], { type: 'application/json' })
 }
 
-export function toggleCategory(categoryId: string) {
+export function toggleExportedCategory(categoryId: string) {
   const selectedCategories = new Set($selectedCategories.get())
   const selectedFeeds = new Set($selectedFeeds.get())
 
@@ -111,7 +106,7 @@ export function toggleCategory(categoryId: string) {
   $selectedFeeds.set(Array.from(selectedFeeds))
 }
 
-export function toggleFeed(feedId: string, categoryId: string) {
+export function toggleExportedFeed(feedId: string, categoryId: string) {
   const selectedCategories = new Set($selectedCategories.get())
   const selectedFeeds = new Set($selectedFeeds.get())
 

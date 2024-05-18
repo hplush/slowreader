@@ -1,7 +1,12 @@
 <script lang="ts">
   import {
     getOPMLBlob,
-    selectAllFeeds,
+    selectAllExportedFeeds,
+    feedsByCategoryList,
+    exportedCategories,
+    exportedFeeds,
+    toggleExportedCategory,
+    toggleExportedFeed,
     exportMessages as t
   } from '@slowreader/core'
   import { onMount } from 'svelte'
@@ -16,7 +21,7 @@
   function handleRadioChange(e) {
     currentFeeds = e.detail
     if (currentFeeds === 'all') {
-      selectAllFeeds()
+      selectAllExportedFeeds()
     }
   }
 
@@ -33,7 +38,7 @@
 
   onMount(() => {
     if (currentFeeds === 'all') {
-      selectAllFeeds()
+      selectAllExportedFeeds()
     }
   })
 </script>
@@ -51,8 +56,19 @@
       on:change={handleRadioChange}
     />
   </Card>
-  <FeedList disabled={currentFeeds === 'all'} />
-  <Button class="export-opml_submit" type="submit">Export to OPML</Button>
+  <FeedList
+    disabled={currentFeeds === 'all'}
+    feedsByCategory={$feedsByCategoryList}
+    selectedCategories={$exportedCategories}
+    selectedFeeds={$exportedFeeds}
+    on:toggleCategory={e => {
+      toggleExportedCategory(e.detail.categoryId)
+    }}
+    on:toggleFeed={e => {
+      toggleExportedFeed(e.detail.feedId, e.detail.categoryId)
+    }}
+  />
+  <Button class="export-opml_submit" type="submit">{$t.submitOPML}</Button>
 </form>
 
 <style>

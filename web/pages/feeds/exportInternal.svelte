@@ -1,7 +1,12 @@
 <script lang="ts">
   import {
     getInternalBlob,
-    selectAllFeeds,
+    selectAllExportedFeeds,
+    feedsByCategoryList,
+    exportedCategories,
+    exportedFeeds,
+    toggleExportedCategory,
+    toggleExportedFeed,
     exportMessages as t
   } from '@slowreader/core'
 
@@ -18,7 +23,7 @@
   function handleExportOptionChange(field, value) {
     exportOptions[field] = value
     if (exportOptions.feeds === 'all') {
-      selectAllFeeds()
+      selectAllExportedFeeds()
     }
   }
 
@@ -60,8 +65,20 @@
       }}
     />
   </Card>
-  <FeedList disabled={exportOptions.feeds === 'all'} />
-  <Button class="export-internal_submit" type="submit">Export Internally</Button
+  <FeedList
+    disabled={exportOptions.feeds === 'all'}
+    feedsByCategory={$feedsByCategoryList}
+    selectedCategories={$exportedCategories}
+    selectedFeeds={$exportedFeeds}
+    on:toggleCategory={e => {
+      toggleExportedCategory(e.detail.categoryId)
+    }}
+    on:toggleFeed={e => {
+      toggleExportedFeed(e.detail.feedId, e.detail.categoryId)
+    }}
+  />
+  <Button class="export-internal_submit" type="submit"
+    >{$t.submitInternal}</Button
   >
 </form>
 

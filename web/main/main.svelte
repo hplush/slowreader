@@ -6,6 +6,7 @@
   import FeedsAdd from '../pages/feeds/add.svelte'
   import FeedsCategories from '../pages/feeds/categories.svelte'
   import FeedsExport from '../pages/feeds/export.svelte'
+  import FeedsImport from '../pages/feeds/import.svelte'
   import NotFound from '../pages/not-found.svelte'
   import Refresh from '../pages/refresh.svelte'
   import SettingsAbout from '../pages/settings/about.svelte'
@@ -35,6 +36,8 @@
     <FeedsCategories feedId={$router.params.feed} />
   {:else if $router.route === 'export'}
     <FeedsExport formatId={$router.params.format} />
+  {:else if $router.route === 'import'}
+    <FeedsImport />
   {:else if $router.route === 'interface'}
     <SettingsInterface />
   {:else if $router.route === 'download'}

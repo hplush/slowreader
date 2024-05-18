@@ -1,27 +1,33 @@
 <script lang="ts">
-  import {
-    feedsByCategoryList,
-    getCategoryTitle,
-    selectedCategories,
-    selectedFeeds,
-    toggleCategory,
-    toggleFeed
-  } from '@slowreader/core'
+  import { getCategoryTitle } from '@slowreader/core'
+
+  import { createEventDispatcher } from 'svelte'
 
   export let disabled
+  export let feedsByCategory
+  export let selectedCategories
+  export let selectedFeeds
+
+  const dispatch = createEventDispatcher()
+
+  function handleToggleCategory(categoryId: string) {
+    dispatch('toggleCategory', { categoryId })
+  }
+
+  function handleToggleFeed(feedId: string, categoryId: string) {
+    dispatch('toggleFeed', { feedId, categoryId })
+  }
 </script>
 
 <ul class="feed-list" role="list">
-  {#each $feedsByCategoryList as [category, feeds] (category.id)}
+  {#each feedsByCategory as [category, feeds] (category.id)}
     <li>
       <label class="feed-list_label">
         <input
-          checked={$selectedCategories.includes(category.id)}
+          checked={selectedCategories.includes(category.id)}
           {disabled}
           type="checkbox"
-          on:change={() => {
-            toggleCategory(category.id)
-          }}
+          on:change={() => handleToggleCategory(category.id)}
         />
         <h4 class="feed-list_category">{getCategoryTitle(category)}</h4>
       </label>
@@ -31,12 +37,10 @@
           <li>
             <label class="feed-list_label">
               <input
-                checked={$selectedFeeds.includes(feed.id)}
+                checked={selectedFeeds.includes(feed.id)}
                 {disabled}
                 type="checkbox"
-                on:change={() => {
-                  toggleFeed(feed.id, category.id)
-                }}
+                on:change={() => handleToggleFeed(feed.id, category.id)}
               />
               <span>{feed.title}</span>
             </label>
