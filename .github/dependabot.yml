@@ -9,3 +9,7 @@ updates:
     schedule:
       interval: daily
     security-updates-only: true
+  - package-ecosystem: docker
+      directory: '/'
+      schedule:
+        interval: weekly
