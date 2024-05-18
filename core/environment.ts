@@ -72,16 +72,20 @@ let currentEnvironment: Environment | undefined
 let listeners: EnvironmentListener[] = []
 let unbinds: ((() => void) | void)[] = []
 
-export function onEnvironment(ch: EnvironmentListener): void {
-  if (currentEnvironment) {
-    let unbind = ch(currentEnvironment)
-    if (Array.isArray(unbind)) {
-      unbinds.push(...unbind)
-    } else {
-      unbinds.push(unbind)
-    }
+function runEnvListener(listener: EnvironmentListener): void {
+  let unbind = listener(currentEnvironment!)
+  if (Array.isArray(unbind)) {
+    unbinds.push(...unbind)
+  } else {
+    unbinds.push(unbind)
   }
-  listeners.push(ch)
+}
+
+export function onEnvironment(cb: EnvironmentListener): void {
+  if (currentEnvironment) {
+    runEnvListener(cb)
+  }
+  listeners.push(cb)
 }
 
 export function setupEnvironment<Router extends BaseRouter>(
@@ -104,12 +108,7 @@ export function setupEnvironment<Router extends BaseRouter>(
   }
 
   for (let listener of listeners) {
-    let unbind = listener(currentEnvironment)
-    if (Array.isArray(unbind)) {
-      unbinds.push(...unbind)
-    } else {
-      unbinds.push(unbind)
-    }
+    runEnvListener(listener)
   }
 }
 

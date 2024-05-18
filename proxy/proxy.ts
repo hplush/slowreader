@@ -23,17 +23,14 @@ export function createProxyServer(config: {
     let sent = false
 
     try {
-      if (!req.url) {
-        throw new BadRequestError('Bad URL')
-      }
-      let url = decodeURIComponent(req.url.slice(1))
+      let url = decodeURIComponent((req.url ?? '').slice(1))
 
+      let parsedUrl: URL
       try {
-        new URL(url)
+        parsedUrl = new URL(url)
       } catch {
         throw new BadRequestError('Invalid URL')
       }
-      let parsedUrl = new URL(url)
 
       // Only HTTP or HTTPS protocols are allowed
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -92,10 +89,8 @@ export function createProxyServer(config: {
       })
       sent = true
 
-      if (!targetResponse.body) {
-        res.end()
-      } else {
-        let size = 0
+      let size = 0
+      if (targetResponse.body) {
         let reader = targetResponse.body.getReader()
         let chunk: ReadableStreamReadResult<Uint8Array>
         do {
@@ -108,8 +103,8 @@ export function createProxyServer(config: {
             }
           }
         } while (!chunk.done)
-        res.end()
       }
+      res.end()
     } catch (e) {
       // Known errors
       if (e instanceof Error && e.name === 'TimeoutError') {
@@ -122,7 +117,8 @@ export function createProxyServer(config: {
         return
       }
 
-      // Unknown or internal errors
+      // Unknown or Internal errors
+      /* c8 ignore next 9 */
       if (e instanceof Error) {
         process.stderr.write(styleText('red', e.stack ?? e.message) + '\n')
       } else if (typeof e === 'string') {

@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^22.1.0",
+    "node": "^22.2.0",
     "pnpm": "^9.0.0"
   },
   "scripts": {
@@ -16,11 +16,11 @@
     "clean:build": "rm -rf dist/"
   },
   "dependencies": {
-    "esbuild": "0.21.2"
+    "esbuild": "0.21.3"
   },
   "devDependencies": {
     "better-node-test": "0.5.1",
     "c8": "9.1.0",
-    "tsx": "4.10.2"
+    "tsx": "4.10.4"
   }
 }

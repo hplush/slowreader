@@ -5,7 +5,7 @@ import { fastCategories } from './fast.js'
 import { hasFeeds } from './feed.js'
 import { computeFrom, readonlyExport } from './lib/stores.js'
 import { userId } from './settings.js'
-import { slowFeeds } from './slow.js'
+import { slowCategories } from './slow.js'
 
 export interface Routes {
   about: {}
@@ -76,8 +76,17 @@ function redirect(route: ParamlessRouteName | Route): Route {
   return { ...open(route), redirect: true }
 }
 
-function isNumber(value: number | string): boolean {
-  return typeof value === 'number' || /^\d+$/.test(value)
+function validateNumber(
+  value: number | string,
+  cb: (fixed: number) => Route
+): Route {
+  if (typeof value === 'number') {
+    return cb(value)
+  } else if (/^\d+$/.test(value)) {
+    return cb(parseInt(value))
+  } else {
+    return open('notFound')
+  }
 }
 
 let $router = atom<Route>({ params: {}, route: 'home' })
@@ -87,99 +96,88 @@ export const router = readonlyExport($router)
 onEnvironment(({ baseRouter }) => {
   return computeFrom(
     $router,
-    [baseRouter, userId, hasFeeds, fastCategories, slowFeeds],
-    (page, user, withFeeds, fast, slow) => {
-      if (!page) {
+    [baseRouter, userId, hasFeeds, fastCategories, slowCategories],
+    (route, user, withFeeds, fast, slowUnread) => {
+      if (!route) {
         return open('notFound')
       } else if (user) {
-        if (GUEST.has(page.route) || page.route === 'home') {
+        if (GUEST.has(route.route) || route.route === 'home') {
           if (withFeeds) {
             return redirect({ params: {}, route: 'slow' })
           } else {
             return redirect('welcome')
           }
-        } else if (page.route === 'welcome' && withFeeds) {
+        } else if (route.route === 'welcome' && withFeeds) {
           return redirect('slow')
-        } else if (page.route === 'settings') {
+        } else if (route.route === 'settings') {
           return redirect('interface')
-        } else if (page.route === 'feeds') {
-          return redirect('categories')
-        } else if (page.route === 'fast') {
-          if (!page.params.category && !fast.isLoading) {
+        } else if (route.route === 'feeds') {
+          return redirect('add')
+        } else if (route.route === 'fast') {
+          if (!route.params.category && !fast.isLoading) {
             return redirect({
               params: { category: fast.categories[0].id },
               route: 'fast'
             })
           }
-          if (page.params.category && !fast.isLoading) {
+          if (route.params.category && !fast.isLoading) {
             let category = fast.categories.find(
-              i => i.id === page.params.category
+              i => i.id === route.params.category
             )
             if (!category) {
               return open('notFound')
             }
           }
-          if (page.params.since) {
-            if (isNumber(page.params.since)) {
-              let since =
-                typeof page.params.since === 'number'
-                  ? page.params.since
-                  : parseInt(page.params.since)
-              return open({
+          if (route.params.since) {
+            return validateNumber(route.params.since, since => {
+              return {
+                ...route,
                 params: {
-                  ...page.params,
+                  ...route.params,
                   since
-                },
-                route: 'fast'
-              })
-            } else {
-              return open('notFound')
-            }
-          }
-        } else if (page.route === 'slow') {
-          if (!page.params.feed && !slow.isLoading) {
-            return redirect({
-              params: { feed: slow.feeds[0]?.id || '', page: 1 },
-              route: 'slow'
+                }
+              }
             })
           }
-          if (page.params.feed && !slow.isLoading) {
-            let feed = slow.feeds.find(f => f.id === page.params.feed)
-            if (!feed) {
-              return open('notFound')
+        } else if (route.route === 'slow') {
+          if (!route.params.feed && !slowUnread.isLoading) {
+            let firstCategory = slowUnread.tree[0]
+            if (firstCategory) {
+              let feeds = firstCategory[1]
+              let feedData = feeds[0]
+              if (feedData) {
+                return redirect({
+                  params: { feed: feedData[0].id || '' },
+                  route: 'slow'
+                })
+              }
             }
           }
 
-          if (page.params.page) {
-            if (isNumber(page.params.page)) {
-              let currentPage =
-                typeof page.params.page === 'number'
-                  ? page.params.page
-                  : parseInt(page.params.page)
-              return open({
+          if (route.params.page) {
+            return validateNumber(route.params.page, page => {
+              return {
+                ...route,
                 params: {
-                  ...page.params,
-                  page: currentPage
-                },
-                route: 'slow'
-              })
-            } else {
-              return open('notFound')
-            }
+                  ...route.params,
+                  page
+                }
+              }
+            })
           } else {
             return open({
               params: {
-                ...page.params,
+                ...route.params,
                 page: 1
               },
               route: 'slow'
             })
           }
         }
-      } else if (!GUEST.has(page.route)) {
+      } else if (!GUEST.has(route.route)) {
         return open('start')
       }
-      return page
+      return route
     },
     (oldRoute, newRoute) => {
       return (

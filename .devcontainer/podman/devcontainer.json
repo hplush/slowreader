@@ -3,19 +3,9 @@
     "context": "..",
     "dockerfile": "../Dockerfile"
   },
+  "postCreateCommand": "pnpm install --force",
+  "postStartCommand": "zsh",
   "forwardPorts": [5173, 5284, 6006, 31337],
-  "mounts": [
-    {
-      "source": "pnpm-store",
-      "target": "/home/node/.local/share/pnpm/store",
-      "type": "volume"
-    },
-    {
-      "source": "shell-history",
-      "target": "/home/node/.shell-history/",
-      "type": "volume"
-    }
-  ],
   "workspaceMount": "",
   "runArgs": [
     "--userns=keep-id:uid=1000,gid=1000",

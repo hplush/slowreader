@@ -35,8 +35,6 @@ afterEach(async () => {
 })
 
 test('has empty slow categories from beginning', async () => {
-  deepStrictEqual(slowCategories.get(), { isLoading: true })
-  await setTimeout(100)
   deepStrictEqual(slowCategories.get(), {
     isLoading: false,
     tree: []
@@ -128,7 +126,7 @@ test('loads posts from URL', async () => {
   deepStrictEqual(openedSlowPost.get(), undefined)
 
   setBaseTestRoute({ params: {}, route: 'slow' })
-  deepStrictEqual(slowPosts.get(), { isLoading: false, list: [] })
+  deepStrictEqual(slowPosts.get(), { isLoading: true })
   deepStrictEqual(openedSlowPost.get(), undefined)
 
   setBaseTestRoute({ params: { feed: feedA }, route: 'slow' })
@@ -170,10 +168,16 @@ test('loads posts from URL', async () => {
   })
   deepStrictEqual(openedSlowPost.get(), undefined)
 
-  setBaseTestRoute({ params: {}, route: 'slow' })
+  setBaseTestRoute({ params: { feed: feedB }, route: 'slow' })
+  deepStrictEqual(slowPosts.get(), { isLoading: true })
+
+  await setTimeout(10)
   deepStrictEqual(slowPosts.get(), {
     isLoading: false,
-    list: [await loadPost(postA1), await loadPost(postA2)]
+    list: [await loadPost(postB)]
   })
+
+  setBaseTestRoute({ params: {}, route: 'slow' })
+  deepStrictEqual(slowPosts.get(), { isLoading: true })
   deepStrictEqual(openedSlowPost.get(), undefined)
 })

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^22.1.0",
+    "node": "^22.2.0",
     "pnpm": "^9.0.0"
   },
   "packageManager": "pnpm@9.1.1",
@@ -14,6 +14,7 @@
     "format": "pnpm run -r --include-workspace-root /^format:/",
     "clean": "pnpm run -r --include-workspace-root /^clean:/",
     "build": "pnpm run -r build",
+    "update-env": "tsx ./scripts/update-env.ts",
     "format:prettier": "prettier -w **/*.{js,ts,html,md,cjs,json} *.{js,json,md}",
     "test:js": "eslint .",
     "test:types": "svelte-check",
@@ -63,7 +64,7 @@
     "svelte": "4.2.17",
     "svelte-check": "3.7.1",
     "svgo": "3.3.2",
-    "tsx": "4.10.2",
+    "tsx": "4.10.4",
     "typescript": "5.4.5"
   }
 }

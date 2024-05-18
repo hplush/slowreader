@@ -108,7 +108,7 @@ test('works with fast route', async () => {
 test('works with slow route', async () => {
   let idA = await addCategory({ title: 'A' })
   let feed = await addFeed(testFeed({ categoryId: idA, reading: 'slow' }))
-  let post = await addPost(testPost({ feedId: feed }))
+  let post = await addPost(testPost({ feedId: feed, reading: 'slow' }))
 
   setBaseTestRoute({ params: { feed }, route: 'slow' })
   await setTimeout(100)
