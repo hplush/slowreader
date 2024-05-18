@@ -7,13 +7,14 @@ import {
   ignoreAbortError,
   type TextResponse
 } from './download.js'
-import { onEnvironment } from './environment.js'
+import { isMobile, onEnvironment } from './environment.js'
 import { addFeed, getFeeds } from './feed.js'
 import { readonlyExport } from './lib/stores.js'
 import { type LoaderName, loaders } from './loader/index.js'
 import { addPost, processOriginPost } from './post.js'
 import type { PostsPage } from './posts-page.js'
 import { router } from './router.js'
+import { showSecondStep } from './two-steps.js'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 
@@ -117,7 +118,7 @@ function addCandidate(url: string, candidate: PreviewCandidate): void {
   $links.setKey(url, { state: 'processed' })
   $candidates.set([...$candidates.get(), candidate])
   if ($candidates.get().length === 1) {
-    setPreviewCandidate(url)
+    if (!isMobile.get()) setPreviewCandidate(url)
   }
 }
 
@@ -284,6 +285,8 @@ export async function setPreviewCandidate(url: string): Promise<void> {
       $posts.set(posts)
       postsCache.set(url, posts)
     }
+
+    showSecondStep()
   }
 }
 

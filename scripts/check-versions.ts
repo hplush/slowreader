@@ -1,8 +1,8 @@
 // Script to check that:
 // - All dependencies has "1.2.3" requirement and not "^1.2.3" used by npm.
 //   It prevents unexpected updates on lock file issues.
-// - Node.js and pnpm versions in .tool-versions and package.json are the same.
-// - All Dockerfile use the same Node.js version that is in .tool-versions.
+// - Node.js and pnpm versions are the same in all configs
+//   (Dockerfile, package.json, .node-version).
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -10,8 +10,8 @@ import { styleText } from 'node:util'
 
 const ROOT = join(import.meta.dirname, '..')
 
-function read(...parts: string[]): string {
-  return readFileSync(join(ROOT, ...parts)).toString()
+function read(file: string): string {
+  return readFileSync(join(ROOT, file)).toString()
 }
 
 function error(msg: string): void {
@@ -19,18 +19,23 @@ function error(msg: string): void {
   process.exit(1)
 }
 
-let toolVersions = read('.tool-versions')
+function getVersion(content: string, regexp: RegExp): string {
+  return content.match(regexp)![1]!
+}
 
-let nodeFull = toolVersions.match(/nodejs (\d+\.\d+\.\d+)/)![1]
-let nodeMinor = toolVersions.match(/nodejs (\d+\.\d+)\./)![1]
-let pnpmMajor = toolVersions.match(/pnpm (\d+)\./)![1]
+let dockerfile = read('.devcontainer/Dockerfile')
+
+let nodeFull = getVersion(dockerfile, /NODE_VERSION (\d+\.\d+\.\d+)/)
+let nodeMinor = nodeFull.split('.').slice(0, 2).join('.')
+let pnpmFull = getVersion(dockerfile, /PNPM_VERSION (\d+\.\d+\.\d+)/)
+let pnpmMajor = pnpmFull.split('.')[0]
 
 function checkPackage(file: string, content: string): void {
   if (!content.includes(`"node": "^${nodeMinor}.`)) {
-    error(`.tool-versions and ${file} have different Node.js minor version`)
+    error(`.devcontainer/Dockerfile and ${file} have different Node.js version`)
   }
   if (!content.includes(`"pnpm": "^${pnpmMajor}.`)) {
-    error(`.tool-versions and ${file} have different pnpm major version`)
+    error(`.devcontainer/Dockerfile and ${file} have different pnpm version`)
   }
   let match = content.match(/"[^"]+": "[\^~][^"]+"/)
   if (match && !match[0].startsWith('"node":')) {
@@ -50,17 +55,28 @@ function checkDockerfile(file: string, content: string): void {
   }
 }
 
+let nodeVersion = read('.node-version').trim()
+if (nodeVersion !== nodeFull) {
+  error(
+    '.devcontainer/Dockerfile and .node-version have different Node.js version'
+  )
+}
+let packageManager = getVersion(
+  read('package.json'),
+  /"packageManager": "pnpm@(\d+\.\d+\.\d+)"/
+)
+if (packageManager !== pnpmFull) {
+  error('.devcontainer/Dockerfile and package.json have different pnpm version')
+}
+
 checkPackage('package.json', read('package.json'))
 
 let projects = readdirSync(ROOT)
-
 for (let project of projects) {
   if (existsSync(join(ROOT, project, 'package.json'))) {
     let relative = join(project, 'package.json')
     checkPackage(relative, read(relative))
   }
-}
-for (let project of projects) {
   if (existsSync(join(ROOT, project, 'Dockerfile'))) {
     let docker = join(project, 'Dockerfile')
     checkDockerfile(docker, read(docker))

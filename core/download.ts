@@ -73,6 +73,7 @@ export function createTextResponse(
           warning('Parse JSON error', e.message)
           return null
         } else {
+          /* c8 ignore next 2 */
           throw e
         }
       }

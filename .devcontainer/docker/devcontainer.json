@@ -1,0 +1,40 @@
+{
+  "build": {
+    "context": "..",
+    "dockerfile": "../Dockerfile"
+  },
+  "postCreateCommand": "pnpm install --force",
+  "postStartCommand": "zsh",
+  "forwardPorts": [5173, 5284, 6006, 31337],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "connor4312.nodejs-testing",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "stylelint.vscode-stylelint",
+        "svelte.svelte-vscode",
+        "webben.browserslist",
+        "yoavbls.pretty-ts-errors",
+        "streetsidesoftware.code-spell-checker",
+        "editorconfig.editorconfig",
+        "yzhang.markdown-all-in-one",
+        "davidlday.languagetool-linter"
+      ]
+    }
+  },
+  "portsAttributes": {
+    "5173": {
+      "label": "Web Client"
+    },
+    "6006": {
+      "label": "Storybook"
+    },
+    "5284": {
+      "label": "CORS Proxy"
+    },
+    "31337": {
+      "label": "Server"
+    }
+  }
+}

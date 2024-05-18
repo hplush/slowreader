@@ -30,6 +30,7 @@ import {
   previewUrlError,
   router,
   setBaseTestRoute,
+  setIsMobile,
   setPreviewCandidate,
   setPreviewUrl,
   testFeed
@@ -652,4 +653,36 @@ test('syncs URL with router', async () => {
   setPreviewUrl('https://new.com')
   setBaseTestRoute({ params: {}, route: 'home' })
   deepStrictEqual(previewUrl.get(), '')
+})
+
+test('show candidate on wide screen', async () => {
+  setIsMobile(false)
+  expectRequest('https://a.com/atom').andRespond(
+    200,
+    '<feed><title>Atom</title>' +
+      '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
+      '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
+      '</feed>',
+    'text/xml'
+  )
+  setPreviewUrl('https://a.com/atom')
+  await setTimeout(10)
+
+  equal(previewCandidate.get(), 'https://a.com/atom')
+})
+
+test('do not show candidate on mobile screen', async () => {
+  setIsMobile(true)
+  expectRequest('https://a.com/atom').andRespond(
+    200,
+    '<feed><title>Atom</title>' +
+      '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
+      '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
+      '</feed>',
+    'text/xml'
+  )
+  setPreviewUrl('https://a.com/atom')
+  await setTimeout(10)
+
+  equal(previewCandidate.get(), undefined)
 })

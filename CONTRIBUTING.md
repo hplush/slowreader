@@ -43,17 +43,13 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
 
 1. Install environment:
 
-   - To fix a small bug you can run app directly in your browser via [StackBlitz](https://stackblitz.com/fork/github/hplush/slowreader?file=web/main/main.svelte).
+   - For lond-term contribution, we recommend installing Docker and [Dev Container](https://containers.dev) plugin to your text editor. All developers will have the same environment and the development tool will be isolated from the system in the container.
 
-   - For lond-term contribution we recommend installing [`asdf`](https://asdf-vm.com/guide/getting-started.html) and then run:
+     - [VS Code guide](https://code.visualstudio.com/docs/devcontainers/tutorial)
+     - [Jet Brains IDEs](https://www.jetbrains.com/help/idea/connect-to-devcontainer.html#create_dev_container_inside_ide)
+     - [CLI tool](https://github.com/devcontainers/cli)
 
-     ```sh
-     asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-     asdf plugin-add pnpm https://github.com/jonathanmorley/asdf-pnpm.git
-     asdf install
-     ```
-
-   - You can also manually install [Node.js](https://nodejs.org/en/download) and [pnpm](https://pnpm.io/installation) versions according to [`.tool-versions`](./.tool-versions) file.
+   - You can also manually install [Node.js](https://nodejs.org/en/download) and [pnpm](https://pnpm.io/installation) versions according to `.node-version` file and `packageManager` key in `package.json`.
 
 2. Then install all npm dependencies by `pnpm`:
 
@@ -67,8 +63,6 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
    ```sh
    pnpm test
    ```
-
-   If you have strange error, check that all folders in the path to the project use **only Latin symbols**.
 
 ### Run Web Client
 

@@ -8,6 +8,7 @@ import {
   fetchAndParsePosts,
   findRSSfromHome,
   finish,
+  initializeProgressBar,
   isString,
   type LoaderTestFeed as OpmlFeed,
   readText
@@ -59,6 +60,8 @@ cli.run(async args => {
   }
 
   let feeds = await parseFeedsFromFile(opmlFile)
+  initializeProgressBar(home ? feeds.length * 2 : feeds.length)
+
   await completeTasks(
     feeds.map(feed => () => fetchAndParsePosts(feed.url, true))
   )

@@ -151,6 +151,25 @@
 </Story>
 
 <Story
+  name="Added Mobile"
+  parameters={{
+    layout: 'fullscreen',
+    viewport: { defaultViewport: 'iphone5' }
+  }}
+>
+  <Scene
+    feeds={[{ url: 'https://example.com/news.atom' }]}
+    responses={{
+      'https://example.com': HTML_WITH_LINK,
+      'https://example.com/news.atom': ATOM
+    }}
+    route={{ params: { url: 'https://example.com' }, route: 'add' }}
+  >
+    <FeedsAdd />
+  </Scene>
+</Story>
+
+<Story
   name="Added Dark"
   parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
 >

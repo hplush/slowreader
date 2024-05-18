@@ -8,6 +8,7 @@ import {
   fetchAndParsePosts,
   findRSSfromHome,
   finish,
+  initializeProgressBar,
   type LoaderTestFeed,
   readText
 } from './utils.js'
@@ -29,6 +30,8 @@ cli.run(async () => {
   enableTestClient()
 
   let feeds = await parseFeedsFromFile(FEEDS)
+  initializeProgressBar(feeds.length * 2)
+
   await completeTasks(feeds.map(feed => () => fetchAndParsePosts(feed.url)))
   for (let feed of feeds) {
     if (feed.findFromHome !== false) {

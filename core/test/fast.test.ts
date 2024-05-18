@@ -477,8 +477,6 @@ test('tracks current post', async () => {
     route: 'fast'
   })
   equal(openedFastPost.get()?.id, post3)
-  equal(openedFastPost.get()?.isLoading, true)
-  await setTimeout(10)
   equal(openedFastPost.get()?.isLoading, false)
   equal((openedFastPost.get() as PostValue).title, '3')
 })

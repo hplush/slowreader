@@ -125,13 +125,21 @@ test('transforms routers for users with feeds', async () => {
   })
 })
 
-test('transforms settings to first settings page', () => {
+test('transforms section to first section page', () => {
   userId.set('10')
+
   setBaseTestRoute({ params: {}, route: 'settings' })
   deepStrictEqual(router.get(), {
     params: {},
     redirect: true,
     route: 'interface'
+  })
+
+  setBaseTestRoute({ params: {}, route: 'feeds' })
+  deepStrictEqual(router.get(), {
+    params: {},
+    redirect: true,
+    route: 'add'
   })
 })
 

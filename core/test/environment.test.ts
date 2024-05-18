@@ -17,29 +17,39 @@ test('throws on current environment if it is not set', () => {
 
 test('runs callback when environment will be set', () => {
   let calls: string[] = []
-  let cleans = 0
+  let cleans = ''
   onEnvironment(env => {
     calls.push(env.locale.get())
     return () => {
-      cleans += 1
+      cleans += '1'
     }
+  })
+  onEnvironment(() => {
+    return [
+      () => {
+        cleans += '2'
+      },
+      () => {
+        cleans += '3'
+      }
+    ]
   })
   deepStrictEqual(calls, [])
 
   setupEnvironment({ ...getTestEnvironment(), locale: atom('fr') })
   deepStrictEqual(calls, ['fr'])
-  equal(cleans, 0)
+  equal(cleans, '')
 
   setupEnvironment({ ...getTestEnvironment(), locale: atom('ru') })
   deepStrictEqual(calls, ['fr', 'ru'])
-  equal(cleans, 1)
+  equal(cleans, '123')
 
   let after: string[] = []
   onEnvironment(env => {
     after.push(env.locale.get())
   })
   deepStrictEqual(after, ['ru'])
-  equal(cleans, 1)
+  equal(cleans, '123')
 })
 
 test('returns current environment', () => {

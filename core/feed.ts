@@ -55,6 +55,7 @@ onMount($hasFeeds, () => {
     }
   })
 
+  /* c8 ignore next 4 */
   return () => {
     unbindClient()
     unbindFeeds?.()

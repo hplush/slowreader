@@ -9,8 +9,6 @@ Right now, it is just a _prototype_. We plan to have features:
 - Split subscriptions to **slow** (something useful, deep) and **fast-food** (fun and small).
 - Spend more time on slow content by blocking fast in the evening, etc.
 
-<a href="https://stackblitz.com/fork/github/hplush/slowreader?file=web/main/main.svelte"><img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt="Open in StackBlitz" width="162" height="32" /></a>
-
 Pre-alpha prototype: [`dev.slowreader.app`](https://dev.slowreader.app/)
 
 **[↬ How to contribute and join the team](./CONTRIBUTING.md)**
@@ -37,7 +35,7 @@ To ask any question: **[h+h lab Discord](https://discord.gg/TyFTp6mAZT)**
 
 ## License
 
-Slow Reader is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License (version 3 or any later). For details see the [`LICENSE.md`](./LICENSE.md) file in this directory.
+Slow Reader is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License (version 3 or any later). For details, see the [`LICENSE.md`](./LICENSE.md) file in this directory.
 
 ## Principles
 
@@ -108,6 +106,7 @@ Slow Reader is a local-first app. Clients do most of the work, and the server ju
 - [`docs/`](./docs/): guides for developers.
 - [`scripts/`](./scripts/): scripts to test project and configure Google Cloud. Check the script’s descriptions for further details.
 - [`loader-tests/`](./loader-tests/): integration tests for each social network or news format.
+- [`.devcontainer`](./.devcontainer/): `Dockerfile` and configs to run project in Docker/Podman image on developer’s machine. It increases security (malicious dependency will not have access to the whole machine) and simplify onboarding.
 - [`.github/`](./.github/): scripts to test projects on CI.
 - [`.husky/`](./.husky/): scripts to call on `git commit` command to avoid popular errors.
 - [`.vscode/`](./.vscode/): VS Code settings to reduce code format errors for new contributors.
@@ -118,7 +117,7 @@ We are using [pnpm monorepo](https://pnpm.io/workspaces). Each project has its d
 
 Global development tools:
 
-- [asdf](./.tool-versions) to synchronize Node.js and pnpm versions across the team and CI.
+- [Dev Container](https://containers.dev) to use the same environment for all developers and isolate project from developer’s machine.
 - [Prettier](./.prettierrc) to use the same code style formatting.
 - [TypeScript](./tsconfig.json) for strict type checking.
 - [ESLint](./eslint.config.js) to check for popular mistakes in JavaScript.
@@ -134,6 +133,7 @@ Each project has its own tools, too.
 - `pnpm clean`: remove all temporary files.
 - `pnpm check-opml`: test loaders with user’s OPML RSS export.
 - `pnpm test-loaders`: test loaders with different blogging platforms.
+- `pnpm update-env`: check for Node.js and pnpm updates.
 
 We use pnpm feature to run scripts in parallel, having scripts like `test:types` and `test:audit`. Then, we run all scripts in all projects by `test:*` prefix.
 
@@ -188,7 +188,7 @@ Types should try to use precise **types** and explain data relations with them:
 + { type: 'ok' } | { type: 'error', error: Error }
 ```
 
-We are using unit tests for **client core**. We mock network requests and the platform environment but emulate user interaction and test the composition of all stores.
+We are using unit tests for **client core**. We mock network requests and the platform environment, but emulate user interaction and test the composition of all stores.
 
 For the platform’s clients, we mostly use **visual tests**. But they could be complex and test the whole pages with mocking core’s stores.
 
