@@ -1,14 +1,11 @@
-name: Initialize Node.js
+name: Initialize Node.js, pnpm, and dependencies
 runs:
   using: composite
   steps:
-    - name: Install pnpm
-      uses: pnpm/action-setup@v3
-    - name: Install Node.js
-      uses: actions/setup-node@v4
+    - uses: pnpm/action-setup@v3
+    - uses: actions/setup-node@v4
       with:
         node-version-file: .node-version
         cache: pnpm
-    - name: Install dependencies
-      shell: bash
+    - shell: bash
       run: pnpm install --ignore-scripts
