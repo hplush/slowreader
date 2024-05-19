@@ -26,7 +26,7 @@ jobs:
           fi
       - name: Initialize Node.js
         if: steps.today.outputs.has_commits == 'true'
-        uses: ./.github/actions/init-node
+        uses: .github/actions/init-node
       - name: Publish to Chromatic
         if: steps.today.outputs.has_commits == 'true'
         uses: chromaui/action@v11

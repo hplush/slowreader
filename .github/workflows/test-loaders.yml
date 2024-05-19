@@ -25,7 +25,9 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
       - name: Initialize Node.js
-        uses: ./.github/actions/init-node
+        uses: .github/actions/init-node
       - name: Loaders Test
         run: node --run test-loaders
