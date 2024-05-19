@@ -24,18 +24,9 @@ jobs:
             echo "has_commits=false" >> "$GITHUB_OUTPUT"
             echo "No commits today. Stopping the workflow."
           fi
-      - name: Install pnpm
+      - name: Initialize Node.js
         if: steps.today.outputs.has_commits == 'true'
-        uses: pnpm/action-setup@v3
-      - name: Install Node.js
-        if: steps.today.outputs.has_commits == 'true'
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .node-version
-          cache: pnpm
-      - name: Install dependencies
-        if: steps.today.outputs.has_commits == 'true'
-        run: pnpm install --ignore-scripts
+        uses: ./.github/actions/init-node
       - name: Publish to Chromatic
         if: steps.today.outputs.has_commits == 'true'
         uses: chromaui/action@v11
