@@ -37,7 +37,7 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
 
 > Our mentoring is a basic payback for your time and contribution to the project. Even a simple question can improve the guide for other beginners.
 
-## Hot to Start
+## How to Start
 
 ### Install Environment
 
