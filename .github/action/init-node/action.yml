@@ -1,0 +1,15 @@
+name: Initialize Node.js
+runs:
+  using: composite
+  steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v4
+    - name: Install pnpm
+      uses: pnpm/action-setup@v3
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: .node-version
+        cache: pnpm
+    - name: Install dependencies
+      run: pnpm install --ignore-scripts

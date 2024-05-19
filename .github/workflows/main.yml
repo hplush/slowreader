@@ -21,17 +21,8 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .node-version
-          cache: pnpm
-      - name: Install dependencies
-        run: pnpm install --ignore-scripts
+      - name: Initialize Node.js
+        uses: ./.github/actions/init-node
       - name: Run tests
         run: pnpm run -r --include-workspace-root '/^test:(?!markdown\b|proxy-coverage\b|loaders\b)/'
         env:
