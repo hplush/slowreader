@@ -8,7 +8,7 @@ Also, feel free to ask any questions about career and development. If you are he
 
 - [Language](#language)
 - [Where to Ask Questions](#where-to-ask-questions)
-- [Hot to Start](#hot-to-start)
+- [How to Start](#how-to-start)
   - [Install Environment](#install-environment)
   - [Run Web Client](#run-web-client)
 - [Learn the Project](#learn-the-project)
