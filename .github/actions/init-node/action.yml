@@ -10,4 +10,5 @@ runs:
         node-version-file: .node-version
         cache: pnpm
     - name: Install dependencies
+      shell: bash
       run: pnpm install --ignore-scripts
