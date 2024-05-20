@@ -91,13 +91,14 @@ jobs:
       - name: Push Docker image
         run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/proxy:latest
       - name: Deploy to Cloud Run
-        run: |
-          gcloud run deploy staging-proxy \
-            --project ${{ env.PROJECT_ID }} \
-            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/proxy:latest \
-            --region ${{ env.REGION }} \
-            --allow-unauthenticated \
-            --service-account github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: staging-proxy
+          region: ${{ env.REGION }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/proxy:latest
+          flags: |
+            --allow-unauthenticated
+            --service-account=github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
             --set-env-vars="STAGING=1"
       - name: Move traffic to new revision
         run: |
