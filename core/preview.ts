@@ -119,7 +119,7 @@ function addCandidate(url: string, candidate: PreviewCandidate): void {
   if ($candidates.get().length === 1 && !isMobile.get()) {
     getEnvironment().openRoute({
       params: {
-        candidate: candidate.title,
+        candidate: candidate.url,
         url: previewUrl.get()
       },
       route: 'add'
@@ -335,12 +335,8 @@ onEnvironment(({ openRoute }) => {
         clearPreview()
       }
       if (route === 'add' && params.candidate) {
-        let candidateURL = $candidates
-          .get()
-          .find(c => c.title === params.candidate)?.url
-
-        if (candidateURL) {
-          setPreviewCandidate(candidateURL)
+        if ($candidates.get().length > 0) {
+          setPreviewCandidate(params.candidate)
         } else {
           openRoute({
             params: { url: params.url },

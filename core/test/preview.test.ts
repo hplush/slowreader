@@ -669,7 +669,7 @@ test('show candidate on wide screen', async () => {
   await setTimeout(10)
 
   deepStrictEqual(router.get(), {
-    params: { candidate: 'Atom', url: 'https://a.com/atom' },
+    params: { candidate: 'https://a.com/atom', url: 'https://a.com/atom' },
     route: 'add'
   })
   equal(previewCandidate.get(), 'https://a.com/atom')

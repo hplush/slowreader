@@ -52,7 +52,7 @@
               current={$previewCandidate === candidate.url}
               href={getURL({
                 params: {
-                  candidate: candidate.title,
+                  candidate: candidate.url,
                   url: $previewUrl
                 },
                 route: 'add'
