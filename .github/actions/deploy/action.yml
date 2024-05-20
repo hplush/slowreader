@@ -61,7 +61,7 @@ runs:
     - name: Delete previous images
       shell: bash
       run: |
-        untagged=$(gcloud artifacts docker images list ${{ inputs.region }}-docker.pkg.dev/$PROJECT_ID/${{ inputs.registry }} --include-tags --format="get(version)" --filter="tags = ''")
+        untagged=$(gcloud artifacts docker images list ${{ inputs.region }}-docker.pkg.dev/${{ inputs.projectId }}/${{ inputs.registry }} --include-tags --format="get(version)" --filter="tags = ''")
         for digest in $untagged; do
           image=${{ inputs.region }}-docker.pkg.dev/${{ inputs.projectId }}/${{ inputs.registry }}@$digest
           echo "Deleting unused image: $image"
