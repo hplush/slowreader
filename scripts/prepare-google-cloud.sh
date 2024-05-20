@@ -7,6 +7,9 @@ PROJECT_ID=slowreader-421120
 REGION=europe-west1
 WORKFLOWS=(
   ".github/actions/deploy/action.yml"
+  ".github/workflows/main.yml"
+  ".github/workflows/proxy.yml"
+  ".github/workflows/preview-deploy.yml"
 )
 
 # Set project as default in CLI
@@ -68,8 +71,8 @@ IDENTITY=`gcloud iam workload-identity-pools providers describe "hplush" \
   --format="value(name)"`
 for file in "${WORKFLOWS[@]}"; do
   sed -i "s|identity_provider: .*|identity_provider: $IDENTITY|g" "$file"
-  sed -i "s/PROJECT_ID: .*/PROJECT_ID: $PROJECT_ID/g" "$file"
-  sed -i "s/REGION: .*/REGION: $REGION/g" "$file"
+  sed -i "s/projectId: .*/projectId: $PROJECT_ID/g" "$file"
+  sed -i "s/region: .*/region: $REGION/g" "$file"
 done
 
 echo ""

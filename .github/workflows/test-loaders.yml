@@ -10,6 +10,7 @@ on:
       - 'core/loader/*.ts'
       - 'pnpm-lock.yaml'
       - '.github/workflows/test-loaders.yml'
+      - '.github/actions/init-node/action.yml'
   pull_request:
     paths:
       - 'loader-tests/test-loaders.ts'
@@ -18,6 +19,7 @@ on:
       - 'core/loader/*.ts'
       - 'pnpm-lock.yaml'
       - '.github/workflows/test-loaders.yml'
+      - '.github/actions/init-node/action.yml'
   schedule:
     - cron: '00 23 * * *' # Runs at midnight UTC every day
 jobs:
