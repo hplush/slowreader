@@ -1,7 +1,7 @@
 # Creates development machine inside docker
 # so every developer will have the same environment
 
-FROM ubuntu:24.04
+FROM docker.io/ubuntu:24.04
 
 ENV NODE_VERSION 22.2.0
 ENV PNPM_VERSION 9.1.1
