@@ -6,9 +6,7 @@
 PROJECT_ID=slowreader-421120
 REGION=europe-west1
 WORKFLOWS=(
-  ".github/workflows/test.yml"
-  ".github/workflows/preview-clean.yml"
-  ".github/workflows/preview-deploy.yml"
+  ".github/actions/deploy/action.yml"
 )
 
 # Set project as default in CLI
