@@ -106,7 +106,7 @@ let latestPnpm = await getLatestPnpmVersion()
 
 if (currentNode !== latestNode) {
   printUpdate('Node.js', currentNode, latestNode)
-  let checksum = await getNodeSha256(currentNode)
+  let checksum = await getNodeSha256(latestNode)
   Dockerfile = replaceEnv(Dockerfile, 'NODE_VERSION', latestNode)
   Dockerfile = replaceEnv(Dockerfile, 'NODE_CHECKSUM', `sha256:${checksum}`)
   writeFileSync(join(ROOT, '.devcontainer', 'Dockerfile'), Dockerfile)
