@@ -8,12 +8,16 @@ on:
       - '!proxy/*.md'
       - 'pnpm-lock.yaml'
       - '.github/workflows/proxy.yml'
+      - '.github/actions/init-node/action.yml'
+      - '.github/actions/deploy/action.yml'
   pull_request:
     paths:
       - 'proxy/**/*'
       - '!proxy/*.md'
       - 'pnpm-lock.yaml'
       - '.github/workflows/proxy.yml'
+      - '.github/actions/init-node/action.yml'
+      - '.github/actions/deploy/action.yml'
 jobs:
   test:
     name: Proxy Test
