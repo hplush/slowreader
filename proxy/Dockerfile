@@ -1,4 +1,4 @@
-# syntax=
+# syntax=docker/dockerfile:1.6
 FROM registry.access.redhat.com/ubi9/ubi:9.4 as builder
 
 ENV NODE_VERSION 22.2.0
