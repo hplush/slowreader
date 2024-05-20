@@ -27,6 +27,9 @@ jobs:
         uses: ./.github/actions/init-node
       - name: Run tests
         run: cd proxy && pnpm test
+      - name: Test Docker build
+        if: github.ref != 'refs/heads/main'
+        run: cd proxy && docker build -t .
   build:
     name: Proxy Build
     if: github.ref == 'refs/heads/main'
