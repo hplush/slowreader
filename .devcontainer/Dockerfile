@@ -12,12 +12,11 @@ RUN apt-get update \
   && apt-get install -y eza zsh git tig ripgrep bat curl tar micro \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
-ADD --checksum=$NODE_CHECKSUM https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz /
-RUN tar -xz -C /usr/local --remove-files --strip-components=1 \
+ADD --checksum=$NODE_CHECKSUM https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz /node.tar.gz
+RUN tar -xz -f /node.tar.gz -C /usr/local --remove-files --strip-components=1 \
   --exclude='*.md' --exclude='LICENSE' \
   --exclude='share' --exclude='lib/node_modules/' \
-  --exclude='bin/npm' --exclude='bin/npx' --exclude='bin/corepack' \
-  -f /node-v${NODE_VERSION}-linux-x64.tar.gz
+  --exclude='bin/npm' --exclude='bin/npx' --exclude='bin/corepack'
 ADD --checksum=$PNPM_CHECKSUM https://github.com/pnpm/pnpm/releases/download/v$PNPM_VERSION/pnpm-linux-x64 /usr/local/bin/pnpm
 RUN chmod a+rx /usr/local/bin/pnpm
 
