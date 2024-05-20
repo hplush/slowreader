@@ -23,7 +23,7 @@ runs:
   steps:
     - name: Build Docker image
       shell: bash
-      run: docker build -t ${{ inputs.region }}-docker.pkg.dev/${{ inputs.projectId }}/${{ inputs.registry }}:latest ${{ inputs.folder }}
+      run: docker build -t ${{ inputs.region }}-docker.pkg.dev/${{ inputs.projectId }}/${{ inputs.registry }}:${{ inputs.tag }} ${{ inputs.folder }}
     - name: Auth Google Cloud
       uses: google-github-actions/auth@v2
       with:
