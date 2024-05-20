@@ -4,9 +4,9 @@
 FROM docker.io/ubuntu:24.04
 
 ENV NODE_VERSION 22.2.0
-ENV PNPM_VERSION 9.1.1
+ENV PNPM_VERSION 9.1.2
 ENV NODE_CHECKSUM sha256:2c6eaf8bfd0f886ed8764ffce19c795e909639105e4056b1d9f8f917bad12cf1
-ENV PNPM_CHECKSUM sha256:bb187b5c2d937e4389983fb4d79a7dbabbaf320cafd4a93e1c8f4da6dc60fb30
+ENV PNPM_CHECKSUM sha256:2f69b99b25e92d544627bdc625b0cb5bfd214e39e57beb6a33794ef99071bf4c
 
 RUN apt-get update \
   && apt-get install -y eza zsh git tig ripgrep bat curl tar micro \
