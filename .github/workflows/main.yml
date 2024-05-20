@@ -58,6 +58,8 @@ jobs:
         with:
           name: web-client-assets-${{ github.sha }}
           path: web/
+      - name: Build Docker image
+        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/web:latest ./web
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -67,8 +69,6 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
       - name: Auth Docker
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
-      - name: Build Docker image
-        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/web:latest ./web
       - name: Push Docker image
         run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/web:latest
       - name: Deploy to Cloud Run

@@ -77,6 +77,8 @@ jobs:
         with:
           name: proxy-build-${{ github.sha }}
           path: proxy/dist/
+      - name: Build Docker image
+        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/proxy:latest ./proxy
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -86,8 +88,6 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
       - name: Auth Docker
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
-      - name: Build Docker image
-        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/proxy:latest ./proxy
       - name: Push Docker image
         run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/proxy:latest
       - name: Deploy to Cloud Run

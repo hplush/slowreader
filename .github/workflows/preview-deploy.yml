@@ -39,6 +39,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.event.workflow_run.head_commit.id }}
           env: preview-${{ env.PR_NUMBER }}
+      - name: Build Docker image
+        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/web:preview-${{ env.PR_NUMBER }} ./web
       - name: Auth Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -48,8 +50,6 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
       - name: Auth Docker
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
-      - name: Build Docker image
-        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/web:preview-${{ env.PR_NUMBER }} ./web
       - name: Push Docker image
         run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/web:preview-${{ env.PR_NUMBER }}
       - name: Deploy to Cloud Run
