@@ -1,6 +1,6 @@
 # Web server to serve web client for staging and pull request previews
 
-FROM nginx:alpine
+FROM nginx:1.26-alpine3.19
 
 ENV PORT=8080
 
