@@ -33,7 +33,7 @@ jobs:
         run: cd proxy && pnpm test
       - name: Test Docker build
         if: github.ref != 'refs/heads/main'
-        run: cd proxy && docker build -t .
+        run: cd proxy && node --run build && docker build .
   build:
     name: Proxy Build
     if: github.ref == 'refs/heads/main'
