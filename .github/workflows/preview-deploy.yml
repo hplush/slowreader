@@ -14,9 +14,6 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    env:
-      PROJECT_ID: slowreader-421120
-      REGION: europe-west1
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,31 +36,16 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.event.workflow_run.head_commit.id }}
           env: preview-${{ env.PR_NUMBER }}
-      - name: Auth Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: projects/223708816691/locations/global/workloadIdentityPools/github/providers/hplush
-          service_account: github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
-      - name: Install Google Cloud
-        uses: google-github-actions/setup-gcloud@v2
-      - name: Auth Docker
-        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
-      - name: Build Docker image
-        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/web:preview-${{ env.PR_NUMBER }} ./web
-      - name: Push Docker image
-        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/web:preview-${{ env.PR_NUMBER }}
-      - name: Deploy to Cloud Run
+      - name: Deploy to Google Cloud
         id: deploy
-        uses: google-github-actions/deploy-cloudrun@v2
+        uses: ./.github/actions/deploy
         with:
+          projectId: slowreader-421120
+          region: europe-west1
+          folder: ./web/
+          registry: staging/web
           service: staging-web
-          region: ${{ env.REGION }}
-          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/web:preview-${{ env.PR_NUMBER }}
           tag: preview-${{ env.PR_NUMBER }}
-          no_traffic: true
-          flags: |
-            --allow-unauthenticated
-            --service-account=github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
       - name: Update deployment status
         uses: bobheadxi/deployments@v1
         if: always()
@@ -74,11 +56,3 @@ jobs:
           env: ${{ steps.status.outputs.env }}
           env_url: ${{ steps.deploy.outputs.url }}/ui/
           deployment_id: ${{ steps.status.outputs.deployment_id }}
-      - name: Delete previous images
-        run: |
-          untagged=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/staging/web --include-tags --format="get(version)" --filter="tags = ''")
-          for digest in $untagged; do
-            image=$REGION-docker.pkg.dev/$PROJECT_ID/staging/web@$digest
-            echo "Deleting unused image: $image"
-            gcloud artifacts docker images delete $image --quiet
-          done
