@@ -82,7 +82,7 @@ if (currentNode !== latestNode) {
   writeFileSync(join(ROOT, '.node-version'), latestNode + '\n')
 
   updateProjectDockerfiles(dockerfile => {
-    return dockerfile.replace(/NODE_VERSION=.+*/, `NODE_VERSION=${latestNode}`)
+    return dockerfile.replace(/NODE_VERSION=.+/, `NODE_VERSION=${latestNode}`)
   })
 
   let minor = latestNode.split('.').slice(0, 2).join('.')
