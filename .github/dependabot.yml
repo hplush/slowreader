@@ -4,6 +4,14 @@ updates:
     directory: '/'
     schedule:
       interval: weekly
+  - package-ecosystem: github-actions
+      directory: '/.github/actions/deploy'
+      schedule:
+        interval: weekly
+  - package-ecosystem: github-actions
+      directory: '/.github/actions/init-node'
+      schedule:
+        interval: weekly
   - package-ecosystem: pnpm
     directory: '/'
     schedule:
