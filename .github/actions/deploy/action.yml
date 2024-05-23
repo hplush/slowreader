@@ -1,0 +1,69 @@
+name: Deploy to Google Cloud
+inputs:
+  projectId:
+    required: true
+  region:
+    required: true
+  folder:
+    required: true
+  registry:
+    required: true
+  service:
+    required: true
+  tag:
+    required: false
+    default: latest
+  env:
+    required: false
+outputs:
+  url:
+    value: ${{ steps.deploy.outputs.url }}
+runs:
+  using: composite
+  steps:
+    - name: Build Docker image
+      shell: bash
+      run: docker build -t ${{ inputs.region }}-docker.pkg.dev/${{ inputs.projectId }}/${{ inputs.registry }}:${{ inputs.tag }} ${{ inputs.folder }}
+    - name: Auth Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: projects/223708816691/locations/global/workloadIdentityPools/github/providers/hplush
+        service_account: github-deploy@${{ inputs.projectId }}.iam.gserviceaccount.com
+    - name: Install Google Cloud
+      uses: google-github-actions/setup-gcloud@v2
+    - name: Auth Docker
+      shell: bash
+      run: gcloud auth configure-docker ${{ inputs.region }}-docker.pkg.dev --quiet
+    - name: Push Docker image
+      shell: bash
+      run: docker push ${{ inputs.region }}-docker.pkg.dev/${{ inputs.projectId }}/${{ inputs.registry }}:${{ inputs.tag }}
+    - name: Deploy to Cloud Run
+      id: deploy
+      uses: google-github-actions/deploy-cloudrun@v2
+      with:
+        service: ${{ inputs.service }}
+        region: ${{ inputs.region }}
+        image: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.projectId }}/${{ inputs.registry }}:${{ inputs.tag }}
+        tag: ${{ inputs.tag != 'latest' && inputs.tag || '' }}
+        no_traffic: ${{ inputs.tag != 'latest' }}
+        flags: |
+          --allow-unauthenticated
+          --set-env-vars="${{ inputs.env }}"
+          --service-account=github-deploy@${{ inputs.projectId }}.iam.gserviceaccount.com
+    - name: Move traffic to new revision
+      if: ${{ inputs.tag == 'latest' }}
+      shell: bash
+      run: |
+        gcloud run services update-traffic ${{ inputs.service }} \
+          --project ${{ inputs.projectId }} \
+          --region ${{ inputs.region }} \
+          --to-latest
+    - name: Delete previous images
+      shell: bash
+      run: |
+        untagged=$(gcloud artifacts docker images list ${{ inputs.region }}-docker.pkg.dev/${{ inputs.projectId }}/${{ inputs.registry }} --include-tags --format="get(version)" --filter="tags = ''")
+        for digest in $untagged; do
+          image=${{ inputs.region }}-docker.pkg.dev/${{ inputs.projectId }}/${{ inputs.registry }}@$digest
+          echo "Deleting unused image: $image"
+          gcloud artifacts docker images delete $image --quiet
+        done

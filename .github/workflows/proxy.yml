@@ -8,12 +8,16 @@ on:
       - '!proxy/*.md'
       - 'pnpm-lock.yaml'
       - '.github/workflows/proxy.yml'
+      - '.github/actions/init-node/action.yml'
+      - '.github/actions/deploy/action.yml'
   pull_request:
     paths:
       - 'proxy/**/*'
       - '!proxy/*.md'
       - 'pnpm-lock.yaml'
       - '.github/workflows/proxy.yml'
+      - '.github/actions/init-node/action.yml'
+      - '.github/actions/deploy/action.yml'
 jobs:
   test:
     name: Proxy Test
@@ -21,19 +25,15 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout the repository
         uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .node-version
-          cache: pnpm
-      - name: Install dependencies
-        run: pnpm install --ignore-scripts
+      - name: Initialize Node.js
+        uses: ./.github/actions/init-node
       - name: Run tests
         run: cd proxy && pnpm test
+      - name: Test Docker build
+        if: github.ref != 'refs/heads/main'
+        run: cd proxy && node --run build && docker build .
   build:
     name: Proxy Build
     if: github.ref == 'refs/heads/main'
@@ -44,7 +44,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Install pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
@@ -73,9 +73,6 @@ jobs:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
-    env:
-      PROJECT_ID: slowreader-421120
-      REGION: europe-west1
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -84,39 +81,12 @@ jobs:
         with:
           name: proxy-build-${{ github.sha }}
           path: proxy/dist/
-      - name: Auth Google Cloud
-        uses: google-github-actions/auth@v2
+      - name: Deploy to Google Cloud
+        uses: ./.github/actions/deploy
         with:
-          workload_identity_provider: projects/223708816691/locations/global/workloadIdentityPools/github/providers/hplush
-          service_account: github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
-      - name: Install Google Cloud
-        uses: google-github-actions/setup-gcloud@v2
-      - name: Auth Docker
-        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
-      - name: Build Docker image
-        run: docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/proxy:latest ./proxy
-      - name: Push Docker image
-        run: docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/proxy:latest
-      - name: Deploy to Cloud Run
-        run: |
-          gcloud run deploy staging-proxy \
-            --project ${{ env.PROJECT_ID }} \
-            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/staging/proxy:latest \
-            --region ${{ env.REGION }} \
-            --allow-unauthenticated \
-            --service-account github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
-            --set-env-vars="STAGING=1"
-      - name: Move traffic to new revision
-        run: |
-          gcloud run services update-traffic staging-proxy \
-            --project ${{ env.PROJECT_ID }} \
-            --region ${{ env.REGION }} \
-            --to-latest
-      - name: Delete previous images
-        run: |
-          untagged=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/staging/proxy --include-tags --format="get(version)" --filter="tags = ''")
-          for digest in $untagged; do
-            image=$REGION-docker.pkg.dev/$PROJECT_ID/staging/proxy@$digest
-            echo "Deleting unused image: $image"
-            gcloud artifacts docker images delete $image --quiet
-          done
+          projectId: slowreader-421120
+          region: europe-west1
+          folder: ./proxy/
+          registry: staging/proxy
+          service: staging-proxy
+          env: STAGING=1

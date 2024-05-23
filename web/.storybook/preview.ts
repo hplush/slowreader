@@ -19,6 +19,7 @@ export default {
   ],
   parameters: {
     viewport: {
+      defaultViewport: 'responsive',
       viewports: {
         ...INITIAL_VIEWPORTS,
         ...MINIMAL_VIEWPORTS,

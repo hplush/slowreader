@@ -1,5 +1,6 @@
 // Script to update Node.js and pnpm everywhere
 
+import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { styleText } from 'node:util'
@@ -23,6 +24,26 @@ async function getLatestPnpmVersion(): Promise<string> {
   )
   let data = await response.json()
   return data.tag_name.slice(1)
+}
+
+async function getNodeSha256(version: string): Promise<string> {
+  let response = await fetch(
+    `https://nodejs.org/dist/v${version}/SHASUMS256.txt`
+  )
+  let data = await response.text()
+  return data
+    .split('\n')
+    .find(i => i.endsWith('-linux-x64.tar.gz'))!
+    .split(' ')[0]!
+}
+
+async function getPnpmSha256(version: string): Promise<string> {
+  let response = await fetch(
+    `https://github.com/pnpm/pnpm/releases/download/v${version}/pnpm-linux-x64`
+  )
+  let hash = createHash('sha256')
+  hash.update(Buffer.from(await response.arrayBuffer()))
+  return hash.digest('hex')
 }
 
 function read(file: string): string {
@@ -59,13 +80,24 @@ function updateProjectDockerfiles(cb: (content: string) => string): void {
 
 function printUpdate(tool: string, prev: string, next: string): void {
   process.stderr.write(
-    `${tool}: ${styleText('red', prev)} -> ${styleText('green', next)}\n`
+    `${tool}: ${styleText('red', prev)} → ${styleText('green', next)}\n`
+  )
+}
+
+function replaceEnv(file: string, key: string, value: string): string {
+  return file.replace(new RegExp(`ENV ${key} .+`, 'g'), `ENV ${key} ${value}`)
+}
+
+function replaceKey(file: string, key: string, value: string): string {
+  return file.replace(
+    new RegExp(`"${key}": "[^"]+"`, 'g'),
+    `"${key}": "${value}"`
   )
 }
 
 let Dockerfile = read(join(ROOT, '.devcontainer', 'Dockerfile'))
-let currentNode = Dockerfile.match(/NODE_VERSION (.*)/)![1]!
-let currentPnpm = Dockerfile.match(/PNPM_VERSION (.*)/)![1]!
+let currentNode = Dockerfile.match(/NODE_VERSION (.+)/)![1]!
+let currentPnpm = Dockerfile.match(/PNPM_VERSION (.+)/)![1]!
 
 let latestNode = await getLatestNodeVersion(
   process.argv[2] ?? currentNode.split('.')[0]!
@@ -74,39 +106,34 @@ let latestPnpm = await getLatestPnpmVersion()
 
 if (currentNode !== latestNode) {
   printUpdate('Node.js', currentNode, latestNode)
-  Dockerfile = Dockerfile.replace(
-    /NODE_VERSION .*/,
-    `NODE_VERSION ${latestNode}`
-  )
+  let checksum = await getNodeSha256(latestNode)
+  Dockerfile = replaceEnv(Dockerfile, 'NODE_VERSION', latestNode)
+  Dockerfile = replaceEnv(Dockerfile, 'NODE_CHECKSUM', `sha256:${checksum}`)
   writeFileSync(join(ROOT, '.devcontainer', 'Dockerfile'), Dockerfile)
   writeFileSync(join(ROOT, '.node-version'), latestNode + '\n')
 
   updateProjectDockerfiles(dockerfile => {
-    return dockerfile.replace(/node:[\d.]+-*/, `node:${latestNode}-`)
+    return replaceEnv(dockerfile, 'NODE_VERSION', latestNode)
   })
 
   let minor = latestNode.split('.').slice(0, 2).join('.')
   if (currentNode.split('.').slice(0, 2).join('.') !== minor) {
-    updatePackages(pkg => pkg.replace(/"node": ".+"/, `"node": "^${minor}.0"`))
+    updatePackages(pkg => replaceKey(pkg, 'node', `^${minor}.0`))
   }
 }
 
 if (currentPnpm !== latestPnpm) {
   printUpdate('pnpm', currentPnpm, latestPnpm)
-  Dockerfile = Dockerfile.replace(
-    /PNPM_VERSION .*/,
-    `PNPM_VERSION ${latestPnpm}`
-  )
+  let checksum = await getPnpmSha256(latestPnpm)
+  Dockerfile = replaceEnv(Dockerfile, 'PNPM_VERSION', latestPnpm)
+  Dockerfile = replaceEnv(Dockerfile, 'PNPM_CHECKSUM', `sha256:${checksum}`)
   writeFileSync(join(ROOT, '.devcontainer', 'Dockerfile'), Dockerfile)
 
   updatePackages(pkg => {
-    pkg = pkg.replace(
-      /"packageManager": ".+"/,
-      `"packageManager": "pnpm@${latestPnpm}"`
-    )
+    pkg = replaceKey(pkg, 'packageManager', `pnpm@${latestPnpm}`)
     let major = latestPnpm.split('.')[0]
     if (currentPnpm.split('.')[0] !== major) {
-      pkg = pkg.replace(/"pnpm": ".+"/, `"pnpm": "^${major}.0.0"`)
+      pkg = replaceKey(pkg, 'pnpm', `^${major}.0.0`)
     }
     return pkg
   })

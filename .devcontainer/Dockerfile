@@ -1,25 +1,26 @@
 # Creates development machine inside docker
 # so every developer will have the same environment
 
-FROM ubuntu:24.04
+FROM docker.io/ubuntu:24.04
 
 ENV NODE_VERSION 22.2.0
-ENV PNPM_VERSION 9.1.1
+ENV PNPM_VERSION 9.1.2
+ENV NODE_CHECKSUM sha256:2c6eaf8bfd0f886ed8764ffce19c795e909639105e4056b1d9f8f917bad12cf1
+ENV PNPM_CHECKSUM sha256:2f69b99b25e92d544627bdc625b0cb5bfd214e39e57beb6a33794ef99071bf4c
 
 RUN apt-get update \
   && apt-get install -y eza zsh git tig ripgrep bat curl tar micro \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
-RUN curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz \
-  | tar -xz -C /usr/local --strip-components=1 \
+ADD --checksum=$NODE_CHECKSUM https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz /node.tar.gz
+RUN tar -xz -f /node.tar.gz -C /usr/local --remove-files --strip-components=1 \
   --exclude='*.md' --exclude='LICENSE' \
   --exclude='share' --exclude='lib/node_modules/' \
   --exclude='bin/npm' --exclude='bin/npx' --exclude='bin/corepack'
-RUN curl -fsSL https://github.com/pnpm/pnpm/releases/download/v$PNPM_VERSION/pnpm-linux-x64 > /usr/local/bin/pnpm \
-  && chmod a+x /usr/local/bin/pnpm
+ADD --checksum=$PNPM_CHECKSUM https://github.com/pnpm/pnpm/releases/download/v$PNPM_VERSION/pnpm-linux-x64 /usr/local/bin/pnpm
+RUN chmod a+rx /usr/local/bin/pnpm
 
-RUN userdel -r ubuntu
-RUN useradd -m -s /bin/zsh developer
+RUN userdel -r ubuntu && useradd -m -s /bin/zsh developer
 USER developer
 
 RUN pnpm config set store-dir /home/developer/.local/share/pnpm/store \
