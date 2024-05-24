@@ -72,6 +72,8 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    concurrency:
+      group: staging-proxy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

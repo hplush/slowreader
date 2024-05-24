@@ -46,6 +46,8 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    concurrency:
+      group: staging-web
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
