@@ -1,37 +1,39 @@
 <script lang="ts">
   import {
     handleImportFile,
-    importedFeedsByCategory,
     importedCategories,
     importedFeeds,
-    submitImport,
+    importedFeedsByCategory,
     selectAllImportedFeeds,
+    submitImport,
+    importMessages as t,
     toggleImportedCategory,
-    toggleImportedFeed,
-    importMessages as t
+    toggleImportedFeed
   } from '@slowreader/core'
+
   import Button from '../../ui/button.svelte'
   import Card from '../../ui/card.svelte'
   import RadioField from '../../ui/radio-field.svelte'
   import FeedList from './feedList.svelte'
 
-  let currentFeeds = 'all'
+  let currentFeeds: 'all' | 'select' = 'all'
 
-  function handleFileChange(e) {
-    const file = e.target.files[0]
+  function handleFileChange(e: Event): void {
+    let target = e.target as HTMLInputElement
+    let file = target.files?.[0]
     if (file) {
       handleImportFile(file)
     }
   }
 
-  function handleRadioChange(e) {
+  function handleRadioChange(e: CustomEvent<'all' | 'select'>): void {
     currentFeeds = e.detail
     if (currentFeeds === 'all') {
       selectAllImportedFeeds()
     }
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(): Promise<void> {
     await submitImport()
   }
 </script>
@@ -48,7 +50,9 @@
           ['all', $t.allFeeds],
           ['select', $t.selectFeeds]
         ]}
-        on:change={handleRadioChange}
+        on:change={e => {
+          handleRadioChange(e)
+        }}
       />
     </Card>
     <FeedList

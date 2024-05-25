@@ -1,23 +1,33 @@
-import { getCategoryTitle, getCategories, feedsByCategory } from './category.js'
+import {
+  getCategoryTitle,
+  getCategories,
+  feedsByCategory,
+  type FeedsByCategory,
+  type CategoryValue
+} from './category.js'
 import { atom, onMount } from 'nanostores'
 import { readonlyExport } from './lib/stores.js'
 import { getFeeds, type FeedValue } from './feed.js'
-import { loadValue } from '@logux/client'
-import { getPosts } from './post.js'
+import { loadValue, type FilterValue } from '@logux/client'
+import { getPosts, type PostValue } from './post.js'
 
-let $categories = atom({ isLoading: true })
-let $allFeeds = atom({ isLoading: true })
-let $feedsByCategoryList = atom([])
+type ExtendedFeedValue = FeedValue & {
+  posts?: PostValue[]
+}
+
+let $categories = atom<CategoryValue[]>([])
+let $allFeeds = atom<FeedValue[]>([])
+let $feedsByCategoryList = atom<[CategoryValue, ExtendedFeedValue[]][]>([])
 
 export const feedsByCategoryList = readonlyExport($feedsByCategoryList)
 
 onMount(feedsByCategoryList, () => {
   Promise.all([loadValue(getCategories()), loadValue(getFeeds())]).then(
     ([categoriesValue, feedsValue]) => {
-      $categories.set({ list: categoriesValue.list, isLoading: false })
-      $allFeeds.set({ list: feedsValue.list, isLoading: false })
+      $categories.set(categoriesValue.list)
+      $allFeeds.set(feedsValue.list)
       $feedsByCategoryList.set(
-        feedsByCategory($categories.get().list, $allFeeds.get().list)
+        feedsByCategory($categories.get(), $allFeeds.get())
       )
 
       selectAllExportedFeeds()
@@ -45,8 +55,8 @@ export function selectAllExportedFeeds() {
 }
 
 export function clearExportedSelections() {
-  $selectedCategories.set(new Set())
-  $selectedFeeds.set(new Set())
+  $selectedCategories.set([])
+  $selectedFeeds.set([])
 }
 
 export function getOPMLBlob() {
@@ -70,19 +80,24 @@ export function getOPMLBlob() {
   return new Blob([opml], { type: 'application/xml' })
 }
 
-export async function getInternalBlob(isIncludePosts) {
-  let posts
-  if (isIncludePosts) posts = await loadValue(getPosts())
+export async function getInternalBlob(isIncludePosts: Boolean) {
+  let posts: PostValue[]
+  if (isIncludePosts) {
+    posts = await loadValue(getPosts()).then(value => value.list)
+  }
   const enrichedData = $feedsByCategoryList.get().map(([category, feeds]) => {
     const categoryTitle = getCategoryTitle(category)
     if (isIncludePosts) {
       feeds.forEach(feed => {
-        feed.posts = posts.list.filter(post => post.feedId === feed.id)
+        feed.posts = posts.filter(post => post.feedId === feed.id)
       })
     }
     return [{ ...category, title: categoryTitle }, feeds]
   })
-  const jsonStr = JSON.stringify(enrichedData)
+  const jsonStr = JSON.stringify({
+    type: 'feedsByCategory', // mark for validation in import
+    data: enrichedData
+  })
   return new Blob([jsonStr], { type: 'application/json' })
 }
 
@@ -90,9 +105,7 @@ export function toggleExportedCategory(categoryId: string) {
   const selectedCategories = new Set($selectedCategories.get())
   const selectedFeeds = new Set($selectedFeeds.get())
 
-  const feeds = $allFeeds
-    .get()
-    .list.filter(feed => feed.categoryId === categoryId)
+  const feeds = $allFeeds.get().filter(feed => feed.categoryId === categoryId)
 
   if (selectedCategories.has(categoryId)) {
     selectedCategories.delete(categoryId)
@@ -114,7 +127,7 @@ export function toggleExportedFeed(feedId: string, categoryId: string) {
     selectedFeeds.delete(feedId)
     const remainingFeedsInCategory = $allFeeds
       .get()
-      .list.filter(
+      .filter(
         feed => feed.categoryId === categoryId && selectedFeeds.has(feed.id)
       )
     if (remainingFeedsInCategory.length === 0) {

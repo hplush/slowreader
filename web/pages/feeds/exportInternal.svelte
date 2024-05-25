@@ -1,13 +1,13 @@
 <script lang="ts">
   import {
-    getInternalBlob,
-    selectAllExportedFeeds,
-    feedsByCategoryList,
     exportedCategories,
     exportedFeeds,
+    feedsByCategoryList,
+    getInternalBlob,
+    selectAllExportedFeeds,
+    exportMessages as t,
     toggleExportedCategory,
-    toggleExportedFeed,
-    exportMessages as t
+    toggleExportedFeed
   } from '@slowreader/core'
 
   import Button from '../../ui/button.svelte'
@@ -15,19 +15,28 @@
   import RadioField from '../../ui/radio-field.svelte'
   import FeedList from './feedList.svelte'
 
-  let exportOptions = {
+  type ExportOptions = {
+    feeds: 'all' | 'select'
+    posts: 'all' | 'none'
+  }
+
+  let exportOptions: ExportOptions = {
     feeds: 'all',
     posts: 'all'
   }
 
-  function handleExportOptionChange(field, value) {
+  function handleExportOptionChange<K extends keyof ExportOptions>(
+    field: K,
+    value: ExportOptions[K]
+  ): void {
     exportOptions[field] = value
+
     if (exportOptions.feeds === 'all') {
       selectAllExportedFeeds()
     }
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(): Promise<void> {
     let blob = await getInternalBlob(exportOptions.posts === 'all')
 
     let url = URL.createObjectURL(blob)
@@ -39,7 +48,7 @@
   }
 </script>
 
-<h2>{$t.internalExportTitle}</h2>
+<h2>{$t.chooseTitle}</h2>
 <form on:submit|preventDefault={handleSubmit}>
   <Card>
     <RadioField

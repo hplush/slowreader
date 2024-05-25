@@ -1,21 +1,23 @@
 <script lang="ts">
-  import { getCategoryTitle } from '@slowreader/core'
-
+  import { type FeedsByCategory, getCategoryTitle } from '@slowreader/core'
   import { createEventDispatcher } from 'svelte'
 
-  export let disabled
-  export let feedsByCategory
-  export let selectedCategories
-  export let selectedFeeds
+  export let disabled: boolean
+  export let feedsByCategory: FeedsByCategory
+  export let selectedCategories: string[]
+  export let selectedFeeds: string[]
 
-  const dispatch = createEventDispatcher()
+  const dispatch = createEventDispatcher<{
+    toggleCategory: { categoryId: string }
+    toggleFeed: { categoryId: string; feedId: string }
+  }>()
 
-  function handleToggleCategory(categoryId: string) {
+  function handleToggleCategory(categoryId: string): void {
     dispatch('toggleCategory', { categoryId })
   }
 
-  function handleToggleFeed(feedId: string, categoryId: string) {
-    dispatch('toggleFeed', { feedId, categoryId })
+  function handleToggleFeed(feedId: string, categoryId: string): void {
+    dispatch('toggleFeed', { categoryId, feedId })
   }
 </script>
 
@@ -27,7 +29,9 @@
           checked={selectedCategories.includes(category.id)}
           {disabled}
           type="checkbox"
-          on:change={() => handleToggleCategory(category.id)}
+          on:change={() => {
+            handleToggleCategory(category.id)
+          }}
         />
         <h4 class="feed-list_category">{getCategoryTitle(category)}</h4>
       </label>
@@ -40,7 +44,9 @@
                 checked={selectedFeeds.includes(feed.id)}
                 {disabled}
                 type="checkbox"
-                on:change={() => handleToggleFeed(feed.id, category.id)}
+                on:change={() => {
+                  handleToggleFeed(feed.id, category.id)
+                }}
               />
               <span>{feed.title}</span>
             </label>
