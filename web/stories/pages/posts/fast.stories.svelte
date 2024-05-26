@@ -6,7 +6,7 @@
 
   export const meta = {
     component: MockedFast,
-    title: 'Pages/Posts/Fast'
+    title: 'Pages/Fast'
   }
 </script>
 
