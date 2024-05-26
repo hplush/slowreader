@@ -30,6 +30,7 @@
     prepareResponses,
     setNetworkType
   } from './environment.js'
+  import { isWritableAtom } from '../../core/lib/stores.js'
 
   const DEFAULT_NETWORK: ReturnType<NetworkTypeDetector> = {
     saveData: false,
@@ -71,16 +72,10 @@
     }
 
     // TODO: Replace with Nano Stores Context
-    if (refreshing) {
-      // @ts-expect-error
-      isRefreshing.set(true)
-      // @ts-expect-error
+    if (isWritableAtom(isRefreshing) && isWritableAtom(refreshStatistics)) {
+      isRefreshing.set(Boolean(refreshing))
+
       refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, ...refreshing })
-    } else {
-      // @ts-expect-error
-      isRefreshing.set(false)
-      // @ts-expect-error
-      refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS })
     }
 
     if (fast) {
@@ -97,8 +92,7 @@
 
   onMount(() => {
     return () => {
-      // @ts-expect-error
-      isRefreshing.set(false)
+      if (isWritableAtom(isRefreshing)) isRefreshing.set(false)
       baseRouter.set({ params: {}, route: 'slow' })
       setNetworkType(DEFAULT_NETWORK)
       cleanLogux()
