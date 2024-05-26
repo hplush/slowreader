@@ -24,13 +24,13 @@
   import { cleanStores } from 'nanostores'
   import { onMount } from 'svelte'
 
+  import { isWritableAtom } from '../../core/lib/stores.js'
   import {
     baseRouter,
     type PreparedResponse,
     prepareResponses,
     setNetworkType
   } from './environment.js'
-  import { isWritableAtom } from '../../core/lib/stores.js'
 
   const DEFAULT_NETWORK: ReturnType<NetworkTypeDetector> = {
     saveData: false,

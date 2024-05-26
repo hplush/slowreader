@@ -6,8 +6,9 @@
     totalSlowPosts
   } from '@slowreader/core'
   import type { PostValue, SlowPostsValue } from '@slowreader/core'
-  import Slow from '../../../pages/slow.svelte'
+
   import { isWritableAtom } from '../../../../core/lib/stores.js'
+  import Slow from '../../../pages/slow.svelte'
 
   export let state: SlowPostsValue = {
     isLoading: true
@@ -16,11 +17,13 @@
   export let post: PostValue | undefined = undefined
 
   if (isWritableAtom(slowPosts)) slowPosts.set(state)
-  if (isWritableAtom(totalSlowPages))
+  if (isWritableAtom(totalSlowPages)) {
     totalSlowPages.set(showPagination ? 10 : 1)
+  }
 
-  if (isWritableAtom(totalSlowPosts))
+  if (isWritableAtom(totalSlowPosts)) {
     totalSlowPosts.set(showPagination ? 1_000 : 10)
+  }
   // @ts-expect-error
   if (isWritableAtom(totalSlowPosts)) openedSlowPost.set(post)
 </script>

@@ -11,8 +11,8 @@ import {
 } from '../../lib/stores.js'
 
 test('writable atom type guard', () => {
-  const $a = atom(0)
-  const readOnly = readonlyExport($a)
+  let $a = atom(0)
+  let readOnly = readonlyExport($a)
 
   deepStrictEqual(isWritableAtom(readOnly), true)
 })

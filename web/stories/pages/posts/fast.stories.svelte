@@ -1,6 +1,7 @@
 <script context="module" lang="ts">
-  import MockedFast from './fast-mock-env.svelte'
   import { Story } from '@storybook/addon-svelte-csf'
+
+  import MockedFast from './fast-mock-env.svelte'
   import { MOCKED_FAST_FEED, MOCKED_POSTS } from './mocks.js'
 
   export const meta = {
@@ -19,8 +20,8 @@
 
 <Story name="Opened post" parameters={{ layout: 'fullscreen' }}>
   <MockedFast
-    posts={MOCKED_FAST_FEED.slice(0, 3)}
     openedPost={MOCKED_POSTS[0]}
+    posts={MOCKED_FAST_FEED.slice(0, 3)}
   />
 </Story>
 
