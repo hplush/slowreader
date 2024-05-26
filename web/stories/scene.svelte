@@ -19,6 +19,8 @@
     type RefreshStatistics,
     type Route,
     secondStep,
+    slowPosts,
+    type SlowPostsValue,
     testFeed
   } from '@slowreader/core'
   import { cleanStores } from 'nanostores'
@@ -51,6 +53,11 @@
   export let responses: Record<string, PreparedResponse | string> = {}
 
   export let showSecondStep: boolean = false
+
+  const initialSlow: SlowPostsValue = {
+    isLoading: true
+  }
+  export let slowState: SlowPostsValue = initialSlow
 
   function cleanLogux(): void {
     clearPreview()
@@ -91,11 +98,14 @@
   }
 
   onMount(() => {
+    forceSet(slowPosts, slowState)
+
     return () => {
       forceSet(isRefreshing, false)
       baseRouter.set({ params: {}, route: 'slow' })
       setNetworkType(DEFAULT_NETWORK)
       cleanLogux()
+      forceSet(slowPosts, initialSlow)
     }
   })
 </script>
