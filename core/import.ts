@@ -13,8 +13,13 @@ export const importedFeedsByCategory = readonlyExport($importedFeedsByCategory)
 
 let $importedCategories = atom<string[]>([])
 let $importedFeeds = atom<string[]>([])
+let $reading = atom<boolean>(false)
+let $submiting = atom<boolean>(false)
+
 export const importedCategories = readonlyExport($importedCategories)
 export const importedFeeds = readonlyExport($importedFeeds)
+export const reading = readonlyExport($reading)
+export const submiting = readonlyExport($submiting)
 
 let $categories = atom<CategoryValue[]>([])
 let $feeds = atom<FeedValue[]>([])
@@ -83,121 +88,130 @@ export function toggleImportedFeed(feedId: string, categoryId: string) {
 }
 
 export function handleImportFile(file: File): void {
+  $reading.set(true)
+  $importedFeedsByCategory.set([])
   const reader = new FileReader()
   reader.onload = async function (e) {
-    const content = e.target?.result as string
+    try {
+      const content = e.target?.result as string
+      const fileExtension = file.name.split('.').pop()?.toLowerCase()
 
-    const fileExtension = file.name.split('.').pop()?.toLowerCase()
-
-    if (fileExtension === 'json') {
-      try {
-        const jsonData = JSON.parse(content)
-        if (jsonData.type === 'feedsByCategory') {
-          $importedFeedsByCategory.set(jsonData.data)
-          selectAllImportedFeeds()
-          return
-        } else {
-          throw new Error('Invalid JSON structure')
-        }
-      } catch (jsonError) {
-        console.error('Failed to parse JSON or invalid structure:', jsonError)
-        return
-      }
-    } else if (fileExtension === 'opml') {
-      try {
-        const parser = new DOMParser()
-        const xmlDoc = parser.parseFromString(content, 'text/xml')
-
-        if (xmlDoc.documentElement.nodeName === 'opml') {
-          const feedsByCategory: FeedsByCategory = []
-          const outlines = xmlDoc.getElementsByTagName('outline')
-
-          // General category to hold uncategorized feeds
-          const generalCategory: CategoryValue = {
-            id: 'general',
-            title: 'General'
+      if (fileExtension === 'json') {
+        try {
+          const jsonData = JSON.parse(content)
+          if (jsonData.type === 'feedsByCategory') {
+            $importedFeedsByCategory.set(jsonData.data)
+            selectAllImportedFeeds()
+            return
+          } else {
+            throw new Error('Invalid JSON structure')
           }
-          const generalFeeds: FeedValue[] = []
+        } catch (jsonError) {
+          console.error('Failed to parse JSON or invalid structure:', jsonError)
+          return
+        }
+      } else if (fileExtension === 'opml') {
+        try {
+          const parser = new DOMParser()
+          const xmlDoc = parser.parseFromString(content, 'text/xml')
 
-          // Flag to track the existence of the General category in the file
-          let generalCategoryExists = false
+          if (xmlDoc.documentElement.nodeName === 'opml') {
+            const feedsByCategory: FeedsByCategory = []
+            const outlines = xmlDoc.getElementsByTagName('outline')
 
-          for (let i = 0; i < outlines.length; i++) {
-            const outline = outlines[i]
-            if (outline && outline.parentElement) {
-              if (
-                outline.parentElement.nodeName === 'body' &&
-                outline.children.length > 0
-              ) {
-                // Top-level outline element with children, considered a category
-                const categoryId = outline.getAttribute('text')!.toLowerCase()
-                const categoryTitle = outline.getAttribute('text')!
+            // General category to hold uncategorized feeds
+            const generalCategory: CategoryValue = {
+              id: 'general',
+              title: 'General'
+            }
+            const generalFeeds: FeedValue[] = []
 
-                if (categoryId === 'general') {
-                  generalCategoryExists = true
-                }
+            // Flag to track the existence of the General category in the file
+            let generalCategoryExists = false
 
-                const category: CategoryValue = {
-                  id: categoryId,
-                  title: categoryTitle
-                }
-                const feeds: FeedValue[] = []
+            for (let i = 0; i < outlines.length; i++) {
+              const outline = outlines[i]
+              if (outline && outline.parentElement) {
+                if (
+                  outline.parentElement.nodeName === 'body' &&
+                  outline.children.length > 0
+                ) {
+                  // Top-level outline element with children, considered a category
+                  const categoryId = outline.getAttribute('text')!.toLowerCase()
+                  const categoryTitle = outline.getAttribute('text')!
 
-                const childOutlines = outline.children
-                for (let j = 0; j < childOutlines.length; j++) {
-                  const feedOutline = childOutlines[j]
-                  const feedUrl = feedOutline?.getAttribute('xmlUrl')
+                  if (categoryId === 'general') {
+                    generalCategoryExists = true
+                  }
+
+                  const category: CategoryValue = {
+                    id: categoryId,
+                    title: categoryTitle
+                  }
+                  const feeds: FeedValue[] = []
+
+                  const childOutlines = outline.children
+                  for (let j = 0; j < childOutlines.length; j++) {
+                    const feedOutline = childOutlines[j]
+                    const feedUrl = feedOutline?.getAttribute('xmlUrl')
+                    if (feedUrl) {
+                      const feed = await getFeedFromUrl(feedUrl, category.id)
+                      feeds.push(feed)
+                    }
+                  }
+                  feedsByCategory.push([category, feeds])
+                } else if (
+                  outline.parentElement.nodeName === 'body' &&
+                  outline.getAttribute('xmlUrl')
+                ) {
+                  // Feed directly under body without a parent category, add to General
+                  const feedUrl = outline.getAttribute('xmlUrl')
                   if (feedUrl) {
-                    const feed = await getFeedFromUrl(feedUrl, category.id)
-                    feeds.push(feed)
+                    const feed = await getFeedFromUrl(
+                      feedUrl,
+                      generalCategory.id
+                    )
+                    generalFeeds.push(feed)
                   }
                 }
-                feedsByCategory.push([category, feeds])
-              } else if (
-                outline.parentElement.nodeName === 'body' &&
-                outline.getAttribute('xmlUrl')
-              ) {
-                // Feed directly under body without a parent category, add to General
-                const feedUrl = outline.getAttribute('xmlUrl')
-                if (feedUrl) {
-                  const feed = await getFeedFromUrl(feedUrl, generalCategory.id)
-                  generalFeeds.push(feed)
-                }
               }
             }
-          }
 
-          if (generalFeeds.length > 0) {
-            if (generalCategoryExists) {
-              // If the General category already exists, add feeds without parent to it
-              for (let i = 0; i < feedsByCategory.length; i++) {
-                if (feedsByCategory[i][0].id === 'general') {
-                  feedsByCategory[i][1].push(...generalFeeds)
-                  break
+            if (generalFeeds.length > 0) {
+              if (generalCategoryExists) {
+                // If the General category already exists, add feeds without parent to it
+                for (let i = 0; i < feedsByCategory.length; i++) {
+                  if (feedsByCategory[i][0].id === 'general') {
+                    feedsByCategory[i][1].push(...generalFeeds)
+                    break
+                  }
                 }
+              } else {
+                // If there is no General category, create it
+                feedsByCategory.push([generalCategory, generalFeeds])
               }
-            } else {
-              // If there is no General category, create it
-              feedsByCategory.push([generalCategory, generalFeeds])
             }
-          }
 
-          $importedFeedsByCategory.set(feedsByCategory)
-          selectAllImportedFeeds()
-        } else {
-          throw new Error('File is not in OPML format')
+            $importedFeedsByCategory.set(feedsByCategory)
+            selectAllImportedFeeds()
+          } else {
+            throw new Error('File is not in OPML format')
+          }
+        } catch (xmlError) {
+          console.error('File is not in OPML format')
         }
-      } catch (xmlError) {
-        console.error('File is not in OPML format')
+      } else {
+        console.error('Unsupported file format')
       }
-    } else {
-      console.error('Unsupported file format')
+    } finally {
+      $reading.set(false)
     }
   }
   reader.readAsText(file)
 }
 
 export async function submitImport() {
+  $submiting.set(true)
   const categoryPromises = []
   const feedPromises = []
 
@@ -216,4 +230,7 @@ export async function submitImport() {
 
   await Promise.all(categoryPromises)
   await Promise.all(feedPromises)
+
+  $importedFeedsByCategory.set([])
+  $submiting.set(false)
 }

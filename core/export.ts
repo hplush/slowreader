@@ -18,8 +18,10 @@ type ExtendedFeedValue = FeedValue & {
 let $categories = atom<CategoryValue[]>([])
 let $allFeeds = atom<FeedValue[]>([])
 let $feedsByCategoryList = atom<[CategoryValue, ExtendedFeedValue[]][]>([])
+let $creating = atom<boolean>(false)
 
 export const feedsByCategoryList = readonlyExport($feedsByCategoryList)
+export const creating = readonlyExport($creating)
 
 onMount(feedsByCategoryList, () => {
   Promise.all([loadValue(getCategories()), loadValue(getFeeds())]).then(
@@ -60,6 +62,7 @@ export function clearExportedSelections() {
 }
 
 export function getOPMLBlob() {
+  $creating.set(true)
   let opml =
     '<?xml version="1.0" encoding="UTF-8"?>\n<opml version="2.0">\n<head>\n<title>Feeds</title>\n</head>\n<body>\n'
 
@@ -77,10 +80,13 @@ export function getOPMLBlob() {
 
   opml += '</body>\n</opml>'
 
+  $creating.set(false)
+
   return new Blob([opml], { type: 'application/xml' })
 }
 
 export async function getInternalBlob(isIncludePosts: Boolean) {
+  $creating.set(true)
   let posts: PostValue[]
   if (isIncludePosts) {
     posts = await loadValue(getPosts()).then(value => value.list)
@@ -98,6 +104,7 @@ export async function getInternalBlob(isIncludePosts: Boolean) {
     type: 'feedsByCategory', // mark for validation in import
     data: enrichedData
   })
+  $creating.set(false)
   return new Blob([jsonStr], { type: 'application/json' })
 }
 

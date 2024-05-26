@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+    creating,
     exportedCategories,
     exportedFeeds,
     feedsByCategoryList,
@@ -14,6 +15,7 @@
   import Card from '../../ui/card.svelte'
   import RadioField from '../../ui/radio-field.svelte'
   import FeedList from './feedList.svelte'
+  import Loader from '../../ui/loader.svelte'
 
   type ExportOptions = {
     feeds: 'all' | 'select'
@@ -86,9 +88,12 @@
       toggleExportedFeed(e.detail.feedId, e.detail.categoryId)
     }}
   />
-  <Button class="export-internal_submit" type="submit"
+  <Button class="export-internal_submit" disabled={$creating} type="submit"
     >{$t.submitInternal}</Button
   >
+  {#if $creating}
+    <Loader />
+  {/if}
 </form>
 
 <style>

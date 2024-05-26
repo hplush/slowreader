@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+    creating,
     exportedCategories,
     exportedFeeds,
     feedsByCategoryList,
@@ -13,6 +14,7 @@
 
   import Button from '../../ui/button.svelte'
   import Card from '../../ui/card.svelte'
+  import Loader from '../../ui/loader.svelte'
   import RadioField from '../../ui/radio-field.svelte'
   import FeedList from './feedList.svelte'
 
@@ -68,7 +70,12 @@
       toggleExportedFeed(e.detail.feedId, e.detail.categoryId)
     }}
   />
-  <Button class="export-opml_submit" type="submit">{$t.submitOPML}</Button>
+  <Button class="export-opml_submit" disabled={$creating} type="submit"
+    >{$t.submitOPML}</Button
+  >
+  {#if $creating}
+    <Loader />
+  {/if}
 </form>
 
 <style>
