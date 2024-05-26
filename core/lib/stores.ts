@@ -11,6 +11,11 @@ type StoreValues<Stores extends ReadableAtom[]> = {
   [Index in keyof Stores]: StoreValue<Stores[Index]>
 }
 
+/** use only for test mocks or don't permit rewrite store at all */
+export const isWritableAtom = <Value>(
+  store: ReadableAtom<Value>
+): store is WritableAtom<Value> => 'set' in store
+
 export function readonlyExport<Store extends ReadableAtom>(
   store: Store
 ): ReadableAtom<StoreValue<Store>> {
