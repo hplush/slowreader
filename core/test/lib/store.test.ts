@@ -2,7 +2,20 @@ import { atom, map } from 'nanostores'
 import { deepStrictEqual } from 'node:assert'
 import { test } from 'node:test'
 
-import { computeFrom, increaseKey, listenMany } from '../../lib/stores.js'
+import {
+  computeFrom,
+  increaseKey,
+  isWritableAtom,
+  listenMany,
+  readonlyExport
+} from '../../lib/stores.js'
+
+test('writable atom type guard', () => {
+  const $a = atom(0)
+  const readOnly = readonlyExport($a)
+
+  deepStrictEqual(isWritableAtom(readOnly), true)
+})
 
 test('increases keys', () => {
   let $map = map({ a: 0, b: 0 })
