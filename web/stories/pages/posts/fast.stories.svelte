@@ -1,11 +1,11 @@
 <script context="module" lang="ts">
   import MockedFast from './fast-mock-env.svelte'
   import { Story } from '@storybook/addon-svelte-csf'
-  import { mockedFast } from './mocks.js'
+  import { MOCKED_FAST_FEED, MOCKED_POSTS } from './mocks.js'
 
   export const meta = {
     component: MockedFast,
-    title: 'Pages/Post/Fast'
+    title: 'Pages/Posts/Fast'
   }
 </script>
 
@@ -13,14 +13,17 @@
   <MockedFast />
 </Story>
 
-<Story name="Have posts" parameters={{ layout: 'fullscreen' }}>
-  <MockedFast posts={mockedFast.slice(0, 3)} />
-</Story>
-
-<Story name="Next button" parameters={{ layout: 'fullscreen' }}>
-  <MockedFast posts={mockedFast} showNextButton />
+<Story name="Few posts" parameters={{ layout: 'fullscreen' }}>
+  <MockedFast posts={MOCKED_FAST_FEED.slice(0, 3)} />
 </Story>
 
 <Story name="Opened post" parameters={{ layout: 'fullscreen' }}>
-  <MockedFast posts={mockedFast.slice(0, 3)} openedPost={mockedFast[0].post} />
+  <MockedFast
+    posts={MOCKED_FAST_FEED.slice(0, 3)}
+    openedPost={MOCKED_POSTS[0]}
+  />
+</Story>
+
+<Story name="Many posts" parameters={{ layout: 'fullscreen' }}>
+  <MockedFast posts={MOCKED_FAST_FEED} showNextButton />
 </Story>
