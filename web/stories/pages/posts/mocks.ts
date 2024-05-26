@@ -2,8 +2,8 @@ import type { FastEntry, FeedValue, PostValue } from '@slowreader/core'
 
 const MOCKED_FEEDS: FeedValue[] = [
   {
-    id: 'tPZKwFDO642kMbM_Tp8DG',
     categoryId: 'TZ5yEytMWHlklcif8Zok2',
+    id: 'tPZKwFDO642kMbM_Tp8DG',
     lastOriginId:
       'https://en.wikinews.org/wiki/British_Prime_Minister_Rishi_Sunak_calls_for_general_election_in_UK',
     lastPublishedAt: 1716567281,
@@ -13,10 +13,10 @@ const MOCKED_FEEDS: FeedValue[] = [
     url: 'https://en.wikinews.org/w/index.php?title=Special:NewsFeed&feed=atom&categories=Published&notcategories=No%20publish%7CArchived%7CAutoArchived%7Cdisputed&count=50&hourcount=200&stablepages=only'
   },
   {
+    categoryId: 'TZ5yEytMWHlklcif8Zok2',
     id: 'Z3y4rUcFvSbmP1zX86DRi',
     lastOriginId: 'http://ru.wikinews.org/w/index.php?curid=13988942',
     lastPublishedAt: 1707677592,
-    categoryId: 'TZ5yEytMWHlklcif8Zok2',
     loader: 'rss',
     reading: 'fast',
     title:
@@ -29,119 +29,119 @@ const MOCKED_FAST_FEED: FastEntry[] = [
   {
     feed: MOCKED_FEEDS[0]!,
     post: {
+      feedId: 'tPZKwFDO642kMbM_Tp8DG',
       id: 'cdkqtBO_NDKXlpnFLISMx',
-      reading: 'fast',
       intro:
         '<div class="mw-content-ltr mw-parser-output" lang="en" dir="ltr"><p><strong class="published"><span id="publishDate" class="value-title" title="2024-05-24"></span>Friday, May 24, 2024</strong><span class="Z3988" style="display:none" title="ctx_ver=Z39.88-2004&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&amp;rfr_id=rfr_id=info:sid/en.wikinews.org:User%3ADendodge&amp;rft_id=info:sid/en.wikinews.org:British_Prime_Minister_Rishi_Sunak_calls_for_general_election_in_UK&amp;rft.atitle=British+Prime+Minister+Rishi+Sunak+calls+for+general+election+in+UK&amp;rft.jtitle=Wikinews&amp;rft.date=2024-05-24&amp;rft.aucorp=Wikinews+contributors&amp;rft.genre=article&amp;rft.rights=CC-BY+2.5&amp;rft.identifier=%2F%2Fen.wikinews.org%2Fwiki%2FBritish_Prime_Minister_Rishi_Sunak_calls_for_general_election_in_UK&amp;rft.artnum=-">&#160;</span>\n</p>\n<figure class="mw-default-size mw-halign-left" typeof="mw:File/Thumb"><a href="/wiki/File:Portrait_of_Prime_Minister_Rishi_Sunak_(cropped).jpg" class="mw-file-description"><img alt="File photo of Prime Minister Rishi Sunak." src="//upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Portrait_of_Prime_Minister_Rishi_Sunak_%28cropped%29.jpg/220px-Portrait_of_Prime_Minister_Rishi_Sunak_%28cropped%29.jpg" decoding="async" width="220" height="298" class="mw-file-element" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Portrait_of_Prime_Minister_Rishi_Sunak_%28cropped%29.jpg/330px-Portrait_of_Prime_Minister_Rishi_Sunak_%28cropped%29.jpg 1.5x, //upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Portrait_of_Prime_Minister_Rishi_Sunak_%28cropped%29.jpg/440px-Portrait_of_Prime_Minister_Rishi_Sunak_%28cropped%29.jpg 2x" data-file-width="2331" data-file-height="3153" /></a><figcaption>File photo of Prime Minister Rishi Sunak. <br /><span style="font-size:90%" class="plainlinks">Image: Simon Walker / No 10 Downing Street.</span></figcaption></figure>\n<p>On Wednesday, <a href="/wiki/UK" class="mw-redirect" title="UK">British</a> <span class="interwiki-link-foreign"><a href="https://en.wikipedia.org/wiki/Prime_Minister" class="extiw" title="w:Prime Minister">Prime Minister</a></span> <a href="/wiki/Rishi_Sunak" class="mw-redirect" title="Rishi Sunak">Rishi Sunak</a> called a <span class="interwiki-link-foreign"><a href="https://en.wikipedia.org/wiki/general_election" class="extiw" title="w:general election">general election</a></span> in the United Kingdom, which is set to take place on the 4th of July. In a statement made outside <a href="/wiki/10_Downing_Street" class="mw-redirect" title="10 Downing Street">Number 10</a>, the Prime Minister announced that he had met with <a href="/wiki/King_Charles_III" class="mw-redirect" title="King Charles III">King Charles III</a> to discuss the dissolution of parliament; a request which was granted.\n</p><p>Faye Brown, a political reporter for <a href="/wiki/Sky_News" class="mw-redirect" title="Sky News">Sky News</a>, views this unexpected move as a significant electoral risk for the <a href="/wiki/Conservative_Party_(UK)" class="mw-redirect" title="Conservative Party (UK)">Conservative Party</a>, as recent polls have shown the centre-left <a href="/wiki/Labour_Party_(UK)" class="mw-redirect" title="Labour Party (UK)">Labour Party</a> to be ahead of the Conservatives by around twenty points.\n</p><p>The Prime Minister told news agencies that this is "proof that the plan and priorities I set out are working [but] this hard earned economic stability was only ever meant to be the beginning".\n</p><p>The end of Mr. Sunak\'s speech took aim at <span class="interwiki-link-foreign"><a href="https://en.wikipedia.org/wiki/Sir_Keir_Starmer" class="extiw" title="w:Sir Keir Starmer">Sir Keir Starmer</a></span>, the leader of the rival Labour party, saying he had "shown time and time again that he will take the easy way out and do anything to get power". Meanwhile, Mr. Starmer has said that the election is an "opportunity for change", mentioning the issues of sewage in British rivers, people waiting on <span class="interwiki-link-foreign"><a href="https://en.wiktionary.org/wiki/trolley#Noun" class="extiw" title="wikt:trolley">trolleys</a></span> in <span class="interwiki-link-foreign"><a href="https://en.wiktionary.org/wiki/A%26E" class="extiw" title="wikt:A&amp;E">A&amp;E</a></span>, the cost of living crisis, and crime going "virtually unpunished", as he attacked the Conservatives\' record in government.\n</p><p>The Prime Minister has been telling the public for months that the <span class="interwiki-link-foreign"><a href="https://en.wikipedia.org/wiki/2024_United_Kingdom_general_election" class="extiw" title="w:2024 United Kingdom general election">next UK general election</a></span> would happen in the second half of the year, but refused to elaborate on exactly when. Until today\'s announcement, most predictions had placed the election in October.\n</p><p>General elections in the UK must be held every five years, so the final day a vote could have taken place would have been 28 January 2025. In 2019, however, the Conservatives restored the prime minister\'s power to call an election at a time of their choosing within that five years. This bill led to the most recent general election in <span class="interwiki-link-foreign"><a href="https://en.wikipedia.org/wiki/2019_United_Kingdom_general_election" class="extiw" title="w:2019 United Kingdom general election">2019</a></span>, in which <a href="/wiki/Boris_Johnson" class="mw-redirect" title="Boris Johnson">Boris Johnson</a> was elected prime minister.\n</p><p><br style="clear:none;" />\n</p>\n<div align="center">\n<div class="noprint messagebox boilerplate plainlinks" id="commentrequest" style="background-color:#FFFFFF; border:1px solid #CCCCCC; padding:2px;width:50%; text-size:smallest;">\n<p>Have an opinion on this story? <a href="/wiki/Comments:British_Prime_Minister_Rishi_Sunak_calls_for_general_election_in_UK" title="Comments:British Prime Minister Rishi Sunak calls for general election in UK">Share it!</a>\n</p>\n</div></div>\n<h2><span class="mw-headline" id="Sources">Sources</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/w/index.php?title=British_Prime_Minister_Rishi_Sunak_calls_for_general_election_in_UK&amp;action=edit&amp;section=1" title="Edit section: Sources"><span>edit</span></a><span class="mw-editsection-bracket">]</span></span></h2>\n<ul><li><span class="sourceTemplate">Stephen Farrell, Kylie Maclellan, Barbara Lewis, Mark Porter and Farouq Suleiman. "<a rel="nofollow" class="external text" href="https://www.reuters.com/world/uk/elections/live-british-election-speculation-mounts-cabinet-meets-2024-05-22/">Live: British election called for July 4</a>" &#8212;&#160;<i><span class="interwiki-link-local"><a href="/wiki/Reuters" class="mw-redirect" title="Reuters">Reuters</a></span></i>, May 22, 2024</span></li>\n<li><span class="sourceTemplate">Faye Brown. "<a rel="nofollow" class="external text" href="https://news.sky.com/story/rishi-sunak-to-call-general-election-for-4-july-sky-news-understands-13141213">General election called for 4 July, as Rishi Sunak says \'now is the moment for Britain to choose its future\'</a>" &#8212;&#160;<i><span class="interwiki-link-local"><a href="/wiki/Sky_News" class="mw-redirect" title="Sky News">Sky News</a></span></i>, May 22, 2024</span><br style="clear:both" /></li></ul>\n<table align="center" style="width:30%; background-color:#FFFFFF; border:1px solid #a7d7f9; -moz-border-radius: 9px;-webkit-border-radius: 9px; border-radius: 9px; padding:1px;" id="social_bookmarks" class="noprint">\n\n<tbody><tr>\n<td><figure class="mw-halign-left" typeof="mw:File"><a href="http://en.wikinews.org/wiki/Wikinews:Social_bookmarks"><img src="//upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Bookmark-new.svg/25px-Bookmark-new.svg.png" decoding="async" width="25" height="25" class="mw-file-element" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Bookmark-new.svg/38px-Bookmark-new.svg.png 1.5x, //upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Bookmark-new.svg/50px-Bookmark-new.svg.png 2x" data-file-width="48" data-file-height="48" /></a><figcaption></figcaption></figure>\n<div class="plainlinks" align="center">\n<p><b>Share this:</b>&#160;\n<span title="Share via e-mail" class="plainlinks"><span class="mw-default-size" typeof="mw:File"><a href="mailto:?subject=British_Prime_Minister_Rishi_Sunak_calls_for_general_election_in_UK%20–%20Wikinews&amp;body=British_Prime_Minister_Rishi_Sunak_calls_for_general_election_in_UK:%0Ahttps://en.wikinews.org/wiki/British_Prime_Minister_Rishi_Sunak_calls_for_general_election_in_UK%0A%0AFrom%20Wikinews,%20the%20free%20news%20source%20you%20can%20write!" title="E-mail this story" rel="nofollow"><img alt="E-mail this story" src="//upload.wikimedia.org/wikipedia/commons/5/5c/Email.png" decoding="async" width="16" height="16" class="mw-file-element" data-file-width="16" data-file-height="16" /></a></span></span>\n<span title="Share on Facebook"><span class="mw-default-size" typeof="mw:File"><a href="http://www.facebook.com/sharer.php?u=https://en.wikinews.org/wiki/British_Prime_Minister_Rishi_Sunak_calls_for_general_election_in_UK&amp;t=British+Prime+Minister+Rishi+Sunak+calls+for+general+election+in+UK+-+Wikinews" title="Share on Facebook" rel="nofollow"><img alt="Share on Facebook" src="//upload.wikimedia.org/wikinews/en/5/55/Facebook.png" decoding="async" width="16" height="16" class="mw-file-element" data-file-width="16" data-file-height="16" /></a></span></span>\n<span title="Share on reddit"><span class="mw-default-size" typeof="mw:File"><a href="http://reddit.com/submit?url=https://en.wikinews.org/wiki/British_Prime_Minister_Rishi_Sunak_calls_for_general_election_in_UK&amp;title=British+Prime+Minister+Rishi+Sunak+calls+for+general+election+in+UK+-+Wikinews" title="Share on reddit.com" rel="nofollow"><img alt="Share on reddit.com" src="//upload.wikimedia.org/wikinews/en/1/10/Reddit.png" decoding="async" width="18" height="18" class="mw-file-element" data-file-width="18" data-file-height="18" /></a></span></span>\n<span title="Share on LinkedIn"><span typeof="mw:File"><a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://en.wikinews.org/wiki/British_Prime_Minister_Rishi_Sunak_calls_for_general_election_in_UK&amp;title=British+Prime+Minister+Rishi+Sunak+calls+for+general+election+in+UK+-+Wikinews" title="Share on LinkedIn.com" rel="nofollow"><img alt="Share on LinkedIn.com" src="//upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Linkedin.svg/16px-Linkedin.svg.png" decoding="async" width="16" height="16" class="mw-file-element" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Linkedin.svg/24px-Linkedin.svg.png 1.5x, //upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Linkedin.svg/32px-Linkedin.svg.png 2x" data-file-width="200" data-file-height="200" /></a></span></span>\n<span title="Share on Twitter"><span class="mw-default-size" typeof="mw:File"><a href="https://twitter.com/intent/tweet?url=Look%20what%20I%20found%20on%20Wikinews:%20https://en.wikinews.org/wiki/British_Prime_Minister_Rishi_Sunak_calls_for_general_election_in_UK" title="Share on twitter.com" rel="nofollow"><img alt="Share on twitter.com" src="//upload.wikimedia.org/wikinews/en/f/f7/Twitter.png" decoding="async" width="18" height="18" class="mw-file-element" data-file-width="18" data-file-height="18" /></a></span></span>\n</p>\n</div>\n</td></tr></tbody></table>\n\n<!-- \nNewPP limit report\nParsed by mw‐web.eqiad.main‐5b6c8cbc9d‐x79vl\nCached time: 20240525234912\nCache expiry: 2592000\nReduced expiry: false\nComplications: []\nCPU time usage: 0.053 seconds\nReal time usage: 0.097 seconds\nPreprocessor visited node count: 625/1000000\nPost‐expand include size: 19172/2097152 bytes\nTemplate argument size: 2205/2097152 bytes\nHighest expansion depth: 14/100\nExpensive parser function count: 10/500\nUnstrip recursion depth: 0/20\nUnstrip post‐expand size: 0/5000000 bytes\nNumber of Wikibase entities loaded: 0/400\n-->\n<!--\nTransclusion expansion time report (%,ms,calls,template)\n100.00%   50.952      1 -total\n 43.39%   22.110      9 Template:W\n 22.53%   11.482      2 Template:Source\n 11.50%    5.860      2 Template:Wikt\n 10.95%    5.581      1 Template:Date\n 10.65%    5.425      2 Template:Source/pub\n 10.24%    5.220      1 Template:Publish\n  6.89%    3.510      1 Template:Image\n  5.56%    2.831      1 Template:Social_bookmarks\n  5.53%    2.817      1 Template:Haveyoursay\n-->\n\n<!-- Saved in parser cache with key enwikinews:pcache:idhash:2994412-0!canonical and timestamp 20240525234912 and revision id 4781850. Rendering was triggered because: diff-page\n -->\n</div>',
       media: [],
       originId:
         'https://en.wikinews.org/wiki/British_Prime_Minister_Rishi_Sunak_calls_for_general_election_in_UK',
       publishedAt: 1716567281,
+      reading: 'fast',
       title:
         'British Prime Minister Rishi Sunak calls for general election in UK',
-      url: 'https://en.wikinews.org/wiki/British_Prime_Minister_Rishi_Sunak_calls_for_general_election_in_UK',
-      feedId: 'tPZKwFDO642kMbM_Tp8DG'
+      url: 'https://en.wikinews.org/wiki/British_Prime_Minister_Rishi_Sunak_calls_for_general_election_in_UK'
     }
   },
   {
     feed: MOCKED_FEEDS[1]!,
     post: {
-      id: '7aVqZ-lXi6U4JnVLhlWuP',
-      reading: 'fast',
+      feedId: 'Z3y4rUcFvSbmP1zX86DRi',
       full: 'В декабре 2023 года и в первые полтора месяца 2024 года в Москве закрылись три супермаркета российской сети «Виктория».\n</p><p>10 февраля 2024 года корреспондент Викиновостей посетил супермаркет, находящийся в Перервинском бульваре, д. 4, корпус 1 (район Марьино).  По состоянию на вечер 11 февраля 2024 года супермаркет по ссылке на официальном сайте сети являетя действующим. Однако 10 февраля уже при входе красовалась информация о скидке в 50% на товары в супермаркете:\n</p>\n<p>Закрытие именно этого супермаркета началось 4 февраля 2024 года, исходя из информации из объявления. В супермаркете в районе Марьино уже было не так много товаров для покупки, полки магазинов в некоторых местах были пустые. Активно продавался алкоголь и непродуктовые товары. В магазине работала лишь одна касса:\n</p>\n<p>Ранее корреспондент Викиновостей 21 января 2024 года пытался посетить другой супермаркет сети, расположенный в торговом центре «Mari» на Поречной улице (также район Марьино). Однако он уже был закрыт на тот день. В объявлении было сказано, что скоро на месте бывшего супермаркета откроется «Перекрёсток». Также в конце 2023 года закрылся супермаркет в районе Братеево, на Братеевской улице. По состоянию на 3 февраля 2024 года здание выглядело так:\n</p>\n<p>«Виктория» — российская сеть сеть продовольственных магазинов, основанная в 1993 году в Калининграде. В настоящее время супермаркеты данной сети есть в Калининграде и Москве. 1 августа 2023 года X5 Group сообщила о достижении договорённостей о приобретении сети. По видимому, с этого момента и начался процесс закрытия магазинов в Москве.\n</p><p><br></p>',
+      id: '7aVqZ-lXi6U4JnVLhlWuP',
       media: [],
       originId: 'http://ru.wikinews.org/w/index.php?curid=13988942',
       publishedAt: 1707677592,
+      reading: 'fast',
       title:
         'В Москве, вероятно, продолжается закрытие сети супермаркетов «Виктория»',
-      url: 'http://ru.wikinews.org/w/index.php?curid=13988942&stable=1',
-      feedId: 'Z3y4rUcFvSbmP1zX86DRi'
+      url: 'http://ru.wikinews.org/w/index.php?curid=13988942&stable=1'
     }
   },
   {
     feed: MOCKED_FEEDS[1]!,
     post: {
-      id: 'oheO7J9QD08aMuyeq9RML',
-      reading: 'fast',
+      feedId: 'Z3y4rUcFvSbmP1zX86DRi',
       full: 'В Екатеринбурге двадцать четыре месяца подряд нет уличной ежемесячной акции «Стратегия-6» за освобождение политических заключённых, которую власти согласовывали на протяжении более 6 лет. Вместо неё 6 января 2024 года провели вечер писем политическим заключённым в Екатеринбурге. В тот же день пикет провели в Солт-Лейк-Сити.\n</p>\n<p>В центре Екатеринбурга 6-го числа каждого месяца на площади Труда проходили большие пикеты в защиту российских политзаключенных (по спискам одной из организаций). Это акция «Стратегия-6». Первая акция такого рода прошла в Екатеринбурге 6 мая 2013 года. С 6 мая 2014 года «Стратегия-6» стала ежемесячной акцией.\n</p><p>Власти до 2020 года эти акции обычно согласовывали и на них, как правило, никого не задерживали. На отказы в согласовании активисты отвечали серией одиночных пикетов в часы «Стратегии-6» (тогда ещё серия одиночных пикетов не требовала согласования). В период пандемии пикеты не согласовывали, но с 6 июля 2021 года массовые согласованные пикеты «Стратегия-6» возобновились. Об истории «Стратегии-6» Викиновости подробно писали.\n</p><p>Однако после 24 февраля 2022 года «Стратегию-6» перестали согласовывать. Судебное обжалование отказов также не помогло. С ноября 2022 года ситуация изменилась — активисты перестали подавать уведомления о проведении «Стратегии-6». Другие акции тоже в Екатеринбурге обычно не согласовывают — так не согласовали вполне лояльной КПРФ шествие на 7 ноября 2023 года.\n</p><p>Перед екатеринбургскими активистами возникла проблема — как сохранить протестную акцию. В прошлом активисты проводили серию одновременных одиночных пикетов в часы «Стратегии-6». Одиночные пикеты по российскому закону согласования не требуют. Однако в 2021 году было установлено, что суд имеет право признать серию одиночных пикетов одним мероприятием. Правда, в законе нет нормы о том, что суд имеет право выносить такое решение в рамках производства по делу об административном правонарушении.\n</p><p>Однако в Екатеринбурге полиция стала задерживать одиночных пикетчиков и объявлять их одиночные пикеты единым мероприятием, составляя на каждого из них протокол по статье 20.2 КоАП РФ. А судьи при рассмотрении таких протоколов с полицией соглашались и назначали либо арест (если полиция вменила организацию пикета), либо иное наказание.\n</p><p>Таким образом, легальной возможности в Екатеринбурге для уличной акции в часы «Стратегии-6» не осталось.\nОднако оставшиеся в России участники «Стратегии-6» акцию проводят в Екатеринбурге — в форме вечера писем политзаключенным.\n</p><p>Сначала под такой вечер снимали зал в одной из гостиниц Екатеринбурга. Кто финансировал аренду зала — неизвестно, но с самих участников вечера плату не брали. Сохранили принцип «Стратегии-6» — любой человек вне зависимости от политических взглядов мог принять участие в акции.\n</p><p>Вечера писем политзаключенным провели 6 мая, 6 июля, 6 августа, 6 сентября, 6 октября и 6 ноября 2023 года. Каждый раз под мероприятие снимали зал в гостинице. Каждый вечер собирал примерно 10 участников.\n</p><p>6 декабря 2023 года и 6 января 2024 года вечера писем провели не в гостинице, а в помещении одной общественной организации. 6 февраля 2024 года аналогичный вечер вновь провели в помещении общественной организации, который собрал около 12 человек.\n</p><p>Екатеринбургские правозащитники продолжают вести дела в ЕСПЧ, несмотря на то, что в России законодательно указано, что решения ЕСПЧ, вступившие в законную силу после 15 марта 2022 года исполняться не будут. Так 8 февраля 2024 года ЕСПЧ опубликовал решение, которым назначил участнику «Стратегии-6» Кириллу Гаврикову компенсацию за то, что Гаврикова власти России привлекли за одиночный пикет, не связанный со «Стратегией-6».\n</p><p>Также 6 февраля 2024 года в центре Солт-Лейк-Сити двое граждан России (в том числе активист из Свердловской области Радик Ислаев) провели пикет. В США российские эмигранты в день «Стратегии-6» периодически проводят политические акции.\n</p><p><br></p>\n\n<!-- \nNewPP limit report\nParsed by mw‐api‐ext.eqiad.main‐bb594b6cb‐b5ntp\nCached time: 20240211142230\nCache expiry: 2592000\nReduced expiry: false\nComplications: []\nCPU time usage: 0.049 seconds\nReal time usage: 0.067 seconds\nPreprocessor visited node count: 295/1000000\nPost‐expand include size: 6549/2097152 bytes\nTemplate argument size: 5122/2097152 bytes\nHighest expansion depth: 11/100\nExpensive parser function count: 0/500\nUnstrip recursion depth: 0/20\nUnstrip post‐expand size: 0/5000000 bytes\nLua time usage: 0.009/10.000 seconds\nLua memory usage: 966211/52428800 bytes\nNumber of Wikibase entities loaded: 0/400\n-->\n<!--\nTransclusion expansion time report (%,ms,calls,template)\n100.00%   39.067      1 -total\n 75.45%   29.475      1 Шаблон:Дата\n 65.12%   25.441      9 Шаблон:Date_Converter\n 17.05%    6.661      1 Шаблон:Prev\n  7.66%    2.992      1 Шаблон:Ambox\n  6.93%    2.709      1 Шаблон:-\n-->',
+      id: 'oheO7J9QD08aMuyeq9RML',
       media: [],
       originId: 'http://ru.wikinews.org/w/index.php?curid=13988927',
       publishedAt: 1707633820,
+      reading: 'fast',
       title: 'Стратегия-6 в Екатеринбурге и Солт-Лейк-Сити',
-      url: 'http://ru.wikinews.org/w/index.php?curid=13988927&stable=1',
-      feedId: 'Z3y4rUcFvSbmP1zX86DRi'
+      url: 'http://ru.wikinews.org/w/index.php?curid=13988927&stable=1'
     }
   },
   {
-    feed: MOCKED_FEEDS[1],
+    feed: MOCKED_FEEDS[1]!,
     post: {
-      id: 'khVrx8xzf8cSyxA6AuwYe',
-      reading: 'fast',
+      feedId: 'Z3y4rUcFvSbmP1zX86DRi',
       full: '<p>Президент Венгрии Каталин Новак ушла в отставку по собственному желанию. Это случилось на фоне критики её решения о помиловании человека, скрывавшего информации об актах педофилии по отношению к минимум десятку мальчиков.\n</p><p>\nНа выступлении Каталин Новак в эфире национального телевидения она заявила: </p><p>Ранее, после её решения помиловать замдиректора детдома в городе Бичке по имени К. Эндре, которого осудили за укрытие информации о сексуализированном насилия в детдоме она подверглась критике от оппозиционных партий. Решени о помиловании двух десятков преступников было сделано в апреле 2023 года, к визиту папы Римского в Венгрию. Информация о том, что среди помилованных был замдиректора детдома попала в СМИ в начале февраля. Всего с 2004 по 2016 годы в детском доме в городе Бичке было изнасиловано не менее 10 воспитанников. Судебный приговор замдиректору детского дома лишил его свободы сроком на три года и четыре месяца.\n</p><p>Ранее Каталин Новак заявляла, что при ее президентстве якобы «не было и не будет помилования педофилов». Решение Каталин Новак о помиловании оппозиционными партиями было встречено негативно. 9 февраля около тысячи человек человек вышли в Будапеште на акцию с требованием отставки Каталин Новак. После акции она подала в отставку.\n</p><p>Каталин Новак стала президентом в марте 2022 года и вошла в историю как первая женщина-президент Венгрии.\n</p>',
+      id: 'khVrx8xzf8cSyxA6AuwYe',
       media: [],
       originId: 'http://ru.wikinews.org/w/index.php?curid=13988905',
       publishedAt: 1707588506,
+      reading: 'fast',
       title: 'Президент Венгрии Каталин Новак ушла в отставку',
-      url: 'http://ru.wikinews.org/w/index.php?curid=13988905&stable=1',
-      feedId: 'Z3y4rUcFvSbmP1zX86DRi'
+      url: 'http://ru.wikinews.org/w/index.php?curid=13988905&stable=1'
     }
   },
   {
     feed: MOCKED_FEEDS[1]!,
     post: {
-      id: 'cHxvjEXzupNoV2pe1JVBc',
-      reading: 'fast',
+      feedId: 'Z3y4rUcFvSbmP1zX86DRi',
       full: '<p>В ночь на 10 февраля российские войска нанесли удары иранскими беспилотниками «Шахед» по Харькову и Великому Бурлуку, погибли семь человек, сообщил глава областной военной администрации Олег Синегубов.\n</p><p>Среди погибших трое детей: семи и четырех лет и ребёнок около шести месяцев. Тела семьи из пятерых человек, среди которых были трое детей, обнаружены в одном из частных домов, сообщил Синегубов. Ещё двое погибших — 66-летний мужчина и его 65-летняя жена. Также при атаке три человека получили ранения: две женщины 61 и 39 лет и мужчина 45 лет.\n</p><p>В Харькове, по словам Синегубова, попадания зафиксированы в Немышлянском районе. Мэр города Игорь Терехов уточняет, что беспилотники ударили по нефтебазе, в результате чего произошёл взрыв с утечкой горюче-смазочных материалов и начались пожары. В городе повреждена гражданская инфраструктура, 15 жилых частных домов сгорели дотла. В Великом Бурлуке удар пришёлся по кафе.\n</p><p>Кроме того, беспилотники ночью атаковали Одесскую область, сообщил глава военной администрации Олег Кипер. Известно об одном пострадавшем — это 44-летний мужчина, получивший осколочное ранение предплечья. По словам спикера оперативного командования «Юг» Натальи Гуменюк, на Одессу летели девять беспилотников. Все они были сбиты, но обломки повредили объект припортовой инфраструктуры, сообщила Гуменюк.\n</p><p>Воздушные силы ВСУ отчитались, что в ночь на 10 февраля над Украиной были сбиты 23 беспилотника типа «Шахед-136/131» из 31 дрона, запущенного из Балаклавы и района мыса Чауда в Крыму.\n</p>\n<p>По словам Сергея Болвинова, во время воздушной тревоги семья из родителей с тремя детьми укрылась в подвале своего дома. Вскоре двор охватило огнем, и когда семья выбежала из подвала, чтобы спастись от пожара, у дома уже горели две машины. Люди оказалась в «огненной ловушке», рассказал Болвинов. Тело мужчины было найдено в коридоре — он, скорее всего, потерял сознание первым. Младший ребенок, вероятно, побежал за ним — его нашли в кухне. Мать с двумя старшими детьми пыталась спастись в ванной. Тела погибших сильно обгорели — Болвинов сообщил, что для окончательного опознания понадобится экспертиза ДНК.\n</p><p>Еще три человека, по данным Синегубова, получили ранения — две женщины 39 и 65 лет и 45-летний мужчина. Из остальных домов, где начались пожары, спасатели эвакуировали более 50 человек.\n</p><p>Через несколько часов после того, как полиция нашла тела, областная прокуратура Харькова сообщила, что погибшие в одном доме пятеро человек — это прокурор Волчанского отдела Чугуевской окружной прокуратуры Ольга Путятина и ее семья. Путятиной было 35 лет, она работала в органах прокуратуры Харьковской области с июня 2012 года, и находилась в декрете.\n</p><p>По данным мэра Игоря Терехова, в результате атаки пострадали как минимум 57 человек — это те, кто остался без жилья и вещей. Полностью сгорели 15 частных домов, в общей сложности выгорела почти половина улицы, добавил Терехов. Все пострадавшие — жители домов по улице Котельной, уточнил Синегубов.\n</p><p>Президент Украины Владимир Зеленский опубликовал пост, в котором заявил, что:\n</p>\n<p>В результате обстрела россиянами без электричества остались 1030 украинских домов и более тысячи жителей. Олег Синегубов предупредил, что один резервуар на атакованной нефтебазе еще остается заполненным, и опасность взрыва сохраняется. При необходимости зона эвакуации будет расширена, добавил он.\n</p>',
+      id: 'cHxvjEXzupNoV2pe1JVBc',
       media: [],
       originId: 'http://ru.wikinews.org/w/index.php?curid=13988899',
       publishedAt: 1707582828,
+      reading: 'fast',
       title:
         'В Харькове при атаке беспилотников погибли семь человек, среди них трое детей',
-      url: 'http://ru.wikinews.org/w/index.php?curid=13988899&stable=1',
-      feedId: 'Z3y4rUcFvSbmP1zX86DRi'
+      url: 'http://ru.wikinews.org/w/index.php?curid=13988899&stable=1'
     }
   },
   {
     feed: MOCKED_FEEDS[1]!,
     post: {
-      id: '1uSq06QYgCkB4xr6f-4WF',
-      reading: 'fast',
+      feedId: 'Z3y4rUcFvSbmP1zX86DRi',
       full: '</p>\n<ul class="gallery mw-gallery-packed" style="margin:auto"><li class="gallerybox" style="width: 599.33333333333px">\n\t\t\t\n\t\t\t\n\t\t</li>\n</ul><p>Падение самолета произошло недалеко от города Неаполь (названного так в честь итальянского одноименного города), рядом с трассой I-75.\nСамолет, произведенной компанией Bombardier, упал около отметки 105-й мили на трассе на пути от Неаполя к Флориде.\n</p><p>Известно, что перед падением борт заходил на посадку в неапольский аэропорт, его уже вели диспетчеры воздушной гавани. До аварии экипаж успел сообщить в эфир об отказе обоих двигателей. Дотянуть до полосы на планировании не удалось, в результате чего самолет и упал на трассе.\n</p><p>Упавший самолет имел бортовой номер N823KD, он вылетел из штата Огайо, а до аэропорта флоридского Неаполя совсем немного не дотянул - падение произошло всего в 5 километрах от ВПП.\n</p>',
+      id: '1uSq06QYgCkB4xr6f-4WF',
       media: [],
       originId: 'http://ru.wikinews.org/w/index.php?curid=13988892',
       publishedAt: 1707519534,
+      reading: 'fast',
       title: 'Во Флориде разбился самолёт Challenger 604',
-      url: 'http://ru.wikinews.org/w/index.php?curid=13988892&stable=1',
-      feedId: 'Z3y4rUcFvSbmP1zX86DRi'
+      url: 'http://ru.wikinews.org/w/index.php?curid=13988892&stable=1'
     }
   },
   {
     feed: MOCKED_FEEDS[1]!,
     post: {
-      id: 'Wk03JmhUudSUpJsGGqvGT',
-      reading: 'fast',
+      feedId: 'Z3y4rUcFvSbmP1zX86DRi',
       full: '<p>6 февраля 2024 года около десятка краснокнижных косаток застряли во льдах у побережья японского острова Хоккайдо. Животные находятся у побережья города Раусу между японским островом Хоккайдо и российским Кунаширом.\n</p><p>Местные японцы с дрона сняли драматические кадры. На них видно, как косатки непрерывно борются за свою жизнь, дыша воздухом через полынью во льдах.\n</p><p>Сахалинский биолог Григорий Цидулко отметил, что, вероятно, косаток занесло в пролив Немуро течением из России, так как данный вид в России не водится. При этом ситуация для косаток критическая: у них есть около суток, чтобы выбраться из ловушки, иначе косатки обессилят от борьбы за воздух, либо их окончательно скуёт лёд.\n</p><p>Решить проблему могли бы российские ледокольные суда, поскольку лёд вблизи Хоккайдо зимой плотный. Однако у Японии таких технических возможностей нет. В российском Росрыболовстве заявили о готовности помочь в ситуации. Кроме того, экологические активисты направили обращения в Росприроднадзор и МИД РФ, чтобы ускорить процесс выдачи разрешения от Токио. Официальные власти Японии, тем не менее, так и не дали ответ или разрешение войти судам из России в японские территориальные воды.\n</p><p>Утром 7 февраля полынья, где накануне косатки боролись за жизнь, оказалась пуста. Местные жители надеются, что ветер разогнал ледяные торосы и млекопитающие пробились к свободной воде. Однако такой исход специалисты называют маловероятным.\n</p>\n\n<!-- \nNewPP limit report\nParsed by mw‐api‐ext.eqiad.main‐5b75fddb66‐vkl2c\nCached time: 20240209123324\nCache expiry: 2592000\nReduced expiry: false\nComplications: []\nCPU time usage: 0.036 seconds\nReal time usage: 0.053 seconds\nPreprocessor visited node count: 179/1000000\nPost‐expand include size: 1752/2097152 bytes\nTemplate argument size: 756/2097152 bytes\nHighest expansion depth: 11/100\nExpensive parser function count: 0/500\nUnstrip recursion depth: 0/20\nUnstrip post‐expand size: 0/5000000 bytes\nLua time usage: 0.008/10.000 seconds\nLua memory usage: 966227/52428800 bytes\nNumber of Wikibase entities loaded: 0/400\n-->\n<!--\nTransclusion expansion time report (%,ms,calls,template)\n100.00%   29.920      1 -total\n 90.66%   27.127      1 Шаблон:Дата\n 77.83%   23.288      9 Шаблон:Date_Converter\n  9.04%    2.705      1 Шаблон:-\n-->',
+      id: 'Wk03JmhUudSUpJsGGqvGT',
       media: [],
       originId: 'http://ru.wikinews.org/w/index.php?curid=13988677',
       publishedAt: 1707466514,
+      reading: 'fast',
       title:
         'Драма в Тихом океане: у берегов Японии во льдах застряла стая косаток',
-      url: 'http://ru.wikinews.org/w/index.php?curid=13988677&stable=1',
-      feedId: 'Z3y4rUcFvSbmP1zX86DRi'
+      url: 'http://ru.wikinews.org/w/index.php?curid=13988677&stable=1'
     }
   },
   {
     feed: MOCKED_FEEDS[1]!,
     post: {
-      id: 'ENqx5nnmz_KAgGoHPiKuQ',
-      reading: 'fast',
+      feedId: 'Z3y4rUcFvSbmP1zX86DRi',
       full: '</p>\n<ul><li>Начало карнавала в Рио-де-Жанейро.</li></ul>',
+      id: 'ENqx5nnmz_KAgGoHPiKuQ',
       media: [],
       originId: 'http://ru.wikinews.org/w/index.php?curid=536029',
       publishedAt: 1580305176,
+      reading: 'fast',
       title: 'Ожидаемые события 9 февраля 2024 года',
-      url: 'http://ru.wikinews.org/w/index.php?curid=536029&stable=1',
-      feedId: 'Z3y4rUcFvSbmP1zX86DRi'
+      url: 'http://ru.wikinews.org/w/index.php?curid=536029&stable=1'
     }
   }
 ]

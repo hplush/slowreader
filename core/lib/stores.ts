@@ -1,5 +1,6 @@
 import type {
   MapStore,
+  Store as NanoStore,
   ReadableAtom,
   StoreValue,
   WritableAtom
@@ -11,14 +12,17 @@ type StoreValues<Stores extends ReadableAtom[]> = {
   [Index in keyof Stores]: StoreValue<Stores[Index]>
 }
 
-/** use only for test mocks or don't permit rewrite store at all */
-export const isWritableAtom = <Value>(
-  store: ReadableAtom<Value>
-): store is WritableAtom<Value> => 'set' in store
+/**
+ * use only for manual write store in tests
+ * otherwise don't permit rewrite store at all
+ **/
+export function forceSet<Value>(store: NanoStore<Value>, value: Value): void {
+  ;(store as WritableAtom<Value>).set(value)
+}
 
-export function readonlyExport<Store extends ReadableAtom>(
-  store: Store
-): ReadableAtom<StoreValue<Store>> {
+export function readonlyExport<Value>(
+  store: NanoStore<Value>
+): ReadableAtom<Value> {
   return store
 }
 

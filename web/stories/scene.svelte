@@ -24,7 +24,7 @@
   import { cleanStores } from 'nanostores'
   import { onMount } from 'svelte'
 
-  import { isWritableAtom } from '../../core/lib/stores.js'
+  import { forceSet } from '../../core/lib/stores.js'
   import {
     baseRouter,
     type PreparedResponse,
@@ -72,11 +72,11 @@
     }
 
     // TODO: Replace with Nano Stores Context
-    if (isWritableAtom(isRefreshing) && isWritableAtom(refreshStatistics)) {
-      isRefreshing.set(Boolean(refreshing))
-
-      refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, ...refreshing })
-    }
+    forceSet(isRefreshing, Boolean(refreshing))
+    forceSet(refreshStatistics, {
+      ...DEFAULT_REFRESH_STATISTICS,
+      ...refreshing
+    })
 
     if (fast) {
       baseRouter.set({
@@ -92,7 +92,7 @@
 
   onMount(() => {
     return () => {
-      if (isWritableAtom(isRefreshing)) isRefreshing.set(false)
+      forceSet(isRefreshing, false)
       baseRouter.set({ params: {}, route: 'slow' })
       setNetworkType(DEFAULT_NETWORK)
       cleanLogux()

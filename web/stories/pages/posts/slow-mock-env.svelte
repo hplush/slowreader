@@ -8,7 +8,7 @@
   import type { PostValue, SlowPostsValue } from '@slowreader/core'
   import { onMount } from 'svelte'
 
-  import { isWritableAtom } from '../../../../core/lib/stores.js'
+  import { forceSet } from '../../../../core/lib/stores.js'
   import Slow from '../../../pages/slow.svelte'
 
   export let state: SlowPostsValue = {
@@ -18,18 +18,11 @@
   export let post: PostValue | undefined = undefined
 
   onMount(() => {
-    if (
-      isWritableAtom(slowPosts) &&
-      isWritableAtom(totalSlowPages) &&
-      isWritableAtom(totalSlowPosts) &&
-      isWritableAtom(openedSlowPost)
-    ) {
-      slowPosts.set(state)
-      totalSlowPages.set(showPagination ? 10 : 1)
-      totalSlowPosts.set(showPagination ? 1_000 : 10)
-      // @ts-expect-error
-      openedSlowPost.set(post)
-    }
+    forceSet(slowPosts, state)
+    forceSet(totalSlowPages, showPagination ? 10 : 1)
+    forceSet(totalSlowPosts, showPagination ? 1_000 : 10)
+    // @ts-expect-error
+    forceSet(openedSlowPost, post)
   })
 </script>
 

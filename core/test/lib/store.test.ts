@@ -1,20 +1,19 @@
-import { atom, map } from 'nanostores'
+import { atom, map, type ReadableAtom } from 'nanostores'
 import { deepStrictEqual } from 'node:assert'
 import { test } from 'node:test'
 
 import {
   computeFrom,
+  forceSet,
   increaseKey,
-  isWritableAtom,
-  listenMany,
-  readonlyExport
+  listenMany
 } from '../../lib/stores.js'
 
-test('writable atom type guard', () => {
-  let $a = atom(0)
-  let readOnly = readonlyExport($a)
+test('force set', () => {
+  let $a: ReadableAtom<number> = atom<number>(1)
 
-  deepStrictEqual(isWritableAtom(readOnly), true)
+  forceSet($a, 2)
+  deepStrictEqual($a.get(), 2)
 })
 
 test('increases keys', () => {

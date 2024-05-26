@@ -3,7 +3,7 @@
   import type { FastEntry, PostValue } from '@slowreader/core'
   import { onMount } from 'svelte'
 
-  import { isWritableAtom } from '../../../../core/lib/stores.js'
+  import { forceSet } from '../../../../core/lib/stores.js'
   import Fast from '../../../pages/fast.svelte'
 
   export let posts: FastEntry[] = []
@@ -11,16 +11,10 @@
   export let showNextButton = false
 
   onMount(() => {
-    if (
-      isWritableAtom(fastPosts) &&
-      isWritableAtom(nextFastSince) &&
-      isWritableAtom(openedFastPost)
-    ) {
-      fastPosts.set(posts)
-      nextFastSince.set(showNextButton ? 3 : undefined)
-      // @ts-expect-error
-      openedFastPost.set(openedPost)
-    }
+    forceSet(fastPosts, posts)
+    forceSet(nextFastSince, showNextButton ? 3 : undefined)
+    // @ts-expect-error
+    forceSet(openedFastPost, openedPost)
   })
 </script>
 
