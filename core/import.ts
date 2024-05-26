@@ -6,13 +6,15 @@ import {
   type FeedsByCategory
 } from './category.js'
 import { addFeed, type FeedValue } from './feed.js'
-import { getFeedFromUrl } from './preview.js'
+import { createFeedFromUrl } from './preview.js'
 
 let $importedFeedsByCategory = atom<FeedsByCategory>([])
 export const importedFeedsByCategory = readonlyExport($importedFeedsByCategory)
 
 let $importedCategories = atom<string[]>([])
 let $importedFeeds = atom<string[]>([])
+let $unLoadedFeeds = atom<string[]>([])
+
 let $reading = atom<boolean>(false)
 let $submiting = atom<boolean>(false)
 
@@ -20,6 +22,7 @@ export const importedCategories = readonlyExport($importedCategories)
 export const importedFeeds = readonlyExport($importedFeeds)
 export const reading = readonlyExport($reading)
 export const submiting = readonlyExport($submiting)
+export const unLoadedFeeds = readonlyExport($unLoadedFeeds)
 
 let $categories = atom<CategoryValue[]>([])
 let $feeds = atom<FeedValue[]>([])
@@ -155,8 +158,16 @@ export function handleImportFile(file: File): void {
                     const feedOutline = childOutlines[j]
                     const feedUrl = feedOutline?.getAttribute('xmlUrl')
                     if (feedUrl) {
-                      const feed = await getFeedFromUrl(feedUrl, category.id)
-                      feeds.push(feed)
+                      try {
+                        const feed = await createFeedFromUrl(
+                          feedUrl,
+                          category.id
+                        )
+                        feeds.push(feed)
+                      } catch (error) {
+                        console.error(error)
+                        $unLoadedFeeds.set([...$unLoadedFeeds.get(), feedUrl])
+                      }
                     }
                   }
                   feedsByCategory.push([category, feeds])
@@ -167,11 +178,16 @@ export function handleImportFile(file: File): void {
                   // Feed directly under body without a parent category, add to General
                   const feedUrl = outline.getAttribute('xmlUrl')
                   if (feedUrl) {
-                    const feed = await getFeedFromUrl(
-                      feedUrl,
-                      generalCategory.id
-                    )
-                    generalFeeds.push(feed)
+                    try {
+                      const feed = await createFeedFromUrl(
+                        feedUrl,
+                        generalCategory.id
+                      )
+                      generalFeeds.push(feed)
+                    } catch (error) {
+                      console.error(error)
+                      $unLoadedFeeds.set([...$unLoadedFeeds.get(), feedUrl])
+                    }
                   }
                 }
               }
@@ -232,5 +248,6 @@ export async function submitImport() {
   await Promise.all(feedPromises)
 
   $importedFeedsByCategory.set([])
+  $unLoadedFeeds.set([])
   $submiting.set(false)
 }

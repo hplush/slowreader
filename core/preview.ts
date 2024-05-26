@@ -246,7 +246,7 @@ export async function addLink(url: string, deep = false): Promise<void> {
   }
 }
 
-export async function getFeedFromUrl(
+export async function createFeedFromUrl(
   url: string,
   categoryId: string = 'general'
 ): Promise<FeedValue> {

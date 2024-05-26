@@ -10,7 +10,8 @@
     submiting,
     importMessages as t,
     toggleImportedCategory,
-    toggleImportedFeed
+    toggleImportedFeed,
+    unLoadedFeeds
   } from '@slowreader/core'
 
   import Button from '../../ui/button.svelte'
@@ -51,6 +52,16 @@
         <Loader />
       {/if}
     </Card>
+    {#if $unLoadedFeeds.length}
+      <h4>{$t.loadError}</h4>
+      <ul>
+        {#each $unLoadedFeeds as feed (feed)}
+          <li>
+            {feed}
+          </li>
+        {/each}
+      </ul>
+    {/if}
   </div>
   <div slot="two">
     {#if $importedFeedsByCategory.length}
