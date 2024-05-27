@@ -30,7 +30,9 @@ cli.run(async () => {
   enableTestClient()
 
   let feeds = await parseFeedsFromFile(FEEDS)
-  initializeProgressBar(feeds.length * 2)
+  initializeProgressBar(
+    feeds.length + feeds.filter(feed => feed.findFromHome !== false).length
+  )
 
   await completeTasks(feeds.map(feed => () => fetchAndParsePosts(feed.url)))
   for (let feed of feeds) {
