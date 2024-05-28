@@ -32,6 +32,7 @@ router.subscribe(route => {
 theme.subscribe(themeValue => {
   root.classList.toggle('is-dark-theme', themeValue === 'dark')
   root.classList.toggle('is-light-theme', themeValue === 'light')
+
   updateTheme()
 })
 
