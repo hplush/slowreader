@@ -15,9 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout the repository
         uses: actions/checkout@v4
-      - name: Download Diff Artifact
+      - name: Download PR diff from auto review prepare step
         uses: actions/download-artifact@v4
         with:
           name: auto-review-artifacts
