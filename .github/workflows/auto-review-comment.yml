@@ -9,6 +9,7 @@ permissions:
   pull-requests: write
 jobs:
   auto-review:
+    name: Review
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
