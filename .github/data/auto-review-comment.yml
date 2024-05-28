@@ -1,0 +1,8 @@
+- prependMsg: "🗯️ [pull-request-auto-reviewer]:"
+- checks:
+    - paths: web/main/
+      message: |
+        Sine you've made changes to files in `web/main/` consider these points:
+
+        - Do you need to backport styles changes to `web/public/404.html` or `web/public/500.html`?
+        - Think about app loading styles inlined in `index.html`.
