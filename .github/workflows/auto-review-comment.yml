@@ -1,34 +1,29 @@
 name: Auto Review Comment
-
 on:
   workflow_run:
     workflows:
-      - Diff Compile
+      - Auto-review Diff Prepare
     types:
       - completed
-
 permissions:
   pull-requests: write
-
 jobs:
   auto-review:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
       - name: Download PR diff from auto review prepare step
         uses: actions/download-artifact@v4
         with:
-          name: auto-review-artifacts
-          path: auto_review_artifacts/
+          name: pr-diff
+          path: pr-diff/
           repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Analyze changes
         uses: ./
         id: auto-review-action
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          datapath: .github/data/auto-review-comment.yml
+          datapath: .github/auto-review-comment.yml
