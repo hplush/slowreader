@@ -34,6 +34,7 @@ afterEach(async () => {
 
 test('works with adds route on wide screen', async () => {
   setIsMobile(false)
+  setBaseTestRoute({ params: {}, route: 'add' })
   expectRequest('https://a.com/atom').andRespond(
     200,
     '<feed><title>Atom</title>' +
@@ -54,6 +55,7 @@ test('works with adds route on wide screen', async () => {
 
 test('works with adds route on mobile screen', async () => {
   setIsMobile(true)
+  setBaseTestRoute({ params: {}, route: 'add' })
   expectRequest('https://a.com/atom').andRespond(
     200,
     '<feed><title>Atom</title>' +

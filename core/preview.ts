@@ -7,7 +7,7 @@ import {
   ignoreAbortError,
   type TextResponse
 } from './download.js'
-import { getEnvironment, isMobile, onEnvironment } from './environment.js'
+import { isMobile, onEnvironment } from './environment.js'
 import { addFeed, getFeeds } from './feed.js'
 import { readonlyExport } from './lib/stores.js'
 import { type LoaderName, loaders } from './loader/index.js'
@@ -116,15 +116,6 @@ function addCandidate(url: string, candidate: PreviewCandidate): void {
 
   $links.setKey(url, { state: 'processed' })
   $candidates.set([...$candidates.get(), candidate])
-  if ($candidates.get().length === 1 && !isMobile.get()) {
-    getEnvironment().openRoute({
-      params: {
-        candidate: candidate.url,
-        url: previewUrl.get()
-      },
-      route: 'add'
-    })
-  }
 }
 
 function getLoaderForUrl(url: string): false | PreviewCandidate {
@@ -261,6 +252,7 @@ export const onPreviewUrlType = debounce((value: string) => {
   if (value === '') {
     clearPreview()
   } else {
+    currentCandidate.set(undefined)
     setPreviewUrl(value)
   }
 }, 500)
@@ -316,6 +308,9 @@ export async function addPreviewCandidate(): Promise<void> {
 
 let inPreview = false
 
+export const currentCandidate = atom<string | undefined>()
+let candidateUrl: string
+
 onEnvironment(({ openRoute }) => {
   return [
     previewUrl.listen(link => {
@@ -326,6 +321,7 @@ onEnvironment(({ openRoute }) => {
     }),
     router.subscribe(({ params, route }) => {
       if (route === 'add' && params.url !== previewUrl.get()) {
+        currentCandidate.set(params.candidate)
         setPreviewUrl(params.url ?? '')
       }
       if (route === 'add') {
@@ -343,6 +339,33 @@ onEnvironment(({ openRoute }) => {
             route: 'add'
           })
         }
+      }
+    }),
+    $candidates.listen(candidates => {
+      let page = router.get()
+      let currentCandidateUrl = currentCandidate.get()
+
+      if (
+        !isMobile.get() &&
+        page.route === 'add' &&
+        page.params.url &&
+        !page.params.candidate
+      ) {
+        if (!currentCandidateUrl && candidates[0]) {
+          candidateUrl = candidates[0].url
+        } else if (
+          currentCandidateUrl &&
+          candidates.find(candidate => candidate.url === currentCandidateUrl)
+        ) {
+          candidateUrl = currentCandidateUrl
+        }
+        openRoute({
+          params: {
+            candidate: candidateUrl,
+            url: page.params.url
+          },
+          route: 'add'
+        })
       }
     })
   ]

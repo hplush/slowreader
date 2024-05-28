@@ -13,6 +13,7 @@ import {
   checkAndRemoveRequestMock,
   clearPreview,
   createPostsPage,
+  currentCandidate,
   expectRequest,
   getFeeds,
   getPosts,
@@ -672,6 +673,7 @@ test('show candidate on wide screen', async () => {
     params: { candidate: 'https://a.com/atom', url: 'https://a.com/atom' },
     route: 'add'
   })
+  equal(currentCandidate.get(), undefined)
   equal(previewCandidate.get(), 'https://a.com/atom')
 })
 
