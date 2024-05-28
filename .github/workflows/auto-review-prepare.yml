@@ -1,14 +1,12 @@
+name: Auto-review Diff Prepare
 on:
   pull_request:
     branches:
       - main
-
 jobs:
   review:
-    name: Post review comments
+    name: Prepare diff artifacts for an upload
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
