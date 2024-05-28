@@ -23,7 +23,7 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Analyze changes
-        uses: ./
+        uses: pshergie/pull-request-auto-reviewer@1
         id: auto-review-action
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
