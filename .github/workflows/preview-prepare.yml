@@ -18,7 +18,7 @@ jobs:
     name: Prepare
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout the repository
         uses: actions/checkout@v4
       - name: Install pnpm
         uses: pnpm/action-setup@v4

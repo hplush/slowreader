@@ -41,7 +41,7 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout the repository
         uses: actions/checkout@v4
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -76,7 +76,7 @@ jobs:
       group: staging-proxy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout the repository
         uses: actions/checkout@v4
       - name: Download web assets from test step
         uses: actions/download-artifact@v4

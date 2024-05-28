@@ -9,7 +9,7 @@ jobs:
     name: Chromatic
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout the repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
