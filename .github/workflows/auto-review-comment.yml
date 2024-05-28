@@ -17,7 +17,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: pr-diff
-          path: pr-diff/
+          path: pr_diff/
           repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
