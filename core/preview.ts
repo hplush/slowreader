@@ -8,13 +8,14 @@ import {
   type TextResponse
 } from './download.js'
 import { isMobile, onEnvironment } from './environment.js'
-import { addFeed, getFeeds } from './feed.js'
+import { addFeed, getFeeds, type FeedValue } from './feed.js'
 import { readonlyExport } from './lib/stores.js'
 import { type LoaderName, loaders } from './loader/index.js'
 import { addPost, processOriginPost } from './post.js'
 import type { PostsPage } from './posts-page.js'
 import { router } from './router.js'
 import { showSecondStep } from './two-steps.js'
+import { nanoid } from 'nanoid'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 
@@ -245,7 +246,39 @@ export async function addLink(url: string, deep = false): Promise<void> {
   }
 }
 
+export async function createFeedFromUrl(
+  url: string,
+  categoryId: string = 'general'
+): Promise<FeedValue> {
+  clearPreview()
+  await addLink(url)
+
+  let candidate = $candidates.get().find(i => i.url === url)
+  if (!candidate) {
+    throw new Error('No suitable loader found for the given URL')
+  }
+
+  $candidate.set(url)
+  let posts = loaders[candidate.loader].getPosts(task, url, candidate.text)
+  $posts.set(posts)
+
+  let page = await loadValue(posts)
+  let lastPost = page.list[0]
+
+  return {
+    id: nanoid(),
+    categoryId,
+    lastOriginId: lastPost?.originId,
+    lastPublishedAt: lastPost?.publishedAt ?? Date.now() / 1000,
+    loader: candidate.loader,
+    reading: 'fast',
+    title: candidate.title,
+    url
+  }
+}
+
 export async function setPreviewUrl(url: string): Promise<void> {
+  console.log(url)
   if (url === previewUrl.get()) return
   onPreviewUrlType.cancel()
   clearPreview()
@@ -296,6 +329,7 @@ export async function addPreviewCandidate(): Promise<void> {
     let page = await loadValue($posts.get()!)
     let lastPost = page.list[0]
     let candidate = $candidates.get().find(i => i.url === url)!
+
     let feedId = await addFeed({
       categoryId: 'general',
       lastOriginId: lastPost?.originId,

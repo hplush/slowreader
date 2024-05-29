@@ -1,31 +1,33 @@
 <script lang="ts">
   import {
-    getOPMLBlob,
-    selectAllExportedFeeds,
-    feedsByCategoryList,
+    creating,
     exportedCategories,
     exportedFeeds,
+    feedsByCategoryList,
+    getOPMLBlob,
+    selectAllExportedFeeds,
+    exportMessages as t,
     toggleExportedCategory,
-    toggleExportedFeed,
-    exportMessages as t
+    toggleExportedFeed
   } from '@slowreader/core'
   import { onMount } from 'svelte'
 
   import Button from '../../ui/button.svelte'
   import Card from '../../ui/card.svelte'
+  import Loader from '../../ui/loader.svelte'
   import RadioField from '../../ui/radio-field.svelte'
   import FeedList from './feedList.svelte'
 
-  let currentFeeds = 'all'
+  let currentFeeds: 'all' | 'select' = 'all'
 
-  function handleRadioChange(e) {
+  function handleRadioChange(e: CustomEvent<'all' | 'select'>): void {
     currentFeeds = e.detail
     if (currentFeeds === 'all') {
       selectAllExportedFeeds()
     }
   }
 
-  function handleSubmit() {
+  function handleSubmit(): void {
     let blob = getOPMLBlob()
 
     let url = URL.createObjectURL(blob)
@@ -36,14 +38,14 @@
     URL.revokeObjectURL(url)
   }
 
-  onMount(() => {
+  onMount((): void => {
     if (currentFeeds === 'all') {
       selectAllExportedFeeds()
     }
   })
 </script>
 
-<h2>{$t.OPMLTitle}</h2>
+<h2>{$t.chooseTitle}</h2>
 <form on:submit|preventDefault={handleSubmit}>
   <Card>
     <RadioField
@@ -68,7 +70,12 @@
       toggleExportedFeed(e.detail.feedId, e.detail.categoryId)
     }}
   />
-  <Button class="export-opml_submit" type="submit">{$t.submitOPML}</Button>
+  <Button class="export-opml_submit" disabled={$creating} type="submit"
+    >{$t.submitOPML}</Button
+  >
+  {#if $creating}
+    <Loader />
+  {/if}
 </form>
 
 <style>

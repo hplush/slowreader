@@ -6,13 +6,13 @@
     getFeeds,
     exportMessages as t
   } from '@slowreader/core'
-  import { getURL } from '../../stores/router.js'
 
+  import { getURL } from '../../stores/router.js'
   import CardLink from '../../ui/card-link.svelte'
   import CardLinks from '../../ui/card-links.svelte'
   import TwoStepsPage from '../../ui/two-steps-page.svelte'
-  import ExportOPML from './exportOPML.svelte'
   import ExportInternal from './exportInternal.svelte'
+  import ExportOPML from './exportOPML.svelte'
 
   export let formatId: string | undefined
   const formats = [

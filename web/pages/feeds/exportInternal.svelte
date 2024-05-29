@@ -1,33 +1,44 @@
 <script lang="ts">
   import {
-    getInternalBlob,
-    selectAllExportedFeeds,
-    feedsByCategoryList,
+    creating,
     exportedCategories,
     exportedFeeds,
+    feedsByCategoryList,
+    getInternalBlob,
+    selectAllExportedFeeds,
+    exportMessages as t,
     toggleExportedCategory,
-    toggleExportedFeed,
-    exportMessages as t
+    toggleExportedFeed
   } from '@slowreader/core'
 
   import Button from '../../ui/button.svelte'
   import Card from '../../ui/card.svelte'
   import RadioField from '../../ui/radio-field.svelte'
   import FeedList from './feedList.svelte'
+  import Loader from '../../ui/loader.svelte'
 
-  let exportOptions = {
+  type ExportOptions = {
+    feeds: 'all' | 'select'
+    posts: 'all' | 'none'
+  }
+
+  let exportOptions: ExportOptions = {
     feeds: 'all',
     posts: 'all'
   }
 
-  function handleExportOptionChange(field, value) {
+  function handleExportOptionChange<K extends keyof ExportOptions>(
+    field: K,
+    value: ExportOptions[K]
+  ): void {
     exportOptions[field] = value
+
     if (exportOptions.feeds === 'all') {
       selectAllExportedFeeds()
     }
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(): Promise<void> {
     let blob = await getInternalBlob(exportOptions.posts === 'all')
 
     let url = URL.createObjectURL(blob)
@@ -39,7 +50,7 @@
   }
 </script>
 
-<h2>{$t.internalExportTitle}</h2>
+<h2>{$t.chooseTitle}</h2>
 <form on:submit|preventDefault={handleSubmit}>
   <Card>
     <RadioField
@@ -77,9 +88,12 @@
       toggleExportedFeed(e.detail.feedId, e.detail.categoryId)
     }}
   />
-  <Button class="export-internal_submit" type="submit"
+  <Button class="export-internal_submit" disabled={$creating} type="submit"
     >{$t.submitInternal}</Button
   >
+  {#if $creating}
+    <Loader />
+  {/if}
 </form>
 
 <style>
