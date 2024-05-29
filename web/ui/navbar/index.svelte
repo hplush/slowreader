@@ -10,7 +10,6 @@
     refreshProgress,
     router,
     secondStep,
-    showFirstStep,
     navbarMessages as t
   } from '@slowreader/core'
   import { onMount } from 'svelte'
@@ -59,9 +58,6 @@
         href={$backRoute ? getURL($backRoute) : undefined}
         icon={mdiChevronLeft}
         small
-        on:click={() => {
-          if (!$backRoute) showFirstStep()
-        }}
       />
     </div>
     <div class={`navbar_refresh-button ${$secondStep ? 'is-hidden' : ''}`}>

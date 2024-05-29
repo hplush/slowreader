@@ -13,6 +13,7 @@ import {
   checkAndRemoveRequestMock,
   clearPreview,
   createPostsPage,
+  currentCandidate,
   expectRequest,
   getFeeds,
   getPosts,
@@ -668,6 +669,11 @@ test('show candidate on wide screen', async () => {
   setPreviewUrl('https://a.com/atom')
   await setTimeout(10)
 
+  deepStrictEqual(router.get(), {
+    params: { candidate: 'https://a.com/atom', url: 'https://a.com/atom' },
+    route: 'add'
+  })
+  equal(currentCandidate.get(), undefined)
   equal(previewCandidate.get(), 'https://a.com/atom')
 })
 
@@ -684,5 +690,26 @@ test('do not show candidate on mobile screen', async () => {
   setPreviewUrl('https://a.com/atom')
   await setTimeout(10)
 
+  deepStrictEqual(router.get(), {
+    params: { url: 'https://a.com/atom' },
+    route: 'add'
+  })
   equal(previewCandidate.get(), undefined)
+})
+
+test('redirect to candidates list if no current candidate', async () => {
+  setBaseTestRoute({
+    params: {
+      candidate: 'unknown candidate',
+      url: 'https://a.com/atom'
+    },
+    route: 'add'
+  })
+
+  await setTimeout(10)
+  equal(previewCandidate.get(), undefined)
+  deepStrictEqual(router.get(), {
+    params: { url: 'https://a.com/atom' },
+    route: 'add'
+  })
 })
