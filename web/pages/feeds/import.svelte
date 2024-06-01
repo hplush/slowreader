@@ -18,8 +18,8 @@
   import Card from '../../ui/card.svelte'
   import Loader from '../../ui/loader.svelte'
   import RadioField from '../../ui/radio-field.svelte'
-  import FeedList from './feedList.svelte'
   import TwoStepsPage from '../../ui/two-steps-page.svelte'
+  import FeedList from './feedList.svelte'
 
   let currentFeeds: 'all' | 'select' = 'all'
 
@@ -81,9 +81,9 @@
         </Card>
         <FeedList
           disabled={currentFeeds === 'all'}
-          feedsByCategory={$importedFeedsByCategory}
-          selectedCategories={$importedCategories}
-          selectedFeeds={$importedFeeds}
+          feedsByCategory={Array.from($importedFeedsByCategory)}
+          selectedCategories={Array.from($importedCategories)}
+          selectedFeeds={Array.from($importedFeeds)}
           on:toggleCategory={e => {
             toggleImportedCategory(e.detail.categoryId)
           }}

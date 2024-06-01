@@ -60,9 +60,9 @@
   </Card>
   <FeedList
     disabled={currentFeeds === 'all'}
-    feedsByCategory={$feedsByCategoryList}
-    selectedCategories={$exportedCategories}
-    selectedFeeds={$exportedFeeds}
+    feedsByCategory={Array.from($feedsByCategoryList)}
+    selectedCategories={Array.from($exportedCategories)}
+    selectedFeeds={Array.from($exportedFeeds)}
     on:toggleCategory={e => {
       toggleExportedCategory(e.detail.categoryId)
     }}

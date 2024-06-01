@@ -4,5 +4,6 @@ export const importMessages = i18n('import', {
   importTitle: 'Import',
   allFeeds: 'All feeds',
   selectFeeds: 'Select feeds',
-  loadError: 'Failed to load the following feeds'
+  loadError: 'Failed to load the following feeds',
+  type: 'import type'
 })

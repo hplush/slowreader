@@ -78,9 +78,9 @@
   </Card>
   <FeedList
     disabled={exportOptions.feeds === 'all'}
-    feedsByCategory={$feedsByCategoryList}
-    selectedCategories={$exportedCategories}
-    selectedFeeds={$exportedFeeds}
+    feedsByCategory={Array.from($feedsByCategoryList)}
+    selectedCategories={Array.from($exportedCategories)}
+    selectedFeeds={Array.from($exportedFeeds)}
     on:toggleCategory={e => {
       toggleExportedCategory(e.detail.categoryId)
     }}

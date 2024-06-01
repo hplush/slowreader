@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+<head>
+<title>Feeds</title>
+</head>
+<body>
+<outline text="General">
+<outline text="AppSignal" type="rss" xmlUrl="https://blog.appsignal.com/feed.xml" />
+<outline text="Bartosz Ciechanowski" type="rss" xmlUrl="https://ciechanow.ski/atom.xml" />
+</outline>
+<outline text="custom ctegory">
+<outline text="Ferd.ca" type="rss" xmlUrl="https://ferd.ca/feed.rss" />
+<outline text="Hauleth's blog" type="rss" xmlUrl="https://hauleth.dev/atom.xml" />
+</outline>
+</body>
+</opml>

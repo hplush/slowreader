@@ -197,8 +197,9 @@ export function handleImportFile(file: File): void {
               if (generalCategoryExists) {
                 // If the General category already exists, add feeds without parent to it
                 for (let i = 0; i < feedsByCategory.length; i++) {
-                  if (feedsByCategory[i][0].id === 'general') {
-                    feedsByCategory[i][1].push(...generalFeeds)
+                  const categoryFeeds = feedsByCategory[i] // Get the array element
+                  if (categoryFeeds && categoryFeeds[0].id === 'general') {
+                    categoryFeeds[1].push(...generalFeeds)
                     break
                   }
                 }
