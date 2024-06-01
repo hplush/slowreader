@@ -15,7 +15,9 @@ jobs:
       - name: Save PR number
         run: echo "${{ github.event.pull_request.number }}" > pr_number.txt
       - name: Generate Diff
-        run: git diff ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} --name-only > pr_files_diff.txt
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git diff origin/${{ github.event.pull_request.base.ref }}..${{ github.sha }} > pr_files_diff.txt
       - name: Get PR comments
         id: get-comments
         run: |
