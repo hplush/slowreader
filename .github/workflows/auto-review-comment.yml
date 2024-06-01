@@ -23,8 +23,8 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Analyze changes
-        uses: pshergie/pull-request-auto-reviewer@1
+        uses: pshergie/pull-request-auto-reviewer@v1
         id: auto-review-action
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          datapath: .github/auto-review-comment.yml
+          data-path: .github/auto-review-comment.yml
