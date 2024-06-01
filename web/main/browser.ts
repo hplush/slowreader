@@ -26,6 +26,7 @@ function updateTheme(): void {
 
 router.subscribe(route => {
   root.classList.toggle('is-slow-theme', !isFastRoute(route))
+
   updateTheme()
 })
 
