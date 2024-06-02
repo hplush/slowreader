@@ -1,34 +1,39 @@
 <script context="module" lang="ts">
   import { Story } from '@storybook/addon-svelte-csf'
 
+  import Slow from '../../../pages/slow.svelte'
+  import Scene from '../../scene.svelte'
   import { MOCKED_POSTS } from './mocks.js'
-  import SlowScene from './slow-scene.svelte'
 
   export const meta = {
-    component: SlowScene,
+    component: Slow,
     title: 'Pages/Slow'
   }
 </script>
 
 <Story name="Loading" parameters={{ layout: 'fullscreen' }}>
-  <SlowScene />
+  <Scene><Slow /></Scene>
 </Story>
 
 <Story name="Empty" parameters={{ layout: 'fullscreen' }}>
-  <SlowScene state={{ isLoading: false, list: [] }} />
+  <Scene slowState={{ isLoading: false, list: [] }}><Slow /></Scene>
 </Story>
 
 <Story name="Few posts" parameters={{ layout: 'fullscreen' }}>
-  <SlowScene state={{ isLoading: false, list: MOCKED_POSTS.slice(0, 3) }} />
+  <Scene slowState={{ isLoading: false, list: MOCKED_POSTS }}><Slow /></Scene>
 </Story>
 
 <Story name="Opened post" parameters={{ layout: 'fullscreen' }}>
-  <SlowScene
-    post={MOCKED_POSTS[1]}
-    state={{ isLoading: false, list: MOCKED_POSTS.slice(0, 3) }}
-  />
+  <Scene
+    openedPost={MOCKED_POSTS[1]}
+    slowState={{ isLoading: false, list: MOCKED_POSTS }}
+  >
+    <Slow /></Scene
+  >
 </Story>
 
 <Story name="Many posts" parameters={{ layout: 'fullscreen' }}>
-  <SlowScene showPagination state={{ isLoading: false, list: MOCKED_POSTS }} />
+  <Scene showPagination slowState={{ isLoading: false, list: MOCKED_POSTS }}>
+    <Slow /></Scene
+  >
 </Story>

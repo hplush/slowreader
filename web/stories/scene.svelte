@@ -8,20 +8,30 @@
     client,
     DEFAULT_REFRESH_STATISTICS,
     fastCategories,
+    fastCategory,
+    type FastEntry,
+    fastLoading,
+    fastPosts,
     Feed,
     type FeedValue,
     Filter,
     hasFeeds,
     isRefreshing,
     type NetworkTypeDetector,
+    nextFastSince,
+    openedFastPost,
+    openedSlowPost,
     Post,
+    type PostValue,
     refreshStatistics,
     type RefreshStatistics,
     type Route,
     secondStep,
     slowPosts,
     type SlowPostsValue,
-    testFeed
+    testFeed,
+    totalSlowPages,
+    totalSlowPosts
   } from '@slowreader/core'
   import { cleanStores } from 'nanostores'
   import { onMount } from 'svelte'
@@ -49,6 +59,9 @@
 
   export let categories: CategoryValue[] = []
   export let feeds: Partial<FeedValue>[] = [{ title: 'Example' }]
+  export let openedPost: PostValue | undefined = undefined
+  export let fasts: FastEntry[] = []
+  export let showPagination = false
 
   export let responses: Record<string, PreparedResponse | string> = {}
 
@@ -100,12 +113,40 @@
   onMount(() => {
     forceSet(slowPosts, slowState)
 
+    // @ts-expect-error
+    forceSet(openedSlowPost, openedPost)
+    // @ts-expect-error
+    forceSet(openedFastPost, openedPost)
+
+    if (fasts.length) {
+      forceSet(fastPosts, fasts)
+      forceSet(fastLoading, false)
+      forceSet(fastCategory, fasts[0]?.feed.categoryId)
+    }
+
+    forceSet(fastPosts, fasts)
+
+    if (showPagination) {
+      forceSet(totalSlowPages, 10)
+      forceSet(totalSlowPosts, 1_000)
+      forceSet(nextFastSince, fasts.length)
+    }
+
     return () => {
       forceSet(isRefreshing, false)
       baseRouter.set({ params: {}, route: 'slow' })
       setNetworkType(DEFAULT_NETWORK)
       cleanLogux()
       forceSet(slowPosts, initialSlow)
+
+      forceSet(openedSlowPost, undefined)
+      forceSet(openedFastPost, undefined)
+
+      forceSet(totalSlowPages, 1)
+      forceSet(totalSlowPosts, 0)
+
+      forceSet(fastLoading, 'init')
+      forceSet(fastCategory, undefined)
     }
   })
 </script>
