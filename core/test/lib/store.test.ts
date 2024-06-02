@@ -11,14 +11,12 @@ import {
 
 test('force set', () => {
   let $a: ReadableAtom<number> = atom<number>(1)
-
   forceSet($a, 2)
   deepStrictEqual($a.get(), 2)
 })
 
 test('increases keys', () => {
   let $map = map({ a: 0, b: 0 })
-
   increaseKey($map, 'a')
   deepStrictEqual($map.get(), { a: 1, b: 0 })
 })
