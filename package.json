@@ -7,7 +7,7 @@
     "node": "^22.2.0",
     "pnpm": "^9.0.0"
   },
-  "packageManager": "pnpm@9.1.2",
+  "packageManager": "pnpm@9.1.4",
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run -r --include-workspace-root /^test:/",
     "start": "FORCE_COLOR=1 pnpm run -r start",
@@ -60,11 +60,11 @@
     "remark-lint-no-shell-dollars": "^4.0.0",
     "remark-lint-smarty-pants-typography": "^1.1.0",
     "remark-validate-links": "^13.0.1",
-    "stylelint": "16.5.0",
+    "stylelint": "16.6.0",
     "svelte": "4.2.17",
     "svelte-check": "3.7.1",
     "svgo": "3.3.2",
-    "tsx": "4.10.5",
+    "tsx": "4.11.0",
     "typescript": "5.4.5"
   }
 }

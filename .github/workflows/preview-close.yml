@@ -14,8 +14,8 @@ on:
       - 'core/test/**'
       - 'loader-tests/**'
 jobs:
-  close:
-    name: Close
+  prepare:
+    name: Prepare
     runs-on: ubuntu-latest
     steps:
       - name: Save PR number

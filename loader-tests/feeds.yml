@@ -32,6 +32,10 @@ feeds:
   - title: Pika
     url: https://wavelengths.online/posts_feed
 
+  - title: Wiki News
+    url: https://en.wikinews.org/w/index.php?title=Special:NewsFeed&feed=atom
+    findFromHome: false
+
   # Edge Cases
 
   - title: Feed URL by icon with FeedBurner URL

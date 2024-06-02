@@ -14,8 +14,6 @@ import { type LoaderName, loaders } from './loader/index.js'
 import { addPost, processOriginPost } from './post.js'
 import type { PostsPage } from './posts-page.js'
 import { router } from './router.js'
-import { showSecondStep } from './two-steps.js'
-import { nanoid } from 'nanoid'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 
@@ -118,9 +116,6 @@ function addCandidate(url: string, candidate: PreviewCandidate): void {
 
   $links.setKey(url, { state: 'processed' })
   $candidates.set([...$candidates.get(), candidate])
-  if ($candidates.get().length === 1) {
-    if (!isMobile.get()) setPreviewCandidate(url)
-  }
 }
 
 function getLoaderForUrl(url: string): false | PreviewCandidate {
@@ -288,6 +283,7 @@ export const onPreviewUrlType = debounce((value: string) => {
   if (value === '') {
     clearPreview()
   } else {
+    currentCandidate.set(undefined)
     setPreviewUrl(value)
   }
 }, 500)
@@ -317,8 +313,6 @@ export async function setPreviewCandidate(url: string): Promise<void> {
       $posts.set(posts)
       postsCache.set(url, posts)
     }
-
-    showSecondStep()
   }
 }
 
@@ -346,6 +340,9 @@ export async function addPreviewCandidate(): Promise<void> {
 
 let inPreview = false
 
+export const currentCandidate = atom<string | undefined>()
+let candidateUrl: string
+
 onEnvironment(({ openRoute }) => {
   return [
     previewUrl.listen(link => {
@@ -356,6 +353,7 @@ onEnvironment(({ openRoute }) => {
     }),
     router.subscribe(({ params, route }) => {
       if (route === 'add' && params.url !== previewUrl.get()) {
+        currentCandidate.set(params.candidate)
         setPreviewUrl(params.url ?? '')
       }
       if (route === 'add') {
@@ -363,6 +361,43 @@ onEnvironment(({ openRoute }) => {
       } else if (inPreview) {
         inPreview = false
         clearPreview()
+      }
+      if (route === 'add' && params.candidate) {
+        if ($candidates.get().length > 0) {
+          setPreviewCandidate(params.candidate)
+        } else {
+          openRoute({
+            params: { url: params.url },
+            route: 'add'
+          })
+        }
+      }
+    }),
+    $candidates.listen(candidates => {
+      let page = router.get()
+      let currentCandidateUrl = currentCandidate.get()
+
+      if (
+        !isMobile.get() &&
+        page.route === 'add' &&
+        page.params.url &&
+        !page.params.candidate
+      ) {
+        if (!currentCandidateUrl && candidates[0]) {
+          candidateUrl = candidates[0].url
+        } else if (
+          currentCandidateUrl &&
+          candidates.find(candidate => candidate.url === currentCandidateUrl)
+        ) {
+          candidateUrl = currentCandidateUrl
+        }
+        openRoute({
+          params: {
+            candidate: candidateUrl,
+            url: page.params.url
+          },
+          route: 'add'
+        })
       }
     })
   ]

@@ -9,7 +9,7 @@ import { slowCategories } from './slow.js'
 
 export interface Routes {
   about: {}
-  add: { url?: string }
+  add: { candidate?: string; url?: string }
   categories: { feed?: string }
   download: {}
   fast: { category?: string; post?: string; since?: number }
@@ -220,20 +220,25 @@ export function removeFeedFromRoute(): void {
 
 export const backRoute = computed<Route | undefined, typeof router>(
   router,
-  route => {
-    if (route.route === 'categories' && route.params.feed) {
+  ({ params, route }) => {
+    if (route === 'add' && params.candidate) {
+      return {
+        params: { url: params.url },
+        route: 'add'
+      }
+    } else if (route === 'categories' && params.feed) {
       return {
         params: {},
         route: 'categories'
       }
-    } else if (route.route === 'fast' && route.params.post) {
+    } else if (route === 'fast' && params.post) {
       return {
-        params: { category: route.params.category },
+        params: { category: params.category },
         route: 'fast'
       }
-    } else if (route.route === 'slow' && route.params.post) {
+    } else if (route === 'slow' && params.post) {
       return {
-        params: { feed: route.params.feed },
+        params: { feed: params.feed },
         route: 'slow'
       }
     }
