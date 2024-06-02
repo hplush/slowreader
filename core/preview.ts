@@ -278,7 +278,6 @@ export async function createFeedFromUrl(
 }
 
 export async function setPreviewUrl(url: string): Promise<void> {
-  console.log(url)
   if (url === previewUrl.get()) return
   onPreviewUrlType.cancel()
   clearPreview()

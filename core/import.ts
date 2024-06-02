@@ -72,8 +72,6 @@ export function toggleImportedCategory(categoryId: string) {
 
   $importedCategories.set(Array.from(selectedCategories))
   $importedFeeds.set(Array.from(selectedFeeds))
-
-  console.log(2, categoryId, $importedCategories.get())
 }
 
 export function toggleImportedFeed(feedId: string, categoryId: string) {

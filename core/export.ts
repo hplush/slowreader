@@ -70,7 +70,6 @@ export function getOPMLBlob() {
     if ($selectedCategories.get().includes(category.id)) {
       opml += `<outline text="${getCategoryTitle(category)}">\n`
       feeds.forEach(feed => {
-        console.log(feed)
         if ($selectedFeeds.get().includes(feed.id)) {
           opml += `<outline text="${feed.title}" type="${feed.loader}" xmlUrl="${feed.url}" />\n`
         }
