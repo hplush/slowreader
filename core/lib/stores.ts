@@ -1,6 +1,5 @@
 import type {
   MapStore,
-  Store as NanoStore,
   ReadableAtom,
   StoreValue,
   WritableAtom
@@ -16,12 +15,16 @@ type StoreValues<Stores extends ReadableAtom[]> = {
  * use only for manual write store in tests
  * otherwise don't permit rewrite store at all
  **/
-export function forceSet<Value>(store: NanoStore<Value>, value: Value): void {
+export function forceSet<Value>(
+  store: ReadableAtom<Value>,
+  value: Value
+): void {
   ;(store as WritableAtom<Value>).set(value)
 }
 
+/** Force typecast  */
 export function readonlyExport<Value>(
-  store: NanoStore<Value>
+  store: ReadableAtom<Value>
 ): ReadableAtom<Value> {
   return store
 }
