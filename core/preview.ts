@@ -14,6 +14,7 @@ import { type LoaderName, loaders } from './loader/index.js'
 import { addPost, processOriginPost } from './post.js'
 import type { PostsPage } from './posts-page.js'
 import { router } from './router.js'
+import { nanoid } from 'nanoid'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 
