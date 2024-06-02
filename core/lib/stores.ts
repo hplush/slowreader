@@ -11,9 +11,21 @@ type StoreValues<Stores extends ReadableAtom[]> = {
   [Index in keyof Stores]: StoreValue<Stores[Index]>
 }
 
-export function readonlyExport<Store extends ReadableAtom>(
-  store: Store
-): ReadableAtom<StoreValue<Store>> {
+/**
+ * use only for manual write store in tests
+ * otherwise don't permit rewrite store at all
+ **/
+export function forceSet<Value>(
+  store: ReadableAtom<Value>,
+  value: Value
+): void {
+  ;(store as WritableAtom<Value>).set(value)
+}
+
+/** Force typecast  */
+export function readonlyExport<Value>(
+  store: ReadableAtom<Value>
+): ReadableAtom<Value> {
   return store
 }
 
