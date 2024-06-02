@@ -26,14 +26,12 @@ function updateTheme(): void {
 
 router.subscribe(route => {
   root.classList.toggle('is-slow-theme', !isFastRoute(route))
-
   updateTheme()
 })
 
 theme.subscribe(themeValue => {
   root.classList.toggle('is-dark-theme', themeValue === 'dark')
   root.classList.toggle('is-light-theme', themeValue === 'light')
-
   updateTheme()
 })
 
