@@ -1,60 +1,63 @@
-[
-  [
-    { "id": "general", "title": "General" },
+{
+  "type": "feedsByCategory",
+  "data": [
+    [
+      { "id": "general", "title": "General" },
+      [
+        {
+          "id": "H4RZpnXPjlj_Hzl08ipBw",
+          "isLoading": false,
+          "categoryId": "general",
+          "lastOriginId": "https://blog.appsignal.com/2024/05/29/track-errors-in-your-python-flask-application-with-appsignal.html",
+          "lastPublishedAt": 1716940800,
+          "loader": "atom",
+          "reading": "fast",
+          "title": "AppSignal",
+          "url": "https://blog.appsignal.com/feed.xml"
+        },
+        {
+          "id": "N6DAT82NAp_w7E1ccIlRp",
+          "isLoading": false,
+          "categoryId": "general",
+          "lastOriginId": "https://ciechanow.ski/airfoil/",
+          "lastPublishedAt": 1709035200,
+          "loader": "rss",
+          "reading": "fast",
+          "title": "Bartosz Ciechanowski",
+          "url": "https://ciechanow.ski/atom.xml"
+        }
+      ]
+    ],
     [
       {
-        "id": "H4RZpnXPjlj_Hzl08ipBw",
+        "id": "1GfRaXZCKbgtjuSnfzeew",
         "isLoading": false,
-        "categoryId": "general",
-        "lastOriginId": "https://blog.appsignal.com/2024/05/29/track-errors-in-your-python-flask-application-with-appsignal.html",
-        "lastPublishedAt": 1716940800,
-        "loader": "atom",
-        "reading": "fast",
-        "title": "AppSignal",
-        "url": "https://blog.appsignal.com/feed.xml"
+        "title": "custom ctegory"
       },
-      {
-        "id": "N6DAT82NAp_w7E1ccIlRp",
-        "isLoading": false,
-        "categoryId": "general",
-        "lastOriginId": "https://ciechanow.ski/airfoil/",
-        "lastPublishedAt": 1709035200,
-        "loader": "rss",
-        "reading": "fast",
-        "title": "Bartosz Ciechanowski",
-        "url": "https://ciechanow.ski/atom.xml"
-      }
-    ]
-  ],
-  [
-    {
-      "id": "1GfRaXZCKbgtjuSnfzeew",
-      "isLoading": false,
-      "title": "custom ctegory"
-    },
-    [
-      {
-        "id": "BEKaXZ5-XScobcV0hKc4I",
-        "isLoading": false,
-        "categoryId": "1GfRaXZCKbgtjuSnfzeew",
-        "lastOriginId": "https://ferd.ca/a-commentary-on-defining-observability.html",
-        "lastPublishedAt": 1710860400,
-        "loader": "rss",
-        "reading": "fast",
-        "title": "Ferd.ca",
-        "url": "https://ferd.ca/feed.rss"
-      },
-      {
-        "id": "qR4_med2A8z-N88MZsU6P",
-        "isLoading": false,
-        "categoryId": "1GfRaXZCKbgtjuSnfzeew",
-        "lastOriginId": "https://hauleth.dev/post/who-watches-watchmen-ii/",
-        "lastPublishedAt": 1699920000,
-        "loader": "atom",
-        "reading": "fast",
-        "title": "Hauleth's blog",
-        "url": "https://hauleth.dev/atom.xml"
-      }
+      [
+        {
+          "id": "BEKaXZ5-XScobcV0hKc4I",
+          "isLoading": false,
+          "categoryId": "1GfRaXZCKbgtjuSnfzeew",
+          "lastOriginId": "https://ferd.ca/a-commentary-on-defining-observability.html",
+          "lastPublishedAt": 1710860400,
+          "loader": "rss",
+          "reading": "fast",
+          "title": "Ferd.ca",
+          "url": "https://ferd.ca/feed.rss"
+        },
+        {
+          "id": "qR4_med2A8z-N88MZsU6P",
+          "isLoading": false,
+          "categoryId": "1GfRaXZCKbgtjuSnfzeew",
+          "lastOriginId": "https://hauleth.dev/post/who-watches-watchmen-ii/",
+          "lastPublishedAt": 1699920000,
+          "loader": "atom",
+          "reading": "fast",
+          "title": "Hauleth's blog",
+          "url": "https://hauleth.dev/atom.xml"
+        }
+      ]
     ]
   ]
-]
+}

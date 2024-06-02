@@ -27,17 +27,24 @@ export const unLoadedFeeds = readonlyExport($unLoadedFeeds)
 let $categories = atom<CategoryValue[]>([])
 let $feeds = atom<FeedValue[]>([])
 
-$importedFeedsByCategory.subscribe(feedsByCategory => {
+//$importedFeedsByCategor.subscribe() doesn't work when running tests, so I had to make a function and call
+function importSubscribe() {
   $feeds.set(
     Array.from(
-      new Set(feedsByCategory.flatMap(([, feeds]) => feeds.map(feed => feed)))
+      new Set(
+        $importedFeedsByCategory
+          .get()
+          .flatMap(([, feeds]) => feeds.map(feed => feed))
+      )
     )
   )
 
   $categories.set(
-    Array.from(new Set(feedsByCategory.flatMap(([category]) => category)))
+    Array.from(
+      new Set($importedFeedsByCategory.get().flatMap(([category]) => category))
+    )
   )
-})
+}
 
 export function selectAllImportedFeeds() {
   $importedCategories.set($categories.get().map(category => category.id))
@@ -65,6 +72,8 @@ export function toggleImportedCategory(categoryId: string) {
 
   $importedCategories.set(Array.from(selectedCategories))
   $importedFeeds.set(Array.from(selectedFeeds))
+
+  console.log(2, categoryId, $importedCategories.get())
 }
 
 export function toggleImportedFeed(feedId: string, categoryId: string) {
@@ -93,6 +102,7 @@ export function toggleImportedFeed(feedId: string, categoryId: string) {
 export function handleImportFile(file: File): void {
   $reading.set(true)
   $importedFeedsByCategory.set([])
+  importSubscribe()
   const reader = new FileReader()
   reader.onload = async function (e) {
     try {
@@ -104,7 +114,9 @@ export function handleImportFile(file: File): void {
           const jsonData = JSON.parse(content)
           if (jsonData.type === 'feedsByCategory') {
             $importedFeedsByCategory.set(jsonData.data)
+            importSubscribe()
             selectAllImportedFeeds()
+
             return
           } else {
             throw new Error('Invalid JSON structure')
@@ -210,6 +222,7 @@ export function handleImportFile(file: File): void {
             }
 
             $importedFeedsByCategory.set(feedsByCategory)
+            importSubscribe()
             selectAllImportedFeeds()
           } else {
             throw new Error('File is not in OPML format')
@@ -249,6 +262,9 @@ export async function submitImport() {
   await Promise.all(feedPromises)
 
   $importedFeedsByCategory.set([])
+  $importedCategories.set([])
+  $importedFeeds.set([])
+  importSubscribe()
   $unLoadedFeeds.set([])
   $submiting.set(false)
 }
