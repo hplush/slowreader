@@ -1,0 +1,37 @@
+name: Auto-review Diff Prepare
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Save PR number
+        run: echo "${{ github.event.pull_request.number }}" > pr_number.txt
+      - name: Generate Diff
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git diff origin/${{ github.event.pull_request.base.ref }}..${{ github.sha }} > pr_files_diff.txt
+      - name: Get PR comments
+        id: get-comments
+        run: |
+          pr_number=${{ github.event.pull_request.number }}
+          comments=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                          -H "Accept: application/vnd.github+json" \
+                          -H "X-GitHub-Api-Version: 2022-11-28" \
+                          "https://api.github.com/repos/${{ github.repository }}/issues/$pr_number/comments")
+
+          echo "$comments" | jq '[.[] | {user: .user.login, body: .body}]' > pr_comments.json
+      - name: Create artifact folder
+        run: mkdir -p pr_diff && mv pr_number.txt pr_comments.json pr_files_diff.txt pr_diff/
+      - name: Upload PR details as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-diff
+          path: pr_diff/
