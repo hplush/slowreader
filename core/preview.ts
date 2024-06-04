@@ -339,6 +339,8 @@ onEnvironment(({ openRoute }) => {
             route: 'add'
           })
         }
+      } else if (route === 'add' && !params.candidate) {
+        $candidate.set(undefined)
       }
     }),
     $candidates.listen(candidates => {
