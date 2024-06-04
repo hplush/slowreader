@@ -1,6 +1,10 @@
 <script lang="ts">
-  import { secondStep } from '@slowreader/core'
+  import { mdiClose } from '@mdi/js'
+  import { backRoute, backToFirstStep } from '@slowreader/core'
   import { onMount } from 'svelte'
+
+  import { getURL } from '../stores/router.js'
+  import Button from './button.svelte'
 
   export let title: string
 
@@ -23,10 +27,18 @@
     })
   }
 
+  function handleEscapeKey(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && document.activeElement?.tagName === 'BODY') {
+      backToFirstStep()
+    }
+  }
+
   onMount(() => {
     document.title = title + ' › ' + prevTitle
+    window.addEventListener('keydown', handleEscapeKey)
     return () => {
       document.title = prevTitle
+      window.removeEventListener('keydown', handleEscapeKey)
     }
   })
 </script>
@@ -34,14 +46,19 @@
 <main id="page" class="two-steps-page">
   <div
     bind:this={first}
-    class={`two-steps-page_step ${$secondStep ? 'is-hidden' : ''}`}
+    class={`two-steps-page_step ${$backRoute ? 'is-hidden' : ''}`}
   >
     <slot name="one" />
   </div>
   <div
     bind:this={second}
-    class={`two-steps-page_step ${!$secondStep ? 'is-hidden' : ''}`}
+    class={`two-steps-page_step ${!$backRoute ? 'is-hidden' : ''}`}
   >
+    {#if $backRoute}
+      <div class="two-steps-page_close-button">
+        <Button href={getURL($backRoute)} icon={mdiClose} wide={true} />
+      </div>
+    {/if}
     <slot name="two" />
   </div>
 </main>
@@ -71,9 +88,17 @@
       width: 100%;
       padding-bottom: var(--navbar-height);
     }
+
+    &.is-hidden {
+      @media (width <= 1024px) {
+        display: none;
+      }
+    }
   }
 
-  .two-steps-page_step.is-hidden {
+  .two-steps-page_close-button {
+    padding-bottom: var(--padding-m);
+
     @media (width <= 1024px) {
       display: none;
     }
