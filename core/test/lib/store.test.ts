@@ -1,12 +1,22 @@
-import { atom, map } from 'nanostores'
+import { atom, map, type ReadableAtom } from 'nanostores'
 import { deepStrictEqual } from 'node:assert'
 import { test } from 'node:test'
 
-import { computeFrom, increaseKey, listenMany } from '../../lib/stores.js'
+import {
+  computeFrom,
+  forceSet,
+  increaseKey,
+  listenMany
+} from '../../lib/stores.js'
+
+test('force set', () => {
+  let $a: ReadableAtom<number> = atom<number>(1)
+  forceSet($a, 2)
+  deepStrictEqual($a.get(), 2)
+})
 
 test('increases keys', () => {
   let $map = map({ a: 0, b: 0 })
-
   increaseKey($map, 'a')
   deepStrictEqual($map.get(), { a: 1, b: 0 })
 })

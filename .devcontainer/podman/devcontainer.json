@@ -9,7 +9,8 @@
   "workspaceMount": "",
   "runArgs": [
     "--userns=keep-id:uid=1000,gid=1000",
-    "--volume=${localWorkspaceFolder}:/workspaces/${localWorkspaceFolderBasename}:Z"
+    "--volume=${localWorkspaceFolder}:/workspaces/${localWorkspaceFolderBasename}:Z",
+    "--network=host"
   ],
   "customizations": {
     "vscode": {
