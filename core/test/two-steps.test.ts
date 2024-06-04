@@ -9,9 +9,11 @@ import {
   addFeed,
   addPost,
   backRoute,
+  backToFirstStep,
   checkAndRemoveRequestMock,
   expectRequest,
   mockRequest,
+  router,
   secondStep,
   setBaseTestRoute,
   setIsMobile,
@@ -124,5 +126,24 @@ test('works with slow route', async () => {
   deepStrictEqual(backRoute.get(), {
     params: { feed },
     route: 'slow'
+  })
+})
+
+test('back to first step', async () => {
+  let idA = await addCategory({ title: 'A' })
+  let feed = await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
+  setBaseTestRoute({ params: { feed }, route: 'categories' })
+  await setTimeout(100)
+
+  deepStrictEqual(router.get(), {
+    params: { feed },
+    route: 'categories'
+  })
+
+  backToFirstStep()
+
+  deepStrictEqual(router.get(), {
+    params: {},
+    route: 'categories'
   })
 })
