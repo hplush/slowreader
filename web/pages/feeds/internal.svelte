@@ -11,11 +11,11 @@
     toggleExportedFeed
   } from '@slowreader/core'
 
-  import Button from '../../ui/button.svelte.js'
-  import Card from '../../ui/card.svelte.js'
-  import Loader from '../../ui/loader.svelte.js'
-  import RadioField from '../../ui/radio-field.svelte.js'
-  import FeedList from './list.svelte.js'
+  import Button from '../../ui/button.svelte'
+  import Card from '../../ui/card.svelte'
+  import Loader from '../../ui/loader.svelte'
+  import RadioField from '../../ui/radio-field.svelte'
+  import FeedList from './list.svelte'
 
   type ExportOptions = {
     feeds: 'all' | 'select'
