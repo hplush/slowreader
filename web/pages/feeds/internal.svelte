@@ -11,11 +11,11 @@
     toggleExportedFeed
   } from '@slowreader/core'
 
-  import Button from '../../ui/button.svelte'
-  import Card from '../../ui/card.svelte'
-  import RadioField from '../../ui/radio-field.svelte'
-  import FeedList from './feedList.svelte'
-  import Loader from '../../ui/loader.svelte'
+  import Button from '../../ui/button.svelte.js'
+  import Card from '../../ui/card.svelte.js'
+  import Loader from '../../ui/loader.svelte.js'
+  import RadioField from '../../ui/radio-field.svelte.js'
+  import FeedList from './list.svelte.js'
 
   type ExportOptions = {
     feeds: 'all' | 'select'
@@ -88,16 +88,8 @@
       toggleExportedFeed(e.detail.feedId, e.detail.categoryId)
     }}
   />
-  <Button class="export-internal_submit" disabled={$creating} type="submit"
-    >{$t.submitInternal}</Button
-  >
+  <Button disabled={$creating} type="submit">{$t.submitInternal}</Button>
   {#if $creating}
     <Loader />
   {/if}
 </form>
-
-<style>
-  :global(.export-internal_submit) {
-    margin-top: var(--padding-xl);
-  }
-</style>

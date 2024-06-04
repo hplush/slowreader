@@ -16,7 +16,7 @@
   import Card from '../../ui/card.svelte'
   import Loader from '../../ui/loader.svelte'
   import RadioField from '../../ui/radio-field.svelte'
-  import FeedList from './feedList.svelte'
+  import FeedList from './list.svelte'
 
   let currentFeeds: 'all' | 'select' = 'all'
 
@@ -70,16 +70,8 @@
       toggleExportedFeed(e.detail.feedId, e.detail.categoryId)
     }}
   />
-  <Button class="export-opml_submit" disabled={$creating} type="submit"
-    >{$t.submitOPML}</Button
-  >
+  <Button disabled={$creating} type="submit">{$t.submitOPML}</Button>
   {#if $creating}
     <Loader />
   {/if}
 </form>
-
-<style>
-  :global(.export-opml_submit) {
-    margin-top: var(--padding-xl);
-  }
-</style>

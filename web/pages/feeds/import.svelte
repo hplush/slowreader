@@ -19,7 +19,7 @@
   import Loader from '../../ui/loader.svelte'
   import RadioField from '../../ui/radio-field.svelte'
   import TwoStepsPage from '../../ui/two-steps-page.svelte'
-  import FeedList from './feedList.svelte'
+  import FeedList from './list.svelte'
 
   let currentFeeds: 'all' | 'select' = 'all'
 
@@ -92,9 +92,7 @@
           }}
         />
 
-        <Button class="import-opml_submit" disabled={$submiting} type="submit"
-          >Import</Button
-        >
+        <Button disabled={$submiting} type="submit">Import</Button>
         {#if $submiting}
           <Loader />
         {/if}
@@ -102,9 +100,3 @@
     {/if}
   </div>
 </TwoStepsPage>
-
-<style>
-  :global(.import-opml_submit) {
-    margin-top: var(--padding-xl);
-  }
-</style>
