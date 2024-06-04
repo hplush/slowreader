@@ -26,7 +26,6 @@
     refreshStatistics,
     type RefreshStatistics,
     type Route,
-    secondStep,
     slowPosts,
     type SlowPostsValue,
     testFeed,
@@ -64,8 +63,6 @@
   export let showPagination = false
 
   export let responses: Record<string, PreparedResponse | string> = {}
-
-  export let showSecondStep: boolean = false
 
   const initialSlow: SlowPostsValue = {
     isLoading: true
@@ -106,8 +103,6 @@
     } else {
       baseRouter.set(route)
     }
-
-    secondStep.set(showSecondStep)
   }
 
   onMount(() => {
