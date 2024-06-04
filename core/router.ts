@@ -214,6 +214,12 @@ export function removeFeedFromRoute(): void {
   }
 }
 
+export function backToFirstStep(): void {
+  if (backRoute.get()) {
+    getEnvironment().openRoute(backRoute.get()!)
+  }
+}
+
 export const backRoute = computed<Route | undefined, typeof router>(
   router,
   ({ params, route }) => {
