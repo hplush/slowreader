@@ -1,6 +1,6 @@
 <script lang="ts">
   import { mdiClose } from '@mdi/js'
-  import { backRoute, backToFirstStep } from '@slowreader/core'
+  import { backRoute, backToFirstStep, router } from '@slowreader/core'
   import { onMount } from 'svelte'
 
   import { getURL } from '../stores/router.js'
@@ -28,17 +28,22 @@
   }
 
   function handleEscapeKey(event: KeyboardEvent): void {
-    if (event.key === 'Escape' && document.activeElement?.tagName === 'BODY') {
+    if (event.key === 'Escape') {
+      let stopPropagationRoutes = new Set(['fast', 'slow'])
+      if (backRoute.get() && stopPropagationRoutes.has(router.get().route)) {
+        event.stopPropagation()
+      }
+
       backToFirstStep()
     }
   }
 
   onMount(() => {
     document.title = title + ' › ' + prevTitle
-    window.addEventListener('keydown', handleEscapeKey)
+    window.addEventListener('keydown', handleEscapeKey, true)
     return () => {
       document.title = prevTitle
-      window.removeEventListener('keydown', handleEscapeKey)
+      window.removeEventListener('keydown', handleEscapeKey, true)
     }
   })
 </script>
