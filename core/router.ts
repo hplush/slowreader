@@ -215,8 +215,9 @@ export function removeFeedFromRoute(): void {
 }
 
 export function backToFirstStep(): void {
-  if (backRoute.get()) {
-    getEnvironment().openRoute(backRoute.get()!)
+  let back = backRoute.get()
+  if (back) {
+    getEnvironment().openRoute(back)
   }
 }
 
