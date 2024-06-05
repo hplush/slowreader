@@ -28,12 +28,11 @@
   }
 
   function handleEscapeKey(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
+    if (backRoute.get() && event.key === 'Escape') {
       let stopPropagationRoutes = new Set(['fast', 'slow'])
-      if (backRoute.get() && stopPropagationRoutes.has(router.get().route)) {
+      if (stopPropagationRoutes.has(router.get().route)) {
         event.stopPropagation()
       }
-
       backToFirstStep()
     }
   }
