@@ -55,9 +55,9 @@
     class={`two-steps-page_step ${!$backRoute ? 'is-hidden' : ''}`}
   >
     {#if $backRoute}
-      <div class="two-steps-page_close-button">
-        <Button href={getURL($backRoute)} icon={mdiClose} wide={true} />
-      </div>
+      <aside class="two-steps-page_close-button">
+        <Button href={getURL($backRoute)} icon={mdiClose} hiddenLabel="Close" />
+      </aside>
     {/if}
     <slot name="two" />
   </div>
@@ -97,6 +97,8 @@
   }
 
   .two-steps-page_close-button {
+    display: flex;
+    justify-content: flex-end;
     padding-bottom: var(--padding-m);
 
     @media (width <= 1024px) {
