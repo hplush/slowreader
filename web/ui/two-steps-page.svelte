@@ -56,7 +56,7 @@
   >
     {#if $backRoute}
       <aside class="two-steps-page_close-button">
-        <Button href={getURL($backRoute)} icon={mdiClose} hiddenLabel="Close" />
+        <Button hiddenLabel="Close" href={getURL($backRoute)} icon={mdiClose} />
       </aside>
     {/if}
     <slot name="two" />
