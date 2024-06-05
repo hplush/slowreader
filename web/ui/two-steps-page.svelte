@@ -29,8 +29,8 @@
 
   function handleEscapeKey(event: KeyboardEvent): void {
     if (backRoute.get() && event.key === 'Escape') {
-      let stopPropagationRoutes = new Set(['fast', 'slow'])
-      if (stopPropagationRoutes.has(router.get().route)) {
+      let { route } = router.get()
+      if (route === 'fast' || route === 'slow') {
         event.stopPropagation()
       }
       backToFirstStep()
