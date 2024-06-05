@@ -146,4 +146,11 @@ test('back to first step', async () => {
     params: {},
     route: 'categories'
   })
+
+  backToFirstStep()
+
+  deepStrictEqual(router.get(), {
+    params: {},
+    route: 'categories'
+  })
 })
