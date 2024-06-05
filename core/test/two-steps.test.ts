@@ -129,7 +129,7 @@ test('works with slow route', async () => {
   })
 })
 
-test('back to first step', async () => {
+test('goes back to first step', async () => {
   let idA = await addCategory({ title: 'A' })
   let feed = await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
   setBaseTestRoute({ params: { feed }, route: 'categories' })
