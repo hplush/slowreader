@@ -1,9 +1,9 @@
 import { i18n } from '../../i18n.js'
 
 export const importMessages = i18n('import', {
-  importTitle: 'Import',
   allFeeds: 'All feeds',
-  selectFeeds: 'Select feeds',
+  importTitle: 'Import',
   loadError: 'Failed to load the following feeds',
+  selectFeeds: 'Select feeds',
   type: 'import type'
 })

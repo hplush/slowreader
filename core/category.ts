@@ -8,10 +8,10 @@ import {
   syncMapTemplate
 } from '@logux/client'
 import { nanoid } from 'nanoid'
-import { commonMessages as common } from './messages/index.js'
 
 import { getClient } from './client.js'
 import type { FeedValue } from './feed.js'
+import { commonMessages as common } from './messages/index.js'
 
 export type CategoryValue = {
   id: string

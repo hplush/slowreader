@@ -12,9 +12,11 @@ export interface Routes {
   add: { candidate?: string; url?: string }
   categories: { feed?: string }
   download: {}
+  export: { format?: string }
   fast: { category?: string; post?: string; since?: number }
   feeds: {}
   home: {}
+  import: {}
   interface: {}
   notFound: {}
   profile: {}
@@ -25,8 +27,6 @@ export interface Routes {
   start: {}
   subscriptions: {}
   welcome: {}
-  export: { format?: string }
-  import: {}
 }
 
 export type RouteName = keyof Routes

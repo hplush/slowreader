@@ -1,11 +1,12 @@
 import { atom } from 'nanostores'
-import { readonlyExport } from './lib/stores.js'
+
 import {
   addCategory,
   type CategoryValue,
   type FeedsByCategory
 } from './category.js'
 import { addFeed, type FeedValue } from './feed.js'
+import { readonlyExport } from './lib/stores.js'
 import { createFeedFromUrl } from './preview.js'
 
 let $importedFeedsByCategory = atom<FeedsByCategory>([])
@@ -28,7 +29,7 @@ let $categories = atom<CategoryValue[]>([])
 let $feeds = atom<FeedValue[]>([])
 
 //$importedFeedsByCategor.subscribe() doesn't work when running tests, so I had to make a function and call
-function importSubscribe() {
+function importSubscribe(): void {
   $feeds.set(
     Array.from(
       new Set(
@@ -46,21 +47,21 @@ function importSubscribe() {
   )
 }
 
-export function selectAllImportedFeeds() {
+export function selectAllImportedFeeds(): void {
   $importedCategories.set($categories.get().map(category => category.id))
   $importedFeeds.set($feeds.get().map(feed => feed.id))
 }
 
-export function clearImportSelections() {
+export function clearImportSelections(): void {
   $importedCategories.set([])
   $importedFeeds.set([])
 }
 
-export function toggleImportedCategory(categoryId: string) {
-  const selectedCategories = new Set($importedCategories.get())
-  const selectedFeeds = new Set($importedFeeds.get())
+export function toggleImportedCategory(categoryId: string): void {
+  let selectedCategories = new Set($importedCategories.get())
+  let selectedFeeds = new Set($importedFeeds.get())
 
-  const feeds = $feeds.get().filter(feed => feed.categoryId === categoryId)
+  let feeds = $feeds.get().filter(feed => feed.categoryId === categoryId)
 
   if (selectedCategories.has(categoryId)) {
     selectedCategories.delete(categoryId)
@@ -74,13 +75,13 @@ export function toggleImportedCategory(categoryId: string) {
   $importedFeeds.set(Array.from(selectedFeeds))
 }
 
-export function toggleImportedFeed(feedId: string, categoryId: string) {
-  const selectedCategories = new Set($importedCategories.get())
-  const selectedFeeds = new Set($importedFeeds.get())
+export function toggleImportedFeed(feedId: string, categoryId: string): void {
+  let selectedCategories = new Set($importedCategories.get())
+  let selectedFeeds = new Set($importedFeeds.get())
 
   if (selectedFeeds.has(feedId)) {
     selectedFeeds.delete(feedId)
-    const remainingFeedsInCategory = $feeds
+    let remainingFeedsInCategory = $feeds
       .get()
       .filter(
         feed => feed.categoryId === categoryId && selectedFeeds.has(feed.id)
@@ -101,81 +102,74 @@ export function handleImportFile(file: File): void {
   $reading.set(true)
   $importedFeedsByCategory.set([])
   importSubscribe()
-  const reader = new FileReader()
+  let reader = new FileReader()
   reader.onload = async function (e) {
     try {
-      const content = e.target?.result as string
-      const fileExtension = file.name.split('.').pop()?.toLowerCase()
+      let content = e.target?.result as string
+      let fileExtension = file.name.split('.').pop()?.toLowerCase()
 
       if (fileExtension === 'json') {
         try {
-          const jsonData = JSON.parse(content)
+          let jsonData = JSON.parse(content)
           if (jsonData.type === 'feedsByCategory') {
             $importedFeedsByCategory.set(jsonData.data)
             importSubscribe()
             selectAllImportedFeeds()
-
-            return
           } else {
             throw new Error('Invalid JSON structure')
           }
         } catch (jsonError) {
-          console.error('Failed to parse JSON or invalid structure:', jsonError)
-          return
+          throw new Error('Failed to parse JSON or invalid structure')
         }
       } else if (fileExtension === 'opml') {
         try {
-          const parser = new DOMParser()
-          const xmlDoc = parser.parseFromString(content, 'text/xml')
+          let parser = new DOMParser()
+          let xmlDoc = parser.parseFromString(content, 'text/xml')
 
           if (xmlDoc.documentElement.nodeName === 'opml') {
-            const feedsByCategory: FeedsByCategory = []
-            const outlines = xmlDoc.getElementsByTagName('outline')
+            let feedsByCategory: FeedsByCategory = []
+            let outlines = xmlDoc.getElementsByTagName('outline')
 
             // General category to hold uncategorized feeds
-            const generalCategory: CategoryValue = {
+            let generalCategory: CategoryValue = {
               id: 'general',
               title: 'General'
             }
-            const generalFeeds: FeedValue[] = []
+            let generalFeeds: FeedValue[] = []
 
             // Flag to track the existence of the General category in the file
             let generalCategoryExists = false
 
             for (let i = 0; i < outlines.length; i++) {
-              const outline = outlines[i]
-              if (outline && outline.parentElement) {
+              let outline = outlines[i]
+              if (outline?.parentElement) {
                 if (
                   outline.parentElement.nodeName === 'body' &&
                   outline.children.length > 0
                 ) {
                   // Top-level outline element with children, considered a category
-                  const categoryId = outline.getAttribute('text')!.toLowerCase()
-                  const categoryTitle = outline.getAttribute('text')!
+                  let categoryId = outline.getAttribute('text')!.toLowerCase()
+                  let categoryTitle = outline.getAttribute('text')!
 
                   if (categoryId === 'general') {
                     generalCategoryExists = true
                   }
 
-                  const category: CategoryValue = {
+                  let category: CategoryValue = {
                     id: categoryId,
                     title: categoryTitle
                   }
-                  const feeds: FeedValue[] = []
+                  let feeds: FeedValue[] = []
 
-                  const childOutlines = outline.children
+                  let childOutlines = outline.children
                   for (let j = 0; j < childOutlines.length; j++) {
-                    const feedOutline = childOutlines[j]
-                    const feedUrl = feedOutline?.getAttribute('xmlUrl')
+                    let feedOutline = childOutlines[j]
+                    let feedUrl = feedOutline?.getAttribute('xmlUrl')
                     if (feedUrl) {
                       try {
-                        const feed = await createFeedFromUrl(
-                          feedUrl,
-                          category.id
-                        )
+                        let feed = await createFeedFromUrl(feedUrl, category.id)
                         feeds.push(feed)
                       } catch (error) {
-                        console.error(error)
                         $unLoadedFeeds.set([...$unLoadedFeeds.get(), feedUrl])
                       }
                     }
@@ -186,16 +180,15 @@ export function handleImportFile(file: File): void {
                   outline.getAttribute('xmlUrl')
                 ) {
                   // Feed directly under body without a parent category, add to General
-                  const feedUrl = outline.getAttribute('xmlUrl')
+                  let feedUrl = outline.getAttribute('xmlUrl')
                   if (feedUrl) {
                     try {
-                      const feed = await createFeedFromUrl(
+                      let feed = await createFeedFromUrl(
                         feedUrl,
                         generalCategory.id
                       )
                       generalFeeds.push(feed)
                     } catch (error) {
-                      console.error(error)
                       $unLoadedFeeds.set([...$unLoadedFeeds.get(), feedUrl])
                     }
                   }
@@ -207,7 +200,7 @@ export function handleImportFile(file: File): void {
               if (generalCategoryExists) {
                 // If the General category already exists, add feeds without parent to it
                 for (let i = 0; i < feedsByCategory.length; i++) {
-                  const categoryFeeds = feedsByCategory[i] // Get the array element
+                  let categoryFeeds = feedsByCategory[i] // Get the array element
                   if (categoryFeeds && categoryFeeds[0].id === 'general') {
                     categoryFeeds[1].push(...generalFeeds)
                     break
@@ -226,10 +219,10 @@ export function handleImportFile(file: File): void {
             throw new Error('File is not in OPML format')
           }
         } catch (xmlError) {
-          console.error('File is not in OPML format')
+          throw new Error('File is not in OPML format')
         }
       } else {
-        console.error('Unsupported file format')
+        throw new Error('Unsupported file format')
       }
     } finally {
       $reading.set(false)
@@ -238,14 +231,14 @@ export function handleImportFile(file: File): void {
   reader.readAsText(file)
 }
 
-export async function submitImport() {
+export async function submitImport(): Promise<void> {
   $submiting.set(true)
-  const categoryPromises = []
-  const feedPromises = []
+  let categoryPromises = []
+  let feedPromises = []
 
   for (let item of $importedFeedsByCategory.get()) {
-    const category = item[0]
-    const feeds = item[1]
+    let category = item[0]
+    let feeds = item[1]
 
     if (category.id !== 'general') {
       categoryPromises.push(addCategory({ title: category.title }))

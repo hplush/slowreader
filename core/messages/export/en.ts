@@ -1,15 +1,15 @@
 import { i18n } from '../../i18n.js'
 
 export const exportMessages = i18n('export', {
-  exportTitle: 'Export',
-  chooseTitle: 'Choose format',
   allFeeds: 'All feeds',
-  selectFeeds: 'Select feeds',
-  type: 'Feed type',
-  submitOPML: 'Export to OPML',
-  submitInternal: 'Export to internal',
-  exportPosts: 'Export posts',
   allPosts: 'All posts',
+  chooseTitle: 'Choose format',
+  exportFeeds: 'Export feeds',
+  exportPosts: 'Export posts',
+  exportTitle: 'Export',
   noPosts: 'No posts',
-  exportFeeds: 'Export feeds'
+  selectFeeds: 'Select feeds',
+  submitInternal: 'Export to internal',
+  submitOPML: 'Export to OPML',
+  type: 'Feed type'
 })

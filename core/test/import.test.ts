@@ -1,36 +1,34 @@
-import { deepStrictEqual, equal } from 'node:assert'
-import { afterEach, beforeEach, test } from 'node:test'
-import { setTimeout } from 'node:timers/promises'
-import { readFile } from 'fs/promises'
 import './dom-parser.js'
 
+import { cleanStores } from 'nanostores'
+import { deepStrictEqual, equal } from 'node:assert'
+import { readFile } from 'node:fs/promises'
+import { afterEach, beforeEach, test } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
+
 import {
-  importedFeedsByCategory,
+  clearImportSelections,
+  handleImportFile,
   importedCategories,
   importedFeeds,
+  importedFeedsByCategory,
+  loadFeeds,
   reading,
-  submiting,
-  unLoadedFeeds,
   selectAllImportedFeeds,
-  clearImportSelections,
+  submitImport,
+  submiting,
   toggleImportedCategory,
   toggleImportedFeed,
-  handleImportFile,
-  submitImport,
-  loadFeeds
+  unLoadedFeeds
 } from '../index.js'
-import { cleanStores } from 'nanostores'
-import { enableClientTest, cleanClientTest } from './utils.js'
-import path from 'node:path'
-import { addCategory, type FeedsByCategory } from '../category.js'
-import { addFeed } from '../feed.js'
+import { cleanClientTest, enableClientTest } from './utils.js'
 
 async function loadFile(filePath: string): Promise<string> {
-  const jsonContent = await readFile(filePath, 'utf8')
-  const jsonFile = new File([jsonContent], 'feeds.json', {
+  let jsonContent = await readFile(filePath, 'utf8')
+  let jsonFile = new File([jsonContent], 'feeds.json', {
     type: 'application/json'
   })
-  await handleImportFile(jsonFile)
+  handleImportFile(jsonFile)
   await setTimeout(100)
 
   return jsonContent
@@ -63,7 +61,7 @@ test('should initialize with empty states', () => {
 })
 
 test('should handle importing a JSON file', async () => {
-  const fileContent = await loadFile(
+  let fileContent = await loadFile(
     '../loader-tests/export-internal-example.json'
   )
 
@@ -84,8 +82,8 @@ test('should select all imported feeds', async () => {
   await loadFile('../loader-tests/export-internal-example.json')
   selectAllImportedFeeds()
 
-  const categories = importedCategories.get()
-  const feeds = importedFeeds.get()
+  let categories = importedCategories.get()
+  let feeds = importedFeeds.get()
 
   equal(categories.length, 2)
   equal(feeds.length, 4)
@@ -102,14 +100,14 @@ test('should clear import selections', async () => {
 
 test('should toggle imported category', async () => {
   await loadFile('../loader-tests/export-internal-example.json')
-  const categoryId = '1GfRaXZCKbgtjuSnfzeew'
+  let categoryId = '1GfRaXZCKbgtjuSnfzeew'
 
   clearImportSelections()
 
   toggleImportedCategory(categoryId)
 
-  const selectedCategories = importedCategories.get()
-  const selectedFeeds = importedFeeds.get()
+  let selectedCategories = importedCategories.get()
+  let selectedFeeds = importedFeeds.get()
 
   equal(selectedCategories.includes(categoryId), true)
   equal(selectedFeeds.length, 2)
@@ -117,15 +115,15 @@ test('should toggle imported category', async () => {
 
 test('should toggle imported feed', async () => {
   await loadFile('../loader-tests/export-internal-example.json')
-  const feedId = 'H4RZpnXPjlj_Hzl08ipBw'
-  const categoryId = 'general'
+  let feedId = 'H4RZpnXPjlj_Hzl08ipBw'
+  let categoryId = 'general'
 
   clearImportSelections()
 
   toggleImportedFeed(feedId, categoryId)
 
-  const selectedFeeds = importedFeeds.get()
-  const selectedCategories = importedCategories.get()
+  let selectedFeeds = importedFeeds.get()
+  let selectedCategories = importedCategories.get()
 
   equal(selectedFeeds.includes(feedId), true)
   equal(selectedCategories.includes(categoryId), true)
@@ -149,12 +147,12 @@ test('should submit import and clear states and feeds imported', async () => {
 })
 
 test('should handle invalid JSON file', async () => {
-  const invalidJsonContent = '{"invalidJson": true}'
-  const invalidJsonFile = new File([invalidJsonContent], 'invalid.json', {
+  let invalidJsonContent = '{"invalidJson": true}'
+  let invalidJsonFile = new File([invalidJsonContent], 'invalid.json', {
     type: 'application/json'
   })
 
-  await handleImportFile(invalidJsonFile)
+  handleImportFile(invalidJsonFile)
   await setTimeout(100)
 
   deepStrictEqual(importedFeedsByCategory.get(), [])

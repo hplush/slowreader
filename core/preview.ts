@@ -1,5 +1,6 @@
 import { loadValue } from '@logux/client'
 import debounce from 'just-debounce-it'
+import { nanoid } from 'nanoid'
 import { atom, computed, map, onMount } from 'nanostores'
 
 import {
@@ -8,13 +9,12 @@ import {
   type TextResponse
 } from './download.js'
 import { isMobile, onEnvironment } from './environment.js'
-import { addFeed, getFeeds, type FeedValue } from './feed.js'
+import { addFeed, type FeedValue, getFeeds } from './feed.js'
 import { readonlyExport } from './lib/stores.js'
 import { type LoaderName, loaders } from './loader/index.js'
 import { addPost, processOriginPost } from './post.js'
 import type { PostsPage } from './posts-page.js'
 import { router } from './router.js'
-import { nanoid } from 'nanoid'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 
@@ -262,8 +262,8 @@ export async function createFeedFromUrl(
   let lastPost = page.list[0]
 
   return {
-    id: nanoid(),
     categoryId,
+    id: nanoid(),
     lastOriginId: lastPost?.originId,
     lastPublishedAt: lastPost?.publishedAt ?? Date.now() / 1000,
     loader: candidate.loader,

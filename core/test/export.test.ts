@@ -1,50 +1,39 @@
-import { deepStrictEqual, equal } from 'node:assert'
-import { afterEach, beforeEach, test } from 'node:test'
-import { setTimeout } from 'node:timers/promises'
-import { readFile } from 'fs/promises'
 import './dom-parser.js'
 
+import { cleanStores } from 'nanostores'
+import { deepStrictEqual, equal } from 'node:assert'
+import { readFile } from 'node:fs/promises'
+import { afterEach, beforeEach, test } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
+
 import {
-  importedFeedsByCategory,
-  importedCategories,
-  importedFeeds,
-  reading,
-  submiting,
-  unLoadedFeeds,
-  selectAllImportedFeeds,
-  clearImportSelections,
-  toggleImportedCategory,
-  toggleImportedFeed,
-  handleImportFile,
-  submitImport,
-  loadFeeds
-} from '../index.js'
-import {
-  feedsByCategoryList,
+  clearExportedSelections,
   creating,
   exportedCategories,
   exportedFeeds,
-  selectAllExportedFeeds,
-  clearExportedSelections,
-  getOPMLBlob,
+  feedsByCategoryList,
   getInternalBlob,
+  getOPMLBlob,
+  handleImportFile,
+  importedCategories,
+  importedFeeds,
+  importedFeedsByCategory,
+  reading,
+  selectAllExportedFeeds,
+  submitImport,
+  submiting,
   toggleExportedCategory,
-  toggleExportedFeed
+  toggleExportedFeed,
+  unLoadedFeeds
 } from '../index.js'
-import { cleanStores } from 'nanostores'
-import { enableClientTest, cleanClientTest } from './utils.js'
-import path from 'node:path'
-import { addCategory, type FeedsByCategory } from '../category.js'
-import { addFeed } from '../feed.js'
-import { loadValue } from '@logux/client'
-import { getPosts, type PostValue } from '../post.js'
+import { cleanClientTest, enableClientTest } from './utils.js'
 
 async function loadFile(filePath: string): Promise<string> {
-  const jsonContent = await readFile(filePath, 'utf8')
-  const jsonFile = new File([jsonContent], 'feeds.json', {
+  let jsonContent = await readFile(filePath, 'utf8')
+  let jsonFile = new File([jsonContent], 'feeds.json', {
     type: 'application/json'
   })
-  await handleImportFile(jsonFile)
+  handleImportFile(jsonFile)
   await setTimeout(100)
 
   return jsonContent
@@ -83,8 +72,8 @@ test('should initialize with empty states', () => {
 test('should select all exported feeds', async () => {
   selectAllExportedFeeds()
 
-  const categories = exportedCategories.get()
-  const feeds = exportedFeeds.get()
+  let categories = exportedCategories.get()
+  let feeds = exportedFeeds.get()
 
   equal(categories.length > 0, true)
   equal(feeds.length > 0, true)
@@ -99,40 +88,40 @@ test('should clear export selections', async () => {
 })
 
 test('should toggle exported category', async () => {
-  const categoryId = '1GfRaXZCKbgtjuSnfzeew'
+  let categoryId = '1GfRaXZCKbgtjuSnfzeew'
 
   clearExportedSelections()
 
   toggleExportedCategory(categoryId)
 
-  const selectedCategories = exportedCategories.get()
-  const selectedFeeds = exportedFeeds.get()
+  let selectedCategories = exportedCategories.get()
+  let selectedFeeds = exportedFeeds.get()
 
   equal(selectedCategories.includes(categoryId), true)
   equal(selectedFeeds.length > 0, true)
 })
 
 test('should toggle exported feed', async () => {
-  const feedId = 'H4RZpnXPjlj_Hzl08ipBw'
-  const categoryId = 'general'
+  let feedId = 'H4RZpnXPjlj_Hzl08ipBw'
+  let categoryId = 'general'
 
   clearExportedSelections()
 
   toggleExportedFeed(feedId, categoryId)
 
-  const selectedFeeds = exportedFeeds.get()
-  const selectedCategories = exportedCategories.get()
+  let selectedFeeds = exportedFeeds.get()
+  let selectedCategories = exportedCategories.get()
 
   equal(selectedFeeds.includes(feedId), true)
   equal(selectedCategories.includes(categoryId), true)
 })
 
 test('should generate OPML blob', () => {
-  const blob = getOPMLBlob()
+  let blob = getOPMLBlob()
   equal(blob.type, 'application/xml')
 })
 
 test('should generate internal JSON blob', async () => {
-  const blob = await getInternalBlob(true)
+  let blob = await getInternalBlob(true)
   equal(blob.type, 'application/json')
 })
