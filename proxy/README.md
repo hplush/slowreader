@@ -20,6 +20,7 @@ _See the [full architecture guide](../README.md) first._
 - Proxy removes cookie headers.
 - Proxy set user’s IP in `X-Forwarded-For` header.
 - Proxy has timeout and response size limit.
+- Proxy has rate limit. The rate limiting is implemented using an in-memory map to track the number of requests made from each IP address to each domain and globally.
 
 ## Test Strategy
 
