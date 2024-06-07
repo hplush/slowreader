@@ -6,7 +6,7 @@ const PORT = process.env.PORT ?? 5284
 
 let allowsFrom: RegExp[]
 if (process.env.NODE_ENV !== 'production') {
-  allowsFrom = [/^http:\/\/localhost:5173/]
+  allowsFrom = [/^http:\/\/localhost:5284/]
 } else if (process.env.STAGING) {
   allowsFrom = [
     /^https:\/\/dev.slowreader.app/,
