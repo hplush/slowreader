@@ -67,7 +67,7 @@
   @supports (background: -webkit-named-image(i)) {
     .loader:indeterminate::-webkit-progress-value {
       transform: translateX(-50%);
-      animation: indeterminate 1.8s infinite cubic-bezier(0.45, 0, 0.55, 1);
+      animation: --indeterminate 1.8s infinite cubic-bezier(0.45, 0, 0.55, 1);
     }
   }
 
@@ -85,16 +85,16 @@
       background: var(--text-color);
       border-radius: 2px;
       transform: translateX(-50%);
-      animation: indeterminate 1.8s infinite cubic-bezier(0.45, 0, 0.55, 1);
+      animation: --indeterminate 1.8s infinite cubic-bezier(0.45, 0, 0.55, 1);
     }
   }
 
   .loader:indeterminate::-moz-progress-bar {
     transform: translateX(-50%);
-    animation: indeterminate 1.8s infinite cubic-bezier(0.45, 0, 0.55, 1);
+    animation: --indeterminate 1.8s infinite cubic-bezier(0.45, 0, 0.55, 1);
   }
 
-  @keyframes indeterminate {
+  @keyframes --indeterminate {
     0% {
       width: 25%;
       margin-inline-start: 12.5%;
