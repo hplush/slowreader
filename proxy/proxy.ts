@@ -2,6 +2,7 @@ import type { IncomingMessage, Server, ServerResponse } from 'node:http'
 import { createServer } from 'node:http'
 import { isIP } from 'node:net'
 import { styleText } from 'node:util'
+import { setTimeout } from 'node:timers/promises'
 
 class BadRequestError extends Error {
   code: number
@@ -36,18 +37,14 @@ const RATE_LIMIT = {
   }
 }
 
-const delay = (ms: number): Promise<void> => {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
+let rateLimitMap: Map<string, RateLimitInfo> = new Map()
+let requestQueue: Map<string, Promise<void>> = new Map()
 
-const rateLimitMap: Map<string, RateLimitInfo> = new Map()
-const requestQueue: Map<string, Promise<void>> = new Map()
+function isRateLimited(ip: string, domain: string): boolean {
+  let now = performance.now()
 
-const isRateLimited = (ip: string, domain: string): boolean => {
-  const now = performance.now()
-
-  const domainKey = `${ip}:${domain}`
-  const domainRateLimit = rateLimitMap.get(domainKey) || {
+  let domainKey = `${ip}:${domain}`
+  let domainRateLimit = rateLimitMap.get(domainKey) || {
     count: 0,
     timestamp: now
   }
@@ -61,8 +58,8 @@ const isRateLimited = (ip: string, domain: string): boolean => {
     return true
   }
 
-  const globalKey = ip
-  const globalRateLimit = rateLimitMap.get(globalKey) || {
+  let globalKey = ip
+  let globalRateLimit = rateLimitMap.get(globalKey) || {
     count: 0,
     timestamp: now
   }
@@ -84,7 +81,8 @@ const isRateLimited = (ip: string, domain: string): boolean => {
   return false
 }
 
-const handleError = (e: any, res: ServerResponse): void => {
+function handleError(e: unknown, res: ServerResponse): void {
+  // Known errors
   if (e instanceof Error && e.name === 'TimeoutError') {
     res.writeHead(400, { 'Content-Type': 'text/plain' })
     res.end('Timeout')
@@ -92,6 +90,8 @@ const handleError = (e: any, res: ServerResponse): void => {
     res.writeHead(e.code, { 'Content-Type': 'text/plain' })
     res.end(e.message)
   } else {
+    // Unknown or Internal errors
+    /* c8 ignore next 9 */
     if (e instanceof Error) {
       process.stderr.write(styleText('red', e.stack ?? e.message) + '\n')
     } else if (typeof e === 'string') {
@@ -102,7 +102,7 @@ const handleError = (e: any, res: ServerResponse): void => {
   }
 }
 
-const processRequest = async (
+let processRequest = async (
   req: IncomingMessage,
   res: ServerResponse,
   config: ProxyConfig,
@@ -110,11 +110,12 @@ const processRequest = async (
   parsedUrl: URL
 ): Promise<void> => {
   try {
+    // Remove all cookie headers so they will not be set on proxy domain
     delete req.headers.cookie
     delete req.headers['set-cookie']
     delete req.headers.host
 
-    const targetResponse = await fetch(url, {
+    let targetResponse = await fetch(url, {
       headers: {
         ...(req.headers as HeadersInit),
         'host': new URL(url).host,
@@ -124,7 +125,7 @@ const processRequest = async (
       signal: AbortSignal.timeout(config.timeout)
     })
 
-    const length = targetResponse.headers.has('content-length')
+    let length = targetResponse.headers.has('content-length')
       ? parseInt(targetResponse.headers.get('content-length')!)
       : undefined
 
@@ -140,7 +141,7 @@ const processRequest = async (
     })
 
     if (targetResponse.body) {
-      const reader = targetResponse.body.getReader()
+      let reader = targetResponse.body.getReader()
       let size = 0
       let chunk: ReadableStreamReadResult<Uint8Array>
       do {
@@ -160,7 +161,7 @@ const processRequest = async (
   }
 }
 
-const handleRequestWithDelay = async (
+let handleRequestWithDelay = async (
   req: IncomingMessage,
   res: ServerResponse,
   config: ProxyConfig,
@@ -168,10 +169,10 @@ const handleRequestWithDelay = async (
   url: string,
   parsedUrl: URL
 ): Promise<void> => {
-  const isRateLimitedFlag = isRateLimited(ip, parsedUrl.hostname)
+  let isRateLimitedFlag = isRateLimited(ip, parsedUrl.hostname)
   if (isRateLimitedFlag) {
-    const existingQueue = requestQueue.get(ip) || Promise.resolve()
-    const delayedRequest = existingQueue.then(() => delay(1000)) // Add a delay of 1 second
+    let existingQueue = requestQueue.get(ip) || Promise.resolve()
+    let delayedRequest = existingQueue.then(() => setTimeout(1000))
     requestQueue.set(ip, delayedRequest)
     await delayedRequest
   }
@@ -179,13 +180,13 @@ const handleRequestWithDelay = async (
   await processRequest(req, res, config, url, parsedUrl)
 }
 
-export const createProxyServer = (config: ProxyConfig): Server => {
+export function createProxyServer(config: ProxyConfig): Server {
   return createServer(async (req: IncomingMessage, res: ServerResponse) => {
     let sent = false
 
     try {
-      const ip = req.socket.remoteAddress!
-      const url = decodeURIComponent((req.url ?? '').slice(1))
+      let ip = req.socket.remoteAddress!
+      let url = decodeURIComponent((req.url ?? '').slice(1))
 
       let parsedUrl: URL
       try {
@@ -206,7 +207,7 @@ export const createProxyServer = (config: ProxyConfig): Server => {
         throw new BadRequestError('Only GET is allowed', 405)
       }
 
-      // We only allow request from our app
+      // We only allow requests from our app
       if (
         !req.headers.origin ||
         !config.allowsFrom.some(allowed => allowed.test(req.headers.origin!))
