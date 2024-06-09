@@ -5,7 +5,6 @@
   },
   "postCreateCommand": "pnpm install --force",
   "postStartCommand": "zsh",
-  "forwardPorts": [5173, 5284, 6006, 31337],
   "customizations": {
     "vscode": {
       "extensions": [
@@ -21,20 +20,6 @@
         "yzhang.markdown-all-in-one",
         "davidlday.languagetool-linter"
       ]
-    }
-  },
-  "portsAttributes": {
-    "5173": {
-      "label": "Web Client"
-    },
-    "6006": {
-      "label": "Storybook"
-    },
-    "5284": {
-      "label": "CORS Proxy"
-    },
-    "31337": {
-      "label": "Server"
     }
   }
 }
