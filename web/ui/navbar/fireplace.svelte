@@ -37,14 +37,14 @@
   :global(a:hover) .navbar-fireplace_fire.is-main,
   :global(a:focus-visible) .navbar-fireplace_fire.is-main {
     z-index: 2;
-    animation: navbar-fire-rotating 2s infinite ease-in-out;
+    animation: --navbar-fire-rotating 2s infinite ease-in-out;
   }
 
   :global(a:hover) .navbar-fireplace_fire.is-second,
   :global(a:focus-visible) .navbar-fireplace_fire.is-second {
     z-index: 1;
     color: var(--fire2-color);
-    animation: navbar-fire-rotating 3s infinite ease-in-out 0.5s;
+    animation: --navbar-fire-rotating 3s infinite ease-in-out 0.5s;
   }
 
   :global(a:hover) .navbar-fireplace::after,
@@ -58,7 +58,7 @@
     background: var(--hover-color);
   }
 
-  @keyframes navbar-fire-rotating {
+  @keyframes --navbar-fire-rotating {
     25% {
       rotate: 20deg;
     }
