@@ -99,6 +99,11 @@ test('should toggle exported category', async () => {
 
   equal(selectedCategories.includes(categoryId), true)
   equal(selectedFeeds.length > 0, true)
+
+  toggleExportedCategory(categoryId)
+
+  selectedCategories = exportedCategories.get()
+  equal(selectedCategories.includes(categoryId), false)
 })
 
 test('should toggle exported feed', async () => {
@@ -114,11 +119,23 @@ test('should toggle exported feed', async () => {
 
   equal(selectedFeeds.includes(feedId), true)
   equal(selectedCategories.includes(categoryId), true)
+
+  toggleExportedFeed(feedId, categoryId)
+
+  selectedFeeds = exportedFeeds.get()
+  selectedCategories = exportedCategories.get()
+
+  equal(selectedFeeds.includes(feedId), false)
+  equal(selectedCategories.includes(categoryId), false)
 })
 
-test('should generate OPML blob', () => {
+test('should generate OPML blob', async () => {
+  selectAllExportedFeeds()
   let blob = getOPMLBlob()
+
   equal(blob.type, 'application/xml')
+  const text = await blob.text()
+  equal(text.includes('https://blog.appsignal.com/feed.xml'), true)
 })
 
 test('should generate internal JSON blob', async () => {

@@ -4,6 +4,11 @@
 <title>Feeds</title>
 </head>
 <body>
+ <outline title="overreacted — A blog by Dan Abramov"
+      text="overreacted — A blog by Dan Abramov" type="rss"
+      htmlUrl="https://overreacted.io/" xmlUrl="https://overreacted.io/rss.xml" />
+    <outline type="rss" text="The Fly Blog" htmlUrl="https://fly.io/blog/"
+      xmlUrl="https://fly.io/blog/feed.xml" title="The Fly Blog" />
 <outline text="General">
 <outline text="AppSignal" type="atom" xmlUrl="https://blog.appsignal.com/feed.xml" />
 <outline text="Bartosz Ciechanowski" type="rss" xmlUrl="https://ciechanow.ski/atom.xml" />
