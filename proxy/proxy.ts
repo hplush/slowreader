@@ -1,10 +1,10 @@
 import type { IncomingMessage, Server, ServerResponse } from 'node:http'
 import { createServer } from 'node:http'
 import { isIP } from 'node:net'
-import { styleText } from 'node:util'
 import { setTimeout } from 'node:timers/promises'
+import { styleText } from 'node:util'
 
-class BadRequestError extends Error {
+export class BadRequestError extends Error {
   code: number
 
   constructor(message: string, code = 400) {
@@ -14,12 +14,12 @@ class BadRequestError extends Error {
   }
 }
 
-interface RateLimitInfo {
+export interface RateLimitInfo {
   count: number
   timestamp: number
 }
 
-interface ProxyConfig {
+export interface ProxyConfig {
   allowLocalhost?: boolean
   allowsFrom: RegExp[]
   maxSize: number
@@ -27,23 +27,23 @@ interface ProxyConfig {
 }
 
 const RATE_LIMIT = {
-  PER_DOMAIN: {
-    LIMIT: 500,
-    DURATION: 60 * 1000
-  },
   GLOBAL: {
-    LIMIT: 5000,
-    DURATION: 60 * 1000
+    DURATION: 60 * 1000,
+    LIMIT: 5000
+  },
+  PER_DOMAIN: {
+    DURATION: 60 * 1000,
+    LIMIT: 500
   }
 }
 
-let rateLimitMap: Map<string, RateLimitInfo> = new Map()
+export let rateLimitMap: Map<string, RateLimitInfo> = new Map()
 let requestQueue: Map<string, Promise<void>> = new Map()
 
-function isRateLimited(
+export function isRateLimited(
   key: string,
   store: Map<string, RateLimitInfo>,
-  limit: { LIMIT: number; DURATION: number }
+  limit: { DURATION: number; LIMIT: number }
 ): boolean {
   let now = performance.now()
   let rateLimitInfo = store.get(key) || { count: 0, timestamp: now }
@@ -63,7 +63,7 @@ function isRateLimited(
   return false
 }
 
-function checkRateLimit(ip: string, domain: string): boolean {
+export function checkRateLimit(ip: string, domain: string): boolean {
   return ['domain', 'global'].some(type => {
     let key = type === 'domain' ? `${ip}:${domain}` : ip
     let limit = type === 'domain' ? RATE_LIMIT.PER_DOMAIN : RATE_LIMIT.GLOBAL
@@ -71,7 +71,7 @@ function checkRateLimit(ip: string, domain: string): boolean {
   })
 }
 
-function handleError(e: unknown, res: ServerResponse): void {
+export function handleError(e: unknown, res: ServerResponse): void {
   // Known errors
   if (e instanceof Error && e.name === 'TimeoutError') {
     res.writeHead(400, { 'Content-Type': 'text/plain' })
@@ -92,12 +92,11 @@ function handleError(e: unknown, res: ServerResponse): void {
   }
 }
 
-let processRequest = async (
+export let processRequest = async (
   req: IncomingMessage,
   res: ServerResponse,
   config: ProxyConfig,
-  url: string,
-  parsedUrl: URL
+  url: string
 ): Promise<void> => {
   try {
     // Remove all cookie headers so they will not be set on proxy domain
@@ -151,7 +150,7 @@ let processRequest = async (
   }
 }
 
-let handleRequestWithDelay = async (
+export let handleRequestWithDelay = async (
   req: IncomingMessage,
   res: ServerResponse,
   config: ProxyConfig,
@@ -160,19 +159,17 @@ let handleRequestWithDelay = async (
   parsedUrl: URL
 ): Promise<void> => {
   if (checkRateLimit(ip, parsedUrl.hostname)) {
-    const existingQueue = requestQueue.get(ip) || Promise.resolve()
-    const delayedRequest = existingQueue.then(() => setTimeout(1000))
+    let existingQueue = requestQueue.get(ip) || Promise.resolve()
+    let delayedRequest = existingQueue.then(() => setTimeout(1000))
     requestQueue.set(ip, delayedRequest)
     await delayedRequest
   }
 
-  await processRequest(req, res, config, url, parsedUrl)
+  await processRequest(req, res, config, url)
 }
 
 export function createProxyServer(config: ProxyConfig): Server {
   return createServer(async (req: IncomingMessage, res: ServerResponse) => {
-    let sent = false
-
     try {
       let ip = req.socket.remoteAddress!
       let url = decodeURIComponent((req.url ?? '').slice(1))
