@@ -20,11 +20,14 @@ let $unLoadedFeeds = atom<string[]>([])
 let $reading = atom<boolean>(false)
 let $submiting = atom<boolean>(false)
 
+let $importErrors = atom<string[]>([])
+
 export const importedCategories = readonlyExport($importedCategories)
 export const importedFeeds = readonlyExport($importedFeeds)
 export const reading = readonlyExport($reading)
 export const submiting = readonlyExport($submiting)
 export const unLoadedFeeds = readonlyExport($unLoadedFeeds)
+export const importErrors = readonlyExport($importErrors)
 
 let $categories = atom<CategoryValue[]>([])
 let $feeds = atom<FeedValue[]>([])
@@ -100,144 +103,133 @@ export function toggleImportedFeed(feedId: string, categoryId: string): void {
 }
 
 export function handleImportFile(file: File): Promise<void> {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     $reading.set(true)
     $importedFeedsByCategory.set([])
     importSubscribe()
     let reader = new FileReader()
     reader.onload = async function (e) {
-      try {
-        let content = e.target?.result as string
-        let fileExtension = file.name.split('.').pop()?.toLowerCase()
+      let content = e.target?.result as string
+      let fileExtension = file.name.split('.').pop()?.toLowerCase()
 
-        if (fileExtension === 'json') {
-          try {
-            let jsonData = JSON.parse(content)
-            if (jsonData.type === 'feedsByCategory') {
-              $importedFeedsByCategory.set(jsonData.data)
-              importSubscribe()
-              selectAllImportedFeeds()
-            } else {
-              throw new Error('Invalid JSON structure')
-            }
-          } catch (jsonError) {
-            throw new Error('Failed to parse JSON or invalid structure')
+      if (fileExtension === 'json') {
+        try {
+          let jsonData = JSON.parse(content)
+          if (jsonData.type === 'feedsByCategory') {
+            $importedFeedsByCategory.set(jsonData.data)
+            importSubscribe()
+            selectAllImportedFeeds()
+          } else {
+            $importErrors.set([
+              ...$importErrors.get(),
+              'Invalid JSON structure'
+            ])
           }
-        } else if (fileExtension === 'opml') {
-          try {
-            let parser = new DOMParser()
-            let xmlDoc = parser.parseFromString(content, 'text/xml')
+        } catch (jsonError) {
+          $importErrors.set(['Failed to parse JSON or invalid structure'])
+        }
+      } else if (fileExtension === 'opml') {
+        try {
+          let parser = new DOMParser()
+          let xmlDoc = parser.parseFromString(content, 'text/xml')
 
-            if (xmlDoc.documentElement.nodeName === 'opml') {
-              let feedsByCategory: FeedsByCategory = []
-              let outlines = xmlDoc.getElementsByTagName('outline')
+          if (xmlDoc.documentElement.nodeName === 'opml') {
+            let feedsByCategory: FeedsByCategory = []
+            let outlines = xmlDoc.getElementsByTagName('outline')
 
-              // General category to hold uncategorized feeds
-              let generalCategory: CategoryValue = {
-                id: 'general',
-                title: 'General'
-              }
-              let generalFeeds: FeedValue[] = []
+            let generalCategory: CategoryValue = {
+              id: 'general',
+              title: 'General'
+            }
+            let generalFeeds: FeedValue[] = []
 
-              // Flag to track the existence of the General category in the file
-              let generalCategoryExists = false
+            let generalCategoryExists = false
 
-              for (let i = 0; i < outlines.length; i++) {
-                let outline = outlines[i]
-                if (outline?.parentElement) {
-                  if (
-                    outline.parentElement.nodeName === 'body' &&
-                    outline.children.length > 0
-                  ) {
-                    // Top-level outline element with children, considered a category
-                    let categoryTitle = outline.getAttribute('text')!
-                    let categoryId =
-                      categoryTitle === 'General'
-                        ? categoryTitle.toLowerCase()
-                        : nanoid()
+            for (let i = 0; i < outlines.length; i++) {
+              let outline = outlines[i]
+              if (outline?.parentElement) {
+                if (
+                  outline.parentElement.nodeName === 'body' &&
+                  outline.children.length > 0
+                ) {
+                  let categoryTitle = outline.getAttribute('text')!
+                  let categoryId =
+                    categoryTitle === 'General'
+                      ? categoryTitle.toLowerCase()
+                      : nanoid()
 
-                    if (categoryId === 'general') {
-                      generalCategoryExists = true
-                    }
+                  if (categoryId === 'general') {
+                    generalCategoryExists = true
+                  }
 
-                    let category: CategoryValue = {
-                      id: categoryId,
-                      title: categoryTitle
-                    }
-                    let feeds: FeedValue[] = []
+                  let category: CategoryValue = {
+                    id: categoryId,
+                    title: categoryTitle
+                  }
+                  let feeds: FeedValue[] = []
 
-                    let childOutlines = outline.children
-                    for (let j = 0; j < childOutlines.length; j++) {
-                      let feedOutline = childOutlines[j]
-                      let feedUrl = feedOutline?.getAttribute('xmlUrl')
-                      if (feedUrl) {
-                        try {
-                          let feed = await createFeedFromUrl(
-                            feedUrl,
-                            category.id
-                          )
-                          feeds.push(feed)
-                        } catch (error) {
-                          $unLoadedFeeds.set([...$unLoadedFeeds.get(), feedUrl])
-                        }
-                      }
-                    }
-                    feedsByCategory.push([category, feeds])
-                  } else if (
-                    outline.parentElement.nodeName === 'body' &&
-                    outline.getAttribute('xmlUrl')
-                  ) {
-                    // Feed directly under body without a parent category, add to General
-                    let feedUrl = outline.getAttribute('xmlUrl')
+                  let childOutlines = outline.children
+                  for (let j = 0; j < childOutlines.length; j++) {
+                    let feedOutline = childOutlines[j]
+                    let feedUrl = feedOutline?.getAttribute('xmlUrl')
                     if (feedUrl) {
                       try {
-                        let feed = await createFeedFromUrl(
-                          feedUrl,
-                          generalCategory.id
-                        )
-                        generalFeeds.push(feed)
+                        let feed = await createFeedFromUrl(feedUrl, category.id)
+                        feeds.push(feed)
                       } catch (error) {
                         $unLoadedFeeds.set([...$unLoadedFeeds.get(), feedUrl])
                       }
                     }
                   }
-                }
-              }
-
-              if (generalCategoryExists) {
-                // If the General category already exists, add feeds without parent to it
-                for (let i = 0; i < feedsByCategory.length; i++) {
-                  let categoryFeeds = feedsByCategory[i] // Get the array element
-                  if (categoryFeeds && categoryFeeds[0].id === 'general') {
-                    categoryFeeds[1].push(...generalFeeds)
-                    break
+                  feedsByCategory.push([category, feeds])
+                } else if (
+                  outline.parentElement.nodeName === 'body' &&
+                  outline.getAttribute('xmlUrl')
+                ) {
+                  let feedUrl = outline.getAttribute('xmlUrl')
+                  if (feedUrl) {
+                    try {
+                      let feed = await createFeedFromUrl(
+                        feedUrl,
+                        generalCategory.id
+                      )
+                      generalFeeds.push(feed)
+                    } catch (error) {
+                      $unLoadedFeeds.set([...$unLoadedFeeds.get(), feedUrl])
+                    }
                   }
                 }
-              } else {
-                // If there is no General category, create it
-                feedsByCategory.push([generalCategory, generalFeeds])
               }
-
-              $importedFeedsByCategory.set(feedsByCategory)
-              importSubscribe()
-              selectAllImportedFeeds()
-            } else {
-              throw new Error('File is not in OPML format')
             }
-          } catch (xmlError) {
-            throw new Error('File is not in OPML format')
+
+            if (generalCategoryExists) {
+              for (let i = 0; i < feedsByCategory.length; i++) {
+                let categoryFeeds = feedsByCategory[i]
+                if (categoryFeeds && categoryFeeds[0].id === 'general') {
+                  categoryFeeds[1].push(...generalFeeds)
+                  break
+                }
+              }
+            } else {
+              feedsByCategory.push([generalCategory, generalFeeds])
+            }
+
+            $importedFeedsByCategory.set(feedsByCategory)
+            importSubscribe()
+            selectAllImportedFeeds()
+          } else {
+            $importErrors.set(['File is not in OPML format'])
           }
-        } else {
-          throw new Error('Unsupported file format')
+        } catch (xmlError) {
+          $importErrors.set(['File is not in OPML format'])
         }
-      } catch (error) {
-        reject(error)
-        return
-      } finally {
-        $reading.set(false)
-        if (!e.target?.error) {
-          resolve()
-        }
+      } else {
+        $importErrors.set(['Unsupported file format'])
+      }
+
+      $reading.set(false)
+      if (!e.target?.error) {
+        resolve()
       }
     }
     reader.readAsText(file)

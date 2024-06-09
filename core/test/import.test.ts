@@ -1,7 +1,7 @@
 import './dom-parser.js'
 
 import { cleanStores } from 'nanostores'
-import { deepStrictEqual, equal, rejects } from 'node:assert'
+import { deepStrictEqual, equal } from 'node:assert'
 import { readFile } from 'node:fs/promises'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -12,6 +12,7 @@ import {
   importedCategories,
   importedFeeds,
   importedFeedsByCategory,
+  importErrors,
   loadFeeds,
   reading,
   selectAllImportedFeeds,
@@ -60,6 +61,7 @@ function createFile(content: string, name: string, type: string): File {
 
 beforeEach(() => {
   enableClientTest()
+  importErrors.set([]) // Clear importErrors before each test
 })
 
 afterEach(async () => {
@@ -69,7 +71,8 @@ afterEach(async () => {
     importedFeeds,
     reading,
     submiting,
-    unLoadedFeeds
+    unLoadedFeeds,
+    importErrors
   )
   await setTimeout(10)
   await cleanClientTest()
@@ -80,6 +83,7 @@ test('should initialize with empty states', () => {
   deepStrictEqual(importedCategories.get(), [])
   deepStrictEqual(importedFeeds.get(), [])
   deepStrictEqual(unLoadedFeeds.get(), [])
+  deepStrictEqual(importErrors.get(), [])
   equal(reading.get(), false)
   equal(submiting.get(), false)
 })
@@ -88,6 +92,7 @@ test('should handle importing a opml file', async () => {
   await loadFile('../loader-tests/export-opml-example.opml')
 
   deepStrictEqual(importedCategories.get().includes('general'), true)
+  deepStrictEqual(importErrors.get().length, 0)
 })
 
 test('should handle importing a JSON file', async () => {
@@ -105,14 +110,16 @@ test('should handle importing a JSON file', async () => {
     'BEKaXZ5-XScobcV0hKc4I',
     'qR4_med2A8z-N88MZsU6P'
   ])
+  deepStrictEqual(importErrors.get().length, 0)
 })
 
 test('should handle invalid file format', async () => {
   let invalidFile = new File([''], 'invalid.format')
 
-  await rejects(async () => {
-    await handleImportFile(invalidFile)
-  }, new Error('Unsupported file format'))
+  await handleImportFile(invalidFile)
+  await setTimeout(100) // Wait for importErrors to be updated
+
+  deepStrictEqual(importErrors.get(), ['Unsupported file format'])
 })
 
 test('should handle invalid OPML format', async () => {
@@ -120,19 +127,21 @@ test('should handle invalid OPML format', async () => {
     type: 'text/xml'
   })
 
-  await rejects(async () => {
-    await handleImportFile(invalidOpmlFile)
-  }, new Error('File is not in OPML format'))
+  await handleImportFile(invalidOpmlFile)
+  await setTimeout(100) // Wait for importErrors to be updated
+
+  deepStrictEqual(importErrors.get(), ['File is not in OPML format'])
 })
 
 test('should handle invalid JSON format', async () => {
-  let invalidOpmlFile = new File(['{"invalid": true}'], 'invalid.json', {
+  let invalidJsonFile = new File(['{"invalid": true}'], 'invalid.json', {
     type: 'application/json'
   })
 
-  await rejects(async () => {
-    await handleImportFile(invalidOpmlFile)
-  }, new Error('Failed to parse JSON or invalid structure'))
+  await handleImportFile(invalidJsonFile)
+  await setTimeout(100) // Wait for importErrors to be updated
+
+  deepStrictEqual(importErrors.get(), ['Invalid JSON structure'])
 })
 
 test('should select all imported feeds', async () => {
@@ -194,6 +203,7 @@ test('should handle import file and set states', async () => {
   deepStrictEqual(importedFeedsByCategory.get().length > 0, true)
   deepStrictEqual(importedCategories.get().length > 0, true)
   deepStrictEqual(importedFeeds.get().length > 0, true)
+  deepStrictEqual(importErrors.get().length, 0)
 })
 
 test('should submit import and clear states and feeds imported', async () => {
@@ -203,6 +213,7 @@ test('should submit import and clear states and feeds imported', async () => {
 
   deepStrictEqual(importedFeedsByCategory.get().length, 0)
   equal(feeds.length, 4)
+  deepStrictEqual(importErrors.get().length, 0)
 })
 
 test('should handle OPML without General category', async () => {
@@ -234,4 +245,67 @@ test('should handle OPML without General category', async () => {
   let categories = importedCategories.get()
 
   equal(categories.includes('general'), true)
+  deepStrictEqual(importErrors.get().length, 0)
+})
+
+test('should handle invalid JSON structure', async () => {
+  let invalidJsonStructureFile = new File(
+    ['{"type": "invalidStructure"}'],
+    'invalid.json',
+    { type: 'application/json' }
+  )
+
+  await handleImportFile(invalidJsonStructureFile)
+  await setTimeout(100)
+
+  deepStrictEqual(importErrors.get(), ['Invalid JSON structure'])
+})
+
+test('should handle invalid OPML XML format', async () => {
+  let originalDOMParser = global.DOMParser
+
+  global.DOMParser = class {
+    parseFromString(): never {
+      throw new Error('Parsing error')
+    }
+  } as any
+
+  ;(global as any).DOMParser = class {
+    parseFromString(): Document {
+      throw new Error('Parsing error')
+    }
+  }
+
+  let invalidOpmlFile = new File(
+    ['<opml><invalid></invalid>'],
+    'invalid.opml',
+    {
+      type: 'text/xml'
+    }
+  )
+
+  await handleImportFile(invalidOpmlFile)
+  await setTimeout(100) // Wait for importErrors to be updated
+
+  deepStrictEqual(importErrors.get(), ['File is not in OPML format'])
+
+  global.DOMParser = originalDOMParser
+})
+
+test('should handle unexpected errors', async () => {
+  let faultyFile = createFile('', 'faulty.json', 'application/json')
+
+  let originalParse = JSON.parse
+  JSON.parse = () => {
+    throw new Error('Unexpected error')
+  }
+
+  await handleImportFile(faultyFile)
+  await setTimeout(100)
+
+  deepStrictEqual(importErrors.get(), [
+    'Failed to parse JSON or invalid structure'
+  ])
+
+  JSON.parse = originalParse
 })

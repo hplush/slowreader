@@ -4,6 +4,7 @@
     importedCategories,
     importedFeeds,
     importedFeedsByCategory,
+    importErrors,
     reading,
     selectAllImportedFeeds,
     submitImport,
@@ -50,6 +51,14 @@
       <input disabled={$reading} type="file" on:change={handleFileChange} />
       {#if $reading}
         <Loader />
+      {/if}
+      {#if $importErrors.length}
+        <h4>Error Messages</h4>
+        <ul>
+          {#each $importErrors as error (error)}
+            <li>{error}</li>
+          {/each}
+        </ul>
       {/if}
     </Card>
     {#if $unLoadedFeeds.length}
