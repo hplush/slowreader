@@ -44,7 +44,8 @@ export function findLinksByType(text: TextResponse, type: string): string[] {
 
 export function findAnchorHrefs(
   text: TextResponse,
-  hrefPattern: RegExp
+  hrefPattern: RegExp,
+  textPattern?: RegExp
 ): string[] {
   let document = text.parseXml()
   if (!document) return []
@@ -52,6 +53,9 @@ export function findAnchorHrefs(
     .filter(a => {
       let href = a.getAttribute('href')
       if (!href) return false
+      if (textPattern && a.textContent && textPattern.test(a.textContent)) {
+        return true
+      }
       return hrefPattern.test(href)
     })
     .map(a => buildFullURL(a, text.url))
