@@ -269,7 +269,6 @@ test('should handle invalid OPML XML format', async () => {
       throw new Error('Parsing error')
     }
   } as any
-
   ;(global as any).DOMParser = class {
     parseFromString(): Document {
       throw new Error('Parsing error')
