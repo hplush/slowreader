@@ -25,9 +25,9 @@ feeds:
   - title: LiveJournal
     url: https://vintage-ads.livejournal.com/data/atom
 
-  - title: Aegea
-    url: https://ilyabirman.ru/meanwhile/json/
-    homeUrl: https://ilyabirman.ru/meanwhile/
+  # - title: Aegea
+  #   url: https://ilyabirman.ru/meanwhile/json/
+  #   homeUrl: https://ilyabirman.ru/meanwhile/
 
   - title: Pika
     url: https://wavelengths.online/posts_feed
