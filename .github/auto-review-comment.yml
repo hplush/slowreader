@@ -2,7 +2,7 @@
 - checks:
     - paths: "package.json"
       message: |
-        [ ] If you added a new dependency, check our [requirements](https://github.com/hplush/slowreader/blob/main/README.md#dependencies).
+        - [ ] If you added a new dependency, check our [requirements](https://github.com/hplush/slowreader/blob/main/README.md#dependencies).
     - paths: web/main/
       message: |
         Since you’ve made changes to files in `web/main/` consider these points:
