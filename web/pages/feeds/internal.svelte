@@ -88,7 +88,7 @@
       toggleExportedFeed(e.detail.feedId, e.detail.categoryId)
     }}
   />
-  <div class="feeds-export_submit">
+  <div class="feeds-internal_submit">
     <Button disabled={$creating} type="submit">{$t.submitInternal}</Button>
     {#if $creating}
       <Loader />

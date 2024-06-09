@@ -1,4 +1,5 @@
 import './dom-parser.js'
+
 import { cleanStores } from 'nanostores'
 import { deepStrictEqual, equal, rejects } from 'node:assert'
 import { readFile } from 'node:fs/promises'
@@ -7,7 +8,6 @@ import { setTimeout } from 'node:timers/promises'
 
 import {
   clearImportSelections,
-  feedsByCategory,
   handleImportFile,
   importedCategories,
   importedFeeds,
@@ -24,7 +24,7 @@ import {
 import { cleanClientTest, enableClientTest } from './utils.js'
 
 async function loadFile(filePath: string): Promise<string> {
-  const fileExtension = filePath.split('.').pop()
+  let fileExtension = filePath.split('.').pop()
 
   let fileContent = await readFile(filePath, 'utf8')
   let fileInstance = new File([fileContent], 'feeds.json', {
@@ -108,7 +108,7 @@ test('should handle importing a JSON file', async () => {
 })
 
 test('should handle invalid file format', async () => {
-  const invalidFile = new File([''], 'invalid.format')
+  let invalidFile = new File([''], 'invalid.format')
 
   await rejects(async () => {
     await handleImportFile(invalidFile)
@@ -116,7 +116,7 @@ test('should handle invalid file format', async () => {
 })
 
 test('should handle invalid OPML format', async () => {
-  const invalidOpmlFile = new File(['<opml><invalid></opml>'], 'invalid.opml', {
+  let invalidOpmlFile = new File(['<opml><invalid></opml>'], 'invalid.opml', {
     type: 'text/xml'
   })
 
@@ -126,7 +126,7 @@ test('should handle invalid OPML format', async () => {
 })
 
 test('should handle invalid JSON format', async () => {
-  const invalidOpmlFile = new File(['{"invalid": true}'], 'invalid.json', {
+  let invalidOpmlFile = new File(['{"invalid": true}'], 'invalid.json', {
     type: 'application/json'
   })
 
@@ -206,7 +206,7 @@ test('should submit import and clear states and feeds imported', async () => {
 })
 
 test('should handle OPML without General category', async () => {
-  const opmlContentWithoutGeneral = `<?xml version="1.0" encoding="UTF-8"?>
+  let opmlContentWithoutGeneral = `<?xml version="1.0" encoding="UTF-8"?>
 <opml version="2.0">
 <head>
 <title>Feeds</title>
@@ -223,7 +223,7 @@ test('should handle OPML without General category', async () => {
 </opml>
 `
 
-  const fileWithoutGeneral = createFile(
+  let fileWithoutGeneral = createFile(
     opmlContentWithoutGeneral,
     'withoutGeneral.opml',
     'text/xml'
@@ -231,7 +231,7 @@ test('should handle OPML without General category', async () => {
   await handleImportFile(fileWithoutGeneral)
   await setTimeout(1000)
 
-  const categories = importedCategories.get()
+  let categories = importedCategories.get()
 
   equal(categories.includes('general'), true)
 })

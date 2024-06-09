@@ -134,7 +134,7 @@ test('should generate OPML blob', async () => {
   let blob = getOPMLBlob()
 
   equal(blob.type, 'application/xml')
-  const text = await blob.text()
+  let text = await blob.text()
   equal(text.includes('https://blog.appsignal.com/feed.xml'), true)
 })
 

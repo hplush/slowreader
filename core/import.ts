@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid'
 import { atom } from 'nanostores'
 
 import {
@@ -8,7 +9,6 @@ import {
 import { addFeed, type FeedValue } from './feed.js'
 import { readonlyExport } from './lib/stores.js'
 import { createFeedFromUrl } from './preview.js'
-import { nanoid } from 'nanoid'
 
 let $importedFeedsByCategory = atom<FeedsByCategory>([])
 export const importedFeedsByCategory = readonlyExport($importedFeedsByCategory)
