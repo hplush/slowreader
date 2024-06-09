@@ -70,8 +70,16 @@
       toggleExportedFeed(e.detail.feedId, e.detail.categoryId)
     }}
   />
-  <Button disabled={$creating} type="submit">{$t.submitOPML}</Button>
-  {#if $creating}
-    <Loader />
-  {/if}
+  <div class="feeds-internal_submit">
+    <Button disabled={$creating} type="submit">{$t.submitOPML}</Button>
+    {#if $creating}
+      <Loader />
+    {/if}
+  </div>
 </form>
+
+<style>
+  .feeds-internal_submit {
+    margin-top: 20px;
+  }
+</style>

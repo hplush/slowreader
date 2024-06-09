@@ -95,7 +95,7 @@
       </ul>
     {/if}
   </div>
-  <div id="feeds-categories_edit" slot="two">
+  <div slot="two">
     {#if feedId}
       <FeedsEdit {feedId} />
     {/if}
