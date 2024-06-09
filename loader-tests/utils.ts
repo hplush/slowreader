@@ -229,12 +229,23 @@ function normalizeUrl(url: string): string {
     .toLowerCase()
 }
 
-export async function findRSSfromHome(feed: LoaderTestFeed): Promise<boolean> {
+export async function findRSSfromHome(
+  feed: LoaderTestFeed,
+  tries = 0
+): Promise<boolean> {
   let unbindPreview = previewCandidates.listen(() => {})
   try {
     let homeUrl = feed.homeUrl || getHomeUrl(feed.url)
     setPreviewUrl(homeUrl)
-    await timeout(10_000, waitFor(previewCandidatesLoading, false))
+    try {
+      await timeout(10_000, waitFor(previewCandidatesLoading, false))
+    } catch (e) {
+      if (e instanceof Error && e.message === 'Timeout' && tries > 0) {
+        return findRSSfromHome(feed, tries - 1)
+      } else {
+        throw e
+      }
+    }
     let normalizedUrls = previewCandidates.get().map(i => normalizeUrl(i.url))
     if (normalizedUrls.includes(normalizeUrl(feed.url))) {
       success(`Feed ${feed.title} has feed URL at home`)
