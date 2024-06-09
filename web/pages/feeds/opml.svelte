@@ -70,7 +70,7 @@
       toggleExportedFeed(e.detail.feedId, e.detail.categoryId)
     }}
   />
-  <div class="feeds-internal_submit">
+  <div class="feeds-opml_submit">
     <Button disabled={$creating} type="submit">{$t.submitOPML}</Button>
     {#if $creating}
       <Loader />
@@ -79,7 +79,7 @@
 </form>
 
 <style>
-  .feeds-internal_submit {
+  .feeds-opml_submit {
     margin-top: 20px;
   }
 </style>
