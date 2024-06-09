@@ -40,45 +40,35 @@ const RATE_LIMIT = {
 let rateLimitMap: Map<string, RateLimitInfo> = new Map()
 let requestQueue: Map<string, Promise<void>> = new Map()
 
-function isRateLimited(ip: string, domain: string): boolean {
+function isRateLimited(
+  key: string,
+  store: Map<string, RateLimitInfo>,
+  limit: { LIMIT: number; DURATION: number }
+): boolean {
   let now = performance.now()
+  let rateLimitInfo = store.get(key) || { count: 0, timestamp: now }
 
-  let domainKey = `${ip}:${domain}`
-  let domainRateLimit = rateLimitMap.get(domainKey) || {
-    count: 0,
-    timestamp: now
+  if (now - rateLimitInfo.timestamp > limit.DURATION) {
+    rateLimitInfo.count = 0
+    rateLimitInfo.timestamp = now
   }
 
-  if (now - domainRateLimit.timestamp > RATE_LIMIT.PER_DOMAIN.DURATION) {
-    domainRateLimit.count = 0
-    domainRateLimit.timestamp = now
-  }
-
-  if (domainRateLimit.count >= RATE_LIMIT.PER_DOMAIN.LIMIT) {
+  if (rateLimitInfo.count >= limit.LIMIT) {
     return true
   }
 
-  let globalKey = ip
-  let globalRateLimit = rateLimitMap.get(globalKey) || {
-    count: 0,
-    timestamp: now
-  }
-
-  if (now - globalRateLimit.timestamp > RATE_LIMIT.GLOBAL.DURATION) {
-    globalRateLimit.count = 0
-    globalRateLimit.timestamp = now
-  }
-
-  if (globalRateLimit.count >= RATE_LIMIT.GLOBAL.LIMIT) {
-    return true
-  }
-
-  domainRateLimit.count += 1
-  globalRateLimit.count += 1
-  rateLimitMap.set(domainKey, domainRateLimit)
-  rateLimitMap.set(globalKey, globalRateLimit)
+  rateLimitInfo.count += 1
+  store.set(key, rateLimitInfo)
 
   return false
+}
+
+function checkRateLimit(ip: string, domain: string): boolean {
+  return ['domain', 'global'].some(type => {
+    let key = type === 'domain' ? `${ip}:${domain}` : ip
+    let limit = type === 'domain' ? RATE_LIMIT.PER_DOMAIN : RATE_LIMIT.GLOBAL
+    return isRateLimited(key, rateLimitMap, limit)
+  })
 }
 
 function handleError(e: unknown, res: ServerResponse): void {
@@ -169,10 +159,9 @@ let handleRequestWithDelay = async (
   url: string,
   parsedUrl: URL
 ): Promise<void> => {
-  let isRateLimitedFlag = isRateLimited(ip, parsedUrl.hostname)
-  if (isRateLimitedFlag) {
-    let existingQueue = requestQueue.get(ip) || Promise.resolve()
-    let delayedRequest = existingQueue.then(() => setTimeout(1000))
+  if (checkRateLimit(ip, parsedUrl.hostname)) {
+    const existingQueue = requestQueue.get(ip) || Promise.resolve()
+    const delayedRequest = existingQueue.then(() => setTimeout(1000))
     requestQueue.set(ip, delayedRequest)
     await delayedRequest
   }
