@@ -57,7 +57,7 @@ export function isRateLimited(
     return true
   }
 
-  rateLimitInfo.count += 1
+  rateLimitInfo.count++
   store.set(key, rateLimitInfo)
 
   return false
@@ -72,6 +72,10 @@ export function checkRateLimit(ip: string, domain: string): boolean {
 }
 
 export function handleError(e: unknown, res: ServerResponse): void {
+  if (res.headersSent) {
+    // Headers already sent, cannot handle error
+    return
+  }
   // Known errors
   if (e instanceof Error && e.name === 'TimeoutError') {
     res.writeHead(400, { 'Content-Type': 'text/plain' })
