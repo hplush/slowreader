@@ -9,7 +9,6 @@
     refreshPosts,
     refreshProgress,
     router,
-    secondStep,
     navbarMessages as t
   } from '@slowreader/core'
   import { onMount } from 'svelte'
@@ -51,16 +50,18 @@
 
 <nav class="navbar">
   <div class="navbar_main" aria-orientation="horizontal" role="menu">
-    <div class={`navbar_back-button ${!$secondStep ? 'is-hidden' : ''}`}>
-      <NavbarItem
-        name={$t.back}
-        current={true}
-        href={$backRoute ? getURL($backRoute) : undefined}
-        icon={mdiChevronLeft}
-        small
-      />
-    </div>
-    <div class={`navbar_refresh-button ${$secondStep ? 'is-hidden' : ''}`}>
+    {#if $backRoute}
+      <div class="navbar_back-button">
+        <NavbarItem
+          name={$t.back}
+          current={true}
+          href={getURL($backRoute)}
+          icon={mdiChevronLeft}
+          small
+        />
+      </div>
+    {/if}
+    <div class={`navbar_refresh-button ${$backRoute ? 'is-hidden' : ''}`}>
       {#if $isRefreshing}
         <NavbarItem
           name={$t.refresh}
@@ -196,12 +197,6 @@
 
     @media (width <= 1024px) {
       display: block;
-    }
-  }
-
-  .navbar_back-button.is-hidden {
-    @media (width <= 1024px) {
-      display: none;
     }
   }
 

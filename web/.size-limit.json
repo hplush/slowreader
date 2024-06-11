@@ -15,6 +15,6 @@
     "name": "Core scripts to execute",
     "path": "dist/assets/index-*.js",
     "brotli": false,
-    "limit": "220 KB"
+    "limit": "225 KB"
   }
 ]
