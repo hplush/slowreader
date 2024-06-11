@@ -1,6 +1,6 @@
 <script lang="ts">
   import { mdiClose } from '@mdi/js'
-  import { backRoute, backToFirstStep, router } from '@slowreader/core'
+  import { backRoute, backToFirstStep } from '@slowreader/core'
   import { onMount } from 'svelte'
 
   import { getURL } from '../stores/router.js'
