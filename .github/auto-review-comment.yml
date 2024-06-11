@@ -2,6 +2,7 @@
 - checks:
     - paths: "pnpm-lock.yaml"
       message: |
+        Dependencies check:
         - [ ] If you added a new dependency, check our [requirements](https://github.com/hplush/slowreader/blob/main/README.md#dependencies).
     - paths: web/main/
       message: |
