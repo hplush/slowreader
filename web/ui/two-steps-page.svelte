@@ -29,8 +29,8 @@
 
   function handleEscapeKey(event: KeyboardEvent): void {
     if (backRoute.get() && event.key === 'Escape') {
-      let { tagName } = document.activeElement!
-      if (tagName === 'A' || tagName === 'BODY') {
+      let { role, tagName } = document.activeElement!
+      if (role === 'menuitem' || tagName === 'BODY') {
         event.stopPropagation()
       }
       backToFirstStep()
