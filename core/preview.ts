@@ -192,18 +192,19 @@ export async function addLink(url: string, deep = false): Promise<void> {
   }
 
   if ($links.get()[url]) return
-
   try {
-    new URL(url)
+    // new URL(url)
   } catch {
     $links.setKey(url, { error: 'invalidUrl', state: 'invalid' })
     return
   }
 
   let byUrl = getLoaderForUrl(url)
+
   if (byUrl !== false) {
     // Until we will have loader for specific domain
     /* c8 ignore next */
+
     addCandidate(url, byUrl)
   } else {
     $links.setKey(url, { state: 'loading' })
@@ -215,7 +216,6 @@ export async function addLink(url: string, deep = false): Promise<void> {
         $links.setKey(url, { state: 'unloadable' })
         return
       }
-
       if (!response.ok) {
         $links.setKey(url, { state: 'unloadable' })
       } else {

@@ -241,6 +241,11 @@ export const backRoute = computed<Route | undefined, typeof router>(
         params: { feed: params.feed },
         route: 'slow'
       }
+    } else if (route === 'export' && params.format) {
+      return {
+        params: { format: undefined },
+        route: 'export'
+      }
     }
   }
 )

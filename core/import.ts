@@ -105,6 +105,7 @@ export function toggleImportedFeed(feedId: string, categoryId: string): void {
 export function handleImportFile(file: File): Promise<void> {
   return new Promise(resolve => {
     $reading.set(true)
+    $importErrors.set([])
     $importedFeedsByCategory.set([])
     importSubscribe()
     let reader = new FileReader()

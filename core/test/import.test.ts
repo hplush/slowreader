@@ -61,7 +61,6 @@ function createFile(content: string, name: string, type: string): File {
 
 beforeEach(() => {
   enableClientTest()
-  importErrors.set([]) // Clear importErrors before each test
 })
 
 afterEach(async () => {
