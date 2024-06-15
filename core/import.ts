@@ -142,6 +142,12 @@ export function handleImportFile(file: File): Promise<void> {
               id: 'general',
               title: 'General'
             }
+
+            let brokenCategory: CategoryValue = {
+              id: 'broken',
+              title: 'Broken category'
+            }
+
             let generalFeeds: FeedValue[] = []
 
             let generalCategoryExists = false
@@ -154,10 +160,18 @@ export function handleImportFile(file: File): Promise<void> {
                   outline.children.length > 0
                 ) {
                   let categoryTitle = outline.getAttribute('text')!
-                  let categoryId =
-                    categoryTitle === 'General'
-                      ? categoryTitle.toLowerCase()
-                      : nanoid()
+                  let categoryId
+
+                  switch (categoryTitle) {
+                    case generalCategory.title:
+                      categoryId = generalCategory.id
+                      break
+                    case brokenCategory.title:
+                      categoryId = brokenCategory.id
+                      break
+                    default:
+                      categoryId = nanoid()
+                  }
 
                   if (categoryId === 'general') {
                     generalCategoryExists = true
@@ -246,12 +260,18 @@ export async function submitImport(): Promise<void> {
     let category = item[0]
     let feeds = item[1]
 
-    if (category.id !== 'general') {
+    if (
+      category.id !== 'general' &&
+      category.id !== 'broken' &&
+      $importedCategories.get().includes(category.id)
+    ) {
       categoryPromises.push(addCategory({ title: category.title }))
     }
 
     for (let feed of feeds) {
-      feedPromises.push(addFeed(feed))
+      if ($importedFeeds.get().includes(feed.id)) {
+        feedPromises.push(addFeed(feed))
+      }
     }
   }
 

@@ -45,71 +45,90 @@
 </script>
 
 <Page title={$t.importTitle}>
-  <Card>
-    <h2>{$t.importTitle}</h2>
-    <input disabled={$reading} type="file" on:change={handleFileChange} />
-    {#if $reading}
-      <Loader />
-    {/if}
-    {#if $importErrors.length}
-      <h4>Error Messages</h4>
-      <ul>
-        {#each $importErrors as error (error)}
-          <li>{error}</li>
+  <div class="feeds-import">
+    <div class="feeds-import_hero">
+      <Card>
+        <h2>{$t.importTitle}</h2>
+        <input disabled={$reading} type="file" on:change={handleFileChange} />
+        {#if $reading}
+          <Loader />
+        {/if}
+        {#if $importErrors.length}
+          <h4>Error Messages</h4>
+          <ul>
+            {#each $importErrors as error (error)}
+              <li>{error}</li>
+            {/each}
+          </ul>
+        {/if}
+      </Card>
+    </div>
+
+    {#if $unLoadedFeeds.length}
+      <h4>{$t.loadError}</h4>
+      <ul class="feeds-import_unloaded">
+        {#each $unLoadedFeeds as feed (feed)}
+          <li>
+            {feed}
+          </li>
         {/each}
       </ul>
     {/if}
-  </Card>
-  {#if $unLoadedFeeds.length}
-    <h4>{$t.loadError}</h4>
-    <ul class="feeds-import_unloaded">
-      {#each $unLoadedFeeds as feed (feed)}
-        <li>
-          {feed}
-        </li>
-      {/each}
-    </ul>
-  {/if}
 
-  {#if $importedFeedsByCategory.length}
-    <form on:submit|preventDefault={handleSubmit}>
-      <Card>
-        <RadioField
-          current={currentFeeds}
-          label={$t.type}
-          values={[
-            ['all', $t.allFeeds],
-            ['select', $t.selectFeeds]
-          ]}
-          on:change={e => {
-            handleRadioChange(e)
+    {#if $importedFeedsByCategory.length}
+      <form on:submit|preventDefault={handleSubmit}>
+        <Card>
+          <RadioField
+            current={currentFeeds}
+            label={$t.type}
+            values={[
+              ['all', $t.allFeeds],
+              ['select', $t.selectFeeds]
+            ]}
+            on:change={e => {
+              handleRadioChange(e)
+            }}
+          />
+        </Card>
+        <FeedList
+          disabled={currentFeeds === 'all'}
+          feedsByCategory={Array.from($importedFeedsByCategory)}
+          selectedCategories={Array.from($importedCategories)}
+          selectedFeeds={Array.from($importedFeeds)}
+          on:toggleCategory={e => {
+            toggleImportedCategory(e.detail.categoryId)
+          }}
+          on:toggleFeed={e => {
+            toggleImportedFeed(e.detail.feedId, e.detail.categoryId)
           }}
         />
-      </Card>
-      <FeedList
-        disabled={currentFeeds === 'all'}
-        feedsByCategory={Array.from($importedFeedsByCategory)}
-        selectedCategories={Array.from($importedCategories)}
-        selectedFeeds={Array.from($importedFeeds)}
-        on:toggleCategory={e => {
-          toggleImportedCategory(e.detail.categoryId)
-        }}
-        on:toggleFeed={e => {
-          toggleImportedFeed(e.detail.feedId, e.detail.categoryId)
-        }}
-      />
 
-      <Button disabled={$submiting} type="submit">Import</Button>
-      {#if $submiting}
-        <Loader />
-      {/if}
-    </form>
-  {/if}
+        <div class="feeds-import_submit">
+          <Button disabled={$submiting} type="submit">Import</Button>
+          {#if $submiting}
+            <Loader />
+          {/if}
+        </div>
+      </form>
+    {/if}
+  </div>
 </Page>
 
 <style>
+  .feeds-import {
+    max-width: 680px;
+  }
+
+  .feeds-import_hero {
+    margin-bottom: var(--padding-xl);
+  }
+
   .feeds-import_unloaded {
     padding-left: var(--padding-xl);
     margin-bottom: var(--padding-xl);
+  }
+
+  .feeds-import_submit {
+    margin-top: var(--padding-xl);
   }
 </style>

@@ -8,9 +8,12 @@
 <outline text="AppSignal" type="atom" xmlUrl="https://blog.appsignal.com/feed.xml" />
 <outline text="Bartosz Ciechanowski" type="rss" xmlUrl="https://ciechanow.ski/atom.xml" />
 </outline>
-<outline text="custom ctegory">
+<outline text="custom category">
 <outline text="Ferd.ca" type="rss" xmlUrl="https://ferd.ca/feed.rss" />
 <outline text="Hauleth's blog" type="atom" xmlUrl="https://hauleth.dev/atom.xml" />
+</outline>
+<outline text="Broken category">
+<outline text="Hauleth's blog" type="atom" xmlUrl="https://www.spakhm.com/feed.rss" />
 </outline>
 </body>
 </opml>
