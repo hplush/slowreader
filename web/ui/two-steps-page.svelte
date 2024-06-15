@@ -1,6 +1,10 @@
 <script lang="ts">
-  import { secondStep } from '@slowreader/core'
+  import { mdiClose } from '@mdi/js'
+  import { backRoute, backToFirstStep } from '@slowreader/core'
   import { onMount } from 'svelte'
+
+  import { getURL } from '../stores/router.js'
+  import Button from './button.svelte'
 
   export let title: string
 
@@ -23,10 +27,22 @@
     })
   }
 
+  function handleEscapeKey(event: KeyboardEvent): void {
+    if (backRoute.get() && event.key === 'Escape') {
+      let { role, tagName } = document.activeElement!
+      if (role === 'menuitem' || tagName === 'BODY') {
+        event.stopPropagation()
+      }
+      backToFirstStep()
+    }
+  }
+
   onMount(() => {
     document.title = title + ' › ' + prevTitle
+    window.addEventListener('keydown', handleEscapeKey, true)
     return () => {
       document.title = prevTitle
+      window.removeEventListener('keydown', handleEscapeKey, true)
     }
   })
 </script>
@@ -34,14 +50,19 @@
 <main id="page" class="two-steps-page">
   <div
     bind:this={first}
-    class={`two-steps-page_step ${$secondStep ? 'is-hidden' : ''}`}
+    class={`two-steps-page_step ${$backRoute ? 'is-hidden' : ''}`}
   >
     <slot name="one" />
   </div>
   <div
     bind:this={second}
-    class={`two-steps-page_step ${!$secondStep ? 'is-hidden' : ''}`}
+    class={`two-steps-page_step ${!$backRoute ? 'is-hidden' : ''}`}
   >
+    {#if $backRoute}
+      <aside class="two-steps-page_close-button">
+        <Button hiddenLabel="Close" href={getURL($backRoute)} icon={mdiClose} />
+      </aside>
+    {/if}
     <slot name="two" />
   </div>
 </main>
@@ -71,9 +92,19 @@
       width: 100%;
       padding-bottom: var(--navbar-height);
     }
+
+    &.is-hidden {
+      @media (width <= 1024px) {
+        display: none;
+      }
+    }
   }
 
-  .two-steps-page_step.is-hidden {
+  .two-steps-page_close-button {
+    display: flex;
+    justify-content: flex-end;
+    padding-bottom: var(--padding-m);
+
     @media (width <= 1024px) {
       display: none;
     }

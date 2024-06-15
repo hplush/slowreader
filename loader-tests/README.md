@@ -30,7 +30,7 @@ A small helper to run posts loading for specific feed.
 
 ```sh
 cd loader-tests/
-pnpm url URL
+pnpm run url URL
 ```
 
 ## Debug Feed Search
@@ -39,5 +39,5 @@ A small helper to run feed searching for specific feed.
 
 ```sh
 cd loader-tests/
-pnpm home URL HOME_URL
+pnpm run home URL HOME_URL
 ```

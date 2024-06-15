@@ -38,10 +38,15 @@ function parsePosts(text: TextResponse): OriginPost[] {
 export const atom: Loader = {
   getMineLinksFromText(text) {
     if (!isHTML(text)) return []
-    return [
+    let links = [
       ...findLinksByType(text, 'application/atom+xml'),
-      ...findAnchorHrefs(text, /feeds\.|feed\.|\.atom|\/atom/i)
+      ...findAnchorHrefs(text, /feeds\.|feed\.|\.atom|\/atom/i, /feed|atom/i)
     ]
+    if (links.length > 0) {
+      return links
+    } else {
+      return [...findAnchorHrefs(text, /\.xml/i)]
+    }
   },
 
   getPosts(task, url, text) {

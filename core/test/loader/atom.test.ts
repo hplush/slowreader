@@ -128,6 +128,9 @@ test('finds atom links in <a> elements', () => {
             <a href="/something.atom">Feed Atom</a>
             <a href="/feed.something?id=1">Feed Atom</a>
             <a href="https://feeds.service.com/name">Other Domain</a>
+            <a href="/comments">Comments Feed</a>
+            <a href="/news">ATOM</a>
+            <a href="/news.xml">News</a>
           </body>
         </html>`,
         {
@@ -140,8 +143,29 @@ test('finds atom links in <a> elements', () => {
       'https://example.com/blog/feed.xml',
       'https://example.com/something.atom',
       'https://example.com/feed.something?id=1',
-      'https://feeds.service.com/name'
+      'https://feeds.service.com/name',
+      'https://example.com/comments',
+      'https://example.com/news'
     ]
+  )
+})
+
+test('finds XML links in <a> elements if nothings found before', () => {
+  deepStrictEqual(
+    loaders.atom.getMineLinksFromText(
+      createTextResponse(
+        `<!DOCTYPE html>
+        <html>
+          <body>
+            <a href="/news.xml">News</a>
+          </body>
+        </html>`,
+        {
+          url: 'https://example.com/news'
+        }
+      )
+    ),
+    ['https://example.com/news.xml']
   )
 })
 

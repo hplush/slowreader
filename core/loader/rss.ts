@@ -51,7 +51,7 @@ export const rss: Loader = {
     if (!isHTML(text)) return []
     return [
       ...findLinksByType(text, 'application/rss+xml'),
-      ...findAnchorHrefs(text, /\.rss|\/rss/i)
+      ...findAnchorHrefs(text, /\.rss|\/rss/i, /rss/i)
     ]
   },
 

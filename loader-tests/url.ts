@@ -1,6 +1,9 @@
 import { createCLI, enableTestClient, fetchAndParsePosts } from './utils.js'
 
-let cli = createCLI('Debug post loading with specific feed', '$ pnpm url URL')
+let cli = createCLI(
+  'Debug post loading with specific feed',
+  '$ pnpm run url URL'
+)
 
 cli.run(async args => {
   enableTestClient()
