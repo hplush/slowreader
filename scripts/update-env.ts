@@ -88,6 +88,17 @@ function replaceEnv(file: string, key: string, value: string): string {
   return file.replace(new RegExp(`ENV ${key} .+`, 'g'), `ENV ${key} ${value}`)
 }
 
+function replaceVersionEnv(
+  content: string,
+  tool: string,
+  version: string,
+  shasum: string
+): string {
+  let fixed = replaceEnv(content, `${tool}_VERSION`, version)
+  fixed = replaceEnv(fixed, `${tool}_CHECKSUM`, `sha256:${shasum}`)
+  return fixed
+}
+
 function replaceKey(file: string, key: string, value: string): string {
   return file.replace(
     new RegExp(`"${key}": "[^"]+"`, 'g'),
@@ -95,9 +106,9 @@ function replaceKey(file: string, key: string, value: string): string {
   )
 }
 
-let Dockerfile = read(join(ROOT, '.devcontainer', 'Dockerfile'))
-let currentNode = Dockerfile.match(/NODE_VERSION (.+)/)![1]!
-let currentPnpm = Dockerfile.match(/PNPM_VERSION (.+)/)![1]!
+let dockerfile = read(join(ROOT, '.devcontainer', 'Dockerfile'))
+let currentNode = dockerfile.match(/NODE_VERSION (.+)/)![1]!
+let currentPnpm = dockerfile.match(/PNPM_VERSION (.+)/)![1]!
 
 let latestNode = await getLatestNodeVersion(
   process.argv[2] ?? currentNode.split('.')[0]!
@@ -107,13 +118,12 @@ let latestPnpm = await getLatestPnpmVersion()
 if (currentNode !== latestNode) {
   printUpdate('Node.js', currentNode, latestNode)
   let checksum = await getNodeSha256(latestNode)
-  Dockerfile = replaceEnv(Dockerfile, 'NODE_VERSION', latestNode)
-  Dockerfile = replaceEnv(Dockerfile, 'NODE_CHECKSUM', `sha256:${checksum}`)
-  writeFileSync(join(ROOT, '.devcontainer', 'Dockerfile'), Dockerfile)
+  dockerfile = replaceVersionEnv(dockerfile, 'NODE', latestNode, checksum)
+  writeFileSync(join(ROOT, '.devcontainer', 'Dockerfile'), dockerfile)
   writeFileSync(join(ROOT, '.node-version'), latestNode + '\n')
 
-  updateProjectDockerfiles(dockerfile => {
-    return replaceEnv(dockerfile, 'NODE_VERSION', latestNode)
+  updateProjectDockerfiles(projectDocker => {
+    return replaceVersionEnv(projectDocker, 'NODE', latestNode, checksum)
   })
 
   let minor = latestNode.split('.').slice(0, 2).join('.')
@@ -125,9 +135,8 @@ if (currentNode !== latestNode) {
 if (currentPnpm !== latestPnpm) {
   printUpdate('pnpm', currentPnpm, latestPnpm)
   let checksum = await getPnpmSha256(latestPnpm)
-  Dockerfile = replaceEnv(Dockerfile, 'PNPM_VERSION', latestPnpm)
-  Dockerfile = replaceEnv(Dockerfile, 'PNPM_CHECKSUM', `sha256:${checksum}`)
-  writeFileSync(join(ROOT, '.devcontainer', 'Dockerfile'), Dockerfile)
+  dockerfile = replaceVersionEnv(dockerfile, 'PNPM', latestPnpm, checksum)
+  writeFileSync(join(ROOT, '.devcontainer', 'Dockerfile'), dockerfile)
 
   updatePackages(pkg => {
     pkg = replaceKey(pkg, 'packageManager', `pnpm@${latestPnpm}`)
