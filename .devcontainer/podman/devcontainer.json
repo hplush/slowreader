@@ -3,8 +3,6 @@
     "context": "..",
     "dockerfile": "../Dockerfile"
   },
-  "postCreateCommand": "pnpm install --force",
-  "postStartCommand": "zsh",
   "workspaceMount": "",
   "runArgs": [
     "--userns=keep-id:uid=1000,gid=1000",

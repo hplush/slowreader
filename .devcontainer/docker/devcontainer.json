@@ -3,8 +3,6 @@
     "context": "..",
     "dockerfile": "../Dockerfile"
   },
-  "postCreateCommand": "pnpm install --force",
-  "postStartCommand": "zsh",
   "customizations": {
     "vscode": {
       "extensions": [
