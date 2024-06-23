@@ -24,7 +24,7 @@
   function validate(): void {
     if (required && !value) {
       inputError = t.get().empty
-    } else if (type === 'url' && !isValidUrl()) {
+    } else if (type === 'url' && !URL.canParse(value)) {
       inputError = t.get().noUrl
     }
   }
@@ -56,18 +56,9 @@
     validate()
   }
 
-  function isValidUrl(): boolean {
-    try {
-      new URL(value)
-      return true
-    } catch {
-      return false
-    }
-  }
-
   onMount(() => {
     if (value && type === 'url') {
-      if (!isValidUrl()) inputError = t.get().noUrl
+      if (!URL.canParse(value)) inputError = t.get().noUrl
     }
   })
 </script>

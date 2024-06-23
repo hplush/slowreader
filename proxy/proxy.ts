@@ -25,10 +25,9 @@ export function createProxyServer(config: {
     try {
       let url = decodeURIComponent((req.url ?? '').slice(1))
 
-      let parsedUrl: URL
-      try {
-        parsedUrl = new URL(url)
-      } catch {
+      // @ts-expect-error Until @types/node will get URL.parse()
+      let parsedUrl = URL.parse(url) as null | URL
+      if (!parsedUrl) {
         throw new BadRequestError('Invalid URL')
       }
 
@@ -65,7 +64,7 @@ export function createProxyServer(config: {
       let targetResponse = await fetch(url, {
         headers: {
           ...(req.headers as HeadersInit),
-          'host': new URL(url).host,
+          'host': parsedUrl.host,
           'X-Forwarded-For': req.socket.remoteAddress!
         },
         method: req.method,

@@ -192,9 +192,8 @@ export async function addLink(url: string, deep = false): Promise<void> {
   }
 
   if ($links.get()[url]) return
-  try {
-    new URL(url)
-  } catch {
+
+  if (!URL.canParse(url)) {
     $links.setKey(url, { error: 'invalidUrl', state: 'invalid' })
     return
   }
