@@ -58,7 +58,7 @@
     class:is-wide={wide}
     aria-keyshortcuts={hotkey}
     title={hiddenLabel}
-    type="button"
+    type={$$restProps.type || 'button'}
     on:click={onClick}
   >
     {#if !hiddenLabel}
