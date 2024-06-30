@@ -38,10 +38,10 @@
   ],
   "devDependencies": {
     "@logux/eslint-config": "github:logux/eslint-config",
-    "@types/node": "20.14.8",
+    "@types/node": "20.14.9",
     "@types/ws": "8.5.10",
     "better-node-test": "0.5.1",
-    "eslint": "9.5.0",
+    "eslint": "9.6.0",
     "eslint-plugin-svelte": "^2.41.0",
     "husky": "^9.0.11",
     "nano-staged": "0.8.0",
@@ -62,9 +62,9 @@
     "remark-validate-links": "^13.0.1",
     "stylelint": "16.6.1",
     "svelte": "4.2.18",
-    "svelte-check": "3.8.2",
+    "svelte-check": "3.8.4",
     "svgo": "3.3.2",
-    "tsx": "4.15.7",
+    "tsx": "4.16.0",
     "typescript": "5.5.2"
   }
 }
