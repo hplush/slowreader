@@ -11,28 +11,30 @@ import { type FeedValue, getFeeds } from './feed.js'
 import { readonlyExport } from './lib/stores.js'
 import { getPosts, type PostValue } from './post.js'
 
-type ExtendedFeedValue = {
+type FeedWithPosts = {
   posts?: PostValue[]
 } & FeedValue
 
 let $categories = atom<CategoryValue[]>([])
 let $allFeeds = atom<FeedValue[]>([])
-let $feedsByCategoryList = atom<[CategoryValue, ExtendedFeedValue[]][]>([])
-let $creating = atom<boolean>(false)
+let $exportingFeedsByCategory = atom<[CategoryValue, FeedWithPosts[]][]>([])
+let $exporting = atom<boolean>(false)
 
-export const feedsByCategoryList = readonlyExport($feedsByCategoryList)
-export const creating = readonlyExport($creating)
+export const exportingFeedsByCategory = readonlyExport(
+  $exportingFeedsByCategory
+)
+export const exporting = readonlyExport($exporting)
 
-onMount(feedsByCategoryList, () => {
+onMount(exportingFeedsByCategory, () => {
   Promise.all([loadValue(getCategories()), loadValue(getFeeds())]).then(
     ([categoriesValue, feedsValue]) => {
       $categories.set(categoriesValue.list)
       $allFeeds.set(feedsValue.list)
-      $feedsByCategoryList.set(
+      $exportingFeedsByCategory.set(
         feedsByCategory($categories.get(), $allFeeds.get())
       )
 
-      selectAllExportedFeeds()
+      selectAllExportingFeeds()
     }
   )
 })
@@ -40,16 +42,16 @@ onMount(feedsByCategoryList, () => {
 let $selectedCategories = atom<string[]>([])
 let $selectedFeeds = atom<string[]>([])
 
-export const exportedCategories = readonlyExport($selectedCategories)
-export const exportedFeeds = readonlyExport($selectedFeeds)
+export const exportingCategories = readonlyExport($selectedCategories)
+export const exportingFeeds = readonlyExport($selectedFeeds)
 
-export function selectAllExportedFeeds(): void {
+export function selectAllExportingFeeds(): void {
   let selectedCategoriesSet = new Set<string>()
   let selectedFeedsSet = new Set<string>()
 
-  $feedsByCategoryList
+  $exportingFeedsByCategory
     .get()
-    .forEach(([category, feeds]: [CategoryValue, ExtendedFeedValue[]]) => {
+    .forEach(([category, feeds]: [CategoryValue, FeedWithPosts[]]) => {
       selectedCategoriesSet.add(category.id)
       feeds.forEach(feed => selectedFeedsSet.add(feed.id))
     })
@@ -58,19 +60,19 @@ export function selectAllExportedFeeds(): void {
   $selectedFeeds.set(Array.from(selectedFeedsSet))
 }
 
-export function clearExportedSelections(): void {
+export function clearExportingSelections(): void {
   $selectedCategories.set([])
   $selectedFeeds.set([])
 }
 
 export function getOPMLBlob(): Blob {
-  $creating.set(true)
+  $exporting.set(true)
   let opml =
     '<?xml version="1.0" encoding="UTF-8"?>\n<opml version="2.0">\n<head>\n<title>Feeds</title>\n</head>\n<body>\n'
 
-  $feedsByCategoryList
+  $exportingFeedsByCategory
     .get()
-    .forEach(([category, feeds]: [CategoryValue, ExtendedFeedValue[]]) => {
+    .forEach(([category, feeds]: [CategoryValue, FeedWithPosts[]]) => {
       if ($selectedCategories.get().includes(category.id)) {
         opml += `<outline text="${getCategoryTitle(category)}">\n`
         feeds.forEach(feed => {
@@ -84,21 +86,21 @@ export function getOPMLBlob(): Blob {
 
   opml += '</body>\n</opml>'
 
-  $creating.set(false)
+  $exporting.set(false)
 
   return new Blob([opml], { type: 'application/xml' })
 }
 
 export async function getInternalBlob(isIncludePosts: Boolean): Promise<Blob> {
-  $creating.set(true)
+  $exporting.set(true)
   let posts: PostValue[]
   /* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition */
   if (isIncludePosts) {
     posts = await loadValue(getPosts()).then(value => value.list)
   }
-  let enrichedData = $feedsByCategoryList
+  let enrichedData = $exportingFeedsByCategory
     .get()
-    .map(([category, feeds]: [CategoryValue, ExtendedFeedValue[]]) => {
+    .map(([category, feeds]: [CategoryValue, FeedWithPosts[]]) => {
       let categoryTitle = getCategoryTitle(category)
       /* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition */
       if (isIncludePosts) {
@@ -112,11 +114,11 @@ export async function getInternalBlob(isIncludePosts: Boolean): Promise<Blob> {
     data: enrichedData,
     type: 'feedsByCategory' // mark for validation in import
   })
-  $creating.set(false)
+  $exporting.set(false)
   return new Blob([jsonStr], { type: 'application/json' })
 }
 
-export function toggleExportedCategory(categoryId: string): void {
+export function toggleExportingCategory(categoryId: string): void {
   let selectedCategories = new Set($selectedCategories.get())
   let selectedFeeds = new Set($selectedFeeds.get())
 
@@ -134,7 +136,7 @@ export function toggleExportedCategory(categoryId: string): void {
   $selectedFeeds.set(Array.from(selectedFeeds))
 }
 
-export function toggleExportedFeed(feedId: string, categoryId: string): void {
+export function toggleExportingFeed(feedId: string, categoryId: string): void {
   let selectedCategories = new Set($selectedCategories.get())
   let selectedFeeds = new Set($selectedFeeds.get())
 

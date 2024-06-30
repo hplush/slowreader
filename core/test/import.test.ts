@@ -88,16 +88,14 @@ test('should initialize with empty states', () => {
 })
 
 test('should handle importing a opml file', async () => {
-  await loadFile('../loader-tests/export-opml-example.opml')
+  await loadFile('test/export-opml-example.opml')
 
   deepStrictEqual(importedCategories.get().includes('general'), true)
   deepStrictEqual(importErrors.get().length, 0)
 })
 
 test('should handle importing a JSON file', async () => {
-  let fileContent = await loadFile(
-    '../loader-tests/export-internal-example.json'
-  )
+  let fileContent = await loadFile('test/export-internal-example.json')
   deepStrictEqual(importedFeedsByCategory.get(), JSON.parse(fileContent).data)
   deepStrictEqual(importedCategories.get(), [
     'general',
@@ -144,7 +142,7 @@ test('should handle invalid JSON format', async () => {
 })
 
 test('should select all imported feeds', async () => {
-  await loadFile('../loader-tests/export-internal-example.json')
+  await loadFile('test/export-internal-example.json')
   selectAllImportedFeeds()
 
   let categories = importedCategories.get()
@@ -155,7 +153,7 @@ test('should select all imported feeds', async () => {
 })
 
 test('should clear import selections', async () => {
-  await loadFile('../loader-tests/export-internal-example.json')
+  await loadFile('test/export-internal-example.json')
   selectAllImportedFeeds()
   clearImportSelections()
 
@@ -164,7 +162,7 @@ test('should clear import selections', async () => {
 })
 
 test('should toggle imported category', async () => {
-  await loadFile('../loader-tests/export-internal-example.json')
+  await loadFile('test/export-internal-example.json')
   let categoryId = '1GfRaXZCKbgtjuSnfzeew'
 
   clearImportSelections()
@@ -180,7 +178,7 @@ test('should toggle imported category', async () => {
 })
 
 test('should toggle imported feed', async () => {
-  await loadFile('../loader-tests/export-internal-example.json')
+  await loadFile('test/export-internal-example.json')
   let feedId = 'H4RZpnXPjlj_Hzl08ipBw'
   let categoryId = 'general'
 
@@ -197,7 +195,7 @@ test('should toggle imported feed', async () => {
 })
 
 test('should handle import file and set states', async () => {
-  await loadFile('../loader-tests/export-internal-example.json')
+  await loadFile('test/export-internal-example.json')
 
   deepStrictEqual(importedFeedsByCategory.get().length > 0, true)
   deepStrictEqual(importedCategories.get().length > 0, true)
@@ -206,7 +204,7 @@ test('should handle import file and set states', async () => {
 })
 
 test('should submit import and clear states and feeds imported', async () => {
-  await loadFile('../loader-tests/export-internal-example.json')
+  await loadFile('test/export-internal-example.json')
   await submitImport()
   let feeds = await loadFeeds()
 

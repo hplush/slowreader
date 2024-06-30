@@ -8,6 +8,7 @@ import {
 } from './category.js'
 import { addFeed, type FeedValue } from './feed.js'
 import { readonlyExport } from './lib/stores.js'
+import { importMessages } from './messages/index.js'
 import { createFeedFromUrl } from './preview.js'
 
 let $importedFeedsByCategory = atom<FeedsByCategory>([])
@@ -16,6 +17,7 @@ export const importedFeedsByCategory = readonlyExport($importedFeedsByCategory)
 let $importedCategories = atom<string[]>([])
 let $importedFeeds = atom<string[]>([])
 let $unLoadedFeeds = atom<string[]>([])
+let $importLoadingFeeds = atom<{ [key: string]: boolean }>({})
 
 let $reading = atom<boolean>(false)
 let $submiting = atom<boolean>(false)
@@ -28,11 +30,12 @@ export const reading = readonlyExport($reading)
 export const submiting = readonlyExport($submiting)
 export const unLoadedFeeds = readonlyExport($unLoadedFeeds)
 export const importErrors = readonlyExport($importErrors)
+export const importLoadingFeeds = readonlyExport($importLoadingFeeds)
 
 let $categories = atom<CategoryValue[]>([])
 let $feeds = atom<FeedValue[]>([])
 
-//$importedFeedsByCategor.subscribe() doesn't work when running tests, so I had to make a function and call
+//$importingFeedsByCategory.subscribe() doesn't work when running tests, so I had to make a function and call
 function importSubscribe(): void {
   $feeds.set(
     Array.from(
@@ -107,11 +110,39 @@ export function handleImportFile(file: File): Promise<void> {
     $reading.set(true)
     $importErrors.set([])
     $importedFeedsByCategory.set([])
+    $unLoadedFeeds.set([])
     importSubscribe()
     let reader = new FileReader()
     reader.onload = async function (e) {
       let content = e.target?.result as string
       let fileExtension = file.name.split('.').pop()?.toLowerCase()
+
+      let processFeed = async (
+        feedUrl: string,
+        categoryId: string
+      ): Promise<FeedValue | undefined> => {
+        try {
+          let feed = await createFeedFromUrl(feedUrl, categoryId)
+          $importLoadingFeeds.set({
+            ...$importLoadingFeeds.get(),
+            [feedUrl]: false
+          })
+          return feed
+        } catch (error) {
+          let currentLoadingFeeds = { ...$importLoadingFeeds.get() }
+          delete currentLoadingFeeds[feedUrl]
+          $importLoadingFeeds.set(currentLoadingFeeds)
+          $unLoadedFeeds.set([...$unLoadedFeeds.get(), feedUrl])
+        }
+      }
+
+      let addFeedsToLoading = (feedUrls: string[]): void => {
+        let currentLoadingFeeds = { ...$importLoadingFeeds.get() }
+        feedUrls.forEach(feedUrl => {
+          currentLoadingFeeds[feedUrl] = true
+        })
+        $importLoadingFeeds.set(currentLoadingFeeds)
+      }
 
       if (fileExtension === 'json') {
         try {
@@ -123,11 +154,11 @@ export function handleImportFile(file: File): Promise<void> {
           } else {
             $importErrors.set([
               ...$importErrors.get(),
-              'Invalid JSON structure'
+              importMessages.get().invalidJSONError
             ])
           }
         } catch (jsonError) {
-          $importErrors.set(['Failed to parse JSON or invalid structure'])
+          $importErrors.set([importMessages.get().failedParseJSONError])
         }
       } else if (fileExtension === 'opml') {
         try {
@@ -149,8 +180,8 @@ export function handleImportFile(file: File): Promise<void> {
             }
 
             let generalFeeds: FeedValue[] = []
-
             let generalCategoryExists = false
+            let allFeedUrls: { categoryId: string; feedUrl: string }[] = []
 
             for (let i = 0; i < outlines.length; i++) {
               let outline = outlines[i]
@@ -188,12 +219,7 @@ export function handleImportFile(file: File): Promise<void> {
                     let feedOutline = childOutlines[j]
                     let feedUrl = feedOutline?.getAttribute('xmlUrl')
                     if (feedUrl) {
-                      try {
-                        let feed = await createFeedFromUrl(feedUrl, category.id)
-                        feeds.push(feed)
-                      } catch (error) {
-                        $unLoadedFeeds.set([...$unLoadedFeeds.get(), feedUrl])
-                      }
+                      allFeedUrls.push({ categoryId: category.id, feedUrl })
                     }
                   }
                   feedsByCategory.push([category, feeds])
@@ -203,15 +229,27 @@ export function handleImportFile(file: File): Promise<void> {
                 ) {
                   let feedUrl = outline.getAttribute('xmlUrl')
                   if (feedUrl) {
-                    try {
-                      let feed = await createFeedFromUrl(
-                        feedUrl,
-                        generalCategory.id
-                      )
-                      generalFeeds.push(feed)
-                    } catch (error) {
-                      $unLoadedFeeds.set([...$unLoadedFeeds.get(), feedUrl])
-                    }
+                    allFeedUrls.push({
+                      categoryId: generalCategory.id,
+                      feedUrl
+                    })
+                  }
+                }
+              }
+            }
+
+            // Add all feeds to loading
+            addFeedsToLoading(allFeedUrls.map(feed => feed.feedUrl))
+
+            // Process feeds sequentially
+            for (let { categoryId, feedUrl } of allFeedUrls) {
+              let feed = await processFeed(feedUrl, categoryId)
+              if (feed) {
+                for (let i = 0; i < feedsByCategory.length; i++) {
+                  let categoryFeed = feedsByCategory[i]
+                  if (categoryFeed?.[0] && categoryFeed[0].id === categoryId) {
+                    categoryFeed[1].push(feed)
+                    break
                   }
                 }
               }
@@ -233,16 +271,17 @@ export function handleImportFile(file: File): Promise<void> {
             importSubscribe()
             selectAllImportedFeeds()
           } else {
-            $importErrors.set(['File is not in OPML format'])
+            $importErrors.set([importMessages.get().OPMLError])
           }
         } catch (xmlError) {
-          $importErrors.set(['File is not in OPML format'])
+          $importErrors.set([importMessages.get().OPMLError])
         }
       } else {
-        $importErrors.set(['Unsupported file format'])
+        $importErrors.set([importMessages.get().formatError])
       }
 
       $reading.set(false)
+      $importLoadingFeeds.set({})
       if (!e.target?.error) {
         resolve()
       }

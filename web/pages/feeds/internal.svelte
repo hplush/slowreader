@@ -1,14 +1,14 @@
 <script lang="ts">
   import {
-    creating,
-    exportedCategories,
-    exportedFeeds,
-    feedsByCategoryList,
+    exporting,
+    exportingCategories,
+    exportingFeeds,
+    exportingFeedsByCategory,
     getInternalBlob,
-    selectAllExportedFeeds,
+    selectAllExportingFeeds,
     exportMessages as t,
-    toggleExportedCategory,
-    toggleExportedFeed
+    toggleExportingCategory,
+    toggleExportingFeed
   } from '@slowreader/core'
 
   import Button from '../../ui/button.svelte'
@@ -34,7 +34,7 @@
     exportOptions[field] = value
 
     if (exportOptions.feeds === 'all') {
-      selectAllExportedFeeds()
+      selectAllExportingFeeds()
     }
   }
 
@@ -78,19 +78,19 @@
   </Card>
   <FeedList
     disabled={exportOptions.feeds === 'all'}
-    feedsByCategory={Array.from($feedsByCategoryList)}
-    selectedCategories={Array.from($exportedCategories)}
-    selectedFeeds={Array.from($exportedFeeds)}
+    feedsByCategory={Array.from($exportingFeedsByCategory)}
+    selectedCategories={Array.from($exportingCategories)}
+    selectedFeeds={Array.from($exportingFeeds)}
     on:toggleCategory={e => {
-      toggleExportedCategory(e.detail.categoryId)
+      toggleExportingCategory(e.detail.categoryId)
     }}
     on:toggleFeed={e => {
-      toggleExportedFeed(e.detail.feedId, e.detail.categoryId)
+      toggleExportingFeed(e.detail.feedId, e.detail.categoryId)
     }}
   />
   <div class="feeds-internal_submit">
-    <Button disabled={$creating} type="submit">{$t.submitInternal}</Button>
-    {#if $creating}
+    <Button disabled={$exporting} type="submit">{$t.submitInternal}</Button>
+    {#if $exporting}
       <Loader />
     {/if}
   </div>
