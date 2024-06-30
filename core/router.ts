@@ -12,9 +12,11 @@ export interface Routes {
   add: { candidate?: string; url?: string }
   categories: { feed?: string }
   download: {}
+  export: { format?: string }
   fast: { category?: string; post?: string; since?: number }
   feeds: {}
   home: {}
+  import: {}
   interface: {}
   notFound: {}
   profile: {}
@@ -62,7 +64,9 @@ const SETTINGS = new Set<RouteName>([
   'interface',
   'profile',
   'about',
-  'download'
+  'download',
+  'export',
+  'import'
 ])
 
 const ORGANIZE = new Set<RouteName>(['add', 'categories'])
@@ -243,6 +247,11 @@ export const backRoute = computed<Route | undefined, typeof router>(
       return {
         params: { feed: params.feed },
         route: 'slow'
+      }
+    } else if (route === 'export' && params.format) {
+      return {
+        params: { format: undefined },
+        route: 'export'
       }
     }
   }

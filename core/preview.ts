@@ -1,5 +1,6 @@
 import { loadValue } from '@logux/client'
 import debounce from 'just-debounce-it'
+import { nanoid } from 'nanoid'
 import { atom, computed, map, onMount } from 'nanostores'
 
 import {
@@ -8,7 +9,7 @@ import {
   type TextResponse
 } from './download.js'
 import { isMobile, onEnvironment } from './environment.js'
-import { addFeed, getFeeds } from './feed.js'
+import { addFeed, type FeedValue, getFeeds } from './feed.js'
 import { readonlyExport } from './lib/stores.js'
 import { type LoaderName, loaders } from './loader/index.js'
 import { addPost, processOriginPost } from './post.js'
@@ -198,9 +199,11 @@ export async function addLink(url: string, deep = false): Promise<void> {
   }
 
   let byUrl = getLoaderForUrl(url)
+
   if (byUrl !== false) {
     // Until we will have loader for specific domain
     /* c8 ignore next */
+
     addCandidate(url, byUrl)
   } else {
     $links.setKey(url, { state: 'loading' })
@@ -212,7 +215,6 @@ export async function addLink(url: string, deep = false): Promise<void> {
         $links.setKey(url, { state: 'unloadable' })
         return
       }
-
       if (!response.ok) {
         $links.setKey(url, { state: 'unloadable' })
       } else {
@@ -236,6 +238,37 @@ export async function addLink(url: string, deep = false): Promise<void> {
     } catch (error) {
       ignoreAbortError(error)
     }
+  }
+}
+
+export async function createFeedFromUrl(
+  url: string,
+  categoryId: string = 'general'
+): Promise<FeedValue> {
+  clearPreview()
+  await addLink(url)
+
+  let candidate = $candidates.get().find(i => i.url === url)
+  if (!candidate) {
+    throw new Error('No suitable loader found for the given URL')
+  }
+
+  $candidate.set(url)
+  let posts = loaders[candidate.loader].getPosts(task, url, candidate.text)
+  $posts.set(posts)
+
+  let page = await loadValue(posts)
+  let lastPost = page.list[0]
+
+  return {
+    categoryId,
+    id: nanoid(),
+    lastOriginId: lastPost?.originId,
+    lastPublishedAt: lastPost?.publishedAt ?? Date.now() / 1000,
+    loader: candidate.loader,
+    reading: 'fast',
+    title: candidate.title,
+    url
   }
 }
 
@@ -289,6 +322,7 @@ export async function addPreviewCandidate(): Promise<void> {
     let page = await loadValue($posts.get()!)
     let lastPost = page.list[0]
     let candidate = $candidates.get().find(i => i.url === url)!
+
     let feedId = await addFeed({
       categoryId: 'general',
       lastOriginId: lastPost?.originId,

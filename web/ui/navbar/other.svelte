@@ -1,8 +1,10 @@
 <script lang="ts">
   import {
     mdiAccount,
+    mdiExport,
     mdiFileDownloadOutline,
     mdiFileTree,
+    mdiImport,
     mdiInformationOutline,
     mdiPalette,
     mdiPlusCircleOutline
@@ -32,7 +34,23 @@
     icon={mdiFileTree}
     secondary
   />
+
+  <NavbarItem
+    name={$t.export}
+    current={$router.route === 'export'}
+    href={getURL('export')}
+    icon={mdiExport}
+    secondary
+  />
 {/if}
+
+<NavbarItem
+  name={$t.import}
+  current={$router.route === 'import'}
+  href={getURL('import')}
+  icon={mdiImport}
+  secondary
+/>
 
 <NavbarCategory name={$t.settings} />
 
