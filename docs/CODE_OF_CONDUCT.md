@@ -12,6 +12,7 @@
   - Repeated harassment of others. In general, if someone asks you to stop, then stop.
 - **Appreciate and accommodate our differences.** Be respectful of people with different cultural practices, personal habits to clothing, attitudes, and beliefs. Respect the way how people ask you to communicate with them.
 - **Judge ideas, not people.** Every idea counts for its merit, not who brings it up.
+- **Do not blame for mistakes.** If we have a problem, we should discuss how to prevent it in the future.
 
 ## Where Does It of Conduct Take Effect?
 
