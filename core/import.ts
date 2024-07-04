@@ -12,18 +12,17 @@ import { importMessages } from './messages/index.js'
 import { createFeedFromUrl } from './preview.js'
 
 let $importedFeedsByCategory = atom<FeedsByCategory>([])
-export const importedFeedsByCategory = readonlyExport($importedFeedsByCategory)
-
 let $importedCategories = atom<string[]>([])
 let $importedFeeds = atom<string[]>([])
 let $unLoadedFeeds = atom<string[]>([])
 let $importLoadingFeeds = atom<{ [key: string]: boolean }>({})
-
 let $reading = atom<boolean>(false)
 let $submiting = atom<boolean>(false)
-
 let $importErrors = atom<string[]>([])
+let $categories = atom<CategoryValue[]>([])
+let $feeds = atom<FeedValue[]>([])
 
+export const importedFeedsByCategory = readonlyExport($importedFeedsByCategory)
 export const importedCategories = readonlyExport($importedCategories)
 export const importedFeeds = readonlyExport($importedFeeds)
 export const reading = readonlyExport($reading)
@@ -32,10 +31,7 @@ export const unLoadedFeeds = readonlyExport($unLoadedFeeds)
 export const importErrors = readonlyExport($importErrors)
 export const importLoadingFeeds = readonlyExport($importLoadingFeeds)
 
-let $categories = atom<CategoryValue[]>([])
-let $feeds = atom<FeedValue[]>([])
-
-//$importingFeedsByCategory.subscribe() doesn't work when running tests, so I had to make a function and call
+// just subscribe() doesnt work in test
 function importSubscribe(): void {
   $feeds.set(
     Array.from(
@@ -54,17 +50,44 @@ function importSubscribe(): void {
   )
 }
 
-export function selectAllImportedFeeds(): void {
+const addFeedsToLoading = (feedUrls: string[]): void => {
+  let currentLoadingFeeds = { ...$importLoadingFeeds.get() }
+  feedUrls.forEach(feedUrl => {
+    currentLoadingFeeds[feedUrl] = true
+  })
+  $importLoadingFeeds.set(currentLoadingFeeds)
+}
+
+const processFeed = async (
+  feedUrl: string,
+  categoryId: string
+): Promise<FeedValue | undefined> => {
+  try {
+    let feed = await createFeedFromUrl(feedUrl, categoryId)
+    $importLoadingFeeds.set({
+      ...$importLoadingFeeds.get(),
+      [feedUrl]: false
+    })
+    return feed
+  } catch (error) {
+    let currentLoadingFeeds = { ...$importLoadingFeeds.get() }
+    delete currentLoadingFeeds[feedUrl]
+    $importLoadingFeeds.set(currentLoadingFeeds)
+    $unLoadedFeeds.set([...$unLoadedFeeds.get(), feedUrl])
+  }
+}
+
+export const selectAllImportedFeeds = (): void => {
   $importedCategories.set($categories.get().map(category => category.id))
   $importedFeeds.set($feeds.get().map(feed => feed.id))
 }
 
-export function clearImportSelections(): void {
+export const clearImportSelections = (): void => {
   $importedCategories.set([])
   $importedFeeds.set([])
 }
 
-export function toggleImportedCategory(categoryId: string): void {
+export const toggleImportedCategory = (categoryId: string): void => {
   let selectedCategories = new Set($importedCategories.get())
   let selectedFeeds = new Set($importedFeeds.get())
 
@@ -82,7 +105,10 @@ export function toggleImportedCategory(categoryId: string): void {
   $importedFeeds.set(Array.from(selectedFeeds))
 }
 
-export function toggleImportedFeed(feedId: string, categoryId: string): void {
+export const toggleImportedFeed = (
+  feedId: string,
+  categoryId: string
+): void => {
   let selectedCategories = new Set($importedCategories.get())
   let selectedFeeds = new Set($importedFeeds.get())
 
@@ -105,44 +131,18 @@ export function toggleImportedFeed(feedId: string, categoryId: string): void {
   $importedFeeds.set(Array.from(selectedFeeds))
 }
 
-export function handleImportFile(file: File): Promise<void> {
+export const handleImportFile = (file: File): Promise<void> => {
   return new Promise(resolve => {
     $reading.set(true)
     $importErrors.set([])
     $importedFeedsByCategory.set([])
     $unLoadedFeeds.set([])
+    $importLoadingFeeds.set({})
     importSubscribe()
     let reader = new FileReader()
     reader.onload = async function (e) {
       let content = e.target?.result as string
       let fileExtension = file.name.split('.').pop()?.toLowerCase()
-
-      let processFeed = async (
-        feedUrl: string,
-        categoryId: string
-      ): Promise<FeedValue | undefined> => {
-        try {
-          let feed = await createFeedFromUrl(feedUrl, categoryId)
-          $importLoadingFeeds.set({
-            ...$importLoadingFeeds.get(),
-            [feedUrl]: false
-          })
-          return feed
-        } catch (error) {
-          let currentLoadingFeeds = { ...$importLoadingFeeds.get() }
-          delete currentLoadingFeeds[feedUrl]
-          $importLoadingFeeds.set(currentLoadingFeeds)
-          $unLoadedFeeds.set([...$unLoadedFeeds.get(), feedUrl])
-        }
-      }
-
-      let addFeedsToLoading = (feedUrls: string[]): void => {
-        let currentLoadingFeeds = { ...$importLoadingFeeds.get() }
-        feedUrls.forEach(feedUrl => {
-          currentLoadingFeeds[feedUrl] = true
-        })
-        $importLoadingFeeds.set(currentLoadingFeeds)
-      }
 
       if (fileExtension === 'json') {
         try {
@@ -281,7 +281,6 @@ export function handleImportFile(file: File): Promise<void> {
       }
 
       $reading.set(false)
-      $importLoadingFeeds.set({})
       if (!e.target?.error) {
         resolve()
       }
@@ -290,7 +289,7 @@ export function handleImportFile(file: File): Promise<void> {
   })
 }
 
-export async function submitImport(): Promise<void> {
+export const submitImport = async (): Promise<void> => {
   $submiting.set(true)
   let categoryPromises = []
   let feedPromises = []

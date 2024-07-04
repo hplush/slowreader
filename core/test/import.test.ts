@@ -7,13 +7,17 @@ import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
+  checkAndRemoveRequestMock,
   clearImportSelections,
+  expectRequest,
   handleImportFile,
   importedCategories,
   importedFeeds,
   importedFeedsByCategory,
   importErrors,
+  importLoadingFeeds,
   loadFeeds,
+  mockRequest,
   reading,
   selectAllImportedFeeds,
   submitImport,
@@ -61,6 +65,7 @@ function createFile(content: string, name: string, type: string): File {
 
 beforeEach(() => {
   enableClientTest()
+  mockRequest()
 })
 
 afterEach(async () => {
@@ -75,6 +80,7 @@ afterEach(async () => {
   )
   await setTimeout(10)
   await cleanClientTest()
+  checkAndRemoveRequestMock()
 })
 
 test('should initialize with empty states', () => {
@@ -88,8 +94,22 @@ test('should initialize with empty states', () => {
 })
 
 test('should handle importing a opml file', async () => {
-  await loadFile('test/export-opml-example.opml')
+  expectRequest('https://a.com/atom').andRespond(
+    200,
+    '<feed><title>Atom</title>' +
+      '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
+      '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
+      '</feed>',
+    'text/xml'
+  )
 
+  loadFile('test/export-opml-example.opml')
+
+  await setTimeout(100)
+  deepStrictEqual(
+    Object.keys(importLoadingFeeds.get()).includes('https://a.com/atom'),
+    true
+  )
   deepStrictEqual(importedCategories.get().includes('general'), true)
   deepStrictEqual(importErrors.get().length, 0)
 })
