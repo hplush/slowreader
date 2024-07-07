@@ -291,29 +291,29 @@ export const handleImportFile = (file: File): Promise<void> => {
 
 export const submitImport = async (): Promise<void> => {
   $submiting.set(true)
-  let categoryPromises = []
   let feedPromises = []
 
   for (let item of $importedFeedsByCategory.get()) {
+    let categoryId = ''
     let category = item[0]
     let feeds = item[1]
-
     if (
       category.id !== 'general' &&
       category.id !== 'broken' &&
       $importedCategories.get().includes(category.id)
     ) {
-      categoryPromises.push(addCategory({ title: category.title }))
+      categoryId = await addCategory({ title: category.title })
+    } else {
+      categoryId = category.id
     }
 
     for (let feed of feeds) {
       if ($importedFeeds.get().includes(feed.id)) {
-        feedPromises.push(addFeed(feed))
+        feedPromises.push(addFeed({ ...feed, categoryId }))
       }
     }
   }
 
-  await Promise.all(categoryPromises)
   await Promise.all(feedPromises)
 
   $importedFeedsByCategory.set([])

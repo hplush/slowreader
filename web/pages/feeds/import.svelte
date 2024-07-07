@@ -8,13 +8,13 @@
     importErrors,
     importLoadingFeeds,
     importReading,
+    importUnLoadedFeeds,
     selectAllImportedFeeds,
     submitImport,
     submiting,
     importMessages as t,
     toggleImportedCategory,
-    toggleImportedFeed,
-    importUnLoadedFeeds
+    toggleImportedFeed
   } from '@slowreader/core'
 
   import Button from '../../ui/button.svelte'

@@ -84,7 +84,7 @@ test('should clear export selections', async () => {
 })
 
 test('should toggle exporting category', async () => {
-  let categoryId = '1GfRaXZCKbgtjuSnfzeew'
+  let categoryId = 'general'
 
   clearExportingSelections()
 

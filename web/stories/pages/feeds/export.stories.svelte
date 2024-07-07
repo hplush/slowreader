@@ -8,14 +8,10 @@
 </script>
 
 <script lang="ts">
+  import type { FeedValue } from '@slowreader/core'
   import { Story } from '@storybook/addon-svelte-csf'
 
   import Scene from '../../scene.svelte'
-  import {
-    importMessages,
-    type FeedsByCategory,
-    type FeedValue
-  } from '@slowreader/core'
 
   const FEEDS: Partial<FeedValue>[] = [
     {

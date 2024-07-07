@@ -8,16 +8,16 @@
 </script>
 
 <script lang="ts">
+  import { type FeedsByCategory, importMessages } from '@slowreader/core'
   import { Story } from '@storybook/addon-svelte-csf'
 
   import Scene from '../../scene.svelte'
-  import { importMessages, type FeedsByCategory } from '@slowreader/core'
 
   const loadingFeeds = {
-    'https://www.spakhm.com/feed.rss': false,
     'https://blog.appsignal.com/feed.xml': false,
     'https://ciechanow.ski/atom.xml': true,
-    'https://hauleth.dev/atom.xml': true
+    'https://hauleth.dev/atom.xml': true,
+    'https://www.spakhm.com/feed.rss': false
   }
 
   const feedsByCategory: FeedsByCategory = [
