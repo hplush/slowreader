@@ -1,4 +1,4 @@
-- prependMsg: "Pull request auto-reviewer"
+- prependMsg: "[Pull request auto reviewer](https://github.com/marketplace/actions/pull-request-auto-reviewer)"
 - checks:
     - paths: "pnpm-lock.yaml"
       message: |
