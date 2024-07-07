@@ -30,7 +30,16 @@
     type SlowPostsValue,
     testFeed,
     totalSlowPages,
-    totalSlowPosts
+    totalSlowPosts,
+    importReading,
+    importLoadingFeeds,
+    importUnLoadedFeeds,
+    importErrors,
+    importedFeedsByCategory,
+    type FeedsByCategory,
+    selectAllImportedFeeds,
+    importSubscribe,
+    exportingFeedsByCategory
   } from '@slowreader/core'
   import { cleanStores } from 'nanostores'
   import { onMount } from 'svelte'
@@ -61,6 +70,12 @@
   export let openedPost: PostValue | undefined = undefined
   export let fasts: FastEntry[] = []
   export let showPagination = false
+
+  // import
+  export let loadingFeeds = {}
+  export let unloadedFeeds: string[] = []
+  export let errors: string[] = []
+  export let feedsByCategory: FeedsByCategory = []
 
   export let responses: Record<string, PreparedResponse | string> = {}
 
@@ -127,6 +142,26 @@
       forceSet(nextFastSince, fasts.length)
     }
 
+    // import stories
+    if (unloadedFeeds.length) {
+      forceSet(importUnLoadedFeeds, unloadedFeeds)
+    }
+
+    if (Object.keys(loadingFeeds).length) {
+      forceSet(importLoadingFeeds, loadingFeeds)
+      forceSet(importReading, true)
+    }
+
+    if (errors.length) {
+      forceSet(importErrors, errors)
+    }
+
+    if (feedsByCategory.length) {
+      forceSet(importedFeedsByCategory, feedsByCategory)
+      importSubscribe()
+      selectAllImportedFeeds()
+    }
+
     return () => {
       forceSet(isRefreshing, false)
       baseRouter.set({ params: {}, route: 'slow' })
@@ -142,6 +177,12 @@
 
       forceSet(fastLoading, 'init')
       forceSet(fastCategory, undefined)
+
+      forceSet(importUnLoadedFeeds, [])
+      forceSet(importLoadingFeeds, {})
+      forceSet(importReading, false)
+      forceSet(importErrors, [])
+      forceSet(importedFeedsByCategory, [])
     }
   })
 </script>

@@ -7,14 +7,14 @@
     importedFeedsByCategory,
     importErrors,
     importLoadingFeeds,
-    reading,
+    importReading,
     selectAllImportedFeeds,
     submitImport,
     submiting,
     importMessages as t,
     toggleImportedCategory,
     toggleImportedFeed,
-    unLoadedFeeds
+    importUnLoadedFeeds
   } from '@slowreader/core'
 
   import Button from '../../ui/button.svelte'
@@ -52,13 +52,16 @@
     <div class="feeds-import_hero">
       <Card>
         <h2>{$t.importTitle}</h2>
-        <input disabled={$reading} type="file" on:change={handleFileChange} />
-        {#if $reading}
+        <input
+          disabled={$importReading}
+          type="file"
+          on:change={handleFileChange}
+        />
+        {#if $importReading}
           <Loader />
         {/if}
         {#if $importErrors.length}
-          <h4>Error Messages</h4>
-          <ul>
+          <ul class="feeds-import_errors">
             {#each $importErrors as error (error)}
               <li>{error}</li>
             {/each}
@@ -67,7 +70,7 @@
       </Card>
     </div>
 
-    {#if Object.entries($importLoadingFeeds).length && $reading}
+    {#if Object.entries($importLoadingFeeds).length && $importReading}
       <h4>{$t.loadProccess}</h4>
       <ul class="feeds-import_loading">
         {#each Object.entries($importLoadingFeeds) as [feedUrl, loading] (feedUrl)}
@@ -83,10 +86,10 @@
       </ul>
     {/if}
 
-    {#if $unLoadedFeeds.length}
+    {#if $importUnLoadedFeeds.length}
       <h4>{$t.loadError}</h4>
       <ul class="feeds-import_unloaded">
-        {#each $unLoadedFeeds as feed (feed)}
+        {#each $importUnLoadedFeeds as feed (feed)}
           <li>
             {feed}
           </li>
@@ -140,6 +143,14 @@
 
   .feeds-import_hero {
     margin-bottom: var(--padding-xl);
+  }
+
+  .feeds-import_errors {
+    list-style: none;
+  }
+
+  .feeds-import_errors li {
+    color: var(--error-color);
   }
 
   .feeds-import_unloaded,

@@ -25,14 +25,14 @@ let $feeds = atom<FeedValue[]>([])
 export const importedFeedsByCategory = readonlyExport($importedFeedsByCategory)
 export const importedCategories = readonlyExport($importedCategories)
 export const importedFeeds = readonlyExport($importedFeeds)
-export const reading = readonlyExport($reading)
+export const importReading = readonlyExport($reading)
 export const submiting = readonlyExport($submiting)
-export const unLoadedFeeds = readonlyExport($unLoadedFeeds)
+export const importUnLoadedFeeds = readonlyExport($unLoadedFeeds)
 export const importErrors = readonlyExport($importErrors)
 export const importLoadingFeeds = readonlyExport($importLoadingFeeds)
 
 // just subscribe() doesnt work in test
-function importSubscribe(): void {
+export function importSubscribe(): void {
   $feeds.set(
     Array.from(
       new Set(

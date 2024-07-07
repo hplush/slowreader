@@ -18,13 +18,13 @@ import {
   importLoadingFeeds,
   loadFeeds,
   mockRequest,
-  reading,
+  importReading,
   selectAllImportedFeeds,
   submitImport,
   submiting,
   toggleImportedCategory,
   toggleImportedFeed,
-  unLoadedFeeds
+  importUnLoadedFeeds
 } from '../index.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
@@ -73,9 +73,9 @@ afterEach(async () => {
     importedFeedsByCategory,
     importedCategories,
     importedFeeds,
-    reading,
+    importReading,
     submiting,
-    unLoadedFeeds,
+    importUnLoadedFeeds,
     importErrors
   )
   await setTimeout(10)
@@ -87,9 +87,9 @@ test('should initialize with empty states', () => {
   deepStrictEqual(importedFeedsByCategory.get(), [])
   deepStrictEqual(importedCategories.get(), [])
   deepStrictEqual(importedFeeds.get(), [])
-  deepStrictEqual(unLoadedFeeds.get(), [])
+  deepStrictEqual(importUnLoadedFeeds.get(), [])
   deepStrictEqual(importErrors.get(), [])
-  equal(reading.get(), false)
+  equal(importReading.get(), false)
   equal(submiting.get(), false)
 })
 

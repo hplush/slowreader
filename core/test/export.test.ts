@@ -18,13 +18,11 @@ import {
   importedCategories,
   importedFeeds,
   importedFeedsByCategory,
-  reading,
   selectAllExportingFeeds,
   submitImport,
   submiting,
   toggleExportingCategory,
-  toggleExportingFeed,
-  unLoadedFeeds
+  toggleExportingFeed
 } from '../index.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
@@ -50,9 +48,7 @@ afterEach(async () => {
     importedFeedsByCategory,
     importedCategories,
     importedFeeds,
-    reading,
     submiting,
-    unLoadedFeeds,
     exportingFeedsByCategory,
     exporting,
     exportingCategories,

@@ -23,7 +23,7 @@
 
 <ul class="feeds-list" role="list">
   {#each feedsByCategory as [category, feeds] (category.id)}
-    <li>
+    <li class="feeds-list_item">
       <label class="feeds-list_label">
         <input
           checked={selectedCategories.includes(category.id)}
@@ -62,8 +62,12 @@
     margin-top: var(--padding-xl);
   }
 
+  .feeds-list_item {
+    margin-bottom: var(--padding-l);
+  }
+
   .feeds-list_category {
-    display: inline;
+    margin: 0;
   }
 
   .feeds-list_feeds {
@@ -72,6 +76,18 @@
   }
 
   .feeds-list_label {
+    display: flex;
     cursor: pointer;
+  }
+
+  .feeds-list_label input {
+    width: 13px;
+  }
+
+  .feeds-list_label span {
+    max-width: 100%;
+    margin-left: var(--padding-s);
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 </style>
