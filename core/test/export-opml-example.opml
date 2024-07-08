@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+<head>
+<title>Feeds</title>
+</head>
+<body>
+<outline text="General">
+<outline text="Example for tests" type="atom" xmlUrl="https://a.com/atom" />
+<outline text="AppSignal" type="atom" xmlUrl="https://blog.appsignal.com/feed.xml" />
+<outline text="Bartosz Ciechanowski" type="rss" xmlUrl="https://ciechanow.ski/atom.xml" />
+</outline>
+<outline text="custom category">
+<outline text="Ferd.ca" type="rss" xmlUrl="https://ferd.ca/feed.rss" />
+<outline text="Hauleth's blog" type="atom" xmlUrl="https://hauleth.dev/atom.xml" />
+</outline>
+<outline text="Broken category">
+<outline text="Hauleth's blog" type="atom" xmlUrl="https://www.spakhm.com/feed.rss" />
+</outline>
+</body>
+</opml>

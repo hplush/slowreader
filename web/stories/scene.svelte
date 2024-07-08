@@ -13,9 +13,16 @@
     fastLoading,
     fastPosts,
     Feed,
+    type FeedsByCategory,
     type FeedValue,
     Filter,
     hasFeeds,
+    importedFeedsByCategory,
+    importErrors,
+    importLoadingFeeds,
+    importReading,
+    importSubscribe,
+    importUnLoadedFeeds,
     isRefreshing,
     type NetworkTypeDetector,
     nextFastSince,
@@ -26,6 +33,7 @@
     refreshStatistics,
     type RefreshStatistics,
     type Route,
+    selectAllImportedFeeds,
     slowPosts,
     type SlowPostsValue,
     testFeed,
@@ -61,6 +69,12 @@
   export let openedPost: PostValue | undefined = undefined
   export let fasts: FastEntry[] = []
   export let showPagination = false
+
+  // import
+  export let loadingFeeds = {}
+  export let unloadedFeeds: string[] = []
+  export let errors: string[] = []
+  export let feedsByCategory: FeedsByCategory = []
 
   export let responses: Record<string, PreparedResponse | string> = {}
 
@@ -127,6 +141,26 @@
       forceSet(nextFastSince, fasts.length)
     }
 
+    // import stories
+    if (unloadedFeeds.length) {
+      forceSet(importUnLoadedFeeds, unloadedFeeds)
+    }
+
+    if (Object.keys(loadingFeeds).length) {
+      forceSet(importLoadingFeeds, loadingFeeds)
+      forceSet(importReading, true)
+    }
+
+    if (errors.length) {
+      forceSet(importErrors, errors)
+    }
+
+    if (feedsByCategory.length) {
+      forceSet(importedFeedsByCategory, feedsByCategory)
+      importSubscribe()
+      selectAllImportedFeeds()
+    }
+
     return () => {
       forceSet(isRefreshing, false)
       baseRouter.set({ params: {}, route: 'slow' })
@@ -142,6 +176,12 @@
 
       forceSet(fastLoading, 'init')
       forceSet(fastCategory, undefined)
+
+      forceSet(importUnLoadedFeeds, [])
+      forceSet(importLoadingFeeds, {})
+      forceSet(importReading, false)
+      forceSet(importErrors, [])
+      forceSet(importedFeedsByCategory, [])
     }
   })
 </script>

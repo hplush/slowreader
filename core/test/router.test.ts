@@ -6,6 +6,7 @@ import {
   addCategory,
   addFeed,
   addPost,
+  backToFirstStep,
   deleteFeed,
   isFastRoute,
   isGuestRoute,
@@ -255,6 +256,18 @@ test('checks that category exists', async () => {
   deepStrictEqual(router.get(), {
     params: { category: idA, since: 100 },
     route: 'fast'
+  })
+})
+
+test('backRoute handles export with format', () => {
+  userId.set('10')
+  setBaseTestRoute({ params: { format: 'opml' }, route: 'export' })
+
+  backToFirstStep()
+
+  deepStrictEqual(router.get(), {
+    params: { format: undefined },
+    route: 'export'
   })
 })
 

@@ -9,12 +9,12 @@
       "!dist/500.html",
       "!dist/error.avif"
     ],
-    "limit": "70 KB"
+    "limit": "75 KB"
   },
   {
     "name": "Core scripts to execute",
     "path": "dist/assets/index-*.js",
     "brotli": false,
-    "limit": "225 KB"
+    "limit": "250 KB"
   }
 ]

@@ -50,6 +50,7 @@
   </a>
 {:else}
   <button
+    {...$$restProps}
     class="button"
     class:is-dangerous={dangerous}
     class:is-secondary={secondary}
@@ -57,7 +58,7 @@
     class:is-wide={wide}
     aria-keyshortcuts={hotkey}
     title={hiddenLabel}
-    type="button"
+    type={$$restProps.type || 'button'}
     on:click={onClick}
   >
     {#if !hiddenLabel}
