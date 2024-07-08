@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^22.3.0",
+    "node": "^22.4.0",
     "pnpm": "^9.0.0"
   },
-  "packageManager": "pnpm@9.4.0",
+  "packageManager": "pnpm@9.5.0",
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run -r --include-workspace-root /^test:/",
     "start": "FORCE_COLOR=1 pnpm run -r start",
