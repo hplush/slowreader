@@ -1,17 +1,36 @@
-- prependMsg: "[Pull request auto reviewer](https://github.com/marketplace/actions/pull-request-auto-reviewer)"
+- prependMsg: '[Pull request auto-reviewer](https://github.com/marketplace/actions/pull-request-auto-reviewer)'
 - checks:
-    - paths: "pnpm-lock.yaml"
+    - paths: '*'
       message: |
-        - [ ] If you added a new dependency, check our [requirements](https://github.com/hplush/slowreader/blob/main/README.md#dependencies).
+        - Don’t rush. Check all changes in PR again.
+        - Run `pnpm test`.
+        - Think about changing documentation.
+          - If you added a script to `scripts/`, add a comment with a description.
+          - If you added a new folder, add its description to the project’s `README.md`.
+          - If you added config, describe how we use this tool in the config’s comment.
+          - Try to focus on “why?”, not “how?”.
+    - paths: '**/*.ts'
+      message: |
+        - Think about code testing.
+    - paths: 'web/*.svelte'
+      message: |
+        - Think about visual states if you added few feature or fixed bug (to prevent bug regression in the future).
+    - paths: 'pnpm-lock.yaml'
+      message: |
+        - If you added a new dependency, check our [requirements](https://github.com/hplush/slowreader/blob/main/README.md#dependencies).
+    - paths: web/**/*.svelte
+      message: |
+        - Think about moving code to `core/`. What code will also be useful on other platforms?
+        - Think about HTML semantics.
+        - Think about accessibility. Check a11y recommendations. Think about how screen reader users will use the tool. Is it easy to use on a screen with bad contrast?
+    - paths: web/
+      message: |
+        - The UI was checked in Chrome and Firefox (and Safari or Epiphany if you have them).
     - paths: web/main/
       message: |
-        Since you’ve made changes to files in `web/main/` consider these points:
-
-        - Do you need to backport styles changes to `web/public/404.html` or `web/public/500.html`?
-        - Think about app loading styles inlined in `index.html`.
+        - Since you’ve made changes to files in `web/main/` consider these points:
+          1. Do you need to backport styles changes to `web/public/404.html` or `web/public/500.html`?
+          2. Think about app loading styles inlined in `index.html`.
     - paths: core/
       message: |
-        Since you changed `core/`:
-        - [ ] Think about making types more precise. Can you better explain data relations by type?
-        - [ ] Think about conflict resolution. We don’t need some very smart changing merging; just 2 changes of the same item on different clients should not break the database. What if the user changes an item on one machine and removes it on another?
-        - [ ] Think about log and storage migration.
+        - Think about making types more precise. Can you better explain data relations by type?
