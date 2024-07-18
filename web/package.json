@@ -24,7 +24,6 @@
     "clean:build": "rm -rf dist"
   },
   "dependencies": {
-    "@csstools/postcss-oklab-function": "3.0.19",
     "@evilmartians/harmony": "1.2.0",
     "@logux/client": "github:logux/client#next",
     "@logux/core": "0.8.5",
@@ -40,7 +39,6 @@
     "nanoid": "5.0.7",
     "nanostores": "0.10.3",
     "postcss": "8.4.39",
-    "postcss-relative-opacity": "0.1.0",
     "rollup": "4.18.1",
     "svelte": "4.2.18",
     "svelte-preprocess": "6.0.1",
