@@ -155,13 +155,13 @@
 
   .feeds-import_unloaded,
   .feeds-import_loading {
-    padding-left: var(--padding-xl);
+    padding-inline-start: var(--padding-xl);
     margin-bottom: var(--padding-xl);
   }
 
   .feeds-import_loading {
+    padding-inline-start: 0;
     list-style: none;
-    padding-left: 0;
   }
 
   .feeds-import_loading li {
@@ -175,20 +175,21 @@
   }
 
   .feeds-import_item-loader {
+    box-sizing: border-box;
+    display: inline-block;
     width: 12px;
     height: 12px;
-    border: 1px solid #000;
-    border-bottom-color: transparent;
+    border: 1px solid oklch(0 0 0);
+    border-block-end-color: transparent;
     border-radius: 50%;
-    display: inline-block;
-    box-sizing: border-box;
-    animation: rotation 1s linear infinite;
+    animation: --import-rotation 1s linear infinite;
   }
 
-  @keyframes rotation {
+  @keyframes --import-rotation {
     0% {
       transform: rotate(0deg);
     }
+
     100% {
       transform: rotate(360deg);
     }

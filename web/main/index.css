@@ -21,7 +21,7 @@
 body {
   color: var(--text-color);
   background: var(--land-color);
-  -webkit-tap-highlight-color: oklch(0% 0 0 / 0%);
+  -webkit-tap-highlight-color: oklch(0 0 0 / 0%);
 }
 
 body,

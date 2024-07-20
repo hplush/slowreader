@@ -25,8 +25,8 @@
     --icon-move: -8px -5px;
 
     position: absolute;
+    inset-inline-start: 5px;
     top: 8px;
-    left: 5px;
     width: 6px;
     height: 6px;
     overflow: hidden;
@@ -50,8 +50,8 @@
   :global(a:hover) .navbar-fireplace::after,
   :global(a:focus-visible) .navbar-fireplace::after {
     position: absolute;
+    inset-inline-start: 5px;
     top: 8.5px;
-    left: 5px;
     width: 6px;
     height: 5.5px;
     content: '';

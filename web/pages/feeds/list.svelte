@@ -86,7 +86,7 @@
 
   .feeds-list_label span {
     max-width: 100%;
-    margin-left: var(--padding-s);
+    margin-inline-start: var(--padding-s);
     overflow: hidden;
     text-overflow: ellipsis;
   }
