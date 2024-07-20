@@ -6,7 +6,7 @@ export const navbarMessages = i18n('navbar', {
   back: 'Back',
   download: 'Feed Loading',
   export: 'Export',
-  fast: 'Fast',
+  fast: 'Addictive',
   feeds: 'Manage Feeds',
   feedsByCategory: 'By Category',
   import: 'Import',
@@ -17,5 +17,5 @@ export const navbarMessages = i18n('navbar', {
   refresh: 'Check for new posts',
   refreshing: 'Post updating',
   settings: 'Settings',
-  slow: 'Slow'
+  slow: 'Healthy'
 })

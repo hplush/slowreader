@@ -91,7 +91,7 @@
         aria-controls="navbar_submenu"
         aria-current={$router.route === 'slow' ? 'page' : null}
         aria-haspopup="menu"
-        aria-keyshortcuts="s"
+        aria-keyshortcuts="h"
         href={getURL('slow')}
         role="menuitem"
         on:click={openMenu}
@@ -100,7 +100,7 @@
           <div class="navbar_button">
             <NavbarFireplace />
             <span>{$t.slow}</span>
-            <Hotkey hotkey="s" />
+            <Hotkey hotkey="h" />
           </div>
         </div>
       </a>
@@ -109,7 +109,7 @@
         aria-controls="navbar_submenu"
         aria-current={$router.route === 'fast' ? 'page' : null}
         aria-haspopup="menu"
-        aria-keyshortcuts="f"
+        aria-keyshortcuts="a"
         href={getURL('fast')}
         role="menuitem"
         on:click={openMenu}
@@ -118,7 +118,7 @@
           <div class="navbar_button">
             <Icon path={mdiFood} />
             <span>{$t.fast}</span>
-            <Hotkey hotkey="f" />
+            <Hotkey hotkey="a" />
           </div>
         </div>
       </a>
@@ -155,11 +155,16 @@
   :root {
     --navbar-width: 0;
     --navbar-height: 0;
-    --navbar-item: 40px;
+    --navbar-item: 36px;
+    --navbar-color: var(--land-color);
+
+    @media (width <= 1024px) {
+      --navbar-color: var(--above-secondary-color);
+    }
   }
 
   :global(:root.has-navbar) {
-    --navbar-width: 290px;
+    --navbar-width: 300px;
     --navbar-height: 56px;
   }
 
@@ -176,20 +181,20 @@
       inset-block: unset;
       bottom: 0;
       width: 100vw;
-      background-color: var(--land-color);
-      box-shadow: var(--float-shadow);
+      background-color: var(--navbar-color);
+      box-shadow: var(--above-2-shadow);
     }
   }
 
   .navbar_main {
     display: flex;
-    gap: var(--padding-s);
+    gap: 4px;
     justify-content: stretch;
-    padding: var(--padding-m) var(--padding-m) 0 var(--padding-m);
+    padding: 8px 0 0 4px;
 
     @media (width <= 1024px) {
       justify-content: space-between;
-      padding: var(--padding-m);
+      padding: 8px;
     }
   }
 
@@ -214,7 +219,7 @@
     flex-grow: 1;
     flex-shrink: 1;
     gap: 2px;
-    padding: var(--padding-m);
+    padding: 8px 0 0 4px;
     overflow-y: auto;
 
     @media (width <= 1024px) {
@@ -239,8 +244,8 @@
 
   .navbar_link {
     position: relative;
-    width: 50%;
     border-radius: var(--radius);
+    flex-grow: 1;
 
     &:first-child {
       border-start-end-radius: 0;
@@ -251,13 +256,14 @@
       margin-inline-start: -1px;
       border-start-start-radius: 0;
       border-end-start-radius: 0;
+      border-left: 1px solid var(--border-color);
     }
 
     & .navbar_overflow {
       padding: 5px;
       margin: -5px;
       overflow: hidden;
-      background: var(--land-color);
+      background: var(--navbar-color);
     }
 
     &:first-child .navbar_overflow {
@@ -274,13 +280,14 @@
       position: relative;
       box-sizing: border-box;
       display: inline-flex;
-      gap: var(--padding-m);
+      gap: 6px;
       align-items: center;
       justify-content: center;
       width: 100%;
+      padding-inline-start: 10px;
+      padding-inline-end: 16px;
+      font: var(--secondary-font);
       height: var(--navbar-item);
-      padding-inline: var(--padding-l);
-      font-weight: 600;
       line-height: var(--navbar-item);
       color: var(--text-color);
       text-decoration: none;
@@ -300,6 +307,19 @@
     &:last-child .navbar_button {
       border-start-start-radius: 0;
       border-end-start-radius: 0;
+    }
+
+    &:focus-visible {
+      outline: none;
+
+      & .navbar_button {
+        z-index: 10;
+        outline: 3px solid var(--focus-color);
+        outline-offset: -3px;
+        transition:
+          outline-width 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
+          outline-offset 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
     }
 
     &:hover .navbar_button,
