@@ -244,8 +244,8 @@
 
   .navbar_link {
     position: relative;
-    border-radius: var(--radius);
     flex-grow: 1;
+    border-radius: var(--radius);
 
     &:first-child {
       border-start-end-radius: 0;
@@ -254,9 +254,9 @@
 
     &:last-child {
       margin-inline-start: -1px;
+      border-inline-start: 1px solid var(--border-color);
       border-start-start-radius: 0;
       border-end-start-radius: 0;
-      border-left: 1px solid var(--border-color);
     }
 
     & .navbar_overflow {
@@ -284,10 +284,9 @@
       align-items: center;
       justify-content: center;
       width: 100%;
-      padding-inline-start: 10px;
-      padding-inline-end: 16px;
-      font: var(--secondary-font);
       height: var(--navbar-item);
+      padding-inline: 10px 16px;
+      font: var(--secondary-font);
       line-height: var(--navbar-item);
       color: var(--text-color);
       text-decoration: none;

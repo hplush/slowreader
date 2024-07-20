@@ -6,12 +6,9 @@
   --fire1-color: oklch(0.7 0.15 65);
   --fire2-color: oklch(0.58 0.2 29);
   --error-color: oklch(0.6 0.2 25);
-
   --flat-hover-color: oklch(from var(--land-color) calc(l + 0.02) c h);
   --flat-current-color: oklch(from var(--land-color) calc(l + 0.03) calc(c / 2) h);
-
   --card-color: oklch(from var(--land-color) calc(l + 0.03) calc(c / 2) h);
-
   --below-1-shadow:
     inset 0 0.3px 0.5px var(--shadow-color),
     inset 0 0.6px 1px var(--shadow-color),
@@ -20,17 +17,15 @@
     0 0.3px 0.5px var(--shadow-color),
     0 0.6px 1px var(--shadow-color),
     0 1.2px 2px var(--shadow-color);
-  --above-2-shadow: TODO;
+  --above-2-shadow: todo;
 
   @media (prefers-color-scheme: light) {
     --text-color: oklch(0.15 0 0);
-    --secondary-text-color: oklch(50% 0 0);
+    --secondary-text-color: oklch(0.5 0 0);
     --hotkey-color: oklch(0.7 0 0);
-
     --land-color: oklch(0.95 0 70);
     --shadow-color: oklch(from var(--land-color) 0.65 calc(c * 2) h / 45%);
     --border-color: oklch(0 0 0 / 15%);
-
     --above-color: oklch(from var(--land-color) 0.96 c h);
     --above-secondary-color: oklch(from var(--land-color) 0.93 c h);
 
@@ -43,10 +38,8 @@
     --text-color: oklch(0.98 0 0);
     --secondary-text-color: oklch(0.6 0 0);
     --hotkey-color: oklch(0.5 0 0);
-
     --land-color: oklch(0.25 0 70);
     --shadow-color: oklch(0 0 0 / 80%);
-
     --above-color: oklch(from var(--land-color) 0.3 c h);
     --above-secondary-color: oklch(from var(--land-color) 0.3 c h);
 
