@@ -94,10 +94,8 @@
     align-items: center;
     justify-content: flex-start;
     height: var(--navbar-item);
-    padding-inline-start: 13px;
-    padding-inline-end: 8px;
+    padding-inline: 13px 8px;
     overflow: hidden;
-    outline-offset: -3px;
     font: var(--control-font);
     font-weight: normal;
     color: var(--text-color);
@@ -107,6 +105,7 @@
     background: transparent;
     border: none;
     border-radius: var(--radius);
+    outline-offset: -3px;
 
     &.is-small {
       justify-content: center;
@@ -128,9 +127,9 @@
     }
 
     &:active {
-      box-shadow: var(--below-1-shadow);
-      background: var(--flat-current-color);
       padding-top: 1px;
+      background: var(--flat-current-color);
+      box-shadow: var(--below-1-shadow);
     }
 
     @media (width <= 1024px) {
