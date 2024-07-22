@@ -91,7 +91,7 @@
         aria-controls="navbar_submenu"
         aria-current={$router.route === 'slow' ? 'page' : null}
         aria-haspopup="menu"
-        aria-keyshortcuts="h"
+        aria-keyshortcuts="u"
         href={getURL('slow')}
         role="menuitem"
         on:click={openMenu}
@@ -100,7 +100,7 @@
           <div class="navbar_button">
             <NavbarFireplace />
             <span>{$t.slow}</span>
-            <Hotkey hotkey="h" />
+            <Hotkey hotkey="u" />
           </div>
         </div>
       </a>
@@ -109,7 +109,7 @@
         aria-controls="navbar_submenu"
         aria-current={$router.route === 'fast' ? 'page' : null}
         aria-haspopup="menu"
-        aria-keyshortcuts="a"
+        aria-keyshortcuts="f"
         href={getURL('fast')}
         role="menuitem"
         on:click={openMenu}
@@ -118,7 +118,7 @@
           <div class="navbar_button">
             <Icon path={mdiFood} />
             <span>{$t.fast}</span>
-            <Hotkey hotkey="a" />
+            <Hotkey hotkey="f" />
           </div>
         </div>
       </a>
@@ -164,7 +164,7 @@
   }
 
   :global(:root.has-navbar) {
-    --navbar-width: 300px;
+    --navbar-width: 290px;
     --navbar-height: 56px;
   }
 
@@ -244,7 +244,7 @@
 
   .navbar_link {
     position: relative;
-    flex-grow: 1;
+    width: 50%;
     border-radius: var(--radius);
 
     &:first-child {
@@ -286,7 +286,7 @@
       width: 100%;
       height: var(--navbar-item);
       padding-inline: 10px 16px;
-      font: var(--secondary-font);
+      font: var(--control-font);
       line-height: var(--navbar-item);
       color: var(--text-color);
       text-decoration: none;

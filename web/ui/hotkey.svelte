@@ -11,8 +11,8 @@
 <style>
   .hotkey {
     position: absolute;
-    inset-inline-end: 4px;
-    top: 2px;
+    inset-inline-end: 5px;
+    top: 3px;
     font: var(--hotkey-font);
     font-variant-caps: all-small-caps;
     color: var(--hotkey-color);
