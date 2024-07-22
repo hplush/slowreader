@@ -90,11 +90,11 @@
     position: relative;
     box-sizing: border-box;
     display: flex;
-    gap: var(--padding-m);
+    gap: 6px;
     align-items: center;
     justify-content: flex-start;
     height: var(--navbar-item);
-    padding: 0 13px;
+    padding-inline: 13px 8px;
     overflow: hidden;
     font: var(--control-font);
     font-weight: normal;
@@ -105,6 +105,7 @@
     background: transparent;
     border: none;
     border-radius: var(--radius);
+    outline-offset: -3px;
 
     &.is-small {
       justify-content: center;
@@ -122,15 +123,13 @@
 
     &[aria-current='page'] {
       cursor: default;
-      background: var(--card-color);
+      background: var(--flat-current-color);
     }
 
     &:active {
-      box-shadow: var(--flat-active-shadow);
-
-      & > * {
-        transform: translateY(1px);
-      }
+      padding-top: 1px;
+      background: var(--flat-current-color);
+      box-shadow: var(--below-1-shadow);
     }
 
     @media (width <= 1024px) {

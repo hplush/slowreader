@@ -148,7 +148,7 @@
       }
 
       &:active {
-        box-shadow: var(--flat-active-shadow);
+        box-shadow: var(--above-2-shadow);
       }
     }
   }

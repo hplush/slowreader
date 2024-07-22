@@ -91,7 +91,7 @@
         aria-controls="navbar_submenu"
         aria-current={$router.route === 'slow' ? 'page' : null}
         aria-haspopup="menu"
-        aria-keyshortcuts="s"
+        aria-keyshortcuts="u"
         href={getURL('slow')}
         role="menuitem"
         on:click={openMenu}
@@ -100,7 +100,7 @@
           <div class="navbar_button">
             <NavbarFireplace />
             <span>{$t.slow}</span>
-            <Hotkey hotkey="s" />
+            <Hotkey hotkey="u" />
           </div>
         </div>
       </a>
@@ -155,7 +155,12 @@
   :root {
     --navbar-width: 0;
     --navbar-height: 0;
-    --navbar-item: 40px;
+    --navbar-item: 36px;
+    --navbar-color: var(--land-color);
+
+    @media (width <= 1024px) {
+      --navbar-color: var(--above-secondary-color);
+    }
   }
 
   :global(:root.has-navbar) {
@@ -176,20 +181,20 @@
       inset-block: unset;
       bottom: 0;
       width: 100vw;
-      background-color: var(--land-color);
-      box-shadow: var(--float-shadow);
+      background-color: var(--navbar-color);
+      box-shadow: var(--above-2-shadow);
     }
   }
 
   .navbar_main {
     display: flex;
-    gap: var(--padding-s);
+    gap: 4px;
     justify-content: stretch;
-    padding: var(--padding-m) var(--padding-m) 0 var(--padding-m);
+    padding: 8px 0 0 4px;
 
     @media (width <= 1024px) {
       justify-content: space-between;
-      padding: var(--padding-m);
+      padding: 8px;
     }
   }
 
@@ -214,7 +219,7 @@
     flex-grow: 1;
     flex-shrink: 1;
     gap: 2px;
-    padding: var(--padding-m);
+    padding: 8px 0 0 4px;
     overflow-y: auto;
 
     @media (width <= 1024px) {
@@ -249,6 +254,7 @@
 
     &:last-child {
       margin-inline-start: -1px;
+      border-inline-start: 1px solid var(--border-color);
       border-start-start-radius: 0;
       border-end-start-radius: 0;
     }
@@ -257,7 +263,7 @@
       padding: 5px;
       margin: -5px;
       overflow: hidden;
-      background: var(--land-color);
+      background: var(--navbar-color);
     }
 
     &:first-child .navbar_overflow {
@@ -274,13 +280,13 @@
       position: relative;
       box-sizing: border-box;
       display: inline-flex;
-      gap: var(--padding-m);
+      gap: 6px;
       align-items: center;
       justify-content: center;
       width: 100%;
       height: var(--navbar-item);
-      padding-inline: var(--padding-l);
-      font-weight: 600;
+      padding-inline: 10px 16px;
+      font: var(--control-font);
       line-height: var(--navbar-item);
       color: var(--text-color);
       text-decoration: none;
@@ -300,6 +306,19 @@
     &:last-child .navbar_button {
       border-start-start-radius: 0;
       border-end-start-radius: 0;
+    }
+
+    &:focus-visible {
+      outline: none;
+
+      & .navbar_button {
+        z-index: 10;
+        outline: 3px solid var(--focus-color);
+        outline-offset: -3px;
+        transition:
+          outline-width 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
+          outline-offset 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
     }
 
     &:hover .navbar_button,
