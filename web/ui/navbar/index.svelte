@@ -175,7 +175,7 @@
     @media (width <= 1024px) {
       inset-block: unset;
       bottom: 0;
-      width: 100%;
+      width: 100vw;
       background-color: var(--land-color);
       box-shadow: var(--float-shadow);
     }
