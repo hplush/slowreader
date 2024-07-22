@@ -154,6 +154,7 @@
 <style>
   :root {
     --navbar-width: 0;
+    --navbar-height: 0;
     --navbar-item: 40px;
   }
 

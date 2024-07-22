@@ -30,7 +30,7 @@
     padding: var(--padding-m) var(--padding-l);
 
     @media (width <= 1024px) {
-      padding-inline-start: var(--navbar-height);
+      padding-bottom: var(--navbar-height);
     }
 
     &.is-list {
