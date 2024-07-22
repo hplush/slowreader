@@ -22,7 +22,7 @@
       message: |
         - Think about moving code to `core/`. What code will also be useful on other platforms?
         - Think about HTML semantics.
-        - Think about accessibility. Check a11y recommendations. Think about how screen reader users will use the tool. Is it easy to use on a screen with bad contrast?
+        - Think about accessibility. Try to search for a11y recommendations for your case. Think about how screen reader users will use the tool. Is it easy to use on a screen with bad contrast?
     - paths: web/
       message: |
         - The UI was checked in Chrome and Firefox (and Safari or Epiphany if you have them).
