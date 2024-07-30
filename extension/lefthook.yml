@@ -1,0 +1,6 @@
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      glob: '*.{js,ts,tsx,json}'
+      run: pnpm eslint --fix {staged_files} && git add {staged_files}
