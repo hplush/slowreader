@@ -1,5 +1,5 @@
-import { AppMessage, ExtensionMessage } from './api'
-import { config } from './config'
+import type { AppMessage, ExtensionMessage } from './api.js'
+import { config } from './config.js'
 
 const FETCH_TIMEOUT_MS = 30000
 

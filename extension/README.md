@@ -1,17 +1,10 @@
 # Slowreader extension
 
-## Tooling
-
-- React + Vite
-- [Typescript](https://github.com/hplush/slowreader/blob/main/tsconfig.json)
-- Linters: [Prettier](https://github.com/hplush/slowreader/blob/main/.prettierrc), [ESLint](https://github.com/hplush/slowreader/blob/main/eslint.config.js)
-
 ## Scripts
 
 - `pnpm install` to install dependencies
 - `pnpm dev` to run the plugin in development mode
 - `pnpm build` to build the plugin for production
-- `pnpm lint` to run linters
 
 ## Quickstart
 
@@ -59,9 +52,7 @@ port.onDisconnect.addListener(() => {})
 
 ## Publishing
 
-- In the `manifest.json` place `"https://dev.slowreader.app/*"` instead of `"http://localhost:5173/*"`
-
-- Run `yarn build` to build the production files (will be located in `dist/`)
+- Run `pnpm build` to build the production files (will be located in `dist/`)
 
 - Zip the content of the `dist/` folder
 

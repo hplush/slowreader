@@ -8,9 +8,8 @@
     "pnpm": "^9.0.0"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint . --fix"
+    "dev": "node build.js dev && vite",
+    "build": "node build.js prod && vite build"
   },
   "keywords": [],
   "author": "ninatorgunakova@gmail.com",
@@ -22,21 +21,9 @@
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "2.0.0-beta.23",
-    "@evilmartians/lefthook": "^1.7.9",
-    "@types/chrome": "^0.0.269",
-    "@types/node": "^20.14.12",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
-    "@typescript-eslint/eslint-plugin": "^7.17.0",
-    "@typescript-eslint/parser": "^7.17.0",
     "@vitejs/plugin-react": "^4.2.1",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-jsx-a11y": "^6.9.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-react": "^7.35.0",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "typescript": "^5.2.2",
     "vite": "^5.3.4"
   }
 }
