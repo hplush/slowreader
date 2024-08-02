@@ -1,15 +1,11 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 function prepareManifest(env) {
   let manifestFile = `manifest.${env}.json`
 
-  let srcPath = path.join(__dirname, manifestFile)
-  let destPath = path.join(__dirname, 'manifest.json')
+  let srcPath = path.join(import.meta.dirname, manifestFile)
+  let destPath = path.join(import.meta.dirname, 'manifest.json')
 
   fs.copyFileSync(srcPath, destPath)
 }
