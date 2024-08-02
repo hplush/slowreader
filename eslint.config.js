@@ -7,7 +7,8 @@ export default [
       'web/dist/',
       'web/storybook-static/',
       'proxy/dist/',
-      'web/vite.config.ts.*'
+      'web/vite.config.ts.*',
+      'extension/dist/'
     ]
   },
   ...loguxSvelteConfig,

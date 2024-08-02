@@ -1,4 +1,4 @@
-# Slowreader extension
+# Slowreader Extension
 
 ## Scripts
 
@@ -13,17 +13,15 @@
 - Open `chrome://extensions/` -> `Load unpacked` and choose `dist` folder from this repo. The extension should appear in the list of your extensions
 - In the `.env` file of the main app, place the next line (`EXTENSION_ID` can be found in the `ID` line inside the uploaded extension block):
 
-```
-VITE_EXTENSION_ID=<EXTENSION_ID>
-```
+`VITE_EXTENSION_ID=<EXTENSION_ID>`
 
 - Run the main app
 
-During the development process, you can re-build the extension by clicking on the update button at the right bottom of the extension's block.
+During the development process, you can re-build the extension by clicking on the update button at the right bottom of the extension’s block.
 
-You can see the console for errors and logs by clicking on the link at the line `Inspect views: service worker` in the extension's block.
+You can see the console for errors and logs by clicking on the link at the line `Inspect views: service worker` in the extension’s block.
 
-## Using the extension in the main application
+## Using the Extension in the Main Application
 
 Connect the extension on application start:
 
