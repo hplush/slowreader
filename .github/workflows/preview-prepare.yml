@@ -11,6 +11,7 @@ on:
       - '.github/**'
       - 'core/test/**'
       - 'loader-tests/**'
+      - '.devcontainer/**'
 permissions:
   contents: read
 jobs:
