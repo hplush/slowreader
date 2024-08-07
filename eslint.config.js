@@ -1,6 +1,6 @@
 import loguxSvelteConfig from '@logux/eslint-config/svelte'
 
-/** @type {import('eslint').Linter.FlatConfig[]} */
+/** @type {import('eslint').Linter.Config[]} */
 export default [
   {
     ignores: [
