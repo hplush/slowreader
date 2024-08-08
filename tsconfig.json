@@ -4,6 +4,7 @@
     "noUncheckedIndexedAccess": true,
     "verbatimModuleSyntax": true,
     "moduleResolution": "NodeNext",
+    "types": ["chrome"],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "allowJs": true,
