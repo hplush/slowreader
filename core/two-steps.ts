@@ -1,6 +1,6 @@
 import { atom } from 'nanostores'
 
-import { backRoute } from './router.ts'
+import { backRoute } from './router.js'
 
 export let secondStep = atom<boolean>(false)
 
