@@ -7,7 +7,7 @@ import {
   forceSet,
   increaseKey,
   listenMany
-} from '../../lib/stores.js'
+} from '../../lib/stores.ts'
 
 test('force set', () => {
   let $a: ReadableAtom<number> = atom<number>(1)

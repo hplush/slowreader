@@ -5,7 +5,7 @@ import { after, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 import { URL } from 'node:url'
 
-import { createProxyServer } from '../proxy.js'
+import { createProxyServer } from '../proxy.ts'
 
 function getURL(server: Server): string {
   let port = (server.address() as AddressInfo).port

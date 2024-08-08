@@ -22,8 +22,8 @@ import {
   refreshStatistics,
   stopRefreshing,
   testFeed
-} from '../index.js'
-import { cleanClientTest, createPromise, enableClientTest } from './utils.js'
+} from '../index.ts'
+import { cleanClientTest, createPromise, enableClientTest } from './utils.ts'
 
 beforeEach(() => {
   mockRequest()

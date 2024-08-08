@@ -5,11 +5,11 @@ import {
   addCategory,
   type CategoryValue,
   type FeedsByCategory
-} from './category.js'
-import { addFeed, type FeedValue } from './feed.js'
-import { readonlyExport } from './lib/stores.js'
-import { importMessages } from './messages/index.js'
-import { createFeedFromUrl } from './preview.js'
+} from './category.ts'
+import { addFeed, type FeedValue } from './feed.ts'
+import { readonlyExport } from './lib/stores.ts'
+import { importMessages } from './messages/index.ts'
+import { createFeedFromUrl } from './preview.ts'
 
 let $importedFeedsByCategory = atom<FeedsByCategory>([])
 let $importedCategories = atom<string[]>([])

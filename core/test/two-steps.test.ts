@@ -1,4 +1,4 @@
-import './dom-parser.js'
+import './dom-parser.ts'
 
 import { deepStrictEqual, strictEqual } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
@@ -20,8 +20,8 @@ import {
   setPreviewUrl,
   testFeed,
   testPost
-} from '../index.js'
-import { cleanClientTest, enableClientTest } from './utils.js'
+} from '../index.ts'
+import { cleanClientTest, enableClientTest } from './utils.ts'
 
 beforeEach(() => {
   enableClientTest()

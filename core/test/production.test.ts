@@ -1,10 +1,10 @@
-import './environment.js'
+import './environment.ts'
 
 import { cleanStores } from 'nanostores'
 import { match } from 'node:assert'
 import { afterEach, test } from 'node:test'
 
-import { client, userId } from '../index.js'
+import { client, userId } from '../index.ts'
 
 global.WebSocket = function () {} as any
 

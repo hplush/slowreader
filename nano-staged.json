@@ -3,11 +3,11 @@
   "*.css": "stylelint --fix",
   "*.svelte": ["prettier --write", "stylelint --fix"],
   "*.svg": "svgo",
-  ".devcontainer/Dockerfile": "tsx ./scripts/check-versions.ts",
-  ".node-version": "tsx ./scripts/check-versions.ts",
-  "package.json": "tsx ./scripts/check-versions.ts",
-  "*/package.json": "tsx ./scripts/check-versions.ts",
-  "*/Dockerfile": "tsx ./scripts/check-versions.ts",
-  "*.test.ts": "tsx ./scripts/check-focused-tests.ts",
-  "core/messages/*/en.ts": "tsx ./scripts/check-messages.ts"
+  ".devcontainer/Dockerfile": "node --experimental-strip-types ./scripts/check-versions.ts",
+  ".node-version": "node --experimental-strip-types ./scripts/check-versions.ts",
+  "package.json": "node --experimental-strip-types ./scripts/check-versions.ts",
+  "*/package.json": "node --experimental-strip-types ./scripts/check-versions.ts",
+  "*/Dockerfile": "node --experimental-strip-types ./scripts/check-versions.ts",
+  "*.test.ts": "node --experimental-strip-types ./scripts/check-focused-tests.ts",
+  "core/messages/*/en.ts": "node --experimental-strip-types ./scripts/check-messages.ts"
 }

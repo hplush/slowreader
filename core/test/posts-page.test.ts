@@ -1,7 +1,7 @@
 import { deepStrictEqual } from 'node:assert'
 import { test } from 'node:test'
 
-import { createPostsPage, type OriginPost } from '../index.js'
+import { createPostsPage, type OriginPost } from '../index.ts'
 
 const POST1: OriginPost = {
   full: '1',

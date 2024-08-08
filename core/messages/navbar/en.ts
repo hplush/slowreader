@@ -1,4 +1,4 @@
-import { i18n } from '../../i18n.js'
+import { i18n } from '../../i18n.ts'
 
 export const navbarMessages = i18n('navbar', {
   about: 'About the App',

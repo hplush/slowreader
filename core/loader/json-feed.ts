@@ -1,15 +1,15 @@
-import { warning } from '../devtools.js'
-import type { TextResponse } from '../download.js'
-import type { OriginPost } from '../post.js'
-import { createPostsPage } from '../posts-page.js'
-import type { Loader } from './index.js'
+import { warning } from '../devtools.ts'
+import type { TextResponse } from '../download.ts'
+import type { OriginPost } from '../post.ts'
+import { createPostsPage } from '../posts-page.ts'
+import type { Loader } from './index.ts'
 import {
   findAnchorHrefs,
   findLinksByType,
   isHTML,
   toTime,
   unique
-} from './utils.js'
+} from './utils.ts'
 
 // https://www.jsonfeed.org/version/1.1/
 interface JsonFeed {

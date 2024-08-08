@@ -1,5 +1,5 @@
-import { warning } from './devtools.js'
-import { request } from './request.js'
+import { warning } from './devtools.ts'
+import { request } from './request.ts'
 
 export interface TextResponse {
   readonly contentType: string

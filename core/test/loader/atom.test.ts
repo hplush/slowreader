@@ -1,4 +1,4 @@
-import '../dom-parser.js'
+import '../dom-parser.ts'
 
 import { spyOn } from 'nanospy'
 import { deepStrictEqual, equal } from 'node:assert'
@@ -10,7 +10,7 @@ import {
   createTextResponse,
   loaders,
   type TextResponse
-} from '../../index.js'
+} from '../../index.ts'
 
 function exampleAtom(responseBody: string): TextResponse {
   return createTextResponse(responseBody, {

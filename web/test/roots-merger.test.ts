@@ -2,7 +2,7 @@ import { equal } from 'node:assert'
 import { test } from 'node:test'
 import postcss from 'postcss'
 
-import { rootsMerger } from '../postcss/roots-merger.js'
+import { rootsMerger } from '../postcss/roots-merger.ts'
 
 function run(input: string, output: string): void {
   let result = postcss([rootsMerger]).process(input, { from: undefined })

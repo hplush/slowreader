@@ -1,4 +1,4 @@
-import './dom-parser.js'
+import './dom-parser.ts'
 
 import { ensureLoaded } from '@logux/client'
 import { restoreAll, spyOn } from 'nanospy'
@@ -35,8 +35,8 @@ import {
   setPreviewCandidate,
   setPreviewUrl,
   testFeed
-} from '../index.js'
-import { cleanClientTest, enableClientTest } from './utils.js'
+} from '../index.ts'
+import { cleanClientTest, enableClientTest } from './utils.ts'
 
 beforeEach(() => {
   enableClientTest()

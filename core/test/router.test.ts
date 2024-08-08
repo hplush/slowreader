@@ -18,8 +18,8 @@ import {
   testFeed,
   testPost,
   userId
-} from '../index.js'
-import { cleanClientTest, enableClientTest } from './utils.js'
+} from '../index.ts'
+import { cleanClientTest, enableClientTest } from './utils.ts'
 
 beforeEach(() => {
   enableClientTest()

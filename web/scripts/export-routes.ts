@@ -5,7 +5,7 @@
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { pathRouter } from '../stores/router.js'
+import { pathRouter } from '../stores/router.ts'
 
 const ROUTES = join(import.meta.dirname, '../routes.regexp')
 

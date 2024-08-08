@@ -1,4 +1,4 @@
-import { i18n } from '../../i18n.js'
+import { i18n } from '../../i18n.ts'
 
 export const previewMessages = i18n('preview', {
   add: 'Subscribe to feed',

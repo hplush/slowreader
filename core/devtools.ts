@@ -1,8 +1,8 @@
-import { busyDuring } from './busy.js'
-import { createDownloadTask } from './download.js'
-import { getFeedLatestPosts, loadFeeds } from './feed.js'
-import { loadFilters, prepareFilters } from './filter.js'
-import { addPost, deletePost, loadPosts, processOriginPost } from './post.js'
+import { busyDuring } from './busy.ts'
+import { createDownloadTask } from './download.ts'
+import { getFeedLatestPosts, loadFeeds } from './feed.ts'
+import { loadFilters, prepareFilters } from './filter.ts'
+import { addPost, deletePost, loadPosts, processOriginPost } from './post.ts'
 
 export async function fillFeedsWithPosts(): Promise<void> {
   await busyDuring(async () => {

@@ -6,7 +6,7 @@ import {
   getVarsCleanerError,
   resetCleanerGlobals,
   varsCleaner
-} from '../postcss/vars-cleaner.js'
+} from '../postcss/vars-cleaner.ts'
 
 function run(input: string, output: string): string | undefined {
   let result = postcss([varsCleaner]).process(input, { from: undefined })

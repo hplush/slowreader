@@ -14,7 +14,7 @@ import {
   setBaseTestRoute,
   setupEnvironment,
   userId
-} from '../index.js'
+} from '../index.ts'
 
 export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
   setupEnvironment({ ...getTestEnvironment(), ...env })

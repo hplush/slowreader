@@ -12,12 +12,12 @@ import {
 import { nanoid } from 'nanoid'
 import { atom, onMount } from 'nanostores'
 
-import { client, getClient } from './client.js'
-import { createDownloadTask } from './download.js'
-import { type OptionalId, readonlyExport } from './lib/stores.js'
-import { type LoaderName, loaders } from './loader/index.js'
-import { deletePost, loadPosts, recalcPostsReading } from './post.js'
-import type { PostsPage } from './posts-page.js'
+import { client, getClient } from './client.ts'
+import { createDownloadTask } from './download.ts'
+import { type OptionalId, readonlyExport } from './lib/stores.ts'
+import { type LoaderName, loaders } from './loader/index.ts'
+import { deletePost, loadPosts, recalcPostsReading } from './post.ts'
+import type { PostsPage } from './posts-page.ts'
 
 export type FeedValue = {
   categoryId: string

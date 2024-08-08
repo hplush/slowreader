@@ -4,10 +4,10 @@ import { TestPair, TestTime } from '@logux/core'
 import { SUBPROTOCOL } from '@slowreader/api'
 import { atom } from 'nanostores'
 
-import { onEnvironment } from './environment.js'
-import { SlowReaderError } from './error.js'
-import { computeFrom, readonlyExport } from './lib/stores.js'
-import { userId } from './settings.js'
+import { onEnvironment } from './environment.ts'
+import { SlowReaderError } from './error.ts'
+import { computeFrom, readonlyExport } from './lib/stores.ts'
+import { userId } from './settings.ts'
 
 let testTime: TestTime | undefined
 

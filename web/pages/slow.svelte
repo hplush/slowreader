@@ -8,7 +8,7 @@
     totalSlowPosts
   } from '@slowreader/core'
 
-  import { getURL } from '../stores/router.js'
+  import { getURL } from '../stores/router.ts'
   import Loader from '../ui/loader.svelte'
   import PaginationBar from '../ui/pagination-bar.svelte'
   import PostCard from '../ui/post-card.svelte'

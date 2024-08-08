@@ -1,7 +1,7 @@
-import type { TextResponse } from '../download.js'
-import type { OriginPost } from '../post.js'
-import { createPostsPage } from '../posts-page.js'
-import type { Loader } from './index.js'
+import type { TextResponse } from '../download.ts'
+import type { OriginPost } from '../post.ts'
+import { createPostsPage } from '../posts-page.ts'
+import type { Loader } from './index.ts'
 import {
   findAnchorHrefs,
   findImageByAttr,
@@ -9,7 +9,7 @@ import {
   isHTML,
   toTime,
   unique
-} from './utils.js'
+} from './utils.ts'
 
 const MEDIA_NS_URI = 'http://search.yahoo.com/mrss/'
 

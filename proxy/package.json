@@ -7,7 +7,7 @@
     "pnpm": "^9.0.0"
   },
   "scripts": {
-    "start": "tsx watch index.ts",
+    "start": "node --experimental-strip-types watch index.ts",
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
     "build": "esbuild index.ts --bundle --platform=node --sourcemap --format=esm --outfile=dist/index.mjs",
     "production": "node --run build && ./scripts/run-image.sh",
@@ -19,8 +19,7 @@
     "esbuild": "0.23.0"
   },
   "devDependencies": {
-    "better-node-test": "0.5.1",
-    "c8": "10.1.2",
-    "tsx": "4.16.5"
+    "better-node-test": "0.6.0",
+    "c8": "10.1.2"
   }
 }

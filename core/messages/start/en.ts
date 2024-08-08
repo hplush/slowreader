@@ -1,4 +1,4 @@
-import { i18n } from '../../i18n.js'
+import { i18n } from '../../i18n.ts'
 
 export const startMessages = i18n('start', {
   localButton: 'Start local demo',

@@ -1,4 +1,4 @@
-import { createCLI, enableTestClient, fetchAndParsePosts } from './utils.js'
+import { createCLI, enableTestClient, fetchAndParsePosts } from './utils.ts'
 
 let cli = createCLI(
   'Debug post loading with specific feed',

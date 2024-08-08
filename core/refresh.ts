@@ -1,17 +1,17 @@
 import { atom, computed, map } from 'nanostores'
 
-import { createDownloadTask, type DownloadTask } from './download.js'
+import { createDownloadTask, type DownloadTask } from './download.ts'
 import {
   changeFeed,
   type FeedValue,
   getFeed,
   getFeedLatestPosts,
   loadFeeds
-} from './feed.js'
-import { type FilterChecker, loadFilters, prepareFilters } from './filter.js'
-import { createQueue, type Queue, retryOnError } from './lib/queue.js'
-import { increaseKey, readonlyExport } from './lib/stores.js'
-import { addPost, type OriginPost, processOriginPost } from './post.js'
+} from './feed.ts'
+import { type FilterChecker, loadFilters, prepareFilters } from './filter.ts'
+import { createQueue, type Queue, retryOnError } from './lib/queue.ts'
+import { increaseKey, readonlyExport } from './lib/stores.ts'
+import { addPost, type OriginPost, processOriginPost } from './post.ts'
 
 let $isRefreshing = atom(false)
 export const isRefreshing = readonlyExport($isRefreshing)

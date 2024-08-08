@@ -1,6 +1,6 @@
 import { map, type ReadableAtom, type StoreValue } from 'nanostores'
 
-import type { OriginPost } from './post.js'
+import type { OriginPost } from './post.ts'
 
 export interface PostsPageValue {
   hasNext: boolean

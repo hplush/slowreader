@@ -1,4 +1,4 @@
-import './dom-parser.js'
+import './dom-parser.ts'
 
 import { cleanStores } from 'nanostores'
 import { deepStrictEqual, equal, ok } from 'node:assert'
@@ -24,8 +24,8 @@ import {
   submiting,
   toggleExportingCategory,
   toggleExportingFeed
-} from '../index.js'
-import { cleanClientTest, enableClientTest } from './utils.js'
+} from '../index.ts'
+import { cleanClientTest, enableClientTest } from './utils.ts'
 
 async function loadFile(name: string): Promise<string> {
   let path = join(import.meta.dirname, 'fixtures', name)

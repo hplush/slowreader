@@ -43,13 +43,13 @@
   import { cleanStores } from 'nanostores'
   import { onMount } from 'svelte'
 
-  import { forceSet } from '../../core/lib/stores.js'
+  import { forceSet } from '../../core/lib/stores.ts'
   import {
     baseRouter,
     type PreparedResponse,
     prepareResponses,
     setNetworkType
-  } from './environment.js'
+  } from './environment.ts'
 
   const DEFAULT_NETWORK: ReturnType<NetworkTypeDetector> = {
     saveData: false,

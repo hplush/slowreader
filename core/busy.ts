@@ -1,7 +1,7 @@
 import { atom, computed } from 'nanostores'
 
-import { onEnvironment } from './environment.js'
-import { hasFeeds } from './feed.js'
+import { onEnvironment } from './environment.ts'
+import { hasFeeds } from './feed.ts'
 
 const $tasks = atom(0)
 

@@ -14,18 +14,18 @@
     "format": "pnpm run -r --include-workspace-root /^format:/",
     "clean": "pnpm run -r --include-workspace-root /^clean:/",
     "build": "pnpm run -r build",
-    "update-env": "tsx ./scripts/update-env.ts",
+    "update-env": "node --experimental-strip-types ./scripts/update-env.ts",
     "format:prettier": "prettier -w **/*.{js,ts,html,md,cjs,json} *.{js,json,md}",
     "test:js": "eslint .",
     "test:types": "svelte-check",
     "test:audit": "pnpm audit --prod",
-    "test:focused": "tsx ./scripts/check-focused-tests.ts",
-    "test:messages": "tsx ./scripts/check-messages.ts",
-    "test:versions": "tsx ./scripts/check-versions.ts",
+    "test:focused": "node --experimental-strip-types ./scripts/check-focused-tests.ts",
+    "test:messages": "node --experimental-strip-types ./scripts/check-messages.ts",
+    "test:versions": "node --experimental-strip-types ./scripts/check-versions.ts",
     "test:markdown": "remark . --frail",
     "test:format": "prettier --check **/*.{js,ts,html,md,cjs,json} *.{js,json,md}",
-    "check-opml": "tsx loader-tests/check-opml.ts",
-    "test-loaders": "tsx loader-tests/test-loaders.ts loader-tests/feeds.yml",
+    "check-opml": "node --experimental-strip-types loader-tests/check-opml.ts",
+    "test-loaders": "node --experimental-strip-types loader-tests/test-loaders.ts loader-tests/feeds.yml",
     "prepare": "husky"
   },
   "workspaces": [
@@ -40,7 +40,7 @@
     "@logux/eslint-config": "53.3.0",
     "@types/node": "22.1.0",
     "@types/ws": "8.5.12",
-    "better-node-test": "0.5.1",
+    "better-node-test": "0.6.0",
     "eslint": "9.8.0",
     "eslint-plugin-svelte": "^2.43.0",
     "husky": "^9.1.4",
@@ -64,7 +64,6 @@
     "svelte": "4.2.18",
     "svelte-check": "3.8.5",
     "svgo": "3.3.2",
-    "tsx": "4.16.5",
     "typescript": "5.5.4"
   }
 }

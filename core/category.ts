@@ -9,9 +9,9 @@ import {
 } from '@logux/client'
 import { nanoid } from 'nanoid'
 
-import { getClient } from './client.js'
-import type { FeedValue } from './feed.js'
-import { commonMessages as common } from './messages/index.js'
+import { getClient } from './client.ts'
+import type { FeedValue } from './feed.ts'
+import { commonMessages as common } from './messages/index.ts'
 
 export type CategoryValue = {
   id: string

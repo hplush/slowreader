@@ -7,14 +7,14 @@ import {
   createDownloadTask,
   ignoreAbortError,
   type TextResponse
-} from './download.js'
-import { isMobile, onEnvironment } from './environment.js'
-import { addFeed, type FeedValue, getFeeds } from './feed.js'
-import { readonlyExport } from './lib/stores.js'
-import { type LoaderName, loaders } from './loader/index.js'
-import { addPost, processOriginPost } from './post.js'
-import type { PostsPage } from './posts-page.js'
-import { router } from './router.js'
+} from './download.ts'
+import { isMobile, onEnvironment } from './environment.ts'
+import { addFeed, type FeedValue, getFeeds } from './feed.ts'
+import { readonlyExport } from './lib/stores.ts'
+import { type LoaderName, loaders } from './loader/index.ts'
+import { addPost, processOriginPost } from './post.ts'
+import type { PostsPage } from './posts-page.ts'
+import { router } from './router.ts'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
 

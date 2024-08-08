@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "noUncheckedIndexedAccess": true,
     "verbatimModuleSyntax": true,
-    "moduleResolution": "node16",
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "allowJs": true,
     "target": "es2021",
-    "module": "node16",
+    "module": "NodeNext",
     "strict": true,
     "noEmit": true,
     "paths": {

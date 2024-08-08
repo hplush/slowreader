@@ -1,4 +1,4 @@
-import { i18n } from '../../i18n.js'
+import { i18n } from '../../i18n.ts'
 
 export const fastMessages = i18n('fast', {
   noPosts: 'No posts',

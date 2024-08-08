@@ -2,8 +2,8 @@ import { LoguxUndoError } from '@logux/client'
 import { equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 
-import { notFound, setBaseTestRoute } from '../index.js'
-import { cleanClientTest, enableClientTest } from './utils.js'
+import { notFound, setBaseTestRoute } from '../index.ts'
+import { cleanClientTest, enableClientTest } from './utils.ts'
 
 let listener: (e: { reason: Error }) => void
 

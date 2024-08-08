@@ -11,7 +11,7 @@
     organizeMessages as t
   } from '@slowreader/core'
 
-  import { getURL } from '../../stores/router.js'
+  import { getURL } from '../../stores/router.ts'
   import Button from '../../ui/button.svelte'
   import CardLink from '../../ui/card-link.svelte'
   import CardLinks from '../../ui/card-links.svelte'

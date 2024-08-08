@@ -6,15 +6,15 @@ import {
   type CategoryValue,
   GENERAL_CATEGORY,
   loadCategories
-} from './category.js'
-import { client } from './client.js'
-import { onEnvironment } from './environment.js'
-import { BROKEN_FEED, type FeedValue, loadFeed, loadFeeds } from './feed.js'
-import { loadFilters } from './filter.js'
-import { listenMany, readonlyExport } from './lib/stores.js'
-import { deletePost, getPost, loadPosts } from './post.js'
-import type { PostValue } from './post.js'
-import { type Route, router } from './router.js'
+} from './category.ts'
+import { client } from './client.ts'
+import { onEnvironment } from './environment.ts'
+import { BROKEN_FEED, type FeedValue, loadFeed, loadFeeds } from './feed.ts'
+import { loadFilters } from './filter.ts'
+import { listenMany, readonlyExport } from './lib/stores.ts'
+import { deletePost, getPost, loadPosts } from './post.ts'
+import type { PostValue } from './post.ts'
+import { type Route, router } from './router.ts'
 
 function notEmpty<Value>(array: Value[]): array is [Value, ...Value[]] {
   return array.length > 0

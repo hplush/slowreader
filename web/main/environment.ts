@@ -10,8 +10,8 @@ import {
   setupEnvironment
 } from '@slowreader/core'
 
-import { locale } from '../stores/locale.js'
-import { openRoute, urlRouter } from '../stores/router.js'
+import { locale } from '../stores/locale.ts'
+import { openRoute, urlRouter } from '../stores/router.ts'
 
 enableWarnings()
 

@@ -1,5 +1,5 @@
-import '../main/browser.js'
-import '../stories/environment.js'
+import '../main/browser.ts'
+import '../stories/environment.ts'
 
 import '../main/index.css'
 

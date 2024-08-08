@@ -3,7 +3,7 @@
   import { backRoute, backToFirstStep } from '@slowreader/core'
   import { onMount } from 'svelte'
 
-  import { getURL } from '../stores/router.js'
+  import { getURL } from '../stores/router.ts'
   import Button from './button.svelte'
 
   export let title: string

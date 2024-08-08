@@ -11,10 +11,10 @@ import {
 } from '@logux/client'
 import { nanoid } from 'nanoid'
 
-import { getClient } from './client.js'
-import { getFeed } from './feed.js'
-import { loadFilters, prepareFilters } from './filter.js'
-import type { OptionalId } from './lib/stores.js'
+import { getClient } from './client.ts'
+import { getFeed } from './feed.ts'
+import { loadFilters, prepareFilters } from './filter.ts'
+import type { OptionalId } from './lib/stores.ts'
 
 export type OriginPost = {
   full?: string

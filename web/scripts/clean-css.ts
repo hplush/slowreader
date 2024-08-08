@@ -8,8 +8,8 @@ import { extname, join } from 'node:path'
 import { styleText } from 'node:util'
 import postcss from 'postcss'
 
-import { rootsMerger } from '../postcss/roots-merger.js'
-import { getVarsCleanerError, varsCleaner } from '../postcss/vars-cleaner.js'
+import { rootsMerger } from '../postcss/roots-merger.ts'
+import { getVarsCleanerError, varsCleaner } from '../postcss/vars-cleaner.ts'
 
 function printError(message: string): void {
   process.stderr.write(styleText('red', message) + '\n')

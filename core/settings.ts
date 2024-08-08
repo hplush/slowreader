@@ -1,8 +1,8 @@
 import { persistentAtom } from '@nanostores/persistent'
 import { nanoid } from 'nanoid'
 
-import { getClient } from './client.js'
-import { getEnvironment } from './environment.js'
+import { getClient } from './client.ts'
+import { getEnvironment } from './environment.ts'
 
 export const userId = persistentAtom<string | undefined>('slowreader:userId')
 
