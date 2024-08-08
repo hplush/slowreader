@@ -1,8 +1,9 @@
 import './dom-parser.js'
 
 import { cleanStores } from 'nanostores'
-import { deepStrictEqual, equal } from 'node:assert'
+import { deepStrictEqual, equal, ok } from 'node:assert'
 import { readFile } from 'node:fs/promises'
+import { extname, join } from 'node:path'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -28,35 +29,16 @@ import {
 } from '../index.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
-async function loadFile(filePath: string): Promise<string> {
-  let fileExtension = filePath.split('.').pop()
-
-  let fileContent = await readFile(filePath, 'utf8')
-  let fileInstance = new File([fileContent], 'feeds.json', {
-    type: 'application/json'
+async function importFile(name: string): Promise<string> {
+  let path = join(import.meta.dirname, 'fixtures', name)
+  let content = await readFile(path, 'utf8')
+  let json = extname(path) === '.json'
+  let file = new File([content], json ? 'feeds.json' : 'feeds.opml', {
+    type: json ? 'application/json' : 'application/xml'
   })
-
-  if (fileExtension === 'json') {
-    fileContent = await readFile(filePath, 'utf8')
-    fileInstance = new File([fileContent], 'feeds.json', {
-      type: 'application/json'
-    })
-    handleImportFile(fileInstance)
-    await setTimeout(100)
-    return fileContent
-  } else if (fileExtension === 'opml') {
-    fileContent = await readFile(filePath, 'utf8')
-    fileInstance = new File([fileContent], 'feeds.opml', {
-      type: 'application/xml'
-    })
-    handleImportFile(fileInstance)
-    await setTimeout(100)
-    return fileContent
-  } else {
-    throw new Error(
-      'Unsupported file format. Please upload a .json or .opml file.'
-    )
-  }
+  handleImportFile(file)
+  await setTimeout(100)
+  return content
 }
 
 function createFile(content: string, name: string, type: string): File {
@@ -67,6 +49,9 @@ beforeEach(() => {
   enableClientTest()
   mockRequest()
 })
+
+let originalDOMParser = global.DOMParser
+let originalParse = JSON.parse
 
 afterEach(async () => {
   cleanStores(
@@ -81,9 +66,11 @@ afterEach(async () => {
   await setTimeout(10)
   await cleanClientTest()
   checkAndRemoveRequestMock()
+  global.DOMParser = originalDOMParser
+  JSON.parse = originalParse
 })
 
-test('should initialize with empty states', () => {
+test('initializes with empty states', () => {
   deepStrictEqual(importedFeedsByCategory.get(), [])
   deepStrictEqual(importedCategories.get(), [])
   deepStrictEqual(importedFeeds.get(), [])
@@ -93,7 +80,7 @@ test('should initialize with empty states', () => {
   equal(submiting.get(), false)
 })
 
-test('should handle importing a opml file', async () => {
+test('imports a OPML file', async () => {
   expectRequest('https://a.com/atom').andRespond(
     200,
     '<feed><title>Atom</title>' +
@@ -103,31 +90,26 @@ test('should handle importing a opml file', async () => {
     'text/xml'
   )
 
-  loadFile('test/export-opml-example.opml')
-
-  await setTimeout(100)
-  deepStrictEqual(
-    Object.keys(importLoadingFeeds.get()).includes('https://a.com/atom'),
-    true
-  )
-  deepStrictEqual(importedCategories.get().includes('general'), true)
-  deepStrictEqual(importErrors.get().length, 0)
+  await importFile('export.opml')
+  ok(Object.keys(importLoadingFeeds.get()).includes('https://a.com/atom'))
+  ok(importedCategories.get().includes('general'))
+  equal(importErrors.get().length, 0)
 })
 
-test('should handle importing a JSON file', async () => {
-  let fileContent = await loadFile('test/export-internal-example.json')
+test('imports a JSON file', async () => {
+  let fileContent = await importFile('export.json')
   deepStrictEqual(importedFeedsByCategory.get(), JSON.parse(fileContent).data)
-  deepStrictEqual(importedCategories.get().includes('general'), true)
-  deepStrictEqual(importedCategories.get().length, 3)
+  ok(importedCategories.get().includes('general'))
+  equal(importedCategories.get().length, 3)
   deepStrictEqual(importedFeeds.get(), [
     'xCy25SYTs6Li1YQTpl7fD',
     '1Fy7b2rJg1LSx1kVPzzOH',
     'jD_nlLbSIo5Eabo0LRkCs'
   ])
-  deepStrictEqual(importErrors.get().length, 0)
+  equal(importErrors.get().length, 0)
 })
 
-test('should handle invalid file format', async () => {
+test('handles invalid file format', async () => {
   let invalidFile = new File([''], 'invalid.format')
 
   await handleImportFile(invalidFile)
@@ -136,7 +118,7 @@ test('should handle invalid file format', async () => {
   deepStrictEqual(importErrors.get(), ['Unsupported file format'])
 })
 
-test('should handle invalid OPML format', async () => {
+test('handles invalid OPML format', async () => {
   let invalidOpmlFile = new File(['<opml><invalid></opml>'], 'invalid.opml', {
     type: 'text/xml'
   })
@@ -147,7 +129,7 @@ test('should handle invalid OPML format', async () => {
   deepStrictEqual(importErrors.get(), ['File is not in OPML format'])
 })
 
-test('should handle invalid JSON format', async () => {
+test('handles invalid JSON format', async () => {
   let invalidJsonFile = new File(['{"invalid": true}'], 'invalid.json', {
     type: 'application/json'
   })
@@ -158,8 +140,8 @@ test('should handle invalid JSON format', async () => {
   deepStrictEqual(importErrors.get(), ['Invalid JSON structure'])
 })
 
-test('should select all imported feeds', async () => {
-  await loadFile('test/export-internal-example.json')
+test('selects all imported feeds', async () => {
+  await importFile('export.json')
   selectAllImportedFeeds()
 
   let categories = importedCategories.get()
@@ -169,8 +151,8 @@ test('should select all imported feeds', async () => {
   equal(feeds.length, 3)
 })
 
-test('should clear import selections', async () => {
-  await loadFile('test/export-internal-example.json')
+test('clears import selections', async () => {
+  await importFile('export.json')
   selectAllImportedFeeds()
   clearImportSelections()
 
@@ -178,24 +160,24 @@ test('should clear import selections', async () => {
   equal(importedFeeds.get().length, 0)
 })
 
-test('should toggle imported category', async () => {
-  await loadFile('test/export-internal-example.json')
+test('toggles imported category', async () => {
+  await importFile('export.json')
   let categoryId = 'general'
 
   clearImportSelections()
 
   toggleImportedCategory(categoryId)
 
-  equal(importedCategories.get().includes(categoryId), true)
+  ok(importedCategories.get().includes(categoryId))
   equal(importedFeeds.get().length, 1)
 
   toggleImportedCategory(categoryId)
-  equal(importedCategories.get().includes(categoryId), false)
+  ok(!importedCategories.get().includes(categoryId))
   equal(importedFeeds.get().length, 0)
 })
 
-test('should toggle imported feed', async () => {
-  await loadFile('test/export-internal-example.json')
+test('toggles imported feed', async () => {
+  await importFile('export.json')
   let feedId = 'xCy25SYTs6Li1YQTpl7fD'
   let categoryId = 'general'
 
@@ -203,31 +185,31 @@ test('should toggle imported feed', async () => {
 
   toggleImportedFeed(feedId, categoryId)
 
-  equal(importedFeeds.get().includes(feedId), true)
-  equal(importedCategories.get().includes(categoryId), true)
+  ok(importedFeeds.get().includes(feedId))
+  ok(importedCategories.get().includes(categoryId))
 
   toggleImportedFeed(feedId, categoryId)
-  equal(importedFeeds.get().includes(feedId), false)
-  equal(importedCategories.get().includes(categoryId), false)
+  ok(!importedFeeds.get().includes(feedId))
+  ok(!importedCategories.get().includes(categoryId))
 })
 
-test('should handle import file and set states', async () => {
-  await loadFile('test/export-internal-example.json')
+test('imports file and set states', async () => {
+  await importFile('export.json')
 
-  deepStrictEqual(importedFeedsByCategory.get().length > 0, true)
-  deepStrictEqual(importedCategories.get().length > 0, true)
-  deepStrictEqual(importedFeeds.get().length > 0, true)
-  deepStrictEqual(importErrors.get().length, 0)
+  ok(importedFeedsByCategory.get().length > 0)
+  ok(importedCategories.get().length > 0)
+  ok(importedFeeds.get().length > 0)
+  equal(importErrors.get().length, 0)
 })
 
-test('should submit import and clear states and feeds imported', async () => {
-  await loadFile('test/export-internal-example.json')
+test('submits import and clear states and feeds imported', async () => {
+  await importFile('export.json')
   await submitImport()
   let feeds = await loadFeeds()
 
-  deepStrictEqual(importedFeedsByCategory.get().length, 0)
+  equal(importedFeedsByCategory.get().length, 0)
   equal(feeds.length, 3)
-  deepStrictEqual(importErrors.get().length, 0)
+  equal(importErrors.get().length, 0)
 })
 
 test('should handle OPML without General category', async () => {
@@ -258,11 +240,11 @@ test('should handle OPML without General category', async () => {
 
   let categories = importedCategories.get()
 
-  equal(categories.includes('general'), true)
-  deepStrictEqual(importErrors.get().length, 0)
+  ok(categories.includes('general'))
+  equal(importErrors.get().length, 0)
 })
 
-test('should handle invalid JSON structure', async () => {
+test('handles invalid JSON structure', async () => {
   let invalidJsonStructureFile = new File(
     ['{"type": "invalidStructure"}'],
     'invalid.json',
@@ -275,9 +257,7 @@ test('should handle invalid JSON structure', async () => {
   deepStrictEqual(importErrors.get(), ['Invalid JSON structure'])
 })
 
-test('should handle invalid OPML XML format', async () => {
-  let originalDOMParser = global.DOMParser
-
+test('handles invalid OPML XML format', async () => {
   global.DOMParser = class {
     parseFromString(): never {
       throw new Error('Parsing error')
@@ -298,17 +278,14 @@ test('should handle invalid OPML XML format', async () => {
   )
 
   await handleImportFile(invalidOpmlFile)
-  await setTimeout(100) // Wait for importErrors to be updated
+  await setTimeout(100)
 
   deepStrictEqual(importErrors.get(), ['File is not in OPML format'])
-
-  global.DOMParser = originalDOMParser
 })
 
-test('should handle unexpected errors', async () => {
+test('handles unexpected errors', async () => {
   let faultyFile = createFile('', 'faulty.json', 'application/json')
 
-  let originalParse = JSON.parse
   JSON.parse = () => {
     throw new Error('Unexpected error')
   }
@@ -319,6 +296,4 @@ test('should handle unexpected errors', async () => {
   deepStrictEqual(importErrors.get(), [
     'Failed to parse JSON or invalid structure'
   ])
-
-  JSON.parse = originalParse
 })
