@@ -29,7 +29,7 @@ export default [
       'perfectionist/sort-imports': [
         'error',
         {
-          'groups': [
+          groups: [
             'side-effect',
             ['side-effect-style', 'style'],
             ['builtin-type', 'type', 'builtin', 'external', 'unknown'],
@@ -45,9 +45,9 @@ export default [
             ],
             ['object']
           ],
-          'newlines-between': 'always',
-          'order': 'asc',
-          'type': 'alphabetical'
+          newlinesBetween: 'always',
+          order: 'asc',
+          type: 'alphabetical'
         }
       ]
     }

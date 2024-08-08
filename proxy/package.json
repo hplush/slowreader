@@ -21,6 +21,6 @@
   "devDependencies": {
     "better-node-test": "0.5.1",
     "c8": "10.1.2",
-    "tsx": "4.16.2"
+    "tsx": "4.16.5"
   }
 }

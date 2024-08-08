@@ -15,9 +15,9 @@
   },
   "devDependencies": {
     "@slowreader/core": "link:../core",
-    "jsdom": "24.1.0",
-    "nanostores": "0.10.3",
-    "tsx": "4.16.2",
-    "yaml": "2.4.5"
+    "jsdom": "24.1.1",
+    "nanostores": "0.11.2",
+    "tsx": "4.16.5",
+    "yaml": "2.5.0"
   }
 }
