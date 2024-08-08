@@ -3,6 +3,7 @@
     "noUncheckedIndexedAccess": true,
     "verbatimModuleSyntax": true,
     "moduleResolution": "node16",
+    "types": ["chrome"],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "allowJs": true,
