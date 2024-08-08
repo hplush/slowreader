@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Slowreader Extension",
+  "description": "Fetch data from websites for dev.slowreader.app",
+  "version": "0.0.1",
+  "background": {
+    "service_worker": "src/background.ts",
+    "type": "module"
+  },
+  "externally_connectable": {
+    "matches": ["http://localhost:5173/*"]
+  },
+  "host_permissions": ["http://localhost:5173/*"]
+}
