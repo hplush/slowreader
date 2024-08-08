@@ -1,0 +1,29 @@
+{
+  "name": "slowreader-extension",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": "^22.6.0",
+    "pnpm": "^9.0.0"
+  },
+  "scripts": {
+    "dev": "node build.js dev && vite",
+    "build": "node build.js prod && vite build"
+  },
+  "keywords": [],
+  "author": "ninatorgunakova@gmail.com",
+  "license": "ISC",
+  "packageManager": "pnpm@9.6.0",
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "2.0.0-beta.23",
+    "@types/react": "^18.2.64",
+    "@types/react-dom": "^18.2.21",
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.3.4"
+  }
+}
