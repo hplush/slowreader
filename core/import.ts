@@ -69,7 +69,7 @@ const processFeed = async (
       [feedUrl]: false
     })
     return feed
-  } catch (error) {
+  } catch {
     let currentLoadingFeeds = { ...$importLoadingFeeds.get() }
     delete currentLoadingFeeds[feedUrl]
     $importLoadingFeeds.set(currentLoadingFeeds)
@@ -157,7 +157,7 @@ export const handleImportFile = (file: File): Promise<void> => {
               importMessages.get().invalidJSONError
             ])
           }
-        } catch (jsonError) {
+        } catch {
           $importErrors.set([importMessages.get().failedParseJSONError])
         }
       } else if (fileExtension === 'opml') {
@@ -193,15 +193,12 @@ export const handleImportFile = (file: File): Promise<void> => {
                   let categoryTitle = outline.getAttribute('text')!
                   let categoryId
 
-                  switch (categoryTitle) {
-                    case generalCategory.title:
-                      categoryId = generalCategory.id
-                      break
-                    case brokenCategory.title:
-                      categoryId = brokenCategory.id
-                      break
-                    default:
-                      categoryId = nanoid()
+                  if (categoryTitle === brokenCategory.title) {
+                    categoryId = brokenCategory.id
+                  } else if (categoryTitle === generalCategory.title) {
+                    categoryId = generalCategory.id
+                  } else {
+                    categoryId = nanoid()
                   }
 
                   if (categoryId === 'general') {
@@ -273,7 +270,7 @@ export const handleImportFile = (file: File): Promise<void> => {
           } else {
             $importErrors.set([importMessages.get().OPMLError])
           }
-        } catch (xmlError) {
+        } catch {
           $importErrors.set([importMessages.get().OPMLError])
         }
       } else {
