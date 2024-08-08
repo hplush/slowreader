@@ -1,8 +1,9 @@
 import './dom-parser.js'
 
 import { cleanStores } from 'nanostores'
-import { deepStrictEqual, equal } from 'node:assert'
+import { deepStrictEqual, equal, ok } from 'node:assert'
 import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -26,20 +27,20 @@ import {
 } from '../index.js'
 import { cleanClientTest, enableClientTest } from './utils.js'
 
-async function loadFile(filePath: string): Promise<string> {
-  let jsonContent = await readFile(filePath, 'utf8')
-  let jsonFile = new File([jsonContent], 'feeds.json', {
+async function loadFile(name: string): Promise<string> {
+  let path = join(import.meta.dirname, 'fixtures', name)
+  let content = await readFile(path, 'utf8')
+  let file = new File([content], 'feeds.json', {
     type: 'application/json'
   })
-  handleImportFile(jsonFile)
+  handleImportFile(file)
   await setTimeout(100)
-
-  return jsonContent
+  return content
 }
 
 beforeEach(async () => {
   enableClientTest()
-  await loadFile('test/export-internal-example.json')
+  await loadFile('export.json')
   await submitImport()
 })
 
@@ -58,24 +59,24 @@ afterEach(async () => {
   await cleanClientTest()
 })
 
-test('should initialize with empty states', () => {
+test('initializes with empty states', () => {
   deepStrictEqual(exportingFeedsByCategory.get(), [])
   deepStrictEqual(exportingCategories.get(), [])
   deepStrictEqual(exportingFeeds.get(), [])
   equal(exporting.get(), false)
 })
 
-test('should select all exporting feeds', async () => {
+test('selects all exporting feeds', async () => {
   selectAllExportingFeeds()
 
   let categories = exportingCategories.get()
   let feeds = exportingFeeds.get()
 
-  equal(categories.length > 0, true)
-  equal(feeds.length > 0, true)
+  ok(categories.length > 0)
+  ok(feeds.length > 0)
 })
 
-test('should clear export selections', async () => {
+test('clears export selections', async () => {
   selectAllExportingFeeds()
   clearExportingSelections()
 
@@ -83,58 +84,42 @@ test('should clear export selections', async () => {
   equal(exportingFeeds.get().length, 0)
 })
 
-test('should toggle exporting category', async () => {
+test('toggles exporting category', async () => {
   let categoryId = 'general'
-
   clearExportingSelections()
 
   toggleExportingCategory(categoryId)
-
-  let selectedCategories = exportingCategories.get()
-  let selectedFeeds = exportingFeeds.get()
-
-  equal(selectedCategories.includes(categoryId), true)
-  equal(selectedFeeds.length > 0, true)
+  ok(exportingCategories.get().includes(categoryId))
+  ok(exportingFeeds.get().length > 0)
 
   toggleExportingCategory(categoryId)
-
-  selectedCategories = exportingCategories.get()
-  equal(selectedCategories.includes(categoryId), false)
+  ok(!exportingCategories.get().includes(categoryId))
 })
 
-test('should toggle exporting feed', async () => {
+test('toggles exporting feed', async () => {
   let feedId = 'H4RZpnXPjlj_Hzl08ipBw'
   let categoryId = 'general'
-
   clearExportingSelections()
 
   toggleExportingFeed(feedId, categoryId)
-
-  let selectedFeeds = exportingFeeds.get()
-  let selectedCategories = exportingCategories.get()
-
-  equal(selectedFeeds.includes(feedId), true)
-  equal(selectedCategories.includes(categoryId), true)
+  ok(exportingFeeds.get().includes(feedId))
+  ok(exportingCategories.get().includes(categoryId))
 
   toggleExportingFeed(feedId, categoryId)
-
-  selectedFeeds = exportingFeeds.get()
-  selectedCategories = exportingCategories.get()
-
-  equal(selectedFeeds.includes(feedId), false)
-  equal(selectedCategories.includes(categoryId), false)
+  ok(!exportingFeeds.get().includes(feedId))
+  ok(!exportingCategories.get().includes(categoryId))
 })
 
-test('should generate OPML blob', async () => {
+test('generates OPML blob', async () => {
   selectAllExportingFeeds()
   let blob = getOPMLBlob()
 
   equal(blob.type, 'application/xml')
   let text = await blob.text()
-  equal(text.includes('https://blog.appsignal.com/feed.xml'), true)
+  ok(text.includes('https://blog.appsignal.com/feed.xml'))
 })
 
-test('should generate internal JSON blob', async () => {
+test('generates internal JSON blob', async () => {
   let blob = await getInternalBlob(true)
   equal(blob.type, 'application/json')
 })
