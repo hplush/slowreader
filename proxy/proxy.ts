@@ -115,9 +115,9 @@ export function createProxyServer(config: {
         res.end(e.message)
         return
       }
+      /* c8 ignore next 11 */
 
       // Unknown or Internal errors
-      /* c8 ignore next 9 */
       if (e instanceof Error) {
         process.stderr.write(styleText('red', e.stack ?? e.message) + '\n')
       } else if (typeof e === 'string') {
