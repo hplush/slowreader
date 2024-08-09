@@ -3,11 +3,11 @@
   "*.css": "stylelint --fix",
   "*.svelte": ["prettier --write", "stylelint --fix"],
   "*.svg": "svgo",
-  ".devcontainer/Dockerfile": "node --experimental-strip-types ./scripts/check-versions.ts",
-  ".node-version": "node --experimental-strip-types ./scripts/check-versions.ts",
-  "package.json": "node --experimental-strip-types ./scripts/check-versions.ts",
-  "*/package.json": "node --experimental-strip-types ./scripts/check-versions.ts",
-  "*/Dockerfile": "node --experimental-strip-types ./scripts/check-versions.ts",
-  "*.test.ts": "node --experimental-strip-types ./scripts/check-focused-tests.ts",
-  "core/messages/*/en.ts": "node --experimental-strip-types ./scripts/check-messages.ts"
+  ".devcontainer/Dockerfile": "./scripts/tsnode ./scripts/check-versions.ts",
+  ".node-version": "./scripts/tsnode ./scripts/check-versions.ts",
+  "package.json": "./scripts/tsnode ./scripts/check-versions.ts",
+  "*/package.json": "./scripts/tsnode ./scripts/check-versions.ts",
+  "*/Dockerfile": "./scripts/tsnode ./scripts/check-versions.ts",
+  "*.test.ts": "./scripts/tsnode ./scripts/check-focused-tests.ts",
+  "core/messages/*/en.ts": "./scripts/tsnode ./scripts/check-messages.ts"
 }

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+node --experimental-strip-types --disable-warning=ExperimentalWarning $@

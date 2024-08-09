@@ -7,7 +7,7 @@
     "pnpm": "^9.0.0"
   },
   "scripts": {
-    "start": "node --experimental-strip-types watch index.ts",
+    "start": "../scripts/tsnode --watch index.ts",
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
     "build": "esbuild index.ts --bundle --platform=node --sourcemap --format=esm --outfile=dist/index.mjs",
     "production": "node --run build && ./scripts/run-image.sh",
