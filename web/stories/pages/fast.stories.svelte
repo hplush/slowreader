@@ -1,9 +1,9 @@
 <script context="module" lang="ts">
   import { Story } from '@storybook/addon-svelte-csf'
 
-  import Fast from '../../../pages/fast.svelte'
-  import Scene from '../../scene.svelte'
-  import { MOCKED_FAST_FEED, MOCKED_POSTS } from './mocks.ts'
+  import Fast from '../../pages/fast.svelte'
+  import Scene from '../scene.svelte'
+  import { MOCKED_FAST_FEED, MOCKED_POSTS } from './post-mocks.ts'
 
   export const meta = {
     component: Fast,
