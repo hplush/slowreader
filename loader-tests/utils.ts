@@ -1,4 +1,4 @@
-import './dom-parser.js'
+import './dom-parser.ts'
 
 import {
   createDownloadTask,

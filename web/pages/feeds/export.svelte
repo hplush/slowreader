@@ -1,7 +1,7 @@
 <script lang="ts">
   import { exportMessages as t } from '@slowreader/core'
 
-  import { getURL } from '../../stores/router.js'
+  import { getURL } from '../../stores/router.ts'
   import CardLink from '../../ui/card-link.svelte'
   import CardLinks from '../../ui/card-links.svelte'
   import TwoStepsPage from '../../ui/two-steps-page.svelte'

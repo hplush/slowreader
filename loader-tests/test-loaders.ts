@@ -11,7 +11,7 @@ import {
   initializeProgressBar,
   type LoaderTestFeed,
   readText
-} from './utils.js'
+} from './utils.ts'
 
 const FEEDS = join(import.meta.dirname, 'feeds.yml')
 

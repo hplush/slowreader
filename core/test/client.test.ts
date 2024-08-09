@@ -3,8 +3,8 @@ import { cleanStores, keepMount } from 'nanostores'
 import { equal, match, throws } from 'node:assert'
 import { afterEach, test } from 'node:test'
 
-import { client, getClient, userId } from '../index.js'
-import { enableClientTest } from './utils.js'
+import { client, getClient, userId } from '../index.ts'
+import { enableClientTest } from './utils.ts'
 
 enableClientTest()
 

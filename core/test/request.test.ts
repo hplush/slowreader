@@ -8,7 +8,7 @@ import {
   mockRequest,
   request,
   setRequestMethod
-} from '../index.js'
+} from '../index.ts'
 
 afterEach(() => {
   setRequestMethod(fetch)

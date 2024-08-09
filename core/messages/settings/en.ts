@@ -1,4 +1,4 @@
-import { i18n } from '../../i18n.js'
+import { i18n } from '../../i18n.ts'
 
 export const settingsMessages = i18n('settings', {
   about: 'About the App',

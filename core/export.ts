@@ -6,10 +6,10 @@ import {
   feedsByCategory,
   getCategories,
   getCategoryTitle
-} from './category.js'
-import { type FeedValue, getFeeds } from './feed.js'
-import { readonlyExport } from './lib/stores.js'
-import { getPosts, type PostValue } from './post.js'
+} from './category.ts'
+import { type FeedValue, getFeeds } from './feed.ts'
+import { readonlyExport } from './lib/stores.ts'
+import { getPosts, type PostValue } from './post.ts'
 
 type FeedWithPosts = {
   posts?: PostValue[]

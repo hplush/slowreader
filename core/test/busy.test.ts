@@ -2,8 +2,8 @@ import { equal } from 'node:assert'
 import { afterEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import { busy, busyDuring } from '../index.js'
-import { cleanClientTest, enableClientTest } from './utils.js'
+import { busy, busyDuring } from '../index.ts'
+import { cleanClientTest, enableClientTest } from './utils.ts'
 
 afterEach(async () => {
   await cleanClientTest()

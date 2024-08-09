@@ -10,7 +10,7 @@
   } from '@slowreader/core'
   import { onMount, tick } from 'svelte'
 
-  import { getURL } from '../stores/router.js'
+  import { getURL } from '../stores/router.ts'
   import Button from '../ui/button.svelte'
   import Loader from '../ui/loader.svelte'
   import PostCard from '../ui/post-card.svelte'

@@ -2,7 +2,7 @@ import { equal, fail, rejects } from 'node:assert'
 import { test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import { createQueue, retryOnError } from '../../lib/queue.js'
+import { createQueue, retryOnError } from '../../lib/queue.ts'
 
 test('increase keys', async () => {
   let events = ''

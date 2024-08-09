@@ -1,11 +1,11 @@
-import './environment.js'
+import './environment.ts'
 
 import { atom } from 'nanostores'
 import { deepStrictEqual, equal } from 'node:assert'
 import { test } from 'node:test'
 
-import { i18n, settingsMessages } from '../index.js'
-import { enableClientTest } from './utils.js'
+import { i18n, settingsMessages } from '../index.ts'
+import { enableClientTest } from './utils.ts'
 
 test('has i18n', async () => {
   equal(typeof i18n, 'function')

@@ -1,7 +1,7 @@
 import { createI18n, type TranslationLoader } from '@nanostores/i18n'
 import { atom } from 'nanostores'
 
-import { onEnvironment } from './environment.js'
+import { onEnvironment } from './environment.ts'
 
 let $locale = atom('en')
 

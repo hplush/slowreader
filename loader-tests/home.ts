@@ -1,4 +1,4 @@
-import { createCLI, enableTestClient, findRSSfromHome } from './utils.js'
+import { createCLI, enableTestClient, findRSSfromHome } from './utils.ts'
 
 let cli = createCLI(
   'Debug feed search with specific feed',

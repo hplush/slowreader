@@ -12,7 +12,7 @@ import {
   isString,
   type LoaderTestFeed as OpmlFeed,
   readText
-} from './utils.js'
+} from './utils.ts'
 
 async function parseFeedsFromFile(path: string): Promise<OpmlFeed[]> {
   if (!path.endsWith('.opml') && !path.endsWith('.xml')) {

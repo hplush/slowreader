@@ -1,4 +1,4 @@
-import './dom-parser.js'
+import './dom-parser.ts'
 
 import { equal, rejects, throws } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
@@ -12,7 +12,7 @@ import {
   ignoreAbortError,
   mockRequest,
   setRequestMethod
-} from '../index.js'
+} from '../index.ts'
 
 beforeEach(() => {
   mockRequest()

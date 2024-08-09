@@ -3,7 +3,7 @@
 
   import Fast from '../../../pages/fast.svelte'
   import Scene from '../../scene.svelte'
-  import { MOCKED_FAST_FEED, MOCKED_POSTS } from './mocks.js'
+  import { MOCKED_FAST_FEED, MOCKED_POSTS } from './mocks.ts'
 
   export const meta = {
     component: Fast,

@@ -1,5 +1,5 @@
-import './environment.js'
-import './browser.js'
+import './environment.ts'
+import './browser.ts'
 
 import './index.css'
 

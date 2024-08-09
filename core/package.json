@@ -12,7 +12,7 @@
     "clean:coverage": "rm -rf coverage"
   },
   "exports": {
-    ".": "./index.js",
+    ".": "./index.ts",
     "./package.json": "./package.json"
   },
   "dependencies": {
@@ -30,7 +30,7 @@
     "@logux/actions": "0.4.0",
     "@types/dompurify": "3.0.5",
     "@types/jsdom": "21.1.7",
-    "better-node-test": "0.5.1",
+    "better-node-test": "0.6.0",
     "c8": "10.1.2",
     "jsdom": "24.1.1",
     "nanospy": "1.0.0"

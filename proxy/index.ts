@@ -1,6 +1,6 @@
 import { styleText } from 'node:util'
 
-import { createProxyServer } from './proxy.js'
+import { createProxyServer } from './proxy.ts'
 
 const PORT = process.env.PORT ?? 5284
 

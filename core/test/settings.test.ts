@@ -8,8 +8,8 @@ import {
   signOut,
   theme,
   userId
-} from '../index.js'
-import { cleanClientTest, enableClientTest } from '../test/utils.js'
+} from '../index.ts'
+import { cleanClientTest, enableClientTest } from '../test/utils.ts'
 
 let restarts = 0
 

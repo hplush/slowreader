@@ -1,11 +1,11 @@
 import { atom, computed, type ReadableAtom } from 'nanostores'
 
-import { getEnvironment, onEnvironment } from './environment.js'
-import { fastCategories } from './fast.js'
-import { hasFeeds } from './feed.js'
-import { computeFrom, readonlyExport } from './lib/stores.js'
-import { userId } from './settings.js'
-import { slowCategories } from './slow.js'
+import { getEnvironment, onEnvironment } from './environment.ts'
+import { fastCategories } from './fast.ts'
+import { hasFeeds } from './feed.ts'
+import { computeFrom, readonlyExport } from './lib/stores.ts'
+import { userId } from './settings.ts'
+import { slowCategories } from './slow.ts'
 
 export interface Routes {
   about: {}

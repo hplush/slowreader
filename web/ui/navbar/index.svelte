@@ -13,7 +13,7 @@
   } from '@slowreader/core'
   import { onMount } from 'svelte'
 
-  import { getURL } from '../../stores/router.js'
+  import { getURL } from '../../stores/router.ts'
   import Hotkey from '../hotkey.svelte'
   import Icon from '../icon.svelte'
   import NavbarFireplace from '../navbar/fireplace.svelte'

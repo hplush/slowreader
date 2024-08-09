@@ -6,13 +6,13 @@ import {
   type CategoryValue,
   GENERAL_CATEGORY,
   loadCategories
-} from './category.js'
-import { client } from './client.js'
-import { onEnvironment } from './environment.js'
-import { BROKEN_FEED, type FeedValue, loadFeed } from './feed.js'
-import { listenMany, readonlyExport } from './lib/stores.js'
-import { getPost, loadPosts, type PostValue } from './post.js'
-import { type Route, router } from './router.js'
+} from './category.ts'
+import { client } from './client.ts'
+import { onEnvironment } from './environment.ts'
+import { BROKEN_FEED, type FeedValue, loadFeed } from './feed.ts'
+import { listenMany, readonlyExport } from './lib/stores.ts'
+import { getPost, loadPosts, type PostValue } from './post.ts'
+import { type Route, router } from './router.ts'
 
 export type SlowCategoriesTree = [CategoryValue, [FeedValue, number][]][]
 

@@ -9,7 +9,7 @@ import {
   startKeyUX
 } from 'keyux'
 
-import { locale } from '../stores/locale.js'
+import { locale } from '../stores/locale.ts'
 
 let root = document.documentElement
 let themeTag = document.querySelector('meta[name="theme-color"]')
@@ -56,5 +56,5 @@ startKeyUX(window, [
 ])
 
 window.addEventListener('load', async () => {
-  await import('./devtools.js')
+  await import('./devtools.ts')
 })

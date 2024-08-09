@@ -7,7 +7,7 @@
     commonMessages as t
   } from '@slowreader/core'
 
-  import { getURL } from '../../stores/router.js'
+  import { getURL } from '../../stores/router.ts'
   import Loader from '../loader.svelte'
   import NavbarCategory from './category.svelte'
   import NavbarItem from './item.svelte'

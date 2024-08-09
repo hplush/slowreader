@@ -10,9 +10,9 @@ import {
 } from '@logux/client'
 import { nanoid } from 'nanoid'
 
-import { getClient } from './client.js'
-import type { FeedValue } from './feed.js'
-import { type OriginPost, recalcPostsReading } from './post.js'
+import { getClient } from './client.ts'
+import type { FeedValue } from './feed.ts'
+import { type OriginPost, recalcPostsReading } from './post.ts'
 
 const QUERY_REGEXP = /^(not\s+)?([\w]+)(?:\(([^]+)\))?$/
 

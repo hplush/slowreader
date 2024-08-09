@@ -3,7 +3,7 @@
 
   import Slow from '../../../pages/slow.svelte'
   import Scene from '../../scene.svelte'
-  import { MOCKED_POSTS } from './mocks.js'
+  import { MOCKED_POSTS } from './mocks.ts'
 
   export const meta = {
     component: Slow,

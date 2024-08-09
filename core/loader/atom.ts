@@ -1,14 +1,14 @@
-import type { TextResponse } from '../download.js'
-import type { OriginPost } from '../post.js'
-import { createPostsPage } from '../posts-page.js'
-import type { Loader } from './index.js'
+import type { TextResponse } from '../download.ts'
+import type { OriginPost } from '../post.ts'
+import { createPostsPage } from '../posts-page.ts'
+import type { Loader } from './index.ts'
 import {
   findAnchorHrefs,
   findImageByAttr,
   findLinksByType,
   isHTML,
   toTime
-} from './utils.js'
+} from './utils.ts'
 
 function parsePosts(text: TextResponse): OriginPost[] {
   let document = text.parseXml()

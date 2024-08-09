@@ -1,4 +1,4 @@
-import { i18n } from '../../i18n.js'
+import { i18n } from '../../i18n.ts'
 
 export const exportMessages = i18n('export', {
   allFeeds: 'All feeds',

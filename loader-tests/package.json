@@ -7,17 +7,16 @@
     "pnpm": "^9.0.0"
   },
   "scripts": {
-    "check-opml": "tsx check-opml.ts",
+    "check-opml": "../scripts/tsnode check-opml.ts",
     "test": "node --run test:loaders",
-    "url": "tsx url.ts",
-    "home": "tsx home.ts",
-    "test:loaders": "tsx test-loaders.ts"
+    "url": "../scripts/tsnode url.ts",
+    "home": "../scripts/tsnode home.ts",
+    "test:loaders": "../scripts/tsnode test-loaders.ts"
   },
   "devDependencies": {
     "@slowreader/core": "link:../core",
     "jsdom": "24.1.1",
     "nanostores": "0.11.2",
-    "tsx": "4.16.5",
     "yaml": "2.5.0"
   }
 }

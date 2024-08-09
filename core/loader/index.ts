@@ -1,8 +1,8 @@
-import type { DownloadTask, TextResponse } from '../download.js'
-import type { PostsPage } from '../posts-page.js'
-import { atom } from './atom.js'
-import { jsonFeed } from './json-feed.js'
-import { rss } from './rss.js'
+import type { DownloadTask, TextResponse } from '../download.ts'
+import type { PostsPage } from '../posts-page.ts'
+import { atom } from './atom.ts'
+import { jsonFeed } from './json-feed.ts'
+import { rss } from './rss.ts'
 
 export type Loader = {
   getMineLinksFromText(response: TextResponse): string[]

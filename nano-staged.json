@@ -3,11 +3,11 @@
   "*.css": "stylelint --fix",
   "*.svelte": ["prettier --write", "stylelint --fix"],
   "*.svg": "svgo",
-  ".devcontainer/Dockerfile": "tsx ./scripts/check-versions.ts",
-  ".node-version": "tsx ./scripts/check-versions.ts",
-  "package.json": "tsx ./scripts/check-versions.ts",
-  "*/package.json": "tsx ./scripts/check-versions.ts",
-  "*/Dockerfile": "tsx ./scripts/check-versions.ts",
-  "*.test.ts": "tsx ./scripts/check-focused-tests.ts",
-  "core/messages/*/en.ts": "tsx ./scripts/check-messages.ts"
+  ".devcontainer/Dockerfile": "./scripts/tsnode ./scripts/check-versions.ts",
+  ".node-version": "./scripts/tsnode ./scripts/check-versions.ts",
+  "package.json": "./scripts/tsnode ./scripts/check-versions.ts",
+  "*/package.json": "./scripts/tsnode ./scripts/check-versions.ts",
+  "*/Dockerfile": "./scripts/tsnode ./scripts/check-versions.ts",
+  "*.test.ts": "./scripts/tsnode ./scripts/check-focused-tests.ts",
+  "core/messages/*/en.ts": "./scripts/tsnode ./scripts/check-messages.ts"
 }

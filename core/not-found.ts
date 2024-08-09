@@ -1,8 +1,8 @@
 import { LoguxUndoError } from '@logux/client'
 import { atom } from 'nanostores'
 
-import { onEnvironment } from './environment.js'
-import { router } from './router.js'
+import { onEnvironment } from './environment.ts'
+import { router } from './router.ts'
 
 export const notFound = atom(false)
 

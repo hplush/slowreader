@@ -14,12 +14,12 @@
     "production": "node --run build && ./scripts/run-image.sh",
     "size": "node --run build:web && size-limit",
     "test:unit": "pnpm bnt",
-    "test:names": "tsx ./scripts/check-names.ts",
+    "test:names": "../scripts/tsnode ./scripts/check-names.ts",
     "test:css": "stylelint **/*.css **/*.svelte",
     "test:build": "node --run build && size-limit",
-    "build:routes": "tsx ./scripts/export-routes.ts",
+    "build:routes": "../scripts/tsnode ./scripts/export-routes.ts",
     "build:visual": "NODE_ENV=test storybook build",
-    "build:web": "vite build && tsx ./scripts/clean-css.ts && tsx scripts/generate-csp.ts",
+    "build:web": "vite build && ../scripts/tsnode ./scripts/clean-css.ts && ../scripts/tsnode scripts/generate-csp.ts",
     "format:stylelint": "stylelint --fix **/*.{css,svelte}",
     "clean:build": "rm -rf dist"
   },
@@ -42,7 +42,6 @@
     "rollup": "4.20.0",
     "svelte": "4.2.18",
     "svelte-preprocess": "6.0.2",
-    "tsx": "4.16.5",
     "vite": "5.4.0"
   },
   "devDependencies": {
@@ -55,7 +54,7 @@
     "@storybook/svelte-vite": "8.2.8",
     "@storybook/types": "^8.2.8",
     "@stylistic/stylelint-config": "2.0.0",
-    "better-node-test": "0.5.1",
+    "better-node-test": "0.6.0",
     "browserslist": "4.23.3",
     "postcss-html": "1.7.0",
     "postcss-nesting": "13.0.0",

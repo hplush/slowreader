@@ -12,7 +12,7 @@
   import { Story } from '@storybook/addon-svelte-csf'
   import { onMount } from 'svelte'
 
-  import { getURL } from '../../stores/router.js'
+  import { getURL } from '../../stores/router.ts'
   import CardActions from '../../ui/card-actions.svelte'
   import Card from '../../ui/card.svelte'
   import Scene from '../scene.svelte'

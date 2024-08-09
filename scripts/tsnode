@@ -1,0 +1,4 @@
+#!/bin/bash
+# Shortcut to run Node.js with TS support and without experimental warnings
+
+node --experimental-strip-types --disable-warning=ExperimentalWarning $@

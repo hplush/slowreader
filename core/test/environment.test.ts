@@ -7,7 +7,7 @@ import {
   getTestEnvironment,
   onEnvironment,
   setupEnvironment
-} from '../index.js'
+} from '../index.ts'
 
 test('throws on current environment if it is not set', () => {
   throws(() => {
