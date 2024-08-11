@@ -11,6 +11,11 @@ interface Release {
   version: string
 }
 
+interface ShaSum {
+  arch: string
+  hash: string
+}
+
 async function getLatestNodeVersion(major: string): Promise<string> {
   let response = await fetch('https://nodejs.org/dist/index.json')
   let data: Release[] = await response.json()
@@ -26,24 +31,50 @@ async function getLatestPnpmVersion(): Promise<string> {
   return data.tag_name.slice(1)
 }
 
-async function getNodeSha256(version: string): Promise<string> {
+async function getNodeSha256(version: string): Promise<ShaSum[]> {
   let response = await fetch(
     `https://nodejs.org/dist/v${version}/SHASUMS256.txt`
   )
   let data = await response.text()
-  return data
-    .split('\n')
-    .find(i => i.endsWith('-linux-x64.tar.gz'))!
-    .split(' ')[0]!
+  return [
+    {
+      arch: 'x64',
+      hash: data
+        .split('\n')
+        .find(i => i.endsWith('-linux-x64.tar.gz'))!
+        .split(' ')[0]!
+    },
+    {
+      arch: 'arm64',
+      hash: data
+        .split('\n')
+        .find(i => i.endsWith('-linux-arm64.tar.gz'))!
+        .split(' ')[0]!
+    }
+  ]
 }
 
-async function getPnpmSha256(version: string): Promise<string> {
-  let response = await fetch(
+async function getPnpmSha256(version: string): Promise<ShaSum[]> {
+  let binX64 = await fetch(
     `https://github.com/pnpm/pnpm/releases/download/v${version}/pnpm-linux-x64`
   )
-  let hash = createHash('sha256')
-  hash.update(Buffer.from(await response.arrayBuffer()))
-  return hash.digest('hex')
+  let binArm64 = await fetch(
+    `https://github.com/pnpm/pnpm/releases/download/v${version}/pnpm-linux-arm64`
+  )
+  return [
+    {
+      arch: 'x64',
+      hash: createHash('sha256')
+        .update(Buffer.from(await binX64.arrayBuffer()))
+        .digest('hex')
+    },
+    {
+      arch: 'arm64',
+      hash: createHash('sha256')
+        .update(Buffer.from(await binArm64.arrayBuffer()))
+        .digest('hex')
+    }
+  ]
 }
 
 function read(file: string): string {
@@ -92,10 +123,12 @@ function replaceVersionEnv(
   content: string,
   tool: string,
   version: string,
-  shasum: string
+  shasums: ShaSum[]
 ): string {
   let fixed = replaceEnv(content, `${tool}_VERSION`, version)
-  fixed = replaceEnv(fixed, `${tool}_CHECKSUM`, `sha256:${shasum}`)
+  for (let shasum of shasums) {
+    fixed = replaceEnv(fixed, `${tool}_CHECKSUM_${shasum.arch}`, shasum.hash)
+  }
   return fixed
 }
 
@@ -117,13 +150,13 @@ let latestPnpm = await getLatestPnpmVersion()
 
 if (currentNode !== latestNode) {
   printUpdate('Node.js', currentNode, latestNode)
-  let checksum = await getNodeSha256(latestNode)
-  dockerfile = replaceVersionEnv(dockerfile, 'NODE', latestNode, checksum)
+  let checksums = await getNodeSha256(latestNode)
+  dockerfile = replaceVersionEnv(dockerfile, 'NODE', latestNode, checksums)
   writeFileSync(join(ROOT, '.devcontainer', 'Dockerfile'), dockerfile)
   writeFileSync(join(ROOT, '.node-version'), latestNode + '\n')
 
   updateProjectDockerfiles(projectDocker => {
-    return replaceVersionEnv(projectDocker, 'NODE', latestNode, checksum)
+    return replaceVersionEnv(projectDocker, 'NODE', latestNode, checksums)
   })
 
   let minor = latestNode.split('.').slice(0, 2).join('.')
@@ -134,8 +167,8 @@ if (currentNode !== latestNode) {
 
 if (currentPnpm !== latestPnpm) {
   printUpdate('pnpm', currentPnpm, latestPnpm)
-  let checksum = await getPnpmSha256(latestPnpm)
-  dockerfile = replaceVersionEnv(dockerfile, 'PNPM', latestPnpm, checksum)
+  let checksums = await getPnpmSha256(latestPnpm)
+  dockerfile = replaceVersionEnv(dockerfile, 'PNPM', latestPnpm, checksums)
   writeFileSync(join(ROOT, '.devcontainer', 'Dockerfile'), dockerfile)
 
   updatePackages(pkg => {
