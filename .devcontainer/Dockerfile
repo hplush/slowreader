@@ -8,10 +8,10 @@ ARG TARGETARCH
 ENV NODE_VERSION 22.6.0
 ENV PNPM_VERSION 9.7.0
 
-ENV NODE_CHECKSUM_arm64 c6c7ee62de3637401c15df9a022afaa248d236d59ceca8c188944cf97d0be372
-ENV PNPM_CHECKSUM_arm64 4d65bb31c25fae8813ed5a64abc42f75fb900e678cdb31c4001dacd1a4853c6a
-ENV NODE_CHECKSUM_x64 f2f4ccbcbc0a443e5fadebd1149a22f96087ec09cef52ff343a15ee835206d96
-ENV PNPM_CHECKSUM_x64 f81316609f23df6cef9b3ed7492a3e0c484fec3a66dfd324884e0ad67ed07581
+ENV NODE_CHECKSUM_ARM64 c6c7ee62de3637401c15df9a022afaa248d236d59ceca8c188944cf97d0be372
+ENV PNPM_CHECKSUM_ARM64 4d65bb31c25fae8813ed5a64abc42f75fb900e678cdb31c4001dacd1a4853c6a
+ENV NODE_CHECKSUM_X64 f2f4ccbcbc0a443e5fadebd1149a22f96087ec09cef52ff343a15ee835206d96
+ENV PNPM_CHECKSUM_X64 f81316609f23df6cef9b3ed7492a3e0c484fec3a66dfd324884e0ad67ed07581
 
 RUN apt-get update \
   && apt-get install -y eza zsh git tig ripgrep bat curl tar micro psmisc \
@@ -19,17 +19,14 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 RUN <<EOF
-
   if [ "$TARGETARCH" = "amd64" ]; then
-    export NODE_CHECKSUM=${NODE_CHECKSUM_x64};
-    export PNPM_CHECKSUM=${PNPM_CHECKSUM_x64};
+    export NODE_CHECKSUM=$NODE_CHECKSUM_X64;
+    export PNPM_CHECKSUM=$PNPM_CHECKSUM_X64;
     export ARCH="x64";
-
   elif [ "$TARGETARCH" = "arm64" ]; then
-    export NODE_CHECKSUM=$NODE_CHECKSUM_arm64;
-    export PNPM_CHECKSUM=$PNPM_CHECKSUM_arm64;
+    export NODE_CHECKSUM=$NODE_CHECKSUM_ARM64;
+    export PNPM_CHECKSUM=$PNPM_CHECKSUM_ARM64;
     export ARCH="arm64";
-
   else
     echo "Unsupported architecture: $TARGETARCH";
     exit 1;
@@ -42,7 +39,6 @@ RUN <<EOF
   curl "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-${ARCH}" \
     --fail --show-error --location --silent --output /usr/local/bin/pnpm;
   echo "$PNPM_CHECKSUM /usr/local/bin/pnpm" | sha256sum -c;
-
 EOF
 
 RUN tar -xz -f /node.tar.gz -C /usr/local --remove-files --strip-components=1 \
