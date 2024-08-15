@@ -4,7 +4,6 @@
     "noUncheckedIndexedAccess": true,
     "verbatimModuleSyntax": true,
     "moduleResolution": "NodeNext",
-    "types": ["chrome"],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "allowJs": true,
@@ -12,6 +11,7 @@
     "module": "NodeNext",
     "strict": true,
     "noEmit": true,
+    "types": ["chrome"],
     "paths": {
       "@slowreader/core": ["./core"]
     }
