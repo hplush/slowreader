@@ -5,3 +5,4 @@ packages:
   - web
   - proxy
   - loader-tests
+  - extension
