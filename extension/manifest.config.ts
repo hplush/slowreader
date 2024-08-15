@@ -7,7 +7,7 @@ const URL =
 
 export default defineManifest(async () => ({
   background: {
-    service_worker: 'src/background.ts',
+    service_worker: 'background.ts',
     type: 'module'
   },
   description: 'Fetch data from websites for dev.slowreader.app',
