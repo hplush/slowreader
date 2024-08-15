@@ -1,14 +1,9 @@
 export type AppMessage = {
-  id?: string
   options: RequestInit
   url: string
 }
 
-type ExtensionMessageType = 'connected' | 'error' | 'fetched'
-
-export type ExtensionMessage = {
-  data?: null | Response
-  error?: string
-  id?: string
-  type: ExtensionMessageType
-}
+export type ExtensionMessage =
+  | { data: string; type: 'fetched' }
+  | { error: string; type: 'error' }
+  | { type: 'connected' }
