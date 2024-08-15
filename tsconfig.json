@@ -3,6 +3,7 @@
     "allowImportingTsExtensions": true,
     "noUncheckedIndexedAccess": true,
     "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
     "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "skipLibCheck": true,
