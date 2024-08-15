@@ -1,8 +1,8 @@
-import { crx, type ManifestV3Export } from '@crxjs/vite-plugin'
+import { crx } from '@crxjs/vite-plugin'
 import { defineConfig } from 'vite'
 
-import manifest from './manifest.json'
+import defineManifest from './manifest.config.ts'
 
 export default defineConfig({
-  plugins: [crx({ manifest: manifest as ManifestV3Export })]
+  plugins: [crx({ manifest: defineManifest })]
 })
