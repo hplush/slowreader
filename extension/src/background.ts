@@ -3,10 +3,10 @@ import { config } from './config.js'
 
 const FETCH_TIMEOUT_MS = 30000
 
-const sendMessage = (
+function sendMessage(
   port: chrome.runtime.Port,
   message: ExtensionMessage
-): void => {
+): void {
   port.postMessage(message)
 }
 
@@ -19,12 +19,12 @@ chrome.runtime.onConnectExternal.addListener(port => {
           ...message.options,
           signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
         })
-          .then(data => {
+          .then(async response => {
+            let data = await response.text()
             sendMessage(port, { data, type: 'fetched' })
           })
           .catch(error => {
             sendMessage(port, {
-              data: null,
               error: error.toString(),
               type: 'error'
             })
