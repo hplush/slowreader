@@ -53,7 +53,7 @@ Check if the extension was disconnected:
 port.onDisconnect.addListener(() => {})
 ```
 
-See possible messages in [types API](./src/api.ts).
+See possible messages in [types API](./api.ts).
 
 ## Publishing
 
