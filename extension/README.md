@@ -16,7 +16,7 @@ _See the [full architecture guide](../README.md) first._
 2. Open `chrome://extensions/` → `Load unpacked` and choose `dist` folder from this repo. The extension should appear in the list of your extensions.
 3. In the `.env` file of the main app, place the next line (`EXTENSION_ID` can be found in the `ID` line inside the uploaded extension block):
 
-   ```
+   ```env
    VITE_EXTENSION_ID=EXTENSION_ID
    ```
 
