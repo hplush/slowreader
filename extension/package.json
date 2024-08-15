@@ -7,9 +7,9 @@
     "pnpm": "^9.0.0"
   },
   "scripts": {
-    "dev": "../scripts/tsnode build.ts dev && vite",
-    "build": "../scripts/tsnode build.ts prod && vite build",
-    "test": "../scripts/tsnode build.ts dev"
+    "dev": "vite",
+    "build": "vite build",
+    "test": "pnpm build"
   },
   "dependencies": {
     "@crxjs/vite-plugin": "2.0.0-beta.23",
