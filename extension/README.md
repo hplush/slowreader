@@ -3,13 +3,13 @@
 ## Scripts
 
 - `pnpm install` to install dependencies
-- `pnpm dev` to run the plugin in development mode
+- `pnpm start` to run the plugin in development mode
 - `pnpm build` to build the plugin for production
 
 ## Quickstart
 
 - Run `pnpm install` to install dependencies
-- Run `pnpm dev` to build the extension and watch the changes
+- Run `pnpm start` to build the extension and watch the changes
 - Open `chrome://extensions/` -> `Load unpacked` and choose `dist` folder from this repo. The extension should appear in the list of your extensions
 - In the `.env` file of the main app, place the next line (`EXTENSION_ID` can be found in the `ID` line inside the uploaded extension block):
 
