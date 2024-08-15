@@ -13,7 +13,7 @@ _See the [full architecture guide](../README.md) first._
 ## Quick Start
 
 1. Run `cd extension && pnpm start` to build the extension and watch the changes.
-2. Open `chrome://extensions/` -> `Load unpacked` and choose `dist` folder from this repo. The extension should appear in the list of your extensions.
+2. Open `chrome://extensions/` → `Load unpacked` and choose `dist` folder from this repo. The extension should appear in the list of your extensions.
 3. In the `.env` file of the main app, place the next line (`EXTENSION_ID` can be found in the `ID` line inside the uploaded extension block):
 
    ```
