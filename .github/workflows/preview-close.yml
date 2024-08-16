@@ -14,7 +14,7 @@ on:
       - 'core/test/**'
       - 'loader-tests/**'
       - '.devcontainer/**'
-      - 'extensions/**'
+      - 'extension/**'
 jobs:
   prepare:
     name: Prepare

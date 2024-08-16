@@ -12,7 +12,7 @@ on:
       - 'core/test/**'
       - 'loader-tests/**'
       - '.devcontainer/**'
-      - 'extensions/**'
+      - 'extension/**'
 permissions:
   contents: read
 jobs:
