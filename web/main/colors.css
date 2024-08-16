@@ -27,30 +27,8 @@
     --shadow-color: oklch(from var(--land-color) 0.65 calc(c * 2) h / 45%);
     --border-color: oklch(0 0 0 / 15%);
 
-    /* --above-color: oklch(from var(--land-color) 0.96 c h); */
     --above-secondary-color: oklch(from var(--land-color) 0.93 c h);
 
-    &.is-slow-theme {
-      --land-color: oklch(0.95 0.02 70);
-    }
-  }
-
-  @media (prefers-color-scheme: dark) {
-    --text-color: oklch(0.98 0 0);
-    --secondary-text-color: oklch(0.6 0 0);
-    --hotkey-color: oklch(0.5 0 0);
-    --land-color: oklch(0.25 0 70);
-    --shadow-color: oklch(0 0 0 / 80%);
-
-    /* --above-color: oklch(from var(--land-color) 0.3 c h); */
-    --above-secondary-color: oklch(from var(--land-color) 0.3 c h);
-
-    &.is-slow-theme {
-      --land-color: oklch(0.25 0.02 70);
-    }
-  }
-
-  @media (prefers-color-scheme: light) {
     --hover-color: color-mix(in oklch, var(--neutral-50), var(--sand-50));
     --card-shadow: var(--above-1-shadow);
     --card-item-above-shadow: inset 0 1px 2px oklch(from var(--shadow-color) l c h / 20%);
@@ -60,9 +38,6 @@
       5px 0 0 var(--land-color),
       -5px 0 0 var(--land-color);
 
-    /* --float-shadow:
-      0 -1px 0 oklch(from var(--shadow-color) l c h / 8%),
-      0 0 5px oklch(from var(--shadow-color) l c h / 10%); */
     --dangerous-card-color: var(--red-100);
     --dangerous-card-hover-color: color-mix(in oklab, var(--red-100), var(--sand-100));
     --dangerous-text-color: var(--red-700);
@@ -89,9 +64,22 @@
     --link-color: var(--blue-700);
     --link-color-visited: var(--fuchsia-700);
     --inline-code-color: oklch(from var(--neutral-200) l c h / 55%);
+
+    &.is-slow-theme {
+      --land-color: oklch(0.95 0.02 70);
+      --hover-color: color-mix(in oklch, var(--sand-50), var(--neutral-50));
+    }
   }
 
   @media (prefers-color-scheme: dark) {
+    --text-color: oklch(0.98 0 0);
+    --secondary-text-color: oklch(0.6 0 0);
+    --hotkey-color: oklch(0.5 0 0);
+    --land-color: oklch(0.25 0 70);
+    --shadow-color: oklch(0 0 0 / 80%);
+
+    --above-secondary-color: oklch(from var(--land-color) 0.3 c h);
+
     --border-color: oklch(1 0 0 / 15%);
     --hover-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));
     --card-shadow: 0 1px 2px oklch(0 0 0), inset 0 1px oklch(1 0 0 / 10%);
@@ -103,9 +91,6 @@
       -5px 0 0 var(--land-color),
       inset 0 1px 2px oklch(0 0 0);
 
-    /* --float-shadow:
-      0 -1px 0 oklch(0 0 0),
-      0 0 5px oklch(0 0 0 / 60%); */
     --dangerous-card-color: var(--red-900);
     --dangerous-card-hover-color: color-mix(in oklab, var(--red-900), var(--red-800));
     --dangerous-text-color: var(--red-200);
@@ -131,15 +116,10 @@
     --link-color: var(--blue-400);
     --link-color-visited: var(--fuchsia-400);
     --inline-code-color: oklch(from var(--zinc-800) l c h / 60%);
-  }
-}
 
-.is-slow-theme {
-  @media (prefers-color-scheme: light) {
-    --hover-color: color-mix(in oklch, var(--sand-50), var(--neutral-50));
-  }
-
-  @media (prefers-color-scheme: dark) {
-    --hover-color: color-mix(in oklch, var(--sand-900), var(--sand-800));
+    &.is-slow-theme {
+      --land-color: oklch(0.25 0.02 70);
+      --hover-color: color-mix(in oklch, var(--sand-900), var(--sand-800));
+    }
   }
 }
