@@ -16,7 +16,7 @@
     "clean:build": "rm -rf dist/"
   },
   "dependencies": {
-    "esbuild": "0.23.0"
+    "esbuild": "0.23.1"
   },
   "devDependencies": {
     "better-node-test": "0.6.0",
