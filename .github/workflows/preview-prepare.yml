@@ -28,10 +28,8 @@ jobs:
         with:
           node-version-file: .node-version
           cache: pnpm
-      - name: Allow to install only web dependencies
-        run: pnpm config set recursive-install false
       - name: Install dependencies
-        run: cd web && pnpm install --ignore-scripts
+        run: pnpm install -F ./core/ -F ./web/ --ignore-scripts
       - name: Build assets
         run: cd web && node --run build
         env:
