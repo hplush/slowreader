@@ -1,8 +1,15 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import { onMount, type Snippet } from 'svelte'
 
-  export let title: string
-  export let type: 'center' | 'list' | 'normal' = 'normal'
+  let {
+    children,
+    title,
+    type = 'normal'
+  }: {
+    children: Snippet
+    title: string
+    type?: 'center' | 'list' | 'normal'
+  } = $props()
 
   let prevTitle = document.title
 
@@ -20,7 +27,7 @@
   class:is-center={type === 'center'}
   class:is-list={type === 'list'}
 >
-  <slot />
+  {@render children()}
 </main>
 
 <style>

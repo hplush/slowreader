@@ -1,19 +1,20 @@
 <script context="module" lang="ts">
-  import Loader from '../../ui/loader.svelte'
+  import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  export const meta = {
+  import Loader from '../../ui/loader.svelte'
+  import Section from '../section.svelte'
+
+  let { Story } = defineMeta({
     component: Loader,
     title: 'UI/Loader'
-  }
+  })
 </script>
 
 <script lang="ts">
-  import { Story } from '@storybook/addon-svelte-csf'
   import { onMount } from 'svelte'
 
-  import Section from '../section.svelte'
+  let progress = $state<number | undefined>()
 
-  let progress: number | undefined
   onMount(() => {
     let loaderAnimation = setInterval(() => {
       progress = progress === undefined ? 0.25 : progress + 0.25

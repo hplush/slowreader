@@ -1,14 +1,14 @@
 <script context="module" lang="ts">
-  import { Story } from '@storybook/addon-svelte-csf'
+  import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import Fast from '../../pages/fast.svelte'
   import Scene from '../scene.svelte'
   import { MOCKED_FAST_FEED, MOCKED_POSTS } from './post-mocks.ts'
 
-  export const meta = {
+  let { Story } = defineMeta({
     component: Fast,
     title: 'Pages/Fast'
-  }
+  })
 </script>
 
 <Story name="Loading" parameters={{ layout: 'fullscreen' }}>

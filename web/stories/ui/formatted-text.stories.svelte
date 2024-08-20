@@ -1,19 +1,16 @@
 <script context="module" lang="ts">
+  import { defineMeta } from '@storybook/addon-svelte-csf'
+
+  import Card from '../../ui/card.svelte'
   import FormattedText from '../../ui/formatted-text.svelte'
   import imgExample2 from '../assets/long_width_example.avif'
   import imgExample1 from '../assets/short_width_example.avif'
+  import Section from '../section.svelte'
 
-  export const meta = {
+  let { Story } = defineMeta({
     component: FormattedText,
     title: 'UI/FormattedText'
-  }
-</script>
-
-<script lang="ts">
-  import { Story } from '@storybook/addon-svelte-csf'
-
-  import Card from '../../ui/card.svelte'
-  import Section from '../section.svelte'
+  })
 
   let paragraph = `<p>Reading is generally an individual activity, done silently, although on occasion a person reads out loud for other listeners; or reads aloud for one's own use, for better comprehension. Before the reintroduction of separated text (spaces between words) in the late Middle Ages, the ability to read silently was considered rather remarkable.</p>`
 

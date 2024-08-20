@@ -25,7 +25,7 @@
   import RadioField from '../../ui/radio-field.svelte'
   import FeedList from './list.svelte'
 
-  let currentFeeds: 'all' | 'select' = 'all'
+  let currentFeeds = $state<'all' | 'select'>('all')
 
   function handleFileChange(e: Event): void {
     let target = e.target as HTMLInputElement
@@ -35,14 +35,15 @@
     }
   }
 
-  function handleRadioChange(e: CustomEvent<'all' | 'select'>): void {
-    currentFeeds = e.detail
+  function handleRadioChange(value: 'all' | 'select'): void {
+    currentFeeds = value
     if (currentFeeds === 'all') {
       selectAllImportedFeeds()
     }
   }
 
-  async function handleSubmit(): Promise<void> {
+  async function handleSubmit(e: SubmitEvent): Promise<void> {
+    e.preventDefault()
     await submitImport()
   }
 </script>
@@ -54,8 +55,8 @@
         <h2>{$t.importTitle}</h2>
         <input
           disabled={$importReading}
+          onchange={handleFileChange}
           type="file"
-          on:change={handleFileChange}
         />
         {#if $importReading}
           <Loader />
@@ -98,31 +99,25 @@
     {/if}
 
     {#if $importedFeedsByCategory.length}
-      <form on:submit|preventDefault={handleSubmit}>
+      <form onsubmit={handleSubmit}>
         <Card>
           <RadioField
             current={currentFeeds}
             label={$t.type}
+            onchange={handleRadioChange}
             values={[
               ['all', $t.allFeeds],
               ['select', $t.selectFeeds]
             ]}
-            on:change={e => {
-              handleRadioChange(e)
-            }}
           />
         </Card>
         <FeedList
           disabled={currentFeeds === 'all'}
           feedsByCategory={Array.from($importedFeedsByCategory)}
+          ontoggleCategory={toggleImportedCategory}
+          ontoggleFeed={toggleImportedFeed}
           selectedCategories={Array.from($importedCategories)}
           selectedFeeds={Array.from($importedFeeds)}
-          on:toggleCategory={e => {
-            toggleImportedCategory(e.detail.categoryId)
-          }}
-          on:toggleFeed={e => {
-            toggleImportedFeed(e.detail.feedId, e.detail.categoryId)
-          }}
         />
 
         <div class="feeds-import_submit">

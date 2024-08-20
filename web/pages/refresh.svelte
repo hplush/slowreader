@@ -7,5 +7,5 @@
 </script>
 
 {#if $isRefreshing}
-  <button on:click={stopRefreshing}>{$t.stop}</button>
+  <button onclick={stopRefreshing}>{$t.stop}</button>
 {/if}

@@ -1,10 +1,13 @@
 <script lang="ts">
-  export let node: HTMLUListElement | null = null
-  export let id: string | undefined = undefined
+  import type { Snippet } from 'svelte'
+
+  let { children, id }: { children: Snippet; id?: string } = $props()
+
+  let node: HTMLUListElement | null = null
 </script>
 
 <ul bind:this={node} {id} class="card-links" role="menu">
-  <slot />
+  {@render children()}
 </ul>
 
 <style>

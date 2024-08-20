@@ -4,7 +4,8 @@ import { defineConfig } from 'vite'
 
 export default defineConfig(() => ({
   build: {
-    assetsInlineLimit: 0
+    assetsInlineLimit: 0,
+    target: 'es2022'
   },
   plugins: [
     svelte(),

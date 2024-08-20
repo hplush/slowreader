@@ -1,24 +1,21 @@
 <script lang="ts">
   import { type FeedsByCategory, getCategoryTitle } from '@slowreader/core'
-  import { createEventDispatcher } from 'svelte'
 
-  export let disabled: boolean
-  export let feedsByCategory: FeedsByCategory
-  export let selectedCategories: string[]
-  export let selectedFeeds: string[]
-
-  const dispatch = createEventDispatcher<{
-    toggleCategory: { categoryId: string }
-    toggleFeed: { categoryId: string; feedId: string }
-  }>()
-
-  function handleToggleCategory(categoryId: string): void {
-    dispatch('toggleCategory', { categoryId })
-  }
-
-  function handleToggleFeed(feedId: string, categoryId: string): void {
-    dispatch('toggleFeed', { categoryId, feedId })
-  }
+  let {
+    disabled,
+    feedsByCategory,
+    ontoggleCategory,
+    ontoggleFeed,
+    selectedCategories,
+    selectedFeeds
+  }: {
+    disabled: boolean
+    feedsByCategory: FeedsByCategory
+    ontoggleCategory: (categoryId: string) => void
+    ontoggleFeed: (feedId: string, categoryId: string) => void
+    selectedCategories: string[]
+    selectedFeeds: string[]
+  } = $props()
 </script>
 
 <ul class="feeds-list" role="list">
@@ -28,10 +25,10 @@
         <input
           checked={selectedCategories.includes(category.id)}
           {disabled}
-          type="checkbox"
-          on:change={() => {
-            handleToggleCategory(category.id)
+          onchange={() => {
+            ontoggleCategory(category.id)
           }}
+          type="checkbox"
         />
         <h4 class="feeds-list_category">{getCategoryTitle(category)}</h4>
       </label>
@@ -43,10 +40,10 @@
               <input
                 checked={selectedFeeds.includes(feed.id)}
                 {disabled}
-                type="checkbox"
-                on:change={() => {
-                  handleToggleFeed(feed.id, category.id)
+                onchange={() => {
+                  ontoggleFeed(feed.id, category.id)
                 }}
+                type="checkbox"
               />
               <span>{feed.title}</span>
             </label>

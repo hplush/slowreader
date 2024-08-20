@@ -1,14 +1,12 @@
 <script context="module" lang="ts">
+  import { defineMeta } from '@storybook/addon-svelte-csf'
+
   import StartPage from '../../pages/start.svelte'
 
-  export const meta = {
+  let { Story } = defineMeta({
     component: StartPage,
     title: 'Pages/Start'
-  }
-</script>
-
-<script lang="ts">
-  import { Story } from '@storybook/addon-svelte-csf'
+  })
 </script>
 
 <Story name="Base" parameters={{ layout: 'fullscreen' }}>

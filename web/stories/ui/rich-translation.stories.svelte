@@ -1,16 +1,13 @@
 <script context="module" lang="ts">
-  import RichTranslation from '../../ui/rich-translation.svelte'
+  import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  export const meta = {
+  import RichTranslation from '../../ui/rich-translation.svelte'
+  import Section from '../section.svelte'
+
+  let { Story } = defineMeta({
     component: RichTranslation,
     title: 'UI/RichTranslation'
-  }
-</script>
-
-<script lang="ts">
-  import { Story } from '@storybook/addon-svelte-csf'
-
-  import Section from '../section.svelte'
+  })
 </script>
 
 <Story name="Base">

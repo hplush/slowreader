@@ -1,24 +1,55 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
+  import type { Snippet } from 'svelte'
 
   import Hotkey from '../hotkey.svelte'
   import Icon from '../icon.svelte'
 
-  export let href: string | undefined = undefined
-  export let current: boolean
-  export let name: string | undefined = undefined
-  export let hotkey: string | undefined = undefined
-  export let icon: string | undefined = undefined
-  export let secondary = false
-  export let submenu = false
-  export let small = false
-
-  let dispatch = createEventDispatcher()
-
-  function onClick(): void {
-    dispatch('click')
-  }
+  let {
+    children,
+    current,
+    hotkey,
+    href,
+    icon,
+    name,
+    onclick,
+    secondary = false,
+    small = false,
+    submenu = false
+  }: {
+    children?: Snippet
+    current: boolean
+    hotkey?: string
+    href?: string
+    icon?: string
+    name?: string
+    onclick?: () => void
+    secondary?: boolean
+    small?: boolean
+    submenu?: boolean
+  } = $props()
 </script>
+
+{#snippet content()}
+  {#if icon}
+    <Icon path={icon} />
+  {/if}
+  {#if small}
+    {#if children}
+      {@render children()}
+    {/if}
+  {:else}
+    <span class="navbar-item_text">
+      {#if name}
+        {name}
+      {:else if children}
+        {@render children()}
+      {/if}
+    </span>
+  {/if}
+  {#if hotkey}
+    <Hotkey {hotkey} />
+  {/if}
+{/snippet}
 
 {#if href}
   <a
@@ -29,28 +60,12 @@
     aria-haspopup={submenu ? 'menu' : null}
     aria-keyshortcuts={hotkey}
     {href}
+    {onclick}
     role="menuitem"
     tabindex={secondary || !current ? -1 : null}
     title={small || (name && name.length > 15) ? name : null}
-    on:click={onClick}
   >
-    {#if icon}
-      <Icon path={icon} />
-    {/if}
-    {#if small}
-      <slot />
-    {:else}
-      <span class="navbar-item_text">
-        {#if name}
-          {name}
-        {:else}
-          <slot />
-        {/if}
-      </span>
-    {/if}
-    {#if hotkey}
-      <Hotkey {hotkey} />
-    {/if}
+    {@render content()}
   </a>
 {:else}
   <button
@@ -60,28 +75,12 @@
     aria-current={current ? 'page' : null}
     aria-haspopup={submenu ? 'menu' : null}
     aria-keyshortcuts={hotkey}
+    {onclick}
     role="menuitem"
     tabindex={secondary ? -1 : null}
     title={small || (name && name.length > 15) ? name : null}
-    on:click={onClick}
   >
-    {#if icon}
-      <Icon path={icon} />
-    {/if}
-    {#if small}
-      <slot />
-    {:else}
-      <span class="navbar-item_text">
-        {#if name}
-          {name}
-        {:else}
-          <slot />
-        {/if}
-      </span>
-    {/if}
-    {#if hotkey}
-      <Hotkey {hotkey} />
-    {/if}
+    {@render content()}
   </button>
 {/if}
 

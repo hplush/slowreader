@@ -30,7 +30,7 @@
 </script>
 
 <TwoStepsPage bind:this={layout} title={$t.pageTitle}>
-  <div slot="one">
+  {#snippet one()}
     {#if $fastCategory === undefined || $fastLoading === 'init'}
       <Loader />
     {:else if $fastPosts.length === 0}
@@ -57,10 +57,10 @@
         <Loader />
       {:else}
         <Button
-          wide
-          on:click={() => {
+          onclick={() => {
             markReadAndLoadNextFastPosts()
           }}
+          wide
         >
           {$nextFastSince ? $t.readNext : $t.readLast}
         </Button>
@@ -80,8 +80,8 @@
         {/if}
       {/if}
     {/if}
-  </div>
-  <div slot="two">
+  {/snippet}
+  {#snippet two()}
     {#if $openedFastPost}
       {#if $openedFastPost.isLoading}
         <Loader />
@@ -89,7 +89,7 @@
         <PostCard full post={$openedFastPost} />
       {/if}
     {/if}
-  </div>
+  {/snippet}
 </TwoStepsPage>
 
 <style>

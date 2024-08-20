@@ -1,19 +1,16 @@
 <script context="module" lang="ts">
+  import { defineMeta } from '@storybook/addon-svelte-csf'
+
   import CardLink from '../../ui/card-link.svelte'
-
-  export const meta = {
-    component: CardLink,
-    title: 'UI/CardLink'
-  }
-</script>
-
-<script lang="ts">
-  import { Story } from '@storybook/addon-svelte-csf'
-
   import CardLinks from '../../ui/card-links.svelte'
   import Card from '../../ui/card.svelte'
   import Paragraph from '../../ui/paragraph.svelte'
   import Section from '../section.svelte'
+
+  let { Story } = defineMeta({
+    component: CardLink,
+    title: 'UI/CardLink'
+  })
 </script>
 
 <Story name="Base">

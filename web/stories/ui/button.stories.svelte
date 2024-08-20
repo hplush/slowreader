@@ -1,27 +1,27 @@
 <script context="module" lang="ts">
-  import Button from '../../ui/button.svelte'
-
-  export const meta = {
-    component: Button,
-    title: 'UI/Button'
-  }
-</script>
-
-<script lang="ts">
   import { mdiPlusCircleOutline, mdiTrashCanOutline } from '@mdi/js'
-  import { Story } from '@storybook/addon-svelte-csf'
-  import { onMount } from 'svelte'
+  import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import { getURL } from '../../stores/router.ts'
+  import Button from '../../ui/button.svelte'
   import CardActions from '../../ui/card-actions.svelte'
   import Card from '../../ui/card.svelte'
   import Scene from '../scene.svelte'
   import Section from '../section.svelte'
 
+  let { Story } = defineMeta({
+    component: Button,
+    title: 'UI/Button'
+  })
+</script>
+
+<script lang="ts">
+  import { onMount } from 'svelte'
+
   let focus: HTMLDivElement | undefined
 
-  let clicks = 0
-  let keyups = 0
+  let clicks = $state(0)
+  let keyups = $state(0)
 
   onMount(() => {
     let focusAnimation = setInterval(() => {
@@ -43,7 +43,7 @@
 <Story name="Base">
   <Section>
     <Button
-      on:click={() => {
+      onclick={() => {
         clicks += 1
       }}
     >
@@ -69,7 +69,7 @@
   <Section>
     <Button
       hotkey="k"
-      on:click={() => {
+      onclick={() => {
         keyups += 1
       }}>Hot Key</Button
     >

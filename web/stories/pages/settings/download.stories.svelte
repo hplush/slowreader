@@ -1,16 +1,13 @@
 <script context="module" lang="ts">
-  import SettingsDownload from '../../../pages/settings/download.svelte'
+  import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  export const meta = {
+  import SettingsDownload from '../../../pages/settings/download.svelte'
+  import Scene from '../../scene.svelte'
+
+  let { Story } = defineMeta({
     component: SettingsDownload,
     title: 'Pages/Settings/Download'
-  }
-</script>
-
-<script lang="ts">
-  import { Story } from '@storybook/addon-svelte-csf'
-
-  import Scene from '../../scene.svelte'
+  })
 </script>
 
 <Story name="Base" parameters={{ layout: 'fullscreen' }}>

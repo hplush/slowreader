@@ -8,7 +8,8 @@
   import ExportInternal from './internal.svelte'
   import ExportOPML from './opml.svelte'
 
-  export let formatId: string | undefined
+  let { formatId }: { formatId?: string } = $props()
+
   const formats = [
     {
       id: 'opml',
@@ -22,7 +23,7 @@
 </script>
 
 <TwoStepsPage title={$t.exportTitle}>
-  <div slot="one">
+  {#snippet one()}
     <h2>{$t.exportTitle}</h2>
 
     <CardLinks>
@@ -37,13 +38,15 @@
         ></CardLink>
       {/each}
     </CardLinks>
-  </div>
-  <div id="feeds-categories_edit" slot="two">
-    {#if formatId === 'opml'}
-      <ExportOPML />
-    {/if}
-    {#if formatId === 'internal'}
-      <ExportInternal />
-    {/if}
-  </div>
+  {/snippet}
+  {#snippet two()}
+    <div id="feeds-categories_edit">
+      {#if formatId === 'opml'}
+        <ExportOPML />
+      {/if}
+      {#if formatId === 'internal'}
+        <ExportInternal />
+      {/if}
+    </div>
+  {/snippet}
 </TwoStepsPage>

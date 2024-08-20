@@ -1,17 +1,14 @@
 <script context="module" lang="ts">
+  import { defineMeta } from '@storybook/addon-svelte-csf'
+
   import Navbar from '../../ui/navbar/index.svelte'
-
-  export const meta = {
-    component: Navbar,
-    title: 'UI/Navbar'
-  }
-</script>
-
-<script lang="ts">
-  import { Story } from '@storybook/addon-svelte-csf'
-
   import Scene from '../scene.svelte'
   import Section from '../section.svelte'
+
+  let { Story } = defineMeta({
+    component: Navbar,
+    title: 'UI/Navbar'
+  })
 </script>
 
 <Story name="Slow" parameters={{ layout: 'fullscreen' }}>

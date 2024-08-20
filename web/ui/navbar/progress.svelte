@@ -1,7 +1,7 @@
 <script lang="ts">
   import { navbarMessages as t } from '@slowreader/core'
 
-  export let value: number
+  let { value }: { value: number } = $props()
 
   const RADIUS = 4.8
   const CIRCUMFERENCE = 2 * Math.PI * RADIUS

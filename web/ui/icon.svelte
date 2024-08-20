@@ -1,6 +1,5 @@
 <script lang="ts">
-  export let path: string
-  export let compensate: number = 0
+  let { compensate = 0, path }: { compensate?: number; path: string } = $props()
 </script>
 
 <svg

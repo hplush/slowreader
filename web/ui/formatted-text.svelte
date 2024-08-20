@@ -4,19 +4,21 @@
 
   import { sanitizeDOM } from '@slowreader/core'
 
-  export let html: string
+  let { html }: { html: string } = $props()
 
   let node: HTMLDivElement | undefined
 
-  $: if (node) {
-    node.innerHTML = ''
-    node.replaceChildren(...sanitizeDOM(html).childNodes)
-    let links = node.querySelectorAll('a')
-    links.forEach(link => {
-      link.setAttribute('target', '_blank')
-      link.setAttribute('rel', 'noopener')
-    })
-  }
+  $effect(() => {
+    if (node) {
+      node.innerHTML = ''
+      node.replaceChildren(...sanitizeDOM(html).childNodes)
+      let links = node.querySelectorAll('a')
+      links.forEach(link => {
+        link.setAttribute('target', '_blank')
+        link.setAttribute('rel', 'noopener')
+      })
+    }
+  })
 </script>
 
 <div bind:this={node} class="formatted-text"></div>

@@ -1,17 +1,14 @@
 <script context="module" lang="ts">
-  import FeedsCategories from '../../../pages/feeds/categories.svelte'
+  import type { FeedValue } from '@slowreader/core'
+  import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  export const meta = {
+  import FeedsCategories from '../../../pages/feeds/categories.svelte'
+  import Scene from '../../scene.svelte'
+
+  let { Story } = defineMeta({
     component: FeedsCategories,
     title: 'Pages/Feeds/Categories'
-  }
-</script>
-
-<script lang="ts">
-  import type { FeedValue } from '@slowreader/core'
-  import { Story } from '@storybook/addon-svelte-csf'
-
-  import Scene from '../../scene.svelte'
+  })
 
   const FEEDS: Partial<FeedValue>[] = [
     {

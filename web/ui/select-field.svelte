@@ -1,27 +1,33 @@
 <script generics="Value extends string" lang="ts">
   import { mdiChevronDown } from '@mdi/js'
   import { nanoid } from 'nanoid/non-secure'
-  import { createEventDispatcher } from 'svelte'
 
   import Icon from './icon.svelte'
 
-  export let label: string
-  export let values: [Value, string][]
-  export let current: Value
-  export let hideLabel = false
+  let {
+    current,
+    hideLabel = false,
+    label,
+    onchange,
+    values
+  }: {
+    current: Value
+    hideLabel?: boolean
+    label: string
+    onchange?: (value: Value) => void
+    values: [Value, string][]
+  } = $props()
 
   let id = nanoid()
-  let dispatch = createEventDispatcher<{ change: Value }>()
 
   function onChange(e: { currentTarget: HTMLSelectElement } & Event): void {
-    dispatch('change', e.currentTarget.value as Value)
+    if (onchange) onchange(e.currentTarget.value as Value)
   }
 
-  let currentName: string
-  $: {
+  let currentName = $derived.by(() => {
     let currentOption = values.find(i => i[0] === current)
-    currentName = currentOption ? currentOption[1] : ' '
-  }
+    return currentOption ? currentOption[1] : ' '
+  })
 </script>
 
 <label class="select-field">
@@ -35,7 +41,7 @@
       {id}
       class="select-field_select"
       aria-label={hideLabel ? label : null}
-      on:change={onChange}
+      onchange={onChange}
     >
       {#each values as [value, name] (value)}
         <option selected={current === value} {value}>{name}</option>

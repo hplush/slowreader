@@ -1,15 +1,29 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte'
+  import { onMount, type Snippet, tick } from 'svelte'
 
-  export let height: number | undefined = undefined
-  export let width: number | undefined = undefined
-  export let hover: boolean | string = false
-  export let focus: boolean | string = false
-  export let blur: boolean | string = false
-  export let active: boolean | string = false
-  export let border: boolean = false
-  export let hotkeys: boolean = true
-  export let pressKey: string | undefined = undefined
+  let {
+    active = false,
+    blur = false,
+    border = false,
+    children,
+    focus = false,
+    height,
+    hotkeys = true,
+    hover = false,
+    pressKey,
+    width
+  }: {
+    active?: boolean | string
+    blur?: boolean | string
+    border?: boolean
+    children: Snippet
+    focus?: boolean | string
+    height?: number
+    hotkeys?: boolean
+    hover?: boolean | string
+    pressKey?: string
+    width?: number
+  } = $props()
 
   const INTERACTIVE_ELEMENTS = 'button, a, input, select'
 
@@ -60,7 +74,7 @@
   class:is-bordered={border}
   class:is-sized={width !== undefined || height !== undefined}
 >
-  <slot />
+  {@render children()}
 </section>
 
 <style>

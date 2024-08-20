@@ -8,12 +8,17 @@
   import Loader from '../../ui/loader.svelte'
   import PostCard from '../../ui/post-card.svelte'
 
-  export let posts: PostsPage
-  export let filters: FilterValue[] = []
-  export let defaultReading: 'fast' | 'slow' = 'fast'
+  let {
+    defaultReading = 'fast',
+    filters = [],
+    posts
+  }: {
+    defaultReading?: 'fast' | 'slow'
+    filters?: FilterValue[]
+    posts: PostsPage
+  } = $props()
 
-  let checker: ReturnType<typeof prepareFilters>
-  $: checker = prepareFilters(filters)
+  let checker = $derived(prepareFilters(filters))
 </script>
 
 {#if $posts.isLoading}

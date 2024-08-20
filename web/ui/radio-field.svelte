@@ -1,17 +1,22 @@
 <script generics="Value extends string" lang="ts">
   import { nanoid } from 'nanoid/non-secure'
-  import { createEventDispatcher } from 'svelte'
 
-  export let label: string
-  export let current: Value
-  export let values: [Value, string][]
+  let {
+    current,
+    label,
+    onchange,
+    values
+  }: {
+    current: Value
+    label: string
+    onchange?: (value: Value) => void
+    values: [Value, string][]
+  } = $props()
 
   let id = nanoid()
 
-  let dispatch = createEventDispatcher<{ change: Value }>()
-
   function onInput(e: { currentTarget: HTMLInputElement } & Event): void {
-    dispatch('change', e.currentTarget.value as Value)
+    if (onchange) onchange(e.currentTarget.value as Value)
   }
 </script>
 
@@ -22,9 +27,9 @@
         name={id}
         class="radio-field_input"
         checked={current === value}
+        oninput={onInput}
         type="radio"
         {value}
-        on:input={onInput}
       />
       <div class="radio-field_fake"></div>
       {name}

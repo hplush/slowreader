@@ -12,11 +12,19 @@
   import Card from './card.svelte'
   import FormattedText from './formatted-text.svelte'
 
-  export let post: OriginPost
-  export let author: FeedValue | undefined = undefined
-  export let action: FilterAction | undefined = undefined
-  export let open: string | undefined = undefined
-  export let full = false
+  let {
+    action,
+    author,
+    full = false,
+    open,
+    post
+  }: {
+    action?: FilterAction
+    author?: FeedValue
+    full?: boolean
+    open?: string
+    post: OriginPost
+  } = $props()
 </script>
 
 <Card>

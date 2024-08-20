@@ -52,5 +52,11 @@ export default [
         }
       ]
     }
+  },
+  {
+    files: ['web/**/*.svelte'],
+    rules: {
+      '@typescript-eslint/no-confusing-void-expression': 'off'
+    }
   }
 ]

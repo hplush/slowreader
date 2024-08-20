@@ -16,7 +16,7 @@
       <Paragraph>{$t.localDescription1}</Paragraph>
       <Paragraph>{$t.localDescription2}</Paragraph>
       <CardActions>
-        <Button wide on:click={generateCredentials}>
+        <Button onclick={generateCredentials} wide>
           {$t.localButton}
         </Button>
       </CardActions>

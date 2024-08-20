@@ -11,14 +11,14 @@
     <RadioField
       current={$theme}
       label={$t.theme}
+      onchange={value => {
+        theme.set(value)
+      }}
       values={[
         ['system', $t.themeSystem],
         ['light', $t.themeLight],
         ['dark', $t.themeDark]
       ]}
-      on:change={e => {
-        theme.set(e.detail)
-      }}
     />
   </Card>
 </Page>
