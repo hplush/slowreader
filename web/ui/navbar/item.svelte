@@ -33,8 +33,10 @@
   {#if icon}
     <Icon path={icon} />
   {/if}
-  {#if small && children}
-    {@render children()}
+  {#if small}
+    {#if children}
+      {@render children()}
+    {/if}
   {:else}
     <span class="navbar-item_text">
       {#if name}
