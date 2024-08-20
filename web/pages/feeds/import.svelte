@@ -25,7 +25,7 @@
   import RadioField from '../../ui/radio-field.svelte'
   import FeedList from './list.svelte'
 
-  let currentFeeds: 'all' | 'select' = $state('all')
+  let currentFeeds = $state<'all' | 'select'>('all')
 
   function handleFileChange(e: Event): void {
     let target = e.target as HTMLInputElement

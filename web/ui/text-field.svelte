@@ -32,7 +32,7 @@
   } = $props()
 
   let id = nanoid()
-  let inputError: string | undefined = $state(error)
+  let inputError = $state<string | undefined>(error)
 
   function validate(): void {
     if (required && !value) {

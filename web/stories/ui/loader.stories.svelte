@@ -13,7 +13,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
 
-  let progress: number | undefined = $state()
+  let progress = $state<number | undefined>()
 
   onMount(() => {
     let loaderAnimation = setInterval(() => {

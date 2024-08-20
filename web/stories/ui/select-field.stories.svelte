@@ -11,7 +11,7 @@
 </script>
 
 <script lang="ts">
-  let selectValue: '1' | '2' | '3' = $state('2')
+  let selectValue = $state<'1' | '2' | '3'>('2')
 </script>
 
 <Story name="Base">
