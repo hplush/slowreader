@@ -1,12 +1,16 @@
+<script lang="ts">
+  import type { Snippet } from 'svelte'
+
+  let { children }: { children: Snippet } = $props()
+</script>
+
 <p class="paragraph">
-  <slot />
+  {@render children()}
 </p>
 
 <style>
-  .paragraph {
-    & + & {
-      margin-top: var(--padding-m);
-    }
+  .paragraph + .paragraph {
+    margin-top: var(--padding-m);
   }
 
   :global(.card) > .paragraph:first-child {

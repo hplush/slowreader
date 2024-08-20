@@ -27,7 +27,8 @@
     }
   }
 
-  function handleSubmit(): void {
+  function handleSubmit(e: SubmitEvent): void {
+    e.preventDefault()
     let blob = getOPMLBlob()
 
     let url = URL.createObjectURL(blob)
@@ -46,7 +47,7 @@
 </script>
 
 <h2>{$t.chooseTitle}</h2>
-<form on:submit|preventDefault={handleSubmit}>
+<form onsubmit={handleSubmit}>
   <Card>
     <RadioField
       current={currentFeeds}
@@ -61,14 +62,10 @@
   <FeedList
     disabled={currentFeeds === 'all'}
     feedsByCategory={Array.from($exportingFeedsByCategory)}
+    ontoggleCategory={toggleExportingCategory}
+    ontoggleFeed={toggleExportingFeed}
     selectedCategories={Array.from($exportingCategories)}
     selectedFeeds={Array.from($exportingFeeds)}
-    on:toggleCategory={e => {
-      toggleExportingCategory(e.detail.categoryId)
-    }}
-    on:toggleFeed={e => {
-      toggleExportingFeed(e.detail.feedId, e.detail.categoryId)
-    }}
   />
   <div class="feeds-opml_submit">
     <Button disabled={$exporting} type="submit">{$t.submitOPML}</Button>

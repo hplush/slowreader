@@ -1,12 +1,13 @@
 <script lang="ts">
   import { mdiClose } from '@mdi/js'
   import { backRoute, backToFirstStep } from '@slowreader/core'
-  import { onMount } from 'svelte'
+  import { onMount, type Snippet } from 'svelte'
 
   import { getURL } from '../stores/router.ts'
   import Button from './button.svelte'
 
-  export let title: string
+  let { one, title, two }: { one: Snippet; title: string; two: Snippet } =
+    $props()
 
   let prevTitle = document.title
 
@@ -52,7 +53,7 @@
     bind:this={first}
     class={`two-steps-page_step ${$backRoute ? 'is-hidden' : ''}`}
   >
-    <slot name="one" />
+    {@render one()}
   </div>
   <div
     bind:this={second}
@@ -63,7 +64,7 @@
         <Button hiddenLabel="Close" href={getURL($backRoute)} icon={mdiClose} />
       </aside>
     {/if}
-    <slot name="two" />
+    {@render two()}
   </div>
 </main>
 

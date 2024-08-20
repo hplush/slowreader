@@ -1,16 +1,13 @@
 <script context="module" lang="ts">
-  import FeedsAdd from '../../../pages/feeds/add.svelte'
+  import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  export const meta = {
+  import FeedsAdd from '../../../pages/feeds/add.svelte'
+  import Scene from '../../scene.svelte'
+
+  let { Story } = defineMeta({
     component: FeedsAdd,
     title: 'Pages/Feeds/Add'
-  }
-</script>
-
-<script lang="ts">
-  import { Story } from '@storybook/addon-svelte-csf'
-
-  import Scene from '../../scene.svelte'
+  })
 
   const HTML_WITH_LINKS = `
     <html>

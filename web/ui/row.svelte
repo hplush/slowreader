@@ -1,9 +1,12 @@
 <script lang="ts">
-  export let compact = false
+  import type { Snippet } from 'svelte'
+
+  let { children, compact = false }: { children: Snippet; compact?: boolean } =
+    $props()
 </script>
 
 <div class="row" class:is-compact={compact}>
-  <slot />
+  {@render children()}
 </div>
 
 <style>

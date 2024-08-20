@@ -41,6 +41,7 @@
     totalSlowPosts
   } from '@slowreader/core'
   import { cleanStores } from 'nanostores'
+  import type { Snippet } from 'svelte'
   import { onMount } from 'svelte'
 
   import { forceSet } from '../../core/lib/stores.ts'
@@ -56,32 +57,45 @@
     type: 'free'
   }
 
-  export let refreshing: false | Partial<RefreshStatistics> = false
-  export let route: Route = {
-    params: {},
-    route: 'slow'
-  }
-  export let fast = false
-  export let networkType = DEFAULT_NETWORK
-
-  export let categories: CategoryValue[] = []
-  export let feeds: Partial<FeedValue>[] = [{ title: 'Example' }]
-  export let openedPost: PostValue | undefined = undefined
-  export let fasts: FastEntry[] = []
-  export let showPagination = false
-
-  // import
-  export let loadingFeeds = {}
-  export let unloadedFeeds: string[] = []
-  export let errors: string[] = []
-  export let feedsByCategory: FeedsByCategory = []
-
-  export let responses: Record<string, PreparedResponse | string> = {}
-
-  const initialSlow: SlowPostsValue = {
+  const INITIAL_SLOW: SlowPostsValue = {
     isLoading: true
   }
-  export let slowState: SlowPostsValue = initialSlow
+
+  let {
+    categories = [],
+    children,
+    errors = [],
+    fast = false,
+    fasts = [],
+    feeds = [{ title: 'Example' }],
+    feedsByCategory = [],
+    loadingFeeds = {},
+    networkType = DEFAULT_NETWORK,
+    openedPost,
+    refreshing = false,
+    responses = {},
+    route = { params: {}, route: 'slow' },
+    showPagination = false,
+    slowState = INITIAL_SLOW,
+    unloadedFeeds = []
+  }: {
+    categories?: CategoryValue[]
+    children: Snippet
+    errors?: string[]
+    fast?: boolean
+    fasts?: FastEntry[]
+    feeds?: Partial<FeedValue>[]
+    feedsByCategory?: FeedsByCategory
+    loadingFeeds?: Record<string, boolean>
+    networkType?: ReturnType<NetworkTypeDetector>
+    openedPost?: PostValue | undefined
+    refreshing?: false | Partial<RefreshStatistics>
+    responses?: Record<string, PreparedResponse | string>
+    route?: Route
+    showPagination?: boolean
+    slowState?: SlowPostsValue
+    unloadedFeeds?: string[],
+  } = $props()
 
   function cleanLogux(): void {
     clearPreview()
@@ -89,7 +103,7 @@
     cleanStores(Feed, Filter, Category, Post, hasFeeds, fastCategories)
   }
 
-  $: {
+  $effect(() => {
     cleanLogux()
     prepareResponses(responses)
 
@@ -117,7 +131,7 @@
     } else {
       baseRouter.set(route)
     }
-  }
+  })
 
   onMount(() => {
     forceSet(slowPosts, slowState)
@@ -166,7 +180,7 @@
       baseRouter.set({ params: {}, route: 'slow' })
       setNetworkType(DEFAULT_NETWORK)
       cleanLogux()
-      forceSet(slowPosts, initialSlow)
+      forceSet(slowPosts, INITIAL_SLOW)
 
       forceSet(openedSlowPost, undefined)
       forceSet(openedFastPost, undefined)
@@ -186,4 +200,4 @@
   })
 </script>
 
-<slot />
+{@render children()}

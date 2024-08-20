@@ -28,10 +28,10 @@
     <RadioField
       current={$preloadImages}
       label={$t.preloadImages}
-      values={preloadOptions}
-      on:change={e => {
-        preloadImages.set(e.detail)
+      onchange={value => {
+        preloadImages.set(value)
       }}
+      values={preloadOptions}
     />
   </Card>
 </Page>

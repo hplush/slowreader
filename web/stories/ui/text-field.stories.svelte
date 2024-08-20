@@ -1,20 +1,19 @@
 <script context="module" lang="ts">
-  import TextField from '../../ui/text-field.svelte'
-
-  export const meta = {
-    component: TextField,
-    title: 'UI/TextField'
-  }
-</script>
-
-<script lang="ts">
-  import { Story } from '@storybook/addon-svelte-csf'
+  import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import Card from '../../ui/card.svelte'
   import Paragraph from '../../ui/paragraph.svelte'
+  import TextField from '../../ui/text-field.svelte'
   import Section from '../section.svelte'
 
-  let value = 'Value'
+  let { Story } = defineMeta({
+    component: TextField,
+    title: 'UI/TextField'
+  })
+</script>
+
+<script lang="ts">
+  let value = $state('Value')
 </script>
 
 <Story name="Base">

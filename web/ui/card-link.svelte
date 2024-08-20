@@ -1,20 +1,23 @@
 <script lang="ts">
   import { mdiChevronRight } from '@mdi/js'
-  import { createEventDispatcher } from 'svelte'
 
   import Icon from './icon.svelte'
 
-  export let href: string | undefined = undefined
-  export let controls: string | undefined = undefined
-  export let name: string
-  export let current = false
-  export let first = false
-
-  let dispatch = createEventDispatcher<{ click: null }>()
-
-  function onClick(): void {
-    dispatch('click')
-  }
+  let {
+    controls,
+    current = false,
+    first = false,
+    href,
+    name,
+    onclick
+  }: {
+    controls?: string
+    current?: boolean
+    first?: boolean
+    href?: string
+    name: string
+    onclick?: () => void
+  } = $props()
 </script>
 
 <li role="presentation">
@@ -24,9 +27,9 @@
       aria-controls={controls}
       aria-current={current ? 'page' : null}
       {href}
+      {onclick}
       role="menuitem"
       tabindex={current || first ? null : -1}
-      on:click={onClick}
     >
       {name}
       {#if current}
@@ -38,9 +41,9 @@
       class="card-link"
       aria-controls={controls}
       aria-current={current ? 'page' : null}
+      {onclick}
       role="menuitem"
       tabindex={current || first ? null : -1}
-      on:click={onClick}
     >
       {name}
       {#if current}

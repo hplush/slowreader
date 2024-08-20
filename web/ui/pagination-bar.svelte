@@ -1,21 +1,22 @@
 <script lang="ts">
   import { commonMessages as t } from '@slowreader/core'
-  import { createEventDispatcher } from 'svelte'
 
   import Button from './button.svelte'
   import Paragraph from './paragraph.svelte'
 
-  export let currentPage: number
-  export let label: string
-  export let totalPages: number
+  let {
+    currentPage,
+    label,
+    onclick,
+    totalPages
+  }: {
+    currentPage: number
+    label: string
+    onclick?: (page: number) => void
+    totalPages: number
+  } = $props()
 
-  $: pages = Array.from({ length: totalPages }, (_, i) => i + 1)
-
-  let dispatch = createEventDispatcher()
-
-  function onPageChange(page: number): void {
-    dispatch('click', page)
-  }
+  let pages = $derived(Array.from({ length: totalPages }, (_, i) => i + 1))
 </script>
 
 {#if totalPages > 1}
@@ -26,8 +27,8 @@
           class="pagination-bar_segment"
           class:is-past={page <= currentPage}
           href={`?page=${page}`}
-          on:click={() => {
-            onPageChange(page)
+          onclick={() => {
+            if (onclick) onclick(page)
           }}
         >
         </a>
@@ -39,8 +40,8 @@
 {#if currentPage < totalPages}
   <Button
     href={`?page=${currentPage + 1}`}
-    on:click={() => {
-      onPageChange(currentPage + 1)
+    onclick={() => {
+      if (onclick) onclick(currentPage + 1)
     }}
   >
     {$t.showNextPage}

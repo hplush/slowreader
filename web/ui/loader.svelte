@@ -1,20 +1,29 @@
 <script lang="ts">
   import { commonMessages as t } from '@slowreader/core'
 
-  export let label: string = $t.loading
-  export let zoneId: string | undefined = undefined
-  export let value: number | undefined = undefined
-  export let margin = true
+  let {
+    label = $t.loading,
+    margin = true,
+    value,
+    zoneId
+  }: {
+    label?: string
+    margin?: boolean
+    value?: number
+    zoneId?: string
+  } = $props()
 
   let progress: HTMLProgressElement | undefined
 
-  $: if (progress) {
-    if (typeof value === 'number') {
-      progress.value = value
-    } else {
-      progress.removeAttribute('value')
+  $effect(() => {
+    if (progress) {
+      if (typeof value === 'number') {
+        progress.value = value
+      } else {
+        progress.removeAttribute('value')
+      }
     }
-  }
+  })
 </script>
 
 <progress

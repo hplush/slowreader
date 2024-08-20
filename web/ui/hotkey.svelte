@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getHotKeyHint } from 'keyux'
 
-  export let hotkey: string
+  let { hotkey }: { hotkey: string } = $props()
 </script>
 
 <kbd class="hotkey" aria-hidden="true">

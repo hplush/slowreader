@@ -36,10 +36,8 @@
   import TextField from '../../ui/text-field.svelte'
   import FeedsPosts from './posts.svelte'
 
-  export let feedId: string
-  export let posts: PostsPage | undefined = undefined
+  let { feedId, posts }: { feedId: string; posts?: PostsPage } = $props()
 
-  let loadedPosts: PostsPage | undefined = undefined
   let categories = getCategories()
 
   let categoryOptions: [string, string][]
@@ -56,80 +54,86 @@
     categoryOptions = options
   })
 
-  async function onCategoryChange(e: CustomEvent): Promise<void> {
-    if (e.detail === 'new') {
+  async function onCategoryChange(value: string): Promise<void> {
+    if (value === 'new') {
       let title = prompt($t.categoryName)
       if (title) {
         let categoryId = await addCategory({ title })
         changeFeed(feedId, { categoryId })
       }
     } else {
-      changeFeed(feedId, { categoryId: e.detail })
+      changeFeed(feedId, { categoryId: value })
     }
   }
 
-  $: feed = getFeed(feedId)
-  $: filters = getFilters({ feedId })
-  $: if (posts) {
-    loadedPosts = posts
-  } else if (!$feed.isLoading) {
-    loadedPosts = getFeedLatestPosts($feed)
-  }
+  let feed = $derived(getFeed(feedId))
+  let filters = $derived(getFilters({ feedId }))
+  let loadedPosts = $derived.by(() => {
+    if (posts) {
+      return posts
+    } else if (!$feed.isLoading) {
+      return getFeedLatestPosts($feed)
+    }
+  })
 </script>
 
 {#if $feed.isLoading || $filters.isLoading || $categories.isLoading}
   <Loader />
 {:else}
-  <form on:submit|preventDefault>
+  <form
+    onsubmit={e => {
+      e.preventDefault()
+    }}
+  >
     <Card>
       <Row compact>
         <TextField
           hideLabel
           label={$t.name}
+          onchange={(value, valid) => {
+            if (valid) changeFeed(feedId, { title: value })
+          }}
           required
           value={$feed.title}
-          on:change={e => {
-            if (e.detail.valid) changeFeed(feedId, { title: e.detail.value })
-          }}
         />
         <Button
           dangerous
           icon={mdiTrashCanOutline}
-          secondary
-          on:click={() => {
+          onclick={() => {
             if (confirm($t.deleteConform)) {
               removeFeedFromRoute()
               deleteFeed(feedId)
             }
-          }}>{$t.deleteFeed}</Button
+          }}
+          secondary>{$t.deleteFeed}</Button
         >
       </Row>
       <TextField
         hideLabel
         label={$t.url}
+        onchange={(value, valid) => {
+          if (valid) changeFeed(feedId, { url: value })
+        }}
         required
         type="url"
         value={$feed.url}
-        on:change={e => {
-          if (e.detail.valid) changeFeed(feedId, { url: e.detail.value })
-        }}
       />
       <SelectField
         current={$feed.categoryId}
         label={$t.category}
+        onchange={onCategoryChange}
         values={categoryOptions}
-        on:change={onCategoryChange}
       />
       <RadioField
         current={$feed.reading}
         label={$t.type}
+        onchange={reading => {
+          changeFeed(feedId, { reading })
+        }}
         values={[
           ['slow', $t.slow],
           ['fast', $t.fast]
         ]}
-        on:change={e => {
-          changeFeed(feedId, { reading: e.detail })
-        }}
       />
       {#if !$filters.isEmpty}
         <ol role="list">
@@ -141,50 +145,50 @@
                   : undefined}
                 hideLabel
                 label={$t.filterQuery}
-                value={filter.query}
-                on:change={e => {
-                  if (e.detail.valid) {
-                    changeFilter(filter.id, { query: e.detail.value })
+                onchange={(value, valid) => {
+                  if (valid) {
+                    changeFilter(filter.id, { query: value })
                   }
                 }}
+                value={filter.query}
               />
               <SelectField
                 current={filter.action}
                 hideLabel
                 label={$t.filterAction}
+                onchange={action => {
+                  changeFilter(filter.id, { action })
+                }}
                 values={[
                   ['slow', $t.filterActionSlow],
                   ['fast', $t.filterActionFast],
                   ['delete', $t.filterActionDelete]
                 ]}
-                on:change={e => {
-                  changeFilter(filter.id, { action: e.detail })
-                }}
               />
               <Button
                 hiddenLabel={$t.moveFilterUp}
                 icon={mdiArrowUpBoldOutline}
-                secondary
-                on:click={() => {
+                onclick={() => {
                   moveFilterUp(filter.id)
                 }}
+                secondary
               />
               <Button
                 hiddenLabel={$t.moveFilterDown}
                 icon={mdiArrowDownBoldOutline}
-                secondary
-                on:click={() => {
+                onclick={() => {
                   moveFilterDown(filter.id)
                 }}
+                secondary
               />
               <Button
                 dangerous
                 hiddenLabel={$t.deleteFilter}
                 icon={mdiFilterRemoveOutline}
-                secondary
-                on:click={() => {
+                onclick={() => {
                   deleteFilter(filter.id)
                 }}
+                secondary
               />
             </li>
           {/each}
@@ -193,11 +197,11 @@
       <div class="feeds-edit_add-filter">
         <Button
           icon={mdiFilterPlusOutline}
-          secondary
-          wide
-          on:click={() => {
+          onclick={() => {
             if (!$feed.isLoading) addFilterForFeed($feed)
           }}
+          secondary
+          wide
         >
           {$t.addFilter}
         </Button>

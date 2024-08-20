@@ -38,7 +38,8 @@
     }
   }
 
-  async function handleSubmit(): Promise<void> {
+  async function handleSubmit(e: SubmitEvent): Promise<void> {
+    e.preventDefault()
     let blob = await getInternalBlob(exportOptions.posts === 'all')
 
     let url = URL.createObjectURL(blob)
@@ -51,42 +52,38 @@
 </script>
 
 <h2>{$t.chooseTitle}</h2>
-<form on:submit|preventDefault={handleSubmit}>
+<form onsubmit={handleSubmit}>
   <Card>
     <RadioField
       current={exportOptions.posts}
       label={$t.exportPosts}
+      onchange={value => {
+        handleExportOptionChange('posts', value)
+      }}
       values={[
         ['all', $t.allPosts],
         ['none', $t.noPosts]
       ]}
-      on:change={e => {
-        handleExportOptionChange('posts', e.detail)
-      }}
     />
     <RadioField
       current={exportOptions.feeds}
       label={$t.exportFeeds}
+      onchange={value => {
+        handleExportOptionChange('feeds', value)
+      }}
       values={[
         ['all', $t.allFeeds],
         ['select', $t.selectFeeds]
       ]}
-      on:change={e => {
-        handleExportOptionChange('feeds', e.detail)
-      }}
     />
   </Card>
   <FeedList
     disabled={exportOptions.feeds === 'all'}
     feedsByCategory={Array.from($exportingFeedsByCategory)}
+    ontoggleCategory={toggleExportingCategory}
+    ontoggleFeed={toggleExportingFeed}
     selectedCategories={Array.from($exportingCategories)}
     selectedFeeds={Array.from($exportingFeeds)}
-    on:toggleCategory={e => {
-      toggleExportingCategory(e.detail.categoryId)
-    }}
-    on:toggleFeed={e => {
-      toggleExportingFeed(e.detail.feedId, e.detail.categoryId)
-    }}
   />
   <div class="feeds-internal_submit">
     <Button disabled={$exporting} type="submit">{$t.submitInternal}</Button>

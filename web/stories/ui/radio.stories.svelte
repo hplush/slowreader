@@ -1,19 +1,19 @@
 <script context="module" lang="ts">
-  import RadioField from '../../ui/radio-field.svelte'
-
-  export const meta = {
-    component: RadioField,
-    title: 'UI/RadioField'
-  }
-</script>
-
-<script lang="ts">
-  import { Story } from '@storybook/addon-svelte-csf'
-  import { atom } from 'nanostores'
+  import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import Card from '../../ui/card.svelte'
   import Paragraph from '../../ui/paragraph.svelte'
+  import RadioField from '../../ui/radio-field.svelte'
   import Section from '../section.svelte'
+
+  let { Story } = defineMeta({
+    component: RadioField,
+    title: 'UI/RadioField'
+  })
+</script>
+
+<script lang="ts">
+  import { atom } from 'nanostores'
 
   let store = atom<string>('1')
 </script>
@@ -24,14 +24,14 @@
       <RadioField
         current={$store}
         label="Normal radio"
+        onchange={value => {
+          store.set(value)
+        }}
         values={[
           ['1', 'First option'],
           ['2', 'Second option'],
           ['3', 'Third option']
         ]}
-        on:change={e => {
-          store.set(e.detail)
-        }}
       />
       <Paragraph>After</Paragraph>
     </Card>
@@ -93,14 +93,14 @@
       <RadioField
         current={$store}
         label="Normal radio"
+        onchange={value => {
+          store.set(value)
+        }}
         values={[
           ['1', 'First option'],
           ['2', 'Second option'],
           ['3', 'Third option']
         ]}
-        on:change={e => {
-          store.set(e.detail)
-        }}
       />
       <Paragraph>After</Paragraph>
     </Card>

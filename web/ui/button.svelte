@@ -1,82 +1,78 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
+  import type { Snippet } from 'svelte'
+  import type { HTMLButtonAttributes } from 'svelte/elements'
 
   import Hotkey from './hotkey.svelte'
   import Icon from './icon.svelte'
 
-  export let icon: string | undefined = undefined
-  export let wide: boolean = false
-  export let hotkey: string | undefined = undefined
-  export let href: string | undefined = undefined
-  export let secondary = false
-  export let hiddenLabel: string | undefined = undefined
-  export let dangerous = false
-
-  let dispatch = createEventDispatcher()
-
-  function onClick(): void {
-    dispatch('click')
-  }
+  let {
+    dangerous = false,
+    hotkey,
+    icon,
+    onclick,
+    secondary = false,
+    wide = false,
+    ...rest
+  }: {
+    dangerous?: boolean
+    hotkey?: string
+    icon?: string
+    onclick?: (event: MouseEvent) => void
+    secondary?: boolean
+    wide?: boolean
+  } & ({ children: Snippet } | { hiddenLabel: string }) &
+    ({ href: string } | HTMLButtonAttributes) = $props()
 </script>
 
-{#if href}
+{#snippet content()}
+  {#if !('hiddenLabel' in rest)}
+    {#if icon}
+      <Icon path={icon} />
+    {/if}
+    <span>
+      {@render rest.children()}
+    </span>
+  {:else}
+    {#if icon}
+      <div class="button_center">
+        <Icon path={icon} />
+      </div>
+    {/if}
+    <span class="button_size" aria-hidden="true">x</span>
+  {/if}
+  {#if hotkey}
+    <Hotkey {hotkey} />
+  {/if}
+{/snippet}
+
+{#if 'href' in rest}
   <a
     class="button"
     class:is-dangerous={dangerous}
     class:is-secondary={secondary}
-    class:is-square={hiddenLabel}
+    class:is-square={'hiddenLabel' in rest ? rest.hiddenLabel : undefined}
     class:is-wide={wide}
     aria-keyshortcuts={hotkey}
-    {href}
-    title={hiddenLabel}
-    on:click={onClick}
+    href={rest.href}
+    {onclick}
+    title={'hiddenLabel' in rest ? rest.hiddenLabel : undefined}
   >
-    {#if !hiddenLabel}
-      {#if icon}
-        <Icon path={icon} />
-      {/if}
-      <span><slot /></span>
-    {:else}
-      {#if icon}
-        <div class="button_center">
-          <Icon path={icon} />
-        </div>
-      {/if}
-      <span class="button_size" aria-hidden="true">x</span>
-    {/if}
-    {#if hotkey}
-      <Hotkey {hotkey} />
-    {/if}
+    {@render content()}
   </a>
 {:else}
   <button
-    {...$$restProps}
+    {...rest}
     class="button"
     class:is-dangerous={dangerous}
     class:is-secondary={secondary}
-    class:is-square={hiddenLabel}
+    class:is-square={'hiddenLabel' in rest ? rest.hiddenLabel : undefined}
     class:is-wide={wide}
     aria-keyshortcuts={hotkey}
-    title={hiddenLabel}
-    type={$$restProps.type || 'button'}
-    on:click={onClick}
+    {onclick}
+    title={'hiddenLabel' in rest ? rest.hiddenLabel : undefined}
+    type={rest.type || 'button'}
   >
-    {#if !hiddenLabel}
-      {#if icon}
-        <Icon path={icon} />
-      {/if}
-      <span><slot /></span>
-    {:else}
-      {#if icon}
-        <div class="button_center">
-          <Icon path={icon} />
-        </div>
-      {/if}
-      <span class="button_size" aria-hidden="true">x</span>
-    {/if}
-    {#if hotkey}
-      <Hotkey {hotkey} />
-    {/if}
+    {@render content()}
   </button>
 {/if}
 

@@ -28,19 +28,19 @@
 </script>
 
 <TwoStepsPage title={$t.title}>
-  <div slot="one">
+  {#snippet one()}
     <Card>
       <TextField
         controls="feeds-add_links"
         error={$previewUrlError ? $t[$previewUrlError] : undefined}
         errorId={$previewNoResults ? 'feeds-add-no-results' : undefined}
         label={$t.urlLabel}
+        oninput={value => {
+          onPreviewUrlType(value)
+        }}
         placeholder="https://mastodon.social/@hplushlab"
         spellcheck={false}
         value={$previewUrl}
-        on:input={e => {
-          onPreviewUrlType(e.detail.value)
-        }}
       />
 
       {#if $previewCandidates.length > 0}
@@ -81,26 +81,32 @@
         <RichTranslation text={$t.searchGuide} />
       </div>
     {/if}
-  </div>
-  <div id="feeds-add_feed" slot="two">
-    {#if $previewCandidate}
-      {#if $previewCandidateAdded === undefined}
-        <Loader zoneId="feeds-add_feed" />
-        {#if $previewPosts}
-          <FeedsPosts posts={$previewPosts} />
+  {/snippet}
+  {#snippet two()}
+    <div id="feeds-add_feed">
+      {#if $previewCandidate}
+        {#if $previewCandidateAdded === undefined}
+          <Loader zoneId="feeds-add_feed" />
+          {#if $previewPosts}
+            <FeedsPosts posts={$previewPosts} />
+          {/if}
+        {:else if $previewCandidateAdded === false}
+          <Button
+            icon={mdiPlusCircleOutline}
+            onclick={addPreviewCandidate}
+            wide
+          >
+            {$t.add}
+          </Button>
+          {#if $previewPosts}
+            <FeedsPosts posts={$previewPosts} />
+          {/if}
+        {:else}
+          <FeedsEdit feedId={$previewCandidateAdded} posts={$previewPosts} />
         {/if}
-      {:else if $previewCandidateAdded === false}
-        <Button icon={mdiPlusCircleOutline} wide on:click={addPreviewCandidate}>
-          {$t.add}
-        </Button>
-        {#if $previewPosts}
-          <FeedsPosts posts={$previewPosts} />
-        {/if}
-      {:else}
-        <FeedsEdit feedId={$previewCandidateAdded} posts={$previewPosts} />
       {/if}
-    {/if}
-  </div>
+    </div>
+  {/snippet}
 </TwoStepsPage>
 
 <style>

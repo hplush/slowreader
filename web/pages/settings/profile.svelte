@@ -14,7 +14,7 @@
     <CardActions>
       <Button
         dangerous
-        on:click={() => {
+        onclick={() => {
           if (!confirm($t.deleteProfileConfirm)) return
           signOut()
         }}

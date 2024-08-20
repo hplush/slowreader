@@ -4,8 +4,7 @@
 
   import { parseLink, parseRichTranslation } from '@slowreader/core'
 
-  export let text: string
-  export let url: string | undefined = undefined
+  let { text, url }: { text: string; url?: string } = $props()
 </script>
 
 <div class="rich-translation">

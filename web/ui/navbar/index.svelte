@@ -23,7 +23,7 @@
   import NavbarProgress from './progress.svelte'
   import NavbarSlow from './slow.svelte'
 
-  let isMenuOpened = false
+  let isMenuOpened = $state(false)
 
   function closeOnAnyClick(): void {
     if (isMenuOpened) {
@@ -78,10 +78,8 @@
           current={$router.route === 'refresh'}
           hotkey="r"
           icon={mdiRefresh}
+          onclick={refreshPosts}
           small
-          on:click={() => {
-            refreshPosts()
-          }}
         />
       {/if}
     </div>
@@ -93,8 +91,8 @@
         aria-haspopup="menu"
         aria-keyshortcuts="u"
         href={getURL('slow')}
+        onclick={openMenu}
         role="menuitem"
-        on:click={openMenu}
       >
         <div class="navbar_overflow">
           <div class="navbar_button">
@@ -111,8 +109,8 @@
         aria-haspopup="menu"
         aria-keyshortcuts="f"
         href={getURL('fast')}
+        onclick={openMenu}
         role="menuitem"
-        on:click={openMenu}
       >
         <div class="navbar_overflow">
           <div class="navbar_button">
@@ -129,9 +127,9 @@
       hotkey="m"
       href={isOtherRoute($router) ? undefined : getURL('add')}
       icon={mdiMenu}
+      onclick={openMenu}
       small
       submenu
-      on:click={openMenu}
     />
   </div>
   <div

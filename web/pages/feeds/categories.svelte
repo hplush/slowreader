@@ -20,7 +20,7 @@
   import TwoStepsPage from '../../ui/two-steps-page.svelte'
   import FeedsEdit from './edit.svelte'
 
-  export let feedId: string | undefined
+  let { feedId }: { feedId?: string } = $props()
 
   let categories = getCategories()
   let allFeeds = getFeeds()
@@ -32,7 +32,7 @@
 </script>
 
 <TwoStepsPage title={$t.byCategoryTitle}>
-  <div slot="one">
+  {#snippet one()}
     {#if $allFeeds.isLoading || $categories.isLoading}
       <Loader />
     {:else}
@@ -50,24 +50,24 @@
                 </h2>
                 <Button
                   icon={mdiRenameOutline}
-                  secondary
-                  on:click={() => {
+                  onclick={() => {
                     let title = prompt($t.categoryName, category.title)
                     if (title) {
                       changeCategory(category.id, { title })
                     }
                   }}
+                  secondary
                   >{$t.renameCategory}
                 </Button>
                 <Button
                   dangerous
                   icon={mdiTrashCanOutline}
-                  secondary
-                  on:click={() => {
+                  onclick={() => {
                     if (confirm($t.deleteCategoryConform)) {
                       deleteCategory(category.id)
                     }
                   }}
+                  secondary
                   >{$t.deleteCategory}
                 </Button>
               </div>
@@ -94,12 +94,14 @@
         {/each}
       </ul>
     {/if}
-  </div>
-  <div id="feeds-categories_edit" slot="two">
-    {#if feedId}
-      <FeedsEdit {feedId} />
-    {/if}
-  </div>
+  {/snippet}
+  {#snippet two()}
+    <div id="feeds-categories_edit">
+      {#if feedId}
+        <FeedsEdit {feedId} />
+      {/if}
+    </div>
+  {/snippet}
 </TwoStepsPage>
 
 <style>

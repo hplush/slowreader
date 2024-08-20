@@ -1,7 +1,6 @@
 {
   "plugins": {
     "./postcss/html-keeper.cjs": {},
-    "./postcss/svelte-nesting-css-fixer.cjs": {},
     "./postcss/theme-classes.cjs": {},
     "./postcss/pseudo-classes.cjs": {},
     "autoprefixer": {}

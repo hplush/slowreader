@@ -1,17 +1,14 @@
 <script context="module" lang="ts">
-  import FeedsImport from '../../../pages/feeds/import.svelte'
+  import { type FeedsByCategory, importMessages } from '@slowreader/core'
+  import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  export const meta = {
+  import FeedsImport from '../../../pages/feeds/import.svelte'
+  import Scene from '../../scene.svelte'
+
+  let { Story } = defineMeta({
     component: FeedsImport,
     title: 'Pages/Feeds/Import'
-  }
-</script>
-
-<script lang="ts">
-  import { type FeedsByCategory, importMessages } from '@slowreader/core'
-  import { Story } from '@storybook/addon-svelte-csf'
-
-  import Scene from '../../scene.svelte'
+  })
 
   const loadingFeeds = {
     'https://blog.appsignal.com/feed.xml': false,

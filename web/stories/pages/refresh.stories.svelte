@@ -1,16 +1,13 @@
 <script context="module" lang="ts">
-  import RefreshPage from '../../pages/refresh.svelte'
+  import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  export const meta = {
+  import RefreshPage from '../../pages/refresh.svelte'
+  import Scene from '../scene.svelte'
+
+  let { Story } = defineMeta({
     component: RefreshPage,
     title: 'Pages/Refresh'
-  }
-</script>
-
-<script lang="ts">
-  import { Story } from '@storybook/addon-svelte-csf'
-
-  import Scene from '../scene.svelte'
+  })
 </script>
 
 <Story name="Base">

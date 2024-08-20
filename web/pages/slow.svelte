@@ -16,7 +16,7 @@
 </script>
 
 <TwoStepsPage title={$t.pageTitle}>
-  <div slot="one">
+  {#snippet one()}
     {#if $slowPosts.isLoading}
       <Loader />
     {:else if $slowPosts.list.length === 0}
@@ -50,8 +50,8 @@
         />
       {/if}
     {/if}
-  </div>
-  <div slot="two">
+  {/snippet}
+  {#snippet two()}
     {#if $openedSlowPost}
       {#if $openedSlowPost.isLoading}
         <Loader />
@@ -59,7 +59,7 @@
         <PostCard full post={$openedSlowPost} />
       {/if}
     {/if}
-  </div>
+  {/snippet}
 </TwoStepsPage>
 
 <style>

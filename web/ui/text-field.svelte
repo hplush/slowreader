@@ -1,25 +1,38 @@
 <script lang="ts">
   import { commonMessages as t } from '@slowreader/core'
   import { nanoid } from 'nanoid/non-secure'
-  import { createEventDispatcher, onMount } from 'svelte'
+  import { onMount } from 'svelte'
 
-  export let type: 'email' | 'password' | 'text' | 'url' = 'text'
-  export let error: string | undefined = undefined
-  export let errorId: string | undefined = undefined
-  export let label: string
-  export let placeholder = ''
-  export let required = false
-  export let value = ''
-  export let hideLabel = false
-  export let spellcheck = true
-  export let controls: string | undefined = undefined
+  let {
+    controls,
+    error,
+    errorId,
+    hideLabel = false,
+    label,
+    onchange,
+    oninput,
+    placeholder = '',
+    required = false,
+    spellcheck = true,
+    type = 'text',
+    value = $bindable('')
+  }: {
+    controls?: string
+    error?: string
+    errorId?: string
+    hideLabel?: boolean
+    label: string
+    onchange?: (value: string, valid: boolean) => void
+    oninput?: (value: string, valid: boolean) => void
+    placeholder?: string
+    required?: boolean
+    spellcheck?: boolean
+    type?: 'email' | 'password' | 'text' | 'url'
+    value?: string
+  } = $props()
 
   let id = nanoid()
-  let inputError: string | undefined = error
-  let dispatch = createEventDispatcher<{
-    change: { valid: boolean; value: string }
-    input: { valid: boolean; value: string }
-  }>()
+  let inputError: string | undefined = $state(error)
 
   function validate(): void {
     if (required && !value) {
@@ -35,13 +48,13 @@
 
   function onInput(e: { currentTarget: HTMLInputElement } & Event): void {
     value = e.currentTarget.value
-    dispatch('input', { valid: isValid(), value })
+    if (oninput) oninput(value, isValid())
   }
 
   function onChange(e: { currentTarget: HTMLInputElement } & Event): void {
     value = e.currentTarget.value
     validate()
-    dispatch('change', { valid: isValid(), value })
+    if (onchange) onchange(value, isValid())
   }
 
   function onKeyUp(): void {
@@ -74,15 +87,15 @@
     aria-errormessage={errorId || (inputError || error ? `${id}-error` : null)}
     aria-invalid={inputError || error || errorId ? true : null}
     aria-label={hideLabel ? label : null}
+    onblur={onBlur}
+    onchange={onChange}
+    oninput={onInput}
+    onkeyup={onKeyUp}
     {placeholder}
     {required}
     spellcheck={spellcheck ? null : 'false'}
     {type}
     {value}
-    on:input={onInput}
-    on:keyup={onKeyUp}
-    on:blur={onBlur}
-    on:change={onChange}
   />
   {#if inputError}
     <div id={`${id}-error`} class="text-field_error">{inputError}</div>
