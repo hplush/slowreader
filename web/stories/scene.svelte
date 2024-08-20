@@ -94,7 +94,7 @@
     route?: Route
     showPagination?: boolean
     slowState?: SlowPostsValue
-    unloadedFeeds?: string[],
+    unloadedFeeds?: string[]
   } = $props()
 
   function cleanLogux(): void {
@@ -103,7 +103,7 @@
     cleanStores(Feed, Filter, Category, Post, hasFeeds, fastCategories)
   }
 
-  $effect(() => {
+  $effect.pre(() => {
     cleanLogux()
     prepareResponses(responses)
 
