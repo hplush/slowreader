@@ -65,6 +65,15 @@ function isModifier(node: Node, prefix: string): boolean {
   )
 }
 
+interface LinterError {
+  example?: string
+  line?: number
+  message: string
+  path: string
+}
+
+let errors: LinterError[] = []
+
 async function processComponents(dir: string, base: string): Promise<void> {
   let files = await readdir(dir)
   await Promise.all(
@@ -73,7 +82,10 @@ async function processComponents(dir: string, base: string): Promise<void> {
       let name = path.slice(base.length + 1)
 
       if (usedNames.has(name)) {
-        throw new Error(`Duplicate name: ${name}`)
+        errors.push({
+          message: `Duplicate name: ${name}`,
+          path
+        })
       }
       usedNames.add(name)
 
@@ -100,16 +112,14 @@ async function processComponents(dir: string, base: string): Promise<void> {
                 !isModifier(node, prefix)
               ) {
                 let line = rule.source!.start!.line
-                process.stderr.write(styleText('yellow', `${path}:${line}\n`))
-                process.stderr.write(
-                  styleText(
-                    'red',
-                    `Selector ${styleText('yellow', '.' + node.value)} does not ` +
-                      `follow our BEM name system\n`
-                  )
-                )
-                process.stderr.write(content.split('\n')[line - 1] + '\n')
-                process.exit(1)
+                errors.push({
+                  example: content.split('\n')[line - 1]!,
+                  line,
+                  message:
+                    `Selector \`${node.value}\` does ` +
+                    'not follow our BEM name system',
+                  path
+                })
               }
             })
           })
@@ -126,3 +136,21 @@ await Promise.all([
   processComponents(join(ROOT, 'ui'), ROOT),
   processComponents(join(ROOT, 'pages'), ROOT)
 ])
+
+if (errors.length > 0) {
+  for (let error of errors) {
+    let where = error.path
+    if (error.line) where += `:${error.line}`
+    process.stderr.write(styleText('yellow', `${where}\n`))
+    process.stderr.write(
+      styleText(
+        'red',
+        error.message.replaceAll(/`[^`]+`/, match => {
+          return styleText('yellow', match.slice(1, -1))
+        }) + '\n'
+      )
+    )
+    if (error.example) process.stderr.write(error.example + '\n')
+  }
+  process.exit(1)
+}
