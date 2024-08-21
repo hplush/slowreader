@@ -30,12 +30,14 @@
   })
 </script>
 
-<label class="select-field">
+<div class="select-field">
   {#if !hideLabel}
     <label for={id}>{label}</label>
   {/if}
   <div class="select-field_fake">
-    <div class="select-field_text">{currentName}</div>
+    <div class="select-field_overflow">
+      <div class="select-field_text">{currentName}</div>
+    </div>
     <Icon path={mdiChevronDown} />
     <select
       {id}
@@ -48,7 +50,7 @@
       {/each}
     </select>
   </div>
-</label>
+</div>
 
 <style>
   .select-field {
@@ -68,6 +70,7 @@
     box-sizing: border-box;
     display: flex;
     gap: var(--padding-m);
+    flex-shrink: 1;
     align-items: center;
     padding: var(--padding-m) var(--padding-m) var(--padding-m) var(--padding-l);
     overflow: hidden;
@@ -92,6 +95,11 @@
       padding-bottom: calc(var(--padding-m) - 1px);
       box-shadow: var(--flat-active-shadow);
     }
+  }
+
+  .select-field_overflow {
+    flex-shrink: 1;
+    overflow: hidden;
   }
 
   .select-field_text {
