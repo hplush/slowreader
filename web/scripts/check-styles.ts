@@ -66,7 +66,7 @@ function isModifier(node: Node, prefix: string): boolean {
 }
 
 interface LinterError {
-  example?: string
+  content?: string
   line?: number
   message: string
   path: string
@@ -94,6 +94,8 @@ async function processComponents(dir: string, base: string): Promise<void> {
         await processComponents(path, base)
       } else if (extname(file) === '.svelte') {
         let content = await readFile(path, 'utf-8')
+        if (!content.includes('<style')) return
+
         let unwrapped = unwrapper.process(content, {
           from: path,
           syntax: postcssHtml
@@ -113,7 +115,7 @@ async function processComponents(dir: string, base: string): Promise<void> {
               ) {
                 let line = rule.source!.start!.line
                 errors.push({
-                  example: content.split('\n')[line - 1]!,
+                  content,
                   line,
                   message:
                     `Selector \`${node.value}\` does ` +
@@ -145,12 +147,14 @@ if (errors.length > 0) {
     process.stderr.write(
       styleText(
         'red',
-        error.message.replaceAll(/`[^`]+`/, match => {
+        error.message.replaceAll(/`[^`]+`/g, match => {
           return styleText('yellow', match.slice(1, -1))
         }) + '\n'
       )
     )
-    if (error.example) process.stderr.write(error.example + '\n')
+    if (error.content && error.line) {
+      process.stderr.write(error.content.split('\n')[error.line - 1]! + '\n')
+    }
   }
   process.exit(1)
 }
