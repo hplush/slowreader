@@ -18,4 +18,5 @@ COPY ./dist/ /var/www/
 
 USER 1000:1000
 
-CMD "node" "--enable-source-maps" "index.mjs"
+CMD "node" "--experimental-strip-types" \
+  "--disable-warning=ExperimentalWarning" "index.ts"
