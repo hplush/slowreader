@@ -69,8 +69,8 @@
     position: relative;
     box-sizing: border-box;
     display: flex;
-    gap: var(--padding-m);
     flex-shrink: 1;
+    gap: var(--padding-m);
     align-items: center;
     padding: var(--padding-m) var(--padding-m) var(--padding-m) var(--padding-l);
     overflow: hidden;
