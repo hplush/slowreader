@@ -29,7 +29,7 @@ To test proxy we emulate the real HTTP servers (end-to-end testing).
 
 For deploy we:
 
-1. Use `esbuild` to compile TS to JS and bundle all dependencies to a single JS file. Bundling allows us to put only necessary dependencies into the server.
+1. Use `pnpm deploy` to create `dist/` only with production dependencies.
 2. Build Docker image with Node.js.
 3. Run this image on Google Cloud Run.
 
