@@ -36,7 +36,7 @@
       <div id="error">Error</div>
     </Card>
   </Section>
-  <Section focus="input:first-of-type" width={500}>
+  <Section focus=".text-field:first-of-type input" width={500}>
     <Card>
       <TextField label="Focus" />
       <TextField label="Required" required value="" />
