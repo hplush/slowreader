@@ -16,6 +16,7 @@ import {
   importedFeeds,
   importedFeedsByCategory,
   importErrors,
+  importing,
   importLoadingFeeds,
   importReading,
   importUnLoadedFeeds,
@@ -23,7 +24,6 @@ import {
   mockRequest,
   selectAllImportedFeeds,
   submitImport,
-  submiting,
   toggleImportedCategory,
   toggleImportedFeed
 } from '../index.ts'
@@ -59,7 +59,7 @@ afterEach(async () => {
     importedCategories,
     importedFeeds,
     importReading,
-    submiting,
+    importing,
     importUnLoadedFeeds,
     importErrors
   )
@@ -77,7 +77,7 @@ test('initializes with empty states', () => {
   deepStrictEqual(importUnLoadedFeeds.get(), [])
   deepStrictEqual(importErrors.get(), [])
   equal(importReading.get(), false)
-  equal(submiting.get(), false)
+  equal(importing.get(), false)
 })
 
 test('imports a OPML file', async () => {

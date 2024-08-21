@@ -6,12 +6,12 @@
     importedFeeds,
     importedFeedsByCategory,
     importErrors,
+    importing,
     importLoadingFeeds,
     importReading,
     importUnLoadedFeeds,
     selectAllImportedFeeds,
     submitImport,
-    submiting,
     importMessages as t,
     toggleImportedCategory,
     toggleImportedFeed
@@ -121,8 +121,8 @@
         />
 
         <div class="feeds-import_submit">
-          <Button disabled={$submiting} type="submit">Import</Button>
-          {#if $submiting}
+          <Button disabled={$importing} type="submit">Import</Button>
+          {#if $importing}
             <Loader />
           {/if}
         </div>

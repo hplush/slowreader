@@ -21,7 +21,6 @@ import {
   importedFeedsByCategory,
   selectAllExportingFeeds,
   submitImport,
-  submiting,
   toggleExportingCategory,
   toggleExportingFeed
 } from '../index.ts'
@@ -49,7 +48,6 @@ afterEach(async () => {
     importedFeedsByCategory,
     importedCategories,
     importedFeeds,
-    submiting,
     exportingFeedsByCategory,
     exporting,
     exportingCategories,

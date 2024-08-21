@@ -12,24 +12,31 @@ import { importMessages } from './messages/index.ts'
 import { createFeedFromUrl } from './preview.ts'
 
 let $importedFeedsByCategory = atom<FeedsByCategory>([])
+export const importedFeedsByCategory = readonlyExport($importedFeedsByCategory)
+
 let $importedCategories = atom<string[]>([])
+export const importedCategories = readonlyExport($importedCategories)
+
 let $importedFeeds = atom<string[]>([])
+export const importedFeeds = readonlyExport($importedFeeds)
+
 let $unLoadedFeeds = atom<string[]>([])
+export const importUnLoadedFeeds = readonlyExport($unLoadedFeeds)
+
 let $importLoadingFeeds = atom<{ [key: string]: boolean }>({})
+export const importLoadingFeeds = readonlyExport($importLoadingFeeds)
+
 let $reading = atom<boolean>(false)
-let $submiting = atom<boolean>(false)
+export const importReading = readonlyExport($reading)
+
+let $importing = atom<boolean>(false)
+export const importing = readonlyExport($importing)
+
 let $importErrors = atom<string[]>([])
+export const importErrors = readonlyExport($importErrors)
+
 let $categories = atom<CategoryValue[]>([])
 let $feeds = atom<FeedValue[]>([])
-
-export const importedFeedsByCategory = readonlyExport($importedFeedsByCategory)
-export const importedCategories = readonlyExport($importedCategories)
-export const importedFeeds = readonlyExport($importedFeeds)
-export const importReading = readonlyExport($reading)
-export const submiting = readonlyExport($submiting)
-export const importUnLoadedFeeds = readonlyExport($unLoadedFeeds)
-export const importErrors = readonlyExport($importErrors)
-export const importLoadingFeeds = readonlyExport($importLoadingFeeds)
 
 // just subscribe() doesnt work in test
 export function importSubscribe(): void {
@@ -287,7 +294,7 @@ export const handleImportFile = (file: File): Promise<void> => {
 }
 
 export const submitImport = async (): Promise<void> => {
-  $submiting.set(true)
+  $importing.set(true)
   let feedPromises = []
 
   for (let item of $importedFeedsByCategory.get()) {
@@ -318,5 +325,5 @@ export const submitImport = async (): Promise<void> => {
   $importedFeeds.set([])
   importSubscribe()
   $unLoadedFeeds.set([])
-  $submiting.set(false)
+  $importing.set(false)
 }
