@@ -2,7 +2,7 @@
 FROM registry.access.redhat.com/ubi9/ubi:9.4 as builder
 
 ENV NODE_VERSION 22.7.0
-ENV NODE_CHECKSUM sha256:f2f4ccbcbc0a443e5fadebd1149a22f96087ec09cef52ff343a15ee835206d96
+ENV NODE_CHECKSUM sha256:e5be0590039a0aaf699d6b4f31c780b2a467f7f37e71c20c95364933715daa05
 
 ADD --checksum=$NODE_CHECKSUM https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz /node.tar.gz
 RUN tar --remove-files -C /usr/local/ -xz --strip-components=1 -f /node.tar.gz
