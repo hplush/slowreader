@@ -66,5 +66,12 @@
     "svelte-check": "3.8.5",
     "svgo": "3.3.2",
     "typescript": "5.5.4"
+  },
+  "pnpm": {
+    "auditConfig": {
+      "ignoreCves": [
+        "CVE-2024-4067"
+      ]
+    }
   }
 }
