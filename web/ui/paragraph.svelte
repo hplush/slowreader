@@ -9,7 +9,7 @@
 </p>
 
 <style>
-  .paragraph + .paragraph {
+  :global(.paragraph) + :global(.paragraph) {
     margin-top: var(--padding-m);
   }
 
