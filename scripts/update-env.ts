@@ -104,9 +104,13 @@ function replaceVersionEnv(
   checksums: Architectures
 ): string {
   let fixed = replaceEnv(content, `${tool}_VERSION`, version)
-  for (let [arch, checksum] of Object.entries(checksums)) {
-    let name = `${tool}_CHECKSUM_${arch.toUpperCase()}`
-    fixed = replaceEnv(fixed, name, checksum)
+  if (content.includes('_CHECKSUM_')) {
+    for (let [arch, checksum] of Object.entries(checksums)) {
+      let name = `${tool}_CHECKSUM_${arch.toUpperCase()}`
+      fixed = replaceEnv(fixed, name, checksum)
+    }
+  } else if (content.includes('_CHECKSUM ')) {
+    fixed = replaceEnv(fixed, `${tool}_CHECKSUM`, 'sha256:' + checksums.x64)
   }
   return fixed
 }
