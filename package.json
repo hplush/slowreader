@@ -14,7 +14,7 @@
     "format": "pnpm run -r --include-workspace-root /^format:/",
     "clean": "pnpm run -r --include-workspace-root /^clean:/",
     "build": "pnpm run -r build",
-    "update-env": "./scripts/tsnode ./scripts/update-env.ts",
+    "update-env": "tsnode ./scripts/update-env.ts",
     "format:prettier": "prettier -w **/*.{js,ts,html,md,cjs,json} *.{js,json,md}",
     "test:js": "eslint .",
     "test:types": "svelte-check",
@@ -26,7 +26,8 @@
     "test:format": "prettier --check **/*.{js,ts,html,md,cjs,json} *.{js,json,md}",
     "check-opml": "./scripts/tsnode loader-tests/check-opml.ts",
     "test-loaders": "./scripts/tsnode loader-tests/test-loaders.ts loader-tests/feeds.yml",
-    "prepare": "husky"
+    "prepare": "husky",
+    "tsnode": "./scripts/tsnode"
   },
   "workspaces": [
     "api",
@@ -42,7 +43,7 @@
     "@types/chrome": "^0.0.270",
     "@types/node": "22.4.0",
     "@types/ws": "8.5.12",
-    "better-node-test": "0.6.0",
+    "better-node-test": "0.7.1",
     "eslint": "9.9.0",
     "eslint-plugin-svelte": "^2.43.0",
     "husky": "^9.1.4",

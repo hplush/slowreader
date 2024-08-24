@@ -54,7 +54,7 @@
     "@storybook/svelte-vite": "8.2.9",
     "@storybook/types": "^8.2.9",
     "@stylistic/stylelint-config": "2.0.0",
-    "better-node-test": "0.6.0",
+    "better-node-test": "0.7.1",
     "browserslist": "4.23.3",
     "postcss-html": "1.7.0",
     "postcss-nesting": "13.0.0",

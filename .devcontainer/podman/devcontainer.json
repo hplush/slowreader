@@ -24,7 +24,9 @@
         "streetsidesoftware.code-spell-checker",
         "editorconfig.editorconfig",
         "yzhang.markdown-all-in-one",
-        "davidlday.languagetool-linter"
+        "davidlday.languagetool-linter",
+        "felixfbecker.postgresql-syntax",
+        "formulahendry.auto-rename-tag"
       ]
     }
   }

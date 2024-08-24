@@ -16,7 +16,7 @@
     "clean:build": "rm -rf dist/"
   },
   "devDependencies": {
-    "better-node-test": "0.6.0",
+    "better-node-test": "0.7.1",
     "c8": "10.1.2"
   }
 }
