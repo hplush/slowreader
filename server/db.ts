@@ -13,7 +13,7 @@ import { env } from './env.ts'
 export * from './db/schema.ts'
 
 const MIGRATE_CONFIG: MigrationConfig = {
-  migrationsFolder: join(import.meta.dirname, 'migrations')
+  migrationsFolder: join(import.meta.dirname, 'db', 'migrations')
 }
 
 let drizzle: PgDatabase<PgQueryResultHKT, typeof schema>
