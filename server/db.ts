@@ -9,6 +9,7 @@ import { join } from 'node:path'
 import postgres from 'postgres'
 
 import * as schema from './db/schema.ts'
+import { env } from './env.ts'
 export * from './db/schema.ts'
 
 const MIGRATE_CONFIG: MigrationConfig = {
@@ -16,10 +17,9 @@ const MIGRATE_CONFIG: MigrationConfig = {
 }
 
 let drizzle: PgDatabase<PgQueryResultHKT, typeof schema>
-if (process.env.DATABASE_URL) {
-  let dbUrl = process.env.DATABASE_URL
-  drizzle = prodDrizzle(postgres(dbUrl), { schema })
-  let migrateConnection = postgres(dbUrl, { max: 1 })
+if (env.NODE_ENV === 'production') {
+  drizzle = prodDrizzle(postgres(env.DATABASE_URL), { schema })
+  let migrateConnection = postgres(env.DATABASE_URL, { max: 1 })
   await prodMigrate(prodDrizzle(migrateConnection), MIGRATE_CONFIG)
   await migrateConnection.end()
 } else {
