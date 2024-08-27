@@ -4,7 +4,7 @@ export type Environment =
       NODE_ENV: 'production'
     }
   | {
-      DATABASE_URL: undefined
+      DATABASE_URL: string | undefined
       NODE_ENV: 'test' | undefined
     }
 
@@ -19,7 +19,7 @@ export function getEnv(from: Record<string, string | undefined>): Environment {
     }
   } else {
     return {
-      DATABASE_URL: undefined,
+      DATABASE_URL: from.DATABASE_URL,
       NODE_ENV: from.NODE_ENV as 'test' | undefined
     }
   }

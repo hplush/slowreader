@@ -17,7 +17,7 @@ test('throws on missed DATABASE_URL in production', () => {
     DATABASE_URL
   )
   equal(getEnv({ NODE_ENV: 'test' }).DATABASE_URL, undefined)
-  equal(getEnv({ DATABASE_URL, NODE_ENV: 'test' }).DATABASE_URL, undefined)
+  equal(getEnv({ DATABASE_URL, NODE_ENV: 'test' }).DATABASE_URL, DATABASE_URL)
 })
 
 test('passes keys', () => {

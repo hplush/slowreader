@@ -17,7 +17,7 @@ const MIGRATE_CONFIG: MigrationConfig = {
 }
 
 let drizzle: PgDatabase<PgQueryResultHKT, typeof schema>
-if (env.NODE_ENV === 'production') {
+if (env.DATABASE_URL) {
   /* c8 ignore next 4 */
   drizzle = prodDrizzle(postgres(env.DATABASE_URL), { schema })
   let migrateConnection = postgres(env.DATABASE_URL, { max: 1 })
