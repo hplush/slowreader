@@ -4,7 +4,7 @@ import { ok } from 'node:assert'
 import { afterEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import { db, sessions, users } from '../db/index.ts'
+import { db, sessions, users } from '../db.ts'
 // import { db } from '../db/index.ts'
 import authModule from '../modules/auth.ts'
 import { cleanAllTables } from './utils.ts'

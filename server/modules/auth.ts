@@ -1,7 +1,7 @@
 import type { BaseServer } from '@logux/server'
 import { and, eq, sql } from 'drizzle-orm'
 
-import { db, sessions } from '../db/index.ts'
+import { db, sessions } from '../db.ts'
 
 export default (server: BaseServer): void => {
   server.auth(async ({ cookie, token, userId }) => {

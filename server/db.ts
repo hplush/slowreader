@@ -8,9 +8,8 @@ import { migrate as prodMigrate } from 'drizzle-orm/postgres-js/migrator'
 import { join } from 'node:path'
 import postgres from 'postgres'
 
-import * as schema from './schema.ts'
-
-export * from './schema.ts'
+import * as schema from './db/schema.ts'
+export * from './db/schema.ts'
 
 const MIGRATE_CONFIG: MigrationConfig = {
   migrationsFolder: join(import.meta.dirname, 'migrations')

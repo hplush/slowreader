@@ -1,4 +1,4 @@
-import { db } from '../db/index.ts'
+import { db } from '../db.ts'
 import * as tables from '../db/schema.ts'
 
 export async function cleanAllTables(): Promise<void> {
