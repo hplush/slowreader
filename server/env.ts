@@ -8,21 +8,21 @@ export type Environment =
       NODE_ENV: 'test' | undefined
     }
 
-function getEnv(): Environment {
-  if (process.env.NODE_ENV === 'production') {
-    if (typeof process.env.DATABASE_URL === 'undefined') {
+export function getEnv(from: Record<string, string | undefined>): Environment {
+  if (from.NODE_ENV === 'production') {
+    if (typeof from.DATABASE_URL === 'undefined') {
       throw new Error('Set DATABASE_URL with PostgreSQL credentials')
     }
     return {
-      DATABASE_URL: process.env.DATABASE_URL,
-      NODE_ENV: process.env.NODE_ENV
+      DATABASE_URL: from.DATABASE_URL,
+      NODE_ENV: from.NODE_ENV
     }
   } else {
     return {
       DATABASE_URL: undefined,
-      NODE_ENV: process.env.NODE_ENV as 'test' | undefined
+      NODE_ENV: from.NODE_ENV as 'test' | undefined
     }
   }
 }
 
-export const env = getEnv()
+export const env = getEnv(process.env)
