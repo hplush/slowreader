@@ -9,5 +9,8 @@
   "exports": {
     ".": "./index.ts",
     "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@logux/actions": "0.4.0"
   }
 }

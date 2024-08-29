@@ -11,16 +11,21 @@
     "start": "../scripts/tsnode --watch index.ts",
     "migration": "drizzle-kit generate && prettier --write ./db/**/*.json",
     "test:coverage": "c8 bnt",
-    "clean:coverage": "rm -rf coverage"
+    "clean:coverage": "rm -rf coverage",
+    "prepare:bcrypt": "cd node_modules/bcrypt && pnpm run install"
   },
   "dependencies": {
-    "@logux/server": "0.13.0",
+    "@logux/server": "github:logux/server#next",
     "@slowreader/api": "link:../api",
+    "argon2": "^0.41.0",
+    "cookie": "^0.6.0",
     "drizzle-orm": "^0.33.0",
+    "nanoid": "5.0.7",
     "postgres": "^3.4.4"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.2.3",
+    "@types/cookie": "^0.6.0",
     "better-node-test": "0.7.1",
     "c8": "10.1.2",
     "drizzle-kit": "^0.24.1",

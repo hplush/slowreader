@@ -15,6 +15,7 @@ ENV PNPM_CHECKSUM_X64 445615d1b6fff3d6999bcc9ee385bc543e35181b9814631c8481b76933
 
 RUN apt-get update \
   && apt-get install -y eza zsh git tig ripgrep bat curl tar micro psmisc \
+    build-essential python3 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
