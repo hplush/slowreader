@@ -49,21 +49,21 @@ let $links = map<PreviewLinksValue>({})
 
 export const previewUrl = computed($links, links => Object.keys(links)[0] ?? '')
 
-export const previewUrlError = computed<
-  'invalidUrl' | 'unloadable' | undefined,
-  typeof $links
->($links, links => {
-  let first = Object.keys(links)[0]
-  if (typeof first !== 'undefined') {
-    let link = links[first]!
-    if (link.state === 'invalid') {
-      return link.error
-    } else if (link.state === 'unloadable') {
-      return 'unloadable'
+export const previewUrlError = computed(
+  $links,
+  (links): 'invalidUrl' | 'unloadable' | undefined => {
+    let first = Object.keys(links)[0]
+    if (typeof first !== 'undefined') {
+      let link = links[first]!
+      if (link.state === 'invalid') {
+        return link.error
+      } else if (link.state === 'unloadable') {
+        return 'unloadable'
+      }
     }
+    return undefined
   }
-  return undefined
-})
+)
 
 export const previewCandidatesLoading = computed($links, links => {
   return Object.keys(links).some(url => links[url]!.state === 'loading')

@@ -225,9 +225,9 @@ export function backToFirstStep(): void {
   }
 }
 
-export const backRoute = computed<Route | undefined, typeof router>(
+export const backRoute = computed(
   router,
-  ({ params, route }) => {
+  ({ params, route }): Route | undefined => {
     if (route === 'add' && params.candidate) {
       return {
         params: { url: params.url },
