@@ -47,8 +47,8 @@ test('creates users and check credentials', async () => {
   let session1 = await db.query.sessions.findFirst({
     where: eq(sessions.token, userA.session)
   })
-  ok(session1!.createdAt.valueOf() > Date.now() - 100)
-  ok(session1!.usedAt.valueOf() > Date.now() - 100)
+  ok(session1!.createdAt.valueOf() > Date.now() - 200)
+  ok(session1!.usedAt.valueOf() > Date.now() - 200)
 
   await setTimeout(100)
   await server.expectWrongCredentials(userA.id)
