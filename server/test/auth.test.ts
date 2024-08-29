@@ -55,7 +55,7 @@ test('creates users and check credentials', async () => {
   await server.expectWrongCredentials(userA.id, {
     cookie: { session: userB.session }
   })
-  let client1 = await server.connect(userA.id, {
+  await server.connect(userA.id, {
     cookie: { session: userA.session }
   })
   let session2 = await db.query.sessions.findFirst({
@@ -77,7 +77,6 @@ test('creates users and check credentials', async () => {
     signOutResponse.headers.get('Set-Cookie'),
     `session=; Max-Age=0; HttpOnly; Path=/; Secure`
   )
-  await client1.disconnect()
   await server.expectWrongCredentials(userA.id, {
     cookie: { session: userA.session }
   })
@@ -110,7 +109,29 @@ test('creates users and check credentials', async () => {
 
   await client2.process(setPassword({ password: 'new' }))
   await signIn({ password: 'new', userId: userA.id }, { fetch: server.fetch })
-  await client2.disconnect()
+})
+
+test('disconnects current client on signOut', async () => {
+  server = new TestServer()
+  authModule(server)
+  passwordModule(server)
+  let userA = await signUp({ id: 'a', password: 'A' }, { fetch: server.fetch })
+  let session1 = await signIn(
+    { password: 'A', userId: userA.id },
+    { fetch: server.fetch }
+  )
+  let client1 = await server.connect(userA.id, { token: session1.session })
+  let session2 = await signIn(
+    { password: 'A', userId: userA.id },
+    { fetch: server.fetch }
+  )
+  let client2 = await server.connect(userA.id, {
+    cookie: { session: session2.session }
+  })
+
+  await signOut({ session: session1.session }, { fetch: server.fetch })
+  equal(client1.pair.right.connected, false)
+  equal(client2.pair.right.connected, true)
 })
 
 test('does not allow to set password for another user', async () => {
@@ -141,9 +162,8 @@ test('has non-cookie API', async () => {
   authModule(server)
 
   let user = await signUp({ id: 'a', password: 'P' }, { fetch: server.fetch })
-  let client = await server.connect(user.id, { token: user.session })
+  await server.connect(user.id, { token: user.session })
   await signOut({ session: user.session }, { fetch: server.fetch })
-  await client.disconnect()
   await server.expectWrongCredentials(user.id, { token: user.session })
 })
 
@@ -178,5 +198,7 @@ test('validates request body', async () => {
     method: 'PUT'
   })
   equal(await response6.text(), 'Invalid body')
-  await signOut({}, { fetch: server.fetch })
+  await throws(async () => {
+    await signOut({}, { fetch: server!.fetch })
+  }, 'Invalid request')
 })

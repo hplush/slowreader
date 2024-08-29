@@ -15,6 +15,13 @@
       "when": 1724722229148,
       "tag": "0001_huge_zodiak",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1724891569801,
+      "tag": "0002_lying_imperial_guard",
+      "breakpoints": true
     }
   ]
 }

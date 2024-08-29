@@ -25,7 +25,7 @@ async function setNewSession(
 }
 
 export default (server: BaseServer): void => {
-  server.auth(async ({ cookie, token, userId }) => {
+  server.auth(async ({ client, cookie, token, userId }) => {
     let sessionToken = token || cookie.session
     if (!sessionToken) return false
     let session = await db.query.sessions.findFirst({
@@ -35,7 +35,7 @@ export default (server: BaseServer): void => {
     if (session) {
       await db
         .update(sessions)
-        .set({ usedAt: sql`now()` })
+        .set({ clientId: client.clientId, usedAt: sql`now()` })
         .where(eq(sessions.id, session.id))
         .catch(error => {
           /* c8 ignore next */
@@ -61,16 +61,24 @@ export default (server: BaseServer): void => {
   })
 
   jsonApi(server, signOutEndpoint, async (params, res, req) => {
-    let session = params.session
-    if (!session) {
-      session = cookieJs.parse(req.headers.cookie ?? '').session
-    }
-    if (session) {
+    let token = params.session
+    if (!token) {
+      token = cookieJs.parse(req.headers.cookie ?? '').session
       res.setHeader(
         'Set-Cookie',
         'session=; Max-Age=0; HttpOnly; Path=/; Secure'
       )
-      await db.delete(sessions).where(eq(sessions.token, session))
+    }
+    if (!token) return false
+
+    let session = await db.query.sessions.findFirst({
+      where: and(eq(sessions.token, token))
+    })
+    if (session) {
+      for (let client of server.connected.values()) {
+        if (client.clientId === session.clientId) client.destroy()
+      }
+      await db.delete(sessions).where(eq(sessions.token, token))
     }
     return {}
   })

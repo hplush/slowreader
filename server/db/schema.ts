@@ -9,6 +9,7 @@ export const users = pgTable('users', {
 export const sessions = pgTable(
   'sessions',
   {
+    clientId: text('clientId'),
     createdAt: timestamp('createdAt').notNull().defaultNow(),
     id: serial('id').primaryKey(),
     token: text('token').notNull(),
