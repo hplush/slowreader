@@ -42,7 +42,7 @@
   "devDependencies": {
     "@logux/eslint-config": "53.4.0",
     "@types/chrome": "^0.0.270",
-    "@types/node": "22.5.0",
+    "@types/node": "22.5.1",
     "@types/ws": "8.5.12",
     "better-node-test": "0.7.1",
     "eslint": "9.9.1",

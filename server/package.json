@@ -24,11 +24,11 @@
     "postgres": "^3.4.4"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "^0.2.3",
+    "@electric-sql/pglite": "^0.2.4",
     "@types/cookie": "^0.6.0",
     "better-node-test": "0.7.1",
     "c8": "10.1.2",
-    "drizzle-kit": "^0.24.1",
+    "drizzle-kit": "^0.24.2",
     "prettier": "3.3.3"
   }
 }
