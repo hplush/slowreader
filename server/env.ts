@@ -1,12 +1,8 @@
-export type Environment =
-  | {
-      DATABASE_URL: string
-      NODE_ENV: 'production'
-    }
-  | {
-      DATABASE_URL: string | undefined
-      NODE_ENV: 'test' | undefined
-    }
+export type Environment = {
+  ASSETS_DIR?: string
+  DATABASE_URL: string | undefined
+  NODE_ENV: 'production' | 'test' | undefined
+}
 
 export function getEnv(from: Record<string, string | undefined>): Environment {
   if (from.NODE_ENV === 'production') {
@@ -14,11 +10,13 @@ export function getEnv(from: Record<string, string | undefined>): Environment {
       throw new Error('Set DATABASE_URL with PostgreSQL credentials')
     }
     return {
+      ASSETS_DIR: from.ASSETS_DIR,
       DATABASE_URL: from.DATABASE_URL,
       NODE_ENV: from.NODE_ENV
     }
   } else {
     return {
+      ASSETS_DIR: from.ASSETS_DIR,
       DATABASE_URL: from.DATABASE_URL,
       NODE_ENV: from.NODE_ENV as 'test' | undefined
     }
