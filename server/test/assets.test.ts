@@ -31,6 +31,9 @@ test('serves static pages', async () => {
 
   await writeFile(join(assets, 'index.html'), '<html>Hi</html>')
   await writeFile(join(assets, 'favicon.ico'), 'A')
+  await mkdir(join(assets, 'ui'))
+  await writeFile(join(assets, 'ui', 'index.html'), '<html>Storybook</html>')
+  await writeFile(join(assets, 'data'), 'D')
 
   let index1 = await server.fetch('/')
   equal(index1.headers.get('Content-Type'), 'text/html')
@@ -51,6 +54,24 @@ test('serves static pages', async () => {
   let icon2 = await server.fetch('/favicon.ico')
   equal(icon2.headers.get('Content-Type'), 'image/x-icon')
   equal(await icon2.text(), 'A')
+
+  let story1 = await server.fetch('/ui/')
+  equal(story1.headers.get('Content-Type'), 'text/html')
+  equal(await story1.text(), '<html>Storybook</html>')
+
+  let story2 = await server.fetch('/ui/')
+  equal(story2.headers.get('Content-Type'), 'text/html')
+  equal(await story2.text(), '<html>Storybook</html>')
+
+  let data = await server.fetch('/data')
+  equal(data.headers.get('Content-Type'), 'application/octet-stream')
+  equal(await data.text(), 'D')
+
+  let post = await server.fetch('/', { method: 'POST' })
+  equal(post.status, 404)
+
+  let unknown = await server.fetch('/unknown')
+  equal(unknown.status, 404)
 })
 
 test('ignores on missed environment variable', async () => {

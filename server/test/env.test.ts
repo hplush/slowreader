@@ -23,10 +23,12 @@ test('throws on missed DATABASE_URL in production', () => {
 test('passes keys', () => {
   deepStrictEqual(
     getEnv({
+      ASSETS_DIR: '/dist/',
       DATABASE_URL,
       NODE_ENV: 'production'
     }),
     {
+      ASSETS_DIR: '/dist/',
       DATABASE_URL,
       NODE_ENV: 'production'
     }
