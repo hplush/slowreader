@@ -16,10 +16,10 @@ import authModule from '../modules/auth.ts'
 import passwordModule from '../modules/passwords.ts'
 import { cleanAllTables, throws } from './utils.ts'
 
-let server: TestServer | undefined
+let server: TestServer
 afterEach(async () => {
   await cleanAllTables()
-  if (server) server.destroy()
+  await server.destroy()
 })
 
 test('creates users and check credentials', async () => {
