@@ -8,7 +8,7 @@ import { afterEach, beforeEach, test } from 'node:test'
 
 import assetsModule from '../modules/assets.ts'
 
-let assets: string | undefined
+let toDelete: string[] = []
 let server: TestServer | undefined
 let originEnv = { ...process.env }
 
@@ -18,22 +18,29 @@ afterEach(async () => {
   process.env = originEnv
   await server?.destroy()
   server = undefined
-  if (assets) await rm(assets, { recursive: true })
-  assets = undefined
+  for (let i of toDelete) {
+    await rm(i, { recursive: true })
+  }
+  toDelete = []
 })
 
 test('serves static pages', async () => {
-  assets = join(tmpdir(), nanoid())
+  let assets = join(tmpdir(), nanoid())
   await mkdir(assets)
-  server = new TestServer()
-  process.env.ASSETS_DIR = assets
-  assetsModule(server)
-
   await writeFile(join(assets, 'index.html'), '<html>Hi</html>')
   await writeFile(join(assets, 'favicon.ico'), 'A')
   await mkdir(join(assets, 'ui'))
   await writeFile(join(assets, 'ui', 'index.html'), '<html>Storybook</html>')
   await writeFile(join(assets, 'data'), 'D')
+  toDelete.push(assets)
+
+  let hidden = `${nanoid()}.txt`
+  await writeFile(join(assets, '..', hidden), 'H')
+  toDelete.push(join(assets, '..', hidden))
+
+  server = new TestServer()
+  process.env.ASSETS_DIR = assets
+  assetsModule(server)
 
   let index1 = await server.fetch('/')
   equal(index1.headers.get('Content-Type'), 'text/html')
@@ -72,6 +79,12 @@ test('serves static pages', async () => {
 
   let unknown = await server.fetch('/unknown')
   equal(unknown.status, 404)
+
+  let prohibited1 = await server.fetch('/./db.ts')
+  equal(prohibited1.status, 404)
+
+  let prohibited2 = await server.fetch(`/../${hidden}`)
+  equal(prohibited2.status, 404)
 })
 
 test('ignores on missed environment variable', async () => {
