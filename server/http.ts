@@ -31,7 +31,7 @@ export function jsonApi<Response, Request extends object>(
 ): void {
   server.http(async (req, res) => {
     if (req.method === endpoint.method) {
-      let url = new URL(req.url ?? '/', 'http://localhost')
+      let url = new URL(req.url!, 'http://localhost')
       let urlParams = endpoint.parseUrl(url.pathname)
       if (urlParams) {
         if (req.headers['content-type'] !== 'application/json') {

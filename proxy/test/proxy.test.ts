@@ -1,7 +1,7 @@
 import { equal } from 'node:assert'
 import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
-import { after, test } from 'node:test'
+import { after, afterEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 import { URL } from 'node:url'
 
@@ -13,7 +13,7 @@ function getURL(server: Server): string {
 }
 
 let target = createServer(async (req, res) => {
-  let parsedUrl = new URL(req.url || '', `http://${req.headers.host}`)
+  let parsedUrl = new URL(req.url!, `http://${req.headers.host}`)
   let queryParams = Object.fromEntries(parsedUrl.searchParams.entries())
   if (queryParams.sleep) {
     await setTimeout(parseInt(queryParams.sleep))
@@ -68,6 +68,14 @@ proxy.listen(31598)
 
 let proxyUrl = getURL(proxy)
 let targetUrl = getURL(target)
+
+let otherProxy: Server | undefined
+afterEach(async () => {
+  if (otherProxy) {
+    otherProxy.close()
+    otherProxy = undefined
+  }
+})
 
 after(() => {
   target.close()
@@ -140,6 +148,25 @@ test('can use only HTTP or HTTPS protocols', async () => {
 
 test('can not use proxy to query local address', async () => {
   let response = await request(targetUrl.replace('localhost', '127.0.0.1'))
+  await expectBadRequest(response, 'IP addresses are not allowed')
+})
+
+test('can not use localhost without a setting', async () => {
+  otherProxy = createServer(
+    createProxy({
+      allowsFrom: '^http:\\/\\/test.app',
+      maxSize: 100,
+      timeout: 100
+    })
+  )
+  await new Promise<void>(resolve => {
+    otherProxy!.listen(31599, resolve)
+  })
+  let response = await fetch(`${getURL(otherProxy)}/${targetUrl}`, {
+    headers: {
+      Origin: 'http://test.app'
+    }
+  })
   await expectBadRequest(response, 'IP addresses are not allowed')
 })
 

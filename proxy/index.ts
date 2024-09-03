@@ -33,9 +33,7 @@ export function createProxy(
     let sent = false
 
     try {
-      let url = decodeURIComponent(
-        (req.url ?? '').slice(1).replace(/^proxy\//, '')
-      )
+      let url = decodeURIComponent(req.url!.slice(1).replace(/^proxy\//, ''))
       let parsedUrl = new URL(url)
 
       // Only HTTP or HTTPS protocols are allowed

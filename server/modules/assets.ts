@@ -91,7 +91,7 @@ export default async (
   server.http(async (req, res) => {
     if (req.method !== 'GET') return false
 
-    let url = new URL(req.url ?? '', `https://${req.headers.host}`)
+    let url = new URL(req.url!, `https://${req.headers.host}`)
     let pathname = url.pathname.replace(/\/$/, '')
     let safe = normalize(url.pathname).replace(/^(\.\.[/\\])+/, '')
     let cacheKey = safe
