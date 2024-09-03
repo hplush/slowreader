@@ -5,6 +5,7 @@ type AssetsPaths =
 export type Config = {
   db: string
   env: 'development' | 'production' | 'test'
+  staging: boolean
 } & AssetsPaths
 
 function getDefaultDatabase(env: Config['env']): string {
@@ -35,6 +36,7 @@ export function getConfig(from: Record<string, string | undefined>): Config {
   return {
     db: from.DATABASE_URL ?? getDefaultDatabase(env),
     env,
+    staging: !!from.STAGING,
     ...getPaths(from)
   }
 }

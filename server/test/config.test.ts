@@ -31,12 +31,14 @@ test('checks that assets is together with routes', () => {
   }, /ASSETS_DIR and ROUTES_FILE/)
 })
 
-test('checks NODE_ENV', () => {
+test('checks environment', () => {
   equal(getConfig({}).env, 'development')
   equal(getConfig({ NODE_ENV: 'test' }).env, 'test')
   throws(() => {
     getConfig({ NODE_ENV: 'staging' })
   }, /NODE_ENV/)
+  equal(getConfig({}).staging, false)
+  equal(getConfig({ STAGING: '1' }).staging, true)
 })
 
 test('passes keys', () => {
@@ -51,7 +53,8 @@ test('passes keys', () => {
       assets: './dist/',
       db: DATABASE_URL,
       env: 'production',
-      routes: './routes.regexp'
+      routes: './routes.regexp',
+      staging: false
     }
   )
 })

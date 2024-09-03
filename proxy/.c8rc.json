@@ -8,7 +8,7 @@
     "test/*",
     "coverage/",
     "*.d.ts",
-    "index.ts"
+    "server.ts"
   ],
   "lines": 100,
   "reporter": ["text-summary", "text", "lcov"],

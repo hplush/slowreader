@@ -6,8 +6,12 @@
     "node": "^22.7.0",
     "pnpm": "^9.0.0"
   },
+  "exports": {
+    ".": "./index.ts",
+    "./package.json": "./package.json"
+  },
   "scripts": {
-    "start": "../scripts/tsnode --watch index.ts",
+    "start": "../scripts/tsnode --watch server.ts",
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
     "build": "node --run clean:build && pnpm --filter proxy --prod deploy dist",
     "production": "node --run build && ./scripts/run-image.sh",

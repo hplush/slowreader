@@ -5,7 +5,7 @@ import { after, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 import { URL } from 'node:url'
 
-import { createProxyServer } from '../proxy.ts'
+import { createProxy } from '../index.ts'
 
 function getURL(server: Server): string {
   let port = (server.address() as AddressInfo).port
@@ -56,12 +56,14 @@ let target = createServer(async (req, res) => {
 })
 target.listen(31597)
 
-let proxy = createProxyServer({
-  allowLocalhost: true,
-  allowsFrom: [/^http:\/\/test.app/],
-  maxSize: 100,
-  timeout: 100
-})
+let proxy = createServer(
+  createProxy({
+    allowLocalhost: true,
+    allowsFrom: '^http:\\/\\/test.app',
+    maxSize: 100,
+    timeout: 100
+  })
+)
 proxy.listen(31598)
 
 let proxyUrl = getURL(proxy)

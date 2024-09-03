@@ -195,6 +195,9 @@ importers:
       '@slowreader/api':
         specifier: link:../api
         version: link:../api
+      '@slowreader/proxy':
+        specifier: link:../proxy
+        version: link:../proxy
       argon2:
         specifier: ^0.41.1
         version: 0.41.1
