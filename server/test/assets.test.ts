@@ -4,7 +4,7 @@ import { deepStrictEqual, equal, match } from 'node:assert'
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { afterEach, beforeEach, test } from 'node:test'
+import { afterEach, test } from 'node:test'
 
 import assetsModule from '../modules/assets.ts'
 
@@ -29,8 +29,6 @@ function checkHeaders(res: Response, expected: Record<string, string>): void {
   }
   deepStrictEqual(headers, expected)
 }
-
-beforeEach(() => {})
 
 afterEach(async () => {
   process.env = originEnv
