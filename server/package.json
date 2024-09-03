@@ -17,14 +17,14 @@
   "dependencies": {
     "@logux/server": "github:logux/server#next",
     "@slowreader/api": "link:../api",
-    "argon2": "^0.41.0",
+    "argon2": "^0.41.1",
     "cookie": "^0.6.0",
     "drizzle-orm": "^0.33.0",
     "nanoid": "5.0.7",
     "postgres": "^3.4.4"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "^0.2.4",
+    "@electric-sql/pglite": "^0.2.5",
     "@types/cookie": "^0.6.0",
     "better-node-test": "0.7.1",
     "c8": "10.1.2",
