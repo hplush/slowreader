@@ -1,6 +1,6 @@
 import { TestServer } from '@logux/server'
 import { nanoid } from 'nanoid'
-import { equal, match } from 'node:assert'
+import { deepStrictEqual, equal, match } from 'node:assert'
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -11,6 +11,24 @@ import assetsModule from '../modules/assets.ts'
 let toDelete: string[] = []
 let server: TestServer | undefined
 let originEnv = { ...process.env }
+
+const IGNORE_HEADERS = new Set([
+  'keep-alive',
+  'transfer-encoding',
+  'date',
+  'connection'
+])
+
+function checkHeaders(res: Response, expected: Record<string, string>): void {
+  equal(res.status, 200)
+  let headers: Record<string, string> = {}
+  for (let [header, value] of res.headers.entries()) {
+    if (!IGNORE_HEADERS.has(header)) {
+      headers[header] = value
+    }
+  }
+  deepStrictEqual(headers, expected)
+}
 
 beforeEach(() => {})
 
@@ -27,51 +45,75 @@ afterEach(async () => {
 test('serves static pages', async () => {
   let assets = join(tmpdir(), nanoid())
   await mkdir(assets)
-  await writeFile(join(assets, 'index.html'), '<html>Hi</html>')
+  await writeFile(
+    join(assets, 'index.html'),
+    '<html><style>*{}</style><script></script>App</html>'
+  )
   await writeFile(join(assets, 'favicon.ico'), 'A')
   await mkdir(join(assets, 'ui'))
   await writeFile(join(assets, 'ui', 'index.html'), '<html>Storybook</html>')
   await writeFile(join(assets, 'data'), 'D')
+  await mkdir(join(assets, 'assets'))
+  await writeFile(join(assets, 'assets', 'app-CiUGZyvO.css'), '*{}')
   toDelete.push(assets)
+  process.env.ASSETS_DIR = assets
 
   let hidden = `${nanoid()}.txt`
   await writeFile(join(assets, '..', hidden), 'H')
   toDelete.push(join(assets, '..', hidden))
 
+  let routes = join(tmpdir(), nanoid())
+  await writeFile(routes, '^\\/welcome$|^\\/feeds(?:\\/([^/]+))?$')
+  toDelete.push(routes)
+  process.env.ROUTES_FILE = routes
+
   server = new TestServer()
-  process.env.ASSETS_DIR = assets
-  assetsModule(server)
+  await assetsModule(server)
 
   let index1 = await server.fetch('/')
-  equal(index1.headers.get('Content-Type'), 'text/html')
-  equal(await index1.text(), '<html>Hi</html>')
+  checkHeaders(index1, {
+    'content-security-policy':
+      "base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'; script-src 'self' z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==; style-src 'self' WHD6ulkGEqykJOGo6klppzioMxOPVblnfwiGe1TxkCVE5bOc4v6cMqZ9URL5ooT++J3mAgP102MFoDHPaaX10g==",
+    'content-type': 'text/html',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    'x-content-type-options': 'nosniff'
+  })
+  match(await index1.text(), /App/)
 
-  let index2 = await server.fetch('/')
-  equal(index2.headers.get('Content-Type'), 'text/html')
-  equal(await index2.text(), '<html>Hi</html>')
+  let route1 = await server.fetch('/welcome')
+  match(await route1.text(), /App/)
 
-  let index3 = await server.fetch('/index.html')
-  equal(index3.headers.get('Content-Type'), 'text/html')
-  equal(await index3.text(), '<html>Hi</html>')
+  let route2 = await server.fetch('/welcome/')
+  match(await route2.text(), /App/)
+
+  let route3 = await server.fetch('/feeds/X2ZGRL3cXtar4oyuyM7jQ')
+  match(await route3.text(), /App/)
 
   let icon1 = await server.fetch('/favicon.ico')
-  equal(icon1.headers.get('Content-Type'), 'image/x-icon')
+  checkHeaders(icon1, { 'content-type': 'image/x-icon' })
   equal(await icon1.text(), 'A')
 
   let icon2 = await server.fetch('/favicon.ico')
-  equal(icon2.headers.get('Content-Type'), 'image/x-icon')
+  checkHeaders(icon2, { 'content-type': 'image/x-icon' })
   equal(await icon2.text(), 'A')
 
+  let css = await server.fetch('/assets/app-CiUGZyvO.css')
+  checkHeaders(css, {
+    'cache-control': 'public, immutable',
+    'content-type': 'text/css'
+  })
+  equal(await css.text(), '*{}')
+
   let story1 = await server.fetch('/ui/')
-  equal(story1.headers.get('Content-Type'), 'text/html')
+  checkHeaders(story1, { 'content-type': 'text/html' })
   equal(await story1.text(), '<html>Storybook</html>')
 
   let story2 = await server.fetch('/ui/')
-  equal(story2.headers.get('Content-Type'), 'text/html')
+  checkHeaders(story2, { 'content-type': 'text/html' })
   equal(await story2.text(), '<html>Storybook</html>')
 
   let data = await server.fetch('/data')
-  equal(data.headers.get('Content-Type'), 'application/octet-stream')
+  checkHeaders(data, { 'content-type': 'application/octet-stream' })
   equal(await data.text(), 'D')
 
   let post = await server.fetch('/', { method: 'POST' })
@@ -89,7 +131,7 @@ test('serves static pages', async () => {
 
 test('ignores on missed environment variable', async () => {
   server = new TestServer()
-  assetsModule(server)
+  await assetsModule(server)
 
   let index = await server.fetch('/')
   match(await index.text(), /Logux/)
