@@ -6,11 +6,11 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, test } from 'node:test'
 
+import { config } from '../config.ts'
 import assetsModule from '../modules/assets.ts'
 
 let toDelete: string[] = []
 let server: TestServer | undefined
-let originEnv = { ...process.env }
 
 const IGNORE_HEADERS = new Set([
   'keep-alive',
@@ -31,7 +31,6 @@ function checkHeaders(res: Response, expected: Record<string, string>): void {
 }
 
 afterEach(async () => {
-  process.env = originEnv
   await server?.destroy()
   server = undefined
   for (let i of toDelete) {
@@ -66,7 +65,7 @@ test('serves static pages', async () => {
   process.env.ROUTES_FILE = routes
 
   server = new TestServer()
-  await assetsModule(server)
+  await assetsModule(server, { ...config, assets, routes })
 
   let index1 = await server.fetch('/')
   checkHeaders(index1, {
@@ -129,7 +128,11 @@ test('serves static pages', async () => {
 
 test('ignores on missed environment variable', async () => {
   server = new TestServer()
-  await assetsModule(server)
+  await assetsModule(server, {
+    ...config,
+    assets: undefined,
+    routes: undefined
+  })
 
   let index = await server.fetch('/')
   match(await index.text(), /Logux/)

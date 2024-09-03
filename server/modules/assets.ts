@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises'
 import type { ServerResponse } from 'node:http'
 import { extname, join, normalize } from 'node:path'
 
-import { getEnv } from '../env.ts'
+import { config } from '../config.ts'
 
 interface Asset {
   contentType: string
@@ -70,21 +70,23 @@ function send(res: ServerResponse, asset: Asset): void {
   res.end(asset.data)
 }
 
-export default async (server: BaseServer): Promise<void> => {
-  let env = getEnv(process.env)
-  if (!env.ASSETS_DIR) return
+export default async (
+  server: BaseServer,
+  { assets, routes } = config
+): Promise<void> => {
+  if (!assets) return
 
   let CACHE: Record<string, Asset> = {}
 
-  let html = await readFile(join(env.ASSETS_DIR, 'index.html'))
+  let html = await readFile(join(assets, 'index.html'))
   let appHtml: Asset = {
     contentType: 'text/html',
     data: html,
     headers: getPageHeaders(html)
   }
 
-  let routesData = await readFile(env.ROUTES_FILE)
-  let routes = new RegExp(routesData.toString())
+  let routesData = await readFile(routes)
+  let routesRegexp = new RegExp(routesData.toString())
 
   server.http(async (req, res) => {
     if (req.method !== 'GET') return false
@@ -93,9 +95,9 @@ export default async (server: BaseServer): Promise<void> => {
     let pathname = url.pathname.replace(/\/$/, '')
     let safe = normalize(url.pathname).replace(/^(\.\.[/\\])+/, '')
     let cacheKey = safe
-    let path = join(env.ASSETS_DIR, safe)
+    let path = join(assets, safe)
 
-    if (routes.test(pathname)) {
+    if (routesRegexp.test(pathname)) {
       send(res, appHtml)
       return true
     }

@@ -8,8 +8,8 @@ import { migrate as prodMigrate } from 'drizzle-orm/postgres-js/migrator'
 import { join } from 'node:path'
 import postgres from 'postgres'
 
+import { config } from './config.ts'
 import * as schema from './db/schema.ts'
-import { env } from './env.ts'
 export * from './db/schema.ts'
 
 const MIGRATE_CONFIG: MigrationConfig = {
@@ -17,19 +17,16 @@ const MIGRATE_CONFIG: MigrationConfig = {
 }
 
 let drizzle: PgDatabase<PgQueryResultHKT, typeof schema>
-if (env.DATABASE_URL) {
-  /* c8 ignore next 4 */
-  drizzle = prodDrizzle(postgres(env.DATABASE_URL), { schema })
-  let migrateConnection = postgres(env.DATABASE_URL, { max: 1 })
-  await prodMigrate(prodDrizzle(migrateConnection), MIGRATE_CONFIG)
-  await migrateConnection.end()
-} else {
-  let drizzlePglite = devDrizzle(
-    new PGlite(process.env.NODE_ENV === 'test' ? 'memory://' : './db/pgdata'),
-    { schema }
-  )
+if (config.db.startsWith('memory:') || config.db.startsWith('file:')) {
+  let drizzlePglite = devDrizzle(new PGlite(config.db), { schema })
   await devMigrate(drizzlePglite, MIGRATE_CONFIG)
   drizzle = drizzlePglite
+} else {
+  /* c8 ignore next 4 */
+  drizzle = prodDrizzle(postgres(config.db), { schema })
+  let migrateConnection = postgres(config.db, { max: 1 })
+  await prodMigrate(prodDrizzle(migrateConnection), MIGRATE_CONFIG)
+  await migrateConnection.end()
 }
 
 export const db = drizzle

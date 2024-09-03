@@ -186,6 +186,9 @@ importers:
 
   server:
     dependencies:
+      '@electric-sql/pglite':
+        specifier: ^0.2.5
+        version: 0.2.5
       '@logux/server':
         specifier: github:logux/server#next
         version: https://codeload.github.com/logux/server/tar.gz/6ac0e8b4d22142984764aea5239c7cadd62dfd7f
@@ -208,9 +211,6 @@ importers:
         specifier: ^3.4.4
         version: 3.4.4
     devDependencies:
-      '@electric-sql/pglite':
-        specifier: ^0.2.5
-        version: 0.2.5
       '@types/cookie':
         specifier: ^0.6.0
         version: 0.6.0
