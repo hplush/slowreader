@@ -31,10 +31,12 @@ function getURL(server: Server): string {
 }
 
 let server: TestServer | undefined
+let originEnv = { ...process.env }
 
 afterEach(async () => {
   await server?.destroy()
   server = undefined
+  process.env = { ...originEnv }
 })
 
 after(async () => {
@@ -44,10 +46,11 @@ after(async () => {
 })
 
 test('uses proxy', async () => {
+  process.env.PROXY_ORIGIN = '^http:\\/\\/test.app'
   server = new TestServer()
   proxyModule(server, {
     allowLocalhost: true,
-    allowsFrom: '^http:\\/\\/test.app'
+    allowsFrom: process.env.PROXY_ORIGIN
   })
 
   let response = await server.fetch(`/proxy/${getURL(target)}/path`, {
@@ -70,4 +73,18 @@ test('uses proxy', async () => {
 
   let unknown = await server.fetch(`/proxy`)
   equal(unknown.status, 404)
+})
+
+test('can be disabled', async () => {
+  server = new TestServer()
+  proxyModule(server, {
+    allowLocalhost: true
+  })
+
+  let response = await server.fetch(`/proxy/${getURL(target)}/path`, {
+    headers: {
+      Origin: 'http://test.app'
+    }
+  })
+  equal(response.status, 404)
 })

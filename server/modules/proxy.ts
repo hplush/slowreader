@@ -6,6 +6,7 @@ import {
 } from '@slowreader/proxy'
 
 export default (server: BaseServer, opts: Partial<ProxyConfig> = {}): void => {
+  if (!process.env.PROXY_ORIGIN) return
   let proxy = createProxy({ ...DEFAULT_PROXY_CONFIG, ...opts })
   server.http((req, res) => {
     if (req.url!.startsWith('/proxy/')) {
