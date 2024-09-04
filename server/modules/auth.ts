@@ -72,7 +72,7 @@ export default (server: BaseServer): void => {
     if (!token) return false
 
     let session = await db.query.sessions.findFirst({
-      where: and(eq(sessions.token, token))
+      where: eq(sessions.token, token)
     })
     if (session) {
       for (let client of server.connected.values()) {
