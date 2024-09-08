@@ -33,16 +33,16 @@
     "@nanostores/router": "0.15.1",
     "@rollup/plugin-node-resolve": "15.2.3",
     "@slowreader/core": "link:../core",
-    "@sveltejs/vite-plugin-svelte": "3.1.2",
+    "@sveltejs/vite-plugin-svelte": "4.0.0-next.7",
     "autoprefixer": "10.4.20",
     "keyux": "0.8.2",
     "nanoid": "5.0.7",
     "nanostores": "0.11.3",
-    "postcss": "8.4.44",
+    "postcss": "8.4.45",
     "rollup": "4.21.2",
     "svelte": "5.0.0-next.224",
     "svelte-preprocess": "6.0.2",
-    "vite": "5.4.2"
+    "vite": "5.4.3"
   },
   "devDependencies": {
     "@logux/stylelint-config": "0.20.0",
