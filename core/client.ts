@@ -1,5 +1,4 @@
-import type { ClientOptions } from '@logux/client'
-import { Client } from '@logux/client'
+import { type ClientOptions, CrossTabClient } from '@logux/client'
 import { TestPair, TestTime } from '@logux/core'
 import { SUBPROTOCOL } from '@slowreader/api'
 import { atom } from 'nanostores'
@@ -20,8 +19,8 @@ function getServer(): ClientOptions['server'] {
   return testTime ? new TestPair().left : 'ws://localhost:31337/'
 }
 
-let prevClient: Client | undefined
-let $client = atom<Client | undefined>()
+let prevClient: CrossTabClient | undefined
+let $client = atom<CrossTabClient | undefined>()
 export const client = readonlyExport($client)
 
 onEnvironment(({ logStoreCreator }) => {
@@ -29,7 +28,7 @@ onEnvironment(({ logStoreCreator }) => {
     prevClient?.destroy()
 
     if (user) {
-      let logux = new Client({
+      let logux = new CrossTabClient({
         prefix: 'slowreader',
         server: getServer(),
         store: logStoreCreator(),
@@ -50,7 +49,7 @@ onEnvironment(({ logStoreCreator }) => {
   }
 })
 
-export function getClient(): Client {
+export function getClient(): CrossTabClient {
   let logux = client.get()
   if (!logux) {
     throw new SlowReaderError('NoClient')
