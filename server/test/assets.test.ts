@@ -13,10 +13,10 @@ let toDelete: string[] = []
 let server: TestServer | undefined
 
 const IGNORE_HEADERS = new Set([
-  'keep-alive',
-  'transfer-encoding',
+  'connection',
   'date',
-  'connection'
+  'keep-alive',
+  'transfer-encoding'
 ])
 
 function checkHeaders(res: Response, expected: Record<string, string>): void {

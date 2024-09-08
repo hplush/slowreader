@@ -8,7 +8,7 @@ import { styleText } from 'node:util'
 
 const ROOT = join(import.meta.dirname, '..')
 
-const IGNORE = new Set(['node_modules', 'coverage', 'dist', '.git', '.github'])
+const IGNORE = new Set(['.git', '.github', 'coverage', 'dist', 'node_modules'])
 
 async function findFiles(
   dir: string,

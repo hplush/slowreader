@@ -58,15 +58,15 @@ export type BaseRoute<Name extends RouteName = RouteName> = Name extends string
 
 export type BaseRouter = ReadableAtom<BaseRoute | undefined>
 
-const GUEST = new Set<RouteName>(['start', 'signin'])
+const GUEST = new Set<RouteName>(['signin', 'start'])
 
 const SETTINGS = new Set<RouteName>([
-  'interface',
-  'profile',
   'about',
   'download',
   'export',
-  'import'
+  'import',
+  'interface',
+  'profile'
 ])
 
 const ORGANIZE = new Set<RouteName>(['add', 'categories'])
