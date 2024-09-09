@@ -3,11 +3,9 @@ import { styleText } from 'node:util'
 
 import { createProxy, DEFAULT_PROXY_CONFIG } from './index.ts'
 
-const PORT = process.env.PORT ?? 5284
-
-if (!process.env.PROXY_ORIGIN) {
+if (!process.env.PROXY_ORIGIN || !process.env.PORT) {
   process.stderr.write(
-    styleText('red', 'Set PROXY_ORIGIN environment variable\n')
+    styleText('red', 'Set PROXY_ORIGIN and PORT environment variables\n')
   )
   process.exit(0)
 }
@@ -15,14 +13,7 @@ if (!process.env.PROXY_ORIGIN) {
 let proxy = createServer(
   createProxy({ ...DEFAULT_PROXY_CONFIG, allowsFrom: process.env.PROXY_ORIGIN })
 )
-
-proxy.listen(PORT, () => {
-  if (process.env.NODE_ENV !== 'production') {
-    process.stdout.write(
-      styleText('green', `Proxy server running on port ${PORT}`) + '\n'
-    )
-  }
-})
+proxy.listen(process.env.PORT)
 
 process.on('SIGINT', () => {
   proxy.close()
