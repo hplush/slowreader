@@ -19,4 +19,4 @@ COPY ./dist/ /var/www/
 USER 1000:1000
 
 CMD "node" "--experimental-strip-types" \
-  "--disable-warning=ExperimentalWarning" "index.ts"
+  "--disable-warning=ExperimentalWarning" "server.ts"
