@@ -7,7 +7,7 @@ if (!process.env.PROXY_ORIGIN || !process.env.PORT) {
   process.stderr.write(
     styleText('red', 'Set PROXY_ORIGIN and PORT environment variables\n')
   )
-  process.exit(0)
+  process.exit(1)
 }
 
 let proxy = createServer(
