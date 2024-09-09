@@ -1,4 +1,4 @@
-# Put only dist/ and nginx.conf files to Docker image to make deploy faster
+# Put only dist/ files to Docker image to make deploy faster
 
 *
 !dist/
