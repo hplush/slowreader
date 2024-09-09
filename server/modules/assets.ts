@@ -76,6 +76,9 @@ export default async (
 ): Promise<void> => {
   if (!assets) return
 
+  // Headers/redirect logics is duplicated between this file and web/nginx.conf.
+  // If you change anything here, change the second place too.
+
   let CACHE: Record<string, Asset> = {}
 
   let html = await readFile(join(assets, 'index.html'))
