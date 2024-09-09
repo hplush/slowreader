@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@logux/stylelint-config": "0.20.0",
-    "@size-limit/file": "11.1.4",
+    "@size-limit/file": "11.1.5",
     "@storybook/addon-svelte-csf": "5.0.0-next.1",
     "@storybook/addon-themes": "8.2.9",
     "@storybook/addon-viewport": "8.2.9",
@@ -59,7 +59,7 @@
     "postcss-html": "1.7.0",
     "postcss-nesting": "13.0.0",
     "postcss-selector-parser": "6.1.2",
-    "size-limit": "11.1.4",
+    "size-limit": "11.1.5",
     "storybook": "8.2.9",
     "stylelint": "16.9.0",
     "stylelint-use-logical": "2.1.2"
