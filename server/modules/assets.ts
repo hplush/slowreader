@@ -75,6 +75,7 @@ export default async (
   { assets, routes } = config
 ): Promise<void> => {
   if (!assets) return
+  server.logger.info('Assets serving is enabled')
 
   // Headers/redirect logics is duplicated between this file and web/nginx.conf.
   // If you change anything here, change the second place too.
