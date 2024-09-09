@@ -13,8 +13,6 @@ inputs:
   tag:
     required: false
     default: latest
-  env:
-    required: false
   envFile:
     required: false
 outputs:
@@ -50,8 +48,7 @@ runs:
         no_traffic: ${{ inputs.tag != 'latest' }}
         flags: |
           --allow-unauthenticated
-          --set-env-vars="${{ inputs.env }}"
-          --env-vars-file="${{ inputs.envFile }}"
+          ${{ inputs.envFile && "--env-vars-file=${{ inputs.envFile }}" || "" }}
           --service-account=github-deploy@${{ inputs.projectId }}.iam.gserviceaccount.com
     - name: Move traffic to new revision
       if: ${{ inputs.tag == 'latest' }}
