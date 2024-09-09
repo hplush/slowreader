@@ -5,9 +5,16 @@ import {
   type ProxyConfig
 } from '@slowreader/proxy'
 
+import { config } from '../config.ts'
+
 export default (server: BaseServer, opts: Partial<ProxyConfig> = {}): void => {
-  if (!process.env.PROXY_ORIGIN) return
-  let proxy = createProxy({ ...DEFAULT_PROXY_CONFIG, ...opts })
+  let allowsFrom = config.proxyOrigin ?? opts.allowsFrom
+  if (!allowsFrom) return
+  let proxy = createProxy({
+    ...DEFAULT_PROXY_CONFIG,
+    ...opts,
+    allowsFrom
+  })
   server.http((req, res) => {
     if (req.url!.startsWith('/proxy/')) {
       proxy(req, res)

@@ -10,7 +10,7 @@
   "packageManager": "pnpm@9.9.0",
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run -r --include-workspace-root /^test:/",
-    "start": "FORCE_COLOR=1 pnpm run -F server -F web -F proxy start",
+    "start": "FORCE_COLOR=1 pnpm run -F server -F web start",
     "format": "pnpm run -r --include-workspace-root /^format:/",
     "clean": "pnpm run -r --include-workspace-root /^clean:/",
     "build": "pnpm run -r build",

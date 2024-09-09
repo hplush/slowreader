@@ -5,15 +5,18 @@ import { createProxy, DEFAULT_PROXY_CONFIG } from './index.ts'
 
 const PORT = process.env.PORT ?? 5284
 
-let allowsFrom: string
+let allowsFrom: string | undefined
 if (process.env.NODE_ENV !== 'production') {
   allowsFrom = '^http:\\/\\/localhost:5173'
 } else if (process.env.STAGING) {
-  allowsFrom =
-    '^https:\\/\\/dev.slowreader.app' +
-    '|https:\\/\\/(preview-\\d+---)?staging-web-jfj4bxwwxq-ew.a.run.app'
-} else {
-  allowsFrom = '^https:\\/\\/slowreader.app'
+  allowsFrom = process.env.PROXY_ORIGIN
+}
+
+if (!allowsFrom) {
+  process.stderr.write(
+    styleText('red', 'Set PROXY_ORIGIN environment variable\n')
+  )
+  process.exit(0)
 }
 
 let proxy = createServer(createProxy({ ...DEFAULT_PROXY_CONFIG, allowsFrom }))

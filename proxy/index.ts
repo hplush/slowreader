@@ -19,8 +19,7 @@ export interface ProxyConfig {
   timeout: number
 }
 
-export const DEFAULT_PROXY_CONFIG: ProxyConfig = {
-  allowsFrom: process.env.PROXY_ORIGIN ?? '^http:\\/\\/localhost:5173',
+export const DEFAULT_PROXY_CONFIG: Omit<ProxyConfig, 'allowsFrom'> = {
   maxSize: 10 * 1024 * 1024,
   timeout: 2500
 }

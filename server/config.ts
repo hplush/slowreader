@@ -5,6 +5,7 @@ type AssetsPaths =
 export type Config = {
   db: string
   env: 'development' | 'production' | 'test'
+  proxyOrigin: string | undefined
   staging: boolean
 } & AssetsPaths
 
@@ -33,9 +34,14 @@ export function getConfig(from: Record<string, string | undefined>): Config {
   if (env !== 'test' && env !== 'production' && env !== 'development') {
     throw new Error('Unknown NODE_ENV')
   }
+  let proxyOrigin = from.PROXY_ORIGIN
+  if (!proxyOrigin && env === 'development') {
+    proxyOrigin = '^http:\\/\\/localhost:5173'
+  }
   return {
     db: from.DATABASE_URL ?? getDefaultDatabase(env),
     env,
+    proxyOrigin,
     staging: !!from.STAGING,
     ...getPaths(from)
   }

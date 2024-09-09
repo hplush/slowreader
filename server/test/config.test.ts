@@ -41,18 +41,39 @@ test('checks environment', () => {
   equal(getConfig({ STAGING: '1' }).staging, true)
 })
 
+test('sets proxy origin', () => {
+  equal(
+    getConfig({ NODE_ENV: 'development' }).proxyOrigin,
+    '^http:\\/\\/localhost:5173'
+  )
+  equal(
+    getConfig({ DATABASE_URL, NODE_ENV: 'production' }).proxyOrigin,
+    undefined
+  )
+  equal(
+    getConfig({
+      DATABASE_URL,
+      NODE_ENV: 'production',
+      PROXY_ORIGIN: '^http:\\/\\/slowreader.app'
+    }).proxyOrigin,
+    '^http:\\/\\/slowreader.app'
+  )
+})
+
 test('passes keys', () => {
   deepStrictEqual(
     getConfig({
       ASSETS_DIR: './dist/',
       DATABASE_URL,
       NODE_ENV: 'production',
+      PROXY_ORIGIN: '^http:\\/\\/slowreader.app',
       ROUTES_FILE: './routes.regexp'
     }),
     {
       assets: './dist/',
       db: DATABASE_URL,
       env: 'production',
+      proxyOrigin: '^http:\\/\\/slowreader.app',
       routes: './routes.regexp',
       staging: false
     }
