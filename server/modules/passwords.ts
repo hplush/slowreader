@@ -1,8 +1,8 @@
 import type { BaseServer } from '@logux/server'
+import { deletePassword, setPassword } from '@slowreader/api'
 import { hash } from 'argon2'
 import { eq } from 'drizzle-orm'
 
-import { deletePassword, setPassword } from '../../api/password.ts'
 import { db, users } from '../db/index.ts'
 
 export default (server: BaseServer): void => {
