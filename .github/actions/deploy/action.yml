@@ -13,7 +13,7 @@ inputs:
   tag:
     required: false
     default: latest
-  envFile:
+  env:
     required: false
 outputs:
   url:
