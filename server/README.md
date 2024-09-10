@@ -22,7 +22,7 @@ and uses end-to-end encryption not to know what users read and like.
 
 - `DATABASE_URL`: PostgreSQL credentials with support of pglite’s `file://` and `memory://` schemas. You must set it when `NODE_ENV=production`.
 - `PROXY_ORIGIN`: enables built-in CORS proxy and specific RegExp to check `Origin` header.
-- `ASSETS`, `ASSETS_DIR` and `ROUTES_FILE` for serving web client assets.
+- `ASSETS`: enables serving web client assets from `../web`.
 
 ## End-to-End Types
 
@@ -37,13 +37,13 @@ On staging and production server we have separated servers for [CORS proxy](../p
 But for pull request preview and self-hosted you can use this server for everything. With pglite it allows user to have the single Docker image for the whole app.
 
 - To enable CORS proxy user need to specify `PROXY_ORIGIN` environment variable with `Origin` RegExp.
-- To server web client assets user need to set `ASSETS=1`, `ASSETS_DIR` to `web/dist/` folder and `ROUTES_FILE` to `web/routes.regexp` file.
+- To server web client assets user need to set `ASSETS=1`. The server will get assets from `../web`.
 - `DATABASE_URL` should be set to pglite’s folder.
 
 Example:
 
 ```sh
-PROXY_ORIGIN=^http:\\/\\/localhost:5173$ ASSETS=1 ASSETS_DIR=../web/dist/ ROUTES_FILE=../web/routes.regexp DATABASE_URL=file://./db/pgdata pnpm start
+PROXY_ORIGIN=^http:\\/\\/localhost:5173$ ASSETS=1 DATABASE_URL=file://./db/pgdata pnpm start
 ```
 
 ## Database

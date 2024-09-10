@@ -63,7 +63,7 @@ test('serves static pages', async () => {
   toDelete.push(routes)
 
   server = new TestServer()
-  await assetsModule(server, { ...config, assets: true, assetsDir, routes })
+  await assetsModule(server, { ...config, assets: true }, assetsDir, routes)
 
   let index1 = await server.fetch('/')
   checkHeaders(index1, {
@@ -126,12 +126,15 @@ test('serves static pages', async () => {
 
 test('ignores on missed environment variable', async () => {
   server = new TestServer()
-  await assetsModule(server, {
-    ...config,
-    assets: false,
-    assetsDir: undefined,
-    routes: undefined
-  })
+  await assetsModule(
+    server,
+    {
+      ...config,
+      assets: false
+    },
+    import.meta.dirname,
+    import.meta.filename
+  )
 
   let index = await server.fetch('/')
   match(await index.text(), /Logux/)

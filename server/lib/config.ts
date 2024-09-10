@@ -1,13 +1,10 @@
-type AssetsPaths =
-  | { assets: false; assetsDir: undefined; routes: undefined }
-  | { assets: true; assetsDir: string; routes: string }
-
 export type Config = {
+  assets: boolean
   db: string
   env: 'development' | 'production' | 'test'
   proxyOrigin: string | undefined
   staging: boolean
-} & AssetsPaths
+}
 
 function getDefaultDatabase(env: Config['env']): string {
   if (env === 'production') {
@@ -16,22 +13,6 @@ function getDefaultDatabase(env: Config['env']): string {
     return 'memory://'
   } else {
     return 'file://./db/pgdata'
-  }
-}
-
-function getPaths(from: Record<string, string | undefined>): AssetsPaths {
-  if (from.ASSETS) {
-    if (from.ASSETS_DIR && from.ROUTES_FILE) {
-      return {
-        assets: true,
-        assetsDir: from.ASSETS_DIR,
-        routes: from.ROUTES_FILE
-      }
-    } else {
-      throw new Error('ASSETS, ASSETS_DIR and ROUTES_FILE must be set together')
-    }
-  } else {
-    return { assets: false, assetsDir: undefined, routes: undefined }
   }
 }
 
@@ -45,11 +26,11 @@ export function getConfig(from: Record<string, string | undefined>): Config {
     proxyOrigin = '^http:\\/\\/localhost:5173$'
   }
   return {
+    assets: !!from.ASSETS,
     db: from.DATABASE_URL ?? getDefaultDatabase(env),
     env,
     proxyOrigin,
-    staging: !!from.STAGING,
-    ...getPaths(from)
+    staging: !!from.STAGING
   }
 }
 

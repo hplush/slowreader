@@ -13,6 +13,9 @@ interface Asset {
   headers: Record<string, string>
 }
 
+const ASSETS_DIR = join(import.meta.dirname, '..', '..', 'web', 'dist')
+const ROUTES = join(import.meta.dirname, '..', '..', 'web', 'routes.regexp')
+
 const MIME_TYPES: Record<string, string> = {
   '.avif': 'image/avif',
   '.css': 'text/css',
@@ -72,7 +75,9 @@ function send(res: ServerResponse, asset: Asset): void {
 
 export default async (
   server: BaseServer,
-  { assets, assetsDir, routes } = config
+  { assets } = config,
+  assetsDir = ASSETS_DIR,
+  routes = ROUTES
 ): Promise<void> => {
   if (!assets) return
   server.logger.info('Assets serving is enabled')
