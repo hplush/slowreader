@@ -191,7 +191,7 @@ importers:
         version: 0.2.5
       '@logux/server':
         specifier: github:logux/server#next
-        version: https://codeload.github.com/logux/server/tar.gz/c2d372156bc419725ec3ecef41a2d0c45db5aa28
+        version: https://codeload.github.com/logux/server/tar.gz/a6c6d43d7f797b05e80f588d9e6edc990be2164b
       '@slowreader/api':
         specifier: link:../api
         version: link:../api
@@ -285,7 +285,7 @@ importers:
         version: 5.0.0-next.224
       svelte-preprocess:
         specifier: 6.0.2
-        version: 6.0.2(@babel/core@7.25.2)(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.45)(yaml@2.5.1))(postcss@8.4.45)(svelte@5.0.0-next.224)(typescript@5.5.4)
+        version: 6.0.2(@babel/core@7.25.2)(postcss-load-config@3.1.4(postcss@8.4.45))(postcss@8.4.45)(svelte@5.0.0-next.224)(typescript@5.5.4)
       vite:
         specifier: 5.4.3
         version: 5.4.3(@types/node@22.5.4)
@@ -310,7 +310,7 @@ importers:
         version: 8.2.9(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.0.0-next.224)
       '@storybook/svelte-vite':
         specifier: 8.2.9
-        version: 8.2.9(@babel/core@7.25.2)(@sveltejs/vite-plugin-svelte@4.0.0-next.7(svelte@5.0.0-next.224)(vite@5.4.3(@types/node@22.5.4)))(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.45)(yaml@2.5.1))(postcss@8.4.45)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.0.0-next.224)(typescript@5.5.4)(vite@5.4.3(@types/node@22.5.4))(webpack-sources@3.2.3)
+        version: 8.2.9(@babel/core@7.25.2)(@sveltejs/vite-plugin-svelte@4.0.0-next.7(svelte@5.0.0-next.224)(vite@5.4.3(@types/node@22.5.4)))(postcss-load-config@3.1.4(postcss@8.4.45))(postcss@8.4.45)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.0.0-next.224)(typescript@5.5.4)(vite@5.4.3(@types/node@22.5.4))(webpack-sources@3.2.3)
       '@storybook/types':
         specifier: ^8.2.9
         version: 8.2.9(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))
@@ -1564,8 +1564,8 @@ packages:
       svelte:
         optional: true
 
-  '@logux/server@https://codeload.github.com/logux/server/tar.gz/c2d372156bc419725ec3ecef41a2d0c45db5aa28':
-    resolution: {tarball: https://codeload.github.com/logux/server/tar.gz/c2d372156bc419725ec3ecef41a2d0c45db5aa28}
+  '@logux/server@https://codeload.github.com/logux/server/tar.gz/a6c6d43d7f797b05e80f588d9e6edc990be2164b':
+    resolution: {tarball: https://codeload.github.com/logux/server/tar.gz/a6c6d43d7f797b05e80f588d9e6edc990be2164b}
     version: 0.13.0
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
 
@@ -4562,11 +4562,14 @@ packages:
   pino-abstract-transport@1.2.0:
     resolution: {integrity: sha512-Guhh8EZfPCfH+PMXAb6rKOjGQEoy0xlAIn+irODG5kgfYV+BQ0rGYYWTIel3P5mmyXqkYkPmdIkywsn6QKUR1Q==}
 
+  pino-abstract-transport@2.0.0:
+    resolution: {integrity: sha512-F63x5tizV6WCh4R6RHyi2Ml+M70DNRXt/+HANowMflpgGFMAym/VKm6G7ZOQRjqN7XbGxK1Lg9t6ZrtzOaivMw==}
+
   pino-std-serializers@7.0.0:
     resolution: {integrity: sha512-e906FRY0+tV27iq4juKzSYPbUj2do2X2JX4EzSca1631EB2QJQUqGbDuERal7LCtOpxl6x3+nvo9NPZcmjkiFA==}
 
-  pino@9.3.2:
-    resolution: {integrity: sha512-WtARBjgZ7LNEkrGWxMBN/jvlFiE17LTbBoH0konmBU684Kd0uIiDwBXlcTCW7iJnA6HfIKwUssS/2AC6cDEanw==}
+  pino@9.4.0:
+    resolution: {integrity: sha512-nbkQb5+9YPhQRz/BeQmrWpEknAaqjpAqRK8NwJpmrX/JHu7JuZC5G1CeAwJDJfGes4h+YihC6in3Q2nGb+Y09w==}
     hasBin: true
 
   pirates@4.0.6:
@@ -4602,24 +4605,6 @@ packages:
       postcss:
         optional: true
       ts-node:
-        optional: true
-
-  postcss-load-config@6.0.1:
-    resolution: {integrity: sha512-oPtTM4oerL+UXmx+93ytZVN82RrlY/wPUV8IeDxFrzIjXOLF1pN+EmKPLbubvKHT2HC20xXsCAH2Z+CKV6Oz/g==}
-    engines: {node: '>= 18'}
-    peerDependencies:
-      jiti: '>=1.21.0'
-      postcss: '>=8.0.9'
-      tsx: ^4.8.1
-      yaml: ^2.4.2
-    peerDependenciesMeta:
-      jiti:
-        optional: true
-      postcss:
-        optional: true
-      tsx:
-        optional: true
-      yaml:
         optional: true
 
   postcss-nesting@13.0.0:
@@ -7136,21 +7121,21 @@ snapshots:
       - typescript
       - vue-eslint-parser
 
-  '@logux/server@https://codeload.github.com/logux/server/tar.gz/c2d372156bc419725ec3ecef41a2d0c45db5aa28':
+  '@logux/server@https://codeload.github.com/logux/server/tar.gz/a6c6d43d7f797b05e80f588d9e6edc990be2164b':
     dependencies:
       '@logux/actions': 0.4.0(@logux/core@0.9.0)
       '@logux/core': 0.9.0
       cookie: 0.6.0
       dotenv: 16.4.5
-      fast-glob: 3.3.2
       fastq: 1.17.1
       nanoevents: 9.0.0
       nanoid: 5.0.7
       picocolors: 1.1.0
-      pino: 9.3.2
-      pino-abstract-transport: 1.2.0
+      pino: 9.4.0
+      pino-abstract-transport: 2.0.0
       semver: 7.6.3
       strip-ansi: 7.1.0
+      tinyglobby: 0.2.6
       url-pattern: 1.0.3
       ws: 8.18.0
     transitivePeerDependencies:
@@ -7449,7 +7434,7 @@ snapshots:
     dependencies:
       storybook: 8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2))
 
-  '@storybook/svelte-vite@8.2.9(@babel/core@7.25.2)(@sveltejs/vite-plugin-svelte@4.0.0-next.7(svelte@5.0.0-next.224)(vite@5.4.3(@types/node@22.5.4)))(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.45)(yaml@2.5.1))(postcss@8.4.45)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.0.0-next.224)(typescript@5.5.4)(vite@5.4.3(@types/node@22.5.4))(webpack-sources@3.2.3)':
+  '@storybook/svelte-vite@8.2.9(@babel/core@7.25.2)(@sveltejs/vite-plugin-svelte@4.0.0-next.7(svelte@5.0.0-next.224)(vite@5.4.3(@types/node@22.5.4)))(postcss-load-config@3.1.4(postcss@8.4.45))(postcss@8.4.45)(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.0.0-next.224)(typescript@5.5.4)(vite@5.4.3(@types/node@22.5.4))(webpack-sources@3.2.3)':
     dependencies:
       '@storybook/builder-vite': 8.2.9(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(typescript@5.5.4)(vite@5.4.3(@types/node@22.5.4))(webpack-sources@3.2.3)
       '@storybook/svelte': 8.2.9(storybook@8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2)))(svelte@5.0.0-next.224)
@@ -7457,7 +7442,7 @@ snapshots:
       magic-string: 0.30.11
       storybook: 8.2.9(@babel/preset-env@7.25.4(@babel/core@7.25.2))
       svelte: 5.0.0-next.224
-      svelte-preprocess: 5.1.4(@babel/core@7.25.2)(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.45)(yaml@2.5.1))(postcss@8.4.45)(svelte@5.0.0-next.224)(typescript@5.5.4)
+      svelte-preprocess: 5.1.4(@babel/core@7.25.2)(postcss-load-config@3.1.4(postcss@8.4.45))(postcss@8.4.45)(svelte@5.0.0-next.224)(typescript@5.5.4)
       sveltedoc-parser: 4.2.1
       ts-dedent: 2.2.0
       vite: 5.4.3(@types/node@22.5.4)
@@ -10519,9 +10504,13 @@ snapshots:
       readable-stream: 4.5.2
       split2: 4.2.0
 
+  pino-abstract-transport@2.0.0:
+    dependencies:
+      split2: 4.2.0
+
   pino-std-serializers@7.0.0: {}
 
-  pino@9.3.2:
+  pino@9.4.0:
     dependencies:
       atomic-sleep: 1.0.0
       fast-redact: 3.5.0
@@ -10566,15 +10555,6 @@ snapshots:
       yaml: 1.10.2
     optionalDependencies:
       postcss: 8.4.45
-
-  postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.45)(yaml@2.5.1):
-    dependencies:
-      lilconfig: 3.1.2
-    optionalDependencies:
-      jiti: 1.21.6
-      postcss: 8.4.45
-      yaml: 2.5.1
-    optional: true
 
   postcss-nesting@13.0.0(postcss@8.4.45):
     dependencies:
@@ -11401,7 +11381,7 @@ snapshots:
     optionalDependencies:
       svelte: 5.0.0-next.224
 
-  svelte-preprocess@5.1.4(@babel/core@7.25.2)(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.45)(yaml@2.5.1))(postcss@8.4.45)(svelte@5.0.0-next.224)(typescript@5.5.4):
+  svelte-preprocess@5.1.4(@babel/core@7.25.2)(postcss-load-config@3.1.4(postcss@8.4.45))(postcss@8.4.45)(svelte@5.0.0-next.224)(typescript@5.5.4):
     dependencies:
       '@types/pug': 2.0.10
       detect-indent: 6.1.0
@@ -11412,16 +11392,16 @@ snapshots:
     optionalDependencies:
       '@babel/core': 7.25.2
       postcss: 8.4.45
-      postcss-load-config: 6.0.1(jiti@1.21.6)(postcss@8.4.45)(yaml@2.5.1)
+      postcss-load-config: 3.1.4(postcss@8.4.45)
       typescript: 5.5.4
 
-  svelte-preprocess@6.0.2(@babel/core@7.25.2)(postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.45)(yaml@2.5.1))(postcss@8.4.45)(svelte@5.0.0-next.224)(typescript@5.5.4):
+  svelte-preprocess@6.0.2(@babel/core@7.25.2)(postcss-load-config@3.1.4(postcss@8.4.45))(postcss@8.4.45)(svelte@5.0.0-next.224)(typescript@5.5.4):
     dependencies:
       svelte: 5.0.0-next.224
     optionalDependencies:
       '@babel/core': 7.25.2
       postcss: 8.4.45
-      postcss-load-config: 6.0.1(jiti@1.21.6)(postcss@8.4.45)(yaml@2.5.1)
+      postcss-load-config: 3.1.4(postcss@8.4.45)
       typescript: 5.5.4
 
   svelte@5.0.0-next.224:

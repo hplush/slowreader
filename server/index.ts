@@ -4,6 +4,7 @@ import { SUBPROTOCOL } from '@slowreader/api'
 const server = new Server(
   Server.loadOptions(process, {
     fileUrl: import.meta.url,
+    port: process.env.PORT,
     subprotocol: SUBPROTOCOL,
     supports: '1.x'
   })
