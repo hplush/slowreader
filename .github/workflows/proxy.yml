@@ -91,4 +91,4 @@ jobs:
           folder: ./proxy/
           registry: staging/proxy
           service: staging-proxy
-          envFile: ./proxy/staging.yml
+          env: STAGING=1,PROXY_ORIGIN="^https:\\/\\/dev\\.slowreader\\.app\\/"
