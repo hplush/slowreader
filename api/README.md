@@ -17,6 +17,7 @@ We define [Logux actions](https://logux.org/guide/concepts/action/) types and ac
 ## HTTP API
 
 For every [HTTP endpoint](./http/) we define here:
+
 - URL params and HTTP body types.
 - `fetch()` wrapper to use in client checking all types.
 - Endpoint definition to use in [server helper](../server/lib/http.ts).

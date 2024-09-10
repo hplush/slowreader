@@ -40,6 +40,8 @@ But for pull request preview and self-hosted you can use this server for everyth
 - To server web client assets user need to set `ASSETS_DIR` to `web/dist/` folder and `ROUTES_FILE` to `web/routes.regexp` file.
 - `DATABASE_URL` should be set to pglite’s folder.
 
+Example:
+
 ```sh
 PROXY_ORIGIN=^http:\\/\\/localhost:5173$ ASSETS_DIR=../web/dist/ ROUTES_FILE=../web/routes.regexp DATABASE_URL=file://./db/pgdata pnpm start
 ```

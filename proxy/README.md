@@ -12,7 +12,7 @@ _See the [full architecture guide](../README.md) first._
 
 - `cd proxy && pnpm test`: run all proxy tests.
 - `cd proxy && pnpm start`: run proxy server.
-- `cd proxy && pnpm build`: prepare single JS file of the proxy server.
+- `cd proxy && pnpm build`: prepare deploy files with production dependencies only.
 - `cd proxy && pnpm production`: start production build of the proxy server.
 
 ## Abuse Protection
@@ -29,6 +29,8 @@ To run proxy server you must define environment variables:
 
 - `PORT` with HTTP post to listen. It is Google Cloud Run convention.
 - `PROXY_ORIGIN` with RegExp for `Origin` header.
+
+Example:
 
 ```sh
 PORT=8080 PROXY_ORIGIN=^http:\\/\\/localhost:5173$ pnpm start
