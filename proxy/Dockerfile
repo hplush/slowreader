@@ -13,8 +13,8 @@ COPY --from=builder /usr/local/bin/node /usr/bin/node
 COPY --from=builder /usr/lib64/libstdc++.so.6 /usr/lib64/libstdc++.so.6
 
 ENV NODE_ENV production
-WORKDIR /var/www
-COPY ./dist/ /var/www/
+WORKDIR /var/apps
+COPY ./dist/ /var/app/
 
 USER 1000:1000
 
