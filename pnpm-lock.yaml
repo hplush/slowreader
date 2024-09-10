@@ -114,7 +114,7 @@ importers:
         specifier: 0.10.2
         version: 0.10.2(nanostores@0.11.3)
       '@slowreader/api':
-        specifier: link:../api
+        specifier: workspace:*
         version: link:../api
       dompurify:
         specifier: 3.1.6
@@ -163,7 +163,7 @@ importers:
   loader-tests:
     devDependencies:
       '@slowreader/core':
-        specifier: link:../core
+        specifier: workspace:*
         version: link:../core
       jsdom:
         specifier: 25.0.0
@@ -193,10 +193,10 @@ importers:
         specifier: github:logux/server#next
         version: https://codeload.github.com/logux/server/tar.gz/a6c6d43d7f797b05e80f588d9e6edc990be2164b
       '@slowreader/api':
-        specifier: link:../api
+        specifier: workspace:*
         version: link:../api
       '@slowreader/proxy':
-        specifier: link:../proxy
+        specifier: workspace:*
         version: link:../proxy
       argon2:
         specifier: ^0.41.1
@@ -257,7 +257,7 @@ importers:
         specifier: 15.2.3
         version: 15.2.3(rollup@4.21.2)
       '@slowreader/core':
-        specifier: link:../core
+        specifier: workspace:*
         version: link:../core
       '@sveltejs/vite-plugin-svelte':
         specifier: 4.0.0-next.7

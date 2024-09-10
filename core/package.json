@@ -20,7 +20,7 @@
     "@logux/core": "0.9.0",
     "@nanostores/i18n": "0.12.2",
     "@nanostores/persistent": "0.10.2",
-    "@slowreader/api": "link:../api",
+    "@slowreader/api": "workspace:*",
     "dompurify": "3.1.6",
     "just-debounce-it": "3.2.0",
     "nanoid": "5.0.7",

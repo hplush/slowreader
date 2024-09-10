@@ -16,8 +16,8 @@
   "dependencies": {
     "@electric-sql/pglite": "^0.2.5",
     "@logux/server": "github:logux/server#next",
-    "@slowreader/api": "link:../api",
-    "@slowreader/proxy": "link:../proxy",
+    "@slowreader/api": "workspace:*",
+    "@slowreader/proxy": "workspace:*",
     "argon2": "^0.41.1",
     "cookie": "^0.6.0",
     "drizzle-orm": "^0.33.0",

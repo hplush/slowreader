@@ -12,10 +12,7 @@
     "module": "NodeNext",
     "strict": true,
     "noEmit": true,
-    "types": ["chrome"],
-    "paths": {
-      "@slowreader/core": ["./core"]
-    }
+    "types": ["chrome"]
   },
   "include": ["**/*.ts", "web/**/*.svelte", "web/.storybook/*.ts"]
 }

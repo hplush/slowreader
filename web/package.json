@@ -32,7 +32,7 @@
     "@nanostores/persistent": "0.10.2",
     "@nanostores/router": "0.15.1",
     "@rollup/plugin-node-resolve": "15.2.3",
-    "@slowreader/core": "link:../core",
+    "@slowreader/core": "workspace:*",
     "@sveltejs/vite-plugin-svelte": "4.0.0-next.7",
     "autoprefixer": "10.4.20",
     "keyux": "0.8.2",

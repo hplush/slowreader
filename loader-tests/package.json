@@ -14,7 +14,7 @@
     "test:loaders": "../scripts/tsnode test-loaders.ts"
   },
   "devDependencies": {
-    "@slowreader/core": "link:../core",
+    "@slowreader/core": "workspace:*",
     "jsdom": "25.0.0",
     "nanostores": "0.11.3",
     "yaml": "2.5.1"
