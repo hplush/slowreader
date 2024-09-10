@@ -44,7 +44,7 @@ test('checks environment', () => {
 test('sets proxy origin', () => {
   equal(
     getConfig({ NODE_ENV: 'development' }).proxyOrigin,
-    '^http:\\/\\/localhost:5173'
+    '^http:\\/\\/localhost:5173$'
   )
   equal(
     getConfig({ DATABASE_URL, NODE_ENV: 'production' }).proxyOrigin,
