@@ -11,8 +11,7 @@
     "start": "../scripts/tsnode --watch index.ts",
     "migration": "drizzle-kit generate && prettier --write ./db/**/*.json",
     "test:coverage": "c8 bnt",
-    "clean:coverage": "rm -rf coverage",
-    "prepare:bcrypt": "cd node_modules/bcrypt && pnpm run install"
+    "clean:coverage": "rm -rf coverage"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.2.5",
