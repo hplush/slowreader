@@ -46,7 +46,7 @@ after(async () => {
 })
 
 test('uses proxy', async () => {
-  process.env.PROXY_ORIGIN = '^http:\\/\\/test.app'
+  process.env.PROXY_ORIGIN = '^http:\\/\\/test.app$'
   server = new TestServer()
   proxyModule(server, {
     allowLocalhost: true,

@@ -54,9 +54,9 @@ test('sets proxy origin', () => {
     getConfig({
       DATABASE_URL,
       NODE_ENV: 'production',
-      PROXY_ORIGIN: '^http:\\/\\/slowreader.app'
+      PROXY_ORIGIN: '^http:\\/\\/slowreader.app$'
     }).proxyOrigin,
-    '^http:\\/\\/slowreader.app'
+    '^http:\\/\\/slowreader.app$'
   )
 })
 
@@ -66,14 +66,14 @@ test('passes keys', () => {
       ASSETS_DIR: './dist/',
       DATABASE_URL,
       NODE_ENV: 'production',
-      PROXY_ORIGIN: '^http:\\/\\/slowreader.app',
+      PROXY_ORIGIN: '^http:\\/\\/slowreader.app$',
       ROUTES_FILE: './routes.regexp'
     }),
     {
       assets: './dist/',
       db: DATABASE_URL,
       env: 'production',
-      proxyOrigin: '^http:\\/\\/slowreader.app',
+      proxyOrigin: '^http:\\/\\/slowreader.app$',
       routes: './routes.regexp',
       staging: false
     }
