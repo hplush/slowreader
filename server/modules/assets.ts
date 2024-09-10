@@ -72,7 +72,7 @@ function send(res: ServerResponse, asset: Asset): void {
 
 export default async (
   server: BaseServer,
-  { assets, routes } = config
+  { assets, assetsDir, routes } = config
 ): Promise<void> => {
   if (!assets) return
   server.logger.info('Assets serving is enabled')
@@ -82,7 +82,7 @@ export default async (
 
   let CACHE: Record<string, Asset> = {}
 
-  let html = await readFile(join(assets, 'index.html'))
+  let html = await readFile(join(assetsDir, 'index.html'))
   let appHtml: Asset = {
     contentType: 'text/html',
     data: html,
@@ -99,7 +99,7 @@ export default async (
     let pathname = url.pathname.replace(/\/$/, '')
     let safe = normalize(url.pathname).replace(/^(\.\.[/\\])+/, '')
     let cacheKey = safe
-    let path = join(assets, safe)
+    let path = join(assetsDir, safe)
 
     if (routesRegexp.test(pathname)) {
       send(res, appHtml)

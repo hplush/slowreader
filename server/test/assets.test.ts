@@ -40,32 +40,30 @@ afterEach(async () => {
 })
 
 test('serves static pages', async () => {
-  let assets = join(tmpdir(), nanoid())
-  await mkdir(assets)
+  let assetsDir = join(tmpdir(), nanoid())
+  await mkdir(assetsDir)
   await writeFile(
-    join(assets, 'index.html'),
+    join(assetsDir, 'index.html'),
     '<html><style>*{}</style><script></script>App</html>'
   )
-  await writeFile(join(assets, 'favicon.ico'), 'A')
-  await mkdir(join(assets, 'ui'))
-  await writeFile(join(assets, 'ui', 'index.html'), '<html>Storybook</html>')
-  await writeFile(join(assets, 'data'), 'D')
-  await mkdir(join(assets, 'assets'))
-  await writeFile(join(assets, 'assets', 'app-CiUGZyvO.css'), '*{}')
-  toDelete.push(assets)
-  process.env.ASSETS_DIR = assets
+  await writeFile(join(assetsDir, 'favicon.ico'), 'A')
+  await mkdir(join(assetsDir, 'ui'))
+  await writeFile(join(assetsDir, 'ui', 'index.html'), '<html>Storybook</html>')
+  await writeFile(join(assetsDir, 'data'), 'D')
+  await mkdir(join(assetsDir, 'assets'))
+  await writeFile(join(assetsDir, 'assets', 'app-CiUGZyvO.css'), '*{}')
+  toDelete.push(assetsDir)
 
   let hidden = `${nanoid()}.txt`
-  await writeFile(join(assets, '..', hidden), 'H')
-  toDelete.push(join(assets, '..', hidden))
+  await writeFile(join(assetsDir, '..', hidden), 'H')
+  toDelete.push(join(assetsDir, '..', hidden))
 
   let routes = join(tmpdir(), nanoid())
   await writeFile(routes, '^\\/welcome$|^\\/feeds(?:\\/([^/]+))?$')
   toDelete.push(routes)
-  process.env.ROUTES_FILE = routes
 
   server = new TestServer()
-  await assetsModule(server, { ...config, assets, routes })
+  await assetsModule(server, { ...config, assets: true, assetsDir, routes })
 
   let index1 = await server.fetch('/')
   checkHeaders(index1, {
@@ -130,7 +128,8 @@ test('ignores on missed environment variable', async () => {
   server = new TestServer()
   await assetsModule(server, {
     ...config,
-    assets: undefined,
+    assets: false,
+    assetsDir: undefined,
     routes: undefined
   })
 

@@ -24,11 +24,13 @@ test('throws on missed DATABASE_URL in production', () => {
 
 test('checks that assets is together with routes', () => {
   throws(() => {
-    getConfig({ ASSETS_DIR: './dist/' })
+    getConfig({ ASSETS: '1', ASSETS_DIR: './dist/' })
   }, /ASSETS_DIR and ROUTES_FILE/)
   throws(() => {
-    getConfig({ ROUTES_FILE: './routes.regexp' })
+    getConfig({ ASSETS: '1', ROUTES_FILE: './routes.regexp' })
   }, /ASSETS_DIR and ROUTES_FILE/)
+  equal(getConfig({ ASSETS_DIR: './dist/' }).assets, false)
+  equal(getConfig({ ASSETS_DIR: './dist/' }).assetsDir, undefined)
 })
 
 test('checks environment', () => {
@@ -63,6 +65,7 @@ test('sets proxy origin', () => {
 test('passes keys', () => {
   deepStrictEqual(
     getConfig({
+      ASSETS: '1',
       ASSETS_DIR: './dist/',
       DATABASE_URL,
       NODE_ENV: 'production',
@@ -70,7 +73,8 @@ test('passes keys', () => {
       ROUTES_FILE: './routes.regexp'
     }),
     {
-      assets: './dist/',
+      assets: true,
+      assetsDir: './dist/',
       db: DATABASE_URL,
       env: 'production',
       proxyOrigin: '^http:\\/\\/slowreader.app$',

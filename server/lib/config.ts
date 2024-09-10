@@ -1,6 +1,6 @@
 type AssetsPaths =
-  | { assets: string; routes: string }
-  | { assets: undefined; routes: undefined }
+  | { assets: false; assetsDir: undefined; routes: undefined }
+  | { assets: true; assetsDir: string; routes: string }
 
 export type Config = {
   db: string
@@ -20,12 +20,18 @@ function getDefaultDatabase(env: Config['env']): string {
 }
 
 function getPaths(from: Record<string, string | undefined>): AssetsPaths {
-  if (from.ASSETS_DIR && from.ROUTES_FILE) {
-    return { assets: from.ASSETS_DIR, routes: from.ROUTES_FILE }
-  } else if (!from.ASSETS_DIR && !from.ROUTES_FILE) {
-    return { assets: undefined, routes: undefined }
+  if (from.ASSETS) {
+    if (from.ASSETS_DIR && from.ROUTES_FILE) {
+      return {
+        assets: true,
+        assetsDir: from.ASSETS_DIR,
+        routes: from.ROUTES_FILE
+      }
+    } else {
+      throw new Error('ASSETS, ASSETS_DIR and ROUTES_FILE must be set together')
+    }
   } else {
-    throw new Error('ASSETS_DIR and ROUTES_FILE must be set together')
+    return { assets: false, assetsDir: undefined, routes: undefined }
   }
 }
 
