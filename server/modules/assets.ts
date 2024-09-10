@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises'
 import type { ServerResponse } from 'node:http'
 import { extname, join, normalize } from 'node:path'
 
-import { config } from '../config.ts'
+import { config } from '../lib/config.ts'
 
 interface Asset {
   contentType: string

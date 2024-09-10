@@ -11,7 +11,7 @@ import { deepStrictEqual, equal, notEqual, ok } from 'node:assert'
 import { afterEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import { db, sessions } from '../db.ts'
+import { db, sessions } from '../db/index.ts'
 import authModule from '../modules/auth.ts'
 import passwordModule from '../modules/passwords.ts'
 import { cleanAllTables, throws } from './utils.ts'

@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, test } from 'node:test'
 
-import { config } from '../config.ts'
+import { config } from '../lib/config.ts'
 import assetsModule from '../modules/assets.ts'
 
 let toDelete: string[] = []

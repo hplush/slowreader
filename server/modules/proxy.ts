@@ -5,7 +5,7 @@ import {
   type ProxyConfig
 } from '@slowreader/proxy'
 
-import { config } from '../config.ts'
+import { config } from '../lib/config.ts'
 
 export default (server: BaseServer, opts: Partial<ProxyConfig> = {}): void => {
   let allowsFrom = config.proxyOrigin ?? opts.allowsFrom

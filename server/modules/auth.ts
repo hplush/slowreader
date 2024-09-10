@@ -11,8 +11,8 @@ import { and, eq, sql } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 import type { ServerResponse } from 'node:http'
 
-import { db, sessions, users } from '../db.ts'
-import { jsonApi } from '../http.ts'
+import { db, sessions, users } from '../db/index.ts'
+import { jsonApi } from '../lib/http.ts'
 
 async function setNewSession(
   res: ServerResponse,

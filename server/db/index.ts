@@ -8,12 +8,12 @@ import { migrate as prodMigrate } from 'drizzle-orm/postgres-js/migrator'
 import { join } from 'node:path'
 import postgres from 'postgres'
 
-import { config } from './config.ts'
-import * as schema from './db/schema.ts'
-export * from './db/schema.ts'
+import { config } from '../lib/config.ts'
+import * as schema from './schema.ts'
+export * from './schema.ts'
 
 const MIGRATE_CONFIG: MigrationConfig = {
-  migrationsFolder: join(import.meta.dirname, 'db', 'migrations')
+  migrationsFolder: join(import.meta.dirname, 'migrations')
 }
 
 let drizzle: PgDatabase<PgQueryResultHKT, typeof schema>
@@ -22,7 +22,7 @@ if (config.db.startsWith('memory:') || config.db.startsWith('file:')) {
   await devMigrate(drizzlePglite, MIGRATE_CONFIG)
   drizzle = drizzlePglite
 } else {
-  /* c8 ignore next 4 */
+  /* c8 ignore next 5 */
   drizzle = prodDrizzle(postgres(config.db), { schema })
   let migrateConnection = postgres(config.db, { max: 1 })
   await prodMigrate(prodDrizzle(migrateConnection), MIGRATE_CONFIG)

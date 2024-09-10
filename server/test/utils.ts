@@ -1,6 +1,6 @@
 import { equal } from 'node:assert'
 
-import { db } from '../db.ts'
+import { db } from '../db/index.ts'
 import * as tables from '../db/schema.ts'
 
 export async function cleanAllTables(): Promise<void> {

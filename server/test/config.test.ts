@@ -1,7 +1,7 @@
 import { deepStrictEqual, equal, throws } from 'node:assert'
 import { test } from 'node:test'
 
-import { config, getConfig } from '../config.ts'
+import { config, getConfig } from '../lib/config.ts'
 
 const DATABASE_URL = 'postgresql://user:pass@localhost:5432/db'
 
