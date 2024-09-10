@@ -1,4 +1,4 @@
-import { deepStrictEqual, equal, throws } from 'node:assert'
+import { deepStrictEqual, equal, match, throws } from 'node:assert'
 import { test } from 'node:test'
 
 import { config, getConfig } from '../lib/config.ts'
@@ -33,10 +33,7 @@ test('checks environment', () => {
 })
 
 test('sets proxy origin', () => {
-  equal(
-    getConfig({ NODE_ENV: 'development' }).proxyOrigin,
-    '^http:\\/\\/localhost:5173$'
-  )
+  match(getConfig({ NODE_ENV: 'development' }).proxyOrigin!, /localhost/)
   equal(
     getConfig({ DATABASE_URL, NODE_ENV: 'production' }).proxyOrigin,
     undefined

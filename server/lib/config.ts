@@ -23,7 +23,7 @@ export function getConfig(from: Record<string, string | undefined>): Config {
   }
   let proxyOrigin = from.PROXY_ORIGIN
   if (!proxyOrigin && env === 'development') {
-    proxyOrigin = '^http:\\/\\/localhost:5173$'
+    proxyOrigin = '^http:\\/\\/localhost:\\d+$'
   }
   return {
     assets: !!from.ASSETS,
