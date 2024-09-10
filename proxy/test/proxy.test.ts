@@ -191,10 +191,16 @@ test('checks Origin', async () => {
   let response2 = await request(targetUrl, {
     headers: { Origin: 'anothertest.app' }
   })
-  await expectBadRequest(response2, 'Unauthorized Origin')
+  await expectBadRequest(
+    response2,
+    'Unauthorized Origin. Only /^http:\\/\\/test.app/ is allowed.'
+  )
 
   let response3 = await fetch(`${proxyUrl}/${targetUrl}`)
-  await expectBadRequest(response3, 'Unauthorized Origin')
+  await expectBadRequest(
+    response3,
+    'Unauthorized Origin. Only /^http:\\/\\/test.app/ is allowed.'
+  )
 })
 
 test('sends user IP to destination', async () => {

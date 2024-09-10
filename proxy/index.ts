@@ -48,7 +48,9 @@ export function createProxy(
       // We only allow request from our app
       let origin = req.headers.origin
       if (!origin || !allowsFrom.test(origin)) {
-        throw new BadRequestError('Unauthorized Origin')
+        throw new BadRequestError(
+          `Unauthorized Origin. Only ${allowsFrom} is allowed.`
+        )
       }
 
       if (
