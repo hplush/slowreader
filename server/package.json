@@ -13,8 +13,8 @@
     "build": "node --run clean:build && pnpm run /^build:/",
     "production": "node --run build && ./scripts/run-image.sh",
     "build:server": "pnpm --filter server --prod deploy dist",
-    "build:assets": "mkdir -p web/ && cp -r ../web/dist web/ && cp ../web/routes.regexp web/",
-    "test:coverage": "c8 bnt",
+    "build:assets": "mkdir -p web/ && cp -fr ../web/dist web/ && cp ../web/routes.regexp web/",
+    "test:server-coverage": "c8 bnt",
     "clean:coverage": "rm -rf coverage",
     "clean:build": "rm -rf dist/ web/"
   },

@@ -1,0 +1,96 @@
+name: Server
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'server/*'
+      - 'server/**/*'
+      - '!server/*.md'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/server.yml'
+      - '.github/actions/init-node/action.yml'
+      - '.github/actions/deploy/action.yml'
+  pull_request:
+    paths:
+      - 'server/*'
+      - 'server/**/*'
+      - '!server/*.md'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/server.yml'
+      - '.github/actions/init-node/action.yml'
+      - '.github/actions/deploy/action.yml'
+jobs:
+  test:
+    name: Server Test
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Initialize Node.js
+        uses: ./.github/actions/init-node
+      - name: Run tests
+        run: cd server && pnpm test
+      - name: Test Docker build
+        if: github.ref != 'refs/heads/main'
+        run: cd server && node --run build && docker build .
+  build:
+    name: Server Build
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          # We don’t use cache for supply chain security
+      - name: Install dependencies
+        run: pnpm install -F server -F proxy --production --ignore-scripts
+      - name: Build server
+        run: cd server && node --run build:server
+      - name: Upload server build
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-build-${{ github.sha }}
+          path: |
+            server/dist/
+          retention-days: 1
+  staging:
+    name: Server Staging Deploy
+    needs:
+      - test
+      - build
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: staging-server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Download web assets from test step
+        uses: actions/download-artifact@v4
+        with:
+          name: server-build-${{ github.sha }}
+          path: server/dist/
+      - name: Create empty assets
+        run: mkdir server/web
+      - name: Deploy to Google Cloud
+        uses: ./.github/actions/deploy
+        with:
+          projectId: slowreader-421120
+          region: europe-west1
+          folder: ./server/
+          registry: staging/server
+          service: staging-server
+          env: DATABASE_URL=memory://

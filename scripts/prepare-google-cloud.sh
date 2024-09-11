@@ -9,6 +9,7 @@ WORKFLOWS=(
   ".github/actions/deploy/action.yml"
   ".github/workflows/main.yml"
   ".github/workflows/proxy.yml"
+  ".github/workflows/server.yml"
   ".github/workflows/preview-deploy.yml"
 )
 
@@ -84,5 +85,6 @@ echo -e "3. Click on \033[1mManage Custom Domains\033[0m"
 echo -e "4. Click on \033[1mAdd Mapping\033[0m"
 echo -e "5. Add \033[1mdev.slowreader.app\033[0m tostaging-web"
 echo -e "5. Add \033[1mdev-proxy.slowreader.app\033[0m to staging-proxy"
-echo -e "6. Check Cloud Run service internal URL like \033[1*.run.app\033[0m"
-echo -e "7. Set it domain in \033[1m.github/workflows/preview-deploy.yml\033[0m"
+echo -e "6. Add \033[1mdev-server.slowreader.app\033[0m to staging-server"
+echo -e "7. Check Cloud Run service internal URL like \033[1*.run.app\033[0m"
+echo -e "8. Set it domain in \033[1m.github/workflows/preview-deploy.yml\033[0m"
