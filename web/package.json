@@ -42,17 +42,17 @@
     "rollup": "4.21.2",
     "svelte": "5.0.0-next.224",
     "svelte-preprocess": "6.0.2",
-    "vite": "5.4.3"
+    "vite": "5.4.4"
   },
   "devDependencies": {
     "@logux/stylelint-config": "0.20.0",
     "@size-limit/file": "11.1.5",
     "@storybook/addon-svelte-csf": "5.0.0-next.1",
-    "@storybook/addon-themes": "8.2.9",
-    "@storybook/addon-viewport": "8.2.9",
-    "@storybook/svelte": "8.2.9",
-    "@storybook/svelte-vite": "8.2.9",
-    "@storybook/types": "^8.2.9",
+    "@storybook/addon-themes": "8.3.0",
+    "@storybook/addon-viewport": "8.3.0",
+    "@storybook/svelte": "8.3.0",
+    "@storybook/svelte-vite": "8.3.0",
+    "@storybook/types": "^8.3.0",
     "@stylistic/stylelint-config": "2.0.0",
     "better-node-test": "0.7.1",
     "browserslist": "4.23.3",
@@ -60,7 +60,7 @@
     "postcss-nesting": "13.0.0",
     "postcss-selector-parser": "6.1.2",
     "size-limit": "11.1.5",
-    "storybook": "8.2.9",
+    "storybook": "8.3.0",
     "stylelint": "16.9.0",
     "stylelint-use-logical": "2.1.2"
   }
