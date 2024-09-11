@@ -1,4 +1,4 @@
-import { defineAction } from '@logux/actions'
+import { defineAction } from './utils.ts'
 
 export interface SetPasswordAction {
   password: string
