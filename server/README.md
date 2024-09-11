@@ -74,6 +74,7 @@ For deploy we:
 3. Run this image on Google Cloud Run.
 
 We deploy server to:
+
 - `server.slowreader.app` for production.
 - `dev-proxy.slowreader.app` for staging.
 - Temporary Google’s domain for pull request preview.
