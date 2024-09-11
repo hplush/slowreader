@@ -19,10 +19,10 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
-      - name: Download web assets from prepare step
+      - name: Download server from prepare step
         uses: actions/download-artifact@v4
         with:
-          name: preview-assets
+          name: preview-server
           repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.PREVIEW_ARTIFACT_PAT }}
