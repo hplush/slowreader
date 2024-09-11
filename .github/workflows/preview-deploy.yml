@@ -44,10 +44,11 @@ jobs:
         with:
           projectId: slowreader-421120
           region: europe-west1
-          folder: ./web/
+          folder: ./server/
           registry: staging/web
           service: staging-web
           tag: preview-${{ env.PR_NUMBER }}
+          env: ASSETS=1,DATABASE_URL=memory://,PROXY_ORIGIN=^https:\/\/preview-\d+---staging-web-jfj4bxwwxq-ew\.a\.run\.app$
       - name: Update deployment status
         uses: bobheadxi/deployments@v1
         if: always()

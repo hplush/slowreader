@@ -35,6 +35,8 @@ jobs:
         run: cd web && node --run build
         env:
           STAGING: 1
+      - name: Build server
+        run: cd server && node --run build
       - name: Save PR number
         run: echo "${{ github.event.pull_request.number }}" > ./preview-id
       - name: Save web assets for deploy
@@ -43,9 +45,8 @@ jobs:
           retention-days: 1
           name: preview-assets
           path: |
-            web/.dockerignore
-            web/dist/
-            web/nginx.conf
-            web/Dockerfile
-            web/routes.regexp
+            server/dist/
+            server/web/
+            server/Dockerfile
+            server/.dockerignore
             preview-id
