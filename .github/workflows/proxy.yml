@@ -52,11 +52,9 @@ jobs:
         with:
           node-version-file: .node-version
           # We don’t use cache for supply chain security
-      - name: Allow to install only project dependencies
-        run: pnpm config set recursive-install false
       - name: Install dependencies
-        run: cd proxy && pnpm install --production --ignore-scripts
-      - name: Build JS file
+        run: pnpm install -F proxy --production --ignore-scripts
+      - name: Build server
         run: cd proxy && node --run build
       - name: Upload proxy build
         uses: actions/upload-artifact@v4
