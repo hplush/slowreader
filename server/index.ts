@@ -6,7 +6,7 @@ const server = new Server(
     fileUrl: import.meta.url,
     port: process.env.PORT,
     subprotocol: SUBPROTOCOL,
-    supports: '1.x'
+    supports: '0.x'
   })
 )
 
