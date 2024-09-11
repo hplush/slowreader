@@ -30,7 +30,7 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
       - name: Install dependencies
-        run: pnpm install -F ./core/ -F ./web/ --ignore-scripts
+        run: pnpm install --ignore-scripts
       - name: Build assets
         run: cd web && node --run build
         env:
