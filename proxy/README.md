@@ -47,4 +47,4 @@ For deploy we:
 We have 2 proxy servers:
 
 - `proxy.slowreader.app` works only for production clients.
-- `dev-proxy.slowreader.app` works with staging and PR previews.
+- `dev-proxy.slowreader.app` works with staging.

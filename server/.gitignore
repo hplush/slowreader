@@ -1,2 +1,4 @@
 coverage/
 db/pgdata/
+dist/
+web/

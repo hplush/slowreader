@@ -4,11 +4,10 @@ import loguxSvelteConfig from '@logux/eslint-config/svelte'
 export default [
   {
     ignores: [
-      'web/dist/',
+      '*/dist/',
       'web/storybook-static/',
-      'proxy/dist/',
       'web/vite.config.ts.*',
-      'extension/dist/'
+      'server/web/'
     ]
   },
   ...loguxSvelteConfig,

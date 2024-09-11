@@ -11,18 +11,23 @@ and uses end-to-end encryption not to know what users read and like.
 - [`db/`](./db/): database migrations and configs.
 - [`lib/`](./lib/): shared helpers for features.
 - [`test/`](./test/): unit tests for each feature.
+- [`scripts/`](./scripts/): script to test production mode.
 - [`drizzle.config.ts`](./drizzle.config.ts): config for [Drizzle Kit CLI](https://orm.drizzle.team/kit-docs/overview).
+- [`Dockerfile`](./Dockerfile): build image to deploy server.
 
 ## Scripts
 
 - `cd server && pnpm start`: start server in development mode.
 - `cd server && pnpm migration`: generate migration based on DB schema changes.
+- `cd server && pnpm build`: prepare deploy files with production dependencies only.
+- `cd server && pnpm production`: start production build of the server.
 
 ## Environment Variables
 
 - `DATABASE_URL`: PostgreSQL credentials with support of pglite’s `file://` and `memory://` schemas. You must set it when `NODE_ENV=production`.
 - `PROXY_ORIGIN`: enables built-in CORS proxy and specific RegExp to check `Origin` header.
 - `ASSETS`: enables serving web client assets from `../web`.
+- `PORT`: HTTP post to listen (Google Cloud Run convention).
 
 ## End-to-End Types
 
@@ -59,3 +64,16 @@ To change database schema:
 1. Change [`./db/schema.ts`](./db/schema.ts).
 2. Run `cd server && pnpm migration` to generate new migration.
 3. Restart server. It will apply all new migrations automatically.
+
+## Deploy
+
+For deploy we:
+
+1. Use `pnpm deploy` to create `dist/` only with production dependencies.
+2. Build Docker image with Node.js.
+3. Run this image on Google Cloud Run.
+
+We deploy server to:
+- `server.slowreader.app` for production.
+- `dev-proxy.slowreader.app` for staging.
+- Temporary Google’s domain for pull request preview.

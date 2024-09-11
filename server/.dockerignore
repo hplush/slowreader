@@ -1,0 +1,5 @@
+# Put only dist/ files to Docker image to make deploy faster
+
+*
+!dist/
+!web/

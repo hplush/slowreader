@@ -1,0 +1,9 @@
+# What files need to be copied to dist/ folder to reduce security risks
+
+*
+!*/*.ts
+!*.ts
+!db/**
+db/pgdata
+test/*
+drizzle.config.ts

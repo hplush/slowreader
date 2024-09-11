@@ -10,8 +10,13 @@
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
     "start": "../scripts/tsnode --watch index.ts",
     "migration": "drizzle-kit generate && prettier --write ./db/**/*.json",
+    "build": "node --run clean:build && pnpm run /^build:/",
+    "production": "node --run build && ./scripts/run-image.sh",
+    "build:server": "pnpm --filter server --prod deploy dist",
+    "build:assets": "mkdir -p web/ && cp -r ../web/dist web/ && cp ../web/routes.regexp web/",
     "test:coverage": "c8 bnt",
-    "clean:coverage": "rm -rf coverage"
+    "clean:coverage": "rm -rf coverage",
+    "clean:build": "rm -rf dist/ web/"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.2.5",
@@ -22,7 +27,8 @@
     "cookie": "^0.6.0",
     "drizzle-orm": "^0.33.0",
     "nanoid": "5.0.7",
-    "postgres": "^3.4.4"
+    "postgres": "^3.4.4",
+    "tsx": "^4.19.0"
   },
   "devDependencies": {
     "@types/cookie": "^0.6.0",
