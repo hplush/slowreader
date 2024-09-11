@@ -4,7 +4,7 @@
 // - Node.js and pnpm versions are the same in all configs
 //   (Dockerfile, package.json, .node-version).
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { globSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { styleText } from 'node:util'
 
@@ -71,14 +71,8 @@ if (packageManager !== pnpmFull) {
 
 checkPackage('package.json', read('package.json'))
 
-let projects = readdirSync(ROOT)
-for (let project of projects) {
-  if (existsSync(join(ROOT, project, 'package.json'))) {
-    let relative = join(project, 'package.json')
-    checkPackage(relative, read(relative))
-  }
-  if (existsSync(join(ROOT, project, 'Dockerfile'))) {
-    let docker = join(project, 'Dockerfile')
-    checkDockerfile(docker, read(docker))
-  }
+let files = globSync(['./*/package.json', '**/Dockerfile'])
+for (let file of files) {
+  if (file.endsWith('package.json')) checkPackage(file, read(file))
+  if (file.endsWith('Dockerfile')) checkDockerfile(file, read(file))
 }
