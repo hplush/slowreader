@@ -1,7 +1,7 @@
 // Script to update Node.js and pnpm everywhere
 
 import { createHash } from 'node:crypto'
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync, globSync } from 'node:fs'
 import { join } from 'node:path'
 import { styleText } from 'node:util'
 
@@ -60,12 +60,7 @@ function read(file: string): string {
 }
 
 function updatePackages(cb: (content: string) => string): void {
-  let files = ['package.json']
-  let projects = readdirSync(ROOT)
-  for (let project of projects) {
-    let path = join(ROOT, project, 'package.json')
-    if (existsSync(path)) files.push(path)
-  }
+  let files = globSync('**/package.json')
   for (let file of files) {
     let content = read(file)
     let updated = cb(content)
@@ -74,12 +69,7 @@ function updatePackages(cb: (content: string) => string): void {
 }
 
 function updateProjectDockerfiles(cb: (content: string) => string): void {
-  let files = []
-  let projects = readdirSync(ROOT)
-  for (let project of projects) {
-    let path = join(ROOT, project, 'Dockerfile')
-    if (existsSync(path)) files.push(path)
-  }
+  let files = globSync(['**/Dockerfile', '.devcontainer/Dockerfile'])
   for (let file of files) {
     let content = read(file)
     let updated = cb(content)
