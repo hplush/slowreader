@@ -14,5 +14,6 @@
     "noEmit": true,
     "types": ["chrome"]
   },
-  "include": ["**/*.ts", "web/**/*.svelte", "web/.storybook/*.ts"]
+  "include": ["**/*.ts", "web/**/*.svelte", "web/.storybook/*.ts"],
+  "exclude": ["*/dist"]
 }
