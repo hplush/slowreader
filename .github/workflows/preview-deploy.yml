@@ -26,6 +26,8 @@ jobs:
           repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.PREVIEW_ARTIFACT_PAT }}
+      - name: Extract archive to restore symlinks
+        run: tar -xf server.tar
       - name: Extract PR number
         run: |
           PR_NUMBER=$(cat ./preview-id)

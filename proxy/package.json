@@ -13,7 +13,7 @@
   "scripts": {
     "start": "../scripts/tsnode --watch server.ts",
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
-    "build": "node --run clean:build && pnpm --filter proxy --prod deploy dist",
+    "build": "node --run clean:build && pnpm -F proxy --prod deploy dist",
     "production": "node --run build && ./scripts/run-image.sh",
     "test:proxy-coverage": "c8 bnt",
     "clean:coverage": "rm -rf coverage/",

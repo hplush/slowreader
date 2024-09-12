@@ -24,4 +24,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pr-diff
-          path: pr_diff/
+          retention-days: 1
+          path: |
+            ./pr_diff/

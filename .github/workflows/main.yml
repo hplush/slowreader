@@ -35,10 +35,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: web-client-assets-${{ github.sha }}
+          retention-days: 1
+          include-hidden-files: true
           path: |
             web/dist/
             web/routes.regexp
-          retention-days: 1
   staging:
     name: Web Staging Deploy
     needs: test

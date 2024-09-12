@@ -25,7 +25,7 @@ jobs:
       - name: Save data for another workflow
         uses: actions/upload-artifact@v4
         with:
-          retention-days: 1
           name: preview-id
+          retention-days: 1
           path: |
             ./preview-id

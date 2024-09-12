@@ -53,16 +53,18 @@ jobs:
           node-version-file: .node-version
           # We don’t use cache for supply chain security
       - name: Install dependencies
-        run: pnpm install -F server -F proxy --production --ignore-scripts
+        run: pnpm install -F server -F proxy -F api --prod --ignore-scripts
       - name: Build server
         run: cd server && node --run build:server
+      - name: Create archive to keep symlinks
+        run: tar -cf server.tar server/dist/
       - name: Upload server build
         uses: actions/upload-artifact@v4
         with:
           name: server-build-${{ github.sha }}
-          path: |
-            server/dist/
           retention-days: 1
+          path: |
+            ./server.tar
   staging:
     name: Server Staging Deploy
     needs:
@@ -82,7 +84,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: server-build-${{ github.sha }}
-          path: server/dist/
+          path: ./
+      - name: Extract archive to restore symlinks
+        run: tar -xf server.tar
       - name: Create empty assets
         run: mkdir server/web
       - name: Deploy to Google Cloud
