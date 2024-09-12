@@ -13,6 +13,8 @@ COPY --from=builder /usr/local/bin/node /usr/bin/node
 COPY --from=builder /usr/lib64/libstdc++.so.6 /usr/lib64/libstdc++.so.6
 
 ENV NODE_ENV production
+ENV LOGUX_HOST 0.0.0.0
+ENV LOGUX_LOGGER json
 WORKDIR /var/app
 COPY ./dist/ /var/app/
 COPY ./web/ /var/web/
