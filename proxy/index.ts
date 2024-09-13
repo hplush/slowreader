@@ -47,6 +47,9 @@ export function createProxy(
 
       // We only allow request from our app
       let origin = req.headers.origin
+      if (!origin && req.headers.referer) {
+        origin = new URL(req.headers.referer).origin
+      }
       if (!origin || !allowsFrom.test(origin)) {
         throw new BadRequestError(
           `Unauthorized Origin. Only ${allowsFrom} is allowed.`
@@ -83,10 +86,16 @@ export function createProxy(
         throw new BadRequestError('Response too large', 413)
       }
 
+      if (req.headers.origin) {
+        res.setHeader('Access-Control-Allow-Headers', '*')
+        res.setHeader(
+          'Access-Control-Allow-Methods',
+          'OPTIONS, POST, GET, PUT, DELETE'
+        )
+        res.setHeader('Access-Control-Allow-Origin', req.headers.origin)
+      }
+
       res.writeHead(targetResponse.status, {
-        'Access-Control-Allow-Headers': '*',
-        'Access-Control-Allow-Methods': 'OPTIONS, POST, GET, PUT, DELETE',
-        'Access-Control-Allow-Origin': req.headers.origin,
         'Content-Type':
           targetResponse.headers.get('content-type') ?? 'text/plain'
       })
