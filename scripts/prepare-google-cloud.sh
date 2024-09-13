@@ -29,6 +29,9 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member="serviceAccount:$ACCOUNT_EMAIL" \
     --role="roles/artifactregistry.admin"
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$ACCOUNT_EMAIL" \
+    --role="roles/secretmanager.secretAccessor"
 
 # Create repository for Docker images
 gcloud services enable artifactregistry.googleapis.com --project=$PROJECT_ID
@@ -91,10 +94,6 @@ gcloud sql databases create staging --instance=staging-db-instance
 # Create database access
 gcloud services enable vpcaccess.googleapis.com --project=$PROJECT_ID
 STAGING_DB_PASSWORD=$(openssl rand -base64 24)
-STAGING_DB_IP=$(gcloud sql instances describe staging-db-instance \
-    --format=json | jq \
-    --raw-output ".ipAddresses[].ipAddress")
-STAGING_DB=postgresql://server:$STAGING_DB_PASSWORD@$STAGING_DB_IP:5432/staging
 gcloud sql users create server \
   --password=$STAGING_DB_PASSWORD \
   --instance=staging-db-instance
@@ -103,8 +102,18 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member="serviceAccount:$NUMBER-compute@developer.gserviceaccount.com" \
   --role="roles/cloudsql.client"
 gcloud compute networks vpc-access connectors create db-connector \
-    --region=$REGION \
-    --range=10.8.0.0/28
+  --region=$REGION \
+  --range=10.8.0.0/28
+
+# Create database secret
+gcloud services enable secretmanager.googleapis.com --project=$PROJECT_ID
+STAGING_DB_IP=$(gcloud sql instances describe staging-db-instance \
+  --format=json | jq \
+  --raw-output ".ipAddresses[].ipAddress")
+STAGING_DB=postgresql://server:$STAGING_DB_PASSWORD@$STAGING_DB_IP:5432/staging
+echo -n $STAGING_DB | gcloud secrets create staging-db-url \
+  --replication-policy=automatic \
+  --data-file=-
 
 # Enable Google Cloud Run
 gcloud services enable run.googleapis.com --project=$PROJECT_ID
@@ -121,10 +130,6 @@ for file in "${WORKFLOWS[@]}"; do
   sed -i "s/region: .*/region: $REGION/g" "$file"
 done
 
-echo ""
-echo -e " 1. Open https://github.com/hplush/slowreader/settings/secrets/actions"
-echo -e " 2. Set \033[1mSTAGING_DATABASE_URL\033[0m secret to $STAGING_DB"
-echo ""
 echo -e "\033[0;33m\033[1mAfter first deploy:\033[0m"
 echo ""
 echo -e "1. Open https://console.cloud.google.com/run"

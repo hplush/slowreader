@@ -94,5 +94,6 @@ jobs:
           folder: ./server/
           registry: staging/server
           service: staging-server
-          flags: --vpc-connector db-connector
-          env: DATABASE_URL=${{ secrets.STAGING_DATABASE_URL }}
+          flags: |
+            --vpc-connector db-connector \
+            --update-secrets=DATABASE_URL=staging-db-url:latest
