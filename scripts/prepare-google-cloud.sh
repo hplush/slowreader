@@ -39,6 +39,10 @@ gcloud artifacts repositories create staging \
     --project=$PROJECT_ID \
     --repository-format=docker \
     --location=$REGION
+gcloud artifacts repositories create preview \
+    --project=$PROJECT_ID \
+    --repository-format=docker \
+    --location=$REGION
 
 # Allow safer access to the service account from GitHub Actions
 gcloud iam workload-identity-pools create "github" \
