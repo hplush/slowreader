@@ -201,6 +201,13 @@ test('checks Origin', async () => {
     response3,
     'Unauthorized Origin. Only /^http:\\/\\/test.app/ is allowed.'
   )
+  let referer = await fetch(`${proxyUrl}/${targetUrl}`, {
+    headers: {
+      Referer: 'http://test.app/page'
+    }
+  })
+  equal(referer.status, 200)
+  equal(referer.headers.get('access-control-allow-origin'), null)
 })
 
 test('sends user IP to destination', async () => {
