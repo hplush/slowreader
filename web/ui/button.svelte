@@ -34,9 +34,7 @@
     </span>
   {:else}
     {#if icon}
-      <div class="button_center">
-        <Icon path={icon} />
-      </div>
+      <div class="button_center"></div>
     {/if}
     <span class="button_size" aria-hidden="true">x</span>
   {/if}
