@@ -2,30 +2,12 @@
 // The developer could focus test by using test.only() and forget to unfocus
 // it before committing the code.
 
-import { lstat, readdir, readFile } from 'node:fs/promises'
+import { globSync } from "node:fs"
+import { readFile } from 'node:fs/promises'
 import { join, relative } from 'node:path'
 import { styleText } from 'node:util'
 
 const ROOT = join(import.meta.dirname, '..')
-
-const IGNORE = new Set(['.git', '.github', 'coverage', 'dist', 'node_modules'])
-
-async function findFiles(
-  dir: string,
-  filter: RegExp,
-  callback: (filename: string) => void
-): Promise<void> {
-  for (let name of await readdir(dir)) {
-    if (IGNORE.has(name)) continue
-    let filename = join(dir, name)
-    let stat = await lstat(filename)
-    if (stat.isDirectory()) {
-      findFiles(filename, filter, callback)
-    } else if (filter.test(name)) {
-      callback(filename)
-    }
-  }
-}
 
 function check(
   all: Buffer,
@@ -48,11 +30,10 @@ async function checkFile(filename: string): Promise<void> {
   check(code, 'test.skip(', filename, 'has skipped test')
 }
 
-if (process.argv.length > 2) {
-  let files = process.argv.slice(2)
-  for (let filename of files) {
-    checkFile(filename)
-  }
-} else {
-  findFiles(ROOT, /\.test\.ts$/, checkFile)
+let files = process.argv.length > 2
+  ? process.argv.slice(2)
+  : globSync('**/*.test.ts')
+
+for (let filename of files) {
+  checkFile(filename)
 }
