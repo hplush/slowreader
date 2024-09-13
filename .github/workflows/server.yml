@@ -95,5 +95,5 @@ jobs:
           registry: staging/server
           service: staging-server
           flags: |
-            --vpc-connector db-connector \
+            --vpc-connector db-connector
             --update-secrets=DATABASE_URL=staging-db-url:latest
