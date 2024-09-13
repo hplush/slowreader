@@ -57,5 +57,16 @@ export default [
     rules: {
       '@typescript-eslint/no-confusing-void-expression': 'off'
     }
+  },
+  {
+    files: ['**/scripts/**.ts'],
+    rules: {
+      'n/no-unsupported-features/node-builtins': [
+        'error',
+        {
+          ignores: ['fs.globSync']
+        }
+      ]
+    }
   }
 ]
