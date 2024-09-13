@@ -39,10 +39,6 @@ gcloud artifacts repositories create staging \
     --project=$PROJECT_ID \
     --repository-format=docker \
     --location=$REGION
-gcloud artifacts repositories create preview \
-    --project=$PROJECT_ID \
-    --repository-format=docker \
-    --location=$REGION
 
 # Allow safer access to the service account from GitHub Actions
 gcloud iam workload-identity-pools create "github" \
@@ -116,6 +112,9 @@ STAGING_DB_IP=$(gcloud sql instances describe staging-db-instance \
   --raw-output ".ipAddresses[].ipAddress")
 STAGING_DB=postgresql://server:$STAGING_DB_PASSWORD@$STAGING_DB_IP:5432/staging
 echo -n $STAGING_DB | gcloud secrets create staging-db-url \
+  --replication-policy=automatic \
+  --data-file=-
+echo -n "memory://" | gcloud secrets create preview-db-url \
   --replication-policy=automatic \
   --data-file=-
 

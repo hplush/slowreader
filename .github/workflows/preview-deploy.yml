@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     concurrency:
-      group: preview-web
+      group: staging-web
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
@@ -47,10 +47,12 @@ jobs:
           projectId: slowreader-421120
           region: europe-west1
           folder: ./server/
-          registry: preview/server
+          registry: staging/server
           service: preview-server
           tag: preview-${{ env.PR_NUMBER }}
-          env: ASSETS=1,DATABASE_URL=memory://,PROXY_ORIGIN=^https:\/\/preview-\d+---staging-server-jfj4bxwwxq-ew\.a\.run\.app$
+          env: ASSETS=1,PROXY_ORIGIN=^https:\/\/preview-\d+---staging-server-jfj4bxwwxq-ew\.a\.run\.app$
+          flags: |
+            --update-secrets=DATABASE_URL=preview-db-url:latest
       - name: Update deployment status
         uses: bobheadxi/deployments@v1
         if: always()
