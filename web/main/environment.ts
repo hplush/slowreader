@@ -20,8 +20,10 @@ if (location.hostname === 'localhost') {
   PROXY_URL = 'http://localhost:31337/proxy/'
 } else if (location.hostname === 'slowreader.app') {
   PROXY_URL = 'https://proxy.slowreader.app/'
-} else {
+} else if (location.hostname === 'dev.slowreader.app') {
   PROXY_URL = 'https://dev-proxy.slowreader.app/'
+} else {
+  PROXY_URL = '/proxy/'
 }
 
 setRequestMethod(async (url, opts = {}) => {
