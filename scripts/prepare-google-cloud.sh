@@ -35,7 +35,7 @@ gcloud services enable artifactregistry.googleapis.com --project=$PROJECT_ID
 gcloud artifacts repositories create staging \
     --project=$PROJECT_ID \
     --repository-format=docker \
-    --location=${REGION}
+    --location=$REGION
 
 # Allow safer access to the service account from GitHub Actions
 gcloud iam workload-identity-pools create "github" \
@@ -61,6 +61,51 @@ gcloud iam service-accounts add-iam-policy-binding "$ACCOUNT_EMAIL" \
   --role="roles/iam.workloadIdentityUser" \
   --member="principalSet://iam.googleapis.com/${WORKLOAD_IDENTITY_POOL_ID}/attribute.repository/hplush/slowreader"
 
+# Create private network for database
+gcloud services enable compute.googleapis.com --project=$PROJECT_ID
+gcloud services enable servicenetworking.googleapis.com --project=$PROJECT_ID
+gcloud compute addresses create google-managed-services-default \
+  --global \
+  --purpose=VPC_PEERING \
+  --prefix-length=20 \
+  --network=projects/$PROJECT_ID/global/networks/default
+gcloud services vpc-peerings connect \
+  --service=servicenetworking.googleapis.com \
+  --ranges=google-managed-services-default \
+  --network=default \
+  --project=$PROJECT_ID
+
+# Create database
+gcloud services enable sqladmin.googleapis.com --project=$PROJECT_ID
+gcloud sql instances create staging-db-instance \
+  --database-version=POSTGRES_16 \
+  --availability-type=zonal \
+  --edition=enterprise \
+  --tier=db-f1-micro \
+  --network=projects/$PROJECT_ID/global/networks/default \
+  --no-assign-ip \
+  --no-backup \
+  --region=$REGION
+gcloud sql databases create staging --instance=staging-db-instance
+
+# Create database access
+gcloud services enable vpcaccess.googleapis.com --project=$PROJECT_ID
+STAGING_DB_PASSWORD=$(openssl rand -base64 24)
+STAGING_DB_IP=$(gcloud sql instances describe staging-db-instance \
+    --format=json | jq \
+    --raw-output ".ipAddresses[].ipAddress")
+STAGING_DB=postgresql://server:$STAGING_DB_PASSWORD@$STAGING_DB_IP:5432/staging
+gcloud sql users create server \
+  --password=$STAGING_DB_PASSWORD \
+  --instance=staging-db-instance
+NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:$NUMBER-compute@developer.gserviceaccount.com" \
+  --role="roles/cloudsql.client"
+gcloud compute networks vpc-access connectors create db-connector \
+    --region=$REGION \
+    --range=10.8.0.0/28
+
 # Enable Google Cloud Run
 gcloud services enable run.googleapis.com --project=$PROJECT_ID
 
@@ -77,6 +122,9 @@ for file in "${WORKFLOWS[@]}"; do
 done
 
 echo ""
+echo -e " 1. Open https://github.com/hplush/slowreader/settings/secrets/actions"
+echo -e " 2. Set \033[1mSTAGING_DATABASE_URL\033[0m secret to $STAGING_DB"
+echo ""
 echo -e "\033[0;33m\033[1mAfter first deploy:\033[0m"
 echo ""
 echo -e "1. Open https://console.cloud.google.com/run"
@@ -84,7 +132,7 @@ echo -e "2. Switch to \033[1m*@hplush.dev\033[0m account"
 echo -e "3. Click on \033[1mManage Custom Domains\033[0m"
 echo -e "4. Click on \033[1mAdd Mapping\033[0m"
 echo -e "5. Add \033[1mdev.slowreader.app\033[0m tostaging-web"
-echo -e "5. Add \033[1mdev-proxy.slowreader.app\033[0m to staging-proxy"
-echo -e "6. Add \033[1mdev-server.slowreader.app\033[0m to staging-server"
-echo -e "7. Check Cloud Run service internal URL like \033[1*.run.app\033[0m"
-echo -e "8. Set it domain in \033[1m.github/workflows/preview-deploy.yml\033[0m"
+echo -e "6. Add \033[1mdev-proxy.slowreader.app\033[0m to staging-proxy"
+echo -e "7. Add \033[1mdev-server.slowreader.app\033[0m to staging-server"
+echo -e "8. Check Cloud Run service internal URL like \033[1*.run.app\033[0m"
+echo -e "9. Set it domain in \033[1m.github/workflows/preview-deploy.yml\033[0m"
