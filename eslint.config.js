@@ -18,7 +18,7 @@ export default [
     }
   },
   {
-    files: ['web/pages/**/*', 'web/ui/**/*', 'web/main/**/*', 'core/test/**/*'],
+    files: ['web/pages/**/*', 'web/ui/**/*', 'web/main/**/*', 'core/test/**/*', 'scripts/*'],
     rules: {
       'n/no-unsupported-features/node-builtins': 'off'
     }

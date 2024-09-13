@@ -1,7 +1,7 @@
 // Script to update Node.js and pnpm everywhere
 
 import { createHash } from 'node:crypto'
-import { readFileSync, writeFileSync, globSync } from 'node:fs'
+import { globSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { styleText } from 'node:util'
 
