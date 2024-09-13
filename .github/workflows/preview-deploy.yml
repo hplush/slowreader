@@ -48,7 +48,7 @@ jobs:
           region: europe-west1
           folder: ./server/
           registry: staging/server
-          service: preview-server
+          service: staging-server
           tag: preview-${{ env.PR_NUMBER }}
           env: ASSETS=1,PROXY_ORIGIN=^https:\/\/preview-\d+---staging-server-jfj4bxwwxq-ew\.a\.run\.app$
           flags: |
