@@ -2,7 +2,7 @@
 // The developer could focus test by using test.only() and forget to unfocus
 // it before committing the code.
 
-import { globSync } from "node:fs"
+import { globSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { join, relative } from 'node:path'
 import { styleText } from 'node:util'
@@ -30,9 +30,8 @@ async function checkFile(filename: string): Promise<void> {
   check(code, 'test.skip(', filename, 'has skipped test')
 }
 
-let files = process.argv.length > 2
-  ? process.argv.slice(2)
-  : globSync('**/*.test.ts')
+let files =
+  process.argv.length > 2 ? process.argv.slice(2) : globSync('**/*.test.ts')
 
 for (let filename of files) {
   checkFile(filename)

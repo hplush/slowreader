@@ -1,7 +1,7 @@
 // Script to check that all core/messages/*.en.ts files have the right name.
 // core/messages/foo.en.ts should exports fooMessages with 'foo' name.
 
-import { globSync } from "node:fs"
+import { globSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { dirname, join, relative } from 'node:path'
 import { styleText } from 'node:util'
@@ -24,9 +24,10 @@ async function checkFile(filename: string): Promise<void> {
   check(code, `i18n('${name}', {`, filename)
 }
 
-let files = process.argv.length > 2
-  ? process.argv.slice(2)
-  : globSync(MESSAGES + '/**/en.ts')
+let files =
+  process.argv.length > 2
+    ? process.argv.slice(2)
+    : globSync(MESSAGES + '/**/en.ts')
 
 for (let filename of files) {
   checkFile(filename)
