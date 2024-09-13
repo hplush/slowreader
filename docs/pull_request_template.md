@@ -1,4 +1,4 @@
-Fixes # (PUT ISSUE NUMBER AFTER #)
+Fixes # <!-- Put issue number # or describe what you’ve changed -->
 
 <!-- Describe what did you change -->
 
