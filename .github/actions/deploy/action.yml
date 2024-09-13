@@ -52,7 +52,7 @@ runs:
           --allow-unauthenticated
           --set-env-vars="${{ inputs.env }}"
           --service-account=github-deploy@${{ inputs.projectId }}.iam.gserviceaccount.com
-          {{ inputs.flags }}
+          ${{ inputs.flags }}
     - name: Move traffic to new revision
       if: ${{ inputs.tag == 'latest' }}
       shell: bash
