@@ -61,9 +61,12 @@ export default [
   {
     files: ['**/scripts/**.ts'],
     rules: {
-      'n/no-unsupported-features/node-builtins': ['error', {
+      'n/no-unsupported-features/node-builtins': [
+        'error',
+        {
           ignores: ['fs.globSync']
-      }]
+        }
+      ]
     }
   }
 ]
