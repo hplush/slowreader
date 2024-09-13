@@ -33,9 +33,6 @@ jobs:
         uses: ./.github/actions/init-node
       - name: Run tests
         run: cd server && pnpm test
-      - name: Test Docker build
-        if: github.ref != 'refs/heads/main'
-        run: cd server && node --run build && docker build .
   build:
     name: Server Build
     if: github.ref == 'refs/heads/main'
