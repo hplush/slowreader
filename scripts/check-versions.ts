@@ -71,8 +71,10 @@ if (packageManager !== pnpmFull) {
 
 checkPackage('package.json', read('package.json'))
 
-let files = globSync(['./*/package.json', '**/Dockerfile'])
-for (let file of files) {
-  if (file.endsWith('package.json')) checkPackage(file, read(file))
-  if (file.endsWith('Dockerfile')) checkDockerfile(file, read(file))
+for (let file of globSync('./*/package.json')) {
+  checkPackage(file, read(file))
+}
+
+for (let file of globSync('**/Dockerfile')) {
+  checkDockerfile(file, read(file))
 }

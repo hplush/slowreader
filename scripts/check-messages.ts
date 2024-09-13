@@ -27,7 +27,7 @@ async function checkFile(filename: string): Promise<void> {
 let files =
   process.argv.length > 2
     ? process.argv.slice(2)
-    : globSync(MESSAGES + '/**/en.ts')
+    : globSync(join(MESSAGES, '/**/en.ts'))
 
 for (let filename of files) {
   checkFile(filename)

@@ -18,7 +18,7 @@ export default [
     }
   },
   {
-    files: ['web/pages/**/*', 'web/ui/**/*', 'web/main/**/*', 'core/test/**/*', 'scripts/*'],
+    files: ['web/pages/**/*', 'web/ui/**/*', 'web/main/**/*', 'core/test/**/*'],
     rules: {
       'n/no-unsupported-features/node-builtins': 'off'
     }
@@ -56,6 +56,14 @@ export default [
     files: ['web/**/*.svelte'],
     rules: {
       '@typescript-eslint/no-confusing-void-expression': 'off'
+    }
+  },
+  {
+    files: ['**/scripts/**.ts'],
+    rules: {
+      'n/no-unsupported-features/node-builtins': ['error', {
+          ignores: ['fs.globSync']
+      }]
     }
   }
 ]
