@@ -5,6 +5,7 @@
   "rules": {
     "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"],
     "alpha-value-notation": "percentage",
+    "@stylistic/declaration-colon-newline-after": null,
     "@stylistic/string-quotes": "single",
     "csstools/use-logical": [
       "always",
