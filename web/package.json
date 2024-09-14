@@ -39,9 +39,9 @@
     "nanoid": "5.0.7",
     "nanostores": "0.11.3",
     "postcss": "8.4.47",
+    "postcss-load-config": "^6.0.1",
     "rollup": "4.21.3",
     "svelte": "5.0.0-next.224",
-    "svelte-preprocess": "6.0.2",
     "vite": "5.4.5"
   },
   "devDependencies": {
