@@ -40,7 +40,7 @@
 
   let categories = getCategories()
 
-  let categoryOptions: [string, string][]
+  let categoryOptions: [string, string][] = $state([])
   categories.subscribe(value => {
     let options = [['general', $common.generalCategory]] as [string, string][]
     if (!value.isLoading) {
