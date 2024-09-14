@@ -22,15 +22,8 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4.1.7
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4.0.0
-      - name: Install Node.js
-        uses: actions/setup-node@v4.0.3
-        with:
-          node-version-file: .node-version
-          cache: pnpm
-      - name: Install dependencies
-        run: pnpm install --ignore-scripts
+      - name: Initialize Node.js
+        uses: ./.github/actions/init-node
       - name: Build assets
         run: cd web && node --run build
         env:
