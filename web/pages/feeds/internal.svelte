@@ -94,7 +94,9 @@
 </form>
 
 <style>
-  .feeds-internal_submit {
-    margin-top: 20px;
+  :global {
+    .feeds-internal_submit {
+      margin-top: 20px;
+    }
   }
 </style>

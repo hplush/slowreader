@@ -219,13 +219,15 @@
 {/if}
 
 <style>
-  .feeds-edit_filter {
-    display: flex;
-    gap: 4px;
-    align-items: baseline;
-  }
+  :global {
+    .feeds-edit_filter {
+      display: flex;
+      gap: 4px;
+      align-items: baseline;
+    }
 
-  .feeds-edit_add-filter {
-    margin-top: var(--padding-l);
+    .feeds-edit_add-filter {
+      margin-top: var(--padding-l);
+    }
   }
 </style>

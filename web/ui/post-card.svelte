@@ -59,26 +59,28 @@
 </Card>
 
 <style>
-  .post-card.is-slow-theme {
-    font-weight: bold;
-  }
+  :global {
+    .post-card.is-slow-theme {
+      font-weight: bold;
+    }
 
-  .post-card.is-deleted {
-    opacity: 80%;
-  }
+    .post-card.is-deleted {
+      opacity: 80%;
+    }
 
-  .post-card_title {
-    margin-bottom: 0.5em;
-    font: var(--card-title-font);
-    text-wrap: pretty;
-  }
+    .post-card_title {
+      margin-bottom: 0.5em;
+      font: var(--card-title-font);
+      text-wrap: pretty;
+    }
 
-  .post-card_title a {
-    color: currentcolor;
-    text-decoration: none;
+    .post-card_title a {
+      color: currentcolor;
+      text-decoration: none;
 
-    &:hover {
-      text-decoration: underline;
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 </style>

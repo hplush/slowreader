@@ -105,20 +105,22 @@
 </TwoStepsPage>
 
 <style>
-  .feeds-categories_category:not(:first-child) {
-    padding-top: var(--padding-xl);
-  }
+  :global {
+    .feeds-categories_category:not(:first-child) {
+      padding-top: var(--padding-xl);
+    }
 
-  .feeds-categories_title {
-    flex-grow: 1;
-    padding-inline-start: var(--padding-l);
-    padding-bottom: var(--padding-l);
-    font: var(--page-title-font);
-  }
+    .feeds-categories_title {
+      flex-grow: 1;
+      padding-inline-start: var(--padding-l);
+      padding-bottom: var(--padding-l);
+      font: var(--page-title-font);
+    }
 
-  .feeds-categories_row {
-    display: flex;
-    gap: var(--padding-m);
-    align-items: baseline;
+    .feeds-categories_row {
+      display: flex;
+      gap: var(--padding-m);
+      align-items: baseline;
+    }
   }
 </style>

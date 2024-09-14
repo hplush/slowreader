@@ -34,7 +34,9 @@
 {/if}
 
 <style>
-  .feeds-posts_post {
-    margin-top: var(--padding-l);
+  :global {
+    .feeds-posts_post {
+      margin-top: var(--padding-l);
+    }
   }
 </style>

@@ -53,67 +53,70 @@
 </div>
 
 <style>
-  .select-field {
-    display: flex;
-    gap: var(--padding-m);
-    align-items: center;
-    justify-content: space-between;
-    margin-top: var(--padding-l);
+  :global {
+    .select-field {
+      display: flex;
+      gap: var(--padding-m);
+      align-items: center;
+      justify-content: space-between;
+      margin-top: var(--padding-l);
 
-    &:first-child {
-      margin-top: 0;
-    }
-  }
-
-  .select-field_fake {
-    position: relative;
-    box-sizing: border-box;
-    display: flex;
-    flex-shrink: 1;
-    gap: var(--padding-m);
-    align-items: center;
-    padding: var(--padding-m) var(--padding-m) var(--padding-m) var(--padding-l);
-    overflow: hidden;
-    font: var(--control-font);
-    background: var(--card-color);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-
-    &:has(.select-field_select:hover),
-    &:has(.select-field_select:focus-visible),
-    &:has(.select-field_select:active) {
-      background: var(--hover-color);
+      &:first-child {
+        margin-top: 0;
+      }
     }
 
-    &:has(.select-field_select:focus-visible) {
-      outline: 3px solid var(--focus-color);
-      outline-offset: 3px;
+    .select-field_fake {
+      position: relative;
+      box-sizing: border-box;
+      display: flex;
+      flex-shrink: 1;
+      gap: var(--padding-m);
+      align-items: center;
+      padding: var(--padding-m) var(--padding-m) var(--padding-m)
+        var(--padding-l);
+      overflow: hidden;
+      font: var(--control-font);
+      background: var(--card-color);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+
+      &:has(.select-field_select:hover),
+      &:has(.select-field_select:focus-visible),
+      &:has(.select-field_select:active) {
+        background: var(--hover-color);
+      }
+
+      &:has(.select-field_select:focus-visible) {
+        outline: 3px solid var(--focus-color);
+        outline-offset: 3px;
+      }
+
+      &:has(.select-field_select:active) {
+        padding-top: calc(var(--padding-m) + 1px);
+        padding-bottom: calc(var(--padding-m) - 1px);
+        box-shadow: var(--flat-active-shadow);
+      }
     }
 
-    &:has(.select-field_select:active) {
-      padding-top: calc(var(--padding-m) + 1px);
-      padding-bottom: calc(var(--padding-m) - 1px);
-      box-shadow: var(--flat-active-shadow);
+    .select-field_overflow {
+      flex-shrink: 1;
+      overflow: hidden;
     }
-  }
 
-  .select-field_overflow {
-    flex-shrink: 1;
-    overflow: hidden;
-  }
+    .select-field_text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
-  .select-field_text {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .select-field_select {
-    position: absolute;
-    inset: -1px;
-    width: calc(100% + 2px);
-    font: revert;
-    appearance: none;
-    opacity: 0%;
+    .select-field_select {
+      position: absolute;
+      inset: -1px;
+      width: calc(100% + 2px);
+      font: revert;
+      appearance: none;
+      opacity: 0%;
+    }
   }
 </style>

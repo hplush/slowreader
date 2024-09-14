@@ -85,63 +85,65 @@
 {/if}
 
 <style>
-  .navbar-item {
-    position: relative;
-    box-sizing: border-box;
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    justify-content: flex-start;
-    height: var(--navbar-item);
-    padding-inline: 13px 8px;
-    overflow: hidden;
-    font: var(--control-font);
-    font-weight: normal;
-    color: var(--text-color);
-    text-decoration: none;
-    cursor: pointer;
-    user-select: none;
-    background: transparent;
-    border: none;
-    border-radius: var(--radius);
-    outline-offset: -3px;
-
-    &.is-small {
-      justify-content: center;
-      width: var(--navbar-item);
+  :global {
+    .navbar-item {
+      position: relative;
+      box-sizing: border-box;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      justify-content: flex-start;
       height: var(--navbar-item);
-      padding: 0;
-    }
+      padding-inline: 13px 8px;
+      overflow: hidden;
+      font: var(--control-font);
+      font-weight: normal;
+      color: var(--text-color);
+      text-decoration: none;
+      cursor: pointer;
+      user-select: none;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius);
+      outline-offset: -3px;
 
-    &:hover,
-    &:focus-visible,
-    &:active,
-    &[aria-current='page'] {
-      background: var(--flat-hover-color);
-    }
+      &.is-small {
+        justify-content: center;
+        width: var(--navbar-item);
+        height: var(--navbar-item);
+        padding: 0;
+      }
 
-    &[aria-current='page'] {
-      cursor: default;
-      background: var(--flat-current-color);
-    }
-
-    &:active {
-      padding-top: 1px;
-      background: var(--flat-current-color);
-      box-shadow: var(--below-1-shadow);
-    }
-
-    @media (width <= 1024px) {
+      &:hover,
+      &:focus-visible,
+      &:active,
       &[aria-current='page'] {
-        cursor: pointer;
+        background: var(--flat-hover-color);
+      }
+
+      &[aria-current='page'] {
+        cursor: default;
+        background: var(--flat-current-color);
+      }
+
+      &:active {
+        padding-top: 1px;
+        background: var(--flat-current-color);
+        box-shadow: var(--below-1-shadow);
+      }
+
+      @media (width <= 1024px) {
+        &[aria-current='page'] {
+          cursor: pointer;
+        }
       }
     }
-  }
 
-  .navbar-item_text {
-    flex-shrink: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    .navbar-item_text {
+      flex-shrink: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 </style>

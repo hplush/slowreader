@@ -76,7 +76,9 @@
 </form>
 
 <style>
-  .feeds-opml_submit {
-    margin-top: 20px;
+  :global {
+    .feeds-opml_submit {
+      margin-top: 20px;
+    }
   }
 </style>

@@ -8,13 +8,22 @@
 </script>
 
 <svg
+  class="navbar-progress"
   aria-label={$t.postRefreshing}
   aria-valuenow={value * 100}
   role="progressbar"
   viewBox="0 0 12 12"
 >
-  <circle cx="6" cy="6" fill="none" r={RADIUS} stroke-width="1.3" />
   <circle
+    class="navbar-progress_circle"
+    cx="6"
+    cy="6"
+    fill="none"
+    r={RADIUS}
+    stroke-width="1.3"
+  />
+  <circle
+    class="navbar-progress_circle"
     cx="6"
     cy="6"
     fill="none"
@@ -26,17 +35,19 @@
 </svg>
 
 <style>
-  svg {
-    width: 12px;
-    height: 12px;
-  }
+  :global {
+    .navbar-progress {
+      width: 12px;
+      height: 12px;
+    }
 
-  circle:first-child {
-    stroke: var(--border-color);
-  }
+    .navbar-progress_circle:first-child {
+      stroke: var(--border-color);
+    }
 
-  circle:last-child {
-    stroke: var(--text-color);
-    transition: stroke-dashoffset 100ms;
+    .navbar-progress_circle:last-child {
+      stroke: var(--text-color);
+      transition: stroke-dashoffset 100ms;
+    }
   }
 </style>

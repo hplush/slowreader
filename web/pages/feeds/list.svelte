@@ -55,36 +55,38 @@
 </ul>
 
 <style>
-  .feeds-list {
-    margin-top: var(--padding-xl);
-  }
+  :global {
+    .feeds-list {
+      margin-top: var(--padding-xl);
+    }
 
-  .feeds-list_item {
-    margin-bottom: var(--padding-l);
-  }
+    .feeds-list_item {
+      margin-bottom: var(--padding-l);
+    }
 
-  .feeds-list_category {
-    margin: 0;
-  }
+    .feeds-list_category {
+      margin: 0;
+    }
 
-  .feeds-list_feeds {
-    padding-inline-start: var(--padding-m);
-    margin-top: var(--padding-m);
-  }
+    .feeds-list_feeds {
+      padding-inline-start: var(--padding-m);
+      margin-top: var(--padding-m);
+    }
 
-  .feeds-list_label {
-    display: flex;
-    cursor: pointer;
-  }
+    .feeds-list_label {
+      display: flex;
+      cursor: pointer;
+    }
 
-  .feeds-list_label input {
-    width: 13px;
-  }
+    .feeds-list_label input {
+      width: 13px;
+    }
 
-  .feeds-list_label span {
-    max-width: 100%;
-    margin-inline-start: var(--padding-s);
-    overflow: hidden;
-    text-overflow: ellipsis;
+    .feeds-list_label span {
+      max-width: 100%;
+      margin-inline-start: var(--padding-s);
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 </style>

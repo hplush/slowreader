@@ -63,7 +63,9 @@
 </TwoStepsPage>
 
 <style>
-  .slow_post {
-    margin-top: var(--padding-l);
+  :global {
+    .slow_post {
+      margin-top: var(--padding-l);
+    }
   }
 </style>

@@ -9,8 +9,10 @@
 </h1>
 
 <style>
-  .page-title {
-    margin-bottom: var(--padding-xl);
-    font: var(--page-title-font);
+  :global {
+    .page-title {
+      margin-bottom: var(--padding-xl);
+      font: var(--page-title-font);
+    }
   }
 </style>
