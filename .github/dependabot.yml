@@ -5,19 +5,27 @@ updates:
     schedule:
       interval: weekly
   - package-ecosystem: github-actions
-      directory: '/.github/actions/deploy'
-      schedule:
-        interval: weekly
+    directory: '/.github/actions/deploy'
+    schedule:
+      interval: weekly
   - package-ecosystem: github-actions
-      directory: '/.github/actions/init-node'
-      schedule:
-        interval: weekly
+    directory: '/.github/actions/init-node'
+    schedule:
+      interval: weekly
   - package-ecosystem: pnpm
     directory: '/'
     schedule:
       interval: daily
     security-updates-only: true
   - package-ecosystem: docker
-      directory: '/'
-      schedule:
-        interval: weekly
+    directory: '/web'
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directory: '/server'
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directory: '/proxy'
+    schedule:
+      interval: weekly
