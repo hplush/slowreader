@@ -2,17 +2,16 @@
 // for other pseudo-classes (:hover, :active, :focus-visible).
 // We are then using these classes in Storybook and KeyUX.
 
+import type { Plugin } from 'postcss'
+
 const PSEUDO = [':focus', ':hover', ':active', ':focus-visible']
 
-/**
- * @type {import('postcss').Plugin}
- */
 module.exports = {
   postcssPlugin: 'pseudo-classes',
   Rule(rule) {
     if (!rule.selector.includes(':')) return
 
-    let extra = []
+    let extra: string[] = []
     for (let selector of rule.selectors) {
       for (let pseudo of PSEUDO) {
         if (selector.includes(pseudo)) {
@@ -28,4 +27,4 @@ module.exports = {
       rule.selectors = rule.selectors.concat(...extra)
     }
   }
-}
+} satisfies Plugin

@@ -1,8 +1,0 @@
-{
-  "plugins": {
-    "./postcss/html-keeper.cjs": {},
-    "./postcss/theme-classes.cjs": {},
-    "./postcss/pseudo-classes.cjs": {},
-    "autoprefixer": {}
-  }
-}

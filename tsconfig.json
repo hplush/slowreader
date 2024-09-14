@@ -12,8 +12,15 @@
     "module": "NodeNext",
     "strict": true,
     "noEmit": true,
-    "types": ["chrome"]
+    "types": ["chrome", "node"]
   },
-  "include": ["**/*.ts", "web/**/*.svelte", "web/.storybook/*.ts"],
-  "exclude": ["*/dist"]
+  "include": ["**/*.ts", "**/*.cts", "web/**/*.svelte", "web/.storybook/*.ts"],
+  "exclude": ["*/dist"],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "ESNext",
+      "moduleResolution": "Node",
+      "esModuleInterop": true
+    }
+  }
 }

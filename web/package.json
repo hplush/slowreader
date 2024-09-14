@@ -42,6 +42,7 @@
     "postcss-load-config": "^6.0.1",
     "rollup": "4.21.3",
     "svelte": "5.0.0-next.224",
+    "ts-node": "^10.9.2",
     "vite": "5.4.5"
   },
   "devDependencies": {
