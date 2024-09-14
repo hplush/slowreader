@@ -6,14 +6,13 @@
 //
 // Also we remove all whitespaces.
 
-/**
- * @type {import('postcss').Plugin}
- */
+import type { Plugin, Root } from 'postcss'
+
 module.exports = {
   postcssPlugin: 'html-keeper',
   prepare(result) {
-    if (result.opts.from.includes('.html')) {
-      let before
+    if (result.opts.from?.includes('.html')) {
+      let before: Root
       return {
         Once(root) {
           before = root.clone()
@@ -38,4 +37,4 @@ module.exports = {
       return {}
     }
   }
-}
+} satisfies Plugin
