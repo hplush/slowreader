@@ -139,22 +139,39 @@ await Promise.all([
   processComponents(join(ROOT, 'pages'), ROOT)
 ])
 
-if (errors.length > 0) {
+function fileTitle(text: string): string {
+  return '\n' + styleText('yellow', text)
+}
+
+function description(text: string): string {
+  return styleText(
+    'red',
+    text.replaceAll(/`[^`]+`/g, match => {
+      return styleText('bold', match.slice(1, -1))
+    }) + '\n'
+  )
+}
+
+function summary(text: string): string {
+  return styleText('red', styleText('bold', text))
+}
+
+function print(msg: string): void {
+  process.stdout.write(msg + '\n')
+}
+
+let count = errors.length
+if (count > 0) {
   for (let error of errors) {
     let where = error.path
     if (error.line) where += `:${error.line}`
-    process.stderr.write(styleText('yellow', `${where}\n`))
-    process.stderr.write(
-      styleText(
-        'red',
-        error.message.replaceAll(/`[^`]+`/g, match => {
-          return styleText('yellow', match.slice(1, -1))
-        }) + '\n'
-      )
-    )
+    print(fileTitle(where))
+    print(description(error.message))
     if (error.content && error.line) {
-      process.stderr.write(error.content.split('\n')[error.line - 1]! + '\n')
+      print(error.content.split('\n')[error.line - 1]!)
     }
   }
+  print('')
+  print(summary(`Found ${count} ${count === 1 ? 'error' : 'errors'}`))
   process.exit(1)
 }
