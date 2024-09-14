@@ -5,7 +5,7 @@
 import { lstat, readdir, readFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
 import { styleText } from 'node:util'
-import postcss from 'postcss'
+import postcss, { type Document, Root, type Rule } from 'postcss'
 import postcssHtml from 'postcss-html'
 import nesting from 'postcss-nesting'
 import selectorParser, {
@@ -39,10 +39,7 @@ function somePrevClass(node: Node, cb: (node: Node) => boolean): boolean {
 const ALLOW_GLOBAL = /^(has-[a-z-]+|is-[a-z-]+|card)$/
 
 function isGlobalModifier(node: ClassName): boolean {
-  return (
-    ALLOW_GLOBAL.test(node.value) &&
-    !!someParent(node, i => i.value === ':global')
-  )
+  return ALLOW_GLOBAL.test(node.value)
 }
 
 function isBlock(node: Node, prefix: string): boolean {
@@ -74,6 +71,10 @@ interface LinterError {
 
 let errors: LinterError[] = []
 
+function parseSvelteStyles(content: string, path: string): Document {
+  return postcssHtml.parse!(content, { from: path }) as Document
+}
+
 async function processComponents(dir: string, base: string): Promise<void> {
   let files = await readdir(dir)
   await Promise.all(
@@ -96,10 +97,32 @@ async function processComponents(dir: string, base: string): Promise<void> {
         let content = await readFile(path, 'utf-8')
         if (!content.includes('<style')) return
 
-        let unwrapped = unwrapper.process(content, {
-          from: path,
-          syntax: postcssHtml
+        let origin = parseSvelteStyles(content, path)
+        let global: Rule | undefined
+        for (let root of origin.nodes) {
+          let children = root.nodes.filter(i => i.type !== 'comment')
+          let first = children[0]
+          if (
+            children.length !== 1 ||
+            (first && first.type !== 'rule') ||
+            (first && first.selector !== ':global')
+          ) {
+            errors.push({
+              content,
+              line: root.source!.start!.line,
+              message: 'All components styles should be wrapped in :global',
+              path
+            })
+          } else {
+            global = first
+          }
+        }
+        if (!global) return
+
+        let unwrapped = unwrapper.process(new Root({ nodes: global.nodes }), {
+          from: path
         }).root
+
         let prefix = name
           .replace(/^(ui|pages)\//, '')
           .replace(/(\/index)?\.svelte$/, '')

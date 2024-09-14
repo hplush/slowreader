@@ -49,58 +49,60 @@
 {/if}
 
 <style>
-  .pagination-bar {
-    display: flex;
-    gap: var(--padding-m);
-    width: 100%;
-    padding-bottom: var(--padding-m);
-  }
-
-  .pagination-bar_progress {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    overflow-x: auto;
-    border-radius: var(--radius);
-  }
-
-  .pagination-bar_segment {
-    position: relative;
-    display: block;
-    flex: 1;
-    height: 12px;
-    color: var(--text-color);
-    text-decoration: none;
-    cursor: pointer;
-    user-select: none;
-    background: var(--card-color);
-    border: none;
-    border-inline-end: 1px solid var(--land-color);
-
-    &:first-child {
-      border-start-start-radius: 6px;
-      border-end-start-radius: 6px;
+  :global {
+    .pagination-bar {
+      display: flex;
+      gap: var(--padding-m);
+      width: 100%;
+      padding-bottom: var(--padding-m);
     }
 
-    &:last-child {
-      border-inline-end: none;
-      border-start-end-radius: 6px;
-      border-end-end-radius: 6px;
+    .pagination-bar_progress {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      overflow-x: auto;
+      border-radius: var(--radius);
     }
 
-    &:hover,
-    &:focus-visible {
-      background-color: var(--hover-color);
-    }
+    .pagination-bar_segment {
+      position: relative;
+      display: block;
+      flex: 1;
+      height: 12px;
+      color: var(--text-color);
+      text-decoration: none;
+      cursor: pointer;
+      user-select: none;
+      background: var(--card-color);
+      border: none;
+      border-inline-end: 1px solid var(--land-color);
 
-    &:active {
-      background-color: var(--land-color);
-      opacity: 100%;
-    }
+      &:first-child {
+        border-start-start-radius: 6px;
+        border-end-start-radius: 6px;
+      }
 
-    &.is-past {
-      background-color: var(--accent-color);
-      border-inline-end: 1px solid var(--accent-color);
+      &:last-child {
+        border-inline-end: none;
+        border-start-end-radius: 6px;
+        border-end-end-radius: 6px;
+      }
+
+      &:hover,
+      &:focus-visible {
+        background-color: var(--hover-color);
+      }
+
+      &:active {
+        background-color: var(--land-color);
+        opacity: 100%;
+      }
+
+      &.is-past {
+        background-color: var(--accent-color);
+        border-inline-end: 1px solid var(--accent-color);
+      }
     }
   }
 </style>

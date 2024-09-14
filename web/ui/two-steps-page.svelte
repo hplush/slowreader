@@ -69,45 +69,47 @@
 </main>
 
 <style>
-  .two-steps-page {
-    box-sizing: border-box;
-    display: flex;
-    gap: var(--padding-l);
-    justify-content: space-around;
-    width: calc(100% - var(--padding-l));
+  :global {
+    .two-steps-page {
+      box-sizing: border-box;
+      display: flex;
+      gap: var(--padding-l);
+      justify-content: space-around;
+      width: calc(100% - var(--padding-l));
 
-    @media (width <= 1024px) {
-      margin: 0 auto;
-    }
-  }
-
-  .two-steps-page_step {
-    box-sizing: border-box;
-    width: 50%;
-    max-width: 600px;
-    height: 100vh;
-    padding: var(--padding-m) var(--padding-l);
-    overflow-x: auto;
-
-    @media (width <= 1024px) {
-      width: 100%;
-      padding-bottom: var(--navbar-height);
+      @media (width <= 1024px) {
+        margin: 0 auto;
+      }
     }
 
-    &.is-hidden {
+    .two-steps-page_step {
+      box-sizing: border-box;
+      width: 50%;
+      max-width: 600px;
+      height: 100vh;
+      padding: var(--padding-m) var(--padding-l);
+      overflow-x: auto;
+
+      @media (width <= 1024px) {
+        width: 100%;
+        padding-bottom: var(--navbar-height);
+      }
+
+      &.is-hidden {
+        @media (width <= 1024px) {
+          display: none;
+        }
+      }
+    }
+
+    .two-steps-page_close-button {
+      display: flex;
+      justify-content: flex-end;
+      padding-bottom: var(--padding-m);
+
       @media (width <= 1024px) {
         display: none;
       }
-    }
-  }
-
-  .two-steps-page_close-button {
-    display: flex;
-    justify-content: flex-end;
-    padding-bottom: var(--padding-m);
-
-    @media (width <= 1024px) {
-      display: none;
     }
   }
 </style>

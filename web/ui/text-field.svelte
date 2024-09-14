@@ -104,53 +104,55 @@
   {/if}
 </div>
 
-<style>
-  .text-field {
-    position: relative;
-    flex-shrink: 1;
-    width: 100%;
-    margin-top: var(--padding-l);
-  }
-
-  :global(.card) > .text-field:first-child {
-    margin-top: calc(var(--card-text-fix) - 4px);
-  }
-
-  .text-field:first-child:not(:has(.text-field_label)) {
-    margin-top: 0;
-  }
-
-  .text-field_label {
-    padding: 0 var(--padding-m) var(--padding-m) var(--padding-m);
-    font-weight: bold;
-  }
-
-  .text-field_input {
-    box-sizing: border-box;
-    width: 100%;
-    padding: var(--padding-m);
-    background-color: var(--field-color);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-    box-shadow: var(--field-shadow);
-
-    &[aria-invalid='true'] {
-      border-color: var(--error-color);
+<style global>
+  :global {
+    .text-field {
+      position: relative;
+      flex-shrink: 1;
+      width: 100%;
+      margin-top: var(--padding-l);
     }
 
-    &:focus-visible {
-      border-color: var(--focus-color);
-      outline: 3px solid oklch(from var(--focus-color) l c h / 50%);
-      outline-offset: 0;
+    .card > .text-field:first-child {
+      margin-top: calc(var(--card-text-fix) - 4px);
     }
-  }
 
-  .text-field_error {
-    padding: 0 var(--padding-m);
-    color: var(--error-color);
-  }
+    .text-field:first-child:not(:has(.text-field_label)) {
+      margin-top: 0;
+    }
 
-  :global(.card) > .text-field_error:last-child {
-    margin-bottom: var(--card-text-fix);
+    .text-field_label {
+      padding: 0 var(--padding-m) var(--padding-m) var(--padding-m);
+      font-weight: bold;
+    }
+
+    .text-field_input {
+      box-sizing: border-box;
+      width: 100%;
+      padding: var(--padding-m);
+      background-color: var(--field-color);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      box-shadow: var(--field-shadow);
+
+      &[aria-invalid='true'] {
+        border-color: var(--error-color);
+      }
+
+      &:focus-visible {
+        border-color: var(--focus-color);
+        outline: 3px solid oklch(from var(--focus-color) l c h / 50%);
+        outline-offset: 0;
+      }
+    }
+
+    .text-field_error {
+      padding: 0 var(--padding-m);
+      color: var(--error-color);
+    }
+
+    .card > .text-field_error:last-child {
+      margin-bottom: var(--card-text-fix);
+    }
   }
 </style>

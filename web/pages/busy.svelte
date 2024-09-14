@@ -1,17 +1,21 @@
-<script lang="ts">
-  import Loader from '../ui/loader.svelte'
-</script>
-
-<div class="busy">
-  <Loader zoneId="main" />
-</div>
+<div class="busy"></div>
 
 <style>
-  .busy {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  :global {
+    .busy {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:active {
+        background: var(--hover-color);
+      }
+
+      & + & {
+        background: rgba(0, 0, 0, 0.5);
+      }
+    }
   }
 </style>

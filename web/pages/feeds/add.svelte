@@ -110,22 +110,24 @@
 </TwoStepsPage>
 
 <style>
-  .feeds-add_guide {
-    max-width: 450px;
-    padding-top: 100px;
-    margin: 0 auto;
-  }
+  :global {
+    .feeds-add_guide {
+      max-width: 450px;
+      padding-top: 100px;
+      margin: 0 auto;
+    }
 
-  .feeds-add_no-results {
-    margin-top: var(--padding-m);
-    color: var(--error-color);
-  }
+    .feeds-add_no-results {
+      margin-top: var(--padding-m);
+      color: var(--error-color);
+    }
 
-  .feeds-add_no-results :global(:any-link) {
-    color: var(--error-color);
+    .feeds-add_no-results :any-link {
+      color: var(--error-color);
 
-    &:hover {
-      text-decoration: none;
+      &:hover {
+        text-decoration: none;
+      }
     }
   }
 </style>

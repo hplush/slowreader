@@ -93,7 +93,9 @@
 </TwoStepsPage>
 
 <style>
-  .fast_post {
-    margin-top: var(--padding-l);
+  :global {
+    .fast_post {
+      margin-top: var(--padding-l);
+    }
   }
 </style>

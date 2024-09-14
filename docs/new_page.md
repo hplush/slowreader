@@ -15,6 +15,7 @@ If we are adding `foo` page.
    2. Export these files from `core/messages/index.ts`.
 4. Add page:
    1. Create Svelte component `web/pages/foo.svelte` using `foo` messages and `foo` core module.
-   2. Use this component with the route in `web/main/main.svelte`.
-   3. Add visual tests in `web/stories/pages/foo.stories.svelte`.
-   4. Add a link to the page to the menu (`web/ui/navbar/`) if necessary.
+   2. Wrap Svelte styles into `:global {}`. Use BEM system like `.foo_element.is-modifier` for CSS selectors.
+   3. Use this component with the route in `web/main/main.svelte`.
+   4. Add visual tests in `web/stories/pages/foo.stories.svelte`.
+   5. Add a link to the page to the menu (`web/ui/navbar/`) if necessary.

@@ -132,61 +132,63 @@
 </Page>
 
 <style>
-  .feeds-import {
-    max-width: 680px;
-  }
-
-  .feeds-import_hero {
-    margin-bottom: var(--padding-xl);
-  }
-
-  .feeds-import_errors {
-    list-style: none;
-  }
-
-  .feeds-import_errors li {
-    color: var(--error-color);
-  }
-
-  .feeds-import_unloaded,
-  .feeds-import_loading {
-    padding-inline-start: var(--padding-xl);
-    margin-bottom: var(--padding-xl);
-  }
-
-  .feeds-import_loading {
-    padding-inline-start: 0;
-    list-style: none;
-  }
-
-  .feeds-import_loading li {
-    display: flex;
-    gap: var(--padding-m);
-    align-items: center;
-  }
-
-  .feeds-import_submit {
-    margin-top: var(--padding-xl);
-  }
-
-  .feeds-import_item-loader {
-    box-sizing: border-box;
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border: 1px solid oklch(0 0 0);
-    border-block-end-color: transparent;
-    border-radius: 50%;
-    animation: --import-rotation 1s linear infinite;
-  }
-
-  @keyframes --import-rotation {
-    0% {
-      transform: rotate(0deg);
+  :global {
+    .feeds-import {
+      max-width: 680px;
     }
 
-    100% {
-      transform: rotate(360deg);
+    .feeds-import_hero {
+      margin-bottom: var(--padding-xl);
+    }
+
+    .feeds-import_errors {
+      list-style: none;
+    }
+
+    .feeds-import_errors li {
+      color: var(--error-color);
+    }
+
+    .feeds-import_unloaded,
+    .feeds-import_loading {
+      padding-inline-start: var(--padding-xl);
+      margin-bottom: var(--padding-xl);
+    }
+
+    .feeds-import_loading {
+      padding-inline-start: 0;
+      list-style: none;
+    }
+
+    .feeds-import_loading li {
+      display: flex;
+      gap: var(--padding-m);
+      align-items: center;
+    }
+
+    .feeds-import_submit {
+      margin-top: var(--padding-xl);
+    }
+
+    .feeds-import_item-loader {
+      box-sizing: border-box;
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 1px solid oklch(0 0 0);
+      border-block-end-color: transparent;
+      border-radius: 50%;
+      animation: --import-rotation 1s linear infinite;
+    }
+
+    @keyframes --import-rotation {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
   }
 </style>

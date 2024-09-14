@@ -16,11 +16,13 @@
 </div>
 
 <style>
-  .rich-translation :global(p) {
-    padding-top: 4px;
+  :global {
+    .rich-translation p {
+      padding-top: 4px;
 
-    &:first-child {
-      padding-top: 0;
+      &:first-child {
+        padding-top: 0;
+      }
     }
   }
 </style>

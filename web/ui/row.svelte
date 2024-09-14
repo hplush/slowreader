@@ -10,13 +10,15 @@
 </div>
 
 <style>
-  .row {
-    display: flex;
-    gap: var(--padding-l);
-    align-items: center;
+  :global {
+    .row {
+      display: flex;
+      gap: var(--padding-l);
+      align-items: center;
 
-    &.is-compact {
-      gap: var(--padding-m);
+      &.is-compact {
+        gap: var(--padding-m);
+      }
     }
   }
 </style>

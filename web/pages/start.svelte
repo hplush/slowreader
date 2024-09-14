@@ -25,7 +25,9 @@
 </Page>
 
 <style>
-  .start {
-    max-width: 240px;
+  :global {
+    .start {
+      max-width: 240px;
+    }
   }
 </style>
