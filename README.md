@@ -107,7 +107,7 @@ Slow Reader is a local-first app. Clients do most of the work, and the server ju
 - [`docs/`](./docs/): guides for developers.
 - [`scripts/`](./scripts/): scripts to test project and configure Google Cloud. Check the script’s descriptions for further details.
 - [`loader-tests/`](./loader-tests/): integration tests for each social network or news format.
-- [`.devcontainer`](./.devcontainer/): `Dockerfile` and configs to run project in Docker/Podman image on developer’s machine. It increases security (malicious dependency will not have access to the whole machine) and simplify onboarding.
+- [`.devcontainer`](./.devcontainer/): `Dockerfile` and configs to run project in Docker/Podman image on developer’s machine. It increases security (malicious dependency will not have access to the whole machine) and simplify onboarding. We have configs for Docker and [Podman](https://podman.io) (more secure version of Docker).
 - [`.github/`](./.github/): scripts to test projects on CI.
 - [`.husky/`](./.husky/): scripts to call on `git commit` command to avoid popular errors.
 - [`.vscode/`](./.vscode/): VS Code settings to reduce code format errors for new contributors.
