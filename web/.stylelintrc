@@ -1,6 +1,6 @@
 {
   "extends": ["@logux/stylelint-config", "@stylistic/stylelint-config"],
-  "ignoreFiles": ["web/dist/**/*", "*/coverage/lcov-report/*"],
+  "ignoreFiles": ["*/coverage/lcov-report/*", "dist/**/*"],
   "plugins": ["stylelint-use-logical", "@stylistic/stylelint-plugin"],
   "rules": {
     "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"],
