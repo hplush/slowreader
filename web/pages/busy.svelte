@@ -8,14 +8,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-
-      &:active {
-        background: var(--hover-color);
-      }
-
-      & + & {
-        background: rgba(0, 0, 0, 0.5);
-      }
     }
   }
 </style>
