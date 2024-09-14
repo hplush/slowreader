@@ -23,7 +23,7 @@ jobs:
       - name: Save PR number
         run: echo "${{ github.event.pull_request.number }}" > ./preview-id
       - name: Save data for another workflow
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: preview-id
           retention-days: 1

@@ -21,11 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v4.0.0
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.0.3
         with:
           node-version-file: .node-version
           cache: pnpm
@@ -42,7 +42,7 @@ jobs:
       - name: Create archive to keep symlinks
         run: tar -cf server.tar server/dist/
       - name: Save server for deploy
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: preview-server
           retention-days: 1
