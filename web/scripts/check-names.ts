@@ -2,8 +2,9 @@
 // ui/foo/bar.svelte should have only classes like: .foo-bar, .foo-bar_element,
 // .foo-bar_element.is-modifier
 
-import { lstat, readdir, readFile } from 'node:fs/promises'
-import { extname, join } from 'node:path'
+import { globSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import { styleText } from 'node:util'
 import postcss, {
   type CssSyntaxError,
@@ -87,102 +88,88 @@ function parseSvelteStyles(content: string, path: string): Document {
   return postcssHtml.parse!(content, { from: path }) as Document
 }
 
-async function processComponents(dir: string, base: string): Promise<void> {
-  let files = await readdir(dir)
-  await Promise.all(
-    files.map(async file => {
-      let path = join(dir, file)
-      let name = path.slice(base.length + 1)
+const WEB = join(import.meta.dirname, '..')
+await Promise.all(
+  globSync(join(WEB, '{ui,pages}', '**', '*.svelte')).map(async path => {
+    let name = path.slice(WEB.length + 1).replace(/^(ui|pages)\//, '')
 
-      if (usedNames.has(name)) {
-        errors.push(new FileError(`Duplicate name: ${name}`, path))
+    if (usedNames.has(name)) {
+      errors.push(new FileError(`Duplicate name: ${name}`, path))
+    }
+    usedNames.add(name)
+
+    let content = await readFile(path, 'utf-8')
+    if (!content.includes('<style')) return
+
+    function addError(error: CssSyntaxError): void {
+      // postcss-html set the source of the block, not the whole file
+      error.source = content
+      errors.push(error)
+    }
+
+    let origin = parseSvelteStyles(content, path)
+    let global: Rule | undefined
+    for (let root of origin.nodes) {
+      let children = root.nodes.filter(i => i.type !== 'comment')
+      let first = children[0]
+      if (
+        children.length !== 1 ||
+        (first && first.type !== 'rule') ||
+        (first && first.selector !== ':global')
+      ) {
+        addError(
+          root.error('All components styles should be wrapped in :global')
+        )
+      } else {
+        global = first
       }
-      usedNames.add(name)
+    }
+    if (!global) return
 
-      let stat = await lstat(path)
-      if (stat.isDirectory()) {
-        await processComponents(path, base)
-      } else if (extname(file) === '.svelte') {
-        let content = await readFile(path, 'utf-8')
-        if (!content.includes('<style')) return
+    let unwrapped = unwrapper.process(new Root({ nodes: global.nodes }), {
+      from: path
+    }).root
 
-        function addError(error: CssSyntaxError): void {
-          // postcss-html set the source of the block, not the whole file
-          error.source = content
-          errors.push(error)
-        }
-
-        let origin = parseSvelteStyles(content, path)
-        let global: Rule | undefined
-        for (let root of origin.nodes) {
-          let children = root.nodes.filter(i => i.type !== 'comment')
-          let first = children[0]
+    let prefix = name
+      .replace(/^(ui|pages)\//, '')
+      .replace(/(\/index)?\.svelte$/, '')
+      .replaceAll('/', '-')
+    unwrapped.walkRules(rule => {
+      let classChecker = selectorParser(selector => {
+        selector.walkClasses(node => {
           if (
-            children.length !== 1 ||
-            (first && first.type !== 'rule') ||
-            (first && first.selector !== ':global')
+            !isGlobalModifier(node) &&
+            !isBlock(node, prefix) &&
+            !isElement(node, prefix) &&
+            !isModifier(node, prefix)
           ) {
             addError(
-              root.error('All components styles should be wrapped in :global')
-            )
-          } else {
-            global = first
-          }
-        }
-        if (!global) return
-
-        let unwrapped = unwrapper.process(new Root({ nodes: global.nodes }), {
-          from: path
-        }).root
-
-        let prefix = name
-          .replace(/^(ui|pages)\//, '')
-          .replace(/(\/index)?\.svelte$/, '')
-          .replaceAll('/', '-')
-        unwrapped.walkRules(rule => {
-          let classChecker = selectorParser(selector => {
-            selector.walkClasses(node => {
-              if (
-                !isGlobalModifier(node) &&
-                !isBlock(node, prefix) &&
-                !isElement(node, prefix) &&
-                !isModifier(node, prefix)
-              ) {
-                addError(
-                  rule.error(
-                    `Selector \`${node.value}\` does ` +
-                      'not follow our BEM name system'
-                  )
-                )
-              }
-            })
-          })
-          classChecker.processSync(rule)
-        })
-        unwrapped.walkAtRules(atrule => {
-          if (atrule.name === 'keyframes') {
-            let keyframe = atrule.params
-            if (!keyframe.startsWith(`--${prefix}-`)) {
-              addError(
-                atrule.error(
-                  `Keyframes \`${keyframe}\` should start with \`--${prefix}-\``,
-                  { word: keyframe }
-                )
+              rule.error(
+                `Selector \`${node.value}\` does ` +
+                  'not follow our BEM name system',
+                { word: node.value }
               )
-            }
+            )
           }
         })
+      })
+      classChecker.processSync(rule)
+    })
+    unwrapped.walkAtRules(atrule => {
+      if (atrule.name === 'keyframes') {
+        let keyframe = atrule.params
+        if (!keyframe.startsWith(`--${prefix}-`)) {
+          addError(
+            atrule.error(
+              `Keyframes \`${keyframe}\` should start with \`--${prefix}-\``,
+              { word: keyframe }
+            )
+          )
+        }
       }
     })
-  )
-}
-
-const ROOT = join(import.meta.dirname, '..')
-
-await Promise.all([
-  processComponents(join(ROOT, 'ui'), ROOT),
-  processComponents(join(ROOT, 'pages'), ROOT)
-])
+  })
+)
 
 function fileTitle(text: string): string {
   return '\n' + styleText('yellow', text)
