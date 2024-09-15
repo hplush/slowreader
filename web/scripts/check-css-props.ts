@@ -1,7 +1,4 @@
-// 1. Merge all rules with :root selector into the single rule
-// in the beginning of the file
-// 2. Remove unused colors from palette (as CSS Custom Properties)
-// and throw and error if other CSS Custom Properties are unused.
+// Check that all design tokens (CSS Custom Properties) are used
 
 import { globSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
