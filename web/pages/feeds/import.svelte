@@ -178,10 +178,10 @@
       border: 1px solid oklch(0 0 0);
       border-block-end-color: transparent;
       border-radius: 50%;
-      animation: --import-rotation 1s linear infinite;
+      animation: --feeds-import-rotation 1s linear infinite;
     }
 
-    @keyframes --import-rotation {
+    @keyframes --feeds-import-rotation {
       0% {
         transform: rotate(0deg);
       }

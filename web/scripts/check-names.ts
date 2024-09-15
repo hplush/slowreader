@@ -159,6 +159,19 @@ async function processComponents(dir: string, base: string): Promise<void> {
           })
           classChecker.processSync(rule)
         })
+        unwrapped.walkAtRules(atrule => {
+          if (atrule.name === 'keyframes') {
+            let keyframe = atrule.params
+            if (!keyframe.startsWith(`--${prefix}-`)) {
+              addError(
+                atrule.error(
+                  `Keyframes \`${keyframe}\` should start with \`--${prefix}-\``,
+                  { word: keyframe }
+                )
+              )
+            }
+          }
+        })
       }
     })
   )
