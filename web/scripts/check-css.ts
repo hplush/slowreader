@@ -9,7 +9,7 @@ import { styleText } from 'node:util'
 import postcss from 'postcss'
 
 import { rootsMerger } from '../postcss/roots-merger.ts'
-import { getVarsCleanerError, varsCleaner } from '../postcss/vars-cleaner.ts'
+import { getVarsCleanerError, varsCleaner } from '../postcss/vars-checker.ts'
 
 function printError(message: string): void {
   process.stderr.write(styleText('red', message) + '\n')
