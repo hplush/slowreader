@@ -14,7 +14,7 @@
     "production": "node --run build && ./scripts/run-image.sh",
     "size": "node --run build:web && size-limit",
     "test:unit": "pnpm bnt",
-    "test:styles": "../scripts/tsnode ./scripts/check-styles.ts",
+    "test:names": "../scripts/tsnode ./scripts/check-names.ts",
     "test:css": "stylelint **/*.css **/*.svelte",
     "test:build": "node --run build && size-limit && ../scripts/tsnode ./scripts/check-css.ts",
     "build:routes": "../scripts/tsnode ./scripts/export-routes.ts",

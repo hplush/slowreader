@@ -5,24 +5,35 @@
 import { lstat, readdir, readFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
 import { styleText } from 'node:util'
-import postcss, { type Document, Root, type Rule } from 'postcss'
+import postcss, {
+  type CssSyntaxError,
+  type Document,
+  Root,
+  type Rule
+} from 'postcss'
 import postcssHtml from 'postcss-html'
 import nesting from 'postcss-nesting'
 import selectorParser, {
   type ClassName,
-  type Node
+  type Node as SelectorNode
 } from 'postcss-selector-parser'
 
 let usedNames = new Set<string>()
 let unwrapper = postcss([nesting])
 
-function someParent(node: Node, cb: (node: Node) => boolean): false | Node {
+function someParent(
+  node: SelectorNode,
+  cb: (node: SelectorNode) => boolean
+): false | SelectorNode {
   if (cb(node)) return node
-  if (node.parent) return someParent(node.parent as Node, cb)
+  if (node.parent) return someParent(node.parent as SelectorNode, cb)
   return false
 }
 
-function somePrevClass(node: Node, cb: (node: Node) => boolean): boolean {
+function somePrevClass(
+  node: SelectorNode,
+  cb: (node: SelectorNode) => boolean
+): boolean {
   if (cb(node)) return true
 
   let prev = node.prev()
@@ -42,11 +53,11 @@ function isGlobalModifier(node: ClassName): boolean {
   return ALLOW_GLOBAL.test(node.value)
 }
 
-function isBlock(node: Node, prefix: string): boolean {
+function isBlock(node: SelectorNode, prefix: string): boolean {
   return node.type === 'class' && node.value === prefix
 }
 
-function isElement(node: Node, prefix: string): boolean {
+function isElement(node: SelectorNode, prefix: string): boolean {
   return (
     node.type === 'class' &&
     node.value.startsWith(prefix) &&
@@ -54,7 +65,7 @@ function isElement(node: Node, prefix: string): boolean {
   )
 }
 
-function isModifier(node: Node, prefix: string): boolean {
+function isModifier(node: SelectorNode, prefix: string): boolean {
   return (
     node.type === 'class' &&
     /is-[a-z-]+/.test(node.value) &&
@@ -62,14 +73,15 @@ function isModifier(node: Node, prefix: string): boolean {
   )
 }
 
-interface LinterError {
-  content?: string
-  line?: number
-  message: string
-  path: string
+class FileError extends Error {
+  file: string
+  constructor(message: string, file: string) {
+    super(message)
+    this.file = file
+  }
 }
 
-let errors: LinterError[] = []
+let errors: (CssSyntaxError | FileError)[] = []
 
 function parseSvelteStyles(content: string, path: string): Document {
   return postcssHtml.parse!(content, { from: path }) as Document
@@ -83,10 +95,7 @@ async function processComponents(dir: string, base: string): Promise<void> {
       let name = path.slice(base.length + 1)
 
       if (usedNames.has(name)) {
-        errors.push({
-          message: `Duplicate name: ${name}`,
-          path
-        })
+        errors.push(new FileError(`Duplicate name: ${name}`, path))
       }
       usedNames.add(name)
 
@@ -96,6 +105,12 @@ async function processComponents(dir: string, base: string): Promise<void> {
       } else if (extname(file) === '.svelte') {
         let content = await readFile(path, 'utf-8')
         if (!content.includes('<style')) return
+
+        function addError(error: CssSyntaxError): void {
+          // postcss-html set the source of the block, not the whole file
+          error.source = content
+          errors.push(error)
+        }
 
         let origin = parseSvelteStyles(content, path)
         let global: Rule | undefined
@@ -107,12 +122,9 @@ async function processComponents(dir: string, base: string): Promise<void> {
             (first && first.type !== 'rule') ||
             (first && first.selector !== ':global')
           ) {
-            errors.push({
-              content,
-              line: root.source!.start!.line,
-              message: 'All components styles should be wrapped in :global',
-              path
-            })
+            addError(
+              root.error('All components styles should be wrapped in :global')
+            )
           } else {
             global = first
           }
@@ -136,15 +148,12 @@ async function processComponents(dir: string, base: string): Promise<void> {
                 !isElement(node, prefix) &&
                 !isModifier(node, prefix)
               ) {
-                let line = rule.source!.start!.line
-                errors.push({
-                  content,
-                  line,
-                  message:
+                addError(
+                  rule.error(
                     `Selector \`${node.value}\` does ` +
-                    'not follow our BEM name system',
-                  path
-                })
+                      'not follow our BEM name system'
+                  )
+                )
               }
             })
           })
@@ -186,12 +195,16 @@ function print(msg: string): void {
 let count = errors.length
 if (count > 0) {
   for (let error of errors) {
-    let where = error.path
-    if (error.line) where += `:${error.line}`
-    print(fileTitle(where))
-    print(description(error.message))
-    if (error.content && error.line) {
-      print(error.content.split('\n')[error.line - 1]!)
+    if (error instanceof FileError) {
+      print(fileTitle(error.file))
+      print(description(error.message))
+      continue
+    } else {
+      let where = error.file!
+      if (error.line) where += `:${error.line}`
+      print(fileTitle(where))
+      print(description(error.reason))
+      print(error.showSourceCode())
     }
   }
   print('')
