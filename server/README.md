@@ -19,6 +19,7 @@ and uses end-to-end encryption not to know what users read and like.
 
 - `cd server && pnpm start`: start server in development mode.
 - `cd server && pnpm migration`: generate migration based on DB schema changes.
+- `cd server && pnpm database`: see database content.
 - `cd server && pnpm build`: prepare deploy files with production dependencies only.
 - `cd server && pnpm production`: start production build of the server.
 
@@ -64,6 +65,12 @@ To change database schema:
 1. Change [`./db/schema.ts`](./db/schema.ts).
 2. Run `cd server && pnpm migration` to generate new migration.
 3. Restart server. It will apply all new migrations automatically.
+
+You can see local database content by running:
+
+```sh
+cd server && pnpm database
+```
 
 ## Deploy
 
