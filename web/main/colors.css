@@ -1,5 +1,3 @@
-@import url('@evilmartians/harmony/css/index.css');
-
 :root {
   --accent-color: oklch(0.72 0.15 240);
   --focus-color: var(--accent-color);
@@ -35,9 +33,9 @@
       inset 2px 0 0 var(--land-color),
       5px 0 0 var(--land-color),
       -5px 0 0 var(--land-color);
-    --dangerous-card-color: var(--red-100);
-    --dangerous-card-hover-color: color-mix(in oklab, var(--red-100), var(--sand-100));
-    --dangerous-text-color: var(--red-700);
+    --dangerous-card-color: oklch(0.96 0.016 22);
+    --dangerous-card-hover-color: oklch(0.97 0.013 41);
+    --dangerous-text-color: oklch(0.53 0.116 20);
     --button-shadow:
       0 0 0 1px oklch(0 0 0 / 15%),
       inset 0 -5px 5px oklch(from var(--shadow-color) l c h / 8%);
@@ -58,9 +56,9 @@
       0 -1px oklch(0 0 0 / 20%);
     --field-color: oklch(1 0 0);
     --field-shadow: inset 0 1px 2px oklch(from var(--shadow-color) l c h / 8%);
-    --link-color: var(--blue-700);
-    --link-color-visited: var(--fuchsia-700);
-    --inline-code-color: oklch(from var(--neutral-200) l c h / 55%);
+    --link-color: oklch(0.52 0.115 240);
+    --link-color-visited: oklch(0.53 0.116 320);
+    --inline-code-color: oklch(0.92 0 0 / 55%);
 
     &.is-slow-theme {
       --land-color: oklch(0.95 0.02 70);
@@ -76,7 +74,7 @@
     --shadow-color: oklch(0 0 0 / 80%);
     --above-secondary-color: oklch(from var(--land-color) 0.3 c h);
     --border-color: oklch(1 0 0 / 15%);
-    --hover-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));
+    --hover-color: oklch(0.35 0 0);
     --card-shadow: 0 1px 2px oklch(0 0 0), inset 0 1px oklch(1 0 0 / 10%);
     --card-item-above-shadow: inset 0 1px 2px oklch(0 0 0);
     --card-item-pressed-shadow:
@@ -85,9 +83,9 @@
       5px 0 0 var(--land-color),
       -5px 0 0 var(--land-color),
       inset 0 1px 2px oklch(0 0 0);
-    --dangerous-card-color: var(--red-900);
-    --dangerous-card-hover-color: color-mix(in oklab, var(--red-900), var(--red-800));
-    --dangerous-text-color: var(--red-200);
+    --dangerous-card-color: oklch(0.31 0.065 20);
+    --dangerous-card-hover-color: oklch(0.36 0.079 20);
+    --dangerous-text-color: oklch(0.92 0.04 20);
     --button-shadow:
       inset 0 0 0 1px oklch(1 0 0 / 8%),
       inset 0 -5px 5px oklch(0 0 0 / 20%),
@@ -105,15 +103,15 @@
       0 1px oklch(1 0 0 / 20%),
       inset 0 -5px 5px oklch(0 0 0 / 20%);
     --flat-active-shadow: inset 0 1px 2px oklch(0 0 0 / 80%);
-    --field-color: color-mix(in oklch, var(--neutral-900), var(--neutral-800));
+    --field-color: oklch(0.36 0 0);
     --field-shadow: inset 0 1px 2px oklch(0 0 0 / 60%);
-    --link-color: var(--blue-400);
-    --link-color-visited: var(--fuchsia-400);
-    --inline-code-color: oklch(from var(--zinc-800) l c h / 60%);
+    --link-color: oklch(0.78 0.114 240);
+    --link-color-visited: oklch(0.8 0.114 320);
+    --inline-code-color: oklch(0.41 0.007 264 / 60%);
 
     &.is-slow-theme {
       --land-color: oklch(0.25 0.02 70);
-      --hover-color: color-mix(in oklch, var(--sand-900), var(--sand-800));
+      --hover-color: oklch(0.35 0.012 78);
     }
   }
 }

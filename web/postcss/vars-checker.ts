@@ -1,23 +1,13 @@
-// PostCSS plugin for ../script/clean-css.ts to remove unused palette colors
-// and throw error on unused CSS Custom Properties.
+// PostCSS plugin for ../script/check-css.ts to check that we use
+// all defined CSS Custom Properties.
 
 import type { Node, Plugin } from 'postcss'
-
-const SILENT = /^--[a-z]+-\d\d\d?$/
-
-function removeWithEmptyParent(node: Node): void {
-  let parent = node.parent!
-  node.remove()
-  if (parent.nodes!.length === 0) {
-    removeWithEmptyParent(parent)
-  }
-}
 
 let globalUsed = new Set<string>()
 let globalVars = new Set<string>()
 
 export const varsCleaner: Plugin = {
-  postcssPlugin: 'vars-cleaner',
+  postcssPlugin: 'vars-checker',
   prepare() {
     let used = new Set<string>()
     let vars = new Map<string, Node[]>()
@@ -39,15 +29,6 @@ export const varsCleaner: Plugin = {
             }
           }
         }
-      },
-      OnceExit() {
-        for (let [name, decls] of vars) {
-          if (!used.has(name)) {
-            if (SILENT.test(name)) {
-              for (let decl of decls) removeWithEmptyParent(decl)
-            }
-          }
-        }
       }
     }
   }
@@ -57,9 +38,7 @@ export function getVarsCleanerError(): string | undefined {
   let unused = []
   for (let name of globalVars) {
     if (!globalUsed.has(name)) {
-      if (!SILENT.test(name)) {
-        unused.push(name)
-      }
+      unused.push(name)
     }
   }
 
