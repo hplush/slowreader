@@ -16,7 +16,7 @@
     "test:unit": "pnpm bnt",
     "test:names": "../scripts/tsnode ./scripts/check-names.ts",
     "test:css": "stylelint **/*.css **/*.svelte",
-    "test:build": "node --run build && size-limit && ../scripts/tsnode ./scripts/check-css.ts",
+    "test:build": "node --run build && size-limit && ../scripts/tsnode ./scripts/check-css-props.ts",
     "build:routes": "../scripts/tsnode ./scripts/export-routes.ts",
     "build:visual": "NODE_ENV=test storybook build",
     "build:web": "vite build && ../scripts/tsnode scripts/generate-csp.ts",

@@ -4,10 +4,10 @@
 import type { Node, Plugin } from 'postcss'
 
 let globalUsed = new Set<string>()
-let globalVars = new Set<string>()
+let globalProps = new Set<string>()
 
-export const varsCleaner: Plugin = {
-  postcssPlugin: 'vars-checker',
+export const propsChecker: Plugin = {
+  postcssPlugin: 'props-checker',
   prepare() {
     let used = new Set<string>()
     let vars = new Map<string, Node[]>()
@@ -16,7 +16,7 @@ export const varsCleaner: Plugin = {
         if (decl.prop.startsWith('--')) {
           let nodes = vars.has(decl.prop) ? vars.get(decl.prop)! : []
           vars.set(decl.prop, nodes.concat(decl))
-          globalVars.add(decl.prop)
+          globalProps.add(decl.prop)
           decl.raws.between = ':'
         }
         if (decl.value.includes('var(--')) {
@@ -34,9 +34,9 @@ export const varsCleaner: Plugin = {
   }
 }
 
-export function getVarsCleanerError(): string | undefined {
+export function getPropsError(): string | undefined {
   let unused = []
-  for (let name of globalVars) {
+  for (let name of globalProps) {
     if (!globalUsed.has(name)) {
       unused.push(name)
     }
@@ -51,5 +51,5 @@ export function getVarsCleanerError(): string | undefined {
 
 export function resetCleanerGlobals(): void {
   globalUsed = new Set<string>()
-  globalVars = new Set<string>()
+  globalProps = new Set<string>()
 }
