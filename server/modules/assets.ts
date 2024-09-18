@@ -122,6 +122,9 @@ export default async (
       if (pathname.includes('/assets/') && HASHED.test(path)) {
         headers['Cache-Control'] = 'public, immutable'
       }
+      if (contentType === 'text/html' && !pathname.includes('/ui')) {
+        headers = getPageHeaders(data)
+      }
       CACHE[cacheKey] = { contentType, data, headers }
     }
 

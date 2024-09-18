@@ -49,6 +49,10 @@ test('serves static pages', async () => {
   await writeFile(join(assetsDir, 'favicon.ico'), 'A')
   await mkdir(join(assetsDir, 'ui'))
   await writeFile(join(assetsDir, 'ui', 'index.html'), '<html>Storybook</html>')
+  await writeFile(
+    join(assetsDir, '404.html'),
+    '<html><style>:root{}</style><404</html>'
+  )
   await writeFile(join(assetsDir, 'data'), 'D')
   await mkdir(join(assetsDir, 'assets'))
   await writeFile(join(assetsDir, 'assets', 'app-CiUGZyvO.css'), '*{}')
@@ -68,12 +72,22 @@ test('serves static pages', async () => {
   let index1 = await server.fetch('/')
   checkHeaders(index1, {
     'content-security-policy':
-      "base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'; script-src 'self' z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==; style-src 'self' WHD6ulkGEqykJOGo6klppzioMxOPVblnfwiGe1TxkCVE5bOc4v6cMqZ9URL5ooT++J3mAgP102MFoDHPaaX10g==",
+      "base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='; style-src 'self' 'sha256-mXG7JU8TV69JbFGTY1sCBEeSnX7esCXEfbnsKvyjrqE='",
     'content-type': 'text/html',
     'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
     'x-content-type-options': 'nosniff'
   })
   match(await index1.text(), /App/)
+
+  let html = await server.fetch('/404.html')
+  checkHeaders(html, {
+    'content-security-policy':
+      "base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'; script-src 'self'; style-src 'self' 'sha256-h3GYPBFE6Av6zUWOZYeC83lN95g5tnhsj1pyM3woz/c='",
+    'content-type': 'text/html',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    'x-content-type-options': 'nosniff'
+  })
+  match(await html.text(), /<html>/)
 
   let route1 = await server.fetch('/welcome')
   match(await route1.text(), /App/)
