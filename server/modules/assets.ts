@@ -42,8 +42,8 @@ const CONTENT_SECURITY_POLICIES: Record<string, string> = {
 
 const HASHED = /-[\w]{8}\.\w+$/
 
-function sha512(content: string): string {
-  return createHash('sha512').update(content, 'utf8').digest('base64')
+function hash(body: string): string {
+  return `'sha256-${createHash('sha256').update(body).digest('base64')}'`
 }
 
 function getPageHeaders(data: Buffer): Asset['headers'] {
@@ -55,9 +55,9 @@ function getPageHeaders(data: Buffer): Asset['headers'] {
 
   let csp = { ...CONTENT_SECURITY_POLICIES }
   let css = html.match(/<style>([\s\S]*?)<\/style>/)
-  if (css) csp['style-src'] += ' ' + sha512(css[1]!)
+  if (css) csp['style-src'] += ' ' + hash(css[1]!)
   let js = html.match(/<script>([\s\S]*?)<\/script>/)
-  if (js) csp['script-src'] += ' ' + sha512(js[1]!)
+  if (js) csp['script-src'] += ' ' + hash(js[1]!)
 
   headers['Content-Security-Policy'] = Object.entries(csp)
     .map(([k, v]) => `${k} ${v}`)

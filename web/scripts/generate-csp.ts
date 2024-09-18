@@ -10,8 +10,8 @@ const NGINX = join(import.meta.dirname, '../nginx.conf')
 const LOADER = join(import.meta.dirname, '../dist/index.html')
 const ERROR = join(import.meta.dirname, '../dist/404.html')
 
-function hash(content: string): string {
-  return `'sha256-${createHash('sha256').update(content, 'utf8').digest('base64')}'`
+function hash(body: string): string {
+  return `'sha256-${createHash('sha256').update(body).digest('base64')}'`
 }
 
 let [loader, error, nginx] = await Promise.all([
