@@ -3,25 +3,32 @@
 // to nginx config.
 
 import { createHash } from 'node:crypto'
-import { readFileSync, writeFileSync } from 'node:fs'
+import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 const NGINX = join(import.meta.dirname, '../nginx.conf')
-const HTML = join(import.meta.dirname, '../dist/index.html')
+const LOADER = join(import.meta.dirname, '../dist/index.html')
+const ERROR = join(import.meta.dirname, '../dist/404.html')
 
-function sha512(content: string): string {
-  return createHash('sha512').update(content, 'utf8').digest('base64')
+function hash(content: string): string {
+  return `'sha256-${createHash('sha256').update(content, 'utf8').digest('base64')}'`
 }
 
-let html = readFileSync(HTML, 'utf8')
-let css = html.match(/<style>([\s\S]*?)<\/style>/)![1]!
-let js = html.match(/<script>([\s\S]*?)<\/script>/)![1]!
-
-let nginx = readFileSync(NGINX, 'utf8')
+let [loader, error, nginx] = await Promise.all([
+  readFile(LOADER, 'utf8'),
+  readFile(ERROR, 'utf8'),
+  readFile(NGINX, 'utf8')
+])
+let loaderCSS = loader.match(/<style>([\s\S]*?)<\/style>/)![1]!
+let errorCSS = error.match(/<style>([\s\S]*?)<\/style>/)![1]!
+let loaderJS = loader.match(/<script>([\s\S]*?)<\/script>/)![1]!
 
 nginx = nginx
   .toString()
-  .replace(/(style-src 'sha512-)[^']+'/g, `$1${sha512(css)}'`)
-  .replace(/(script-src 'sha512-)[^']+'/g, `$1${sha512(js)}'`)
+  .replace(
+    /style-src 'sha\d+-[^']+' 'sha\d+-[^']+'/g,
+    `style-src ${hash(loaderCSS)} ${hash(errorCSS)}`
+  )
+  .replace(/script-src 'sha\d+-[^']+'/g, `script-src ${hash(loaderJS)}`)
 
-writeFileSync(NGINX, nginx)
+await writeFile(NGINX, nginx)
