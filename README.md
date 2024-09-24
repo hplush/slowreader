@@ -203,7 +203,7 @@ The slow mode should always use a yellow newspaper-like background (on color scr
 
 We are using [Material Design Icons](https://pictogrammers.com/library/mdi/) icons.
 
-We prefer [natural non-linear shadows](https://shadows.brumm.af) for shadows more that 3 pixels.
+We prefer [natural non-linear shadows](https://shadows.brumm.af) for shadows more than 3 pixels.
 
 On desktops, we care not only about mouse UX but also about keyboard UX. Our keyboard UX rules:
 
