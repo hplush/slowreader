@@ -49,7 +49,7 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
      - [Jet Brains IDEs](https://www.jetbrains.com/help/idea/connect-to-devcontainer.html#create_dev_container_inside_ide)
      - [CLI tool](https://github.com/devcontainers/cli)
 
-   - You can also manually install [Node.js](https://nodejs.org/en/download) and [pnpm](https://pnpm.io/installation) versions according to `.node-version` file and `packageManager` key in `package.json`.
+   - You can also manually install [Node.js](https://nodejs.org/en/download/package-manager) and [pnpm](https://pnpm.io/installation) versions according to `.node-version` file and `packageManager` key in `package.json`.
 
 2. Then install all npm dependencies by `pnpm`:
 
@@ -158,6 +158,6 @@ There is no any specific rules about git branch names.
 
 Run `pnpm test` before creating pull request.
 
-Use [`Draft`](https://github.blog/2019-02-14-introducing-draft-pull-requests/) pull request when it is not ready to review. When it will be ready press `Ready for review` button.
+Use [`Draft`](https://github.blog/news-insights/product-news/introducing-draft-pull-requests/) pull request when it is not ready to review. When it will be ready press `Ready for review` button.
 
 After fixing issue mentioned in PR conversation, press `Resolve conversation` button.
