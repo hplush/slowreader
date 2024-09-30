@@ -25,7 +25,7 @@ Also, feel free to ask any questions about career and development. If you are he
 
 - In the project, we are using **English**.
 - Most contributors are _not native speaker_. Don’t be afraid of your language if you are not a native English speaker too.
-- Feel free to use _automatic translators_. Use [DeepL to write issues](https://www.deepl.com/translator) and the browser’s translation to read docs.
+- Feel free to use _automatic translators_. Use [DeepL to write issues](https://www.deepl.com/) and the browser’s translation to read docs.
 
 ## Where to Ask Questions
 
@@ -123,7 +123,7 @@ If you are not just fixing a bug but want to join the core team, here is the pat
    1. Choose any task that fits the best to you. Labels can help you focus on your category.
    2. Write there `I want to take it`.
    3. The task will be reserved for you for a week.
-   4. Don’t worry if a week is not enough. Just make a [draft PR](https://github.blog/2019-02-14-introducing-draft-pull-requests/).
+   4. Don’t worry if a week is not enough. Just make a [draft PR](https://github.blog/news-insights/product-news/introducing-draft-pull-requests/).
 3. After the onboarding, you can take tasks from the `Ready to Take` column. See the discussions in issues to pick next one.
 
 Feel free to ask [maintainer](https://t.me/sitnik) about your next task.
