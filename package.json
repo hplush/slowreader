@@ -41,17 +41,17 @@
   ],
   "devDependencies": {
     "@logux/eslint-config": "53.4.0",
-    "@types/chrome": "^0.0.271",
-    "@types/node": "22.5.5",
+    "@types/chrome": "^0.0.273",
+    "@types/node": "22.7.4",
     "@types/ws": "8.5.12",
     "better-node-test": "0.7.1",
-    "eslint": "9.10.0",
-    "eslint-plugin-svelte": "^2.44.0",
+    "eslint": "9.11.1",
+    "eslint-plugin-svelte": "^2.44.1",
     "husky": "^9.1.6",
     "nano-staged": "0.8.0",
     "postcss-html": "1.7.0",
     "prettier": "3.3.3",
-    "prettier-plugin-svelte": "3.2.6",
+    "prettier-plugin-svelte": "3.2.7",
     "remark-cli": "^12.0.1",
     "remark-lint-check-toc": "^1.0.0",
     "remark-lint-code-block-split-list": "^1.0.0",
@@ -60,7 +60,7 @@
     "remark-lint-heading-capitalization": "^1.2.0",
     "remark-lint-heading-increment": "^4.0.0",
     "remark-lint-match-punctuation": "^0.2.1",
-    "remark-lint-no-dead-urls": "^1.1.0",
+    "remark-lint-no-dead-urls": "^2.0.0",
     "remark-lint-no-shell-dollars": "^4.0.0",
     "remark-lint-smarty-pants-typography": "^1.1.0",
     "remark-validate-links": "^13.0.1",
@@ -68,5 +68,10 @@
     "svelte-check": "4.0.2",
     "svgo": "3.3.2",
     "typescript": "5.6.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "rollup@<2.79.2": ">=2.79.2"
+    }
   }
 }
