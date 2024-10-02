@@ -3,13 +3,15 @@
   import {
     backRoute,
     isFastRoute,
+    isMenuOpened,
     isOtherRoute,
     isRefreshing,
     isSlowRoute,
     refreshPosts,
     refreshProgress,
     router,
-    navbarMessages as t
+    navbarMessages as t,
+    toggleMenu
   } from '@slowreader/core'
   import { onMount } from 'svelte'
 
@@ -23,29 +25,23 @@
   import NavbarProgress from './progress.svelte'
   import NavbarSlow from './slow.svelte'
 
-  let isMenuOpened = $state(false)
-
-  function closeOnAnyClick(): void {
-    if (isMenuOpened) {
-      isMenuOpened = false
-      document.removeEventListener('click', closeOnAnyClick)
+  isMenuOpened.listen(isOpened => {
+    if (isOpened) {
+      setTimeout(() => {
+        document.addEventListener('click', toggleMenu)
+      }, 1)
+    } else {
+      document.removeEventListener('click', toggleMenu)
     }
-  }
+  })
 
   onMount(() => {
     document.documentElement.classList.add('has-navbar')
     return () => {
-      document.removeEventListener('click', closeOnAnyClick)
+      document.removeEventListener('click', toggleMenu)
       document.documentElement.classList.remove('has-navbar')
     }
   })
-
-  function openMenu(): void {
-    isMenuOpened = true
-    setTimeout(() => {
-      document.addEventListener('click', closeOnAnyClick)
-    }, 1)
-  }
 </script>
 
 <nav class="navbar">
@@ -91,7 +87,7 @@
         aria-haspopup="menu"
         aria-keyshortcuts="u"
         href={getURL('slow')}
-        onclick={openMenu}
+        onclick={toggleMenu}
         role="menuitem"
       >
         <div class="navbar_overflow">
@@ -109,7 +105,7 @@
         aria-haspopup="menu"
         aria-keyshortcuts="f"
         href={getURL('fast')}
-        onclick={openMenu}
+        onclick={toggleMenu}
         role="menuitem"
       >
         <div class="navbar_overflow">
@@ -127,7 +123,7 @@
       hotkey="m"
       href={isOtherRoute($router) ? undefined : getURL('add')}
       icon={mdiMenu}
-      onclick={openMenu}
+      onclick={toggleMenu}
       small
       submenu
     />
@@ -135,7 +131,7 @@
   <div
     id="navbar_submenu"
     class="navbar_submenu"
-    class:is-opened={isMenuOpened}
+    class:is-opened={$isMenuOpened}
     aria-hidden="true"
     role="menu"
   >
