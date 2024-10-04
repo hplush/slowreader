@@ -13,14 +13,14 @@
     secondary = false,
     wide = false,
     ...rest
-  }: {
+  }: ({ children: Snippet } | { hiddenLabel: string }) & {
     dangerous?: boolean
     hotkey?: string
     icon?: string
     onclick?: (event: MouseEvent) => void
     secondary?: boolean
     wide?: boolean
-  } & ({ children: Snippet } | { hiddenLabel: string }) &
+  } &
     ({ href: string } | HTMLButtonAttributes) = $props()
 </script>
 
