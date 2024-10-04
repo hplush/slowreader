@@ -128,6 +128,9 @@ importers:
       just-debounce-it:
         specifier: 3.2.0
         version: 3.2.0
+      nanodelay:
+        specifier: ^2.0.2
+        version: 2.0.2
       nanoid:
         specifier: 5.0.7
         version: 5.0.7

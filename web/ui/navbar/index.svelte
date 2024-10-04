@@ -88,7 +88,7 @@
         aria-haspopup="menu"
         aria-keyshortcuts="u"
         href={getURL('slow')}
-        onclick={$router.route === 'slow' ? openMenu : () => {}}
+        onclick={openMenu}
         role="menuitem"
       >
         <div class="navbar_overflow">
@@ -106,7 +106,7 @@
         aria-haspopup="menu"
         aria-keyshortcuts="f"
         href={getURL('fast')}
-        onclick={$router.route === 'fast' ? openMenu : () => {}}
+        onclick={openMenu}
         role="menuitem"
       >
         <div class="navbar_overflow">
