@@ -8,13 +8,14 @@ import {
   addFeed,
   addPost,
   clearFast,
+  closeMenu,
   fastCategories,
   isMenuOpened,
+  openMenu,
   setBaseTestRoute,
   slowCategories,
   testFeed,
-  testPost,
-  toggleMenu
+  testPost
 } from '../index.ts'
 import { cleanClientTest, enableClientTest } from './utils.ts'
 
@@ -24,12 +25,12 @@ beforeEach(() => {
 
 afterEach(async () => {
   clearFast()
-  cleanStores(fastCategories, slowCategories)
+  cleanStores(fastCategories, slowCategories, isMenuOpened)
   await setTimeout(10)
   await cleanClientTest()
 })
 
-test('works if fast and slow has categories', async () => {
+test('open the menu if fast or slow has categories', async () => {
   setBaseTestRoute({ params: {}, route: 'add' })
   let idA = await addCategory({ title: 'A' })
   await addFeed(testFeed({ reading: 'fast' }))
@@ -50,58 +51,45 @@ test('works if fast and slow has categories', async () => {
   await setTimeout(100)
   equal(isMenuOpened.get(), true)
 
-  toggleMenu()
+  closeMenu()
   equal(isMenuOpened.get(), false)
 
-  toggleMenu()
+  openMenu()
   equal(isMenuOpened.get(), true)
 
   setBaseTestRoute({ params: {}, route: 'slow' })
+  closeMenu()
   await setTimeout(100)
+
   equal(isMenuOpened.get(), true)
 
-  toggleMenu()
+  closeMenu()
   equal(isMenuOpened.get(), false)
 
-  toggleMenu()
+  openMenu()
   equal(isMenuOpened.get(), true)
 })
 
-test('works if fast and slow has not categories', async () => {
+test('do not open the menu if fast or slow does not have categories', async () => {
   setBaseTestRoute({ params: {}, route: 'add' })
+
   setBaseTestRoute({ params: {}, route: 'fast' })
+  closeMenu()
   await setTimeout(100)
 
-  equal(isMenuOpened.get(), false)
-
-  toggleMenu()
-  equal(isMenuOpened.get(), false)
-
-  toggleMenu()
   equal(isMenuOpened.get(), false)
 
   setBaseTestRoute({ params: {}, route: 'slow' })
+  closeMenu()
   await setTimeout(100)
 
-  equal(isMenuOpened.get(), false)
-
-  toggleMenu()
-  equal(isMenuOpened.get(), false)
-
-  toggleMenu()
   equal(isMenuOpened.get(), false)
 })
 
-test('works on other routes', async () => {
+test('open the menu on the add route if we switch from the fast or slow routes', async () => {
   setBaseTestRoute({ params: {}, route: 'fast' })
   await setTimeout(100)
 
-  equal(isMenuOpened.get(), false)
-
-  toggleMenu()
-  equal(isMenuOpened.get(), false)
-
-  toggleMenu()
   equal(isMenuOpened.get(), false)
 
   setBaseTestRoute({ params: {}, route: 'add' })
@@ -109,9 +97,27 @@ test('works on other routes', async () => {
 
   equal(isMenuOpened.get(), true)
 
-  toggleMenu()
+  closeMenu()
+  equal(isMenuOpened.get(), false)
+})
+
+test('do not open the menu on the add route if we switch from other routes', async () => {
+  setBaseTestRoute({ params: {}, route: 'export' })
+  await setTimeout(100)
+
   equal(isMenuOpened.get(), false)
 
-  toggleMenu()
+  openMenu()
+
+  setBaseTestRoute({ params: {}, route: 'add' })
+  closeMenu()
+  await setTimeout(100)
+
+  equal(isMenuOpened.get(), false)
+
+  openMenu()
   equal(isMenuOpened.get(), true)
+
+  closeMenu()
+  equal(isMenuOpened.get(), false)
 })

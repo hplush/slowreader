@@ -1,47 +1,48 @@
-import { atom, computed } from 'nanostores'
+import { atom } from 'nanostores'
 
 import { fastCategories } from './fast.ts'
 import { router } from './router.ts'
 import { slowCategories } from './slow.ts'
 
-const isMenuShowed = atom<boolean>(false)
+export const isMenuOpened = atom<boolean>(false)
 
-const isMenuHasItems = computed(
-  [router, fastCategories, slowCategories],
-  (r, f, s) => {
-    if (r.route === 'fast') {
-      return !f.isLoading && f.categories.length > 1
+let targetRoutes = new Set(['fast', 'slow'])
+
+export function openMenu(): void {
+  if (router.get().route === 'slow') {
+    let slowCategoriesValue = slowCategories.get()
+    if (!slowCategoriesValue.isLoading && slowCategoriesValue.tree.length > 1) {
+      isMenuOpened.set(true)
     }
-
-    if (r.route === 'slow') {
-      return !s.isLoading && s.tree.length > 1
+  } else if (router.get().route === 'fast') {
+    let fastCategoriesValue = fastCategories.get()
+    if (
+      !fastCategoriesValue.isLoading &&
+      fastCategoriesValue.categories.length > 1
+    ) {
+      isMenuOpened.set(true)
     }
-
-    return true
+  } else if (!targetRoutes.has(router.get().route)) {
+    isMenuOpened.set(true)
   }
-)
-
-export function toggleMenu(): void {
-  isMenuShowed.set(!isMenuShowed.get())
 }
 
-export const isMenuOpened = computed(
-  [isMenuShowed, isMenuHasItems],
-  (isShowed, isHasItems) => {
-    return isShowed && isHasItems
-  }
-)
+export function closeMenu(): void {
+  isMenuOpened.set(false)
+}
 
 router.subscribe((newRoute, prevRoute) => {
-  let targetRoutes = ['add', 'slow', 'fast']
-
   if (
     prevRoute &&
-    targetRoutes.includes(newRoute.route) &&
+    targetRoutes.has(newRoute.route) &&
     newRoute.route !== prevRoute.route
   ) {
     setTimeout(() => {
-      isMenuShowed.set(true)
-    }, 1)
+      openMenu()
+    }, 0)
+  } else if (newRoute.route === 'add' && targetRoutes.has(prevRoute!.route)) {
+    setTimeout(() => {
+      openMenu()
+    }, 0)
   }
 })
