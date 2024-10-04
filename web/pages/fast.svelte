@@ -16,13 +16,13 @@
   import PostCard from '../ui/post-card.svelte'
   import TwoStepsPage from '../ui/two-steps-page.svelte'
 
-  let layout: TwoStepsPage
+  let layout: TwoStepsPage | undefined
 
   onMount(() => {
     return fastPosts.subscribe(() => {
       if ($fastPosts.length > 0) {
         tick().then(() => {
-          layout.scrollFirstToTop()
+          layout?.scrollFirstToTop()
         })
       }
     })
