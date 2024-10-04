@@ -1,7 +1,7 @@
 {
   "*.{js,ts,html,md,cjs,json}": "prettier --write",
   "*.css": "stylelint --fix",
-  "*.svelte": ["prettier --write"],
+  "*.svelte": ["prettier --write", "stylelint --fix"],
   "*.svg": "svgo",
   ".devcontainer/Dockerfile": "bash ./scripts/tsnode ./scripts/check-versions.ts",
   ".node-version": "bash ./scripts/tsnode ./scripts/check-versions.ts",
