@@ -2,10 +2,13 @@
   import { mdiChevronLeft, mdiFood, mdiMenu, mdiRefresh } from '@mdi/js'
   import {
     backRoute,
+    closeMenu,
     isFastRoute,
+    isMenuOpened,
     isOtherRoute,
     isRefreshing,
     isSlowRoute,
+    openMenu,
     refreshPosts,
     refreshProgress,
     router,
@@ -23,29 +26,23 @@
   import NavbarProgress from './progress.svelte'
   import NavbarSlow from './slow.svelte'
 
-  let isMenuOpened = $state(false)
-
-  function closeOnAnyClick(): void {
-    if (isMenuOpened) {
-      isMenuOpened = false
-      document.removeEventListener('click', closeOnAnyClick)
+  isMenuOpened.listen((isOpened: boolean) => {
+    if (isOpened) {
+      setTimeout(() => {
+        document.addEventListener('click', closeMenu)
+      }, 1)
+    } else {
+      document.removeEventListener('click', closeMenu)
     }
-  }
+  })
 
   onMount(() => {
     document.documentElement.classList.add('has-navbar')
     return () => {
-      document.removeEventListener('click', closeOnAnyClick)
+      document.removeEventListener('click', closeMenu)
       document.documentElement.classList.remove('has-navbar')
     }
   })
-
-  function openMenu(): void {
-    isMenuOpened = true
-    setTimeout(() => {
-      document.addEventListener('click', closeOnAnyClick)
-    }, 1)
-  }
 </script>
 
 <nav class="navbar">
@@ -91,7 +88,7 @@
         aria-haspopup="menu"
         aria-keyshortcuts="u"
         href={getURL('slow')}
-        onclick={openMenu}
+        onclick={$router.route === 'slow' ? openMenu : () => {}}
         role="menuitem"
       >
         <div class="navbar_overflow">
@@ -109,7 +106,7 @@
         aria-haspopup="menu"
         aria-keyshortcuts="f"
         href={getURL('fast')}
-        onclick={openMenu}
+        onclick={$router.route === 'fast' ? openMenu : () => {}}
         role="menuitem"
       >
         <div class="navbar_overflow">
@@ -135,7 +132,7 @@
   <div
     id="navbar_submenu"
     class="navbar_submenu"
-    class:is-opened={isMenuOpened}
+    class:is-opened={$isMenuOpened}
     aria-hidden="true"
     role="menu"
   >
