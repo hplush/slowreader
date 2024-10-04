@@ -2,16 +2,17 @@
   import { mdiChevronLeft, mdiFood, mdiMenu, mdiRefresh } from '@mdi/js'
   import {
     backRoute,
+    closeMenu,
     isFastRoute,
     isMenuOpened,
     isOtherRoute,
     isRefreshing,
     isSlowRoute,
+    openMenu,
     refreshPosts,
     refreshProgress,
     router,
-    navbarMessages as t,
-    toggleMenu
+    navbarMessages as t
   } from '@slowreader/core'
   import { onMount } from 'svelte'
 
@@ -25,20 +26,20 @@
   import NavbarProgress from './progress.svelte'
   import NavbarSlow from './slow.svelte'
 
-  isMenuOpened.listen(isOpened => {
+  isMenuOpened.listen((isOpened: boolean) => {
     if (isOpened) {
       setTimeout(() => {
-        document.addEventListener('click', toggleMenu)
+        document.addEventListener('click', closeMenu)
       }, 1)
     } else {
-      document.removeEventListener('click', toggleMenu)
+      document.removeEventListener('click', closeMenu)
     }
   })
 
   onMount(() => {
     document.documentElement.classList.add('has-navbar')
     return () => {
-      document.removeEventListener('click', toggleMenu)
+      document.removeEventListener('click', closeMenu)
       document.documentElement.classList.remove('has-navbar')
     }
   })
@@ -87,7 +88,7 @@
         aria-haspopup="menu"
         aria-keyshortcuts="u"
         href={getURL('slow')}
-        onclick={toggleMenu}
+        onclick={$router.route === 'slow' ? openMenu : () => {}}
         role="menuitem"
       >
         <div class="navbar_overflow">
@@ -105,7 +106,7 @@
         aria-haspopup="menu"
         aria-keyshortcuts="f"
         href={getURL('fast')}
-        onclick={toggleMenu}
+        onclick={$router.route === 'fast' ? openMenu : () => {}}
         role="menuitem"
       >
         <div class="navbar_overflow">
@@ -123,7 +124,7 @@
       hotkey="m"
       href={isOtherRoute($router) ? undefined : getURL('add')}
       icon={mdiMenu}
-      onclick={toggleMenu}
+      onclick={openMenu}
       small
       submenu
     />
