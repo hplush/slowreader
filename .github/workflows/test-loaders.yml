@@ -31,5 +31,5 @@ jobs:
         uses: actions/checkout@v4.2.0
       - name: Initialize Node.js
         uses: ./.github/actions/init-node
-      - name: Loaders Test
+      - name: Run tests
         run: node --run test-loaders

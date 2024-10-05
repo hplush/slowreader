@@ -1,15 +1,15 @@
-name: Daily Loaders Test
+name: Daily Vulnerability Audit
 on:
   schedule:
     - cron: '00 23 * * *' # Runs at midnight UTC every day
 jobs:
-  test:
-    name: Test
+  audit:
+    name: Audit
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4.1.7
       - name: Initialize Node.js
         uses: ./.github/actions/init-node
-      - name: Loaders Test
+      - name: Run audit
         run: node --run test:audit
