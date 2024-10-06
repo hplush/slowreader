@@ -80,10 +80,12 @@ router.subscribe(page => {
   }
 })
 
-setIsMobile(window.innerWidth < 1024)
+const MOBILE_WIDTH = 1024
+
+setIsMobile(window.innerWidth < MOBILE_WIDTH)
 
 window
-  .matchMedia('(max-width: 1024px)')
+  .matchMedia(`(max-width: ${MOBILE_WIDTH}px)`)
   .addEventListener('change', (event: MediaQueryListEvent) => {
     setIsMobile(event.matches)
   })
