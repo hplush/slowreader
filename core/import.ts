@@ -38,7 +38,7 @@ export const importErrors = readonlyExport($importErrors)
 let $categories = atom<CategoryValue[]>([])
 let $feeds = atom<FeedValue[]>([])
 
-// just subscribe() doesnt work in test
+// just subscribe() does not work in test
 export function importSubscribe(): void {
   $feeds.set(
     Array.from(
