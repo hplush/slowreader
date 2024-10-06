@@ -12,7 +12,7 @@ import {
 test('throws on current environment if it is not set', () => {
   throws(() => {
     getEnvironment()
-  }, 'SlowReaderError: SlowReaderNoEnvironment')
+  }, 'Error: No Slow Reader environment')
 })
 
 test('runs callback when environment will be set', () => {

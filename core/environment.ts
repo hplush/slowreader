@@ -8,7 +8,6 @@ import {
 } from '@nanostores/persistent'
 import { atom, type ReadableAtom, type StoreValue } from 'nanostores'
 
-import { SlowReaderError } from './error.ts'
 import type { BaseRoute, BaseRouter, Route, Routes } from './router.ts'
 
 interface LogStoreCreator {
@@ -114,7 +113,7 @@ export function setupEnvironment<Router extends BaseRouter>(
 
 export function getEnvironment(): Environment {
   if (!currentEnvironment) {
-    throw new SlowReaderError('NoEnvironment')
+    throw new Error('No Slow Reader environment')
   }
   return currentEnvironment
 }

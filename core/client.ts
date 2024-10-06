@@ -4,7 +4,6 @@ import { SUBPROTOCOL } from '@slowreader/api'
 import { atom } from 'nanostores'
 
 import { onEnvironment } from './environment.ts'
-import { SlowReaderError } from './error.ts'
 import { computeFrom, readonlyExport } from './lib/stores.ts'
 import { userId } from './settings.ts'
 
@@ -52,7 +51,7 @@ onEnvironment(({ logStoreCreator }) => {
 export function getClient(): CrossTabClient {
   let logux = client.get()
   if (!logux) {
-    throw new SlowReaderError('NoClient')
+    throw new Error('No Slow Reader client')
   }
   return logux
 }
