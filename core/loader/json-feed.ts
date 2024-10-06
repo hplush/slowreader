@@ -1,7 +1,7 @@
 import { warning } from '../devtools.ts'
 import type { TextResponse } from '../download.ts'
 import type { OriginPost } from '../post.ts'
-import { createPostsPage } from '../posts-page.ts'
+import { createPostsList } from '../posts-list.ts'
 import type { Loader } from './index.ts'
 import {
   findAnchorHrefs,
@@ -141,9 +141,9 @@ export const jsonFeed: Loader = {
 
   getPosts(task, url, text) {
     if (text) {
-      return createPostsPage(parsePosts(text), undefined)
+      return createPostsList(parsePosts(text), undefined)
     } else {
-      return createPostsPage(undefined, async () => {
+      return createPostsList(undefined, async () => {
         return [parsePosts(await task.text(url)), undefined]
       })
     }

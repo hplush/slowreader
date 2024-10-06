@@ -1,7 +1,7 @@
 <script lang="ts">
   import {
     type FilterValue,
-    type PostsPage,
+    type PostsList,
     prepareFilters
   } from '@slowreader/core'
 
@@ -15,7 +15,7 @@
   }: {
     defaultReading?: 'fast' | 'slow'
     filters?: FilterValue[]
-    posts: PostsPage
+    posts: PostsList
   } = $props()
 
   let checker = $derived(prepareFilters(filters))

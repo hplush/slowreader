@@ -21,7 +21,7 @@
     isValidFilterQuery,
     moveFilterDown,
     moveFilterUp,
-    type PostsPage,
+    type PostsList,
     removeFeedFromRoute,
     sortFilters,
     organizeMessages as t
@@ -36,7 +36,7 @@
   import TextField from '../../ui/text-field.svelte'
   import FeedsPosts from './posts.svelte'
 
-  let { feedId, posts }: { feedId: string; posts?: PostsPage } = $props()
+  let { feedId, posts }: { feedId: string; posts?: PostsList } = $props()
 
   let categories = getCategories()
 

@@ -83,7 +83,7 @@ export async function refreshPosts(): Promise<void> {
 
       while (pages.get().hasNext) {
         let posts = await retryOnError(
-          () => pages.nextPage(),
+          () => pages.next(),
           () => {
             increaseKey($stats, 'errors')
           }

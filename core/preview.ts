@@ -13,7 +13,7 @@ import { addFeed, type FeedValue, getFeeds } from './feed.ts'
 import { readonlyExport } from './lib/stores.ts'
 import { type LoaderName, loaders } from './loader/index.ts'
 import { addPost, processOriginPost } from './post.ts'
-import type { PostsPage } from './posts-page.ts'
+import type { PostsList } from './posts-list.ts'
 import { router } from './router.ts'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
@@ -86,7 +86,7 @@ export const previewCandidate = readonlyExport($candidate)
 let $added = atom<false | string | undefined>(false)
 export const previewCandidateAdded = readonlyExport($added)
 
-let $posts = atom<PostsPage | undefined>()
+let $posts = atom<PostsList | undefined>()
 export const previewPosts = readonlyExport($posts)
 
 export const previewNoResults = computed(
@@ -98,7 +98,7 @@ export const previewNoResults = computed(
 
 let prevHasUnbind: (() => void) | undefined
 
-let postsCache = new Map<string, PostsPage>()
+let postsCache = new Map<string, PostsList>()
 
 export function clearPreview(): void {
   prevHasUnbind?.()

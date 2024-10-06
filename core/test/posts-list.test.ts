@@ -1,7 +1,7 @@
 import { deepStrictEqual } from 'node:assert'
 import { test } from 'node:test'
 
-import { createPostsPage, type OriginPost } from '../index.ts'
+import { createPostsList, type OriginPost } from '../index.ts'
 
 const POST1: OriginPost = {
   full: '1',
@@ -16,14 +16,14 @@ const POST2: OriginPost = {
 }
 
 test('works with cached posts without next page', async () => {
-  let posts = createPostsPage([POST1], undefined)
+  let posts = createPostsList([POST1], undefined)
   deepStrictEqual(posts.get(), {
     hasNext: false,
     isLoading: false,
     list: [POST1]
   })
 
-  let promise = posts.nextPage()
+  let promise = posts.next()
   deepStrictEqual(posts.get(), {
     hasNext: false,
     isLoading: false,
@@ -33,7 +33,7 @@ test('works with cached posts without next page', async () => {
 })
 
 test('works without posts', async () => {
-  let posts = createPostsPage(undefined, async () => {
+  let posts = createPostsList(undefined, async () => {
     return [[POST1], async () => [[POST2], undefined]]
   })
   deepStrictEqual(posts.get(), {
@@ -50,7 +50,7 @@ test('works without posts', async () => {
   })
   deepStrictEqual(next1, [POST1])
 
-  let promise2 = posts.nextPage()
+  let promise2 = posts.next()
   deepStrictEqual(posts.get(), {
     hasNext: true,
     isLoading: true,
@@ -65,7 +65,7 @@ test('works without posts', async () => {
   })
   deepStrictEqual(await promise2, [POST2])
 
-  let promise3 = posts.nextPage()
+  let promise3 = posts.next()
   deepStrictEqual(posts.get(), {
     hasNext: false,
     isLoading: false,
@@ -75,10 +75,10 @@ test('works without posts', async () => {
 })
 
 test('is ready for double calls', async () => {
-  let posts = createPostsPage(undefined, async () => {
+  let posts = createPostsList(undefined, async () => {
     return [[POST1], async () => [[POST2], undefined]]
   })
-  posts.nextPage()
+  posts.next()
   await posts.loading
   deepStrictEqual(posts.get(), {
     hasNext: true,
@@ -86,8 +86,8 @@ test('is ready for double calls', async () => {
     list: [POST1]
   })
 
-  let promise1 = posts.nextPage()
-  let promise2 = posts.nextPage()
+  let promise1 = posts.next()
+  let promise2 = posts.next()
   deepStrictEqual(posts.get(), {
     hasNext: true,
     isLoading: true,
@@ -105,7 +105,7 @@ test('is ready for double calls', async () => {
 })
 
 test('works with cached posts with next page loader', async () => {
-  let posts = createPostsPage([POST1], async () => {
+  let posts = createPostsList([POST1], async () => {
     return [[POST2], undefined]
   })
   deepStrictEqual(posts.get(), {
@@ -114,7 +114,7 @@ test('works with cached posts with next page loader', async () => {
     list: [POST1]
   })
 
-  posts.nextPage()
+  posts.next()
   deepStrictEqual(posts.get(), {
     hasNext: true,
     isLoading: true,

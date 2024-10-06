@@ -17,7 +17,7 @@ import { createDownloadTask } from './download.ts'
 import { type OptionalId, readonlyExport } from './lib/stores.ts'
 import { type LoaderName, loaders } from './loader/index.ts'
 import { deletePost, loadPosts, recalcPostsReading } from './post.ts'
-import type { PostsPage } from './posts-page.ts'
+import type { PostsList } from './posts-list.ts'
 
 export type FeedValue = {
   categoryId: string
@@ -108,7 +108,7 @@ export async function changeFeed(
 export function getFeedLatestPosts(
   feed: FeedValue,
   task = createDownloadTask()
-): PostsPage {
+): PostsList {
   return loaders[feed.loader].getPosts(task, feed.url)
 }
 

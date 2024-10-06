@@ -14,7 +14,7 @@ export async function fillFeedsWithPosts(): Promise<void> {
         for (let post of old) {
           await deletePost(post.id)
         }
-        let posts = await getFeedLatestPosts(feed, task).nextPage()
+        let posts = await getFeedLatestPosts(feed, task).next()
         let filters = prepareFilters(await loadFilters({ feedId: feed.id }))
         for (let origin of posts) {
           let reading = filters(origin) ?? feed.reading

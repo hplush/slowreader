@@ -11,7 +11,7 @@ import {
   addPost,
   changeFeed,
   changeFilter,
-  createPostsPage,
+  createPostsList,
   deleteFeed,
   deleteFilter,
   type FilterValue,
@@ -86,7 +86,7 @@ test('removes feed posts too', async () => {
 })
 
 test('loads latest posts', async () => {
-  let page = createPostsPage([], undefined)
+  let page = createPostsList([], undefined)
   let getPage = spyOn(loaders.rss, 'getPosts', () => page)
 
   let id = await addFeed(

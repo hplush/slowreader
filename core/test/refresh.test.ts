@@ -7,7 +7,7 @@ import {
   addFeed,
   addFilter,
   checkAndRemoveRequestMock,
-  createPostsPage,
+  createPostsList,
   deleteFeed,
   expectRequest,
   isRefreshing,
@@ -15,7 +15,7 @@ import {
   loadFeed,
   loadPosts,
   mockRequest,
-  type PostsPageResult,
+  type PostsListResult,
   type PostValue,
   refreshPosts,
   refreshProgress,
@@ -86,13 +86,13 @@ test('updates posts', async () => {
     totalFeeds: 0
   })
 
-  let rss1 = createPromise<PostsPageResult>()
+  let rss1 = createPromise<PostsListResult>()
   let rssLoad = spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsPage(undefined, () => rss1.promise())
+    return createPostsList(undefined, () => rss1.promise())
   })
-  let atom1 = createPromise<PostsPageResult>()
+  let atom1 = createPromise<PostsListResult>()
   let atomLoad = spyOn(loaders.atom, 'getPosts', () => {
-    return createPostsPage(undefined, () => atom1.promise())
+    return createPostsList(undefined, () => atom1.promise())
   })
 
   let finished = false
@@ -214,12 +214,12 @@ test('updates posts', async () => {
 
   restoreAll()
   spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsPage(undefined, async () => {
+    return createPostsList(undefined, async () => {
       return [[{ media: [], originId: 'post3', title: '3' }], undefined]
     })
   })
   spyOn(loaders.atom, 'getPosts', () => {
-    return createPostsPage(undefined, async () => {
+    return createPostsList(undefined, async () => {
       return [
         [
           { media: [], originId: 'post9', publishedAt: 9000, title: '9 delete' }
@@ -254,9 +254,9 @@ test('is ready to feed deletion during refreshing', async () => {
       reading: 'slow'
     })
   )
-  let rss1 = createPromise<PostsPageResult>()
+  let rss1 = createPromise<PostsListResult>()
   spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsPage(undefined, () => rss1.promise())
+    return createPostsList(undefined, () => rss1.promise())
   })
 
   refreshPosts()
@@ -325,7 +325,7 @@ test('is ready for network errors', async () => {
 
   let rssHadError = false
   spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsPage(undefined, async () => {
+    return createPostsList(undefined, async () => {
       if (rssHadError) {
         return [[{ media: [], originId: 'post1', title: '1' }], undefined]
       } else {
@@ -335,7 +335,7 @@ test('is ready for network errors', async () => {
     })
   })
   spyOn(loaders.atom, 'getPosts', () => {
-    return createPostsPage(undefined, async () => {
+    return createPostsList(undefined, async () => {
       throw new Error('server not working')
     })
   })
@@ -363,7 +363,7 @@ test('is ready to not found previous ID and time', async () => {
     })
   )
   spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsPage(undefined, async () => {
+    return createPostsList(undefined, async () => {
       return [
         [
           { media: [], originId: 'post6', publishedAt: 6000, title: '6' },
@@ -394,7 +394,7 @@ test('sorts posts', async () => {
     })
   )
   spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsPage(undefined, async () => {
+    return createPostsList(undefined, async () => {
       return [
         [
           { media: [], originId: 'post1', publishedAt: 1000, title: '1' },

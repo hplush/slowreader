@@ -2,51 +2,51 @@ import { map, type ReadableAtom, type StoreValue } from 'nanostores'
 
 import type { OriginPost } from './post.ts'
 
-export interface PostsPageValue {
+export interface PostsListValue {
   hasNext: boolean
   isLoading: boolean
   list: OriginPost[]
 }
 
-export type PostsPage = {
+export type PostsList = {
   loading: Promise<OriginPost[]>
-  nextPage(): Promise<OriginPost[]>
-} & ReadableAtom<PostsPageValue>
+  next(): Promise<OriginPost[]>
+} & ReadableAtom<PostsListValue>
 
-export type PostsPageResult = [OriginPost[], PostsPageLoader | undefined]
+export type PostsListResult = [OriginPost[], PostsListLoader | undefined]
 
-export interface PostsPageLoader {
-  (): Promise<PostsPageResult>
+export interface PostsListLoader {
+  (): Promise<PostsListResult>
 }
 
-interface CreatePostsPage {
-  (posts: OriginPost[], loadNext: PostsPageLoader | undefined): PostsPage
-  (posts: undefined, loadNext: PostsPageLoader): PostsPage
+interface CreatePostsList {
+  (posts: OriginPost[], loadNext: PostsListLoader | undefined): PostsList
+  (posts: undefined, loadNext: PostsListLoader): PostsList
 }
 
-export const createPostsPage: CreatePostsPage = (posts, loadNext) => {
-  let $map = map<StoreValue<PostsPage>>({
+export const createPostsList: CreatePostsList = (posts, loadNext) => {
+  let $map = map<StoreValue<PostsList>>({
     hasNext: true,
     isLoading: true,
     list: []
   })
   let $store = {
     ...$map,
-    loading: Promise.resolve([]) as PostsPage['loading'],
-    nextPage
+    loading: Promise.resolve([]) as PostsList['loading'],
+    next
   }
 
   let isLoading = false
-  async function nextPage(): ReturnType<PostsPage['nextPage']> {
+  async function next(): ReturnType<PostsList['next']> {
     if (!loadNext) return Promise.resolve([])
     if (isLoading) return $store.loading
     isLoading = true
     $store.setKey('isLoading', true)
-    $store.loading = loadNext().then(([nextPosts, next]) => {
-      loadNext = next
+    $store.loading = loadNext().then(([nextPosts, nextLoader]) => {
+      loadNext = nextLoader
       isLoading = false
       $store.set({
-        hasNext: !!next,
+        hasNext: !!nextLoader,
         isLoading: false,
         list: $store.get().list.concat(nextPosts)
       })
@@ -62,7 +62,7 @@ export const createPostsPage: CreatePostsPage = (posts, loadNext) => {
       list: posts
     })
   } else {
-    nextPage().catch(() => {
+    next().catch(() => {
       isLoading = false
     })
   }

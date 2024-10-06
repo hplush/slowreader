@@ -12,7 +12,7 @@ import {
   addPreviewCandidate,
   checkAndRemoveRequestMock,
   clearPreview,
-  createPostsPage,
+  createPostsList,
   currentCandidate,
   expectRequest,
   getFeeds,
@@ -388,7 +388,7 @@ test('tracks current candidate', async () => {
     'application/rss+xml'
   )
   getAtomPosts.nextResult(
-    createPostsPage([{ media: [], originId: '1', url: '1' }], undefined)
+    createPostsList([{ media: [], originId: '1', url: '1' }], undefined)
   )
   setPreviewUrl('example.com')
   await setTimeout(10)
@@ -406,7 +406,7 @@ test('tracks current candidate', async () => {
   equal(getAtomPosts.calls[0]![1], 'http://example.com/atom')
 
   getRssPosts.nextResult(
-    createPostsPage([{ media: [], originId: '2', url: '2' }], undefined)
+    createPostsList([{ media: [], originId: '2', url: '2' }], undefined)
   )
   setPreviewCandidate('http://example.com/rss')
   await setTimeout(10)
@@ -421,7 +421,7 @@ test('tracks current candidate', async () => {
   equal(getRssPosts.calls[0]![1], 'http://example.com/rss')
 
   getJsonFeedPosts.nextResult(
-    createPostsPage([{ media: [], originId: '3', url: '3' }], undefined)
+    createPostsList([{ media: [], originId: '3', url: '3' }], undefined)
   )
   setPreviewCandidate('http://example.com/feed.json')
   await setTimeout(10)
