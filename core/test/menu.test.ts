@@ -37,36 +37,37 @@ test('do not open menu if fast has 1 category', async () => {
   let feedB = await addFeed(testFeed({ categoryId: idB, reading: 'slow' }))
   await addPost(testPost({ feedId: feedB, reading: 'slow' }))
 
+  openMenu()
   setBaseTestRoute({ params: {}, route: 'fast' })
   await setTimeout(10)
-  await openMenu()
   equal(isMenuOpened.get(), false)
 
   closeMenu()
   await setTimeout(10)
   equal(isMenuOpened.get(), false)
 
+  openMenu()
   setBaseTestRoute({ params: {}, route: 'slow' })
   await setTimeout(10)
-  await openMenu()
   equal(isMenuOpened.get(), true)
 
   closeMenu()
   equal(isMenuOpened.get(), false)
 
+  openMenu()
   setBaseTestRoute({ params: {}, route: 'add' })
   await setTimeout(10)
-  await openMenu()
   equal(isMenuOpened.get(), true)
 
   closeMenu()
   equal(isMenuOpened.get(), false)
 
   await addFeed(testFeed({ categoryId: idB, reading: 'fast' }))
+  await setTimeout(10)
 
+  openMenu()
   setBaseTestRoute({ params: {}, route: 'fast' })
   await setTimeout(10)
-  await openMenu()
   equal(isMenuOpened.get(), true)
 
   closeMenu()

@@ -256,3 +256,10 @@ export const backRoute = computed(
     }
   }
 )
+
+export function onNextRoute(cb: (route: Route) => void): void {
+  let unbind = router.listen(route => {
+    unbind()
+    cb(route)
+  })
+}
