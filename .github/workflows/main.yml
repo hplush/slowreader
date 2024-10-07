@@ -32,7 +32,7 @@ jobs:
           STAGING: 1
       - name: Upload web assets
         if: github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v4.4.0
+        uses: actions/upload-artifact@v4.4.1
         with:
           name: web-client-assets-${{ github.sha }}
           retention-days: 1
