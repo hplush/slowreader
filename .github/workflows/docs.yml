@@ -18,6 +18,8 @@ on:
       - 'pnpm-lock.yaml'
       - '.github/workflows/docs.yml'
       - '.github/actions/init-node/action.yml'
+  schedule:
+    - cron: '00 23 * * 1' # Runs at midnight every Monday
 permissions:
   contents: read
 jobs:
