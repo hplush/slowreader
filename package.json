@@ -7,7 +7,7 @@
     "node": "^22.9.0",
     "pnpm": "^9.0.0"
   },
-  "packageManager": "pnpm@9.12.0",
+  "packageManager": "pnpm@9.12.1",
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run -r --include-workspace-root /^test:/",
     "start": "FORCE_COLOR=1 pnpm run -F server -F web start",
