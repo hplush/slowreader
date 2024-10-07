@@ -12,7 +12,7 @@ and uses end-to-end encryption not to know what users read and like.
 - [`lib/`](./lib/): shared helpers for features.
 - [`test/`](./test/): unit tests for each feature.
 - [`scripts/`](./scripts/): script to test production mode.
-- [`drizzle.config.ts`](./drizzle.config.ts): config for [Drizzle Kit CLI](https://orm.drizzle.team/kit-docs/overview).
+- [`drizzle.config.ts`](./drizzle.config.ts): config for [Drizzle Kit CLI](https://orm.drizzle.team/docs/kit-overview).
 - [`Dockerfile`](./Dockerfile): build image to deploy server.
 
 ## Scripts
