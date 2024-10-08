@@ -200,16 +200,6 @@ export function isOtherRoute(route: Route): boolean {
   return SETTINGS.has(route.route) || ORGANIZE.has(route.route)
 }
 
-export function removeFeedFromRoute(): void {
-  let page = router.get()
-  if (page.route === 'categories') {
-    getEnvironment().openRoute({
-      params: {},
-      route: page.route
-    })
-  }
-}
-
 export function backToFirstStep(): void {
   let back = backRoute.get()
   if (back) {

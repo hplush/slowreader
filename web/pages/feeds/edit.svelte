@@ -22,11 +22,12 @@
     moveFilterDown,
     moveFilterUp,
     type PostsList,
-    removeFeedFromRoute,
+    router,
     sortFilters,
     organizeMessages as t
   } from '@slowreader/core'
 
+  import { openRoute } from '../../stores/router.ts'
   import Button from '../../ui/button.svelte'
   import Card from '../../ui/card.svelte'
   import Loader from '../../ui/loader.svelte'
@@ -63,6 +64,16 @@
       }
     } else {
       changeFeed(feedId, { categoryId: value })
+    }
+  }
+
+  export function removeFeedFromRoute(): void {
+    let page = router.get()
+    if (page.route === 'categories') {
+      openRoute({
+        params: {},
+        route: page.route
+      })
     }
   }
 

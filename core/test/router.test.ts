@@ -10,7 +10,6 @@ import {
   deleteFeed,
   isGuestRoute,
   isOtherRoute,
-  removeFeedFromRoute,
   router,
   setBaseTestRoute,
   testFeed,
@@ -254,18 +253,5 @@ test('backRoute handles export with format', () => {
   deepStrictEqual(router.get(), {
     params: { format: undefined },
     route: 'export'
-  })
-})
-
-test('has helper on feed removing', async () => {
-  userId.set('10')
-  let feed = await addFeed(testFeed())
-  setBaseTestRoute({ params: { feed }, route: 'categories' })
-
-  removeFeedFromRoute()
-
-  deepStrictEqual(router.get(), {
-    params: {},
-    route: 'categories'
   })
 })
