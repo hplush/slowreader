@@ -10,8 +10,12 @@
           "^https://discord.gg/",
           "^https://www.deepl.com/$",
           "^https://browsersl.ist/#q=",
+          "^https://code.visualstudio.com/",
           "^mailto:"
-        ]
+        ],
+        "deadOrAliveOptions": {
+          "maxRetries": 3
+        }
       }
     ],
     "remark-validate-links",
