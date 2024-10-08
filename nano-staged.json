@@ -9,5 +9,6 @@
   "*/package.json": "bash ./scripts/tsnode ./scripts/check-versions.ts",
   "*/Dockerfile": "bash ./scripts/tsnode ./scripts/check-versions.ts",
   "*.test.ts": "bash ./scripts/tsnode ./scripts/check-focused-tests.ts",
-  "core/messages/*/en.ts": "bash ./scripts/tsnode ./scripts/check-messages.ts"
+  "core/messages/*/en.ts": "bash ./scripts/tsnode ./scripts/check-messages.ts",
+  "web/index.html": "pnpm -F web build:web"
 }
