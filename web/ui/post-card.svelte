@@ -30,8 +30,8 @@
 <Card>
   <div
     class="post-card"
+    class:is-comfort-mode={action === 'slow'}
     class:is-deleted={action === 'delete'}
-    class:is-slow-theme={action === 'slow'}
   >
     {#if author}
       {author.title}:
@@ -60,7 +60,7 @@
 
 <style>
   :global {
-    .post-card.is-slow-theme {
+    .post-card.is-comfort-mode {
       font-weight: bold;
     }
 

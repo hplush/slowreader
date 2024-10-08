@@ -3,11 +3,9 @@
   import {
     backRoute,
     closeMenu,
-    isFastRoute,
     isMenuOpened,
     isOtherRoute,
     isRefreshing,
-    isSlowRoute,
     openMenu,
     refreshPosts,
     refreshProgress,
@@ -136,9 +134,9 @@
     aria-hidden="true"
     role="menu"
   >
-    {#if isSlowRoute($router)}
+    {#if $router.route === 'slow'}
       <NavbarSlow />
-    {:else if isFastRoute($router)}
+    {:else if $router.route === 'fast'}
       <NavbarFast />
     {:else if isOtherRoute($router)}
       <NavbarOther />

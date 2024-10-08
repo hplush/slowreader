@@ -17,7 +17,7 @@ function findNext(node: Node, cb: (node: Node) => boolean): Node | undefined {
 }
 
 function wrapSelector(selector: string, modifier: string): string {
-  if (selector.includes('.is-slow-theme')) {
+  if (selector.includes('.is-comfort-mode')) {
     return `:where(${modifier}) ${selector}, ${selector}:where(${modifier})`
   } else {
     return `:where(${modifier}) ${selector}`

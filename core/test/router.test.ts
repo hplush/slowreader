@@ -8,10 +8,8 @@ import {
   addPost,
   backToFirstStep,
   deleteFeed,
-  isFastRoute,
   isGuestRoute,
   isOtherRoute,
-  isSlowRoute,
   removeFeedFromRoute,
   router,
   setBaseTestRoute,
@@ -163,39 +161,27 @@ test('transforms routers to first fast category', async () => {
 test('has routes groups', () => {
   userId.set(undefined)
   setBaseTestRoute({ params: {}, route: 'home' })
-  equal(isFastRoute(router.get()), false)
-  equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), true)
   equal(isOtherRoute(router.get()), false)
 
   userId.set('10')
   setBaseTestRoute({ params: {}, route: 'refresh' })
-  equal(isFastRoute(router.get()), false)
-  equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), false)
   equal(isOtherRoute(router.get()), false)
 
   setBaseTestRoute({ params: {}, route: 'slow' })
-  equal(isFastRoute(router.get()), false)
-  equal(isSlowRoute(router.get()), true)
   equal(isGuestRoute(router.get()), false)
   equal(isOtherRoute(router.get()), false)
 
   setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
-  equal(isFastRoute(router.get()), true)
-  equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), false)
   equal(isOtherRoute(router.get()), false)
 
   setBaseTestRoute({ params: {}, route: 'profile' })
-  equal(isFastRoute(router.get()), false)
-  equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), false)
   equal(isOtherRoute(router.get()), true)
 
   setBaseTestRoute({ params: {}, route: 'categories' })
-  equal(isFastRoute(router.get()), false)
-  equal(isSlowRoute(router.get()), false)
   equal(isGuestRoute(router.get()), false)
   equal(isOtherRoute(router.get()), true)
 })

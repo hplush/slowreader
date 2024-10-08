@@ -60,7 +60,7 @@
     --link-color-visited: oklch(0.53 0.116 320);
     --inline-code-color: oklch(0.92 0 0 / 55%);
 
-    &.is-slow-theme {
+    &.is-comfort-mode {
       --land-color: oklch(0.95 0.02 70);
       --hover-color: color-mix(in oklch, var(--sand-50), var(--neutral-50));
     }
@@ -109,7 +109,7 @@
     --link-color-visited: oklch(0.8 0.114 320);
     --inline-code-color: oklch(0.41 0.007 264 / 60%);
 
-    &.is-slow-theme {
+    &.is-comfort-mode {
       --land-color: oklch(0.25 0.02 70);
       --hover-color: oklch(0.35 0.012 78);
     }

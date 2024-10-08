@@ -192,14 +192,6 @@ onEnvironment(({ baseRouter }) => {
   )
 })
 
-export function isFastRoute(route: Route): boolean {
-  return route.route === 'fast'
-}
-
-export function isSlowRoute(route: Route): boolean {
-  return route.route === 'slow'
-}
-
 export function isGuestRoute(route: Route): boolean {
   return GUEST.has(route.route)
 }

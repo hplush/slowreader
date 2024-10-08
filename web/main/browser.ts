@@ -1,4 +1,4 @@
-import { isFastRoute, router, theme } from '@slowreader/core'
+import { comfortMode, theme } from '@slowreader/core'
 import {
   focusGroupKeyUX,
   hiddenKeyUX,
@@ -24,8 +24,8 @@ function updateTheme(): void {
   }
 }
 
-router.subscribe(route => {
-  root.classList.toggle('is-slow-theme', !isFastRoute(route))
+comfortMode.subscribe(mode => {
+  root.classList.toggle('is-comfort-theme', mode)
   updateTheme()
 })
 

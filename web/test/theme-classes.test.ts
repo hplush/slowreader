@@ -30,14 +30,14 @@ test('inserts in the same order by before next nodes', () => {
       '@media (prefers-color-scheme:light) {--a: 1}' +
       '@media (prefers-color-scheme:dark) {--a: 1}' +
       '}' +
-      '.is-slow-theme.is-light-theme {--a: 2}',
+      '.is-comfort-mode.is-light-theme {--a: 2}',
     ':root {' +
       '@media (prefers-color-scheme:light) {--a: 1}' +
       '@media (prefers-color-scheme:dark) {--a: 1}' +
       '}' +
       '.is-dark-theme {--a: 1}' +
       '.is-light-theme {--a: 1}' +
-      '.is-slow-theme.is-light-theme {--a: 2}'
+      '.is-comfort-mode.is-light-theme {--a: 2}'
   )
 })
 
@@ -69,18 +69,18 @@ test('adds theme classes to media inside component', () => {
 
 test('adds theme classes to media inside slow theme', () => {
   run(
-    '.is-slow-theme {' +
+    '.is-comfort-mode {' +
       '@media (prefers-color-scheme:light) {--a: 1}' +
       '@media (prefers-color-scheme:dark) {--a: 1}' +
       '}',
-    '.is-slow-theme {' +
+    '.is-comfort-mode {' +
       '@media (prefers-color-scheme:light) {--a: 1}' +
       '@media (prefers-color-scheme:dark) {--a: 1}' +
       '}' +
-      ':where(.is-dark-theme) .is-slow-theme, ' +
-      '.is-slow-theme:where(.is-dark-theme) {--a: 1}' +
-      ':where(.is-light-theme) .is-slow-theme, ' +
-      '.is-slow-theme:where(.is-light-theme) {--a: 1}'
+      ':where(.is-dark-theme) .is-comfort-mode, ' +
+      '.is-comfort-mode:where(.is-dark-theme) {--a: 1}' +
+      ':where(.is-light-theme) .is-comfort-mode, ' +
+      '.is-comfort-mode:where(.is-light-theme) {--a: 1}'
   )
 })
 

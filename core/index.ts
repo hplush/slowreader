@@ -1,6 +1,7 @@
 export * from './busy.ts'
 export * from './category.ts'
 export * from './client.ts'
+export * from './comfort.ts'
 export * from './devtools.ts'
 export * from './download.ts'
 export * from './environment.ts'
