@@ -9,7 +9,7 @@ import { slowCategories } from './slow.ts'
 
 export interface Routes {
   about: {}
-  add: { candidate?: string; url?: string }
+  add: { candidate: string | undefined; url: string | undefined }
   categories: { feed?: string }
   download: {}
   export: { format?: string }
@@ -70,13 +70,12 @@ const SETTINGS = new Set<RouteName>([
 
 const ORGANIZE = new Set<RouteName>(['add', 'categories'])
 
-function open(route: ParamlessRouteName | Route): Route {
-  if (typeof route === 'string') route = { params: {}, route } as Route
-  return route
+function open(route: ParamlessRouteName): Route {
+  return { params: {}, route }
 }
 
-function redirect(route: ParamlessRouteName | Route): Route {
-  return { ...open(route), redirect: true }
+function redirect(route: Route): Route {
+  return { ...route, redirect: true }
 }
 
 function validateNumber(
@@ -108,14 +107,17 @@ onEnvironment(({ baseRouter }) => {
           if (withFeeds) {
             return redirect({ params: {}, route: 'slow' })
           } else {
-            return redirect('welcome')
+            return redirect(open('welcome'))
           }
         } else if (route.route === 'welcome' && withFeeds) {
-          return redirect('slow')
+          return redirect(open('slow'))
         } else if (route.route === 'settings') {
-          return redirect('interface')
+          return redirect(open('interface'))
         } else if (route.route === 'feeds') {
-          return redirect('add')
+          return redirect({
+            params: { candidate: undefined, url: undefined },
+            route: 'add'
+          })
         } else if (route.route === 'fast') {
           if (!route.params.category && !fast.isLoading) {
             return redirect({
@@ -168,13 +170,13 @@ onEnvironment(({ baseRouter }) => {
               }
             })
           } else {
-            return open({
+            return {
               params: {
                 ...route.params,
                 page: 1
               },
               route: 'slow'
-            })
+            }
           }
         }
       } else if (!GUEST.has(route.route)) {
@@ -206,12 +208,13 @@ export function backToFirstStep(): void {
   }
 }
 
+// TODO: Remove on moving to popups
 export const backRoute = computed(
-  router,
+  $router,
   ({ params, route }): Route | undefined => {
     if (route === 'add' && params.candidate) {
       return {
-        params: { url: params.url },
+        params: { candidate: undefined, url: params.url },
         route: 'add'
       }
     } else if (route === 'categories' && params.feed) {
@@ -239,7 +242,7 @@ export const backRoute = computed(
 )
 
 export function onNextRoute(cb: (route: Route) => void): void {
-  let unbind = router.listen(route => {
+  let unbind = $router.listen(route => {
     unbind()
     cb(route)
   })

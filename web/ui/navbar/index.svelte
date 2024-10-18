@@ -120,7 +120,12 @@
       name={$t.menu}
       current={isOtherRoute($router)}
       hotkey="m"
-      href={isOtherRoute($router) ? undefined : getURL('add')}
+      href={isOtherRoute($router)
+        ? undefined
+        : getURL({
+            params: { candidate: undefined, url: undefined },
+            route: 'add'
+          })}
       icon={mdiMenu}
       onclick={openMenu}
       small
