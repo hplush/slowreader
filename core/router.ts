@@ -25,7 +25,6 @@ export interface Routes {
   signin: {}
   slow: { feed?: string; page?: number; post?: string }
   start: {}
-  subscriptions: {}
   welcome: {}
 }
 
