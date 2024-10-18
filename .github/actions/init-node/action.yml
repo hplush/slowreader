@@ -17,5 +17,6 @@ runs:
         node-version-file: .node-version
         cache: ${{ inputs.cache && 'pnpm' || '' }}
     - name: Install pnpm dependencies
+      if: ${{ inputs.install != 'false' }}
       shell: bash
       run: pnpm install --ignore-scripts ${{ inputs.install }}

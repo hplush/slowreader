@@ -11,5 +11,7 @@ jobs:
         uses: actions/checkout@v4.2.1
       - name: Initialize Node.js
         uses: ./.github/actions/init-node
+        with:
+          install: false
       - name: Run audit
         run: node --run test:audit
