@@ -36,7 +36,10 @@ afterEach(async () => {
 
 test('works with adds route on wide screen', async () => {
   setIsMobile(false)
-  setBaseTestRoute({ params: {}, route: 'add' })
+  setBaseTestRoute({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
   expectRequest('https://a.com/atom').andRespond(
     200,
     '<feed><title>Atom</title>' +
@@ -50,14 +53,17 @@ test('works with adds route on wide screen', async () => {
 
   strictEqual(secondStep.get(), true)
   deepStrictEqual(backRoute.get(), {
-    params: { url: 'https://a.com/atom' },
+    params: { candidate: undefined, url: 'https://a.com/atom' },
     route: 'add'
   })
 })
 
 test('works with adds route on mobile screen', async () => {
   setIsMobile(true)
-  setBaseTestRoute({ params: {}, route: 'add' })
+  setBaseTestRoute({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
   expectRequest('https://a.com/atom').andRespond(
     200,
     '<feed><title>Atom</title>' +

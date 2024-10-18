@@ -34,7 +34,8 @@ export const urlRouter = computed(pathRouter, path => {
   if (!path) {
     return undefined
   } else if (path.route === 'add') {
-    let params: Routes['add'] = path.params
+    let params: Routes['add'] = { candidate: undefined, url: undefined }
+    if ('url' in path.params) params.url = path.params.url
     if ('candidate' in path.search) params.candidate = path.search.candidate
     return {
       params,
