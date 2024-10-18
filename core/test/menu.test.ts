@@ -28,7 +28,10 @@ afterEach(async () => {
 })
 
 test('do not open menu if fast has 1 category', async () => {
-  setBaseTestRoute({ params: {}, route: 'add' })
+  setBaseTestRoute({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
   let idA = await addCategory({ title: 'A' })
   await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
   await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
@@ -55,7 +58,10 @@ test('do not open menu if fast has 1 category', async () => {
   equal(isMenuOpened.get(), false)
 
   openMenu()
-  setBaseTestRoute({ params: {}, route: 'add' })
+  setBaseTestRoute({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
   await setTimeout(10)
   equal(isMenuOpened.get(), true)
 
