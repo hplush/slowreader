@@ -120,7 +120,12 @@
       name={$t.menu}
       current={isOtherRoute($router)}
       hotkey="m"
-      href={isOtherRoute($router) ? undefined : getURL('add')}
+      href={isOtherRoute($router)
+        ? undefined
+        : getURL({
+            params: { candidate: undefined, url: undefined },
+            route: 'add'
+          })}
       icon={mdiMenu}
       onclick={openMenu}
       small
@@ -209,9 +214,9 @@
     .navbar_submenu {
       position: relative;
       display: flex;
-      flex-direction: column;
       flex-grow: 1;
       flex-shrink: 1;
+      flex-direction: column;
       gap: 2px;
       padding: 8px 0 0 4px;
       overflow-y: auto;

@@ -348,7 +348,7 @@ onEnvironment(({ openRoute }) => {
     previewUrl.listen(link => {
       let page = router.get()
       if (page.route === 'add' && page.params.url !== link) {
-        openRoute({ params: { url: link }, route: 'add' })
+        openRoute({ params: { candidate: undefined, url: link }, route: 'add' })
       }
     }),
     router.subscribe(({ params, route }) => {
@@ -367,7 +367,7 @@ onEnvironment(({ openRoute }) => {
           setPreviewCandidate(params.candidate)
         } else {
           openRoute({
-            params: { url: params.url },
+            params: { candidate: undefined, url: params.url },
             route: 'add'
           })
         }

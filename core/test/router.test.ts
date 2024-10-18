@@ -135,7 +135,7 @@ test('transforms section to first section page', () => {
 
   setBaseTestRoute({ params: {}, route: 'feeds' })
   deepStrictEqual(router.get(), {
-    params: {},
+    params: { candidate: undefined, url: undefined },
     redirect: true,
     route: 'add'
   })
