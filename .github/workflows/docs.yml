@@ -31,5 +31,7 @@ jobs:
         uses: actions/checkout@v4.2.1
       - name: Initialize Node.js
         uses: ./.github/actions/init-node
+        with:
+          install: -F .
       - name: Check docs
         run: node --run test:markdown
