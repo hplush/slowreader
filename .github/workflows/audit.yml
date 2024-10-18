@@ -1,5 +1,15 @@
 name: Daily Vulnerability Audit
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/audit.yml'
+      - '.github/actions/init-node/action.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/audit.yml'
+      - '.github/actions/init-node/action.yml'
   schedule:
     - cron: '00 23 * * *' # Runs at midnight UTC every day
 jobs:
