@@ -31,15 +31,6 @@
     "prepare:husky": "husky",
     "tsnode": "./scripts/tsnode"
   },
-  "workspaces": [
-    "api",
-    "core",
-    "server",
-    "web",
-    "loader-tests",
-    "proxy",
-    "extension"
-  ],
   "devDependencies": {
     "@logux/eslint-config": "53.4.1",
     "@types/chrome": "^0.0.278",
