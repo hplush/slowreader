@@ -1,4 +1,4 @@
-name: Daily Vulnerability Audit
+name: Vulnerability Audit
 on:
   push:
     branches:

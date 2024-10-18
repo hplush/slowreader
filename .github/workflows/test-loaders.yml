@@ -1,4 +1,4 @@
-name: Daily Loaders Test
+name: Loaders Test
 on:
   push:
     branches:

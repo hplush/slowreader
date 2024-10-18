@@ -1,4 +1,4 @@
-name: Auto Review Comment
+name: Auto-review Comment
 on:
   workflow_run:
     workflows:
