@@ -13,5 +13,5 @@ jobs:
         uses: ./.github/actions/init-node
         with:
           install: false
-      - name: Run audit
+      - name: Check dependencies for vulnerabilities
         run: node --run test:audit
