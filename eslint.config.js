@@ -31,7 +31,8 @@ export default [
         {
           groups: [
             'side-effect',
-            ['side-effect-style', 'style'],
+            'side-effect-style',
+            'style',
             ['builtin-type', 'type', 'builtin', 'external', 'unknown'],
             [
               'internal-type',
@@ -67,6 +68,12 @@ export default [
           ignores: ['fs.globSync']
         }
       ]
+    }
+  },
+  {
+    files: ['core/router.ts'],
+    rules: {
+      '@typescript-eslint/no-empty-object-type': 'off'
     }
   }
 ]

@@ -10,7 +10,7 @@ export type SignOutRequest = {
   session?: string
 }
 
-export type SignOutResponse = {}
+export type SignOutResponse = Record<string, never>
 
 const METHOD = 'DELETE'
 

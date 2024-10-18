@@ -41,13 +41,13 @@
     "extension"
   ],
   "devDependencies": {
-    "@logux/eslint-config": "53.4.0",
-    "@types/chrome": "^0.0.277",
-    "@types/node": "22.7.5",
+    "@logux/eslint-config": "53.4.1",
+    "@types/chrome": "^0.0.278",
+    "@types/node": "22.7.6",
     "@types/ws": "8.5.12",
     "better-node-test": "0.7.1",
     "eslint": "9.12.0",
-    "eslint-plugin-svelte": "^2.44.1",
+    "eslint-plugin-svelte": "^2.45.1",
     "husky": "^9.1.6",
     "nano-staged": "0.8.0",
     "postcss-html": "1.7.0",
@@ -65,11 +65,11 @@
     "remark-lint-no-shell-dollars": "^4.0.0",
     "remark-lint-smarty-pants-typography": "^1.1.0",
     "remark-validate-links": "^13.0.1",
-    "stylelint": "16.9.0",
+    "stylelint": "16.10.0",
     "svelte": "5.0.0-next.263",
     "svelte-check": "4.0.2",
     "svgo": "3.3.2",
-    "typescript": "5.6.2"
+    "typescript": "5.6.3"
   },
   "pnpm": {
     "overrides": {
