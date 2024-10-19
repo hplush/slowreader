@@ -29,7 +29,7 @@ beforeEach(() => {
 afterEach(async () => {
   await cleanClientTest()
   restoreAll()
-  pages.add.destroy()
+  pages.add.exit()
   checkAndRemoveRequestMock()
 })
 
@@ -92,14 +92,14 @@ test('cleans state', async () => {
   pages.add.setUrl('example.com')
   await setTimeout(10)
 
-  pages.add.destroy()
+  pages.add.exit()
   equal(pages.add.error.get(), undefined)
   deepStrictEqual(pages.add.sortedCandidates.get(), [])
   equal(reply.aborted, true)
 
   pages.add.setUrl('not URL')
 
-  pages.add.destroy()
+  pages.add.exit()
   equal(pages.add.error.get(), undefined)
   deepStrictEqual(pages.add.sortedCandidates.get(), [])
 })
@@ -137,7 +137,7 @@ test('aborts all HTTP requests on URL change', async () => {
   let reply2 = expectRequest('http://other.com').andWait()
   pages.add.setUrl('other.com')
 
-  pages.add.destroy()
+  pages.add.exit()
   await setTimeout(10)
   equal(reply2.aborted, true)
 })
@@ -308,7 +308,7 @@ test('always keep the same order of candidates', async () => {
     ['Atom', 'JsonFeed', 'RSS']
   )
 
-  pages.add.destroy()
+  pages.add.exit()
   expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('http://example.com/feed').andRespond(404)
   let atom = expectRequest('http://example.com/atom').andWait()

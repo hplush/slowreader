@@ -39,7 +39,7 @@ test('calls events', () => {
   let events = 0
   pages.add = {
     ...pages.add,
-    destroy: () => {
+    exit: () => {
       events += 1
     }
   }
