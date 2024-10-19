@@ -49,7 +49,7 @@ export const page: ReadableAtom<Page> = computed(router, route => {
   if (currentPage !== prevPage) {
     if (prevPage) {
       for (let unbind of unbinds) unbind()
-      prevPage.destroy()
+      prevPage.exit()
     }
     prevPage = currentPage
 

@@ -79,7 +79,7 @@ export const add = createPage('add', () => {
     }
   )
 
-  function destroy(): void {
+  function exit(): void {
     $links.set({})
     $candidates.set([])
     prevTask?.abortAll()
@@ -87,7 +87,7 @@ export const add = createPage('add', () => {
 
   let inputUrl = debounce((value: string) => {
     if (value === '') {
-      destroy()
+      exit()
     } else {
       //TODO: currentCandidate.set(undefined)
       setUrl(value)
@@ -99,7 +99,7 @@ export const add = createPage('add', () => {
     if (prevTask) prevTask.abortAll()
     if (url === $url.get()) return
     inputUrl.cancel()
-    destroy()
+    exit()
     prevTask = createDownloadTask()
     await addLink(prevTask, url)
   }
@@ -239,8 +239,8 @@ export const add = createPage('add', () => {
   return {
     candidate: atom<string | undefined>(), // TODO: Remove to popups
     candidatesLoading: $candidatesLoading,
-    destroy,
     error: $error,
+    exit,
     inputUrl,
     noResults: $noResults,
     setUrl,
