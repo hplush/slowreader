@@ -3,7 +3,7 @@ import { atom, type ReadableAtom } from 'nanostores'
 import type { ParamlessRouteName, RouteName, Routes } from '../router.ts'
 
 type Extra = {
-  destroy?: () => void
+  exit?: () => void
 }
 
 type ParamStores<Name extends RouteName> = {
@@ -11,7 +11,7 @@ type ParamStores<Name extends RouteName> = {
 }
 
 export type BasePage<Name extends RouteName = RouteName> = {
-  destroy(): void
+  exit(): void
   readonly loading: ReadableAtom<boolean>
   readonly route: Name
   underConstruction?: boolean
@@ -23,7 +23,7 @@ export function createPage<Name extends RouteName, Rest extends Extra>(
 ): BasePage<Name> & Rest {
   let rest = builder()
   return {
-    destroy: rest.destroy ?? ((): void => {}),
+    exit: rest.exit ?? ((): void => {}),
     loading: atom(false),
     route,
     ...rest
