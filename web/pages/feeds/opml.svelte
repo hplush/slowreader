@@ -18,14 +18,7 @@
   import RadioField from '../../ui/radio-field.svelte'
   import FeedList from './list.svelte'
 
-  let currentFeeds: 'all' | 'select' = 'all'
-
-  function handleRadioChange(e: CustomEvent<'all' | 'select'>): void {
-    currentFeeds = e.detail
-    if (currentFeeds === 'all') {
-      selectAllExportingFeeds()
-    }
-  }
+  let currentFeeds = $state<'all' | 'select'>('all')
 
   function handleSubmit(e: SubmitEvent): void {
     e.preventDefault()
@@ -52,11 +45,15 @@
     <RadioField
       current={currentFeeds}
       label={$t.type}
+      onchange={value => {
+        if (value === 'all') {
+          selectAllExportingFeeds()
+        }
+      }}
       values={[
         ['all', $t.allFeeds],
         ['select', $t.selectFeeds]
       ]}
-      on:change={handleRadioChange}
     />
   </Card>
   <FeedList
