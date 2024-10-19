@@ -16,7 +16,7 @@
   import PostCard from '../ui/post-card.svelte'
   import TwoStepsPage from '../ui/two-steps-page.svelte'
 
-  let layout: TwoStepsPage | undefined
+  let layout: ReturnType<typeof TwoStepsPage> | undefined
 
   onMount(() => {
     return fastPosts.subscribe(() => {
