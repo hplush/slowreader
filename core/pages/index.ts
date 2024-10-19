@@ -2,7 +2,12 @@ import { atom } from 'nanostores'
 
 import type { RouteName, Routes } from '../router.ts'
 import { add } from './add.ts'
-import { type BasePage, createPage, createSimplePage } from './common.ts'
+import {
+  type BasePage,
+  createPage,
+  createSimplePage,
+  type PageCreator
+} from './common.ts'
 
 export type { AddCandidate, AddPage } from './add.ts'
 export * from './common.ts'
@@ -11,7 +16,7 @@ export * from './common.ts'
 export function underConstruction<Name extends RouteName>(
   route: Name,
   params: (keyof Routes[Name])[]
-): BasePage<Name> {
+): PageCreator<Name> {
   return createPage(route, () => {
     let result = {} as BasePage<Name>
     for (let param of params) {
@@ -42,9 +47,9 @@ export const pages = {
   start: underConstruction('start', []),
   welcome: underConstruction('welcome', [])
 } satisfies {
-  [Name in RouteName]: BasePage<Name>
+  [Name in RouteName]: PageCreator<Name>
 }
 
 export type Pages = typeof pages
 
-export type Page<Name extends RouteName = RouteName> = Pages[Name]
+export type Page<Name extends RouteName = RouteName> = ReturnType<Pages[Name]>
