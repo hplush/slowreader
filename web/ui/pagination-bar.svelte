@@ -26,6 +26,7 @@
         <a
           class="pagination-bar_segment"
           class:is-past={page <= currentPage}
+          aria-label={`${page}`}
           href={`?page=${page}`}
           onclick={() => {
             if (onclick) onclick(page)

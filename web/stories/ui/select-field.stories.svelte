@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script lang="ts" module>
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import SelectField from '../../ui/select-field.svelte'

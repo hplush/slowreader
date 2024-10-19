@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script lang="ts" module>
   import { mdiPlusCircleOutline, mdiTrashCanOutline } from '@mdi/js'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
