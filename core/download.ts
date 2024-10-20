@@ -19,6 +19,18 @@ export interface DownloadTask {
   text(...args: Parameters<typeof request>): Promise<TextResponse>
 }
 
+enum EncodeType {
+  EUC_JP = 'euc-jp',
+  ISO_2022_JP = 'iso-2022-jp',
+  ISO_8859_1 = 'iso-8859-1',
+  SHIFT_JIS = 'shift-jis',
+  UTF8 = 'utf-8',
+  WINDOWS_1251 = 'windows-1251',
+  WINDOWS_1252 = 'windows-1252',
+  WINDOWS_1253 = 'windows-1253',
+  WINDOWS_31J = 'Windows-31J'
+}
+
 function detectType(text: string): string | undefined {
   let lower = text.toLowerCase()
   let beginning = lower.slice(0, 100)
@@ -38,6 +50,30 @@ function detectType(text: string): string | undefined {
   ) {
     return 'application/json'
   }
+}
+
+function detectEncodeType(response: Partial<Response>): string {
+  let headers = response.headers ?? new Headers()
+  let contentType = headers.get('content-type') ?? ''
+  if (contentType.includes(EncodeType.UTF8)) {
+    return EncodeType.UTF8
+  } else if (contentType.includes(EncodeType.EUC_JP)) {
+    return EncodeType.EUC_JP
+  } else if (contentType.includes(EncodeType.ISO_2022_JP)) {
+    return EncodeType.ISO_2022_JP
+  } else if (contentType.includes(EncodeType.SHIFT_JIS)) {
+    return EncodeType.SHIFT_JIS
+  } else if (contentType.includes(EncodeType.WINDOWS_1251)) {
+    return EncodeType.WINDOWS_1251
+  } else if (contentType.includes(EncodeType.WINDOWS_1252)) {
+    return EncodeType.WINDOWS_1252
+  } else if (contentType.includes(EncodeType.WINDOWS_1253)) {
+    return EncodeType.WINDOWS_1253
+  } else if (contentType.includes(EncodeType.WINDOWS_31J)) {
+    return EncodeType.WINDOWS_31J
+  }
+
+  return EncodeType.UTF8;
 }
 
 export function createTextResponse(
@@ -122,7 +158,16 @@ export function createDownloadTask(): DownloadTask {
     },
     async text(url, opts) {
       let response = await this.request(url, opts)
-      let text = await response.text()
+      let text: string
+      let encodeType = detectEncodeType(response)
+      if (encodeType !== EncodeType.UTF8) {
+        let buffer = await response.arrayBuffer()
+        let decoder = new TextDecoder(encodeType);
+        text = decoder.decode(buffer);
+      } else {
+        text = await response.text()
+      }
+
       if (controller.signal.aborted) {
         throw new DOMException('', 'AbortError')
       }
