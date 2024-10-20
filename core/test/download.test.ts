@@ -8,7 +8,6 @@ import {
   checkAndRemoveRequestMock,
   createDownloadTask,
   createTextResponse,
-  EncodeType,
   expectRequest,
   ignoreAbortError,
   mockRequest,
@@ -125,19 +124,17 @@ test('can download text by keeping eyes on abort signal', async () => {
   await rejects(response2, (e: Error) => e.name === 'AbortError')
 })
 
-for (let encodeType of Object.values(EncodeType)) {
-  test(`detect ${encodeType} encode type`, async () => {
-    let task = createDownloadTask()
+test(`detect unpopular encode type`, async () => {
+  let task = createDownloadTask()
 
-    expectRequest('https://example.com').andRespond(200, 'Hi', `text/plain; charset=${encodeType}`)
-    let response1 = await task.text('https://example.com')
+  expectRequest('https://example.com').andRespond(200, 'Hi', `text/plain; charset=shift-jis`)
+  let response1 = await task.text('https://example.com')
 
-    equal(response1.ok, true)
-    equal(response1.status, 200)
-    equal(response1.url, 'https://example.com')
-    equal(response1.text, 'Hi')
-  })
-}
+  equal(response1.ok, true)
+  equal(response1.status, 200)
+  equal(response1.url, 'https://example.com')
+  equal(response1.text, 'Hi')
+})
 
 test('parses XML content', async () => {
   let text = createTextResponse('<html><body>Test</body></html>')
