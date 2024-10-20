@@ -19,7 +19,7 @@ export interface DownloadTask {
   text(...args: Parameters<typeof request>): Promise<TextResponse>
 }
 
-enum EncodeType {
+export enum EncodeType {
   EUC_JP = 'euc-jp',
   ISO_2022_JP = 'iso-2022-jp',
   ISO_8859_1 = 'iso-8859-1',
