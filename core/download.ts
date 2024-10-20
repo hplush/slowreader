@@ -132,8 +132,8 @@ export function createDownloadTask(): DownloadTask {
       let encodeType = detectEncodeType(response)
       if (encodeType !== 'utf-8') {
         let buffer = await response.arrayBuffer()
-        let decoder = new TextDecoder(encodeType);
-        text = decoder.decode(buffer);
+        let decoder = new TextDecoder(encodeType)
+        text = decoder.decode(buffer)
       } else {
         text = await response.text()
       }
