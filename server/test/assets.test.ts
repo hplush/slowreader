@@ -108,7 +108,7 @@ test('serves static pages', async () => {
 
   let css = await server.fetch('/assets/app-CiUGZyvO.css')
   checkHeaders(css, {
-    'cache-control': 'public, immutable',
+    'cache-control': 'public, max-age=31536000, immutable',
     'content-type': 'text/css'
   })
   equal(await css.text(), '*{}')

@@ -120,7 +120,7 @@ export default async (
       let data = await readFile(path)
       let headers: Asset['headers'] = {}
       if (pathname.includes('/assets/') && HASHED.test(path)) {
-        headers['Cache-Control'] = 'public, immutable'
+        headers['Cache-Control'] = 'public, max-age=31536000, immutable'
       }
       if (contentType === 'text/html' && !pathname.includes('/ui')) {
         headers = getPageHeaders(data)
