@@ -32,7 +32,7 @@
 <Story name="Add" parameters={{ layout: 'fullscreen' }}>
   <Scene
     refreshing={{ processedFeeds: 2, totalFeeds: 4 }}
-    route={{ params: {}, route: 'add' }}
+    route={{ params: { candidate: undefined, url: undefined }, route: 'add' }}
   >
     <Section border={false} focus=".navbar_link:first-child">
       <Navbar />
