@@ -43,7 +43,7 @@ function detectType(text: string): string | undefined {
 function parseEncodeType(response: Partial<Response>): string {
   let headers = response.headers ?? new Headers()
   let contentType = headers.get('content-type')?.toLowerCase() ?? ''
-  return contentType.match(/charset=([a-zA-Z0-9-]+)/)?.[1] ?? 'utf-8'
+  return contentType.match(/;\s*charset=([^\s;]+)/)?.[1] ?? 'utf-8'
 }
 
 export function createTextResponse(
