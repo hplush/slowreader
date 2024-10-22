@@ -20,8 +20,7 @@
     onclick?: (event: MouseEvent) => void
     secondary?: boolean
     wide?: boolean
-  } &
-    ({ href: string } | HTMLButtonAttributes) = $props()
+  } & ({ href: string } | HTMLButtonAttributes) = $props()
 </script>
 
 {#snippet content()}
