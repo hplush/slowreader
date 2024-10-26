@@ -72,6 +72,7 @@
     if (page.route === 'categories') {
       openRoute({
         params: {},
+        popups: [],
         route: page.route
       })
     }

@@ -348,7 +348,11 @@ onEnvironment(({ openRoute }) => {
     previewUrl.listen(link => {
       let page = router.get()
       if (page.route === 'add' && page.params.url !== link) {
-        openRoute({ params: { candidate: undefined, url: link }, route: 'add' })
+        openRoute({
+          params: { candidate: undefined, url: link },
+          popups: [],
+          route: 'add'
+        })
       }
     }),
     router.subscribe(({ params, route }) => {
@@ -368,6 +372,7 @@ onEnvironment(({ openRoute }) => {
         } else {
           openRoute({
             params: { candidate: undefined, url: params.url },
+            popups: [],
             route: 'add'
           })
         }
@@ -398,6 +403,7 @@ onEnvironment(({ openRoute }) => {
             candidate: candidateUrl,
             url: page.params.url
           },
+          popups: [],
           route: 'add'
         })
       }
