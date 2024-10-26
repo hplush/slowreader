@@ -632,6 +632,7 @@ test('changes URL during typing in the field', async () => {
 test('syncs URL with router', async () => {
   deepStrictEqual(router.get(), {
     params: { candidate: undefined, url: undefined },
+    popups: [],
     route: 'add'
   })
 
@@ -639,6 +640,7 @@ test('syncs URL with router', async () => {
   setPreviewUrl('example.com')
   deepStrictEqual(router.get(), {
     params: { candidate: undefined, url: 'http://example.com' },
+    popups: [],
     route: 'add'
   })
 
@@ -646,6 +648,7 @@ test('syncs URL with router', async () => {
   setPreviewUrl('https://other.com')
   deepStrictEqual(router.get(), {
     params: { candidate: undefined, url: 'https://other.com' },
+    popups: [],
     route: 'add'
   })
 
@@ -683,6 +686,7 @@ test('show candidate on wide screen', async () => {
 
   deepStrictEqual(router.get(), {
     params: { candidate: 'https://a.com/atom', url: 'https://a.com/atom' },
+    popups: [],
     route: 'add'
   })
   equal(currentCandidate.get(), undefined)
@@ -704,6 +708,7 @@ test('do not show candidate on mobile screen', async () => {
 
   deepStrictEqual(router.get(), {
     params: { candidate: undefined, url: 'https://a.com/atom' },
+    popups: [],
     route: 'add'
   })
   equal(previewCandidate.get(), undefined)
@@ -722,6 +727,7 @@ test('redirect to candidates list if no current candidate', async () => {
   equal(previewCandidate.get(), undefined)
   deepStrictEqual(router.get(), {
     params: { candidate: undefined, url: 'https://a.com/atom' },
+    popups: [],
     route: 'add'
   })
 })
