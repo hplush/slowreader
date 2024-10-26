@@ -95,6 +95,7 @@ test('synchronizes params', async () => {
   await setTimeout(1)
   deepStrictEqual(router.get(), {
     params: { candidate: undefined, url: 'https://example.com' },
+    popups: [],
     route: 'add'
   })
   equal(pages.add().url.get(), 'https://example.com')
@@ -107,6 +108,7 @@ test('synchronizes params', async () => {
   await setTimeout(1)
   deepStrictEqual(router.get(), {
     params: { candidate: undefined, url: 'https://other.com' },
+    popups: [],
     route: 'add'
   })
   equal(pages.add().url.get(), 'https://other.com')
@@ -115,7 +117,7 @@ test('synchronizes params', async () => {
   setBaseTestRoute({ params: {}, route: 'notFound' })
   pages.add().url.set('https://example.com')
   await setTimeout(1)
-  deepStrictEqual(router.get(), { params: {}, route: 'notFound' })
+  deepStrictEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
 })
 
 test('has under construction pages', () => {

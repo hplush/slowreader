@@ -28,31 +28,19 @@ afterEach(async () => {
 
 test('opens 404', () => {
   setBaseTestRoute(undefined)
-  deepStrictEqual(router.get(), {
-    params: {},
-    route: 'notFound'
-  })
+  deepStrictEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
 })
 
 test('transforms routers for guest', () => {
   userId.set(undefined)
   setBaseTestRoute({ params: {}, route: 'home' })
-  deepStrictEqual(router.get(), {
-    params: {},
-    route: 'start'
-  })
+  deepStrictEqual(router.get(), { params: {}, popups: [], route: 'start' })
 
   setBaseTestRoute({ params: {}, route: 'slow' })
-  deepStrictEqual(router.get(), {
-    params: {},
-    route: 'start'
-  })
+  deepStrictEqual(router.get(), { params: {}, popups: [], route: 'start' })
 
   setBaseTestRoute({ params: {}, route: 'signin' })
-  deepStrictEqual(router.get(), {
-    params: {},
-    route: 'signin'
-  })
+  deepStrictEqual(router.get(), { params: {}, popups: [], route: 'signin' })
 })
 
 test('transforms routers for users', () => {
@@ -60,6 +48,7 @@ test('transforms routers for users', () => {
   setBaseTestRoute({ params: {}, route: 'home' })
   deepStrictEqual(router.get(), {
     params: {},
+    popups: [],
     redirect: true,
     route: 'welcome'
   })
@@ -67,12 +56,14 @@ test('transforms routers for users', () => {
   setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
   deepStrictEqual(router.get(), {
     params: { category: 'general' },
+    popups: [],
     route: 'fast'
   })
 
   setBaseTestRoute({ params: {}, route: 'home' })
   deepStrictEqual(router.get(), {
     params: {},
+    popups: [],
     redirect: true,
     route: 'welcome'
   })
@@ -80,15 +71,13 @@ test('transforms routers for users', () => {
   setBaseTestRoute({ params: {}, route: 'signin' })
   deepStrictEqual(router.get(), {
     params: {},
+    popups: [],
     redirect: true,
     route: 'welcome'
   })
 
   userId.set(undefined)
-  deepStrictEqual(router.get(), {
-    params: {},
-    route: 'signin'
-  })
+  deepStrictEqual(router.get(), { params: {}, popups: [], route: 'signin' })
 })
 
 test('transforms routers for users with feeds', async () => {
@@ -96,6 +85,7 @@ test('transforms routers for users with feeds', async () => {
   setBaseTestRoute({ params: {}, route: 'home' })
   deepStrictEqual(router.get(), {
     params: {},
+    popups: [],
     redirect: true,
     route: 'welcome'
   })
@@ -103,6 +93,7 @@ test('transforms routers for users with feeds', async () => {
   let id = await addFeed(testFeed())
   deepStrictEqual(router.get(), {
     params: {},
+    popups: [],
     redirect: true,
     route: 'slow'
   })
@@ -110,6 +101,7 @@ test('transforms routers for users with feeds', async () => {
   setBaseTestRoute({ params: {}, route: 'welcome' })
   deepStrictEqual(router.get(), {
     params: {},
+    popups: [],
     redirect: true,
     route: 'slow'
   })
@@ -118,6 +110,7 @@ test('transforms routers for users with feeds', async () => {
   await deleteFeed(id)
   deepStrictEqual(router.get(), {
     params: {},
+    popups: [],
     redirect: true,
     route: 'welcome'
   })
@@ -129,6 +122,7 @@ test('transforms section to first section page', () => {
   setBaseTestRoute({ params: {}, route: 'settings' })
   deepStrictEqual(router.get(), {
     params: {},
+    popups: [],
     redirect: true,
     route: 'interface'
   })
@@ -136,6 +130,7 @@ test('transforms section to first section page', () => {
   setBaseTestRoute({ params: {}, route: 'feeds' })
   deepStrictEqual(router.get(), {
     params: { candidate: undefined, url: undefined },
+    popups: [],
     redirect: true,
     route: 'add'
   })
@@ -152,6 +147,7 @@ test('transforms routers to first fast category', async () => {
   await setTimeout(100)
   deepStrictEqual(router.get(), {
     params: { category: idA },
+    popups: [],
     redirect: true,
     route: 'fast'
   })
@@ -195,12 +191,14 @@ test('converts since to number', async () => {
   setBaseTestRoute({ params: { category: idA, since: 1000 }, route: 'fast' })
   deepStrictEqual(router.get(), {
     params: { category: idA, since: 1000 },
+    popups: [],
     route: 'fast'
   })
 
   setBaseTestRoute({ params: { category: idA, since: '1000' }, route: 'fast' })
   deepStrictEqual(router.get(), {
     params: { category: idA, since: 1000 },
+    popups: [],
     route: 'fast'
   })
 
@@ -210,15 +208,13 @@ test('converts since to number', async () => {
   })
   deepStrictEqual(router.get(), {
     params: { category: idA, post, since: 1000 },
+    popups: [],
     route: 'fast'
   })
   await setTimeout(10)
 
   setBaseTestRoute({ params: { category: idA, since: '1000k' }, route: 'fast' })
-  deepStrictEqual(router.get(), {
-    params: {},
-    route: 'notFound'
-  })
+  deepStrictEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
 })
 
 test('checks that category exists', async () => {
@@ -231,15 +227,13 @@ test('checks that category exists', async () => {
     route: 'fast'
   })
   await setTimeout(100)
-  deepStrictEqual(router.get(), {
-    params: {},
-    route: 'notFound'
-  })
+  deepStrictEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
 
   setBaseTestRoute({ params: { category: idA, since: 100 }, route: 'fast' })
   await setTimeout(100)
   deepStrictEqual(router.get(), {
     params: { category: idA, since: 100 },
+    popups: [],
     route: 'fast'
   })
 })
@@ -252,6 +246,48 @@ test('backRoute handles export with format', () => {
 
   deepStrictEqual(router.get(), {
     params: { format: undefined },
+    popups: [],
     route: 'export'
+  })
+})
+
+test('parses popups', () => {
+  userId.set('10')
+  setBaseTestRoute({ hash: 'feed=id1,post=id2', params: {}, route: 'profile' })
+  deepStrictEqual(router.get(), {
+    params: {},
+    popups: [
+      { param: 'id1', popup: 'feed' },
+      { param: 'id2', popup: 'post' }
+    ],
+    route: 'profile'
+  })
+
+  setBaseTestRoute({ hash: 'broken,post=id', params: {}, route: 'profile' })
+  deepStrictEqual(router.get(), {
+    params: {},
+    popups: [{ param: 'id', popup: 'post' }],
+    route: 'profile'
+  })
+
+  setBaseTestRoute({
+    hash: 'unknown=id1,post=id',
+    params: {},
+    route: 'profile'
+  })
+  deepStrictEqual(router.get(), {
+    params: {},
+    popups: [{ param: 'id', popup: 'post' }],
+    route: 'profile'
+  })
+})
+
+test('hides popups for guest', () => {
+  userId.set(undefined)
+  setBaseTestRoute({ hash: 'feed=id1,post=id2', params: {}, route: 'profile' })
+  deepStrictEqual(router.get(), {
+    params: {},
+    popups: [],
+    route: 'start'
   })
 })

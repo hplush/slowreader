@@ -126,8 +126,17 @@ export function setIsMobile(isSmallScreen: boolean): void {
 
 const testRouter = atom<BaseRoute | undefined>()
 
-export function setBaseTestRoute(route: BaseRoute | undefined): void {
-  testRouter.set(route)
+export function addHashToBaseRoute(
+  route: BaseRoute | Omit<BaseRoute, 'hash'> | undefined
+): BaseRoute | undefined {
+  if (!route) return undefined
+  return { hash: '', ...route } as BaseRoute
+}
+
+export function setBaseTestRoute(
+  route: BaseRoute | Omit<BaseRoute, 'hash'> | undefined
+): void {
+  testRouter.set(addHashToBaseRoute(route))
 }
 
 export function getTestEnvironment(): EnvironmentAndStore {
@@ -137,7 +146,9 @@ export function getTestEnvironment(): EnvironmentAndStore {
     locale: atom('en'),
     logStoreCreator: () => new MemoryStore(),
     networkType: () => ({ saveData: undefined, type: undefined }),
-    openRoute: setBaseTestRoute,
+    openRoute: route => {
+      setBaseTestRoute({ ...route, hash: '' })
+    },
     persistentEvents: { addEventListener() {}, removeEventListener() {} },
     persistentStore: {},
     restartApp: () => {},

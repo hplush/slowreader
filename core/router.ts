@@ -28,6 +28,10 @@ export interface Routes {
   welcome: {}
 }
 
+export const popupNames = { feed: true, feedUrl: true, post: true }
+
+export type PopupRoute = { param: string; popup: keyof typeof popupNames }
+
 export type RouteName = keyof Routes
 
 type EmptyObject = Record<string, never>
@@ -44,7 +48,12 @@ export type ParamlessRouteName = {
 }[RouteName]
 
 export type Route<Name extends RouteName = RouteName> = Name extends string
-  ? { params: Routes[Name]; redirect?: boolean; route: Name }
+  ? {
+      params: Routes[Name]
+      popups: PopupRoute[]
+      redirect?: boolean
+      route: Name
+    }
   : never
 
 type StringParams<Object> = {
@@ -52,7 +61,7 @@ type StringParams<Object> = {
 }
 
 export type BaseRoute<Name extends RouteName = RouteName> = Name extends string
-  ? { params: StringParams<Routes[Name]>; route: Name }
+  ? { hash: string; params: StringParams<Routes[Name]>; route: Name }
   : never
 
 export type BaseRouter = ReadableAtom<BaseRoute | undefined>
@@ -71,7 +80,7 @@ const SETTINGS = new Set<RouteName>([
 const ORGANIZE = new Set<RouteName>(['add', 'categories'])
 
 function open(route: ParamlessRouteName): Route {
-  return { params: {}, route }
+  return { params: {}, popups: [], route }
 }
 
 function redirect(route: Route): Route {
@@ -91,7 +100,25 @@ function validateNumber(
   }
 }
 
-let $router = atom<Route>({ params: {}, route: 'home' })
+let $router = atom<Route>({ params: {}, popups: [], route: 'home' })
+
+function checkPopupName(
+  popup: string | undefined
+): popup is keyof typeof popupNames {
+  return !!popup && popup in popupNames
+}
+
+function parsePopups(hash: string): PopupRoute[] {
+  let popups: PopupRoute[] = []
+  let parts = hash.split(',')
+  for (let part of parts) {
+    let [popup, param] = part.split('=', 2)
+    if (checkPopupName(popup) && param) {
+      popups.push({ param, popup })
+    }
+  }
+  return popups
+}
 
 export const router = readonlyExport($router)
 
@@ -102,10 +129,17 @@ onEnvironment(({ baseRouter }) => {
     (route, user, withFeeds, fast, slowUnread) => {
       if (!route) {
         return open('notFound')
-      } else if (user) {
+      } else if (!user) {
+        if (!GUEST.has(route.route)) {
+          return open('start')
+        } else {
+          return { params: route.params, popups: [], route: route.route }
+        }
+      } else {
+        let popups = parsePopups(route.hash)
         if (GUEST.has(route.route) || route.route === 'home') {
           if (withFeeds) {
-            return redirect({ params: {}, route: 'slow' })
+            return redirect({ params: {}, popups, route: 'slow' })
           } else {
             return redirect(open('welcome'))
           }
@@ -116,12 +150,14 @@ onEnvironment(({ baseRouter }) => {
         } else if (route.route === 'feeds') {
           return redirect({
             params: { candidate: undefined, url: undefined },
+            popups,
             route: 'add'
           })
         } else if (route.route === 'fast') {
           if (!route.params.category && !fast.isLoading) {
             return redirect({
               params: { category: fast.categories[0].id },
+              popups,
               route: 'fast'
             })
           }
@@ -136,11 +172,12 @@ onEnvironment(({ baseRouter }) => {
           if (route.params.since) {
             return validateNumber(route.params.since, since => {
               return {
-                ...route,
                 params: {
                   ...route.params,
                   since
-                }
+                },
+                popups,
+                route: route.route
               }
             })
           }
@@ -153,6 +190,7 @@ onEnvironment(({ baseRouter }) => {
               if (feedData) {
                 return redirect({
                   params: { feed: feedData[0].id || '' },
+                  popups,
                   route: 'slow'
                 })
               }
@@ -162,11 +200,12 @@ onEnvironment(({ baseRouter }) => {
           if (route.params.page) {
             return validateNumber(route.params.page, page => {
               return {
-                ...route,
                 params: {
                   ...route.params,
                   page
-                }
+                },
+                popups,
+                route: route.route
               }
             })
           } else {
@@ -175,19 +214,19 @@ onEnvironment(({ baseRouter }) => {
                 ...route.params,
                 page: 1
               },
+              popups,
               route: 'slow'
             }
           }
         }
-      } else if (!GUEST.has(route.route)) {
-        return open('start')
+        return { params: route.params, popups, route: route.route }
       }
-      return route
     },
     (oldRoute, newRoute) => {
       return (
         oldRoute.route === newRoute.route &&
-        JSON.stringify(oldRoute.params) === JSON.stringify(newRoute.params)
+        JSON.stringify(oldRoute.params) === JSON.stringify(newRoute.params) &&
+        JSON.stringify(oldRoute.popups) === JSON.stringify(newRoute.popups)
       )
     }
   )
@@ -215,26 +254,31 @@ export const backRoute = computed(
     if (route === 'add' && params.candidate) {
       return {
         params: { candidate: undefined, url: params.url },
+        popups: [],
         route: 'add'
       }
     } else if (route === 'categories' && params.feed) {
       return {
         params: {},
+        popups: [],
         route: 'categories'
       }
     } else if (route === 'fast' && params.post) {
       return {
         params: { category: params.category },
+        popups: [],
         route: 'fast'
       }
     } else if (route === 'slow' && params.post) {
       return {
         params: { feed: params.feed },
+        popups: [],
         route: 'slow'
       }
     } else if (route === 'export' && params.format) {
       return {
         params: { format: undefined },
+        popups: [],
         route: 'export'
       }
     }

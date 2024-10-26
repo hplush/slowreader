@@ -2,6 +2,8 @@
   import {
     addCategory,
     addFeed,
+    addHashToBaseRoute,
+    type BaseRoute,
     Category,
     type CategoryValue,
     clearPreview,
@@ -32,7 +34,6 @@
     type PostValue,
     refreshStatistics,
     type RefreshStatistics,
-    type Route,
     selectAllImportedFeeds,
     slowPosts,
     type SlowPostsValue,
@@ -74,7 +75,7 @@
     openedPost,
     refreshing = false,
     responses = {},
-    route = { params: {}, route: 'slow' },
+    route,
     showPagination = false,
     slowState = INITIAL_SLOW,
     unloadedFeeds = []
@@ -91,7 +92,7 @@
     openedPost?: PostValue | undefined
     refreshing?: false | Partial<RefreshStatistics>
     responses?: Record<string, PreparedResponse | string>
-    route?: Route
+    route?: BaseRoute | Omit<BaseRoute, 'hash'>
     showPagination?: boolean
     slowState?: SlowPostsValue
     unloadedFeeds?: string[]
@@ -125,11 +126,14 @@
 
     if (fast) {
       baseRouter.set({
+        hash: '',
         params: { category: 'general' },
         route: 'fast'
       })
     } else {
-      baseRouter.set(route)
+      baseRouter.set(
+        addHashToBaseRoute(route) ?? { hash: '', params: {}, route: 'slow' }
+      )
     }
   })
 
@@ -177,7 +181,7 @@
 
     return () => {
       forceSet(isRefreshing, false)
-      baseRouter.set({ params: {}, route: 'slow' })
+      baseRouter.set({ hash: '', params: {}, route: 'slow' })
       setNetworkType(DEFAULT_NETWORK)
       cleanLogux()
       forceSet(slowPosts, INITIAL_SLOW)

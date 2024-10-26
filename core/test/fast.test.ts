@@ -412,6 +412,7 @@ test('syncs fast category and since with URL', async () => {
   await markReadAndLoadNextFastPosts()
   deepStrictEqual(router.get(), {
     params: { category: category1, since: 5000 },
+    popups: [],
     route: 'fast'
   })
 

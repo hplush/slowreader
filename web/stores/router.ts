@@ -38,6 +38,7 @@ export const urlRouter = computed(pathRouter, path => {
     if ('url' in path.params) params.url = path.params.url
     if ('candidate' in path.search) params.candidate = path.search.candidate
     return {
+      hash: path.hash,
       params,
       route: path.route
     }
@@ -46,6 +47,7 @@ export const urlRouter = computed(pathRouter, path => {
     if ('since' in path.search) params.since = Number(path.search.since)
     if ('post' in path.search) params.post = path.search.post
     return {
+      hash: path.hash,
       params,
       route: path.route
     }
@@ -56,6 +58,7 @@ export const urlRouter = computed(pathRouter, path => {
     }
     if ('post' in path.search) params.post = path.search.post
     return {
+      hash: path.hash,
       params,
       route: path.route
     }
@@ -91,10 +94,14 @@ function moveToSearch<Page extends Route>(
   return getPagePath(pathRouter, page.route, rest, search)
 }
 
-export function getURL(to: ParamlessRouteName | Route): string {
+export function getURL(
+  to: Omit<Route, 'popups'> | ParamlessRouteName | Route
+): string {
   let page: Route
   if (typeof to === 'string') {
-    page = { params: {}, route: to }
+    page = { params: {}, popups: [], route: to }
+  } else if (!('popups' in to)) {
+    page = { ...to, popups: [] } as Route
   } else {
     page = to
   }

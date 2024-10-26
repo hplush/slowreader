@@ -228,6 +228,7 @@ onEnvironment(({ openRoute }) => {
       if (notSynced(router.get())) {
         openRoute({
           params: { category, since },
+          popups: [],
           route: 'fast'
         })
       }
