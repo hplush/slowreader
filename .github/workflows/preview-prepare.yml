@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4.2.1
+        uses: actions/checkout@v4.2.2
       - name: Initialize Node.js
         uses: ./.github/actions/init-node
       - name: Build assets
