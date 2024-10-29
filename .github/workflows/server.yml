@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4.2.1
+        uses: actions/checkout@v4.2.2
       - name: Initialize Node.js
         uses: ./.github/actions/init-node
       - name: Run tests
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4.2.1
+        uses: actions/checkout@v4.2.2
       - name: Initialize Node.js
         uses: ./.github/actions/init-node
         with:
@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4.2.1
+        uses: actions/checkout@v4.2.2
       - name: Download web assets from test step
         uses: actions/download-artifact@v4.1.8
         with:
