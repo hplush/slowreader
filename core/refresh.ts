@@ -136,5 +136,5 @@ export function stopRefreshing(): void {
   if (!$isRefreshing.get()) return
   $isRefreshing.set(false)
   queue.stop()
-  task.abortAll()
+  task.destroy()
 }
