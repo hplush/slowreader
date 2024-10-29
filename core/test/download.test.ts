@@ -83,7 +83,7 @@ test('aborts requests', async () => {
   await reply1(200)
   equal(calls, '1:ok ')
 
-  task1.abortAll()
+  task1.destroy()
   await setTimeout(10)
   equal(calls, '1:ok 2:AbortError 3:AbortError ')
 
@@ -119,7 +119,7 @@ test('can download text by keeping eyes on abort signal', async () => {
 
   let response2 = task.text('https://example.com')
   await setTimeout(10)
-  task.abortAll()
+  task.destroy()
   sendText?.('Done')
   await rejects(response2, (e: Error) => e.name === 'AbortError')
 })
@@ -179,7 +179,7 @@ test('parses JSON content', () => {
 test('has helper to ignore abort errors', async () => {
   let task = createDownloadTask()
 
-  task.abortAll()
+  task.destroy()
 
   let error1 = new Error('Test')
   throws(() => {
@@ -207,7 +207,7 @@ test('has helper to ignore abort errors', async () => {
   task.text('https://example.com').catch(e => {
     error3 = e
   })
-  task.abortAll()
+  task.destroy()
   await setTimeout(10)
 
   ignoreAbortError(error3)
@@ -253,4 +253,29 @@ test('detects content type', () => {
       .contentType,
     'application/rss+xml'
   )
+})
+
+test('has cache by request', async () => {
+  let write = createDownloadTask({ cache: 'write' })
+  let read = createDownloadTask({ cache: 'read' })
+  let none = createDownloadTask()
+
+  expectRequest('https://example.com/1').andRespond(200, '1')
+  equal((await read.text('https://example.com/1')).text, '1')
+
+  expectRequest('https://example.com/1').andRespond(200, '1')
+  equal((await read.text('https://example.com/1')).text, '1')
+
+  expectRequest('https://example.com/1').andRespond(200, '1')
+  equal((await write.text('https://example.com/1')).text, '1')
+  equal((await write.text('https://example.com/1')).text, '1')
+  equal((await read.text('https://example.com/1')).text, '1')
+
+  expectRequest('https://example.com/1').andRespond(200, '1')
+  equal((await none.text('https://example.com/1')).text, '1')
+
+  write.destroy()
+
+  expectRequest('https://example.com/1').andRespond(200, '1')
+  equal((await read.text('https://example.com/1')).text, '1')
 })

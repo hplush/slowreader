@@ -1,6 +1,8 @@
 import { warning } from './devtools.ts'
 import { request } from './request.ts'
 
+let cache = new Map<string, Response>()
+
 export interface TextResponse {
   readonly contentType: string
   readonly headers: Headers
@@ -14,7 +16,7 @@ export interface TextResponse {
 }
 
 export interface DownloadTask {
-  abortAll(): void
+  destroy(): void
   request: typeof request
   text(...args: Parameters<typeof request>): Promise<TextResponse>
 }
@@ -107,18 +109,32 @@ export function createTextResponse(
   }
 }
 
-export function createDownloadTask(): DownloadTask {
+export function createDownloadTask(
+  taskOpts: { cache?: 'read' | 'write' | false } = {}
+): DownloadTask {
   let controller = new AbortController()
+  let cached: string[] = []
   return {
-    abortAll() {
+    destroy() {
+      for (let url of cached) cache.delete(url)
       controller.abort()
     },
-    request(url, opts = {}) {
-      return request(url, {
+    async request(url, opts = {}) {
+      if (taskOpts.cache) {
+        let fromCache = cache.get(url)
+        if (fromCache) return fromCache.clone()
+      }
+
+      let response = await request(url, {
         redirect: 'follow',
         signal: controller.signal,
         ...opts
       })
+      if (taskOpts.cache === 'write') {
+        cached.push(url)
+        cache.set(url, response.clone())
+      }
+      return response
     },
     async text(url, opts) {
       let response = await this.request(url, opts)

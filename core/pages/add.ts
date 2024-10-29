@@ -82,7 +82,7 @@ export const add = createPage('add', () => {
   function exit(): void {
     $links.set({})
     $candidates.set([])
-    prevTask?.abortAll()
+    prevTask?.destroy()
   }
 
   let inputUrl = debounce((value: string) => {
@@ -96,7 +96,7 @@ export const add = createPage('add', () => {
 
   let prevTask: DownloadTask | undefined
   async function setUrl(url: string): Promise<void> {
-    if (prevTask) prevTask.abortAll()
+    if (prevTask) prevTask.destroy()
     if (url === $url.get()) return
     inputUrl.cancel()
     exit()
