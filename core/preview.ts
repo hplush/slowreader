@@ -108,7 +108,7 @@ export function clearPreview(): void {
   $added.set(undefined)
   $posts.set(undefined)
   postsCache.clear()
-  task.abortAll()
+  task.destroy()
   task = createDownloadTask()
 }
 
