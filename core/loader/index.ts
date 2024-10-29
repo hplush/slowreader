@@ -16,6 +16,8 @@ export const loaders = {
   atom,
   jsonFeed,
   rss
+} satisfies {
+  [Name in string]: Loader
 }
 
 export type LoaderName = keyof typeof loaders
