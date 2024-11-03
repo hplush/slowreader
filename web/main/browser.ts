@@ -25,7 +25,7 @@ function updateTheme(): void {
 }
 
 comfortMode.subscribe(mode => {
-  root.classList.toggle('is-comfort-theme', mode)
+  root.classList.toggle('is-comfort-mode', mode)
   updateTheme()
 })
 
