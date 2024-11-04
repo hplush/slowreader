@@ -40,7 +40,7 @@ jobs:
           workload_identity_provider: projects/223708816691/locations/global/workloadIdentityPools/github/providers/hplush
           service_account: github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
       - name: Install Google Cloud
-        uses: google-github-actions/setup-gcloud@v2.1.1
+        uses: google-github-actions/setup-gcloud@v2.1.2
       - name: Shut down Cloud Run
         run: gcloud run services update-traffic staging-server --region=${{ env.REGION }} --project=${{ env.PROJECT_ID }} --remove-tags preview-${{ env.PR_NUMBER }} --async
       - name: Delete image
