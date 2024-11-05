@@ -27,12 +27,12 @@ runs:
       shell: bash
       run: docker build -t ${{ inputs.region }}-docker.pkg.dev/${{ inputs.projectId }}/${{ inputs.registry }}:${{ inputs.tag }} ${{ inputs.folder }}
     - name: Auth Google Cloud
-      uses: google-github-actions/auth@v2.1.5
+      uses: google-github-actions/auth@v2.1.7
       with:
         workload_identity_provider: projects/223708816691/locations/global/workloadIdentityPools/github/providers/hplush
         service_account: github-deploy@${{ inputs.projectId }}.iam.gserviceaccount.com
     - name: Install Google Cloud
-      uses: google-github-actions/setup-gcloud@v2.1.1
+      uses: google-github-actions/setup-gcloud@v2.1.2
     - name: Auth Docker
       shell: bash
       run: gcloud auth configure-docker ${{ inputs.region }}-docker.pkg.dev --quiet
@@ -41,7 +41,7 @@ runs:
       run: docker push ${{ inputs.region }}-docker.pkg.dev/${{ inputs.projectId }}/${{ inputs.registry }}:${{ inputs.tag }}
     - name: Deploy to Cloud Run
       id: deploy
-      uses: google-github-actions/deploy-cloudrun@v2.7.1
+      uses: google-github-actions/deploy-cloudrun@v2.7.2
       with:
         service: ${{ inputs.service }}
         region: ${{ inputs.region }}
