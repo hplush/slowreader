@@ -26,16 +26,16 @@
     "@slowreader/proxy": "workspace:*",
     "argon2": "^0.41.1",
     "cookie": "^1.0.1",
-    "drizzle-orm": "^0.35.3",
+    "drizzle-orm": "^0.36.0",
     "nanoid": "5.0.8",
     "postgres": "^3.4.5",
     "tsx": "^4.19.2"
   },
   "devDependencies": {
-    "@types/cookie": "^0.6.0",
+    "@types/cookie": "^1.0.0",
     "better-node-test": "0.7.1",
     "c8": "10.1.2",
-    "drizzle-kit": "^0.26.2",
+    "drizzle-kit": "^0.27.1",
     "prettier": "3.3.3"
   }
 }
