@@ -7,11 +7,13 @@ import { parseLink, parseRichTranslation, sanitizeDOM } from '../index.ts'
 
 test('sanitizes HTML', () => {
   equal(
-    sanitizeDOM(
-      '<script>alert("XSS")</script>' +
-        '<b>Safe</b>' +
-        '<form></form>' +
-        '<iframe//src=jAva&Tab;script:alert(3)>'
+    (
+      sanitizeDOM(
+        '<script>alert("XSS")</script>' +
+          '<b>Safe</b>' +
+          '<form></form>' +
+          '<iframe//src=jAva&Tab;script:alert(3)>'
+      ) as HTMLElement
     ).innerHTML,
     '<b>Safe</b>'
   )

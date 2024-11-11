@@ -72,9 +72,12 @@ const ALLOWED_TAGS = [
 
 let DOMPurify: ReturnType<typeof createDOMPurify> | undefined
 
-export function sanitizeDOM(html: string): HTMLElement {
+export function sanitizeDOM(html: string): Node {
   if (!DOMPurify) DOMPurify = createDOMPurify(window)
-  return DOMPurify.sanitize(html, { ALLOWED_TAGS, RETURN_DOM: true })
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS,
+    RETURN_DOM: true
+  })
 }
 
 export function parseRichTranslation(text: string): string {
