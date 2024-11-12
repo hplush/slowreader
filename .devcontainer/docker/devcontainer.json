@@ -19,6 +19,16 @@
         "felixfbecker.postgresql-syntax",
         "formulahendry.auto-rename-tag"
       ]
-    }
+    },
+    "nodejs-testing.extensions": [
+      {
+        "extensions": ["js"],
+        "parameters": []
+      },
+      {
+        "extensions": ["ts"],
+        "parameters": ["--experimental-strip-types"]
+      }
+    ]
   }
 }
