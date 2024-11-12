@@ -91,6 +91,9 @@ jobs:
           registry: staging/server
           service: staging-server
           env: ASSETS=,PROXY_ORIGIN=
+          # Persistent database was disable temporary to save money
+          # flags: |
+          #   --vpc-connector db-connector
+          #   --update-secrets=DATABASE_URL=staging-db-url:latest
           flags: |
-            --vpc-connector db-connector
-            --update-secrets=DATABASE_URL=staging-db-url:latest
+            --update-secrets=DATABASE_URL=preview-db-url:latest

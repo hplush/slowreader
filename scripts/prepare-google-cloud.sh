@@ -64,56 +64,57 @@ gcloud iam service-accounts add-iam-policy-binding "$ACCOUNT_EMAIL" \
   --role="roles/iam.workloadIdentityUser" \
   --member="principalSet://iam.googleapis.com/${WORKLOAD_IDENTITY_POOL_ID}/attribute.repository/hplush/slowreader"
 
-# Create private network for database
-gcloud services enable compute.googleapis.com --project=$PROJECT_ID
-gcloud services enable servicenetworking.googleapis.com --project=$PROJECT_ID
-gcloud compute addresses create google-managed-services-default \
-  --global \
-  --purpose=VPC_PEERING \
-  --prefix-length=20 \
-  --network=projects/$PROJECT_ID/global/networks/default
-gcloud services vpc-peerings connect \
-  --service=servicenetworking.googleapis.com \
-  --ranges=google-managed-services-default \
-  --network=default \
-  --project=$PROJECT_ID
+# Persistent database was disable temporary to save money
+# # Create private network for database
+# gcloud services enable compute.googleapis.com --project=$PROJECT_ID
+# gcloud services enable servicenetworking.googleapis.com --project=$PROJECT_ID
+# gcloud compute addresses create google-managed-services-default \
+#   --global \
+#   --purpose=VPC_PEERING \
+#   --prefix-length=20 \
+#   --network=projects/$PROJECT_ID/global/networks/default
+# gcloud services vpc-peerings connect \
+#   --service=servicenetworking.googleapis.com \
+#   --ranges=google-managed-services-default \
+#   --network=default \
+#   --project=$PROJECT_ID
 
-# Create database
-gcloud services enable sqladmin.googleapis.com --project=$PROJECT_ID
-gcloud sql instances create staging-db-instance \
-  --database-version=POSTGRES_16 \
-  --availability-type=zonal \
-  --edition=enterprise \
-  --tier=db-f1-micro \
-  --network=projects/$PROJECT_ID/global/networks/default \
-  --no-assign-ip \
-  --no-backup \
-  --region=$REGION
-gcloud sql databases create staging --instance=staging-db-instance
+# # Create database
+# gcloud services enable sqladmin.googleapis.com --project=$PROJECT_ID
+# gcloud sql instances create staging-db-instance \
+#   --database-version=POSTGRES_16 \
+#   --availability-type=zonal \
+#   --edition=enterprise \
+#   --tier=db-f1-micro \
+#   --network=projects/$PROJECT_ID/global/networks/default \
+#   --no-assign-ip \
+#   --no-backup \
+#   --region=$REGION
+# gcloud sql databases create staging --instance=staging-db-instance
 
-# Create database access
-gcloud services enable vpcaccess.googleapis.com --project=$PROJECT_ID
-STAGING_DB_PASSWORD=$(openssl rand -base64 24)
-gcloud sql users create server \
-  --password=$STAGING_DB_PASSWORD \
-  --instance=staging-db-instance
-NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member="serviceAccount:$NUMBER-compute@developer.gserviceaccount.com" \
-  --role="roles/cloudsql.client"
-gcloud compute networks vpc-access connectors create db-connector \
-  --region=$REGION \
-  --range=10.8.0.0/28
+# # Create database access
+# gcloud services enable vpcaccess.googleapis.com --project=$PROJECT_ID
+# STAGING_DB_PASSWORD=$(openssl rand -base64 24)
+# gcloud sql users create server \
+#   --password=$STAGING_DB_PASSWORD \
+#   --instance=staging-db-instance
+# NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
+# gcloud projects add-iam-policy-binding $PROJECT_ID \
+#   --member="serviceAccount:$NUMBER-compute@developer.gserviceaccount.com" \
+#   --role="roles/cloudsql.client"
+# gcloud compute networks vpc-access connectors create db-connector \
+#   --region=$REGION \
+#   --range=10.8.0.0/28
 
-# Create database secret
-gcloud services enable secretmanager.googleapis.com --project=$PROJECT_ID
-STAGING_DB_IP=$(gcloud sql instances describe staging-db-instance \
-  --format=json | jq \
-  --raw-output ".ipAddresses[].ipAddress")
-STAGING_DB=postgresql://server:$STAGING_DB_PASSWORD@$STAGING_DB_IP:5432/staging
-echo -n $STAGING_DB | gcloud secrets create staging-db-url \
-  --replication-policy=automatic \
-  --data-file=-
+# # Create database secret
+# gcloud services enable secretmanager.googleapis.com --project=$PROJECT_ID
+# STAGING_DB_IP=$(gcloud sql instances describe staging-db-instance \
+#   --format=json | jq \
+#   --raw-output ".ipAddresses[].ipAddress")
+# STAGING_DB=postgresql://server:$STAGING_DB_PASSWORD@$STAGING_DB_IP:5432/staging
+# echo -n $STAGING_DB | gcloud secrets create staging-db-url \
+#   --replication-policy=automatic \
+#   --data-file=-
 echo -n "memory://" | gcloud secrets create preview-db-url \
   --replication-policy=automatic \
   --data-file=-
