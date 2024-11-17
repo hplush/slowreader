@@ -20,13 +20,13 @@
     "clean:build": "rm -rf dist/ web/"
   },
   "dependencies": {
-    "@electric-sql/pglite": "^0.2.12",
+    "@electric-sql/pglite": "^0.2.13",
     "@logux/server": "github:logux/server#next",
     "@slowreader/api": "workspace:*",
     "@slowreader/proxy": "workspace:*",
     "argon2": "^0.41.1",
     "cookie": "^1.0.1",
-    "drizzle-orm": "^0.36.1",
+    "drizzle-orm": "^0.36.3",
     "nanoid": "5.0.8",
     "postgres": "^3.4.5",
     "tsx": "^4.19.2"
@@ -35,7 +35,7 @@
     "@types/cookie": "^1.0.0",
     "better-node-test": "0.7.1",
     "c8": "10.1.2",
-    "drizzle-kit": "^0.28.0",
+    "drizzle-kit": "^0.28.1",
     "prettier": "3.3.3"
   }
 }
