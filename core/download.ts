@@ -40,6 +40,12 @@ function detectType(text: string): string | undefined {
   }
 }
 
+function parseEncodeType(response: Partial<Response>): string {
+  let headers = response.headers ?? new Headers()
+  let contentType = headers.get('content-type')?.toLowerCase() ?? ''
+  return contentType.match(/;\s*charset=([^\s;]+)/)?.[1] ?? 'utf-8'
+}
+
 export function createTextResponse(
   text: string,
   other: Partial<Omit<TextResponse, 'ok' | 'text'>> = {}
@@ -122,7 +128,16 @@ export function createDownloadTask(): DownloadTask {
     },
     async text(url, opts) {
       let response = await this.request(url, opts)
-      let text = await response.text()
+      let text: string
+      let encodeType = parseEncodeType(response)
+      if (encodeType !== 'utf-8') {
+        let buffer = await response.arrayBuffer()
+        let decoder = new TextDecoder(encodeType)
+        text = decoder.decode(buffer)
+      } else {
+        text = await response.text()
+      }
+
       if (controller.signal.aborted) {
         throw new DOMException('', 'AbortError')
       }
