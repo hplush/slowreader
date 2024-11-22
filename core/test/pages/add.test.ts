@@ -7,9 +7,9 @@ import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
-  type AddCandidate,
   checkAndRemoveRequestMock,
   expectRequest,
+  type FeedLoader,
   loaders,
   mockRequest,
   pages,
@@ -33,7 +33,7 @@ afterEach(async () => {
   checkAndRemoveRequestMock()
 })
 
-function equalWithText(a: AddCandidate[], b: AddCandidate[]): void {
+function equalWithText(a: FeedLoader[], b: FeedLoader[]): void {
   equal(a.length, b.length)
   for (let i = 0; i < a.length; i++) {
     let aFix = { ...a[i], text: undefined }
@@ -175,7 +175,8 @@ test('detects RSS links', async () => {
   equal(pages.add().error.get(), undefined)
   equalWithText(pages.add().sortedCandidates.get(), [
     {
-      loader: 'rss',
+      loader: loaders.rss,
+      name: 'rss',
       title: 'News',
       url: 'http://example.com/news'
     }
@@ -202,7 +203,8 @@ test('is ready for empty title', async () => {
   equal(pages.add().error.get(), undefined)
   equalWithText(pages.add().sortedCandidates.get(), [
     {
-      loader: 'atom',
+      loader: loaders.atom,
+      name: 'atom',
       title: '',
       url: 'http://other.com/atom'
     }
@@ -230,7 +232,8 @@ test('ignores duplicate links', async () => {
   equal(pages.add().error.get(), undefined)
   equalWithText(pages.add().sortedCandidates.get(), [
     {
-      loader: 'atom',
+      loader: loaders.atom,
+      name: 'atom',
       title: 'Feed',
       url: 'http://other.com/atom'
     }
@@ -256,7 +259,8 @@ test('looks for popular RSS, Atom and JsonFeed places', async () => {
   equal(pages.add().error.get(), undefined)
   equalWithText(pages.add().sortedCandidates.get(), [
     {
-      loader: 'atom',
+      loader: loaders.atom,
+      name: 'atom',
       title: '',
       url: 'http://example.com/atom'
     }

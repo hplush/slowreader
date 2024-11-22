@@ -21,3 +21,31 @@ export const loaders = {
 }
 
 export type LoaderName = keyof typeof loaders
+
+export interface FeedLoader {
+  loader: Loader
+  name: LoaderName
+  title: string
+  url: string
+}
+
+export function getLoaderForText(response: TextResponse): false | FeedLoader {
+  if (response.ok) {
+    let names = Object.keys(loaders) as LoaderName[]
+    let parsed = new URL(response.url)
+    for (let name of names) {
+      if (loaders[name].isMineUrl(parsed) !== false) {
+        let title = loaders[name].isMineText(response)
+        if (title !== false) {
+          return {
+            loader: loaders[name],
+            name,
+            title: title.trim(),
+            url: response.url
+          }
+        }
+      }
+    }
+  }
+  return false
+}

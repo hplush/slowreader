@@ -7,7 +7,12 @@ import {
   ignoreAbortError,
   type TextResponse
 } from '../download.ts'
-import { type LoaderName, loaders } from '../loader/index.ts'
+import {
+  type FeedLoader,
+  getLoaderForText,
+  type LoaderName,
+  loaders
+} from '../loader/index.ts'
 import { createPage } from './common.ts'
 
 const ALWAYS_HTTPS = [/^twitter\.com\//]
@@ -32,19 +37,12 @@ export type AddLinksValue = Record<
     }
 >
 
-export interface AddCandidate {
-  loader: LoaderName
-  text?: TextResponse
-  title: string
-  url: string
-}
-
 export const add = createPage('add', () => {
   let $url = atom<string | undefined>()
 
   let $links = map<AddLinksValue>({})
 
-  let $candidates = atom<AddCandidate[]>([])
+  let $candidates = atom<FeedLoader[]>([])
 
   let $error = computed(
     $links,
@@ -100,42 +98,8 @@ export const add = createPage('add', () => {
     if (url === $url.get()) return
     inputUrl.cancel()
     exit()
-    prevTask = createDownloadTask()
+    prevTask = createDownloadTask({ cache: 'write' })
     await addLink(prevTask, url)
-  }
-
-  function getLoaderForUrl(url: string): AddCandidate | false {
-    let names = Object.keys(loaders) as LoaderName[]
-    let parsed = new URL(url)
-    for (let name of names) {
-      let title = loaders[name].isMineUrl(parsed)
-      // Until we will have loader for specific domain
-      /* c8 ignore start */
-      if (typeof title === 'string') {
-        return { loader: name, title, url }
-      }
-      /* c8 ignore end */
-    }
-    return false
-  }
-
-  function getLoaderForText(response: TextResponse): AddCandidate | false {
-    let names = Object.keys(loaders) as LoaderName[]
-    let parsed = new URL(response.url)
-    for (let name of names) {
-      if (loaders[name].isMineUrl(parsed) !== false) {
-        let title = loaders[name].isMineText(response)
-        if (title !== false) {
-          return {
-            loader: name,
-            text: response,
-            title: title.trim(),
-            url: response.url
-          }
-        }
-      }
-    }
-    return false
   }
 
   function getLinksFromText(response: TextResponse): string[] {
@@ -152,7 +116,7 @@ export const add = createPage('add', () => {
     }, [])
   }
 
-  function addCandidate(url: string, candidate: AddCandidate): void {
+  function addCandidate(url: string, candidate: FeedLoader): void {
     if ($candidates.get().some(i => i.url === url)) return
 
     $links.setKey(url, { state: 'processed' })
@@ -190,45 +154,36 @@ export const add = createPage('add', () => {
       return
     }
 
-    let byUrl = getLoaderForUrl(url)
-
-    if (byUrl !== false) {
-      // Until we will have loader for specific domain
-      /* c8 ignore next */
-
-      addCandidate(url, byUrl)
-    } else {
-      $links.setKey(url, { state: 'loading' })
+    $links.setKey(url, { state: 'loading' })
+    try {
+      let response
       try {
-        let response
-        try {
-          response = await task.text(url)
-        } catch {
-          $links.setKey(url, { state: 'unloadable' })
-          return
-        }
-        if (!response.ok) {
-          $links.setKey(url, { state: 'unloadable' })
-        } else {
-          let byText = getLoaderForText(response)
-          if (byText) {
-            addCandidate(url, byText)
-          } else {
-            $links.setKey(url, { state: 'unknown' })
-          }
-          if (!deep) {
-            let links = getLinksFromText(response)
-            if (links.length > 0) {
-              await Promise.all(links.map(i => addLink(task, i, true)))
-            } else if ($candidates.get().length === 0) {
-              let suggested = getSuggestedLinksFromText(response)
-              await Promise.all(suggested.map(i => addLink(task, i, true)))
-            }
-          }
-        }
-      } catch (error) {
-        ignoreAbortError(error)
+        response = await task.text(url)
+      } catch {
+        $links.setKey(url, { state: 'unloadable' })
+        return
       }
+      if (!response.ok) {
+        $links.setKey(url, { state: 'unloadable' })
+      } else {
+        let byText = getLoaderForText(response)
+        if (byText) {
+          addCandidate(url, byText)
+        } else {
+          $links.setKey(url, { state: 'unknown' })
+        }
+        if (!deep) {
+          let links = getLinksFromText(response)
+          if (links.length > 0) {
+            await Promise.all(links.map(i => addLink(task, i, true)))
+          } else if ($candidates.get().length === 0) {
+            let suggested = getSuggestedLinksFromText(response)
+            await Promise.all(suggested.map(i => addLink(task, i, true)))
+          }
+        }
+      }
+    } catch (error) {
+      ignoreAbortError(error)
     }
   }
 
