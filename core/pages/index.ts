@@ -9,7 +9,7 @@ import {
   type PageCreator
 } from './common.ts'
 
-export type { AddCandidate, AddPage } from './add.ts'
+export type { AddPage } from './add.ts'
 export * from './common.ts'
 
 // TODO: Remove after refactoring
