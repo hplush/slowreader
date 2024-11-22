@@ -5,12 +5,8 @@ import {
   enableTestTime,
   getLoaderForText,
   getTestEnvironment,
-  loaders,
-  type PreviewCandidate,
-  previewCandidates,
-  previewCandidatesLoading,
+  pages,
   setBaseTestRoute,
-  setPreviewUrl,
   setRequestMethod,
   setupEnvironment,
   userId
@@ -200,13 +196,12 @@ export async function fetchAndParsePosts(
       semiSuccess(url, `redirect to HTML`)
       return
     }
-    let candidate: false | PreviewCandidate = getLoaderForText(response)
+    let candidate = getLoaderForText(response)
     if (!candidate) {
       error(`Can not found loader for feed ${url}`)
       return
     }
-    let loader = loaders[candidate.loader]
-    let { list } = loader.getPosts(task, url, response).get()
+    let { list } = candidate.loader.getPosts(task, url, response).get()
     if (list.length === 0) {
       if (badSource) {
         semiSuccess(url, '0 posts')
@@ -233,12 +228,14 @@ export async function findRSSfromHome(
   feed: LoaderTestFeed,
   tries = 0
 ): Promise<boolean> {
-  let unbindPreview = previewCandidates.listen(() => {})
+  setBaseTestRoute({ params: {}, route: 'add' })
+  let addPage = pages.add()
+  let unbindPreview = addPage.sortedCandidates.listen(() => {})
   try {
     let homeUrl = feed.homeUrl || getHomeUrl(feed.url)
-    setPreviewUrl(homeUrl)
+    addPage.setUrl(homeUrl)
     try {
-      await timeout(10_000, waitFor(previewCandidatesLoading, false))
+      await timeout(10_000, waitFor(addPage.candidatesLoading, false))
     } catch (e) {
       if (e instanceof Error && e.message === 'Timeout' && tries > 0) {
         return await findRSSfromHome(feed, tries - 1)
@@ -246,11 +243,13 @@ export async function findRSSfromHome(
         throw e
       }
     }
-    let normalizedUrls = previewCandidates.get().map(i => normalizeUrl(i.url))
+    let normalizedUrls = addPage.sortedCandidates
+      .get()
+      .map(i => normalizeUrl(i.url))
     if (normalizedUrls.includes(normalizeUrl(feed.url))) {
       success(`Feed ${feed.title} has feed URL at home`)
       return true
-    } else if (previewCandidates.get().length === 0) {
+    } else if (addPage.sortedCandidates.get().length === 0) {
       error(
         `Can’t find any feed from home URL or ${feed.title}`,
         `Home URL: ${homeUrl}\nFeed URL: ${feed.url}`
@@ -260,7 +259,7 @@ export async function findRSSfromHome(
       error(
         `Can’t find ${feed.title} feed from home URL`,
         `Home URL: ${homeUrl}\n` +
-          `Found: ${previewCandidates
+          `Found: ${addPage.sortedCandidates
             .get()
             .map(i => i.url)
             .join('\n       ')}\n` +
