@@ -44,20 +44,20 @@ function changeRouteParam(
 let prevPage: Page | undefined
 let unbinds: (() => void)[] = []
 
-export const page: ReadableAtom<Page> = computed(router, route => {
-  let currentPage = pages[route.route]() as Page
-  if (currentPage !== prevPage) {
+export const currentPage: ReadableAtom<Page> = computed(router, route => {
+  let page = pages[route.route]() as Page
+  if (page !== prevPage) {
     if (prevPage) {
       for (let unbind of unbinds) unbind()
       prevPage.destroy()
     }
-    prevPage = currentPage
+    prevPage = page
 
-    eachParam(currentPage, route, (store, param) => {
+    eachParam(page, route, (store, param) => {
       unbinds.push(
         store.listen(newValue => {
           let currentRoute = router.get()
-          if (currentRoute.route === currentPage.route) {
+          if (currentRoute.route === page.route) {
             changeRouteParam(currentRoute, { [param]: newValue })
           }
         })
@@ -65,11 +65,11 @@ export const page: ReadableAtom<Page> = computed(router, route => {
     })
   }
 
-  eachParam(currentPage, route, (store, param, value) => {
+  eachParam(page, route, (store, param, value) => {
     if (store.get() !== value) {
       store.set(value)
     }
   })
 
-  return currentPage
+  return page
 })

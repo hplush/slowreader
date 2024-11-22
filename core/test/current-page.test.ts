@@ -3,7 +3,7 @@ import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import { page, pages, router, setBaseTestRoute } from '../index.ts'
+import { currentPage, pages, router, setBaseTestRoute } from '../index.ts'
 import { cleanClientTest, enableClientTest } from './utils.ts'
 
 let addPage = pages.add
@@ -15,27 +15,27 @@ beforeEach(() => {
 afterEach(async () => {
   pages.add = addPage
   await cleanClientTest()
-  cleanStores(page)
+  cleanStores(currentPage)
 })
 
 test('synchronies router with page', () => {
-  keepMount(page)
+  keepMount(currentPage)
 
   setBaseTestRoute({ params: {}, route: 'notFound' })
-  equal(page.get(), pages.notFound())
+  equal(currentPage.get(), pages.notFound())
 
   setBaseTestRoute({
     params: { candidate: undefined, url: undefined },
     route: 'add'
   })
-  equal(page.get(), pages.add())
+  equal(currentPage.get(), pages.add())
 
   setBaseTestRoute({ params: {}, route: 'notFound' })
-  equal(page.get(), pages.notFound())
+  equal(currentPage.get(), pages.notFound())
 })
 
 test('calls events', () => {
-  keepMount(page)
+  keepMount(currentPage)
   let events = ''
   let originAdd = pages.add
 
@@ -56,34 +56,34 @@ test('calls events', () => {
   }
 
   setBaseTestRoute({ params: {}, route: 'notFound' })
-  equal(page.get().route, 'notFound')
+  equal(currentPage.get().route, 'notFound')
   equal(events, 0)
 
   setBaseTestRoute({
     params: { candidate: undefined, url: undefined },
     route: 'add'
   })
-  equal(page.get().route, 'add')
+  equal(currentPage.get().route, 'add')
   equal(events, 'create ')
 
   setBaseTestRoute({ params: {}, route: 'notFound' })
-  equal(page.get().route, 'notFound')
+  equal(currentPage.get().route, 'notFound')
   equal(events, 'create exit destroy ')
 
   setBaseTestRoute({
     params: { candidate: undefined, url: undefined },
     route: 'add'
   })
-  equal(page.get().route, 'add')
+  equal(currentPage.get().route, 'add')
   equal(events, 'create exit destroy create ')
 
   setBaseTestRoute({ params: {}, route: 'notFound' })
-  equal(page.get().route, 'notFound')
+  equal(currentPage.get().route, 'notFound')
   equal(events, 'create exit destroy create exit destroy ')
 })
 
 test('synchronizes params', async () => {
-  keepMount(page)
+  keepMount(currentPage)
   setBaseTestRoute({
     params: { candidate: undefined, url: undefined },
     route: 'add'
