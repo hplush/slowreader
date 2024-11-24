@@ -32,7 +32,6 @@
     "tsx": "^4.19.2"
   },
   "devDependencies": {
-    "@types/cookie": "^1.0.0",
     "better-node-test": "0.7.1",
     "c8": "10.1.2",
     "drizzle-kit": "^0.28.1",

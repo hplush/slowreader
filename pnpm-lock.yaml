@@ -141,9 +141,6 @@ importers:
       '@logux/actions':
         specifier: 0.4.0
         version: 0.4.0(@logux/core@0.9.0)
-      '@types/dompurify':
-        specifier: 3.2.0
-        version: 3.2.0
       '@types/jsdom':
         specifier: 21.1.7
         version: 21.1.7
@@ -226,9 +223,6 @@ importers:
         specifier: ^4.19.2
         version: 4.19.2
     devDependencies:
-      '@types/cookie':
-        specifier: ^1.0.0
-        version: 1.0.0
       better-node-test:
         specifier: 0.7.1
         version: 0.7.1
@@ -1873,16 +1867,8 @@ packages:
   '@types/concat-stream@2.0.3':
     resolution: {integrity: sha512-3qe4oQAPNwVNwK4C9c8u+VJqv9kez+2MR4qJpoPFfXtgxxif1QbFusvXzK0/Wra2VX07smostI2VMmJNSpZjuQ==}
 
-  '@types/cookie@1.0.0':
-    resolution: {integrity: sha512-mGFXbkDQJ6kAXByHS7QAggRXgols0mAdP4MuXgloGY1tXokvzaFFM4SMqWvf7AH0oafI7zlFJwoGWzmhDqTZ9w==}
-    deprecated: This is a stub types definition. cookie provides its own type definitions, so you do not need this installed.
-
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
-
-  '@types/dompurify@3.2.0':
-    resolution: {integrity: sha512-Fgg31wv9QbLDA0SpTOXO3MaxySc4DKGLi8sna4/Utjo4r3ZRPdCt4UQee8BWr+Q5z21yifghREPJGYaEOEIACg==}
-    deprecated: This is a stub types definition. dompurify provides its own type definitions, so you do not need this installed.
 
   '@types/estree-jsx@1.0.5':
     resolution: {integrity: sha512-52CcUVNFyfb1A2ALocQw/Dd1BQFNmSdkuC3BkZ6iqhdMfQz7JWOFRuJFloOzjk+6WijU56m9oKXFAXc7o3Towg==}
@@ -8028,17 +8014,9 @@ snapshots:
     dependencies:
       '@types/node': 22.9.3
 
-  '@types/cookie@1.0.0':
-    dependencies:
-      cookie: 1.0.2
-
   '@types/debug@4.1.12':
     dependencies:
       '@types/ms': 0.7.34
-
-  '@types/dompurify@3.2.0':
-    dependencies:
-      dompurify: 3.2.1
 
   '@types/estree-jsx@1.0.5':
     dependencies:
