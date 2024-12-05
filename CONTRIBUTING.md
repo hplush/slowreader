@@ -49,6 +49,8 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
      - [Jet Brains IDEs](https://www.jetbrains.com/help/idea/start-dev-container-inside-ide.html)
      - [CLI tool](https://github.com/devcontainers/cli)
 
+     Then run the project inside that Dev Container. VS Code asks your in popup. But you can manually do it by pressing <kbd>⇧</kbd><kbd>⌘</kbd><kbd>P</kbd> (Mac) / <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>P</kbd> (Windows/Linux), selecting `Dev Containers: Open Folder in Container…` and then opening `slowreader/` folder.
+
    - You can also manually install [Node.js](https://nodejs.org/en/download/package-manager) and [pnpm](https://pnpm.io/installation) versions according to `.node-version` file and `packageManager` key in `package.json`.
 
 2. Then install all npm dependencies by `pnpm`:
