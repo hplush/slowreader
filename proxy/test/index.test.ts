@@ -1,4 +1,4 @@
-import { equal } from 'node:assert'
+import { equal, match } from 'node:assert'
 import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { after, afterEach, test } from 'node:test'
@@ -214,14 +214,15 @@ test('sends user IP to destination', async () => {
   let response1 = await request(targetUrl)
   equal(response1.status, 200)
   let json1 = await response1.json()
-  equal(json1.request.headers['x-forwarded-for'], '::1')
+  match(json1.request.headers['x-forwarded-for'], /^(::1|(::ffff:)?127.0.0.1)$/)
+  let localhost = json1.request.headers['x-forwarded-for']
 
   let response2 = await request(targetUrl, {
     headers: { 'X-Forwarded-For': '4.4.4.4' }
   })
   equal(response2.status, 200)
   let json2 = await response2.json()
-  equal(json2.request.headers['x-forwarded-for'], '4.4.4.4, ::1')
+  equal(json2.request.headers['x-forwarded-for'], `4.4.4.4, ${localhost}`)
 })
 
 test('checks response size', async () => {
