@@ -53,12 +53,14 @@ for (let file of globSync(['./*/package.json', 'package.json'])) {
   if (!content.includes(`"pnpm": "^${pnpmMajor}.`)) {
     error(`.devcontainer/Dockerfile and ${file} have different pnpm version`)
   }
-  let match = content.match(/"[^"]+": "[\^~][^"]+"/)
-  if (match && !match[0].startsWith('"node":')) {
-    let line = content.split('\n').findIndex(i => i.includes(match[0])) + 1
-    error(
-      `Not locked version in ${file}:${line}: ${styleText('yellow', match[0])}`
-    )
+  let match = content.match(/"[^"]+": "[\^~][^"]+"/g)
+  for (let version of match || []) {
+    if (!version.startsWith('"node":') && !version.startsWith('"pnpm":')) {
+      let line = content.split('\n').findIndex(i => i.includes(version)) + 1
+      error(
+        `Not locked version in ${file}:${line}: ${styleText('yellow', version)}`
+      )
+    }
   }
 }
 
