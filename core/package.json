@@ -21,9 +21,9 @@
     "@nanostores/i18n": "0.12.2",
     "@nanostores/persistent": "0.10.2",
     "@slowreader/api": "workspace:*",
-    "dompurify": "3.2.1",
+    "dompurify": "3.2.2",
     "just-debounce-it": "3.2.0",
-    "nanoid": "5.0.8",
+    "nanoid": "5.0.9",
     "nanostores": "0.11.3"
   },
   "devDependencies": {
