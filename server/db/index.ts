@@ -19,7 +19,6 @@ const MIGRATE_CONFIG: MigrationConfig = {
 let drizzle: PgDatabase<PgQueryResultHKT, typeof schema>
 if (config.db.startsWith('memory:') || config.db.startsWith('file:')) {
   let pglite = new PGlite(config.db)
-  await pglite.exec('CREATE EXTENSION IF NOT EXISTS plpgsql;')
   let drizzlePglite = devDrizzle(pglite, { schema })
   await devMigrate(drizzlePglite, MIGRATE_CONFIG)
   drizzle = drizzlePglite

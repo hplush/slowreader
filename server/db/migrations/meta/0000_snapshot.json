@@ -1,6 +1,6 @@
 {
-  "id": "04568407-5e12-4f50-b185-c9393643e49c",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "2d13e331-00c6-421c-83bd-b784e734f551",
+  "prevId": "01514472-5c40-4777-aef9-fb6b310cb372",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -8,6 +8,12 @@
       "name": "sessions",
       "schema": "",
       "columns": {
+        "clientId": {
+          "name": "clientId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp",
@@ -53,24 +59,27 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "sessions_userId_users_id_fk": {
           "name": "sessions_userId_users_id_fk",
           "tableFrom": "sessions",
-          "tableTo": "users",
           "columnsFrom": ["userId"],
+          "tableTo": "users",
           "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.users": {
       "name": "users",
@@ -88,17 +97,29 @@
           "type": "text",
           "primaryKey": true,
           "notNull": true
+        },
+        "passwordHash": {
+          "name": "passwordHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {},
   "schemas": {},
+  "views": {},
   "sequences": {},
+  "roles": {},
+  "policies": {},
   "_meta": {
     "columns": {},
     "schemas": {},

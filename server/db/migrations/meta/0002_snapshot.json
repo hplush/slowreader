@@ -1,6 +1,6 @@
 {
-  "id": "01514472-5c40-4777-aef9-fb6b310cb372",
-  "prevId": "d54c9d0e-26fa-4a3e-aedf-1c6a459f1e92",
+  "id": "d54c9d0e-26fa-4a3e-aedf-1c6a459f1e92",
+  "prevId": "04568407-5e12-4f50-b185-c9393643e49c",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -8,12 +8,6 @@
       "name": "sessions",
       "schema": "",
       "columns": {
-        "clientId": {
-          "name": "clientId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp",
