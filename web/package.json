@@ -40,7 +40,7 @@
     "postcss": "8.4.49",
     "postcss-load-config": "6.0.1",
     "rollup": "4.28.1",
-    "svelte": "5.10.1",
+    "svelte": "5.10.0",
     "ts-node": "10.9.2",
     "vite": "6.0.3"
   },
