@@ -21,7 +21,10 @@
 <NavbarItem
   name={$t.add}
   current={$router.route === 'add'}
-  href={getURL('add')}
+  href={getURL({
+    params: { candidate: undefined, url: 'https://example.com' },
+    route: 'add'
+  })}
   icon={mdiPlusCircleOutline}
   secondary
 />

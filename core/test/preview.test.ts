@@ -41,7 +41,10 @@ import { cleanClientTest, enableClientTest } from './utils.ts'
 beforeEach(() => {
   enableClientTest()
   mockRequest()
-  setBaseTestRoute({ params: {}, route: 'add' })
+  setBaseTestRoute({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
 })
 
 afterEach(async () => {
@@ -627,27 +630,39 @@ test('changes URL during typing in the field', async () => {
 })
 
 test('syncs URL with router', async () => {
-  deepStrictEqual(router.get(), { params: {}, route: 'add' })
+  deepStrictEqual(router.get(), {
+    params: { candidate: undefined, url: undefined },
+    popups: [],
+    route: 'add'
+  })
 
   expectRequest('http://example.com').andRespond(404)
   setPreviewUrl('example.com')
   deepStrictEqual(router.get(), {
-    params: { url: 'http://example.com' },
+    params: { candidate: undefined, url: 'http://example.com' },
+    popups: [],
     route: 'add'
   })
 
   expectRequest('https://other.com').andRespond(404)
   setPreviewUrl('https://other.com')
   deepStrictEqual(router.get(), {
-    params: { url: 'https://other.com' },
+    params: { candidate: undefined, url: 'https://other.com' },
+    popups: [],
     route: 'add'
   })
 
   expectRequest('http://example.com').andRespond(404)
-  setBaseTestRoute({ params: { url: 'http://example.com' }, route: 'add' })
+  setBaseTestRoute({
+    params: { candidate: undefined, url: 'http://example.com' },
+    route: 'add'
+  })
   deepStrictEqual(previewUrl.get(), 'http://example.com')
 
-  setBaseTestRoute({ params: {}, route: 'add' })
+  setBaseTestRoute({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
   deepStrictEqual(previewUrl.get(), '')
 
   expectRequest('https://new.com').andRespond(404)
@@ -671,6 +686,7 @@ test('show candidate on wide screen', async () => {
 
   deepStrictEqual(router.get(), {
     params: { candidate: 'https://a.com/atom', url: 'https://a.com/atom' },
+    popups: [],
     route: 'add'
   })
   equal(currentCandidate.get(), undefined)
@@ -691,7 +707,8 @@ test('do not show candidate on mobile screen', async () => {
   await setTimeout(10)
 
   deepStrictEqual(router.get(), {
-    params: { url: 'https://a.com/atom' },
+    params: { candidate: undefined, url: 'https://a.com/atom' },
+    popups: [],
     route: 'add'
   })
   equal(previewCandidate.get(), undefined)
@@ -709,7 +726,8 @@ test('redirect to candidates list if no current candidate', async () => {
   await setTimeout(10)
   equal(previewCandidate.get(), undefined)
   deepStrictEqual(router.get(), {
-    params: { url: 'https://a.com/atom' },
+    params: { candidate: undefined, url: 'https://a.com/atom' },
+    popups: [],
     route: 'add'
   })
 })
