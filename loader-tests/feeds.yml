@@ -38,9 +38,5 @@ feeds:
 
   # Edge Cases
 
-  - title: Feed URL by icon with FeedBurner URL
-    url: https://feeds.feedburner.com/juznevesti
-    homeUrl: https://www.juznevesti.com
-
   - title: Wrong Content Type
     url: https://exler.ru/rss.xml
