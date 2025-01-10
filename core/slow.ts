@@ -193,6 +193,7 @@ onEnvironment(({ openRoute }) => {
       if (notSynced(router.get())) {
         openRoute({
           params: { feed, page },
+          popups: [],
           route: 'slow'
         })
       }

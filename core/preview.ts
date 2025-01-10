@@ -108,7 +108,7 @@ export function clearPreview(): void {
   $added.set(undefined)
   $posts.set(undefined)
   postsCache.clear()
-  task.abortAll()
+  task.destroy()
   task = createDownloadTask()
 }
 
@@ -134,9 +134,7 @@ function getLoaderForUrl(url: string): false | PreviewCandidate {
   return false
 }
 
-export function getLoaderForText(
-  response: TextResponse
-): false | PreviewCandidate {
+function getLoaderForText(response: TextResponse): false | PreviewCandidate {
   let names = Object.keys(loaders) as LoaderName[]
   let parsed = new URL(response.url)
   for (let name of names) {
@@ -348,7 +346,11 @@ onEnvironment(({ openRoute }) => {
     previewUrl.listen(link => {
       let page = router.get()
       if (page.route === 'add' && page.params.url !== link) {
-        openRoute({ params: { url: link }, route: 'add' })
+        openRoute({
+          params: { candidate: undefined, url: link },
+          popups: [],
+          route: 'add'
+        })
       }
     }),
     router.subscribe(({ params, route }) => {
@@ -367,7 +369,8 @@ onEnvironment(({ openRoute }) => {
           setPreviewCandidate(params.candidate)
         } else {
           openRoute({
-            params: { url: params.url },
+            params: { candidate: undefined, url: params.url },
+            popups: [],
             route: 'add'
           })
         }
@@ -398,6 +401,7 @@ onEnvironment(({ openRoute }) => {
             candidate: candidateUrl,
             url: page.params.url
           },
+          popups: [],
           route: 'add'
         })
       }
