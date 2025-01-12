@@ -121,7 +121,7 @@ Global development tools:
 - [Dev Container](https://containers.dev) to use the same environment for all developers and isolate project from developer’s machine.
 - [Prettier](./.prettierrc) to use the same code style formatting.
 - [TypeScript](./tsconfig.json) for strict type checking.
-- [ESLint](./eslint.config.js) to check for popular mistakes in JavaScript.
+- [ESLint](./eslint.config.ts) to check for popular mistakes in JavaScript.
 - [remark](./.remarkrc) to find mistakes in `.md` files.
 
 Each project has its own tools, too.
