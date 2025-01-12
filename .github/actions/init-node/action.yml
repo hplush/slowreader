@@ -19,4 +19,4 @@ runs:
     - name: Install pnpm dependencies
       if: ${{ inputs.install != 'false' }}
       shell: bash
-      run: pnpm install --ignore-scripts ${{ inputs.install }}
+      run: pnpm install ${{ inputs.install }}
