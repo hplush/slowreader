@@ -1,6 +1,6 @@
 import loguxSvelteConfig from '@logux/eslint-config/svelte'
+import type { Linter } from 'eslint'
 
-/** @type {import('eslint').Linter.Config[]} */
 export default [
   {
     ignores: [
@@ -76,4 +76,4 @@ export default [
       '@typescript-eslint/no-empty-object-type': 'off'
     }
   }
-]
+] satisfies Linter.Config[]
