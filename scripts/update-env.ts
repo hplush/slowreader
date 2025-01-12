@@ -30,17 +30,17 @@ async function getLatestPnpmVersion(): Promise<string> {
   return data.tag_name.slice(1)
 }
 
-// async function getNodeSha256(version: string): Promise<Architectures> {
-//   let response = await fetch(
-//     `https://nodejs.org/dist/v${version}/SHASUMS256.txt`
-//   )
-//   let data = await response.text()
-//   let lines = data.split('\n')
-//   return {
-//     arm64: lines.find(i => i.endsWith('-linux-arm64.tar.gz'))!.split(' ')[0]!,
-//     x64: lines.find(i => i.endsWith('-linux-x64.tar.gz'))!.split(' ')[0]!
-//   }
-// }
+async function getNodeSha256(version: string): Promise<Architectures> {
+  let response = await fetch(
+    `https://nodejs.org/dist/v${version}/SHASUMS256.txt`
+  )
+  let data = await response.text()
+  let lines = data.split('\n')
+  return {
+    arm64: lines.find(i => i.endsWith('-linux-arm64.tar.gz'))!.split(' ')[0]!,
+    x64: lines.find(i => i.endsWith('-linux-x64.tar.gz'))!.split(' ')[0]!
+  }
+}
 
 async function getPnpmSha256(
   version: string,
@@ -68,14 +68,14 @@ function updatePackages(cb: (content: string) => string): void {
   }
 }
 
-// function updateProjectDockerfiles(cb: (content: string) => string): void {
-//   let files = globSync(['**/Dockerfile', '.devcontainer/Dockerfile'])
-//   for (let file of files) {
-//     let content = read(file)
-//     let updated = cb(content)
-//     writeFileSync(file, updated)
-//   }
-// }
+function updateProjectDockerfiles(cb: (content: string) => string): void {
+  let files = globSync(['**/Dockerfile', '.devcontainer/Dockerfile'])
+  for (let file of files) {
+    let content = read(file)
+    let updated = cb(content)
+    writeFileSync(file, updated)
+  }
+}
 
 function printUpdate(tool: string, prev: string, next: string): void {
   process.stderr.write(
@@ -120,32 +120,24 @@ let latestNode = await getLatestNodeVersion(
   process.argv[2] ?? currentNode.split('.')[0]!
 )
 let latestPnpm = await getLatestPnpmVersion()
+latestPnpm = '10.0.0'
 
 if (currentNode !== latestNode) {
-  // printUpdate('Node.js', currentNode, latestNode)
-  // let checksums = await getNodeSha256(latestNode)
-  // dockerfile = replaceVersionEnv(dockerfile, 'NODE', latestNode, checksums)
+  printUpdate('Node.js', currentNode, latestNode)
+  let checksums = await getNodeSha256(latestNode)
+  dockerfile = replaceVersionEnv(dockerfile, 'NODE', latestNode, checksums)
 
-  // Until https://github.com/storybookjs/addon-svelte-csf/issues/229
-  // will be fixed, we can’t update Node.js
-  process.stderr.write(
-    styleText(
-      'yellow',
-      `Skipping Node.js ${latestNode} update due to Storybook issue\n`
-    )
-  )
+  writeFileSync(join(ROOT, '.devcontainer', 'Dockerfile'), dockerfile)
+  writeFileSync(join(ROOT, '.node-version'), latestNode + '\n')
 
-  // writeFileSync(join(ROOT, '.devcontainer', 'Dockerfile'), dockerfile)
-  // writeFileSync(join(ROOT, '.node-version'), latestNode + '\n')
+  updateProjectDockerfiles(projectDocker => {
+    return replaceVersionEnv(projectDocker, 'NODE', latestNode, checksums)
+  })
 
-  // updateProjectDockerfiles(projectDocker => {
-  //   return replaceVersionEnv(projectDocker, 'NODE', latestNode, checksums)
-  // })
-
-  // let minor = latestNode.split('.').slice(0, 2).join('.')
-  // if (currentNode.split('.').slice(0, 2).join('.') !== minor) {
-  //   updatePackages(pkg => replaceKey(pkg, 'node', `^${minor}.0`))
-  // }
+  let minor = latestNode.split('.').slice(0, 2).join('.')
+  if (currentNode.split('.').slice(0, 2).join('.') !== minor) {
+    updatePackages(pkg => replaceKey(pkg, 'node', `^${minor}.0`))
+  }
 }
 
 if (currentPnpm !== latestPnpm) {
