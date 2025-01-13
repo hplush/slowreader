@@ -21,7 +21,7 @@ jobs:
       - name: Create artifact folder
         run: mkdir -p pr_diff && mv pr_number.txt pr_files_diff.txt pr_diff/
       - name: Upload PR details as artifact
-        uses: actions/upload-artifact@v4.5.0
+        uses: actions/upload-artifact@v4.6.0
         with:
           name: pr-diff
           retention-days: 1
