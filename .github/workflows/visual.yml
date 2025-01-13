@@ -29,7 +29,7 @@ jobs:
         uses: ./.github/actions/init-node
       - name: Publish to Chromatic
         if: steps.today.outputs.has_commits == 'true'
-        uses: chromaui/action@v11.22.0
+        uses: chromaui/action@v11.23.0
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           buildScriptName: build:visual
