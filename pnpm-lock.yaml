@@ -304,8 +304,8 @@ importers:
         specifier: 11.1.6
         version: 11.1.6(size-limit@11.1.6)
       '@storybook/addon-svelte-csf':
-        specifier: 5.0.0-next.13
-        version: 5.0.0-next.13(@storybook/svelte@8.4.7(storybook@8.4.7(prettier@3.4.2))(svelte@5.10.0))(@sveltejs/vite-plugin-svelte@5.0.1(svelte@5.10.0)(vite@6.0.3(@types/node@22.10.2)(jiti@2.4.1)(tsx@4.19.2)(yaml@2.6.1)))(storybook@8.4.7(prettier@3.4.2))(svelte@5.10.0)(vite@6.0.3(@types/node@22.10.2)(jiti@2.4.1)(tsx@4.19.2)(yaml@2.6.1))
+        specifier: 5.0.0-next.22
+        version: 5.0.0-next.22(@storybook/svelte@8.4.7(storybook@8.4.7(prettier@3.4.2))(svelte@5.10.0))(@sveltejs/vite-plugin-svelte@5.0.1(svelte@5.10.0)(vite@6.0.3(@types/node@22.10.2)(jiti@2.4.1)(tsx@4.19.2)(yaml@2.6.1)))(storybook@8.4.7(prettier@3.4.2))(svelte@5.10.0)(vite@6.0.3(@types/node@22.10.2)(jiti@2.4.1)(tsx@4.19.2)(yaml@2.6.1))
       '@storybook/addon-themes':
         specifier: 8.4.7
         version: 8.4.7(storybook@8.4.7(prettier@3.4.2))
@@ -1407,8 +1407,8 @@ packages:
     peerDependencies:
       size-limit: 11.1.6
 
-  '@storybook/addon-svelte-csf@5.0.0-next.13':
-    resolution: {integrity: sha512-okiimFWeaFp1BJmrvQp946clM4Pw4ALhIeaL49yBEmoCvFy2TwAjp6af9TMZjadCiI10lKiF+oczqQCZfKZHNA==}
+  '@storybook/addon-svelte-csf@5.0.0-next.22':
+    resolution: {integrity: sha512-KFUed5WlkqWKunJOp10Afmk2Brcv54bp/VBfPiFi+KOj+RDU3KzhrhDIOZjA9weMrXbZ1aHVo3DnOVLyP8vXPg==}
     peerDependencies:
       '@storybook/svelte': ^8.0.0
       '@sveltejs/vite-plugin-svelte': ^4.0.0 || ^5.0.0
@@ -1462,11 +1462,6 @@ packages:
 
   '@storybook/manager-api@8.4.7':
     resolution: {integrity: sha512-ELqemTviCxAsZ5tqUz39sDmQkvhVAvAgiplYy9Uf15kO0SP2+HKsCMzlrm2ue2FfkUNyqbDayCPPCB0Cdn/mpQ==}
-    peerDependencies:
-      storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
-
-  '@storybook/node-logger@8.4.7':
-    resolution: {integrity: sha512-bsNMy9RgN4jVw5MMHMf0T04dX8a1lLTWq4iZoZkfdbshDKn5Z16brzPVwhFg2IE0YTEZi9XyA1NJLPgUTCcp7g==}
     peerDependencies:
       storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
 
@@ -5803,11 +5798,10 @@ snapshots:
     dependencies:
       size-limit: 11.1.6
 
-  '@storybook/addon-svelte-csf@5.0.0-next.13(@storybook/svelte@8.4.7(storybook@8.4.7(prettier@3.4.2))(svelte@5.10.0))(@sveltejs/vite-plugin-svelte@5.0.1(svelte@5.10.0)(vite@6.0.3(@types/node@22.10.2)(jiti@2.4.1)(tsx@4.19.2)(yaml@2.6.1)))(storybook@8.4.7(prettier@3.4.2))(svelte@5.10.0)(vite@6.0.3(@types/node@22.10.2)(jiti@2.4.1)(tsx@4.19.2)(yaml@2.6.1))':
+  '@storybook/addon-svelte-csf@5.0.0-next.22(@storybook/svelte@8.4.7(storybook@8.4.7(prettier@3.4.2))(svelte@5.10.0))(@sveltejs/vite-plugin-svelte@5.0.1(svelte@5.10.0)(vite@6.0.3(@types/node@22.10.2)(jiti@2.4.1)(tsx@4.19.2)(yaml@2.6.1)))(storybook@8.4.7(prettier@3.4.2))(svelte@5.10.0)(vite@6.0.3(@types/node@22.10.2)(jiti@2.4.1)(tsx@4.19.2)(yaml@2.6.1))':
     dependencies:
       '@storybook/csf': 0.1.12
       '@storybook/docs-tools': 8.4.7(storybook@8.4.7(prettier@3.4.2))
-      '@storybook/node-logger': 8.4.7(storybook@8.4.7(prettier@3.4.2))
       '@storybook/svelte': 8.4.7(storybook@8.4.7(prettier@3.4.2))(svelte@5.10.0)
       '@storybook/types': 8.4.7(storybook@8.4.7(prettier@3.4.2))
       '@sveltejs/vite-plugin-svelte': 5.0.1(svelte@5.10.0)(vite@6.0.3(@types/node@22.10.2)(jiti@2.4.1)(tsx@4.19.2)(yaml@2.6.1))
@@ -5881,10 +5875,6 @@ snapshots:
   '@storybook/global@5.0.0': {}
 
   '@storybook/manager-api@8.4.7(storybook@8.4.7(prettier@3.4.2))':
-    dependencies:
-      storybook: 8.4.7(prettier@3.4.2)
-
-  '@storybook/node-logger@8.4.7(storybook@8.4.7(prettier@3.4.2))':
     dependencies:
       storybook: 8.4.7(prettier@3.4.2)
 

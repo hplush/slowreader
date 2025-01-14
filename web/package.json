@@ -10,7 +10,7 @@
     "test": "pnpm run /^test:/",
     "build": "pnpm run /^build:/ && mv ./storybook-static ./dist/ui",
     "start": "vite",
-    "visual": "NODE_OPTIONS='--no-experimental-require-module' storybook dev -p 6006 --no-open",
+    "visual": "storybook dev -p 6006 --no-open",
     "production": "node --run build && ./scripts/run-image.sh",
     "size": "node --run build:web && size-limit",
     "test:unit": "pnpm bnt",
@@ -18,7 +18,7 @@
     "test:css": "stylelint **/*.css **/*.svelte",
     "test:build": "node --run build && size-limit && ../scripts/tsnode ./scripts/check-css-props.ts",
     "build:routes": "../scripts/tsnode ./scripts/export-routes.ts",
-    "build:visual": "NODE_OPTIONS='--no-experimental-require-module' NODE_ENV=test storybook build",
+    "build:visual": "NODE_ENV=test storybook build",
     "build:web": "vite build && ../scripts/tsnode scripts/generate-csp.ts",
     "format:stylelint": "stylelint --fix **/*.{css,svelte}",
     "clean:build": "rm -rf dist"
@@ -47,7 +47,7 @@
   "devDependencies": {
     "@logux/stylelint-config": "0.20.0",
     "@size-limit/file": "11.1.6",
-    "@storybook/addon-svelte-csf": "5.0.0-next.13",
+    "@storybook/addon-svelte-csf": "5.0.0-next.22",
     "@storybook/addon-themes": "8.4.7",
     "@storybook/addon-viewport": "8.4.7",
     "@storybook/svelte": "8.4.7",
