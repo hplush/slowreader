@@ -10,6 +10,7 @@ import { addFeed, type FeedValue } from './feed.ts'
 import { readonlyExport } from './lib/stores.ts'
 import { importMessages } from './messages/index.ts'
 import { createFeedFromUrl } from './preview.ts'
+import { unique } from './loader/utils.ts'
 
 let $importedFeedsByCategory = atom<FeedsByCategory>([])
 export const importedFeedsByCategory = readonlyExport($importedFeedsByCategory)
@@ -80,7 +81,7 @@ const processFeed = async (
     let currentLoadingFeeds = { ...$importLoadingFeeds.get() }
     delete currentLoadingFeeds[feedUrl]
     $importLoadingFeeds.set(currentLoadingFeeds)
-    $unLoadedFeeds.set([...$unLoadedFeeds.get(), feedUrl])
+    $unLoadedFeeds.set(unique([...$unLoadedFeeds.get(), feedUrl]))
   }
 }
 
