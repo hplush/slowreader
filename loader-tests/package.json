@@ -16,7 +16,7 @@
   "devDependencies": {
     "@slowreader/core": "workspace:*",
     "jsdom": "26.0.0",
-    "nanostores": "0.11.3",
+    "nanostores": "0.11.4",
     "yaml": "2.7.0"
   }
 }
