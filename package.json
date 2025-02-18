@@ -60,7 +60,7 @@
     "svelte": "5.20.2",
     "svelte-check": "4.1.4",
     "svgo": "3.3.2",
-    "typescript": "5.8.0-dev.20250127"
+    "typescript": "5.8.0-beta"
   },
   "pnpm": {
     "overrides": {
