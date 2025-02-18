@@ -120,7 +120,6 @@ let latestNode = await getLatestNodeVersion(
   process.argv[2] ?? currentNode.split('.')[0]!
 )
 let latestPnpm = await getLatestPnpmVersion()
-latestPnpm = '10.0.0'
 
 if (currentNode !== latestNode) {
   printUpdate('Node.js', currentNode, latestNode)
