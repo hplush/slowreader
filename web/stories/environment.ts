@@ -9,6 +9,7 @@ import {
 import { atom } from 'nanostores'
 
 export const baseRouter = atom<BaseRoute>({
+  hash: '',
   params: { category: 'general' },
   route: 'fast'
 })
@@ -37,7 +38,7 @@ setupEnvironment({
     return networkType
   },
   openRoute(page) {
-    baseRouter.set(page)
+    baseRouter.set({ ...page, hash: '' })
   },
   persistentEvents: {
     addEventListener() {},

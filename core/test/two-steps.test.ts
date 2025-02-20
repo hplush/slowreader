@@ -36,7 +36,10 @@ afterEach(async () => {
 
 test('works with adds route on wide screen', async () => {
   setIsMobile(false)
-  setBaseTestRoute({ params: {}, route: 'add' })
+  setBaseTestRoute({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
   expectRequest('https://a.com/atom').andRespond(
     200,
     '<feed><title>Atom</title>' +
@@ -50,14 +53,18 @@ test('works with adds route on wide screen', async () => {
 
   strictEqual(secondStep.get(), true)
   deepStrictEqual(backRoute.get(), {
-    params: { url: 'https://a.com/atom' },
+    params: { candidate: undefined, url: 'https://a.com/atom' },
+    popups: [],
     route: 'add'
   })
 })
 
 test('works with adds route on mobile screen', async () => {
   setIsMobile(true)
-  setBaseTestRoute({ params: {}, route: 'add' })
+  setBaseTestRoute({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
   expectRequest('https://a.com/atom').andRespond(
     200,
     '<feed><title>Atom</title>' +
@@ -85,6 +92,7 @@ test('works with categories route', async () => {
   strictEqual(secondStep.get(), true)
   deepStrictEqual(backRoute.get(), {
     params: {},
+    popups: [],
     route: 'categories'
   })
 })
@@ -105,6 +113,7 @@ test('works with fast route', async () => {
   strictEqual(secondStep.get(), true)
   deepStrictEqual(backRoute.get(), {
     params: { category: idA },
+    popups: [],
     route: 'fast'
   })
 })
@@ -125,6 +134,7 @@ test('works with slow route', async () => {
   strictEqual(secondStep.get(), true)
   deepStrictEqual(backRoute.get(), {
     params: { feed },
+    popups: [],
     route: 'slow'
   })
 })
@@ -137,6 +147,7 @@ test('goes back to first step', async () => {
 
   deepStrictEqual(router.get(), {
     params: { feed },
+    popups: [],
     route: 'categories'
   })
 
@@ -144,6 +155,7 @@ test('goes back to first step', async () => {
 
   deepStrictEqual(router.get(), {
     params: {},
+    popups: [],
     route: 'categories'
   })
 
@@ -151,6 +163,7 @@ test('goes back to first step', async () => {
 
   deepStrictEqual(router.get(), {
     params: {},
+    popups: [],
     route: 'categories'
   })
 })
