@@ -64,7 +64,7 @@ test('initializes with empty states', () => {
   equal(exporting.get(), false)
 })
 
-test('selects all exporting feeds', async () => {
+test('selects all exporting feeds', () => {
   selectAllExportingFeeds()
 
   let categories = exportingCategories.get()
@@ -74,7 +74,7 @@ test('selects all exporting feeds', async () => {
   ok(feeds.length > 0)
 })
 
-test('clears export selections', async () => {
+test('clears export selections', () => {
   selectAllExportingFeeds()
   clearExportingSelections()
 
@@ -82,7 +82,7 @@ test('clears export selections', async () => {
   equal(exportingFeeds.get().length, 0)
 })
 
-test('toggles exporting category', async () => {
+test('toggles exporting category', () => {
   let categoryId = 'general'
   clearExportingSelections()
 
@@ -94,7 +94,7 @@ test('toggles exporting category', async () => {
   ok(!exportingCategories.get().includes(categoryId))
 })
 
-test('toggles exporting feed', async () => {
+test('toggles exporting feed', () => {
   let feedId = 'H4RZpnXPjlj_Hzl08ipBw'
   let categoryId = 'general'
   clearExportingSelections()

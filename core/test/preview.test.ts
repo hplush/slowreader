@@ -626,7 +626,7 @@ test('changes URL during typing in the field', async () => {
   equal(previewUrl.get(), 'http://example.com')
 })
 
-test('syncs URL with router', async () => {
+test('syncs URL with router', () => {
   deepStrictEqual(router.get(), { params: {}, route: 'add' })
 
   expectRequest('http://example.com').andRespond(404)

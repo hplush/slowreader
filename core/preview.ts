@@ -288,7 +288,7 @@ export const onPreviewUrlType = debounce((value: string) => {
   }
 }, 500)
 
-export async function setPreviewCandidate(url: string): Promise<void> {
+export function setPreviewCandidate(url: string): void {
   let candidate = $candidates.get().find(i => i.url === url)
   if (candidate) {
     $candidate.set(url)

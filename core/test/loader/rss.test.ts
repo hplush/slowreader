@@ -162,7 +162,7 @@ test('ignores text & comment nodes when probing', () => {
   )
 })
 
-test('parses posts', async () => {
+test('parses posts', () => {
   let task = createDownloadTask()
   deepStrictEqual(
     loaders.rss
@@ -231,9 +231,10 @@ test('parses posts', async () => {
 
 test('loads text to parse posts', async () => {
   let task = createDownloadTask()
-  let text = spyOn(task, 'text', async () =>
-    exampleRss(
-      `<?xml version="1.0"?>
+  let text = spyOn(task, 'text', () => {
+    return Promise.resolve(
+      exampleRss(
+        `<?xml version="1.0"?>
       <rss version="2.0">
         <channel>
           <title>Feed</title>
@@ -243,8 +244,9 @@ test('loads text to parse posts', async () => {
           </item>
         </channel>
       </rss>`
+      )
     )
-  )
+  })
   let page = loaders.rss.getPosts(task, 'https://example.com/news/')
   deepStrictEqual(page.get(), {
     hasNext: true,
@@ -270,7 +272,7 @@ test('loads text to parse posts', async () => {
   deepStrictEqual(text.calls, [['https://example.com/news/']])
 })
 
-test('parses media from media:content alone', async () => {
+test('parses media from media:content alone', () => {
   let task = createDownloadTask()
   deepStrictEqual(
     loaders.rss
@@ -320,7 +322,7 @@ test('parses media from media:content alone', async () => {
   )
 })
 
-test('parses media from description', async () => {
+test('parses media from description', () => {
   let task = createDownloadTask()
   deepStrictEqual(
     loaders.rss
@@ -368,7 +370,7 @@ test('parses media from description', async () => {
   )
 })
 
-test('parses media from media:content and description', async () => {
+test('parses media from media:content and description', () => {
   let task = createDownloadTask()
   deepStrictEqual(
     loaders.rss
@@ -423,7 +425,7 @@ test('parses media from media:content and description', async () => {
   )
 })
 
-test('parses media and removes duplicates', async () => {
+test('parses media and removes duplicates', () => {
   let task = createDownloadTask()
   deepStrictEqual(
     loaders.rss

@@ -209,9 +209,9 @@
     .navbar_submenu {
       position: relative;
       display: flex;
-      flex-direction: column;
       flex-grow: 1;
       flex-shrink: 1;
+      flex-direction: column;
       gap: 2px;
       padding: 8px 0 0 4px;
       overflow-y: auto;

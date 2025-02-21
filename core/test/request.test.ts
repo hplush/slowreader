@@ -73,9 +73,11 @@ test('marks requests as aborted', async () => {
 
   let aborted = ''
   let controller = new AbortController()
-  request('https://one.com', { signal: controller.signal }).catch(e => {
-    if (e instanceof Error) aborted = e.name
-  })
+  request('https://one.com', { signal: controller.signal }).catch(
+    (e: unknown) => {
+      if (e instanceof Error) aborted = e.name
+    }
+  )
 
   controller.abort()
   await setTimeout(10)

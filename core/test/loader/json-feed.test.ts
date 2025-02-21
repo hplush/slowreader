@@ -218,7 +218,7 @@ test('detects content type by content', () => {
   )
 })
 
-test('validate json feed format', async () => {
+test('validate json feed format', () => {
   let task = createDownloadTask()
   deepStrictEqual(
     loaders.jsonFeed
@@ -279,30 +279,32 @@ test('validate json feed format', async () => {
 
 test('loads text to parse posts', async () => {
   let task = createDownloadTask()
-  let text = spyOn(task, 'text', async () =>
-    exampleJson({
-      ...jsonStub,
-      items: [
-        {
-          content_html: '<p>Priority Content</p>',
-          content_text: '<p>Skipped content</p>',
-          date_published: '2022-01-04T00:00:00Z',
-          id: 'somehashid',
-          summary: 'summary',
-          title: 'title_1',
-          url: 'https://example.com/'
-        },
-        {
-          content_html: undefined,
-          content_text: '<p>Alternative content</p>',
-          date_published: '2022-01-04T00:00:00Z',
-          id: 'somehashid2',
-          title: 'title_2',
-          url: 'https://example.com/2'
-        }
-      ]
-    })
-  )
+  let text = spyOn(task, 'text', () => {
+    return Promise.resolve(
+      exampleJson({
+        ...jsonStub,
+        items: [
+          {
+            content_html: '<p>Priority Content</p>',
+            content_text: '<p>Skipped content</p>',
+            date_published: '2022-01-04T00:00:00Z',
+            id: 'somehashid',
+            summary: 'summary',
+            title: 'title_1',
+            url: 'https://example.com/'
+          },
+          {
+            content_html: undefined,
+            content_text: '<p>Alternative content</p>',
+            date_published: '2022-01-04T00:00:00Z',
+            id: 'somehashid2',
+            title: 'title_2',
+            url: 'https://example.com/2'
+          }
+        ]
+      })
+    )
+  })
   let page = loaders.jsonFeed.getPosts(task, 'https://example.com/')
   deepStrictEqual(page.get(), {
     hasNext: true,
@@ -338,7 +340,7 @@ test('loads text to parse posts', async () => {
   deepStrictEqual(text.calls, [['https://example.com/']])
 })
 
-test('validate wrong json feed format', async () => {
+test('validate wrong json feed format', () => {
   let task = createDownloadTask()
 
   deepStrictEqual(loaders.jsonFeed.isMineText(exampleJson('1')), false)
@@ -452,38 +454,40 @@ test('validate wrong json feed format', async () => {
 
 test('parses media', async () => {
   let task = createDownloadTask()
-  let text = spyOn(task, 'text', async () =>
-    exampleJson({
-      ...jsonStub,
-      items: [
-        {
-          banner_image: 'https://example.com/banner_image.webp',
-          content_html:
-            '<p>HTML<img src="https://example.com/img_h.webp" /></p>',
-          content_text:
-            '<p>Text<img src="https://example.com/img_t.webp" /></p>',
-          date_published: '2022-01-04T00:00:00Z',
-          id: 'somehashid',
-          image: 'https://example.com/image.webp',
-          summary: 'summary',
-          title: 'title_1',
-          url: 'https://example.com/'
-        },
-        {
-          banner_image: 'https://example.com/img.webp',
-          content_html: undefined,
-          content_text:
-            '<p><img src="https://example.com/img_0.webp">Text' +
-            '<img src="https://example.com/img_1.webp"></p>',
-          date_published: '2022-01-04T00:00:00Z',
-          id: 'somehashid2',
-          image: 'https://example.com/img.webp',
-          title: 'title_2',
-          url: 'https://example.com/2'
-        }
-      ]
-    })
-  )
+  let text = spyOn(task, 'text', () => {
+    return Promise.resolve(
+      exampleJson({
+        ...jsonStub,
+        items: [
+          {
+            banner_image: 'https://example.com/banner_image.webp',
+            content_html:
+              '<p>HTML<img src="https://example.com/img_h.webp" /></p>',
+            content_text:
+              '<p>Text<img src="https://example.com/img_t.webp" /></p>',
+            date_published: '2022-01-04T00:00:00Z',
+            id: 'somehashid',
+            image: 'https://example.com/image.webp',
+            summary: 'summary',
+            title: 'title_1',
+            url: 'https://example.com/'
+          },
+          {
+            banner_image: 'https://example.com/img.webp',
+            content_html: undefined,
+            content_text:
+              '<p><img src="https://example.com/img_0.webp">Text' +
+              '<img src="https://example.com/img_1.webp"></p>',
+            date_published: '2022-01-04T00:00:00Z',
+            id: 'somehashid2',
+            image: 'https://example.com/img.webp',
+            title: 'title_2',
+            url: 'https://example.com/2'
+          }
+        ]
+      })
+    )
+  })
   let page = loaders.jsonFeed.getPosts(task, 'https://example.com/')
   deepStrictEqual(page.get(), {
     hasNext: true,

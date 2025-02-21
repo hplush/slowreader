@@ -1,4 +1,5 @@
 import type { StorybookConfig } from '@storybook/svelte-vite'
+import type { InlineConfig } from 'vite'
 
 export default {
   addons: [
@@ -8,8 +9,8 @@ export default {
   ],
   framework: '@storybook/svelte-vite',
   stories: ['../stories/**/*.stories.svelte'],
-  async viteFinal(config) {
+  viteFinal(config: InlineConfig) {
     config.publicDir = false
-    return config
+    return Promise.resolve(config)
   }
 } satisfies StorybookConfig

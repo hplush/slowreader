@@ -22,13 +22,13 @@ test('increase keys', async () => {
         await new Promise<void>(resolve => {
           resolves.push(resolve)
         })
-        events += payload + 1 + ' '
+        events += `${payload + 1} `
       },
       async multiply(payload) {
         await new Promise<void>(resolve => {
           resolves.push(resolve)
         })
-        events += payload * 2 + ' '
+        events += `${payload * 2} `
       }
     })
     .then(() => {
@@ -62,12 +62,14 @@ test('allows to add test in the middle', async () => {
   let queue = createQueue<{ a: number; b: number }>([{ payload: 1, type: 'a' }])
 
   await queue.start(2, {
-    async a(payload, tasks) {
+    a(payload, tasks) {
       tasks.push({ payload: 2, type: 'b' })
       events += `a${payload} `
+      return Promise.resolve()
     },
-    async b(payload) {
+    b(payload) {
       events += `b${payload} `
+      return Promise.resolve()
     }
   })
 
@@ -125,13 +127,12 @@ test('reties on error', async () => {
   equal(errorReport, 1)
 })
 
-test('passes thrown string', async () => {
+test('passes thrown string', () => {
   let attempts = 0
   rejects(async () => {
     await retryOnError(
       () => {
         attempts += 1
-        // eslint-disable-next-line no-throw-literal
         throw 'error string'
       },
       () => {
@@ -167,10 +168,10 @@ test('returns value after error', async () => {
   let errorReport = 0
   let attempts = 0
   let result = await retryOnError(
-    async () => {
+    () => {
       attempts += 1
       if (attempts === 2) {
-        return 'ok'
+        return Promise.resolve('ok')
       } else {
         throw new Error('test')
       }
@@ -189,9 +190,9 @@ test('returns value on no error', async () => {
   let errorReport = 0
   let attempts = 0
   let result = await retryOnError(
-    async () => {
+    () => {
       attempts += 1
-      return 'ok'
+      return Promise.resolve('ok')
     },
     () => {
       errorReport += 1

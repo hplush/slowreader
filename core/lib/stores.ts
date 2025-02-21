@@ -33,7 +33,9 @@ export function increaseKey<Store extends MapStore>(
   store: Store,
   key: NumberKeys<StoreValue<Store>>
 ): void {
-  store.setKey(key, store.get()[key] + 1)
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  let value = store.get()[key] as number
+  store.setKey(key, value + 1)
 }
 
 export function listenMany<SourceStores extends ReadableAtom[]>(
@@ -41,6 +43,7 @@ export function listenMany<SourceStores extends ReadableAtom[]>(
   cb: (...values: StoreValues<SourceStores>) => void
 ): () => void {
   function listener(): void {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     let values = stores.map(store => store.get()) as StoreValues<SourceStores>
     cb(...values)
   }

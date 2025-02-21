@@ -6,11 +6,12 @@ import {
   type CategoryValue,
   type FeedsByCategory
 } from './category.ts'
+import type { InternalExport } from './export.ts'
 import { addFeed, type FeedValue } from './feed.ts'
 import { readonlyExport } from './lib/stores.ts'
+import { unique } from './loader/utils.ts'
 import { importMessages } from './messages/index.ts'
 import { createFeedFromUrl } from './preview.ts'
-import { unique } from './loader/utils.ts'
 
 let $importedFeedsByCategory = atom<FeedsByCategory>([])
 export const importedFeedsByCategory = readonlyExport($importedFeedsByCategory)
@@ -139,6 +140,17 @@ export const toggleImportedFeed = (
   $importedFeeds.set(Array.from(selectedFeeds))
 }
 
+function isInternalExport(json: unknown): json is InternalExport {
+  return (
+    typeof json === 'object' &&
+    json !== null &&
+    'type' in json &&
+    json.type === 'feedsByCategory' &&
+    'data' in json &&
+    Array.isArray(json.data)
+  )
+}
+
 export const handleImportFile = (file: File): Promise<void> => {
   return new Promise(resolve => {
     $reading.set(true)
@@ -155,7 +167,7 @@ export const handleImportFile = (file: File): Promise<void> => {
       if (fileExtension === 'json') {
         try {
           let jsonData = JSON.parse(content)
-          if (jsonData.type === 'feedsByCategory') {
+          if (isInternalExport(jsonData)) {
             $importedFeedsByCategory.set(jsonData.data)
             importSubscribe()
             selectAllImportedFeeds()

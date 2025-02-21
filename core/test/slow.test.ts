@@ -34,7 +34,7 @@ afterEach(async () => {
   await cleanClientTest()
 })
 
-test('has empty slow categories from beginning', async () => {
+test('has empty slow categories from beginning', () => {
   deepStrictEqual(slowCategories.get(), {
     isLoading: false,
     tree: []

@@ -75,16 +75,15 @@ function moveToSearch<Page extends Route>(
   let search = {}
   let rest = {}
   for (let key in page.params) {
-    // Too complex to type
-    // @ts-expect-error
+    // @ts-expect-error Too complex to type
     if (move[key]) {
-      // @ts-expect-error
+      // @ts-expect-error Too complex to type
       if (typeof page.params[key] !== 'undefined') {
-        // @ts-expect-error
+        // @ts-expect-error Too complex to type
         search[key] = page.params[key]
       }
     } else {
-      // @ts-expect-error
+      // @ts-expect-error Too complex to type
       rest[key] = page.params[key]
     }
   }

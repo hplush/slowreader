@@ -21,7 +21,7 @@ afterEach(async () => {
   await cleanClientTest()
 })
 
-test('listens for not found error', async () => {
+test('listens for not found error', () => {
   setBaseTestRoute({ params: { feed: 'unknown' }, route: 'categories' })
   equal(notFound.get(), false)
 

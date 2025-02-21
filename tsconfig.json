@@ -4,7 +4,6 @@
     "noUncheckedIndexedAccess": true,
     "experimentalDecorators": true,
     "verbatimModuleSyntax": true,
-    "erasableSyntaxOnly": true,
     "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "skipLibCheck": true,

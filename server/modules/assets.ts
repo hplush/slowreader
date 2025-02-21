@@ -31,14 +31,14 @@ const MIME_TYPES: Record<string, string> = {
   '.woff2': 'font/woff2'
 }
 
-const CONTENT_SECURITY_POLICIES: Record<string, string> = {
+const CONTENT_SECURITY_POLICIES = {
   'base-uri': "'none'",
   'form-action': "'none'",
   'frame-ancestors': "'none'",
   'object-src': "'none'",
   'script-src': "'self'",
   'style-src': "'self'"
-}
+} as const
 
 const HASHED = /-[\w]{8}\.\w+$/
 

@@ -70,7 +70,7 @@ let proxyUrl = getURL(proxy)
 let targetUrl = getURL(target)
 
 let otherProxy: Server | undefined
-afterEach(async () => {
+afterEach(() => {
   if (otherProxy) {
     otherProxy.close()
     otherProxy = undefined

@@ -55,6 +55,6 @@ startKeyUX(window, [
   hiddenKeyUX()
 ])
 
-window.addEventListener('load', async () => {
-  await import('./devtools.ts')
+window.addEventListener('load', () => {
+  import('./devtools.ts').then(() => {})
 })

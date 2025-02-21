@@ -69,8 +69,8 @@ setupEnvironment({
   restartApp() {
     location.reload()
   },
-  async translationLoader() {
-    return {}
+  translationLoader() {
+    return Promise.resolve({})
   }
 })
 

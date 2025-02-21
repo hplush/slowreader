@@ -73,7 +73,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
 }
 
 function stringify(value: unknown): string {
-  return typeof value === 'object' ? JSON.stringify(value) : `${value}`
+  return typeof value === 'object' ? JSON.stringify(value) : String(value)
 }
 
 function validate<ValidatedType>(

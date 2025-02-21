@@ -72,8 +72,7 @@
       &:active {
         padding-block: calc(var(--padding-l) + 2px) calc(var(--padding-l) - 1px);
         border-top: none;
-        box-shadow: var(--card-item-pressed-shadow),
-          var(--card-item-above-shadow);
+        box-shadow: var(--card-item-pressed-shadow), var(--card-item-above-shadow);
       }
 
       &:has(input:focus-visible) {

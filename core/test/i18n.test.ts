@@ -7,7 +7,7 @@ import { test } from 'node:test'
 import { i18n, settingsMessages } from '../index.ts'
 import { enableClientTest } from './utils.ts'
 
-test('has i18n', async () => {
+test('has i18n', () => {
   equal(typeof i18n, 'function')
   equal(typeof settingsMessages.get().theme, 'string')
 
@@ -15,9 +15,9 @@ test('has i18n', async () => {
   let loading: string[] = []
   enableClientTest({
     locale,
-    async translationLoader(lang) {
+    translationLoader(lang) {
       loading.push(lang)
-      return {}
+      return Promise.resolve({})
     }
   })
   locale.set('es')

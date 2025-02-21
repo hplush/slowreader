@@ -37,7 +37,7 @@ export default (server: BaseServer): void => {
         .update(sessions)
         .set({ clientId: client.clientId, usedAt: sql`now()` })
         .where(eq(sessions.id, session.id))
-        .catch(error => {
+        .catch((error: unknown) => {
           /* c8 ignore next */
           server.logger.error(error)
         })

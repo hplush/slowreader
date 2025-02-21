@@ -24,7 +24,7 @@ await Promise.all(
       await cssChecker.process(css, { from: file })
     } catch (e) {
       if (!(e instanceof Error)) {
-        printError(`${e}`)
+        printError(String(e))
       } else if (e instanceof Error && e.name === 'CssSyntaxError') {
         printError(e.message)
       } else {

@@ -26,7 +26,7 @@ async function getLatestPnpmVersion(): Promise<string> {
   let response = await fetch(
     'https://api.github.com/repos/pnpm/pnpm/releases/latest'
   )
-  let data = await response.json()
+  let data = (await response.json()) as { tag_name: string }
   return data.tag_name.slice(1)
 }
 

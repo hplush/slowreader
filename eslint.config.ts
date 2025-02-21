@@ -12,6 +12,21 @@ export default [
   },
   ...loguxSvelteConfig,
   {
+    rules: {
+      '@typescript-eslint/no-base-to-string': 'off',
+      '@typescript-eslint/no-floating-promises': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-type-assertion': 'off'
+    }
+  },
+  {
+    files: ['**/*.test.ts'],
+    rules: {
+      '@typescript-eslint/no-misused-spread': 'off',
+      '@typescript-eslint/only-throw-error': 'off'
+    }
+  },
+  {
     files: ['web/stories/*.ts'],
     rules: {
       'no-console': 'off'
@@ -56,7 +71,11 @@ export default [
   {
     files: ['web/**/*.svelte'],
     rules: {
-      '@typescript-eslint/no-confusing-void-expression': 'off'
+      '@typescript-eslint/no-confusing-void-expression': 'off',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off'
     }
   },
   {

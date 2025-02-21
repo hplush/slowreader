@@ -141,6 +141,6 @@ export function getTestEnvironment(): EnvironmentAndStore {
     persistentEvents: { addEventListener() {}, removeEventListener() {} },
     persistentStore: {},
     restartApp: () => {},
-    translationLoader: async () => ({})
+    translationLoader: () => Promise.resolve({})
   }
 }

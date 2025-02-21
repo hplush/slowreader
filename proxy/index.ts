@@ -70,7 +70,7 @@ export function createProxy(
 
       let targetResponse = await fetch(url, {
         headers: {
-          ...(req.headers as HeadersInit),
+          ...(req.headers as Record<string, string>),
           'host': parsedUrl.host,
           'X-Forwarded-For': req.socket.remoteAddress!
         },

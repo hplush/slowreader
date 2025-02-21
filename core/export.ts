@@ -91,10 +91,15 @@ export function getOPMLBlob(): Blob {
   return new Blob([opml], { type: 'application/xml' })
 }
 
-export async function getInternalBlob(isIncludePosts: Boolean): Promise<Blob> {
+export type InternalExport = {
+  data: [CategoryValue, FeedWithPosts[]][]
+  type: 'feedsByCategory'
+}
+
+export async function getInternalBlob(isIncludePosts: boolean): Promise<Blob> {
   $exporting.set(true)
   let posts: PostValue[]
-  /* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition */
+
   if (isIncludePosts) {
     posts = await loadValue(getPosts()).then(value => value.list)
   }
@@ -102,7 +107,7 @@ export async function getInternalBlob(isIncludePosts: Boolean): Promise<Blob> {
     .get()
     .map(([category, feeds]: [CategoryValue, FeedWithPosts[]]) => {
       let categoryTitle = getCategoryTitle(category)
-      /* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition */
+
       if (isIncludePosts) {
         feeds.forEach(feed => {
           feed.posts = posts.filter(post => post.feedId === feed.id)

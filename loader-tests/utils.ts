@@ -130,7 +130,7 @@ export function print(msg: string): void {
 
 let errors = 0
 
-export function error(err: string | unknown, details?: string): void {
+export function error(err: unknown, details?: string): void {
   errors += 1
   let msg: string
   if (isNoFileError(err)) {
@@ -214,7 +214,7 @@ export async function fetchAndParsePosts(
         error(`Can not found posts for feed ${url}`)
       }
     } else {
-      success(url, list.length + (list.length > 1 ? ' posts' : ' post'))
+      success(url, `${list.length}${list.length > 1 ? ' posts' : ' post'}`)
     }
   } catch (e) {
     error(e, `During loading posts for ${url}`)
@@ -241,7 +241,7 @@ export async function findRSSfromHome(
       await timeout(10_000, waitFor(previewCandidatesLoading, false))
     } catch (e) {
       if (e instanceof Error && e.message === 'Timeout' && tries > 0) {
-        return findRSSfromHome(feed, tries - 1)
+        return await findRSSfromHome(feed, tries - 1)
       } else {
         throw e
       }
@@ -290,7 +290,11 @@ export async function completeTasks(
     function runTask(): void {
       let task = tasks.pop()
       if (task) {
-        task().then(runTask)
+        task()
+          .then(runTask)
+          .catch((e: unknown) => {
+            throw e
+          })
       } else {
         running -= 1
         if (running === 0) resolve()

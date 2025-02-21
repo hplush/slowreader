@@ -104,8 +104,8 @@ test('can download text by keeping eyes on abort signal', async () => {
   equal(response1.text, 'Hi')
 
   let sendText: ((text: string) => void) | undefined
-  setRequestMethod(async url => {
-    return {
+  setRequestMethod(url => {
+    return Promise.resolve({
       ok: true,
       status: 200,
       text() {
@@ -114,7 +114,7 @@ test('can download text by keeping eyes on abort signal', async () => {
         })
       },
       url: url.toString()
-    } as Response
+    } as Response)
   })
 
   let response2 = task.text('https://example.com')
@@ -124,7 +124,7 @@ test('can download text by keeping eyes on abort signal', async () => {
   await rejects(response2, (e: Error) => e.name === 'AbortError')
 })
 
-test('parses XML content', async () => {
+test('parses XML content', () => {
   let text = createTextResponse('<html><body>Test</body></html>')
   equal(text.parseXml()!.firstChild?.lastChild?.nodeName, 'BODY')
   equal(text.parseXml()!.firstChild?.lastChild?.textContent, 'Test')
@@ -160,7 +160,7 @@ test('parses XML content', async () => {
   equal(broken.parseXml()!.textContent, null)
 })
 
-test('parses JSON content', async () => {
+test('parses JSON content', () => {
   let json = createTextResponse('{ "version": "1.1", "title": "test_title" }', {
     headers: new Headers({ 'content-type': 'application/json' })
   })
@@ -213,7 +213,7 @@ test('has helper to ignore abort errors', async () => {
   ignoreAbortError(error3)
 })
 
-test('detects content type', async () => {
+test('detects content type', () => {
   equal(
     createTextResponse('custom', {
       headers: new Headers({ 'content-type': 'application/custom' })

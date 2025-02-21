@@ -191,7 +191,7 @@ test('updates posts', async () => {
       { media: [], originId: 'post5', publishedAt: 5000, title: '5' },
       { media: [], originId: 'post4', publishedAt: 4000, title: '4' }
     ],
-    async () => {
+    () => {
       fail()
     }
   ])
@@ -214,18 +214,21 @@ test('updates posts', async () => {
 
   restoreAll()
   spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsList(undefined, async () => {
-      return [[{ media: [], originId: 'post3', title: '3' }], undefined]
+    return createPostsList(undefined, () => {
+      return Promise.resolve([
+        [{ media: [], originId: 'post3', title: '3' }],
+        undefined
+      ])
     })
   })
   spyOn(loaders.atom, 'getPosts', () => {
-    return createPostsList(undefined, async () => {
-      return [
+    return createPostsList(undefined, () => {
+      return Promise.resolve([
         [
           { media: [], originId: 'post9', publishedAt: 9000, title: '9 delete' }
         ],
         undefined
-      ]
+      ])
     })
   })
 
@@ -327,7 +330,10 @@ test('is ready for network errors', async () => {
   spyOn(loaders.rss, 'getPosts', () => {
     return createPostsList(undefined, async () => {
       if (rssHadError) {
-        return [[{ media: [], originId: 'post1', title: '1' }], undefined]
+        return Promise.resolve([
+          [{ media: [], originId: 'post1', title: '1' }],
+          undefined
+        ])
       } else {
         rssHadError = true
         throw new Error('network error')
@@ -336,6 +342,7 @@ test('is ready for network errors', async () => {
   })
   spyOn(loaders.atom, 'getPosts', () => {
     return createPostsList(undefined, async () => {
+      await setTimeout(1)
       throw new Error('server not working')
     })
   })
@@ -363,15 +370,15 @@ test('is ready to not found previous ID and time', async () => {
     })
   )
   spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsList(undefined, async () => {
-      return [
+    return createPostsList(undefined, () => {
+      return Promise.resolve([
         [
           { media: [], originId: 'post6', publishedAt: 6000, title: '6' },
           { media: [], originId: 'post5', publishedAt: 5000, title: '5' },
           { media: [], originId: 'post4', publishedAt: 4000, title: '4' }
         ],
         undefined
-      ]
+      ])
     })
   })
 
@@ -394,8 +401,8 @@ test('sorts posts', async () => {
     })
   )
   spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsList(undefined, async () => {
-      return [
+    return createPostsList(undefined, () => {
+      return Promise.resolve([
         [
           { media: [], originId: 'post1', publishedAt: 1000, title: '1' },
           { media: [], originId: 'postY', title: 'Y' },
@@ -405,7 +412,7 @@ test('sorts posts', async () => {
           { media: [], originId: 'postX', title: 'X' }
         ],
         undefined
-      ]
+      ])
     })
   })
 

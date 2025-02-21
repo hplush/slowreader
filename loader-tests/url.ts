@@ -5,14 +5,18 @@ let cli = createCLI(
   '$ pnpm run url URL'
 )
 
-cli.run(async args => {
-  enableTestClient()
+cli
+  .run(async args => {
+    enableTestClient()
 
-  let url = args[0]
-  if (!url) {
-    cli.wrongArg('Please provide a feed URL')
-    return
-  }
+    let url = args[0]
+    if (!url) {
+      cli.wrongArg('Please provide a feed URL')
+      return
+    }
 
-  await fetchAndParsePosts(url)
-})
+    await fetchAndParsePosts(url)
+  })
+  .catch((e: unknown) => {
+    throw e
+  })

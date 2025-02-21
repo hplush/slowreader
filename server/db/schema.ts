@@ -18,7 +18,5 @@ export const sessions = pgTable(
       .references(() => users.id)
       .notNull()
   },
-  table => ({
-    sessionsUserIdx: index('sessionsUserIdx').on(table.userId)
-  })
+  table => [index('sessionsUserIdx').on(table.userId)]
 )

@@ -2,7 +2,7 @@
 // by changing classes (is-dark-theme, is-light-theme) in the HTML.
 // It is like postcss-dark-theme-class but solved our unique case.
 
-import type { Plugin, Helpers, AtRule, Node, Rule, Container } from 'postcss'
+import type { AtRule, Container, Helpers, Node, Plugin, Rule } from 'postcss'
 
 const IS_DARK = /^\(prefers-color-scheme:\s*dark\)$/
 const IS_LIGHT = /^\(prefers-color-scheme:\s*light\)$/
@@ -34,7 +34,7 @@ function isAtRule(node: Node): node is AtRule {
 
 function cloneToRule(atrule: AtRule, selector: string, helpers: Helpers): void {
   if (!atrule.parent) return
-  let copy: Node[] | Container
+  let copy: Container | Node[]
   if (
     atrule.parent.type === 'root' &&
     atrule.every(n => n.type === 'rule' && n.selector !== ':root') &&

@@ -5,7 +5,7 @@ const URL =
     ? 'https://*.slowreader.app/*'
     : 'http://localhost:5173/*'
 
-export default defineManifest(async () => ({
+export default defineManifest(() => ({
   background: {
     service_worker: 'background.ts',
     type: 'module'

@@ -5,7 +5,7 @@ export interface TextResponse {
   readonly contentType: string
   readonly headers: Headers
   readonly ok: boolean
-  parseJson(): null | unknown
+  parseJson(): unknown
   parseXml(): Document | null | XMLDocument
   readonly redirected: boolean
   readonly status: number
@@ -67,7 +67,7 @@ export function createTextResponse(
       }
 
       try {
-        return JSON.parse(text)
+        return JSON.parse(text) as unknown
       } catch (e) {
         if (e instanceof SyntaxError) {
           warning('Parse JSON error', e.message)

@@ -270,7 +270,7 @@ test('ignores text & comment nodes when probing', () => {
   )
 })
 
-test('parses posts', async () => {
+test('parses posts', () => {
   let task = createDownloadTask()
   deepStrictEqual(
     loaders.atom
@@ -360,9 +360,10 @@ test('parses posts', async () => {
 
 test('loads text to parse posts', async () => {
   let task = createDownloadTask()
-  let text = spyOn(task, 'text', async () =>
-    exampleAtom(
-      `<?xml version="1.0"?>
+  let text = spyOn(task, 'text', () => {
+    return Promise.resolve(
+      exampleAtom(
+        `<?xml version="1.0"?>
       <feed xmlns="http://www.w3.org/2005/Atom">
         <title>Feed</title>
         <entry>
@@ -370,8 +371,9 @@ test('loads text to parse posts', async () => {
           <id>1</id>
         </entry>
       </feed>`
+      )
     )
-  )
+  })
   let page = loaders.atom.getPosts(task, 'https://example.com/news/')
   deepStrictEqual(page.get(), {
     hasNext: true,
@@ -398,7 +400,7 @@ test('loads text to parse posts', async () => {
   deepStrictEqual(text.calls, [['https://example.com/news/']])
 })
 
-test('parses media', async () => {
+test('parses media', () => {
   let task = createDownloadTask()
   deepStrictEqual(
     loaders.atom

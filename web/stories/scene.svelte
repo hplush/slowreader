@@ -136,9 +136,9 @@
   onMount(() => {
     forceSet(slowPosts, slowState)
 
-    // @ts-expect-error
+    // @ts-expect-error Hack to change state for testing
     forceSet(openedSlowPost, openedPost)
-    // @ts-expect-error
+    // @ts-expect-error Hack to change state for testing
     forceSet(openedFastPost, openedPost)
 
     if (fasts.length) {

@@ -33,8 +33,11 @@ test('works with cached posts without next page', async () => {
 })
 
 test('works without posts', async () => {
-  let posts = createPostsList(undefined, async () => {
-    return [[POST1], async () => [[POST2], undefined]]
+  let posts = createPostsList(undefined, () => {
+    return Promise.resolve([
+      [POST1],
+      () => Promise.resolve([[POST2], undefined])
+    ])
   })
   deepStrictEqual(posts.get(), {
     hasNext: true,
@@ -75,8 +78,11 @@ test('works without posts', async () => {
 })
 
 test('is ready for double calls', async () => {
-  let posts = createPostsList(undefined, async () => {
-    return [[POST1], async () => [[POST2], undefined]]
+  let posts = createPostsList(undefined, () => {
+    return Promise.resolve([
+      [POST1],
+      () => Promise.resolve([[POST2], undefined])
+    ])
   })
   posts.next()
   await posts.loading
@@ -105,8 +111,8 @@ test('is ready for double calls', async () => {
 })
 
 test('works with cached posts with next page loader', async () => {
-  let posts = createPostsList([POST1], async () => {
-    return [[POST2], undefined]
+  let posts = createPostsList([POST1], () => {
+    return Promise.resolve([[POST2], undefined])
   })
   deepStrictEqual(posts.get(), {
     hasNext: true,

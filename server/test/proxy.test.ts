@@ -6,7 +6,7 @@ import { after, afterEach, test } from 'node:test'
 
 import proxyModule from '../modules/proxy.ts'
 
-let target = createServer(async (req, res) => {
+let target = createServer((req, res) => {
   let parsedUrl = new URL(req.url!, `http://${req.headers.host}`)
   res.writeHead(200, {
     'Content-Type': 'text/json',

@@ -12,4 +12,6 @@ const server = new Server(
 
 await server.autoloadModules('modules/*.ts')
 
-server.listen()
+server.listen().catch((error: unknown) => {
+  throw error
+})

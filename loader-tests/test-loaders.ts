@@ -20,7 +20,7 @@ interface YamlFeed extends LoaderTestFeed {
 }
 
 async function parseFeedsFromFile(path: string): Promise<YamlFeed[]> {
-  let data = yaml.parse(await readText(path))
+  let data = yaml.parse(await readText(path)) as { feeds: YamlFeed[] }
   return data.feeds
 }
 

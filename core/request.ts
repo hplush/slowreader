@@ -80,7 +80,7 @@ export function expectRequest(url: string): RequestMock {
       expect.response = body
     },
     andWait() {
-      let resolveWait: Function
+      let resolveWait: () => void
       expect.wait = new Promise(resolve => {
         resolveWait = resolve
       })

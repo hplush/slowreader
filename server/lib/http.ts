@@ -12,9 +12,9 @@ function collectBody(req: IncomingMessage): Promise<string> {
   return new Promise(resolve => {
     let data = ''
     req.on('data', chunk => {
-      data += chunk
+      data += String(chunk)
     })
-    req.on('end', async () => {
+    req.on('end', () => {
       resolve(data)
     })
   })

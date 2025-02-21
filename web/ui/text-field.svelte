@@ -22,8 +22,8 @@
     errorId?: string
     hideLabel?: boolean
     label: string
-    onchange?: (value: string, valid: boolean) => void
-    oninput?: (value: string, valid: boolean) => void
+    onchange?: (v: string, valid: boolean) => void
+    oninput?: (v: string, valid: boolean) => void
     placeholder?: string
     required?: boolean
     spellcheck?: boolean

@@ -45,7 +45,7 @@ export async function fetchJSON<Response = unknown>(
     throw new Error(await response.text())
   }
   if (opts.response) opts.response(response)
-  return response.json()
+  return response.json() as Response
 }
 
 export interface Endpoint<
