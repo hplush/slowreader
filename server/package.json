@@ -29,7 +29,7 @@
     "drizzle-orm": "0.39.3",
     "nanoid": "5.1.0",
     "postgres": "3.4.5",
-    "tsx": "4.19.2"
+    "tsx": "4.19.3"
   },
   "devDependencies": {
     "better-node-test": "0.7.1",
