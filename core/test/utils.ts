@@ -13,6 +13,7 @@ import {
   Post,
   setBaseTestRoute,
   setupEnvironment,
+  slowCategories,
   userId
 } from '../index.ts'
 
@@ -24,7 +25,7 @@ export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
 }
 
 export async function cleanClientTest(): Promise<void> {
-  cleanStores(fastCategories, Feed, Filter, Category, Post)
+  cleanStores(fastCategories, Feed, Filter, Category, Post, slowCategories)
   await client.get()?.clean()
 }
 
