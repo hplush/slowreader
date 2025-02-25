@@ -35,7 +35,7 @@ jobs:
       - name: Create archive to keep symlinks
         run: tar -cf server.tar server/dist/
       - name: Save server for deploy
-        uses: actions/upload-artifact@v4.6.0
+        uses: actions/upload-artifact@v4.6.1
         with:
           name: preview-server
           retention-days: 1
