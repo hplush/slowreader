@@ -23,7 +23,7 @@
     "@slowreader/api": "workspace:*",
     "dompurify": "3.2.4",
     "just-debounce-it": "3.2.0",
-    "nanoid": "5.1.0",
+    "nanoid": "5.1.2",
     "nanostores": "0.11.4"
   },
   "devDependencies": {
