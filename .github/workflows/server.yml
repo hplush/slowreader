@@ -94,7 +94,7 @@ jobs:
           # Persistent database was disable temporary to save money
           # flags: |
           #   --vpc-connector db-connector
-          #   --update-secrets=DATABASE_URL=staging-db-url:latest
+          #   --update-secrets DATABASE_URL=staging-db-url:latest
           flags: |
-            --add-volume=name=db,type=cloud-storage,bucket=staging-db
-            --add-volume-mount=volume=db,mount-path=/var/mnt/staging-db/
+            --add-volume name=db,type=cloud-storage,bucket=staging-db
+            --add-volume-mount volume=db,mount-path=/var/mnt/staging-db/
