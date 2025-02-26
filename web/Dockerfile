@@ -1,6 +1,6 @@
 # Web server to serve web client for staging and pull request previews
 
-FROM docker.io/nginx:1.27.1-alpine3.20
+FROM docker.io/nginx:1.27.4-alpine3.21
 
 ENV PORT=8080
 
