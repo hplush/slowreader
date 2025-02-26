@@ -85,15 +85,16 @@ jobs:
       - name: Deploy to Google Cloud
         uses: ./.github/actions/deploy
         with:
-          projectId: slowreader-421120
+          projectId: slowreader-452120
           region: europe-west1
           folder: ./server/
           registry: staging/server
           service: staging-server
-          env: ASSETS=,PROXY_ORIGIN=
+          env: ASSETS=,PROXY_ORIGIN=,DATABASE_URL=file:///var/mnt/staging-db/pgdata
           # Persistent database was disable temporary to save money
           # flags: |
           #   --vpc-connector db-connector
           #   --update-secrets=DATABASE_URL=staging-db-url:latest
           flags: |
-            --update-secrets=DATABASE_URL=preview-db-url:latest
+            --add-volume=name=db,type=cloud-storage,bucket=staging-db
+            --add-volume-mount=volume=db,mount-path=/var/mnt/staging-db/

@@ -3,7 +3,7 @@
 # Google Cloud settings can be complex. We have this file to not forget them.
 # Do not change Google Cloud by web. Always use `gcloud` and update this script.
 
-PROJECT_ID=slowreader-421120
+PROJECT_ID=slowreader-452120
 REGION=europe-west1
 WORKFLOWS=(
   ".github/actions/deploy/action.yml"
@@ -64,7 +64,19 @@ gcloud iam service-accounts add-iam-policy-binding "$ACCOUNT_EMAIL" \
   --role="roles/iam.workloadIdentityUser" \
   --member="principalSet://iam.googleapis.com/${WORKLOAD_IDENTITY_POOL_ID}/attribute.repository/hplush/slowreader"
 
-# Persistent database was disable temporary to save money
+# In-memory storage for preview
+echo -n "memory://" | gcloud secrets create preview-db-url \
+  --replication-policy=automatic \
+  --data-file=-
+
+# To save money on prototype state, we will use file for DB
+gcloud storage buckets create gs://staging-db  \
+  --project=$PROJECT_ID \
+  --location=$REGION
+echo -n "file:///var/mnt/staging-db/pgdata" | gcloud secrets create staging-db-url \
+  --replication-policy=automatic \
+  --data-file=-
+
 # # Create private network for database
 # gcloud services enable compute.googleapis.com --project=$PROJECT_ID
 # gcloud services enable servicenetworking.googleapis.com --project=$PROJECT_ID
@@ -115,9 +127,6 @@ gcloud iam service-accounts add-iam-policy-binding "$ACCOUNT_EMAIL" \
 # echo -n $STAGING_DB | gcloud secrets create staging-db-url \
 #   --replication-policy=automatic \
 #   --data-file=-
-echo -n "memory://" | gcloud secrets create preview-db-url \
-  --replication-policy=automatic \
-  --data-file=-
 
 # Enable Google Cloud Run
 gcloud services enable run.googleapis.com --project=$PROJECT_ID

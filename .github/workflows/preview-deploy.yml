@@ -44,15 +44,15 @@ jobs:
         id: deploy
         uses: ./.github/actions/deploy
         with:
-          projectId: slowreader-421120
+          projectId: slowreader-452120
           region: europe-west1
           folder: ./server/
           registry: staging/server
           service: staging-server
           tag: preview-${{ env.PR_NUMBER }}
-          env: ASSETS=1,PROXY_ORIGIN=^https:\/\/preview-\d+---staging-server-jfj4bxwwxq-ew\.a\.run\.app$
-          flags: |
-            --update-secrets=DATABASE_URL=preview-db-url:latest
+          env: ASSETS=1,DATABASE_URL=memory://,PROXY_ORIGIN=^https:\/\/preview-\d+---staging-server-jfj4bxwwxq-ew\.a\.run\.app$
+          # flags: |
+          #   --update-secrets=DATABASE_URL=preview-db-url:latest
       - name: Update deployment status
         uses: bobheadxi/deployments@v1.5.0
         if: always()
