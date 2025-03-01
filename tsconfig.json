@@ -5,6 +5,7 @@
     "experimentalDecorators": true,
     "verbatimModuleSyntax": true,
     "moduleResolution": "NodeNext",
+    "erasableSyntaxOnly": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "allowJs": true,

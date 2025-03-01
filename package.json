@@ -33,12 +33,12 @@
   },
   "devDependencies": {
     "@logux/eslint-config": "55.0.1",
-    "@types/chrome": "0.0.306",
-    "@types/node": "22.13.5",
+    "@types/chrome": "0.0.307",
+    "@types/node": "22.13.8",
     "@types/ws": "8.5.14",
     "better-node-test": "0.7.1",
     "eslint": "9.21.0",
-    "eslint-plugin-svelte": "3.0.0-next.18",
+    "eslint-plugin-svelte": "3.0.2",
     "husky": "9.1.7",
     "nano-staged": "0.8.0",
     "postcss-html": "1.8.0",
@@ -56,12 +56,12 @@
     "remark-lint-no-shell-dollars": "4.0.1",
     "remark-lint-smarty-pants-typography": "1.1.0",
     "remark-validate-links": "13.1.0",
-    "stylelint": "16.14.1",
-    "svelte": "5.20.4",
+    "stylelint": "16.15.0",
+    "svelte": "5.20.5",
     "svelte-check": "4.1.4",
-    "svelte-eslint-parser": "1.0.0-next.13",
+    "svelte-eslint-parser": "1.0.0",
     "svgo": "3.3.2",
-    "typescript": "5.7.3"
+    "typescript": "5.8.2"
   },
   "pnpm": {
     "overrides": {
