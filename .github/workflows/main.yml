@@ -54,7 +54,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v4.2.2
       - name: Download web assets from test step
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4.1.9
         with:
           name: web-client-assets-${{ github.sha }}
           path: web/
