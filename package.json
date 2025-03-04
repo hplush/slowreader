@@ -34,7 +34,7 @@
   "devDependencies": {
     "@logux/eslint-config": "55.0.1",
     "@types/chrome": "0.0.307",
-    "@types/node": "22.13.8",
+    "@types/node": "22.13.9",
     "@types/ws": "8.5.14",
     "better-node-test": "0.7.1",
     "eslint": "9.21.0",
@@ -42,7 +42,7 @@
     "husky": "9.1.7",
     "nano-staged": "0.8.0",
     "postcss-html": "1.8.0",
-    "prettier": "3.5.2",
+    "prettier": "3.5.3",
     "prettier-plugin-svelte": "3.3.3",
     "remark-cli": "12.0.1",
     "remark-lint-check-toc": "1.0.0",
@@ -57,16 +57,10 @@
     "remark-lint-smarty-pants-typography": "1.1.0",
     "remark-validate-links": "13.1.0",
     "stylelint": "16.15.0",
-    "svelte": "5.20.5",
+    "svelte": "5.21.0",
     "svelte-check": "4.1.4",
     "svelte-eslint-parser": "1.0.0",
     "svgo": "3.3.2",
     "typescript": "5.8.2"
-  },
-  "pnpm": {
-    "overrides": {
-      "rollup@<2.79.2": ">=2.79.2",
-      "esbuild@<=0.24.2": ">=0.25.0"
-    }
   }
 }
