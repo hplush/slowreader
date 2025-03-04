@@ -11,7 +11,8 @@
           "^https://www.deepl.com/$",
           "^https://browsersl.ist/#q=",
           "^https://code.visualstudio.com/",
-          "^mailto:"
+          "^mailto:",
+          "^https://dev.slowreader.app/"
         ],
         "deadOrAliveOptions": {
           "maxRetries": 3
