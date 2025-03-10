@@ -31,6 +31,9 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
     --role="roles/artifactregistry.admin"
 gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member="serviceAccount:$ACCOUNT_EMAIL" \
+    --role="roles/storage.objectAdmin"
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$ACCOUNT_EMAIL" \
     --role="roles/secretmanager.secretAccessor"
 
 # Create repository for Docker images
@@ -70,7 +73,7 @@ echo -n "memory://" | gcloud secrets create preview-db-url \
   --data-file=-
 
 # To save money on prototype state, we will use file for DB
-gcloud storage buckets create gs://staging-db  \
+gcloud storage buckets create gs://staging-db \
   --project=$PROJECT_ID \
   --location=$REGION
 echo -n "file:///var/mnt/staging-db/pgdata" | gcloud secrets create staging-db-url \

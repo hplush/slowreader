@@ -74,7 +74,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v4.2.2
       - name: Download web assets from test step
-        uses: actions/download-artifact@v4.1.9
+        uses: actions/download-artifact@v4.1.8
         with:
           name: server-build-${{ github.sha }}
           path: ./
@@ -90,11 +90,11 @@ jobs:
           folder: ./server/
           registry: staging/server
           service: staging-server
-          env: ASSETS=,PROXY_ORIGIN=,DATABASE_URL=memory://
+          env: ASSETS=,PROXY_ORIGIN=,DATABASE_URL=file:///var/mnt/staging-db/pgdata
           # Persistent database was disable temporary to save money
           # flags: |
           #   --vpc-connector db-connector
           #   --update-secrets DATABASE_URL=staging-db-url:latest
           flags: |
             --add-volume name=db,type=cloud-storage,bucket=staging-db
-            --add-volume-mount volume=db,mount-path=/var/mnt/staging-db/pgdata
+            --add-volume-mount volume=db,mount-path=/var/mnt/staging-db
