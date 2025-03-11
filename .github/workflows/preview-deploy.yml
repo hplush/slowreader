@@ -44,7 +44,7 @@ jobs:
         id: deploy
         uses: ./.github/actions/deploy
         with:
-          projectId: slowreader-452120
+          projectId: slowreader-453400
           region: europe-west1
           folder: ./server/
           registry: staging/server

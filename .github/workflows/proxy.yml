@@ -87,7 +87,7 @@ jobs:
       - name: Deploy to Google Cloud
         uses: ./.github/actions/deploy
         with:
-          projectId: slowreader-452120
+          projectId: slowreader-453400
           region: europe-west1
           folder: ./proxy/
           registry: staging/proxy

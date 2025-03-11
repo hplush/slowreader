@@ -29,7 +29,7 @@ runs:
     - name: Auth Google Cloud
       uses: google-github-actions/auth@v2.1.8
       with:
-        workload_identity_provider: projects/900797847730/locations/global/workloadIdentityPools/github/providers/hplush
+        workload_identity_provider: projects/300174498438/locations/global/workloadIdentityPools/github/providers/hplush
         service_account: github-deploy@${{ inputs.projectId }}.iam.gserviceaccount.com
     - name: Install Google Cloud
       uses: google-github-actions/setup-gcloud@v2.1.4
