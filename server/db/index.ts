@@ -39,7 +39,7 @@ if (
       let blob = await pglite.dumpDataDir('none')
       await writeFile(path, blob.stream(), { encoding: 'binary' })
     }
-    setInterval(dumpDb, 60 * 1000)
+    setInterval(dumpDb, 60 * 60 * 1000)
   } else {
     pglite = new PGlite(config.db)
   }
