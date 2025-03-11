@@ -5,6 +5,8 @@ import { drizzle as devDrizzle } from 'drizzle-orm/pglite'
 import { migrate as devMigrate } from 'drizzle-orm/pglite/migrator'
 import { drizzle as prodDrizzle } from 'drizzle-orm/postgres-js'
 import { migrate as prodMigrate } from 'drizzle-orm/postgres-js/migrator'
+import { existsSync } from 'node:fs'
+import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import postgres from 'postgres'
 
@@ -17,13 +19,34 @@ const MIGRATE_CONFIG: MigrationConfig = {
 }
 
 let drizzle: PgDatabase<PgQueryResultHKT, typeof schema>
-if (config.db.startsWith('memory:') || config.db.startsWith('file:')) {
-  let pglite = new PGlite(config.db)
+if (
+  config.db.startsWith('memory:') ||
+  config.db.startsWith('file:') ||
+  config.db.startsWith('dump:')
+) {
+  let pglite: PGlite
+  if (config.db.startsWith('dump:')) {
+    let path = config.db.slice(5)
+    if (existsSync(path)) {
+      let dump = await readFile(path)
+      pglite = new PGlite({
+        loadDataDir: new Blob([dump], { type: 'application/x-tar' })
+      })
+    } else {
+      pglite = new PGlite()
+    }
+    async function dumpDb(): Promise<void> {
+      let blob = await pglite.dumpDataDir('none')
+      await writeFile(path, blob.stream(), { encoding: 'binary' })
+    }
+    setInterval(dumpDb, 60 * 1000)
+  } else {
+    pglite = new PGlite(config.db)
+  }
   let drizzlePglite = devDrizzle(pglite, { schema })
   await devMigrate(drizzlePglite, MIGRATE_CONFIG)
   drizzle = drizzlePglite
 } else {
-  /* c8 ignore next 5 */
   drizzle = prodDrizzle(postgres(config.db), { schema })
   let migrateConnection = postgres(config.db, { max: 1 })
   await prodMigrate(prodDrizzle(migrateConnection), MIGRATE_CONFIG)

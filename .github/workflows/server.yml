@@ -90,7 +90,7 @@ jobs:
           folder: ./server/
           registry: staging/server
           service: staging-server
-          env: ASSETS=,PROXY_ORIGIN=,DATABASE_URL=memory://
+          env: ASSETS=,PROXY_ORIGIN=,DATABASE_URL=dump:/var/mnt/db/db.pglite
           # Persistent database was disable temporary to save money
           # flags: |
           #   --vpc-connector db-connector
