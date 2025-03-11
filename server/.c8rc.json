@@ -1,0 +1,17 @@
+{
+  "all": true,
+  "check-coverage": true,
+  "clean": true,
+  "exclude": [
+    "db/index.ts",
+    "test/*",
+    "coverage/",
+    "dist/",
+    "web/",
+    "drizzle.config.ts",
+    "index.ts"
+  ],
+  "lines": 100,
+  "reporter": ["text-summary", "text", "lcov"],
+  "skip-full": true
+}
