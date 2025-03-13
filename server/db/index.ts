@@ -41,7 +41,9 @@ if (
     }
     setInterval(dumpDb, 60 * 60 * 1000)
   } else {
-    pglite = new PGlite(config.db)
+    // eslint-disable-next-line no-console
+    console.log('DB Location:', config.db)
+    pglite = new PGlite(config.db, { debug: 1 })
   }
   let drizzlePglite = devDrizzle(pglite, { schema })
   await devMigrate(drizzlePglite, MIGRATE_CONFIG)
