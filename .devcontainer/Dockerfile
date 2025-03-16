@@ -8,9 +8,9 @@ ARG TARGETARCH
 ENV NODE_VERSION 22.14.0
 ENV PNPM_VERSION 10.6.5
 
-ENV NODE_CHECKSUM_ARM64 8cf30ff7250f9463b53c18f89c6c606dfda70378215b2c905d0a9a8b08bd45e0
+ENV NODE_CHECKSUM_ARM64 69b09dba5c8dcb05c4e4273a4340db1005abeafe3927efda2bc5b249e80437ec
 ENV PNPM_CHECKSUM_ARM64 9b9d1d3f026f969b33596dbf6c46f31a8078f0fce412231b2093d7e6a36aaa5c
-ENV NODE_CHECKSUM_X64 9d942932535988091034dc94cc5f42b6dc8784d6366df3a36c4c9ccb3996f0c2
+ENV NODE_CHECKSUM_X64 69b09dba5c8dcb05c4e4273a4340db1005abeafe3927efda2bc5b249e80437ec
 ENV PNPM_CHECKSUM_X64 75a7f1c70d3ce7ff7f6f0a0815010246ff14142418f66126a2c2be83a65f284d
 
 RUN apt-get update \
@@ -37,9 +37,9 @@ RUN <<EOF
     exit 1
   fi
 
-  curl "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.gz" \
-    --fail --show-error --location --silent --output /node.tar.gz
-  echo "$NODE_CHECKSUM /node.tar.gz" | sha256sum -c
+  curl "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" \
+    --fail --show-error --location --silent --output /node.tar.xz
+  echo "$NODE_CHECKSUM /node.tar.xz" | sha256sum -c
 
   curl "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-${ARCH}" \
     --fail --show-error --location --silent --output /usr/local/bin/pnpm
@@ -49,11 +49,11 @@ RUN <<EOF
     --fail --show-error --location --silent --output /difft.tar.gz
   echo "$DIFFT_CHECKSUM /difft.tar.gz" | sha256sum -c
 
-  tar -xz -f /node.tar.gz -C /usr/local --remove-files --strip-components=1 \
+  tar -xz -f /node.tar.xz -C /usr/local --remove-files --strip-components=1 \
     --exclude='*.md' --exclude='LICENSE' \
     --exclude='share' --exclude='lib/node_modules/' \
     --exclude='bin/npm' --exclude='bin/npx' --exclude='bin/corepack'
-  tar -xz -f /difft.tar.gz -C /usr/local/bin --remove-files
+  tar -xz -f /difft.tar.xz -C /usr/local/bin --remove-files
 
   chmod a+rx /usr/local/bin/pnpm
 EOF
