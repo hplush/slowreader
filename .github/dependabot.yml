@@ -12,11 +12,7 @@ updates:
     directory: '/.github/actions/init-node'
     schedule:
       interval: monthly
-  - package-ecosystem: npm
-    directory: '/'
-    schedule:
-      interval: daily
-    security-updates-only: true
+
   - package-ecosystem: docker
     directory: '/web'
     schedule:
