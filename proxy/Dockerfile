@@ -8,9 +8,6 @@ ADD --checksum=$NODE_CHECKSUM https://unofficial-builds.nodejs.org/download/rele
 RUN tar -xf "node.tar.xz" --strip-components=1 -C /usr/local/ \
     "node-v${NODE_VERSION}-linux-x64-musl/bin/node" && rm "node.tar.xz"
 
-RUN ls /lib
-RUN ls /usr/lib
-
 FROM scratch
 WORKDIR /var/app
 ENV NODE_ENV production
