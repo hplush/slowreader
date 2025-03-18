@@ -73,7 +73,7 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4.2.2
-      - name: Download web assets from test step
+      - name: Download server build from previous step
         uses: actions/download-artifact@v4.1.9
         with:
           name: server-build-${{ github.sha }}
