@@ -12,7 +12,7 @@ updates:
     directory: '/.github/actions/init-node'
     schedule:
       interval: monthly
-  - package-ecosystem: pnpm
+  - package-ecosystem: npm
     directory: '/'
     schedule:
       interval: daily
