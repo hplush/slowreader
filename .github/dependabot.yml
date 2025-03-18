@@ -3,15 +3,15 @@ updates:
   - package-ecosystem: github-actions
     directory: '/'
     schedule:
-      interval: weekly
+      interval: monthly
   - package-ecosystem: github-actions
     directory: '/.github/actions/deploy'
     schedule:
-      interval: weekly
+      interval: monthly
   - package-ecosystem: github-actions
     directory: '/.github/actions/init-node'
     schedule:
-      interval: weekly
+      interval: monthly
   - package-ecosystem: pnpm
     directory: '/'
     schedule:
@@ -20,12 +20,12 @@ updates:
   - package-ecosystem: docker
     directory: '/web'
     schedule:
-      interval: weekly
+      interval: monthly
   - package-ecosystem: docker
     directory: '/server'
     schedule:
-      interval: weekly
+      interval: monthly
   - package-ecosystem: docker
     directory: '/proxy'
     schedule:
-      interval: weekly
+      interval: monthly
