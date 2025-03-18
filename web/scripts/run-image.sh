@@ -1,5 +1,7 @@
 #!/bin/bash
-# Use Podman instead of Docker if it is avaiable to run image in production mode
+# Test real production environment with Podman or Docker
+
+set -e
 
 ERROR='\033[0;31m'
 WARNING='\033[0;33m'
@@ -11,7 +13,11 @@ command_exists() {
 }
 
 build_and_run() {
-  IMAGE_ID=$($1 build . | tail -1)
+  BUILD_OUTPUT=$($1 build . 2>&1) || {
+    echo -e "${ERROR}Build failed:${NC}\n$BUILD_OUTPUT"
+    exit 1
+  }
+  IMAGE_ID=$(echo "$BUILD_OUTPUT" | tail -1)
   SIZE=$($1 image inspect "$IMAGE_ID" --format='{{.Size}}' | \
     awk '{printf "%d MB", $1/1024/1024}')
   echo -e "${WARNING}Image size: ${SIZE}${NC}"
