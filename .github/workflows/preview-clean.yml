@@ -17,7 +17,7 @@ jobs:
       REGION: europe-west1
     steps:
       - name: Download PR number from prepare step
-        uses: actions/download-artifact@v4.1.9
+        uses: actions/download-artifact@v4.2.0
         with:
           name: preview-id
           repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
