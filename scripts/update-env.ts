@@ -11,9 +11,7 @@ interface Release {
   version: string
 }
 
-type Architecture = 'arm64' | 'x64'
-
-type Architectures = Record<Architecture, string>
+type Architectures = { arm64: string; musl?: string; x64: string }
 
 async function getLatestNodeVersion(major: string): Promise<string> {
   let response = await fetch('https://nodejs.org/dist/index.json')
@@ -31,20 +29,27 @@ async function getLatestPnpmVersion(): Promise<string> {
 }
 
 async function getNodeSha256(version: string): Promise<Architectures> {
-  let response = await fetch(
-    `https://nodejs.org/dist/v${version}/SHASUMS256.txt`
-  )
-  let data = await response.text()
-  let lines = data.split('\n')
+  let [official, unofficial] = await Promise.all([
+    fetch(`https://nodejs.org/dist/v${version}/SHASUMS256.txt`),
+    fetch(
+      `https://unofficial-builds.nodejs.org/download/release/v${version}/SHASUMS256.txt`
+    )
+  ])
+  let [officialText, unofficialText] = await Promise.all([
+    official.text(),
+    unofficial.text()
+  ])
+  let lines = officialText.split('\n').concat(unofficialText.split('\n'))
   return {
-    arm64: lines.find(i => i.endsWith('-linux-arm64.tar.gz'))!.split(' ')[0]!,
-    x64: lines.find(i => i.endsWith('-linux-x64.tar.gz'))!.split(' ')[0]!
+    arm64: lines.find(i => i.endsWith('-linux-x64.tar.xz'))!.split(' ')[0]!,
+    musl: lines.find(i => i.endsWith('-linux-x64-musl.tar.xz'))!.split(' ')[0]!,
+    x64: lines.find(i => i.endsWith('-linux-x64.tar.xz'))!.split(' ')[0]!
   }
 }
 
 async function getPnpmSha256(
   version: string,
-  arch: Architecture
+  arch: 'arm64' | 'x64'
 ): Promise<string> {
   let binary = await fetch(
     'https://github.com/pnpm/pnpm/releases/download/' +
@@ -99,8 +104,8 @@ function replaceVersionEnv(
       let name = `${tool}_CHECKSUM_${arch.toUpperCase()}`
       fixed = replaceEnv(fixed, name, checksum)
     }
-  } else if (content.includes('_CHECKSUM ')) {
-    fixed = replaceEnv(fixed, `${tool}_CHECKSUM`, 'sha256:' + checksums.x64)
+  } else if (content.includes('_CHECKSUM ') && checksums.musl) {
+    fixed = replaceEnv(fixed, `${tool}_CHECKSUM`, 'sha256:' + checksums.musl)
   }
   return fixed
 }
