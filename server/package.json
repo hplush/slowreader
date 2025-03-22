@@ -26,8 +26,8 @@
     "@slowreader/proxy": "workspace:*",
     "argon2": "0.41.1",
     "cookie": "1.0.2",
-    "drizzle-orm": "0.40.0",
-    "nanoid": "5.1.2",
+    "drizzle-orm": "0.41.0",
+    "nanoid": "5.1.5",
     "postgres": "3.4.5",
     "tsx": "4.19.3"
   },
