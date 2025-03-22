@@ -15,7 +15,7 @@ ENV PNPM_CHECKSUM_X64 75a7f1c70d3ce7ff7f6f0a0815010246ff14142418f66126a2c2be83a6
 
 RUN apt-get update \
   && apt-get install -y eza zsh git tig ripgrep bat curl tar micro psmisc \
-    build-essential python3 \
+  build-essential python3 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
@@ -23,14 +23,14 @@ RUN <<EOF
   if [ "$TARGETARCH" = "amd64" ]; then
     export NODE_CHECKSUM=$NODE_CHECKSUM_X64
     export PNPM_CHECKSUM=$PNPM_CHECKSUM_X64
-    export DIFFT_URL=https://github.com/Wilfred/difftastic/releases/download/0.62.0/difft-x86_64-unknown-linux-gnu.tar.gz
-    export DIFFT_CHECKSUM=bf546299085abd497dce115739bc00370d0c0386030e43f14fe137ef3a5f773b
+    export DIFFT_URL=https://github.com/Wilfred/difftastic/releases/download/0.63.0/difft-x86_64-unknown-linux-gnu.tar.gz
+    export DIFFT_CHECKSUM=ef4c020d919cd8e1b5d6a69ead14ee6846ba3c4cadda5bac7ef63b1a09b27535
     export ARCH="x64"
   elif [ "$TARGETARCH" = "arm64" ]; then
     export NODE_CHECKSUM=$NODE_CHECKSUM_ARM64
     export PNPM_CHECKSUM=$PNPM_CHECKSUM_ARM64
-    export DIFFT_URL=https://github.com/Wilfred/difftastic/releases/download/0.62.0/difft-aarch64-unknown-linux-gnu.tar.gz
-    export DIFFT_CHECKSUM=3b5e935561dfc9656309c29f0a2aa57cf96592f76c03da52db166d3a73e161e2
+    export DIFFT_URL=https://github.com/Wilfred/difftastic/releases/download/0.63.0/difft-aarch64-unknown-linux-gnu.tar.gz
+    export DIFFT_CHECKSUM=14db971709cb2fb5af283bcf2bb4db031026896bca9dc13932b50a3aac7de928
     export ARCH="arm64"
   else
     echo "Unsupported architecture: $TARGETARCH"
@@ -40,22 +40,20 @@ RUN <<EOF
   curl "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" \
     --fail --show-error --location --silent --output /node.tar.xz
   echo "$NODE_CHECKSUM /node.tar.xz" | sha256sum -c
+  tar -xf /node.tar.xz -C /usr/local --remove-files --strip-components=1 \
+    --exclude='*.md' --exclude='LICENSE' \
+    --exclude='share' --exclude='lib/node_modules/' \
+    --exclude='bin/npm' --exclude='bin/npx' --exclude='bin/corepack'
 
   curl "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-${ARCH}" \
     --fail --show-error --location --silent --output /usr/local/bin/pnpm
   echo "$PNPM_CHECKSUM /usr/local/bin/pnpm" | sha256sum -c
+  chmod a+rx /usr/local/bin/pnpm
 
   curl "${DIFFT_URL}" \
     --fail --show-error --location --silent --output /difft.tar.gz
   echo "$DIFFT_CHECKSUM /difft.tar.gz" | sha256sum -c
-
-  tar -xz -f /node.tar.xz -C /usr/local --remove-files --strip-components=1 \
-    --exclude='*.md' --exclude='LICENSE' \
-    --exclude='share' --exclude='lib/node_modules/' \
-    --exclude='bin/npm' --exclude='bin/npx' --exclude='bin/corepack'
-  tar -xz -f /difft.tar.xz -C /usr/local/bin --remove-files
-
-  chmod a+rx /usr/local/bin/pnpm
+  tar -xz -f /difft.tar.gz -C /usr/local/bin --remove-files
 EOF
 
 RUN userdel -r ubuntu && useradd -m -s /bin/zsh developer
