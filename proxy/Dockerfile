@@ -12,7 +12,6 @@ FROM scratch
 WORKDIR /var/app
 ENV NODE_ENV production
 
-COPY --from=base /bin/sh /bin/sh
 COPY --from=base /lib/ld-musl-x86_64.so.1 /lib/ld-musl-x86_64.so.1
 COPY --from=base /usr/lib/libgcc_s.so.1 /usr/lib/libgcc_s.so.1
 COPY --from=base /usr/lib/libstdc++.so.6 /usr/lib/libstdc++.so.6
@@ -22,5 +21,5 @@ COPY ./dist/ /var/app/
 
 USER 1000:1000
 
-CMD "node" "--experimental-strip-types" \
-  "--disable-warning=ExperimentalWarning" "server.ts"
+ENTRYPOINT ["/usr/local/bin/node"]
+CMD ["--experimental-strip-types", "--disable-warning=ExperimentalWarning", "server.ts"]

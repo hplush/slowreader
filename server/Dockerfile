@@ -14,7 +14,6 @@ ENV NODE_ENV production
 ENV LOGUX_HOST 0.0.0.0
 ENV LOGUX_LOGGER json
 
-COPY --from=base /bin/sh /bin/sh
 COPY --from=base /lib/ld-musl-x86_64.so.1 /lib/ld-musl-x86_64.so.1
 COPY --from=base /usr/lib/libgcc_s.so.1 /usr/lib/libgcc_s.so.1
 COPY --from=base /usr/lib/libstdc++.so.6 /usr/lib/libstdc++.so.6
@@ -25,4 +24,5 @@ COPY ./web/ /var/web/
 
 USER 1000:1000
 
-CMD "node" "--import" "tsx" "index.ts"
+ENTRYPOINT ["/usr/local/bin/node"]
+CMD ["--import", "tsx", "index.ts"]
