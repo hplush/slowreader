@@ -30,6 +30,8 @@ jobs:
         env:
           FORCE_COLOR: 1
           STAGING: 1
+      - name: Build nginx config
+        run: cd web && ./scripts/build-nginx-config.sh
       - name: Upload web assets
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4.6.1
@@ -39,7 +41,7 @@ jobs:
           include-hidden-files: true
           path: |
             web/dist/
-            web/routes.regexp
+            web/nginx.conf.compiled
   staging:
     name: Web Staging Deploy
     needs: test

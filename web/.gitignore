@@ -3,3 +3,4 @@ dist/
 storybook-static/
 vite.config.ts.timestamp*
 routes.regexp
+nginx.conf.compiled

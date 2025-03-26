@@ -1,28 +1,23 @@
-FROM docker.io/alpine:3.21.3 as base
+FROM cgr.dev/chainguard/bash:latest as base
 
 ENV NODE_VERSION 22.14.0
-ENV NODE_CHECKSUM sha256:87f163387ac85df69df6eeb863a6b6a1aa789b49cda1c495871c0fe360634db3
+ENV NODE_CHECKSUM sha256:69b09dba5c8dcb05c4e4273a4340db1005abeafe3927efda2bc5b249e80437ec
 
-RUN apk add --no-cache libstdc++
-ADD --checksum=$NODE_CHECKSUM https://unofficial-builds.nodejs.org/download/release/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64-musl.tar.xz /node.tar.xz
+ADD --checksum=$NODE_CHECKSUM https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz /node.tar.xz
 RUN tar -xf "node.tar.xz" --strip-components=1 -C /usr/local/ \
-    "node-v${NODE_VERSION}-linux-x64-musl/bin/node" && rm "node.tar.xz"
+    "node-v${NODE_VERSION}-linux-x64/bin/node" && rm "node.tar.xz"
 
-FROM scratch
+FROM cgr.dev/chainguard/glibc-dynamic:latest
 WORKDIR /var/app
 ENV NODE_ENV production
 ENV LOGUX_HOST 0.0.0.0
 ENV LOGUX_LOGGER json
 
-COPY --from=base /lib/ld-musl-x86_64.so.1 /lib/ld-musl-x86_64.so.1
-COPY --from=base /usr/lib/libgcc_s.so.1 /usr/lib/libgcc_s.so.1
-COPY --from=base /usr/lib/libstdc++.so.6 /usr/lib/libstdc++.so.6
 COPY --from=base /usr/local/bin/node /usr/local/bin/node
-
 COPY ./dist/ /var/app/
 COPY ./web/ /var/web/
 
-USER 1000:1000
+USER nonroot
 
 ENTRYPOINT ["/usr/local/bin/node"]
 CMD ["--import", "tsx", "index.ts"]

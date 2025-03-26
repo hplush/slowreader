@@ -2,5 +2,4 @@
 
 *
 !dist/
-!nginx.conf
-!routes.regexp
+!nginx.conf.compiled
