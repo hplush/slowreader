@@ -183,6 +183,7 @@ export const add = createPage('add', () => {
         }
       }
     } catch (error) {
+      /* c8 ignore next 2 */
       ignoreAbortError(error)
     }
   }
