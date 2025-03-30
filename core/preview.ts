@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { loadValue } from '@logux/client'
 import debounce from 'just-debounce-it'
 import { nanoid } from 'nanoid'
@@ -12,7 +13,7 @@ import { isMobile, onEnvironment } from './environment.ts'
 import { addFeed, type FeedValue, getFeeds } from './feed.ts'
 import { readonlyExport } from './lib/stores.ts'
 import { type LoaderName, loaders } from './loader/index.ts'
-import { addPost, processOriginPost } from './post.ts'
+import { addPost, type OriginPost, processOriginPost } from './post.ts'
 import type { PostsList } from './posts-list.ts'
 import { router } from './router.ts'
 
@@ -255,6 +256,7 @@ export async function createFeedFromUrl(
   let posts = loaders[candidate.loader].getPosts(task, url, candidate.text)
   $posts.set(posts)
 
+  // @ts-expect-error Legacy file which we will delete soon
   let page = await loadValue(posts)
   let lastPost = page.list[0]
 
@@ -317,6 +319,7 @@ export function setPreviewCandidate(url: string): void {
 export async function addPreviewCandidate(): Promise<void> {
   let url = $candidate.get()
   if (url) {
+    // @ts-expect-error Legacy file which we will delete soon
     let page = await loadValue($posts.get()!)
     let lastPost = page.list[0]
     let candidate = $candidates.get().find(i => i.url === url)!
@@ -331,7 +334,7 @@ export async function addPreviewCandidate(): Promise<void> {
       url
     })
     if (lastPost) {
-      await addPost(processOriginPost(lastPost, feedId, 'fast'))
+      await addPost(processOriginPost(lastPost as OriginPost, feedId, 'fast'))
     }
   }
 }
