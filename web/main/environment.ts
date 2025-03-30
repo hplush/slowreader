@@ -17,7 +17,7 @@ enableWarnings()
 
 let PROXY_URL: string
 if (location.hostname === 'localhost') {
-  PROXY_URL = 'http://localhost:31337/proxy/'
+  PROXY_URL = 'http://localhost:31338/proxy/'
 } else if (location.hostname === 'slowreader.app') {
   PROXY_URL = 'https://proxy.slowreader.app/'
 } else if (location.hostname === 'dev.slowreader.app') {

@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
-    "start": "../scripts/tsnode --watch index.ts",
+    "start": "PORT=31338 ../scripts/tsnode --watch index.ts",
     "migration": "drizzle-kit generate && prettier --write ./db/**/*.json",
     "database": "drizzle-kit studio",
     "build": "node --run clean:build && pnpm run /^build:/",

@@ -15,7 +15,7 @@ export function enableTestTime(): TestTime {
 }
 
 function getServer(): ClientOptions['server'] {
-  return testTime ? new TestPair().left : 'ws://localhost:31337/'
+  return testTime ? new TestPair().left : 'ws://localhost:31338/'
 }
 
 let prevClient: CrossTabClient | undefined
