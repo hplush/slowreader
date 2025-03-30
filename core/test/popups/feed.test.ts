@@ -1,0 +1,68 @@
+import { cleanStores, keepMount } from 'nanostores'
+import { equal } from 'node:assert'
+import { afterEach, beforeEach, test } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
+
+import {
+  addFeed,
+  addPost,
+  type FeedPopup,
+  openedPopups,
+  type PostPopup,
+  setBaseTestRoute,
+  testFeed,
+  testPost
+} from '../../index.ts'
+import { cleanClientTest, enableClientTest } from '../utils.ts'
+
+beforeEach(() => {
+  enableClientTest()
+})
+
+afterEach(async () => {
+  await cleanClientTest()
+  cleanStores(openedPopups)
+})
+
+test('opens feed', async () => {
+  keepMount(openedPopups)
+  equal(openedPopups.get().length, 0)
+  let feed = await addFeed(testFeed({ categoryId: 'general' }))
+  let post = await addPost(testPost({ feedId: feed }))
+
+  setBaseTestRoute({ hash: `feed=${feed}`, params: {}, route: 'fast' })
+  equal(openedPopups.get().length, 1)
+  equal(openedPopups.get()[0]?.name, 'feed')
+  equal(openedPopups.get()[0]?.param, feed)
+  equal(openedPopups.get()[0]?.loading.get(), true)
+
+  await setTimeout(100)
+  equal(openedPopups.get()[0]?.loading.get(), false)
+  equal(openedPopups.get()[0]?.notFound, false)
+  equal((openedPopups.get()[0] as FeedPopup).feed.get().id, feed)
+
+  setBaseTestRoute({ hash: `feed=unknown`, params: {}, route: 'fast' })
+  equal(openedPopups.get().length, 1)
+  equal(openedPopups.get()[0]?.loading.get(), true)
+
+  await setTimeout(100)
+  equal(openedPopups.get()[0]?.notFound, true)
+
+  setBaseTestRoute({ hash: `feed=${feed}`, params: {}, route: 'fast' })
+  await setTimeout(100)
+
+  setBaseTestRoute({
+    hash: `feed=${feed},post=${post}`,
+    params: {},
+    route: 'fast'
+  })
+  equal(openedPopups.get().length, 2)
+  equal(openedPopups.get()[0]?.loading.get(), false)
+  equal(openedPopups.get()[1]?.loading.get(), true)
+
+  await setTimeout(100)
+  equal(openedPopups.get()[0]?.loading.get(), false)
+  equal(openedPopups.get()[1]?.loading.get(), false)
+  equal((openedPopups.get()[0] as FeedPopup).feed.get().id, feed)
+  equal((openedPopups.get()[1] as PostPopup).post.get().id, post)
+})

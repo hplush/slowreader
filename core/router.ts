@@ -30,7 +30,9 @@ export interface Routes {
 
 export const popupNames = { feed: true, feedUrl: true, post: true }
 
-export type PopupRoute = { param: string; popup: keyof typeof popupNames }
+export type PopupName = keyof typeof popupNames
+
+export type PopupRoute = { param: string; popup: PopupName }
 
 export type RouteName = keyof Routes
 
