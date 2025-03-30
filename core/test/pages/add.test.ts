@@ -147,6 +147,11 @@ test('detects RSS links', async () => {
   keepMount(pages.add().error)
   keepMount(pages.add().sortedCandidates)
 
+  let loadingChanges: boolean[] = []
+  pages.add().candidatesLoading.subscribe(() => {
+    loadingChanges.push(pages.add().candidatesLoading.get())
+  })
+
   let replyHtml = expectRequest('http://example.com').andWait()
   pages.add().setUrl('example.com')
   await setTimeout(10)
@@ -173,6 +178,7 @@ test('detects RSS links', async () => {
   await setTimeout(10)
   equal(pages.add().candidatesLoading.get(), false)
   equal(pages.add().error.get(), undefined)
+  deepStrictEqual(loadingChanges, [false, true, false])
   equalWithText(pages.add().sortedCandidates.get(), [
     {
       loader: loaders.rss,
