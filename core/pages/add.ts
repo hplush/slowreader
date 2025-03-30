@@ -167,11 +167,6 @@ export const add = createPage('add', () => {
         $links.setKey(url, { state: 'unloadable' })
       } else {
         let byText = getLoaderForText(response)
-        if (byText) {
-          addCandidate(url, byText)
-        } else {
-          $links.setKey(url, { state: 'unknown' })
-        }
         if (!deep) {
           let links = getLinksFromText(response)
           if (links.length > 0) {
@@ -180,6 +175,11 @@ export const add = createPage('add', () => {
             let suggested = getSuggestedLinksFromText(response)
             await Promise.all(suggested.map(i => addLink(task, i, true)))
           }
+        }
+        if (byText) {
+          addCandidate(url, byText)
+        } else {
+          $links.setKey(url, { state: 'unknown' })
         }
       }
     } catch (error) {
