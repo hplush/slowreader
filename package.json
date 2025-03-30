@@ -32,7 +32,7 @@
     "tsnode": "./scripts/tsnode"
   },
   "devDependencies": {
-    "@logux/eslint-config": "55.1.0",
+    "@logux/eslint-config": "55.2.0",
     "@types/chrome": "0.0.312",
     "@types/node": "22.13.13",
     "@types/ws": "8.18.0",
