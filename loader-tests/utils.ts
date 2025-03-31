@@ -9,9 +9,9 @@ import {
   setBaseTestRoute,
   setRequestMethod,
   setupEnvironment,
-  userId
+  userId,
+  waitForStore
 } from '@slowreader/core'
-import type { ReadableAtom } from 'nanostores'
 import { readFile } from 'node:fs/promises'
 import { isAbsolute, join } from 'node:path'
 import readline from 'node:readline'
@@ -57,20 +57,6 @@ export function timeout<Value>(
       }, ms)
     )
   ])
-}
-
-export function waitFor<Value>(
-  store: ReadableAtom,
-  value: Value
-): Promise<void> {
-  return new Promise<void>(resolve => {
-    let unbind = store.listen(state => {
-      if (state === value) {
-        unbind()
-        resolve()
-      }
-    })
-  })
 }
 
 interface NoFileError extends Error {
@@ -235,7 +221,7 @@ export async function findRSSfromHome(
     let homeUrl = feed.homeUrl || getHomeUrl(feed.url)
     addPage.setUrl(homeUrl)
     try {
-      await timeout(10_000, waitFor(addPage.candidatesLoading, false))
+      await timeout(10_000, waitForStore(addPage.candidatesLoading, false))
     } catch (e) {
       if (e instanceof Error && e.message === 'Timeout' && tries > 0) {
         return await findRSSfromHome(feed, tries - 1)

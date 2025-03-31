@@ -67,3 +67,17 @@ export function computeFrom<Value, SourceStores extends ReadableAtom[]>(
     }
   })
 }
+
+export function waitForStore<Value>(
+  store: ReadableAtom<Value>,
+  value: Value
+): Promise<void> {
+  return new Promise<void>(resolve => {
+    let unbind = store.listen(state => {
+      if (state === value) {
+        unbind()
+        resolve()
+      }
+    })
+  })
+}
