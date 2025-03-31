@@ -1,7 +1,6 @@
 import { cleanStores, keepMount } from 'nanostores'
 import { equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
-import { setTimeout } from 'node:timers/promises'
 
 import {
   addFeed,
@@ -11,7 +10,8 @@ import {
   type PostPopup,
   setBaseTestRoute,
   testFeed,
-  testPost
+  testPost,
+  waitForStore
 } from '../../index.ts'
 import { cleanClientTest, enableClientTest } from '../utils.ts'
 
@@ -36,7 +36,7 @@ test('opens feed', async () => {
   equal(openedPopups.get()[0]?.param, feed)
   equal(openedPopups.get()[0]?.loading.get(), true)
 
-  await setTimeout(100)
+  await waitForStore((openedPopups.get()[0] as FeedPopup).loading, false)
   equal(openedPopups.get()[0]?.loading.get(), false)
   equal(openedPopups.get()[0]?.notFound, false)
   equal((openedPopups.get()[0] as FeedPopup).feed.get().id, feed)
@@ -45,11 +45,11 @@ test('opens feed', async () => {
   equal(openedPopups.get().length, 1)
   equal(openedPopups.get()[0]?.loading.get(), true)
 
-  await setTimeout(100)
+  await waitForStore((openedPopups.get()[0] as FeedPopup).loading, false)
   equal(openedPopups.get()[0]?.notFound, true)
 
   setBaseTestRoute({ hash: `feed=${feed}`, params: {}, route: 'fast' })
-  await setTimeout(100)
+  await waitForStore((openedPopups.get()[0] as FeedPopup).loading, false)
 
   setBaseTestRoute({
     hash: `feed=${feed},post=${post}`,
@@ -60,7 +60,7 @@ test('opens feed', async () => {
   equal(openedPopups.get()[0]?.loading.get(), false)
   equal(openedPopups.get()[1]?.loading.get(), true)
 
-  await setTimeout(100)
+  await waitForStore((openedPopups.get()[1] as FeedPopup).loading, false)
   equal(openedPopups.get()[0]?.loading.get(), false)
   equal(openedPopups.get()[1]?.loading.get(), false)
   equal((openedPopups.get()[0] as FeedPopup).feed.get().id, feed)

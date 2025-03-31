@@ -3,7 +3,6 @@ import '../dom-parser.ts'
 import { cleanStores, keepMount } from 'nanostores'
 import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
-import { setTimeout } from 'node:timers/promises'
 
 import {
   addFeed,
@@ -15,7 +14,8 @@ import {
   mockRequest,
   openedPopups,
   setBaseTestRoute,
-  testFeed
+  testFeed,
+  waitForStore
 } from '../../index.ts'
 import { cleanClientTest, enableClientTest } from '../utils.ts'
 
@@ -43,8 +43,7 @@ test('loads 404 for feeds by URL popup', async () => {
   equal(openedPopups.get()[0]?.param, 'http://a.com/one')
   equal(openedPopups.get()[0]?.loading.get(), true)
 
-  await setTimeout(100)
-  equal(openedPopups.get()[0]?.loading.get(), false)
+  await waitForStore((openedPopups.get()[0] as FeedUrlPopup).loading, false)
   equal(openedPopups.get()[0]?.notFound, true)
 
   expectRequest('http://a.com/two').andRespond(200, '<html>Nothing</html>')
@@ -56,8 +55,7 @@ test('loads 404 for feeds by URL popup', async () => {
   equal(openedPopups.get()[0]?.param, 'http://a.com/two')
   equal(openedPopups.get()[0]?.loading.get(), true)
 
-  await setTimeout(100)
-  equal(openedPopups.get()[0]?.loading.get(), false)
+  await waitForStore((openedPopups.get()[0] as FeedUrlPopup).loading, false)
   equal(openedPopups.get()[0]?.notFound, true)
 })
 
@@ -79,10 +77,9 @@ test('loads feeds by URL popup', async () => {
   equal(openedPopups.get().length, 1)
   equal(openedPopups.get()[0]?.loading.get(), true)
 
-  await setTimeout(100)
-  equal(openedPopups.get()[0]?.loading.get(), false)
-  equal(openedPopups.get()[0]?.notFound, false)
   let feedPopup = openedPopups.get()[0] as FeedUrlPopup
+  await waitForStore(feedPopup.loading, false)
+  equal(feedPopup.notFound, false)
   equal(feedPopup.feed.get(), undefined)
   deepStrictEqual(feedPopup.posts.get().isLoading, false)
   deepStrictEqual(feedPopup.posts.get().list.length, 2)
@@ -124,10 +121,10 @@ test('destroys replaced popups and keep unchanged', async () => {
     params: {},
     route: 'add'
   })
-  await setTimeout(100)
   equal(openedPopups.get().length, 2)
   let feedPopup1 = openedPopups.get()[0] as FeedUrlPopup
   let feedPopup2 = openedPopups.get()[1] as FeedUrlPopup
+  await waitForStore(feedPopup1.loading, false)
   equal(feedPopup1.feed.get(), undefined)
   equal(feedPopup2.feed.get(), undefined)
 

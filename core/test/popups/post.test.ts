@@ -1,7 +1,6 @@
 import { cleanStores, keepMount } from 'nanostores'
 import { equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
-import { setTimeout } from 'node:timers/promises'
 
 import {
   addFeed,
@@ -10,7 +9,8 @@ import {
   type PostPopup,
   setBaseTestRoute,
   testFeed,
-  testPost
+  testPost,
+  waitForStore
 } from '../../index.ts'
 import { cleanClientTest, enableClientTest } from '../utils.ts'
 
@@ -46,7 +46,7 @@ test('opens post', async () => {
   equal(openedPopups.get()[0]?.param, post1)
   equal(openedPopups.get()[0]?.loading.get(), true)
 
-  await setTimeout(100)
+  await waitForStore((openedPopups.get()[0] as PostPopup).loading, false)
   equal(openedPopups.get()[0]?.loading.get(), false)
   equal(openedPopups.get()[0]?.notFound, false)
   equal((openedPopups.get()[0] as PostPopup).post.get().id, post1)
@@ -60,7 +60,7 @@ test('opens post', async () => {
   equal(openedPopups.get()[0]?.loading.get(), false)
   equal(openedPopups.get()[1]?.loading.get(), true)
 
-  await setTimeout(100)
+  await waitForStore((openedPopups.get()[1] as PostPopup).loading, false)
   equal(openedPopups.get()[0]?.loading.get(), false)
   equal(openedPopups.get()[1]?.loading.get(), false)
 
@@ -72,8 +72,7 @@ test('opens post', async () => {
   equal(openedPopups.get()[0]?.loading.get(), true)
   equal(openedPopups.get()[1]?.loading.get(), false)
 
-  await setTimeout(100)
-  equal(openedPopups.get()[0]?.loading.get(), false)
+  await waitForStore((openedPopups.get()[0] as PostPopup).loading, false)
   equal(openedPopups.get()[0]?.notFound, false)
   equal((openedPopups.get()[0] as PostPopup).post.get().id, post2)
 
@@ -84,7 +83,6 @@ test('opens post', async () => {
   })
   equal(openedPopups.get()[0]?.loading.get(), true)
 
-  await setTimeout(100)
-  equal(openedPopups.get()[0]?.loading.get(), false)
+  await waitForStore((openedPopups.get()[0] as PostPopup).loading, false)
   equal(openedPopups.get()[0]?.notFound, true)
 })
