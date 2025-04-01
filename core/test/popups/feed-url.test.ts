@@ -15,7 +15,7 @@ import {
   openedPopups,
   setBaseTestRoute,
   testFeed,
-  waitForStore
+  waitLoading
 } from '../../index.ts'
 import { cleanClientTest, enableClientTest } from '../utils.ts'
 
@@ -43,7 +43,7 @@ test('loads 404 for feeds by URL popup', async () => {
   equal(openedPopups.get()[0]?.param, 'http://a.com/one')
   equal(openedPopups.get()[0]?.loading.get(), true)
 
-  await waitForStore((openedPopups.get()[0] as FeedUrlPopup).loading, false)
+  await waitLoading((openedPopups.get()[0] as FeedUrlPopup).loading)
   equal(openedPopups.get()[0]?.notFound, true)
 
   expectRequest('http://a.com/two').andRespond(200, '<html>Nothing</html>')
@@ -55,7 +55,7 @@ test('loads 404 for feeds by URL popup', async () => {
   equal(openedPopups.get()[0]?.param, 'http://a.com/two')
   equal(openedPopups.get()[0]?.loading.get(), true)
 
-  await waitForStore((openedPopups.get()[0] as FeedUrlPopup).loading, false)
+  await waitLoading((openedPopups.get()[0] as FeedUrlPopup).loading)
   equal(openedPopups.get()[0]?.notFound, true)
 })
 
@@ -78,7 +78,7 @@ test('loads feeds by URL popup', async () => {
   equal(openedPopups.get()[0]?.loading.get(), true)
 
   let feedPopup = openedPopups.get()[0] as FeedUrlPopup
-  await waitForStore(feedPopup.loading, false)
+  await waitLoading(feedPopup.loading)
   equal(feedPopup.notFound, false)
   equal(feedPopup.feed.get(), undefined)
   deepStrictEqual(feedPopup.posts.get().isLoading, false)
@@ -124,7 +124,7 @@ test('destroys replaced popups and keep unchanged', async () => {
   equal(openedPopups.get().length, 2)
   let feedPopup1 = openedPopups.get()[0] as FeedUrlPopup
   let feedPopup2 = openedPopups.get()[1] as FeedUrlPopup
-  await waitForStore(feedPopup1.loading, false)
+  await waitLoading(feedPopup1.loading)
   equal(feedPopup1.feed.get(), undefined)
   equal(feedPopup2.feed.get(), undefined)
 

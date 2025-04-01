@@ -10,7 +10,7 @@ import {
   setRequestMethod,
   setupEnvironment,
   userId,
-  waitForStore
+  waitLoading
 } from '@slowreader/core'
 import { readFile } from 'node:fs/promises'
 import { isAbsolute, join } from 'node:path'
@@ -221,7 +221,7 @@ export async function findRSSfromHome(
     let homeUrl = feed.homeUrl || getHomeUrl(feed.url)
     addPage.setUrl(homeUrl)
     try {
-      await timeout(10_000, waitForStore(addPage.candidatesLoading, false))
+      await timeout(10_000, waitLoading(addPage.candidatesLoading))
     } catch (e) {
       if (e instanceof Error && e.message === 'Timeout' && tries > 0) {
         return await findRSSfromHome(feed, tries - 1)

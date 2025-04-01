@@ -11,7 +11,7 @@ import {
   setBaseTestRoute,
   testFeed,
   testPost,
-  waitForStore
+  waitLoading
 } from '../../index.ts'
 import { cleanClientTest, enableClientTest } from '../utils.ts'
 
@@ -36,7 +36,7 @@ test('opens feed', async () => {
   equal(openedPopups.get()[0]?.param, feed)
   equal(openedPopups.get()[0]?.loading.get(), true)
 
-  await waitForStore((openedPopups.get()[0] as FeedPopup).loading, false)
+  await waitLoading((openedPopups.get()[0] as FeedPopup).loading)
   equal(openedPopups.get()[0]?.loading.get(), false)
   equal(openedPopups.get()[0]?.notFound, false)
   equal((openedPopups.get()[0] as FeedPopup).feed.get().id, feed)
@@ -45,11 +45,11 @@ test('opens feed', async () => {
   equal(openedPopups.get().length, 1)
   equal(openedPopups.get()[0]?.loading.get(), true)
 
-  await waitForStore((openedPopups.get()[0] as FeedPopup).loading, false)
+  await waitLoading((openedPopups.get()[0] as FeedPopup).loading)
   equal(openedPopups.get()[0]?.notFound, true)
 
   setBaseTestRoute({ hash: `feed=${feed}`, params: {}, route: 'fast' })
-  await waitForStore((openedPopups.get()[0] as FeedPopup).loading, false)
+  await waitLoading((openedPopups.get()[0] as FeedPopup).loading)
 
   setBaseTestRoute({
     hash: `feed=${feed},post=${post}`,
@@ -60,7 +60,7 @@ test('opens feed', async () => {
   equal(openedPopups.get()[0]?.loading.get(), false)
   equal(openedPopups.get()[1]?.loading.get(), true)
 
-  await waitForStore((openedPopups.get()[1] as FeedPopup).loading, false)
+  await waitLoading((openedPopups.get()[1] as FeedPopup).loading)
   equal(openedPopups.get()[0]?.loading.get(), false)
   equal(openedPopups.get()[1]?.loading.get(), false)
   equal((openedPopups.get()[0] as FeedPopup).feed.get().id, feed)
