@@ -68,13 +68,12 @@ export function computeFrom<Value, SourceStores extends ReadableAtom[]>(
   })
 }
 
-export function waitForStore<Value>(
-  store: ReadableAtom<Value>,
-  value: Value
+export function waitLoading<Value extends boolean>(
+  store: ReadableAtom<Value>
 ): Promise<void> {
   return new Promise<void>(resolve => {
     let unbind = store.listen(state => {
-      if (state === value) {
+      if (state === false) {
         unbind()
         resolve()
       }

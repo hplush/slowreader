@@ -10,7 +10,7 @@ import {
   setBaseTestRoute,
   testFeed,
   testPost,
-  waitForStore
+  waitLoading
 } from '../../index.ts'
 import { cleanClientTest, enableClientTest } from '../utils.ts'
 
@@ -42,14 +42,15 @@ test('opens post', async () => {
 
   setBaseTestRoute({ hash: `post=${post1}`, params: {}, route: 'fast' })
   equal(openedPopups.get().length, 1)
-  equal(openedPopups.get()[0]?.name, 'post')
-  equal(openedPopups.get()[0]?.param, post1)
-  equal(openedPopups.get()[0]?.loading.get(), true)
+  let postPopup = openedPopups.get()[0] as PostPopup
+  equal(postPopup.name, 'post')
+  equal(postPopup.param, post1)
+  equal(postPopup.loading.get(), true)
 
-  await waitForStore((openedPopups.get()[0] as PostPopup).loading, false)
-  equal(openedPopups.get()[0]?.loading.get(), false)
-  equal(openedPopups.get()[0]?.notFound, false)
-  equal((openedPopups.get()[0] as PostPopup).post.get().id, post1)
+  await waitLoading(postPopup.loading)
+  equal(postPopup.loading.get(), false)
+  equal(postPopup.notFound, false)
+  equal(postPopup.post.get().id, post1)
 
   setBaseTestRoute({
     hash: `post=${post1},post=${post1}`,
@@ -60,7 +61,7 @@ test('opens post', async () => {
   equal(openedPopups.get()[0]?.loading.get(), false)
   equal(openedPopups.get()[1]?.loading.get(), true)
 
-  await waitForStore((openedPopups.get()[1] as PostPopup).loading, false)
+  await waitLoading((openedPopups.get()[1] as PostPopup).loading)
   equal(openedPopups.get()[0]?.loading.get(), false)
   equal(openedPopups.get()[1]?.loading.get(), false)
 
@@ -72,7 +73,7 @@ test('opens post', async () => {
   equal(openedPopups.get()[0]?.loading.get(), true)
   equal(openedPopups.get()[1]?.loading.get(), false)
 
-  await waitForStore((openedPopups.get()[0] as PostPopup).loading, false)
+  await waitLoading((openedPopups.get()[0] as PostPopup).loading)
   equal(openedPopups.get()[0]?.notFound, false)
   equal((openedPopups.get()[0] as PostPopup).post.get().id, post2)
 
@@ -83,6 +84,6 @@ test('opens post', async () => {
   })
   equal(openedPopups.get()[0]?.loading.get(), true)
 
-  await waitForStore((openedPopups.get()[0] as PostPopup).loading, false)
+  await waitLoading((openedPopups.get()[0] as PostPopup).loading)
   equal(openedPopups.get()[0]?.notFound, true)
 })
