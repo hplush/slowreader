@@ -1,6 +1,10 @@
 import { atom, computed, type ReadableAtom } from 'nanostores'
 
-import { getEnvironment, onEnvironment } from './environment.ts'
+import {
+  getEnvironment,
+  onEnvironment,
+  setBaseTestRoute
+} from './environment.ts'
 import { fastCategories } from './fast.ts'
 import { hasFeeds } from './feed.ts'
 import { computeFrom, readonlyExport } from './lib/stores.ts'
@@ -291,5 +295,38 @@ export function onNextRoute(cb: (route: Route) => void): void {
   let unbind = $router.listen(route => {
     unbind()
     cb(route)
+  })
+}
+
+export function addPopup(
+  hash: string,
+  popup: PopupName,
+  param: string
+): string {
+  let add = `${popup}=${param}`
+  return hash === '' ? add : `${hash},${add}`
+}
+
+export function removeLastPopup(hash: string): string {
+  return hash.split(',').slice(0, -1).join(',')
+}
+
+export function openTestPopup(popup: PopupName, param: string): void {
+  let route = getEnvironment().baseRouter.get() ?? { hash: '' }
+  setBaseTestRoute({
+    params: {},
+    route: 'start',
+    ...route,
+    hash: addPopup(route.hash, popup, param)
+  })
+}
+
+export function closeLastTestPopup(): void {
+  let route = getEnvironment().baseRouter.get() ?? { hash: '' }
+  setBaseTestRoute({
+    params: {},
+    route: 'start',
+    ...route,
+    hash: removeLastPopup(route.hash)
   })
 }

@@ -5,10 +5,11 @@ import { afterEach, beforeEach, test } from 'node:test'
 import {
   addFeed,
   addPost,
+  closeLastTestPopup,
   type FeedPopup,
   openedPopups,
+  openTestPopup,
   type PostPopup,
-  setBaseTestRoute,
   testFeed,
   testPost,
   waitLoading
@@ -30,7 +31,7 @@ test('opens feed', async () => {
   let feed = await addFeed(testFeed({ categoryId: 'general' }))
   let post = await addPost(testPost({ feedId: feed }))
 
-  setBaseTestRoute({ hash: `feed=${feed}`, params: {}, route: 'fast' })
+  openTestPopup('feed', feed)
   equal(openedPopups.get().length, 1)
   equal(openedPopups.get()[0]?.name, 'feed')
   equal(openedPopups.get()[0]?.param, feed)
@@ -41,21 +42,23 @@ test('opens feed', async () => {
   equal(openedPopups.get()[0]?.notFound, false)
   equal((openedPopups.get()[0] as FeedPopup).feed.get().id, feed)
 
-  setBaseTestRoute({ hash: `feed=unknown`, params: {}, route: 'fast' })
+  closeLastTestPopup()
+  equal(openedPopups.get().length, 0)
+
+  openTestPopup('feed', 'unknown')
   equal(openedPopups.get().length, 1)
   equal(openedPopups.get()[0]?.loading.get(), true)
 
   await waitLoading((openedPopups.get()[0] as FeedPopup).loading)
   equal(openedPopups.get()[0]?.notFound, true)
 
-  setBaseTestRoute({ hash: `feed=${feed}`, params: {}, route: 'fast' })
+  closeLastTestPopup()
+  equal(openedPopups.get().length, 0)
+
+  openTestPopup('feed', feed)
   await waitLoading((openedPopups.get()[0] as FeedPopup).loading)
 
-  setBaseTestRoute({
-    hash: `feed=${feed},post=${post}`,
-    params: {},
-    route: 'fast'
-  })
+  openTestPopup('post', post)
   equal(openedPopups.get().length, 2)
   equal(openedPopups.get()[0]?.loading.get(), false)
   equal(openedPopups.get()[1]?.loading.get(), true)

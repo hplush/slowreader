@@ -8,11 +8,13 @@ import {
   addFeed,
   changeFeed,
   checkAndRemoveRequestMock,
+  closeLastTestPopup,
   deleteFeed,
   expectRequest,
   type FeedUrlPopup,
   mockRequest,
   openedPopups,
+  openTestPopup,
   setBaseTestRoute,
   testFeed,
   waitLoading
@@ -21,6 +23,7 @@ import { cleanClientTest, enableClientTest } from '../utils.ts'
 
 beforeEach(() => {
   enableClientTest()
+  setBaseTestRoute({ params: {}, route: 'add' })
   mockRequest()
 })
 
@@ -33,11 +36,7 @@ afterEach(async () => {
 test('loads 404 for feeds by URL popup', async () => {
   keepMount(openedPopups)
   expectRequest('http://a.com/one').andRespond(404)
-  setBaseTestRoute({
-    hash: `feedUrl=http://a.com/one`,
-    params: {},
-    route: 'add'
-  })
+  openTestPopup('feedUrl', 'http://a.com/one')
   equal(openedPopups.get().length, 1)
   equal(openedPopups.get()[0]?.name, 'feedUrl')
   equal(openedPopups.get()[0]?.param, 'http://a.com/one')
@@ -46,12 +45,11 @@ test('loads 404 for feeds by URL popup', async () => {
   await waitLoading((openedPopups.get()[0] as FeedUrlPopup).loading)
   equal(openedPopups.get()[0]?.notFound, true)
 
+  closeLastTestPopup()
+  equal(openedPopups.get().length, 0)
+
   expectRequest('http://a.com/two').andRespond(200, '<html>Nothing</html>')
-  setBaseTestRoute({
-    hash: `feedUrl=http://a.com/two`,
-    params: {},
-    route: 'add'
-  })
+  openTestPopup('feedUrl', 'http://a.com/two')
   equal(openedPopups.get()[0]?.param, 'http://a.com/two')
   equal(openedPopups.get()[0]?.loading.get(), true)
 
@@ -69,11 +67,7 @@ test('loads feeds by URL popup', async () => {
       '</feed>',
     'text/xml'
   )
-  setBaseTestRoute({
-    hash: `feedUrl=https://a.com/atom`,
-    params: {},
-    route: 'add'
-  })
+  openTestPopup('feedUrl', 'https://a.com/atom')
   equal(openedPopups.get().length, 1)
   equal(openedPopups.get()[0]?.loading.get(), true)
 
@@ -133,11 +127,7 @@ test('destroys replaced popups and keep unchanged', async () => {
   equal(feedPopup1.feed.get()?.id, feedId)
   equal(feedPopup2.feed.get()?.id, feedId)
 
-  setBaseTestRoute({
-    hash: `feedUrl=https://a.com/atom`,
-    params: {},
-    route: 'add'
-  })
+  closeLastTestPopup()
   deepStrictEqual(openedPopups.get(), [feedPopup1])
 
   await deleteFeed(feedId)
