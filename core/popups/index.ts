@@ -17,6 +17,8 @@ export const popups = {
   [Name in PopupName]: PopupCreator<Name>
 }
 
-export type Popups = typeof popups
+export type PopupCreators = typeof popups
 
-export type Popup<Name extends PopupName = PopupName> = ReturnType<Popups[Name]>
+export type Popup<Name extends PopupName = PopupName> = ReturnType<
+  PopupCreators[Name]
+>

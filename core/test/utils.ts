@@ -1,7 +1,9 @@
-import { cleanStores } from 'nanostores'
+import { cleanStores, type ReadableAtom } from 'nanostores'
 import { fail } from 'node:assert'
 
 import {
+  addPopup,
+  type BasePopup,
   Category,
   client,
   enableTestTime,
@@ -9,8 +11,13 @@ import {
   fastCategories,
   Feed,
   Filter,
+  getEnvironment,
   getTestEnvironment,
+  openedPopups,
+  type Popup,
+  type PopupName,
   Post,
+  removeLastPopup,
   setBaseTestRoute,
   setupEnvironment,
   slowCategories,
@@ -50,4 +57,64 @@ export function createPromise<Result>(): PromiseMock<Result> {
     }
   }
   return result
+}
+
+export function openTestPopup<Name extends PopupName>(
+  popup: Name,
+  param: string
+): Popup<Name> {
+  let route = getEnvironment().baseRouter.get() ?? { hash: '' }
+  setBaseTestRoute({
+    params: {},
+    route: 'start',
+    ...route,
+    hash: addPopup(route.hash, popup, param)
+  })
+  return getPopup(popup, openedPopups.get().length - 1)
+}
+
+export function closeLastTestPopup(): void {
+  let route = getEnvironment().baseRouter.get() ?? { hash: '' }
+  setBaseTestRoute({
+    params: {},
+    route: 'start',
+    ...route,
+    hash: removeLastPopup(route.hash)
+  })
+}
+
+export function getPopup<Name extends PopupName>(
+  name: Name,
+  at = 0
+): Popup<Name> {
+  let popups = openedPopups.get()
+  if (popups.length <= at) {
+    throw new Error(
+      `openedPopups has only ${popups.length} popups, but ${at} was requested`
+    )
+  }
+  let popup = popups[at]!
+  if (popup.name !== name) {
+    throw new Error(
+      `openedPopups[${at}] has name ${popup.name}, but ${name} was requested`
+    )
+  }
+  return popup as Popup<Name>
+}
+
+export type Loaded<SomePopup extends BasePopup> = Extract<
+  SomePopup,
+  { loading: ReadableAtom<false>; notFound: false }
+>
+
+export function checkLoadedPopup<SomePopup extends BasePopup>(
+  popup: SomePopup
+): Loaded<SomePopup> {
+  if (popup.loading.get()) {
+    throw new Error('Popup is still loading')
+  }
+  if (popup.notFound) {
+    throw new Error('Popup data was not found')
+  }
+  return popup as Loaded<SomePopup>
 }
