@@ -1,21 +1,12 @@
-import { loadValue } from '@logux/client'
-
+import { waitSyncLoading } from '../lib/stores.ts'
 import { getPost } from '../post.ts'
 import { definePopup, type LoadedPopup } from './common.ts'
 
 export const post = definePopup('post', async id => {
   let $post = getPost(id)
-  let found = await loadValue($post)
-
-  if (found) {
-    return {
-      notFound: false,
-      post: $post
-    } as const
-  } else {
-    return {
-      notFound: true
-    } as const
+  return {
+    destroy() {},
+    post: await waitSyncLoading($post)
   }
 })
 
