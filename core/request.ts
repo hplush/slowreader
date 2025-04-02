@@ -29,6 +29,7 @@ interface RequestExpect {
 
 let requestExpects: RequestExpect[] = []
 
+/* c8 ignore start */
 let fetchMock: RequestMethod = async (url, opts = {}) => {
   let expect = requestExpects.shift()
   if (!expect) {
@@ -106,3 +107,4 @@ export function checkAndRemoveRequestMock(): void {
   }
   setRequestMethod(fetch)
 }
+/* c8 ignore stop */

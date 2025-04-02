@@ -7,6 +7,8 @@ let $locale = atom('en')
 
 let loader: TranslationLoader
 
+/* c8 ignore start */
+// TODO: Until we will have real translations
 export const i18n = createI18n($locale, {
   get(...args) {
     return loader(...args)
@@ -19,3 +21,4 @@ onEnvironment(({ locale, translationLoader }) => {
     $locale.set(value)
   })
 })
+/* c8 ignore stop */

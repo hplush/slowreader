@@ -51,6 +51,7 @@ onEnvironment(({ logStoreCreator }) => {
 export function getClient(): CrossTabClient {
   let logux = client.get()
   if (!logux) {
+    /* c8 ignore next 2 */
     throw new Error('No Slow Reader client')
   }
   return logux

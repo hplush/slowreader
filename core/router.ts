@@ -156,6 +156,7 @@ onEnvironment(({ baseRouter }) => {
             route: 'add'
           })
         } else if (route.route === 'fast') {
+          // TODO: move to new fast/slow migration to pages
           if (!route.params.category && !fast.isLoading) {
             return redirect({
               params: { category: fast.categories[0].id },
@@ -163,6 +164,7 @@ onEnvironment(({ baseRouter }) => {
               route: 'fast'
             })
           }
+          // TODO: remove check from loader on fast/slow migration to pages
           if (route.params.category && !fast.isLoading) {
             let category = fast.categories.find(
               i => i.id === route.params.category
@@ -184,6 +186,7 @@ onEnvironment(({ baseRouter }) => {
             })
           }
         } else if (route.route === 'slow') {
+          // TODO: move to new fast/slow migration to pages
           if (!route.params.feed && !slowUnread.isLoading) {
             let firstCategory = slowUnread.tree[0]
             if (firstCategory) {
