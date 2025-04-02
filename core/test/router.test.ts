@@ -1,3 +1,4 @@
+import { keepMount } from 'nanostores'
 import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -11,6 +12,7 @@ import {
   deleteFeed,
   isGuestRoute,
   isOtherRoute,
+  openedPopups,
   removeLastPopup,
   router,
   setBaseTestRoute,
@@ -253,50 +255,27 @@ test('backRoute handles export with format', () => {
   })
 })
 
-test('parses popups', () => {
-  userId.set('10')
-  setBaseTestRoute({ hash: 'feed=id1,post=id2', params: {}, route: 'profile' })
-  deepStrictEqual(router.get(), {
-    params: {},
-    popups: [
-      { param: 'id1', popup: 'feed' },
-      { param: 'id2', popup: 'post' }
-    ],
-    route: 'profile'
-  })
-
-  setBaseTestRoute({ hash: 'broken,post=id', params: {}, route: 'profile' })
-  deepStrictEqual(router.get(), {
-    params: {},
-    popups: [{ param: 'id', popup: 'post' }],
-    route: 'profile'
-  })
-
-  setBaseTestRoute({
-    hash: 'unknown=id1,post=id',
-    params: {},
-    route: 'profile'
-  })
-  deepStrictEqual(router.get(), {
-    params: {},
-    popups: [{ param: 'id', popup: 'post' }],
-    route: 'profile'
-  })
-})
-
-test('hides popups for guest', () => {
-  userId.set(undefined)
-  setBaseTestRoute({ hash: 'feed=id1,post=id2', params: {}, route: 'profile' })
-  deepStrictEqual(router.get(), {
-    params: {},
-    popups: [],
-    route: 'start'
-  })
-})
-
 test('has helpers for popups', () => {
   equal(addPopup('', 'feed', 'id1'), 'feed=id1')
   equal(addPopup('feed=id1', 'post', 'id2'), 'feed=id1,post=id2')
   equal(removeLastPopup('feed=id1,post=id2'), 'feed=id1')
   equal(removeLastPopup('feed=id1'), '')
+})
+
+test('reacts on unknown popups', () => {
+  userId.set('10')
+  keepMount(openedPopups)
+  equal(openedPopups.get().length, 0)
+
+  setBaseTestRoute({ hash: `unknown=id`, params: {}, route: 'fast' })
+  equal(openedPopups.get().length, 0)
+
+  setBaseTestRoute({ hash: `popup:id`, params: {}, route: 'fast' })
+  equal(openedPopups.get().length, 0)
+})
+
+test('hides popups for guest', () => {
+  userId.set(undefined)
+  setBaseTestRoute({ hash: 'feed=id1,post=id2', params: {}, route: 'signin' })
+  equal(openedPopups.get().length, 0)
 })

@@ -2,7 +2,7 @@ import { LoguxUndoError } from '@logux/client'
 import { equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 
-import { notFound, setBaseTestRoute } from '../index.ts'
+import { notFound, NotFoundError, setBaseTestRoute } from '../index.ts'
 import { cleanClientTest, enableClientTest } from './utils.ts'
 
 let listener: (e: { reason: Error }) => void
@@ -37,4 +37,9 @@ test('listens for not found error', () => {
 
   setBaseTestRoute({ params: { feed: 'another' }, route: 'categories' })
   equal(notFound.get(), false)
+
+  listener({
+    reason: new NotFoundError()
+  })
+  equal(notFound.get(), true)
 })

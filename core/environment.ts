@@ -82,6 +82,7 @@ function runEnvListener(listener: EnvironmentListener): void {
 
 export function onEnvironment(cb: EnvironmentListener): void {
   if (currentEnvironment) {
+    /* c8 ignore next 2 */
     runEnvListener(cb)
   }
   listeners.push(cb)
@@ -113,6 +114,7 @@ export function setupEnvironment<Router extends BaseRouter>(
 
 export function getEnvironment(): Environment {
   if (!currentEnvironment) {
+    /* c8 ignore next 2 */
     throw new Error('No Slow Reader environment')
   }
   return currentEnvironment

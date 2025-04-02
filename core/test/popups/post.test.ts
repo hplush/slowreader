@@ -29,17 +29,6 @@ afterEach(async () => {
   cleanStores(openedPopups)
 })
 
-test('reacts on unknown popups', () => {
-  keepMount(openedPopups)
-  equal(openedPopups.get().length, 0)
-
-  setBaseTestRoute({ hash: `unknown=id`, params: {}, route: 'fast' })
-  equal(openedPopups.get().length, 0)
-
-  setBaseTestRoute({ hash: `popup:id`, params: {}, route: 'fast' })
-  equal(openedPopups.get().length, 0)
-})
-
 test('opens post', async () => {
   keepMount(openedPopups)
   let feed = await addFeed(testFeed({ categoryId: 'general' }))
