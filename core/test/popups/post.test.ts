@@ -5,7 +5,9 @@ import { afterEach, beforeEach, test } from 'node:test'
 import {
   addFeed,
   addPost,
+  closeLastTestPopup,
   openedPopups,
+  openTestPopup,
   type PostPopup,
   setBaseTestRoute,
   testFeed,
@@ -40,7 +42,7 @@ test('opens post', async () => {
   let post1 = await addPost(testPost({ feedId: feed }))
   let post2 = await addPost(testPost({ feedId: feed }))
 
-  setBaseTestRoute({ hash: `post=${post1}`, params: {}, route: 'fast' })
+  openTestPopup('post', post1)
   equal(openedPopups.get().length, 1)
   let postPopup = openedPopups.get()[0] as PostPopup
   equal(postPopup.name, 'post')
@@ -52,11 +54,7 @@ test('opens post', async () => {
   equal(postPopup.notFound, false)
   equal(postPopup.post.get().id, post1)
 
-  setBaseTestRoute({
-    hash: `post=${post1},post=${post1}`,
-    params: {},
-    route: 'fast'
-  })
+  openTestPopup('post', post1)
   equal(openedPopups.get().length, 2)
   equal(openedPopups.get()[0]?.loading.get(), false)
   equal(openedPopups.get()[1]?.loading.get(), true)
@@ -77,11 +75,13 @@ test('opens post', async () => {
   equal(openedPopups.get()[0]?.notFound, false)
   equal((openedPopups.get()[0] as PostPopup).post.get().id, post2)
 
-  setBaseTestRoute({
-    hash: `post=unknown`,
-    params: {},
-    route: 'fast'
-  })
+  closeLastTestPopup()
+  equal(openedPopups.get().length, 1)
+
+  closeLastTestPopup()
+  equal(openedPopups.get().length, 0)
+
+  openTestPopup('post', 'unknown')
   equal(openedPopups.get()[0]?.loading.get(), true)
 
   await waitLoading((openedPopups.get()[0] as PostPopup).loading)

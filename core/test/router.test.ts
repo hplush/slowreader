@@ -5,11 +5,13 @@ import { setTimeout } from 'node:timers/promises'
 import {
   addCategory,
   addFeed,
+  addPopup,
   addPost,
   backToFirstStep,
   deleteFeed,
   isGuestRoute,
   isOtherRoute,
+  removeLastPopup,
   router,
   setBaseTestRoute,
   testFeed,
@@ -290,4 +292,11 @@ test('hides popups for guest', () => {
     popups: [],
     route: 'start'
   })
+})
+
+test('has helpers for popups', () => {
+  equal(addPopup('', 'feed', 'id1'), 'feed=id1')
+  equal(addPopup('feed=id1', 'post', 'id2'), 'feed=id1,post=id2')
+  equal(removeLastPopup('feed=id1,post=id2'), 'feed=id1')
+  equal(removeLastPopup('feed=id1'), '')
 })
