@@ -1,3 +1,5 @@
+import type { SyncMapValues } from '@logux/actions'
+import type { LoadedSyncMap, SyncMapStore } from '@logux/client'
 import type {
   MapStore,
   ReadableAtom,
@@ -79,4 +81,19 @@ export function waitLoading<Value extends boolean>(
       }
     })
   })
+}
+
+export async function waitSyncLoading<Value extends SyncMapValues>(
+  store: SyncMapStore<Value>
+): Promise<LoadedSyncMap<SyncMapStore<Value>>> {
+  let value = store.get()
+  if (value.isLoading) {
+    let unbind = store.listen(() => {})
+    try {
+      await store.loading
+    } finally {
+      unbind()
+    }
+  }
+  return store as LoadedSyncMap<SyncMapStore<Value>>
 }

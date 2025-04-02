@@ -1,10 +1,10 @@
 import { atom, type ReadableAtom } from 'nanostores'
 
+import { isNotFoundError } from '../not-found.ts'
 import type { PopupName } from '../router.ts'
 
 type Extra = {
-  destroy?: () => void
-  notFound: boolean
+  destroy: () => void
 }
 
 export type BasePopup<
@@ -21,9 +21,7 @@ export type BasePopup<
 
 export interface PopupCreator<
   Name extends PopupName,
-  Rest extends Extra =
-    | ({ notFound: false } & Record<string, unknown>)
-    | { notFound: true }
+  Rest extends Extra = Extra
 > {
   (
     param: string
@@ -38,13 +36,9 @@ export type LoadedPopup<Creator extends PopupCreator<PopupName>> = Extract<
   { loading: ReadableAtom<false>; notFound: false }
 >
 
-export interface PopupHelpers {
-  startTask(): () => void
-}
-
 export function definePopup<Name extends PopupName, Rest extends Extra>(
   name: Name,
-  builder: (param: string, popup: PopupHelpers) => Promise<Rest>
+  builder: (param: string) => Promise<Rest>
 ): PopupCreator<Name, Rest> {
   let creator: PopupCreator<Name, Rest> = param => {
     let destroyed = false
@@ -53,7 +47,7 @@ export function definePopup<Name extends PopupName, Rest extends Extra>(
     let popup = {
       destroy() {
         destroyed = true
-        rest?.destroy?.()
+        rest?.destroy()
       },
       loading,
       name,
@@ -61,32 +55,28 @@ export function definePopup<Name extends PopupName, Rest extends Extra>(
       param
     }
 
-    let tasks = 0
-    let helpers: PopupHelpers = {
-      startTask() {
-        tasks += 1
-        loading.set(true)
-        return () => {
-          tasks -= 1
-          if (tasks <= 0) loading.set(false)
+    loading.set(true)
+    builder(param)
+      .then(extra => {
+        rest = extra
+        if (destroyed) extra.destroy()
+        for (let i in rest) {
+          // @ts-expect-error Too complex case for TypeScript
+          popup[i] = extra[i]
         }
-      }
-    }
-
-    let stop = helpers.startTask()
-    builder(param, helpers).then(extra => {
-      rest = extra
-      if (destroyed) extra.destroy?.()
-      for (let i in rest) {
-        // @ts-expect-error Too complex case for TypeScript
-        popup[i] = extra[i]
-      }
-      stop()
-    })
-    return popup as
-      | (BasePopup<Name, false, false> & Rest)
-      | BasePopup<Name, false, true>
-      | BasePopup<Name, true>
+        loading.set(false)
+      })
+      .catch((e: unknown) => {
+        if (isNotFoundError(e)) {
+          popup.notFound = true
+          popup.destroy()
+          loading.set(false)
+        } else {
+          /* c8 ignore next 2 */
+          throw e
+        }
+      })
+    return popup as ReturnType<PopupCreator<Name, Rest>>
   }
   return creator
 }

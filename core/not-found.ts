@@ -1,4 +1,4 @@
-import { LoguxUndoError } from '@logux/client'
+import type { LoguxUndoError } from '@logux/client'
 import { atom } from 'nanostores'
 
 import { onEnvironment } from './environment.ts'
@@ -6,12 +6,29 @@ import { router } from './router.ts'
 
 export const notFound = atom(false)
 
+export class NotFoundError extends Error {
+  constructor() {
+    super('Not found')
+    this.name = 'NotFoundError'
+    Error.captureStackTrace(this, NotFoundError)
+  }
+}
+
+export function isNotFoundError(
+  error: unknown
+): error is LoguxUndoError | NotFoundError {
+  if (error instanceof Error) {
+    return (
+      error.name === 'NotFoundError' ||
+      (error.name === 'LoguxUndoError' && error.message.includes('notFound'))
+    )
+  }
+  return false
+}
+
 onEnvironment(({ errorEvents }) => {
   errorEvents.addEventListener('unhandledrejection', event => {
-    if (
-      event.reason instanceof LoguxUndoError &&
-      event.reason.message.includes('notFound')
-    ) {
+    if (isNotFoundError(event.reason)) {
       notFound.set(true)
     }
 
