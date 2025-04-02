@@ -5,16 +5,19 @@ import { afterEach, beforeEach, test } from 'node:test'
 import {
   addFeed,
   addPost,
-  closeLastTestPopup,
   type FeedPopup,
   openedPopups,
-  openTestPopup,
-  type PostPopup,
   testFeed,
   testPost,
   waitLoading
 } from '../../index.ts'
-import { cleanClientTest, enableClientTest } from '../utils.ts'
+import {
+  checkLoadedPopup,
+  cleanClientTest,
+  closeLastTestPopup,
+  enableClientTest,
+  openTestPopup
+} from '../utils.ts'
 
 beforeEach(() => {
   enableClientTest()
@@ -31,41 +34,38 @@ test('opens feed', async () => {
   let feed = await addFeed(testFeed({ categoryId: 'general' }))
   let post = await addPost(testPost({ feedId: feed }))
 
-  openTestPopup('feed', feed)
+  let popup1 = openTestPopup('feed', feed)
   equal(openedPopups.get().length, 1)
-  equal(openedPopups.get()[0]?.name, 'feed')
-  equal(openedPopups.get()[0]?.param, feed)
-  equal(openedPopups.get()[0]?.loading.get(), true)
+  equal(popup1.name, 'feed')
+  equal(popup1.param, feed)
+  equal(popup1.loading.get(), true)
 
-  await waitLoading((openedPopups.get()[0] as FeedPopup).loading)
-  equal(openedPopups.get()[0]?.loading.get(), false)
-  equal(openedPopups.get()[0]?.notFound, false)
+  await waitLoading(popup1.loading)
+  equal(popup1.loading.get(), false)
+  equal(popup1.notFound, false)
   equal((openedPopups.get()[0] as FeedPopup).feed.get().id, feed)
 
   closeLastTestPopup()
   equal(openedPopups.get().length, 0)
 
-  openTestPopup('feed', 'unknown')
-  equal(openedPopups.get().length, 1)
-  equal(openedPopups.get()[0]?.loading.get(), true)
+  let unknown = openTestPopup('feed', 'unknown')
+  equal(unknown.loading.get(), true)
 
-  await waitLoading((openedPopups.get()[0] as FeedPopup).loading)
-  equal(openedPopups.get()[0]?.notFound, true)
+  await waitLoading(unknown.loading)
+  equal(unknown.notFound, true)
 
   closeLastTestPopup()
   equal(openedPopups.get().length, 0)
 
-  openTestPopup('feed', feed)
-  await waitLoading((openedPopups.get()[0] as FeedPopup).loading)
+  let feedPopup = openTestPopup('feed', feed)
+  await waitLoading(feedPopup.loading)
 
-  openTestPopup('post', post)
+  let postPopup = openTestPopup('post', post)
   equal(openedPopups.get().length, 2)
-  equal(openedPopups.get()[0]?.loading.get(), false)
-  equal(openedPopups.get()[1]?.loading.get(), true)
+  equal(feedPopup.loading.get(), false)
+  equal(postPopup.loading.get(), true)
 
-  await waitLoading((openedPopups.get()[1] as FeedPopup).loading)
-  equal(openedPopups.get()[0]?.loading.get(), false)
-  equal(openedPopups.get()[1]?.loading.get(), false)
-  equal((openedPopups.get()[0] as FeedPopup).feed.get().id, feed)
-  equal((openedPopups.get()[1] as PostPopup).post.get().id, post)
+  await waitLoading(postPopup.loading)
+  equal(checkLoadedPopup(feedPopup).feed.get().id, feed)
+  equal(checkLoadedPopup(postPopup).post.get().id, post)
 })
