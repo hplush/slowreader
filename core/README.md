@@ -29,7 +29,7 @@ In the best scenario, the client should just subscribe to stores, render UI acco
 
 ## Scripts
 
-- `cd core && pnpm test`: run core unit tests.
+- `cd core && pnpm test`: run core unit tests and check coverage.
 
 ## Client Environments
 
@@ -52,14 +52,34 @@ This is why core code should not rely on URL routing, since not every client wil
 Instead, core code should use API:
 
 - `getEnvironment().openRoute(route)` to change current page.
-- Read `router` store to get current page or subscribe to the store to listen for current page changes (for instance, to clean temporary stores when user leave the page).
+- Read `router` store to get current page or subscribe to the store to listen for current page changes (for instance, to clean temporary stores when user leaves the page).
 
 ## Test Strategy
 
+Our tests should help us do the refactoring, not blocking us from refactoring by requirement rewriting tests on every change.
+
 We are using unit tests to emulate real user interactions. We mock network requests and use special [test environment](./test/utils.ts). But we call the same functions as clients UI will call and check the same stores, which clients will use to render UI.
+
+It is better to use pages/popups stores/function rather than any low-level functions. The exception is network requests parsing, XSS protection and other utilizes with many test cases.
 
 All unit tests import functions/stores from `core/index.ts` to test exports and the whole stores compositions.
 
 We run unit tests by `node --test` with [`better-node-test`](https://github.com/ai/better-node-test) for TypeScript and sugar.
 
-[`c8`](https://github.com/bcoe/c8) checks that tests execute every line of code (100% line coverage).
+We have 100% lines coverage requirement, but it is OK to use `/* c8 ignore start */`-`/* c8 ignore end */`, `/* c8 ignore next 2 */` for error and rare edge cases (see [`c8` docs](https://github.com/bcoe/c8) for ignore instruction examples).
+
+```sh
+# Run all tests with coverage
+cd core && pnpm test
+
+# Run all tests without coverage (a little faster)
+cd core && n bnt
+
+# Run specific test file
+n bnt core/test/html.test.ts
+
+# Run specific test
+n bnt core/test/html.test.ts -t 'sanitizes HTML'
+```
+
+In VS Code you can use [extension](https://marketplace.visualstudio.com/items?itemName=connor4312.nodejs-testing) to run specific test from UI.

@@ -178,7 +178,7 @@ If any mistake happens a few times, we should add an automatic tool to **prevent
 
 1. Types.
 2. [Scripts](./scripts/), custom ESLint or Stylelint plugins.
-3. Unit-tests.
+3. Tests.
 4. [Pull request checklist](./docs/pull_request_template.md).
 
 Any **code-style** rule should be implemented as a `pre-commit` hook or linter’s rule.
@@ -190,7 +190,7 @@ Types should try to use precise **types** and explain data relations with them:
 + { type: 'ok' } | { type: 'error', error: Error }
 ```
 
-We are using unit tests for **client core**. We mock network requests and the platform environment, but emulate user interaction and test the composition of all stores.
+We are using [integration tests for **client core**](./core/README.md#test-strategy). We mock network requests and the platform environment, but emulate user interaction and test the composition of all stores. As the result it is a little closer to integration tests rather than unit tests (by using high level APIs of pages/popups instead of simple functions).
 
 For the platform’s clients, we mostly use **visual tests**. But they could be complex and test the whole pages with mocking core’s stores.
 
