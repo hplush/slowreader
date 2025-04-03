@@ -83,3 +83,5 @@ n bnt core/test/html.test.ts -t 'sanitizes HTML'
 ```
 
 In VS Code you can use [extension](https://marketplace.visualstudio.com/items?itemName=connor4312.nodejs-testing) to run specific test from UI.
+
+Open `core/coverage/lcov-report/index.html` to see coverage issues.
