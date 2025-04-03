@@ -253,15 +253,21 @@ We prefer to use Docker containers (instead of lambda functions and other cloud 
 
 We also need to think about self-hosted solutions. Ideally it should one Docker image to run everything.
 
+Self-hosted users and we should use environment variable to configure images.
+
 We should make Docker images as small as possible to reduce attack surface. We recommend:
 
 - Use distroless images without package manager and CLI tools.
 - Use multi-stage build if we need package manager.
 - Prefer to install only binaries we really use, instead of using big base images with many non-relevant tools.
 
+See [`proxy/Dockerfile`](./proxy/Dockerfile) as an example.
+
 All projects have `./script/run-image.sh` script to build production image and run it. We recommend installing Podman instead of Docker for security reasons.
 
 If you need to debug Docker image, add `-dev` to base image.
+
+Don’t forget necessary files to `.dockerignore` since we are using allow-list there.
 
 ## Guides
 
