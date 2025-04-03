@@ -31,6 +31,7 @@ To ask any question: **[h+h lab Discord](https://discord.gg/TyFTp6mAZT)**
 - [Test Strategy](#test-strategy)
 - [Visual Language](#visual-language)
 - [Dependencies](#dependencies)
+- [Deploy](#deploy)
 - [Guides](#guides)
 
 ## License
@@ -245,6 +246,22 @@ pnpm update -r --include-workspace-root
 ```
 
 We can update all dependencies at least once per week.
+
+## Deploy
+
+We prefer to use Docker containers (instead of lambda functions and other cloud vendor lock-ins) to be able to change cloud in any moment.
+
+We also need to think about self-hosted solutions. Ideally it should one Docker image to run everything.
+
+We should make Docker images as small as possible to reduce attack surface. We recommend:
+
+- Use distroless images without package manager and CLI tools.
+- Use multi-stage build if we need package manager.
+- Prefer to install only binaries we really use, instead of using big base images with many non-relevant tools.
+
+All projects have `./script/run-image.sh` script to build production image and run it. We recommend installing Podman instead of Docker for security reasons.
+
+If you need to debug Docker image, add `-dev` to base image.
 
 ## Guides
 
