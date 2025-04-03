@@ -73,9 +73,7 @@ export function feedsByCategory(
   categories: CategoryValue[],
   feeds: FeedValue[]
 ): FeedsByCategory {
-  let allCategories = categories.sort((a, b) => {
-    return a.title.localeCompare(b.title)
-  })
+  let allCategories = categories.sort((a, b) => a.title.localeCompare(b.title))
 
   let general: FeedValue[] = []
   let broken: FeedValue[] = []

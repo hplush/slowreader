@@ -9,6 +9,7 @@ import {
   addPopup,
   addPost,
   backToFirstStep,
+  deleteCategory,
   deleteFeed,
   isGuestRoute,
   isOtherRoute,
@@ -151,6 +152,14 @@ test('transforms routers to first fast category', async () => {
   await setTimeout(100)
   deepStrictEqual(router.get(), {
     params: { category: idA },
+    popups: [],
+    redirect: true,
+    route: 'fast'
+  })
+
+  await deleteCategory(idA)
+  deepStrictEqual(router.get(), {
+    params: { category: 'broken' },
     popups: [],
     redirect: true,
     route: 'fast'
