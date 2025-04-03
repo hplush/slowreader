@@ -52,7 +52,7 @@ gcloud iam workload-identity-pools providers create-oidc "hplush" \
   --project=$PROJECT_ID \
   --location="global" \
   --workload-identity-pool="github" \
-  --display-name="GitHub hplush Ogranization" \
+  --display-name="GitHub hplush Organization" \
   --attribute-mapping="google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository,attribute.repository_owner=assertion.repository_owner" \
   --attribute-condition="assertion.repository_owner == 'hplush'" \
   --issuer-uri="https://token.actions.githubusercontent.com"
