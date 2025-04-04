@@ -1,18 +1,5 @@
 version: 2
 updates:
-  - package-ecosystem: github-actions
-    directory: '/'
-    schedule:
-      interval: monthly
-  - package-ecosystem: github-actions
-    directory: '/.github/actions/deploy'
-    schedule:
-      interval: monthly
-  - package-ecosystem: github-actions
-    directory: '/.github/actions/init-node'
-    schedule:
-      interval: monthly
-
   - package-ecosystem: docker
     directory: '/web'
     schedule:

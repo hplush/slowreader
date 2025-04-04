@@ -6,12 +6,16 @@ FROM registry.fedoraproject.org/fedora:41
 ARG TARGETARCH
 
 ENV NODE_VERSION 22.14.0
-ENV PNPM_VERSION 10.7.1
-
-ENV NODE_CHECKSUM_ARM64 69b09dba5c8dcb05c4e4273a4340db1005abeafe3927efda2bc5b249e80437ec
-ENV PNPM_CHECKSUM_ARM64 679ae00c18e30e68ed921f39f23b27905f2239caa51b01811262d7f2d2d71c7d
 ENV NODE_CHECKSUM_X64 69b09dba5c8dcb05c4e4273a4340db1005abeafe3927efda2bc5b249e80437ec
+ENV NODE_CHECKSUM_ARM64 69b09dba5c8dcb05c4e4273a4340db1005abeafe3927efda2bc5b249e80437ec
+
+ENV PNPM_VERSION 10.7.1
 ENV PNPM_CHECKSUM_X64 9ef305b7be447c9d6899b9b4618b7a788e5eb09f38398196d648909cbe12da72
+ENV PNPM_CHECKSUM_ARM64 679ae00c18e30e68ed921f39f23b27905f2239caa51b01811262d7f2d2d71c7d
+
+ENV PINACT_VERSION 3.0.1
+ENV PINACT_CHECKSUM_X64 f4f35e2dc4cf1243cd0e8d3bc0b49c8b30c388d1dcae5907afcd97b00ddb556e
+ENV PINACT_CHECKSUM_ARM64 b319fc572c3fae75a2744732d9c943d1b7402e1a43a3aabd8ab72f2feb1454f7
 
 RUN dnf update -yq \
   && dnf install -yq zsh eza bat micro git tig ripgrep iputils \
@@ -23,11 +27,15 @@ RUN <<EOF
   if [ "$TARGETARCH" = "amd64" ]; then
     export NODE_CHECKSUM=$NODE_CHECKSUM_X64
     export PNPM_CHECKSUM=$PNPM_CHECKSUM_X64
+    export PINACT_CHECKSUM=$PINACT_CHECKSUM_X64
     export ARCH="x64"
+    export PINACT_ARCH="amd64"
   elif [ "$TARGETARCH" = "arm64" ]; then
     export NODE_CHECKSUM=$NODE_CHECKSUM_ARM64
     export PNPM_CHECKSUM=$PNPM_CHECKSUM_ARM64
+    export PINACT_CHECKSUM=$PINACT_CHECKSUM_ARM64
     export ARCH="arm64"
+    export PINACT_ARCH="arm64"
   else
     echo "Unsupported architecture: $TARGETARCH"
     exit 1
@@ -46,6 +54,13 @@ RUN <<EOF
     --fail --show-error --location --silent --output /usr/local/bin/pnpm
   echo "$PNPM_CHECKSUM /usr/local/bin/pnpm" | sha256sum -c
   chmod a+rx /usr/local/bin/pnpm
+
+  curl "https://github.com/suzuki-shunsuke/pinact/releases/download/v${PINACT_VERSION}/pinact_linux_${PINACT_ARCH}.tar.gz" \
+    --fail --show-error --location --silent --output /pinact.tar.gz
+  echo "$PINACT_CHECKSUM /pinact.tar.gz" | sha256sum -c
+  tar -xf /pinact.tar.gz -C /usr/local/bin --remove-files \
+    --exclude='LICENSE' --exclude='*.md'
+  rm /pinact.tar.gz
 EOF
 
 RUN useradd -s /bin/zsh developer

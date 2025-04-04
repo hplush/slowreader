@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Initialize Node.js
         uses: ./.github/actions/init-node
       - name: Build assets
@@ -35,7 +35,7 @@ jobs:
       - name: Create archive to keep symlinks
         run: tar -cf server.tar server/dist/
       - name: Save server for deploy
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: preview-server
           retention-days: 1

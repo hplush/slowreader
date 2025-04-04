@@ -18,9 +18,9 @@ jobs:
       group: staging-web
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Download server from prepare step
-        uses: actions/download-artifact@v4.2.1
+        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
         with:
           name: preview-server
           repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
@@ -33,7 +33,7 @@ jobs:
           PR_NUMBER=$(cat ./preview-id)
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
       - name: Notify about new deployment
-        uses: bobheadxi/deployments@v1.5.0
+        uses: bobheadxi/deployments@648679e8e4915b27893bd7dbc35cb504dc915bc8 # v1.5.0
         id: status
         with:
           step: start
@@ -54,7 +54,7 @@ jobs:
           # flags: |
           #   --update-secrets DATABASE_URL=preview-db-url:latest
       - name: Update deployment status
-        uses: bobheadxi/deployments@v1.5.0
+        uses: bobheadxi/deployments@648679e8e4915b27893bd7dbc35cb504dc915bc8 # v1.5.0
         if: always()
         with:
           step: finish
