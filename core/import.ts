@@ -75,7 +75,7 @@ export async function createFeedFromUrl(
   try {
     await addPage.setUrl(url)
 
-    let candidate = addPage.sortedCandidates.get().find(i => i.url === url)
+    let candidate = addPage.candidates.get().find(i => i.url === url)
     if (!candidate) {
       throw new Error('No suitable loader found for the given URL')
     }

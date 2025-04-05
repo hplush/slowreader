@@ -65,14 +65,14 @@ export const add = createPage('add', () => {
     })
   })
 
-  let $candidatesLoading = computed($links, links => {
+  let $searching = computed($links, links => {
     return Object.keys(links).some(url => links[url]!.state === 'loading')
   })
 
   let $noResults = computed(
-    [$candidatesLoading, $url, $candidates, $error],
-    (loading, url, candidates, error) => {
-      return !loading && !!url && candidates.length === 0 && !error
+    [$searching, $url, $candidates, $error],
+    (searching, url, candidates, error) => {
+      return !searching && !!url && candidates.length === 0 && !error
     }
   )
 
@@ -206,7 +206,7 @@ export const add = createPage('add', () => {
   })
 
   return {
-    candidatesLoading: $candidatesLoading,
+    candidates: $sortedCandidates,
     error: $error,
     exit,
     inputUrl,
@@ -215,8 +215,8 @@ export const add = createPage('add', () => {
       candidate: $candidate,
       url: $url
     },
-    setUrl,
-    sortedCandidates: $sortedCandidates
+    searching: $searching,
+    setUrl
   }
 })
 

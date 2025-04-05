@@ -216,12 +216,12 @@ export async function findRSSfromHome(
 ): Promise<boolean> {
   setBaseTestRoute({ params: {}, route: 'add' })
   let addPage = pages.add()
-  let unbindPreview = addPage.sortedCandidates.listen(() => {})
+  let unbindPreview = addPage.candidates.listen(() => {})
   try {
     let homeUrl = feed.homeUrl || getHomeUrl(feed.url)
     addPage.setUrl(homeUrl)
     try {
-      await timeout(10_000, waitLoading(addPage.candidatesLoading))
+      await timeout(10_000, waitLoading(addPage.searching))
     } catch (e) {
       if (e instanceof Error && e.message === 'Timeout' && tries > 0) {
         return await findRSSfromHome(feed, tries - 1)
@@ -229,13 +229,11 @@ export async function findRSSfromHome(
         throw e
       }
     }
-    let normalizedUrls = addPage.sortedCandidates
-      .get()
-      .map(i => normalizeUrl(i.url))
+    let normalizedUrls = addPage.candidates.get().map(i => normalizeUrl(i.url))
     if (normalizedUrls.includes(normalizeUrl(feed.url))) {
       success(`Feed ${feed.title} has feed URL at home`)
       return true
-    } else if (addPage.sortedCandidates.get().length === 0) {
+    } else if (addPage.candidates.get().length === 0) {
       error(
         `Can’t find any feed from home URL or ${feed.title}`,
         `Home URL: ${homeUrl}\nFeed URL: ${feed.url}`
@@ -245,7 +243,7 @@ export async function findRSSfromHome(
       error(
         `Can’t find ${feed.title} feed from home URL`,
         `Home URL: ${homeUrl}\n` +
-          `Found: ${addPage.sortedCandidates
+          `Found: ${addPage.candidates
             .get()
             .map(i => i.url)
             .join('\n       ')}\n` +
