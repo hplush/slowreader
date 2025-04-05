@@ -164,6 +164,7 @@ export const add = createPage('add', () => {
       try {
         response = await task.text(url)
       } catch (e) {
+        /* c8 ignore next 3 */
         await unloadable(e)
         return
       }

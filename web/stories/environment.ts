@@ -50,6 +50,9 @@ setupEnvironment({
   },
   translationLoader() {
     return Promise.resolve({})
+  },
+  warn(e) {
+    console.error(e)
   }
 })
 
