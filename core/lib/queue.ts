@@ -70,6 +70,7 @@ export async function retryOnError<Result>(
         }
       }
     }
+    /* c8 ignore next 2 */
     throw e
   }
 }

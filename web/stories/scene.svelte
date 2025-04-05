@@ -41,11 +41,10 @@
     totalSlowPages,
     totalSlowPosts
   } from '@slowreader/core'
-  import { cleanStores } from 'nanostores'
+  import { cleanStores, type ReadableAtom, type WritableAtom } from 'nanostores'
   import type { Snippet } from 'svelte'
   import { onMount } from 'svelte'
 
-  import { forceSet } from '../../core/lib/stores.ts'
   import {
     baseRouter,
     type PreparedResponse,
@@ -97,6 +96,13 @@
     slowState?: SlowPostsValue
     unloadedFeeds?: string[]
   } = $props()
+
+  export function forceSet<Value>(
+    store: ReadableAtom<Value>,
+    value: Value
+  ): void {
+    ;(store as WritableAtom<Value>).set(value)
+  }
 
   function cleanLogux(): void {
     clearPreview()
