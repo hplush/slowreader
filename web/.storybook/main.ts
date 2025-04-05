@@ -7,6 +7,9 @@ export default {
     '@storybook/addon-themes',
     '@storybook/addon-viewport'
   ],
+  core: {
+    disableTelemetry: true
+  },
   framework: '@storybook/svelte-vite',
   stories: ['../stories/**/*.stories.svelte'],
   viteFinal(config: InlineConfig) {
