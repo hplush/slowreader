@@ -29,13 +29,25 @@ interface RequestExpect {
 
 let requestExpects: RequestExpect[] = []
 
+export class MockRequestError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'MockRequestError'
+    Error.captureStackTrace(this, MockRequestError)
+  }
+}
+
 /* c8 ignore start */
 let fetchMock: RequestMethod = async (url, opts = {}) => {
   let expect = requestExpects.shift()
   if (!expect) {
-    throw new Error(`Unexpected request ${url} ${JSON.stringify(opts)}`)
+    throw new MockRequestError(
+      `Unexpected request ${url} ${JSON.stringify(opts)}`
+    )
   } else if (expect.url !== url) {
-    throw new Error(`Expected request ${expect.url} instead of ${url}`)
+    throw new MockRequestError(
+      `Expected request ${expect.url} instead of ${url}`
+    )
   } else {
     let throwError: (e: Error) => void
     let waitForError = new Promise((resolve, reject) => {

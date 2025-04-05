@@ -57,8 +57,9 @@ export interface Environment {
   logStoreCreator: LogStoreCreator
   networkType: NetworkTypeDetector
   openRoute(page: Route): void
-  restartApp: () => void
+  restartApp(): void
   translationLoader: TranslationLoader
+  warn(error: Error): void
 }
 
 export type EnvironmentAndStore = {
@@ -104,7 +105,8 @@ export function setupEnvironment<Router extends BaseRouter>(
     networkType: env.networkType,
     openRoute: env.openRoute,
     restartApp: env.restartApp,
-    translationLoader: env.translationLoader
+    translationLoader: env.translationLoader,
+    warn: env.warn
   }
 
   for (let listener of listeners) {
@@ -154,6 +156,7 @@ export function getTestEnvironment(): EnvironmentAndStore {
     persistentEvents: { addEventListener() {}, removeEventListener() {} },
     persistentStore: {},
     restartApp: () => {},
-    translationLoader: () => Promise.resolve({})
+    translationLoader: () => Promise.resolve({}),
+    warn: () => {}
   }
 }

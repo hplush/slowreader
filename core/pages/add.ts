@@ -7,6 +7,7 @@ import {
   ignoreAbortError,
   type TextResponse
 } from '../download.ts'
+import { getEnvironment } from '../environment.ts'
 import {
   type FeedLoader,
   getLoaderForText,
@@ -141,9 +142,9 @@ export const add = createPage('add', () => {
     }
 
     async function unloadable(e: unknown): Promise<void> {
-      // Useful for end-users
-      // eslint-disable-next-line no-console
-      console.error(e)
+      if (e instanceof Error) {
+        getEnvironment().warn(e)
+      }
       $links.setKey(url, { state: 'unloadable' })
       if (httpsGuest) {
         await setUrl(url.replace('https://', 'http://'))
@@ -167,7 +168,7 @@ export const add = createPage('add', () => {
         return
       }
       if (!response.ok) {
-        await unloadable(new Error(response.text))
+        await unloadable(new Error(`${url}: ${response.status}`))
       } else {
         let byText = getLoaderForText(response)
         if (!deep) {

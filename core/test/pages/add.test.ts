@@ -18,7 +18,13 @@ import {
 import { cleanClientTest, enableClientTest } from '../utils.ts'
 
 beforeEach(() => {
-  enableClientTest()
+  enableClientTest({
+    warn(e) {
+      if (e.name === 'MockRequestError' || !/: 500|: 404|DOM/.test(e.message)) {
+        throw e
+      }
+    }
+  })
   mockRequest()
   setBaseTestRoute({
     params: { candidate: undefined, url: undefined },
@@ -71,7 +77,7 @@ test('cleans state', async () => {
   keepMount(pages.add().sortedCandidates)
 
   let reply = expectRequest('https://example.com').andWait()
-  pages.add().setUrl('example.com')
+  pages.add().setUrl('https://example.com')
   await setTimeout(10)
   pages.add().exit()
   equal(pages.add().error.get(), undefined)
@@ -89,7 +95,7 @@ test('is ready for network errors', async () => {
   keepMount(pages.add().error)
 
   let reply = expectRequest('https://example.com').andWait()
-  pages.add().setUrl('example.com')
+  pages.add().setUrl('https://example.com')
   equal(pages.add().candidatesLoading.get(), true)
   equal(pages.add().error.get(), undefined)
   equal(pages.add().noResults.get(), false)
@@ -107,14 +113,14 @@ test('is ready for network errors', async () => {
 
 test('aborts all HTTP requests on URL change', async () => {
   let reply1 = expectRequest('https://example.com').andWait()
-  pages.add().setUrl('example.com')
+  pages.add().setUrl('https://example.com')
 
   pages.add().setUrl('')
   await setTimeout(10)
   equal(reply1.aborted, true)
 
   let reply2 = expectRequest('https://other.com').andWait()
-  pages.add().setUrl('other.com')
+  pages.add().setUrl('https://other.com')
 
   pages.add().exit()
   await setTimeout(10)
@@ -132,7 +138,7 @@ test('detects RSS links', async () => {
   })
 
   let replyHtml = expectRequest('https://example.com').andWait()
-  pages.add().setUrl('example.com')
+  pages.add().setUrl('https://example.com')
   equal(pages.add().candidatesLoading.get(), true)
   equal(pages.add().error.get(), undefined)
   deepStrictEqual(pages.add().sortedCandidates.get(), [])
@@ -181,7 +187,7 @@ test('is ready for empty title', async () => {
   let atom = '<feed><title></title></feed>'
   expectRequest('https://other.com/atom').andRespond(200, atom, 'text/xml')
 
-  pages.add().setUrl('example.com')
+  pages.add().setUrl('https://example.com')
   await waitLoading(pages.add().candidatesLoading)
   equal(pages.add().error.get(), undefined)
   equalWithText(pages.add().sortedCandidates.get(), [
@@ -209,7 +215,7 @@ test('ignores duplicate links', async () => {
   let rss = '<feed><title>Feed</title></feed>'
   expectRequest('https://other.com/atom').andRespond(200, rss, 'text/xml')
 
-  pages.add().setUrl('example.com')
+  pages.add().setUrl('https://example.com')
   await waitLoading(pages.add().candidatesLoading)
   equal(pages.add().error.get(), undefined)
   equalWithText(pages.add().sortedCandidates.get(), [
@@ -234,7 +240,7 @@ test('looks for popular RSS, Atom and JsonFeed places', async () => {
   expectRequest('https://example.com/feed.json').andRespond(404)
   expectRequest('https://example.com/rss').andRespond(404)
 
-  pages.add().setUrl('example.com')
+  pages.add().setUrl('https://example.com')
   await waitLoading(pages.add().candidatesLoading)
   equal(pages.add().error.get(), undefined)
   equalWithText(pages.add().sortedCandidates.get(), [
@@ -259,7 +265,7 @@ test('shows if unknown URL', async () => {
   expectRequest('https://example.com/feed.json').andRespond(404)
   expectRequest('https://example.com/rss').andRespond(404)
 
-  pages.add().setUrl('example.com')
+  pages.add().setUrl('https://example.com')
   await waitLoading(pages.add().candidatesLoading)
   equal(pages.add().error.get(), undefined)
   deepStrictEqual(pages.add().sortedCandidates.get(), [])
@@ -285,7 +291,7 @@ test('always keep the same order of candidates', async () => {
     '<rss><channel><title>RSS</title></channel></rss>',
     'application/rss+xml'
   )
-  pages.add().setUrl('example.com')
+  pages.add().setUrl('https://example.com')
   await waitLoading(pages.add().candidatesLoading)
   deepStrictEqual(
     pages
@@ -305,7 +311,7 @@ test('always keep the same order of candidates', async () => {
     '<rss><channel><title>RSS</title></channel></rss>',
     'application/rss+xml'
   )
-  pages.add().setUrl('example.com')
+  pages.add().setUrl('https://example.com')
   await setTimeout(10)
   atom(200, '<feed><title>Atom</title></feed>', 'application/rss+xml')
   jsonFeed(
@@ -379,6 +385,9 @@ test('starts from HTTPS and then try HTTP', async () => {
     200,
     '<feed><title></title></feed>'
   )
+  expectRequest('http://example.com/atom').andRespond(404)
+  expectRequest('http://example.com/feed.json').andRespond(404)
+  expectRequest('http://example.com/rss').andRespond(404)
   await pages.add().setUrl('example.com/feed')
   equal(pages.add().candidatesLoading.get(), false)
   equal(pages.add().error.get(), undefined)

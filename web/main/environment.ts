@@ -71,6 +71,11 @@ setupEnvironment({
   },
   translationLoader() {
     return Promise.resolve({})
+  },
+  warn(msg) {
+    // For useful messages for end-users
+    // eslint-disable-next-line no-console
+    console.warn(msg.message)
   }
 })
 
