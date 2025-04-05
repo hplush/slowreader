@@ -129,12 +129,24 @@ export const add = createPage('add', () => {
     url = url.trim()
     if (url === '') return
 
+    let httpsGuest = false
     if (!url.startsWith('https://') && !url.startsWith('http://')) {
       if (/^\w+:/.test(url)) {
         $links.setKey(url, { error: 'invalidUrl', state: 'invalid' })
         return
       } else {
-        url = 'http://' + url
+        url = 'https://' + url
+        httpsGuest = true
+      }
+    }
+
+    function unloadable(e: unknown): void {
+      // Useful for end-users
+      // eslint-disable-next-line no-console
+      console.error(e)
+      $links.setKey(url, { state: 'unloadable' })
+      if (httpsGuest) {
+        setUrl(url.replace('https://', 'http://'))
       }
     }
 
@@ -151,14 +163,11 @@ export const add = createPage('add', () => {
       try {
         response = await task.text(url)
       } catch (e) {
-        // Useful for end-users
-        // eslint-disable-next-line no-console
-        console.error(e)
-        $links.setKey(url, { state: 'unloadable' })
+        unloadable(e)
         return
       }
       if (!response.ok) {
-        $links.setKey(url, { state: 'unloadable' })
+        unloadable(new Error(response.text))
       } else {
         let byText = getLoaderForText(response)
         if (!deep) {

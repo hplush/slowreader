@@ -69,7 +69,7 @@ test('cleans state', async () => {
   keepMount(pages.add().error)
   keepMount(pages.add().sortedCandidates)
 
-  let reply = expectRequest('http://example.com').andWait()
+  let reply = expectRequest('https://example.com').andWait()
   pages.add().setUrl('example.com')
   await setTimeout(10)
 
@@ -89,7 +89,7 @@ test('is ready for network errors', async () => {
   keepMount(pages.add().candidatesLoading)
   keepMount(pages.add().error)
 
-  let reply = expectRequest('http://example.com').andWait()
+  let reply = expectRequest('https://example.com').andWait()
   pages.add().setUrl('example.com')
 
   equal(pages.add().candidatesLoading.get(), true)
@@ -108,14 +108,14 @@ test('is ready for network errors', async () => {
 })
 
 test('aborts all HTTP requests on URL change', async () => {
-  let reply1 = expectRequest('http://example.com').andWait()
+  let reply1 = expectRequest('https://example.com').andWait()
   pages.add().setUrl('example.com')
 
   pages.add().setUrl('')
   await setTimeout(10)
   equal(reply1.aborted, true)
 
-  let reply2 = expectRequest('http://other.com').andWait()
+  let reply2 = expectRequest('https://other.com').andWait()
   pages.add().setUrl('other.com')
 
   pages.add().exit()
@@ -133,7 +133,7 @@ test('detects RSS links', async () => {
     loadingChanges.push(pages.add().candidatesLoading.get())
   })
 
-  let replyHtml = expectRequest('http://example.com').andWait()
+  let replyHtml = expectRequest('https://example.com').andWait()
   pages.add().setUrl('example.com')
   await setTimeout(10)
   equal(pages.add().candidatesLoading.get(), true)
@@ -141,7 +141,7 @@ test('detects RSS links', async () => {
   deepStrictEqual(pages.add().sortedCandidates.get(), [])
   equal(pages.add().noResults.get(), false)
 
-  let replyRss = expectRequest('http://example.com/news').andWait()
+  let replyRss = expectRequest('https://example.com/news').andWait()
   replyHtml(
     200,
     '<!DOCTYPE html><html><head>' +
@@ -165,7 +165,7 @@ test('detects RSS links', async () => {
       loader: loaders.rss,
       name: 'rss',
       title: 'News',
-      url: 'http://example.com/news'
+      url: 'https://example.com/news'
     }
   ])
   equal(pages.add().noResults.get(), false)
@@ -176,14 +176,14 @@ test('is ready for empty title', async () => {
   keepMount(pages.add().error)
   keepMount(pages.add().sortedCandidates)
 
-  expectRequest('http://example.com').andRespond(
+  expectRequest('https://example.com').andRespond(
     200,
     `<html>
-      <link type="application/atom+xml" href="http://other.com/atom">
+      <link type="application/atom+xml" href="https://other.com/atom">
     </html>`
   )
-  let rss = '<feed><title></title></feed>'
-  expectRequest('http://other.com/atom').andRespond(200, rss, 'text/xml')
+  let atom = '<feed><title></title></feed>'
+  expectRequest('https://other.com/atom').andRespond(200, atom, 'text/xml')
 
   await pages.add().setUrl('example.com')
   equal(pages.add().candidatesLoading.get(), false)
@@ -193,7 +193,7 @@ test('is ready for empty title', async () => {
       loader: loaders.atom,
       name: 'atom',
       title: '',
-      url: 'http://other.com/atom'
+      url: 'https://other.com/atom'
     }
   ])
 })
@@ -203,15 +203,15 @@ test('ignores duplicate links', async () => {
   keepMount(pages.add().error)
   keepMount(pages.add().sortedCandidates)
 
-  expectRequest('http://example.com').andRespond(
+  expectRequest('https://example.com').andRespond(
     200,
     `<html>
-      <link type="application/atom+xml" href="http://other.com/atom">
-      <a href="http://other.com/atom">Feed</a>
+      <link type="application/atom+xml" href="https://other.com/atom">
+      <a href="https://other.com/atom">Feed</a>
     </html>`
   )
   let rss = '<feed><title>Feed</title></feed>'
-  expectRequest('http://other.com/atom').andRespond(200, rss, 'text/xml')
+  expectRequest('https://other.com/atom').andRespond(200, rss, 'text/xml')
 
   pages.add().setUrl('example.com')
   await setTimeout(10)
@@ -222,7 +222,7 @@ test('ignores duplicate links', async () => {
       loader: loaders.atom,
       name: 'atom',
       title: 'Feed',
-      url: 'http://other.com/atom'
+      url: 'https://other.com/atom'
     }
   ])
 })
@@ -232,12 +232,12 @@ test('looks for popular RSS, Atom and JsonFeed places', async () => {
   keepMount(pages.add().error)
   keepMount(pages.add().sortedCandidates)
 
-  expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
   let atom = '<feed><title></title></feed>'
-  expectRequest('http://example.com/feed').andRespond(404)
-  expectRequest('http://example.com/atom').andRespond(200, atom, 'text/xml')
-  expectRequest('http://example.com/feed.json').andRespond(404)
-  expectRequest('http://example.com/rss').andRespond(404)
+  expectRequest('https://example.com/feed').andRespond(404)
+  expectRequest('https://example.com/atom').andRespond(200, atom, 'text/xml')
+  expectRequest('https://example.com/feed.json').andRespond(404)
+  expectRequest('https://example.com/rss').andRespond(404)
 
   pages.add().setUrl('example.com')
 
@@ -249,7 +249,7 @@ test('looks for popular RSS, Atom and JsonFeed places', async () => {
       loader: loaders.atom,
       name: 'atom',
       title: '',
-      url: 'http://example.com/atom'
+      url: 'https://example.com/atom'
     }
   ])
 })
@@ -260,11 +260,11 @@ test('shows if unknown URL', async () => {
   keepMount(pages.add().sortedCandidates)
   keepMount(pages.add().noResults)
 
-  expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
-  expectRequest('http://example.com/feed').andRespond(404)
-  expectRequest('http://example.com/atom').andRespond(404)
-  expectRequest('http://example.com/feed.json').andRespond(404)
-  expectRequest('http://example.com/rss').andRespond(404)
+  expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('https://example.com/feed').andRespond(404)
+  expectRequest('https://example.com/atom').andRespond(404)
+  expectRequest('https://example.com/feed.json').andRespond(404)
+  expectRequest('https://example.com/rss').andRespond(404)
 
   await pages.add().setUrl('example.com')
   equal(pages.add().candidatesLoading.get(), false)
@@ -275,19 +275,19 @@ test('shows if unknown URL', async () => {
 
 test('always keep the same order of candidates', async () => {
   keepMount(pages.add().sortedCandidates)
-  expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
-  expectRequest('http://example.com/feed').andRespond(404)
-  expectRequest('http://example.com/atom').andRespond(
+  expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('https://example.com/feed').andRespond(404)
+  expectRequest('https://example.com/atom').andRespond(
     200,
     '<feed><title>Atom</title></feed>',
     'application/rss+xml'
   )
-  expectRequest('http://example.com/feed.json').andRespond(
+  expectRequest('https://example.com/feed.json').andRespond(
     200,
     '{ "version": "https://jsonfeed.org/version/1.1", "title": "JsonFeed", "items": [] }',
     'application/json'
   )
-  expectRequest('http://example.com/rss').andRespond(
+  expectRequest('https://example.com/rss').andRespond(
     200,
     '<rss><channel><title>RSS</title></channel></rss>',
     'application/rss+xml'
@@ -303,11 +303,11 @@ test('always keep the same order of candidates', async () => {
   )
 
   pages.add().exit()
-  expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
-  expectRequest('http://example.com/feed').andRespond(404)
-  let atom = expectRequest('http://example.com/atom').andWait()
-  let jsonFeed = expectRequest('http://example.com/feed.json').andWait()
-  expectRequest('http://example.com/rss').andRespond(
+  expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('https://example.com/feed').andRespond(404)
+  let atom = expectRequest('https://example.com/atom').andWait()
+  let jsonFeed = expectRequest('https://example.com/feed.json').andWait()
+  expectRequest('https://example.com/rss').andRespond(
     200,
     '<rss><channel><title>RSS</title></channel></rss>',
     'application/rss+xml'
@@ -337,41 +337,73 @@ test('changes URL during typing in the field', async () => {
   pages.add().setUrl('')
   equal(pages.add().url.get(), undefined)
 
-  expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
-  expectRequest('http://example.com/feed').andRespond(404)
-  expectRequest('http://example.com/atom').andRespond(404)
-  expectRequest('http://example.com/feed.json').andRespond(404)
-  expectRequest('http://example.com/rss').andRespond(404)
+  expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('https://example.com/feed').andRespond(404)
+  expectRequest('https://example.com/atom').andRespond(404)
+  expectRequest('https://example.com/feed.json').andRespond(404)
+  expectRequest('https://example.com/rss').andRespond(404)
   pages.add().setUrl('example.com')
-  equal(pages.add().url.get(), 'http://example.com')
+  equal(pages.add().url.get(), 'https://example.com')
   await setTimeout(10)
 
   pages.add().inputUrl('other')
-  equal(pages.add().url.get(), 'http://example.com')
+  equal(pages.add().url.get(), 'https://example.com')
 
   pages.add().inputUrl('other.')
-  equal(pages.add().url.get(), 'http://example.com')
+  equal(pages.add().url.get(), 'https://example.com')
 
-  expectRequest('http://other.net').andRespond(200, '<html>Nothing</html>')
-  expectRequest('http://other.net/feed').andRespond(404)
-  expectRequest('http://other.net/atom').andRespond(404)
-  expectRequest('http://other.net/feed.json').andRespond(404)
-  expectRequest('http://other.net/rss').andRespond(404)
+  expectRequest('https://other.net').andRespond(200, '<html>Nothing</html>')
+  expectRequest('https://other.net/feed').andRespond(404)
+  expectRequest('https://other.net/atom').andRespond(404)
+  expectRequest('https://other.net/feed.json').andRespond(404)
+  expectRequest('https://other.net/rss').andRespond(404)
   pages.add().inputUrl('other.net')
   await setTimeout(500)
-  equal(pages.add().url.get(), 'http://other.net')
+  equal(pages.add().url.get(), 'https://other.net')
 
-  expectRequest('http://example.com').andRespond(200, '<html>Nothing</html>')
-  expectRequest('http://example.com/feed').andRespond(404)
-  expectRequest('http://example.com/atom').andRespond(404)
-  expectRequest('http://example.com/feed.json').andRespond(404)
-  expectRequest('http://example.com/rss').andRespond(404)
+  expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('https://example.com/feed').andRespond(404)
+  expectRequest('https://example.com/atom').andRespond(404)
+  expectRequest('https://example.com/feed.json').andRespond(404)
+  expectRequest('https://example.com/rss').andRespond(404)
   pages.add().inputUrl('other.net/some')
   pages.add().setUrl('example.com')
   await setTimeout(500)
-  equal(pages.add().url.get(), 'http://example.com')
+  equal(pages.add().url.get(), 'https://example.com')
 
   pages.add().inputUrl('')
   await setTimeout(500)
   equal(pages.add().url.get(), undefined)
+})
+
+test('starts from HTTPS and then try HTTP', async () => {
+  keepMount(pages.add().candidatesLoading)
+  keepMount(pages.add().error)
+  keepMount(pages.add().sortedCandidates)
+
+  expectRequest('https://example.com/feed').andRespond(500)
+  expectRequest('http://example.com/feed').andRespond(
+    200,
+    '<feed><title></title></feed>'
+  )
+  pages.add().setUrl('example.com/feed')
+
+  await setTimeout(10)
+  equal(pages.add().candidatesLoading.get(), false)
+  equal(pages.add().error.get(), undefined)
+  equalWithText(pages.add().sortedCandidates.get(), [
+    {
+      loader: loaders.atom,
+      name: 'atom',
+      title: '',
+      url: 'http://example.com/feed'
+    }
+  ])
+
+  expectRequest('https://example.com/feed').andRespond(500)
+  pages.add().setUrl('https://example.com/feed')
+
+  await setTimeout(10)
+  equal(pages.add().candidatesLoading.get(), false)
+  equal(pages.add().error.get(), 'unloadable')
 })
