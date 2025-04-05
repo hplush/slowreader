@@ -1,6 +1,6 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig } from 'vite'
 
 function replaceIcon(html: string, icon: string): string {
   return html
@@ -20,7 +20,7 @@ export default defineConfig(() => ({
     svelte(),
     nodeResolve({
       extensions: ['.js', '.ts']
-    }) as Plugin, // TODO: Temporary fix for nested types issues,
+    }),
     {
       enforce: 'pre',
       name: 'html-transform',
