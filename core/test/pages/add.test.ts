@@ -13,11 +13,13 @@ import {
   mockRequest,
   pages,
   setBaseTestRoute,
+  setIsMobile,
   waitLoading
 } from '../../index.ts'
 import { cleanClientTest, enableClientTest } from '../utils.ts'
 
 beforeEach(() => {
+  setIsMobile(false)
   enableClientTest({
     warn(e) {
       if (e.name === 'MockRequestError' || !/: 500|: 404|DOM/.test(e.message)) {

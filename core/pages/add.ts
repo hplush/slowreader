@@ -7,7 +7,7 @@ import {
   ignoreAbortError,
   type TextResponse
 } from '../download.ts'
-import { getEnvironment } from '../environment.ts'
+import { getEnvironment, isMobile } from '../environment.ts'
 import {
   type FeedLoader,
   getLoaderForText,
@@ -197,6 +197,14 @@ export const add = createPage('add', () => {
     $url.set(Object.keys(links)[0] ?? undefined)
   })
 
+  // TODO: Remove to popups
+  let $candidate = atom<string | undefined>()
+  $candidates.listen(candidates => {
+    if (candidates[0] && !isMobile.get() && !$candidate.get()) {
+      $candidate.set(candidates[0].url)
+    }
+  })
+
   return {
     candidatesLoading: $candidatesLoading,
     error: $error,
@@ -204,7 +212,7 @@ export const add = createPage('add', () => {
     inputUrl,
     noResults: $noResults,
     params: {
-      candidate: atom<string | undefined>(), // TODO: Remove to popups
+      candidate: $candidate,
       url: $url
     },
     setUrl,

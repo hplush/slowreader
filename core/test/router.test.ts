@@ -8,7 +8,6 @@ import {
   addFeed,
   addPopup,
   addPost,
-  backToFirstStep,
   deleteCategory,
   deleteFeed,
   isGuestRoute,
@@ -248,19 +247,6 @@ test('checks that category exists', async () => {
     params: { category: idA, since: 100 },
     popups: [],
     route: 'fast'
-  })
-})
-
-test('backRoute handles export with format', () => {
-  userId.set('10')
-  setBaseTestRoute({ params: { format: 'opml' }, route: 'export' })
-
-  backToFirstStep()
-
-  deepStrictEqual(router.get(), {
-    params: { format: undefined },
-    popups: [],
-    route: 'export'
   })
 })
 

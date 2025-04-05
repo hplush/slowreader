@@ -11,7 +11,7 @@ import { addFeed, type FeedValue } from './feed.ts'
 import { readonlyExport } from './lib/stores.ts'
 import { unique } from './loader/utils.ts'
 import { importMessages } from './messages/index.ts'
-import { createFeedFromUrl } from './preview.ts'
+import { pages } from './pages/index.ts'
 
 let $importedFeedsByCategory = atom<FeedsByCategory>([])
 export const importedFeedsByCategory = readonlyExport($importedFeedsByCategory)
@@ -65,6 +65,33 @@ const addFeedsToLoading = (feedUrls: string[]): void => {
     currentLoadingFeeds[feedUrl] = true
   })
   $importLoadingFeeds.set(currentLoadingFeeds)
+}
+
+export async function createFeedFromUrl(
+  url: string,
+  categoryId: string = 'general'
+): Promise<FeedValue> {
+  let addPage = pages.add()
+  try {
+    await addPage.setUrl(url)
+
+    let candidate = addPage.sortedCandidates.get().find(i => i.url === url)
+    if (!candidate) {
+      throw new Error('No suitable loader found for the given URL')
+    }
+
+    return {
+      categoryId,
+      id: nanoid(),
+      lastPublishedAt: Date.now() / 1000,
+      loader: candidate.name,
+      reading: 'fast',
+      title: candidate.title,
+      url
+    }
+  } finally {
+    addPage.exit()
+  }
 }
 
 const processFeed = async (

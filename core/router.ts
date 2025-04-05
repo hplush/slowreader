@@ -1,6 +1,6 @@
-import { atom, computed, type ReadableAtom } from 'nanostores'
+import { atom, type ReadableAtom } from 'nanostores'
 
-import { getEnvironment, onEnvironment } from './environment.ts'
+import { onEnvironment } from './environment.ts'
 import { fastCategories } from './fast.ts'
 import { hasFeeds } from './feed.ts'
 import { computeFrom, readonlyExport } from './lib/stores.ts'
@@ -244,51 +244,6 @@ export function isGuestRoute(route: Route): boolean {
 export function isOtherRoute(route: Route): boolean {
   return SETTINGS.has(route.route) || ORGANIZE.has(route.route)
 }
-
-export function backToFirstStep(): void {
-  let back = backRoute.get()
-  if (back) {
-    getEnvironment().openRoute(back)
-  }
-}
-
-// TODO: Remove on moving to popups
-export const backRoute = computed(
-  $router,
-  ({ params, route }): Route | undefined => {
-    if (route === 'add' && params.candidate) {
-      return {
-        params: { candidate: undefined, url: params.url },
-        popups: [],
-        route: 'add'
-      }
-    } else if (route === 'categories' && params.feed) {
-      return {
-        params: {},
-        popups: [],
-        route: 'categories'
-      }
-    } else if (route === 'fast' && params.post) {
-      return {
-        params: { category: params.category },
-        popups: [],
-        route: 'fast'
-      }
-    } else if (route === 'slow' && params.post) {
-      return {
-        params: { feed: params.feed },
-        popups: [],
-        route: 'slow'
-      }
-    } else if (route === 'export' && params.format) {
-      return {
-        params: { format: undefined },
-        popups: [],
-        route: 'export'
-      }
-    }
-  }
-)
 
 export function onNextRoute(cb: (route: Route) => void): void {
   let unbind = $router.listen(route => {
