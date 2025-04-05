@@ -18,9 +18,9 @@ export function underConstruction<Name extends RouteName>(
   params: (keyof Routes[Name])[]
 ): PageCreator<Name> {
   return createPage(route, () => {
-    let result = {} as BasePage<Name>
+    let result = { params: {} } as BasePage<Name>
     for (let param of params) {
-      result[param] = atom()
+      result.params[param] = atom()
     }
     result.underConstruction = true
     return result

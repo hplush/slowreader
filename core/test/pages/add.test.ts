@@ -331,10 +331,10 @@ test('always keep the same order of candidates', async () => {
 })
 
 test('changes URL during typing in the field', async () => {
-  equal(pages.add().url.get(), undefined)
+  equal(pages.add().params.url.get(), undefined)
 
   pages.add().setUrl('')
-  equal(pages.add().url.get(), undefined)
+  equal(pages.add().params.url.get(), undefined)
 
   expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('https://example.com/feed').andRespond(404)
@@ -342,14 +342,14 @@ test('changes URL during typing in the field', async () => {
   expectRequest('https://example.com/feed.json').andRespond(404)
   expectRequest('https://example.com/rss').andRespond(404)
   pages.add().setUrl('example.com')
-  equal(pages.add().url.get(), 'https://example.com')
+  equal(pages.add().params.url.get(), 'https://example.com')
   await setTimeout(10)
 
   pages.add().inputUrl('other')
-  equal(pages.add().url.get(), 'https://example.com')
+  equal(pages.add().params.url.get(), 'https://example.com')
 
   pages.add().inputUrl('other.')
-  equal(pages.add().url.get(), 'https://example.com')
+  equal(pages.add().params.url.get(), 'https://example.com')
 
   expectRequest('https://other.net').andRespond(200, '<html>Nothing</html>')
   expectRequest('https://other.net/feed').andRespond(404)
@@ -358,7 +358,7 @@ test('changes URL during typing in the field', async () => {
   expectRequest('https://other.net/rss').andRespond(404)
   pages.add().inputUrl('other.net')
   await setTimeout(500)
-  equal(pages.add().url.get(), 'https://other.net')
+  equal(pages.add().params.url.get(), 'https://other.net')
 
   expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('https://example.com/feed').andRespond(404)
@@ -368,11 +368,11 @@ test('changes URL during typing in the field', async () => {
   pages.add().inputUrl('other.net/some')
   pages.add().setUrl('example.com')
   await setTimeout(500)
-  equal(pages.add().url.get(), 'https://example.com')
+  equal(pages.add().params.url.get(), 'https://example.com')
 
   pages.add().inputUrl('')
   await setTimeout(500)
-  equal(pages.add().url.get(), undefined)
+  equal(pages.add().params.url.get(), undefined)
 })
 
 test('starts from HTTPS and then try HTTP', async () => {

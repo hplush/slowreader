@@ -13,9 +13,10 @@ type ParamStores<Name extends RouteName> = {
 export type BasePage<Name extends RouteName = RouteName> = {
   destroy(): void
   readonly loading: ReadableAtom<boolean>
+  params: ParamStores<Name>
   readonly route: Name
   underConstruction?: boolean // TODO: Remove after refactoring
-} & ParamStores<Name>
+}
 
 export interface PageCreator<
   Name extends RouteName,
@@ -27,7 +28,7 @@ export interface PageCreator<
 
 export function createPage<Name extends RouteName, Rest extends Extra>(
   route: Name,
-  builder: () => ParamStores<Name> & Rest
+  builder: () => { params: ParamStores<Name> } & Rest
 ): PageCreator<Name, Rest> {
   let creator: PageCreator<Name, Rest> = () => {
     if (!creator.cache) {
@@ -50,5 +51,5 @@ export function createPage<Name extends RouteName, Rest extends Extra>(
 export function createSimplePage<Name extends ParamlessRouteName>(
   route: Name
 ): PageCreator<Name> {
-  return createPage(route, () => ({}) as ParamStores<Name>)
+  return createPage(route, () => ({ params: {} as ParamStores<Name> }))
 }

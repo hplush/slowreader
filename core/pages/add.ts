@@ -198,15 +198,17 @@ export const add = createPage('add', () => {
   })
 
   return {
-    candidate: atom<string | undefined>(), // TODO: Remove to popups
     candidatesLoading: $candidatesLoading,
     error: $error,
     exit,
     inputUrl,
     noResults: $noResults,
+    params: {
+      candidate: atom<string | undefined>(), // TODO: Remove to popups
+      url: $url
+    },
     setUrl,
-    sortedCandidates: $sortedCandidates,
-    url: $url
+    sortedCandidates: $sortedCandidates
   }
 })
 

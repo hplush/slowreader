@@ -4,10 +4,6 @@ import { getEnvironment } from './environment.ts'
 import { type Page, pages } from './pages/index.ts'
 import { type Route, router } from './router.ts'
 
-function isStore(store: unknown): store is WritableStore {
-  return typeof store === 'object' && store !== null && 'listen' in store
-}
-
 function eachParam<SomeRoute extends Route>(
   page: Page<SomeRoute['route']>,
   route: SomeRoute,
@@ -21,10 +17,9 @@ function eachParam<SomeRoute extends Route>(
   for (let i in params) {
     let name = i as keyof SomeRoute['params']
     let value = params[name]
-    let store = page[name]
-    if (isStore(store)) {
-      iterator(store, name, value)
-    }
+    // @ts-expect-error Too complex types for TS
+    let store = page.params[name] as WritableStore<SomeRoute['params'][Param]>
+    iterator(store, name, value)
   }
 }
 

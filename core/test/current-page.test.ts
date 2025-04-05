@@ -88,18 +88,18 @@ test('synchronizes params', async () => {
     params: { candidate: undefined, url: undefined },
     route: 'add'
   })
-  equal(pages.add().url.get(), undefined)
-  equal(pages.add().candidate.get(), undefined)
+  equal(pages.add().params.url.get(), undefined)
+  equal(pages.add().params.candidate.get(), undefined)
 
-  pages.add().url.set('https://example.com')
+  pages.add().params.url.set('https://example.com')
   await setTimeout(1)
   deepStrictEqual(router.get(), {
     params: { candidate: undefined, url: 'https://example.com' },
     popups: [],
     route: 'add'
   })
-  equal(pages.add().url.get(), 'https://example.com')
-  equal(pages.add().candidate.get(), undefined)
+  equal(pages.add().params.url.get(), 'https://example.com')
+  equal(pages.add().params.candidate.get(), undefined)
 
   setBaseTestRoute({
     params: { candidate: undefined, url: 'https://other.com' },
@@ -111,11 +111,11 @@ test('synchronizes params', async () => {
     popups: [],
     route: 'add'
   })
-  equal(pages.add().url.get(), 'https://other.com')
-  equal(pages.add().candidate.get(), undefined)
+  equal(pages.add().params.url.get(), 'https://other.com')
+  equal(pages.add().params.candidate.get(), undefined)
 
   setBaseTestRoute({ params: {}, route: 'notFound' })
-  pages.add().url.set('https://example.com')
+  pages.add().params.url.set('https://example.com')
   await setTimeout(1)
   deepStrictEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
 })
