@@ -1,13 +1,4 @@
 import { comfortMode, theme } from '@slowreader/core'
-import {
-  focusGroupKeyUX,
-  hiddenKeyUX,
-  hotkeyKeyUX,
-  jumpKeyUX,
-  likelyWithKeyboard,
-  pressKeyUX,
-  startKeyUX
-} from 'keyux'
 
 import { locale } from '../stores/locale.ts'
 
@@ -39,21 +30,9 @@ locale.subscribe(lang => {
   root.lang = lang
 })
 
-if (!likelyWithKeyboard(window)) {
-  root.classList.add('is-hotkey-disabled')
-}
-
 window.addEventListener('load', () => {
   updateTheme()
 })
-
-startKeyUX(window, [
-  pressKeyUX('is-pseudo-active'),
-  hotkeyKeyUX(),
-  focusGroupKeyUX(),
-  jumpKeyUX(),
-  hiddenKeyUX()
-])
 
 window.addEventListener('load', () => {
   import('./devtools.ts').then(() => {})

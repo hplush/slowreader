@@ -1,8 +1,4 @@
-<script lang="ts">
-  import { commonMessages as t } from '@slowreader/core'
-</script>
-
-<div class="busy">{$t.loading}</div>
+<div class="busy"></div>
 
 <style>
   :global {

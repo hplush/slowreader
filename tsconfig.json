@@ -16,12 +16,5 @@
     "types": ["chrome", "node"]
   },
   "include": ["**/*.ts", "**/*.cts", "web/**/*.svelte", "web/.storybook/*.ts"],
-  "exclude": ["*/dist"],
-  "ts-node": {
-    "compilerOptions": {
-      "module": "ESNext",
-      "moduleResolution": "Node",
-      "esModuleInterop": true
-    }
-  }
+  "exclude": ["*/dist", "web-archive/**/*"]
 }

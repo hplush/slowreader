@@ -34,14 +34,11 @@
     "@slowreader/core": "workspace:*",
     "@sveltejs/vite-plugin-svelte": "5.0.3",
     "autoprefixer": "10.4.21",
-    "keyux": "0.11.1",
-    "nanoid": "5.1.5",
     "nanostores": "0.11.4",
     "postcss": "8.5.3",
     "postcss-load-config": "6.0.1",
     "rollup": "4.38.0",
     "svelte": "5.25.4",
-    "ts-node": "10.9.2",
     "vite": "6.2.4"
   },
   "devDependencies": {

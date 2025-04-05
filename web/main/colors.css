@@ -1,117 +1,21 @@
 :root {
-  --accent-color: oklch(0.72 0.15 240);
   --focus-color: var(--accent-color);
-  --fire1-color: oklch(0.7 0.15 65);
-  --fire2-color: oklch(0.58 0.2 29);
-  --error-color: oklch(0.6 0.2 25);
-  --flat-hover-color: oklch(from var(--land-color) calc(l + 0.02) c h);
-  --flat-current-color: oklch(from var(--land-color) calc(l + 0.03) calc(c / 2) h);
-  --card-color: oklch(from var(--land-color) calc(l + 0.03) calc(c / 2) h);
-  --below-1-shadow:
-    inset 0 0.3px 0.5px var(--shadow-color),
-    inset 0 0.6px 1px var(--shadow-color),
-    inset 0 1.2px 2px var(--shadow-color);
-  --above-1-shadow:
-    0 0.3px 0.5px var(--shadow-color),
-    0 0.6px 1px var(--shadow-color),
-    0 1.2px 2px var(--shadow-color);
-  --above-2-shadow: todo;
 
   @media (prefers-color-scheme: light) {
     --text-color: oklch(0.15 0 0);
-    --secondary-text-color: oklch(0.5 0 0);
-    --hotkey-color: oklch(0.7 0 0);
     --land-color: oklch(0.95 0 70);
-    --shadow-color: oklch(from var(--land-color) 0.65 calc(c * 2) h / 45%);
-    --border-color: oklch(0 0 0 / 15%);
-    --above-secondary-color: oklch(from var(--land-color) 0.93 c h);
-    --hover-color: color-mix(in oklch, var(--neutral-50), var(--sand-50));
-    --card-shadow: var(--above-1-shadow);
-    --card-item-above-shadow: inset 0 1px 2px oklch(from var(--shadow-color) l c h / 20%);
-    --card-item-pressed-shadow:
-      inset -2px 0 0 var(--land-color),
-      inset 2px 0 0 var(--land-color),
-      5px 0 0 var(--land-color),
-      -5px 0 0 var(--land-color);
-    --dangerous-card-color: oklch(0.96 0.016 22);
-    --dangerous-card-hover-color: oklch(0.97 0.013 41);
-    --dangerous-text-color: oklch(0.53 0.116 20);
-    --button-shadow:
-      0 0 0 1px oklch(0 0 0 / 15%),
-      inset 0 -5px 5px oklch(from var(--shadow-color) l c h / 8%);
-    --button-active-shadow:
-      inset 0 1px 2px oklch(from var(--shadow-color) l c h / 15%),
-      inset 0 2px 5px oklch(from var(--shadow-color) l c h / 15%),
-      0 -1px oklch(0 0 0 / 20%),
-      0 1px oklch(1 0 0),
-      inset 0 -5px 5px oklch(from var(--shadow-color) l c h / 8%);
-    --button-pressed-shadow:
-      inset 0 1px 1px oklch(from var(--shadow-color) l c h / 10%),
-      inset 0 1px 3px oklch(from var(--shadow-color) l c h / 10%),
-      0 -1px oklch(0 0 0 / 20%),
-      0 1px oklch(1 0 0),
-      inset 0 -5px 5px oklch(from var(--shadow-color) l c h / 8%);
-    --flat-active-shadow:
-      inset 0 1px 2px oklch(from var(--shadow-color) l c h / 15%),
-      0 -1px oklch(0 0 0 / 20%);
-    --field-color: oklch(1 0 0);
-    --field-shadow: inset 0 1px 2px oklch(from var(--shadow-color) l c h / 8%);
-    --link-color: oklch(0.52 0.115 240);
-    --link-color-visited: oklch(0.53 0.116 320);
-    --inline-code-color: oklch(0.92 0 0 / 55%);
 
     &.is-comfort-mode {
       --land-color: oklch(0.95 0.02 70);
-      --hover-color: color-mix(in oklch, var(--sand-50), var(--neutral-50));
     }
   }
 
   @media (prefers-color-scheme: dark) {
     --text-color: oklch(0.98 0 0);
-    --secondary-text-color: oklch(0.6 0 0);
-    --hotkey-color: oklch(0.5 0 0);
     --land-color: oklch(0.25 0 70);
-    --shadow-color: oklch(0 0 0 / 80%);
-    --above-secondary-color: oklch(from var(--land-color) 0.3 c h);
-    --border-color: oklch(1 0 0 / 15%);
-    --hover-color: oklch(0.35 0 0);
-    --card-shadow: 0 1px 2px oklch(0 0 0), inset 0 1px oklch(1 0 0 / 10%);
-    --card-item-above-shadow: inset 0 1px 2px oklch(0 0 0);
-    --card-item-pressed-shadow:
-      inset -2px 0 0 var(--land-color),
-      inset 2px 0 0 var(--land-color),
-      5px 0 0 var(--land-color),
-      -5px 0 0 var(--land-color),
-      inset 0 1px 2px oklch(0 0 0);
-    --dangerous-card-color: oklch(0.31 0.065 20);
-    --dangerous-card-hover-color: oklch(0.36 0.079 20);
-    --dangerous-text-color: oklch(0.92 0.04 20);
-    --button-shadow:
-      inset 0 0 0 1px oklch(1 0 0 / 8%),
-      inset 0 -5px 5px oklch(0 0 0 / 20%),
-      0 1px 1px oklch(0 0 0);
-    --button-active-shadow:
-      inset 0 0 1px oklch(1 0 0 / 30%),
-      inset 0 1px 2px oklch(0 0 0 / 60%),
-      inset 0 2px 5px oklch(0 0 0 / 60%),
-      0 1px oklch(1 0 0 / 20%),
-      inset 0 -5px 5px oklch(0 0 0 / 10%);
-    --button-pressed-shadow:
-      inset 0 0 1px oklch(1 0 0 / 30%),
-      inset 0 1px 1px oklch(0 0 0 / 50%),
-      inset 0 1px 4px oklch(0 0 0 / 50%),
-      0 1px oklch(1 0 0 / 20%),
-      inset 0 -5px 5px oklch(0 0 0 / 20%);
-    --flat-active-shadow: inset 0 1px 2px oklch(0 0 0 / 80%);
-    --field-color: oklch(0.36 0 0);
-    --field-shadow: inset 0 1px 2px oklch(0 0 0 / 60%);
-    --link-color: oklch(0.78 0.114 240);
-    --link-color-visited: oklch(0.8 0.114 320);
-    --inline-code-color: oklch(0.41 0.007 264 / 60%);
 
     &.is-comfort-mode {
       --land-color: oklch(0.25 0.02 70);
-      --hover-color: oklch(0.35 0.012 78);
     }
   }
 }

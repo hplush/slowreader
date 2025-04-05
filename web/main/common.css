@@ -1,13 +1,3 @@
 :root {
-  --padding-s: 4px;
-  --padding-m: 8px;
-  --padding-l: 16px;
-  --padding-xl: 24px;
   --base-font: 1rem/1.6 system-ui;
-  --secondary-font: 0.9rem/1.6 system-ui;
-  --control-font: bold 1rem/1.6 system-ui;
-  --page-title-font: 1.4rem serif;
-  --card-title-font: bold 1.476em/1.35 system-ui;
-  --hotkey-font: bold 0.9rem/1 system-ui;
-  --radius: 8px;
 }
