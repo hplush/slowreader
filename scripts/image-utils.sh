@@ -2,7 +2,7 @@
 # Common functions for testing production environments with Podman or Docker
 
 ERROR='\033[0;31m'
-WARNING='\033[0;33m'
+WARN='\033[0;33m'
 NC='\033[0m' # No Color
 
 command_exists() {
@@ -42,7 +42,7 @@ build_and_run() {
 
   SIZE=$($tool image inspect "$IMAGE_ID" --format='{{.Size}}' | \
     awk '{printf "%d MB", $1/1024/1024}')
-  echo -e "${WARNING}Image size: ${SIZE}${NC}"
+  echo -e "${WARN}Image size: ${SIZE}${NC}"
 
   run_container "$tool" "$port" "$envs" "$IMAGE_ID"
 }

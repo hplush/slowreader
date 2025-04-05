@@ -1,7 +1,7 @@
 # Creates development machine inside docker
 # so every developer will have the same environment
 
-FROM registry.fedoraproject.org/fedora:41
+FROM registry.fedoraproject.org/fedora:41@sha256:cbef6c8fc103b74f38584340e18d5646c03fd1a093f31e060e7c2c66f00b1184
 
 ARG TARGETARCH
 
@@ -17,8 +17,7 @@ ENV PINACT_VERSION 3.0.1
 ENV PINACT_CHECKSUM_X64 f4f35e2dc4cf1243cd0e8d3bc0b49c8b30c388d1dcae5907afcd97b00ddb556e
 ENV PINACT_CHECKSUM_ARM64 b319fc572c3fae75a2744732d9c943d1b7402e1a43a3aabd8ab72f2feb1454f7
 
-RUN dnf update -yq \
-  && dnf install -yq zsh eza bat micro git tig ripgrep iputils \
+RUN dnf install -yq zsh eza bat micro git tig ripgrep iputils \
     psmisc procps-ng difftastic \
   && dnf clean all \
   && rm -rf /var/cache/dnf
