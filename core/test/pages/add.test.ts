@@ -1,6 +1,5 @@
 import '../dom-parser.ts'
 
-import { restoreAll, spyOn } from 'nanospy'
 import { keepMount } from 'nanostores'
 import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
@@ -28,7 +27,6 @@ beforeEach(() => {
 
 afterEach(async () => {
   await cleanClientTest()
-  restoreAll()
   pages.add().exit()
   checkAndRemoveRequestMock()
 })
@@ -65,23 +63,6 @@ test('validates URL', () => {
   equal(pages.add().error.get(), 'invalidUrl')
 
   equal(pages.add().noResults.get(), false)
-})
-
-test('uses HTTPS for specific domains', async () => {
-  keepMount(pages.add().candidatesLoading)
-  keepMount(pages.add().sortedCandidates)
-  spyOn(loaders.rss, 'getMineLinksFromText', () => [])
-  spyOn(loaders.atom, 'getMineLinksFromText', () => [])
-  spyOn(loaders.jsonFeed, 'getMineLinksFromText', () => [])
-  spyOn(loaders.rss, 'getSuggestedLinksFromText', () => [])
-  spyOn(loaders.atom, 'getSuggestedLinksFromText', () => [])
-  spyOn(loaders.jsonFeed, 'getSuggestedLinksFromText', () => [])
-
-  expectRequest('https://twitter.com/blog').andRespond(200, '')
-  await pages.add().setUrl('twitter.com/blog')
-
-  expectRequest('https://twitter.com/blog').andRespond(200, '')
-  await pages.add().setUrl('http://twitter.com/blog')
 })
 
 test('cleans state', async () => {

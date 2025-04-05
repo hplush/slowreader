@@ -15,8 +15,6 @@ import {
 } from '../loader/index.ts'
 import { createPage } from './common.ts'
 
-const ALWAYS_HTTPS = [/^twitter\.com\//]
-
 export type AddLinksValue = Record<
   string,
   | {
@@ -131,17 +129,10 @@ export const add = createPage('add', () => {
     url = url.trim()
     if (url === '') return
 
-    if (url.startsWith('http://')) {
-      let methodLess = url.slice('http://'.length)
-      if (ALWAYS_HTTPS.some(i => i.test(methodLess))) {
-        url = 'https://' + methodLess
-      }
-    } else if (!url.startsWith('https://')) {
+    if (!url.startsWith('https://') && !url.startsWith('http://')) {
       if (/^\w+:/.test(url)) {
         $links.setKey(url, { error: 'invalidUrl', state: 'invalid' })
         return
-      } else if (ALWAYS_HTTPS.some(i => i.test(url))) {
-        url = 'https://' + url
       } else {
         url = 'http://' + url
       }
