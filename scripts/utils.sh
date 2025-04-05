@@ -1,12 +1,26 @@
 #!/bin/bash
 # Common functions for testing production environments with Podman or Docker
 
+GOOD='\033[0;32m\033[1m'
+BAD='\033[0;31m\033[1m'
 ERROR='\033[0;31m'
 WARN='\033[0;33m'
-NC='\033[0m' # No Color
+NOTE='\033[0;90m'
+NC='\033[0m'
 
 command_exists() {
   command -v "$1" >/dev/null 2>&1
+}
+
+get_container_tool() {
+  if command_exists podman; then
+    echo "podman"
+  elif command_exists docker; then
+    echo "docker"
+  else
+    echo -e "${ERROR}No Podman or Docker found${NC}" >&2
+    exit 1
+  fi
 }
 
 run_container() {
@@ -22,16 +36,7 @@ build_and_run() {
   local port=$1
   local envs=$2
 
-  # Select container tool (podman or docker)
-  local tool
-  if command_exists podman; then
-    tool="podman"
-  elif command_exists docker; then
-    tool="docker"
-  else
-    echo -e "${ERROR}Install Podman or Docker${NC}"
-    exit 1
-  fi
+  local tool=$(get_container_tool)
 
   echo "Building image with $tool"
   BUILD_OUTPUT=$($tool build . 2>&1) || {

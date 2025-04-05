@@ -1,10 +1,10 @@
 #!/bin/bash
 
-GOOD='\033[0;32m\033[1m'
-BAD='\033[0;31m\033[1m'
-WARN='\033[0;33m'
-GRAY='\033[0;90m'
-NC='\033[0m'
+set -e
+
+source "$(dirname "$0")/utils.sh"
+
+tool=$(get_container_tool)
 
 find . -type f -name Dockerfile -print0 | while IFS= read -r -d $'\0' dockerfile; do
   made_change_in_file=0
@@ -29,11 +29,11 @@ find . -type f -name Dockerfile -print0 | while IFS= read -r -d $'\0' dockerfile
       current_digest="${image_ref##*@}"
     fi
 
-    if ! podman pull --quiet "$image_tag_part" > /dev/null 2>&1; then
+    if ! $tool pull --quiet "$image_tag_part" > /dev/null 2>&1; then
       echo -e "  ${WARN}Failed to pull $image_tag_part${NC}"
     fi
 
-    latest_digest=$(podman image inspect "$image_tag_part" --format '{{.Digest}}' 2>/dev/null)
+    latest_digest=$($tool image inspect "$image_tag_part" --format '{{.Digest}}' 2>/dev/null)
 
     if [[ -z "$latest_digest" ]]; then
       echo -e "  ${BAD}Could not get digest for $image_tag_part${NC}"
@@ -52,7 +52,7 @@ find . -type f -name Dockerfile -print0 | while IFS= read -r -d $'\0' dockerfile
         made_change_in_file=1
       fi
     else
-      echo -e "  ${GRAY}Already pinned to the latest digest${NC}"
+      echo -e "  ${NOTE}Already pinned to the latest digest${NC}"
     fi
   done
   echo ""
