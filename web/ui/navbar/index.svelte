@@ -17,7 +17,7 @@
   import { getURL } from '../../stores/router.ts'
   import Hotkey from '../hotkey.svelte'
   import Icon from '../icon.svelte'
-  import NavbarFireplace from '../navbar/fireplace.svelte'
+  import NavbarFireplace from './fireplace.svelte'
   import NavbarFast from './fast.svelte'
   import NavbarItem from './item.svelte'
   import NavbarOther from './other.svelte'
