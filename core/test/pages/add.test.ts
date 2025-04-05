@@ -181,8 +181,8 @@ test('is ready for empty title', async () => {
   let atom = '<feed><title></title></feed>'
   expectRequest('https://other.com/atom').andRespond(200, atom, 'text/xml')
 
-  await pages.add().setUrl('example.com')
-  equal(pages.add().candidatesLoading.get(), false)
+  pages.add().setUrl('example.com')
+  await waitLoading(pages.add().candidatesLoading)
   equal(pages.add().error.get(), undefined)
   equalWithText(pages.add().sortedCandidates.get(), [
     {
@@ -379,9 +379,7 @@ test('starts from HTTPS and then try HTTP', async () => {
     200,
     '<feed><title></title></feed>'
   )
-  pages.add().setUrl('example.com/feed')
-
-  await setTimeout(10)
+  await pages.add().setUrl('example.com/feed')
   equal(pages.add().candidatesLoading.get(), false)
   equal(pages.add().error.get(), undefined)
   equalWithText(pages.add().sortedCandidates.get(), [
@@ -394,7 +392,8 @@ test('starts from HTTPS and then try HTTP', async () => {
   ])
 
   expectRequest('https://example.com/feed').andRespond(500)
-  await pages.add().setUrl('https://example.com/feed')
+  pages.add().setUrl('https://example.com/feed')
+  await waitLoading(pages.add().candidatesLoading)
   equal(pages.add().candidatesLoading.get(), false)
   equal(pages.add().error.get(), 'unloadable')
 })

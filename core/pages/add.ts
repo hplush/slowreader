@@ -140,13 +140,13 @@ export const add = createPage('add', () => {
       }
     }
 
-    function unloadable(e: unknown): void {
+    async function unloadable(e: unknown): Promise<void> {
       // Useful for end-users
       // eslint-disable-next-line no-console
       console.error(e)
       $links.setKey(url, { state: 'unloadable' })
       if (httpsGuest) {
-        setUrl(url.replace('https://', 'http://'))
+        await setUrl(url.replace('https://', 'http://'))
       }
     }
 
@@ -163,11 +163,11 @@ export const add = createPage('add', () => {
       try {
         response = await task.text(url)
       } catch (e) {
-        unloadable(e)
+        await unloadable(e)
         return
       }
       if (!response.ok) {
-        unloadable(new Error(response.text))
+        await unloadable(new Error(response.text))
       } else {
         let byText = getLoaderForText(response)
         if (!deep) {
