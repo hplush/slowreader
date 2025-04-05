@@ -159,7 +159,10 @@ export const add = createPage('add', () => {
       let response
       try {
         response = await task.text(url)
-      } catch {
+      } catch (e) {
+        // Useful for end-users
+        // eslint-disable-next-line no-console
+        console.error(e)
         $links.setKey(url, { state: 'unloadable' })
         return
       }
