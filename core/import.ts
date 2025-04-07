@@ -8,7 +8,7 @@ import {
 } from './category.ts'
 import type { InternalExport } from './export.ts'
 import { addFeed, type FeedValue } from './feed.ts'
-import { readonlyExport } from './lib/stores.ts'
+import { readonlyExport, waitLoading } from './lib/stores.ts'
 import { unique } from './loader/utils.ts'
 import { importMessages } from './messages/index.ts'
 import { pages } from './pages/index.ts'
@@ -73,7 +73,8 @@ export async function createFeedFromUrl(
 ): Promise<FeedValue> {
   let addPage = pages.add()
   try {
-    await addPage.setUrl(url)
+    addPage.params.url.set(url)
+    await waitLoading(addPage.searching)
 
     let candidate = addPage.candidates.get().find(i => i.url === url)
     if (!candidate) {

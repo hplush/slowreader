@@ -14,7 +14,7 @@ function eachParam<SomeRoute extends Route>(
   ) => void
 ): void {
   let params = route.params as SomeRoute['params']
-  for (let i in params) {
+  for (let i in page.params) {
     let name = i as keyof SomeRoute['params']
     let value = params[name]
     // @ts-expect-error Too complex types for TS

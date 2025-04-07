@@ -1,7 +1,7 @@
 import '../dom-parser.ts'
 
 import { keepMount } from 'nanostores'
-import { deepStrictEqual, equal } from 'node:assert'
+import { deepStrictEqual, equal, notEqual } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -11,12 +11,12 @@ import {
   type FeedLoader,
   loaders,
   mockRequest,
-  pages,
+  router,
   setBaseTestRoute,
   setIsMobile,
   waitLoading
 } from '../../index.ts'
-import { cleanClientTest, enableClientTest } from '../utils.ts'
+import { cleanClientTest, enableClientTest, openPage } from '../utils.ts'
 
 beforeEach(() => {
   setIsMobile(false)
@@ -28,15 +28,14 @@ beforeEach(() => {
     }
   })
   mockRequest()
-  setBaseTestRoute({
-    params: { candidate: undefined, url: undefined },
-    route: 'add'
-  })
 })
 
 afterEach(async () => {
+  openPage({
+    params: {},
+    route: 'welcome'
+  })
   await cleanClientTest()
-  pages.add().exit()
   checkAndRemoveRequestMock()
 })
 
@@ -50,101 +49,143 @@ function equalWithText(a: FeedLoader[], b: FeedLoader[]): void {
 }
 
 test('empty from beginning', () => {
-  keepMount(pages.add().error)
-  keepMount(pages.add().searching)
-  keepMount(pages.add().candidates)
+  let page1 = openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
+  equal(page1.route, 'add')
+  keepMount(page1.error)
+  keepMount(page1.searching)
+  keepMount(page1.candidates)
 
-  equal(pages.add().error.get(), undefined)
-  equal(pages.add().searching.get(), false)
-  deepStrictEqual(pages.add().candidates.get(), [])
+  equal(page1.error.get(), undefined)
+  equal(page1.searching.get(), false)
+  deepStrictEqual(page1.candidates.get(), [])
 })
 
 test('validates URL', () => {
-  keepMount(pages.add().error)
+  let page = openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
+  keepMount(page.error)
 
-  pages.add().setUrl('mailto:user@example.com')
-  equal(pages.add().error.get(), 'invalidUrl')
+  page.params.url.set('mailto:user@example.com')
+  equal(page.error.get(), 'invalidUrl')
 
-  pages.add().setUrl('http://a b')
-  equal(pages.add().error.get(), 'invalidUrl')
+  page.params.url.set('http://a b')
+  equal(page.error.get(), 'invalidUrl')
 
-  pages.add().setUrl('not URL')
-  equal(pages.add().error.get(), 'invalidUrl')
+  page.params.url.set('not URL')
+  equal(page.error.get(), 'invalidUrl')
 
-  equal(pages.add().noResults.get(), false)
+  equal(page.noResults.get(), false)
 })
 
 test('cleans state', async () => {
-  keepMount(pages.add().error)
-  keepMount(pages.add().candidates)
+  let page1 = openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
+  keepMount(page1.error)
+  keepMount(page1.candidates)
 
   let reply = expectRequest('https://example.com').andWait()
-  pages.add().setUrl('https://example.com')
+  page1.params.url.set('https://example.com')
   await setTimeout(10)
-  pages.add().exit()
-  equal(pages.add().error.get(), undefined)
-  deepStrictEqual(pages.add().candidates.get(), [])
+  openPage({
+    params: {},
+    route: 'welcome'
+  })
+  equal(page1.error.get(), undefined)
+  deepStrictEqual(page1.candidates.get(), [])
   equal(reply.aborted, true)
 
-  pages.add().setUrl('not URL')
-  pages.add().exit()
-  equal(pages.add().error.get(), undefined)
-  deepStrictEqual(pages.add().candidates.get(), [])
+  let page2 = openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
+  keepMount(page2.error)
+  keepMount(page2.candidates)
+  notEqual(page2, page1)
+
+  page2.params.url.set('not URL')
+  openPage({
+    params: {},
+    route: 'welcome'
+  })
+  equal(page2.error.get(), undefined)
+  deepStrictEqual(page2.candidates.get(), [])
 })
 
 test('is ready for network errors', async () => {
-  keepMount(pages.add().searching)
-  keepMount(pages.add().error)
+  let page = openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
+  keepMount(page.searching)
+  keepMount(page.error)
 
   let reply = expectRequest('https://example.com').andWait()
-  pages.add().setUrl('https://example.com')
-  equal(pages.add().searching.get(), true)
-  equal(pages.add().error.get(), undefined)
-  equal(pages.add().noResults.get(), false)
+  page.params.url.set('https://example.com')
+  equal(page.searching.get(), true)
+  equal(page.error.get(), undefined)
+  equal(page.noResults.get(), false)
 
   await reply(404)
-  equal(pages.add().searching.get(), false)
-  equal(pages.add().error.get(), 'unloadable')
-  equal(pages.add().noResults.get(), false)
+  equal(page.searching.get(), false)
+  equal(page.error.get(), 'unloadable')
+  equal(page.noResults.get(), false)
 
-  pages.add().setUrl('')
-  equal(pages.add().searching.get(), false)
-  equal(pages.add().error.get(), undefined)
-  equal(pages.add().noResults.get(), false)
+  page.params.url.set('')
+  equal(page.searching.get(), false)
+  equal(page.error.get(), undefined)
+  equal(page.noResults.get(), false)
 })
 
 test('aborts all HTTP requests on URL change', async () => {
+  let page = openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
   let reply1 = expectRequest('https://example.com').andWait()
-  pages.add().setUrl('https://example.com')
+  page.params.url.set('https://example.com')
 
-  pages.add().setUrl('')
+  page.params.url.set('')
   await setTimeout(10)
   equal(reply1.aborted, true)
 
   let reply2 = expectRequest('https://other.com').andWait()
-  pages.add().setUrl('https://other.com')
+  page.params.url.set('https://other.com')
 
-  pages.add().exit()
+  openPage({
+    params: {},
+    route: 'welcome'
+  })
   await setTimeout(10)
   equal(reply2.aborted, true)
 })
 
 test('detects RSS links', async () => {
-  keepMount(pages.add().searching)
-  keepMount(pages.add().error)
-  keepMount(pages.add().candidates)
+  let page = openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
+  keepMount(page.searching)
+  keepMount(page.error)
+  keepMount(page.candidates)
 
   let loadingChanges: boolean[] = []
-  pages.add().searching.subscribe(() => {
-    loadingChanges.push(pages.add().searching.get())
+  page.searching.subscribe(() => {
+    loadingChanges.push(page.searching.get())
   })
 
   let replyHtml = expectRequest('https://example.com').andWait()
-  pages.add().setUrl('https://example.com')
-  equal(pages.add().searching.get(), true)
-  equal(pages.add().error.get(), undefined)
-  deepStrictEqual(pages.add().candidates.get(), [])
-  equal(pages.add().noResults.get(), false)
+  page.params.url.set('https://example.com')
+  equal(page.searching.get(), true)
+  equal(page.error.get(), undefined)
+  deepStrictEqual(page.candidates.get(), [])
+  equal(page.noResults.get(), false)
 
   let replyRss = expectRequest('https://example.com/news').andWait()
   replyHtml(
@@ -154,17 +195,17 @@ test('detects RSS links', async () => {
       '</head></html>'
   )
   await setTimeout(10)
-  equal(pages.add().searching.get(), true)
-  equal(pages.add().error.get(), undefined)
-  deepStrictEqual(pages.add().candidates.get(), [])
-  equal(pages.add().noResults.get(), false)
+  equal(page.searching.get(), true)
+  equal(page.error.get(), undefined)
+  deepStrictEqual(page.candidates.get(), [])
+  equal(page.noResults.get(), false)
 
   let rss = '<rss><channel><title> News </title></channel></rss>'
   replyRss(200, rss, 'application/rss+xml')
-  await waitLoading(pages.add().searching)
-  equal(pages.add().error.get(), undefined)
+  await waitLoading(page.searching)
+  equal(page.error.get(), undefined)
   deepStrictEqual(loadingChanges, [false, true, false])
-  equalWithText(pages.add().candidates.get(), [
+  equalWithText(page.candidates.get(), [
     {
       loader: loaders.rss,
       name: 'rss',
@@ -172,13 +213,17 @@ test('detects RSS links', async () => {
       url: 'https://example.com/news'
     }
   ])
-  equal(pages.add().noResults.get(), false)
+  equal(page.noResults.get(), false)
 })
 
 test('is ready for empty title', async () => {
-  keepMount(pages.add().searching)
-  keepMount(pages.add().error)
-  keepMount(pages.add().candidates)
+  let page = openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
+  keepMount(page.searching)
+  keepMount(page.error)
+  keepMount(page.candidates)
 
   expectRequest('https://example.com').andRespond(
     200,
@@ -189,10 +234,10 @@ test('is ready for empty title', async () => {
   let atom = '<feed><title></title></feed>'
   expectRequest('https://other.com/atom').andRespond(200, atom, 'text/xml')
 
-  pages.add().setUrl('https://example.com')
-  await waitLoading(pages.add().searching)
-  equal(pages.add().error.get(), undefined)
-  equalWithText(pages.add().candidates.get(), [
+  page.params.url.set('https://example.com')
+  await waitLoading(page.searching)
+  equal(page.error.get(), undefined)
+  equalWithText(page.candidates.get(), [
     {
       loader: loaders.atom,
       name: 'atom',
@@ -203,9 +248,13 @@ test('is ready for empty title', async () => {
 })
 
 test('ignores duplicate links', async () => {
-  keepMount(pages.add().searching)
-  keepMount(pages.add().error)
-  keepMount(pages.add().candidates)
+  let page = openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
+  keepMount(page.searching)
+  keepMount(page.error)
+  keepMount(page.candidates)
 
   expectRequest('https://example.com').andRespond(
     200,
@@ -217,10 +266,10 @@ test('ignores duplicate links', async () => {
   let rss = '<feed><title>Feed</title></feed>'
   expectRequest('https://other.com/atom').andRespond(200, rss, 'text/xml')
 
-  pages.add().setUrl('https://example.com')
-  await waitLoading(pages.add().searching)
-  equal(pages.add().error.get(), undefined)
-  equalWithText(pages.add().candidates.get(), [
+  page.params.url.set('https://example.com')
+  await waitLoading(page.searching)
+  equal(page.error.get(), undefined)
+  equalWithText(page.candidates.get(), [
     {
       loader: loaders.atom,
       name: 'atom',
@@ -231,9 +280,13 @@ test('ignores duplicate links', async () => {
 })
 
 test('looks for popular RSS, Atom and JsonFeed places', async () => {
-  keepMount(pages.add().searching)
-  keepMount(pages.add().error)
-  keepMount(pages.add().candidates)
+  let page = openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
+  keepMount(page.searching)
+  keepMount(page.error)
+  keepMount(page.candidates)
 
   expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
   let atom = '<feed><title></title></feed>'
@@ -242,10 +295,10 @@ test('looks for popular RSS, Atom and JsonFeed places', async () => {
   expectRequest('https://example.com/feed.json').andRespond(404)
   expectRequest('https://example.com/rss').andRespond(404)
 
-  pages.add().setUrl('https://example.com')
-  await waitLoading(pages.add().searching)
-  equal(pages.add().error.get(), undefined)
-  equalWithText(pages.add().candidates.get(), [
+  page.params.url.set('https://example.com')
+  await waitLoading(page.searching)
+  equal(page.error.get(), undefined)
+  equalWithText(page.candidates.get(), [
     {
       loader: loaders.atom,
       name: 'atom',
@@ -256,10 +309,14 @@ test('looks for popular RSS, Atom and JsonFeed places', async () => {
 })
 
 test('shows if unknown URL', async () => {
-  keepMount(pages.add().searching)
-  keepMount(pages.add().error)
-  keepMount(pages.add().candidates)
-  keepMount(pages.add().noResults)
+  let page = openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
+  keepMount(page.searching)
+  keepMount(page.error)
+  keepMount(page.candidates)
+  keepMount(page.noResults)
 
   expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('https://example.com/feed').andRespond(404)
@@ -267,15 +324,19 @@ test('shows if unknown URL', async () => {
   expectRequest('https://example.com/feed.json').andRespond(404)
   expectRequest('https://example.com/rss').andRespond(404)
 
-  pages.add().setUrl('https://example.com')
-  await waitLoading(pages.add().searching)
-  equal(pages.add().error.get(), undefined)
-  deepStrictEqual(pages.add().candidates.get(), [])
-  equal(pages.add().noResults.get(), true)
+  page.params.url.set('https://example.com')
+  await waitLoading(page.searching)
+  equal(page.error.get(), undefined)
+  deepStrictEqual(page.candidates.get(), [])
+  equal(page.noResults.get(), true)
 })
 
 test('always keep the same order of candidates', async () => {
-  keepMount(pages.add().candidates)
+  let page1 = openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
+  keepMount(page1.candidates)
   expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('https://example.com/feed').andRespond(404)
   expectRequest('https://example.com/atom').andRespond(
@@ -293,17 +354,21 @@ test('always keep the same order of candidates', async () => {
     '<rss><channel><title>RSS</title></channel></rss>',
     'application/rss+xml'
   )
-  pages.add().setUrl('https://example.com')
-  await waitLoading(pages.add().searching)
+  page1.params.url.set('https://example.com')
+  await waitLoading(page1.searching)
   deepStrictEqual(
-    pages
-      .add()
-      .candidates.get()
-      .map(i => i.title),
+    page1.candidates.get().map(i => i.title),
     ['Atom', 'JsonFeed', 'RSS']
   )
 
-  pages.add().exit()
+  openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'welcome'
+  })
+  let page2 = openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
   expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('https://example.com/feed').andRespond(404)
   let atom = expectRequest('https://example.com/atom').andWait()
@@ -313,7 +378,7 @@ test('always keep the same order of candidates', async () => {
     '<rss><channel><title>RSS</title></channel></rss>',
     'application/rss+xml'
   )
-  pages.add().setUrl('https://example.com')
+  page2.params.url.set('https://example.com')
   await setTimeout(10)
   atom(200, '<feed><title>Atom</title></feed>', 'application/rss+xml')
   jsonFeed(
@@ -322,65 +387,70 @@ test('always keep the same order of candidates', async () => {
     'application/json'
   )
 
-  await waitLoading(pages.add().searching)
+  await waitLoading(page2.searching)
   deepStrictEqual(
-    pages
-      .add()
-      .candidates.get()
-      .map(i => i.title),
+    page2.candidates.get().map(i => i.title),
     ['Atom', 'JsonFeed', 'RSS']
   )
 })
 
 test('changes URL during typing in the field', async () => {
-  equal(pages.add().params.url.get(), undefined)
+  let page = openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
+  equal(page.params.url.get(), undefined)
 
-  pages.add().setUrl('')
-  equal(pages.add().params.url.get(), undefined)
+  page.params.url.set('')
+  equal(page.params.url.get(), '')
 
   expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('https://example.com/feed').andRespond(404)
   expectRequest('https://example.com/atom').andRespond(404)
   expectRequest('https://example.com/feed.json').andRespond(404)
   expectRequest('https://example.com/rss').andRespond(404)
-  pages.add().setUrl('example.com')
-  equal(pages.add().params.url.get(), 'https://example.com')
+  page.params.url.set('example.com')
+  equal(page.params.url.get(), 'https://example.com')
   await setTimeout(10)
 
-  pages.add().inputUrl('other')
-  equal(pages.add().params.url.get(), 'https://example.com')
+  page.inputUrl('other')
+  equal(page.params.url.get(), 'https://example.com')
 
-  pages.add().inputUrl('other.')
-  equal(pages.add().params.url.get(), 'https://example.com')
+  page.inputUrl('other.')
+  equal(page.params.url.get(), 'https://example.com')
 
   expectRequest('https://other.net').andRespond(200, '<html>Nothing</html>')
   expectRequest('https://other.net/feed').andRespond(404)
   expectRequest('https://other.net/atom').andRespond(404)
   expectRequest('https://other.net/feed.json').andRespond(404)
   expectRequest('https://other.net/rss').andRespond(404)
-  pages.add().inputUrl('other.net')
+  page.inputUrl('other.net')
   await setTimeout(500)
-  equal(pages.add().params.url.get(), 'https://other.net')
+  equal(page.params.url.get(), 'https://other.net')
 
   expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('https://example.com/feed').andRespond(404)
   expectRequest('https://example.com/atom').andRespond(404)
   expectRequest('https://example.com/feed.json').andRespond(404)
   expectRequest('https://example.com/rss').andRespond(404)
-  pages.add().inputUrl('other.net/some')
-  pages.add().setUrl('example.com')
+  page.inputUrl('other.net/some')
+  page.params.url.set('example.com')
   await setTimeout(500)
-  equal(pages.add().params.url.get(), 'https://example.com')
+  equal(page.params.url.get(), 'https://example.com')
 
-  pages.add().inputUrl('')
+  page.inputUrl('')
   await setTimeout(500)
-  equal(pages.add().params.url.get(), undefined)
+  equal(page.params.url.get(), undefined)
 })
 
 test('starts from HTTPS and then try HTTP', async () => {
-  keepMount(pages.add().searching)
-  keepMount(pages.add().error)
-  keepMount(pages.add().candidates)
+  let page = openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
+  keepMount(page.searching)
+  keepMount(page.error)
+  keepMount(page.candidates)
 
   expectRequest('https://example.com/feed').andRespond(500)
   expectRequest('http://example.com/feed').andRespond(
@@ -390,10 +460,11 @@ test('starts from HTTPS and then try HTTP', async () => {
   expectRequest('http://example.com/atom').andRespond(404)
   expectRequest('http://example.com/feed.json').andRespond(404)
   expectRequest('http://example.com/rss').andRespond(404)
-  await pages.add().setUrl('example.com/feed')
-  equal(pages.add().searching.get(), false)
-  equal(pages.add().error.get(), undefined)
-  equalWithText(pages.add().candidates.get(), [
+  page.params.url.set('example.com/feed')
+  await waitLoading(page.searching)
+  equal(page.searching.get(), false)
+  equal(page.error.get(), undefined)
+  equalWithText(page.candidates.get(), [
     {
       loader: loaders.atom,
       name: 'atom',
@@ -403,8 +474,43 @@ test('starts from HTTPS and then try HTTP', async () => {
   ])
 
   expectRequest('https://example.com/feed').andRespond(500)
-  pages.add().setUrl('https://example.com/feed')
-  await waitLoading(pages.add().searching)
-  equal(pages.add().searching.get(), false)
-  equal(pages.add().error.get(), 'unloadable')
+  page.params.url.set('https://example.com/feed')
+  await waitLoading(page.searching)
+  equal(page.searching.get(), false)
+  equal(page.error.get(), 'unloadable')
+})
+
+test('syncs feed URL with app URL', async () => {
+  let page = openPage({
+    params: { candidate: undefined, url: undefined },
+    route: 'add'
+  })
+
+  expectRequest('https://a.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('https://a.com/feed').andRespond(404)
+  expectRequest('https://a.com/atom').andRespond(404)
+  expectRequest('https://a.com/feed.json').andRespond(404)
+  expectRequest('https://a.com/rss').andRespond(404)
+  page.params.url.set('https://a.com')
+  equal(page.params.url.get(), 'https://a.com')
+  deepStrictEqual(router.get().params, {
+    candidate: undefined,
+    url: 'https://a.com'
+  })
+  await waitLoading(page.searching)
+
+  expectRequest('https://b.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('https://b.com/feed').andRespond(404)
+  expectRequest('https://b.com/atom').andRespond(404)
+  expectRequest('https://b.com/feed.json').andRespond(404)
+  expectRequest('https://b.com/rss').andRespond(404)
+  setBaseTestRoute({
+    params: {
+      candidate: undefined,
+      url: 'https://b.com'
+    },
+    route: 'add'
+  })
+  equal(page.params.url.get(), 'https://b.com')
+  await waitLoading(page.searching)
 })

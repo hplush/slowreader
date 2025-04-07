@@ -13,6 +13,7 @@ export type { AddPage } from './add.ts'
 export * from './common.ts'
 
 // TODO: Remove after refactoring
+/* c8 ignore start */
 export function underConstruction<Name extends RouteName>(
   route: Name,
   params: (keyof Routes[Name])[]
@@ -26,6 +27,7 @@ export function underConstruction<Name extends RouteName>(
     return result
   })
 }
+/* c8 ignore end */
 
 export const pages = {
   about: underConstruction('about', []),

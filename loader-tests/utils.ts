@@ -219,7 +219,7 @@ export async function findRSSfromHome(
   let unbindPreview = addPage.candidates.listen(() => {})
   try {
     let homeUrl = feed.homeUrl || getHomeUrl(feed.url)
-    addPage.setUrl(homeUrl)
+    addPage.params.url.set(homeUrl)
     try {
       await timeout(10_000, waitLoading(addPage.searching))
     } catch (e) {

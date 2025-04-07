@@ -65,8 +65,12 @@ export const add = createPage('add', () => {
     })
   })
 
+  let httpsTest = false
   let $searching = computed($links, links => {
-    return Object.keys(links).some(url => links[url]!.state === 'loading')
+    return (
+      httpsTest ||
+      Object.keys(links).some(url => links[url]!.state === 'loading')
+    )
   })
 
   let $noResults = computed(
@@ -76,7 +80,8 @@ export const add = createPage('add', () => {
     }
   )
 
-  function exit(): void {
+  function reset(): void {
+    inputUrl.cancel()
     $links.set({})
     $candidates.set([])
     prevTask?.destroy()
@@ -84,22 +89,26 @@ export const add = createPage('add', () => {
 
   let inputUrl = debounce((value: string) => {
     if (value === '') {
-      exit()
+      $url.set(undefined)
     } else {
       //TODO: currentCandidate.set(undefined)
-      setUrl(value)
+      $url.set(value)
     }
   }, 500)
 
   let prevTask: DownloadTask | undefined
-  async function setUrl(url: string): Promise<void> {
-    if (prevTask) prevTask.destroy()
-    if (url === $url.get()) return
-    inputUrl.cancel()
-    exit()
+  let prevUrl: string | undefined
+  $url.listen(url => {
+    if (url === prevUrl) return
+    prevUrl = url
+    reset()
+    if (!url) return
     prevTask = createDownloadTask({ cache: 'write' })
-    await addLink(prevTask, url)
-  }
+    addLink(prevTask, url)
+    let normalizedUrl = Object.keys($links.get())[0] ?? ''
+    prevUrl = normalizedUrl
+    $url.set(normalizedUrl)
+  })
 
   function getLinksFromText(response: TextResponse): string[] {
     let names = Object.keys(loaders) as LoaderName[]
@@ -141,13 +150,16 @@ export const add = createPage('add', () => {
       }
     }
 
-    async function unloadable(e: unknown): Promise<void> {
+    function unloadable(e: unknown): void {
       if (e instanceof Error) {
         getEnvironment().warn(e)
       }
-      $links.setKey(url, { state: 'unloadable' })
       if (httpsGuest) {
-        await setUrl(url.replace('https://', 'http://'))
+        httpsTest = true
+        $url.set(url.replace(/^https:\/\//, 'http://'))
+        httpsTest = false
+      } else {
+        $links.setKey(url, { state: 'unloadable' })
       }
     }
 
@@ -165,11 +177,11 @@ export const add = createPage('add', () => {
         response = await task.text(url)
       } catch (e) {
         /* c8 ignore next 3 */
-        await unloadable(e)
+        unloadable(e)
         return
       }
       if (!response.ok) {
-        await unloadable(new Error(`${url}: ${response.status}`))
+        unloadable(new Error(`${url}: ${response.status}`))
       } else {
         let byText = getLoaderForText(response)
         if (!deep) {
@@ -193,9 +205,9 @@ export const add = createPage('add', () => {
     }
   }
 
-  $links.listen(links => {
-    $url.set(Object.keys(links)[0] ?? undefined)
-  })
+  // $links.listen(links => {
+  //   $url.set(Object.keys(links)[0] ?? undefined)
+  // })
 
   // TODO: Remove to popups
   let $candidate = atom<string | undefined>()
@@ -208,15 +220,16 @@ export const add = createPage('add', () => {
   return {
     candidates: $sortedCandidates,
     error: $error,
-    exit,
+    exit() {
+      reset()
+    },
     inputUrl,
     noResults: $noResults,
     params: {
       candidate: $candidate,
       url: $url
     },
-    searching: $searching,
-    setUrl
+    searching: $searching
   }
 })
 

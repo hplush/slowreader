@@ -4,8 +4,10 @@ import { fail } from 'node:assert'
 import {
   addPopup,
   type BasePopup,
+  type BaseRoute,
   Category,
   client,
+  currentPage,
   enableTestTime,
   type EnvironmentAndStore,
   fastCategories,
@@ -14,6 +16,7 @@ import {
   getEnvironment,
   getTestEnvironment,
   openedPopups,
+  type Page,
   type Popup,
   type PopupName,
   Post,
@@ -117,4 +120,15 @@ export function checkLoadedPopup<SomePopup extends BasePopup>(
     throw new Error('Popup data was not found')
   }
   return popup as Loaded<SomePopup>
+}
+
+export function openPage<SomeRoute extends BaseRoute | Omit<BaseRoute, 'hash'>>(
+  route: SomeRoute
+): Page<SomeRoute['route']> {
+  setBaseTestRoute(route)
+  let page = currentPage.get()
+  if (page.route !== route.route) {
+    throw new Error(`Current is ${page.route}, but ${route.route} was expected`)
+  }
+  return page as Page<SomeRoute['route']>
 }
