@@ -101,6 +101,9 @@ test('cleans state', async () => {
   deepStrictEqual(page1.candidates.get(), [])
   equal(reply.aborted, true)
 
+  page1.params.url.set('https://other.com')
+  equal(page1.searching.get(), false)
+
   let page2 = openPage({
     params: { candidate: undefined, url: undefined },
     route: 'add'

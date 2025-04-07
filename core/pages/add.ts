@@ -98,7 +98,7 @@ export const add = createPage('add', () => {
 
   let prevTask: DownloadTask | undefined
   let prevUrl: string | undefined
-  $url.listen(url => {
+  let unbindUrl = $url.listen(url => {
     if (url === prevUrl) return
     prevUrl = url
     reset()
@@ -205,13 +205,9 @@ export const add = createPage('add', () => {
     }
   }
 
-  // $links.listen(links => {
-  //   $url.set(Object.keys(links)[0] ?? undefined)
-  // })
-
   // TODO: Remove to popups
   let $candidate = atom<string | undefined>()
-  $candidates.listen(candidates => {
+  let unbindCandidates = $candidates.listen(candidates => {
     if (candidates[0] && !isMobile.get() && !$candidate.get()) {
       $candidate.set(candidates[0].url)
     }
@@ -221,6 +217,8 @@ export const add = createPage('add', () => {
     candidates: $sortedCandidates,
     error: $error,
     exit() {
+      unbindUrl()
+      unbindCandidates()
       reset()
     },
     inputUrl,
