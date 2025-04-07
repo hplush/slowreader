@@ -91,7 +91,7 @@ export async function createFeedFromUrl(
       url
     }
   } finally {
-    addPage.exit()
+    addPage.destroy()
   }
 }
 

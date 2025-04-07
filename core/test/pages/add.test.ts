@@ -50,7 +50,7 @@ function equalWithText(a: FeedLoader[], b: FeedLoader[]): void {
 
 test('empty from beginning', () => {
   let page1 = openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'add'
   })
   equal(page1.route, 'add')
@@ -65,7 +65,7 @@ test('empty from beginning', () => {
 
 test('validates URL', () => {
   let page = openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'add'
   })
   keepMount(page.error)
@@ -84,7 +84,7 @@ test('validates URL', () => {
 
 test('cleans state', async () => {
   let page1 = openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'add'
   })
   keepMount(page1.error)
@@ -105,7 +105,7 @@ test('cleans state', async () => {
   equal(page1.searching.get(), false)
 
   let page2 = openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'add'
   })
   keepMount(page2.error)
@@ -123,7 +123,7 @@ test('cleans state', async () => {
 
 test('is ready for network errors', async () => {
   let page = openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'add'
   })
   keepMount(page.searching)
@@ -148,7 +148,7 @@ test('is ready for network errors', async () => {
 
 test('aborts all HTTP requests on URL change', async () => {
   let page = openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'add'
   })
   let reply1 = expectRequest('https://example.com').andWait()
@@ -171,7 +171,7 @@ test('aborts all HTTP requests on URL change', async () => {
 
 test('detects RSS links', async () => {
   let page = openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'add'
   })
   keepMount(page.searching)
@@ -221,7 +221,7 @@ test('detects RSS links', async () => {
 
 test('is ready for empty title', async () => {
   let page = openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'add'
   })
   keepMount(page.searching)
@@ -252,7 +252,7 @@ test('is ready for empty title', async () => {
 
 test('ignores duplicate links', async () => {
   let page = openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'add'
   })
   keepMount(page.searching)
@@ -284,7 +284,7 @@ test('ignores duplicate links', async () => {
 
 test('looks for popular RSS, Atom and JsonFeed places', async () => {
   let page = openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'add'
   })
   keepMount(page.searching)
@@ -313,7 +313,7 @@ test('looks for popular RSS, Atom and JsonFeed places', async () => {
 
 test('shows if unknown URL', async () => {
   let page = openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'add'
   })
   keepMount(page.searching)
@@ -336,7 +336,7 @@ test('shows if unknown URL', async () => {
 
 test('always keep the same order of candidates', async () => {
   let page1 = openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'add'
   })
   keepMount(page1.candidates)
@@ -365,11 +365,11 @@ test('always keep the same order of candidates', async () => {
   )
 
   openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'welcome'
   })
   let page2 = openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'add'
   })
   expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
@@ -399,7 +399,7 @@ test('always keep the same order of candidates', async () => {
 
 test('changes URL during typing in the field', async () => {
   let page = openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'add'
   })
   equal(page.params.url.get(), undefined)
@@ -448,7 +448,7 @@ test('changes URL during typing in the field', async () => {
 
 test('starts from HTTPS and then try HTTP', async () => {
   let page = openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'add'
   })
   keepMount(page.searching)
@@ -485,7 +485,7 @@ test('starts from HTTPS and then try HTTP', async () => {
 
 test('syncs feed URL with app URL', async () => {
   let page = openPage({
-    params: { candidate: undefined, url: undefined },
+    params: {},
     route: 'add'
   })
 
@@ -497,7 +497,6 @@ test('syncs feed URL with app URL', async () => {
   page.params.url.set('https://a.com')
   equal(page.params.url.get(), 'https://a.com')
   deepStrictEqual(router.get().params, {
-    candidate: undefined,
     url: 'https://a.com'
   })
   await waitLoading(page.searching)

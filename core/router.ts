@@ -9,7 +9,7 @@ import { slowCategories } from './slow.ts'
 
 export interface Routes {
   about: {}
-  add: { candidate: string | undefined; url: string | undefined }
+  add: { candidate?: string; url?: string }
   categories: { feed?: string }
   download: {}
   export: { format?: string }
@@ -151,7 +151,7 @@ onEnvironment(({ baseRouter }) => {
           return redirect(open('interface'))
         } else if (route.route === 'feeds') {
           return redirect({
-            params: { candidate: undefined, url: undefined },
+            params: {},
             popups,
             route: 'add'
           })
