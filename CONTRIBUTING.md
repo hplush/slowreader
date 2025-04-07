@@ -25,7 +25,7 @@ Also, feel free to ask any questions about career and development. If you are he
 
 - In the project, we are using **English**.
 - Most contributors are _not native speaker_. Don’t be afraid of your language if you are not a native English speaker too.
-- Feel free to use _automatic translators_. Use [DeepL to write issues](https://www.deepl.com/) and the browser’s translation to read docs.
+- Feel free to use _automatic translators_. Use LLMs to create issues in English and the browser’s translation to read docs.
 
 ## Where to Ask Questions
 

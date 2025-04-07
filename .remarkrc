@@ -8,7 +8,6 @@
           "^https://t.me/",
           "^https://github.com/settings/",
           "^https://discord.gg/",
-          "^https://www.deepl.com/$",
           "^https://browsersl.ist/#q=",
           "^https://code.visualstudio.com/",
           "^mailto:",
