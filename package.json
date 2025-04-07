@@ -7,7 +7,7 @@
     "node": "^22.14.0",
     "pnpm": "^10.0.0"
   },
-  "packageManager": "pnpm@10.7.1",
+  "packageManager": "pnpm@10.8.0",
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run -r --include-workspace-root /^test:/",
     "offline": "FORCE_COLOR=1 pnpm run -r --include-workspace-root '/^test:(?!audit\\b|markdown\\b|loaders\\b)/'",
@@ -34,11 +34,11 @@
   "devDependencies": {
     "@logux/eslint-config": "55.2.0",
     "@types/chrome": "0.0.313",
-    "@types/node": "22.13.14",
-    "@types/ws": "8.18.0",
+    "@types/node": "22.14.0",
+    "@types/ws": "8.18.1",
     "better-node-test": "0.7.1",
-    "eslint": "9.23.0",
-    "eslint-plugin-svelte": "3.4.1",
+    "eslint": "9.24.0",
+    "eslint-plugin-svelte": "3.5.1",
     "husky": "9.1.7",
     "nano-staged": "0.8.0",
     "postcss-html": "1.8.0",
@@ -56,11 +56,11 @@
     "remark-lint-no-shell-dollars": "4.0.1",
     "remark-lint-smarty-pants-typography": "1.1.0",
     "remark-validate-links": "13.1.0",
-    "stylelint": "16.17.0",
-    "svelte": "5.25.4",
+    "stylelint": "16.18.0",
+    "svelte": "5.25.8",
     "svelte-check": "4.1.5",
-    "svelte-eslint-parser": "1.1.1",
+    "svelte-eslint-parser": "1.1.2",
     "svgo": "3.3.2",
-    "typescript": "5.8.2"
+    "typescript": "5.8.3"
   }
 }
