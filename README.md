@@ -33,6 +33,7 @@ To ask any question: **[h+h lab Discord](https://discord.gg/TyFTp6mAZT)**
 - [Dependencies](#dependencies)
   - [JS](#js)
 - [GitHub Actions](#github-actions)
+  - [Update](#update)
 - [Deploy](#deploy)
 - [Guides](#guides)
 
@@ -236,21 +237,6 @@ We put to `dependencies` only dependencies we need for production deploy. All ot
 
 We are using in `package.json` `1.0.0` version requirement and not `^1.0.0` to not get unexpected dependencies updates (at least, direct dependencies) if we will break the pnpm lock file. The `./scripts/check-versions.ts` in `pre-commit` hook will check that you do not forget this rule.
 
-To update specific dependency use:
-
-```sh
-pnpm update DEPENDENCY
-```
-
-To update all dependencies:
-
-```sh
-pnpm update --interactive --latest -r --include-workspace-root
-pnpm update -r --include-workspace-root
-```
-
-We can update all dependencies at least once per week.
-
 ## GitHub Actions
 
 For security reasons we are pinning actions in [GitHub workflows](./.github/workflows/) by hash, rather than by version.
@@ -261,10 +247,31 @@ We have `pinact` tool to pin and update versions. If you need to add some action
 pinact run
 ```
 
-To update actions:
+### Update
+
+We try to use progressive approach and update dependencies often (every month).
+
+To update all dependencies:
 
 ```sh
+# Update Node.js and pnpm
+pnpm update-env
+
+# Update Docker base images
+./script/pin-docker
+
+# Update GitHub actions
 pinact run --update
+
+# Update Node.js dependencies
+pnpm update --interactive --latest -r --include-workspace-root
+pnpm update -r --include-workspace-root
+```
+
+If you need just to update specific Node.js dependency:
+
+```sh
+pnpm update DEPENDENCY
 ```
 
 ## Deploy
@@ -273,7 +280,7 @@ We prefer to use Docker containers (instead of lambda functions and other cloud 
 
 We also need to think about self-hosted solutions. Ideally it should one Docker image to run everything.
 
-Self-hosted users and we should use environment variable to configure images.
+Self-hosted users, and we should use environment variable to configure images.
 
 We should make Docker images as small as possible to reduce attack surface. We recommend:
 
