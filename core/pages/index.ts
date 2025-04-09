@@ -8,9 +8,11 @@ import {
   createSimplePage,
   type PageCreator
 } from './common.ts'
+import { feedsByCategories } from './feeds-by-categories.ts'
 
 export type { AddPage } from './add.ts'
 export * from './common.ts'
+export type { FeedsByCategoriesPage } from './feeds-by-categories.ts'
 
 // TODO: Remove after refactoring
 /* c8 ignore start */
@@ -30,13 +32,13 @@ export function underConstruction<Name extends RouteName>(
 /* c8 ignore end */
 
 export const pages = {
-  about: underConstruction('about', []),
+  about: createSimplePage('about'),
   add,
-  categories: underConstruction('categories', ['feed']),
   download: underConstruction('download', []),
   export: underConstruction('export', []),
   fast: underConstruction('fast', ['category', 'post', 'since']),
   feeds: underConstruction('feeds', []),
+  feedsByCategories,
   home: underConstruction('home', []),
   import: underConstruction('import', []),
   interface: underConstruction('interface', []),

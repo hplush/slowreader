@@ -15,11 +15,11 @@ import { computed } from 'nanostores'
 export const pathRouter = createRouter({
   about: '/settings/about',
   add: '/feeds/add/:url?',
-  categories: '/feeds/categories/:feed?',
   download: '/settings/download',
   export: '/feeds/export/:format?',
   fast: '/fast/:category?',
   feeds: '/feeds',
+  feedsByCategories: '/feeds/categories',
   home: '/',
   import: '/feeds/import',
   interface: '/settings/ui',

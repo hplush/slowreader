@@ -22,7 +22,7 @@ afterEach(async () => {
 })
 
 test('listens for not found error', () => {
-  setBaseTestRoute({ params: { feed: 'unknown' }, route: 'categories' })
+  setBaseTestRoute({ params: { feed: 'unknown' }, route: 'feedsByCategories' })
   equal(notFound.get(), false)
 
   listener({
@@ -35,7 +35,7 @@ test('listens for not found error', () => {
   })
   equal(notFound.get(), true)
 
-  setBaseTestRoute({ params: { feed: 'another' }, route: 'categories' })
+  setBaseTestRoute({ params: { feed: 'another' }, route: 'feedsByCategories' })
   equal(notFound.get(), false)
 
   listener({

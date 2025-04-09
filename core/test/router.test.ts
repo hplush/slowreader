@@ -191,7 +191,7 @@ test('has routes groups', () => {
   equal(isGuestRoute(router.get()), false)
   equal(isOtherRoute(router.get()), true)
 
-  setBaseTestRoute({ params: {}, route: 'categories' })
+  setBaseTestRoute({ params: {}, route: 'feedsByCategories' })
   equal(isGuestRoute(router.get()), false)
   equal(isOtherRoute(router.get()), true)
 })

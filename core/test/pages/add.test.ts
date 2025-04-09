@@ -37,10 +37,6 @@ beforeEach(() => {
 })
 
 afterEach(async () => {
-  openPage({
-    params: {},
-    route: 'welcome'
-  })
   await cleanClientTest()
   checkAndRemoveRequestMock()
   setIsMobile(false)

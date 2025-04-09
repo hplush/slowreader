@@ -10,11 +10,11 @@ import { slowCategories } from './slow.ts'
 export interface Routes {
   about: {}
   add: { url?: string }
-  categories: { feed?: string }
   download: {}
   export: { format?: string }
   fast: { category?: string; post?: string; since?: number }
   feeds: {}
+  feedsByCategories: {}
   home: {}
   import: {}
   interface: {}
@@ -79,7 +79,7 @@ const SETTINGS = new Set<RouteName>([
   'profile'
 ])
 
-const ORGANIZE = new Set<RouteName>(['add', 'categories'])
+const FEEDS = new Set<RouteName>(['add', 'feedsByCategories'])
 
 function open(route: ParamlessRouteName): Route {
   return { params: {}, popups: [], route }
@@ -242,7 +242,7 @@ export function isGuestRoute(route: Route): boolean {
 }
 
 export function isOtherRoute(route: Route): boolean {
-  return SETTINGS.has(route.route) || ORGANIZE.has(route.route)
+  return SETTINGS.has(route.route) || FEEDS.has(route.route)
 }
 
 export function onNextRoute(cb: (route: Route) => void): void {
