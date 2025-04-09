@@ -8,11 +8,14 @@ import {
   addFeed,
   addPopup,
   addPost,
+  closeAllPopups,
+  closeLastPopup,
   deleteCategory,
   deleteFeed,
   isGuestRoute,
   isOtherRoute,
   openedPopups,
+  openPopup,
   removeLastPopup,
   router,
   setBaseTestRoute,
@@ -255,6 +258,50 @@ test('has helpers for popups', () => {
   equal(addPopup('feed=id1', 'post', 'id2'), 'feed=id1,post=id2')
   equal(removeLastPopup('feed=id1,post=id2'), 'feed=id1')
   equal(removeLastPopup('feed=id1'), '')
+
+  setBaseTestRoute({ hash: '', params: {}, route: 'welcome' })
+  openPopup('post', 'id1')
+  deepStrictEqual(router.get(), {
+    params: {},
+    popups: [{ param: 'id1', popup: 'post' }],
+    route: 'welcome'
+  })
+
+  openPopup('post', 'id2')
+  deepStrictEqual(router.get(), {
+    params: {},
+    popups: [
+      { param: 'id1', popup: 'post' },
+      { param: 'id2', popup: 'post' }
+    ],
+    route: 'welcome'
+  })
+
+  closeLastPopup()
+  deepStrictEqual(router.get(), {
+    params: {},
+    popups: [{ param: 'id1', popup: 'post' }],
+    route: 'welcome'
+  })
+
+  closeLastPopup()
+  deepStrictEqual(router.get(), {
+    params: {},
+    popups: [],
+    route: 'welcome'
+  })
+
+  closeLastPopup()
+  deepStrictEqual(router.get().popups, [])
+
+  openPopup('post', 'id1')
+  openPopup('post', 'id2')
+  closeAllPopups()
+  deepStrictEqual(router.get(), {
+    params: {},
+    popups: [],
+    route: 'welcome'
+  })
 })
 
 test('reacts on unknown popups', () => {

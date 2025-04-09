@@ -4,7 +4,12 @@ import {
   getPagePath,
   type ParamsFromConfig
 } from '@nanostores/router'
-import type { ParamlessRouteName, Route, Routes } from '@slowreader/core'
+import {
+  type ParamlessRouteName,
+  type Route,
+  type Routes,
+  stringifyPopups
+} from '@slowreader/core'
 import { computed } from 'nanostores'
 
 export const pathRouter = createRouter({
@@ -34,12 +39,9 @@ export const urlRouter = computed(pathRouter, path => {
   if (!path) {
     return undefined
   } else if (path.route === 'add') {
-    let params: Routes['add'] = { candidate: undefined, url: undefined }
-    if ('url' in path.params) params.url = path.params.url
-    if ('candidate' in path.search) params.candidate = path.search.candidate
     return {
       hash: path.hash,
-      params,
+      params: path.params,
       route: path.route
     }
   } else if (path.route === 'fast') {
@@ -97,6 +99,12 @@ function moveToSearch<Page extends Route>(
 export function getURL(
   to: Omit<Route, 'popups'> | ParamlessRouteName | Route
 ): string {
+  let hash = ''
+  if (typeof to === 'object' && 'popups' in to) {
+    hash = stringifyPopups(to.popups)
+  }
+  if (hash !== '') hash = '#' + hash
+
   let page: Route
   if (typeof to === 'string') {
     page = { params: {}, popups: [], route: to }
@@ -105,15 +113,17 @@ export function getURL(
   } else {
     page = to
   }
-  if (page.route === 'add') {
-    return moveToSearch(page, { candidate: true })
-  } else if (page.route === 'fast') {
-    return moveToSearch(page, { post: true, since: true })
+
+  let url
+  if (page.route === 'fast') {
+    url = moveToSearch(page, { post: true, since: true })
   } else if (page.route === 'slow') {
-    return moveToSearch(page, { page: true, post: true })
+    url = moveToSearch(page, { page: true, post: true })
   } else {
-    return getPagePath(pathRouter, page)
+    url = getPagePath(pathRouter, page)
   }
+
+  return url + hash
 }
 
 export function openRoute(route: Route): void {

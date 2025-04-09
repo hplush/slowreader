@@ -14,6 +14,7 @@ import {
   type LoaderName,
   loaders
 } from '../loader/index.ts'
+import { closeAllPopups, openPopup, router } from '../router.ts'
 import { createPage } from './common.ts'
 
 export type AddLinksValue = Record<
@@ -85,13 +86,13 @@ export const add = createPage('add', () => {
     $links.set({})
     $candidates.set([])
     prevTask?.destroy()
+    closeAllPopups()
   }
 
   let inputUrl = debounce((value: string) => {
     if (value === '') {
       $url.set(undefined)
     } else {
-      //TODO: currentCandidate.set(undefined)
       $url.set(value)
     }
   }, 500)
@@ -205,11 +206,13 @@ export const add = createPage('add', () => {
     }
   }
 
-  // TODO: Remove to popups
-  let $candidate = atom<string | undefined>()
   let unbindCandidates = $candidates.listen(candidates => {
-    if (candidates[0] && !isMobile.get() && !$candidate.get()) {
-      $candidate.set(candidates[0].url)
+    if (candidates[0] && !isMobile.get()) {
+      let url = candidates[0].url
+      let popups = router.get().popups
+      if (!popups.some(i => i.popup === 'feedUrl' && i.param === url)) {
+        openPopup('feedUrl', url)
+      }
     }
   })
 
@@ -224,7 +227,6 @@ export const add = createPage('add', () => {
     inputUrl,
     noResults: $noResults,
     params: {
-      candidate: $candidate,
       url: $url
     },
     searching: $searching

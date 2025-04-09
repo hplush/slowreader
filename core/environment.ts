@@ -8,7 +8,13 @@ import {
 } from '@nanostores/persistent'
 import { atom, type ReadableAtom, type StoreValue } from 'nanostores'
 
-import type { BaseRoute, BaseRouter, Route, Routes } from './router.ts'
+import type {
+  BaseRoute,
+  BaseRouter,
+  PopupRoute,
+  Route,
+  Routes
+} from './router.ts'
 
 interface LogStoreCreator {
   (): ClientOptions['store']
@@ -143,6 +149,13 @@ export function setBaseTestRoute(
   testRouter.set(addHashToBaseRoute(route))
 }
 
+export function stringifyPopups(popups: PopupRoute[]): string {
+  return popups
+    .map(({ param, popup }) => `${popup}=${param}`)
+    .filter(i => i !== '')
+    .join(',')
+}
+
 export function getTestEnvironment(): EnvironmentAndStore {
   return {
     baseRouter: testRouter,
@@ -151,7 +164,7 @@ export function getTestEnvironment(): EnvironmentAndStore {
     logStoreCreator: () => new MemoryStore(),
     networkType: () => ({ saveData: undefined, type: undefined }),
     openRoute: route => {
-      setBaseTestRoute({ ...route, hash: '' })
+      setBaseTestRoute({ ...route, hash: stringifyPopups(route.popups) })
     },
     persistentEvents: { addEventListener() {}, removeEventListener() {} },
     persistentStore: {},

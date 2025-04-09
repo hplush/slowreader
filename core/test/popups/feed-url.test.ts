@@ -8,6 +8,7 @@ import {
   addFeed,
   changeFeed,
   checkAndRemoveRequestMock,
+  closeLastPopup,
   deleteFeed,
   expectRequest,
   mockRequest,
@@ -19,7 +20,6 @@ import {
 import {
   checkLoadedPopup,
   cleanClientTest,
-  closeLastTestPopup,
   enableClientTest,
   getPopup,
   openTestPopup
@@ -49,7 +49,7 @@ test('loads 404 for feeds by URL popup', async () => {
   await waitLoading(feed1Popup.loading)
   equal(feed1Popup.notFound, true)
 
-  closeLastTestPopup()
+  closeLastPopup()
   equal(openedPopups.get().length, 0)
 
   expectRequest('http://a.com/two').andRespond(200, '<html>Nothing</html>')
@@ -130,7 +130,7 @@ test('destroys replaced popups and keep unchanged', async () => {
   equal(checkLoadedPopup(popup1).feed.get()?.id, feedId)
   equal(checkLoadedPopup(popup2).feed.get()?.id, feedId)
 
-  closeLastTestPopup()
+  closeLastPopup()
   deepStrictEqual(openedPopups.get(), [popup1])
 
   await deleteFeed(feedId)

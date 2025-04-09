@@ -5,6 +5,7 @@ import { afterEach, beforeEach, test } from 'node:test'
 import {
   addFeed,
   addPost,
+  closeLastPopup,
   openedPopups,
   setBaseTestRoute,
   testFeed,
@@ -14,7 +15,6 @@ import {
 import {
   checkLoadedPopup,
   cleanClientTest,
-  closeLastTestPopup,
   enableClientTest,
   getPopup,
   openTestPopup
@@ -67,10 +67,10 @@ test('opens post', async () => {
   await waitLoading(popup3.loading)
   equal(checkLoadedPopup(popup3).post.get().id, post2)
 
-  closeLastTestPopup()
+  closeLastPopup()
   equal(openedPopups.get().length, 1)
 
-  closeLastTestPopup()
+  closeLastPopup()
   equal(openedPopups.get().length, 0)
 
   let popup5 = openTestPopup('post', 'unknown')

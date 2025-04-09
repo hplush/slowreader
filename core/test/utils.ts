@@ -2,7 +2,6 @@ import { cleanStores, type ReadableAtom } from 'nanostores'
 import { fail } from 'node:assert'
 
 import {
-  addPopup,
   type BasePopup,
   type BaseRoute,
   Category,
@@ -13,14 +12,13 @@ import {
   fastCategories,
   Feed,
   Filter,
-  getEnvironment,
   getTestEnvironment,
   openedPopups,
+  openPopup,
   type Page,
   type Popup,
   type PopupName,
   Post,
-  removeLastPopup,
   setBaseTestRoute,
   setupEnvironment,
   slowCategories,
@@ -66,24 +64,8 @@ export function openTestPopup<Name extends PopupName>(
   popup: Name,
   param: string
 ): Popup<Name> {
-  let route = getEnvironment().baseRouter.get() ?? { hash: '' }
-  setBaseTestRoute({
-    params: {},
-    route: 'start',
-    ...route,
-    hash: addPopup(route.hash, popup, param)
-  })
+  openPopup(popup, param)
   return getPopup(popup, openedPopups.get().length - 1)
-}
-
-export function closeLastTestPopup(): void {
-  let route = getEnvironment().baseRouter.get() ?? { hash: '' }
-  setBaseTestRoute({
-    params: {},
-    route: 'start',
-    ...route,
-    hash: removeLastPopup(route.hash)
-  })
 }
 
 export function getPopup<Name extends PopupName>(

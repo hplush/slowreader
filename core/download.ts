@@ -122,7 +122,11 @@ export function createDownloadTask(
     async request(url, opts = {}) {
       if (taskOpts.cache) {
         let fromCache = cache.get(url)
-        if (fromCache) return fromCache.clone()
+        if (fromCache) {
+          let clone = fromCache.clone()
+          Object.defineProperty(clone, 'url', { value: url })
+          return clone
+        }
       }
 
       let response = await request(url, {

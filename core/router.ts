@@ -1,6 +1,6 @@
 import { atom, type ReadableAtom } from 'nanostores'
 
-import { onEnvironment } from './environment.ts'
+import { getEnvironment, onEnvironment } from './environment.ts'
 import { fastCategories } from './fast.ts'
 import { hasFeeds } from './feed.ts'
 import { computeFrom, readonlyExport } from './lib/stores.ts'
@@ -9,7 +9,7 @@ import { slowCategories } from './slow.ts'
 
 export interface Routes {
   about: {}
-  add: { candidate?: string; url?: string }
+  add: { url?: string }
   categories: { feed?: string }
   download: {}
   export: { format?: string }
@@ -110,7 +110,7 @@ function checkPopupName(
   return !!popup && popup in popupNames
 }
 
-function parsePopups(hash: string): PopupRoute[] {
+export function parsePopups(hash: string): PopupRoute[] {
   let popups: PopupRoute[] = []
   let parts = hash.split(',')
   for (let part of parts) {
@@ -263,4 +263,27 @@ export function addPopup(
 
 export function removeLastPopup(hash: string): string {
   return hash.split(',').slice(0, -1).join(',')
+}
+
+export function openPopup(popup: PopupName, param: string): void {
+  let currentRoute = router.get()
+  getEnvironment().openRoute({
+    ...currentRoute,
+    popups: currentRoute.popups.concat({ param, popup })
+  })
+}
+
+export function closeLastPopup(): void {
+  let currentRoute = router.get()
+  getEnvironment().openRoute({
+    ...currentRoute,
+    popups: currentRoute.popups.slice(0, -1)
+  })
+}
+
+export function closeAllPopups(): void {
+  getEnvironment().openRoute({
+    ...router.get(),
+    popups: []
+  })
 }

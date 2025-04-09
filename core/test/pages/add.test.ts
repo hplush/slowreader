@@ -11,12 +11,18 @@ import {
   type FeedLoader,
   loaders,
   mockRequest,
+  openedPopups,
   router,
   setBaseTestRoute,
   setIsMobile,
   waitLoading
 } from '../../index.ts'
-import { cleanClientTest, enableClientTest, openPage } from '../utils.ts'
+import {
+  cleanClientTest,
+  enableClientTest,
+  getPopup,
+  openPage
+} from '../utils.ts'
 
 beforeEach(() => {
   setIsMobile(false)
@@ -37,6 +43,7 @@ afterEach(async () => {
   })
   await cleanClientTest()
   checkAndRemoveRequestMock()
+  setIsMobile(false)
 })
 
 function equalWithText(a: FeedLoader[], b: FeedLoader[]): void {
@@ -515,4 +522,55 @@ test('syncs feed URL with app URL', async () => {
   })
   equal(page.params.url.get(), 'https://b.com')
   await waitLoading(page.searching)
+})
+
+test('opens first candidate', async () => {
+  let page = openPage({
+    params: {},
+    route: 'add'
+  })
+
+  expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('https://example.com/feed').andRespond(404)
+  expectRequest('https://example.com/atom').andRespond(
+    200,
+    '<feed><title>Atom</title></feed>',
+    'application/rss+xml'
+  )
+  expectRequest('https://example.com/feed.json').andRespond(404)
+  expectRequest('https://example.com/rss').andRespond(
+    200,
+    '<rss><channel><title>RSS</title></channel></rss>',
+    'application/rss+xml'
+  )
+  page.params.url.set('https://example.com')
+  await waitLoading(page.searching)
+
+  equal(openedPopups.get().length, 1)
+  let popup = getPopup('feedUrl')
+  await setTimeout(1)
+  equal(popup.param, 'https://example.com/atom')
+  equal(popup.loading.get(), false)
+  equal(popup.notFound, false)
+
+  page.params.url.set('')
+  equal(openedPopups.get().length, 0)
+
+  setIsMobile(true)
+  expectRequest('https://other.com').andRespond(200, '<html>Nothing</html>')
+  expectRequest('https://other.com/feed').andRespond(404)
+  expectRequest('https://other.com/atom').andRespond(
+    200,
+    '<feed><title>Atom</title></feed>',
+    'application/rss+xml'
+  )
+  expectRequest('https://other.com/feed.json').andRespond(404)
+  expectRequest('https://other.com/rss').andRespond(
+    200,
+    '<rss><channel><title>RSS</title></channel></rss>',
+    'application/rss+xml'
+  )
+  page.params.url.set('https://other.com')
+  await waitLoading(page.searching)
+  equal(openedPopups.get().length, 0)
 })

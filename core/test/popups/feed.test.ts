@@ -5,6 +5,7 @@ import { afterEach, beforeEach, test } from 'node:test'
 import {
   addFeed,
   addPost,
+  closeLastPopup,
   type FeedPopup,
   openedPopups,
   testFeed,
@@ -14,7 +15,6 @@ import {
 import {
   checkLoadedPopup,
   cleanClientTest,
-  closeLastTestPopup,
   enableClientTest,
   openTestPopup
 } from '../utils.ts'
@@ -45,7 +45,7 @@ test('opens feed', async () => {
   equal(popup1.notFound, false)
   equal((openedPopups.get()[0] as FeedPopup).feed.get().id, feed)
 
-  closeLastTestPopup()
+  closeLastPopup()
   equal(openedPopups.get().length, 0)
 
   let unknown = openTestPopup('feed', 'unknown')
@@ -54,7 +54,7 @@ test('opens feed', async () => {
   await waitLoading(unknown.loading)
   equal(unknown.notFound, true)
 
-  closeLastTestPopup()
+  closeLastPopup()
   equal(openedPopups.get().length, 0)
 
   let feedPopup = openTestPopup('feed', feed)

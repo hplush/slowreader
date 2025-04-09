@@ -23,19 +23,6 @@ function eachParam<SomeRoute extends Route>(
   }
 }
 
-function changeRouteParam(
-  route: Route,
-  change: Partial<Route['params']>
-): void {
-  getEnvironment().openRoute({
-    ...route,
-    params: {
-      ...route.params,
-      ...change
-    }
-  } as Route)
-}
-
 let prevPage: Page | undefined
 let unbinds: (() => void)[] = []
 
@@ -53,7 +40,13 @@ export const currentPage: ReadableAtom<Page> = computed(router, route => {
         store.listen(newValue => {
           let currentRoute = router.get()
           if (currentRoute.route === page.route) {
-            changeRouteParam(currentRoute, { [param]: newValue })
+            getEnvironment().openRoute({
+              ...route,
+              params: {
+                ...route.params,
+                [param]: newValue
+              }
+            } as Route)
           }
         })
       )
