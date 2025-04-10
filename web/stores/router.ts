@@ -126,6 +126,6 @@ export function getURL(
   return url + hash
 }
 
-export function openRoute(route: Route): void {
-  pathRouter.open(getURL(route))
+export function openRoute(route: Route, redirect?: boolean): void {
+  pathRouter.open(getURL(route), redirect)
 }

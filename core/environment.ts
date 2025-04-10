@@ -62,7 +62,7 @@ export interface Environment {
   locale: ReadableAtom<string>
   logStoreCreator: LogStoreCreator
   networkType: NetworkTypeDetector
-  openRoute(page: Route): void
+  openRoute(page: Route, redirect?: boolean): void
   restartApp(): void
   translationLoader: TranslationLoader
   warn(error: Error): void

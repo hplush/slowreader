@@ -123,26 +123,6 @@ test('transforms routers for users with feeds', async () => {
   })
 })
 
-test('transforms section to first section page', () => {
-  userId.set('10')
-
-  setBaseTestRoute({ params: {}, route: 'settings' })
-  deepStrictEqual(router.get(), {
-    params: {},
-    popups: [],
-    redirect: true,
-    route: 'interface'
-  })
-
-  setBaseTestRoute({ params: {}, route: 'feeds' })
-  deepStrictEqual(router.get(), {
-    params: {},
-    popups: [],
-    redirect: true,
-    route: 'add'
-  })
-})
-
 test('transforms routers to first fast category', async () => {
   userId.set('10')
   let idA = await addCategory({ title: 'A' })

@@ -5,6 +5,7 @@ import { add } from './add.ts'
 import {
   type BasePage,
   createPage,
+  createRedirectPage,
   createSimplePage,
   type PageCreator
 } from './common.ts'
@@ -37,15 +38,15 @@ export const pages = {
   download: underConstruction('download', []),
   export: underConstruction('export', []),
   fast: underConstruction('fast', ['category', 'post', 'since']),
-  feeds: underConstruction('feeds', []),
+  feeds: createRedirectPage('feeds', 'add'),
   feedsByCategories,
   home: underConstruction('home', []),
   import: underConstruction('import', []),
-  interface: underConstruction('interface', []),
+  interface: createSimplePage('interface'),
   notFound: createSimplePage('notFound'),
-  profile: underConstruction('profile', []),
+  profile: createSimplePage('profile'),
   refresh: underConstruction('refresh', []),
-  settings: underConstruction('settings', []),
+  settings: createRedirectPage('settings', 'interface'),
   signin: underConstruction('signin', []),
   slow: underConstruction('slow', ['feed', 'page', 'post']),
   start: underConstruction('start', []),

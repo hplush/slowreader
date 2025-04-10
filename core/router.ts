@@ -147,14 +147,6 @@ onEnvironment(({ baseRouter }) => {
           }
         } else if (route.route === 'welcome' && withFeeds) {
           return redirect(open('slow'))
-        } else if (route.route === 'settings') {
-          return redirect(open('interface'))
-        } else if (route.route === 'feeds') {
-          return redirect({
-            params: {},
-            popups,
-            route: 'add'
-          })
         } else if (route.route === 'fast') {
           // TODO: move to new fast/slow migration to pages
           if (!route.params.category && !fast.isLoading) {

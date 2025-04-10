@@ -1,5 +1,6 @@
 import { atom, type ReadableAtom } from 'nanostores'
 
+import { getEnvironment } from '../environment.ts'
 import type { ParamlessRouteName, RouteName, Routes } from '../router.ts'
 
 type Extra = {
@@ -52,4 +53,17 @@ export function createSimplePage<Name extends ParamlessRouteName>(
   route: Name
 ): PageCreator<Name> {
   return createPage(route, () => ({ params: {} as ParamStores<Name> }))
+}
+
+export function createRedirectPage<Name extends ParamlessRouteName>(
+  route: Name,
+  redirectTo: ParamlessRouteName
+): PageCreator<Name> {
+  return createPage(route, () => {
+    getEnvironment().openRoute(
+      { params: {}, popups: [], route: redirectTo },
+      true
+    )
+    return { loading: atom(true), params: {} as ParamStores<Name> }
+  })
 }

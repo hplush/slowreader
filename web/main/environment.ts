@@ -81,7 +81,7 @@ setupEnvironment({
 
 router.subscribe(page => {
   if (page.redirect) {
-    openRoute(page)
+    openRoute(page, true)
   }
 })
 
