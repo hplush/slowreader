@@ -9,7 +9,7 @@
     mdiPalette,
     mdiPlusCircleOutline
   } from '@mdi/js'
-  import { hasFeeds, router, navbarMessages as t } from '@slowreader/core'
+  import { router, navbarMessages as t } from '@slowreader/core'
 
   import { getURL } from '../../stores/router.ts'
   import NavbarCategory from './category.svelte'
@@ -29,23 +29,21 @@
   secondary
 />
 
-{#if $hasFeeds}
-  <NavbarItem
-    name={$t.feedsByCategory}
-    current={$router.route === 'categories'}
-    href={getURL('categories')}
-    icon={mdiFileTree}
-    secondary
-  />
+<NavbarItem
+  name={$t.feedsByCategory}
+  current={$router.route === 'categories'}
+  href={getURL('categories')}
+  icon={mdiFileTree}
+  secondary
+/>
 
-  <NavbarItem
-    name={$t.export}
-    current={$router.route === 'export'}
-    href={getURL('export')}
-    icon={mdiExport}
-    secondary
-  />
-{/if}
+<NavbarItem
+  name={$t.export}
+  current={$router.route === 'export'}
+  href={getURL('export')}
+  icon={mdiExport}
+  secondary
+/>
 
 <NavbarItem
   name={$t.import}

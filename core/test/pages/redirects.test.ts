@@ -1,8 +1,14 @@
 import { keepMount } from 'nanostores'
 import { equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
 
-import { currentPage, setBaseTestRoute } from '../../index.ts'
+import {
+  addFeed,
+  currentPage,
+  setBaseTestRoute,
+  testFeed
+} from '../../index.ts'
 import { cleanClientTest, enableClientTest } from '../utils.ts'
 
 beforeEach(() => {
@@ -29,4 +35,22 @@ test('redirects from feeds root to add feed page', () => {
     route: 'feeds'
   })
   equal(currentPage.get().route, 'add')
+})
+
+test('redirects from home depending on feeds', async () => {
+  keepMount(currentPage)
+  setBaseTestRoute({
+    params: {},
+    route: 'home'
+  })
+  await setTimeout(10)
+  equal(currentPage.get().route, 'welcome')
+
+  await addFeed(testFeed())
+  setBaseTestRoute({
+    params: {},
+    route: 'home'
+  })
+  await setTimeout(10)
+  equal(currentPage.get().route, 'slow')
 })

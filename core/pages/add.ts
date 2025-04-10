@@ -233,4 +233,4 @@ export const add = createPage('add', () => {
   }
 })
 
-export type AddPage = typeof add
+export type AddPage = ReturnType<typeof add>

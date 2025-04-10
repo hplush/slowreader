@@ -11,7 +11,6 @@ import {
   closeAllPopups,
   closeLastPopup,
   deleteCategory,
-  deleteFeed,
   isGuestRoute,
   isOtherRoute,
   openedPopups,
@@ -52,14 +51,6 @@ test('transforms routers for guest', () => {
 
 test('transforms routers for users', () => {
   userId.set('10')
-  setBaseTestRoute({ params: {}, route: 'home' })
-  deepStrictEqual(router.get(), {
-    params: {},
-    popups: [],
-    redirect: true,
-    route: 'welcome'
-  })
-
   setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
   deepStrictEqual(router.get(), {
     params: { category: 'general' },
@@ -67,60 +58,16 @@ test('transforms routers for users', () => {
     route: 'fast'
   })
 
-  setBaseTestRoute({ params: {}, route: 'home' })
-  deepStrictEqual(router.get(), {
-    params: {},
-    popups: [],
-    redirect: true,
-    route: 'welcome'
-  })
-
   setBaseTestRoute({ params: {}, route: 'signin' })
   deepStrictEqual(router.get(), {
     params: {},
     popups: [],
     redirect: true,
-    route: 'welcome'
+    route: 'home'
   })
 
   userId.set(undefined)
   deepStrictEqual(router.get(), { params: {}, popups: [], route: 'signin' })
-})
-
-test('transforms routers for users with feeds', async () => {
-  userId.set('10')
-  setBaseTestRoute({ params: {}, route: 'home' })
-  deepStrictEqual(router.get(), {
-    params: {},
-    popups: [],
-    redirect: true,
-    route: 'welcome'
-  })
-
-  let id = await addFeed(testFeed())
-  deepStrictEqual(router.get(), {
-    params: {},
-    popups: [],
-    redirect: true,
-    route: 'slow'
-  })
-
-  setBaseTestRoute({ params: {}, route: 'welcome' })
-  deepStrictEqual(router.get(), {
-    params: {},
-    popups: [],
-    redirect: true,
-    route: 'slow'
-  })
-
-  setBaseTestRoute({ params: {}, route: 'home' })
-  await deleteFeed(id)
-  deepStrictEqual(router.get(), {
-    params: {},
-    popups: [],
-    redirect: true,
-    route: 'welcome'
-  })
 })
 
 test('transforms routers to first fast category', async () => {

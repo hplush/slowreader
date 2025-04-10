@@ -17,7 +17,6 @@
     type FeedsByCategory,
     type FeedValue,
     Filter,
-    hasFeeds,
     importedFeedsByCategory,
     importErrors,
     importLoadingFeeds,
@@ -105,7 +104,7 @@
 
   function cleanLogux(): void {
     client.get()?.clean()
-    cleanStores(Feed, Filter, Category, Post, hasFeeds, fastCategories)
+    cleanStores(Feed, Filter, Category, Post, fastCategories)
   }
 
   $effect.pre(() => {

@@ -1,7 +1,13 @@
 import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 
-import { addCategory, addFeed, loadFeed, testFeed } from '../../index.ts'
+import {
+  addCategory,
+  addFeed,
+  loadFeed,
+  testFeed,
+  waitLoading
+} from '../../index.ts'
 import { cleanClientTest, enableClientTest, openPage } from '../utils.ts'
 
 beforeEach(() => {
@@ -18,7 +24,8 @@ test('groups feeds by categories', async () => {
     route: 'feedsByCategories'
   })
 
-  equal(page.loading.get(), false)
+  equal(page.loading.get(), true)
+  await waitLoading(page.loading)
   deepStrictEqual(page.groups.get(), [])
 
   let idA = await addCategory({ title: 'A' })

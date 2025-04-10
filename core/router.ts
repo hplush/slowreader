@@ -2,7 +2,6 @@ import { atom, type ReadableAtom } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
 import { fastCategories } from './fast.ts'
-import { hasFeeds } from './feed.ts'
 import { computeFrom, readonlyExport } from './lib/stores.ts'
 import { userId } from './settings.ts'
 import { slowCategories } from './slow.ts'
@@ -127,8 +126,8 @@ export const router = readonlyExport($router)
 onEnvironment(({ baseRouter }) => {
   return computeFrom(
     $router,
-    [baseRouter, userId, hasFeeds, fastCategories, slowCategories],
-    (route, user, withFeeds, fast, slowUnread) => {
+    [baseRouter, userId, fastCategories, slowCategories],
+    (route, user, fast, slowUnread) => {
       if (!route) {
         return open('notFound')
       } else if (!user) {
@@ -139,14 +138,8 @@ onEnvironment(({ baseRouter }) => {
         }
       } else {
         let popups = parsePopups(route.hash)
-        if (GUEST.has(route.route) || route.route === 'home') {
-          if (withFeeds) {
-            return redirect({ params: {}, popups, route: 'slow' })
-          } else {
-            return redirect(open('welcome'))
-          }
-        } else if (route.route === 'welcome' && withFeeds) {
-          return redirect(open('slow'))
+        if (GUEST.has(route.route)) {
+          return redirect(open('home'))
         } else if (route.route === 'fast') {
           // TODO: move to new fast/slow migration to pages
           if (!route.params.category && !fast.isLoading) {

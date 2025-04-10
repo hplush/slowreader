@@ -31,4 +31,4 @@ export const feedsByCategories = createPage('feedsByCategories', () => {
   }
 })
 
-export type FeedsByCategoriesPage = typeof feedsByCategories
+export type FeedsByCategoriesPage = ReturnType<typeof feedsByCategories>

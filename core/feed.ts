@@ -10,11 +10,10 @@ import {
   syncMapTemplate
 } from '@logux/client'
 import { nanoid } from 'nanoid'
-import { atom, onMount } from 'nanostores'
 
-import { client, getClient } from './client.ts'
+import { getClient } from './client.ts'
 import { createDownloadTask } from './download.ts'
-import { type OptionalId, readonlyExport } from './lib/stores.ts'
+import type { OptionalId } from './lib/stores.ts'
 import { type LoaderName, loaders } from './loader/index.ts'
 import { deletePost, loadPosts, recalcPostsReading } from './post.ts'
 import type { PostsList } from './posts-list.ts'
@@ -33,33 +32,6 @@ export type FeedValue = {
 export const Feed = syncMapTemplate<FeedValue>('feeds', {
   offline: true,
   remote: false
-})
-
-let $hasFeeds = atom<boolean | undefined>(false)
-export const hasFeeds = readonlyExport($hasFeeds)
-
-onMount($hasFeeds, () => {
-  let unbindFeeds: (() => void) | undefined
-  let unbindClient = client.subscribe(enabled => {
-    unbindFeeds?.()
-    unbindFeeds = undefined
-
-    if (enabled) {
-      unbindFeeds = getFeeds().subscribe(feeds => {
-        if (feeds.isLoading) {
-          $hasFeeds.set(undefined)
-        } else {
-          $hasFeeds.set(!feeds.isEmpty)
-        }
-      })
-    }
-  })
-
-  /* c8 ignore next 4 */
-  return () => {
-    unbindClient()
-    unbindFeeds?.()
-  }
 })
 
 export function getFeeds(

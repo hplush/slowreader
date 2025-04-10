@@ -10,10 +10,12 @@ import {
   type PageCreator
 } from './common.ts'
 import { feedsByCategories } from './feeds-by-categories.ts'
+import { home } from './home.ts'
 
 export type { AddPage } from './add.ts'
 export * from './common.ts'
 export type { FeedsByCategoriesPage } from './feeds-by-categories.ts'
+export type { HomePage } from './home.ts'
 
 // TODO: Remove after refactoring
 /* c8 ignore start */
@@ -40,7 +42,7 @@ export const pages = {
   fast: underConstruction('fast', ['category', 'post', 'since']),
   feeds: createRedirectPage('feeds', 'add'),
   feedsByCategories,
-  home: underConstruction('home', []),
+  home,
   import: underConstruction('import', []),
   interface: createSimplePage('interface'),
   notFound: createSimplePage('notFound'),

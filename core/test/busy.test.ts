@@ -3,17 +3,10 @@ import { afterEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import { busy, busyDuring } from '../index.ts'
-import { cleanClientTest, enableClientTest } from './utils.ts'
+import { cleanClientTest } from './utils.ts'
 
 afterEach(async () => {
   await cleanClientTest()
-})
-
-test('shows that core stores are loading', async () => {
-  enableClientTest()
-  equal(busy.get(), true)
-  await setTimeout(10)
-  equal(busy.get(), false)
 })
 
 test('allows to manually set busy state', async () => {
