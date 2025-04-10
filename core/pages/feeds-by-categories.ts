@@ -1,4 +1,4 @@
-import { atom, computed } from 'nanostores'
+import { atom, effect } from 'nanostores'
 
 import {
   feedsByCategory,
@@ -13,18 +13,20 @@ export const feedsByCategories = createPage('feedsByCategories', () => {
   let $feeds = getFeeds()
 
   let $groups = atom<FeedsByCategory>([])
-  let $loading = computed([$categories, $feeds], (categories, feeds) => {
+  let $loading = atom(true)
+  let unbind = effect([$categories, $feeds], (categories, feeds) => {
     if (!categories.isLoading && !feeds.isLoading) {
       $groups.set(feedsByCategory(categories.list, feeds.list))
-      return false
+      $loading.set(false)
     } else {
-      /* c8 ignore next 2 */
-      return true
+      $loading.set(true)
     }
   })
 
   return {
-    exit() {},
+    exit() {
+      unbind()
+    },
     groups: $groups,
     loading: $loading,
     params: {}

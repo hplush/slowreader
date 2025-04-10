@@ -54,4 +54,9 @@ test('groups feeds by categories', async () => {
     [{ id: idC, isLoading: false, title: 'C' }, []],
     [{ id: 'broken', title: '' }, [await loadFeed(feed5)]]
   ])
+
+  openPage({
+    params: {},
+    route: 'welcome'
+  })
 })
