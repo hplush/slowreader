@@ -37,7 +37,7 @@ export function underConstruction<Name extends RouteName>(
 export const pages = {
   about: createSimplePage('about'),
   add,
-  download: underConstruction('download', []),
+  download: createSimplePage('download'),
   export: underConstruction('export', []),
   fast: underConstruction('fast', ['category', 'post', 'since']),
   feeds: createRedirectPage('feeds', 'add'),
@@ -47,12 +47,12 @@ export const pages = {
   interface: createSimplePage('interface'),
   notFound: createSimplePage('notFound'),
   profile: createSimplePage('profile'),
-  refresh: underConstruction('refresh', []),
+  refresh: createSimplePage('refresh'),
   settings: createRedirectPage('settings', 'interface'),
-  signin: underConstruction('signin', []),
+  signin: createSimplePage('signin'),
   slow: underConstruction('slow', ['feed', 'page', 'post']),
-  start: underConstruction('start', []),
-  welcome: underConstruction('welcome', [])
+  start: createSimplePage('start'),
+  welcome: createSimplePage('welcome')
 } satisfies {
   [Name in RouteName]: PageCreator<Name>
 }
