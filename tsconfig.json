@@ -9,11 +9,12 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "allowJs": true,
-    "target": "es2022",
+    "target": "ES2024",
     "module": "NodeNext",
     "strict": true,
     "noEmit": true,
-    "types": ["chrome", "node"]
+    "types": ["chrome", "node"],
+    "lib": ["es2024", "dom"]
   },
   "include": ["**/*.ts", "**/*.cts", "web/**/*.svelte", "web/.storybook/*.ts"],
   "exclude": ["*/dist", "web-archive/**/*"]

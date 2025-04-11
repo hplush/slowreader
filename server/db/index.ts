@@ -5,6 +5,7 @@ import { drizzle as devDrizzle } from 'drizzle-orm/pglite'
 import { migrate as devMigrate } from 'drizzle-orm/pglite/migrator'
 import { drizzle as prodDrizzle } from 'drizzle-orm/postgres-js'
 import { migrate as prodMigrate } from 'drizzle-orm/postgres-js/migrator'
+import { Buffer } from 'node:buffer'
 import { existsSync } from 'node:fs'
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -37,7 +38,9 @@ if (
     }
     async function dumpDb(): Promise<void> {
       let blob = await pglite.dumpDataDir('none')
-      await writeFile(path, blob.stream(), { encoding: 'binary' })
+      await writeFile(path, Buffer.from(await blob.arrayBuffer()), {
+        encoding: 'binary'
+      })
     }
     setInterval(dumpDb, 60 * 60 * 1000)
   } else {

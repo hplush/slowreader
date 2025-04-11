@@ -109,9 +109,9 @@ test('can download text by keeping eyes on abort signal', async () => {
       ok: true,
       status: 200,
       text() {
-        return new Promise(resolve => {
-          sendText = resolve
-        })
+        let { promise, resolve } = Promise.withResolvers()
+        sendText = resolve
+        return promise
       },
       url: url.toString()
     } as Response)

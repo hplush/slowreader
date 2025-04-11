@@ -1,3 +1,5 @@
+import { delay } from 'nanodelay'
+
 export interface RequestMethod {
   (url: string, opts?: RequestInit): Promise<Response>
 }
@@ -49,17 +51,14 @@ let fetchMock: RequestMethod = async (url, opts = {}) => {
       `Expected request ${expect.url} instead of ${url}`
     )
   } else {
-    let throwError: (e: Error) => void
-    let waitForError = new Promise((resolve, reject) => {
-      throwError = reject
-    })
+    let { promise, reject } = Promise.withResolvers()
     function abortCallback(): void {
       if (expect?.waiter) expect.waiter.aborted = true
-      throwError(new DOMException('', 'AbortError'))
+      reject(new DOMException('', 'AbortError'))
     }
 
     opts.signal?.addEventListener('abort', abortCallback)
-    await Promise.race([expect.wait, waitForError])
+    await Promise.race([expect.wait, promise])
     opts.signal?.removeEventListener('abort', abortCallback)
 
     let response = new Response(expect.response, {
@@ -93,18 +92,14 @@ export function expectRequest(url: string): RequestMock {
       expect.response = body
     },
     andWait() {
-      let resolveWait: () => void
-      expect.wait = new Promise(resolve => {
-        resolveWait = resolve
-      })
+      let { promise, resolve } = Promise.withResolvers<void>()
+      expect.wait = promise
       expect.waiter = (status, body = '', contentType = 'text/html') => {
         expect.contentType = contentType
         expect.status = status
         expect.response = body
-        resolveWait()
-        return new Promise(resolve => {
-          setTimeout(resolve, 10)
-        })
+        resolve()
+        return delay(10)
       }
       return expect.waiter
     }
