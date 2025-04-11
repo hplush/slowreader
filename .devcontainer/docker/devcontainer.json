@@ -17,7 +17,8 @@
         "yzhang.markdown-all-in-one",
         "davidlday.languagetool-linter",
         "felixfbecker.postgresql-syntax",
-        "formulahendry.auto-rename-tag"
+        "formulahendry.auto-rename-tag",
+        "walnuts1018.oklch-vscode"
       ]
     },
     "nodejs-testing.extensions": [
