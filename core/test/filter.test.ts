@@ -7,8 +7,6 @@ import {
   addFeed,
   addFilter,
   addFilterForFeed,
-  changeFilter,
-  deleteFilter,
   type FilterValue,
   getFilters,
   isValidFilterQuery,
