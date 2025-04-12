@@ -17,8 +17,7 @@ ENV PINACT_VERSION 3.0.1
 ENV PINACT_CHECKSUM_X64 f4f35e2dc4cf1243cd0e8d3bc0b49c8b30c388d1dcae5907afcd97b00ddb556e
 ENV PINACT_CHECKSUM_ARM64 b319fc572c3fae75a2744732d9c943d1b7402e1a43a3aabd8ab72f2feb1454f7
 
-RUN dnf install -yq zsh eza bat micro git tig ripgrep iputils \
-    psmisc procps-ng difftastic \
+RUN dnf install -yq zsh micro git tig iputils psmisc procps-ng \
   && dnf clean all \
   && rm -rf /var/cache/dnf
 
