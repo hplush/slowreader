@@ -25,3 +25,5 @@ export const preloadImages = persistentAtom<'always' | 'free' | 'never'>(
   'slowreader:preloadImages',
   'always'
 )
+
+export type Settings = 'preloadImages' | 'theme'

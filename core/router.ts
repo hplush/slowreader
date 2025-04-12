@@ -10,7 +10,7 @@ export interface Routes {
   about: {}
   add: { url?: string }
   download: {}
-  export: { format?: string }
+  export: {}
   fast: { category?: string; post?: string; since?: number }
   feeds: {}
   feedsByCategories: {}
