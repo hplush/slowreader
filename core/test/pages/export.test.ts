@@ -51,22 +51,25 @@ test('export OPML', async () => {
     xml,
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
       '<opml version="2.0">\n' +
-      '<head>\n<title>SlowReader Feeds</title>\n</head>\n' +
-      '<body>\n' +
-      '<outline text="General">\n' +
-      '<outline text="4" type="rss" xmlUrl="http://example.com/4" />\n' +
-      '</outline>\n' +
-      '<outline text="A">\n' +
-      '<outline text="1" type="rss" xmlUrl="http://example.com/1" />\n' +
-      '<outline text="2" type="rss" xmlUrl="http://example.com/2" />\n' +
-      '</outline>\n' +
-      '<outline text="B">\n' +
-      '<outline text="3" type="rss" xmlUrl="http://example.com/3" />\n' +
-      '</outline>\n' +
-      '<outline text="Broken category">\n' +
-      '<outline text="5" type="rss" xmlUrl="http://example.com/5" />\n' +
-      '</outline>\n' +
-      '</body>\n</opml>\n'
+      '  <head>\n' +
+      '    <title>SlowReader Feeds</title>\n' +
+      '  </head>\n' +
+      '  <body>\n' +
+      '    <outline text="General">\n' +
+      '      <outline text="4" type="rss" xmlUrl="http://example.com/4" />\n' +
+      '    </outline>\n' +
+      '    <outline text="A">\n' +
+      '      <outline text="1" type="rss" xmlUrl="http://example.com/1" />\n' +
+      '      <outline text="2" type="rss" xmlUrl="http://example.com/2" />\n' +
+      '    </outline>\n' +
+      '    <outline text="B">\n' +
+      '      <outline text="3" type="rss" xmlUrl="http://example.com/3" />\n' +
+      '    </outline>\n' +
+      '    <outline text="Broken category">\n' +
+      '      <outline text="5" type="rss" xmlUrl="http://example.com/5" />\n' +
+      '    </outline>\n' +
+      '  </body>\n' +
+      '</opml>\n'
   )
 })
 

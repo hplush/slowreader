@@ -29,8 +29,10 @@ export const exportPage = createPage('export', () => {
     let opml =
       '<?xml version="1.0" encoding="UTF-8"?>\n' +
       '<opml version="2.0">\n' +
-      '<head>\n<title>SlowReader Feeds</title>\n</head>\n' +
-      '<body>\n'
+      '  <head>\n' +
+      '    <title>SlowReader Feeds</title>\n' +
+      '  </head>\n' +
+      '  <body>\n'
 
     let [categories, allFeeds] = await Promise.all([
       loadValue(getCategories()),
@@ -40,13 +42,15 @@ export const exportPage = createPage('export', () => {
     let tree = feedsByCategory(categories.list, allFeeds.list)
 
     for (let [category, feeds] of tree) {
-      opml += `<outline text="${getCategoryTitle(category)}">\n`
+      opml += `    <outline text="${getCategoryTitle(category)}">\n`
       for (let { loader, title, url } of feeds) {
-        opml += `<outline text="${title}" type="${loader}" xmlUrl="${url}" />\n`
+        opml +=
+          `      ` +
+          `<outline text="${title}" type="${loader}" xmlUrl="${url}" />\n`
       }
-      opml += `</outline>\n`
+      opml += `    </outline>\n`
     }
-    opml += '</body>\n</opml>\n'
+    opml += '  </body>\n</opml>\n'
 
     let blob = new Blob([opml], { type: 'application/xml' })
     $exportingOpml.set(false)
