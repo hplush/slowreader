@@ -1,5 +1,6 @@
 import { persistentAtom } from '@nanostores/persistent'
 import { nanoid } from 'nanoid'
+import type { StoreValue } from 'nanostores'
 
 import { getClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
@@ -26,4 +27,7 @@ export const preloadImages = persistentAtom<'always' | 'free' | 'never'>(
   'always'
 )
 
-export type Settings = 'preloadImages' | 'theme'
+export interface Settings {
+  preloadImages: StoreValue<typeof preloadImages>
+  theme: StoreValue<typeof theme>
+}

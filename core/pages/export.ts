@@ -1,7 +1,9 @@
-import { loadValue } from '@logux/client'
+import type { SyncMapValues } from '@logux/actions'
+import { type FilterStore, loadValue } from '@logux/client'
 import { atom } from 'nanostores'
 
 import {
+  type CategoryValue,
   feedsByCategory,
   getCategories,
   getCategoryTitle
@@ -13,10 +15,21 @@ import { preloadImages, type Settings, theme } from '../settings.ts'
 import { createPage } from './common.ts'
 
 export interface StateExport {
-  feeds: FeedValue[]
-  filters: FilterValue[]
-  posts: PostValue[]
-  settings: Record<Settings, string>
+  categories: Omit<CategoryValue, 'isLoading'>[]
+  feeds: Omit<FeedValue, 'isLoading'>[]
+  filters: Omit<FilterValue, 'isLoading'>[]
+  posts: Omit<PostValue, 'isLoading'>[]
+  settings: Settings
+}
+
+async function loadList<Value extends SyncMapValues>(
+  filter: FilterStore<Value>
+): Promise<Omit<Value, 'isLoading'>[]> {
+  return (await loadValue(filter)).list.map(i => {
+    let copy = { ...i } as Omit<Value, 'isLoading'>
+    delete copy.isLoading
+    return copy
+  })
 }
 
 export const exportPage = createPage('export', () => {
@@ -31,6 +44,7 @@ export const exportPage = createPage('export', () => {
       '<opml version="2.0">\n' +
       '  <head>\n' +
       '    <title>SlowReader Feeds</title>\n' +
+      `    <dateCreated>${new Date().toISOString()}</dateCreated>\n` +
       '  </head>\n' +
       '  <body>\n'
 
@@ -43,10 +57,8 @@ export const exportPage = createPage('export', () => {
 
     for (let [category, feeds] of tree) {
       opml += `    <outline text="${getCategoryTitle(category)}">\n`
-      for (let { loader, title, url } of feeds) {
-        opml +=
-          `      ` +
-          `<outline text="${title}" type="${loader}" xmlUrl="${url}" />\n`
+      for (let { title, url } of feeds) {
+        opml += `      <outline text="${title}" type="rss" xmlUrl="${url}" />\n`
       }
       opml += `    </outline>\n`
     }
@@ -62,9 +74,10 @@ export const exportPage = createPage('export', () => {
   async function exportState(): Promise<Blob | false> {
     $exportingState.set(true)
     let state = {
-      feeds: (await loadValue(getFeeds())).list,
-      filters: (await loadValue(getFilters())).list,
-      posts: (await loadValue(getPosts())).list,
+      categories: await loadList(getCategories()),
+      feeds: await loadList(getFeeds()),
+      filters: await loadList(getFilters()),
+      posts: await loadList(getPosts()),
       settings: {
         preloadImages: preloadImages.get(),
         theme: theme.get()
@@ -73,7 +86,9 @@ export const exportPage = createPage('export', () => {
 
     if (exited) return false
 
-    let blob = new Blob([JSON.stringify(state)], { type: 'application/json' })
+    let blob = new Blob([JSON.stringify(state, null, 2)], {
+      type: 'application/json'
+    })
     $exportingState.set(false)
     return blob
   }

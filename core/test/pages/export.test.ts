@@ -36,6 +36,7 @@ test('export OPML', async () => {
   })
 
   let blob: Blob | undefined
+  let start = new Date()
   page.exportOpml().then(result => {
     equal(typeof result, 'object')
     blob = result as Blob
@@ -53,6 +54,7 @@ test('export OPML', async () => {
       '<opml version="2.0">\n' +
       '  <head>\n' +
       '    <title>SlowReader Feeds</title>\n' +
+      `    <dateCreated>${start.toISOString()}</dateCreated>\n` +
       '  </head>\n' +
       '  <body>\n' +
       '    <outline text="General">\n' +
@@ -101,11 +103,16 @@ test('export state JSON', async () => {
   equal(typeof blob, 'object')
   let json = JSON.parse(await blob!.text())
   deepStrictEqual(json, {
+    categories: [
+      {
+        id: category,
+        title: 'A'
+      }
+    ],
     feeds: [
       {
         categoryId: category,
         id: feed,
-        isLoading: false,
         loader: 'rss',
         reading: 'fast',
         title: '1',
@@ -117,7 +124,6 @@ test('export state JSON', async () => {
         action: 'slow',
         feedId: feed,
         id: filter,
-        isLoading: false,
         priority: 100,
         query: 'include(text)'
       }
@@ -127,7 +133,6 @@ test('export state JSON', async () => {
         feedId: feed,
         id: post,
         intro: 'Post 1',
-        isLoading: false,
         media: [],
         originId: 'test-1',
         publishedAt: 1000,
