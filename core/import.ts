@@ -6,12 +6,21 @@ import {
   type CategoryValue,
   type FeedsByCategory
 } from './category.ts'
-import type { InternalExport } from './export.ts'
 import { addFeed, type FeedValue } from './feed.ts'
 import { readonlyExport, waitLoading } from './lib/stores.ts'
 import { unique } from './loader/utils.ts'
 import { importMessages } from './messages/index.ts'
 import { pages } from './pages/index.ts'
+import type { PostValue } from './post.ts'
+
+type FeedWithPosts = {
+  posts?: PostValue[]
+} & FeedValue
+
+export type InternalExport = {
+  data: [CategoryValue, FeedWithPosts[]][]
+  type: 'feedsByCategory'
+}
 
 let $importedFeedsByCategory = atom<FeedsByCategory>([])
 export const importedFeedsByCategory = readonlyExport($importedFeedsByCategory)

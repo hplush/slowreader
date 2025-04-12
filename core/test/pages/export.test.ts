@@ -28,6 +28,7 @@ test('export OPML', async () => {
   await addFeed(testFeed({ categoryId: idA, title: '2' }))
   await addFeed(testFeed({ categoryId: idB, title: '3' }))
   await addFeed(testFeed({ categoryId: 'general', title: '4' }))
+  await addFeed(testFeed({ categoryId: 'unknown', title: '5' }))
 
   let page = openPage({
     params: {},
@@ -62,6 +63,9 @@ test('export OPML', async () => {
       '<outline text="B">\n' +
       '<outline text="3" type="rss" xmlUrl="http://example.com/3" />\n' +
       '</outline>\n' +
+      '<outline text="Broken category">\n' +
+      '<outline text="5" type="rss" xmlUrl="http://example.com/5" />\n' +
+      '</outline>\n' +
       '</body>\n</opml>\n'
   )
 })
@@ -74,7 +78,7 @@ test('export state JSON', async () => {
     feedId: feed,
     query: 'include(text)'
   })
-  await addPost(testPost({ feedId: feed }))
+  let post = await addPost(testPost({ feedId: feed }))
 
   let page = openPage({
     params: {},
@@ -97,18 +101,18 @@ test('export state JSON', async () => {
     feeds: [
       {
         categoryId: category,
-        id: 'feed-5',
+        id: feed,
         isLoading: false,
         loader: 'rss',
         reading: 'fast',
         title: '1',
-        url: 'http://example.com/5'
+        url: 'http://example.com/6'
       }
     ],
     filters: [
       {
         action: 'slow',
-        feedId: 'feed-5',
+        feedId: feed,
         id: filter,
         isLoading: false,
         priority: 100,
@@ -117,8 +121,8 @@ test('export state JSON', async () => {
     ],
     posts: [
       {
-        feedId: 'feed-5',
-        id: 'post-1',
+        feedId: feed,
+        id: post,
         intro: 'Post 1',
         isLoading: false,
         media: [],
