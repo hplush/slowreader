@@ -8,7 +8,7 @@ import {
 import { getFeeds } from '../feed.ts'
 import { createPage } from './common.ts'
 
-export const feedsByCategories = createPage('feedsByCategories', () => {
+export const feedsByCategoriesPage = createPage('feedsByCategories', () => {
   let $categories = getCategories()
   let $feeds = getFeeds()
 
@@ -33,4 +33,4 @@ export const feedsByCategories = createPage('feedsByCategories', () => {
   }
 })
 
-export type FeedsByCategoriesPage = ReturnType<typeof feedsByCategories>
+export type FeedsByCategoriesPage = ReturnType<typeof feedsByCategoriesPage>

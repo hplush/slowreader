@@ -4,7 +4,7 @@ import { getEnvironment } from '../environment.ts'
 import { getFeeds } from '../feed.ts'
 import { createPage } from './common.ts'
 
-export const home = createPage('home', () => {
+export const homePage = createPage('home', () => {
   let unbindFeeds = getFeeds().subscribe(feeds => {
     if (!feeds.isLoading) {
       getEnvironment().openRoute({
@@ -24,4 +24,4 @@ export const home = createPage('home', () => {
   }
 })
 
-export type HomePage = ReturnType<typeof home>
+export type HomePage = ReturnType<typeof homePage>

@@ -37,7 +37,7 @@ export type AddLinksValue = Record<
     }
 >
 
-export const add = createPage('add', () => {
+export const addPage = createPage('add', () => {
   let $url = atom<string | undefined>()
 
   let $links = map<AddLinksValue>({})
@@ -233,4 +233,4 @@ export const add = createPage('add', () => {
   }
 })
 
-export type AddPage = ReturnType<typeof add>
+export type AddPage = ReturnType<typeof addPage>

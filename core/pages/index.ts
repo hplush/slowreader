@@ -1,7 +1,7 @@
 import { atom } from 'nanostores'
 
 import type { RouteName, Routes } from '../router.ts'
-import { add } from './add.ts'
+import { addPage } from './add.ts'
 import {
   type BasePage,
   createPage,
@@ -9,8 +9,8 @@ import {
   createSimplePage,
   type PageCreator
 } from './common.ts'
-import { feedsByCategories } from './feeds-by-categories.ts'
-import { home } from './home.ts'
+import { feedsByCategoriesPage } from './feeds-by-categories.ts'
+import { homePage } from './home.ts'
 
 export type { AddPage } from './add.ts'
 export * from './common.ts'
@@ -36,13 +36,13 @@ export function underConstruction<Name extends RouteName>(
 
 export const pages = {
   about: createSimplePage('about'),
-  add,
+  add: addPage,
   download: createSimplePage('download'),
   export: underConstruction('export', []),
   fast: underConstruction('fast', ['category', 'post', 'since']),
   feeds: createRedirectPage('feeds', 'add'),
-  feedsByCategories,
-  home,
+  feedsByCategories: feedsByCategoriesPage,
+  home: homePage,
   import: underConstruction('import', []),
   interface: createSimplePage('interface'),
   notFound: createSimplePage('notFound'),
