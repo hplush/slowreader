@@ -45,14 +45,14 @@ test('groups feeds by categories', async () => {
   let feed5 = await addFeed(testFeed({ categoryId: 'unknown', title: '1' }))
 
   deepStrictEqual(page.groups.get(), [
-    [{ id: 'general', title: '' }, [await loadFeed(feed4)]],
+    [{ id: 'general', title: 'General' }, [await loadFeed(feed4)]],
     [
       { id: idA, isLoading: false, title: 'A' },
       [await loadFeed(feed1), await loadFeed(feed2)]
     ],
     [{ id: idB, isLoading: false, title: 'B' }, [await loadFeed(feed3)]],
     [{ id: idC, isLoading: false, title: 'C' }, []],
-    [{ id: 'broken', title: '' }, [await loadFeed(feed5)]]
+    [{ id: 'broken', title: 'Broken category' }, [await loadFeed(feed5)]]
   ])
 
   openPage({

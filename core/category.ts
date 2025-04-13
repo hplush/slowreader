@@ -99,10 +99,16 @@ export function feedsByCategory(
     return [category, byId[category.id]!]
   })
   if (general.length > 0) {
-    result.unshift([GENERAL_CATEGORY, general])
+    result.unshift([
+      { id: 'general', title: getCategoryTitle({ id: 'general', title: '' }) },
+      general
+    ])
   }
   if (broken.length > 0) {
-    result.push([BROKEN_CATEGORY, broken])
+    result.push([
+      { id: 'broken', title: getCategoryTitle({ id: 'broken', title: '' }) },
+      broken
+    ])
   }
 
   for (let i of result) {
