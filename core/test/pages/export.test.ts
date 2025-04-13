@@ -57,9 +57,7 @@ test('export OPML', async () => {
       `    <dateCreated>${start.toISOString()}</dateCreated>\n` +
       '  </head>\n' +
       '  <body>\n' +
-      '    <outline text="General">\n' +
-      '      <outline text="4" type="rss" xmlUrl="http://example.com/4" />\n' +
-      '    </outline>\n' +
+      '    <outline text="4" type="rss" xmlUrl="http://example.com/4" />\n' +
       '    <outline text="A">\n' +
       '      <outline text="1" type="rss" xmlUrl="http://example.com/1" />\n' +
       '      <outline text="2" type="rss" xmlUrl="http://example.com/2" />\n' +

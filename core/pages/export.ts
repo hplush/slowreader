@@ -56,11 +56,17 @@ export const exportPage = createPage('export', () => {
     let tree = feedsByCategory(categories.list, allFeeds.list)
 
     for (let [category, feeds] of tree) {
-      opml += `    <outline text="${getCategoryTitle(category)}">\n`
-      for (let { title, url } of feeds) {
-        opml += `      <outline text="${title}" type="rss" xmlUrl="${url}" />\n`
+      if (category.id !== 'general') {
+        opml += `    <outline text="${getCategoryTitle(category)}">\n`
       }
-      opml += `    </outline>\n`
+      for (let { title, url } of feeds) {
+        opml +=
+          (category.id === 'general' ? `    ` : `      `) +
+          `<outline text="${title}" type="rss" xmlUrl="${url}" />\n`
+      }
+      if (category.id !== 'general') {
+        opml += `    </outline>\n`
+      }
     }
     opml += '  </body>\n</opml>\n'
 
