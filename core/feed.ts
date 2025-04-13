@@ -83,7 +83,6 @@ export async function addCandidate(
 ): Promise<string> {
   return await addFeed({
     categoryId: 'general',
-    id: 'candidate',
     lastOriginId: undefined,
     lastPublishedAt: undefined,
     loader: candidate.name,
