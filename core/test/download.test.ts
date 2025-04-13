@@ -98,8 +98,6 @@ test('can download text by keeping eyes on abort signal', async () => {
   expectRequest('https://example.com').andRespond(200, 'Hi')
   let response1 = await task.text('https://example.com')
 
-  equal(response1.ok, true)
-  equal(response1.status, 200)
   equal(response1.url, 'https://example.com')
   equal(response1.text, 'Hi')
 

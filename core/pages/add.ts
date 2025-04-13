@@ -181,24 +181,20 @@ export const addPage = createPage('add', () => {
         unloadable(e)
         return
       }
-      if (!response.ok) {
-        unloadable(new Error(`${url}: ${response.status}`))
+      let byText = getLoaderForText(response)
+      if (!deep) {
+        let links = getLinksFromText(response)
+        if (links.length > 0) {
+          await Promise.all(links.map(i => addLink(task, i, true)))
+        } else if ($candidates.get().length === 0) {
+          let suggested = getSuggestedLinksFromText(response)
+          await Promise.all(suggested.map(i => addLink(task, i, true)))
+        }
+      }
+      if (byText) {
+        addCandidate(url, byText)
       } else {
-        let byText = getLoaderForText(response)
-        if (!deep) {
-          let links = getLinksFromText(response)
-          if (links.length > 0) {
-            await Promise.all(links.map(i => addLink(task, i, true)))
-          } else if ($candidates.get().length === 0) {
-            let suggested = getSuggestedLinksFromText(response)
-            await Promise.all(suggested.map(i => addLink(task, i, true)))
-          }
-        }
-        if (byText) {
-          addCandidate(url, byText)
-        } else {
-          $links.setKey(url, { state: 'unknown' })
-        }
+        $links.setKey(url, { state: 'unknown' })
       }
     } catch (error) {
       /* c8 ignore next 2 */

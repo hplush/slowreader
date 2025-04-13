@@ -6,7 +6,6 @@ let cache = new Map<string, Response>()
 export interface TextResponse {
   readonly contentType: string
   readonly headers: Headers
-  readonly ok: boolean
   parseJson(): unknown
   parseXml(): Document | null | XMLDocument
   readonly redirected: boolean
@@ -59,7 +58,6 @@ export function createTextResponse(
   return {
     contentType,
     headers,
-    ok: status >= 200 && status < 300,
     parseJson() {
       if (
         contentType !== 'application/json' &&
@@ -134,6 +132,12 @@ export function createDownloadTask(
         signal: controller.signal,
         ...opts
       })
+      if (controller.signal.aborted) {
+        throw new DOMException('', 'AbortError')
+      }
+      if (!response.ok) {
+        throw new Error(`${url}: ${response.status}`)
+      }
       if (taskOpts.cache === 'write') {
         cached.push(url)
         cache.set(url, response.clone())

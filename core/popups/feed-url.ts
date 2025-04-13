@@ -1,6 +1,6 @@
 import { atom } from 'nanostores'
 
-import { createDownloadTask } from '../download.ts'
+import { createDownloadTask, type TextResponse } from '../download.ts'
 import { type FeedValue, getFeeds } from '../feed.ts'
 import { getLoaderForText } from '../loader/index.ts'
 import { NotFoundError } from '../not-found.ts'
@@ -8,7 +8,12 @@ import { definePopup, type LoadedPopup } from './common.ts'
 
 export const feedUrl = definePopup('feedUrl', async url => {
   let task = createDownloadTask({ cache: 'read' })
-  let response = await task.text(url)
+  let response: TextResponse
+  try {
+    response = await task.text(url)
+  } catch {
+    throw new NotFoundError()
+  }
 
   let candidate = getLoaderForText(response)
   if (!candidate) {
