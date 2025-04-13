@@ -1,5 +1,6 @@
 import '../dom-parser.ts'
 
+import { loadValue } from '@logux/client'
 import { cleanStores, keepMount } from 'nanostores'
 import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
@@ -11,6 +12,7 @@ import {
   closeLastPopup,
   deleteFeed,
   expectRequest,
+  getFeed,
   mockRequest,
   openedPopups,
   setBaseTestRoute,
@@ -82,13 +84,15 @@ test('loads feeds by URL popup', async () => {
   deepStrictEqual(checkLoadedPopup(popup).posts.get().list.length, 2)
   deepStrictEqual(checkLoadedPopup(popup).posts.get().list[0]?.originId, '2')
 
-  let feedId = await addFeed(testFeed({ url: 'https://a.com/atom' }))
+  let addedId = await checkLoadedPopup(popup).add()
+  let feedId = checkLoadedPopup(popup).feed.get()!.id
+  equal(addedId, feedId)
   equal(checkLoadedPopup(popup).feed.get()!.url, 'https://a.com/atom')
-  equal(checkLoadedPopup(popup).feed.get()!.id, feedId)
-  equal(checkLoadedPopup(popup).feed.get()!.title, 'Test 1')
+  equal(checkLoadedPopup(popup).feed.get()!.title, 'Atom')
+  equal((await loadValue(getFeed(feedId)))!.title, 'Atom')
 
-  await changeFeed(feedId, { title: 'New Test 1' })
-  equal(checkLoadedPopup(popup).feed.get()!.title, 'New Test 1')
+  await changeFeed(feedId, { title: 'Test Atom' })
+  equal(checkLoadedPopup(popup).feed.get()!.title, 'Test Atom')
 
   await deleteFeed(feedId)
   equal(checkLoadedPopup(popup).feed.get(), undefined)

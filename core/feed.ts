@@ -14,7 +14,7 @@ import { nanoid } from 'nanoid'
 import { getClient } from './client.ts'
 import { createDownloadTask } from './download.ts'
 import type { OptionalId } from './lib/stores.ts'
-import { type LoaderName, loaders } from './loader/index.ts'
+import { type FeedLoader, type LoaderName, loaders } from './loader/index.ts'
 import { deletePost, loadPosts, recalcPostsReading } from './post.ts'
 import type { PostsList } from './posts-list.ts'
 
@@ -75,6 +75,23 @@ export async function changeFeed(
 ): Promise<void> {
   await changeSyncMapById(getClient(), Feed, feedId, changes)
   await recalcPostsReading(feedId)
+}
+
+export async function addCandidate(
+  candidate: FeedLoader,
+  fields: Partial<FeedValue> = {}
+): Promise<string> {
+  return await addFeed({
+    categoryId: 'general',
+    id: 'candidate',
+    lastOriginId: undefined,
+    lastPublishedAt: undefined,
+    loader: candidate.name,
+    reading: 'fast',
+    title: candidate.title,
+    url: candidate.url,
+    ...fields
+  })
 }
 
 export function getFeedLatestPosts(
