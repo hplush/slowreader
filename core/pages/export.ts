@@ -22,6 +22,23 @@ export interface StateExport {
   settings: Settings
 }
 
+export function isStateExportFile(state: unknown): state is StateExport {
+  return (
+    typeof state === 'object' &&
+    state !== null &&
+    'feeds' in state &&
+    Array.isArray(state.feeds) &&
+    'categories' in state &&
+    Array.isArray(state.categories) &&
+    'posts' in state &&
+    Array.isArray(state.posts) &&
+    'filters' in state &&
+    Array.isArray(state.filters) &&
+    'settings' in state &&
+    typeof state.settings === 'object'
+  )
+}
+
 async function loadList<Value extends SyncMapValues>(
   filter: FilterStore<Value>
 ): Promise<Omit<Value, 'isLoading'>[]> {
@@ -33,7 +50,7 @@ async function loadList<Value extends SyncMapValues>(
 }
 
 export const exportPage = createPage('export', () => {
-  let exited = false
+  let stopped = false
 
   let $exportingOpml = atom(false)
 
@@ -52,7 +69,7 @@ export const exportPage = createPage('export', () => {
       loadValue(getCategories()),
       loadValue(getFeeds())
     ])
-    if (exited) return false
+    if (stopped) return false
     let tree = feedsByCategory(categories.list, allFeeds.list)
 
     for (let [category, feeds] of tree) {
@@ -90,7 +107,7 @@ export const exportPage = createPage('export', () => {
       }
     } satisfies StateExport
 
-    if (exited) return false
+    if (stopped) return false
 
     let blob = new Blob([JSON.stringify(state, null, 2)], {
       type: 'application/json'
@@ -101,7 +118,7 @@ export const exportPage = createPage('export', () => {
 
   return {
     exit() {
-      exited = true
+      stopped = true
     },
     exportingOpml: $exportingOpml,
     exportingState: $exportingState,

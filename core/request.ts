@@ -31,6 +31,7 @@ interface RequestExpect {
 
 let requestExpects: RequestExpect[] = []
 
+/* c8 ignore start */
 export class MockRequestError extends Error {
   constructor(message: string) {
     super(message)
@@ -39,7 +40,6 @@ export class MockRequestError extends Error {
   }
 }
 
-/* c8 ignore start */
 let fetchMock: RequestMethod = async (url, opts = {}) => {
   let expect = requestExpects.shift()
   if (!expect) {

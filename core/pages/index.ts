@@ -12,12 +12,14 @@ import {
 import { exportPage } from './export.ts'
 import { feedsByCategoriesPage } from './feeds-by-categories.ts'
 import { homePage } from './home.ts'
+import { importPage } from './import.ts'
 
 export type { AddPage } from './add.ts'
 export * from './common.ts'
 export type { ExportPage } from './export.ts'
 export type { FeedsByCategoriesPage } from './feeds-by-categories.ts'
 export type { HomePage } from './home.ts'
+export type { ImportPage } from './import.ts'
 
 // TODO: Remove after refactoring
 /* c8 ignore start */
@@ -45,7 +47,7 @@ export const pages = {
   feeds: createRedirectPage('feeds', 'add'),
   feedsByCategories: feedsByCategoriesPage,
   home: homePage,
-  import: underConstruction('import', []),
+  import: importPage,
   interface: createSimplePage('interface'),
   notFound: createSimplePage('notFound'),
   profile: createSimplePage('profile'),
