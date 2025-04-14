@@ -12,7 +12,7 @@ import {
 import { nanoid } from 'nanoid'
 
 import { getClient } from './client.ts'
-import { createDownloadTask } from './download.ts'
+import { createDownloadTask, type TextResponse } from './download.ts'
 import type { OptionalId } from './lib/stores.ts'
 import { type FeedLoader, type LoaderName, loaders } from './loader/index.ts'
 import { deletePost, loadPosts, recalcPostsReading } from './post.ts'
@@ -79,12 +79,18 @@ export async function changeFeed(
 
 export async function addCandidate(
   candidate: FeedLoader,
-  fields: Partial<FeedValue> = {}
+  fields: Partial<FeedValue> = {},
+  task = createDownloadTask(),
+  response?: TextResponse
 ): Promise<string> {
+  let posts = candidate.loader.getPosts(task, candidate.url, response)
+  if (posts.get().isLoading) await posts.loading
+  let lastPost = posts.get().list[0]
+
   return await addFeed({
     categoryId: 'general',
-    lastOriginId: undefined,
-    lastPublishedAt: undefined,
+    lastOriginId: lastPost?.originId,
+    lastPublishedAt: lastPost?.publishedAt ?? Date.now() / 1000,
     loader: candidate.name,
     reading: 'fast',
     title: candidate.title,

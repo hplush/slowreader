@@ -90,6 +90,8 @@ test('loads feeds by URL popup', async () => {
   equal(checkLoadedPopup(popup).feed.get()!.url, 'https://a.com/atom')
   equal(checkLoadedPopup(popup).feed.get()!.title, 'Atom')
   equal((await loadValue(getFeed(feedId)))!.title, 'Atom')
+  equal((await loadValue(getFeed(feedId)))!.lastOriginId, '2')
+  equal((await loadValue(getFeed(feedId)))!.lastPublishedAt, 1688169600)
 
   await changeFeed(feedId, { title: 'Test Atom' })
   equal(checkLoadedPopup(popup).feed.get()!.title, 'Test Atom')

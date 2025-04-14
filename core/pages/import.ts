@@ -75,10 +75,12 @@ export const importPage = createPage('import', () => {
       if (!candidate) {
         $feedErrors.setKey(url, 'unknown')
       } else {
-        await addCandidate(candidate, {
-          categoryId,
-          title: title ?? candidate.title
-        })
+        await addCandidate(
+          candidate,
+          { categoryId, title: title ?? candidate.title },
+          task,
+          response
+        )
       }
 
       done()

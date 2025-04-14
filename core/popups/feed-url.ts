@@ -43,7 +43,7 @@ export const feedUrl = definePopup('feedUrl', async url => {
   })
 
   async function add(): Promise<string> {
-    return await addCandidate(candidate)
+    return await addCandidate(candidate, {}, task, response)
   }
 
   return {
