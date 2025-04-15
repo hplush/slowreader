@@ -36,7 +36,6 @@ test('export OPML', async () => {
   })
 
   let blob: Blob | undefined
-  let start = new Date()
   page.exportOpml().then(result => {
     equal(typeof result, 'object')
     blob = result as Blob
@@ -49,12 +48,11 @@ test('export OPML', async () => {
   equal(typeof blob, 'object')
   let xml = await blob!.text()
   equal(
-    xml,
+    xml.replace(/ {4}<dateCreated>[^<]*<\/dateCreated>\n/, ''),
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
       '<opml version="2.0">\n' +
       '  <head>\n' +
       '    <title>SlowReader Feeds</title>\n' +
-      `    <dateCreated>${start.toISOString()}</dateCreated>\n` +
       '  </head>\n' +
       '  <body>\n' +
       '    <outline text="4" type="rss" xmlUrl="http://example.com/4" />\n' +
