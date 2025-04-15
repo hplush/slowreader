@@ -1,7 +1,7 @@
 # Creates development machine inside docker
 # so every developer will have the same environment
 
-FROM registry.fedoraproject.org/fedora:41@sha256:3a08fca6d5bbf49b1e3c2e445a6909f863b15393df6aad1bdb5520a8e7d9e749
+FROM registry.fedoraproject.org/fedora:42@sha256:a5cae39de5bd596d7a4dd0ddfa1c0557c13bc51d6c9fdc13f23c67473a5d3213
 
 ARG TARGETARCH
 
@@ -9,15 +9,15 @@ ENV NODE_VERSION 22.14.0
 ENV NODE_CHECKSUM_X64 69b09dba5c8dcb05c4e4273a4340db1005abeafe3927efda2bc5b249e80437ec
 ENV NODE_CHECKSUM_ARM64 69b09dba5c8dcb05c4e4273a4340db1005abeafe3927efda2bc5b249e80437ec
 
-ENV PNPM_VERSION 10.8.0
-ENV PNPM_CHECKSUM_X64 e9897f74fc90e60040b47b6a76d973edd17297ff4fbd435cae420f672a6e38e8
-ENV PNPM_CHECKSUM_ARM64 fb2956d2bfe3beefc7486e6cb4d5f82d986b615d80e76a752d8a4ea34212f257
+ENV PNPM_VERSION 10.8.1
+ENV PNPM_CHECKSUM_X64 11b81fbad6333579af6b03106d6a4f49cf669e9b96d68db18e42db17427f6660
+ENV PNPM_CHECKSUM_ARM64 f01b8a3bd14ad93771dbcdd517156a3543e03bfdbceb63ac159ee3a1d49a978b
 
 ENV PINACT_VERSION 3.0.1
 ENV PINACT_CHECKSUM_X64 f4f35e2dc4cf1243cd0e8d3bc0b49c8b30c388d1dcae5907afcd97b00ddb556e
 ENV PINACT_CHECKSUM_ARM64 b319fc572c3fae75a2744732d9c943d1b7402e1a43a3aabd8ab72f2feb1454f7
 
-RUN dnf install -yq zsh micro git tig iputils psmisc procps-ng \
+RUN dnf install -yq zsh micro git tig iputils psmisc procps-ng awk \
   && dnf clean all \
   && rm -rf /var/cache/dnf
 
