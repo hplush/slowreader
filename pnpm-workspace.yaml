@@ -6,3 +6,5 @@ packages:
   - proxy
   - loader-tests
   - extension
+onlyBuiltDependencies:
+  - husky

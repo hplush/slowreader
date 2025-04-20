@@ -57,7 +57,6 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
 
    ```sh
    pnpm install
-   pnpm prepare
    ```
 
 3. Run tests to be sure that everything is OK (open issue if tests don’t work in your environment):
