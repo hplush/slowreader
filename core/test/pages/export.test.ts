@@ -63,9 +63,7 @@ test('export OPML', async () => {
       '    <outline text="B">\n' +
       '      <outline text="3" type="rss" xmlUrl="http://example.com/3" />\n' +
       '    </outline>\n' +
-      '    <outline text="Broken category">\n' +
-      '      <outline text="5" type="rss" xmlUrl="http://example.com/5" />\n' +
-      '    </outline>\n' +
+      '    <outline text="5" type="rss" xmlUrl="http://example.com/5" />\n' +
       '  </body>\n' +
       '</opml>\n'
   )

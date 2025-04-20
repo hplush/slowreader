@@ -5,8 +5,7 @@ import { atom } from 'nanostores'
 import {
   type CategoryValue,
   feedsByCategory,
-  getCategories,
-  getCategoryTitle
+  getCategories
 } from '../category.ts'
 import { type FeedValue, getFeeds } from '../feed.ts'
 import { type FilterValue, getFilters } from '../filter.ts'
@@ -49,6 +48,11 @@ async function loadList<Value extends SyncMapValues>(
   })
 }
 
+const NO_OPML_CATEGORY: Record<string, boolean> = {
+  broken: true,
+  general: true
+}
+
 export const exportPage = createPage('export', () => {
   let stopped = false
 
@@ -73,15 +77,15 @@ export const exportPage = createPage('export', () => {
     let tree = feedsByCategory(categories.list, allFeeds.list)
 
     for (let [category, feeds] of tree) {
-      if (category.id !== 'general') {
-        opml += `    <outline text="${getCategoryTitle(category)}">\n`
+      if (!NO_OPML_CATEGORY[category.id]) {
+        opml += `    <outline text="${category.title}">\n`
       }
       for (let { title, url } of feeds) {
         opml +=
-          (category.id === 'general' ? `    ` : `      `) +
+          (NO_OPML_CATEGORY[category.id] ? `    ` : `      `) +
           `<outline text="${title}" type="rss" xmlUrl="${url}" />\n`
       }
-      if (category.id !== 'general') {
+      if (!NO_OPML_CATEGORY[category.id]) {
         opml += `    </outline>\n`
       }
     }
