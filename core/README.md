@@ -15,6 +15,8 @@ All clients share the logic from the core. This core logic is defined as smart s
 In the best scenario, the client should just subscribe to stores, render UI according to the stores, and call core function on user actions.
 
 - [`loader/`](./loader/): support of each social network or news format.
+- [`pages/`](./pages/): logic of each app’s page.
+- [`popups/`](./popups/): logic of each side popup.
 - [`messages/`](./messages/): translations for in the UI of all clients.
   - We are using [Nano Stores I18n](https://github.com/nanostores/i18n) to
     support different languages in UI.
@@ -23,9 +25,7 @@ In the best scenario, the client should just subscribe to stores, render UI acco
 - [`lib/`](./lib/): shared functions used in multiple core modules.
 - [`test/`](./test/): unit tests for modules, loaders and utilities.
 - `{MODULE}.ts`: client logic separated by modules.
-  - Stores do things, which we often do UI components. For instance, pagination or validation.
-  - Each page should have its own module.
-  - To avoid name conflict, each module should use the module’s name in exported functions and stores.
+  - To avoid name conflict, each module should use the module’s name or term in exported functions and stores.
 
 ## Scripts
 
