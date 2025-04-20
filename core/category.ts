@@ -99,16 +99,10 @@ export function feedsByCategory(
     return [category, byId[category.id]!]
   })
   if (general.length > 0) {
-    result.unshift([
-      { id: 'general', title: getCategoryTitle({ id: 'general', title: '' }) },
-      general
-    ])
+    result.unshift([getGeneralCategory(), general])
   }
   if (broken.length > 0) {
-    result.push([
-      { id: 'broken', title: getCategoryTitle({ id: 'broken', title: '' }) },
-      broken
-    ])
+    result.push([getBrokenCategory(), broken])
   }
 
   for (let i of result) {
@@ -118,12 +112,10 @@ export function feedsByCategory(
   return result
 }
 
-export function getCategoryTitle(category: CategoryValue): string {
-  if (category.id === 'general') {
-    return common.value?.generalCategory || category.id
-  } else if (category.id === 'broken') {
-    return common.value?.brokenCategory || category.id
-  } else {
-    return category.title
-  }
+export function getGeneralCategory(): CategoryValue {
+  return { id: 'general', title: common.value?.generalCategory || 'General' }
+}
+
+export function getBrokenCategory(): CategoryValue {
+  return { id: 'broken', title: common.value?.brokenCategory || 'Broken' }
 }
