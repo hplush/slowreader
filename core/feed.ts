@@ -129,7 +129,7 @@ export const BROKEN_FEED: FeedValue = {
   lastOriginId: undefined,
   lastPublishedAt: undefined,
   loader: 'atom',
-  reading: 'fast',
+  reading: 'slow',
   title: 'Missed',
   url: ''
 }

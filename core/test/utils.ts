@@ -3,25 +3,30 @@ import { fail } from 'node:assert'
 
 import {
   type BasePopup,
+  type BaseReader,
   type BaseRoute,
   Category,
   client,
   currentPage,
   enableTestTime,
   type EnvironmentAndStore,
-  fastCategories,
+  fastMenu,
   Feed,
+  type FeedReader,
   Filter,
   getTestEnvironment,
+  type ListReader,
+  menuLoading,
   openedPopups,
   openPopup,
   type Page,
   type Popup,
   type PopupName,
   Post,
+  type ReaderName,
   setBaseTestRoute,
   setupEnvironment,
-  slowCategories,
+  slowMenu,
   userId
 } from '../index.ts'
 
@@ -33,7 +38,7 @@ export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
 }
 
 export async function cleanClientTest(): Promise<void> {
-  cleanStores(fastCategories, Feed, Filter, Category, Post, slowCategories)
+  cleanStores(Feed, Filter, Category, Post, fastMenu, slowMenu, menuLoading)
   await client.get()?.clean()
 }
 
@@ -113,4 +118,15 @@ export function openPage<SomeRoute extends BaseRoute | Omit<BaseRoute, 'hash'>>(
     throw new Error(`Current is ${page.route}, but ${route.route} was expected`)
   }
   return page as Page<SomeRoute['route']>
+}
+
+export function ensureReader<Name extends ReaderName>(
+  atom: ReadableAtom<BaseReader | undefined>,
+  name: Name
+): Name extends 'feed' ? FeedReader : ListReader {
+  let reader = atom.get()
+  if (!reader || reader.name !== name) {
+    throw new Error(`Reader is ${reader?.name}, but ${name} was expected`)
+  }
+  return reader as Name extends 'feed' ? FeedReader : ListReader
 }

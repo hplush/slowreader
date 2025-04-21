@@ -1,4 +1,4 @@
-import { atom, type ReadableAtom } from 'nanostores'
+import { atom, type ReadableAtom, type WritableStore } from 'nanostores'
 
 import { getEnvironment } from '../environment.ts'
 import type { ParamlessRouteName, RouteName, Routes } from '../router.ts'
@@ -7,8 +7,8 @@ type Extra = {
   exit?: () => void
 }
 
-type ParamStores<Name extends RouteName> = {
-  [Param in keyof Routes[Name]]-?: ReadableAtom<Routes[Name][Param]>
+export type ParamStores<Name extends RouteName> = {
+  [Param in keyof Routes[Name]]-?: WritableStore<Routes[Name][Param]>
 }
 
 export type BasePage<Name extends RouteName = RouteName> = {
@@ -16,7 +16,6 @@ export type BasePage<Name extends RouteName = RouteName> = {
   readonly loading: ReadableAtom<boolean>
   params: ParamStores<Name>
   readonly route: Name
-  underConstruction?: boolean // TODO: Remove after refactoring
 }
 
 export interface PageCreator<

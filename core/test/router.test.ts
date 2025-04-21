@@ -1,16 +1,12 @@
 import { keepMount } from 'nanostores'
 import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
-import { setTimeout } from 'node:timers/promises'
 
 import {
   addCategory,
-  addFeed,
   addPopup,
-  addPost,
   closeAllPopups,
   closeLastPopup,
-  deleteCategory,
   isGuestRoute,
   isOtherRoute,
   openedPopups,
@@ -18,8 +14,6 @@ import {
   removeLastPopup,
   router,
   setBaseTestRoute,
-  testFeed,
-  testPost,
   userId
 } from '../index.ts'
 import { cleanClientTest, enableClientTest } from './utils.ts'
@@ -53,7 +47,7 @@ test('transforms routers for users', () => {
   userId.set('10')
   setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
   deepStrictEqual(router.get(), {
-    params: { category: 'general' },
+    params: { category: 'general', reader: undefined, since: undefined },
     popups: [],
     route: 'fast'
   })
@@ -68,31 +62,6 @@ test('transforms routers for users', () => {
 
   userId.set(undefined)
   deepStrictEqual(router.get(), { params: {}, popups: [], route: 'signin' })
-})
-
-test('transforms routers to first fast category', async () => {
-  userId.set('10')
-  let idA = await addCategory({ title: 'A' })
-  let idB = await addCategory({ title: 'B' })
-  await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
-  await addFeed(testFeed({ categoryId: idB, reading: 'fast' }))
-
-  setBaseTestRoute({ params: {}, route: 'fast' })
-  await setTimeout(100)
-  deepStrictEqual(router.get(), {
-    params: { category: idA },
-    popups: [],
-    redirect: true,
-    route: 'fast'
-  })
-
-  await deleteCategory(idA)
-  deepStrictEqual(router.get(), {
-    params: { category: 'broken' },
-    popups: [],
-    redirect: true,
-    route: 'fast'
-  })
 })
 
 test('has routes groups', () => {
@@ -126,58 +95,67 @@ test('has routes groups', () => {
 test('converts since to number', async () => {
   userId.set('10')
   let idA = await addCategory({ title: 'A' })
-  let feed = await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
-  let post = await addPost(testPost({ feedId: feed }))
-  await setTimeout(10)
 
   setBaseTestRoute({ params: { category: idA, since: 1000 }, route: 'fast' })
   deepStrictEqual(router.get(), {
-    params: { category: idA, since: 1000 },
+    params: { category: idA, reader: undefined, since: 1000 },
     popups: [],
     route: 'fast'
   })
 
   setBaseTestRoute({ params: { category: idA, since: '1000' }, route: 'fast' })
   deepStrictEqual(router.get(), {
-    params: { category: idA, since: 1000 },
+    params: { category: idA, reader: undefined, since: 1000 },
     popups: [],
     route: 'fast'
   })
 
   setBaseTestRoute({
-    params: { category: idA, post, since: '1000' },
+    params: { category: idA, reader: undefined, since: '1000k' },
     route: 'fast'
   })
-  deepStrictEqual(router.get(), {
-    params: { category: idA, post, since: 1000 },
-    popups: [],
-    route: 'fast'
-  })
-  await setTimeout(10)
-
-  setBaseTestRoute({ params: { category: idA, since: '1000k' }, route: 'fast' })
   deepStrictEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
 })
 
-test('checks that category exists', async () => {
+test('checks reader values', async () => {
   userId.set('10')
   let idA = await addCategory({ title: 'A' })
-  await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
 
   setBaseTestRoute({
-    params: { category: 'unknown', since: 100 },
+    params: { category: idA, reader: 'feed' },
     route: 'fast'
   })
-  await setTimeout(100)
-  deepStrictEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
-
-  setBaseTestRoute({ params: { category: idA, since: 100 }, route: 'fast' })
-  await setTimeout(100)
   deepStrictEqual(router.get(), {
-    params: { category: idA, since: 100 },
+    params: { category: idA, reader: 'feed', since: undefined },
     popups: [],
     route: 'fast'
   })
+
+  setBaseTestRoute({
+    params: { category: idA, reader: 'list' },
+    route: 'fast'
+  })
+  deepStrictEqual(router.get(), {
+    params: { category: idA, reader: 'list', since: undefined },
+    popups: [],
+    route: 'fast'
+  })
+
+  setBaseTestRoute({
+    params: { category: idA },
+    route: 'fast'
+  })
+  deepStrictEqual(router.get(), {
+    params: { category: idA, reader: undefined, since: undefined },
+    popups: [],
+    route: 'fast'
+  })
+
+  setBaseTestRoute({
+    params: { category: idA, reader: 'unknown' },
+    route: 'fast'
+  })
+  deepStrictEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
 })
 
 test('has helpers for popups', () => {

@@ -61,10 +61,6 @@ export function getPost(postId: string): SyncMapStore<PostValue> {
   return Post(postId, getClient())
 }
 
-export async function loadPost(postId: string): Promise<PostValue | undefined> {
-  return loadValue(Post(postId, getClient()))
-}
-
 export function deletePost(postId: string): Promise<void> {
   return deleteSyncMapById(getClient(), Post, postId)
 }

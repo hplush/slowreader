@@ -5,14 +5,21 @@ import { setTimeout } from 'node:timers/promises'
 
 import {
   addFeed,
+  busy,
+  busyUntilMenuLoader,
   currentPage,
   setBaseTestRoute,
-  testFeed
+  testFeed,
+  waitLoading
 } from '../../index.ts'
 import { cleanClientTest, enableClientTest } from '../utils.ts'
 
 beforeEach(() => {
   enableClientTest()
+  setBaseTestRoute({
+    params: {},
+    route: 'notFound'
+  })
 })
 
 afterEach(async () => {
@@ -38,15 +45,17 @@ test('redirects from feeds root to add feed page', () => {
 })
 
 test('redirects from home depending on feeds', async () => {
+  busyUntilMenuLoader()
+  await waitLoading(busy)
+
   keepMount(currentPage)
   setBaseTestRoute({
     params: {},
     route: 'home'
   })
-  await setTimeout(10)
   equal(currentPage.get().route, 'welcome')
 
-  await addFeed(testFeed())
+  await addFeed(testFeed({ reading: 'slow' }))
   setBaseTestRoute({
     params: {},
     route: 'home'

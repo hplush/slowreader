@@ -15,7 +15,6 @@
     "format": "pnpm run -r --include-workspace-root /^format:/",
     "clean": "pnpm run -r --include-workspace-root /^clean:/",
     "build": "pnpm run -r build",
-    "prepare": "pnpm run -r --include-workspace-root /^prepare:/",
     "update-env": "./scripts/tsnode ./scripts/update-env.ts",
     "format:prettier": "prettier -w **/*.{js,ts,html,md,json} *.{json,md}",
     "test:js": "eslint .",
@@ -28,7 +27,6 @@
     "test:format": "prettier --check **/*.{js,ts,html,md,cts,json} *.{ts,json,md}",
     "check-opml": "./scripts/tsnode loader-tests/check-opml.ts",
     "test-loaders": "./scripts/tsnode loader-tests/test-loaders.ts loader-tests/feeds.yml",
-    "prepare:husky": "husky",
     "tsnode": "./scripts/tsnode"
   },
   "devDependencies": {

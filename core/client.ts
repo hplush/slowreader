@@ -1,10 +1,10 @@
 import { type ClientOptions, CrossTabClient } from '@logux/client'
 import { TestPair, TestTime } from '@logux/core'
 import { SUBPROTOCOL } from '@slowreader/api'
-import { atom } from 'nanostores'
+import { atom, effect } from 'nanostores'
 
 import { onEnvironment } from './environment.ts'
-import { computeFrom, readonlyExport } from './lib/stores.ts'
+import { readonlyExport } from './lib/stores.ts'
 import { userId } from './settings.ts'
 
 let testTime: TestTime | undefined
@@ -23,7 +23,7 @@ let $client = atom<CrossTabClient | undefined>()
 export const client = readonlyExport($client)
 
 onEnvironment(({ logStoreCreator }) => {
-  let unbindUserId = computeFrom($client, [userId], user => {
+  let unbindUser = effect(userId, user => {
     prevClient?.destroy()
 
     if (user) {
@@ -37,13 +37,13 @@ onEnvironment(({ logStoreCreator }) => {
       })
       logux.start(false)
       prevClient = logux
-      return logux
+      $client.set(logux)
     } else {
-      return undefined
+      $client.set(undefined)
     }
   })
   return () => {
-    unbindUserId()
+    unbindUser()
     prevClient?.destroy()
   }
 })

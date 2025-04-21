@@ -35,33 +35,51 @@ export const pathRouter = createRouter({
 
 type PathParams = ParamsFromConfig<ConfigFromRouter<typeof pathRouter>>
 
+function moveFromSearch<Params extends Record<string, number | string>>(
+  params: Partial<Record<keyof Params, string>>,
+  search: Record<string, string>,
+  move: {
+    [key in keyof Params]: Params[key] extends number | undefined
+      ? 'number'
+      : true
+  }
+): Params {
+  let copy = { ...params } as Params
+  for (let name in move) {
+    if (name in search) {
+      if (move[name] === 'number') {
+        // @ts-expect-error Too complex to type
+        copy[name] = Number(search[name])
+      } else {
+        // @ts-expect-error Too complex to type
+        copy[name] = search[name]
+      }
+    }
+  }
+  return copy
+}
+
 export const urlRouter = computed(pathRouter, path => {
   if (!path) {
     return undefined
-  } else if (path.route === 'add') {
+  } else if (path.route === 'slow') {
     return {
       hash: path.hash,
-      params: path.params,
+      params: moveFromSearch<Routes['slow']>(path.params, path.search, {
+        feed: true,
+        reader: true,
+        since: 'number'
+      }),
       route: path.route
     }
   } else if (path.route === 'fast') {
-    let params: Routes['fast'] = path.params
-    if ('since' in path.search) params.since = Number(path.search.since)
-    if ('post' in path.search) params.post = path.search.post
     return {
       hash: path.hash,
-      params,
-      route: path.route
-    }
-  } else if (path.route === 'slow') {
-    let params: Routes['slow'] = path.params
-    if ('page' in path.search) {
-      params.page = Number(path.search.page)
-    }
-    if ('post' in path.search) params.post = path.search.post
-    return {
-      hash: path.hash,
-      params,
+      params: moveFromSearch<Routes['fast']>(path.params, path.search, {
+        category: true,
+        reader: true,
+        since: 'number'
+      }),
       route: path.route
     }
   } else {
@@ -115,10 +133,18 @@ export function getURL(
   }
 
   let url
-  if (page.route === 'fast') {
-    url = moveToSearch(page, { post: true, since: true })
-  } else if (page.route === 'slow') {
-    url = moveToSearch(page, { page: true, post: true })
+  if (page.route === 'slow') {
+    url = moveToSearch(page, {
+      category: true,
+      reader: true,
+      since: true
+    })
+  } else if (page.route === 'fast') {
+    url = moveToSearch(page, {
+      feed: true,
+      reader: true,
+      since: true
+    })
   } else {
     url = getPagePath(pathRouter, page)
   }

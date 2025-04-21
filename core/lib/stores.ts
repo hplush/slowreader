@@ -1,17 +1,16 @@
 import type { SyncMapValues } from '@logux/actions'
 import type { LoadedSyncMap, SyncMapStore } from '@logux/client'
-import type {
-  MapStore,
-  ReadableAtom,
-  StoreValue,
-  WritableAtom
+import type { Action } from '@logux/core'
+import {
+  type MapStore,
+  onMount,
+  type ReadableAtom,
+  type StoreValue
 } from 'nanostores'
 
-export type OptionalId<Value> = { id?: string } & Omit<Value, 'id'>
+import { client } from '../client.ts'
 
-type StoreValues<Stores extends ReadableAtom[]> = {
-  [Index in keyof Stores]: StoreValue<Stores[Index]>
-}
+export type OptionalId<Value> = { id?: string } & Omit<Value, 'id'>
 
 export function readonlyExport<Value>(
   store: ReadableAtom<Value>
@@ -32,39 +31,9 @@ export function increaseKey<Store extends MapStore>(
   store.setKey(key, value + 1)
 }
 
-export function listenMany<SourceStores extends ReadableAtom[]>(
-  stores: [...SourceStores],
-  cb: (...values: StoreValues<SourceStores>) => void
-): () => void {
-  function listener(): void {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    let values = stores.map(store => store.get()) as StoreValues<SourceStores>
-    cb(...values)
-  }
-  let unbinds = stores.map(store => store.listen(listener))
-  listener()
-  return () => {
-    for (let unbind of unbinds) unbind()
-  }
-}
-
-export function computeFrom<Value, SourceStores extends ReadableAtom[]>(
-  to: WritableAtom<Value>,
-  stores: [...SourceStores],
-  compute: (...values: StoreValues<SourceStores>) => Value,
-  compare?: (a: Value, b: Value) => boolean
-): () => void {
-  return listenMany(stores, (...values) => {
-    let newValue = compute(...values)
-    if (!compare?.(newValue, to.get())) {
-      to.set(newValue)
-    }
-  })
-}
-
 export function waitLoading(store: ReadableAtom): Promise<void> {
   return new Promise<void>(resolve => {
-    let unbind = store.listen(state => {
+    let unbind = store.subscribe(state => {
       if (state === false) {
         unbind()
         resolve()
@@ -86,4 +55,40 @@ export async function waitSyncLoading<Value extends SyncMapValues>(
     }
   }
   return store as LoadedSyncMap<SyncMapStore<Value>>
+}
+
+export function onMountAny(stores: ReadableAtom[], cb: () => () => void): void {
+  let listeners = 0
+  let unbind = (): void => {}
+  function watching(): () => void {
+    listeners++
+    if (listeners === 1) {
+      unbind = cb()
+    }
+    return () => {
+      listeners--
+      if (listeners === 0) {
+        unbind()
+      }
+    }
+  }
+  for (let store of stores) {
+    onMount(store, () => watching())
+  }
+}
+
+export function onLogAction(cb: (action: Action) => void): () => void {
+  let unbindLog: (() => void) | undefined
+  let unbindClient = client.subscribe(loguxClient => {
+    unbindLog?.()
+    unbindLog = undefined
+    if (loguxClient) {
+      unbindLog = loguxClient.log.on('add', cb)
+    }
+  })
+
+  return () => {
+    unbindLog?.()
+    unbindClient()
+  }
 }

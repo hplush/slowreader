@@ -1,17 +1,22 @@
-import { atom, type ReadableAtom } from 'nanostores'
+import { atom, effect, type ReadableAtom } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
-import { fastCategories } from './fast.ts'
-import { computeFrom, readonlyExport } from './lib/stores.ts'
+import { readonlyExport } from './lib/stores.ts'
+import { NotFoundError } from './not-found.ts'
+import type { ReaderName } from './readers/index.ts'
 import { userId } from './settings.ts'
-import { slowCategories } from './slow.ts'
 
 export interface Routes {
   about: {}
   add: { url?: string }
   download: {}
   export: {}
-  fast: { category?: string; post?: string; since?: number }
+  fast: {
+    category?: string
+    feed?: string
+    reader?: ReaderName
+    since?: number
+  }
   feeds: {}
   feedsByCategories: {}
   home: {}
@@ -22,7 +27,12 @@ export interface Routes {
   refresh: {}
   settings: {}
   signin: {}
-  slow: { feed?: string; page?: number; post?: string }
+  slow: {
+    category?: string
+    feed?: string
+    reader?: ReaderName
+    since?: number
+  }
   start: {}
   welcome: {}
 }
@@ -88,16 +98,28 @@ function redirect(route: Route): Route {
   return { ...route, redirect: true }
 }
 
-function validateNumber(
-  value: number | string,
-  cb: (fixed: number) => Route
-): Route {
-  if (typeof value === 'number') {
-    return cb(value)
-  } else if (/^\d+$/.test(value)) {
-    return cb(parseInt(value))
+function validateValues<const Values extends string[]>(
+  value: string | undefined,
+  list: Values
+): undefined | Values[number] {
+  if (typeof value === 'undefined' || list.includes(value)) {
+    return value
   } else {
-    return open('notFound')
+    throw new NotFoundError()
+  }
+}
+
+function validateNumber(
+  value: number | string | undefined
+): number | undefined {
+  if (typeof value === 'number') {
+    return value
+  } else if (typeof value === 'undefined') {
+    return value
+  } else if (/^\d+$/.test(value)) {
+    return parseInt(value)
+  } else {
+    throw new NotFoundError()
   }
 }
 
@@ -124,102 +146,37 @@ export function parsePopups(hash: string): PopupRoute[] {
 export const router = readonlyExport($router)
 
 onEnvironment(({ baseRouter }) => {
-  return computeFrom(
-    $router,
-    [baseRouter, userId, fastCategories, slowCategories],
-    (route, user, fast, slowUnread) => {
+  return effect([baseRouter, userId], (route, user) => {
+    let popups = user && route ? parsePopups(route.hash) : []
+    try {
       if (!route) {
-        return open('notFound')
-      } else if (!user) {
-        if (!GUEST.has(route.route)) {
-          return open('start')
-        } else {
-          return { params: route.params, popups: [], route: route.route }
-        }
+        $router.set(open('notFound'))
+      } else if (!user && !GUEST.has(route.route)) {
+        $router.set(open('start'))
+      } else if (user && GUEST.has(route.route)) {
+        $router.set(redirect(open('home')))
+      } else if (route.route === 'fast' || route.route === 'slow') {
+        $router.set({
+          params: {
+            ...route.params,
+            reader: validateValues(route.params.reader, ['feed', 'list']),
+            since: validateNumber(route.params.since)
+          },
+          popups,
+          route: route.route
+        })
       } else {
-        let popups = parsePopups(route.hash)
-        if (GUEST.has(route.route)) {
-          return redirect(open('home'))
-        } else if (route.route === 'fast') {
-          // TODO: move to new fast/slow migration to pages
-          if (!route.params.category && !fast.isLoading) {
-            return redirect({
-              params: { category: fast.categories[0].id },
-              popups,
-              route: 'fast'
-            })
-          }
-          // TODO: remove check from loader on fast/slow migration to pages
-          if (route.params.category && !fast.isLoading) {
-            let category = fast.categories.find(
-              i => i.id === route.params.category
-            )
-            if (!category) {
-              return open('notFound')
-            }
-          }
-          if (route.params.since) {
-            return validateNumber(route.params.since, since => {
-              return {
-                params: {
-                  ...route.params,
-                  since
-                },
-                popups,
-                route: route.route
-              }
-            })
-          }
-        } else if (route.route === 'slow') {
-          // TODO: move to new fast/slow migration to pages
-          if (!route.params.feed && !slowUnread.isLoading) {
-            let firstCategory = slowUnread.tree[0]
-            if (firstCategory) {
-              let feeds = firstCategory[1]
-              let feedData = feeds[0]
-              if (feedData) {
-                return redirect({
-                  params: { feed: feedData[0].id || '' },
-                  popups,
-                  route: 'slow'
-                })
-              }
-            }
-          }
-
-          if (route.params.page) {
-            return validateNumber(route.params.page, page => {
-              return {
-                params: {
-                  ...route.params,
-                  page
-                },
-                popups,
-                route: route.route
-              }
-            })
-          } else {
-            return {
-              params: {
-                ...route.params,
-                page: 1
-              },
-              popups,
-              route: 'slow'
-            }
-          }
-        }
-        return { params: route.params, popups, route: route.route }
+        $router.set({ params: route.params, popups, route: route.route })
       }
-    },
-    (oldRoute, newRoute) => {
-      return (
-        oldRoute.route === newRoute.route &&
-        JSON.stringify(oldRoute.params) === JSON.stringify(newRoute.params) &&
-        JSON.stringify(oldRoute.popups) === JSON.stringify(newRoute.popups)
-      )
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        $router.set(open('notFound'))
+      } else {
+        /* c8 ignore next 2 */
+        throw e
+      }
     }
-  )
+  })
 })
 
 export function isGuestRoute(route: Route): boolean {

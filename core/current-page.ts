@@ -9,7 +9,6 @@ function eachParam<SomeRoute extends Route>(
   route: SomeRoute,
   iterator: <Param extends keyof SomeRoute['params']>(
     store: WritableStore<SomeRoute['params'][Param]>,
-    name: Param,
     value: SomeRoute['params'][Param]
   ) => void
 ): void {
@@ -19,8 +18,21 @@ function eachParam<SomeRoute extends Route>(
     let value = params[name]
     // @ts-expect-error Too complex types for TS
     let store = page.params[name] as WritableStore<SomeRoute['params'][Param]>
-    iterator(store, name, value)
+    iterator(store, value)
   }
+}
+
+function getPageParams<SomeRoute extends Route>(
+  page: Page<SomeRoute['route']>
+): SomeRoute['params'] {
+  let params = {} as SomeRoute['params']
+  for (let i in page.params) {
+    let name = i as keyof SomeRoute['params']
+    // @ts-expect-error Too complex types for TS
+    // eslint-disable-next-line
+    params[name] = page.params[name].get()
+  }
+  return params
 }
 
 let prevPage: Page | undefined
@@ -35,17 +47,14 @@ export const currentPage: ReadableAtom<Page> = computed(router, route => {
     }
     prevPage = page
 
-    eachParam(page, route, (store, param) => {
+    eachParam(page, route, store => {
       unbinds.push(
-        store.listen(newValue => {
+        store.listen(() => {
           let currentRoute = router.get()
           if (currentRoute.route === page.route) {
             getEnvironment().openRoute({
               ...route,
-              params: {
-                ...route.params,
-                [param]: newValue
-              }
+              params: getPageParams(page)
             } as Route)
           }
         })
@@ -53,7 +62,7 @@ export const currentPage: ReadableAtom<Page> = computed(router, route => {
     })
   }
 
-  eachParam(page, route, (store, param, value) => {
+  eachParam(page, route, (store, value) => {
     if (store.get() !== value) {
       store.set(value)
     }
