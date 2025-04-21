@@ -123,7 +123,7 @@ test('imports state JSON', async () => {
   deepStrictEqual(await loadPosts(), [{ ...POST, isLoading: false }])
 })
 
-test.todo('imports OPML from the app', async () => {
+test('imports OPML from the app', async () => {
   let FEED2 = testFeed({ url: 'https://a.com/atom' })
   await addCategory(CATEGORY)
   await addFeed(FEED)
