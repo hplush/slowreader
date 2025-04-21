@@ -4,7 +4,6 @@ import {
   createSyncMap,
   deleteSyncMapById,
   type FilterStore,
-  loadValue,
   syncMapTemplate
 } from '@logux/client'
 import { nanoid } from 'nanoid'
@@ -27,11 +26,6 @@ export const Category = syncMapTemplate<CategoryValue>('categories', {
 
 export function getCategories(): FilterStore<CategoryValue> {
   return createFilter(getClient(), Category)
-}
-
-export async function loadCategories(): Promise<CategoryValue[]> {
-  let value = await loadValue(getCategories())
-  return value.list
 }
 
 export async function addCategory(

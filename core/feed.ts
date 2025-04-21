@@ -15,7 +15,7 @@ import { getClient } from './client.ts'
 import { createDownloadTask, type TextResponse } from './download.ts'
 import type { OptionalId } from './lib/stores.ts'
 import { type FeedLoader, type LoaderName, loaders } from './loader/index.ts'
-import { deletePost, loadPosts, recalcPostsReading } from './post.ts'
+import { deletePost, getPosts, recalcPostsReading } from './post.ts'
 import type { PostsList } from './posts-list.ts'
 
 export type FeedValue = {
@@ -40,13 +40,6 @@ export function getFeeds(
   return createFilter(getClient(), Feed, filter)
 }
 
-export async function loadFeeds(
-  filter: Filter<FeedValue> = {}
-): Promise<FeedValue[]> {
-  let value = await loadValue(getFeeds(filter))
-  return value.list
-}
-
 export async function addFeed(fields: OptionalId<FeedValue>): Promise<string> {
   let id = fields.id ?? nanoid()
   await createSyncMap(getClient(), Feed, { id, ...fields })
@@ -56,17 +49,13 @@ export async function addFeed(fields: OptionalId<FeedValue>): Promise<string> {
 export async function deleteFeed(feedId: string): Promise<void> {
   let feed = Feed.cache[feedId]
   if (feed) feed.deleted = true
-  let posts = await loadPosts({ feedId })
-  await Promise.all(posts.map(post => deletePost(post.id)))
+  let posts = await loadValue(getPosts({ feedId }))
+  await Promise.all(posts.list.map(post => deletePost(post.id)))
   return deleteSyncMapById(getClient(), Feed, feedId)
 }
 
 export function getFeed(feedId: string): SyncMapStore<FeedValue> {
   return Feed(feedId, getClient())
-}
-
-export async function loadFeed(feedId: string): Promise<FeedValue | undefined> {
-  return loadValue(Feed(feedId, getClient()))
 }
 
 export async function changeFeed(

@@ -1,4 +1,4 @@
-import { ensureLoaded } from '@logux/client'
+import { ensureLoaded, loadValue } from '@logux/client'
 import { keepMount } from 'nanostores'
 import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
@@ -8,9 +8,9 @@ import {
   addFilter,
   addFilterForFeed,
   type FilterValue,
+  getFeed,
   getFilters,
   isValidFilterQuery,
-  loadFeed,
   loadFilters,
   moveFilterDown,
   moveFilterUp,
@@ -32,8 +32,8 @@ test('adds filter for feed', async () => {
   let feedId1 = await addFeed(testFeed({ reading: 'fast' }))
   let feedId2 = await addFeed(testFeed({ reading: 'slow' }))
 
-  let filterId1 = await addFilterForFeed((await loadFeed(feedId1))!)
-  let filterId2 = await addFilterForFeed((await loadFeed(feedId2))!)
+  let filterId1 = await addFilterForFeed((await loadValue(getFeed(feedId1)))!)
+  let filterId2 = await addFilterForFeed((await loadValue(getFeed(feedId2)))!)
 
   deepStrictEqual(await loadFilters({ feedId: feedId1 }), [
     {

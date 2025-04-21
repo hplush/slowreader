@@ -13,7 +13,7 @@ import { nanoid } from 'nanoid'
 
 import { getClient } from './client.ts'
 import { getFeed } from './feed.ts'
-import { loadFilters, prepareFilters } from './filter.ts'
+import { loadFilters } from './filter.ts'
 import type { OptionalId } from './lib/stores.ts'
 
 export type OriginPost = {
@@ -48,13 +48,6 @@ export function getPosts(
   filter: Filter<PostValue> = {}
 ): FilterStore<PostValue> {
   return createFilter(getClient(), Post, filter)
-}
-
-export async function loadPosts(
-  filter: Filter<PostValue> = {}
-): Promise<PostValue[]> {
-  let value = await loadValue(getPosts(filter))
-  return value.list
 }
 
 export function getPost(postId: string): SyncMapStore<PostValue> {
@@ -106,13 +99,11 @@ export async function recalcPostsReading(feedId: string): Promise<void> {
 
   let [filters, posts] = await Promise.all([
     loadFilters({ feedId }),
-    loadPosts({ feedId })
+    loadValue(getPosts({ feedId }))
   ])
 
-  let checker = prepareFilters(filters)
-
-  for (let post of posts) {
-    let reading = checker(post) ?? feed.reading
+  for (let post of posts.list) {
+    let reading = filters(post) ?? feed.reading
     if (reading !== 'delete') {
       await changePost(post.id, { reading })
     }

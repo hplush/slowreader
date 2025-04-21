@@ -66,19 +66,12 @@ export function getFilters(
   return createFilter(getClient(), Filter, filter)
 }
 
-export async function loadFilters(
-  filter: LoguxFilter<FilterValue> = {}
-): Promise<FilterValue[]> {
-  let value = await loadValue(getFilters(filter))
-  return value.list
-}
-
 export async function addFilter(
   fields: Omit<FilterValue, 'id' | 'priority'>
 ): Promise<string> {
   let id = nanoid()
-  let other = await loadFilters({ feedId: fields.feedId })
-  let priority = maxPriority(other) + 100
+  let other = await loadValue(getFilters({ feedId: fields.feedId }))
+  let priority = maxPriority(other.list) + 100
   await createSyncMap(getClient(), Filter, { id, priority, ...fields })
   await recalcPostsReading(fields.feedId)
 
@@ -131,7 +124,7 @@ async function move(filterId: string, diff: -1 | 1): Promise<void> {
   let filter = await loadValue(store)
   if (!filter) return
   let feedId = filter.feedId
-  let sorted = sortFilters(await loadFilters({ feedId }))
+  let sorted = sortFilters((await loadValue(getFilters({ feedId }))).list)
   let last = sorted.length - 1
   let index = sorted.findIndex(i => i.id === filterId)
   let next = index + diff
@@ -227,4 +220,11 @@ export function prepareFilters(filters: FilterValue[]): FilterChecker {
     }
     return undefined
   }
+}
+
+export async function loadFilters(
+  filter: LoguxFilter<FilterValue> = {}
+): Promise<FilterChecker> {
+  let filters = await loadValue(getFilters(filter))
+  return prepareFilters(filters.list)
 }

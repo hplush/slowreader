@@ -1,10 +1,11 @@
+import { loadValue } from '@logux/client'
 import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 
 import {
   addCategory,
   addFeed,
-  loadFeed,
+  getFeed,
   testFeed,
   waitLoading
 } from '../../index.ts'
@@ -34,7 +35,7 @@ test('groups feeds by categories', async () => {
   deepStrictEqual(page.groups.get(), [
     [
       { id: idA, isLoading: false, title: 'A' },
-      [await loadFeed(feed1), await loadFeed(feed2)]
+      [await loadValue(getFeed(feed1)), await loadValue(getFeed(feed2))]
     ]
   ])
 
@@ -45,14 +46,20 @@ test('groups feeds by categories', async () => {
   let feed5 = await addFeed(testFeed({ categoryId: 'unknown', title: '1' }))
 
   deepStrictEqual(page.groups.get(), [
-    [{ id: 'general', title: 'General' }, [await loadFeed(feed4)]],
+    [{ id: 'general', title: 'General' }, [await loadValue(getFeed(feed4))]],
     [
       { id: idA, isLoading: false, title: 'A' },
-      [await loadFeed(feed1), await loadFeed(feed2)]
+      [await loadValue(getFeed(feed1)), await loadValue(getFeed(feed2))]
     ],
-    [{ id: idB, isLoading: false, title: 'B' }, [await loadFeed(feed3)]],
+    [
+      { id: idB, isLoading: false, title: 'B' },
+      [await loadValue(getFeed(feed3))]
+    ],
     [{ id: idC, isLoading: false, title: 'C' }, []],
-    [{ id: 'broken', title: 'Broken category' }, [await loadFeed(feed5)]]
+    [
+      { id: 'broken', title: 'Broken category' },
+      [await loadValue(getFeed(feed5))]
+    ]
   ])
 
   openPage({

@@ -1,5 +1,6 @@
 import '../dom-parser.ts'
 
+import { loadValue } from '@logux/client'
 import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -18,10 +19,10 @@ import {
   expectRequest,
   type FeedValue,
   type FilterValue,
-  loadCategories,
-  loadFeeds,
-  loadFilters,
-  loadPosts,
+  getCategories,
+  getFeeds,
+  getFilters,
+  getPosts,
   mockRequest,
   type PostValue,
   preloadImages,
@@ -117,10 +118,18 @@ test('imports state JSON', async () => {
   deepStrictEqual(page.feedErrors.get(), {})
   equal(theme.get(), 'light')
   equal(preloadImages.get(), 'never')
-  deepStrictEqual(await loadCategories(), [{ ...CATEGORY, isLoading: false }])
-  deepStrictEqual(await loadFeeds(), [{ ...FEED, isLoading: false }])
-  deepStrictEqual(await loadFilters(), [{ ...FILTER, isLoading: false }])
-  deepStrictEqual(await loadPosts(), [{ ...POST, isLoading: false }])
+  deepStrictEqual((await loadValue(getCategories())).list, [
+    { ...CATEGORY, isLoading: false }
+  ])
+  deepStrictEqual((await loadValue(getFeeds())).list, [
+    { ...FEED, isLoading: false }
+  ])
+  deepStrictEqual((await loadValue(getFilters())).list, [
+    { ...FILTER, isLoading: false }
+  ])
+  deepStrictEqual((await loadValue(getPosts())).list, [
+    { ...POST, isLoading: false }
+  ])
 })
 
 test('imports OPML from the app', async () => {
@@ -161,20 +170,20 @@ test('imports OPML from the app', async () => {
     'https://unknown.com/': 'unknown'
   })
 
-  let categories = await loadCategories()
+  let categories = await loadValue(getCategories())
   deepStrictEqual(
-    categories.map(i => i.title),
+    categories.list.map(i => i.title),
     ['A']
   )
   deepStrictEqual(
-    (await loadFeeds()).map(i => ({
+    (await loadValue(getFeeds())).list.map(i => ({
       categoryId: i.categoryId,
       loader: i.loader,
       title: i.title
     })),
     [
       { categoryId: 'general', loader: 'atom', title: FEED2.title },
-      { categoryId: categories[0]?.id, loader: 'rss', title: FEED.title }
+      { categoryId: categories.list[0]?.id, loader: 'rss', title: FEED.title }
     ]
   )
 })
