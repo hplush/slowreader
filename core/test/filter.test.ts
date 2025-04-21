@@ -11,7 +11,6 @@ import {
   getFeed,
   getFilters,
   isValidFilterQuery,
-  loadFilters,
   moveFilterDown,
   moveFilterUp,
   prepareFilters,
@@ -35,7 +34,7 @@ test('adds filter for feed', async () => {
   let filterId1 = await addFilterForFeed((await loadValue(getFeed(feedId1)))!)
   let filterId2 = await addFilterForFeed((await loadValue(getFeed(feedId2)))!)
 
-  deepStrictEqual(await loadFilters({ feedId: feedId1 }), [
+  deepStrictEqual((await loadValue(getFilters({ feedId: feedId1 }))).list, [
     {
       action: 'slow',
       feedId: feedId1,
@@ -45,7 +44,7 @@ test('adds filter for feed', async () => {
       query: ''
     }
   ])
-  deepStrictEqual(await loadFilters({ feedId: feedId2 }), [
+  deepStrictEqual((await loadValue(getFilters({ feedId: feedId2 }))).list, [
     {
       action: 'fast',
       feedId: feedId2,
