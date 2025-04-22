@@ -11,11 +11,10 @@ import {
 } from './feed.ts'
 import { type FilterChecker, loadFilters } from './filter.ts'
 import { createQueue, type Queue, retryOnError } from './lib/queue.ts'
-import { increaseKey, readonlyExport } from './lib/stores.ts'
+import { increaseKey } from './lib/stores.ts'
 import { addPost, type OriginPost, processOriginPost } from './post.ts'
 
-let $isRefreshing = atom(false)
-export const isRefreshing = readonlyExport($isRefreshing)
+export const isRefreshing = atom(false)
 
 export const DEFAULT_REFRESH_STATISTICS = {
   errors: 0,
@@ -29,10 +28,9 @@ export const DEFAULT_REFRESH_STATISTICS = {
 
 export type RefreshStatistics = typeof DEFAULT_REFRESH_STATISTICS
 
-let $stats = map({ ...DEFAULT_REFRESH_STATISTICS })
-export const refreshStatistics = readonlyExport($stats)
+export const refreshStatistics = map({ ...DEFAULT_REFRESH_STATISTICS })
 
-export const refreshProgress = computed($stats, stats => {
+export const refreshProgress = computed(refreshStatistics, stats => {
   if (stats.initializing || stats.totalFeeds === 0) {
     return 0
   } else {
@@ -52,14 +50,14 @@ function wasAlreadyAdded(feed: FeedValue, origin: OriginPost): boolean {
 }
 
 export async function refreshPosts(): Promise<void> {
-  if ($isRefreshing.get()) return
-  $isRefreshing.set(true)
-  $stats.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: true })
+  if (isRefreshing.get()) return
+  isRefreshing.set(true)
+  refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: true })
 
   task = createDownloadTask()
   let feeds = await loadValue(getFeeds())
-  $stats.set({
-    ...$stats.get(),
+  refreshStatistics.set({
+    ...refreshStatistics.get(),
     initializing: false,
     totalFeeds: feeds.list.length
   })
@@ -79,18 +77,18 @@ export async function refreshPosts(): Promise<void> {
             lastPublishedAt: firstNew.publishedAt
           })
         }
-        increaseKey($stats, 'processedFeeds')
+        increaseKey(refreshStatistics, 'processedFeeds')
       }
 
       while (pages.get().hasNext) {
         let posts = await retryOnError(
           () => pages.next(),
           () => {
-            increaseKey($stats, 'errors')
+            increaseKey(refreshStatistics, 'errors')
           }
         )
         if (posts === 'error') {
-          increaseKey($stats, 'missedFeeds')
+          increaseKey(refreshStatistics, 'missedFeeds')
           await end()
           return
         } else if (posts === 'abort') {
@@ -119,9 +117,9 @@ export async function refreshPosts(): Promise<void> {
             if (reading !== 'delete') {
               await addPost(processOriginPost(origin, feed.id, reading))
               if (reading === 'fast') {
-                increaseKey($stats, 'foundFast')
+                increaseKey(refreshStatistics, 'foundFast')
               } else {
-                increaseKey($stats, 'foundSlow')
+                increaseKey(refreshStatistics, 'foundSlow')
               }
             }
           }
@@ -130,12 +128,12 @@ export async function refreshPosts(): Promise<void> {
       await end()
     }
   })
-  $isRefreshing.set(false)
+  isRefreshing.set(false)
 }
 
 export function stopRefreshing(): void {
-  if (!$isRefreshing.get()) return
-  $isRefreshing.set(false)
+  if (!isRefreshing.get()) return
+  isRefreshing.set(false)
   queue.stop()
   task.destroy()
 }

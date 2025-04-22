@@ -1,7 +1,6 @@
 import { atom, effect, type ReadableAtom } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
-import { readonlyExport } from './lib/stores.ts'
 import { NotFoundError } from './not-found.ts'
 import type { ReaderName } from './readers/index.ts'
 import { userId } from './settings.ts'
@@ -123,7 +122,7 @@ function validateNumber(
   }
 }
 
-let $router = atom<Route>({ params: {}, popups: [], route: 'home' })
+export const router = atom<Route>({ params: {}, popups: [], route: 'home' })
 
 function checkPopupName(
   popup: string | undefined
@@ -143,20 +142,19 @@ export function parsePopups(hash: string): PopupRoute[] {
   return popups
 }
 
-export const router = readonlyExport($router)
-
 onEnvironment(({ baseRouter }) => {
   return effect([baseRouter, userId], (route, user) => {
     let popups = user && route ? parsePopups(route.hash) : []
+    let nextRoute: Route
     try {
       if (!route) {
-        $router.set(open('notFound'))
+        nextRoute = open('notFound')
       } else if (!user && !GUEST.has(route.route)) {
-        $router.set(open('start'))
+        nextRoute = open('start')
       } else if (user && GUEST.has(route.route)) {
-        $router.set(redirect(open('home')))
+        nextRoute = redirect(open('home'))
       } else if (route.route === 'fast' || route.route === 'slow') {
-        $router.set({
+        nextRoute = {
           params: {
             ...route.params,
             reader: validateValues(route.params.reader, ['feed', 'list']),
@@ -164,18 +162,19 @@ onEnvironment(({ baseRouter }) => {
           },
           popups,
           route: route.route
-        })
+        }
       } else {
-        $router.set({ params: route.params, popups, route: route.route })
+        nextRoute = { params: route.params, popups, route: route.route }
       }
     } catch (e) {
       if (e instanceof NotFoundError) {
-        $router.set(open('notFound'))
+        nextRoute = open('notFound')
       } else {
         /* c8 ignore next 2 */
         throw e
       }
     }
+    router.set(nextRoute)
   })
 })
 
@@ -188,7 +187,7 @@ export function isOtherRoute(route: Route): boolean {
 }
 
 export function onNextRoute(cb: (route: Route) => void): void {
-  let unbind = $router.listen(route => {
+  let unbind = router.listen(route => {
     unbind()
     cb(route)
   })

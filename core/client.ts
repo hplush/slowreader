@@ -4,7 +4,6 @@ import { SUBPROTOCOL } from '@slowreader/api'
 import { atom, effect } from 'nanostores'
 
 import { onEnvironment } from './environment.ts'
-import { readonlyExport } from './lib/stores.ts'
 import { userId } from './settings.ts'
 
 let testTime: TestTime | undefined
@@ -19,8 +18,7 @@ function getServer(): ClientOptions['server'] {
 }
 
 let prevClient: CrossTabClient | undefined
-let $client = atom<CrossTabClient | undefined>()
-export const client = readonlyExport($client)
+export const client = atom<CrossTabClient | undefined>()
 
 onEnvironment(({ logStoreCreator }) => {
   let unbindUser = effect(userId, user => {
@@ -37,9 +35,9 @@ onEnvironment(({ logStoreCreator }) => {
       })
       logux.start(false)
       prevClient = logux
-      $client.set(logux)
+      client.set(logux)
     } else {
-      $client.set(undefined)
+      client.set(undefined)
     }
   })
   return () => {

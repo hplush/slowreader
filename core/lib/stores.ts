@@ -12,12 +12,6 @@ import { client } from '../client.ts'
 
 export type OptionalId<Value> = { id?: string } & Omit<Value, 'id'>
 
-export function readonlyExport<Value>(
-  store: ReadableAtom<Value>
-): ReadableAtom<Value> {
-  return store
-}
-
 type NumberKeys<T> = {
   [K in keyof T]: T[K] extends number ? K : never
 }[keyof T]
