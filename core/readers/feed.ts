@@ -1,8 +1,7 @@
 import { atom } from 'nanostores'
 
 import { deletePost, type PostValue } from '../post.ts'
-import { createReader } from './common.ts'
-import { loadPosts } from './utils.ts'
+import { createReader, loadPosts } from './common.ts'
 
 const POSTS_PER_PAGE = 50
 

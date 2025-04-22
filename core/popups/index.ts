@@ -4,7 +4,7 @@ import { feedUrl } from './feed-url.ts'
 import { feed } from './feed.ts'
 import { post } from './post.ts'
 
-export * from './common.ts'
+export type { BasePopup } from './common.ts'
 export type { FeedUrlPopup } from './feed-url.ts'
 export type { FeedPopup } from './feed.ts'
 export type { PostPopup } from './post.ts'
