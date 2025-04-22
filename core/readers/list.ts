@@ -14,6 +14,10 @@ export const listReader = createReader('list', (filter, params) => {
   let $pages = createPagination(1, 1)
   let $read = atom<Set<string>>(new Set())
 
+  function read(...ids: string[]): void {
+    $read.set(new Set([...$read.get(), ...ids]))
+  }
+
   let unbindSince = (): void => {}
   let unbindRouter = (): void => {}
   async function start(): Promise<void> {
@@ -34,7 +38,7 @@ export const listReader = createReader('list', (filter, params) => {
           let postId = popup.param
           let post = posts.find(i => i.id === postId)
           if (post) {
-            $read.set(new Set([postId, ...$read.get()]))
+            read(postId)
             deletePost(postId)
           }
         }
@@ -45,6 +49,16 @@ export const listReader = createReader('list', (filter, params) => {
     $loading.set(false)
   })
 
+  async function readPage(): Promise<void> {
+    let list = $list.get()
+    let promise = Promise.all(list.map(i => deletePost(i.id)))
+    read(...list.map(i => i.id))
+    if ($pages.get().hasNext) {
+      params.since.set($pages.get().page + 1)
+    }
+    await promise
+  }
+
   return {
     exit() {
       exited = true
@@ -54,7 +68,8 @@ export const listReader = createReader('list', (filter, params) => {
     list: $list,
     loading: $loading,
     pages: $pages,
-    read: $read
+    read: $read,
+    readPage
   }
 })
 
