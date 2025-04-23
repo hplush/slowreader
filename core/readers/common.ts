@@ -7,12 +7,14 @@ import type { Routes } from '../router.ts'
 
 export interface BaseReader<Name extends ReaderName = ReaderName> {
   exit(): void
+  list: ReadableAtom<PostValue[]>
   loading: ReadableAtom<boolean>
   name: Name
 }
 
 interface Extra {
   exit: () => void
+  list: ReadableAtom<PostValue[]>
   loading: ReadableAtom<boolean>
 }
 

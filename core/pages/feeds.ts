@@ -17,6 +17,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     let $reader = atom<ReaderName | undefined>()
     let $since = atom<number | undefined>()
     let $loading = atom(true)
+    let $empty = atom(false)
 
     let params = {
       category: $category,
@@ -33,10 +34,9 @@ let pages = (['slow', 'fast'] as const).map(reading => {
             id = fastMenu.get()[0]?.id
           } else {
             id = slowMenu.get()[0]?.[0].id
+            $empty.set(!id)
           }
-          if (id) {
-            $category.set(id)
-          }
+          if (id) $category.set(id)
         }
       }
     })
@@ -67,6 +67,9 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         if (instance) {
           prevLoadingUnbind = instance.loading.subscribe(value => {
             $loading.set(value)
+            if (!value && reading === 'fast') {
+              $empty.set(instance.list.get().length === 0)
+            }
           })
         } else {
           prevLoadingUnbind = () => {}
@@ -80,6 +83,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     )
 
     return {
+      empty: $empty,
       exit() {
         unbindPosts()
         prevReading?.exit()
