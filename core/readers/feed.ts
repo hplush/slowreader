@@ -24,8 +24,15 @@ export const feedReader = createReader('feed', (filter, params) => {
       if (fromIndex === -1) fromIndex = posts.length
       let list = posts.slice(fromIndex, fromIndex + POSTS_PER_PAGE)
       $hasNext.set(posts.length > fromIndex + POSTS_PER_PAGE)
-      $list.set(list)
+      while (
+        list.length > 1 &&
+        posts[fromIndex + list.length]?.publishedAt ===
+          posts[fromIndex + list.length - 1]?.publishedAt
+      ) {
+        list = list.slice(0, -1)
+      }
       nextSince = list[list.length - 1]?.publishedAt
+      $list.set(list)
     })
   }
   start().then(() => {

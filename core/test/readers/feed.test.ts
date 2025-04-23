@@ -96,3 +96,30 @@ test('loads posts', async () => {
   let reader4 = ensureReader(fast4.posts, 'feed')
   equal(reader4.list.get().length, 0)
 })
+
+test('is ready for the same publishing time', async () => {
+  let feedId = await addFeed(testFeed())
+  for (let i = 1; i <= 60; i++) {
+    await addPost(
+      testPost({
+        feedId,
+        publishedAt: Math.floor(i / 3),
+        reading: 'fast',
+        title: `${i}`
+      })
+    )
+  }
+
+  let fast = openPage({
+    params: { category: 'general', reader: 'feed' },
+    route: 'fast'
+  })
+  await waitLoading(fast.loading)
+  let reader = ensureReader(fast.posts, 'feed')
+
+  let all = reader.list.get().length
+  reader.deleteAndNext()
+  all += reader.list.get().length
+
+  equal(all, 60)
+})
