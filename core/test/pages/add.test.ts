@@ -52,18 +52,18 @@ function equalWithText(a: FeedLoader[], b: FeedLoader[]): void {
 }
 
 test('empty from beginning', () => {
-  let page1 = openPage({
+  let page = openPage({
     params: {},
     route: 'add'
   })
-  equal(page1.route, 'add')
-  keepMount(page1.error)
-  keepMount(page1.searching)
-  keepMount(page1.candidates)
+  equal(page.route, 'add')
+  keepMount(page.error)
+  keepMount(page.searching)
+  keepMount(page.candidates)
 
-  equal(page1.error.get(), undefined)
-  equal(page1.searching.get(), false)
-  deepStrictEqual(page1.candidates.get(), [])
+  equal(page.error.get(), undefined)
+  equal(page.searching.get(), false)
+  deepStrictEqual(page.candidates.get(), [])
 })
 
 test('validates URL', () => {
@@ -86,26 +86,26 @@ test('validates URL', () => {
 })
 
 test('cleans state', async () => {
-  let page1 = openPage({
+  let page = openPage({
     params: {},
     route: 'add'
   })
-  keepMount(page1.error)
-  keepMount(page1.candidates)
+  keepMount(page.error)
+  keepMount(page.candidates)
 
   let reply = expectRequest('https://example.com').andWait()
-  page1.params.url.set('https://example.com')
+  page.params.url.set('https://example.com')
   await setTimeout(10)
   openPage({
     params: {},
     route: 'welcome'
   })
-  equal(page1.error.get(), undefined)
-  deepStrictEqual(page1.candidates.get(), [])
+  equal(page.error.get(), undefined)
+  deepStrictEqual(page.candidates.get(), [])
   equal(reply.aborted, true)
 
-  page1.params.url.set('https://other.com')
-  equal(page1.searching.get(), false)
+  page.params.url.set('https://other.com')
+  equal(page.searching.get(), false)
 
   let page2 = openPage({
     params: {},
@@ -113,7 +113,7 @@ test('cleans state', async () => {
   })
   keepMount(page2.error)
   keepMount(page2.candidates)
-  notEqual(page2, page1)
+  notEqual(page2, page)
 
   page2.params.url.set('not URL')
   openPage({
@@ -338,11 +338,11 @@ test('shows if unknown URL', async () => {
 })
 
 test('always keep the same order of candidates', async () => {
-  let page1 = openPage({
+  let page = openPage({
     params: {},
     route: 'add'
   })
-  keepMount(page1.candidates)
+  keepMount(page.candidates)
   expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('https://example.com/feed').andRespond(404)
   expectRequest('https://example.com/atom').andRespond(
@@ -360,10 +360,10 @@ test('always keep the same order of candidates', async () => {
     '<rss><channel><title>RSS</title></channel></rss>',
     'application/rss+xml'
   )
-  page1.params.url.set('https://example.com')
-  await waitLoading(page1.searching)
+  page.params.url.set('https://example.com')
+  await waitLoading(page.searching)
   deepStrictEqual(
-    page1.candidates.get().map(i => i.title),
+    page.candidates.get().map(i => i.title),
     ['Atom', 'JsonFeed', 'RSS']
   )
 
@@ -371,7 +371,7 @@ test('always keep the same order of candidates', async () => {
     params: {},
     route: 'welcome'
   })
-  let page2 = openPage({
+  page = openPage({
     params: {},
     route: 'add'
   })
@@ -384,7 +384,7 @@ test('always keep the same order of candidates', async () => {
     '<rss><channel><title>RSS</title></channel></rss>',
     'application/rss+xml'
   )
-  page2.params.url.set('https://example.com')
+  page.params.url.set('https://example.com')
   await setTimeout(10)
   atom(200, '<feed><title>Atom</title></feed>', 'application/rss+xml')
   jsonFeed(
@@ -393,9 +393,9 @@ test('always keep the same order of candidates', async () => {
     'application/json'
   )
 
-  await waitLoading(page2.searching)
+  await waitLoading(page.searching)
   deepStrictEqual(
-    page2.candidates.get().map(i => i.title),
+    page.candidates.get().map(i => i.title),
     ['Atom', 'JsonFeed', 'RSS']
   )
 })

@@ -34,15 +34,15 @@ test('opens feed', async () => {
   let feed = await addFeed(testFeed({ categoryId: 'general' }))
   let post = await addPost(testPost({ feedId: feed }))
 
-  let popup1 = openTestPopup('feed', feed)
+  let popup = openTestPopup('feed', feed)
   equal(openedPopups.get().length, 1)
-  equal(popup1.name, 'feed')
-  equal(popup1.param, feed)
-  equal(popup1.loading.get(), true)
+  equal(popup.name, 'feed')
+  equal(popup.param, feed)
+  equal(popup.loading.get(), true)
 
-  await waitLoading(popup1.loading)
-  equal(popup1.loading.get(), false)
-  equal(popup1.notFound, false)
+  await waitLoading(popup.loading)
+  equal(popup.loading.get(), false)
+  equal(popup.notFound, false)
   equal((openedPopups.get()[0] as FeedPopup).feed.get().id, feed)
 
   closeLastPopup()

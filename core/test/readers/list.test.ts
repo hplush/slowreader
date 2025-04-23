@@ -41,54 +41,54 @@ test('loads posts', async () => {
     )
   }
 
-  let fast1 = openPage({
+  let page = openPage({
     params: { feed: feed1, reader: 'list' },
     route: 'fast'
   })
-  equal(fast1.loading.get(), true)
-  await waitLoading(fast1.loading)
-  let reader1 = ensureReader(fast1.posts, 'list')
-  equal(reader1.list.get().length, 75)
-  equal(reader1.list.get()[0]!.title, '150')
-  deepStrictEqual(reader1.pages.get(), {
+  equal(page.loading.get(), true)
+  await waitLoading(page.loading)
+  let reader = ensureReader(page.posts, 'list')
+  equal(reader.list.get().length, 75)
+  equal(reader.list.get()[0]!.title, '150')
+  deepStrictEqual(reader.pages.get(), {
     count: 1,
     hasNext: false,
     page: 0,
     show: false
   })
 
-  let fast2 = openPage({
+  page = openPage({
     params: { category: categoryId, reader: 'list' },
     route: 'fast'
   })
-  equal(fast2.loading.get(), true)
-  await waitLoading(fast2.loading)
-  let reader2 = ensureReader(fast2.posts, 'list')
-  equal(reader2.list.get().length, 100)
-  equal(reader2.list.get()[0]!.title, '150')
-  equal(reader2.list.get()[99]!.title, '51')
-  deepStrictEqual([...reader2.read.get()], [])
-  deepStrictEqual(reader2.pages.get(), {
+  equal(page.loading.get(), true)
+  await waitLoading(page.loading)
+  reader = ensureReader(page.posts, 'list')
+  equal(reader.list.get().length, 100)
+  equal(reader.list.get()[0]!.title, '150')
+  equal(reader.list.get()[99]!.title, '51')
+  deepStrictEqual([...reader.read.get()], [])
+  deepStrictEqual(reader.pages.get(), {
     count: 2,
     hasNext: true,
     page: 0,
     show: true
   })
 
-  let post0 = reader2.list.get()[0]!.id
+  let post0 = reader.list.get()[0]!.id
   openPopup('post', post0)
-  deepStrictEqual([...reader2.read.get()], [post0])
+  deepStrictEqual([...reader.read.get()], [post0])
 
-  let post5 = reader2.list.get()[5]!.id
+  let post5 = reader.list.get()[5]!.id
   openPopup('post', post5)
-  deepStrictEqual([...reader2.read.get()], [post0, post5])
-  equal(reader2.list.get().length, 100)
+  deepStrictEqual([...reader.read.get()], [post0, post5])
+  equal(reader.list.get().length, 100)
 
-  fast2.params.since.set(1)
-  equal(reader2.list.get().length, 50)
-  equal(reader2.list.get()[0]!.title, '50')
-  deepStrictEqual([...reader2.read.get()], [post0, post5])
-  deepStrictEqual(reader2.pages.get(), {
+  page.params.since.set(1)
+  equal(reader.list.get().length, 50)
+  equal(reader.list.get()[0]!.title, '50')
+  deepStrictEqual([...reader.read.get()], [post0, post5])
+  deepStrictEqual(reader.pages.get(), {
     count: 2,
     hasNext: false,
     page: 1,
@@ -101,34 +101,34 @@ test('loads posts', async () => {
     route: 'fast'
   })
 
-  let fast4 = openPage({
+  page = openPage({
     params: { category: categoryId, reader: 'list', since: 1 },
     route: 'fast'
   })
-  let reader4 = ensureReader(fast4.posts, 'list')
-  await waitLoading(fast4.loading)
-  equal(reader4.read.get().size, 0)
-  equal(reader4.list.get().length, 48)
+  reader = ensureReader(page.posts, 'list')
+  await waitLoading(page.loading)
+  equal(reader.read.get().size, 0)
+  equal(reader.list.get().length, 48)
 
-  fast4.params.since.set(0)
-  equal(reader4.list.get()[99]!.title, '49')
+  page.params.since.set(0)
+  equal(reader.list.get()[99]!.title, '49')
 
-  await reader4.readPage()
-  equal(fast4.params.since.get(), 1)
-  equal(reader4.list.get().length, 48)
-  equal(reader4.read.get().size, 100)
-  deepStrictEqual(reader4.pages.get(), {
+  await reader.readPage()
+  equal(page.params.since.get(), 1)
+  equal(reader.list.get().length, 48)
+  equal(reader.read.get().size, 100)
+  deepStrictEqual(reader.pages.get(), {
     count: 2,
     hasNext: false,
     page: 1,
     show: true
   })
 
-  await reader4.readPage()
-  equal(fast4.params.since.get(), 1)
-  equal(reader4.list.get().length, 48)
-  equal(reader4.read.get().size, 148)
-  deepStrictEqual(reader4.pages.get(), {
+  await reader.readPage()
+  equal(page.params.since.get(), 1)
+  equal(reader.list.get().length, 48)
+  equal(reader.read.get().size, 148)
+  deepStrictEqual(reader.pages.get(), {
     count: 2,
     hasNext: false,
     page: 1,
@@ -139,14 +139,14 @@ test('loads posts', async () => {
     params: { feed: feed1, reader: 'list' },
     route: 'fast'
   })
-  let fast5 = openPage({
+  page = openPage({
     params: { category: categoryId, reader: 'list' },
     route: 'fast'
   })
-  let reader5 = ensureReader(fast5.posts, 'list')
-  await waitLoading(fast5.loading)
-  equal(reader5.list.get().length, 0)
-  deepStrictEqual(reader5.pages.get(), {
+  reader = ensureReader(page.posts, 'list')
+  await waitLoading(page.loading)
+  equal(reader.list.get().length, 0)
+  deepStrictEqual(reader.pages.get(), {
     count: 0,
     hasNext: false,
     page: 0,

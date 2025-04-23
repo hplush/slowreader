@@ -25,21 +25,21 @@ test('redirects', async () => {
   busyUntilMenuLoader()
   await waitLoading(busy)
 
-  let slow1 = openPage({
+  let page = openPage({
     params: {},
     route: 'slow'
   })
-  equal(slow1.params.category.get(), undefined)
-  equal(slow1.empty.get(), true)
+  equal(page.params.category.get(), undefined)
+  equal(page.empty.get(), true)
 
-  let fast1 = openPage({
+  page = openPage({
     params: {},
     route: 'fast'
   })
-  equal(fast1.params.category.get(), 'general')
-  equal(fast1.empty.get(), false)
-  await waitLoading(fast1.loading)
-  equal(fast1.empty.get(), true)
+  equal(page.params.category.get(), 'general')
+  equal(page.empty.get(), false)
+  await waitLoading(page.loading)
+  equal(page.empty.get(), true)
 
   let category1 = await addCategory({ title: 'A1' })
   let category2 = await addCategory({ title: 'A2' })
@@ -52,22 +52,22 @@ test('redirects', async () => {
   await addPost(testPost({ feedId: feed2, reading: 'slow' }))
   await addPost(testPost({ feedId: feed1, reading: 'fast' }))
 
-  let slow2 = openPage({
+  page = openPage({
     params: {},
     route: 'slow'
   })
-  equal(slow2.params.category.get(), category2)
-  equal(slow2.params.feed.get(), undefined)
-  equal(slow2.empty.get(), false)
+  equal(page.params.category.get(), category2)
+  equal(page.params.feed.get(), undefined)
+  equal(page.empty.get(), false)
 
-  let fast2 = openPage({
+  page = openPage({
     params: {},
     route: 'fast'
   })
-  equal(fast2.params.category.get(), category1)
-  equal(fast2.params.feed.get(), undefined)
-  await waitLoading(fast2.loading)
-  equal(fast2.empty.get(), false)
+  equal(page.params.category.get(), category1)
+  equal(page.params.feed.get(), undefined)
+  await waitLoading(page.loading)
+  equal(page.empty.get(), false)
 })
 
 test('loads readers', async () => {
