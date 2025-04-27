@@ -109,23 +109,20 @@ If you write docs, we recommend installing [LanguageTool](https://dev.languageto
 
 Before any significant changes, read all **[`README.md`](README.md)** to understand app architecture.
 
-### Check Our Checklist
-
-Read our **[checklist for pull requests](./docs/pull_request_template.md)**. It contains things you should think about and can speed up code review a lot.
-
-> If you see that people made the same mistake several times, suggest adding a new item to the checklist to prevent repeating these mistakes.
-
 ## How to Find Next Task
 
 If you are not just fixing a bug but want to join the core team, here is the path:
 
 1. Your first task is to test `pnpm test` in your environment and report issue.
-2. Go to our [Tasks plan](https://github.com/orgs/hplush/projects/1) and take next task from `Onboarding` column. If `Onboarding` is empty, you can look in `Ready to Take`.
+2. Help us test the app for your cases:
+   1. If you are any RSS reader user, please export your feeds (in OPML format) and test that Slow Reader can works with them by running `pnpm check-opml PATH_TO_EXPORT.opml`.
+   2. If you speak on any language expect English and Russian, please check how Slow Reader renders posts on your language. Report any visual issues, even small one.
+3. Go to our [Tasks plan](https://github.com/orgs/hplush/projects/1) and take next task from `Onboarding` column. If `Onboarding` is empty, you can look in `Ready to Take`.
    1. Choose any task that fits the best to you. Labels can help you focus on your category.
    2. Write there `I want to take it`.
    3. The task will be reserved for you for a week.
    4. Don’t worry if a week is not enough. Just make a [draft PR](https://github.blog/news-insights/product-news/introducing-draft-pull-requests/).
-3. After the onboarding, you can take tasks from the `Ready to Take` column. See the discussions in issues to pick next one.
+4. After the onboarding, you can take tasks from the `Ready to Take` column. See the discussions in issues to pick next one.
 
 Feel free to ask [maintainer](https://t.me/sitnik) about your next task.
 
