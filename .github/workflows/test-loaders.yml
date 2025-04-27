@@ -24,7 +24,7 @@ on:
     - cron: '00 23 * * *' # Runs at midnight UTC every day
 jobs:
   test:
-    name: Test
+    name: Loader Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository

@@ -24,7 +24,7 @@ permissions:
   contents: read
 jobs:
   test:
-    name: Test
+    name: Check Docs
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
