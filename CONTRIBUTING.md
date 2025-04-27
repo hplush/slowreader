@@ -14,7 +14,6 @@ Also, feel free to ask any questions about career and development. If you are he
 - [Learn the Project](#learn-the-project)
   - [Text Editor Settings](#text-editor-settings)
   - [Learn App Architecture](#learn-app-architecture)
-  - [Check Our Checklist](#check-our-checklist)
 - [How to Find Next Task](#how-to-find-next-task)
 - [Guidelines](#guidelines)
   - [Commits](#commits)
