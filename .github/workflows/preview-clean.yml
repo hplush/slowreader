@@ -17,7 +17,7 @@ jobs:
       REGION: europe-west1
     steps:
       - name: Download PR number from prepare step
-        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.1
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: preview-id
           repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
@@ -35,7 +35,7 @@ jobs:
           token: ${{ secrets.PREVIEW_DEPLOYMENT_PAT }}
           env: preview-${{ env.PR_NUMBER }}
       - name: Auth Google Cloud
-        uses: google-github-actions/auth@71f986410dfbc7added4569d411d040a91dc6935 # v2.1.8
+        uses: google-github-actions/auth@ba79af03959ebeac9769e648f473a284504d9193 # v2.1.10
         with:
           workload_identity_provider: projects/223708816691/locations/global/workloadIdentityPools/github/providers/hplush
           service_account: github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com

@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^22.14.0",
+    "node": "^22.15.0",
     "pnpm": "^10.0.0"
   },
   "scripts": {
@@ -37,9 +37,9 @@
     "nanostores": "1.0.1",
     "postcss": "8.5.3",
     "postcss-load-config": "6.0.1",
-    "rollup": "4.40.0",
-    "svelte": "5.28.1",
-    "vite": "6.3.2"
+    "rollup": "4.40.1",
+    "svelte": "5.28.2",
+    "vite": "6.3.4"
   },
   "devDependencies": {
     "@logux/stylelint-config": "0.20.0",
@@ -52,13 +52,13 @@
     "@storybook/types": "8.6.12",
     "@stylistic/stylelint-config": "2.0.0",
     "better-node-test": "0.7.1",
-    "browserslist": "4.24.4",
+    "browserslist": "4.24.5",
     "postcss-html": "1.8.0",
     "postcss-nesting": "13.0.1",
     "postcss-selector-parser": "7.1.0",
     "size-limit": "11.2.0",
     "storybook": "8.6.12",
-    "stylelint": "16.18.0",
+    "stylelint": "16.19.1",
     "stylelint-use-logical": "2.1.2"
   }
 }
