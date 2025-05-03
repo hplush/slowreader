@@ -16,6 +16,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
+    "@logux/actions": "github:logux/actions#next",
     "@logux/client": "github:logux/client#next",
     "@logux/core": "0.9.0",
     "@nanostores/i18n": "1.0.0",
@@ -28,7 +29,6 @@
     "nanostores": "1.0.1"
   },
   "devDependencies": {
-    "@logux/actions": "0.4.0",
     "@types/jsdom": "21.1.7",
     "better-node-test": "0.7.1",
     "c8": "10.1.3",

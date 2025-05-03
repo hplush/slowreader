@@ -13,6 +13,7 @@ export default (server: BaseServer): void => {
     async process(ctx, action, meta) {
       await db.insert(actions).values({
         added: await server.log.store.getLastAdded(),
+        compressed: action.z,
         encrypted: Buffer.from(action.d, 'base64'),
         id: meta.id,
         iv: Buffer.from(action.iv, 'base64'),
@@ -49,7 +50,8 @@ export default (server: BaseServer): void => {
       return [
         zero({
           d: Buffer.from(column.encrypted).toString('base64'),
-          iv: Buffer.from(column.iv).toString('base64')
+          iv: Buffer.from(column.iv).toString('base64'),
+          z: column.compressed
         }),
         {
           added: column.added,

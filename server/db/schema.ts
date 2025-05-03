@@ -1,4 +1,5 @@
 import {
+  boolean,
   customType,
   index,
   integer,
@@ -40,6 +41,7 @@ export const actionsAdded = pgSequence('actionsAdded')
 
 export const actions = pgTable('actions', {
   added: integer('added').notNull(),
+  compressed: boolean('compressed').notNull(),
   encrypted: bytea('encrypted').notNull(),
   id: text('id').primaryKey(),
   iv: bytea('iv').notNull(),

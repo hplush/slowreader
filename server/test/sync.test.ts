@@ -51,28 +51,29 @@ test('syncs action between clients', async () => {
   let client1 = await connect(server, 'user1', 'p1')
   let other = await connect(server, 'other', 'pOther')
 
+  let z = 'z'.repeat(1000)
   await client1.process({ type: 'A' })
-  await client1.process({ type: 'B' })
+  await client1.process({ type: 'B', z })
   await other.process({ type: 'NO1' })
   await client1.disconnect()
 
   let client2 = await connect(server, 'user1', 'p1')
   await setTimeout(10)
-  deepStrictEqual(client2.log.actions(), [{ type: 'A' }, { type: 'B' }])
+  deepStrictEqual(client2.log.actions(), [{ type: 'A' }, { type: 'B', z }])
 
   await client2.process({ type: 'C' })
   await client1.connect()
   await setTimeout(10)
   deepStrictEqual(client1.log.actions(), [
     { type: 'A' },
-    { type: 'B' },
+    { type: 'B', z },
     { type: 'C' }
   ])
   await other.process({ type: 'NO2' })
   await client1.process({ type: 'D' })
   deepStrictEqual(client2.log.actions(), [
     { type: 'A' },
-    { type: 'B' },
+    { type: 'B', z },
     { type: 'C' },
     { type: 'D' }
   ])
@@ -81,7 +82,7 @@ test('syncs action between clients', async () => {
   await setTimeout(10)
   deepStrictEqual(client2.log.actions(), [
     { type: 'A' },
-    { type: 'B' },
+    { type: 'B', z },
     { type: 'C' },
     { type: 'D' },
     { id: meta1.id, type: '0/clean' }
@@ -90,7 +91,7 @@ test('syncs action between clients', async () => {
   let client3 = await connect(server, 'user1', 'p1')
   await setTimeout(10)
   deepStrictEqual(client3.log.actions(), [
-    { type: 'B' },
+    { type: 'B', z },
     { type: 'C' },
     { type: 'D' }
   ])
