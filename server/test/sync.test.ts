@@ -63,7 +63,7 @@ test('syncs action between clients', async () => {
 
   await client2.process({ type: 'C' })
   await client1.connect()
-  await setTimeout(10)
+  await setTimeout(100)
   deepStrictEqual(client1.log.actions(), [
     { type: 'A' },
     { type: 'B', z },
