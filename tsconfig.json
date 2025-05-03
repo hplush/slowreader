@@ -3,6 +3,7 @@
     "allowImportingTsExtensions": true,
     "noUncheckedIndexedAccess": true,
     "experimentalDecorators": true,
+    "noImplicitOverride": true,
     "verbatimModuleSyntax": true,
     "moduleResolution": "NodeNext",
     "erasableSyntaxOnly": true,
