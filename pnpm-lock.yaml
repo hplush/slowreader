@@ -113,7 +113,7 @@ importers:
     dependencies:
       '@logux/client':
         specifier: github:logux/client#next
-        version: https://codeload.github.com/logux/client/tar.gz/79b1361a375ce3e726be973077e6eb00521a3dec(@logux/core@0.9.0)(nanostores@1.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: https://codeload.github.com/logux/client/tar.gz/96efb227d42df90538b6ab73cc128b3e2c1c042f(@logux/core@0.9.0)(nanostores@1.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@logux/core':
         specifier: 0.9.0
         version: 0.9.0
@@ -199,6 +199,9 @@ importers:
       '@electric-sql/pglite':
         specifier: 0.2.17
         version: 0.2.17
+      '@logux/actions':
+        specifier: 0.4.0
+        version: 0.4.0(@logux/core@0.9.0)
       '@logux/server':
         specifier: github:logux/server#next
         version: https://codeload.github.com/logux/server/tar.gz/787acd7461b02aac762f01f5fc2301e25c594d1c
@@ -227,6 +230,9 @@ importers:
         specifier: 4.19.3
         version: 4.19.3
     devDependencies:
+      '@logux/client':
+        specifier: github:logux/client#next
+        version: https://codeload.github.com/logux/client/tar.gz/96efb227d42df90538b6ab73cc128b3e2c1c042f(@logux/core@0.9.0)(nanostores@1.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       better-node-test:
         specifier: 0.7.1
         version: 0.7.1
@@ -244,7 +250,7 @@ importers:
     dependencies:
       '@logux/client':
         specifier: github:logux/client#next
-        version: https://codeload.github.com/logux/client/tar.gz/79b1361a375ce3e726be973077e6eb00521a3dec(@logux/core@0.9.0)(nanostores@1.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: https://codeload.github.com/logux/client/tar.gz/96efb227d42df90538b6ab73cc128b3e2c1c042f(@logux/core@0.9.0)(nanostores@1.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@logux/core':
         specifier: 0.9.0
         version: 0.9.0
@@ -856,12 +862,12 @@ packages:
     peerDependencies:
       '@logux/core': ^0.9.0
 
-  '@logux/client@https://codeload.github.com/logux/client/tar.gz/79b1361a375ce3e726be973077e6eb00521a3dec':
-    resolution: {tarball: https://codeload.github.com/logux/client/tar.gz/79b1361a375ce3e726be973077e6eb00521a3dec}
-    version: 0.20.1
+  '@logux/client@https://codeload.github.com/logux/client/tar.gz/96efb227d42df90538b6ab73cc128b3e2c1c042f':
+    resolution: {tarball: https://codeload.github.com/logux/client/tar.gz/96efb227d42df90538b6ab73cc128b3e2c1c042f}
+    version: 0.21.1
     engines: {node: ^20.0.0 || >=22.0.0}
     peerDependencies:
-      '@logux/core': ^0.8.0
+      '@logux/core': ^0.9.0
       '@nanostores/preact': '>=0.0.0'
       '@nanostores/react': '>=0.0.0'
       '@nanostores/vue': '>=0.0.0'
@@ -4834,7 +4840,7 @@ snapshots:
     dependencies:
       '@logux/core': 0.9.0
 
-  '@logux/client@https://codeload.github.com/logux/client/tar.gz/79b1361a375ce3e726be973077e6eb00521a3dec(@logux/core@0.9.0)(nanostores@1.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@logux/client@https://codeload.github.com/logux/client/tar.gz/96efb227d42df90538b6ab73cc128b3e2c1c042f(@logux/core@0.9.0)(nanostores@1.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@logux/actions': 0.4.0(@logux/core@0.9.0)
       '@logux/core': 0.9.0
