@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { commonMessages as t } from '@slowreader/core'
+  import Loader from '../ui/loader.svelte'
 </script>
 
-<div class="busy">{$t.loading}</div>
+<div class="busy">
+  <Loader zoneId="main" />
+</div>
 
 <style>
   :global {

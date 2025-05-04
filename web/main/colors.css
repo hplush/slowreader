@@ -4,6 +4,7 @@
   @media (prefers-color-scheme: light) {
     --text-color: oklch(0.15 0 0);
     --land-color: oklch(0.95 0 70);
+    --border-color: oklch(0 0 0 / 15%);
 
     &.is-comfort-mode {
       --land-color: oklch(0.95 0.02 70);
@@ -13,6 +14,7 @@
   @media (prefers-color-scheme: dark) {
     --text-color: oklch(0.98 0 0);
     --land-color: oklch(0.25 0 70);
+    --border-color: oklch(1 0 0 / 15%);
 
     &.is-comfort-mode {
       --land-color: oklch(0.25 0.02 70);

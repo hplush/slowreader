@@ -3,12 +3,10 @@
 
   let {
     label = $t.loading,
-    margin = true,
     value,
     zoneId
   }: {
     label?: string
-    margin?: boolean
     value?: number
     zoneId?: string
   } = $props()
@@ -29,7 +27,6 @@
 <progress
   bind:this={progress}
   class="loader"
-  class:is-margin={margin}
   aria-describedby={zoneId}
   aria-label={label}
 >
@@ -42,21 +39,13 @@
       display: block;
       width: 100%;
       max-width: 160px;
-      height: 4px;
+      height: 6px;
       margin: 0 auto;
       overflow: hidden;
       appearance: none;
       background: var(--border-color);
       border: none;
-      border-radius: 2px;
-
-      &.is-margin {
-        margin-block: var(--padding-l);
-      }
-    }
-
-    .card > .loader:last-child {
-      margin-bottom: 0;
+      border-radius: 3px;
     }
 
     .loader::-webkit-progress-bar {
