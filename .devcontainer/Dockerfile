@@ -1,7 +1,7 @@
 # Creates development machine inside docker
 # so every developer will have the same environment
 
-FROM registry.fedoraproject.org/fedora:42@sha256:c25e903a455729cff4a6f8c629a164d9cc1990e583a3a57379d68ad83c86221d
+FROM registry.fedoraproject.org/fedora:42@sha256:b44534219221c5344c2f585d32e5fda0d58daa09596b0e5b87c44b68b137c087
 
 ARG TARGETARCH
 
