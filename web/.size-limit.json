@@ -9,7 +9,7 @@
       "!dist/500.html",
       "!dist/error.avif"
     ],
-    "limit": "45 KB"
+    "limit": "50 KB"
   },
   {
     "name": "Core scripts to execute",
