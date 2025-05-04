@@ -76,7 +76,11 @@ export default [
       '@typescript-eslint/no-unnecessary-type-assertion': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
-      '@typescript-eslint/no-unsafe-member-access': 'off'
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      'svelte/no-unused-class-name': [
+        'error',
+        { allowedClassNames: ['loader'] }
+      ]
     }
   },
   {

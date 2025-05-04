@@ -3,15 +3,18 @@
     --loader-background: oklch(0 0 0 / 15%);
     --loader-bar: oklch(0.15 0 0);
   }
+
   @media (prefers-color-scheme: dark) {
     --loader-background: oklch(1 0 0 / 15%);
     --loader-bar: oklch(0.98 0 0);
   }
 }
+
 .is-light-theme {
   --loader-background: oklch(0 0 0 / 15%);
   --loader-bar: oklch(0.15 0 0);
 }
+
 .is-dark-theme {
   --loader-background: oklch(1 0 0 / 15%);
   --loader-bar: oklch(0.98 0 0);
@@ -26,9 +29,9 @@
   margin: 0 auto;
   overflow: hidden;
   appearance: none;
+  background: var(--loader-background);
   border: none;
   border-radius: 3px;
-  background: var(--loader-background);
 }
 
 .loader::-webkit-progress-bar {

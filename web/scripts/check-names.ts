@@ -113,7 +113,7 @@ await Promise.all(
       let children = root.nodes.filter(i => i.type !== 'comment')
       let first = children[0]
       if (
-        children.length !== 1 ||
+        children.length > 1 ||
         (first && first.type !== 'rule') ||
         (first && first.selector !== ':global')
       ) {
