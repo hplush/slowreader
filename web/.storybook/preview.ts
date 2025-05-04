@@ -2,6 +2,7 @@ import '../main/browser.ts'
 import '../stories/environment.ts'
 
 import '../main/index.css'
+import '../main/loader.css'
 
 import { withThemeByClassName } from '@storybook/addon-themes'
 import { INITIAL_VIEWPORTS, MINIMAL_VIEWPORTS } from '@storybook/addon-viewport'

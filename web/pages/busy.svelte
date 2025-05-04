@@ -1,9 +1,29 @@
 <script lang="ts">
+  import { busyDuring } from '@slowreader/core'
+  import { onDestroy } from 'svelte'
+
   import Loader from '../ui/loader.svelte'
+
+  let pageLoader = [...document.body.children].find(i => i.id === 'loader')
+
+  busyDuring(async () => {
+    await new Promise(resolve => {
+      setTimeout(() => {
+        pageLoader?.remove()
+        resolve(true)
+      }, 10000)
+    })
+  })
+
+  onDestroy(() => {
+    pageLoader?.remove()
+  })
 </script>
 
 <div class="busy">
-  <Loader zoneId="main" />
+  {#if !pageLoader}
+    <Loader zoneId="main" />
+  {/if}
 </div>
 
 <style>

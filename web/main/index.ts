@@ -13,5 +13,4 @@ busyUntilMenuLoader()
 let target = document.getElementById('main')
 if (target) mount(Main, { target })
 
-document.getElementById('loader')?.remove()
 document.querySelector('title + style')!.remove()

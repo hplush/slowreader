@@ -17,49 +17,37 @@
         @media (prefers-color-scheme: dark) {
           background: oklch(0.25 0 70);
         }
-      }
-      .is-light-theme {
-        color-scheme: light;
-        background: oklch(0.95 0 70);
-      }
-      .is-dark-theme {
-        color-scheme: dark;
-        background: oklch(0.25 0 70);
-      }
-      .is-comfort-mode {
-        @media (prefers-color-scheme: light) {
-          background: oklch(0.95 0.02 70);
-        }
-        @media (prefers-color-scheme: dark) {
-          background: oklch(0.25 0.02 70);
-        }
         &.is-light-theme {
-          background: oklch(0.95 0.02 70);
+          color-scheme: light;
+          background: oklch(0.95 0 70);
         }
         &.is-dark-theme {
-          background: oklch(0.25 0.02 70);
+          color-scheme: dark;
+          background: oklch(0.25 0 70);
+        }
+        &.is-comfort-mode {
+          @media (prefers-color-scheme: light) {
+            background: oklch(0.95 0.02 70);
+          }
+          @media (prefers-color-scheme: dark) {
+            background: oklch(0.25 0.02 70);
+          }
+          &.is-light-theme {
+            background: oklch(0.95 0.02 70);
+          }
+          &.is-dark-theme {
+            background: oklch(0.25 0.02 70);
+          }
         }
       }
+    </style>
+    <style>
+      @import url(./main/loader.css);
       #loader {
         position: absolute;
         top: 50%;
         left: 50%;
-        margin: -1.5px 0 0 -80px;
-        height: 6px;
-        width: 160px;
-        border-radius: 4px;
-        @media (prefers-color-scheme: light) {
-          background: oklch(0 0 0 / 15%);
-        }
-        @media (prefers-color-scheme: dark) {
-          background: oklch(1 0 0 / 15%);
-        }
-        .is-light-theme & {
-          background: oklch(0 0 0 / 15%);
-        }
-        .is-dark-theme & {
-          background: oklch(1 0 0 / 15%);
-        }
+        transform: translate(-50%, -50%);
       }
     </style>
     <script>
@@ -74,7 +62,7 @@
   </head>
 
   <body>
-    <div id="loader" aria-label="App is loading"></div>
+    <progress class="loader" id="loader" aria-label="App is loading"></progress>
     <div id="main"></div>
     <script type="module" src="/main/index.ts"></script>
   </body>

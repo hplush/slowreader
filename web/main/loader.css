@@ -1,0 +1,104 @@
+:root {
+  @media (prefers-color-scheme: light) {
+    --loader-background: oklch(0 0 0 / 15%);
+    --loader-bar: oklch(0.15 0 0);
+  }
+  @media (prefers-color-scheme: dark) {
+    --loader-background: oklch(1 0 0 / 15%);
+    --loader-bar: oklch(0.98 0 0);
+  }
+}
+.is-light-theme {
+  --loader-background: oklch(0 0 0 / 15%);
+  --loader-bar: oklch(0.15 0 0);
+}
+.is-dark-theme {
+  --loader-background: oklch(1 0 0 / 15%);
+  --loader-bar: oklch(0.98 0 0);
+}
+
+.loader {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 160px;
+  height: 6px;
+  margin: 0 auto;
+  overflow: hidden;
+  appearance: none;
+  border: none;
+  border-radius: 3px;
+  background: var(--loader-background);
+}
+
+.loader::-webkit-progress-bar {
+  background: transparent;
+}
+
+.loader::-webkit-progress-value {
+  background: var(--loader-bar);
+  border-radius: 2px;
+}
+
+.loader::-moz-progress-bar {
+  background: var(--loader-bar);
+  border-radius: 2px;
+}
+
+/* Safari only */
+@supports (background: -webkit-named-image(i)) {
+  .loader:indeterminate::-webkit-progress-value {
+    transform: translateX(-50%);
+    animation: --loader-bouncing 1.8s infinite
+      cubic-bezier(0.45, 0, 0.55, 1);
+  }
+}
+
+/* Chromium only */
+@supports (not (-moz-appearance: none)) and
+  (not (background: -webkit-named-image(i))) {
+  .loader:indeterminate::-webkit-progress-value {
+    background: transparent;
+  }
+
+  .loader:indeterminate::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+    background: var(--loader-bar);
+    border-radius: 2px;
+    transform: translateX(-50%);
+    animation: --loader-bouncing 1.8s infinite
+      cubic-bezier(0.45, 0, 0.55, 1);
+  }
+}
+
+.loader:indeterminate::-moz-progress-bar {
+  transform: translateX(-50%);
+  animation: --loader-bouncing 1.8s infinite cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+@keyframes --loader-bouncing {
+  0% {
+    width: 25%;
+    margin-inline-start: 12.5%;
+  }
+
+  25% {
+    width: 50%;
+  }
+
+  50% {
+    width: 25%;
+    margin-inline-start: 87.5%;
+  }
+
+  75% {
+    width: 50%;
+  }
+
+  100% {
+    width: 25%;
+    margin-inline-start: 12.5%;
+  }
+}
