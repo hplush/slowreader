@@ -24,7 +24,7 @@ module.exports = {
           })
           before.walkAtRules(atrule => {
             atrule.params = atrule.params.replace(/:\s+/g, ':')
-            atrule.raws = { after: '', afterName: '', before: '' }
+            atrule.raws = { after: '', afterName: ' ', before: '' }
           })
         },
         OnceExit(root) {
