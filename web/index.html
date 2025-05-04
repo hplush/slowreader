@@ -12,44 +12,32 @@
       :root {
         color-scheme: light dark;
         @media (prefers-color-scheme: light) {
-          background: #ebebeb;
+          background: oklch(0.95 0 70);
         }
         @media (prefers-color-scheme: dark) {
-          background: #141414;
+          background: oklch(0.25 0 70);
         }
       }
       .is-light-theme {
         color-scheme: light;
-        background: #ebebeb;
+        background: oklch(0.95 0 70);
       }
       .is-dark-theme {
         color-scheme: dark;
-        background: #141414;
+        background: oklch(0.25 0 70);
       }
       .is-comfort-mode {
         @media (prefers-color-scheme: light) {
-          background: #f0eae3;
-          @media (color-gamut: p3) {
-            background: #e9e4dc;
-          }
+          background: oklch(0.95 0.02 70);
         }
         @media (prefers-color-scheme: dark) {
-          background: #18140f;
-          @media (color-gamut: p3) {
-            background: #17130e;
-          }
+          background: oklch(0.25 0.02 70);
         }
         &.is-light-theme {
-          background: #f0eae3;
-          @media (color-gamut: p3) {
-            background: #e9e4dc;
-          }
+          background: oklch(0.95 0.02 70);
         }
         &.is-dark-theme {
-          background: #18140f;
-          @media (color-gamut: p3) {
-            background: #17130e;
-          }
+          background: oklch(0.25 0.02 70);
         }
       }
       #loader {
@@ -61,16 +49,16 @@
         width: 160px;
         border-radius: 4px;
         @media (prefers-color-scheme: light) {
-          background: #0000001a;
+          background: oklch(0 0 0 / 15%);
         }
         @media (prefers-color-scheme: dark) {
-          background: #ffffff1a;
+          background: oklch(1 0 0 / 15%);
         }
         .is-light-theme & {
-          background: #0000001a;
+          background: oklch(0 0 0 / 15%);
         }
         .is-dark-theme & {
-          background: #ffffff1a;
+          background: oklch(1 0 0 / 15%);
         }
       }
     </style>
@@ -86,7 +74,7 @@
   </head>
 
   <body>
-    <div id="loader"></div>
+    <div id="loader" aria-label="App is loading"></div>
     <div id="main"></div>
     <script type="module" src="/main/index.ts"></script>
   </body>
