@@ -37,14 +37,14 @@
     "nanostores": "1.0.1",
     "postcss": "8.5.3",
     "postcss-load-config": "6.0.1",
-    "rollup": "4.40.1",
+    "rollup": "4.40.2",
     "svelte": "5.28.2",
-    "vite": "6.3.4"
+    "vite": "6.3.5"
   },
   "devDependencies": {
     "@logux/stylelint-config": "0.20.0",
     "@size-limit/file": "11.2.0",
-    "@storybook/addon-svelte-csf": "5.0.0-next.28",
+    "@storybook/addon-svelte-csf": "5.0.0",
     "@storybook/addon-themes": "8.6.12",
     "@storybook/addon-viewport": "8.6.12",
     "@storybook/svelte": "8.6.12",
