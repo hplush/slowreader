@@ -20,7 +20,7 @@
     "clean:build": "rm -rf dist/ web/"
   },
   "dependencies": {
-    "@electric-sql/pglite": "0.3.0",
+    "@electric-sql/pglite": "0.3.1",
     "@logux/actions": "github:logux/actions#next",
     "@logux/server": "github:logux/server#next",
     "@slowreader/api": "workspace:*",
