@@ -123,7 +123,7 @@ We are using [pnpm monorepo](https://pnpm.io/workspaces). Each project has its d
 Global development tools:
 
 - [Dev Container](https://containers.dev) to use the same environment for all developers and isolate project from developer’s machine.
-- [Prettier](./.prettierrc) to use the same code style formatting.
+- [Prettier](./.prettierrc.json) to use the same code style formatting.
 - [TypeScript](./tsconfig.json) for strict type checking.
 - [ESLint](./eslint.config.ts) to check for popular mistakes in JavaScript.
 - [remark](./.remarkrc) to find mistakes in `.md` files.
