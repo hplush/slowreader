@@ -1,8 +1,8 @@
 {
   "build": {
-    "context": "..",
-    "dockerfile": "../Dockerfile"
+    "dockerfile": "Dockerfile"
   },
+  "runArgs": ["--network=host", "--ulimit=host"],
   "customizations": {
     "vscode": {
       "extensions": [
