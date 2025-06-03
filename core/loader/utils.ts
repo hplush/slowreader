@@ -76,7 +76,7 @@ export function findHeaderLinks(
   if (!linkHeader) {
     return []
   }
-  return linkHeader.split(/,\s?/).reduce((urls: string[], link: string) => {
+  return linkHeader.split(/,\s?/).reduce<string[]>((urls, link) => {
     let [, url] = link.match(/<(.*)>/) || []
     let attributes = link.split(/;\s?/)
     let matchesType = attributes.includes(`type="${type}"`)
