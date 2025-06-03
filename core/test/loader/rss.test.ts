@@ -39,11 +39,15 @@ test('detects links', () => {
           </head>
         </html>`,
         {
+          headers: new Headers({
+            Link: '</news/rss>; rel="alternate"; type="application/rss+xml"'
+          }),
           url: 'https://example.com/news/'
         }
       )
     ),
     [
+      'https://example.com/news/rss',
       'https://example.com/a',
       'https://example.com/news/b',
       'https://example.com/c',

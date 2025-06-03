@@ -134,11 +134,15 @@ test('finds atom links in <a> elements', () => {
           </body>
         </html>`,
         {
+          headers: new Headers({
+            Link: '</news/feed>; rel="alternate"; type="application/atom+xml"'
+          }),
           url: 'https://example.com/news'
         }
       )
     ),
     [
+      'https://example.com/news/feed',
       'https://example.com/news/atom',
       'https://example.com/blog/feed.xml',
       'https://example.com/something.atom',

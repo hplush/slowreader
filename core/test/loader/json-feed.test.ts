@@ -55,11 +55,15 @@ test('detects links', () => {
           </head>
         </html>`,
         {
+          headers: new Headers({
+            Link: '</news/json>; rel="alternate"; type="application/feed+json"'
+          }),
           url: 'https://example.com/news/'
         }
       )
     ),
     [
+      'https://example.com/news/json',
       'https://example.com/a',
       'https://example.com/news/b',
       'https://example.com/c',
