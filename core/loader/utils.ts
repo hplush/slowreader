@@ -82,9 +82,7 @@ export function findHeaderLinks(
     let matchesType = attributes.includes(`type="${type}"`)
     let isAlternate = attributes.includes('rel="alternate"')
     if (url && matchesType && isAlternate) {
-      let fullUrl = /^https?/.test(url)
-        ? url
-        : new URL(url, response.url).href
+      let fullUrl = /^https?/.test(url) ? url : new URL(url, response.url).href
       urls.push(fullUrl)
     }
     return urls
