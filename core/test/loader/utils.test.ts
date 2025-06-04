@@ -9,8 +9,9 @@ test('returns urls from link http header', () => {
     findHeaderLinks(
       createTextResponse(`<!DOCTYPE html><html><head></head></html>`, {
         headers: new Headers({
-          Link: '<https://one.example.com>; rel="alternate"; type="application/rss+xml"'
-            + ', <https://two.example.com>; rel="alternate"; type="application/rss+xml"'
+          Link:
+            '<https://one.example.com>; rel="alternate"; type="application/rss+xml"' +
+            ', <https://two.example.com>; rel="alternate"; type="application/rss+xml"'
         }),
         url: 'https://example.com'
       }),

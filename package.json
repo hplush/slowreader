@@ -16,7 +16,7 @@
     "clean": "pnpm run -r --include-workspace-root /^clean:/",
     "build": "pnpm run -r build",
     "update-env": "./scripts/tsnode ./scripts/update-env.ts",
-    "format:prettier": "prettier -w **/*.{js,ts,html,md,json} *.{json,md}",
+    "format:prettier": "prettier -w '**/*.{js,ts,html,md,json}' *.{json,md}",
     "test:js": "eslint .",
     "test:types": "svelte-check",
     "test:audit": "pnpm audit --prod",
