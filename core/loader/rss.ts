@@ -4,8 +4,9 @@ import { createPostsList } from '../posts-list.ts'
 import type { Loader } from './index.ts'
 import {
   findAnchorHrefs,
+  findDocumentLinks,
+  findHeaderLinks,
   findImageByAttr,
-  findLinksByType,
   isHTML,
   toTime,
   unique
@@ -48,9 +49,12 @@ function parsePosts(text: TextResponse): OriginPost[] {
 
 export const rss: Loader = {
   getMineLinksFromText(text) {
-    if (!isHTML(text)) return []
+    let type = 'application/rss+xml'
+    let headerLinks = findHeaderLinks(text, type)
+    if (!isHTML(text)) return headerLinks
     return [
-      ...findLinksByType(text, 'application/rss+xml'),
+      ...headerLinks,
+      ...findDocumentLinks(text, type),
       ...findAnchorHrefs(text, /\.rss|\/rss/i, /rss/i)
     ]
   },

@@ -4,8 +4,9 @@ import { createPostsList } from '../posts-list.ts'
 import type { Loader } from './index.ts'
 import {
   findAnchorHrefs,
+  findDocumentLinks,
+  findHeaderLinks,
   findImageByAttr,
-  findLinksByType,
   isHTML,
   toTime
 } from './utils.ts'
@@ -37,9 +38,12 @@ function parsePosts(text: TextResponse): OriginPost[] {
 
 export const atom: Loader = {
   getMineLinksFromText(text) {
-    if (!isHTML(text)) return []
+    let type = 'application/atom+xml'
+    let headerLinks = findHeaderLinks(text, type)
+    if (!isHTML(text)) return headerLinks
     let links = [
-      ...findLinksByType(text, 'application/atom+xml'),
+      ...headerLinks,
+      ...findDocumentLinks(text, type),
       ...findAnchorHrefs(text, /feeds\.|feed\.|\.atom|\/atom/i, /feed|atom/i)
     ]
     if (links.length > 0) {

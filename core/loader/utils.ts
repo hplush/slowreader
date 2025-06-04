@@ -30,7 +30,7 @@ function buildFullURL(
   )
 }
 
-export function findLinksByType(text: TextResponse, type: string): string[] {
+export function findDocumentLinks(text: TextResponse, type: string): string[] {
   let document = text.parseXml()
   if (!document) return []
   return [...document.querySelectorAll('link')]
@@ -59,6 +59,34 @@ export function findAnchorHrefs(
       return hrefPattern.test(href)
     })
     .map(a => buildFullURL(a, text.url))
+}
+
+/**
+ * Returns an array of links found in the Link http header of a website,
+ * if the header is present.
+ * An example of a Link header with multiple urls:
+ * <http://blog.com/?feed=rss2>; rel="alternate"; type="application/rss+xml"
+ * Urls can also be multiple, comma-separated. And possibly relative.
+ */
+export function findHeaderLinks(
+  response: TextResponse,
+  type: string
+): string[] {
+  let linkHeader = response.headers.get('Link')
+  if (!linkHeader) {
+    return []
+  }
+  return linkHeader.split(/,\s?/).reduce<string[]>((urls, link) => {
+    let [, url] = link.match(/<(.*)>/) || []
+    let attributes = link.split(/;\s?/)
+    let matchesType = attributes.includes(`type="${type}"`)
+    let isAlternate = attributes.includes('rel="alternate"')
+    if (url && matchesType && isAlternate) {
+      let fullUrl = /^https?/.test(url) ? url : new URL(url, response.url).href
+      urls.push(fullUrl)
+    }
+    return urls
+  }, [])
 }
 
 export function toTime(date: null | string | undefined): number | undefined {

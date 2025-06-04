@@ -5,7 +5,8 @@ import { createPostsList } from '../posts-list.ts'
 import type { Loader } from './index.ts'
 import {
   findAnchorHrefs,
-  findLinksByType,
+  findDocumentLinks,
+  findHeaderLinks,
   isHTML,
   toTime,
   unique
@@ -131,10 +132,12 @@ function parsePosts(text: TextResponse): OriginPost[] {
 
 export const jsonFeed: Loader = {
   getMineLinksFromText(text) {
-    if (!isHTML(text)) return []
-    let linksByType = findLinksByType(text, 'application/feed+json')
+    let type = 'application/feed+json'
+    let headerLinks = findHeaderLinks(text, type)
+    if (!isHTML(text)) return headerLinks
+    let linksByType = [...headerLinks, ...findDocumentLinks(text, type)]
     if (linksByType.length === 0) {
-      linksByType = findLinksByType(text, 'application/json')
+      linksByType = findDocumentLinks(text, 'application/json')
     }
     return [...linksByType, ...findAnchorHrefs(text, /feed\.json/i)]
   },
