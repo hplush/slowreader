@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^22.15.0",
+    "node": "^22.16.0",
     "pnpm": "^10.0.0"
   },
   "scripts": {
@@ -20,16 +20,16 @@
     "clean:build": "rm -rf dist/ web/"
   },
   "dependencies": {
-    "@electric-sql/pglite": "0.3.1",
+    "@electric-sql/pglite": "0.3.2",
     "@logux/actions": "github:logux/actions#next",
     "@logux/server": "github:logux/server#next",
     "@slowreader/api": "workspace:*",
     "@slowreader/proxy": "workspace:*",
     "argon2": "0.43.0",
     "cookie": "1.0.2",
-    "drizzle-orm": "0.43.1",
+    "drizzle-orm": "0.44.1",
     "nanoid": "5.1.5",
-    "postgres": "3.4.5",
+    "postgres": "3.4.7",
     "tsx": "4.19.4"
   },
   "devDependencies": {

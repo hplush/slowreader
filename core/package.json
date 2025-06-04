@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^22.15.0",
+    "node": "^22.16.0",
     "pnpm": "^10.0.0"
   },
   "scripts": {
@@ -22,7 +22,7 @@
     "@nanostores/i18n": "1.0.0",
     "@nanostores/persistent": "1.0.0",
     "@slowreader/api": "workspace:*",
-    "dompurify": "3.2.5",
+    "dompurify": "3.2.6",
     "just-debounce-it": "3.2.0",
     "nanodelay": "2.0.2",
     "nanoid": "5.1.5",
