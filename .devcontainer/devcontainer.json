@@ -2,7 +2,17 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "runArgs": ["--network=host", "--ulimit=host"],
+  "runArgs": [
+    "--ulimit=host",
+    "-p",
+    "31337:31337",
+    "-p",
+    "5173:5173",
+    "-p",
+    "6006:6006",
+    "-p",
+    "2222:22"
+  ],
   "customizations": {
     "vscode": {
       "extensions": [
