@@ -40,8 +40,13 @@ export type AddLinksValue = Record<
 export const addPage = createPage('add', () => {
   let $url = atom<string | undefined>()
 
+  /**
+   * Map of all urls found in the document with urls as keys and loading state
+   * as values.
+   */
   let $links = map<AddLinksValue>({})
 
+  /** List of pending feed urls extracted from the given url */
   let $candidates = atom<FeedLoader[]>([])
 
   let $error = computed(
@@ -111,6 +116,10 @@ export const addPage = createPage('add', () => {
     $url.set(normalizedUrl)
   })
 
+  /**
+   * Extracts links to all known feed types from the http response containing
+   * the html document
+   */
   function getLinksFromText(response: TextResponse): string[] {
     let names = Object.keys(loaders) as LoaderName[]
     return names.reduce<string[]>((links, name) => {
@@ -118,6 +127,7 @@ export const addPage = createPage('add', () => {
     }, [])
   }
 
+  /** Returns a list of default / fallback links for all feed types */
   function getSuggestedLinksFromText(response: TextResponse): string[] {
     let names = Object.keys(loaders) as LoaderName[]
     return names.reduce<string[]>((links, name) => {
@@ -125,6 +135,9 @@ export const addPage = createPage('add', () => {
     }, [])
   }
 
+  /**
+   * Adds a possible feed url, its meta and type, to the list of possible urls.
+   */
   function addCandidate(url: string, candidate: FeedLoader): void {
     if ($candidates.get().some(i => i.url === url)) return
 
@@ -132,6 +145,11 @@ export const addPage = createPage('add', () => {
     $candidates.set([...$candidates.get(), candidate])
   }
 
+  /**
+   * Given the link to the document, checks every link found in the document
+   * for a feed. Populates the list of pending urls, "candidates".
+   * Also accepts a direct feed link.
+   */
   async function addLink(
     task: DownloadTask,
     url: string,

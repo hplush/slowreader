@@ -4,10 +4,15 @@ export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
+/** Detects that the server responded with a html document */
 export function isHTML(text: TextResponse): boolean {
   return text.text.toLocaleLowerCase().includes('<html')
 }
 
+/**
+ * Given anchor or link element, returns their full url, which includes not only
+ * the explicitly provided base url, but also the base url specified in the document.
+ */
 function buildFullURL(
   link: HTMLAnchorElement | HTMLLinkElement,
   baseUrl: string
@@ -30,6 +35,9 @@ function buildFullURL(
   )
 }
 
+/**
+ * Returns full urls found in the document's <link> elements
+ */
 export function findDocumentLinks(text: TextResponse, type: string): string[] {
   let document = text.parseXml()
   if (!document) return []
@@ -42,6 +50,9 @@ export function findDocumentLinks(text: TextResponse, type: string): string[] {
     .map(link => buildFullURL(link, text.url))
 }
 
+/**
+ * Returns full urls found in the document's <a> elements
+ */
 export function findAnchorHrefs(
   text: TextResponse,
   hrefPattern: RegExp,
@@ -89,6 +100,7 @@ export function findHeaderLinks(
   }, [])
 }
 
+/** Returns the unix timestamp of a date */
 export function toTime(date: null | string | undefined): number | undefined {
   if (!date) return undefined
   let time = new Date(date).getTime() / 1000
@@ -109,6 +121,7 @@ export function findImageByAttr(
   }, [])
 }
 
+/** Returns the unique elements without nulls from array */
 export function unique<T extends number | string = string>(
   collection: Iterable<null | T | undefined>
 ): T[] {

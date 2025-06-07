@@ -5,10 +5,26 @@ import { jsonFeed } from './json-feed.ts'
 import { rss } from './rss.ts'
 
 export type Loader = {
+  /**
+   * Returns all urls found in the html document itself and in its http headers.
+   * Response here is the website response with a html document.
+   */
   getMineLinksFromText(response: TextResponse): string[]
+  /**
+   * Extracts the feed's posts, given feed download task or the response with
+   * the feed's xml.
+   */
   getPosts(task: DownloadTask, url: string, text?: TextResponse): PostsList
+  /**
+   * Given the website html response, returns the default feed url,
+   * e.g. https://example.com/rss for rss feed.
+   */
   getSuggestedLinksFromText(response: TextResponse): string[]
+  /**
+   * Returns feed title, if any
+   */
   isMineText(response: TextResponse): false | string
+  /** TODO What does this do or should do? Not too clear from tests. */
   isMineUrl(url: URL): false | string | undefined
 }
 
@@ -29,6 +45,10 @@ export interface FeedLoader {
   url: string
 }
 
+/**
+ * Decides which loader to use for the given feed response.
+ * TODO Looks like the loader is always atom
+ */
 export function getLoaderForText(response: TextResponse): false | FeedLoader {
   let names = Object.keys(loaders) as LoaderName[]
   let parsed = new URL(response.url)
