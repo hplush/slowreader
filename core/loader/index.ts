@@ -24,7 +24,11 @@ export type Loader = {
    * Returns feed title, if any
    */
   isMineText(response: TextResponse): false | string
-  /** TODO What does this do or should do? Not too clear from tests. */
+  /**
+   * For instance, YouTube loader will return true for youtube.com links or Telegram loader for t.me links.
+   * It detects that URL is 100% for this loader.
+   * It is not used right now because there is no way to detect RSS/Atom link just by URL.
+   */
   isMineUrl(url: URL): false | string | undefined
 }
 
@@ -47,7 +51,6 @@ export interface FeedLoader {
 
 /**
  * Decides which loader to use for the given feed response.
- * TODO Looks like the loader is always atom
  */
 export function getLoaderForText(response: TextResponse): false | FeedLoader {
   let names = Object.keys(loaders) as LoaderName[]
