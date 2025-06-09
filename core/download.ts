@@ -20,6 +20,10 @@ export interface DownloadTask {
   text(...args: Parameters<typeof request>): Promise<TextResponse>
 }
 
+/**
+ * Detects content type by analyzing the text content for common patterns
+ * like HTML doctype, XML declarations, RSS/Atom feed elements, and JSON Feed format
+ */
 function detectType(text: string): string | undefined {
   let lower = text.toLowerCase()
   let beginning = lower.slice(0, 100)

@@ -41,6 +41,10 @@ export const refreshProgress = computed(refreshStatistics, stats => {
 let task: DownloadTask
 let queue: Queue<{ feed: FeedValue }>
 
+/**
+ * Determines if a post was already added to a feed by comparing timestamps
+ * or origin IDs to prevent duplicate posts during refresh
+ */
 function wasAlreadyAdded(feed: FeedValue, origin: OriginPost): boolean {
   if (origin.publishedAt && feed.lastPublishedAt) {
     return origin.publishedAt <= feed.lastPublishedAt

@@ -5,6 +5,10 @@ import { router } from './router.ts'
 
 let prevPopups: Popup[] = []
 
+/**
+ * Manages popup lifecycle by reusing existing popup instances when possible
+ * and destroying unused ones to prevent memory leaks
+ */
 export const openedPopups: ReadableAtom<Popup[]> = computed(router, route => {
   let lastIndex = 0
   let nextPopups = route.popups.map((popup, index) => {

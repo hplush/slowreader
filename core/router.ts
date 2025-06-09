@@ -130,6 +130,10 @@ function checkPopupName(
   return !!popup && popup in popupNames
 }
 
+/**
+ * Parses popup routes from hash string format (popup=param,popup2=param2)
+ * into an array of popup route objects
+ */
 export function parsePopups(hash: string): PopupRoute[] {
   let popups: PopupRoute[] = []
   let parts = hash.split(',')
