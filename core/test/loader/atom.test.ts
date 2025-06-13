@@ -9,6 +9,7 @@ import {
   checkAndRemoveRequestMock,
   createDownloadTask,
   createTextResponse,
+  expectRequest,
   loaders,
   mockRequest,
   type TextResponse
@@ -499,83 +500,58 @@ test('detects when there is no pagination', () => {
 test('loads first then second page', async () => {
   let task = createDownloadTask()
 
-  let callCount = 0
-  let textSpy = spyOn(task, 'text', () => {
-    callCount++
-    if (callCount === 1) {
-      // First page
-      return Promise.resolve(
-        exampleAtom(
-          `<?xml version="1.0"?>
-        <feed xmlns="http://www.w3.org/2005/Atom">
-          <link rel="next" href="https://example.com/feed?page=2" />
-        </feed>`
-        )
-      )
-    } else {
-      // Second page
-      return Promise.resolve(
-        exampleAtom(
-          `<?xml version="1.0"?>
-        <feed xmlns="http://www.w3.org/2005/Atom">
-        </feed>`
-        )
-      )
-    }
-  })
-
+  expectRequest('https://example.com/feed').andRespond(
+    200,
+    `<?xml version="1.0"?>
+      <feed xmlns="http://www.w3.org/2005/Atom">
+        <link rel="next" href="https://example.com/feed?page=2" />
+      </feed>`,
+    'application/atom+xml'
+  )
   let posts = loaders.atom.getPosts(task, 'https://example.com/feed')
-
   await posts.loading
-  await posts.next()
 
-  deepStrictEqual(textSpy.calls, [
-    ['https://example.com/feed'],
-    ['https://example.com/feed?page=2']
-  ])
+  expectRequest('https://example.com/feed?page=2').andRespond(
+    200,
+    `<?xml version="1.0"?>
+      <feed xmlns="http://www.w3.org/2005/Atom">
+      </feed>`,
+    'application/atom+xml'
+  )
+  await posts.next()
 })
 
 test('has posts from both pages', async () => {
   let task = createDownloadTask()
 
-  let callCount = 0
-  spyOn(task, 'text', () => {
-    callCount++
-    if (callCount === 1) {
-      // First page
-      return Promise.resolve(
-        exampleAtom(
-          `<?xml version="1.0"?>
-        <feed xmlns="http://www.w3.org/2005/Atom">
-          <link rel="next" href="https://example.com/feed?page=2" />
-          <entry>
-            <title>Post on page 1</title>
-            <id>1</id>
-            <published>2023-01-01T00:00:00Z</published>
-          </entry>
-        </feed>`
-        )
-      )
-    } else {
-      // Second page
-      return Promise.resolve(
-        exampleAtom(
-          `<?xml version="1.0"?>
-        <feed xmlns="http://www.w3.org/2005/Atom">
-          <entry>
-            <title>Post on page 2</title>
-            <id>2</id>
-            <published>2023-01-02T00:00:00Z</published>
-          </entry>
-        </feed>`
-        )
-      )
-    }
-  })
-
+  expectRequest('https://example.com/feed').andRespond(
+    200,
+    `<?xml version="1.0"?>
+      <feed xmlns="http://www.w3.org/2005/Atom">
+        <link rel="next" href="https://example.com/feed?page=2" />
+        <entry>
+          <title>Post on page 1</title>
+          <id>1</id>
+          <published>2023-01-01T00:00:00Z</published>
+        </entry>
+      </feed>`,
+    'application/atom+xml'
+  )
   let posts = loaders.atom.getPosts(task, 'https://example.com/feed')
-
   await posts.loading
+
+  expectRequest('https://example.com/feed?page=2').andRespond(
+    200,
+    `<?xml version="1.0"?>
+      <feed xmlns="http://www.w3.org/2005/Atom">
+        <entry>
+          <title>Post on page 2</title>
+          <id>2</id>
+          <published>2023-01-02T00:00:00Z</published>
+        </entry>
+      </feed>`,
+    'application/atom+xml'
+  )
   await posts.next()
 
   equal(posts.get().list.length, 2)

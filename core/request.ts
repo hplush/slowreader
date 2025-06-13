@@ -86,11 +86,13 @@ export function expectRequest(url: string): RequestMock {
   }
   requestExpects.push(expect)
   return {
+    /** Immediately sets up a mock response that will be returned synchronously */
     andRespond(status, body = '', contentType = 'text/html') {
       expect.contentType = contentType
       expect.status = status
       expect.response = body
     },
+    /** Returns a function that allows more control over the response */
     andWait() {
       let { promise, resolve } = Promise.withResolvers<void>()
       expect.wait = promise

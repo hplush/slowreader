@@ -73,7 +73,7 @@ function getPostsCursor(
       async () => {
         let response = await task.text(feedUrl)
         let [posts, loader] = getPostsCursor(task, feedUrl, response)
-        return [posts, loader] as [OriginPost[], PostsListLoader | undefined]
+        return [posts || [], loader]
       }
     ]
   }
@@ -88,11 +88,8 @@ function getPostsCursor(
           task,
           nextPageUrl,
           nextPageResponse
-        ) as [OriginPost[], PostsListLoader | undefined]
-        return [nextPosts, loader] as [
-          OriginPost[],
-          PostsListLoader | undefined
-        ]
+        )
+        return [nextPosts || [], loader]
       }
     ]
   } else {

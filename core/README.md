@@ -86,3 +86,22 @@ n bnt core/test/html.test.ts -t 'sanitizes HTML'
 In VS Code you can use [extension](https://marketplace.visualstudio.com/items?itemName=connor4312.nodejs-testing) to run specific test from UI.
 
 Open `core/coverage/lcov-report/index.html` to see coverage issues.
+
+## Mocking requests
+
+To enable network request mocking in tests, you have to set up and tear down request mock before and after each test:
+
+```typescript
+beforeEach(() => {
+  mockRequest()
+})
+
+afterEach(() => {
+  checkAndRemoveRequestMock()
+})
+```
+
+In the test itself, before making or triggering the request itself, use either:
+
+- `expectRequest(url).andRespond(...)` for simple mocking where the response is known upfront.
+- or `expectRequest(url).andWait(...)` for complex scenarios where you need to control test loading states or simulate network delays.
