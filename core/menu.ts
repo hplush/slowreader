@@ -37,6 +37,10 @@ export let fastMenu = atom<CategoryValue[]>([])
 export let slowMenu = atom<SlowMenu>([])
 export let menuLoading = atom<boolean>(true)
 
+/**
+ * Rebuilds the menu state by categorizing feeds and posts into fast/slow menus
+ * with unread counts and proper category organization
+ */
 async function rebuild(): Promise<void> {
   let [posts, feeds, categories, fastFilters] = await Promise.all([
     loadValue(getPosts()),

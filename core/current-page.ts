@@ -4,6 +4,10 @@ import { getEnvironment } from './environment.ts'
 import { type Page, pages } from './pages/index.ts'
 import { type Route, router } from './router.ts'
 
+/**
+ * Iterates over all parameters of a page, calling the iterator function
+ * for each parameter store and its corresponding value from the route
+ */
 function eachParam<SomeRoute extends Route>(
   page: Page<SomeRoute['route']>,
   route: SomeRoute,
@@ -22,6 +26,9 @@ function eachParam<SomeRoute extends Route>(
   }
 }
 
+/**
+ * Extracts current parameter values from all parameter stores of a page
+ */
 function getPageParams<SomeRoute extends Route>(
   page: Page<SomeRoute['route']>
 ): SomeRoute['params'] {
