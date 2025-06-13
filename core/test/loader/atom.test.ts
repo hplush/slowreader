@@ -525,10 +525,10 @@ test('loads first then second page', async () => {
   })
 
   let posts = loaders.atom.getPosts(task, 'https://example.com/feed')
-  
+
   // Wait for first page to be loaded
   await posts.loading
-  
+
   // Then load next page
   await posts.next()
 
@@ -577,10 +577,10 @@ test('has posts from both pages', async () => {
   })
 
   let posts = loaders.atom.getPosts(task, 'https://example.com/feed')
-  
+
   // Wait for first page to be loaded
   await posts.loading
-  
+
   // Then load next page
   await posts.next()
 
