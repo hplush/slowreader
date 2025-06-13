@@ -88,7 +88,7 @@ In VS Code you can use [extension](https://marketplace.visualstudio.com/items?it
 
 Open `core/coverage/lcov-report/index.html` to see coverage issues.
 
-### Mocking Requests
+## Mocking Requests
 
 To enable network request mocking in tests, you have to set up and tear down request mock before and after each test:
 
