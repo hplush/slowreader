@@ -7,6 +7,7 @@ _See the [full architecture guide](../README.md) first._
 - [Client Environments](#client-environments)
 - [URL Routing](#url-routing)
 - [Test Strategy](#test-strategy)
+  - [Mocking Requests](#mocking-requests)
 
 ## Project Structure
 
@@ -87,7 +88,7 @@ In VS Code you can use [extension](https://marketplace.visualstudio.com/items?it
 
 Open `core/coverage/lcov-report/index.html` to see coverage issues.
 
-## Mocking requests
+### Mocking Requests
 
 To enable network request mocking in tests, you have to set up and tear down request mock before and after each test:
 
