@@ -1,25 +1,35 @@
 name: Deploy to Google Cloud
+description: We are using it in preview-deploy, server, proxy, main workflows
 inputs:
   projectId:
     required: true
+    description: Google Cloud project ID
   region:
     required: true
+    description: Server location
   folder:
     required: true
+    description: What project from monorepo deploy
   registry:
     required: true
+    description: Google Cloud Artifacts registry name
   service:
     required: true
+    description: Google Cloud Run service name
   tag:
     required: false
     default: latest
+    description: Docker image tag
   env:
     required: false
+    description: Google Cloud Run environment
   flags:
     required: false
+    description: Extra flags for Google Cloud Run deploy command
 outputs:
   url:
     value: ${{ steps.deploy.outputs.url }}
+    description: Deployed app URL
 runs:
   using: composite
   steps:

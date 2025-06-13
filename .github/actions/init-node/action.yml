@@ -1,11 +1,14 @@
 name: Initialize Node.js, pnpm, and dependencies
+description: Base for most of workflows
 inputs:
   cache:
     required: false
-    default: true
+    default: 'pnpm'
+    description: Allow to disable pnpm cache for better security
   install:
     required: false
     default: ''
+    description: Allow to disable `pnpm install` call
 runs:
   using: composite
   steps:
