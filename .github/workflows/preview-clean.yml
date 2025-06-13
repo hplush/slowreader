@@ -37,8 +37,8 @@ jobs:
       - name: Auth Google Cloud
         uses: google-github-actions/auth@ba79af03959ebeac9769e648f473a284504d9193 # v2.1.10
         with:
-          workload_identity_provider: projects/223708816691/locations/global/workloadIdentityPools/github/providers/hplush
-          service_account: github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+          workload_identity_provider: projects/300174498438/locations/global/workloadIdentityPools/github/providers/hplush
+          service_account: github-deploy@${{ inputs.projectId }}.iam.gserviceaccount.com
       - name: Install Google Cloud
         uses: google-github-actions/setup-gcloud@77e7a554d41e2ee56fc945c52dfd3f33d12def9a # v2.1.4
       - name: Shut down Cloud Run

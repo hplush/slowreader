@@ -11,6 +11,7 @@ WORKFLOWS=(
   ".github/workflows/proxy.yml"
   ".github/workflows/server.yml"
   ".github/workflows/preview-deploy.yml"
+  ".github/workflows/preview-clean.yml"
 )
 
 # Set project as default in CLI
