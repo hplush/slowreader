@@ -2,13 +2,16 @@ import '../dom-parser.ts'
 
 import { spyOn } from 'nanospy'
 import { deepStrictEqual, equal } from 'node:assert'
-import { test } from 'node:test'
+import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
+  checkAndRemoveRequestMock,
   createDownloadTask,
   createTextResponse,
+  expectRequest,
   loaders,
+  mockRequest,
   type TextResponse
 } from '../../index.ts'
 
@@ -19,6 +22,14 @@ function exampleAtom(responseBody: string): TextResponse {
     })
   })
 }
+
+beforeEach(() => {
+  mockRequest()
+})
+
+afterEach(() => {
+  checkAndRemoveRequestMock()
+})
 
 test('detects xml:base attribute', () => {
   deepStrictEqual(
@@ -456,4 +467,94 @@ test('parses media', () => {
       ]
     }
   )
+})
+
+test('detects pagination with rel="next" link', () => {
+  let $store = loaders.atom.getPosts(
+    createDownloadTask(),
+    'https://example.com/feed/',
+    exampleAtom(
+      `<?xml version="1.0"?>
+      <feed xmlns="http://www.w3.org/2005/Atom">
+        <link rel="self" href="https://example.com/feeds/posts.atom"/>
+        <link rel="next" href="https://example.com/feeds/posts-2024.atom"/>
+      </feed>`
+    )
+  )
+  equal($store.get().hasNext, true)
+})
+
+test('detects when there is no pagination', () => {
+  let $store = loaders.atom.getPosts(
+    createDownloadTask(),
+    'https://example.com/feed/',
+    exampleAtom(
+      `<?xml version="1.0"?>
+      <feed xmlns="http://www.w3.org/2005/Atom">
+      </feed>`
+    )
+  )
+  equal($store.get().hasNext, false)
+})
+
+test('loads first then second page', async () => {
+  let task = createDownloadTask()
+
+  expectRequest('https://example.com/feed').andRespond(
+    200,
+    `<?xml version="1.0"?>
+      <feed xmlns="http://www.w3.org/2005/Atom">
+        <link rel="next" href="https://example.com/feed?page=2" />
+      </feed>`,
+    'application/atom+xml'
+  )
+  let posts = loaders.atom.getPosts(task, 'https://example.com/feed')
+  await posts.loading
+
+  expectRequest('https://example.com/feed?page=2').andRespond(
+    200,
+    `<?xml version="1.0"?>
+      <feed xmlns="http://www.w3.org/2005/Atom">
+      </feed>`,
+    'application/atom+xml'
+  )
+  await posts.next()
+})
+
+test('has posts from both pages', async () => {
+  let task = createDownloadTask()
+
+  expectRequest('https://example.com/feed').andRespond(
+    200,
+    `<?xml version="1.0"?>
+      <feed xmlns="http://www.w3.org/2005/Atom">
+        <link rel="next" href="https://example.com/feed?page=2" />
+        <entry>
+          <title>Post on page 1</title>
+          <id>1</id>
+          <published>2023-01-01T00:00:00Z</published>
+        </entry>
+      </feed>`,
+    'application/atom+xml'
+  )
+  let posts = loaders.atom.getPosts(task, 'https://example.com/feed')
+  await posts.loading
+
+  expectRequest('https://example.com/feed?page=2').andRespond(
+    200,
+    `<?xml version="1.0"?>
+      <feed xmlns="http://www.w3.org/2005/Atom">
+        <entry>
+          <title>Post on page 2</title>
+          <id>2</id>
+          <published>2023-01-02T00:00:00Z</published>
+        </entry>
+      </feed>`,
+    'application/atom+xml'
+  )
+  await posts.next()
+
+  equal(posts.get().list.length, 2)
+  equal(posts.get().list[0]?.title, 'Post on page 1')
+  equal(posts.get().list[1]?.title, 'Post on page 2')
 })

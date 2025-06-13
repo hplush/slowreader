@@ -14,7 +14,7 @@ export function isHTML(text: TextResponse): boolean {
  * the explicitly provided base URL, but also the base URL specified
  * in the document.
  */
-function buildFullURL(
+export function buildFullURL(
   link: HTMLAnchorElement | HTMLLinkElement,
   baseUrl: string
 ): string {
