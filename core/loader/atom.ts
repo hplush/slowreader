@@ -119,11 +119,7 @@ export const atom: Loader = {
 
   getPosts(task, url, text) {
     let [posts, nextLoader] = getPostsCursor(task, url, text)
-    if (!posts && nextLoader) {
-      return createPostsList(undefined, nextLoader)
-    } else {
-      return createPostsList(posts || [], nextLoader)
-    }
+    return createPostsList(posts || [], nextLoader)
   },
 
   getSuggestedLinksFromText(text) {
