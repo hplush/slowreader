@@ -6,28 +6,41 @@ import { rss } from './rss.ts'
 
 export type Loader = {
   /**
-   * Returns all urls found in the html document itself and in its http headers.
-   * Response here is the website response with a html document.
+   * Find feeds URLs from HTML or HTTP headers.
    */
   getMineLinksFromText(response: TextResponse): string[]
+
   /**
-   * Extracts the feed's posts, given feed download task or the response with
-   * the feed's xml.
+   * Extracts the feed's posts.
+   *
+   * If the URL’s document was already downloaded during the feed’s search.
+   *
+   * Task is a way to combine multiple HTTP requests (for instance, during
+   * the feed search/preview) to cancel all of them fast.
    */
   getPosts(task: DownloadTask, url: string, text?: TextResponse): PostsList
+
   /**
-   * Given the website html response, returns the default feed url,
-   * e.g. https://example.com/rss for rss feed.
+   * Try to suggest feed for given URL/document.
+   *
+   * For instance, by parsing <meta> or guessing URLs like `/rss` for RSS.
    */
   getSuggestedLinksFromText(response: TextResponse): string[]
+
   /**
-   * Returns feed title, if any
+   * Detects that document is a loader’s feed.
+   *
+   * Return feed’s title if true.
    */
   isMineText(response: TextResponse): false | string
+
   /**
-   * For instance, YouTube loader will return true for youtube.com links or Telegram loader for t.me links.
    * It detects that URL is 100% for this loader.
-   * It is not used right now because there is no way to detect RSS/Atom link just by URL.
+   *
+   * For instance, YouTube loader will return true for youtube.com links.
+   *
+   * It is not used right now because there is no way to detect RSS/Atom link
+   * just by URL.
    */
   isMineUrl(url: URL): false | string | undefined
 }

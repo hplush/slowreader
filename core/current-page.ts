@@ -5,8 +5,9 @@ import { type Page, pages } from './pages/index.ts'
 import { type Route, router } from './router.ts'
 
 /**
- * Iterates over all parameters of a page, calling the iterator function
- * for each parameter store and its corresponding value from the route
+ * Iterates over all parameters in page’ URL.
+ *
+ * Helper to hide dirty types.
  */
 function eachParam<SomeRoute extends Route>(
   page: Page<SomeRoute['route']>,
@@ -27,7 +28,9 @@ function eachParam<SomeRoute extends Route>(
 }
 
 /**
- * Extracts current parameter values from all parameter stores of a page
+ * Extracts current parameter values from all parameter stores of a page.
+ *
+ * Helper to hide dirty types.
  */
 function getPageParams<SomeRoute extends Route>(
   page: Page<SomeRoute['route']>

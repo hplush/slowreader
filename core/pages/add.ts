@@ -41,12 +41,15 @@ export const addPage = createPage('add', () => {
   let $url = atom<string | undefined>()
 
   /**
-   * Map of all urls found in the document with urls as keys and loading state
+   * Map of all URLs found in the document with URLs as keys and loading state
    * as values.
    */
   let $links = map<AddLinksValue>({})
 
-  /** List of pending feed urls extracted from the given url */
+  /**
+   * List of feed URLs extracted from the given URL so user will decide
+   * what to follow
+   */
   let $candidates = atom<FeedLoader[]>([])
 
   let $error = computed(
@@ -117,8 +120,8 @@ export const addPage = createPage('add', () => {
   })
 
   /**
-   * Extracts links to all known feed types from the http response containing
-   * the html document
+   * Extracts links to all known feed types from the HTTP response containing
+   * the HTML document.
    */
   function getLinksFromText(response: TextResponse): string[] {
     let names = Object.keys(loaders) as LoaderName[]
@@ -127,7 +130,7 @@ export const addPage = createPage('add', () => {
     }, [])
   }
 
-  /** Returns a list of default / fallback links for all feed types */
+  /** Guess a list of default/fallback links for all feed types */
   function getSuggestedLinksFromText(response: TextResponse): string[] {
     let names = Object.keys(loaders) as LoaderName[]
     return names.reduce<string[]>((links, name) => {
@@ -136,7 +139,7 @@ export const addPage = createPage('add', () => {
   }
 
   /**
-   * Adds a possible feed url, its meta and type, to the list of possible urls.
+   * Adds a possible feed URL, its meta and type, to the list of possible URLs.
    */
   function addCandidate(url: string, candidate: FeedLoader): void {
     if ($candidates.get().some(i => i.url === url)) return
@@ -147,7 +150,7 @@ export const addPage = createPage('add', () => {
 
   /**
    * Given the link to the document, checks every link found in the document
-   * for a feed. Populates the list of pending urls, "candidates".
+   * for a feed. Populates the list of pending URLs, "candidates".
    * Also accepts a direct feed link.
    */
   async function addLink(

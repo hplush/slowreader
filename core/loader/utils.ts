@@ -4,14 +4,15 @@ export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
-/** Detects that the server responded with a html document */
+/** Detects that the server responded with a HTML document */
 export function isHTML(text: TextResponse): boolean {
   return text.text.toLocaleLowerCase().includes('<html')
 }
 
 /**
- * Given anchor or link element, returns their full url, which includes not only
- * the explicitly provided base url, but also the base url specified in the document.
+ * Returns full URL for link HTML element, which includes not only
+ * the explicitly provided base URL, but also the base URL specified
+ * in the document.
  */
 function buildFullURL(
   link: HTMLAnchorElement | HTMLLinkElement,
@@ -36,7 +37,7 @@ function buildFullURL(
 }
 
 /**
- * Returns full urls found in the document's <link> elements
+ * Returns full URLs found in the document’s <link> elements
  */
 export function findDocumentLinks(text: TextResponse, type: string): string[] {
   let document = text.parseXml()
@@ -51,7 +52,7 @@ export function findDocumentLinks(text: TextResponse, type: string): string[] {
 }
 
 /**
- * Returns full urls found in the document's <a> elements
+ * Returns full URLs found in the document’s <a> elements
  */
 export function findAnchorHrefs(
   text: TextResponse,
@@ -73,11 +74,14 @@ export function findAnchorHrefs(
 }
 
 /**
- * Returns an array of links found in the Link http header of a website,
- * if the header is present.
- * An example of a Link header with multiple urls:
+ * Returns an array of full URL found in the `Link` HTTP header like:
+ *
+ * ```
  * <http://blog.com/?feed=rss2>; rel="alternate"; type="application/rss+xml"
- * Urls can also be multiple, comma-separated. And possibly relative.
+ * ```
+ *
+ * URLs in this header can also be multiple, comma-separated.
+ * And possibly relative (the method will convert them to absolute).
  */
 export function findHeaderLinks(
   response: TextResponse,
@@ -100,7 +104,9 @@ export function findHeaderLinks(
   }, [])
 }
 
-/** Returns the unix timestamp of a date */
+/**
+ * Returns the UNIX timestamp of a date
+ */
 export function toTime(date: null | string | undefined): number | undefined {
   if (!date) return undefined
   let time = new Date(date).getTime() / 1000
@@ -121,7 +127,9 @@ export function findImageByAttr(
   }, [])
 }
 
-/** Returns the unique elements without nulls from array */
+/**
+ * Returns the unique elements without `null` from array
+ */
 export function unique<T extends number | string = string>(
   collection: Iterable<null | T | undefined>
 ): T[] {

@@ -132,7 +132,9 @@ export function setIsMobile(isSmallScreen: boolean): void {
 const testRouter = atom<BaseRoute | undefined>()
 
 /**
- * Ensures a route has a hash property, adding an empty string if missing
+ * Ensures a route has a hash property, adding an empty string if missing.
+ *
+ * Syntax sugar to avoid setting `hash` in every route in tests.
  */
 export function addHashToBaseRoute(
   route: BaseRoute | Omit<BaseRoute, 'hash'> | undefined
@@ -148,7 +150,7 @@ export function setBaseTestRoute(
 }
 
 /**
- * Converts popup routes to a hash string format (popup=param,popup2=param2)
+ * Converts popup routes to a hash string format `popup=param,popup2=param2`
  */
 export function stringifyPopups(popups: PopupRoute[]): string {
   return popups

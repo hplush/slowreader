@@ -14,6 +14,9 @@ export interface TextResponse {
   readonly url: string
 }
 
+/**
+ * Combine all relative HTTP requests to cancel all of them fast.
+ */
 export interface DownloadTask {
   destroy(): void
   request: typeof request
