@@ -92,7 +92,7 @@ Open `core/coverage/lcov-report/index.html` to see coverage issues.
 
 To enable network request mocking in tests, you have to set up and tear down request mock before and after each test:
 
-```typescript
+```ts
 beforeEach(() => {
   mockRequest()
 })
@@ -104,5 +104,15 @@ afterEach(() => {
 
 In the test itself, before making or triggering the request itself, use either:
 
-- `expectRequest(url).andRespond(...)` for simple mocking where the response is known upfront.
-- or `expectRequest(url).andWait(...)` for complex scenarios where you need to control test loading states or simulate network delays.
+```ts
+// for simple mocking
+expectRequest('https://example.com').andRespond(200, '<html></html>')
+callLogicWithRequest()
+```
+
+```ts
+// for simulate network delays
+let reply = expectRequest('https://example.com').andWait()
+callLogicWithRequest()
+reply1(200, '<html></html>')
+```

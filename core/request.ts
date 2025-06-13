@@ -70,11 +70,17 @@ let fetchMock: RequestMethod = async (url, opts = {}) => {
   }
 }
 
+/**
+ * Enable request mocking for tests
+ */
 export function mockRequest(): void {
   requestExpects = []
   setRequestMethod(fetchMock)
 }
 
+/**
+ * Mark that we are waiting HTTP request and define HTTP response
+ */
 export function expectRequest(url: string): RequestMock {
   let expect: RequestExpect = {
     contentType: 'text/html',
@@ -86,13 +92,17 @@ export function expectRequest(url: string): RequestMock {
   }
   requestExpects.push(expect)
   return {
-    /** Immediately sets up a mock response that will be returned synchronously */
+    /**
+     * Setup simple immediately response
+     */
     andRespond(status, body = '', contentType = 'text/html') {
       expect.contentType = contentType
       expect.status = status
       expect.response = body
     },
-    /** Returns a function that allows more control over the response */
+    /**
+     * Returns a function that allows defining response later to test latency
+     */
     andWait() {
       let { promise, resolve } = Promise.withResolvers<void>()
       expect.wait = promise
@@ -108,6 +118,9 @@ export function expectRequest(url: string): RequestMock {
   }
 }
 
+/**
+ * Fail test if there is expected request which was not sent during test
+ */
 export function checkAndRemoveRequestMock(): void {
   if (requestExpects.length > 0) {
     throw new Error(

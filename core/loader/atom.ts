@@ -38,7 +38,7 @@ function parsePosts(text: TextResponse): OriginPost[] {
 }
 
 /**
- * Returns next or previous pagination url from feed xml, if present.
+ * Returns next or previous pagination url from feed XML, if present.
  * See "paged feeds" https://www.rfc-editor.org/rfc/rfc5005#section-3
  */
 function getPaginationUrl(
@@ -58,9 +58,9 @@ type PostsCursor =
   | [undefined, PostsListLoader]
 
 /**
- * If xml response is ready, returns a tuple of posts and possibly
- * the loader of the next portion of posts, if xml contains a link to them.
- * If xml response is not yet ready, returns the recursive loader of posts.
+ * If XML response is ready, returns a tuple of posts and possibly
+ * the loader of the next portion of posts, if XML contains a link to them.
+ * If XML response is not yet ready, returns the recursive loader of posts.
  */
 function getPostsCursor(
   task: DownloadTask,
