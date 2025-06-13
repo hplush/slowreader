@@ -7,7 +7,7 @@ _See the [full architecture guide](../README.md) first._
 - [Client Environments](#client-environments)
 - [URL Routing](#url-routing)
 - [Test Strategy](#test-strategy)
-  - [Mocking Requests](#mocking-requests)
+- [Mocking Requests](#mocking-requests)
 
 ## Project Structure
 
