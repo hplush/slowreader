@@ -29,6 +29,10 @@ input {
   font: var(--base-font);
 }
 
+::selection {
+  background: var(--selection-color);
+}
+
 :focus-visible {
   z-index: 10;
   outline: 3px solid var(--focus-color);
