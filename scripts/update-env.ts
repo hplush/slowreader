@@ -1,9 +1,13 @@
 // Script to update Node.js and pnpm everywhere
+// By default it will keep Node.js major version, but can update to next major
+// by `pnpm update-env --major` argument.
 
 import { createHash } from 'node:crypto'
 import { globSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { styleText } from 'node:util'
+
+const KEEP_MAJOR = !process.argv.includes('--major')
 
 const ROOT = join(import.meta.dirname, '..')
 
@@ -16,7 +20,9 @@ type Architectures = { arm64: string; x64: string }
 async function getLatestNodeVersion(major: string): Promise<string> {
   let response = await fetch('https://nodejs.org/dist/index.json')
   let data: Release[] = await response.json()
-  let filtered = data.filter(i => i.version.startsWith(`v${major}.`))
+  let filtered = KEEP_MAJOR
+    ? data.filter(i => i.version.startsWith(`v${major}.`))
+    : data
   return filtered[0]!.version.slice(1)
 }
 

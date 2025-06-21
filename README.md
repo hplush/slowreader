@@ -269,6 +269,8 @@ pnpm update --interactive --latest -r --include-workspace-root
 pnpm update -r --include-workspace-root
 ```
 
+By default `update-env` will keep Node.js major version, but it can update to next major by `pnpm update-env --major` argument.
+
 If you need just to update specific Node.js dependency:
 
 ```sh
