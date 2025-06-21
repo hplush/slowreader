@@ -1,7 +1,7 @@
 FROM cgr.dev/chainguard/wolfi-base:latest@sha256:f90b2efe19a8dcbb70d0d9056d15cc6b112103f04839dc319e77fa7bf1451ac9 as base
 
-ENV NODE_VERSION 22.16.0
-ENV NODE_CHECKSUM sha256:f4cb75bb036f0d0eddf6b79d9596df1aaab9ddccd6a20bf489be5abe9467e84e
+ENV NODE_VERSION 24.2.0
+ENV NODE_CHECKSUM sha256:91a0794f4dbc94bc4a9296139ed9101de21234982bae2b325e37ebd3462273e5
 
 ADD --checksum=$NODE_CHECKSUM https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz /node.tar.xz
 RUN tar -xf "node.tar.xz" --strip-components=1 -C /usr/local/ \

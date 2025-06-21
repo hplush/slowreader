@@ -42,7 +42,7 @@ if (
         encoding: 'binary'
       })
     }
-    setInterval(dumpDb, 60 * 60 * 1000)
+    setInterval(dumpDb, 1 * 1000)
   } else {
     pglite = new PGlite(config.db)
   }
