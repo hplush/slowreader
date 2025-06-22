@@ -27,7 +27,7 @@
     "@logux/client": "github:logux/client#next",
     "@logux/core": "0.9.0",
     "@mdi/js": "7.4.47",
-    "@nanostores/i18n": "1.0.0",
+    "@nanostores/i18n": "1.0.1",
     "@nanostores/persistent": "1.0.0",
     "@nanostores/router": "1.0.0",
     "@rollup/plugin-node-resolve": "16.0.1",
@@ -37,17 +37,17 @@
     "nanostores": "1.0.1",
     "postcss": "8.5.6",
     "postcss-load-config": "6.0.1",
-    "rollup": "4.43.0",
-    "svelte": "5.34.3",
+    "rollup": "4.44.0",
+    "svelte": "5.34.7",
     "vite": "6.3.5"
   },
   "devDependencies": {
     "@logux/stylelint-config": "0.20.0",
     "@size-limit/file": "11.2.0",
     "@storybook/addon-svelte-csf": "5.0.3",
-    "@storybook/addon-themes": "9.0.11",
-    "@storybook/svelte": "9.0.11",
-    "@storybook/svelte-vite": "9.0.11",
+    "@storybook/addon-themes": "9.0.12",
+    "@storybook/svelte": "9.0.12",
+    "@storybook/svelte-vite": "9.0.12",
     "@stylistic/stylelint-config": "2.0.0",
     "better-node-test": "0.7.1",
     "browserslist": "4.25.0",
@@ -55,8 +55,8 @@
     "postcss-nesting": "13.0.2",
     "postcss-selector-parser": "7.1.0",
     "size-limit": "11.2.0",
-    "storybook": "9.0.11",
-    "stylelint": "16.20.0",
+    "storybook": "9.0.12",
+    "stylelint": "16.21.0",
     "stylelint-use-logical": "2.1.2"
   }
 }
