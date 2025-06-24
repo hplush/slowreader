@@ -16,7 +16,7 @@
     "clean": "pnpm run -r --include-workspace-root /^clean:/",
     "build": "pnpm run -r build",
     "update-env": "./scripts/tsnode ./scripts/update-env.ts",
-    "format:prettier": "prettier -w '**/*.{js,ts,html,md,json}' *.{json,md}",
+    "format:prettier": "prettier --write .",
     "test:js": "eslint .",
     "test:types": "svelte-check",
     "test:audit": "pnpm audit --prod",
@@ -24,7 +24,7 @@
     "test:messages": "./scripts/tsnode ./scripts/check-messages.ts",
     "test:versions": "./scripts/tsnode ./scripts/check-versions.ts",
     "test:markdown": "remark . --frail",
-    "test:format": "prettier --check **/*.{js,ts,html,md,cts,json} *.{ts,json,md}",
+    "test:format": "prettier --check .",
     "check-opml": "./scripts/tsnode loader-tests/check-opml.ts",
     "test-loaders": "./scripts/tsnode loader-tests/test-loaders.ts loader-tests/feeds.yml",
     "tsnode": "./scripts/tsnode"
