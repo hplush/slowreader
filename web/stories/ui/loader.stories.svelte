@@ -28,7 +28,7 @@
   })
 </script>
 
-<Story name="Light">
+<Story name="Light" asChild>
   <Section>
     <Loader />
   </Section>
@@ -43,6 +43,6 @@
   </Section>
 </Story>
 
-<Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
+<Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>
   <Loader />
 </Story>
