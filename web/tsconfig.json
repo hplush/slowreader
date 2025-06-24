@@ -1,0 +1,8 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "."
+  },
+  "include": ["**/*.ts", "**/*.cts", "**/*.svelte", ".storybook/*.ts"],
+  "exclude": ["dist", "storybook-static"]
+}
