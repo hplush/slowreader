@@ -16,7 +16,7 @@
     "clean": "pnpm run -r --include-workspace-root /^clean:/",
     "build": "pnpm run -r build",
     "update-env": "./scripts/tsnode ./scripts/update-env.ts",
-    "format:prettier": "prettier --write .",
+    "format:prettier": "prettier --experimental-cli --write .",
     "test:js": "eslint .",
     "test:types": "svelte-check",
     "test:audit": "pnpm audit --prod",
@@ -24,7 +24,7 @@
     "test:messages": "./scripts/tsnode ./scripts/check-messages.ts",
     "test:versions": "./scripts/tsnode ./scripts/check-versions.ts",
     "test:markdown": "remark . --frail",
-    "test:format": "prettier --check .",
+    "test:format": "prettier --experimental-cli --check .",
     "check-opml": "./scripts/tsnode loader-tests/check-opml.ts",
     "test-loaders": "./scripts/tsnode loader-tests/test-loaders.ts loader-tests/feeds.yml",
     "tsnode": "./scripts/tsnode"
@@ -40,7 +40,7 @@
     "husky": "9.1.7",
     "nano-staged": "0.8.0",
     "postcss-html": "1.8.0",
-    "prettier": "3.5.3",
+    "prettier": "3.6.0",
     "prettier-plugin-svelte": "3.4.0",
     "remark-cli": "12.0.1",
     "remark-lint-check-toc": "1.0.0",
@@ -58,7 +58,7 @@
     "svelte": "5.34.7",
     "svelte-check": "4.2.2",
     "svelte-eslint-parser": "1.2.0",
-    "svgo": "3.3.2",
+    "svgo": "4.0.0",
     "typescript": "5.8.3"
   }
 }
