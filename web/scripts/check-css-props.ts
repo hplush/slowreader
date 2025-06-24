@@ -12,11 +12,13 @@ function printError(message: string): void {
   process.stderr.write(styleText('red', message) + '\n')
 }
 
+function printWarning(message: string): void {
+  process.stderr.write(styleText('yellow', message) + '\n')
+}
+
 const cssChecker = postcss([propsChecker])
 
-let files = globSync(
-  join(import.meta.dirname, '..', 'dist', 'assets', '**', '*.css')
-)
+let files = globSync(join(import.meta.dirname, '..', 'dist', '**', '*.css'))
 await Promise.all(
   files.map(async file => {
     let css = await readFile(file)
@@ -35,8 +37,13 @@ await Promise.all(
   })
 )
 
-let error = getPropsError()
+let error = getPropsError(true)
 if (error) {
   printError(error)
   process.exit(1)
+}
+
+let warning = getPropsError(false)
+if (warning) {
+  printWarning(warning)
 }
