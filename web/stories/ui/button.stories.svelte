@@ -11,23 +11,14 @@
 </script>
 
 <script lang="ts">
-  let clicks = $state(0)
+  import { mdiPlus } from '@mdi/js'
 
   function onclick(): void {}
-
-  function increment(): void {
-    clicks += 1
-  }
 </script>
-
-{#snippet template({ children }: Args)}
-  111: {children}
-{/snippet}
 
 <Story name="Light" asChild>
   <Section>
-    <Button onclick={increment}>Base</Button>
-    <div class="counter">{clicks}</div>
+    <Button icon={mdiPlus} {onclick}>Base</Button>
   </Section>
   <Section>
     <Button href="#">Link</Button>
@@ -36,19 +27,6 @@
 
 <Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>
   <Section>
-    <Button onclick={increment}>Base</Button>
-    <div class="counter">{clicks}</div>
+    <Button {onclick}>Base</Button>
   </Section>
 </Story>
-
-<style>
-  .counter {
-    position: absolute;
-    position: relative;
-    top: 2px;
-    box-sizing: border-box;
-    display: inline-block;
-    display: inline-flex;
-    padding-inline-start: 10px;
-  }
-</style>

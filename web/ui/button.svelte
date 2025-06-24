@@ -44,9 +44,7 @@
   :global {
     .button {
       box-sizing: border-box;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      display: inline-block;
       color: var(--text-color);
       text-decoration: none;
       cursor: pointer;
@@ -61,6 +59,10 @@
     }
 
     .button_cap {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
       padding: 0 8px;
       border-radius: 4px;
 
