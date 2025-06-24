@@ -1,4 +1,6 @@
 #!/bin/bash
+# Update or pin base image in FROM inside Dockerfile to a specific hash
+# for security and having the same environment everywhere
 
 set -e
 
@@ -23,8 +25,26 @@ find . -type f -name Dockerfile -print0 | while IFS= read -r -d $'\0' dockerfile
     fi
 
     image_tag_part="${image_ref%%@*}"
-    current_digest=""
 
+    # If we has no tag in FROM
+    if [[ "$image_tag_part" != *":"* ]]; then
+      prev_line_num=$((line_num - 1))
+      if [[ $prev_line_num -gt 0 ]]; then
+        prev_line=$(sed -n "${prev_line_num}p" "$dockerfile")
+        # Check that FROM’s prev line is a comment with a tag and same repo
+        if [[ "$prev_line" =~ ^[[:space:]]*#[[:space:]]*(.+:[^@]+)([[:space:]].*)?$ ]]; then
+          comment_image="${BASH_REMATCH[1]}"
+          comment_repo="${comment_image%%:*}"
+          current_repo="${image_tag_part}"
+          if [[ "$comment_repo" == "$current_repo" ]]; then
+            image_tag_part="$comment_image"
+            echo -e "  ${NOTE}Using tag from comment: $image_tag_part${NC}"
+          fi
+        fi
+      fi
+    fi
+
+    current_digest=""
     if [[ "$image_ref" == *"@sha256:"* ]]; then
       current_digest="${image_ref##*@}"
     fi
