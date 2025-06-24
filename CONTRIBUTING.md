@@ -41,9 +41,7 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
 ### Install Environment
 
 1. Install environment:
-
    - For lond-term contribution, we recommend installing Docker and [Dev Container](https://containers.dev) plugin to your text editor. All developers will have the same environment and the development tool will be isolated from the system in the container.
-
      - [VS Code guide](https://code.visualstudio.com/docs/devcontainers/tutorial)
      - [Jet Brains IDEs](https://www.jetbrains.com/help/idea/start-dev-container-inside-ide.html)
      - [CLI tool](https://github.com/devcontainers/cli)
