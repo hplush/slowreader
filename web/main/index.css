@@ -20,6 +20,9 @@
 
 body {
   color: var(--text-color);
+
+  --land: var(--land-color);
+
   background: var(--land-color);
   -webkit-tap-highlight-color: oklch(0 0 0 / 0%);
 }
