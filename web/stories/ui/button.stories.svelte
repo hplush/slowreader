@@ -13,9 +13,7 @@
 <script lang="ts">
   import { mdiLink, mdiPlusCircleOutline } from '@mdi/js'
 
-  function onclick(): void {
-    console.log(1)
-  }
+  function onclick(): void {}
 </script>
 
 <Story name="Light" asChild>
