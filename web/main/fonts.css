@@ -1,0 +1,5 @@
+@import url('@fontsource-variable/noto-sans');
+
+:root {
+  --base-font: 16px/1.6 'Noto Sans Variable', system-ui;
+}

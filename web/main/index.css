@@ -1,6 +1,6 @@
 @import url('./reset.css');
 @import url('./colors.css');
-@import url('./common.css');
+@import url('./fonts.css');
 
 :root {
   color-scheme: light dark;
