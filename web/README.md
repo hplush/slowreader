@@ -15,7 +15,7 @@ We use **Svelte** as the UI framework and **Vite** as the builder.
 
 - [`main/`](./main): app entry point and global things like design tokens.
   - [`colors.css`](./main/colors.css): color tokens.
-  - [`common.css`](./main/common.css): other design tokens.
+  - [`fonts.css`](./main/fonts.css): used fonts.
   - [`reset.css`](./main/reset.css): CSS reset to minimize the difference between browsers.
   - [`index.css`](./main/index.css): global styles.
   - [`index.ts`](./main/index.ts): JS entry point.
@@ -55,9 +55,7 @@ We use **Svelte** as the UI framework and **Vite** as the builder.
 
 All **colors** must be declared in [`main/colors.css`](./main/colors.css). We are using [Harmony Color Palette](https://github.com/evilmartians/harmony) and `oklch()` format.
 
-**Sizes** and paddings should use `--padding-s`…`--padding-xl` tokens from [`main/common.css`](./main/common.css).
-
-**Fonts** are declared in [`main/common.css`](./main/common.css). We are using system font to support all possible writing systems in posts.
+**Fonts** are declared in [`main/fonts.css`](./main/fonts.css). We are using system font to support all possible writing systems in posts.
 
 For **icons**, we use [Material Design Icons](https://pictogrammers.com/library/mdi/) and [`<Icon>`](./ui/icon.svelte) component.
 
