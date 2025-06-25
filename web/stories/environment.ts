@@ -10,8 +10,8 @@ import { atom } from 'nanostores'
 
 export const baseRouter = atom<BaseRoute>({
   hash: '',
-  params: { category: 'general' },
-  route: 'fast'
+  params: {},
+  route: 'interface'
 })
 
 export const locale = atom('en')
