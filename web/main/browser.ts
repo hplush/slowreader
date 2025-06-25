@@ -1,4 +1,5 @@
 import { comfortMode, theme } from '@slowreader/core'
+import { pressKeyUX, startKeyUX } from 'keyux'
 
 import { locale } from '../stores/locale.ts'
 
@@ -37,3 +38,5 @@ window.addEventListener('load', () => {
 window.addEventListener('load', () => {
   import('./devtools.ts').then(() => {})
 })
+
+startKeyUX(window, [pressKeyUX('is-pseudo-active')])

@@ -350,6 +350,9 @@ importers:
       eslint:
         specifier: 9.29.0
         version: 9.29.0(jiti@2.4.2)
+      keyux:
+        specifier: 0.11.1
+        version: 0.11.1
       postcss-html:
         specifier: 1.8.0
         version: 1.8.0
@@ -2786,6 +2789,10 @@ packages:
 
   just-debounce-it@3.2.0:
     resolution: {integrity: sha512-WXzwLL0745uNuedrCsCs3rpmfD6DBaf7uuVwaq98/8dafURfgQaBsSpjiPp5+CW6Vjltwy9cOGI6qE71b3T8iQ==}
+
+  keyux@0.11.1:
+    resolution: {integrity: sha512-FIPQNnbtYuGdVU/vL0X9fcJwtkuzOwhzceUezMZMgTwGDNA2tmO4A/uA4tt1hdb0Cu3S3o+dNm5ifA+/reNX2A==}
+    engines: {node: ^18.0.0 || >=20.0.0}
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -6600,6 +6607,8 @@ snapshots:
       graceful-fs: 4.2.11
 
   just-debounce-it@3.2.0: {}
+
+  keyux@0.11.1: {}
 
   keyv@4.5.4:
     dependencies:
