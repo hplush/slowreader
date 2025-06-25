@@ -45,27 +45,34 @@
     .button {
       box-sizing: border-box;
       display: inline-block;
+      font: var(--control-font);
       color: var(--text-color);
       text-decoration: none;
       cursor: pointer;
       user-select: none;
       background: oklch(from var(--land) calc(l - 0.04) c h);
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
+
+      &:hover {
+        background: oklch(from var(--land) calc(l - 0.06) c h);
+      }
 
       &:active {
-        background: oklch(from var(--land) calc(l - 0.07) c h);
-        box-shadow: inset 0 1px 2px oklch(0 0 0 / 50%);
+        background: oklch(from var(--land) calc(l - 0.08) c h);
+        box-shadow:
+          inset 0 1px 2px oklch(0 0 0 / 50%),
+          0 0.5px 0 oklch(1 0 0 / 100%);
       }
     }
 
     .button_cap {
       display: flex;
       flex-direction: row;
+      gap: 4px;
       align-items: center;
       justify-content: center;
-      padding: 2px 10px;
-      border-radius: 4px;
+      padding: 2px 8px;
 
       .button:active & {
         transform: translateY(1px);

@@ -11,22 +11,43 @@
 </script>
 
 <script lang="ts">
-  import { mdiPlus } from '@mdi/js'
+  import { mdiPlusCircleOutline, mdiLink } from '@mdi/js'
 
   function onclick(): void {}
 </script>
 
 <Story name="Light" asChild>
   <Section>
-    <Button icon={mdiPlus} {onclick}>Base</Button>
+    <Button icon={mdiPlusCircleOutline} {onclick}>Base</Button>
+  </Section>
+  <Section hover>
+    <Button icon={mdiPlusCircleOutline} {onclick}>Base</Button>
+  </Section>
+  <Section active>
+    <Button icon={mdiPlusCircleOutline} {onclick}>Base</Button>
   </Section>
   <Section>
-    <Button href="#">Link</Button>
+    <Button href="#" icon={mdiLink}>Link</Button>
+  </Section>
+  <Section>
+    <Button href="#">Text only</Button>
   </Section>
 </Story>
 
 <Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>
   <Section>
-    <Button {onclick}>Base</Button>
+    <Button icon={mdiPlusCircleOutline} {onclick}>Base</Button>
+  </Section>
+  <Section hover>
+    <Button icon={mdiPlusCircleOutline} {onclick}>Base</Button>
+  </Section>
+  <Section active>
+    <Button icon={mdiPlusCircleOutline} {onclick}>Base</Button>
+  </Section>
+  <Section>
+    <Button href="#" icon={mdiLink}>Link</Button>
+  </Section>
+  <Section>
+    <Button href="#">Text only</Button>
   </Section>
 </Story>
