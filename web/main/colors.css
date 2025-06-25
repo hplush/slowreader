@@ -3,7 +3,7 @@
   --selection-color: oklch(0.92 0.19 103);
 
   @media (prefers-color-scheme: light) {
-    --text-color: oklch(0.15 0 0);
+    --text-color: oklch(0.2 0 0);
     --land-color: oklch(0.95 0 70);
 
     &.is-comfort-mode {

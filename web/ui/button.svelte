@@ -49,12 +49,13 @@
       text-decoration: none;
       cursor: pointer;
       user-select: none;
+      background: oklch(from var(--land) calc(l - 0.04) c h);
       border: none;
       border-radius: 4px;
 
       &:active {
-        background: oklch(from var(--land) calc(l - 0.1) c h);
-        box-shadow: inset 0 2px 2px oklch(0 0 0);
+        background: oklch(from var(--land) calc(l - 0.07) c h);
+        box-shadow: inset 0 1px 2px oklch(0 0 0 / 50%);
       }
     }
 
@@ -63,11 +64,11 @@
       flex-direction: row;
       align-items: center;
       justify-content: center;
-      padding: 0 8px;
+      padding: 2px 10px;
       border-radius: 4px;
 
       .button:active & {
-        transform: scale(0.95) translateY(1px);
+        transform: translateY(1px);
       }
     }
   }
