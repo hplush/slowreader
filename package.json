@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^24.2.0",
+    "node": "^24.3.0",
     "pnpm": "^10.0.0"
   },
   "packageManager": "pnpm@10.12.3",
@@ -15,19 +15,18 @@
     "format": "pnpm run -r --include-workspace-root /^format:/",
     "clean": "pnpm run -r --include-workspace-root /^clean:/",
     "build": "pnpm run -r build",
-    "update-env": "./scripts/tsnode ./scripts/update-env.ts",
+    "update-env": "node --experimental-strip-types ./scripts/update-env.ts",
     "format:prettier": "prettier --experimental-cli --write .",
     "test:js": "eslint .",
     "test:types": "svelte-check",
     "test:audit": "pnpm audit --prod",
-    "test:focused": "./scripts/tsnode ./scripts/check-focused-tests.ts",
-    "test:messages": "./scripts/tsnode ./scripts/check-messages.ts",
-    "test:versions": "./scripts/tsnode ./scripts/check-versions.ts",
+    "test:focused": "node --experimental-strip-types ./scripts/check-focused-tests.ts",
+    "test:messages": "node --experimental-strip-types ./scripts/check-messages.ts",
+    "test:versions": "node --experimental-strip-types ./scripts/check-versions.ts",
     "test:markdown": "remark . --frail",
     "test:format": "prettier --experimental-cli --check .",
-    "check-opml": "./scripts/tsnode loader-tests/check-opml.ts",
-    "test-loaders": "./scripts/tsnode loader-tests/test-loaders.ts loader-tests/feeds.yml",
-    "tsnode": "./scripts/tsnode"
+    "check-opml": "node --experimental-strip-types loader-tests/check-opml.ts",
+    "test-loaders": "node --experimental-strip-types loader-tests/test-loaders.ts loader-tests/feeds.yml"
   },
   "devDependencies": {
     "@logux/eslint-config": "55.2.1",

@@ -3,15 +3,15 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^24.2.0",
+    "node": "^24.3.0",
     "pnpm": "^10.0.0"
   },
   "scripts": {
-    "check-opml": "../scripts/tsnode check-opml.ts",
+    "check-opml": "node --experimental-strip-types check-opml.ts",
     "test": "node --run test:loaders",
-    "url": "../scripts/tsnode url.ts",
-    "home": "../scripts/tsnode home.ts",
-    "test:loaders": "../scripts/tsnode test-loaders.ts"
+    "url": "node --experimental-strip-types url.ts",
+    "home": "node --experimental-strip-types home.ts",
+    "test:loaders": "node --experimental-strip-types test-loaders.ts"
   },
   "devDependencies": {
     "@slowreader/core": "workspace:*",
