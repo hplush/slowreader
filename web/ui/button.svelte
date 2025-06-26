@@ -50,7 +50,7 @@
       text-decoration: none;
       cursor: pointer;
       user-select: none;
-      background: oklch(from var(--land) calc(l - 0.04) c h);
+      background: oklch(from var(--land) calc(l - 0.03) c h);
       border: none;
       border-radius: 8px;
 
@@ -59,7 +59,7 @@
       }
 
       &:active {
-        background: oklch(from var(--land) calc(l - 0.08) c h);
+        background: oklch(from var(--land) calc(l - 0.09) c h);
         box-shadow:
           inset 0 1px 2px oklch(0 0 0 / 50%),
           0 0.5px 0 oklch(1 0 0 / 100%);
