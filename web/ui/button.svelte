@@ -8,14 +8,14 @@
     icon,
     onclick,
     //TODO size = 'inline',
-    //TODO style = 'normal',
+    variant = 'main',
     ...rest
   }: {
     children: Snippet
     icon?: string
     onclick?: (event: MouseEvent) => void
     //TODO size?: 'icon' | 'inline' | 'wide'
-    //TODO style?: 'main' | 'normal'
+    variant?: 'main' | 'secondary'
   } & ({ href: string } | HTMLButtonAttributes) = $props()
 </script>
 
@@ -31,11 +31,24 @@
 {/snippet}
 
 {#if 'href' in rest}
-  <a class="button" href={rest.href} {onclick}>
+  <a
+    class="button"
+    class:is-main={variant === 'main'}
+    class:is-secondary={variant === 'secondary'}
+    href={rest.href}
+    {onclick}
+  >
     {@render content()}
   </a>
 {:else}
-  <button {...rest} class="button" {onclick} type={rest.type || 'button'}>
+  <button
+    {...rest}
+    class="button"
+    class:is-main={variant === 'main'}
+    class:is-secondary={variant === 'secondary'}
+    {onclick}
+    type={rest.type || 'button'}
+  >
     {@render content()}
   </button>
 {/if}
@@ -50,19 +63,40 @@
       text-decoration: none;
       cursor: pointer;
       user-select: none;
-      background: oklch(from var(--land) calc(l - 0.03) c h);
       border: none;
       border-radius: 8px;
 
-      &:hover {
-        background: oklch(from var(--land) calc(l - 0.06) c h);
-      }
-
       &:active {
-        background: oklch(from var(--land) calc(l - 0.09) c h);
         box-shadow:
           inset 0 1px 2px oklch(0 0 0 / 50%),
-          0 0.5px 0 oklch(1 0 0 / 100%);
+          0 0.5px 0 oklch(1 0 0);
+      }
+
+      &.is-main {
+        color: var(--land);
+        background: oklch(0.3 0 0);
+
+        &:hover,
+        &:active,
+        &:focus-visible {
+          background: oklch(from oklch(0.3 0 0) calc(l + 0.06) c h);
+        }
+
+        &:active {
+          box-shadow:
+            inset 0 1px 2px oklch(0 0 0),
+            0 0.5px 0 oklch(1 0 0);
+        }
+      }
+
+      &.is-secondary {
+        background: oklch(from var(--land) calc(l - 0.03) c h);
+
+        &:hover,
+        &:active,
+        &:focus-visible {
+          background: oklch(from var(--land) calc(l - 0.06) c h);
+        }
       }
     }
 

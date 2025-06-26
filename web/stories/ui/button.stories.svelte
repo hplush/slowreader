@@ -18,13 +18,31 @@
 
 <Story name="Light" asChild>
   <Section>
-    <Button icon={mdiPlusCircleOutline} {onclick}>Base</Button>
+    <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
   </Section>
   <Section hover>
-    <Button icon={mdiPlusCircleOutline} {onclick}>Base</Button>
+    <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
   </Section>
   <Section active>
-    <Button icon={mdiPlusCircleOutline} {onclick}>Base</Button>
+    <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
+  </Section>
+  <Section focus>
+    <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
+  </Section>
+  <Section>
+    <Button icon={mdiPlusCircleOutline} {onclick} variant="secondary">
+      Secondary
+    </Button>
+  </Section>
+  <Section hover>
+    <Button icon={mdiPlusCircleOutline} {onclick} variant="secondary">
+      Secondary
+    </Button>
+  </Section>
+  <Section active>
+    <Button icon={mdiPlusCircleOutline} {onclick} variant="secondary">
+      Secondary
+    </Button>
   </Section>
   <Section>
     <Button href="#" icon={mdiLink}>Link</Button>
