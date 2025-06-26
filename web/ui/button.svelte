@@ -17,6 +17,15 @@
     size?: 'icon' | 'inline' | 'wide'
     variant?: 'main' | 'secondary'
   } & ({ href: string } | HTMLButtonAttributes) = $props()
+
+  let textElement: HTMLElement
+  let title = $state('')
+
+  $effect(() => {
+    if (textElement && size === 'icon') {
+      title = textElement.textContent?.trim() || ''
+    }
+  })
 </script>
 
 {#snippet content()}
@@ -24,7 +33,7 @@
     {#if icon}
       <Icon path={icon} />
     {/if}
-    <span class="button_text">
+    <span bind:this={textElement} class="button_text">
       {@render rest.children()}
     </span>
   </span>
@@ -39,6 +48,7 @@
     class:is-wide={size === 'wide'}
     href={rest.href}
     {onclick}
+    title={size === 'icon' ? title : undefined}
   >
     {@render content()}
   </a>
@@ -51,6 +61,7 @@
     class:is-secondary={variant === 'secondary'}
     class:is-wide={size === 'wide'}
     {onclick}
+    title={size === 'icon' ? title : undefined}
     type={rest.type || 'button'}
   >
     {@render content()}
@@ -134,9 +145,6 @@
         padding: 0;
         margin: -1px;
         overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-
-        /* Modern enhancement */
         clip-path: inset(50%);
         white-space: nowrap;
         border-width: 0;
