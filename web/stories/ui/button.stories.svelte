@@ -50,6 +50,12 @@
   <Section>
     <Button href="#">Text only</Button>
   </Section>
+  <Section width={200}>
+    <Button icon={mdiPlusCircleOutline} {onclick} size="wide">Wide</Button>
+  </Section>
+  <Section>
+    <Button icon={mdiPlusCircleOutline} {onclick} size="icon">Icon</Button>
+  </Section>
 </Story>
 
 <Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>

@@ -7,14 +7,14 @@
   let {
     icon,
     onclick,
-    //TODO size = 'inline',
+    size = 'inline',
     variant = 'main',
     ...rest
   }: {
     children: Snippet
     icon?: string
     onclick?: (event: MouseEvent) => void
-    //TODO size?: 'icon' | 'inline' | 'wide'
+    size?: 'icon' | 'inline' | 'wide'
     variant?: 'main' | 'secondary'
   } & ({ href: string } | HTMLButtonAttributes) = $props()
 </script>
@@ -24,7 +24,7 @@
     {#if icon}
       <Icon path={icon} />
     {/if}
-    <span>
+    <span class="button_text">
       {@render rest.children()}
     </span>
   </span>
@@ -33,8 +33,10 @@
 {#if 'href' in rest}
   <a
     class="button"
+    class:is-icon={size === 'icon'}
     class:is-main={variant === 'main'}
     class:is-secondary={variant === 'secondary'}
+    class:is-wide={size === 'wide'}
     href={rest.href}
     {onclick}
   >
@@ -44,8 +46,10 @@
   <button
     {...rest}
     class="button"
+    class:is-icon={size === 'icon'}
     class:is-main={variant === 'main'}
     class:is-secondary={variant === 'secondary'}
+    class:is-wide={size === 'wide'}
     {onclick}
     type={rest.type || 'button'}
   >
@@ -70,6 +74,15 @@
         box-shadow:
           inset 0 1px 2px oklch(0 0 0 / 50%),
           0 0.5px 0 oklch(1 0 0);
+      }
+
+      &.is-wide {
+        width: 100%;
+      }
+
+      &.is-icon {
+        width: 28px;
+        height: 28px;
       }
 
       &.is-main {
@@ -110,6 +123,23 @@
 
       .button:active & {
         transform: translateY(1px);
+      }
+    }
+
+    .button_text {
+      .button.is-icon & {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+
+        /* Modern enhancement */
+        clip-path: inset(50%);
+        white-space: nowrap;
+        border-width: 0;
       }
     }
   }
