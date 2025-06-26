@@ -18,7 +18,7 @@
     variant?: 'main' | 'secondary'
   } & ({ href: string } | HTMLButtonAttributes) = $props()
 
-  let textElement: HTMLElement
+  let textElement: HTMLElement | undefined
   let title = $state('')
 
   $effect(() => {
