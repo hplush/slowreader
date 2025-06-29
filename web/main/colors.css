@@ -1,6 +1,5 @@
 :root {
   --focus-color: oklch(0.72 0.15 240);
-  --selection-color: oklch(0.92 0.2 103);
 
   @media (prefers-color-scheme: light) {
     --text-color: oklch(0.3 0 0);
