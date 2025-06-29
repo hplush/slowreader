@@ -14,7 +14,7 @@
     children: Snippet
     icon?: string
     onclick?: (event: MouseEvent) => void
-    size?: 'icon' | 'inline' | 'wide'
+    size?: 'icon' | 'inline' | 'pill' | 'wide'
     variant?: 'main' | 'secondary'
   } & ({ href: string } | HTMLButtonAttributes) = $props()
 
@@ -44,6 +44,7 @@
     class="button"
     class:is-icon={size === 'icon'}
     class:is-main={variant === 'main'}
+    class:is-pill={size === 'pill'}
     class:is-secondary={variant === 'secondary'}
     class:is-wide={size === 'wide'}
     href={rest.href}
@@ -58,6 +59,7 @@
     class="button"
     class:is-icon={size === 'icon'}
     class:is-main={variant === 'main'}
+    class:is-pill={size === 'pill'}
     class:is-secondary={variant === 'secondary'}
     class:is-wide={size === 'wide'}
     {onclick}
@@ -74,7 +76,6 @@
       box-sizing: border-box;
       display: inline-block;
       font: var(--control-font);
-      color: var(--text-color);
       text-decoration: none;
       cursor: pointer;
       user-select: none;
@@ -89,6 +90,11 @@
 
       &.is-wide {
         width: 100%;
+      }
+
+      &.is-pill {
+        font: var(--control-note-font);
+        border-radius: 12px;
       }
 
       &.is-icon {
@@ -114,6 +120,7 @@
       }
 
       &.is-secondary {
+        color: var(--text-color);
         background: oklch(from var(--land) calc(l - 0.03) c h);
 
         &:hover,
@@ -131,6 +138,10 @@
       align-items: center;
       justify-content: center;
       padding: 2px 8px;
+
+      &:has(svg) {
+        padding-inline-start: 6px;
+      }
 
       .button:active & {
         transform: translateY(1px);

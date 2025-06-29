@@ -56,6 +56,16 @@
   <Section>
     <Button icon={mdiPlusCircleOutline} {onclick} size="icon">Icon</Button>
   </Section>
+  <Section>
+    <Button
+      icon={mdiPlusCircleOutline}
+      {onclick}
+      size="pill"
+      variant="secondary"
+    >
+      Add if you really want
+    </Button>
+  </Section>
 </Story>
 
 <Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>
