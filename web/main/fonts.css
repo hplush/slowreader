@@ -2,6 +2,6 @@
 
 :root {
   --base-font: 400 15px/1.6 'Noto Sans Variable', system-ui;
-  --control-font: 500 15px/1.6 'Noto Sans Variable', system-ui;
-  --control-note-font: 500 13px/1.6 'Noto Sans Variable', system-ui;
+  --control-font: 500 15px/1.2 'Noto Sans Variable', system-ui;
+  --control-secondary-font: 600 13px/1.2 'Noto Sans Variable', system-ui;
 }

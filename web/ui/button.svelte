@@ -9,7 +9,7 @@
     onclick,
     size = 'inline',
     variant = 'main',
-    ...rest
+    ...props
   }: {
     children: Snippet
     icon?: string
@@ -34,12 +34,12 @@
       <Icon path={icon} />
     {/if}
     <span bind:this={textElement} class="button_text">
-      {@render rest.children()}
+      {@render props.children()}
     </span>
   </span>
 {/snippet}
 
-{#if 'href' in rest}
+{#if 'href' in props}
   <a
     class="button"
     class:is-icon={size === 'icon'}
@@ -47,7 +47,7 @@
     class:is-pill={size === 'pill'}
     class:is-secondary={variant === 'secondary'}
     class:is-wide={size === 'wide'}
-    href={rest.href}
+    href={props.href}
     {onclick}
     title={size === 'icon' ? title : undefined}
   >
@@ -55,7 +55,7 @@
   </a>
 {:else}
   <button
-    {...rest}
+    {...props}
     class="button"
     class:is-icon={size === 'icon'}
     class:is-main={variant === 'main'}
@@ -64,7 +64,7 @@
     class:is-wide={size === 'wide'}
     {onclick}
     title={size === 'icon' ? title : undefined}
-    type={rest.type || 'button'}
+    type={props.type || 'button'}
   >
     {@render content()}
   </button>
@@ -93,13 +93,13 @@
       }
 
       &.is-pill {
-        font: var(--control-note-font);
+        font: var(--control-secondary-font);
         border-radius: 12px;
       }
 
       &.is-icon {
-        width: 28px;
-        height: 28px;
+        width: 32px;
+        height: 32px;
       }
 
       &.is-main {
@@ -132,12 +132,13 @@
     }
 
     .button_cap {
+      box-sizing: border-box;
       display: flex;
       flex-direction: row;
       gap: 4px;
       align-items: center;
       justify-content: center;
-      padding: 2px 8px;
+      padding: 6px 8px;
 
       &:has(svg) {
         padding-inline-start: 6px;
@@ -145,6 +146,13 @@
 
       .button:active & {
         transform: translateY(1px);
+      }
+
+      .button.is-icon & {
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        text-align: center;
       }
     }
 
