@@ -7,9 +7,7 @@ export interface Validator<Value = string> {
   ): string | undefined
 }
 
-function onValue(
-  validator: (value: string) => string | undefined
-): Validator {
+function onValue(validator: (value: string) => string | undefined): Validator {
   return (value, event) => {
     if (event === 'init' && value.trim() === '') return undefined
     return validator(value)

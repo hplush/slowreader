@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { notEmpty, validUrl, type Validator } from '@slowreader/core'
+  import { notEmpty, type Validator, validUrl } from '@slowreader/core'
   import { onMount } from 'svelte'
   import type { HTMLInputAttributes } from 'svelte/elements'
 
