@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@logux/core": "0.9.0",
-    "eslint": "9.29.0"
+    "eslint": "9.30.1"
   },
   "dependencies": {
     "@logux/actions": "github:logux/actions#next"
