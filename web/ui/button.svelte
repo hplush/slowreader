@@ -103,7 +103,7 @@
       }
 
       &.is-main {
-        color: var(--land);
+        color: var(--current-background);
         background: oklch(0.3 0 0);
 
         &:hover,
@@ -121,12 +121,12 @@
 
       &.is-secondary {
         color: var(--text-color);
-        background: oklch(from var(--land) calc(l - 0.03) c h);
+        background: oklch(from var(--current-background) calc(l - 0.03) c h);
 
         &:hover,
         &:active,
         &:focus-visible {
-          background: oklch(from var(--land) calc(l - 0.06) c h);
+          background: oklch(from var(--current-background) calc(l - 0.06) c h);
         }
       }
     }
