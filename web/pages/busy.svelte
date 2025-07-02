@@ -1,19 +1,9 @@
 <script lang="ts">
-  import { onDestroy } from 'svelte'
-
   import Loader from '../ui/loader.svelte'
-
-  let pageLoader = [...document.body.children].find(i => i.id === 'loader')
-
-  onDestroy(() => {
-    pageLoader?.remove()
-  })
 </script>
 
 <div class="busy">
-  {#if !pageLoader}
-    <Loader zoneId="main" />
-  {/if}
+  <Loader zoneId="main" />
 </div>
 
 <style>

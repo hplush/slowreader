@@ -1,11 +1,11 @@
 <script context="module" lang="ts">
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  import BusyPage from '../../pages/busy.svelte'
+  import StartPage from '../../pages/start.svelte'
 
   let { Story } = defineMeta({
-    component: BusyPage,
-    title: 'Pages/Busy'
+    component: StartPage,
+    title: 'Pages/Start'
   })
 </script>
 

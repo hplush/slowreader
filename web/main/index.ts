@@ -14,4 +14,3 @@ let target = document.getElementById('main')
 if (target) mount(Main, { target })
 
 document.querySelector('title + style')!.remove()
-document.querySelector('#loader')!.remove()

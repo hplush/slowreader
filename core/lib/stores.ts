@@ -86,3 +86,16 @@ export function onLogAction(cb: (action: Action) => void): () => void {
     unbindClient()
   }
 }
+
+export function subscribeUntil<Value>(
+  store: ReadableAtom<Value>,
+  cb: (value: Value) => boolean | undefined
+): void {
+  if (!cb(store.get())) {
+    let unbind = store.listen(value => {
+      if (cb(value)) {
+        unbind()
+      }
+    })
+  }
+}
