@@ -70,18 +70,30 @@
 
 <Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>
   <Section>
-    <Button icon={mdiPlusCircleOutline} {onclick}>Base</Button>
+    <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
   </Section>
   <Section hover>
-    <Button icon={mdiPlusCircleOutline} {onclick}>Base</Button>
+    <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
   </Section>
   <Section active>
-    <Button icon={mdiPlusCircleOutline} {onclick}>Base</Button>
+    <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
+  </Section>
+  <Section focus>
+    <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
   </Section>
   <Section>
-    <Button href="#" icon={mdiLink}>Link</Button>
+    <Button icon={mdiPlusCircleOutline} {onclick} variant="secondary">
+      Secondary
+    </Button>
   </Section>
-  <Section>
-    <Button href="#">Text only</Button>
+  <Section hover>
+    <Button icon={mdiPlusCircleOutline} {onclick} variant="secondary">
+      Secondary
+    </Button>
+  </Section>
+  <Section active>
+    <Button icon={mdiPlusCircleOutline} {onclick} variant="secondary">
+      Secondary
+    </Button>
   </Section>
 </Story>

@@ -83,9 +83,7 @@
       border-radius: 8px;
 
       &:active {
-        box-shadow:
-          inset 0 1px 2px oklch(0 0 0 / 50%),
-          0 0.5px 0 oklch(1 0 0);
+        box-shadow: var(--pressed-shadow);
       }
 
       &.is-wide {
@@ -104,29 +102,30 @@
 
       &.is-main {
         color: var(--current-background);
-        background: oklch(0.3 0 0);
+        background: var(--text-color);
 
         &:hover,
         &:active,
         &:focus-visible {
-          background: oklch(from oklch(0.3 0 0) calc(l + 0.06) c h);
-        }
-
-        &:active {
-          box-shadow:
-            inset 0 1px 2px oklch(0 0 0),
-            0 0.5px 0 oklch(1 0 0);
+          background: oklch(
+            from var(--text-color) calc(l + var(--button-hover-l)) c h
+          );
         }
       }
 
       &.is-secondary {
         color: var(--text-color);
-        background: oklch(from var(--current-background) calc(l - 0.03) c h);
+        background: oklch(
+          from var(--current-background) calc(l + var(--secondary-l)) c h
+        );
 
         &:hover,
         &:active,
         &:focus-visible {
-          background: oklch(from var(--current-background) calc(l - 0.06) c h);
+          background: oklch(
+            from var(--current-background)
+            calc(l + var(--secondary-l) + var(--button-hover-l)) c h
+          );
         }
       }
     }

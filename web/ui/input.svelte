@@ -93,7 +93,7 @@
       width: 100%;
       padding: 4px 6px;
       font: var(--control-font);
-      background: oklch(1 0 0);
+      background: var(--field-color);
       border: 2px solid var(--text-color);
       border-radius: 8px;
 
@@ -102,7 +102,7 @@
       }
 
       &[aria-invalid] {
-        border-color: oklch(0.53 0.16 20);
+        border-color: var(--dangerous-text-color);
       }
     }
 
@@ -110,7 +110,7 @@
       padding: 0 8px;
       margin-top: 2px;
       font: var(--control-secondary-font);
-      color: oklch(0.53 0.16 20);
+      color: var(--dangerous-text-color);
     }
   }
 </style>
