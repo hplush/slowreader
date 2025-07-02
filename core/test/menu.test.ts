@@ -215,6 +215,11 @@ test('has helper to block app while menu is loading', async () => {
   equal(menuLoading.get(), false)
 })
 
+test('has helper which is ready for no client', async () => {
+  await cleanClientTest()
+  await busyUntilMenuLoader()
+})
+
 test('tracks closed categories', async () => {
   deepStrictEqual([...closedCategories.get()], [])
   let idA = await addCategory({ title: 'A' })

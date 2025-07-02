@@ -9,6 +9,7 @@ import {
   getCategories,
   getGeneralCategory
 } from './category.ts'
+import { client } from './client.ts'
 import { BROKEN_FEED, type FeedValue, getFeeds } from './feed.ts'
 import { getFilters } from './filter.ts'
 import { onLogAction, onMountAny, waitLoading } from './lib/stores.ts'
@@ -176,7 +177,11 @@ export function toggleCategory(id: string): void {
 }
 
 export function busyUntilMenuLoader(): Promise<void> {
-  keepMount(fastMenu)
-  keepMount(slowMenu)
-  return busyDuring(() => waitLoading(menuLoading))
+  if (client.get()) {
+    keepMount(fastMenu)
+    keepMount(slowMenu)
+    return busyDuring(() => waitLoading(menuLoading))
+  } else {
+    return Promise.resolve()
+  }
 }

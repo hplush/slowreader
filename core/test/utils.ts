@@ -40,6 +40,7 @@ export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
 export async function cleanClientTest(): Promise<void> {
   cleanStores(Feed, Filter, Category, Post, fastMenu, slowMenu, menuLoading)
   await client.get()?.clean()
+  client.set(undefined)
 }
 
 interface PromiseMock<Result> {
