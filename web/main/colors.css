@@ -5,7 +5,7 @@
     --text-color: oklch(0.3 0 0);
     --land-color: oklch(0.95 0 70);
     --secondary-l: -0.03;
-    --button-hover-l: -0.05;
+    --button-hover-l: -0.04;
     --field-color: oklch(1 0 0);
     --dangerous-text-color: oklch(0.55 0.16 20);
     --pressed-shadow:
@@ -13,7 +13,6 @@
       0 0.5px 0 oklch(1 0 0);
 
     &.is-comfort-mode {
-      --text-color: oklch(0.3 0.03 70);
       --land-color: oklch(0.95 0.03 70);
     }
   }
@@ -29,7 +28,6 @@
       0 0.5px 0 oklch(1 0 0 / 50%);
 
     &.is-comfort-mode {
-      --text-color: oklch(0.9 0.03 70);
       --land-color: oklch(0.2 0.03 70);
     }
   }
