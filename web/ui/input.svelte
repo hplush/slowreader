@@ -77,7 +77,7 @@
   {/if}
 </div>
 
-<style global>
+<style>
   :global {
     .input {
       margin: 8px 0;
