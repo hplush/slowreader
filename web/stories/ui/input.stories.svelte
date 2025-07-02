@@ -32,12 +32,12 @@
 </Story>
 
 <Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>
-  <Section width={300}>
+  <Section width={200}>
     <Input label="Empty" bind:value />
     <Input label="Label" value="Text" />
     <Input error="The value is wrong" label="Wrong" value="Wrong" />
   </Section>
-  <Section focus width={300}>
+  <Section focus width={200}>
     <Input label="Focus" />
   </Section>
 </Story>
