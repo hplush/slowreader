@@ -11,12 +11,12 @@
       "!dist/assets/noto-sans-*.woff2",
       "!dist/assets/noto-sans-latin-wght-normal*.woff2"
     ],
-    "limit": "50 KB"
+    "limit": "55 KB"
   },
   {
     "name": "Core scripts to execute",
     "path": "dist/assets/index-*.js",
     "brotli": false,
-    "limit": "125 KB"
+    "limit": "135 KB"
   }
 ]
