@@ -124,7 +124,7 @@
         &:focus-visible {
           background: oklch(
             from var(--current-background)
-            calc(l + var(--secondary-l) + var(--button-hover-l)) c h
+              calc(l + var(--secondary-l) + var(--button-hover-l)) c h
           );
         }
       }

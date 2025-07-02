@@ -6,6 +6,10 @@
     "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"],
     "alpha-value-notation": "percentage",
     "@stylistic/declaration-colon-newline-after": null,
+    "@stylistic/max-line-length": null,
+    "@stylistic/indentation": null,
+    "@stylistic/declaration-colon-space-after": null,
+    "@stylistic/value-list-comma-newline-after": null,
     "@stylistic/string-quotes": "single",
     "csstools/use-logical": [
       "always",

@@ -3,6 +3,5 @@ dist/
 web/storybook-static/
 server/db/migrations/
 server/db/pgdata/
-*.css
 web-archive/
 pnpm-lock.yaml

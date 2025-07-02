@@ -1,7 +1,7 @@
 {
   "*.{html,md,json}": "prettier --write",
   "*.{js,ts,cjs}": ["prettier --write", "eslint --fix"],
-  "*.css": "stylelint --fix",
+  "*.css": ["prettier --write", "stylelint --fix"],
   "*.svelte": ["prettier --write", "stylelint --fix"],
   "*.svg": "svgo",
   ".devcontainer/Dockerfile": "node --experimental-strip-types ./scripts/check-versions.ts",
