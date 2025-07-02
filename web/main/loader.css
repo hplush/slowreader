@@ -1,3 +1,7 @@
+/*
+ * This file will be also used in HTML before app loaded and started.
+ * So we can’t use CSS Custom Properties from outside.
+ */
 :root {
   @media (prefers-color-scheme: light) {
     --loader-background: oklch(0 0 0 / 15%);
