@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { busy, router, subscribeUntil } from '@slowreader/core'
+  import { busy, currentPage, subscribeUntil } from '@slowreader/core'
 
   import BusyPage from '../pages/busy.svelte'
   import StartPage from '../pages/start.svelte'
@@ -14,14 +14,16 @@
       return true
     }
   })
+
+  let pageLoading = $derived($currentPage.loading)
 </script>
 
-{#if $busy}
+{#if $busy || $pageLoading}
   {#if !globalLoader}
     <BusyPage />
   {/if}
-{:else if $router.route === 'start'}
-  <StartPage />
+{:else if $currentPage.route === 'start'}
+  <StartPage page={$currentPage} />
 {:else}
-  {$router.route}
+  {$currentPage.route}
 {/if}

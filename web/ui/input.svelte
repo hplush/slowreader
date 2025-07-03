@@ -6,8 +6,10 @@
   let {
     error,
     errorId,
+    input = $bindable(),
     label,
     onchange,
+    onescape,
     oninput,
     type = 'text',
     validate = () => undefined,
@@ -16,8 +18,10 @@
   }: {
     error?: string
     errorId?: string
+    input?: HTMLInputElement
     label: string
     onchange?: (v: string, valid: boolean) => void
+    onescape?: () => void
     oninput?: (v: string, valid: boolean) => void
     validate?: Validator | Validator[]
   } & HTMLInputAttributes = $props()
@@ -50,6 +54,7 @@
 <div class="input">
   <label class="input_label" for={id}>{label}</label>
   <input
+    bind:this={input}
     {id}
     class="input_field"
     aria-errormessage={errorId || (inputError || error ? `${id}-error` : null)}
@@ -65,7 +70,8 @@
     oninput={e => {
       if (oninput) oninput(e.currentTarget.value, isValid)
     }}
-    onkeyup={() => {
+    onkeyup={e => {
+      if (e.key === 'Escape') onescape?.()
       inputError = runValidators(value, 'keyup')
     }}
     {type}

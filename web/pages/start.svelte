@@ -5,7 +5,11 @@
     mdiLogin,
     mdiRocketLaunch
   } from '@mdi/js'
-  import { generateCredentials, startMessages as t } from '@slowreader/core'
+  import {
+    generateCredentials,
+    type Page as PageType,
+    startMessages as t
+  } from '@slowreader/core'
 
   import Actions from '../ui/actions.svelte'
   import Button from '../ui/button.svelte'
@@ -13,6 +17,17 @@
   import Input from '../ui/input.svelte'
   import Page from '../ui/page.svelte'
   import TwoOptions from '../ui/two-options.svelte'
+
+  let { page }: { page: PageType<'start'> } = $props()
+  let { customServer, secret, userId } = page
+
+  let serverInput: HTMLInputElement | undefined = $state()
+
+  $effect(() => {
+    if ($customServer && serverInput) {
+      serverInput.select()
+    }
+  })
 </script>
 
 <Page title={$t.pageTitle}>
@@ -42,16 +57,41 @@
         inputmode="numeric"
         label={$t.userId}
         pattern="[0-9]*"
+        placeholder="0000000000000000"
+        bind:value={$userId}
       />
       <Input
         autocomplete="current-password"
         label={$t.secret}
+        placeholder="×××××××××××× ××××××××××××"
         type="password"
+        bind:value={$secret}
       />
+      {#if $customServer}
+        <Input
+          inputmode="url"
+          label={$t.server}
+          onescape={() => {
+            customServer.set(false)
+          }}
+          placeholder="slowreader.app"
+          bind:value={$customServer}
+          bind:input={serverInput}
+        />
+      {/if}
       <Actions vertical>
-        <Button icon={mdiCloudPlus} size="pill" variant="secondary">
-          {$t.customServer}
-        </Button>
+        {#if !$customServer}
+          <Button
+            icon={mdiCloudPlus}
+            onclick={() => {
+              customServer.set('slowreader.app')
+            }}
+            size="pill"
+            variant="secondary"
+          >
+            {$t.customServer}
+          </Button>
+        {/if}
         <Button icon={mdiLogin} size="wide" variant="secondary">
           {$t.login}
         </Button>
