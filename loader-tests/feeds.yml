@@ -23,7 +23,7 @@ feeds:
     url: https://thecollectibles.tumblr.com/rss
 
   - title: LiveJournal
-    url: https://vintage-ads.livejournal.com/data/atom
+    url: https://vintage-ads.livejournal.com/data/rss
 
   - title: Aegea
     url: https://ilyabirman.ru/meanwhile/json/
