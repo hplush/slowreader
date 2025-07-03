@@ -26,6 +26,7 @@ export interface Routes {
   refresh: {}
   settings: {}
   signin: {}
+  signup: {}
   slow: {
     category?: string
     feed?: string
@@ -77,6 +78,8 @@ export type BaseRoute<Name extends RouteName = RouteName> = Name extends string
 export type BaseRouter = ReadableAtom<BaseRoute | undefined>
 
 const GUEST = new Set<RouteName>(['signin', 'start'])
+
+const BOTH = new Set<RouteName>(['signup'])
 
 const SETTINGS = new Set<RouteName>([
   'about',
@@ -153,7 +156,7 @@ onEnvironment(({ baseRouter }) => {
     try {
       if (!route) {
         nextRoute = open('notFound')
-      } else if (!user && !GUEST.has(route.route)) {
+      } else if (!user && !GUEST.has(route.route) && !BOTH.has(route.route)) {
         nextRoute = open('start')
       } else if (user && GUEST.has(route.route)) {
         nextRoute = redirect(open('home'))

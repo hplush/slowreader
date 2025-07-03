@@ -37,6 +37,7 @@ export const pages = {
   refresh: createSimplePage('refresh'),
   settings: createRedirectPage('settings', 'interface'),
   signin: createSimplePage('signin'),
+  signup: createSimplePage('signup'),
   slow: slowPage,
   start: startPage,
   welcome: createSimplePage('welcome')

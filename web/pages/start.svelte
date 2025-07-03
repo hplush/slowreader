@@ -14,6 +14,7 @@
     validUserId
   } from '@slowreader/core'
 
+  import { getURL } from '../stores/router.ts'
   import Actions from '../ui/actions.svelte'
   import Button from '../ui/button.svelte'
   import Description from '../ui/description.svelte'
@@ -49,7 +50,12 @@
         >
           {$t.start}
         </Button>
-        <Button icon={mdiAccountPlus} size="wide" variant="secondary">
+        <Button
+          href={getURL('signup')}
+          icon={mdiAccountPlus}
+          size="wide"
+          variant="secondary"
+        >
           {$t.createAccount}
         </Button>
       </Actions>

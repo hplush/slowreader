@@ -28,6 +28,7 @@ export const pathRouter = createRouter({
   refresh: '/refresh',
   settings: '/settings',
   signin: '/signin',
+  signup: '/signup',
   slow: '/slow/:feed?',
   start: '/start',
   welcome: '/welcome'
