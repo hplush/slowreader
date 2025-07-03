@@ -94,7 +94,8 @@ export default [
       'svelte/no-unused-class-name': [
         'error',
         { allowedClassNames: ['loader'] }
-      ]
+      ],
+      'svelte/sort-attributes': 'warn'
     }
   },
   {
