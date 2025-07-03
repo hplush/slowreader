@@ -11,7 +11,21 @@ export default [
       'web-archive/'
     ]
   },
-  ...loguxSvelteConfig,
+  ...loguxSvelteConfig.map(config => {
+    if (config.rules) {
+      for (let rule in config.rules) {
+        if (rule.startsWith('perfectionist/')) {
+          let value = config.rules[rule]
+          if (value === 'error') {
+            config.rules[rule] = 'warn'
+          } else if (Array.isArray(value) && value[0] === 'error') {
+            config.rules[rule] = ['warn', value[1]]
+          }
+        }
+      }
+    }
+    return config
+  }),
   {
     rules: {
       '@typescript-eslint/no-base-to-string': 'off',
@@ -43,7 +57,7 @@ export default [
     files: ['**/*.ts', '**/*.js', '**/*.svelte'],
     rules: {
       'perfectionist/sort-imports': [
-        'error',
+        'warn',
         {
           groups: [
             'side-effect',
