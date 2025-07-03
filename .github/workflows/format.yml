@@ -1,0 +1,51 @@
+name: Fix code style
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/format.yml'
+      - '.github/actions/init-node/action.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/format.yml'
+      - '.github/actions/init-node/action.yml'
+  schedule:
+    - cron: '00 23 * * *' # Runs at midnight UTC every day
+permissions:
+  contents: write
+jobs:
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Initialize Node.js
+        uses: ./.github/actions/init-node
+      - name: Check for today commits
+        id: today
+        run: |
+          today=$(date -u +"%Y-%m-%d")
+          last_commit_date=$(git log -1 --format=%cd --date=short)
+          if [ "$today" == "$last_commit_date" ]; then
+            echo "has_commits=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_commits=false" >> "$GITHUB_OUTPUT"
+            echo "No commits today. Stopping the workflow."
+          fi
+      - name: Format code
+        if: steps.today.outputs.has_commits == 'true'
+        run: node --run format
+      - name: Commit changes
+        if: steps.today.outputs.has_commits == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "Auto-format code"
+            git push
+          else
+            echo "No changes to commit"
+          fi
