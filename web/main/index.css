@@ -45,6 +45,10 @@ input {
   transition: none;
 }
 
+::selection {
+  background: var(--selection-color);
+}
+
 ul[role='list'],
 ol[role='list'] {
   list-style: none;

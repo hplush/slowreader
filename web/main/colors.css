@@ -8,6 +8,7 @@
     0 1px 2px oklch(0 0 0 / 30%), 0 0 0 0.5px oklch(0 0 0 / 30%);
 
   @media (prefers-color-scheme: light) {
+    --selection-color: oklch(0.93 0.16 102);
     --text-color: var(--dark-text-color);
     --land-color: oklch(0.95 0 70);
     --secondary-l: -0.03;
@@ -23,6 +24,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
+    --selection-color: oklch(0.5 0.1 102);
     --text-color: var(--light-text-color);
     --land-color: oklch(0.25 0 70);
     --secondary-l: 0.1;
