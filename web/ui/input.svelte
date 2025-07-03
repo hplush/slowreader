@@ -98,7 +98,7 @@
       border-radius: 8px;
 
       &:focus-visible {
-        outline-offset: 0;
+        outline-offset: 1px;
       }
 
       &[aria-invalid] {
