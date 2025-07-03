@@ -149,7 +149,6 @@
     .button_cap {
       box-sizing: border-box;
       display: flex;
-      flex-direction: row;
       gap: 6px;
       align-items: center;
       justify-content: center;
@@ -176,6 +175,8 @@
     }
 
     .button_text {
+      flex-shrink: 1;
+
       .button.is-icon & {
         position: absolute;
         width: 1px;

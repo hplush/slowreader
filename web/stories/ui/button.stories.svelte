@@ -39,13 +39,13 @@
     <Button {icon} {onclick} variant="secondary">Secondary</Button>
   </Section>
   <Section>
-    <Button {icon} {onclick} variant="cta">Call to Action</Button>
+    <Button {icon} {onclick} variant="cta">Call to action</Button>
   </Section>
   <Section hover>
-    <Button {icon} {onclick} variant="cta">Call to Action</Button>
+    <Button {icon} {onclick} variant="cta">Call to action</Button>
   </Section>
   <Section active>
-    <Button {icon} {onclick} variant="cta">Call to Action</Button>
+    <Button {icon} {onclick} variant="cta">Call to action</Button>
   </Section>
   <Section>
     <Button href="#" icon={mdiLink}>Link</Button>
@@ -62,6 +62,11 @@
   <Section>
     <Button {icon} {onclick} size="pill" variant="secondary">
       Add if you really want
+    </Button>
+  </Section>
+  <Section width={200}>
+    <Button {icon} {onclick}>
+      The really long text in the short container
     </Button>
   </Section>
 </Story>
@@ -89,12 +94,12 @@
     <Button {icon} {onclick} variant="secondary">Secondary</Button>
   </Section>
   <Section>
-    <Button {icon} {onclick} variant="cta">Call to Action</Button>
+    <Button {icon} {onclick} variant="cta">Call to action</Button>
   </Section>
   <Section hover>
-    <Button {icon} {onclick} variant="cta">Call to Action</Button>
+    <Button {icon} {onclick} variant="cta">Call to action</Button>
   </Section>
   <Section active>
-    <Button {icon} {onclick} variant="cta">Call to Action</Button>
+    <Button {icon} {onclick} variant="cta">Call to action</Button>
   </Section>
 </Story>
