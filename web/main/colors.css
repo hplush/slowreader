@@ -3,6 +3,7 @@
   --dark-text-color: oklch(0.3 0 0);
   --light-text-color: oklch(0.9 0 0);
   --accent-color: oklch(0.6 0.23 260);
+  --field-color: var(--main-land-color);
   --cta-button-shadow:
     inset 0 0.5px 0 oklch(1 0 0 / 70%), inset 0 -0.5px 0 oklch(0 0 0 / 50%),
     0 1px 2px oklch(0 0 0 / 30%), 0 0 0 0.5px oklch(0 0 0 / 30%);
@@ -11,15 +12,16 @@
     --selection-color: oklch(0.93 0.16 102);
     --text-color: var(--dark-text-color);
     --land-color: oklch(0.95 0 70);
+    --main-land-color: oklch(0.975 0 70);
     --secondary-l: -0.03;
     --button-hover-l: -0.04;
-    --field-color: oklch(1 0 0);
     --dangerous-text-color: oklch(0.55 0.16 20);
     --pressed-shadow:
       inset 0 1px 2px oklch(0 0 0 / 50%), inset 0 -0.5px 0 oklch(1 0 0);
 
     &.is-comfort-mode {
       --land-color: oklch(0.95 0.03 70);
+      --main-land-color: oklch(0.975 0.015 70);
     }
   }
 
@@ -29,12 +31,13 @@
     --land-color: oklch(0.25 0 70);
     --secondary-l: 0.1;
     --button-hover-l: 0.03;
-    --field-color: oklch(0.1 0 0);
+    --main-land-color: oklch(0.2 0 70);
     --pressed-shadow:
       inset 0 1px 2px oklch(0 0 0), inset 0 -0.5px 0 oklch(1 0 0 / 40%);
 
     &.is-comfort-mode {
       --land-color: oklch(0.25 0.03 70);
+      --main-land-color: oklch(0.2 0.03 70);
     }
   }
 }

@@ -1,9 +1,15 @@
 import { i18n } from '../../i18n.ts'
 
 export const startMessages = i18n('start', {
-  localButton: 'Start local demo',
+  createAccount: 'Create cross-device account',
+  customServer: 'Use my own server',
   localDescription1: 'Slow Reader works locally.',
-  localDescription2: 'You don’t need to create account to try it out.',
+  localDescription2:
+    'You can create account later when you will need cross-device sync.',
+  login: 'Login into existed account',
   pageTitle: 'Start',
-  title: 'No account in this browser yet'
+  secret: 'Secret',
+  start: 'Start local app',
+  title: 'No account in this browser yet',
+  userId: 'User ID'
 })

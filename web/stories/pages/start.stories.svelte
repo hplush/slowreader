@@ -9,4 +9,20 @@
   })
 </script>
 
-<Story name="Base" parameters={{ layout: 'fullscreen' }} />
+<Story name="Light" parameters={{ layout: 'fullscreen' }} />
+
+<Story
+  name="Dark"
+  parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
+/>
+
+<Story
+  name="Mobile"
+  globals={{
+    viewport: { value: 'mobile1' }
+  }}
+  parameters={{
+    layout: 'fullscreen',
+    viewport: { defaultViewport: 'mobile1' }
+  }}
+/>
