@@ -8,7 +8,10 @@
   import {
     generateCredentials,
     type Page as PageType,
-    startMessages as t
+    startMessages as t,
+    validSecret,
+    validServer,
+    validUserId
   } from '@slowreader/core'
 
   import Actions from '../ui/actions.svelte'
@@ -57,14 +60,16 @@
         inputmode="numeric"
         label={$t.userId}
         pattern="[0-9]*"
-        placeholder="0000000000000000"
+        required
+        validate={validUserId}
         bind:value={$userId}
       />
       <Input
         autocomplete="current-password"
         label={$t.secret}
-        placeholder="×××××××××××× ××××××××××××"
+        required
         type="password"
+        validate={validSecret}
         bind:value={$secret}
       />
       {#if $customServer}
@@ -75,6 +80,7 @@
             customServer.set(false)
           }}
           placeholder="slowreader.app"
+          validate={validServer}
           bind:value={$customServer}
           bind:input={serverInput}
         />

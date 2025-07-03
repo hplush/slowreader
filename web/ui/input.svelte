@@ -32,8 +32,8 @@
 
   let validators = Array.isArray(validate) ? validate : [validate]
 
-  if (props.required) validators.push(notEmpty)
-  if (type === 'url') validators.push(validUrl)
+  if (props.required) validators.unshift(notEmpty)
+  if (type === 'url') validators.unshift(validUrl)
 
   function runValidators(
     val: string,
@@ -72,7 +72,9 @@
     }}
     onkeyup={e => {
       if (e.key === 'Escape') onescape?.()
-      inputError = runValidators(value, 'keyup')
+      if (inputError) {
+        inputError = runValidators(e.currentTarget.value, 'keyup')
+      }
     }}
     {type}
     {value}
@@ -86,7 +88,7 @@
 <style>
   :global {
     .input {
-      margin: 8px 0;
+      margin: 10px 0;
     }
 
     .input_label {

@@ -4,6 +4,7 @@
   --light-text-color: oklch(0.9 0 0);
   --accent-color: oklch(0.6 0.23 260);
   --field-color: var(--main-land-color);
+  --dangerous-text-color: oklch(0.55 0.16 20);
   --cta-button-shadow:
     inset 0 0.5px 0 oklch(1 0 0 / 70%), inset 0 -0.5px 0 oklch(0 0 0 / 50%),
     0 1px 2px oklch(0 0 0 / 30%), 0 0 0 0.5px oklch(0 0 0 / 30%);
@@ -15,7 +16,6 @@
     --main-land-color: oklch(0.975 0 70);
     --secondary-l: -0.03;
     --button-hover-l: -0.04;
-    --dangerous-text-color: oklch(0.55 0.16 20);
     --pressed-shadow:
       inset 0 1px 2px oklch(0 0 0 / 50%), inset 0 -0.5px 0 oklch(1 0 0);
 
