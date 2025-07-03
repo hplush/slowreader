@@ -15,7 +15,7 @@
     icon?: string
     onclick?: (event: MouseEvent) => void
     size?: 'icon' | 'inline' | 'pill' | 'wide'
-    variant?: 'main' | 'secondary'
+    variant?: 'cta' | 'main' | 'secondary'
   } & ({ href: string } | HTMLButtonAttributes) = $props()
 
   let textElement: HTMLElement | undefined
@@ -42,6 +42,7 @@
 {#if 'href' in props}
   <a
     class="button"
+    class:is-cta={variant === 'cta'}
     class:is-icon={size === 'icon'}
     class:is-main={variant === 'main'}
     class:is-pill={size === 'pill'}
@@ -57,6 +58,7 @@
   <button
     {...props}
     class="button"
+    class:is-cta={variant === 'cta'}
     class:is-icon={size === 'icon'}
     class:is-main={variant === 'main'}
     class:is-pill={size === 'pill'}
@@ -82,7 +84,7 @@
       border: none;
       border-radius: 8px;
 
-      &:active {
+      &&:active {
         box-shadow: var(--pressed-shadow);
       }
 
@@ -109,6 +111,20 @@
         &:focus-visible {
           background: oklch(
             from var(--text-color) calc(l + var(--button-hover-l)) c h
+          );
+        }
+      }
+
+      &.is-cta {
+        color: oklch(1 0 0);
+        background: var(--accent-color);
+        box-shadow: var(--cta-button-shadow);
+
+        &:hover,
+        &:active,
+        &:focus-visible {
+          background: oklch(
+            from var(--accent-color) calc(l + var(--button-hover-l)) c h
           );
         }
       }

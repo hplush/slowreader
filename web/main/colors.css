@@ -1,8 +1,14 @@
 :root {
   --focus-color: oklch(0.72 0.15 240);
+  --dark-text-color: oklch(0.3 0 0);
+  --light-text-color: oklch(0.9 0 0);
+  --accent-color: oklch(0.6 0.23 260);
+  --cta-button-shadow:
+    inset 0 0.5px 0 oklch(1 0 0 / 70%), inset 0 -0.5px 0 oklch(0 0 0 / 50%),
+    0 1px 2px oklch(0 0 0 / 30%), 0 0 0 0.5px oklch(0 0 0 / 30%);
 
   @media (prefers-color-scheme: light) {
-    --text-color: oklch(0.3 0 0);
+    --text-color: var(--dark-text-color);
     --land-color: oklch(0.95 0 70);
     --secondary-l: -0.03;
     --button-hover-l: -0.04;
@@ -17,7 +23,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    --text-color: oklch(0.9 0 0);
+    --text-color: var(--light-text-color);
     --land-color: oklch(0.25 0 70);
     --secondary-l: 0.1;
     --button-hover-l: 0.03;

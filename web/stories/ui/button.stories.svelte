@@ -11,7 +11,7 @@
 </script>
 
 <script lang="ts">
-  import { mdiLink, mdiPlusCircleOutline } from '@mdi/js'
+  import { mdiPlusCircleOutline as icon, mdiLink } from '@mdi/js'
 
   function onclick(): void {}
 </script>
@@ -21,28 +21,31 @@
     <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
   </Section>
   <Section hover>
-    <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
+    <Button {icon} {onclick}>Main</Button>
   </Section>
   <Section active>
-    <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
+    <Button {icon} {onclick}>Main</Button>
   </Section>
   <Section focus>
-    <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
+    <Button {icon} {onclick}>Main</Button>
   </Section>
   <Section>
-    <Button icon={mdiPlusCircleOutline} {onclick} variant="secondary">
-      Secondary
-    </Button>
+    <Button {icon} {onclick} variant="secondary">Secondary</Button>
   </Section>
   <Section hover>
-    <Button icon={mdiPlusCircleOutline} {onclick} variant="secondary">
-      Secondary
-    </Button>
+    <Button {icon} {onclick} variant="secondary">Secondary</Button>
   </Section>
   <Section active>
-    <Button icon={mdiPlusCircleOutline} {onclick} variant="secondary">
-      Secondary
-    </Button>
+    <Button {icon} {onclick} variant="secondary">Secondary</Button>
+  </Section>
+  <Section>
+    <Button {icon} {onclick} variant="cta">Call to Action</Button>
+  </Section>
+  <Section hover>
+    <Button {icon} {onclick} variant="cta">Call to Action</Button>
+  </Section>
+  <Section active>
+    <Button {icon} {onclick} variant="cta">Call to Action</Button>
   </Section>
   <Section>
     <Button href="#" icon={mdiLink}>Link</Button>
@@ -51,18 +54,13 @@
     <Button href="#">Text only</Button>
   </Section>
   <Section width={200}>
-    <Button icon={mdiPlusCircleOutline} {onclick} size="wide">Wide</Button>
+    <Button {icon} {onclick} size="wide">Wide</Button>
   </Section>
   <Section>
-    <Button icon={mdiPlusCircleOutline} {onclick} size="icon">Icon</Button>
+    <Button {icon} {onclick} size="icon">Icon</Button>
   </Section>
   <Section>
-    <Button
-      icon={mdiPlusCircleOutline}
-      {onclick}
-      size="pill"
-      variant="secondary"
-    >
+    <Button {icon} {onclick} size="pill" variant="secondary">
       Add if you really want
     </Button>
   </Section>
@@ -70,30 +68,33 @@
 
 <Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>
   <Section>
-    <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
+    <Button {icon} {onclick}>Main</Button>
   </Section>
   <Section hover>
-    <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
+    <Button {icon} {onclick}>Main</Button>
   </Section>
   <Section active>
-    <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
+    <Button {icon} {onclick}>Main</Button>
   </Section>
   <Section focus>
-    <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
+    <Button {icon} {onclick}>Main</Button>
   </Section>
   <Section>
-    <Button icon={mdiPlusCircleOutline} {onclick} variant="secondary">
-      Secondary
-    </Button>
+    <Button {icon} {onclick} variant="secondary">Secondary</Button>
   </Section>
   <Section hover>
-    <Button icon={mdiPlusCircleOutline} {onclick} variant="secondary">
-      Secondary
-    </Button>
+    <Button {icon} {onclick} variant="secondary">Secondary</Button>
   </Section>
   <Section active>
-    <Button icon={mdiPlusCircleOutline} {onclick} variant="secondary">
-      Secondary
-    </Button>
+    <Button {icon} {onclick} variant="secondary">Secondary</Button>
+  </Section>
+  <Section>
+    <Button {icon} {onclick} variant="cta">Call to Action</Button>
+  </Section>
+  <Section hover>
+    <Button {icon} {onclick} variant="cta">Call to Action</Button>
+  </Section>
+  <Section active>
+    <Button {icon} {onclick} variant="cta">Call to Action</Button>
   </Section>
 </Story>
