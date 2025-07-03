@@ -21,7 +21,7 @@
   })
 
   onDestroy(() => {
-    document.title = originalTitle
+    document.title = baseTitle
   })
 
   $effect(() => {
