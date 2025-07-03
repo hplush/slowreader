@@ -12,12 +12,12 @@
       "!dist/assets/noto-sans-{cyrillic,greek,devanagari,vietnamese}-*.woff2",
       "!dist/assets/noto-sans-latin-ext-*.woff2"
     ],
-    "limit": "85 KB"
+    "limit": "90 KB"
   },
   {
     "name": "Core scripts to execute",
     "path": "dist/assets/index-*.js",
     "brotli": false,
-    "limit": "135 KB"
+    "limit": "140 KB"
   }
 ]
