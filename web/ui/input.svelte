@@ -85,11 +85,12 @@
 
     .input_label {
       padding-inline-start: 8px;
-      padding-bottom: 2px;
+      padding-bottom: 3px;
       font: var(--control-secondary-font);
     }
 
     .input_field {
+      box-sizing: border-box;
       width: 100%;
       padding: 4px 6px;
       font: var(--control-font);
