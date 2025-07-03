@@ -150,14 +150,10 @@
       box-sizing: border-box;
       display: flex;
       flex-direction: row;
-      gap: 4px;
+      gap: 6px;
       align-items: center;
       justify-content: center;
-      padding: 6px 8px;
-
-      &:has(svg) {
-        padding-inline-start: 6px;
-      }
+      padding: 7px 10px;
 
       .button:active & {
         transform: translateY(1px);
@@ -168,6 +164,14 @@
         height: 100%;
         padding: 0;
         text-align: center;
+      }
+
+      .button.is-pill & {
+        padding: 4px 8px;
+
+        &:has(svg) {
+          padding-inline-start: 6px;
+        }
       }
     }
 

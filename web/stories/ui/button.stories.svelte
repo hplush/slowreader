@@ -18,7 +18,7 @@
 
 <Story name="Light" asChild>
   <Section>
-    <Button icon={mdiPlusCircleOutline} {onclick}>Main</Button>
+    <Button {icon} {onclick}>Main</Button>
   </Section>
   <Section hover>
     <Button {icon} {onclick}>Main</Button>
