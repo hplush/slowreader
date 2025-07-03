@@ -22,6 +22,8 @@ on:
       - '.github/actions/init-node/action.yml'
   schedule:
     - cron: '00 23 * * *' # Runs at midnight UTC every day
+permissions:
+  contents: read
 jobs:
   test:
     name: Loader Test
