@@ -58,7 +58,7 @@ async function getPnpmSha256(
 }
 
 function read(file: string): string {
-  return readFileSync(file, 'utf-8').toString()
+  return readFileSync(file, 'utf-8')
 }
 
 function updatePackages(cb: (content: string) => string): void {

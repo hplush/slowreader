@@ -111,7 +111,7 @@ test('can download text by keeping eyes on abort signal', async () => {
         sendText = resolve
         return promise
       },
-      url: url.toString()
+      url
     } as Response)
   })
 

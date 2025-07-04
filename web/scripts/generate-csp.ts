@@ -24,7 +24,6 @@ let errorCSS = error.match(/<style>([\s\S]*?)<\/style>/)![1]!
 let loaderJS = loader.match(/<script>([\s\S]*?)<\/script>/)![1]!
 
 nginx = nginx
-  .toString()
   .replace(
     /style-src 'sha\d+-[^']+' 'sha\d+-[^']+'/g,
     `style-src ${hash(loaderCSS)} ${hash(errorCSS)}`

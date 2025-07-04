@@ -150,7 +150,7 @@ export async function moveFilterUp(filterId: string): Promise<void> {
 }
 
 export async function moveFilterDown(filterId: string): Promise<void> {
-  await move(filterId, +1)
+  await move(filterId, 1)
 }
 
 function isValidQueryName(name: string): name is keyof typeof QUERIES {

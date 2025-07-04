@@ -30,7 +30,7 @@
     "test-loaders": "node --experimental-strip-types loader-tests/test-loaders.ts loader-tests/feeds.yml"
   },
   "devDependencies": {
-    "@logux/eslint-config": "55.2.1",
+    "@logux/eslint-config": "56.0.0",
     "@types/chrome": "0.0.329",
     "@types/node": "24.0.10",
     "@types/ws": "8.18.1",

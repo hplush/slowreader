@@ -28,7 +28,7 @@ if (location.hostname === 'localhost') {
 
 setRequestMethod(async (url, opts = {}) => {
   let originUrl = url
-  let nextUrl = PROXY_URL + encodeURIComponent(url.toString())
+  let nextUrl = PROXY_URL + encodeURIComponent(url)
   let response = await fetch(nextUrl, opts)
   Object.defineProperty(response, 'url', {
     value: originUrl
