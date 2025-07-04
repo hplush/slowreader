@@ -41,7 +41,7 @@
         --current-background: var(--main-land-color);
 
         background: var(--main-land-color);
-        border-radius: 24px;
+        border-radius: calc(16px + var(--button-radius));
       }
     }
   }

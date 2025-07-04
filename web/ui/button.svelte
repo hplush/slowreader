@@ -74,6 +74,10 @@
 
 <style>
   :global {
+    :root {
+      --button-radius: 8px;
+    }
+
     .button {
       box-sizing: border-box;
       display: inline-block;
@@ -82,7 +86,7 @@
       cursor: pointer;
       user-select: none;
       border: none;
-      border-radius: 8px;
+      border-radius: var(--button-radius);
 
       &&:active {
         box-shadow: var(--pressed-shadow);
