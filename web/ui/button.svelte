@@ -33,7 +33,7 @@
     {#if icon}
       <Icon path={icon} />
     {/if}
-    <span bind:this={textElement} class="button_text">
+    <span bind:this={textElement} class:sr-only={size === 'icon'}>
       {@render props.children()}
     </span>
   </span>
@@ -175,22 +175,6 @@
         &:has(svg) {
           padding-inline-start: 6px;
         }
-      }
-    }
-
-    .button_text {
-      flex-shrink: 1;
-
-      .button.is-icon & {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip-path: inset(50%);
-        white-space: nowrap;
-        border-width: 0;
       }
     }
   }
