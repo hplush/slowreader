@@ -22,7 +22,7 @@
   })
 </script>
 
-<progress bind:this={progress} class="loader" aria-label={label} />
+<progress bind:this={progress} class="loader" aria-label={label}></progress>
 
 <style>
   /* Styles are in main/loader.css */

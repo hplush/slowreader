@@ -6,6 +6,7 @@
     mdiRocketLaunch
   } from '@mdi/js'
   import {
+    generateCredentials,
     type StartPage,
     startMessages as t,
     validSecret,

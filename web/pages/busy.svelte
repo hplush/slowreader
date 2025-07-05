@@ -3,7 +3,7 @@
 </script>
 
 <div class="busy">
-  <Loader zoneId="main" />
+  <Loader />
 </div>
 
 <style>
