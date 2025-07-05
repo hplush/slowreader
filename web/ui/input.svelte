@@ -80,9 +80,13 @@
     {value}
     {...props}
   />
-  {#if inputError || error}
-    <div id={`${id}-error`} class="input_error">{inputError || error}</div>
-  {/if}
+  <div
+    id={`${id}-error`}
+    class:input_error={inputError || error}
+    aria-live="polite"
+  >
+    {inputError || error}
+  </div>
 </div>
 
 <style>
