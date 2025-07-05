@@ -11,7 +11,7 @@ import addedModule from '../modules/added.ts'
 import authModule from '../modules/auth.ts'
 import passwordModule from '../modules/passwords.ts'
 import syncModule from '../modules/sync.ts'
-import { cleanAllTables } from './utils.ts'
+import { cleanAllTables, testRequest } from './utils.ts'
 
 let server: TestServer | undefined
 afterEach(async () => {
@@ -25,7 +25,7 @@ async function connect(
   userId: string,
   password: string
 ): Promise<TestClient> {
-  let user = await signIn({ password, userId }, { fetch: testServer.fetch })
+  let user = await testRequest(testServer, signIn, { password, userId })
   let client = new TestClient(testServer, userId, { token: user.session })
   encryptActions(client as unknown as Client, userId)
   client.log.on('preadd', (action, meta) => {

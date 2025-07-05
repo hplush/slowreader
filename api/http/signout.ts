@@ -1,7 +1,6 @@
 import {
+  createRequester,
   type Endpoint,
-  fetchJSON,
-  type FetchOptions,
   hasStringKey,
   isEmptyObject
 } from './utils.ts'
@@ -14,12 +13,10 @@ export type SignOutResponse = Record<string, never>
 
 const METHOD = 'DELETE'
 
-export async function signOut(
-  params: SignOutRequest,
-  opts?: FetchOptions
-): Promise<SignOutResponse> {
-  return fetchJSON(METHOD, '/session', params, opts)
-}
+export const signOut = createRequester<SignOutRequest, SignOutResponse>(
+  METHOD,
+  () => '/session'
+)
 
 export const signOutEndpoint: Endpoint<SignOutResponse, SignOutRequest> = {
   checkBody(body) {

@@ -1,9 +1,4 @@
-import {
-  type Endpoint,
-  fetchJSON,
-  type FetchOptions,
-  hasStringKey
-} from './utils.ts'
+import { createRequester, type Endpoint, hasStringKey } from './utils.ts'
 
 export interface SignInRequest {
   password: string
@@ -16,12 +11,10 @@ export interface SignInResponse {
 
 const METHOD = 'POST'
 
-export async function signIn(
-  params: SignInRequest,
-  opts?: FetchOptions
-): Promise<SignInResponse> {
-  return fetchJSON(METHOD, '/session', params, opts)
-}
+export const signIn = createRequester<SignInRequest, SignInResponse>(
+  METHOD,
+  () => '/session'
+)
 
 export const signInEndpoint: Endpoint<SignInResponse, SignInRequest> = {
   checkBody(body) {

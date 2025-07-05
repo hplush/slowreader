@@ -1,9 +1,4 @@
-import {
-  type Endpoint,
-  fetchJSON,
-  type FetchOptions,
-  hasStringKey
-} from './utils.ts'
+import { createRequester, type Endpoint, hasStringKey } from './utils.ts'
 
 export interface SignUpRequest {
   password: string
@@ -17,12 +12,10 @@ export interface SignUpResponse {
 
 const METHOD = 'PUT'
 
-export async function signUp(
-  params: SignUpRequest,
-  opts?: FetchOptions
-): Promise<SignUpResponse> {
-  return fetchJSON(METHOD, `/users/${params.userId}`, params, opts)
-}
+export const signUp = createRequester<SignUpRequest, SignUpResponse>(
+  METHOD,
+  ({ userId }) => `/users/${userId}`
+)
 
 const URL_PATTERN = /^\/users\/([^/]+)$/
 

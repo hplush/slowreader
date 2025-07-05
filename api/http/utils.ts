@@ -20,18 +20,28 @@ export function hasStringKey<Key extends string>(
   return hasKey(body, key) && typeof body[key] === 'string'
 }
 
-export interface FetchOptions {
+export interface RequesterOptions {
   fetch?: typeof fetch
   host?: string
   response?: (res: Response) => void
 }
 
-export async function fetchJSON<Response = unknown>(
+export type HTTPResponse<ResponseJSON> = (
+  | { json(): never; ok: false }
+  | { json(): Promise<ResponseJSON>; ok: true }
+) &
+  Response
+
+export interface Requester<Params extends object, ResponseJSON> {
+  (params: Params, opts?: RequesterOptions): Promise<HTTPResponse<ResponseJSON>>
+}
+
+export async function fetchJSON<ResponseJSON = unknown>(
   method: string,
   url: string,
   body: object,
-  opts: FetchOptions | undefined = {}
-): Promise<Response> {
+  opts: RequesterOptions | undefined = {}
+): Promise<HTTPResponse<ResponseJSON>> {
   let host = opts.host ?? ''
   let request = opts.fetch ?? fetch
   let response = await request(host + url, {
@@ -41,11 +51,17 @@ export async function fetchJSON<Response = unknown>(
     },
     method
   })
-  if (!response.ok) {
-    throw new Error(await response.text())
-  }
   if (opts.response) opts.response(response)
-  return response.json() as Response
+  return response as HTTPResponse<ResponseJSON>
+}
+
+export function createRequester<Params extends object, ResponseJSON>(
+  method: string,
+  getUrl: (params: Params) => string
+): Requester<Params, ResponseJSON> {
+  return (params, opts) => {
+    return fetchJSON<ResponseJSON>(method, getUrl(params), params, opts)
+  }
 }
 
 export interface Endpoint<
