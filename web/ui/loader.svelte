@@ -3,12 +3,10 @@
 
   let {
     label = $t.loading,
-    value,
-    zoneId
+    value
   }: {
     label?: string
     value?: number
-    zoneId?: string
   } = $props()
 
   let progress: HTMLProgressElement | undefined
@@ -24,13 +22,7 @@
   })
 </script>
 
-<progress
-  bind:this={progress}
-  class="loader"
-  aria-describedby={zoneId}
-  aria-label={label}
->
-</progress>
+<progress bind:this={progress} class="loader" aria-label={label} />
 
 <style>
   /* Styles are in main/loader.css */
