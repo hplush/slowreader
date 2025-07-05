@@ -6,8 +6,7 @@
     mdiRocketLaunch
   } from '@mdi/js'
   import {
-    generateCredentials,
-    type Page as PageType,
+    type StartPage,
     startMessages as t,
     validSecret,
     validServer,
@@ -22,7 +21,7 @@
   import Page from '../ui/page.svelte'
   import TwoOptions from '../ui/two-options.svelte'
 
-  let { page }: { page: PageType<'start'> } = $props()
+  let { page }: { page: StartPage } = $props()
   let { customServer, secret, userId } = page
 
   let serverInput: HTMLInputElement | undefined = $state()
