@@ -45,8 +45,8 @@ test('syncs action between clients', async () => {
   authModule(server)
   passwordModule(server)
 
-  await signUp({ id: 'user1', password: 'p1' }, { fetch: server.fetch })
-  await signUp({ id: 'other', password: 'pOther' }, { fetch: server.fetch })
+  await signUp({ password: 'p1', userId: 'user1' }, { fetch: server.fetch })
+  await signUp({ password: 'pOther', userId: 'other' }, { fetch: server.fetch })
 
   let client1 = await connect(server, 'user1', 'p1')
   let other = await connect(server, 'other', 'pOther')

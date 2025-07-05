@@ -84,17 +84,17 @@ export default (server: BaseServer): void => {
   })
 
   jsonApi(server, signUpEndpoint, async (params, res) => {
-    let id = params.id
+    let userId = params.userId
 
     let already: object | undefined
     await db.transaction(async tx => {
-      already = await tx.query.users.findFirst({ where: eq(users.id, id) })
-      if (!already) await tx.insert(users).values({ id })
+      already = await tx.query.users.findFirst({ where: eq(users.id, userId) })
+      if (!already) await tx.insert(users).values({ id: userId })
     })
     if (already) return false
 
-    await server.process(setPassword({ password: params.password, userId: id }))
-    let session = await setNewSession(res, id)
-    return { id, session }
+    await server.process(setPassword({ password: params.password, userId }))
+    let session = await setNewSession(res, userId)
+    return { session, userId }
   })
 }

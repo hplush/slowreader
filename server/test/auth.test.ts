@@ -30,7 +30,7 @@ test('creates users and check credentials', async () => {
 
   let sessionCookie: string | undefined
   let userA = await signUp(
-    { id: 'a', password: 'PA' },
+    { password: 'PA', userId: 'a' },
     {
       fetch: server.fetch,
       response(res) {
@@ -38,11 +38,14 @@ test('creates users and check credentials', async () => {
       }
     }
   )
-  equal(userA.id, 'a')
+  equal(userA.userId, 'a')
   equal(typeof userA.session, 'string')
   equal(sessionCookie, `session=${userA.session}; HttpOnly; Path=/; Secure`)
 
-  let userB = await signUp({ id: 'B', password: 'PB' }, { fetch: server.fetch })
+  let userB = await signUp(
+    { password: 'PB', userId: 'B' },
+    { fetch: server.fetch }
+  )
   notEqual(userB.session, userA.session)
 
   let session1 = await db.query.sessions.findFirst({
@@ -52,11 +55,11 @@ test('creates users and check credentials', async () => {
   ok(session1!.usedAt.valueOf() > Date.now() - 1000)
 
   await setTimeout(100)
-  await server.expectWrongCredentials(userA.id)
-  await server.expectWrongCredentials(userA.id, {
+  await server.expectWrongCredentials(userA.userId)
+  await server.expectWrongCredentials(userA.userId, {
     cookie: { session: userB.session }
   })
-  await server.connect(userA.id, {
+  await server.connect(userA.userId, {
     cookie: { session: userA.session }
   })
   let session2 = await db.query.sessions.findFirst({
@@ -78,24 +81,27 @@ test('creates users and check credentials', async () => {
     signOutResponse.headers.get('Set-Cookie'),
     `session=; Max-Age=0; HttpOnly; Path=/; Secure`
   )
-  await server.expectWrongCredentials(userA.id, {
+  await server.expectWrongCredentials(userA.userId, {
     cookie: { session: userA.session }
   })
   let sessions1 = await db.query.sessions.findMany({
-    where: eq(sessions.userId, userA.id)
+    where: eq(sessions.userId, userA.userId)
   })
   deepStrictEqual(sessions1, [])
 
   await throws(async () => {
-    await signIn({ password: 'PB', userId: userA.id }, { fetch: server!.fetch })
+    await signIn(
+      { password: 'PB', userId: userA.userId },
+      { fetch: server!.fetch }
+    )
   }, 'Invalid request')
 
   await setTimeout(100)
   let token1 = await signIn(
-    { password: 'PA', userId: userA.id },
+    { password: 'PA', userId: userA.userId },
     { fetch: server.fetch }
   )
-  let client2 = await server.connect(userA.id, {
+  let client2 = await server.connect(userA.userId, {
     cookie: { session: token1.session }
   })
   let session3 = await db.query.sessions.findFirst({
@@ -105,28 +111,37 @@ test('creates users and check credentials', async () => {
 
   await client2.process(deletePassword({}))
   await throws(async () => {
-    await signIn({ password: 'PA', userId: userA.id }, { fetch: server!.fetch })
+    await signIn(
+      { password: 'PA', userId: userA.userId },
+      { fetch: server!.fetch }
+    )
   }, 'Invalid request')
 
   await client2.process(setPassword({ password: 'new' }))
-  await signIn({ password: 'new', userId: userA.id }, { fetch: server.fetch })
+  await signIn(
+    { password: 'new', userId: userA.userId },
+    { fetch: server.fetch }
+  )
 })
 
 test('disconnects current client on signOut', async () => {
   server = new TestServer()
   authModule(server)
   passwordModule(server)
-  let userA = await signUp({ id: 'a', password: 'A' }, { fetch: server.fetch })
+  let userA = await signUp(
+    { password: 'A', userId: 'a' },
+    { fetch: server.fetch }
+  )
   let session1 = await signIn(
-    { password: 'A', userId: userA.id },
+    { password: 'A', userId: userA.userId },
     { fetch: server.fetch }
   )
-  let client1 = await server.connect(userA.id, { token: session1.session })
+  let client1 = await server.connect(userA.userId, { token: session1.session })
   let session2 = await signIn(
-    { password: 'A', userId: userA.id },
+    { password: 'A', userId: userA.userId },
     { fetch: server.fetch }
   )
-  let client2 = await server.connect(userA.id, {
+  let client2 = await server.connect(userA.userId, {
     cookie: { session: session2.session }
   })
 
@@ -139,11 +154,19 @@ test('does not allow to set password for another user', async () => {
   server = new TestServer()
   authModule(server)
   passwordModule(server)
-  let userA = await signUp({ id: 'a', password: 'A' }, { fetch: server.fetch })
-  let userB = await signUp({ id: 'b', password: 'B' }, { fetch: server.fetch })
-  let clientA = await server.connect(userA.id, { token: userA.session })
+  let userA = await signUp(
+    { password: 'A', userId: 'a' },
+    { fetch: server.fetch }
+  )
+  let userB = await signUp(
+    { password: 'B', userId: 'b' },
+    { fetch: server.fetch }
+  )
+  let clientA = await server.connect(userA.userId, { token: userA.session })
   await server.expectDenied(async () => {
-    await clientA.process(setPassword({ password: 'Hacked', userId: userB.id }))
+    await clientA.process(
+      setPassword({ password: 'Hacked', userId: userB.userId })
+    )
   })
 })
 
@@ -152,9 +175,15 @@ test('does not allow to redefine user', async () => {
   authModule(server)
   passwordModule(server)
 
-  let userA = await signUp({ id: 'a', password: 'A' }, { fetch: server.fetch })
+  let userA = await signUp(
+    { password: 'A', userId: 'a' },
+    { fetch: server.fetch }
+  )
   await throws(async () => {
-    await signUp({ id: userA.id, password: 'B' }, { fetch: server!.fetch })
+    await signUp(
+      { password: 'B', userId: userA.userId },
+      { fetch: server!.fetch }
+    )
   }, 'Invalid request')
 })
 
@@ -162,10 +191,13 @@ test('has non-cookie API', async () => {
   server = new TestServer()
   authModule(server)
 
-  let user = await signUp({ id: 'a', password: 'P' }, { fetch: server.fetch })
-  await server.connect(user.id, { token: user.session })
+  let user = await signUp(
+    { password: 'P', userId: 'a' },
+    { fetch: server.fetch }
+  )
+  await server.connect(user.userId, { token: user.session })
   await signOut({ session: user.session }, { fetch: server.fetch })
-  await server.expectWrongCredentials(user.id, { token: user.session })
+  await server.expectWrongCredentials(user.userId, { token: user.session })
 })
 
 test('validates request body', async () => {
