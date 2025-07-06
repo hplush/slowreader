@@ -18,6 +18,7 @@ module.exports = {
           before = root.clone()
           before.walkDecls(decl => {
             decl.raws = { before: '', between: ':' }
+            decl.value = decl.value.replace(/,\s+/g, ',').replace(/0\./g, '.')
           })
           before.walkRules(rule => {
             rule.raws = { after: '', before: '', between: '' }
