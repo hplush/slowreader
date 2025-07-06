@@ -23,8 +23,13 @@ module.exports = {
             rule.raws = { after: '', before: '', between: '' }
           })
           before.walkAtRules(atrule => {
-            atrule.params = atrule.params.replace(/:\s+/g, ':')
+            atrule.params = atrule.params
+              .replace(/:\s+/g, ':')
+              .replace(/\s\s+/g, ' ')
             atrule.raws = { after: '', afterName: ' ', before: '' }
+          })
+          before.walkComments(comment => {
+            comment.remove()
           })
         },
         OnceExit(root) {
