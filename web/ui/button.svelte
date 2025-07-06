@@ -3,9 +3,11 @@
   import type { HTMLButtonAttributes } from 'svelte/elements'
 
   import Icon from './icon.svelte'
+  import Loader from './loader.svelte'
 
   let {
     icon,
+    loader,
     onclick,
     size = 'inline',
     variant = 'main',
@@ -13,6 +15,7 @@
   }: {
     children: Snippet
     icon?: string
+    loader?: boolean | string
     onclick?: (event: MouseEvent) => void
     size?: 'icon' | 'inline' | 'pill' | 'wide'
     variant?: 'cta' | 'main' | 'secondary'
@@ -29,7 +32,15 @@
 </script>
 
 {#snippet content()}
-  <span class="button_cap">
+  <span class="button_loader">
+    {#if loader}
+      <Loader
+        inverse={variant === 'main'}
+        label={typeof loader === 'string' ? loader : undefined}
+      />
+    {/if}
+  </span>
+  <span class="button_cap" aria-hidden={!!loader}>
     {#if icon}
       <Icon path={icon} />
     {/if}
@@ -48,10 +59,12 @@
     class="button"
     class:is-cta={variant === 'cta'}
     class:is-icon={size === 'icon'}
+    class:is-loader={!!loader}
     class:is-main={variant === 'main'}
     class:is-pill={size === 'pill'}
     class:is-secondary={variant === 'secondary'}
     class:is-wide={size === 'wide'}
+    aria-disabled={!!loader}
     href={props.href}
     {onclick}
     title={size === 'icon' ? title : undefined}
@@ -64,10 +77,12 @@
     class="button"
     class:is-cta={variant === 'cta'}
     class:is-icon={size === 'icon'}
+    class:is-loader={!!loader}
     class:is-main={variant === 'main'}
     class:is-pill={size === 'pill'}
     class:is-secondary={variant === 'secondary'}
     class:is-wide={size === 'wide'}
+    aria-disabled={!!loader}
     {onclick}
     title={size === 'icon' ? title : undefined}
     type={props.type || 'button'}
@@ -83,6 +98,7 @@
     }
 
     .button {
+      position: relative;
       box-sizing: border-box;
       display: inline-block;
       font: var(--control-font);
@@ -91,6 +107,10 @@
       user-select: none;
       border: none;
       border-radius: var(--button-radius);
+
+      &[aria-disabled] {
+        pointer-events: none;
+      }
 
       &&:active {
         box-shadow: var(--pressed-shadow);
@@ -103,11 +123,6 @@
       &.is-pill {
         font: var(--control-secondary-font);
         border-radius: 12px;
-      }
-
-      &.is-icon {
-        width: 32px;
-        height: 32px;
       }
 
       &.is-main {
@@ -160,6 +175,7 @@
       gap: 6px;
       align-items: center;
       justify-content: center;
+      min-height: 32px;
       padding: 7px 10px;
 
       .button:active & {
@@ -167,8 +183,7 @@
       }
 
       .button.is-icon & {
-        width: 100%;
-        height: 100%;
+        width: 32px;
         padding: 0;
         text-align: center;
       }
@@ -180,10 +195,22 @@
           padding-inline-start: 6px;
         }
       }
+
+      .button.is-loader & {
+        opacity: 0%;
+      }
     }
 
     .button_text {
       flex-shrink: 1;
+    }
+
+    .button_loader {
+      position: absolute;
+      inset: 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 </style>

@@ -69,6 +69,11 @@
       The really long text in the short container
     </Button>
   </Section>
+  <Section>
+    <Button {icon} loader="Submitting" {onclick}>Main</Button>
+    <Button href="/disabled" {icon} loader variant="secondary">Secondary</Button
+    >
+  </Section>
 </Story>
 
 <Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>
@@ -101,5 +106,10 @@
   </Section>
   <Section active>
     <Button {icon} {onclick} variant="cta">Call to action</Button>
+  </Section>
+  <Section>
+    <Button {icon} loader="Submitting" {onclick}>Main</Button>
+    <Button href="/disabled" {icon} loader variant="secondary">Secondary</Button
+    >
   </Section>
 </Story>
