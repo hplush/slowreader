@@ -6,6 +6,7 @@
 </script>
 
 <form
+  novalidate
   onsubmit={e => {
     e.preventDefault()
     let form = e.currentTarget
