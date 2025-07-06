@@ -29,7 +29,7 @@ let hashesCSS = loaderStyles
   .join(' ')
 
 nginx = nginx
-  .replace(/style-src 'sha\d+-[^']+' 'sha\d+-[^']+'/g, `style-src ${hashesCSS}`)
+  .replace(/style-src ('sha\d+-[^']+'\s*)+/g, `style-src ${hashesCSS} `)
   .replace(/script-src 'sha\d+-[^']+'/g, `script-src ${hash(loaderJS)}`)
 
 await writeFile(NGINX, nginx)
