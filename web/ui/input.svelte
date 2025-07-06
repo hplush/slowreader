@@ -51,7 +51,7 @@
     class="input_field"
     aria-errormessage={errorId || (inputError || error ? `${id}-error` : null)}
     aria-invalid={inputError || error || errorId ? true : null}
-    data-invalid={runValidators(value)}
+    data-invalid={!!runValidators(value)}
     onblur={() => {
       inputError = runValidators(value)
     }}
