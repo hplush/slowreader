@@ -19,15 +19,17 @@ let [loader, error, nginx] = await Promise.all([
   readFile(ERROR, 'utf8'),
   readFile(NGINX, 'utf8')
 ])
-let loaderCSS = loader.match(/<style>([\s\S]*?)<\/style>/)![1]!
+let loaderStyles = loader.match(/<style>([\s\S]*?)<\/style>/)!
 let errorCSS = error.match(/<style>([\s\S]*?)<\/style>/)![1]!
 let loaderJS = loader.match(/<script>([\s\S]*?)<\/script>/)![1]!
 
+let hashesCSS = loaderStyles
+  .concat([errorCSS])
+  .map(i => hash(i))
+  .join(' ')
+
 nginx = nginx
-  .replace(
-    /style-src 'sha\d+-[^']+' 'sha\d+-[^']+'/g,
-    `style-src ${hash(loaderCSS)} ${hash(errorCSS)}`
-  )
+  .replace(/style-src 'sha\d+-[^']+' 'sha\d+-[^']+'/g, `style-src ${hashesCSS}`)
   .replace(/script-src 'sha\d+-[^']+'/g, `script-src ${hash(loaderJS)}`)
 
 await writeFile(NGINX, nginx)
