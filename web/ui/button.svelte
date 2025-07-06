@@ -33,7 +33,11 @@
     {#if icon}
       <Icon path={icon} />
     {/if}
-    <span bind:this={textElement} class:sr-only={size === 'icon'}>
+    <span
+      bind:this={textElement}
+      class="button_text"
+      class:sr-only={size === 'icon'}
+    >
       {@render props.children()}
     </span>
   </span>
@@ -176,6 +180,10 @@
           padding-inline-start: 6px;
         }
       }
+    }
+
+    .button_text {
+      flex-shrink: 1;
     }
   }
 </style>
