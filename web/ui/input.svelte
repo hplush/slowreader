@@ -1,6 +1,5 @@
 <script lang="ts">
   import { notEmpty, type Validator, validUrl } from '@slowreader/core'
-  import { onMount } from 'svelte'
   import type { HTMLInputAttributes } from 'svelte/elements'
 
   let {
@@ -35,20 +34,13 @@
   if (props.required) validators.unshift(notEmpty)
   if (type === 'url') validators.unshift(validUrl)
 
-  function runValidators(
-    val: string,
-    event: Parameters<Validator>[1]
-  ): string | undefined {
+  function runValidators(val: string): string | undefined {
     for (let validator of validators) {
-      let result = validator(val, event)
+      let result = validator(val)
       if (result) return result
     }
     return undefined
   }
-
-  onMount(() => {
-    inputError = runValidators(value, 'init')
-  })
 </script>
 
 <div class="input">
@@ -59,12 +51,13 @@
     class="input_field"
     aria-errormessage={errorId || (inputError || error ? `${id}-error` : null)}
     aria-invalid={inputError || error || errorId ? true : null}
+    data-invalid={runValidators(value)}
     onblur={() => {
-      inputError = runValidators(value, 'blur')
+      inputError = runValidators(value)
     }}
     onchange={e => {
       value = e.currentTarget.value
-      inputError = runValidators(value, 'change')
+      inputError = runValidators(value)
       if (onchange) onchange(value, isValid)
     }}
     oninput={e => {
@@ -73,7 +66,7 @@
     onkeyup={e => {
       if (e.key === 'Escape') onescape?.()
       if (inputError) {
-        inputError = runValidators(e.currentTarget.value, 'keyup')
+        inputError = runValidators(e.currentTarget.value)
       }
     }}
     {type}

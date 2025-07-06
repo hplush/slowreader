@@ -1,38 +1,28 @@
 import { commonMessages as t } from './messages/index.ts'
 
-export interface Validator<Value = string> {
-  (
-    value: Value,
-    event: 'blur' | 'change' | 'init' | 'keyup'
-  ): string | undefined
+export interface Validator {
+  (value: string): string | undefined
 }
 
-function onValue(validator: (value: string) => string | undefined): Validator {
-  return (value, event) => {
-    if (event === 'init' && value.trim() === '') return undefined
-    return validator(value)
-  }
-}
-
-export const notEmpty = onValue(value => {
+export function notEmpty(value: string): string | undefined {
   if (value.trim() === '') return t.get().empty
-})
+}
 
-export const validUrl = onValue(value => {
+export function validUrl(value: string): string | undefined {
   if (!URL.canParse(value)) return t.get().invalidUrl
-})
+}
 
-export const validUserId = onValue(value => {
+export function validUserId(value: string): string | undefined {
   if (!/^\d{16}$/.test(value)) return t.get().invalidUserId
-})
+}
 
-export const validSecret = onValue(value => {
+export function validSecret(value: string): string | undefined {
   if (!/^[^\s]{10} [^\s]{10}$/.test(value)) return t.get().invalidSecret
-})
+}
 
-export const validServer = onValue(value => {
+export function validServer(value: string): string | undefined {
   let withProtocol = `https://${value}`
   if (!URL.canParse(withProtocol)) return t.get().invalidServer
   if (/^[a-zA-Z]+:/.test(value)) return t.get().invalidServer
   if (new URL(withProtocol).username) return t.get().invalidServer
-})
+}

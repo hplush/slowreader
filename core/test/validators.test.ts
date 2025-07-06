@@ -18,65 +18,44 @@ function valid(value: string | undefined): void {
 }
 
 test('validates required string', () => {
-  notValid(notEmpty('', 'change'))
-  notValid(notEmpty('', 'blur'))
-  notValid(notEmpty('', 'keyup'))
-  notValid(notEmpty('  ', 'change'))
+  notValid(notEmpty(''))
+  notValid(notEmpty('  '))
 
-  valid(notEmpty('', 'init'))
-  valid(notEmpty('  ', 'init'))
-  valid(notEmpty('value', 'change'))
+  valid(notEmpty('value'))
 })
 
 test('validates URL', () => {
-  notValid(validUrl('', 'change'))
-  notValid(validUrl('', 'blur'))
-  notValid(validUrl('', 'keyup'))
-  notValid(validUrl('example.com', 'change'))
-  notValid(validUrl('not URL', 'change'))
+  notValid(validUrl('example.com'))
+  notValid(validUrl('not URL'))
 
-  valid(validUrl('', 'init'))
-  valid(validUrl('  ', 'init'))
-  valid(validUrl('http://example.com', 'change'))
+  valid(validUrl('http://example.com'))
 })
 
 test('validates user ID', () => {
-  notValid(validUserId('', 'change'))
-  notValid(validUserId('', 'blur'))
-  notValid(validUserId('', 'keyup'))
-  notValid(validUserId('user@example.com', 'change'))
-  notValid(validUserId('123456789012345', 'change'))
-  notValid(validUserId('12345678901234567', 'change'))
+  notValid(validUserId('user@example.com'))
+  notValid(validUserId('123456789012345'))
+  notValid(validUserId('12345678901234567'))
 
-  valid(validUserId('', 'init'))
-  valid(validUserId('  ', 'init'))
-  valid(validUserId('1234567890123456', 'change'))
+  valid(validUserId('1234567890123456'))
 })
 
 test('validates secret', () => {
-  notValid(validSecret('', 'change'))
-  notValid(validSecret('', 'blur'))
-  notValid(validSecret('', 'keyup'))
-  notValid(validSecret('123456789 1234567890', 'change'))
-  notValid(validSecret('1234567890 12345678901', 'change'))
+  notValid(validSecret(''))
+  notValid(validSecret(''))
+  notValid(validSecret(''))
+  notValid(validSecret('123456789 1234567890'))
+  notValid(validSecret('1234567890 12345678901'))
 
-  valid(validSecret('', 'init'))
-  valid(validSecret('  ', 'init'))
-  valid(validSecret('1234567890 ab3@5!7.-0', 'change'))
+  valid(validSecret('1234567890 ab3@5!7.-0'))
 })
 
 test('validates server', () => {
-  notValid(validServer('', 'change'))
-  notValid(validServer('', 'blur'))
-  notValid(validServer('', 'keyup'))
-  notValid(validServer('http://example.com', 'change'))
-  notValid(validServer('user@example.com', 'change'))
-  notValid(validServer('example com', 'change'))
+  notValid(validServer('http://example.com'))
+  notValid(validServer('user@example.com'))
+  notValid(validServer('example com'))
 
-  valid(validServer('', 'init'))
-  valid(validServer('  ', 'init'))
-  valid(validServer('example.com', 'change'))
-  valid(validServer('example.com/path', 'change'))
-  valid(validServer('example.com:31339', 'change'))
-  valid(validServer('192.168.1.100:31339', 'change'))
+  valid(validServer('example.com'))
+  valid(validServer('example.com/path'))
+  valid(validServer('example.com:31339'))
+  valid(validServer('192.168.1.100:31339'))
 })
