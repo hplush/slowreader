@@ -25,6 +25,7 @@ find . -type f -name Dockerfile -print0 | while IFS= read -r -d $'\0' dockerfile
     fi
 
     image_tag_part="${image_ref%%@*}"
+    origin_image_tag="$image_tag_part"
 
     # If we has no tag in FROM
     if [[ "$image_tag_part" != *":"* ]]; then
@@ -60,7 +61,7 @@ find . -type f -name Dockerfile -print0 | while IFS= read -r -d $'\0' dockerfile
       continue
     fi
 
-    latest_image_ref="${image_tag_part}@${latest_digest}"
+    latest_image_ref="${origin_image_tag}@${latest_digest}"
     if [[ "$image_ref" != "$latest_image_ref" ]]; then
       echo -e "  ${BAD}$image_ref${NC} → ${GOOD}$latest_image_ref${NC}"
       escaped_image_ref=$(printf '%s\n' "$image_ref" | sed 's:[][\\/.^$*]:\\&:g')
