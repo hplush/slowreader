@@ -1,55 +1,37 @@
 <script lang="ts">
   import {
-    addCategory,
-    addFeed,
     addHashToBaseRoute,
     type BaseRoute,
     Category,
-    type CategoryValue,
     client,
-    DEFAULT_REFRESH_STATISTICS,
+    currentPage,
     Feed,
-    type FeedValue,
     Filter,
-    isRefreshing,
-    type NetworkTypeDetector,
+    type ParamlessRouteName,
     Post,
-    refreshStatistics,
-    type RefreshStatistics,
-    testFeed
+    userId
   } from '@slowreader/core'
   import { cleanStores, type ReadableAtom, type WritableAtom } from 'nanostores'
-  import type { Snippet } from 'svelte'
-  import { onMount } from 'svelte'
+  import { onDestroy, type Snippet } from 'svelte'
 
   import {
     baseRouter,
     type PreparedResponse,
-    prepareResponses,
-    setNetworkType
+    prepareResponses
   } from './environment.ts'
 
-  const DEFAULT_NETWORK: ReturnType<NetworkTypeDetector> = {
-    saveData: false,
-    type: 'free'
-  }
-
   let {
-    categories = [],
     children,
-    feeds = [{ title: 'Example' }],
-    networkType = DEFAULT_NETWORK,
-    refreshing = false,
+    oninit = () => {},
     responses = {},
-    route
+    route,
+    user = '10'
   }: {
-    categories?: CategoryValue[]
     children: Snippet
-    feeds?: Partial<FeedValue>[]
-    networkType?: ReturnType<NetworkTypeDetector>
-    refreshing?: false | Partial<RefreshStatistics>
+    oninit?: () => void
     responses?: Record<string, PreparedResponse | string>
-    route?: BaseRoute | Omit<BaseRoute, 'hash'>
+    route?: BaseRoute | Omit<BaseRoute, 'hash'> | ParamlessRouteName
+    user?: false | string
   } = $props()
 
   export function forceSet<Value>(
@@ -65,37 +47,25 @@
   }
 
   $effect.pre(() => {
+    currentPage.get().destroy()
+    userId.set(user || undefined)
     cleanLogux()
     prepareResponses(responses)
 
-    setNetworkType(networkType)
-
-    for (let category of categories) {
-      addCategory(category)
+    if (typeof route === 'string') {
+      baseRouter.set({ hash: '', params: {}, route })
+    } else {
+      baseRouter.set(
+        addHashToBaseRoute(route) ?? { hash: '', params: {}, route: 'slow' }
+      )
     }
-    for (let feed of feeds) {
-      addFeed(testFeed(feed))
-    }
 
-    // TODO: Replace with Nano Stores Context
-    forceSet(isRefreshing, Boolean(refreshing))
-    forceSet(refreshStatistics, {
-      ...DEFAULT_REFRESH_STATISTICS,
-      ...refreshing
-    })
-
-    baseRouter.set(
-      addHashToBaseRoute(route) ?? { hash: '', params: {}, route: 'slow' }
-    )
+    oninit()
   })
 
-  onMount(() => {
-    return () => {
-      forceSet(isRefreshing, false)
-      baseRouter.set({ hash: '', params: {}, route: 'slow' })
-      setNetworkType(DEFAULT_NETWORK)
-      cleanLogux()
-    }
+  onDestroy(() => {
+    baseRouter.set({ hash: '', params: {}, route: 'slow' })
+    cleanLogux()
   })
 </script>
 
