@@ -87,7 +87,7 @@ test('creates users and check credentials', async () => {
 
   await throws(async () => {
     await testRequest(server!, signIn, { password: 'PB', userId: userA.userId })
-  }, 'Invalid request')
+  }, 'Invalid credentials')
 
   await setTimeout(100)
   let token1 = await testRequest(server, signIn, {
@@ -105,7 +105,7 @@ test('creates users and check credentials', async () => {
   await client2.process(deletePassword({}))
   await throws(async () => {
     await testRequest(server!, signIn, { password: 'PA', userId: userA.userId })
-  }, 'Invalid request')
+  }, 'Invalid credentials')
 
   await client2.process(setPassword({ password: 'new' }))
   await testRequest(server, signIn, { password: 'new', userId: userA.userId })
@@ -156,7 +156,7 @@ test('does not allow to redefine user', async () => {
   let userA = await testRequest(server, signUp, { password: 'A', userId: 'a' })
   await throws(async () => {
     await testRequest(server!, signUp, { password: 'B', userId: userA.userId })
-  }, 'Invalid request')
+  }, 'User ID was already taken')
 })
 
 test('has non-cookie API', async () => {

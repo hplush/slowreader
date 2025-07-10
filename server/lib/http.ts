@@ -20,6 +20,14 @@ function collectBody(req: IncomingMessage): Promise<string> {
   })
 }
 
+export class ErrorResponse {
+  message: string
+
+  constructor(message: string) {
+    this.message = message
+  }
+}
+
 export function jsonApi<Response, Request extends object>(
   server: BaseServer,
   endpoint: Endpoint<Response, Request>,
@@ -27,7 +35,13 @@ export function jsonApi<Response, Request extends object>(
     params: Request,
     res: ServerResponse,
     req: IncomingMessage
-  ) => false | Promise<false> | Promise<Response> | Response
+  ) =>
+    | ErrorResponse
+    | false
+    | Promise<ErrorResponse>
+    | Promise<false>
+    | Promise<Response>
+    | Response
 ): void {
   server.http(async (req, res) => {
     if (req.method === endpoint.method) {
@@ -51,6 +65,8 @@ export function jsonApi<Response, Request extends object>(
         let answer = await listener(validated, res, req)
         if (answer === false) {
           return badRequest(res, 'Invalid request')
+        } else if (answer instanceof ErrorResponse) {
+          return badRequest(res, answer.message)
         }
         res.writeHead(200, { 'Content-Type': 'application/json' })
         res.end(JSON.stringify(answer))

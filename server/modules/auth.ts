@@ -12,7 +12,7 @@ import { nanoid } from 'nanoid'
 import type { ServerResponse } from 'node:http'
 
 import { db, sessions, users } from '../db/index.ts'
-import { jsonApi } from '../lib/http.ts'
+import { ErrorResponse, jsonApi } from '../lib/http.ts'
 
 async function setNewSession(
   res: ServerResponse,
@@ -57,7 +57,7 @@ export default (server: BaseServer): void => {
         return { session: token }
       }
     }
-    return false
+    return new ErrorResponse('Invalid credentials')
   })
 
   jsonApi(server, signOutEndpoint, async (params, res, req) => {
@@ -91,7 +91,7 @@ export default (server: BaseServer): void => {
       already = await tx.query.users.findFirst({ where: eq(users.id, userId) })
       if (!already) await tx.insert(users).values({ id: userId })
     })
-    if (already) return false
+    if (already) return new ErrorResponse('User ID was already taken')
 
     await server.process(setPassword({ password: params.password, userId }))
     let session = await setNewSession(res, userId)
