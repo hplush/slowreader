@@ -10,7 +10,7 @@
   onsubmit={e => {
     e.preventDefault()
     let form = e.currentTarget
-    let invalid = form.querySelectorAll<HTMLInputElement>('[data-invalid]')
+    let invalid = form.querySelectorAll<HTMLInputElement>('[data-invalid=true]')
     if (invalid.length === 0) {
       onsubmit()
     } else {
@@ -20,6 +20,7 @@
           input.blur()
         }
       })
+      invalid[0]!.focus()
     }
   }}
 >
