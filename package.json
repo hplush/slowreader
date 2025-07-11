@@ -26,8 +26,8 @@
     "test:versions": "node --experimental-strip-types ./scripts/check-versions.ts",
     "test:markdown": "remark . --frail",
     "test:format": "prettier --experimental-cli --check .",
-    "check-opml": "node --experimental-strip-types loader-tests/check-opml.ts",
-    "test-loaders": "node --experimental-strip-types loader-tests/test-loaders.ts loader-tests/feeds.yml"
+    "check-opml": "tsx loader-tests/check-opml.ts",
+    "test-loaders": "tsx loader-tests/test-loaders.ts loader-tests/feeds.yml"
   },
   "devDependencies": {
     "@logux/eslint-config": "56.0.0",
@@ -59,6 +59,7 @@
     "svelte-check": "4.2.2",
     "svelte-eslint-parser": "1.2.0",
     "svgo": "4.0.0",
+    "tsx": "4.20.3",
     "typescript": "5.8.3"
   }
 }
