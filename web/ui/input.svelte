@@ -2,6 +2,8 @@
   import { notEmpty, type Validator, validUrl } from '@slowreader/core'
   import type { HTMLInputAttributes } from 'svelte/elements'
 
+  import Error from './error.svelte'
+
   let {
     error,
     errorId,
@@ -73,13 +75,7 @@
     {value}
     {...props}
   />
-  <div
-    id={`${id}-error`}
-    class:input_error={inputError || error}
-    aria-live="polite"
-  >
-    {inputError || error}
-  </div>
+  <Error id={`${id}-error`} field text={inputError || error} />
 </div>
 
 <style>
@@ -110,13 +106,6 @@
       &[aria-invalid] {
         border-color: var(--dangerous-text-color);
       }
-    }
-
-    .input_error {
-      padding: 0 8px;
-      margin-top: 2px;
-      font: var(--control-secondary-font);
-      color: var(--dangerous-text-color);
     }
   }
 </style>
