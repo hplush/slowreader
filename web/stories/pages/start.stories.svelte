@@ -12,7 +12,33 @@
 </script>
 
 <Story name="Light" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene>
+  <Scene route="start" user={false}>
+    <StartPage page={pages.start()} />
+  </Scene>
+</Story>
+
+<Story name="Custom Server" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      pages.start().showCustomServer()
+    }}
+    route="start"
+    user={false}
+  >
+    <StartPage page={pages.start()} />
+  </Scene>
+</Story>
+
+<Story name="Server Error" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      pages.start().userId.set('4581658299936829')
+      pages.start().secret.set('Yo;wV*5Ktm }&OqUv2RB>')
+      pages.start().signError.set('Invalid credentials')
+    }}
+    route="start"
+    user={false}
+  >
     <StartPage page={pages.start()} />
   </Scene>
 </Story>
@@ -22,7 +48,7 @@
   asChild
   parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
 >
-  <Scene>
+  <Scene route="start" user={false}>
     <StartPage page={pages.start()} />
   </Scene>
 </Story>
@@ -38,7 +64,7 @@
     viewport: { defaultViewport: 'mobile1' }
   }}
 >
-  <Scene>
+  <Scene route="start" user={false}>
     <StartPage page={pages.start()} />
   </Scene>
 </Story>

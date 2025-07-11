@@ -6,7 +6,6 @@
     mdiRocketLaunch
   } from '@mdi/js'
   import {
-    generateCredentials,
     type StartPage,
     startMessages as t,
     validSecret,
@@ -18,12 +17,14 @@
   import Actions from '../ui/actions.svelte'
   import Button from '../ui/button.svelte'
   import Description from '../ui/description.svelte'
+  import Error from '../ui/error.svelte'
+  import Form from '../ui/form.svelte'
   import Input from '../ui/input.svelte'
   import Page from '../ui/page.svelte'
   import TwoOptions from '../ui/two-options.svelte'
 
   let { page }: { page: StartPage } = $props()
-  let { customServer, secret, userId } = page
+  let { customServer, secret, signError, signingIn, userId } = page
 
   let serverInput: HTMLInputElement | undefined = $state()
 
@@ -44,7 +45,7 @@
       <Actions vertical>
         <Button
           icon={mdiRocketLaunch}
-          onclick={generateCredentials}
+          onclick={page.startLocal}
           size="wide"
           variant="cta"
         >
@@ -61,53 +62,68 @@
       </Actions>
     {/snippet}
     {#snippet two()}
-      <Input
-        autocomplete="username"
-        inputmode="numeric"
-        label={$t.userId}
-        pattern="[0-9]*"
-        required
-        validate={validUserId}
-        bind:value={$userId}
-      />
-      <Input
-        autocomplete="current-password"
-        label={$t.secret}
-        required
-        type="password"
-        validate={validSecret}
-        bind:value={$secret}
-      />
-      {#if $customServer}
+      <Form onsubmit={page.signIn}>
         <Input
-          inputmode="url"
-          label={$t.server}
-          onescape={() => {
-            customServer.set(false)
-          }}
-          placeholder="slowreader.app"
-          validate={validServer}
-          bind:value={$customServer}
-          bind:input={serverInput}
+          autocomplete="username"
+          errorId={$signError === 'Invalid credentials'
+            ? 'start-server-error'
+            : undefined}
+          inputmode="numeric"
+          label={$t.userId}
+          pattern="[0-9]*"
+          required
+          validate={validUserId}
+          bind:value={$userId}
         />
-      {/if}
-      <Actions vertical>
-        {#if !$customServer}
-          <Button
-            icon={mdiCloudPlus}
-            onclick={() => {
-              customServer.set('slowreader.app')
+        <Input
+          autocomplete="current-password"
+          errorId={$signError === 'Invalid credentials'
+            ? 'start-server-error'
+            : undefined}
+          label={$t.secret}
+          required
+          type="password"
+          validate={validSecret}
+          bind:value={$secret}
+        />
+        {#if $customServer}
+          <Input
+            inputmode="url"
+            label={$t.server}
+            onescape={() => {
+              page.resetCustomServer()
             }}
-            size="pill"
+            placeholder="server.slowreader.app"
+            validate={validServer}
+            bind:value={$customServer}
+            bind:input={serverInput}
+          />
+        {/if}
+        <Error id="start-server-error" text={$signError} />
+        <Actions vertical>
+          {#if !$customServer}
+            <Button
+              icon={mdiCloudPlus}
+              onclick={() => {
+                page.showCustomServer()
+              }}
+              size="pill"
+              variant="secondary"
+            >
+              {$t.customServer}
+            </Button>
+          {/if}
+          <Button
+            icon={mdiLogin}
+            loader={$signingIn ? $t.signingIn : undefined}
+            size="wide"
+            type="submit"
             variant="secondary"
           >
-            {$t.customServer}
+            {$t.login}
           </Button>
-        {/if}
-        <Button icon={mdiLogin} size="wide" variant="secondary">
-          {$t.login}
-        </Button>
-      </Actions>
+        </Actions>
+      </Form>
     {/snippet}
   </TwoOptions>
 </Page>

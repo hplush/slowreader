@@ -10,6 +10,7 @@ export const startMessages = i18n('start', {
   pageTitle: 'Start',
   secret: 'Secret',
   server: 'Custom server',
+  signingIn: 'Sending sign in form',
   start: 'Start local app',
   title: 'No account in this browser yet',
   userId: 'User ID'

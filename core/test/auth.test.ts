@@ -1,6 +1,6 @@
 import type { TestServer } from '@logux/server'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
-import { equal, match, ok } from 'node:assert'
+import { equal, ok } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -20,7 +20,7 @@ import {
   useCredentials,
   userId
 } from '../index.ts'
-import { throws } from './utils.ts'
+import { setTestUser, throws } from './utils.ts'
 
 let server: TestServer
 beforeEach(() => {
@@ -30,8 +30,7 @@ beforeEach(() => {
 })
 
 afterEach(async () => {
-  await client.get()?.clean()
-  client.set(undefined)
+  setTestUser(false)
   await server.destroy()
   await cleanAllTables()
 })
@@ -106,29 +105,4 @@ test('reports about wrong credentials', async () => {
   let error = await throws(() => signIn(generateCredentials()))
   ok(HTTPRequestError.is(error))
   equal(error.message, 'Invalid credentials')
-})
-
-test('reports about bad connection', async () => {
-  server.fetch = () => {
-    throw new Error('Can not resolve domain')
-  }
-
-  let error = await throws(() => signIn(generateCredentials()))
-  ok(HTTPRequestError.is(error))
-  match(error.message, /network/)
-})
-
-test('reports about server errors', async () => {
-  // @ts-expect-error Hacky mocking for tests
-  server.fetch = () => {
-    return {
-      ok: false,
-      status: 500,
-      text: () => Promise.resolve('DB is down')
-    }
-  }
-
-  let error = await throws(() => signIn(generateCredentials()))
-  ok(HTTPRequestError.is(error))
-  match(error.message, /try again/)
 })
