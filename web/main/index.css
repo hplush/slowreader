@@ -66,7 +66,7 @@ ol[role='list'] {
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip-path: inset(50%);
   white-space: nowrap;
   border-width: 0;
+  clip-path: inset(50%);
 }
