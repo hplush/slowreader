@@ -2,9 +2,10 @@
 
 import { globSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { extname, join } from 'node:path'
 import { styleText } from 'node:util'
-import postcss from 'postcss'
+import postcss, { type Parser } from 'postcss'
+import html from 'postcss-html'
 
 import { getPropsError, propsChecker } from '../postcss/props-checker.ts'
 
@@ -18,12 +19,17 @@ function printWarning(message: string): void {
 
 const cssChecker = postcss([propsChecker])
 
-let files = globSync(join(import.meta.dirname, '..', 'dist', '**', '*.css'))
+let files = [
+  ...globSync(join(import.meta.dirname, '..', 'dist', '**', '*.css')),
+  join(import.meta.dirname, '..', 'dist', 'index.html')
+]
 await Promise.all(
   files.map(async file => {
-    let css = await readFile(file)
+    let content = await readFile(file)
     try {
-      await cssChecker.process(css, { from: file })
+      let parser: Parser | undefined
+      if (extname(file) === '.html') parser = html.parse
+      await cssChecker.process(content, { from: file, parser })
     } catch (e) {
       if (!(e instanceof Error)) {
         printError(String(e))
