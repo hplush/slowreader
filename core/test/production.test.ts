@@ -4,16 +4,17 @@ import { cleanStores } from 'nanostores'
 import { match } from 'node:assert'
 import { afterEach, test } from 'node:test'
 
-import { client, userId } from '../index.ts'
+import { client } from '../index.ts'
+import { setTestUser } from './utils.ts'
 
 global.WebSocket = function () {} as any
 
 afterEach(() => {
   cleanStores(client)
-  userId.set(undefined)
+  setTestUser(false)
 })
 
 test('uses real server in production', () => {
-  userId.set('10')
+  setTestUser()
   match(client.get()!.options.server as string, /^ws:\/\//)
 })

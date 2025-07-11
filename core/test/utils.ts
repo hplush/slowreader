@@ -9,12 +9,14 @@ import {
   client,
   currentPage,
   enableTestTime,
+  encryptionKey,
   type EnvironmentAndStore,
   fastMenu,
   Feed,
   type FeedReader,
   Filter,
   getTestEnvironment,
+  hasPassword,
   type ListReader,
   menuLoading,
   openedPopups,
@@ -30,10 +32,22 @@ import {
   userId
 } from '../index.ts'
 
+export function setTestUser(enable = true): void {
+  if (enable) {
+    encryptionKey.set('key')
+    hasPassword.set(false)
+    userId.set('10')
+  } else {
+    encryptionKey.set(undefined)
+    hasPassword.set(false)
+    userId.set(undefined)
+  }
+}
+
 export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
   setupEnvironment({ ...getTestEnvironment(), ...env })
+  setTestUser()
   enableTestTime()
-  userId.set('10')
   setBaseTestRoute({ params: {}, route: 'home' })
 }
 
@@ -130,4 +144,15 @@ export function ensureReader<Name extends ReaderName>(
     throw new Error(`Reader is ${reader?.name}, but ${name} was expected`)
   }
   return reader as Name extends 'feed' ? FeedReader : ListReader
+}
+
+export async function throws(cb: () => Promise<unknown>): Promise<Error> {
+  let error: Error | undefined
+  try {
+    await cb()
+  } catch (e) {
+    error = e as Error
+  }
+  if (!error) throw new Error('Errow was not thrown')
+  return error
 }

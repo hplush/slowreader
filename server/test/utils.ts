@@ -1,10 +1,8 @@
 import type { TestServer } from '@logux/server'
 import type { Requester } from '@slowreader/api'
-import { PgTable } from 'drizzle-orm/pg-core'
 import { equal } from 'node:assert'
 
-import { db } from '../db/index.ts'
-import * as tables from '../db/schema.ts'
+export { cleanAllTables } from '../test.ts'
 
 export async function testRequest<
   Params extends Record<string, unknown>,
@@ -19,16 +17,6 @@ export async function testRequest<
   if (!response.ok) throw new Error(await response.text())
   if (responseProcessor) responseProcessor(response)
   return response.json()
-}
-
-export async function cleanAllTables(): Promise<void> {
-  await Promise.all(
-    Object.values(tables).map(async table => {
-      if (table instanceof PgTable) {
-        await db.delete(table)
-      }
-    })
-  )
 }
 
 export async function throws(

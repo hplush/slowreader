@@ -1,5 +1,6 @@
 import type { ClientOptions } from '@logux/client'
 import { MemoryStore } from '@logux/core'
+import type { TestServer } from '@logux/server'
 import type { TranslationLoader } from '@nanostores/i18n'
 import {
   type PersistentEvents,
@@ -59,11 +60,14 @@ interface ErrorEvents {
 export interface Environment {
   baseRouter: BaseRouter
   errorEvents: ErrorEvents
+  getSession(): string | undefined
   locale: ReadableAtom<string>
   logStoreCreator: LogStoreCreator
   networkType: NetworkTypeDetector
   openRoute(page: Route, redirect?: boolean): void
   restartApp(): void
+  saveSession(session: string | undefined): void
+  server: string | TestServer
   translationLoader: TranslationLoader
   warn(error: Error): void
 }
@@ -101,11 +105,14 @@ export function setupEnvironment<Router extends BaseRouter>(
   currentEnvironment = {
     baseRouter: env.baseRouter,
     errorEvents: env.errorEvents,
+    getSession: env.getSession,
     locale: env.locale,
     logStoreCreator: env.logStoreCreator,
     networkType: env.networkType,
     openRoute: env.openRoute,
     restartApp: env.restartApp,
+    saveSession: env.saveSession,
+    server: env.server,
     translationLoader: env.translationLoader,
     warn: env.warn
   }
@@ -159,10 +166,15 @@ export function stringifyPopups(popups: PopupRoute[]): string {
     .join(',')
 }
 
+let testSession: string | undefined
+
 export function getTestEnvironment(): EnvironmentAndStore {
   return {
     baseRouter: testRouter,
     errorEvents: { addEventListener() {} },
+    getSession() {
+      return testSession
+    },
     locale: atom('en'),
     logStoreCreator: () => new MemoryStore(),
     networkType: () => ({ saveData: undefined, type: undefined }),
@@ -172,6 +184,10 @@ export function getTestEnvironment(): EnvironmentAndStore {
     persistentEvents: { addEventListener() {}, removeEventListener() {} },
     persistentStore: {},
     restartApp: () => {},
+    saveSession(session) {
+      testSession = session
+    },
+    server: 'localhost:31337',
     translationLoader: () => Promise.resolve({}),
     warn: () => {}
   }

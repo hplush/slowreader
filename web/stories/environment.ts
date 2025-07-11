@@ -1,6 +1,6 @@
-import { MemoryStore } from '@logux/core'
 import {
   type BaseRoute,
+  getTestEnvironment,
   type NetworkTypeDetector,
   type RequestMethod,
   setRequestMethod,
@@ -30,10 +30,13 @@ let networkType: ReturnType<NetworkTypeDetector> = {
 }
 
 setupEnvironment({
+  ...getTestEnvironment(),
   baseRouter,
   errorEvents: window,
+  getSession() {
+    return undefined
+  },
   locale,
-  logStoreCreator: () => new MemoryStore(),
   networkType() {
     return networkType
   },
@@ -48,9 +51,8 @@ setupEnvironment({
   restartApp() {
     console.log('App restarted')
   },
-  translationLoader() {
-    return Promise.resolve({})
-  },
+  saveSession() {},
+  server: 'localhost:31337',
   warn(e) {
     console.error(e)
   }

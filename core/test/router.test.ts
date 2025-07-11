@@ -13,10 +13,9 @@ import {
   openPopup,
   removeLastPopup,
   router,
-  setBaseTestRoute,
-  userId
+  setBaseTestRoute
 } from '../index.ts'
-import { cleanClientTest, enableClientTest } from './utils.ts'
+import { cleanClientTest, enableClientTest, setTestUser } from './utils.ts'
 
 beforeEach(() => {
   enableClientTest()
@@ -32,7 +31,7 @@ test('opens 404', () => {
 })
 
 test('transforms routers for guest', () => {
-  userId.set(undefined)
+  setTestUser(false)
   setBaseTestRoute({ params: {}, route: 'home' })
   deepStrictEqual(router.get(), { params: {}, popups: [], route: 'start' })
 
@@ -47,7 +46,7 @@ test('transforms routers for guest', () => {
 })
 
 test('transforms routers for users', () => {
-  userId.set('10')
+  setTestUser()
   setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
   deepStrictEqual(router.get(), {
     params: { category: 'general', reader: undefined, since: undefined },
@@ -66,17 +65,17 @@ test('transforms routers for users', () => {
     route: 'home'
   })
 
-  userId.set(undefined)
+  setTestUser(false)
   deepStrictEqual(router.get(), { params: {}, popups: [], route: 'signin' })
 })
 
 test('has routes groups', () => {
-  userId.set(undefined)
+  setTestUser(false)
   setBaseTestRoute({ params: {}, route: 'home' })
   equal(isGuestRoute(router.get()), true)
   equal(isOtherRoute(router.get()), false)
 
-  userId.set('10')
+  setTestUser()
   setBaseTestRoute({ params: {}, route: 'refresh' })
   equal(isGuestRoute(router.get()), false)
   equal(isOtherRoute(router.get()), false)
@@ -99,7 +98,7 @@ test('has routes groups', () => {
 })
 
 test('converts since to number', async () => {
-  userId.set('10')
+  setTestUser()
   let idA = await addCategory({ title: 'A' })
 
   setBaseTestRoute({ params: { category: idA, since: 1000 }, route: 'fast' })
@@ -124,7 +123,7 @@ test('converts since to number', async () => {
 })
 
 test('checks reader values', async () => {
-  userId.set('10')
+  setTestUser()
   let idA = await addCategory({ title: 'A' })
 
   setBaseTestRoute({
@@ -216,7 +215,7 @@ test('has helpers for popups', () => {
 })
 
 test('reacts on unknown popups', () => {
-  userId.set('10')
+  setTestUser()
   keepMount(openedPopups)
   equal(openedPopups.get().length, 0)
 
@@ -228,7 +227,7 @@ test('reacts on unknown popups', () => {
 })
 
 test('hides popups for guest', () => {
-  userId.set(undefined)
+  setTestUser(false)
   setBaseTestRoute({ hash: 'feed=id1,post=id2', params: {}, route: 'signin' })
   equal(openedPopups.get().length, 0)
 })

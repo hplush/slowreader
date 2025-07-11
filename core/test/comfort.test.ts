@@ -1,8 +1,8 @@
 import { equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 
-import { comfortMode, setBaseTestRoute, userId } from '../index.ts'
-import { cleanClientTest, enableClientTest } from './utils.ts'
+import { comfortMode, setBaseTestRoute } from '../index.ts'
+import { cleanClientTest, enableClientTest, setTestUser } from './utils.ts'
 
 beforeEach(() => {
   enableClientTest()
@@ -13,11 +13,11 @@ afterEach(async () => {
 })
 
 test('has routes groups', () => {
-  userId.set(undefined)
+  setTestUser(false)
   setBaseTestRoute({ params: {}, route: 'home' })
   equal(comfortMode.get(), true)
 
-  userId.set('10')
+  setTestUser()
   setBaseTestRoute({ params: {}, route: 'refresh' })
   equal(comfortMode.get(), true)
 

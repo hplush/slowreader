@@ -1,21 +1,25 @@
 import { persistentAtom } from '@nanostores/persistent'
-import { nanoid } from 'nanoid'
 import type { StoreValue } from 'nanostores'
-
-import { getClient } from './client.ts'
-import { getEnvironment } from './environment.ts'
 
 export const userId = persistentAtom<string | undefined>('slowreader:userId')
 
-export async function signOut(): Promise<void> {
-  await getClient().clean()
-  userId.set(undefined)
-  getEnvironment().restartApp()
-}
+export const encryptionKey = persistentAtom<string | undefined>(
+  'slowreader:encryptionKey'
+)
 
-export function generateCredentials(): void {
-  userId.set(nanoid(10))
-}
+export const syncServer = persistentAtom<string | undefined>(
+  'slowreader:server'
+)
+
+export const hasPassword = persistentAtom('slowreader:has-password', false, {
+  /* c8 ignore next 6 */
+  decode(str) {
+    return str === 'yes'
+  },
+  encode(value) {
+    return value ? 'yes' : undefined
+  }
+})
 
 export const theme = persistentAtom<'dark' | 'light' | 'system'>(
   'slowreader:theme',

@@ -15,20 +15,22 @@ import { openRoute, urlRouter } from '../stores/router.ts'
 
 enableWarnings()
 
-let PROXY_URL: string
+let server = location.hostname
+let proxy = '/proxy/'
 if (location.hostname === 'localhost') {
-  PROXY_URL = 'http://localhost:31338/proxy/'
+  proxy = 'http://localhost:31337/proxy/'
+  server = 'localhost:31337'
 } else if (location.hostname === 'slowreader.app') {
-  PROXY_URL = 'https://proxy.slowreader.app/'
+  proxy = 'https://proxy.slowreader.app/'
+  proxy = 'server.slowreader.app'
 } else if (location.hostname === 'dev.slowreader.app') {
-  PROXY_URL = 'https://dev-proxy.slowreader.app/'
-} else {
-  PROXY_URL = '/proxy/'
+  proxy = 'https://dev-proxy.slowreader.app/'
+  server = 'dev-server.slowreader.app'
 }
 
 setRequestMethod(async (url, opts = {}) => {
   let originUrl = url
-  let nextUrl = PROXY_URL + encodeURIComponent(url)
+  let nextUrl = proxy + encodeURIComponent(url)
   let response = await fetch(nextUrl, opts)
   Object.defineProperty(response, 'url', {
     value: originUrl
@@ -60,6 +62,10 @@ export const detectNetworkType: NetworkTypeDetector = () => {
 setupEnvironment({
   baseRouter: urlRouter,
   errorEvents: window,
+  getSession() {
+    // Browser will use session from http-only cookie
+    return undefined
+  },
   locale,
   logStoreCreator: () => new IndexedStore(),
   networkType: detectNetworkType,
@@ -69,6 +75,10 @@ setupEnvironment({
   restartApp() {
     location.reload()
   },
+  saveSession() {
+    // Browser will keep session in http-only cookie
+  },
+  server,
   translationLoader() {
     return Promise.resolve({})
   },

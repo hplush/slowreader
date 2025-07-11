@@ -19,6 +19,11 @@
     "clean:coverage": "rm -rf coverage",
     "clean:build": "rm -rf dist/ web/"
   },
+  "exports": {
+    ".": "./index.ts",
+    "./test": "./test.ts",
+    "./package.json": "./package.json"
+  },
   "dependencies": {
     "@electric-sql/pglite": "0.3.4",
     "@logux/actions": "github:logux/actions#next",
