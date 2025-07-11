@@ -7,11 +7,11 @@
     "pnpm": "^10.0.0"
   },
   "scripts": {
-    "check-opml": "node --experimental-strip-types check-opml.ts",
+    "check-opml": "tsx check-opml.ts",
     "test": "node --run test:loaders",
-    "url": "node --experimental-strip-types url.ts",
-    "home": "node --experimental-strip-types home.ts",
-    "test:loaders": "node --experimental-strip-types test-loaders.ts"
+    "url": "tsx url.ts",
+    "home": "tsx home.ts",
+    "test:loaders": "tsx test-loaders.ts"
   },
   "devDependencies": {
     "@slowreader/core": "workspace:*",
@@ -19,6 +19,7 @@
     "eslint": "9.30.1",
     "jsdom": "26.1.0",
     "nanostores": "1.0.1",
+    "tsx": "4.20.3",
     "yaml": "2.8.0"
   }
 }

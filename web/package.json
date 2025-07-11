@@ -17,7 +17,7 @@
     "test:names": "node --experimental-strip-types ./scripts/check-names.ts",
     "test:css": "stylelint **/*.css **/*.svelte",
     "test:build": "node --run build && size-limit && node --experimental-strip-types ./scripts/check-css-props.ts",
-    "build:routes": "node --experimental-strip-types ./scripts/export-routes.ts",
+    "build:routes": "tsx ./scripts/export-routes.ts",
     "build:visual": "NODE_ENV=test storybook build",
     "build:web": "vite build && node --experimental-strip-types scripts/generate-csp.ts",
     "format:stylelint": "stylelint --fix **/*.{css,svelte}",
@@ -40,6 +40,7 @@
     "postcss-load-config": "6.0.1",
     "rollup": "4.44.2",
     "svelte": "5.35.2",
+    "tsx": "4.20.3",
     "vite": "7.0.2"
   },
   "devDependencies": {

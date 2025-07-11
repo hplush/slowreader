@@ -201,6 +201,9 @@ importers:
       nanostores:
         specifier: 1.0.1
         version: 1.0.1
+      tsx:
+        specifier: 4.20.3
+        version: 4.20.3
       yaml:
         specifier: 2.8.0
         version: 2.8.0
@@ -322,6 +325,9 @@ importers:
       svelte:
         specifier: 5.35.2
         version: 5.35.2
+      tsx:
+        specifier: 4.20.3
+        version: 4.20.3
       vite:
         specifier: 7.0.2
         version: 7.0.2(@types/node@24.0.10)(jiti@2.4.2)(tsx@4.20.3)(yaml@2.8.0)
