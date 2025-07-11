@@ -1,4 +1,4 @@
-import { TestServer } from '@logux/server'
+import type { TestServer } from '@logux/server'
 import {
   deletePassword,
   setPassword,
@@ -12,9 +12,12 @@ import { afterEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import { db, sessions } from '../db/index.ts'
-import authModule from '../modules/auth.ts'
-import passwordModule from '../modules/passwords.ts'
-import { cleanAllTables, testRequest, throws } from './utils.ts'
+import {
+  buildTestServer,
+  cleanAllTables,
+  testRequest,
+  throws
+} from './utils.ts'
 
 let server: TestServer | undefined
 afterEach(async () => {
@@ -24,9 +27,7 @@ afterEach(async () => {
 })
 
 test('creates users and check credentials', async () => {
-  server = new TestServer()
-  authModule(server)
-  passwordModule(server)
+  server = buildTestServer()
 
   let sessionCookie: string | undefined
   let userA = await testRequest(
@@ -112,9 +113,7 @@ test('creates users and check credentials', async () => {
 })
 
 test('disconnects current client on signOut', async () => {
-  server = new TestServer()
-  authModule(server)
-  passwordModule(server)
+  server = buildTestServer()
   let userA = await testRequest(server, signUp, { password: 'A', userId: 'a' })
   let session1 = await testRequest(server, signIn, {
     password: 'A',
@@ -135,9 +134,7 @@ test('disconnects current client on signOut', async () => {
 })
 
 test('does not allow to set password for another user', async () => {
-  server = new TestServer()
-  authModule(server)
-  passwordModule(server)
+  server = buildTestServer()
   let userA = await testRequest(server, signUp, { password: 'A', userId: 'a' })
   let userB = await testRequest(server, signUp, { password: 'B', userId: 'b' })
   let clientA = await server.connect(userA.userId, { token: userA.session })
@@ -149,10 +146,7 @@ test('does not allow to set password for another user', async () => {
 })
 
 test('does not allow to redefine user', async () => {
-  server = new TestServer()
-  authModule(server)
-  passwordModule(server)
-
+  server = buildTestServer()
   let userA = await testRequest(server, signUp, { password: 'A', userId: 'a' })
   await throws(async () => {
     await testRequest(server!, signUp, { password: 'B', userId: userA.userId })
@@ -160,9 +154,7 @@ test('does not allow to redefine user', async () => {
 })
 
 test('has non-cookie API', async () => {
-  server = new TestServer()
-  authModule(server)
-
+  server = buildTestServer()
   let user = await testRequest(server, signUp, { password: 'P', userId: 'a' })
   await server.connect(user.userId, { token: user.session })
   await signOut({ session: user.session }, { fetch: server.fetch })
@@ -170,9 +162,7 @@ test('has non-cookie API', async () => {
 })
 
 test('validates request body', async () => {
-  server = new TestServer()
-  authModule(server)
-
+  server = buildTestServer()
   let response1 = await server.fetch('/users', { method: 'PUT' })
   equal(await response1.text(), 'Not found')
   let response2 = await server.fetch('/users/1', { method: 'PUT' })

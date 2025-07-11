@@ -2,7 +2,7 @@ import type { TestServer } from '@logux/server'
 import type { Requester } from '@slowreader/api'
 import { equal } from 'node:assert'
 
-export { cleanAllTables } from '../test.ts'
+export { buildTestServer, cleanAllTables } from '../test.ts'
 
 export async function testRequest<
   Params extends Record<string, unknown>,

@@ -1,17 +1,13 @@
 import { zeroClean } from '@logux/actions'
 import type { Client } from '@logux/client'
 import { encryptActions } from '@logux/client'
-import { TestClient, TestServer } from '@logux/server'
+import { TestClient, type TestServer } from '@logux/server'
 import { signIn, signUp } from '@slowreader/api'
 import { deepStrictEqual } from 'node:assert'
 import { afterEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import addedModule from '../modules/added.ts'
-import authModule from '../modules/auth.ts'
-import passwordModule from '../modules/passwords.ts'
-import syncModule from '../modules/sync.ts'
-import { cleanAllTables, testRequest } from './utils.ts'
+import { buildTestServer, cleanAllTables, testRequest } from './utils.ts'
 
 let server: TestServer | undefined
 afterEach(async () => {
@@ -39,11 +35,7 @@ async function connect(
 }
 
 test('syncs action between clients', async () => {
-  server = new TestServer()
-  addedModule(server)
-  syncModule(server)
-  authModule(server)
-  passwordModule(server)
+  server = buildTestServer()
 
   await signUp({ password: 'p1', userId: 'user1' }, { fetch: server.fetch })
   await signUp({ password: 'pOther', userId: 'other' }, { fetch: server.fetch })
