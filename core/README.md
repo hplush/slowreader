@@ -68,8 +68,6 @@ All unit tests import functions/stores from `core/index.ts` to test exports and 
 
 We run unit tests by `node --test` with [`better-node-test`](https://github.com/ai/better-node-test) for TypeScript and sugar.
 
-We have 100% lines coverage requirement, but it is OK to use `/* c8 ignore start */`-`/* c8 ignore end */`, `/* c8 ignore next 2 */` for error and rare edge cases (see [`c8` docs](https://github.com/bcoe/c8) for ignore instruction examples).
-
 ```sh
 # Run all tests with coverage
 cd core && pnpm test
@@ -84,9 +82,11 @@ n bnt core/test/html.test.ts
 n bnt core/test/html.test.ts -t 'sanitizes HTML'
 ```
 
-In VS Code you can use [extension](https://marketplace.visualstudio.com/items?itemName=connor4312.nodejs-testing) to run specific test from UI.
+We have 100% lines coverage requirement, but it is OK to use `/* c8 ignore start */`-`/* c8 ignore end */`, `/* c8 ignore next 2 */` for error and rare edge cases (see [`c8` docs](https://github.com/bcoe/c8) for ignore instruction examples).
 
 Open `core/coverage/lcov-report/index.html` to see coverage issues.
+
+In VS Code you can use [extension](https://marketplace.visualstudio.com/items?itemName=connor4312.nodejs-testing) to run specific test from UI.
 
 ## Mocking Requests
 
@@ -116,3 +116,5 @@ let reply = expectRequest('https://example.com').andWait()
 callLogicWithRequest()
 reply1(200, '<html></html>')
 ```
+
+If you need to make HTTP requests to Logux server, doen’t use `mockRequest` and just run test Logux server. See [auth tests](./test/auth.test.ts) for example.
