@@ -1,6 +1,10 @@
 import { atom } from 'nanostores'
 
-import { createPagination, moveToPage, setPagination } from '../pagination.ts'
+import {
+  createPagination,
+  moveToPage,
+  setPagination
+} from '../lib/pagination.ts'
 import { deletePost, type PostValue } from '../post.ts'
 import { router } from '../router.ts'
 import { createReader, loadPosts } from './common.ts'

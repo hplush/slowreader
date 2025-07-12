@@ -7,7 +7,7 @@ import {
   validServer,
   validUrl,
   validUserId
-} from '../index.ts'
+} from '../../index.ts'
 
 function notValid(value: string | undefined): void {
   equal(typeof value, 'string')

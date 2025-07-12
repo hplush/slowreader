@@ -1,4 +1,4 @@
-import { commonMessages as t } from './messages/index.ts'
+import { commonMessages as t } from '../messages/index.ts'
 
 export interface Validator {
   (value: string): string | undefined

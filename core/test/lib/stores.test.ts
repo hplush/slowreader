@@ -2,7 +2,7 @@ import { atom } from 'nanostores'
 import { equal } from 'node:assert'
 import test from 'node:test'
 
-import { subscribeUntil } from '../index.ts'
+import { subscribeUntil } from '../../index.ts'
 
 test('runs until first true', () => {
   let store = atom(0)

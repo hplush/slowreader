@@ -3,7 +3,7 @@ import './dom-parser.ts'
 import { equal } from 'node:assert'
 import { test } from 'node:test'
 
-import { parseLink, parseRichTranslation, sanitizeDOM } from '../index.ts'
+import { parseLink, parseRichTranslation, sanitizeDOM } from '../../index.ts'
 
 test('sanitizes HTML', () => {
   equal(
