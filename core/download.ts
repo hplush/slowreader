@@ -1,4 +1,4 @@
-import { warning } from './devtools.ts'
+import { getEnvironment } from './environment.ts'
 import { request } from './request.ts'
 
 let cache = new Map<string, Response>()
@@ -77,7 +77,7 @@ export function createTextResponse(
         return JSON.parse(text) as unknown
       } catch (e) {
         if (e instanceof SyntaxError) {
-          warning('Parse JSON error', e.message)
+          getEnvironment().warn('Parse JSON error: ' + e.message)
           return null
         } else {
           /* c8 ignore next 2 */
@@ -101,7 +101,7 @@ export function createTextResponse(
         ) {
           bodyCache = new DOMParser().parseFromString(text, contentType)
         } else {
-          warning('Unknown content type', contentType)
+          getEnvironment().warn('Unknown content type: ' + contentType)
           return null
         }
       }

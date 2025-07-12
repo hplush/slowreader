@@ -1,5 +1,5 @@
-import { warning } from '../devtools.ts'
 import type { TextResponse } from '../download.ts'
+import { getEnvironment } from '../environment.ts'
 import type { OriginPost } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import type { Loader } from './index.ts'
@@ -87,9 +87,9 @@ function validate<ValidatedType>(
 
   for (let field in rules) {
     if (!(field in value) || !rules[field]!(value[field])) {
-      warning(
-        `JSON feed field '${field}' is not valid with value`,
-        stringify(value[field])
+      getEnvironment().warn(
+        `JSON feed field '${field}' is not valid with value ` +
+          stringify(value[field])
       )
       return false
     }

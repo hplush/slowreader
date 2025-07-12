@@ -1,7 +1,6 @@
 import { IndexedStore } from '@logux/client'
 import { windowPersistentEvents } from '@nanostores/persistent'
 import {
-  enableWarnings,
   type NetworkType,
   type NetworkTypeDetector,
   router,
@@ -12,8 +11,6 @@ import {
 
 import { locale } from '../stores/locale.ts'
 import { openRoute, urlRouter } from '../stores/router.ts'
-
-enableWarnings()
 
 let server = location.hostname
 let proxy = '/proxy/'
@@ -85,7 +82,7 @@ setupEnvironment({
   warn(msg) {
     // For useful messages for end-users
     // eslint-disable-next-line no-console
-    console.warn(msg.message)
+    console.warn(typeof msg === 'string' ? msg : msg.message)
   }
 })
 

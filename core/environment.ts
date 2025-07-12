@@ -69,7 +69,7 @@ export interface Environment {
   saveSession(session: string | undefined): void
   server: string | TestServer
   translationLoader: TranslationLoader
-  warn(error: Error): void
+  warn(error: Error | string): void
 }
 
 export type EnvironmentAndStore = {

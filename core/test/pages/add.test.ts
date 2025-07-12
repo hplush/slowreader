@@ -28,7 +28,10 @@ beforeEach(() => {
   setIsMobile(false)
   enableClientTest({
     warn(e) {
-      if (e.name === 'MockRequestError' || !/: 500|: 404|DOM/.test(e.message)) {
+      if (
+        typeof e !== 'string' &&
+        (e.name === 'MockRequestError' || !/: 500|: 404|DOM/.test(e.message))
+      ) {
         throw e
       }
     }
