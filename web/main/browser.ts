@@ -1,3 +1,5 @@
+// Bind browser’s API to client core API.
+
 import { comfortMode, theme } from '@slowreader/core'
 import { pressKeyUX, startKeyUX } from 'keyux'
 

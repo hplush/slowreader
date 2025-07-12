@@ -121,7 +121,7 @@ export function sortFilters(filters: FilterValue[]): FilterValue[] {
 
 /**
  * Moves a filter up or down in priority by recalculating its priority value
- * relative to neighboring filters to maintain sort order
+ * relative to neighboring filters to maintain sort order.
  */
 async function move(filterId: string, diff: -1 | 1): Promise<void> {
   let store = Filter(filterId, getClient())

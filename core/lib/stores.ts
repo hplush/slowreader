@@ -1,3 +1,6 @@
+// Helpers to work with Nano Stores and Logux to simplify code
+// by moving complexity to helper.
+
 import type { SyncMapValues } from '@logux/actions'
 import type { LoadedSyncMap, SyncMapStore } from '@logux/client'
 import type { Action } from '@logux/core'
@@ -25,6 +28,12 @@ export function increaseKey<Store extends MapStore>(
   store.setKey(key, value + 1)
 }
 
+/**
+ * Return promise which wait until store stop to have `false`.
+ *
+ * It is useful in tests for stores like `page.loading`
+ * to avoid flaky `setTimeout`.
+ */
 export function waitLoading(store: ReadableAtom): Promise<void> {
   return new Promise<void>(resolve => {
     let unbind = store.subscribe(state => {
@@ -36,6 +45,9 @@ export function waitLoading(store: ReadableAtom): Promise<void> {
   })
 }
 
+/**
+ * Return promise which wait until `store.isLoading` is stop to have `true`.
+ */
 export async function waitSyncLoading<Value extends SyncMapValues>(
   store: SyncMapStore<Value>
 ): Promise<LoadedSyncMap<SyncMapStore<Value>>> {
@@ -51,6 +63,12 @@ export async function waitSyncLoading<Value extends SyncMapValues>(
   return store as LoadedSyncMap<SyncMapStore<Value>>
 }
 
+/**
+ * Run callback when store got first listener.
+ *
+ * It is like `onMount` in Nano Stores but work with multiple stores.
+ * Callback runs on first listener for any of store.
+ */
 export function onMountAny(stores: ReadableAtom[], cb: () => () => void): void {
   let listeners = 0
   let unbind = (): void => {}
@@ -71,6 +89,11 @@ export function onMountAny(stores: ReadableAtom[], cb: () => () => void): void {
   }
 }
 
+/**
+ * Run callback on every Logux action.
+ *
+ * It hides complexity of client re-creating on sign-in to re-subscribing.
+ */
 export function onLogAction(cb: (action: Action) => void): () => void {
   let unbindLog: (() => void) | undefined
   let unbindClient = client.subscribe(loguxClient => {
@@ -87,6 +110,12 @@ export function onLogAction(cb: (action: Action) => void): () => void {
   }
 }
 
+/**
+ * Subscribe to store and run callback on every store’s change until callback
+ * return `true`.
+ *
+ * Abstraction to simplify complex code.
+ */
 export function subscribeUntil<Value>(
   store: ReadableAtom<Value>,
   cb: (value: Value) => boolean | undefined

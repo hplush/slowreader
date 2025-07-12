@@ -135,7 +135,7 @@ function checkPopupName(
 
 /**
  * Parses popup routes from hash string format `popup=param,popup2=param2`
- * into an array of popup route objects
+ * into an array of popup route objects.
  */
 export function parsePopups(hash: string): PopupRoute[] {
   let popups: PopupRoute[] = []

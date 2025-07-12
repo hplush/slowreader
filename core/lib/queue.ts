@@ -20,6 +20,13 @@ export interface Queue<Types extends TaskTypes> {
   tasks: Task<Types>[]
 }
 
+/**
+ * Process big queue of tasks by limited number of workers with retrying
+ * on errors.
+ *
+ * We are using it in feeds refresh and moved to separated abstraction
+ * to simplify refreshing code.
+ */
 export function createQueue<Types extends TaskTypes>(
   tasks: Task<Types>[] = []
 ): Queue<Types> {

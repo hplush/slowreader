@@ -44,6 +44,11 @@ export function setTestUser(enable = true): void {
   }
 }
 
+/**
+ * Set environment to run application in tests to be used in `beforeEach()`.
+ *
+ * Call `cleanClientTest()` in `afterEach()`.
+ */
 export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
   setupEnvironment({ ...getTestEnvironment(), ...env })
   setTestUser()
@@ -63,6 +68,9 @@ interface PromiseMock<Result> {
   resolve(result: Result): void
 }
 
+/**
+ * Create fake Promise to test different stages of Promise.
+ */
 export function createPromise<Result>(): PromiseMock<Result> {
   let result: PromiseMock<Result> = {
     next() {
@@ -88,6 +96,9 @@ export function openTestPopup<Name extends PopupName>(
   return getPopup(popup, openedPopups.get().length - 1)
 }
 
+/**
+ * Check what popup was opened and return correct types.
+ */
 export function getPopup<Name extends PopupName>(
   name: Name,
   at = 0
@@ -112,6 +123,9 @@ export type Loaded<SomePopup extends BasePopup> = Extract<
   { loading: ReadableAtom<false>; notFound: false }
 >
 
+/**
+ * Check and change popup types to loaded state.
+ */
 export function checkLoadedPopup<SomePopup extends BasePopup>(
   popup: SomePopup
 ): Loaded<SomePopup> {
@@ -124,6 +138,10 @@ export function checkLoadedPopup<SomePopup extends BasePopup>(
   return popup as Loaded<SomePopup>
 }
 
+/**
+ * Change URL, check what page was opened and return page instance
+ * with right types.
+ */
 export function openPage<SomeRoute extends BaseRoute | Omit<BaseRoute, 'hash'>>(
   route: SomeRoute
 ): Page<SomeRoute['route']> {
@@ -135,11 +153,14 @@ export function openPage<SomeRoute extends BaseRoute | Omit<BaseRoute, 'hash'>>(
   return page as Page<SomeRoute['route']>
 }
 
+/**
+ * Check current reader and return it with right types.
+ */
 export function ensureReader<Name extends ReaderName>(
-  atom: ReadableAtom<BaseReader | undefined>,
+  store: ReadableAtom<BaseReader | undefined>,
   name: Name
 ): Name extends 'feed' ? FeedReader : ListReader {
-  let reader = atom.get()
+  let reader = store.get()
   if (!reader || reader.name !== name) {
     throw new Error(`Reader is ${reader?.name}, but ${name} was expected`)
   }

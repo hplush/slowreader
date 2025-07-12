@@ -1,3 +1,5 @@
+// Dependency Injection of unique behavior for web client.
+
 import { IndexedStore } from '@logux/client'
 import { windowPersistentEvents } from '@nanostores/persistent'
 import {

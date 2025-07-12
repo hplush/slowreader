@@ -3,6 +3,9 @@ import type { Requester } from '@slowreader/api'
 import { getEnvironment } from '../environment.ts'
 import { commonMessages as t } from '../messages/index.ts'
 
+/**
+ * Network/server error on server’s HTTP API request.
+ */
 export class HTTPRequestError extends Error {
   constructor(text: string) {
     super(text)
@@ -20,6 +23,11 @@ export class HTTPRequestError extends Error {
   }
 }
 
+/**
+ * Takes fetch() wrapper from `@slowreader/api/http` and do the request
+ * using test’s mock if necessary and checking for network/server errors
+ * to simplify page’s code.
+ */
 export async function checkErrors<Params extends object, ResponseJSON>(
   requester: Requester<Params, ResponseJSON>,
   params: Params,

@@ -25,7 +25,8 @@ export interface DownloadTask {
 
 /**
  * Detects content type by analyzing the text content for common patterns
- * like HTML doctype, XML declarations, RSS/Atom feed elements, and JSON Feed format
+ * like HTML doctype, XML declarations, RSS/Atom feed elements,
+ * and JSON Feed format.
  */
 function detectType(text: string): string | undefined {
   let lower = text.toLowerCase()
@@ -167,6 +168,9 @@ export function createDownloadTask(
   }
 }
 
+/**
+ * Helper to put in `catch` block to ignore error on aborting download tasks.
+ */
 export function ignoreAbortError(error: unknown): void {
   if (!(error instanceof Error) || error.name !== 'AbortError') throw error
 }

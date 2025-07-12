@@ -66,7 +66,9 @@ export async function changeFeed(
   await recalcPostsReading(feedId)
 }
 
-/** Subscribes to a feed which is currently being previewed */
+/**
+ * Subscribes to a feed which is currently being previewed.
+ */
 export async function addCandidate(
   candidate: FeedLoader,
   fields: Partial<FeedValue> = {},

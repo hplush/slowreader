@@ -24,6 +24,9 @@ interface CreatePostsList {
   (posts: undefined, loadNext: PostsListLoader): PostsList
 }
 
+/**
+ * Feed’s posts. Abstraction to hide complexity with pagination.
+ */
 export const createPostsList: CreatePostsList = (posts, loadNext) => {
   let $map = map<StoreValue<PostsList>>({
     hasNext: true,

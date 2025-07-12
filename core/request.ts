@@ -71,7 +71,9 @@ let fetchMock: RequestMethod = async (url, opts = {}) => {
 }
 
 /**
- * Enable request mocking for tests
+ * Enable request mocking for tests to be used in `beforeEach()`.
+ *
+ * Use `checkAndRemoveRequestMock()` in `afterEach()`.
  */
 export function mockRequest(): void {
   requestExpects = []

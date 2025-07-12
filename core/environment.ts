@@ -1,3 +1,6 @@
+// Dependency Injection to change behavior in different environment
+// (web, mobile native, tests, etc).
+
 import type { ClientOptions } from '@logux/client'
 import { MemoryStore } from '@logux/core'
 import type { TestServer } from '@logux/server'
@@ -58,22 +61,81 @@ interface ErrorEvents {
 }
 
 export interface Environment {
+  /**
+   * Smart store with current URL (or similar abstraction in your environment).
+   */
   baseRouter: BaseRouter
+
+  /**
+   * Object like `window` in web or `process` in Node.js to track unhandled
+   * errors.
+   *
+   * For instance, we are using it to catch not-found errors.
+   */
   errorEvents: ErrorEvents
+
+  /**
+   * Restore server’s session token saves in `saveSession()`.
+   */
   getSession(): string | undefined
+
+  /**
+   * Smart store taking user’s language from system.
+   */
   locale: ReadableAtom<string>
+
+  /**
+   * Persistent storage for Logux log.
+   */
   logStoreCreator: LogStoreCreator
+
+  /**
+   * Detect network type to not download images over expensive tariff.
+   */
   networkType: NetworkTypeDetector
+
+  /**
+   * Change current URL.
+   */
   openRoute(page: Route, redirect?: boolean): void
+
+  /**
+   * Restart app after sign-out to be sure that all in-memory caches are clean.
+   */
   restartApp(): void
+
+  /**
+   * Save server’s session token to some secure storage.
+   * For instance, in web we are putting it to httpOnly cookie,
+   * which can’t be accessed from JS code.
+   */
   saveSession(session: string | undefined): void
+
+  /**
+   * Hostname (without protocol) of default Slow Reader server.
+   */
   server: string | TestServer
+
+  /**
+   * Load app’s translation. Based on Nano Stores I18n API.
+   */
   translationLoader: TranslationLoader
+
+  /**
+   * Print warning to help in debugging. Should be not visible by regular user.
+   */
   warn(error: Error | string): void
 }
 
 export type EnvironmentAndStore = {
+  /**
+   * Web `storage` event like API to subscribe for settings changes.
+   */
   persistentEvents: PersistentEvents
+
+  /**
+   * `localStorage`-like API to keep per-client persistent settings.
+   */
   persistentStore: PersistentStore
 } & Environment
 
@@ -86,6 +148,9 @@ function runEnvListener(listener: EnvironmentListener): void {
   unbinds.push(listener(currentEnvironment!))
 }
 
+/**
+ * Wait for environment being set and re-run on every environment change.
+ */
 export function onEnvironment(cb: EnvironmentListener): void {
   if (currentEnvironment) {
     /* c8 ignore next 2 */

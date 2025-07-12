@@ -12,6 +12,12 @@ import { encryptionKey, hasPassword, syncServer, userId } from './settings.ts'
 
 let testTime: TestTime | undefined
 
+/**
+ * Logux uses complex time https://logux.org/guide/concepts/meta/#id-and-time
+ *
+ * Test time on every test run will return the same result
+ * (it is more like counter, than time).
+ */
 export function enableTestTime(): TestTime {
   testTime = new TestTime()
   return testTime

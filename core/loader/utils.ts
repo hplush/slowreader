@@ -37,7 +37,7 @@ export function buildFullURL(
 }
 
 /**
- * Returns full URLs found in the document’s <link> elements
+ * Returns full URLs found in the document’s `<link>` elements.
  */
 export function findDocumentLinks(text: TextResponse, type: string): string[] {
   let document = text.parseXml()
@@ -52,7 +52,7 @@ export function findDocumentLinks(text: TextResponse, type: string): string[] {
 }
 
 /**
- * Returns full URLs found in the document’s <a> elements
+ * Returns full URLs found in the document’s `<a>` elements.
  */
 export function findAnchorHrefs(
   text: TextResponse,
@@ -105,7 +105,7 @@ export function findHeaderLinks(
 }
 
 /**
- * Returns the UNIX timestamp of a date
+ * Returns the UNIX timestamp of a date.
  */
 export function toTime(date: null | string | undefined): number | undefined {
   if (!date) return undefined
@@ -128,7 +128,7 @@ export function findImageByAttr(
 }
 
 /**
- * Returns the unique elements without `null` from array
+ * Returns the unique elements without `null` from array.
  */
 export function unique<T extends number | string = string>(
   collection: Iterable<null | T | undefined>

@@ -6,6 +6,9 @@ import { getFeedLatestPosts, getFeeds } from './feed.ts'
 import { loadFilters } from './filter.ts'
 import { addPost, deletePost, getPosts, processOriginPost } from './post.ts'
 
+/**
+ * Create test feeds and posts for new client.
+ */
 export async function fillFeedsWithPosts(): Promise<void> {
   await busyDuring(async () => {
     let task = createDownloadTask()
