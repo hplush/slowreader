@@ -1,5 +1,5 @@
-import { getEnvironment } from './environment.ts'
-import { request } from './request.ts'
+import { getEnvironment } from '../environment.ts'
+import { request } from '../request.ts'
 
 let cache = new Map<string, Response>()
 

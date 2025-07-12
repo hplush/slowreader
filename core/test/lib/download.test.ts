@@ -1,4 +1,4 @@
-import './dom-parser.ts'
+import '../dom-parser.ts'
 
 import { equal, rejects, throws } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
@@ -9,10 +9,14 @@ import {
   createDownloadTask,
   createTextResponse,
   expectRequest,
+  getTestEnvironment,
   ignoreAbortError,
   mockRequest,
-  setRequestMethod
-} from '../index.ts'
+  setRequestMethod,
+  setupEnvironment
+} from '../../index.ts'
+
+setupEnvironment(getTestEnvironment())
 
 beforeEach(() => {
   mockRequest()

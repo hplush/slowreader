@@ -1,4 +1,4 @@
-import type { TextResponse } from '../download.ts'
+import type { TextResponse } from '../lib/download.ts'
 
 export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0

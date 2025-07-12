@@ -1,4 +1,4 @@
-import type { DownloadTask, TextResponse } from '../download.ts'
+import type { DownloadTask, TextResponse } from '../lib/download.ts'
 import type { OriginPost } from '../post.ts'
 import { createPostsList, type PostsListLoader } from '../posts-list.ts'
 import type { Loader } from './index.ts'

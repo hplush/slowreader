@@ -40,7 +40,7 @@ Core depends on the platform environment (like storage or network). Before using
 - [Test environment](./test/utils.ts)
 - [Web environment](../web/main/environment.ts)
 
-All networks requests should be done by [`request()`](./request.ts) to support different environment and proxy server. But we also recommend using [`DownloadTask`](./download.ts) and think about network request aborting.
+All networks requests should be done by [`request()`](./request.ts) to support different environment and proxy server. But we also recommend using [`DownloadTask`](./lib/download.ts) and think about network request aborting.
 
 ## URL Routing
 

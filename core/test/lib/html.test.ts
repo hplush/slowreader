@@ -1,4 +1,4 @@
-import './dom-parser.ts'
+import '../dom-parser.ts'
 
 import { equal } from 'node:assert'
 import { test } from 'node:test'

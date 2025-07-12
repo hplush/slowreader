@@ -1,9 +1,9 @@
 import { atom, map } from 'nanostores'
 
 import { addCategory } from '../category.ts'
-import { createDownloadTask } from '../download.ts'
 import { addCandidate, addFeed } from '../feed.ts'
 import { addFilter } from '../filter.ts'
+import { createDownloadTask } from '../lib/download.ts'
 import { getLoaderForText } from '../loader/index.ts'
 import { addPost } from '../post.ts'
 import { preloadImages, theme } from '../settings.ts'

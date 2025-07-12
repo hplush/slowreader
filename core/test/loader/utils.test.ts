@@ -1,7 +1,7 @@
 import { deepStrictEqual } from 'node:assert'
 import { test } from 'node:test'
 
-import { createTextResponse } from '../../download.js'
+import { createTextResponse } from '../../lib/download.ts'
 import { findHeaderLinks } from '../../loader/utils.js'
 
 test('returns urls from link http header', () => {

@@ -1,4 +1,4 @@
-import type { DownloadTask, TextResponse } from '../download.ts'
+import type { DownloadTask, TextResponse } from '../lib/download.ts'
 import type { PostsList } from '../posts-list.ts'
 import { atom } from './atom.ts'
 import { jsonFeed } from './json-feed.ts'

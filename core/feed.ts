@@ -12,7 +12,7 @@ import {
 import { nanoid } from 'nanoid'
 
 import { getClient } from './client.ts'
-import { createDownloadTask, type TextResponse } from './download.ts'
+import { createDownloadTask, type TextResponse } from './lib/download.ts'
 import type { OptionalId } from './lib/stores.ts'
 import { type FeedLoader, type LoaderName, loaders } from './loader/index.ts'
 import { deletePost, getPosts, recalcPostsReading } from './post.ts'

@@ -1,13 +1,13 @@
 import debounce from 'just-debounce-it'
 import { atom, computed, map } from 'nanostores'
 
+import { getEnvironment, isMobile } from '../environment.ts'
 import {
   createDownloadTask,
   type DownloadTask,
   ignoreAbortError,
   type TextResponse
-} from '../download.ts'
-import { getEnvironment, isMobile } from '../environment.ts'
+} from '../lib/download.ts'
 import {
   type FeedLoader,
   getLoaderForText,

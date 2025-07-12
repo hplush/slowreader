@@ -1,7 +1,7 @@
 import { atom } from 'nanostores'
 
-import { createDownloadTask, type TextResponse } from '../download.ts'
 import { addCandidate, type FeedValue, getFeeds } from '../feed.ts'
+import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import { getLoaderForText } from '../loader/index.ts'
 import { NotFoundError } from '../not-found.ts'
 import { definePopup, type LoadedPopup } from './common.ts'

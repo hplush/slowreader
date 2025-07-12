@@ -8,7 +8,9 @@ import { setTimeout } from 'node:timers/promises'
 import {
   createDownloadTask,
   createTextResponse,
+  getTestEnvironment,
   loaders,
+  setupEnvironment,
   type TextResponse
 } from '../../index.ts'
 
@@ -32,6 +34,8 @@ let jsonStub = {
   title: 'Some JSON Feed title',
   version: 'https://jsonfeed.org/version/1.1'
 }
+
+setupEnvironment(getTestEnvironment())
 
 test('detects own URLs', () => {
   equal(

@@ -233,6 +233,8 @@ export function stringifyPopups(popups: PopupRoute[]): string {
 
 let testSession: string | undefined
 
+/* c8 ignore start */
+
 export function getTestEnvironment(): EnvironmentAndStore {
   return {
     baseRouter: testRouter,
@@ -263,3 +265,5 @@ export function getTestEnvironment(): EnvironmentAndStore {
     warn() {}
   }
 }
+
+/* c8 ignore end */

@@ -1,7 +1,6 @@
 import { loadValue } from '@logux/client'
 import { atom, computed, map } from 'nanostores'
 
-import { createDownloadTask, type DownloadTask } from './download.ts'
 import {
   changeFeed,
   type FeedValue,
@@ -10,6 +9,7 @@ import {
   getFeeds
 } from './feed.ts'
 import { type FilterChecker, loadFilters } from './filter.ts'
+import { createDownloadTask, type DownloadTask } from './lib/download.ts'
 import { createQueue, type Queue, retryOnError } from './lib/queue.ts'
 import { increaseKey } from './lib/stores.ts'
 import { addPost, type OriginPost, processOriginPost } from './post.ts'

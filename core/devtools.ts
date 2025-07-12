@@ -1,9 +1,9 @@
 import { loadValue } from '@logux/client'
 
 import { busyDuring } from './busy.ts'
-import { createDownloadTask } from './download.ts'
 import { getFeedLatestPosts, getFeeds } from './feed.ts'
 import { loadFilters } from './filter.ts'
+import { createDownloadTask } from './lib/download.ts'
 import { addPost, deletePost, getPosts, processOriginPost } from './post.ts'
 
 /**
