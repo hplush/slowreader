@@ -1,4 +1,5 @@
 @import url('@fontsource-variable/noto-sans');
+@import url('@fontsource-variable/noto-sans/wght-italic.css');
 
 :root {
   --base-font: 400 15px/1.6 'Noto Sans Variable', system-ui;

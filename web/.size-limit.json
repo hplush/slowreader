@@ -10,6 +10,7 @@
       "!dist/icon-*.{png,svg}",
       "!dist/favicon.ico",
       "!dist/assets/noto-sans-{cyrillic,greek,devanagari,vietnamese}-*.woff2",
+      "!dist/assets/noto-sans-*-italic-*.woff2",
       "!dist/assets/noto-sans-latin-ext-*.woff2"
     ],
     "limit": "90 KB"
