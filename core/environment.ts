@@ -176,19 +176,25 @@ export function getTestEnvironment(): EnvironmentAndStore {
       return testSession
     },
     locale: atom('en'),
-    logStoreCreator: () => new MemoryStore(),
-    networkType: () => ({ saveData: undefined, type: undefined }),
-    openRoute: route => {
+    logStoreCreator() {
+      return new MemoryStore()
+    },
+    networkType() {
+      return { saveData: undefined, type: undefined }
+    },
+    openRoute(route) {
       setBaseTestRoute({ ...route, hash: stringifyPopups(route.popups) })
     },
     persistentEvents: { addEventListener() {}, removeEventListener() {} },
     persistentStore: {},
-    restartApp: () => {},
+    restartApp() {},
     saveSession(session) {
       testSession = session
     },
     server: 'localhost:31337',
-    translationLoader: () => Promise.resolve({}),
-    warn: () => {}
+    translationLoader() {
+      return Promise.resolve({})
+    },
+    warn() {}
   }
 }
