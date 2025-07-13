@@ -62,7 +62,7 @@
       </Actions>
     {/snippet}
     {#snippet two()}
-      <Form onsubmit={page.signIn}>
+      <Form loading={$signingIn} onsubmit={page.signIn}>
         <Input
           autocomplete="username"
           errorId={$signError === 'Invalid credentials'
@@ -103,6 +103,7 @@
         <Actions vertical>
           {#if !$customServer}
             <Button
+              disabled={$signingIn}
               icon={mdiCloudPlus}
               onclick={() => {
                 page.showCustomServer()

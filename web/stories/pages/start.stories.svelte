@@ -29,6 +29,20 @@
   </Scene>
 </Story>
 
+<Story name="Submitting" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      pages.start().userId.set('4581658299936829')
+      pages.start().secret.set('Yo;wV*5Ktm }&OqUv2RB>')
+      pages.start().signingIn.set(true)
+    }}
+    route="start"
+    user={false}
+  >
+    <StartPage page={pages.start()} />
+  </Scene>
+</Story>
+
 <Story name="Server Error" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {

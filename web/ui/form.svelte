@@ -1,14 +1,18 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
 
-  let { children, onsubmit }: { children: Snippet; onsubmit: () => void } =
-    $props()
+  let {
+    children,
+    loading,
+    onsubmit
+  }: { children: Snippet; loading?: boolean; onsubmit: () => void } = $props()
 </script>
 
 <form
   novalidate
   onsubmit={e => {
     e.preventDefault()
+    if (loading) return
     let form = e.currentTarget
     let invalid = form.querySelectorAll<HTMLInputElement>('[data-invalid=true]')
     if (invalid.length === 0) {
@@ -24,5 +28,7 @@
     }
   }}
 >
-  {@render children()}
+  <fieldset disabled={loading}>
+    {@render children()}
+  </fieldset>
 </form>

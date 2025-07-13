@@ -108,7 +108,8 @@
       border: none;
       border-radius: var(--button-radius);
 
-      &[aria-disabled='true'] {
+      &[aria-disabled='true'],
+      &[disabled] {
         pointer-events: none;
       }
 

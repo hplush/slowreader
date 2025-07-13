@@ -53,6 +53,9 @@
   <Section>
     <Button href="#">Text only</Button>
   </Section>
+  <Section>
+    <Button disabled {icon} {onclick}>Disabled</Button>
+  </Section>
   <Section width={200}>
     <Button {icon} {onclick} size="wide">Wide</Button>
   </Section>
