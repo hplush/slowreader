@@ -44,6 +44,7 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
    - For lond-term contribution, we recommend installing Docker and [Dev Container](https://containers.dev) plugin to your text editor. All developers will have the same environment and the development tool will be isolated from the system in the container.
      - [VS Code guide](https://code.visualstudio.com/docs/devcontainers/tutorial)
      - [Jet Brains IDEs](https://www.jetbrains.com/help/idea/start-dev-container-inside-ide.html)
+     - Zed can use Remote Development with [some hacks](https://bsky.app/profile/en.sitnik.ru/post/3lqp2ti6vuk2h).
      - [CLI tool](https://github.com/devcontainers/cli)
 
      Then run the project inside that Dev Container. VS Code asks your in popup. But you can manually do it by pressing <kbd>⇧</kbd><kbd>⌘</kbd><kbd>P</kbd> (Mac) / <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>P</kbd> (Windows/Linux), selecting `Dev Containers: Open Folder in Container…` and then opening `slowreader/` folder.
@@ -95,10 +96,10 @@ It will show all UI components and all possible states of pages. It is the best 
 
 To work with the project, we recommend adding to your IDE or text editor:
 
-- [EditorConfig](https://editorconfig.org/) plugin to sync text editor settings. VS Code automatically takes these settings from the `.vscode/` folder.
+- [EditorConfig](https://editorconfig.org/) extension to sync text editor settings. VS Code automatically takes these settings from the `.vscode/` folder.
 - Svelte syntax support for Web Client. Like [`svelte.svelte-vscode`](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) for VS Code.
 
-You may also install Prettier and ESLint plugins or just use [`precommit` hook](./nano-staged.json).
+You may also install Prettier, ESLint, Stylelint extensions or just use [`precommit` hook](./nano-staged.json).
 
 If you write docs, we recommend installing [LanguageTool](https://dev.languagetool.org/software-that-supports-languagetool-as-a-plug-in-or-add-on.html) for grammar check. For VS Code, [`davidlday.languagetool-linter`](https://marketplace.visualstudio.com/items?itemName=davidlday.languagetool-linter).
 
