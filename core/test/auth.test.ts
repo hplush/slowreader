@@ -63,10 +63,15 @@ test('allows to create user from local mode', async () => {
   equal(hasPassword.get(), false)
   equal(client.get()!.connected, false)
 
+  let later = generateCredentials(credentials.userId, credentials.encryptionKey)
+  equal(later.userId, credentials.userId)
+  equal(later.encryptionKey, credentials.encryptionKey)
+  notEqual(later.password, credentials.password)
+
   let prevClient = server.connected.size
-  await signUp(credentials)
+  await signUp(later)
   equal(hasPassword.get(), true)
-  equal(encryptionKey.get(), credentials.encryptionKey)
+  equal(encryptionKey.get(), later.encryptionKey)
   equal(typeof syncServer.get(), 'undefined')
   equal(client.get()!.state, 'connecting')
 
@@ -79,7 +84,7 @@ test('allows to create user from local mode', async () => {
   equal(server.connected.size, prevClient)
   equal(typeof client.get(), 'undefined')
 
-  await signIn(credentials)
+  await signIn(later)
   equal(client.get()!.state, 'connecting')
   await setTimeout(100)
   equal(client.get()!.connected, true)

@@ -66,11 +66,11 @@ export async function signUp(
   useCredentials(credentials)
 }
 
-export function generateCredentials(): Credentials {
+export function generateCredentials(user?: string, key?: string): Credentials {
   return {
-    encryptionKey: generateKey(),
+    encryptionKey: key ?? generateKey(),
     password: generateKey(),
-    userId: generateUserId()
+    userId: user ?? generateUserId()
   }
 }
 
