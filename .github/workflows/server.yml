@@ -104,6 +104,7 @@ jobs:
             github.com:443
             iamcredentials.googleapis.com:443
             nodejs.org:443
+            release-assets.githubusercontent.com:443
             raw.githubusercontent.com:443
             run.googleapis.com:443
             serviceusage.googleapis.com:443
