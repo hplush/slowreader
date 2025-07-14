@@ -34,6 +34,7 @@ jobs:
           allowed-endpoints: >
             9236a389bd48b984df91adc1bc924620.r2.cloudflarestorage.com:443
             api.github.com:443
+            apk.cgr.dev:443
             cgr.dev:443
             github.com:443
             nodejs.org:443
