@@ -30,7 +30,12 @@ jobs:
       - name: Harden the runner
         uses: step-security/harden-runner@6c439dc8bdf85cadbbce9ed30d1c7b959517bc49 # v2.12.2
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+            objects.githubusercontent.com:443
+            registry.npmjs.org:443
       - name: Checkout the repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Initialize Node.js
@@ -47,7 +52,12 @@ jobs:
       - name: Harden the runner
         uses: step-security/harden-runner@6c439dc8bdf85cadbbce9ed30d1c7b959517bc49 # v2.12.2
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+            objects.githubusercontent.com:443
+            registry.npmjs.org:443
       - name: Checkout the repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Initialize Node.js
@@ -82,7 +92,21 @@ jobs:
       - name: Harden the runner
         uses: step-security/harden-runner@6c439dc8bdf85cadbbce9ed30d1c7b959517bc49 # v2.12.2
         with:
-          egress-policy: audit
+          allowed-endpoints: >
+            9236a389bd48b984df91adc1bc924620.r2.cloudflarestorage.com:443
+            api.github.com:443
+            apk.cgr.dev:443
+            cgr.dev:443
+            dl.google.com:443
+            europe-west1-docker.pkg.dev:443
+            europe-west1-run.googleapis.com:443
+            github.com:443
+            iamcredentials.googleapis.com:443
+            nodejs.org:443
+            raw.githubusercontent.com:443
+            run.googleapis.com:443
+            serviceusage.googleapis.com:443
+            sts.googleapis.com:443
       - name: Checkout the repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Download server build from previous step
