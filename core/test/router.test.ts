@@ -76,9 +76,6 @@ test('has routes groups', () => {
   equal(isOtherRoute(router.get()), false)
 
   setTestUser()
-  setBaseTestRoute({ params: {}, route: 'refresh' })
-  equal(isGuestRoute(router.get()), false)
-  equal(isOtherRoute(router.get()), false)
 
   setBaseTestRoute({ params: {}, route: 'slow' })
   equal(isGuestRoute(router.get()), false)

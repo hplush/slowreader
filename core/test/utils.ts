@@ -109,7 +109,12 @@ export function getPopup<Name extends PopupName>(
       `openedPopups has only ${popups.length} popups, but ${at} was requested`
     )
   }
-  let popup = popups[at]!
+  let popup = popups[at]
+  if (!popup) {
+    throw new Error(
+      `Only ${popups.length} popups was opened. There is no ${at} index.`
+    )
+  }
   if (popup.name !== name) {
     throw new Error(
       `openedPopups[${at}] has name ${popup.name}, but ${name} was requested`

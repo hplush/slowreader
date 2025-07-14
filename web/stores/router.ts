@@ -25,7 +25,6 @@ export const pathRouter = createRouter({
   interface: '/settings/ui',
   notFound: '/404',
   profile: '/settings/profile',
-  refresh: '/refresh',
   settings: '/settings',
   signin: '/signin',
   signup: '/signup',

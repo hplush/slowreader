@@ -23,7 +23,6 @@ export interface Routes {
   interface: {}
   notFound: {}
   profile: {}
-  refresh: {}
   settings: {}
   signin: {}
   signup: {}
@@ -37,7 +36,12 @@ export interface Routes {
   welcome: {}
 }
 
-export const popupNames = { feed: true, feedUrl: true, post: true }
+export const popupNames = {
+  feed: true,
+  feedUrl: true,
+  post: true,
+  refresh: true
+}
 
 export type PopupName = keyof typeof popupNames
 

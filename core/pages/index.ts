@@ -34,7 +34,6 @@ export const pages = {
   interface: createSimplePage('interface'),
   notFound: createSimplePage('notFound'),
   profile: createSimplePage('profile'),
-  refresh: createSimplePage('refresh'),
   settings: createRedirectPage('settings', 'interface'),
   signin: createSimplePage('signin'),
   signup: createSimplePage('signup'),

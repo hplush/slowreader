@@ -18,8 +18,6 @@ test('has routes groups', () => {
   equal(comfortMode.get(), true)
 
   setTestUser()
-  setBaseTestRoute({ params: {}, route: 'refresh' })
-  equal(comfortMode.get(), true)
 
   setBaseTestRoute({ params: {}, route: 'slow' })
   equal(comfortMode.get(), true)
