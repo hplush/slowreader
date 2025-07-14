@@ -81,7 +81,7 @@ test('reports about wrong credentials', async () => {
 
   await promise
   equal(page.signingIn.get(), false)
-  equal(page.signError.get(), 'Invalid credentials')
+  match(page.signError.get()!, /user ID and password/)
 
   page.userId.set('1234567890')
   equal(typeof page.signError.get(), 'undefined')

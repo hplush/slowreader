@@ -32,3 +32,7 @@ export const signInEndpoint: Endpoint<SignInResponse, SignInRequest> = {
     }
   }
 }
+
+export const SIGN_IN_ERRORS = {
+  INVALID_CREDENTIALS: 'Invalid credentials'
+}

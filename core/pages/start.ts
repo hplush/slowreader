@@ -1,3 +1,4 @@
+import { SIGN_IN_ERRORS } from '@slowreader/api'
 import { atom } from 'nanostores'
 
 import {
@@ -8,7 +9,7 @@ import {
 } from '../auth.ts'
 import { getEnvironment } from '../environment.ts'
 import { HTTPRequestError } from '../lib/http.ts'
-import { commonMessages as t } from '../messages/index.ts'
+import { commonMessages, startMessages as t } from '../messages/index.ts'
 import { createPage } from './common.ts'
 
 export const startPage = createPage('start', () => {
@@ -61,11 +62,15 @@ export const startPage = createPage('start', () => {
         await signIn(validateCredential(), $customServer.get())
       } catch (e: unknown) {
         if (HTTPRequestError.is(e)) {
-          $signError.set(e.message)
+          if (e.message === SIGN_IN_ERRORS.INVALID_CREDENTIALS) {
+            $signError.set(t.get().invalidCredentials)
+          } else {
+            $signError.set(e.message)
+          }
         } else {
           /* c8 ignore next 3 */
           if (e instanceof Error) getEnvironment().warn(e)
-          $signError.set(t.get().internalError)
+          $signError.set(commonMessages.get().internalError)
         }
       } finally {
         $signingIn.set(false)

@@ -3,6 +3,8 @@ import {
   IS_PASSWORD,
   IS_USER_ID,
   setPassword,
+  SIGN_IN_ERRORS,
+  SIGN_UP_ERRORS,
   signInEndpoint,
   signOutEndpoint,
   signUpEndpoint
@@ -59,7 +61,7 @@ export default (server: BaseServer): void => {
         return { session: token }
       }
     }
-    return new ErrorResponse('Invalid credentials')
+    return new ErrorResponse(SIGN_IN_ERRORS.INVALID_CREDENTIALS)
   })
 
   jsonApi(server, signOutEndpoint, async (params, res, req) => {
@@ -96,7 +98,7 @@ export default (server: BaseServer): void => {
       already = await tx.query.users.findFirst({ where: eq(users.id, userId) })
       if (!already) await tx.insert(users).values({ id: userId })
     })
-    if (already) return new ErrorResponse('User ID was already taken')
+    if (already) return new ErrorResponse(SIGN_UP_ERRORS.USER_ID_TAKEN)
 
     await server.process(setPassword({ password, userId }))
     let session = await setNewSession(res, userId)
