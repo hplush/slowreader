@@ -7,6 +7,8 @@ export const startMessages = i18n('start', {
   localDescription2:
     'You can create account later when you will need cross-device sync.',
   login: 'Login into existed account',
+  newUser: 'New user',
+  oldUser: 'Existed user',
   pageTitle: 'Start',
   secret: 'Secret',
   server: 'Custom server',

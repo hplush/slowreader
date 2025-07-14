@@ -1,8 +1,15 @@
 @import url('@fontsource-variable/noto-sans');
 @import url('@fontsource-variable/noto-sans/wght-italic.css');
+@import url('@fontsource-variable/noto-serif');
+@import url('@fontsource-variable/noto-serif/wght-italic.css');
+@import url('@fontsource/inika');
 
 :root {
-  --base-font: 400 15px/1.6 'Noto Sans Variable', system-ui;
-  --control-font: 500 15px/1.2 'Noto Sans Variable', system-ui;
-  --control-secondary-font: 600 13px/1.2 'Noto Sans Variable', system-ui;
+  --base-font: 400 15px/1.6 'Noto Sans Variable', 'Arial', sans-serif;
+  --app-title-font:
+    400 23px/1.2 'Inika', 'Noto Serif Variable', 'Georgia', serif;
+  --control-font: 500 15px/1.2 'Noto Sans Variable', 'Arial', sans-serif;
+  --control-cta-font: 700 15px/1.2 'Noto Sans Variable', 'Arial', sans-serif;
+  --control-secondary-font:
+    600 13px/1.2 'Noto Sans Variable', 'Arial', sans-serif;
 }

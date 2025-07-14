@@ -9,11 +9,12 @@
       "!dist/{404,500}.html",
       "!dist/icon-*.{png,svg}",
       "!dist/favicon.ico",
-      "!dist/assets/noto-sans-{cyrillic,greek,devanagari,vietnamese}-*.woff2",
-      "!dist/assets/noto-sans-*-italic-*.woff2",
-      "!dist/assets/noto-sans-latin-ext-*.woff2"
+      "!dist/assets/devtools-*.js",
+      "!dist/assets/*.woff",
+      "!dist/assets/noto-*-{cyrillic,greek,devanagari,vietnamese}-*.woff2",
+      "!dist/assets/*-{italic,math,latin-ext}-*.woff2"
     ],
-    "limit": "90 KB"
+    "limit": "140 KB"
   },
   {
     "name": "Core scripts to execute",

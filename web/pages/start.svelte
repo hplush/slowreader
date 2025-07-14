@@ -21,6 +21,7 @@
   import Form from '../ui/form.svelte'
   import Input from '../ui/input.svelte'
   import Page from '../ui/page.svelte'
+  import Title from '../ui/title.svelte'
   import TwoOptions from '../ui/two-options.svelte'
 
   let { page }: { page: StartPage } = $props()
@@ -38,6 +39,7 @@
 <Page title={$t.pageTitle}>
   <TwoOptions>
     {#snippet one()}
+      <Title>{$t.newUser}</Title>
       <Description>
         <p>{$t.localDescription1}</p>
         <p>{$t.localDescription2}</p>
@@ -63,6 +65,7 @@
     {/snippet}
     {#snippet two()}
       <Form loading={$signingIn} onsubmit={page.signIn}>
+        <Title>{$t.oldUser}</Title>
         <Input
           autocomplete="username"
           errorId={$signError === 'Invalid credentials'

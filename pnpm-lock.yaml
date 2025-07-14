@@ -283,6 +283,12 @@ importers:
       '@fontsource-variable/noto-sans':
         specifier: 5.2.7
         version: 5.2.7
+      '@fontsource-variable/noto-serif':
+        specifier: 5.2.7
+        version: 5.2.7
+      '@fontsource/inika':
+        specifier: 5.2.6
+        version: 5.2.6
       '@logux/client':
         specifier: github:logux/client#next
         version: https://codeload.github.com/logux/client/tar.gz/f552bf680fc1e8d414db4dcc853ac70c65e71e3c(@logux/core@0.9.0)(nanostores@1.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -836,6 +842,12 @@ packages:
 
   '@fontsource-variable/noto-sans@5.2.7':
     resolution: {integrity: sha512-VaA+clV7xTOx+pSOdyjr9nR7khjrJGr7ZHs2KXlx+AqLyG/SUVBadNwauCH0rvF/eZkZr67neNxdKMOLtVxweg==}
+
+  '@fontsource-variable/noto-serif@5.2.7':
+    resolution: {integrity: sha512-Ef6CdY0N/qoAdaLObLjF/U4kPT9k6L7P+TWEnjJoP153JwOEVL9W7Tew0cOXxjXoCbh5TAE7k29i4bPoVuKKcA==}
+
+  '@fontsource/inika@5.2.6':
+    resolution: {integrity: sha512-o9VP3j7+nnobEbPTjJajUDs8INjqvkAJ70nNN9bWxKZfRZr3hRuufG92N2gCGCO4IoAJCkpJVID2xnXJnMeFQg==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -4647,6 +4659,10 @@ snapshots:
       levn: 0.4.1
 
   '@fontsource-variable/noto-sans@5.2.7': {}
+
+  '@fontsource-variable/noto-serif@5.2.7': {}
+
+  '@fontsource/inika@5.2.6': {}
 
   '@humanfs/core@0.19.1': {}
 
