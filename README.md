@@ -32,7 +32,7 @@ To ask any question: **[h+h lab Discord](https://discord.gg/TyFTp6mAZT)**
 - [Visual Language](#visual-language)
 - [Dependencies](#dependencies)
   - [JS](#js)
-- [GitHub Actions](#github-actions)
+  - [GitHub Actions](#github-actions)
   - [Update](#update)
 - [Deploy](#deploy)
 - [Guides](#guides)
@@ -238,7 +238,7 @@ We put to `dependencies` only dependencies we need for production deploy. All ot
 
 We are using in `package.json` `1.0.0` version requirement and not `^1.0.0` to not get unexpected dependencies updates (at least, direct dependencies) if we will break the pnpm lock file. The `./scripts/check-versions.ts` in `pre-commit` hook will check that you do not forget this rule.
 
-## GitHub Actions
+### GitHub Actions
 
 For security reasons we are pinning actions in [GitHub workflows](./.github/workflows/) by hash, rather than by version.
 
@@ -247,6 +247,8 @@ We have `pinact` tool to pin and update versions. If you need to add some action
 ```sh
 pinact run
 ```
+
+We are using [Harden Runner](https://docs.stepsecurity.io/harden-runner) to enforce network host allow-list for security reasons. If you need new domain, add it to the list in first `Harden the runner` step of your workflow.
 
 ### Update
 
