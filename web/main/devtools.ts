@@ -1,9 +1,9 @@
-import { fillFeedsWithPosts } from '@slowreader/core'
+import * as slowreader from '@slowreader/core'
 
 declare global {
   interface Window {
-    fillFeedsWithPosts?: typeof fillFeedsWithPosts
+    slowreader?: typeof slowreader
   }
 }
 
-window.fillFeedsWithPosts = fillFeedsWithPosts
+window.slowreader = slowreader
