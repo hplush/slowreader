@@ -2,7 +2,9 @@ import { equal } from 'node:assert'
 import { test } from 'node:test'
 
 import {
+  generateCredentials,
   notEmpty,
+  toSecret,
   validSecret,
   validServer,
   validUrl,
@@ -37,6 +39,7 @@ test('validates user ID', () => {
   notValid(validUserId('12345678901234567'))
 
   valid(validUserId('1234567890123456'))
+  valid(validUserId(generateCredentials().userId))
 })
 
 test('validates secret', () => {
@@ -47,6 +50,7 @@ test('validates secret', () => {
   notValid(validSecret('1234567890 12345678901'))
 
   valid(validSecret('1234567890 ab3@5!7.-0'))
+  valid(validSecret(toSecret(generateCredentials())))
 })
 
 test('validates server', () => {

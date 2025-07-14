@@ -1,4 +1,5 @@
 import type { TestServer } from '@logux/server'
+import { IS_PASSWORD } from '@slowreader/api'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
 import { equal, ok } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
@@ -39,6 +40,8 @@ test('has local demo mode', async () => {
   equal(typeof client.get(), 'undefined')
 
   let credentials = generateCredentials()
+  ok(IS_PASSWORD.test(credentials.password))
+
   useCredentials(credentials)
   ok(client.get()!.clientId.startsWith(credentials.userId + ':'))
   equal(client.get()!.connected, false)
