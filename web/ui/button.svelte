@@ -196,6 +196,7 @@
       }
 
       .button.is-pill & {
+        min-height: 24px;
         padding: 4px 8px;
 
         &:has(svg) {
