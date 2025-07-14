@@ -1,13 +1,24 @@
-import postcss from 'postcss'
+import postcss, { type Message } from 'postcss'
 import loadPostcssConfig from 'postcss-load-config'
+import type { PreprocessorGroup } from 'svelte/compiler'
 
 let { plugins } = await loadPostcssConfig({}, import.meta.filename)
 let processor = postcss(plugins)
 
-/**
- * @typedef {Object} SvelteConfig
- * @property {import('svelte/compiler').PreprocessorGroup} preprocess
- */
+interface SvelteConfig {
+  preprocess: PreprocessorGroup
+}
+
+interface Dependency {
+  file: string
+  type: 'dependency'
+}
+
+function isDependency(msg: Message): msg is Dependency {
+  return (
+    msg.type === 'dependency' && 'file' in msg && typeof msg.file === 'string'
+  )
+}
 
 /**
  * @type {SvelteConfig}
@@ -19,8 +30,8 @@ export default {
         from: filename,
         map: { annotation: false, inline: false }
       })
-      let dependencies = messages.reduce((list, msg) => {
-        if (msg.type === 'dependency') list.push(msg.file)
+      let dependencies = messages.reduce<string[]>((list, msg) => {
+        if (isDependency(msg)) list.push(msg.file)
         return list
       }, [])
       return {
@@ -30,4 +41,4 @@ export default {
       }
     }
   }
-}
+} satisfies SvelteConfig
