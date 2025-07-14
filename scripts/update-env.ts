@@ -86,7 +86,7 @@ function printUpdate(tool: string, prev: string, next: string): void {
 }
 
 function replaceEnv(file: string, key: string, value: string): string {
-  return file.replace(new RegExp(`ENV ${key} .+`, 'g'), `ENV ${key} ${value}`)
+  return file.replace(new RegExp(` ${key}=.+`, 'g'), ` ${key}=${value}`)
 }
 
 function replaceVersionEnv(
