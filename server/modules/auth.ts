@@ -1,5 +1,7 @@
 import type { BaseServer } from '@logux/server'
 import {
+  IS_PASSWORD,
+  IS_USER_ID,
   setPassword,
   signInEndpoint,
   signOutEndpoint,
@@ -85,6 +87,9 @@ export default (server: BaseServer): void => {
 
   jsonApi(server, signUpEndpoint, async (params, res) => {
     let userId = params.userId
+    let password = params.password
+
+    if (!IS_USER_ID.test(userId) || !IS_PASSWORD.test(password)) return false
 
     let already: object | undefined
     await db.transaction(async tx => {
@@ -93,7 +98,7 @@ export default (server: BaseServer): void => {
     })
     if (already) return new ErrorResponse('User ID was already taken')
 
-    await server.process(setPassword({ password: params.password, userId }))
+    await server.process(setPassword({ password, userId }))
     let session = await setNewSession(res, userId)
     return { session, userId }
   })

@@ -37,11 +37,17 @@ async function connect(
 test('syncs action between clients', async () => {
   server = buildTestServer()
 
-  await signUp({ password: 'p1', userId: 'user1' }, { fetch: server.fetch })
-  await signUp({ password: 'pOther', userId: 'other' }, { fetch: server.fetch })
+  await signUp(
+    { password: 'AAAAAAAAAA', userId: '0000000000000000' },
+    { fetch: server.fetch }
+  )
+  await signUp(
+    { password: 'BBBBBBBBBB', userId: '0000000000000001' },
+    { fetch: server.fetch }
+  )
 
-  let client1 = await connect(server, 'user1', 'p1')
-  let other = await connect(server, 'other', 'pOther')
+  let client1 = await connect(server, '0000000000000000', 'AAAAAAAAAA')
+  let other = await connect(server, '0000000000000001', 'BBBBBBBBBB')
 
   let z = 'z'.repeat(1000)
   await client1.process({ type: 'A' })
@@ -49,7 +55,7 @@ test('syncs action between clients', async () => {
   await other.process({ type: 'NO1' })
   await client1.disconnect()
 
-  let client2 = await connect(server, 'user1', 'p1')
+  let client2 = await connect(server, '0000000000000000', 'AAAAAAAAAA')
   await setTimeout(10)
   deepStrictEqual(client2.log.actions(), [{ type: 'A' }, { type: 'B', z }])
 
@@ -81,7 +87,7 @@ test('syncs action between clients', async () => {
     { id: meta1.id, type: '0/clean' }
   ])
 
-  let client3 = await connect(server, 'user1', 'p1')
+  let client3 = await connect(server, '0000000000000000', 'AAAAAAAAAA')
   await setTimeout(10)
   deepStrictEqual(client3.log.actions(), [
     { type: 'B', z },

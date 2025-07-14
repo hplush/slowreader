@@ -1,3 +1,5 @@
+import { IS_SECRET, IS_USER_ID } from '@slowreader/api'
+
 import { commonMessages as t } from '../messages/index.ts'
 
 export interface Validator {
@@ -13,11 +15,11 @@ export function validUrl(value: string): string | undefined {
 }
 
 export function validUserId(value: string): string | undefined {
-  if (!/^\d{16}$/.test(value)) return t.get().invalidUserId
+  if (!IS_USER_ID.test(value)) return t.get().invalidUserId
 }
 
 export function validSecret(value: string): string | undefined {
-  if (!/^[^\s]{10} [^\s]{10}$/.test(value)) return t.get().invalidSecret
+  if (!IS_SECRET.test(value)) return t.get().invalidSecret
 }
 
 export function validServer(value: string): string | undefined {

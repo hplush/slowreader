@@ -1,6 +1,6 @@
 # Slow Reader API
 
-Types and constants shared between clients and server.
+Types, validation RegExp, and constants shared between clients and server.
 
 ## Subprotocol Version
 
@@ -25,3 +25,7 @@ For every [HTTP endpoint](./http/) we define here:
 - Endpoint definition with URL parse & request validation to use in [server helper](../server/lib/http.ts) and provide types.
 
 It allows us to verify that client and server API is compatible.
+
+## Validators
+
+To have the same validation on the client and on the server, we share [RexExps](./validators/).
