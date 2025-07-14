@@ -39,7 +39,7 @@ export async function signIn(
   server?: string
 ): Promise<void> {
   let host = useServer(server)
-  await checkErrors(
+  let response = await checkErrors(
     signInApi,
     {
       password: credentials.password,
@@ -47,6 +47,7 @@ export async function signIn(
     },
     host
   )
+  getEnvironment().saveSession(response.session)
   hasPassword.set(true)
   useCredentials(credentials)
 }
@@ -89,5 +90,6 @@ export async function signOut(): Promise<void> {
   hasPassword.set(false)
   encryptionKey.set(undefined)
   syncServer.set(undefined)
+  getEnvironment().saveSession(undefined)
   getEnvironment().restartApp()
 }

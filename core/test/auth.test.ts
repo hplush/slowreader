@@ -1,7 +1,7 @@
 import type { TestServer } from '@logux/server'
 import { IS_PASSWORD } from '@slowreader/api'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
-import { equal, ok } from 'node:assert'
+import { equal, notEqual, ok } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -18,6 +18,7 @@ import {
   signOut,
   signUp,
   syncServer,
+  testSession,
   useCredentials,
   userId
 } from '../index.ts'
@@ -48,6 +49,26 @@ test('has local demo mode', async () => {
   equal(userId.get(), credentials.userId)
   equal(encryptionKey.get(), credentials.encryptionKey)
   equal(typeof syncServer.get(), 'undefined')
+  equal(typeof testSession, 'undefined')
+
+  await signOut()
+  equal(typeof client.get(), 'undefined')
+  equal(typeof userId.get(), 'undefined')
+  equal(typeof encryptionKey.get(), 'undefined')
+})
+
+test('allows create user', async () => {
+  equal(typeof client.get(), 'undefined')
+
+  let credentials = generateCredentials()
+  await signUp(credentials)
+  equal(hasPassword.get(), true)
+  equal(typeof syncServer.get(), 'undefined')
+  equal(client.get()!.state, 'connecting')
+  equal(typeof testSession, 'string')
+
+  await setTimeout(100)
+  equal(client.get()!.connected, true)
 
   await signOut()
   equal(typeof client.get(), 'undefined')
@@ -74,6 +95,7 @@ test('allows to create user from local mode', async () => {
   equal(encryptionKey.get(), later.encryptionKey)
   equal(typeof syncServer.get(), 'undefined')
   equal(client.get()!.state, 'connecting')
+  equal(typeof testSession, 'string')
 
   await setTimeout(100)
   equal(client.get()!.connected, true)
@@ -83,13 +105,18 @@ test('allows to create user from local mode', async () => {
   await setTimeout(100)
   equal(server.connected.size, prevClient)
   equal(typeof client.get(), 'undefined')
+  equal(typeof testSession, 'undefined')
 
   await signIn(later)
   equal(client.get()!.state, 'connecting')
   await setTimeout(100)
   equal(client.get()!.connected, true)
-  equal(userId.get(), credentials.userId)
-  equal(encryptionKey.get(), credentials.encryptionKey)
+  equal(userId.get(), later.userId)
+  equal(encryptionKey.get(), later.encryptionKey)
+  equal(typeof testSession, 'string')
+
+  await setTimeout(100)
+  equal(client.get()!.connected, true)
 })
 
 test('remembers custom server', async () => {

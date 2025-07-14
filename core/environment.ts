@@ -231,11 +231,13 @@ export function stringifyPopups(popups: PopupRoute[]): string {
     .join(',')
 }
 
-let testSession: string | undefined
+export let testSession: string | undefined
 
 /* c8 ignore start */
 
 export function getTestEnvironment(): EnvironmentAndStore {
+  testSession = undefined
+
   return {
     baseRouter: testRouter,
     errorEvents: { addEventListener() {} },
