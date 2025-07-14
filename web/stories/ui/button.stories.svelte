@@ -59,6 +59,9 @@
   <Section width={200}>
     <Button {icon} {onclick} size="wide">Wide</Button>
   </Section>
+  <Section width={200}>
+    <Button {icon} {onclick} size="big">Big</Button>
+  </Section>
   <Section>
     <Button {icon} {onclick} size="icon">Icon</Button>
   </Section>

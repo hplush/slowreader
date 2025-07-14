@@ -17,7 +17,7 @@
     icon?: string
     loader?: boolean | string
     onclick?: (event: MouseEvent) => void
-    size?: 'icon' | 'inline' | 'pill' | 'wide'
+    size?: 'big' | 'icon' | 'inline' | 'pill' | 'wide'
     variant?: 'cta' | 'main' | 'secondary'
   } & ({ href: string } | HTMLButtonAttributes) = $props()
 
@@ -57,13 +57,14 @@
 {#if 'href' in props}
   <a
     class="button"
+    class:is-big={size === 'big'}
     class:is-cta={variant === 'cta'}
     class:is-icon={size === 'icon'}
     class:is-loader={!!loader}
     class:is-main={variant === 'main'}
     class:is-pill={size === 'pill'}
     class:is-secondary={variant === 'secondary'}
-    class:is-wide={size === 'wide'}
+    class:is-wide={size === 'wide' || size === 'big'}
     aria-disabled={!!loader}
     href={props.href}
     {onclick}
@@ -75,13 +76,14 @@
   <button
     {...props}
     class="button"
+    class:is-big={size === 'big'}
     class:is-cta={variant === 'cta'}
     class:is-icon={size === 'icon'}
     class:is-loader={!!loader}
     class:is-main={variant === 'main'}
     class:is-pill={size === 'pill'}
     class:is-secondary={variant === 'secondary'}
-    class:is-wide={size === 'wide'}
+    class:is-wide={size === 'wide' || size === 'big'}
     aria-disabled={!!loader}
     {onclick}
     title={size === 'icon' ? title : undefined}
@@ -187,6 +189,10 @@
         width: 32px;
         padding: 0;
         text-align: center;
+      }
+
+      .button.is-big & {
+        padding: 12px 10px;
       }
 
       .button.is-pill & {

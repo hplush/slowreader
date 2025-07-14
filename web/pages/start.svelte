@@ -46,7 +46,7 @@
         <Button
           icon={mdiRocketLaunch}
           onclick={page.startLocal}
-          size="wide"
+          size="big"
           variant="cta"
         >
           {$t.start}
