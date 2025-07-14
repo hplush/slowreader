@@ -142,6 +142,7 @@
       }
 
       &.is-cta {
+        font: var(--control-cta-font);
         color: oklch(1 0 0);
         background: var(--accent-color);
         box-shadow: var(--cta-button-shadow);
