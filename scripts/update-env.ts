@@ -86,7 +86,7 @@ function printUpdate(tool: string, prev: string, next: string): void {
 }
 
 function replaceEnv(file: string, key: string, value: string): string {
-  return file.replace(new RegExp(` ${key}=.+`, 'g'), ` ${key}=${value}`)
+  return file.replace(new RegExp(` ${key}=[^\\s]+`, 'g'), ` ${key}=${value}`)
 }
 
 function replaceVersionEnv(
@@ -115,8 +115,8 @@ function replaceKey(file: string, key: string, value: string): string {
 }
 
 let dockerfile = read(join(ROOT, '.devcontainer', 'Dockerfile'))
-let currentNode = dockerfile.match(/NODE_VERSION (.+)/)![1]!
-let currentPnpm = dockerfile.match(/PNPM_VERSION (.+)/)![1]!
+let currentNode = dockerfile.match(/NODE_VERSION=([^\s]+)/)![1]!
+let currentPnpm = dockerfile.match(/PNPM_VERSION=([^\s]+)/)![1]!
 
 let latestNode = await getLatestNodeVersion(
   process.argv[2] ?? currentNode.split('.')[0]!
