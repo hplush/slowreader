@@ -19,6 +19,9 @@ export const startPage = createPage('start', () => {
   let $signError = atom<string | undefined>()
   let $customServer = atom<string | undefined>()
 
+  let unbindServer = $customServer.listen(() => {
+    $signError.set(undefined)
+  })
   let unbindUserId = $userId.listen(() => {
     $signError.set(undefined)
   })
@@ -43,6 +46,7 @@ export const startPage = createPage('start', () => {
   return {
     customServer: $customServer,
     exit() {
+      unbindServer()
       unbindUserId()
       unbindSecret()
     },
