@@ -74,6 +74,10 @@ export function generateCredentials(): Credentials {
   }
 }
 
+export function toSecret(credentials: Credentials): string {
+  return `${credentials.password} ${credentials.encryptionKey}`
+}
+
 export function useCredentials(credentials: Credentials): void {
   encryptionKey.set(credentials.encryptionKey)
   userId.set(credentials.userId)

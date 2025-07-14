@@ -13,6 +13,7 @@ import {
   setupEnvironment,
   signOut,
   signUp,
+  toSecret,
   userId
 } from '../../index.ts'
 import { openPage, setTestUser } from '../utils.ts'
@@ -72,7 +73,7 @@ test('reports about wrong credentials', async () => {
   equal(typeof page.signError.get(), 'undefined')
 
   page.userId.set(credentials.userId)
-  page.secret.set(`${credentials.password} ${credentials.encryptionKey}`)
+  page.secret.set(toSecret(credentials))
 
   let promise = page.signIn()
   equal(page.signingIn.get(), true)
@@ -98,7 +99,7 @@ test('reports about bad connection', async () => {
   })
 
   page.userId.set(credentials.userId)
-  page.secret.set(`${credentials.password} ${credentials.encryptionKey}`)
+  page.secret.set(toSecret(credentials))
 
   await page.signIn()
   equal(page.signingIn.get(), false)
@@ -122,7 +123,7 @@ test('reports about server errors', async () => {
   })
 
   page.userId.set(credentials.userId)
-  page.secret.set(`${credentials.password} ${credentials.encryptionKey}`)
+  page.secret.set(toSecret(credentials))
 
   await page.signIn()
   equal(page.signingIn.get(), false)
@@ -142,7 +143,7 @@ test('signs in', async () => {
   equal(typeof page.signError.get(), 'undefined')
 
   page.userId.set(credentials.userId)
-  page.secret.set(`${credentials.password} ${credentials.encryptionKey}`)
+  page.secret.set(toSecret(credentials))
 
   let promise = page.signIn()
   equal(page.signingIn.get(), true)
