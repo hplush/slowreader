@@ -28,6 +28,7 @@ jobs:
           allowed-endpoints: >
             api.github.com:443
             github.com:443
+            release-assets.githubusercontent.com:443
             objects.githubusercontent.com:443
             registry.npmjs.org:443
             storybook.js.org:443

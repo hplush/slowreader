@@ -32,10 +32,11 @@ jobs:
         with:
           egress-policy: block
           allowed-endpoints: >
+            9236a389bd48b984df91adc1bc924620.r2.cloudflarestorage.com:443
             api.github.com:443
             github.com:443
-            objects.githubusercontent.com:443
             release-assets.githubusercontent.com:443
+            objects.githubusercontent.com:443
             registry.npmjs.org:443
             cgr.dev:443
       - name: Checkout the repository
