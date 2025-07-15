@@ -68,7 +68,7 @@
         <Title>{$t.oldUser}</Title>
         <Input
           autocomplete="username"
-          errorId={$signError === 'Invalid credentials'
+          errorId={$signError === t.get().invalidCredentials
             ? 'start-server-error'
             : undefined}
           inputmode="numeric"
@@ -80,7 +80,7 @@
         />
         <Input
           autocomplete="current-password"
-          errorId={$signError === 'Invalid credentials'
+          errorId={$signError === t.get().invalidCredentials
             ? 'start-server-error'
             : undefined}
           label={$t.secret}
