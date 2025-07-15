@@ -3,6 +3,7 @@
   import type { HTMLInputAttributes } from 'svelte/elements'
 
   import Error from './error.svelte'
+  import Label from './label.svelte'
 
   let {
     error,
@@ -46,7 +47,7 @@
 </script>
 
 <div class="input">
-  <label class="input_label" for={id}>{label}</label>
+  <Label {id}>{label}</Label>
   <input
     bind:this={input}
     {id}
@@ -82,12 +83,6 @@
   :global {
     .input {
       margin: 10px 0;
-    }
-
-    .input_label {
-      padding-inline-start: 8px;
-      padding-bottom: 3px;
-      font: var(--control-secondary-font);
     }
 
     .input_field {
