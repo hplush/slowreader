@@ -9,6 +9,7 @@ import {
   enableTestTime,
   generateCredentials,
   getTestEnvironment,
+  hasPassword,
   router,
   setupEnvironment,
   signOut,
@@ -58,6 +59,7 @@ test('starts local mode', async () => {
   page.startLocal()
   ok(client.get()?.clientId.startsWith(userId.get() + ':'))
   equal(client.get()?.state, 'disconnected')
+  equal(hasPassword.get(), false)
 
   await setTimeout(10)
   equal(router.get().route, 'welcome')
