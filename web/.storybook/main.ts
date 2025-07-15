@@ -9,7 +9,7 @@ export default {
   framework: '@storybook/svelte-vite',
   stories: ['../stories/**/*.stories.svelte'],
   viteFinal(config: InlineConfig) {
-    config.publicDir = false
+    config.publicDir = 'public'
     return Promise.resolve(config)
   }
 } satisfies StorybookConfig

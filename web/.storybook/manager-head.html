@@ -1,2 +1,12 @@
 <meta name="robots" content="noindex" />
-<link rel="icon" href="/main/icon.svg" type="image/svg+xml" />
+<script>
+  if (location.host === 'dev.slowreader.app') {
+    document.write(
+      '<link rel="icon" href="/icon-staging.svg" type="image/svg+xml" />'
+    )
+  } else {
+    document.write(
+      '<link rel="icon" href="/icon-dev.svg" type="image/svg+xml" />'
+    )
+  }
+</script>
