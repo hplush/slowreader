@@ -2,6 +2,7 @@
 @import url('@fontsource-variable/noto-sans/wght-italic.css');
 @import url('@fontsource-variable/noto-serif');
 @import url('@fontsource-variable/noto-serif/wght-italic.css');
+@import url('@fontsource-variable/noto-sans-mono');
 @import url('@fontsource/inika');
 
 :root {
@@ -12,4 +13,6 @@
   --control-cta-font: 700 15px/1.2 'Noto Sans Variable', 'Arial', sans-serif;
   --control-secondary-font:
     600 13px/1.2 'Noto Sans Variable', 'Arial', sans-serif;
+  --mono-font: 400 15px/1.6 'Noto Mono Sans Variable', monospace;
+  --control-mono-font: 500 15px/1.6 'Noto Mono Sans Variable', monospace;
 }

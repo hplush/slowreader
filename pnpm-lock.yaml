@@ -283,6 +283,9 @@ importers:
       '@fontsource-variable/noto-sans':
         specifier: 5.2.7
         version: 5.2.7
+      '@fontsource-variable/noto-sans-mono':
+        specifier: 5.2.7
+        version: 5.2.7
       '@fontsource-variable/noto-serif':
         specifier: 5.2.7
         version: 5.2.7
@@ -839,6 +842,9 @@ packages:
   '@eslint/plugin-kit@0.3.3':
     resolution: {integrity: sha512-1+WqvgNMhmlAambTvT3KPtCl/Ibr68VldY2XY40SL1CE0ZXiakFR/cbTspaF5HsnpDMvcYYoJHfl4980NBjGag==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@fontsource-variable/noto-sans-mono@5.2.7':
+    resolution: {integrity: sha512-qUqv/hB0linfL0IyDrqmkco3TcTunpdGgjvzuSfLPOYqcLxbc2zsMUhpyRPpUxjZbv6zvBGpoVcdh1Od5JxLrQ==}
 
   '@fontsource-variable/noto-sans@5.2.7':
     resolution: {integrity: sha512-VaA+clV7xTOx+pSOdyjr9nR7khjrJGr7ZHs2KXlx+AqLyG/SUVBadNwauCH0rvF/eZkZr67neNxdKMOLtVxweg==}
@@ -4657,6 +4663,8 @@ snapshots:
     dependencies:
       '@eslint/core': 0.15.1
       levn: 0.4.1
+
+  '@fontsource-variable/noto-sans-mono@5.2.7': {}
 
   '@fontsource-variable/noto-sans@5.2.7': {}
 

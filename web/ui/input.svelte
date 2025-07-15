@@ -8,6 +8,7 @@
   let {
     error,
     errorId,
+    font = 'normal',
     input = $bindable(),
     label,
     onchange,
@@ -20,6 +21,7 @@
   }: {
     error?: string
     errorId?: string
+    font?: 'mono' | 'normal'
     input?: HTMLInputElement
     label: string
     onchange?: (v: string, valid: boolean) => void
@@ -52,6 +54,7 @@
     bind:this={input}
     {id}
     class="input_field"
+    class:is-mono={font === 'mono'}
     aria-errormessage={errorId || (inputError || error ? `${id}-error` : null)}
     aria-invalid={inputError || error || errorId ? true : null}
     data-invalid={!!runValidators(value)}
@@ -100,6 +103,10 @@
 
       &[aria-invalid] {
         border-color: var(--dangerous-text-color);
+      }
+
+      &.is-mono {
+        font: var(--control-mono-font);
       }
     }
   }

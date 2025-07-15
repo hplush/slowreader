@@ -59,6 +59,11 @@ ol[role='list'] {
   width: 100%;
 }
 
+pre,
+code {
+  font: var(--mono-font);
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

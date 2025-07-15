@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@fontsource-variable/noto-sans": "5.2.7",
+    "@fontsource-variable/noto-sans-mono": "5.2.7",
     "@fontsource-variable/noto-serif": "5.2.7",
     "@fontsource/inika": "5.2.6",
     "@logux/client": "github:logux/client#next",

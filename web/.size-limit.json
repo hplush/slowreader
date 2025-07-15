@@ -12,14 +12,15 @@
       "!dist/assets/devtools-*.js",
       "!dist/assets/*.woff",
       "!dist/assets/noto-*-{cyrillic,greek,devanagari,vietnamese}-*.woff2",
+      "!dist/assets/noto-sans-mono-*.woff2",
       "!dist/assets/*-{italic,math,latin-ext}-*.woff2"
     ],
-    "limit": "140 KB"
+    "limit": "145 KB"
   },
   {
     "name": "Core scripts to execute",
     "path": "dist/assets/index-*.js",
     "brotli": false,
-    "limit": "160 KB"
+    "limit": "165 KB"
   }
 ]

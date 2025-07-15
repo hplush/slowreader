@@ -17,6 +17,7 @@
 <Story name="Light" asChild>
   <Section width={200}>
     <Input label="Base" required bind:value />
+    <Input font="mono" label="Mono" required bind:value />
     <Input label="Label" placeholder="Empty" value="" />
     <Input error="The value is wrong" label="Wrong" value="Wrong" />
     <Input errorId="error" label="XSS test: <div>" />
