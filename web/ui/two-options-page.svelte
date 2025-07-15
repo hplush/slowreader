@@ -51,7 +51,7 @@
 
     .two-options-page_option {
       box-sizing: border-box;
-      width: 290px;
+      width: 310px;
       max-width: 100%;
       padding: 16px;
       margin: 8px 0;
