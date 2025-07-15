@@ -2,6 +2,7 @@
   import { busy, currentPage, subscribeUntil } from '@slowreader/core'
 
   import BusyPage from '../pages/busy.svelte'
+  import SignupPage from '../pages/signup.svelte'
   import StartPage from '../pages/start.svelte'
 
   // To have smooth app starting loader animation we are re-using loader in HTML
@@ -24,6 +25,8 @@
   {/if}
 {:else if $currentPage.route === 'start'}
   <StartPage page={$currentPage} />
+{:else if $currentPage.route === 'signup'}
+  <SignupPage page={$currentPage} />
 {:else}
   {$currentPage.route}
 {/if}

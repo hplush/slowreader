@@ -67,6 +67,7 @@ export const signupPage = createPage('signup', () => {
   }
 
   return {
+    credentials: $credentials,
     customServer: $customServer,
     error: $error,
     exit() {
