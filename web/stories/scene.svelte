@@ -8,7 +8,7 @@
     Filter,
     type ParamlessRouteName,
     Post,
-    userId
+    useCredentials
   } from '@slowreader/core'
   import { addHashToBaseRoute } from '@slowreader/core/test'
   import { cleanStores, type ReadableAtom, type WritableAtom } from 'nanostores'
@@ -25,13 +25,13 @@
     oninit = () => {},
     responses = {},
     route,
-    user = '10'
+    user = true
   }: {
     children: Snippet
     oninit?: () => void
     responses?: Record<string, PreparedResponse | string>
     route?: BaseRoute | Omit<BaseRoute, 'hash'> | ParamlessRouteName
-    user?: false | string
+    user?: boolean
   } = $props()
 
   export function forceSet<Value>(
@@ -48,7 +48,13 @@
 
   $effect.pre(() => {
     currentPage.get().destroy()
-    userId.set(user || undefined)
+    if (user) {
+      useCredentials({
+        encryptionKey: '5>@v9xbKP!',
+        password: '&5$K?EJuJ=',
+        userId: '2750177048377147'
+      })
+    }
     cleanLogux()
     prepareResponses(responses)
 
