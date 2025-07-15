@@ -11,15 +11,17 @@ import { getEnvironment } from '../environment.ts'
 import { HTTPRequestError } from '../lib/http.ts'
 import { commonMessages, authMessages as t } from '../messages/index.ts'
 import { createPage } from './common.ts'
+import { injectCustomServerField } from './mixins/custom-server-field.ts'
 
 export const startPage = createPage('start', () => {
   let $userId = atom('')
   let $secret = atom('')
   let $signingIn = atom(false)
   let $signError = atom<string | undefined>()
-  let $customServer = atom<string | undefined>()
 
-  let unbindServer = $customServer.listen(() => {
+  let customServerMixin = injectCustomServerField()
+
+  let unbindServer = customServerMixin.customServer.listen(() => {
     $signError.set(undefined)
   })
   let unbindUserId = $userId.listen(() => {
@@ -44,26 +46,20 @@ export const startPage = createPage('start', () => {
   }
 
   return {
-    customServer: $customServer,
+    ...customServerMixin,
     exit() {
       unbindServer()
       unbindUserId()
       unbindSecret()
     },
     params: {},
-    resetCustomServer() {
-      $customServer.set(undefined)
-    },
     secret: $secret,
-    showCustomServer() {
-      $customServer.set('server.slowreader.app')
-    },
     signError: $signError,
     async signIn(): Promise<void> {
       $signError.set(undefined)
       $signingIn.set(true)
       try {
-        await signIn(validateCredential(), $customServer.get())
+        await signIn(validateCredential(), customServerMixin.customServer.get())
       } catch (e: unknown) {
         if (HTTPRequestError.is(e)) {
           if (e.message === SIGN_IN_ERRORS.INVALID_CREDENTIALS) {

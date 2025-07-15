@@ -7,20 +7,22 @@ import { HTTPRequestError } from '../lib/http.ts'
 import { commonMessages, authMessages as t } from '../messages/index.ts'
 import { encryptionKey, hasPassword, userId } from '../settings.ts'
 import { createPage } from './common.ts'
+import { injectCustomServerField } from './mixins/custom-server-field.ts'
 
 export const signupPage = createPage('signup', () => {
   let $credentials = atom(
     generateCredentials(userId.get(), encryptionKey.get())
   )
-  let $customServer = atom<string | undefined>()
   let $error = atom<string | undefined>()
   let $signingUp = atom(false)
   let $warningStep = atom(false)
 
+  let customServerMixin = injectCustomServerField()
+
   let $userId = computed($credentials, credentials => credentials.userId)
   let $secret = computed($credentials, credentials => toSecret(credentials))
 
-  let unbindServer = $customServer.listen(() => {
+  let unbindServer = customServerMixin.customServer.listen(() => {
     $error.set(undefined)
   })
   let unbindPassword = hasPassword.listen(created => {
@@ -38,7 +40,7 @@ export const signupPage = createPage('signup', () => {
     $error.set(undefined)
     $signingUp.set(true)
     try {
-      await signUp($credentials.get(), $customServer.get())
+      await signUp($credentials.get(), customServerMixin.customServer.get())
       $warningStep.set(true)
     } catch (e: unknown) {
       if (HTTPRequestError.is(e)) {
@@ -67,8 +69,8 @@ export const signupPage = createPage('signup', () => {
   }
 
   return {
+    ...customServerMixin,
     credentials: $credentials,
-    customServer: $customServer,
     error: $error,
     exit() {
       unbindServer()
@@ -77,13 +79,7 @@ export const signupPage = createPage('signup', () => {
     finish,
     params: {},
     regenerate,
-    resetCustomServer() {
-      $customServer.set(undefined)
-    },
     secret: $secret,
-    showCustomServer() {
-      $customServer.set('server.slowreader.app')
-    },
     signingUp: $signingUp,
     submit,
     userId: $userId,
