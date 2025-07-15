@@ -1,25 +1,31 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
 
+  import Page from './page.svelte'
+
   let {
     one,
+    title,
     two
   }: {
     one: Snippet
+    title: string
     two: Snippet
   } = $props()
 </script>
 
-<div class="two-options">
-  <div class="two-options_center">
-    <div class="two-options_option">{@render one()}</div>
-    <div class="two-options_option">{@render two()}</div>
+<Page {title}>
+  <div class="two-options-page">
+    <div class="two-options-page_center">
+      <div class="two-options-page_option">{@render one()}</div>
+      <div class="two-options-page_option">{@render two()}</div>
+    </div>
   </div>
-</div>
+</Page>
 
 <style>
   :global {
-    .two-options {
+    .two-options-page {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -30,7 +36,7 @@
       }
     }
 
-    .two-options_center {
+    .two-options-page_center {
       box-sizing: border-box;
       display: flex;
       gap: 16px;
@@ -43,7 +49,7 @@
       }
     }
 
-    .two-options_option {
+    .two-options-page_option {
       box-sizing: border-box;
       width: 290px;
       max-width: 100%;
