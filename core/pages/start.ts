@@ -9,7 +9,7 @@ import {
 } from '../auth.ts'
 import { getEnvironment } from '../environment.ts'
 import { HTTPRequestError } from '../lib/http.ts'
-import { commonMessages, startMessages as t } from '../messages/index.ts'
+import { commonMessages, authMessages as t } from '../messages/index.ts'
 import { createPage } from './common.ts'
 
 export const startPage = createPage('start', () => {

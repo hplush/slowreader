@@ -7,7 +7,7 @@
   } from '@mdi/js'
   import {
     type StartPage,
-    startMessages as t,
+    authMessages as t,
     validSecret,
     validServer,
     validUserId

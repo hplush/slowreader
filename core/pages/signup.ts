@@ -4,7 +4,7 @@ import { atom, computed } from 'nanostores'
 import { generateCredentials, signUp, toSecret } from '../auth.ts'
 import { getEnvironment } from '../environment.ts'
 import { HTTPRequestError } from '../lib/http.ts'
-import { commonMessages, signupMessages as t } from '../messages/index.ts'
+import { commonMessages, authMessages as t } from '../messages/index.ts'
 import { encryptionKey, hasPassword, userId } from '../settings.ts'
 import { createPage } from './common.ts'
 

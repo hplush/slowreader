@@ -1,6 +1,6 @@
 import { i18n } from '../../i18n.ts'
 
-export const startMessages = i18n('start', {
+export const authMessages = i18n('auth', {
   createAccount: 'Create cross-device account',
   customServer: 'Use my own server',
   invalidCredentials: 'There is no user with such user ID and password',
@@ -10,11 +10,17 @@ export const startMessages = i18n('start', {
   login: 'Login into existed account',
   newUser: 'New user',
   oldUser: 'Existed user',
-  pageTitle: 'Start',
+  regenerateCredetials: 'Get another credentials',
+  savedPromise: 'I saved credentials',
   secret: 'Secret',
   server: 'Custom server',
-  signingIn: 'Sending sign in form',
+  signingIn: 'Sending sign-in form',
+  signingUp: 'Creating user',
+  signup: 'Create user on the server',
+  signupTitle: 'Sign Up',
   start: 'Start local app',
+  startTitle: 'Start',
   title: 'No account in this browser yet',
-  userId: 'User ID'
+  userId: 'User ID',
+  userIdTaken: 'This user ID was taken'
 })
