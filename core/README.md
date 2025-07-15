@@ -17,6 +17,7 @@ In the best scenario, the client should just subscribe to stores, render UI acco
 
 - [`loader/`](./loader/): support of each social network or news format.
 - [`pages/`](./pages/): logic of each app’s page.
+  - [`mixins/`](./pages/mixins): a way to share common logic between pages.
 - [`readers/`](./readers/): logic of each way to read user’s feeds.
 - [`popups/`](./popups/): logic of each side popup.
 - [`messages/`](./messages/): translations for in the UI of all clients.
