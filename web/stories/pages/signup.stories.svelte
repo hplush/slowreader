@@ -54,6 +54,7 @@
       pages.signup().warningStep.set(true)
     }}
     route="signup"
+    user={false}
   >
     <SignupPage page={pages.signup()} />
   </Scene>

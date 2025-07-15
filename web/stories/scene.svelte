@@ -8,10 +8,11 @@
     Filter,
     type ParamlessRouteName,
     Post,
+    signOut,
     useCredentials
   } from '@slowreader/core'
   import { addHashToBaseRoute } from '@slowreader/core/test'
-  import { cleanStores, type ReadableAtom, type WritableAtom } from 'nanostores'
+  import { cleanStores } from 'nanostores'
   import { onDestroy, type Snippet } from 'svelte'
 
   import {
@@ -34,13 +35,6 @@
     user?: boolean
   } = $props()
 
-  export function forceSet<Value>(
-    store: ReadableAtom<Value>,
-    value: Value
-  ): void {
-    ;(store as WritableAtom<Value>).set(value)
-  }
-
   function cleanLogux(): void {
     client.get()?.clean()
     cleanStores(Feed, Filter, Category, Post)
@@ -54,6 +48,8 @@
         password: '&5$K?EJuJ=',
         userId: '2750177048377147'
       })
+    } else if (client.get()) {
+      signOut()
     }
     cleanLogux()
     prepareResponses(responses)

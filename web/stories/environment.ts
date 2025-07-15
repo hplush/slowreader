@@ -11,14 +11,12 @@ import { atom } from 'nanostores'
 export const baseRouter = atom<BaseRoute>({
   hash: '',
   params: {},
-  route: 'interface'
+  route: 'signup'
 })
 
 export const locale = atom('en')
 
-export const persistentStore = {
-  'slowreader:userId': 'user'
-}
+export const persistentStore = {}
 
 export function setNetworkType(network: ReturnType<NetworkTypeDetector>): void {
   networkType = network
