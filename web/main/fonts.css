@@ -6,7 +6,7 @@
 @import url('@fontsource/inika');
 
 :root {
-  --base-font: 400 16px/1.6 'Noto Sans Variable', 'Arial', sans-serif;
+  --text-font: 400 16px/1.6 'Noto Sans Variable', 'Arial', sans-serif;
   --app-title-font:
     400 24px/1.2 'Inika', 'Noto Serif Variable', 'Georgia', serif;
   --control-font: 500 16px/1.2 'Noto Sans Variable', 'Arial', sans-serif;

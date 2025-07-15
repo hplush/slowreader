@@ -28,7 +28,7 @@ body {
 
 body,
 input {
-  font: var(--base-font);
+  font: var(--text-font);
 }
 
 :focus-visible {
