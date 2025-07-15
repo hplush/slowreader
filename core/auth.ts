@@ -75,10 +75,17 @@ export function generateCredentials(user?: string, key?: string): Credentials {
   }
 }
 
+/**
+ * Generate string combining server’s password and local encryption key
+ * to use it in password managers.
+ */
 export function toSecret(credentials: Credentials): string {
   return `${credentials.password} ${credentials.encryptionKey}`
 }
 
+/**
+ * Start app locally using this user ID.
+ */
 export function useCredentials(credentials: Credentials): void {
   encryptionKey.set(credentials.encryptionKey)
   userId.set(credentials.userId)

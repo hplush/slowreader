@@ -9,12 +9,12 @@ import {
   createDownloadTask,
   createTextResponse,
   expectRequest,
-  getTestEnvironment,
   ignoreAbortError,
   mockRequest,
   setRequestMethod,
   setupEnvironment
 } from '../../index.ts'
+import { getTestEnvironment } from '../utils.ts'
 
 setupEnvironment(getTestEnvironment())
 

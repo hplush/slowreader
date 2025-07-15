@@ -13,7 +13,6 @@ import {
   mockRequest,
   openedPopups,
   router,
-  setBaseTestRoute,
   setIsMobile,
   waitLoading
 } from '../../index.ts'
@@ -21,7 +20,8 @@ import {
   cleanClientTest,
   enableClientTest,
   getPopup,
-  openPage
+  openPage,
+  setBaseTestRoute
 } from '../utils.ts'
 
 beforeEach(() => {

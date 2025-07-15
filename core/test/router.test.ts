@@ -12,10 +12,14 @@ import {
   openedPopups,
   openPopup,
   removeLastPopup,
-  router,
-  setBaseTestRoute
+  router
 } from '../index.ts'
-import { cleanClientTest, enableClientTest, setTestUser } from './utils.ts'
+import {
+  cleanClientTest,
+  enableClientTest,
+  setBaseTestRoute,
+  setTestUser
+} from './utils.ts'
 
 beforeEach(() => {
   enableClientTest()

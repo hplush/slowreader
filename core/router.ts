@@ -204,6 +204,16 @@ export function onNextRoute(cb: (route: Route) => void): void {
   })
 }
 
+/**
+ * Converts popup routes to a hash string format `popup=param,popup2=param2`
+ */
+export function stringifyPopups(popups: PopupRoute[]): string {
+  return popups
+    .map(({ param, popup }) => `${popup}=${param}`)
+    .filter(i => i !== '')
+    .join(',')
+}
+
 export function addPopup(
   hash: string,
   popup: PopupName,

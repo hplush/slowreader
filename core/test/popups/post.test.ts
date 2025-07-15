@@ -7,7 +7,6 @@ import {
   addPost,
   closeLastPopup,
   openedPopups,
-  setBaseTestRoute,
   testFeed,
   testPost,
   waitLoading
@@ -17,7 +16,8 @@ import {
   cleanClientTest,
   enableClientTest,
   getPopup,
-  openTestPopup
+  openTestPopup,
+  setBaseTestRoute
 } from '../utils.ts'
 
 beforeEach(() => {

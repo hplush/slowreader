@@ -4,14 +4,13 @@ import {
   createDownloadTask,
   enableTestTime,
   getLoaderForText,
-  getTestEnvironment,
   pages,
-  setBaseTestRoute,
   setRequestMethod,
   setupEnvironment,
   userId,
   waitLoading
 } from '@slowreader/core'
+import { getTestEnvironment, setBaseTestRoute } from '@slowreader/core/test'
 import { readFile } from 'node:fs/promises'
 import { isAbsolute, join } from 'node:path'
 import readline from 'node:readline'

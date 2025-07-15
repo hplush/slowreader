@@ -1,8 +1,13 @@
 import { equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 
-import { comfortMode, setBaseTestRoute } from '../index.ts'
-import { cleanClientTest, enableClientTest, setTestUser } from './utils.ts'
+import { comfortMode } from '../index.ts'
+import {
+  cleanClientTest,
+  enableClientTest,
+  setBaseTestRoute,
+  setTestUser
+} from './utils.ts'
 
 beforeEach(() => {
   enableClientTest()

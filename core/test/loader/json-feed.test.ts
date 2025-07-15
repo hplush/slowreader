@@ -8,11 +8,11 @@ import { setTimeout } from 'node:timers/promises'
 import {
   createDownloadTask,
   createTextResponse,
-  getTestEnvironment,
   loaders,
   setupEnvironment,
   type TextResponse
 } from '../../index.ts'
+import { getTestEnvironment } from '../utils.ts'
 
 function exampleJson(json: object | string): TextResponse {
   let string = typeof json === 'string' ? json : JSON.stringify(json)

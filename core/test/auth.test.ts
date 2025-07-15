@@ -10,7 +10,6 @@ import {
   enableTestTime,
   encryptionKey,
   generateCredentials,
-  getTestEnvironment,
   hasPassword,
   HTTPRequestError,
   setupEnvironment,
@@ -18,11 +17,15 @@ import {
   signOut,
   signUp,
   syncServer,
-  testSession,
   useCredentials,
   userId
 } from '../index.ts'
-import { setTestUser, throws } from './utils.ts'
+import {
+  getTestEnvironment,
+  setTestUser,
+  testSession,
+  throws
+} from './utils.ts'
 
 let server: TestServer
 beforeEach(() => {

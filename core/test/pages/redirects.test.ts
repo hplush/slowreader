@@ -8,11 +8,14 @@ import {
   busy,
   busyUntilMenuLoader,
   currentPage,
-  setBaseTestRoute,
   testFeed,
   waitLoading
 } from '../../index.ts'
-import { cleanClientTest, enableClientTest } from '../utils.ts'
+import {
+  cleanClientTest,
+  enableClientTest,
+  setBaseTestRoute
+} from '../utils.ts'
 
 beforeEach(() => {
   enableClientTest()

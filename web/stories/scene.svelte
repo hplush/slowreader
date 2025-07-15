@@ -1,6 +1,5 @@
 <script lang="ts">
   import {
-    addHashToBaseRoute,
     type BaseRoute,
     Category,
     client,
@@ -11,6 +10,7 @@
     Post,
     userId
   } from '@slowreader/core'
+  import { addHashToBaseRoute } from '@slowreader/core/test'
   import { cleanStores, type ReadableAtom, type WritableAtom } from 'nanostores'
   import { onDestroy, type Snippet } from 'svelte'
 

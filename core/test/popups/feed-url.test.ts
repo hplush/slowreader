@@ -15,7 +15,6 @@ import {
   getFeed,
   mockRequest,
   openedPopups,
-  setBaseTestRoute,
   testFeed,
   waitLoading
 } from '../../index.ts'
@@ -24,7 +23,8 @@ import {
   cleanClientTest,
   enableClientTest,
   getPopup,
-  openTestPopup
+  openTestPopup,
+  setBaseTestRoute
 } from '../utils.ts'
 
 beforeEach(() => {

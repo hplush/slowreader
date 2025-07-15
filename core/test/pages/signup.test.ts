@@ -9,7 +9,6 @@ import {
   client,
   enableTestTime,
   generateCredentials,
-  getTestEnvironment,
   hasPassword,
   router,
   setupEnvironment,
@@ -19,7 +18,7 @@ import {
   validSecret,
   validUserId
 } from '../../index.ts'
-import { openPage, setTestUser } from '../utils.ts'
+import { getTestEnvironment, openPage, setTestUser } from '../utils.ts'
 
 let server: TestServer
 beforeEach(() => {

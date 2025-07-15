@@ -15,7 +15,6 @@ import {
   Feed,
   type FeedReader,
   Filter,
-  getTestEnvironment,
   hasPassword,
   type ListReader,
   menuLoading,
@@ -26,11 +25,13 @@ import {
   type PopupName,
   Post,
   type ReaderName,
-  setBaseTestRoute,
   setupEnvironment,
   slowMenu,
   userId
 } from '../index.ts'
+import { getTestEnvironment, setBaseTestRoute } from '../test.ts'
+
+export { getTestEnvironment, setBaseTestRoute, testSession } from '../test.ts'
 
 export function setTestUser(enable = true): void {
   if (enable) {

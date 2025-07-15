@@ -1,11 +1,11 @@
 import {
   type BaseRoute,
-  getTestEnvironment,
   type NetworkTypeDetector,
   type RequestMethod,
   setRequestMethod,
   setupEnvironment
 } from '@slowreader/core'
+import { getTestEnvironment } from '@slowreader/core/test'
 import { atom } from 'nanostores'
 
 export const baseRouter = atom<BaseRoute>({

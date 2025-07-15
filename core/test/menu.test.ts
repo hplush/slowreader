@@ -19,14 +19,13 @@ import {
   isMenuOpened,
   menuLoading,
   openMenu,
-  setBaseTestRoute,
   slowMenu,
   testFeed,
   testPost,
   toggleCategory,
   waitLoading
 } from '../index.ts'
-import { cleanClientTest, enableClientTest } from './utils.ts'
+import { cleanClientTest, enableClientTest, setBaseTestRoute } from './utils.ts'
 
 beforeEach(() => {
   enableClientTest()

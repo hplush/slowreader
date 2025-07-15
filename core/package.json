@@ -13,6 +13,7 @@
   },
   "exports": {
     ".": "./index.ts",
+    "./test": "./test.ts",
     "./package.json": "./package.json"
   },
   "dependencies": {
