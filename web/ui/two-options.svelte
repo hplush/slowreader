@@ -24,6 +24,10 @@
       align-items: center;
       justify-content: center;
       min-height: 100svh;
+
+      @media (width <= 630px) {
+        align-items: flex-end;
+      }
     }
 
     .two-options_center {
@@ -34,8 +38,8 @@
       justify-content: center;
 
       @media (width <= 630px) {
-        flex-direction: column;
-        padding: 8px 0;
+        flex-direction: column-reverse;
+        gap: 8px;
       }
     }
 
@@ -44,12 +48,21 @@
       width: 290px;
       max-width: 100%;
       padding: 16px;
+      margin: 8px 0;
 
       &:first-child {
         --current-background: var(--main-land-color);
 
         background: var(--main-land-color);
         border-radius: calc(16px + var(--button-radius));
+      }
+
+      @media (width <= 630px) {
+        margin: 0;
+
+        &:first-child {
+          margin-bottom: 16px;
+        }
       }
     }
   }
