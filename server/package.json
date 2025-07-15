@@ -25,14 +25,14 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@electric-sql/pglite": "0.3.4",
+    "@electric-sql/pglite": "0.3.5",
     "@logux/actions": "github:logux/actions#next",
     "@logux/server": "github:logux/server#next",
     "@slowreader/api": "workspace:*",
     "@slowreader/proxy": "workspace:*",
-    "argon2": "0.43.0",
+    "argon2": "0.43.1",
     "cookie": "1.0.2",
-    "drizzle-orm": "0.44.2",
+    "drizzle-orm": "0.44.3",
     "nanoid": "5.1.5",
     "postgres": "3.4.7",
     "tsx": "4.20.3"
