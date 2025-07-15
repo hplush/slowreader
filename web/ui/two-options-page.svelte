@@ -12,12 +12,23 @@
     title: string
     two: Snippet
   } = $props()
+
+  let first: HTMLDivElement | undefined
+  let center: HTMLDivElement | undefined
+
+  $effect(() => {
+    if (first && center) {
+      center.style.height = `${first.offsetHeight}px`
+    }
+  })
 </script>
 
 <Page {title}>
   <div class="two-options-page">
-    <div class="two-options-page_center">
-      <div class="two-options-page_option">{@render one()}</div>
+    <div bind:this={center} class="two-options-page_center">
+      <div bind:this={first} class="two-options-page_option">
+        {@render one()}
+      </div>
       <div class="two-options-page_option">{@render two()}</div>
     </div>
   </div>
