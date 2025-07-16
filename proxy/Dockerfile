@@ -1,4 +1,4 @@
-FROM cgr.dev/chainguard/wolfi-base@sha256:6a2ca28ea7a35be7e685cee1fe61488b5395bd439cd18426ae3d61150be01478 as base
+FROM cgr.dev/chainguard/wolfi-base@sha256:6a2ca28ea7a35be7e685cee1fe61488b5395bd439cd18426ae3d61150be01478 AS base
 
 ENV NODE_VERSION=24.4.1 \
   NODE_CHECKSUM=sha256:7e067b13cd0dc7ee8b239f4ebe1ae54f3bba3a6e904553fcb5f581530eb8306d
