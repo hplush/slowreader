@@ -43,7 +43,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100svh;
+      min-height: 100vh;
 
       @media (width <= 630px) {
         align-items: flex-end;
