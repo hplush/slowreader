@@ -1,6 +1,7 @@
 export type Config = {
   assets: boolean
   db: string
+  debug: boolean
   env: 'development' | 'production' | 'test'
   proxyOrigin: string | undefined
   staging: boolean
@@ -28,6 +29,7 @@ export function getConfig(from: Record<string, string | undefined>): Config {
   return {
     assets: !!from.ASSETS,
     db: from.DATABASE_URL ?? getDefaultDatabase(env),
+    debug: from.DEBUG,
     env,
     proxyOrigin,
     staging: !!from.STAGING
