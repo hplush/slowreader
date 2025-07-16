@@ -53,6 +53,7 @@ runs:
       id: deploy
       uses: google-github-actions/deploy-cloudrun@9c5864eab7354d2e132307e685a2272655932799 # v2.7.3
       with:
+        gcloud_component: beta
         service: ${{ inputs.service }}
         region: ${{ inputs.region }}
         image: ${{ inputs.region }}-docker.pkg.dev/${{ inputs.projectId }}/${{ inputs.registry }}:${{ inputs.tag }}
