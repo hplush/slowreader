@@ -66,8 +66,7 @@
     }
 
     .two-options-page_option {
-      box-sizing: border-box;
-      width: 310px;
+      width: var(--thin-page-width);
       max-width: 100%;
       padding: 16px;
       margin: 8px 0;

@@ -20,6 +20,10 @@
 
 <style>
   :global {
+    :root {
+      --thin-page-width: 284px;
+    }
+
     .thin-page {
       display: flex;
       align-items: center;
@@ -32,7 +36,8 @@
     }
 
     .thin-page_center {
-      width: 310px;
+      width: var(--thin-page-width);
+      max-width: 100%;
       margin: 8px 0;
     }
   }
