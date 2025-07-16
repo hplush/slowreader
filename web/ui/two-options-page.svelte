@@ -18,7 +18,10 @@
 
   $effect(() => {
     if (first && center) {
-      center.style.height = `${first.offsetHeight}px`
+      center.style.setProperty(
+        '--two-options-page-height',
+        `${first.offsetHeight}px`
+      )
     }
   })
 </script>
@@ -53,10 +56,12 @@
       gap: 16px;
       align-items: flex-start;
       justify-content: center;
+      height: var(--two-options-page-height, auto);
 
       @media (width <= 630px) {
         flex-direction: column-reverse;
         gap: 8px;
+        height: auto;
       }
     }
 
