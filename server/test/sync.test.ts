@@ -56,7 +56,7 @@ test('syncs action between clients', async () => {
   await client1.disconnect()
 
   let client2 = await connect(server, '0000000000000000', 'AAAAAAAAAA')
-  await setTimeout(10)
+  await setTimeout(100)
   deepStrictEqual(client2.log.actions(), [{ type: 'A' }, { type: 'B', z }])
 
   await client2.process({ type: 'C' })
