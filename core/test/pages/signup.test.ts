@@ -18,7 +18,12 @@ import {
   validSecret,
   validUserId
 } from '../../index.ts'
-import { getTestEnvironment, openPage, setTestUser } from '../utils.ts'
+import {
+  getTestEnvironment,
+  openPage,
+  setBaseTestRoute,
+  setTestUser
+} from '../utils.ts'
 
 let server: TestServer
 beforeEach(() => {
@@ -125,6 +130,13 @@ test('signs up new user', async () => {
 
   await setTimeout(10)
   equal(router.get().route, 'welcome')
+
+  setBaseTestRoute({
+    params: {},
+    route: 'signup'
+  })
+  await setTimeout(10)
+  equal(router.get().route, 'profile')
 })
 
 test('signs up local user', async () => {

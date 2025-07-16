@@ -10,6 +10,14 @@ import { createPage } from './common.ts'
 import { injectCustomServerField } from './mixins/custom-server-field.ts'
 
 export const signupPage = createPage('signup', () => {
+  if (hasPassword.get()) {
+    getEnvironment().openRoute({
+      params: {},
+      popups: [],
+      route: 'profile'
+    })
+  }
+
   let $credentials = atom(
     generateCredentials(userId.get(), encryptionKey.get())
   )

@@ -31,6 +31,19 @@
     <Button onclick={page.finish}>{$t.savedPromise}</Button>
   {:else}
     <Form loading={$signingUp} onsubmit={page.submit}>
+      <Actions vertical>
+        <Button
+          disabled={$signingUp}
+          icon={mdiDiceMultipleOutline}
+          onclick={() => {
+            page.regenerate()
+          }}
+          size="pill"
+          variant="secondary"
+        >
+          {$t.regenerateCredetials}
+        </Button>
+      </Actions>
       <Output autocomplete="username" label={$t.userId} value={$userId} />
       <Output
         autocomplete="new-password"
@@ -66,17 +79,6 @@
             {$t.customServer}
           </Button>
         {/if}
-        <Button
-          disabled={$signingUp}
-          icon={mdiDiceMultipleOutline}
-          onclick={() => {
-            page.regenerate()
-          }}
-          size="pill"
-          variant="secondary"
-        >
-          {$t.regenerateCredetials}
-        </Button>
         <Button
           icon={mdiLogin}
           loader={$signingUp ? $t.signingUp : undefined}
