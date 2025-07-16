@@ -6,5 +6,8 @@ packages:
   - proxy
   - loader-tests
   - extension
+
+forceLegacyDeploy: true
+
 onlyBuiltDependencies:
   - husky

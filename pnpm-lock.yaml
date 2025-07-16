@@ -3,7 +3,6 @@ lockfileVersion: '9.0'
 settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
-  injectWorkspacePackages: true
 
 importers:
 
@@ -191,7 +190,7 @@ importers:
     devDependencies:
       '@slowreader/core':
         specifier: workspace:*
-        version: file:core(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: link:../core
       '@types/jsdom':
         specifier: 21.1.7
         version: 21.1.7
@@ -315,7 +314,7 @@ importers:
         version: 16.0.1(rollup@4.45.1)
       '@slowreader/core':
         specifier: workspace:*
-        version: file:core(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: link:../core
       '@sveltejs/vite-plugin-svelte':
         specifier: 6.1.0
         version: 6.1.0(svelte@5.36.1)(vite@7.0.4(@types/node@24.0.14)(jiti@2.4.2)(tsx@4.20.3)(yaml@2.8.0))
@@ -1196,22 +1195,6 @@ packages:
     engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
       size-limit: 11.2.0
-
-  '@slowreader/api@file:api':
-    resolution: {directory: api, type: directory}
-    engines: {node: ^24.4.0, pnpm: ^10.0.0}
-
-  '@slowreader/core@file:core':
-    resolution: {directory: core, type: directory}
-    engines: {node: ^24.4.0, pnpm: ^10.0.0}
-
-  '@slowreader/proxy@file:proxy':
-    resolution: {directory: proxy, type: directory}
-    engines: {node: ^24.4.0, pnpm: ^10.0.0}
-
-  '@slowreader/server@file:server':
-    resolution: {directory: server, type: directory}
-    engines: {node: ^24.4.0, pnpm: ^10.0.0}
 
   '@storybook/addon-svelte-csf@5.0.7':
     resolution: {integrity: sha512-6Zmy5HjOlrrG6OoKRTGDr9LR6zRK4/Sa7raFzQRKHGASgMlfKsMdNTNO0sxnMUWCu2JMS6HsuoLtB3Ma8SlYtg==}
@@ -4994,111 +4977,6 @@ snapshots:
   '@size-limit/file@11.2.0(size-limit@11.2.0)':
     dependencies:
       size-limit: 11.2.0
-
-  '@slowreader/api@file:api(@logux/core@0.9.0)':
-    dependencies:
-      '@logux/actions': https://codeload.github.com/logux/actions/tar.gz/20509b9a094e004258e3d6e3b4e77f851ebbcca1(@logux/core@0.9.0)
-    transitivePeerDependencies:
-      - '@logux/core'
-
-  '@slowreader/core@file:core(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@logux/actions': https://codeload.github.com/logux/actions/tar.gz/20509b9a094e004258e3d6e3b4e77f851ebbcca1(@logux/core@0.9.0)
-      '@logux/client': https://codeload.github.com/logux/client/tar.gz/f552bf680fc1e8d414db4dcc853ac70c65e71e3c(@logux/core@0.9.0)(nanostores@1.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@logux/core': 0.9.0
-      '@nanostores/i18n': 1.0.1(nanostores@1.0.1)
-      '@nanostores/persistent': 1.1.0(nanostores@1.0.1)
-      '@slowreader/api': file:api(@logux/core@0.9.0)
-      '@slowreader/server': file:server(@libsql/client-wasm@0.14.0)(@logux/core@0.9.0)(gel@2.0.2)(kysely@0.27.4)
-      dompurify: 3.2.6
-      just-debounce-it: 3.2.0
-      nanodelay: 2.0.2
-      nanoid: 5.1.5
-      nanostores: 1.0.1
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@nanostores/preact'
-      - '@nanostores/react'
-      - '@nanostores/vue'
-      - '@neondatabase/serverless'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bufferutil
-      - bun-types
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mysql2
-      - pg
-      - preact
-      - prisma
-      - react
-      - react-dom
-      - sql.js
-      - sqlite3
-      - utf-8-validate
-      - vue
-
-  '@slowreader/proxy@file:proxy': {}
-
-  '@slowreader/server@file:server(@libsql/client-wasm@0.14.0)(@logux/core@0.9.0)(gel@2.0.2)(kysely@0.27.4)':
-    dependencies:
-      '@electric-sql/pglite': 0.3.5
-      '@logux/actions': https://codeload.github.com/logux/actions/tar.gz/20509b9a094e004258e3d6e3b4e77f851ebbcca1(@logux/core@0.9.0)
-      '@logux/server': https://codeload.github.com/logux/server/tar.gz/9f554c8a82050c29a7863e552e3234fe2a326f05
-      '@slowreader/api': file:api(@logux/core@0.9.0)
-      '@slowreader/proxy': file:proxy
-      argon2: 0.43.1
-      cookie: 1.0.2
-      drizzle-orm: 0.44.3(@electric-sql/pglite@0.3.5)(@libsql/client-wasm@0.14.0)(gel@2.0.2)(kysely@0.27.4)(postgres@3.4.7)
-      nanoid: 5.1.5
-      postgres: 3.4.7
-      tsx: 4.20.3
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@logux/core'
-      - '@neondatabase/serverless'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bufferutil
-      - bun-types
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mysql2
-      - pg
-      - prisma
-      - sql.js
-      - sqlite3
-      - utf-8-validate
 
   '@storybook/addon-svelte-csf@5.0.7(@storybook/svelte@9.0.17(storybook@9.0.17(@testing-library/dom@10.4.0)(prettier@3.6.2))(svelte@5.36.1))(@sveltejs/vite-plugin-svelte@6.1.0(svelte@5.36.1)(vite@7.0.4(@types/node@24.0.14)(jiti@2.4.2)(tsx@4.20.3)(yaml@2.8.0)))(storybook@9.0.17(@testing-library/dom@10.4.0)(prettier@3.6.2))(svelte@5.36.1)(vite@7.0.4(@types/node@24.0.14)(jiti@2.4.2)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
