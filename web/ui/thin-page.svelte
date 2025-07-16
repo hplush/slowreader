@@ -32,7 +32,7 @@
     }
 
     .thin-page_center {
-      width: 290px;
+      width: 310px;
       margin: 8px 0;
     }
   }

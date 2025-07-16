@@ -179,8 +179,8 @@
       gap: 6px;
       align-items: center;
       justify-content: center;
-      min-height: 32px;
-      padding: 7px 10px;
+      min-height: 33px;
+      padding: 7px 12px;
 
       .button:active & {
         transform: translateY(1px);
@@ -197,7 +197,7 @@
       }
 
       .button.is-pill & {
-        min-height: 24px;
+        min-height: 25px;
         padding: 4px 8px;
 
         &:has(svg) {
