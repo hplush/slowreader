@@ -29,7 +29,7 @@ export function getConfig(from: Record<string, string | undefined>): Config {
   return {
     assets: !!from.ASSETS,
     db: from.DATABASE_URL ?? getDefaultDatabase(env),
-    debug: from.DEBUG,
+    debug: !!from.DEBUG,
     env,
     proxyOrigin,
     staging: !!from.STAGING

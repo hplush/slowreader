@@ -53,12 +53,14 @@ test('passes keys', () => {
     getConfig({
       ASSETS: '1',
       DATABASE_URL,
+      DEBUG: '1',
       NODE_ENV: 'production',
       PROXY_ORIGIN: '^http:\\/\\/slowreader.app$'
     }),
     {
       assets: true,
       db: DATABASE_URL,
+      debug: true,
       env: 'production',
       proxyOrigin: '^http:\\/\\/slowreader.app$',
       staging: false
@@ -68,4 +70,5 @@ test('passes keys', () => {
 
 test('has predefined config', () => {
   equal(config.env, 'test')
+  equal(config.debug, false)
 })
