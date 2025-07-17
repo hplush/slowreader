@@ -26,6 +26,9 @@ inputs:
   flags:
     required: false
     description: Extra flags for Google Cloud Run deploy command
+  onlyOne:
+    required: false
+    description: Should we stop other revisions before starting new one
 outputs:
   url:
     value: ${{ steps.deploy.outputs.url }}
@@ -49,6 +52,32 @@ runs:
     - name: Push Docker image
       shell: bash
       run: docker push ${{ inputs.region }}-docker.pkg.dev/${{ inputs.projectId }}/${{ inputs.registry }}:${{ inputs.tag }}
+    - name: Park the service with an inert image
+      uses: google-github-actions/deploy-cloudrun@9c5864eab7354d2e132307e685a2272655932799 # v2.7.3
+      if: ${{ inputs.onlyOne }}
+      with:
+        service: ${{ inputs.service }}
+        region: ${{ inputs.region }}
+        image: gcr.io/google-samples/hello-app:1.0
+    - name: Stop previous revisions to free the file DB
+      shell: bash
+      if: ${{ inputs.onlyOne }}
+      run: |
+        ALL_REVISIONS=$(gcloud run revisions list \
+          --service="${{ inputs.service }}" \
+          --region="${{ inputs.region }}" \
+          --project="${{ inputs.projectId }}" \
+          --sort-by="~metadata.creationTimestamp" \
+          --format="value(REVISION)" | tail -n +2)
+
+        if [[ -n "$ALL_REVISIONS" ]]; then
+          for revision in $ALL_REVISIONS; do
+            echo "Deleting revision: $revision"
+            gcloud run revisions delete "$revision" --quiet \
+              --region="${{ inputs.region }}" \
+              --project="${{ inputs.projectId }}"
+          done
+        fi
     - name: Deploy to Cloud Run
       id: deploy
       uses: google-github-actions/deploy-cloudrun@9c5864eab7354d2e132307e685a2272655932799 # v2.7.3
