@@ -102,6 +102,7 @@ jobs:
             apk.cgr.dev:443
             artifactregistry.googleapis.com:443
             cgr.dev:443
+            dev-server.slowreader.app:443
             dl.google.com:443
             europe-west1-docker.pkg.dev:443
             europe-west1-run.googleapis.com:443
