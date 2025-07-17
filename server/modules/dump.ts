@@ -7,7 +7,7 @@ export default (server: BaseServer): void => {
   if (config.db.startsWith('dump:')) {
     server.http('POST', '/dump', async (req, res) => {
       await dumpDb()
-      res.end('Saved')
+      res.end('Saved\n')
     })
   }
 }
