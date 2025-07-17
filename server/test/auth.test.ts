@@ -191,7 +191,7 @@ test('has non-cookie API', async () => {
 test('validates request body', async () => {
   server = buildTestServer()
   let response1 = await server.fetch('/users', { method: 'PUT' })
-  equal(await response1.text(), 'Not found')
+  equal(await response1.text(), 'Not found\n')
   let response2 = await server.fetch('/users/1', { method: 'PUT' })
   equal(await response2.text(), 'Wrong content type')
   let response3 = await server.fetch('/users/1', {
