@@ -22,7 +22,7 @@ if (config.db.startsWith('memory://') || config.db.startsWith('file://')) {
   if (config.db.startsWith('file://')) {
     await access(config.db.slice(7), constants.R_OK | constants.W_OK)
   }
-  let pglite = new PGlite(config.db, { debug: config.debug ? 1 : 0 })
+  let pglite = new PGlite(config.db, { debug: config.debug ? 1 : undefined })
   let drizzlePglite = devDrizzle(pglite, { schema })
   await devMigrate(drizzlePglite, MIGRATE_CONFIG)
   drizzle = drizzlePglite
