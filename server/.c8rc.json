@@ -5,6 +5,7 @@
   "exclude": [
     "db/index.ts",
     "lib/exit.ts",
+    "modules/dump.ts",
     "test/*",
     "coverage/",
     "dist/",

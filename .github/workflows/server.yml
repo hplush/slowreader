@@ -132,7 +132,7 @@ jobs:
           folder: ./server/
           registry: staging/server
           service: staging-server
-          onlyOne: true
+          shutdown: 'https://dev-server.slowreader.app/dump'
           env: ASSETS=,PROXY_ORIGIN=,DATABASE_URL=dump:/var/mnt/db/db.pglite
           # Persistent database was disable temporary to save money
           # flags: |

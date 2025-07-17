@@ -19,6 +19,8 @@ const MIGRATE_CONFIG: MigrationConfig = {
   migrationsFolder: join(import.meta.dirname, 'migrations')
 }
 
+export let dumpDb = (): Promise<void> => Promise.resolve()
+
 let drizzle: PgDatabase<PgQueryResultHKT, typeof schema>
 if (
   config.db.startsWith('memory://') ||
@@ -37,7 +39,7 @@ if (
     } else {
       pglite = new PGlite()
     }
-    async function dumpDb(): Promise<void> {
+    dumpDb = async () => {
       let blob = await pglite.dumpDataDir('none')
       await writeFile(path, Buffer.from(await blob.arrayBuffer()), {
         encoding: 'binary'
