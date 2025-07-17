@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@crxjs/vite-plugin": "2.0.3",
-    "vite": "7.0.4"
+    "vite": "7.0.5"
   },
   "devDependencies": {
     "eslint": "9.31.0"
