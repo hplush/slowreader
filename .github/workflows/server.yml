@@ -133,7 +133,7 @@ jobs:
           registry: staging/server
           service: staging-server
           onlyOne: true
-          env: ASSETS=,PROXY_ORIGIN=,DATABASE_URL=file:///var/mnt/db/pgdata,DEBUG=1
+          env: ASSETS=,PROXY_ORIGIN=,DATABASE_URL=dump:/var/mnt/db/db.pglite
           # Persistent database was disable temporary to save money
           # flags: |
           #   --vpc-connector db-connector
