@@ -10,6 +10,7 @@ import { join } from 'node:path'
 import postgres from 'postgres'
 
 import { config } from '../lib/config.ts'
+import { onExit } from '../lib/exit.ts'
 import * as schema from './schema.ts'
 export * from './schema.ts'
 
@@ -26,6 +27,10 @@ if (config.db.startsWith('memory://') || config.db.startsWith('file://')) {
   let drizzlePglite = devDrizzle(pglite, { schema })
   await devMigrate(drizzlePglite, MIGRATE_CONFIG)
   drizzle = drizzlePglite
+
+  onExit(() => {
+    pglite.close()
+  })
 } else {
   drizzle = prodDrizzle(postgres(config.db), { schema })
   let migrateConnection = postgres(config.db, { max: 1 })
