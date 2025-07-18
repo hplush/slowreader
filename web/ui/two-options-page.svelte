@@ -66,7 +66,7 @@
     }
 
     .two-options-page_option {
-      width: 284px;
+      width: var(--form-width);
       max-width: 100%;
       padding: 16px;
       margin: 8px 0;
@@ -75,7 +75,7 @@
         --current-background: var(--main-land-color);
 
         background: var(--main-land-color);
-        border-radius: calc(16px + var(--button-radius));
+        border-radius: calc(16px + var(--base-radius));
       }
 
       @media (width <= 630px) {

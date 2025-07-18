@@ -95,10 +95,6 @@
 
 <style>
   :global {
-    :root {
-      --button-radius: 8px;
-    }
-
     .button {
       position: relative;
       box-sizing: border-box;
@@ -108,7 +104,7 @@
       cursor: pointer;
       user-select: none;
       border: none;
-      border-radius: var(--button-radius);
+      border-radius: var(--base-radius);
 
       &[aria-disabled='true'],
       &[disabled] {
