@@ -91,7 +91,7 @@
     .input_field {
       box-sizing: border-box;
       width: 100%;
-      padding: 4px 6px;
+      padding: 4px 8px;
       font: var(--control-font);
       background: var(--field-color);
       border: 2px solid var(--text-color);

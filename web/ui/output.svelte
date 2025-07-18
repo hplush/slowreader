@@ -39,7 +39,7 @@
     .output_field {
       box-sizing: border-box;
       width: 100%;
-      padding: 4px 6px;
+      padding: 4px 8px;
       font: var(--control-mono-font);
       background: var(--field-color);
       border: none;
