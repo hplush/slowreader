@@ -72,7 +72,7 @@
     .two-options-page_option {
       width: var(--form-width);
       max-width: 100%;
-      padding-inline: 16px;
+      padding: 0 16px 16px;
       margin: 8px 0;
 
       &:first-child {
@@ -83,7 +83,7 @@
       }
 
       &.is-padding {
-        padding-block: 16px;
+        padding-top: 16px;
       }
 
       @media (width <= 630px) {
