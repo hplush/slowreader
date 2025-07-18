@@ -66,7 +66,7 @@
     }
 
     .two-options-page_option {
-      width: var(--thin-page-width);
+      width: 284px;
       max-width: 100%;
       padding: 16px;
       margin: 8px 0;
