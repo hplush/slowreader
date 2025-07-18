@@ -44,13 +44,13 @@
     --note-l: 0.2;
     --note-c: 0.03;
     --note-good-background: oklch(0.25 0.03 140);
-    --main-land-color: oklch(0.2 0 70);
+    --main-land-color: oklch(0.3 0 70);
     --pressed-shadow:
       inset 0 1px 2px oklch(0 0 0), inset 0 -0.5px 0 oklch(1 0 0 / 40%);
 
     &.is-comfort-mode {
       --land-color: oklch(0.25 0.03 70);
-      --main-land-color: oklch(0.2 0.03 70);
+      --main-land-color: oklch(0.3 0.03 70);
     }
   }
 }
