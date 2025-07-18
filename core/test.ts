@@ -1,6 +1,7 @@
 import { MemoryStore } from '@logux/core'
 import { atom } from 'nanostores'
 
+import type { Credentials } from './auth.ts'
 import type { EnvironmentAndStore } from './environment.ts'
 import { type BaseRoute, stringifyPopups } from './router.ts'
 
@@ -56,5 +57,16 @@ export function getTestEnvironment(): EnvironmentAndStore {
       return Promise.resolve({})
     },
     warn() {}
+  }
+}
+
+/**
+ * Useful for visual tests and cases where need reproducible result.
+ */
+export function testCredentials(): Credentials {
+  return {
+    encryptionKey: '5>@v9xbKP!',
+    password: '&5$K?EJuJ=',
+    userId: '2750177048377147'
   }
 }

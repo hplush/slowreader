@@ -14,11 +14,7 @@
 <Story name="Light" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      pages.signup().credentials.set({
-        encryptionKey: '5>@v9xbKP!',
-        password: '&5$K?EJuJ=',
-        userId: '2750177048377147'
-      })
+      pages.signup().credentials.set(testCredentials())
     }}
     route="signup"
     user={false}
@@ -30,11 +26,7 @@
 <Story name="Custom Server" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      pages.signup().credentials.set({
-        encryptionKey: '5>@v9xbKP!',
-        password: '&5$K?EJuJ=',
-        userId: '2750177048377147'
-      })
+      pages.signup().credentials.set(testCredentials())
       pages.signup().showCustomServer()
     }}
     route="signup"
@@ -46,11 +38,7 @@
 <Story name="Warning Step" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      pages.signup().credentials.set({
-        encryptionKey: '5>@v9xbKP!',
-        password: '&5$K?EJuJ=',
-        userId: '2750177048377147'
-      })
+      pages.signup().credentials.set(testCredentials())
       pages.signup().warningStep.set(true)
     }}
     route="signup"

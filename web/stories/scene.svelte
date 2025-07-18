@@ -11,7 +11,7 @@
     signOut,
     useCredentials
   } from '@slowreader/core'
-  import { addHashToBaseRoute } from '@slowreader/core/test'
+  import { addHashToBaseRoute, testCredentials } from '@slowreader/core/test'
   import { cleanStores } from 'nanostores'
   import { onDestroy, type Snippet } from 'svelte'
 
@@ -43,11 +43,7 @@
   $effect.pre(() => {
     currentPage.get().destroy()
     if (user) {
-      useCredentials({
-        encryptionKey: '5>@v9xbKP!',
-        password: '&5$K?EJuJ=',
-        userId: '2750177048377147'
-      })
+      useCredentials(testCredentials())
     } else if (client.get()) {
       signOut()
     }
