@@ -53,12 +53,7 @@ export const signupPage = createPage('signup', () => {
     } catch (e: unknown) {
       if (HTTPRequestError.is(e)) {
         if (e.message === SIGN_UP_ERRORS.USER_ID_TAKEN) {
-          if (!userId.get()) {
-            regenerate()
-            await submit()
-          } else {
-            $error.set(t.get().userIdTaken)
-          }
+          $error.set(t.get().userIdTaken)
         } else {
           $error.set(e.message)
         }

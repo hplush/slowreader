@@ -198,31 +198,7 @@ test('is ready for sign up from another browser tab', async () => {
   equal(router.get().route, 'welcome')
 })
 
-test('is ready for user ID conflict for new user', async () => {
-  let page = openPage({
-    params: {},
-    route: 'signup'
-  })
-  let prevUserId = page.userId.get()
-
-  await signUpApi(
-    {
-      password: generateCredentials().password,
-      userId: page.userId.get()
-    },
-    { fetch: server.fetch }
-  )
-  await page.submit()
-
-  equal(typeof page.error.get(), 'undefined')
-  equal(page.signingUp.get(), false)
-  equal(page.warningStep.get(), true)
-  notEqual(page.userId.get(), prevUserId)
-  equal(userId.get(), page.userId.get())
-  equal(client.get()?.state, 'connecting')
-})
-
-test('is ready for user ID conflict for local app', async () => {
+test('is ready for user ID conflict', async () => {
   let startPage = openPage({
     params: {},
     route: 'start'
