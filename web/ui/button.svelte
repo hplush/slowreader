@@ -155,7 +155,8 @@
       &.is-secondary {
         color: var(--text-color);
         background: oklch(
-          from var(--current-background) calc(l + var(--secondary-l)) c h
+          from var(--current-background) calc(l + var(--secondary-l))
+            calc(c + var(--secondary-c)) h
         );
 
         &:hover,
@@ -163,7 +164,8 @@
         &:focus-visible {
           background: oklch(
             from var(--current-background)
-              calc(l + var(--secondary-l) + var(--button-hover-l)) c h
+              calc(l + var(--secondary-l) + var(--secondary-hover-l))
+              calc(c + var(--secondary-c)) h
           );
         }
       }

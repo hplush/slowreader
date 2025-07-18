@@ -93,7 +93,10 @@
       width: 100%;
       padding: 4px 8px;
       font: var(--control-font);
-      background: var(--field-color);
+      background: oklch(
+        from var(--current-background) calc(l + var(--field-l))
+          calc(c + var(--field-c)) h
+      );
       border: 2px solid var(--text-color);
       border-radius: 8px;
 
