@@ -49,7 +49,10 @@ let prevPage: Page | undefined
 let unbinds: (() => void)[] = []
 
 export const currentPage: ReadableAtom<Page> = computed(router, route => {
-  let page = pages[route.route]() as Page
+  let startRoute = route.route
+  let page = pages[startRoute]() as Page
+  if (startRoute !== router.get().route) return currentPage.get()
+
   if (page !== prevPage) {
     if (prevPage) {
       for (let unbind of unbinds) unbind()

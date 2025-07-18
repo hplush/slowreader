@@ -7,6 +7,7 @@ import { setTimeout } from 'node:timers/promises'
 
 import {
   client,
+  currentPage,
   enableTestTime,
   generateCredentials,
   hasPassword,
@@ -135,8 +136,7 @@ test('signs up new user', async () => {
     params: {},
     route: 'signup'
   })
-  await setTimeout(10)
-  equal(router.get().route, 'profile')
+  equal(currentPage.get().route, 'profile')
 })
 
 test('signs up local user', async () => {
