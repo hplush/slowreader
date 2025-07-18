@@ -5,10 +5,12 @@
 
   let {
     one,
+    paddingTwo = true,
     title,
     two
   }: {
     one: Snippet
+    paddingTwo?: boolean
     title: string
     two: Snippet
   } = $props()
@@ -29,10 +31,12 @@
 <Page {title}>
   <div class="two-options-page">
     <div bind:this={center} class="two-options-page_center">
-      <div bind:this={first} class="two-options-page_option">
+      <div bind:this={first} class="two-options-page_option is-padding">
         {@render one()}
       </div>
-      <div class="two-options-page_option">{@render two()}</div>
+      <div class="two-options-page_option" class:is-padding={paddingTwo}>
+        {@render two()}
+      </div>
     </div>
   </div>
 </Page>
@@ -68,7 +72,7 @@
     .two-options-page_option {
       width: var(--form-width);
       max-width: 100%;
-      padding: 16px;
+      padding-inline: 16px;
       margin: 8px 0;
 
       &:first-child {
@@ -76,6 +80,10 @@
 
         background: var(--main-land-color);
         border-radius: calc(16px + var(--base-radius));
+      }
+
+      &.is-padding {
+        padding-block: 16px;
       }
 
       @media (width <= 630px) {

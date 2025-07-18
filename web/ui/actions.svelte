@@ -17,6 +17,7 @@
       display: flex;
       gap: 10px;
       align-items: center;
+      margin-top: 10px;
 
       &.is-vertical {
         flex-direction: column;

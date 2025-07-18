@@ -10,7 +10,11 @@ export const authMessages = i18n('auth', {
   login: 'Login into existed account',
   newUser: 'New user',
   oldUser: 'Existed user',
-  regenerateCredetials: 'Get another credentials',
+  payWarning:
+    'After the beta we will fund development by small monthly subscription for using server. Self‑hosted solution will be free.',
+  randomNote:
+    'We are using random user ID for privacy to make it harder to connect user with real person',
+  regenerateCredetials: 'Re-generate',
   savedPromise: 'I saved credentials',
   secret: 'Secret',
   server: 'Custom server',

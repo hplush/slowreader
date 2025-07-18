@@ -22,7 +22,6 @@
     .note {
       position: relative;
       padding: 10px 10px 10px calc(32px + 5px + 5px);
-      margin: 10px 0;
       font: var(--secondary-font);
       background: var(--current-background);
       border: 2px solid;
@@ -34,6 +33,10 @@
 
       &.is-good {
         --current-background: var(--note-good-background);
+      }
+
+      & + & {
+        margin-top: 10px;
       }
     }
 
