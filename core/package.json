@@ -20,7 +20,7 @@
     "@logux/actions": "github:logux/actions#next",
     "@logux/client": "github:logux/client#next",
     "@logux/core": "0.9.0",
-    "@nanostores/i18n": "1.0.1",
+    "@nanostores/i18n": "1.1.1",
     "@nanostores/persistent": "1.1.0",
     "@slowreader/api": "workspace:*",
     "@slowreader/server": "workspace:*",

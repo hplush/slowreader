@@ -11,9 +11,9 @@ export const authMessages = i18n('auth', {
   newUser: 'New user',
   oldUser: 'Existed user',
   payWarning:
-    'After the beta we will fund development by small monthly subscription for using server. Self‑hosted solution will be free.',
+    'After the beta we will fund development by small monthly subscription for using server. Self-hosted solution will be free.',
   randomNote:
-    'We are using random user ID for privacy to make it harder to connect user with real person',
+    'We are using random user ID for privacy to make it harder to connect user with real person',
   regenerateCredetials: 'Re-generate',
   savedPromise: 'I saved credentials',
   secret: 'Secret',

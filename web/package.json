@@ -31,7 +31,7 @@
     "@logux/client": "github:logux/client#next",
     "@logux/core": "0.9.0",
     "@mdi/js": "7.4.47",
-    "@nanostores/i18n": "1.0.1",
+    "@nanostores/i18n": "1.1.1",
     "@nanostores/persistent": "1.1.0",
     "@nanostores/router": "1.0.0",
     "@rollup/plugin-node-resolve": "16.0.1",
@@ -42,7 +42,7 @@
     "postcss": "8.5.6",
     "postcss-load-config": "6.0.1",
     "rollup": "4.45.1",
-    "svelte": "5.36.7",
+    "svelte": "5.36.8",
     "tsx": "4.20.3",
     "vite": "7.0.5"
   },
@@ -64,7 +64,7 @@
     "postcss-selector-parser": "7.1.0",
     "size-limit": "11.2.0",
     "storybook": "9.0.17",
-    "stylelint": "16.21.1",
+    "stylelint": "16.22.0",
     "stylelint-use-logical": "2.1.2"
   }
 }
