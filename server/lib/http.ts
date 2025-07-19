@@ -33,9 +33,15 @@ export class ErrorResponse {
 function allowCors(res: ServerResponse, origin: string): void {
   res.setHeader('Access-Control-Allow-Origin', origin)
   res.setHeader('Access-Control-Allow-Credentials', 'true')
-  res.setHeader('Access-Control-Allow-Methods', '*')
-  res.setHeader('Access-Control-Allow-Headers', '*')
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'OPTIONS, POST, GET, PUT, DELETE'
+  )
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 }
+
+const LOCALHOST = /:\/\/localhost:/
+const PRODUCTION = /(:\/\/|\.)slowreader\.app$/
 
 export function jsonApi<Response, Request extends object>(
   server: BaseServer,
@@ -53,14 +59,13 @@ export function jsonApi<Response, Request extends object>(
     | Response
 ): void {
   server.http(async (req, res) => {
-    if (config.env === 'development') {
-      /* c8 ignore next 2 */
-      allowCors(res, '*')
-    } else if (
-      req.headers.origin &&
-      /(:|\.)slowreader\.app$/.test(req.headers.origin)
-    ) {
-      allowCors(res, req.headers.origin)
+    if (req.headers.origin) {
+      if (
+        (config.env === 'development' && LOCALHOST.test(req.headers.origin)) ||
+        PRODUCTION.test(req.headers.origin)
+      ) {
+        allowCors(res, req.headers.origin)
+      }
     }
     if (req.method === 'OPTIONS') {
       res.writeHead(200)
