@@ -88,10 +88,7 @@ export function createProxy(
 
       if (req.headers.origin) {
         res.setHeader('Access-Control-Allow-Headers', '*')
-        res.setHeader(
-          'Access-Control-Allow-Methods',
-          'OPTIONS, POST, GET, PUT, DELETE'
-        )
+        res.setHeader('Access-Control-Allow-Methods', '*')
         res.setHeader('Access-Control-Allow-Origin', req.headers.origin)
       }
 
