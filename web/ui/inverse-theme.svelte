@@ -7,7 +7,7 @@
 </script>
 
 <span
-  class="inserse-theme"
+  class="inverse-theme"
   class:is-dark-theme={$theme === 'light'}
   class:is-light-theme={$theme === 'dark'}
 >
@@ -16,7 +16,7 @@
 
 <style>
   :global {
-    .inserse-theme {
+    .inverse-theme {
       flex-shrink: 1;
     }
   }
