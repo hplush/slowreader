@@ -55,12 +55,12 @@ jobs:
           token: ${{ secrets.PREVIEW_DEPLOYMENT_PAT }}
           env: preview-${{ env.PR_NUMBER }}
       - name: Auth Google Cloud
-        uses: google-github-actions/auth@ba79af03959ebeac9769e648f473a284504d9193 # v2.1.10
+        uses: google-github-actions/auth@140bb5113ffb6b65a7e9b937a81fa96cf5064462 # v2.1.11
         with:
           workload_identity_provider: projects/300174498438/locations/global/workloadIdentityPools/github/providers/hplush
           service_account: github-deploy@${{ inputs.projectId }}.iam.gserviceaccount.com
       - name: Install Google Cloud
-        uses: google-github-actions/setup-gcloud@77e7a554d41e2ee56fc945c52dfd3f33d12def9a # v2.1.4
+        uses: google-github-actions/setup-gcloud@6a7c903a70c8625ed6700fa299f5ddb4ca6022e9 # v2.1.5
       - name: Shut down Cloud Run
         run: gcloud run services update-traffic staging-server --region=${{ env.REGION }} --project=${{ env.PROJECT_ID }} --remove-tags preview-${{ env.PR_NUMBER }} --async
       - name: Delete image

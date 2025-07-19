@@ -40,12 +40,12 @@ runs:
       shell: bash
       run: docker build -t ${{ inputs.region }}-docker.pkg.dev/${{ inputs.projectId }}/${{ inputs.registry }}:${{ inputs.tag }} ${{ inputs.folder }}
     - name: Auth Google Cloud
-      uses: google-github-actions/auth@ba79af03959ebeac9769e648f473a284504d9193 # v2.1.10
+      uses: google-github-actions/auth@140bb5113ffb6b65a7e9b937a81fa96cf5064462 # v2.1.11
       with:
         workload_identity_provider: projects/300174498438/locations/global/workloadIdentityPools/github/providers/hplush
         service_account: github-deploy@${{ inputs.projectId }}.iam.gserviceaccount.com
     - name: Install Google Cloud
-      uses: google-github-actions/setup-gcloud@77e7a554d41e2ee56fc945c52dfd3f33d12def9a # v2.1.4
+      uses: google-github-actions/setup-gcloud@6a7c903a70c8625ed6700fa299f5ddb4ca6022e9 # v2.1.5
     - name: Auth Docker
       shell: bash
       run: gcloud auth configure-docker ${{ inputs.region }}-docker.pkg.dev --quiet
@@ -58,7 +58,7 @@ runs:
       run: curl -X POST ${{ inputs.shutdown }}
     - name: Deploy to Cloud Run
       id: deploy
-      uses: google-github-actions/deploy-cloudrun@9c5864eab7354d2e132307e685a2272655932799 # v2.7.3
+      uses: google-github-actions/deploy-cloudrun@147732842f8a61ce9bd3b3f8e9f6597fe991ad65 # v2.7.4
       with:
         gcloud_component: beta
         service: ${{ inputs.service }}

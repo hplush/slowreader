@@ -32,7 +32,7 @@
   "devDependencies": {
     "@logux/eslint-config": "56.0.0",
     "@types/chrome": "0.1.1",
-    "@types/node": "24.0.14",
+    "@types/node": "24.0.15",
     "@types/ws": "8.18.1",
     "better-node-test": "0.7.1",
     "eslint": "9.31.0",
