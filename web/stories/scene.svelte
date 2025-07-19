@@ -9,6 +9,7 @@
     type ParamlessRouteName,
     Post,
     signOut,
+    theme,
     useCredentials
   } from '@slowreader/core'
   import { addHashToBaseRoute, testCredentials } from '@slowreader/core/test'
@@ -57,6 +58,18 @@
         addHashToBaseRoute(route) ?? { hash: '', params: {}, route: 'slow' }
       )
     }
+
+    function updateTheme(): void {
+      let classes = document.documentElement.classList
+      if (classes.contains('is-light-theme')) {
+        theme.set('light')
+      } else if (classes.contains('is-dark-theme')) {
+        theme.set('dark')
+      }
+    }
+    updateTheme()
+    setTimeout(updateTheme, 200)
+    setTimeout(updateTheme, 1000)
 
     oninit()
   })

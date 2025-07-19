@@ -3,30 +3,25 @@
  * So we can’t use CSS Custom Properties from outside.
  */
 :root {
-  --loader-bar-light: oklch(0.3 0 0);
-  --loader-bar-dark: oklch(0.9 0 0);
-  --loader-background-light: oklch(1 0 0);
-  --loader-background-dark: oklch(1 0 0 / 20%);
-
   @media (prefers-color-scheme: light) {
-    --loader-background: var(--loader-background-light);
-    --loader-bar: var(--loader-bar-light);
+    --loader-background: oklch(1 0 0);
+    --loader-bar: oklch(0.3 0 0);
   }
 
   @media (prefers-color-scheme: dark) {
-    --loader-background: var(--loader-background-dark);
-    --loader-bar: var(--loader-bar-dark);
+    --loader-background: oklch(1 0 0 / 20%);
+    --loader-bar: oklch(0.9 0 0);
   }
 }
 
 .is-light-theme {
-  --loader-background: var(--loader-background-light);
-  --loader-bar: var(--loader-bar-light);
+  --loader-background: oklch(1 0 0);
+  --loader-bar: oklch(0.3 0 0);
 }
 
 .is-dark-theme {
-  --loader-background: var(--loader-background-dark);
-  --loader-bar: var(--loader-bar-dark);
+  --loader-background: oklch(1 0 0 / 20%);
+  --loader-bar: oklch(0.9 0 0);
 }
 
 .loader {

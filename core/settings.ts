@@ -21,6 +21,8 @@ export const hasPassword = persistentAtom('slowreader:has-password', false, {
   }
 })
 
+export type Theme = 'dark' | 'light' | 'system'
+
 export const theme = persistentAtom<'dark' | 'light' | 'system'>(
   'slowreader:theme',
   'system'

@@ -3,6 +3,7 @@
   import type { HTMLButtonAttributes } from 'svelte/elements'
 
   import Icon from './icon.svelte'
+  import InverseTheme from './inverse-theme.svelte'
   import Loader from './loader.svelte'
 
   let {
@@ -34,10 +35,13 @@
 {#snippet content()}
   <span class="button_loader">
     {#if loader}
-      <Loader
-        inverse={variant === 'main'}
-        label={typeof loader === 'string' ? loader : undefined}
-      />
+      {#if variant === 'main'}
+        <InverseTheme>
+          <Loader label={typeof loader === 'string' ? loader : undefined} />
+        </InverseTheme>
+      {:else}
+        <Loader label={typeof loader === 'string' ? loader : undefined} />
+      {/if}
     {/if}
   </span>
   <span class="button_cap" aria-hidden={!!loader}>

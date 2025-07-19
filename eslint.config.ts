@@ -79,7 +79,14 @@ export default [
       '@typescript-eslint/no-unsafe-member-access': 'off',
       'svelte/no-unused-class-name': [
         'error',
-        { allowedClassNames: ['loader', 'sr-only'] }
+        {
+          allowedClassNames: [
+            'loader',
+            'sr-only',
+            'is-dark-theme',
+            'is-light-theme'
+          ]
+        }
       ],
       'svelte/sort-attributes': 'warn'
     }
