@@ -62,12 +62,8 @@ setupEnvironment({
   baseRouter: urlRouter,
   errorEvents: window,
   getSession() {
-    if (import.meta.env.DEV) {
-      return localStorage.getItem('slowreader:session') ?? undefined
-    } else {
-      // Browser will use session from http-only cookie
-      return undefined
-    }
+    // Browser will use session from http-only cookie
+    return undefined
   },
   locale,
   logStoreCreator: () => new IndexedStore(),
@@ -78,16 +74,8 @@ setupEnvironment({
   restartApp() {
     location.reload()
   },
-  saveSession(session) {
-    if (import.meta.env.DEV) {
-      if (session) {
-        localStorage.setItem('slowreader:session', session)
-      } else {
-        localStorage.removeItem('slowreader:session')
-      }
-    } else {
-      // Browser will keep session in http-only cookie
-    }
+  saveSession() {
+    // Browser will keep session in http-only cookie
   },
   server,
   translationLoader() {

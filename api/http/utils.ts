@@ -46,6 +46,7 @@ export async function fetchJSON<ResponseJSON = unknown>(
   let request = opts.fetch ?? fetch
   let response = await request(host + url, {
     body: JSON.stringify(body),
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json'
     },
