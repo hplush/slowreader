@@ -65,6 +65,7 @@
     <Form loading={$signingIn} onsubmit={page.signIn}>
       <Title>{$t.oldUser}</Title>
       <Input
+        name="username"
         autocomplete="username"
         errorId={$signError === t.get().invalidCredentials
           ? 'start-server-error'
@@ -78,6 +79,7 @@
         bind:value={$userId}
       />
       <Input
+        name="password"
         autocomplete="current-password"
         errorId={$signError === t.get().invalidCredentials
           ? 'start-server-error'

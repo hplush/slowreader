@@ -20,3 +20,11 @@ interface Navigator {
 
 declare module '*.avif'
 declare module '*.png'
+
+interface Window {
+  PasswordCredential:
+    | {
+        new (data: { id: string; password: string }): Credential
+      }
+    | undefined
+}

@@ -27,6 +27,8 @@
 
   let serverInput: HTMLInputElement | undefined = $state()
 
+  let forceSavingPassword = $state(false)
+
   $effect(() => {
     if ($customServer && serverInput) {
       serverInput.select()
@@ -41,18 +43,20 @@
 {:else}
   <TwoOptionsPage paddingTwo={false} title={$t.signupTitle}>
     {#snippet one()}
-      <Form
-        loading={$signingUp}
-        onsubmit={() => {
-          history.pushState(null, '', location.pathname + '?warn')
-          page.submit()
-        }}
-      >
-        <Output autocomplete="username" label={$t.userId} value={$userId} />
+      <Form loading={$signingUp} onsubmit={page.submit}>
         <Output
+          name="username"
+          autocomplete="username"
+          label={$t.userId}
+          required
+          value={$userId}
+        />
+        <Output
+          name="password"
           autocomplete="new-password"
           label={$t.secret}
-          type="text"
+          required
+          type={forceSavingPassword ? 'password' : 'text'}
           value={$secret}
         />
         {#if $customServer}
@@ -86,6 +90,9 @@
           <Button
             icon={mdiLogin}
             loader={$signingUp ? $t.signingUp : undefined}
+            onclick={() => {
+              forceSavingPassword = true
+            }}
             size="wide"
             type="submit"
           >

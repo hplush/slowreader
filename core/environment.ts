@@ -53,6 +53,11 @@ interface ErrorEvents {
   ): void
 }
 
+export interface Password {
+  secret: string
+  userId: string
+}
+
 export interface Environment {
   /**
    * Smart store with current URL (or similar abstraction in your environment).
@@ -96,6 +101,11 @@ export interface Environment {
    * Restart app after sign-out to be sure that all in-memory caches are clean.
    */
   restartApp(): void
+
+  /**
+   * Save credentials to system’s password manager.
+   */
+  savePassword(fields: Password): Promise<false | true | undefined | void>
 
   /**
    * Save server’s session token to some secure storage.
@@ -169,6 +179,7 @@ export function setupEnvironment<Router extends BaseRouter>(
     networkType: env.networkType,
     openRoute: env.openRoute,
     restartApp: env.restartApp,
+    savePassword: env.savePassword,
     saveSession: env.saveSession,
     server: env.server,
     translationLoader: env.translationLoader,

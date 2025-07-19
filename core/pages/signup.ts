@@ -50,6 +50,10 @@ export const signupPage = createPage('signup', () => {
     try {
       await signUp($credentials.get(), customServerMixin.customServer.get())
       $warningStep.set(true)
+      getEnvironment().savePassword({
+        secret: $secret.get(),
+        userId: $userId.get()
+      })
     } catch (e: unknown) {
       if (HTTPRequestError.is(e)) {
         if (e.message === SIGN_UP_ERRORS.USER_ID_TAKEN) {

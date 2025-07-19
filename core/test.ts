@@ -2,10 +2,12 @@ import { MemoryStore } from '@logux/core'
 import { atom } from 'nanostores'
 
 import type { Credentials } from './auth.ts'
-import type { EnvironmentAndStore } from './environment.ts'
+import type { EnvironmentAndStore, Password } from './environment.ts'
 import { type BaseRoute, stringifyPopups } from './router.ts'
 
 export let testSession: string | undefined
+
+export let testPassword: Password | undefined
 
 const testRouter = atom<BaseRoute | undefined>()
 
@@ -49,6 +51,10 @@ export function getTestEnvironment(): EnvironmentAndStore {
     persistentEvents: { addEventListener() {}, removeEventListener() {} },
     persistentStore: {},
     restartApp() {},
+    savePassword(password) {
+      testPassword = password
+      return Promise.resolve(true)
+    },
     saveSession(session) {
       testSession = session
     },
