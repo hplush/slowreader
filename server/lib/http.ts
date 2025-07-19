@@ -2,6 +2,8 @@ import type { BaseServer } from '@logux/server'
 import type { Endpoint } from '@slowreader/api'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
+import { config } from './config.ts'
+
 function badRequest(res: ServerResponse, msg: string): true {
   res.writeHead(400, { 'Content-Type': 'text/plain' })
   res.end(msg)
@@ -28,6 +30,13 @@ export class ErrorResponse {
   }
 }
 
+function allowCors(res: ServerResponse, origin: string): void {
+  res.setHeader('Access-Control-Allow-Origin', origin)
+  res.setHeader('Access-Control-Allow-Credentials', 'true')
+  res.setHeader('Access-Control-Allow-Methods', '*')
+  res.setHeader('Access-Control-Allow-Headers', '*')
+}
+
 export function jsonApi<Response, Request extends object>(
   server: BaseServer,
   endpoint: Endpoint<Response, Request>,
@@ -44,6 +53,20 @@ export function jsonApi<Response, Request extends object>(
     | Response
 ): void {
   server.http(async (req, res) => {
+    if (config.env === 'development') {
+      allowCors(res, '*')
+    } else if (
+      req.headers.origin &&
+      /(:|\.)slowreader\.app$/.test(req.headers.origin)
+    ) {
+      allowCors(res, req.headers.origin)
+    }
+    if (req.method === 'OPTIONS') {
+      res.writeHead(200)
+      res.end()
+      return true
+    }
+
     if (req.method === endpoint.method) {
       let url = new URL(req.url!, 'http://localhost')
       let urlParams = endpoint.parseUrl(url.pathname)

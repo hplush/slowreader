@@ -18,13 +18,20 @@ import type { ServerResponse } from 'node:http'
 import { db, sessions, users } from '../db/index.ts'
 import { ErrorResponse, jsonApi } from '../lib/http.ts'
 
+function setSession(res: ServerResponse, value: string): void {
+  res.setHeader(
+    'Set-Cookie',
+    `session=${value}; HttpOnly; Path=/; SameSite=None; Secure`
+  )
+}
+
 async function setNewSession(
   res: ServerResponse,
   userId: string
 ): Promise<string> {
   let token = nanoid()
   await db.insert(sessions).values({ token, usedAt: sql`now()`, userId })
-  res.setHeader('Set-Cookie', `session=${token}; HttpOnly; Path=/; Secure`)
+  setSession(res, token)
   return token
 }
 
@@ -68,10 +75,7 @@ export default (server: BaseServer): void => {
     let token = params.session
     if (!token) {
       token = cookieJs.parse(req.headers.cookie ?? '').session
-      res.setHeader(
-        'Set-Cookie',
-        'session=; Max-Age=0; HttpOnly; Path=/; Secure'
-      )
+      setSession(res, '')
     }
     if (!token) return false
 
