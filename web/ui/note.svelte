@@ -6,14 +6,27 @@
   let {
     children,
     icon,
+    title,
     variant
-  }: { children: Snippet; icon: string; variant: 'good' | 'neutral' } = $props()
+  }: {
+    children: Snippet
+    icon: string
+    title?: string
+    variant: 'dangerous' | 'good' | 'neutral'
+  } = $props()
 </script>
 
-<section class="note" class:is-good={variant === 'good'}>
+<section
+  class="note"
+  class:is-dangerous={variant === 'dangerous'}
+  class:is-good={variant === 'good'}
+>
   <div class="note_icon">
     <Icon path={icon} />
   </div>
+  {#if title}
+    <string class="note_title">{title}</string>
+  {/if}
   {@render children()}
 </section>
 
@@ -30,6 +43,10 @@
           calc(c + var(--note-c)) h
       );
       border-radius: var(--base-radius);
+
+      &.is-dangerous {
+        --current-background: var(--note-dangerous-background);
+      }
 
       &.is-good {
         --current-background: var(--note-good-background);
@@ -50,6 +67,11 @@
         from var(--current-background) calc(l + var(--note-l))
           calc(c + var(--note-c)) h
       );
+    }
+
+    .note_title {
+      display: block;
+      font: var(--secondary-title-font);
     }
   }
 </style>

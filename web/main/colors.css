@@ -22,6 +22,7 @@
     --field-l: 0.025;
     --field-c: -0.015;
     --note-good-background: oklch(0.95 0.03 140);
+    --note-dangerous-background: oklch(0.95 0.02 20);
     --pressed-shadow:
       inset 0 1px 2px oklch(0 0 0 / 50%), inset 0 -0.5px 0 oklch(1 0 0);
 
@@ -44,6 +45,7 @@
     --note-l: 0.2;
     --note-c: 0.03;
     --note-good-background: oklch(0.25 0.03 140);
+    --note-dangerous-background: oklch(0.25 0.03 20);
     --main-land-color: oklch(0.3 0 70);
     --pressed-shadow:
       inset 0 1px 2px oklch(0 0 0), inset 0 -0.5px 0 oklch(1 0 0 / 40%);
