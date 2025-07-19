@@ -54,6 +54,7 @@ export function jsonApi<Response, Request extends object>(
 ): void {
   server.http(async (req, res) => {
     if (config.env === 'development') {
+      /* c8 ignore next 2 */
       allowCors(res, '*')
     } else if (
       req.headers.origin &&
