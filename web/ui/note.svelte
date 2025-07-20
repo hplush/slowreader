@@ -34,6 +34,10 @@
   :global {
     .note {
       position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      align-items: flex-start;
       padding: 10px 10px 10px calc(32px + 5px + 5px);
       font: var(--secondary-font);
       background: var(--current-background);

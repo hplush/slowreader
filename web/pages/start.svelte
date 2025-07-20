@@ -14,12 +14,12 @@
   } from '@slowreader/core'
 
   import { getURL } from '../stores/url-router.ts'
-  import Actions from '../ui/actions.svelte'
   import Button from '../ui/button.svelte'
   import Description from '../ui/description.svelte'
   import Error from '../ui/error.svelte'
   import Form from '../ui/form.svelte'
   import Input from '../ui/input.svelte'
+  import Stack from '../ui/stack.svelte'
   import Title from '../ui/title.svelte'
   import TwoOptionsPage from '../ui/two-options-page.svelte'
 
@@ -42,7 +42,7 @@
       <p>{$t.localDescription1}</p>
       <p>{$t.localDescription2}</p>
     </Description>
-    <Actions vertical>
+    <Stack center column>
       <Button
         icon={mdiRocketLaunch}
         onclick={page.startLocal}
@@ -59,7 +59,7 @@
       >
         {$t.createAccount}
       </Button>
-    </Actions>
+    </Stack>
   {/snippet}
   {#snippet two()}
     <Form loading={$signingIn} onsubmit={page.signIn}>
@@ -105,7 +105,7 @@
         />
       {/if}
       <Error id="start-server-error" text={$signError} />
-      <Actions vertical>
+      <Stack center column>
         {#if !$customServer}
           <Button
             disabled={$signingIn}
@@ -128,7 +128,7 @@
         >
           {$t.login}
         </Button>
-      </Actions>
+      </Stack>
     </Form>
   {/snippet}
 </TwoOptionsPage>

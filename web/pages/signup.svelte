@@ -12,13 +12,13 @@
     validServer
   } from '@slowreader/core'
 
-  import Actions from '../ui/actions.svelte'
   import Button from '../ui/button.svelte'
   import Error from '../ui/error.svelte'
   import Form from '../ui/form.svelte'
   import Input from '../ui/input.svelte'
   import Note from '../ui/note.svelte'
   import Output from '../ui/output.svelte'
+  import Stack from '../ui/stack.svelte'
   import ThinPage from '../ui/thin-page.svelte'
   import TwoOptionsPage from '../ui/two-options-page.svelte'
 
@@ -73,7 +73,7 @@
           />
         {/if}
         <Error id="start-server-error" text={$error} />
-        <Actions vertical>
+        <Stack center column>
           {#if !$customServer}
             <Button
               disabled={$signingUp}
@@ -98,25 +98,23 @@
           >
             {$t.signup}
           </Button>
-        </Actions>
+        </Stack>
       </Form>
     {/snippet}
     {#snippet two()}
       <Note icon={mdiEyeOff} variant="good">
         {$t.randomNote}
-        <Actions>
-          <Button
-            disabled={$signingUp}
-            icon={mdiDiceMultipleOutline}
-            onclick={() => {
-              page.regenerate()
-            }}
-            size="pill"
-            variant="secondary"
-          >
-            {$t.regenerateCredetials}
-          </Button>
-        </Actions>
+        <Button
+          disabled={$signingUp}
+          icon={mdiDiceMultipleOutline}
+          onclick={() => {
+            page.regenerate()
+          }}
+          size="pill"
+          variant="secondary"
+        >
+          {$t.regenerateCredetials}
+        </Button>
       </Note>
       <Note icon={mdiPiggyBankOutline} variant="neutral">
         {$t.payWarning}
