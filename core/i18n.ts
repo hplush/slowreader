@@ -19,7 +19,7 @@ export const i18n = createI18n($locale, {
   preprocessors: [
     eachMessage(str => {
       // Use non-breaking hyphen and non-breaking space after prepositions
-      return str.replace(/-/g, '‑').replace(/\b(\p{Ll}{1,3})\b\s/gu, '$1 ')
+      return str.replace(/-/g, '‑').replace(/(\s)(\p{Ll}{1,3})\b\s/gu, '$1$2 ')
     })
   ]
 })
