@@ -67,9 +67,21 @@
         theme.set('dark')
       }
     }
+
     updateTheme()
-    setTimeout(updateTheme, 200)
-    setTimeout(updateTheme, 1000)
+
+    let htmlObserver = new MutationObserver(() => {
+      updateTheme()
+    })
+
+    htmlObserver.observe(document.documentElement, {
+      attributeFilter: ['class'],
+      attributes: true
+    })
+
+    onDestroy(() => {
+      htmlObserver.disconnect()
+    })
 
     oninit()
   })
