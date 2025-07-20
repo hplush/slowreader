@@ -35,6 +35,7 @@ We use **Svelte** as the UI framework and **Vite** as the builder.
 - [`Dockerfile`](./Dockerfile) and [`nginx.conf`](./nginx.conf): web server to serve web client for staging and pull request preview servers.
 - [`.browserslistrc`](./.browserslistrc): browsers, which we support. See [actual browsers list](https://browsersl.ist/#q=defaults+and+supports+es6-module).
 - [`.size-limit.json`](./.size-limit.json): budget for JS bundles and whole webpage size. Don’t be afraid to tune the limit. We put it so tight that it makes you feel a small pain every time you add a significant amount of code.
+- [`global.d.ts`](./global.d.ts): missed web platform types and fixes for Vite imports.
 
 ## Tools
 
