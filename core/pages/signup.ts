@@ -47,13 +47,10 @@ export const signupPage = createPage('signup', () => {
   async function submit(): Promise<void> {
     $error.set(undefined)
     $signingUp.set(true)
+    let created = false
     try {
       await signUp($credentials.get(), customServerMixin.customServer.get())
-      $warningStep.set(true)
-      getEnvironment().savePassword({
-        secret: $secret.get(),
-        userId: $userId.get()
-      })
+      created = true
     } catch (e: unknown) {
       if (HTTPRequestError.is(e)) {
         if (e.message === SIGN_UP_ERRORS.USER_ID_TAKEN) {
@@ -68,6 +65,13 @@ export const signupPage = createPage('signup', () => {
       }
     } finally {
       $signingUp.set(false)
+    }
+    if (created) {
+      $warningStep.set(true)
+      await getEnvironment().savePassword({
+        secret: $secret.get(),
+        userId: $userId.get()
+      })
     }
   }
 

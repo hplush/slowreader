@@ -53,7 +53,7 @@ interface ErrorEvents {
   ): void
 }
 
-export interface Password {
+export interface SavedPassword {
   secret: string
   userId: string
 }
@@ -105,7 +105,7 @@ export interface Environment {
   /**
    * Save credentials to system’s password manager.
    */
-  savePassword(fields: Password): Promise<false | true | undefined | void>
+  savePassword(fields: SavedPassword): Promise<false | true | undefined | void>
 
   /**
    * Save server’s session token to some secure storage.

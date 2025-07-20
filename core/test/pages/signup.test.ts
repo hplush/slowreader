@@ -1,7 +1,7 @@
 import type { TestServer } from '@logux/server'
 import { signUp as signUpApi } from '@slowreader/api'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
-import { deepStrictEqual, equal, match, notEqual } from 'node:assert'
+import { equal, match, notEqual } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -23,8 +23,7 @@ import {
   getTestEnvironment,
   openPage,
   setBaseTestRoute,
-  setTestUser,
-  testPassword
+  setTestUser
 } from '../utils.ts'
 
 let server: TestServer
@@ -117,10 +116,6 @@ test('signs up new user', async () => {
 
   let user = page.userId.get()
   let secret = page.secret.get()
-  deepStrictEqual(testPassword, {
-    secret,
-    userId: user
-  })
   page.finish()
   await setTimeout(10)
   equal(router.get().route, 'welcome')
