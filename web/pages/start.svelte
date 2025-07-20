@@ -13,7 +13,7 @@
     validUserId
   } from '@slowreader/core'
 
-  import { getURL } from '../stores/router.ts'
+  import { getURL } from '../stores/url-router.ts'
   import Actions from '../ui/actions.svelte'
   import Button from '../ui/button.svelte'
   import Description from '../ui/description.svelte'

@@ -47,8 +47,8 @@ All networks requests should be done by [`request()`](./request.ts) to support d
 
 Slow Reader router is a little complicated because it needs to work in desktop/mobile apps, not only in web. This is why router is split to 2 parts:
 
-1. Every environment (like web client) has own low-level “base router”. Web client uses [URL router](../web/stores/router.ts) from [Nano Stores Router](https://github.com/nanostores/router).
-2. [Core router](./router.ts) takes “base router” and add redirects, guards, etc.
+1. Every environment (like web client) has own low-level “base router”. Web client uses [URL router](../web/stores/url-router.ts) from [Nano Stores Router](https://github.com/nanostores/router).
+2. [Core router](./router.ts) takes “base router” and adds redirects, guards, etc.
 
 This is why core code should not rely on URL routing, since not every client will use it. For instance, desktop app with use just a simple store with plain object of current route.
 

@@ -12,7 +12,7 @@ import {
 } from '@slowreader/core'
 
 import { locale } from '../stores/locale.ts'
-import { openRoute, urlRouter } from '../stores/router.ts'
+import { openRoute, urlRouter } from '../stores/url-router.ts'
 
 let server = location.hostname
 let proxy = '/proxy/'

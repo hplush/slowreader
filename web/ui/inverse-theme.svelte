@@ -1,15 +1,15 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
 
-  import { theme } from '../stores/theme.ts'
+  import { pageTheme } from '../stores/page-theme.ts'
 
   let { children }: { children: Snippet } = $props()
 </script>
 
 <span
   class="inverse-theme"
-  class:is-dark-theme={$theme === 'light'}
-  class:is-light-theme={$theme === 'dark'}
+  class:is-dark-theme={$pageTheme === 'light'}
+  class:is-light-theme={$pageTheme === 'dark'}
 >
   {@render children()}
 </span>
