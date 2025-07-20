@@ -4,11 +4,24 @@
   let {
     center,
     children,
-    column = false
-  }: { center?: boolean; children: Snippet; column?: boolean } = $props()
+    gap = 'm',
+    row = false
+  }: {
+    center?: boolean
+    children: Snippet
+    gap?: 'l' | 'm' | 's'
+    row?: boolean
+  } = $props()
 </script>
 
-<div class="stack" class:is-center={center} class:is-column={column}>
+<div
+  class="stack"
+  class:is-center={center}
+  class:is-gap-l={gap === 'l'}
+  class:is-gap-m={gap === 'm'}
+  class:is-gap-s={gap === 's'}
+  class:is-row={row}
+>
   {@render children()}
 </div>
 
@@ -16,14 +29,26 @@
   :global {
     .stack {
       display: flex;
-      gap: 10px;
+      flex-direction: column;
 
       &.is-center {
         align-items: center;
       }
 
-      &.is-column {
-        flex-direction: column;
+      &.is-row {
+        flex-direction: row;
+      }
+
+      &.is-gap-l {
+        gap: 16px;
+      }
+
+      &.is-gap-m {
+        gap: 10px;
+      }
+
+      &.is-gap-s {
+        gap: 6px;
       }
     }
   }

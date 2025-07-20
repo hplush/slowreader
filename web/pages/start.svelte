@@ -15,7 +15,6 @@
 
   import { getURL } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
-  import Description from '../ui/description.svelte'
   import Error from '../ui/error.svelte'
   import Form from '../ui/form.svelte'
   import Input from '../ui/input.svelte'
@@ -38,27 +37,29 @@
 <TwoOptionsPage title={$t.startTitle}>
   {#snippet one()}
     <Title>{$t.newUser}</Title>
-    <Description>
-      <p>{$t.localDescription1}</p>
-      <p>{$t.localDescription2}</p>
-    </Description>
-    <Stack center column>
-      <Button
-        icon={mdiRocketLaunch}
-        onclick={page.startLocal}
-        size="big"
-        variant="cta"
-      >
-        {$t.start}
-      </Button>
-      <Button
-        href={getURL('signup')}
-        icon={mdiAccountPlus}
-        size="wide"
-        variant="secondary"
-      >
-        {$t.createAccount}
-      </Button>
+    <Stack gap="l">
+      <Stack gap="s">
+        <p>{$t.localDescription1}</p>
+        <p>{$t.localDescription2}</p>
+      </Stack>
+      <Stack center>
+        <Button
+          icon={mdiRocketLaunch}
+          onclick={page.startLocal}
+          size="big"
+          variant="cta"
+        >
+          {$t.start}
+        </Button>
+        <Button
+          href={getURL('signup')}
+          icon={mdiAccountPlus}
+          size="wide"
+          variant="secondary"
+        >
+          {$t.createAccount}
+        </Button>
+      </Stack>
     </Stack>
   {/snippet}
   {#snippet two()}
@@ -105,7 +106,7 @@
         />
       {/if}
       <Error id="start-server-error" text={$signError} />
-      <Stack center column>
+      <Stack center>
         {#if !$customServer}
           <Button
             disabled={$signingIn}

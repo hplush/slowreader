@@ -11,7 +11,7 @@
     .title {
       /* TODO: Replace to text-box-trim when FF will support it */
       margin-top: -3px;
-      margin-bottom: 13px;
+      margin-bottom: 10px;
       font: var(--app-title-font);
     }
   }

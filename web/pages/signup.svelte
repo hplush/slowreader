@@ -73,7 +73,7 @@
           />
         {/if}
         <Error id="start-server-error" text={$error} />
-        <Stack center column>
+        <Stack center>
           {#if !$customServer}
             <Button
               disabled={$signingUp}
