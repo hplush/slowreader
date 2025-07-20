@@ -1,7 +1,7 @@
 import type { TestServer } from '@logux/server'
 import { signUp as signUpApi } from '@slowreader/api'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
-import { equal, match, notEqual } from 'node:assert'
+import { deepStrictEqual, equal, match, notEqual } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -12,6 +12,7 @@ import {
   generateCredentials,
   hasPassword,
   router,
+  type SavedPassword,
   setupEnvironment,
   signOut,
   signUp,
@@ -226,4 +227,34 @@ test('is ready for user ID conflict', async () => {
   equal(page.userId.get(), user)
   equal(userId.get(), page.userId.get())
   equal(client.get()?.state, 'disconnected')
+})
+
+test('runs system password saving dialog', async () => {
+  let calls: SavedPassword[] = []
+  setupEnvironment({
+    ...getTestEnvironment(),
+    savePassword(fields) {
+      calls.push(fields)
+      return Promise.resolve()
+    },
+    server
+  })
+
+  let page = openPage({
+    params: {},
+    route: 'signup'
+  })
+  let user = page.userId.get()
+  let secret = page.secret.get()
+  equal(page.warningStep.get(), false)
+  deepStrictEqual(calls, [])
+
+  await page.submit()
+  deepStrictEqual(calls, [{ secret, userId: user }])
+
+  page.askAgain()
+  deepStrictEqual(calls, [
+    { secret, userId: user },
+    { secret, userId: user }
+  ])
 })

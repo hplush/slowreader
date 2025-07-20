@@ -81,6 +81,12 @@ export const signupPage = createPage('signup', () => {
 
   return {
     ...customServerMixin,
+    askAgain() {
+      getEnvironment().savePassword({
+        secret: $secret.get(),
+        userId: $userId.get()
+      })
+    },
     credentials: $credentials,
     error: $error,
     exit() {

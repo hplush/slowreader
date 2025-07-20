@@ -4,7 +4,10 @@
     mdiDiceMultipleOutline,
     mdiEyeOff,
     mdiLogin,
-    mdiPiggyBankOutline
+    mdiPiggyBankOutline,
+    mdiRestartOff,
+    mdiStickerCheckOutline,
+    mdiTooltipQuestionOutline
   } from '@mdi/js'
   import {
     type SignupPage,
@@ -18,6 +21,7 @@
   import Input from '../ui/input.svelte'
   import Note from '../ui/note.svelte'
   import Output from '../ui/output.svelte'
+  import Paper from '../ui/paper.svelte'
   import Stack from '../ui/stack.svelte'
   import ThinPage from '../ui/thin-page.svelte'
   import TwoOptionsPage from '../ui/two-options-page.svelte'
@@ -26,8 +30,6 @@
   let { customServer, error, secret, signingUp, userId, warningStep } = page
 
   let serverInput: HTMLInputElement | undefined = $state()
-
-  let forceSavingPassword = $state(false)
 
   $effect(() => {
     if ($customServer && serverInput) {
@@ -38,7 +40,26 @@
 
 {#if $warningStep}
   <ThinPage title={$t.signupTitle}>
-    <Button onclick={page.finish}>{$t.savedPromise}</Button>
+    <Stack gap="xl">
+      <Stack gap="s">
+        {$t.savePassword}
+        <Button
+          icon={mdiTooltipQuestionOutline}
+          onclick={page.askAgain}
+          size="pill"
+          variant="secondary"
+        >
+          {$t.askSaveAgain}
+        </Button>
+      </Stack>
+      <Paper lines={[$userId, $secret]} />
+      <Button icon={mdiStickerCheckOutline} onclick={page.finish} size="wide">
+        {$t.savedPromise}
+      </Button>
+      <Note icon={mdiRestartOff} title={$t.noRecoveryTitle} variant="dangerous">
+        {$t.noRecoveryDesc}
+      </Note>
+    </Stack>
   </ThinPage>
 {:else}
   <TwoOptionsPage paddingTwo={false} title={$t.signupTitle}>
@@ -48,15 +69,13 @@
           name="username"
           autocomplete="username"
           label={$t.userId}
-          required
           value={$userId}
         />
         <Output
           name="password"
           autocomplete="new-password"
           label={$t.secret}
-          required
-          type={forceSavingPassword ? 'password' : 'text'}
+          type="text"
           value={$secret}
         />
         {#if $customServer}
@@ -90,9 +109,6 @@
           <Button
             icon={mdiLogin}
             loader={$signingUp ? $t.signingUp : undefined}
-            onclick={() => {
-              forceSavingPassword = true
-            }}
             size="wide"
             type="submit"
           >

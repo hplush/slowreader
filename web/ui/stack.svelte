@@ -9,7 +9,7 @@
   }: {
     center?: boolean
     children: Snippet
-    gap?: 'l' | 'm' | 's'
+    gap?: 'l' | 'm' | 's' | 'xl'
     row?: boolean
   } = $props()
 </script>
@@ -20,6 +20,7 @@
   class:is-gap-l={gap === 'l'}
   class:is-gap-m={gap === 'm'}
   class:is-gap-s={gap === 's'}
+  class:is-gap-xl={gap === 'xl'}
   class:is-row={row}
 >
   {@render children()}
@@ -30,6 +31,8 @@
     .stack {
       display: flex;
       flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
 
       &.is-center {
         align-items: center;
@@ -37,6 +40,10 @@
 
       &.is-row {
         flex-direction: row;
+      }
+
+      &.is-gap-xl {
+        gap: 24px;
       }
 
       &.is-gap-l {

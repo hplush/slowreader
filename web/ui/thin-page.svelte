@@ -32,7 +32,7 @@
     }
 
     .thin-page_center {
-      width: var(--form-width);
+      width: 300px;
       max-width: 100%;
       margin: 8px 0;
     }

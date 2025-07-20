@@ -70,7 +70,7 @@
     }
 
     .two-options-page_option {
-      width: var(--form-width);
+      width: 284px;
       max-width: 100%;
       padding: 0 16px 16px;
       margin: 8px 0;

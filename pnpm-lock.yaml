@@ -291,6 +291,9 @@ importers:
       '@fontsource/inika':
         specifier: 5.2.6
         version: 5.2.6
+      '@fontsource/playpen-sans':
+        specifier: 5.2.7
+        version: 5.2.7
       '@logux/client':
         specifier: github:logux/client#next
         version: https://codeload.github.com/logux/client/tar.gz/f552bf680fc1e8d414db4dcc853ac70c65e71e3c(@logux/core@0.9.0)(nanostores@1.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -853,6 +856,9 @@ packages:
 
   '@fontsource/inika@5.2.6':
     resolution: {integrity: sha512-o9VP3j7+nnobEbPTjJajUDs8INjqvkAJ70nNN9bWxKZfRZr3hRuufG92N2gCGCO4IoAJCkpJVID2xnXJnMeFQg==}
+
+  '@fontsource/playpen-sans@5.2.7':
+    resolution: {integrity: sha512-8KKwKN8xqv0cyz9fMtknHHjCMjFp+TLlVLd+LM2K8PD+oZ0rxUcUHeUabbCDCJKKX7dCOGnXM7secq2YO9+JNA==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -4650,6 +4656,8 @@ snapshots:
   '@fontsource-variable/noto-serif@5.2.7': {}
 
   '@fontsource/inika@5.2.6': {}
+
+  '@fontsource/playpen-sans@5.2.7': {}
 
   '@humanfs/core@0.19.1': {}
 
