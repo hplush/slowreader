@@ -76,14 +76,12 @@ setupEnvironment({
   },
   async savePassword(fields) {
     if (window.PasswordCredential) {
-      return navigator.credentials.store(
+      await navigator.credentials.store(
         new window.PasswordCredential({
           id: fields.userId,
           password: fields.secret
         })
       )
-    } else {
-      return false
     }
   },
   saveSession() {

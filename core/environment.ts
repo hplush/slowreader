@@ -105,7 +105,7 @@ export interface Environment {
   /**
    * Save credentials to system’s password manager.
    */
-  savePassword(fields: SavedPassword): Promise<false | true | undefined | void>
+  savePassword(fields: SavedPassword): Promise<void>
 
   /**
    * Save server’s session token to some secure storage.

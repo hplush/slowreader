@@ -49,9 +49,8 @@ export function getTestEnvironment(): EnvironmentAndStore {
     persistentEvents: { addEventListener() {}, removeEventListener() {} },
     persistentStore: {},
     restartApp() {},
-    savePassword(password) {
-      testPassword = password
-      return Promise.resolve(true)
+    savePassword() {
+      return Promise.resolve()
     },
     saveSession(session) {
       testSession = session

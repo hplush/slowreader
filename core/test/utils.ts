@@ -31,12 +31,7 @@ import {
 } from '../index.ts'
 import { getTestEnvironment, setBaseTestRoute } from '../test.ts'
 
-export {
-  getTestEnvironment,
-  setBaseTestRoute,
-  testPassword,
-  testSession
-} from '../test.ts'
+export { getTestEnvironment, setBaseTestRoute, testSession } from '../test.ts'
 
 export function setTestUser(enable = true): void {
   if (enable) {
