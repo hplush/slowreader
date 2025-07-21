@@ -31,6 +31,7 @@
       width: 100%;
       padding: 5px 15px;
       font: var(--handwritten-font);
+      color: var(--text-color);
       background: transparent;
       border: none;
       border-radius: 2px;

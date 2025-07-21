@@ -25,6 +25,7 @@
   import Paper from '../ui/paper.svelte'
   import Stack from '../ui/stack.svelte'
   import ThinPage from '../ui/thin-page.svelte'
+  import Title from '../ui/title.svelte'
   import TwoOptionsPage from '../ui/two-options-page.svelte'
 
   let { page }: { page: SignupPage } = $props()
@@ -46,8 +47,17 @@
       <Note icon={mdiRestartOff} title={$t.noRecoveryTitle} variant="dangerous">
         {$t.noRecoveryDesc}
       </Note>
-      <Stack gap="s">
-        {$t.savePassword}
+      <Paper lines={[$userId, $secret]} />
+      <Stack center gap="s">
+        <Title>{$t.savePassword}</Title>
+        <Button
+          href={$mailTo}
+          icon={mdiEmailFast}
+          onclick={page.finish}
+          size="wide"
+        >
+          {$t.toEmail}
+        </Button>
         <Button
           icon={mdiTooltipQuestionOutline}
           onclick={page.askAgain}
@@ -57,18 +67,14 @@
           {$t.askSaveAgain}
         </Button>
         <Button
-          href={$mailTo}
-          icon={mdiEmailFast}
+          icon={mdiStickerCheckOutline}
+          onclick={page.finish}
           size="pill"
           variant="secondary"
         >
-          {$t.toEmail}
+          {$t.savedPromise}
         </Button>
       </Stack>
-      <Paper lines={[$userId, $secret]} />
-      <Button icon={mdiStickerCheckOutline} onclick={page.finish} size="wide">
-        {$t.savedPromise}
-      </Button>
     </Stack>
   </ThinPage>
 {:else}

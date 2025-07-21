@@ -20,8 +20,7 @@ export const authMessages = i18n('auth', {
     'We are using random user ID for privacy to make it harder to connect user with real person',
   regenerateCredetials: 'Re-generate',
   savedPromise: 'I saved user ID and secret',
-  savePassword:
-    'Save your credentials to password manager (for instance, in browser)',
+  savePassword: 'Save your credentials',
   secret: 'Secret',
   server: 'Custom server',
   signingIn: 'Sending sign-in form',
@@ -31,7 +30,7 @@ export const authMessages = i18n('auth', {
   start: 'Start local app',
   startTitle: 'Start',
   title: 'No account in this browser yet',
-  toEmail: 'Send password to my email',
+  toEmail: 'Email myself password',
   userId: 'User ID',
   userIdTaken: 'This user ID was taken'
 })
