@@ -31,6 +31,7 @@ export const authMessages = i18n('auth', {
   start: 'Start local app',
   startTitle: 'Start',
   title: 'No account in this browser yet',
+  toEmail: 'Send password to my email',
   userId: 'User ID',
   userIdTaken: 'This user ID was taken'
 })

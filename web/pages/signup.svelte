@@ -2,6 +2,7 @@
   import {
     mdiCloudPlus,
     mdiDiceMultipleOutline,
+    mdiEmailFast,
     mdiEyeOff,
     mdiLogin,
     mdiPiggyBankOutline,
@@ -27,7 +28,8 @@
   import TwoOptionsPage from '../ui/two-options-page.svelte'
 
   let { page }: { page: SignupPage } = $props()
-  let { customServer, error, secret, signingUp, userId, warningStep } = page
+  let { customServer, error, mailTo, secret, signingUp, userId, warningStep } =
+    page
 
   let serverInput: HTMLInputElement | undefined = $state()
 
@@ -41,6 +43,9 @@
 {#if $warningStep}
   <ThinPage title={$t.signupTitle}>
     <Stack gap="xl">
+      <Note icon={mdiRestartOff} title={$t.noRecoveryTitle} variant="dangerous">
+        {$t.noRecoveryDesc}
+      </Note>
       <Stack gap="s">
         {$t.savePassword}
         <Button
@@ -51,14 +56,19 @@
         >
           {$t.askSaveAgain}
         </Button>
+        <Button
+          href={$mailTo}
+          icon={mdiEmailFast}
+          size="pill"
+          variant="secondary"
+        >
+          {$t.toEmail}
+        </Button>
       </Stack>
       <Paper lines={[$userId, $secret]} />
       <Button icon={mdiStickerCheckOutline} onclick={page.finish} size="wide">
         {$t.savedPromise}
       </Button>
-      <Note icon={mdiRestartOff} title={$t.noRecoveryTitle} variant="dangerous">
-        {$t.noRecoveryDesc}
-      </Note>
     </Stack>
   </ThinPage>
 {:else}

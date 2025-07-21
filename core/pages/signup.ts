@@ -29,6 +29,14 @@ export const signupPage = createPage('signup', () => {
 
   let $userId = computed($credentials, credentials => credentials.userId)
   let $secret = computed($credentials, credentials => toSecret(credentials))
+  let $mailTo = computed([$userId, $secret], (user, secret) => {
+    let body = `User ID: ${user}\nSecret: ${secret}`
+    return (
+      `mailto:?` +
+      `subject=Slow Reader Secret&` +
+      `body=${encodeURIComponent(body)}`
+    )
+  })
 
   let unbindServer = customServerMixin.customServer.listen(() => {
     $error.set(undefined)
@@ -94,6 +102,7 @@ export const signupPage = createPage('signup', () => {
       unbindPassword()
     },
     finish,
+    mailTo: $mailTo,
     params: {},
     regenerate,
     secret: $secret,
