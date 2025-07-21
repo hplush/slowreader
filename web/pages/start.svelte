@@ -68,6 +68,7 @@
       <Input
         name="username"
         autocomplete="username"
+        disabled={$signingIn}
         errorId={$signError === t.get().invalidCredentials
           ? 'start-server-error'
           : undefined}
@@ -82,6 +83,7 @@
       <Input
         name="password"
         autocomplete="current-password"
+        disabled={$signingIn}
         errorId={$signError === t.get().invalidCredentials
           ? 'start-server-error'
           : undefined}
@@ -94,6 +96,7 @@
       />
       {#if $customServer}
         <Input
+          disabled={$signingIn}
           inputmode="url"
           label={$t.server}
           onescape={() => {

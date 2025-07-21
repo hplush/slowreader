@@ -28,7 +28,5 @@
     }
   }}
 >
-  <fieldset disabled={loading}>
-    {@render children()}
-  </fieldset>
+  {@render children()}
 </form>

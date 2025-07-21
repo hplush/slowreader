@@ -6,6 +6,7 @@
   import Label from './label.svelte'
 
   let {
+    disabled,
     error,
     errorId,
     font = 'normal',
@@ -19,6 +20,7 @@
     value = $bindable(''),
     ...props
   }: {
+    disabled?: boolean
     error?: string
     errorId?: string
     font?: 'mono' | 'normal'
@@ -55,6 +57,7 @@
     {id}
     class="input_field"
     class:is-mono={font === 'mono'}
+    aria-disabled={disabled}
     aria-errormessage={errorId || (inputError || error ? `${id}-error` : null)}
     aria-invalid={inputError || error || errorId ? true : null}
     data-invalid={!!runValidators(value)}
@@ -75,6 +78,7 @@
         inputError = runValidators(e.currentTarget.value)
       }
     }}
+    readonly={disabled}
     {type}
     {value}
     {...props}

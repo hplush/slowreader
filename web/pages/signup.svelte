@@ -80,6 +80,7 @@
         />
         {#if $customServer}
           <Input
+            disabled={$signingUp}
             inputmode="url"
             label={$t.server}
             onescape={() => {

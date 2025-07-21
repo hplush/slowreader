@@ -7,6 +7,7 @@
   import Loader from './loader.svelte'
 
   let {
+    disabled,
     icon,
     loader,
     onclick,
@@ -15,6 +16,7 @@
     ...props
   }: {
     children: Snippet
+    disabled?: boolean
     icon?: string
     loader?: boolean | string
     onclick?: (event: MouseEvent) => void
@@ -69,9 +71,11 @@
     class:is-pill={size === 'pill'}
     class:is-secondary={variant === 'secondary'}
     class:is-wide={size === 'wide' || size === 'big'}
-    aria-disabled={!!loader}
+    aria-disabled={!!loader || !!disabled}
     href={props.href}
-    {onclick}
+    onclick={e => {
+      if (!loader && !disabled && onclick) onclick(e)
+    }}
     title={size === 'icon' ? title : undefined}
   >
     {@render content()}
@@ -88,8 +92,10 @@
     class:is-pill={size === 'pill'}
     class:is-secondary={variant === 'secondary'}
     class:is-wide={size === 'wide' || size === 'big'}
-    aria-disabled={!!loader}
-    {onclick}
+    aria-disabled={!!loader || !!disabled}
+    onclick={e => {
+      if (!loader && !disabled && onclick) onclick(e)
+    }}
     title={size === 'icon' ? title : undefined}
     type={props.type || 'button'}
   >
@@ -110,8 +116,7 @@
       border: none;
       border-radius: var(--base-radius);
 
-      &[aria-disabled='true'],
-      &[disabled] {
+      &[aria-disabled='true'] {
         pointer-events: none;
       }
 
@@ -132,8 +137,8 @@
         color: var(--current-background);
         background: var(--text-color);
 
-        &:hover,
-        &:active,
+        &:hover:not([aria-disabled='true']),
+        &:active:not([aria-disabled='true']),
         &:focus-visible {
           background: oklch(
             from var(--text-color) calc(l + var(--button-hover-l)) c h
@@ -147,8 +152,8 @@
         background: var(--accent-color);
         box-shadow: var(--cta-button-shadow);
 
-        &:hover,
-        &:active,
+        &:hover:not([aria-disabled='true']),
+        &:active:not([aria-disabled='true']),
         &:focus-visible {
           background: oklch(
             from var(--accent-color) calc(l + var(--button-hover-l)) c h
@@ -163,8 +168,8 @@
             calc(c + var(--secondary-c)) h
         );
 
-        &:hover,
-        &:active,
+        &:hover:not([aria-disabled='true']),
+        &:active:not([aria-disabled='true']),
         &:focus-visible {
           background: oklch(
             from var(--current-background)
@@ -184,7 +189,7 @@
       min-height: 33px;
       padding: 7px 12px;
 
-      .button:active & {
+      .button:active:not([aria-disabled='true']) & {
         transform: translateY(1px);
       }
 
