@@ -11,7 +11,7 @@ export const authMessages = i18n('auth', {
   login: 'Login into existed account',
   newUser: 'New user',
   noRecoveryDesc:
-    'The app uses end-to-end encryption. But if you will loose your password, nobody will be able to decrypt it.',
+    'The app uses end-to-end encryption. But if you will lose your password, nobody will be able to decrypt it.',
   noRecoveryTitle: 'We don’t have password recovery',
   oldUser: 'Existed user',
   payWarning:
