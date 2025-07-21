@@ -1,7 +1,7 @@
 import { i18n } from '../../i18n.ts'
 
 export const authMessages = i18n('auth', {
-  askSaveAgain: 'Show password popup again',
+  askSaveAgain: 'Show save-password popup',
   createAccount: 'Create cross-device account',
   customServer: 'Use my own server',
   invalidCredentials: 'There is no user with such user ID and password',
@@ -20,7 +20,7 @@ export const authMessages = i18n('auth', {
     'We are using random user ID for privacy to make it harder to connect user with real person',
   regenerateCredetials: 'Re-generate',
   savedPromise: 'I saved user ID and secret',
-  savePassword: 'Save your credentials',
+  savePassword: 'Save your password',
   secret: 'Secret',
   server: 'Custom server',
   signingIn: 'Sending sign-in form',
@@ -30,7 +30,7 @@ export const authMessages = i18n('auth', {
   start: 'Start local app',
   startTitle: 'Start',
   title: 'No account in this browser yet',
-  toEmail: 'Email myself password',
+  toEmail: 'Email password to myself',
   userId: 'User ID',
   userIdTaken: 'This user ID was taken'
 })
