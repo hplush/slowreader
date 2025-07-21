@@ -229,7 +229,7 @@ test('is ready for user ID conflict', async () => {
   equal(client.get()?.state, 'disconnected')
 })
 
-test('runs system password saving dialog', async () => {
+test('gives a way to save password', async () => {
   let calls: SavedPassword[] = []
   setupEnvironment({
     ...getTestEnvironment(),
@@ -257,4 +257,7 @@ test('runs system password saving dialog', async () => {
     { secret, userId: user },
     { secret, userId: user }
   ])
+
+  match(page.mailTo.get(), /mailto:/)
+  match(page.mailTo.get(), new RegExp(user))
 })
