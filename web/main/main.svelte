@@ -1,10 +1,17 @@
 <script lang="ts">
-  import { busy, currentPage, signOut, subscribeUntil } from '@slowreader/core'
+  import {
+    busy,
+    currentPage,
+    signOut,
+    subscribeUntil,
+    userId
+  } from '@slowreader/core'
 
   import BusyPage from '../pages/busy.svelte'
   import SignupPage from '../pages/signup.svelte'
   import StartPage from '../pages/start.svelte'
   import Button from '../ui/button.svelte'
+  import Navbar from '../ui/navbar.svelte'
 
   // To have smooth app starting loader animation we are re-using loader in HTML
   // while app is initializing, but need to render new one later
@@ -31,4 +38,8 @@
 {:else}
   {$currentPage.route}
   <Button onclick={signOut}>Exit</Button>
+{/if}
+
+{#if !$busy && $userId}
+  <Navbar />
 {/if}

@@ -7,7 +7,6 @@ import {
   addPopup,
   closeAllPopups,
   closeLastPopup,
-  isGuestRoute,
   isOtherRoute,
   openedPopups,
   openPopup,
@@ -74,27 +73,18 @@ test('transforms routers for users', () => {
 })
 
 test('has routes groups', () => {
-  setTestUser(false)
-  setBaseTestRoute({ params: {}, route: 'home' })
-  equal(isGuestRoute(router.get()), true)
-  equal(isOtherRoute(router.get()), false)
-
   setTestUser()
 
   setBaseTestRoute({ params: {}, route: 'slow' })
-  equal(isGuestRoute(router.get()), false)
   equal(isOtherRoute(router.get()), false)
 
   setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
-  equal(isGuestRoute(router.get()), false)
   equal(isOtherRoute(router.get()), false)
 
   setBaseTestRoute({ params: {}, route: 'profile' })
-  equal(isGuestRoute(router.get()), false)
   equal(isOtherRoute(router.get()), true)
 
   setBaseTestRoute({ params: {}, route: 'feedsByCategories' })
-  equal(isGuestRoute(router.get()), false)
   equal(isOtherRoute(router.get()), true)
 })
 

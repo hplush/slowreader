@@ -189,10 +189,6 @@ onEnvironment(({ baseRouter }) => {
   })
 })
 
-export function isGuestRoute(route: Route): boolean {
-  return GUEST.has(route.route)
-}
-
 export function isOtherRoute(route: Route): boolean {
   return SETTINGS.has(route.route) || FEEDS.has(route.route)
 }

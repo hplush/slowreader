@@ -58,6 +58,14 @@ ol[role='list'] {
 #main {
   box-sizing: border-box;
   width: 100%;
+
+  @media (width > 1024px) {
+    padding-inline-start: var(--navbar-width);
+  }
+
+  @media (width <= 1024px) {
+    padding-bottom: var(--navbar-height);
+  }
 }
 
 pre,
