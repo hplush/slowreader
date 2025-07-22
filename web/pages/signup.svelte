@@ -62,7 +62,7 @@
         <Button
           icon={mdiTooltipQuestionOutline}
           onclick={page.askAgain}
-          size="pill"
+          size="wide"
           variant="secondary"
         >
           {$t.askSaveAgain}
@@ -70,7 +70,7 @@
         <Button
           icon={mdiStickerCheckOutline}
           onclick={page.finish}
-          size="pill"
+          size="wide"
           variant="secondary"
         >
           {$t.savedPromise}
