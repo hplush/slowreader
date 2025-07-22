@@ -26,6 +26,11 @@
       )
       0 5px / 16px 16px oklch(0.99 0 0);
 
+  @media (color-gamut: p3) {
+    --focus-color: oklch(0.68 0.2 240);
+    --accent-color: oklch(0.54 0.27 260);
+  }
+
   @media (prefers-color-scheme: light) {
     --selection-color: oklch(0.93 0.16 102);
     --text-color: var(--dark-text-color);
