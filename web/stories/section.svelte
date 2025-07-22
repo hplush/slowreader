@@ -4,23 +4,23 @@
   let {
     active = false,
     blur = false,
-    border = false,
     children,
     focus = false,
     height,
     hotkeys = true,
     hover = false,
+    main = false,
     pressKey,
     width
   }: {
     active?: boolean | string
     blur?: boolean | string
-    border?: boolean
     children: Snippet
     focus?: boolean | string
     height?: number
     hotkeys?: boolean
     hover?: boolean | string
+    main?: boolean
     pressKey?: string
     width?: number
   } = $props()
@@ -71,7 +71,7 @@
 <section
   bind:this={section}
   style="width: {width}px; height: {height}px;"
-  class:is-bordered={border}
+  class:is-main={main}
   class:is-sized={width !== undefined || height !== undefined}
 >
   {@render children()}
@@ -91,8 +91,12 @@
       transform: scale(1);
     }
 
-    &.is-bordered {
-      outline: 1px solid var(--border-color);
+    &.is-main {
+      --current-background: var(--main-land-color);
+
+      padding: 10px;
+      background: var(--main-land-color);
+      border-radius: calc(var(--base-radius) + 10px);
     }
   }
 </style>

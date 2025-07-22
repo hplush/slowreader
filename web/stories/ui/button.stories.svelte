@@ -20,34 +20,29 @@
 
 <Story name="Light" asChild>
   <Scene>
-    <Section>
+    <Section
+      active="button:nth-child(3)"
+      focus="button:nth-child(4)"
+      hover="button:nth-child(2)"
+    >
+      <Button {icon} {onclick}>Main</Button>
+      <Button {icon} {onclick}>Main</Button>
+      <Button {icon} {onclick}>Main</Button>
       <Button {icon} {onclick}>Main</Button>
     </Section>
-    <Section hover>
-      <Button {icon} {onclick}>Main</Button>
-    </Section>
-    <Section active>
-      <Button {icon} {onclick}>Main</Button>
-    </Section>
-    <Section focus>
-      <Button {icon} {onclick}>Main</Button>
-    </Section>
-    <Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
     </Section>
-    <Section hover>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)" main>
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
     </Section>
-    <Section active>
-      <Button {icon} {onclick} variant="secondary">Secondary</Button>
-    </Section>
-    <Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="cta">Call to action</Button>
-    </Section>
-    <Section hover>
       <Button {icon} {onclick} variant="cta">Call to action</Button>
-    </Section>
-    <Section active>
       <Button {icon} {onclick} variant="cta">Call to action</Button>
     </Section>
     <Section>
@@ -59,10 +54,10 @@
     <Section>
       <Button disabled {icon} {onclick}>Disabled</Button>
     </Section>
-    <Section width={200}>
+    <Section width={300}>
       <Button {icon} {onclick} size="wide">Wide</Button>
     </Section>
-    <Section width={200}>
+    <Section width={300}>
       <Button {icon} {onclick} size="big">Big</Button>
     </Section>
     <Section>
@@ -73,57 +68,128 @@
         Add if you really want
       </Button>
     </Section>
-    <Section width={200}>
+    <Section width={300}>
       <Button {icon} {onclick}>
         The really long text in the short container
       </Button>
     </Section>
     <Section>
       <Button {icon} loader="Submitting" {onclick}>Main</Button>
-      <Button href="/disabled" {icon} loader variant="secondary"
-        >Secondary</Button
-      >
+      <Button href="/disabled" {icon} loader variant="secondary">
+        Secondary
+      </Button>
+    </Section>
+  </Scene>
+</Story>
+
+<Story name="Light Slow" asChild>
+  <Scene route="notFound">
+    <Section
+      active="button:nth-child(3)"
+      focus="button:nth-child(4)"
+      hover="button:nth-child(2)"
+    >
+      <Button {icon} {onclick}>Main</Button>
+      <Button {icon} {onclick}>Main</Button>
+      <Button {icon} {onclick}>Main</Button>
+      <Button {icon} {onclick}>Main</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)" main>
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="cta">Call to action</Button>
+      <Button {icon} {onclick} variant="cta">Call to action</Button>
+      <Button {icon} {onclick} variant="cta">Call to action</Button>
+    </Section>
+    <Section>
+      <Button {icon} loader="Submitting" {onclick}>Main</Button>
+      <Button href="/disabled" {icon} loader variant="secondary">
+        Secondary
+      </Button>
     </Section>
   </Scene>
 </Story>
 
 <Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>
   <Scene>
-    <Section>
+    <Section
+      active="button:nth-child(3)"
+      focus="button:nth-child(4)"
+      hover="button:nth-child(2)"
+    >
+      <Button {icon} {onclick}>Main</Button>
+      <Button {icon} {onclick}>Main</Button>
+      <Button {icon} {onclick}>Main</Button>
       <Button {icon} {onclick}>Main</Button>
     </Section>
-    <Section hover>
-      <Button {icon} {onclick}>Main</Button>
-    </Section>
-    <Section active>
-      <Button {icon} {onclick}>Main</Button>
-    </Section>
-    <Section focus>
-      <Button {icon} {onclick}>Main</Button>
-    </Section>
-    <Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
     </Section>
-    <Section hover>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)" main>
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
     </Section>
-    <Section active>
-      <Button {icon} {onclick} variant="secondary">Secondary</Button>
-    </Section>
-    <Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="cta">Call to action</Button>
-    </Section>
-    <Section hover>
       <Button {icon} {onclick} variant="cta">Call to action</Button>
-    </Section>
-    <Section active>
       <Button {icon} {onclick} variant="cta">Call to action</Button>
     </Section>
     <Section>
       <Button {icon} loader="Submitting" {onclick}>Main</Button>
-      <Button href="/disabled" {icon} loader variant="secondary"
-        >Secondary</Button
-      >
+      <Button href="/disabled" {icon} loader variant="secondary">
+        Secondary
+      </Button>
+    </Section>
+  </Scene>
+</Story>
+
+<Story
+  name="Dark Slow"
+  asChild
+  parameters={{ themes: { themeOverride: 'dark' } }}
+>
+  <Scene route="notFound">
+    <Section
+      active="button:nth-child(3)"
+      focus="button:nth-child(4)"
+      hover="button:nth-child(2)"
+    >
+      <Button {icon} {onclick}>Main</Button>
+      <Button {icon} {onclick}>Main</Button>
+      <Button {icon} {onclick}>Main</Button>
+      <Button {icon} {onclick}>Main</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)" main>
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
+      <Button {icon} {onclick} variant="secondary">Secondary</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="cta">Call to action</Button>
+      <Button {icon} {onclick} variant="cta">Call to action</Button>
+      <Button {icon} {onclick} variant="cta">Call to action</Button>
+    </Section>
+    <Section>
+      <Button {icon} loader="Submitting" {onclick}>Main</Button>
+      <Button href="/disabled" {icon} loader variant="secondary">
+        Secondary
+      </Button>
     </Section>
   </Scene>
 </Story>
