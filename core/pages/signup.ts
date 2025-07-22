@@ -32,11 +32,10 @@ export const signupPage = createPage('signup', () => {
   let $userId = computed($credentials, credentials => credentials.userId)
   let $secret = computed($credentials, credentials => toSecret(credentials))
   let $mailTo = computed([$userId, $secret], (user, secret) => {
-    let body = `User ID: ${user}\nSecret: ${secret}`
     return (
       `mailto:?` +
-      `subject=Slow Reader Secret&` +
-      `body=${encodeURIComponent(body)}`
+      `subject=Slow Reader Recovery Pack&` +
+      `body=${encodeURIComponent(t.get().email({ secret, user }))}`
     )
   })
 

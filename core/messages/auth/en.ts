@@ -1,9 +1,14 @@
+import { params } from '@nanostores/i18n'
+
 import { i18n } from '../../i18n.ts'
 
 export const authMessages = i18n('auth', {
   askSaveAgain: 'Show save-password popup',
   createAccount: 'Create cross-device account',
   customServer: 'Use my own server',
+  email: params(
+    '// Send this email to yourself\n// If you will forget password, you will search by it here\n\nUser ID: {user}\nSecret: {secret}'
+  ),
   invalidCredentials: 'There is no user with such user ID and password',
   localDescription1: 'Slow Reader works locally.',
   localDescription2:
