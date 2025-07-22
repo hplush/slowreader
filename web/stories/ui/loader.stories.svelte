@@ -38,7 +38,7 @@
   <Section>
     <Loader value={progress} />
   </Section>
-  <Section border height={100} width={100}>
+  <Section height={100} width={100}>
     <Loader />
   </Section>
 </Story>
