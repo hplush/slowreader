@@ -30,6 +30,9 @@
     <Input label="Required and Blur" required value="" />
     <Input label="Wrong URL" type="url" value="No a link" />
   </Section>
+  <Section main width={200}>
+    <Input label="Base" required />
+  </Section>
 </Story>
 
 <Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>
@@ -40,5 +43,8 @@
   </Section>
   <Section focus width={200}>
     <Input label="Focus" />
+  </Section>
+  <Section main width={200}>
+    <Input label="Base" required />
   </Section>
 </Story>
