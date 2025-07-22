@@ -1,6 +1,9 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
-  import type { HTMLButtonAttributes } from 'svelte/elements'
+  import type {
+    HTMLAnchorAttributes,
+    HTMLButtonAttributes
+  } from 'svelte/elements'
 
   import Icon from './icon.svelte'
   import InverseTheme from './inverse-theme.svelte'
@@ -22,7 +25,10 @@
     onclick?: (event: MouseEvent) => void
     size?: 'big' | 'icon' | 'inline' | 'pill' | 'wide'
     variant?: 'cta' | 'main' | 'secondary'
-  } & ({ href: string } | HTMLButtonAttributes) = $props()
+  } & (
+    | ({ href: string } & HTMLAnchorAttributes)
+    | HTMLButtonAttributes
+  ) = $props()
 
   let textElement: HTMLElement | undefined
   let title = $state('')
@@ -62,6 +68,7 @@
 
 {#if 'href' in props}
   <a
+    {...props}
     class="button"
     class:is-big={size === 'big'}
     class:is-cta={variant === 'cta'}

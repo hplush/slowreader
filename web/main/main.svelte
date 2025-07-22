@@ -25,6 +25,7 @@
   })
 
   let pageLoading = $derived($currentPage.loading)
+  let pageHideMenu = $derived($currentPage.hideMenu)
 </script>
 
 {#if $busy || $pageLoading}
@@ -40,6 +41,6 @@
   <Button onclick={signOut}>Exit</Button>
 {/if}
 
-{#if !$busy && $userId}
+{#if !$busy && $userId && !$pageHideMenu}
   <Navbar />
 {/if}

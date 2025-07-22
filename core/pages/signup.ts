@@ -27,6 +27,8 @@ export const signupPage = createPage('signup', () => {
 
   let customServerMixin = injectCustomServerField()
 
+  let $hideMenu = atom<boolean>(false)
+
   let $userId = computed($credentials, credentials => credentials.userId)
   let $secret = computed($credentials, credentials => toSecret(credentials))
   let $mailTo = computed([$userId, $secret], (user, secret) => {
@@ -55,6 +57,7 @@ export const signupPage = createPage('signup', () => {
   async function submit(): Promise<void> {
     $error.set(undefined)
     $signingUp.set(true)
+    if (!userId.get()) $hideMenu.set(true)
     let created = false
     try {
       await signUp($credentials.get(), customServerMixin.customServer.get())
@@ -102,6 +105,7 @@ export const signupPage = createPage('signup', () => {
       unbindPassword()
     },
     finish,
+    hideMenu: $hideMenu,
     mailTo: $mailTo,
     params: {},
     regenerate,

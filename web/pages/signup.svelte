@@ -55,6 +55,7 @@
           icon={mdiEmailFast}
           onclick={page.finish}
           size="wide"
+          target="_blank"
         >
           {$t.toEmail}
         </Button>

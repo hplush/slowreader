@@ -104,6 +104,7 @@ test('signs up new user', async () => {
 
   equal(page.warningStep.get(), false)
   equal(page.signingUp.get(), false)
+  equal(page.hideMenu.get(), false)
 
   let promise = page.submit()
   equal(page.signingUp.get(), true)
@@ -113,6 +114,7 @@ test('signs up new user', async () => {
   equal(typeof page.error.get(), 'undefined')
   equal(page.signingUp.get(), false)
   equal(page.warningStep.get(), true)
+  equal(page.hideMenu.get(), true)
   equal(client.get()?.state, 'connecting')
 
   let user = page.userId.get()
@@ -154,11 +156,13 @@ test('signs up local user', async () => {
   })
 
   equal(page.warningStep.get(), false)
+  equal(page.hideMenu.get(), false)
 
   await page.submit()
   equal(typeof page.error.get(), 'undefined')
   equal(page.signingUp.get(), false)
   equal(page.warningStep.get(), true)
+  equal(page.hideMenu.get(), false)
   equal(client.get()?.state, 'connecting')
   equal(userId.get(), user)
   equal(hasPassword.get(), true)
