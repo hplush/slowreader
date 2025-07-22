@@ -25,6 +25,11 @@
         oklch(0.9 0.04 247) 16px
       )
       0 5px / 16px 16px oklch(0.99 0 0);
+  --secondary-c: 0;
+
+  &.is-comfort-mode {
+    --secondary-c: 0.01;
+  }
 
   @media (color-gamut: p3) {
     --focus-color: oklch(0.68 0.2 240);
@@ -38,7 +43,6 @@
     --main-land-color: oklch(0.975 0 70);
     --button-hover-l: 0.05;
     --secondary-l: -0.03;
-    --secondary-c: 0.01;
     --secondary-hover-l: -0.01;
     --note-l: -0.1;
     --note-c: 0.03;
@@ -61,7 +65,6 @@
     --land-color: oklch(0.25 0 70);
     --secondary-l: 0.1;
     --button-hover-l: 0.03;
-    --secondary-c: 0.01;
     --secondary-hover-l: 0.02;
     --field-l: -0.05;
     --field-c: 0;

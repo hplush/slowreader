@@ -46,6 +46,12 @@ test('transforms routers for guest', () => {
 
   setBaseTestRoute({ params: {}, route: 'signup' })
   deepStrictEqual(router.get(), { params: {}, popups: [], route: 'signup' })
+
+  setBaseTestRoute(undefined)
+  deepStrictEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
+
+  setBaseTestRoute({ params: {}, route: 'notFound' })
+  deepStrictEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
 })
 
 test('transforms routers for users', () => {

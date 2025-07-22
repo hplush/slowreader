@@ -17,11 +17,16 @@ function check(all: Buffer, part: string, filename: string): void {
   }
 }
 
+function toCamelCase(str: string): string {
+  return str.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase())
+}
+
 async function checkFile(filename: string): Promise<void> {
   let name = dirname(relative(MESSAGES, filename))
   let code = await readFile(filename)
-  check(code, `export const ${name}Messages`, filename)
-  check(code, `i18n('${name}', {`, filename)
+  let camel = toCamelCase(name)
+  check(code, `export const ${camel}Messages`, filename)
+  check(code, `i18n('${camel}', {`, filename)
 }
 
 let files =

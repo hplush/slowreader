@@ -8,6 +8,7 @@
   } from '@slowreader/core'
 
   import BusyPage from '../pages/busy.svelte'
+  import NotFoundPage from '../pages/not-found.svelte'
   import SignupPage from '../pages/signup.svelte'
   import StartPage from '../pages/start.svelte'
   import Button from '../ui/button.svelte'
@@ -32,6 +33,8 @@
   {#if !globalLoader}
     <BusyPage />
   {/if}
+{:else if $currentPage.route === 'notFound'}
+  <NotFoundPage />
 {:else if $currentPage.route === 'start'}
   <StartPage page={$currentPage} />
 {:else if $currentPage.route === 'signup'}

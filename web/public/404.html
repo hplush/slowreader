@@ -5,19 +5,19 @@
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="var(--land-color)" />
+    <meta name="theme-color" content="oklch(0.55 0.16 20)" />
     <title>404 › Slow Reader</title>
     <style>
       :root {
         color-scheme: light dark;
         height: 100%;
         @media (prefers-color-scheme: light) {
-          background: #e4e4e4;
-          color: #141414;
+          background: oklch(0.95 0 70);
+          color: oklch(0.3 0 0);
         }
         @media (prefers-color-scheme: dark) {
-          background: #141414;
-          color: #fbfbfb;
+          background: oklch(0.25 0 70);
+          color: oklch(0.9 0 0);
         }
       }
       body {
@@ -26,12 +26,12 @@
         align-items: center;
         justify-content: center;
         min-height: 100%;
-        gap: 1em;
+        gap: 0.1em;
         margin: 0;
         font: 1rem/1.6 system-ui;
       }
       h1 {
-        font: 2rem/1.6 system-ui;
+        font: 1.4rem/1.6 system-ui;
       }
       a {
         padding: 8px 16px;
@@ -61,14 +61,12 @@
         position: relative;
       }
       .fire {
-        fill: oklch(0.58 0.2 29);
+        fill: oklch(0.55 0.16 20);
         width: 200px;
         position: absolute;
         top: -20%;
         left: -40%;
-        &.is-below {
-          z-index: -1;
-        }
+        z-index: 1;
       }
       .object {
         fill: currentColor;
@@ -97,6 +95,6 @@
         />
       </svg>
     </div>
-    <h1>Page not found</h1>
+    <h1>Page wasn’t found</h1>
   </body>
 </html>

@@ -83,7 +83,7 @@ export type BaseRouter = ReadableAtom<BaseRoute | undefined>
 
 const GUEST = new Set<RouteName>(['signin', 'start'])
 
-const BOTH = new Set<RouteName>(['signup'])
+const BOTH = new Set<RouteName>(['notFound', 'signup'])
 
 const SETTINGS = new Set<RouteName>([
   'about',
