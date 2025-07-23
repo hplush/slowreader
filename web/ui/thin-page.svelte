@@ -4,18 +4,18 @@
   import Page from './page.svelte'
 
   let {
-    center,
+    bottomOnMobile,
     children,
     title
   }: {
-    center?: boolean
+    bottomOnMobile?: boolean
     children: Snippet
     title: string
   } = $props()
 </script>
 
 <Page {title}>
-  <div class="thin-page" class:is-center={center}>
+  <div class="thin-page" class:is-no-bottom={bottomOnMobile === false}>
     <div class="thin-page_center">{@render children()}</div>
   </div>
 </Page>
@@ -29,7 +29,7 @@
       min-height: 100svh;
 
       @media (width <= 630px) {
-        &:not(.is-center) {
+        &:not(.is-no-bottom) {
           align-items: flex-end;
         }
       }
