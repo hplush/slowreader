@@ -14,7 +14,7 @@
 <style>
   :global {
     :root {
-      --icon-size: 16px;
+      --icon-size: 1rem;
       --icon-move: 0;
     }
 

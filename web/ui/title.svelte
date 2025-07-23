@@ -10,8 +10,8 @@
   :global {
     .title {
       /* TODO: Replace to text-box-trim when FF will support it */
-      margin-top: -3px;
-      margin-bottom: 10px;
+      margin-top: -0.1875rem;
+      margin-bottom: 0.625rem;
       font: var(--app-title-font);
     }
   }

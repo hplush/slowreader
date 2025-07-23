@@ -4,6 +4,21 @@
   "plugins": ["stylelint-use-logical", "@stylistic/stylelint-plugin"],
   "rules": {
     "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"],
+    "unit-disallowed-list": [
+      ["px", "em"],
+      {
+        "ignoreProperties": {
+          "px": [
+            "font-size",
+            "/-shadow$/",
+            "/border/",
+            "/-radius$/",
+            "/outline/",
+            "translate"
+          ]
+        }
+      }
+    ],
     "alpha-value-notation": "percentage",
     "@stylistic/declaration-colon-newline-after": null,
     "@stylistic/max-line-length": null,
@@ -39,6 +54,12 @@
     {
       "files": ["**/*.svelte"],
       "customSyntax": "postcss-html"
+    },
+    {
+      "files": ["main/colors.css"],
+      "rules": {
+        "unit-disallowed-list": null
+      }
     }
   ]
 }

@@ -43,19 +43,19 @@
       }
 
       &.is-gap-xl {
-        gap: 24px;
+        gap: 1.5rem;
       }
 
       &.is-gap-l {
-        gap: 16px;
+        gap: 1rem;
       }
 
       &.is-gap-m {
-        gap: 10px;
+        gap: 0.625rem;
       }
 
       &.is-gap-s {
-        gap: 6px;
+        gap: 0.375rem;
       }
     }
   }

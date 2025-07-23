@@ -22,9 +22,14 @@
 body {
   --current-background: var(--land-color);
 
+  font-size: 16px;
   color: var(--text-color);
   background: var(--land-color);
   -webkit-tap-highlight-color: oklch(0 0 0 / 0%);
+
+  @media (width <= 35rem) {
+    font-size: 18px;
+  }
 }
 
 body,
@@ -59,11 +64,11 @@ ol[role='list'] {
   box-sizing: border-box;
   width: 100%;
 
-  @media (width > 1024px) {
+  @media (width > 64rem) {
     padding-inline-start: var(--navbar-width);
   }
 
-  @media (width <= 1024px) {
+  @media (width <= 64rem) {
     padding-bottom: var(--navbar-height);
   }
 }
@@ -73,6 +78,8 @@ code {
   font: var(--mono-font);
 }
 
+/* Need to define smallest size in 1px */
+/* stylelint-disable unit-disallowed-list */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -84,3 +91,4 @@ code {
   border-width: 0;
   clip-path: inset(50%);
 }
+/* stylelint-enable unit-disallowed-list */

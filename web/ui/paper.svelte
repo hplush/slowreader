@@ -19,7 +19,7 @@
 <style>
   :global {
     .paper {
-      padding: 8px 0;
+      padding: 0.5rem 0;
       background: var(--paper-background);
       border-radius: 2px;
       box-shadow: var(--float-shadow);
@@ -29,7 +29,7 @@
       position: relative;
       box-sizing: border-box;
       width: 100%;
-      padding: 5px 15px;
+      padding: 0.3rem 1rem;
       font: var(--handwritten-font);
       color: var(--text-color);
       background: transparent;

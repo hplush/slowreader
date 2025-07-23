@@ -15,13 +15,13 @@
 <style>
   :global {
     .error {
-      padding: 0 8px;
-      margin: 10px 0;
+      padding: 0 0.5rem;
+      margin: 0.625rem 0;
       font: var(--control-font);
       color: var(--dangerous-text-color);
 
       &.is-field {
-        margin-top: 2px;
+        margin-top: 0.125rem;
         font: var(--control-secondary-font);
       }
     }

@@ -15,8 +15,8 @@
 <style>
   :global {
     .label {
-      padding-inline-start: 8px;
-      padding-bottom: 3px;
+      padding-inline-start: 0.5rem;
+      padding-bottom: 0.187rem;
       font: var(--control-secondary-font);
     }
   }

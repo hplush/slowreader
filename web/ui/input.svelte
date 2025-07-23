@@ -89,20 +89,20 @@
 <style>
   :global {
     .input {
-      margin: 10px 0;
+      margin: 0.625rem 0;
     }
 
     .input_field {
       box-sizing: border-box;
       width: 100%;
-      padding: 4px 8px;
+      padding: 0.25rem 0.5rem;
       font: var(--control-font);
       background: oklch(
         from var(--current-background) calc(l + var(--field-l))
           calc(c + var(--field-c)) h
       );
       border: 2px solid var(--text-color);
-      border-radius: 8px;
+      border-radius: 0.5rem;
 
       &:focus-visible {
         outline-offset: 1px;

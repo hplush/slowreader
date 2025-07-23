@@ -28,7 +28,7 @@
       justify-content: center;
       min-height: 100svh;
 
-      @media (width <= 630px) {
+      @media (width <= 41rem) {
         &:not(.is-no-bottom) {
           align-items: flex-end;
         }
@@ -36,9 +36,9 @@
     }
 
     .thin-page_center {
-      width: 300px;
+      width: 19rem;
       max-width: 100%;
-      margin: 16px 0;
+      margin: 1rem 0;
     }
   }
 </style>

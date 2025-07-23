@@ -15,17 +15,17 @@
 }
 
 :root {
-  --text-font: 400 16px/1.6 'Noto Sans Variable', 'Arial', sans-serif;
-  --secondary-font: 400 14px/1.6 'Noto Sans Variable', 'Arial', sans-serif;
+  --text-font: 400 1rem/1.6 'Noto Sans Variable', 'Arial', sans-serif;
+  --secondary-font: 400 0.875rem/1.6 'Noto Sans Variable', 'Arial', sans-serif;
   --secondary-title-font:
-    600 14px/1.6 'Noto Sans Variable', 'Arial', sans-serif;
+    600 0.875rem/1.6 'Noto Sans Variable', 'Arial', sans-serif;
   --app-title-font:
-    400 24px/1.2 'Inika', 'Noto Serif Variable', 'Georgia', serif;
-  --control-font: 500 16px/1.2 'Noto Sans Variable', 'Arial', sans-serif;
-  --control-cta-font: 700 16px/1.2 'Noto Sans Variable', 'Arial', sans-serif;
+    400 1.5rem/1.2 'Inika', 'Noto Serif Variable', 'Georgia', serif;
+  --control-font: 500 1rem/1.2 'Noto Sans Variable', 'Arial', sans-serif;
+  --control-cta-font: 700 1rem/1.2 'Noto Sans Variable', 'Arial', sans-serif;
   --control-secondary-font:
-    600 14px/1.2 'Noto Sans Variable', 'Arial', sans-serif;
-  --mono-font: 400 16px/1.6 'Noto Mono Sans Variable', monospace;
-  --control-mono-font: 500 16px/1.6 'Noto Mono Sans Variable', monospace;
-  --handwritten-font: 600 18px/1 'Playpen Sans', monospace;
+    600 0.875rem/1.2 'Noto Sans Variable', 'Arial', sans-serif;
+  --mono-font: 400 1rem/1.6 'Noto Mono Sans Variable', monospace;
+  --control-mono-font: 500 1rem/1.6 'Noto Mono Sans Variable', monospace;
+  --handwritten-font: 600 1.125rem/1 'Playpen Sans', monospace;
 }

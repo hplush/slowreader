@@ -8,7 +8,8 @@
     inset 0 0.5px 0 oklch(1 0 0 / 70%), 0 1px 1px oklch(0 0 0 / 30%),
     0 0 0 0.5px oklch(0 0 0 / 50%);
   --float-shadow:
-    0 2px 3px oklch(0 0 0 / 11%), 0 5.7px 8.6px oklch(0 0 0 / 22%);
+    0 0.125rem 0.188rem oklch(0 0 0 / 11%),
+    0 0.356rem 0.538rem oklch(0 0 0 / 22%);
   --paper-background:
     repeating-linear-gradient(
       to right,

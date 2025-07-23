@@ -36,9 +36,9 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 0.312rem;
       align-items: flex-start;
-      padding: 10px 10px 10px calc(32px + 5px + 5px);
+      padding: 0.625rem 0.625rem 0.625rem calc(2rem + 0.312rem + 0.312rem);
       font: var(--secondary-font);
       background: var(--current-background);
       border: 2px solid;
@@ -57,16 +57,16 @@
       }
 
       & + & {
-        margin-top: 10px;
+        margin-top: 0.625rem;
       }
     }
 
     .note_icon {
-      --icon-size: 32px;
+      --icon-size: 2rem;
 
       position: absolute;
-      inset-inline-start: 5px;
-      top: 5px;
+      inset-inline-start: 0.312rem;
+      top: 0.312rem;
       color: oklch(
         from var(--current-background) calc(l + var(--note-l))
           calc(c + var(--note-c)) h

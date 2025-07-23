@@ -94,9 +94,9 @@
     &.is-main {
       --current-background: var(--main-land-color);
 
-      padding: 10px;
+      padding: 0.625rem;
       background: var(--main-land-color);
-      border-radius: calc(var(--base-radius) + 10px);
+      border-radius: calc(var(--base-radius) + 0.625rem);
     }
   }
 </style>

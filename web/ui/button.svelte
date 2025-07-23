@@ -137,7 +137,7 @@
 
       &.is-pill {
         font: var(--control-secondary-font);
-        border-radius: 12px;
+        border-radius: 0.75rem;
       }
 
       &.is-main {
@@ -190,32 +190,32 @@
     .button_cap {
       box-sizing: border-box;
       display: flex;
-      gap: 6px;
+      gap: 0.375rem;
       align-items: center;
       justify-content: center;
-      min-height: 33px;
-      padding: 7px 12px;
+      min-height: 2.062rem;
+      padding: 0.437rem 0.75rem;
 
       .button:active:not([aria-disabled='true']) & {
-        transform: translateY(1px);
+        translate: 0 1px;
       }
 
       .button.is-icon & {
-        width: 32px;
+        width: 2rem;
         padding: 0;
         text-align: center;
       }
 
       .button.is-big & {
-        padding: 12px 10px;
+        padding: 0.75rem 0.625rem;
       }
 
       .button.is-pill & {
-        min-height: 25px;
-        padding: 4px 8px;
+        min-height: 1.562rem;
+        padding: 0.25rem 0.5rem;
 
         &:has(svg) {
-          padding-inline-start: 6px;
+          padding-inline-start: 0.375rem;
         }
       }
 
@@ -230,7 +230,7 @@
 
     .button_loader {
       position: absolute;
-      inset: 0 10px;
+      inset: 0 0.625rem;
       display: flex;
       align-items: center;
       justify-content: center;

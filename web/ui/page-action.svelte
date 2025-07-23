@@ -12,8 +12,8 @@
   :global {
     .page-action {
       position: absolute;
-      inset-inline-start: 10px;
-      top: 10px;
+      inset-inline-start: 0.625rem;
+      top: 0.625rem;
     }
   }
 </style>

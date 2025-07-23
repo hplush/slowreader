@@ -33,20 +33,20 @@
 <style>
   :global {
     .output {
-      margin: 10px 0;
+      margin: 0.625rem 0;
     }
 
     .output_field {
       box-sizing: border-box;
       width: 100%;
-      padding: 4px 8px;
+      padding: 0.25rem 0.5rem;
       font: var(--control-mono-font);
       background: oklch(
         from var(--current-background) calc(l + var(--field-l))
           calc(c + var(--field-c)) h
       );
       border: none;
-      border-radius: 8px;
+      border-radius: 0.5rem;
 
       &:focus-visible {
         outline-offset: 1px;

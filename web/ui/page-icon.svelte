@@ -15,9 +15,9 @@
   :global {
     .page-icon {
       position: relative;
-      width: 200px;
+      width: 12.5rem;
 
-      --icon-size: 200px;
+      --icon-size: 12.5rem;
     }
 
     .page-icon_extra {

@@ -33,8 +33,8 @@
     }
 
     :root.has-navbar {
-      --navbar-width: 290px;
-      --navbar-height: 56px;
+      --navbar-width: 18rem;
+      --navbar-height: 3.8rem;
     }
 
     .navbar {
