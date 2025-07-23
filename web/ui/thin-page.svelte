@@ -4,16 +4,18 @@
   import Page from './page.svelte'
 
   let {
+    center,
     children,
     title
   }: {
+    center?: boolean
     children: Snippet
     title: string
   } = $props()
 </script>
 
 <Page {title}>
-  <div class="thin-page">
+  <div class="thin-page" class:is-center={center}>
     <div class="thin-page_center">{@render children()}</div>
   </div>
 </Page>
@@ -27,7 +29,9 @@
       min-height: 100svh;
 
       @media (width <= 630px) {
-        align-items: flex-end;
+        &:not(.is-center) {
+          align-items: flex-end;
+        }
       }
     }
 
