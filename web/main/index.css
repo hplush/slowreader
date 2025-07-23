@@ -18,6 +18,10 @@
   @media (width <= 35rem) {
     font-size: 18px;
   }
+
+  @media (width <= 23rem) {
+    font-size: 16px;
+  }
 }
 
 * {
