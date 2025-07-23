@@ -4,6 +4,7 @@
 @import url('./sizes.css');
 
 :root {
+  font-size: 16px;
   color-scheme: light dark;
 
   &.is-light-theme {
@@ -12,6 +13,10 @@
 
   &.is-dark-theme {
     color-scheme: dark;
+  }
+
+  @media (width <= 35rem) {
+    font-size: 18px;
   }
 }
 
@@ -22,14 +27,9 @@
 body {
   --current-background: var(--land-color);
 
-  font-size: 16px;
   color: var(--text-color);
   background: var(--land-color);
   -webkit-tap-highlight-color: oklch(0 0 0 / 0%);
-
-  @media (width <= 35rem) {
-    font-size: 18px;
-  }
 }
 
 body,
