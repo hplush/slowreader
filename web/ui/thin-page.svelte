@@ -38,7 +38,7 @@
     .thin-page_center {
       width: 19rem;
       max-width: 100%;
-      margin: 1rem 0;
+      margin: 1rem 0 2rem;
     }
   }
 </style>
