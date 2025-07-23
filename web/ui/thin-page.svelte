@@ -34,7 +34,7 @@
     .thin-page_center {
       width: 300px;
       max-width: 100%;
-      margin: 8px 0;
+      margin: 16px 0;
     }
   }
 </style>
