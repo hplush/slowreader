@@ -5,6 +5,7 @@
     HTMLButtonAttributes
   } from 'svelte/elements'
 
+  import Clickable from './clickable.svelte'
   import Icon from './icon.svelte'
   import InverseTheme from './inverse-theme.svelte'
   import Loader from './loader.svelte'
@@ -40,7 +41,22 @@
   })
 </script>
 
-{#snippet content()}
+<Clickable
+  class={{
+    'button': true,
+    'is-big': size === 'big',
+    'is-cta': variant === 'cta',
+    'is-icon': size === 'icon',
+    'is-loader': !!loader,
+    'is-main': variant === 'main',
+    'is-pill': size === 'pill',
+    'is-secondary': variant === 'secondary',
+    'is-wide': size === 'wide' || size === 'big'
+  }}
+  disabled={!!loader || !!disabled}
+  {onclick}
+  title={size === 'icon' ? title : undefined}
+>
   <span class="button_loader">
     {#if loader}
       {#if variant === 'main'}
@@ -64,57 +80,12 @@
       {@render props.children()}
     </span>
   </span>
-{/snippet}
-
-{#if 'href' in props}
-  <a
-    {...props}
-    class="button"
-    class:is-big={size === 'big'}
-    class:is-cta={variant === 'cta'}
-    class:is-icon={size === 'icon'}
-    class:is-loader={!!loader}
-    class:is-main={variant === 'main'}
-    class:is-pill={size === 'pill'}
-    class:is-secondary={variant === 'secondary'}
-    class:is-wide={size === 'wide' || size === 'big'}
-    aria-disabled={!!loader || !!disabled}
-    href={props.href}
-    onclick={e => {
-      if (!loader && !disabled && onclick) onclick(e)
-    }}
-    title={size === 'icon' ? title : undefined}
-  >
-    {@render content()}
-  </a>
-{:else}
-  <button
-    {...props}
-    class="button"
-    class:is-big={size === 'big'}
-    class:is-cta={variant === 'cta'}
-    class:is-icon={size === 'icon'}
-    class:is-loader={!!loader}
-    class:is-main={variant === 'main'}
-    class:is-pill={size === 'pill'}
-    class:is-secondary={variant === 'secondary'}
-    class:is-wide={size === 'wide' || size === 'big'}
-    aria-disabled={!!loader || !!disabled}
-    onclick={e => {
-      if (!loader && !disabled && onclick) onclick(e)
-    }}
-    title={size === 'icon' ? title : undefined}
-    type={props.type || 'button'}
-  >
-    {@render content()}
-  </button>
-{/if}
+</Clickable>
 
 <style>
   :global {
     .button {
       position: relative;
-      box-sizing: border-box;
       display: inline-block;
       font: var(--control-font);
       text-decoration: none;
