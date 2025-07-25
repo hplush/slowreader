@@ -9,8 +9,8 @@ import {
   getFeeds
 } from './feed.ts'
 import { type FilterChecker, loadFilters } from './filter.ts'
-import { createDownloadTask, type DownloadTask } from './lib/download.ts'
-import { createQueue, type Queue, retryOnError } from './lib/queue.ts'
+import { createDownloadTask } from './lib/download.ts'
+import { createQueue, retryOnError } from './lib/queue.ts'
 import { increaseKey } from './lib/stores.ts'
 import { addPost, type OriginPost, processOriginPost } from './post.ts'
 
@@ -38,8 +38,8 @@ export const refreshProgress = computed(refreshStatistics, stats => {
   }
 })
 
-let task: DownloadTask
-let queue: Queue<{ feed: FeedValue }>
+let task = createDownloadTask()
+let queue = createQueue<{ feed: FeedValue }>([])
 
 /**
  * Determines if a post was already added to a feed by comparing timestamps

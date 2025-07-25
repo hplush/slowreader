@@ -46,6 +46,10 @@ async function getPostKeys<Key extends keyof PostValue>(
     .map(post => post[key])
 }
 
+test('is ready to be stopped from the start', () => {
+  stopRefreshing()
+})
+
 test('updates posts', async () => {
   let feedId1 = await addFeed(
     testFeed({
