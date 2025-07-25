@@ -28,14 +28,28 @@ export const propsChecker: Plugin = {
           decl.raws.between = ':'
         }
         if (decl.value.includes('var(--')) {
-          let found = decl.value.match(/var\((--[^)]+)\)/g)
+          let found = decl.value.match(/var\((--[^),]+(,[^),]+)?)\)/g)
           if (found) {
+            let where = inVisualTest(decl) ? visualTested : globalUsed
             for (let variable of found) {
-              let name = variable.slice(4, -1)
-              if (inVisualTest(decl)) {
-                visualTested.add(name)
-              } else {
-                globalUsed.add(name)
+              let name = variable.replace(/,[^),]+\)/, ')').slice(4, -1)
+              where.add(name)
+            }
+          }
+        }
+        if (decl.value.includes('--')) {
+          let found = decl.value.match(/--[\w-]+\(\s*(--[^)]+)\s*\)/g)
+          if (found) {
+            let where = inVisualTest(decl) ? visualTested : globalUsed
+            for (let func of found) {
+              let funcName = func.match(/^--[\w-]+\(/)![1]
+              let args = func.replace(/^.*\(/, '').slice(0, -1).split(',')
+              for (let name of args) {
+                if (funcName === 'tune-color' && args[0] === name) {
+                  where.add(name)
+                } else {
+                  where.add(`${name}-l`).add(`${name}-c`)
+                }
               }
             }
           }
