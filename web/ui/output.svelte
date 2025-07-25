@@ -38,6 +38,24 @@
       throw e
     }
   }
+
+  export async function triggerCopy(): Promise<void> {
+    let isStorybook =
+      typeof window !== 'undefined' &&
+      window.location.href.includes('iframe.html')
+
+    if (isStorybook) {
+      isCopied = true
+      announcement = 'Copied'
+
+      setTimeout(() => {
+        isCopied = false
+        announcement = ''
+      }, 2000)
+    } else {
+      await copyToClipboard()
+    }
+  }
 </script>
 
 <div class="output">
