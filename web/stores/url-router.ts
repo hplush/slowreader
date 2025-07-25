@@ -5,7 +5,10 @@ import {
   type ParamsFromConfig
 } from '@nanostores/router'
 import {
+  addPopup,
   type ParamlessRouteName,
+  type PopupName,
+  removeLastPopup,
   type Route,
   type Routes,
   stringifyPopups
@@ -154,4 +157,17 @@ export function getURL(
 
 export function openRoute(route: Route, redirect?: boolean): void {
   pathRouter.open(getURL(route), redirect)
+}
+
+export function getPopupHash(
+  currentRoute: Route,
+  popup: PopupName,
+  param: string
+): string {
+  return `#` + addPopup(stringifyPopups(currentRoute.popups), popup, param)
+}
+
+export function getHashWithoutLastPopup(currentRoute: Route): string {
+  let hash = removeLastPopup(stringifyPopups(currentRoute.popups))
+  return hash ? `#${hash}` : ''
 }
