@@ -30,7 +30,7 @@
     "test-loaders": "tsx loader-tests/test-loaders.ts loader-tests/feeds.yml"
   },
   "devDependencies": {
-    "@logux/eslint-config": "56.0.0",
+    "@logux/eslint-config": "56.1.0",
     "@types/chrome": "0.1.1",
     "@types/node": "24.0.15",
     "@types/ws": "8.18.1",

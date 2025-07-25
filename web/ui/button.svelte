@@ -82,21 +82,15 @@
   </span>
 </Clickable>
 
-<style>
+<style lang="postcss">
   :global {
     .button {
+      @mixin clickable;
+
       position: relative;
       display: inline-block;
       font: var(--control-font);
-      text-decoration: none;
-      cursor: pointer;
-      user-select: none;
-      border: none;
       border-radius: var(--base-radius);
-
-      &[aria-disabled='true'] {
-        pointer-events: none;
-      }
 
       &&:active {
         box-shadow: var(--pressed-shadow);

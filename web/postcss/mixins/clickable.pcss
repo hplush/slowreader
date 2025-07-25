@@ -1,0 +1,10 @@
+@define-mixin clickable {
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  border: none;
+
+  &[aria-disabled='true'] {
+    pointer-events: none;
+  }
+}
