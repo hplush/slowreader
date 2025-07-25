@@ -4,11 +4,14 @@
     Category,
     client,
     currentPage,
+    DEFAULT_REFRESH_STATISTICS,
     Feed,
     Filter,
     type ParamlessRouteName,
     Post,
+    refreshStatistics,
     signOut,
+    stopRefreshing,
     theme,
     useCredentials
   } from '@slowreader/core'
@@ -50,6 +53,8 @@
     }
     cleanLogux()
     prepareResponses(responses)
+    stopRefreshing()
+    refreshStatistics.set(DEFAULT_REFRESH_STATISTICS)
 
     if (typeof route === 'string') {
       baseRouter.set({ hash: '', params: {}, route })

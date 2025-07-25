@@ -1,7 +1,7 @@
 // Bind browser’s API to client core API.
 
 import { comfortMode, errorMode, theme } from '@slowreader/core'
-import { pressKeyUX, startKeyUX } from 'keyux'
+import { focusGroupKeyUX, pressKeyUX, startKeyUX } from 'keyux'
 
 import { locale } from '../stores/locale.ts'
 
@@ -49,4 +49,4 @@ window.addEventListener('load', () => {
   import('./devtools.ts').then(() => {})
 })
 
-startKeyUX(window, [pressKeyUX('is-pseudo-active')])
+startKeyUX(window, [pressKeyUX('is-pseudo-active'), focusGroupKeyUX()])
