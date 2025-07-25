@@ -53,19 +53,20 @@
       {value}
       {...props}
     />
-    <Button
-      class="output_button"
-      aria-label={isCopied ? 'Copied' : 'Copy to clipboard'}
-      icon={currentIcon}
-      onclick={copyToClipboard}
-      size="icon"
-      variant="main"
-    >
-      <span class="">Copy to clipboard</span>
-    </Button>
+    <div class="output_button">
+      <Button
+        aria-label={isCopied ? 'Copied' : 'Copy to clipboard'}
+        icon={currentIcon}
+        onclick={copyToClipboard}
+        size="icon"
+        variant="secondary"
+      >
+        Copy to clipboard
+      </Button>
+    </div>
   </div>
   {#if announcement}
-    <div aria-live="polite">
+    <div class="sr-only" aria-live="polite">
       {announcement}
     </div>
   {/if}
@@ -74,23 +75,31 @@
 <style>
   :global {
     .output {
+      position: relative;
       margin: 0.625rem 0;
+
+      --current-background: oklch(
+        from var(--current-background) calc(l + var(--field-l))
+          calc(c + var(--field-c)) h
+      );
+
+      .output_button button[aria-label='Copied'] svg {
+        --success-color: oklch(0.7227 0.192 149.58);
+
+        color: var(--success-color);
+        fill: var(--success-color);
+      }
     }
 
     .output_wrapper {
-      display: flex;
-      gap: 0.5rem;
+      position: relative;
     }
 
     .output_field {
       box-sizing: border-box;
-      flex: 1;
-      padding: 0.25rem 0.5rem;
+      width: 100%;
+      padding: 0.25rem 2.5rem 0.25rem 0.5rem;
       font: var(--control-mono-font);
-      background: oklch(
-        from var(--current-background) calc(l + var(--field-l))
-          calc(c + var(--field-c)) h
-      );
       border: none;
       border-radius: 0.5rem;
 
@@ -100,7 +109,10 @@
     }
 
     .output_button {
-      flex-shrink: 0;
+      position: absolute;
+      inset-inline-end: 0%;
+      top: 0%;
+      z-index: 1;
     }
   }
 </style>
