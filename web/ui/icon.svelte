@@ -17,16 +17,15 @@
   :global {
     :root {
       --icon-size: 1rem;
-      --icon-move: 0;
     }
 
     .icon {
       position: relative;
-      top: var(--icon-compensate);
+      top: var(--icon-compensate, 0);
       display: block;
       width: var(--icon-size);
       height: var(--icon-size);
-      margin: var(--icon-move);
+      margin: var(--icon-move, 0);
     }
 
     .icon_path {
