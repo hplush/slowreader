@@ -334,8 +334,8 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(jiti@2.4.2)(postcss@8.5.6)(tsx@4.20.3)(yaml@2.8.0)
       postcss-mixins:
-        specifier: 12.1.1
-        version: 12.1.1(postcss@8.5.6)
+        specifier: 12.1.2
+        version: 12.1.2(postcss@8.5.6)
       rollup:
         specifier: 4.45.1
         version: 4.45.1
@@ -3408,8 +3408,8 @@ packages:
       yaml:
         optional: true
 
-  postcss-mixins@12.1.1:
-    resolution: {integrity: sha512-HgqBP+Z8iGbqBI52/dJ6+g43bxN5v7/srjqjkFZKhyNJQvL2NmH2nMEK0fKPpLWSXyJTIWkiY0E4iul+Y/EV1w==}
+  postcss-mixins@12.1.2:
+    resolution: {integrity: sha512-90pSxmZVfbX9e5xCv7tI5RV1mnjdf16y89CJKbf/hD7GyOz1FCxcYMl8ZYA8Hc56dbApTKKmU9HfvgfWdCxlwg==}
     engines: {node: ^20.0 || ^22.0 || >=24.0}
     peerDependencies:
       postcss: ^8.2.14
@@ -7405,7 +7405,7 @@ snapshots:
       tsx: 4.20.3
       yaml: 2.8.0
 
-  postcss-mixins@12.1.1(postcss@8.5.6):
+  postcss-mixins@12.1.2(postcss@8.5.6):
     dependencies:
       postcss: 8.5.6
       postcss-js: 4.0.1(postcss@8.5.6)
