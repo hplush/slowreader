@@ -1,4 +1,6 @@
 <script lang="ts">
+  // Use CSS `color` of the icon’s parent to change icon’s color
+  // To change icon’s size, use --icon-size custom property.
   let { compensate = 0, path }: { compensate?: number; path: string } = $props()
 </script>
 
