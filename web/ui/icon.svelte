@@ -5,7 +5,7 @@
 </script>
 
 <svg
-  style:--icon-compensate={`${compensate}px`}
+  style:--icon-compensate={compensate === 0 ? null : `${compensate}px`}
   class="icon"
   aria-hidden="true"
   viewBox="0 0 24 24"
