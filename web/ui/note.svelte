@@ -30,7 +30,7 @@
   {@render children()}
 </section>
 
-<style>
+<style lang="postcss">
   :global {
     .note {
       position: relative;
@@ -40,20 +40,16 @@
       align-items: flex-start;
       padding: 0.625rem 0.625rem 0.625rem calc(2rem + 0.312rem + 0.312rem);
       font: var(--secondary-font);
-      background: var(--current-background);
       border: 2px solid;
-      border-color: oklch(
-        from var(--current-background) calc(l + var(--note-l))
-          calc(c + var(--note-c)) h
-      );
+      border-color: --tune-background(--note);
       border-radius: var(--base-radius);
 
       &.is-dangerous {
-        --current-background: var(--note-dangerous-background);
+        @mixin background var(--note-dangerous-background);
       }
 
       &.is-good {
-        --current-background: var(--note-good-background);
+        @mixin background var(--note-good-background);
       }
 
       & + & {
@@ -67,10 +63,7 @@
       position: absolute;
       inset-inline-start: 0.312rem;
       top: 0.312rem;
-      color: oklch(
-        from var(--current-background) calc(l + var(--note-l))
-          calc(c + var(--note-c)) h
-      );
+      color: --tune-background(--note);
     }
 
     .note_title {

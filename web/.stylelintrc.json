@@ -3,6 +3,20 @@
   "ignoreFiles": ["*/coverage/lcov-report/*", "dist/**/*"],
   "plugins": ["stylelint-use-logical", "@stylistic/stylelint-plugin"],
   "rules": {
+    "declaration-property-value-no-unknown": [
+      true,
+      {
+        "propertiesSyntax": {
+          "background": "| <--tune-color()> | <--tune-background()>",
+          "color": "| <--tune-color()> | <--tune-background()>",
+          "border-color": "| <--tune-color()> | <--tune-background()>"
+        },
+        "typesSyntax": {
+          "--tune-color()": "--tune-color( <custom-property-name> , <custom-property-name>? )",
+          "--tune-background()": "--tune-background( <custom-property-name> , <custom-property-name>? )"
+        }
+      }
+    ],
     "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"],
     "unit-disallowed-list": [
       ["px", "em"],
@@ -19,6 +33,8 @@
         }
       }
     ],
+    "no-descending-specificity": null,
+    "color-named": "never",
     "alpha-value-notation": "percentage",
     "@stylistic/declaration-colon-newline-after": null,
     "@stylistic/max-line-length": null,
@@ -46,9 +62,7 @@
           "border-bottom"
         ]
       }
-    ],
-    "no-descending-specificity": null,
-    "color-named": "never"
+    ]
   },
   "overrides": [
     {

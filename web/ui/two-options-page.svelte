@@ -41,7 +41,7 @@
   </div>
 </Page>
 
-<style>
+<style lang="postcss">
   :global {
     .two-options-page {
       display: flex;
@@ -76,9 +76,8 @@
       margin: 0.5rem 0;
 
       &:first-child {
-        --current-background: var(--main-land-color);
+        @mixin background var(--main-land-color);
 
-        background: var(--main-land-color);
         border-radius: calc(1rem + var(--base-radius));
       }
 

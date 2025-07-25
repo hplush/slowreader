@@ -112,9 +112,7 @@
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),
         &:focus-visible {
-          background: oklch(
-            from var(--text-color) calc(l + var(--button-hover-l)) c h
-          );
+          background: --tune-color(--text-color, --button-hover);
         }
       }
 
@@ -127,27 +125,18 @@
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),
         &:focus-visible {
-          background: oklch(
-            from var(--accent-color) calc(l + var(--button-hover-l)) c h
-          );
+          background: --tune-color(--accent-color, --button-hover);
         }
       }
 
       &.is-secondary {
         color: var(--text-color);
-        background: oklch(
-          from var(--current-background) calc(l + var(--secondary-l))
-            calc(c + var(--secondary-c)) h
-        );
+        background: --tune-background(--secondary);
 
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),
         &:focus-visible {
-          background: oklch(
-            from var(--current-background)
-              calc(l + var(--secondary-l) + var(--secondary-hover-l))
-              calc(c + var(--secondary-c)) h
-          );
+          background: --tune-background(--secondary, --secondary-hover);
         }
       }
     }

@@ -77,7 +77,7 @@
   {@render children()}
 </section>
 
-<style>
+<style lang="postcss">
   section {
     position: relative;
     margin-top: 1rem;
@@ -92,10 +92,9 @@
     }
 
     &.is-main {
-      --current-background: var(--main-land-color);
+      @mixin background var(--main-land-color);
 
       padding: 0.625rem;
-      background: var(--main-land-color);
       border-radius: calc(var(--base-radius) + 0.625rem);
     }
   }
