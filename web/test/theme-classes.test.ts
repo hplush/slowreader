@@ -2,7 +2,7 @@ import { equal } from 'node:assert'
 import { test } from 'node:test'
 import postcss, { type Plugin } from 'postcss'
 
-import plugin from '../postcss/theme-classes.cts'
+import plugin from '../postcss/theme-classes.ts'
 
 function run(input: string, output: string): void {
   let result = postcss([plugin as Plugin]).process(input, { from: undefined })

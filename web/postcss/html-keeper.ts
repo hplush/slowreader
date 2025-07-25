@@ -8,7 +8,7 @@
 
 import type { Plugin, Root } from 'postcss'
 
-module.exports = {
+export default {
   postcssPlugin: 'html-keeper',
   prepare(result) {
     if (result.opts.from?.includes('.html')) {

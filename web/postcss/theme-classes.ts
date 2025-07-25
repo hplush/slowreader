@@ -79,7 +79,7 @@ function cloneToRule(atrule: AtRule, selector: string, helpers: Helpers): void {
   }
 }
 
-module.exports = {
+export default {
   AtRule: {
     media(atrule, helpers) {
       if (IS_DARK.test(atrule.params)) {

@@ -6,7 +6,7 @@ import type { Plugin } from 'postcss'
 
 const PSEUDO = [':focus', ':hover', ':active', ':focus-visible']
 
-module.exports = {
+export default {
   postcssPlugin: 'pseudo-classes',
   Rule(rule) {
     if (!rule.selector.includes(':')) return

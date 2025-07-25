@@ -3,7 +3,7 @@
 
 import type { Plugin } from 'postcss'
 
-module.exports = {
+export default {
   postcssPlugin: 'svelte-nesting-css-fixer',
   Rule(rule) {
     delete rule.raws.ownSemicolon
