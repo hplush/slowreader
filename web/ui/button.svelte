@@ -97,7 +97,7 @@
       }
 
       &.is-wide {
-        width: 100%;
+        width: stretch;
       }
 
       &.is-pill {

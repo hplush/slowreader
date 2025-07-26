@@ -94,7 +94,7 @@
 
     .input_field {
       box-sizing: border-box;
-      width: 100%;
+      width: stretch;
       padding: 0.25rem 0.5rem;
       font: var(--control-font);
       background: --tune-background(--field);

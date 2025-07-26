@@ -64,9 +64,6 @@ ol[role='list'] {
 }
 
 #main {
-  box-sizing: border-box;
-  width: 100%;
-
   @media (width > 64rem) {
     padding-inline-start: var(--navbar-width);
   }

@@ -38,7 +38,7 @@
 
     .output_field {
       box-sizing: border-box;
-      width: 100%;
+      width: stretch;
       padding: 0.25rem 0.5rem;
       font: var(--control-mono-font);
       background: --tune-background(--field);
