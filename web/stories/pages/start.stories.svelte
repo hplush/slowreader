@@ -70,13 +70,8 @@
 <Story
   name="Mobile"
   asChild
-  globals={{
-    viewport: { value: 'mobile1' }
-  }}
-  parameters={{
-    layout: 'fullscreen',
-    viewport: { defaultViewport: 'mobile1' }
-  }}
+  globals={{ viewport: { value: 'mobile1' } }}
+  parameters={{ layout: 'fullscreen' }}
 >
   <Scene route="start" user={false}>
     <StartPage page={pages.start()} />

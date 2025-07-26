@@ -28,8 +28,7 @@
             "/border/",
             "/-radius$/",
             "/outline/",
-            "translate",
-            "gap"
+            "translate"
           ]
         }
       }

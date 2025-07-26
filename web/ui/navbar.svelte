@@ -51,7 +51,6 @@
       <div class="navbar_back-button">
         <NavbarItem
           name={$t.back}
-          current={true}
           href={getHashWithoutLastPopup($router)}
           icon={mdiChevronLeft}
           size="icon"
@@ -214,6 +213,9 @@
       position: relative;
       display: flex;
       flex-grow: 1;
+
+      /* 1px gap on any scale */
+      /* stylelint-disable-next-line unit-disallowed-list */
       gap: 1px;
 
       @media (width <= 64rem) {
@@ -226,7 +228,10 @@
 
       display: flex;
       justify-content: center;
-      width: 50%;
+
+      /* 1px gap on any scale */
+      /* stylelint-disable-next-line unit-disallowed-list */
+      width: calc(50% - 0.5px);
       color: var(--text-color);
       background: --tune-background(--secondary);
 
