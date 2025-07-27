@@ -204,13 +204,6 @@ export function isOtherRoute(route: Route): boolean {
   return SETTINGS.has(route.route) || FEEDS.has(route.route)
 }
 
-export function onNextRoute(cb: (route: Route) => void): void {
-  let unbind = router.listen(route => {
-    unbind()
-    cb(route)
-  })
-}
-
 /**
  * Converts popup routes to a hash string format `popup=param,popup2=param2`
  */

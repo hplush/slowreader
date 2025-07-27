@@ -14,18 +14,18 @@ import { BROKEN_FEED, type FeedValue, getFeeds } from './feed.ts'
 import { getFilters } from './filter.ts'
 import { onLogAction, onMountAny, waitLoading } from './lib/stores.ts'
 import { getPosts } from './post.ts'
-import { onNextRoute, router } from './router.ts'
+import { router } from './router.ts'
 
 export const isMenuOpened = atom<boolean>(false)
 
 export function openMenu(): void {
-  onNextRoute(() => {
+  setTimeout(() => {
     if (router.get().route === 'fast') {
       isMenuOpened.set(fastMenu.get().length > 1)
     } else {
       isMenuOpened.set(true)
     }
-  })
+  }, 1)
 }
 
 export function closeMenu(): void {
