@@ -144,7 +144,7 @@
     .button_cap {
       box-sizing: border-box;
       display: flex;
-      gap: 0.375rem;
+      gap: 0.4rem;
       align-items: center;
       justify-content: center;
       min-height: 2.062rem;
