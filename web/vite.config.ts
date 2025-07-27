@@ -1,6 +1,6 @@
-import { nodeResolve } from '@rollup/plugin-node-resolve'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { defineConfig } from 'vite'
+import { PluginPure } from 'rollup-plugin-pure'
+import { defineConfig, type Plugin } from 'vite'
 
 function replaceIcon(html: string, icon: string): string {
   return html
@@ -11,16 +11,29 @@ function replaceIcon(html: string, icon: string): string {
     )
 }
 
+function fixOrder(plugin: Plugin): Plugin {
+  plugin.enforce = 'pre'
+  // @ts-expect-error Hacking into the plugin ignoring types
+  plugin.transform.order = 'pre'
+  return plugin
+}
+
 export default defineConfig(() => ({
-  build: {
-    assetsInlineLimit: 0,
-    target: 'es2024'
-  },
   plugins: [
+    fixOrder(
+      PluginPure({
+        functions: [
+          'i18n',
+          'atom',
+          'map',
+          'syncMapTemplate',
+          'persistentAtom',
+          'computed'
+        ],
+        include: [/.ts$/]
+      })
+    ),
     svelte(),
-    nodeResolve({
-      extensions: ['.js', '.ts']
-    }),
     {
       enforce: 'pre',
       name: 'html-transform',
