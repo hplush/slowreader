@@ -19,7 +19,7 @@
     onclick?: false | MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>
   } & (
     | ({ href: string } & HTMLAnchorAttributes)
-    | ({ href: undefined } & HTMLButtonAttributes)
+    | ({ href?: undefined } & HTMLButtonAttributes)
   ) = $props()
 </script>
 

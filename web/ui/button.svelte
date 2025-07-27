@@ -29,7 +29,7 @@
     variant?: 'cta' | 'main' | 'secondary'
   } & (
     | ({ href: string } & HTMLAnchorAttributes)
-    | ({ href: undefined } & HTMLButtonAttributes)
+    | ({ href?: undefined } & HTMLButtonAttributes)
   ) = $props()
 
   let textElement: HTMLElement | undefined
