@@ -1,6 +1,5 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { PluginPure } from 'rollup-plugin-pure'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig } from 'vite'
 
 function replaceIcon(html: string, icon: string): string {
   return html
@@ -11,28 +10,8 @@ function replaceIcon(html: string, icon: string): string {
     )
 }
 
-function fixOrder(plugin: Plugin): Plugin {
-  plugin.enforce = 'pre'
-  // @ts-expect-error Hacking into the plugin ignoring types
-  plugin.transform.order = 'pre'
-  return plugin
-}
-
 export default defineConfig(() => ({
   plugins: [
-    fixOrder(
-      PluginPure({
-        functions: [
-          'i18n',
-          'atom',
-          'map',
-          'syncMapTemplate',
-          'persistentAtom',
-          'computed'
-        ],
-        include: [/.ts$/]
-      })
-    ),
     svelte(),
     {
       enforce: 'pre',

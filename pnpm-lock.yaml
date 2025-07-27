@@ -127,8 +127,8 @@ importers:
         specifier: 0.9.0
         version: 0.9.0
       '@nanostores/i18n':
-        specifier: 1.1.2
-        version: 1.1.2(nanostores@1.0.1)
+        specifier: 1.2.2
+        version: 1.2.2(nanostores@1.0.1)
       '@nanostores/persistent':
         specifier: 1.1.0
         version: 1.1.0(nanostores@1.0.1)
@@ -304,8 +304,8 @@ importers:
         specifier: 7.4.47
         version: 7.4.47
       '@nanostores/i18n':
-        specifier: 1.1.2
-        version: 1.1.2(nanostores@1.0.1)
+        specifier: 1.2.2
+        version: 1.2.2(nanostores@1.0.1)
       '@nanostores/persistent':
         specifier: 1.1.0
         version: 1.1.0(nanostores@1.0.1)
@@ -336,9 +336,6 @@ importers:
       rollup:
         specifier: 4.45.1
         version: 4.45.1
-      rollup-plugin-pure:
-        specifier: 0.4.0
-        version: 0.4.0(rollup@4.45.1)
       svelte:
         specifier: 5.36.8
         version: 5.36.8
@@ -427,8 +424,8 @@ packages:
     resolution: {integrity: sha512-D2hP9eA+Sqx1kBZgzxZh0y1trbuU+JoDkiEwqhQ36nodYqJwyEIhPSdMNd7lOm/4io72luTPWH20Yda0xOuUow==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/runtime@7.27.6':
-    resolution: {integrity: sha512-vbavdySgbTTrmFE+EsiqUTzlOr5bzlnJtUv9PynGCAKvfQqjIXbvFdumPM/GxMDfyuGMJaJAU6TO4zc1Jf1i8Q==}
+  '@babel/runtime@7.28.2':
+    resolution: {integrity: sha512-KHp2IflsnGywDjBWDkR9iEqiWSpc8GIi0lgTT3mOElT0PP1tG26P4tmFI2YvAdzgq9RGyoHZQEIEdZy6Ec5xCA==}
     engines: {node: '>=6.9.0'}
 
   '@bcoe/v8-coverage@1.0.2':
@@ -1005,8 +1002,8 @@ packages:
   '@mdi/js@7.4.47':
     resolution: {integrity: sha512-KPnNOtm5i2pMabqZxpUz7iQf+mfrYZyKCZ8QNz85czgEt7cuHcGorWfdzUMWYA0SD+a6Hn4FmJ+YhzzzjkTZrQ==}
 
-  '@nanostores/i18n@1.1.2':
-    resolution: {integrity: sha512-PpePo2iEFPUUmjjM6/R3xA8KyT3xCkCOTBYjtzm2jT+xLBV/RF9RF8pculRz5xDB1ioWdr89y5rMVB1sJhmmMw==}
+  '@nanostores/i18n@1.2.2':
+    resolution: {integrity: sha512-5LLxl95+ZI46MrM/Kn7YjORKsD7+Xy2tgjZ7/oDT/BGPEiaBM9lK89/afeK+BqaQL0Xd9Xaa5MPuuVSyWAo+/w==}
     engines: {node: ^20.0.0 || >=22.0.0}
     peerDependencies:
       nanostores: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^1.0.0
@@ -2381,9 +2378,6 @@ packages:
   estree-walker@2.0.2:
     resolution: {integrity: sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==}
 
-  estree-walker@3.0.3:
-    resolution: {integrity: sha512-7RUKfXgSMMkzt6ZuXmqapOurLGPPfgj6l9uRZ7lRGolvk0y2yocc35LdcxKC5PQZdn2DMqioAQ2NoWcrTKmm6g==}
-
   esutils@2.0.3:
     resolution: {integrity: sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==}
     engines: {node: '>=0.10.0'}
@@ -3664,11 +3658,6 @@ packages:
     resolution: {integrity: sha512-g6QUff04oZpHs0eG5p83rFLhHeV00ug/Yf9nZM6fLeUrPguBTkTQOdpAWWspMh55TZfVQDPaN3NQJfbVRAxdIw==}
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
 
-  rollup-plugin-pure@0.4.0:
-    resolution: {integrity: sha512-m5hnihG13c4JJ+OlBkbkxmQdmDfXyqsf3LuYa3O7YhtZ3/8OdRfTuxySSJ+wJ9qFUWJ0T6ApqEwTgYNQKVBcFg==}
-    peerDependencies:
-      rollup: ^3.0.0 || ^4.0.0
-
   rollup@2.79.2:
     resolution: {integrity: sha512-fS6iqSPZDs3dr/y7Od6y5nha8dW1YnbgtsyotCVvoFGKbERG++CVRFv1meyGDE1SNItQA8BrnCw7ScdAhRJ3XQ==}
     engines: {node: '>=10.0.0'}
@@ -4159,10 +4148,6 @@ packages:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
     engines: {node: '>= 10.0.0'}
 
-  unplugin-utils@0.2.4:
-    resolution: {integrity: sha512-8U/MtpkPkkk3Atewj1+RcKIjb5WBimZ/WSLhhR3w6SsIj8XJuKTacSP8g+2JhfSGw0Cb125Y+2zA/IzJZDVbhA==}
-    engines: {node: '>=18.12.0'}
-
   unplugin@1.16.1:
     resolution: {integrity: sha512-4/u/j4FrCKdi17jaxuJA0jClGxB1AvU2hw/IuayPc4ay1XGaJs/rbb4v5WKwAjNifjmXK9PIFyuPiaK8azyR9w==}
     engines: {node: '>=14.0.0'}
@@ -4417,7 +4402,7 @@ snapshots:
 
   '@babel/helper-validator-identifier@7.27.1': {}
 
-  '@babel/runtime@7.27.6': {}
+  '@babel/runtime@7.28.2': {}
 
   '@bcoe/v8-coverage@1.0.2': {}
 
@@ -4857,7 +4842,7 @@ snapshots:
 
   '@mdi/js@7.4.47': {}
 
-  '@nanostores/i18n@1.1.2(nanostores@1.0.1)':
+  '@nanostores/i18n@1.2.2(nanostores@1.0.1)':
     dependencies:
       nanostores: 1.0.1
 
@@ -5128,7 +5113,7 @@ snapshots:
   '@testing-library/dom@10.4.0':
     dependencies:
       '@babel/code-frame': 7.27.1
-      '@babel/runtime': 7.27.6
+      '@babel/runtime': 7.28.2
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
       chalk: 4.1.2
@@ -6253,10 +6238,6 @@ snapshots:
   estraverse@5.3.0: {}
 
   estree-walker@2.0.2: {}
-
-  estree-walker@3.0.3:
-    dependencies:
-      '@types/estree': 1.0.8
 
   esutils@2.0.3: {}
 
@@ -7718,13 +7699,6 @@ snapshots:
 
   reusify@1.1.0: {}
 
-  rollup-plugin-pure@0.4.0(rollup@4.45.1):
-    dependencies:
-      estree-walker: 3.0.3
-      magic-string: 0.30.17
-      rollup: 4.45.1
-      unplugin-utils: 0.2.4
-
   rollup@2.79.2:
     optionalDependencies:
       fsevents: 2.3.3
@@ -8362,11 +8336,6 @@ snapshots:
       unist-util-visit-parents: 6.0.1
 
   universalify@2.0.1: {}
-
-  unplugin-utils@0.2.4:
-    dependencies:
-      pathe: 2.0.3
-      picomatch: 4.0.3
 
   unplugin@1.16.1:
     dependencies:

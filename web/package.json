@@ -32,7 +32,7 @@
     "@logux/client": "github:logux/client#next",
     "@logux/core": "0.9.0",
     "@mdi/js": "7.4.47",
-    "@nanostores/i18n": "1.1.2",
+    "@nanostores/i18n": "1.2.2",
     "@nanostores/persistent": "1.1.0",
     "@nanostores/router": "1.0.0",
     "@slowreader/core": "workspace:*",
@@ -43,7 +43,6 @@
     "postcss-load-config": "6.0.1",
     "postcss-mixins": "12.1.2",
     "rollup": "4.45.1",
-    "rollup-plugin-pure": "0.4.0",
     "svelte": "5.36.8",
     "tsx": "4.20.3",
     "vite": "7.0.5"
