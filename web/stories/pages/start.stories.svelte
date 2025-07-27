@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  import { authMessages, pages } from '@slowreader/core'
+  import { pages, commonMessages as t } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import StartPage from '../../pages/start.svelte'
@@ -48,7 +48,7 @@
     oninit={() => {
       pages.start().userId.set('4581658299936829')
       pages.start().secret.set('Yo;wV*5Ktm }&OqUv2RB>')
-      pages.start().signError.set(authMessages.get().invalidCredentials)
+      pages.start().signError.set(t.get().invalidCredentials)
     }}
     route="start"
     user={false}

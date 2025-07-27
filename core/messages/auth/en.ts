@@ -9,7 +9,6 @@ export const authMessages = i18n('auth', {
   email: params(
     '// Send this email to yourself\n// If you will forget password, you will search by it here\n\nUser ID: {user}\nSecret: {secret}'
   ),
-  invalidCredentials: 'There is no user with such user ID and password',
   localDescription1: 'Slow Reader works locally.',
   localDescription2:
     'You can create account later when you will need cross-device sync.',

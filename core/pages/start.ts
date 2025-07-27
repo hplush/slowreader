@@ -9,7 +9,7 @@ import {
 } from '../auth.ts'
 import { getEnvironment } from '../environment.ts'
 import { HTTPRequestError } from '../lib/http.ts'
-import { commonMessages, authMessages as t } from '../messages/index.ts'
+import { commonMessages, commonMessages as t } from '../messages/index.ts'
 import { createPage } from './common.ts'
 import { injectCustomServerField } from './mixins/custom-server-field.ts'
 

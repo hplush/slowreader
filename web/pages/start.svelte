@@ -6,6 +6,7 @@
     mdiRocketLaunch
   } from '@mdi/js'
   import {
+    commonMessages,
     type StartPage,
     authMessages as t,
     validSecret,
@@ -69,7 +70,7 @@
         name="username"
         autocomplete="username"
         disabled={$signingIn}
-        errorId={$signError === t.get().invalidCredentials
+        errorId={$signError === commonMessages.get().invalidCredentials
           ? 'start-server-error'
           : undefined}
         font="mono"
@@ -84,7 +85,7 @@
         name="password"
         autocomplete="current-password"
         disabled={$signingIn}
-        errorId={$signError === t.get().invalidCredentials
+        errorId={$signError === commonMessages.get().invalidCredentials
           ? 'start-server-error'
           : undefined}
         font="mono"
