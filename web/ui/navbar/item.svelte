@@ -39,7 +39,7 @@
   {href}
   {onclick}
   role="menuitem"
-  tabindex={inSubmenu ? -1 : null}
+  tabindex={!inSubmenu && current ? 0 : -1}
   title={size === 'icon' || (name && name.length > 15) ? name : null}
 >
   <span class="navbar-item_cap">

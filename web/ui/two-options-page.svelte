@@ -29,7 +29,7 @@
 </script>
 
 <Page {title}>
-  <div class="two-options-page">
+  <main id="page" class="two-options-page">
     <div bind:this={center} class="two-options-page_center">
       <div bind:this={first} class="two-options-page_option is-padding">
         {@render one()}
@@ -38,7 +38,7 @@
         {@render two()}
       </div>
     </div>
-  </div>
+  </main>
 </Page>
 
 <style lang="postcss">

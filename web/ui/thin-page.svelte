@@ -15,9 +15,13 @@
 </script>
 
 <Page {title}>
-  <div class="thin-page" class:is-no-bottom={bottomOnMobile === false}>
+  <main
+    id="page"
+    class="thin-page"
+    class:is-no-bottom={bottomOnMobile === false}
+  >
     <div class="thin-page_center">{@render children()}</div>
-  </div>
+  </main>
 </Page>
 
 <style>

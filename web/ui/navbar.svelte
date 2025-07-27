@@ -88,6 +88,7 @@
         href={getURL('slow')}
         onclick={openMenu}
         role="menuitem"
+        tabindex={$router.route === 'slow' ? 0 : -1}
       >
         <span class="navbar_link-cap">
           <NavbarFireplace />
@@ -102,6 +103,7 @@
         href={getURL('fast')}
         onclick={openMenu}
         role="menuitem"
+        tabindex={$router.route === 'fast' ? 0 : -1}
       >
         <span class="navbar_link-cap">
           <Icon path={mdiFood} />
