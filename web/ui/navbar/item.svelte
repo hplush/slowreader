@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
+  import type { KeyboardEventHandler } from 'svelte/elements'
 
   import Clickable from '../clickable.svelte'
   import Icon from '../icon.svelte'
@@ -38,6 +39,16 @@
   aria-haspopup={hasSubmenu ? 'menu' : null}
   {href}
   {onclick}
+  onkeydown={inSubmenu
+    ? ((e => {
+        if (e.key === 'Enter') {
+          let item = e.currentTarget
+          setTimeout(() => {
+            item.tabIndex = -1
+          }, 10)
+        }
+      }) as KeyboardEventHandler<HTMLAnchorElement | HTMLButtonElement>)
+    : null}
   role="menuitem"
   tabindex={!inSubmenu && current ? 0 : -1}
   title={size === 'icon' || (name && name.length > 15) ? name : null}
