@@ -201,7 +201,8 @@
       flex-shrink: 1;
       flex-direction: column;
       gap: 0.125rem;
-      padding: 0.5rem 0 0 0.25rem;
+      padding: 0.5rem 0.5rem 0 0.25rem;
+      margin-inline-end: -0.5rem;
       overflow-y: auto;
 
       @media (width <= 64rem) {

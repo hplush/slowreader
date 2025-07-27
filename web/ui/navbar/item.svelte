@@ -86,9 +86,9 @@
         background: var(--text-color);
       }
 
-      @media (width <= 64rem) {
+      @media (width > 64rem) {
         &[aria-current='page'] {
-          cursor: pointer;
+          cursor: default;
         }
       }
     }
