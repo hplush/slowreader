@@ -12,6 +12,7 @@
 
   let {
     disabled,
+    href,
     icon,
     loader,
     onclick,
@@ -54,6 +55,7 @@
     'is-wide': size === 'wide' || size === 'big'
   }}
   disabled={!!loader || !!disabled}
+  {href}
   {onclick}
   title={size === 'icon' ? title : undefined}
 >
