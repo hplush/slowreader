@@ -13,6 +13,7 @@
   import StartPage from '../pages/start.svelte'
   import Button from '../ui/button.svelte'
   import Navbar from '../ui/navbar.svelte'
+  import ThinPage from '../ui/thin-page.svelte'
 
   // To have smooth app starting loader animation we are re-using loader in HTML
   // while app is initializing, but need to render new one later
@@ -40,8 +41,10 @@
 {:else if $currentPage.route === 'signup'}
   <SignupPage page={$currentPage} />
 {:else}
-  {$currentPage.route}
-  <Button onclick={signOut}>Exit</Button>
+  <ThinPage title={$currentPage.route}>
+    {$currentPage.route}
+    <Button onclick={signOut}>Exit</Button>
+  </ThinPage>
 {/if}
 
 {#if !$busy && $userId && !$pageHideMenu}

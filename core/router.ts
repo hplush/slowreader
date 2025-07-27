@@ -81,20 +81,31 @@ export type BaseRoute<Name extends RouteName = RouteName> = Name extends string
 
 export type BaseRouter = ReadableAtom<BaseRoute | undefined>
 
+export const FEED_ROUTES = [
+  'add',
+  'feedsByCategories'
+] as const satisfies RouteName[]
+
+export const SETTINGS_ROUTES = [
+  'profile',
+  'interface',
+  'download',
+  'import',
+  'export',
+  'about'
+] as const satisfies RouteName[]
+
+export type OtherName =
+  | (typeof FEED_ROUTES)[number]
+  | (typeof SETTINGS_ROUTES)[number]
+
 const GUEST = new Set<RouteName>(['signin', 'start'])
 
 const BOTH = new Set<RouteName>(['notFound', 'signup'])
 
-const SETTINGS = new Set<RouteName>([
-  'about',
-  'download',
-  'export',
-  'import',
-  'interface',
-  'profile'
-])
+const FEEDS = new Set<RouteName>(FEED_ROUTES)
 
-const FEEDS = new Set<RouteName>(['add', 'feedsByCategories'])
+const SETTINGS = new Set<RouteName>(SETTINGS_ROUTES)
 
 function open(route: ParamlessRouteName): Route {
   return { params: {}, popups: [], route }

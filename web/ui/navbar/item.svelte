@@ -50,7 +50,7 @@
       {@render children()}
     {/if}
     {#if size !== 'icon'}
-      <span class="navbar-item_text">{name}</span>
+      <div class="navbar-item_text">{name}</div>
     {/if}
   </span>
 </Clickable>
@@ -63,8 +63,6 @@
       height: var(--navbar-item);
       overflow: hidden;
       font: var(--control-font);
-      font-weight: normal;
-      line-height: 1;
       color: var(--text-color);
       text-decoration: none;
       cursor: pointer;
@@ -100,13 +98,14 @@
       display: flex;
       gap: 0.4rem;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       height: var(--navbar-item);
+      padding: 0 0.5rem;
 
       .navbar-item.is-icon & {
         justify-content: center;
         width: var(--navbar-item);
-        text-align: center;
+        padding: 0;
       }
 
       .navbar-item:active & {
@@ -118,6 +117,7 @@
       flex-shrink: 1;
       overflow: hidden;
       text-overflow: ellipsis;
+      line-height: 2;
       white-space: nowrap;
     }
   }

@@ -23,6 +23,7 @@
   import Icon from './icon.svelte'
   import NavbarFireplace from './navbar/fireplace.svelte'
   import NavbarItem from './navbar/item.svelte'
+  import NavbarOther from './navbar/other.svelte'
   import NavbarProgress from './navbar/progress.svelte'
 
   let removeEvent: (() => void) | undefined
@@ -129,7 +130,11 @@
     class:is-opened={$isMenuOpened}
     aria-hidden="true"
     role="menu"
-  ></div>
+  >
+    {#if isOtherRoute($router)}
+      <NavbarOther />
+    {/if}
+  </div>
 </nav>
 
 <style lang="postcss">
@@ -141,7 +146,7 @@
     }
 
     :root.has-navbar {
-      --navbar-width: 18rem;
+      --navbar-width: 17rem;
       --navbar-height: 3.8rem;
     }
 

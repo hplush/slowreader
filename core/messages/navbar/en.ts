@@ -8,7 +8,7 @@ export const navbarMessages = i18n('navbar', {
   export: 'Export',
   fast: 'Fun',
   feeds: 'Manage Feeds',
-  feedsByCategory: 'By Category',
+  feedsByCategories: 'By Category',
   import: 'Import',
   interface: 'User Interface',
   menu: 'Feeds & Settings',
