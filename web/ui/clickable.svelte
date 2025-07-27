@@ -3,7 +3,8 @@
   import type {
     ClassValue,
     HTMLAnchorAttributes,
-    HTMLButtonAttributes
+    HTMLButtonAttributes,
+    MouseEventHandler
   } from 'svelte/elements'
 
   let {
@@ -11,22 +12,27 @@
     disabled,
     onclick,
     ...props
-  }: (({ href: string } & HTMLAnchorAttributes) | HTMLButtonAttributes) & {
+  }: {
     children: Snippet
     class: ClassValue
     disabled?: boolean
-    onclick?: (e: MouseEvent) => void
-  } = $props()
+    onclick?: false | MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>
+  } & (
+    | ({ href: string } & HTMLAnchorAttributes)
+    | ({ href: undefined } & HTMLButtonAttributes)
+  ) = $props()
 </script>
 
-{#if 'href' in props}
+{#if typeof props.href !== 'undefined'}
   <a
     {...props}
     aria-disabled={disabled}
     href={props.href}
-    onclick={e => {
-      if (!disabled && onclick) onclick(e)
-    }}
+    onclick={onclick
+      ? e => {
+          if (!disabled) onclick(e)
+        }
+      : null}
   >
     {@render children()}
   </a>
@@ -34,9 +40,11 @@
   <button
     {...props}
     aria-disabled={disabled}
-    onclick={e => {
-      if (!disabled && onclick) onclick(e)
-    }}
+    onclick={onclick
+      ? e => {
+          if (!disabled) onclick(e)
+        }
+      : null}
     type={props.type || 'button'}
   >
     {@render children()}
