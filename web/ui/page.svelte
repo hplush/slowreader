@@ -1,11 +1,14 @@
 <script lang="ts">
   import { onDestroy, onMount, type Snippet } from 'svelte'
+  import type { ClassValue } from 'svelte/elements'
 
   let {
     children,
+    class: className,
     title
   }: {
     children: Snippet
+    class: ClassValue
     title: string
   } = $props()
 
@@ -29,4 +32,6 @@
   })
 </script>
 
-{@render children()}
+<main id="page" class={className}>
+  {@render children()}
+</main>

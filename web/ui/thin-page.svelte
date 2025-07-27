@@ -14,14 +14,13 @@
   } = $props()
 </script>
 
-<Page {title}>
-  <main
-    id="page"
-    class="thin-page"
-    class:is-no-bottom={bottomOnMobile === false}
-  >
-    <div class="thin-page_center">{@render children()}</div>
-  </main>
+<Page
+  class={{ 'is-no-bottom': bottomOnMobile === false, 'thin-page': true }}
+  {title}
+>
+  <div class="thin-page_center">
+    {@render children()}
+  </div>
 </Page>
 
 <style>
