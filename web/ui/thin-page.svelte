@@ -42,6 +42,10 @@
       width: 19rem;
       max-width: 100%;
       margin: 1rem 0 2rem;
+
+      @media (width <= 64rem) {
+        margin-bottom: var(--navbar-height);
+      }
     }
   }
 </style>

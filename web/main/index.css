@@ -67,10 +67,6 @@ ol[role='list'] {
   @media (width > 64rem) {
     padding-inline-start: var(--navbar-width);
   }
-
-  @media (width <= 64rem) {
-    padding-bottom: var(--navbar-height);
-  }
 }
 
 pre,
