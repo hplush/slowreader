@@ -1,4 +1,4 @@
-import { PGlite } from '@electric-sql/pglite'
+import { PGlite, type PGliteOptions } from '@electric-sql/pglite'
 import type { MigrationConfig } from 'drizzle-orm/migrator'
 import type { PgDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core'
 import { drizzle as devDrizzle } from 'drizzle-orm/pglite'
@@ -21,6 +21,10 @@ const MIGRATE_CONFIG: MigrationConfig = {
 
 export let dumpDb = (): Promise<void> => Promise.resolve()
 
+function pgOptions(): PGliteOptions {
+  return { debug: config.debug ? 5 : undefined }
+}
+
 let drizzle: PgDatabase<PgQueryResultHKT, typeof schema>
 if (
   config.db.startsWith('memory://') ||
@@ -34,10 +38,11 @@ if (
     if (existsSync(path)) {
       let dump = await readFile(path)
       pglite = new PGlite({
+        ...pgOptions(),
         loadDataDir: new Blob([dump], { type: 'application/x-tar' })
       })
     } else {
-      pglite = new PGlite()
+      pglite = new PGlite(pgOptions())
     }
     dumpDb = async () => {
       let blob = await pglite.dumpDataDir('none')
@@ -59,7 +64,7 @@ if (
         pglite.close()
       })
     }
-    pglite = new PGlite(config.db)
+    pglite = new PGlite(config.db, pgOptions())
   }
   let drizzlePglite = devDrizzle(pglite, { schema })
   await devMigrate(drizzlePglite, MIGRATE_CONFIG)
