@@ -134,7 +134,7 @@ jobs:
           registry: staging/server
           service: staging-server
           shutdown: 'https://dev-server.slowreader.app/dump'
-          env: ASSETS=,PROXY_ORIGIN=,DATABASE_URL=dump:/var/mnt/db/db.pglite
+          env: ASSETS=,PROXY_ORIGIN=,DATABASE_URL=dump:/var/mnt/db/db.pglite,DEBUG=1
           # Persistent database was disable temporary to save money
           # flags: |
           #   --vpc-connector db-connector
