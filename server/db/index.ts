@@ -6,7 +6,15 @@ import { migrate as devMigrate } from 'drizzle-orm/pglite/migrator'
 import { drizzle as prodDrizzle } from 'drizzle-orm/postgres-js'
 import { migrate as prodMigrate } from 'drizzle-orm/postgres-js/migrator'
 import { existsSync } from 'node:fs'
-import { access, constants, mkdir, readFile, writeFile } from 'node:fs/promises'
+import {
+  access,
+  constants,
+  mkdir,
+  readFile,
+  rename,
+  rm,
+  writeFile
+} from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import postgres from 'postgres'
 
@@ -35,20 +43,21 @@ if (
   if (config.db.startsWith('dump:')) {
     let path = config.db.slice(5)
     await mkdir(dirname(path), { recursive: true })
+    let loadDataDir: Blob | undefined
     if (existsSync(path)) {
-      let dump = await readFile(path)
-      pglite = new PGlite({
-        ...pgOptions(),
-        loadDataDir: new Blob([dump], { type: 'application/x-tar' })
+      loadDataDir = new Blob([await readFile(path)], {
+        type: 'application/x-tar'
       })
-    } else {
-      pglite = new PGlite(pgOptions())
     }
+    pglite = new PGlite({ ...pgOptions(), loadDataDir })
     dumpDb = async () => {
       let blob = await pglite.dumpDataDir('none')
-      await writeFile(path, Buffer.from(await blob.arrayBuffer()), {
+      let tmpFile = `${path}~` // Avoid braking dump on killing the app
+      await writeFile(tmpFile, Buffer.from(await blob.arrayBuffer()), {
         encoding: 'binary'
       })
+      await rm(path)
+      await rename(tmpFile, path)
     }
     onExit(() => {
       dumpDb()
