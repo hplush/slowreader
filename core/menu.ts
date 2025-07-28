@@ -166,6 +166,12 @@ export const closedCategories = persistentAtom<Set<string>>(
   }
 )
 
+export function openCategory(id: string): void {
+  let clone = new Set([...closedCategories.get()])
+  clone.delete(id)
+  closedCategories.set(clone)
+}
+
 export function toggleCategory(id: string): void {
   let clone = new Set([...closedCategories.get()])
   if (clone.has(id)) {

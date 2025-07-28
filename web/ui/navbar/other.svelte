@@ -18,6 +18,7 @@
   } from '@slowreader/core'
 
   import { getURL } from '../../stores/url-router.ts'
+  import NavbarCategory from './category.svelte'
   import NavbarItem from './item.svelte'
 
   const ICONS = {
@@ -32,8 +33,8 @@
   } satisfies Record<OtherName, string>
 </script>
 
-{#each FEED_ROUTES as route (route)}
-  {#if route in ICONS}
+<NavbarCategory id="other-feeds" name={$t.feeds} closable={false}>
+  {#each FEED_ROUTES as route (route)}
     <NavbarItem
       name={$t[route]}
       current={$router.route === route}
@@ -41,11 +42,11 @@
       icon={ICONS[route]}
       inSubmenu
     />
-  {/if}
-{/each}
+  {/each}
+</NavbarCategory>
 
-{#each SETTINGS_ROUTES as route (route)}
-  {#if route in ICONS}
+<NavbarCategory id="other-settings" name={$t.settings} closable={false}>
+  {#each SETTINGS_ROUTES as route (route)}
     <NavbarItem
       name={$t[route]}
       current={$router.route === route}
@@ -53,5 +54,5 @@
       icon={ICONS[route]}
       inSubmenu
     />
-  {/if}
-{/each}
+  {/each}
+</NavbarCategory>

@@ -59,7 +59,7 @@
     "better-node-test": "0.7.1",
     "browserslist": "4.25.1",
     "eslint": "9.32.0",
-    "keyux": "0.11.2",
+    "keyux": "0.11.3",
     "postcss-html": "1.8.0",
     "postcss-nesting": "13.0.2",
     "postcss-selector-parser": "7.1.0",

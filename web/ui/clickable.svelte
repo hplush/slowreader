@@ -16,7 +16,7 @@
     children: Snippet
     class: ClassValue
     disabled?: boolean
-    onclick?: false | MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>
+    onclick?: MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>
   } & (
     | ({ href: string } & HTMLAnchorAttributes)
     | ({ href?: undefined } & HTMLButtonAttributes)

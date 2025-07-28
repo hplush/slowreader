@@ -18,6 +18,7 @@ import {
   getFeed,
   isMenuOpened,
   menuLoading,
+  openCategory,
   openMenu,
   slowMenu,
   testFeed,
@@ -229,4 +230,8 @@ test('tracks closed categories', async () => {
   deepStrictEqual([...closedCategories.get()], [idA, idB])
   toggleCategory(idA)
   deepStrictEqual([...closedCategories.get()], [idB])
+
+  toggleCategory(idA)
+  openCategory(idB)
+  deepStrictEqual([...closedCategories.get()], [idA])
 })

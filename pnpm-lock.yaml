@@ -380,8 +380,8 @@ importers:
         specifier: 9.32.0
         version: 9.32.0(jiti@2.5.1)
       keyux:
-        specifier: 0.11.2
-        version: 0.11.2
+        specifier: 0.11.3
+        version: 0.11.3
       postcss-html:
         specifier: 1.8.0
         version: 1.8.0
@@ -2793,8 +2793,8 @@ packages:
   just-debounce-it@3.2.0:
     resolution: {integrity: sha512-WXzwLL0745uNuedrCsCs3rpmfD6DBaf7uuVwaq98/8dafURfgQaBsSpjiPp5+CW6Vjltwy9cOGI6qE71b3T8iQ==}
 
-  keyux@0.11.2:
-    resolution: {integrity: sha512-TAPURHz1fiSXogqYnz4unIyK6pPond2/viKzslAGLduokFbrmXR8IazBhzWdfsGpIUdf8a+BWRex+S4S1wulsg==}
+  keyux@0.11.3:
+    resolution: {integrity: sha512-IzS9emdl1gazLhGvCcwy066WYeOJtoxuncDVIsKvvyZZXRmPwUusHuvvOd4bjT9qiN+kBc9ntP6CaKYM16qzPA==}
     engines: {node: ^18.0.0 || >=20.0.0}
 
   keyv@4.5.4:
@@ -6605,7 +6605,7 @@ snapshots:
 
   just-debounce-it@3.2.0: {}
 
-  keyux@0.11.2: {}
+  keyux@0.11.3: {}
 
   keyv@4.5.4:
     dependencies:
