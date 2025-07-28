@@ -87,11 +87,11 @@ export const FEED_ROUTES = [
 ] as const satisfies RouteName[]
 
 export const SETTINGS_ROUTES = [
-  'profile',
   'interface',
   'download',
   'import',
   'export',
+  'profile',
   'about'
 ] as const satisfies RouteName[]
 
