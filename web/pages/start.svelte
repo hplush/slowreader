@@ -66,51 +66,51 @@
   {#snippet two()}
     <Form loading={$signingIn} onsubmit={page.signIn}>
       <Title>{$t.oldUser}</Title>
-      <Input
-        name="username"
-        autocomplete="username"
-        disabled={$signingIn}
-        errorId={$signError === commonMessages.get().invalidCredentials
-          ? 'start-server-error'
-          : undefined}
-        font="mono"
-        inputmode="numeric"
-        label={$t.userId}
-        pattern="[0-9]*"
-        required
-        validate={validUserId}
-        bind:value={$userId}
-      />
-      <Input
-        name="password"
-        autocomplete="current-password"
-        disabled={$signingIn}
-        errorId={$signError === commonMessages.get().invalidCredentials
-          ? 'start-server-error'
-          : undefined}
-        font="mono"
-        label={$t.secret}
-        required
-        type="password"
-        validate={validSecret}
-        bind:value={$secret}
-      />
-      {#if $customServer}
-        <Input
-          disabled={$signingIn}
-          inputmode="url"
-          label={$t.server}
-          onescape={() => {
-            page.resetCustomServer()
-          }}
-          placeholder="server.slowreader.app"
-          validate={validServer}
-          bind:value={$customServer}
-          bind:input={serverInput}
-        />
-      {/if}
-      <Error id="start-server-error" text={$signError} />
       <Stack center>
+        <Input
+          name="username"
+          autocomplete="username"
+          disabled={$signingIn}
+          errorId={$signError === commonMessages.get().invalidCredentials
+            ? 'start-server-error'
+            : undefined}
+          font="mono"
+          inputmode="numeric"
+          label={$t.userId}
+          pattern="[0-9]*"
+          required
+          validate={validUserId}
+          bind:value={$userId}
+        />
+        <Input
+          name="password"
+          autocomplete="current-password"
+          disabled={$signingIn}
+          errorId={$signError === commonMessages.get().invalidCredentials
+            ? 'start-server-error'
+            : undefined}
+          font="mono"
+          label={$t.secret}
+          required
+          type="password"
+          validate={validSecret}
+          bind:value={$secret}
+        />
+        {#if $customServer}
+          <Input
+            disabled={$signingIn}
+            inputmode="url"
+            label={$t.server}
+            onescape={() => {
+              page.resetCustomServer()
+            }}
+            placeholder="server.slowreader.app"
+            validate={validServer}
+            bind:value={$customServer}
+            bind:input={serverInput}
+          />
+        {/if}
+        <Error id="start-server-error" text={$signError} />
         {#if !$customServer}
           <Button
             disabled={$signingIn}

@@ -89,7 +89,7 @@
 <style>
   :global {
     .input {
-      margin: 0.625rem 0;
+      width: stretch;
     }
 
     .input_field {

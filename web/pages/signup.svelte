@@ -82,35 +82,35 @@
   <TwoOptionsPage paddingTwo={false} title={$t.signupTitle}>
     {#snippet one()}
       <Form loading={$signingUp} onsubmit={page.submit}>
-        <Output
-          name="username"
-          autocomplete="username"
-          label={$t.userId}
-          value={$userId}
-        />
-        <Output
-          name="password"
-          autocomplete="new-password"
-          label={$t.secret}
-          type="text"
-          value={$secret}
-        />
-        {#if $customServer}
-          <Input
-            disabled={$signingUp}
-            inputmode="url"
-            label={$t.server}
-            onescape={() => {
-              page.resetCustomServer()
-            }}
-            placeholder="server.slowreader.app"
-            validate={validServer}
-            bind:value={$customServer}
-            bind:input={serverInput}
-          />
-        {/if}
-        <Error id="start-server-error" text={$error} />
         <Stack center>
+          <Output
+            name="username"
+            autocomplete="username"
+            label={$t.userId}
+            value={$userId}
+          />
+          <Output
+            name="password"
+            autocomplete="new-password"
+            label={$t.secret}
+            type="text"
+            value={$secret}
+          />
+          {#if $customServer}
+            <Input
+              disabled={$signingUp}
+              inputmode="url"
+              label={$t.server}
+              onescape={() => {
+                page.resetCustomServer()
+              }}
+              placeholder="server.slowreader.app"
+              validate={validServer}
+              bind:value={$customServer}
+              bind:input={serverInput}
+            />
+          {/if}
+          <Error id="start-server-error" text={$error} />
           {#if !$customServer}
             <Button
               disabled={$signingUp}

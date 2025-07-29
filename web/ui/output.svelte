@@ -33,7 +33,7 @@
 <style>
   :global {
     .output {
-      margin: 0.625rem 0;
+      width: stretch;
     }
 
     .output_field {
