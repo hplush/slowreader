@@ -35,7 +35,13 @@
       $syncStatus === 'connecting'}
   >
     <Icon path={ICONS[$syncStatus]} />
-    {$t[`${$syncStatus}Status`]}
+    {#if $syncStatus === 'wait' || $syncStatus === 'disconnected'}
+      {$t.offlineStatus}
+    {:else if $syncStatus === 'connecting' || $syncStatus === 'connectingAfterWait'}
+      {$t.connectingStatus}
+    {:else}
+      {$t[`${$syncStatus}Status`]}
+    {/if}
   </div>
 {/if}
 

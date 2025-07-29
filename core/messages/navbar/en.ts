@@ -4,9 +4,7 @@ export const navbarMessages = i18n('navbar', {
   about: 'About the App',
   add: 'Add feed',
   back: 'Back',
-  connectingAfterWaitStatus: 'Connecting',
   connectingStatus: 'Connecting',
-  disconnectedStatus: 'Offline',
   download: 'Feed Loading',
   errorStatus: 'Sync error',
   export: 'Export',
@@ -16,12 +14,12 @@ export const navbarMessages = i18n('navbar', {
   import: 'Import',
   interface: 'User Interface',
   menu: 'Feeds & Settings',
+  offlineStatus: 'Offline',
   postRefreshing: 'Checking feeds for new posts',
   profile: 'Profile',
   refresh: 'Check for new posts',
   refreshing: 'Post updating',
   settings: 'Settings',
   slow: 'Useful',
-  synchronizedAfterWaitStatus: 'Synchronized',
-  waitStatus: 'Offline'
+  synchronizedAfterWaitStatus: 'Synchronized'
 })
