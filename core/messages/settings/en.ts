@@ -11,7 +11,6 @@ export const settingsMessages = i18n('settings', {
   preloadImages: 'Preload posts images',
   preloadNever: 'Never pre-load media',
   profile: 'Profile',
-  source: 'Source code',
   theme: 'Application theme',
   themeDark: 'Dark theme',
   themeLight: 'Light theme',

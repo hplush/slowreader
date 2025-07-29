@@ -1,4 +1,5 @@
 import type { RouteName } from '../router.ts'
+import { aboutPage } from './about.ts'
 import { addPage } from './add.ts'
 import {
   createRedirectPage,
@@ -13,6 +14,7 @@ import { importPage } from './import.ts'
 import { signupPage } from './signup.ts'
 import { startPage } from './start.ts'
 
+export type { AboutPage } from './about.ts'
 export type { AddPage } from './add.ts'
 export * from './common.ts'
 export type { ExportPage } from './export.ts'
@@ -24,7 +26,7 @@ export type { SignupPage } from './signup.ts'
 export type { StartPage } from './start.ts'
 
 export const pages = {
-  about: createSimplePage('about'),
+  about: aboutPage,
   add: addPage,
   download: createSimplePage('download'),
   export: exportPage,

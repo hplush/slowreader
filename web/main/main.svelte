@@ -7,6 +7,7 @@
     userId
   } from '@slowreader/core'
 
+  import AboutPage from '../pages/about.svelte'
   import BusyPage from '../pages/busy.svelte'
   import NotFoundPage from '../pages/not-found.svelte'
   import SignupPage from '../pages/signup.svelte'
@@ -36,6 +37,8 @@
   {/if}
 {:else if $currentPage.route === 'notFound'}
   <NotFoundPage />
+{:else if $currentPage.route === 'about'}
+  <AboutPage page={$currentPage} />
 {:else if $currentPage.route === 'start'}
   <StartPage page={$currentPage} />
 {:else if $currentPage.route === 'signup'}

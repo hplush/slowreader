@@ -1,3 +1,4 @@
+export * from './about/en.ts'
 export * from './auth/en.ts'
 export * from './common/en.ts'
 export * from './export/en.ts'
