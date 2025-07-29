@@ -2,7 +2,8 @@
   import type { Snippet } from 'svelte'
   import type {
     HTMLAnchorAttributes,
-    HTMLButtonAttributes
+    HTMLButtonAttributes,
+    MouseEventHandler
   } from 'svelte/elements'
 
   import Clickable from './clickable.svelte'
@@ -11,8 +12,8 @@
   import Loader from './loader.svelte'
 
   let {
+    children,
     disabled,
-    href,
     icon,
     loader,
     onclick,
@@ -24,7 +25,7 @@
     disabled?: boolean
     icon?: string
     loader?: boolean | string
-    onclick?: (event: MouseEvent) => void
+    onclick?: MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>
     size?: 'big' | 'icon' | 'inline' | 'pill' | 'wide'
     variant?: 'cta' | 'main' | 'secondary'
   } & (
@@ -43,6 +44,7 @@
 </script>
 
 <Clickable
+  {...props}
   class={{
     'button': true,
     'is-big': size === 'big',
@@ -55,7 +57,6 @@
     'is-wide': size === 'wide' || size === 'big'
   }}
   disabled={!!loader || !!disabled}
-  {href}
   {onclick}
   title={size === 'icon' ? title : undefined}
 >
@@ -79,7 +80,7 @@
       class="button_text"
       class:sr-only={size === 'icon'}
     >
-      {@render props.children()}
+      {@render children()}
     </span>
   </span>
 </Clickable>
