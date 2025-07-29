@@ -12,7 +12,7 @@
 </script>
 
 <ThinPage bottomOnMobile={false} center title={$t.pageTitle}>
-  {#if $userId === false}
+  {#if !$userId}
     <PageAction>
       <Button href={getURL('home')} icon={mdiArrowLeft} variant="secondary">
         {$t.home}
