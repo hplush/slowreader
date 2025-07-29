@@ -1,6 +1,6 @@
 <script lang="ts">
   import { mdiArrowLeft, mdiBookOpenPageVariant, mdiFire } from '@mdi/js'
-  import { notFoundMessages as t } from '@slowreader/core'
+  import { notFoundMessages as t, userId } from '@slowreader/core'
 
   import { getURL } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
@@ -12,11 +12,13 @@
 </script>
 
 <ThinPage bottomOnMobile={false} center title={$t.pageTitle}>
-  <PageAction>
-    <Button href={getURL('home')} icon={mdiArrowLeft} variant="secondary"
-      >{$t.home}</Button
-    >
-  </PageAction>
+  {#if $userId === false}
+    <PageAction>
+      <Button href={getURL('home')} icon={mdiArrowLeft} variant="secondary">
+        {$t.home}
+      </Button>
+    </PageAction>
+  {/if}
   <Stack center gap="xl">
     <PageIcon extra={mdiFire} main={mdiBookOpenPageVariant} />
     <Title>{$t.pageText}</Title>
