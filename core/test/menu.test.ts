@@ -15,12 +15,14 @@ import {
   closedCategories,
   closeMenu,
   fastMenu,
+  getClient,
   getFeed,
   isMenuOpened,
   menuLoading,
   openCategory,
   openMenu,
   slowMenu,
+  syncStatus,
   testFeed,
   testPost,
   toggleCategory,
@@ -234,4 +236,18 @@ test('tracks closed categories', async () => {
   toggleCategory(idA)
   openCategory(idB)
   deepStrictEqual([...closedCategories.get()], [idA])
+})
+
+test('has sync status', async () => {
+  let unbind = syncStatus.listen(() => {})
+  equal(syncStatus.get(), 'disconnected')
+
+  getClient().log.add({ reason: 'denied', type: 'logux/undo' })
+  await setTimeout(10)
+  equal(syncStatus.get(), 'error')
+
+  await cleanClientTest()
+  equal(syncStatus.get(), 'local')
+
+  unbind()
 })

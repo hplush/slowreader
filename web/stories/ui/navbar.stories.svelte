@@ -2,7 +2,8 @@
   import {
     DEFAULT_REFRESH_STATISTICS,
     isRefreshing,
-    refreshStatistics
+    refreshStatistics,
+    syncStatus
   } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
@@ -23,7 +24,42 @@
 </Story>
 
 <Story name="Light Fast" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene route="fast">
+  <Scene
+    oninit={() => {
+      syncStatus.set('wait')
+    }}
+    route="fast"
+  >
+    <Navbar />
+  </Scene>
+</Story>
+
+<Story name="Connecting" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      syncStatus.set('connectingAfterWait')
+    }}
+  >
+    <Navbar />
+  </Scene>
+</Story>
+
+<Story name="Synchronized" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      syncStatus.set('synchronizedAfterWait')
+    }}
+  >
+    <Navbar />
+  </Scene>
+</Story>
+
+<Story name="Sync Error" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      syncStatus.set('error')
+    }}
+  >
     <Navbar />
   </Scene>
 </Story>
@@ -59,13 +95,23 @@
   asChild
   parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
 >
-  <Scene route="fast">
+  <Scene
+    oninit={() => {
+      syncStatus.set('disconnected')
+    }}
+    route="fast"
+  >
     <Navbar />
   </Scene>
 </Story>
 
 <Story name="Scroll" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene route="add">
+  <Scene
+    oninit={() => {
+      syncStatus.set('disconnected')
+    }}
+    route="add"
+  >
     <Section height={300}>
       <Navbar />
     </Section>
@@ -89,7 +135,12 @@
   globals={{ viewport: { value: 'mobile1' } }}
   parameters={{ layout: 'fullscreen' }}
 >
-  <Scene route={{ hash: 'refresh=1', params: {}, route: 'interface' }}>
+  <Scene
+    oninit={() => {
+      syncStatus.set('wait')
+    }}
+    route={{ hash: 'refresh=1', params: {}, route: 'interface' }}
+  >
     <Navbar />
   </Scene>
 </Story>

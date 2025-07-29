@@ -1,11 +1,13 @@
 import {
   type ClientOptions,
   CrossTabClient,
-  encryptActions
+  encryptActions,
+  status,
+  type StatusValue
 } from '@logux/client'
 import { type ServerConnection, TestPair, TestTime } from '@logux/core'
 import { SUBPROTOCOL } from '@slowreader/api'
-import { atom, effect } from 'nanostores'
+import { atom, effect, onMount } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
 import { encryptionKey, hasPassword, syncServer, userId } from './settings.ts'
@@ -89,3 +91,40 @@ export function getClient(): CrossTabClient {
   }
   return logux
 }
+
+export type SyncStatus =
+  | 'error'
+  | 'local'
+  | Exclude<StatusValue, 'denied' | 'protocolError' | 'syncError'>
+
+export const syncStatus = atom<SyncStatus>('local')
+
+onMount(syncStatus, () => {
+  let unbindState: (() => void) | undefined
+  let unbindClient = client.subscribe(logux => {
+    if (unbindState) {
+      unbindState()
+      unbindState = undefined
+    }
+    if (!logux) {
+      syncStatus.set('local')
+    } else {
+      unbindState = status(logux, value => {
+        if (
+          value === 'denied' ||
+          value === 'protocolError' ||
+          value === 'syncError'
+        ) {
+          syncStatus.set('error')
+        } else {
+          syncStatus.set(value)
+        }
+      })
+    }
+  })
+
+  return () => {
+    unbindClient()
+    unbindState?.()
+  }
+})

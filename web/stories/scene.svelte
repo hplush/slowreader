@@ -12,6 +12,7 @@
     refreshStatistics,
     signOut,
     stopRefreshing,
+    syncStatus,
     theme,
     useCredentials
   } from '@slowreader/core'
@@ -54,6 +55,7 @@
     cleanLogux()
     prepareResponses(responses)
     stopRefreshing()
+    syncStatus.set('synchronized')
     refreshStatistics.set(DEFAULT_REFRESH_STATISTICS)
 
     if (typeof route === 'string') {

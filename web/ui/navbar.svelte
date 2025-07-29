@@ -25,6 +25,7 @@
   import NavbarItem from './navbar/item.svelte'
   import NavbarOther from './navbar/other.svelte'
   import NavbarProgress from './navbar/progress.svelte'
+  import NavbarSync from './navbar/sync.svelte'
 
   let removeEvent: (() => void) | undefined
   isMenuOpened.listen((isOpened: boolean) => {
@@ -143,6 +144,7 @@
       <NavbarOther />
     {/if}
   </div>
+  <NavbarSync />
 </nav>
 
 <style lang="postcss">
