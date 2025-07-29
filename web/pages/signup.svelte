@@ -42,7 +42,7 @@
 </script>
 
 {#if $warningStep}
-  <ThinPage title={$t.signupTitle}>
+  <ThinPage center title={$t.signupTitle}>
     <Stack gap="xl">
       <Note icon={mdiRestartOff} title={$t.noRecoveryTitle} variant="dangerous">
         {$t.noRecoveryDesc}

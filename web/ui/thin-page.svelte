@@ -5,17 +5,23 @@
 
   let {
     bottomOnMobile,
+    center,
     children,
     title
   }: {
     bottomOnMobile?: boolean
+    center?: boolean
     children: Snippet
     title: string
   } = $props()
 </script>
 
 <Page
-  class={{ 'is-no-bottom': bottomOnMobile === false, 'thin-page': true }}
+  class={{
+    'is-center': center,
+    'is-no-bottom': bottomOnMobile === false,
+    'thin-page': true
+  }}
   {title}
 >
   <div class="thin-page_center">
@@ -27,9 +33,13 @@
   :global {
     .thin-page {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
       min-height: 100svh;
+
+      &.is-center {
+        align-items: center;
+      }
 
       @media (width <= 41rem) {
         &:not(.is-no-bottom) {
