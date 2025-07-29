@@ -16,19 +16,19 @@
   })
 </script>
 
-<Story name="Light Slow" asChild>
+<Story name="Light Slow" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene>
     <Navbar />
   </Scene>
 </Story>
 
-<Story name="Light Fast" asChild>
+<Story name="Light Fast" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene route="fast">
     <Navbar />
   </Scene>
 </Story>
 
-<Story name="Add" asChild>
+<Story name="Add" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
       isRefreshing.set(true)
@@ -47,7 +47,7 @@
 <Story
   name="Dark Light"
   asChild
-  parameters={{ themes: { themeOverride: 'dark' } }}
+  parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
 >
   <Scene>
     <Navbar />
@@ -57,15 +57,15 @@
 <Story
   name="Dark Fast"
   asChild
-  parameters={{ themes: { themeOverride: 'dark' } }}
+  parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
 >
   <Scene route="fast">
     <Navbar />
   </Scene>
 </Story>
 
-<Story name="Scroll" asChild>
-  <Scene>
+<Story name="Scroll" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene route="add">
     <Section height={300}>
       <Navbar />
     </Section>
