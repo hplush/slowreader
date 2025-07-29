@@ -44,6 +44,12 @@
       document.documentElement.classList.remove('has-navbar')
     }
   })
+
+  let nothingCurrent = $derived(
+    !isOtherRoute($router) &&
+      $router.route !== 'slow' &&
+      $router.route !== 'fast'
+  )
 </script>
 
 <nav class="navbar">
@@ -88,7 +94,7 @@
         href={getURL('slow')}
         onclick={openMenu}
         role="menuitem"
-        tabindex={$router.route === 'slow' ? 0 : -1}
+        tabindex={$router.route === 'slow' || nothingCurrent ? 0 : -1}
       >
         <span class="navbar_link-cap">
           <NavbarFireplace />
