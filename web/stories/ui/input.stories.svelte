@@ -15,7 +15,7 @@
 </script>
 
 <Story name="Light" asChild>
-  <Section width={200}>
+  <Section stack width={200}>
     <Input label="Base" required bind:value />
     <Input font="mono" label="Mono" required bind:value />
     <Input label="Label" placeholder="Empty" value="" />
@@ -26,7 +26,7 @@
   <Section focus=".input:first-of-type input" width={200}>
     <Input label="Focus" />
   </Section>
-  <Section blur width={200}>
+  <Section blur stack width={200}>
     <Input label="Required and Blur" required value="" />
     <Input label="Wrong URL" type="url" value="No a link" />
   </Section>
@@ -36,7 +36,7 @@
 </Story>
 
 <Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>
-  <Section width={200}>
+  <Section stack width={200}>
     <Input label="Empty" bind:value />
     <Input label="Label" value="Text" />
     <Input error="The value is wrong" label="Wrong" value="Wrong" />

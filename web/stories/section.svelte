@@ -11,6 +11,7 @@
     hover = false,
     main = false,
     pressKey,
+    stack = false,
     width
   }: {
     active?: boolean | string
@@ -22,6 +23,7 @@
     hover?: boolean | string
     main?: boolean
     pressKey?: string
+    stack?: boolean
     width?: number
   } = $props()
 
@@ -73,6 +75,7 @@
   style="width: {width}px; height: {height}px;"
   class:is-main={main}
   class:is-sized={width !== undefined || height !== undefined}
+  class:is-stack={stack}
 >
   {@render children()}
 </section>
@@ -89,6 +92,12 @@
     &.is-sized {
       margin-inline: auto;
       transform: scale(1);
+    }
+
+    &.is-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
 
     &.is-main {
