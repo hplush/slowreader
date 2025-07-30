@@ -70,7 +70,7 @@
 <Story
   name="Mobile"
   asChild
-  globals={{ viewport: { value: 'mobile1' } }}
+  globals={{ viewport: { value: 'mobile2' } }}
   parameters={{ layout: 'fullscreen' }}
 >
   <Scene route="start" user={false}>
