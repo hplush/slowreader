@@ -1,6 +1,8 @@
 <script lang="ts">
   import { notEmpty, type Validator, validUrl } from '@slowreader/core'
+  import { onMount } from 'svelte'
   import type { HTMLInputAttributes } from 'svelte/elements'
+  import { on } from 'svelte/events'
 
   import Error from './error.svelte'
   import Label from './label.svelte'
@@ -48,6 +50,14 @@
     }
     return undefined
   }
+
+  onMount(() => {
+    if (input) {
+      return on(input, 'validate', () => {
+        inputError = runValidators(value)
+      })
+    }
+  })
 </script>
 
 <div class="input">
@@ -61,8 +71,9 @@
     aria-errormessage={errorId || (inputError || error ? `${id}-error` : null)}
     aria-invalid={inputError || error || errorId ? true : null}
     data-invalid={!!runValidators(value)}
-    onblur={() => {
-      inputError = runValidators(value)
+    onblur={e => {
+      value = e.currentTarget.value
+      if (value !== '') inputError = runValidators(value)
     }}
     onchange={e => {
       value = e.currentTarget.value

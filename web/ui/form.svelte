@@ -20,8 +20,7 @@
     } else {
       invalid.forEach(input => {
         if (input.getAttribute('aria-invalid') !== 'true') {
-          input.focus()
-          input.blur()
+          input.dispatchEvent(new CustomEvent('validate'))
         }
       })
       invalid[0]!.focus()
