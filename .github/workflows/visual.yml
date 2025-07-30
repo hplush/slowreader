@@ -59,3 +59,4 @@ jobs:
           buildScriptName: build:visual
           workingDir: web/
           exitZeroOnChanges: true
+          exitOnceUploaded: true
