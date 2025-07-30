@@ -17,6 +17,7 @@
   } from '@slowreader/core'
 
   import Button from '../ui/button.svelte'
+  import Card from '../ui/card.svelte'
   import Error from '../ui/error.svelte'
   import Form from '../ui/form.svelte'
   import Input from '../ui/input.svelte'
@@ -79,80 +80,84 @@
     </Stack>
   </ThinPage>
 {:else}
-  <TwoOptionsPage paddingTwo={false} title={$t.signupTitle}>
+  <TwoOptionsPage title={$t.signupTitle}>
     {#snippet one()}
-      <Form loading={$signingUp} onsubmit={page.submit}>
-        <Stack center>
-          <Output
-            name="username"
-            autocomplete="username"
-            label={$t.userId}
-            value={$userId}
-          />
-          <Output
-            name="password"
-            autocomplete="new-password"
-            label={$t.secret}
-            type="text"
-            value={$secret}
-          />
-          {#if $customServer}
-            <Input
-              disabled={$signingUp}
-              inputmode="url"
-              label={$t.server}
-              onescape={() => {
-                page.resetCustomServer()
-              }}
-              placeholder="server.slowreader.app"
-              validate={validServer}
-              bind:value={$customServer}
-              bind:input={serverInput}
+      <Card>
+        <Form loading={$signingUp} onsubmit={page.submit}>
+          <Stack center>
+            <Output
+              name="username"
+              autocomplete="username"
+              label={$t.userId}
+              value={$userId}
             />
-          {/if}
-          <Error id="start-server-error" text={$error} />
-          {#if !$customServer}
+            <Output
+              name="password"
+              autocomplete="new-password"
+              label={$t.secret}
+              type="text"
+              value={$secret}
+            />
+            {#if $customServer}
+              <Input
+                disabled={$signingUp}
+                inputmode="url"
+                label={$t.server}
+                onescape={() => {
+                  page.resetCustomServer()
+                }}
+                placeholder="server.slowreader.app"
+                validate={validServer}
+                bind:value={$customServer}
+                bind:input={serverInput}
+              />
+            {/if}
+            <Error id="start-server-error" text={$error} />
+            {#if !$customServer}
+              <Button
+                disabled={$signingUp}
+                icon={mdiCloudPlus}
+                onclick={() => {
+                  page.showCustomServer()
+                }}
+                size="pill"
+                variant="secondary"
+              >
+                {$t.customServer}
+              </Button>
+            {/if}
             <Button
-              disabled={$signingUp}
-              icon={mdiCloudPlus}
-              onclick={() => {
-                page.showCustomServer()
-              }}
-              size="pill"
-              variant="secondary"
+              icon={mdiLogin}
+              loader={$signingUp ? $t.signingUp : undefined}
+              size="wide"
+              type="submit"
             >
-              {$t.customServer}
+              {$t.signup}
             </Button>
-          {/if}
-          <Button
-            icon={mdiLogin}
-            loader={$signingUp ? $t.signingUp : undefined}
-            size="wide"
-            type="submit"
-          >
-            {$t.signup}
-          </Button>
-        </Stack>
-      </Form>
+          </Stack>
+        </Form>
+      </Card>
     {/snippet}
     {#snippet two()}
-      <Note icon={mdiEyeOff} variant="good">
-        {$t.randomNote}
-        <Button
-          disabled={$signingUp}
-          icon={mdiDiceMultipleOutline}
-          onclick={() => {
-            page.regenerate()
-          }}
-          size="pill"
-          variant="secondary"
-        >
-          {$t.regenerateCredetials}
-        </Button>
-      </Note>
-      <Note icon={mdiPiggyBankOutline} variant="neutral">
-        {$t.payWarning}
-      </Note>
+      <Card padding="no-top" variant="transparent">
+        <Note icon={mdiEyeOff} variant="good">
+          {$t.randomNote}
+          <Button
+            disabled={$signingUp}
+            icon={mdiDiceMultipleOutline}
+            onclick={() => {
+              page.regenerate()
+            }}
+            size="pill"
+            variant="secondary"
+          >
+            {$t.regenerateCredetials}
+          </Button>
+        </Note>
+        <Note icon={mdiPiggyBankOutline} variant="neutral">
+          {$t.payWarning}
+        </Note>
+      </Card>
     {/snippet}
   </TwoOptionsPage>
 {/if}
