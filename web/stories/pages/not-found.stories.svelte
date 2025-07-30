@@ -11,7 +11,7 @@
 </script>
 
 <Story name="Base" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene route="notFound">
+  <Scene route="notFound" user={false}>
     <NotFoundPage />
   </Scene>
 </Story>
