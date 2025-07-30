@@ -19,6 +19,7 @@ export const navbarMessages = i18n('navbar', {
   profile: 'Profile',
   refresh: 'Check for new posts',
   refreshing: 'Post updating',
+  sending: 'Saving',
   settings: 'Settings',
   slow: 'Useful',
   synchronizedAfterWaitStatus: 'Synchronized'

@@ -54,6 +54,16 @@
   </Scene>
 </Story>
 
+<Story name="Sending" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      syncStatus.set('sending')
+    }}
+  >
+    <Navbar />
+  </Scene>
+</Story>
+
 <Story name="Sync Error" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {

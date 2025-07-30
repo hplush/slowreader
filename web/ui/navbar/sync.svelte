@@ -5,7 +5,8 @@
     mdiCloudOff,
     mdiCloudOffOutline,
     mdiCloudRefreshVariant,
-    mdiCloudRefreshVariantOutline
+    mdiCloudRefreshVariantOutline,
+    mdiCloudUpload
   } from '@mdi/js'
   import {
     syncStatus,
@@ -20,6 +21,8 @@
     connectingAfterWait: mdiCloudRefreshVariant,
     disconnected: mdiCloudOffOutline,
     error: mdiCloudAlert,
+    sending: mdiCloudUpload,
+    sendingAfterWait: mdiCloudUpload,
     synchronizedAfterWait: mdiCloudCheckVariant,
     wait: mdiCloudOff
   } satisfies Partial<Record<SyncStatus, string>>
@@ -32,13 +35,17 @@
     class:is-wait={$syncStatus === 'wait' ||
       $syncStatus === 'connectingAfterWait' ||
       $syncStatus === 'disconnected' ||
-      $syncStatus === 'connecting'}
+      $syncStatus === 'connecting' ||
+      $syncStatus === 'sending' ||
+      $syncStatus === 'sendingAfterWait'}
   >
     <Icon path={ICONS[$syncStatus]} />
     {#if $syncStatus === 'wait' || $syncStatus === 'disconnected'}
       {$t.offlineStatus}
     {:else if $syncStatus === 'connecting' || $syncStatus === 'connectingAfterWait'}
       {$t.connectingStatus}
+    {:else if $syncStatus === 'sending' || $syncStatus === 'sendingAfterWait'}
+      {$t.sending}
     {:else}
       {$t[`${$syncStatus}Status`]}
     {/if}
