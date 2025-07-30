@@ -115,8 +115,8 @@ function replaceKey(file: string, key: string, value: string): string {
 }
 
 let dockerfile = read(join(ROOT, '.devcontainer', 'Dockerfile'))
-let currentNode = dockerfile.match(/NODE_VERSION=([^\s]+)/)![1]!
-let currentPnpm = dockerfile.match(/PNPM_VERSION=([^\s]+)/)![1]!
+let currentNode = dockerfile.match(/NODE_VERSION=(\S+)/)![1]!
+let currentPnpm = dockerfile.match(/PNPM_VERSION=(\S+)/)![1]!
 
 let latestNode = await getLatestNodeVersion(
   process.argv[2] ?? currentNode.split('.')[0]!
