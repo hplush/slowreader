@@ -2,6 +2,9 @@ name: Visual Test
 on:
   schedule:
     - cron: '00 23 * * *' # Runs at midnight UTC every day
+  push:
+    branches:
+      - main
 permissions:
   contents: read
 jobs:
@@ -27,22 +30,29 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
-      - name: Check for today commits
-        id: today
+      - name: Check if should run
+        id: should_run
         run: |
-          today=$(date -u +"%Y-%m-%d")
-          last_commit_date=$(git log -1 --format=%cd --date=short)
-          if [ "$today" == "$last_commit_date" ]; then
-            echo "has_commits=true" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" == "push" ]; then
+            if git log -1 --pretty=%B | grep -i "Chromatic"; then
+              echo "should_run=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "should_run=false" >> "$GITHUB_OUTPUT"
+            fi
           else
-            echo "has_commits=false" >> "$GITHUB_OUTPUT"
-            echo "No commits today. Stopping the workflow."
+            today=$(date -u +"%Y-%m-%d")
+            last_commit_date=$(git log -1 --format=%cd --date=short)
+            if [ "$today" == "$last_commit_date" ]; then
+              echo "should_run=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "should_run=false" >> "$GITHUB_OUTPUT"
+            fi
           fi
       - name: Initialize Node.js
-        if: steps.today.outputs.has_commits == 'true'
+        if: steps.should_run.outputs.should_run == 'true'
         uses: ./.github/actions/init-node
       - name: Publish to Chromatic
-        if: steps.today.outputs.has_commits == 'true'
+        if: steps.should_run.outputs.should_run == 'true'
         uses: chromaui/action@c93e0bc3a63aa176e14a75b61a31847cbfdd341c # v1
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
