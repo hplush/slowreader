@@ -45,6 +45,8 @@
     cleanStores(Feed, Filter, Category, Post)
   }
 
+  let unbindSyncStatus = syncStatus.listen(() => {})
+
   $effect.pre(() => {
     currentPage.get().destroy()
     if (user) {
@@ -94,6 +96,7 @@
   })
 
   onDestroy(() => {
+    unbindSyncStatus()
     baseRouter.set({ hash: '', params: {}, route: 'slow' })
     cleanLogux()
   })

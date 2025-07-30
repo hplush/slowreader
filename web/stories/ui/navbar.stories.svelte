@@ -54,7 +54,7 @@
   </Scene>
 </Story>
 
-<Story name="Sending" asChild parameters={{ layout: 'fullscreen' }}>
+<Story name="Sending" asChild>
   <Scene
     oninit={() => {
       syncStatus.set('sending')

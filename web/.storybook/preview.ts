@@ -19,7 +19,6 @@ export default {
     })
   ],
   parameters: {
-    delay: 100,
     viewport: {
       defaultViewport: 'responsive',
       viewports: {
