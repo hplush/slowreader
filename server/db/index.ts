@@ -45,7 +45,7 @@ if (
     await mkdir(dirname(path), { recursive: true })
     let loadDataDir: Blob | undefined
     if (existsSync(path)) {
-      loadDataDir = new Blob([await readFile(path)], {
+      loadDataDir = new Blob([new Uint8Array(await readFile(path))], {
         type: 'application/x-tar'
       })
     }

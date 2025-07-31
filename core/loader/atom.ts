@@ -23,7 +23,7 @@ function parsePosts(text: TextResponse): OriginPost[] {
         full: content?.textContent ?? undefined,
         intro: entry.querySelector('summary')?.textContent ?? undefined,
         media: findImageByAttr('src', content?.querySelectorAll('img')),
-        originId: entry.querySelector('id')!.textContent!,
+        originId: entry.querySelector('id')!.textContent,
         publishedAt: toTime(
           entry.querySelector('published')?.textContent ??
             entry.querySelector('updated')?.textContent

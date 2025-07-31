@@ -39,7 +39,7 @@ function parsePosts(text: TextResponse): OriginPost[] {
         media: unique([...descriptionImages, ...mediaImages]),
         originId:
           item.querySelector('guid')?.textContent ??
-          item.querySelector('link')!.textContent!,
+          item.querySelector('link')!.textContent,
         publishedAt: toTime(item.querySelector('pubDate')?.textContent),
         title: item.querySelector('title')?.textContent ?? undefined,
         url: item.querySelector('link')?.textContent ?? undefined

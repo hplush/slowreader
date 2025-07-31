@@ -38,7 +38,7 @@
 
   $effect(() => {
     if (textElement && size === 'icon') {
-      title = textElement.textContent?.trim() || ''
+      title = textElement.textContent.trim() || ''
     }
   })
 </script>
