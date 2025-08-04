@@ -56,7 +56,7 @@ We use **Svelte** as the UI framework and **Vite** as the builder.
 
 All **colors** must be declared in [`main/colors.css`](./main/colors.css). We are using [Harmony Color Palette](https://github.com/evilmartians/harmony) and `oklch()` format.
 
-**Fonts** are declared in [`main/fonts.css`](./main/fonts.css). We are using system font to support all possible writing systems in posts.
+**Fonts** are declared in [`main/fonts.css`](./main/fonts.css).
 
 For **icons**, we use [Material Design Icons](https://pictogrammers.com/library/mdi/) and [`<Icon>`](./ui/icon.svelte) component.
 
@@ -95,6 +95,6 @@ To return app HTML on app’s routes, we [export](./scripts/export-routes.ts) Re
 
 Both preview and staging have Storybook at `/ui/` route.
 
-In staging and production are using **Google Cloud Run** to run Nginx server with assets of web client. For pull request preview and self-hosted we use [Logux sever](../server/modules/assets.ts) to serve assets.
+In staging and production are using **Google Cloud Run** to run nginx server with assets of web client. For pull request preview and self-hosted we use [Logux sever](../server/modules/assets.ts) to serve assets.
 
 All Google Cloud settings are documented in [script](../scripts/prepare-google-cloud.sh).
