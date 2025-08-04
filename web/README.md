@@ -74,7 +74,7 @@ Since clients don’t have much logic (we moved logic to the client core), we do
 
 We can use only visual tests to test web clients UI. We are using **[Storybook](https://storybook.js.org/)** and **[Chromatic snapshots](https://www.chromatic.com/builds?appId=65678843aa11589739e8fbee)**.
 
-Since we use a free plan, we run Chromatic on CI only daily.
+Since we use a free plan, we run Chromatic on CI only daily (or by commit with `Chromatic` in message in `main` branch).
 
 We deploy the latest Storybook of `main` branch to staging: [dev.slowreader.app/ui/](https://dev.slowreader.app/ui/)
 
@@ -83,6 +83,8 @@ You can check Storybook of pull request by adding `/ui/` to the preview deploy U
 But those visuals can be very complex. We do not just test buttons in different states. We test whole pages by mocking network requests and stores states. We use small JS in stories to test animations or some JS code.
 
 You can use [`<Scene>`](./stories/scene.svelte) to change core stores and mock HTTP.
+
+We should cover with stories every page and every UI component which can be used by other developers. Storybook could be used to find UI component and by i18n team to check the context of the message. But you can avoid stories for low-level components used only by single page.
 
 ## Deploy
 
