@@ -2,13 +2,13 @@
 # so every developer will have the same environment
 
 # registry.fedoraproject.org/fedora:42
-FROM registry.fedoraproject.org/fedora@sha256:f68f4b0b87d2f8608e023a8c1ff0e2c54e09a29ecdbc191656b90a9ddffc662c
+FROM registry.fedoraproject.org/fedora@sha256:27752fe47e02f243053c81456affc9cfa224047a422ffcbbbada35ba47fba21d
 
 ARG TARGETARCH
 
-ENV NODE_VERSION=24.4.1 \
-  NODE_CHECKSUM_X64=7e067b13cd0dc7ee8b239f4ebe1ae54f3bba3a6e904553fcb5f581530eb8306d \
-  NODE_CHECKSUM_ARM64=7e067b13cd0dc7ee8b239f4ebe1ae54f3bba3a6e904553fcb5f581530eb8306d
+ENV NODE_VERSION=24.5.0 \
+  NODE_CHECKSUM_X64=32edb1f2aeaf8ea0d484af33bf3b5d8330d7d33c9cd8c70f811b8a643822e613 \
+  NODE_CHECKSUM_ARM64=32edb1f2aeaf8ea0d484af33bf3b5d8330d7d33c9cd8c70f811b8a643822e613
 
 ENV PNPM_VERSION=10.14.0 \
   PNPM_CHECKSUM_X64=a9fc9c42cba8793ce402a736874b8985a65b3d6b0e2455a8074296ace298c788 \
