@@ -7,6 +7,7 @@ import addedModule from './modules/added.ts'
 import authModule from './modules/auth.ts'
 import passwordsModule from './modules/passwords.ts'
 import syncModule from './modules/sync.ts'
+import usersModule from './modules/users.ts'
 
 export async function cleanAllTables(): Promise<void> {
   await Promise.all(
@@ -22,6 +23,7 @@ export function buildTestServer(): TestServer {
   let server = new TestServer()
   addedModule(server)
   authModule(server)
+  usersModule(server)
   passwordsModule(server)
   syncModule(server)
   return server
