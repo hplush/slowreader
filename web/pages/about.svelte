@@ -13,8 +13,8 @@
 </script>
 
 <ThinPage title={$t.pageTitle}>
-  <Title>Slow Reader</Title>
   <Stack gap="xl">
+    <Title>Slow Reader</Title>
     <Output label={$t.version} value={page.appVersion} />
     <Note icon={mdiShieldSearch} variant="good">
       <Stack>

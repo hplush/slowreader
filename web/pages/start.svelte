@@ -39,9 +39,9 @@
 <TwoOptionsPage title={$t.startTitle}>
   {#snippet one()}
     <Card>
-      <Title>{$t.newUser}</Title>
       <Stack gap="l">
         <Stack gap="s">
+          <Title>{$t.newUser}</Title>
           <p>{$t.localDescription1}</p>
           <p>{$t.localDescription2}</p>
         </Stack>
@@ -69,74 +69,76 @@
   {#snippet two()}
     <Card variant="transparent">
       <Form loading={$signingIn} onsubmit={page.signIn}>
-        <Title>{$t.oldUser}</Title>
-        <Stack center>
-          <Input
-            name="username"
-            autocomplete="username"
-            disabled={$signingIn}
-            errorId={$signError === commonMessages.get().invalidCredentials
-              ? 'start-server-error'
-              : undefined}
-            font="mono"
-            inputmode="numeric"
-            label={$t.userId}
-            pattern="[0-9]*"
-            required
-            validate={validUserId}
-            bind:value={$userId}
-          />
-          <Input
-            name="password"
-            autocomplete="current-password"
-            disabled={$signingIn}
-            errorId={$signError === commonMessages.get().invalidCredentials
-              ? 'start-server-error'
-              : undefined}
-            font="mono"
-            label={$t.secret}
-            required
-            type="password"
-            validate={validSecret}
-            bind:value={$secret}
-          />
-          {#if $customServer}
+        <Stack>
+          <Title>{$t.oldUser}</Title>
+          <Stack center>
             <Input
+              name="username"
+              autocomplete="username"
               disabled={$signingIn}
-              inputmode="url"
-              label={$t.server}
-              onescape={() => {
-                page.resetCustomServer()
-              }}
-              placeholder="server.slowreader.app"
-              validate={validServer}
-              bind:value={$customServer}
-              bind:input={serverInput}
+              errorId={$signError === commonMessages.get().invalidCredentials
+                ? 'start-server-error'
+                : undefined}
+              font="mono"
+              inputmode="numeric"
+              label={$t.userId}
+              pattern="[0-9]*"
+              required
+              validate={validUserId}
+              bind:value={$userId}
             />
-          {/if}
-          <Error id="start-server-error" text={$signError} />
-          {#if !$customServer}
-            <Button
+            <Input
+              name="password"
+              autocomplete="current-password"
               disabled={$signingIn}
-              icon={mdiCloudPlus}
-              onclick={() => {
-                page.showCustomServer()
-              }}
-              size="pill"
+              errorId={$signError === commonMessages.get().invalidCredentials
+                ? 'start-server-error'
+                : undefined}
+              font="mono"
+              label={$t.secret}
+              required
+              type="password"
+              validate={validSecret}
+              bind:value={$secret}
+            />
+            {#if $customServer}
+              <Input
+                disabled={$signingIn}
+                inputmode="url"
+                label={$t.server}
+                onescape={() => {
+                  page.resetCustomServer()
+                }}
+                placeholder="server.slowreader.app"
+                validate={validServer}
+                bind:value={$customServer}
+                bind:input={serverInput}
+              />
+            {/if}
+            <Error id="start-server-error" text={$signError} />
+            {#if !$customServer}
+              <Button
+                disabled={$signingIn}
+                icon={mdiCloudPlus}
+                onclick={() => {
+                  page.showCustomServer()
+                }}
+                size="pill"
+                variant="secondary"
+              >
+                {$t.customServer}
+              </Button>
+            {/if}
+            <Button
+              icon={mdiLogin}
+              loader={$signingIn ? $t.signingIn : undefined}
+              size="wide"
+              type="submit"
               variant="secondary"
             >
-              {$t.customServer}
+              {$t.login}
             </Button>
-          {/if}
-          <Button
-            icon={mdiLogin}
-            loader={$signingIn ? $t.signingIn : undefined}
-            size="wide"
-            type="submit"
-            variant="secondary"
-          >
-            {$t.login}
-          </Button>
+          </Stack>
         </Stack>
       </Form>
     </Card>
