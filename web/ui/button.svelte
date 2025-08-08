@@ -121,9 +121,8 @@
 
       &.is-cta {
         font: var(--control-cta-font);
-        color: var(--light-text-color);
+        color: var(--cta-button-color);
         background: var(--accent-color);
-        box-shadow: var(--cta-button-shadow);
 
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),
