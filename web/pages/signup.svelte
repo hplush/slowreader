@@ -44,13 +44,13 @@
 
 {#if $warningStep}
   <ThinPage center title={$t.signupTitle}>
-    <Stack gap="xl">
+    <Stack center gap="xl">
       <Note icon={mdiRestartOff} title={$t.noRecoveryTitle} variant="dangerous">
         {$t.noRecoveryDesc}
       </Note>
       <Paper lines={[$userId, $secret]} />
+      <Title>{$t.savePassword}</Title>
       <Stack center gap="s">
-        <Title>{$t.savePassword}</Title>
         <Button
           href={$mailTo}
           icon={mdiEmailFast}
