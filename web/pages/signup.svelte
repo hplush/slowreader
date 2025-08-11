@@ -49,8 +49,8 @@
         {$t.noRecoveryDesc}
       </Note>
       <Paper lines={[$userId, $secret]} />
-      <Title>{$t.savePassword}</Title>
-      <Stack center gap="s">
+      <Stack center>
+        <Title>{$t.savePassword}</Title>
         <Button
           href={$mailTo}
           icon={mdiEmailFast}
