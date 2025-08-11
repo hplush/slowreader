@@ -37,7 +37,7 @@ export function setTestUser(enable = true): void {
   if (enable) {
     encryptionKey.set('key')
     hasPassword.set(false)
-    userId.set('10')
+    userId.set('1000000000000000')
   } else {
     encryptionKey.set(undefined)
     hasPassword.set(false)
