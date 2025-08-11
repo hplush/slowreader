@@ -6,7 +6,7 @@ import {
   type StatusValue
 } from '@logux/client'
 import { type ServerConnection, TestPair, TestTime } from '@logux/core'
-import { SUBPROTOCOL } from '@slowreader/api'
+import { deleteUser, SUBPROTOCOL } from '@slowreader/api'
 import { atom, effect, onMount } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
@@ -68,7 +68,9 @@ onEnvironment(({ logStoreCreator }) => {
           token: getEnvironment().getSession(),
           userId: user
         })
-        encryptActions(logux, key)
+        encryptActions(logux, key, {
+          ignore: [deleteUser.type]
+        })
         logux.start(connect)
         prevClient = logux
         client.set(logux)

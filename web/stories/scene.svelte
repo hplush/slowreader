@@ -7,6 +7,7 @@
     DEFAULT_REFRESH_STATISTICS,
     Feed,
     Filter,
+    hasPassword,
     type ParamlessRouteName,
     Post,
     refreshStatistics,
@@ -51,6 +52,7 @@
     currentPage.get().destroy()
     if (user) {
       useCredentials(testCredentials())
+      hasPassword.set(true)
     } else if (client.get()) {
       signOut()
     }

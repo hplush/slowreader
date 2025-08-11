@@ -10,6 +10,7 @@
   import AboutPage from '../pages/about.svelte'
   import BusyPage from '../pages/busy.svelte'
   import NotFoundPage from '../pages/not-found.svelte'
+  import ProfilePage from '../pages/profile.svelte'
   import SignupPage from '../pages/signup.svelte'
   import StartPage from '../pages/start.svelte'
   import Button from '../ui/button.svelte'
@@ -39,6 +40,8 @@
   <NotFoundPage />
 {:else if $currentPage.route === 'about'}
   <AboutPage page={$currentPage} />
+{:else if $currentPage.route === 'profile'}
+  <ProfilePage page={$currentPage} />
 {:else if $currentPage.route === 'start'}
   <StartPage page={$currentPage} />
 {:else if $currentPage.route === 'signup'}
