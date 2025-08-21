@@ -4,12 +4,14 @@
   "*.css": ["prettier --write", "stylelint --fix"],
   "*.svelte": ["prettier --write", "stylelint --fix", "eslint --fix"],
   "*.svg": "svgo",
-  ".devcontainer/Dockerfile": "node --experimental-strip-types ./scripts/check-versions.ts",
-  ".node-version": "node --experimental-strip-types ./scripts/check-versions.ts",
-  "package.json": "node --experimental-strip-types ./scripts/check-versions.ts",
-  "*/package.json": "node --experimental-strip-types ./scripts/check-versions.ts",
-  "*/Dockerfile": "node --experimental-strip-types ./scripts/check-versions.ts",
-  "*.test.ts": "node --experimental-strip-types ./scripts/check-focused-tests.ts",
-  "core/messages/*/en.ts": "node --experimental-strip-types ./scripts/check-messages.ts",
-  "web/index.html": "pnpm -F web build:web"
+  ".devcontainer/Dockerfile": "node ./scripts/check-versions.ts",
+  ".node-version": "node ./scripts/check-versions.ts",
+  "package.json": "node ./scripts/check-versions.ts",
+  "*/package.json": "node ./scripts/check-versions.ts",
+  "*/Dockerfile": "node ./scripts/check-versions.ts",
+  ".github/workflows/*.yml": "node ./scripts/check-versions.ts",
+  "*.test.ts": "node ./scripts/check-focused-tests.ts",
+  "core/messages/*/en.ts": "node ./scripts/check-messages.ts",
+  "web/index.html": "pnpm -F web build:web",
+  ".github/workflows/*.yml": "node ./scripts/check-versions.ts"
 }

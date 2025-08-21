@@ -19,4 +19,4 @@ COPY ./dist/ /var/app/
 USER nonroot
 
 ENTRYPOINT ["/usr/local/bin/node"]
-CMD ["--experimental-strip-types", "--disable-warning=ExperimentalWarning", "server.ts"]
+CMD ["server.ts"]

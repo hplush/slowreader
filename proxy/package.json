@@ -11,7 +11,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "start": "node --experimental-strip-types --watch server.ts",
+    "start": "node --watch server.ts",
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
     "build": "node --run clean:build && pnpm -F proxy --prod deploy dist",
     "production": "node --run build && ./scripts/run-image.sh",

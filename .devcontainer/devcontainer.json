@@ -11,7 +11,7 @@
     "-p",
     "6006:6006",
     "-p",
-    "2222:22"
+    "5092:22"
   ],
   "customizations": {
     "vscode": {
@@ -30,16 +30,6 @@
         "formulahendry.auto-rename-tag",
         "walnuts1018.oklch-vscode"
       ]
-    },
-    "nodejs-testing.extensions": [
-      {
-        "extensions": ["js"],
-        "parameters": []
-      },
-      {
-        "extensions": ["ts"],
-        "parameters": ["--experimental-strip-types"]
-      }
-    ]
+    }
   }
 }
