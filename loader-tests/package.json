@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^24.5.0",
+    "node": "^24.6.0",
     "pnpm": "^10.0.0"
   },
   "scripts": {
@@ -19,7 +19,7 @@
     "eslint": "9.33.0",
     "jsdom": "26.1.0",
     "nanostores": "1.0.1",
-    "tsx": "4.20.3",
+    "tsx": "4.20.4",
     "yaml": "2.8.1"
   }
 }

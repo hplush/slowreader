@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^24.5.0",
+    "node": "^24.6.0",
     "pnpm": "^10.0.0"
   },
   "scripts": {
@@ -30,12 +30,12 @@
     "@logux/server": "github:logux/server#next",
     "@slowreader/api": "workspace:*",
     "@slowreader/proxy": "workspace:*",
-    "argon2": "0.43.1",
+    "argon2": "0.44.0",
     "cookie": "1.0.2",
     "drizzle-orm": "0.44.4",
     "nanoid": "5.1.5",
     "postgres": "3.4.7",
-    "tsx": "4.20.3"
+    "tsx": "4.20.4"
   },
   "devDependencies": {
     "@logux/client": "github:logux/client#next",
