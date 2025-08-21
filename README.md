@@ -261,7 +261,7 @@ To update all dependencies:
 pnpm update-env
 
 # Update Docker base images
-./scripts/pin-docker.sh
+./scripts/update-docker.sh
 
 # Update GitHub actions
 pinact run --update
