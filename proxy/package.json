@@ -20,8 +20,8 @@
     "clean:build": "rm -rf dist/"
   },
   "devDependencies": {
-    "better-node-test": "0.7.1",
+    "better-node-test": "0.7.2",
     "c8": "10.1.3",
-    "eslint": "9.33.0"
+    "eslint": "9.34.0"
   }
 }
