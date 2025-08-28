@@ -230,7 +230,7 @@ How we choose dependencies:
 3. By JS bundle size for web client dependency.
 4. By `node_modules` size and number of sub-dependencies.
 
-You can use [pkg-size.dev](https://pkg-size.dev) to get bundle, `node_modules`, and sub-dependencies.
+You can use [pkg-size.dev](https://pkg-size.dev) and [npmgraph.js.org](https://npmgraph.js.org) to get bundle, `node_modules`, and sub-dependencies.
 
 After adding a web client dependency, do not forget to call `cd web && pnpm size` to check the real size of dependency in our JS bundle.
 
