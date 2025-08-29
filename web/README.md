@@ -11,7 +11,7 @@ _See the [full architecture guide](../README.md) first._
 
 ## Project Structure
 
-We use **Svelte** as the UI framework and **Vite** as the builder.
+We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and **Vite** as the builder.
 
 - [`main/`](./main): app entry point and global things like design tokens.
   - [`colors.css`](./main/colors.css): color tokens.
