@@ -16,8 +16,8 @@
   "devDependencies": {
     "@slowreader/core": "workspace:*",
     "@types/jsdom": "21.1.7",
-    "eslint": "9.34.0",
-    "jsdom": "26.1.0",
+    "eslint": "9.35.0",
+    "jsdom": "27.0.0",
     "nanostores": "1.0.1",
     "tsx": "4.20.5",
     "yaml": "2.8.1"

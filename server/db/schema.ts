@@ -45,7 +45,7 @@ export const actions = pgTable('actions', {
   encrypted: bytea('encrypted').notNull(),
   id: text('id').primaryKey(),
   iv: bytea('iv').notNull(),
-  subprotocol: text('subprotocol').notNull(),
+  subprotocol: integer('subprotocol').notNull(),
   time: integer('time').notNull(),
   userId: text('userId')
     .references(() => users.id)

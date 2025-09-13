@@ -5,43 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1734006544415,
-      "tag": "0000_plpgsql",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1724539278584,
-      "tag": "0001_low_eternity",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1724722229148,
-      "tag": "0002_huge_zodiak",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1724891569801,
-      "tag": "0003_lying_imperial_guard",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1746203521591,
-      "tag": "0004_slippery_revanche",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1746301512826,
-      "tag": "0005_faithful_punisher",
+      "when": 1757783989128,
+      "tag": "0000_fresh_banshee",
       "breakpoints": true
     }
   ]
