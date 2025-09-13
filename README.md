@@ -242,10 +242,10 @@ We are using in `package.json` `1.0.0` version requirement and not `^1.0.0` to n
 
 For security reasons we are pinning actions in [GitHub workflows](./.github/workflows/) by hash, rather than by version.
 
-We have `pinact` tool to pin and update versions. If you need to add some action, just add it as `uses: some/action@v1.0.0` and then run:
+We have [`actions-up`](https://github.com/azat-io/actions-up) tool to pin and update versions. If you need to add some action, just add it as `uses: some/action@v1.0.0` and then run:
 
 ```sh
-pinact run
+pnpm actions-up
 ```
 
 We are using [Harden Runner](https://docs.stepsecurity.io/harden-runner) to enforce network host allow-list for security reasons. If you need new domain, add it to the list in first `Harden the runner` step of your workflow.
@@ -264,7 +264,7 @@ pnpm update-env
 ./scripts/update-docker.sh
 
 # Update GitHub actions
-pinact run --update
+pnpm actions-up
 
 # Update Node.js dependencies
 pnpm update --interactive --latest -r --include-workspace-root

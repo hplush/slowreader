@@ -14,10 +14,6 @@ ENV PNPM_VERSION=10.16.0 \
   PNPM_CHECKSUM_X64=df412995b282efedc83b6441a91bbd7cb4ca689f7b310c1f7431c9e7e1f56f56 \
   PNPM_CHECKSUM_ARM64=bd933487981ab76932d2f0efde7cd238b8ab139987103881a6521e856502c262
 
-ENV PINACT_VERSION=3.0.1 \
-  PINACT_CHECKSUM_X64=f4f35e2dc4cf1243cd0e8d3bc0b49c8b30c388d1dcae5907afcd97b00ddb556e \
-  PINACT_CHECKSUM_ARM64=b319fc572c3fae75a2744732d9c943d1b7402e1a43a3aabd8ab72f2feb1454f7
-
 RUN dnf install -yq zsh micro git tig psmisc procps-ng awk openssh-server \
   && dnf clean all \
   && rm -rf /var/cache/dnf \
@@ -28,15 +24,11 @@ RUN <<EOF
   if [ "$TARGETARCH" = "amd64" ]; then
     export NODE_CHECKSUM=$NODE_CHECKSUM_X64
     export PNPM_CHECKSUM=$PNPM_CHECKSUM_X64
-    export PINACT_CHECKSUM=$PINACT_CHECKSUM_X64
     export ARCH="x64"
-    export PINACT_ARCH="amd64"
   elif [ "$TARGETARCH" = "arm64" ]; then
     export NODE_CHECKSUM=$NODE_CHECKSUM_ARM64
     export PNPM_CHECKSUM=$PNPM_CHECKSUM_ARM64
-    export PINACT_CHECKSUM=$PINACT_CHECKSUM_ARM64
     export ARCH="arm64"
-    export PINACT_ARCH="arm64"
   else
     echo "Unsupported architecture: $TARGETARCH"
     exit 1
@@ -55,13 +47,6 @@ RUN <<EOF
     --fail --show-error --location --silent --output /usr/local/bin/pnpm
   echo "$PNPM_CHECKSUM /usr/local/bin/pnpm" | sha256sum -c
   chmod a+rx /usr/local/bin/pnpm
-
-  curl "https://github.com/suzuki-shunsuke/pinact/releases/download/v${PINACT_VERSION}/pinact_linux_${PINACT_ARCH}.tar.gz" \
-    --fail --show-error --location --silent --output /pinact.tar.gz
-  echo "$PINACT_CHECKSUM /pinact.tar.gz" | sha256sum -c
-  tar -xf /pinact.tar.gz -C /usr/local/bin --remove-files \
-    --exclude='LICENSE' --exclude='*.md'
-  rm /pinact.tar.gz
 EOF
 
 RUN useradd -s /bin/zsh developer
