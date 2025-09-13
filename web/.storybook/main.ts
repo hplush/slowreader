@@ -10,6 +10,6 @@ export default {
   stories: ['../stories/**/*.stories.svelte'],
   viteFinal(config: InlineConfig) {
     config.publicDir = 'public'
-    return Promise.resolve(config)
+    return config
   }
 } satisfies StorybookConfig
