@@ -19,6 +19,5 @@
   ".github/workflows/*.yml": "node ./scripts/check-versions.ts",
   "*.test.ts": "node ./scripts/check-focused-tests.ts",
   "core/messages/*/en.ts": "node ./scripts/check-messages.ts",
-  "web/index.html": "pnpm -F web build:web",
-  ".github/workflows/*.yml": "node ./scripts/check-versions.ts"
+  "web/index.html": "pnpm -F web build:web"
 }
