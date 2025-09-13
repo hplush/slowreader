@@ -81,6 +81,7 @@
       background: transparent;
       border: none;
       border-radius: var(--base-radius);
+      corner-shape: squircle;
 
       &:hover,
       &:focus-visible,

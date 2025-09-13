@@ -17,6 +17,7 @@
         }
       }
     ],
+    "property-no-unknown": [true, { "ignoreProperties": ["corner-shape"] }],
     "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"],
     "unit-disallowed-list": [
       ["px", "em"],

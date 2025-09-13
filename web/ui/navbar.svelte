@@ -250,6 +250,7 @@
       width: calc(50% - 0.5px);
       color: var(--text-color);
       background: --tune-background(--secondary);
+      corner-shape: squircle;
 
       &:first-child {
         border-radius: var(--base-radius) 0 0 var(--base-radius);

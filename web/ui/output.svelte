@@ -43,7 +43,8 @@
       font: var(--control-mono-font);
       background: --tune-background(--field);
       border: none;
-      border-radius: 0.5rem;
+      border-radius: var(--base-radius);
+      corner-shape: squircle;
 
       &:focus-visible {
         outline-offset: 1px;

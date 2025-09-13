@@ -94,6 +94,7 @@
       display: inline-block;
       font: var(--control-font);
       border-radius: var(--base-radius);
+      corner-shape: squircle;
 
       &&:active {
         box-shadow: var(--pressed-shadow);
