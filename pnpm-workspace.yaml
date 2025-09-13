@@ -9,5 +9,7 @@ packages:
 
 forceLegacyDeploy: true
 
+minimumReleaseAge: 1440
+
 onlyBuiltDependencies:
   - husky
