@@ -1,4 +1,5 @@
-// Script to update Node.js and pnpm everywhere
+// Script to update Node.js and pnpm everywhere.
+//
 // By default it will keep Node.js major version, but can update to next major
 // by `pnpm update-env --major` argument.
 
@@ -39,7 +40,7 @@ async function getNodeSha256(version: string): Promise<Architectures> {
   let text = await data.text()
   let lines = text.split('\n')
   return {
-    arm64: lines.find(i => i.endsWith('-linux-x64.tar.xz'))!.split(' ')[0]!,
+    arm64: lines.find(i => i.endsWith('-linux-arm64.tar.xz'))!.split(' ')[0]!,
     x64: lines.find(i => i.endsWith('-linux-x64.tar.xz'))!.split(' ')[0]!
   }
 }
