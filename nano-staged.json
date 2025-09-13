@@ -4,7 +4,7 @@
     "prettier --experimental-cli --write",
     "eslint --fix --concurrency auto"
   ],
-  "*.css": ["prettier --experimental-cli--write", "stylelint --fix"],
+  "*.css": ["prettier --experimental-cli --write", "stylelint --fix"],
   "*.svelte": [
     "prettier --experimental-cli --write",
     "stylelint --fix",
