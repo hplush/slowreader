@@ -6,10 +6,12 @@ on:
     paths:
       - '.github/workflows/audit.yml'
       - '.github/actions/init-node/action.yml'
+      - pnpm-lock.yaml
   pull_request:
     paths:
       - '.github/workflows/audit.yml'
       - '.github/actions/init-node/action.yml'
+      - pnpm-lock.yaml
   schedule:
     - cron: '00 23 * * *' # Runs at midnight UTC every day
 permissions:
