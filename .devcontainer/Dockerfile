@@ -2,17 +2,17 @@
 # so every developer will have the same environment
 
 # registry.fedoraproject.org/fedora:42
-FROM registry.fedoraproject.org/fedora@sha256:15ddf32378b6638036602e8226916282acd8788cff104995fff429ad8ac80e92
+FROM registry.fedoraproject.org/fedora@sha256:43e0634534c077abc48e0cb689493dbfa1d963a383409ad25619a66a3bd66bf4
 
 ARG TARGETARCH
 
-ENV NODE_VERSION=24.8.0 \
-  NODE_CHECKSUM_X64=2598641d188b41793930917f1a99a81c9615856b4205d408a44ab676c1acbb3d \
-  NODE_CHECKSUM_ARM64=323e6bc34bfe82a21f42d9eb94d9a2b6c8082d8c03cb510cf2f95dd1dcaa1531
+ENV NODE_VERSION=24.10.0 \
+  NODE_CHECKSUM_X64=2642f4428869aca32443660fd71b3918e2be1277a899bdcaeb64c93b54b5af17 \
+  NODE_CHECKSUM_ARM64=07f0558316ebb8977dd6fb29b4de8d369a639d3d8cef544293852a6f5eea6af8
 
-ENV PNPM_VERSION=10.16.1 \
-  PNPM_CHECKSUM_X64=314e21c7cb2915eddfe7c4d66e891bb41f3fc641a19819bcbe1e6a71fcfb5e94 \
-  PNPM_CHECKSUM_ARM64=d7ac57834c87520455f92043fc825f0ac68e9d116a32b7445a8bc72a11263f01
+ENV PNPM_VERSION=10.18.2 \
+  PNPM_CHECKSUM_X64=fe6261c86aba26c241dcbf514b011df77f4274d0556b96eaac19d44bb0a255ac \
+  PNPM_CHECKSUM_ARM64=f74d96279a6dd6540e9c93f0d12a5fbb27fbe7b7f883e15c0f635d2d866aa59c
 
 RUN dnf install -yq zsh micro git tig psmisc procps-ng awk openssh-server \
   && dnf clean all \
@@ -52,5 +52,6 @@ EOF
 RUN useradd -s /bin/zsh developer
 USER developer
 
-RUN pnpm config set store-dir /home/developer/.local/share/pnpm/store
+RUN mkdir -p /home/developer/.local/share/pnpm/store \
+  && pnpm config set store-dir /home/developer/.local/share/pnpm/store
 RUN echo 'PS1="%d$ "' > ~/.zshrc

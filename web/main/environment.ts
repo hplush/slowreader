@@ -17,8 +17,8 @@ import { openRoute, urlRouter } from '../stores/url-router.ts'
 let server = location.hostname
 let proxy = '/proxy/'
 if (location.hostname === 'localhost') {
-  proxy = 'http://localhost:31337/proxy/'
-  server = 'localhost:31337'
+  proxy = 'http://localhost:2554/proxy/'
+  server = 'localhost:2554'
 } else if (location.hostname === 'slowreader.app') {
   proxy = 'https://proxy.slowreader.app/'
   proxy = 'server.slowreader.app'

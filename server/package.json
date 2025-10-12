@@ -3,12 +3,12 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^24.8.0",
+    "node": "^24.10.0",
     "pnpm": "^10.0.0"
   },
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
-    "start": "node --watch index.ts",
+    "start": "node --watch index.ts --port 2554",
     "migration": "drizzle-kit generate && prettier --write ./db/**/*.json",
     "database": "drizzle-kit studio",
     "build": "node --run clean:build && pnpm run /^build:/",
@@ -25,24 +25,24 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@electric-sql/pglite": "0.3.8",
+    "@electric-sql/pglite": "0.3.10",
     "@logux/actions": "0.5.0",
     "@logux/server": "0.14.0",
     "@slowreader/api": "workspace:*",
     "@slowreader/proxy": "workspace:*",
     "argon2": "0.44.0",
     "cookie": "1.0.2",
-    "drizzle-orm": "0.44.5",
-    "nanoid": "5.1.5",
+    "drizzle-orm": "0.44.6",
+    "nanoid": "5.1.6",
     "postgres": "3.4.7",
-    "tsx": "4.20.5"
+    "tsx": "4.20.6"
   },
   "devDependencies": {
     "@logux/client": "0.22.0",
     "better-node-test": "0.7.2",
     "c8": "10.1.3",
-    "drizzle-kit": "0.31.4",
-    "eslint": "9.35.0",
+    "drizzle-kit": "0.31.5",
+    "eslint": "9.37.0",
     "prettier": "3.6.2"
   }
 }

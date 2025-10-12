@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^24.8.0",
+    "node": "^24.10.0",
     "pnpm": "^10.0.0"
   },
   "scripts": {
@@ -15,11 +15,11 @@
   },
   "devDependencies": {
     "@slowreader/core": "workspace:*",
-    "@types/jsdom": "21.1.7",
-    "eslint": "9.35.0",
+    "@types/jsdom": "27.0.0",
+    "eslint": "9.37.0",
     "jsdom": "27.0.0",
     "nanostores": "1.0.1",
-    "tsx": "4.20.5",
+    "tsx": "4.20.6",
     "yaml": "2.8.1"
   }
 }

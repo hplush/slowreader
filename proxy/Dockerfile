@@ -1,7 +1,7 @@
-FROM cgr.dev/chainguard/wolfi-base@sha256:7eaf3926b25d9434d4cb9d46b844b75613d59782dc2f43afad93bd13736457dd AS base
+FROM cgr.dev/chainguard/wolfi-base@sha256:86ff705cc2011ce4cdeaff6aa90c2b6753c1eb912a94f7be40206ac20a43ded1 AS base
 
-ENV NODE_VERSION=24.8.0 \
-  NODE_CHECKSUM=sha256:2598641d188b41793930917f1a99a81c9615856b4205d408a44ab676c1acbb3d
+ENV NODE_VERSION=24.10.0 \
+  NODE_CHECKSUM=sha256:2642f4428869aca32443660fd71b3918e2be1277a899bdcaeb64c93b54b5af17
 
 ADD --checksum=$NODE_CHECKSUM https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz /node.tar.xz
 RUN tar -xf "node.tar.xz" --strip-components=1 -C /usr/local/ \
@@ -9,7 +9,7 @@ RUN tar -xf "node.tar.xz" --strip-components=1 -C /usr/local/ \
 RUN apk add --no-cache binutils
 RUN strip /usr/local/bin/node
 
-FROM cgr.dev/chainguard/glibc-dynamic@sha256:ff2bd1d355fd5196879e0d73735d70f4c712b820f38bc5cf2bfeac24571dd9a9
+FROM cgr.dev/chainguard/glibc-dynamic@sha256:e421d8d898555bf5d0f7e10b4b3b99b5cf42b8958d75c5a2fcfb4f74166c5b62
 WORKDIR /var/app
 ENV NODE_ENV=production
 

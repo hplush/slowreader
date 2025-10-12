@@ -127,6 +127,7 @@ Global development tools:
 - [TypeScript](./tsconfig.json) for strict type checking.
 - [ESLint](./eslint.config.ts) to check for popular mistakes in JavaScript.
 - [remark](./.remarkrc) to find mistakes in `.md` files.
+- [Multiocular](https://github.com/multiocular-com/multiocular) to review dependencies updates.
 
 Each project has its own tools, too.
 
@@ -140,6 +141,8 @@ Each project has its own tools, too.
 - `pnpm check-opml`: test loaders with user’s OPML RSS export.
 - `pnpm test-loaders`: test loaders with different blogging platforms.
 - `pnpm update-env`: check for Node.js and pnpm updates.
+- `pnpm update-review`: run Multiocular to review updates.
+- `pnpm update-ci`: update CI actions.
 
 We use pnpm feature to run scripts in parallel, having scripts like `test:types` and `test:audit`. Then, we run all scripts in all projects by `test:*` prefix.
 
@@ -254,6 +257,8 @@ We are using [Harden Runner](https://docs.stepsecurity.io/harden-runner) to enfo
 
 We try to use progressive approach and update dependencies often (every month).
 
+Run run scripts you need to create `.env` with `GITHUB_TOKEN` with [personal token](https://github.com/settings/personal-access-tokens/new) with access to public repositories
+
 To update all dependencies:
 
 ```sh
@@ -264,11 +269,14 @@ pnpm update-env
 ./scripts/update-docker.sh
 
 # Update GitHub actions
-pnpm actions-up
+pnpm update-ci
 
 # Update Node.js dependencies
 pnpm update --interactive --latest -r --include-workspace-root
 pnpm update -r --include-workspace-root
+
+# Review updates by Multiocular
+pnpm update-review
 ```
 
 By default `update-env` will keep Node.js major version, but it can update to next major by `pnpm update-env --major` argument.

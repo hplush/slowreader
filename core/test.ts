@@ -55,7 +55,7 @@ export function getTestEnvironment(): EnvironmentAndStore {
     saveSession(session) {
       testSession = session
     },
-    server: 'localhost:31337',
+    server: 'localhost:2554',
     translationLoader() {
       return Promise.resolve({})
     },

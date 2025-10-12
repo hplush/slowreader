@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^24.8.0",
+    "node": "^24.10.0",
     "pnpm": "^10.0.0"
   },
   "scripts": {
@@ -24,15 +24,15 @@
     "@nanostores/persistent": "1.1.0",
     "@slowreader/api": "workspace:*",
     "@slowreader/server": "workspace:*",
-    "dompurify": "3.2.6",
+    "dompurify": "3.2.7",
     "just-debounce-it": "3.2.0",
     "nanodelay": "2.0.2",
-    "nanoid": "5.1.5",
+    "nanoid": "5.1.6",
     "nanostores": "1.0.1"
   },
   "devDependencies": {
     "@logux/server": "0.14.0",
-    "@types/jsdom": "21.1.7",
+    "@types/jsdom": "27.0.0",
     "better-node-test": "0.7.2",
     "c8": "10.1.3",
     "jsdom": "27.0.0",

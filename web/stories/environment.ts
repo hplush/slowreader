@@ -50,7 +50,7 @@ setupEnvironment({
     console.log('App restarted')
   },
   saveSession() {},
-  server: 'localhost:31337',
+  server: 'localhost:2554',
   warn(e) {
     console.error(e)
   }
