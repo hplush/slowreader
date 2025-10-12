@@ -43,3 +43,31 @@ jobs:
         run: pnpm dlx is-my-node-vulnerable
       - name: Check dependencies for vulnerabilities
         run: node --run test:audit
+  socket:
+    name: Check via Socket
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+      - name: Checkout the repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: 3
+      - name: Install Socket CLI
+        run: pip install socketsecurity --upgrade
+      - name: Run Socket Security Scan
+        env:
+          SOCKET_SECURITY_API_KEY: ${{ secrets.SOCKET_SECURITY_API_KEY }}
+          GH_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER=0
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            PR_NUMBER=${{ github.event.pull_request.number }}
+          fi
+          socketcli \
+            --target-path $GITHUB_WORKSPACE \
+            --scm github \
+            --pr-number $PR_NUMBER
