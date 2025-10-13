@@ -70,7 +70,7 @@
             href={getURL('signup')}
             icon={mdiAccountPlus}
             size="wide"
-            variant="cta"
+            variant="main"
           >
             {$t.createAccount}
           </Button>
