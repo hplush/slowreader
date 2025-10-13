@@ -4,7 +4,7 @@
   --light-text-color: oklch(0.9 0 0);
   --accent-color: oklch(0.58 0.23 260);
   --dangerous-text-color: oklch(0.55 0.16 20);
-  --cta-button-color: oklch(1 0 0);
+  --button-text-color: oklch(1 0 0);
   --float-shadow:
     0 0.125rem 0.188rem oklch(0 0 0 / 11%),
     0 0.356rem 0.538rem oklch(0 0 0 / 22%);
@@ -52,6 +52,9 @@
     --field-c: -0.015;
     --note-good-background: oklch(0.95 0.03 140);
     --note-dangerous-background: oklch(0.95 0.02 20);
+    --button-shadow:
+      0 1px 2px oklch(0 0 0 / 20%), 0 1px 5px oklch(0 0 0 / 10%),
+      inset 0 0.5px 0 oklch(1 0 0 / 70%), inset 0 0 0 0.5px oklch(0 0 0 / 20%);
     --pressed-shadow:
       inset 0 1px 2px oklch(0 0 0 / 50%), inset 0 -0.5px 0 oklch(1 0 0);
 
@@ -76,6 +79,9 @@
     --note-good-background: oklch(0.25 0.03 140);
     --note-dangerous-background: oklch(0.25 0.03 20);
     --main-land-color: oklch(0.3 0 70);
+    --button-shadow:
+      0 1px 2px oklch(0 0 0 / 30%), 0 1px 5px oklch(0 0 0 / 20%),
+      inset 0 0.5px 0 oklch(1 0 0 / 40%), inset 0 0 0 0.5px oklch(0 0 0 / 20%);
     --pressed-shadow:
       inset 0 1px 2px oklch(0 0 0), inset 0 -0.5px 0 oklch(1 0 0 / 40%);
 

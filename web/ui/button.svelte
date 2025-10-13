@@ -18,7 +18,7 @@
     loader,
     onclick,
     size = 'inline',
-    variant = 'main',
+    variant = 'secondary',
     ...props
   }: {
     children: Snippet
@@ -27,7 +27,7 @@
     loader?: boolean | string
     onclick?: MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>
     size?: 'big' | 'icon' | 'inline' | 'pill' | 'wide'
-    variant?: 'cta' | 'main' | 'secondary'
+    variant?: 'main' | 'secondary'
   } & (
     | ({ href: string } & HTMLAnchorAttributes)
     | ({ href?: undefined } & HTMLButtonAttributes)
@@ -48,7 +48,6 @@
   class={{
     'button': true,
     'is-big': size === 'big',
-    'is-cta': variant === 'cta',
     'is-icon': size === 'icon',
     'is-loader': !!loader,
     'is-main': variant === 'main',
@@ -110,20 +109,9 @@
       }
 
       &.is-main {
-        color: var(--current-background);
-        background: var(--text-color);
-
-        &:hover:not([aria-disabled='true']),
-        &:active:not([aria-disabled='true']),
-        &:focus-visible {
-          background: --tune-color(--text-color, --button-hover);
-        }
-      }
-
-      &.is-cta {
-        font: var(--control-cta-font);
-        color: var(--cta-button-color);
+        color: var(--button-text-color);
         background: var(--accent-color);
+        box-shadow: var(--button-shadow);
 
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),

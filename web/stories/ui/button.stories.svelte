@@ -25,10 +25,10 @@
       focus="button:nth-child(4)"
       hover="button:nth-child(2)"
     >
-      <Button {icon} {onclick}>Main</Button>
-      <Button {icon} {onclick}>Main</Button>
-      <Button {icon} {onclick}>Main</Button>
-      <Button {icon} {onclick}>Main</Button>
+      <Button {icon} {onclick} variant="main">Main</Button>
+      <Button {icon} {onclick} variant="main">Main</Button>
+      <Button {icon} {onclick} variant="main">Main</Button>
+      <Button {icon} {onclick} variant="main">Main</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
@@ -39,11 +39,6 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
-    </Section>
-    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="cta">Call to action</Button>
-      <Button {icon} {onclick} variant="cta">Call to action</Button>
-      <Button {icon} {onclick} variant="cta">Call to action</Button>
     </Section>
     <Section>
       <Button href="#" icon={mdiLink}>Link</Button>
@@ -58,7 +53,7 @@
       <Button {icon} {onclick} size="wide">Wide</Button>
     </Section>
     <Section width={300}>
-      <Button {icon} {onclick} size="big">Big</Button>
+      <Button {icon} {onclick} size="big" variant="main">Big</Button>
     </Section>
     <Section>
       <Button {icon} {onclick} size="icon">Icon</Button>
@@ -89,10 +84,10 @@
       focus="button:nth-child(4)"
       hover="button:nth-child(2)"
     >
-      <Button {icon} {onclick}>Main</Button>
-      <Button {icon} {onclick}>Main</Button>
-      <Button {icon} {onclick}>Main</Button>
-      <Button {icon} {onclick}>Main</Button>
+      <Button {icon} {onclick} variant="main">Main</Button>
+      <Button {icon} {onclick} variant="main">Main</Button>
+      <Button {icon} {onclick} variant="main">Main</Button>
+      <Button {icon} {onclick} variant="main">Main</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
@@ -103,11 +98,6 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
-    </Section>
-    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="cta">Call to action</Button>
-      <Button {icon} {onclick} variant="cta">Call to action</Button>
-      <Button {icon} {onclick} variant="cta">Call to action</Button>
     </Section>
     <Section>
       <Button {icon} loader="Submitting" {onclick}>Main</Button>
@@ -125,10 +115,10 @@
       focus="button:nth-child(4)"
       hover="button:nth-child(2)"
     >
-      <Button {icon} {onclick}>Main</Button>
-      <Button {icon} {onclick}>Main</Button>
-      <Button {icon} {onclick}>Main</Button>
-      <Button {icon} {onclick}>Main</Button>
+      <Button {icon} {onclick} variant="main">Main</Button>
+      <Button {icon} {onclick} variant="main">Main</Button>
+      <Button {icon} {onclick} variant="main">Main</Button>
+      <Button {icon} {onclick} variant="main">Main</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
@@ -139,11 +129,6 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
-    </Section>
-    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="cta">Call to action</Button>
-      <Button {icon} {onclick} variant="cta">Call to action</Button>
-      <Button {icon} {onclick} variant="cta">Call to action</Button>
     </Section>
     <Section>
       <Button {icon} loader="Submitting" {onclick}>Main</Button>
@@ -165,10 +150,10 @@
       focus="button:nth-child(4)"
       hover="button:nth-child(2)"
     >
-      <Button {icon} {onclick}>Main</Button>
-      <Button {icon} {onclick}>Main</Button>
-      <Button {icon} {onclick}>Main</Button>
-      <Button {icon} {onclick}>Main</Button>
+      <Button {icon} {onclick} variant="main">Main</Button>
+      <Button {icon} {onclick} variant="main">Main</Button>
+      <Button {icon} {onclick} variant="main">Main</Button>
+      <Button {icon} {onclick} variant="main">Main</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
@@ -179,11 +164,6 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
-    </Section>
-    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="cta">Call to action</Button>
-      <Button {icon} {onclick} variant="cta">Call to action</Button>
-      <Button {icon} {onclick} variant="cta">Call to action</Button>
     </Section>
     <Section>
       <Button {icon} loader="Submitting" {onclick}>Main</Button>

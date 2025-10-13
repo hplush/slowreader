@@ -35,6 +35,7 @@
       icon={mdiBug}
       size="wide"
       target="_blank"
+      variant="secondary"
     >
       {$t.reportIssue}
     </Button>
