@@ -90,11 +90,11 @@
 
       &:active {
         /* 1px gap on any scale */
-        /* stylelint-disable unit-disallowed-list */
+        /* stylelint-disable-next-line unit-disallowed-list */
         padding-top: calc(0.25rem + 1px);
+        /* stylelint-disable-next-line unit-disallowed-list */
         padding-bottom: calc(0.25rem - 1px);
         box-shadow: var(--pressed-shadow);
-        /* stylelint-enable unit-disallowed-list */
       }
 
       @media (width <= 64rem) {
