@@ -15,16 +15,17 @@
 }
 
 :root {
-  --text-font: 400 1rem/1.6 'Noto Sans Variable', 'Arial', sans-serif;
-  --secondary-font: 400 0.875rem/1.6 'Noto Sans Variable', 'Arial', sans-serif;
-  --secondary-title-font:
-    600 0.875rem/1.6 'Noto Sans Variable', 'Arial', sans-serif;
-  --app-title-font:
-    400 1.5rem/1.2 'Inika', 'Noto Serif Variable', 'Georgia', serif;
-  --control-font: 500 1rem/1.2 'Noto Sans Variable', 'Arial', sans-serif;
-  --control-secondary-font:
-    500 0.875rem/1.2 'Noto Sans Variable', 'Arial', sans-serif;
-  --mono-font: 400 1rem/1.6 'Noto Mono Sans Variable', monospace;
-  --control-mono-font: 500 1rem/1.6 'Noto Mono Sans Variable', monospace;
-  --handwritten-font: 600 1.125rem/1 'Playpen Sans', monospace;
+  --text-family: 'Noto Sans Variable', 'Arial', sans-serif;
+  --app-title-family: 'Inika', 'Noto Serif Variable', 'Georgia', serif;
+  --mono-family: 'Noto Mono Sans Variable', monospace;
+  --handwritten-family: 'Playpen Sans', monospace;
+  --text-font: 400 1rem/1.6 var(--text-family);
+  --secondary-font: 400 0.875rem/1.6 var(--text-family);
+  --secondary-title-font: 600 0.875rem/1.6 var(--text-family);
+  --app-title-font: 400 1.5rem/1.2 var(--app-title-family);
+  --control-font: 500 1rem/1.2 var(--text-family);
+  --control-secondary-font: 500 0.875rem/1.2 var(--text-family);
+  --mono-font: 400 1rem/1.6 var(--mono-family);
+  --control-mono-font: 500 1rem/1.6 var(--mono-family);
+  --handwritten-font: 600 1.125rem/1 var(--handwritten-family);
 }
