@@ -52,7 +52,7 @@ if (
     pglite = new PGlite({ ...pgOptions(), loadDataDir })
     dumpDb = async () => {
       let blob = await pglite.dumpDataDir('none')
-      let tmpFile = `${path}~` // Avoid braking dump on killing the app
+      let tmpFile = `${path}~` // Avoid breaking dump on killing the app
       await writeFile(tmpFile, Buffer.from(await blob.arrayBuffer()), {
         encoding: 'binary'
       })
