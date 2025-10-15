@@ -44,7 +44,7 @@ function somePrevClass(
     prev = notPseudo.prev()
   }
 
-  if (prev && prev.type === 'class') return somePrevClass(prev, cb)
+  if (prev?.type === 'class') return somePrevClass(prev, cb)
   return false
 }
 

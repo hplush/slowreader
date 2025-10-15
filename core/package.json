@@ -24,7 +24,7 @@
     "@nanostores/persistent": "1.1.0",
     "@slowreader/api": "workspace:*",
     "@slowreader/server": "workspace:*",
-    "dompurify": "3.2.7",
+    "dompurify": "3.3.0",
     "just-debounce-it": "3.2.0",
     "nanodelay": "2.0.2",
     "nanoid": "5.1.6",

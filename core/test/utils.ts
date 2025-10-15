@@ -167,7 +167,7 @@ export function ensureReader<Name extends ReaderName>(
   name: Name
 ): Name extends 'feed' ? FeedReader : ListReader {
   let reader = store.get()
-  if (!reader || reader.name !== name) {
+  if (reader?.name !== name) {
     throw new Error(`Reader is ${reader?.name}, but ${name} was expected`)
   }
   return reader as Name extends 'feed' ? FeedReader : ListReader
