@@ -257,8 +257,6 @@ We are using [Harden Runner](https://docs.stepsecurity.io/harden-runner) to enfo
 
 We try to use progressive approach and update dependencies often (every month).
 
-Run run scripts you need to create `.env` with `GITHUB_TOKEN` with [personal token](https://github.com/settings/personal-access-tokens/new) with access to public repositories
-
 To update all dependencies:
 
 ```sh
@@ -278,6 +276,8 @@ pnpm update -r --include-workspace-root
 # Review updates by Multiocular
 pnpm update-review
 ```
+
+If you see GitHub limit error in terminal, create `.env` with `GITHUB_TOKEN` with [personal token](https://github.com/settings/personal-access-tokens/new) with access to public repositories
 
 By default `update-env` will keep Node.js major version, but it can update to next major by `pnpm update-env --major` argument.
 
