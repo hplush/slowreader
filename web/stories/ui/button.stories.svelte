@@ -40,6 +40,21 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
     </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="plain">Secondary</Button>
+      <Button {icon} {onclick} variant="plain">Secondary</Button>
+      <Button {icon} {onclick} variant="plain">Secondary</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="plain-secondary">Secondary</Button>
+      <Button {icon} {onclick} variant="plain-secondary">Secondary</Button>
+      <Button {icon} {onclick} variant="plain-secondary">Secondary</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="plain-dangerous">Secondary</Button>
+      <Button {icon} {onclick} variant="plain-dangerous">Secondary</Button>
+      <Button {icon} {onclick} variant="plain-dangerous">Secondary</Button>
+    </Section>
     <Section>
       <Button href="#" icon={mdiLink}>Link</Button>
     </Section>

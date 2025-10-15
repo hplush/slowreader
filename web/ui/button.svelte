@@ -27,7 +27,12 @@
     loader?: boolean | string
     onclick?: MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>
     size?: 'big' | 'icon' | 'inline' | 'pill' | 'wide'
-    variant?: 'main' | 'secondary'
+    variant?:
+      | 'main'
+      | 'plain-dangerous'
+      | 'plain-secondary'
+      | 'plain'
+      | 'secondary'
   } & (
     | ({ href: string } & HTMLAnchorAttributes)
     | ({ href?: undefined } & HTMLButtonAttributes)
@@ -52,6 +57,9 @@
     'is-loader': !!loader,
     'is-main': variant === 'main',
     'is-pill': size === 'pill',
+    'is-plain': variant === 'plain',
+    'is-plain-dangerous': variant === 'plain-dangerous',
+    'is-plain-secondary': variant === 'plain-secondary',
     'is-secondary': variant === 'secondary',
     'is-wide': size === 'wide' || size === 'big'
   }}
@@ -128,6 +136,45 @@
         &:active:not([aria-disabled='true']),
         &:focus-visible {
           background: --tune-background(--secondary, --secondary-hover);
+        }
+      }
+
+      &.is-plain {
+        color: var(--text-color);
+        background: transparent;
+
+        &:hover:not([aria-disabled='true']),
+        &:active:not([aria-disabled='true']),
+        &:focus-visible {
+          background: --tune-background(--secondary, --secondary-hover);
+        }
+      }
+
+      &.is-plain-secondary {
+        color: var(--secondary-text-color);
+        background: transparent;
+
+        &:hover:not([aria-disabled='true']),
+        &:active:not([aria-disabled='true']),
+        &:focus-visible {
+          color: var(--text-color);
+          background: --tune-background(--secondary, --secondary-hover);
+        }
+      }
+
+      &.is-plain-dangerous {
+        color: var(--dangerous-text-color);
+        background: transparent;
+
+        &:hover:not([aria-disabled='true']),
+        &:active:not([aria-disabled='true']),
+        &:focus-visible {
+          background: oklch(
+            from var(--current-background)
+              calc(l + var(--secondary-l, 0) + var(--secondary-hover-l, 0))
+              calc(c + var(--secondary-c, 0) + var(--secondary-hover-c, 0))
+              var(--dangerous-h)
+          );
         }
       }
     }
