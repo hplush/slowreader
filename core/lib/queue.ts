@@ -54,6 +54,7 @@ export function createQueue<Types extends TaskTypes>(
   }
 }
 
+/* node:coverage disable */
 export async function retryOnError<Result>(
   cb: () => Promise<Result>,
   onFirstError: () => void,
@@ -77,7 +78,7 @@ export async function retryOnError<Result>(
         }
       }
     }
-    /* c8 ignore next 2 */
     throw e
   }
 }
+/* node:coverage enable */

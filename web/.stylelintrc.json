@@ -1,6 +1,6 @@
 {
   "extends": ["@logux/stylelint-config", "@stylistic/stylelint-config"],
-  "ignoreFiles": ["*/coverage/lcov-report/*", "dist/**/*"],
+  "ignoreFiles": ["dist/**/*"],
   "plugins": ["stylelint-use-logical", "@stylistic/stylelint-plugin"],
   "rules": {
     "declaration-property-value-no-unknown": [

@@ -16,7 +16,7 @@ async function readFile(file: File): Promise<false | string> {
     reader.onload = () => {
       resolve(reader.result as string)
     }
-    /* c8 ignore next 3 */
+    /* node:coverage ignore next 3 */
     reader.onerror = () => {
       resolve(false)
     }
@@ -123,8 +123,8 @@ export const importPage = createPage('import', () => {
 
     let ext = file.name.split('.').pop()?.toLowerCase()
     let content = await readFile(file)
+    /* node:coverage ignore next 4 */
     if (content === false) {
-      /* c8 ignore next 3 */
       $fileError.set('cannotRead')
       return
     }

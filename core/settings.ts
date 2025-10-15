@@ -12,7 +12,7 @@ export const syncServer = persistentAtom<string | undefined>(
 )
 
 export const hasPassword = persistentAtom('slowreader:has-password', false, {
-  /* c8 ignore next 6 */
+  /* node:coverage ignore next 6 */
   decode(str) {
     return str === 'yes'
   },

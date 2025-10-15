@@ -15,13 +15,11 @@
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
     "build": "node --run clean:build && pnpm -F proxy --prod deploy dist",
     "production": "node --run build && ./scripts/run-image.sh",
-    "test:proxy-coverage": "c8 bnt",
-    "clean:coverage": "rm -rf coverage/",
+    "test:proxy-coverage": "bnt --coverage 100",
     "clean:build": "rm -rf dist/"
   },
   "devDependencies": {
-    "better-node-test": "0.7.2",
-    "c8": "10.1.3",
+    "better-node-test": "0.8.3",
     "eslint": "9.37.0"
   }
 }

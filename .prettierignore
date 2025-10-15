@@ -1,4 +1,3 @@
-coverage/
 dist/
 web/storybook-static/
 server/db/migrations/

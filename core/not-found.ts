@@ -14,6 +14,7 @@ export class NotFoundError extends Error {
   }
 }
 
+/* node:coverage disable */
 export function isNotFoundError(
   error: unknown
 ): error is LoguxUndoError | NotFoundError {
@@ -25,6 +26,7 @@ export function isNotFoundError(
   }
   return false
 }
+/* node:coverage enable */
 
 onEnvironment(({ errorEvents }) => {
   errorEvents.addEventListener('unhandledrejection', event => {

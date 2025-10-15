@@ -27,8 +27,8 @@ export default (server: BaseServer): void => {
       return true
     },
     process(ctx) {
+      /* node:coverage ignore next 3 */
       deleteUserData(server, ctx.userId).catch((e: unknown) => {
-        /* c8 ignore next */
         throw e
       })
     }

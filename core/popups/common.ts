@@ -71,8 +71,8 @@ export function definePopup<Name extends PopupName, Rest extends Extra>(
           popup.notFound = true
           popup.destroy()
           loading.set(false)
+          /* node:coverage ignore next 3 */
         } else {
-          /* c8 ignore next 2 */
           throw e
         }
       })

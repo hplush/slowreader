@@ -10,7 +10,7 @@ import { onEnvironment } from './environment.ts'
 let $locale = atom('en')
 let loader: TranslationLoader
 
-/* c8 ignore start */
+/* node:coverage disable */
 // TODO: Until we will have real translations
 export const i18n = createI18n($locale, {
   get(...args) {
@@ -30,4 +30,4 @@ onEnvironment(({ locale, translationLoader }) => {
     $locale.set(value)
   })
 })
-/* c8 ignore stop */
+/* node:coverage enable */

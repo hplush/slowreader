@@ -26,9 +26,12 @@ function useServer(domain: string | undefined): string {
     syncServer.set(domain)
   } else {
     let server = getEnvironment().server
-    if (typeof server !== 'string') return ''
-    /* c8 ignore next 2 */
-    domain = server
+    if (typeof server !== 'string') {
+      return ''
+      /* node:coverage ignore next 3 */
+    } else {
+      domain = server
+    }
   }
   let protocol = domain.startsWith('localhost') ? 'http' : 'https'
   return `${protocol}://${domain}`

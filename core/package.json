@@ -8,8 +8,7 @@
   },
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
-    "test:coverage": "c8 bnt",
-    "clean:coverage": "rm -rf coverage"
+    "test:coverage": "bnt --coverage 100 --coverage-exclude '{devtools.ts,test.ts,../api/**,../server/**,**/test/**}'"
   },
   "exports": {
     ".": "./index.ts",
@@ -33,8 +32,7 @@
   "devDependencies": {
     "@logux/server": "0.14.0",
     "@types/jsdom": "27.0.0",
-    "better-node-test": "0.7.2",
-    "c8": "10.1.3",
+    "better-node-test": "0.8.3",
     "jsdom": "27.0.0",
     "nanospy": "1.0.0"
   }

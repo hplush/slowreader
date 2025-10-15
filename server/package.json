@@ -15,8 +15,7 @@
     "production": "node --run build && ./scripts/run-image.sh",
     "build:server": "pnpm -F server --prod deploy dist",
     "build:assets": "mkdir -p web/ && cp -fr ../web/dist web/ && cp ../web/routes.regexp web/",
-    "test:server-coverage": "c8 bnt",
-    "clean:coverage": "rm -rf coverage",
+    "test:server-coverage": "bnt --coverage 100 --coverage-exclude '{lib/exit.ts,db/index.ts,../api/**,../proxy/**}'",
     "clean:build": "rm -rf dist/ web/"
   },
   "exports": {
@@ -39,8 +38,7 @@
   },
   "devDependencies": {
     "@logux/client": "0.22.0",
-    "better-node-test": "0.7.2",
-    "c8": "10.1.3",
+    "better-node-test": "0.8.3",
     "drizzle-kit": "0.31.5",
     "eslint": "9.37.0",
     "prettier": "3.6.2"

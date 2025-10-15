@@ -1,9 +1,0 @@
-{
-  "all": true,
-  "check-coverage": true,
-  "clean": true,
-  "exclude": ["**/*.test.*", "test/*", "coverage/", "devtools.ts", "test.ts"],
-  "lines": 100,
-  "reporter": ["text-summary", "text", "lcov"],
-  "skip-full": true
-}

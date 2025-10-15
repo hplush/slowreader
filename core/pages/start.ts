@@ -34,8 +34,8 @@ export const startPage = createPage('start', () => {
   function validateCredential(): Credentials {
     let [password, encryptionKey] = $secret.get().split(' ')
     let userId = $userId.get()
+    /* node:coverage ignore next 3 */
     if (!password || !encryptionKey || !userId) {
-      /* c8 ignore next 2 */
       throw new Error('Invalid data')
     }
     return {
@@ -67,8 +67,8 @@ export const startPage = createPage('start', () => {
           } else {
             $signError.set(e.message)
           }
+          /* node:coverage ignore next 4 */
         } else {
-          /* c8 ignore next 3 */
           if (e instanceof Error) getEnvironment().warn(e)
           $signError.set(commonMessages.get().internalError)
         }

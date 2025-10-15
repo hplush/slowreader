@@ -56,7 +56,7 @@
     "@storybook/svelte-vite": "9.1.10",
     "@stylistic/stylelint-config": "3.0.1",
     "@stylistic/stylelint-plugin": "4.0.0",
-    "better-node-test": "0.7.2",
+    "better-node-test": "0.8.3",
     "browserslist": "4.26.3",
     "eslint": "9.37.0",
     "keyux": "0.11.3",

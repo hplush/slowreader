@@ -118,6 +118,7 @@ export function createProxy(
       }
       res.end()
     } catch (e) {
+      /* node:coverage disable */
       // Known errors
       if (e instanceof Error && e.name === 'TimeoutError') {
         res.writeHead(400, { 'Content-Type': 'text/plain' })
@@ -132,7 +133,6 @@ export function createProxy(
         res.end(e.message)
         return
       }
-      /* c8 ignore next 11 */
 
       // Unknown or Internal errors
       if (e instanceof Error) {
@@ -145,5 +145,6 @@ export function createProxy(
         res.end('Internal Server Error')
       }
     }
+    /* node:coverage enable */
   }
 }

@@ -155,8 +155,8 @@ function runEnvListener(listener: EnvironmentListener): void {
  * Wait for environment being set and re-run on every environment change.
  */
 export function onEnvironment(cb: EnvironmentListener): void {
+  /* node:coverage ignore next 3 */
   if (currentEnvironment) {
-    /* c8 ignore next 2 */
     runEnvListener(cb)
   }
   listeners.push(cb)
@@ -192,8 +192,8 @@ export function setupEnvironment<Router extends BaseRouter>(
 }
 
 export function getEnvironment(): Environment {
+  /* node:coverage ignore next 3 */
   if (!currentEnvironment) {
-    /* c8 ignore next 2 */
     throw new Error('No Slow Reader environment')
   }
   return currentEnvironment

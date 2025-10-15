@@ -68,8 +68,8 @@ export const signupPage = createPage('signup', () => {
         } else {
           $error.set(e.message)
         }
+        /* node:coverage ignore next 4 */
       } else {
-        /* c8 ignore next 3 */
         if (e instanceof Error) getEnvironment().warn(e)
         $error.set(commonMessages.get().internalError)
       }

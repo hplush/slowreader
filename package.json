@@ -37,7 +37,7 @@
     "@types/node": "24.7.2",
     "@types/ws": "8.18.1",
     "actions-up": "1.4.1",
-    "better-node-test": "0.7.2",
+    "better-node-test": "0.8.3",
     "eslint": "9.37.0",
     "eslint-plugin-svelte": "3.12.4",
     "husky": "9.1.7",

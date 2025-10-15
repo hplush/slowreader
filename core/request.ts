@@ -31,7 +31,7 @@ interface RequestExpect {
 
 let requestExpects: RequestExpect[] = []
 
-/* c8 ignore start */
+/* node:coverage disable */
 export class MockRequestError extends Error {
   constructor(message: string) {
     super(message)
@@ -131,4 +131,4 @@ export function checkAndRemoveRequestMock(): void {
   }
   setRequestMethod(fetch)
 }
-/* c8 ignore stop */
+/* node:coverage enable */
