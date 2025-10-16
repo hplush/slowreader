@@ -1,7 +1,7 @@
 name: Visual Test
 on:
   schedule:
-    - cron: '00 23 * * *' # Runs at midnight UTC every day
+    - cron: '00 04 * * *' # Runs at night every day
   push:
     branches:
       - main
@@ -40,9 +40,10 @@ jobs:
               echo "should_run=false" >> "$GITHUB_OUTPUT"
             fi
           else
-            today=$(date -u +"%Y-%m-%d")
-            last_commit_date=$(git log -1 --format=%cd --date=short)
-            if [ "$today" == "$last_commit_date" ]; then
+            now=$(date -u +%s)
+            twenty_four_hours_ago=$((now - 86400))
+            last_commit_time=$(git log -1 --format=%ct)
+            if [ "$last_commit_time" -ge "$twenty_four_hours_ago" ]; then
               echo "should_run=true" >> "$GITHUB_OUTPUT"
             else
               echo "should_run=false" >> "$GITHUB_OUTPUT"
