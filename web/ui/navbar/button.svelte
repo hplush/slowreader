@@ -32,7 +32,7 @@
     'is-icon': size === 'icon',
     'navbar-button': true
   }}
-  aria-controls={hasSubmenu || 'page'}
+  aria-controls={hasSubmenu || null}
   aria-current={current ? 'page' : null}
   aria-haspopup={hasSubmenu ? 'menu' : null}
   {href}
@@ -59,6 +59,7 @@
     .navbar-button {
       @mixin clickable;
 
+      position: relative;
       z-index: 3;
       display: flex;
       justify-content: center;
@@ -85,6 +86,10 @@
       &:active:not([aria-current='page']),
       &:focus-visible:not([aria-current='page']) {
         background: var(--slider-hover-background);
+      }
+
+      &:focus-visible {
+        outline-offset: 0;
       }
     }
 

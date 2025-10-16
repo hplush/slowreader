@@ -12,7 +12,7 @@
     router,
     navbarMessages as t
   } from '@slowreader/core'
-  import { onMount } from 'svelte'
+  import { onMount, tick } from 'svelte'
   import { on } from 'svelte/events'
 
   import {
@@ -44,6 +44,15 @@
       document.documentElement.classList.remove('has-navbar')
     }
   })
+
+  function moveFocusBack(): void {
+    tick().then(() => {
+      let button = document.querySelector<HTMLAnchorElement>(
+        '.navbar-button[aria-current="page"]'
+      )
+      if (button) button.tabIndex = 0
+    })
+  }
 
   let nothingCurrent = $derived(
     !isOtherRoute($router) &&
@@ -85,7 +94,10 @@
         <NavbarButton
           name={$t.refresh}
           icon={mdiRefresh}
-          onclick={refreshPosts}
+          onclick={() => {
+            refreshPosts()
+            moveFocusBack()
+          }}
           size="icon"
         />
       {/if}
