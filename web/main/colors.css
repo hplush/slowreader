@@ -61,15 +61,15 @@
       inset 0 0 0 0.5px oklch(0 0 0 / 20%);
     --pressed-shadow: inset 0 1px 2px oklch(0 0 0 / 50%);
     --flat-control-shadow: inset 0 0 0 0.5px oklch(0 0 0 / 10%);
+    --gutter-shadow:
+      0 0 0 0.5px oklch(0 0 0 / 10%), inset 0 1px 2px oklch(0 0 0 / 10%);
+    --field-shadow:
+      inset 0 0 0 0.5px oklch(0 0 0 / 50%), inset 0 1px 2px oklch(0 0 0 / 15%);
+    --current-shadow:
+      0px 2px 4px oklch(0 0 0 / 3%), 0px 1px 2px oklch(0 0 0 / 4%),
+      0px 1px 1px oklch(0 0 0 / 10%);
 
     &.is-comfort-mode {
-      --field-shadow:
-        inset 0 0 0 0.5px oklch(0 0 0 / 50%), inset 0 1px 2px oklch(0 0 0 / 15%);
-      --gutter-shadow:
-        0 0 0 0.5px oklch(0 0 0 / 10%), inset 0 1px 2px oklch(0 0 0 / 10%);
-      --current-shadow:
-        0px 2px 4px oklch(0 0 0 / 3%), 0px 1px 2px oklch(0 0 0 / 4%),
-        0px 1px 1px oklch(0 0 0 / 10%);
       --land-color: oklch(0.95 0.03 70);
       --main-land-color: oklch(0.975 0.015 70);
     }
@@ -96,12 +96,6 @@
     --pressed-shadow:
       inset 0 1px 2px oklch(0 0 0), inset 0 -0.5px 0 oklch(1 0 0 / 40%);
     --flat-control-shadow: inset 0 0 0 0.5px oklch(1 0 0 / 15%);
-
-    &.is-comfort-mode {
-      --land-color: oklch(0.25 0.03 70);
-      --main-land-color: oklch(0.3 0.03 70);
-    }
-
     --field-shadow:
       inset 0 0 0 0.5px oklch(0 0 0), inset 0 1px 2px oklch(0 0 0 / 50%);
     --gutter-shadow:
@@ -109,5 +103,10 @@
     --current-shadow:
       0 1px 2px oklch(0 0 0 / 30%), 0 1px 5px oklch(0 0 0 / 20%),
       inset 0 0.5px 0 oklch(1 0 0 / 30%);
+
+    &.is-comfort-mode {
+      --land-color: oklch(0.25 0.03 70);
+      --main-land-color: oklch(0.3 0.03 70);
+    }
   }
 }
