@@ -11,47 +11,37 @@
     hasSubmenu = false,
     href,
     icon,
-    inSubmenu = false,
     name,
-    onclick,
-    size = 'inline'
+    onclick
   }: {
+    children?: Snippet
     current?: boolean
     hasSubmenu?: false | string
     href?: string
-    inSubmenu?: boolean
+    icon?: string
     name: string
     onclick?: () => void
-  } & (
-    | { children: Snippet; icon?: undefined; size: 'icon' }
-    | { children?: Snippet; icon?: string; size?: 'inline' }
-    | { children?: undefined; icon: string; size: 'icon' }
-  ) = $props()
+  } = $props()
 </script>
 
 <Clickable
-  class={{
-    'is-icon': size === 'icon',
-    'navbar-item': true
-  }}
+  class="navbar-item"
   aria-controls={hasSubmenu || 'page'}
   aria-current={current ? 'page' : null}
   aria-haspopup={hasSubmenu ? 'menu' : null}
   {href}
   {onclick}
-  onkeydown={inSubmenu
-    ? ((e => {
-        if (e.key === 'Enter') {
-          let item = e.currentTarget
-          setTimeout(() => {
-            item.tabIndex = -1
-          }, 10)
-        }
-      }) as KeyboardEventHandler<HTMLAnchorElement | HTMLButtonElement>)
-    : null}
+  onkeydown={(e => {
+    if (e.key === 'Enter') {
+      let item = e.currentTarget
+      setTimeout(() => {
+        item.tabIndex = -1
+      }, 10)
+    }
+  }) as KeyboardEventHandler<HTMLAnchorElement | HTMLButtonElement>}
   role="menuitem"
-  tabindex={!inSubmenu && current ? 0 : -1}
-  title={size === 'icon' || (name && name.length > 15) ? name : null}
+  tabindex={-1}
+  title={name && name.length > 15 ? name : null}
 >
   <span class="navbar-item_cap">
     {#if icon}
@@ -60,9 +50,7 @@
     {#if children}
       {@render children()}
     {/if}
-    {#if size !== 'icon'}
-      <div class="navbar-item_text">{name}</div>
-    {/if}
+    <div class="navbar-item_text">{name}</div>
   </span>
 </Clickable>
 
@@ -71,7 +59,7 @@
     .navbar-item {
       position: relative;
       display: block;
-      height: var(--navbar-item);
+      height: var(--control-height);
       overflow: hidden;
       font: var(--control-font);
       color: var(--text-color);
@@ -89,13 +77,18 @@
         background: --tune-background(--secondary);
       }
 
+      &:focus-visible {
+        outline-offset: 0;
+      }
+
       &&:active {
         box-shadow: var(--pressed-shadow);
       }
 
       &[aria-current='page'] {
-        color: var(--current-background);
-        background: var(--text-color);
+        z-index: 2;
+        background: --tune-background(--current);
+        box-shadow: var(--current-shadow);
       }
 
       @media (width > 64rem) {
@@ -108,17 +101,11 @@
     .navbar-item_cap {
       box-sizing: border-box;
       display: flex;
-      gap: 0.4rem;
+      gap: 0.3125rem;
       align-items: center;
       justify-content: flex-start;
-      height: var(--navbar-item);
+      height: var(--control-height);
       padding: 0 0.5rem;
-
-      .navbar-item.is-icon & {
-        justify-content: center;
-        width: var(--navbar-item);
-        padding: 0;
-      }
 
       .navbar-item:active & {
         translate: 0 1px;

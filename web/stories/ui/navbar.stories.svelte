@@ -7,7 +7,7 @@
   } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  import Navbar from '../../ui/navbar.svelte'
+  import Navbar from '../../ui/navbar/index.svelte'
   import Scene from '../scene.svelte'
   import Section from '../section.svelte'
 

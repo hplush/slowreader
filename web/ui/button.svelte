@@ -188,15 +188,15 @@
       gap: 0.4rem;
       align-items: center;
       justify-content: center;
-      min-height: 2.062rem;
-      padding: 0.437rem 0.75rem;
+      min-height: var(--control-height);
+      padding: 0.4rem 0.75rem;
 
       .button:active:not([aria-disabled='true']) & {
         translate: 0 1px;
       }
 
       .button.is-icon & {
-        width: 2rem;
+        width: var(--control-height);
         padding: 0;
         text-align: center;
       }

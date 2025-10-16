@@ -39,15 +39,17 @@
     .output_field {
       box-sizing: border-box;
       width: stretch;
-      padding: 0.25rem 0.5rem;
+      height: var(--control-height);
+      padding: 0 0.5rem;
       font: var(--control-mono-font);
-      background: --tune-background(--field);
+      background: --tune-background(--secondary);
       border: none;
       border-radius: var(--base-radius);
+      box-shadow: var(--field-shadow);
       corner-shape: squircle;
 
       &:focus-visible {
-        outline-offset: 1px;
+        outline-offset: 0;
       }
     }
   }

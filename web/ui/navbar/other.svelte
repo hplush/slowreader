@@ -40,7 +40,6 @@
       current={$router.route === route}
       href={getURL({ params: {}, route })}
       icon={ICONS[route]}
-      inSubmenu
     />
   {/each}
 </NavbarCategory>
@@ -52,7 +51,6 @@
       current={$router.route === route}
       href={getURL({ params: {}, route })}
       icon={ICONS[route]}
-      inSubmenu
     />
   {/each}
 </NavbarCategory>

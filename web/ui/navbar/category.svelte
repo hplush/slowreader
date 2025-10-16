@@ -71,11 +71,16 @@
 
 <style lang="postcss">
   :global {
+    .navbar-category {
+      padding-top: 0.125rem;
+    }
+
     .navbar-category_button {
+      position: relative;
       display: flex;
-      gap: 0.3rem;
+      gap: 0.3125rem;
       width: stretch;
-      padding: 0.5rem 0 0.25rem 0.5rem;
+      padding: 0.375rem 0 0.125rem 0.5rem;
       background: transparent;
       border-radius: var(--base-radius);
       corner-shape: squircle;
@@ -89,8 +94,12 @@
       }
 
       .navbar-category:not(.is-closable) & {
-        padding-inline-start: 1.8rem;
+        padding-inline-start: 1.8125rem;
         cursor: default;
+      }
+
+      &:focus-visible {
+        outline-offset: 0;
       }
     }
 

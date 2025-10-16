@@ -50,6 +50,9 @@
     --note-c: 0.03;
     --field-l: 0.025;
     --field-c: -0.015;
+    --current-l: 0.025;
+    --current-c: -0.015;
+    --slider-hover-background: oklch(0 0 0 / 3%);
     --note-good-background: oklch(0.95 0.03 140);
     --note-dangerous-background: oklch(0.95 0.02 20);
     --button-shadow:
@@ -60,6 +63,13 @@
     --flat-control-shadow: inset 0 0 0 0.5px oklch(0 0 0 / 10%);
 
     &.is-comfort-mode {
+      --field-shadow:
+        inset 0 0 0 0.5px oklch(0 0 0 / 50%), inset 0 1px 2px oklch(0 0 0 / 15%);
+      --gutter-shadow:
+        0 0 0 0.5px oklch(0 0 0 / 10%), inset 0 1px 2px oklch(0 0 0 / 10%);
+      --current-shadow:
+        0px 2px 4px oklch(0 0 0 / 3%), 0px 1px 2px oklch(0 0 0 / 4%),
+        0px 1px 1px oklch(0 0 0 / 10%);
       --land-color: oklch(0.95 0.03 70);
       --main-land-color: oklch(0.975 0.015 70);
     }
@@ -69,15 +79,16 @@
     --selection-color: oklch(0.5 0.1 102);
     --text-color: var(--light-text-color);
     --land-color: oklch(0.25 0 70);
-    --secondary-l: 0.1;
+    --secondary-l: 0.03;
     --button-hover-l: 0.03;
     --secondary-hover-l: 0.02;
-    --field-l: -0.05;
-    --field-c: 0;
     --note-l: 0.2;
     --note-c: 0.03;
     --note-good-background: oklch(0.25 0.03 140);
     --note-dangerous-background: oklch(0.25 0.03 20);
+    --field-l: -0.05;
+    --current-l: 0.15;
+    --slider-hover-background: oklch(1 0 0 / 3%);
     --main-land-color: oklch(0.3 0 70);
     --button-shadow:
       0 1px 2px oklch(0 0 0 / 30%), 0 1px 5px oklch(0 0 0 / 20%),
@@ -90,5 +101,13 @@
       --land-color: oklch(0.25 0.03 70);
       --main-land-color: oklch(0.3 0.03 70);
     }
+
+    --field-shadow:
+      inset 0 0 0 0.5px oklch(0 0 0), inset 0 1px 2px oklch(0 0 0 / 50%);
+    --gutter-shadow:
+      0 0 0 0.5px oklch(0 0 0 / 50%), inset 0 1px 2px oklch(0 0 0 / 30%);
+    --current-shadow:
+      0 1px 2px oklch(0 0 0 / 30%), 0 1px 5px oklch(0 0 0 / 20%),
+      inset 0 0.5px 0 oklch(1 0 0 / 30%);
   }
 }

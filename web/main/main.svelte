@@ -14,7 +14,7 @@
   import SignupPage from '../pages/signup.svelte'
   import StartPage from '../pages/start.svelte'
   import Button from '../ui/button.svelte'
-  import Navbar from '../ui/navbar.svelte'
+  import Navbar from '../ui/navbar/index.svelte'
   import ThinPage from '../ui/thin-page.svelte'
 
   // To have smooth app starting loader animation we are re-using loader in HTML
