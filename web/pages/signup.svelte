@@ -131,6 +131,7 @@
               loader={$signingUp ? $t.signingUp : undefined}
               size="wide"
               type="submit"
+              variant="main"
             >
               {$t.signup}
             </Button>
