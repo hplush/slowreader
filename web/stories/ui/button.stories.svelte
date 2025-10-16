@@ -41,19 +41,31 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="plain">Secondary</Button>
-      <Button {icon} {onclick} variant="plain">Secondary</Button>
-      <Button {icon} {onclick} variant="plain">Secondary</Button>
+      <Button {icon} {onclick} variant="plain">Plain</Button>
+      <Button {icon} {onclick} variant="plain">Plain</Button>
+      <Button {icon} {onclick} variant="plain">Plain</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="plain-secondary">Secondary</Button>
-      <Button {icon} {onclick} variant="plain-secondary">Secondary</Button>
-      <Button {icon} {onclick} variant="plain-secondary">Secondary</Button>
+      <Button {icon} {onclick} variant="plain-secondary">
+        Plain Secondary
+      </Button>
+      <Button {icon} {onclick} variant="plain-secondary">
+        Plain Secondary
+      </Button>
+      <Button {icon} {onclick} variant="plain-secondary">
+        Plain Secondary
+      </Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
-      <Button {icon} {onclick} variant="plain-dangerous">Secondary</Button>
-      <Button {icon} {onclick} variant="plain-dangerous">Secondary</Button>
-      <Button {icon} {onclick} variant="plain-dangerous">Secondary</Button>
+      <Button {icon} {onclick} variant="plain-dangerous">
+        Plain Dangerous
+      </Button>
+      <Button {icon} {onclick} variant="plain-dangerous">
+        Plain Dangerous
+      </Button>
+      <Button {icon} {onclick} variant="plain-dangerous">
+        Plain Dangerous
+      </Button>
     </Section>
     <Section>
       <Button href="#" icon={mdiLink}>Link</Button>
@@ -114,6 +126,33 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
     </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="plain">Plain</Button>
+      <Button {icon} {onclick} variant="plain">Plain</Button>
+      <Button {icon} {onclick} variant="plain">Plain</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="plain-secondary">
+        Plain Secondary
+      </Button>
+      <Button {icon} {onclick} variant="plain-secondary">
+        Plain Secondary
+      </Button>
+      <Button {icon} {onclick} variant="plain-secondary">
+        Plain Secondary
+      </Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="plain-dangerous">
+        Plain Dangerous
+      </Button>
+      <Button {icon} {onclick} variant="plain-dangerous">
+        Plain Dangerous
+      </Button>
+      <Button {icon} {onclick} variant="plain-dangerous">
+        Plain Dangerous
+      </Button>
+    </Section>
     <Section>
       <Button {icon} loader="Submitting" {onclick}>Main</Button>
       <Button href="/disabled" {icon} loader variant="secondary">
@@ -144,6 +183,33 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="plain">Plain</Button>
+      <Button {icon} {onclick} variant="plain">Plain</Button>
+      <Button {icon} {onclick} variant="plain">Plain</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="plain-secondary">
+        Plain Secondary
+      </Button>
+      <Button {icon} {onclick} variant="plain-secondary">
+        Plain Secondary
+      </Button>
+      <Button {icon} {onclick} variant="plain-secondary">
+        Plain Secondary
+      </Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="plain-dangerous">
+        Plain Dangerous
+      </Button>
+      <Button {icon} {onclick} variant="plain-dangerous">
+        Plain Dangerous
+      </Button>
+      <Button {icon} {onclick} variant="plain-dangerous">
+        Plain Dangerous
+      </Button>
     </Section>
     <Section>
       <Button {icon} loader="Submitting" {onclick}>Main</Button>
@@ -179,6 +245,33 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="plain">Plain</Button>
+      <Button {icon} {onclick} variant="plain">Plain</Button>
+      <Button {icon} {onclick} variant="plain">Plain</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="plain-secondary">
+        Plain Secondary
+      </Button>
+      <Button {icon} {onclick} variant="plain-secondary">
+        Plain Secondary
+      </Button>
+      <Button {icon} {onclick} variant="plain-secondary">
+        Plain Secondary
+      </Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="plain-dangerous">
+        Plain Dangerous
+      </Button>
+      <Button {icon} {onclick} variant="plain-dangerous">
+        Plain Dangerous
+      </Button>
+      <Button {icon} {onclick} variant="plain-dangerous">
+        Plain Dangerous
+      </Button>
     </Section>
     <Section>
       <Button {icon} loader="Submitting" {onclick}>Main</Button>
