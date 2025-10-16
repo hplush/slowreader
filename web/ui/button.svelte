@@ -131,6 +131,7 @@
       &.is-secondary {
         color: var(--text-color);
         background: --tune-background(--secondary);
+        box-shadow: var(--flat-control-shadow);
 
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),

@@ -44,7 +44,7 @@
     --land-color: oklch(0.95 0 70);
     --main-land-color: oklch(0.975 0 70);
     --button-hover-l: 0.05;
-    --secondary-l: -0.03;
+    --secondary-l: -0.02;
     --secondary-hover-l: -0.01;
     --note-l: -0.1;
     --note-c: 0.03;
@@ -53,10 +53,11 @@
     --note-good-background: oklch(0.95 0.03 140);
     --note-dangerous-background: oklch(0.95 0.02 20);
     --button-shadow:
-      0 1px 2px oklch(0 0 0 / 20%), 0 1px 5px oklch(0 0 0 / 10%),
-      inset 0 0.5px 0 oklch(1 0 0 / 70%), inset 0 0 0 0.5px oklch(0 0 0 / 20%);
-    --pressed-shadow:
-      inset 0 1px 2px oklch(0 0 0 / 50%), inset 0 -0.5px 0 oklch(1 0 0);
+      0px 2px 4px oklch(0 0 0 / 3%), 0px 1px 2px oklch(0 0 0 / 4%),
+      0px 1px 1px oklch(0 0 0 / 10%), inset 0 1px 0 oklch(1 0 0 / 50%),
+      inset 0 0 0 0.5px oklch(0 0 0 / 20%);
+    --pressed-shadow: inset 0 1px 2px oklch(0 0 0 / 50%);
+    --flat-control-shadow: inset 0 0 0 0.5px oklch(0 0 0 / 10%);
 
     &.is-comfort-mode {
       --land-color: oklch(0.95 0.03 70);
@@ -80,9 +81,10 @@
     --main-land-color: oklch(0.3 0 70);
     --button-shadow:
       0 1px 2px oklch(0 0 0 / 30%), 0 1px 5px oklch(0 0 0 / 20%),
-      inset 0 0.5px 0 oklch(1 0 0 / 40%), inset 0 0 0 0.5px oklch(0 0 0 / 20%);
+      inset 0 1px 0 oklch(1 0 0 / 30%), inset 0 0 0 0.5px oklch(0 0 0 / 20%);
     --pressed-shadow:
       inset 0 1px 2px oklch(0 0 0), inset 0 -0.5px 0 oklch(1 0 0 / 40%);
+    --flat-control-shadow: inset 0 0 0 0.5px oklch(1 0 0 / 15%);
 
     &.is-comfort-mode {
       --land-color: oklch(0.25 0.03 70);
