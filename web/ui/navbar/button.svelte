@@ -96,7 +96,7 @@
       justify-content: center;
       height: var(--control-height);
 
-      .navbar_link:active:not([aria-current='page']) & {
+      .navbar-button:active:not([aria-current='page']) & {
         translate: 0 1px;
       }
     }
