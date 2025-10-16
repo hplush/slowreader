@@ -113,7 +113,7 @@
     }
 
     .navbar-category_text {
-      font: var(--control-secondary-font);
+      font: var(--secondary-font);
       opacity: 50%;
 
       .navbar-category.is-closable .navbar-category_button:active & {
