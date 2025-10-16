@@ -151,14 +151,16 @@
       }
 
       &.is-plain-secondary {
-        color: var(--secondary-text-color);
+        color: var(--text-color);
         background: transparent;
+        opacity: 50%;
 
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),
         &:focus-visible {
           color: var(--text-color);
           background: --tune-background(--secondary, --secondary-hover);
+          opacity: 100%;
         }
       }
 
