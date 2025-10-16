@@ -1,7 +1,7 @@
 :root {
-  --base-radius: 0.5rem;
+  --base-radius: 0.375rem;
 
   @supports (corner-shape: squircle) {
-    --base-radius: 0.9rem;
+    --base-radius: 0.65rem;
   }
 }
