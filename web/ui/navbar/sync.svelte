@@ -34,9 +34,6 @@
     } else if (
       $syncStatus === 'wait' ||
       $syncStatus === 'connectingAfterWait' ||
-      $syncStatus === 'disconnected' ||
-      $syncStatus === 'connecting' ||
-      $syncStatus === 'sending' ||
       $syncStatus === 'sendingAfterWait'
     ) {
       return 'plain' as const
