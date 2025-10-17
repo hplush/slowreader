@@ -272,18 +272,22 @@
 
     .navbar_submenu {
       position: relative;
+      box-sizing: border-box;
       display: flex;
       flex-grow: 1;
       flex-shrink: 1;
       flex-direction: column;
       gap: 0.125rem;
-      padding: 0.125rem 0.5rem 0 0.25rem;
+      padding: 0.125rem 0.25rem 0;
       margin-inline-end: -0.5rem;
       overflow-y: auto;
 
       @media (width <= 64rem) {
         display: none;
         order: -1;
+        width: 100%;
+        max-height: calc(100vh - var(--control-height) - 0.5rem);
+        margin-inline-end: 0;
       }
 
       &.is-opened {

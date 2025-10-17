@@ -73,6 +73,12 @@
   :global {
     .navbar-category {
       padding-top: 0.125rem;
+
+      @media (width <= 64rem) {
+        &:first-child {
+          padding-top: 0;
+        }
+      }
     }
 
     .navbar-category_button {
