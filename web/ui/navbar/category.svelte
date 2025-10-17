@@ -96,7 +96,7 @@
       .navbar-category.is-closable &:hover,
       .navbar-category.is-closable &:focus-visible,
       .navbar-category.is-closable &:active {
-        background: --tune-background(--secondary);
+        background: --tune-background(--flat-button);
       }
 
       .navbar-category:not(.is-closable) & {

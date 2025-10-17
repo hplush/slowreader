@@ -61,7 +61,7 @@
       display: block;
       height: var(--control-height);
       overflow: hidden;
-      font: var(--control-font);
+      font: var(--text-font);
       color: var(--text-color);
       text-decoration: none;
       cursor: pointer;
@@ -74,21 +74,30 @@
       &:hover,
       &:focus-visible,
       &:active {
-        background: --tune-background(--secondary);
+        background: --tune-background(--flat-button);
       }
 
       &:focus-visible {
         outline-offset: 0;
       }
 
-      &:not([aria-current='page']):active {
-        box-shadow: var(--pressed-shadow);
-      }
-
       &[aria-current='page'] {
         z-index: 2;
         background: --tune-background(--current);
         box-shadow: var(--current-shadow);
+      }
+
+      @media (width > 64rem) {
+        &:active:not([aria-current='page']) {
+          box-shadow: var(--pressed-shadow);
+        }
+      }
+
+      @media (width <= 64rem) {
+        &:active {
+          background: --tune-background(--flat-button);
+          box-shadow: var(--pressed-shadow);
+        }
       }
 
       @media (width > 64rem) {
@@ -109,6 +118,12 @@
 
       .navbar-item:not([aria-current='page']):active & {
         translate: 0 1px;
+      }
+
+      @media (width <= 64rem) {
+        .navbar-item:active & {
+          translate: 0 1px;
+        }
       }
     }
 

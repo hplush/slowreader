@@ -124,19 +124,19 @@
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),
         &:focus-visible {
-          background: --tune-color(--accent-color, --button-hover);
+          background: --tune-color(--accent-color --button-hover);
         }
       }
 
       &.is-secondary {
         color: var(--text-color);
-        background: --tune-background(--secondary);
+        background: --tune-background(--flat-button);
         box-shadow: var(--flat-control-shadow);
 
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),
         &:focus-visible {
-          background: --tune-background(--secondary, --secondary-hover);
+          background: --tune-background(--flat-button --flat-button-hover);
         }
       }
 
@@ -147,7 +147,7 @@
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),
         &:focus-visible {
-          background: --tune-background(--secondary, --secondary-hover);
+          background: --tune-background(--flat-button --flat-button-hover);
         }
       }
 
@@ -160,7 +160,7 @@
         &:active:not([aria-disabled='true']),
         &:focus-visible {
           color: var(--text-color);
-          background: --tune-background(--secondary, --secondary-hover);
+          background: --tune-background(--flat-button --flat-button-hover);
           opacity: 100%;
         }
       }
@@ -172,11 +172,9 @@
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),
         &:focus-visible {
-          background: oklch(
-            from var(--current-background)
-              calc(l + var(--secondary-l, 0) + var(--secondary-hover-l, 0))
-              calc(c + var(--secondary-c, 0) + var(--secondary-hover-c, 0))
-              var(--dangerous-h)
+          background: --tune-background(
+            --flat-button --flat-button-hover,
+            --dangerous
           );
         }
       }

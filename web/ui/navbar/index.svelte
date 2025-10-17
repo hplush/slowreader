@@ -104,7 +104,7 @@
     </div>
     <div class="navbar_switcher">
       <div class="navbar_gutter"></div>
-      <div class="navbar_current"></div>
+      <div class="navbar_slider"></div>
       <NavbarButton
         name={$t.slow}
         current={$router.route === 'slow'}
@@ -238,7 +238,7 @@
       position: absolute;
       inset: -0;
       z-index: 1;
-      background: --tune-background(--secondary);
+      background: --tune-background(--gutter);
       border-radius: calc(var(--base-radius) + 0.125rem);
       box-shadow: var(--gutter-shadow);
       transition: right 150ms;
@@ -249,7 +249,7 @@
       }
     }
 
-    .navbar_current {
+    .navbar_slider {
       position: absolute;
       inset-inline-start: 0.125rem;
       top: 0.125rem;
@@ -259,7 +259,7 @@
       width: calc(50% - 0.25rem);
       background: --tune-background(--current);
       border-radius: var(--base-radius);
-      box-shadow: var(--current-shadow);
+      box-shadow: var(--slider-shadow);
       transition:
         left 150ms,
         width 150ms;

@@ -83,7 +83,7 @@
       }
 
       @media (width <= 64rem) {
-        &:active {
+        &:not([aria-current='page']):active {
           box-shadow: var(--pressed-shadow);
         }
       }
@@ -107,8 +107,16 @@
       justify-content: center;
       height: var(--control-height);
 
-      .navbar-button:active:not([aria-current='page']) & {
-        translate: 0 1px;
+      @media (width > 64rem) {
+        .navbar-button:active:not([aria-current='page']) & {
+          translate: 0 1px;
+        }
+      }
+
+      @media (width <= 64rem) {
+        .navbar-button:active & {
+          translate: 0 1px;
+        }
       }
     }
   }

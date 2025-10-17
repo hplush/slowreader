@@ -42,7 +42,7 @@
       height: var(--control-height);
       padding: 0 0.5rem;
       font: var(--control-mono-font);
-      background: --tune-background(--secondary);
+      background: --tune-background(--flat-button);
       border: none;
       border-radius: var(--base-radius);
       box-shadow: var(--field-shadow);
