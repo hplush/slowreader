@@ -133,7 +133,6 @@ router.subscribe(page => {
 const MOBILE_WIDTH = 1024
 
 setIsMobile(window.innerWidth < MOBILE_WIDTH)
-
 window
   .matchMedia(`(max-width: ${MOBILE_WIDTH}px)`)
   .addEventListener('change', (event: MediaQueryListEvent) => {

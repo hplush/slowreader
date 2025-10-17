@@ -4,6 +4,7 @@ import { comfortMode, errorMode, isMobile, theme } from '@slowreader/core'
 import { focusGroupKeyUX, jumpKeyUX, pressKeyUX, startKeyUX } from 'keyux'
 
 import { locale } from '../stores/locale.ts'
+import { pageTheme } from '../stores/page-theme.ts'
 
 let root = document.documentElement
 let themeTag = document.querySelector('meta[name="theme-color"]')
@@ -34,6 +35,10 @@ comfortMode.subscribe(mode => {
 theme.subscribe(themeValue => {
   root.classList.toggle('is-dark-theme', themeValue === 'dark')
   root.classList.toggle('is-light-theme', themeValue === 'light')
+  updateTheme()
+})
+
+pageTheme.listen(() => {
   updateTheme()
 })
 
