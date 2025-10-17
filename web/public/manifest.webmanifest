@@ -1,5 +1,6 @@
 {
   "name": "Slow Reader",
+  "background_color": "#fcecd9",
   "start_url": "/",
   "icons": [
     { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },

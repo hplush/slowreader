@@ -38,6 +38,8 @@
   @media (prefers-color-scheme: light) {
     --selection-color: oklch(0.93 0.16 102);
     --text-color: var(--dark-text-color);
+
+    /* Don’t forget to change index.html and public/manifest.webmanifest */
     --land-color: oklch(0.95 0 70);
     --main-land-color: oklch(0.975 0 70);
     --button-hover-l: 0.05;
