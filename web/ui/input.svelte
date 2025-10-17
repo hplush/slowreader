@@ -120,7 +120,7 @@
       }
 
       &[aria-invalid] {
-        border-color: var(--dangerous-text-color);
+        background: var(--note-dangerous-background);
       }
 
       &.is-mono {

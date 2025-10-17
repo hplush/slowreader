@@ -64,7 +64,8 @@
     --pressed-shadow: inset 0 1px 2px oklch(0 0 0 / 50%);
     --flat-control-shadow: inset 0 0 0 0.5px oklch(0 0 0 / 10%);
     --field-shadow:
-      inset 0 0 0 0.5px oklch(0 0 0 / 50%), inset 0 1px 2px oklch(0 0 0 / 15%);
+      inset 0 -0.5px 0 0 oklch(1 0 0), inset 0 0 0 0.5px oklch(0 0 0 / 10%),
+      inset 0 1px 2px oklch(0 0 0 / 20%);
     --gutter-shadow:
       inset 0 -0.5px 0 0 oklch(1 0 0 / 80%), inset 0 1px 2px oklch(0 0 0 / 15%);
     --slider-shadow:
@@ -108,7 +109,8 @@
       inset 0 1px 2px oklch(0 0 0), inset 0 -0.5px 0 oklch(1 0 0 / 40%);
     --flat-control-shadow: inset 0 0 0 0.5px oklch(1 0 0 / 15%);
     --field-shadow:
-      inset 0 0 0 0.5px oklch(0 0 0), inset 0 1px 2px oklch(0 0 0 / 50%);
+      inset 0 -0.5px 0 0 oklch(1 0 0 / 30%), inset 0 0 0 0.5px oklch(0 0 0),
+      inset 0 1px 2px oklch(0 0 0 / 50%);
     --gutter-shadow:
       inset 0 -0.5px 0 oklch(1 0 0 / 15%), inset 0 1px 2px oklch(0 0 0 / 60%);
     --slider-shadow:

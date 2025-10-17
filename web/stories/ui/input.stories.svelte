@@ -32,6 +32,7 @@
   </Section>
   <Section main width={200}>
     <Input label="Base" required />
+    <Input error="The value is wrong" label="Wrong" required value="Wrong" />
   </Section>
 </Story>
 
@@ -46,5 +47,6 @@
   </Section>
   <Section main width={200}>
     <Input label="Base" required />
+    <Input error="The value is wrong" label="Wrong" required value="Wrong" />
   </Section>
 </Story>
