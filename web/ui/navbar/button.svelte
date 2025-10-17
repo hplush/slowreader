@@ -78,8 +78,16 @@
         cursor: default;
       }
 
-      &:active:not([aria-current='page']) {
-        box-shadow: var(--pressed-shadow);
+      @media (width > 64rem) {
+        &:active:not([aria-current='page']) {
+          box-shadow: var(--pressed-shadow);
+        }
+      }
+
+      @media (width <= 64rem) {
+        &:active {
+          box-shadow: var(--pressed-shadow);
+        }
       }
 
       &:hover:not([aria-current='page']),

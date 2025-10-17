@@ -283,15 +283,16 @@
       overflow-y: auto;
 
       @media (width <= 64rem) {
-        display: none;
         order: -1;
         width: 100%;
-        max-height: calc(100vh - var(--control-height) - 0.5rem);
+        max-height: 0;
         margin-inline-end: 0;
-      }
+        transition: max-height 300ms cubic-bezier(0.11, 0, 0.5, 0);
 
-      &.is-opened {
-        display: flex;
+        &.is-opened {
+          max-height: calc(100vh - var(--control-height) - 0.5rem);
+          transition: max-height 600ms cubic-bezier(0.5, 1, 0.89, 1);
+        }
       }
     }
   }
