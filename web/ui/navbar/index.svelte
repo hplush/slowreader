@@ -172,6 +172,10 @@
       @media (width <= 64rem) {
         :root.has-navbar & {
           background: var(--main-land-color);
+
+          @supports (-webkit-touch-callout: none) {
+            background: var(--land-color);
+          }
         }
       }
     }
