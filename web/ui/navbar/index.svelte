@@ -165,6 +165,17 @@
       --navbar-height: 3.8rem;
     }
 
+    /* Change mobile Chrome bottom panel to fir with navbar */
+    body {
+      background: var(--land-color);
+
+      @media (width <= 64rem) {
+        :root.has-navbar & {
+          background: var(--main-land-color);
+        }
+      }
+    }
+
     .navbar {
       position: fixed;
       inset-block: 0;
