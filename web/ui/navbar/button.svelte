@@ -65,8 +65,6 @@
       justify-content: center;
       width: 50%;
       font: var(--control-font);
-      color: var(--text-color);
-      background: transparent;
       border-radius: var(--base-radius);
       corner-shape: squircle;
 
