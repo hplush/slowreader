@@ -1,6 +1,6 @@
 // Bind browser’s API to client core API.
 
-import { comfortMode, errorMode, theme } from '@slowreader/core'
+import { comfortMode, errorMode, isMobile, theme } from '@slowreader/core'
 import { focusGroupKeyUX, jumpKeyUX, pressKeyUX, startKeyUX } from 'keyux'
 
 import { locale } from '../stores/locale.ts'
@@ -16,7 +16,7 @@ function updateTheme(): void {
 
   let background = window
     .getComputedStyle(document.body)
-    .getPropertyValue('background-color')
+    .getPropertyValue('--theme-color')
   if (themeTag && background) {
     themeTag.setAttribute('content', background)
   }
@@ -39,6 +39,10 @@ theme.subscribe(themeValue => {
 
 locale.subscribe(lang => {
   root.lang = lang
+})
+
+isMobile.listen(() => {
+  updateTheme()
 })
 
 window.addEventListener('load', () => {

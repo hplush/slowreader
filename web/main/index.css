@@ -4,6 +4,8 @@
 @import url('./sizes.css');
 
 :root {
+  --theme-color: var(--land-color);
+
   color-scheme: light dark;
 
   &.is-light-theme {
@@ -12,6 +14,10 @@
 
   &.is-dark-theme {
     color-scheme: dark;
+  }
+
+  @media (width <= 64rem) {
+    --theme-color: var(--main-land-color);
   }
 
   @media ((width <= 35rem) and (width > 23rem)) {
