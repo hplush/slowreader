@@ -6,6 +6,7 @@
 :root {
   --theme-color: var(--land-color);
 
+  -webkit-overflow-scrolling: auto;
   color-scheme: light dark;
 
   &.is-light-theme {
@@ -60,6 +61,8 @@ ol[role='list'] {
 
 #main {
   @mixin background var(--land-color);
+
+  -webkit-overflow-scrolling: touch;
 
   @media (width > 64rem) {
     padding-inline-start: var(--navbar-width);
