@@ -287,11 +287,13 @@
         width: 100%;
         max-height: 0;
         margin-inline-end: 0;
+        overflow: hidden;
         transition: max-height 300ms cubic-bezier(0.11, 0, 0.5, 0);
 
         &.is-opened {
           max-height: calc(100vh - var(--control-height) - 0.5rem);
-          transition: max-height 600ms cubic-bezier(0.5, 1, 0.89, 1);
+          overflow: auto;
+          transition: max-height 500ms cubic-bezier(0.5, 1, 0.89, 1);
         }
       }
     }
