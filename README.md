@@ -241,6 +241,8 @@ We put to `dependencies` only dependencies we need for production deploy. All ot
 
 We are using in `package.json` `1.0.0` version requirement and not `^1.0.0` to not get unexpected dependencies updates (at least, direct dependencies) if we will break the pnpm lock file. The `./scripts/check-versions.ts` in `pre-commit` hook will check that you do not forget this rule.
 
+We wait a day since the dependency’s release before updating it using pnpm’s `minimumReleaseAge` option.
+
 ### GitHub Actions
 
 For security reasons we are pinning actions in [GitHub workflows](./.github/workflows/) by hash, rather than by version.
