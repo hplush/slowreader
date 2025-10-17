@@ -4,6 +4,8 @@
 import { join } from 'node:path'
 import type { Node, Plugin } from 'postcss'
 
+const IGNORE = new Set(['--theme-color'])
+
 let visualTested = new Set<string>()
 let visualProps = new Set<string>()
 let globalUsed = new Set<string>()
@@ -22,7 +24,7 @@ export const propsChecker: Plugin = {
         if (decl.prop.startsWith('--')) {
           if (inVisualTest(decl)) {
             visualProps.add(decl.prop)
-          } else {
+          } else if (!IGNORE.has(decl.prop)) {
             globalProps.add(decl.prop)
           }
           decl.raws.between = ':'
