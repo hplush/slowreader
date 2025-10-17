@@ -16,10 +16,6 @@
     color-scheme: dark;
   }
 
-  @media (width <= 64rem) {
-    --theme-color: var(--main-land-color);
-  }
-
   @media ((width <= 35rem) and (width > 23rem)) {
     font-size: 125%;
   }
@@ -30,10 +26,14 @@
 }
 
 body {
-  @mixin background var(--land-color);
-
   color: var(--text-color);
+  background: var(--land-color);
   -webkit-tap-highlight-color: oklch(0 0 0 / 0%);
+
+  @media (width <= 64rem) {
+    /* Change mobile Chrome bottom panel to fir with navbar */
+    background: var(--main-land-color);
+  }
 }
 
 body,
@@ -65,6 +65,8 @@ ol[role='list'] {
 }
 
 #main {
+  @mixin background var(--land-color);
+
   @media (width > 64rem) {
     padding-inline-start: var(--navbar-width);
   }

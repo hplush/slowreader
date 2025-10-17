@@ -1,6 +1,6 @@
 // Bind browser’s API to client core API.
 
-import { comfortMode, errorMode, isMobile, theme } from '@slowreader/core'
+import { comfortMode, errorMode, theme } from '@slowreader/core'
 import { focusGroupKeyUX, jumpKeyUX, pressKeyUX, startKeyUX } from 'keyux'
 
 import { locale } from '../stores/locale.ts'
@@ -44,10 +44,6 @@ pageTheme.listen(() => {
 
 locale.subscribe(lang => {
   root.lang = lang
-})
-
-isMobile.listen(() => {
-  updateTheme()
 })
 
 window.addEventListener('load', () => {
