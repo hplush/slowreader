@@ -21,7 +21,7 @@
   }
 
   @media ((width <= 35rem) and (width > 23rem)) {
-    font-size: 112.5%;
+    font-size: 125%;
   }
 }
 

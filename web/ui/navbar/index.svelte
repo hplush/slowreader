@@ -193,7 +193,7 @@
 
       @media (width <= 64rem) {
         justify-content: space-between;
-        width: 19rem;
+        width: 20rem;
         max-width: 100%;
         padding: 0.25rem;
       }
