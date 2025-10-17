@@ -165,7 +165,7 @@
       --navbar-height: 3.8rem;
     }
 
-    /* Change mobile Chrome bottom panel to fir with navbar */
+    /* Change mobile Chrome bottom panel to fit with navbar */
     body {
       background: var(--land-color);
 
