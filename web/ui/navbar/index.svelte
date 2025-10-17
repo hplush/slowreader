@@ -194,6 +194,7 @@
         bottom: 0;
         align-items: center;
         width: 100vw;
+        padding-inline: 0.25rem;
         box-shadow: var(--float-shadow);
 
         @mixin background var(--main-land-color);
@@ -210,7 +211,7 @@
         justify-content: space-between;
         width: 20rem;
         max-width: 100%;
-        padding: 0.25rem;
+        padding: 0.25rem 0;
       }
     }
 
