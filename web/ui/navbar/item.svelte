@@ -81,7 +81,7 @@
         outline-offset: 0;
       }
 
-      &&:active {
+      &:not([aria-current='page']):active {
         box-shadow: var(--pressed-shadow);
       }
 
@@ -107,7 +107,7 @@
       height: var(--control-height);
       padding: 0 0.5rem;
 
-      .navbar-item:active & {
+      .navbar-item:not([aria-current='page']):active & {
         translate: 0 1px;
       }
     }
