@@ -54,7 +54,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 
 ## Design System
 
-All **colors** must be declared in [`main/colors.css`](./main/colors.css). We are using [Harmony Color Palette](https://github.com/evilmartians/harmony) and `oklch()` format.
+All **colors** must be declared in [`main/colors.css`](./main/colors.css).
 
 **Fonts** are declared in [`main/fonts.css`](./main/fonts.css).
 
