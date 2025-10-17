@@ -8,7 +8,6 @@
 
   import Clickable from './clickable.svelte'
   import Icon from './icon.svelte'
-  import InverseTheme from './inverse-theme.svelte'
   import Loader from './loader.svelte'
 
   let {
@@ -70,9 +69,10 @@
   <span class="button_loader">
     {#if loader}
       {#if variant === 'main'}
-        <InverseTheme>
-          <Loader label={typeof loader === 'string' ? loader : undefined} />
-        </InverseTheme>
+        <Loader
+          label={typeof loader === 'string' ? loader : undefined}
+          variant="accent"
+        />
       {:else}
         <Loader label={typeof loader === 'string' ? loader : undefined} />
       {/if}
@@ -117,7 +117,7 @@
       }
 
       &.is-main {
-        color: var(--button-text-color);
+        color: var(--text-on-accent-color);
         background: var(--accent-color);
         box-shadow: var(--button-shadow);
 
