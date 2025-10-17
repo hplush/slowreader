@@ -45,7 +45,7 @@ export const propsChecker: Plugin = {
             let where = inVisualTest(decl) ? visualTested : globalUsed
             for (let func of found) {
               let funcName = func.match(/^--[\w-]+\(/)![1]
-              let args = func.replace(/^.*\(/, '').slice(0, -1).split(',')
+              let args = func.replace(/^.*\(/, '').slice(0, -1).split(/[,\s]/)
               for (let name of args) {
                 if (funcName === 'tune-color' && args[0] === name) {
                   where.add(name)
