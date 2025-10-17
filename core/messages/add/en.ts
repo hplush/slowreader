@@ -1,6 +1,6 @@
 import { i18n } from '../../i18n.ts'
 
-export const previewMessages = i18n('preview', {
+export const addMessages = i18n('add', {
   add: 'Subscribe to feed',
   edit: 'Edit',
   invalidUrl: 'URL has an mistake, please check it',
