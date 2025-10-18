@@ -145,7 +145,7 @@
       &.is-secondary-dangerous {
         color: var(--dangerous-text-color);
         background: --tune-background(--flat-button, --dangerous);
-        box-shadow: var(--flat-control-shadow);
+        box-shadow: var(--flat-dangerous-shadow);
 
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),
