@@ -107,7 +107,7 @@
       box-sizing: border-box;
       width: stretch;
       height: var(--control-height);
-      padding: 0 0.5rem;
+      padding: 0 var(--control-padding);
       font: var(--control-font);
       background: --tune-background(--field);
       border: none;

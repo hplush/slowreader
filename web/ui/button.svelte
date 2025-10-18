@@ -183,11 +183,11 @@
     .button_cap {
       box-sizing: border-box;
       display: flex;
-      gap: 0.4rem;
+      gap: var(--control-gap);
       align-items: center;
       justify-content: center;
       min-height: var(--control-height);
-      padding: 0.4rem 0.75rem;
+      padding: 0.4rem var(--control-padding);
 
       .button:active:not([aria-disabled='true']) & {
         translate: 0 1px;

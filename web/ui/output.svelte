@@ -40,7 +40,7 @@
       box-sizing: border-box;
       width: stretch;
       height: var(--control-height);
-      padding: 0 0.5rem;
+      padding: 0 var(--control-padding);
       font: var(--control-mono-font);
       background: --tune-background(--flat-button);
       border: none;
