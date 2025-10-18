@@ -1,6 +1,7 @@
 :root {
   --base-radius: 0.375rem;
   --control-height: 2rem;
+  --thin-content-width: 19rem;
 
   @supports (corner-shape: squircle) {
     --base-radius: 0.65rem;

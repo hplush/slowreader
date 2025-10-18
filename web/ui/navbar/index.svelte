@@ -190,14 +190,14 @@
       width: var(--navbar-width);
 
       @media (width <= 64rem) {
+        @mixin background var(--main-land-color);
+
         inset-block: unset;
         bottom: 0;
         align-items: center;
         width: 100vw;
         padding-inline: 0.5rem;
         box-shadow: var(--float-shadow);
-
-        @mixin background var(--main-land-color);
       }
     }
 
@@ -209,7 +209,7 @@
 
       @media (width <= 64rem) {
         justify-content: space-between;
-        width: 20rem;
+        width: var(--thin-content-width);
         max-width: 100%;
         padding: 0.5rem 0;
       }

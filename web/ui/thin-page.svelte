@@ -49,7 +49,7 @@
     }
 
     .thin-page_center {
-      width: 19rem;
+      width: var(--thin-content-width);
       max-width: 100%;
       margin: 1rem 0 2rem;
 
