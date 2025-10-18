@@ -194,7 +194,7 @@
         bottom: 0;
         align-items: center;
         width: 100vw;
-        padding-inline: 0.25rem;
+        padding-inline: 0.5rem;
         box-shadow: var(--float-shadow);
 
         @mixin background var(--main-land-color);
@@ -211,7 +211,7 @@
         justify-content: space-between;
         width: 20rem;
         max-width: 100%;
-        padding: 0.25rem 0;
+        padding: 0.5rem 0;
       }
     }
 
@@ -308,6 +308,7 @@
 
         &.is-opened {
           max-height: calc(100vh - var(--control-height) - 0.5rem);
+          padding-bottom: 0.125rem;
           overflow: auto;
           transition: max-height 500ms cubic-bezier(0.5, 1, 0.89, 1);
         }
