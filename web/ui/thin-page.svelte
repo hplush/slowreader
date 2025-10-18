@@ -54,7 +54,7 @@
       margin: 1rem 0 2rem;
 
       @media (width <= 64rem) {
-        margin-bottom: var(--navbar-height);
+        margin-bottom: calc(var(--navbar-height) + 1rem);
       }
     }
   }

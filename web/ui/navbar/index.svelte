@@ -194,6 +194,7 @@
 
         inset-block: unset;
         bottom: 0;
+        z-index: 10;
         align-items: center;
         width: 100vw;
         padding-inline: 0.5rem;
