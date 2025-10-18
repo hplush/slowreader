@@ -12,6 +12,7 @@ forceLegacyDeploy: true
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - '@logux/client'
+  - 'postcss-smooth-shadow'
 
 onlyBuiltDependencies:
   - husky

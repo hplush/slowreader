@@ -2,6 +2,7 @@ import autoprefixer from 'autoprefixer'
 import { join } from 'node:path'
 import type { Config } from 'postcss-load-config'
 import mixins from 'postcss-mixins'
+import shadows from 'postcss-smooth-shadow'
 
 import htmlKeeper from './postcss/html-keeper.ts'
 import pseudoClasses from './postcss/pseudo-classes.ts'
@@ -14,6 +15,7 @@ export default {
     themeClasses,
     pseudoClasses,
     tuneColor,
+    shadows(),
     autoprefixer(),
     mixins({
       mixinsDir: join(import.meta.dirname, 'postcss', 'mixins')

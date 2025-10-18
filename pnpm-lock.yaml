@@ -333,6 +333,9 @@ importers:
       postcss-mixins:
         specifier: 12.1.2
         version: 12.1.2(postcss@8.5.6)
+      postcss-smooth-shadow:
+        specifier: 0.3.1
+        version: 0.3.1(postcss@8.5.6)
       rollup:
         specifier: 4.52.4
         version: 4.52.4
@@ -3408,6 +3411,12 @@ packages:
     engines: {node: '>=14.0'}
     peerDependencies:
       postcss: ^8.2.1
+
+  postcss-smooth-shadow@0.3.1:
+    resolution: {integrity: sha512-tGjcyk1XrhYKI1V1bBH/EO8xOghBRU1zG48OivTuSBvOUozm8uf6wgJ2U+SjwO43sK7zPREFXOg5Oj65u646sA==}
+    engines: {node: ^20.0 || ^22.0 || >=24.0}
+    peerDependencies:
+      postcss: ^8.2.14
 
   postcss-sorting@9.1.0:
     resolution: {integrity: sha512-Mn8KJ45HNNG6JBpBizXcyf6LqY/qyqetGcou/nprDnFwBFBLGj0j/sNKV2lj2KMOVOwdXu14aEzqJv8CIV6e8g==}
@@ -7298,6 +7307,10 @@ snapshots:
       util-deprecate: 1.0.2
 
   postcss-simple-vars@7.0.1(postcss@8.5.6):
+    dependencies:
+      postcss: 8.5.6
+
+  postcss-smooth-shadow@0.3.1(postcss@8.5.6):
     dependencies:
       postcss: 8.5.6
 
