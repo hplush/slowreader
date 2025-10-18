@@ -1,17 +1,17 @@
 <script context="module" lang="ts">
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  import InterfacePage from '../../pages/interface.svelte'
+  import DownloadPage from '../../pages/download.svelte'
   import Scene from '../scene.svelte'
 
   let { Story } = defineMeta({
-    component: InterfacePage,
-    title: 'Pages/Interface'
+    component: DownloadPage,
+    title: 'Pages/Download'
   })
 </script>
 
 <Story name="Base" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene route="interface">
-    <InterfacePage />
+  <Scene route="download">
+    <DownloadPage />
   </Scene>
 </Story>
