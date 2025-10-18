@@ -124,7 +124,7 @@
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),
         &:focus-visible {
-          background: --tune-color(--accent-color --button-hover);
+          background: --tune-color(--accent-color, --button-hover);
         }
       }
 
