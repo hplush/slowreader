@@ -219,6 +219,7 @@
 
     .button_text {
       flex-shrink: 1;
+      word-break: break-all;
     }
 
     .button_loader {

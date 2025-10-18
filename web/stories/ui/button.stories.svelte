@@ -93,6 +93,7 @@
     <Section width={300}>
       <Button {icon} {onclick}>
         The really long text in the short container
+        withverybigwordwhichcanbreakthecontainer
       </Button>
     </Section>
     <Section>

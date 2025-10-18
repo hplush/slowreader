@@ -33,6 +33,15 @@
     <Radio label="First" store={store1} {values} />
     <Radio label="Middle" store={store2} {values} />
     <Radio label="Last" store={store3} {values} />
+    <Radio
+      label="Long"
+      store={store3}
+      values={[
+        ['one', 'Very first element', mdiNumeric1BoxOutline],
+        ['two', '2', mdiNumeric2BoxOutline],
+        ['three', 'Three', mdiNumeric3BoxOutline]
+      ]}
+    />
   </Section>
   <Section
     active="fieldset:nth-child(2) label:first-of-type"

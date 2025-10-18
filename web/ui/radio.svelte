@@ -85,8 +85,7 @@
 
       position: relative;
       z-index: 2;
-      align-items: center;
-      height: var(--control-height);
+      min-height: var(--control-height);
       border-radius: var(--base-radius);
       corner-shape: squircle;
 
@@ -102,13 +101,15 @@
     }
 
     .radio_cap {
+      box-sizing: border-box;
       display: flex;
       gap: var(--control-gap);
       align-items: center;
       justify-content: center;
       height: 100%;
-      padding: 0 var(--control-padding);
+      padding: 0.4rem var(--control-padding);
       font: var(--control-font);
+      word-break: break-all;
 
       .radio_label:not(:has(:checked)):active & {
         translate: 0 1px;
