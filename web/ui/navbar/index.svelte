@@ -211,7 +211,7 @@
         justify-content: space-between;
         width: var(--thin-content-width);
         max-width: 100%;
-        padding: 0.5rem 0;
+        padding: 0.25rem 0;
       }
     }
 
