@@ -41,6 +41,11 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
+      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
+      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="plain">Plain</Button>
       <Button {icon} {onclick} variant="plain">Plain</Button>
       <Button {icon} {onclick} variant="plain">Plain</Button>
@@ -128,6 +133,11 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
+      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
+      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="plain">Plain</Button>
       <Button {icon} {onclick} variant="plain">Plain</Button>
       <Button {icon} {onclick} variant="plain">Plain</Button>
@@ -184,6 +194,11 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
+      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
+      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="plain">Plain</Button>
@@ -246,6 +261,11 @@
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
+      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
+      <Button {icon} {onclick} variant="secondary-dangerous">Dangerous</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="plain">Plain</Button>

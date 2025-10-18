@@ -32,7 +32,7 @@
               }
             }}
             size="wide"
-            variant="secondary"
+            variant="secondary-dangerous"
           >
             {$t.exitWaitSync}
           </Button>
@@ -59,7 +59,7 @@
               page.deleteAccount()
             }
           }}
-          variant="secondary"
+          variant="secondary-dangerous"
         >
           {$t.deleteAccount}
         </Button>
@@ -92,7 +92,7 @@
             }
           }}
           size="wide"
-          variant="secondary"
+          variant="secondary-dangerous"
         >
           {$t.exitNoCloud}
         </Button>

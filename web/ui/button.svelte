@@ -31,6 +31,7 @@
       | 'plain-dangerous'
       | 'plain-secondary'
       | 'plain'
+      | 'secondary-dangerous'
       | 'secondary'
   } & (
     | ({ href: string } & HTMLAnchorAttributes)
@@ -60,6 +61,7 @@
     'is-plain-dangerous': variant === 'plain-dangerous',
     'is-plain-secondary': variant === 'plain-secondary',
     'is-secondary': variant === 'secondary',
+    'is-secondary-dangerous': variant === 'secondary-dangerous',
     'is-wide': size === 'wide' || size === 'big'
   }}
   disabled={!!loader || !!disabled}
@@ -137,6 +139,21 @@
         &:active:not([aria-disabled='true']),
         &:focus-visible {
           background: --tune-background(--flat-button --flat-button-hover);
+        }
+      }
+
+      &.is-secondary-dangerous {
+        color: var(--dangerous-text-color);
+        background: --tune-background(--flat-button, --dangerous);
+        box-shadow: var(--flat-control-shadow);
+
+        &:hover:not([aria-disabled='true']),
+        &:active:not([aria-disabled='true']),
+        &:focus-visible {
+          background: --tune-background(
+            --flat-button --flat-button-hover,
+            --dangerous
+          );
         }
       }
 

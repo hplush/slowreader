@@ -51,6 +51,17 @@ export default {
           }
         )
         .replaceAll(
+          /--tune-background\(\s*([^\s,]+)\s*,\s*([^\s,]+)\s*\)/g,
+          (match, prefix, hue) => {
+            return (
+              `oklch(from var(--current-background) ` +
+              `calc(l + var(${prefix}-l, 0)) ` +
+              `calc(c + var(${prefix}-c, 0)) ` +
+              `var(${hue}-h))`
+            )
+          }
+        )
+        .replaceAll(
           /--tune-background\(\s*([^\s,]+)\s* \s*([^\s,]+)\s*,\s*([^\s,]+)\s*\)/g,
           (match, prefix, extra, hue) => {
             return (
