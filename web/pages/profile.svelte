@@ -1,6 +1,10 @@
 <script lang="ts">
   import { mdiAccountPlus, mdiExitToApp, mdiTrashCanOutline } from '@mdi/js'
-  import { type ProfilePage, profileMessages as t } from '@slowreader/core'
+  import {
+    type ProfilePage,
+    settingsMessages,
+    profileMessages as t
+  } from '@slowreader/core'
 
   import { getURL } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
@@ -14,7 +18,7 @@
   let { deletingAccount, hasCloud, unsavedData, userId } = page
 </script>
 
-<ThinPage title={$t.pageTitle}>
+<ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>
   <Stack gap="xl">
     {#if $hasCloud}
       <Stack>

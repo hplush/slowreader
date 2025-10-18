@@ -1,6 +1,10 @@
 <script lang="ts">
   import { mdiBug, mdiEye, mdiShieldSearch } from '@mdi/js'
-  import { type AboutPage, aboutMessages as t } from '@slowreader/core'
+  import {
+    type AboutPage,
+    settingsMessages,
+    aboutMessages as t
+  } from '@slowreader/core'
 
   import Button from '../ui/button.svelte'
   import Note from '../ui/note.svelte'
@@ -12,7 +16,7 @@
   let { page }: { page: AboutPage } = $props()
 </script>
 
-<ThinPage title={$t.pageTitle}>
+<ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>
   <Stack gap="xl">
     <Title>Slow Reader</Title>
     <Output label={$t.version} value={page.appVersion} />

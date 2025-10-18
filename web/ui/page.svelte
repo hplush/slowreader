@@ -9,13 +9,14 @@
   }: {
     children: Snippet
     class: ClassValue
-    title: string
+    title: string | string[]
   } = $props()
 
   let baseTitle: string = ''
 
   function updateTitle(): void {
-    document.title = `${title} › ${baseTitle}`
+    let current = Array.isArray(title) ? title.join(' › ') : title
+    document.title = `${current} › ${baseTitle}`
   }
 
   onMount(() => {

@@ -12,7 +12,7 @@
     bottomOnMobile?: boolean
     center?: boolean
     children: Snippet
-    title: string
+    title: string | string[]
   } = $props()
 </script>
 
