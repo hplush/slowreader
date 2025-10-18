@@ -22,7 +22,7 @@
   :global {
     .label {
       padding-inline-start: var(--control-padding);
-      padding-bottom: 0.187rem;
+      padding-bottom: 0.25rem;
       font: var(--control-secondary-font);
     }
   }

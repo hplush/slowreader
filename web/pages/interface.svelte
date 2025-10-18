@@ -9,7 +9,7 @@
 </script>
 
 <ThinPage title={[$t.interfaceTitle, $t.commonTitle]}>
-  <Stack>
+  <Stack gap="xl">
     <Title>{$t.applicationInterface}</Title>
     <Radio
       label={$t.theme}
