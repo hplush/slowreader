@@ -50,7 +50,6 @@
     --field-l: 0.025;
     --field-c: -0.015;
     --current-l: 0.025;
-    --current-c: -0.015;
     --slider-hover-background: oklch(0 0 0 / 3%);
     --note-good-background: oklch(0.95 0.03 140);
     --note-dangerous-background: oklch(0.95 0.02 20);
@@ -78,6 +77,7 @@
     &.is-comfort-mode {
       --land-color: oklch(0.95 0.03 70);
       --main-land-color: oklch(0.975 0.015 70);
+      --current-c: -0.015;
     }
   }
 
