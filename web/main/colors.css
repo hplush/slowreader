@@ -54,9 +54,10 @@
     --slider-hover-background: oklch(0 0 0 / 3%);
     --note-good-background: oklch(0.95 0.03 140);
     --note-dangerous-background: oklch(0.95 0.02 20);
-    --float-shadow:
+    --bottom-panel-shadow:
       --linear-shadow(0 0 0.375rem oklch(0 0 0 / 5%)),
       inset 0 0.5px 0 0 oklch(1 0 0);
+    --float-box-shadow: --soft-shadow(0 0.3rem 0.3rem oklch(0 0 0 / 10%));
     --button-shadow:
       --soft-shadow(0 1px 2px oklch(0 0 0 / 20%)),
       inset 0 1px 0 oklch(1 0 0 / 50%), inset 0 0 0 0.5px oklch(0 0 0 / 20%);
@@ -96,9 +97,10 @@
     --current-l: 0.15;
     --slider-hover-background: oklch(1 0 0 / 2%);
     --main-land-color: oklch(0.3 0 70);
-    --float-shadow:
+    --bottom-panel-shadow:
       --linear-shadow(0 0 0.375rem oklch(0 0 0 / 30%)),
       inset 0 0.5px 0 0 oklch(1 0 0 / 30%);
+    --float-box-shadow: --soft-shadow(0 0.3rem 0.3rem oklch(0 0 0 / 30%));
     --button-shadow:
       --soft-shadow(0 1px 2px oklch(0 0 0 / 40%)),
       inset 0 1px 0 oklch(1 0 0 / 30%), inset 0 0 0 0.5px oklch(0 0 0 / 20%);

@@ -2,18 +2,20 @@
   let { lines }: { lines: string[] } = $props()
 </script>
 
-<div class="paper is-light-theme">
-  {#each lines as line, index (index)}
-    <input
-      class="paper_line"
-      onfocus={e => {
-        e.currentTarget.select()
-      }}
-      readonly
-      type="text"
-      value={line}
-    />
-  {/each}
+<div class="paper">
+  <div class=" is-light-theme">
+    {#each lines as line, index (index)}
+      <input
+        class="paper_line"
+        onfocus={e => {
+          e.currentTarget.select()
+        }}
+        readonly
+        type="text"
+        value={line}
+      />
+    {/each}
+  </div>
 </div>
 
 <style>
@@ -22,7 +24,7 @@
       padding: 0.5rem 0;
       background: var(--paper-background);
       border-radius: 2px;
-      box-shadow: var(--float-shadow);
+      box-shadow: var(--float-box-shadow);
     }
 
     .paper_line {

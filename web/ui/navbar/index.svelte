@@ -197,7 +197,7 @@
         align-items: center;
         width: 100vw;
         padding-inline: 0.5rem;
-        box-shadow: var(--float-shadow);
+        box-shadow: var(--bottom-panel-shadow);
       }
     }
 
