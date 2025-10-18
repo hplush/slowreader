@@ -9,6 +9,7 @@
 
   import AboutPage from '../pages/about.svelte'
   import BusyPage from '../pages/busy.svelte'
+  import InterfacePage from '../pages/interface.svelte'
   import NotFoundPage from '../pages/not-found.svelte'
   import ProfilePage from '../pages/profile.svelte'
   import SignupPage from '../pages/signup.svelte'
@@ -46,6 +47,8 @@
   <StartPage page={$currentPage} />
 {:else if $currentPage.route === 'signup'}
   <SignupPage page={$currentPage} />
+{:else if $currentPage.route === 'interface'}
+  <InterfacePage />
 {:else}
   <ThinPage title={$currentPage.route}>
     {$currentPage.route}
