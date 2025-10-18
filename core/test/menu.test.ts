@@ -92,6 +92,20 @@ test('does not open menu if fast has 1 category', async () => {
   closeMenu()
 })
 
+test('does not open menu if slow has no posts', async () => {
+  setBaseTestRoute({
+    params: {},
+    route: 'add'
+  })
+  let idB = await addCategory({ title: 'B' })
+  await addFeed(testFeed({ categoryId: idB, reading: 'slow' }))
+
+  openMenu()
+  setBaseTestRoute({ params: {}, route: 'slow' })
+  await setTimeout(10)
+  equal(isMenuOpened.get(), false)
+})
+
 test('renders feeds menu', async () => {
   keepMount(fastMenu)
   keepMount(slowMenu)

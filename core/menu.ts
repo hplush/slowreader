@@ -22,6 +22,8 @@ export function openMenu(): void {
   setTimeout(() => {
     if (router.get().route === 'fast') {
       isMenuOpened.set(fastMenu.get().length > 1)
+    } else if (router.get().route === 'slow') {
+      isMenuOpened.set(slowMenu.get().length > 0)
     } else {
       isMenuOpened.set(true)
     }
