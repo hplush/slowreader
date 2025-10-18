@@ -48,16 +48,14 @@
 </Story>
 
 <Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>
-  <Section stack width={300}>
-    <Radio label="Base" store={store1} {values} />
-  </Section>
   <Section
-    active="fieldset:nth-child(2) label:first-of-type"
-    focus="fieldset:nth-child(3) label:first-of-type input"
-    hover="fieldset:first-child label:first-of-type"
+    active="fieldset:nth-child(3) label:first-of-type"
+    focus="fieldset:nth-child(4) label:first-of-type input"
+    hover="fieldset:nth-child(2) label:first-of-type"
     stack
     width={300}
   >
+    <Radio label="Base" store={store1} {values} />
     <Radio label="Hover" store={store2} {values} />
     <Radio label="Pressed" store={store2} {values} />
     <Radio label="Focus" store={store1} {values} />
