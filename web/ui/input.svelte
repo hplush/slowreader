@@ -121,6 +121,9 @@
 
       &[aria-invalid] {
         background: var(--note-dangerous-background);
+        box-shadow:
+          0 0 0 1px var(--dangerous-text-color),
+          var(--field-shadow);
       }
 
       &.is-mono {
