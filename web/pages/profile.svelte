@@ -59,6 +59,7 @@
               page.deleteAccount()
             }
           }}
+          size="wide"
           variant="secondary-dangerous"
         >
           {$t.deleteAccount}
