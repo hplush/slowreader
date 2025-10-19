@@ -306,6 +306,9 @@ importers:
       '@nanostores/i18n':
         specifier: 1.2.2
         version: 1.2.2(nanostores@1.0.1)
+      '@nanostores/media-query':
+        specifier: 0.1.1
+        version: 0.1.1(nanostores@1.0.1)
       '@nanostores/persistent':
         specifier: 1.1.0
         version: 1.1.0(nanostores@1.0.1)
@@ -1162,6 +1165,12 @@ packages:
   '@nanostores/i18n@1.2.2':
     resolution: {integrity: sha512-5LLxl95+ZI46MrM/Kn7YjORKsD7+Xy2tgjZ7/oDT/BGPEiaBM9lK89/afeK+BqaQL0Xd9Xaa5MPuuVSyWAo+/w==}
     engines: {node: ^20.0.0 || >=22.0.0}
+    peerDependencies:
+      nanostores: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^1.0.0
+
+  '@nanostores/media-query@0.1.1':
+    resolution: {integrity: sha512-fzbKmh7nFSWNV/l+8WRImhWkt22sdMnw8q8EK5kQU9I0l1fEiJGJdqTx7sDs0HkYfShYb9xA6PNok5Ap86fyhA==}
+    engines: {node: ^20.0.0 || ^22.0.0 || >= 24.0.0}
     peerDependencies:
       nanostores: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^1.0.0
 
@@ -5051,6 +5060,10 @@ snapshots:
   '@mdi/js@7.4.47': {}
 
   '@nanostores/i18n@1.2.2(nanostores@1.0.1)':
+    dependencies:
+      nanostores: 1.0.1
+
+  '@nanostores/media-query@0.1.1(nanostores@1.0.1)':
     dependencies:
       nanostores: 1.0.1
 

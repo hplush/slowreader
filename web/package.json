@@ -33,6 +33,7 @@
     "@logux/core": "0.10.0",
     "@mdi/js": "7.4.47",
     "@nanostores/i18n": "1.2.2",
+    "@nanostores/media-query": "0.1.1",
     "@nanostores/persistent": "1.1.0",
     "@nanostores/router": "1.0.0",
     "@slowreader/core": "workspace:*",

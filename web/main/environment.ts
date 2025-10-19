@@ -12,6 +12,7 @@ import {
 } from '@slowreader/core'
 
 import { locale } from '../stores/locale.ts'
+import { mobileMedia } from '../stores/mobile.ts'
 import { openRoute, urlRouter } from '../stores/url-router.ts'
 
 let server = location.hostname
@@ -130,11 +131,6 @@ router.subscribe(page => {
   }
 })
 
-const MOBILE_WIDTH = 1024
-
-setIsMobile(window.innerWidth < MOBILE_WIDTH)
-window
-  .matchMedia(`(max-width: ${MOBILE_WIDTH}px)`)
-  .addEventListener('change', (event: MediaQueryListEvent) => {
-    setIsMobile(event.matches)
-  })
+mobileMedia.subscribe(value => {
+  setIsMobile(value)
+})

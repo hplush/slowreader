@@ -1,17 +1,13 @@
-import { type Theme, theme as themeSettings } from '@slowreader/core'
-import { atom, computed, type ReadableAtom } from 'nanostores'
+import { fromMediaQuery } from '@nanostores/media-query'
+import { theme } from '@slowreader/core'
+import { computed } from 'nanostores'
 
-type PageTheme = Omit<Theme, 'system'>
-
-let media = window.matchMedia('(prefers-color-scheme: dark)')
-let systemTheme = atom<PageTheme>(media.matches ? 'dark' : 'light')
-media.addEventListener('change', event => {
-  systemTheme.set(event.matches ? 'dark' : 'light')
-})
-
-export const pageTheme: ReadableAtom<PageTheme> = computed(
-  [themeSettings, systemTheme],
-  (settings, system) => {
-    return settings === 'system' ? system : settings
-  }
+let systemTheme = fromMediaQuery(
+  '(prefers-color-scheme: dark)',
+  'dark',
+  'light'
 )
+
+export const pageTheme = computed([theme, systemTheme], (settings, system) => {
+  return settings === 'system' ? system : settings
+})

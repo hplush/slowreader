@@ -11,7 +11,8 @@ forceLegacyDeploy: true
 
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
-  - '@logux/client'
+  - '@logux/*'
+  - '@nanostores/*'
   - 'postcss-smooth-shadow'
 
 onlyBuiltDependencies:
