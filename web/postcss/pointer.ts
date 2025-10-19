@@ -10,11 +10,11 @@ export default {
     for (let selector of rule.selectors) {
       if (
         selector.includes(':hover') &&
-        !selector.includes('html.is-pointer ')
+        !selector.includes('html.is-pointer')
       ) {
         rule.selector = rule.selector.replace(
           selector,
-          'html.is-pointer ' + selector
+          ':where(html.is-pointer) ' + selector
         )
       }
     }
