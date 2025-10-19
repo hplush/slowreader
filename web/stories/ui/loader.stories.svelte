@@ -11,7 +11,10 @@
 </script>
 
 <script lang="ts">
+  import { useAnimations } from '@slowreader/core'
   import { onMount } from 'svelte'
+
+  import Scene from '../scene.svelte'
 
   let progress = $state<number | undefined>()
 
@@ -45,4 +48,14 @@
 
 <Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>
   <Loader />
+</Story>
+
+<Story name="Reduced Motion" asChild>
+  <Scene
+    oninit={() => {
+      useAnimations.set(false)
+    }}
+  >
+    <Loader />
+  </Scene>
 </Story>

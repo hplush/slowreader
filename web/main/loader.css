@@ -78,6 +78,7 @@
   }
 }
 
+/* Firefox only */
 .loader:indeterminate::-moz-progress-bar {
   transform: translateX(-50%);
   animation: --loader-bouncing 1.8s infinite cubic-bezier(0.45, 0, 0.55, 1);

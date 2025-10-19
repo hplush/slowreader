@@ -40,6 +40,8 @@ export const preloadImages = persistentAtom<'always' | 'free' | 'never'>(
   'always'
 )
 
+export const useAnimations = persistentBoolean('slowreader:animations', true)
+
 export interface Settings {
   preloadImages: StoreValue<typeof preloadImages>
   theme: StoreValue<typeof theme>

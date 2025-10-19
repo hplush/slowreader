@@ -3,6 +3,7 @@
 import { comfortMode, errorMode, theme } from '@slowreader/core'
 import { focusGroupKeyUX, jumpKeyUX, pressKeyUX, startKeyUX } from 'keyux'
 
+import { reducedMotion } from '../stores/animations.ts'
 import { locale } from '../stores/locale.ts'
 import { pageTheme } from '../stores/page-theme.ts'
 import { detectPointer } from '../stores/pointer.ts'
@@ -45,6 +46,10 @@ pageTheme.listen(() => {
 
 detectPointer.subscribe(pointer => {
   root.classList.toggle('is-pointer', pointer)
+})
+
+reducedMotion.subscribe(reduced => {
+  root.classList.toggle('is-reduced-motion', reduced)
 })
 
 locale.subscribe(lang => {

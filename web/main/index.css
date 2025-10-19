@@ -87,6 +87,14 @@ code {
   font: var(--mono-font);
 }
 
+html.is-reduced-motion {
+  * {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 0 !important;
+  }
+}
+
 /* Need to define smallest size in 1px */
 /* stylelint-disable unit-disallowed-list */
 .sr-only {
