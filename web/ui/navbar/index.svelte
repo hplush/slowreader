@@ -316,7 +316,13 @@
         &.is-opened {
           max-height: calc(100vh - var(--control-height) - 0.5rem);
           overflow: auto;
-          transition: max-height 500ms cubic-bezier(0.5, 1, 0.89, 1);
+          transition:
+            max-height 500ms cubic-bezier(0.5, 1, 0.89, 1),
+            padding-block 500ms cubic-bezier(0.5, 1, 0.89, 1);
+        }
+
+        &:empty {
+          transition: none;
         }
       }
     }
