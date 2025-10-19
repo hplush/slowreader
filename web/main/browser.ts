@@ -5,6 +5,7 @@ import { focusGroupKeyUX, jumpKeyUX, pressKeyUX, startKeyUX } from 'keyux'
 
 import { locale } from '../stores/locale.ts'
 import { pageTheme } from '../stores/page-theme.ts'
+import { detectPointer } from '../stores/pointer.ts'
 
 let root = document.documentElement
 let themeTag = document.querySelector('meta[name="theme-color"]')
@@ -40,6 +41,10 @@ theme.subscribe(themeValue => {
 
 pageTheme.listen(() => {
   updateTheme()
+})
+
+detectPointer.subscribe(pointer => {
+  root.classList.toggle('is-pointer', pointer)
 })
 
 locale.subscribe(lang => {

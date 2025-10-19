@@ -57,17 +57,14 @@
 <style>
   :global {
     .navbar-item {
+      @mixin clickable;
+
       position: relative;
       display: block;
       height: var(--control-height);
       overflow: hidden;
       font: var(--text-font);
       color: var(--text-color);
-      text-decoration: none;
-      cursor: pointer;
-      user-select: none;
-      background: transparent;
-      border: none;
       border-radius: var(--base-radius);
       corner-shape: squircle;
 

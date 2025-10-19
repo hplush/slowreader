@@ -120,7 +120,6 @@
       position: absolute;
       inset: 0;
       appearance: none;
-      cursor: pointer;
       border-radius: var(--base-radius);
       corner-shape: squircle;
 
@@ -130,6 +129,10 @@
 
       &:focus-visible {
         outline-offset: 0;
+      }
+
+      html.is-pointer & {
+        cursor: pointer;
       }
     }
   }

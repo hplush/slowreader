@@ -59,15 +59,6 @@ button {
   -webkit-appearance: button;
 }
 
-/* Pointer cursor for all interactive elements */
-
-a,
-select:not(:disabled),
-button:not(:disabled),
-label[tabindex] {
-  cursor: pointer;
-}
-
 /* Remove border in Firefox */
 
 fieldset {
