@@ -5,17 +5,16 @@ import type { Plugin } from 'postcss'
 export default {
   postcssPlugin: 'pointer',
   Rule(rule) {
-    if (!rule.selector.includes(':hover')) return
+    if (!rule.selector.includes(':')) return
 
     for (let selector of rule.selectors) {
-      if (
-        selector.includes(':hover') &&
-        !selector.includes('html.is-pointer')
-      ) {
-        rule.selector = rule.selector.replace(
-          selector,
-          ':where(html.is-pointer) ' + selector
-        )
+      if (!selector.includes('html.is-pointer')) {
+        if (selector.includes(':hover') || selector.includes(':active')) {
+          rule.selector = rule.selector.replace(
+            selector,
+            ':where(html.is-pointer) ' + selector
+          )
+        }
       }
     }
   }
