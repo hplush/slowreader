@@ -17,27 +17,29 @@
 <ThinPage title={[$t.interfaceTitle, $t.commonTitle]}>
   <Stack gap="xl">
     <Title>{$t.applicationInterface}</Title>
-    <Radio
-      label={$t.theme}
-      store={theme}
-      values={[
-        ['light', $t.themeLight, mdiWeatherSunny],
-        ['system', $t.themeSystem, mdiThemeLightDark],
-        ['dark', $t.themeDark, mdiWeatherNight]
-      ]}
-    />
-    <label>
-      <input type="checkbox" bind:checked={$useQuietCursor} />
-      {$t.quietCursor}
-    </label>
-    <label>
-      {#if $systemReducedMotion}
-        <input disabled type="checkbox" />
-        {$t.systemDisableAnimations}
-      {:else}
-        <input type="checkbox" bind:checked={$useReducedMotion} />
-        {$t.reduceMotion}
-      {/if}
-    </label>
+    <Stack gap="m">
+      <Radio
+        label={$t.theme}
+        store={theme}
+        values={[
+          ['light', $t.themeLight, mdiWeatherSunny],
+          ['system', $t.themeSystem, mdiThemeLightDark],
+          ['dark', $t.themeDark, mdiWeatherNight]
+        ]}
+      />
+      <label>
+        <input type="checkbox" bind:checked={$useQuietCursor} />
+        {$t.quietCursor}
+      </label>
+      <label>
+        {#if $systemReducedMotion}
+          <input disabled type="checkbox" />
+          {$t.systemDisableAnimations}
+        {:else}
+          <input type="checkbox" bind:checked={$useReducedMotion} />
+          {$t.reduceMotion}
+        {/if}
+      </label>
+    </Stack>
   </Stack>
 </ThinPage>

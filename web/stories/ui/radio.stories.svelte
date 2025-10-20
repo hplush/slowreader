@@ -33,6 +33,7 @@
     <Radio label="First" store={store1} {values} />
     <Radio label="Middle" store={store2} {values} />
     <Radio label="Last" store={store3} {values} />
+    <Radio label="Wide" store={store1} {values} wide />
     <Radio
       label="Long"
       store={store3}

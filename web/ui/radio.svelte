@@ -7,11 +7,13 @@
   let {
     label,
     store,
-    values
+    values,
+    wide
   }: {
     label: string
     store: WritableStore<Value>
     values: [Value, string, string][]
+    wide?: boolean
   } = $props()
 
   let id = $props.id()
@@ -24,7 +26,12 @@
   let position = $derived(values.findIndex(i => i[0] === $store))
 </script>
 
-<fieldset aria-orientation="vertical" role="radiogroup">
+<fieldset
+  class="radio"
+  class:is-wide={wide}
+  aria-orientation="vertical"
+  role="radiogroup"
+>
   <Label legend>{label}</Label>
   <div class="radio_gutter">
     <div
@@ -53,6 +60,14 @@
 
 <style>
   :global {
+    .radio {
+      width: fit-content;
+
+      &.is-wide {
+        width: stretch;
+      }
+    }
+
     .radio_gutter {
       position: relative;
       display: grid;
