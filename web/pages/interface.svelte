@@ -10,6 +10,7 @@
   import { systemReducedMotion } from '../stores/reduced-motion.ts'
   import Radio from '../ui/radio.svelte'
   import Stack from '../ui/stack.svelte'
+  import Switch from '../ui/switch.svelte'
   import ThinPage from '../ui/thin-page.svelte'
   import Title from '../ui/title.svelte'
 </script>
@@ -26,20 +27,14 @@
           ['system', $t.themeSystem, mdiThemeLightDark],
           ['dark', $t.themeDark, mdiWeatherNight]
         ]}
+        wide
       />
-      <label>
-        <input type="checkbox" bind:checked={$useQuietCursor} />
-        {$t.quietCursor}
-      </label>
-      <label>
-        {#if $systemReducedMotion}
-          <input disabled type="checkbox" />
-          {$t.systemDisableAnimations}
-        {:else}
-          <input type="checkbox" bind:checked={$useReducedMotion} />
-          {$t.reduceMotion}
-        {/if}
-      </label>
+      <Switch label={$t.usePointer} reverseStore={useQuietCursor} />
+      {#if $systemReducedMotion}
+        <Switch disabled label={$t.systemDisabledAnimations} />
+      {:else}
+        <Switch label={$t.useAnimations} reverseStore={useReducedMotion} />
+      {/if}
     </Stack>
   </Stack>
 </ThinPage>
