@@ -10,7 +10,7 @@ import {
 import { focusGroupKeyUX, jumpKeyUX, pressKeyUX, startKeyUX } from 'keyux'
 
 import { locale } from '../stores/locale.ts'
-import { pageTheme } from '../stores/page-theme.ts'
+import { pageTheme } from '../stores/media-queries.ts'
 
 let root = document.documentElement
 let themeTag = document.querySelector('meta[name="theme-color"]')

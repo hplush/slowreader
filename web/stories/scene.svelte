@@ -22,7 +22,7 @@
   import { cleanStores } from 'nanostores'
   import { onDestroy, type Snippet } from 'svelte'
 
-  import { systemReducedMotion } from '../stores/reduced-motion.ts'
+  import { systemReducedMotion } from '../stores/media-queries.ts'
   import {
     baseRouter,
     type PreparedResponse,

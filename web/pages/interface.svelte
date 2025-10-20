@@ -7,7 +7,7 @@
     useReducedMotion
   } from '@slowreader/core'
 
-  import { systemReducedMotion } from '../stores/reduced-motion.ts'
+  import { systemReducedMotion } from '../stores/media-queries.ts'
   import Radio from '../ui/radio.svelte'
   import Stack from '../ui/stack.svelte'
   import Switch from '../ui/switch.svelte'

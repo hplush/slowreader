@@ -12,7 +12,7 @@ import {
 } from '@slowreader/core'
 
 import { locale } from '../stores/locale.ts'
-import { mobileMedia } from '../stores/mobile.ts'
+import { mobileMedia } from '../stores/media-queries.ts'
 import { openRoute, urlRouter } from '../stores/url-router.ts'
 
 let server = location.hostname
