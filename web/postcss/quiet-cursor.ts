@@ -1,5 +1,5 @@
 // PostCSS plugin to disable all :hover and :active styles
-// on html.is-quiet-cursor.
+// on html.is-quiet-cursor and :hover on html.is-only-touch.
 
 import type { Plugin } from 'postcss'
 
@@ -12,7 +12,13 @@ export default {
     let changed = false
     for (let selector of rule.selectors) {
       if (!selector.includes('.is-quiet-cursor')) {
-        if (selector.includes(':active') || selector.includes(':hover')) {
+        if (selector.includes(':hover')) {
+          fixed.push(
+            ':where(html:not(.is-quiet-cursor, .is-only-touch)) ' + selector
+          )
+          changed = true
+          continue
+        } else if (selector.includes(':active')) {
           fixed.push(':where(html:not(.is-quiet-cursor)) ' + selector)
           changed = true
           continue

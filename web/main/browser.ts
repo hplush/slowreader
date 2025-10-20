@@ -10,7 +10,7 @@ import {
 import { focusGroupKeyUX, jumpKeyUX, pressKeyUX, startKeyUX } from 'keyux'
 
 import { locale } from '../stores/locale.ts'
-import { pageTheme } from '../stores/media-queries.ts'
+import { onlyTouch, pageTheme } from '../stores/media-queries.ts'
 
 let root = document.documentElement
 let themeTag = document.querySelector('meta[name="theme-color"]')
@@ -54,6 +54,10 @@ useQuietCursor.subscribe(quiet => {
 
 useReducedMotion.subscribe(reduced => {
   root.classList.toggle('is-reduced-motion', reduced)
+})
+
+onlyTouch.subscribe(touch => {
+  root.classList.toggle('is-only-touch', touch)
 })
 
 locale.subscribe(lang => {
