@@ -11,6 +11,7 @@ forceLegacyDeploy: true
 
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
+  - '@nanostores/media-query'
   - '@nanostores/persistent'
   - 'postcss-smooth-shadow'
 
