@@ -53,7 +53,7 @@
 <Story name="Reduced Motion" asChild>
   <Scene
     oninit={() => {
-      useReducedMotion.set(false)
+      useReducedMotion.set(true)
     }}
   >
     <Loader />
