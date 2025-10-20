@@ -8,15 +8,18 @@ export default {
   Rule(rule) {
     if (!rule.selector.includes(':')) return
 
+    let fixed = []
+    let changed = false
     for (let selector of rule.selectors) {
       if (!selector.includes('.is-quiet-cursor')) {
         if (selector.includes(':active') || selector.includes(':hover')) {
-          rule.selector = rule.selector.replace(
-            selector,
-            ':where(html:not(.is-quiet-cursor)) ' + selector
-          )
+          fixed.push(':where(html:not(.is-quiet-cursor)) ' + selector)
+          changed = true
+          continue
         }
       }
+      fixed.push(selector)
     }
+    if (changed) rule.selector = fixed.join(',')
   }
 } satisfies Plugin
