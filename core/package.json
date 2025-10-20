@@ -20,7 +20,7 @@
     "@logux/client": "0.22.1",
     "@logux/core": "0.10.0",
     "@nanostores/i18n": "1.2.2",
-    "@nanostores/persistent": "1.1.0",
+    "@nanostores/persistent": "1.2.0",
     "@slowreader/api": "workspace:*",
     "@slowreader/server": "workspace:*",
     "dompurify": "3.3.0",

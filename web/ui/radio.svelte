@@ -131,7 +131,7 @@
         outline-offset: 0;
       }
 
-      html.is-pointer & {
+      html:not(.is-quiet-cursor) & {
         cursor: pointer;
       }
     }

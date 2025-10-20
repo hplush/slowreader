@@ -1,9 +1,13 @@
 <script lang="ts">
   import { mdiThemeLightDark, mdiWeatherNight, mdiWeatherSunny } from '@mdi/js'
-  import { settingsMessages as t, theme, useAnimations } from '@slowreader/core'
+  import {
+    settingsMessages as t,
+    theme,
+    useQuietCursor,
+    useReducedMotion
+  } from '@slowreader/core'
 
-  import { systemReducedMotion } from '../stores/animations.ts'
-  import { usePointer } from '../stores/pointer.ts'
+  import { systemReducedMotion } from '../stores/reduced-motion.ts'
   import Radio from '../ui/radio.svelte'
   import Stack from '../ui/stack.svelte'
   import ThinPage from '../ui/thin-page.svelte'
@@ -23,16 +27,16 @@
       ]}
     />
     <label>
-      <input type="checkbox" bind:checked={$usePointer} />
-      {$t.useCursorPointer}
+      <input type="checkbox" bind:checked={$useQuietCursor} />
+      {$t.quietCursor}
     </label>
     <label>
       {#if $systemReducedMotion}
         <input disabled type="checkbox" />
         {$t.systemDisableAnimations}
       {:else}
-        <input type="checkbox" bind:checked={$useAnimations} />
-        {$t.useAnimations}
+        <input type="checkbox" bind:checked={$useReducedMotion} />
+        {$t.reduceMotion}
       {/if}
     </label>
   </Stack>

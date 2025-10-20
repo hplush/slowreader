@@ -15,14 +15,14 @@
     stopRefreshing,
     syncStatus,
     theme,
-    useAnimations,
-    useCredentials
+    useCredentials,
+    useReducedMotion
   } from '@slowreader/core'
   import { addHashToBaseRoute, testCredentials } from '@slowreader/core/test'
   import { cleanStores } from 'nanostores'
   import { onDestroy, type Snippet } from 'svelte'
 
-  import { systemReducedMotion } from '../stores/animations.ts'
+  import { systemReducedMotion } from '../stores/reduced-motion.ts'
   import {
     baseRouter,
     type PreparedResponse,
@@ -103,7 +103,7 @@
     unbindSyncStatus()
     baseRouter.set({ hash: '', params: {}, route: 'slow' })
     cleanLogux()
-    useAnimations.set(true)
+    useReducedMotion.set(false)
     // @ts-expect-error Hack for tests
     systemReducedMotion.set(false)
   })

@@ -134,7 +134,12 @@ test('export state JSON', async () => {
         url: 'http://example.com/1'
       }
     ],
-    settings: { preloadImages: 'always', theme: 'system' }
+    settings: {
+      preloadImages: 'always',
+      theme: 'system',
+      useQuietCursor: false,
+      useReducedMotion: false
+    }
   })
 })
 

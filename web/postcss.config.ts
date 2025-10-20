@@ -5,8 +5,9 @@ import mixins from 'postcss-mixins'
 import shadows from 'postcss-smooth-shadow'
 
 import htmlKeeper from './postcss/html-keeper.ts'
-import pointer from './postcss/pointer.ts'
 import pseudoClasses from './postcss/pseudo-classes.ts'
+import quietCursor from './postcss/quiet-cursor.ts'
+import reducedMotion from './postcss/reduced-motion.ts'
 import themeClasses from './postcss/theme-classes.ts'
 import tuneColor from './postcss/tune-color.ts'
 
@@ -16,7 +17,8 @@ export default {
     themeClasses,
     pseudoClasses,
     tuneColor,
-    pointer,
+    quietCursor,
+    reducedMotion,
     shadows(),
     autoprefixer(),
     mixins({

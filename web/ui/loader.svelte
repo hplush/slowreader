@@ -39,7 +39,7 @@
       --loader-bar: oklch(1 0 0);
     }
 
-    html.is-reduced-motion {
+    @media (prefers-reduced-motion: reduce) {
       .loader {
         background: repeating-linear-gradient(
           -45deg,

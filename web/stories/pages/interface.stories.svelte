@@ -2,7 +2,7 @@
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import InterfacePage from '../../pages/interface.svelte'
-  import { systemReducedMotion } from '../../stores/animations.ts'
+  import { systemReducedMotion } from '../../stores/reduced-motion.ts'
   import Scene from '../scene.svelte'
 
   let { Story } = defineMeta({

@@ -1,20 +1,5 @@
-import { persistentAtom } from '@nanostores/persistent'
-import type { StoreValue, WritableAtom } from 'nanostores'
-
-export function persistentBoolean(
-  key: string,
-  initial: boolean
-): WritableAtom<boolean> {
-  return persistentAtom(key, initial, {
-    /* node:coverage ignore next 6 */
-    decode(str) {
-      return str === 'yes'
-    },
-    encode(value) {
-      return value ? 'yes' : undefined
-    }
-  })
-}
+import { persistentAtom, persistentBoolean } from '@nanostores/persistent'
+import type { StoreValue } from 'nanostores'
 
 export const userId = persistentAtom<string | undefined>('slowreader:userId')
 
@@ -26,7 +11,7 @@ export const syncServer = persistentAtom<string | undefined>(
   'slowreader:server'
 )
 
-export const hasPassword = persistentBoolean('slowreader:has-password', false)
+export const hasPassword = persistentBoolean('slowreader:has-password')
 
 export type Theme = 'dark' | 'light' | 'system'
 
@@ -40,9 +25,13 @@ export const preloadImages = persistentAtom<'always' | 'free' | 'never'>(
   'always'
 )
 
-export const useAnimations = persistentBoolean('slowreader:animations', true)
+export const useReducedMotion = persistentBoolean('slowreader:reduced-motion')
+
+export const useQuietCursor = persistentBoolean('slowreader:quiet-cursor')
 
 export interface Settings {
   preloadImages: StoreValue<typeof preloadImages>
   theme: StoreValue<typeof theme>
+  useQuietCursor: StoreValue<typeof useQuietCursor>
+  useReducedMotion: StoreValue<typeof useReducedMotion>
 }

@@ -11,7 +11,7 @@
 </script>
 
 <script lang="ts">
-  import { useAnimations } from '@slowreader/core'
+  import { useReducedMotion } from '@slowreader/core'
   import { onMount } from 'svelte'
 
   import Scene from '../scene.svelte'
@@ -53,7 +53,7 @@
 <Story name="Reduced Motion" asChild>
   <Scene
     oninit={() => {
-      useAnimations.set(false)
+      useReducedMotion.set(false)
     }}
   >
     <Loader />

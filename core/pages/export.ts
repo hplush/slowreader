@@ -10,7 +10,13 @@ import {
 import { type FeedValue, getFeeds } from '../feed.ts'
 import { type FilterValue, getFilters } from '../filter.ts'
 import { getPosts, type PostValue } from '../post.ts'
-import { preloadImages, type Settings, theme } from '../settings.ts'
+import {
+  preloadImages,
+  type Settings,
+  theme,
+  useQuietCursor,
+  useReducedMotion
+} from '../settings.ts'
 import { createPage } from './common.ts'
 
 export interface StateExport {
@@ -107,7 +113,9 @@ export const exportPage = createPage('export', () => {
       posts: await loadList(getPosts()),
       settings: {
         preloadImages: preloadImages.get(),
-        theme: theme.get()
+        theme: theme.get(),
+        useQuietCursor: useQuietCursor.get(),
+        useReducedMotion: useReducedMotion.get()
       }
     } satisfies StateExport
 

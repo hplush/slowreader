@@ -36,7 +36,7 @@ input {
   font: var(--text-font);
 }
 
-html.is-pointer {
+html:not(.is-quiet-cursor) {
   a,
   select:not(:disabled),
   button:not(:disabled),
@@ -45,7 +45,7 @@ html.is-pointer {
   }
 }
 
-html:not(.is-pointer) {
+html.is-quiet-cursor {
   a {
     cursor: default;
   }
@@ -87,7 +87,7 @@ code {
   font: var(--mono-font);
 }
 
-html.is-reduced-motion {
+@media (prefers-reduced-motion: reduce) {
   * {
     transition-duration: 0.001ms !important;
     animation-duration: 0.001ms !important;

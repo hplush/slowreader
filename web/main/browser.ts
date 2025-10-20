@@ -1,12 +1,16 @@
 // Bind browser’s API to client core API.
 
-import { comfortMode, errorMode, theme } from '@slowreader/core'
+import {
+  comfortMode,
+  errorMode,
+  theme,
+  useQuietCursor,
+  useReducedMotion
+} from '@slowreader/core'
 import { focusGroupKeyUX, jumpKeyUX, pressKeyUX, startKeyUX } from 'keyux'
 
-import { reducedMotion } from '../stores/animations.ts'
 import { locale } from '../stores/locale.ts'
 import { pageTheme } from '../stores/page-theme.ts'
-import { detectPointer } from '../stores/pointer.ts'
 
 let root = document.documentElement
 let themeTag = document.querySelector('meta[name="theme-color"]')
@@ -44,11 +48,11 @@ pageTheme.listen(() => {
   updateTheme()
 })
 
-detectPointer.subscribe(pointer => {
-  root.classList.toggle('is-pointer', pointer)
+useQuietCursor.subscribe(quiet => {
+  root.classList.toggle('is-quiet-cursor', quiet)
 })
 
-reducedMotion.subscribe(reduced => {
+useReducedMotion.subscribe(reduced => {
   root.classList.toggle('is-reduced-motion', reduced)
 })
 
