@@ -32,11 +32,7 @@ function isAtRule(node: Node): node is AtRule {
   return node.type === 'atrule'
 }
 
-export function cloneToRule(
-  atrule: AtRule,
-  selector: string,
-  helpers: Helpers
-): void {
+function cloneToRule(atrule: AtRule, selector: string, helpers: Helpers): void {
   if (!atrule.parent) return
   let copy: Container | Node[]
   if (
