@@ -124,7 +124,7 @@
       height: 100%;
       padding: 0.4rem var(--control-padding);
       font: var(--control-font);
-      word-break: break-all;
+      overflow-wrap: anywhere;
 
       .radio_label:not(:has(:checked)):active & {
         translate: 0 1px;

@@ -236,7 +236,7 @@
 
     .button_text {
       flex-shrink: 1;
-      word-break: break-all;
+      overflow-wrap: anywhere;
     }
 
     .button_loader {
