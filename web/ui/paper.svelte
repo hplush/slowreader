@@ -3,7 +3,7 @@
 </script>
 
 <div class="paper">
-  <div class=" is-light-theme">
+  <div class="is-light-theme">
     {#each lines as line, index (index)}
       <input
         class="paper_line"
