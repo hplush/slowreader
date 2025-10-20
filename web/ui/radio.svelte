@@ -59,24 +59,24 @@
       grid-auto-columns: 1fr;
       grid-auto-flow: column;
       background: --tune-background(--gutter);
-      border-radius: calc(var(--base-radius) + 0.125rem);
+      border-radius: calc(var(--base-radius) + var(--slider-padding));
       box-shadow: var(--gutter-shadow);
       corner-shape: squircle;
     }
 
     .radio_slider {
       position: absolute;
-      inset-inline-start: calc(0.125rem + var(--radio-position));
-      top: 0.125rem;
-      bottom: 0.125rem;
+      inset-inline-start: calc(var(--slider-padding) + var(--radio-position));
+      top: var(--slider-padding);
+      bottom: var(--slider-padding);
       z-index: 2;
-      width: calc(var(--radio-width) - 0.25rem);
+      width: calc(var(--radio-width) - 2 * var(--slider-padding));
       background: --tune-background(--current);
       border-radius: var(--base-radius);
       box-shadow: var(--slider-shadow);
       transition:
-        left 150ms,
-        width 150ms;
+        left var(--control-animation),
+        width var(--control-animation);
       corner-shape: squircle;
     }
 

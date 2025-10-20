@@ -245,30 +245,32 @@
       inset: -0;
       z-index: 1;
       background: --tune-background(--gutter);
-      border-radius: calc(var(--base-radius) + 0.125rem);
+      border-radius: calc(var(--base-radius) + var(--slider-padding));
       box-shadow: var(--gutter-shadow);
-      transition: right 150ms;
+      transition: right var(--control-animation);
       corner-shape: squircle;
 
       .navbar.is-other & {
-        inset-inline-end: calc(-0.125rem - var(--control-height));
+        inset-inline-end: calc(
+          -1 * var(--slider-padding) - var(--control-height)
+        );
       }
     }
 
     .navbar_slider {
       position: absolute;
-      inset-inline-start: 0.125rem;
-      top: 0.125rem;
-      bottom: 0.125rem;
+      inset-inline-start: var(--slider-padding);
+      top: var(--slider-padding);
+      bottom: var(--slider-padding);
       z-index: 2;
       display: none;
-      width: calc(50% - 0.25rem);
+      width: calc(50% - 2 * var(--slider-padding));
       background: --tune-background(--current);
       border-radius: var(--base-radius);
       box-shadow: var(--slider-shadow);
       transition:
-        left 150ms,
-        width 150ms;
+        left var(--control-animation),
+        width var(--control-animation);
       corner-shape: squircle;
 
       .navbar.is-slow & {
@@ -276,14 +278,14 @@
       }
 
       .navbar.is-fast & {
-        inset-inline-start: calc(50% + 0.125rem);
+        inset-inline-start: calc(50% + var(--slider-padding));
         display: block;
       }
 
       .navbar.is-other & {
-        inset-inline-start: calc(100% + 0.25rem);
+        inset-inline-start: calc(100% + 2 * var(--slider-padding));
         display: block;
-        width: calc(var(--control-height) - 0.25rem);
+        width: calc(var(--control-height) - 2 * var(--slider-padding));
       }
     }
 

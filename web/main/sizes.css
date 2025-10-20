@@ -1,9 +1,11 @@
 :root {
+  --control-animation: 150ms;
   --base-radius: 0.375rem;
   --thin-content-width: 19rem;
   --control-height: 2rem;
   --control-gap: 0.4rem;
   --control-padding: 0.75rem;
+  --slider-padding: 0.125rem;
 
   @supports (corner-shape: squircle) {
     --base-radius: 0.65rem;
