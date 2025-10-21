@@ -173,6 +173,7 @@
         :root.has-navbar & {
           background: var(--main-land-color);
 
+          /* For Safari */
           @supports (-webkit-touch-callout: none) {
             background: var(--land-color);
           }
