@@ -248,7 +248,7 @@
       background: --tune-background(--gutter);
       border-radius: calc(var(--base-radius) + var(--slider-padding));
       box-shadow: var(--gutter-shadow);
-      transition: right var(--control-animation);
+      transition: right var(--simple-time) var(--slide-easing);
       corner-shape: squircle;
 
       .navbar.is-other & {
@@ -270,8 +270,8 @@
       border-radius: var(--base-radius);
       box-shadow: var(--button-shadow);
       transition:
-        left var(--control-animation),
-        width var(--control-animation);
+        left var(--simple-time) var(--slide-easing),
+        width var(--simple-time) var(--slide-easing);
       corner-shape: squircle;
 
       .navbar.is-slow & {
@@ -308,9 +308,7 @@
         max-height: 0;
         margin-inline-end: 0;
         overflow: hidden;
-        transition:
-          max-height 300ms cubic-bezier(0.11, 0, 0.5, 0),
-          padding-block 300ms cubic-bezier(0.11, 0, 0.5, 0);
+        transition: max-height var(--big-open-time) var(--slide-easing);
 
         &:not(.is-opened) {
           padding-block: 0;
@@ -319,9 +317,7 @@
         &.is-opened {
           max-height: calc(100vh - var(--control-height) - 0.5rem);
           overflow: auto;
-          transition:
-            max-height 500ms cubic-bezier(0.5, 1, 0.89, 1),
-            padding-block 500ms cubic-bezier(0.5, 1, 0.89, 1);
+          transition-duration: var(--big-close-time);
         }
 
         &:empty {

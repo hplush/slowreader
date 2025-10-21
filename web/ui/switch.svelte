@@ -89,8 +89,8 @@
         outline: 3px solid var(--focus-color);
         outline-offset: 2px;
         transition:
-          outline-width 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
-          outline-offset 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+          outline-width var(--simple-time) var(--pop-easing),
+          outline-offset var(--simple-time) var(--pop-easing);
       }
     }
 
@@ -152,7 +152,7 @@
       border-radius: var(--base-radius);
       box-shadow: var(--button-shadow);
       translate: 0 0;
-      transition: translate var(--control-animation);
+      transition: translate var(--simple-time) var(--click-easing);
       corner-shape: squircle;
 
       .switch_input:disabled + .switch_gutter & {
@@ -172,7 +172,7 @@
       width: 200%;
       height: 100%;
       translate: 0 0;
-      transition: translate var(--control-animation);
+      transition: translate var(--simple-time) var(--click-easing);
 
       .switch_input:checked + .switch_gutter & {
         translate: -50% 0;

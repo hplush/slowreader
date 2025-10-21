@@ -111,7 +111,7 @@
 
     .navbar-category_icon {
       opacity: 50%;
-      transition: rotate var(--control-animation);
+      transition: rotate var(--simple-time);
 
       .navbar-category.is-closed & {
         rotate: -90deg;

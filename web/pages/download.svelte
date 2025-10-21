@@ -17,6 +17,7 @@
         ['free', $t.preloadFree, mdiWifi],
         ['never', $t.preloadNever, mdiGaugeLow]
       ]}
+      wide
     />
   </Stack>
 </ThinPage>

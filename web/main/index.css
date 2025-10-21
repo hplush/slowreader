@@ -2,6 +2,7 @@
 @import url('./colors.css');
 @import url('./fonts.css');
 @import url('./sizes.css');
+@import url('./animations.css');
 
 :root {
   --theme-color: var(--land-color);
@@ -56,8 +57,8 @@ html.is-quiet-cursor {
   outline: 3px solid var(--focus-color);
   outline-offset: 2px;
   transition:
-    outline-width 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
-    outline-offset 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    outline-width var(--simple-time) var(--pop-easing),
+    outline-offset var(--simple-time) var(--pop-easing);
 }
 
 :focus-visible:active:not([aria-disabled='true']) {

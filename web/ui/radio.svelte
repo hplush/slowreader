@@ -90,8 +90,8 @@
       border-radius: var(--base-radius);
       box-shadow: var(--button-shadow);
       transition:
-        left var(--control-animation),
-        width var(--control-animation);
+        left var(--simple-time) var(--slide-easing),
+        width var(--simple-time) var(--slide-easing);
       corner-shape: squircle;
     }
 
