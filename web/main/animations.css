@@ -1,5 +1,6 @@
 :root {
   --simple-time: 150ms;
+  --focus-time: 300ms;
   --big-open-time: 300ms;
   --big-close-time: 500ms;
   --slide-easing: cubic-bezier(0.32, 0, 0.67, 0);

@@ -89,8 +89,8 @@
         outline: 3px solid var(--focus-color);
         outline-offset: 2px;
         transition:
-          outline-width var(--simple-time) var(--pop-easing),
-          outline-offset var(--simple-time) var(--pop-easing);
+          outline-width var(--focus-time) var(--pop-easing),
+          outline-offset var(--focus-time) var(--pop-easing);
       }
     }
 
