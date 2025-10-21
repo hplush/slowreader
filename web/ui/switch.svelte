@@ -150,7 +150,7 @@
       overflow: hidden;
       background: --tune-background(--current);
       border-radius: var(--base-radius);
-      box-shadow: var(--slider-shadow);
+      box-shadow: var(--button-shadow);
       translate: 0 0;
       transition: translate var(--control-animation);
       corner-shape: squircle;

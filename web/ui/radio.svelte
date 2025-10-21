@@ -88,7 +88,7 @@
       width: calc(var(--radio-width) - 2 * var(--slider-padding));
       background: --tune-background(--current);
       border-radius: var(--base-radius);
-      box-shadow: var(--slider-shadow);
+      box-shadow: var(--button-shadow);
       transition:
         left var(--control-animation),
         width var(--control-animation);
