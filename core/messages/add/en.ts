@@ -3,14 +3,14 @@ import { i18n } from '../../i18n.ts'
 export const addMessages = i18n('add', {
   add: 'Subscribe to feed',
   edit: 'Edit',
-  invalidUrl: 'URL has an mistake, please check it',
+  invalidUrl: 'There seems to be a mistake in the URL. Please check it.',
   noResults:
-    'Feeds were not found on this website.\n\n' +
-    'Please check URL and [open an issue] if it’s correct.',
+    'No feeds were found on this website.\n\n' +
+    'Please check the URL or [open an issue] if it looks correct.',
   searchGuide:
-    'For now we support RSS, Atom and JSON Feed feeds.\n\n' +
-    'Social networks are coming soon, but you can use RSS wrappers for them.',
-  title: 'Add',
+    'Currently, Slow Reader supports RSS, Atom, and JSON Feed formats.\n\n' +
+    'Support for social networks is coming soon, but you can already use RSS wrappers for them.',
+  title: 'Add feed',
   unloadable: 'Can’t open this website',
-  urlLabel: 'Web page URL or social account handle'
+  urlLabel: 'Web page URL or social media handle'
 })

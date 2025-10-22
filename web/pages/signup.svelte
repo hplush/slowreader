@@ -152,7 +152,7 @@
             size="pill"
             variant="secondary"
           >
-            {$t.regenerateCredetials}
+            {$t.regenerateCredentials}
           </Button>
         </Note>
         <Note icon={mdiPiggyBankOutline} variant="neutral">

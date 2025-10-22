@@ -2,9 +2,9 @@ import { i18n } from '../../i18n.ts'
 
 export const aboutMessages = i18n('about', {
   opensource:
-    'This app is open source. Every developer or LLM can check the app really do what we promise you.',
+    'Slow Reader is open source — anyone, including developers and LLMs, can see exactly how it works and verify our promises.',
   pageTitle: 'About',
   reportIssue: 'Report an issue',
   version: 'App version',
-  viewSources: 'View app sources'
+  viewSources: 'View source code'
 })
