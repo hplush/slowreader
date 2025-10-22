@@ -9,9 +9,9 @@ export const authMessages = i18n('auth', {
   email: params(
     '// Send this email to yourself\n// If you forget your password, you can search for it later here\n\nUser ID: {user}\nSecret: {secret}'
   ),
-  localDescription1: 'Slow Reader works right on your device. No account needed.',
-  localDescription2:
-    'You can create an account later to sync across devices.',
+  localDescription1:
+    'Slow Reader works right on your device. No account needed.',
+  localDescription2: 'You can create an account later to sync across devices.',
   login: 'Log in',
   newUser: 'Get started locally',
   noRecoveryDesc:

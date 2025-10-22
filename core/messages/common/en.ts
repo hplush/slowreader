@@ -11,6 +11,7 @@ export const commonMessages = i18n('common', {
   invalidUrl: 'This doesn’t look like a valid web address',
   invalidUserId: 'User ID must contain 16 digits',
   loading: 'Loading…',
-  networkError: 'Can’t reach the server. Please check your internet connection.',
+  networkError:
+    'Can’t reach the server. Please check your internet connection.',
   openPost: 'Open post'
 })

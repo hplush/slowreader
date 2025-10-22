@@ -4,7 +4,8 @@ export const profileMessages = i18n('profile', {
   createAccount: 'Create cloud account',
   dangerousTitle: 'Dangerous action',
   deleteAccount: 'Delete your data from the cloud',
-  deleteWarning: 'This action cannot be undone. Are you sure you want to delete your data?',
+  deleteWarning:
+    'This action cannot be undone. Are you sure you want to delete your data?',
   exit: 'Sign out on this device',
   exitNoCloud: 'Delete all local data',
   exitWaitSync: 'Delete unsaved data and sign out',

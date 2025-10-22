@@ -5,7 +5,8 @@ export const settingsMessages = i18n('settings', {
   applicationInterface: 'Application',
   commonTitle: 'Settings',
   deleteProfile: 'Delete all data',
-  deleteProfileConfirm: 'This action cannot be undone. Are you sure you want to delete all data?',
+  deleteProfileConfirm:
+    'This action cannot be undone. Are you sure you want to delete all data?',
   downloadTitle: 'Feed loading',
   interfaceTitle: 'Interface',
   preloadAlways: 'Always',
