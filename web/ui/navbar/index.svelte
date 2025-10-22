@@ -207,14 +207,14 @@
       display: flex;
       gap: 0.125rem;
       justify-content: stretch;
-      padding: 0.25rem 0 0 0.125rem;
+      padding: var(--navbar-padding) 0 var(--navbar-padding) 0.125rem;
 
       @media (--no-desktop) {
         justify-content: space-between;
         width: calc(var(--thin-content-width) + 2 * var(--page-padding));
         max-width: 100%;
         height: var(--navbar-height);
-        padding: 0.5rem var(--page-padding);
+        padding-inline: var(--page-padding);
       }
     }
 
