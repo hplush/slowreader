@@ -4,7 +4,7 @@ export const commonMessages = i18n('common', {
   brokenCategory: 'Broken category',
   empty: 'The value is required',
   generalCategory: 'General',
-  internalError: 'Something went wrong. Please try again later while we fix it.',
+  internalError: 'The app crashed. Please try again later while we fix it.',
   invalidCredentials: 'No user found with this User ID and password',
   invalidSecret: 'Secret must contain two words of 10 characters each',
   invalidServer: 'This doesn’t look like a valid domain',
