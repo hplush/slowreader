@@ -181,13 +181,13 @@ test('reports about bad connection', async () => {
 
   await page.submit()
   equal(page.signingUp.get(), false)
-  match(page.error.get()!, /network/)
+  match(page.error.get()!, /connection/)
 
   page.showCustomServer()
   equal(page.error.get(), undefined)
 
   await page.submit()
-  match(page.error.get()!, /network/)
+  match(page.error.get()!, /connection/)
 
   page.regenerate()
   equal(page.error.get(), undefined)

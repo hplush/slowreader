@@ -82,7 +82,7 @@ test('reports about wrong credentials', async () => {
 
   await promise
   equal(page.signingIn.get(), false)
-  match(page.signError.get()!, /user ID and\spassword/)
+  match(page.signError.get()!, /User ID and\spassword/)
 
   page.userId.set('1234567890')
   equal(typeof page.signError.get(), 'undefined')
@@ -104,7 +104,7 @@ test('reports about bad connection', async () => {
 
   await page.signIn()
   equal(page.signingIn.get(), false)
-  match(page.signError.get()!, /network/)
+  match(page.signError.get()!, /connection/)
 })
 
 test('reports about server errors', async () => {
