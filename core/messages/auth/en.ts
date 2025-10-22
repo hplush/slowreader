@@ -15,7 +15,7 @@ export const authMessages = i18n('auth', {
   login: 'Log in',
   newUser: 'Get started locally',
   noRecoveryDesc:
-    'Slow Reader uses end-to-end encryption. If you lose your password, no one will be able to decrypt your data.',
+    'Slow Reader uses end-to-end encryption. If you lose your password, no one will be able to decrypt your data.',
   noRecoveryTitle: 'No password recovery',
   oldUser: 'Sign in to your account',
   payWarning:
