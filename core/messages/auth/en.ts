@@ -12,12 +12,12 @@ export const authMessages = i18n('auth', {
   localDescription1: 'Slow Reader works locally.',
   localDescription2:
     'You can create account later when you will need cross-device sync.',
-  login: 'Login into existed account',
+  login: 'Login into existing account',
   newUser: 'New user',
   noRecoveryDesc:
     'The app uses end-to-end encryption. But if you will lose your password, nobody will be able to decrypt it.',
   noRecoveryTitle: 'We don’t have password recovery',
-  oldUser: 'Existed user',
+  oldUser: 'Existing user',
   payWarning:
     'After the beta we will fund development by small monthly subscription for using server. Self-hosted solution will be free.',
   randomNote:
