@@ -32,7 +32,7 @@
     onescape?: () => void
     oninput?: (v: string, valid: boolean) => void
     validate?: Validator | Validator[]
-  } & HTMLInputAttributes = $props()
+  } & Omit<HTMLInputAttributes, 'onchange'> = $props()
 
   let id = $props.id()
   let inputError = $state<string | undefined>(error)
