@@ -9,7 +9,7 @@ export const settingsMessages = i18n('settings', {
   downloadTitle: 'Feed loading',
   interfaceTitle: 'Interface',
   preloadAlways: 'Always',
-  preloadFree: 'Wi-Fi only',
+  preloadFree: 'Wi-Fi',
   preloadImages: 'Preload post images',
   preloadNever: 'Never',
   profile: 'Profile',
