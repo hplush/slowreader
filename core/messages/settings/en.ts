@@ -17,7 +17,7 @@ export const settingsMessages = i18n('settings', {
   theme: 'Theme',
   themeDark: 'Dark',
   themeLight: 'Light',
-  themeSystem: 'System default',
+  themeSystem: 'System',
   useAnimations: 'Enable animations',
   usePointer: 'Enable cursor effects'
 })
