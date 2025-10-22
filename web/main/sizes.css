@@ -28,5 +28,5 @@
 @custom-media --tablet (width <= 64rem) and (width > 40rem);
 @custom-media --mobile (width <= 40rem);
 @custom-media --no-mobile (width > 40rem);
+@custom-media --bigger-font ((width <= 410px) and (width > 380px)) or ((width > 1600px) and (width <= 1700px));
 @custom-media --biggest-font (width <= 640px) and (width > 410px);
-@custom-media --bigger-font (width <= 410px) and (width > 380px);
