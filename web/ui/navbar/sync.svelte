@@ -69,7 +69,7 @@
     .navbar-sync {
       padding: 0 0.375rem;
 
-      @media (width <= 64rem) {
+      @media (--no-desktop) {
         display: none;
       }
     }

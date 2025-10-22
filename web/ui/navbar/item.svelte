@@ -84,20 +84,20 @@
         box-shadow: var(--current-shadow);
       }
 
-      @media (width > 64rem) {
+      @media (--desktop) {
         &:active:not([aria-current='page']) {
           box-shadow: var(--pressed-shadow);
         }
       }
 
-      @media (width <= 64rem) {
+      @media (--no-desktop) {
         &:active {
           background: --tune-background(--flat-button);
           box-shadow: var(--pressed-shadow);
         }
       }
 
-      @media (width > 64rem) {
+      @media (--desktop) {
         &[aria-current='page'] {
           cursor: default;
         }
@@ -117,7 +117,7 @@
         translate: 0 1px;
       }
 
-      @media (width <= 64rem) {
+      @media (--no-desktop) {
         .navbar-item:active & {
           translate: 0 1px;
         }

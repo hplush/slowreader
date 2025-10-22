@@ -74,7 +74,7 @@
     .navbar-category {
       padding-top: 0.125rem;
 
-      @media (width <= 64rem) {
+      @media (--no-desktop) {
         &:first-child {
           padding-top: 0;
         }

@@ -76,13 +76,13 @@
         cursor: default;
       }
 
-      @media (width > 64rem) {
+      @media (--desktop) {
         &:active:not([aria-current='page']) {
           box-shadow: var(--pressed-shadow);
         }
       }
 
-      @media (width <= 64rem) {
+      @media (--no-desktop) {
         &:not([aria-current='page']):active {
           box-shadow: var(--pressed-shadow);
         }
@@ -107,13 +107,13 @@
       justify-content: center;
       height: var(--control-height);
 
-      @media (width > 64rem) {
+      @media (--desktop) {
         .navbar-button:active:not([aria-current='page']) & {
           translate: 0 1px;
         }
       }
 
-      @media (width <= 64rem) {
+      @media (--no-desktop) {
         .navbar-button:active & {
           translate: 0 1px;
         }

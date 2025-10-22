@@ -42,7 +42,7 @@
         align-items: center;
       }
 
-      @media (width <= 41rem) {
+      @media (--mobile) {
         &:not(.is-no-bottom) {
           align-items: flex-end;
         }

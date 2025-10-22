@@ -11,3 +11,11 @@
     --base-radius: 0.65rem;
   }
 }
+
+@custom-media --desktop (width > 64rem);
+@custom-media --no-desktop (width <= 64rem);
+@custom-media --tablet (width <= 64rem) and (width > 40rem);
+@custom-media --mobile (width <= 40rem);
+@custom-media --no-mobile (width > 40rem);
+@custom-media --biggest-font (width <= 640px) and (width > 410px);
+@custom-media --bigger-font (width <= 410px) and (width > 380px);

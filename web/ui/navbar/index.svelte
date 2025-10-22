@@ -169,7 +169,7 @@
     body {
       background: var(--land-color);
 
-      @media (width <= 64rem) {
+      @media (--no-desktop) {
         :root.has-navbar & {
           background: var(--main-land-color);
 
@@ -190,7 +190,7 @@
       flex-direction: column;
       width: var(--navbar-width);
 
-      @media (width <= 64rem) {
+      @media (--no-desktop) {
         @mixin background var(--main-land-color);
 
         inset-block: unset;
@@ -209,7 +209,7 @@
       justify-content: stretch;
       padding: 0.25rem 0 0 0.125rem;
 
-      @media (width <= 64rem) {
+      @media (--no-desktop) {
         justify-content: space-between;
         width: var(--thin-content-width);
         max-width: 100%;
@@ -220,13 +220,13 @@
     .navbar_back-button {
       display: none;
 
-      @media (width <= 64rem) {
+      @media (--no-desktop) {
         display: block;
       }
     }
 
     .navbar_refresh-button.is-hidden {
-      @media (width <= 64rem) {
+      @media (--no-desktop) {
         display: none;
       }
     }
@@ -236,7 +236,7 @@
       display: flex;
       flex-grow: 1;
 
-      @media (width <= 64rem) {
+      @media (--no-desktop) {
         max-width: 33rem;
       }
     }
@@ -302,7 +302,7 @@
       margin-inline-end: -0.5rem;
       overflow-y: auto;
 
-      @media (width <= 64rem) {
+      @media (--no-desktop) {
         order: -1;
         width: 100%;
         max-height: 0;

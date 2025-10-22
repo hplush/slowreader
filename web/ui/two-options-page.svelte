@@ -45,7 +45,7 @@
       justify-content: center;
       min-height: 100svh;
 
-      @media (width <= 41rem) {
+      @media (--mobile) {
         align-items: flex-end;
       }
     }
@@ -58,7 +58,7 @@
       justify-content: center;
       height: var(--two-options-page-height, auto);
 
-      @media (width <= 41rem) {
+      @media (--mobile) {
         flex-direction: column-reverse;
         gap: 0.5rem;
         height: auto;
@@ -70,7 +70,7 @@
       max-width: 100%;
       margin: 0.5rem 0;
 
-      @media (width <= 41rem) {
+      @media (--mobile) {
         margin: 0;
 
         &:first-child {
