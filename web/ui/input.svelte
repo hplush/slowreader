@@ -135,5 +135,9 @@
         font: var(--control-mono-font);
       }
     }
+
+    .input_field::placeholder {
+      color: var(--secondary-text-color);
+    }
   }
 </style>

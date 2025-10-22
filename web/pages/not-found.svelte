@@ -20,7 +20,7 @@
     </PageAction>
   {/if}
   <Stack center gap="xl">
-    <PageIcon extra={mdiFire} main={mdiBookOpenPageVariant} />
+    <PageIcon extra={mdiFire} path={mdiBookOpenPageVariant} />
     <Title>{$t.pageText}</Title>
   </Stack>
 </ThinPage>
