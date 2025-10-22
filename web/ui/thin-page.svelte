@@ -36,7 +36,7 @@
       align-items: flex-start;
       justify-content: center;
       min-height: 100svh;
-      padding: 0 0.5rem;
+      padding: 0 var(--page-padding);
 
       &.is-center {
         align-items: center;

@@ -198,7 +198,7 @@
         z-index: 10;
         align-items: center;
         width: 100vw;
-        padding-inline: 0.5rem;
+        padding-inline: var(--page-padding);
         box-shadow: var(--bottom-panel-shadow);
       }
     }
