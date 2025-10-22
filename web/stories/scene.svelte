@@ -1,11 +1,13 @@
 <script lang="ts">
   import {
+    addFeed,
     type BaseRoute,
     Category,
     client,
     currentPage,
     DEFAULT_REFRESH_STATISTICS,
     Feed,
+    type FeedValue,
     Filter,
     hasPassword,
     type ParamlessRouteName,
@@ -14,6 +16,7 @@
     signOut,
     stopRefreshing,
     syncStatus,
+    testFeed,
     theme,
     useCredentials,
     useReducedMotion
@@ -31,12 +34,14 @@
 
   let {
     children,
+    feeds,
     oninit = () => {},
     responses = {},
     route,
     user = true
   }: {
     children: Snippet
+    feeds?: Partial<FeedValue>[]
     oninit?: () => void
     responses?: Record<string, PreparedResponse | string>
     route?: BaseRoute | Omit<BaseRoute, 'hash'> | ParamlessRouteName
@@ -95,6 +100,10 @@
     onDestroy(() => {
       htmlObserver.disconnect()
     })
+
+    for (let feed of feeds ?? []) {
+      addFeed(testFeed(feed))
+    }
 
     oninit()
   })

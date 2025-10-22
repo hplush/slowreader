@@ -1,27 +1,53 @@
 <script lang="ts">
   import { mdiRss } from '@mdi/js'
-  import { type AddPage, addMessages as t } from '@slowreader/core'
+  import { type AddPage, router, addMessages as t } from '@slowreader/core'
 
+  import { getPopupHash } from '../stores/url-router.ts'
+  import Button from '../ui/button.svelte'
   import Input from '../ui/input.svelte'
+  import Loader from '../ui/loader.svelte'
   import Placeholder from '../ui/placeholder.svelte'
   import PopupablePage from '../ui/popupable-page.svelte'
   import Stack from '../ui/stack.svelte'
 
   let { page }: { page: AddPage } = $props()
+  let { candidates, error, noResults, searching } = page
   let { url } = page.params
+
+  let empty = $derived(!$noResults && !$searching && $url === '')
 </script>
 
 <PopupablePage title={$t.title}>
-  <Stack gap="xxxl">
+  <Stack center gap={empty ? 'xxxl' : 'xl'}>
     <Input
       label={$t.urlLabel}
       labelless
-      onchange={value => {
+      oninput={value => {
         page.inputUrl(value)
       }}
       placeholder={$t.urlLabel}
       value={$url}
     />
-    <Placeholder icon={mdiRss} text={$t.searchGuide} />
+    {#if empty}
+      <Placeholder icon={mdiRss} text={$t.searchGuide} />
+    {:else if $searching}
+      <Loader />
+    {:else if $error}
+      {$t[$error]}
+    {:else if $candidates.length === 0}
+      {$t.noResults}
+    {:else}
+      <Stack gap="s">
+        {#each $candidates as candidate (candidate.url)}
+          <Button
+            href={getPopupHash($router, 'feedUrl', candidate.url)}
+            size="wide"
+          >
+            {candidate.name}
+            {candidate.title}
+          </Button>
+        {/each}
+      </Stack>
+    {/if}
   </Stack>
 </PopupablePage>
