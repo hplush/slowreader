@@ -13,7 +13,7 @@ export const settingsMessages = i18n('settings', {
   preloadImages: 'Preload post images',
   preloadNever: 'Never',
   profile: 'Profile',
-  systemDisabledAnimations: 'Animations are disabled in system settings',
+  systemDisabledAnimations: 'Animations are disabled in system',
   theme: 'Theme',
   themeDark: 'Dark',
   themeLight: 'Light',
