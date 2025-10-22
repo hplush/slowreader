@@ -21,6 +21,10 @@
   @media (--biggest-font) {
     font-size: 125%;
   }
+
+  @media (--bigger-font) {
+    font-size: 110%;
+  }
 }
 
 * {
@@ -78,8 +82,17 @@ ol[role='list'] {
 #main {
   @mixin background var(--land-color);
 
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  min-height: 100svh;
+
   @media (--desktop) {
     padding-inline-start: var(--navbar-width);
+  }
+
+  @media (--no-desktop) {
+    padding-bottom: var(--navbar-height);
   }
 }
 

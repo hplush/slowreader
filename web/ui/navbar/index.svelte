@@ -162,7 +162,7 @@
 
     :root.has-navbar {
       --navbar-width: 16rem;
-      --navbar-height: 3.8rem;
+      --navbar-height: 3rem;
     }
 
     /* Change mobile Chrome bottom panel to fit with navbar */
@@ -198,12 +198,12 @@
         z-index: 10;
         align-items: center;
         width: 100vw;
-        padding-inline: var(--page-padding);
         box-shadow: var(--bottom-panel-shadow);
       }
     }
 
     .navbar_main {
+      box-sizing: border-box;
       display: flex;
       gap: 0.125rem;
       justify-content: stretch;
@@ -211,9 +211,10 @@
 
       @media (--no-desktop) {
         justify-content: space-between;
-        width: var(--thin-content-width);
+        width: calc(var(--thin-content-width) + 2 * var(--page-padding));
         max-width: 100%;
-        padding: 0.5rem 0;
+        height: var(--navbar-height);
+        padding: 0.5rem var(--page-padding);
       }
     }
 
@@ -308,7 +309,10 @@
         max-height: 0;
         margin-inline-end: 0;
         overflow: hidden;
-        transition: max-height var(--big-open-time) var(--slide-easing);
+        box-shadow: inset 0 -0.5px 0 oklch(0 0 0 / 30%);
+        transition:
+          max-height var(--big-open-time) var(--slide-easing),
+          padding var(--big-open-time) var(--slide-easing);
 
         &:not(.is-opened) {
           padding-block: 0;
