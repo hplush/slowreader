@@ -21,7 +21,7 @@ export const authMessages = i18n('auth', {
   payWarning:
     'After the beta, a small monthly subscription will support server development. Self-hosted use will stay free.',
   randomNote:
-    'A random user ID is used for privacy — it makes it harder to link your account to your identity.',
+    'A random user ID is used for privacy. It makes it harder to link your account to your identity.',
   regenerateCredentials: 'Regenerate credentials',
   savedPromise: 'I’ve saved my User ID and Secret',
   savePassword: 'Save your password',
