@@ -19,6 +19,7 @@
     <Input label="Base" required bind:value />
     <Input font="mono" label="Mono" required bind:value />
     <Input label="Label" placeholder="Empty" value="" />
+    <Input label="Labelless" placeholder="Labelless" required bind:value />
     <Input error="The value is wrong" label="Wrong" value="Wrong" />
     <Input errorId="error" label="XSS test: <div>" />
     <div id="error">Custom error tag</div>

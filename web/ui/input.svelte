@@ -14,6 +14,7 @@
     font = 'normal',
     input = $bindable(),
     label,
+    labelless = false,
     onchange,
     onescape,
     oninput,
@@ -28,6 +29,7 @@
     font?: 'mono' | 'normal'
     input?: HTMLInputElement
     label: string
+    labelless?: boolean
     onchange?: (v: string, valid: boolean) => void
     onescape?: () => void
     oninput?: (v: string, valid: boolean) => void
@@ -61,7 +63,9 @@
 </script>
 
 <div class="input">
-  <Label {id}>{label}</Label>
+  {#if !labelless}
+    <Label {id}>{label}</Label>
+  {/if}
   <input
     bind:this={input}
     {id}
@@ -70,6 +74,7 @@
     aria-disabled={disabled}
     aria-errormessage={errorId || (inputError || error ? `${id}-error` : null)}
     aria-invalid={inputError || error || errorId ? true : null}
+    aria-label={labelless ? label : null}
     data-invalid={!!runValidators(value)}
     onblur={e => {
       value = e.currentTarget.value
