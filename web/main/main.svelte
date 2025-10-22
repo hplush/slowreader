@@ -8,6 +8,7 @@
   } from '@slowreader/core'
 
   import AboutPage from '../pages/about.svelte'
+  import AddPage from '../pages/add.svelte'
   import BusyPage from '../pages/busy.svelte'
   import DownloadPage from '../pages/download.svelte'
   import InterfacePage from '../pages/interface.svelte'
@@ -40,6 +41,8 @@
   {/if}
 {:else if $currentPage.route === 'notFound'}
   <NotFoundPage />
+{:else if $currentPage.route === 'add'}
+  <AddPage page={$currentPage} />
 {:else if $currentPage.route === 'about'}
   <AboutPage page={$currentPage} />
 {:else if $currentPage.route === 'profile'}
