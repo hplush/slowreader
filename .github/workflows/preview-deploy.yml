@@ -6,8 +6,8 @@ on:
     types:
       - completed
 permissions:
-  id-token: write
   contents: read
+  id-token: write
   deployments: write
 jobs:
   deploy:

@@ -6,14 +6,14 @@ on:
     types:
       - completed
 permissions:
-  deployments: write
   id-token: write
+  deployments: write
 jobs:
   close:
     name: Close
     runs-on: ubuntu-latest
     env:
-      PROJECT_ID: slowreader-421120
+      PROJECT_ID: slowreader-453400
       REGION: europe-west1
     steps:
       - name: Harden the runner

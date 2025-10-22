@@ -142,6 +142,7 @@ IDENTITY=`gcloud iam workload-identity-pools providers describe "hplush" \
 for file in "${WORKFLOWS[@]}"; do
   sed -i "s|identity_provider: .*|identity_provider: $IDENTITY|g" "$file"
   sed -i "s/projectId: .*/projectId: $PROJECT_ID/g" "$file"
+  sed -i "s/PROJECT_ID: .*/PROJECT_ID: $PROJECT_ID/g" "$file"
   sed -i "s/region: .*/region: $REGION/g" "$file"
 done
 
