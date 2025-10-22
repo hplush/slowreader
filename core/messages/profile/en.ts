@@ -9,7 +9,7 @@ export const profileMessages = i18n('profile', {
   exitNoCloud: 'Delete all local data',
   exitWaitSync: 'Delete unsaved data and sign out',
   noCloudDesc1:
-    'You don’t have a cloud account — your data is stored only on this device.',
+    'You don’t have a cloud account. Your data is stored only on this device.',
   noCloudDesc2:
     'To use the same account on another device or back up your data, create a cloud account.',
   noCloudTitle: 'No cloud account',
