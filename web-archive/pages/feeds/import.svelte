@@ -72,7 +72,7 @@
     </div>
 
     {#if Object.entries($importLoadingFeeds).length && $importReading}
-      <h4>{$t.loadProccess}</h4>
+      <h4>{$t.loadProcess}</h4>
       <ul class="feeds-import_loading">
         {#each Object.entries($importLoadingFeeds) as [feedUrl, loading] (feedUrl)}
           <li>

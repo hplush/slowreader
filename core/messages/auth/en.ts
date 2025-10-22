@@ -7,34 +7,34 @@ export const authMessages = i18n('auth', {
   createAccount: 'Create cross-device account',
   customServer: 'Use my own server',
   email: params(
-    '// Send this email to yourself\n// If you will forget password, you will search by it here\n\nUser ID: {user}\nSecret: {secret}'
+    '// Send this email to yourself\n// If you forget your password, you can search for it later here\n\nUser ID: {user}\nSecret: {secret}'
   ),
-  localDescription1: 'Slow Reader works locally.',
+  localDescription1: 'Slow Reader works right on your device. No account needed.',
   localDescription2:
-    'You can create account later when you will need cross-device sync.',
-  login: 'Login into existing account',
-  newUser: 'New user',
+    'You can create an account later to sync across devices.',
+  login: 'Log in',
+  newUser: 'Get started locally',
   noRecoveryDesc:
-    'The app uses end-to-end encryption. But if you will lose your password, nobody will be able to decrypt it.',
-  noRecoveryTitle: 'We don’t have password recovery',
-  oldUser: 'Existing user',
+    'Slow Reader uses end-to-end encryption. If you lose your password, no one will be able to decrypt your data.',
+  noRecoveryTitle: 'No password recovery',
+  oldUser: 'Sign in to your account',
   payWarning:
-    'After the beta we will fund development by small monthly subscription for using server. Self-hosted solution will be free.',
+    'After the beta, a small monthly subscription will support server development. Self-hosted use will stay free.',
   randomNote:
-    'We are using random user ID for privacy to make it harder to connect user with real person',
-  regenerateCredetials: 'Re-generate',
-  savedPromise: 'I saved user ID and secret',
+    'A random user ID is used for privacy. It makes it harder to link your account to your identity.',
+  regenerateCredentials: 'Regenerate credentials',
+  savedPromise: 'I’ve saved my User ID and Secret',
   savePassword: 'Save your password',
   secret: 'Secret',
   server: 'Custom server',
-  signingIn: 'Sending sign-in form',
-  signingUp: 'Creating user',
-  signup: 'Create user on the server',
-  signupTitle: 'Sign Up',
+  signingIn: 'Signing in…',
+  signingUp: 'Creating account…',
+  signup: 'Create account on the server',
+  signupTitle: 'Sign up',
   start: 'Start local app',
   startTitle: 'Start',
   title: 'No account in this browser yet',
   toEmail: 'Email password to myself',
   userId: 'User ID',
-  userIdTaken: 'This user ID was taken'
+  userIdTaken: 'This User ID is already taken'
 })

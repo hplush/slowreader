@@ -7,9 +7,9 @@ export const exportMessages = i18n('export', {
   exportFeeds: 'Export feeds',
   exportPosts: 'Export posts',
   exportTitle: 'Export',
-  noPosts: 'No posts',
+  noPosts: 'No posts yet',
   selectFeeds: 'Select feeds',
-  submitInternal: 'Export to internal',
-  submitOPML: 'Export to OPML',
+  submitInternal: 'Export to internal storage',
+  submitOPML: 'Export as OPML file',
   type: 'Feed type'
 })

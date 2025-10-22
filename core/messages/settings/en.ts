@@ -1,16 +1,16 @@
 import { i18n } from '../../i18n.ts'
 
 export const settingsMessages = i18n('settings', {
-  about: 'About the App',
+  about: 'About the app',
   applicationInterface: 'Application',
   commonTitle: 'Settings',
   deleteProfile: 'Delete all data',
-  deleteProfileConfirm: 'Data deletion cannot be undone. Are you sure?',
-  downloadTitle: 'Feed Loadings',
-  interfaceTitle: 'UI',
+  deleteProfileConfirm: 'This action cannot be undone. Are you sure you want to delete all data?',
+  downloadTitle: 'Feed loading',
+  interfaceTitle: 'Interface',
   preloadAlways: 'Always',
   preloadFree: 'Wi-Fi',
-  preloadImages: 'Preload posts images',
+  preloadImages: 'Preload post images',
   preloadNever: 'Never',
   profile: 'Profile',
   systemDisabledAnimations: 'Animations are disabled in system',
@@ -18,6 +18,6 @@ export const settingsMessages = i18n('settings', {
   themeDark: 'Dark',
   themeLight: 'Light',
   themeSystem: 'System',
-  useAnimations: 'Use animations',
-  usePointer: 'Use cursor reactions'
+  useAnimations: 'Enable animations',
+  usePointer: 'Enable cursor effects'
 })
