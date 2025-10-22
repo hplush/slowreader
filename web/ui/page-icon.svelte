@@ -1,23 +1,26 @@
 <script lang="ts">
   import Icon from './icon.svelte'
 
-  let { extra, main }: { extra: string; main: string } = $props()
+  let { extra, path }: { extra?: string; path: string } = $props()
 </script>
 
 <div class="page-icon">
-  <div class="page-icon_extra">
-    <Icon path={extra} />
-  </div>
-  <Icon path={main} />
+  {#if extra}
+    <div class="page-icon_extra">
+      <Icon path={extra} />
+    </div>
+  {/if}
+  <Icon {path} />
 </div>
 
 <style>
   :global {
     .page-icon {
       position: relative;
-      width: 12.5rem;
+      width: 10rem;
+      color: --tune-background(--placeholder);
 
-      --icon-size: 12.5rem;
+      --icon-size: 10rem;
     }
 
     .page-icon_extra {
@@ -26,6 +29,8 @@
       top: -20%;
       z-index: 1;
       color: var(--dangerous-text-color);
+
+      --icon-size: 8rem;
     }
   }
 </style>
