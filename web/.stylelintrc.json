@@ -71,7 +71,7 @@
       "customSyntax": "postcss-html"
     },
     {
-      "files": ["main/colors.css"],
+      "files": ["main/colors.css", "main/sizes.css"],
       "rules": {
         "unit-disallowed-list": null
       }

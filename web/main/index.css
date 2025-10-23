@@ -111,17 +111,14 @@ code {
   }
 }
 
-/* Need to define smallest size in 1px */
-/* stylelint-disable unit-disallowed-list */
 .sr-only {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  width: var(--min-size);
+  height: var(--min-size);
   padding: 0;
-  margin: -1px;
+  margin: calc(-1 * var(--min-size));
   overflow: hidden;
   white-space: nowrap;
   border-width: 0;
   clip-path: inset(50%);
 }
-/* stylelint-enable unit-disallowed-list */

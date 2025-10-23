@@ -8,6 +8,7 @@
   --slider-padding: 0.125rem;
   --page-padding: 1rem;
   --navbar-padding: 0.25rem;
+  --min-size: 1px;
 
   @supports (corner-shape: squircle) {
     --base-radius: 0.65rem;
