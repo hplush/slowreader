@@ -528,6 +528,7 @@ test('opens first candidate', async () => {
     params: {},
     route: 'add'
   })
+  equal(page.opened.get(), undefined)
 
   expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('https://example.com/feed').andRespond(404)
@@ -545,6 +546,7 @@ test('opens first candidate', async () => {
   page.params.url.set('https://example.com')
   await waitLoading(page.searching)
 
+  equal(page.opened.get(), 'https://example.com/atom')
   equal(openedPopups.get().length, 1)
   let popup = getPopup('feedUrl')
   await setTimeout(1)
@@ -553,6 +555,7 @@ test('opens first candidate', async () => {
   equal(popup.notFound, false)
 
   page.params.url.set('')
+  equal(page.opened.get(), undefined)
   equal(openedPopups.get().length, 0)
 
   setIsMobile(true)
@@ -572,4 +575,5 @@ test('opens first candidate', async () => {
   page.params.url.set('https://other.com')
   await waitLoading(page.searching)
   equal(openedPopups.get().length, 0)
+  equal(page.opened.get(), undefined)
 })

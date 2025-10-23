@@ -68,6 +68,13 @@ export const addPage = createPage('add', () => {
     }
   )
 
+  let $opened = computed(router, route => {
+    let popup = route.popups[0]
+    if (popup?.popup === 'feedUrl') {
+      return popup.param
+    }
+  })
+
   let $sortedCandidates = computed($candidates, candidates => {
     return candidates.sort((a, b) => {
       return a.title.localeCompare(b.title)
@@ -226,10 +233,7 @@ export const addPage = createPage('add', () => {
   let unbindCandidates = $candidates.listen(candidates => {
     if (candidates[0] && !isMobile.get()) {
       let url = candidates[0].url
-      let popups = router.get().popups
-      if (!popups.some(i => i.popup === 'feedUrl' && i.param === url)) {
-        openPopup('feedUrl', url)
-      }
+      if ($opened.get() !== url) openPopup('feedUrl', url)
     }
   })
 
@@ -243,6 +247,7 @@ export const addPage = createPage('add', () => {
     },
     inputUrl,
     noResults: $noResults,
+    opened: $opened,
     params: {
       url: $url
     },
