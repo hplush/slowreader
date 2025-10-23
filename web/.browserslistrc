@@ -1,6 +1,6 @@
-# Browsers that we support
-# See actual browsers: https://browsersl.ist/#q=defaults+and+supports+es6-module
+# Browsers that we support. See actual browsers:
+# https://browsersl.ist/#q=baseline+widely+available+with+downstream
 #
 # Don’t forget to update links on changes.
 
-defaults and supports es6-module
+baseline widely available with downstream
