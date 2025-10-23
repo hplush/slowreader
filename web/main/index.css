@@ -80,11 +80,13 @@ ol[role='list'] {
 }
 
 #main {
+  /* Don’t forget to update web/.storybook/preview-head.html */
   @mixin background var(--land-color);
 
   position: relative;
   box-sizing: border-box;
   display: flex;
+  flex-direction: column;
   min-height: 100svh;
 
   @media (--desktop) {
