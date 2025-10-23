@@ -128,6 +128,7 @@ export const addPage = createPage('add', () => {
   let prevUrl: string | undefined
   let inited = false
   let unbindUrl = $url.listen(url => {
+    lastUrl = url ?? ''
     if (url === prevUrl) return
     prevUrl = url
     if (inited) reset()
