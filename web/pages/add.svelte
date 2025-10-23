@@ -30,6 +30,7 @@
 <PopupablePage title={$t.title}>
   <Stack center {gap}>
     <Input
+      errorId={$error || $noResults ? 'add-error' : undefined}
       label={$t.urlLabel}
       labelless
       oninput={value => {
@@ -45,9 +46,9 @@
     {:else if $searching}
       <Loader />
     {:else if $error}
-      <Error>{$t[$error]}</Error>
-    {:else if $candidates.length === 0}
-      <Error>
+      <Error id="add-error">{$t[$error]}</Error>
+    {:else if $noResults}
+      <Error id="add-error">
         <RichText
           text={$t.noResults}
           url="https://github.com/hplush/slowreader/issues"
