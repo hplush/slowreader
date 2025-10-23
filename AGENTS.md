@@ -1,3 +1,5 @@
+# LLM Guide
+
 ## Code Style
 
 - Prefer short one-word variable names. Avoid abbreviations: use `current` instead of `cur`.
