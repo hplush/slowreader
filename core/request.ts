@@ -16,12 +16,14 @@ export interface RequestWaiter {
 }
 
 export interface RequestMock {
+  andFail(): void
   andRespond(status: number, body?: string, contentType?: string): void
   andWait(): RequestWaiter
 }
 
 interface RequestExpect {
   contentType: string
+  error: boolean
   response: string
   status: number
   url: string
@@ -50,6 +52,9 @@ let fetchMock: RequestMethod = async (url, opts = {}) => {
     throw new MockRequestError(
       `Expected request ${expect.url} instead of ${url}`
     )
+  } else if (expect.error) {
+    await delay(10)
+    throw new Error('Network Error')
   } else {
     let { promise, reject } = Promise.withResolvers()
     function abortCallback(): void {
@@ -86,6 +91,7 @@ export function mockRequest(): void {
 export function expectRequest(url: string): RequestMock {
   let expect: RequestExpect = {
     contentType: 'text/html',
+    error: false,
     response: '',
     status: 200,
     url,
@@ -94,6 +100,12 @@ export function expectRequest(url: string): RequestMock {
   }
   requestExpects.push(expect)
   return {
+    /**
+     * Generate network error on request
+     */
+    andFail() {
+      expect.error = true
+    },
     /**
      * Setup simple immediately response
      */
