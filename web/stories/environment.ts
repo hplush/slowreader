@@ -2,12 +2,15 @@ import {
   type BaseRoute,
   type NetworkTypeDetector,
   type RequestMethod,
+  setIsMobile,
   setRequestMethod,
   setupEnvironment,
   stringifyPopups
 } from '@slowreader/core'
 import { getTestEnvironment } from '@slowreader/core/test'
 import { atom } from 'nanostores'
+
+import { mobileMedia } from '../stores/media-queries.ts'
 
 export const baseRouter = atom<BaseRoute>({
   hash: '',
@@ -27,6 +30,10 @@ let networkType: ReturnType<NetworkTypeDetector> = {
   saveData: false,
   type: 'free'
 }
+
+mobileMedia.subscribe(value => {
+  setIsMobile(value)
+})
 
 setupEnvironment({
   ...getTestEnvironment(),
