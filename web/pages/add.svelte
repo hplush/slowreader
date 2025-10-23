@@ -31,6 +31,7 @@
 <PopupablePage title={$t.title}>
   <Stack center {gap}>
     <Input
+      aria-controls="add-results"
       errorId={$error || $noResults ? 'add-error' : undefined}
       label={$t.urlLabel}
       labelless
@@ -56,7 +57,7 @@
         />
       </Error>
     {:else}
-      <Feeds current={$opened} list={$candidates} />
+      <Feeds id="add-results" current={$opened} list={$candidates} />
     {/if}
   </Stack>
 </PopupablePage>

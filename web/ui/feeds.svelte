@@ -8,9 +8,11 @@
 
   let {
     current,
+    id,
     list
   }: {
     current: string | undefined
+    id?: string
     list: readonly (FeedLoader | FeedValue)[]
   } = $props()
 
@@ -19,7 +21,7 @@
   }
 </script>
 
-<ol class="feeds" role="menu">
+<ol {id} class="feeds" role="menu">
   {#each list as feed (feed.url)}
     <li>
       <Clickable
