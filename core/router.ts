@@ -154,7 +154,7 @@ function checkPopupName(
  */
 export function parsePopups(hash: string): PopupRoute[] {
   let popups: PopupRoute[] = []
-  let parts = hash.split(',')
+  let parts = hash.replace(/^#/, '').split(',')
   for (let part of parts) {
     let [popup, param] = part.split('=', 2)
     if (checkPopupName(popup) && param) {

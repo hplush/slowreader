@@ -211,6 +211,17 @@ test('has helpers for popups', () => {
   })
 })
 
+test('supports # at the beginning of hash', () => {
+  setTestUser()
+
+  setBaseTestRoute({ hash: `#feed=id1`, params: {}, route: 'welcome' })
+  deepStrictEqual(router.get(), {
+    params: {},
+    popups: [{ param: 'id1', popup: 'feed' }],
+    route: 'welcome'
+  })
+})
+
 test('reacts on unknown popups', () => {
   setTestUser()
   keepMount(openedPopups)
