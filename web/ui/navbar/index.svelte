@@ -82,6 +82,7 @@
           <NavbarButton
             name={$t.refresh}
             icon={mdiRefresh}
+            noMobileActive
             onclick={() => {
               refreshPosts()
               moveFocusBack()
