@@ -196,7 +196,9 @@ onEnvironment(({ baseRouter }) => {
         throw e
       }
     }
-    router.set(nextRoute)
+    if (JSON.stringify(router.get()) !== JSON.stringify(nextRoute)) {
+      router.set(nextRoute)
+    }
   })
 })
 
