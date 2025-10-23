@@ -1,5 +1,6 @@
 {
   "*.{html,md,json}": "prettier --experimental-cli --write",
+  "*.{svelte,ts}": "svelte-check",
   "*.{js,ts,cjs}": [
     "prettier --experimental-cli --write",
     "eslint --fix --concurrency auto"
