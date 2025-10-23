@@ -45,7 +45,7 @@
     "postcss-mixins": "12.1.2",
     "postcss-smooth-shadow": "0.3.2",
     "rollup": "4.52.5",
-    "svelte": "5.41.0",
+    "svelte": "5.41.1",
     "tsx": "4.20.6",
     "vite": "7.1.11"
   },

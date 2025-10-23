@@ -54,7 +54,7 @@ jobs:
         uses: ./.github/actions/init-node
       - name: Publish to Chromatic
         if: steps.should_run.outputs.should_run == 'true'
-        uses: chromaui/action@4ffe736a2a8262ea28067ff05a13b635ba31ec05 # v13.3.0
+        uses: chromaui/action@1c807fb41f4db007b022d0806c09a94dce7b5ff6 # v13.3.1
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           buildScriptName: build:visual
