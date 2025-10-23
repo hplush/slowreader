@@ -116,6 +116,7 @@
       &.is-pill {
         font: var(--control-secondary-font);
         border-radius: 0.75rem;
+        corner-shape: round;
       }
 
       &.is-main {
