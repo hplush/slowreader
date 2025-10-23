@@ -68,8 +68,27 @@
   class:is-slow={$router.route === 'slow'}
 >
   <div class="navbar_main" aria-orientation="horizontal" role="menu">
-    {#if $openedPopups.length > 0}
-      <div class="navbar_back-button">
+    <div class="navbar_back">
+      <div class="navbar_move" class:is-popup={$openedPopups.length > 0}>
+        {#if $isRefreshing}
+          <NavbarButton
+            name={$t.refresh}
+            href={getPopupHash($router, 'refresh', '1')}
+            size="icon"
+          >
+            <NavbarProgress value={$refreshProgress} />
+          </NavbarButton>
+        {:else}
+          <NavbarButton
+            name={$t.refresh}
+            icon={mdiRefresh}
+            onclick={() => {
+              refreshPosts()
+              moveFocusBack()
+            }}
+            size="icon"
+          />
+        {/if}
         <NavbarButton
           name={$t.back}
           href={getHashWithoutLastPopup($router)}
@@ -77,30 +96,6 @@
           size="icon"
         />
       </div>
-    {/if}
-    <div
-      class="navbar_refresh-button"
-      class:is-hidden={$openedPopups.length > 0}
-    >
-      {#if $isRefreshing}
-        <NavbarButton
-          name={$t.refresh}
-          href={getPopupHash($router, 'refresh', '1')}
-          size="icon"
-        >
-          <NavbarProgress value={$refreshProgress} />
-        </NavbarButton>
-      {:else}
-        <NavbarButton
-          name={$t.refresh}
-          icon={mdiRefresh}
-          onclick={() => {
-            refreshPosts()
-            moveFocusBack()
-          }}
-          size="icon"
-        />
-      {/if}
     </div>
     <div class="navbar_switcher">
       <div class="navbar_gutter"></div>
@@ -218,17 +213,20 @@
       }
     }
 
-    .navbar_back-button {
-      display: none;
-
-      @media (--no-desktop) {
-        display: block;
-      }
+    .navbar_back {
+      width: 2rem;
+      height: 2rem;
+      overflow: hidden;
     }
 
-    .navbar_refresh-button.is-hidden {
+    .navbar_move {
+      display: flex;
+      transition: translate var(--simple-time);
+
       @media (--no-desktop) {
-        display: none;
+        &.is-popup {
+          translate: -2rem 0;
+        }
       }
     }
 
