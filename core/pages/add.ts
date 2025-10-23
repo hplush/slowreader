@@ -37,6 +37,12 @@ export type AddLinksValue = Record<
     }
 >
 
+function isValidDomain(url: string): boolean {
+  // Heuristic for https→http check, so we don’t need to be 100% accurate
+  let parsed = new URL(url)
+  return /\w+\.\w\w\w*/.test(parsed.hostname)
+}
+
 export const addPage = createPage('add', () => {
   let $url = atom<string | undefined>()
 
@@ -97,20 +103,26 @@ export const addPage = createPage('add', () => {
   )
 
   function reset(): void {
-    inputUrl.cancel()
+    debouncedInput.cancel()
     $links.set({})
     $candidates.set([])
     prevTask?.destroy()
     closeAllPopups()
   }
 
-  let inputUrl = debounce((value: string) => {
+  let debouncedInput = debounce((value: string) => {
     if (value === '') {
       $url.set(undefined)
     } else {
       $url.set(value)
     }
   }, 500)
+
+  let lastUrl = ''
+  function inputUrl(value: string): void {
+    lastUrl = value
+    debouncedInput(value)
+  }
 
   let prevTask: DownloadTask | undefined
   let prevUrl: string | undefined
@@ -185,7 +197,7 @@ export const addPage = createPage('add', () => {
       if (e instanceof Error) {
         getEnvironment().warn(e)
       }
-      if (httpsGuest) {
+      if (httpsGuest && isValidDomain(url) && lastUrl === url) {
         httpsTest = true
         $url.set(url.replace(/^https:\/\//, 'http://'))
         httpsTest = false
