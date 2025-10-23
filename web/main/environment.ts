@@ -59,6 +59,10 @@ export const detectNetworkType: NetworkTypeDetector = () => {
   return { saveData, type }
 }
 
+mobileMedia.subscribe(value => {
+  setIsMobile(value)
+})
+
 setupEnvironment({
   baseRouter: urlRouter,
   errorEvents: window,
@@ -129,8 +133,4 @@ router.subscribe(page => {
   if (page.redirect) {
     openRoute(page, true)
   }
-})
-
-mobileMedia.subscribe(value => {
-  setIsMobile(value)
 })
