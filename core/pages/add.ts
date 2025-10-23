@@ -114,10 +114,12 @@ export const addPage = createPage('add', () => {
 
   let prevTask: DownloadTask | undefined
   let prevUrl: string | undefined
+  let inited = false
   let unbindUrl = $url.listen(url => {
     if (url === prevUrl) return
     prevUrl = url
-    reset()
+    if (inited) reset()
+    inited = true
     if (!url) return
     prevTask = createDownloadTask({ cache: 'write' })
     addLink(prevTask, url)

@@ -3,7 +3,8 @@ import {
   type NetworkTypeDetector,
   type RequestMethod,
   setRequestMethod,
-  setupEnvironment
+  setupEnvironment,
+  stringifyPopups
 } from '@slowreader/core'
 import { getTestEnvironment } from '@slowreader/core/test'
 import { atom } from 'nanostores'
@@ -39,7 +40,7 @@ setupEnvironment({
     return networkType
   },
   openRoute(page) {
-    baseRouter.set({ ...page, hash: '' })
+    baseRouter.set({ ...page, hash: stringifyPopups(page.popups) })
   },
   persistentEvents: {
     addEventListener() {},
