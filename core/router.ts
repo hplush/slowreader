@@ -229,6 +229,14 @@ export function removeLastPopup(hash: string): string {
   return hash.split(',').slice(0, -1).join(',')
 }
 
+export function setPopups(popups: [PopupName, string][]): void {
+  let currentRoute = router.get()
+  getEnvironment().openRoute({
+    ...currentRoute,
+    popups: popups.map(([popup, param]) => ({ param, popup }))
+  })
+}
+
 export function openPopup(popup: PopupName, param: string): void {
   let currentRoute = router.get()
   getEnvironment().openRoute({

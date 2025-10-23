@@ -14,7 +14,7 @@ import {
   type LoaderName,
   loaders
 } from '../loader/index.ts'
-import { closeAllPopups, openPopup, router } from '../router.ts'
+import { closeAllPopups, router, setPopups } from '../router.ts'
 import { createPage } from './common.ts'
 
 export type AddLinksValue = Record<
@@ -235,7 +235,7 @@ export const addPage = createPage('add', () => {
   let unbindCandidates = $candidates.listen(candidates => {
     if (candidates[0] && !isMobile.get()) {
       let url = candidates[0].url
-      if ($opened.get() !== url) openPopup('feedUrl', url)
+      if ($opened.get() !== url) setPopups([['feedUrl', url]])
     }
   })
 

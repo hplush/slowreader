@@ -11,7 +11,8 @@ import {
   openedPopups,
   openPopup,
   removeLastPopup,
-  router
+  router,
+  setPopups
 } from '../index.ts'
 import {
   cleanClientTest,
@@ -184,10 +185,23 @@ test('has helpers for popups', () => {
     route: 'welcome'
   })
 
+  setPopups([
+    ['post', 'id2'],
+    ['post', 'id1']
+  ])
+  deepStrictEqual(router.get(), {
+    params: {},
+    popups: [
+      { param: 'id2', popup: 'post' },
+      { param: 'id1', popup: 'post' }
+    ],
+    route: 'welcome'
+  })
+
   closeLastPopup()
   deepStrictEqual(router.get(), {
     params: {},
-    popups: [{ param: 'id1', popup: 'post' }],
+    popups: [{ param: 'id2', popup: 'post' }],
     route: 'welcome'
   })
 
