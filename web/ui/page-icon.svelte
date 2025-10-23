@@ -17,20 +17,24 @@
   :global {
     .page-icon {
       position: relative;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
       width: 10rem;
       color: --tune-background(--placeholder);
 
-      --icon-size: 10rem;
+      --icon-size: 8rem;
     }
 
     .page-icon_extra {
       position: absolute;
-      inset-inline-start: -40%;
-      top: -20%;
+      inset-inline-start: -15%;
+      top: -15%;
       z-index: 1;
       color: var(--dangerous-text-color);
 
-      --icon-size: 8rem;
+      --icon-size: 6rem;
     }
   }
 </style>

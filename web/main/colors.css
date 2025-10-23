@@ -50,7 +50,6 @@
     --note-l: -0.1;
     --note-c: 0.03;
     --field-l: 0.025;
-    --field-c: -0.015;
     --current-l: 0.025;
     --placeholder-l: -0.06;
     --slider-hover-background: oklch(0 0 0 / 3%);
@@ -80,6 +79,7 @@
       --land-color: oklch(0.95 0.03 70);
       --main-land-color: oklch(0.975 0.015 70);
       --secondary-text-color: oklch(0.6 0.05 70);
+      --field-c: -0.015;
       --current-c: -0.015;
       --placeholder-c: 0.04;
     }
