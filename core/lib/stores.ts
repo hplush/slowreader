@@ -36,6 +36,11 @@ export function increaseKey<Store extends MapStore>(
  */
 export function waitLoading(store: ReadableAtom): Promise<void> {
   return new Promise<void>(resolve => {
+    /* node:coverage ignore next 4 */
+    if (store.get() === false) {
+      resolve()
+      return
+    }
     let unbind = store.subscribe(state => {
       if (state === false) {
         unbind()
