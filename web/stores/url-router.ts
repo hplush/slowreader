@@ -160,11 +160,18 @@ export function openRoute(route: Route, redirect?: boolean): void {
 }
 
 export function getPopupHash(
-  currentRoute: Route,
+  currentRoute: Route | undefined,
   popup: PopupName,
   param: string
 ): string {
-  return `#` + addPopup(stringifyPopups(currentRoute.popups), popup, param)
+  return (
+    `#` +
+    addPopup(
+      currentRoute ? stringifyPopups(currentRoute.popups) : '',
+      popup,
+      param
+    )
+  )
 }
 
 export function getHashWithoutLastPopup(currentRoute: Route): string {
