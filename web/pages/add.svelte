@@ -4,10 +4,12 @@
 
   import { getPopupHash } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
+  import Error from '../ui/error.svelte'
   import Input from '../ui/input.svelte'
   import Loader from '../ui/loader.svelte'
   import Placeholder from '../ui/placeholder.svelte'
   import PopupablePage from '../ui/popupable-page.svelte'
+  import RichText from '../ui/rich-text.svelte'
   import Stack from '../ui/stack.svelte'
 
   let { page }: { page: AddPage } = $props()
@@ -15,10 +17,18 @@
   let { url } = page.params
 
   let empty = $derived(!$noResults && !$searching && $url === '')
+
+  let gap = $derived.by(() => {
+    if (!$noResults && !$searching && $url === '') {
+      return 'xxxl' as const
+    } else {
+      return 'xl' as const
+    }
+  })
 </script>
 
 <PopupablePage title={$t.title}>
-  <Stack center gap={empty ? 'xxxl' : 'xl'}>
+  <Stack center {gap}>
     <Input
       label={$t.urlLabel}
       labelless
@@ -29,13 +39,20 @@
       value={$url}
     />
     {#if empty}
-      <Placeholder icon={mdiRss} text={$t.searchGuide} />
+      <Placeholder icon={mdiRss}>
+        <RichText text={$t.searchGuide} />
+      </Placeholder>
     {:else if $searching}
       <Loader />
     {:else if $error}
-      {$t[$error]}
+      <Error>{$t[$error]}</Error>
     {:else if $candidates.length === 0}
-      {$t.noResults}
+      <Error>
+        <RichText
+          text={$t.noResults}
+          url="https://github.com/hplush/slowreader/issues"
+        />
+      </Error>
     {:else}
       <Stack gap="s">
         {#each $candidates as candidate (candidate.url)}

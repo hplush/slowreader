@@ -99,7 +99,11 @@
     {value}
     {...props}
   />
-  <Error id={`${id}-error`} field text={inputError || error} />
+  {#if inputError || error}
+    <div class="input_error">
+      <Error id={`${id}-error`}>{inputError || error}</Error>
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -138,6 +142,10 @@
 
     .input_field::placeholder {
       color: var(--secondary-text-color);
+    }
+
+    .input_error {
+      margin-top: 0.125rem;
     }
   }
 </style>

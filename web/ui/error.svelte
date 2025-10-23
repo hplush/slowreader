@@ -1,29 +1,19 @@
 <script lang="ts">
-  let {
-    field = false,
-    id,
-    text
-  }: { field?: boolean; id?: string; text?: string } = $props()
+  import type { Snippet } from 'svelte'
+
+  let { children, id }: { children: Snippet; id?: string } = $props()
 </script>
 
-{#if text}
-  <div {id} class="error" class:is-field={field} aria-live="polite">
-    {text}
-  </div>
-{/if}
+<div {id} class="error" aria-live="polite">
+  {@render children()}
+</div>
 
 <style>
   :global {
     .error {
       padding: 0 0.5rem;
-      margin: 0.625rem 0;
       font: var(--control-font);
       color: var(--dangerous-text-color);
-
-      &.is-field {
-        margin-top: 0.125rem;
-        font: var(--control-secondary-font);
-      }
     }
   }
 </style>

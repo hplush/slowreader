@@ -1,12 +1,16 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte'
+
   import PageIcon from './page-icon.svelte'
 
-  let { icon, text }: { icon: string; text: string } = $props()
+  let { children, icon }: { children: Snippet; icon: string } = $props()
 </script>
 
 <div class="placeholder">
   <PageIcon path={icon} />
-  <div class="placeholder_text">{text}</div>
+  <div class="placeholder_text">
+    {@render children()}
+  </div>
 </div>
 
 <style>

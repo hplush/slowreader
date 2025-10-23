@@ -5,7 +5,7 @@ export const commonMessages = i18n('common', {
   empty: 'The value is required',
   generalCategory: 'General',
   internalError: 'The app crashed. Please try again later while we fix it.',
-  invalidCredentials: 'No user found with this User ID and password',
+  invalidCredentials: 'No user found with this credentials',
   invalidSecret: 'Secret must contain two words of 10 characters each',
   invalidServer: 'This doesn’t look like a valid domain',
   invalidUrl: 'This doesn’t look like a valid web address',
