@@ -83,7 +83,7 @@
 <style lang="postcss">
   section {
     position: relative;
-    margin-top: 1rem;
+    padding: 1rem;
 
     &:first-child {
       margin-top: 0;

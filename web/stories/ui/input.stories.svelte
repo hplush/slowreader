@@ -31,7 +31,7 @@
     <Input label="Required and Blur" required value="" />
     <Input label="Wrong URL" type="url" value="No a link" />
   </Section>
-  <Section main width={200}>
+  <Section main stack width={200}>
     <Input label="Base" required />
     <Input error="The value is wrong" label="Wrong" required value="Wrong" />
   </Section>
@@ -46,7 +46,7 @@
   <Section focus width={200}>
     <Input label="Focus" />
   </Section>
-  <Section main width={200}>
+  <Section main stack width={200}>
     <Input label="Base" required />
     <Input error="The value is wrong" label="Wrong" required value="Wrong" />
   </Section>
