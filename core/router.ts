@@ -192,7 +192,6 @@ onEnvironment(({ baseRouter }) => {
       if (e instanceof NotFoundError) {
         nextRoute = open('notFound')
       } else {
-        /* node:coverage ignore next 2 */
         throw e
       }
     }

@@ -81,7 +81,6 @@ export function createTextResponse(
           getEnvironment().warn('Parse JSON error: ' + e.message)
           return null
         } else {
-          /* node:coverage ignore next 2 */
           throw e
         }
       }

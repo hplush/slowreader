@@ -207,7 +207,6 @@ export const addPage = createPage('add', () => {
       try {
         response = await task.text(url)
       } catch (e) {
-        /* node:coverage ignore next 3 */
         unloadable(e)
         return
       }
@@ -227,7 +226,6 @@ export const addPage = createPage('add', () => {
         $links.setKey(url, { state: 'unknown' })
       }
     } catch (error) {
-      /* node:coverage ignore next 2 */
       ignoreAbortError(error)
     }
   }
