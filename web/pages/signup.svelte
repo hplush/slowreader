@@ -112,7 +112,11 @@
                 bind:input={serverInput}
               />
             {/if}
-            <Error id="start-server-error" text={$error} />
+            {#if $error}
+              <Error id="start-server-error">
+                {$error}
+              </Error>
+            {/if}
             {#if !$customServer}
               <Button
                 disabled={$signingUp}
