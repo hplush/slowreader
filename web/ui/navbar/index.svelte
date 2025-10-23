@@ -82,7 +82,6 @@
           <NavbarButton
             name={$t.refresh}
             icon={mdiRefresh}
-            noMobileActive
             onclick={() => {
               refreshPosts()
               moveFocusBack()
@@ -94,6 +93,7 @@
           name={$t.back}
           href={getHashWithoutLastPopup($router)}
           icon={mdiChevronLeft}
+          noMobileActive
           size="icon"
         />
       </div>
