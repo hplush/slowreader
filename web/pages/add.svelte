@@ -15,7 +15,7 @@
   let { candidates, error, noResults, opened, searching } = page
   let { url } = page.params
 
-  let empty = $derived(!$noResults && !$searching && $url === '')
+  let empty = $derived(!$noResults && !$searching && !$url)
 
   let gap = $derived.by(() => {
     if (empty) {
