@@ -17,6 +17,7 @@
     "build": "pnpm run -r build",
     "check-opml": "tsx loader-tests/check-opml.ts",
     "test-loaders": "tsx loader-tests/test-loaders.ts loader-tests/feeds.yml",
+    "unused-messages": "node scripts/check-unused-messages.ts",
     "update-env": "node ./scripts/update-env.ts",
     "update-ci": "node --env-file-if-exists=.env node_modules/actions-up/bin/actions-up.js",
     "update-review": "node --env-file-if-exists=.env node_modules/multiocular/server/bin.js --port 2556",

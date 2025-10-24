@@ -1,0 +1,56 @@
+name: Messages
+on:
+  schedule:
+    - cron: '00 04 * * *' # Runs at night every day
+  push:
+    branches:
+      - main
+permissions:
+  contents: read
+jobs:
+  chromatic:
+    name: Find Unused
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+            nodejs.org:443
+            release-assets.githubusercontent.com:443
+            objects.githubusercontent.com:443
+            registry.npmjs.org:443
+      - name: Checkout the repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+      - name: Check if should run
+        id: should_run
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            if git log -1 --pretty=%B | grep -i "Chromatic"; then
+              echo "should_run=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "should_run=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            now=$(date -u +%s)
+            twenty_four_hours_ago=$((now - 86400))
+            last_commit_time=$(git log -1 --format=%ct)
+            if [ "$last_commit_time" -ge "$twenty_four_hours_ago" ]; then
+              echo "should_run=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "should_run=false" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+      - name: Initialize Node.js
+        if: steps.should_run.outputs.should_run == 'true'
+        uses: ./.github/actions/init-node
+      - name: Run script
+        if: steps.should_run.outputs.should_run == 'true'
+        run: pnpm unused-messages
+        # TODO: Until we are refactoring web UI
+        continue-on-error: true

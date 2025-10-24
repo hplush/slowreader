@@ -140,6 +140,7 @@ Each project has its own tools, too.
 - `pnpm clean`: remove all temporary files.
 - `pnpm check-opml`: test loaders with user’s OPML RSS export.
 - `pnpm test-loaders`: test loaders with different blogging platforms.
+- `pnpm unused-messages`: check that all messages are used.
 - `pnpm update-env`: check for Node.js and pnpm updates.
 - `pnpm update-review`: run Multiocular to review updates.
 - `pnpm update-ci`: update CI actions.
