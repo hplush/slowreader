@@ -1,6 +1,6 @@
-import { computed, type ReadableAtom } from 'nanostores'
+import { atom, computed, onMount, type ReadableAtom } from 'nanostores'
 
-import { type Popup, popups } from './popups/index.ts'
+import { type LoadedPopup, type Popup, popups } from './popups/index.ts'
 import { router } from './router.ts'
 
 let prevPopups: Popup[] = []
@@ -30,4 +30,52 @@ export const openedPopups: ReadableAtom<Popup[]> = computed(router, route => {
   }
   prevPopups = nextPopups
   return nextPopups
+})
+
+export type PopupsStatus =
+  | {
+      last: LoadedPopup<Popup>
+      loading: boolean
+      notFound: boolean
+      other: Popup[]
+    }
+  | { last: undefined; loading: undefined; notFound: undefined; other: [] }
+
+export const popupsStatus = atom<PopupsStatus>({
+  last: undefined,
+  loading: undefined,
+  notFound: undefined,
+  other: []
+})
+
+onMount(popupsStatus, () => {
+  let unbindLast: (() => void) | undefined
+  let unbindPopups = openedPopups.subscribe(popups => {
+    let last = popups[popups.length - 1]
+    if (last) {
+      unbindLast?.()
+      unbindLast = last.loading.subscribe(loading => {
+        popupsStatus.set({
+          // Could not make proper branded type in Svelte
+          last: last as LoadedPopup<Popup>,
+          loading,
+          notFound: last.notFound,
+          other: popups.slice(0, -1).reverse()
+        })
+      })
+    } else {
+      unbindLast?.()
+      unbindLast = undefined
+      popupsStatus.set({
+        last: undefined,
+        loading: undefined,
+        notFound: undefined,
+        other: []
+      })
+    }
+  })
+  return () => {
+    unbindLast?.()
+    unbindPopups()
+  }
 })

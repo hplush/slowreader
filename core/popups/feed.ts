@@ -1,6 +1,6 @@
 import { getFeed, getFeedLatestPosts } from '../feed.ts'
 import { waitSyncLoading } from '../lib/stores.ts'
-import { definePopup, type LoadedPopup } from './common.ts'
+import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
 export const feed = definePopup('feed', async id => {
   let $feed = await waitSyncLoading(getFeed(id))
@@ -11,4 +11,4 @@ export const feed = definePopup('feed', async id => {
   }
 })
 
-export type FeedPopup = LoadedPopup<typeof feed>
+export type FeedPopup = CreatedLoadedPopup<typeof feed>

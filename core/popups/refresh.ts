@@ -1,4 +1,4 @@
-import { definePopup, type LoadedPopup } from './common.ts'
+import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
 export const refresh = definePopup('refresh', () => {
   return Promise.resolve({
@@ -6,4 +6,4 @@ export const refresh = definePopup('refresh', () => {
   })
 })
 
-export type RefreshPopup = LoadedPopup<typeof refresh>
+export type RefreshPopup = CreatedLoadedPopup<typeof refresh>

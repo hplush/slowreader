@@ -4,7 +4,7 @@ import { addCandidate, type FeedValue, getFeeds } from '../feed.ts'
 import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import { getLoaderForText } from '../loader/index.ts'
 import { NotFoundError } from '../not-found.ts'
-import { definePopup, type LoadedPopup } from './common.ts'
+import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
 export const feedUrl = definePopup('feedUrl', async url => {
   let task = createDownloadTask({ cache: 'read' })
@@ -58,4 +58,4 @@ export const feedUrl = definePopup('feedUrl', async url => {
   }
 })
 
-export type FeedUrlPopup = LoadedPopup<typeof feedUrl>
+export type FeedUrlPopup = CreatedLoadedPopup<typeof feedUrl>

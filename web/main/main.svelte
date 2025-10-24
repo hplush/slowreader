@@ -2,6 +2,7 @@
   import {
     busy,
     currentPage,
+    popupsStatus,
     signOut,
     subscribeUntil,
     userId
@@ -16,6 +17,9 @@
   import ProfilePage from '../pages/profile.svelte'
   import SignupPage from '../pages/signup.svelte'
   import StartPage from '../pages/start.svelte'
+  import FeedUrlPopup from '../popups/feed-url.svelte'
+  import LoadingPopup from '../popups/loading.svelte'
+  import NotFoundPopup from '../popups/not-found.svelte'
   import Button from '../ui/button.svelte'
   import Navbar from '../ui/navbar/index.svelte'
   import ThinPage from '../ui/thin-page.svelte'
@@ -33,6 +37,11 @@
 
   let pageLoading = $derived($currentPage.loading)
   let pageHideMenu = $derived($currentPage.hideMenu)
+
+  let popup = $derived($popupsStatus.last)
+  let popupLoading = $derived($popupsStatus.loading)
+  let popupNotFound = $derived($popupsStatus.notFound)
+  let popupOther = $derived($popupsStatus.other)
 </script>
 
 {#if $busy || $pageLoading}
@@ -65,3 +74,16 @@
 {#if !$busy && $userId && !$pageHideMenu}
   <Navbar />
 {/if}
+
+{#if popup}
+  {#if popupLoading}
+    <LoadingPopup {popup} />
+  {:else if popupNotFound}
+    <NotFoundPopup {popup} />
+  {:else if popup.name === 'feedUrl'}
+    <FeedUrlPopup {popup} />
+  {/if}
+{/if}
+{#each popupOther as i (i.id)}
+  <!-- TODO: shadow -->
+{/each}

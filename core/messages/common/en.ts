@@ -2,6 +2,7 @@ import { i18n } from '../../i18n.ts'
 
 export const commonMessages = i18n('common', {
   brokenCategory: 'Broken category',
+  closePopup: 'Close popup',
   empty: 'The value is required',
   generalCategory: 'General',
   internalError: 'The app crashed. Please try again later while we fix it.',

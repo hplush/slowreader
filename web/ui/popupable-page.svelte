@@ -21,16 +21,9 @@
   :global {
     .popupable-page {
       box-sizing: border-box;
+      width: var(--popup-size);
       padding: var(--navbar-padding) var(--page-padding) 1rem
         var(--page-padding);
-
-      @media (--no-mobile) {
-        width: 50%;
-      }
-
-      @media (--mobile) {
-        width: 100vw;
-      }
     }
 
     .popupable-page_center {

@@ -9,6 +9,7 @@
   --page-padding: 1rem;
   --navbar-padding: 0.25rem;
   --min-size: 1px;
+  --popup-size: calc((100vw - var(--navbar-width, 0px)) / 2);
 
   @supports (corner-shape: squircle) {
     --base-radius: 0.65rem;
@@ -19,8 +20,13 @@
     --navbar-padding: 0.5rem;
   }
 
+  @media (--tablet) {
+    --popup-size: 50vw;
+  }
+
   @media (--mobile) {
     --thin-content-width: calc(100vw - 2 * var(--page-padding));
+    --popup-size: 100vw;
   }
 }
 

@@ -1,6 +1,6 @@
 import { waitSyncLoading } from '../lib/stores.ts'
 import { getPost } from '../post.ts'
-import { definePopup, type LoadedPopup } from './common.ts'
+import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
 export const post = definePopup('post', async id => {
   let $post = getPost(id)
@@ -10,4 +10,4 @@ export const post = definePopup('post', async id => {
   }
 })
 
-export type PostPopup = LoadedPopup<typeof post>
+export type PostPopup = CreatedLoadedPopup<typeof post>
