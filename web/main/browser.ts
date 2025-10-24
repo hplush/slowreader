@@ -1,8 +1,10 @@
 // Bind browser’s API to client core API.
 
 import {
+  closeLastPopup,
   comfortMode,
   errorMode,
+  openedPopups,
   theme,
   useQuietCursor,
   useReducedMotion
@@ -77,3 +79,17 @@ startKeyUX(window, [
   focusGroupKeyUX(),
   jumpKeyUX()
 ])
+
+window.addEventListener('keyup', e => {
+  if (e.key === 'Escape') {
+    if (openedPopups.get().length > 0) {
+      let target = e.target as Element | null
+      let isSpecialKey = e.ctrlKey || e.metaKey || e.altKey
+      let insideEditable =
+        target?.tagName === 'TEXTAREA' || target?.tagName === 'INPUT'
+      if (!isSpecialKey && !insideEditable) {
+        closeLastPopup()
+      }
+    }
+  }
+})
