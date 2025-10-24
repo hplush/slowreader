@@ -34,10 +34,11 @@
       >
         <div class="feeds_cap">
           {feed.title}
+          <div class="feeds_dot">
+            <Icon path={mdiCircleSmall} />
+          </div>
           <div class="feeds_arrow">
-            <Icon
-              path={current === getId(feed) ? mdiChevronRight : mdiCircleSmall}
-            />
+            <Icon path={mdiChevronRight} />
           </div>
         </div>
       </Clickable>
@@ -92,15 +93,20 @@
     }
 
     .feeds_cap {
-      padding: 0.8rem calc(1.2rem + 2 * 0.125rem) 0.8rem var(--control-padding);
+      padding: 0.8rem var(--control-padding);
       overflow-wrap: anywhere;
+
+      @media (--no-mobile) {
+        padding-inline-end: calc(1.2rem + 2 * 0.125rem);
+      }
 
       .feeds_item:not([aria-current='page']):active & {
         translate: 0 1px;
       }
     }
 
-    .feeds_arrow {
+    .feeds_arrow,
+    .feeds_dot {
       --icon-size: 1.2rem;
 
       position: absolute;
@@ -111,6 +117,26 @@
 
       .feeds_item:not([aria-current='page']) & {
         opacity: 20%;
+      }
+    }
+
+    .feeds_arrow {
+      @media (--no-mobile) {
+        .feeds_item:not([aria-current='page']) & {
+          display: none;
+        }
+      }
+    }
+
+    .feeds_dot {
+      @media (--mobile) {
+        display: none;
+      }
+
+      @media (--no-mobile) {
+        .feeds_item[aria-current='page'] & {
+          display: none;
+        }
       }
     }
   }
