@@ -2,6 +2,8 @@
   import { mdiChevronLeft, mdiFood, mdiMenu, mdiRefresh } from '@mdi/js'
   import {
     closeMenu,
+    getFastDefaultRoute,
+    getSlowDefaultRoute,
     isMenuOpened,
     isOtherRoute,
     isRefreshing,
@@ -106,7 +108,7 @@
         current={$router.route === 'slow'}
         focusable={nothingCurrent || $router.route === 'slow'}
         hasSubmenu="navbar_submenu"
-        href={getURL('slow')}
+        href={getURL(getSlowDefaultRoute())}
         onclick={openMenu}
       >
         <NavbarFireplace />
@@ -115,7 +117,7 @@
         name={$t.fast}
         current={$router.route === 'fast'}
         hasSubmenu="navbar_submenu"
-        href={getURL('fast')}
+        href={getURL(getFastDefaultRoute())}
         icon={mdiFood}
         onclick={openMenu}
       />
