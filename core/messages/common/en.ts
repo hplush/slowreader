@@ -14,5 +14,6 @@ export const commonMessages = i18n('common', {
   loading: 'Loading…',
   networkError:
     'Can’t reach the server. Please check your internet connection.',
-  openPost: 'Open post'
+  openPost: 'Open post',
+  popupNotFound: 'Not found'
 })

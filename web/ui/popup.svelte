@@ -58,6 +58,7 @@
     .popup_body {
       max-width: var(--max-content-width);
       min-height: 100%;
+      padding-block: 1rem;
       margin: 0 auto;
       overflow-x: scroll;
     }
