@@ -243,10 +243,13 @@ export const addPage = createPage('add', () => {
     }
   }
 
-  let unbindCandidates = $candidates.listen(candidates => {
-    if (candidates[0] && !isMobile.get()) {
-      let url = candidates[0].url
-      if ($opened.get() !== url) setPopups([['feed', url]])
+  let unbindSearching = $searching.listen(searching => {
+    if (!searching) {
+      unbindSearching()
+      let found = $sortedCandidates.get()
+      if (!isMobile.get() && !$opened.get() && found[0]) {
+        setPopups([['feed', found[0].url]])
+      }
     }
   })
 
@@ -255,7 +258,7 @@ export const addPage = createPage('add', () => {
     error: $error,
     exit() {
       unbindUrl()
-      unbindCandidates()
+      unbindSearching()
       reset()
     },
     inputUrl,
