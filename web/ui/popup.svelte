@@ -56,11 +56,13 @@
     }
 
     .popup_body {
+      box-sizing: border-box;
       max-width: var(--max-content-width);
       min-height: 100%;
-      padding-block: 1rem;
+      padding: 0.5rem var(--page-padding) var(--page-padding)
+        var(--page-padding);
       margin: 0 auto;
-      overflow-x: scroll;
+      overflow: hidden scroll;
     }
   }
 </style>

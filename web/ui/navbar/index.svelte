@@ -226,7 +226,7 @@
       display: flex;
       transition: translate var(--simple-time);
 
-      @media (--no-desktop) {
+      @media (--mobile) {
         &.is-popup {
           translate: -2rem 0;
         }
