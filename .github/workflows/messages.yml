@@ -5,6 +5,11 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '.github/workflows/messages.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/messages.yml'
 permissions:
   contents: read
 jobs:
