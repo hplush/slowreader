@@ -4,7 +4,7 @@ import { feed } from './feed.ts'
 import { post } from './post.ts'
 import { refresh } from './refresh.ts'
 
-export type { BasePopup, LoadedPopup } from './common.ts'
+export { type BasePopup, getPopupId, type LoadedPopup } from './common.ts'
 export type { FeedPopup } from './feed.ts'
 export type { PostPopup } from './post.ts'
 export type { RefreshPopup } from './refresh.ts'

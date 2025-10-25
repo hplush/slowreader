@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid/non-secure'
 import { atom, type ReadableAtom } from 'nanostores'
 
 import { isNotFoundError } from '../not-found.ts'
@@ -41,6 +40,10 @@ export type LoadedPopup<Popup extends BasePopup> = Extract<
 export type CreatedLoadedPopup<Creator extends PopupCreator<PopupName>> =
   LoadedPopup<ReturnType<Creator>>
 
+export function getPopupId(name: PopupName, param: string): string {
+  return `${name}-${param.replace(/[^\w]/g, '_')}-popup`
+}
+
 export function definePopup<Name extends PopupName, Rest extends Extra>(
   name: Name,
   builder: (param: string) => Promise<Rest>
@@ -54,7 +57,7 @@ export function definePopup<Name extends PopupName, Rest extends Extra>(
         destroyed = true
         rest?.destroy()
       },
-      id: nanoid(6),
+      id: getPopupId(name, param),
       loading,
       name,
       notFound: false,

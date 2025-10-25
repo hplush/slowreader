@@ -1,6 +1,6 @@
 <script lang="ts">
   import { mdiChevronRight, mdiCircleSmall } from '@mdi/js'
-  import type { FeedLoader, FeedValue } from '@slowreader/core'
+  import { type FeedLoader, type FeedValue, getPopupId } from '@slowreader/core'
 
   import { getPopupHash } from '../stores/url-router.ts'
   import Clickable from './clickable.svelte'
@@ -22,6 +22,7 @@
     <li>
       <Clickable
         class="feeds_item"
+        aria-controls={getPopupId('feed', feed.url)}
         aria-current={current === feed.url ? 'page' : null}
         href={getPopupHash(undefined, 'feed', feed.url)}
         role="menuitem"
