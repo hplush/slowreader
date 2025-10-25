@@ -13,28 +13,22 @@
 </script>
 
 <Popup id={popup.id}>
-  <Stack gap="xl">
+  {#snippet header()}
     {#if !$feed}
-      <Button
-        icon={mdiPlusCircleOutline}
-        onclick={popup.add}
-        size="wide"
-        variant="main"
-      >
+      <Button icon={mdiPlusCircleOutline} onclick={popup.add} variant="main">
         {$t.addFeed}
       </Button>
+    {:else}
+      <Button
+        icon={mdiTrashCanOutline}
+        onclick={popup.remove}
+        variant="secondary-dangerous"
+      >
+        {$t.deleteFeed}
+      </Button>
     {/if}
-    <Stack align="end" row>
-      <Output label={$t.feedUrl} value={popup.param} />
-      {#if $feed}
-        <Button
-          icon={mdiTrashCanOutline}
-          onclick={popup.remove}
-          variant="secondary-dangerous"
-        >
-          {$t.deleteFeed}
-        </Button>
-      {/if}
-    </Stack>
+  {/snippet}
+  <Stack gap="xl">
+    <Output label={$t.feedUrl} value={popup.param} />
   </Stack>
 </Popup>

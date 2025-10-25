@@ -12,7 +12,6 @@
     href,
     icon,
     name,
-    noMobileActive,
     onclick,
     size = 'inline'
   }: {
@@ -23,7 +22,6 @@
     href?: string
     icon?: string
     name: string
-    noMobileActive?: boolean
     onclick?: () => void
     size?: 'icon' | 'inline'
   } = $props()
@@ -32,7 +30,6 @@
 <Clickable
   class={{
     'is-icon': size === 'icon',
-    'is-no-mobile-active': noMobileActive,
     'navbar-button': true
   }}
   aria-controls={hasSubmenu || null}
@@ -92,7 +89,7 @@
       }
 
       @media (--no-desktop) {
-        &:not([aria-current='page'], .is-no-mobile-active):active {
+        &:not([aria-current='page']):active {
           box-shadow: var(--pressed-shadow);
         }
       }

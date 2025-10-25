@@ -8,11 +8,21 @@
   --slider-padding: 0.125rem;
   --page-padding: 1rem;
   --navbar-padding: 0.25rem;
+  --navbar-height: 3rem;
   --min-size: 1px;
-  --popup-size: calc((100vw - var(--navbar-width, 0px)) / 2);
+  --navbar-width: 0px;
+  --popup-size: calc((100vw - var(--navbar-width)) / 2);
+
+  &.has-navbar {
+    --navbar-width: 16rem;
+  }
 
   @supports (corner-shape: squircle) {
     --base-radius: 0.65rem;
+  }
+
+  @media (--desktop) {
+    --navbar-height: 2.5rem;
   }
 
   @media (--no-desktop) {

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiChevronLeft, mdiFood, mdiMenu, mdiRefresh } from '@mdi/js'
+  import { mdiFood, mdiMenu, mdiRefresh } from '@mdi/js'
   import {
     closeMenu,
     getFastDefaultRoute,
@@ -7,7 +7,6 @@
     isMenuOpened,
     isOtherRoute,
     isRefreshing,
-    openedPopups,
     openMenu,
     refreshPosts,
     refreshProgress,
@@ -17,11 +16,7 @@
   import { onMount, tick } from 'svelte'
   import { on } from 'svelte/events'
 
-  import {
-    getHashWithoutLastPopup,
-    getPopupHash,
-    getURL
-  } from '../../stores/url-router.ts'
+  import { getPopupHash, getURL } from '../../stores/url-router.ts'
   import NavbarButton from '../navbar/button.svelte'
   import NavbarFireplace from '../navbar/fireplace.svelte'
   import NavbarOther from '../navbar/other.svelte'
@@ -70,36 +65,25 @@
   class:is-slow={$router.route === 'slow'}
 >
   <div class="navbar_main" aria-orientation="horizontal" role="menu">
-    <div class="navbar_back">
-      <div class="navbar_move" class:is-popup={$openedPopups.length > 0}>
-        {#if $isRefreshing}
-          <NavbarButton
-            name={$t.refresh}
-            href={getPopupHash($router, 'refresh', '1')}
-            size="icon"
-          >
-            <NavbarProgress value={$refreshProgress} />
-          </NavbarButton>
-        {:else}
-          <NavbarButton
-            name={$t.refresh}
-            icon={mdiRefresh}
-            onclick={() => {
-              refreshPosts()
-              moveFocusBack()
-            }}
-            size="icon"
-          />
-        {/if}
-        <NavbarButton
-          name={$t.back}
-          href={getHashWithoutLastPopup($router)}
-          icon={mdiChevronLeft}
-          noMobileActive
-          size="icon"
-        />
-      </div>
-    </div>
+    {#if $isRefreshing}
+      <NavbarButton
+        name={$t.refresh}
+        href={getPopupHash($router, 'refresh', '1')}
+        size="icon"
+      >
+        <NavbarProgress value={$refreshProgress} />
+      </NavbarButton>
+    {:else}
+      <NavbarButton
+        name={$t.refresh}
+        icon={mdiRefresh}
+        onclick={() => {
+          refreshPosts()
+          moveFocusBack()
+        }}
+        size="icon"
+      />
+    {/if}
     <div class="navbar_switcher">
       <div class="navbar_gutter"></div>
       <div class="navbar_slider"></div>
@@ -153,16 +137,6 @@
 
 <style lang="postcss">
   :global {
-    :root {
-      --navbar-width: 0;
-      --navbar-height: 0;
-    }
-
-    :root.has-navbar {
-      --navbar-width: 16rem;
-      --navbar-height: 3rem;
-    }
-
     /* Change mobile Chrome bottom panel to fit with navbar */
     body {
       background: var(--land-color);
@@ -213,23 +187,6 @@
         max-width: 100%;
         height: var(--navbar-height);
         padding-inline: var(--page-padding);
-      }
-    }
-
-    .navbar_back {
-      width: 2rem;
-      height: 2rem;
-      overflow: hidden;
-    }
-
-    .navbar_move {
-      display: flex;
-      transition: translate var(--simple-time);
-
-      @media (--mobile) {
-        &.is-popup {
-          translate: -2rem 0;
-        }
       }
     }
 

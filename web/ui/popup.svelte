@@ -1,26 +1,34 @@
 <script lang="ts">
-  import { mdiClose } from '@mdi/js'
-  import { router, commonMessages as t } from '@slowreader/core'
+  import { mdiChevronLeft, mdiClose } from '@mdi/js'
+  import { isMobile, router, commonMessages as t } from '@slowreader/core'
   import type { Snippet } from 'svelte'
 
   import { getHashWithoutLastPopup } from '../stores/url-router.ts'
   import Button from './button.svelte'
 
-  let { children, id }: { children: Snippet; id: string } = $props()
+  let {
+    children,
+    header,
+    id
+  }: { children: Snippet; header?: Snippet; id: string } = $props()
 </script>
 
-<aside class="popup">
+<aside {id} class="popup">
   <header class="popup_header">
     <Button
       href={getHashWithoutLastPopup($router)}
-      icon={mdiClose}
+      icon={$isMobile ? mdiChevronLeft : mdiClose}
       size="icon"
+      tabindex={-1}
       variant="plain"
     >
       {$t.closePopup}
     </Button>
+    {#if header}
+      {@render header()}
+    {/if}
   </header>
-  <div {id} class="popup_body">
+  <div class="popup_body">
     {@render children()}
   </div>
 </aside>
@@ -29,6 +37,8 @@
   :global {
     .popup {
       position: fixed;
+      display: flex;
+      flex-direction: column;
       width: var(--popup-size);
 
       @media (--no-mobile) {
@@ -41,17 +51,26 @@
 
       @media (--mobile) {
         inset: 0;
-        bottom: var(--navbar-height);
-        z-index: 9;
+        z-index: 20;
+        flex-direction: column-reverse;
         background: var(--land-color);
       }
     }
 
     .popup_header {
-      padding: 0.25rem;
+      box-sizing: border-box;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      height: var(--navbar-height);
+      padding: 0 0.375rem;
 
       @media (--mobile) {
-        display: none;
+        padding: 0 var(--navbar-padding);
+
+        @mixin background var(--main-land-color);
+
+        box-shadow: var(--bottom-panel-shadow);
       }
     }
 
@@ -59,10 +78,16 @@
       box-sizing: border-box;
       max-width: var(--max-content-width);
       min-height: 100%;
-      padding: 0.5rem var(--page-padding) var(--page-padding)
-        var(--page-padding);
-      margin: 0 auto;
+      padding: var(--page-padding);
       overflow: hidden scroll;
+
+      @media (--no-desktop) {
+        min-height: calc(100% - var(--navbar-height));
+      }
+
+      @media (--mobile) {
+        padding: var(--page-padding);
+      }
     }
   }
 </style>
