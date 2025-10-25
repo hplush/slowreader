@@ -1,8 +1,11 @@
-<script lang="ts">
-  import type { Popup } from '@slowreader/core'
+<script generics="SomePopup extends Popup" lang="ts">
+  import type { LoadedPopup, Popup } from '@slowreader/core'
   import type { Snippet } from 'svelte'
 
-  let { children, popup }: { children: Snippet; popup: Popup } = $props()
+  let {
+    loaded,
+    popup
+  }: { loaded: Snippet<[LoadedPopup<SomePopup>]>; popup: SomePopup } = $props()
   let loading = popup.loading
 </script>
 
@@ -11,5 +14,5 @@
 {:else if popup.notFound}
   404
 {:else}
-  {@render children()}
+  {@render loaded(popup as LoadedPopup<SomePopup>)}
 {/if}

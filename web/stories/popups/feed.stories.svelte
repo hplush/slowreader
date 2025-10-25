@@ -1,10 +1,8 @@
 <script context="module" lang="ts">
-  import type { FeedPopup } from '@slowreader/core'
   import { popups } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import FeedPopupComponent from '../../popups/feed.svelte'
-  import { prepareResponses } from '../environment.ts'
   import LoadedPopup from '../loaded-popup.svelte'
   import Scene from '../scene.svelte'
 
@@ -30,23 +28,25 @@
   }
 </script>
 
-<script lang="ts">
-  prepareResponses([['https://example.com/news.atom', ATOM]])
-  let popup = popups.feed('https://example.com/news.atom')
-</script>
-
 <Story name="New" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene>
-    <LoadedPopup {popup}>
-      <FeedPopupComponent popup={popup as FeedPopup} />
+  <Scene responses={[['https://example.com/news.atom', ATOM]]}>
+    <LoadedPopup popup={popups.feed('https://example.com/news.atom')}>
+      {#snippet loaded(popup)}
+        <FeedPopupComponent {popup} />
+      {/snippet}
     </LoadedPopup>
   </Scene>
 </Story>
 
 <Story name="Added" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene feeds={[{ url: 'https://example.com/news.atom' }]}>
-    <LoadedPopup {popup}>
-      <FeedPopupComponent popup={popup as FeedPopup} />
+  <Scene
+    feeds={[{ url: 'https://example.com/news.atom' }]}
+    responses={[['https://example.com/news.atom', ATOM]]}
+  >
+    <LoadedPopup popup={popups.feed('https://example.com/news.atom')}>
+      {#snippet loaded(popup)}
+        <FeedPopupComponent {popup} />
+      {/snippet}
     </LoadedPopup>
   </Scene>
 </Story>
