@@ -29,7 +29,7 @@ beforeEach(() => {
   enableClientTest({
     warn(e) {
       if (
-        typeof e !== 'string' &&
+        e instanceof Error &&
         (e.name === 'MockRequestError' || !/: 500|: 404|DOM/.test(e.message))
       ) {
         throw e

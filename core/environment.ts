@@ -127,7 +127,7 @@ export interface Environment {
   /**
    * Print warning to help in debugging. Should be not visible by regular user.
    */
-  warn(error: Error | string): void
+  warn(error: unknown): void
 }
 
 export type EnvironmentAndStore = {

@@ -44,7 +44,7 @@
 
 {#if $warningStep}
   <ThinPage center title={$t.signupTitle}>
-    <Stack center gap="xl">
+    <Stack align="center" gap="xl">
       <Note icon={mdiRestartOff} title={$t.noRecoveryTitle} variant="dangerous">
         {$t.noRecoveryDesc}
       </Note>

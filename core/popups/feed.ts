@@ -1,5 +1,6 @@
 import { atom } from 'nanostores'
 
+import { getEnvironment } from '../environment.ts'
 import { addCandidate, type FeedValue, getFeeds } from '../feed.ts'
 import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import { getLoaderForText } from '../loader/index.ts'
@@ -11,7 +12,8 @@ export const feed = definePopup('feed', async url => {
   let response: TextResponse
   try {
     response = await task.text(url)
-  } catch {
+  } catch (e) {
+    getEnvironment().warn(e)
     throw new NotFoundError()
   }
 

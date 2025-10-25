@@ -125,7 +125,7 @@ setupEnvironment({
   warn(msg) {
     // For useful messages for end-users
     // eslint-disable-next-line no-console
-    console.warn(typeof msg === 'string' ? msg : msg.message)
+    console.warn(msg)
   }
 })
 
