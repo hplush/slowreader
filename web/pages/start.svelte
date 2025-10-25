@@ -45,7 +45,7 @@
           <p>{$t.localDescription1}</p>
           <p>{$t.localDescription2}</p>
         </Stack>
-        <Stack center>
+        <Stack align="center">
           <Button
             icon={mdiRocketLaunch}
             onclick={page.startLocal}
@@ -71,7 +71,7 @@
       <Form loading={$signingIn} onsubmit={page.signIn}>
         <Stack>
           <Title>{$t.oldUser}</Title>
-          <Stack center>
+          <Stack align="center">
             <Input
               name="username"
               autocomplete="username"

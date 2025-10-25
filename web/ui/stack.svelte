@@ -2,12 +2,12 @@
   import type { Snippet } from 'svelte'
 
   let {
-    center,
+    align = 'start',
     children,
     gap = 'm',
     row = false
   }: {
-    center?: boolean
+    align?: 'center' | 'end' | 'start'
     children: Snippet
     gap?: 'l' | 'm' | 's' | 'xl' | 'xxl' | 'xxxl'
     row?: boolean
@@ -16,7 +16,9 @@
 
 <div
   class="stack"
-  class:is-center={center}
+  class:is-align-center={align === 'center'}
+  class:is-align-end={align === 'end'}
+  class:is-align-start={align === 'start'}
   class:is-gap-l={gap === 'l'}
   class:is-gap-m={gap === 'm'}
   class:is-gap-s={gap === 's'}
@@ -33,11 +35,18 @@
     .stack {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
       width: stretch;
 
-      &.is-center {
+      &.is-align-start {
+        align-items: flex-start;
+      }
+
+      &.is-align-center {
         align-items: center;
+      }
+
+      &.is-align-end {
+        align-items: flex-end;
       }
 
       &.is-row {

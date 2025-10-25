@@ -29,7 +29,7 @@
 </script>
 
 <PopupablePage title={$t.title}>
-  <Stack center {gap}>
+  <Stack align="center" {gap}>
     <Input
       aria-controls="add-results"
       errorId={$error || $noResults ? 'add-error' : undefined}

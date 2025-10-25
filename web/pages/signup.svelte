@@ -49,7 +49,7 @@
         {$t.noRecoveryDesc}
       </Note>
       <Paper lines={[$userId, $secret]} />
-      <Stack center>
+      <Stack align="center">
         <Title>{$t.savePassword}</Title>
         <Button
           href={$mailTo}
@@ -84,7 +84,7 @@
     {#snippet one()}
       <Card>
         <Form loading={$signingUp} onsubmit={page.submit}>
-          <Stack center>
+          <Stack align="center">
             <Output
               name="username"
               autocomplete="username"

@@ -19,7 +19,7 @@
       </Button>
     </PageAction>
   {/if}
-  <Stack center gap="xl">
+  <Stack align="center" gap="xl">
     <PageIcon extra={mdiFire} path={mdiBookOpenPageVariant} />
     <Title>{$t.pageText}</Title>
   </Stack>

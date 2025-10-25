@@ -12,7 +12,7 @@
 </script>
 
 <Popup id={`${popup.id}-not-found`}>
-  <Stack center gap="xl">
+  <Stack align="center" gap="xl">
     <PageIcon extra={mdiFire} path={mdiBookOpenPageVariant} />
     <Title>{$t.popupNotFound}</Title>
   </Stack>
