@@ -11,7 +11,10 @@
   --navbar-height: 3rem;
   --min-size: 1px;
   --navbar-width: 0px;
-  --popup-size: calc((100vw - var(--navbar-width)) / 2);
+  --popup-size: min(
+    calc((100vw - var(--navbar-width)) / 2),
+    calc(var(--max-content-width) + 2 * var(--page-padding))
+  );
 
   &.has-navbar {
     --navbar-width: 16rem;
@@ -28,6 +31,10 @@
   @media (--no-desktop) {
     --page-padding: 0.5rem;
     --navbar-padding: 0.5rem;
+
+    &.has-navbar {
+      --navbar-width: 0px;
+    }
   }
 
   @media (--tablet) {

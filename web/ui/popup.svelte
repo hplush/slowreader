@@ -15,6 +15,9 @@
 
 <aside {id} class="popup">
   <header class="popup_header">
+    {#if header}
+      {@render header()}
+    {/if}
     <Button
       href={getHashWithoutLastPopup($router)}
       icon={$isMobile ? mdiChevronLeft : mdiClose}
@@ -24,12 +27,11 @@
     >
       {$t.closePopup}
     </Button>
-    {#if header}
-      {@render header()}
-    {/if}
   </header>
   <div class="popup_body">
-    {@render children()}
+    <div class="popup_content">
+      {@render children()}
+    </div>
   </div>
 </aside>
 
@@ -60,34 +62,33 @@
     .popup_header {
       box-sizing: border-box;
       display: flex;
+      flex-direction: row-reverse;
       gap: 0.5rem;
       align-items: center;
-      height: var(--navbar-height);
-      padding: 0 0.375rem;
+      justify-content: space-between;
+      padding: 0.5rem var(--page-padding);
 
       @media (--mobile) {
+        height: var(--navbar-height);
         padding: 0 var(--navbar-padding);
+        box-shadow: var(--bottom-panel-shadow);
 
         @mixin background var(--main-land-color);
-
-        box-shadow: var(--bottom-panel-shadow);
       }
     }
 
     .popup_body {
       box-sizing: border-box;
-      max-width: var(--max-content-width);
-      min-height: 100%;
-      padding: var(--page-padding);
+      height: calc(100% - var(--navbar-height));
       overflow: hidden scroll;
-
-      @media (--no-desktop) {
-        min-height: calc(100% - var(--navbar-height));
-      }
 
       @media (--mobile) {
         padding: var(--page-padding);
       }
+    }
+
+    .popup_content {
+      padding: var(--page-padding);
     }
   }
 </style>
