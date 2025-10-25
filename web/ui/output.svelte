@@ -33,6 +33,7 @@
 <style>
   :global {
     .output {
+      flex-shrink: 1;
       width: stretch;
     }
 

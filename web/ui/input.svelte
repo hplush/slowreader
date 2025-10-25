@@ -109,6 +109,7 @@
 <style>
   :global {
     .input {
+      flex-shrink: 1;
       width: stretch;
     }
 
