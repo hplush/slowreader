@@ -269,8 +269,8 @@
         overflow: hidden;
         box-shadow: inset 0 -0.5px 0 oklch(0 0 0 / 30%);
         transition:
-          max-height var(--big-open-time) var(--slide-easing),
-          padding var(--big-open-time) var(--slide-easing);
+          max-height var(--big-time) var(--slide-easing),
+          padding var(--big-time) var(--slide-easing);
 
         &:not(.is-opened) {
           padding-block: 0;
@@ -279,7 +279,7 @@
         &.is-opened {
           max-height: calc(100vh - var(--control-height) - 0.5rem);
           overflow: auto;
-          transition-duration: var(--big-close-time);
+          transition-duration: var(--big-time);
         }
 
         &:empty {
