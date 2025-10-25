@@ -1,6 +1,11 @@
 <script lang="ts">
   import { mdiChevronRight, mdiCircleSmall } from '@mdi/js'
-  import { type FeedLoader, type FeedValue, getPopupId } from '@slowreader/core'
+  import {
+    type FeedLoader,
+    type FeedValue,
+    getPopupId,
+    isMobile
+  } from '@slowreader/core'
 
   import { getPopupHash } from '../stores/url-router.ts'
   import Clickable from './clickable.svelte'
@@ -29,11 +34,12 @@
       >
         <div class="feeds_cap">
           {feed.title}
-          <div class="feeds_dot">
-            <Icon path={mdiCircleSmall} />
-          </div>
           <div class="feeds_arrow">
-            <Icon path={mdiChevronRight} />
+            <Icon
+              path={$isMobile || current === feed.url
+                ? mdiChevronRight
+                : mdiCircleSmall}
+            />
           </div>
         </div>
       </Clickable>
@@ -100,8 +106,7 @@
       }
     }
 
-    .feeds_arrow,
-    .feeds_dot {
+    .feeds_arrow {
       --icon-size: 1.2rem;
 
       position: absolute;
@@ -112,26 +117,6 @@
 
       .feeds_item:not([aria-current='page']) & {
         opacity: 20%;
-      }
-    }
-
-    .feeds_arrow {
-      @media (--no-mobile) {
-        .feeds_item:not([aria-current='page']) & {
-          display: none;
-        }
-      }
-    }
-
-    .feeds_dot {
-      @media (--mobile) {
-        display: none;
-      }
-
-      @media (--no-mobile) {
-        .feeds_item[aria-current='page'] & {
-          display: none;
-        }
       }
     }
   }
