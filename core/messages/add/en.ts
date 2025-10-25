@@ -1,8 +1,6 @@
 import { i18n } from '../../i18n.ts'
 
 export const addMessages = i18n('add', {
-  add: 'Subscribe to feed',
-  edit: 'Edit',
   invalidUrl: 'There seems to be a mistake in the URL. Please check it.',
   noResults:
     'No feeds were found on this website.\n\n' +
