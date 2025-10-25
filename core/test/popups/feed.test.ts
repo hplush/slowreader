@@ -10,7 +10,6 @@ import {
   changeFeed,
   checkAndRemoveRequestMock,
   closeLastPopup,
-  deleteFeed,
   expectRequest,
   getFeed,
   mockRequest,
@@ -96,7 +95,7 @@ test('loads feeds by URL popup', async () => {
   await changeFeed(feedId, { title: 'Test Atom' })
   equal(checkLoadedPopup(popup).feed.get()!.title, 'Test Atom')
 
-  await deleteFeed(feedId)
+  await checkLoadedPopup(popup).remove()
   equal(checkLoadedPopup(popup).feed.get(), undefined)
 })
 
@@ -139,7 +138,7 @@ test('destroys replaced popups and keep unchanged', async () => {
   closeLastPopup()
   deepStrictEqual(openedPopups.get(), [popup1])
 
-  await deleteFeed(feedId)
+  await checkLoadedPopup(popup1).remove()
   equal(checkLoadedPopup(popup1).feed.get(), undefined)
   equal(checkLoadedPopup(popup2).feed.get()?.id, feedId)
 })

@@ -1,7 +1,7 @@
 import { atom } from 'nanostores'
 
 import { getEnvironment } from '../environment.ts'
-import { addCandidate, type FeedValue, getFeeds } from '../feed.ts'
+import { addCandidate, deleteFeed, type FeedValue, getFeeds } from '../feed.ts'
 import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import { getLoaderForText } from '../loader/index.ts'
 import { NotFoundError } from '../not-found.ts'
@@ -44,6 +44,13 @@ export const feed = definePopup('feed', async url => {
     }
   })
 
+  async function remove(): Promise<void> {
+    let created = $feed.get()
+    if (created) {
+      await deleteFeed(created.id)
+    }
+  }
+
   async function add(): Promise<string> {
     return await addCandidate(candidate, {}, task, response)
   }
@@ -56,7 +63,8 @@ export const feed = definePopup('feed', async url => {
       unbindFeed()
     },
     feed: $feed,
-    posts
+    posts,
+    remove
   }
 })
 
