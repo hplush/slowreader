@@ -1,7 +1,7 @@
 name: Messages
 on:
   schedule:
-    - cron: '00 04 * * *' # Runs at night every day
+    - cron: '00 04 * * 1' # Runs at night every Monday
   push:
     branches:
       - main
@@ -38,9 +38,9 @@ jobs:
             fi
           else
             now=$(date -u +%s)
-            twenty_four_hours_ago=$((now - 86400))
+            seven_days_ago=$((now - 604800))
             last_commit_time=$(git log -1 --format=%ct)
-            if [ "$last_commit_time" -ge "$twenty_four_hours_ago" ]; then
+            if [ "$last_commit_time" -ge "$seven_days_ago" ]; then
               echo "should_run=true" >> "$GITHUB_OUTPUT"
             else
               echo "should_run=false" >> "$GITHUB_OUTPUT"
