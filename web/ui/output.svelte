@@ -41,7 +41,7 @@
       width: stretch;
       height: var(--control-height);
       padding: 0 var(--control-padding);
-      font: var(--control-mono-font);
+      font: var(--mono-font);
       background: --tune-background(--flat-button);
       border: none;
       border-radius: var(--base-radius);

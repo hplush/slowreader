@@ -26,6 +26,5 @@
   --control-font: 500 0.9375rem/1.2 var(--text-family);
   --control-secondary-font: 500 0.875rem/1.2 var(--text-family);
   --mono-font: 400 1rem/1.6 var(--mono-family);
-  --control-mono-font: 500 1rem/1.6 var(--mono-family);
   --handwritten-font: 600 1.125rem/1 var(--handwritten-family);
 }
