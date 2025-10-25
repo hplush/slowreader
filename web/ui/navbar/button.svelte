@@ -73,6 +73,12 @@
 
       &.is-icon {
         width: var(--control-height);
+
+        &:hover:not([aria-current='page']),
+        &:active:not([aria-current='page']),
+        &:focus-visible:not([aria-current='page']) {
+          background: --tune-background(--flat-button --flat-button-hover);
+        }
       }
 
       &[aria-current='page'] {
