@@ -38,7 +38,6 @@ export interface Routes {
 
 export const popupNames = {
   feed: true,
-  feedUrl: true,
   post: true,
   refresh: true
 }

@@ -17,7 +17,7 @@
   import ProfilePage from '../pages/profile.svelte'
   import SignupPage from '../pages/signup.svelte'
   import StartPage from '../pages/start.svelte'
-  import FeedUrlPopup from '../popups/feed-url.svelte'
+  import FeedPopup from '../popups/feed.svelte'
   import LoadingPopup from '../popups/loading.svelte'
   import NotFoundPopup from '../popups/not-found.svelte'
   import Button from '../ui/button.svelte'
@@ -80,8 +80,8 @@
     <LoadingPopup {popup} />
   {:else if popupNotFound}
     <NotFoundPopup {popup} />
-  {:else if popup.name === 'feedUrl'}
-    <FeedUrlPopup {popup} />
+  {:else if popup.name === 'feed'}
+    <FeedPopup {popup} />
   {/if}
 {/if}
 {#each popupOther as i (i.id)}

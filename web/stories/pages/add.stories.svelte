@@ -141,7 +141,7 @@
       'https://example.com/news.atom': ATOM
     }}
     route={{
-      hash: `#feedUrl=https://example.com/news.atom`,
+      hash: `#feed=https://example.com/news.atom`,
       params: { candidate: undefined, url: 'https://example.com' },
       route: 'add'
     }}

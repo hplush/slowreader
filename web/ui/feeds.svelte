@@ -15,10 +15,6 @@
     id?: string
     list: readonly (FeedLoader | FeedValue)[]
   } = $props()
-
-  function getId(feed: FeedLoader | FeedValue): string {
-    return 'id' in feed ? feed.id : feed.url
-  }
 </script>
 
 <ol {id} class="feeds" role="menu">
@@ -26,10 +22,8 @@
     <li>
       <Clickable
         class="feeds_item"
-        aria-current={current === getId(feed) ? 'page' : null}
-        href={'id' in feed
-          ? getPopupHash(undefined, 'feed', feed.id)
-          : getPopupHash(undefined, 'feedUrl', feed.url)}
+        aria-current={current === feed.url ? 'page' : null}
+        href={getPopupHash(undefined, 'feed', feed.url)}
         role="menuitem"
       >
         <div class="feeds_cap">

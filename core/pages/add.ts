@@ -76,7 +76,7 @@ export const addPage = createPage('add', () => {
 
   let $opened = computed(router, route => {
     let popup = route.popups[0]
-    if (popup?.popup === 'feedUrl') {
+    if (popup?.popup === 'feed') {
       return popup.param
     }
   })
@@ -246,7 +246,7 @@ export const addPage = createPage('add', () => {
   let unbindCandidates = $candidates.listen(candidates => {
     if (candidates[0] && !isMobile.get()) {
       let url = candidates[0].url
-      if ($opened.get() !== url) setPopups([['feedUrl', url]])
+      if ($opened.get() !== url) setPopups([['feed', url]])
     }
   })
 

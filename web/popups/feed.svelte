@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { FeedUrlPopup } from '@slowreader/core'
+  import type { FeedPopup } from '@slowreader/core'
 
   import Popup from '../ui/popup.svelte'
 
-  let { popup }: { popup: FeedUrlPopup } = $props()
+  let { popup }: { popup: FeedPopup } = $props()
 </script>
 
 <Popup id={popup.id}>

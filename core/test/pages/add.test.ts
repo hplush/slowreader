@@ -548,7 +548,7 @@ test('opens first candidate', async () => {
 
   equal(page.opened.get(), 'https://example.com/atom')
   equal(openedPopups.get().length, 1)
-  let popup = getPopup('feedUrl')
+  let popup = getPopup('feed')
   await setTimeout(1)
   equal(popup.param, 'https://example.com/atom')
   equal(popup.loading.get(), false)
