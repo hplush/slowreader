@@ -106,10 +106,10 @@ let mockedRequest: RequestMethod = url => {
 }
 
 export function prepareResponses(
-  responses: Record<string, PreparedResponse | string>
+  responses: [string, PreparedResponse | string][]
 ): void {
   preparedResponses = {}
-  for (let [url, response] of Object.entries(responses)) {
+  for (let [url, response] of responses) {
     if (typeof response === 'string') {
       preparedResponses[url] = {
         body: response,

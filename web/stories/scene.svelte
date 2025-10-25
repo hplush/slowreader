@@ -36,14 +36,14 @@
     children,
     feeds,
     oninit = () => {},
-    responses = {},
+    responses = [],
     route,
     user = true
   }: {
     children: Snippet
     feeds?: Partial<FeedValue>[]
     oninit?: () => void
-    responses?: Record<string, PreparedResponse | string>
+    responses?: [string, PreparedResponse | string][]
     route?: BaseRoute | Omit<BaseRoute, 'hash'> | ParamlessRouteName
     user?: boolean
   } = $props()

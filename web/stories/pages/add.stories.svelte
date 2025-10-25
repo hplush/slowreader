@@ -90,7 +90,7 @@
 
 <Story name="Searching" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    responses={{ 'https://example.com': { loading: true } }}
+    responses={[['https://example.com', { loading: true }]]}
     route={{
       params: { candidate: undefined, url: 'https://example.com' },
       route: 'add'
@@ -110,7 +110,7 @@
 
 <Story name="Loading Error" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    responses={{ 'https://example.com': { status: 404 } }}
+    responses={[['https://example.com', { status: 404 }]]}
     route={{
       params: { candidate: undefined, url: 'https://example.com' },
       route: 'add'
@@ -122,7 +122,10 @@
 
 <Story name="No Feeds" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    responses={{ '*': { status: 404 }, 'https://example.com': '<html></html>' }}
+    responses={[
+      ['*', { status: 404 }],
+      ['https://example.com', '<html></html>']
+    ]}
     route={{
       params: { candidate: undefined, url: 'https://example.com' },
       route: 'add'
@@ -134,12 +137,12 @@
 
 <Story name="Feeds" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    responses={{
-      'https://example.com': HTML_WITH_LINKS,
-      'https://example.com/comments.rss': RSS,
-      'https://example.com/long.atom': LONG_ATOM,
-      'https://example.com/news.atom': ATOM
-    }}
+    responses={[
+      ['https://example.com', HTML_WITH_LINKS],
+      ['https://example.com/comments.rss', RSS],
+      ['https://example.com/long.atom', LONG_ATOM],
+      ['https://example.com/news.atom', ATOM]
+    ]}
     route={{
       hash: `#feed=https://example.com/news.atom`,
       params: { candidate: undefined, url: 'https://example.com' },
@@ -153,10 +156,10 @@
 <Story name="Added" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     feeds={[{ url: 'https://example.com/news.atom' }]}
-    responses={{
-      'https://example.com': HTML_WITH_LINK,
-      'https://example.com/news.atom': ATOM
-    }}
+    responses={[
+      ['https://example.com', HTML_WITH_LINK],
+      ['https://example.com/news.atom', ATOM]
+    ]}
     route={{
       params: { candidate: undefined, url: 'https://example.com' },
       route: 'add'
@@ -174,10 +177,10 @@
 >
   <Scene
     feeds={[{ url: 'https://example.com/news.atom' }]}
-    responses={{
-      'https://example.com': HTML_WITH_LINK,
-      'https://example.com/news.atom': ATOM
-    }}
+    responses={[
+      ['https://example.com', HTML_WITH_LINK],
+      ['https://example.com/news.atom', ATOM]
+    ]}
     route={{
       params: { candidate: undefined, url: 'https://example.com' },
       route: 'add'
@@ -194,10 +197,10 @@
 >
   <Scene
     feeds={[{ url: 'https://example.com/news.atom' }]}
-    responses={{
-      'https://example.com': HTML_WITH_LINK,
-      'https://example.com/news.atom': ATOM
-    }}
+    responses={[
+      ['https://example.com', HTML_WITH_LINK],
+      ['https://example.com/news.atom', ATOM]
+    ]}
     route={{
       params: { candidate: undefined, url: 'https://example.com' },
       route: 'add'
