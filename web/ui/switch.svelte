@@ -112,7 +112,7 @@
       height: calc(var(--control-height) + var(--switch-diff));
       background: --tune-background(--gutter, --dangerous);
       border-radius: calc(var(--base-radius) + var(--slider-padding));
-      box-shadow: var(--gutter-shadow);
+      box-shadow: var(--field-shadow);
       corner-shape: squircle;
 
       .switch:active & {

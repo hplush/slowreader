@@ -206,7 +206,7 @@
       z-index: 1;
       background: --tune-background(--gutter);
       border-radius: calc(var(--base-radius) + var(--slider-padding));
-      box-shadow: var(--gutter-shadow);
+      box-shadow: var(--field-shadow);
       transition: right var(--simple-time) var(--slide-easing);
       corner-shape: squircle;
 

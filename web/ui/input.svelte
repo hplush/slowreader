@@ -124,10 +124,6 @@
       box-shadow: var(--field-shadow);
       corner-shape: squircle;
 
-      &:focus-visible {
-        outline-offset: 0;
-      }
-
       &[aria-invalid] {
         background: --tune-background(--secondary, --dangerous);
         box-shadow:

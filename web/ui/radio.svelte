@@ -74,7 +74,7 @@
       grid-auto-flow: column;
       background: --tune-background(--gutter);
       border-radius: calc(var(--base-radius) + var(--slider-padding));
-      box-shadow: var(--gutter-shadow);
+      box-shadow: var(--field-shadow);
       corner-shape: squircle;
     }
 

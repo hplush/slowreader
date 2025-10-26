@@ -43,15 +43,11 @@
       height: var(--control-height);
       padding: 0 var(--control-padding);
       font: var(--mono-font);
-      background: --tune-background(--flat-button);
+      background: --tune-background(--gutter);
       border: none;
       border-radius: var(--base-radius);
       box-shadow: var(--field-shadow);
       corner-shape: squircle;
-
-      &:focus-visible {
-        outline-offset: 0;
-      }
     }
   }
 </style>
