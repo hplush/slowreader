@@ -10,7 +10,7 @@
   "packageManager": "pnpm@10.19.0",
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run -r --include-workspace-root /^test:/",
-    "offline": "FORCE_COLOR=1 pnpm run -r --include-workspace-root '/^test:(?!audit\\b|markdown\\b|loaders\\b|format\\b)/'",
+    "offline": "FORCE_COLOR=1 pnpm run -r --include-workspace-root '/^test:(?!online\\b)/'",
     "start": "FORCE_COLOR=1 pnpm run -F server -F web start",
     "format": "pnpm run -r --include-workspace-root /^format:/",
     "clean": "pnpm run -r --include-workspace-root /^clean:/",
@@ -25,11 +25,11 @@
     "format:prettier": "prettier --experimental-cli --write .",
     "test:js": "eslint --concurrency=auto --cache .",
     "test:types": "svelte-check",
-    "test:audit": "pnpm audit --prod",
+    "test:online:audit": "pnpm audit --prod",
     "test:focused": "node ./scripts/check-focused-tests.ts",
     "test:messages": "node ./scripts/check-messages.ts",
     "test:versions": "node ./scripts/check-versions.ts",
-    "test:markdown": "remark . --frail",
+    "test:online:markdown": "remark . --frail",
     "test:format": "prettier --experimental-cli --check ."
   },
   "devDependencies": {

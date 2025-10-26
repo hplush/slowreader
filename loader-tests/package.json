@@ -8,10 +8,10 @@
   },
   "scripts": {
     "check-opml": "tsx check-opml.ts",
-    "test": "node --run test:loaders",
+    "test": "node --run test:online:loaders",
     "url": "tsx url.ts",
     "home": "tsx home.ts",
-    "test:loaders": "tsx test-loaders.ts"
+    "test:online:loaders": "tsx test-loaders.ts"
   },
   "devDependencies": {
     "@slowreader/core": "workspace:*",
