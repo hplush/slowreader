@@ -144,10 +144,6 @@
         cursor: default;
       }
 
-      &:focus-visible {
-        outline-offset: 0;
-      }
-
       html:not(.is-quiet-cursor) & {
         cursor: pointer;
       }

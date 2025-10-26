@@ -160,7 +160,10 @@
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
-      width: var(--navbar-width);
+
+      @media (--desktop) {
+        width: calc(var(--navbar-width) + 0.3125rem);
+      }
 
       @media (--no-desktop) {
         @mixin background var(--main-land-color);
@@ -179,7 +182,7 @@
       display: flex;
       gap: 0.125rem;
       justify-content: stretch;
-      padding: var(--navbar-padding) 0 var(--navbar-padding) 0.125rem;
+      padding: var(--navbar-padding);
 
       @media (--no-desktop) {
         justify-content: space-between;
@@ -257,9 +260,12 @@
       flex-shrink: 1;
       flex-direction: column;
       gap: 0.125rem;
-      padding: 0.125rem 0.25rem;
-      margin-inline-end: -0.5rem;
+      padding: 0.25rem 0.375rem;
       overflow-y: auto;
+
+      @media (--desktop) {
+        margin-top: -0.25rem;
+      }
 
       @media (--no-desktop) {
         order: -1;

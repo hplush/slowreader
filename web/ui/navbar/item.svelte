@@ -74,10 +74,6 @@
         background: --tune-background(--flat-button);
       }
 
-      &:focus-visible {
-        outline-offset: 0;
-      }
-
       &[aria-current='page'] {
         z-index: 2;
         background: --tune-background(--current);
@@ -107,11 +103,11 @@
     .navbar-item_cap {
       box-sizing: border-box;
       display: flex;
-      gap: 0.3125rem;
+      gap: 0.5rem;
       align-items: center;
       justify-content: flex-start;
       height: var(--control-height);
-      padding: 0 0.5rem;
+      padding: 0 0.625rem;
 
       .navbar-item:not([aria-current='page']):active & {
         translate: 0 1px;

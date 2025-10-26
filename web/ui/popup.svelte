@@ -84,7 +84,7 @@
       flex-direction: row-reverse;
       align-items: center;
       justify-content: space-between;
-      padding: 0.5rem var(--page-padding);
+      padding: var(--navbar-padding) var(--page-padding);
 
       @media (--mobile) {
         height: var(--navbar-height);

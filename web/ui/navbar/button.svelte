@@ -99,10 +99,6 @@
       &:focus-visible:not([aria-current='page']) {
         background: var(--slider-hover-background);
       }
-
-      &:focus-visible {
-        outline-offset: 0;
-      }
     }
 
     .navbar-button_cap {

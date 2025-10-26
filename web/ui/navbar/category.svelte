@@ -86,7 +86,7 @@
       display: flex;
       gap: 0.3125rem;
       width: stretch;
-      padding: 0.375rem 0 0.125rem 0.5rem;
+      padding: 0.3125rem 0 0.125rem 0.5rem;
       background: transparent;
       border-radius: var(--base-radius);
       corner-shape: squircle;
@@ -100,12 +100,8 @@
       }
 
       .navbar-category:not(.is-closable) & {
-        padding-inline-start: 1.8125rem;
+        padding-inline-start: 2rem;
         cursor: default;
-      }
-
-      &:focus-visible {
-        outline-offset: 0;
       }
     }
 
