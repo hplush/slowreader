@@ -1,11 +1,7 @@
 <script lang="ts">
+  import { mdiPlusCircleOutline, mdiTrashCanOutline } from '@mdi/js'
   import {
-    mdiFireplace,
-    mdiFood,
-    mdiPlusCircleOutline,
-    mdiTrashCanOutline
-  } from '@mdi/js'
-  import {
+    addCategory,
     changeFeed,
     type FeedPopup,
     organizeMessages as t
@@ -16,11 +12,12 @@
   import Output from '../ui/output.svelte'
   import Popup from '../ui/popup.svelte'
   import Radio from '../ui/radio.svelte'
+  import Select from '../ui/select.svelte'
   import Stack from '../ui/stack.svelte'
 
   let { popup }: { popup: FeedPopup } = $props()
 
-  let { feed } = popup
+  let { categories, feed } = popup
 </script>
 
 <Popup id={popup.id}>
@@ -49,17 +46,33 @@
         }}
         value={$feed.title}
       />
-      <Radio
-        label={$t.type}
-        onchange={reading => {
-          changeFeed($feed.id, { reading })
-        }}
-        value={$feed.reading}
-        values={[
-          ['slow', $t.slow, mdiFireplace],
-          ['fast', $t.fast, mdiFood]
-        ]}
-      />
+      <Stack row>
+        <Radio
+          label={$t.type}
+          onchange={reading => {
+            changeFeed($feed.id, { reading })
+          }}
+          value={$feed.reading}
+          values={[
+            ['slow', $t.slow],
+            ['fast', $t.fast]
+          ]}
+          wide
+        />
+        <Select
+          label={$t.category}
+          onchange={async value => {
+            if (value === 'new') {
+              let title = prompt($t.categoryName)
+              if (!title) return
+              value = await addCategory({ title })
+            }
+            changeFeed($feed.id, { categoryId: value })
+          }}
+          value={$feed.categoryId}
+          values={$categories}
+        />
+      </Stack>
     {/if}
   </Stack>
 </Popup>

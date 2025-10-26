@@ -13,7 +13,7 @@
     label: string
     onchange: (value: Value) => void
     value: Value
-    values: [Value, string][]
+    values: readonly [Value, string][]
   } = $props()
 
   let id = $props.id()

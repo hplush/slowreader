@@ -1,26 +1,40 @@
 import { atom } from 'nanostores'
 
+import { getCategories } from '../category.ts'
 import { getEnvironment } from '../environment.ts'
 import { addCandidate, deleteFeed, type FeedValue, getFeeds } from '../feed.ts'
-import { createDownloadTask, type TextResponse } from '../lib/download.ts'
+import {
+  createDownloadTask,
+  type DownloadTask,
+  type TextResponse
+} from '../lib/download.ts'
+import { waitSyncLoading } from '../lib/stores.ts'
 import { getLoaderForText } from '../loader/index.ts'
+import { commonMessages } from '../messages/index.ts'
 import { NotFoundError } from '../not-found.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
-export const feed = definePopup('feed', async url => {
-  let task = createDownloadTask({ cache: 'read' })
-  let response: TextResponse
+async function loadFeedFromURL(
+  task: DownloadTask,
+  url: string
+): Promise<TextResponse> {
   try {
-    response = await task.text(url)
+    return await task.text(url)
   } catch (e) {
     getEnvironment().warn(e)
     throw new NotFoundError()
   }
+}
+
+export const feed = definePopup('feed', async url => {
+  let task = createDownloadTask({ cache: 'read' })
+  let [response, categoriesFilter] = await Promise.all([
+    loadFeedFromURL(task, url),
+    waitSyncLoading(getCategories())
+  ])
 
   let search = getLoaderForText(response)
-  if (!search) {
-    throw new NotFoundError()
-  }
+  if (!search) throw new NotFoundError()
   let candidate = search
 
   let posts = candidate.loader.getPosts(task, url, response)
@@ -44,6 +58,18 @@ export const feed = definePopup('feed', async url => {
     }
   })
 
+  let $categories = atom<[string, string][]>([])
+  let unbindCategories = categoriesFilter.subscribe(value => {
+    let list = value.list.map(
+      category => [category.id, category.title] as [string, string]
+    )
+    $categories.set([
+      ['general', commonMessages.get().generalCategory] as [string, string],
+      ...list,
+      ['new', commonMessages.get().addCategory] as [string, string]
+    ])
+  })
+
   async function remove(): Promise<void> {
     let created = $feed.get()
     if (created) {
@@ -57,10 +83,12 @@ export const feed = definePopup('feed', async url => {
 
   return {
     add,
+    categories: $categories,
     destroy() {
       task.destroy()
       unbindFeeds()
       unbindFeed()
+      unbindCategories()
     },
     feed: $feed,
     posts,

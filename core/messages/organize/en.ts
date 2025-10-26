@@ -1,7 +1,6 @@
 import { i18n } from '../../i18n.ts'
 
 export const organizeMessages = i18n('organize', {
-  addCategory: 'Add category…',
   addFeed: 'Subscribe',
   addFilter: 'Add filter',
   byCategoryTitle: 'Feeds by category',

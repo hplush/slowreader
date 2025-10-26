@@ -6,6 +6,7 @@ import { deepStrictEqual, equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 
 import {
+  addCategory,
   addFeed,
   changeFeed,
   checkAndRemoveRequestMock,
@@ -82,6 +83,18 @@ test('loads feeds by URL popup', async () => {
   deepStrictEqual(checkLoadedPopup(popup).posts.get().isLoading, false)
   deepStrictEqual(checkLoadedPopup(popup).posts.get().list.length, 2)
   deepStrictEqual(checkLoadedPopup(popup).posts.get().list[0]?.originId, '2')
+
+  deepStrictEqual(checkLoadedPopup(popup).categories.get(), [
+    ['general', 'General'],
+    ['new', 'Add category…']
+  ])
+
+  let id = await addCategory({ title: 'Test' })
+  deepStrictEqual(checkLoadedPopup(popup).categories.get(), [
+    ['general', 'General'],
+    [id, 'Test'],
+    ['new', 'Add category…']
+  ])
 
   let addedId = await checkLoadedPopup(popup).add()
   let feedId = checkLoadedPopup(popup).feed.get()!.id

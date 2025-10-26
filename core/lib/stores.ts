@@ -1,8 +1,6 @@
 // Helpers to work with Nano Stores and Logux to simplify code
 // by moving complexity to helper.
 
-import type { SyncMapValues } from '@logux/actions'
-import type { LoadedSyncMap, SyncMapStore } from '@logux/client'
 import type { Action } from '@logux/core'
 import {
   type MapStore,
@@ -50,12 +48,20 @@ export function waitLoading(store: ReadableAtom): Promise<void> {
   })
 }
 
+export type LoadedValue<Type extends { isLoading: boolean }> = {
+  isLoading: false
+} & Type
+
+export type LoadableStore = {
+  readonly loading: Promise<unknown>
+} & ReadableAtom<{ isLoading: boolean }>
+
 /**
  * Return promise which wait until `store.isLoading` is stop to have `true`.
  */
-export async function waitSyncLoading<Value extends SyncMapValues>(
-  store: SyncMapStore<Value>
-): Promise<LoadedSyncMap<SyncMapStore<Value>>> {
+export async function waitSyncLoading<Store extends LoadableStore>(
+  store: Store
+): Promise<ReadableAtom<LoadedValue<StoreValue<Store>>>> {
   let value = store.get()
   if (value.isLoading) {
     let unbind = store.listen(() => {})
@@ -65,7 +71,7 @@ export async function waitSyncLoading<Value extends SyncMapValues>(
       unbind()
     }
   }
-  return store as LoadedSyncMap<SyncMapStore<Value>>
+  return store as unknown as ReadableAtom<LoadedValue<StoreValue<Store>>>
 }
 
 /**
