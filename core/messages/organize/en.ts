@@ -14,7 +14,7 @@ export const organizeMessages = i18n('organize', {
     'This will permanently delete the feed, including its statistics and posts. Are you sure?',
   deleteFeed: 'Delete feed',
   deleteFilter: 'Delete filter',
-  fast: 'Fast reading (fun but not deep)',
+  fast: 'Fun',
   feedUrl: 'Feed URL',
   filterAction: 'Filter action',
   filterActionDelete: 'Delete post',
@@ -24,8 +24,8 @@ export const organizeMessages = i18n('organize', {
   invalidFilter: 'Invalid filter query',
   moveFilterDown: 'Move down',
   moveFilterUp: 'Move up',
-  name: 'Feed name',
   renameCategory: 'Rename category',
-  slow: 'Slow reading (deep and meaningful)',
+  slow: 'Useful',
+  title: 'Feed name',
   type: 'Feed type'
 })
