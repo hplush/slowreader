@@ -12,7 +12,7 @@
     label: string
     onchange: (value: Value) => void
     value: Value
-    values: [Value, string, string][]
+    values: [Value, string, string?][]
     wide?: boolean
   } = $props()
 
@@ -49,7 +49,9 @@
             type="radio"
             value={key}
           />
-          <Icon path={icon} />
+          {#if icon}
+            <Icon path={icon} />
+          {/if}
           {name}
         </div>
       </label>

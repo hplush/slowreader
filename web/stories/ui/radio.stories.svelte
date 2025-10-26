@@ -74,6 +74,18 @@
         ['three', 'Three', mdiNumeric3BoxOutline]
       ]}
     />
+    <Radio
+      label="Iconless"
+      onchange={value => {
+        store3 = value
+      }}
+      value={store3}
+      values={[
+        ['one', '1'],
+        ['two', '2'],
+        ['three', 'Three']
+      ]}
+    />
   </Section>
   <Section
     active="fieldset:nth-child(2) label:first-of-type"
