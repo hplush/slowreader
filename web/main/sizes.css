@@ -11,10 +11,7 @@
   --navbar-height: 3rem;
   --min-size: 1px;
   --navbar-width: 0px;
-  --popup-size: min(
-    calc((100vw - var(--navbar-width)) / 2),
-    calc(var(--max-content-width) + 2 * var(--page-padding))
-  );
+  --popup-size: calc((100vw - var(--navbar-width)) / 2);
 
   &.has-navbar {
     --navbar-width: 16rem;

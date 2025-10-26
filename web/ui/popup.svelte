@@ -50,6 +50,7 @@
 
         inset-block: 0;
         inset-inline-end: 0;
+        align-items: center;
         box-shadow: var(--popup-shadow);
       }
 
@@ -61,11 +62,26 @@
       }
     }
 
+    .popup_header,
+    .popup_body {
+      @media (--no-mobile) {
+        width: stretch;
+        max-width: min(
+          calc(var(--max-content-width) + 2 * var(--page-padding)),
+          var(--popup-size)
+        );
+      }
+    }
+
+    .popup_header,
+    .popup_other {
+      display: flex;
+      gap: 0.5rem;
+    }
+
     .popup_header {
       box-sizing: border-box;
-      display: flex;
       flex-direction: row-reverse;
-      gap: 0.5rem;
       align-items: center;
       justify-content: space-between;
       padding: 0.5rem var(--page-padding);
@@ -77,11 +93,6 @@
 
         @mixin background var(--main-land-color);
       }
-    }
-
-    .popup_other {
-      display: flex;
-      gap: 0.5rem;
     }
 
     .popup_body {
