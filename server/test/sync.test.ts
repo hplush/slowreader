@@ -3,7 +3,7 @@ import type { Client } from '@logux/client'
 import { encryptActions } from '@logux/client'
 import { TestClient, type TestServer } from '@logux/server'
 import { signIn, signUp } from '@slowreader/api'
-import { deepStrictEqual } from 'node:assert'
+import { deepEqual } from 'node:assert/strict'
 import { afterEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -57,12 +57,12 @@ test('syncs action between clients', async () => {
 
   let client2 = await connect(server, '0000000000000000', 'AAAAAAAAAA')
   await setTimeout(100)
-  deepStrictEqual(client2.log.actions(), [{ type: 'A' }, { type: 'B', z }])
+  deepEqual(client2.log.actions(), [{ type: 'A' }, { type: 'B', z }])
 
   await client2.process({ type: 'C' })
   await client1.connect()
   await setTimeout(100)
-  deepStrictEqual(client1.log.actions(), [
+  deepEqual(client1.log.actions(), [
     { type: 'A' },
     { type: 'B', z },
     { type: 'C' }
@@ -70,7 +70,7 @@ test('syncs action between clients', async () => {
   await other.process({ type: 'NO2' })
   await client1.process({ type: 'D' })
   await setTimeout(10)
-  deepStrictEqual(client2.log.actions(), [
+  deepEqual(client2.log.actions(), [
     { type: 'A' },
     { type: 'B', z },
     { type: 'C' },
@@ -79,7 +79,7 @@ test('syncs action between clients', async () => {
   let meta1 = client1.log.entries()[0]![1]
   await client1.log.removeReason('test', { id: meta1.id })
   await setTimeout(10)
-  deepStrictEqual(client2.log.actions(), [
+  deepEqual(client2.log.actions(), [
     { type: 'A' },
     { type: 'B', z },
     { type: 'C' },
@@ -89,7 +89,7 @@ test('syncs action between clients', async () => {
 
   let client3 = await connect(server, '0000000000000000', 'AAAAAAAAAA')
   await setTimeout(10)
-  deepStrictEqual(client3.log.actions(), [
+  deepEqual(client3.log.actions(), [
     { type: 'B', z },
     { type: 'C' },
     { type: 'D' }

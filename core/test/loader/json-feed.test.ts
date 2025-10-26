@@ -1,7 +1,7 @@
 import '../dom-parser.ts'
 
 import { spyOn } from 'nanospy'
-import { deepStrictEqual, equal } from 'node:assert'
+import { deepEqual, equal } from 'node:assert/strict'
 import { test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -45,7 +45,7 @@ test('detects own URLs', () => {
 })
 
 test('detects links', () => {
-  deepStrictEqual(
+  deepEqual(
     loaders.jsonFeed.getMineLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
@@ -74,7 +74,7 @@ test('detects links', () => {
       'http://other.com/d'
     ]
   )
-  deepStrictEqual(
+  deepEqual(
     loaders.jsonFeed.getMineLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
@@ -104,7 +104,7 @@ test('detects links', () => {
     ]
   )
 
-  deepStrictEqual(
+  deepEqual(
     loaders.jsonFeed.getMineLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
@@ -126,7 +126,7 @@ test('detects links', () => {
 })
 
 test('ignores non-HTML documents for link search', () => {
-  deepStrictEqual(
+  deepEqual(
     loaders.rss.getMineLinksFromText(
       createTextResponse(
         `<rss>
@@ -143,7 +143,7 @@ test('ignores non-HTML documents for link search', () => {
 })
 
 test('returns default links', () => {
-  deepStrictEqual(
+  deepEqual(
     loaders.jsonFeed.getSuggestedLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
@@ -165,7 +165,7 @@ test('detects titles', () => {
     loaders.jsonFeed.isMineText(exampleJson(jsonStub)),
     'Some JSON Feed title'
   )
-  deepStrictEqual(
+  deepEqual(
     loaders.jsonFeed.isMineText(
       exampleJson({
         author: {
@@ -179,7 +179,7 @@ test('detects titles', () => {
     ),
     'Title JSON feed version 1'
   )
-  deepStrictEqual(
+  deepEqual(
     loaders.jsonFeed.isMineText(
       exampleJson({
         author: {
@@ -192,7 +192,7 @@ test('detects titles', () => {
     ),
     false
   )
-  deepStrictEqual(
+  deepEqual(
     loaders.jsonFeed.isMineText(
       exampleJson({
         author: {
@@ -228,7 +228,7 @@ test('detects content type by content', () => {
 
 test('validate json feed format', () => {
   let task = createDownloadTask()
-  deepStrictEqual(
+  deepEqual(
     loaders.jsonFeed
       .getPosts(
         task,
@@ -314,14 +314,14 @@ test('loads text to parse posts', async () => {
     )
   })
   let page = loaders.jsonFeed.getPosts(task, 'https://example.com/')
-  deepStrictEqual(page.get(), {
+  deepEqual(page.get(), {
     hasNext: true,
     isLoading: true,
     list: []
   })
 
   await setTimeout(10)
-  deepStrictEqual(page.get(), {
+  deepEqual(page.get(), {
     hasNext: false,
     isLoading: false,
     list: [
@@ -345,17 +345,17 @@ test('loads text to parse posts', async () => {
       }
     ]
   })
-  deepStrictEqual(text.calls, [['https://example.com/']])
+  deepEqual(text.calls, [['https://example.com/']])
 })
 
 test('validate wrong json feed format', () => {
   let task = createDownloadTask()
 
-  deepStrictEqual(loaders.jsonFeed.isMineText(exampleJson('1')), false)
-  deepStrictEqual(loaders.jsonFeed.isMineText(exampleJson('true')), false)
-  deepStrictEqual(loaders.jsonFeed.isMineText(exampleJson('null')), false)
-  deepStrictEqual(loaders.jsonFeed.isMineText(exampleJson('[]')), false)
-  deepStrictEqual(loaders.jsonFeed.isMineText(exampleJson('{')), false)
+  deepEqual(loaders.jsonFeed.isMineText(exampleJson('1')), false)
+  deepEqual(loaders.jsonFeed.isMineText(exampleJson('true')), false)
+  deepEqual(loaders.jsonFeed.isMineText(exampleJson('null')), false)
+  deepEqual(loaders.jsonFeed.isMineText(exampleJson('[]')), false)
+  deepEqual(loaders.jsonFeed.isMineText(exampleJson('{')), false)
 
   // not valid versions
   let notValidDataVersions = [
@@ -366,7 +366,7 @@ test('validate wrong json feed format', () => {
   ]
 
   for (let version of notValidDataVersions) {
-    deepStrictEqual(
+    deepEqual(
       loaders.jsonFeed.isMineText(
         exampleJson({
           items: [
@@ -389,7 +389,7 @@ test('validate wrong json feed format', () => {
   }
 
   // not valid title
-  deepStrictEqual(
+  deepEqual(
     loaders.jsonFeed.isMineText(
       exampleJson({
         items: [
@@ -412,7 +412,7 @@ test('validate wrong json feed format', () => {
 
   let notValidItems = [{}, 4, 'someString', false]
   for (let notValidItem of notValidItems) {
-    deepStrictEqual(
+    deepEqual(
       loaders.jsonFeed.isMineText(
         exampleJson({
           items: notValidItem,
@@ -424,7 +424,7 @@ test('validate wrong json feed format', () => {
     )
   }
 
-  deepStrictEqual(
+  deepEqual(
     loaders.jsonFeed
       .getPosts(
         task,
@@ -497,14 +497,14 @@ test('parses media', async () => {
     )
   })
   let page = loaders.jsonFeed.getPosts(task, 'https://example.com/')
-  deepStrictEqual(page.get(), {
+  deepEqual(page.get(), {
     hasNext: true,
     isLoading: true,
     list: []
   })
 
   await setTimeout(10)
-  deepStrictEqual(page.get(), {
+  deepEqual(page.get(), {
     hasNext: false,
     isLoading: false,
     list: [
@@ -538,5 +538,5 @@ test('parses media', async () => {
       }
     ]
   })
-  deepStrictEqual(text.calls, [['https://example.com/']])
+  deepEqual(text.calls, [['https://example.com/']])
 })

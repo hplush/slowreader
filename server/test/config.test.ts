@@ -1,4 +1,4 @@
-import { deepStrictEqual, equal, match, throws } from 'node:assert'
+import { deepEqual, equal, match, throws } from 'node:assert/strict'
 import { test } from 'node:test'
 
 import { config, getConfig } from '../lib/config.ts'
@@ -49,7 +49,7 @@ test('sets proxy origin', () => {
 })
 
 test('passes keys', () => {
-  deepStrictEqual(
+  deepEqual(
     getConfig({
       ASSETS: '1',
       DATABASE_URL,

@@ -1,4 +1,4 @@
-import { equal } from 'node:assert'
+import { equal } from 'node:assert/strict'
 import { afterEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 

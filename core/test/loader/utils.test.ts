@@ -1,11 +1,11 @@
-import { deepStrictEqual } from 'node:assert'
+import { deepEqual } from 'node:assert/strict'
 import { test } from 'node:test'
 
 import { createTextResponse } from '../../lib/download.ts'
 import { findHeaderLinks } from '../../loader/utils.ts'
 
 test('returns urls from link http header', () => {
-  deepStrictEqual(
+  deepEqual(
     findHeaderLinks(
       createTextResponse(`<!DOCTYPE html><html><head></head></html>`, {
         headers: new Headers({
@@ -22,7 +22,7 @@ test('returns urls from link http header', () => {
 })
 
 test('handles root-relative urls in http header', () => {
-  deepStrictEqual(
+  deepEqual(
     findHeaderLinks(
       createTextResponse(`<!DOCTYPE html><html><head></head></html>`, {
         headers: new Headers({
@@ -37,7 +37,7 @@ test('handles root-relative urls in http header', () => {
 })
 
 test('handles relative urls in http header', () => {
-  deepStrictEqual(
+  deepEqual(
     findHeaderLinks(
       createTextResponse(`<!DOCTYPE html><html><head></head></html>`, {
         headers: new Headers({

@@ -1,7 +1,7 @@
 import '../dom-parser.ts'
 
 import { loadValue } from '@logux/client'
-import { deepStrictEqual, equal } from 'node:assert'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -109,27 +109,23 @@ test('imports state JSON', async () => {
   })
   equal(page.importing.get(), false)
   equal(page.fileError.get(), false)
-  deepStrictEqual(page.feedErrors.get(), {})
+  deepEqual(page.feedErrors.get(), {})
 
   page.importFile(file('json', await exportBlob.text()))
   await waitLoading(page.importing)
   await setTimeout(100)
   equal(page.fileError.get(), false)
-  deepStrictEqual(page.feedErrors.get(), {})
+  deepEqual(page.feedErrors.get(), {})
   equal(theme.get(), 'light')
   equal(preloadImages.get(), 'never')
-  deepStrictEqual((await loadValue(getCategories())).list, [
+  deepEqual((await loadValue(getCategories())).list, [
     { ...CATEGORY, isLoading: false }
   ])
-  deepStrictEqual((await loadValue(getFeeds())).list, [
-    { ...FEED, isLoading: false }
-  ])
-  deepStrictEqual((await loadValue(getFilters())).list, [
+  deepEqual((await loadValue(getFeeds())).list, [{ ...FEED, isLoading: false }])
+  deepEqual((await loadValue(getFilters())).list, [
     { ...FILTER, isLoading: false }
   ])
-  deepStrictEqual((await loadValue(getPosts())).list, [
-    { ...POST, isLoading: false }
-  ])
+  deepEqual((await loadValue(getPosts())).list, [{ ...POST, isLoading: false }])
 })
 
 test('imports OPML from the app', async () => {
@@ -165,17 +161,17 @@ test('imports OPML from the app', async () => {
   page.importFile(file('opml', await exportBlob.text()))
   await waitLoading(page.importing)
   equal(page.fileError.get(), false)
-  deepStrictEqual(page.feedErrors.get(), {
+  deepEqual(page.feedErrors.get(), {
     'https://broken.com/': 'unloadable',
     'https://unknown.com/': 'unknown'
   })
 
   let categories = await loadValue(getCategories())
-  deepStrictEqual(
+  deepEqual(
     categories.list.map(i => i.title),
     ['A']
   )
-  deepStrictEqual(
+  deepEqual(
     (await loadValue(getFeeds())).list.map(i => ({
       categoryId: i.categoryId,
       loader: i.loader,
@@ -196,7 +192,7 @@ test('is ready for unknown files', async () => {
   page.importFile(file('txt', ''))
   await waitLoading(page.importing)
   equal(page.fileError.get(), 'unknownFormat')
-  deepStrictEqual(page.feedErrors.get(), {})
+  deepEqual(page.feedErrors.get(), {})
 })
 
 test('is ready for broken JSON', async () => {
@@ -207,7 +203,7 @@ test('is ready for broken JSON', async () => {
   page.importFile(file('json', '{'))
   await waitLoading(page.importing)
   equal(page.fileError.get(), 'brokenFile')
-  deepStrictEqual(page.feedErrors.get(), {})
+  deepEqual(page.feedErrors.get(), {})
 })
 
 test('is ready for broken XML', async () => {
@@ -218,7 +214,7 @@ test('is ready for broken XML', async () => {
   page.importFile(file('opml', '<'))
   await waitLoading(page.importing)
   equal(page.fileError.get(), 'brokenFile')
-  deepStrictEqual(page.feedErrors.get(), {})
+  deepEqual(page.feedErrors.get(), {})
 })
 
 test('is ready for unknown XML', async () => {
@@ -229,5 +225,5 @@ test('is ready for unknown XML', async () => {
   page.importFile(file('opml', '<html></html>'))
   await waitLoading(page.importing)
   equal(page.fileError.get(), 'brokenFile')
-  deepStrictEqual(page.feedErrors.get(), {})
+  deepEqual(page.feedErrors.get(), {})
 })

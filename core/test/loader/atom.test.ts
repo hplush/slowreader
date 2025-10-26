@@ -1,7 +1,7 @@
 import '../dom-parser.ts'
 
 import { spyOn } from 'nanospy'
-import { deepStrictEqual, equal } from 'node:assert'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -32,7 +32,7 @@ afterEach(() => {
 })
 
 test('detects xml:base attribute', () => {
-  deepStrictEqual(
+  deepEqual(
     loaders.atom.getMineLinksFromText(
       createTextResponse(
         `<html xml:base="http://example.com/today/"
@@ -100,7 +100,7 @@ test('detects own URLs', () => {
 })
 
 test('detects links', () => {
-  deepStrictEqual(
+  deepEqual(
     loaders.atom.getMineLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
@@ -128,7 +128,7 @@ test('detects links', () => {
 })
 
 test('finds atom links in <a> elements', () => {
-  deepStrictEqual(
+  deepEqual(
     loaders.atom.getMineLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
@@ -166,7 +166,7 @@ test('finds atom links in <a> elements', () => {
 })
 
 test('finds XML links in <a> elements if nothings found before', () => {
-  deepStrictEqual(
+  deepEqual(
     loaders.atom.getMineLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
@@ -185,7 +185,7 @@ test('finds XML links in <a> elements if nothings found before', () => {
 })
 
 test('ignores non-HTML documents for link search', () => {
-  deepStrictEqual(
+  deepEqual(
     loaders.rss.getMineLinksFromText(
       createTextResponse(
         `<rss>
@@ -202,7 +202,7 @@ test('ignores non-HTML documents for link search', () => {
 })
 
 test('returns default links', () => {
-  deepStrictEqual(
+  deepEqual(
     loaders.atom.getSuggestedLinksFromText(
       createTextResponse('<!DOCTYPE html><html><head></head></html>', {
         url: 'https://example.com/news/'
@@ -287,7 +287,7 @@ test('ignores text & comment nodes when probing', () => {
 
 test('parses posts', () => {
   let task = createDownloadTask()
-  deepStrictEqual(
+  deepEqual(
     loaders.atom
       .getPosts(
         task,
@@ -390,14 +390,14 @@ test('loads text to parse posts', async () => {
     )
   })
   let page = loaders.atom.getPosts(task, 'https://example.com/news/')
-  deepStrictEqual(page.get(), {
+  deepEqual(page.get(), {
     hasNext: true,
     isLoading: true,
     list: []
   })
 
   await setTimeout(100)
-  deepStrictEqual(page.get(), {
+  deepEqual(page.get(), {
     hasNext: false,
     isLoading: false,
     list: [
@@ -412,12 +412,12 @@ test('loads text to parse posts', async () => {
       }
     ]
   })
-  deepStrictEqual(text.calls, [['https://example.com/news/']])
+  deepEqual(text.calls, [['https://example.com/news/']])
 })
 
 test('parses media', () => {
   let task = createDownloadTask()
-  deepStrictEqual(
+  deepEqual(
     loaders.atom
       .getPosts(
         task,

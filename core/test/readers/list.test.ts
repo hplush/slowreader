@@ -1,4 +1,4 @@
-import { deepStrictEqual, equal } from 'node:assert'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -50,7 +50,7 @@ test('loads posts', async () => {
   let reader = ensureReader(page.posts, 'list')
   equal(reader.list.get().length, 75)
   equal(reader.list.get()[0]!.title, '150')
-  deepStrictEqual(reader.pages.get(), {
+  deepEqual(reader.pages.get(), {
     count: 1,
     hasNext: false,
     page: 0,
@@ -67,8 +67,8 @@ test('loads posts', async () => {
   equal(reader.list.get().length, 100)
   equal(reader.list.get()[0]!.title, '150')
   equal(reader.list.get()[99]!.title, '51')
-  deepStrictEqual([...reader.read.get()], [])
-  deepStrictEqual(reader.pages.get(), {
+  deepEqual([...reader.read.get()], [])
+  deepEqual(reader.pages.get(), {
     count: 2,
     hasNext: true,
     page: 0,
@@ -77,18 +77,18 @@ test('loads posts', async () => {
 
   let post0 = reader.list.get()[0]!.id
   openPopup('post', post0)
-  deepStrictEqual([...reader.read.get()], [post0])
+  deepEqual([...reader.read.get()], [post0])
 
   let post5 = reader.list.get()[5]!.id
   openPopup('post', post5)
-  deepStrictEqual([...reader.read.get()], [post0, post5])
+  deepEqual([...reader.read.get()], [post0, post5])
   equal(reader.list.get().length, 100)
 
   page.params.since.set(1)
   equal(reader.list.get().length, 50)
   equal(reader.list.get()[0]!.title, '50')
-  deepStrictEqual([...reader.read.get()], [post0, post5])
-  deepStrictEqual(reader.pages.get(), {
+  deepEqual([...reader.read.get()], [post0, post5])
+  deepEqual(reader.pages.get(), {
     count: 2,
     hasNext: false,
     page: 1,
@@ -117,7 +117,7 @@ test('loads posts', async () => {
   equal(page.params.since.get(), 1)
   equal(reader.list.get().length, 48)
   equal(reader.read.get().size, 100)
-  deepStrictEqual(reader.pages.get(), {
+  deepEqual(reader.pages.get(), {
     count: 2,
     hasNext: false,
     page: 1,
@@ -128,7 +128,7 @@ test('loads posts', async () => {
   equal(page.params.since.get(), 1)
   equal(reader.list.get().length, 48)
   equal(reader.read.get().size, 148)
-  deepStrictEqual(reader.pages.get(), {
+  deepEqual(reader.pages.get(), {
     count: 2,
     hasNext: false,
     page: 1,
@@ -146,7 +146,7 @@ test('loads posts', async () => {
   reader = ensureReader(page.posts, 'list')
   await waitLoading(page.loading)
   equal(reader.list.get().length, 0)
-  deepStrictEqual(reader.pages.get(), {
+  deepEqual(reader.pages.get(), {
     count: 0,
     hasNext: false,
     page: 0,

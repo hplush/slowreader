@@ -1,7 +1,7 @@
 import '../dom-parser.ts'
 
 import { keepMount } from 'nanostores'
-import { deepStrictEqual, equal, notEqual } from 'node:assert'
+import { deepEqual, equal, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -50,7 +50,7 @@ function equalWithText(a: FeedLoader[], b: FeedLoader[]): void {
   for (let i = 0; i < a.length; i++) {
     let aFix = { ...a[i], text: undefined }
     let bFix = { ...b[i], text: undefined }
-    deepStrictEqual(aFix, bFix)
+    deepEqual(aFix, bFix)
   }
 }
 
@@ -66,7 +66,7 @@ test('empty from beginning', () => {
 
   equal(page.error.get(), undefined)
   equal(page.searching.get(), false)
-  deepStrictEqual(page.candidates.get(), [])
+  deepEqual(page.candidates.get(), [])
 })
 
 test('validates URL', () => {
@@ -104,7 +104,7 @@ test('cleans state', async () => {
     route: 'welcome'
   })
   equal(page.error.get(), undefined)
-  deepStrictEqual(page.candidates.get(), [])
+  deepEqual(page.candidates.get(), [])
   equal(reply.aborted, true)
 
   page.params.url.set('https://other.com')
@@ -124,7 +124,7 @@ test('cleans state', async () => {
     route: 'welcome'
   })
   equal(page2.error.get(), undefined)
-  deepStrictEqual(page2.candidates.get(), [])
+  deepEqual(page2.candidates.get(), [])
 })
 
 test('is ready for network errors', async () => {
@@ -193,7 +193,7 @@ test('detects RSS links', async () => {
   page.params.url.set('https://example.com')
   equal(page.searching.get(), true)
   equal(page.error.get(), undefined)
-  deepStrictEqual(page.candidates.get(), [])
+  deepEqual(page.candidates.get(), [])
   equal(page.noResults.get(), false)
 
   let replyRss = expectRequest('https://example.com/news').andWait()
@@ -206,14 +206,14 @@ test('detects RSS links', async () => {
   await setTimeout(10)
   equal(page.searching.get(), true)
   equal(page.error.get(), undefined)
-  deepStrictEqual(page.candidates.get(), [])
+  deepEqual(page.candidates.get(), [])
   equal(page.noResults.get(), false)
 
   let rss = '<rss><channel><title> News </title></channel></rss>'
   replyRss(200, rss, 'application/rss+xml')
   await waitLoading(page.searching)
   equal(page.error.get(), undefined)
-  deepStrictEqual(loadingChanges, [false, true, false])
+  deepEqual(loadingChanges, [false, true, false])
   equalWithText(page.candidates.get(), [
     {
       loader: loaders.rss,
@@ -336,7 +336,7 @@ test('shows if unknown URL', async () => {
   page.params.url.set('https://example.com')
   await waitLoading(page.searching)
   equal(page.error.get(), undefined)
-  deepStrictEqual(page.candidates.get(), [])
+  deepEqual(page.candidates.get(), [])
   equal(page.noResults.get(), true)
 })
 
@@ -365,7 +365,7 @@ test('always keep the same order of candidates', async () => {
   )
   page.params.url.set('https://example.com')
   await waitLoading(page.searching)
-  deepStrictEqual(
+  deepEqual(
     page.candidates.get().map(i => i.title),
     ['Atom', 'JsonFeed', 'RSS']
   )
@@ -397,7 +397,7 @@ test('always keep the same order of candidates', async () => {
   )
 
   await waitLoading(page.searching)
-  deepStrictEqual(
+  deepEqual(
     page.candidates.get().map(i => i.title),
     ['Atom', 'JsonFeed', 'RSS']
   )
@@ -502,7 +502,7 @@ test('syncs feed URL with app URL', async () => {
   expectRequest('https://a.com/rss').andRespond(404)
   page.params.url.set('https://a.com')
   equal(page.params.url.get(), 'https://a.com')
-  deepStrictEqual(router.get().params, {
+  deepEqual(router.get().params, {
     url: 'https://a.com'
   })
   await waitLoading(page.searching)

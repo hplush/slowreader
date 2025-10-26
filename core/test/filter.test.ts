@@ -1,6 +1,6 @@
 import { ensureLoaded, loadValue } from '@logux/client'
 import { keepMount } from 'nanostores'
-import { deepStrictEqual, equal } from 'node:assert'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 
 import {
@@ -34,7 +34,7 @@ test('adds filter for feed', async () => {
   let filterId1 = await addFilterForFeed((await loadValue(getFeed(feedId1)))!)
   let filterId2 = await addFilterForFeed((await loadValue(getFeed(feedId2)))!)
 
-  deepStrictEqual((await loadValue(getFilters({ feedId: feedId1 }))).list, [
+  deepEqual((await loadValue(getFilters({ feedId: feedId1 }))).list, [
     {
       action: 'slow',
       feedId: feedId1,
@@ -44,7 +44,7 @@ test('adds filter for feed', async () => {
       query: ''
     }
   ])
-  deepStrictEqual((await loadValue(getFilters({ feedId: feedId2 }))).list, [
+  deepEqual((await loadValue(getFilters({ feedId: feedId2 }))).list, [
     {
       action: 'fast',
       feedId: feedId2,
@@ -83,7 +83,7 @@ test('sorts filters', () => {
     id: '300',
     priority: 300
   }
-  deepStrictEqual(sortFilters([filter200a, filter300, filter100, filter200b]), [
+  deepEqual(sortFilters([filter200a, filter300, filter100, filter200b]), [
     filter100,
     filter200a,
     filter200b,
@@ -112,28 +112,28 @@ test('moves filters in sorting order', async () => {
   let id1 = await addFilter({ ...common })
   let id2 = await addFilter({ ...common })
   let id3 = await addFilter({ ...common })
-  deepStrictEqual(getSorted(), [id1, id2, id3])
-  deepStrictEqual(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 300 })
+  deepEqual(getSorted(), [id1, id2, id3])
+  deepEqual(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 300 })
 
   await moveFilterUp(id3)
-  deepStrictEqual(getSorted(), [id1, id3, id2])
-  deepStrictEqual(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 150 })
+  deepEqual(getSorted(), [id1, id3, id2])
+  deepEqual(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 150 })
 
   await moveFilterUp(id3)
-  deepStrictEqual(getSorted(), [id3, id1, id2])
-  deepStrictEqual(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 0 })
+  deepEqual(getSorted(), [id3, id1, id2])
+  deepEqual(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 0 })
 
   await moveFilterUp(id3)
-  deepStrictEqual(getSorted(), [id3, id1, id2])
-  deepStrictEqual(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 0 })
+  deepEqual(getSorted(), [id3, id1, id2])
+  deepEqual(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 0 })
 
   await moveFilterDown(id1)
-  deepStrictEqual(getSorted(), [id3, id2, id1])
-  deepStrictEqual(getPriorities(), { [id1]: 300, [id2]: 200, [id3]: 0 })
+  deepEqual(getSorted(), [id3, id2, id1])
+  deepEqual(getPriorities(), { [id1]: 300, [id2]: 200, [id3]: 0 })
 
   await moveFilterDown(id1)
-  deepStrictEqual(getSorted(), [id3, id2, id1])
-  deepStrictEqual(getPriorities(), { [id1]: 300, [id2]: 200, [id3]: 0 })
+  deepEqual(getSorted(), [id3, id2, id1])
+  deepEqual(getPriorities(), { [id1]: 300, [id2]: 200, [id3]: 0 })
 })
 
 test('validates filter query', () => {

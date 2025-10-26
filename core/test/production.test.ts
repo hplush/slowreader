@@ -1,7 +1,7 @@
 import './environment.ts'
 
 import { cleanStores } from 'nanostores'
-import { match } from 'node:assert'
+import { match } from 'node:assert/strict'
 import { afterEach, test } from 'node:test'
 
 import { client } from '../index.ts'

@@ -1,5 +1,5 @@
 import { TestServer } from '@logux/server'
-import { deepStrictEqual, equal } from 'node:assert'
+import { deepEqual, equal } from 'node:assert/strict'
 import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { after, afterEach, test } from 'node:test'
@@ -59,7 +59,7 @@ test('uses proxy', async () => {
     }
   })
   equal(response.status, 200)
-  deepStrictEqual(await response.json(), {
+  deepEqual(await response.json(), {
     request: {
       method: 'GET',
       requestPath: '/path',

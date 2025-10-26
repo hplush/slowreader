@@ -7,7 +7,7 @@ import {
   signUp
 } from '@slowreader/api'
 import { eq } from 'drizzle-orm'
-import { deepStrictEqual, equal, notEqual, ok } from 'node:assert'
+import { deepEqual, equal, notEqual, ok } from 'node:assert/strict'
 import { afterEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -84,7 +84,7 @@ test('creates users and check credentials', async () => {
   let sessions1 = await db.query.sessions.findMany({
     where: eq(sessions.userId, userA.userId)
   })
-  deepStrictEqual(sessions1, [])
+  deepEqual(sessions1, [])
 
   await throws(async () => {
     await testRequest(server!, signIn, {

@@ -1,5 +1,5 @@
 import { LoguxUndoError } from '@logux/client'
-import { equal } from 'node:assert'
+import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 
 import { notFound, NotFoundError } from '../index.ts'

@@ -1,5 +1,5 @@
 import { keepMount } from 'nanostores'
-import { equal } from 'node:assert'
+import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 

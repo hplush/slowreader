@@ -1,4 +1,4 @@
-import { equal } from 'node:assert'
+import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 
 import { comfortMode, errorMode } from '../index.ts'

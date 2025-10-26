@@ -1,4 +1,4 @@
-import { deepStrictEqual, equal } from 'node:assert'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -96,7 +96,7 @@ test('export state JSON', async () => {
   await setTimeout(1)
   equal(typeof blob, 'object')
   let json = JSON.parse(await blob!.text())
-  deepStrictEqual(json, {
+  deepEqual(json, {
     categories: [
       {
         id: category,

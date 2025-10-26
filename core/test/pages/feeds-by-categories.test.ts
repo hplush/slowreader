@@ -1,5 +1,5 @@
 import { loadValue } from '@logux/client'
-import { deepStrictEqual, equal } from 'node:assert'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 
 import {
@@ -27,12 +27,12 @@ test('groups feeds by categories', async () => {
 
   equal(page.loading.get(), true)
   await waitLoading(page.loading)
-  deepStrictEqual(page.groups.get(), [])
+  deepEqual(page.groups.get(), [])
 
   let idA = await addCategory({ title: 'A' })
   let feed1 = await addFeed(testFeed({ categoryId: idA, title: '1' }))
   let feed2 = await addFeed(testFeed({ categoryId: idA, title: '2' }))
-  deepStrictEqual(page.groups.get(), [
+  deepEqual(page.groups.get(), [
     [
       { id: idA, isLoading: false, title: 'A' },
       [await loadValue(getFeed(feed1)), await loadValue(getFeed(feed2))]
@@ -45,7 +45,7 @@ test('groups feeds by categories', async () => {
   let feed4 = await addFeed(testFeed({ categoryId: 'general', title: '1' }))
   let feed5 = await addFeed(testFeed({ categoryId: 'unknown', title: '1' }))
 
-  deepStrictEqual(page.groups.get(), [
+  deepEqual(page.groups.get(), [
     [{ id: 'general', title: 'General' }, [await loadValue(getFeed(feed4))]],
     [
       { id: idA, isLoading: false, title: 'A' },

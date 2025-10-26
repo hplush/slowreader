@@ -1,6 +1,6 @@
 import '../dom-parser.ts'
 
-import { equal, rejects, throws } from 'node:assert'
+import { equal, rejects, throws } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 

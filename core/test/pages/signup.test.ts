@@ -1,7 +1,7 @@
 import type { TestServer } from '@logux/server'
 import { signUp as signUpApi } from '@slowreader/api'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
-import { deepStrictEqual, equal, match, notEqual } from 'node:assert'
+import { deepEqual, equal, match, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -251,13 +251,13 @@ test('gives a way to save password', async () => {
   let user = page.userId.get()
   let secret = page.secret.get()
   equal(page.warningStep.get(), false)
-  deepStrictEqual(calls, [])
+  deepEqual(calls, [])
 
   await page.submit()
-  deepStrictEqual(calls, [{ secret, userId: user }])
+  deepEqual(calls, [{ secret, userId: user }])
 
   page.askAgain()
-  deepStrictEqual(calls, [
+  deepEqual(calls, [
     { secret, userId: user },
     { secret, userId: user }
   ])

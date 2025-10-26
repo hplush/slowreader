@@ -1,4 +1,4 @@
-import { equal, match } from 'node:assert'
+import { equal, match } from 'node:assert/strict'
 import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { after, afterEach, test } from 'node:test'

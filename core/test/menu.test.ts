@@ -1,6 +1,6 @@
 import { loadValue } from '@logux/client'
 import { cleanStores, keepMount } from 'nanostores'
-import { deepStrictEqual, equal } from 'node:assert'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -115,8 +115,8 @@ test('renders feeds menu', async () => {
   await waitLoading(menuLoading)
 
   equal(menuLoading.get(), false)
-  deepStrictEqual(slowMenu.get(), [])
-  deepStrictEqual(fastMenu.get(), [{ id: 'general', title: 'General' }])
+  deepEqual(slowMenu.get(), [])
+  deepEqual(fastMenu.get(), [{ id: 'general', title: 'General' }])
 
   let idB = await addCategory({ title: 'B' })
   let feed1 = await addFeed(testFeed({ categoryId: idB, reading: 'slow' }))
@@ -140,8 +140,8 @@ test('renders feeds menu', async () => {
   let idA = await addCategory({ title: 'A' })
   await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
 
-  deepStrictEqual(slowMenu.get(), [])
-  deepStrictEqual(fastMenu.get(), [
+  deepEqual(slowMenu.get(), [])
+  deepEqual(fastMenu.get(), [
     { id: idA, isLoading: false, title: 'A' },
     { id: idB, isLoading: false, title: 'B' },
     { id: idD, isLoading: false, title: 'D' },
@@ -152,7 +152,7 @@ test('renders feeds menu', async () => {
   await addPost(testPost({ feedId: feed4, reading: 'slow' }))
   await addPost(testPost({ feedId: feed5, reading: 'slow' }))
   await addPost(testPost({ feedId: feed5, reading: 'slow' }))
-  deepStrictEqual(slowMenu.get(), [
+  deepEqual(slowMenu.get(), [
     [
       { id: idC, isLoading: false, title: 'C' },
       [[await loadValue(getFeed(feed2)), 1]]
@@ -165,7 +165,7 @@ test('renders feeds menu', async () => {
       ]
     ]
   ])
-  deepStrictEqual(fastMenu.get(), [
+  deepEqual(fastMenu.get(), [
     { id: idA, isLoading: false, title: 'A' },
     { id: idB, isLoading: false, title: 'B' },
     { id: idD, isLoading: false, title: 'D' },
@@ -173,7 +173,7 @@ test('renders feeds menu', async () => {
   ])
 
   await changeCategory(idA, { title: 'Z' })
-  deepStrictEqual(fastMenu.get(), [
+  deepEqual(fastMenu.get(), [
     { id: idB, isLoading: false, title: 'B' },
     { id: idD, isLoading: false, title: 'D' },
     { id: 'general', title: 'General' },
@@ -186,7 +186,7 @@ test('renders feeds menu', async () => {
     testFeed({ categoryId: 'unknown', reading: 'fast' })
   )
   await addPost(testPost({ feedId: broken, reading: 'slow' }))
-  deepStrictEqual(slowMenu.get(), [
+  deepEqual(slowMenu.get(), [
     [
       { id: 'broken', title: 'Broken category' },
       [[await loadValue(getFeed(broken)), 1]]
@@ -216,7 +216,7 @@ test('renders feeds menu', async () => {
       ]
     ]
   ])
-  deepStrictEqual(fastMenu.get(), [
+  deepEqual(fastMenu.get(), [
     { id: idB, isLoading: false, title: 'B' },
     { id: 'broken', title: 'Broken category' },
     { id: idD, isLoading: false, title: 'D' },
@@ -239,19 +239,19 @@ test('has helper which is ready for no client', async () => {
 })
 
 test('tracks closed categories', async () => {
-  deepStrictEqual([...closedCategories.get()], [])
+  deepEqual([...closedCategories.get()], [])
   let idA = await addCategory({ title: 'A' })
   toggleCategory(idA)
-  deepStrictEqual([...closedCategories.get()], [idA])
+  deepEqual([...closedCategories.get()], [idA])
   let idB = await addCategory({ title: 'B' })
   toggleCategory(idB)
-  deepStrictEqual([...closedCategories.get()], [idA, idB])
+  deepEqual([...closedCategories.get()], [idA, idB])
   toggleCategory(idA)
-  deepStrictEqual([...closedCategories.get()], [idB])
+  deepEqual([...closedCategories.get()], [idB])
 
   toggleCategory(idA)
   openCategory(idB)
-  deepStrictEqual([...closedCategories.get()], [idA])
+  deepEqual([...closedCategories.get()], [idA])
 })
 
 test('has sync status', async () => {
@@ -269,12 +269,12 @@ test('has sync status', async () => {
 })
 
 test('has direct links for navbar', async () => {
-  deepStrictEqual(getFastDefaultRoute(), {
+  deepEqual(getFastDefaultRoute(), {
     params: {},
     popups: [],
     route: 'fast'
   })
-  deepStrictEqual(getSlowDefaultRoute(), {
+  deepEqual(getSlowDefaultRoute(), {
     params: {},
     popups: [],
     route: 'slow'
@@ -285,14 +285,14 @@ test('has direct links for navbar', async () => {
   equal(menuLoading.get(), true)
   await waitLoading(menuLoading)
 
-  deepStrictEqual(getFastDefaultRoute(), {
+  deepEqual(getFastDefaultRoute(), {
     params: {
       category: 'general'
     },
     popups: [],
     route: 'fast'
   })
-  deepStrictEqual(getSlowDefaultRoute(), {
+  deepEqual(getSlowDefaultRoute(), {
     params: {},
     popups: [],
     route: 'slow'
@@ -305,14 +305,14 @@ test('has direct links for navbar', async () => {
   await addPost(testPost({ feedId: feed1, reading: 'slow' }))
   await addPost(testPost({ feedId: feed2, reading: 'fast' }))
   await setTimeout(10)
-  deepStrictEqual(getFastDefaultRoute(), {
+  deepEqual(getFastDefaultRoute(), {
     params: {
       category: idB
     },
     popups: [],
     route: 'fast'
   })
-  deepStrictEqual(getSlowDefaultRoute(), {
+  deepEqual(getSlowDefaultRoute(), {
     params: {
       category: idA
     },

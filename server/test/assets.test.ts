@@ -1,6 +1,6 @@
 import { TestServer } from '@logux/server'
 import { nanoid } from 'nanoid'
-import { deepStrictEqual, equal, match } from 'node:assert'
+import { deepEqual, equal, match } from 'node:assert/strict'
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -27,7 +27,7 @@ function checkHeaders(res: Response, expected: Record<string, string>): void {
       headers[header] = value
     }
   }
-  deepStrictEqual(headers, expected)
+  deepEqual(headers, expected)
 }
 
 afterEach(async () => {

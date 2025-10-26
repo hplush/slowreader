@@ -1,7 +1,7 @@
 import '../dom-parser.ts'
 
 import { spyOn } from 'nanospy'
-import { deepStrictEqual, equal } from 'node:assert'
+import { deepEqual, equal } from 'node:assert/strict'
 import { test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -25,7 +25,7 @@ test('detects own URLs', () => {
 })
 
 test('detects links', () => {
-  deepStrictEqual(
+  deepEqual(
     loaders.rss.getMineLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
@@ -57,7 +57,7 @@ test('detects links', () => {
 })
 
 test('finds rss links in <a> elements', () => {
-  deepStrictEqual(
+  deepEqual(
     loaders.rss.getMineLinksFromText(
       createTextResponse(
         `<!DOCTYPE html>
@@ -82,7 +82,7 @@ test('finds rss links in <a> elements', () => {
 })
 
 test('ignores non-HTML documents for link search', () => {
-  deepStrictEqual(
+  deepEqual(
     loaders.rss.getMineLinksFromText(
       createTextResponse(
         `<rss>
@@ -99,7 +99,7 @@ test('ignores non-HTML documents for link search', () => {
 })
 
 test('returns default links', () => {
-  deepStrictEqual(
+  deepEqual(
     loaders.rss.getSuggestedLinksFromText(
       createTextResponse('<!DOCTYPE html><html><head></head></html>', {
         url: 'https://example.com/news/'
@@ -168,7 +168,7 @@ test('ignores text & comment nodes when probing', () => {
 
 test('parses posts', () => {
   let task = createDownloadTask()
-  deepStrictEqual(
+  deepEqual(
     loaders.rss
       .getPosts(
         task,
@@ -252,14 +252,14 @@ test('loads text to parse posts', async () => {
     )
   })
   let page = loaders.rss.getPosts(task, 'https://example.com/news/')
-  deepStrictEqual(page.get(), {
+  deepEqual(page.get(), {
     hasNext: true,
     isLoading: true,
     list: []
   })
 
   await setTimeout(10)
-  deepStrictEqual(page.get(), {
+  deepEqual(page.get(), {
     hasNext: false,
     isLoading: false,
     list: [
@@ -273,12 +273,12 @@ test('loads text to parse posts', async () => {
       }
     ]
   })
-  deepStrictEqual(text.calls, [['https://example.com/news/']])
+  deepEqual(text.calls, [['https://example.com/news/']])
 })
 
 test('parses media from media:content alone', () => {
   let task = createDownloadTask()
-  deepStrictEqual(
+  deepEqual(
     loaders.rss
       .getPosts(
         task,
@@ -328,7 +328,7 @@ test('parses media from media:content alone', () => {
 
 test('parses media from description', () => {
   let task = createDownloadTask()
-  deepStrictEqual(
+  deepEqual(
     loaders.rss
       .getPosts(
         task,
@@ -376,7 +376,7 @@ test('parses media from description', () => {
 
 test('parses media from media:content and description', () => {
   let task = createDownloadTask()
-  deepStrictEqual(
+  deepEqual(
     loaders.rss
       .getPosts(
         task,
@@ -431,7 +431,7 @@ test('parses media from media:content and description', () => {
 
 test('parses media and removes duplicates', () => {
   let task = createDownloadTask()
-  deepStrictEqual(
+  deepEqual(
     loaders.rss
       .getPosts(
         task,

@@ -1,5 +1,5 @@
 import { keepMount } from 'nanostores'
-import { match } from 'node:assert'
+import { match } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 
 import { currentPage } from '../../index.ts'

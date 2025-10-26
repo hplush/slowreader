@@ -2,7 +2,7 @@ import '../dom-parser.ts'
 
 import { loadValue } from '@logux/client'
 import { cleanStores, keepMount } from 'nanostores'
-import { deepStrictEqual, equal } from 'node:assert'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 
 import {
@@ -80,17 +80,17 @@ test('loads feeds by URL popup', async () => {
 
   await waitLoading(popup.loading)
   equal(checkLoadedPopup(popup).feed.get(), undefined)
-  deepStrictEqual(checkLoadedPopup(popup).posts.get().isLoading, false)
-  deepStrictEqual(checkLoadedPopup(popup).posts.get().list.length, 2)
-  deepStrictEqual(checkLoadedPopup(popup).posts.get().list[0]?.originId, '2')
+  deepEqual(checkLoadedPopup(popup).posts.get().isLoading, false)
+  deepEqual(checkLoadedPopup(popup).posts.get().list.length, 2)
+  deepEqual(checkLoadedPopup(popup).posts.get().list[0]?.originId, '2')
 
-  deepStrictEqual(checkLoadedPopup(popup).categories.get(), [
+  deepEqual(checkLoadedPopup(popup).categories.get(), [
     ['general', 'General'],
     ['new', 'Add category…']
   ])
 
   let id = await addCategory({ title: 'Test' })
-  deepStrictEqual(checkLoadedPopup(popup).categories.get(), [
+  deepEqual(checkLoadedPopup(popup).categories.get(), [
     ['general', 'General'],
     [id, 'Test'],
     ['new', 'Add category…']
@@ -149,7 +149,7 @@ test('destroys replaced popups and keep unchanged', async () => {
   equal(checkLoadedPopup(popup2).feed.get()?.id, feedId)
 
   closeLastPopup()
-  deepStrictEqual(openedPopups.get(), [popup1])
+  deepEqual(openedPopups.get(), [popup1])
 
   await checkLoadedPopup(popup1).remove()
   equal(checkLoadedPopup(popup1).feed.get(), undefined)

@@ -1,7 +1,7 @@
 import { zero } from '@logux/actions'
 import type { TestServer } from '@logux/server'
 import { deleteUser, signIn, signUp } from '@slowreader/api'
-import { deepStrictEqual, equal } from 'node:assert'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -68,8 +68,7 @@ test('deletes users', async () => {
     })
   }, 'Invalid credentials')
 
-  deepStrictEqual(
-    await db.query.actions.findMany({ columns: { userId: true } }),
-    [{ userId: userB.userId }]
-  )
+  deepEqual(await db.query.actions.findMany({ columns: { userId: true } }), [
+    { userId: userB.userId }
+  ])
 })

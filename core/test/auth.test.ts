@@ -1,7 +1,7 @@
 import type { TestServer } from '@logux/server'
 import { IS_PASSWORD } from '@slowreader/api'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
-import { equal, notEqual, ok } from 'node:assert'
+import { equal, notEqual, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
