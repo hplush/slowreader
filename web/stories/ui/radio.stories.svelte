@@ -5,7 +5,6 @@
     mdiNumeric3BoxOutline
   } from '@mdi/js'
   import { defineMeta } from '@storybook/addon-svelte-csf'
-  import { atom } from 'nanostores'
 
   import Radio from '../../ui/radio.svelte'
   import Section from '../section.svelte'
@@ -18,9 +17,9 @@
 
 <script lang="ts">
   type Value = 'one' | 'three' | 'two'
-  let store1 = atom<Value>('one')
-  let store2 = atom<Value>('two')
-  let store3 = atom<Value>('three')
+  let store1: Value = 'one'
+  let store2: Value = 'two'
+  let store3: Value = 'three'
   let values = [
     ['one', '1', mdiNumeric1BoxOutline],
     ['two', '2', mdiNumeric2BoxOutline],
@@ -30,13 +29,45 @@
 
 <Story name="Light" asChild>
   <Section stack width={300}>
-    <Radio label="First" store={store1} {values} />
-    <Radio label="Middle" store={store2} {values} />
-    <Radio label="Last" store={store3} {values} />
-    <Radio label="Wide" store={store1} {values} wide />
+    <Radio
+      label="First"
+      onchange={value => {
+        store1 = value
+      }}
+      value={store1}
+      {values}
+    />
+    <Radio
+      label="Middle"
+      onchange={value => {
+        store2 = value
+      }}
+      value={store2}
+      {values}
+    />
+    <Radio
+      label="Last"
+      onchange={value => {
+        store3 = value
+      }}
+      value={store3}
+      {values}
+    />
+    <Radio
+      label="Wide"
+      onchange={value => {
+        store3 = value
+      }}
+      value={store3}
+      {values}
+      wide
+    />
     <Radio
       label="Long"
-      store={store3}
+      onchange={value => {
+        store3 = value
+      }}
+      value={store3}
       values={[
         ['one', 'Very first element', mdiNumeric1BoxOutline],
         ['two', '2', mdiNumeric2BoxOutline],
@@ -51,9 +82,30 @@
     stack
     width={300}
   >
-    <Radio label="Hover" store={store2} {values} />
-    <Radio label="Pressed" store={store2} {values} />
-    <Radio label="Focus" store={store1} {values} />
+    <Radio
+      label="Hover"
+      onchange={value => {
+        store2 = value
+      }}
+      value={store2}
+      {values}
+    />
+    <Radio
+      label="Pressed"
+      onchange={value => {
+        store2 = value
+      }}
+      value={store2}
+      {values}
+    />
+    <Radio
+      label="Focus"
+      onchange={value => {
+        store1 = value
+      }}
+      value={store1}
+      {values}
+    />
   </Section>
 </Story>
 
@@ -65,9 +117,37 @@
     stack
     width={300}
   >
-    <Radio label="Base" store={store1} {values} />
-    <Radio label="Hover" store={store2} {values} />
-    <Radio label="Pressed" store={store2} {values} />
-    <Radio label="Focus" store={store1} {values} />
+    <Radio
+      label="Base"
+      onchange={value => {
+        store1 = value
+      }}
+      value={store1}
+      {values}
+    />
+    <Radio
+      label="Hover"
+      onchange={value => {
+        store2 = value
+      }}
+      value={store2}
+      {values}
+    />
+    <Radio
+      label="Pressed"
+      onchange={value => {
+        store2 = value
+      }}
+      value={store2}
+      {values}
+    />
+    <Radio
+      label="Focus"
+      onchange={value => {
+        store1 = value
+      }}
+      value={store1}
+      {values}
+    />
   </Section>
 </Story>

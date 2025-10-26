@@ -1,17 +1,17 @@
 <script generics="Value extends string" lang="ts">
-  import type { WritableStore } from 'nanostores'
-
   import Icon from './icon.svelte'
   import Label from './label.svelte'
 
   let {
     label,
-    store,
+    onchange,
+    value,
     values,
     wide
   }: {
     label: string
-    store: WritableStore<Value>
+    onchange: (value: Value) => void
+    value: Value
     values: [Value, string, string][]
     wide?: boolean
   } = $props()
@@ -19,11 +19,10 @@
   let id = $props.id()
 
   function change(e: { currentTarget: HTMLInputElement } & Event): void {
-    let value = e.currentTarget.value as Value
-    store.set(value)
+    onchange(e.currentTarget.value as Value)
   }
 
-  let position = $derived(values.findIndex(i => i[0] === $store))
+  let position = $derived(values.findIndex(i => i[0] === value))
 </script>
 
 <fieldset
@@ -45,7 +44,7 @@
           <input
             name={id}
             class="radio_input"
-            checked={key === $store}
+            checked={key === value}
             onchange={change}
             type="radio"
             value={key}

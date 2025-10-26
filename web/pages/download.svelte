@@ -11,7 +11,10 @@
   <Stack>
     <Radio
       label={$t.preloadImages}
-      store={preloadImages}
+      onchange={value => {
+        preloadImages.set(value)
+      }}
+      value={$preloadImages}
       values={[
         ['always', $t.preloadAlways, mdiSignal],
         ['free', $t.preloadFree, mdiWifi],

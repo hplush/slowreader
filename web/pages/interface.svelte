@@ -21,7 +21,10 @@
     <Stack gap="m">
       <Radio
         label={$t.theme}
-        store={theme}
+        onchange={value => {
+          theme.set(value)
+        }}
+        value={$theme}
         values={[
           ['light', $t.themeLight, mdiWeatherSunny],
           ['system', $t.themeSystem, mdiThemeLightDark],
