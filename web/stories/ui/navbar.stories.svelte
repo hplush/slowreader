@@ -140,22 +140,6 @@
 </Story>
 
 <Story
-  name="Mobile Back"
-  asChild
-  globals={{ viewport: { value: 'mobile1' } }}
-  parameters={{ layout: 'fullscreen' }}
->
-  <Scene
-    oninit={() => {
-      syncStatus.set('wait')
-    }}
-    route={{ hash: 'refresh=1', params: {}, route: 'interface' }}
-  >
-    <Navbar />
-  </Scene>
-</Story>
-
-<Story
   name="Tablet"
   asChild
   globals={{ viewport: { value: 'tablet' } }}

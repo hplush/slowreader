@@ -16,3 +16,14 @@
     <LoadingPopup popup={popups.refresh('1')} />
   </Scene>
 </Story>
+
+<Story
+  name="Mobile"
+  asChild
+  globals={{ viewport: { value: 'mobile1' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene>
+    <LoadingPopup popup={popups.refresh('1')} />
+  </Scene>
+</Story>

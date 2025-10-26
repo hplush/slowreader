@@ -50,3 +50,18 @@
     </LoadedPopup>
   </Scene>
 </Story>
+
+<Story
+  name="New Mobile"
+  asChild
+  globals={{ viewport: { value: 'mobile1' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene responses={[['https://example.com/news.atom', ATOM]]}>
+    <LoadedPopup popup={popups.feed('https://example.com/news.atom')}>
+      {#snippet loaded(popup)}
+        <FeedPopupComponent {popup} />
+      {/snippet}
+    </LoadedPopup>
+  </Scene>
+</Story>

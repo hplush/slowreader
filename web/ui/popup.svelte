@@ -15,9 +15,11 @@
 
 <aside {id} class="popup">
   <header class="popup_header">
-    {#if header}
-      {@render header()}
-    {/if}
+    <div class="popup_other">
+      {#if header}
+        {@render header()}
+      {/if}
+    </div>
     <Button
       href={getHashWithoutLastPopup($router)}
       icon={$isMobile ? mdiChevronLeft : mdiClose}
@@ -75,6 +77,11 @@
 
         @mixin background var(--main-land-color);
       }
+    }
+
+    .popup_other {
+      display: flex;
+      gap: 0.5rem;
     }
 
     .popup_body {
