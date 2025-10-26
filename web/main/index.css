@@ -57,17 +57,7 @@ html.is-quiet-cursor {
 }
 
 :focus-visible {
-  z-index: 10;
-  outline: 3px solid var(--focus-color);
-  outline-offset: 2px;
-  transition:
-    outline-width var(--focus-time) var(--pop-easing),
-    outline-offset var(--focus-time) var(--pop-easing);
-}
-
-:focus-visible:active:not([aria-disabled='true']) {
-  outline-offset: 0;
-  transition: none;
+  @mixin focus;
 }
 
 ::selection {

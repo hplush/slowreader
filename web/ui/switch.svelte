@@ -85,12 +85,7 @@
       }
 
       &:has(.switch_input:focus-visible) {
-        z-index: 10;
-        outline: 3px solid var(--focus-color);
-        outline-offset: 2px;
-        transition:
-          outline-width var(--focus-time) var(--pop-easing),
-          outline-offset var(--focus-time) var(--pop-easing);
+        @mixin focus;
       }
     }
 

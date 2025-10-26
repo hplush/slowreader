@@ -69,11 +69,7 @@
       corner-shape: squircle;
 
       &:has(.select_select:focus-visible) {
-        outline: 3px solid var(--focus-color);
-        outline-offset: 2px;
-        transition:
-          outline-width var(--focus-time) var(--pop-easing),
-          outline-offset var(--focus-time) var(--pop-easing);
+        @mixin focus;
       }
 
       &:has(.select_select:open) {

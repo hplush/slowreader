@@ -1,0 +1,8 @@
+@define-mixin focus {
+  z-index: 10;
+  outline: 3px solid var(--focus-color);
+  outline-offset: 2px;
+  transition:
+    outline var(--simple-time),
+    outline-offset var(--simple-time);
+}
