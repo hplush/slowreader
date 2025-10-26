@@ -32,7 +32,7 @@
       inset-inline-start: -15%;
       top: -15%;
       z-index: 1;
-      color: var(--dangerous-text-color);
+      color: var(--fire2-color);
 
       --icon-size: 6rem;
     }
