@@ -29,8 +29,7 @@
     "test:focused": "node ./scripts/check-focused-tests.ts",
     "test:messages": "node ./scripts/check-messages.ts",
     "test:versions": "node ./scripts/check-versions.ts",
-    "test:online:markdown": "remark . --frail",
-    "test:format": "prettier --experimental-cli --check ."
+    "test:online:markdown": "remark . --frail"
   },
   "devDependencies": {
     "@logux/eslint-config": "56.1.0",

@@ -11,7 +11,7 @@ on:
       - '.github/workflows/format.yml'
       - '.github/actions/init-node/action.yml'
   schedule:
-    - cron: '00 23 * * *' # Runs at midnight UTC every day
+    - cron: '00 04 * * *' # Runs at midnight UTC every day
 permissions:
   contents: write
 jobs:
