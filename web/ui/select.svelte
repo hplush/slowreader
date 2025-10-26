@@ -48,6 +48,7 @@
 <style>
   :global {
     .select {
+      flex-shrink: 1;
       width: stretch;
     }
 

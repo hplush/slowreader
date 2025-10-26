@@ -65,6 +65,7 @@
       width: fit-content;
 
       &.is-wide {
+        flex-shrink: 1;
         width: stretch;
       }
     }
