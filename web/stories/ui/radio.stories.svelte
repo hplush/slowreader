@@ -17,9 +17,9 @@
 
 <script lang="ts">
   type Value = 'one' | 'three' | 'two'
-  let store1: Value = 'one'
-  let store2: Value = 'two'
-  let store3: Value = 'three'
+  let store1: Value = $state('one')
+  let store2: Value = $state('two')
+  let store3: Value = $state('three')
   let values = [
     ['one', '1', mdiNumeric1BoxOutline],
     ['two', '2', mdiNumeric2BoxOutline],
