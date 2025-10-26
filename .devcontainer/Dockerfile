@@ -2,7 +2,7 @@
 # so every developer will have the same environment
 
 # registry.fedoraproject.org/fedora:42
-FROM registry.fedoraproject.org/fedora@sha256:0e2c9441045043886f983e8904baab5fad111bfe50c7eac988bab1185eefc3e7
+FROM registry.fedoraproject.org/fedora@sha256:f86059c992a524465bb83264de8e157dbffb47836940e2fec366c749d77168ee
 
 ARG TARGETARCH
 

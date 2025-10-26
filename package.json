@@ -32,7 +32,7 @@
     "test:online:markdown": "remark . --frail"
   },
   "devDependencies": {
-    "@logux/eslint-config": "56.1.0",
+    "@logux/eslint-config": "57.0.0",
     "@types/chrome": "0.1.24",
     "@types/node": "24.9.1",
     "@types/ws": "8.18.1",
@@ -60,7 +60,7 @@
     "remark-lint-smarty-pants-typography": "1.1.0",
     "remark-validate-links": "13.1.0",
     "stylelint": "16.25.0",
-    "svelte": "5.41.1",
+    "svelte": "5.42.1",
     "svelte-check": "4.3.3",
     "svelte-eslint-parser": "1.4.0",
     "svgo": "4.0.0",

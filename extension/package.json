@@ -12,8 +12,8 @@
     "test": "pnpm build"
   },
   "dependencies": {
-    "@crxjs/vite-plugin": "2.2.0",
-    "vite": "7.1.11"
+    "@crxjs/vite-plugin": "2.2.1",
+    "vite": "7.1.12"
   },
   "devDependencies": {
     "eslint": "9.38.0"

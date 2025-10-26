@@ -31,13 +31,13 @@
     "@slowreader/proxy": "workspace:*",
     "argon2": "0.44.0",
     "cookie": "1.0.2",
-    "drizzle-orm": "0.44.6",
+    "drizzle-orm": "0.44.7",
     "nanoid": "5.1.6",
     "postgres": "3.4.7",
     "tsx": "4.20.6"
   },
   "devDependencies": {
-    "@logux/client": "0.22.1",
+    "@logux/client": "0.22.2",
     "better-node-test": "0.8.3",
     "drizzle-kit": "0.31.5",
     "eslint": "9.38.0",
