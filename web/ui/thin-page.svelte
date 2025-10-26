@@ -45,7 +45,7 @@
 
       @media (--mobile) {
         &:not(.is-no-bottom) {
-          align-self: flex-end;
+          align-items: flex-end;
         }
       }
     }
