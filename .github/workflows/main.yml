@@ -38,7 +38,7 @@ jobs:
       - name: Initialize Node.js
         uses: ./.github/actions/init-node
       - name: Run tests
-        run: pnpm run -r --include-workspace-root '/^test:(?!markdown\b|proxy-coverage\b|server-coverage\b|loaders\b)/'
+        run: pnpm run -r --include-workspace-root '/^test:(?!online:markdown\b|proxy-coverage\b|server-coverage\b|online:loaders\b)/'
         env:
           FORCE_COLOR: 1
           STAGING: 1
