@@ -94,6 +94,9 @@ export const SETTINGS_ROUTES = [
   'about'
 ] as const satisfies RouteName[]
 
+// @ts-expect-error TODO: Remove until we have offline mode
+delete SETTINGS_ROUTES.splice(1, 1)
+
 export type OtherName =
   | (typeof FEED_ROUTES)[number]
   | (typeof SETTINGS_ROUTES)[number]
