@@ -76,11 +76,11 @@
       }
 
       @media (--mobile) {
+        @mixin background var(--land-color);
+
         inset: 0;
         z-index: 20;
         flex-direction: column-reverse;
-
-        @mixin background var(--land-color);
       }
     }
 
