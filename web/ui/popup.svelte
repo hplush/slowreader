@@ -1,6 +1,7 @@
 <script lang="ts">
   import { mdiChevronLeft, mdiClose } from '@mdi/js'
   import {
+    comfortMode,
     type FeedValue,
     isMobile,
     router,
@@ -24,11 +25,16 @@
   } = $props()
 </script>
 
-<aside {id} class="popup">
+<aside
+  {id}
+  class="popup"
+  class:is-comfort-mode={reading === 'slow'}
+  class:is-non-comfort-mode={reading === 'fast'}
+>
   <header
     class="popup_header"
-    class:is-comfort-mode={reading === 'slow' && !$isMobile}
-    class:is-non-comfort-mode={reading === 'fast' && !$isMobile}
+    class:is-comfort-mode={$isMobile && $comfortMode}
+    class:is-non-comfort-mode={$isMobile && !$comfortMode}
   >
     <div class="popup_other">
       {#if header}
@@ -45,11 +51,7 @@
       {$t.closePopup}
     </Button>
   </header>
-  <div
-    class="popup_body"
-    class:is-comfort-mode={reading === 'slow'}
-    class:is-non-comfort-mode={reading === 'fast'}
-  >
+  <div class="popup_body">
     <div class="popup_content">
       {@render children()}
     </div>
@@ -77,7 +79,8 @@
         inset: 0;
         z-index: 20;
         flex-direction: column-reverse;
-        background: var(--land-color);
+
+        @mixin background var(--land-color);
       }
     }
 
