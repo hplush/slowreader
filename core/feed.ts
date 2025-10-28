@@ -84,7 +84,7 @@ export async function addCandidate(
     lastOriginId: lastPost?.originId,
     lastPublishedAt: lastPost?.publishedAt ?? Date.now() / 1000,
     loader: candidate.name,
-    reading: 'fast',
+    reading: 'slow',
     title: candidate.title,
     url: candidate.url,
     ...fields
