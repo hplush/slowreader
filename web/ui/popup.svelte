@@ -1,6 +1,11 @@
 <script lang="ts">
   import { mdiChevronLeft, mdiClose } from '@mdi/js'
-  import { isMobile, router, commonMessages as t } from '@slowreader/core'
+  import {
+    type FeedValue,
+    isMobile,
+    router,
+    commonMessages as t
+  } from '@slowreader/core'
   import type { Snippet } from 'svelte'
 
   import { getHashWithoutLastPopup } from '../stores/url-router.ts'
@@ -9,11 +14,22 @@
   let {
     children,
     header,
-    id
-  }: { children: Snippet; header?: Snippet; id: string } = $props()
+    id,
+    reading
+  }: {
+    children: Snippet
+    header?: Snippet
+    id: string
+    reading?: FeedValue['reading']
+  } = $props()
 </script>
 
-<aside {id} class="popup">
+<aside
+  {id}
+  class="popup"
+  class:is-comfort-mode={reading === 'slow'}
+  class:is-non-comfort-mode={reading === 'fast'}
+>
   <header class="popup_header">
     <div class="popup_other">
       {#if header}

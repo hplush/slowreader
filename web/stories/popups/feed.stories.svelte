@@ -51,6 +51,19 @@
   </Scene>
 </Story>
 
+<Story name="Added Fast" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[{ reading: 'fast', url: 'https://example.com/news.atom' }]}
+    responses={[['https://example.com/news.atom', ATOM]]}
+  >
+    <LoadedPopup popup={popups.feed('https://example.com/news.atom')}>
+      {#snippet loaded(popup)}
+        <FeedPopupComponent {popup} />
+      {/snippet}
+    </LoadedPopup>
+  </Scene>
+</Story>
+
 <Story
   name="New Mobile"
   asChild

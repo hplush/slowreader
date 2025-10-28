@@ -37,6 +37,7 @@ errorMode.subscribe(() => {
 
 comfortMode.subscribe(mode => {
   root.classList.toggle('is-comfort-mode', mode)
+  root.classList.toggle('is-non-comfort-mode', !mode)
   updateTheme()
 })
 

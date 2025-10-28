@@ -25,23 +25,26 @@
   --fire1-color: oklch(0.7 0.15 65);
   --fire2-color: oklch(0.58 0.2 29);
 
-  &.is-comfort-mode {
-    --flat-button-c: 0.01;
-    --gutter-c: 0.02;
-  }
-
   @media (color-gamut: p3) {
     --focus-color: oklch(0.68 0.2 240);
     --accent-color: oklch(0.54 0.27 260);
   }
+}
 
-  @media (prefers-color-scheme: light) {
-    /* Don’t forget to change index.html and public/manifest.webmanifest */
-    --land-color: oklch(0.95 0 70);
-    --main-land-color: oklch(0.975 0 70);
+.is-non-comfort-mode {
+  --flat-button-c: 0;
+  --gutter-c: 0;
+}
+
+.is-comfort-mode {
+  --flat-button-c: 0.01;
+  --gutter-c: 0.02;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
     --selection-color: oklch(0.93 0.16 102);
     --text-color: var(--dark-text-color);
-    --secondary-text-color: oklch(0.6 0 70);
     --dangerous-text-color: oklch(0.5 0.16 20);
     --button-hover-l: 0.05;
     --flat-button-l: -0.02;
@@ -74,33 +77,43 @@
     --current-shadow:
       --soft-shadow(0 1px 2px oklch(0 0 0 / 20%)),
       inset 0 1px 0 oklch(1 0 0 / 80%);
-
-    &.is-comfort-mode {
-      --land-color: oklch(0.95 0.03 70);
-      --main-land-color: oklch(0.975 0.015 70);
-      --secondary-text-color: oklch(0.6 0.05 70);
-      --field-c: -0.015;
-      --current-c: -0.015;
-      --placeholder-c: 0.04;
-    }
   }
 
-  @media (prefers-color-scheme: dark) {
+  .is-non-comfort-mode {
+    --land-color: oklch(0.95 0 70);
+    --main-land-color: oklch(0.975 0 70);
+    --secondary-text-color: oklch(0.6 0 70);
+    --field-c: 0;
+    --current-c: 0;
+    --placeholder-c: 0;
+  }
+
+  .is-comfort-mode {
+    /* Don’t forget to change index.html and public/manifest.webmanifest */
+    --land-color: oklch(0.95 0.03 70);
+    --main-land-color: oklch(0.975 0.015 70);
+    --secondary-text-color: oklch(0.6 0.05 70);
+    --field-c: -0.015;
+    --current-c: -0.015;
+    --placeholder-c: 0.04;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
     --selection-color: oklch(0.5 0.1 102);
     --text-color: var(--light-text-color);
-    --secondary-text-color: oklch(0.7 0 70);
     --dangerous-text-color: oklch(0.7 0.16 20);
-    --land-color: oklch(0.25 0 70);
     --button-hover-l: 0.03;
     --flat-button-l: 0.03;
     --flat-button-hover-l: 0.02;
     --gutter-l: 0.04;
     --note-l: 0.2;
     --note-c: 0.03;
-    --main-land-color: oklch(0.3 0 70);
     --note-good-background: oklch(0.25 0.03 140);
     --note-dangerous-background: oklch(0.25 0.03 20);
     --field-l: -0.05;
+    --field-c: 0;
     --current-l: 0.15;
     --placeholder-l: 0.15;
     --slider-hover-background: oklch(1 0 0 / 2%);
@@ -125,13 +138,21 @@
     --current-shadow:
       --soft-shadow(0 1px 2px oklch(0 0 0 / 40%)),
       inset 0 1px 0 oklch(1 0 0 / 30%);
+  }
 
-    &.is-comfort-mode {
-      --land-color: oklch(0.25 0.03 70);
-      --main-land-color: oklch(0.3 0.03 70);
-      --secondary-text-color: oklch(0.7 0.05 70);
-      --current-c: 0.02;
-      --placeholder-c: 0.03;
-    }
+  .is-non-comfort-mode {
+    --land-color: oklch(0.25 0 70);
+    --main-land-color: oklch(0.3 0 70);
+    --secondary-text-color: oklch(0.7 0 70);
+    --current-c: 0;
+    --placeholder-c: 0;
+  }
+
+  .is-comfort-mode {
+    --land-color: oklch(0.25 0.03 70);
+    --main-land-color: oklch(0.3 0.03 70);
+    --secondary-text-color: oklch(0.7 0.05 70);
+    --current-c: 0.02;
+    --placeholder-c: 0.03;
   }
 }

@@ -376,9 +376,6 @@ importers:
       '@stylistic/stylelint-plugin':
         specifier: 4.0.0
         version: 4.0.0(stylelint@16.25.0(typescript@5.9.3))
-      better-node-test:
-        specifier: 0.8.3
-        version: 0.8.3
       browserslist:
         specifier: 4.27.0
         version: 4.27.0

@@ -84,7 +84,9 @@ export default [
             'loader',
             'sr-only',
             'is-dark-theme',
-            'is-light-theme'
+            'is-light-theme',
+            'is-comfort-mode',
+            'is-non-comfort-mode'
           ]
         }
       ],

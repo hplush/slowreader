@@ -20,7 +20,7 @@
   let { categories, feed } = popup
 </script>
 
-<Popup id={popup.id}>
+<Popup id={popup.id} reading={$feed ? $feed.reading : undefined}>
   {#snippet header()}
     {#if !$feed}
       <Button icon={mdiPlusCircleOutline} onclick={popup.add} variant="main">
