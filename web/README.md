@@ -28,7 +28,6 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 - [`postcss/`](./postcss/): [PostCSS](https://postcss.org/) plugins to check CSS and optimize it. Check the plugin’s descriptions for more information.
 - [`stories/`](./stories/): visual tests for pages and UI components by [Storybook](https://storybook.js.org/). The main way to test web client.
 - [`scripts/`](./scripts/): scripts to check for popular errors, optimize files after Vite build, and deploy. Check the script’s descriptions for further details.
-- [`test/`](./test/): unit tests for some parts of the web client.
 - `dist/`: `pnpm build` will build the result here for deployment.
 - [`.storybook/`](./.storybook/): visual tests tool config.
 - [`index.html`](./index.html): builder entry point. It also contains styles for the app loading state.
