@@ -105,7 +105,7 @@
         2 * (var(--control-height) - var(--slider-padding) + var(--switch-diff))
       );
       height: calc(var(--control-height) + var(--switch-diff));
-      background: --tune-background(--gutter, --dangerous);
+      background: --tune-background(--gutter --colorize, --dangerous);
       border-radius: calc(var(--base-radius) + var(--slider-padding));
       box-shadow: var(--field-shadow);
       corner-shape: squircle;
@@ -119,7 +119,7 @@
       }
 
       .switch_input:checked + & {
-        background: --tune-background(--gutter, --good);
+        background: --tune-background(--gutter --colorize, --good);
       }
     }
 

@@ -17,7 +17,7 @@ export default {
           }
         )
         .replaceAll(
-          /--tune-color\(\s*([^\s,]+),\s*([^\s,]+)\s* \s*([^\s,]+)\s*\)/g,
+          /--tune-color\(\s*([^\s,]+),\s*([^\s,]+)\s+([^\s,]+)\s*\)/g,
           (match, base, prefix, extra) => {
             return (
               `oklch(from var(${base}) ` +
@@ -40,7 +40,7 @@ export default {
           }
         )
         .replaceAll(
-          /--tune-background\(\s*([^\s,]+)\s* \s*([^\s,]+)\s*\)/g,
+          /--tune-background\(\s*([^\s,]+)\s+([^\s,]+)\s*\)/g,
           (match, prefix, extra) => {
             return (
               `oklch(from var(--current-background) ` +
@@ -62,12 +62,25 @@ export default {
           }
         )
         .replaceAll(
-          /--tune-background\(\s*([^\s,]+)\s* \s*([^\s,]+)\s*,\s*([^\s,]+)\s*\)/g,
+          /--tune-background\(\s*([^\s,]+)\s+([^\s,]+)\s*,\s*([^\s,]+)\s*\)/g,
           (match, prefix, extra, hue) => {
             return (
               `oklch(from var(--current-background) ` +
               `calc(l + var(${prefix}-l, 0) + var(${extra}-l, 0)) ` +
               `calc(c + var(${prefix}-c, 0) + var(${extra}-c, 0)) ` +
+              `var(${hue}-h))`
+            )
+          }
+        )
+        .replaceAll(
+          /--tune-background\(\s*([^\s,]+)\s+([^\s,]+)\s+([^\s,]+)\s*,\s*([^\s,]+)\s*\)/g,
+          (match, prefix, extra1, extra2, hue) => {
+            return (
+              `oklch(from var(--current-background) ` +
+              `calc(l + var(${prefix}-l, 0) + ` +
+              `var(${extra1}-l, 0) + var(${extra2}-l, 0)) ` +
+              `calc(c + var(${prefix}-c, 0) + ` +
+              `var(${extra1}-c, 0) + var(${extra2}-c, 0)) ` +
               `var(${hue}-h))`
             )
           }

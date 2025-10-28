@@ -34,11 +34,13 @@
 .is-non-comfort-mode {
   --flat-button-c: 0;
   --gutter-c: 0;
+  --colorize-c: 0.03;
 }
 
 .is-comfort-mode {
   --flat-button-c: 0.01;
   --gutter-c: 0.02;
+  --colorize-c: 0;
 }
 
 @media (prefers-color-scheme: light) {

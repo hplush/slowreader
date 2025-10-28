@@ -145,14 +145,14 @@
 
       &.is-secondary-dangerous {
         color: var(--dangerous-text-color);
-        background: --tune-background(--flat-button, --dangerous);
+        background: --tune-background(--flat-button --colorize, --dangerous);
         box-shadow: var(--flat-dangerous-shadow);
 
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),
         &:focus-visible {
           background: --tune-background(
-            --flat-button --flat-button-hover,
+            --flat-button --flat-button-hover --colorize,
             --dangerous
           );
         }
@@ -191,7 +191,7 @@
         &:active:not([aria-disabled='true']),
         &:focus-visible {
           background: --tune-background(
-            --flat-button --flat-button-hover,
+            --flat-button --flat-button-hover --colorize,
             --dangerous
           );
         }

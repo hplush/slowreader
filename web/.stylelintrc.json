@@ -13,7 +13,7 @@
         },
         "typesSyntax": {
           "--tune-color()": "--tune-color( <custom-property-name> , <custom-property-name>? )",
-          "--tune-background()": "--tune-background( <custom-property-name> <custom-property-name>? , <custom-property-name>? )"
+          "--tune-background()": "--tune-background( <custom-property-name> <custom-property-name>? <custom-property-name>? , <custom-property-name>? )"
         }
       }
     ],
