@@ -24,13 +24,12 @@
   } = $props()
 </script>
 
-<aside
-  {id}
-  class="popup"
-  class:is-comfort-mode={reading === 'slow'}
-  class:is-non-comfort-mode={reading === 'fast'}
->
-  <header class="popup_header">
+<aside {id} class="popup">
+  <header
+    class="popup_header"
+    class:is-comfort-mode={reading === 'slow' && !$isMobile}
+    class:is-non-comfort-mode={reading === 'fast' && !$isMobile}
+  >
     <div class="popup_other">
       {#if header}
         {@render header()}
@@ -46,7 +45,11 @@
       {$t.closePopup}
     </Button>
   </header>
-  <div class="popup_body">
+  <div
+    class="popup_body"
+    class:is-comfort-mode={reading === 'slow'}
+    class:is-non-comfort-mode={reading === 'fast'}
+  >
     <div class="popup_content">
       {@render children()}
     </div>
