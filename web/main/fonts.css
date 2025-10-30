@@ -16,6 +16,7 @@
 
 :root {
   --text-family: 'Noto Sans Variable', 'Arial', sans-serif;
+  --comfort-family: 'Noto Serif Variable', 'Georgia', serif;
   --app-title-family: 'Inika', 'Noto Serif Variable', 'Georgia', serif;
   --mono-family: 'Noto Mono Sans Variable', monospace;
   --handwritten-family: 'Playpen Sans', monospace;

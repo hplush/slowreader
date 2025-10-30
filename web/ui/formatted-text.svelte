@@ -4,7 +4,7 @@
 
   import { sanitizeDOM } from '@slowreader/core'
 
-  let { html }: { html: string } = $props()
+  let { comfort, html }: { comfort?: boolean; html: string } = $props()
 
   let node: HTMLDivElement | undefined
 
@@ -21,13 +21,17 @@
   })
 </script>
 
-<div bind:this={node} class="formatted-text"></div>
+<div bind:this={node} class="formatted-text" class:is-comfort={comfort}></div>
 
 <style>
   :global {
     .formatted-text {
       overflow-x: auto;
       text-wrap: pretty;
+
+      &.is-comfort {
+        font-family: var(--comfort-family);
+      }
     }
 
     .formatted-text img {
@@ -38,7 +42,7 @@
     }
 
     .formatted-text p {
-      margin: 0 0 0.8em;
+      margin: 0 0 0.75em;
     }
 
     .formatted-text :is(h1, h2, h3, h4, h5, h6) {
@@ -51,7 +55,8 @@
     }
 
     .formatted-text h1 {
-      font: var(--card-title-font);
+      font-size: 1.56em;
+      line-height: 1.2;
     }
 
     .formatted-text h2 {
@@ -152,30 +157,43 @@
       padding: 1em;
       margin: 0.8em 0;
       overflow-x: auto;
-      background-color: var(--field-color);
-      border-radius: 4px;
+      font: var(--mono-font);
+      background-color: var(--code-background);
+      border-radius: var(--base-radius);
       box-shadow: var(--field-shadow);
+      corner-shape: squircle;
     }
 
     .formatted-text code {
       padding: 0.3em;
+      font: var(--mono-font);
       line-height: 1.8;
-      border-radius: var(--radius);
+      border-radius: var(--base-radius);
     }
 
     .formatted-text pre code {
       max-width: 100%;
       padding: 0.1em 0.25em;
-      font-size: 0.89em;
+      font-size: 90%;
       background: transparent;
     }
 
     .formatted-text p code {
       padding: 0.2em 0.4em;
-      font-size: 85%;
+      font-size: 90%;
       white-space: break-spaces;
-      background-color: var(--inline-code-color);
-      border-radius: 6px;
+      background-color: var(--code-background);
+      border-radius: 0.375em;
+    }
+
+    .formatted-text kbd {
+      padding: 0 0.25em;
+      font: var(--mono-font);
+      font-size: 80%;
+      background-color: var(--code-background);
+      border: 0 solid var(--border-color);
+      border-width: 0.125em 0.125em 0.25em;
+      border-radius: 0.25em;
     }
 
     .formatted-text table {
@@ -185,25 +203,25 @@
     }
 
     .formatted-text td {
-      padding: 0.8em;
-      border: 1px solid var(--border-color);
+      padding: 0.75em;
+      border: var(--min-size) solid var(--border-color);
     }
 
     .formatted-text th {
-      padding: 0.8em;
-      border: 1px solid var(--border-color);
+      padding: 0.75em;
+      border: var(--min-size) solid var(--border-color);
     }
 
     .formatted-text tr {
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: var(--min-size) solid var(--border-color);
     }
 
     .formatted-text col {
-      border: 1px solid var(--border-color);
+      border: var(--min-size) solid var(--border-color);
     }
 
     .formatted-text colgroup {
-      border: 1px solid var(--border-color);
+      border: var(--min-size) solid var(--border-color);
     }
   }
 </style>

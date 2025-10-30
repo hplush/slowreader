@@ -1,10 +1,10 @@
 <script context="module" lang="ts">
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  import Card from '../../ui/card.svelte'
   import FormattedText from '../../ui/formatted-text.svelte'
   import imgExample2 from '../assets/long_width_example.avif'
   import imgExample1 from '../assets/short_width_example.avif'
+  import Scene from '../scene.svelte'
   import Section from '../section.svelte'
 
   let { Story } = defineMeta({
@@ -117,110 +117,150 @@
     '</table>'
 </script>
 
-<Story name="Base">
+<Story name="Light Slow" asChild>
   <Section width={700}>
-    <Card>
-      <FormattedText html={headingsWithParagraphs} />
-    </Card>
+    <FormattedText comfort html={headingsWithParagraphs} />
   </Section>
   <Section width={700}>
-    <Card>
-      <FormattedText html={longHeadings} />
-    </Card>
+    <FormattedText comfort html={longHeadings} />
   </Section>
   <Section width={500}>
-    <Card>
-      <FormattedText html={images} />
-    </Card>
+    <FormattedText comfort html={images} />
   </Section>
   <Section>
-    <Card>
-      <FormattedText html={inlineTagsExample} />
-    </Card>
+    <FormattedText comfort html={inlineTagsExample} />
   </Section>
   <Section>
-    <Card>
-      <FormattedText html={unorderedList} />
-      <FormattedText html={orderedList} />
-    </Card>
+    <FormattedText comfort html={unorderedList} />
+    <FormattedText comfort html={orderedList} />
   </Section>
   <Section>
-    <Card>
-      <FormattedText html={contentTags} />
-    </Card>
+    <FormattedText comfort html={contentTags} />
   </Section>
   <Section>
-    <Card>
-      <FormattedText html={mediaTags} />
-    </Card>
+    <FormattedText comfort html={mediaTags} />
   </Section>
   <Section>
-    <Card>
-      <FormattedText html={code} />
-    </Card>
+    <FormattedText comfort html={code} />
   </Section>
   <Section>
-    <Card>
-      <FormattedText html={codeInline} />
-    </Card>
+    <FormattedText comfort html={codeInline} />
   </Section>
   <Section>
-    <Card>
-      <FormattedText html={tableExample} />
-    </Card>
+    <FormattedText comfort html={tableExample} />
   </Section>
 </Story>
 
-<Story name="Dark" parameters={{ themes: { themeOverride: 'dark' } }}>
-  <Section width={700}>
-    <Card>
+<Story name="Light Fast" asChild>
+  <Scene route="notFound">
+    <Section width={700}>
       <FormattedText html={headingsWithParagraphs} />
-    </Card>
-  </Section>
-  <Section width={700}>
-    <Card>
+    </Section>
+    <Section width={700}>
       <FormattedText html={longHeadings} />
-    </Card>
-  </Section>
-  <Section width={500}>
-    <Card>
+    </Section>
+    <Section width={500}>
       <FormattedText html={images} />
-    </Card>
-  </Section>
-  <Section>
-    <Card>
+    </Section>
+    <Section>
       <FormattedText html={inlineTagsExample} />
-    </Card>
-  </Section>
-  <Section>
-    <Card>
+    </Section>
+    <Section>
       <FormattedText html={unorderedList} />
       <FormattedText html={orderedList} />
-    </Card>
-  </Section>
-  <Section>
-    <Card>
+    </Section>
+    <Section>
       <FormattedText html={contentTags} />
-    </Card>
-  </Section>
-  <Section>
-    <Card>
+    </Section>
+    <Section>
       <FormattedText html={mediaTags} />
-    </Card>
-  </Section>
-  <Section>
-    <Card>
+    </Section>
+    <Section>
       <FormattedText html={code} />
-    </Card>
-  </Section>
-  <Section>
-    <Card>
+    </Section>
+    <Section>
       <FormattedText html={codeInline} />
-    </Card>
+    </Section>
+    <Section>
+      <FormattedText html={tableExample} />
+    </Section>
+  </Scene>
+</Story>
+
+<Story
+  name="Dark Slow"
+  asChild
+  parameters={{ themes: { themeOverride: 'dark' } }}
+>
+  <Section width={700}>
+    <FormattedText comfort html={headingsWithParagraphs} />
+  </Section>
+  <Section width={700}>
+    <FormattedText comfort html={longHeadings} />
+  </Section>
+  <Section width={500}>
+    <FormattedText comfort html="{images}comfort" />
   </Section>
   <Section>
-    <Card>
-      <FormattedText html={tableExample} />
-    </Card>
+    <FormattedText comfort html={inlineTagsExample} />
   </Section>
+  <Section>
+    <FormattedText comfort html={unorderedList} />
+    <FormattedText comfort html={orderedList} />
+  </Section>
+  <Section>
+    <FormattedText comfort html={contentTags} />
+  </Section>
+  <Section>
+    <FormattedText comfort html={mediaTags} />
+  </Section>
+  <Section>
+    <FormattedText comfort html={code} />
+  </Section>
+  <Section>
+    <FormattedText comfort html={codeInline} />
+  </Section>
+  <Section>
+    <FormattedText comfort html={tableExample} />
+  </Section>
+</Story>
+
+<Story
+  name="Dark Fast"
+  asChild
+  parameters={{ themes: { themeOverride: 'dark' } }}
+>
+  <Scene route="notFound">
+    <Section width={700}>
+      <FormattedText html={headingsWithParagraphs} />
+    </Section>
+    <Section width={700}>
+      <FormattedText html={longHeadings} />
+    </Section>
+    <Section width={500}>
+      <FormattedText html="{images}comfort" />
+    </Section>
+    <Section>
+      <FormattedText html={inlineTagsExample} />
+    </Section>
+    <Section>
+      <FormattedText html={unorderedList} />
+      <FormattedText html={orderedList} />
+    </Section>
+    <Section>
+      <FormattedText html={contentTags} />
+    </Section>
+    <Section>
+      <FormattedText html={mediaTags} />
+    </Section>
+    <Section>
+      <FormattedText html={code} />
+    </Section>
+    <Section>
+      <FormattedText html={codeInline} />
+    </Section>
+    <Section>
+      <FormattedText html={tableExample} />
+    </Section>
+  </Scene>
 </Story>
