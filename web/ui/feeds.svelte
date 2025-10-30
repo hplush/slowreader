@@ -80,6 +80,12 @@
         corner-shape: squircle;
       }
 
+      &:hover,
+      &:active,
+      &:focus-visible {
+        background: --tune-background(--flat-button --flat-button-hover);
+      }
+
       &:active {
         z-index: 1;
         box-shadow: var(--pressed-shadow);

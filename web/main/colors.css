@@ -39,6 +39,7 @@
 
 .is-comfort-mode {
   --flat-button-c: 0.01;
+  --flat-button-hover-c: 0.005;
   --gutter-c: 0.02;
   --colorize-c: 0;
 }
