@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^24.10.0",
+    "node": "^24.11.0",
     "pnpm": "^10.0.0"
   },
   "scripts": {
@@ -39,7 +39,7 @@
   "devDependencies": {
     "@logux/client": "0.22.2",
     "better-node-test": "0.8.3",
-    "drizzle-kit": "0.31.5",
+    "drizzle-kit": "0.31.6",
     "eslint": "9.38.0",
     "prettier": "3.6.2"
   }
