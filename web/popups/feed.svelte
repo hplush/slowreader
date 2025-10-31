@@ -77,16 +77,14 @@
         />
       </Stack>
     {/if}
-    <section>
-      <Label tag="h2">{$t.feedPosts}</Label>
-      {#if $posts.isLoading}
-        <Loader />
-      {:else}
-        <Posts list={$posts.list} />
-        {#if $posts.hasNext}
-          <Button onclick={posts.next} size="wide">{$t.morePosts}</Button>
-        {/if}
+    <Label tag="h2">{$t.feedPosts}</Label>
+    {#if $posts.isLoading}
+      <Loader />
+    {:else}
+      <Posts list={$posts.list} />
+      {#if $posts.hasNext}
+        <Button onclick={posts.next} size="wide">{$t.morePosts}</Button>
       {/if}
-    </section>
+    {/if}
   </Stack>
 </Popup>

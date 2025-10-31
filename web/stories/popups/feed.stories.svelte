@@ -23,6 +23,12 @@
         <id>https://example.com/news/1</id>
         <updated>2021-01-01T00:00:00Z</updated>
       </entry>
+      <entry>
+        <title>Other news</title>
+        <link href="https://example.com/news/2" />
+        <id>https://example.com/news/2</id>
+        <updated>2021-01-01T00:00:00Z</updated>
+      </entry>
     </feed>`,
     contentType: 'application/atom+xml'
   }
