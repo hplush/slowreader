@@ -8,8 +8,9 @@
   } from '@slowreader/core'
 
   import { getPopupHash } from '../stores/url-router.ts'
-  import Clickable from './clickable.svelte'
-  import Icon from './icon.svelte'
+  import Links from './links.svelte'
+
+  type Feed = FeedLoader | FeedValue
 
   let {
     current,
@@ -18,110 +19,24 @@
   }: {
     current: string | undefined
     id?: string
-    list: readonly (FeedLoader | FeedValue)[]
+    list: readonly Feed[]
   } = $props()
+
+  function getHref(feed: Feed): string {
+    return getPopupHash(undefined, 'feed', feed.url)
+  }
+
+  function getArrow(feed: Feed): string {
+    return $isMobile || current === feed.url ? mdiChevronRight : mdiCircleSmall
+  }
+
+  function getControls(feed: Feed): string {
+    return getPopupId('feed', feed.url)
+  }
 </script>
 
-<ol {id} class="feeds" role="menu">
-  {#each list as feed (feed.url)}
-    <li>
-      <Clickable
-        class="feeds_item"
-        aria-controls={getPopupId('feed', feed.url)}
-        aria-current={current === feed.url ? 'page' : null}
-        href={getPopupHash(undefined, 'feed', feed.url)}
-        role="menuitem"
-      >
-        <div class="feeds_cap">
-          {feed.title}
-          <div class="feeds_arrow">
-            <Icon
-              path={$isMobile || current === feed.url
-                ? mdiChevronRight
-                : mdiCircleSmall}
-            />
-          </div>
-        </div>
-      </Clickable>
-    </li>
-  {/each}
-</ol>
-
-<style>
-  :global {
-    .feeds {
-      width: stretch;
-      list-style: none;
-    }
-
-    .feeds_item {
-      @mixin clickable;
-
-      position: relative;
-      display: block;
-      margin-top: calc(-1 * var(--min-size));
-      font: var(--control-font);
-      background: --tune-background(--flat-button);
-      box-shadow: var(--flat-control-shadow);
-      corner-shape: squircle;
-
-      li:first-child & {
-        margin-top: 0;
-        border-radius: var(--base-radius) var(--base-radius) 0 0;
-      }
-
-      li:last-child & {
-        border-radius: 0 0 var(--base-radius) var(--base-radius);
-      }
-
-      li:last-child:first-child & {
-        border-radius: var(--base-radius);
-      }
-
-      &:hover,
-      &:active,
-      &:focus-visible {
-        background: --tune-background(--flat-button --flat-button-hover);
-      }
-
-      &:active {
-        z-index: 1;
-        box-shadow: var(--pressed-shadow);
-      }
-
-      &[aria-current='page'] {
-        z-index: 1;
-        cursor: default;
-        background: --tune-background(--current);
-        box-shadow: var(--current-shadow);
-      }
-    }
-
-    .feeds_cap {
-      padding: 0.8rem var(--control-padding);
-      overflow-wrap: anywhere;
-
-      @media (--no-mobile) {
-        padding-inline-end: calc(1.2rem + 2 * 0.125rem);
-      }
-
-      .feeds_item:not([aria-current='page']):active & {
-        translate: 0 1px;
-      }
-    }
-
-    .feeds_arrow {
-      --icon-size: 1.2rem;
-
-      position: absolute;
-      inset-block: 0;
-      inset-inline-end: 0.125rem;
-      display: flex;
-      align-items: center;
-
-      .feeds_item:not([aria-current='page']) & {
-        opacity: 20%;
-      }
-    }
-  }
-</style>
+<Links {id} {current} {getArrow} {getControls} {getHref} {list}>
+  {#snippet item(feed)}
+    {feed.title}
+  {/snippet}
+</Links>

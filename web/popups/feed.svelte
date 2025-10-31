@@ -82,7 +82,7 @@
       {#if $posts.isLoading}
         <Loader />
       {:else}
-        <Posts posts={$posts.list} />
+        <Posts list={$posts.list} />
         {#if $posts.hasNext}
           <Button onclick={posts.next} size="wide">{$t.morePosts}</Button>
         {/if}
