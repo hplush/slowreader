@@ -14,6 +14,7 @@ export const organizeMessages = i18n('organize', {
   deleteFeed: 'Delete feed',
   deleteFilter: 'Delete filter',
   fast: 'Fun',
+  feedPosts: 'Recent posts',
   feedUrl: 'Feed URL',
   filterAction: 'Filter action',
   filterActionDelete: 'Delete post',

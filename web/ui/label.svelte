@@ -3,20 +3,18 @@
 
   let {
     children,
-    id,
-    legend
+    id = null,
+    tag = 'label'
   }: {
     children: Snippet
-    id?: string
-    legend?: boolean
+    id?: null | string
+    tag?: 'h2' | 'label' | 'legend'
   } = $props()
 </script>
 
-{#if legend}
-  <legend class="label">{@render children()}</legend>
-{:else}
-  <label class="label" for={id}>{@render children()}</label>
-{/if}
+<svelte:element this={tag} class="label" for={id}>
+  {@render children()}
+</svelte:element>
 
 <style>
   :global {

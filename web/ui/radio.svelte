@@ -31,7 +31,7 @@
   aria-orientation="vertical"
   role="radiogroup"
 >
-  <Label legend>{label}</Label>
+  <Label tag="legend">{label}</Label>
   <div class="radio_gutter">
     <div
       style:--radio-width={`${100 / values.length}%`}
