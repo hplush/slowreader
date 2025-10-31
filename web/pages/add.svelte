@@ -1,6 +1,10 @@
 <script lang="ts">
   import { mdiRss } from '@mdi/js'
-  import { type AddPage, addMessages as t } from '@slowreader/core'
+  import {
+    type AddPage,
+    organizeMessages,
+    addMessages as t
+  } from '@slowreader/core'
 
   import Error from '../ui/error.svelte'
   import Feeds from '../ui/feeds.svelte'
@@ -28,7 +32,7 @@
   })
 </script>
 
-<PopupablePage title={$t.title}>
+<PopupablePage title={[$t.title, $organizeMessages.feedsTitle]}>
   <Stack align="center" {gap}>
     <Input
       aria-controls="add-results"

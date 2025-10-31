@@ -8,7 +8,7 @@ export const addMessages = i18n('add', {
   searchGuide:
     'Currently, Slow Reader supports RSS.\n\n' +
     'More sources are coming soon, but you can already use RSS wrappers for them.',
-  title: 'Add feed',
+  title: 'Add',
   unloadable: 'Can’t open this website',
   urlLabel: 'Web page URL or social media handle'
 })
