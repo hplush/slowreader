@@ -14,8 +14,7 @@
     getHref,
     id,
     item,
-    list,
-    popup
+    list
   }: {
     current?: string
     // eslint-disable-next-line svelte/require-event-prefix
@@ -27,7 +26,6 @@
     id?: string
     item: Snippet<[Value]>
     list: readonly Value[]
-    popup?: boolean
   } = $props()
 
   function getId(value: Value): string {
@@ -41,7 +39,7 @@
   }
 </script>
 
-<ul {id} class="links" class:is-popup={popup}>
+<ul {id} class="links">
   {#each list as i (getId(i))}
     <li>
       <Clickable
@@ -68,10 +66,6 @@
     .links {
       width: stretch;
       list-style: none;
-
-      &.is-popup {
-        margin: 0 -1rem;
-      }
     }
 
     .links_item {
@@ -79,16 +73,12 @@
 
       position: relative;
       display: block;
-      padding: 0.8rem var(--control-padding);
+      padding: 0.625rem var(--control-padding);
       margin-top: calc(-1 * var(--min-size));
       font: var(--control-font);
       background: --tune-background(--flat-button);
       box-shadow: var(--flat-control-shadow);
       corner-shape: squircle;
-
-      .links.is-popup & {
-        padding-inline: 1rem;
-      }
 
       li:first-child & {
         margin-top: 0;
@@ -111,8 +101,8 @@
 
       &:active {
         z-index: 1;
-        padding-block: calc(0.8rem + var(--min-size))
-          calc(0.8rem - var(--min-size));
+        padding-block: calc(0.625rem + var(--min-size))
+          calc(0.625rem - var(--min-size));
         box-shadow: var(--pressed-shadow);
       }
 
