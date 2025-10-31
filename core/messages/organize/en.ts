@@ -21,6 +21,7 @@ export const organizeMessages = i18n('organize', {
   filterActionSlow: 'Move to Slow reading',
   filterQuery: 'Filter query',
   invalidFilter: 'Invalid filter query',
+  morePosts: 'More posts',
   moveFilterDown: 'Move down',
   moveFilterUp: 'Move up',
   renameCategory: 'Rename category',

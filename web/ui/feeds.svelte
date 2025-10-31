@@ -63,21 +63,19 @@
       font: var(--control-font);
       background: --tune-background(--flat-button);
       box-shadow: var(--flat-control-shadow);
+      corner-shape: squircle;
 
       li:first-child & {
         margin-top: 0;
         border-radius: var(--base-radius) var(--base-radius) 0 0;
-        corner-shape: squircle;
       }
 
       li:last-child & {
         border-radius: 0 0 var(--base-radius) var(--base-radius);
-        corner-shape: squircle;
       }
 
       li:last-child:first-child & {
         border-radius: var(--base-radius);
-        corner-shape: squircle;
       }
 
       &:hover,

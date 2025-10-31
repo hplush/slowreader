@@ -4,7 +4,11 @@
 
   import { sanitizeDOM } from '@slowreader/core'
 
-  let { comfort, html }: { comfort?: boolean; html: string } = $props()
+  let {
+    comfort,
+    fakelinks,
+    html
+  }: { comfort?: boolean; fakelinks?: boolean; html: string } = $props()
 
   let node: HTMLDivElement | undefined
 
@@ -13,10 +17,17 @@
       node.innerHTML = ''
       node.replaceChildren(...sanitizeDOM(html).childNodes)
       let links = node.querySelectorAll('a')
-      links.forEach(link => {
-        link.setAttribute('target', '_blank')
-        link.setAttribute('rel', 'noopener')
-      })
+      if (fakelinks) {
+        links.forEach(link => {
+          link.removeAttribute('href')
+          link.classList.add('is-fake-link')
+        })
+      } else {
+        links.forEach(link => {
+          link.setAttribute('target', '_blank')
+          link.setAttribute('rel', 'noopener')
+        })
+      }
     }
   })
 </script>
@@ -43,6 +54,10 @@
 
     .formatted-text p {
       margin: 0 0 0.75em;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
     }
 
     .formatted-text :is(h1, h2, h3, h4, h5, h6) {
@@ -88,16 +103,21 @@
       opacity: 100%;
     }
 
-    .formatted-text a:visited {
+    .formatted-text a:not(.is-fake-link):visited {
       color: var(--link-color-visited);
     }
 
-    .formatted-text a:hover {
+    .formatted-text a:not(.is-fake-link):hover {
       opacity: 85%;
     }
 
-    .formatted-text a:active {
+    .formatted-text a:not(.is-fake-link):active {
       opacity: 87%;
+    }
+
+    .formatted-text a.is-fake-link {
+      color: currentcolor;
+      text-decoration: underline;
     }
 
     .formatted-text em {

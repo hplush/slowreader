@@ -24,6 +24,7 @@
       0 5px / 16px 16px oklch(0.99 0 0);
   --fire1-color: oklch(0.7 0.15 65);
   --fire2-color: oklch(0.58 0.2 29);
+  --selection-color: oklch(0.93 0.16 102);
 
   @media (color-gamut: p3) {
     --focus-color: oklch(0.68 0.2 240);
@@ -33,6 +34,7 @@
 
 .is-non-comfort-mode {
   --flat-button-c: 0;
+  --flat-button-hover-c: 0;
   --gutter-c: 0;
   --colorize-c: 0.03;
 }
