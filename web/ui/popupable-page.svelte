@@ -3,7 +3,8 @@
 
   import Page from './page.svelte'
 
-  let { children, title }: { children: Snippet; title: string } = $props()
+  let { children, title }: { children: Snippet; title: string | string[] } =
+    $props()
 </script>
 
 <Page

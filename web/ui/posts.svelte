@@ -10,14 +10,20 @@
   import FormattedText from './formatted-text.svelte'
   import Links from './links.svelte'
 
-  let { list }: { list: (OriginPost | PostValue)[] } = $props()
+  type PostLike = OriginPost | PostValue
 
-  function getHref(post: OriginPost | PostValue): string {
+  let { list }: { list: PostLike[] } = $props()
+
+  function getHref(post: PostLike): string {
     return getPopupHash($router, 'post', post.originId)
+  }
+
+  function getCurrent(post: PostLike): boolean {
+    return post.url === 'TODO'
   }
 </script>
 
-<Links {getHref} {list}>
+<Links {getCurrent} {getHref} {list}>
   {#snippet item(post)}
     {#if post.title}
       {post.title}

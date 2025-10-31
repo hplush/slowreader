@@ -3,7 +3,7 @@ import { i18n } from '../../i18n.ts'
 export const organizeMessages = i18n('organize', {
   addFeed: 'Subscribe',
   addFilter: 'Add filter',
-  byCategoryTitle: 'Feeds by category',
+  byCategoryTitle: 'By category',
   category: 'Category',
   categoryName: 'Category name',
   deleteCategory: 'Delete category',
@@ -15,6 +15,7 @@ export const organizeMessages = i18n('organize', {
   deleteFilter: 'Delete filter',
   fast: 'Fun',
   feedPosts: 'Recent posts',
+  feedsTitle: 'Feeds',
   feedUrl: 'Feed URL',
   filterAction: 'Filter action',
   filterActionDelete: 'Delete post',

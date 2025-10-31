@@ -14,8 +14,9 @@ import {
   type LoaderName,
   loaders
 } from '../loader/index.ts'
-import { closeAllPopups, router, setPopups } from '../router.ts'
+import { closeAllPopups, setPopups } from '../router.ts'
 import { createPage } from './common.ts'
+import { injectOpenedFeed } from './mixins/opened-feed.ts'
 
 export type AddLinksValue = Record<
   string,
@@ -74,12 +75,7 @@ export const addPage = createPage('add', () => {
     }
   )
 
-  let $opened = computed(router, route => {
-    let popup = route.popups[0]
-    if (popup?.popup === 'feed') {
-      return popup.param
-    }
-  })
+  let openedFeedMixin = injectOpenedFeed()
 
   let $sortedCandidates = computed($candidates, candidates => {
     return candidates.sort((a, b) => {
@@ -247,13 +243,14 @@ export const addPage = createPage('add', () => {
     if (!searching) {
       unbindSearching()
       let found = $sortedCandidates.get()
-      if (!isMobile.get() && !$opened.get() && found[0]) {
+      if (!isMobile.get() && !openedFeedMixin.opened.get() && found[0]) {
         setPopups([['feed', found[0].url]])
       }
     }
   })
 
   return {
+    ...openedFeedMixin,
     candidates: $sortedCandidates,
     error: $error,
     exit() {
@@ -263,7 +260,6 @@ export const addPage = createPage('add', () => {
     },
     inputUrl,
     noResults: $noResults,
-    opened: $opened,
     params: {
       url: $url
     },

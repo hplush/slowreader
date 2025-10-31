@@ -7,8 +7,11 @@ import {
 } from '../category.ts'
 import { getFeeds } from '../feed.ts'
 import { createPage } from './common.ts'
+import { injectOpenedFeed } from './mixins/opened-feed.ts'
 
 export const feedsByCategoriesPage = createPage('feedsByCategories', () => {
+  let openedFeedMixin = injectOpenedFeed()
+
   let $categories = getCategories()
   let $feeds = getFeeds()
 
@@ -24,6 +27,7 @@ export const feedsByCategoriesPage = createPage('feedsByCategories', () => {
   })
 
   return {
+    ...openedFeedMixin,
     exit() {
       unbind()
     },

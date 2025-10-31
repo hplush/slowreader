@@ -8,19 +8,20 @@
   import Icon from './icon.svelte'
 
   let {
-    current,
     getArrow,
     getControls,
+    getCurrent,
     getHref,
     id,
     item,
     list
   }: {
-    current?: string
     // eslint-disable-next-line svelte/require-event-prefix
     getArrow?: (value: Value) => string
     // eslint-disable-next-line svelte/require-event-prefix
     getControls?: (value: Value) => string
+    // eslint-disable-next-line svelte/require-event-prefix
+    getCurrent: (value: Value) => boolean
     // eslint-disable-next-line svelte/require-event-prefix
     getHref: (value: Value) => string
     id?: string
@@ -39,13 +40,13 @@
   }
 </script>
 
-<ul {id} class="links">
+<ul {id} class="links" class:is-arrow={!!getArrow}>
   {#each list as i (getId(i))}
     <li>
       <Clickable
         class="links_item"
         aria-controls={getControls?.(i) ?? null}
-        aria-current={current === getId(i) ? 'page' : null}
+        aria-current={getCurrent(i) ? 'page' : null}
         href={getHref(i)}
         role="menuitem"
       >
@@ -76,6 +77,7 @@
       padding: 0.625rem var(--control-padding);
       margin-top: calc(-1 * var(--min-size));
       font: var(--control-font);
+      overflow-wrap: anywhere;
       background: --tune-background(--flat-button);
       box-shadow: var(--flat-control-shadow);
       corner-shape: squircle;
@@ -111,6 +113,10 @@
         cursor: default;
         background: --tune-background(--current);
         box-shadow: var(--current-shadow);
+      }
+
+      .links.is-arrow & {
+        padding-inline-end: calc(1.2rem + 2 * 0.125rem);
       }
     }
 

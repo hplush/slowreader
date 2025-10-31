@@ -12,6 +12,7 @@
   import AddPage from '../pages/add.svelte'
   import BusyPage from '../pages/busy.svelte'
   import DownloadPage from '../pages/download.svelte'
+  import FeedByCategoriesPage from '../pages/feeds-by-categories.svelte'
   import InterfacePage from '../pages/interface.svelte'
   import NotFoundPage from '../pages/not-found.svelte'
   import ProfilePage from '../pages/profile.svelte'
@@ -52,6 +53,8 @@
   <NotFoundPage />
 {:else if $currentPage.route === 'add'}
   <AddPage page={$currentPage} />
+{:else if $currentPage.route === 'feedsByCategories'}
+  <FeedByCategoriesPage page={$currentPage} />
 {:else if $currentPage.route === 'about'}
   <AboutPage page={$currentPage} />
 {:else if $currentPage.route === 'profile'}

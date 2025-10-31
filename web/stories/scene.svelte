@@ -1,8 +1,10 @@
 <script lang="ts">
   import {
+    addCategory,
     addFeed,
     type BaseRoute,
     Category,
+    type CategoryValue,
     client,
     currentPage,
     DEFAULT_REFRESH_STATISTICS,
@@ -33,6 +35,7 @@
   } from './environment.ts'
 
   let {
+    categories,
     children,
     feeds,
     oninit = () => {},
@@ -40,6 +43,7 @@
     route,
     user = true
   }: {
+    categories?: CategoryValue[]
     children: Snippet
     feeds?: Partial<FeedValue>[]
     oninit?: () => void
@@ -101,6 +105,9 @@
       htmlObserver.disconnect()
     })
 
+    for (let category of categories ?? []) {
+      addCategory(category)
+    }
     for (let feed of feeds ?? []) {
       addFeed(testFeed(feed))
     }
