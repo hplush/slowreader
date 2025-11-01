@@ -4,12 +4,13 @@ import {
   createSyncMap,
   deleteSyncMapById,
   type FilterStore,
+  loadValue,
   syncMapTemplate
 } from '@logux/client'
 import { nanoid } from 'nanoid'
 
 import { getClient } from './client.ts'
-import type { FeedValue } from './feed.ts'
+import { changeFeed, type FeedValue, getFeeds } from './feed.ts'
 import { commonMessages as common } from './messages/index.ts'
 
 export type CategoryValue = {
@@ -44,6 +45,12 @@ export async function changeCategory(
 }
 
 export async function deleteCategory(categoryId: string): Promise<void> {
+  let feeds = await loadValue(getFeeds({ categoryId }))
+  await Promise.all(
+    feeds.list.map(async feed => {
+      await changeFeed(feed.id, { categoryId: 'general' })
+    })
+  )
   return deleteSyncMapById(getClient(), Category, categoryId)
 }
 
