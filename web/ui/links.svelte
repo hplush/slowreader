@@ -80,7 +80,6 @@
       overflow-wrap: anywhere;
       background: --tune-background(--flat-button);
       box-shadow: var(--flat-control-shadow);
-      corner-shape: squircle;
 
       li:first-child & {
         margin-top: 0;

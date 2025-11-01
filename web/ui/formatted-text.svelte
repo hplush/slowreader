@@ -181,7 +181,6 @@
       background-color: var(--code-background);
       border-radius: var(--base-radius);
       box-shadow: var(--field-shadow);
-      corner-shape: squircle;
     }
 
     .formatted-text code {

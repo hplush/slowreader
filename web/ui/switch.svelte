@@ -72,7 +72,6 @@
       );
       margin-inline-end: calc(var(--switch-diff) / 2);
       border-radius: calc(var(--base-radius) + var(--slider-padding));
-      corner-shape: squircle;
 
       html:not(.is-quiet-cursor) &:not(:has(:disabled)) {
         cursor: pointer;
@@ -108,7 +107,6 @@
       background: --tune-background(--gutter --colorize, --dangerous);
       border-radius: calc(var(--base-radius) + var(--slider-padding));
       box-shadow: var(--field-shadow);
-      corner-shape: squircle;
 
       .switch:active & {
         box-shadow: var(--pressed-shadow);
@@ -129,7 +127,6 @@
       content: '';
       background: var(--slider-hover-background);
       border-radius: var(--base-radius);
-      corner-shape: squircle;
     }
 
     .switch_slider {
@@ -148,7 +145,6 @@
       box-shadow: var(--button-shadow);
       translate: 0 0;
       transition: translate var(--simple-time) var(--click-easing);
-      corner-shape: squircle;
 
       .switch_input:disabled + .switch_gutter & {
         box-shadow: var(--flat-control-shadow);

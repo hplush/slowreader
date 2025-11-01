@@ -66,7 +66,6 @@
       width: 50%;
       font: var(--control-font);
       border-radius: var(--base-radius);
-      corner-shape: squircle;
 
       &.is-icon {
         width: var(--control-height);

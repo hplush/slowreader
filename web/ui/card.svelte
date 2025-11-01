@@ -25,7 +25,6 @@
     .card {
       padding: 1rem;
       border-radius: calc(1rem + var(--base-radius));
-      corner-shape: squircle;
 
       &.is-main {
         @mixin background var(--main-land-color);

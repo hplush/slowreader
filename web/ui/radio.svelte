@@ -78,7 +78,6 @@
       background: --tune-background(--gutter);
       border-radius: calc(var(--base-radius) + var(--slider-padding));
       box-shadow: var(--field-shadow);
-      corner-shape: squircle;
     }
 
     .radio_slider {
@@ -94,7 +93,6 @@
       transition:
         left var(--simple-time) var(--slide-easing),
         width var(--simple-time) var(--slide-easing);
-      corner-shape: squircle;
     }
 
     .radio_label {
@@ -104,7 +102,6 @@
       z-index: 2;
       min-height: var(--control-height);
       border-radius: var(--base-radius);
-      corner-shape: squircle;
 
       &:hover:not(:has(:checked)),
       &:active:not(:has(:checked)),
@@ -138,7 +135,6 @@
       inset: 0;
       appearance: none;
       border-radius: var(--base-radius);
-      corner-shape: squircle;
 
       .radio_label:has(:checked) & {
         cursor: default;

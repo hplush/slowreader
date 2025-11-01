@@ -9,6 +9,7 @@ import htmlKeeper from './postcss/html-keeper.ts'
 import pseudoClasses from './postcss/pseudo-classes.ts'
 import quietCursor from './postcss/quiet-cursor.ts'
 import reducedMotion from './postcss/reduced-motion.ts'
+import squircleCorner from './postcss/squircle-corner.ts'
 import themeClasses from './postcss/theme-classes.ts'
 import tuneColor from './postcss/tune-color.ts'
 
@@ -23,6 +24,7 @@ export default {
     tuneColor,
     quietCursor,
     reducedMotion,
+    squircleCorner,
     shadows(),
     autoprefixer(),
     mixins({

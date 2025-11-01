@@ -47,7 +47,6 @@
       border: none;
       border-radius: var(--base-radius);
       box-shadow: var(--field-shadow);
-      corner-shape: squircle;
     }
   }
 </style>

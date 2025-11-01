@@ -43,7 +43,6 @@
       border: 2px solid;
       border-color: --tune-background(--note);
       border-radius: var(--base-radius);
-      corner-shape: squircle;
 
       &.is-dangerous {
         @mixin background var(--note-dangerous-background);

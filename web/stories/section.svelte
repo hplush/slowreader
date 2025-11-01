@@ -105,7 +105,6 @@
 
       padding: 0.625rem;
       border-radius: calc(var(--base-radius) + 0.625rem);
-      corner-shape: squircle;
     }
   }
 </style>

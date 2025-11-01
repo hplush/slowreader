@@ -89,7 +89,6 @@
       padding: 0.3125rem 0 0.125rem 0.5rem;
       background: transparent;
       border-radius: var(--base-radius);
-      corner-shape: squircle;
 
       @mixin clickable;
 

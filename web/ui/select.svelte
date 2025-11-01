@@ -67,7 +67,6 @@
       background: --tune-background(--field);
       border-radius: var(--base-radius);
       box-shadow: var(--field-shadow);
-      corner-shape: squircle;
 
       &:has(.select_select:focus-visible) {
         @mixin focus;

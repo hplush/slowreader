@@ -66,7 +66,6 @@
       font: var(--text-font);
       color: var(--text-color);
       border-radius: var(--base-radius);
-      corner-shape: squircle;
 
       &:hover,
       &:focus-visible,

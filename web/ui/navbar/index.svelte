@@ -211,7 +211,6 @@
       border-radius: calc(var(--base-radius) + var(--slider-padding));
       box-shadow: var(--field-shadow);
       transition: right var(--simple-time) var(--slide-easing);
-      corner-shape: squircle;
 
       .navbar.is-other & {
         inset-inline-end: calc(
@@ -234,7 +233,6 @@
       transition:
         left var(--simple-time) var(--slide-easing),
         width var(--simple-time) var(--slide-easing);
-      corner-shape: squircle;
 
       .navbar.is-slow & {
         display: block;
