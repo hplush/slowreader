@@ -9,7 +9,7 @@
   }: {
     align?: 'center' | 'end' | 'start'
     children: Snippet
-    gap?: 'l' | 'm' | 's' | 'xl' | 'xxl' | 'xxxl'
+    gap?: 'l' | 'm' | 's' | 'xl' | 'xs' | 'xxl' | 'xxxl'
     row?: boolean
   } = $props()
 </script>
@@ -23,6 +23,7 @@
   class:is-gap-m={gap === 'm'}
   class:is-gap-s={gap === 's'}
   class:is-gap-xl={gap === 'xl'}
+  class:is-gap-xs={gap === 'xs'}
   class:is-gap-xxl={gap === 'xxl'}
   class:is-gap-xxxl={gap === 'xxxl'}
   class:is-row={row}
@@ -71,6 +72,10 @@
 
       &.is-gap-m {
         gap: 0.625rem;
+      }
+
+      &.is-gap-xs {
+        gap: 0.125rem;
       }
 
       &.is-gap-s {
