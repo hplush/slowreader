@@ -48,7 +48,9 @@ export async function deleteCategory(categoryId: string): Promise<void> {
   let feeds = await loadValue(getFeeds({ categoryId }))
   await Promise.all(
     feeds.list.map(async feed => {
-      await changeFeed(feed.id, { categoryId: 'general' })
+      if (!feeds.stores.get(feed.id)?.deleted) {
+        await changeFeed(feed.id, { categoryId: 'general' })
+      }
     })
   )
   return deleteSyncMapById(getClient(), Category, categoryId)
