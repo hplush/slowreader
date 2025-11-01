@@ -5,17 +5,22 @@
     align = 'start',
     children,
     gap = 'm',
-    row = false
+    justify = 'start',
+    row = false,
+    width = 'stretch'
   }: {
-    align?: 'center' | 'end' | 'start'
+    align?: 'baseline' | 'center' | 'end' | 'start'
     children: Snippet
     gap?: 'l' | 'm' | 's' | 'xl' | 'xs' | 'xxl' | 'xxxl'
+    justify?: 'center' | 'end' | 'space-between' | 'start'
     row?: boolean
+    width?: 'auto' | 'stretch'
   } = $props()
 </script>
 
 <div
   class="stack"
+  class:is-align-baseline={align === 'baseline'}
   class:is-align-center={align === 'center'}
   class:is-align-end={align === 'end'}
   class:is-align-start={align === 'start'}
@@ -26,7 +31,13 @@
   class:is-gap-xs={gap === 'xs'}
   class:is-gap-xxl={gap === 'xxl'}
   class:is-gap-xxxl={gap === 'xxxl'}
+  class:is-justify-center={justify === 'center'}
+  class:is-justify-end={justify === 'end'}
+  class:is-justify-space-between={justify === 'space-between'}
+  class:is-justify-start={justify === 'start'}
   class:is-row={row}
+  class:is-width-auto={width === 'auto'}
+  class:is-width-stretch={width === 'stretch'}
 >
   {@render children()}
 </div>
@@ -36,7 +47,6 @@
     .stack {
       display: flex;
       flex-direction: column;
-      width: stretch;
 
       &.is-align-start {
         align-items: flex-start;
@@ -50,8 +60,37 @@
         align-items: flex-end;
       }
 
+      &.is-align-baseline {
+        align-items: baseline;
+      }
+
+      &.is-justify-center {
+        justify-content: center;
+      }
+
+      &.is-justify-end {
+        justify-content: flex-end;
+      }
+
+      &.is-justify-space-between {
+        justify-content: space-between;
+      }
+
+      &.is-justify-start {
+        justify-content: flex-start;
+      }
+
+      &.is-width-auto {
+        width: auto;
+      }
+
+      &.is-width-stretch {
+        width: stretch;
+      }
+
       &.is-row {
         flex-direction: row;
+        padding: 0 var(--stack-padding);
       }
 
       &.is-gap-xxxl {

@@ -3,12 +3,17 @@
 
   import Page from './page.svelte'
 
-  let { children, title }: { children: Snippet; title: string | string[] } =
+  let {
+    children,
+    padding,
+    title
+  }: { children: Snippet; padding?: boolean; title: string | string[] } =
     $props()
 </script>
 
 <Page
   class={{
+    'is-padding': padding,
     'popupable-page': true
   }}
   {title}
@@ -25,6 +30,10 @@
       width: calc(100vw - var(--popup-size) - var(--navbar-width));
       padding: var(--navbar-padding) var(--page-padding) 1rem
         var(--page-padding);
+
+      &.is-padding {
+        padding-top: 0.725rem;
+      }
 
       @media (--mobile) {
         width: auto;

@@ -18,38 +18,40 @@
   let { groups, opened } = page
 </script>
 
-<PopupablePage title={[$t.byCategoryTitle, $t.feedsTitle]}>
+<PopupablePage padding title={[$t.byCategoryTitle, $t.feedsTitle]}>
   <Stack gap="xl">
     {#each $groups as [category, feeds] (category.id)}
-      <Stack gap="s">
-        <Stack gap="s" row>
+      <Stack>
+        <Stack align="baseline" gap="s" justify="space-between" row>
           <Title>{category.title}</Title>
           {#if category.id !== 'general' && category.id !== 'broken'}
-            <Button
-              icon={mdiRenameOutline}
-              onclick={() => {
-                let title = prompt($t.categoryName, category.title)
-                if (title) {
-                  changeCategory(category.id, { title })
-                }
-              }}
-              size="icon"
-              variant="secondary"
-            >
-              {$t.renameCategory}
-            </Button>
-            <Button
-              icon={mdiTrashCanOutline}
-              onclick={() => {
-                if (confirm($t.deleteCategoryConform)) {
-                  deleteCategory(category.id)
-                }
-              }}
-              size="icon"
-              variant="secondary-dangerous"
-            >
-              {$t.deleteCategory}
-            </Button>
+            <Stack gap="s" row width="auto">
+              <Button
+                icon={mdiRenameOutline}
+                onclick={() => {
+                  let title = prompt($t.categoryName, category.title)
+                  if (title) {
+                    changeCategory(category.id, { title })
+                  }
+                }}
+                size="icon"
+                variant="secondary"
+              >
+                {$t.renameCategory}
+              </Button>
+              <Button
+                icon={mdiTrashCanOutline}
+                onclick={() => {
+                  if (confirm($t.deleteCategoryConform)) {
+                    deleteCategory(category.id)
+                  }
+                }}
+                size="icon"
+                variant="secondary-dangerous"
+              >
+                {$t.deleteCategory}
+              </Button>
+            </Stack>
           {/if}
         </Stack>
         <Feeds current={$opened} list={feeds} />
