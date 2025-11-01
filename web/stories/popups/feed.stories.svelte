@@ -73,7 +73,7 @@
 <Story
   name="New Mobile"
   asChild
-  globals={{ viewport: { value: 'mobile1' } }}
+  globals={{ viewport: { value: 'mobile2' } }}
   parameters={{ layout: 'fullscreen' }}
 >
   <Scene responses={[['https://example.com/news.atom', ATOM]]}>
@@ -88,7 +88,7 @@
 <Story
   name="Added Mobile"
   asChild
-  globals={{ viewport: { value: 'mobile1' } }}
+  globals={{ viewport: { value: 'mobile2' } }}
   parameters={{ layout: 'fullscreen' }}
 >
   <Scene
