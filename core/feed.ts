@@ -82,7 +82,7 @@ export async function addCandidate(
   return await addFeed({
     categoryId: 'general',
     lastOriginId: lastPost?.originId,
-    lastPublishedAt: lastPost?.publishedAt ?? Date.now() / 1000,
+    lastPublishedAt: lastPost?.publishedAt ?? Math.round(Date.now() / 1000),
     loader: candidate.name,
     reading: 'slow',
     title: candidate.title,
