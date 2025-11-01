@@ -19,10 +19,17 @@
 </script>
 
 <PopupablePage padding title={[$t.byCategoryTitle, $t.feedsTitle]}>
-  <Stack gap="xl">
+  <Stack gap="xl" role="menu">
     {#each $groups as [category, feeds] (category.id)}
       <Stack>
-        <Stack align="baseline" gap="s" justify="space-between" row>
+        <Stack
+          align="baseline"
+          controls={`${category.id}-feeds`}
+          gap="s"
+          justify="space-between"
+          role="menuitem"
+          row
+        >
           <Title>{category.title}</Title>
           {#if category.id !== 'general' && category.id !== 'broken'}
             <Stack gap="s" row width="auto">
@@ -54,7 +61,7 @@
             </Stack>
           {/if}
         </Stack>
-        <Feeds current={$opened} list={feeds} />
+        <Feeds id={`${category.id}-feeds`} current={$opened} list={feeds} />
       </Stack>
     {/each}
   </Stack>

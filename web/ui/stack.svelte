@@ -4,20 +4,26 @@
   let {
     align = 'start',
     children,
+    controls,
     gap = 'm',
     justify = 'start',
+    role,
     row = false,
     width = 'stretch'
   }: {
     align?: 'baseline' | 'center' | 'end' | 'start'
     children: Snippet
+    controls?: string
     gap?: 'l' | 'm' | 's' | 'xl' | 'xs' | 'xxl' | 'xxxl'
     justify?: 'center' | 'end' | 'space-between' | 'start'
+    role?: 'menu' | 'menuitem'
     row?: boolean
     width?: 'auto' | 'stretch'
   } = $props()
 </script>
 
+<!-- We need tabindex on <div> for simpler focus to edit/delete -->
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
   class="stack"
   class:is-align-baseline={align === 'baseline'}
@@ -38,6 +44,9 @@
   class:is-row={row}
   class:is-width-auto={width === 'auto'}
   class:is-width-stretch={width === 'stretch'}
+  aria-controls={controls}
+  {role}
+  tabindex={controls ? 0 : null}
 >
   {@render children()}
 </div>
@@ -47,6 +56,10 @@
     .stack {
       display: flex;
       flex-direction: column;
+
+      &[aria-controls] {
+        border-radius: var(--base-radius);
+      }
 
       &.is-align-start {
         align-items: flex-start;

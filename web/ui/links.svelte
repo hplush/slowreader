@@ -40,7 +40,13 @@
   }
 </script>
 
-<ul {id} class="links" class:is-arrow={!!getArrow}>
+<ul
+  {id}
+  class="links"
+  class:is-arrow={!!getArrow}
+  aria-hidden="true"
+  role="menu"
+>
   {#each list as i (getId(i))}
     <li>
       <Clickable
@@ -49,6 +55,7 @@
         aria-current={getCurrent(i) ? 'page' : null}
         href={getHref(i)}
         role="menuitem"
+        tabindex={-1}
       >
         {@render item(i)}
         {@const icon = getArrow?.(i)}
