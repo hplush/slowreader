@@ -10,7 +10,7 @@ let prevPopups: Popup[] = []
  * and destroying unused ones to prevent memory leaks
  */
 export const openedPopups: ReadableAtom<Popup[]> = computed(router, route => {
-  let lastIndex = 0
+  let lastIndex = -1
   let nextPopups = route.popups.map((popup, index) => {
     lastIndex = index
     let prevPopup = prevPopups[index]
