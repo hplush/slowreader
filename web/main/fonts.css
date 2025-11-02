@@ -24,6 +24,7 @@
   --secondary-font: 400 0.875rem/1.6 var(--text-family);
   --secondary-title-font: 600 0.875rem/1.6 var(--text-family);
   --app-title-font: 400 1.5rem/1.2 var(--app-title-family);
+  --counter-font: 600 1.5rem/1.2 var(--app-title-family);
   --control-font: 500 0.9375rem/1.2 var(--text-family);
   --control-secondary-font: 500 0.875rem/1.2 var(--text-family);
   --mono-font: 400 1rem/1.6 var(--mono-family);

@@ -14,8 +14,9 @@
     hasPassword,
     type ParamlessRouteName,
     Post,
-    refreshIcon,
+    refreshErrors,
     refreshStatistics,
+    refreshStatus,
     signOut,
     stopRefreshing,
     syncStatus,
@@ -71,7 +72,8 @@
     cleanLogux()
     prepareResponses(responses)
     stopRefreshing()
-    refreshIcon.set('start')
+    refreshStatus.set('start')
+    refreshErrors.set([])
     syncStatus.set('synchronized')
     refreshStatistics.set(DEFAULT_REFRESH_STATISTICS)
 

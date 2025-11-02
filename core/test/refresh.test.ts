@@ -13,14 +13,16 @@ import {
   expectRequest,
   getFeed,
   getPosts,
+  isRefreshing,
   loaders,
   mockRequest,
   type PostsListResult,
   type PostValue,
-  refreshIcon,
+  refreshErrors,
   refreshPosts,
   refreshProgress,
   refreshStatistics,
+  refreshStatus,
   stopRefreshing,
   testFeed
 } from '../index.ts'
@@ -79,14 +81,16 @@ test('updates posts', async () => {
     query: 'include(delete)'
   })
 
-  equal(refreshIcon.get(), 'start')
+  deepEqual(refreshErrors.get(), [])
+  equal(refreshStatus.get(), 'start')
+  equal(isRefreshing.get(), false)
   equal(refreshProgress.get(), 0)
   deepEqual(refreshStatistics.get(), {
-    errors: 0,
+    errorFeeds: 0,
+    errorRequests: 0,
     foundFast: 0,
     foundSlow: 0,
     initializing: false,
-    missedFeeds: 0,
     processedFeeds: 0,
     totalFeeds: 0
   })
@@ -104,14 +108,15 @@ test('updates posts', async () => {
   refreshPosts().then(() => {
     finished = true
   })
-  equal(refreshIcon.get(), 'refreshing')
+  equal(refreshStatus.get(), 'refreshing')
+  equal(isRefreshing.get(), true)
   equal(refreshProgress.get(), 0)
   deepEqual(refreshStatistics.get(), {
-    errors: 0,
+    errorFeeds: 0,
+    errorRequests: 0,
     foundFast: 0,
     foundSlow: 0,
     initializing: true,
-    missedFeeds: 0,
     processedFeeds: 0,
     totalFeeds: 0
   })
@@ -119,11 +124,11 @@ test('updates posts', async () => {
   await setTimeout(10)
   equal(refreshProgress.get(), 0)
   deepEqual(refreshStatistics.get(), {
-    errors: 0,
+    errorFeeds: 0,
+    errorRequests: 0,
     foundFast: 0,
     foundSlow: 0,
     initializing: false,
-    missedFeeds: 0,
     processedFeeds: 0,
     totalFeeds: 2
   })
@@ -145,11 +150,11 @@ test('updates posts', async () => {
   await setTimeout(10)
   equal(refreshProgress.get(), 0.5)
   deepEqual(refreshStatistics.get(), {
-    errors: 0,
+    errorFeeds: 0,
+    errorRequests: 0,
     foundFast: 0,
     foundSlow: 2,
     initializing: false,
-    missedFeeds: 0,
     processedFeeds: 1,
     totalFeeds: 2
   })
@@ -173,11 +178,11 @@ test('updates posts', async () => {
   equal(finished, false)
   equal(refreshProgress.get(), 0.5)
   deepEqual(refreshStatistics.get(), {
-    errors: 0,
+    errorFeeds: 0,
+    errorRequests: 0,
     foundFast: 1,
     foundSlow: 3,
     initializing: false,
-    missedFeeds: 0,
     processedFeeds: 1,
     totalFeeds: 2
   })
@@ -201,14 +206,16 @@ test('updates posts', async () => {
   deepEqual((await loadValue(getFeed(feedId2)))!.lastOriginId, 'post9')
   deepEqual((await loadValue(getFeed(feedId2)))!.lastPublishedAt, 9000)
   equal(finished, true)
-  equal(refreshIcon.get(), 'done')
+  deepEqual(refreshErrors.get(), [])
+  equal(refreshStatus.get(), 'done')
+  equal(isRefreshing.get(), false)
   equal(refreshProgress.get(), 1)
   deepEqual(refreshStatistics.get(), {
-    errors: 0,
+    errorFeeds: 0,
+    errorRequests: 0,
     foundFast: 2,
     foundSlow: 3,
     initializing: false,
-    missedFeeds: 0,
     processedFeeds: 2,
     totalFeeds: 2
   })
@@ -234,17 +241,17 @@ test('updates posts', async () => {
   })
 
   await setTimeout(1500)
-  equal(refreshIcon.get(), 'start')
+  equal(refreshStatus.get(), 'start')
 
   refreshPosts()
-  equal(refreshIcon.get(), 'refreshing')
+  equal(refreshStatus.get(), 'refreshing')
   equal(refreshProgress.get(), 0)
   deepEqual(refreshStatistics.get(), {
-    errors: 0,
+    errorFeeds: 0,
+    errorRequests: 0,
     foundFast: 0,
     foundSlow: 0,
     initializing: true,
-    missedFeeds: 0,
     processedFeeds: 0,
     totalFeeds: 0
   })
@@ -281,7 +288,7 @@ test('is ready to feed deletion during refreshing', async () => {
 
   await deleteFeed(feedId)
   await setTimeout(10)
-  equal(refreshIcon.get(), 'done')
+  equal(refreshStatus.get(), 'done')
   deepEqual(await getPostKeys('title'), [])
 })
 
@@ -300,29 +307,29 @@ test('cancels refreshing', async () => {
   await setTimeout(10)
 
   stopRefreshing()
-  equal(refreshIcon.get(), 'start')
+  equal(refreshStatus.get(), 'start')
   equal(rss.aborted, true)
   deepEqual(refreshStatistics.get(), {
-    errors: 0,
+    errorFeeds: 0,
+    errorRequests: 0,
     foundFast: 0,
     foundSlow: 0,
     initializing: false,
-    missedFeeds: 0,
     processedFeeds: 0,
     totalFeeds: 1
   })
   stopRefreshing()
-  equal(refreshIcon.get(), 'start')
+  equal(refreshStatus.get(), 'start')
 })
 
 test('is ready for network errors', async () => {
-  await addFeed(
+  let feed1 = await addFeed(
     testFeed({
       lastOriginId: 'post1',
       url: 'https://one.com/'
     })
   )
-  await addFeed(
+  let feed2 = await addFeed(
     testFeed({
       lastOriginId: 'post2',
       lastPublishedAt: 5000,
@@ -352,25 +359,29 @@ test('is ready for network errors', async () => {
   })
 
   let icons: string[] = []
-  refreshIcon.subscribe(icon => {
+  refreshStatus.subscribe(icon => {
     icons.push(icon)
   })
   refreshPosts()
   await setTimeout(10)
 
   deepEqual(refreshStatistics.get(), {
-    errors: 2,
+    errorFeeds: 1,
+    errorRequests: 2,
     foundFast: 0,
     foundSlow: 0,
     initializing: false,
-    missedFeeds: 1,
     processedFeeds: 2,
     totalFeeds: 2
   })
   deepEqual(icons, ['done', 'refreshing', 'refreshingError', 'error'])
+  deepEqual(refreshErrors.get(), [
+    { error: 'network error', feed: await loadValue(getFeed(feed1)) },
+    { error: 'server not working', feed: await loadValue(getFeed(feed2)) }
+  ])
 
   await setTimeout(1500)
-  equal(refreshIcon.get(), 'error')
+  equal(refreshStatus.get(), 'error')
 })
 
 test('is ready to not found previous ID and time', async () => {
@@ -396,7 +407,7 @@ test('is ready to not found previous ID and time', async () => {
 
   refreshPosts()
   await setTimeout(10)
-  equal(refreshIcon.get(), 'done')
+  equal(refreshStatus.get(), 'done')
   deepEqual(await getPostKeys('title'), ['4', '5', '6'])
 
   let feed = await loadValue(getFeed(feedId))
@@ -430,7 +441,7 @@ test('sorts posts', async () => {
 
   refreshPosts()
   await setTimeout(10)
-  equal(refreshIcon.get(), 'done')
+  equal(refreshStatus.get(), 'done')
   deepEqual(await getPostKeys('title'), ['2', '3', '4'])
 
   let feed = await loadValue(getFeed(feedId))

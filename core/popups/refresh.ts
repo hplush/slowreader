@@ -1,14 +1,18 @@
-import { refreshIcon } from '../refresh.ts'
+import { refreshStatus } from '../refresh.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
 export const refresh = definePopup('refresh', () => {
-  if (refreshIcon.get() === 'error') {
-    refreshIcon.set('start')
-  } else if (refreshIcon.get() === 'refreshingError') {
-    refreshIcon.set('refreshing')
-  }
+  let unbindStatus = refreshStatus.subscribe(status => {
+    if (status === 'refreshingError') {
+      refreshStatus.set('refreshing')
+    } else if (status === 'error') {
+      refreshStatus.set('start')
+    }
+  })
   return Promise.resolve({
-    destroy() {}
+    destroy() {
+      unbindStatus()
+    }
   })
 })
 

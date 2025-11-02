@@ -57,7 +57,7 @@ export function createQueue<Types extends TaskTypes>(
 /* node:coverage disable */
 export async function retryOnError<Result>(
   cb: () => Promise<Result>,
-  onFirstError: () => void,
+  onFirstError: (e: Error) => void,
   attempts = 3
 ): Promise<'abort' | 'error' | Result> {
   let result: Result | undefined
@@ -73,7 +73,7 @@ export async function retryOnError<Result>(
         if (attempts === 0) {
           return 'error'
         } else {
-          onFirstError()
+          onFirstError(e)
           return retryOnError(cb, () => {}, attempts)
         }
       }

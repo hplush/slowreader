@@ -12,10 +12,11 @@
     getSlowDefaultRoute,
     isMenuOpened,
     isOtherRoute,
+    isRefreshing,
     openMenu,
-    refreshIcon,
     refreshPosts,
     refreshProgress,
+    refreshStatus,
     router,
     navbarMessages as t
   } from '@slowreader/core'
@@ -74,7 +75,7 @@
 >
   <div class="navbar_main" aria-orientation="horizontal" role="menu">
     <div class="navbar_refresh">
-      {#if $refreshIcon === 'refreshing' || $refreshIcon === 'refreshingError'}
+      {#if $isRefreshing}
         <NavbarButton
           name={$t.refresh}
           href={getPopupHash($router, 'refresh', '1')}
@@ -82,7 +83,7 @@
         >
           <NavbarProgress value={$refreshProgress} />
         </NavbarButton>
-      {:else if $refreshIcon === 'error'}
+      {:else if $refreshStatus === 'error'}
         <NavbarButton
           name={$t.refresh}
           href={getPopupHash($router, 'refresh', '1')}
@@ -92,7 +93,7 @@
       {:else}
         <NavbarButton
           name={$t.refresh}
-          icon={$refreshIcon === 'done' ? mdiCheckCircleOutline : mdiRefresh}
+          icon={$refreshStatus === 'done' ? mdiCheckCircleOutline : mdiRefresh}
           onclick={() => {
             refreshPosts()
             moveFocusBack()
@@ -100,10 +101,10 @@
           size="icon"
         />
       {/if}
-      {#if $refreshIcon === 'done'}
+      {#if $refreshStatus === 'done'}
         <Announce text={$t.refreshingError} />
       {/if}
-      {#if $refreshIcon === 'error' || $refreshIcon === 'refreshingError'}
+      {#if $refreshStatus === 'error' || $refreshStatus === 'refreshingError'}
         <Announce text={$t.refreshingDone} />
         <div class="navbar_error">
           <Icon path={mdiAlertCircle} />

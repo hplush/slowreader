@@ -21,6 +21,7 @@
   import FeedPopup from '../popups/feed.svelte'
   import LoadingPopup from '../popups/loading.svelte'
   import NotFoundPopup from '../popups/not-found.svelte'
+  import RefreshPopup from '../popups/refresh.svelte'
   import Button from '../ui/button.svelte'
   import Navbar from '../ui/navbar/index.svelte'
   import ThinPage from '../ui/thin-page.svelte'
@@ -85,6 +86,8 @@
     <NotFoundPopup {popup} />
   {:else if popup.name === 'feed'}
     <FeedPopup {popup} />
+  {:else if popup.name === 'refresh'}
+    <RefreshPopup />
   {/if}
 {/if}
 {#each popupOther as i (i.id)}

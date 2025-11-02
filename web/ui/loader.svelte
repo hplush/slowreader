@@ -3,10 +3,12 @@
 
   let {
     label = $t.loading,
+    size = 'normal',
     value,
     variant = 'auto'
   }: {
     label?: string
+    size?: 'normal' | 'wide'
     value?: number
     variant?: 'accent' | 'auto'
   } = $props()
@@ -28,6 +30,7 @@
   bind:this={progress}
   class="loader"
   class:is-accent={variant === 'accent'}
+  class:is-wide={size === 'wide'}
   aria-label={label}
 ></progress>
 
@@ -37,6 +40,10 @@
     .loader.is-accent {
       --loader-background: oklch(1 0 0 / 20%);
       --loader-bar: oklch(1 0 0);
+    }
+
+    .loader.is-wide {
+      min-width: 100%;
     }
 
     @media (prefers-reduced-motion: reduce) {

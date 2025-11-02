@@ -15,11 +15,11 @@ import { increaseKey } from './lib/stores.ts'
 import { addPost, type OriginPost, processOriginPost } from './post.ts'
 
 export const DEFAULT_REFRESH_STATISTICS = {
-  errors: 0,
+  errorFeeds: 0,
+  errorRequests: 0,
   foundFast: 0,
   foundSlow: 0,
   initializing: false,
-  missedFeeds: 0,
   processedFeeds: 0,
   totalFeeds: 0
 }
@@ -28,14 +28,22 @@ export type RefreshStatistics = typeof DEFAULT_REFRESH_STATISTICS
 
 export const refreshStatistics = map({ ...DEFAULT_REFRESH_STATISTICS })
 
-export type RefreshIconValue =
+export type RefreshError = { error: string; feed: FeedValue }
+
+export const refreshErrors = atom<RefreshError[]>([])
+
+export type refreshStatusValue =
   | 'done'
   | 'error'
   | 'refreshing'
   | 'refreshingError'
   | 'start'
 
-export const refreshIcon = atom<RefreshIconValue>('start')
+export const refreshStatus = atom<refreshStatusValue>('start')
+
+export const isRefreshing = computed(refreshStatus, icon => {
+  return icon.startsWith('refreshing')
+})
 
 let doneTimeout: NodeJS.Timeout | undefined
 
@@ -63,12 +71,13 @@ function wasAlreadyAdded(feed: FeedValue, origin: OriginPost): boolean {
 }
 
 export async function refreshPosts(): Promise<void> {
-  if (refreshIcon.get().startsWith('refreshing')) return
+  if (isRefreshing.get()) return
   if (doneTimeout) {
     clearTimeout(doneTimeout)
     doneTimeout = undefined
   }
-  refreshIcon.set('refreshing')
+  refreshStatus.set('refreshing')
+  refreshErrors.set([])
   refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: true })
 
   task = createDownloadTask()
@@ -100,14 +109,17 @@ export async function refreshPosts(): Promise<void> {
       while (pages.get().hasNext) {
         let posts = await retryOnError(
           () => pages.next(),
-          () => {
-            refreshIcon.set('refreshingError')
-            increaseKey(refreshStatistics, 'errors')
+          e => {
+            refreshErrors.set([
+              ...refreshErrors.get(),
+              { error: e.message, feed }
+            ])
+            increaseKey(refreshStatistics, 'errorRequests')
           }
         )
         if (posts === 'error') {
-          refreshIcon.set('refreshingError')
-          increaseKey(refreshStatistics, 'missedFeeds')
+          refreshStatus.set('refreshingError')
+          increaseKey(refreshStatistics, 'errorFeeds')
           await end()
           return
         } else if (posts === 'abort') {
@@ -147,19 +159,19 @@ export async function refreshPosts(): Promise<void> {
       await end()
     }
   })
-  if (refreshIcon.get() === 'refreshingError') {
-    refreshIcon.set('error')
+  if (refreshStatus.get() === 'refreshingError') {
+    refreshStatus.set('error')
   } else {
-    refreshIcon.set('done')
+    refreshStatus.set('done')
     doneTimeout = setTimeout(() => {
-      refreshIcon.set('start')
+      refreshStatus.set('start')
     }, 1000)
   }
 }
 
 export function stopRefreshing(): void {
-  if (!refreshIcon.get().startsWith('refreshing')) return
-  refreshIcon.set('start')
+  if (!isRefreshing.get()) return
+  refreshStatus.set('start')
   queue.stop()
   task.destroy()
 }

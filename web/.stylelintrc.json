@@ -9,7 +9,9 @@
         "propertiesSyntax": {
           "background": "| <--tune-color()> | <--tune-background()>",
           "color": "| <--tune-color()> | <--tune-background()>",
-          "border-color": "| <--tune-color()> | <--tune-background()>"
+          "border-color": "| <--tune-color()> | <--tune-background()>",
+          "border": "| <line-width> <line-style> <--tune-color()> | <line-width> <line-style> <--tune-background()>",
+          "border-top": "| <line-width> <line-style> <--tune-color()> | <line-width> <line-style> <--tune-background()>"
         },
         "typesSyntax": {
           "--tune-color()": "--tune-color( <custom-property-name> , <custom-property-name>? )",

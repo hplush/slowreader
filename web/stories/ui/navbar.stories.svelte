@@ -1,8 +1,8 @@
 <script lang="ts" module>
   import {
     DEFAULT_REFRESH_STATISTICS,
-    refreshIcon,
     refreshStatistics,
+    refreshStatus,
     syncStatus
   } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
@@ -77,7 +77,7 @@
 <Story name="Add" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      refreshIcon.set('done')
+      refreshStatus.set('done')
     }}
     route="add"
   >
@@ -88,7 +88,7 @@
 <Story name="Refreshing" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      refreshIcon.set('refreshing')
+      refreshStatus.set('refreshing')
       refreshStatistics.set({
         ...DEFAULT_REFRESH_STATISTICS,
         processedFeeds: 2,
@@ -104,10 +104,11 @@
 <Story name="Refreshing Error" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      refreshIcon.set('refreshingError')
+      refreshStatus.set('refreshingError')
       refreshStatistics.set({
         ...DEFAULT_REFRESH_STATISTICS,
-        errors: 1,
+        errorFeeds: 1,
+        errorRequests: 1,
         processedFeeds: 3,
         totalFeeds: 4
       })
@@ -121,10 +122,11 @@
 <Story name="Refresh Error" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      refreshIcon.set('error')
+      refreshStatus.set('error')
       refreshStatistics.set({
         ...DEFAULT_REFRESH_STATISTICS,
-        errors: 1
+        errorFeeds: 1,
+        errorRequests: 1
       })
     }}
     route="add"

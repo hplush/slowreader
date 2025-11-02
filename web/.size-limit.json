@@ -16,12 +16,12 @@
       "!dist/assets/playpen-sans-*.woff2",
       "!dist/assets/*-{italic,math,latin-ext}-*.woff2"
     ],
-    "limit": "170 KB"
+    "limit": "175 KB"
   },
   {
     "name": "Core scripts to execute",
     "path": "dist/assets/index-*.js",
     "brotli": false,
-    "limit": "245 KB"
+    "limit": "250 KB"
   }
 ]

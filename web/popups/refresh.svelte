@@ -1,0 +1,76 @@
+<script lang="ts">
+  import { mdiRefresh, mdiStop } from '@mdi/js'
+  import {
+    isRefreshing,
+    refreshErrors,
+    refreshPosts,
+    refreshProgress,
+    refreshStatistics,
+    stopRefreshing,
+    refreshMessages as t
+  } from '@slowreader/core'
+
+  import Button from '../ui/button.svelte'
+  import FeedErrors from '../ui/feed-errors.svelte'
+  import Label from '../ui/label.svelte'
+  import Loader from '../ui/loader.svelte'
+  import PageIcon from '../ui/page-icon.svelte'
+  import Popup from '../ui/popup.svelte'
+  import PostsNumbers from '../ui/posts-numbers.svelte'
+  import Stack from '../ui/stack.svelte'
+  import Title from '../ui/title.svelte'
+</script>
+
+<Popup id="refresh">
+  {#snippet header()}
+    {#if $isRefreshing}
+      <Button
+        icon={mdiStop}
+        onclick={stopRefreshing}
+        variant="secondary-dangerous"
+      >
+        {$t.stop}
+      </Button>
+    {:else}
+      <Button icon={mdiRefresh} onclick={refreshPosts}>
+        {$t.start}
+      </Button>
+    {/if}
+  {/snippet}
+  {#if $refreshStatistics.totalFeeds === 0 && !$isRefreshing}
+    <Stack align="center" gap="xl">
+      <PageIcon path={mdiRefresh} />
+    </Stack>
+  {:else}
+    <Stack align="center" gap="xxl">
+      <Stack gap="s">
+        <Label>
+          {#if !$isRefreshing}
+            {$t.checked({
+              all: $refreshStatistics.processedFeeds
+            })}
+          {:else}
+            {$t.count({
+              all: $refreshStatistics.totalFeeds,
+              done: $refreshStatistics.processedFeeds
+            })}
+          {/if}
+        </Label>
+        <Loader
+          size="wide"
+          value={$refreshStatistics.initializing ? undefined : $refreshProgress}
+        />
+      </Stack>
+      <PostsNumbers
+        fast={$refreshStatistics.foundFast}
+        slow={$refreshStatistics.foundSlow}
+      />
+      {#if $refreshErrors.length > 0}
+        <Stack>
+          <Title>{$t.errors}</Title>
+          <FeedErrors errors={$refreshErrors} />
+        </Stack>
+      {/if}
+    </Stack>
+  {/if}
+</Popup>

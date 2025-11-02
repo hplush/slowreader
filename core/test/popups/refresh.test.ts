@@ -2,7 +2,7 @@ import { cleanStores } from 'nanostores'
 import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 
-import { openedPopups, refreshIcon } from '../../index.ts'
+import { closeAllPopups, openedPopups, refreshStatus } from '../../index.ts'
 import { cleanClientTest, enableClientTest, openTestPopup } from '../utils.ts'
 
 beforeEach(() => {
@@ -15,11 +15,17 @@ afterEach(async () => {
 })
 
 test('cleans error from refresh icon', () => {
-  refreshIcon.set('error')
-  openTestPopup('refresh', '1')
-  equal(refreshIcon.get(), 'start')
+  refreshStatus.set('error')
+  equal(refreshStatus.get(), 'error')
 
-  refreshIcon.set('refreshingError')
   openTestPopup('refresh', '1')
-  equal(refreshIcon.get(), 'refreshing')
+  equal(refreshStatus.get(), 'start')
+
+  refreshStatus.set('refreshingError')
+  equal(refreshStatus.get(), 'refreshing')
+
+  refreshStatus.set('done')
+  equal(refreshStatus.get(), 'done')
+
+  closeAllPopups()
 })
