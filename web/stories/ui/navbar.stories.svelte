@@ -1,7 +1,7 @@
 <script lang="ts" module>
   import {
     DEFAULT_REFRESH_STATISTICS,
-    isRefreshing,
+    refreshIcon,
     refreshStatistics,
     syncStatus
   } from '@slowreader/core'
@@ -77,11 +77,54 @@
 <Story name="Add" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      isRefreshing.set(true)
+      refreshIcon.set('done')
+    }}
+    route="add"
+  >
+    <Navbar />
+  </Scene>
+</Story>
+
+<Story name="Refreshing" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      refreshIcon.set('refreshing')
       refreshStatistics.set({
         ...DEFAULT_REFRESH_STATISTICS,
         processedFeeds: 2,
         totalFeeds: 4
+      })
+    }}
+    route="add"
+  >
+    <Navbar />
+  </Scene>
+</Story>
+
+<Story name="Refreshing Error" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      refreshIcon.set('refreshingError')
+      refreshStatistics.set({
+        ...DEFAULT_REFRESH_STATISTICS,
+        errors: 1,
+        processedFeeds: 3,
+        totalFeeds: 4
+      })
+    }}
+    route="add"
+  >
+    <Navbar />
+  </Scene>
+</Story>
+
+<Story name="Refresh Error" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      refreshIcon.set('error')
+      refreshStatistics.set({
+        ...DEFAULT_REFRESH_STATISTICS,
+        errors: 1
       })
     }}
     route="add"

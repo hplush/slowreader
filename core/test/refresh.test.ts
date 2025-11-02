@@ -13,11 +13,11 @@ import {
   expectRequest,
   getFeed,
   getPosts,
-  isRefreshing,
   loaders,
   mockRequest,
   type PostsListResult,
   type PostValue,
+  refreshIcon,
   refreshPosts,
   refreshProgress,
   refreshStatistics,
@@ -79,7 +79,7 @@ test('updates posts', async () => {
     query: 'include(delete)'
   })
 
-  equal(isRefreshing.get(), false)
+  equal(refreshIcon.get(), 'start')
   equal(refreshProgress.get(), 0)
   deepEqual(refreshStatistics.get(), {
     errors: 0,
@@ -104,6 +104,7 @@ test('updates posts', async () => {
   refreshPosts().then(() => {
     finished = true
   })
+  equal(refreshIcon.get(), 'refreshing')
   equal(refreshProgress.get(), 0)
   deepEqual(refreshStatistics.get(), {
     errors: 0,
@@ -200,7 +201,7 @@ test('updates posts', async () => {
   deepEqual((await loadValue(getFeed(feedId2)))!.lastOriginId, 'post9')
   deepEqual((await loadValue(getFeed(feedId2)))!.lastPublishedAt, 9000)
   equal(finished, true)
-  equal(isRefreshing.get(), false)
+  equal(refreshIcon.get(), 'done')
   equal(refreshProgress.get(), 1)
   deepEqual(refreshStatistics.get(), {
     errors: 0,
@@ -232,8 +233,11 @@ test('updates posts', async () => {
     })
   })
 
+  await setTimeout(1500)
+  equal(refreshIcon.get(), 'start')
+
   refreshPosts()
-  equal(isRefreshing.get(), true)
+  equal(refreshIcon.get(), 'refreshing')
   equal(refreshProgress.get(), 0)
   deepEqual(refreshStatistics.get(), {
     errors: 0,
@@ -277,7 +281,7 @@ test('is ready to feed deletion during refreshing', async () => {
 
   await deleteFeed(feedId)
   await setTimeout(10)
-  equal(isRefreshing.get(), false)
+  equal(refreshIcon.get(), 'done')
   deepEqual(await getPostKeys('title'), [])
 })
 
@@ -296,7 +300,7 @@ test('cancels refreshing', async () => {
   await setTimeout(10)
 
   stopRefreshing()
-  equal(isRefreshing.get(), false)
+  equal(refreshIcon.get(), 'start')
   equal(rss.aborted, true)
   deepEqual(refreshStatistics.get(), {
     errors: 0,
@@ -308,7 +312,7 @@ test('cancels refreshing', async () => {
     totalFeeds: 1
   })
   stopRefreshing()
-  equal(isRefreshing.get(), false)
+  equal(refreshIcon.get(), 'start')
 })
 
 test('is ready for network errors', async () => {
@@ -347,6 +351,10 @@ test('is ready for network errors', async () => {
     })
   })
 
+  let icons: string[] = []
+  refreshIcon.subscribe(icon => {
+    icons.push(icon)
+  })
   refreshPosts()
   await setTimeout(10)
 
@@ -359,6 +367,10 @@ test('is ready for network errors', async () => {
     processedFeeds: 2,
     totalFeeds: 2
   })
+  deepEqual(icons, ['done', 'refreshing', 'refreshingError', 'error'])
+
+  await setTimeout(1500)
+  equal(refreshIcon.get(), 'error')
 })
 
 test('is ready to not found previous ID and time', async () => {
@@ -384,7 +396,7 @@ test('is ready to not found previous ID and time', async () => {
 
   refreshPosts()
   await setTimeout(10)
-  equal(isRefreshing.get(), false)
+  equal(refreshIcon.get(), 'done')
   deepEqual(await getPostKeys('title'), ['4', '5', '6'])
 
   let feed = await loadValue(getFeed(feedId))
@@ -418,7 +430,7 @@ test('sorts posts', async () => {
 
   refreshPosts()
   await setTimeout(10)
-  equal(isRefreshing.get(), false)
+  equal(refreshIcon.get(), 'done')
   deepEqual(await getPostKeys('title'), ['2', '3', '4'])
 
   let feed = await loadValue(getFeed(feedId))

@@ -1,13 +1,19 @@
 <script lang="ts">
-  import { mdiFood, mdiMenu, mdiRefresh } from '@mdi/js'
+  import {
+    mdiAlertCircle,
+    mdiCheckCircleOutline,
+    mdiFood,
+    mdiMenu,
+    mdiRefresh
+  } from '@mdi/js'
   import {
     closeMenu,
     getFastDefaultRoute,
     getSlowDefaultRoute,
     isMenuOpened,
     isOtherRoute,
-    isRefreshing,
     openMenu,
+    refreshIcon,
     refreshPosts,
     refreshProgress,
     router,
@@ -17,6 +23,8 @@
   import { on } from 'svelte/events'
 
   import { getPopupHash, getURL } from '../../stores/url-router.ts'
+  import Announce from '../announce.svelte'
+  import Icon from '../icon.svelte'
   import NavbarButton from '../navbar/button.svelte'
   import NavbarFireplace from '../navbar/fireplace.svelte'
   import NavbarOther from '../navbar/other.svelte'
@@ -65,25 +73,43 @@
   class:is-slow={$router.route === 'slow'}
 >
   <div class="navbar_main" aria-orientation="horizontal" role="menu">
-    {#if $isRefreshing}
-      <NavbarButton
-        name={$t.refresh}
-        href={getPopupHash($router, 'refresh', '1')}
-        size="icon"
-      >
-        <NavbarProgress value={$refreshProgress} />
-      </NavbarButton>
-    {:else}
-      <NavbarButton
-        name={$t.refresh}
-        icon={mdiRefresh}
-        onclick={() => {
-          refreshPosts()
-          moveFocusBack()
-        }}
-        size="icon"
-      />
-    {/if}
+    <div class="navbar_refresh">
+      {#if $refreshIcon === 'refreshing' || $refreshIcon === 'refreshingError'}
+        <NavbarButton
+          name={$t.refresh}
+          href={getPopupHash($router, 'refresh', '1')}
+          size="icon"
+        >
+          <NavbarProgress value={$refreshProgress} />
+        </NavbarButton>
+      {:else if $refreshIcon === 'error'}
+        <NavbarButton
+          name={$t.refresh}
+          href={getPopupHash($router, 'refresh', '1')}
+          icon={mdiRefresh}
+          size="icon"
+        />
+      {:else}
+        <NavbarButton
+          name={$t.refresh}
+          icon={$refreshIcon === 'done' ? mdiCheckCircleOutline : mdiRefresh}
+          onclick={() => {
+            refreshPosts()
+            moveFocusBack()
+          }}
+          size="icon"
+        />
+      {/if}
+      {#if $refreshIcon === 'done'}
+        <Announce text={$t.refreshingError} />
+      {/if}
+      {#if $refreshIcon === 'error' || $refreshIcon === 'refreshingError'}
+        <Announce text={$t.refreshingDone} />
+        <div class="navbar_error">
+          <Icon path={mdiAlertCircle} />
+        </div>
+      {/if}
+    </div>
     <div class="navbar_switcher">
       <div class="navbar_gutter"></div>
       <div class="navbar_slider"></div>
@@ -248,6 +274,22 @@
         display: block;
         width: calc(var(--control-height) - 2 * var(--slider-padding));
       }
+    }
+
+    .navbar_refresh {
+      position: relative;
+      width: var(--control-height);
+      height: var(--control-height);
+    }
+
+    .navbar_error {
+      position: absolute;
+      inset-inline-end: 0;
+      top: 0;
+      z-index: 10;
+      color: var(--dangerous-text-color);
+
+      --icon-size: 0.75rem;
     }
 
     .navbar_submenu {

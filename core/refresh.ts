@@ -14,8 +14,6 @@ import { createQueue, retryOnError } from './lib/queue.ts'
 import { increaseKey } from './lib/stores.ts'
 import { addPost, type OriginPost, processOriginPost } from './post.ts'
 
-export const isRefreshing = atom(false)
-
 export const DEFAULT_REFRESH_STATISTICS = {
   errors: 0,
   foundFast: 0,
@@ -29,6 +27,17 @@ export const DEFAULT_REFRESH_STATISTICS = {
 export type RefreshStatistics = typeof DEFAULT_REFRESH_STATISTICS
 
 export const refreshStatistics = map({ ...DEFAULT_REFRESH_STATISTICS })
+
+export type RefreshIconValue =
+  | 'done'
+  | 'error'
+  | 'refreshing'
+  | 'refreshingError'
+  | 'start'
+
+export const refreshIcon = atom<RefreshIconValue>('start')
+
+let doneTimeout: NodeJS.Timeout | undefined
 
 export const refreshProgress = computed(refreshStatistics, stats => {
   if (stats.initializing || stats.totalFeeds === 0) {
@@ -54,8 +63,12 @@ function wasAlreadyAdded(feed: FeedValue, origin: OriginPost): boolean {
 }
 
 export async function refreshPosts(): Promise<void> {
-  if (isRefreshing.get()) return
-  isRefreshing.set(true)
+  if (refreshIcon.get().startsWith('refreshing')) return
+  if (doneTimeout) {
+    clearTimeout(doneTimeout)
+    doneTimeout = undefined
+  }
+  refreshIcon.set('refreshing')
   refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: true })
 
   task = createDownloadTask()
@@ -88,10 +101,12 @@ export async function refreshPosts(): Promise<void> {
         let posts = await retryOnError(
           () => pages.next(),
           () => {
+            refreshIcon.set('refreshingError')
             increaseKey(refreshStatistics, 'errors')
           }
         )
         if (posts === 'error') {
+          refreshIcon.set('refreshingError')
           increaseKey(refreshStatistics, 'missedFeeds')
           await end()
           return
@@ -132,12 +147,19 @@ export async function refreshPosts(): Promise<void> {
       await end()
     }
   })
-  isRefreshing.set(false)
+  if (refreshIcon.get() === 'refreshingError') {
+    refreshIcon.set('error')
+  } else {
+    refreshIcon.set('done')
+    doneTimeout = setTimeout(() => {
+      refreshIcon.set('start')
+    }, 1000)
+  }
 }
 
 export function stopRefreshing(): void {
-  if (!isRefreshing.get()) return
-  isRefreshing.set(false)
+  if (!refreshIcon.get().startsWith('refreshing')) return
+  refreshIcon.set('start')
   queue.stop()
   task.destroy()
 }
