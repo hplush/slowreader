@@ -40,7 +40,7 @@
       align-items: flex-start;
       padding: 0.625rem 0.625rem 0.625rem calc(2rem + 0.312rem + 0.312rem);
       font: var(--secondary-font);
-      border: 2px solid;
+      border: 0.125rem solid;
       border-color: --tune-background(--note);
       border-radius: var(--base-radius);
 
