@@ -10,7 +10,7 @@
   import Feeds from '../ui/feeds.svelte'
   import Input from '../ui/input.svelte'
   import Loader from '../ui/loader.svelte'
-  import Placeholder from '../ui/placeholder.svelte'
+  import PageIcon from '../ui/page-icon.svelte'
   import PopupablePage from '../ui/popupable-page.svelte'
   import RichText from '../ui/rich-text.svelte'
   import Stack from '../ui/stack.svelte'
@@ -22,9 +22,7 @@
   let empty = $derived(!$noResults && !$searching && !$url)
 
   let gap = $derived.by(() => {
-    if (empty) {
-      return 'xxxl' as const
-    } else if ($searching || $error || $noResults) {
+    if ($searching || $error || $noResults) {
       return 'xl' as const
     } else {
       return 'm' as const
@@ -46,9 +44,9 @@
       value={$url}
     />
     {#if empty}
-      <Placeholder icon={mdiRss}>
+      <PageIcon path={mdiRss}>
         <RichText text={$t.searchGuide} />
-      </Placeholder>
+      </PageIcon>
     {:else if $searching}
       <Loader />
     {:else if $error}

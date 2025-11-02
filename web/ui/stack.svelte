@@ -14,7 +14,7 @@
     align?: 'baseline' | 'center' | 'end' | 'start'
     children: Snippet
     controls?: string
-    gap?: 'l' | 'm' | 's' | 'xl' | 'xs' | 'xxl' | 'xxxl'
+    gap?: 'l' | 'm' | 's' | 'xl' | 'xs' | 'xxl'
     justify?: 'center' | 'end' | 'space-between' | 'start'
     role?: 'menu' | 'menuitem'
     row?: boolean
@@ -36,7 +36,6 @@
   class:is-gap-xl={gap === 'xl'}
   class:is-gap-xs={gap === 'xs'}
   class:is-gap-xxl={gap === 'xxl'}
-  class:is-gap-xxxl={gap === 'xxxl'}
   class:is-justify-center={justify === 'center'}
   class:is-justify-end={justify === 'end'}
   class:is-justify-space-between={justify === 'space-between'}
@@ -104,10 +103,6 @@
       &.is-row {
         flex-direction: row;
         padding: 0 var(--stack-padding);
-      }
-
-      &.is-gap-xxxl {
-        gap: 6rem;
       }
 
       &.is-gap-xxl {

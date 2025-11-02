@@ -4,11 +4,11 @@
 
   import { getURL } from '../stores/url-router.ts'
   import Button from './button.svelte'
-  import Placeholder from './placeholder.svelte'
+  import PageIcon from './page-icon.svelte'
   import Stack from './stack.svelte'
 </script>
 
-<Placeholder icon={mdiPackageVariant}>
+<PageIcon path={mdiPackageVariant}>
   <Stack>
     {$t.emptyText}
     <Stack gap="s" row>
@@ -16,4 +16,4 @@
       <Button href={getURL('import')}>{$t.emptyImport}</Button>
     </Stack>
   </Stack>
-</Placeholder>
+</PageIcon>
