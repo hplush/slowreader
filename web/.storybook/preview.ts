@@ -21,9 +21,17 @@ export default {
   parameters: {
     viewport: {
       defaultViewport: 'responsive',
-      viewports: {
+      options: {
         ...INITIAL_VIEWPORTS,
         ...MINIMAL_VIEWPORTS,
+        big: {
+          name: 'Big screen',
+          styles: {
+            height: '1000px',
+            width: '1873px'
+          },
+          type: 'desktop'
+        },
         ipad: {
           name: 'iPad',
           styles: {

@@ -62,7 +62,6 @@
   :global {
     .popup {
       position: fixed;
-      z-index: 20;
       display: flex;
       flex-direction: column;
       width: var(--popup-size);
@@ -72,6 +71,7 @@
 
         inset-block: 0;
         inset-inline-end: 0;
+        z-index: 9;
         align-items: center;
         box-shadow: var(--popup-shadow);
       }
@@ -80,6 +80,7 @@
         @mixin background var(--land-color);
 
         inset: 0;
+        z-index: 20;
         flex-direction: column-reverse;
       }
     }

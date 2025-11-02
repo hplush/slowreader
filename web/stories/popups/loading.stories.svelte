@@ -18,7 +18,12 @@
   </Scene>
 </Story>
 
-<Story name="Stack" asChild parameters={{ layout: 'fullscreen' }}>
+<Story
+  name="Stack"
+  asChild
+  globals={{ viewport: { value: 'big' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
   <Scene>
     <PopupShadow index={2} />
     <PopupShadow index={1} />

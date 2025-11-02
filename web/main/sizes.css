@@ -43,7 +43,9 @@
 
 @custom-media --desktop (width > 68rem);
 @custom-media --no-desktop (width <= 68rem);
+@custom-media --popups-stack (width >= 89rem);
 @custom-media --tablet (width <= 68rem) and (width > 44rem);
+@custom-media --mobile (width <= 44rem);
 @custom-media --mobile (width <= 44rem);
 @custom-media --no-mobile (width > 44rem);
 @custom-media --bigger-font ((width <= 410px) and (width > 380px)) or (width > 1700px);
