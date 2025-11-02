@@ -3,6 +3,7 @@
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import LoadingPopup from '../../popups/loading.svelte'
+  import PopupShadow from '../../ui/popup-shadow.svelte'
   import Scene from '../scene.svelte'
 
   let { Story } = defineMeta({
@@ -13,6 +14,14 @@
 
 <Story name="Base" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene>
+    <LoadingPopup popup={popups.refresh('1')} />
+  </Scene>
+</Story>
+
+<Story name="Stack" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene>
+    <PopupShadow index={2} />
+    <PopupShadow index={1} />
     <LoadingPopup popup={popups.refresh('1')} />
   </Scene>
 </Story>

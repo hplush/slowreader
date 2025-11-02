@@ -2,6 +2,7 @@
   import {
     busy,
     currentPage,
+    isMobile,
     popupsStatus,
     signOut,
     subscribeUntil,
@@ -24,6 +25,7 @@
   import RefreshPopup from '../popups/refresh.svelte'
   import Button from '../ui/button.svelte'
   import Navbar from '../ui/navbar/index.svelte'
+  import PopupShadow from '../ui/popup-shadow.svelte'
   import ThinPage from '../ui/thin-page.svelte'
 
   // To have smooth app starting loader animation we are re-using loader in HTML
@@ -79,6 +81,11 @@
   <Navbar />
 {/if}
 
+{#if !$isMobile}
+  {#each popupOther as i, index (i.id)}
+    <PopupShadow index={popupOther.length - index} />
+  {/each}
+{/if}
 {#if popup}
   {#if popupLoading}
     <LoadingPopup {popup} />
@@ -90,6 +97,3 @@
     <RefreshPopup />
   {/if}
 {/if}
-{#each popupOther as i (i.id)}
-  <!-- TODO: shadow -->
-{/each}

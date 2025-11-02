@@ -60,7 +60,7 @@ onMount(popupsStatus, () => {
           last: last as LoadedPopup<Popup>,
           loading,
           notFound: last.notFound,
-          other: popups.slice(0, -1).reverse()
+          other: popups.slice(0, -1).reverse().slice(0, 5)
         })
       })
     } else {
