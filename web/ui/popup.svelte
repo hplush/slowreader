@@ -120,7 +120,7 @@
     .popup_body {
       box-sizing: border-box;
       height: calc(100% - var(--navbar-height));
-      overflow: hidden scroll;
+      overflow: hidden auto;
 
       @media (--mobile) {
         padding: var(--page-padding);
