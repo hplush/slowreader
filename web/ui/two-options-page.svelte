@@ -46,6 +46,10 @@
       justify-content: center;
       min-height: 100svh;
 
+      @media (--no-desktop) {
+        min-height: calc(100svh - var(--navbart-height));
+      }
+
       @media (--mobile) {
         align-items: flex-end;
       }
