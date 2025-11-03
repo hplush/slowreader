@@ -31,14 +31,6 @@ export default {
             width: '1873px'
           },
           type: 'desktop'
-        },
-        ipad: {
-          name: 'iPad',
-          styles: {
-            height: '768px',
-            width: '1024px'
-          },
-          type: 'tablet'
         }
       }
     }
