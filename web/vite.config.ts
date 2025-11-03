@@ -1,4 +1,6 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { defineConfig } from 'vite'
 
 function replaceIcon(html: string, icon: string): string {
@@ -8,6 +10,16 @@ function replaceIcon(html: string, icon: string): string {
       /<link rel="icon" href="[^"]+" type="image\/svg\+xml" \/>/,
       `<link rel="icon" href="/${icon}.svg" type="image/svg+xml" />`
     )
+}
+
+function loadCSP(): string {
+  let nginxPath = join(import.meta.dirname, 'nginx.conf')
+  let content = readFileSync(nginxPath, 'utf-8')
+  let match = content.match(/add_header Content-Security-Policy "([^"]+)"/)
+  let csp = match?.[1] ?? ''
+  // Vite inserts a lot of inline <style> in development mode
+  csp = csp.replace(/style-src[^;]*;?/, '')
+  return csp
 }
 
 export default defineConfig(() => ({
@@ -26,5 +38,10 @@ export default defineConfig(() => ({
         }
       }
     }
-  ]
+  ],
+  server: {
+    headers: {
+      'Content-Security-Policy': loadCSP()
+    }
+  }
 }))
