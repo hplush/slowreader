@@ -60,6 +60,18 @@ const NO_OPML_CATEGORY: Record<string, boolean> = {
   general: true
 }
 
+function pad(value: number): string {
+  return String(value).padStart(2, '0')
+}
+
+function formatCurrentTime(): string {
+  let now = new Date()
+  return (
+    `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}-` +
+    `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`
+  )
+}
+
 export const exportPage = createPage('export', () => {
   let stopped = false
 
@@ -102,7 +114,10 @@ export const exportPage = createPage('export', () => {
     opml += '  </body>\n</opml>\n'
 
     let blob = new Blob([opml], { type: 'application/xml' })
-    getEnvironment().saveFile('slowreader-rss-feeds.opml', blob)
+    getEnvironment().saveFile(
+      `slowreader-rss-feeds-${formatCurrentTime()}.opml`,
+      blob
+    )
     $exportingOpml.set(false)
   }
 
@@ -131,7 +146,7 @@ export const exportPage = createPage('export', () => {
     let blob = new Blob([JSON.stringify(state, null, 2)], {
       type: 'application/json'
     })
-    getEnvironment().saveFile('slowreader.json', blob)
+    getEnvironment().saveFile(`slowreader-${formatCurrentTime()}.json`, blob)
     $exportingBackup.set(false)
   }
 

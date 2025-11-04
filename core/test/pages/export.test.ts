@@ -47,8 +47,10 @@ test('export OPML', async () => {
   equal(page.exportingBackup.get(), false)
 
   await waitLoading(page.exportingOpml)
-  equal(saved?.filename, 'slowreader-rss-feeds.opml')
-  let xml = await saved.content.text()
+  let filename = saved?.filename ?? ''
+  equal(filename.startsWith('slowreader-rss-feeds-'), true)
+  equal(filename.endsWith('.opml'), true)
+  let xml = await saved!.content.text()
   equal(
     xml.replace(/ {4}<dateCreated>[^<]*<\/dateCreated>\n/, ''),
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -91,8 +93,10 @@ test('export state JSON', async () => {
   equal(page.exportingBackup.get(), true)
 
   await waitLoading(page.exportingBackup)
-  equal(saved?.filename, 'slowreader.json')
-  let json = JSON.parse(await saved.content.text())
+  let filename = saved?.filename ?? ''
+  equal(filename.startsWith('slowreader-'), true)
+  equal(filename.endsWith('.json'), true)
+  let json = JSON.parse(await saved!.content.text())
   deepEqual(json, {
     categories: [
       {
