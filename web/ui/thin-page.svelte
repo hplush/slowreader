@@ -4,13 +4,13 @@
   import Page from './page.svelte'
 
   let {
+    align = 'start',
     bottomOnMobile,
-    center,
     children,
     title
   }: {
+    align?: 'center' | 'start'
     bottomOnMobile?: boolean
-    center?: boolean
     children: Snippet
     title: string | string[]
   } = $props()
@@ -18,7 +18,7 @@
 
 <Page
   class={{
-    'is-center': center,
+    'is-center': align === 'center',
     'is-no-bottom': bottomOnMobile === false,
     'thin-page': true
   }}

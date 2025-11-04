@@ -43,7 +43,7 @@
 </script>
 
 {#if $warningStep}
-  <ThinPage center title={$t.signupTitle}>
+  <ThinPage align="center" title={$t.signupTitle}>
     <Stack align="center" gap="xl">
       <Note icon={mdiRestartOff} title={$t.noRecoveryTitle} variant="dangerous">
         {$t.noRecoveryDesc}
@@ -80,7 +80,7 @@
     </Stack>
   </ThinPage>
 {:else}
-  <TwoOptionsPage title={$t.signupTitle}>
+  <TwoOptionsPage align="center" title={$t.signupTitle}>
     {#snippet one()}
       <Card>
         <Form loading={$signingUp} onsubmit={page.submit}>

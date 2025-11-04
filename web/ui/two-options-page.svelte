@@ -4,12 +4,14 @@
   import Page from './page.svelte'
 
   let {
+    align = 'start',
     one,
     title,
     two
   }: {
+    align?: 'center' | 'start'
     one: Snippet
-    title: string
+    title: string | string[]
     two: Snippet
   } = $props()
 
@@ -26,7 +28,13 @@
   })
 </script>
 
-<Page class="two-options-page" {title}>
+<Page
+  class={{
+    'is-center': align === 'center',
+    'two-options-page': true
+  }}
+  {title}
+>
   <div bind:this={center} class="two-options-page_center">
     <div bind:this={first} class="two-options-page_option">
       {@render one()}
@@ -42,9 +50,12 @@
     .two-options-page {
       display: flex;
       flex-grow: 1;
-      align-items: center;
       justify-content: center;
       min-height: 100svh;
+
+      &.is-center {
+        align-items: center;
+      }
 
       @media (--no-desktop) {
         min-height: calc(100svh - var(--navbart-height));
@@ -73,7 +84,7 @@
     .two-options-page_option {
       width: 20rem;
       max-width: 100%;
-      margin: 0.5rem 0;
+      margin: var(--navbar-padding) 0 1rem 0;
 
       @media (--mobile) {
         margin: 0;

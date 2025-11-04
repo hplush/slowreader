@@ -11,7 +11,7 @@
   import Title from '../ui/title.svelte'
 </script>
 
-<ThinPage bottomOnMobile={false} center title={$t.pageTitle}>
+<ThinPage align="center" bottomOnMobile={false} title={$t.pageTitle}>
   {#if !$userId}
     <PageAction>
       <Button href={getURL('home')} icon={mdiArrowLeft} variant="secondary">

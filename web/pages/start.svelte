@@ -36,7 +36,7 @@
   })
 </script>
 
-<TwoOptionsPage title={$t.startTitle}>
+<TwoOptionsPage align="center" title={$t.startTitle}>
   {#snippet one()}
     <Card>
       <Stack gap="l">
