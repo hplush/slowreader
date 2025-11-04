@@ -44,6 +44,7 @@
       padding: 0.625rem var(--control-padding) 0 var(--control-padding);
       font: var(--control-secondary-font);
       color: currentcolor;
+      overflow-wrap: anywhere;
       border-radius: var(--base-radius);
 
       &:hover,

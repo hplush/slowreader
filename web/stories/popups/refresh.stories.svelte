@@ -75,7 +75,13 @@
       })
       refreshErrors.set([
         { error: 'Timeout error', feed: testFeed() },
-        { error: '500 server response', feed: testFeed() }
+        {
+          error: '500 server response',
+          feed: testFeed({
+            title:
+              'Veryveryverylongfeedtitletooverflowthelistinthepopupcontentareaattheleftpfthepage'
+          })
+        }
       ])
     }}
   >
