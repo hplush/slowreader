@@ -103,14 +103,19 @@ export interface Environment {
   restartApp(): void
 
   /**
-   * Save credentials to system’s password manager.
+   * Ask user to save file to their file system.
+   */
+  saveFile(filename: string, content: Blob): void
+
+  /**
+   * Save credentials to system's password manager.
    */
   savePassword(fields: SavedPassword): Promise<void>
 
   /**
-   * Save server’s session token to some secure storage.
+   * Save server's session token to some secure storage.
    * For instance, in web we are putting it to httpOnly cookie,
-   * which can’t be accessed from JS code.
+   * which can't be accessed from JS code.
    */
   saveSession(session: string | undefined): void
 
@@ -120,7 +125,7 @@ export interface Environment {
   server: string | TestServer
 
   /**
-   * Load app’s translation. Based on Nano Stores I18n API.
+   * Load app's translation. Based on Nano Stores I18n API.
    */
   translationLoader: TranslationLoader
 
@@ -179,6 +184,7 @@ export function setupEnvironment<Router extends BaseRouter>(
     networkType: env.networkType,
     openRoute: env.openRoute,
     restartApp: env.restartApp,
+    saveFile: env.saveFile,
     savePassword: env.savePassword,
     saveSession: env.saveSession,
     server: env.server,

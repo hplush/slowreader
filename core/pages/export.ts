@@ -7,6 +7,7 @@ import {
   feedsByCategory,
   getCategories
 } from '../category.ts'
+import { getEnvironment } from '../environment.ts'
 import { type FeedValue, getFeeds } from '../feed.ts'
 import { type FilterValue, getFilters } from '../filter.ts'
 import { getPosts, type PostValue } from '../post.ts'
@@ -64,7 +65,7 @@ export const exportPage = createPage('export', () => {
 
   let $exportingOpml = atom(false)
 
-  async function exportOpml(): Promise<Blob | false> {
+  async function exportOpml(): Promise<void> {
     $exportingOpml.set(true)
     let opml =
       '<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -79,7 +80,10 @@ export const exportPage = createPage('export', () => {
       loadValue(getCategories()),
       loadValue(getFeeds())
     ])
-    if (stopped) return false
+    if (stopped) {
+      $exportingOpml.set(false)
+      return
+    }
     let tree = feedsByCategory(categories.list, allFeeds.list)
 
     for (let [category, feeds] of tree) {
@@ -98,13 +102,13 @@ export const exportPage = createPage('export', () => {
     opml += '  </body>\n</opml>\n'
 
     let blob = new Blob([opml], { type: 'application/xml' })
+    getEnvironment().saveFile('slowreader-rss-feeds.opml', blob)
     $exportingOpml.set(false)
-    return blob
   }
 
   let $exportingBackup = atom(false)
 
-  async function exportBackup(): Promise<Blob | false> {
+  async function exportBackup(): Promise<void> {
     $exportingBackup.set(true)
     let state = {
       categories: await loadList(getCategories()),
@@ -119,13 +123,16 @@ export const exportPage = createPage('export', () => {
       }
     } satisfies StateExport
 
-    if (stopped) return false
+    if (stopped) {
+      $exportingBackup.set(false)
+      return
+    }
 
     let blob = new Blob([JSON.stringify(state, null, 2)], {
       type: 'application/json'
     })
+    getEnvironment().saveFile('slowreader.json', blob)
     $exportingBackup.set(false)
-    return blob
   }
 
   return {

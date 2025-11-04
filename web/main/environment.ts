@@ -79,6 +79,14 @@ setupEnvironment({
   restartApp() {
     location.reload()
   },
+  saveFile(filename, content) {
+    let url = URL.createObjectURL(content)
+    let a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    a.click()
+    URL.revokeObjectURL(url)
+  },
   async savePassword(fields) {
     if (window.PasswordCredential) {
       await navigator.credentials.store(
@@ -123,7 +131,6 @@ setupEnvironment({
     return Promise.resolve({})
   },
   warn(msg) {
-    // For useful messages for end-users
     // eslint-disable-next-line no-console
     console.warn(msg)
   }

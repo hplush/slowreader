@@ -49,6 +49,7 @@ export function getTestEnvironment(): EnvironmentAndStore {
     persistentEvents: { addEventListener() {}, removeEventListener() {} },
     persistentStore: {},
     restartApp() {},
+    saveFile() {},
     savePassword() {
       return Promise.resolve()
     },

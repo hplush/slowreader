@@ -13,8 +13,15 @@ import {
 } from '../../index.ts'
 import { cleanClientTest, enableClientTest, openPage } from '../utils.ts'
 
+let saved: { content: Blob; filename: string } | undefined
+
 beforeEach(() => {
-  enableClientTest()
+  saved = undefined
+  enableClientTest({
+    saveFile(filename, content) {
+      saved = { content, filename }
+    }
+  })
 })
 
 afterEach(async () => {
@@ -35,18 +42,13 @@ test('export OPML', async () => {
     route: 'export'
   })
 
-  let blob: Blob | undefined
-  page.exportOpml().then(result => {
-    equal(typeof result, 'object')
-    blob = result as Blob
-  })
+  page.exportOpml()
   equal(page.exportingOpml.get(), true)
   equal(page.exportingBackup.get(), false)
 
   await waitLoading(page.exportingOpml)
-  await setTimeout(1)
-  equal(typeof blob, 'object')
-  let xml = await blob!.text()
+  equal(saved?.filename, 'slowreader-rss-feeds.opml')
+  let xml = await saved.content.text()
   equal(
     xml.replace(/ {4}<dateCreated>[^<]*<\/dateCreated>\n/, ''),
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -84,18 +86,13 @@ test('export state JSON', async () => {
     route: 'export'
   })
 
-  let blob: Blob | undefined
-  page.exportBackup().then(result => {
-    equal(typeof result, 'object')
-    blob = result as Blob
-  })
+  page.exportBackup()
   equal(page.exportingOpml.get(), false)
   equal(page.exportingBackup.get(), true)
 
   await waitLoading(page.exportingBackup)
-  await setTimeout(1)
-  equal(typeof blob, 'object')
-  let json = JSON.parse(await blob!.text())
+  equal(saved?.filename, 'slowreader.json')
+  let json = JSON.parse(await saved.content.text())
   deepEqual(json, {
     categories: [
       {
@@ -153,14 +150,8 @@ test('cancels export', async () => {
     route: 'export'
   })
 
-  let resultOpml: Blob | false | undefined
-  page.exportOpml().then(result => {
-    resultOpml = result
-  })
-  let resultState: Blob | false | undefined
-  page.exportBackup().then(result => {
-    resultState = result
-  })
+  page.exportOpml()
+  page.exportBackup()
 
   equal(page.exportingOpml.get(), true)
   equal(page.exportingBackup.get(), true)
@@ -170,6 +161,5 @@ test('cancels export', async () => {
     route: 'welcome'
   })
   await setTimeout(10)
-  equal(resultOpml, false)
-  equal(resultState, false)
+  equal(saved, undefined)
 })

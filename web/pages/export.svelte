@@ -6,7 +6,6 @@
     exportMessages as t
   } from '@slowreader/core'
 
-  import { askUserToSaveFile } from '../lib/file.ts'
   import Button from '../ui/button.svelte'
   import PageIcon from '../ui/page-icon.svelte'
   import Stack from '../ui/stack.svelte'
@@ -21,13 +20,7 @@
     <PageIcon path={mdiTruckDeliveryOutline}>
       <Stack gap="l">
         <div>{$t.descOPML}</div>
-        <Button
-          loader={$exportingOpml}
-          onclick={() => {
-            askUserToSaveFile('slowreader-rss-feeds.opml', page.exportOpml())
-          }}
-          size="wide"
-        >
+        <Button loader={$exportingOpml} onclick={page.exportOpml} size="wide">
           {$t.submitOPML}
         </Button>
       </Stack>
@@ -39,9 +32,7 @@
         <div>{$t.descBackup}</div>
         <Button
           loader={$exportingBackup}
-          onclick={() => {
-            askUserToSaveFile('slowreader.json', page.exportBackup())
-          }}
+          onclick={page.exportBackup}
           size="wide"
         >
           {$t.submitBackup}

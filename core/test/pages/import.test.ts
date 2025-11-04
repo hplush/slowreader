@@ -70,8 +70,15 @@ function file(format: keyof typeof MIME_TYPES, content: string): File {
   })
 }
 
+let exportedBlob: Blob | undefined
+
 beforeEach(() => {
-  enableClientTest()
+  exportedBlob = undefined
+  enableClientTest({
+    saveFile(filename, content) {
+      exportedBlob = content
+    }
+  })
   mockRequest()
 })
 
@@ -92,8 +99,9 @@ test('imports state JSON', async () => {
     params: {},
     route: 'export'
   })
-  let exportBlob = await exportPage.exportBackup()
-  if (exportBlob === false) {
+  exportPage.exportBackup()
+  await waitLoading(exportPage.exportingBackup)
+  if (!exportedBlob) {
     throw new Error('Failed to export state')
   }
   await deletePost(POST.id)
@@ -111,7 +119,7 @@ test('imports state JSON', async () => {
   equal(page.fileError.get(), false)
   deepEqual(page.feedErrors.get(), {})
 
-  page.importFile(file('json', await exportBlob.text()))
+  page.importFile(file('json', await exportedBlob.text()))
   await waitLoading(page.importing)
   await setTimeout(100)
   equal(page.fileError.get(), false)
@@ -140,8 +148,9 @@ test('imports OPML from the app', async () => {
     params: {},
     route: 'export'
   })
-  let exportBlob = await exportPage.exportOpml()
-  if (exportBlob === false) {
+  exportPage.exportOpml()
+  await waitLoading(exportPage.exportingOpml)
+  if (!exportedBlob) {
     throw new Error('Failed to export OPML')
   }
   await deleteFeed(FEED.id)
@@ -158,7 +167,7 @@ test('imports OPML from the app', async () => {
   expectRequest('https://broken.com/').andRespond(404)
   expectRequest('https://unknown.com/').andRespond(200, '<html></html>')
   expectRequest(FEED.url).andRespond(200, '<rss></rss>')
-  page.importFile(file('opml', await exportBlob.text()))
+  page.importFile(file('opml', await exportedBlob.text()))
   await waitLoading(page.importing)
   equal(page.fileError.get(), false)
   deepEqual(page.feedErrors.get(), {
