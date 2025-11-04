@@ -3,7 +3,7 @@ import '../dom-parser.ts'
 import { equal } from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { parseLink, parseRichTranslation, sanitizeDOM } from '../../index.ts'
+import { parseRichTranslation, sanitizeDOM } from '../../index.ts'
 
 test('sanitizes HTML', () => {
   equal(
@@ -28,7 +28,7 @@ test('converts translation Markdown', () => {
 
 test('converts links in translation', () => {
   equal(
-    parseLink('[Link] to example', 'https://example.com'),
+    parseRichTranslation('[Link] to example', 'https://example.com'),
     '<a href="https://example.com">Link</a> to example'
   )
 })

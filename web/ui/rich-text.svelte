@@ -2,17 +2,13 @@
   /* We escape and have XSS tests */
   /* eslint svelte/no-at-html-tags: "off" */
 
-  import { parseLink, parseRichTranslation } from '@slowreader/core'
+  import { parseRichTranslation } from '@slowreader/core'
 
   let { text, url }: { text: string; url?: string } = $props()
 </script>
 
 <div class="rich-text">
-  {#if url}
-    {@html parseLink(parseRichTranslation(text), url)}
-  {:else}
-    {@html parseRichTranslation(text)}
-  {/if}
+  {@html parseRichTranslation(text, url)}
 </div>
 
 <style>

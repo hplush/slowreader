@@ -81,7 +81,7 @@ export function sanitizeDOM(html: string): Node {
   })
 }
 
-export function parseRichTranslation(text: string): string {
+export function parseRichTranslation(text: string, link?: string): string {
   // @ts-expect-error Window types is hard
   if (!DOMPurify) DOMPurify = createDOMPurify(window)
   let html = DOMPurify.sanitize(text, { ALLOWED_TAGS: [] })
@@ -90,9 +90,8 @@ export function parseRichTranslation(text: string): string {
   if (html.includes('\n\n')) {
     html = `<p>${html.replace(/\n\n/g, '</p><p>')}</p>`
   }
+  if (link) {
+    html = html.replace(/\[(.*?)\]/gm, `<a href="${link}">$1</a>`)
+  }
   return html
-}
-
-export function parseLink(text: string, url: string): string {
-  return text.replace(/\[(.*?)\]/gm, `<a href="${url}">$1</a>`)
 }
