@@ -12,6 +12,7 @@
     type FeedValue,
     Filter,
     hasPassword,
+    pages,
     type ParamlessRouteName,
     Post,
     refreshErrors,
@@ -123,6 +124,9 @@
     unbindSyncStatus()
     baseRouter.set({ hash: '', params: {}, route: 'slow' })
     cleanLogux()
+    for (let page of Object.values(pages)) {
+      if (page.cache) page.cache = undefined
+    }
     useReducedMotion.set(false)
     // @ts-expect-error Hack for tests
     systemReducedMotion.set(false)
