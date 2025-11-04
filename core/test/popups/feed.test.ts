@@ -2,7 +2,7 @@ import '../dom-parser.ts'
 
 import { loadValue } from '@logux/client'
 import { cleanStores, keepMount } from 'nanostores'
-import { deepEqual, equal } from 'node:assert/strict'
+import { deepEqual, equal, match, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 
 import {
@@ -13,6 +13,7 @@ import {
   closeLastPopup,
   expectRequest,
   getFeed,
+  getPopupId,
   mockRequest,
   openedPopups,
   testFeed,
@@ -154,4 +155,16 @@ test('destroys replaced popups and keep unchanged', async () => {
   await checkLoadedPopup(popup1).remove()
   equal(checkLoadedPopup(popup1).feed.get(), undefined)
   equal(checkLoadedPopup(popup2).feed.get()?.id, feedId)
+})
+
+test('has helpers to generate popup ID', () => {
+  match(getPopupId('feed', 'https://example.com/'), /^[a-z_-]+$/)
+  equal(
+    getPopupId('feed', 'https://example.com/'),
+    getPopupId('feed', 'https://example.com/')
+  )
+  notEqual(
+    getPopupId('feed', 'https://example.com/'),
+    getPopupId('feed', 'http://example.com/')
+  )
 })
