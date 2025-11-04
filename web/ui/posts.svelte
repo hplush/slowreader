@@ -14,16 +14,15 @@
 
   let { list }: { list: PostLike[] } = $props()
 
-  function getHref(post: PostLike): string {
-    return getPopupHash($router, 'post', post.originId)
-  }
-
-  function getCurrent(post: PostLike): boolean {
-    return post.url === 'TODO'
-  }
+  let links = $derived(
+    list.map(post => ({
+      href: getPopupHash($router, 'post', post.originId),
+      item: post
+    }))
+  )
 </script>
 
-<Links {getCurrent} {getHref} {list}>
+<Links current={undefined} {links}>
   {#snippet item(post)}
     {#if post.title}
       {post.title}

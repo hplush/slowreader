@@ -22,24 +22,18 @@
     list: readonly FeedLike[]
   } = $props()
 
-  function getHref(feed: FeedLike): string {
-    return getPopupHash(undefined, 'feed', feed.url)
-  }
-
-  function getArrow(feed: FeedLike): string {
-    return $isMobile || current === feed.url ? mdiChevronRight : mdiCircleSmall
-  }
-
-  function getControls(feed: FeedLike): string {
-    return getPopupId('feed', feed.url)
-  }
-
-  function getCurrent(feed: FeedLike): boolean {
-    return current === feed.url
-  }
+  let links = $derived(
+    list.map(feed => ({
+      arrow:
+        $isMobile || current === feed.url ? mdiChevronRight : mdiCircleSmall,
+      controls: getPopupId('feed', feed.url),
+      href: getPopupHash(undefined, 'feed', feed.url),
+      item: feed
+    }))
+  )
 </script>
 
-<Links {id} {getArrow} {getControls} {getCurrent} {getHref} {list}>
+<Links {id} current={list.find(i => i.url === current)} {links}>
   {#snippet item(feed)}
     {feed.title}
   {/snippet}

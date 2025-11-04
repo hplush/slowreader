@@ -1,64 +1,48 @@
-<script
-  generics="Value extends { id: string } | { originId: string } | { url: string }"
-  lang="ts"
->
+<script generics="Value extends object" lang="ts">
   import type { Snippet } from 'svelte'
 
   import Clickable from './clickable.svelte'
   import Icon from './icon.svelte'
 
+  interface Link<ItemValue> {
+    arrow?: string
+    controls?: string
+    href: string
+    item: ItemValue
+  }
+
   let {
-    getArrow,
-    getControls,
-    getCurrent,
-    getHref,
+    current,
     id,
     item,
-    list
+    links
   }: {
-    // eslint-disable-next-line svelte/require-event-prefix
-    getArrow?: (value: Value) => string
-    // eslint-disable-next-line svelte/require-event-prefix
-    getControls?: (value: Value) => string
-    // eslint-disable-next-line svelte/require-event-prefix
-    getCurrent: (value: Value) => boolean
-    // eslint-disable-next-line svelte/require-event-prefix
-    getHref: (value: Value) => string
+    current: undefined | Value
     id?: string
     item: Snippet<[Value]>
-    list: readonly Value[]
+    links: Link<Value>[]
   } = $props()
-
-  function getId(value: Value): string {
-    if ('id' in value) {
-      return value.id
-    } else if ('originId' in value) {
-      return value.originId
-    } else {
-      return value.url
-    }
-  }
 </script>
 
 <ul
   {id}
   class="links"
-  class:is-arrow={!!getArrow}
+  class:is-arrow={!!links[0]?.arrow}
   aria-hidden="true"
   role="menu"
 >
-  {#each list as i (getId(i))}
+  {#each links as i (i.href)}
     <li>
       <Clickable
         class="links_item"
-        aria-controls={getControls?.(i) ?? null}
-        aria-current={getCurrent(i) ? 'page' : null}
-        href={getHref(i)}
+        aria-controls={i.controls ?? null}
+        aria-current={current === i.item ? 'page' : null}
+        href={i.href}
         role="menuitem"
         tabindex={-1}
       >
-        {@render item(i)}
-        {@const icon = getArrow?.(i)}
+        {@render item(i.item)}
+        {@const icon = i.arrow}
         {#if icon}
           <div class="links_arrow">
             <Icon path={icon} />
