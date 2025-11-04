@@ -102,10 +102,10 @@ export const exportPage = createPage('export', () => {
     return blob
   }
 
-  let $exportingState = atom(false)
+  let $exportingBackup = atom(false)
 
-  async function exportState(): Promise<Blob | false> {
-    $exportingState.set(true)
+  async function exportBackup(): Promise<Blob | false> {
+    $exportingBackup.set(true)
     let state = {
       categories: await loadList(getCategories()),
       feeds: await loadList(getFeeds()),
@@ -124,7 +124,7 @@ export const exportPage = createPage('export', () => {
     let blob = new Blob([JSON.stringify(state, null, 2)], {
       type: 'application/json'
     })
-    $exportingState.set(false)
+    $exportingBackup.set(false)
     return blob
   }
 
@@ -132,10 +132,10 @@ export const exportPage = createPage('export', () => {
     exit() {
       stopped = true
     },
+    exportBackup,
+    exportingBackup: $exportingBackup,
     exportingOpml: $exportingOpml,
-    exportingState: $exportingState,
     exportOpml,
-    exportState,
     params: {}
   }
 })

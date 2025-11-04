@@ -92,7 +92,7 @@ test('imports state JSON', async () => {
     params: {},
     route: 'export'
   })
-  let exportBlob = await exportPage.exportState()
+  let exportBlob = await exportPage.exportBackup()
   if (exportBlob === false) {
     throw new Error('Failed to export state')
   }

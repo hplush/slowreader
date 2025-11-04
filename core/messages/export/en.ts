@@ -1,15 +1,9 @@
 import { i18n } from '../../i18n.ts'
 
 export const exportMessages = i18n('export', {
-  allFeeds: 'All feeds',
-  allPosts: 'All posts',
-  chooseTitle: 'Choose format',
-  exportFeeds: 'Export feeds',
-  exportPosts: 'Export posts',
-  exportTitle: 'Export',
-  noPosts: 'No posts yet',
-  selectFeeds: 'Select feeds',
-  submitInternal: 'Export to internal storage',
-  submitOPML: 'Export as OPML file',
-  type: 'Feed type'
+  descBackup: 'Use it to backup reader state or to migrate to custom server',
+  descOPML: 'OPML file can be used for migration between RSS readers',
+  submitBackup: 'Backup app state',
+  submitOPML: 'Export OPML',
+  title: 'Export'
 })

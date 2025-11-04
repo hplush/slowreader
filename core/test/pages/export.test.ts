@@ -41,7 +41,7 @@ test('export OPML', async () => {
     blob = result as Blob
   })
   equal(page.exportingOpml.get(), true)
-  equal(page.exportingState.get(), false)
+  equal(page.exportingBackup.get(), false)
 
   await waitLoading(page.exportingOpml)
   await setTimeout(1)
@@ -85,14 +85,14 @@ test('export state JSON', async () => {
   })
 
   let blob: Blob | undefined
-  page.exportState().then(result => {
+  page.exportBackup().then(result => {
     equal(typeof result, 'object')
     blob = result as Blob
   })
   equal(page.exportingOpml.get(), false)
-  equal(page.exportingState.get(), true)
+  equal(page.exportingBackup.get(), true)
 
-  await waitLoading(page.exportingState)
+  await waitLoading(page.exportingBackup)
   await setTimeout(1)
   equal(typeof blob, 'object')
   let json = JSON.parse(await blob!.text())
@@ -158,12 +158,12 @@ test('cancels export', async () => {
     resultOpml = result
   })
   let resultState: Blob | false | undefined
-  page.exportState().then(result => {
+  page.exportBackup().then(result => {
     resultState = result
   })
 
   equal(page.exportingOpml.get(), true)
-  equal(page.exportingState.get(), true)
+  equal(page.exportingBackup.get(), true)
 
   openPage({
     params: {},

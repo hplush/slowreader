@@ -13,6 +13,7 @@
   import AddPage from '../pages/add.svelte'
   import BusyPage from '../pages/busy.svelte'
   import DownloadPage from '../pages/download.svelte'
+  import ExportPage from '../pages/export.svelte'
   import FeedByCategoriesPage from '../pages/feeds-by-categories.svelte'
   import InterfacePage from '../pages/interface.svelte'
   import NotFoundPage from '../pages/not-found.svelte'
@@ -70,6 +71,8 @@
   <InterfacePage />
 {:else if $currentPage.route === 'download'}
   <DownloadPage />
+{:else if $currentPage.route === 'export'}
+  <ExportPage page={$currentPage} />
 {:else}
   <ThinPage title={$currentPage.route}>
     {$currentPage.route}
