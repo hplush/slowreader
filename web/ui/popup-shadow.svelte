@@ -4,7 +4,7 @@
 
 <div style:--popup-shadow-index={index} class="popup-shadow"></div>
 
-<style>
+<style lang="postcss">
   :global {
     .popup-shadow {
       display: none;

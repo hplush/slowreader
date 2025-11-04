@@ -58,7 +58,7 @@
   </div>
 </aside>
 
-<style>
+<style lang="postcss">
   :global {
     .popup {
       position: fixed;

@@ -54,7 +54,7 @@
   </span>
 </Clickable>
 
-<style>
+<style lang="postcss">
   :global {
     .navbar-button {
       @mixin clickable;

@@ -22,7 +22,7 @@
   {/each}
 </ul>
 
-<style>
+<style lang="postcss">
   :global {
     .feed-errors {
       width: stretch;

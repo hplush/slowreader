@@ -59,7 +59,7 @@
   </div>
 </fieldset>
 
-<style>
+<style lang="postcss">
   :global {
     .radio {
       width: fit-content;

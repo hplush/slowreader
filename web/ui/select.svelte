@@ -45,7 +45,7 @@
   </div>
 </div>
 
-<style>
+<style lang="postcss">
   :global {
     .select {
       flex-shrink: 1;

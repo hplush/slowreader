@@ -53,7 +53,7 @@
   {/each}
 </ul>
 
-<style>
+<style lang="postcss">
   :global {
     .links {
       width: stretch;

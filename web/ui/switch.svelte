@@ -56,7 +56,7 @@
   </div>
 </label>
 
-<style>
+<style lang="postcss">
   :global {
     :root {
       --switch-diff: -0.5rem;
