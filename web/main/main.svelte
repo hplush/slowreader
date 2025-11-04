@@ -82,7 +82,7 @@
 {/if}
 
 {#if !$isMobile}
-  {#each popupOther as i, index (i.id)}
+  {#each popupOther as i, index (i.uniqueId)}
     <PopupShadow index={popupOther.length - index} />
   {/each}
 {/if}

@@ -4,6 +4,7 @@
     addCategory,
     changeFeed,
     type FeedPopup,
+    getPopupId,
     organizeMessages as t
   } from '@slowreader/core'
 
@@ -23,7 +24,10 @@
   let { categories, feed, posts } = popup
 </script>
 
-<Popup id={popup.id} reading={$feed ? $feed.reading : undefined}>
+<Popup
+  id={getPopupId(popup.name, popup.param)}
+  reading={$feed ? $feed.reading : undefined}
+>
   {#snippet header()}
     {#if !$feed}
       <Button icon={mdiPlusCircleOutline} onclick={popup.add} variant="main">

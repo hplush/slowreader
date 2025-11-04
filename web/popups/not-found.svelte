@@ -11,7 +11,7 @@
   import Title from '../ui/title.svelte'
 </script>
 
-<Popup id={`${popup.id}-not-found`}>
+<Popup id={`${popup.uniqueId}-not-found`}>
   <Stack align="center" gap="xl">
     <PageIcon extra={mdiFire} path={mdiBookOpenPageVariant} />
     <Title>{$t.popupNotFound}</Title>

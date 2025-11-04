@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid/non-secure'
 import { atom, type ReadableAtom } from 'nanostores'
 
 import { isNotFoundError } from '../not-found.ts'
@@ -13,11 +14,11 @@ export type BasePopup<
   NotFound extends boolean = boolean
 > = {
   destroy(): void
-  readonly id: string
   readonly loading: ReadableAtom<Loading>
   readonly name: Name
   readonly notFound: NotFound
   readonly param: string
+  readonly uniqueId: string
 }
 
 export interface PopupCreator<
@@ -57,11 +58,11 @@ export function definePopup<Name extends PopupName, Rest extends Extra>(
         destroyed = true
         rest?.destroy()
       },
-      id: getPopupId(name, param),
       loading,
       name,
       notFound: false,
-      param
+      param,
+      uniqueId: nanoid()
     }
 
     loading.set(true)
