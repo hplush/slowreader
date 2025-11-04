@@ -22,7 +22,7 @@ if (location.hostname === 'localhost') {
   server = 'localhost:2554'
 } else if (location.hostname === 'slowreader.app') {
   proxy = 'https://proxy.slowreader.app/'
-  proxy = 'server.slowreader.app'
+  server = 'server.slowreader.app'
 } else if (location.hostname === 'dev.slowreader.app') {
   proxy = 'https://dev-proxy.slowreader.app/'
   server = 'dev-server.slowreader.app'
