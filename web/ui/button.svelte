@@ -1,3 +1,21 @@
+<script lang="ts" module>
+  export type ButtonSize = 'big' | 'icon' | 'inline' | 'pill' | 'wide'
+
+  export type ButtonVariant =
+    | 'main'
+    | 'plain-dangerous'
+    | 'plain-secondary'
+    | 'plain'
+    | 'secondary-dangerous'
+    | 'secondary'
+
+  export type ButtonPseudostate =
+    | 'active'
+    | 'focus-visible'
+    | 'hover'
+    | undefined
+</script>
+
 <script lang="ts">
   import type { Snippet } from 'svelte'
   import type {
@@ -16,6 +34,7 @@
     icon,
     loader,
     onclick,
+    pseudostate,
     size = 'inline',
     variant = 'secondary',
     ...props
@@ -25,14 +44,9 @@
     icon?: string
     loader?: boolean | number | string
     onclick?: MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>
-    size?: 'big' | 'icon' | 'inline' | 'pill' | 'wide'
-    variant?:
-      | 'main'
-      | 'plain-dangerous'
-      | 'plain-secondary'
-      | 'plain'
-      | 'secondary-dangerous'
-      | 'secondary'
+    pseudostate?: ButtonPseudostate
+    size?: ButtonSize
+    variant?: ButtonVariant
   } & (
     | ({ href: string } & HTMLAnchorAttributes)
     | ({ href?: undefined } & HTMLButtonAttributes)
@@ -60,6 +74,9 @@
     'is-plain': variant === 'plain',
     'is-plain-dangerous': variant === 'plain-dangerous',
     'is-plain-secondary': variant === 'plain-secondary',
+    'is-pseudo-active': pseudostate === 'active',
+    'is-pseudo-focus-visible': pseudostate === 'focus-visible',
+    'is-pseudo-hover': pseudostate === 'hover',
     'is-secondary': variant === 'secondary',
     'is-secondary-dangerous': variant === 'secondary-dangerous',
     'is-wide': size === 'wide' || size === 'big'
