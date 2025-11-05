@@ -11,7 +11,7 @@
   } from '@slowreader/core'
 
   import Button from '../ui/button.svelte'
-  import FeedErrors from '../ui/feed-errors.svelte'
+  import ErrorList from '../ui/error-list.svelte'
   import Label from '../ui/label.svelte'
   import Loader from '../ui/loader.svelte'
   import PageIcon from '../ui/page-icon.svelte'
@@ -68,7 +68,13 @@
       {#if $refreshErrors.length > 0}
         <Stack>
           <Title>{$t.errors}</Title>
-          <FeedErrors errors={$refreshErrors} />
+          <ErrorList
+            list={$refreshErrors.map(item => ({
+              errorText: item.error,
+              title: item.feed.title,
+              url: item.feed.url
+            }))}
+          />
         </Stack>
       {/if}
     </Stack>

@@ -1,22 +1,17 @@
 <script lang="ts">
-  import { type RefreshError, router } from '@slowreader/core'
+  type ErrorItem = { errorText: string; title: string; url: string }
 
-  import { getPopupHash } from '../stores/url-router.ts'
-
-  let { errors }: { errors: readonly RefreshError[] } = $props()
+  let { list }: { list: ErrorItem[] } = $props()
 </script>
 
-<ul class="feed-errors">
-  {#each errors as { error, feed } (feed.id)}
-    <li class="feed-errors_item">
-      <a
-        class="feed-errors_feed"
-        href={getPopupHash($router, 'feed', feed.url)}
-      >
-        {feed.title}
+<ul class="error-list">
+  {#each list as item (item.url)}
+    <li class="error-list_item">
+      <a class="error-list_link" href={item.url}>
+        {item.title}
       </a>
-      <div class="feed-errors_text">
-        {error}
+      <div class="error-list_text">
+        {item.errorText}
       </div>
     </li>
   {/each}
@@ -24,7 +19,7 @@
 
 <style lang="postcss">
   :global {
-    .feed-errors {
+    .error-list {
       width: stretch;
       list-style: none;
       border: 0.125rem solid --tune-background(--note);
@@ -33,13 +28,13 @@
       @mixin background var(--note-dangerous-background);
     }
 
-    .feed-errors_item {
+    .error-list_item {
       &:not(:first-child) {
         border-top: 0.125rem solid --tune-background(--note);
       }
     }
 
-    .feed-errors_feed {
+    .error-list_link {
       display: block;
       padding: 0.625rem var(--control-padding) 0 var(--control-padding);
       font: var(--control-secondary-font);
@@ -58,7 +53,7 @@
       }
     }
 
-    .feed-errors_text {
+    .error-list_text {
       padding: 0 var(--control-padding) 0.625rem var(--control-padding);
     }
   }
