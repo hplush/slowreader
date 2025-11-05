@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { mdiBackupRestore, mdiTruckDeliveryOutline } from '@mdi/js'
+  import {
+    mdiDatabase,
+    mdiDatabaseExport,
+    mdiFormatListBulletedSquare,
+    mdiTruckDeliveryOutline
+  } from '@mdi/js'
   import {
     type ExportPage,
     organizeMessages,
@@ -20,17 +25,23 @@
     <PageIcon path={mdiTruckDeliveryOutline}>
       <Stack gap="l">
         <div>{$t.descOPML}</div>
-        <Button loader={$exportingOpml} onclick={page.exportOpml} size="wide">
+        <Button
+          icon={mdiFormatListBulletedSquare}
+          loader={$exportingOpml}
+          onclick={page.exportOpml}
+          size="wide"
+        >
           {$t.submitOPML}
         </Button>
       </Stack>
     </PageIcon>
   {/snippet}
   {#snippet two()}
-    <PageIcon path={mdiBackupRestore}>
+    <PageIcon path={mdiDatabaseExport}>
       <Stack gap="l">
         <div>{$t.descBackup}</div>
         <Button
+          icon={mdiDatabase}
           loader={$exportingBackup}
           onclick={page.exportBackup}
           size="wide"

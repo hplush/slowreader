@@ -37,12 +37,12 @@
       min-width: 10rem;
       min-height: 40vh;
       color: --tune-background(--placeholder);
-
-      --icon-size: 10rem;
     }
 
     .page-icon_position {
       position: relative;
+
+      --icon-size: 10rem;
     }
 
     .page-icon_extra {
