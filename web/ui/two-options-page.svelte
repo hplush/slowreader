@@ -53,16 +53,16 @@
       justify-content: center;
       min-height: 100svh;
 
-      &.is-center {
-        align-items: center;
-      }
-
       @media (--no-desktop) {
         min-height: calc(100svh - var(--navbart-height));
       }
 
-      @media (--mobile) {
-        align-items: flex-end;
+      &.is-center {
+        align-items: center;
+
+        @media (--mobile) {
+          align-items: flex-end;
+        }
       }
     }
 
