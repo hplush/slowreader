@@ -9,7 +9,7 @@
   }: {
     label?: string
     size?: 'normal' | 'wide'
-    value?: number
+    value?: boolean | number
     variant?: 'accent' | 'auto'
   } = $props()
 

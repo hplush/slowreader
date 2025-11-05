@@ -15,6 +15,7 @@
   import ErrorList from '../ui/error-list.svelte'
   import Error from '../ui/error.svelte'
   import File from '../ui/file.svelte'
+  import Loader from '../ui/loader.svelte'
   import PageIcon from '../ui/page-icon.svelte'
   import RichText from '../ui/rich-text.svelte'
   import Stack from '../ui/stack.svelte'
@@ -41,21 +42,24 @@
     {:else}
       <PageIcon path={mdiBriefcaseUploadOutline}>
         <Stack gap="l">
-          <RichText text={$t.description} url={getURL('export')} />
-          <File
-            accept=".opml,.json,.xml"
-            icon={mdiUpload}
-            loader={$importing}
-            onchange={e => {
-              let file = e.currentTarget.files?.[0]
-              if (file) importFile(file)
-              e.currentTarget.value = ''
-            }}
-            size="wide"
-            variant="main"
-          >
-            {$t.submit}
-          </File>
+          {#if $importing}
+            <Loader size="wide" value={$importing} />
+          {:else}
+            <RichText text={$t.description} url={getURL('export')} />
+            <File
+              accept=".opml,.json,.xml"
+              icon={mdiUpload}
+              onchange={e => {
+                let file = e.currentTarget.files?.[0]
+                if (file) importFile(file)
+                e.currentTarget.value = ''
+              }}
+              size="wide"
+              variant="main"
+            >
+              {$t.submit}
+            </File>
+          {/if}
 
           {#if $fileError}
             <Error>
