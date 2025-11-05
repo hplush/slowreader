@@ -7,6 +7,7 @@
   ],
   "*.css": ["prettier --experimental-cli --write", "stylelint --fix"],
   "*.svelte": [
+    "node ./web/scripts/check-names.ts",
     "prettier --experimental-cli --write",
     "stylelint --fix",
     "eslint --fix --concurrency auto"
