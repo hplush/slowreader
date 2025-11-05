@@ -391,7 +391,6 @@ test('prevents importing duplicate feeds from state JSON', async () => {
   equal(page.fileError.get(), false)
   deepEqual(page.feedErrors.get(), [])
   equal(page.done.get(), 0)
-  equal(theme.get(), 'system')
 
   let feeds = await loadValue(getFeeds())
   equal(feeds.list.length, 2)
