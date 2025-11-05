@@ -23,7 +23,7 @@
     children: Snippet
     disabled?: boolean
     icon?: string
-    loader?: boolean | string
+    loader?: boolean | number
     onclick?: MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>
     size?: 'big' | 'icon' | 'inline' | 'pill' | 'wide'
     variant?:
@@ -70,14 +70,10 @@
 >
   <span class="button_loader">
     {#if loader}
-      {#if variant === 'main'}
-        <Loader
-          label={typeof loader === 'string' ? loader : undefined}
-          variant="accent"
-        />
-      {:else}
-        <Loader label={typeof loader === 'string' ? loader : undefined} />
-      {/if}
+      <Loader
+        value={typeof loader === 'number' ? loader : undefined}
+        variant={variant === 'main' ? 'accent' : 'auto'}
+      />
     {/if}
   </span>
   <span class="button_cap" aria-hidden={!!loader}>
