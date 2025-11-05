@@ -85,6 +85,7 @@ export function parseRichTranslation(text: string, link?: string): string {
   // @ts-expect-error Window types is hard
   if (!DOMPurify) DOMPurify = createDOMPurify(window)
   let html = DOMPurify.sanitize(text, { ALLOWED_TAGS: [] })
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/^[*-][ .](.*)/gm, '<ul><li>$1</li></ul>')
     .replace(/<\/ul>\n<ul>/g, '\n')
   if (html.includes('\n\n')) {

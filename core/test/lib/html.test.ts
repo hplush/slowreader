@@ -32,3 +32,17 @@ test('converts links in translation', () => {
     '<a href="https://example.com">Link</a> to example'
   )
 })
+
+test('converts ** to strong', () => {
+  equal(
+    parseRichTranslation('This is **bold** text'),
+    'This is <strong>bold</strong> text'
+  )
+})
+
+test('combines list with strong syntax', () => {
+  equal(
+    parseRichTranslation('* **item one**\n* item **two**'),
+    '<ul><li><strong>item one</strong></li>\n<li>item <strong>two</strong></li></ul>'
+  )
+})
