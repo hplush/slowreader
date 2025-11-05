@@ -335,3 +335,64 @@ test('done is set to zero when import succeeds with no feeds', async () => {
   equal(page.fileError.get(), false)
   deepEqual(page.feedErrors.get(), [])
 })
+
+test('prevents importing duplicate feeds from OPML', async () => {
+  let FEED2 = testFeed({ url: 'https://a.com/atom' })
+  await addCategory(CATEGORY)
+  await addFeed(FEED)
+  await addFeed(FEED2)
+
+  let exportPage = openPage({
+    params: {},
+    route: 'export'
+  })
+  exportPage.exportOpml()
+  await waitLoading(exportPage.exportingOpml)
+  if (!exportedBlob) {
+    throw new Error('Failed to export OPML')
+  }
+
+  let page = openPage({
+    params: {},
+    route: 'import'
+  })
+  page.importFile(file('opml', await exportedBlob.text()))
+  await waitLoading(page.importing)
+  equal(page.fileError.get(), false)
+  deepEqual(page.feedErrors.get(), [
+    [FEED2.url, 'exists'],
+    [FEED.url, 'exists']
+  ])
+  equal(page.done.get(), 0)
+})
+
+test('prevents importing duplicate feeds from state JSON', async () => {
+  let FEED2 = testFeed({ url: 'https://a.com/atom' })
+  await addCategory(CATEGORY)
+  await addFeed(FEED)
+  await addFeed(FEED2)
+
+  let exportPage = openPage({
+    params: {},
+    route: 'export'
+  })
+  exportPage.exportBackup()
+  await waitLoading(exportPage.exportingBackup)
+  if (!exportedBlob) {
+    throw new Error('Failed to export state')
+  }
+
+  let page = openPage({
+    params: {},
+    route: 'import'
+  })
+  page.importFile(file('json', await exportedBlob.text()))
+  await waitLoading(page.importing)
+  equal(page.fileError.get(), false)
+  deepEqual(page.feedErrors.get(), [])
+  equal(page.done.get(), 0)
+  equal(theme.get(), 'system')
+
+  let feeds = await loadValue(getFeeds())
+  equal(feeds.list.length, 2)
+})

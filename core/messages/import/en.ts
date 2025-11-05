@@ -7,6 +7,7 @@ export const importMessages = i18n('import', {
   cannotReadError: 'Unable to read the file',
   description:
     '**OPML** file can be exported from your previous RSS reader. See settings or feeds management sections.\n\nSlow Reader **backup** can be generated in [Export] page.',
+  existsError: 'Feed already added',
   feedsAdded: count({
     many: '{count} feeds imported',
     one: '{count} feed imported'

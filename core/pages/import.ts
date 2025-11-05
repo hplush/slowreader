@@ -1,7 +1,8 @@
+import { loadValue } from '@logux/client'
 import { atom } from 'nanostores'
 
 import { addCategory } from '../category.ts'
-import { addCandidate, addFeed } from '../feed.ts'
+import { addCandidate, addFeed, getFeeds } from '../feed.ts'
 import { addFilter } from '../filter.ts'
 import { createDownloadTask } from '../lib/download.ts'
 import { getLoaderForText } from '../loader/index.ts'
@@ -24,7 +25,7 @@ async function readFile(file: File): Promise<false | string> {
   })
 }
 
-type FeedError = 'unknown' | 'unloadable'
+type FeedError = 'exists' | 'unknown' | 'unloadable'
 
 export const importPage = createPage('import', () => {
   let $importing = atom<false | number | true>(false)
@@ -48,6 +49,11 @@ export const importPage = createPage('import', () => {
     $feedErrors.set([...$feedErrors.get(), [url, error]])
   }
 
+  async function feedExists(url: string): Promise<boolean> {
+    let feeds = await loadValue(getFeeds({ url }))
+    return feeds.list.some(i => !feeds.stores.get(i.id)!.deleted)
+  }
+
   async function importOpml(doc: Document): Promise<void> {
     let outlines = doc.getElementsByTagName('outline')
     let links = [...outlines].filter(i => i.getAttribute('xmlUrl'))
@@ -69,6 +75,12 @@ export const importPage = createPage('import', () => {
 
       let title = outline.getAttribute('text')
       let url = outline.getAttribute('xmlUrl')!
+
+      if (await feedExists(url)) {
+        addFeedError(url, 'exists')
+        done()
+        continue
+      }
 
       let response
       try {
@@ -116,8 +128,10 @@ export const importPage = createPage('import', () => {
       done()
     }
     for (let feed of json.feeds) {
-      await addFeed(feed)
-      added++
+      if (!(await feedExists(feed.url))) {
+        await addFeed(feed)
+        added++
+      }
       done()
     }
     for (let post of json.posts) {
@@ -135,7 +149,7 @@ export const importPage = createPage('import', () => {
 
     let ext = file.name.split('.').pop()?.toLowerCase()
     let content = await readFile(file)
-    /* node:coverage ignore next 4 */
+    /* node:coverage ignore next 5 */
     if (content === false) {
       $fileError.set('cannotRead')
       $importing.set(false)
