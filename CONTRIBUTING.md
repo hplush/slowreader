@@ -128,6 +128,8 @@ Feel free to ask [maintainer](https://t.me/sitnik) about your next task.
 
 ## Guidelines
 
+Check also [`AGENTS.md`](./AGENTS.md) since many requirements for LLM can be applied to humans too.
+
 ### Commits
 
 We care about good commit messages. Try to think about them and describe more:

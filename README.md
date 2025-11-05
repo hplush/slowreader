@@ -99,7 +99,7 @@ Core depends on the platform environment (like storage to store settings). Befor
 
 Slow Reader is a local-first app. Clients do most of the work, and the server just syncs data between users’ devices (with end-to-end encryption).
 
-- **Clients.**
+- **Clients:**
   - [`core/`](./core/): client’s logic and i18n translations. Clients for specific platforms is just a UI around this core to simplify porting
     - See **[`core/README.md`](./core/README.md)** for core architecture.
   - [`web/`](./web/): the client to be run in the browser. Both for desktop and mobile.
@@ -111,7 +111,7 @@ Slow Reader is a local-first app. Clients do most of the work, and the server ju
 - [`docs/`](./docs/): guides for developers.
 - [`scripts/`](./scripts/): scripts to test project and configure Google Cloud. Check the script’s descriptions for further details.
 - [`loader-tests/`](./loader-tests/): integration tests for each social network or news format.
-- [`.devcontainer`](./.devcontainer/): `Dockerfile` and configs to run project in Docker/Podman image on developer’s machine. It increases security (malicious dependency will not have access to the whole machine) and simplify onboarding. We have configs for Docker and [Podman](https://podman.io) (more secure version of Docker).
+- [`.devcontainer/`](./.devcontainer/): `Dockerfile` and configs to run project in Docker/Podman image on developer’s machine. It increases security (malicious dependency will not have access to the whole machine) and simplify onboarding. We have configs for Docker and [Podman](https://podman.io) (more secure version of Docker).
 - [`.github/`](./.github/): scripts to test projects on CI.
 - [`.husky/`](./.husky/): scripts to call on `git commit` command to avoid popular errors.
 - [`.vscode/`](./.vscode/): VS Code settings to reduce code format errors for new contributors.
