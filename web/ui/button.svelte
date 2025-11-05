@@ -23,7 +23,7 @@
     children: Snippet
     disabled?: boolean
     icon?: string
-    loader?: boolean | number
+    loader?: boolean | number | string
     onclick?: MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>
     size?: 'big' | 'icon' | 'inline' | 'pill' | 'wide'
     variant?:
@@ -71,6 +71,7 @@
   <span class="button_loader">
     {#if loader}
       <Loader
+        label={typeof loader === 'string' ? loader : undefined}
         value={typeof loader === 'number' ? loader : undefined}
         variant={variant === 'main' ? 'accent' : 'auto'}
       />
