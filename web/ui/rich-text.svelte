@@ -14,7 +14,7 @@
 <style>
   :global {
     .rich-text p {
-      padding-top: 0.25rem;
+      padding-top: 0.5rem;
 
       &:first-child {
         padding-top: 0;
