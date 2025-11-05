@@ -166,7 +166,7 @@
       </Button>
     </Section>
     <Section>
-      <Button {icon} loader="Submitting" {onclick} variant="main">Main</Button>
+      <Button {icon} loader {onclick} variant="main">Main</Button>
       <Button href="/disabled" {icon} loader variant="secondary">
         Secondary
       </Button>
@@ -233,7 +233,7 @@
       </Button>
     </Section>
     <Section>
-      <Button {icon} loader="Submitting" {onclick} variant="main">Main</Button>
+      <Button {icon} loader {onclick} variant="main">Main</Button>
       <Button href="/disabled" {icon} loader variant="secondary">
         Secondary
       </Button>
@@ -300,7 +300,7 @@
       </Button>
     </Section>
     <Section>
-      <Button {icon} loader="Submitting" {onclick} variant="main">Main</Button>
+      <Button {icon} loader {onclick} variant="main">Main</Button>
       <Button href="/disabled" {icon} loader variant="secondary">
         Secondary
       </Button>
