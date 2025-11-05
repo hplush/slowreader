@@ -22,5 +22,5 @@
 
 ## Testing
 
-- Always run `pnpm test:types` and `pnpm eslint . --fix`.
+- Always run `pnpm quick` after changes.
 - Run specific test by `pnpm bnt path/to/test.test.ts -t 'test name'`

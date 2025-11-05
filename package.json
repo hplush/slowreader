@@ -10,6 +10,7 @@
   "packageManager": "pnpm@10.20.0",
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run -r --include-workspace-root /^test:/",
+    "quick": "nano-staged --unstaged",
     "offline": "FORCE_COLOR=1 pnpm run -r --include-workspace-root '/^test:(?!online\\b)/'",
     "start": "FORCE_COLOR=1 pnpm run -F server -F web start",
     "format": "pnpm run -r --include-workspace-root /^format:/",

@@ -134,6 +134,7 @@ Each project has its own tools, too.
 ## Scripts
 
 - `pnpm test`: run all tests.
+- `pnpm quick`: run quick checks for changed files.
 - `pnpm offline`: run all tests expect which need Internet. It is useful for developing in airplane/train.
 - `pnpm start`: run proxy and web client development server.
 - `pnpm format`: fix code style in all files.
