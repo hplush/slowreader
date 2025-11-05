@@ -45,7 +45,7 @@
   })
 </script>
 
-<div class="file">
+<div class="file" class:is-wide={size === 'wide'}>
   <input
     class="file_input"
     {accept}
@@ -94,6 +94,11 @@
     .file {
       position: relative;
       display: inline-block;
+      width: fit-content;
+
+      &.is-wide {
+        width: stretch;
+      }
     }
 
     .file_input {

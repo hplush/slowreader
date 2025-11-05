@@ -24,6 +24,9 @@
       <File {icon} {onchange} variant="main">Upload</File>
     </Section>
     <Section>
+      <File {icon} {onchange} size="wide" variant="main">Upload</File>
+    </Section>
+    <Section>
       <File {icon} loader {onchange} variant="main">Upload</File>
       <File {icon} loader={0.5} {onchange} variant="main">Upload</File>
     </Section>
