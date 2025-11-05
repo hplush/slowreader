@@ -91,7 +91,7 @@
         background: --tune-background(--flat-button --flat-button-hover);
       }
 
-      &:active {
+      &:not([aria-current='page']):active {
         z-index: 1;
         padding-block: calc(0.625rem + var(--min-size))
           calc(0.625rem - var(--min-size));
@@ -119,7 +119,7 @@
       display: flex;
       align-items: center;
 
-      .links_item:active & {
+      .links_item:not([aria-current='page']):active & {
         translate: 0 1px;
       }
 
