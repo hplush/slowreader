@@ -1,4 +1,4 @@
-import { atom, map } from 'nanostores'
+import { atom } from 'nanostores'
 
 import { addCategory } from '../category.ts'
 import { addCandidate, addFeed } from '../feed.ts'
@@ -24,12 +24,16 @@ async function readFile(file: File): Promise<false | string> {
   })
 }
 
+type FeedError = 'unknown' | 'unloadable'
+
 export const importPage = createPage('import', () => {
   let $importing = atom<false | number | true>(false)
   let $fileError = atom<'brokenFile' | 'cannotRead' | 'unknownFormat' | false>(
     false
   )
-  let $feedErrors = map<Record<string, 'unknown' | 'unloadable'>>()
+  let $feedErrors = atom<[string, FeedError][]>([])
+  let $done = atom<false | number>(false)
+  let added = 0
 
   function startProgress(all: number): () => void {
     let completed = 0
@@ -38,6 +42,10 @@ export const importPage = createPage('import', () => {
       completed++
       $importing.set(completed / all)
     }
+  }
+
+  function addFeedError(url: string, error: FeedError): void {
+    $feedErrors.set([...$feedErrors.get(), [url, error]])
   }
 
   async function importOpml(doc: Document): Promise<void> {
@@ -66,14 +74,14 @@ export const importPage = createPage('import', () => {
       try {
         response = await task.text(url)
       } catch {
-        $feedErrors.setKey(url, 'unloadable')
+        addFeedError(url, 'unloadable')
         done()
         continue
       }
 
       let candidate = getLoaderForText(response)
       if (!candidate) {
-        $feedErrors.setKey(url, 'unknown')
+        addFeedError(url, 'unknown')
       } else {
         await addCandidate(
           candidate,
@@ -81,6 +89,7 @@ export const importPage = createPage('import', () => {
           task,
           response
         )
+        added++
       }
 
       done()
@@ -108,6 +117,7 @@ export const importPage = createPage('import', () => {
     }
     for (let feed of json.feeds) {
       await addFeed(feed)
+      added++
       done()
     }
     for (let post of json.posts) {
@@ -119,16 +129,20 @@ export const importPage = createPage('import', () => {
   async function importFile(file: File): Promise<void> {
     $importing.set(true)
     $fileError.set(false)
-    $feedErrors.set({})
+    $feedErrors.set([])
+    $done.set(false)
+    added = 0
 
     let ext = file.name.split('.').pop()?.toLowerCase()
     let content = await readFile(file)
     /* node:coverage ignore next 4 */
     if (content === false) {
       $fileError.set('cannotRead')
+      $importing.set(false)
       return
     }
 
+    let hasError = false
     if (ext === 'opml') {
       let parser = new DOMParser()
       let doc = parser.parseFromString(content, 'text/xml')
@@ -136,6 +150,7 @@ export const importPage = createPage('import', () => {
         await importOpml(doc)
       } else {
         $fileError.set('brokenFile')
+        hasError = true
       }
     } else if (ext === 'json') {
       let json
@@ -144,17 +159,23 @@ export const importPage = createPage('import', () => {
       } catch {}
       if (!json || !isStateExportFile(json)) {
         $fileError.set('brokenFile')
+        hasError = true
       } else {
         await importState(json)
       }
     } else {
       $fileError.set('unknownFormat')
+      hasError = true
     }
 
     $importing.set(false)
+    if (added > 0 || !hasError) {
+      $done.set(added)
+    }
   }
 
   return {
+    done: $done,
     exit() {},
     feedErrors: $feedErrors,
     fileError: $fileError,

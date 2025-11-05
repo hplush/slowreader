@@ -117,13 +117,15 @@ test('imports state JSON', async () => {
   })
   equal(page.importing.get(), false)
   equal(page.fileError.get(), false)
-  deepEqual(page.feedErrors.get(), {})
+  deepEqual(page.feedErrors.get(), [])
+  equal(page.done.get(), false)
 
   page.importFile(file('json', await exportedBlob.text()))
   await waitLoading(page.importing)
   await setTimeout(100)
   equal(page.fileError.get(), false)
-  deepEqual(page.feedErrors.get(), {})
+  deepEqual(page.feedErrors.get(), [])
+  equal(page.done.get(), 1)
   equal(theme.get(), 'light')
   equal(preloadImages.get(), 'never')
   deepEqual((await loadValue(getCategories())).list, [
@@ -170,10 +172,11 @@ test('imports OPML from the app', async () => {
   page.importFile(file('opml', await exportedBlob.text()))
   await waitLoading(page.importing)
   equal(page.fileError.get(), false)
-  deepEqual(page.feedErrors.get(), {
-    'https://broken.com/': 'unloadable',
-    'https://unknown.com/': 'unknown'
-  })
+  deepEqual(page.feedErrors.get(), [
+    ['https://broken.com/', 'unloadable'],
+    ['https://unknown.com/', 'unknown']
+  ])
+  equal(page.done.get(), 2)
 
   let categories = await loadValue(getCategories())
   deepEqual(
@@ -201,7 +204,8 @@ test('is ready for unknown files', async () => {
   page.importFile(file('txt', ''))
   await waitLoading(page.importing)
   equal(page.fileError.get(), 'unknownFormat')
-  deepEqual(page.feedErrors.get(), {})
+  deepEqual(page.feedErrors.get(), [])
+  equal(page.done.get(), false)
 })
 
 test('is ready for broken JSON', async () => {
@@ -212,7 +216,8 @@ test('is ready for broken JSON', async () => {
   page.importFile(file('json', '{'))
   await waitLoading(page.importing)
   equal(page.fileError.get(), 'brokenFile')
-  deepEqual(page.feedErrors.get(), {})
+  deepEqual(page.feedErrors.get(), [])
+  equal(page.done.get(), false)
 })
 
 test('is ready for broken XML', async () => {
@@ -223,7 +228,8 @@ test('is ready for broken XML', async () => {
   page.importFile(file('opml', '<'))
   await waitLoading(page.importing)
   equal(page.fileError.get(), 'brokenFile')
-  deepEqual(page.feedErrors.get(), {})
+  deepEqual(page.feedErrors.get(), [])
+  equal(page.done.get(), false)
 })
 
 test('is ready for unknown XML', async () => {
@@ -234,5 +240,98 @@ test('is ready for unknown XML', async () => {
   page.importFile(file('opml', '<html></html>'))
   await waitLoading(page.importing)
   equal(page.fileError.get(), 'brokenFile')
-  deepEqual(page.feedErrors.get(), {})
+  deepEqual(page.feedErrors.get(), [])
+  equal(page.done.get(), false)
+})
+
+test('tracks done count after state JSON import', async () => {
+  let FEED2 = testFeed({ url: 'https://a.com/atom' })
+  await addCategory(CATEGORY)
+  await addFeed(FEED)
+  await addFeed(FEED2)
+
+  let exportPage = openPage({
+    params: {},
+    route: 'export'
+  })
+  exportPage.exportBackup()
+  await waitLoading(exportPage.exportingBackup)
+  if (!exportedBlob) {
+    throw new Error('Failed to export state')
+  }
+  await deleteFeed(FEED.id)
+  await deleteFeed(FEED2.id)
+  await deleteCategory(CATEGORY.id)
+
+  let page = openPage({
+    params: {},
+    route: 'import'
+  })
+  equal(page.done.get(), false)
+  page.importFile(file('json', await exportedBlob.text()))
+  await waitLoading(page.importing)
+  equal(page.done.get(), 2)
+})
+
+test('tracks done count after OPML import', async () => {
+  let FEED2 = testFeed({ url: 'https://a.com/atom' })
+  await addCategory(CATEGORY)
+  await addFeed(FEED)
+  await addFeed(FEED2)
+
+  let exportPage = openPage({
+    params: {},
+    route: 'export'
+  })
+  exportPage.exportOpml()
+  await waitLoading(exportPage.exportingOpml)
+  if (!exportedBlob) {
+    throw new Error('Failed to export OPML')
+  }
+  await deleteFeed(FEED.id)
+  await deleteFeed(FEED2.id)
+  await deleteCategory(CATEGORY.id)
+
+  let page = openPage({
+    params: {},
+    route: 'import'
+  })
+  equal(page.done.get(), false)
+  expectRequest(FEED2.url).andRespond(200, '<feed></feed>')
+  expectRequest(FEED.url).andRespond(200, '<rss></rss>')
+  page.importFile(file('opml', await exportedBlob.text()))
+  await waitLoading(page.importing)
+  equal(page.done.get(), 2)
+})
+
+test('done count is zero for failed import', async () => {
+  let page = openPage({
+    params: {},
+    route: 'import'
+  })
+  equal(page.done.get(), false)
+  page.importFile(file('json', '{'))
+  await waitLoading(page.importing)
+  equal(page.done.get(), false)
+  equal(page.fileError.get(), 'brokenFile')
+})
+
+test('done is set to zero when import succeeds with no feeds', async () => {
+  let page = openPage({
+    params: {},
+    route: 'import'
+  })
+  equal(page.done.get(), false)
+  let emptyJson = JSON.stringify({
+    categories: [],
+    feeds: [],
+    filters: [],
+    posts: [],
+    settings: { preloadImages: 'always', theme: 'system' }
+  })
+  page.importFile(file('json', emptyJson))
+  await waitLoading(page.importing)
+  equal(page.done.get(), 0)
+  equal(page.fileError.get(), false)
+  deepEqual(page.feedErrors.get(), [])
 })
