@@ -31,6 +31,17 @@ export function createProxy(
   return async (req, res) => {
     let sent = false
 
+    /* node:coverage disable */
+    function sendError(statusCode: number, message: string): void {
+      if (!sent) {
+        res.writeHead(statusCode, { 'Content-Type': 'text/plain' })
+        res.end(message)
+      } else {
+        res.end()
+      }
+    }
+    /* node:coverage enable */
+
     try {
       let url = decodeURIComponent(req.url!.slice(1).replace(/^proxy\//, ''))
       let parsedUrl = new URL(url)
@@ -121,16 +132,13 @@ export function createProxy(
       /* node:coverage disable */
       // Known errors
       if (e instanceof Error && e.name === 'TimeoutError') {
-        res.writeHead(400, { 'Content-Type': 'text/plain' })
-        res.end('Timeout')
+        sendError(400, 'Timeout')
         return
       } else if (e instanceof Error && e.message === 'Invalid URL') {
-        res.writeHead(400, { 'Content-Type': 'text/plain' })
-        res.end('Invalid URL')
+        sendError(400, 'Invalid URL')
         return
       } else if (e instanceof BadRequestError) {
-        res.writeHead(e.code, { 'Content-Type': 'text/plain' })
-        res.end(e.message)
+        sendError(e.code, e.message)
         return
       }
 
@@ -140,10 +148,7 @@ export function createProxy(
       } else if (typeof e === 'string') {
         process.stderr.write(styleText('red', e) + '\n')
       }
-      if (!sent) {
-        res.writeHead(500, { 'Content-Type': 'text/plain' })
-        res.end('Internal Server Error')
-      }
+      sendError(500, 'Internal Server Error')
     }
     /* node:coverage enable */
   }
