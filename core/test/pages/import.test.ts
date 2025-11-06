@@ -35,7 +35,8 @@ import { cleanClientTest, enableClientTest, openPage } from '../utils.ts'
 const MIME_TYPES = {
   json: 'application/json',
   opml: 'application/xml',
-  txt: 'text/plain'
+  txt: 'text/plain',
+  xml: 'application/xml'
 }
 
 let CATEGORY = { id: 'c1', title: 'A' } satisfies CategoryValue
@@ -394,4 +395,41 @@ test('prevents importing duplicate feeds from state JSON', async () => {
 
   let feeds = await loadValue(getFeeds())
   equal(feeds.list.length, 2)
+})
+
+test('imports OPML with .xml extension', async () => {
+  await addFeed(FEED)
+
+  let exportPage = openPage({
+    params: {},
+    route: 'export'
+  })
+  exportPage.exportOpml()
+  await waitLoading(exportPage.exportingOpml)
+  if (!exportedBlob) {
+    throw new Error('Failed to export OPML')
+  }
+  await deleteFeed(FEED.id)
+
+  let page = openPage({
+    params: {},
+    route: 'import'
+  })
+  expectRequest(FEED.url).andRespond(200, '<rss></rss>')
+  let xmlFile = new File([await exportedBlob.text()], 'feeds.xml', {
+    type: 'application/xml'
+  })
+  page.importFile(xmlFile)
+  await waitLoading(page.importing)
+  equal(page.fileError.get(), false)
+  equal(page.done.get(), 1)
+
+  deepEqual(
+    (await loadValue(getFeeds())).list.map(i => ({
+      categoryId: i.categoryId,
+      loader: i.loader,
+      title: i.title
+    })),
+    [{ categoryId: 'general', loader: 'rss', title: FEED.title }]
+  )
 })

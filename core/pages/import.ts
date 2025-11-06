@@ -157,7 +157,7 @@ export const importPage = createPage('import', () => {
     }
 
     let hasError = false
-    if (ext === 'opml') {
+    if (ext === 'opml' || ext === 'xml') {
       let parser = new DOMParser()
       let doc = parser.parseFromString(content, 'text/xml')
       if (doc.documentElement.nodeName === 'opml') {
