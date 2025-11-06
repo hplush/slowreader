@@ -18,6 +18,9 @@
     <RichText text={'<b>&lt;i&gt;XSS&lt;/i&gt;</b>'} />
   </Section>
   <Section>
+    <RichText text={'example of **bold** text'} />
+  </Section>
+  <Section>
     <RichText text={'alert<iframe//src=jAva&Tab;script:alert(3)>'} />
   </Section>
   <Section>
