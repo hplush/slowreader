@@ -577,3 +577,43 @@ test('opens first candidate', async () => {
   equal(openedPopups.get().length, 0)
   equal(page.opened.get(), undefined)
 })
+
+test('supports links with query parameters', async () => {
+  let page = openPage({
+    params: {},
+    route: 'add'
+  })
+  keepMount(page.candidates)
+
+  expectRequest('https://example.com').andRespond(
+    200,
+    '<!DOCTYPE html><html><head>' +
+      '<link rel="alternate" type="application/rss+xml" ' +
+      'href="/news?format=rss">' +
+      '</head></html>'
+  )
+  let rss = '<rss><channel><title>News Feed</title></channel></rss>'
+  expectRequest('https://example.com/news?format=rss').andRespond(
+    200,
+    rss,
+    'application/rss+xml'
+  )
+
+  page.params.url.set('example.com')
+  await waitLoading(page.searching)
+  equal(page.error.get(), undefined)
+  equalWithText(page.candidates.get(), [
+    {
+      loader: loaders.rss,
+      name: 'rss',
+      title: 'News Feed',
+      url: 'https://example.com/news?format=rss'
+    }
+  ])
+  equal(page.opened.get(), 'https://example.com/news?format=rss')
+
+  let popup = getPopup('feed')
+  await waitLoading(popup.loading)
+  equal(popup.notFound, false)
+  equal(popup.param, 'https://example.com/news?format=rss')
+})

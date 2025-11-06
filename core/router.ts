@@ -160,7 +160,7 @@ export function parsePopups(hash: string): PopupRoute[] {
   for (let part of parts) {
     let [popup, param] = part.split('=', 2)
     if (checkPopupName(popup) && param) {
-      popups.push({ param, popup })
+      popups.push({ param: decodeURIComponent(param), popup })
     }
   }
   return popups
@@ -212,7 +212,7 @@ export function isOtherRoute(route: Route): boolean {
  */
 export function stringifyPopups(popups: PopupRoute[]): string {
   return popups
-    .map(({ param, popup }) => `${popup}=${param}`)
+    .map(({ param, popup }) => `${popup}=${encodeURIComponent(param)}`)
     .filter(i => i !== '')
     .join(',')
 }
@@ -222,7 +222,7 @@ export function addPopup(
   popup: PopupName,
   param: string
 ): string {
-  let add = `${popup}=${param}`
+  let add = `${popup}=${encodeURIComponent(param)}`
   return hash === '' ? add : `${hash},${add}`
 }
 
