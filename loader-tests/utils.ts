@@ -3,11 +3,13 @@ import './dom-parser.ts'
 import {
   createDownloadTask,
   enableTestTime,
+  generateCredentials,
   getLoaderForText,
   pages,
+  type RouteName,
   setRequestMethod,
   setupEnvironment,
-  userId,
+  useCredentials,
   waitLoading
 } from '@slowreader/core'
 import { getTestEnvironment, setBaseTestRoute } from '@slowreader/core/test'
@@ -36,11 +38,11 @@ export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
-export function enableTestClient(): void {
+export function enableTestClient(route: RouteName = 'home'): void {
   setupEnvironment(getTestEnvironment())
   enableTestTime()
-  userId.set('10')
-  setBaseTestRoute({ params: {}, route: 'home' })
+  useCredentials(generateCredentials())
+  setBaseTestRoute({ params: {}, route })
   setRequestMethod(fetch)
 }
 
