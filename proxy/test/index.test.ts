@@ -182,6 +182,15 @@ test('clears cookie headers', async () => {
 })
 
 test('checks Origin', async () => {
+  let options = await fetch(`${proxyUrl}/${targetUrl}`, {
+    headers: {
+      Origin: 'http://test.app'
+    },
+    method: 'OPTIONS'
+  })
+  equal(options.status, 204)
+  equal(options.headers.get('access-control-allow-origin'), 'http://test.app')
+
   let response1 = await request(targetUrl, {
     headers: { Origin: 'http://test.app' }
   })

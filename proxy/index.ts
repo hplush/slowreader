@@ -24,6 +24,15 @@ export const DEFAULT_PROXY_CONFIG: Omit<ProxyConfig, 'allowsFrom'> = {
   timeout: 2500
 }
 
+function allowCors(res: ServerResponse, origin: string): void {
+  res.setHeader('Access-Control-Allow-Headers', '*')
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'OPTIONS, POST, GET, PUT, DELETE'
+  )
+  res.setHeader('Access-Control-Allow-Origin', origin)
+}
+
 export function createProxy(
   config: ProxyConfig
 ): (req: IncomingMessage, res: ServerResponse) => void {
@@ -42,14 +51,16 @@ export function createProxy(
     }
     /* node:coverage enable */
 
+    if (req.method === 'OPTIONS' && req.headers.origin) {
+      allowCors(res, req.headers.origin)
+      res.setHeader('Access-Control-Max-Age', '600')
+      res.writeHead(204)
+      return res.end()
+    }
+
     try {
       if (req.headers.origin) {
-        res.setHeader('Access-Control-Allow-Headers', '*')
-        res.setHeader(
-          'Access-Control-Allow-Methods',
-          'OPTIONS, POST, GET, PUT, DELETE'
-        )
-        res.setHeader('Access-Control-Allow-Origin', req.headers.origin)
+        allowCors(res, req.headers.origin)
       }
 
       let url = decodeURIComponent(req.url!.slice(1).replace(/^proxy\//, ''))
