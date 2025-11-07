@@ -39,9 +39,18 @@ export type AddLinksValue = Record<
 >
 
 function isValidDomain(url: string): boolean {
-  // Heuristic for https→http check, so we don’t need to be 100% accurate
+  // Heuristic for https→http check, so we don't need to be 100% accurate
   let parsed = new URL(url)
   return /\w+\.\w\w\w*/.test(parsed.hostname)
+}
+
+function normalizeUrl(url: string): string {
+  return url.replace(/\/$/, '')
+}
+
+function findSimilarUrl(links: AddLinksValue, url: string): string | undefined {
+  let normalized = normalizeUrl(url)
+  return Object.keys(links).find(i => normalizeUrl(i) === normalized)
 }
 
 export const addPage = createPage('add', () => {
@@ -203,7 +212,7 @@ export const addPage = createPage('add', () => {
       }
     }
 
-    if ($links.get()[url]) return
+    if (findSimilarUrl($links.get(), url)) return
 
     if (!URL.canParse(url)) {
       $links.setKey(url, { error: 'invalidUrl', state: 'invalid' })
