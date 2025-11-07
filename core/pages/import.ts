@@ -25,13 +25,13 @@ async function readFile(file: File): Promise<false | string> {
   })
 }
 
-type FeedError = 'exists' | 'unknown' | 'unloadable'
+type FeedError = 'exists' | 'noFeeds' | 'unknown' | 'unloadable'
 
 export const importPage = createPage('import', () => {
   let $importing = atom<false | number | true>(false)
-  let $fileError = atom<'brokenFile' | 'cannotRead' | 'unknownFormat' | false>(
-    false
-  )
+  let $fileError = atom<
+    'brokenFile' | 'cannotRead' | 'noFeeds' | 'unknownFormat' | false
+  >(false)
   let $feedErrors = atom<[string, FeedError][]>([])
   let $done = atom<false | number>(false)
   let $lastAdded = atom('')
@@ -60,6 +60,10 @@ export const importPage = createPage('import', () => {
   async function importOpml(doc: Document): Promise<void> {
     let outlines = doc.getElementsByTagName('outline')
     let links = [...outlines].filter(i => i.getAttribute('xmlUrl'))
+    if (links.length === 0) {
+      $fileError.set('noFeeds')
+      return
+    }
     let task = createDownloadTask()
     let done = startProgress(links.length)
 
@@ -160,7 +164,6 @@ export const importPage = createPage('import', () => {
       return
     }
 
-    let hasError = false
     if (ext === 'opml' || ext === 'xml') {
       let parser = new DOMParser()
       let doc = parser.parseFromString(content, 'text/xml')
@@ -168,7 +171,6 @@ export const importPage = createPage('import', () => {
         await importOpml(doc)
       } else {
         $fileError.set('brokenFile')
-        hasError = true
       }
     } else if (ext === 'json') {
       let json
@@ -177,17 +179,15 @@ export const importPage = createPage('import', () => {
       } catch {}
       if (!json || !isStateExportFile(json)) {
         $fileError.set('brokenFile')
-        hasError = true
       } else {
         await importState(json)
       }
     } else {
       $fileError.set('unknownFormat')
-      hasError = true
     }
 
     $importing.set(false)
-    if (added > 0 || !hasError) {
+    if (!$fileError.get()) {
       $done.set(added)
     }
   }

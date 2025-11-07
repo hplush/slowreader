@@ -245,6 +245,21 @@ test('is ready for unknown XML', async () => {
   equal(page.done.get(), false)
 })
 
+test('is ready for OPML without feeds', async () => {
+  let page = openPage({
+    params: {},
+    route: 'import'
+  })
+  let emptyOpml =
+    '<?xml version="1.0" encoding="UTF-8"?>' +
+    '<opml version="2.0"><body></body></opml>'
+  page.importFile(file('opml', emptyOpml))
+  await waitLoading(page.importing)
+  equal(page.fileError.get(), 'noFeeds')
+  deepEqual(page.feedErrors.get(), [])
+  equal(page.done.get(), false)
+})
+
 test('tracks done count after state JSON import', async () => {
   let FEED2 = testFeed({ url: 'https://a.com/atom' })
   await addCategory(CATEGORY)
