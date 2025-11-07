@@ -208,6 +208,10 @@ test('checks Origin', async () => {
   })
   equal(referer.status, 200)
   equal(referer.headers.get('access-control-allow-origin'), null)
+
+  let error = await request(targetUrl + '?big=file', {})
+  equal(error.status, 413)
+  equal(error.headers.get('access-control-allow-origin'), 'http://test.app')
 })
 
 test('sends user IP to destination', async () => {

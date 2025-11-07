@@ -43,6 +43,15 @@ export function createProxy(
     /* node:coverage enable */
 
     try {
+      if (req.headers.origin) {
+        res.setHeader('Access-Control-Allow-Headers', '*')
+        res.setHeader(
+          'Access-Control-Allow-Methods',
+          'OPTIONS, POST, GET, PUT, DELETE'
+        )
+        res.setHeader('Access-Control-Allow-Origin', req.headers.origin)
+      }
+
       let url = decodeURIComponent(req.url!.slice(1).replace(/^proxy\//, ''))
       let parsedUrl = new URL(url)
 
@@ -95,15 +104,6 @@ export function createProxy(
       }
       if (length && length > config.maxSize) {
         throw new BadRequestError('Response too large', 413)
-      }
-
-      if (req.headers.origin) {
-        res.setHeader('Access-Control-Allow-Headers', '*')
-        res.setHeader(
-          'Access-Control-Allow-Methods',
-          'OPTIONS, POST, GET, PUT, DELETE'
-        )
-        res.setHeader('Access-Control-Allow-Origin', req.headers.origin)
       }
 
       res.writeHead(targetResponse.status, {
