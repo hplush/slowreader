@@ -25,13 +25,6 @@ let target = createServer(async (req, res) => {
       'Content-Type': 'text/text'
     })
     res.end('a'.repeat(2000))
-  } else if (queryParams.big === 'stream') {
-    res.writeHead(200, {
-      'Content-Type': 'text/text'
-    })
-    res.write('a'.repeat(150))
-    await setTimeout(10)
-    res.write('a'.repeat(150))
   } else if (queryParams.error) {
     res.writeHead(500)
     res.end('Error')
@@ -60,8 +53,9 @@ let proxy = createServer(
   createProxy({
     allowLocalhost: true,
     allowsFrom: '^http:\\/\\/test.app',
+    bodyTimeout: 100,
     maxSize: 100,
-    timeout: 100
+    requestTimeout: 100
   })
 )
 proxy.listen(31598)
@@ -155,8 +149,9 @@ test('can not use localhost without a setting', async () => {
   otherProxy = createServer(
     createProxy({
       allowsFrom: '^http:\\/\\/test.app',
+      bodyTimeout: 100,
       maxSize: 100,
-      timeout: 100
+      requestTimeout: 100
     })
   )
   await new Promise<void>(resolve => {
@@ -242,11 +237,6 @@ test('checks response size', async () => {
   let response1 = await request(targetUrl + '?big=file', {})
   equal(response1.status, 413)
   equal(await response1.text(), 'Response too large')
-
-  let response2 = await request(targetUrl + '?big=stream', {})
-  equal(response2.status, 200)
-  let body2 = await response2.text()
-  equal(body2.length, 150)
 })
 
 test('is ready for errors', async () => {

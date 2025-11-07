@@ -1,5 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { isIP } from 'node:net'
+import { Readable } from 'node:stream'
+import { pipeline } from 'node:stream/promises'
 import { styleText } from 'node:util'
 
 class BadRequestError extends Error {
@@ -15,13 +17,15 @@ class BadRequestError extends Error {
 export interface ProxyConfig {
   allowLocalhost?: boolean
   allowsFrom: string
+  bodyTimeout: number
   maxSize: number
-  timeout: number
+  requestTimeout: number
 }
 
 export const DEFAULT_PROXY_CONFIG: Omit<ProxyConfig, 'allowsFrom'> = {
+  bodyTimeout: 10000,
   maxSize: 10 * 1024 * 1024,
-  timeout: 2500
+  requestTimeout: 2500
 }
 
 function allowCors(res: ServerResponse, origin: string): void {
@@ -106,7 +110,7 @@ export function createProxy(
           'X-Forwarded-For': req.socket.remoteAddress!
         },
         method: req.method,
-        signal: AbortSignal.timeout(config.timeout)
+        signal: AbortSignal.timeout(config.requestTimeout)
       })
 
       let length: number | undefined
@@ -123,20 +127,12 @@ export function createProxy(
       })
       sent = true
 
-      let size = 0
       if (targetResponse.body) {
-        let reader = targetResponse.body.getReader()
-        let chunk: ReadableStreamReadResult<Uint8Array>
-        do {
-          chunk = await reader.read()
-          if (chunk.value) {
-            res.write(chunk.value)
-            size += chunk.value.length
-            if (size > config.maxSize) {
-              break
-            }
-          }
-        } while (!chunk.done)
+        // @ts-expect-error Until Node.js types are broken
+        let nodeStream = Readable.fromWeb(targetResponse.body)
+        await pipeline(nodeStream, res, {
+          signal: AbortSignal.timeout(config.bodyTimeout)
+        })
       }
       res.end()
     } catch (e) {
