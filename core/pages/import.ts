@@ -135,6 +135,7 @@ export const importPage = createPage('import', () => {
       await addFilter(filter)
       done()
     }
+    $total.set(json.feeds.length)
     for (let feed of json.feeds) {
       if (!(await feedExists(feed.url))) {
         await addFeed(feed)
