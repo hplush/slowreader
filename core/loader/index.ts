@@ -75,7 +75,7 @@ export function getLoaderForText(response: TextResponse): false | FeedLoader {
         return {
           loader: loaders[name],
           name,
-          title: title.trim(),
+          title: title.trim() || parsed.hostname,
           url: response.url
         }
       }

@@ -250,7 +250,7 @@ test('is ready for empty title', async () => {
     {
       loader: loaders.atom,
       name: 'atom',
-      title: '',
+      title: 'other.com',
       url: 'https://other.com/atom'
     }
   ])
@@ -311,7 +311,7 @@ test('looks for popular RSS, Atom and JsonFeed places', async () => {
     {
       loader: loaders.atom,
       name: 'atom',
-      title: '',
+      title: 'example.com',
       url: 'https://example.com/atom'
     }
   ])
@@ -477,7 +477,7 @@ test('starts from HTTPS and then try HTTP', async () => {
     {
       loader: loaders.atom,
       name: 'atom',
-      title: '',
+      title: 'example.com',
       url: 'http://example.com/feed'
     }
   ])

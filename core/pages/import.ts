@@ -104,7 +104,7 @@ export const importPage = createPage('import', () => {
       } else {
         await addCandidate(
           candidate,
-          { categoryId, title: title ?? candidate.title },
+          { categoryId, title: title || candidate.title },
           task,
           response
         )
