@@ -1,52 +1,27 @@
-import { createTextResponse } from '@slowreader/core'
+import { importMessages, pages, waitLoading } from '@slowreader/core'
 
 import {
-  completeTasks,
   createCLI,
   enableTestClient,
   error,
   fetchAndParsePosts,
-  findRSSfromHome,
   finish,
   initializeProgressBar,
-  isString,
-  type LoaderTestFeed as OpmlFeed,
   readText
 } from './utils.ts'
 
-async function parseFeedsFromFile(path: string): Promise<OpmlFeed[]> {
-  if (!path.endsWith('.opml') && !path.endsWith('.xml')) {
-    error(`Unsupported file extension found on ${path}`)
-    process.exit(1)
-  }
-  let text = createTextResponse(await readText(path))
-  return [...text.parseXml()!.querySelectorAll('[type="rss"]')]
-    .filter(feed => isString(feed.getAttribute('xmlUrl')))
-    .map(
-      f =>
-        ({
-          homeUrl: f.getAttribute('htmlUrl')!,
-          title: f.getAttribute('title') || '',
-          url: f.getAttribute('xmlUrl')!
-        }) as OpmlFeed
-    )
-}
-
 let cli = createCLI(
   'Test all feeds from user OPML',
-  '$ pnpm check-opml PATH_TO_YOUR_FILE.opml\n' +
-    '$ pnpm check-opml PATH_TO_YOUR_FILE.opml --home'
+  '$ pnpm check-opml PATH_TO_YOUR_FILE.opml'
 )
 
 cli.run(async args => {
-  enableTestClient()
+  enableTestClient('import')
+  let page = pages.import()
 
   let opmlFile: string | undefined
-  let home = false
   for (let arg of args) {
-    if (arg === '--home') {
-      home = true
-    } else if (!opmlFile) {
+    if (!opmlFile) {
       opmlFile = arg
     } else {
       cli.wrongArg('Unknown argument: ' + arg)
@@ -59,17 +34,41 @@ cli.run(async args => {
     return
   }
 
-  let feeds = await parseFeedsFromFile(opmlFile)
-  initializeProgressBar(home ? feeds.length * 2 : feeds.length)
+  let content = await readText(opmlFile)
+  let file = new File([content], opmlFile, { type: 'application/xml' })
 
-  await completeTasks(
-    feeds.map(feed => () => fetchAndParsePosts(feed.url, true))
-  )
-  if (home) {
-    for (let feed of feeds) {
-      await findRSSfromHome(feed)
+  function checkDone(): void {
+    let done = page.done.get()
+    if (done !== false) {
+      finish(`${done} ${done === 1 ? 'feed' : 'feeds'} tested successfully`)
     }
   }
 
-  finish(`${feeds.length} ${feeds.length === 1 ? 'feed' : 'feeds'} checked`)
+  let unbindTotal = page.total.listen(all => {
+    initializeProgressBar(all)
+    unbindTotal()
+  })
+  let unbindLastAdded = page.lastAdded.listen(async url => {
+    await fetchAndParsePosts(url, true)
+    checkDone()
+  })
+
+  let unbindFeedErrors = page.feedErrors.listen(list => {
+    let last = list[list.length - 1]
+    if (last) {
+      error(importMessages.get()[`${last[1]}Error`], last[0])
+      checkDone()
+    }
+  })
+
+  page.importFile(file)
+  await waitLoading(page.importing)
+  unbindLastAdded()
+  unbindFeedErrors()
+
+  let fileError = page.fileError.get()
+  if (fileError) {
+    error(importMessages.get()[`${fileError}Error`])
+    finish('Import failed')
+  }
 })

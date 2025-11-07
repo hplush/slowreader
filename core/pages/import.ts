@@ -34,9 +34,12 @@ export const importPage = createPage('import', () => {
   )
   let $feedErrors = atom<[string, FeedError][]>([])
   let $done = atom<false | number>(false)
+  let $lastAdded = atom('')
+  let $total = atom(0)
   let added = 0
 
   function startProgress(all: number): () => void {
+    $total.set(all)
     let completed = 0
     $importing.set(0)
     return () => {
@@ -101,6 +104,7 @@ export const importPage = createPage('import', () => {
           task,
           response
         )
+        $lastAdded.set(candidate.url)
         added++
       }
 
@@ -195,7 +199,9 @@ export const importPage = createPage('import', () => {
     fileError: $fileError,
     importFile,
     importing: $importing,
-    params: {}
+    lastAdded: $lastAdded,
+    params: {},
+    total: $total
   }
 })
 
