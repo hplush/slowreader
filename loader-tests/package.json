@@ -7,11 +7,11 @@
     "pnpm": "^10.0.0"
   },
   "scripts": {
-    "check-opml": "tsx check-opml.ts",
+    "check-opml": "node check-opml.ts",
     "test": "node --run test:online:loaders",
-    "url": "tsx url.ts",
-    "home": "tsx home.ts",
-    "test:online:loaders": "tsx test-loaders.ts"
+    "url": "node url.ts",
+    "home": "node home.ts",
+    "test:online:loaders": "node test-loaders.ts"
   },
   "devDependencies": {
     "@slowreader/core": "workspace:*",
@@ -19,7 +19,6 @@
     "eslint": "9.38.0",
     "jsdom": "27.0.1",
     "nanostores": "1.0.1",
-    "tsx": "4.20.6",
     "yaml": "2.8.1"
   }
 }
