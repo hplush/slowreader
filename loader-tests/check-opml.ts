@@ -1,4 +1,11 @@
-import { importMessages, pages, waitLoading } from '@slowreader/core'
+import {
+  importMessages,
+  pages,
+  setRequestMethod,
+  waitLoading
+} from '@slowreader/core'
+import { createProxy, DEFAULT_PROXY_CONFIG } from '@slowreader/proxy'
+import { createServer } from 'node:http'
 
 import {
   createCLI,
@@ -16,12 +23,12 @@ let cli = createCLI(
 )
 
 cli.run(async args => {
-  enableTestClient('import')
-  let page = pages.import()
-
   let opmlFile: string | undefined
+  let proxy = true
   for (let arg of args) {
-    if (!opmlFile) {
+    if (arg === '--no-proxy') {
+      proxy = false
+    } else if (!opmlFile) {
       opmlFile = arg
     } else {
       cli.wrongArg('Unknown argument: ' + arg)
@@ -34,6 +41,36 @@ cli.run(async args => {
     return
   }
 
+  enableTestClient('import')
+
+  let server: ReturnType<typeof createServer> | undefined
+  if (proxy) {
+    let proxyHandler = createProxy({
+      ...DEFAULT_PROXY_CONFIG,
+      allowsFrom: 'localhost'
+    })
+    server = createServer(proxyHandler)
+    server.listen(8001)
+
+    setRequestMethod(async (url, opts = {}) => {
+      let originUrl = url
+      let nextUrl = 'http://localhost:8001/' + encodeURIComponent(url)
+      let headers = opts.headers as object | undefined
+      let response = await fetch(nextUrl, {
+        headers: {
+          Origin: 'http://localhost:8000',
+          ...(headers ?? {})
+        },
+        ...opts
+      })
+      Object.defineProperty(response, 'url', {
+        value: originUrl
+      })
+      return response
+    })
+  }
+
+  let page = pages.import()
   let content = await readText(opmlFile)
   let file = new File([content], opmlFile, { type: 'application/xml' })
 
@@ -41,6 +78,7 @@ cli.run(async args => {
     let done = page.done.get()
     if (done !== false) {
       finish(`${done} ${done === 1 ? 'feed' : 'feeds'} tested successfully`)
+      if (server) server.close()
     }
   }
 
@@ -70,5 +108,6 @@ cli.run(async args => {
   if (fileError) {
     error(importMessages.get()[`${fileError}Error`])
     finish('Import failed')
+    if (server) server.close()
   }
 })

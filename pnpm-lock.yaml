@@ -197,6 +197,9 @@ importers:
       '@slowreader/core':
         specifier: workspace:*
         version: link:../core
+      '@slowreader/proxy':
+        specifier: workspace:*
+        version: link:../proxy
       '@types/jsdom':
         specifier: 27.0.0
         version: 27.0.0
