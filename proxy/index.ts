@@ -25,7 +25,7 @@ export interface ProxyConfig {
 export const DEFAULT_PROXY_CONFIG: Omit<ProxyConfig, 'allowsFrom'> = {
   bodyTimeout: 10000,
   maxSize: 10 * 1024 * 1024,
-  requestTimeout: 2500
+  requestTimeout: 10000
 }
 
 function allowCors(res: ServerResponse, origin: string): void {
