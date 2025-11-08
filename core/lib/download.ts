@@ -49,6 +49,10 @@ function detectType(text: string): string | undefined {
   }
 }
 
+function fixPopularIssues(text: string): string {
+  return text.replace(/^\s+<\?xml /i, '<?xml ')
+}
+
 export function createTextResponse(
   text: string,
   other: Partial<Omit<TextResponse, 'ok' | 'text'>> = {}
@@ -99,7 +103,8 @@ export function createTextResponse(
           contentType === 'application/xml' ||
           contentType === 'text/xml'
         ) {
-          bodyCache = new DOMParser().parseFromString(text, contentType)
+          let fixed = fixPopularIssues(text)
+          bodyCache = new DOMParser().parseFromString(fixed, contentType)
         } else {
           getEnvironment().warn('Unknown content type: ' + contentType)
           return null

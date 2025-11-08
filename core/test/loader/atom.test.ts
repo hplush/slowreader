@@ -253,7 +253,7 @@ test('detects content type by content', () => {
   )
 })
 
-test('detects tyupe', () => {
+test('detects type', () => {
   equal(loaders.atom.isMineText(exampleAtom('<feed></feed>')), '')
   equal(
     loaders.atom.isMineText(
@@ -271,6 +271,20 @@ test('detects tyupe', () => {
       exampleAtom('<unknown><title>No</title></unknown>')
     ),
     false
+  )
+})
+
+test('detects popular XML mistakes', () => {
+  equal(
+    loaders.atom.isMineText(
+      exampleAtom(
+        `\r\n\r\n<?xml version="1.0" encoding="utf-8"?>
+        <feed xmlns="http://www.w3.org/2005/Atom">
+          <title>Space before XML</title>
+        </feed>`
+      )
+    ),
+    'Space before XML'
   )
 })
 
