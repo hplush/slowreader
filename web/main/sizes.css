@@ -37,6 +37,7 @@
   @media (--mobile) {
     --thin-content-width: calc(100vw - 2 * var(--page-padding));
     --popup-size: 100vw;
+    --control-height: 2.25rem;
   }
 }
 
