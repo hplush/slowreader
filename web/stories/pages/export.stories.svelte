@@ -27,3 +27,14 @@
     <ExportPage page={pages.export()} />
   </Scene>
 </Story>
+
+<Story
+  name="Mobile"
+  asChild
+  globals={{ viewport: { value: 'mobile2' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene route="export">
+    <ExportPage page={pages.export()} />
+  </Scene>
+</Story>
