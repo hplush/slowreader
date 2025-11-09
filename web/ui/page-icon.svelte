@@ -33,9 +33,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       min-width: 10rem;
-      min-height: 40vh;
+      margin-top: 10vh;
       color: --tune-background(--placeholder);
     }
 
