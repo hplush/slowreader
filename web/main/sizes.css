@@ -8,7 +8,7 @@
   --slider-padding: 0.125rem;
   --page-padding: 1rem;
   --navbar-padding: 0.3125rem;
-  --navbar-height: 2.62rem;
+  --navbar-height: calc(var(--control-height) + 2 * var(--navbar-padding));
   --min-size: 1px;
   --navbar-width: 0px;
   --popup-size: calc((100vw - var(--navbar-width)) / 2);
@@ -24,7 +24,6 @@
   @media (--no-desktop) {
     --page-padding: 0.5rem;
     --navbar-padding: 0.5rem;
-    --navbar-height: 3rem;
 
     &.has-navbar {
       --navbar-width: 0px;
