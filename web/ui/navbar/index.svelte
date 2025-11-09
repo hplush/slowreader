@@ -216,7 +216,7 @@
         width: calc(var(--thin-content-width) + 2 * var(--page-padding));
         max-width: 100%;
         height: var(--navbar-height);
-        padding-inline: var(--page-padding);
+        padding-inline: 1rem;
       }
     }
 
