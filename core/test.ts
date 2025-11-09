@@ -29,9 +29,15 @@ export function setBaseTestRoute(
 
 export function getTestEnvironment(): EnvironmentAndStore {
   testSession = undefined
+  let persistentStore: Record<string, string> = {}
 
   return {
     baseRouter: testRouter,
+    cleanStorage() {
+      for (let key in persistentStore) {
+        delete persistentStore[key]
+      }
+    },
     errorEvents: { addEventListener() {} },
     getSession() {
       return testSession
@@ -47,7 +53,7 @@ export function getTestEnvironment(): EnvironmentAndStore {
       setBaseTestRoute({ ...route, hash: stringifyPopups(route.popups) })
     },
     persistentEvents: { addEventListener() {}, removeEventListener() {} },
-    persistentStore: {},
+    persistentStore,
     restartApp() {},
     saveFile() {},
     savePassword() {

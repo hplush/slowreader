@@ -100,6 +100,8 @@ export async function signOut(): Promise<void> {
   hasPassword.set(false)
   encryptionKey.set(undefined)
   syncServer.set(undefined)
-  getEnvironment().saveSession(undefined)
-  getEnvironment().restartApp()
+  let env = getEnvironment()
+  env.saveSession(undefined)
+  env.cleanStorage()
+  env.restartApp()
 }

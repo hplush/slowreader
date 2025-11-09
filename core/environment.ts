@@ -65,6 +65,12 @@ export interface Environment {
   baseRouter: BaseRouter
 
   /**
+   * Clean log and settings store from all data. It will be called on exit
+   * or profile deletion.
+   */
+  cleanStorage(): void
+
+  /**
    * Object like `window` in web or `process` in Node.js to track unhandled
    * errors.
    *
@@ -177,6 +183,7 @@ export function setupEnvironment<Router extends BaseRouter>(
   setPersistentEngine(env.persistentStore, env.persistentEvents)
   currentEnvironment = {
     baseRouter: env.baseRouter,
+    cleanStorage: env.cleanStorage,
     errorEvents: env.errorEvents,
     getSession: env.getSession,
     locale: env.locale,

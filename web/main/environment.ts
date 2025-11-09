@@ -65,6 +65,9 @@ mobileMedia.subscribe(value => {
 
 setupEnvironment({
   baseRouter: urlRouter,
+  cleanStorage() {
+    localStorage.clear()
+  },
   errorEvents: window,
   getSession() {
     // Browser will use session from http-only cookie
