@@ -231,7 +231,8 @@
       }
 
       .button.is-big & {
-        padding: 0.75rem 0.625rem;
+        min-height: calc(1.3 * var(--control-height));
+        padding-inline: 0.625rem;
       }
 
       .button.is-pill & {
