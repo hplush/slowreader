@@ -9,6 +9,8 @@ packages:
 
 forceLegacyDeploy: true
 
+trustPolicy: no-downgrade
+
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - 'postcss-smooth-shadow'

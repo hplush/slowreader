@@ -24,7 +24,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@electric-sql/pglite": "0.3.11",
+    "@electric-sql/pglite": "0.3.14",
     "@logux/actions": "0.5.0",
     "@logux/server": "0.14.0",
     "@slowreader/api": "workspace:*",
@@ -40,7 +40,7 @@
     "@logux/client": "0.22.2",
     "better-node-test": "0.8.3",
     "drizzle-kit": "0.31.6",
-    "eslint": "9.38.0",
+    "eslint": "9.39.1",
     "prettier": "3.6.2"
   }
 }

@@ -15,6 +15,6 @@
   },
   "devDependencies": {
     "@logux/core": "0.10.0",
-    "eslint": "9.38.0"
+    "eslint": "9.39.1"
   }
 }
