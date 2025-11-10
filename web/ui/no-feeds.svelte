@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiPackageVariant } from '@mdi/js'
+  import { mdiImport, mdiPackageVariant, mdiPlusCircleOutline } from '@mdi/js'
   import { organizeMessages as t } from '@slowreader/core'
 
   import { getURL } from '../stores/url-router.ts'
@@ -12,8 +12,10 @@
   <Stack>
     {$t.emptyText}
     <Stack gap="s" row>
-      <Button href={getURL('add')}>{$t.emptyAdd}</Button>
-      <Button href={getURL('import')}>{$t.emptyImport}</Button>
+      <Button href={getURL('add')} icon={mdiPlusCircleOutline}
+        >{$t.emptyAdd}</Button
+      >
+      <Button href={getURL('import')} icon={mdiImport}>{$t.emptyImport}</Button>
     </Stack>
   </Stack>
 </PageIcon>
