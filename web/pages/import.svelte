@@ -27,7 +27,7 @@
 </script>
 
 <ThinPage title={[$t.title, $organizeMessages.feedsTitle]}>
-  <Stack align="center" gap="xl">
+  <Stack align="center" gap="xxl">
     {#if typeof $done === 'number'}
       <PageIcon path={mdiCheckCircleOutline}>
         <Stack align="center" gap="l">
