@@ -18,6 +18,7 @@ minimumReleaseAgeExclude:
   - '@logux/*'
   - 'browserslist'
   - 'caniuse-lite'
+  - 'autoprefixer'
 
 onlyBuiltDependencies:
   - husky
