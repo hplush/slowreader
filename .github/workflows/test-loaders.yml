@@ -38,4 +38,4 @@ jobs:
       - name: Initialize Node.js
         uses: ./.github/actions/init-node
       - name: Run tests
-        run: node --run test-loaders
+        run: cd loader-tests && node --run test
