@@ -4,7 +4,7 @@
 // by `pnpm update-env --major` argument. You can specify version `--major 22`.
 //
 // If you change script and need to update result without new Node.js version
-// run it with `pnpm update-env --major` argument.
+// run it with `pnpm update-env --force` argument.
 
 import { createHash } from 'node:crypto'
 import { globSync, readFileSync, writeFileSync } from 'node:fs'
@@ -50,7 +50,7 @@ async function getLatestPnpmVersion(): Promise<string> {
   let response = await fetch(
     'https://api.github.com/repos/pnpm/pnpm/releases/latest'
   )
-  let data = (await response.json()) as { tag_name: string }
+  let data: { tag_name: string } = await response.json()
   return data.tag_name.slice(1)
 }
 
