@@ -16,8 +16,6 @@
     "format": "pnpm run -r --include-workspace-root /^format:/",
     "clean": "pnpm run -r --include-workspace-root /^clean:/",
     "build": "pnpm run -r build",
-    "check-opml": "tsx loader-tests/check-opml.ts",
-    "test-loaders": "tsx loader-tests/test-loaders.ts loader-tests/feeds.yml",
     "unused-messages": "node scripts/check-unused-messages.ts",
     "update-env": "node ./scripts/update-env.ts",
     "update-ci": "node --env-file-if-exists=.env node_modules/actions-up/bin/actions-up.js",
@@ -65,7 +63,6 @@
     "svelte-check": "4.3.3",
     "svelte-eslint-parser": "1.4.0",
     "svgo": "4.0.0",
-    "tsx": "4.20.6",
     "typescript": "5.9.3"
   }
 }
