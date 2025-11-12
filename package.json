@@ -7,7 +7,7 @@
     "node": "^24.11.0",
     "pnpm": "^10.0.0"
   },
-  "packageManager": "pnpm@10.21.0",
+  "packageManager": "pnpm@10.22.0",
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run -r --include-workspace-root /^test:/",
     "quick": "nano-staged --unstaged",
@@ -59,8 +59,8 @@
     "remark-lint-smarty-pants-typography": "1.1.0",
     "remark-validate-links": "13.1.0",
     "stylelint": "16.25.0",
-    "svelte": "5.43.5",
-    "svelte-check": "4.3.3",
+    "svelte": "5.43.6",
+    "svelte-check": "4.3.4",
     "svelte-eslint-parser": "1.4.0",
     "svgo": "4.0.0",
     "typescript": "5.9.3"
