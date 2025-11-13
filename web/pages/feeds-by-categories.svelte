@@ -12,6 +12,7 @@
   import NoFeeds from '../ui/no-feeds.svelte'
   import PopupablePage from '../ui/popupable-page.svelte'
   import Stack from '../ui/stack.svelte'
+  import ThinPage from '../ui/thin-page.svelte'
   import Title from '../ui/title.svelte'
 
   let { page }: { page: FeedsByCategoriesPage } = $props()
@@ -19,10 +20,12 @@
   let { groups, opened } = page
 </script>
 
-<PopupablePage padding title={[$t.byCategoryTitle, $t.feedsTitle]}>
-  {#if $groups.length === 0}
+{#if $groups.length === 0}
+  <ThinPage title={[$t.byCategoryTitle, $t.feedsTitle]}>
     <NoFeeds />
-  {:else}
+  </ThinPage>
+{:else}
+  <PopupablePage padding title={[$t.byCategoryTitle, $t.feedsTitle]}>
     <Stack gap="xl" role="menu">
       {#each $groups as [category, feeds] (category.id)}
         <Stack>
@@ -69,5 +72,5 @@
         </Stack>
       {/each}
     </Stack>
-  {/if}
-</PopupablePage>
+  </PopupablePage>
+{/if}
