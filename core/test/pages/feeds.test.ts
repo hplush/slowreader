@@ -30,16 +30,16 @@ test('redirects', async () => {
     route: 'slow'
   })
   equal(page.params.category.get(), undefined)
-  equal(page.empty.get(), true)
+  equal(page.loading.get(), false)
+  equal(page.posts.get()!.name, 'onboarding')
 
   page = openPage({
     params: {},
     route: 'fast'
   })
   equal(page.params.category.get(), 'general')
-  equal(page.empty.get(), false)
-  await waitLoading(page.loading)
-  equal(page.empty.get(), true)
+  equal(page.loading.get(), false)
+  equal(page.posts.get()!.name, 'onboarding')
 
   let category1 = await addCategory({ title: 'A1' })
   let category2 = await addCategory({ title: 'A2' })
@@ -49,6 +49,25 @@ test('redirects', async () => {
   let feed2 = await addFeed(
     testFeed({ categoryId: category2, reading: 'slow' })
   )
+
+  page = openPage({
+    params: {},
+    route: 'slow'
+  })
+  equal(page.params.category.get(), undefined)
+  equal(page.params.feed.get(), undefined)
+  equal(page.loading.get(), false)
+  equal(page.posts.get()!.name, 'empty')
+
+  page = openPage({
+    params: {},
+    route: 'fast'
+  })
+  equal(page.params.category.get(), category1)
+  equal(page.params.feed.get(), undefined)
+  equal(page.loading.get(), false)
+  equal(page.posts.get()!.name, 'empty')
+
   await addPost(testPost({ feedId: feed2, reading: 'slow' }))
   await addPost(testPost({ feedId: feed1, reading: 'fast' }))
 
@@ -58,7 +77,9 @@ test('redirects', async () => {
   })
   equal(page.params.category.get(), category2)
   equal(page.params.feed.get(), undefined)
-  equal(page.empty.get(), false)
+  equal(page.loading.get(), true)
+  await waitLoading(page.loading)
+  equal(page.posts.get()!.name, 'list')
 
   page = openPage({
     params: {},
@@ -66,8 +87,9 @@ test('redirects', async () => {
   })
   equal(page.params.category.get(), category1)
   equal(page.params.feed.get(), undefined)
+  equal(page.loading.get(), true)
   await waitLoading(page.loading)
-  equal(page.empty.get(), false)
+  equal(page.posts.get()!.name, 'feed')
 })
 
 test('loads readers', async () => {
@@ -75,11 +97,19 @@ test('loads readers', async () => {
     params: {},
     route: 'slow'
   })
-  equal(empty.posts.get(), undefined)
+  await waitLoading(empty.loading)
+  equal(empty.posts.get()?.name, 'onboarding')
 
   let category = await addCategory({ title: '1' })
-
+  let feed = await addFeed(testFeed({ categoryId: category }))
   let slow = openPage({
+    params: { category },
+    route: 'slow'
+  })
+  equal(slow.posts.get()!.name, 'empty')
+
+  await addPost(testPost({ feedId: feed, reading: 'slow' }))
+  slow = openPage({
     params: { category },
     route: 'slow'
   })
@@ -92,6 +122,9 @@ test('loads readers', async () => {
     params: { category },
     route: 'fast'
   })
+  equal(fast.posts.get()!.name, 'empty')
+
+  await addPost(testPost({ feedId: feed, reading: 'fast' }))
   equal(fast.posts.get()!.name, 'feed')
 
   fast.params.reader.set('list')

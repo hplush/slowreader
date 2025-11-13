@@ -6,6 +6,8 @@ import { createReader, loadPosts } from './common.ts'
 const POSTS_PER_PAGE = 50
 
 export const feedReader = createReader('feed', (filter, params) => {
+  if (!filter.categoryId && !filter.feedId) return
+
   let exited = false
   let $loading = atom(true)
   let $list = atom<PostValue[]>([])
@@ -57,4 +59,4 @@ export const feedReader = createReader('feed', (filter, params) => {
   }
 })
 
-export type FeedReader = ReturnType<typeof feedReader>
+export type FeedReader = NonNullable<ReturnType<typeof feedReader>>

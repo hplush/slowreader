@@ -10,6 +10,7 @@ import {
   syncMapTemplate
 } from '@logux/client'
 import { nanoid } from 'nanoid'
+import { atom, onMount } from 'nanostores'
 
 import { getClient } from './client.ts'
 import { createDownloadTask, type TextResponse } from './lib/download.ts'
@@ -125,3 +126,10 @@ export const BROKEN_FEED: FeedValue = {
   title: 'Missed',
   url: ''
 }
+
+export const needOnboarding = atom<boolean | undefined>()
+onMount(needOnboarding, () => {
+  return getFeeds().subscribe(feeds => {
+    needOnboarding.set(feeds.isLoading ? undefined : feeds.isEmpty)
+  })
+})

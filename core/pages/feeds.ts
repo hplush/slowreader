@@ -1,10 +1,14 @@
 import { atom, effect } from 'nanostores'
 
+import { needOnboarding } from '../feed.ts'
 import { fastMenu, menuLoading, slowMenu } from '../menu.ts'
+import { fastPostsCount, slowPostsCount } from '../post.ts'
 import {
   type BaseReader,
+  emptyReader,
   feedReader,
   listReader,
+  onboardingReader,
   type ReaderCreator,
   type ReaderName
 } from '../readers/index.ts'
@@ -18,7 +22,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     let $reader = atom<ReaderName | undefined>()
     let $since = atom<number | undefined>()
     let $loading = atom(true)
-    let $empty = atom(false)
+    let $posts = atom<BaseReader | undefined>()
 
     let params = {
       category: $category,
@@ -27,33 +31,41 @@ let pages = (['slow', 'fast'] as const).map(reading => {
       since: $since
     }
 
-    let unbindRedirect = effect([$category, $feed], (category, feed) => {
-      if (!category && !feed) {
-        if (!menuLoading.get()) {
-          let id: string | undefined
-          if (reading === 'fast') {
-            id = fastMenu.get()[0]?.id
-          } else {
-            id = slowMenu.get()[0]?.[0].id
-            $empty.set(!id)
-          }
-          if (id) {
-            nextRouteIsRedirect(() => {
-              $category.set(id)
-            })
-          }
-        }
-      }
-    })
-
     let prevLoadingUnbind = (): void => {}
     let prevReading: BaseReader | undefined
-    let $posts = atom<BaseReader | undefined>()
     let unbindPosts = effect(
-      [$category, $feed, $reader],
-      (category, feed, reader) => {
+      [
+        $category,
+        $feed,
+        $reader,
+        needOnboarding,
+        fastPostsCount,
+        slowPostsCount
+      ],
+      (category, feed, reader, onboarding, fastCount, slowCount) => {
+        if (!category && !feed) {
+          if (!menuLoading.get()) {
+            let id =
+              reading === 'fast'
+                ? fastMenu.get()[0]?.id
+                : slowMenu.get()[0]?.[0].id
+            if (id) {
+              nextRouteIsRedirect(() => {
+                $category.set(id)
+              })
+            }
+          }
+        }
+
         let readerBuilder: ReaderCreator
-        if (reader === 'feed') {
+        if (onboarding) {
+          readerBuilder = onboardingReader
+        } else if (
+          (reading === 'fast' && fastCount === 0) ||
+          (reading === 'slow' && slowCount === 0)
+        ) {
+          readerBuilder = emptyReader
+        } else if (reader === 'feed') {
           readerBuilder = feedReader
         } else if (reader === 'list') {
           readerBuilder = listReader
@@ -66,19 +78,18 @@ let pages = (['slow', 'fast'] as const).map(reading => {
           instance = readerBuilder({ categoryId: category, reading }, params)
         } else if (feed) {
           instance = readerBuilder({ feedId: feed, reading }, params)
+        } else {
+          instance = readerBuilder({ reading }, params)
         }
 
         prevLoadingUnbind()
         if (instance) {
           prevLoadingUnbind = instance.loading.subscribe(value => {
             $loading.set(value)
-            if (!value && reading === 'fast') {
-              $empty.set(instance.list.get().length === 0)
-            }
           })
         } else {
           prevLoadingUnbind = () => {}
-          $loading.set(false)
+          $loading.set(true)
         }
 
         prevReading?.exit()
@@ -88,11 +99,9 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     )
 
     return {
-      empty: $empty,
       exit() {
         unbindPosts()
         prevReading?.exit()
-        unbindRedirect()
         prevLoadingUnbind()
       },
       loading: $loading,

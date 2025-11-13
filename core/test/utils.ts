@@ -12,12 +12,14 @@ import {
   encryptionKey,
   type EnvironmentAndStore,
   fastMenu,
+  fastPostsCount,
   Feed,
   type FeedReader,
   Filter,
   hasPassword,
   type ListReader,
   menuLoading,
+  needOnboarding,
   openedPopups,
   openPopup,
   type Page,
@@ -27,6 +29,7 @@ import {
   type ReaderName,
   setupEnvironment,
   slowMenu,
+  slowPostsCount,
   userId
 } from '../index.ts'
 import { getTestEnvironment, setBaseTestRoute } from '../test.ts'
@@ -58,7 +61,18 @@ export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
 }
 
 export async function cleanClientTest(): Promise<void> {
-  cleanStores(Feed, Filter, Category, Post, fastMenu, slowMenu, menuLoading)
+  cleanStores(
+    Feed,
+    Filter,
+    Category,
+    Post,
+    fastMenu,
+    slowMenu,
+    menuLoading,
+    needOnboarding,
+    fastPostsCount,
+    slowPostsCount
+  )
   await client.get()?.clean()
   client.set(undefined)
 }

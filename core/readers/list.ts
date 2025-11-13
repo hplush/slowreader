@@ -12,6 +12,8 @@ import { createReader, loadPosts } from './common.ts'
 let POSTS_PER_PAGE = 100
 
 export const listReader = createReader('list', (filter, params) => {
+  if (!filter.categoryId && !filter.feedId) return
+
   let exited = false
   let $loading = atom(true)
   let $list = atom<PostValue[]>([])
@@ -77,4 +79,4 @@ export const listReader = createReader('list', (filter, params) => {
   }
 })
 
-export type ListReader = ReturnType<typeof listReader>
+export type ListReader = NonNullable<ReturnType<typeof listReader>>

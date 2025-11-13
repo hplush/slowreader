@@ -79,22 +79,19 @@ test('loads posts', async () => {
   await promise
 
   await reader.deleteAndNext()
-  equal(reader.list.get().length, 0)
-  equal(reader.hasNext.get(), false)
+  equal(page.posts.get()?.name, 'empty')
 
   page = openPage({
     params: { feed: feed1, reader: 'feed' },
     route: 'fast'
   })
-  reader = ensureReader(page.posts, 'feed')
-  equal(reader.list.get().length, 0)
+  equal(page.posts.get()?.name, 'empty')
 
   page = openPage({
     params: { category: categoryId, reader: 'feed' },
     route: 'fast'
   })
-  reader = ensureReader(page.posts, 'feed')
-  equal(reader.list.get().length, 0)
+  equal(page.posts.get()?.name, 'empty')
 })
 
 test('is ready for the same publishing time', async () => {

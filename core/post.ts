@@ -10,6 +10,7 @@ import {
   syncMapTemplate
 } from '@logux/client'
 import { nanoid } from 'nanoid'
+import { atom, onMount } from 'nanostores'
 
 import { getClient } from './client.ts'
 import { getFeed } from './feed.ts'
@@ -126,3 +127,17 @@ export function testPost(feed: Partial<PostValue> = {}): PostValue {
     ...feed
   }
 }
+
+export const fastPostsCount = atom<number | undefined>(undefined)
+onMount(fastPostsCount, () => {
+  return getPosts({ reading: 'fast' }).subscribe(posts => {
+    fastPostsCount.set(posts.isLoading ? undefined : posts.list.length)
+  })
+})
+
+export const slowPostsCount = atom<number | undefined>(undefined)
+onMount(slowPostsCount, () => {
+  return getPosts({ reading: 'slow' }).subscribe(posts => {
+    slowPostsCount.set(posts.isLoading ? undefined : posts.list.length)
+  })
+})

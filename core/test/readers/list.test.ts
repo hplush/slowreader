@@ -143,13 +143,5 @@ test('loads posts', async () => {
     params: { category: categoryId, reader: 'list' },
     route: 'fast'
   })
-  reader = ensureReader(page.posts, 'list')
-  await waitLoading(page.loading)
-  equal(reader.list.get().length, 0)
-  deepEqual(reader.pages.get(), {
-    count: 0,
-    hasNext: false,
-    page: 0,
-    show: false
-  })
+  equal(page.posts.get()?.name, 'empty')
 })
