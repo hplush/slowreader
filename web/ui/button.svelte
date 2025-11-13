@@ -183,9 +183,8 @@
       }
 
       &.is-plain-secondary {
-        color: var(--text-color);
+        color: var(--secondary-text-color);
         background: transparent;
-        opacity: 50%;
 
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),
