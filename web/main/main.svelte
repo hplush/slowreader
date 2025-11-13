@@ -15,6 +15,7 @@
   import DownloadPage from '../pages/download.svelte'
   import ExportPage from '../pages/export.svelte'
   import FeedByCategoriesPage from '../pages/feeds-by-categories.svelte'
+  import FeedsPage from '../pages/feeds/index.svelte'
   import ImportPage from '../pages/import.svelte'
   import InterfacePage from '../pages/interface.svelte'
   import NotFoundPage from '../pages/not-found.svelte'
@@ -54,6 +55,10 @@
   {#if !globalLoader}
     <BusyPage />
   {/if}
+{:else if $currentPage.route === 'fast'}
+  <FeedsPage page={$currentPage} />
+{:else if $currentPage.route === 'slow'}
+  <FeedsPage page={$currentPage} />
 {:else if $currentPage.route === 'notFound'}
   <NotFoundPage />
 {:else if $currentPage.route === 'add'}

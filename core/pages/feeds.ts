@@ -9,6 +9,7 @@ import {
   feedReader,
   listReader,
   onboardingReader,
+  type Reader,
   type ReaderCreator,
   type ReaderName
 } from '../readers/index.ts'
@@ -22,7 +23,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     let $reader = atom<ReaderName | undefined>()
     let $since = atom<number | undefined>()
     let $loading = atom(true)
-    let $posts = atom<BaseReader | undefined>()
+    let $posts = atom<Reader | undefined>()
 
     let params = {
       category: $category,
@@ -94,7 +95,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
 
         prevReading?.exit()
         prevReading = instance
-        $posts.set(instance)
+        $posts.set(instance as Reader)
       }
     )
 
@@ -112,7 +113,6 @@ let pages = (['slow', 'fast'] as const).map(reading => {
 })
 
 export const slowPage = pages[0]!
-export type SlowPage = ReturnType<typeof slowPage>
-
 export const fastPage = pages[1]!
-export type FastPage = ReturnType<typeof fastPage>
+
+export type FeedsPage = ReturnType<typeof fastPage>
