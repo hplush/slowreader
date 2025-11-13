@@ -51,4 +51,3 @@ build_and_run() {
 
   run_container "$tool" "$port" "$envs" "$IMAGE_ID"
 }
-

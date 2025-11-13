@@ -50,14 +50,10 @@ find . -type f -name Dockerfile -print0 | while IFS= read -r -d $'\0' dockerfile
       current_digest="${image_ref##*@}"
     fi
 
-    if ! $tool pull --quiet "$image_tag_part" > /dev/null 2>&1; then
-      echo -e "  ${WARN}Failed to pull $image_tag_part${NC}"
-    fi
+    latest_digest=$(skopeo inspect "docker://$image_tag_part" --raw 2>/dev/null | sha256sum | awk '{print "sha256:" $1}')
 
-    latest_digest=$($tool image inspect "$image_tag_part" --format '{{.Digest}}' 2>/dev/null)
-
-    if [[ -z "$latest_digest" ]]; then
-      echo -e "  ${BAD}Could not get digest for $image_tag_part${NC}"
+    if [[ -z "$latest_digest" ]] || [[ "$latest_digest" == "sha256:" ]]; then
+      echo -e "  ${BAD}Could not get manifest digest for $image_tag_part${NC}"
       continue
     fi
 
@@ -73,7 +69,7 @@ find . -type f -name Dockerfile -print0 | while IFS= read -r -d $'\0' dockerfile
         made_change_in_file=1
       fi
     else
-      echo -e "  ${NOTE}Already pinned to the latest digest${NC}"
+      echo -e "  ${NOTE}Already pinned to latest manifest digest${NC}"
     fi
   done
   echo ""
