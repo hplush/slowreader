@@ -82,14 +82,14 @@ export type BaseRouter = ReadableAtom<BaseRoute | undefined>
 
 export const FEED_ROUTES = [
   'add',
-  'feedsByCategories'
+  'feedsByCategories',
+  'import',
+  'export'
 ] as const satisfies RouteName[]
 
 export const SETTINGS_ROUTES = [
   'interface',
   'download',
-  'import',
-  'export',
   'profile',
   'about'
 ] as const satisfies RouteName[]
