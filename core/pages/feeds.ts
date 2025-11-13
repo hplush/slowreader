@@ -8,6 +8,7 @@ import {
   type ReaderCreator,
   type ReaderName
 } from '../readers/index.ts'
+import { nextRouteIsRedirect } from '../router.ts'
 import { createPage } from './common.ts'
 
 let pages = (['slow', 'fast'] as const).map(reading => {
@@ -36,7 +37,11 @@ let pages = (['slow', 'fast'] as const).map(reading => {
             id = slowMenu.get()[0]?.[0].id
             $empty.set(!id)
           }
-          if (id) $category.set(id)
+          if (id) {
+            nextRouteIsRedirect(() => {
+              $category.set(id)
+            })
+          }
         }
       }
     })

@@ -16,9 +16,7 @@ import {
   closeMenu,
   fastMenu,
   getClient,
-  getFastDefaultRoute,
   getFeed,
-  getSlowDefaultRoute,
   isMenuOpened,
   menuLoading,
   openCategory,
@@ -266,57 +264,4 @@ test('has sync status', async () => {
   equal(syncStatus.get(), 'local')
 
   unbind()
-})
-
-test('has direct links for navbar', async () => {
-  deepEqual(getFastDefaultRoute(), {
-    params: {},
-    popups: [],
-    route: 'fast'
-  })
-  deepEqual(getSlowDefaultRoute(), {
-    params: {},
-    popups: [],
-    route: 'slow'
-  })
-
-  keepMount(fastMenu)
-  keepMount(slowMenu)
-  equal(menuLoading.get(), true)
-  await waitLoading(menuLoading)
-
-  deepEqual(getFastDefaultRoute(), {
-    params: {
-      category: 'general'
-    },
-    popups: [],
-    route: 'fast'
-  })
-  deepEqual(getSlowDefaultRoute(), {
-    params: {},
-    popups: [],
-    route: 'slow'
-  })
-
-  let idA = await addCategory({ title: 'A' })
-  let idB = await addCategory({ title: 'B' })
-  let feed1 = await addFeed(testFeed({ categoryId: idA, reading: 'slow' }))
-  let feed2 = await addFeed(testFeed({ categoryId: idB, reading: 'fast' }))
-  await addPost(testPost({ feedId: feed1, reading: 'slow' }))
-  await addPost(testPost({ feedId: feed2, reading: 'fast' }))
-  await setTimeout(10)
-  deepEqual(getFastDefaultRoute(), {
-    params: {
-      category: idB
-    },
-    popups: [],
-    route: 'fast'
-  })
-  deepEqual(getSlowDefaultRoute(), {
-    params: {
-      category: idA
-    },
-    popups: [],
-    route: 'slow'
-  })
 })

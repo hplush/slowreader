@@ -14,7 +14,7 @@ import { BROKEN_FEED, type FeedValue, getFeeds } from './feed.ts'
 import { getFilters } from './filter.ts'
 import { onLogAction, onMountAny, waitLoading } from './lib/stores.ts'
 import { getPosts } from './post.ts'
-import { type Route, router } from './router.ts'
+import { router } from './router.ts'
 
 export const isMenuOpened = atom<boolean>(false)
 
@@ -192,22 +192,4 @@ export function busyUntilMenuLoader(): Promise<void> {
   } else {
     return Promise.resolve()
   }
-}
-
-export function getSlowDefaultRoute(): Route {
-  if (!menuLoading.get()) {
-    let category = slowMenu.get()[0]?.[0].id
-    if (category) {
-      return { params: { category }, popups: [], route: 'slow' }
-    }
-  }
-  return { params: {}, popups: [], route: 'slow' }
-}
-
-export function getFastDefaultRoute(): Route {
-  if (!menuLoading.get()) {
-    let category = fastMenu.get()[0]?.id
-    return { params: { category }, popups: [], route: 'fast' }
-  }
-  return { params: {}, popups: [], route: 'fast' }
 }

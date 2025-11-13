@@ -260,3 +260,16 @@ export function closeAllPopups(): void {
     popups: []
   })
 }
+
+export let redirectMode = false
+let nestedRedirect = 0
+
+export async function nextRouteIsRedirect(
+  cb: () => Promise<void> | void
+): Promise<void> {
+  redirectMode = true
+  nestedRedirect += 1
+  await cb()
+  nestedRedirect -= 1
+  if (nestedRedirect === 0) redirectMode = false
+}
