@@ -57,5 +57,3 @@ jobs:
       - name: Run script
         if: steps.should_run.outputs.should_run == 'true'
         run: pnpm unused-messages
-        # TODO: Until we are refactoring web UI
-        continue-on-error: true

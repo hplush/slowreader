@@ -2,7 +2,6 @@ import { i18n } from '../../i18n.ts'
 
 export const organizeMessages = i18n('organize', {
   addFeed: 'Subscribe',
-  addFilter: 'Add filter',
   byCategoryTitle: 'By category',
   category: 'Category',
   categoryName: 'Category name',
@@ -12,7 +11,6 @@ export const organizeMessages = i18n('organize', {
   deleteConform:
     'This will permanently delete the feed, including its statistics and posts. Are you sure?',
   deleteFeed: 'Delete feed',
-  deleteFilter: 'Delete filter',
   emptyAdd: 'Add feeds',
   emptyImport: 'Import RSS feeds',
   emptyText: 'You haven’t subscribed to any feed yet',
@@ -20,15 +18,7 @@ export const organizeMessages = i18n('organize', {
   feedPosts: 'Recent posts',
   feedsTitle: 'Feeds',
   feedUrl: 'Feed URL',
-  filterAction: 'Filter action',
-  filterActionDelete: 'Delete post',
-  filterActionFast: 'Move to Fast reading',
-  filterActionSlow: 'Move to Slow reading',
-  filterQuery: 'Filter query',
-  invalidFilter: 'Invalid filter query',
   morePosts: 'More posts',
-  moveFilterDown: 'Move down',
-  moveFilterUp: 'Move up',
   renameCategory: 'Rename category',
   slow: 'Useful',
   title: 'Feed name',

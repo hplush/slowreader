@@ -33,7 +33,6 @@ export const authMessages = i18n('auth', {
   signupTitle: 'Sign up',
   start: 'Start local app',
   startTitle: 'Start',
-  title: 'No account in this browser yet',
   toEmail: 'Email password to myself',
   userId: 'User ID',
   userIdTaken: 'This User ID is already taken'
