@@ -27,7 +27,7 @@ type FeedStores = {
   [K in keyof FeedParams]-?: WritableAtom<FeedParams[K]>
 }
 
-export type ReaderName = 'empty' | 'feed' | 'list' | 'onboarding'
+export type ReaderName = 'empty' | 'feed' | 'list' | 'welcome'
 
 export interface ReaderCreator<
   Name extends ReaderName = ReaderName,

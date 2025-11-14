@@ -19,7 +19,7 @@ import {
   hasPassword,
   type ListReader,
   menuLoading,
-  needOnboarding,
+  needWelcome,
   openedPopups,
   openPopup,
   type Page,
@@ -69,7 +69,7 @@ export async function cleanClientTest(): Promise<void> {
     fastMenu,
     slowMenu,
     menuLoading,
-    needOnboarding,
+    needWelcome,
     fastPostsCount,
     slowPostsCount
   )

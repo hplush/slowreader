@@ -127,9 +127,9 @@ export const BROKEN_FEED: FeedValue = {
   url: ''
 }
 
-export const needOnboarding = atom<boolean | undefined>()
-onMount(needOnboarding, () => {
+export const needWelcome = atom<boolean | undefined>()
+onMount(needWelcome, () => {
   return getFeeds().subscribe(feeds => {
-    needOnboarding.set(feeds.isLoading ? undefined : feeds.isEmpty)
+    needWelcome.set(feeds.isLoading ? undefined : feeds.isEmpty)
   })
 })

@@ -31,7 +31,7 @@ test('redirects', async () => {
   })
   equal(page.params.category.get(), undefined)
   equal(page.loading.get(), false)
-  equal(page.posts.get()!.name, 'onboarding')
+  equal(page.posts.get()!.name, 'welcome')
 
   page = openPage({
     params: {},
@@ -39,7 +39,7 @@ test('redirects', async () => {
   })
   equal(page.params.category.get(), 'general')
   equal(page.loading.get(), false)
-  equal(page.posts.get()!.name, 'onboarding')
+  equal(page.posts.get()!.name, 'welcome')
 
   let category1 = await addCategory({ title: 'A1' })
   let category2 = await addCategory({ title: 'A2' })
@@ -98,7 +98,7 @@ test('loads readers', async () => {
     route: 'slow'
   })
   await waitLoading(empty.loading)
-  equal(empty.posts.get()?.name, 'onboarding')
+  equal(empty.posts.get()?.name, 'welcome')
 
   let category = await addCategory({ title: '1' })
   let feed = await addFeed(testFeed({ categoryId: category }))

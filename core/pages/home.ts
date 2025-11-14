@@ -1,17 +1,17 @@
 import { atom } from 'nanostores'
 
 import { getEnvironment } from '../environment.ts'
-import { needOnboarding } from '../feed.ts'
+import { needWelcome } from '../feed.ts'
 import { createPage } from './common.ts'
 
 export const homePage = createPage('home', () => {
-  let unbindOnboarding = needOnboarding.subscribe(onboarding => {
-    if (typeof onboarding !== 'undefined') {
+  let unbindWelcome = needWelcome.subscribe(welcome => {
+    if (typeof welcome !== 'undefined') {
       getEnvironment().openRoute(
         {
           params: {},
           popups: [],
-          route: onboarding ? 'welcome' : 'slow'
+          route: welcome ? 'welcome' : 'slow'
         },
         true
       )
@@ -20,7 +20,7 @@ export const homePage = createPage('home', () => {
 
   return {
     exit() {
-      unbindOnboarding()
+      unbindWelcome()
     },
     loading: atom(true),
     params: {}

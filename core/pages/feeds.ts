@@ -1,6 +1,6 @@
 import { atom, effect } from 'nanostores'
 
-import { needOnboarding } from '../feed.ts'
+import { needWelcome } from '../feed.ts'
 import { fastMenu, menuLoading, slowMenu } from '../menu.ts'
 import { fastPostsCount, slowPostsCount } from '../post.ts'
 import {
@@ -8,10 +8,10 @@ import {
   emptyReader,
   feedReader,
   listReader,
-  onboardingReader,
   type Reader,
   type ReaderCreator,
-  type ReaderName
+  type ReaderName,
+  welcomeReader
 } from '../readers/index.ts'
 import { nextRouteIsRedirect } from '../router.ts'
 import { createPage } from './common.ts'
@@ -35,15 +35,8 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     let prevLoadingUnbind = (): void => {}
     let prevReading: BaseReader | undefined
     let unbindPosts = effect(
-      [
-        $category,
-        $feed,
-        $reader,
-        needOnboarding,
-        fastPostsCount,
-        slowPostsCount
-      ],
-      (category, feed, reader, onboarding, fastCount, slowCount) => {
+      [$category, $feed, $reader, needWelcome, fastPostsCount, slowPostsCount],
+      (category, feed, reader, welcome, fastCount, slowCount) => {
         if (!category && !feed) {
           if (!menuLoading.get()) {
             let id =
@@ -59,8 +52,8 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         }
 
         let readerBuilder: ReaderCreator
-        if (onboarding) {
-          readerBuilder = onboardingReader
+        if (welcome) {
+          readerBuilder = welcomeReader
         } else if (
           (reading === 'fast' && fastCount === 0) ||
           (reading === 'slow' && slowCount === 0)
