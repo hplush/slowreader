@@ -36,7 +36,11 @@
     {:else}
       <Button
         icon={mdiTrashCanOutline}
-        onclick={popup.remove}
+        onclick={() => {
+          if (confirm($t.deleteConform)) {
+            popup.remove()
+          }
+        }}
         variant="secondary-dangerous"
       >
         {$t.deleteFeed}
