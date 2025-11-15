@@ -11,9 +11,6 @@ export const organizeMessages = i18n('organize', {
   deleteConform:
     'This will permanently delete the feed, including its statistics and posts. Are you sure?',
   deleteFeed: 'Delete feed',
-  emptyAdd: 'Add feeds',
-  emptyImport: 'Import RSS feeds',
-  emptyText: 'You haven’t subscribed to any feed yet',
   fast: 'Fun',
   feedPosts: 'Recent posts',
   feedsTitle: 'Feeds',

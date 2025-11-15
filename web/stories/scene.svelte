@@ -12,6 +12,7 @@
     type FeedValue,
     Filter,
     hasPassword,
+    needWelcome,
     pages,
     type ParamlessRouteName,
     Post,
@@ -77,6 +78,7 @@
     refreshErrors.set([])
     syncStatus.set('synchronized')
     refreshStatistics.set(DEFAULT_REFRESH_STATISTICS)
+    needWelcome.set(false)
 
     if (typeof route === 'string') {
       baseRouter.set({ hash: '', params: {}, route })

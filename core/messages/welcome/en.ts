@@ -1,6 +1,9 @@
 import { i18n } from '../../i18n.ts'
 
 export const welcomeMessages = i18n('welcome', {
+  emptyAdd: 'Add feeds',
+  emptyImport: 'Import RSS feeds',
+  emptyText: 'You haven’t subscribed to any feed yet',
   fastDesc:
     'Place here deep fun content which you can miss.\n\nFor example: short videos, jokes, news with low signal-to-noise ratio, guilty pleasure.',
   fastEmpty: 'You read all Fun posts',

@@ -1,14 +1,22 @@
 <script lang="ts">
-  import { mdiFireplace, mdiFood } from '@mdi/js'
+  import {
+    mdiFireplace,
+    mdiFood,
+    mdiImport,
+    mdiPlusCircleOutline
+  } from '@mdi/js'
   import {
     feedsMessages,
     welcomeMessages as t,
     type WelcomeReader
   } from '@slowreader/core'
 
+  import { getURL } from '../../stores/url-router.ts'
+  import Button from '../../ui/button.svelte'
   import PageIcon from '../../ui/page-icon.svelte'
   import PopupablePage from '../../ui/popupable-page.svelte'
   import RichText from '../../ui/rich-text.svelte'
+  import Stack from '../../ui/stack.svelte'
 
   let { reader }: { reader: WelcomeReader } = $props()
 </script>
@@ -16,13 +24,33 @@
 {#if reader.reading === 'fast'}
   <PopupablePage title={$feedsMessages.fastTitle}>
     <PageIcon path={mdiFood}>
-      <RichText text={$t.fastDesc} />
+      <Stack gap="l">
+        <RichText text={$t.fastDesc} />
+        <Stack gap="s" row>
+          <Button href={getURL('add')} icon={mdiPlusCircleOutline}
+            >{$t.emptyAdd}</Button
+          >
+          <Button href={getURL('import')} icon={mdiImport}
+            >{$t.emptyImport}</Button
+          >
+        </Stack>
+      </Stack>
     </PageIcon>
   </PopupablePage>
 {:else}
   <PopupablePage title={$feedsMessages.slowTitle}>
     <PageIcon path={mdiFireplace}>
-      <RichText text={$t.slowDesc} />
+      <Stack gap="l">
+        <RichText text={$t.slowDesc} />
+        <Stack gap="s" row>
+          <Button href={getURL('add')} icon={mdiPlusCircleOutline}
+            >{$t.emptyAdd}</Button
+          >
+          <Button href={getURL('import')} icon={mdiImport}
+            >{$t.emptyImport}</Button
+          >
+        </Stack>
+      </Stack>
     </PageIcon>
   </PopupablePage>
 {/if}

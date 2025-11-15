@@ -1,6 +1,6 @@
 <script lang="ts">
   import { mdiImport, mdiPackageVariant, mdiPlusCircleOutline } from '@mdi/js'
-  import { organizeMessages as t } from '@slowreader/core'
+  import { welcomeMessages as t } from '@slowreader/core'
 
   import { getURL } from '../stores/url-router.ts'
   import Button from './button.svelte'
