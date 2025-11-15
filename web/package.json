@@ -52,9 +52,9 @@
     "@logux/stylelint-config": "0.21.0",
     "@size-limit/file": "11.2.0",
     "@storybook/addon-svelte-csf": "5.0.10",
-    "@storybook/addon-themes": "10.0.6",
-    "@storybook/svelte": "10.0.6",
-    "@storybook/svelte-vite": "10.0.6",
+    "@storybook/addon-themes": "10.0.7",
+    "@storybook/svelte": "10.0.7",
+    "@storybook/svelte-vite": "10.0.7",
     "@stylistic/stylelint-config": "3.0.1",
     "@stylistic/stylelint-plugin": "4.0.0",
     "browserslist": "4.28.0",
@@ -64,7 +64,7 @@
     "postcss-nesting": "13.0.2",
     "postcss-selector-parser": "7.1.0",
     "size-limit": "11.2.0",
-    "storybook": "10.0.6",
+    "storybook": "10.0.7",
     "stylelint": "16.25.0",
     "stylelint-use-logical": "2.1.2"
   }
