@@ -100,7 +100,8 @@ let pages = (['slow', 'fast'] as const).map(reading => {
       },
       loading: $loading,
       params,
-      posts: $posts
+      posts: $posts,
+      reading
     }
   })
 })

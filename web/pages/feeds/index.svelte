@@ -1,6 +1,7 @@
 <script lang="ts">
-  import type { FeedsPage } from '@slowreader/core'
+  import { type FeedsPage, feedsMessages as t } from '@slowreader/core'
 
+  import PopupablePage from '../../ui/popupable-page.svelte'
   import FeedsEmptyPage from './empty.svelte'
   import FeedsFeedPage from './feed.svelte'
   import FeedsListPage from './list.svelte'
@@ -10,14 +11,16 @@
   let { posts } = page
 </script>
 
-{#if $posts}
-  {#if $posts.name === 'empty'}
-    <FeedsEmptyPage reader={$posts} />
-  {:else if $posts.name === 'welcome'}
-    <FeedsWelcomePage reader={$posts} />
-  {:else if $posts.name === 'feed'}
-    <FeedsFeedPage reader={$posts} />
-  {:else if $posts.name === 'list'}
-    <FeedsListPage reader={$posts} />
+<PopupablePage title={page.reading === 'slow' ? $t.slowTitle : $t.fastTitle}>
+  {#if $posts}
+    {#if $posts.name === 'empty'}
+      <FeedsEmptyPage reader={$posts} />
+    {:else if $posts.name === 'welcome'}
+      <FeedsWelcomePage reader={$posts} />
+    {:else if $posts.name === 'feed'}
+      <FeedsFeedPage reader={$posts} />
+    {:else if $posts.name === 'list'}
+      <FeedsListPage reader={$posts} />
+    {/if}
   {/if}
-{/if}
+</PopupablePage>
