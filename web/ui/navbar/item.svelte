@@ -8,27 +8,26 @@
   let {
     children,
     current,
-    hasSubmenu = false,
     href,
     icon,
     name,
+    number,
     onclick
   }: {
     children?: Snippet
     current?: boolean
-    hasSubmenu?: false | string
     href?: string
     icon?: string
     name: string
+    number?: number
     onclick?: () => void
   } = $props()
 </script>
 
 <Clickable
   class="navbar-item"
-  aria-controls={hasSubmenu || 'page'}
+  aria-controls="page"
   aria-current={current ? 'page' : null}
-  aria-haspopup={hasSubmenu ? 'menu' : null}
   {href}
   {onclick}
   onkeydown={(e => {
@@ -45,12 +44,17 @@
 >
   <span class="navbar-item_cap">
     {#if icon}
-      <Icon path={icon} />
+      <div class="navbar-item_icon">
+        <Icon path={icon} />
+      </div>
     {/if}
     {#if children}
       {@render children()}
     {/if}
     <div class="navbar-item_text">{name}</div>
+    {#if number}
+      <div class="navbar-item_number">{number}</div>
+    {/if}
   </span>
 </Clickable>
 
@@ -102,9 +106,8 @@
     .navbar-item_cap {
       box-sizing: border-box;
       display: flex;
-      gap: 0.5rem;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: stretch;
       height: var(--control-height);
       padding: 0 0.625rem;
 
@@ -119,12 +122,23 @@
       }
     }
 
+    .navbar-item_icon {
+      padding-inline-end: 0.5rem;
+    }
+
     .navbar-item_text {
       flex-shrink: 1;
       overflow: hidden;
       text-overflow: ellipsis;
       line-height: 2;
       white-space: nowrap;
+      flex-grow: 1;
+    }
+
+    .navbar-item_number {
+      color: var(--secondary-text-color);
+      font: var(--tertiary-font);
+      margin-right: -0.375rem;
     }
   }
 </style>
