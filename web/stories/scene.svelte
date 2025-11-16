@@ -2,10 +2,12 @@
   import {
     addCategory,
     addFeed,
+    addPost,
     type BaseRoute,
     Category,
     type CategoryValue,
     client,
+    closedCategories,
     currentPage,
     DEFAULT_REFRESH_STATISTICS,
     Feed,
@@ -16,6 +18,7 @@
     pages,
     type ParamlessRouteName,
     Post,
+    type PostValue,
     refreshErrors,
     refreshStatistics,
     refreshStatus,
@@ -23,6 +26,7 @@
     stopRefreshing,
     syncStatus,
     testFeed,
+    testPost,
     theme,
     useCredentials,
     useReducedMotion
@@ -43,6 +47,7 @@
     children,
     feeds,
     oninit = () => {},
+    posts,
     responses = [],
     route,
     user = true
@@ -51,6 +56,7 @@
     children: Snippet
     feeds?: Partial<FeedValue>[]
     oninit?: () => void
+    posts?: Partial<PostValue>[]
     responses?: [string, PreparedResponse | string][]
     route?: BaseRoute | Omit<BaseRoute, 'hash'> | ParamlessRouteName
     user?: boolean
@@ -79,6 +85,7 @@
     syncStatus.set('synchronized')
     refreshStatistics.set(DEFAULT_REFRESH_STATISTICS)
     needWelcome.set(false)
+    closedCategories.set(new Set())
 
     if (typeof route === 'string') {
       baseRouter.set({ hash: '', params: {}, route })
@@ -117,6 +124,9 @@
     }
     for (let feed of feeds ?? []) {
       addFeed(testFeed(feed))
+    }
+    for (let post of posts ?? []) {
+      addPost(testPost(post))
     }
 
     oninit()

@@ -82,6 +82,8 @@
     }
 
     .navbar-category_button {
+      @mixin clickable;
+
       position: relative;
       display: flex;
       gap: 0.3125rem;
@@ -89,8 +91,8 @@
       padding: 0.3125rem 0 0.125rem 0.5rem;
       background: transparent;
       border-radius: var(--base-radius);
-
-      @mixin clickable;
+      align-items: center;
+      color: var(--secondary-text-color);
 
       .navbar-category.is-closable &:hover,
       .navbar-category.is-closable &:focus-visible,
@@ -105,8 +107,9 @@
     }
 
     .navbar-category_icon {
-      opacity: 50%;
       transition: rotate var(--simple-time);
+      width: var(--icon-size);
+      height: var(--icon-size);
 
       .navbar-category.is-closed & {
         rotate: -90deg;
@@ -124,7 +127,6 @@
 
     .navbar-category_text {
       font: var(--secondary-font);
-      opacity: 50%;
 
       .navbar-category.is-closable .navbar-category_button:active & {
         translate: 0 1px;

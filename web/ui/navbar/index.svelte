@@ -25,9 +25,11 @@
   import Announce from '../announce.svelte'
   import Icon from '../icon.svelte'
   import NavbarButton from '../navbar/button.svelte'
+  import NavbarFast from '../navbar/fast.svelte'
   import NavbarFireplace from '../navbar/fireplace.svelte'
   import NavbarOther from '../navbar/other.svelte'
   import NavbarProgress from '../navbar/progress.svelte'
+  import NavbarSlow from '../navbar/slow.svelte'
   import NavbarSync from '../navbar/sync.svelte'
 
   let removeEvent: (() => void) | undefined
@@ -153,7 +155,11 @@
     aria-hidden="true"
     role="menu"
   >
-    {#if isOtherRoute($router)}
+    {#if $router.route === 'slow'}
+      <NavbarSlow />
+    {:else if $router.route === 'fast'}
+      <NavbarFast />
+    {:else if isOtherRoute($router)}
       <NavbarOther />
     {/if}
   </div>

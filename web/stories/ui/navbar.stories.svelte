@@ -1,6 +1,10 @@
 <script lang="ts" module>
   import {
+    type CategoryValue,
+    closedCategories,
     DEFAULT_REFRESH_STATISTICS,
+    type FeedValue,
+    type PostValue,
     refreshStatistics,
     refreshStatus,
     syncStatus
@@ -15,10 +19,25 @@
     component: Navbar,
     title: 'UI/Navbar'
   })
+
+  const CATEGORIES = [
+    { id: 'browsers', title: 'Browsers' },
+    { id: 'socials', title: 'Social Medias' }
+  ] satisfies Partial<CategoryValue>[]
+  const FEEDS = [
+    { categoryId: 'browsers', id: 'mozilla', title: 'The Mozilla Blog' },
+    { categoryId: 'socials', id: 'mastadon', title: 'Mastodon Blog' },
+    { categoryId: 'socials', id: 'bluesky', title: 'Bluesky' }
+  ] satisfies Partial<FeedValue>[]
+  const POSTS = [
+    { feedId: 'mozilla', reading: 'slow', title: 'New Firefox Release' },
+    { feedId: 'mastadon', reading: 'slow', title: 'Trunk & Tidbits' },
+    { feedId: 'bluesky', reading: 'slow', title: 'Progress Update' }
+  ] satisfies Partial<PostValue>[]
 </script>
 
 <Story name="Light Slow" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene>
+  <Scene categories={CATEGORIES} feeds={FEEDS} posts={POSTS}>
     <Navbar />
   </Scene>
 </Story>
@@ -36,9 +55,13 @@
 
 <Story name="Connecting" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
+    categories={CATEGORIES}
+    feeds={FEEDS}
     oninit={() => {
+      closedCategories.set(new Set(['socials']))
       syncStatus.set('connectingAfterWait')
     }}
+    posts={POSTS}
   >
     <Navbar />
   </Scene>
@@ -46,9 +69,12 @@
 
 <Story name="Synchronized" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
+    categories={CATEGORIES}
+    feeds={FEEDS}
     oninit={() => {
       syncStatus.set('synchronizedAfterWait')
     }}
+    posts={POSTS}
   >
     <Navbar />
   </Scene>
@@ -66,9 +92,12 @@
 
 <Story name="Sync Error" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
+    categories={CATEGORIES}
+    feeds={FEEDS}
     oninit={() => {
       syncStatus.set('error')
     }}
+    posts={POSTS}
   >
     <Navbar />
   </Scene>
