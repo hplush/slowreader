@@ -59,7 +59,7 @@ test('transforms routers for users', () => {
   setTestUser()
   setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
   deepEqual(router.get(), {
-    params: { category: 'general', reader: undefined, since: undefined },
+    params: { category: 'general', since: undefined },
     popups: [],
     route: 'fast'
   })
@@ -101,61 +101,20 @@ test('converts since to number', async () => {
 
   setBaseTestRoute({ params: { category: idA, since: 1000 }, route: 'fast' })
   deepEqual(router.get(), {
-    params: { category: idA, reader: undefined, since: 1000 },
+    params: { category: idA, since: 1000 },
     popups: [],
     route: 'fast'
   })
 
   setBaseTestRoute({ params: { category: idA, since: '1000' }, route: 'fast' })
   deepEqual(router.get(), {
-    params: { category: idA, reader: undefined, since: 1000 },
+    params: { category: idA, since: 1000 },
     popups: [],
     route: 'fast'
   })
 
   setBaseTestRoute({
-    params: { category: idA, reader: undefined, since: '1000k' },
-    route: 'fast'
-  })
-  deepEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
-})
-
-test('checks reader values', async () => {
-  setTestUser()
-  let idA = await addCategory({ title: 'A' })
-
-  setBaseTestRoute({
-    params: { category: idA, reader: 'feed' },
-    route: 'fast'
-  })
-  deepEqual(router.get(), {
-    params: { category: idA, reader: 'feed', since: undefined },
-    popups: [],
-    route: 'fast'
-  })
-
-  setBaseTestRoute({
-    params: { category: idA, reader: 'list' },
-    route: 'fast'
-  })
-  deepEqual(router.get(), {
-    params: { category: idA, reader: 'list', since: undefined },
-    popups: [],
-    route: 'fast'
-  })
-
-  setBaseTestRoute({
-    params: { category: idA },
-    route: 'fast'
-  })
-  deepEqual(router.get(), {
-    params: { category: idA, reader: undefined, since: undefined },
-    popups: [],
-    route: 'fast'
-  })
-
-  setBaseTestRoute({
-    params: { category: idA, reader: 'unknown' },
+    params: { category: idA, since: '1000k' },
     route: 'fast'
   })
   deepEqual(router.get(), { params: {}, popups: [], route: 'notFound' })

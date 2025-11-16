@@ -2,7 +2,6 @@ import { atom, effect, type ReadableAtom } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
 import { NotFoundError } from './not-found.ts'
-import type { ReaderName } from './readers/index.ts'
 import { userId } from './settings.ts'
 
 export interface Routes {
@@ -12,8 +11,6 @@ export interface Routes {
   export: {}
   fast: {
     category?: string
-    feed?: string
-    reader?: ReaderName
     since?: number
   }
   feeds: {}
@@ -27,9 +24,7 @@ export interface Routes {
   signin: {}
   signup: {}
   slow: {
-    category?: string
     feed?: string
-    reader?: ReaderName
     since?: number
   }
   start: {}
@@ -117,17 +112,6 @@ function redirect(route: Route): Route {
   return { ...route, redirect: true }
 }
 
-function validateValues<const Values extends string[]>(
-  value: string | undefined,
-  list: Values
-): undefined | Values[number] {
-  if (typeof value === 'undefined' || list.includes(value)) {
-    return value
-  } else {
-    throw new NotFoundError()
-  }
-}
-
 function validateNumber(
   value: number | string | undefined
 ): number | undefined {
@@ -181,7 +165,6 @@ onEnvironment(({ baseRouter }) => {
         nextRoute = {
           params: {
             ...route.params,
-            reader: validateValues(route.params.reader, ['feed', 'list']),
             since: validateNumber(route.params.since)
           },
           popups,

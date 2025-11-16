@@ -71,7 +71,6 @@ export const urlRouter = computed(pathRouter, path => {
       hash: path.hash,
       params: moveFromSearch<Routes['slow']>(path.params, path.search, {
         feed: true,
-        reader: true,
         since: 'number'
       }),
       route: path.route
@@ -81,7 +80,6 @@ export const urlRouter = computed(pathRouter, path => {
       hash: path.hash,
       params: moveFromSearch<Routes['fast']>(path.params, path.search, {
         category: true,
-        reader: true,
         since: 'number'
       }),
       route: path.route
@@ -138,17 +136,9 @@ export function getURL(
 
   let url
   if (page.route === 'slow') {
-    url = moveToSearch(page, {
-      category: true,
-      reader: true,
-      since: true
-    })
+    url = moveToSearch(page, { since: true })
   } else if (page.route === 'fast') {
-    url = moveToSearch(page, {
-      feed: true,
-      reader: true,
-      since: true
-    })
+    url = moveToSearch(page, { since: true })
   } else {
     url = getPagePath(pathRouter, page)
   }
