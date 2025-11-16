@@ -24,13 +24,13 @@
         onchange={value => {
           theme.set(value)
         }}
+        size="wide"
         value={$theme}
         values={[
           ['light', $t.themeLight, mdiWeatherSunny],
           ['system', $t.themeSystem, mdiThemeLightDark],
           ['dark', $t.themeDark, mdiWeatherNight]
         ]}
-        wide
       />
       <Switch label={$t.usePointer} reverseStore={useQuietCursor} />
       {#if $systemReducedMotion}

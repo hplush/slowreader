@@ -58,9 +58,27 @@
       onchange={value => {
         store3 = value
       }}
+      size="wide"
       value={store3}
       {values}
-      wide
+    />
+    <Radio
+      label="Icons only"
+      onchange={value => {
+        store3 = value
+      }}
+      size="icon"
+      value={store3}
+      {values}
+    />
+    <Radio
+      label="Hidden label"
+      labelless
+      onchange={value => {
+        store3 = value
+      }}
+      value={store3}
+      {values}
     />
     <Radio
       label="Long"

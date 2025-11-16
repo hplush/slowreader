@@ -63,12 +63,12 @@
           onchange={reading => {
             changeFeed($feed.id, { reading })
           }}
+          size="wide"
           value={$feed.reading}
           values={[
             ['slow', $t.slow],
             ['fast', $t.fast]
           ]}
-          wide
         />
         <Select
           label={$t.category}

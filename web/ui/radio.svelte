@@ -4,16 +4,18 @@
 
   let {
     label,
+    labelless = false,
     onchange,
+    size,
     value,
-    values,
-    wide
+    values
   }: {
     label: string
+    labelless?: boolean
     onchange: (value: Value) => void
+    size?: 'icon' | 'wide'
     value: Value
     values: [Value, string, string?][]
-    wide?: boolean
   } = $props()
 
   let id = $props.id()
@@ -27,11 +29,15 @@
 
 <fieldset
   class="radio"
-  class:is-wide={wide}
+  class:is-icon={size === 'icon'}
+  class:is-wide={size === 'wide'}
+  aria-label={labelless ? label : null}
   aria-orientation="vertical"
   role="radiogroup"
 >
-  <Label tag="legend">{label}</Label>
+  {#if !labelless}
+    <Label tag="legend">{label}</Label>
+  {/if}
   <div class="radio_gutter">
     <div
       style:--radio-width={`${100 / values.length}%`}
@@ -39,7 +45,11 @@
       class="radio_slider"
     ></div>
     {#each values as [key, name, icon] (key)}
-      <label class="radio_label">
+      <label
+        class="radio_label"
+        aria-label={size === 'icon' ? name : null}
+        title={size === 'icon' ? name : null}
+      >
         <div class="radio_cap">
           <input
             name={id}
@@ -52,7 +62,9 @@
           {#if icon}
             <Icon path={icon} />
           {/if}
-          {name}
+          {#if size !== 'icon'}
+            {name}
+          {/if}
         </div>
       </label>
     {/each}
@@ -98,6 +110,7 @@
     .radio_label {
       @mixin clickable;
 
+      display: block;
       position: relative;
       z-index: 2;
       min-height: var(--control-height);
@@ -111,6 +124,10 @@
 
       &:not(:has(:checked)):active {
         box-shadow: var(--pressed-shadow);
+      }
+
+      html:not(.is-quiet-cursor) &:not(:has(:checked)) {
+        cursor: pointer;
       }
     }
 
@@ -128,6 +145,11 @@
       .radio_label:not(:has(:checked)):active & {
         translate: 0 1px;
       }
+
+      .radio.is-icon & {
+        padding: 0;
+        width: var(--control-height);
+      }
     }
 
     .radio_input {
@@ -136,11 +158,7 @@
       appearance: none;
       border-radius: var(--base-radius);
 
-      .radio_label:has(:checked) & {
-        cursor: default;
-      }
-
-      html:not(.is-quiet-cursor) & {
+      html:not(.is-quiet-cursor) .radio_label:not(:has(:checked)) & {
         cursor: pointer;
       }
     }

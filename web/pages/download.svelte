@@ -14,13 +14,13 @@
       onchange={value => {
         preloadImages.set(value)
       }}
+      size="wide"
       value={$preloadImages}
       values={[
         ['always', $t.preloadAlways, mdiSignal],
         ['free', $t.preloadFree, mdiWifi],
         ['never', $t.preloadNever, mdiGaugeLow]
       ]}
-      wide
     />
   </Stack>
 </ThinPage>
