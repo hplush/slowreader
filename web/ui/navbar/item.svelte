@@ -127,18 +127,18 @@
     }
 
     .navbar-item_text {
+      flex-grow: 1;
       flex-shrink: 1;
       overflow: hidden;
       text-overflow: ellipsis;
       line-height: 2;
       white-space: nowrap;
-      flex-grow: 1;
     }
 
     .navbar-item_number {
-      color: var(--secondary-text-color);
+      margin-inline-end: -0.375rem;
       font: var(--tertiary-font);
-      margin-right: -0.375rem;
+      color: var(--secondary-text-color);
     }
   }
 </style>

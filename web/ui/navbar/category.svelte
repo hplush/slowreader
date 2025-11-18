@@ -87,12 +87,12 @@
       position: relative;
       display: flex;
       gap: 0.3125rem;
+      align-items: center;
       width: stretch;
       padding: 0.3125rem 0 0.125rem 0.5rem;
+      color: var(--secondary-text-color);
       background: transparent;
       border-radius: var(--base-radius);
-      align-items: center;
-      color: var(--secondary-text-color);
 
       .navbar-category.is-closable &:hover,
       .navbar-category.is-closable &:focus-visible,
@@ -107,9 +107,9 @@
     }
 
     .navbar-category_icon {
-      transition: rotate var(--simple-time);
       width: var(--icon-size);
       height: var(--icon-size);
+      transition: rotate var(--simple-time);
 
       .navbar-category.is-closed & {
         rotate: -90deg;
