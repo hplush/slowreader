@@ -1,6 +1,7 @@
 <script lang="ts">
   import { mdiChevronLeft, mdiClose } from '@mdi/js'
   import {
+    closeLastPopup,
     comfortMode,
     type FeedValue,
     isMobile,
@@ -8,6 +9,8 @@
     commonMessages as t
   } from '@slowreader/core'
   import type { Snippet } from 'svelte'
+  import { onMount } from 'svelte'
+  import { on } from 'svelte/events'
 
   import { getHashWithoutLastPopup } from '../stores/url-router.ts'
   import Button from './button.svelte'
@@ -23,40 +26,52 @@
     id: string
     reading?: FeedValue['reading']
   } = $props()
+
+  onMount(() => {
+    return on(document.body, 'click', e => {
+      let clicked = e.target as HTMLElement
+      if (!clicked.closest('.popup')) {
+        closeLastPopup()
+      }
+    })
+  })
 </script>
 
-<aside
+<dialog
   {id}
   class="popup"
   class:is-comfort-mode={reading === 'slow'}
   class:is-non-comfort-mode={reading === 'fast'}
+  open
 >
   <header
     class="popup_header"
     class:is-comfort-mode={$isMobile && $comfortMode}
     class:is-non-comfort-mode={$isMobile && !$comfortMode}
   >
-    <div class="popup_other">
-      {#if header}
-        {@render header()}
-      {/if}
+    <div class="popup_center">
+      <div class="popup_other">
+        {#if header}
+          {@render header()}
+        {/if}
+      </div>
+      <Button
+        href={getHashWithoutLastPopup($router)}
+        icon={$isMobile ? mdiChevronLeft : mdiClose}
+        size="icon"
+        tabindex={-1}
+        variant="plain"
+      >
+        {$t.closePopup}
+      </Button>
     </div>
-    <Button
-      href={getHashWithoutLastPopup($router)}
-      icon={$isMobile ? mdiChevronLeft : mdiClose}
-      size="icon"
-      tabindex={-1}
-      variant="plain"
-    >
-      {$t.closePopup}
-    </Button>
   </header>
   <div class="popup_body">
     <div class="popup_content">
       {@render children()}
     </div>
   </div>
-</aside>
+</dialog>
 
 <style lang="postcss">
   :global {
@@ -65,12 +80,13 @@
       display: flex;
       flex-direction: column;
       width: var(--popup-size);
+      height: auto;
 
       @media (--no-mobile) {
         @mixin background var(--main-land-color);
 
         inset-block: 0;
-        inset-inline-end: 0;
+        inset-inline: auto 0;
         z-index: 9;
         align-items: center;
         box-shadow: var(--popup-shadow);
@@ -96,25 +112,32 @@
       }
     }
 
-    .popup_header,
+    .popup_header {
+      @media (--mobile) {
+        @mixin background var(--main-land-color);
+
+        height: var(--navbar-height);
+        box-shadow: var(--bottom-panel-shadow);
+      }
+    }
+
+    .popup_center,
     .popup_other {
       display: flex;
       gap: 0.5rem;
     }
 
-    .popup_header {
+    .popup_center {
       box-sizing: border-box;
       flex-direction: row-reverse;
-      align-items: center;
       justify-content: space-between;
+      max-width: 100%;
       padding: var(--navbar-padding) var(--page-padding);
 
       @media (--mobile) {
-        height: var(--navbar-height);
-        padding: 0 var(--navbar-padding);
-        box-shadow: var(--bottom-panel-shadow);
-
-        @mixin background var(--main-land-color);
+        align-items: center;
+        width: calc(var(--thin-content-width) + 2 * var(--page-padding));
+        padding-inline: 1rem;
       }
     }
 
