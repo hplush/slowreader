@@ -12,7 +12,7 @@
 
   type PostLike = OriginPost | PostValue
 
-  let { list }: { list: PostLike[] } = $props()
+  let { list }: { list: readonly PostLike[] } = $props()
 
   let links = $derived(
     list.map(post => ({

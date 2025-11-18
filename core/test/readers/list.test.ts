@@ -27,9 +27,9 @@ afterEach(async () => {
 })
 
 test('loads posts', async () => {
-  let categoryId = await addCategory({ title: 'A' })
-  let feed1 = await addFeed(testFeed({ categoryId }))
-  let feed2 = await addFeed(testFeed({ categoryId }))
+  let categoryId = await addCategory({ fastReader: 'list', title: 'A' })
+  let feed1 = await addFeed(testFeed({ categoryId, fastReader: 'list' }))
+  let feed2 = await addFeed(testFeed({ categoryId, fastReader: 'list' }))
   for (let i = 1; i <= 150; i++) {
     await addPost(
       testPost({
@@ -42,7 +42,7 @@ test('loads posts', async () => {
   }
 
   let page = openPage({
-    params: { feed: feed1, reader: 'list' },
+    params: { feed: feed1 },
     route: 'fast'
   })
   equal(page.loading.get(), true)
@@ -58,11 +58,12 @@ test('loads posts', async () => {
   })
 
   page = openPage({
-    params: { category: categoryId, reader: 'list' },
+    params: { category: categoryId },
     route: 'fast'
   })
-  equal(page.loading.get(), true)
-  await waitLoading(page.loading)
+  equal(page.loading.get(), false)
+  equal(page.postsLoading.get(), true)
+  await waitLoading(page.postsLoading)
   reader = ensureReader(page.posts, 'list')
   equal(reader.list.get().length, 100)
   equal(reader.list.get()[0]!.title, '150')
@@ -97,16 +98,16 @@ test('loads posts', async () => {
   await setTimeout(10)
 
   openPage({
-    params: { feed: feed1, reader: 'list' },
+    params: { feed: feed1 },
     route: 'fast'
   })
 
   page = openPage({
-    params: { category: categoryId, reader: 'list', since: 1 },
+    params: { category: categoryId, since: 1 },
     route: 'fast'
   })
   reader = ensureReader(page.posts, 'list')
-  await waitLoading(page.loading)
+  await waitLoading(page.postsLoading)
   equal(reader.read.get().size, 0)
   equal(reader.list.get().length, 48)
 
@@ -136,11 +137,11 @@ test('loads posts', async () => {
   })
 
   openPage({
-    params: { feed: feed1, reader: 'list' },
+    params: { feed: feed1 },
     route: 'fast'
   })
   page = openPage({
-    params: { category: categoryId, reader: 'list' },
+    params: { category: categoryId },
     route: 'fast'
   })
   equal(page.posts.get()?.name, 'empty')

@@ -18,14 +18,17 @@ import type { OptionalId } from './lib/stores.ts'
 import { type FeedLoader, type LoaderName, loaders } from './loader/index.ts'
 import { deletePost, getPosts, recalcPostsReading } from './post.ts'
 import type { PostsList } from './posts-list.ts'
+import type { UsefulReaderName } from './readers/common.ts'
 
 export type FeedValue = {
   categoryId: string
+  fastReader?: UsefulReaderName
   id: string
   lastOriginId?: string
   lastPublishedAt?: number
   loader: LoaderName
   reading: 'fast' | 'slow'
+  slowReader?: UsefulReaderName
   title: string
   url: string
 }

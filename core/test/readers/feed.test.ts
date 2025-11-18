@@ -25,9 +25,9 @@ afterEach(async () => {
 })
 
 test('loads posts', async () => {
-  let categoryId = await addCategory({ title: 'A' })
-  let feed1 = await addFeed(testFeed({ categoryId }))
-  let feed2 = await addFeed(testFeed({ categoryId }))
+  let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
+  let feed1 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
+  let feed2 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
   for (let i = 1; i <= 60; i++) {
     await addPost(
       testPost({
@@ -40,22 +40,25 @@ test('loads posts', async () => {
   }
 
   let page = openPage({
-    params: { feed: feed1, reader: 'feed' },
+    params: { feed: feed1 },
     route: 'fast'
   })
   equal(page.loading.get(), true)
+  equal(page.postsLoading.get(), true)
   await waitLoading(page.loading)
+  equal(page.postsLoading.get(), false)
   let reader = ensureReader(page.posts, 'feed')
   equal(reader.hasNext.get(), false)
   equal(reader.list.get().length, 30)
   equal(reader.list.get()[0]!.title, '60')
 
   page = openPage({
-    params: { category: categoryId, reader: 'feed' },
+    params: { category: categoryId },
     route: 'fast'
   })
-  equal(page.loading.get(), true)
-  await waitLoading(page.loading)
+  equal(page.loading.get(), false)
+  equal(page.postsLoading.get(), true)
+  await waitLoading(page.postsLoading)
   reader = ensureReader(page.posts, 'feed')
   equal(reader.hasNext.get(), true)
   equal(reader.list.get().length, 50)
@@ -82,13 +85,13 @@ test('loads posts', async () => {
   equal(page.posts.get()?.name, 'empty')
 
   page = openPage({
-    params: { feed: feed1, reader: 'feed' },
+    params: { feed: feed1 },
     route: 'fast'
   })
   equal(page.posts.get()?.name, 'empty')
 
   page = openPage({
-    params: { category: categoryId, reader: 'feed' },
+    params: { category: categoryId },
     route: 'fast'
   })
   equal(page.posts.get()?.name, 'empty')
@@ -108,7 +111,7 @@ test('is ready for the same publishing time', async () => {
   }
 
   let fast = openPage({
-    params: { category: 'general', reader: 'feed' },
+    params: { category: 'general' },
     route: 'fast'
   })
   await waitLoading(fast.loading)

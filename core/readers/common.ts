@@ -29,6 +29,8 @@ type FeedStores = {
 
 export type ReaderName = 'empty' | 'feed' | 'list' | 'welcome'
 
+export type UsefulReaderName = Exclude<ReaderName, 'empty' | 'welcome'>
+
 export interface ReaderCreator<
   Name extends ReaderName = ReaderName,
   Rest extends Extra = Extra

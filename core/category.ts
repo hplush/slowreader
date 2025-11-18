@@ -5,16 +5,21 @@ import {
   deleteSyncMapById,
   type FilterStore,
   loadValue,
+  type SyncMapStore,
   syncMapTemplate
 } from '@logux/client'
 import { nanoid } from 'nanoid'
+import { atom } from 'nanostores'
 
 import { getClient } from './client.ts'
 import { changeFeed, type FeedValue, getFeeds } from './feed.ts'
 import { commonMessages as common } from './messages/index.ts'
+import type { UsefulReaderName } from './readers/common.ts'
 
 export type CategoryValue = {
+  fastReader?: UsefulReaderName
   id: string
+  slowReader?: UsefulReaderName
   title: string
 }
 
@@ -24,6 +29,17 @@ export const Category = syncMapTemplate<CategoryValue>('categories', {
   offline: true,
   remote: false
 })
+
+export function getCategory(categoryId: string): SyncMapStore<CategoryValue> {
+  if (categoryId === 'general') {
+    /* node:coverage ignore next 4 */
+    return atom(getGeneralCategory())
+  } else if (categoryId === 'broken') {
+    return atom(getBrokenCategory())
+  } else {
+    return Category(categoryId, getClient())
+  }
+}
 
 export function getCategories(): FilterStore<CategoryValue> {
   return createFilter(getClient(), Category)
