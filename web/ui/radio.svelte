@@ -110,9 +110,9 @@
     .radio_label {
       @mixin clickable;
 
-      display: block;
       position: relative;
       z-index: 2;
+      display: block;
       min-height: var(--control-height);
       border-radius: var(--base-radius);
 
@@ -147,8 +147,8 @@
       }
 
       .radio.is-icon & {
-        padding: 0;
         width: var(--control-height);
+        padding: 0;
       }
     }
 
