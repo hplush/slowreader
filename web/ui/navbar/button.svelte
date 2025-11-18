@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
+  import type { MouseEventHandler } from 'svelte/elements'
 
   import Clickable from '../clickable.svelte'
   import Icon from '../icon.svelte'
@@ -22,7 +23,7 @@
     href?: string
     icon?: string
     name: string
-    onclick?: () => void
+    onclick?: MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>
     size?: 'icon' | 'inline'
   } = $props()
 </script>

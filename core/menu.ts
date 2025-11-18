@@ -1,6 +1,6 @@
 import { ensureLoaded, loadValue } from '@logux/client'
 import { persistentAtom } from '@nanostores/persistent'
-import { atom, keepMount } from 'nanostores'
+import { atom, computed, keepMount } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
 import {
@@ -10,28 +10,69 @@ import {
   getGeneralCategory
 } from './category.ts'
 import { client } from './client.ts'
+import { isMobile } from './environment.ts'
 import { BROKEN_FEED, type FeedValue, getFeeds } from './feed.ts'
 import { getFilters } from './filter.ts'
 import { onLogAction, onMountAny, waitLoading } from './lib/stores.ts'
 import { getPosts } from './post.ts'
-import { router } from './router.ts'
+import { isOtherRoute, router } from './router.ts'
 
-export const isMenuOpened = atom<boolean>(false)
+export type MenuType = 'fast' | 'other' | 'slow'
 
-export function openMenu(): void {
-  setTimeout(() => {
-    if (router.get().route === 'fast') {
-      isMenuOpened.set(fastMenu.get().length > 1)
-    } else if (router.get().route === 'slow') {
-      isMenuOpened.set(slowMenu.get().length > 0)
-    } else {
-      isMenuOpened.set(true)
+let $menuOverride = atom<MenuType | undefined>()
+
+export const openedMenu = computed(
+  [isMobile, $menuOverride, router],
+  (mobile, override, route) => {
+    if (mobile) {
+      return override
+    } else if (route.route === 'fast') {
+      return 'fast'
+    } else if (route.route === 'slow') {
+      return 'slow'
+    } else if (isOtherRoute(route)) {
+      return 'other'
     }
-  }, 1)
+  }
+)
+
+export const menuSlider = computed(
+  [$menuOverride, router],
+  (override, route) => {
+    if (override) {
+      return override
+    } else if (route.route === 'slow') {
+      return 'slow'
+    } else if (route.route === 'fast') {
+      return 'fast'
+    } else if (isOtherRoute(route)) {
+      return 'other'
+    }
+  }
+)
+
+export function openMenu(type: MenuType): boolean {
+  if (isMobile.get()) {
+    if (type === 'other') {
+      $menuOverride.set('other')
+      return false
+    } else {
+      let open: boolean
+      if (type === 'fast') {
+        open = fastMenu.get().length > 1
+      } else {
+        open = slowMenu.get().length > 0
+      }
+      if (open) $menuOverride.set(type)
+      return !open
+    }
+  } else {
+    return true
+  }
 }
 
 export function closeMenu(): void {
-  isMenuOpened.set(false)
+  $menuOverride.set(undefined)
 }
 
 export type SlowMenu = [CategoryValue, [FeedValue, number][]][]

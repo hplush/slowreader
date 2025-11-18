@@ -17,6 +17,7 @@ import {
   type FeedReader,
   Filter,
   hasPassword,
+  isMobile,
   type ListReader,
   menuLoading,
   needWelcome,
@@ -75,6 +76,7 @@ export async function cleanClientTest(): Promise<void> {
   )
   await client.get()?.clean()
   client.set(undefined)
+  isMobile.set(false)
 }
 
 interface PromiseMock<Result> {

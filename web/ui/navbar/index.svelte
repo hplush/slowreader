@@ -8,9 +8,11 @@
   } from '@mdi/js'
   import {
     closeMenu,
-    isMenuOpened,
+    isMobile,
     isOtherRoute,
     isRefreshing,
+    menuSlider,
+    openedMenu,
     openMenu,
     refreshPosts,
     refreshProgress,
@@ -18,6 +20,7 @@
     router,
     navbarMessages as t
   } from '@slowreader/core'
+  import { effect } from 'nanostores'
   import { onMount, tick } from 'svelte'
   import { on } from 'svelte/events'
 
@@ -33,13 +36,23 @@
   import NavbarSync from '../navbar/sync.svelte'
 
   let removeEvent: (() => void) | undefined
-  isMenuOpened.listen((isOpened: boolean) => {
-    if (isOpened) {
+  effect([openedMenu, isMobile], (menu, mobile) => {
+    removeEvent?.()
+    if (mobile && menu) {
       setTimeout(() => {
-        removeEvent = on(document, 'click', closeMenu)
+        removeEvent = on(document, 'click', e => {
+          let clicked = e.target as HTMLElement
+          if (
+            !clicked.closest('.navbar') ||
+            clicked.tagName === 'A' ||
+            clicked.closest('a')
+          ) {
+            closeMenu()
+          }
+        })
       }, 1)
     } else {
-      removeEvent?.()
+      removeEvent = undefined
     }
   })
 
@@ -69,9 +82,11 @@
 
 <nav
   class="navbar"
-  class:is-fast={$router.route === 'fast'}
-  class:is-other={isOtherRoute($router)}
-  class:is-slow={$router.route === 'slow'}
+  class:is-comfort-mode={$openedMenu && $openedMenu !== 'fast'}
+  class:is-fast={$menuSlider === 'fast'}
+  class:is-non-comfort-mode={$openedMenu && $openedMenu === 'fast'}
+  class:is-other={$menuSlider === 'other'}
+  class:is-slow={$menuSlider === 'slow'}
 >
   <div class="navbar_main" aria-orientation="horizontal" role="menu">
     <div class="navbar_refresh">
@@ -120,7 +135,9 @@
         focusable={nothingCurrent || $router.route === 'slow'}
         hasSubmenu="navbar_submenu"
         href={getURL('slow')}
-        onclick={openMenu}
+        onclick={e => {
+          if (!openMenu('slow')) e.preventDefault()
+        }}
       >
         <NavbarFireplace />
       </NavbarButton>
@@ -130,36 +147,38 @@
         hasSubmenu="navbar_submenu"
         href={getURL('fast')}
         icon={mdiFood}
-        onclick={openMenu}
+        onclick={e => {
+          if (!openMenu('fast')) e.preventDefault()
+        }}
       />
     </div>
     <NavbarButton
       name={$t.menu}
       current={isOtherRoute($router)}
       hasSubmenu="navbar_submenu"
-      href={isOtherRoute($router)
-        ? undefined
-        : getURL({
-            params: { candidate: undefined, url: undefined },
-            route: 'add'
-          })}
+      href={getURL({
+        params: { candidate: undefined, url: undefined },
+        route: 'add'
+      })}
       icon={mdiMenu}
-      onclick={openMenu}
+      onclick={e => {
+        if (!openMenu('other')) e.preventDefault()
+      }}
       size="icon"
     />
   </div>
   <div
     id="navbar_submenu"
     class="navbar_submenu"
-    class:is-opened={$isMenuOpened}
+    class:is-opened={!!$openedMenu}
     aria-hidden="true"
     role="menu"
   >
-    {#if $router.route === 'slow'}
+    {#if $openedMenu === 'slow'}
       <NavbarSlow />
-    {:else if $router.route === 'fast'}
+    {:else if $openedMenu === 'fast'}
       <NavbarFast />
-    {:else if isOtherRoute($router)}
+    {:else if $openedMenu === 'other'}
       <NavbarOther />
     {/if}
   </div>
