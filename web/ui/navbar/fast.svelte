@@ -19,7 +19,9 @@
 <style>
   :global {
     .navbar-fast {
-      padding-top: 0.375rem;
+      @media (--no-desktop) {
+        padding-top: 0.375rem;
+      }
     }
   }
 </style>
