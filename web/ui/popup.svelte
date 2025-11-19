@@ -4,7 +4,7 @@
     closeLastPopup,
     comfortMode,
     type FeedValue,
-    isMobile,
+    layoutType,
     router,
     commonMessages as t
   } from '@slowreader/core'
@@ -46,8 +46,8 @@
 >
   <header
     class="popup_header"
-    class:is-comfort-mode={$isMobile && $comfortMode}
-    class:is-non-comfort-mode={$isMobile && !$comfortMode}
+    class:is-comfort-mode={$layoutType !== 'desktop' && $comfortMode}
+    class:is-non-comfort-mode={$layoutType !== 'desktop' && !$comfortMode}
   >
     <div class="popup_center">
       <div class="popup_other">
@@ -57,7 +57,7 @@
       </div>
       <Button
         href={getHashWithoutLastPopup($router)}
-        icon={$isMobile ? mdiChevronLeft : mdiClose}
+        icon={$layoutType !== 'desktop' ? mdiChevronLeft : mdiClose}
         size="icon"
         tabindex={-1}
         variant="plain"

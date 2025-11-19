@@ -10,7 +10,7 @@ import {
   getGeneralCategory
 } from './category.ts'
 import { client } from './client.ts'
-import { isMobile } from './environment.ts'
+import { layoutType } from './environment.ts'
 import { BROKEN_FEED, type FeedValue, getFeeds } from './feed.ts'
 import { getFilters } from './filter.ts'
 import { onLogAction, onMountAny, waitLoading } from './lib/stores.ts'
@@ -22,9 +22,9 @@ export type MenuType = 'fast' | 'other' | 'slow'
 let $menuOverride = atom<MenuType | undefined>()
 
 export const openedMenu = computed(
-  [isMobile, $menuOverride, router],
-  (mobile, override, route) => {
-    if (mobile) {
+  [layoutType, $menuOverride, router],
+  (layout, override, route) => {
+    if (layout !== 'desktop') {
       return override
     } else if (route.route === 'fast') {
       return 'fast'
@@ -52,22 +52,20 @@ export const menuSlider = computed(
 )
 
 export function openMenu(type: MenuType): boolean {
-  if (isMobile.get()) {
-    if (type === 'other') {
-      $menuOverride.set('other')
-      return false
-    } else {
-      let open: boolean
-      if (type === 'fast') {
-        open = fastMenu.get().length > 1
-      } else {
-        open = slowMenu.get().length > 0
-      }
-      if (open) $menuOverride.set(type)
-      return !open
-    }
-  } else {
+  if (layoutType.get() === 'desktop') {
     return true
+  } else if (type === 'other') {
+    $menuOverride.set('other')
+    return false
+  } else {
+    let open: boolean
+    if (type === 'fast') {
+      open = fastMenu.get().length > 1
+    } else {
+      open = slowMenu.get().length > 0
+    }
+    if (open) $menuOverride.set(type)
+    return !open
   }
 }
 

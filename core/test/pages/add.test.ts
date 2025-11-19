@@ -13,7 +13,7 @@ import {
   mockRequest,
   openedPopups,
   router,
-  setIsMobile,
+  setLayoutType,
   waitLoading
 } from '../../index.ts'
 import {
@@ -25,7 +25,6 @@ import {
 } from '../utils.ts'
 
 beforeEach(() => {
-  setIsMobile(false)
   enableClientTest({
     warn(e) {
       if (
@@ -42,7 +41,6 @@ beforeEach(() => {
 afterEach(async () => {
   await cleanClientTest()
   checkAndRemoveRequestMock()
-  setIsMobile(false)
 })
 
 function equalWithText(a: FeedLoader[], b: FeedLoader[]): void {
@@ -558,7 +556,7 @@ test('opens first candidate', async () => {
   equal(page.opened.get(), undefined)
   equal(openedPopups.get().length, 0)
 
-  setIsMobile(true)
+  setLayoutType('mobile')
   expectRequest('https://other.com').andRespond(200, '<html>Nothing</html>')
   expectRequest('https://other.com/feed').andRespond(404)
   expectRequest('https://other.com/atom').andRespond(

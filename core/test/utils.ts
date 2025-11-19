@@ -17,7 +17,6 @@ import {
   type FeedReader,
   Filter,
   hasPassword,
-  isMobile,
   type ListReader,
   menuLoading,
   needWelcome,
@@ -28,6 +27,7 @@ import {
   type PopupName,
   Post,
   type ReaderName,
+  setLayoutType,
   setupEnvironment,
   slowMenu,
   slowPostsCount,
@@ -76,7 +76,7 @@ export async function cleanClientTest(): Promise<void> {
   )
   await client.get()?.clean()
   client.set(undefined)
-  isMobile.set(false)
+  setLayoutType('desktop')
 }
 
 interface PromiseMock<Result> {

@@ -1,7 +1,7 @@
 import debounce from 'just-debounce-it'
 import { atom, computed, map } from 'nanostores'
 
-import { getEnvironment, isMobile } from '../environment.ts'
+import { getEnvironment, layoutType } from '../environment.ts'
 import {
   createDownloadTask,
   type DownloadTask,
@@ -252,7 +252,11 @@ export const addPage = createPage('add', () => {
     if (!searching) {
       unbindSearching()
       let found = $sortedCandidates.get()
-      if (!isMobile.get() && !openedFeedMixin.opened.get() && found[0]) {
+      if (
+        layoutType.get() !== 'mobile' &&
+        !openedFeedMixin.opened.get() &&
+        found[0]
+      ) {
         setPopups([['feed', found[0].url]])
       }
     }

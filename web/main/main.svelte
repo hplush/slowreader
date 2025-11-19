@@ -2,7 +2,7 @@
   import {
     busy,
     currentPage,
-    isMobile,
+    layoutType,
     popupsStatus,
     signOut,
     subscribeUntil,
@@ -92,7 +92,7 @@
   <Navbar />
 {/if}
 
-{#if !$isMobile}
+{#if $layoutType !== 'mobile'}
   {#each popupOther as i, index (i.uniqueId)}
     <PopupShadow index={popupOther.length - index} />
   {/each}

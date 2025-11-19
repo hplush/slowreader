@@ -6,13 +6,14 @@ import {
   type NetworkType,
   type NetworkTypeDetector,
   router,
-  setIsMobile,
+  setLayoutType,
   setRequestMethod,
   setupEnvironment
 } from '@slowreader/core'
+import { effect } from 'nanostores'
 
 import { locale } from '../stores/locale.ts'
-import { mobileMedia } from '../stores/media-queries.ts'
+import { mobileMedia, tabletMedia } from '../stores/media-queries.ts'
 import { openRoute, urlRouter } from '../stores/url-router.ts'
 
 let server = location.hostname
@@ -59,8 +60,14 @@ export const detectNetworkType: NetworkTypeDetector = () => {
   return { saveData, type }
 }
 
-mobileMedia.subscribe(value => {
-  setIsMobile(value)
+effect([mobileMedia, tabletMedia], (mobile, tablet) => {
+  if (mobile) {
+    setLayoutType('mobile')
+  } else if (tablet) {
+    setLayoutType('tablet')
+  } else {
+    setLayoutType('desktop')
+  }
 })
 
 setupEnvironment({

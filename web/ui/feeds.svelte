@@ -4,7 +4,7 @@
     type FeedLoader,
     type FeedValue,
     getPopupId,
-    isMobile
+    layoutType
   } from '@slowreader/core'
 
   import { getPopupHash } from '../stores/url-router.ts'
@@ -25,7 +25,9 @@
   let links = $derived(
     list.map(feed => ({
       arrow:
-        $isMobile || current === feed.url ? mdiChevronRight : mdiCircleSmall,
+        $layoutType === 'mobile' || current === feed.url
+          ? mdiChevronRight
+          : mdiCircleSmall,
       controls: getPopupId('feed', feed.url),
       href: getPopupHash(undefined, 'feed', feed.url),
       item: feed

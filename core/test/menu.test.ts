@@ -17,12 +17,12 @@ import {
   fastMenu,
   getClient,
   getFeed,
-  isMobile,
   menuLoading,
   menuSlider,
   openCategory,
   openedMenu,
   openMenu,
+  setLayoutType,
   slowMenu,
   syncStatus,
   testFeed,
@@ -43,7 +43,7 @@ afterEach(async () => {
 })
 
 test('has special menu logic on mobile', async () => {
-  isMobile.set(true)
+  setLayoutType('mobile')
   let category1 = await addCategory({ title: '1' })
   let category2 = await addCategory({ title: '2' })
   let slow = await addFeed(testFeed({ categoryId: category1, reading: 'slow' }))

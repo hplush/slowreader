@@ -12,8 +12,11 @@ export const pageTheme = computed([theme, systemTheme], (settings, system) => {
   return settings === 'system' ? system : settings
 })
 
-export const MOBILE_WIDTH = 1024
+export const MOBILE_WIDTH = 704
 export const mobileMedia = fromMediaQuery(`(max-width: ${MOBILE_WIDTH}px)`)
+
+export const TABLET_WIDTH = 1088
+export const tabletMedia = fromMediaQuery(`(max-width: ${TABLET_WIDTH}px)`)
 
 export const systemReducedMotion = fromMediaQuery(
   '(prefers-reduced-motion:reduce)'

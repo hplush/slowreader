@@ -41,12 +41,13 @@
   }
 }
 
-@custom-media --desktop (width > 68rem);
-@custom-media --no-desktop (width <= 68rem);
-@custom-media --popups-stack (width >= 89rem);
-@custom-media --tablet (width <= 68rem) and (width > 44rem);
-@custom-media --mobile (width <= 44rem);
-@custom-media --mobile (width <= 44rem);
-@custom-media --no-mobile (width > 44rem);
+/* Update also web/stores/media-queries.ts */
+@custom-media --desktop (width > 1088px);
+@custom-media --no-desktop (width <= 1088px);
+@custom-media --popups-stack (width >= 1424px);
+@custom-media --tablet (width <= 1088px) and (width > 704px);
+@custom-media --mobile (width <= 704px);
+@custom-media --mobile (width <= 704px);
+@custom-media --no-mobile (width > 704px);
 @custom-media --bigger-font ((width <= 410px) and (width > 380px)) or (width > 1700px);
 @custom-media --biggest-font (width <= 640px) and (width > 410px);

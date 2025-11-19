@@ -212,8 +212,10 @@ export function getEnvironment(): Environment {
   return currentEnvironment
 }
 
-export const isMobile = atom<boolean | undefined>()
+export type LayoutType = 'desktop' | 'mobile' | 'tablet'
 
-export function setIsMobile(isSmallScreen: boolean): void {
-  isMobile.set(isSmallScreen)
+export const layoutType = atom<LayoutType>('desktop')
+
+export function setLayoutType(type: LayoutType): void {
+  layoutType.set(type)
 }
