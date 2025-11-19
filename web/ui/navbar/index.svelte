@@ -343,7 +343,7 @@
         bottom: 0;
         z-index: 1;
         width: 100%;
-        max-height: calc(100svh - var(--navbar-height) + var(--min-size));
+        max-height: calc(100dvh - var(--navbar-height) + var(--min-size));
         padding-block: 0.5rem;
         margin-inline-end: 0;
         margin-bottom: var(--navbar-height);
