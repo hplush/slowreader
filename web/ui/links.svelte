@@ -8,6 +8,7 @@
     arrow?: string
     controls?: string
     href: string
+    id: string
     item: ItemValue
   }
 
@@ -31,7 +32,7 @@
   aria-hidden="true"
   role="menu"
 >
-  {#each links as i (i.href)}
+  {#each links as i (i.id)}
     <li>
       <Clickable
         class="links_item"

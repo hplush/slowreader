@@ -17,6 +17,7 @@
   let links = $derived(
     list.map(post => ({
       href: getPopupHash($router, 'post', post.originId),
+      id: 'id' in post ? post.id : post.originId,
       item: post
     }))
   )

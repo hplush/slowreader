@@ -30,6 +30,7 @@
           : mdiCircleSmall,
       controls: getPopupId('feed', feed.url),
       href: getPopupHash(undefined, 'feed', feed.url),
+      id: feed.url,
       item: feed
     }))
   )
