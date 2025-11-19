@@ -79,6 +79,11 @@
           padding-top: 0;
         }
       }
+
+      @media (--tablet) {
+        width: var(--thin-content-width);
+        margin: 0 auto;
+      }
     }
 
     .navbar-category_button {

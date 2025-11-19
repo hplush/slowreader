@@ -8,9 +8,9 @@
   } from '@mdi/js'
   import {
     closeMenu,
-    isMobile,
     isOtherRoute,
     isRefreshing,
+    layoutType,
     menuSlider,
     openedMenu,
     openMenu,
@@ -36,9 +36,9 @@
   import NavbarSync from '../navbar/sync.svelte'
 
   let removeEvent: (() => void) | undefined
-  effect([openedMenu, isMobile], (menu, mobile) => {
+  effect([openedMenu, layoutType], (menu, layout) => {
     removeEvent?.()
-    if (mobile && menu) {
+    if (layout !== 'desktop' && menu) {
       setTimeout(() => {
         removeEvent = on(document, 'click', e => {
           let clicked = e.target as HTMLElement
@@ -85,6 +85,7 @@
   class:is-comfort-mode={$openedMenu && $openedMenu !== 'fast'}
   class:is-fast={$menuSlider === 'fast'}
   class:is-non-comfort-mode={$openedMenu && $openedMenu === 'fast'}
+  class:is-opened={!!$openedMenu}
   class:is-other={$menuSlider === 'other'}
   class:is-slow={$menuSlider === 'slow'}
 >
@@ -170,7 +171,6 @@
   <div
     id="navbar_submenu"
     class="navbar_submenu"
-    class:is-opened={!!$openedMenu}
     aria-hidden="true"
     role="menu"
   >
@@ -216,14 +216,11 @@
       }
 
       @media (--no-desktop) {
-        @mixin background var(--main-land-color);
-
         inset-block: unset;
         bottom: 0;
         z-index: 10;
         align-items: center;
         width: 100vw;
-        box-shadow: var(--bottom-panel-shadow);
       }
     }
 
@@ -235,11 +232,17 @@
       padding: var(--navbar-padding);
 
       @media (--no-desktop) {
-        justify-content: space-between;
-        width: calc(var(--thin-content-width) + 2 * var(--page-padding));
-        max-width: 100%;
+        @mixin background var(--main-land-color);
+
+        z-index: 2;
+        justify-content: center;
+        width: stretch;
         height: var(--navbar-height);
         padding-inline: 1rem;
+
+        .navbar:not(.is-opened) & {
+          box-shadow: var(--bottom-panel-shadow);
+        }
       }
     }
 
@@ -249,7 +252,9 @@
       flex-grow: 1;
 
       @media (--no-desktop) {
-        max-width: 33rem;
+        max-width: calc(
+          var(--thin-content-width) - 2 * var(--control-height) - 0.25rem
+        );
       }
     }
 
@@ -332,29 +337,30 @@
       }
 
       @media (--no-desktop) {
-        order: -1;
+        @mixin background var(--main-land-color);
+
+        position: absolute;
+        bottom: 0;
+        z-index: 1;
         width: 100%;
-        max-height: 0;
-        padding-top: 0.75rem;
-        padding-bottom: 0.5rem;
+        max-height: calc(100vh - var(--navbar-height) + var(--min-size));
+        padding-block: 0.5rem;
         margin-inline-end: 0;
+        margin-bottom: var(--navbar-height);
         overflow: hidden;
-        box-shadow: inset 0 -0.5px 0 oklch(0 0 0 / 30%);
-        transition:
-          max-height var(--big-time) var(--slide-easing),
-          padding var(--big-time) var(--slide-easing);
+        overflow: auto;
+        box-shadow:
+          inset 0 -0.5px 0 oklch(0 0 0 / 30%),
+          var(--bottom-panel-shadow);
+        translate: 0 100%;
+        transition: translate var(--big-time) var(--slide-easing);
 
-        &:not(.is-opened) {
-          padding-block: 0;
-        }
-
-        &.is-opened {
-          max-height: calc(100vh - var(--control-height) - 0.5rem);
-          overflow: auto;
-          transition-duration: var(--big-time);
+        .navbar.is-opened & {
+          translate: 0 0;
         }
 
         &:empty {
+          padding: 0;
           transition: none;
         }
       }

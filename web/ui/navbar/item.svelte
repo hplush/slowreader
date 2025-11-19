@@ -89,6 +89,11 @@
         }
       }
 
+      @media (--tablet) {
+        width: var(--thin-content-width);
+        margin: 0 auto;
+      }
+
       @media (--no-desktop) {
         &:active {
           background: --tune-background(--flat-button);
