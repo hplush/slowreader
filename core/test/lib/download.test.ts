@@ -108,13 +108,13 @@ test('can download text by keeping eyes on abort signal', async () => {
   let sendText: ((text: string) => void) | undefined
   setRequestMethod(url => {
     return Promise.resolve({
-      ok: true,
-      status: 200,
-      text() {
+      arrayBuffer() {
         let { promise, resolve } = Promise.withResolvers()
         sendText = resolve
         return promise
       },
+      ok: true,
+      status: 200,
       url
     } as Response)
   })
@@ -213,6 +213,122 @@ test('has helper to ignore abort errors', async () => {
   await setTimeout(10)
 
   ignoreAbortError(error3)
+})
+
+test('handles non-UTF8 XML encoding declarations', async () => {
+  let task = createDownloadTask()
+
+  setRequestMethod((url: string) => {
+    let xmlDecl = '<?xml version="1.0" encoding="iso-8859-7"?>'
+    let xmlBody = '<rss><channel><title>'
+    let xmlEnd = '</title></channel></rss>'
+
+    let asciiBytes = new Uint8Array(xmlDecl.length + xmlBody.length)
+    for (let i = 0; i < xmlDecl.length; i++) {
+      asciiBytes[i] = xmlDecl.charCodeAt(i)
+    }
+    for (let i = 0; i < xmlBody.length; i++) {
+      asciiBytes[xmlDecl.length + i] = xmlBody.charCodeAt(i)
+    }
+
+    let greekBytes = new Uint8Array([0xd4, 0xe5, 0xf3, 0xf4])
+
+    let endBytes = new Uint8Array(xmlEnd.length)
+    for (let i = 0; i < xmlEnd.length; i++) {
+      endBytes[i] = xmlEnd.charCodeAt(i)
+    }
+
+    let bytes = new Uint8Array(
+      asciiBytes.length + greekBytes.length + endBytes.length
+    )
+    bytes.set(asciiBytes)
+    bytes.set(greekBytes, asciiBytes.length)
+    bytes.set(endBytes, asciiBytes.length + greekBytes.length)
+
+    let blob = new Blob([bytes])
+    return Promise.resolve({
+      arrayBuffer() {
+        return blob.arrayBuffer()
+      },
+      headers: new Headers({
+        'content-type': 'application/rss+xml; charset=iso-8859-7'
+      }),
+      ok: true,
+      status: 200,
+      url
+    } as Response)
+  })
+
+  let response = await task.text('https://example.com/feed.xml')
+  equal(response.contentType, 'application/rss+xml')
+  equal(response.status, 200)
+  let doc = response.parseXml()
+  equal(doc?.querySelector('title')?.textContent, 'Τεστ')
+
+  setRequestMethod(fetch)
+})
+
+test('handles encoding mismatch between header and XML declaration', async () => {
+  let task = createDownloadTask()
+
+  let xmlContent =
+    '<?xml version="1.0" encoding="UTF-8"?>' +
+    '<rss><channel><title>Test</title></channel></rss>'
+
+  setRequestMethod((url: string) => {
+    let encoder = new TextEncoder()
+    let bytes = encoder.encode(xmlContent)
+    let blob = new Blob([bytes])
+    return Promise.resolve({
+      arrayBuffer() {
+        return blob.arrayBuffer()
+      },
+      headers: new Headers({
+        'content-type': 'application/rss+xml; charset=iso-8859-1'
+      }),
+      ok: true,
+      status: 200,
+      url
+    } as Response)
+  })
+
+  let response = await task.text('https://example.com/feed.xml')
+  equal(response.contentType, 'application/rss+xml')
+  let doc = response.parseXml()
+  equal(doc?.querySelector('title')?.textContent, 'Test')
+
+  setRequestMethod(fetch)
+})
+
+test('handles invalid encoding gracefully', async () => {
+  let task = createDownloadTask()
+
+  let xmlContent =
+    '<?xml version="1.0" encoding="unknown"?>' +
+    '<rss><channel><title>Test</title></channel></rss>'
+
+  setRequestMethod((url: string) => {
+    let encoder = new TextEncoder()
+    let bytes = encoder.encode(xmlContent)
+    let blob = new Blob([bytes])
+    return Promise.resolve({
+      arrayBuffer() {
+        return blob.arrayBuffer()
+      },
+      headers: new Headers({
+        'content-type': 'application/rss+xml; charset=unknown'
+      }),
+      ok: true,
+      status: 200,
+      url
+    } as Response)
+  })
+
+  let response = await task.text('https://example.com/feed.xml')
+  equal(response.contentType, 'application/rss+xml')
+  equal(response.status, 200)
+
+  setRequestMethod(fetch)
 })
 
 test('detects content type', () => {

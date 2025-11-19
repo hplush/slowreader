@@ -1,6 +1,29 @@
 import { getEnvironment } from '../environment.ts'
 import { request } from '../request.ts'
 
+/**
+ * Extracts encoding from XML declaration, e.g., "ISO-8859-1" from
+ * `<?xml version="1.0" encoding="ISO-8859-1"?>`.
+ */
+function extractXmlEncoding(text: string): string | undefined {
+  let match = text.match(/^<\?xml\s+[^>]*encoding\s*=\s*["']([^"']+)["']/i)
+  return match?.[1]?.toUpperCase()
+}
+
+/**
+ * Attempts to extract charset from Content-Type header, e.g., "ISO-8859-1" from
+ * `Content-Type: text/html; charset=ISO-8859-1`.
+ */
+function extractCharsetFromHeader(
+  headers: Headers | undefined
+): string | undefined {
+  if (!headers?.get) return undefined
+  let contentType = headers.get('content-type')
+  if (!contentType) return undefined
+  let match = contentType.match(/charset\s*=\s*([^\s;]+)/i)
+  return match?.[1]?.toLowerCase().replace(/^["']|["']$/g, '')
+}
+
 let cache = new Map<string, Response>()
 
 export interface TextResponse {
@@ -34,7 +57,13 @@ function detectType(text: string): string | undefined {
   if (/^\s*<!doctype html/i.test(beginning)) {
     return 'text/html'
   } else if (/^\s*<\?xml/i.test(beginning)) {
-    return 'application/xml'
+    if (lower.includes('<rss')) {
+      return 'application/rss+xml'
+    } else if (lower.includes('<feed')) {
+      return 'application/atom+xml'
+    } else {
+      return 'application/xml'
+    }
   } else if (lower.includes('<rss')) {
     return 'application/rss+xml'
   } else if (lower.includes('<feed')) {
@@ -51,6 +80,29 @@ function detectType(text: string): string | undefined {
 
 function fixPopularIssues(text: string): string {
   return text.replace(/^\s+<\?xml /i, '<?xml ')
+}
+
+/**
+ * Decodes bytes using the appropriate encoding based on XML declaration
+ * and HTTP Content-Type header. Tries declared encoding first if it differs
+ * from the header charset.
+ */
+function decodeWithProperEncoding(
+  buffer: Uint8Array,
+  headerCharset: string = 'utf-8'
+): string {
+  try {
+    let decoded = new TextDecoder(headerCharset).decode(buffer)
+    let xmlEncoding = extractXmlEncoding(decoded)
+    if (xmlEncoding && xmlEncoding !== headerCharset.toUpperCase()) {
+      try {
+        return new TextDecoder(xmlEncoding).decode(buffer)
+      } catch {}
+    }
+    return decoded
+  } catch {
+    return new TextDecoder('utf-8').decode(buffer)
+  }
 }
 
 export function createTextResponse(
@@ -95,18 +147,19 @@ export function createTextResponse(
           return null
         }
 
-        if (contentType.includes('+xml')) {
-          contentType = 'application/xml'
+        let xmlContentType = contentType
+        if (xmlContentType.includes('+xml')) {
+          xmlContentType = 'application/xml'
         }
         if (
-          contentType === 'text/html' ||
-          contentType === 'application/xml' ||
-          contentType === 'text/xml'
+          xmlContentType === 'text/html' ||
+          xmlContentType === 'application/xml' ||
+          xmlContentType === 'text/xml'
         ) {
           let fixed = fixPopularIssues(text)
-          bodyCache = new DOMParser().parseFromString(fixed, contentType)
+          bodyCache = new DOMParser().parseFromString(fixed, xmlContentType)
         } else {
-          getEnvironment().warn('Unknown content type: ' + contentType)
+          getEnvironment().warn('Unknown content type: ' + xmlContentType)
           return null
         }
       }
@@ -158,7 +211,11 @@ export function createDownloadTask(
     },
     async text(url, opts) {
       let response = await this.request(url, opts)
-      let text = await response.text()
+
+      let headerCharset = extractCharsetFromHeader(response.headers)
+      let buffer = new Uint8Array(await response.arrayBuffer())
+      let text = decodeWithProperEncoding(buffer, headerCharset)
+
       if (controller.signal.aborted) {
         throw new DOMException('', 'AbortError')
       }
