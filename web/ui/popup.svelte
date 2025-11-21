@@ -27,10 +27,19 @@
     reading?: FeedValue['reading']
   } = $props()
 
+  const INTERACTIVE_ELEMENTS = new Set(['A', 'BUTTON', 'INPUT', 'SELECT'])
+
+  function isInteractive(element: HTMLElement): boolean {
+    return (
+      INTERACTIVE_ELEMENTS.has(element.tagName) &&
+      !element.getAttribute('aria-current')
+    )
+  }
+
   onMount(() => {
     return on(document.body, 'click', e => {
       let clicked = e.target as HTMLElement
-      if (!clicked.closest('.popup')) {
+      if (!isInteractive(clicked) && !clicked.closest('.popup')) {
         closeLastPopup()
       }
     })
