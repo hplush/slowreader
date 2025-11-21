@@ -27,7 +27,7 @@ jobs:
             registry.npmjs.org:443
             storybook.js.org:443
       - name: Checkout the repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           fetch-depth: 0
       - name: Check if should run
@@ -54,7 +54,7 @@ jobs:
         uses: ./.github/actions/init-node
       - name: Publish to Chromatic
         if: steps.should_run.outputs.should_run == 'true'
-        uses: chromaui/action@ac86f2ff0a458ffbce7b40698abd44c0fa34d4b6 # v13.3.3
+        uses: chromaui/action@4c20b95e9d3209ecfdf9cd6aace6bbde71ba1694 # v13.3.4
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           buildScriptName: build:visual

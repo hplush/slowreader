@@ -19,7 +19,7 @@
     "@types/jsdom": "27.0.0",
     "eslint": "9.39.1",
     "jsdom": "27.2.0",
-    "nanostores": "1.0.1",
+    "nanostores": "1.1.0",
     "yaml": "2.8.1"
   }
 }
