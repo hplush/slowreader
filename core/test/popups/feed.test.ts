@@ -65,6 +65,21 @@ test('loads 404 for feeds by URL popup', async () => {
   equal(feed2Popup.notFound, true)
 })
 
+test('loads existing feed popup on 404', async () => {
+  keepMount(openedPopups)
+  let feedId = await addFeed(testFeed({ url: 'http://a.com/404' }))
+  expectRequest('http://a.com/404').andRespond(404)
+
+  let popup = openTestPopup('feed', 'http://a.com/404')
+  equal(openedPopups.get().length, 1)
+  equal(popup.loading.get(), true)
+  await waitLoading(popup.loading)
+  equal(popup.notFound, false)
+  equal(checkLoadedPopup(popup).feed.get()?.id, feedId)
+  deepEqual(checkLoadedPopup(popup).posts.get().isLoading, false)
+  deepEqual(checkLoadedPopup(popup).posts.get().list.length, 0)
+})
+
 test('loads feeds by URL popup', async () => {
   keepMount(openedPopups)
   expectRequest('https://a.com/atom').andRespond(

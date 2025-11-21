@@ -9,44 +9,67 @@ import {
   type TextResponse
 } from '../lib/download.ts'
 import { waitSyncLoading } from '../lib/stores.ts'
-import { getLoaderForText } from '../loader/index.ts'
+import { type FeedLoader, getLoaderForText } from '../loader/index.ts'
 import { commonMessages } from '../messages/index.ts'
 import { NotFoundError } from '../not-found.ts'
+import { createPostsList } from '../posts-list.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
 async function loadFeedFromURL(
   task: DownloadTask,
   url: string
-): Promise<TextResponse> {
+): Promise<Error | TextResponse> {
   try {
     return await task.text(url)
   } catch (e) {
-    getEnvironment().warn(e)
-    throw new NotFoundError()
+    if (e instanceof Error) {
+      getEnvironment().warn(e)
+      return e
+    }
+    throw e
   }
 }
 
 export const feed = definePopup('feed', async url => {
   let task = createDownloadTask({ cache: 'read' })
-  let [response, categoriesFilter] = await Promise.all([
+  let feedsFilter = getFeeds({ url })
+  let [responseOrError, categoriesFilter, feeds] = await Promise.all([
     loadFeedFromURL(task, url),
-    waitSyncLoading(getCategories())
+    waitSyncLoading(getCategories()),
+    waitSyncLoading(feedsFilter)
   ])
 
-  let search = getLoaderForText(response)
-  if (!search) throw new NotFoundError()
-  let candidate = search
+  let existing = feeds.get().list[0]
+  let response: TextResponse | undefined
 
-  let posts = candidate.loader.getPosts(task, url, response)
+  if (responseOrError instanceof Error) {
+    if (!existing) throw new NotFoundError({ cause: responseOrError })
+  } else {
+    response = responseOrError
+  }
+
+  let candidate: false | FeedLoader | undefined
+  if (response) {
+    candidate = getLoaderForText(response)
+  }
+
+  if (!candidate && !existing) throw new NotFoundError()
+
+  let posts
+  if (candidate && response) {
+    posts = candidate.loader.getPosts(task, url, response)
+  } else {
+    posts = createPostsList([], undefined)
+  }
+
   let $feed = atom<FeedValue | undefined>()
 
-  let feedsFilter = getFeeds({ url })
   let unbindFeed = (): void => {}
-  let unbindFeeds = feedsFilter.subscribe(feeds => {
-    if (!feeds.isLoading) {
-      let find = feeds.list.find(i => i.url === url)
+  let unbindFeeds = feedsFilter.subscribe(value => {
+    if (!value.isLoading) {
+      let find = value.list[0]
       if (find) {
-        let $find = feeds.stores.get(find.id)!
+        let $find = value.stores.get(find.id)!
         unbindFeed = $find.subscribe(i => {
           if (!i.isLoading) {
             $feed.set(i)
@@ -77,8 +100,10 @@ export const feed = definePopup('feed', async url => {
     }
   }
 
-  async function add(): Promise<string> {
-    return await addCandidate(candidate, {}, task, response)
+  async function add(): Promise<string | void> {
+    if (candidate) {
+      return await addCandidate(candidate, {}, task, response)
+    }
   }
 
   return {

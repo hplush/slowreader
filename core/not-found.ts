@@ -7,8 +7,8 @@ import { router } from './router.ts'
 export const notFound = atom(false)
 
 export class NotFoundError extends Error {
-  constructor() {
-    super('Not found')
+  constructor(options?: ErrorOptions) {
+    super('Not found', options)
     this.name = 'NotFoundError'
     Error.captureStackTrace(this, NotFoundError)
   }
