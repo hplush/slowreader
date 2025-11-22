@@ -3,6 +3,7 @@
     busy,
     currentPage,
     layoutType,
+    notFound,
     popupsStatus,
     signOut,
     subscribeUntil,
@@ -51,16 +52,18 @@
   let popupOther = $derived($popupsStatus.other)
 </script>
 
-{#if $busy || $pageLoading}
+{#if $notFound}
+  <NotFoundPage />
+{:else if $busy || $pageLoading}
   {#if !globalLoader}
     <BusyPage />
   {/if}
+{:else if $currentPage.route === 'notFound'}
+  <NotFoundPage />
 {:else if $currentPage.route === 'fast'}
   <FeedsPage page={$currentPage} />
 {:else if $currentPage.route === 'slow'}
   <FeedsPage page={$currentPage} />
-{:else if $currentPage.route === 'notFound'}
-  <NotFoundPage />
 {:else if $currentPage.route === 'add'}
   <AddPage page={$currentPage} />
 {:else if $currentPage.route === 'feedsByCategories'}
