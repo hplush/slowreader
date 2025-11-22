@@ -201,12 +201,18 @@ export function stringifyPopups(popups: PopupRoute[]): string {
 }
 
 export function addPopup(
-  hash: string,
+  route: Route | undefined,
   popup: PopupName,
   param: string
 ): string {
-  let add = `${popup}=${encodeURIComponent(param)}`
-  return hash === '' ? add : `${hash},${add}`
+  let next = route ? route.popups : []
+  let last = next[next.length - 1]
+  if (last?.popup === popup) {
+    next[next.length - 1] = { param, popup }
+  } else {
+    next = next.concat({ param, popup })
+  }
+  return stringifyPopups(next)
 }
 
 export function removeLastPopup(hash: string): string {

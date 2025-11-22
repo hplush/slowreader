@@ -158,14 +158,7 @@ export function getPopupHash(
   popup: PopupName,
   param: string
 ): string {
-  return (
-    `#` +
-    addPopup(
-      currentRoute ? stringifyPopups(currentRoute.popups) : '',
-      popup,
-      param
-    )
-  )
+  return `#` + addPopup(currentRoute, popup, param)
 }
 
 export function getHashWithoutLastPopup(currentRoute: Route): string {

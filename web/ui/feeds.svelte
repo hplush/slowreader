@@ -4,7 +4,8 @@
     type FeedLoader,
     type FeedValue,
     getPopupId,
-    layoutType
+    layoutType,
+    router
   } from '@slowreader/core'
 
   import { getPopupHash } from '../stores/url-router.ts'
@@ -29,7 +30,7 @@
           ? mdiChevronRight
           : mdiCircleSmall,
       controls: getPopupId('feed', feed.url),
-      href: getPopupHash(undefined, 'feed', feed.url),
+      href: getPopupHash($router, 'feed', feed.url),
       id: feed.url,
       item: feed
     }))

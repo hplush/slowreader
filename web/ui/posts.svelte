@@ -2,7 +2,8 @@
   import {
     getPostIntro,
     type OriginPost,
-    type PostValue
+    type PostValue,
+    router
   } from '@slowreader/core'
 
   import { getPopupHash } from '../stores/url-router.ts'
@@ -15,7 +16,7 @@
 
   let links = $derived(
     list.map(post => ({
-      href: getPopupHash(undefined, 'post', post.originId),
+      href: getPopupHash($router, 'post', post.originId),
       id: 'id' in post ? post.id : post.originId,
       item: post
     }))

@@ -121,8 +121,19 @@ test('converts since to number', async () => {
 })
 
 test('has helpers for popups', () => {
-  equal(addPopup('', 'feed', 'id1'), 'feed=id1')
-  equal(addPopup('feed=id1', 'post', 'id2'), 'feed=id1,post=id2')
+  equal(
+    addPopup({ params: {}, popups: [], route: 'about' }, 'feed', 'id1'),
+    'feed=id1'
+  )
+  equal(addPopup(undefined, 'feed', 'id1'), 'feed=id1')
+  equal(
+    addPopup(
+      { params: {}, popups: [{ param: 'id1', popup: 'feed' }], route: 'about' },
+      'post',
+      'id2'
+    ),
+    'feed=id1,post=id2'
+  )
   equal(removeLastPopup('feed=id1,post=id2'), 'feed=id1')
   equal(removeLastPopup('feed=id1'), '')
 
