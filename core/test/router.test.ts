@@ -134,6 +134,14 @@ test('has helpers for popups', () => {
     ),
     'feed=id1,post=id2'
   )
+  equal(
+    addPopup(
+      { params: {}, popups: [{ param: 'id1', popup: 'post' }], route: 'about' },
+      'post',
+      'id2'
+    ),
+    'post=id2'
+  )
   equal(removeLastPopup('feed=id1,post=id2'), 'feed=id1')
   equal(removeLastPopup('feed=id1'), '')
 
