@@ -30,16 +30,19 @@
   const INTERACTIVE_ELEMENTS = new Set(['A', 'BUTTON', 'INPUT', 'SELECT'])
 
   function isInteractive(element: HTMLElement): boolean {
-    return (
-      INTERACTIVE_ELEMENTS.has(element.tagName) &&
-      !element.getAttribute('aria-current')
-    )
+    for (let tag of INTERACTIVE_ELEMENTS) {
+      let interactive = element.tagName === tag ? element : element.closest(tag)
+      if (interactive && !interactive.getAttribute('aria-current')) {
+        return true
+      }
+    }
+    return false
   }
 
   onMount(() => {
-    return on(document.body, 'click', e => {
+    return on(document.body, 'mousedown', e => {
       let clicked = e.target as HTMLElement
-      if (!isInteractive(clicked) && !clicked.closest('.popup')) {
+      if (!clicked.closest('.popup') && !isInteractive(clicked)) {
         closeLastPopup()
       }
     })
