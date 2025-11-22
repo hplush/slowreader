@@ -43,7 +43,7 @@
     return on(document.body, 'mousedown', e => {
       let clicked = e.target as HTMLElement
       if (!clicked.closest('.popup') && !isInteractive(clicked)) {
-        closeLastPopup()
+        on(document.body, 'click', closeLastPopup, { once: true })
       }
     })
   })
