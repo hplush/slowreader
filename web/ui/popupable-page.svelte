@@ -53,7 +53,7 @@
       margin: 0 auto;
 
       @media (--mobile) {
-        width: auto;
+        max-width: none;
       }
     }
   }
