@@ -5,8 +5,11 @@
 
   import Loader from '../ui/loader.svelte'
   import Popup from '../ui/popup.svelte'
+  import Stack from '../ui/stack.svelte'
 </script>
 
 <Popup id={`${popup.uniqueId}-loading`}>
-  <Loader />
+  <Stack height="stretch" justify="center">
+    <Loader />
+  </Stack>
 </Popup>

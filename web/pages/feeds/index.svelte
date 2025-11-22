@@ -22,7 +22,7 @@
 </script>
 
 <PopupablePage title={page.reading === 'slow' ? $t.slowTitle : $t.fastTitle}>
-  <Stack>
+  <Stack height="stretch">
     <Stack justify="space-between" row>
       {#if $feed}
         <Button
@@ -49,7 +49,9 @@
       {/if}
     </Stack>
     {#if $postsLoading || !$posts}
-      <Loader />
+      <Stack height="stretch" justify="center">
+        <Loader />
+      </Stack>
     {:else if $posts.name === 'empty'}
       <FeedsEmptyPage reader={$posts} />
     {:else if $posts.name === 'welcome'}

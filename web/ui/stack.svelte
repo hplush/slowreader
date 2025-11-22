@@ -6,6 +6,7 @@
     children,
     controls,
     gap = 'm',
+    height = 'auto',
     justify = 'start',
     role,
     row = false,
@@ -15,6 +16,7 @@
     children: Snippet
     controls?: string
     gap?: 'l' | 'm' | 's' | 'xl' | 'xs' | 'xxl'
+    height?: 'auto' | 'stretch'
     justify?: 'center' | 'end' | 'space-between' | 'start'
     role?: 'menu' | 'menuitem'
     row?: boolean
@@ -36,6 +38,7 @@
   class:is-gap-xl={gap === 'xl'}
   class:is-gap-xs={gap === 'xs'}
   class:is-gap-xxl={gap === 'xxl'}
+  class:is-height-stretch={height === 'stretch'}
   class:is-justify-center={justify === 'center'}
   class:is-justify-end={justify === 'end'}
   class:is-justify-space-between={justify === 'space-between'}
@@ -98,6 +101,11 @@
 
       &.is-width-stretch {
         width: stretch;
+      }
+
+      &.is-height-stretch {
+        flex-grow: 1;
+        min-height: 100%;
       }
 
       &.is-row {

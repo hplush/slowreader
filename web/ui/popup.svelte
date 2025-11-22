@@ -151,6 +151,7 @@
     }
 
     .popup_body {
+      position: relative;
       box-sizing: border-box;
       height: calc(100% - var(--navbar-height));
       overflow: hidden auto;
@@ -161,6 +162,11 @@
     }
 
     .popup_content {
+      position: relative;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
       padding: var(--page-padding);
     }
   }

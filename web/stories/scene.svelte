@@ -87,14 +87,6 @@
     needWelcome.set(false)
     closedCategories.set(new Set())
 
-    if (typeof route === 'string') {
-      baseRouter.set({ hash: '', params: {}, route })
-    } else {
-      baseRouter.set(
-        addHashToBaseRoute(route) ?? { hash: '', params: {}, route: 'slow' }
-      )
-    }
-
     function updateTheme(): void {
       let classes = document.documentElement.classList
       if (classes.contains('is-light-theme')) {
@@ -130,6 +122,14 @@
     }
 
     oninit()
+
+    if (typeof route === 'string') {
+      baseRouter.set({ hash: '', params: {}, route })
+    } else {
+      baseRouter.set(
+        addHashToBaseRoute(route) ?? { hash: '', params: {}, route: 'slow' }
+      )
+    }
   })
 
   onDestroy(() => {

@@ -44,3 +44,21 @@
     <FeedsPage page={pages.fast()} />
   </Scene>
 </Story>
+
+<Story name="Loading" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[{ id: 'feed', reading: 'slow' }]}
+    oninit={() => {
+      setTimeout(() => {
+        pages.slow().posts.get()?.loading.set(true)
+      }, 100)
+      setTimeout(() => {
+        pages.slow().posts.get()?.loading.set(true)
+      }, 500)
+    }}
+    posts={[{ feedId: 'feed', reading: 'slow' }]}
+    route={{ params: { feed: 'feed' }, route: 'slow' }}
+  >
+    <FeedsPage page={pages.slow()} />
+  </Scene>
+</Story>
