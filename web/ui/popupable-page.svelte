@@ -48,8 +48,8 @@
 
     .popupable-page_center {
       display: flex;
-      flex-grow: 1;
-      width: var(--max-content-width);
+      width: stretch;
+      max-width: var(--max-content-width);
       margin: 0 auto;
 
       @media (--mobile) {
