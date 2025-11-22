@@ -2,9 +2,6 @@ name: Visual Test
 on:
   schedule:
     - cron: '00 04 * * *' # Runs at night every day
-  push:
-    branches:
-      - main
 permissions:
   contents: read
 jobs:
@@ -33,31 +30,19 @@ jobs:
       - name: Check if should run
         id: should_run
         run: |
-          if [ "${{ github.event_name }}" == "push" ]; then
-            if git log -1 --pretty=%B | grep -i "Chromatic"; then
-              echo "should_run=true" >> "$GITHUB_OUTPUT"
-            else
-              echo "should_run=false" >> "$GITHUB_OUTPUT"
-            fi
+          now=$(date -u +%s)
+          twenty_four_hours_ago=$((now - 86400))
+          last_commit_time=$(git log -1 --format=%ct)
+          if [ "$last_commit_time" -ge "$twenty_four_hours_ago" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
           else
-            now=$(date -u +%s)
-            twenty_four_hours_ago=$((now - 86400))
-            last_commit_time=$(git log -1 --format=%ct)
-            if [ "$last_commit_time" -ge "$twenty_four_hours_ago" ]; then
-              echo "should_run=true" >> "$GITHUB_OUTPUT"
-            else
-              echo "should_run=false" >> "$GITHUB_OUTPUT"
-            fi
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
           fi
       - name: Initialize Node.js
         if: steps.should_run.outputs.should_run == 'true'
         uses: ./.github/actions/init-node
       - name: Publish to Chromatic
         if: steps.should_run.outputs.should_run == 'true'
-        uses: chromaui/action@4c20b95e9d3209ecfdf9cd6aace6bbde71ba1694 # v13.3.4
-        with:
-          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-          buildScriptName: build:visual
-          workingDir: web/
-          exitZeroOnChanges: true
-          exitOnceUploaded: true
+        run: cd web && pnpm chromatic
+        env:
+          CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}

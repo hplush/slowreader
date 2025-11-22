@@ -11,6 +11,7 @@
     "build": "pnpm run /^build:/ && mv ./storybook-static ./dist/ui",
     "start": "vite --host 0.0.0.0 --port 2553",
     "visual": "storybook dev -p 2555 --no-open --host 0.0.0.0",
+    "chromatic": "node --env-file-if-exists=../.env node_modules/chromatic/dist/bin.js --exit-zero-on-changes",
     "production": "node --run build && ./scripts/run-image.sh",
     "size": "node --run build:web && size-limit",
     "test:names": "node ./scripts/check-names.ts",
@@ -20,7 +21,8 @@
     "build:visual": "NODE_ENV=test storybook build",
     "build:web": "vite build && node scripts/generate-csp.ts",
     "format:stylelint": "stylelint --fix **/*.{css,svelte}",
-    "clean:build": "rm -rf dist"
+    "clean:build": "rm -rf dist",
+    "build-storybook": "pnpm run build:visual"
   },
   "dependencies": {
     "@fontsource-variable/noto-sans": "5.2.10",
@@ -51,6 +53,7 @@
   "devDependencies": {
     "@logux/stylelint-config": "0.21.0",
     "@size-limit/file": "11.2.0",
+    "@storybook/addon-a11y": "10.0.8",
     "@storybook/addon-svelte-csf": "5.0.10",
     "@storybook/addon-themes": "10.0.8",
     "@storybook/svelte": "10.0.8",
@@ -58,6 +61,7 @@
     "@stylistic/stylelint-config": "3.0.1",
     "@stylistic/stylelint-plugin": "4.0.0",
     "browserslist": "4.28.0",
+    "chromatic": "13.3.4",
     "eslint": "9.39.1",
     "keyux": "0.11.3",
     "postcss-html": "1.8.0",

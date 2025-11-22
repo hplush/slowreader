@@ -47,6 +47,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 
 - `cd web && pnpm test`: run all web client tests.
 - `cd web && pnpm visual`: run visual test server.
+- `cd web && pnpm chromatic`: publish visual tests and generate diffs.
 - `cd web && pnpm production`: start web client production build locally.
 - `cd web && pnpm build`: build production files in `web/dist/`.
 - `cd web && pnpm size`: check the JS bundle size of the production build.
