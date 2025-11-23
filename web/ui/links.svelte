@@ -5,37 +5,44 @@
   import Icon from './icon.svelte'
 
   interface Link<ItemValue> {
-    arrow?: string
     controls?: string
     href: string
     id: string
     item: ItemValue
+    mark?: string
+    markTitle?: string
+    variant?: 'normal' | 'read'
   }
 
   let {
     current,
     id,
     item,
-    links
+    links,
+    marks
   }: {
     current: undefined | Value
     id?: string
     item: Snippet<[Value]>
     links: Link<Value>[]
+    marks?: 'arrow' | 'icon'
   } = $props()
 </script>
 
 <ul
   {id}
   class="links"
-  class:is-arrow={!!links[0]?.arrow}
+  class:is-arrow={marks === 'arrow'}
   aria-hidden="true"
   role="menu"
 >
   {#each links as i (i.id)}
     <li>
       <Clickable
-        class="links_item"
+        class={{
+          'is-read': i.variant === 'read',
+          'links_item': true
+        }}
         aria-controls={i.controls ?? null}
         aria-current={current === i.item ? 'page' : null}
         href={i.href}
@@ -43,9 +50,9 @@
         tabindex={-1}
       >
         {@render item(i.item)}
-        {@const icon = i.arrow}
+        {@const icon = i.mark}
         {#if icon}
-          <div class="links_arrow">
+          <div class="links_mark" title={i.markTitle}>
             <Icon path={icon} />
           </div>
         {/if}
@@ -66,12 +73,20 @@
 
       position: relative;
       display: block;
-      padding: 0.625rem var(--control-padding);
+      display: flex;
+      justify-content: space-between;
+      padding: 0.875rem var(--control-padding);
       margin-top: calc(-1 * var(--min-size));
       font: var(--control-font);
       overflow-wrap: anywhere;
       background: --tune-background(--flat-button);
       box-shadow: var(--flat-control-shadow);
+
+      &.is-read {
+        color: var(--secondary-text-color);
+        background: transparent;
+        box-shadow: none;
+      }
 
       li:first-child & {
         margin-top: 0;
@@ -90,12 +105,13 @@
       &:active,
       &:focus-visible {
         background: --tune-background(--flat-button --flat-button-hover);
+        box-shadow: var(--flat-control-shadow);
       }
 
       &:not([aria-current='page']):active {
         z-index: 1;
-        padding-block: calc(0.625rem + var(--min-size))
-          calc(0.625rem - var(--min-size));
+        padding-block: calc(0.875rem + var(--min-size))
+          calc(0.875rem - var(--min-size));
         box-shadow: var(--pressed-shadow);
       }
 
@@ -105,27 +121,25 @@
         background: --tune-background(--current);
         box-shadow: var(--current-shadow);
       }
-
-      .links.is-arrow & {
-        padding-inline-end: calc(1.2rem + 2 * 0.125rem);
-      }
     }
 
-    .links_arrow {
-      --icon-size: 1.2rem;
-
-      position: absolute;
-      inset-block: 0;
-      inset-inline-end: 0.125rem;
+    .links_mark {
       display: flex;
       align-items: center;
+      margin-inline-end: -0.375rem;
 
       .links_item:not([aria-current='page']):active & {
         translate: 0 1px;
       }
 
-      .links_item:not([aria-current='page']) & {
+      .links_item:not([aria-current='page'], .is-read) & {
         opacity: 20%;
+      }
+
+      .links.is-arrow & {
+        --icon-size: 1.2rem;
+
+        margin-inline-end: -0.625rem;
       }
     }
   }

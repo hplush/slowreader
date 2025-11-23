@@ -9,12 +9,15 @@ import {
   type SyncMapStore,
   syncMapTemplate
 } from '@logux/client'
+import { formatter } from '@nanostores/i18n'
 import { nanoid } from 'nanoid'
 import { atom, onMount } from 'nanostores'
 
 import { getClient } from './client.ts'
 import { getFeed } from './feed.ts'
 import { loadFilters } from './filter.ts'
+import { $locale } from './i18n.ts'
+import { stripHTML } from './lib/html.ts'
 import type { OptionalId } from './lib/stores.ts'
 
 export type OriginPost = {
@@ -90,7 +93,23 @@ export function getPostIntro(post: OriginPost): string {
   } else if (post.full && post.full.length <= 2000) {
     return post.full
   } else {
-    return ''
+    return getPostTitle(post)
+  }
+}
+
+export function getPostTitle(post: OriginPost): string {
+  if (post.title) {
+    return stripHTML(post.title)
+  } else if (post.intro) {
+    return stripHTML(post.intro)
+  } else if (post.full) {
+    return stripHTML(post.full)
+  } else if (post.publishedAt) {
+    return formatter($locale)
+      .get()
+      .time(new Date(post.publishedAt * 1000))
+  } else {
+    return post.originId
   }
 }
 

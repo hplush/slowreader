@@ -25,19 +25,19 @@
 
   let links = $derived(
     list.map(feed => ({
-      arrow:
-        $layoutType === 'mobile' || current === feed.url
-          ? mdiChevronRight
-          : mdiCircleSmall,
       controls: getPopupId('feed', feed.url),
       href: getPopupHash($router, 'feed', feed.url),
       id: feed.url,
-      item: feed
+      item: feed,
+      mark:
+        $layoutType === 'mobile' || current === feed.url
+          ? mdiChevronRight
+          : mdiCircleSmall
     }))
   )
 </script>
 
-<Links {id} current={list.find(i => i.url === current)} {links}>
+<Links {id} current={list.find(i => i.url === current)} {links} marks="arrow">
   {#snippet item(feed)}
     {feed.title}
   {/snippet}

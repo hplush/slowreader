@@ -96,3 +96,7 @@ export function parseRichTranslation(text: string, link?: string): string {
   }
   return html
 }
+
+export function stripHTML(html: string): string {
+  return html.replace(/<[^>]*>/g, '')
+}

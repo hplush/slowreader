@@ -7,7 +7,7 @@ import { atom } from 'nanostores'
 
 import { onEnvironment } from './environment.ts'
 
-let $locale = atom('en')
+export let $locale = atom('en')
 let loader: TranslationLoader
 
 /* node:coverage disable */
