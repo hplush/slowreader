@@ -150,6 +150,9 @@ importers:
       just-debounce-it:
         specifier: 3.2.0
         version: 3.2.0
+      lz-string:
+        specifier: 1.5.0
+        version: 1.5.0
       nanodelay:
         specifier: 2.0.2
         version: 2.0.2

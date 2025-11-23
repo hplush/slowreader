@@ -26,6 +26,7 @@
   import FeedPopup from '../popups/feed.svelte'
   import LoadingPopup from '../popups/loading.svelte'
   import NotFoundPopup from '../popups/not-found.svelte'
+  import PostPopup from '../popups/post.svelte'
   import RefreshPopup from '../popups/refresh.svelte'
   import Button from '../ui/button.svelte'
   import Navbar from '../ui/navbar/index.svelte'
@@ -105,6 +106,8 @@
     <LoadingPopup {popup} />
   {:else if popupNotFound}
     <NotFoundPopup {popup} />
+  {:else if popup.name === 'post'}
+    <PostPopup {popup} />
   {:else if popup.name === 'feed'}
     <FeedPopup {popup} />
   {:else if popup.name === 'refresh'}

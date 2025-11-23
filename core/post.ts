@@ -6,7 +6,6 @@ import {
   type Filter,
   type FilterStore,
   loadValue,
-  type SyncMapStore,
   syncMapTemplate
 } from '@logux/client'
 import { formatter } from '@nanostores/i18n'
@@ -52,10 +51,6 @@ export function getPosts(
   filter: Filter<PostValue> = {}
 ): FilterStore<PostValue> {
   return createFilter(getClient(), Post, filter)
-}
-
-export function getPost(postId: string): SyncMapStore<PostValue> {
-  return Post(postId, getClient())
 }
 
 export function deletePost(postId: string): Promise<void> {

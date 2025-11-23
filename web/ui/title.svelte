@@ -1,17 +1,20 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
 
-  let { children }: { children: Snippet } = $props()
+  let { children, font = 'app' }: { children: Snippet; font?: 'app' | 'safe' } =
+    $props()
 </script>
 
-<h1 class="title">{@render children()}</h1>
+<h1 class="title" class:is-safe={font === 'safe'}>{@render children()}</h1>
 
 <style>
   :global {
     .title {
-      /* TODO: Replace to text-box-trim when FF will support it */
-      margin-top: -0.1875rem;
       font: var(--app-title-font);
+
+      &.is-safe {
+        font: var(--title-font);
+      }
     }
   }
 </style>

@@ -1,5 +1,5 @@
 import { cleanStores, keepMount } from 'nanostores'
-import { equal } from 'node:assert/strict'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 
 import {
@@ -7,10 +7,13 @@ import {
   addPost,
   closeLastPopup,
   openedPopups,
+  type OriginPost,
+  type PostValue,
   testFeed,
   testPost,
   waitLoading
 } from '../../index.ts'
+import { getPostPopupParam } from '../../popups/post.ts'
 import {
   checkLoadedPopup,
   cleanClientTest,
@@ -29,23 +32,22 @@ afterEach(async () => {
   cleanStores(openedPopups)
 })
 
-test('opens post', async () => {
+test('opens saved post', async () => {
   keepMount(openedPopups)
   let feed = await addFeed(testFeed({ categoryId: 'general' }))
-  let post1 = await addPost(testPost({ feedId: feed }))
-  let post2 = await addPost(testPost({ feedId: feed }))
+  let id1 = await addPost(testPost({ feedId: feed }))
+  let id2 = await addPost(testPost({ feedId: feed }))
 
-  let popup1 = openTestPopup('post', post1)
+  let popup1 = openTestPopup('post', getPostPopupParam({ id: id1 }))
   equal(openedPopups.get().length, 1)
   equal(openedPopups.get()[0], popup1)
   equal(popup1.name, 'post')
-  equal(popup1.param, post1)
   equal(popup1.loading.get(), true)
 
   await waitLoading(popup1.loading)
-  equal(checkLoadedPopup(popup1).post.get().id, post1)
+  equal((checkLoadedPopup(popup1).post.get() as PostValue).id, id1)
 
-  let popup2 = openTestPopup('post', post1)
+  let popup2 = openTestPopup('post', getPostPopupParam({ id: id1 }))
   equal(openedPopups.get().length, 2)
   equal(popup1.loading.get(), false)
   equal(popup2.loading.get(), true)
@@ -55,7 +57,9 @@ test('opens post', async () => {
   equal(popup2.loading.get(), false)
 
   setBaseTestRoute({
-    hash: `post=${post2},post=${post1}`,
+    hash:
+      `post=${getPostPopupParam({ id: id2 })},` +
+      `post=${getPostPopupParam({ id: id1 })}`,
     params: {},
     route: 'fast'
   })
@@ -65,7 +69,7 @@ test('opens post', async () => {
   equal(popup4.loading.get(), false)
 
   await waitLoading(popup3.loading)
-  equal(checkLoadedPopup(popup3).post.get().id, post2)
+  equal((checkLoadedPopup(popup3).post.get() as PostValue).id, id2)
 
   closeLastPopup()
   equal(openedPopups.get().length, 1)
@@ -73,9 +77,26 @@ test('opens post', async () => {
   closeLastPopup()
   equal(openedPopups.get().length, 0)
 
-  let popup5 = openTestPopup('post', 'unknown')
+  let popup5 = openTestPopup('post', 'id:unknown')
   equal(popup5.loading.get(), true)
 
   await waitLoading(popup5.loading)
   equal(popup5.notFound, true)
+})
+
+test('opens candidate post', async () => {
+  let post: OriginPost = { media: [], originId: 'id', title: 'test' }
+  let data = getPostPopupParam(post)
+
+  let popup = openTestPopup('post', data)
+  await waitLoading(popup.loading)
+  deepEqual(checkLoadedPopup(popup).post.get(), post)
+
+  let broken1 = openTestPopup('post', 'data:aaa')
+  await waitLoading(broken1.loading)
+  equal(broken1.notFound, true)
+
+  let broken2 = openTestPopup('post', 'aaa')
+  await waitLoading(broken2.loading)
+  equal(broken2.notFound, true)
 })
