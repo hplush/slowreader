@@ -39,7 +39,7 @@ export const popupNames = {
 
 export type PopupName = keyof typeof popupNames
 
-export type PopupRoute = { param: string; popup: PopupName }
+export type PopupRoute = { readonly param: string; readonly popup: PopupName }
 
 export type RouteName = keyof Routes
 
@@ -58,10 +58,10 @@ export type ParamlessRouteName = {
 
 export type Route<Name extends RouteName = RouteName> = Name extends string
   ? {
-      params: Routes[Name]
-      popups: PopupRoute[]
-      redirect?: boolean
-      route: Name
+      readonly params: Routes[Name]
+      readonly popups: readonly PopupRoute[]
+      readonly redirect?: boolean
+      readonly route: Name
     }
   : never
 
@@ -193,7 +193,7 @@ export function isOtherRoute(route: Route): boolean {
 /**
  * Converts popup routes to a hash string format `popup=param,popup2=param2`
  */
-export function stringifyPopups(popups: PopupRoute[]): string {
+export function stringifyPopups(popups: readonly PopupRoute[]): string {
   return popups
     .map(({ param, popup }) => `${popup}=${encodeURIComponent(param)}`)
     .filter(i => i !== '')
@@ -205,12 +205,12 @@ export function addPopup(
   popup: PopupName,
   param: string
 ): string {
-  let next = route ? route.popups : []
+  let next = route ? [...route.popups] : []
   let last = next[next.length - 1]
   if (last?.popup === popup) {
     next[next.length - 1] = { param, popup }
   } else {
-    next = next.concat({ param, popup })
+    next.push({ param, popup })
   }
   return stringifyPopups(next)
 }

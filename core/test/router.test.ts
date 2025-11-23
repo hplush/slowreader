@@ -201,6 +201,14 @@ test('has helpers for popups', () => {
     popups: [],
     route: 'welcome'
   })
+
+  setBaseTestRoute({
+    hash: 'feed=old',
+    params: {},
+    route: 'home'
+  })
+  addPopup(router.get(), 'feed', 'new')
+  deepEqual(router.get().popups, [{ param: 'old', popup: 'feed' }])
 })
 
 test('supports # at the beginning of hash', () => {
