@@ -166,6 +166,7 @@ async function rebuild(): Promise<void> {
   for (let category of categoriesByName) {
     let list = byCategory[category.id]
     if (list) {
+      list.sort((a, b) => a[0].title.localeCompare(b[0].title))
       result.push([category, list])
     }
   }
