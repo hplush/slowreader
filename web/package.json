@@ -11,7 +11,7 @@
     "build": "pnpm run /^build:/ && mv ./storybook-static ./dist/ui",
     "start": "vite --host 0.0.0.0 --port 2553",
     "visual": "storybook dev -p 2555 --no-open --host 0.0.0.0",
-    "chromatic": "node --env-file-if-exists=../.env node_modules/chromatic/dist/bin.js --exit-zero-on-changes",
+    "chromatic": "node --env-file-if-exists=../.env node_modules/chromatic/dist/bin.js --exit-zero-on-changes --skip-update-check --exit-once-uploaded",
     "production": "node --run build && ./scripts/run-image.sh",
     "size": "node --run build:web && size-limit",
     "test:names": "node ./scripts/check-names.ts",

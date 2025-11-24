@@ -2,6 +2,11 @@ name: Visual Test
 on:
   schedule:
     - cron: '00 04 * * *' # Runs at night every day
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/visual.yml'
 permissions:
   contents: read
 jobs:
@@ -43,6 +48,6 @@ jobs:
         uses: ./.github/actions/init-node
       - name: Publish to Chromatic
         if: steps.should_run.outputs.should_run == 'true'
-        run: cd web && pnpm chromatic
+        run: cd web && pnpm chromatic --skip-update-check
         env:
           CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
