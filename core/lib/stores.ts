@@ -111,7 +111,7 @@ export function onLogAction(cb: (action: Action) => void): () => void {
     unbindLog?.()
     unbindLog = undefined
     if (loguxClient) {
-      unbindLog = loguxClient.log.on('add', cb)
+      unbindLog = loguxClient.on('add', cb)
     }
   })
 
