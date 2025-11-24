@@ -6,7 +6,9 @@
     type PostPopup,
     postMessages as t
   } from '@slowreader/core'
+  import { onMount } from 'svelte'
 
+  import { onNextVisibility } from '../lib/visitibility.ts'
   import Button from '../ui/button.svelte'
   import FormattedText from '../ui/formatted-text.svelte'
   import Popup from '../ui/popup.svelte'
@@ -16,6 +18,14 @@
   let { popup }: { popup: PostPopup } = $props()
 
   let { post } = popup
+
+  if (popup.read) {
+    onMount(() => {
+      onNextVisibility(() => {
+        popup.read?.()
+      })
+    })
+  }
 </script>
 
 <Popup id={getPopupId(popup.name, popup.param)}>
