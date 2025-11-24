@@ -7,4 +7,4 @@
   let { list } = reader
 </script>
 
-<Posts list={$list} />
+<Posts autoread list={$list} />

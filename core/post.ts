@@ -1,3 +1,4 @@
+import { defineSyncMapActions } from '@logux/actions'
 import {
   changeSyncMapById,
   createFilter,
@@ -25,6 +26,7 @@ export type OriginPost = {
   media: string[]
   originId: string
   publishedAt?: number
+  read?: boolean
   title?: string
   url?: string
 }
@@ -155,3 +157,5 @@ onMount(slowPostsCount, () => {
     slowPostsCount.set(posts.isLoading ? undefined : posts.list.length)
   })
 })
+
+export const postsChangedAction = defineSyncMapActions<PostValue>('posts')[4]

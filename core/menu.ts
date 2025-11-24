@@ -92,8 +92,8 @@ async function rebuild(): Promise<void> {
     loadValue(getFilters({ action: 'fast' }))
   ])
 
-  let slowPosts = posts.list.filter(i => i.reading === 'slow')
-  let fastPosts = posts.list.filter(i => i.reading === 'fast')
+  let slowPosts = posts.list.filter(i => i.reading === 'slow' && !i.read)
+  let fastPosts = posts.list.filter(i => i.reading === 'fast' && !i.read)
   let fastFeeds = feeds.list.filter(i => i.reading === 'fast')
 
   let feedsWithFastFilters = fastFilters.list.map(i => {

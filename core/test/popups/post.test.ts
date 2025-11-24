@@ -1,3 +1,4 @@
+import { ensureLoaded } from '@logux/client'
 import { cleanStores, keepMount } from 'nanostores'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
@@ -6,6 +7,7 @@ import {
   addFeed,
   addPost,
   closeLastPopup,
+  getPosts,
   openedPopups,
   type OriginPost,
   type PostValue,
@@ -13,6 +15,7 @@ import {
   testPost,
   waitLoading
 } from '../../index.ts'
+import { waitSyncLoading } from '../../lib/stores.ts'
 import { getPostPopupParam } from '../../popups/post.ts'
 import {
   checkLoadedPopup,
@@ -46,6 +49,7 @@ test('opens saved post', async () => {
 
   await waitLoading(popup1.loading)
   equal((checkLoadedPopup(popup1).post.get() as PostValue).id, id1)
+  equal(checkLoadedPopup(popup1).read, undefined)
 
   let popup2 = openTestPopup('post', getPostPopupParam({ id: id1 }))
   equal(openedPopups.get().length, 2)
@@ -84,6 +88,30 @@ test('opens saved post', async () => {
   equal(popup5.notFound, true)
 })
 
+test('read saved post', async () => {
+  let feed = await addFeed(testFeed({ categoryId: 'general' }))
+  let id1 = await addPost(testPost({ feedId: feed }))
+  let id2 = await addPost(testPost({ feedId: feed }))
+
+  let posts = getPosts()
+  await waitSyncLoading(posts)
+  let post1 = ensureLoaded(posts.get()).stores.get(id1)!
+  let post2 = ensureLoaded(posts.get()).stores.get(id2)!
+
+  let popup = openTestPopup('post', getPostPopupParam({ id: id1 }, true))
+  await waitLoading(popup.loading)
+  equal(ensureLoaded(post1.get()).read, undefined)
+  equal(ensureLoaded(post2.get()).read, undefined)
+
+  await checkLoadedPopup(popup).read!()
+  equal(ensureLoaded(post1.get()).read, true)
+  equal(ensureLoaded(post2.get()).read, undefined)
+
+  await checkLoadedPopup(popup).unread!()
+  equal(ensureLoaded(post1.get()).read, false)
+  equal(ensureLoaded(post2.get()).read, undefined)
+})
+
 test('opens candidate post', async () => {
   let post: OriginPost = { media: [], originId: 'id', title: 'test' }
   let data = getPostPopupParam(post)
@@ -91,6 +119,7 @@ test('opens candidate post', async () => {
   let popup = openTestPopup('post', data)
   await waitLoading(popup.loading)
   deepEqual(checkLoadedPopup(popup).post.get(), post)
+  deepEqual(checkLoadedPopup(popup).read, undefined)
 
   let broken1 = openTestPopup('post', 'data:aaa')
   await waitLoading(broken1.loading)

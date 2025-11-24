@@ -327,8 +327,6 @@ test('renders feeds menu', async () => {
     [
       { id: 'general', title: 'General' },
       [
-        [await loadValue(getFeed(feed4)), 1],
-        [await loadValue(getFeed(feed5)), 2],
         [
           {
             categoryId: 'general',
@@ -341,7 +339,9 @@ test('renders feeds menu', async () => {
             url: ''
           },
           1
-        ]
+        ],
+        [await loadValue(getFeed(feed4)), 1],
+        [await loadValue(getFeed(feed5)), 2]
       ]
     ]
   ])

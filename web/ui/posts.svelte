@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiRadioboxBlank } from '@mdi/js'
+  import { mdiCheckboxMarkedCircle, mdiRadioboxBlank } from '@mdi/js'
   import {
     getPostTitle,
     type OriginPost,
@@ -13,22 +13,27 @@
 
   type PostLike = OriginPost | PostValue
 
-  let { list }: { list: readonly PostLike[] } = $props()
+  let { autoread, list }: { autoread?: boolean; list: readonly PostLike[] } =
+    $props()
 
   let current = $derived.by(() => {
     if (!list[0] || !('id' in list[0])) return undefined
     let ids = $router.popups.filter(i => i.popup === 'post').map(i => i.param)
-    return list.find(i => ids.includes(getPostPopupParam(i)))
+    return list.find(i => ids.includes(getPostPopupParam(i, autoread)))
   })
 
   let links = $derived(
     list.map(post => {
-      // TODO: use mdiCheckboxMarkedCircle for read posts
+      let mark: string | undefined
+      if ('id' in post) {
+        mark = post.read ? mdiCheckboxMarkedCircle : mdiRadioboxBlank
+      }
       return {
-        href: getPopupHash($router, 'post', getPostPopupParam(post)),
+        href: getPopupHash($router, 'post', getPostPopupParam(post, autoread)),
         id: 'id' in post ? post.id : post.originId,
         item: post,
-        mark: 'id' in post ? mdiRadioboxBlank : undefined
+        mark,
+        variant: 'id' in post && post.read ? ('read' as const) : undefined
       }
     })
   )
