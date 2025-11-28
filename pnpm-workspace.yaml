@@ -20,6 +20,8 @@ minimumReleaseAgeExclude:
   - 'postcss-smooth-shadow'
   - '@nanostores/*'
   - '@logux/*'
+  - '@size-limit/*'
+  - 'size-limit'
   - 'browserslist'
   - 'caniuse-lite'
   - 'autoprefixer'

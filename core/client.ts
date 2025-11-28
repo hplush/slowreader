@@ -95,7 +95,6 @@ export function getClient(): CrossTabClient {
 }
 
 export type SyncStatus =
-  | 'error'
   | 'local'
   | Exclude<StatusValue, 'denied' | 'protocolError' | 'syncError'>
 
