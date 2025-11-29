@@ -18,24 +18,16 @@
     current,
     id,
     item,
-    links,
-    marks
+    links
   }: {
     current: undefined | Value
     id?: string
     item: Snippet<[Value]>
     links: Link<Value>[]
-    marks?: 'arrow' | 'icon'
   } = $props()
 </script>
 
-<ul
-  {id}
-  class="links"
-  class:is-arrow={marks === 'arrow'}
-  aria-hidden="true"
-  role="menu"
->
+<ul {id} class="links" aria-hidden="true" role="menu">
   {#each links as i (i.id)}
     <li>
       <Clickable
@@ -124,9 +116,11 @@
     }
 
     .links_mark {
+      --icon-size: 1.2rem;
+
       display: flex;
       align-items: center;
-      margin-inline-end: -0.375rem;
+      margin-inline-end: -0.625rem;
 
       .links_item:not([aria-current='page']):active & {
         translate: 0 1px;
@@ -134,12 +128,6 @@
 
       .links_item:not([aria-current='page'], .is-read) & {
         opacity: 20%;
-      }
-
-      .links.is-arrow & {
-        --icon-size: 1.2rem;
-
-        margin-inline-end: -0.625rem;
       }
     }
   }

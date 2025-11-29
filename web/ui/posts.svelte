@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { mdiCheckboxMarkedCircle, mdiRadioboxBlank } from '@mdi/js'
   import {
     getPostTitle,
     type OriginPost,
@@ -24,15 +23,10 @@
 
   let links = $derived(
     list.map(post => {
-      let mark: string | undefined
-      if ('id' in post) {
-        mark = post.read ? mdiCheckboxMarkedCircle : mdiRadioboxBlank
-      }
       return {
         href: getPopupHash($router, 'post', getPostPopupParam(post, autoread)),
         id: 'id' in post ? post.id : post.originId,
         item: post,
-        mark,
         variant: 'id' in post && post.read ? ('read' as const) : undefined
       }
     })

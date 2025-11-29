@@ -37,7 +37,7 @@
   )
 </script>
 
-<Links {id} current={list.find(i => i.url === current)} {links} marks="arrow">
+<Links {id} current={list.find(i => i.url === current)} {links}>
   {#snippet item(feed)}
     {feed.title}
   {/snippet}
