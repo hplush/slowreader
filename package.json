@@ -17,6 +17,7 @@
     "clean": "pnpm run -r --include-workspace-root /^clean:/",
     "build": "pnpm run -r build",
     "unused-messages": "node scripts/check-unused-messages.ts",
+    "update-browsers": "node web/scripts/update-browsers.ts",
     "update-env": "node ./scripts/update-env.ts",
     "update-ci": "node --env-file-if-exists=.env node_modules/actions-up/bin/actions-up.js",
     "update-review": "node --env-file-if-exists=.env node_modules/multiocular/server/bin.js --port 2556",

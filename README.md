@@ -264,6 +264,9 @@ We try to use progressive approach and update dependencies often (every month).
 To update all dependencies:
 
 ```sh
+# Update data lock in web/.browserslistrc
+pnpm update-browsers
+
 # Update Node.js and pnpm
 pnpm update-env
 
