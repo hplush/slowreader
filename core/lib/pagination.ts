@@ -4,6 +4,7 @@ export type PaginationValue = {
   count: number
   hasNext: boolean
   page: number
+  pages: number[]
   show: boolean
 }
 
@@ -12,7 +13,13 @@ export function createPagination(
   perPage: number
 ): WritableAtom<PaginationValue> {
   return setPagination(
-    atom<PaginationValue>({ count: 0, hasNext: false, page: 0, show: false }),
+    atom<PaginationValue>({
+      count: 0,
+      hasNext: false,
+      page: 0,
+      pages: [],
+      show: false
+    }),
     all,
     perPage
   )
@@ -28,6 +35,7 @@ export function setPagination(
     count,
     hasNext: all > perPage,
     page: 0,
+    pages: Array.from({ length: count }, (_, i) => i),
     show: count > 1
   })
   return pagination

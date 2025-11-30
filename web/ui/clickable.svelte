@@ -13,7 +13,7 @@
     onclick,
     ...props
   }: {
-    children: Snippet
+    children?: Snippet
     class: ClassValue
     disabled?: boolean
     onclick?: MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>
@@ -34,7 +34,7 @@
         }
       : null}
   >
-    {@render children()}
+    {@render children?.()}
   </a>
 {:else}
   <button
@@ -47,6 +47,6 @@
       : null}
     type={props.type || 'button'}
   >
-    {@render children()}
+    {@render children?.()}
   </button>
 {/if}
