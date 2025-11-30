@@ -37,6 +37,7 @@
         disabled={!pages.hasNext}
         href={`?from=${pages.page + 1}`}
         icon={mdiArrowRight}
+        variant="attention"
       >
         {$t.nextPage}
       </Button>

@@ -2,6 +2,7 @@
   export type ButtonSize = 'big' | 'icon' | 'inline' | 'pill' | 'wide'
 
   export type ButtonVariant =
+    | 'attention'
     | 'main'
     | 'plain-dangerous'
     | 'plain-secondary'
@@ -66,6 +67,7 @@
   {...props}
   class={{
     'button': true,
+    'is-attention': variant === 'attention',
     'is-big': size === 'big',
     'is-icon': size === 'icon',
     'is-loader': !!loader,
@@ -141,6 +143,17 @@
         &:active:not([aria-disabled='true']),
         &:focus-visible {
           background: --tune-color(--accent-color, --button-hover);
+        }
+      }
+
+      &.is-attention {
+        background: --tune-background(--current);
+        box-shadow: var(--button-shadow);
+
+        &:hover:not([aria-disabled='true']),
+        &:active:not([aria-disabled='true']),
+        &:focus-visible {
+          background: --tune-background(--current --flat-button-hover);
         }
       }
 

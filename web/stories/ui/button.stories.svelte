@@ -31,6 +31,11 @@
       <Button {icon} {onclick} variant="main">Main</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="attention">Attention</Button>
+      <Button {icon} {onclick} variant="attention">Attention</Button>
+      <Button {icon} {onclick} variant="attention">Attention</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
@@ -124,6 +129,11 @@
       <Button {icon} {onclick} variant="main">Main</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="attention">Attention</Button>
+      <Button {icon} {onclick} variant="attention">Attention</Button>
+      <Button {icon} {onclick} variant="attention">Attention</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
@@ -191,6 +201,11 @@
       <Button {icon} {onclick} variant="main">Main</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="attention">Attention</Button>
+      <Button {icon} {onclick} variant="attention">Attention</Button>
+      <Button {icon} {onclick} variant="attention">Attention</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
@@ -256,6 +271,11 @@
       <Button {icon} {onclick} variant="main">Main</Button>
       <Button {icon} {onclick} variant="main">Main</Button>
       <Button {icon} {onclick} variant="main">Main</Button>
+    </Section>
+    <Section active="button:nth-child(3)" hover="button:nth-child(2)">
+      <Button {icon} {onclick} variant="attention">Attention</Button>
+      <Button {icon} {onclick} variant="attention">Attention</Button>
+      <Button {icon} {onclick} variant="attention">Attention</Button>
     </Section>
     <Section active="button:nth-child(3)" hover="button:nth-child(2)">
       <Button {icon} {onclick} variant="secondary">Secondary</Button>
