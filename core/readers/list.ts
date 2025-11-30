@@ -33,7 +33,7 @@ export const listReader = createReader('list', (filter, params) => {
   let $list = atom<PostValue[]>([])
   let $pages = createPagination(1, 1)
 
-  let unbindSince = (): void => {}
+  let unbindFrom = (): void => {}
   let unbindAction = (): void => {}
   async function start(): Promise<void> {
     await deleteRead()
@@ -41,12 +41,12 @@ export const listReader = createReader('list', (filter, params) => {
     if (exited) return
 
     function updateList(): void {
-      let since = params.since.get()
-      if (!since) since = 0
-      let fromIndex = since * POSTS_PER_PAGE
+      let from = params.from.get()
+      if (!from) from = 0
+      let fromIndex = from * POSTS_PER_PAGE
       let list = posts.slice(fromIndex, fromIndex + POSTS_PER_PAGE)
       $list.set(list)
-      moveToPage($pages, since)
+      moveToPage($pages, from)
     }
 
     unbindAction = onLogAction(action => {
@@ -62,7 +62,7 @@ export const listReader = createReader('list', (filter, params) => {
     })
 
     setPagination($pages, posts.length, POSTS_PER_PAGE)
-    unbindSince = params.since.subscribe(updateList)
+    unbindFrom = params.from.subscribe(updateList)
   }
   start().then(() => {
     $loading.set(false)
@@ -72,7 +72,7 @@ export const listReader = createReader('list', (filter, params) => {
     let list = $list.get()
     let promise = Promise.all(list.map(i => changePost(i.id, { read: true })))
     if ($pages.get().hasNext) {
-      params.since.set($pages.get().page + 1)
+      params.from.set($pages.get().page + 1)
     }
     await promise
   }
@@ -81,7 +81,7 @@ export const listReader = createReader('list', (filter, params) => {
     exit() {
       exited = true
       unbindAction()
-      unbindSince()
+      unbindFrom()
       deleteRead()
     },
     list: $list,

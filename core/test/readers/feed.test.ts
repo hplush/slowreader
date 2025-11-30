@@ -65,13 +65,13 @@ test('loads posts', async () => {
   equal(reader.list.get()[0]!.title, '60')
   equal(reader.list.get()[49]!.title, '11')
 
-  page.params.since.set(10)
+  page.params.from.set(10)
   equal(page.loading.get(), false)
   equal(reader.list.get().length, 9)
   equal(reader.list.get()[0]!.title, '9')
   equal(reader.hasNext.get(), false)
 
-  page.params.since.set(undefined)
+  page.params.from.set(undefined)
   equal(reader.list.get()[0]!.title, '60')
   equal(reader.list.get().length, 50)
 

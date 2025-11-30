@@ -103,7 +103,7 @@ test('loads posts', async () => {
     ]
   ])
 
-  page.params.since.set(1)
+  page.params.from.set(1)
   equal(reader.list.get().length, 50)
   equal(reader.list.get()[0]!.title, '50')
   deepEqual(reader.pages.get(), {
@@ -127,11 +127,11 @@ test('loads posts', async () => {
   reader = ensureReader(page.posts, 'list')
   equal(reader.list.get().length, 48)
 
-  page.params.since.set(0)
+  page.params.from.set(0)
   equal(reader.list.get()[99]!.title, '49')
 
   await reader.readPage()
-  equal(page.params.since.get(), 1)
+  equal(page.params.from.get(), 1)
   equal(reader.list.get().length, 48)
   deepEqual(reader.pages.get(), {
     count: 2,
@@ -150,7 +150,7 @@ test('loads posts', async () => {
   ])
 
   await reader.readPage()
-  equal(page.params.since.get(), 1)
+  equal(page.params.from.get(), 1)
   equal(reader.list.get().length, 48)
   deepEqual(reader.pages.get(), {
     count: 2,

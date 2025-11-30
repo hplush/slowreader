@@ -11,7 +11,7 @@ export interface Routes {
   export: {}
   fast: {
     category?: string
-    since?: number
+    from?: number
   }
   feeds: {}
   feedsByCategories: {}
@@ -25,7 +25,7 @@ export interface Routes {
   signup: {}
   slow: {
     feed?: string
-    since?: number
+    from?: number
   }
   start: {}
   welcome: {}
@@ -165,7 +165,7 @@ onEnvironment(({ baseRouter }) => {
         nextRoute = {
           params: {
             ...route.params,
-            since: validateNumber(route.params.since)
+            from: validateNumber(route.params.from)
           },
           popups,
           route: route.route

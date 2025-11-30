@@ -21,7 +21,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
   return createPage(reading, () => {
     let $categoryId = atom<string | undefined>()
     let $feedId = atom<string | undefined>()
-    let $since = atom<number | undefined>()
+    let $from = atom<number | undefined>()
     let $loading = atom(true)
     let $postsLoading = atom(true)
     let $posts = atom<Reader | undefined>()
@@ -31,7 +31,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     let params = {
       category: $categoryId,
       feed: $feedId,
-      since: $since
+      from: $from
     }
 
     let unbindTarget = (): void => {}

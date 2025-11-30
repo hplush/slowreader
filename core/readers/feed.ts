@@ -14,13 +14,13 @@ export const feedReader = createReader('feed', (filter, params) => {
   let $hasNext = atom(false)
 
   let openAt = Date.now()
-  let nextSince: number | undefined
-  let unbindSince = (): void => {}
+  let nextFrom: number | undefined
+  let unbindFrom = (): void => {}
   async function start(): Promise<void> {
     let posts = await loadPosts(filter)
     if (exited) return
 
-    unbindSince = params.since.subscribe(value => {
+    unbindFrom = params.from.subscribe(value => {
       if (!value) value = openAt
       let fromIndex = posts.findIndex(i => i.publishedAt < value)
       if (fromIndex === -1) fromIndex = posts.length
@@ -33,7 +33,7 @@ export const feedReader = createReader('feed', (filter, params) => {
       ) {
         list = list.slice(0, -1)
       }
-      nextSince = list[list.length - 1]?.publishedAt
+      nextFrom = list[list.length - 1]?.publishedAt
       $list.set(list)
     })
   }
@@ -43,7 +43,7 @@ export const feedReader = createReader('feed', (filter, params) => {
 
   async function deleteAndNext(): Promise<void> {
     let promise = Promise.all($list.get().map(i => deletePost(i.id)))
-    params.since.set(nextSince)
+    params.from.set(nextFrom)
     return promise.then()
   }
 
@@ -51,7 +51,7 @@ export const feedReader = createReader('feed', (filter, params) => {
     deleteAndNext,
     exit() {
       exited = true
-      unbindSince()
+      unbindFrom()
     },
     hasNext: $hasNext,
     list: $list,
