@@ -59,7 +59,7 @@ test('transforms routers for users', () => {
   setTestUser()
   setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
   deepEqual(router.get(), {
-    params: { category: 'general', since: undefined },
+    params: { category: 'general', from: undefined },
     popups: [],
     route: 'fast'
   })
@@ -95,26 +95,26 @@ test('has routes groups', () => {
   equal(isOtherRoute(router.get()), true)
 })
 
-test('converts since to number', async () => {
+test('converts from to number', async () => {
   setTestUser()
   let idA = await addCategory({ title: 'A' })
 
-  setBaseTestRoute({ params: { category: idA, since: 1000 }, route: 'fast' })
+  setBaseTestRoute({ params: { category: idA, from: 1000 }, route: 'fast' })
   deepEqual(router.get(), {
-    params: { category: idA, since: 1000 },
+    params: { category: idA, from: 1000 },
     popups: [],
     route: 'fast'
   })
 
-  setBaseTestRoute({ params: { category: idA, since: '1000' }, route: 'fast' })
+  setBaseTestRoute({ params: { category: idA, from: '1000' }, route: 'fast' })
   deepEqual(router.get(), {
-    params: { category: idA, since: 1000 },
+    params: { category: idA, from: 1000 },
     popups: [],
     route: 'fast'
   })
 
   setBaseTestRoute({
-    params: { category: idA, since: '1000k' },
+    params: { category: idA, from: '1000k' },
     route: 'fast'
   })
   deepEqual(router.get(), { params: {}, popups: [], route: 'notFound' })

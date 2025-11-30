@@ -69,6 +69,7 @@ test('loads posts', async () => {
     count: 1,
     hasNext: false,
     page: 0,
+    pages: [0],
     show: false
   })
 
@@ -87,6 +88,7 @@ test('loads posts', async () => {
     count: 2,
     hasNext: true,
     page: 0,
+    pages: [0, 1],
     show: true
   })
 
@@ -110,6 +112,7 @@ test('loads posts', async () => {
     count: 2,
     hasNext: false,
     page: 1,
+    pages: [0, 1],
     show: true
   })
   await setTimeout(10)
@@ -120,7 +123,7 @@ test('loads posts', async () => {
   })
 
   page = openPage({
-    params: { category: categoryId, since: 1 },
+    params: { category: categoryId, from: 1 },
     route: 'slow'
   })
   await waitLoading(page.postsLoading)
@@ -137,6 +140,7 @@ test('loads posts', async () => {
     count: 2,
     hasNext: false,
     page: 1,
+    pages: [0, 1],
     show: true
   })
   deepEqual(slowMenu.get(), [
@@ -156,6 +160,7 @@ test('loads posts', async () => {
     count: 2,
     hasNext: false,
     page: 1,
+    pages: [0, 1],
     show: true
   })
 
