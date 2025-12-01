@@ -5,6 +5,8 @@ import {
   comfortMode,
   errorMode,
   openedPopups,
+  type Route,
+  router,
   theme,
   useQuietCursor,
   useReducedMotion
@@ -30,6 +32,24 @@ function updateTheme(): void {
     themeTag.setAttribute('content', background)
   }
 }
+
+function fromParam(page: Route): number | undefined {
+  if (page.route === 'fast' || page.route === 'slow') {
+    return page.params.from
+  } else {
+    return undefined
+  }
+}
+let prevPage: Route = router.get()
+router.listen(page => {
+  if (
+    prevPage.route !== page.route ||
+    fromParam(prevPage) !== fromParam(page)
+  ) {
+    document.documentElement.scrollTo(0, 0)
+  }
+  prevPage = page
+})
 
 errorMode.subscribe(() => {
   updateTheme()
