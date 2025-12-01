@@ -97,6 +97,10 @@
       text-align: center;
       border-radius: var(--base-radius);
 
+      &[aria-disabled='true'] {
+        color: var(--text-color);
+      }
+
       &:hover:not(:has(:checked)),
       &:active:not(:has(:checked)),
       &:focus-visible:not(:has(:checked)) {
