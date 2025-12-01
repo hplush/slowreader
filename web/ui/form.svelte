@@ -14,7 +14,7 @@
     e.preventDefault()
     if (loading) return
     let form = e.currentTarget
-    let invalid = form.querySelectorAll<HTMLInputElement>('[data-invalid=true]')
+    let invalid = form.querySelectorAll('[data-invalid=true]')
     if (invalid.length === 0) {
       onsubmit()
     } else {

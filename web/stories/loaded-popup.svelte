@@ -14,5 +14,5 @@
 {:else if popup.notFound}
   404
 {:else}
-  {@render loaded(popup as LoadedPopup<SomePopup>)}
+  {@render loaded(popup as LoadedPopup)}
 {/if}

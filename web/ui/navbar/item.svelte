@@ -37,7 +37,7 @@
         item.tabIndex = -1
       }, 10)
     }
-  }) as KeyboardEventHandler<HTMLAnchorElement | HTMLButtonElement>}
+  }) as KeyboardEventHandler}
   role="menuitem"
   tabindex={-1}
   title={name && name.length > 15 ? name : null}

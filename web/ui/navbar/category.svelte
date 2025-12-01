@@ -39,7 +39,7 @@
     onclick={closable
       ? ((e => {
           if (e.detail) toggleCategory(id)
-        }) as MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>)
+        }) as MouseEventHandler)
       : undefined}
     onkeydown={closable
       ? ((e => {
@@ -48,7 +48,7 @@
           } else if (e.key === ' ') {
             toggleCategory(id)
           }
-        }) as KeyboardEventHandler<HTMLAnchorElement | HTMLButtonElement>)
+        }) as KeyboardEventHandler)
       : undefined}
     role="menuitem"
     tabindex={-1}
