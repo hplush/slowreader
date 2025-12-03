@@ -1,4 +1,4 @@
-import { atom, effect, type ReadableAtom } from 'nanostores'
+import { atom, computed, effect, type ReadableAtom } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
 import { NotFoundError } from './not-found.ts'
@@ -262,3 +262,12 @@ export async function nextRouteIsRedirect(
   nestedRedirect -= 1
   if (nestedRedirect === 0) redirectMode = false
 }
+
+export const openedPost = computed(router, page => {
+  let first = page.popups[0]
+  if (!first) {
+    return undefined
+  } else if (first.popup === 'post') {
+    return first.param.replace(/^\w+:/, '')
+  }
+})

@@ -20,7 +20,7 @@
     item,
     links
   }: {
-    current: undefined | Value
+    current?: string
     id?: string
     item: Snippet<[Value]>
     links: Link<Value>[]
@@ -36,7 +36,7 @@
           'links_item': true
         }}
         aria-controls={i.controls ?? null}
-        aria-current={current === i.item ? 'page' : null}
+        aria-current={current === i.id ? 'page' : null}
         href={i.href}
         role="menuitem"
         tabindex={-1}
@@ -64,7 +64,6 @@
       @mixin clickable;
 
       position: relative;
-      display: block;
       display: flex;
       justify-content: space-between;
       padding: 0.875rem var(--control-padding);
