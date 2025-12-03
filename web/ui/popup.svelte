@@ -5,14 +5,12 @@
     comfortMode,
     type FeedValue,
     layoutType,
-    router,
     commonMessages as t
   } from '@slowreader/core'
   import type { Snippet } from 'svelte'
   import { onMount } from 'svelte'
   import { on } from 'svelte/events'
 
-  import { getHashWithoutLastPopup } from '../stores/url-router.ts'
   import Button from './button.svelte'
 
   let {
@@ -68,8 +66,8 @@
         {/if}
       </div>
       <Button
-        href={getHashWithoutLastPopup($router)}
         icon={$layoutType !== 'desktop' ? mdiChevronLeft : mdiClose}
+        onclick={closeLastPopup}
         size="icon"
         tabindex={-1}
         variant="plain"
