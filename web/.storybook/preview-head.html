@@ -2,11 +2,15 @@
   .sb-main-padded.sb-show-main {
     padding: 0;
   }
+
+  html,
+  body {
+    height: auto !important;
+    overflow: auto !important;
+    min-height: 100dvh !important;
+  }
+
   #storybook-root {
-    --current-background: var(--land-color);
-    background: var(--land-color);
-    display: flex;
-    min-height: 100svh;
-    flex-direction: column;
+    padding-bottom: 0;
   }
 </style>

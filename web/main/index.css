@@ -76,8 +76,7 @@ ol[role='list'] {
   list-style: none;
 }
 
-#main {
-  /* Don’t forget to update web/.storybook/preview-head.html */
+.main {
   @mixin background var(--land-color);
 
   position: relative;
@@ -85,6 +84,7 @@ ol[role='list'] {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 100svh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 

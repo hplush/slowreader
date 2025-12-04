@@ -12,6 +12,8 @@ import { atom, effect } from 'nanostores'
 
 import { mobileMedia, tabletMedia } from '../stores/media-queries.ts'
 
+document.getElementById('storybook-root')?.classList.add('main')
+
 export const baseRouter = atom<BaseRoute>({
   hash: '',
   params: {},
