@@ -26,7 +26,7 @@
           href={`?from=${page}`}
           title={`${page}`}
         >
-          {#if pages.count < 20}
+          {#if pages.count < 16}
             {page + 1}
           {/if}
         </Clickable>

@@ -37,6 +37,9 @@
     <Pagination pages={pages(2)} />
   </Section>
   <Section width={400}>
+    <Pagination pages={pages(15)} />
+  </Section>
+  <Section width={400}>
     <Pagination pages={pages(50, 25)} />
   </Section>
 </Story>
