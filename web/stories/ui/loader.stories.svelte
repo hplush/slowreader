@@ -47,7 +47,9 @@
 </Story>
 
 <Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>
-  <Loader />
+  <Section>
+    <Loader />
+  </Section>
 </Story>
 
 <Story name="Reduced Motion" asChild>
@@ -56,6 +58,8 @@
       useReducedMotion.set(true)
     }}
   >
-    <Loader />
+    <Section>
+      <Loader />
+    </Section>
   </Scene>
 </Story>
