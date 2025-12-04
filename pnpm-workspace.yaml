@@ -23,7 +23,9 @@ minimumReleaseAgeExclude:
   - '@size-limit/*'
   - 'size-limit'
   - 'browserslist'
+  - 'update-browserslist-db'
   - 'caniuse-lite'
+  - 'baseline-browser-mapping'
   - 'autoprefixer'
 
 onlyBuiltDependencies:
