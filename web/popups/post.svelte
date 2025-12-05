@@ -17,15 +17,15 @@
 
   let { popup }: { popup: PostPopup } = $props()
 
-  let { post } = popup
+  let { post } = $derived(popup)
 
-  if (popup.read) {
-    onMount(() => {
+  onMount(() => {
+    if (popup.read) {
       onNextVisibility(() => {
         popup.read?.()
       })
-    })
-  }
+    }
+  })
 </script>
 
 <Popup id={getPopupId(popup.name, popup.param)}>

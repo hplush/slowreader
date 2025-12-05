@@ -16,8 +16,8 @@
   import Stack from '../ui/stack.svelte'
 
   let { page }: { page: AddPage } = $props()
-  let { candidates, error, noResults, opened, searching } = page
-  let { url } = page.params
+  let { candidates, error, noResults, opened, searching } = $derived(page)
+  let { url } = $derived(page.params)
 
   let empty = $derived(!$noResults && !$searching && !$url)
 

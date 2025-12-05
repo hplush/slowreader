@@ -31,7 +31,7 @@
 
   let { page }: { page: SignupPage } = $props()
   let { customServer, error, mailTo, secret, signingUp, userId, warningStep } =
-    page
+    $derived(page)
 
   let serverInput: HTMLInputElement | undefined = $state()
 

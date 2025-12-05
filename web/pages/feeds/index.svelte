@@ -18,7 +18,7 @@
   import FeedsWelcomePage from './welcome.svelte'
 
   let { page }: { page: FeedsPage } = $props()
-  let { feed, posts, postsLoading } = page
+  let { feed, posts, postsLoading } = $derived(page)
 </script>
 
 <PopupablePage title={page.reading === 'slow' ? $t.slowTitle : $t.fastTitle}>

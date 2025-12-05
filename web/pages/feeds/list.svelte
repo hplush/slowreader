@@ -5,7 +5,7 @@
   import Posts from '../../ui/posts.svelte'
 
   let { reader }: { reader: ListReader } = $props()
-  let { list, pages } = reader
+  let { list, pages } = $derived(reader)
 </script>
 
 <Posts autoread list={$list} />

@@ -17,7 +17,7 @@
   import TwoOptionsPage from '../ui/two-options-page.svelte'
 
   let { page }: { page: ExportPage } = $props()
-  let { exportingBackup, exportingOpml } = page
+  let { exportingBackup, exportingOpml } = $derived(page)
 </script>
 
 <TwoOptionsPage title={[$organizeMessages.feedsTitle, $t.title]}>

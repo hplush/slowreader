@@ -25,7 +25,7 @@
   import TwoOptionsPage from '../ui/two-options-page.svelte'
 
   let { page }: { page: StartPage } = $props()
-  let { customServer, secret, signError, signingIn, userId } = page
+  let { customServer, secret, signError, signingIn, userId } = $derived(page)
 
   let serverInput: HTMLInputElement | undefined = $state()
 

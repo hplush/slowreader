@@ -23,7 +23,7 @@
   import Title from '../ui/title.svelte'
 
   let { page }: { page: ImportPage } = $props()
-  let { done, feedErrors, fileError, importFile, importing } = page
+  let { done, feedErrors, fileError, importFile, importing } = $derived(page)
 </script>
 
 <ThinPage title={[$t.title, $organizeMessages.feedsTitle]}>

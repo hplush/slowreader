@@ -15,7 +15,7 @@
   import Title from '../ui/title.svelte'
 
   let { page }: { page: ProfilePage } = $props()
-  let { deletingAccount, hasCloud, unsavedData, userId } = page
+  let { deletingAccount, hasCloud, unsavedData, userId } = $derived(page)
 </script>
 
 <ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>

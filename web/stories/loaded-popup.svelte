@@ -6,7 +6,8 @@
     loaded,
     popup
   }: { loaded: Snippet<[LoadedPopup<SomePopup>]>; popup: SomePopup } = $props()
-  let loading = popup.loading
+
+  let loading = $derived(popup.loading)
 </script>
 
 {#if $loading}

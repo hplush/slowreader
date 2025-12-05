@@ -16,7 +16,7 @@
 
   let { page }: { page: FeedsByCategoriesPage } = $props()
 
-  let { groups, opened } = page
+  let { groups, opened } = $derived(page)
 </script>
 
 <PopupablePage padding title={[$t.byCategoryTitle, $t.feedsTitle]}>

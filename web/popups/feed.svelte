@@ -21,7 +21,7 @@
 
   let { popup }: { popup: FeedPopup } = $props()
 
-  let { categories, feed, posts } = popup
+  let { categories, feed, posts } = $derived(popup)
 </script>
 
 <Popup
