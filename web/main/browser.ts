@@ -40,16 +40,19 @@ function fromParam(page: Route): number | undefined {
     return undefined
   }
 }
-let prevPage: Route = router.get()
-router.listen(page => {
-  if (
-    prevPage.route !== page.route ||
-    fromParam(prevPage) !== fromParam(page)
-  ) {
-    document.documentElement.scrollTo(0, 0)
-  }
-  prevPage = page
-})
+let main = document.getElementById('main')
+if (main) {
+  let prevPage: Route = router.get()
+  router.listen(page => {
+    if (
+      prevPage.route !== page.route ||
+      fromParam(prevPage) !== fromParam(page)
+    ) {
+      main.scrollTo(0, 0)
+    }
+    prevPage = page
+  })
+}
 
 errorMode.subscribe(() => {
   updateTheme()
