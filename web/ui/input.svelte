@@ -37,13 +37,14 @@
   } & Omit<HTMLInputAttributes, 'onchange' | 'oninput'> = $props()
 
   let id = $props.id()
-  let inputError = $state<string | undefined>(error)
-  let isValid = $derived(!inputError || !error || !errorId)
+  let isValid = $derived(!error || !errorId)
 
-  let validators = Array.isArray(validate) ? validate : [validate]
-
-  if (props.required) validators.unshift(notEmpty)
-  if (type === 'url') validators.unshift(validUrl)
+  let validators = $derived.by(() => {
+    let list = Array.isArray(validate) ? validate : [validate]
+    if (props.required) list.unshift(notEmpty)
+    if (type === 'url') list.unshift(validUrl)
+    return list
+  })
 
   function runValidators(val: string): string | undefined {
     for (let validator of validators) {
@@ -56,7 +57,7 @@
   onMount(() => {
     if (input) {
       return on(input, 'validate', () => {
-        inputError = runValidators(value)
+        error = runValidators(value)
       })
     }
   })
@@ -72,17 +73,17 @@
     class="input_field"
     class:is-mono={font === 'mono'}
     aria-disabled={disabled}
-    aria-errormessage={errorId || (inputError || error ? `${id}-error` : null)}
-    aria-invalid={inputError || error || errorId ? true : null}
+    aria-errormessage={errorId || (error ? `${id}-error` : null)}
+    aria-invalid={error || errorId ? true : null}
     aria-label={labelless ? label : null}
     data-invalid={!!runValidators(value)}
     onblur={e => {
       value = e.currentTarget.value
-      if (value !== '') inputError = runValidators(value)
+      if (value !== '') error = runValidators(value)
     }}
     onchange={e => {
       value = e.currentTarget.value
-      inputError = runValidators(value)
+      error = runValidators(value)
       if (onchange) onchange(value, isValid)
     }}
     oninput={e => {
@@ -90,18 +91,16 @@
     }}
     onkeyup={e => {
       if (e.key === 'Escape') onescape?.()
-      if (inputError) {
-        inputError = runValidators(e.currentTarget.value)
-      }
+      if (error) error = runValidators(e.currentTarget.value)
     }}
     readonly={disabled}
     {type}
     {value}
     {...props}
   />
-  {#if inputError || error}
+  {#if error}
     <div class="input_error">
-      <Error id={`${id}-error`}>{inputError || error}</Error>
+      <Error id={`${id}-error`}>{error}</Error>
     </div>
   {/if}
 </div>
