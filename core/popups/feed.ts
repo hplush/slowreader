@@ -22,6 +22,7 @@ async function loadFeedFromURL(
   try {
     return await task.text(url)
   } catch (e) {
+    /* node:coverage ignore next 6 */
     if (e instanceof Error) {
       getEnvironment().warn(e)
       return e
