@@ -39,6 +39,10 @@
     --popup-size: 100vw;
     --control-height: 2.25rem;
   }
+
+  @media (display-mode: standalone) {
+    --navbar-height: calc(var(--navbar-height) + env(safe-area-inset-bottom));
+  }
 }
 
 /* Update also web/stores/media-queries.ts */

@@ -128,6 +128,10 @@
 
         height: var(--navbar-height);
         box-shadow: var(--bottom-panel-shadow);
+
+        @media (display-mode: standalone) {
+          padding-bottom: env(safe-area-inset-bottom);
+        }
       }
     }
 

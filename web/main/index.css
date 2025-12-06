@@ -33,6 +33,7 @@
 
 html,
 body {
+  box-sizing: border-box;
   height: 100dvh;
   margin: 0;
   overflow: hidden;
@@ -41,6 +42,27 @@ body {
 body {
   color: var(--text-color);
   -webkit-tap-highlight-color: oklch(0 0 0 / 0%);
+
+  @media (display-mode: browser) {
+    /* Change mobile Chrome bottom panel to fit with navbar */
+    background: var(--land-color);
+
+    @media (--no-desktop) {
+      :root.has-navbar & {
+        background: var(--main-land-color);
+
+        /* For Safari */
+        @supports (-webkit-touch-callout: none) {
+          background: var(--land-color);
+        }
+      }
+    }
+  }
+
+  @media (display-mode: standalone) {
+    padding-top: env(safe-area-inset-top);
+    background: var(--land-color);
+  }
 }
 
 body,

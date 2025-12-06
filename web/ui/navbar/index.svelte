@@ -187,22 +187,6 @@
 
 <style lang="postcss">
   :global {
-    /* Change mobile Chrome bottom panel to fit with navbar */
-    body {
-      background: var(--land-color);
-
-      @media (--no-desktop) {
-        :root.has-navbar & {
-          background: var(--main-land-color);
-
-          /* For Safari */
-          @supports (-webkit-touch-callout: none) {
-            background: var(--land-color);
-          }
-        }
-      }
-    }
-
     .navbar {
       position: fixed;
       inset-block: 0;
@@ -242,6 +226,12 @@
 
         .navbar:not(.is-opened) & {
           box-shadow: var(--bottom-panel-shadow);
+        }
+
+        @media (display-mode: standalone) {
+          padding-bottom: calc(
+            env(safe-area-inset-bottom) + var(--navbar-padding)
+          );
         }
       }
     }
