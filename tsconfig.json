@@ -18,5 +18,5 @@
     "lib": ["es2024", "dom"]
   },
   "include": ["**/*.ts", "**/*.cts", "web/**/*.svelte", "web/.storybook/*.ts"],
-  "exclude": ["*/dist", "web-archive/**/*"]
+  "exclude": ["*/dist"]
 }

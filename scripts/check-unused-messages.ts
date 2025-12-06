@@ -18,11 +18,7 @@ interface MessagesStore {
 
 function loadAllFiles(): Map<string, string> {
   let files = globSync(join(ROOT, '/**/*.{ts,svelte}'), {
-    exclude: [
-      join(ROOT, '/node_modules/**'),
-      // TODO: Until we are refactoring web UI
-      join(ROOT, '/web-archive/**')
-    ]
+    exclude: [join(ROOT, '/node_modules/**')]
   })
   let allFiles = new Map<string, string>()
   for (let file of files) {
