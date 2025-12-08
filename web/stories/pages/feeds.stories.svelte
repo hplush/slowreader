@@ -118,7 +118,7 @@
   </Scene>
 </Story>
 
-<Story name="List Openned" asChild parameters={{ layout: 'fullscreen' }}>
+<Story name="List Opened" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     feeds={[{ id: 'feed', reading: 'slow' }]}
     posts={POSTS}
@@ -142,5 +142,48 @@
     }}
   >
     <FeedsPage page={pages.slow()} />
+  </Scene>
+</Story>
+
+<Story name="Feed" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[{ id: 'feed', reading: 'fast' }]}
+    oninit={() => {
+      setTimeout(() => {
+        changePost('post-2', { read: true })
+        changePost('post-3', { read: true })
+      }, 1)
+    }}
+    posts={POSTS.map(i => ({ ...i, reading: 'fast' }))}
+    route={{ params: { category: 'general' }, route: 'fast' }}
+  >
+    <FeedsPage page={pages.fast()} />
+  </Scene>
+</Story>
+
+<Story name="Feed Opened" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[{ id: 'feed', reading: 'fast' }]}
+    posts={POSTS.map(i => ({ ...i, reading: 'fast' }))}
+    route={{
+      hash: 'post=id:post-1',
+      params: { category: 'general' },
+      route: 'fast'
+    }}
+  >
+    <FeedsPage page={pages.fast()} />
+  </Scene>
+</Story>
+
+<Story name="Feed Pagination" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[{ id: 'feed', reading: 'fast' }]}
+    posts={multiply(
+      POSTS.map(i => ({ ...i, reading: 'fast' })),
+      50
+    )}
+    route={{ params: { category: 'general' }, route: 'fast' }}
+  >
+    <FeedsPage page={pages.fast()} />
   </Scene>
 </Story>

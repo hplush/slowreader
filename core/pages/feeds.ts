@@ -3,8 +3,13 @@ import { atom, effect } from 'nanostores'
 import { type CategoryValue, changeCategory, getCategory } from '../category.ts'
 import { changeFeed, type FeedValue, getFeed, needWelcome } from '../feed.ts'
 import { fastMenu, menuLoading, slowMenu } from '../menu.ts'
-import { fastPostsCount, slowPostsCount } from '../post.ts'
-import type { UsefulReaderName } from '../readers/common.ts'
+import { deletePost, fastPostsCount, slowPostsCount } from '../post.ts'
+import {
+  loadPosts,
+  type PostFilter,
+  type ReaderHelpers,
+  type UsefulReaderName
+} from '../readers/common.ts'
 import {
   type BaseReader,
   emptyReader,
@@ -27,6 +32,44 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     let $posts = atom<Reader | undefined>()
     let $feed = atom<FeedValue | undefined>()
     let $category = atom<CategoryValue | undefined>()
+
+    let lastFilter: PostFilter | undefined
+
+    async function deleteRead(): Promise<void> {
+      if (lastFilter) {
+        let posts = await loadPosts(lastFilter)
+        await Promise.all(
+          posts.map(async post => {
+            if (post.read) await deletePost(post.id)
+          })
+        )
+      }
+    }
+
+    let prevLoadingUnbind = (): void => {}
+    let prevReading: BaseReader | undefined
+    function setReader(reader: Reader | undefined): void {
+      prevLoadingUnbind()
+      if (reader) {
+        prevLoadingUnbind = reader.loading.subscribe(value => {
+          $postsLoading.set(value)
+          if (!value) $loading.set(false)
+        })
+      } else {
+        prevLoadingUnbind = () => {}
+        $postsLoading.set(true)
+      }
+
+      prevReading?.exit()
+      prevReading = reader
+      $posts.set(reader)
+    }
+
+    let helpers: ReaderHelpers = {
+      renderEmpty() {
+        setReader(emptyReader({ reading }, params, helpers))
+      }
+    }
 
     let params = {
       category: $categoryId,
@@ -66,8 +109,6 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     let readerProp =
       reading === 'fast' ? ('fastReader' as const) : ('slowReader' as const)
 
-    let prevLoadingUnbind = (): void => {}
-    let prevReading: BaseReader | undefined
     let unbindPosts = effect(
       [$feed, $category, needWelcome, fastPostsCount, slowPostsCount],
       (feed, category, welcome, fastCount, slowCount) => {
@@ -94,37 +135,28 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         }
 
         let instance: BaseReader | undefined
-        if (readerBuilder) {
-          if (category) {
-            instance = readerBuilder(
-              { categoryId: category.id, reading },
-              params
-            )
-          } else if (feed) {
-            instance = readerBuilder({ feedId: feed.id, reading }, params)
-          } else {
-            instance = readerBuilder({ reading }, params)
-          }
-        }
-
-        prevLoadingUnbind()
-        if (instance) {
-          prevLoadingUnbind = instance.loading.subscribe(value => {
-            $postsLoading.set(value)
-            if (!value) $loading.set(false)
-          })
+        let filter: PostFilter
+        if (category) {
+          filter = { categoryId: category.id, reading }
+        } else if (feed) {
+          filter = { feedId: feed.id, reading }
         } else {
-          prevLoadingUnbind = () => {}
-          $postsLoading.set(true)
+          filter = { reading }
+        }
+        if (JSON.stringify(filter) !== JSON.stringify(lastFilter)) {
+          lastFilter = filter
+          deleteRead()
+        }
+        if (readerBuilder) {
+          instance = readerBuilder(filter, params, helpers)
         }
 
-        prevReading?.exit()
-        prevReading = instance
-        $posts.set(instance as Reader)
+        setReader(instance as Reader)
       }
     )
 
     function changeReader(reader: UsefulReaderName): void {
+      $from.set(undefined)
       let feedId = $feedId.get()
       if (feedId) {
         changeFeed(feedId, { [readerProp]: reader })
@@ -145,6 +177,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         unbindPosts()
         prevReading?.exit()
         prevLoadingUnbind()
+        deleteRead()
       },
       feed: $feed,
       loading: $loading,

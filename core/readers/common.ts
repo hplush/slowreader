@@ -11,6 +11,10 @@ export interface BaseReader<Name extends ReaderName = ReaderName> {
   name: Name
 }
 
+export interface ReaderHelpers {
+  renderEmpty(): void
+}
+
 interface Extra {
   exit: () => void
   loading: ReadableAtom<boolean>
@@ -37,16 +41,21 @@ export interface ReaderCreator<
 > {
   (
     filter: PostFilter,
-    params: FeedStores
+    params: FeedStores,
+    helpers: ReaderHelpers
   ): (BaseReader<Name> & Rest) | undefined
 }
 
 export function createReader<Name extends ReaderName, Rest extends Extra>(
   name: Name,
-  builder: (filter: PostFilter, params: FeedStores) => Rest | undefined
+  builder: (
+    filter: PostFilter,
+    params: FeedStores,
+    helpers: ReaderHelpers
+  ) => Rest | undefined
 ): ReaderCreator<Name, Rest> {
-  return (filter, params) => {
-    let reader = builder(filter, params)
+  return (filter, params, helpers) => {
+    let reader = builder(filter, params, helpers)
     if (reader) {
       return {
         ...reader,
@@ -63,13 +72,14 @@ export async function loadPosts(filter: PostFilter): Promise<PostValue[]> {
       loadValue(getPosts({ reading: filter.reading })),
       loadValue(getFeeds({ categoryId: filter.categoryId }))
     ])
-    posts = allPosts.list.filter(i => feeds.stores.has(i.feedId))
+    posts = allPosts.list.filter(i => {
+      return feeds.stores.has(i.feedId) && !allPosts.stores.get(i.id)?.deleted
+    })
   } else {
-    posts = (
-      await loadValue(
-        getPosts({ feedId: filter.feedId, reading: filter.reading })
-      )
-    ).list
+    let value = await loadValue(
+      getPosts({ feedId: filter.feedId, reading: filter.reading })
+    )
+    posts = value.list.filter(i => !value.stores.get(i.id)?.deleted)
   }
   return posts.sort((a, b) => b.publishedAt - a.publishedAt)
 }

@@ -6,27 +6,13 @@ import {
   setPagination
 } from '../lib/pagination.ts'
 import { onLogAction } from '../lib/stores.ts'
-import {
-  changePost,
-  deletePost,
-  postsChangedAction,
-  type PostValue
-} from '../post.ts'
+import { changePost, postsChangedAction, type PostValue } from '../post.ts'
 import { createReader, loadPosts } from './common.ts'
 
 let POSTS_PER_PAGE = 100
 
 export const listReader = createReader('list', (filter, params) => {
   if (!filter.categoryId && !filter.feedId) return
-
-  async function deleteRead(): Promise<void> {
-    let posts = await loadPosts(filter)
-    await Promise.all(
-      posts.map(async post => {
-        if (post.read) await deletePost(post.id)
-      })
-    )
-  }
 
   let exited = false
   let $loading = atom(true)
@@ -36,7 +22,6 @@ export const listReader = createReader('list', (filter, params) => {
   let unbindFrom = (): void => {}
   let unbindAction = (): void => {}
   async function start(): Promise<void> {
-    await deleteRead()
     let posts = await loadPosts(filter)
     if (exited) return
 
@@ -82,7 +67,6 @@ export const listReader = createReader('list', (filter, params) => {
       exited = true
       unbindAction()
       unbindFrom()
-      deleteRead()
     },
     list: $list,
     loading: $loading,

@@ -1,5 +1,6 @@
 import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
 
 import {
   addCategory,
@@ -24,7 +25,7 @@ afterEach(async () => {
   await cleanClientTest()
 })
 
-test('loads posts', async () => {
+test('reads posts', async () => {
   let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
   let feed1 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
   let feed2 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
@@ -75,19 +76,26 @@ test('loads posts', async () => {
   equal(reader.list.get()[0]!.title, '60')
   equal(reader.list.get().length, 50)
 
-  let promise = reader.deleteAndNext()
+  let promise = reader.readAndNext()
   equal(reader.list.get()[0]!.title, '10')
   equal(reader.list.get().length, 10)
   equal(reader.hasNext.get(), false)
   await promise
 
-  await reader.deleteAndNext()
+  await reader.readAndNext()
   equal(page.posts.get()?.name, 'empty')
+  await setTimeout(10)
 
+  openPage({
+    params: {},
+    route: 'interface'
+  })
+  await setTimeout(10)
   page = openPage({
     params: { feed: feed1 },
     route: 'fast'
   })
+  await setTimeout(10)
   equal(page.posts.get()?.name, 'empty')
 
   page = openPage({
@@ -97,29 +105,59 @@ test('loads posts', async () => {
   equal(page.posts.get()?.name, 'empty')
 })
 
-test('is ready for the same publishing time', async () => {
-  let feedId = await addFeed(testFeed())
-  for (let i = 1; i <= 60; i++) {
+test('moves with or without reading', async () => {
+  let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
+  let feed1 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
+  let feed2 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
+  for (let i = 1; i <= 110; i++) {
     await addPost(
       testPost({
-        feedId,
-        publishedAt: Math.floor(i / 3),
+        feedId: i % 2 === 0 ? feed1 : feed2,
+        publishedAt: i,
         reading: 'fast',
         title: `${i}`
       })
     )
   }
 
-  let fast = openPage({
-    params: { category: 'general' },
+  let page = openPage({
+    params: { category: categoryId },
     route: 'fast'
   })
-  await waitLoading(fast.loading)
-  let reader = ensureReader(fast.posts, 'feed')
+  await waitLoading(page.loading)
+  let reader = ensureReader(page.posts, 'feed')
+  equal(reader.hasNext.get(), true)
+  equal(reader.list.get().length, 50)
+  equal(reader.list.get()[0]!.title, '110')
+  equal(reader.list.get()[0]!.read, undefined)
 
-  let all = reader.list.get().length
-  reader.deleteAndNext()
-  all += reader.list.get().length
+  await reader.readAndNext()
+  equal(reader.hasNext.get(), true)
+  equal(reader.list.get().length, 50)
+  equal(reader.list.get()[0]!.title, '60')
+  equal(reader.list.get()[0]!.read, undefined)
 
-  equal(all, 60)
+  page.params.from.set(reader.prevFrom.get())
+  equal(reader.hasNext.get(), true)
+  equal(reader.list.get().length, 50)
+  equal(reader.list.get()[0]!.title, '110')
+  equal(reader.list.get()[0]!.read, true)
+
+  page.params.from.set(reader.nextFrom.get())
+  equal(reader.hasNext.get(), true)
+  equal(reader.list.get().length, 50)
+  equal(reader.list.get()[0]!.title, '60')
+  equal(reader.list.get()[0]!.read, undefined)
+
+  page.params.from.set(reader.nextFrom.get())
+  equal(reader.hasNext.get(), false)
+  equal(reader.list.get().length, 10)
+  equal(reader.list.get()[0]!.title, '10')
+  equal(reader.list.get()[0]!.read, undefined)
+
+  page.params.from.set(reader.prevFrom.get())
+  equal(reader.hasNext.get(), true)
+  equal(reader.list.get().length, 50)
+  equal(reader.list.get()[0]!.title, '60')
+  equal(reader.list.get()[0]!.read, undefined)
 })

@@ -6,6 +6,9 @@ export const feedsMessages = i18n('feeds', {
   feedReader: 'Feed',
   listReader: 'Post one-by-one',
   nextPage: 'Next',
+  prevPage: 'Back',
   reader: 'Read mode',
+  readPage: 'Mark as read',
+  readPageAndNext: 'Mark as read & load next',
   slowTitle: 'Slow'
 })

@@ -173,5 +173,6 @@ test('loads posts', async () => {
     params: { category: categoryId },
     route: 'slow'
   })
+  await setTimeout(10)
   equal(page.posts.get()?.name, 'empty')
 })
