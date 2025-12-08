@@ -19,7 +19,7 @@
 <Stack gap="s" row>
   {#if $prevFrom}
     <Button href={`?from=${$prevFrom}`} icon={mdiArrowLeft} size="icon">
-      {$t.nextPage}
+      {$t.prevPage}
     </Button>
   {/if}
   <Button
