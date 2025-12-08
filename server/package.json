@@ -31,7 +31,7 @@
     "@slowreader/proxy": "workspace:*",
     "argon2": "0.44.0",
     "cookie": "1.1.1",
-    "drizzle-orm": "0.44.7",
+    "drizzle-orm": "0.45.0",
     "nanoid": "5.1.6",
     "postgres": "3.4.7",
     "tsx": "4.21.0"
@@ -39,7 +39,7 @@
   "devDependencies": {
     "@logux/client": "0.22.2",
     "better-node-test": "0.8.3",
-    "drizzle-kit": "0.31.7",
+    "drizzle-kit": "0.31.8",
     "eslint": "9.39.1",
     "prettier": "3.6.2"
   }

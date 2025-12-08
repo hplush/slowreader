@@ -7,7 +7,7 @@
     "node": "^24.11.0",
     "pnpm": "^10.0.0"
   },
-  "packageManager": "pnpm@10.24.0",
+  "packageManager": "pnpm@10.25.0",
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run -r --include-workspace-root /^test:/",
     "quick": "nano-staged --unstaged --quiet",
@@ -36,10 +36,10 @@
     "@types/chrome": "0.1.32",
     "@types/node": "24.10.1",
     "@types/ws": "8.18.1",
-    "actions-up": "1.6.0",
+    "actions-up": "1.7.0",
     "better-node-test": "0.8.3",
     "eslint": "9.39.1",
-    "eslint-plugin-svelte": "3.13.0",
+    "eslint-plugin-svelte": "3.13.1",
     "husky": "9.1.7",
     "jiti": "2.6.1",
     "multiocular": "0.8.1",
@@ -60,9 +60,9 @@
     "remark-lint-smarty-pants-typography": "1.1.0",
     "remark-validate-links": "13.1.0",
     "stylelint": "16.26.1",
-    "svelte": "5.45.4",
+    "svelte": "5.45.6",
     "svelte-check": "4.3.4",
-    "svelte-eslint-parser": "1.4.0",
+    "svelte-eslint-parser": "1.4.1",
     "svgo": "4.0.0",
     "typescript": "5.9.3"
   }
