@@ -73,7 +73,6 @@ const ALLOWED_TAGS = [
 let DOMPurify: ReturnType<typeof createDOMPurify> | undefined
 
 export function sanitizeDOM(html: string): Node {
-  // @ts-expect-error Window types is hard
   if (!DOMPurify) DOMPurify = createDOMPurify(window)
   return DOMPurify.sanitize(html, {
     ALLOWED_TAGS,
@@ -82,7 +81,6 @@ export function sanitizeDOM(html: string): Node {
 }
 
 export function parseRichTranslation(text: string, link?: string): string {
-  // @ts-expect-error Window types is hard
   if (!DOMPurify) DOMPurify = createDOMPurify(window)
   let html = DOMPurify.sanitize(text, { ALLOWED_TAGS: [] })
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')

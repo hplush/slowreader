@@ -1,6 +1,6 @@
 # Web server to serve web client for staging and pull request previews
 
-FROM cgr.dev/chainguard/nginx@sha256:46055d6054b8225c352faae2ea537d5d1e4e36970d62533444975206ed2dc8b3
+FROM cgr.dev/chainguard/nginx@sha256:dad6ecc27985d8f09292bb6df5778caa001299af8f486fb023b7efda3d3f3a10
 
 COPY ./nginx.conf.compiled /etc/nginx/nginx.conf
 COPY ./dist/ /var/www/
