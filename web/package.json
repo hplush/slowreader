@@ -18,7 +18,7 @@
     "test:css": "stylelint **/*.css **/*.svelte",
     "test:build": "node --run build && size-limit && node ./scripts/check-css-props.ts",
     "build:routes": "tsx ./scripts/export-routes.ts",
-    "build:visual": "NODE_ENV=test storybook build",
+    "build:visual": "NODE_ENV=test storybook build --loglevel error",
     "build:web": "vite build && node scripts/generate-csp.ts",
     "format:stylelint": "stylelint --fix **/*.{css,svelte}",
     "clean:build": "rm -rf dist",
