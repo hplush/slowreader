@@ -32,7 +32,7 @@ test('loads post title', () => {
 
   equal(getPostTitle(origin), '11/23/2025')
   equal(getPostTitle({ ...origin, publishedAt: undefined }), 'id')
-  equal(getPostTitle({ ...origin, full: '&lt;tag&gt;<img />' }), '<tag>')
+  equal(getPostTitle({ ...origin, full: '&lt;tag&gt; <img />' }), '<tag>')
   equal(getPostTitle({ ...origin, full: 'b', intro: 'a<img />' }), 'a')
   equal(
     getPostTitle({ ...origin, full: 'b', intro: 'a', title: '<b>z</b>' }),

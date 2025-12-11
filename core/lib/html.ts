@@ -102,5 +102,5 @@ export function decodeHtmlEntities(text: string): string {
 }
 
 export function stripHTML(html: string): string {
-  return decodeHtmlEntities(html.replace(/<[^>]*>/g, ''))
+  return decodeHtmlEntities(html.replace(/<[^>]*>/g, '')).trim()
 }
