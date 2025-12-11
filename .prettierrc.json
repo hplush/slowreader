@@ -2,10 +2,11 @@
   "plugins": ["prettier-plugin-svelte"],
   "arrowParens": "avoid",
   "jsxSingleQuote": false,
-  "quoteProps": "consistent",
+  "quoteProps": "as-needed",
   "semi": false,
   "singleQuote": true,
   "trailingComma": "none",
+  "printWidth": 80,
   "overrides": [
     {
       "files": "*.svelte",

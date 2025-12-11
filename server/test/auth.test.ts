@@ -72,7 +72,7 @@ test('creates users and check credentials', async () => {
     body: '{}',
     headers: {
       'Content-Type': 'application/json',
-      'Cookie': `session=${userA.session}`
+      Cookie: `session=${userA.session}`
     },
     method: 'DELETE'
   })
@@ -232,7 +232,7 @@ test('supports CORS', async () => {
     body: '{"id":"2","password":"test"}',
     headers: {
       'Content-Type': 'application/json',
-      'Origin': 'https://dev.slowreader.app'
+      Origin: 'https://dev.slowreader.app'
     },
     method: 'OPTIONS'
   })
@@ -244,7 +244,7 @@ test('supports CORS', async () => {
     body: '{"id":"2","password":"test"}',
     headers: {
       'Content-Type': 'application/json',
-      'Origin': 'https://dev.slowreader.app'
+      Origin: 'https://dev.slowreader.app'
     },
     method: 'POST'
   })

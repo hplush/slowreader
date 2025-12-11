@@ -1,11 +1,8 @@
 {
-  "*.{html,md,json}": "prettier --experimental-cli --write",
+  "*.{html,md,json}": "oxfmt",
   "*.{svelte,ts}": "svelte-check",
-  "*.{js,ts,cjs}": [
-    "prettier --experimental-cli --write",
-    "eslint --fix --concurrency auto"
-  ],
-  "*.css": ["prettier --experimental-cli --write", "stylelint --fix"],
+  "*.{js,ts,cjs}": ["oxfmt", "eslint --fix --concurrency auto"],
+  "*.css": ["oxfmt", "stylelint --fix"],
   "*.svelte": [
     "node ./web/scripts/check-names.ts",
     "prettier --experimental-cli --write",

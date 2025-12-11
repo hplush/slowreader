@@ -33,7 +33,7 @@
       <Clickable
         class={{
           'is-read': i.variant === 'read',
-          'links_item': true
+          links_item: true
         }}
         aria-controls={i.controls ?? null}
         aria-current={current === i.id ? 'page' : null}
