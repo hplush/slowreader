@@ -19,6 +19,7 @@ import { loadFilters } from './filter.ts'
 import { $locale } from './i18n.ts'
 import { stripHTML } from './lib/html.ts'
 import type { OptionalId } from './lib/stores.ts'
+import { truncate } from './text.ts'
 
 export type OriginPost = {
   full?: string
@@ -98,15 +99,15 @@ export function getPostTitle(post: OriginPost): string {
   if (post.title) {
     return stripHTML(post.title)
   } else if (post.intro) {
-    return stripHTML(post.intro)
+    return truncate(post.intro, 40, 80)
   } else if (post.full) {
-    return stripHTML(post.full)
+    return truncate(post.full, 40, 80)
   } else if (post.publishedAt) {
     return formatter($locale)
       .get()
       .time(new Date(post.publishedAt * 1000))
   } else {
-    return post.originId
+    return stripHTML(post.originId)
   }
 }
 

@@ -95,6 +95,12 @@ export function parseRichTranslation(text: string, link?: string): string {
   return html
 }
 
+export function decodeHtmlEntities(text: string): string {
+  let parser = new DOMParser()
+  let doc = parser.parseFromString(text, 'text/html')
+  return doc.documentElement.textContent
+}
+
 export function stripHTML(html: string): string {
-  return html.replace(/<[^>]*>/g, '')
+  return decodeHtmlEntities(html.replace(/<[^>]*>/g, ''))
 }

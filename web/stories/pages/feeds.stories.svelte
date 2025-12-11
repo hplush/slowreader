@@ -32,7 +32,30 @@
     {
       feedId: 'feed',
       reading: 'slow',
-      title: '6000000000000000000000000000000000000000000000000000000000000'
+      title: '&lt;tag&gt;'
+    },
+    {
+      feedId: 'feed',
+      intro:
+        'Pretty long intro which container few sentences. ' +
+        'But sentences is small enough to be cut by them.',
+      reading: 'slow'
+    },
+    {
+      feedId: 'feed',
+      full:
+        'Very long body without sentences to be able to cut ' +
+        'the text in the middle of them for better readability',
+      intro: '',
+      reading: 'slow'
+    },
+    {
+      feedId: 'feed',
+      intro:
+        '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文' +
+        '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文' +
+        '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文',
+      reading: 'slow'
     }
   ] satisfies Partial<PostValue>[]
 

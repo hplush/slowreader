@@ -1,3 +1,5 @@
+import './dom-parser.ts'
+
 import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 
@@ -30,11 +32,71 @@ test('loads post title', () => {
 
   equal(getPostTitle(origin), '11/23/2025')
   equal(getPostTitle({ ...origin, publishedAt: undefined }), 'id')
-  equal(getPostTitle({ ...origin, full: 'b<img />' }), 'b')
+  equal(getPostTitle({ ...origin, full: '&lt;tag&gt;<img />' }), '<tag>')
   equal(getPostTitle({ ...origin, full: 'b', intro: 'a<img />' }), 'a')
   equal(
     getPostTitle({ ...origin, full: 'b', intro: 'a', title: '<b>z</b>' }),
     'z'
+  )
+  equal(
+    getPostTitle({
+      ...origin,
+      intro:
+        'Pretty long intro which container few sentences. ' +
+        'But sentences is small enough to be cut by them'
+    }),
+    'Pretty long intro which container few sentences. …'
+  )
+  equal(
+    getPostTitle({
+      ...origin,
+      intro:
+        'Is it pretty long intro which container few sentences? ' +
+        'But sentences is small enough to be cut by them'
+    }),
+    'Is it pretty long intro which container few sentences? …'
+  )
+  equal(
+    getPostTitle({
+      ...origin,
+      intro:
+        'Very long body without sentences to be able to cut ' +
+        'the text in the middle of them for better readability'
+    }),
+    'Very long body without sentences to be able ' +
+      'to cut the text in the middle of…'
+  )
+  equal(
+    getPostTitle({
+      ...origin,
+      intro:
+        '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本' +
+        '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本' +
+        '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本'
+    }),
+    '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本' +
+      '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本' +
+      '文本文本文本文本文本文本…'
+  )
+  equal(
+    getPostTitle({
+      ...origin,
+      intro:
+        '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本' +
+        '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本'
+    }),
+    '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本' +
+      '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本'
+  )
+  equal(
+    getPostTitle({
+      ...origin,
+      title:
+        'Pretty long intro which container few sentences. ' +
+        'But sentences is small enough to be cut by them.'
+    }),
+    'Pretty long intro which container few sentences. ' +
+      'But sentences is small enough to be cut by them.'
   )
 })
 
@@ -48,5 +110,8 @@ test('loads post content', () => {
   equal(getPostIntro(origin), '')
   equal(getPostIntro({ ...origin, full: 'short' }), 'short')
   equal(getPostIntro({ ...origin, full: 'short', intro: 'intro' }), 'intro')
-  equal(getPostIntro({ ...origin, full: longText() }), longText())
+  equal(
+    getPostIntro({ ...origin, full: longText() }),
+    longText().slice(0, 80) + '…'
+  )
 })
