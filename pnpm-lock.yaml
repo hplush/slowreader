@@ -45,7 +45,7 @@ importers:
         specifier: 0.9.0
         version: 0.9.0
       oxfmt:
-        specifier: ^0.17.0
+        specifier: 0.17.0
         version: 0.17.0
       postcss-html:
         specifier: 1.8.0
