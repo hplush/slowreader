@@ -27,7 +27,7 @@ export default [
     }
   },
   {
-    files: ['web/stories/*.ts'],
+    files: ['web/stories/*.ts', 'core/devtools.ts'],
     rules: {
       'no-console': 'off'
     }

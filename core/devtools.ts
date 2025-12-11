@@ -5,6 +5,7 @@ import { getFeedLatestPosts, getFeeds } from './feed.ts'
 import { loadFilters } from './filter.ts'
 import { createDownloadTask } from './lib/download.ts'
 import { addPost, deletePost, getPosts, processOriginPost } from './post.ts'
+import { router } from './router.ts'
 
 /**
  * Create test feeds and posts for new client.
@@ -29,5 +30,28 @@ export async function fillFeedsWithPosts(): Promise<void> {
         }
       })
     )
+  })
+}
+
+/**
+ * Show post data in browser DevTools on opening post in popup.
+ */
+export function enablePostDebug(): void {
+  router.subscribe(page => {
+    for (let popup of page.popups) {
+      if (popup.popup === 'post') {
+        let id: string | undefined
+        if (popup.param.startsWith('id:')) {
+          id = popup.param.slice(3)
+        } else if (popup.param.startsWith('read:')) {
+          id = popup.param.slice(5)
+        }
+        if (id) {
+          loadValue(getPosts({ id })).then(filter => {
+            console.log(filter.list[0])
+          })
+        }
+      }
+    }
   })
 }
