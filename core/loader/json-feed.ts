@@ -2,7 +2,7 @@ import { getEnvironment } from '../environment.ts'
 import type { TextResponse } from '../lib/download.ts'
 import type { OriginPost } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
-import type { Loader } from './index.ts'
+import type { Loader } from './common.ts'
 import {
   findAnchorHrefs,
   findDocumentLinks,
