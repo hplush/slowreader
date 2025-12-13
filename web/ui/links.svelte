@@ -115,8 +115,6 @@
     }
 
     .links_mark {
-      --icon-size: 1.2rem;
-
       display: flex;
       align-items: center;
       margin-inline-end: -0.625rem;
