@@ -3,36 +3,38 @@
   /* eslint svelte/no-at-html-tags: "off" */
 
   import { sanitizeDOM } from '@slowreader/core'
+  import type { Attachment } from 'svelte/attachments'
 
   let {
     comfort,
     fakelinks,
     html
-  }: { comfort?: boolean; fakelinks?: boolean; html: string } = $props()
+  }: { comfort?: boolean; fakelinks?: boolean; html: string | undefined } =
+    $props()
 
-  let node: HTMLDivElement | undefined
-
-  $effect(() => {
-    if (node) {
-      node.innerHTML = ''
-      node.replaceChildren(...sanitizeDOM(html).childNodes)
-      let links = node.querySelectorAll('a')
-      if (fakelinks) {
-        links.forEach(link => {
-          link.removeAttribute('href')
-          link.classList.add('is-fake-link')
-        })
-      } else {
-        links.forEach(link => {
-          link.setAttribute('target', '_blank')
-          link.setAttribute('rel', 'noopener')
-        })
-      }
+  const renderHtml: Attachment = node => {
+    node.innerHTML = ''
+    node.replaceChildren(...sanitizeDOM(html ?? '').childNodes)
+    let links = node.querySelectorAll('a')
+    if (fakelinks) {
+      links.forEach(link => {
+        link.removeAttribute('href')
+        link.classList.add('is-fake-link')
+      })
+    } else {
+      links.forEach(link => {
+        link.setAttribute('target', '_blank')
+        link.setAttribute('rel', 'noopener')
+      })
     }
-  })
+  }
 </script>
 
-<div bind:this={node} class="formatted-text" class:is-comfort={comfort}></div>
+<div
+  class="formatted-text"
+  class:is-comfort={comfort}
+  {@attach renderHtml}
+></div>
 
 <style>
   :global {

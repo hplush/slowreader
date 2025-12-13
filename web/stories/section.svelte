@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { onMount, type Snippet, tick } from 'svelte'
+  import { type Snippet, tick } from 'svelte'
+  import type { Attachment } from 'svelte/attachments'
 
   let {
     active = false,
@@ -29,9 +30,11 @@
 
   const INTERACTIVE_ELEMENTS = 'button, a, input, select'
 
-  let section: HTMLElement
-
-  function addClass(option: string | true, cls: string): void {
+  function addClass(
+    section: Element,
+    option: string | true,
+    cls: string
+  ): void {
     let selector: string
     if (option === true) {
       selector = INTERACTIVE_ELEMENTS
@@ -43,10 +46,10 @@
     }
   }
 
-  onMount(() => {
-    if (hover) addClass(hover, 'is-pseudo-hover')
-    if (focus) addClass(focus, 'is-pseudo-focus-visible')
-    if (active) addClass(active, 'is-pseudo-active')
+  const applyClasses: Attachment = section => {
+    if (hover) addClass(section, hover, 'is-pseudo-hover')
+    if (focus) addClass(section, focus, 'is-pseudo-focus-visible')
+    if (active) addClass(section, active, 'is-pseudo-active')
     if (!hotkeys) section.classList.add('is-hotkey-disabled')
     if (blur) {
       let selector: string
@@ -67,15 +70,15 @@
         window.dispatchEvent(new KeyboardEvent('keyup', { key: pressKey }))
       })
     }
-  })
+  }
 </script>
 
 <section
-  bind:this={section}
   style="width: {width}px; height: {height}px;"
   class:is-main={main}
   class:is-sized={width !== undefined || height !== undefined}
   class:is-stack={stack}
+  {@attach applyClasses}
 >
   {@render children()}
 </section>

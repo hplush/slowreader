@@ -53,14 +53,7 @@
     | ({ href?: undefined } & HTMLButtonAttributes)
   ) = $props()
 
-  let textElement: HTMLElement | undefined
   let title = $state('')
-
-  $effect(() => {
-    if (textElement && size === 'icon') {
-      title = textElement.textContent.trim() || ''
-    }
-  })
 </script>
 
 <Clickable
@@ -101,9 +94,13 @@
       <Icon path={icon} />
     {/if}
     <span
-      bind:this={textElement}
       class="button_text"
       class:sr-only={size === 'icon'}
+      {@attach span => {
+        if (span && size === 'icon') {
+          title = span.textContent.trim() || ''
+        }
+      }}
     >
       {@render children()}
     </span>

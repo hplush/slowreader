@@ -12,25 +12,19 @@
     value?: boolean | number
     variant?: 'accent' | 'auto'
   } = $props()
-
-  let progress: HTMLProgressElement | undefined
-
-  $effect(() => {
-    if (progress) {
-      if (typeof value === 'number') {
-        progress.value = value
-      } else {
-        progress.removeAttribute('value')
-      }
-    }
-  })
 </script>
 
 <progress
-  bind:this={progress}
   class="loader"
   class:is-accent={variant === 'accent'}
   class:is-wide={size === 'wide'}
+  {@attach progress => {
+    if (typeof value === 'number') {
+      progress.value = value
+    } else {
+      progress.removeAttribute('value')
+    }
+  }}
   aria-label={label}
 ></progress>
 

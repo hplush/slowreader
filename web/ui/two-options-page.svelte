@@ -14,18 +14,6 @@
     title: string | string[]
     two: Snippet
   } = $props()
-
-  let first: HTMLDivElement | undefined
-  let center: HTMLDivElement | undefined
-
-  $effect(() => {
-    if (first && center) {
-      center.style.setProperty(
-        '--two-options-page-height',
-        `${first.offsetHeight}px`
-      )
-    }
-  })
 </script>
 
 <Page
@@ -35,8 +23,19 @@
   }}
   {title}
 >
-  <div bind:this={center} class="two-options-page_center">
-    <div bind:this={first} class="two-options-page_option">
+  <div
+    class="two-options-page_center"
+    {@attach center => {
+      let first = center.children[0]
+      if (first instanceof HTMLElement) {
+        center.style.setProperty(
+          '--two-options-page-height',
+          `${first.offsetHeight}px`
+        )
+      }
+    }}
+  >
+    <div class="two-options-page_option">
       {@render one()}
     </div>
     <div class="two-options-page_option">
