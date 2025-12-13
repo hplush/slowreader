@@ -11,6 +11,7 @@ import {
   loaders,
   mockRequest,
   setupEnvironment,
+  testFeed,
   type TextResponse
 } from '../../index.ts'
 import { getTestEnvironment } from '../utils.ts'
@@ -548,4 +549,59 @@ test('parses media', async () => {
       }
     ]
   })
+})
+
+test('returns post source', async () => {
+  let json = JSON.stringify({
+    items: [
+      {
+        content_html: '<p>Post content</p>',
+        date_published: '2023-01-01T00:00:00Z',
+        id: 'post-1',
+        title: 'Post 1',
+        url: 'https://example.com/post-1'
+      },
+      {
+        content_html: '<p>Another post</p>',
+        date_published: '2023-01-02T00:00:00Z',
+        id: 'post-2',
+        title: 'Post 2',
+        url: 'https://example.com/post-2'
+      }
+    ],
+    title: 'Test Feed',
+    version: 'https://jsonfeed.org/version/1.1'
+  })
+
+  expectRequest('https://example.com/feed.json').andRespond(
+    200,
+    json,
+    'application/json'
+  )
+  deepEqual(
+    await loaders.jsonFeed.getPostSource(
+      testFeed({ url: 'https://example.com/feed.json' }),
+      'post-1'
+    ),
+    {
+      content_html: '<p>Post content</p>',
+      date_published: '2023-01-01T00:00:00Z',
+      id: 'post-1',
+      title: 'Post 1',
+      url: 'https://example.com/post-1'
+    }
+  )
+
+  expectRequest('https://example.com/feed.json').andRespond(
+    200,
+    json,
+    'application/json'
+  )
+  equal(
+    await loaders.jsonFeed.getPostSource(
+      testFeed({ url: 'https://example.com/feed.json' }),
+      'unknown'
+    ),
+    undefined
+  )
 })

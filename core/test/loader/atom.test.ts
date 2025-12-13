@@ -10,6 +10,7 @@ import {
   expectRequest,
   loaders,
   mockRequest,
+  testFeed,
   type TextResponse
 } from '../../index.ts'
 
@@ -567,4 +568,51 @@ test('has posts from both pages', async () => {
   equal(posts.get().list.length, 2)
   equal(posts.get().list[0]?.title, 'Post on page 1')
   equal(posts.get().list[1]?.title, 'Post on page 2')
+})
+
+test('returns post source', async () => {
+  let xml = `<?xml version="1.0"?>
+    <feed xmlns="http://www.w3.org/2005/Atom">
+      <title>Feed</title>
+      <entry>
+        <title>Post 1</title>
+        <id>entry-1</id>
+        <content>Content 1</content>
+      </entry>
+      <entry>
+        <title>Post 2</title>
+        <id>entry-2</id>
+        <content>Content 2</content>
+      </entry>
+    </feed>`
+
+  expectRequest('https://example.com/feed').andRespond(
+    200,
+    xml,
+    'application/atom+xml'
+  )
+  equal(
+    await loaders.atom.getPostSource(
+      testFeed({ url: 'https://example.com/feed' }),
+      'entry-2'
+    ),
+    `<entry xmlns="http://www.w3.org/2005/Atom">
+        <title>Post 2</title>
+        <id>entry-2</id>
+        <content>Content 2</content>
+      </entry>`
+  )
+
+  expectRequest('https://example.com/feed').andRespond(
+    200,
+    xml,
+    'application/atom+xml'
+  )
+  equal(
+    await loaders.atom.getPostSource(
+      testFeed({ url: 'https://example.com/feed' }),
+      'unknown'
+    ),
+    undefined
+  )
 })

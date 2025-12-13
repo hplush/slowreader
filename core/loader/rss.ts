@@ -1,4 +1,4 @@
-import type { TextResponse } from '../lib/download.ts'
+import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import type { OriginPost } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import type { Loader } from './common.ts'
@@ -14,37 +14,39 @@ import {
 
 const MEDIA_NS_URI = 'http://search.yahoo.com/mrss/'
 
-function parsePosts(text: TextResponse): OriginPost[] {
+function parsePostSources(text: TextResponse): Element[] {
   let document = text.parseXml()
   if (!document) return []
-  return [...document.querySelectorAll('item')]
-    .filter(
-      item =>
+  return [...document.querySelectorAll('item')].filter(
+    item =>
+      item.querySelector('guid')?.textContent ??
+      item.querySelector('link')?.textContent
+  )
+}
+
+function parsePosts(text: TextResponse): OriginPost[] {
+  return parsePostSources(text).map(item => {
+    let description = item.querySelector('description')
+
+    let descriptionImageElements = description?.querySelectorAll('img')
+    let descriptionImages = findImageByAttr('src', descriptionImageElements)
+
+    let mediaImageElements = [
+      ...item.getElementsByTagNameNS(MEDIA_NS_URI, 'content')
+    ].filter(element => element.getAttribute('medium') === 'image')
+    let mediaImages = findImageByAttr('url', mediaImageElements)
+
+    return {
+      full: description?.textContent ?? undefined,
+      media: unique([...descriptionImages, ...mediaImages]),
+      originId:
         item.querySelector('guid')?.textContent ??
-        item.querySelector('link')?.textContent
-    )
-    .map(item => {
-      let description = item.querySelector('description')
-
-      let descriptionImageElements = description?.querySelectorAll('img')
-      let descriptionImages = findImageByAttr('src', descriptionImageElements)
-
-      let mediaImageElements = [
-        ...item.getElementsByTagNameNS(MEDIA_NS_URI, 'content')
-      ].filter(element => element.getAttribute('medium') === 'image')
-      let mediaImages = findImageByAttr('url', mediaImageElements)
-
-      return {
-        full: description?.textContent ?? undefined,
-        media: unique([...descriptionImages, ...mediaImages]),
-        originId:
-          item.querySelector('guid')?.textContent ??
-          item.querySelector('link')!.textContent,
-        publishedAt: toTime(item.querySelector('pubDate')?.textContent),
-        title: item.querySelector('title')?.textContent ?? undefined,
-        url: item.querySelector('link')?.textContent ?? undefined
-      }
-    })
+        item.querySelector('link')!.textContent,
+      publishedAt: toTime(item.querySelector('pubDate')?.textContent),
+      title: item.querySelector('title')?.textContent ?? undefined,
+      url: item.querySelector('link')?.textContent ?? undefined
+    }
+  })
 }
 
 export const rss: Loader = {
@@ -67,6 +69,16 @@ export const rss: Loader = {
         return [parsePosts(await task.text(url)), undefined]
       })
     }
+  },
+
+  async getPostSource(feed, originId) {
+    let xml = await createDownloadTask().text(feed.url)
+    return parsePostSources(xml).find(i => {
+      return (
+        i.querySelector('guid')?.textContent === originId ||
+        i.querySelector('link')?.textContent === originId
+      )
+    })?.outerHTML
   },
 
   getSuggestedLinksFromText(text) {

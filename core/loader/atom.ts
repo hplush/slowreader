@@ -1,4 +1,8 @@
-import type { DownloadTask, TextResponse } from '../lib/download.ts'
+import {
+  createDownloadTask,
+  type DownloadTask,
+  type TextResponse
+} from '../lib/download.ts'
 import type { OriginPost } from '../post.ts'
 import { createPostsList, type PostsListLoader } from '../posts-list.ts'
 import type { Loader } from './common.ts'
@@ -12,29 +16,33 @@ import {
   toTime
 } from './utils.ts'
 
-function parsePosts(text: TextResponse): OriginPost[] {
+function parsePostSources(text: TextResponse): Element[] {
   let document = text.parseXml()
   if (!document) return []
-  return [...document.querySelectorAll('entry')]
-    .filter(entry => entry.querySelector('id')?.textContent)
-    .map(entry => {
-      let content = entry.querySelector('content')
-      return {
-        full: content?.textContent ?? undefined,
-        intro: entry.querySelector('summary')?.textContent ?? undefined,
-        media: findImageByAttr('src', content?.querySelectorAll('img')),
-        originId: entry.querySelector('id')!.textContent,
-        publishedAt: toTime(
-          entry.querySelector('published')?.textContent ??
-            entry.querySelector('updated')?.textContent
-        ),
-        title: entry.querySelector('title')?.textContent ?? undefined,
-        url:
-          entry
-            .querySelector('link[rel=alternate], link:not([rel])')
-            ?.getAttribute('href') ?? undefined
-      }
-    })
+  return [...document.querySelectorAll('entry')].filter(
+    entry => entry.querySelector('id')?.textContent
+  )
+}
+
+function parsePosts(text: TextResponse): OriginPost[] {
+  return parsePostSources(text).map(entry => {
+    let content = entry.querySelector('content')
+    return {
+      full: content?.textContent ?? undefined,
+      intro: entry.querySelector('summary')?.textContent ?? undefined,
+      media: findImageByAttr('src', content?.querySelectorAll('img')),
+      originId: entry.querySelector('id')!.textContent,
+      publishedAt: toTime(
+        entry.querySelector('published')?.textContent ??
+          entry.querySelector('updated')?.textContent
+      ),
+      title: entry.querySelector('title')?.textContent ?? undefined,
+      url:
+        entry
+          .querySelector('link[rel=alternate], link:not([rel])')
+          ?.getAttribute('href') ?? undefined
+    }
+  })
 }
 
 /**
@@ -121,6 +129,13 @@ export const atom: Loader = {
     } else {
       return createPostsList(posts || [], nextLoader)
     }
+  },
+
+  async getPostSource(feed, originId) {
+    let xml = await createDownloadTask().text(feed.url)
+    return parsePostSources(xml).find(i => {
+      return i.querySelector('id')?.textContent === originId
+    })?.outerHTML
   },
 
   getSuggestedLinksFromText(text) {

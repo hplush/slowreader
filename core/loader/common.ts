@@ -1,3 +1,4 @@
+import type { FeedValue } from '../feed.ts'
 import type { DownloadTask, TextResponse } from '../lib/download.ts'
 import type { PostsList } from '../posts-list.ts'
 
@@ -16,6 +17,11 @@ export type Loader = {
    * the feed search/preview) to cancel all of them fast.
    */
   getPosts(task: DownloadTask, url: string, text?: TextResponse): PostsList
+
+  /**
+   * Get source data of post from loader's API for debug purposes.
+   */
+  getPostSource(feed: FeedValue, originId: string): Promise<unknown>
 
   /**
    * Try to suggest feed for given URL/document.

@@ -1,9 +1,10 @@
 import { loadValue } from '@logux/client'
 
 import { busyDuring } from './busy.ts'
-import { getFeedLatestPosts, getFeeds } from './feed.ts'
+import { getFeed, getFeedLatestPosts, getFeeds } from './feed.ts'
 import { loadFilters } from './filter.ts'
 import { createDownloadTask } from './lib/download.ts'
+import { loaders } from './loader/index.ts'
 import { addPost, deletePost, getPosts, processOriginPost } from './post.ts'
 import { router } from './router.ts'
 
@@ -48,7 +49,15 @@ export function enablePostDebug(): void {
         }
         if (id) {
           loadValue(getPosts({ id })).then(filter => {
-            console.log(filter.list[0])
+            let post = filter.list[0]!
+            loadValue(getFeed(post.feedId)).then(feed => {
+              loaders[feed!.loader]
+                .getPostSource(feed!, post.originId)
+                .then(source => {
+                  console.log(post)
+                  console.log(source)
+                })
+            })
           })
         }
       }

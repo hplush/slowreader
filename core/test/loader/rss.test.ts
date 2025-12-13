@@ -10,6 +10,7 @@ import {
   expectRequest,
   loaders,
   mockRequest,
+  testFeed,
   type TextResponse
 } from '../../index.ts'
 
@@ -485,5 +486,63 @@ test('parses media and removes duplicates', () => {
         }
       ]
     }
+  )
+})
+
+test('returns post source', async () => {
+  let xml = `<?xml version="1.0"?>
+  <rss version="2.0">
+    <channel>
+      <title>Feed</title>
+      <item>
+        <title>First Post</title>
+        <link>https://example.com/1</link>
+        <guid>post-1</guid>
+        <description>Content 1</description>
+      </item>
+      <item>
+        <title>First Post</title>
+        <link>https://example.com/1</link>
+        <guid>post-1</guid>
+        <description>Content 1</description>
+      </item>
+      <item>
+        <title>Second Post</title>
+        <link>https://example.com/2</link>
+        <guid>post-2</guid>
+        <description>Content 2</description>
+      </item>
+    </channel>
+  </rss>`
+
+  expectRequest('https://example.com/feed').andRespond(
+    200,
+    xml,
+    'application/rss+xml'
+  )
+  equal(
+    await loaders.rss.getPostSource(
+      testFeed({ url: 'https://example.com/feed' }),
+      'post-2'
+    ),
+    `<item>
+        <title>Second Post</title>
+        <link>https://example.com/2</link>
+        <guid>post-2</guid>
+        <description>Content 2</description>
+      </item>`
+  )
+
+  expectRequest('https://example.com/feed').andRespond(
+    200,
+    xml,
+    'application/rss+xml'
+  )
+  equal(
+    await loaders.rss.getPostSource(
+      testFeed({ url: 'https://example.com/feed' }),
+      'unknown'
+    ),
+    undefined
   )
 })

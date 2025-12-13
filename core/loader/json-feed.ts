@@ -1,5 +1,5 @@
 import { getEnvironment } from '../environment.ts'
-import type { TextResponse } from '../lib/download.ts'
+import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import type { OriginPost } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import type { Loader } from './common.ts'
@@ -98,11 +98,14 @@ function validate<ValidatedType>(
   return true
 }
 
-function parsePosts(text: TextResponse): OriginPost[] {
+function parsePostSources(text: TextResponse): JsonFeedItem[] {
   let parsedJson = text.parseJson()
   if (!validate<JsonFeed>(parsedJson, JSON_FEED_VALIDATORS)) return []
+  return parsedJson.items
+}
 
-  return parsedJson.items.map(item => {
+function parsePosts(text: TextResponse): OriginPost[] {
+  return parsePostSources(text).map(item => {
     let full = (item.content_html || item.content_text) ?? undefined
     let allImages: (null | string | undefined)[] = [
       item.banner_image,
@@ -150,6 +153,11 @@ export const jsonFeed: Loader = {
         return [parsePosts(await task.text(url)), undefined]
       })
     }
+  },
+
+  async getPostSource(feed, originId) {
+    let json = await createDownloadTask().text(feed.url)
+    return parsePostSources(json).find(i => i.id === originId)
   },
 
   getSuggestedLinksFromText(text) {
