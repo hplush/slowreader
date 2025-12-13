@@ -1,9 +1,7 @@
 import '../dom-parser.ts'
 
-import { spyOn } from 'nanospy'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
-import { setTimeout } from 'node:timers/promises'
 
 import {
   checkAndRemoveRequestMock,
@@ -388,21 +386,20 @@ test('parses posts', () => {
 })
 
 test('loads text to parse posts', async () => {
-  let task = createDownloadTask()
-  let text = spyOn(task, 'text', () => {
-    return Promise.resolve(
-      exampleAtom(
-        `<?xml version="1.0"?>
+  expectRequest('https://example.com/news/').andRespond(
+    200,
+    `<?xml version="1.0"?>
       <feed xmlns="http://www.w3.org/2005/Atom">
         <title>Feed</title>
         <entry>
           <title>1</title>
           <id>1</id>
         </entry>
-      </feed>`
-      )
-    )
-  })
+      </feed>`,
+    'application/atom+xml'
+  )
+
+  let task = createDownloadTask()
   let page = loaders.atom.getPosts(task, 'https://example.com/news/')
   deepEqual(page.get(), {
     hasNext: true,
@@ -410,7 +407,7 @@ test('loads text to parse posts', async () => {
     list: []
   })
 
-  await setTimeout(100)
+  await page.loading
   deepEqual(page.get(), {
     hasNext: false,
     isLoading: false,
@@ -426,7 +423,6 @@ test('loads text to parse posts', async () => {
       }
     ]
   })
-  deepEqual(text.calls, [['https://example.com/news/']])
 })
 
 test('parses media', () => {

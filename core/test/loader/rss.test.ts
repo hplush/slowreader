@@ -1,14 +1,15 @@
 import '../dom-parser.ts'
 
-import { spyOn } from 'nanospy'
 import { deepEqual, equal } from 'node:assert/strict'
-import { test } from 'node:test'
-import { setTimeout } from 'node:timers/promises'
+import { afterEach, beforeEach, test } from 'node:test'
 
 import {
+  checkAndRemoveRequestMock,
   createDownloadTask,
   createTextResponse,
+  expectRequest,
   loaders,
+  mockRequest,
   type TextResponse
 } from '../../index.ts'
 
@@ -19,6 +20,14 @@ function exampleRss(responseBody: string): TextResponse {
     })
   })
 }
+
+beforeEach(() => {
+  mockRequest()
+})
+
+afterEach(() => {
+  checkAndRemoveRequestMock()
+})
 
 test('detects own URLs', () => {
   equal(typeof loaders.rss.isMineUrl(new URL('https://dev.to/')), 'undefined')
@@ -234,11 +243,9 @@ test('parses posts', () => {
 })
 
 test('loads text to parse posts', async () => {
-  let task = createDownloadTask()
-  let text = spyOn(task, 'text', () => {
-    return Promise.resolve(
-      exampleRss(
-        `<?xml version="1.0"?>
+  expectRequest('https://example.com/news/').andRespond(
+    200,
+    `<?xml version="1.0"?>
       <rss version="2.0">
         <channel>
           <title>Feed</title>
@@ -247,10 +254,11 @@ test('loads text to parse posts', async () => {
             <link>https://example.com/1</link>
           </item>
         </channel>
-      </rss>`
-      )
-    )
-  })
+      </rss>`,
+    'application/rss+xml'
+  )
+
+  let task = createDownloadTask()
   let page = loaders.rss.getPosts(task, 'https://example.com/news/')
   deepEqual(page.get(), {
     hasNext: true,
@@ -258,7 +266,7 @@ test('loads text to parse posts', async () => {
     list: []
   })
 
-  await setTimeout(10)
+  await page.loading
   deepEqual(page.get(), {
     hasNext: false,
     isLoading: false,
@@ -273,7 +281,6 @@ test('loads text to parse posts', async () => {
       }
     ]
   })
-  deepEqual(text.calls, [['https://example.com/news/']])
 })
 
 test('parses media from media:content alone', () => {
