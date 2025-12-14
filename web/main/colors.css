@@ -64,6 +64,7 @@
     --note-c: 0.03;
     --field-l: 0.025;
     --current-l: 0.025;
+    --opened-feed-l: 0.05;
     --placeholder-l: -0.06;
     --slider-hover-background: oklch(0 0 0 / 3%);
     --note-good-background: oklch(0.95 0.03 140);
@@ -95,6 +96,7 @@
     --secondary-text-color: oklch(0.6 0 70);
     --field-c: 0;
     --current-c: 0;
+    --opened-feed-c: 0;
     --placeholder-c: 0;
   }
 
@@ -105,6 +107,7 @@
     --secondary-text-color: oklch(0.6 0.05 70);
     --field-c: -0.015;
     --current-c: -0.015;
+    --opened-feed-c: -0.03;
     --placeholder-c: 0.04;
   }
 }
@@ -130,6 +133,7 @@
     --field-l: -0.05;
     --field-c: 0;
     --current-l: 0.15;
+    --opened-feed-l: 0.15;
     --placeholder-l: 0.15;
     --slider-hover-background: oklch(1 0 0 / 2%);
     --bottom-panel-shadow:
@@ -159,6 +163,7 @@
     --main-land-color: oklch(0.3 0 70);
     --secondary-text-color: oklch(0.7 0 70);
     --current-c: 0;
+    --opened-feed-c: 0;
     --placeholder-c: 0;
   }
 
@@ -167,6 +172,7 @@
     --main-land-color: oklch(0.3 0.03 70);
     --secondary-text-color: oklch(0.7 0.05 70);
     --current-c: 0.02;
+    --opened-feed-c: 0.02;
     --placeholder-c: 0.03;
   }
 }

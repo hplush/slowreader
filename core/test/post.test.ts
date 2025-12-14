@@ -1,7 +1,7 @@
 import './dom-parser.ts'
 
 import { loadValue } from '@logux/client'
-import { equal } from 'node:assert/strict'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 
 import {
@@ -117,11 +117,11 @@ test('loads post content', () => {
   equal(getPostContent({ ...origin, intro: 'a' }), 'a')
   equal(getPostContent({ ...origin, full: 'b', intro: 'a' }), 'b')
 
-  equal(getPostIntro(origin), '')
-  equal(getPostIntro({ ...origin, full: 'short' }), 'short')
-  equal(getPostIntro({ ...origin, full: 'short', intro: 'intro' }), 'intro')
-  equal(
-    getPostIntro({ ...origin, full: longText() }),
-    longText().slice(0, 80) + '…'
-  )
+  deepEqual(getPostIntro(origin), ['', false])
+  deepEqual(getPostIntro({ ...origin, full: 'short' }), ['short', false])
+  deepEqual(getPostIntro({ ...origin, full: 'short', intro: 'intro' }), [
+    'intro',
+    true
+  ])
+  deepEqual(getPostIntro({ ...origin, full: longText() }), [longText(), false])
 })

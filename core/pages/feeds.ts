@@ -40,7 +40,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         let posts = await loadPosts(lastFilter)
         await Promise.all(
           posts.map(async post => {
-            if (post.read) await deletePost(post.id)
+            if (post.get().read) await deletePost(post.get().id)
           })
         )
       }

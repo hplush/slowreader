@@ -64,7 +64,7 @@ test('loads posts', async () => {
   await waitLoading(page.loading)
   let reader = ensureReader(page.posts, 'list')
   equal(reader.list.get().length, 75)
-  equal(reader.list.get()[0]!.title, '150')
+  equal(reader.list.get()[0]!.get().title, '150')
   deepEqual(reader.pages.get(), {
     count: 1,
     hasNext: false,
@@ -82,8 +82,8 @@ test('loads posts', async () => {
   await waitLoading(page.postsLoading)
   reader = ensureReader(page.posts, 'list')
   equal(reader.list.get().length, 100)
-  equal(reader.list.get()[0]!.title, '150')
-  equal(reader.list.get()[99]!.title, '51')
+  equal(reader.list.get()[0]!.get().title, '150')
+  equal(reader.list.get()[99]!.get().title, '51')
   deepEqual(reader.pages.get(), {
     count: 2,
     hasNext: true,
@@ -92,8 +92,8 @@ test('loads posts', async () => {
     show: true
   })
 
-  await changePost(reader.list.get()[0]!.id, { read: true })
-  await changePost(reader.list.get()[5]!.id, { read: true })
+  await changePost(reader.list.get()[0]!.get().id, { read: true })
+  await changePost(reader.list.get()[5]!.get().id, { read: true })
   equal(reader.list.get().length, 100)
   deepEqual(slowMenu.get(), [
     [
@@ -107,7 +107,7 @@ test('loads posts', async () => {
 
   page.params.from.set(1)
   equal(reader.list.get().length, 50)
-  equal(reader.list.get()[0]!.title, '50')
+  equal(reader.list.get()[0]!.get().title, '50')
   deepEqual(reader.pages.get(), {
     count: 2,
     hasNext: false,
@@ -131,7 +131,7 @@ test('loads posts', async () => {
   equal(reader.list.get().length, 48)
 
   page.params.from.set(0)
-  equal(reader.list.get()[99]!.title, '49')
+  equal(reader.list.get()[99]!.get().title, '49')
 
   await reader.readPage()
   equal(page.params.from.get(), 1)

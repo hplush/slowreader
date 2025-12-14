@@ -7,14 +7,14 @@
   import { type FeedReader, feedsMessages as t } from '@slowreader/core'
 
   import Button from '../../ui/button.svelte'
-  import Feed from '../../ui/feed.svelte'
+  import Feed from '../../ui/feed/index.svelte'
   import Stack from '../../ui/stack.svelte'
 
   let { reader }: { reader: FeedReader } = $props()
-  let { hasNext, list, nextFrom, prevFrom } = $derived(reader)
+  let { authors, hasNext, list, nextFrom, prevFrom } = $derived(reader)
 </script>
 
-<Feed list={$list} />
+<Feed authors={$authors} posts={$list} />
 
 <Stack gap="s" row>
   {#if $prevFrom}

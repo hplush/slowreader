@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { LoadedSyncMap, SyncMapStore } from '@logux/client'
   import {
     getPopupId,
     getPostPopupParam,
@@ -12,13 +13,17 @@
   import { getPopupHash } from '../stores/url-router.ts'
   import Links from './links.svelte'
 
-  type PostLike = OriginPost | PostValue
-
-  let { autoread, list }: { autoread?: boolean; list: readonly PostLike[] } =
-    $props()
+  let {
+    autoread,
+    list
+  }: {
+    autoread?: boolean
+    list: readonly (LoadedSyncMap<SyncMapStore<PostValue>> | OriginPost)[]
+  } = $props()
 
   let links = $derived(
-    list.map(post => {
+    list.map(i => {
+      let post = ('get' in i ? i.get() : i) as OriginPost | PostValue
       let param = getPostPopupParam(post, autoread)
       return {
         controls: getPopupId('post', param),

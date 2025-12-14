@@ -1,4 +1,9 @@
-import { loadValue } from '@logux/client'
+import {
+  ensureLoadedStore,
+  type LoadedSyncMap,
+  loadValue,
+  type SyncMapStore
+} from '@logux/client'
 import type { ReadableAtom, WritableAtom } from 'nanostores'
 
 import { getFeeds } from '../feed.ts'
@@ -65,13 +70,17 @@ export function createReader<Name extends ReaderName, Rest extends Extra>(
   }
 }
 
-export async function loadPosts(filter: PostFilter): Promise<PostValue[]> {
+export async function loadPosts(
+  filter: PostFilter
+): Promise<LoadedSyncMap<SyncMapStore<PostValue>>[]> {
   let posts: PostValue[]
+  let stores: Map<string, SyncMapStore<PostValue>>
   if ('categoryId' in filter) {
     let [allPosts, feeds] = await Promise.all([
       loadValue(getPosts({ reading: filter.reading })),
       loadValue(getFeeds({ categoryId: filter.categoryId }))
     ])
+    stores = allPosts.stores
     posts = allPosts.list.filter(i => {
       return feeds.stores.has(i.feedId) && !allPosts.stores.get(i.id)?.deleted
     })
@@ -79,7 +88,12 @@ export async function loadPosts(filter: PostFilter): Promise<PostValue[]> {
     let value = await loadValue(
       getPosts({ feedId: filter.feedId, reading: filter.reading })
     )
+    stores = value.stores
     posts = value.list.filter(i => !value.stores.get(i.id)?.deleted)
   }
-  return posts.sort((a, b) => b.publishedAt - a.publishedAt)
+  return posts
+    .sort((a, b) => b.publishedAt - a.publishedAt)
+    .map(i => stores.get(i.id))
+    .filter(i => !!i)
+    .map(i => ensureLoadedStore(i))
 }

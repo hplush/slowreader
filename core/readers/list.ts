@@ -1,3 +1,4 @@
+import type { LoadedSyncMap, SyncMapStore } from '@logux/client'
 import { atom } from 'nanostores'
 
 import {
@@ -5,8 +6,7 @@ import {
   moveToPage,
   setPagination
 } from '../lib/pagination.ts'
-import { onLogAction } from '../lib/stores.ts'
-import { changePost, postsChangedAction, type PostValue } from '../post.ts'
+import { changePost, type PostValue } from '../post.ts'
 import { createReader, loadPosts } from './common.ts'
 
 let POSTS_PER_PAGE = 100
@@ -16,11 +16,10 @@ export const listReader = createReader('list', (filter, params) => {
 
   let exited = false
   let $loading = atom(true)
-  let $list = atom<PostValue[]>([])
+  let $list = atom<LoadedSyncMap<SyncMapStore<PostValue>>[]>([])
   let $pages = createPagination(1, 1)
 
   let unbindFrom = (): void => {}
-  let unbindAction = (): void => {}
   async function start(): Promise<void> {
     let posts = await loadPosts(filter)
     if (exited) return
@@ -34,18 +33,6 @@ export const listReader = createReader('list', (filter, params) => {
       moveToPage($pages, from)
     }
 
-    unbindAction = onLogAction(action => {
-      if (postsChangedAction.match(action) && 'read' in action.fields) {
-        for (let post of posts) {
-          if (post.id === action.id) {
-            post.read = action.fields.read
-            break
-          }
-        }
-        updateList()
-      }
-    })
-
     setPagination($pages, posts.length, POSTS_PER_PAGE)
     unbindFrom = params.from.subscribe(updateList)
   }
@@ -55,7 +42,9 @@ export const listReader = createReader('list', (filter, params) => {
 
   async function readPage(): Promise<void> {
     let list = $list.get()
-    let promise = Promise.all(list.map(i => changePost(i.id, { read: true })))
+    let promise = Promise.all(
+      list.map(i => changePost(i.get().id, { read: true }))
+    )
     if ($pages.get().hasNext) {
       params.from.set($pages.get().page + 1)
     }
@@ -65,7 +54,6 @@ export const listReader = createReader('list', (filter, params) => {
   return {
     exit() {
       exited = true
-      unbindAction()
       unbindFrom()
     },
     list: $list,

@@ -90,13 +90,14 @@ export function getPostContent(post: OriginPost): string {
   return post.full ?? post.intro ?? ''
 }
 
-export function getPostIntro(post: OriginPost): string {
+export function getPostIntro(post: OriginPost): [string, boolean] {
   if (post.intro) {
-    return post.intro
-  } else if (post.full && post.full.length <= 2000) {
-    return post.full
+    let more = !!post.full && post.full !== post.intro
+    return [post.intro, more]
+  } else if (post.full) {
+    return [post.full, false]
   } else {
-    return getPostTitle(post)
+    return ['', false]
   }
 }
 
