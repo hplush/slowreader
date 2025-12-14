@@ -1,9 +1,9 @@
 @define-mixin clickable {
+  color: var(--text-color);
   text-decoration: none;
   user-select: none;
-  border: none;
-  color: var(--text-color);
   background: transparent;
+  border: none;
 
   &[aria-disabled='true'] {
     pointer-events: none;
