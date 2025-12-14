@@ -20,7 +20,7 @@ import { loadFilters } from './filter.ts'
 import { $locale } from './i18n.ts'
 import { stripHTML } from './lib/html.ts'
 import type { OptionalId } from './lib/stores.ts'
-import { truncate } from './text.ts'
+import { truncate } from './lib/text.ts'
 
 export type OriginPost = {
   full?: string

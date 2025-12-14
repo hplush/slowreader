@@ -1,4 +1,4 @@
-import { stripHTML } from './lib/html.ts'
+import { stripHTML } from './html.ts'
 
 function findLastMatch(
   str: string,
