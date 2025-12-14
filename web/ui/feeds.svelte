@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { mdiChevronRight, mdiCircleSmall } from '@mdi/js'
+  import { mdiChevronRight } from '@mdi/js'
   import {
     type FeedLoader,
     type FeedValue,
     getPopupId,
-    layoutType,
     router
   } from '@slowreader/core'
 
@@ -29,10 +28,7 @@
       href: getPopupHash($router, 'feed', feed.url),
       id: feed.url,
       item: feed,
-      mark:
-        $layoutType === 'mobile' || current === feed.url
-          ? mdiChevronRight
-          : mdiCircleSmall
+      mark: mdiChevronRight
     }))
   )
 </script>
