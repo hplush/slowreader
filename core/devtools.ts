@@ -5,7 +5,13 @@ import { getFeed, getFeedLatestPosts, getFeeds } from './feed.ts'
 import { loadFilters } from './filter.ts'
 import { createDownloadTask } from './lib/download.ts'
 import { loaders } from './loader/index.ts'
-import { addPost, deletePost, getPosts, processOriginPost } from './post.ts'
+import {
+  addPost,
+  deletePost,
+  getPost,
+  getPosts,
+  processOriginPost
+} from './post.ts'
 import { router } from './router.ts'
 
 /**
@@ -48,8 +54,8 @@ export function enablePostDebug(): void {
           id = popup.param.slice(5)
         }
         if (id) {
-          loadValue(getPosts({ id })).then(filter => {
-            let post = filter.list[0]!
+          loadValue(getPost(id)).then(post => {
+            if (!post) return
             loadValue(getFeed(post.feedId)).then(feed => {
               loaders[feed!.loader]
                 .getPostSource(feed!, post.originId)

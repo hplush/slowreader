@@ -1,13 +1,17 @@
 import './dom-parser.ts'
 
+import { loadValue } from '@logux/client'
 import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 
 import {
+  addPost,
+  getPost,
   getPostContent,
   getPostIntro,
   getPostTitle,
-  type OriginPost
+  type OriginPost,
+  testPost
 } from '../index.ts'
 import { cleanClientTest, enableClientTest } from './utils.ts'
 
@@ -22,6 +26,12 @@ afterEach(async () => {
 function longText(): string {
   return 'a'.repeat(5000)
 }
+
+test('has helper to load post', async () => {
+  let id = await addPost(testPost({ title: 'Test Post' }))
+  let post = await loadValue(getPost(id))
+  equal(post?.title, 'Test Post')
+})
 
 test('loads post title', () => {
   let origin = {

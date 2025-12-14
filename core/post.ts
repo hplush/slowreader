@@ -7,6 +7,7 @@ import {
   type Filter,
   type FilterStore,
   loadValue,
+  type SyncMapStore,
   syncMapTemplate
 } from '@logux/client'
 import { formatter } from '@nanostores/i18n'
@@ -48,6 +49,10 @@ export async function addPost(fields: OptionalId<PostValue>): Promise<string> {
   let id = fields.id ?? nanoid()
   await createSyncMap(getClient(), Post, { id, ...fields })
   return id
+}
+
+export function getPost(id: string): SyncMapStore<PostValue> {
+  return Post(id, getClient())
 }
 
 export function getPosts(

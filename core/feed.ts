@@ -38,6 +38,10 @@ export const Feed = syncMapTemplate<FeedValue>('feeds', {
   remote: false
 })
 
+export function getFeed(feedId: string): SyncMapStore<FeedValue> {
+  return Feed(feedId, getClient())
+}
+
 export function getFeeds(
   filter: Filter<FeedValue> = {}
 ): FilterStore<FeedValue> {
@@ -56,10 +60,6 @@ export async function deleteFeed(feedId: string): Promise<void> {
   let posts = await loadValue(getPosts({ feedId }))
   await Promise.all(posts.list.map(post => deletePost(post.id)))
   return deleteSyncMapById(getClient(), Feed, feedId)
-}
-
-export function getFeed(feedId: string): SyncMapStore<FeedValue> {
-  return Feed(feedId, getClient())
 }
 
 export async function changeFeed(
