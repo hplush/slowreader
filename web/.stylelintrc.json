@@ -1,6 +1,12 @@
 {
   "extends": ["@logux/stylelint-config", "@stylistic/stylelint-config"],
-  "ignoreFiles": ["dist/**/*"],
+  "ignoreFiles": [
+    "**/*",
+    "!**/*.css",
+    "!**/*.pcss",
+    "!**/*.svelte",
+    "dist/**/*"
+  ],
   "plugins": ["stylelint-use-logical", "@stylistic/stylelint-plugin"],
   "rules": {
     "declaration-property-value-no-unknown": [
