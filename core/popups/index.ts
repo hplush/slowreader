@@ -7,6 +7,7 @@ import { refresh } from './refresh.ts'
 export { type BasePopup, getPopupId, type LoadedPopup } from './common.ts'
 export type { FeedPopup } from './feed.ts'
 export type { PostPopup } from './post.ts'
+export { getPostPopupParam } from './post.ts'
 export type { RefreshPopup } from './refresh.ts'
 
 export const popups = {

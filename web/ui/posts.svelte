@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     getPopupId,
+    getPostPopupParam,
     getPostTitle,
     openedPost,
     type OriginPost,
@@ -8,7 +9,6 @@
     router
   } from '@slowreader/core'
 
-  import { getPostPopupParam } from '../../core/popups/post.ts'
   import { getPopupHash } from '../stores/url-router.ts'
   import Links from './links.svelte'
 
