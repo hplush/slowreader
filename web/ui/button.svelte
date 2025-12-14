@@ -97,7 +97,7 @@
       class="button_text"
       class:sr-only={size === 'icon'}
       {@attach span => {
-        if (span && size === 'icon') {
+        if (size === 'icon') {
           title = span.textContent.trim() || ''
         }
       }}
