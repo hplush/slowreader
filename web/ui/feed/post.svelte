@@ -152,7 +152,7 @@
     .feed-post_more {
       float: inline-end;
       margin-inline-end: -0.5rem;
-      margin-top: 0.5rem;
+      margin-top: 0.125rem;
     }
 
     .feed-post_title {

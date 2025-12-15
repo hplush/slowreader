@@ -3,7 +3,7 @@ import '../dom-parser.ts'
 import { equal } from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { parseRichTranslation, sanitizeDOM } from '../../index.ts'
+import { parseRichTranslation, sanitizeDOM, truncateHTML } from '../../index.ts'
 
 test('sanitizes HTML', () => {
   equal(
@@ -44,5 +44,42 @@ test('combines list with strong syntax', () => {
   equal(
     parseRichTranslation('* **item one**\n* item **two**'),
     '<ul><li><strong>item one</strong></li>\n<li>item <strong>two</strong></li></ul>'
+  )
+})
+
+test('truncates HTML at character limit', () => {
+  equal(truncateHTML('<p>Short text</p>', 0, 50), '<p>Short text</p>')
+})
+
+test('truncates HTML and closes tags', () => {
+  equal(
+    truncateHTML(
+      '<p>This is a very long paragraph that should be truncated</p>',
+      10,
+      25
+    ),
+    '<p>This is a very long …</p>'
+  )
+})
+
+test('truncates HTML at paragraph boundary', () => {
+  equal(
+    truncateHTML(
+      '<p>First paragraph with enough text to be over min.</p><p>Second paragraph that will exceed the max limit.</p>',
+      40,
+      80
+    ),
+    '<p>First paragraph with enough text to be over min.</p><p>…</p>'
+  )
+})
+
+test('handles nested tags when truncating at paragraph', () => {
+  equal(
+    truncateHTML(
+      '<div><p>First paragraph text here.</p><p>Second paragraph with <strong>bold</strong> text.</p></div>',
+      20,
+      30
+    ),
+    '<div><p>First paragraph text here.</p><p>…</p></div>'
   )
 })

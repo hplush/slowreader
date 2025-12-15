@@ -20,6 +20,7 @@
 - Never change `eslint.config.ts`. Always change code to fix found issues.
 - Never use `as any`.
 - Always merge type and regular import.
+- Do not use `tsx`, you can import `.ts` and run it in Node.js directly.
 
 ## Testing
 

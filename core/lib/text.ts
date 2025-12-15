@@ -1,32 +1,41 @@
-import { stripHTML } from './html.ts'
+export const PUNCTUATION_CHARS = '.!?。．！？'
+
+const SENTENCE_WITH_NEWLINE = new RegExp('[' + PUNCTUATION_CHARS + '\\n]', 'g')
 
 function findLastMatch(
   str: string,
   pattern: RegExp,
   start: number
 ): string | undefined {
-  for (let i = str.length - 1; i >= start; i--) {
-    if (pattern.test(str[i]!)) {
-      return str.slice(0, i + 1)
+  let match
+  let lastIndex = -1
+
+  while ((match = pattern.exec(str)) !== null) {
+    if (match.index >= start) {
+      lastIndex = match.index
     }
   }
-  return undefined
+
+  if (lastIndex >= 0) {
+    return str.slice(0, lastIndex + 1)
+  } else {
+    return undefined
+  }
 }
 
-export function truncate(html: string, start: number, end: number): string {
-  let text = stripHTML(html)
-  if (text.length <= end) return text
+export function truncateText(text: string, min: number, max: number): string {
+  if (text.length <= max) return text
 
-  let upToEnd = text.slice(0, end)
+  let upToMax = text.slice(0, max)
 
   // Try to cut by sentence
-  let bySentence = findLastMatch(upToEnd, /[.!?。．！？\n]/, start)
+  let bySentence = findLastMatch(upToMax, SENTENCE_WITH_NEWLINE, min)
   if (bySentence) return bySentence + ' …'
 
   // Try to cut by word
-  let byWord = findLastMatch(upToEnd, /\s/, start)
-  if (byWord) return byWord.trimEnd() + '…'
+  let byWord = findLastMatch(upToMax, /\s/g, min)
+  if (byWord) return byWord.trimEnd() + ' …'
 
   // Truncate at the middle of the word
-  return upToEnd + '…'
+  return upToMax + '…'
 }

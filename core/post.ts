@@ -18,9 +18,9 @@ import { getClient } from './client.ts'
 import { getFeed } from './feed.ts'
 import { loadFilters } from './filter.ts'
 import { $locale } from './i18n.ts'
-import { stripHTML } from './lib/html.ts'
+import { stripHTML, truncateHTML } from './lib/html.ts'
 import type { OptionalId } from './lib/stores.ts'
-import { truncate } from './lib/text.ts'
+import { truncateText } from './lib/text.ts'
 
 export type OriginPost = {
   full?: string
@@ -95,7 +95,8 @@ export function getPostIntro(post: OriginPost): [string, boolean] {
     let more = !!post.full && post.full !== post.intro
     return [post.intro, more]
   } else if (post.full) {
-    return [post.full, false]
+    let truncated = truncateHTML(post.full, 300, 500)
+    return [truncated, truncated !== post.full]
   } else {
     return ['', false]
   }
@@ -105,9 +106,9 @@ export function getPostTitle(post: OriginPost): string {
   if (post.title) {
     return stripHTML(post.title)
   } else if (post.intro) {
-    return truncate(post.intro, 40, 80)
+    return truncateText(stripHTML(post.intro), 40, 80)
   } else if (post.full) {
-    return truncate(post.full, 40, 80)
+    return truncateText(stripHTML(post.full), 40, 80)
   } else if (post.publishedAt) {
     return formatter($locale)
       .get()
