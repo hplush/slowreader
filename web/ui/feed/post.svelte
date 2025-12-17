@@ -69,6 +69,10 @@
         background: --tune-background(--field);
       }
 
+      &.is-read {
+        color: var(--secondary-text-color);
+      }
+
       &:not(:last-child) {
         border-bottom: none;
       }
@@ -80,7 +84,6 @@
 
       @media (--no-mobile) {
         margin-top: calc(-1 * var(--min-size));
-        box-shadow: var(--flat-control-shadow);
 
         &:first-child {
           margin-top: 0;

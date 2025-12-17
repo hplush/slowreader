@@ -71,12 +71,10 @@
       font: var(--control-font);
       overflow-wrap: anywhere;
       background: --tune-background(--flat-button);
-      box-shadow: var(--flat-control-shadow);
+      border: calc(var(--min-size) / 2) solid var(--flat-border-color);
 
-      &.is-read {
-        color: var(--secondary-text-color);
-        background: transparent;
-        box-shadow: none;
+      li:not(:last-child) > & {
+        border-bottom: none;
       }
 
       li:first-child & {
@@ -96,13 +94,24 @@
       &:active,
       &:focus-visible {
         background: --tune-background(--flat-button --flat-button-hover);
-        box-shadow: var(--flat-control-shadow);
+      }
+
+      &.is-read {
+        color: var(--secondary-text-color);
+        background: var(--current-background);
+
+        &:hover,
+        &:active,
+        &:focus-visible {
+          background: --tune-background(--flat-button-hover);
+        }
       }
 
       &:not([aria-current='page']):active {
         z-index: 1;
         padding-block: calc(0.875rem + var(--min-size))
           calc(0.875rem - var(--min-size));
+        border-color: transparent;
         box-shadow: var(--pressed-shadow);
       }
 
@@ -110,6 +119,7 @@
         z-index: 1;
         cursor: default;
         background: --tune-background(--current);
+        border-color: transparent;
         box-shadow: var(--current-shadow);
       }
     }
