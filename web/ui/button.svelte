@@ -59,7 +59,7 @@
 <Clickable
   {...props}
   class={{
-    button: true,
+    'button': true,
     'is-attention': variant === 'attention',
     'is-big': size === 'big',
     'is-icon': size === 'icon',

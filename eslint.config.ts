@@ -16,7 +16,9 @@ export default [
       '@typescript-eslint/no-base-to-string': 'off',
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-type-assertion': 'off'
+      '@typescript-eslint/no-unsafe-type-assertion': 'off',
+      // Until https://github.com/typescript-eslint/typescript-eslint/issues/11849
+      '@typescript-eslint/no-useless-default-assignment': 'off'
     }
   },
   {
@@ -36,36 +38,6 @@ export default [
     files: ['web/pages/**/*', 'web/ui/**/*', 'web/main/**/*', 'core/test/**/*'],
     rules: {
       'n/no-unsupported-features/node-builtins': 'off'
-    }
-  },
-  {
-    files: ['**/*.ts', '**/*.js', '**/*.svelte'],
-    rules: {
-      'perfectionist/sort-imports': [
-        'warn',
-        {
-          groups: [
-            'side-effect',
-            'side-effect-style',
-            'style',
-            ['builtin-type', 'type', 'builtin', 'external', 'unknown'],
-            [
-              'internal-type',
-              'parent-type',
-              'sibling-type',
-              'index-type',
-              'internal',
-              'parent',
-              'sibling',
-              'index'
-            ],
-            ['object']
-          ],
-          newlinesBetween: 'always',
-          order: 'asc',
-          type: 'alphabetical'
-        }
-      ]
     }
   },
   {

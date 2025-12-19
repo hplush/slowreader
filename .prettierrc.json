@@ -2,7 +2,7 @@
   "plugins": ["prettier-plugin-svelte"],
   "arrowParens": "avoid",
   "jsxSingleQuote": false,
-  "quoteProps": "as-needed",
+  "quoteProps": "consistent",
   "semi": false,
   "singleQuote": true,
   "trailingComma": "none",

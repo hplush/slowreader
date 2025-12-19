@@ -15,11 +15,14 @@ trustPolicyExclude:
   - undici@6.22.0
   - undici-types@6.21.0
 
+blockExoticSubdeps: true
+
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - 'postcss-smooth-shadow'
   - '@nanostores/*'
   - '@logux/*'
+  - 'logux-eslint-config'
   - '@size-limit/*'
   - 'size-limit'
   - 'browserslist'
@@ -27,6 +30,10 @@ minimumReleaseAgeExclude:
   - 'caniuse-lite'
   - 'baseline-browser-mapping'
   - 'autoprefixer'
+  - 'multiocular'
+  - 'oxfmt'
+  - '@oxfmt/*'
 
-onlyBuiltDependencies:
-  - husky
+allowBuilds:
+  husky: true
+  esbuild: true

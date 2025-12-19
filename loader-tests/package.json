@@ -2,10 +2,6 @@
   "name": "@slowreader/loader-tests",
   "private": true,
   "type": "module",
-  "engines": {
-    "node": "^24.12.0",
-    "pnpm": "^10.0.0"
-  },
   "scripts": {
     "check-opml": "node check-opml.ts",
     "test": "node --run test:online:loaders",
@@ -17,9 +13,13 @@
     "@slowreader/core": "workspace:*",
     "@slowreader/proxy": "workspace:*",
     "@types/jsdom": "27.0.0",
-    "eslint": "9.39.1",
+    "eslint": "9.39.2",
     "jsdom": "27.3.0",
     "nanostores": "1.1.0",
     "yaml": "2.8.2"
+  },
+  "engines": {
+    "node": "^24.12.0",
+    "pnpm": "^10.0.0"
   }
 }

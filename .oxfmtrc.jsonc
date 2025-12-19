@@ -2,7 +2,7 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "arrowParens": "avoid",
   "jsxSingleQuote": false,
-  "quoteProps": "as-needed",
+  "quoteProps": "consistent",
   "semi": false,
   "singleQuote": true,
   "trailingComma": "none",

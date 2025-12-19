@@ -27,8 +27,14 @@ export interface RequesterOptions {
 }
 
 export type HTTPResponse<ResponseJSON> = (
-  | { json(): never; ok: false }
-  | { json(): Promise<ResponseJSON>; ok: true }
+  | {
+      json(): never
+      ok: false
+    }
+  | {
+      json(): Promise<ResponseJSON>
+      ok: true
+    }
 ) &
   Response
 

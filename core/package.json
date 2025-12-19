@@ -2,18 +2,14 @@
   "name": "@slowreader/core",
   "private": true,
   "type": "module",
-  "engines": {
-    "node": "^24.12.0",
-    "pnpm": "^10.0.0"
+  "exports": {
+    ".": "./index.ts",
+    "./package.json": "./package.json",
+    "./test": "./test.ts"
   },
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
     "test:coverage": "bnt --coverage 100 --coverage-exclude '{devtools.ts,test.ts,../api/**,../server/**,**/test/**}'"
-  },
-  "exports": {
-    ".": "./index.ts",
-    "./test": "./test.ts",
-    "./package.json": "./package.json"
   },
   "dependencies": {
     "@logux/actions": "0.5.0",
@@ -36,5 +32,9 @@
     "better-node-test": "0.8.3",
     "jsdom": "27.3.0",
     "nanospy": "1.0.0"
+  },
+  "engines": {
+    "node": "^24.12.0",
+    "pnpm": "^10.0.0"
   }
 }
