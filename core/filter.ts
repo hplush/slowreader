@@ -19,9 +19,6 @@ const QUERY_REGEXP = /^(not\s+)?([\w]+)(?:\(([^]+)\))?$/
 const QUERIES_WITH_PARAM = { include: true } as const
 
 const QUERIES = {
-  hasMedia(post) {
-    return post.media.length > 0
-  },
   include(post, pattern) {
     let lower = pattern.toLowerCase()
     return (
@@ -177,6 +174,7 @@ function parseQuery(
     let [, not, name, param] = match
     if (isValidQueryName(name!)) {
       let hasParams = name in QUERIES_WITH_PARAM
+      /* node:coverage ignore next 5 */
       if (hasParams && !param) {
         return { invalid: true }
       } else if (!hasParams && param) {

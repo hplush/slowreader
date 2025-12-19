@@ -58,7 +58,6 @@ let FILTER = {
 let POST = {
   feedId: FEED.id,
   id: 'p1',
-  media: [],
   originId: 'test-1',
   publishedAt: 1000,
   reading: 'fast',

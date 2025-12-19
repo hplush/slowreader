@@ -10,12 +10,9 @@ import {
   getPostContent,
   getPostIntro,
   getPostTitle,
-  type OriginPost,
   testPost
 } from '../index.ts'
 import { cleanClientTest, enableClientTest } from './utils.ts'
-
-const MIN_POST = { media: [], originId: 'id' } satisfies OriginPost
 
 beforeEach(() => {
   enableClientTest()
@@ -27,8 +24,8 @@ afterEach(async () => {
 
 function truncateBetweenParagraphs(text: string): void {
   let result = getPostIntro({
-    ...MIN_POST,
-    full: text
+    full: text,
+    originId: 'id'
   })
   equal(result[1], true)
   match(result[0], /<p>…<\/p>$/)
@@ -36,8 +33,8 @@ function truncateBetweenParagraphs(text: string): void {
 
 function truncateBetweenSentences(text: string): void {
   let result = getPostIntro({
-    ...MIN_POST,
-    full: text
+    full: text,
+    originId: 'id'
   })
   equal(result[1], true)
   match(result[0], /[.?] …<\/p>/)
@@ -50,49 +47,49 @@ test('has helper to load post', async () => {
 })
 
 test('loads post title', () => {
-  equal(getPostTitle({ ...MIN_POST, publishedAt: 1763900785 }), '11/23/2025')
-  equal(getPostTitle({ ...MIN_POST, publishedAt: undefined }), 'id')
-  equal(getPostTitle({ ...MIN_POST, full: '&lt;tag&gt; <img />' }), '<tag>')
-  equal(getPostTitle({ ...MIN_POST, full: 'b', intro: 'a<img />' }), 'a')
+  equal(getPostTitle({ originId: 'id', publishedAt: 1763900785 }), '11/23/2025')
+  equal(getPostTitle({ originId: 'id', publishedAt: undefined }), 'id')
+  equal(getPostTitle({ full: '&lt;tag&gt; <img />', originId: 'id' }), '<tag>')
+  equal(getPostTitle({ full: 'b', intro: 'a<img />', originId: 'id' }), 'a')
   equal(
-    getPostTitle({ ...MIN_POST, full: 'b', intro: 'a', title: '<b>z</b>' }),
+    getPostTitle({ full: 'b', intro: 'a', originId: 'id', title: '<b>z</b>' }),
     'z'
   )
   equal(
     getPostTitle({
-      ...MIN_POST,
       intro:
         'Pretty long intro which container few sentences. ' +
-        'But sentences is small enough to be cut by them'
+        'But sentences is small enough to be cut by them',
+      originId: 'id'
     }),
     'Pretty long intro which container few sentences. …'
   )
   equal(
     getPostTitle({
-      ...MIN_POST,
       intro:
         'Is it pretty long intro which container few sentences? ' +
-        'But sentences is small enough to be cut by them'
+        'But sentences is small enough to be cut by them',
+      originId: 'id'
     }),
     'Is it pretty long intro which container few sentences? …'
   )
   equal(
     getPostTitle({
-      ...MIN_POST,
       intro:
         'Very long body without sentences to be able to cut ' +
-        'the text in the middle of them for better readability'
+        'the text in the middle of them for better readability',
+      originId: 'id'
     }),
     'Very long body without sentences to be able ' +
       'to cut the text in the middle of …'
   )
   equal(
     getPostTitle({
-      ...MIN_POST,
       intro:
         '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本' +
         '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本' +
-        '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本'
+        '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本',
+      originId: 'id'
     }),
     '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本' +
       '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本' +
@@ -100,17 +97,17 @@ test('loads post title', () => {
   )
   equal(
     getPostTitle({
-      ...MIN_POST,
       intro:
         '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本' +
-        '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本'
+        '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本',
+      originId: 'id'
     }),
     '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本' +
       '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本'
   )
   equal(
     getPostTitle({
-      ...MIN_POST,
+      originId: 'id',
       title:
         'Pretty long intro which container few sentences. ' +
         'But sentences is small enough to be cut by them.'
@@ -121,17 +118,17 @@ test('loads post title', () => {
 })
 
 test('loads post content', () => {
-  equal(getPostContent(MIN_POST), '')
-  equal(getPostContent({ ...MIN_POST, intro: 'a' }), 'a')
-  equal(getPostContent({ ...MIN_POST, full: 'b', intro: 'a' }), 'b')
+  equal(getPostContent({ originId: 'id' }), '')
+  equal(getPostContent({ intro: 'a', originId: 'id' }), 'a')
+  equal(getPostContent({ full: 'b', intro: 'a', originId: 'id' }), 'b')
 
-  deepEqual(getPostIntro(MIN_POST), ['', false])
-  deepEqual(getPostIntro({ ...MIN_POST, full: 'short' }), ['short', false])
-  deepEqual(getPostIntro({ ...MIN_POST, full: 'short', intro: 'intro' }), [
+  deepEqual(getPostIntro({ originId: 'id' }), ['', false])
+  deepEqual(getPostIntro({ full: 'short', originId: 'id' }), ['short', false])
+  deepEqual(getPostIntro({ full: 'short', intro: 'intro', originId: 'id' }), [
     'intro',
     true
   ])
-  deepEqual(getPostIntro({ ...MIN_POST, full: 'a'.repeat(600) }), [
+  deepEqual(getPostIntro({ full: 'a'.repeat(600), originId: 'id' }), [
     'a'.repeat(500) + '…',
     true
   ])
@@ -164,8 +161,8 @@ test('truncate post full body 5', () => {
 test('truncate post full body 6', () => {
   doesNotMatch(
     getPostIntro({
-      ...MIN_POST,
-      full: `\n<p>Xxx xxxx xxxxx xx xxx xxxxxxx "Xxx-xxxxxx". X xxxxx xxxxx xxxx xxxxxxx xx 250 xxxxxxxxxxx, xxx xxx xxxx xxxxxxx.</p>\n<p>X xxxxxxxx xxxxxxxxx xxxxx x xxxxxxx xxxxxxxxx xxxxxxxx Xxxxx — xxxx, xxxxxxx xxx xx xxx xx xxxxxxxxx. Xxxxx xxxxxxx xxxxxxxxxxxxxx x xxxxxxxxxxx xx xxxxxxx xxxxxxxxxx <a href="https://example.ru/all/video-iz-1991-goda/">xxxxx xxxxxxxxxxxx xxxx</a>, xxx Xxxxx xxxxx xxxx xxxxxx x xxxxx xxxxxxxxx xxxxxxx.</p>\n<p>Xxxxx x xx xxxxxxxxxxx, xxxxx xxx xxxxxxxxxxxx, xx x xxxxxx xxxxx xxxxx xxxxxxx:</p>\n<blockquote>\n<p>Xx xxxx xxxxxxx x xxxxxx xx xxxxx xxx xxx. Xxxx xxxxxxxxx xxx xxxxxxxxxxx x xxxxxx xxxxxxxxxxxxx xxx. X xxxxxxxx xxxxxx xxxxx xxxx, xxxx xx xxxxxxx x xxx xxxxxxxxxx, xxxxxxx xxxxx xxxxxxxxxxx.</p>\n</blockquote>\n`
+      full: `\n<p>Xxx xxxx xxxxx xx xxx xxxxxxx "Xxx-xxxxxx". X xxxxx xxxxx xxxx xxxxxxx xx 250 xxxxxxxxxxx, xxx xxx xxxx xxxxxxx.</p>\n<p>X xxxxxxxx xxxxxxxxx xxxxx x xxxxxxx xxxxxxxxx xxxxxxxx Xxxxx — xxxx, xxxxxxx xxx xx xxx xx xxxxxxxxx. Xxxxx xxxxxxx xxxxxxxxxxxxxx x xxxxxxxxxxx xx xxxxxxx xxxxxxxxxx <a href="https://example.ru/all/video-iz-1991-goda/">xxxxx xxxxxxxxxxxx xxxx</a>, xxx Xxxxx xxxxx xxxx xxxxxx x xxxxx xxxxxxxxx xxxxxxx.</p>\n<p>Xxxxx x xx xxxxxxxxxxx, xxxxx xxx xxxxxxxxxxxx, xx x xxxxxx xxxxx xxxxx xxxxxxx:</p>\n<blockquote>\n<p>Xx xxxx xxxxxxx x xxxxxx xx xxxxx xxx xxx. Xxxx xxxxxxxxx xxx xxxxxxxxxxx x xxxxxx xxxxxxxxxxxxx xxx. X xxxxxxxx xxxxxx xxxxx xxxx, xxxx xx xxxxxxx x xxx xxxxxxxxxx, xxxxxxx xxxxx xxxxxxxxxxx.</p>\n</blockquote>\n`,
+      originId: 'id'
     })[0],
     /<blockquote>$/
   )
@@ -198,8 +195,8 @@ test('truncate post full body with br', () => {
 test('truncate post full body with <style>', () => {
   match(
     getPostIntro({
-      ...MIN_POST,
-      full: `<style>${'*{padding:0;}'.repeat(50)}</style><p>X xxx xxxxxxx xxxxx, xxx xxxx WebGL, xxxxxxxxxxx, xxxxx xxxxxxxx xxxx xxxxxxxxx xxxxxxxxxxxxx xxxxxxxxxx xx xxxxxx, xxx xxxxxxx lastwrd.</p>`
+      full: `<style>${'*{padding:0;}'.repeat(50)}</style><p>X xxx xxxxxxx xxxxx, xxx xxxx WebGL, xxxxxxxxxxx, xxxxx xxxxxxxx xxxx xxxxxxxxx xxxxxxxxxxxxx xxxxxxxxxx xx xxxxxx, xxx xxxxxxx lastwrd.</p>`,
+      originId: 'id'
     })[0],
     /lastwrd/
   )

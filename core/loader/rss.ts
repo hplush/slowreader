@@ -1,18 +1,16 @@
 import { createDownloadTask, type TextResponse } from '../lib/download.ts'
-import type { OriginPost } from '../post.ts'
+import { type OriginPost, type PostMedia, stringifyMedia } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
-import type { Loader } from './common.ts'
+import { findMRSS } from './atom.ts'
 import {
   findAnchorHrefs,
   findDocumentLinks,
   findHeaderLinks,
-  findImageByAttr,
+  findMediaInText,
   isHTML,
-  toTime,
-  unique
-} from './utils.ts'
-
-const MEDIA_NS_URI = 'http://search.yahoo.com/mrss/'
+  type Loader,
+  toTime
+} from './common.ts'
 
 function parsePostSources(text: TextResponse): Element[] {
   let document = text.parseXml()
@@ -28,17 +26,21 @@ function parsePosts(text: TextResponse): OriginPost[] {
   return parsePostSources(text).map(item => {
     let description = item.querySelector('description')
 
-    let descriptionImageElements = description?.querySelectorAll('img')
-    let descriptionImages = findImageByAttr('src', descriptionImageElements)
-
-    let mediaImageElements = [
-      ...item.getElementsByTagNameNS(MEDIA_NS_URI, 'content')
-    ].filter(element => element.getAttribute('medium') === 'image')
-    let mediaImages = findImageByAttr('url', mediaImageElements)
+    let textMedia = findMediaInText(description?.textContent)
+    let postMedia: PostMedia[] = []
+    let enclosures = item.querySelectorAll('enclosure')
+    for (let enclosure of enclosures) {
+      let url = enclosure.getAttribute('url')
+      let type = enclosure.getAttribute('type')
+      if (url && type) {
+        postMedia.push({ type, url })
+      }
+    }
+    postMedia = postMedia.concat(findMRSS(item))
 
     return {
       full: description?.textContent ?? undefined,
-      media: unique([...descriptionImages, ...mediaImages]),
+      media: stringifyMedia([...postMedia, ...textMedia]),
       originId:
         item.querySelector('guid')?.textContent ??
         item.querySelector('link')!.textContent,

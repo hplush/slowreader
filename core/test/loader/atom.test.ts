@@ -10,9 +10,11 @@ import {
   expectRequest,
   loaders,
   mockRequest,
+  parseMedia,
   testFeed,
   type TextResponse
 } from '../../index.ts'
+import { cleanClientTest, enableClientTest } from '../utils.ts'
 
 function exampleAtom(responseBody: string): TextResponse {
   return createTextResponse(responseBody, {
@@ -23,11 +25,13 @@ function exampleAtom(responseBody: string): TextResponse {
 }
 
 beforeEach(() => {
+  enableClientTest()
   mockRequest()
 })
 
-afterEach(() => {
+afterEach(async () => {
   checkAndRemoveRequestMock()
+  await cleanClientTest()
 })
 
 test('detects xml:base attribute', () => {
@@ -348,7 +352,7 @@ test('parses posts', () => {
         {
           full: 'Full 1',
           intro: 'Post 1 XSS',
-          media: [],
+          media: undefined,
           originId: '1',
           publishedAt: 1672531200,
           title: '1 XSS',
@@ -357,7 +361,7 @@ test('parses posts', () => {
         {
           full: undefined,
           intro: undefined,
-          media: [],
+          media: undefined,
           originId: '2',
           publishedAt: 1685577600,
           title: '2',
@@ -366,7 +370,7 @@ test('parses posts', () => {
         {
           full: undefined,
           intro: undefined,
-          media: [],
+          media: undefined,
           originId: '3',
           publishedAt: undefined,
           title: '3',
@@ -375,7 +379,7 @@ test('parses posts', () => {
         {
           full: undefined,
           intro: undefined,
-          media: [],
+          media: undefined,
           originId: '5',
           publishedAt: undefined,
           title: undefined,
@@ -416,7 +420,7 @@ test('loads text to parse posts', async () => {
       {
         full: undefined,
         intro: undefined,
-        media: [],
+        media: undefined,
         originId: '1',
         publishedAt: undefined,
         title: '1',
@@ -428,56 +432,95 @@ test('loads text to parse posts', async () => {
 
 test('parses media', () => {
   let task = createDownloadTask()
-  deepEqual(
-    loaders.atom
-      .getPosts(
-        task,
-        'https://example.com/news/',
-        exampleAtom(
-          `<?xml version="1.0"?>
-          <feed xmlns="http://www.w3.org/2005/Atom">
-            <title>Feed</title>
-            <entry>
-              <title>1 <b>XSS</b></title>
-              <link rel="alternate" href="https://example.com/1" />
-              <content>
+  let posts = loaders.atom
+    .getPosts(
+      task,
+      'https://example.com/news/',
+      exampleAtom(
+        `<?xml version="1.0"?>
+        <feed xmlns="http://www.w3.org/2005/Atom">
+          <title>Feed</title>
+          <entry>
+            <title>1 <b>XSS</b></title>
+            <link rel="alternate" href="https://example.com/1" />
+            <content type="xhtml">
+              <div xmlns="http://www.w3.org/1999/xhtml">
                 <img src="https://example.com/img_first.webp"/>
-                Full 1
+                <b>Full</b> 1
                 <img src="https://example.com/img_second.webp"/>
-              </content>
-              <id>1</id>
-              <summary>Post 1 <b>XSS</b></summary>
-              <published>2023-01-01T00:00:00Z</published>
-              <updated>2023-06-01T00:00:00Z</updated>
-            </entry>
-          </feed>`
-        )
+              </div>
+            </content>
+            <id>1</id>
+            <summary>Post 1 <b>XSS</b></summary>
+            <published>2023-01-01T00:00:00Z</published>
+            <updated>2023-06-01T00:00:00Z</updated>
+          </entry>
+          <entry>
+            <title>2</title>
+            <link rel="enclosure" type="image/png"
+              href="https://example.com/img.png" />
+            <content type="xhtml">
+              <xhtml:div xmlns:xhtml="http://www.w3.org/1999/xhtml">
+                <xhtml:img src="https://example.com/img.webp"/>
+              </xhtml:div>
+            </content>
+            <id>2</id>
+            <summary>Post 2</summary>
+            <published>2023-01-01T00:00:00Z</published>
+            <updated>2023-06-01T00:00:00Z</updated>
+          </entry>
+        </feed>`
       )
-      .get(),
+    )
+    .get()
+  deepEqual(posts, {
+    hasNext: false,
+    isLoading: false,
+    list: [
+      {
+        full:
+          '\n' +
+          '                <img src="https://example.com/img_first.webp"></img>\n' +
+          '                <b>Full</b> 1\n' +
+          '                <img src="https://example.com/img_second.webp"></img>\n' +
+          '              ',
+        intro: 'Post 1 XSS',
+        media:
+          '[{"fromText":true,"type":"image","url":"https://example.com/img_first.webp"},{"fromText":true,"type":"image","url":"https://example.com/img_second.webp"}]',
+        originId: '1',
+        publishedAt: 1672531200,
+        title: '1 XSS',
+        url: 'https://example.com/1'
+      },
+      {
+        full:
+          '\n' +
+          '                <img src="https://example.com/img.webp"></img>\n' +
+          '              ',
+        intro: 'Post 2',
+        media:
+          '[{"type":"image/png","url":"https://example.com/img.png"},{"fromText":true,"type":"image","url":"https://example.com/img.webp"}]',
+        originId: '2',
+        publishedAt: 1672531200,
+        title: '2',
+        url: undefined
+      }
+    ]
+  })
+  deepEqual(parseMedia(posts.list[0]?.media), [
     {
-      hasNext: false,
-      isLoading: false,
-      list: [
-        {
-          full:
-            '\n' +
-            '                \n' +
-            '                Full 1\n' +
-            '                \n' +
-            '              ',
-          intro: 'Post 1 XSS',
-          media: [
-            'https://example.com/img_first.webp',
-            'https://example.com/img_second.webp'
-          ],
-          originId: '1',
-          publishedAt: 1672531200,
-          title: '1 XSS',
-          url: 'https://example.com/1'
-        }
-      ]
+      fromText: true,
+      type: 'image',
+      url: 'https://example.com/img_first.webp'
+    },
+    {
+      fromText: true,
+      type: 'image',
+      url: 'https://example.com/img_second.webp'
     }
-  )
+  ])
+  deepEqual(parseMedia(undefined), [])
+  deepEqual(parseMedia('['), [])
 })
 
 test('detects pagination with rel="next" link', () => {

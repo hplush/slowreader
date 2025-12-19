@@ -128,7 +128,6 @@ test('export state JSON', async () => {
         feedId: feed,
         id: post,
         intro: 'Post 1',
-        media: [],
         originId: 'test-1',
         publishedAt: 1000,
         reading: 'fast',

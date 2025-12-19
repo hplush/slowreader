@@ -140,10 +140,10 @@ test('updates posts', async () => {
 
   rss1.resolve([
     [
-      { media: [], originId: 'post3', title: '3' },
-      { media: [], originId: 'post2', title: '2' },
-      { media: [], originId: 'post1', title: '1' },
-      { media: [], originId: 'post0', title: '0' }
+      { originId: 'post3', title: '3' },
+      { originId: 'post2', title: '2' },
+      { originId: 'post1', title: '1' },
+      { originId: 'post0', title: '0' }
     ],
     undefined
   ])
@@ -168,9 +168,9 @@ test('updates posts', async () => {
   let atom2 = atom1.next()
   atom1.resolve([
     [
-      { media: [], originId: 'post9', publishedAt: 9000, title: '9 delete' },
-      { media: [], originId: 'post8', publishedAt: 8000, title: '8 slow' },
-      { media: [], originId: 'post7', publishedAt: 7000, title: '7' }
+      { originId: 'post9', publishedAt: 9000, title: '9 delete' },
+      { originId: 'post8', publishedAt: 8000, title: '8 slow' },
+      { originId: 'post7', publishedAt: 7000, title: '7' }
     ],
     () => atom2.promise()
   ])
@@ -193,9 +193,9 @@ test('updates posts', async () => {
 
   atom2.resolve([
     [
-      { media: [], originId: 'post6', publishedAt: 6000, title: '6' },
-      { media: [], originId: 'post5', publishedAt: 5000, title: '5' },
-      { media: [], originId: 'post4', publishedAt: 4000, title: '4' }
+      { originId: 'post6', publishedAt: 6000, title: '6' },
+      { originId: 'post5', publishedAt: 5000, title: '5' },
+      { originId: 'post4', publishedAt: 4000, title: '4' }
     ],
     () => {
       fail()
@@ -223,18 +223,13 @@ test('updates posts', async () => {
   restoreAll()
   spyOn(loaders.rss, 'getPosts', () => {
     return createPostsList(undefined, () => {
-      return Promise.resolve([
-        [{ media: [], originId: 'post3', title: '3' }],
-        undefined
-      ])
+      return Promise.resolve([[{ originId: 'post3', title: '3' }], undefined])
     })
   })
   spyOn(loaders.atom, 'getPosts', () => {
     return createPostsList(undefined, () => {
       return Promise.resolve([
-        [
-          { media: [], originId: 'post9', publishedAt: 9000, title: '9 delete' }
-        ],
+        [{ originId: 'post9', publishedAt: 9000, title: '9 delete' }],
         undefined
       ])
     })
@@ -279,9 +274,9 @@ test('is ready to feed deletion during refreshing', async () => {
   let rss2 = rss1.next()
   rss1.resolve([
     [
-      { media: [], originId: 'post6', title: '6' },
-      { media: [], originId: 'post5', title: '5' },
-      { media: [], originId: 'post4', title: '4' }
+      { originId: 'post6', title: '6' },
+      { originId: 'post5', title: '5' },
+      { originId: 'post4', title: '4' }
     ],
     () => rss2.promise()
   ])
@@ -341,10 +336,7 @@ test('is ready for network errors', async () => {
   spyOn(loaders.rss, 'getPosts', () => {
     return createPostsList(undefined, async () => {
       if (rssHadError) {
-        return Promise.resolve([
-          [{ media: [], originId: 'post1', title: '1' }],
-          undefined
-        ])
+        return Promise.resolve([[{ originId: 'post1', title: '1' }], undefined])
       } else {
         rssHadError = true
         throw new Error('network error')
@@ -396,9 +388,9 @@ test('is ready to not found previous ID and time', async () => {
     return createPostsList(undefined, () => {
       return Promise.resolve([
         [
-          { media: [], originId: 'post6', publishedAt: 6000, title: '6' },
-          { media: [], originId: 'post5', publishedAt: 5000, title: '5' },
-          { media: [], originId: 'post4', publishedAt: 4000, title: '4' }
+          { originId: 'post6', publishedAt: 6000, title: '6' },
+          { originId: 'post5', publishedAt: 5000, title: '5' },
+          { originId: 'post4', publishedAt: 4000, title: '4' }
         ],
         undefined
       ])
@@ -427,12 +419,12 @@ test('sorts posts', async () => {
     return createPostsList(undefined, () => {
       return Promise.resolve([
         [
-          { media: [], originId: 'post1', publishedAt: 1000, title: '1' },
-          { media: [], originId: 'postY', title: 'Y' },
-          { media: [], originId: 'post2', publishedAt: 2000, title: '2' },
-          { media: [], originId: 'post4', publishedAt: 4000, title: '4' },
-          { media: [], originId: 'post3', publishedAt: 3000, title: '3' },
-          { media: [], originId: 'postX', title: 'X' }
+          { originId: 'post1', publishedAt: 1000, title: '1' },
+          { originId: 'postY', title: 'Y' },
+          { originId: 'post2', publishedAt: 2000, title: '2' },
+          { originId: 'post4', publishedAt: 4000, title: '4' },
+          { originId: 'post3', publishedAt: 3000, title: '3' },
+          { originId: 'postX', title: 'X' }
         ],
         undefined
       ])

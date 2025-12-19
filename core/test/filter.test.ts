@@ -141,25 +141,15 @@ test('validates filter query', () => {
   equal(isValidFilterQuery('strange'), false)
   equal(isValidFilterQuery('include'), false)
   equal(isValidFilterQuery('include()'), false)
-  equal(isValidFilterQuery('hasMedia(some)'), false)
-  equal(isValidFilterQuery('hasMedia()'), false)
 
   equal(isValidFilterQuery('include(some text)'), true)
   equal(isValidFilterQuery('not include(some text)'), true)
-  equal(isValidFilterQuery('hasMedia'), true)
 
   equal(isValidFilterQuery(' include( some text ) '), true)
   equal(isValidFilterQuery('not  include(some text)'), true)
 })
 
 test('applies filters to posts', () => {
-  let filterImage: FilterValue = {
-    action: 'fast',
-    feedId: '10',
-    id: '1',
-    priority: 100,
-    query: 'hasMedia'
-  }
   let filterSpecial: FilterValue = {
     action: 'slow',
     feedId: '10',
@@ -174,30 +164,27 @@ test('applies filters to posts', () => {
     priority: 300,
     query: 'include(other text)'
   }
-  let checker = prepareFilters([filterImage, filterSpecial, filterOther])
+  let checker = prepareFilters([filterSpecial, filterOther])
 
   equal(
     checker({
       full: 'Some text',
-      media: ['https://example.com/image.jpg'],
       originId: '1'
     }),
-    'fast'
+    undefined
   )
 
   equal(
     checker({
       full: 'Special text',
-      media: ['https://example.com/image.jpg'],
       originId: '2'
     }),
-    'fast'
+    'slow'
   )
 
   equal(
     checker({
       full: 'Special text',
-      media: [],
       originId: '3'
     }),
     'slow'
@@ -206,7 +193,6 @@ test('applies filters to posts', () => {
   equal(
     checker({
       full: 'other text',
-      media: [],
       originId: '4'
     }),
     'delete'
@@ -216,7 +202,6 @@ test('applies filters to posts', () => {
     checker({
       full: 'Some text',
       intro: 'other text',
-      media: [],
       originId: '5'
     }),
     'delete'
@@ -226,7 +211,6 @@ test('applies filters to posts', () => {
     checker({
       full: 'Some text',
       intro: 'other text',
-      media: [],
       originId: '6',
       title: 'some text'
     }),
@@ -236,7 +220,6 @@ test('applies filters to posts', () => {
   equal(
     checker({
       full: 'special text',
-      media: [],
       originId: '7',
       title: 'other text'
     }),
@@ -246,7 +229,6 @@ test('applies filters to posts', () => {
   equal(
     checker({
       full: 'Some text',
-      media: [],
       originId: '8'
     }),
     undefined
@@ -273,7 +255,6 @@ test('supports not in filters', () => {
   equal(
     checker({
       full: 'a',
-      media: [],
       originId: 'a'
     }),
     'fast'
@@ -282,7 +263,6 @@ test('supports not in filters', () => {
   equal(
     checker({
       full: 'a b',
-      media: [],
       originId: 'a b'
     }),
     'fast'
@@ -292,7 +272,6 @@ test('supports not in filters', () => {
     checker({
       full: 'c b',
       intro: 'other text',
-      media: [],
       originId: 'c b'
     }),
     undefined
@@ -302,7 +281,6 @@ test('supports not in filters', () => {
     checker({
       full: 'c',
       intro: 'other text',
-      media: [],
       originId: 'c',
       title: 'some text'
     }),
@@ -330,7 +308,6 @@ test('is ready for broken filters', () => {
   equal(
     checker({
       full: 'a',
-      media: [],
       originId: 'a'
     }),
     'slow'
@@ -339,7 +316,6 @@ test('is ready for broken filters', () => {
   equal(
     checker({
       full: 'b',
-      media: [],
       originId: 'b'
     }),
     undefined

@@ -216,7 +216,7 @@ test('parses posts', () => {
       list: [
         {
           full: 'Post 1 XSS',
-          media: [],
+          media: undefined,
           originId: 'https://example.com/1',
           publishedAt: 1672531200,
           title: '1 XSS',
@@ -224,7 +224,7 @@ test('parses posts', () => {
         },
         {
           full: undefined,
-          media: [],
+          media: undefined,
           originId: '2',
           publishedAt: undefined,
           title: '2',
@@ -232,7 +232,7 @@ test('parses posts', () => {
         },
         {
           full: undefined,
-          media: [],
+          media: undefined,
           originId: '4',
           publishedAt: undefined,
           title: undefined,
@@ -274,7 +274,7 @@ test('loads text to parse posts', async () => {
     list: [
       {
         full: undefined,
-        media: [],
+        media: undefined,
         originId: 'https://example.com/1',
         publishedAt: undefined,
         title: '1',
@@ -284,7 +284,7 @@ test('loads text to parse posts', async () => {
   })
 })
 
-test('parses media from media:content alone', () => {
+test('parses media', () => {
   let task = createDownloadTask()
   deepEqual(
     loaders.rss
@@ -312,6 +312,25 @@ test('parses media from media:content alone', () => {
                 <description>Post 1 <b>XSS</b></description>
                 <pubDate>Mon, 01 Jan 2023 00:00:00 GMT</pubDate>
               </item>
+              <item>
+                <title>2</title>
+                <link>https://example.com/2</link>
+                <media:content medium="image" type="image/png">
+                  <media:thumbnail url="https://example.com/thumbnail.png" />
+                </media:content>
+                <description>2 text</description>
+                <pubDate>Mon, 01 Jan 2023 00:00:00 GMT</pubDate>
+              </item>
+              <item>
+                <title>3</title>
+                <link>https://example.com/3</link>
+                <enclosure url="https://example.com/image.jpg"
+                  length="1024" type="image/jpeg"/>
+                <description>
+                  &lt;img src="https://example.com/img.webp"/&gt;
+                </description>
+                <pubDate>Mon, 01 Jan 2023 00:00:00 GMT</pubDate>
+              </item>
             </channel>
           </rss>`
         )
@@ -323,166 +342,33 @@ test('parses media from media:content alone', () => {
       list: [
         {
           full: 'Post 1 XSS',
-          media: ['https://example.com/image_from_media_content.webp'],
+          media:
+            '[{"type":"image","url":"https://example.com/image_from_media_content.webp"}]',
           originId: 'https://example.com/1',
           publishedAt: 1672531200,
           title: '1 XSS',
           url: 'https://example.com/1'
-        }
-      ]
-    }
-  )
-})
-
-test('parses media from description', () => {
-  let task = createDownloadTask()
-  deepEqual(
-    loaders.rss
-      .getPosts(
-        task,
-        'https://example.com/news/',
-        exampleRss(
-          `<?xml version="1.0"?>
-          <rss
-            xmlns:atom="http://www.w3.org/2005/Atom"
-            xmlns:content="http://purl.org/rss/1.0/modules/content/"
-            xmlns:dc="http://purl.org/dc/elements/1.1/"
-            xmlns:media="http://search.yahoo.com/mrss/"
-            version="2.0"
-          >
-            <channel>
-              <title>Feed</title>
-              <item>
-                <title>1 <b>XSS</b></title>
-                <link>https://example.com/1</link>
-                <description>
-                  <img src="https://example.com/img.webp"/>Post 1 <b>XSS</b>
-                </description>
-                <pubDate>Mon, 01 Jan 2023 00:00:00 GMT</pubDate>
-              </item>
-            </channel>
-          </rss>`
-        )
-      )
-      .get(),
-    {
-      hasNext: false,
-      isLoading: false,
-      list: [
+        },
         {
-          full: '\n                  Post 1 XSS\n                ',
-          media: ['https://example.com/img.webp'],
-          originId: 'https://example.com/1',
+          full: '2 text',
+          media:
+            '[{"type":"image/png","url":"https://example.com/thumbnail.png"}]',
+          originId: 'https://example.com/2',
           publishedAt: 1672531200,
-          title: '1 XSS',
-          url: 'https://example.com/1'
-        }
-      ]
-    }
-  )
-})
-
-test('parses media from media:content and description', () => {
-  let task = createDownloadTask()
-  deepEqual(
-    loaders.rss
-      .getPosts(
-        task,
-        'https://example.com/news/',
-        exampleRss(
-          `<?xml version="1.0"?>
-          <rss
-            xmlns:atom="http://www.w3.org/2005/Atom"
-            xmlns:content="http://purl.org/rss/1.0/modules/content/"
-            xmlns:dc="http://purl.org/dc/elements/1.1/"
-            xmlns:media="http://search.yahoo.com/mrss/"
-            version="2.0"
-          >
-            <channel>
-              <title>Feed</title>
-              <item>
-                <title>1 <b>XSS</b></title>
-                <link>https://example.com/1</link>
-                <media:content
-                  medium="image"
-                  url="https://example.com/img_0.webp"
-                />
-                <description>
-                  <img src="https://example.com/img_1.webp"/>Post 1 <b>XSS</b>
-                </description>
-                <pubDate>Mon, 01 Jan 2023 00:00:00 GMT</pubDate>
-              </item>
-            </channel>
-          </rss>`
-        )
-      )
-      .get(),
-    {
-      hasNext: false,
-      isLoading: false,
-      list: [
+          title: '2',
+          url: 'https://example.com/2'
+        },
         {
-          full: '\n                  Post 1 XSS\n                ',
-          media: [
-            'https://example.com/img_1.webp',
-            'https://example.com/img_0.webp'
-          ],
-          originId: 'https://example.com/1',
+          full:
+            '\n                  ' +
+            '<img src="https://example.com/img.webp"/>' +
+            '\n                ',
+          media:
+            '[{"type":"image/jpeg","url":"https://example.com/image.jpg"},{"fromText":true,"type":"image","url":"https://example.com/img.webp"}]',
+          originId: 'https://example.com/3',
           publishedAt: 1672531200,
-          title: '1 XSS',
-          url: 'https://example.com/1'
-        }
-      ]
-    }
-  )
-})
-
-test('parses media and removes duplicates', () => {
-  let task = createDownloadTask()
-  deepEqual(
-    loaders.rss
-      .getPosts(
-        task,
-        'https://example.com/news/',
-        exampleRss(
-          `<?xml version="1.0"?>
-          <rss
-            xmlns:atom="http://www.w3.org/2005/Atom"
-            xmlns:content="http://purl.org/rss/1.0/modules/content/"
-            xmlns:dc="http://purl.org/dc/elements/1.1/"
-            xmlns:media="http://search.yahoo.com/mrss/"
-            version="2.0"
-          >
-            <channel>
-              <title>Feed</title>
-              <item>
-                <title>1 <b>XSS</b></title>
-                <link>https://example.com/1</link>
-                <media:content
-                  medium="image"
-                  url="https://example.com/img.webp"
-                />
-                <description>
-                  <img src="https://example.com/img.webp"/>Post 1 <b>XSS</b>
-                </description>
-                <pubDate>Mon, 01 Jan 2023 00:00:00 GMT</pubDate>
-              </item>
-            </channel>
-          </rss>`
-        )
-      )
-      .get(),
-    {
-      hasNext: false,
-      isLoading: false,
-      list: [
-        {
-          full: '\n                  Post 1 XSS\n                ',
-          media: ['https://example.com/img.webp'],
-          originId: 'https://example.com/1',
-          publishedAt: 1672531200,
-          title: '1 XSS',
-          url: 'https://example.com/1'
+          title: '3',
+          url: 'https://example.com/3'
         }
       ]
     }

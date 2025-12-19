@@ -15,6 +15,7 @@ import { nanoid } from 'nanoid'
 import { atom, onMount } from 'nanostores'
 
 import { getClient } from './client.ts'
+import { getEnvironment } from './environment.ts'
 import { getFeed } from './feed.ts'
 import { loadFilters } from './filter.ts'
 import { $locale } from './i18n.ts'
@@ -25,12 +26,18 @@ import { truncateText } from './lib/text.ts'
 export type OriginPost = {
   full?: string
   intro?: string
-  media: string[]
+  media?: string
   originId: string
   publishedAt?: number
   read?: boolean
   title?: string
   url?: string
+}
+
+export type PostMedia = {
+  fromText?: boolean
+  type: string
+  url: string
 }
 
 export type PostValue = {
@@ -143,7 +150,6 @@ export function testPost(feed: Partial<PostValue> = {}): PostValue {
     feedId: 'feed-1',
     id: `post-${testPostId}`,
     intro: `Post ${testPostId}`,
-    media: [],
     originId: `test-${testPostId}`,
     publishedAt: 1000,
     reading: 'fast',
@@ -167,3 +173,18 @@ onMount(slowPostsCount, () => {
 })
 
 export const postsChangedAction = defineSyncMapActions<PostValue>('posts')[4]
+
+export function stringifyMedia(media: PostMedia[]): string | undefined {
+  if (media.length === 0) return undefined
+  return JSON.stringify(media)
+}
+
+export function parseMedia(value: string | undefined): PostMedia[] {
+  if (!value) return []
+  try {
+    return JSON.parse(value) as PostMedia[]
+  } catch (e) {
+    getEnvironment().warn(e)
+    return []
+  }
+}

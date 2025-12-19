@@ -3,18 +3,67 @@ import {
   type DownloadTask,
   type TextResponse
 } from '../lib/download.ts'
-import type { OriginPost } from '../post.ts'
+import { type OriginPost, type PostMedia, stringifyMedia } from '../post.ts'
 import { createPostsList, type PostsListLoader } from '../posts-list.ts'
-import type { Loader } from './common.ts'
 import {
   buildFullURL,
   findAnchorHrefs,
   findDocumentLinks,
   findHeaderLinks,
-  findImageByAttr,
+  findMediaInText,
   isHTML,
+  type Loader,
   toTime
-} from './utils.ts'
+} from './common.ts'
+
+export function findMRSS(element: Element): PostMedia[] {
+  let result: PostMedia[] = []
+  let mrss = element.getElementsByTagNameNS(
+    'http://search.yahoo.com/mrss/',
+    'content'
+  )
+  for (let content of mrss) {
+    let type = content.getAttribute('type') ?? content.getAttribute('medium')
+    let url = content.getAttribute('url')
+    if (!url) {
+      let thumbnail = content.querySelector('thumbnail')
+      if (thumbnail) url = thumbnail.getAttribute('url')
+    }
+    if (url && type) {
+      result.push({ type, url })
+    }
+  }
+  return result
+}
+
+function removeNS(node: Element | undefined): string {
+  let html = ''
+  if (!node) return html
+
+  node.childNodes.forEach(i => {
+    let child = i as Element
+    if (child.nodeType === 3 /* Node.TEXT_NODE */) {
+      html += child.textContent
+    } else if (child.nodeType === 1 /* Node.ELEMENT_NODE */) {
+      let tagName = child.localName
+      let attributes = Array.from(child.attributes)
+        .map(attr => ` ${attr.localName}="${attr.value}"`)
+        .join('')
+
+      html += `<${tagName}${attributes}>${removeNS(child)}</${tagName}>`
+    }
+  })
+  return html
+}
+
+function extractHtml(node: Element | null): string | undefined {
+  if (!node) return undefined
+  if (node.getAttribute('type') === 'xhtml') {
+    return removeNS(node.children[0])
+  } else {
+    return node.textContent
+  }
+}
 
 function parsePostSources(text: TextResponse): Element[] {
   let document = text.parseXml()
@@ -27,10 +76,23 @@ function parsePostSources(text: TextResponse): Element[] {
 function parsePosts(text: TextResponse): OriginPost[] {
   return parsePostSources(text).map(entry => {
     let content = entry.querySelector('content')
+
+    let textMedia = findMediaInText(content)
+    let postMedia: PostMedia[] = []
+    let enclosures = entry.querySelectorAll('link[rel=enclosure]')
+    for (let enclosure of enclosures) {
+      let url = enclosure.getAttribute('href')
+      let type = enclosure.getAttribute('type')
+      if (url && type) {
+        postMedia.push({ type, url })
+      }
+    }
+    postMedia = postMedia.concat(findMRSS(entry))
+
     return {
-      full: content?.textContent ?? undefined,
-      intro: entry.querySelector('summary')?.textContent ?? undefined,
-      media: findImageByAttr('src', content?.querySelectorAll('img')),
+      full: extractHtml(content),
+      intro: extractHtml(entry.querySelector('summary')),
+      media: stringifyMedia([...postMedia, ...textMedia]),
       originId: entry.querySelector('id')!.textContent,
       publishedAt: toTime(
         entry.querySelector('published')?.textContent ??

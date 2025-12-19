@@ -275,7 +275,7 @@ test('validate json feed format', () => {
         {
           full: '<p>Priority Content</p>',
           intro: 'summary',
-          media: [],
+          media: undefined,
           originId: 'somehashid',
           publishedAt: 1641254400,
           title: 'title_1',
@@ -284,7 +284,7 @@ test('validate json feed format', () => {
         {
           full: '<p>Alternative content</p>',
           intro: undefined,
-          media: [],
+          media: undefined,
           originId: 'somehashid2',
           publishedAt: 1641254400,
           title: 'title_2',
@@ -339,7 +339,7 @@ test('loads text to parse posts', async () => {
       {
         full: '<p>Priority Content</p>',
         intro: 'summary',
-        media: [],
+        media: undefined,
         originId: 'somehashid',
         publishedAt: 1641254400,
         title: 'title_1',
@@ -348,7 +348,7 @@ test('loads text to parse posts', async () => {
       {
         full: '<p>Alternative content</p>',
         intro: undefined,
-        media: [],
+        media: undefined,
         originId: 'somehashid2',
         publishedAt: 1641254400,
         title: 'title_2',
@@ -459,7 +459,7 @@ test('validate wrong json feed format', () => {
         {
           full: undefined,
           intro: undefined,
-          media: [],
+          media: undefined,
           originId: 'somehashid',
           publishedAt: undefined,
           title: undefined,
@@ -500,6 +500,18 @@ test('parses media', async () => {
           image: 'https://example.com/img.webp',
           title: 'title_2',
           url: 'https://example.com/2'
+        },
+        {
+          attachments: [
+            {
+              mime_type: 'image/png',
+              url: 'https://example.com/img.png'
+            }
+          ],
+          content_text: '3',
+          id: 'somehashid3',
+          title: 'title_3',
+          url: 'https://example.com/3'
         }
       ]
     }),
@@ -522,11 +534,8 @@ test('parses media', async () => {
       {
         full: '<p>HTML<img src="https://example.com/img_h.webp" /></p>',
         intro: 'summary',
-        media: [
-          'https://example.com/banner_image.webp',
-          'https://example.com/image.webp',
-          'https://example.com/img_h.webp'
-        ],
+        media:
+          '[{"type":"image","url":"https://example.com/image.webp"},{"type":"image","url":"https://example.com/banner_image.webp"},{"fromText":true,"type":"image","url":"https://example.com/img_h.webp"}]',
         originId: 'somehashid',
         publishedAt: 1641254400,
         title: 'title_1',
@@ -537,15 +546,21 @@ test('parses media', async () => {
           '<p><img src="https://example.com/img_0.webp">Text' +
           '<img src="https://example.com/img_1.webp"></p>',
         intro: undefined,
-        media: [
-          'https://example.com/img.webp',
-          'https://example.com/img_0.webp',
-          'https://example.com/img_1.webp'
-        ],
+        media:
+          '[{"type":"image","url":"https://example.com/img.webp"},{"type":"image","url":"https://example.com/img.webp"}]',
         originId: 'somehashid2',
         publishedAt: 1641254400,
         title: 'title_2',
         url: 'https://example.com/2'
+      },
+      {
+        full: '3',
+        intro: undefined,
+        media: '[{"type":"image/png","url":"https://example.com/img.png"}]',
+        originId: 'somehashid3',
+        publishedAt: undefined,
+        title: 'title_3',
+        url: 'https://example.com/3'
       }
     ]
   })

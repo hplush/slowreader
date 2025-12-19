@@ -1,16 +1,16 @@
 import { getEnvironment } from '../environment.ts'
 import { createDownloadTask, type TextResponse } from '../lib/download.ts'
-import type { OriginPost } from '../post.ts'
+import { type OriginPost, type PostMedia, stringifyMedia } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
-import type { Loader } from './common.ts'
 import {
   findAnchorHrefs,
   findDocumentLinks,
   findHeaderLinks,
+  findMediaInText,
   isHTML,
-  toTime,
-  unique
-} from './utils.ts'
+  type Loader,
+  toTime
+} from './common.ts'
 
 // https://www.jsonfeed.org/version/1.1/
 interface JsonFeed {
@@ -36,6 +36,7 @@ interface JsonFeedAuthor {
 }
 
 interface JsonFeedItem {
+  attachments?: JSONFeedAttachment[]
   /** deprecated from 1.1 version */
   author?: JsonFeedAuthor
   authors?: JsonFeedAuthor[]
@@ -51,6 +52,11 @@ interface JsonFeedItem {
   tags?: string[]
   title?: string
   url?: string
+}
+
+interface JSONFeedAttachment {
+  mime_type: string
+  url: string
 }
 
 interface ValidationRules {
@@ -107,24 +113,25 @@ function parsePostSources(text: TextResponse): JsonFeedItem[] {
 function parsePosts(text: TextResponse): OriginPost[] {
   return parsePostSources(text).map(item => {
     let full = (item.content_html || item.content_text) ?? undefined
-    let allImages: (null | string | undefined)[] = [
-      item.banner_image,
-      item.image
-    ]
 
-    if (full) {
-      let parser = new DOMParser()
-      let fullDocument = parser.parseFromString(full, 'text/html')
-      let contentImages = [...fullDocument.querySelectorAll('img')].map(
-        element => element.getAttribute('src')
-      )
-      allImages.push(...contentImages)
+    let textMedia = findMediaInText(item.content_html)
+    let postMedia: PostMedia[] = []
+    if (item.image) {
+      postMedia.push({ type: 'image', url: item.image })
+    }
+    if (item.banner_image) {
+      postMedia.push({ type: 'image', url: item.banner_image })
+    }
+    for (let attachment of item.attachments ?? []) {
+      if (attachment.url && attachment.mime_type) {
+        postMedia.push({ type: attachment.mime_type, url: attachment.url })
+      }
     }
 
     return {
       full,
       intro: item.summary ?? undefined,
-      media: unique(allImages),
+      media: stringifyMedia([...postMedia, ...textMedia]),
       originId: item.id,
       publishedAt: toTime(item.date_published) ?? undefined,
       title: item.title,

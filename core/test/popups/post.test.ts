@@ -113,7 +113,7 @@ test('read saved post', async () => {
 })
 
 test('opens candidate post', async () => {
-  let post: OriginPost = { media: [], originId: 'id', title: 'test' }
+  let post: OriginPost = { originId: 'id', title: 'test' }
   let data = getPostPopupParam(post)
 
   let popup = openTestPopup('post', data)
