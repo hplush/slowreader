@@ -35,7 +35,7 @@ feeds:
   # Edge Cases
 
   - title: Wrong Content Type
-    url: https://exler.ru/rss.xml
+    url: https://exler.es/rss.xml
 
   - title: Non-UTF8 Feed
     url: https://opennet.ru/opennews/opennews_review.rss
