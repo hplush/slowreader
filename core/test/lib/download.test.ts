@@ -11,6 +11,7 @@ import {
   expectRequest,
   ignoreAbortError,
   mockRequest,
+  ParseError,
   setRequestMethod,
   setupEnvironment
 } from '../../index.ts'
@@ -149,17 +150,21 @@ test('parses XML content', () => {
   let image = createTextResponse('<jpeg></jpeg>', {
     headers: new Headers({ 'content-type': 'image/jpeg' })
   })
-  equal(image.parseXml(), null)
+  throws(() => {
+    image.parseXml()
+  }, new ParseError('Unknown content type: image/jpeg'))
 
   let json = createTextResponse('{}', {
     headers: new Headers({ 'content-type': 'application/json' })
   })
   equal(json.parseXml(), null)
 
-  let broken = createTextResponse('<test', {
+  let broken = createTextResponse('<top><test', {
     headers: new Headers({ 'content-type': 'application/xml' })
   })
-  equal(broken.parseXml()!.textContent, null)
+  throws(() => {
+    broken.parseXml()
+  }, new ParseError('1:10: unclosed tag: top', '<top><test'))
 })
 
 test('parses JSON content', () => {

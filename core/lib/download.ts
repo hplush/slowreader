@@ -1,6 +1,16 @@
 import { getEnvironment } from '../environment.ts'
 import { request } from '../request.ts'
 
+export class ParseError extends Error {
+  input: string | undefined
+  constructor(message: string, input?: string) {
+    super(message)
+    this.name = 'ParseError'
+    this.input = input
+    Error.captureStackTrace(this, ParseError)
+  }
+}
+
 /**
  * Extracts encoding from XML declaration, e.g., "ISO-8859-1" from
  * `<?xml version="1.0" encoding="ISO-8859-1"?>`.
@@ -158,9 +168,11 @@ export function createTextResponse(
         ) {
           let fixed = fixPopularIssues(text)
           bodyCache = new DOMParser().parseFromString(fixed, xmlContentType)
+          if (bodyCache.documentElement.tagName === 'parsererror') {
+            throw new ParseError(bodyCache.documentElement.textContent, fixed)
+          }
         } else {
-          getEnvironment().warn('Unknown content type: ' + xmlContentType)
-          return null
+          throw new ParseError('Unknown content type: ' + xmlContentType)
         }
       }
       return bodyCache
