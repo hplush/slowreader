@@ -145,6 +145,7 @@ Each project has its own tools, too.
 - `pnpm update-env`: check for Node.js and pnpm updates.
 - `pnpm update-review`: run Multiocular to review updates.
 - `pnpm update-ci`: update CI actions.
+- `pnpm update-browsers`: update target browsers of web client.
 
 We use pnpm feature to run scripts in parallel, having scripts like `test:types` and `test:audit`. Then, we run all scripts in all projects by `test:*` prefix.
 
