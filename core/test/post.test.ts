@@ -193,11 +193,10 @@ test('truncate post full body with br', () => {
 })
 
 test('truncate post full body with <style>', () => {
-  match(
-    getPostIntro({
-      full: `<style>${'*{padding:0;}'.repeat(50)}</style><p>X xxx xxxxxxx xxxxx, xxx xxxx WebGL, xxxxxxxxxxx, xxxxx xxxxxxxx xxxx xxxxxxxxx xxxxxxxxxxxxx xxxxxxxxxx xx xxxxxx, xxx xxxxxxx lastwrd.</p>`,
-      originId: 'id'
-    })[0],
-    /lastwrd/
-  )
+  let result = getPostIntro({
+    full: `<style>${'*{padding:0;}'.repeat(50)}</style><p>X xxx xxxxxxx xxxxx, xxx xxxx WebGL, xxxxxxxxxxx, xxxxx xxxxxxxx xxxx xxxxxxxxx xxxxxxxxxxxxx xxxxxxxxxx xx xxxxxx, xxx xxxxxxx lastwrd.</p>`,
+    originId: 'id'
+  })
+  match(result[0], /lastwrd/)
+  equal(result[1], false)
 })

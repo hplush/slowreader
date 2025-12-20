@@ -141,11 +141,9 @@ type Token =
   | { content: string; type: 'text' }
 
 export function truncateHTML(html: string, min: number, max: number): string {
-  let safeHtml = sanitizeHtml(html)
-
   let tokens: Token[] = []
   let match: null | RegExpExecArray
-  while ((match = TAG.exec(safeHtml)) !== null) {
+  while ((match = TAG.exec(html)) !== null) {
     if (match[1]) {
       let tag = match[1]
       if (tag.startsWith('</')) {

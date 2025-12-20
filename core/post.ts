@@ -19,7 +19,7 @@ import { getEnvironment } from './environment.ts'
 import { getFeed } from './feed.ts'
 import { loadFilters } from './filter.ts'
 import { $locale } from './i18n.ts'
-import { stripHTML, truncateHTML } from './lib/html.ts'
+import { sanitizeHtml, stripHTML, truncateHTML } from './lib/html.ts'
 import type { OptionalId } from './lib/stores.ts'
 import { truncateText } from './lib/text.ts'
 
@@ -102,8 +102,9 @@ export function getPostIntro(post: OriginPost): [string, boolean] {
     let more = !!post.full && post.full !== post.intro
     return [post.intro, more]
   } else if (post.full) {
-    let truncated = truncateHTML(post.full, 300, 500)
-    return [truncated, truncated !== post.full]
+    let sanitized = sanitizeHtml(post.full)
+    let truncated = truncateHTML(sanitized, 300, 500)
+    return [truncated, truncated !== sanitized]
   } else {
     return ['', false]
   }
