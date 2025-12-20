@@ -50,8 +50,12 @@
     .formatted-text img {
       max-width: 100%;
       height: auto;
-      padding: 0.3em 0;
+      padding: 0.625em 0;
       margin: 0 auto;
+
+      & + & {
+        padding-top: 0;
+      }
     }
 
     .formatted-text p {

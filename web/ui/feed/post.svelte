@@ -7,6 +7,7 @@
     getPostIntro,
     getPostPopupParam,
     openedPost,
+    parseMedia,
     type PostValue,
     router
   } from '@slowreader/core'
@@ -54,6 +55,11 @@
       </h2>
     {/if}
     <FormattedText html={intro} />
+    {#each parseMedia($post.media) as media, index (`${media.url}${index}`)}
+      {#if !media.fromText && media.type.startsWith('image')}
+        <img class="feed-post_image" alt="" src={media.url} />
+      {/if}
+    {/each}
   </div>
 </li>
 
@@ -162,6 +168,17 @@
       margin-top: -0.325rem;
       margin-bottom: 0.5rem;
       font: var(--subtitle-font);
+    }
+
+    .feed-post_image {
+      max-width: 100%;
+      height: auto;
+      padding: 0.625rem 0;
+      margin: 0 auto;
+
+      & + & {
+        padding-top: 0;
+      }
     }
   }
 </style>

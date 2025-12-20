@@ -8,6 +8,7 @@
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import FeedsPage from '../../pages/feeds/index.svelte'
+  import imgExample from '../assets/long_width_example.avif'
   import Scene from '../scene.svelte'
 
   const POSTS = [
@@ -16,9 +17,16 @@
       reading: 'slow',
       title: 'My next chapter with Mastodon'
     },
-    { feedId: 'feed', reading: 'slow' },
     {
       feedId: 'feed',
+      media: `[{"type":"image","url":"${imgExample}"}]`,
+      reading: 'slow'
+    },
+    {
+      feedId: 'feed',
+      full: '',
+      intro: '',
+      media: `[{"fromText":true,"type":"image","url":"${imgExample}"}]`,
       reading: 'slow',
       title: 'The Future is Ours to Build - Together'
     },
