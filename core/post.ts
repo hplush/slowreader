@@ -176,7 +176,13 @@ export const postsChangedAction = defineSyncMapActions<PostValue>('posts')[4]
 
 export function stringifyMedia(media: PostMedia[]): string | undefined {
   if (media.length === 0) return undefined
-  return JSON.stringify(media)
+  let used = new Set<string>()
+  let unique = media.filter(i => {
+    let already = used.has(i.url)
+    if (!already) used.add(i.url)
+    return !already
+  })
+  return JSON.stringify(unique)
 }
 
 export function parseMedia(value: string | undefined): PostMedia[] {

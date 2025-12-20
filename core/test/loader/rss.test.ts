@@ -326,6 +326,10 @@ test('parses media', () => {
                 <link>https://example.com/3</link>
                 <enclosure url="https://example.com/image.jpg"
                   length="1024" type="image/jpeg"/>
+                  <media:content
+                    medium="image"
+                    url="https://example.com/image.jpg"
+                  />
                 <description>
                   &lt;img src="https://example.com/img.webp"/&gt;
                 </description>
