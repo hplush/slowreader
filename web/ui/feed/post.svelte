@@ -173,12 +173,8 @@
     .feed-post_image {
       max-width: 100%;
       height: auto;
-      padding: 0.625rem 0;
+      padding-top: 0.625rem;
       margin: 0 auto;
-
-      & + & {
-        padding-top: 0;
-      }
     }
   }
 </style>
