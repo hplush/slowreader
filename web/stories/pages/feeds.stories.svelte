@@ -14,6 +14,8 @@
   const POSTS = [
     {
       feedId: 'feed',
+      full: 'The long text',
+      intro: 'Post',
       reading: 'slow',
       title: 'My next chapter with Mastodon'
     },
@@ -44,6 +46,7 @@
     },
     {
       feedId: 'feed',
+      full: 'Short',
       intro:
         'Pretty long intro which container few sentences. ' +
         'But sentences is small enough to be cut by them.',
