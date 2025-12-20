@@ -141,6 +141,8 @@ type Token =
   | { content: string; type: 'text' }
 
 export function truncateHTML(html: string, min: number, max: number): string {
+  if (html.length <= max) return html
+
   let tokens: Token[] = []
   let match: null | RegExpExecArray
   while ((match = TAG.exec(html)) !== null) {
@@ -242,5 +244,5 @@ export function truncateHTML(html: string, min: number, max: number): string {
 
   return result
     .replace(/(<br\s*\/?>\s*){2,}…\s*$/, '<p>…</p>')
-    .replace(/(<br\s*\/?>|<hr\s*\/?>|<img[^>]*>|<source[^>]*>)+\s*$/, '')
+    .replace(/(<br\s*\/?>|<hr\s*\/?>)+\s*$/, '')
 }
