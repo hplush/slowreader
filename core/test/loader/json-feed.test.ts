@@ -546,8 +546,7 @@ test('parses media', async () => {
           '<p><img src="https://example.com/img_0.webp">Text' +
           '<img src="https://example.com/img_1.webp"></p>',
         intro: undefined,
-        media:
-          '[{"type":"image","url":"https://example.com/img.webp"},{"type":"image","url":"https://example.com/img.webp"}]',
+        media: '[{"type":"image","url":"https://example.com/img.webp"}]',
         originId: 'somehashid2',
         publishedAt: 1641254400,
         title: 'title_2',
