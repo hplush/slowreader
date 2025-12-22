@@ -36,11 +36,13 @@ function extractCharsetFromHeader(
 
 let cache = new Map<string, Response>()
 
+type JSONDocument = boolean | null | number | object | string
+
 export interface TextResponse {
   readonly contentType: string
   readonly headers: Headers
-  parseJson(): unknown
-  parseXml(): Document | null | XMLDocument
+  parseJson(): JSONDocument
+  parseXml(): Document | XMLDocument
   readonly redirected: boolean
   readonly status: number
   readonly text: string
@@ -137,11 +139,11 @@ export function createTextResponse(
         contentType !== 'application/json' &&
         contentType !== 'application/feed+json'
       ) {
-        return null
+        throw new ParseError('Unknown content type: ' + contentType, text)
       }
 
       try {
-        return JSON.parse(text) as unknown
+        return JSON.parse(text) as JSONDocument
       } catch (e) {
         if (e instanceof SyntaxError) {
           throw new ParseError(e.message, text)
@@ -152,26 +154,21 @@ export function createTextResponse(
     },
     parseXml() {
       if (!bodyCache) {
-        if (contentType.includes('/json')) {
-          return null
-        }
-
-        let xmlContentType = contentType
-        if (xmlContentType.includes('+xml')) {
-          xmlContentType = 'application/xml'
+        if (contentType.includes('+xml')) {
+          contentType = 'application/xml'
         }
         if (
-          xmlContentType === 'text/html' ||
-          xmlContentType === 'application/xml' ||
-          xmlContentType === 'text/xml'
+          contentType === 'text/html' ||
+          contentType === 'application/xml' ||
+          contentType === 'text/xml'
         ) {
           let fixed = fixPopularIssues(text)
-          bodyCache = new DOMParser().parseFromString(fixed, xmlContentType)
+          bodyCache = new DOMParser().parseFromString(fixed, contentType)
           if (bodyCache.documentElement.tagName === 'parsererror') {
             throw new ParseError(bodyCache.documentElement.textContent, fixed)
           }
         } else {
-          throw new ParseError('Unknown content type: ' + xmlContentType)
+          throw new ParseError('Unknown content type: ' + contentType, text)
         }
       }
       return bodyCache

@@ -129,35 +129,37 @@ test('can download text by keeping eyes on abort signal', async () => {
 
 test('parses XML content', () => {
   let text = createTextResponse('<html><body>Test</body></html>')
-  equal(text.parseXml()!.firstChild?.lastChild?.nodeName, 'BODY')
-  equal(text.parseXml()!.firstChild?.lastChild?.textContent, 'Test')
+  equal(text.parseXml().firstChild?.lastChild?.nodeName, 'BODY')
+  equal(text.parseXml().firstChild?.lastChild?.textContent, 'Test')
 
   let charset = createTextResponse('<html><body>Test</body></html>', {
     headers: new Headers({ 'content-type': 'text/html;charset=UTF-8' })
   })
-  equal(charset.parseXml()!.firstChild?.lastChild?.textContent, 'Test')
+  equal(charset.parseXml().firstChild?.lastChild?.textContent, 'Test')
 
   let simple = createTextResponse('<test></test>', {
     headers: new Headers({ 'content-type': 'application/xml' })
   })
-  equal(simple.parseXml()!.firstChild?.nodeName, 'test')
+  equal(simple.parseXml().firstChild?.nodeName, 'test')
 
   let rss = createTextResponse('<rss></rss>', {
     headers: new Headers({ 'content-type': 'application/rss+xml' })
   })
-  equal(rss.parseXml()!.firstChild?.nodeName, 'rss')
+  equal(rss.parseXml().firstChild?.nodeName, 'rss')
 
   let image = createTextResponse('<jpeg></jpeg>', {
     headers: new Headers({ 'content-type': 'image/jpeg' })
   })
   throws(() => {
     image.parseXml()
-  }, new ParseError('Unknown content type: image/jpeg'))
+  }, new ParseError('Unknown content type: image/jpeg', '<jpeg></jpeg>'))
 
   let json = createTextResponse('{}', {
     headers: new Headers({ 'content-type': 'application/json' })
   })
-  equal(json.parseXml(), null)
+  throws(() => {
+    json.parseXml()
+  }, new ParseError('Unknown content type: application/json', '{}'))
 
   let broken = createTextResponse('<top><test', {
     headers: new Headers({ 'content-type': 'application/xml' })
@@ -269,8 +271,7 @@ test('handles non-UTF8 XML encoding declarations', async () => {
   let response = await task.text('https://example.com/feed.xml')
   equal(response.contentType, 'application/rss+xml')
   equal(response.status, 200)
-  let doc = response.parseXml()
-  equal(doc?.querySelector('title')?.textContent, 'Τεστ')
+  equal(response.parseXml().querySelector('title')?.textContent, 'Τεστ')
 
   setRequestMethod(fetch)
 })
@@ -301,8 +302,7 @@ test('handles encoding mismatch between header and XML declaration', async () =>
 
   let response = await task.text('https://example.com/feed.xml')
   equal(response.contentType, 'application/rss+xml')
-  let doc = response.parseXml()
-  equal(doc?.querySelector('title')?.textContent, 'Test')
+  equal(response.parseXml().querySelector('title')?.textContent, 'Test')
 
   setRequestMethod(fetch)
 })

@@ -15,7 +15,12 @@ import {
   testFeed,
   type TextResponse
 } from '../../index.ts'
-import { cleanClientTest, expectWarning, getTestEnvironment } from '../utils.ts'
+import {
+  cleanClientTest,
+  expectNotMine,
+  expectWarning,
+  getTestEnvironment
+} from '../utils.ts'
 
 function exampleAtom(responseBody: string): TextResponse {
   return createTextResponse(responseBody, {
@@ -218,12 +223,14 @@ test('returns default links', () => {
 })
 
 test('ignores non-XML content', () => {
-  let json = createTextResponse('{}', {
-    headers: new Headers({
-      'Content-Type': `application/feed+json`
+  expectNotMine(
+    loaders.atom,
+    createTextResponse('{}', {
+      headers: new Headers({
+        'Content-Type': `application/feed+json`
+      })
     })
-  })
-  equal(loaders.atom.isMineText(json), false)
+  )
 })
 
 test('detects titles', () => {
@@ -239,11 +246,9 @@ test('detects titles', () => {
     ),
     'Test 2'
   )
-  equal(
-    loaders.atom.isMineText(
-      exampleAtom('<unknown><title>No</title></unknown>')
-    ),
-    false
+  expectNotMine(
+    loaders.atom,
+    exampleAtom('<unknown><title>No</title></unknown>')
   )
 })
 
@@ -280,11 +285,9 @@ test('detects type', () => {
     ),
     'Test 2'
   )
-  equal(
-    loaders.atom.isMineText(
-      exampleAtom('<unknown><title>No</title></unknown>')
-    ),
-    false
+  expectNotMine(
+    loaders.atom,
+    exampleAtom('<unknown><title>No</title></unknown>')
   )
 })
 

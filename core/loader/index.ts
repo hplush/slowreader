@@ -31,7 +31,12 @@ export function getLoaderForText(response: TextResponse): false | FeedLoader {
   let parsed = new URL(response.url)
   for (let name of names) {
     if (loaders[name].isMineUrl(parsed) !== false) {
-      let title = loaders[name].isMineText(response)
+      let title: false | string
+      try {
+        title = loaders[name].isMineText(response)
+      } catch {
+        title = false
+      }
       if (title !== false) {
         return {
           loader: loaders[name],

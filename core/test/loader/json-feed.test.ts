@@ -14,7 +14,7 @@ import {
   testFeed,
   type TextResponse
 } from '../../index.ts'
-import { getTestEnvironment } from '../utils.ts'
+import { expectNotMine, getTestEnvironment } from '../utils.ts'
 
 function exampleJson(json: object | string): TextResponse {
   let string = typeof json === 'string' ? json : JSON.stringify(json)
@@ -171,12 +171,14 @@ test('returns default links', () => {
 })
 
 test('ignores non-JSON content', () => {
-  let json = createTextResponse('<feed></feed>', {
-    headers: new Headers({
-      'Content-Type': `application/atom+xml`
+  expectNotMine(
+    loaders.jsonFeed,
+    createTextResponse('<feed></feed>', {
+      headers: new Headers({
+        'Content-Type': `application/atom+xml`
+      })
     })
-  })
-  equal(loaders.jsonFeed.isMineText(json), false)
+  )
 })
 
 test('detects titles', () => {
@@ -198,18 +200,16 @@ test('detects titles', () => {
     ),
     'Title JSON feed version 1'
   )
-  deepEqual(
-    loaders.jsonFeed.isMineText(
-      exampleJson({
-        author: {
-          name: 'name',
-          url: 'https://example.com/'
-        },
-        items: [],
-        version: 'https://jsonfeed.org/version/1.1'
-      })
-    ),
-    false
+  expectNotMine(
+    loaders.jsonFeed,
+    exampleJson({
+      author: {
+        name: 'name',
+        url: 'https://example.com/'
+      },
+      items: [],
+      version: 'https://jsonfeed.org/version/1.1'
+    })
   )
   deepEqual(
     loaders.jsonFeed.isMineText(
@@ -370,11 +370,11 @@ test('loads text to parse posts', async () => {
 test('validate wrong json feed format', () => {
   let task = createDownloadTask()
 
-  deepEqual(loaders.jsonFeed.isMineText(exampleJson('1')), false)
-  deepEqual(loaders.jsonFeed.isMineText(exampleJson('true')), false)
-  deepEqual(loaders.jsonFeed.isMineText(exampleJson('null')), false)
-  deepEqual(loaders.jsonFeed.isMineText(exampleJson('[]')), false)
-  deepEqual(loaders.jsonFeed.isMineText(exampleJson('{')), false)
+  expectNotMine(loaders.jsonFeed, exampleJson('1'))
+  expectNotMine(loaders.jsonFeed, exampleJson('true'))
+  expectNotMine(loaders.jsonFeed, exampleJson('null'))
+  expectNotMine(loaders.jsonFeed, exampleJson('[]'))
+  expectNotMine(loaders.jsonFeed, exampleJson('{'))
 
   // not valid versions
   let notValidDataVersions = [
@@ -385,31 +385,8 @@ test('validate wrong json feed format', () => {
   ]
 
   for (let version of notValidDataVersions) {
-    deepEqual(
-      loaders.jsonFeed.isMineText(
-        exampleJson({
-          items: [
-            {
-              content_html: '<p>Priority Content</p>',
-              content_text: '<p>Skipped content</p>',
-              date_published: '2022-01-04T00:00:00Z',
-              id: 'somehashid',
-              summary: 'summary',
-              title: 'title_1',
-              url: 'https://example.com/'
-            }
-          ],
-          title: 'Some JSON Feed title',
-          version
-        })
-      ),
-      false
-    )
-  }
-
-  // not valid title
-  deepEqual(
-    loaders.jsonFeed.isMineText(
+    expectNotMine(
+      loaders.jsonFeed,
       exampleJson({
         items: [
           {
@@ -422,24 +399,41 @@ test('validate wrong json feed format', () => {
             url: 'https://example.com/'
           }
         ],
-        title: [],
-        version: 'https://jsonfeed.org/version/1.1'
+        title: 'Some JSON Feed title',
+        version
       })
-    ),
-    false
+    )
+  }
+
+  // not valid title
+  expectNotMine(
+    loaders.jsonFeed,
+    exampleJson({
+      items: [
+        {
+          content_html: '<p>Priority Content</p>',
+          content_text: '<p>Skipped content</p>',
+          date_published: '2022-01-04T00:00:00Z',
+          id: 'somehashid',
+          summary: 'summary',
+          title: 'title_1',
+          url: 'https://example.com/'
+        }
+      ],
+      title: [],
+      version: 'https://jsonfeed.org/version/1.1'
+    })
   )
 
   let notValidItems = [{}, 4, 'someString', false]
   for (let notValidItem of notValidItems) {
-    deepEqual(
-      loaders.jsonFeed.isMineText(
-        exampleJson({
-          items: notValidItem,
-          title: 'Some JSONFeed title',
-          version: 'https://jsonfeed.org/version/1.1'
-        })
-      ),
-      false
+    expectNotMine(
+      loaders.jsonFeed,
+      exampleJson({
+        items: notValidItem,
+        title: 'Some JSONFeed title',
+        version: 'https://jsonfeed.org/version/1.1'
+      })
     )
   }
 

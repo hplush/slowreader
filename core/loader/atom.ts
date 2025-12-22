@@ -67,7 +67,6 @@ function extractHtml(node: Element | null): string | undefined {
 
 function parsePostSources(text: TextResponse): Element[] {
   let document = text.parseXml()
-  if (!document) return []
   return [...document.querySelectorAll('entry')].filter(
     entry => entry.querySelector('id')?.textContent
   )
@@ -116,7 +115,6 @@ function getPaginationUrl(
   rel: 'first' | 'last' | 'next' | 'previous'
 ): string | undefined {
   let document = xmlResponse.parseXml()
-  if (!document) return undefined
   let nextPageLink = [...document.querySelectorAll('link')].find(
     link => link.getAttribute('rel') === rel
   )
@@ -206,14 +204,10 @@ export const atom: Loader = {
   },
 
   isMineText(text) {
-    try {
-      let document = text.parseXml()
-      if (document?.firstElementChild?.nodeName === 'feed') {
-        return document.querySelector(':root > title')?.textContent ?? ''
-      } else {
-        return false
-      }
-    } catch {
+    let document = text.parseXml()
+    if (document.firstElementChild?.nodeName === 'feed') {
+      return document.querySelector(':root > title')?.textContent ?? ''
+    } else {
       return false
     }
   },

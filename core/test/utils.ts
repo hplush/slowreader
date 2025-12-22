@@ -1,6 +1,6 @@
 import { cleanStores, type ReadableAtom } from 'nanostores'
 import { fail } from 'node:assert'
-import { deepEqual } from 'node:assert/strict'
+import { deepEqual, equal } from 'node:assert/strict'
 
 import {
   type BasePopup,
@@ -19,6 +19,7 @@ import {
   Filter,
   hasPassword,
   type ListReader,
+  type Loader,
   menuLoading,
   needWelcome,
   openedPopups,
@@ -32,6 +33,7 @@ import {
   setupEnvironment,
   slowMenu,
   slowPostsCount,
+  type TextResponse,
   userId
 } from '../index.ts'
 import {
@@ -222,4 +224,14 @@ export function expectWarning<Result extends Promise<void> | void>(
     setWarningTracking(undefined)
     return undefined as Result
   }
+}
+
+export function expectNotMine(loader: Loader, text: TextResponse): void {
+  let title: false | string
+  try {
+    title = loader.isMineText(text)
+  } catch {
+    return
+  }
+  equal(title, false)
 }

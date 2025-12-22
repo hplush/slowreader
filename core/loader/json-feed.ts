@@ -167,13 +167,9 @@ export const jsonFeed: Loader = {
   },
 
   isMineText(text) {
-    try {
-      let parsedJson = text.parseJson()
-      validate(text.text, parsedJson)
-      return parsedJson.title
-    } catch {
-      return false
-    }
+    let parsedJson = text.parseJson()
+    validate(text.text, parsedJson)
+    return parsedJson.title
   },
 
   isMineUrl() {

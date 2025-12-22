@@ -13,6 +13,7 @@ import {
   testFeed,
   type TextResponse
 } from '../../index.ts'
+import { expectNotMine } from '../utils.ts'
 
 function exampleRss(responseBody: string): TextResponse {
   return createTextResponse(responseBody, {
@@ -120,12 +121,14 @@ test('returns default links', () => {
 })
 
 test('ignores non-XML content', () => {
-  let json = createTextResponse('{}', {
-    headers: new Headers({
-      'Content-Type': `application/feed+json`
+  expectNotMine(
+    loaders.rss,
+    createTextResponse('{}', {
+      headers: new Headers({
+        'Content-Type': `application/feed+json`
+      })
     })
-  })
-  equal(loaders.rss.isMineText(json), false)
+  )
 })
 
 test('detects titles', () => {
@@ -143,10 +146,7 @@ test('detects titles', () => {
     'Test 1 XSS'
   )
   equal(loaders.rss.isMineText(exampleRss('<rss version="2.0"></rss>')), '')
-  equal(
-    loaders.rss.isMineText(exampleRss('<unknown><title>No</title></unknown>')),
-    false
-  )
+  expectNotMine(loaders.rss, exampleRss('<unknown><title>No</title></unknown>'))
 })
 
 test('detects content type by content', () => {

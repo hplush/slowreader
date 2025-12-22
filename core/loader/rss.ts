@@ -14,7 +14,6 @@ import {
 
 function parsePostSources(text: TextResponse): Element[] {
   let document = text.parseXml()
-  if (!document) return []
   return [...document.querySelectorAll('item')].filter(
     item =>
       item.querySelector('guid')?.textContent ??
@@ -88,14 +87,10 @@ export const rss: Loader = {
   },
 
   isMineText(text) {
-    try {
-      let document = text.parseXml()
-      if (document?.firstElementChild?.nodeName === 'rss') {
-        return document.querySelector('channel > title')?.textContent ?? ''
-      } else {
-        return false
-      }
-    } catch {
+    let document = text.parseXml()
+    if (document.firstElementChild?.nodeName === 'rss') {
+      return document.querySelector('channel > title')?.textContent ?? ''
+    } else {
       return false
     }
   },
