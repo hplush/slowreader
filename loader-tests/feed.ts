@@ -1,4 +1,4 @@
-import { createCLI, enableTestClient, findRSSfromHome } from './utils.ts'
+import { createCLI, enableTestClient, findRSSFromHome } from './utils.ts'
 
 let cli = createCLI(
   'Debug feed search with specific feed',
@@ -15,5 +15,5 @@ cli.run(async args => {
     return
   }
 
-  process.exit((await findRSSfromHome({ homeUrl, title: url, url })) ? 0 : 1)
+  process.exit((await findRSSFromHome({ homeUrl, title: url, url })) ? 0 : 1)
 })

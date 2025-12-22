@@ -211,7 +211,7 @@ function normalizeUrl(url: string): string {
     .toLowerCase()
 }
 
-export async function findRSSfromHome(
+export async function findRSSFromHome(
   feed: LoaderTestFeed,
   tries = 0
 ): Promise<boolean> {
@@ -225,7 +225,7 @@ export async function findRSSfromHome(
       await timeout(10_000, waitLoading(addPage.searching))
     } catch (e) {
       if (e instanceof Error && e.message === 'Timeout' && tries > 0) {
-        return await findRSSfromHome(feed, tries - 1)
+        return await findRSSFromHome(feed, tries - 1)
       } else {
         throw e
       }

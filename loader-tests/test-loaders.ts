@@ -6,7 +6,7 @@ import {
   createCLI,
   enableTestClient,
   fetchAndParsePosts,
-  findRSSfromHome,
+  findRSSFromHome,
   finish,
   initializeProgressBar,
   type LoaderTestFeed,
@@ -37,7 +37,7 @@ cli.run(async () => {
   await completeTasks(feeds.map(feed => () => fetchAndParsePosts(feed.url)))
   for (let feed of feeds) {
     if (feed.findFromHome !== false) {
-      await findRSSfromHome(feed, 3)
+      await findRSSFromHome(feed, 3)
     }
   }
   finish(`${feeds.length} ${feeds.length === 1 ? 'feed' : 'feeds'} checked`)
