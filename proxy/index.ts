@@ -7,8 +7,8 @@ import { styleText } from 'node:util'
 class BadRequestError extends Error {
   code: number
 
-  constructor(message: string, code = 400) {
-    super(message)
+  constructor(message: string, code = 400, opts?: ErrorOptions) {
+    super(message, opts)
     this.name = 'BadRequestError'
     this.code = code
   }
@@ -103,15 +103,28 @@ export function createProxy(
       delete req.headers['set-cookie']
       delete req.headers.host
 
-      let targetResponse = await fetch(url, {
-        headers: {
-          ...(req.headers as Record<string, string>),
-          'host': parsedUrl.host,
-          'X-Forwarded-For': req.socket.remoteAddress!
-        },
-        method: req.method,
-        signal: AbortSignal.timeout(config.requestTimeout)
-      })
+      let targetResponse: Response
+      try {
+        targetResponse = await fetch(url, {
+          headers: {
+            ...(req.headers as Record<string, string>),
+            'host': parsedUrl.host,
+            'X-Forwarded-For': req.socket.remoteAddress!
+          },
+          method: req.method,
+          signal: AbortSignal.timeout(config.requestTimeout)
+        })
+      } catch (e) {
+        /* node:coverage disable */
+        if (e instanceof TypeError) {
+          throw new BadRequestError(e.message, 400, { cause: e })
+        } else if (e instanceof Error && e.name === 'TimeoutError') {
+          throw new BadRequestError('Timeout', 400, { cause: e })
+        } else {
+          throw e
+        }
+        /* node:coverage enable */
+      }
 
       let length: number | undefined
       if (targetResponse.headers.has('content-length')) {
@@ -138,14 +151,8 @@ export function createProxy(
     } catch (e) {
       /* node:coverage disable */
       // Known errors
-      if (e instanceof Error && e.name === 'TimeoutError') {
-        sendError(400, 'Timeout')
-        return
-      } else if (e instanceof Error && e.message === 'Invalid URL') {
+      if (e instanceof Error && e.message === 'Invalid URL') {
         sendError(400, 'Invalid URL')
-        return
-      } else if (e instanceof TypeError) {
-        sendError(400, e.message)
         return
       } else if (e instanceof BadRequestError) {
         sendError(e.code, e.message)
