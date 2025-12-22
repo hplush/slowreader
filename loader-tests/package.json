@@ -6,7 +6,7 @@
     "check-opml": "node check-opml.ts",
     "test": "node --run test:online:loaders",
     "url": "node url.ts",
-    "home": "node home.ts",
+    "feed": "node feed.ts",
     "test:online:loaders": "node test-loaders.ts"
   },
   "devDependencies": {

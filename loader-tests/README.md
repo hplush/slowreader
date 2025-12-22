@@ -24,6 +24,15 @@ cd loader-tests/
 pnpm test
 ```
 
+## Debug Feed Search
+
+A small helper to run feed searching for specific feed.
+
+```sh
+cd loader-tests/
+pnpm run feed URL HOME_URL
+```
+
 ## Debug Posts Loading
 
 A small helper to run posts loading for specific feed.
@@ -31,13 +40,4 @@ A small helper to run posts loading for specific feed.
 ```sh
 cd loader-tests/
 pnpm run url URL
-```
-
-## Debug Feed Search
-
-A small helper to run feed searching for specific feed.
-
-```sh
-cd loader-tests/
-pnpm run home URL HOME_URL
 ```

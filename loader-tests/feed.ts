@@ -2,7 +2,7 @@ import { createCLI, enableTestClient, findRSSfromHome } from './utils.ts'
 
 let cli = createCLI(
   'Debug feed search with specific feed',
-  '$ pnpm run home FEED_URL\n$ pnpm url FEED_URL HOME_URL'
+  '$ pnpm run feed FEED_URL\n$ pnpm feed FEED_URL HOME_URL'
 )
 
 cli.run(async args => {
