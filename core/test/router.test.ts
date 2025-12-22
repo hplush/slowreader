@@ -237,7 +237,7 @@ test('reacts on unknown popups', () => {
 
 test('hides popups for guest', () => {
   setTestUser(false)
-  setBaseTestRoute({ hash: 'feed=id1,post=id2', params: {}, route: 'signin' })
+  setBaseTestRoute({ hash: 'post=id1,post=id2', params: {}, route: 'signin' })
   equal(openedPopups.get().length, 0)
 })
 
@@ -245,10 +245,9 @@ test('returns opened post', () => {
   setTestUser()
   equal(openedPost.get(), undefined)
 
-  setBaseTestRoute({ hash: 'feed=id1,post=id2', params: {}, route: 'fast' })
+  setBaseTestRoute({ hash: 'refresh=1,post=id2', params: {}, route: 'fast' })
   equal(openedPost.get(), undefined)
 
-  setBaseTestRoute({ hash: 'feed=id1,post=id:2', params: {}, route: 'fast' })
   setBaseTestRoute({ hash: 'post=id:2', params: {}, route: 'fast' })
   equal(openedPost.get(), '2')
 })
