@@ -9,6 +9,7 @@ import {
   checkAndRemoveRequestMock,
   expectRequest,
   type FeedLoader,
+  HTTPStatusError,
   loaders,
   mockRequest,
   openedPopups,
@@ -27,10 +28,7 @@ import {
 beforeEach(() => {
   enableClientTest({
     warn(e) {
-      if (
-        e instanceof Error &&
-        (e.name === 'MockRequestError' || !/: 500|: 404|DOM/.test(e.message))
-      ) {
+      if (!(e instanceof HTTPStatusError)) {
         throw e
       }
     }

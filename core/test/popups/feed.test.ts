@@ -14,6 +14,7 @@ import {
   expectRequest,
   getFeed,
   getPopupId,
+  HTTPStatusError,
   mockRequest,
   openedPopups,
   testFeed,
@@ -23,6 +24,7 @@ import {
   checkLoadedPopup,
   cleanClientTest,
   enableClientTest,
+  expectWarning,
   getPopup,
   openTestPopup,
   setBaseTestRoute
@@ -43,14 +45,16 @@ afterEach(async () => {
 test('loads 404 for feeds by URL popup', async () => {
   keepMount(openedPopups)
   expectRequest('http://a.com/one').andRespond(404)
-  let feed1Popup = openTestPopup('feed', 'http://a.com/one')
-  equal(openedPopups.get().length, 1)
-  equal(feed1Popup.name, 'feed')
-  equal(feed1Popup.param, 'http://a.com/one')
-  equal(feed1Popup.loading.get(), true)
+  await expectWarning(async () => {
+    let feed1Popup = openTestPopup('feed', 'http://a.com/one')
+    equal(openedPopups.get().length, 1)
+    equal(feed1Popup.name, 'feed')
+    equal(feed1Popup.param, 'http://a.com/one')
+    equal(feed1Popup.loading.get(), true)
 
-  await waitLoading(feed1Popup.loading)
-  equal(feed1Popup.notFound, true)
+    await waitLoading(feed1Popup.loading)
+    equal(feed1Popup.notFound, true)
+  }, [new HTTPStatusError(404, 'http://a.com/one', '')])
 
   closeLastPopup()
   equal(openedPopups.get().length, 0)
@@ -69,15 +73,16 @@ test('loads existing feed popup on 404', async () => {
   keepMount(openedPopups)
   let feedId = await addFeed(testFeed({ url: 'http://a.com/404' }))
   expectRequest('http://a.com/404').andRespond(404)
-
-  let popup = openTestPopup('feed', 'http://a.com/404')
-  equal(openedPopups.get().length, 1)
-  equal(popup.loading.get(), true)
-  await waitLoading(popup.loading)
-  equal(popup.notFound, false)
-  equal(checkLoadedPopup(popup).feed.get()?.id, feedId)
-  deepEqual(checkLoadedPopup(popup).posts.get().isLoading, false)
-  deepEqual(checkLoadedPopup(popup).posts.get().list.length, 0)
+  await expectWarning(async () => {
+    let popup = openTestPopup('feed', 'http://a.com/404')
+    equal(openedPopups.get().length, 1)
+    equal(popup.loading.get(), true)
+    await waitLoading(popup.loading)
+    equal(popup.notFound, false)
+    equal(checkLoadedPopup(popup).feed.get()?.id, feedId)
+    deepEqual(checkLoadedPopup(popup).posts.get().isLoading, false)
+    deepEqual(checkLoadedPopup(popup).posts.get().list.length, 0)
+  }, [new HTTPStatusError(404, 'http://a.com/404', '')])
 })
 
 test('loads feeds by URL popup', async () => {

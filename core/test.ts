@@ -9,6 +9,12 @@ export let testSession: string | undefined
 
 const testRouter = atom<BaseRoute | undefined>()
 
+let warningTracking: undefined | unknown[]
+
+export function setWarningTracking(tracking: undefined | unknown[]): void {
+  warningTracking = tracking
+}
+
 /**
  * Ensures a route has a hash property, adding an empty string if missing.
  *
@@ -66,7 +72,13 @@ export function getTestEnvironment(): EnvironmentAndStore {
     translationLoader() {
       return Promise.resolve({})
     },
-    warn() {}
+    warn(e) {
+      if (warningTracking) {
+        warningTracking.push(e)
+      } else {
+        throw e
+      }
+    }
   }
 }
 

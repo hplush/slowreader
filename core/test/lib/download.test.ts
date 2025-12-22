@@ -174,13 +174,15 @@ test('parses JSON content', () => {
 
   equal((json.parseJson() as { title: string; version: string }).version, '1.1')
 
-  let brokenJson = createTextResponse(
-    '{ "items": [], "version": 1.1", "title": "test_title" }',
-    {
-      headers: new Headers({ 'content-type': 'application/json' })
-    }
-  )
-  equal(brokenJson.parseJson(), null)
+  throws(() => {
+    let brokenJson = createTextResponse(
+      '{ "items": [], "version": 1.1", "title": "test_title" }',
+      {
+        headers: new Headers({ 'content-type': 'application/json' })
+      }
+    )
+    brokenJson.parseJson()
+  }, new ParseError(`Expected ',' or '}' after property value in JSON at position 29 (line 1 column 30)`, '{ "items": [], "version": 1.1", "title": "test_title" }'))
 })
 
 test('has helper to ignore abort errors', async () => {

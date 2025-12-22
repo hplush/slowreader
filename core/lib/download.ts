@@ -1,5 +1,5 @@
-import { getEnvironment } from '../environment.ts'
 import { request } from '../request.ts'
+import { HTTPStatusError } from './http.ts'
 
 export class ParseError extends Error {
   input: string | undefined
@@ -144,8 +144,7 @@ export function createTextResponse(
         return JSON.parse(text) as unknown
       } catch (e) {
         if (e instanceof SyntaxError) {
-          getEnvironment().warn('Parse JSON error: ' + e.message)
-          return null
+          throw new ParseError(e.message, text)
         } else {
           throw e
         }
@@ -213,7 +212,7 @@ export function createDownloadTask(
         throw new DOMException('', 'AbortError')
       }
       if (!response.ok) {
-        throw new Error(`${url}: ${response.status}`)
+        throw new HTTPStatusError(response.status, url, await response.text())
       }
       if (taskOpts.cache === 'write') {
         cached.push(url)

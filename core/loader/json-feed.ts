@@ -1,5 +1,8 @@
-import { getEnvironment } from '../environment.ts'
-import { createDownloadTask, type TextResponse } from '../lib/download.ts'
+import {
+  createDownloadTask,
+  ParseError,
+  type TextResponse
+} from '../lib/download.ts'
 import { type OriginPost, type PostMedia, stringifyMedia } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import {
@@ -79,34 +82,26 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
-function stringify(value: unknown): string {
-  return typeof value === 'object' ? JSON.stringify(value) : String(value)
-}
-
-function validate<ValidatedType>(
-  value: unknown,
-  rules: ValidationRules
-): value is ValidatedType {
+function validate(text: string, value: unknown): asserts value is JsonFeed {
   if (!isObject(value)) {
-    return false
+    throw new ParseError('JSON feed is not an object', text)
   }
 
-  for (let field in rules) {
-    if (!(field in value) || !rules[field]!(value[field])) {
-      getEnvironment().warn(
+  for (let i in JSON_FEED_VALIDATORS) {
+    let field = i as keyof typeof JSON_FEED_VALIDATORS
+    if (!(field in value) || !JSON_FEED_VALIDATORS[field](value[field])) {
+      throw new ParseError(
         `JSON feed field '${field}' is not valid with value ` +
-          stringify(value[field])
+          JSON.stringify(value[field]),
+        text
       )
-      return false
     }
   }
-
-  return true
 }
 
 function parsePostSources(text: TextResponse): JsonFeedItem[] {
   let parsedJson = text.parseJson()
-  if (!validate<JsonFeed>(parsedJson, JSON_FEED_VALIDATORS)) return []
+  validate(text.text, parsedJson)
   return parsedJson.items
 }
 
@@ -172,11 +167,13 @@ export const jsonFeed: Loader = {
   },
 
   isMineText(text) {
-    let parsedJson = text.parseJson()
-    if (validate<JsonFeed>(parsedJson, JSON_FEED_VALIDATORS)) {
+    try {
+      let parsedJson = text.parseJson()
+      validate(text.text, parsedJson)
       return parsedJson.title
+    } catch {
+      return false
     }
-    return false
   },
 
   isMineUrl() {

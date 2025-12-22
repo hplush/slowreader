@@ -1,5 +1,6 @@
 import { cleanStores, type ReadableAtom } from 'nanostores'
 import { fail } from 'node:assert'
+import { deepEqual } from 'node:assert/strict'
 
 import {
   type BasePopup,
@@ -33,7 +34,11 @@ import {
   slowPostsCount,
   userId
 } from '../index.ts'
-import { getTestEnvironment, setBaseTestRoute } from '../test.ts'
+import {
+  getTestEnvironment,
+  setBaseTestRoute,
+  setWarningTracking
+} from '../test.ts'
 
 export { getTestEnvironment, setBaseTestRoute, testSession } from '../test.ts'
 
@@ -198,4 +203,23 @@ export async function throws(cb: () => Promise<unknown>): Promise<Error> {
   }
   if (!error) throw new Error('Errow was not thrown')
   return error
+}
+
+export function expectWarning<Result extends Promise<void> | void>(
+  cb: () => Result,
+  warnings: Error[]
+): Result {
+  let tracking: unknown[] = []
+  setWarningTracking(tracking)
+  let result = cb()
+  if (result) {
+    return result.then(() => {
+      deepEqual(tracking, warnings)
+      setWarningTracking(undefined)
+    }) as Result
+  } else {
+    deepEqual(tracking, warnings)
+    setWarningTracking(undefined)
+    return undefined as Result
+  }
 }

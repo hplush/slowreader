@@ -3,7 +3,7 @@ import { atom, computed } from 'nanostores'
 
 import { generateCredentials, signUp, toSecret } from '../auth.ts'
 import { getEnvironment } from '../environment.ts'
-import { HTTPRequestError } from '../lib/http.ts'
+import { UserFacingError } from '../lib/http.ts'
 import { commonMessages, authMessages as t } from '../messages/index.ts'
 import { encryptionKey, hasPassword, userId } from '../settings.ts'
 import { createPage } from './common.ts'
@@ -62,7 +62,7 @@ export const signupPage = createPage('signup', () => {
       await signUp($credentials.get(), customServerMixin.customServer.get())
       created = true
     } catch (e: unknown) {
-      if (HTTPRequestError.is(e)) {
+      if (e instanceof UserFacingError) {
         if (e.message === SIGN_UP_ERRORS.USER_ID_TAKEN) {
           $error.set(t.get().userIdTaken)
         } else {
@@ -70,7 +70,7 @@ export const signupPage = createPage('signup', () => {
         }
         /* node:coverage ignore next 4 */
       } else {
-        if (e instanceof Error) getEnvironment().warn(e)
+        getEnvironment().warn(e)
         $error.set(commonMessages.get().internalError)
       }
     } finally {

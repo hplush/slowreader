@@ -11,13 +11,13 @@ import {
   encryptionKey,
   generateCredentials,
   hasPassword,
-  HTTPRequestError,
   setupEnvironment,
   signIn,
   signOut,
   signUp,
   syncServer,
   useCredentials,
+  UserFacingError,
   userId
 } from '../index.ts'
 import {
@@ -141,6 +141,6 @@ test('remembers custom server', async () => {
 
 test('reports about wrong credentials', async () => {
   let error = await throws(() => signIn(generateCredentials()))
-  ok(HTTPRequestError.is(error))
+  ok(error instanceof UserFacingError)
   equal(error.message, 'Invalid credentials')
 })

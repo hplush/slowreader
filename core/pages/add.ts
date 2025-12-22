@@ -200,9 +200,7 @@ export const addPage = createPage('add', () => {
     }
 
     function unloadable(e: unknown): void {
-      if (e instanceof Error) {
-        getEnvironment().warn(e)
-      }
+      getEnvironment().warn(e)
       if (httpsGuest && isValidDomain(url) && lastUrl === url) {
         httpsTest = true
         $url.set(url.replace(/^https:\/\//, 'http://'))

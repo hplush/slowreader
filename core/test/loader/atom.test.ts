@@ -11,10 +11,11 @@ import {
   loaders,
   mockRequest,
   parseMedia,
+  setupEnvironment,
   testFeed,
   type TextResponse
 } from '../../index.ts'
-import { cleanClientTest, enableClientTest } from '../utils.ts'
+import { cleanClientTest, expectWarning, getTestEnvironment } from '../utils.ts'
 
 function exampleAtom(responseBody: string): TextResponse {
   return createTextResponse(responseBody, {
@@ -24,8 +25,9 @@ function exampleAtom(responseBody: string): TextResponse {
   })
 }
 
+setupEnvironment(getTestEnvironment())
+
 beforeEach(() => {
-  enableClientTest()
   mockRequest()
 })
 
@@ -520,7 +522,10 @@ test('parses media', () => {
     }
   ])
   deepEqual(parseMedia(undefined), [])
-  deepEqual(parseMedia('['), [])
+
+  expectWarning(() => {
+    deepEqual(parseMedia('['), [])
+  }, [new SyntaxError('Unexpected end of JSON input')])
 })
 
 test('detects pagination with rel="next" link', () => {

@@ -4,22 +4,33 @@ import { getEnvironment } from '../environment.ts'
 import { commonMessages as t } from '../messages/index.ts'
 
 /**
- * Network/server error on server’s HTTP API request.
+ * Errors to render in client UI.
+ *
+ * Validation errors from server, failing server or network error.
  */
-export class HTTPRequestError extends Error {
+export class UserFacingError extends Error {
   constructor(text: string) {
     super(text)
-    this.name = 'HTTPRequestError'
+    this.name = 'UserFacingError'
     Error.captureStackTrace(this, this.constructor)
   }
+}
 
-  static is(error: unknown): error is HTTPRequestError {
-    return (
-      typeof error === 'object' &&
-      error !== null &&
-      'name' in error &&
-      error.name === 'HTTPRequestError'
-    )
+/**
+ * Internal errors for non-200 HTTP response.
+ */
+export class HTTPStatusError extends Error {
+  /* node:coverage ignore next 3 */
+  response: string
+  status: number
+  url: string
+  constructor(status: number, url: string, response: string) {
+    super(`${status} ${url}: ${response}`)
+    this.status = status
+    this.url = url
+    this.response = response
+    this.name = 'HTTPStatusError'
+    Error.captureStackTrace(this, HTTPStatusError)
   }
 }
 
@@ -40,15 +51,17 @@ export async function checkErrors<Params extends object, ResponseJSON>(
     response = await requester(params, { fetch, host })
   } catch (e) {
     if (e instanceof Error) getEnvironment().warn(e)
-    throw new HTTPRequestError(t.get().networkError)
+    throw new UserFacingError(t.get().networkError)
   }
   if (!response.ok) {
     let text = await response.text()
     if (response.status === 400 && text !== 'Invalid request') {
-      throw new HTTPRequestError(text)
+      throw new UserFacingError(text)
     } else {
-      getEnvironment().warn(new Error(`Response ${response.status}: ${text}`))
-      throw new HTTPRequestError(t.get().internalError)
+      getEnvironment().warn(
+        new HTTPStatusError(response.status, response.url, text)
+      )
+      throw new UserFacingError(t.get().internalError)
     }
   }
   return response.json()

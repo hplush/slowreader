@@ -21,6 +21,7 @@ import {
   validUserId
 } from '../../index.ts'
 import {
+  expectWarning,
   getTestEnvironment,
   openPage,
   setBaseTestRoute,
@@ -179,14 +180,18 @@ test('reports about bad connection', async () => {
   })
   equal(page.error.get(), undefined)
 
-  await page.submit()
+  await expectWarning(async () => {
+    await page.submit()
+  }, [new Error('Can not resolve domain')])
   equal(page.signingUp.get(), false)
   match(page.error.get()!, /connection/)
 
   page.showCustomServer()
   equal(page.error.get(), undefined)
 
-  await page.submit()
+  await expectWarning(async () => {
+    await page.submit()
+  }, [new Error('Can not resolve domain')])
   match(page.error.get()!, /connection/)
 
   page.regenerate()

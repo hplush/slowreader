@@ -9,6 +9,7 @@ import {
   enableTestTime,
   generateCredentials,
   hasPassword,
+  HTTPStatusError,
   router,
   setupEnvironment,
   signOut,
@@ -16,7 +17,12 @@ import {
   toSecret,
   userId
 } from '../../index.ts'
-import { getTestEnvironment, openPage, setTestUser } from '../utils.ts'
+import {
+  expectWarning,
+  getTestEnvironment,
+  openPage,
+  setTestUser
+} from '../utils.ts'
 
 let server: TestServer
 beforeEach(() => {
@@ -102,7 +108,9 @@ test('reports about bad connection', async () => {
   page.userId.set(credentials.userId)
   page.secret.set(toSecret(credentials))
 
-  await page.signIn()
+  await expectWarning(async () => {
+    await page.signIn()
+  }, [new Error('Can not resolve domain')])
   equal(page.signingIn.get(), false)
   match(page.signError.get()!, /connection/)
 })
@@ -113,22 +121,26 @@ test('reports about server errors', async () => {
     return Promise.resolve({
       ok: false,
       status: 500,
-      text: () => Promise.resolve('DB is down')
+      text: () => Promise.resolve('DB is down'),
+      url: 'example.com'
     })
   }
 
   let credentials = generateCredentials()
-  let page = openPage({
-    params: {},
-    route: 'start'
-  })
 
-  page.userId.set(credentials.userId)
-  page.secret.set(toSecret(credentials))
+  await expectWarning(async () => {
+    let page = openPage({
+      params: {},
+      route: 'start'
+    })
 
-  await page.signIn()
-  equal(page.signingIn.get(), false)
-  match(page.signError.get()!, /try\sagain/)
+    page.userId.set(credentials.userId)
+    page.secret.set(toSecret(credentials))
+
+    await page.signIn()
+    equal(page.signingIn.get(), false)
+    match(page.signError.get()!, /try\sagain/)
+  }, [new HTTPStatusError(500, 'example.com', 'DB is down')])
 })
 
 test('signs in', async () => {
