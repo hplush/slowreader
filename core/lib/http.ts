@@ -25,7 +25,7 @@ export class HTTPStatusError extends Error {
   status: number
   url: string
   constructor(status: number, url: string, response: string) {
-    super(`${status} ${url}: ${response}`)
+    super(`${status} ${url}`)
     this.status = status
     this.url = url
     this.response = response
