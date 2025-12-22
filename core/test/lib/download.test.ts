@@ -15,7 +15,7 @@ import {
   setRequestMethod,
   setupEnvironment
 } from '../../index.ts'
-import { getTestEnvironment } from '../utils.ts'
+import { expectWarning, getTestEnvironment } from '../utils.ts'
 
 setupEnvironment(getTestEnvironment())
 
@@ -147,26 +147,28 @@ test('parses XML content', () => {
   })
   equal(rss.parseXml().firstChild?.nodeName, 'rss')
 
-  let image = createTextResponse('<jpeg></jpeg>', {
-    headers: new Headers({ 'content-type': 'image/jpeg' })
-  })
-  throws(() => {
-    image.parseXml()
-  }, new ParseError('Unknown content type: image/jpeg', '<jpeg></jpeg>'))
+  expectWarning(() => {
+    let image = createTextResponse('<jpeg></jpeg>', {
+      headers: new Headers({ 'content-type': 'image/jpeg' })
+    })
+    throws(() => {
+      image.parseXml()
+    }, new ParseError('Unknown content type: image/jpeg', '<jpeg></jpeg>'))
 
-  let json = createTextResponse('{}', {
-    headers: new Headers({ 'content-type': 'application/json' })
-  })
-  throws(() => {
-    json.parseXml()
-  }, new ParseError('Unknown content type: application/json', '{}'))
+    let json = createTextResponse('{}', {
+      headers: new Headers({ 'content-type': 'application/json' })
+    })
+    throws(() => {
+      json.parseXml()
+    }, new ParseError('Unknown content type: application/json', '{}'))
 
-  let broken = createTextResponse('<top><test', {
-    headers: new Headers({ 'content-type': 'application/xml' })
-  })
-  throws(() => {
-    broken.parseXml()
-  }, new ParseError('1:10: unclosed tag: top', '<top><test'))
+    let broken = createTextResponse('<top><test', {
+      headers: new Headers({ 'content-type': 'application/xml' })
+    })
+    throws(() => {
+      broken.parseXml()
+    }, new ParseError('1:10: unclosed tag: top', '<top><test'))
+  }, [])
 })
 
 test('parses JSON content', () => {
@@ -276,7 +278,7 @@ test('handles non-UTF8 XML encoding declarations', async () => {
   setRequestMethod(fetch)
 })
 
-test('handles encoding mismatch between header and XML declaration', async () => {
+test('handles encoding mismatch between header and XML', async () => {
   let task = createDownloadTask()
 
   let xmlContent =

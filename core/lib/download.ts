@@ -1,4 +1,3 @@
-import { getEnvironment } from '../environment.ts'
 import { request } from '../request.ts'
 import { HTTPStatusError } from './http.ts'
 
@@ -43,7 +42,7 @@ export interface TextResponse {
   readonly contentType: string
   readonly headers: Headers
   parseJson(): JSONDocument
-  parseXml(forceHtml?: boolean): Document | XMLDocument
+  parseXml(): Document | XMLDocument
   readonly redirected: boolean
   readonly status: number
   readonly text: string
@@ -158,7 +157,7 @@ export function createTextResponse(
       }
       return jsonCache
     },
-    parseXml(forceHtml) {
+    parseXml() {
       if (!xmlCache) {
         if (contentType.includes('+xml')) {
           contentType = 'application/xml'
@@ -169,21 +168,15 @@ export function createTextResponse(
           contentType === 'text/xml'
         ) {
           let fixed = fixPopularIssues(text)
-          xmlCache = new DOMParser().parseFromString(
-            fixed,
-            forceHtml ? 'text/html' : contentType
-          )
-          if (xmlCache.documentElement.tagName === 'parsererror') {
+          let parsed = new DOMParser().parseFromString(fixed, contentType)
+          if (parsed.documentElement.tagName === 'parsererror') {
             let error = new ParseError(
-              xmlCache.documentElement.textContent,
+              parsed.documentElement.textContent,
               fixed
             )
-            if (contentType === 'text/html' || forceHtml) {
-              throw error
-            } else {
-              getEnvironment().warn(error)
-              xmlCache = this.parseXml(true)
-            }
+            throw error
+          } else {
+            xmlCache = parsed
           }
         } else {
           throw new ParseError('Unknown content type: ' + contentType, text)
@@ -197,9 +190,10 @@ export function createTextResponse(
     tryParseHTML() {
       if (xmlCache) return xmlCache
       if (!/<html/i.test(text)) return false
+      if (contentType !== 'text/html') return false
       /* node:coverage ignore next 5 */
       try {
-        return this.parseXml(true)
+        return this.parseXml()
       } catch {
         return false
       }
