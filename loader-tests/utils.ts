@@ -316,6 +316,11 @@ export interface CLI {
 export function createCLI(help: string, usage?: string): CLI {
   return {
     async run(cb) {
+      process.on('unhandledRejection', reason => {
+        error(reason)
+        process.exit(1)
+      })
+
       let args = process.argv.slice(2)
       if (
         args.includes('--help') ||
