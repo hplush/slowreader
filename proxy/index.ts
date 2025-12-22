@@ -144,6 +144,9 @@ export function createProxy(
       } else if (e instanceof Error && e.message === 'Invalid URL') {
         sendError(400, 'Invalid URL')
         return
+      } else if (e instanceof TypeError) {
+        sendError(400, e.message)
+        return
       } else if (e instanceof BadRequestError) {
         sendError(e.code, e.message)
         return
