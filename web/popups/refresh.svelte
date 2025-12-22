@@ -6,10 +6,12 @@
     refreshPosts,
     refreshProgress,
     refreshStatistics,
+    router,
     stopRefreshing,
     refreshMessages as t
   } from '@slowreader/core'
 
+  import { getPopupHash } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
   import ErrorList from '../ui/error-list.svelte'
   import Label from '../ui/label.svelte'
@@ -72,7 +74,7 @@
             list={$refreshErrors.map(item => ({
               errorText: item.error,
               title: item.feed.title,
-              url: item.feed.url
+              url: getPopupHash($router, 'feed', item.feed.url)
             }))}
           />
         </Stack>
