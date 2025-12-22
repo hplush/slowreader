@@ -39,3 +39,6 @@ feeds:
 
   - title: Non-UTF8 Feed
     url: https://opennet.ru/opennews/opennews_review.rss
+
+  - title: JSON Feed
+    url: https://vas3k.club/feed.json

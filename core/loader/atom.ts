@@ -206,10 +206,14 @@ export const atom: Loader = {
   },
 
   isMineText(text) {
-    let document = text.parseXml()
-    if (document?.firstElementChild?.nodeName === 'feed') {
-      return document.querySelector(':root > title')?.textContent ?? ''
-    } else {
+    try {
+      let document = text.parseXml()
+      if (document?.firstElementChild?.nodeName === 'feed') {
+        return document.querySelector(':root > title')?.textContent ?? ''
+      } else {
+        return false
+      }
+    } catch {
       return false
     }
   },

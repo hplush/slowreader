@@ -88,10 +88,14 @@ export const rss: Loader = {
   },
 
   isMineText(text) {
-    let document = text.parseXml()
-    if (document?.firstElementChild?.nodeName === 'rss') {
-      return document.querySelector('channel > title')?.textContent ?? ''
-    } else {
+    try {
+      let document = text.parseXml()
+      if (document?.firstElementChild?.nodeName === 'rss') {
+        return document.querySelector('channel > title')?.textContent ?? ''
+      } else {
+        return false
+      }
+    } catch {
       return false
     }
   },

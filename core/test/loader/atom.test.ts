@@ -217,6 +217,15 @@ test('returns default links', () => {
   )
 })
 
+test('ignores non-XML content', () => {
+  let json = createTextResponse('{}', {
+    headers: new Headers({
+      'Content-Type': `application/feed+json`
+    })
+  })
+  equal(loaders.atom.isMineText(json), false)
+})
+
 test('detects titles', () => {
   equal(loaders.atom.isMineText(exampleAtom('<feed></feed>')), '')
   equal(
