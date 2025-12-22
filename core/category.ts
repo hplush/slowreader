@@ -13,7 +13,7 @@ import { atom } from 'nanostores'
 
 import { getClient } from './client.ts'
 import { changeFeed, type FeedValue, getFeeds } from './feed.ts'
-import { commonMessages as common } from './messages/index.ts'
+import { commonMessages as t } from './messages/index.ts'
 import type { UsefulReaderName } from './readers/common.ts'
 
 export type CategoryValue = {
@@ -126,9 +126,9 @@ export function feedsByCategory(
 }
 
 export function getGeneralCategory(): CategoryValue {
-  return { id: 'general', title: common.value?.generalCategory || 'General' }
+  return { id: 'general', title: t.value?.generalCategory || 'General' }
 }
 
 export function getBrokenCategory(): CategoryValue {
-  return { id: 'broken', title: common.value?.brokenCategory || 'Broken' }
+  return { id: 'broken', title: t.value?.brokenCategory || 'Broken' }
 }
