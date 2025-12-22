@@ -68,7 +68,7 @@ export default (server: BaseServer): void => {
         return { session: token }
       }
     }
-    return new ErrorResponse(SIGN_IN_ERRORS.INVALID_CREDENTIALS)
+    return new ErrorResponse(SIGN_IN_ERRORS.invalidCredentials)
   })
 
   jsonApi(server, signOutEndpoint, async (params, res, req) => {
@@ -102,7 +102,7 @@ export default (server: BaseServer): void => {
       already = await tx.query.users.findFirst({ where: eq(users.id, userId) })
       if (!already) await tx.insert(users).values({ id: userId })
     })
-    if (already) return new ErrorResponse(SIGN_UP_ERRORS.USER_ID_TAKEN)
+    if (already) return new ErrorResponse(SIGN_UP_ERRORS.userIdTaken)
 
     await server.process(setPassword({ password, userId }))
     let session = await setNewSession(res, userId)

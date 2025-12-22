@@ -7,11 +7,10 @@ import {
   signIn,
   useCredentials
 } from '../auth.ts'
-import { getEnvironment } from '../environment.ts'
-import { UserFacingError } from '../lib/http.ts'
-import { commonMessages, commonMessages as t } from '../messages/index.ts'
+import { commonMessages as t } from '../messages/index.ts'
 import { createPage } from './common.ts'
 import { injectCustomServerField } from './mixins/custom-server-field.ts'
+import { createFormSubmit } from './mixins/form.ts'
 
 export const startPage = createPage('start', () => {
   let $userId = atom('')
@@ -55,27 +54,13 @@ export const startPage = createPage('start', () => {
     params: {},
     secret: $secret,
     signError: $signError,
-    async signIn(): Promise<void> {
-      $signError.set(undefined)
-      $signingIn.set(true)
-      try {
-        await signIn(validateCredential(), customServerMixin.customServer.get())
-      } catch (e: unknown) {
-        if (e instanceof UserFacingError) {
-          if (e.message === SIGN_IN_ERRORS.INVALID_CREDENTIALS) {
-            $signError.set(t.get().invalidCredentials)
-          } else {
-            $signError.set(e.message)
-          }
-          /* node:coverage ignore next 4 */
-        } else {
-          getEnvironment().warn(e)
-          $signError.set(commonMessages.get().internalError)
-        }
-      } finally {
-        $signingIn.set(false)
-      }
-    },
+    signIn: createFormSubmit(
+      () => signIn(validateCredential(), customServerMixin.customServer.get()),
+      $signingIn,
+      $signError,
+      SIGN_IN_ERRORS,
+      t
+    ),
     signingIn: $signingIn,
     startLocal(): void {
       useCredentials(generateCredentials())

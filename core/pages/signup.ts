@@ -3,11 +3,11 @@ import { atom, computed } from 'nanostores'
 
 import { generateCredentials, signUp, toSecret } from '../auth.ts'
 import { getEnvironment } from '../environment.ts'
-import { UserFacingError } from '../lib/http.ts'
-import { commonMessages, authMessages as t } from '../messages/index.ts'
+import { authMessages as t } from '../messages/index.ts'
 import { encryptionKey, hasPassword, userId } from '../settings.ts'
 import { createPage } from './common.ts'
 import { injectCustomServerField } from './mixins/custom-server-field.ts'
+import { createFormSubmit } from './mixins/form.ts'
 
 export const signupPage = createPage('signup', () => {
   if (hasPassword.get()) {
@@ -53,37 +53,13 @@ export const signupPage = createPage('signup', () => {
     $credentials.set(generateCredentials(userId.get(), encryptionKey.get()))
   }
 
-  async function submit(): Promise<void> {
-    $error.set(undefined)
-    $signingUp.set(true)
-    if (!userId.get()) $hideMenu.set(true)
-    let created = false
-    try {
-      await signUp($credentials.get(), customServerMixin.customServer.get())
-      created = true
-    } catch (e: unknown) {
-      if (e instanceof UserFacingError) {
-        if (e.message === SIGN_UP_ERRORS.USER_ID_TAKEN) {
-          $error.set(t.get().userIdTaken)
-        } else {
-          $error.set(e.message)
-        }
-        /* node:coverage ignore next 4 */
-      } else {
-        getEnvironment().warn(e)
-        $error.set(commonMessages.get().internalError)
-      }
-    } finally {
-      $signingUp.set(false)
-    }
-    if (created) {
-      $warningStep.set(true)
-      await getEnvironment().savePassword({
-        secret: $secret.get(),
-        userId: $userId.get()
-      })
-    }
-  }
+  let createUser = createFormSubmit(
+    () => signUp($credentials.get(), customServerMixin.customServer.get()),
+    $signingUp,
+    $error,
+    SIGN_UP_ERRORS,
+    t
+  )
 
   function finish(): void {
     getEnvironment().openRoute({ params: {}, popups: [], route: 'home' })
@@ -110,7 +86,17 @@ export const signupPage = createPage('signup', () => {
     regenerate,
     secret: $secret,
     signingUp: $signingUp,
-    submit,
+    async submit() {
+      if (!userId.get()) $hideMenu.set(true)
+      let created = await createUser()
+      if (created) {
+        $warningStep.set(true)
+        await getEnvironment().savePassword({
+          secret: $secret.get(),
+          userId: $userId.get()
+        })
+      }
+    },
     userId: $userId,
     warningStep: $warningStep
   }

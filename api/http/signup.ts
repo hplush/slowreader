@@ -44,5 +44,5 @@ export const signUpEndpoint: Endpoint<
 }
 
 export const SIGN_UP_ERRORS = {
-  USER_ID_TAKEN: 'User ID was already taken'
+  userIdTaken: 'User ID was already taken'
 }
