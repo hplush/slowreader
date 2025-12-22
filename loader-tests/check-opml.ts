@@ -59,7 +59,7 @@ cli.run(async args => {
       let response = await fetch(nextUrl, {
         headers: {
           Origin: 'http://localhost:8000',
-          ...(headers ?? {})
+          ...headers
         },
         ...opts
       })
