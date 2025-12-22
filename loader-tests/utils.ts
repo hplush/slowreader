@@ -6,6 +6,7 @@ import {
   generateCredentials,
   getLoaderForText,
   pages,
+  printWarning,
   type RouteName,
   setRequestMethod,
   setupEnvironment,
@@ -39,7 +40,12 @@ export function isString(attr: null | string): attr is string {
 }
 
 export function enableTestClient(route: RouteName = 'home'): void {
-  setupEnvironment(getTestEnvironment())
+  setupEnvironment({
+    ...getTestEnvironment(),
+    warn(e) {
+      warning(printWarning(e).title)
+    }
+  })
   enableTestTime()
   useCredentials(generateCredentials())
   setBaseTestRoute({ params: {}, route })
@@ -112,6 +118,11 @@ export function print(msg: string): void {
 }
 
 let errors = 0
+
+export function warning(text: string): void {
+  print(styleText('yellow', text))
+  updateProgressBar()
+}
 
 export function error(err: unknown, details?: string): void {
   errors += 1

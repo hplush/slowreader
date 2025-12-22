@@ -4,6 +4,7 @@ import { busyDuring } from './busy.ts'
 import { getFeed, getFeedLatestPosts, getFeeds } from './feed.ts'
 import { loadFilters } from './filter.ts'
 import { createDownloadTask } from './lib/download.ts'
+import { HTTPStatusError } from './lib/http.ts'
 import { loaders } from './loader/index.ts'
 import {
   addPost,
@@ -69,4 +70,17 @@ export function enablePostDebug(): void {
       }
     }
   })
+}
+
+export function printWarning(e: unknown): {
+  details: unknown[]
+  title: string
+} {
+  let title = e instanceof Error ? e.message : String(e)
+  let details: unknown[] = []
+  if (e instanceof Error) {
+    details.push(e)
+    if (e instanceof HTTPStatusError) details.push(e.response)
+  }
+  return { details, title }
 }

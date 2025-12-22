@@ -5,6 +5,7 @@ import { windowPersistentEvents } from '@nanostores/persistent'
 import {
   type NetworkType,
   type NetworkTypeDetector,
+  printWarning,
   router,
   setLayoutType,
   setRequestMethod,
@@ -140,9 +141,18 @@ setupEnvironment({
   translationLoader() {
     return Promise.resolve({})
   },
-  warn(msg) {
-    // eslint-disable-next-line no-console
-    console.warn(msg)
+  warn(e) {
+    let { details, title } = printWarning(e)
+    /* eslint-disable no-console */
+    console.warn(title)
+    if (details.length > 0) {
+      console.groupCollapsed('Details')
+      for (let i of details) {
+        console.log(i)
+      }
+      console.groupEnd()
+    }
+    /* eslint-enable no-console */
   }
 })
 
