@@ -7,7 +7,6 @@ import {
   findDocumentLinks,
   findHeaderLinks,
   findMediaInText,
-  isHTML,
   type Loader,
   toTime
 } from './common.ts'
@@ -54,7 +53,6 @@ export const rss: Loader = {
   getMineLinksFromText(text) {
     let type = 'application/rss+xml'
     let headerLinks = findHeaderLinks(text, type)
-    if (!isHTML(text)) return headerLinks
     return [
       ...headerLinks,
       ...findDocumentLinks(text, type),

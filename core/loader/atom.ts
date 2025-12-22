@@ -11,7 +11,6 @@ import {
   findDocumentLinks,
   findHeaderLinks,
   findMediaInText,
-  isHTML,
   type Loader,
   toTime
 } from './common.ts'
@@ -169,7 +168,6 @@ export const atom: Loader = {
   getMineLinksFromText(text) {
     let type = 'application/atom+xml'
     let headerLinks = findHeaderLinks(text, type)
-    if (!isHTML(text)) return headerLinks
     let links = [
       ...headerLinks,
       ...findDocumentLinks(text, type),

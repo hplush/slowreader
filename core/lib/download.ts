@@ -1,3 +1,4 @@
+import { getEnvironment } from '../environment.ts'
 import { request } from '../request.ts'
 import { HTTPStatusError } from './http.ts'
 
@@ -42,10 +43,11 @@ export interface TextResponse {
   readonly contentType: string
   readonly headers: Headers
   parseJson(): JSONDocument
-  parseXml(): Document | XMLDocument
+  parseXml(forceHtml?: boolean): Document | XMLDocument
   readonly redirected: boolean
   readonly status: number
   readonly text: string
+  tryParseHTML(): Document | false | XMLDocument
   readonly url: string
 }
 
@@ -123,7 +125,8 @@ export function createTextResponse(
 ): TextResponse {
   let status = other.status ?? 200
   let headers = other.headers ?? new Headers()
-  let bodyCache: Document | undefined | XMLDocument
+  let xmlCache: Document | undefined | XMLDocument
+  let jsonCache: JSONDocument | undefined
 
   let contentType =
     detectType(text) ?? headers.get('content-type') ?? 'text/plain'
@@ -135,25 +138,28 @@ export function createTextResponse(
     contentType,
     headers,
     parseJson() {
-      if (
-        contentType !== 'application/json' &&
-        contentType !== 'application/feed+json'
-      ) {
-        throw new ParseError('Unknown content type: ' + contentType, text)
-      }
+      if (!jsonCache) {
+        if (
+          contentType !== 'application/json' &&
+          contentType !== 'application/feed+json'
+        ) {
+          throw new ParseError('Unknown content type: ' + contentType, text)
+        }
 
-      try {
-        return JSON.parse(text) as JSONDocument
-      } catch (e) {
-        if (e instanceof SyntaxError) {
-          throw new ParseError(e.message, text)
-        } else {
-          throw e
+        try {
+          jsonCache = JSON.parse(text) as JSONDocument
+        } catch (e) {
+          if (e instanceof SyntaxError) {
+            throw new ParseError(e.message, text)
+          } else {
+            throw e
+          }
         }
       }
+      return jsonCache
     },
-    parseXml() {
-      if (!bodyCache) {
+    parseXml(forceHtml) {
+      if (!xmlCache) {
         if (contentType.includes('+xml')) {
           contentType = 'application/xml'
         }
@@ -163,19 +169,41 @@ export function createTextResponse(
           contentType === 'text/xml'
         ) {
           let fixed = fixPopularIssues(text)
-          bodyCache = new DOMParser().parseFromString(fixed, contentType)
-          if (bodyCache.documentElement.tagName === 'parsererror') {
-            throw new ParseError(bodyCache.documentElement.textContent, fixed)
+          xmlCache = new DOMParser().parseFromString(
+            fixed,
+            forceHtml ? 'text/html' : contentType
+          )
+          if (xmlCache.documentElement.tagName === 'parsererror') {
+            let error = new ParseError(
+              xmlCache.documentElement.textContent,
+              fixed
+            )
+            if (contentType === 'text/html' || forceHtml) {
+              throw error
+            } else {
+              getEnvironment().warn(error)
+              xmlCache = this.parseXml(true)
+            }
           }
         } else {
           throw new ParseError('Unknown content type: ' + contentType, text)
         }
       }
-      return bodyCache
+      return xmlCache
     },
     redirected: other.redirected ?? false,
     status,
     text,
+    tryParseHTML() {
+      if (xmlCache) return xmlCache
+      if (!/<html/i.test(text)) return false
+      /* node:coverage ignore next 5 */
+      try {
+        return this.parseXml(true)
+      } catch {
+        return false
+      }
+    },
     url: other.url ?? 'https://example.com'
   }
 }

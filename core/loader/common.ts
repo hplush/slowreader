@@ -53,11 +53,6 @@ export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
-/** Detects that the server responded with a HTML document */
-export function isHTML(text: TextResponse): boolean {
-  return text.text.toLocaleLowerCase().includes('<html')
-}
-
 /**
  * Returns full URL for link HTML element, which includes not only
  * the explicitly provided base URL, but also the base URL specified
@@ -89,7 +84,7 @@ export function buildFullURL(
  * Returns full URLs found in the document’s `<link>` elements.
  */
 export function findDocumentLinks(text: TextResponse, type: string): string[] {
-  let document = text.parseXml()
+  let document = text.tryParseHTML()
   if (!document) return []
   return [...document.querySelectorAll('link')]
     .filter(
@@ -108,7 +103,7 @@ export function findAnchorHrefs(
   hrefPattern: RegExp,
   textPattern?: RegExp
 ): string[] {
-  let document = text.parseXml()
+  let document = text.tryParseHTML()
   if (!document) return []
   return [...document.querySelectorAll('a')]
     .filter(a => {

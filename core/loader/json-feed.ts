@@ -10,7 +10,6 @@ import {
   findDocumentLinks,
   findHeaderLinks,
   findMediaInText,
-  isHTML,
   type Loader,
   toTime
 } from './common.ts'
@@ -139,7 +138,6 @@ export const jsonFeed: Loader = {
   getMineLinksFromText(text) {
     let type = 'application/feed+json'
     let headerLinks = findHeaderLinks(text, type)
-    if (!isHTML(text)) return headerLinks
     let linksByType = [...headerLinks, ...findDocumentLinks(text, type)]
     if (linksByType.length === 0) {
       linksByType = findDocumentLinks(text, 'application/json')

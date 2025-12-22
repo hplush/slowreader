@@ -153,7 +153,12 @@ export const addPage = createPage('add', () => {
   function getLinksFromText(response: TextResponse): string[] {
     let names = Object.keys(loaders) as LoaderName[]
     return names.reduce<string[]>((links, name) => {
-      return links.concat(loaders[name].getMineLinksFromText(response))
+      /* node:coverage ignore next 5 */
+      try {
+        return links.concat(loaders[name].getMineLinksFromText(response))
+      } catch {
+        return links
+      }
     }, [])
   }
 
@@ -170,7 +175,6 @@ export const addPage = createPage('add', () => {
    */
   function addCandidate(url: string, candidate: FeedLoader): void {
     if ($candidates.get().some(i => i.url === url)) return
-
     $links.setKey(url, { state: 'processed' })
     $candidates.set([...$candidates.get(), candidate])
   }
