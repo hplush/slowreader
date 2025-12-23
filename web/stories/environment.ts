@@ -68,7 +68,16 @@ setupEnvironment({
   saveSession() {},
   server: 'localhost:2554',
   warn(e) {
-    console.error(e)
+    let warnings = document.getElementById('warnings')
+    if (!warnings) {
+      warnings = document.createElement('ul')
+      warnings.id = 'warnings'
+      document.getElementById('storybook-root')!.append(warnings)
+    }
+    let item = document.createElement('li')
+    let message = e instanceof Error ? e.message : String(e)
+    item.textContent = `Warning: ${message}`
+    warnings.append(item)
   }
 })
 
