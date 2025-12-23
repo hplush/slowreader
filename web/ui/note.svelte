@@ -38,6 +38,7 @@
       flex-direction: column;
       gap: 0.312rem;
       align-items: flex-start;
+      width: stretch;
       padding: 0.625rem 0.625rem 0.625rem calc(2rem + 0.312rem + 0.312rem);
       font: var(--secondary-font);
       border: 0.125rem solid;
