@@ -1,15 +1,5 @@
+import { HTTPStatusError, ParseError } from '../errors.ts'
 import { request } from '../request.ts'
-import { HTTPStatusError } from './http.ts'
-
-export class ParseError extends Error {
-  input: string | undefined
-  constructor(message: string, input?: string) {
-    super(message)
-    this.name = 'ParseError'
-    this.input = input
-    Error.captureStackTrace(this, ParseError)
-  }
-}
 
 /**
  * Extracts encoding from XML declaration, e.g., "ISO-8859-1" from

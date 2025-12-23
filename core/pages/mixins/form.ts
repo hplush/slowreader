@@ -1,7 +1,7 @@
 import type { ReadableAtom, WritableAtom } from 'nanostores'
 
 import { getEnvironment } from '../../environment.ts'
-import { UserFacingError } from '../../lib/http.ts'
+import { UserFacingError } from '../../errors.ts'
 import { commonMessages as t } from '../../messages/index.ts'
 
 export function createFormSubmit<

@@ -1,0 +1,72 @@
+import { commonMessages } from './messages/index.ts'
+
+/**
+ * Errors to render in client UI.
+ *
+ * Validation errors from server, failing server or network error.
+ */
+export class UserFacingError extends Error {
+  constructor(text: string) {
+    super(text)
+    this.name = 'UserFacingError'
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
+export class ParseError extends Error {
+  input: string | undefined
+  constructor(message: string, input?: string) {
+    super(message)
+    this.name = 'ParseError'
+    this.input = input
+    Error.captureStackTrace(this, ParseError)
+  }
+}
+
+/**
+ * Internal errors for non-200 HTTP response.
+ */
+export class HTTPStatusError extends Error {
+  /* node:coverage ignore next 3 */
+  response: string
+  status: number
+  url: string
+  constructor(status: number, url: string, response: string) {
+    super(`${status} ${url}`)
+    this.status = status
+    this.url = url
+    this.response = response
+    this.name = 'HTTPStatusError'
+    Error.captureStackTrace(this, HTTPStatusError)
+  }
+}
+
+export function errorToMessage(error: unknown): string {
+  if (!(error instanceof Error)) {
+    return String(error)
+  } else if (error instanceof HTTPStatusError) {
+    if (
+      error.response.length > 2 &&
+      error.response.length < 100 &&
+      !error.response.includes('<html')
+    ) {
+      return error.response.replace(/^\w/, letter => letter.toUpperCase())
+    } else {
+      let messages = commonMessages.get()
+      if (error.status >= 500 && error.status <= 599) {
+        return messages.error5xx
+      } else {
+        let key = `error${error.status}` as keyof typeof messages
+        if (key in messages) {
+          return messages[key] as string
+        } else {
+          return messages.errorOther({ status: error.status })
+        }
+      }
+    }
+  } else if (error instanceof ParseError) {
+    return commonMessages.get().parseError
+  } else {
+    return error.message.replace('NetworkError', 'Network error')
+  }
+}

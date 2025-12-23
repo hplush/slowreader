@@ -1,10 +1,10 @@
 import { loadValue } from '@logux/client'
 
 import { busyDuring } from './busy.ts'
+import { HTTPStatusError } from './errors.ts'
 import { getFeed, getFeedLatestPosts, getFeeds } from './feed.ts'
 import { loadFilters } from './filter.ts'
 import { createDownloadTask } from './lib/download.ts'
-import { HTTPStatusError } from './lib/http.ts'
 import { loaders } from './loader/index.ts'
 import {
   addPost,

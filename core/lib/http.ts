@@ -1,38 +1,8 @@
 import type { Requester } from '@slowreader/api'
 
 import { getEnvironment } from '../environment.ts'
+import { HTTPStatusError, UserFacingError } from '../errors.ts'
 import { commonMessages as t } from '../messages/index.ts'
-
-/**
- * Errors to render in client UI.
- *
- * Validation errors from server, failing server or network error.
- */
-export class UserFacingError extends Error {
-  constructor(text: string) {
-    super(text)
-    this.name = 'UserFacingError'
-    Error.captureStackTrace(this, this.constructor)
-  }
-}
-
-/**
- * Internal errors for non-200 HTTP response.
- */
-export class HTTPStatusError extends Error {
-  /* node:coverage ignore next 3 */
-  response: string
-  status: number
-  url: string
-  constructor(status: number, url: string, response: string) {
-    super(`${status} ${url}`)
-    this.status = status
-    this.url = url
-    this.response = response
-    this.name = 'HTTPStatusError'
-    Error.captureStackTrace(this, HTTPStatusError)
-  }
-}
 
 /**
  * Takes fetch() wrapper from `@slowreader/api/http` and do the request

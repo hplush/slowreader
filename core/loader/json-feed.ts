@@ -1,8 +1,5 @@
-import {
-  createDownloadTask,
-  ParseError,
-  type TextResponse
-} from '../lib/download.ts'
+import { ParseError } from '../errors.ts'
+import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import { type OriginPost, type PostMedia, stringifyMedia } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import {
