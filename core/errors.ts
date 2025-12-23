@@ -1,4 +1,9 @@
+import type { LoguxUndoError } from '@logux/client'
+import { atom } from 'nanostores'
+
+import { onEnvironment } from './environment.ts'
 import { commonMessages } from './messages/index.ts'
+import { router } from './router.ts'
 
 /**
  * Errors to render in client UI.
@@ -41,6 +46,17 @@ export class HTTPStatusError extends Error {
   }
 }
 
+/**
+ * When some object was not find to render 404 popup/page in UI.
+ */
+export class NotFoundError extends Error {
+  constructor(options?: ErrorOptions) {
+    super('Not found', options)
+    this.name = 'NotFoundError'
+    Error.captureStackTrace(this, NotFoundError)
+  }
+}
+
 export function errorToMessage(error: unknown): string {
   if (!(error instanceof Error)) {
     return String(error)
@@ -70,3 +86,32 @@ export function errorToMessage(error: unknown): string {
     return error.message.replace('NetworkError', 'Network error')
   }
 }
+
+export const notFound = atom(false)
+
+/* node:coverage disable */
+export function isNotFoundError(
+  error: unknown
+): error is LoguxUndoError | NotFoundError {
+  if (error instanceof Error) {
+    return (
+      error.name === 'NotFoundError' ||
+      (error.name === 'LoguxUndoError' && error.message.includes('notFound'))
+    )
+  }
+  return false
+}
+/* node:coverage enable */
+
+onEnvironment(({ errorEvents }) => {
+  errorEvents.addEventListener('unhandledrejection', event => {
+    if (isNotFoundError(event.reason)) {
+      notFound.set(true)
+    }
+
+    let unbindRouter = router.listen(() => {
+      notFound.set(false)
+      unbindRouter()
+    })
+  })
+})

@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid/non-secure'
 import { atom, type ReadableAtom } from 'nanostores'
 
-import { isNotFoundError } from '../not-found.ts'
+import { isNotFoundError } from '../errors.ts'
 import type { PopupName } from '../router.ts'
 
 type Extra = {

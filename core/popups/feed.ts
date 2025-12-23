@@ -2,6 +2,7 @@ import { atom } from 'nanostores'
 
 import { getCategories } from '../category.ts'
 import { getEnvironment } from '../environment.ts'
+import { NotFoundError } from '../errors.ts'
 import { addCandidate, deleteFeed, type FeedValue, getFeeds } from '../feed.ts'
 import {
   createDownloadTask,
@@ -11,7 +12,6 @@ import {
 import { waitSyncLoading } from '../lib/stores.ts'
 import { type FeedLoader, getLoaderForText } from '../loader/index.ts'
 import { commonMessages } from '../messages/index.ts'
-import { NotFoundError } from '../not-found.ts'
 import { createPostsList } from '../posts-list.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 

@@ -2,7 +2,7 @@ import { ensureLoadedStore, loadValue } from '@logux/client'
 import lz from 'lz-string'
 import { atom, type ReadableAtom } from 'nanostores'
 
-import { NotFoundError } from '../not-found.ts'
+import { NotFoundError } from '../errors.ts'
 import {
   changePost,
   getPosts,

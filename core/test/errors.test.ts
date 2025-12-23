@@ -1,7 +1,19 @@
+import { LoguxUndoError } from '@logux/client'
 import { equal, match } from 'node:assert/strict'
-import { test } from 'node:test'
+import { afterEach, test } from 'node:test'
 
-import { errorToMessage, HTTPStatusError, ParseError } from '../errors.ts'
+import {
+  errorToMessage,
+  HTTPStatusError,
+  notFound,
+  NotFoundError,
+  ParseError
+} from '../errors.ts'
+import { cleanClientTest, enableClientTest, setBaseTestRoute } from './utils.ts'
+
+afterEach(async () => {
+  await cleanClientTest()
+})
 
 test('converts non-Error to string', () => {
   equal(errorToMessage('simple string'), 'simple string')
@@ -68,4 +80,36 @@ test('converts generic Error with NetworkError in message', () => {
     errorToMessage(error),
     'Network error when attempting to fetch resource'
   )
+})
+
+test('listens for not found error', () => {
+  let listener: (e: { reason: Error }) => undefined | void
+  enableClientTest({
+    errorEvents: {
+      addEventListener(event, cb) {
+        listener = cb
+      }
+    }
+  })
+
+  setBaseTestRoute({ params: { feed: 'unknown' }, route: 'feedsByCategories' })
+  equal(notFound.get(), false)
+
+  listener!({
+    reason: new LoguxUndoError({
+      action: { channel: 'feeds/unknown', type: 'logux/subscribe' },
+      id: '1 1:0:0 0',
+      reason: 'notFound',
+      type: 'logux/undo'
+    })
+  })
+  equal(notFound.get(), true)
+
+  setBaseTestRoute({ params: { feed: 'another' }, route: 'feedsByCategories' })
+  equal(notFound.get(), false)
+
+  listener!({
+    reason: new NotFoundError()
+  })
+  equal(notFound.get(), true)
 })

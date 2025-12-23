@@ -1,7 +1,7 @@
 import { atom, computed, effect, type ReadableAtom } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
-import { NotFoundError } from './not-found.ts'
+import { NotFoundError } from './errors.ts'
 import { userId } from './settings.ts'
 
 export interface Routes {
