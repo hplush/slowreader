@@ -2,7 +2,8 @@ name: Move Assigned Issue to In Progress
 
 on:
   issues:
-    types: [assigned]
+    types:
+      - assigned
 
 jobs:
   move:
@@ -10,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Move issue to In Progress
-        uses: immitsu/move-issue-on-assign@v2
+        uses: immitsu/move-issue-on-assign@07da53c7f773fee3e3ab06ba076abc8103a8b972 # v2.0.0
         with:
           token: ${{ secrets.PROJECTS_MOVE }}
           project: 1
