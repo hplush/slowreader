@@ -138,7 +138,7 @@ export async function refreshPosts(): Promise<void> {
 
   queue = createQueue(feeds.list)
   await queue.start(
-    4,
+    6,
     feed => {
       return async task => {
         let pages = getFeedLatestPosts(feed, task)
