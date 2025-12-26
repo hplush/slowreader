@@ -144,9 +144,9 @@ export const jsonFeed: Loader = {
 
   getPosts(task, url, text) {
     if (text) {
-      return createPostsList(parsePosts(text), undefined)
+      return createPostsList(() => [parsePosts(text), undefined])
     } else {
-      return createPostsList(undefined, async () => {
+      return createPostsList(async () => {
         return [parsePosts(await task.text(url)), undefined]
       })
     }

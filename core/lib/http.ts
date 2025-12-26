@@ -1,8 +1,11 @@
 import type { Requester } from '@slowreader/api'
 
 import { getEnvironment } from '../environment.ts'
-import { HTTPStatusError, UserFacingError } from '../errors.ts'
-import { commonMessages as t } from '../messages/index.ts'
+import {
+  detectNetworkError,
+  HTTPStatusError,
+  UserFacingError
+} from '../errors.ts'
 
 /**
  * Takes fetch() wrapper from `@slowreader/api/http` and do the request
@@ -18,20 +21,24 @@ export async function checkErrors<Params extends object, ResponseJSON>(
   let server = getEnvironment().server
   let fetch = typeof server === 'string' ? undefined : server.fetch
   try {
-    response = await requester(params, { fetch, host })
+    response = await detectNetworkError(() => {
+      return requester(params, { fetch, host })
+    })
   } catch (e) {
-    if (e instanceof Error) getEnvironment().warn(e)
-    throw new UserFacingError(t.get().networkError)
+    getEnvironment().warn(e)
+    throw e
   }
   if (!response.ok) {
     let text = await response.text()
     if (response.status === 400 && text !== 'Invalid request') {
       throw new UserFacingError(text)
     } else {
-      getEnvironment().warn(
-        new HTTPStatusError(response.status, response.url, text)
+      throw new HTTPStatusError(
+        response.status,
+        response.url,
+        text,
+        response.headers
       )
-      throw new UserFacingError(t.get().internalError)
     }
   }
   return response.json()

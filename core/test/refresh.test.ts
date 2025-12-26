@@ -13,9 +13,11 @@ import {
   expectRequest,
   getFeed,
   getPosts,
+  HTTPStatusError,
   isRefreshing,
   loaders,
   mockRequest,
+  NetworkError,
   type PostsListResult,
   type PostValue,
   refreshErrors,
@@ -24,7 +26,8 @@ import {
   refreshStatistics,
   refreshStatus,
   stopRefreshing,
-  testFeed
+  testFeed,
+  waitLoading
 } from '../index.ts'
 import { cleanClientTest, createPromise, enableClientTest } from './utils.ts'
 
@@ -97,11 +100,11 @@ test('updates posts', async () => {
 
   let rss1 = createPromise<PostsListResult>()
   let rssLoad = spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsList(undefined, () => rss1.promise())
+    return createPostsList(() => rss1.promise())
   })
   let atom1 = createPromise<PostsListResult>()
   let atomLoad = spyOn(loaders.atom, 'getPosts', () => {
-    return createPostsList(undefined, () => atom1.promise())
+    return createPostsList(() => atom1.promise())
   })
 
   let finished = false
@@ -180,14 +183,14 @@ test('updates posts', async () => {
   deepEqual(refreshStatistics.get(), {
     errorFeeds: 0,
     errorRequests: 0,
-    foundFast: 1,
-    foundSlow: 3,
+    foundFast: 0,
+    foundSlow: 2,
     initializing: false,
     processedFeeds: 1,
     totalFeeds: 2
   })
-  deepEqual(await getPostKeys('title'), ['2', '3', '7', '8 slow'])
-  deepEqual(await getPostKeys('reading'), ['slow', 'slow', 'fast', 'slow'])
+  deepEqual(await getPostKeys('title'), ['2', '3'])
+  deepEqual(await getPostKeys('reading'), ['slow', 'slow'])
   deepEqual((await loadValue(getFeed(feedId2)))!.lastOriginId, 'post2')
   deepEqual((await loadValue(getFeed(feedId2)))!.lastPublishedAt, 5000)
 
@@ -222,12 +225,12 @@ test('updates posts', async () => {
 
   restoreAll()
   spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsList(undefined, () => {
+    return createPostsList(() => {
       return Promise.resolve([[{ originId: 'post3', title: '3' }], undefined])
     })
   })
   spyOn(loaders.atom, 'getPosts', () => {
-    return createPostsList(undefined, () => {
+    return createPostsList(() => {
       return Promise.resolve([
         [{ originId: 'post9', publishedAt: 9000, title: '9 delete' }],
         undefined
@@ -251,6 +254,7 @@ test('updates posts', async () => {
     totalFeeds: 0
   })
   await setTimeout(10)
+  equal(refreshStatus.get(), 'done')
   equal(refreshProgress.get(), 1)
   deepEqual(await getPostKeys('title'), ['2', '3', '6', '7', '8 slow'])
 })
@@ -265,7 +269,7 @@ test('is ready to feed deletion during refreshing', async () => {
   )
   let rss1 = createPromise<PostsListResult>()
   spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsList(undefined, () => rss1.promise())
+    return createPostsList(() => rss1.promise())
   })
 
   refreshPosts()
@@ -282,6 +286,7 @@ test('is ready to feed deletion during refreshing', async () => {
   ])
 
   await deleteFeed(feedId)
+  rss2.resolve([[], undefined])
   await setTimeout(10)
   equal(refreshStatus.get(), 'done')
   deepEqual(await getPostKeys('title'), [])
@@ -318,7 +323,7 @@ test('cancels refreshing', async () => {
 })
 
 test('is ready for network errors', async () => {
-  let feed1 = await addFeed(
+  await addFeed(
     testFeed({
       lastOriginId: 'post1',
       url: 'https://one.com/'
@@ -334,19 +339,19 @@ test('is ready for network errors', async () => {
 
   let rssHadError = false
   spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsList(undefined, async () => {
+    return createPostsList(async () => {
       if (rssHadError) {
         return Promise.resolve([[{ originId: 'post1', title: '1' }], undefined])
       } else {
         rssHadError = true
-        throw new Error('network error')
+        throw new NetworkError(new TypeError('network error'))
       }
     })
   })
   spyOn(loaders.atom, 'getPosts', () => {
-    return createPostsList(undefined, async () => {
+    return createPostsList(async () => {
       await setTimeout(1)
-      throw new Error('server not working')
+      throw new HTTPStatusError(500, 'server is down', '', new Headers())
     })
   })
 
@@ -359,7 +364,7 @@ test('is ready for network errors', async () => {
 
   deepEqual(refreshStatistics.get(), {
     errorFeeds: 1,
-    errorRequests: 2,
+    errorRequests: 4,
     foundFast: 0,
     foundSlow: 0,
     initializing: false,
@@ -367,10 +372,9 @@ test('is ready for network errors', async () => {
     totalFeeds: 2
   })
   deepEqual(icons, ['done', 'refreshing', 'refreshingError', 'error'])
-  deepEqual(refreshErrors.get(), [
-    { error: 'network error', feed: await loadValue(getFeed(feed1)) },
-    { error: 'server not working', feed: await loadValue(getFeed(feed2)) }
-  ])
+  equal(refreshErrors.get().length, 1)
+  deepEqual(refreshErrors.get()[0]?.error.name, 'HTTPStatusError')
+  deepEqual(refreshErrors.get()[0]?.feed.id, feed2)
 
   await setTimeout(1500)
   equal(refreshStatus.get(), 'error')
@@ -385,7 +389,7 @@ test('is ready to not found previous ID and time', async () => {
     })
   )
   spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsList(undefined, () => {
+    return createPostsList(() => {
       return Promise.resolve([
         [
           { originId: 'post6', publishedAt: 6000, title: '6' },
@@ -416,7 +420,7 @@ test('sorts posts', async () => {
     })
   )
   spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsList(undefined, () => {
+    return createPostsList(() => {
       return Promise.resolve([
         [
           { originId: 'post1', publishedAt: 1000, title: '1' },
@@ -439,4 +443,81 @@ test('sorts posts', async () => {
   let feed = await loadValue(getFeed(feedId))
   deepEqual(feed!.lastOriginId, 'post4')
   deepEqual(feed!.lastPublishedAt, 4000)
+})
+
+test('retries with some delay', async () => {
+  await addFeed(testFeed({ url: 'https://a.com/' }))
+  await addFeed(testFeed({ url: 'https://b.com/' }))
+  await addFeed(testFeed({ url: 'https://c.com/' }))
+
+  let aAttempts: number[] = []
+  let bAttempts: number[] = []
+  let cAttempts: number[] = []
+
+  spyOn(loaders.rss, 'getPosts', (_, url) => {
+    return createPostsList(() => {
+      if (url === 'https://a.com/') {
+        aAttempts.push(Date.now())
+        if (aAttempts.length === 1) {
+          let headers = new Headers()
+          headers.set('Retry-After', '1')
+          throw new HTTPStatusError(429, url, 'Rate limited', headers)
+        } else {
+          return [[{ originId: 'post1', title: '1' }], undefined]
+        }
+      } else if (url === 'https://b.com/') {
+        bAttempts.push(Date.now())
+        if (bAttempts.length === 1) {
+          let futureTime = new Date(Date.now() + 1000).toUTCString()
+          let headers = new Headers()
+          headers.set('RateLimit-Reset', futureTime)
+          throw new HTTPStatusError(429, url, 'Rate limited', headers)
+        } else {
+          return [[{ originId: 'post2', title: '2' }], undefined]
+        }
+      } else if (url === 'https://c.com/') {
+        cAttempts.push(Date.now())
+        if (cAttempts.length === 1) {
+          let headers = new Headers()
+          throw new HTTPStatusError(503, url, 'Service unavailable', headers)
+        } else {
+          return [[{ originId: 'post3', title: '3' }], undefined]
+        }
+      }
+      return [[], undefined]
+    })
+  })
+
+  refreshPosts()
+
+  await setTimeout(10)
+  equal(refreshStatistics.get().initializing, false)
+  equal(aAttempts.length, 1)
+  equal(bAttempts.length, 1)
+  equal(cAttempts.length, 1)
+
+  await waitLoading(isRefreshing)
+
+  equal(aAttempts.length, 2)
+  let aDiff = aAttempts[1]! - aAttempts[0]!
+  ok(aDiff >= 900, `${aDiff}ms should be >= 900ms`)
+
+  equal(bAttempts.length, 2)
+  let bDiff = bAttempts[1]! - bAttempts[0]!
+  ok(bDiff >= 100, `${bDiff}ms should be >= 100ms`)
+
+  equal(cAttempts.length, 2)
+  let cDiff = cAttempts[1]! - cAttempts[0]!
+  ok(cDiff >= 100, `${cDiff}ms should be >= 100ms`)
+
+  equal(refreshStatus.get(), 'done')
+  deepEqual(refreshStatistics.get(), {
+    errorFeeds: 0,
+    errorRequests: 3,
+    foundFast: 3,
+    foundSlow: 0,
+    initializing: false,
+    processedFeeds: 3,
+    totalFeeds: 3
+  })
 })

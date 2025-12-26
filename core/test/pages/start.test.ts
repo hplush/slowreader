@@ -10,6 +10,7 @@ import {
   generateCredentials,
   hasPassword,
   HTTPStatusError,
+  NetworkError,
   router,
   setupEnvironment,
   signOut,
@@ -95,8 +96,9 @@ test('reports about wrong credentials', async () => {
 })
 
 test('reports about bad connection', async () => {
+  let noDomainError = new TypeError('Can not resolve domain')
   server.fetch = () => {
-    throw new Error('Can not resolve domain')
+    throw noDomainError
   }
 
   let credentials = generateCredentials()
@@ -110,7 +112,7 @@ test('reports about bad connection', async () => {
 
   await expectWarning(async () => {
     await page.signIn()
-  }, [new Error('Can not resolve domain')])
+  }, [new NetworkError(noDomainError)])
   equal(page.signingIn.get(), false)
   match(page.signError.get()!, /connection/)
 })
@@ -119,6 +121,7 @@ test('reports about server errors', async () => {
   // @ts-expect-error Hacky mocking for tests
   server.fetch = () => {
     return Promise.resolve({
+      headers: new Headers(),
       ok: false,
       status: 500,
       text: () => Promise.resolve('DB is down'),
@@ -140,7 +143,7 @@ test('reports about server errors', async () => {
     await page.signIn()
     equal(page.signingIn.get(), false)
     match(page.signError.get()!, /try\sagain/)
-  }, [new HTTPStatusError(500, 'example.com', 'DB is down')])
+  }, [new HTTPStatusError(500, 'example.com', 'DB is down', new Headers())])
 })
 
 test('signs in', async () => {

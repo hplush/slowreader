@@ -3,6 +3,7 @@ import { map, type ReadableAtom, type StoreValue } from 'nanostores'
 import type { OriginPost } from './post.ts'
 
 export interface PostsListValue {
+  error: Error | undefined
   hasNext: boolean
   isLoading: boolean
   list: OriginPost[]
@@ -19,16 +20,18 @@ export interface PostsListLoader {
   (): Promise<PostsListResult>
 }
 
-interface CreatePostsList {
-  (posts: OriginPost[], loadNext: PostsListLoader | undefined): PostsList
-  (posts: undefined, loadNext: PostsListLoader): PostsList
+export interface PostsListSyncLoader {
+  (): PostsListResult
 }
 
 /**
  * Feed’s posts. Abstraction to hide complexity with pagination.
  */
-export const createPostsList: CreatePostsList = (posts, loadNext) => {
+export function createPostsList(
+  load: PostsListLoader | PostsListSyncLoader | undefined
+): PostsList {
   let $map = map<StoreValue<PostsList>>({
+    error: undefined,
     hasNext: true,
     isLoading: true,
     list: []
@@ -39,35 +42,62 @@ export const createPostsList: CreatePostsList = (posts, loadNext) => {
     next
   }
 
-  let isLoading = false
-  async function next(): ReturnType<PostsList['next']> {
-    if (!loadNext) return Promise.resolve([])
-    if (isLoading) return $store.loading
-    isLoading = true
-    $store.setKey('isLoading', true)
-    $store.loading = loadNext().then(([nextPosts, nextLoader]) => {
-      loadNext = nextLoader
-      isLoading = false
-      $store.set({
-        hasNext: !!nextLoader,
-        isLoading: false,
-        list: $store.get().list.concat(nextPosts)
+  let loadNext: PostsListLoader | undefined
+
+  function handleLoading(promise: Promise<PostsListResult>): void {
+    $store.loading = promise
+      .then(([nextPosts, nextLoader]) => {
+        loadNext = nextLoader
+        $store.set({
+          error: undefined,
+          hasNext: !!nextLoader,
+          isLoading: false,
+          list: $store.get().list.concat(nextPosts)
+        })
+        return nextPosts
       })
-      return nextPosts
-    })
-    return $store.loading
+      .catch((e: unknown) => {
+        if (e instanceof Error) {
+          $store.set({
+            error: e,
+            hasNext: true,
+            isLoading: false,
+            list: $store.get().list
+          })
+        }
+        return []
+      })
   }
 
-  if (posts) {
-    $store.set({
-      hasNext: !!loadNext,
-      isLoading: false,
-      list: posts
-    })
+  if (load) {
+    try {
+      let result = load()
+      if ('then' in result) {
+        handleLoading(result)
+      } else {
+        loadNext = result[1]
+        $store.set({
+          error: undefined,
+          hasNext: !!loadNext,
+          isLoading: false,
+          list: result[0]
+        })
+      }
+      /* node:coverage ignore next 3 */
+    } catch (e) {
+      if (e instanceof Error) $store.setKey('error', e)
+    }
   } else {
-    next().catch(() => {
-      isLoading = false
-    })
+    $store.setKey('isLoading', false)
+  }
+
+  async function next(): ReturnType<PostsList['next']> {
+    if (!loadNext) return Promise.resolve([])
+    if ($store.get().isLoading) return $store.loading
+    $store.setKey('isLoading', true)
+    handleLoading(loadNext())
+
+    return $store.loading
   }
 
   return $store

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { mdiRefresh, mdiStop } from '@mdi/js'
   import {
+    errorToMessage,
     isRefreshing,
     refreshErrors,
     refreshPosts,
@@ -72,7 +73,7 @@
           <Title>{$t.errors}</Title>
           <ErrorList
             list={$refreshErrors.map(item => ({
-              errorText: item.error,
+              errorText: errorToMessage(item.error),
               title: item.feed.title,
               url: getPopupHash($router, 'feed', item.feed.url)
             }))}

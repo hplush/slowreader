@@ -1,5 +1,7 @@
 <script context="module" lang="ts">
   import {
+    HTTPStatusError,
+    NetworkError,
     refreshErrors,
     refreshStatistics,
     refreshStatus,
@@ -74,9 +76,12 @@
         totalFeeds: 100
       })
       refreshErrors.set([
-        { error: 'Timeout error', feed: testFeed() },
         {
-          error: '500 server response',
+          error: new NetworkError(new TypeError('fetch failed')),
+          feed: testFeed()
+        },
+        {
+          error: new HTTPStatusError(500, 'server is down', '', new Headers()),
           feed: testFeed({
             title:
               'Veryveryverylongfeedtitletooverflowthelistinthepopupcontentareaattheleftpfthepage'

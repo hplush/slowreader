@@ -54,7 +54,7 @@ test('loads 404 for feeds by URL popup', async () => {
 
     await waitLoading(feed1Popup.loading)
     equal(feed1Popup.notFound, true)
-  }, [new HTTPStatusError(404, 'http://a.com/one', '')])
+  }, [new HTTPStatusError(404, 'http://a.com/one', '', new Headers())])
 
   closeLastPopup()
   equal(openedPopups.get().length, 0)
@@ -82,7 +82,7 @@ test('loads existing feed popup on 404', async () => {
     equal(checkLoadedPopup(popup).feed.get()?.id, feedId)
     deepEqual(checkLoadedPopup(popup).posts.get().isLoading, false)
     deepEqual(checkLoadedPopup(popup).posts.get().list.length, 0)
-  }, [new HTTPStatusError(404, 'http://a.com/404', '')])
+  }, [new HTTPStatusError(404, 'http://a.com/404', '', new Headers())])
 })
 
 test('loads feeds by URL popup', async () => {

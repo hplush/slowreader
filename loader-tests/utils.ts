@@ -199,15 +199,20 @@ export async function fetchAndParsePosts(
       error(`Can not found loader for feed ${url}`)
       return
     }
-    let { list } = candidate.loader.getPosts(task, url, response).get()
-    if (list.length === 0) {
+    let page = candidate.loader.getPosts(task, url, response).get()
+    if (page.error) {
+      error(page.error)
+    } else if (page.list.length === 0) {
       if (badSource) {
         semiSuccess(url, '0 posts')
       } else {
         error(`Can not found posts for feed ${url}`)
       }
     } else {
-      success(url, `${list.length}${list.length > 1 ? ' posts' : ' post'}`)
+      success(
+        url,
+        `${page.list.length}${page.list.length > 1 ? ' posts' : ' post'}`
+      )
     }
   } catch (e) {
     error(e, `During loading posts for ${url}`)

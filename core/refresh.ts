@@ -8,11 +8,11 @@ import {
   getFeedLatestPosts,
   getFeeds
 } from './feed.ts'
-import { type FilterChecker, loadFilters } from './filter.ts'
-import { createDownloadTask } from './lib/download.ts'
-import { createQueue, retryOnError } from './lib/queue.ts'
+import { loadFilters } from './filter.ts'
+import { createQueue } from './lib/queue.ts'
 import { increaseKey } from './lib/stores.ts'
 import { addPost, type OriginPost, processOriginPost } from './post.ts'
+import type { PostsList } from './posts-list.ts'
 
 export const DEFAULT_REFRESH_STATISTICS = {
   errorFeeds: 0,
@@ -28,7 +28,7 @@ export type RefreshStatistics = typeof DEFAULT_REFRESH_STATISTICS
 
 export const refreshStatistics = map({ ...DEFAULT_REFRESH_STATISTICS })
 
-export type RefreshError = { error: string; feed: FeedValue }
+export type RefreshError = { error: Error; feed: FeedValue }
 
 export const refreshErrors = atom<RefreshError[]>([])
 
@@ -55,18 +55,67 @@ export const refreshProgress = computed(refreshStatistics, stats => {
   }
 })
 
-let task = createDownloadTask()
-let queue = createQueue<{ feed: FeedValue }>([])
+let queue = createQueue<FeedValue>([])
 
-/**
- * Determines if a post was already added to a feed by comparing timestamps
- * or origin IDs to prevent duplicate posts during refresh.
- */
 function wasAlreadyAdded(feed: FeedValue, origin: OriginPost): boolean {
   if (origin.publishedAt && feed.lastPublishedAt) {
     return origin.publishedAt <= feed.lastPublishedAt
   } else {
     return origin.originId === feed.lastOriginId
+  }
+}
+
+async function addPosts(feed: FeedValue, posts: OriginPost[]): Promise<void> {
+  let first = posts[0]
+  if (!first) return
+
+  if (first.publishedAt) {
+    posts = posts.sort((a, b) => {
+      return (b.publishedAt ?? 0) - (a.publishedAt ?? 0)
+    })
+    first = posts[0]!
+  }
+  if (wasAlreadyAdded(feed, first)) return
+
+  let filters = await loadFilters({ feedId: feed.id })
+  for (let origin of posts) {
+    if (wasAlreadyAdded(feed, origin)) {
+      break
+    }
+    let reading = filters(origin) ?? feed.reading
+    if (reading !== 'delete') {
+      await addPost(processOriginPost(origin, feed.id, reading))
+      if (reading === 'fast') {
+        increaseKey(refreshStatistics, 'foundFast')
+      } else {
+        increaseKey(refreshStatistics, 'foundSlow')
+      }
+    }
+  }
+
+  await changeFeed(feed.id, {
+    lastOriginId: first.originId,
+    lastPublishedAt: first.publishedAt
+  })
+}
+
+async function checkForNextPage(
+  feed: FeedValue,
+  pages: PostsList
+): Promise<void> {
+  let enough = pages.get().list.some(i => wasAlreadyAdded(feed, i))
+  if (!enough && pages.get().hasNext) {
+    queue.add(feed, async () => {
+      await pages.next()
+      let error = pages.get().error
+      if (error) throw error
+      checkForNextPage(feed, pages)
+    })
+  } else {
+    if (!getFeed(feed.id).deleted) {
+      await addPosts(feed, pages.get().list)
+    }
+    increaseKey(refreshStatistics, 'processedFeeds')
   }
 }
 
@@ -80,7 +129,6 @@ export async function refreshPosts(): Promise<void> {
   refreshErrors.set([])
   refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: true })
 
-  task = createDownloadTask()
   let feeds = await loadValue(getFeeds())
   refreshStatistics.set({
     ...refreshStatistics.get(),
@@ -88,77 +136,31 @@ export async function refreshPosts(): Promise<void> {
     totalFeeds: feeds.list.length
   })
 
-  queue = createQueue(feeds.list.map(feed => ({ payload: feed, type: 'feed' })))
-  await queue.start(4, {
-    async feed(feed) {
-      let feedStore = getFeed(feed.id)
-      let pages = getFeedLatestPosts(feed, task)
-      let filters: FilterChecker | undefined
-      let firstNew: OriginPost | undefined
-
-      async function end(): Promise<void> {
-        if (firstNew && !feedStore.deleted) {
-          await changeFeed(feed.id, {
-            lastOriginId: firstNew.originId,
-            lastPublishedAt: firstNew.publishedAt
-          })
-        }
+  queue = createQueue(feeds.list)
+  await queue.start(
+    4,
+    feed => {
+      return async task => {
+        let pages = getFeedLatestPosts(feed, task)
+        if (pages.get().isLoading) await pages.loading
+        let error = pages.get().error
+        if (error) throw error
+        await checkForNextPage(feed, pages)
+      }
+    },
+    {
+      onRequestError() {
+        increaseKey(refreshStatistics, 'errorRequests')
+      },
+      onTaskFail(feed, error) {
+        refreshErrors.set([...refreshErrors.get(), { error, feed }])
+        refreshStatus.set('refreshingError')
+        increaseKey(refreshStatistics, 'errorFeeds')
         increaseKey(refreshStatistics, 'processedFeeds')
       }
-
-      while (pages.get().hasNext) {
-        let posts = await retryOnError(
-          () => pages.next(),
-          e => {
-            refreshErrors.set([
-              ...refreshErrors.get(),
-              { error: e.message, feed }
-            ])
-            increaseKey(refreshStatistics, 'errorRequests')
-          }
-        )
-        if (posts === 'error') {
-          refreshStatus.set('refreshingError')
-          increaseKey(refreshStatistics, 'errorFeeds')
-          await end()
-          return
-        } else if (posts === 'abort') {
-          await end()
-          return
-        } else {
-          if (posts[0]) {
-            if (posts[0].publishedAt) {
-              posts = posts.sort((a, b) => {
-                return (b.publishedAt ?? 0) - (a.publishedAt ?? 0)
-              })
-            }
-            if (!firstNew && !wasAlreadyAdded(feed, posts[0]!)) {
-              firstNew = posts[0]
-            }
-          }
-          if (!filters) {
-            filters = await loadFilters({ feedId: feed.id })
-          }
-          for (let origin of posts) {
-            if (feedStore.deleted || wasAlreadyAdded(feed, origin)) {
-              await end()
-              return
-            }
-            let reading = filters(origin) ?? feed.reading
-            if (reading !== 'delete') {
-              await addPost(processOriginPost(origin, feed.id, reading))
-              if (reading === 'fast') {
-                increaseKey(refreshStatistics, 'foundFast')
-              } else {
-                increaseKey(refreshStatistics, 'foundSlow')
-              }
-            }
-          }
-        }
-      }
-      await end()
     }
-  })
+  )
+
   if (refreshStatus.get() === 'refreshingError') {
     refreshStatus.set('error')
   } else {
@@ -173,5 +175,4 @@ export function stopRefreshing(): void {
   if (!isRefreshing.get()) return
   refreshStatus.set('start')
   queue.stop()
-  task.destroy()
 }

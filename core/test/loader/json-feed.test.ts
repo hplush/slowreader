@@ -278,6 +278,7 @@ test('validate json feed format', () => {
       )
       .get(),
     {
+      error: undefined,
       hasNext: false,
       isLoading: false,
       list: [
@@ -335,6 +336,7 @@ test('loads text to parse posts', async () => {
   let task = createDownloadTask()
   let page = loaders.jsonFeed.getPosts(task, 'https://example.com/')
   deepEqual(page.get(), {
+    error: undefined,
     hasNext: true,
     isLoading: true,
     list: []
@@ -342,6 +344,7 @@ test('loads text to parse posts', async () => {
 
   await page.loading
   deepEqual(page.get(), {
+    error: undefined,
     hasNext: false,
     isLoading: false,
     list: [
@@ -456,6 +459,7 @@ test('validate wrong json feed format', () => {
       )
       .get(),
     {
+      error: undefined,
       hasNext: false,
       isLoading: false,
       list: [
@@ -524,6 +528,7 @@ test('parses media', async () => {
   let task = createDownloadTask()
   let page = loaders.jsonFeed.getPosts(task, 'https://example.com/')
   deepEqual(page.get(), {
+    error: undefined,
     hasNext: true,
     isLoading: true,
     list: []
@@ -531,6 +536,7 @@ test('parses media', async () => {
 
   await page.loading
   deepEqual(page.get(), {
+    error: undefined,
     hasNext: false,
     isLoading: false,
     list: [

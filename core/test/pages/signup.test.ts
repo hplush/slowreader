@@ -11,6 +11,7 @@ import {
   enableTestTime,
   generateCredentials,
   hasPassword,
+  NetworkError,
   router,
   type SavedPassword,
   setupEnvironment,
@@ -170,8 +171,9 @@ test('signs up local user', async () => {
 })
 
 test('reports about bad connection', async () => {
+  let noDomainError = new TypeError('Can not resolve domain')
   server.fetch = () => {
-    throw new Error('Can not resolve domain')
+    throw noDomainError
   }
 
   let page = openPage({
@@ -182,7 +184,7 @@ test('reports about bad connection', async () => {
 
   await expectWarning(async () => {
     await page.submit()
-  }, [new Error('Can not resolve domain')])
+  }, [new NetworkError(noDomainError)])
   equal(page.signingUp.get(), false)
   match(page.error.get()!, /connection/)
 
@@ -191,7 +193,7 @@ test('reports about bad connection', async () => {
 
   await expectWarning(async () => {
     await page.submit()
-  }, [new Error('Can not resolve domain')])
+  }, [new NetworkError(noDomainError)])
   match(page.error.get()!, /connection/)
 
   page.regenerate()

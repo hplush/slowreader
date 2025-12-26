@@ -4,7 +4,7 @@ import {
   type TextResponse
 } from '../lib/download.ts'
 import { type OriginPost, type PostMedia, stringifyMedia } from '../post.ts'
-import { createPostsList, type PostsListLoader } from '../posts-list.ts'
+import { createPostsList, type PostsListResult } from '../posts-list.ts'
 import {
   buildFullURL,
   findAnchorHrefs,
@@ -105,63 +105,26 @@ function parsePosts(text: TextResponse): OriginPost[] {
   })
 }
 
-/**
- * Returns next or previous pagination url from feed XML, if present.
- * See "paged feeds" https://www.rfc-editor.org/rfc/rfc5005#section-3
- */
-function getPaginationUrl(
-  xmlResponse: TextResponse,
-  rel: 'first' | 'last' | 'next' | 'previous'
-): string | undefined {
-  let document = xmlResponse.parseXml()
-  let nextPageLink = [...document.querySelectorAll('link')].find(
-    link => link.getAttribute('rel') === rel
-  )
-  return nextPageLink ? buildFullURL(nextPageLink, xmlResponse.url) : undefined
-}
-
-type PostsCursor =
-  | [OriginPost[], PostsListLoader | undefined]
-  | [undefined, PostsListLoader]
-
-/**
- * If XML response is ready, returns a tuple of posts and possibly
- * the loader of the next portion of posts, if XML contains a link to them.
- * If XML response is not yet ready, returns the recursive loader of posts.
- */
-function getPostsCursor(
+function parseFeed(
   task: DownloadTask,
-  feedUrl: string,
-  feedResponse: TextResponse | undefined
-): PostsCursor {
-  if (!feedResponse) {
-    return [
-      undefined,
-      async () => {
-        let response = await task.text(feedUrl)
-        let [posts, loader] = getPostsCursor(task, feedUrl, response)
-        return [posts || [], loader]
-      }
-    ]
-  }
-  let nextPageUrl = getPaginationUrl(feedResponse, 'next')
-  let posts = parsePosts(feedResponse)
-  if (nextPageUrl) {
-    return [
-      posts,
-      async () => {
-        let nextPageResponse = await task.text(nextPageUrl)
-        let [nextPosts, loader] = getPostsCursor(
-          task,
-          nextPageUrl,
-          nextPageResponse
-        )
-        return [nextPosts || [], loader]
-      }
-    ]
+  response: TextResponse
+): PostsListResult {
+  let posts = parsePosts(response)
+  let document = response.parseXml()
+  let nextPage = document.querySelector<HTMLLinkElement>('link[rel=next]')
+  if (nextPage) {
+    let nextUrl = buildFullURL(nextPage, response.url)
+    return [posts, () => loadFeed(task, nextUrl)]
   } else {
     return [posts, undefined]
   }
+}
+
+async function loadFeed(
+  task: DownloadTask,
+  url: string
+): Promise<PostsListResult> {
+  return parseFeed(task, await task.text(url))
 }
 
 export const atom: Loader = {
@@ -181,11 +144,10 @@ export const atom: Loader = {
   },
 
   getPosts(task, url, text) {
-    let [posts, nextLoader] = getPostsCursor(task, url, text)
-    if (!posts && nextLoader) {
-      return createPostsList(undefined, nextLoader)
+    if (text) {
+      return createPostsList(() => parseFeed(task, text))
     } else {
-      return createPostsList(posts || [], nextLoader)
+      return createPostsList(() => loadFeed(task, url))
     }
   },
 

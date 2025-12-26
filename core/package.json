@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
-    "test:coverage": "bnt --coverage 100 --coverage-exclude '{devtools.ts,test.ts,../api/**,../server/**,**/test/**}'"
+    "test:coverage": "bnt --coverage 100 --coverage-exclude '{devtools.ts,errors.ts,test.ts,../api/**,../server/**,**/test/**}'"
   },
   "dependencies": {
     "@logux/actions": "0.5.0",

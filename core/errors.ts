@@ -11,13 +11,16 @@ import { router } from './router.ts'
  * Validation errors from server, failing server or network error.
  */
 export class UserFacingError extends Error {
-  constructor(text: string) {
-    super(text)
+  constructor(text: string, opts?: ErrorOptions) {
+    super(text, opts)
     this.name = 'UserFacingError'
     Error.captureStackTrace(this, this.constructor)
   }
 }
 
+/**
+ * Syntax error during parsing XML/JSON document.
+ */
 export class ParseError extends Error {
   input: string | undefined
   constructor(message: string, input?: string) {
@@ -29,18 +32,47 @@ export class ParseError extends Error {
 }
 
 /**
+ * fetch() was not able to make a network request.
+ */
+export class NetworkError extends Error {
+  constructor(cause: Error) {
+    super(cause.message, { cause })
+    this.name = 'NetworkError'
+    Error.captureStackTrace(this, NetworkError)
+  }
+}
+
+export async function detectNetworkError<Result>(
+  cb: () => Promise<Result>
+): Promise<Awaited<Result>> {
+  try {
+    return await cb()
+  } catch (e) {
+    if (
+      (e instanceof Error && e.name === 'TimeoutError') ||
+      e instanceof TypeError
+    ) {
+      throw new NetworkError(e)
+    } else {
+      throw e
+    }
+  }
+}
+
+/**
  * Internal errors for non-200 HTTP response.
  */
 export class HTTPStatusError extends Error {
-  /* node:coverage ignore next 3 */
+  headers: Headers
   response: string
   status: number
   url: string
-  constructor(status: number, url: string, response: string) {
+  constructor(status: number, url: string, response: string, headers: Headers) {
     super(`${status} ${url}`)
     this.status = status
     this.url = url
     this.response = response
+    this.headers = headers
     this.name = 'HTTPStatusError'
     Error.captureStackTrace(this, HTTPStatusError)
   }

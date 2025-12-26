@@ -1,8 +1,13 @@
 <script lang="ts">
-  import { mdiPlusCircleOutline, mdiTrashCanOutline } from '@mdi/js'
+  import {
+    mdiAlertCircleOutline,
+    mdiPlusCircleOutline,
+    mdiTrashCanOutline
+  } from '@mdi/js'
   import {
     addCategory,
     changeFeed,
+    errorToMessage,
     type FeedPopup,
     getPopupId,
     organizeMessages as t
@@ -12,6 +17,7 @@
   import Input from '../ui/input.svelte'
   import Label from '../ui/label.svelte'
   import Loader from '../ui/loader.svelte'
+  import Note from '../ui/note.svelte'
   import Output from '../ui/output.svelte'
   import Popup from '../ui/popup.svelte'
   import Posts from '../ui/posts.svelte'
@@ -85,16 +91,29 @@
         />
       </Stack>
     {/if}
-    <Stack gap="xs">
-      <Label tag="h2">{$t.feedPosts}</Label>
-      {#if $posts.isLoading}
-        <Loader />
-      {:else}
-        <Posts list={$posts.list} />
-        {#if $posts.hasNext}
-          <Button onclick={posts.next} size="wide">{$t.morePosts}</Button>
+    {#if popup.error}
+      <Stack align="center">
+        <Note icon={mdiAlertCircleOutline} variant="dangerous">
+          {popup.error}
+        </Note>
+      </Stack>
+    {:else}
+      <Stack gap="xs">
+        <Label tag="h2">{$t.feedPosts}</Label>
+        {#if $posts.isLoading}
+          <Loader />
+        {:else}
+          <Posts list={$posts.list} />
+          {#if $posts.error}
+            <Note icon={mdiAlertCircleOutline} variant="dangerous">
+              {errorToMessage($posts.error)}
+            </Note>
+          {/if}
+          {#if $posts.hasNext}
+            <Button onclick={posts.next} size="wide">{$t.morePosts}</Button>
+          {/if}
         {/if}
-      {/if}
-    </Stack>
+      </Stack>
+    {/if}
   </Stack>
 </Popup>

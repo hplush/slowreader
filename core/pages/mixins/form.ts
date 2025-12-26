@@ -1,7 +1,7 @@
 import type { ReadableAtom, WritableAtom } from 'nanostores'
 
 import { getEnvironment } from '../../environment.ts'
-import { UserFacingError } from '../../errors.ts'
+import { NetworkError, UserFacingError } from '../../errors.ts'
 import { commonMessages as t } from '../../messages/index.ts'
 
 export function createFormSubmit<
@@ -21,8 +21,10 @@ export function createFormSubmit<
     try {
       await submit()
       done = true
-    } catch (e: unknown) {
-      if (e instanceof UserFacingError) {
+    } catch (e) {
+      if (e instanceof NetworkError) {
+        $error.set(t.get().networkError)
+      } else if (e instanceof UserFacingError) {
         let error = e.message
         for (let code in errors) {
           if (errors[code] === e.message) {

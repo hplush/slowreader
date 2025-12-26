@@ -360,6 +360,7 @@ test('parses posts', () => {
       )
       .get(),
     {
+      error: undefined,
       hasNext: false,
       isLoading: false,
       list: [
@@ -421,6 +422,7 @@ test('loads text to parse posts', async () => {
   let task = createDownloadTask()
   let page = loaders.atom.getPosts(task, 'https://example.com/news/')
   deepEqual(page.get(), {
+    error: undefined,
     hasNext: true,
     isLoading: true,
     list: []
@@ -428,6 +430,7 @@ test('loads text to parse posts', async () => {
 
   await page.loading
   deepEqual(page.get(), {
+    error: undefined,
     hasNext: false,
     isLoading: false,
     list: [
@@ -488,6 +491,7 @@ test('parses media', () => {
     )
     .get()
   deepEqual(posts, {
+    error: undefined,
     hasNext: false,
     isLoading: false,
     list: [

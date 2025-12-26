@@ -1,4 +1,4 @@
-import { HTTPStatusError, ParseError } from '../errors.ts'
+import { detectNetworkError, HTTPStatusError, ParseError } from '../errors.ts'
 import { request } from '../request.ts'
 
 /**
@@ -212,16 +212,23 @@ export function createDownloadTask(
         }
       }
 
-      let response = await request(url, {
-        redirect: 'follow',
-        signal: controller.signal,
-        ...opts
+      let response = await detectNetworkError(() => {
+        return request(url, {
+          redirect: 'follow',
+          signal: controller.signal,
+          ...opts
+        })
       })
       if (controller.signal.aborted) {
         throw new DOMException('', 'AbortError')
       }
       if (!response.ok) {
-        throw new HTTPStatusError(response.status, url, await response.text())
+        throw new HTTPStatusError(
+          response.status,
+          url,
+          await response.text(),
+          response.headers
+        )
       }
       if (taskOpts.cache === 'write') {
         cached.push(url)

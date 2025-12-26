@@ -2,7 +2,7 @@ import { atom } from 'nanostores'
 
 import { getCategories } from '../category.ts'
 import { getEnvironment } from '../environment.ts'
-import { NotFoundError } from '../errors.ts'
+import { errorToMessage, NotFoundError } from '../errors.ts'
 import { addCandidate, deleteFeed, type FeedValue, getFeeds } from '../feed.ts'
 import {
   createDownloadTask,
@@ -34,6 +34,7 @@ async function loadFeedFromURL(
 export const feed = definePopup('feed', async url => {
   let task = createDownloadTask({ cache: 'read' })
   let feedsFilter = getFeeds({ url })
+  let error: string | undefined
   let [responseOrError, categoriesFilter, feeds] = await Promise.all([
     loadFeedFromURL(task, url),
     waitSyncLoading(getCategories()),
@@ -42,26 +43,19 @@ export const feed = definePopup('feed', async url => {
 
   let existing = feeds.get().list[0]
   let response: TextResponse | undefined
+  let candidate: false | FeedLoader | undefined
+  let posts = createPostsList(undefined)
 
   if (responseOrError instanceof Error) {
+    error = errorToMessage(responseOrError)
     if (!existing) throw new NotFoundError({ cause: responseOrError })
   } else {
     response = responseOrError
-  }
-
-  let candidate: false | FeedLoader | undefined
-  if (response) {
     candidate = getLoaderForText(response)
+    if (candidate) posts = candidate.loader.getPosts(task, url, response)
   }
 
   if (!candidate && !existing) throw new NotFoundError()
-
-  let posts
-  if (candidate && response) {
-    posts = candidate.loader.getPosts(task, url, response)
-  } else {
-    posts = createPostsList([], undefined)
-  }
 
   let $feed = atom<FeedValue | undefined>()
 
@@ -116,6 +110,7 @@ export const feed = definePopup('feed', async url => {
       unbindFeed()
       unbindCategories()
     },
+    error,
     feed: $feed,
     posts,
     remove
