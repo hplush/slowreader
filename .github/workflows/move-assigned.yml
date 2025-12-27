@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Move issue to In Progress
-        uses: immitsu/move-issue-on-assign@07da53c7f773fee3e3ab06ba076abc8103a8b972 # v2.0.0
+        uses: immitsu/move-issue-on-assign@1f803bdb47cdc4e2ff4bf97aaa7ac74a0a9618d7 # v2.0.1
         with:
           token: ${{ secrets.PROJECTS_MOVE }}
           project: 1
