@@ -468,7 +468,7 @@ test('retries with some delay', async () => {
       } else if (url === 'https://b.com/') {
         bAttempts.push(Date.now())
         if (bAttempts.length === 1) {
-          let futureTime = new Date(Date.now() + 1000).toUTCString()
+          let futureTime = new Date(Date.now() + 2000).toUTCString()
           let headers = new Headers()
           headers.set('RateLimit-Reset', futureTime)
           throw new HTTPStatusError(429, url, 'Rate limited', headers)
@@ -501,14 +501,15 @@ test('retries with some delay', async () => {
   equal(aAttempts.length, 2)
   let aDiff = aAttempts[1]! - aAttempts[0]!
   ok(aDiff >= 900, `${aDiff}ms should be >= 900ms`)
+  // We are testing ≥900ms because milliseconds are truncated to seconds
 
   equal(bAttempts.length, 2)
   let bDiff = bAttempts[1]! - bAttempts[0]!
-  ok(bDiff >= 100, `${bDiff}ms should be >= 100ms`)
+  ok(bDiff >= 900, `${bDiff}ms should be >= 900ms`)
 
   equal(cAttempts.length, 2)
   let cDiff = cAttempts[1]! - cAttempts[0]!
-  ok(cDiff >= 100, `${cDiff}ms should be >= 100ms`)
+  ok(cDiff >= 900, `${cDiff}ms should be >= 900ms`)
 
   equal(refreshStatus.get(), 'done')
   deepEqual(refreshStatistics.get(), {

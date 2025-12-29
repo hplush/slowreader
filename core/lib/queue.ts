@@ -4,6 +4,7 @@ import { HTTPStatusError, NetworkError } from '../errors.ts'
 import { createDownloadTask, type DownloadTask } from './download.ts'
 
 const MAX_ATTEMPTS = 3
+const MAX_DELAY = getExponentialDelay(MAX_ATTEMPTS)
 
 interface QueueCallback {
   (task: DownloadTask): Promise<void>
@@ -37,6 +38,10 @@ interface Queue<Data> {
   stop(): void
 }
 
+function getExponentialDelay(attempt: number): number {
+  return Math.ceil(2 ** (attempt - 1)) * 1000
+}
+
 function buildTask<Data>(
   data: Data,
   callback?: QueueCallback
@@ -51,22 +56,19 @@ function runAfter(attempt: number, error: Error): number | undefined {
   if (error.status !== 429 && error.status !== 503) {
     return undefined
   }
+  let now = Date.now()
   let fromHeader =
     error.headers.get('Retry-After') ??
     error.headers.get('RateLimit-Reset') ??
     error.headers.get('X-Rate-Limit-Reset')
   if (fromHeader) {
     let seconds = parseInt(fromHeader, 10)
-    if (!isNaN(seconds)) {
-      return seconds * 1000
-    }
+    if (!isNaN(seconds)) return now + Math.min(MAX_DELAY, seconds * 1000)
 
     let resetTime = new Date(fromHeader).getTime()
-    if (!isNaN(resetTime)) {
-      return Math.max(0, Math.ceil(resetTime - Date.now()))
-    }
+    if (!isNaN(resetTime)) return Math.min(now + MAX_DELAY, resetTime)
   }
-  return Math.ceil(2 ** (attempt - 1)) * 1000
+  return now + getExponentialDelay(attempt)
 }
 
 function findNext<Data>(
@@ -109,8 +111,7 @@ export function createQueue<Data>(initial: Data[]): Queue<Data> {
       if (task.fails === MAX_ATTEMPTS) {
         onTaskFail(task.data, e)
       } else {
-        let wait = runAfter(task.fails, e)
-        task.after = wait ? Date.now() + wait : undefined
+        task.after = runAfter(task.fails, e)
         tasks.push(task)
       }
       /* node:coverage ignore next 3 */
@@ -125,7 +126,9 @@ export function createQueue<Data>(initial: Data[]): Queue<Data> {
     let [task, wait] = findNext(tasks)
     if (wait) {
       await delay(wait)
-    } else if (task) {
+      return worker(processor)
+    }
+    if (task) {
       try {
         let callback = task.callback ?? processor(task.data)
         await callback(download)
@@ -135,7 +138,7 @@ export function createQueue<Data>(initial: Data[]): Queue<Data> {
         }
       }
     }
-    await worker(processor)
+    return worker(processor)
   }
 
   return {
