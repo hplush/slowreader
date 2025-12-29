@@ -89,6 +89,8 @@ export class NotFoundError extends Error {
   }
 }
 
+type PopularErrors = 400 | 401 | 403 | 404 | 451
+
 export function errorToMessage(error: unknown): string {
   if (!(error instanceof Error)) {
     return String(error)
@@ -104,9 +106,9 @@ export function errorToMessage(error: unknown): string {
       if (error.status >= 500 && error.status <= 599) {
         return messages.error5xx
       } else {
-        let key = `error${error.status}` as keyof typeof messages
+        let key = `error${error.status as PopularErrors}` as const
         if (key in messages) {
-          return messages[key] as string
+          return messages[key]
         } else {
           return messages.errorOther({ status: error.status })
         }
