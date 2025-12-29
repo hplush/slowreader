@@ -7,11 +7,13 @@
 
   let {
     disabled = false,
+    icon,
     label,
     reverseStore,
     store
   }: {
     disabled?: boolean
+    icon?: string
     label: string
     reverseStore?: WritableAtom<boolean>
     store?: WritableAtom<boolean>
@@ -38,7 +40,14 @@
 </script>
 
 <label class="switch">
-  <div class="switch_text">{label}</div>
+  <div class="switch_description">
+    {#if icon}
+      <Icon path={icon} />
+    {/if}
+    <div class="switch_text">
+      {label}
+    </div>
+  </div>
   <input
     class="switch_input sr-only"
     {disabled}
@@ -88,9 +97,15 @@
       }
     }
 
+    .switch_description {
+      display: flex;
+      gap: var(--control-gap);
+      align-items: center;
+      padding: 0.4rem 0.25rem 0.4rem var(--control-padding);
+    }
+
     .switch_text {
       flex-shrink: 1;
-      padding: 0.4rem 0.25rem 0.4rem var(--control-padding);
       font: var(--control-font);
       overflow-wrap: anywhere;
       user-select: none;

@@ -12,6 +12,8 @@
 </script>
 
 <script lang="ts">
+  import { mdiImageOutline as icon } from '@mdi/js'
+
   let storeOff = atom(false)
   let storeOn = atom(true)
   let other = atom(true)
@@ -19,10 +21,11 @@
 
 <Story name="Light" asChild>
   <Section stack width={300}>
-    <Switch label="Base" store={storeOn} />
-    <Switch label="Off" store={storeOff} />
-    <Switch disabled label="Disabled" store={storeOff} />
-    <Switch label="Reverse" reverseStore={storeOn} />
+    <Switch {icon} label="Base" store={storeOn} />
+    <Switch label="Iconless" store={storeOn} />
+    <Switch {icon} label="Off" store={storeOff} />
+    <Switch disabled {icon} label="Disabled" store={storeOff} />
+    <Switch {icon} label="Reverse" reverseStore={storeOn} />
     <Switch
       label="Very-very long label with longlonglongwordthat couldbreakcontainer"
       store={storeOn}
@@ -35,17 +38,17 @@
     stack
     width={300}
   >
-    <Switch label="Hover" store={other} />
-    <Switch label="Pressed" store={other} />
-    <Switch label="Focus" store={other} />
+    <Switch {icon} label="Hover" store={other} />
+    <Switch {icon} label="Pressed" store={other} />
+    <Switch {icon} label="Focus" store={other} />
   </Section>
 </Story>
 
 <Story name="Dark" asChild parameters={{ themes: { themeOverride: 'dark' } }}>
   <Section stack width={300}>
-    <Switch label="Base" store={storeOn} />
-    <Switch label="Off" store={storeOff} />
-    <Switch disabled label="Disabled" store={storeOff} />
+    <Switch {icon} label="Base" store={storeOn} />
+    <Switch {icon} label="Off" store={storeOff} />
+    <Switch disabled {icon} label="Disabled" store={storeOff} />
   </Section>
   <Section
     active="label:nth-child(2)"
@@ -54,8 +57,8 @@
     stack
     width={300}
   >
-    <Switch label="Hover" store={other} />
-    <Switch label="Pressed" store={other} />
-    <Switch label="Focus" store={other} />
+    <Switch {icon} label="Hover" store={other} />
+    <Switch {icon} label="Pressed" store={other} />
+    <Switch {icon} label="Focus" store={other} />
   </Section>
 </Story>

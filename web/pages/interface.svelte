@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { mdiThemeLightDark, mdiWeatherNight, mdiWeatherSunny } from '@mdi/js'
+  import {
+    mdiAnimationOutline,
+    mdiButtonCursor,
+    mdiThemeLightDark,
+    mdiWeatherNight,
+    mdiWeatherSunny
+  } from '@mdi/js'
   import {
     settingsMessages as t,
     theme,
@@ -32,11 +38,23 @@
           ['dark', $t.themeDark, mdiWeatherNight]
         ]}
       />
-      <Switch label={$t.usePointer} reverseStore={useQuietCursor} />
+      <Switch
+        icon={mdiButtonCursor}
+        label={$t.usePointer}
+        reverseStore={useQuietCursor}
+      />
       {#if $systemReducedMotion}
-        <Switch disabled label={$t.systemDisabledAnimations} />
+        <Switch
+          disabled
+          icon={mdiAnimationOutline}
+          label={$t.systemDisabledAnimations}
+        />
       {:else}
-        <Switch label={$t.useAnimations} reverseStore={useReducedMotion} />
+        <Switch
+          icon={mdiAnimationOutline}
+          label={$t.useAnimations}
+          reverseStore={useReducedMotion}
+        />
       {/if}
     </Stack>
   </Stack>
