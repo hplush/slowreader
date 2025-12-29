@@ -5,28 +5,16 @@
   import { sanitizeDOM } from '@slowreader/core'
   import type { Attachment } from 'svelte/attachments'
 
-  let {
-    comfort,
-    fakelinks,
-    html
-  }: { comfort?: boolean; fakelinks?: boolean; html: string | undefined } =
+  let { comfort, html }: { comfort?: boolean; html: string | undefined } =
     $props()
 
   const renderHtml: Attachment = node => {
     node.innerHTML = ''
     node.replaceChildren(...sanitizeDOM(html ?? '').childNodes)
-    let links = node.querySelectorAll('a')
-    if (fakelinks) {
-      links.forEach(link => {
-        link.removeAttribute('href')
-        link.classList.add('is-fake-link')
-      })
-    } else {
-      links.forEach(link => {
-        link.setAttribute('target', '_blank')
-        link.setAttribute('rel', 'noopener')
-      })
-    }
+    node.querySelectorAll('a').forEach(link => {
+      link.setAttribute('target', '_blank')
+      link.setAttribute('rel', 'noopener')
+    })
   }
 </script>
 
@@ -110,21 +98,12 @@
       opacity: 100%;
     }
 
-    .formatted-text a:not(.is-fake-link):visited {
+    .formatted-text a:visited {
       color: var(--link-color-visited);
     }
 
-    .formatted-text a:not(.is-fake-link):hover {
-      opacity: 85%;
-    }
-
-    .formatted-text a:not(.is-fake-link):active {
-      opacity: 87%;
-    }
-
-    .formatted-text a.is-fake-link {
-      color: currentcolor;
-      text-decoration: underline;
+    .formatted-text a:hover {
+      text-decoration: none;
     }
 
     .formatted-text em {

@@ -120,11 +120,6 @@
 <Story name="Light Slow" asChild>
   <Section width={700}>
     <FormattedText comfort html={headingsWithParagraphs} />
-    <FormattedText
-      comfort
-      fakelinks
-      html={'<a href="https://google.com">Fake link</a>'}
-    />
   </Section>
   <Section width={700}>
     <FormattedText comfort html={longHeadings} />
