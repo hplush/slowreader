@@ -135,7 +135,7 @@
       &.is-main {
         color: var(--text-on-accent-color);
         background: var(--accent-color);
-        box-shadow: var(--button-shadow);
+        box-shadow: var(--hard-button-shadow);
 
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),
@@ -146,7 +146,7 @@
 
       &.is-attention {
         background: --tune-background(--current);
-        box-shadow: var(--button-shadow);
+        box-shadow: var(--soft-button-shadow);
 
         &:hover:not([aria-disabled='true']),
         &:active:not([aria-disabled='true']),

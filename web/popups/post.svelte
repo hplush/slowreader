@@ -73,7 +73,13 @@
     {/if}
     <FormattedText html={getPostContent($post)} />
     {#if $post.url}
-      <Button href={$post.url} icon={mdiOpenInNew} size="wide" target="_blank">
+      <Button
+        href={$post.url}
+        icon={mdiOpenInNew}
+        size="wide"
+        target="_blank"
+        variant="attention"
+      >
         {$t.url}
       </Button>
     {/if}

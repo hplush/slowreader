@@ -157,7 +157,7 @@
       overflow: hidden;
       background: --tune-background(--current);
       border-radius: var(--base-radius);
-      box-shadow: var(--button-shadow);
+      box-shadow: var(--hard-button-shadow);
       translate: 0 0;
       transition: translate var(--simple-time) var(--click-easing);
 

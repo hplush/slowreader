@@ -79,7 +79,7 @@
       width: var(--pagination-width);
       background: --tune-background(--current);
       border-radius: var(--base-radius);
-      box-shadow: var(--button-shadow);
+      box-shadow: var(--soft-button-shadow);
 
       .pagination.is-last & {
         inset-inline: auto 0;

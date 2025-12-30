@@ -284,7 +284,7 @@
       width: calc(50% - 2 * var(--slider-padding));
       background: --tune-background(--current);
       border-radius: var(--base-radius);
-      box-shadow: var(--button-shadow);
+      box-shadow: var(--hard-button-shadow);
       transition:
         left var(--simple-time) var(--slide-easing),
         width var(--simple-time) var(--slide-easing);
