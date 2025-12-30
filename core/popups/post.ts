@@ -1,8 +1,14 @@
 import { ensureLoadedStore, loadValue } from '@logux/client'
 import lz from 'lz-string'
-import { atom, type ReadableAtom, type WritableAtom } from 'nanostores'
+import {
+  atom,
+  computed,
+  type ReadableAtom,
+  type WritableAtom
+} from 'nanostores'
 
 import { NotFoundError } from '../errors.ts'
+import { type FeedValue, getFeeds } from '../feed.ts'
 import {
   changePost,
   getPosts,
@@ -28,6 +34,7 @@ export function getPostPopupParam(
 
 export const post = definePopup('post', async loader => {
   let $post: ReadableAtom<OriginPost | PostValue>
+  let $feed: ReadableAtom<FeedValue> | undefined
   let read: undefined | WritableAtom<boolean>
 
   let id: string | undefined
@@ -68,12 +75,27 @@ export const post = definePopup('post', async loader => {
     })
   }
 
+  let postValue = $post.get()
+  if ('feedId' in postValue) {
+    let feedId = postValue.feedId
+    let feedFilter = await loadValue(getFeeds())
+    if (feedFilter.stores.has(feedId)) {
+      $feed = ensureLoadedStore(feedFilter.stores.get(feedId)!)
+    }
+  }
+
+  let $publishedAt = computed($post, value => {
+    return value.publishedAt ? new Date(value.publishedAt * 1000) : undefined
+  })
+
   return {
     destroy() {
       unbindPost()
       unbindRead()
     },
+    feed: $feed,
     post: $post,
+    publishedAt: $publishedAt,
     read
   }
 })

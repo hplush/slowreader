@@ -40,7 +40,7 @@ test('opens saved post', async () => {
   keepMount(openedPopups)
   let feed = await addFeed(testFeed({ categoryId: 'general' }))
   let id1 = await addPost(testPost({ feedId: feed }))
-  let id2 = await addPost(testPost({ feedId: feed }))
+  let id2 = await addPost(testPost({ feedId: feed, publishedAt: undefined }))
 
   let popup1 = openTestPopup('post', getPostPopupParam({ id: id1 }))
   equal(openedPopups.get().length, 1)
@@ -50,6 +50,8 @@ test('opens saved post', async () => {
 
   await waitLoading(popup1.loading)
   equal((checkLoadedPopup(popup1).post.get() as PostValue).id, id1)
+  equal(checkLoadedPopup(popup1).publishedAt.get()?.getFullYear(), 1970)
+  equal(checkLoadedPopup(popup1).feed!.get().id, feed)
   equal(checkLoadedPopup(popup1).read, undefined)
 
   let popup2 = openTestPopup('post', getPostPopupParam({ id: id1 }))
@@ -75,6 +77,7 @@ test('opens saved post', async () => {
 
   await waitLoading(popup3.loading)
   equal((checkLoadedPopup(popup3).post.get() as PostValue).id, id2)
+  equal(checkLoadedPopup(popup3).publishedAt.get(), undefined)
 
   closeLastPopup()
   equal(openedPopups.get().length, 1)
@@ -123,6 +126,7 @@ test('opens candidate post', async () => {
   await waitLoading(popup.loading)
   deepEqual(checkLoadedPopup(popup).post.get(), post)
   deepEqual(checkLoadedPopup(popup).read, undefined)
+  equal(checkLoadedPopup(popup).feed, undefined)
 
   let broken1 = openTestPopup('post', 'data:aaa')
   await waitLoading(broken1.loading)

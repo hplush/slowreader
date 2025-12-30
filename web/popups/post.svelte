@@ -3,15 +3,19 @@
   import {
     getPopupId,
     getPostContent,
+    i18nFormat,
     type PostPopup,
+    router,
     postMessages as t
   } from '@slowreader/core'
   import { onMount } from 'svelte'
 
   import { onNextVisibility } from '../lib/visitibility.ts'
+  import { getPopupHash } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
   import FormattedText from '../ui/formatted-text.svelte'
   import Popup from '../ui/popup.svelte'
+  import SmallLink from '../ui/small-link.svelte'
   import Stack from '../ui/stack.svelte'
   import Switch from '../ui/switch.svelte'
   import Title from '../ui/title.svelte'
@@ -19,7 +23,7 @@
 
   let { popup }: { popup: PostPopup } = $props()
 
-  let { post, read } = $derived(popup)
+  let { feed, post, publishedAt, read } = $derived(popup)
 
   onMount(() => {
     if (popup.read) {
@@ -47,6 +51,21 @@
     {/if}
   {/snippet}
   <Stack>
+    <Stack justify="space-between" row width="stretch">
+      {#if feed}
+        <SmallLink href={getPopupHash($router, 'feed', $feed!.url)}>
+          {$feed!.title}
+        </SmallLink>
+      {:else}
+        <div></div>
+      {/if}
+      <SmallLink href={$post.url} target="_blank">
+        {$i18nFormat.time($publishedAt, {
+          dateStyle: 'short',
+          timeStyle: 'short'
+        })}
+      </SmallLink>
+    </Stack>
     {#if $post.title}
       <Title font="safe">
         <FormattedText html={$post.title} />

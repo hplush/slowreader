@@ -1,6 +1,7 @@
 import {
   createI18n,
   eachMessage,
+  formatter,
   type TranslationLoader
 } from '@nanostores/i18n'
 import { atom } from 'nanostores'
@@ -23,6 +24,8 @@ export const i18n = createI18n($locale, {
     })
   ]
 })
+
+export const i18nFormat = formatter($locale)
 
 onEnvironment(({ locale, translationLoader }) => {
   loader = translationLoader
