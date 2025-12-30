@@ -27,6 +27,7 @@
 <style>
   :global {
     .formatted-text {
+      max-width: 100%;
       overflow-x: auto;
       text-wrap: pretty;
 
@@ -36,10 +37,12 @@
     }
 
     .formatted-text img {
+      display: block;
       max-width: 100%;
       height: auto;
       padding: 0.625em 0;
       margin: 0 auto;
+      object-fit: scale-down;
 
       & + & {
         padding-top: 0;
