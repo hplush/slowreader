@@ -1,6 +1,6 @@
 import { ensureLoaded } from '@logux/client'
 import { cleanStores, keepMount } from 'nanostores'
-import { deepEqual, equal } from 'node:assert/strict'
+import { deepEqual, equal, match } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -50,7 +50,7 @@ test('opens saved post', async () => {
 
   await waitLoading(popup1.loading)
   equal((checkLoadedPopup(popup1).post.get() as PostValue).id, id1)
-  equal(checkLoadedPopup(popup1).publishedAt.get()?.getFullYear(), 1970)
+  match(checkLoadedPopup(popup1).publishedAt.get()!, /1\/1\/70/)
   equal(checkLoadedPopup(popup1).feed!.get().id, feed)
   equal(checkLoadedPopup(popup1).read, undefined)
 

@@ -9,6 +9,7 @@ import {
 
 import { NotFoundError } from '../errors.ts'
 import { type FeedValue, getFeeds } from '../feed.ts'
+import { formatPublishedAt, i18nFormat } from '../format.ts'
 import {
   changePost,
   getPosts,
@@ -84,8 +85,10 @@ export const post = definePopup('post', async loader => {
     }
   }
 
-  let $publishedAt = computed($post, value => {
-    return value.publishedAt ? new Date(value.publishedAt * 1000) : undefined
+  let $publishedAt = computed([$post, i18nFormat], (value, format) => {
+    return value.publishedAt
+      ? formatPublishedAt(format, value.publishedAt)
+      : undefined
   })
 
   return {

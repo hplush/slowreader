@@ -3,7 +3,6 @@
   import {
     getPopupId,
     getPostContent,
-    i18nFormat,
     type PostPopup,
     router,
     postMessages as t
@@ -60,10 +59,7 @@
         <div></div>
       {/if}
       <SmallLink href={$post.url} target="_blank">
-        {$i18nFormat.time($publishedAt, {
-          dateStyle: 'short',
-          timeStyle: 'short'
-        })}
+        {$publishedAt}
       </SmallLink>
     </Stack>
     {#if $post.title}
