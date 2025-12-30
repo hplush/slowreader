@@ -15,6 +15,7 @@
     .small-link {
       @mixin clickable;
 
+      display: inline-block;
       font: var(--secondary-font);
       color: var(--secondary-text-color);
 

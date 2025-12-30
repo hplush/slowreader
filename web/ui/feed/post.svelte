@@ -16,7 +16,7 @@
   import { getPopupHash } from '../../stores/url-router.ts'
   import Button from '../button.svelte'
   import FormattedText from '../formatted-text.svelte'
-  import FeedAuthor from './author.svelte'
+  import SmallLink from '../small-link.svelte'
 
   let {
     author,
@@ -43,7 +43,11 @@
   ></a>
   <article id={`feed-content-${$post.id}`} class="feed-post_content">
     {#if author}
-      <FeedAuthor {author} />
+      <div class="feed-post_author">
+        <SmallLink href={getPopupHash($router, 'feed', $author!.url)}>
+          {$author?.title}
+        </SmallLink>
+      </div>
     {/if}
     {#if $post.title}
       <h2 class="feed-post_title">
@@ -175,6 +179,11 @@
       li:last-child:first-child & {
         border-radius: var(--base-radius);
       }
+    }
+
+    .feed-post_author {
+      margin-top: -0.5rem;
+      margin-bottom: 0.5rem;
     }
 
     .feed-post_content {
