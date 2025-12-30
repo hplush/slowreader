@@ -7,7 +7,6 @@ import { afterEach, beforeEach, test } from 'node:test'
 import {
   addPost,
   getPost,
-  getPostContent,
   getPostIntro,
   getPostTitle,
   testPost
@@ -118,10 +117,6 @@ test('loads post title', () => {
 })
 
 test('loads post content', () => {
-  equal(getPostContent({ originId: 'id' }), '')
-  equal(getPostContent({ intro: 'a', originId: 'id' }), 'a')
-  equal(getPostContent({ full: 'b', intro: 'a', originId: 'id' }), 'b')
-
   deepEqual(getPostIntro({ originId: 'id' }), ['', false])
   deepEqual(getPostIntro({ full: 'short', originId: 'id' }), ['short', false])
   deepEqual(getPostIntro({ full: 'short', intro: 'intro', originId: 'id' }), [

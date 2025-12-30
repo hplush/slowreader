@@ -5,8 +5,15 @@
   import { sanitizeDOM } from '@slowreader/core'
   import type { Attachment } from 'svelte/attachments'
 
-  let { comfort, html }: { comfort?: boolean; html: string | undefined } =
-    $props()
+  let {
+    comfort,
+    html,
+    noscroll = false
+  }: {
+    comfort?: boolean
+    html: string | undefined
+    noscroll?: boolean
+  } = $props()
 
   const renderHtml: Attachment = node => {
     node.innerHTML = ''
@@ -21,15 +28,24 @@
 <div
   class="formatted-text"
   class:is-comfort={comfort}
+  class:is-scroll={!noscroll}
   {@attach renderHtml}
 ></div>
 
 <style>
   :global {
     .formatted-text {
-      max-width: 100%;
-      overflow-x: auto;
+      flex-shrink: 1;
+      width: stretch;
       text-wrap: pretty;
+
+      &.is-scroll {
+        overflow-x: auto;
+      }
+
+      &:not(.is-scroll) {
+        overflow-wrap: anywhere;
+      }
 
       &.is-comfort {
         font-family: var(--comfort-family);

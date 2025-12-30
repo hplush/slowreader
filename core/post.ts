@@ -93,10 +93,6 @@ export function processOriginPost(
   }
 }
 
-export function getPostContent(post: OriginPost): string {
-  return post.full ?? post.intro ?? ''
-}
-
 export function getPostIntro(post: OriginPost): [string, boolean] {
   if (post.intro) {
     let more = !!post.full && post.full !== post.intro

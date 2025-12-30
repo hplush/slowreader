@@ -2,7 +2,6 @@
   import { mdiEyeCheckOutline, mdiOpenInNew } from '@mdi/js'
   import {
     getPopupId,
-    getPostContent,
     type PostPopup,
     router,
     postMessages as t
@@ -12,12 +11,11 @@
   import { onNextVisibility } from '../lib/visitibility.ts'
   import { getPopupHash } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
-  import FormattedText from '../ui/formatted-text.svelte'
   import Popup from '../ui/popup.svelte'
+  import Post from '../ui/post.svelte'
   import SmallLink from '../ui/small-link.svelte'
   import Stack from '../ui/stack.svelte'
   import Switch from '../ui/switch.svelte'
-  import Title from '../ui/title.svelte'
   import Toggle from '../ui/toggle.svelte'
 
   let { popup }: { popup: PostPopup } = $props()
@@ -62,12 +60,7 @@
         {$publishedAt}
       </SmallLink>
     </Stack>
-    {#if $post.title}
-      <Title font="safe">
-        <FormattedText html={$post.title} />
-      </Title>
-    {/if}
-    <FormattedText html={getPostContent($post)} />
+    <Post post={$post} />
     {#if $post.url}
       <Button
         href={$post.url}
