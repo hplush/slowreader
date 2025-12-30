@@ -43,6 +43,7 @@
       }
     ],
     "no-descending-specificity": null,
+    "custom-property-no-missing-var-function": null,
     "color-named": "never",
     "alpha-value-notation": "percentage",
     "@stylistic/declaration-colon-newline-after": null,

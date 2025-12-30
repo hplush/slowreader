@@ -1,6 +1,6 @@
 import { ensureLoadedStore, loadValue } from '@logux/client'
 import lz from 'lz-string'
-import { atom, type ReadableAtom } from 'nanostores'
+import { atom, type ReadableAtom, type WritableAtom } from 'nanostores'
 
 import { NotFoundError } from '../errors.ts'
 import {
@@ -28,20 +28,13 @@ export function getPostPopupParam(
 
 export const post = definePopup('post', async loader => {
   let $post: ReadableAtom<OriginPost | PostValue>
-  let read: (() => Promise<void>) | undefined
-  let unread: (() => Promise<void>) | undefined
+  let read: undefined | WritableAtom<boolean>
 
   let id: string | undefined
   if (loader.startsWith('id:')) {
     id = loader.slice(3)
   } else if (loader.startsWith('read:')) {
     id = loader.slice(5)
-    read = async () => {
-      await changePost(id!, { read: true })
-    }
-    unread = async () => {
-      await changePost(id!, { read: false })
-    }
   }
 
   if (id) {
@@ -60,11 +53,28 @@ export const post = definePopup('post', async loader => {
   } else {
     throw new NotFoundError()
   }
+
+  let unbindPost = (): void => {}
+  let unbindRead = (): void => {}
+  if (loader.startsWith('read:')) {
+    read = atom(false)
+    unbindPost = $post.subscribe(value => {
+      read!.set(!!value.read)
+    })
+    unbindRead = read.listen(value => {
+      if (value !== $post.get().read) {
+        changePost(id!, { read: value })
+      }
+    })
+  }
+
   return {
-    destroy() {},
+    destroy() {
+      unbindPost()
+      unbindRead()
+    },
     post: $post,
-    read,
-    unread
+    read
   }
 })
 

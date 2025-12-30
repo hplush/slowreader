@@ -42,7 +42,7 @@
 <label class="switch">
   <div class="switch_description">
     {#if icon}
-      <Icon path={icon} />
+      <Icon compensate={3} path={icon} />
     {/if}
     <div class="switch_text">
       {label}
@@ -100,7 +100,7 @@
     .switch_description {
       display: flex;
       gap: var(--control-gap);
-      align-items: center;
+      align-items: baseline;
       padding: 0.4rem 0.25rem 0.4rem var(--control-padding);
     }
 

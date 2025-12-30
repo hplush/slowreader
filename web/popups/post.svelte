@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiCheckboxMarkedCircle, mdiRadioboxBlank } from '@mdi/js'
+  import { mdiEyeCheckOutline, mdiOpenInNew } from '@mdi/js'
   import {
     getPopupId,
     getPostContent,
@@ -13,16 +13,18 @@
   import FormattedText from '../ui/formatted-text.svelte'
   import Popup from '../ui/popup.svelte'
   import Stack from '../ui/stack.svelte'
+  import Switch from '../ui/switch.svelte'
   import Title from '../ui/title.svelte'
+  import Toggle from '../ui/toggle.svelte'
 
   let { popup }: { popup: PostPopup } = $props()
 
-  let { post } = $derived(popup)
+  let { post, read } = $derived(popup)
 
   onMount(() => {
     if (popup.read) {
       onNextVisibility(() => {
-        popup.read?.()
+        popup.read?.set(true)
       })
     }
   })
@@ -31,15 +33,17 @@
 <Popup id={getPopupId(popup.name, popup.param)}>
   {#snippet header()}
     {#if popup.read}
-      {#if $post.read}
-        <Button icon={mdiRadioboxBlank} onclick={popup.unread}>
-          {$t.unread}
-        </Button>
-      {:else}
-        <Button icon={mdiCheckboxMarkedCircle} onclick={popup.read}>
-          {$t.read}
-        </Button>
-      {/if}
+      <Toggle
+        icon={mdiEyeCheckOutline}
+        label={$read ? $t.unread : $t.read}
+        size="icon"
+        store={popup.read}
+      />
+    {/if}
+    {#if $post.url}
+      <Button href={$post.url} icon={mdiOpenInNew} size="icon" target="_blank">
+        {$t.url}
+      </Button>
     {/if}
   {/snippet}
   <Stack>
@@ -49,5 +53,19 @@
       </Title>
     {/if}
     <FormattedText html={getPostContent($post)} />
+    {#if $post.url}
+      <Button href={$post.url} icon={mdiOpenInNew} size="wide" target="_blank">
+        {$t.url}
+      </Button>
+    {/if}
+    {#if popup.read}
+      <Stack row>
+        <Switch
+          icon={mdiEyeCheckOutline}
+          label={$t.readCheckbox}
+          store={popup.read}
+        />
+      </Stack>
+    {/if}
   </Stack>
 </Popup>

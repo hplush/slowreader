@@ -22,11 +22,12 @@
 <Story name="Light" asChild>
   <Section stack width={300}>
     <Switch {icon} label="Base" store={storeOn} />
-    <Switch label="Iconless" store={storeOn} />
+    <Switch label="Icon-less" store={storeOn} />
     <Switch {icon} label="Off" store={storeOff} />
     <Switch disabled {icon} label="Disabled" store={storeOff} />
     <Switch {icon} label="Reverse" reverseStore={storeOn} />
     <Switch
+      {icon}
       label="Very-very long label with longlonglongwordthat couldbreakcontainer"
       store={storeOn}
     />

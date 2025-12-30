@@ -2,6 +2,7 @@ import { ensureLoaded } from '@logux/client'
 import { cleanStores, keepMount } from 'nanostores'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, test } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
 
 import {
   addFeed,
@@ -103,11 +104,13 @@ test('read saved post', async () => {
   equal(ensureLoaded(post1.get()).read, undefined)
   equal(ensureLoaded(post2.get()).read, undefined)
 
-  await checkLoadedPopup(popup).read!()
+  checkLoadedPopup(popup).read!.set(true)
+  await setTimeout(1)
   equal(ensureLoaded(post1.get()).read, true)
   equal(ensureLoaded(post2.get()).read, undefined)
 
-  await checkLoadedPopup(popup).unread!()
+  checkLoadedPopup(popup).read!.set(false)
+  await setTimeout(1)
   equal(ensureLoaded(post1.get()).read, false)
   equal(ensureLoaded(post2.get()).read, undefined)
 })
