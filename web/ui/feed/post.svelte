@@ -44,7 +44,7 @@
   <article id={`feed-content-${$post.id}`} class="feed-post_content">
     {#if author}
       <div class="feed-post_author">
-        <SmallLink href={getPopupHash($router, 'feed', $author!.url)}>
+        <SmallLink href={getPopupHash($router, 'feed', $author!.url)} shrink>
           {$author?.title}
         </SmallLink>
       </div>

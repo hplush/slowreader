@@ -52,7 +52,7 @@
   <Stack>
     <Stack justify="space-between" row width="stretch">
       {#if feed}
-        <SmallLink href={getPopupHash($router, 'feed', $feed!.url)}>
+        <SmallLink href={getPopupHash($router, 'feed', $feed!.url)} shrink>
           {$feed!.title}
         </SmallLink>
       {:else}
