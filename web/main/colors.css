@@ -146,10 +146,10 @@
     --popup-shadow:
       inset 1px 0 0 oklch(1 0 0 / 10%),
       --soft-shadow(0 0 0.6rem oklch(0 0 0 / 30%));
-    --dark-button-shadow:
+    --hard-button-shadow:
       inset 0 1px 0 oklch(1 0 0 / 30%), inset 0 -0.5px 0 oklch(0 0 0 / 90%),
       --linear-shadow(0 0.2rem 0.2rem oklch(0 0 0 / 25%));
-    --light-button-shadow: var(--dark-button-shadow);
+    --soft-button-shadow: var(--dark-button-shadow);
     --pressed-shadow:
       inset 0 1px 2px oklch(0 0 0), inset 0 -0.5px 0 oklch(1 0 0 / 40%);
     --flat-dangerous-shadow: inset 0 0 0 0.5px
