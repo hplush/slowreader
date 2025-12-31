@@ -8,19 +8,26 @@
   let {
     comfort,
     html,
-    noscroll = false
+    scroll = true,
+    simple = false,
+    url
   }: {
     comfort?: boolean
     html: string | undefined
-    noscroll?: boolean
+    scroll?: boolean
+    simple?: boolean
+    url: string | undefined
   } = $props()
 
   const renderHtml: Attachment = node => {
     node.innerHTML = ''
-    node.replaceChildren(...sanitizeDOM(html ?? '').childNodes)
+    node.replaceChildren(...sanitizeDOM(html ?? '', url).childNodes)
     node.querySelectorAll('a').forEach(link => {
       link.setAttribute('target', '_blank')
       link.setAttribute('rel', 'noopener')
+    })
+    node.querySelectorAll('[class]').forEach(link => {
+      link.removeAttribute('class')
     })
   }
 </script>
@@ -28,11 +35,12 @@
 <div
   class="formatted-text"
   class:is-comfort={comfort}
-  class:is-scroll={!noscroll}
+  class:is-scroll={scroll}
+  class:is-simple={simple}
   {@attach renderHtml}
 ></div>
 
-<style>
+<style lang="postcss">
   :global {
     .formatted-text {
       flex-shrink: 1;
@@ -52,8 +60,12 @@
       }
     }
 
+    .formatted-text figure {
+      max-width: 100%;
+      margin-bottom: 1.25em;
+    }
+
     .formatted-text img {
-      display: block;
       max-width: 100%;
       height: auto;
       padding: 0.625em 0;
@@ -66,7 +78,7 @@
     }
 
     .formatted-text p {
-      margin: 0 0 0.75em;
+      margin-bottom: 0.75em;
 
       &:last-child {
         margin-bottom: 0;
@@ -145,9 +157,16 @@
     }
 
     .formatted-text blockquote {
-      padding: 0.625em 1.25em;
-      margin: 0 0 1.25em;
-      border-inline-start: 0.3125em solid var(--border-color);
+      padding: 0.375em 0.75em;
+      margin-bottom: 1.25em;
+      border-inline-start: 0.25em solid var(--border-color);
+    }
+
+    .formatted-text hr {
+      height: 0.125em;
+      margin-block: 1em;
+      background: var(--border-color);
+      border: none;
     }
 
     .formatted-text caption {
@@ -183,7 +202,7 @@
       margin: 0.8em 0;
       overflow-x: auto;
       font: var(--mono-font);
-      background-color: var(--code-background);
+      background-color: --tune-background(--current);
       border-radius: var(--base-radius);
       box-shadow: var(--field-shadow);
     }
@@ -206,7 +225,7 @@
       padding: 0.2em 0.4em;
       font-size: 90%;
       white-space: break-spaces;
-      background-color: var(--code-background);
+      background-color: --tune-background(--current);
       border-radius: 0.375em;
     }
 
@@ -214,7 +233,7 @@
       padding: 0 0.25em;
       font: var(--mono-font);
       font-size: 80%;
-      background-color: var(--code-background);
+      background-color: --tune-background(--current);
       border: 0 solid var(--border-color);
       border-width: 0.125em 0.125em 0.25em;
       border-radius: 0.25em;
@@ -246,6 +265,10 @@
 
     .formatted-text colgroup {
       border: var(--min-size) solid var(--border-color);
+    }
+
+    .formatted-text.is-simple * {
+      font-size: 1em;
     }
   }
 </style>

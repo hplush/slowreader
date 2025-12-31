@@ -51,10 +51,10 @@
     {/if}
     {#if $post.title}
       <h2 class="feed-post_title">
-        <FormattedText html={$post.title} />
+        <FormattedText html={$post.title} url={$post.url} />
       </h2>
     {/if}
-    <FormattedText html={intro} />
+    <FormattedText html={intro} simple url={$post.url} />
     {#each parseMedia($post.media) as media, index (`${media.url}${index}`)}
       {#if !media.fromText && media.type.startsWith('image')}
         <img class="feed-post_image" alt="" src={media.url} />

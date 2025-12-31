@@ -98,7 +98,7 @@ export function getPostIntro(post: OriginPost): [string, boolean] {
     let more = !!post.full && post.full !== post.intro
     return [post.intro, more]
   } else if (post.full) {
-    let sanitized = sanitizeHtml(post.full)
+    let sanitized = sanitizeHtml(post.full, post.url)
     let truncated = truncateHTML(sanitized, 300, 500)
     return [truncated, truncated !== sanitized]
   } else {

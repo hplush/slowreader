@@ -14,6 +14,7 @@
       {
         "propertiesSyntax": {
           "background": "| <--tune-color()> | <--tune-background()>",
+          "background-color": "| <--tune-color()> | <--tune-background()>",
           "color": "| <--tune-color()> | <--tune-background()>",
           "border-color": "| <--tune-color()> | <--tune-background()>",
           "border": "| <line-width> <line-style> <--tune-color()> | <line-width> <line-style> <--tune-background()>",

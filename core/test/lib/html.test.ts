@@ -12,10 +12,80 @@ test('sanitizes HTML', () => {
         '<script>alert("XSS")</script>' +
           '<b>Safe</b>' +
           '<form></form>' +
-          '<iframe//src=jAva&Tab;script:alert(3)>'
+          '<iframe//src=jAva&Tab;script:alert(3)>',
+        undefined
       ) as HTMLElement
     ).innerHTML,
     '<b>Safe</b>'
+  )
+})
+
+test('resolves relative href to absolute URL', () => {
+  equal(
+    (
+      sanitizeDOM(
+        '<a href="./page">Link</a>',
+        'https://example.com/base/'
+      ) as HTMLElement
+    ).innerHTML,
+    '<a href="https://example.com/base/page">Link</a>'
+  )
+})
+
+test('resolves relative src to absolute URL', () => {
+  equal(
+    (
+      sanitizeDOM(
+        '<img src="image.png">',
+        'https://example.com/posts/1/'
+      ) as HTMLElement
+    ).innerHTML,
+    '<img src="https://example.com/posts/1/image.png">'
+  )
+})
+
+test('keeps absolute URLs unchanged', () => {
+  equal(
+    (
+      sanitizeDOM(
+        '<a href="https://other.com/page">Link</a>',
+        'https://example.com/'
+      ) as HTMLElement
+    ).innerHTML,
+    '<a href="https://other.com/page">Link</a>'
+  )
+})
+
+test('removes elements with relative URLs when url is undefined', () => {
+  equal(
+    (
+      sanitizeDOM(
+        '<p>Text <a href="/path">Link</a> more</p>',
+        undefined
+      ) as HTMLElement
+    ).innerHTML,
+    '<p>Text  more</p>'
+  )
+  equal(
+    (
+      sanitizeDOM(
+        '<p>Text <img src="image.png"> more</p>',
+        undefined
+      ) as HTMLElement
+    ).innerHTML,
+    '<p>Text  more</p>'
+  )
+})
+
+test('keeps absolute URLs with other protocols unchanged', () => {
+  equal(
+    (
+      sanitizeDOM(
+        '<a href="mailto:test@example.com">Email</a>',
+        'https://example.com/'
+      ) as HTMLElement
+    ).innerHTML,
+    '<a href="mailto:test@example.com">Email</a>'
   )
 })
 

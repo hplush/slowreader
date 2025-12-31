@@ -115,74 +115,76 @@
     '<td>Data 1</td><td>Data 2</td><td>Data 3</td><td>Data 4</td></tr>' +
     '</tbody><tfoot><tr><td colspan="7">Footer information</td></tr></tfoot>' +
     '</table>'
+
+  let url = 'https://example.com'
 </script>
 
 <Story name="Light Slow" asChild>
   <Section width={700}>
-    <FormattedText comfort html={headingsWithParagraphs} />
+    <FormattedText comfort html={headingsWithParagraphs} {url} />
   </Section>
   <Section width={700}>
-    <FormattedText comfort html={longHeadings} />
+    <FormattedText comfort html={longHeadings} {url} />
   </Section>
   <Section width={500}>
-    <FormattedText comfort html={images} />
+    <FormattedText comfort html={images} {url} />
   </Section>
   <Section>
-    <FormattedText comfort html={inlineTagsExample} />
+    <FormattedText comfort html={inlineTagsExample} {url} />
   </Section>
   <Section>
-    <FormattedText comfort html={unorderedList} />
-    <FormattedText comfort html={orderedList} />
+    <FormattedText comfort html={unorderedList} {url} />
+    <FormattedText comfort html={orderedList} {url} />
   </Section>
   <Section>
-    <FormattedText comfort html={contentTags} />
+    <FormattedText comfort html={contentTags} {url} />
   </Section>
   <Section>
-    <FormattedText comfort html={mediaTags} />
+    <FormattedText comfort html={mediaTags} {url} />
   </Section>
   <Section>
-    <FormattedText comfort html={code} />
+    <FormattedText comfort html={code} {url} />
   </Section>
   <Section>
-    <FormattedText comfort html={codeInline} />
+    <FormattedText comfort html={codeInline} {url} />
   </Section>
   <Section>
-    <FormattedText comfort html={tableExample} />
+    <FormattedText comfort html={tableExample} {url} />
   </Section>
 </Story>
 
 <Story name="Light Fast" asChild>
   <Scene route="notFound">
     <Section width={700}>
-      <FormattedText html={headingsWithParagraphs} />
+      <FormattedText html={headingsWithParagraphs} {url} />
     </Section>
     <Section width={700}>
-      <FormattedText html={longHeadings} />
+      <FormattedText html={longHeadings} {url} />
     </Section>
     <Section width={500}>
-      <FormattedText html={images} />
+      <FormattedText html={images} {url} />
     </Section>
     <Section>
-      <FormattedText html={inlineTagsExample} />
+      <FormattedText html={inlineTagsExample} {url} />
     </Section>
     <Section>
-      <FormattedText html={unorderedList} />
-      <FormattedText html={orderedList} />
+      <FormattedText html={unorderedList} {url} />
+      <FormattedText html={orderedList} {url} />
     </Section>
     <Section>
-      <FormattedText html={contentTags} />
+      <FormattedText html={contentTags} {url} />
     </Section>
     <Section>
-      <FormattedText html={mediaTags} />
+      <FormattedText html={mediaTags} {url} />
     </Section>
     <Section>
-      <FormattedText html={code} />
+      <FormattedText html={code} {url} />
     </Section>
     <Section>
-      <FormattedText html={codeInline} />
+      <FormattedText html={codeInline} {url} />
     </Section>
     <Section>
-      <FormattedText html={tableExample} />
+      <FormattedText html={tableExample} {url} />
     </Section>
   </Scene>
 </Story>
@@ -193,35 +195,35 @@
   parameters={{ themes: { themeOverride: 'dark' } }}
 >
   <Section width={700}>
-    <FormattedText comfort html={headingsWithParagraphs} />
+    <FormattedText comfort html={headingsWithParagraphs} {url} />
   </Section>
   <Section width={700}>
-    <FormattedText comfort html={longHeadings} />
+    <FormattedText comfort html={longHeadings} {url} />
   </Section>
   <Section width={500}>
-    <FormattedText comfort html="{images}comfort" />
+    <FormattedText comfort html="{images}comfort" {url} />
   </Section>
   <Section>
-    <FormattedText comfort html={inlineTagsExample} />
+    <FormattedText comfort html={inlineTagsExample} {url} />
   </Section>
   <Section>
-    <FormattedText comfort html={unorderedList} />
-    <FormattedText comfort html={orderedList} />
+    <FormattedText comfort html={unorderedList} {url} />
+    <FormattedText comfort html={orderedList} {url} />
   </Section>
   <Section>
-    <FormattedText comfort html={contentTags} />
+    <FormattedText comfort html={contentTags} {url} />
   </Section>
   <Section>
-    <FormattedText comfort html={mediaTags} />
+    <FormattedText comfort html={mediaTags} {url} />
   </Section>
   <Section>
-    <FormattedText comfort html={code} />
+    <FormattedText comfort html={code} {url} />
   </Section>
   <Section>
-    <FormattedText comfort html={codeInline} />
+    <FormattedText comfort html={codeInline} {url} />
   </Section>
   <Section>
-    <FormattedText comfort html={tableExample} />
+    <FormattedText comfort html={tableExample} {url} />
   </Section>
 </Story>
 
@@ -232,35 +234,35 @@
 >
   <Scene route="notFound">
     <Section width={700}>
-      <FormattedText html={headingsWithParagraphs} />
+      <FormattedText html={headingsWithParagraphs} {url} />
     </Section>
     <Section width={700}>
-      <FormattedText html={longHeadings} />
+      <FormattedText html={longHeadings} {url} />
     </Section>
     <Section width={500}>
-      <FormattedText html="{images}comfort" />
+      <FormattedText html="{images}comfort" {url} />
     </Section>
     <Section>
-      <FormattedText html={inlineTagsExample} />
+      <FormattedText html={inlineTagsExample} {url} />
     </Section>
     <Section>
-      <FormattedText html={unorderedList} />
-      <FormattedText html={orderedList} />
+      <FormattedText html={unorderedList} {url} />
+      <FormattedText html={orderedList} {url} />
     </Section>
     <Section>
-      <FormattedText html={contentTags} />
+      <FormattedText html={contentTags} {url} />
     </Section>
     <Section>
-      <FormattedText html={mediaTags} />
+      <FormattedText html={mediaTags} {url} />
     </Section>
     <Section>
-      <FormattedText html={code} />
+      <FormattedText html={code} {url} />
     </Section>
     <Section>
-      <FormattedText html={codeInline} />
+      <FormattedText html={codeInline} {url} />
     </Section>
     <Section>
-      <FormattedText html={tableExample} />
+      <FormattedText html={tableExample} {url} />
     </Section>
   </Scene>
 </Story>

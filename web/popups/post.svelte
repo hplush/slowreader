@@ -60,26 +60,28 @@
         {$publishedAt}
       </SmallLink>
     </Stack>
-    <Post post={$post} />
-    {#if $post.url}
-      <Button
-        href={$post.url}
-        icon={mdiOpenInNew}
-        size="wide"
-        target="_blank"
-        variant="attention"
-      >
-        {$t.url}
-      </Button>
-    {/if}
-    {#if popup.read}
-      <Stack row>
-        <Switch
-          icon={mdiEyeCheckOutline}
-          label={$t.readCheckbox}
-          store={popup.read}
-        />
+    <Stack gap="xxl">
+      <Post feed={$feed} post={$post} />
+      <Stack>
+        {#if $post.url}
+          <Button
+            href={$post.url}
+            icon={mdiOpenInNew}
+            size="wide"
+            target="_blank"
+            variant="attention"
+          >
+            {$t.url}
+          </Button>
+        {/if}
+        {#if popup.read}
+          <Switch
+            icon={mdiEyeCheckOutline}
+            label={$t.readCheckbox}
+            store={popup.read}
+          />
+        {/if}
       </Stack>
-    {/if}
+    </Stack>
   </Stack>
 </Popup>

@@ -92,17 +92,39 @@ const SENTENCE_END = new RegExp('[' + PUNCTUATION_CHARS + ']$')
 
 let DOMPurify: ReturnType<typeof createDOMPurify> | undefined
 
-export function sanitizeDOM(html: string): Node {
-  if (!DOMPurify) DOMPurify = createDOMPurify(window)
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS,
-    RETURN_DOM: true
-  })
+function isAbsoluteUrl(value: string): boolean {
+  return /^[a-z][a-z\d+.-]*:/i.test(value)
 }
 
-export function sanitizeHtml(html: string): string {
+function resolveUrls(node: Element, url: string | undefined): void {
+  let elements = node.querySelectorAll('[href], [src]')
+  for (let element of elements) {
+    for (let attr of ['href', 'src']) {
+      let value = element.getAttribute(attr)
+      if (value === null) continue
+      if (isAbsoluteUrl(value)) continue
+      if (url === undefined) {
+        element.remove()
+        break
+      }
+      element.setAttribute(attr, new URL(value, url).href)
+    }
+  }
+}
+
+export function sanitizeDOM(html: string, url: string | undefined): Element {
   if (!DOMPurify) DOMPurify = createDOMPurify(window)
-  return DOMPurify.sanitize(html, { ALLOWED_TAGS })
+  let node = DOMPurify.sanitize(html, {
+    ALLOWED_TAGS,
+    RETURN_DOM: true
+  }) as Element
+  resolveUrls(node, url)
+  return node
+}
+
+export function sanitizeHtml(html: string, url: string | undefined): string {
+  if (!DOMPurify) DOMPurify = createDOMPurify(window)
+  return sanitizeDOM(html, url).innerHTML
 }
 
 export function parseRichTranslation(text: string, link?: string): string {
