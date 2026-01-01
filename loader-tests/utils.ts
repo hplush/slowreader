@@ -5,6 +5,7 @@ import {
   enableTestTime,
   generateCredentials,
   getLoaderForText,
+  HTTPStatusError,
   pages,
   printWarning,
   type RouteName,
@@ -215,7 +216,11 @@ export async function fetchAndParsePosts(
       )
     }
   } catch (e) {
-    error(e, `During loading posts for ${url}`)
+    if (e instanceof HTTPStatusError && e.status === 429) {
+      warning(`Too Many Requests error: ${e.message}`)
+    } else {
+      error(e, `During loading posts for ${url}`)
+    }
   }
 }
 
