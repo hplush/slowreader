@@ -115,6 +115,9 @@ async function checkForNextPage(
     if (!getFeed(feed.id).deleted) {
       await addPosts(feed, pages.get().list)
     }
+    await changeFeed(feed.id, {
+      refreshedAt: Math.round(Date.now() / 1000)
+    })
     increaseKey(refreshStatistics, 'processedFeeds')
   }
 }

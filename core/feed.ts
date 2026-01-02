@@ -28,6 +28,7 @@ export type FeedValue = {
   lastPublishedAt?: number
   loader: LoaderName
   reading: 'fast' | 'slow'
+  refreshedAt?: number
   slowReader?: UsefulReaderName
   title: string
   url: string
@@ -99,6 +100,24 @@ export function getFeedLatestPosts(
   feed: FeedValue,
   task = createDownloadTask()
 ): PostsList {
+  if (feed.refreshedAt) {
+    let originalTask = task
+    task = {
+      ...task,
+      request(url, opts = {}) {
+        let headers = new Headers(opts.headers)
+        headers.set(
+          'If-Modified-Since',
+          new Date(feed.refreshedAt! * 1000).toUTCString()
+        )
+        return originalTask.request(url, {
+          ...opts,
+          headers
+        })
+      }
+    }
+  }
+
   return loaders[feed.loader].getPosts(task, feed.url)
 }
 
