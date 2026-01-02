@@ -127,6 +127,20 @@ export function createProxy(
         /* node:coverage enable */
       }
 
+      if (
+        req.headers['if-modified-since'] &&
+        targetResponse.headers.has('last-modified')
+      ) {
+        let cachedAt = new Date(req.headers['if-modified-since'])
+        let updatedAt = new Date(targetResponse.headers.get('last-modified')!)
+
+        if (cachedAt.getTime() >= updatedAt.getTime()) {
+          res.setHeader('Last-Modified', updatedAt.toUTCString())
+          res.writeHead(304)
+          return res.end()
+        }
+      }
+
       let length: number | undefined
       if (targetResponse.headers.has('content-length')) {
         length = parseInt(targetResponse.headers.get('content-length')!)

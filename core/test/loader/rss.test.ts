@@ -449,3 +449,28 @@ test('returns post source', async () => {
     undefined
   )
 })
+
+test('handles 304 not modified response', async () => {
+  expectRequest('https://example.com/news/').andRespond(
+    304,
+    null as unknown as string,
+    null as unknown as string
+  )
+
+  let task = createDownloadTask()
+  let page = loaders.rss.getPosts(task, 'https://example.com/news/')
+  deepEqual(page.get(), {
+    error: undefined,
+    hasNext: true,
+    isLoading: true,
+    list: []
+  })
+
+  await page.loading
+  deepEqual(page.get(), {
+    error: undefined,
+    hasNext: false,
+    isLoading: false,
+    list: []
+  })
+})

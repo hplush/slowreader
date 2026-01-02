@@ -40,10 +40,14 @@ let target = createServer(async (req, res) => {
     res.writeHead(500)
     res.end('Error')
   } else {
-    res.writeHead(200, {
+    let headers: Record<string, string> = {
       'Content-Type': 'text/json',
       'Set-Cookie': 'test=1'
-    })
+    }
+    if (queryParams.lastModified) {
+      headers['Last-Modified'] = queryParams.lastModified
+    }
+    res.writeHead(200, headers)
     res.end(
       JSON.stringify({
         request: {
@@ -258,4 +262,28 @@ test('is ready for errors', async () => {
   let response1 = await request(targetUrl + '?error=1', {})
   equal(response1.status, 500)
   equal(await response1.text(), 'Error')
+})
+
+test('handles If-Modified-Since and Last-Modified', async () => {
+  let lastModified = new Date(Date.now() - 10e3).toUTCString()
+
+  let futureTime = new Date(Date.now() + 20e3).toUTCString()
+  let pastTime = new Date(Date.now() - 20e3).toUTCString()
+
+  let response1 = await request(`${targetUrl}?lastModified=${lastModified}`, {
+    headers: {
+      'If-Modified-Since': futureTime
+    }
+  })
+  equal(response1.status, 304)
+  equal(response1.headers.get('last-modified'), lastModified)
+
+  let response2 = await request(`${targetUrl}?lastModified=${lastModified}`, {
+    headers: {
+      'If-Modified-Since': pastTime
+    }
+  })
+  equal(response2.status, 200)
+  let { response } = await response2.json()
+  equal(response, 'ok')
 })
