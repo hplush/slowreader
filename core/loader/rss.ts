@@ -65,7 +65,9 @@ export const rss: Loader = {
       return createPostsList(() => [parsePosts(text), undefined])
     } else {
       return createPostsList(async () => {
-        return [parsePosts(await task.text(url)), undefined]
+        let response = await task.text(url)
+        if (response.status === 304) return [[], undefined]
+        return [parsePosts(response), undefined]
       })
     }
   },
