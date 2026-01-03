@@ -1,11 +1,22 @@
 import { equal, match } from 'node:assert/strict'
-import { createServer, type Server } from 'node:http'
+import { createServer, type IncomingHttpHeaders, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { after, afterEach, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 import { URL } from 'node:url'
 
 import { createProxy } from '../index.ts'
+
+interface EchoResponse {
+  request: {
+    headers: IncomingHttpHeaders
+    method: string
+    queryParams: Record<string, string>
+    requestPath: string
+    url: string
+  }
+  response: 'ok'
+}
 
 function getURL(server: Server): string {
   let port = (server.address() as AddressInfo).port
@@ -37,13 +48,13 @@ let target = createServer(async (req, res) => {
       JSON.stringify({
         request: {
           headers: req.headers,
-          method: req.method,
+          method: req.method!,
           queryParams,
           requestPath: parsedUrl.pathname,
-          url: req.url
+          url: req.url!
         },
         response: 'ok'
-      })
+      } satisfies EchoResponse)
     )
   }
 })
@@ -108,12 +119,12 @@ test('has timeout', async () => {
 
 test('transfers query params and path', async () => {
   let response = await request(`${targetUrl}/foo/bar?foo=bar&bar=foo`)
-  let parsedResponse = await response.json()
+  let parsedResponse = (await response.json()) as EchoResponse
   equal(response.status, 200)
-  equal(parsedResponse?.response, 'ok')
-  equal(parsedResponse?.request?.requestPath, '/foo/bar')
-  equal(parsedResponse?.request?.queryParams?.foo, 'bar')
-  equal(parsedResponse?.request?.queryParams?.bar, 'foo')
+  equal(parsedResponse.response, 'ok')
+  equal(parsedResponse.request.requestPath, '/foo/bar')
+  equal(parsedResponse.request.queryParams.foo, 'bar')
+  equal(parsedResponse.request.queryParams.bar, 'foo')
 })
 
 test('can use only GET ', async () => {
