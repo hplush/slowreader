@@ -12,6 +12,7 @@
     "size": "node --run build:web && size-limit",
     "test:names": "node ./scripts/check-names.ts",
     "test:css": "stylelint .",
+    "test:svelte-types": "svelte-fast-check",
     "test:build": "node --run build && size-limit && node ./scripts/check-css-props.ts",
     "build:routes": "tsx ./scripts/export-routes.ts",
     "build:visual": "NODE_ENV=test storybook build --loglevel error",

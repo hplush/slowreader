@@ -5,6 +5,7 @@ export default [
   {
     ignores: [
       '*/dist/',
+      'web/.fast-check/',
       'web/storybook-static/',
       'web/vite.config.ts.*',
       'server/web/'

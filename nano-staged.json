@@ -1,9 +1,10 @@
 {
   "*.{html,md,json}": "oxfmt",
-  "*.{svelte,ts}": "svelte-check",
+  "*.ts": "tsgo --noEmit --ignoreConfig",
   "*.{js,ts,cjs}": ["oxfmt", "eslint --fix --concurrency auto"],
   "*.css": ["oxfmt", "stylelint --fix"],
   "*.svelte": [
+    "cd web && svelte-fast-check --incremental && cd ..",
     "node ./web/scripts/check-names.ts",
     "prettier --experimental-cli --write",
     "stylelint --fix",
