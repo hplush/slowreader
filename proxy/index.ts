@@ -131,14 +131,25 @@ export function createProxy(
         req.headers['if-modified-since'] &&
         targetResponse.headers.has('last-modified')
       ) {
-        let cachedAt = new Date(req.headers['if-modified-since'])
-        let updatedAt = new Date(targetResponse.headers.get('last-modified')!)
+        try {
+          let cachedAt = new Date(req.headers['if-modified-since'])
+          let updatedAt = new Date(targetResponse.headers.get('last-modified')!)
 
-        if (cachedAt.getTime() >= updatedAt.getTime()) {
-          res.setHeader('Last-Modified', updatedAt.toUTCString())
-          res.writeHead(304)
-          return res.end()
+          if (cachedAt.getTime() >= updatedAt.getTime()) {
+            res.setHeader('Last-Modified', updatedAt.toUTCString())
+            res.writeHead(304)
+            return res.end()
+          }
+          /* node:coverage disable */
+        } catch {
+          process.stderr.write(
+            styleText(
+              'yellow',
+              `Skipping cache check due to malformed date headers`
+            ) + '\n'
+          )
         }
+        /* node:coverage enable */
       }
 
       let length: number | undefined

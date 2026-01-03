@@ -284,6 +284,28 @@ test('handles If-Modified-Since and Last-Modified', async () => {
     }
   })
   equal(response2.status, 200)
-  let { response } = await response2.json()
-  equal(response, 'ok')
+  let { response: response2Content } = await response2.json()
+  equal(response2Content, 'ok')
+})
+
+test('handles malformed If-Modified-Since and Last-Modified', async () => {
+  let time = new Date(Date.now()).toUTCString()
+
+  let response1 = await request(`${targetUrl}?lastModified=invalid-date`, {
+    headers: {
+      'If-Modified-Since': time
+    }
+  })
+  equal(response1.status, 200)
+  let { response: response1Content } = await response1.json()
+  equal(response1Content, 'ok')
+
+  let response2 = await request(`${targetUrl}?lastModified=${time}`, {
+    headers: {
+      'If-Modified-Since': 'invalid-date'
+    }
+  })
+  equal(response2.status, 200)
+  let { response: response2Content } = await response2.json()
+  equal(response2Content, 'ok')
 })
