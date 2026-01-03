@@ -10,10 +10,7 @@ packages:
 forceLegacyDeploy: true
 
 trustPolicy: no-downgrade
-trustPolicyExclude:
-  - chokidar@4.0.3
-  - undici@6.22.0
-  - undici-types@6.21.0
+trustPolicyIgnoreAfter: 10080
 
 blockExoticSubdeps: true
 
