@@ -451,11 +451,7 @@ test('returns post source', async () => {
 })
 
 test('handles 304 not modified response', async () => {
-  expectRequest('https://example.com/news/').andRespond(
-    304,
-    null as unknown as string,
-    null as unknown as string
-  )
+  expectRequest('https://example.com/news/').andRespond(304, null)
 
   let task = createDownloadTask()
   let page = loaders.rss.getPosts(task, 'https://example.com/news/')
