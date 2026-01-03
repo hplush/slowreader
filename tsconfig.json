@@ -15,7 +15,7 @@
     "strict": true,
     "noEmit": true,
     "types": ["chrome", "node"],
-    "lib": ["es2024", "dom"]
+    "lib": ["ES2024", "DOM", "DOM.Iterable"]
   },
   "include": ["**/*.ts", "**/*.cts", "web/**/*.svelte", "web/.storybook/*.ts"],
   "exclude": ["*/dist"]
