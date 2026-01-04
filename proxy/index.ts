@@ -141,13 +141,14 @@ export function createProxy(
             return res.end()
           }
           /* node:coverage disable */
-        } catch {
-          process.stderr.write(
-            styleText(
-              'yellow',
-              `Skipping cache check due to malformed date headers`
-            ) + '\n'
-          )
+        } catch (e) {
+          let message = 'Skipping cache check due to malformed date headers'
+          if (e instanceof Error) {
+            message += `: ${e.stack ?? e.message}`
+          } else if (typeof e === 'string') {
+            message += `: ${e}`
+          }
+          process.stderr.write(styleText('yellow', message) + '\n')
         }
         /* node:coverage enable */
       }
