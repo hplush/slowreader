@@ -4,3 +4,4 @@ vite.config.ts.timestamp*
 routes.regexp
 nginx.conf.compiled
 build-storybook.log
+.fast-check

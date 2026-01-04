@@ -43,7 +43,7 @@ for project in $PROJECTS_TO_CHECK; do
   if [ "$project" = "web" ]; then
     echo "Checking web"
     cd web/
-    ./node_modules/.bin/svelte-check --workspace web
+    ./node_modules/.bin/svelte-fast-check --incremental
     cd ..
   else
     echo "Checking $project"
