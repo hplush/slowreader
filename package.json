@@ -61,7 +61,7 @@
     "svelte": "5.46.0",
     "svelte-check": "4.3.5",
     "svelte-eslint-parser": "1.4.1",
-    "svelte-fast-check": "0.2.1",
+    "svelte-fast-check": "0.2.2",
     "svgo": "4.0.0",
     "typescript": "5.9.3"
   },

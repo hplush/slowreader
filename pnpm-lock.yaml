@@ -108,8 +108,8 @@ importers:
         specifier: 1.4.1
         version: 1.4.1(svelte@5.46.0)
       svelte-fast-check:
-        specifier: 0.2.1
-        version: 0.2.1(svelte@5.46.0)(typescript@5.9.3)
+        specifier: 0.2.2
+        version: 0.2.2(svelte@5.46.0)(typescript@5.9.3)
       svgo:
         specifier: 4.0.0
         version: 4.0.0
@@ -2145,6 +2145,9 @@ packages:
   clean-stack@4.2.0:
     resolution: {integrity: sha512-LYv6XPxoyODi36Dp976riBtSY27VmFo+MKqEU9QCCWyTrdEPDog+RWA7xQWHi6Vbp61j5c4cdzzX1NidnwtUWg==}
     engines: {node: '>=12'}
+
+  cleye@2.2.1:
+    resolution: {integrity: sha512-eZzJGlG3N6+IsKV+297HIRS2fyRsLMOrx62hGUmmcyOtP/I+L7JVeSKZH49WZUdVB8NoaZOUvq01363I/PHJiA==}
 
   clone-regexp@3.0.0:
     resolution: {integrity: sha512-ujdnoq2Kxb8s3ItNBtnYeXdm07FcU0u8ARAT1lQ2YdMwQC+cdiXX8KoqMVuglztILivceTtp4ivqGSmEmhBUJw==}
@@ -4226,8 +4229,8 @@ packages:
       svelte:
         optional: true
 
-  svelte-fast-check@0.2.1:
-    resolution: {integrity: sha512-RCn2CP6nKxid8PsAEFOAw6BRwqVe0XEwJipymLKiSxReqxN8r2vlIzczIA1ChqLSiSxSPsDClhNkmxM5x9Z6zA==}
+  svelte-fast-check@0.2.2:
+    resolution: {integrity: sha512-1fo9rhA0yqyRNx+aV6XMbdPzgzUdmOnP7HNjea3JbP+dy2g85PeAYo4oEtbOLTcoP8VDye0jIgbikecP24Y5Iw==}
     hasBin: true
     peerDependencies:
       svelte: '>=5.0.0'
@@ -4261,6 +4264,9 @@ packages:
   tapable@2.3.0:
     resolution: {integrity: sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==}
     engines: {node: '>=6'}
+
+  terminal-columns@2.0.0:
+    resolution: {integrity: sha512-6IByuUjyNZJXUtwDNm+OIe62zgwwaRbH+WMNTcx05O2G5V9WhvluAAHJY8OvUdwmzMPpqAD/7EUpGdI6ae1aiQ==}
 
   text-table@0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
@@ -4361,6 +4367,9 @@ packages:
   type-fest@3.13.1:
     resolution: {integrity: sha512-tLq3bSNx+xSpwvAJnzrK0Ep5CLNWjvFTOp71URMaAEWBfRb9nnJiBoUe0tF8bI4ZFO3omgBR6NvnbzVUT3Ly4g==}
     engines: {node: '>=14.16'}
+
+  type-flag@4.0.3:
+    resolution: {integrity: sha512-YA09cL07U7hSV+/doSfKl+RkIZ2olCnevZsVgAuyBUG3h2ROf9Oh2vmbq5Rf26aA9/qu9RtStuc7ap5PC6k/vw==}
 
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
@@ -6178,6 +6187,11 @@ snapshots:
   clean-stack@4.2.0:
     dependencies:
       escape-string-regexp: 5.0.0
+
+  cleye@2.2.1:
+    dependencies:
+      terminal-columns: 2.0.0
+      type-flag: 4.0.3
 
   clone-regexp@3.0.0:
     dependencies:
@@ -8517,10 +8531,11 @@ snapshots:
     optionalDependencies:
       svelte: 5.46.0
 
-  svelte-fast-check@0.2.1(svelte@5.46.0)(typescript@5.9.3):
+  svelte-fast-check@0.2.2(svelte@5.46.0)(typescript@5.9.3):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@typescript/native-preview': 7.0.0-dev.20260102.1
+      cleye: 2.2.1
       glob: 11.1.0
       svelte: 5.46.0
       svelte2tsx: 0.7.46(svelte@5.46.0)(typescript@5.9.3)
@@ -8574,6 +8589,8 @@ snapshots:
       strip-ansi: 6.0.1
 
   tapable@2.3.0: {}
+
+  terminal-columns@2.0.0: {}
 
   text-table@0.2.0: {}
 
@@ -8662,6 +8679,8 @@ snapshots:
   type-fest@2.19.0: {}
 
   type-fest@3.13.1: {}
+
+  type-flag@4.0.3: {}
 
   typedarray@0.0.6: {}
 
