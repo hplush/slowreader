@@ -1,7 +1,7 @@
 import loguxSvelteConfig from '@logux/eslint-config/svelte'
 import type { Linter } from 'eslint'
 
-export default [
+const config: Linter.Config[] = [
   {
     ignores: [
       '*/dist/',
@@ -10,7 +10,16 @@ export default [
       'server/web/'
     ]
   },
-  ...loguxSvelteConfig,
+  ...loguxSvelteConfig.map(item => {
+    let parserOptions = item.languageOptions?.parserOptions as
+      | { project?: unknown; projectService?: boolean }
+      | undefined
+    if (parserOptions?.project) {
+      delete parserOptions.project
+      parserOptions.projectService = true
+    }
+    return item
+  }),
   {
     rules: {
       '@typescript-eslint/no-base-to-string': 'off',
@@ -80,3 +89,5 @@ export default [
     }
   }
 ] satisfies Linter.Config[]
+
+export default config

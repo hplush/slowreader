@@ -98,9 +98,6 @@ importers:
       svelte:
         specifier: 5.46.1
         version: 5.46.1
-      svelte-check:
-        specifier: 4.3.5
-        version: 4.3.5(picomatch@4.0.3)(svelte@5.46.1)(typescript@5.9.3)
       svelte-eslint-parser:
         specifier: 1.4.1
         version: 1.4.1(svelte@5.46.1)
@@ -415,6 +412,9 @@ importers:
       stylelint-use-logical:
         specifier: 2.1.2
         version: 2.1.2(stylelint@16.26.1(typescript@5.9.3))
+      svelte-check:
+        specifier: 4.3.5
+        version: 4.3.5(picomatch@4.0.3)(svelte@5.46.1)(typescript@5.9.3)
 
 packages:
 

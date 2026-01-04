@@ -1,5 +1,10 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["**/*.ts", "**/*.cts"],
+  "compilerOptions": {
+    "composite": true,
+    "types": ["chrome", "node"],
+    "lib": ["ES2024", "DOM"]
+  },
+  "include": ["**/*.ts"],
   "exclude": ["dist"]
 }

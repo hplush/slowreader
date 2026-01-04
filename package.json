@@ -20,7 +20,7 @@
     "format:oxfmt": "oxfmt .",
     "format:prettier": "prettier --experimental-cli --write **/*.svelte",
     "test:js": "eslint --concurrency=auto --cache .",
-    "test:types": "svelte-check",
+    "test:types": "./scripts/check-types.sh",
     "test:online:audit": "pnpm audit --prod",
     "test:focused": "node ./scripts/check-focused-tests.ts",
     "test:messages": "node ./scripts/check-messages.ts",
@@ -58,7 +58,6 @@
     "remark-validate-links": "13.1.0",
     "stylelint": "16.26.1",
     "svelte": "5.46.1",
-    "svelte-check": "4.3.5",
     "svelte-eslint-parser": "1.4.1",
     "svgo": "4.0.0",
     "typescript": "5.9.3"
