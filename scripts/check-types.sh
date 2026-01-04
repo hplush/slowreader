@@ -47,6 +47,6 @@ for project in $PROJECTS_TO_CHECK; do
     cd ..
   else
     echo "Checking $project"
-    ./node_modules/.bin/tsc --noEmit -p "$project"
+    ./node_modules/.bin/tsgo --noEmit -p "$project"
   fi
 done
