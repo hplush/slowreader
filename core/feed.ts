@@ -100,25 +100,12 @@ export function getFeedLatestPosts(
   feed: FeedValue,
   task = createDownloadTask()
 ): PostsList {
-  if (feed.refreshedAt) {
-    let originalTask = task
-    task = {
-      ...task,
-      request(url, opts = {}) {
-        let headers = new Headers(opts.headers)
-        headers.set(
-          'If-Modified-Since',
-          new Date(feed.refreshedAt! * 1000).toUTCString()
-        )
-        return originalTask.request(url, {
-          ...opts,
-          headers
-        })
-      }
-    }
-  }
-
-  return loaders[feed.loader].getPosts(task, feed.url)
+  return loaders[feed.loader].getPosts(
+    task,
+    feed.url,
+    undefined,
+    feed.refreshedAt
+  )
 }
 
 let testFeedId = 0

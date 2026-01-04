@@ -10,6 +10,7 @@ import {
   expectRequest,
   loaders,
   mockRequest,
+  setRequestMethod,
   testFeed,
   type TextResponse
 } from '../../index.ts'
@@ -448,6 +449,61 @@ test('returns post source', async () => {
     ),
     undefined
   )
+})
+
+test('sends If-Modified-Since header when refreshedAt is provided', async () => {
+  let capturedOpts: RequestInit | undefined
+
+  setRequestMethod((url, opts) => {
+    capturedOpts = opts
+    return Promise.resolve(
+      new Response(
+        `<?xml version="1.0"?>
+        <rss version="2.0">
+          <channel>
+            <title>Feed</title>
+            <item>
+              <title>Test Post</title>
+              <link>https://example.com/1</link>
+            </item>
+          </channel>
+        </rss>`,
+        {
+          headers: { 'Content-Type': 'application/rss+xml' }
+        }
+      )
+    )
+  })
+
+  let task = createDownloadTask()
+  let page = loaders.rss.getPosts(
+    task,
+    'https://example.com/news/',
+    undefined,
+    1767225600 // Thu, 01 Jan 2026 00:00:00 GMT
+  )
+
+  await page.loading
+
+  deepEqual(capturedOpts?.headers, {
+    'If-Modified-Since': 'Thu, 01 Jan 2026 00:00:00 GMT'
+  })
+
+  deepEqual(page.get(), {
+    error: undefined,
+    hasNext: false,
+    isLoading: false,
+    list: [
+      {
+        full: undefined,
+        media: undefined,
+        originId: 'https://example.com/1',
+        publishedAt: undefined,
+        title: 'Test Post',
+        url: 'https://example.com/1'
+      }
+    ]
+  })
 })
 
 test('handles 304 not modified response', async () => {

@@ -17,7 +17,12 @@ export type Loader = {
    * Task is a way to combine multiple HTTP requests (for instance, during
    * the feed search/preview) to cancel all of them fast.
    */
-  getPosts(task: DownloadTask, url: string, text?: TextResponse): PostsList
+  getPosts(
+    task: DownloadTask,
+    url: string,
+    text?: TextResponse,
+    refreshedAt?: number
+  ): PostsList
 
   /**
    * Get source data of post from loader's API for debug purposes.
