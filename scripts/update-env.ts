@@ -39,7 +39,7 @@ async function getLatestNodeVersion(
   major: string | undefined
 ): Promise<string> {
   let response = await fetch('https://nodejs.org/dist/index.json')
-  let data: Release[] = await response.json()
+  let data = (await response.json()) as Release[]
   let filtered = major
     ? data.filter(i => i.version.startsWith(`v${major}.`))
     : data
@@ -50,7 +50,7 @@ async function getLatestPnpmVersion(): Promise<string> {
   let response = await fetch(
     'https://api.github.com/repos/pnpm/pnpm/releases/latest'
   )
-  let data: { tag_name: string } = await response.json()
+  let data = (await response.json()) as { tag_name: string }
   return data.tag_name.slice(1)
 }
 
