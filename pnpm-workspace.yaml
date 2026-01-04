@@ -30,6 +30,7 @@ minimumReleaseAgeExclude:
   - 'multiocular'
   - 'oxfmt'
   - '@oxfmt/*'
+  - svelte-fast-check
 
 allowBuilds:
   husky: true

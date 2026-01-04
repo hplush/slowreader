@@ -1,5 +1,8 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["**/*.ts", "**/*.cts"],
+  "compilerOptions": {
+    "composite": true
+  },
+  "include": ["**/*.ts"],
   "exclude": ["dist"]
 }

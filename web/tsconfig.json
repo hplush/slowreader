@@ -1,5 +1,8 @@
 {
   "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2024", "DOM", "DOM.Iterable"]
+  },
   "include": ["**/*.ts", "**/*.cts", "**/*.svelte", ".storybook/*.ts"],
   "exclude": ["dist", "storybook-static"]
 }

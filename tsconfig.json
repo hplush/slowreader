@@ -10,13 +10,22 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "allowJs": true,
+    "noEmit": true,
     "target": "ES2024",
     "module": "NodeNext",
     "strict": true,
-    "noEmit": true,
-    "types": ["chrome", "node"],
-    "lib": ["ES2024", "DOM", "DOM.Iterable"]
+    "types": ["node"],
+    "lib": ["ES2024"]
   },
-  "include": ["**/*.ts", "**/*.cts", "web/**/*.svelte", "web/.storybook/*.ts"],
-  "exclude": ["*/dist"]
+  "include": [],
+  "references": [
+    { "path": "./api" },
+    { "path": "./core" },
+    { "path": "./extension" },
+    { "path": "./loader-tests" },
+    { "path": "./proxy" },
+    { "path": "./scripts" },
+    { "path": "./server" },
+    { "path": "./web" }
+  ]
 }
