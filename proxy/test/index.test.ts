@@ -108,8 +108,8 @@ async function expectBadRequest(
 test('works', async () => {
   let response = await request(targetUrl)
   equal(response.status, 200)
-  let parsedResponse = await response.json()
-  equal(parsedResponse?.response, 'ok')
+  let parsedResponse = (await response.json()) as EchoResponse
+  equal(parsedResponse.response, 'ok')
 })
 
 test('has timeout', async () => {
@@ -183,8 +183,8 @@ test('clears cookie headers', async () => {
 
   equal(response.status, 200)
   equal(response.headers.get('set-cookie'), null)
-  let parsedResponse = await response.json()
-  equal(parsedResponse?.cookie, undefined)
+  let parsedResponse = (await response.json()) as EchoResponse
+  equal(parsedResponse.request.headers.cookie, undefined)
 })
 
 test('checks Origin', async () => {
@@ -232,16 +232,20 @@ test('checks Origin', async () => {
 test('sends user IP to destination', async () => {
   let response1 = await request(targetUrl)
   equal(response1.status, 200)
-  let json1 = await response1.json()
-  match(json1.request.headers['x-forwarded-for'], /^(::1|(::ffff:)?127.0.0.1)$/)
-  let localhost = json1.request.headers['x-forwarded-for']
+  let json1 = (await response1.json()) as EchoResponse
+  let forwardedFor1 = json1.request.headers['x-forwarded-for']
+  let localhost = String(forwardedFor1)
+  match(localhost, /^(::1|(::ffff:)?127.0.0.1)$/)
 
   let response2 = await request(targetUrl, {
     headers: { 'X-Forwarded-For': '4.4.4.4' }
   })
   equal(response2.status, 200)
-  let json2 = await response2.json()
-  equal(json2.request.headers['x-forwarded-for'], `4.4.4.4, ${localhost}`)
+  let json2 = (await response2.json()) as EchoResponse
+  equal(
+    String(json2.request.headers['x-forwarded-for']),
+    `4.4.4.4, ${localhost}`
+  )
 })
 
 test('checks response size', async () => {

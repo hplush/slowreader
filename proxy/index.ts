@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { isIP } from 'node:net'
 import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
+import type { ReadableStream as WebReadableStream } from 'node:stream/web'
 import { styleText } from 'node:util'
 
 class BadRequestError extends Error {
@@ -141,8 +142,10 @@ export function createProxy(
       sent = true
 
       if (targetResponse.body) {
-        // @ts-expect-error Until Node.js types are broken
-        let nodeStream = Readable.fromWeb(targetResponse.body)
+        let nodeStream = Readable.fromWeb(
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+          targetResponse.body as WebReadableStream
+        )
         await pipeline(nodeStream, res, {
           signal: AbortSignal.timeout(config.bodyTimeout)
         })
