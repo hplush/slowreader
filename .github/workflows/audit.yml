@@ -52,6 +52,7 @@ jobs:
         with:
           egress-policy: block
           allowed-endpoints: >
+            api.github.com:443
             api.socket.dev:443
             files.pythonhosted.org:443
             github.com:443
