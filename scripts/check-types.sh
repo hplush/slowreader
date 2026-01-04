@@ -29,22 +29,48 @@ get_projects_from_files() {
   echo "$projects" | sed 's/^ //'
 }
 
+has_files_with_ext() {
+  project="$1"
+  ext="$2"
+  shift 2
+  for file in "$@"; do
+    file_project=$(echo "$file" | sed 's|^\./||' | cut -d'/' -f1)
+    if [ "$file_project" = "$project" ]; then
+      case "$file" in
+        *.$ext) return 0 ;;
+      esac
+    fi
+  done
+  return 1
+}
+
 if [ $# -eq 0 ]; then
   PROJECTS_TO_CHECK="$ALL_PROJECTS"
+  FILES_PROVIDED=false
 else
   PROJECTS_TO_CHECK=$(get_projects_from_files "$@")
-  if [ -z "$PROJECTS_TO_CHECK" ]; then
-    echo "No valid projects found in provided files"
-    exit 0
-  fi
+  FILES_PROVIDED=true
 fi
 
 for project in $PROJECTS_TO_CHECK; do
   if [ "$project" = "web" ]; then
     echo "Checking web"
-    cd web/
-    ./node_modules/.bin/svelte-fast-check --incremental
-    cd ..
+
+    if [ "$FILES_PROVIDED" = false ]; then
+      ./node_modules/.bin/tsgo --noEmit -p web
+      cd web/
+      ./node_modules/.bin/svelte-fast-check --incremental
+      cd ..
+    else
+      if has_files_with_ext web ts "$@"; then
+        ./node_modules/.bin/tsgo --noEmit -p web
+      fi
+      if has_files_with_ext web svelte "$@"; then
+        cd web/
+        ./node_modules/.bin/svelte-fast-check --incremental
+        cd ..
+      fi
+    fi
   else
     echo "Checking $project"
     ./node_modules/.bin/tsgo --noEmit -p "$project"
