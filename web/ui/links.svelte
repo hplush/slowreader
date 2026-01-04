@@ -1,10 +1,5 @@
-<script generics="Value extends object" lang="ts">
-  import type { Snippet } from 'svelte'
-
-  import Clickable from './clickable.svelte'
-  import Icon from './icon.svelte'
-
-  interface Link<ItemValue> {
+<script lang="ts" module>
+  export interface Link<ItemValue> {
     controls?: string
     href: string
     id: string
@@ -13,6 +8,13 @@
     markTitle?: string
     variant?: 'normal' | 'read'
   }
+</script>
+
+<script generics="Value extends object" lang="ts">
+  import type { Snippet } from 'svelte'
+
+  import Clickable from './clickable.svelte'
+  import Icon from './icon.svelte'
 
   let {
     current,
