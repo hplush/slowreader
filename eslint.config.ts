@@ -16,9 +16,7 @@ export default [
       '@typescript-eslint/no-base-to-string': 'off',
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-type-assertion': 'off',
-      // Until https://github.com/typescript-eslint/typescript-eslint/issues/11849
-      '@typescript-eslint/no-useless-default-assignment': 'off'
+      '@typescript-eslint/no-unsafe-type-assertion': 'off'
     }
   },
   {
