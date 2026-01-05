@@ -39,8 +39,7 @@ RUN <<EOF
   echo "$NODE_CHECKSUM /node.tar.xz" | sha256sum -c
   tar -xf /node.tar.xz -C /usr/local --remove-files --strip-components=1 \
     --exclude='*.md' --exclude='LICENSE' \
-    --exclude='share' --exclude='lib/node_modules/' \
-    --exclude='bin/npm' --exclude='bin/npx' --exclude='bin/corepack'
+    --exclude='share' --exclude='lib/node_modules/' --exclude='bin/corepack'
   rm /node.tar.xz
 
   curl "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-${ARCH}" \
