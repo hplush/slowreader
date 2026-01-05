@@ -4,10 +4,9 @@
   "type": "module",
   "scripts": {
     "check-opml": "node check-opml.ts",
-    "test": "node --run test:online:loaders",
+    "test": "node test-loaders.ts",
     "url": "node url.ts",
-    "feed": "node feed.ts",
-    "test:online:loaders": "node test-loaders.ts"
+    "feed": "node feed.ts"
   },
   "devDependencies": {
     "@slowreader/core": "workspace:*",
