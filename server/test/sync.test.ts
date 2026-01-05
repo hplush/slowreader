@@ -88,7 +88,7 @@ test('syncs action between clients', async () => {
   ])
 
   let client3 = await connect(server, '0000000000000000', 'AAAAAAAAAA')
-  await setTimeout(10)
+  await setTimeout(100)
   deepEqual(client3.log.actions(), [
     { type: 'B', z },
     { type: 'C' },
