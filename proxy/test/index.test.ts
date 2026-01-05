@@ -284,8 +284,8 @@ test('handles If-Modified-Since and Last-Modified', async () => {
     }
   })
   equal(response2.status, 200)
-  let { response: response2Content } = await response2.json()
-  equal(response2Content, 'ok')
+  let json2 = (await response2.json()) as EchoResponse
+  equal(json2.response, 'ok')
 })
 
 test('handles malformed If-Modified-Since and Last-Modified', async () => {
@@ -297,8 +297,8 @@ test('handles malformed If-Modified-Since and Last-Modified', async () => {
     }
   })
   equal(response1.status, 200)
-  let { response: response1Content } = await response1.json()
-  equal(response1Content, 'ok')
+  let json1 = (await response1.json()) as EchoResponse
+  equal(json1.response, 'ok')
 
   let response2 = await request(`${targetUrl}?lastModified=${time}`, {
     headers: {
@@ -306,6 +306,6 @@ test('handles malformed If-Modified-Since and Last-Modified', async () => {
     }
   })
   equal(response2.status, 200)
-  let { response: response2Content } = await response2.json()
-  equal(response2Content, 'ok')
+  let json2 = (await response2.json()) as EchoResponse
+  equal(json2.response, 'ok')
 })
