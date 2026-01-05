@@ -48,7 +48,16 @@ if [ $# -eq 0 ]; then
   PROJECTS_TO_CHECK="$ALL_PROJECTS"
   FILES_PROVIDED=false
 else
-  PROJECTS_TO_CHECK=$(get_projects_from_files "$@")
+  # Convert absolute paths to relative paths if needed
+  RELATIVE_FILES=""
+  for file in "$@"; do
+    case "$file" in
+      /*) file=$(realpath --relative-to=. "$file" 2>/dev/null || echo "$file") ;;
+    esac
+    RELATIVE_FILES="$RELATIVE_FILES $file"
+  done
+
+  PROJECTS_TO_CHECK=$(get_projects_from_files $RELATIVE_FILES)
   FILES_PROVIDED=true
 fi
 
@@ -62,10 +71,10 @@ for project in $PROJECTS_TO_CHECK; do
       ./node_modules/.bin/svelte-fast-check --incremental
       cd ..
     else
-      if has_files_with_ext web ts "$@"; then
+      if has_files_with_ext web ts $RELATIVE_FILES; then
         ./node_modules/.bin/tsgo --noEmit -p web
       fi
-      if has_files_with_ext web svelte "$@"; then
+      if has_files_with_ext web svelte $RELATIVE_FILES; then
         cd web/
         ./node_modules/.bin/svelte-fast-check --incremental
         cd ..
