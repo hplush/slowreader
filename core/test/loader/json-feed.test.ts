@@ -10,6 +10,7 @@ import {
   expectRequest,
   loaders,
   mockRequest,
+  setRequestMethod,
   setupEnvironment,
   testFeed,
   type TextResponse
@@ -627,4 +628,59 @@ test('returns post source', async () => {
     ),
     undefined
   )
+})
+
+test('handles conditional request when server returns 304', async () => {
+  let callCount = 0
+  let capturedOpts: RequestInit | undefined
+
+  // Mock initial and refreshing requests
+  setRequestMethod((url, opts) => {
+    if (++callCount === 1) {
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            items: [
+              {
+                id: 'test-post',
+                title: 'Test Post',
+                url: 'https://example.com/1'
+              }
+            ],
+            title: 'Feed',
+            version: 'https://jsonfeed.org/version/1.1'
+          }),
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Last-Modified': 'Thu, 01 Jan 2026 00:00:00 GMT'
+            }
+          }
+        )
+      )
+    } else {
+      capturedOpts = opts
+      return Promise.resolve(new Response(null, { status: 304 }))
+    }
+  })
+
+  let task = createDownloadTask()
+
+  // Initial request
+  let page1 = loaders.jsonFeed.getPosts(task, 'https://example.com/news/')
+  await page1.loading
+  equal(page1.get().list.length, 1)
+
+  // Refreshing request
+  let page2 = loaders.jsonFeed.getPosts(
+    task,
+    'https://example.com/news/',
+    undefined,
+    1767225600 // Thu, 01 Jan 2026 00:00:00 GMT
+  )
+  await page2.loading
+  deepEqual(capturedOpts?.headers, {
+    'If-Modified-Since': 'Thu, 01 Jan 2026 00:00:00 GMT'
+  })
+  equal(page2.get().list.length, 0)
 })

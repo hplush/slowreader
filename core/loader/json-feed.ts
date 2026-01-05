@@ -142,12 +142,17 @@ export const jsonFeed: Loader = {
     return [...linksByType, ...findAnchorHrefs(text, /feed\.json/i)]
   },
 
-  getPosts(task, url, text) {
+  getPosts(task, url, text, refreshedAt) {
     if (text) {
       return createPostsList(() => [parsePosts(text), undefined])
     } else {
       return createPostsList(async () => {
-        return [parsePosts(await task.text(url)), undefined]
+        let headers = refreshedAt
+          ? { 'If-Modified-Since': new Date(refreshedAt * 1000).toUTCString() }
+          : undefined
+        let response = await task.text(url, { headers })
+        if (response.status === 304) return [[], undefined]
+        return [parsePosts(response), undefined]
       })
     }
   },
