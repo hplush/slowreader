@@ -122,9 +122,15 @@ function parseFeed(
 
 async function loadFeed(
   task: DownloadTask,
-  url: string
+  url: string,
+  refreshedAt?: number
 ): Promise<PostsListResult> {
-  return parseFeed(task, await task.text(url))
+  let headers = refreshedAt
+    ? { 'If-Modified-Since': new Date(refreshedAt * 1000).toUTCString() }
+    : undefined
+  let response = await task.text(url, { headers })
+  if (response.status === 304) return [[], undefined]
+  return parseFeed(task, response)
 }
 
 export const atom: Loader = {
@@ -143,11 +149,11 @@ export const atom: Loader = {
     }
   },
 
-  getPosts(task, url, text) {
+  getPosts(task, url, text, refreshedAt) {
     if (text) {
       return createPostsList(() => parseFeed(task, text))
     } else {
-      return createPostsList(() => loadFeed(task, url))
+      return createPostsList(() => loadFeed(task, url, refreshedAt))
     }
   },
 
