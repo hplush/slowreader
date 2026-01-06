@@ -7,6 +7,7 @@ import { type OriginPost, type PostMedia, stringifyMedia } from '../post.ts'
 import { createPostsList, type PostsListResult } from '../posts-list.ts'
 import {
   buildFullURL,
+  fetchIfModified,
   findAnchorHrefs,
   findDocumentLinks,
   findHeaderLinks,
@@ -125,12 +126,9 @@ async function loadFeed(
   url: string,
   refreshedAt?: number
 ): Promise<PostsListResult> {
-  let headers = refreshedAt
-    ? { 'If-Modified-Since': new Date(refreshedAt * 1000).toUTCString() }
-    : undefined
-  let response = await task.text(url, { headers })
-  if (response.status === 304) return [[], undefined]
-  return parseFeed(task, response)
+  return fetchIfModified(task, url, refreshedAt, response =>
+    parseFeed(task, response)
+  )
 }
 
 export const atom: Loader = {

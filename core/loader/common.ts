@@ -1,7 +1,7 @@
 import type { FeedValue } from '../feed.ts'
 import type { DownloadTask, TextResponse } from '../lib/download.ts'
 import type { PostMedia } from '../post.ts'
-import type { PostsList } from '../posts-list.ts'
+import type { PostsList, PostsListResult } from '../posts-list.ts'
 
 export type Loader = {
   /**
@@ -187,4 +187,21 @@ export function findMediaInText(
       url: img.getAttribute('src')!
     } satisfies PostMedia
   })
+}
+
+/**
+ * Fetches feed data if modified, handling conditional requests.
+ */
+export async function fetchIfModified(
+  task: DownloadTask,
+  url: string,
+  refreshedAt: number | undefined,
+  parseCb: (response: TextResponse) => PostsListResult
+): Promise<PostsListResult> {
+  let headers = refreshedAt
+    ? { 'If-Modified-Since': new Date(refreshedAt * 1000).toUTCString() }
+    : undefined
+  let response = await task.text(url, { headers })
+  if (response.status === 304) return [[], undefined]
+  return parseCb(response)
 }

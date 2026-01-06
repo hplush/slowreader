@@ -3,6 +3,7 @@ import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import { type OriginPost, type PostMedia, stringifyMedia } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import {
+  fetchIfModified,
   findAnchorHrefs,
   findDocumentLinks,
   findHeaderLinks,
@@ -146,14 +147,12 @@ export const jsonFeed: Loader = {
     if (text) {
       return createPostsList(() => [parsePosts(text), undefined])
     } else {
-      return createPostsList(async () => {
-        let headers = refreshedAt
-          ? { 'If-Modified-Since': new Date(refreshedAt * 1000).toUTCString() }
-          : undefined
-        let response = await task.text(url, { headers })
-        if (response.status === 304) return [[], undefined]
-        return [parsePosts(response), undefined]
-      })
+      return createPostsList(() =>
+        fetchIfModified(task, url, refreshedAt, response => [
+          parsePosts(response),
+          undefined
+        ])
+      )
     }
   },
 
