@@ -1,3 +1,5 @@
+import './dom-parser.ts'
+
 import { loadValue } from '@logux/client'
 import { restoreAll, spyOn } from 'nanospy'
 import { deepEqual, equal, fail, ok } from 'node:assert/strict'
@@ -25,6 +27,7 @@ import {
   refreshProgress,
   refreshStatistics,
   refreshStatus,
+  setRequestMethod,
   stopRefreshing,
   testFeed,
   waitLoading
@@ -521,4 +524,64 @@ test('retries with some delay', async () => {
     processedFeeds: 3,
     totalFeeds: 3
   })
+})
+
+test('sends If-Modified-Since equal to refreshedAt of updated feed', async () => {
+  let feedId = await addFeed(testFeed())
+
+  let requestCount = 0
+  let capturedOpts1: RequestInit | undefined
+  let capturedOpts2: RequestInit | undefined
+
+  setRequestMethod((url, opts) => {
+    if (++requestCount === 1) {
+      capturedOpts1 = opts ?? {}
+      return Promise.resolve(
+        new Response(
+          `<?xml version="1.0"?>
+          <rss><channel>
+            <title>Feed</title>
+          </channel></rss>`,
+          {
+            headers: {
+              'Content-Type': 'application/rss+xml',
+              'Last-Modified': 'Thu, 01 Jan 2026 00:00:00 GMT'
+            },
+            status: 200
+          }
+        )
+      )
+    } else {
+      capturedOpts2 = opts ?? {}
+      return Promise.resolve(new Response(null, { status: 304 }))
+    }
+  })
+
+  let getHeaders = (opts?: RequestInit): Record<string, string> =>
+    (opts?.headers ?? {}) as Record<string, string>
+
+  equal(requestCount, 0)
+  let feed0 = await loadValue(getFeed(feedId))
+  ok(!feed0!.refreshedAt)
+
+  refreshPosts()
+  await setTimeout(10)
+
+  // First update: store current timestamp as `refreshedAt`
+  equal(requestCount, 1)
+  equal(getHeaders(capturedOpts1)['If-Modified-Since'], undefined)
+  let feed1 = await loadValue(getFeed(feedId))
+  ok(feed1!.refreshedAt)
+
+  refreshPosts()
+  await setTimeout(10)
+
+  // Later update: send `refreshedAt` in `If-Modified-Since` header
+  equal(requestCount, 2)
+  equal(
+    getHeaders(capturedOpts2)['If-Modified-Since'],
+    new Date(feed1!.refreshedAt * 1000).toUTCString()
+  )
+  let feed2 = await loadValue(getFeed(feedId))
+  equal(feed2!.refreshedAt, feed1!.refreshedAt)
 })
