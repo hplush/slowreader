@@ -190,7 +190,7 @@ export function findMediaInText(
 }
 
 /**
- * Fetches feed data if modified, handling conditional requests.
+ * Prevent heavy loading/parsing by `If-Modified-Since` header.
  */
 export async function fetchIfModified(
   task: DownloadTask,
