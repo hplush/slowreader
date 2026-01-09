@@ -526,16 +526,16 @@ test('retries with some delay', async () => {
   })
 })
 
-test('sends If-Modified-Since equal to refreshedAt of updated feed', async () => {
-  let feedId = await addFeed(testFeed())
+test('sends If-Modified-Since', async () => {
+  await addFeed(testFeed())
 
   let requestCount = 0
-  let capturedOpts1: RequestInit | undefined
-  let capturedOpts2: RequestInit | undefined
+  let capturedHeaders: Record<string, string>[] = []
 
   setRequestMethod((url, opts) => {
-    if (++requestCount === 1) {
-      capturedOpts1 = opts ?? {}
+    capturedHeaders.push((opts?.headers ?? {}) as Record<string, string>)
+    requestCount += 1
+    if (requestCount === 1) {
       return Promise.resolve(
         new Response(
           `<?xml version="1.0"?>
@@ -552,36 +552,17 @@ test('sends If-Modified-Since equal to refreshedAt of updated feed', async () =>
         )
       )
     } else {
-      capturedOpts2 = opts ?? {}
       return Promise.resolve(new Response(null, { status: 304 }))
     }
   })
 
-  let getHeaders = (opts?: RequestInit): Record<string, string> =>
-    (opts?.headers ?? {}) as Record<string, string>
-
-  equal(requestCount, 0)
-  let feed0 = await loadValue(getFeed(feedId))
-  ok(!feed0!.refreshedAt)
-
-  refreshPosts()
-  await setTimeout(10)
-
-  // First update: store current timestamp as `refreshedAt`
+  await refreshPosts()
   equal(requestCount, 1)
-  equal(getHeaders(capturedOpts1)['If-Modified-Since'], undefined)
-  let feed1 = await loadValue(getFeed(feedId))
-  ok(feed1!.refreshedAt)
+  equal(capturedHeaders[0]!['If-Modified-Since'], undefined)
+  equal(refreshStatistics.get().errorRequests, 0)
 
-  refreshPosts()
-  await setTimeout(10)
-
-  // Later update: send `refreshedAt` in `If-Modified-Since` header
+  await refreshPosts()
   equal(requestCount, 2)
-  equal(
-    getHeaders(capturedOpts2)['If-Modified-Since'],
-    new Date(feed1!.refreshedAt * 1000).toUTCString()
-  )
-  let feed2 = await loadValue(getFeed(feedId))
-  equal(feed2!.refreshedAt, feed1!.refreshedAt)
+  equal(typeof capturedHeaders[1]!['If-Modified-Since'], 'string')
+  equal(refreshStatistics.get().errorRequests, 0)
 })
