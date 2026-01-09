@@ -10,6 +10,7 @@ import {
   expectRequest,
   loaders,
   mockRequest,
+  setRequestMethod,
   testFeed,
   type TextResponse
 } from '../../index.ts'
@@ -448,4 +449,58 @@ test('returns post source', async () => {
     ),
     undefined
   )
+})
+
+test('handles conditional request when server returns 304', async () => {
+  let callCount = 0
+  let capturedOpts: RequestInit | undefined
+
+  // Mock initial and refreshing requests
+  setRequestMethod((url, opts) => {
+    if (++callCount === 1) {
+      return Promise.resolve(
+        new Response(
+          `<?xml version="1.0"?>
+          <rss version="2.0">
+            <channel>
+              <title>Feed</title>
+              <item>
+                <title>Test Post</title>
+                <link>https://example.com/1</link>
+              </item>
+            </channel>
+          </rss>`,
+          {
+            headers: {
+              'Content-Type': 'application/rss+xml',
+              'Last-Modified': 'Thu, 01 Jan 2026 00:00:00 GMT'
+            }
+          }
+        )
+      )
+    } else {
+      capturedOpts = opts
+      return Promise.resolve(new Response(null, { status: 304 }))
+    }
+  })
+
+  let task = createDownloadTask()
+
+  // Initial request
+  let page1 = loaders.rss.getPosts(task, 'https://example.com/news/')
+  await page1.loading
+  equal(page1.get().list.length, 1)
+
+  // Refreshing request
+  let page2 = loaders.rss.getPosts(
+    task,
+    'https://example.com/news/',
+    undefined,
+    1767225600 // Thu, 01 Jan 2026 00:00:00 GMT
+  )
+  await page2.loading
+  deepEqual(capturedOpts?.headers, {
+    'If-Modified-Since': 'Thu, 01 Jan 2026 00:00:00 GMT'
+  })
+  equal(page2.get().list.length, 0)
 })

@@ -7,6 +7,7 @@ import { type OriginPost, type PostMedia, stringifyMedia } from '../post.ts'
 import { createPostsList, type PostsListResult } from '../posts-list.ts'
 import {
   buildFullURL,
+  fetchIfModified,
   findAnchorHrefs,
   findDocumentLinks,
   findHeaderLinks,
@@ -122,9 +123,12 @@ function parseFeed(
 
 async function loadFeed(
   task: DownloadTask,
-  url: string
+  url: string,
+  refreshedAt?: number
 ): Promise<PostsListResult> {
-  return parseFeed(task, await task.text(url))
+  return fetchIfModified(task, url, refreshedAt, response =>
+    parseFeed(task, response)
+  )
 }
 
 export const atom: Loader = {
@@ -143,11 +147,11 @@ export const atom: Loader = {
     }
   },
 
-  getPosts(task, url, text) {
+  getPosts(task, url, text, refreshedAt) {
     if (text) {
       return createPostsList(() => parseFeed(task, text))
     } else {
-      return createPostsList(() => loadFeed(task, url))
+      return createPostsList(() => loadFeed(task, url, refreshedAt))
     }
   },
 

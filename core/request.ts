@@ -11,20 +11,20 @@ export function setRequestMethod(method: RequestMethod): void {
 }
 
 export interface RequestWaiter {
-  (status: number, body?: string, contentType?: string): Promise<void>
+  (status: number, body?: null | string, contentType?: string): Promise<void>
   aborted?: true
 }
 
 export interface RequestMock {
   andFail(): void
-  andRespond(status: number, body?: string, contentType?: string): void
+  andRespond(status: number, body?: null | string, contentType?: string): void
   andWait(): RequestWaiter
 }
 
 interface RequestExpect {
   contentType: string
   error: boolean
-  response: string
+  response: null | string
   status: number
   url: string
   wait: Promise<void>

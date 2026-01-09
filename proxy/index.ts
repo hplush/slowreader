@@ -127,6 +127,32 @@ export function createProxy(
         /* node:coverage enable */
       }
 
+      if (
+        req.headers['if-modified-since'] &&
+        targetResponse.headers.has('last-modified')
+      ) {
+        try {
+          let cachedAt = new Date(req.headers['if-modified-since'])
+          let updatedAt = new Date(targetResponse.headers.get('last-modified')!)
+
+          if (cachedAt.getTime() >= updatedAt.getTime()) {
+            res.setHeader('Last-Modified', updatedAt.toUTCString())
+            res.writeHead(304)
+            return res.end()
+          }
+          /* node:coverage disable */
+        } catch (e) {
+          let message = 'Skipping cache check due to malformed date headers'
+          if (e instanceof Error) {
+            message += `: ${e.stack ?? e.message}`
+          } else if (typeof e === 'string') {
+            message += `: ${e}`
+          }
+          process.stderr.write(styleText('yellow', message) + '\n')
+        }
+        /* node:coverage enable */
+      }
+
       let length: number | undefined
       if (targetResponse.headers.has('content-length')) {
         length = parseInt(targetResponse.headers.get('content-length')!)

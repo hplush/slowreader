@@ -222,7 +222,7 @@ export function createDownloadTask(
       if (controller.signal.aborted) {
         throw new DOMException('', 'AbortError')
       }
-      if (!response.ok) {
+      if (!response.ok && response.status !== 304) {
         throw new HTTPStatusError(
           response.status,
           url,
@@ -246,6 +246,7 @@ export function createDownloadTask(
       if (controller.signal.aborted) {
         throw new DOMException('', 'AbortError')
       }
+
       return createTextResponse(text, {
         headers: response.headers,
         redirected: response.redirected,

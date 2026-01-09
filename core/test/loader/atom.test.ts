@@ -11,6 +11,7 @@ import {
   loaders,
   mockRequest,
   parseMedia,
+  setRequestMethod,
   setupEnvironment,
   testFeed,
   type TextResponse
@@ -679,4 +680,57 @@ test('returns post source', async () => {
     ),
     undefined
   )
+})
+
+test('handles conditional request when server returns 304', async () => {
+  let callCount = 0
+  let capturedOpts: RequestInit | undefined
+
+  // Mock initial and refreshing requests
+  setRequestMethod((url, opts) => {
+    if (++callCount === 1) {
+      return Promise.resolve(
+        new Response(
+          `<?xml version="1.0"?>
+          <feed xmlns="http://www.w3.org/2005/Atom">
+            <title>Feed</title>
+            <entry>
+              <title>Test Post</title>
+              <id>test-post</id>
+              <link rel="alternate" href="https://example.com/1" />
+            </entry>
+          </feed>`,
+          {
+            headers: {
+              'Content-Type': 'application/atom+xml',
+              'Last-Modified': 'Thu, 01 Jan 2026 00:00:00 GMT'
+            }
+          }
+        )
+      )
+    } else {
+      capturedOpts = opts
+      return Promise.resolve(new Response(null, { status: 304 }))
+    }
+  })
+
+  let task = createDownloadTask()
+
+  // Initial request
+  let page1 = loaders.atom.getPosts(task, 'https://example.com/news/')
+  await page1.loading
+  equal(page1.get().list.length, 1)
+
+  // Refreshing request
+  let page2 = loaders.atom.getPosts(
+    task,
+    'https://example.com/news/',
+    undefined,
+    1767225600 // Thu, 01 Jan 2026 00:00:00 GMT
+  )
+  await page2.loading
+  deepEqual(capturedOpts?.headers, {
+    'If-Modified-Since': 'Thu, 01 Jan 2026 00:00:00 GMT'
+  })
+  equal(page2.get().list.length, 0)
 })

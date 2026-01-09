@@ -3,6 +3,7 @@ import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import { type OriginPost, type PostMedia, stringifyMedia } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import {
+  fetchIfModified,
   findAnchorHrefs,
   findDocumentLinks,
   findHeaderLinks,
@@ -142,13 +143,16 @@ export const jsonFeed: Loader = {
     return [...linksByType, ...findAnchorHrefs(text, /feed\.json/i)]
   },
 
-  getPosts(task, url, text) {
+  getPosts(task, url, text, refreshedAt) {
     if (text) {
       return createPostsList(() => [parsePosts(text), undefined])
     } else {
-      return createPostsList(async () => {
-        return [parsePosts(await task.text(url)), undefined]
-      })
+      return createPostsList(() =>
+        fetchIfModified(task, url, refreshedAt, response => [
+          parsePosts(response),
+          undefined
+        ])
+      )
     }
   },
 
