@@ -29,20 +29,20 @@
   },
   "devDependencies": {
     "@logux/eslint-config": "57.0.1",
-    "@types/chrome": "0.1.32",
-    "@types/node": "25.0.3",
+    "@types/chrome": "0.1.33",
+    "@types/node": "25.0.8",
     "@types/ws": "8.18.1",
-    "@typescript/native-preview": "7.0.0-dev.20260105.1",
-    "actions-up": "1.8.0",
+    "@typescript/native-preview": "7.0.0-dev.20260113.1",
+    "actions-up": "1.9.0",
     "better-node-test": "0.8.3",
     "eslint": "9.39.2",
-    "eslint-plugin-svelte": "3.13.1",
+    "eslint-plugin-svelte": "3.14.0",
     "husky": "9.1.7",
     "jiti": "2.6.1",
     "multiocular": "0.8.2",
     "nano-staged": "0.9.0",
-    "oxfmt": "0.22.0",
-    "postcss-html": "1.8.0",
+    "oxfmt": "0.24.0",
+    "postcss-html": "1.8.1",
     "prettier": "3.7.4",
     "prettier-plugin-svelte": "3.4.1",
     "remark-cli": "12.0.1",
@@ -58,14 +58,14 @@
     "remark-lint-smarty-pants-typography": "1.1.0",
     "remark-validate-links": "13.1.0",
     "stylelint": "16.26.1",
-    "svelte": "5.46.1",
+    "svelte": "5.46.3",
     "svelte-eslint-parser": "1.4.1",
     "svgo": "4.0.0",
     "typescript": "5.9.3"
   },
   "engines": {
-    "node": "^24.12.0",
+    "node": "^24.13.0",
     "pnpm": "^10.0.0"
   },
-  "packageManager": "pnpm@10.27.0"
+  "packageManager": "pnpm@10.28.0"
 }

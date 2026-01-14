@@ -34,7 +34,7 @@
     "@nanostores/persistent": "1.2.0",
     "@nanostores/router": "1.0.0",
     "@slowreader/core": "workspace:*",
-    "@sveltejs/vite-plugin-svelte": "6.2.1",
+    "@sveltejs/vite-plugin-svelte": "6.2.4",
     "autoprefixer": "10.4.23",
     "nanostores": "1.1.0",
     "postcss": "8.5.6",
@@ -42,9 +42,9 @@
     "postcss-mixins": "12.1.2",
     "postcss-smooth-shadow": "0.3.2",
     "rollup": "4.55.1",
-    "svelte": "5.46.1",
+    "svelte": "5.46.3",
     "tsx": "4.21.0",
-    "vite": "7.3.0"
+    "vite": "7.3.1"
   },
   "devDependencies": {
     "@logux/stylelint-config": "0.21.0",
@@ -57,10 +57,10 @@
     "@stylistic/stylelint-config": "3.0.1",
     "@stylistic/stylelint-plugin": "4.0.0",
     "browserslist": "4.28.1",
-    "chromatic": "13.3.4",
+    "chromatic": "13.3.5",
     "eslint": "9.39.2",
     "keyux": "0.11.3",
-    "postcss-html": "1.8.0",
+    "postcss-html": "1.8.1",
     "postcss-nesting": "13.0.2",
     "postcss-selector-parser": "7.1.1",
     "size-limit": "12.0.0",
@@ -68,10 +68,10 @@
     "stylelint": "16.26.1",
     "stylelint-use-logical": "2.1.2",
     "svelte-check": "4.3.5",
-    "svelte-fast-check": "0.3.1"
+    "svelte-fast-check": "0.4.4"
   },
   "engines": {
-    "node": "^24.12.0",
+    "node": "^24.13.0",
     "pnpm": "^10.0.0"
   }
 }
