@@ -32,7 +32,7 @@
     "@types/chrome": "0.1.33",
     "@types/node": "25.0.8",
     "@types/ws": "8.18.1",
-    "@typescript/native-preview": "7.0.0-dev.20260113.1",
+    "@typescript/native-preview": "7.0.0-dev.20260114.1",
     "actions-up": "1.9.0",
     "better-node-test": "0.8.3",
     "eslint": "9.39.2",
@@ -58,7 +58,7 @@
     "remark-lint-smarty-pants-typography": "1.1.0",
     "remark-validate-links": "13.1.0",
     "stylelint": "16.26.1",
-    "svelte": "5.46.3",
+    "svelte": "5.46.4",
     "svelte-eslint-parser": "1.4.1",
     "svgo": "4.0.0",
     "typescript": "5.9.3"
