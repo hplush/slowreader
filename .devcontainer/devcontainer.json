@@ -3,7 +3,6 @@
     "dockerfile": "Dockerfile"
   },
   "runArgs": [
-    "--ulimit=host",
     "-p",
     "2553:2553",
     "-p",
