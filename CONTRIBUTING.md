@@ -41,7 +41,7 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
 ### Install Environment
 
 1. Install environment:
-   - For lond-term contribution, we recommend installing Docker and [Dev Container](https://containers.dev) plugin to your text editor. All developers will have the same environment and the development tool will be isolated from the system in the container.
+   - For long-term contribution, we recommend installing Docker and [Dev Container](https://containers.dev) plugin to your text editor. All developers will have the same environment and the development tool will be isolated from the system in the container.
      - [VS Code guide](https://code.visualstudio.com/docs/devcontainers/tutorial)
      - [Jet Brains IDEs](https://www.jetbrains.com/help/idea/start-dev-container-inside-ide.html)
      - Zed can use Remote Development with [some hacks](https://bsky.app/profile/en.sitnik.ru/post/3lqp2ti6vuk2h).
@@ -76,7 +76,7 @@ It will run a web server and proxy (the website, by default, can make HTTP reque
 To fill your web clients with real posts:
 
 1. Start web client.
-2. Open [`localhost:5173/feeds/add`](http://localhost:5173/feeds/add).
+2. Open [`localhost:2553/feeds/add`](http://localhost:2553/feeds/add).
 3. Add feeds from [`loader-tests/feeds.yml`](./loader-tests/feeds.yml).
 4. Open browser DevTools.
 5. Run `fillFeedsWithPosts()`.
