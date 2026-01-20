@@ -613,3 +613,42 @@ test('supports links with query parameters', async () => {
   equal(popup.notFound, false)
   equal(popup.param, 'https://example.com/news?format=rss')
 })
+
+test('deduplicates feed links differing only by protocol', async () => {
+  let page = openPage({
+    params: {},
+    route: 'add'
+  })
+
+  keepMount(page.candidates)
+
+  expectRequest('http://example.com').andRespond(
+    200,
+    `<html>
+      <link type="application/atom+xml" href="https://example.com/feed.atom">
+      <body>
+        <a href="/feed.atom"> subscribe </a>
+      </body>
+    </html>`
+  )
+
+  let rss = '<feed><title>Feed</title></feed>'
+  expectRequest('https://example.com/feed.atom').andRespond(
+    200,
+    rss,
+    'text/xml'
+  )
+
+  page.params.url.set('http://example.com')
+  await waitLoading(page.searching)
+
+  equal(page.candidates.get().length, 1)
+  equalWithText(page.candidates.get(), [
+    {
+      loader: loaders.atom,
+      name: 'atom',
+      title: 'Feed',
+      url: 'https://example.com/feed.atom'
+    }
+  ])
+})
