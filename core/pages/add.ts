@@ -147,19 +147,34 @@ export const addPage = createPage('add', () => {
   })
 
   /**
+   * Removes duplicated feed links differing only by protocol.
+   */
+  function dedupeLinks(links: string[]): string[] {
+    let seen = new Set<string>()
+    return links.filter(link => {
+      let key = link.replace(/^https?:\/\//, 'https://')
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+  }
+
+  /**
    * Extracts links to all known feed types from the HTTP response containing
    * the HTML document.
    */
   function getLinksFromText(response: TextResponse): string[] {
     let names = Object.keys(loaders) as LoaderName[]
-    return names.reduce<string[]>((links, name) => {
-      /* node:coverage ignore next 5 */
-      try {
-        return links.concat(loaders[name].getMineLinksFromText(response))
-      } catch {
-        return links
-      }
-    }, [])
+    return dedupeLinks(
+      names.reduce<string[]>((links, name) => {
+        /* node:coverage ignore next 5 */
+        try {
+          return links.concat(loaders[name].getMineLinksFromText(response))
+        } catch {
+          return links
+        }
+      }, [])
+    )
   }
 
   /** Guess a list of default/fallback links for all feed types */
