@@ -1,3 +1,4 @@
+import type { FilterStore } from '@logux/client'
 import { atom } from 'nanostores'
 
 import { getCategories } from '../category.ts'
@@ -31,9 +32,30 @@ async function loadFeedFromURL(
   }
 }
 
+function swapHttpProtocol(url: string): string {
+  let u = new URL(url)
+  u.protocol = u.protocol === 'https:' ? 'http:' : 'https:'
+  return u.toString()
+}
+
+async function getFeedFilter(url: string): Promise<FilterStore<FeedValue>> {
+  let exactFilter = getFeeds({ url })
+  let feeds = await waitSyncLoading(exactFilter)
+
+  if (feeds.get().list.length === 0) {
+    let fallbackFilter = getFeeds({ url: swapHttpProtocol(url) })
+    feeds = await waitSyncLoading(fallbackFilter)
+    if (feeds.get().list.length > 0) {
+      return fallbackFilter
+    }
+  }
+
+  return exactFilter
+}
+
 export const feed = definePopup('feed', async url => {
   let task = createDownloadTask({ cache: 'read' })
-  let feedsFilter = getFeeds({ url })
+  let feedsFilter = await getFeedFilter(url)
   let error: string | undefined
   let [responseOrError, categoriesFilter, feeds] = await Promise.all([
     loadFeedFromURL(task, url),
