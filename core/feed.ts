@@ -91,7 +91,7 @@ export async function addCandidate(
     loader: candidate.name,
     reading: 'slow',
     title: candidate.title,
-    url: candidate.url.replace('https://', 'http://'),
+    url: candidate.url,
     ...fields
   })
 }
