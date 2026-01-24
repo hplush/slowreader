@@ -38,7 +38,7 @@ function swapHttpProtocol(url: string): string {
   return u.toString()
 }
 
-async function getFeedFilter(url: string): Promise<FilterStore<FeedValue>> {
+async function getFeedsFilter(url: string): Promise<FilterStore<FeedValue>> {
   let exactFilter = getFeeds({ url })
   let feeds = await waitSyncLoading(exactFilter)
 
@@ -55,7 +55,7 @@ async function getFeedFilter(url: string): Promise<FilterStore<FeedValue>> {
 
 export const feed = definePopup('feed', async url => {
   let task = createDownloadTask({ cache: 'read' })
-  let feedsFilter = await getFeedFilter(url)
+  let feedsFilter = await getFeedsFilter(url)
   let error: string | undefined
   let [responseOrError, categoriesFilter, feeds] = await Promise.all([
     loadFeedFromURL(task, url),
