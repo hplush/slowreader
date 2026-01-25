@@ -188,3 +188,34 @@ test('has helpers to generate popup ID', () => {
     getPopupId('feed', 'http://example.com/')
   )
 })
+
+test('ignores url protocol while checking for existing feeds', async () => {
+  keepMount(openedPopups)
+  expectRequest('http://a.com/atom').andRespond(
+    200,
+    '<feed><title>Atom</title>' +
+      '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
+      '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
+      '</feed>',
+    'text/xml'
+  )
+  let popup = openTestPopup('feed', 'http://a.com/atom')
+  await waitLoading(popup.loading)
+
+  let addedId = await checkLoadedPopup(popup).add()
+  let feedId = checkLoadedPopup(popup).feed.get()!.id
+  equal(addedId, feedId)
+  equal((await loadValue(getFeed(feedId)))!.url, 'http://a.com/atom')
+
+  expectRequest('https://a.com/atom').andRespond(
+    200,
+    '<feed><title>Atom</title>' +
+      '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
+      '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
+      '</feed>',
+    'text/xml'
+  )
+  let popup2 = openTestPopup('feed', 'https://a.com/atom')
+  await waitLoading(popup2.loading)
+  equal(checkLoadedPopup(popup2).feed.get()!.url, 'http://a.com/atom')
+})

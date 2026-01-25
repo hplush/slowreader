@@ -620,8 +620,6 @@ test('deduplicates feed links differing only by protocol', async () => {
     route: 'add'
   })
 
-  keepMount(page.candidates)
-
   expectRequest('http://example.com').andRespond(
     200,
     `<html>
@@ -641,6 +639,9 @@ test('deduplicates feed links differing only by protocol', async () => {
 
   page.params.url.set('http://example.com')
   await waitLoading(page.searching)
+
+  let popup = getPopup('feed')
+  await waitLoading(popup.loading)
 
   equal(page.candidates.get().length, 1)
   equalWithText(page.candidates.get(), [
