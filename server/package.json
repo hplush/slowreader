@@ -20,7 +20,7 @@
     "clean:build": "rm -rf dist/ web/"
   },
   "dependencies": {
-    "@electric-sql/pglite": "0.3.14",
+    "@electric-sql/pglite": "0.3.15",
     "@logux/actions": "0.5.0",
     "@logux/server": "0.14.0",
     "@slowreader/api": "workspace:*",
@@ -37,7 +37,7 @@
     "better-node-test": "0.8.3",
     "drizzle-kit": "0.31.8",
     "eslint": "9.39.2",
-    "prettier": "3.7.4"
+    "prettier": "3.8.1"
   },
   "engines": {
     "node": "^24.13.0",
