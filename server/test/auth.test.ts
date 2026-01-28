@@ -253,3 +253,20 @@ test('supports CORS', async () => {
     'https://dev.slowreader.app'
   )
 })
+
+test('rejects old clients', async () => {
+  server = buildTestServer()
+  server.options.minSubprotocol = 2
+
+  let response = await server.fetch('/users/1', {
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Subprotocol': '0'
+    },
+    method: 'POST'
+  })
+  equal(response.status, 400)
+  equal(response.headers.get('X-Client-Action'), 'update-client')
+  let text = await response.text()
+  equal(text, 'Old client. Please update.')
+})

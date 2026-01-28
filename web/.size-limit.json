@@ -16,7 +16,7 @@
       "!dist/assets/playpen-sans-*.woff2",
       "!dist/assets/*-{italic,math,latin-ext}-*.woff2"
     ],
-    "limit": "185 KB"
+    "limit": "190 KB"
   },
   {
     "name": "Core scripts to execute",

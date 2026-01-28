@@ -37,7 +37,7 @@ function allowCors(res: ServerResponse, origin: string): void {
     'Access-Control-Allow-Methods',
     'OPTIONS, POST, GET, PUT, DELETE'
   )
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Subprotocol')
 }
 
 const LOCALHOST = /:\/\/localhost:/
@@ -67,6 +67,24 @@ export function jsonApi<Response, Request extends object>(
         allowCors(res, req.headers.origin)
       }
     }
+
+    if (req.headers['x-subprotocol'] && server.options.minSubprotocol) {
+      let clientSubprotocol = Number(req.headers['x-subprotocol'])
+
+      if (
+        isNaN(clientSubprotocol) ||
+        clientSubprotocol < server.options.minSubprotocol
+      ) {
+        res.writeHead(400, {
+          'Access-Control-Expose-Headers': 'X-Client-Action',
+          'Content-Type': 'text/plain',
+          'X-Client-Action': 'update-client'
+        })
+        res.end('Old client. Please update.')
+        return true
+      }
+    }
+
     if (req.method === 'OPTIONS') {
       res.writeHead(200)
       res.end()

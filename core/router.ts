@@ -1,5 +1,6 @@
 import { atom, computed, effect, type ReadableAtom } from 'nanostores'
 
+import { isClientUpdateRequired } from './client.ts'
 import { getEnvironment, onEnvironment } from './environment.ts'
 import { NotFoundError } from './errors.ts'
 import { userId } from './settings.ts'
@@ -28,6 +29,7 @@ export interface Routes {
     from?: number
   }
   start: {}
+  updateClient: {}
   welcome: {}
 }
 
@@ -96,7 +98,7 @@ export type OtherName =
   | (typeof FEED_ROUTES)[number]
   | (typeof SETTINGS_ROUTES)[number]
 
-const GUEST = new Set<RouteName>(['signin', 'start'])
+const GUEST = new Set<RouteName>(['signin', 'start', 'updateClient'])
 
 const BOTH = new Set<RouteName>(['notFound', 'signup'])
 
@@ -151,39 +153,44 @@ export function parsePopups(hash: string): PopupRoute[] {
 }
 
 onEnvironment(({ baseRouter }) => {
-  return effect([baseRouter, userId], (route, user) => {
-    let popups = user && route ? parsePopups(route.hash) : []
-    let nextRoute: Route
-    try {
-      if (!route) {
-        nextRoute = open('notFound')
-      } else if (!user && !GUEST.has(route.route) && !BOTH.has(route.route)) {
-        nextRoute = open('start')
-      } else if (user && GUEST.has(route.route)) {
-        nextRoute = redirect(open('home'))
-      } else if (route.route === 'fast' || route.route === 'slow') {
-        nextRoute = {
-          params: {
-            ...route.params,
-            from: validateNumber(route.params.from)
-          },
-          popups,
-          route: route.route
+  return effect(
+    [baseRouter, userId, isClientUpdateRequired],
+    (route, user, isUpdateRequired) => {
+      let popups = user && route ? parsePopups(route.hash) : []
+      let nextRoute: Route
+      try {
+        if (!route) {
+          nextRoute = open('notFound')
+        } else if (isUpdateRequired) {
+          nextRoute = redirect(open('updateClient'))
+        } else if (!user && !GUEST.has(route.route) && !BOTH.has(route.route)) {
+          nextRoute = open('start')
+        } else if (user && GUEST.has(route.route)) {
+          nextRoute = redirect(open('home'))
+        } else if (route.route === 'fast' || route.route === 'slow') {
+          nextRoute = {
+            params: {
+              ...route.params,
+              from: validateNumber(route.params.from)
+            },
+            popups,
+            route: route.route
+          }
+        } else {
+          nextRoute = { params: route.params, popups, route: route.route }
         }
-      } else {
-        nextRoute = { params: route.params, popups, route: route.route }
+      } catch (e) {
+        if (e instanceof NotFoundError) {
+          nextRoute = open('notFound')
+        } else {
+          throw e
+        }
       }
-    } catch (e) {
-      if (e instanceof NotFoundError) {
-        nextRoute = open('notFound')
-      } else {
-        throw e
+      if (JSON.stringify(router.get()) !== JSON.stringify(nextRoute)) {
+        router.set(nextRoute)
       }
     }
-    if (JSON.stringify(router.get()) !== JSON.stringify(nextRoute)) {
-      router.set(nextRoute)
-    }
-  })
+  )
 })
 
 export function isOtherRoute(route: Route): boolean {

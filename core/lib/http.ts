@@ -6,6 +6,7 @@ import {
   HTTPStatusError,
   UserFacingError
 } from '../errors.ts'
+import { handleClientUpdateRequired } from '../index.ts'
 
 /**
  * Takes fetch() wrapper from `@slowreader/api/http` and do the request
@@ -31,6 +32,10 @@ export async function checkErrors<Params extends object, ResponseJSON>(
   if (!response.ok) {
     let text = await response.text()
     if (response.status === 400 && text !== 'Invalid request') {
+      let action = response.headers.get('X-Client-Action')
+      if (action === 'update-client') {
+        handleClientUpdateRequired()
+      }
       throw new UserFacingError(text)
     } else {
       throw new HTTPStatusError(
