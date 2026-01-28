@@ -124,7 +124,7 @@
 
     .formatted-text a {
       color: var(--link-color);
-      word-wrap: break-word;
+      overflow-wrap: break-word;
       text-decoration: underline;
       opacity: 100%;
     }

@@ -91,6 +91,12 @@
       "rules": {
         "unit-disallowed-list": [["px"]]
       }
+    },
+    {
+      "files": ["postcss/mixins/*.pcss"],
+      "rules": {
+        "nesting-selector-no-missing-scoping-root": null
+      }
     }
   ]
 }
