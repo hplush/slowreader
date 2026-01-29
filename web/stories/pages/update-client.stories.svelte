@@ -16,24 +16,3 @@
     <UpdateClientPage page={pages.updateClient()} />
   </Scene>
 </Story>
-
-<Story
-  name="Dark"
-  asChild
-  parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
->
-  <Scene route="updateClient" user={false}>
-    <UpdateClientPage page={pages.updateClient()} />
-  </Scene>
-</Story>
-
-<Story
-  name="Mobile"
-  asChild
-  globals={{ viewport: { value: 'mobile2' } }}
-  parameters={{ layout: 'fullscreen' }}
->
-  <Scene route="updateClient" user={false}>
-    <UpdateClientPage page={pages.updateClient()} />
-  </Scene>
-</Story>

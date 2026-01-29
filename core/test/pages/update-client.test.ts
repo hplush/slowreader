@@ -18,5 +18,8 @@ test('shows update message', () => {
     params: {},
     route: 'updateClient'
   })
-  equal(page.message.includes('update the app'), true)
+
+  page.handleUpdateClient()
+
+  equal(isOutdatedClient.get(), false)
 })

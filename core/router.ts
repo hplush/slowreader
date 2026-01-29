@@ -155,13 +155,13 @@ export function parsePopups(hash: string): PopupRoute[] {
 onEnvironment(({ baseRouter }) => {
   return effect(
     [baseRouter, userId, isOutdatedClient],
-    (route, user, isUpdateRequired) => {
+    (route, user, outdatedClient) => {
       let popups = user && route ? parsePopups(route.hash) : []
       let nextRoute: Route
       try {
         if (!route) {
           nextRoute = open('notFound')
-        } else if (isUpdateRequired) {
+        } else if (outdatedClient) {
           nextRoute = redirect(open('updateClient'))
         } else if (!user && !GUEST.has(route.route) && !BOTH.has(route.route)) {
           nextRoute = open('start')

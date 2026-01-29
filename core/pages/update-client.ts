@@ -1,10 +1,14 @@
+import { isOutdatedClient } from '../client.ts'
 import { createPage } from './common.ts'
 
 export const updateClientPage = createPage('updateClient', () => {
+  function handleUpdateClient(): void {
+    isOutdatedClient.set(false)
+  }
+
   return {
     exit() {},
-    message: `Hi there 👋 It looks like you’re using an outdated client version. Please
-    update the app.`,
+    handleUpdateClient,
     params: {}
   }
 })
