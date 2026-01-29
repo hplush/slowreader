@@ -4,7 +4,8 @@ import {
   setPassword,
   signIn,
   signOut,
-  signUp
+  signUp,
+  SUBPROTOCOL_ERROR_MESSAGE
 } from '@slowreader/api'
 import { eq } from 'drizzle-orm'
 import { deepEqual, equal, notEqual, ok } from 'node:assert/strict'
@@ -252,4 +253,20 @@ test('supports CORS', async () => {
     real.headers.get('Access-Control-Allow-Origin'),
     'https://dev.slowreader.app'
   )
+})
+
+test('rejects old clients', async () => {
+  server = buildTestServer()
+  server.options.minSubprotocol = 2
+
+  let response = await server.fetch('/users/1', {
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Subprotocol': '0'
+    },
+    method: 'POST'
+  })
+  equal(response.status, 400)
+  let text = await response.text()
+  equal(text, SUBPROTOCOL_ERROR_MESSAGE)
 })

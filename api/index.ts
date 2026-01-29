@@ -2,6 +2,7 @@
  * Client’s protocol version
  */
 export const SUBPROTOCOL = 0
+export const SUBPROTOCOL_ERROR_MESSAGE = 'Outdated client'
 
 /**
  * Project’s version to use in UI.
