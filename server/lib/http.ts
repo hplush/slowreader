@@ -1,5 +1,5 @@
 import type { BaseServer } from '@logux/server'
-import type { Endpoint } from '@slowreader/api'
+import { type Endpoint, SUBPROTOCOL_ERROR_MESSAGE } from '@slowreader/api'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
 import { config } from './config.ts'
@@ -75,13 +75,7 @@ export function jsonApi<Response, Request extends object>(
         isNaN(clientSubprotocol) ||
         clientSubprotocol < server.options.minSubprotocol
       ) {
-        res.writeHead(400, {
-          'Access-Control-Expose-Headers': 'X-Client-Action',
-          'Content-Type': 'text/plain',
-          'X-Client-Action': 'update-client'
-        })
-        res.end('Old client. Please update.')
-        return true
+        return badRequest(res, SUBPROTOCOL_ERROR_MESSAGE)
       }
     }
 

@@ -51,11 +51,11 @@ function getServer(): ClientOptions['server'] {
 
 let prevClient: CrossTabClient | undefined
 export const client = atom<CrossTabClient | undefined>()
-export const isClientUpdateRequired = atom<boolean>(false)
+export const isOutdatedClient = atom<boolean>(false)
 
 /* node:coverage disable */
-export function handleClientUpdateRequired(): void {
-  isClientUpdateRequired.set(true)
+export function handleOutdatedClient(): void {
+  isOutdatedClient.set(true)
 }
 /* node:coverage enable */
 
@@ -82,7 +82,7 @@ onEnvironment(({ logStoreCreator }) => {
         /* node:coverage disable */
         logux.node.on('error', error => {
           if (error.type === 'wrong-subprotocol') {
-            handleClientUpdateRequired()
+            handleOutdatedClient()
           }
         })
         /* node:coverage enable */

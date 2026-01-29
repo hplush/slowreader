@@ -1,6 +1,6 @@
 import { atom, computed, effect, type ReadableAtom } from 'nanostores'
 
-import { isClientUpdateRequired } from './client.ts'
+import { isOutdatedClient } from './client.ts'
 import { getEnvironment, onEnvironment } from './environment.ts'
 import { NotFoundError } from './errors.ts'
 import { userId } from './settings.ts'
@@ -154,7 +154,7 @@ export function parsePopups(hash: string): PopupRoute[] {
 
 onEnvironment(({ baseRouter }) => {
   return effect(
-    [baseRouter, userId, isClientUpdateRequired],
+    [baseRouter, userId, isOutdatedClient],
     (route, user, isUpdateRequired) => {
       let popups = user && route ? parsePopups(route.hash) : []
       let nextRoute: Route

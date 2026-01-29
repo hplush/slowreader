@@ -1,4 +1,4 @@
-import type { Requester } from '@slowreader/api'
+import { type Requester, SUBPROTOCOL_ERROR_MESSAGE } from '@slowreader/api'
 
 import { getEnvironment } from '../environment.ts'
 import {
@@ -6,7 +6,7 @@ import {
   HTTPStatusError,
   UserFacingError
 } from '../errors.ts'
-import { handleClientUpdateRequired } from '../index.ts'
+import { handleOutdatedClient } from '../index.ts'
 
 /**
  * Takes fetch() wrapper from `@slowreader/api/http` and do the request
@@ -32,9 +32,8 @@ export async function checkErrors<Params extends object, ResponseJSON>(
   if (!response.ok) {
     let text = await response.text()
     if (response.status === 400 && text !== 'Invalid request') {
-      let action = response.headers.get('X-Client-Action')
-      if (action === 'update-client') {
-        handleClientUpdateRequired()
+      if (text === SUBPROTOCOL_ERROR_MESSAGE) {
+        handleOutdatedClient()
       }
       throw new UserFacingError(text)
     } else {

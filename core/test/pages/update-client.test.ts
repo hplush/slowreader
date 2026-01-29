@@ -1,12 +1,12 @@
 import { equal } from 'node:assert'
 import { afterEach, beforeEach, test } from 'node:test'
 
-import { isClientUpdateRequired } from '../../index.ts'
+import { isOutdatedClient } from '../../index.ts'
 import { cleanClientTest, enableClientTest, openPage } from '../utils.ts'
 
 beforeEach(() => {
   enableClientTest()
-  isClientUpdateRequired.set(true)
+  isOutdatedClient.set(true)
 })
 
 afterEach(async () => {

@@ -4,7 +4,8 @@ import {
   setPassword,
   signIn,
   signOut,
-  signUp
+  signUp,
+  SUBPROTOCOL_ERROR_MESSAGE
 } from '@slowreader/api'
 import { eq } from 'drizzle-orm'
 import { deepEqual, equal, notEqual, ok } from 'node:assert/strict'
@@ -266,7 +267,6 @@ test('rejects old clients', async () => {
     method: 'POST'
   })
   equal(response.status, 400)
-  equal(response.headers.get('X-Client-Action'), 'update-client')
   let text = await response.text()
-  equal(text, 'Old client. Please update.')
+  equal(text, SUBPROTOCOL_ERROR_MESSAGE)
 })
