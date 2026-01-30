@@ -1,7 +1,7 @@
 import type { TestServer } from '@logux/server'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
 import { equal } from 'node:assert/strict'
-import { afterEach, beforeEach, test } from 'node:test'
+import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import { client } from '../../index.ts'
@@ -12,45 +12,47 @@ import {
   setBaseTestRoute
 } from '../utils.ts'
 
-let server: TestServer
-beforeEach(() => {
-  server = buildTestServer()
-  enableClientTest({ server })
-  setBaseTestRoute({
-    params: {},
-    route: 'notFound'
+describe('profile page', () => {
+  let server: TestServer
+  beforeEach(() => {
+    server = buildTestServer()
+    enableClientTest({ server })
+    setBaseTestRoute({
+      params: {},
+      route: 'notFound'
+    })
   })
-})
 
-afterEach(async () => {
-  await cleanClientTest()
-  await cleanAllTables()
-})
-
-test('deletes users', async () => {
-  let page = openPage({
-    params: {},
-    route: 'profile'
+  afterEach(async () => {
+    await cleanClientTest()
+    await cleanAllTables()
   })
-  equal(page.hasCloud.get(), false)
-  equal(client.get()?.state, 'disconnected')
 
-  let signupPage = openPage({ params: {}, route: 'signup' })
-  await signupPage.submit()
-  await setTimeout(100)
-  equal(signupPage.error.get(), undefined)
+  test('deletes users', async () => {
+    let page = openPage({
+      params: {},
+      route: 'profile'
+    })
+    equal(page.hasCloud.get(), false)
+    equal(client.get()?.state, 'disconnected')
 
-  page = openPage({
-    params: {},
-    route: 'profile'
+    let signupPage = openPage({ params: {}, route: 'signup' })
+    await signupPage.submit()
+    await setTimeout(100)
+    equal(signupPage.error.get(), undefined)
+
+    page = openPage({
+      params: {},
+      route: 'profile'
+    })
+    equal(page.hasCloud.get(), true)
+    equal(client.get()?.state, 'synchronized')
+    equal(page.deletingAccount.get(), false)
+
+    let promise = page.deleteAccount()
+    equal(page.deletingAccount.get(), true)
+
+    await promise
+    equal(client.get(), undefined)
   })
-  equal(page.hasCloud.get(), true)
-  equal(client.get()?.state, 'synchronized')
-  equal(page.deletingAccount.get(), false)
-
-  let promise = page.deleteAccount()
-  equal(page.deletingAccount.get(), true)
-
-  await promise
-  equal(client.get(), undefined)
 })

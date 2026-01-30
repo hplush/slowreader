@@ -19,7 +19,7 @@
   "*/package.json": "node ./scripts/check-versions.ts",
   "*/Dockerfile": "node ./scripts/check-versions.ts",
   ".github/workflows/*.yml": "node ./scripts/check-versions.ts",
-  "*.test.ts": "node ./scripts/check-focused-tests.ts",
+  "*.test.ts": "node ./scripts/check-tests.ts",
   "core/messages/*/en.ts": "node ./scripts/check-messages.ts",
   "web/index.html": "pnpm -F web build:web"
 }

@@ -22,7 +22,7 @@
     "test:js": "eslint --concurrency=auto --cache .",
     "test:types": "./scripts/check-types.sh",
     "test:online:audit": "pnpm audit --prod",
-    "test:focused": "node ./scripts/check-focused-tests.ts",
+    "test:check-tests": "node ./scripts/check-tests.ts",
     "test:messages": "node ./scripts/check-messages.ts",
     "test:versions": "node ./scripts/check-versions.ts",
     "test:online:markdown": "remark . --frail"

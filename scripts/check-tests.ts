@@ -1,6 +1,7 @@
-// Script to avoid focused tests in the codebase.
-// The developer could focus test by using test.only() and forget to unfocus
-// it before committing the code.
+// Script to check test files in the codebase.
+// - Avoid focused tests (test.only()) that developer could forget to unfocus
+// - Avoid skipped tests (test.skip())
+// - Ensure tests have describe() blocks
 
 import { globSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
@@ -24,10 +25,24 @@ function check(
   }
 }
 
+function checkMissing(
+  all: Buffer,
+  part: string,
+  filename: string,
+  message: string
+): void {
+  if (!all.includes(part)) {
+    let path = relative(ROOT, filename)
+    process.stderr.write(styleText('red', `${path} ${message}\n`))
+    process.exit(1)
+  }
+}
+
 async function checkFile(filename: string): Promise<void> {
   let code = await readFile(filename)
   check(code, 'test.only(', filename, 'has focused test')
   check(code, 'test.skip(', filename, 'has skipped test')
+  checkMissing(code, 'describe(', filename, 'missing describe() block')
 }
 
 let files =

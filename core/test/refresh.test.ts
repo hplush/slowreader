@@ -3,7 +3,7 @@ import './dom-parser.ts'
 import { loadValue } from '@logux/client'
 import { restoreAll, spyOn } from 'nanospy'
 import { deepEqual, equal, fail, ok } from 'node:assert/strict'
-import { afterEach, beforeEach, test } from 'node:test'
+import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
@@ -34,535 +34,540 @@ import {
 } from '../index.ts'
 import { cleanClientTest, createPromise, enableClientTest } from './utils.ts'
 
-beforeEach(() => {
-  mockRequest()
-  enableClientTest()
-})
+describe('refresh', () => {
+  beforeEach(() => {
+    mockRequest()
+    enableClientTest()
+  })
 
-afterEach(async () => {
-  await cleanClientTest()
-  restoreAll()
-  checkAndRemoveRequestMock()
-})
+  afterEach(async () => {
+    await cleanClientTest()
+    restoreAll()
+    checkAndRemoveRequestMock()
+  })
 
-async function getPostKeys<Key extends keyof PostValue>(
-  key: Key
-): Promise<PostValue[Key][]> {
-  let posts = await loadValue(getPosts())
-  return posts.list
-    .sort((a, b) => a.originId.localeCompare(b.originId))
-    .map(post => post[key])
-}
+  async function getPostKeys<Key extends keyof PostValue>(
+    key: Key
+  ): Promise<PostValue[Key][]> {
+    let posts = await loadValue(getPosts())
+    return posts.list
+      .sort((a, b) => a.originId.localeCompare(b.originId))
+      .map(post => post[key])
+  }
 
-test('is ready to be stopped from the start', () => {
-  stopRefreshing()
-})
+  test('is ready to be stopped from the start', () => {
+    stopRefreshing()
+  })
 
-test('updates posts', async () => {
-  let feedId1 = await addFeed(
-    testFeed({
-      lastOriginId: 'post1',
-      loader: 'rss',
-      reading: 'slow',
-      url: 'https://one.com/'
+  test('updates posts', async () => {
+    let feedId1 = await addFeed(
+      testFeed({
+        lastOriginId: 'post1',
+        loader: 'rss',
+        reading: 'slow',
+        url: 'https://one.com/'
+      })
+    )
+    let feedId2 = await addFeed(
+      testFeed({
+        lastOriginId: 'post2',
+        lastPublishedAt: 5000,
+        loader: 'atom',
+        reading: 'fast',
+        url: 'https://two.com/'
+      })
+    )
+    await addFilter({
+      action: 'slow',
+      feedId: feedId2,
+      query: 'include(slow)'
     })
-  )
-  let feedId2 = await addFeed(
-    testFeed({
-      lastOriginId: 'post2',
-      lastPublishedAt: 5000,
-      loader: 'atom',
-      reading: 'fast',
-      url: 'https://two.com/'
+    await addFilter({
+      action: 'delete',
+      feedId: feedId2,
+      query: 'include(delete)'
     })
-  )
-  await addFilter({
-    action: 'slow',
-    feedId: feedId2,
-    query: 'include(slow)'
-  })
-  await addFilter({
-    action: 'delete',
-    feedId: feedId2,
-    query: 'include(delete)'
-  })
 
-  deepEqual(refreshErrors.get(), [])
-  equal(refreshStatus.get(), 'start')
-  equal(isRefreshing.get(), false)
-  equal(refreshProgress.get(), 0)
-  deepEqual(refreshStatistics.get(), {
-    errorFeeds: 0,
-    errorRequests: 0,
-    foundFast: 0,
-    foundSlow: 0,
-    initializing: false,
-    processedFeeds: 0,
-    totalFeeds: 0
-  })
-
-  let rss1 = createPromise<PostsListResult>()
-  let rssLoad = spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsList(() => rss1.promise())
-  })
-  let atom1 = createPromise<PostsListResult>()
-  let atomLoad = spyOn(loaders.atom, 'getPosts', () => {
-    return createPostsList(() => atom1.promise())
-  })
-
-  let finished = false
-  refreshPosts().then(() => {
-    finished = true
-  })
-  equal(refreshStatus.get(), 'refreshing')
-  equal(isRefreshing.get(), true)
-  equal(refreshProgress.get(), 0)
-  deepEqual(refreshStatistics.get(), {
-    errorFeeds: 0,
-    errorRequests: 0,
-    foundFast: 0,
-    foundSlow: 0,
-    initializing: true,
-    processedFeeds: 0,
-    totalFeeds: 0
-  })
-
-  await setTimeout(10)
-  equal(refreshProgress.get(), 0)
-  deepEqual(refreshStatistics.get(), {
-    errorFeeds: 0,
-    errorRequests: 0,
-    foundFast: 0,
-    foundSlow: 0,
-    initializing: false,
-    processedFeeds: 0,
-    totalFeeds: 2
-  })
-  equal(finished, false)
-  equal(rssLoad.calls.length, 1)
-  equal(rssLoad.calls[0]![1], 'https://one.com/')
-  equal(atomLoad.calls.length, 1)
-  equal(atomLoad.calls[0]![1], 'https://two.com/')
-
-  rss1.resolve([
-    [
-      { originId: 'post3', title: '3' },
-      { originId: 'post2', title: '2' },
-      { originId: 'post1', title: '1' },
-      { originId: 'post0', title: '0' }
-    ],
-    undefined
-  ])
-  await setTimeout(10)
-  equal(refreshProgress.get(), 0.5)
-  deepEqual(refreshStatistics.get(), {
-    errorFeeds: 0,
-    errorRequests: 0,
-    foundFast: 0,
-    foundSlow: 2,
-    initializing: false,
-    processedFeeds: 1,
-    totalFeeds: 2
-  })
-  deepEqual(await getPostKeys('title'), ['2', '3'])
-  deepEqual(await getPostKeys('reading'), ['slow', 'slow'])
-  deepEqual(await getPostKeys('feedId'), [feedId1, feedId1])
-  ok((await getPostKeys('publishedAt'))[0]! + 100 > Date.now())
-  deepEqual((await loadValue(getFeed(feedId1)))!.lastOriginId, 'post3')
-  deepEqual((await loadValue(getFeed(feedId1)))!.lastPublishedAt, undefined)
-
-  let atom2 = atom1.next()
-  atom1.resolve([
-    [
-      { originId: 'post9', publishedAt: 9000, title: '9 delete' },
-      { originId: 'post8', publishedAt: 8000, title: '8 slow' },
-      { originId: 'post7', publishedAt: 7000, title: '7' }
-    ],
-    () => atom2.promise()
-  ])
-  await setTimeout(10)
-  equal(finished, false)
-  equal(refreshProgress.get(), 0.5)
-  deepEqual(refreshStatistics.get(), {
-    errorFeeds: 0,
-    errorRequests: 0,
-    foundFast: 0,
-    foundSlow: 2,
-    initializing: false,
-    processedFeeds: 1,
-    totalFeeds: 2
-  })
-  deepEqual(await getPostKeys('title'), ['2', '3'])
-  deepEqual(await getPostKeys('reading'), ['slow', 'slow'])
-  deepEqual((await loadValue(getFeed(feedId2)))!.lastOriginId, 'post2')
-  deepEqual((await loadValue(getFeed(feedId2)))!.lastPublishedAt, 5000)
-
-  atom2.resolve([
-    [
-      { originId: 'post6', publishedAt: 6000, title: '6' },
-      { originId: 'post5', publishedAt: 5000, title: '5' },
-      { originId: 'post4', publishedAt: 4000, title: '4' }
-    ],
-    () => {
-      fail()
-    }
-  ])
-  await setTimeout(10)
-  deepEqual(await getPostKeys('title'), ['2', '3', '6', '7', '8 slow'])
-  deepEqual((await loadValue(getFeed(feedId2)))!.lastOriginId, 'post9')
-  deepEqual((await loadValue(getFeed(feedId2)))!.lastPublishedAt, 9000)
-  equal(finished, true)
-  deepEqual(refreshErrors.get(), [])
-  equal(refreshStatus.get(), 'done')
-  equal(isRefreshing.get(), false)
-  equal(refreshProgress.get(), 1)
-  deepEqual(refreshStatistics.get(), {
-    errorFeeds: 0,
-    errorRequests: 0,
-    foundFast: 2,
-    foundSlow: 3,
-    initializing: false,
-    processedFeeds: 2,
-    totalFeeds: 2
-  })
-
-  restoreAll()
-  spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsList(() => {
-      return Promise.resolve([[{ originId: 'post3', title: '3' }], undefined])
+    deepEqual(refreshErrors.get(), [])
+    equal(refreshStatus.get(), 'start')
+    equal(isRefreshing.get(), false)
+    equal(refreshProgress.get(), 0)
+    deepEqual(refreshStatistics.get(), {
+      errorFeeds: 0,
+      errorRequests: 0,
+      foundFast: 0,
+      foundSlow: 0,
+      initializing: false,
+      processedFeeds: 0,
+      totalFeeds: 0
     })
-  })
-  spyOn(loaders.atom, 'getPosts', () => {
-    return createPostsList(() => {
-      return Promise.resolve([
-        [{ originId: 'post9', publishedAt: 9000, title: '9 delete' }],
-        undefined
-      ])
+
+    let rss1 = createPromise<PostsListResult>()
+    let rssLoad = spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => rss1.promise())
     })
-  })
-
-  await setTimeout(1500)
-  equal(refreshStatus.get(), 'start')
-
-  refreshPosts()
-  equal(refreshStatus.get(), 'refreshing')
-  equal(refreshProgress.get(), 0)
-  deepEqual(refreshStatistics.get(), {
-    errorFeeds: 0,
-    errorRequests: 0,
-    foundFast: 0,
-    foundSlow: 0,
-    initializing: true,
-    processedFeeds: 0,
-    totalFeeds: 0
-  })
-  await setTimeout(10)
-  equal(refreshStatus.get(), 'done')
-  equal(refreshProgress.get(), 1)
-  deepEqual(await getPostKeys('title'), ['2', '3', '6', '7', '8 slow'])
-})
-
-test('is ready to feed deletion during refreshing', async () => {
-  let feedId = await addFeed(
-    testFeed({
-      lastOriginId: 'post1',
-      loader: 'rss',
-      reading: 'slow'
+    let atom1 = createPromise<PostsListResult>()
+    let atomLoad = spyOn(loaders.atom, 'getPosts', () => {
+      return createPostsList(() => atom1.promise())
     })
-  )
-  let rss1 = createPromise<PostsListResult>()
-  spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsList(() => rss1.promise())
-  })
 
-  refreshPosts()
-  await setTimeout(10)
-
-  let rss2 = rss1.next()
-  rss1.resolve([
-    [
-      { originId: 'post6', title: '6' },
-      { originId: 'post5', title: '5' },
-      { originId: 'post4', title: '4' }
-    ],
-    () => rss2.promise()
-  ])
-
-  await deleteFeed(feedId)
-  rss2.resolve([[], undefined])
-  await setTimeout(10)
-  equal(refreshStatus.get(), 'done')
-  deepEqual(await getPostKeys('title'), [])
-})
-
-test('cancels refreshing', async () => {
-  await addFeed(
-    testFeed({
-      lastOriginId: 'post1',
-      url: 'https://one.com/'
+    let finished = false
+    refreshPosts().then(() => {
+      finished = true
     })
-  )
-
-  let rss = expectRequest('https://one.com/').andWait()
-  refreshPosts()
-  refreshPosts()
-  refreshPosts()
-  await setTimeout(10)
-
-  stopRefreshing()
-  equal(refreshStatus.get(), 'start')
-  equal(rss.aborted, true)
-  deepEqual(refreshStatistics.get(), {
-    errorFeeds: 0,
-    errorRequests: 0,
-    foundFast: 0,
-    foundSlow: 0,
-    initializing: false,
-    processedFeeds: 0,
-    totalFeeds: 1
-  })
-  stopRefreshing()
-  equal(refreshStatus.get(), 'start')
-})
-
-test('is ready for network errors', async () => {
-  await addFeed(
-    testFeed({
-      lastOriginId: 'post1',
-      url: 'https://one.com/'
+    equal(refreshStatus.get(), 'refreshing')
+    equal(isRefreshing.get(), true)
+    equal(refreshProgress.get(), 0)
+    deepEqual(refreshStatistics.get(), {
+      errorFeeds: 0,
+      errorRequests: 0,
+      foundFast: 0,
+      foundSlow: 0,
+      initializing: true,
+      processedFeeds: 0,
+      totalFeeds: 0
     })
-  )
-  let feed2 = await addFeed(
-    testFeed({
-      lastOriginId: 'post2',
-      lastPublishedAt: 5000,
-      loader: 'atom'
-    })
-  )
 
-  let rssHadError = false
-  spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsList(async () => {
-      if (rssHadError) {
-        return Promise.resolve([[{ originId: 'post1', title: '1' }], undefined])
-      } else {
-        rssHadError = true
-        throw new NetworkError(new TypeError('network error'))
+    await setTimeout(10)
+    equal(refreshProgress.get(), 0)
+    deepEqual(refreshStatistics.get(), {
+      errorFeeds: 0,
+      errorRequests: 0,
+      foundFast: 0,
+      foundSlow: 0,
+      initializing: false,
+      processedFeeds: 0,
+      totalFeeds: 2
+    })
+    equal(finished, false)
+    equal(rssLoad.calls.length, 1)
+    equal(rssLoad.calls[0]![1], 'https://one.com/')
+    equal(atomLoad.calls.length, 1)
+    equal(atomLoad.calls[0]![1], 'https://two.com/')
+
+    rss1.resolve([
+      [
+        { originId: 'post3', title: '3' },
+        { originId: 'post2', title: '2' },
+        { originId: 'post1', title: '1' },
+        { originId: 'post0', title: '0' }
+      ],
+      undefined
+    ])
+    await setTimeout(10)
+    equal(refreshProgress.get(), 0.5)
+    deepEqual(refreshStatistics.get(), {
+      errorFeeds: 0,
+      errorRequests: 0,
+      foundFast: 0,
+      foundSlow: 2,
+      initializing: false,
+      processedFeeds: 1,
+      totalFeeds: 2
+    })
+    deepEqual(await getPostKeys('title'), ['2', '3'])
+    deepEqual(await getPostKeys('reading'), ['slow', 'slow'])
+    deepEqual(await getPostKeys('feedId'), [feedId1, feedId1])
+    ok((await getPostKeys('publishedAt'))[0]! + 100 > Date.now())
+    deepEqual((await loadValue(getFeed(feedId1)))!.lastOriginId, 'post3')
+    deepEqual((await loadValue(getFeed(feedId1)))!.lastPublishedAt, undefined)
+
+    let atom2 = atom1.next()
+    atom1.resolve([
+      [
+        { originId: 'post9', publishedAt: 9000, title: '9 delete' },
+        { originId: 'post8', publishedAt: 8000, title: '8 slow' },
+        { originId: 'post7', publishedAt: 7000, title: '7' }
+      ],
+      () => atom2.promise()
+    ])
+    await setTimeout(10)
+    equal(finished, false)
+    equal(refreshProgress.get(), 0.5)
+    deepEqual(refreshStatistics.get(), {
+      errorFeeds: 0,
+      errorRequests: 0,
+      foundFast: 0,
+      foundSlow: 2,
+      initializing: false,
+      processedFeeds: 1,
+      totalFeeds: 2
+    })
+    deepEqual(await getPostKeys('title'), ['2', '3'])
+    deepEqual(await getPostKeys('reading'), ['slow', 'slow'])
+    deepEqual((await loadValue(getFeed(feedId2)))!.lastOriginId, 'post2')
+    deepEqual((await loadValue(getFeed(feedId2)))!.lastPublishedAt, 5000)
+
+    atom2.resolve([
+      [
+        { originId: 'post6', publishedAt: 6000, title: '6' },
+        { originId: 'post5', publishedAt: 5000, title: '5' },
+        { originId: 'post4', publishedAt: 4000, title: '4' }
+      ],
+      () => {
+        fail()
       }
+    ])
+    await setTimeout(10)
+    deepEqual(await getPostKeys('title'), ['2', '3', '6', '7', '8 slow'])
+    deepEqual((await loadValue(getFeed(feedId2)))!.lastOriginId, 'post9')
+    deepEqual((await loadValue(getFeed(feedId2)))!.lastPublishedAt, 9000)
+    equal(finished, true)
+    deepEqual(refreshErrors.get(), [])
+    equal(refreshStatus.get(), 'done')
+    equal(isRefreshing.get(), false)
+    equal(refreshProgress.get(), 1)
+    deepEqual(refreshStatistics.get(), {
+      errorFeeds: 0,
+      errorRequests: 0,
+      foundFast: 2,
+      foundSlow: 3,
+      initializing: false,
+      processedFeeds: 2,
+      totalFeeds: 2
     })
-  })
-  spyOn(loaders.atom, 'getPosts', () => {
-    return createPostsList(async () => {
-      await setTimeout(1)
-      throw new HTTPStatusError(500, 'server is down', '', new Headers())
+
+    restoreAll()
+    spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => {
+        return Promise.resolve([[{ originId: 'post3', title: '3' }], undefined])
+      })
     })
-  })
-
-  let icons: string[] = []
-  refreshStatus.subscribe(icon => {
-    icons.push(icon)
-  })
-  refreshPosts()
-  await setTimeout(10)
-
-  deepEqual(refreshStatistics.get(), {
-    errorFeeds: 1,
-    errorRequests: 4,
-    foundFast: 0,
-    foundSlow: 0,
-    initializing: false,
-    processedFeeds: 2,
-    totalFeeds: 2
-  })
-  deepEqual(icons, ['done', 'refreshing', 'refreshingError', 'error'])
-  equal(refreshErrors.get().length, 1)
-  deepEqual(refreshErrors.get()[0]?.error.name, 'HTTPStatusError')
-  deepEqual(refreshErrors.get()[0]?.feed.id, feed2)
-
-  await setTimeout(1500)
-  equal(refreshStatus.get(), 'error')
-})
-
-test('is ready to not found previous ID and time', async () => {
-  let feedId = await addFeed(
-    testFeed({
-      lastOriginId: 'post1',
-      lastPublishedAt: 1000,
-      url: 'https://one.com/'
+    spyOn(loaders.atom, 'getPosts', () => {
+      return createPostsList(() => {
+        return Promise.resolve([
+          [{ originId: 'post9', publishedAt: 9000, title: '9 delete' }],
+          undefined
+        ])
+      })
     })
-  )
-  spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsList(() => {
-      return Promise.resolve([
-        [
-          { originId: 'post6', publishedAt: 6000, title: '6' },
-          { originId: 'post5', publishedAt: 5000, title: '5' },
-          { originId: 'post4', publishedAt: 4000, title: '4' }
-        ],
-        undefined
-      ])
-    })
-  })
 
-  refreshPosts()
-  await setTimeout(10)
-  equal(refreshStatus.get(), 'done')
-  deepEqual(await getPostKeys('title'), ['4', '5', '6'])
+    await setTimeout(1500)
+    equal(refreshStatus.get(), 'start')
 
-  let feed = await loadValue(getFeed(feedId))
-  deepEqual(feed!.lastOriginId, 'post6')
-  deepEqual(feed!.lastPublishedAt, 6000)
-})
-
-test('sorts posts', async () => {
-  let feedId = await addFeed(
-    testFeed({
-      lastOriginId: 'post1',
-      lastPublishedAt: 1000,
-      url: 'https://one.com/'
+    refreshPosts()
+    equal(refreshStatus.get(), 'refreshing')
+    equal(refreshProgress.get(), 0)
+    deepEqual(refreshStatistics.get(), {
+      errorFeeds: 0,
+      errorRequests: 0,
+      foundFast: 0,
+      foundSlow: 0,
+      initializing: true,
+      processedFeeds: 0,
+      totalFeeds: 0
     })
-  )
-  spyOn(loaders.rss, 'getPosts', () => {
-    return createPostsList(() => {
-      return Promise.resolve([
-        [
-          { originId: 'post1', publishedAt: 1000, title: '1' },
-          { originId: 'postY', title: 'Y' },
-          { originId: 'post2', publishedAt: 2000, title: '2' },
-          { originId: 'post4', publishedAt: 4000, title: '4' },
-          { originId: 'post3', publishedAt: 3000, title: '3' },
-          { originId: 'postX', title: 'X' }
-        ],
-        undefined
-      ])
-    })
+    await setTimeout(10)
+    equal(refreshStatus.get(), 'done')
+    equal(refreshProgress.get(), 1)
+    deepEqual(await getPostKeys('title'), ['2', '3', '6', '7', '8 slow'])
   })
 
-  refreshPosts()
-  await setTimeout(10)
-  equal(refreshStatus.get(), 'done')
-  deepEqual(await getPostKeys('title'), ['2', '3', '4'])
+  test('is ready to feed deletion during refreshing', async () => {
+    let feedId = await addFeed(
+      testFeed({
+        lastOriginId: 'post1',
+        loader: 'rss',
+        reading: 'slow'
+      })
+    )
+    let rss1 = createPromise<PostsListResult>()
+    spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => rss1.promise())
+    })
 
-  let feed = await loadValue(getFeed(feedId))
-  deepEqual(feed!.lastOriginId, 'post4')
-  deepEqual(feed!.lastPublishedAt, 4000)
-})
+    refreshPosts()
+    await setTimeout(10)
 
-test('retries with some delay', async () => {
-  await addFeed(testFeed({ url: 'https://a.com/' }))
-  await addFeed(testFeed({ url: 'https://b.com/' }))
-  await addFeed(testFeed({ url: 'https://c.com/' }))
+    let rss2 = rss1.next()
+    rss1.resolve([
+      [
+        { originId: 'post6', title: '6' },
+        { originId: 'post5', title: '5' },
+        { originId: 'post4', title: '4' }
+      ],
+      () => rss2.promise()
+    ])
 
-  let aAttempts: number[] = []
-  let bAttempts: number[] = []
-  let cAttempts: number[] = []
+    await deleteFeed(feedId)
+    rss2.resolve([[], undefined])
+    await setTimeout(10)
+    equal(refreshStatus.get(), 'done')
+    deepEqual(await getPostKeys('title'), [])
+  })
 
-  spyOn(loaders.rss, 'getPosts', (_, url) => {
-    return createPostsList(() => {
-      if (url === 'https://a.com/') {
-        aAttempts.push(Date.now())
-        if (aAttempts.length === 1) {
-          let headers = new Headers()
-          headers.set('Retry-After', '1')
-          throw new HTTPStatusError(429, url, 'Rate limited', headers)
+  test('cancels refreshing', async () => {
+    await addFeed(
+      testFeed({
+        lastOriginId: 'post1',
+        url: 'https://one.com/'
+      })
+    )
+
+    let rss = expectRequest('https://one.com/').andWait()
+    refreshPosts()
+    refreshPosts()
+    refreshPosts()
+    await setTimeout(10)
+
+    stopRefreshing()
+    equal(refreshStatus.get(), 'start')
+    equal(rss.aborted, true)
+    deepEqual(refreshStatistics.get(), {
+      errorFeeds: 0,
+      errorRequests: 0,
+      foundFast: 0,
+      foundSlow: 0,
+      initializing: false,
+      processedFeeds: 0,
+      totalFeeds: 1
+    })
+    stopRefreshing()
+    equal(refreshStatus.get(), 'start')
+  })
+
+  test('is ready for network errors', async () => {
+    await addFeed(
+      testFeed({
+        lastOriginId: 'post1',
+        url: 'https://one.com/'
+      })
+    )
+    let feed2 = await addFeed(
+      testFeed({
+        lastOriginId: 'post2',
+        lastPublishedAt: 5000,
+        loader: 'atom'
+      })
+    )
+
+    let rssHadError = false
+    spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(async () => {
+        if (rssHadError) {
+          return Promise.resolve([
+            [{ originId: 'post1', title: '1' }],
+            undefined
+          ])
         } else {
-          return [[{ originId: 'post1', title: '1' }], undefined]
+          rssHadError = true
+          throw new NetworkError(new TypeError('network error'))
         }
-      } else if (url === 'https://b.com/') {
-        bAttempts.push(Date.now())
-        if (bAttempts.length === 1) {
-          let futureTime = new Date(Date.now() + 2000).toUTCString()
-          let headers = new Headers()
-          headers.set('RateLimit-Reset', futureTime)
-          throw new HTTPStatusError(429, url, 'Rate limited', headers)
-        } else {
-          return [[{ originId: 'post2', title: '2' }], undefined]
-        }
-      } else if (url === 'https://c.com/') {
-        cAttempts.push(Date.now())
-        if (cAttempts.length === 1) {
-          let headers = new Headers()
-          throw new HTTPStatusError(503, url, 'Service unavailable', headers)
-        } else {
-          return [[{ originId: 'post3', title: '3' }], undefined]
-        }
-      }
-      return [[], undefined]
+      })
     })
+    spyOn(loaders.atom, 'getPosts', () => {
+      return createPostsList(async () => {
+        await setTimeout(1)
+        throw new HTTPStatusError(500, 'server is down', '', new Headers())
+      })
+    })
+
+    let icons: string[] = []
+    refreshStatus.subscribe(icon => {
+      icons.push(icon)
+    })
+    refreshPosts()
+    await setTimeout(10)
+
+    deepEqual(refreshStatistics.get(), {
+      errorFeeds: 1,
+      errorRequests: 4,
+      foundFast: 0,
+      foundSlow: 0,
+      initializing: false,
+      processedFeeds: 2,
+      totalFeeds: 2
+    })
+    deepEqual(icons, ['done', 'refreshing', 'refreshingError', 'error'])
+    equal(refreshErrors.get().length, 1)
+    deepEqual(refreshErrors.get()[0]?.error.name, 'HTTPStatusError')
+    deepEqual(refreshErrors.get()[0]?.feed.id, feed2)
+
+    await setTimeout(1500)
+    equal(refreshStatus.get(), 'error')
   })
 
-  refreshPosts()
+  test('is ready to not found previous ID and time', async () => {
+    let feedId = await addFeed(
+      testFeed({
+        lastOriginId: 'post1',
+        lastPublishedAt: 1000,
+        url: 'https://one.com/'
+      })
+    )
+    spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => {
+        return Promise.resolve([
+          [
+            { originId: 'post6', publishedAt: 6000, title: '6' },
+            { originId: 'post5', publishedAt: 5000, title: '5' },
+            { originId: 'post4', publishedAt: 4000, title: '4' }
+          ],
+          undefined
+        ])
+      })
+    })
 
-  await setTimeout(10)
-  equal(refreshStatistics.get().initializing, false)
-  equal(aAttempts.length, 1)
-  equal(bAttempts.length, 1)
-  equal(cAttempts.length, 1)
+    refreshPosts()
+    await setTimeout(10)
+    equal(refreshStatus.get(), 'done')
+    deepEqual(await getPostKeys('title'), ['4', '5', '6'])
 
-  await waitLoading(isRefreshing)
-
-  equal(aAttempts.length, 2)
-  let aDiff = aAttempts[1]! - aAttempts[0]!
-  ok(aDiff >= 900, `${aDiff}ms should be >= 900ms`)
-  // We are testing ≥900ms because milliseconds are truncated to seconds
-
-  equal(bAttempts.length, 2)
-  let bDiff = bAttempts[1]! - bAttempts[0]!
-  ok(bDiff >= 900, `${bDiff}ms should be >= 900ms`)
-
-  equal(cAttempts.length, 2)
-  let cDiff = cAttempts[1]! - cAttempts[0]!
-  ok(cDiff >= 900, `${cDiff}ms should be >= 900ms`)
-
-  equal(refreshStatus.get(), 'done')
-  deepEqual(refreshStatistics.get(), {
-    errorFeeds: 0,
-    errorRequests: 3,
-    foundFast: 3,
-    foundSlow: 0,
-    initializing: false,
-    processedFeeds: 3,
-    totalFeeds: 3
+    let feed = await loadValue(getFeed(feedId))
+    deepEqual(feed!.lastOriginId, 'post6')
+    deepEqual(feed!.lastPublishedAt, 6000)
   })
-})
 
-test('sends If-Modified-Since', async () => {
-  await addFeed(testFeed())
+  test('sorts posts', async () => {
+    let feedId = await addFeed(
+      testFeed({
+        lastOriginId: 'post1',
+        lastPublishedAt: 1000,
+        url: 'https://one.com/'
+      })
+    )
+    spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => {
+        return Promise.resolve([
+          [
+            { originId: 'post1', publishedAt: 1000, title: '1' },
+            { originId: 'postY', title: 'Y' },
+            { originId: 'post2', publishedAt: 2000, title: '2' },
+            { originId: 'post4', publishedAt: 4000, title: '4' },
+            { originId: 'post3', publishedAt: 3000, title: '3' },
+            { originId: 'postX', title: 'X' }
+          ],
+          undefined
+        ])
+      })
+    })
 
-  let requestCount = 0
-  let capturedHeaders: Record<string, string>[] = []
+    refreshPosts()
+    await setTimeout(10)
+    equal(refreshStatus.get(), 'done')
+    deepEqual(await getPostKeys('title'), ['2', '3', '4'])
 
-  setRequestMethod((url, opts) => {
-    capturedHeaders.push((opts?.headers ?? {}) as Record<string, string>)
-    requestCount += 1
-    if (requestCount === 1) {
-      return Promise.resolve(
-        new Response(
-          `<?xml version="1.0"?>
-          <rss><channel>
-            <title>Feed</title>
-          </channel></rss>`,
-          {
-            headers: {
-              'Content-Type': 'application/rss+xml',
-              'Last-Modified': 'Thu, 01 Jan 2026 00:00:00 GMT'
-            },
-            status: 200
+    let feed = await loadValue(getFeed(feedId))
+    deepEqual(feed!.lastOriginId, 'post4')
+    deepEqual(feed!.lastPublishedAt, 4000)
+  })
+
+  test('retries with some delay', async () => {
+    await addFeed(testFeed({ url: 'https://a.com/' }))
+    await addFeed(testFeed({ url: 'https://b.com/' }))
+    await addFeed(testFeed({ url: 'https://c.com/' }))
+
+    let aAttempts: number[] = []
+    let bAttempts: number[] = []
+    let cAttempts: number[] = []
+
+    spyOn(loaders.rss, 'getPosts', (_, url) => {
+      return createPostsList(() => {
+        if (url === 'https://a.com/') {
+          aAttempts.push(Date.now())
+          if (aAttempts.length === 1) {
+            let headers = new Headers()
+            headers.set('Retry-After', '1')
+            throw new HTTPStatusError(429, url, 'Rate limited', headers)
+          } else {
+            return [[{ originId: 'post1', title: '1' }], undefined]
           }
-        )
-      )
-    } else {
-      return Promise.resolve(new Response(null, { status: 304 }))
-    }
+        } else if (url === 'https://b.com/') {
+          bAttempts.push(Date.now())
+          if (bAttempts.length === 1) {
+            let futureTime = new Date(Date.now() + 2000).toUTCString()
+            let headers = new Headers()
+            headers.set('RateLimit-Reset', futureTime)
+            throw new HTTPStatusError(429, url, 'Rate limited', headers)
+          } else {
+            return [[{ originId: 'post2', title: '2' }], undefined]
+          }
+        } else if (url === 'https://c.com/') {
+          cAttempts.push(Date.now())
+          if (cAttempts.length === 1) {
+            let headers = new Headers()
+            throw new HTTPStatusError(503, url, 'Service unavailable', headers)
+          } else {
+            return [[{ originId: 'post3', title: '3' }], undefined]
+          }
+        }
+        return [[], undefined]
+      })
+    })
+
+    refreshPosts()
+
+    await setTimeout(10)
+    equal(refreshStatistics.get().initializing, false)
+    equal(aAttempts.length, 1)
+    equal(bAttempts.length, 1)
+    equal(cAttempts.length, 1)
+
+    await waitLoading(isRefreshing)
+
+    equal(aAttempts.length, 2)
+    let aDiff = aAttempts[1]! - aAttempts[0]!
+    ok(aDiff >= 900, `${aDiff}ms should be >= 900ms`)
+    // We are testing ≥900ms because milliseconds are truncated to seconds
+
+    equal(bAttempts.length, 2)
+    let bDiff = bAttempts[1]! - bAttempts[0]!
+    ok(bDiff >= 900, `${bDiff}ms should be >= 900ms`)
+
+    equal(cAttempts.length, 2)
+    let cDiff = cAttempts[1]! - cAttempts[0]!
+    ok(cDiff >= 900, `${cDiff}ms should be >= 900ms`)
+
+    equal(refreshStatus.get(), 'done')
+    deepEqual(refreshStatistics.get(), {
+      errorFeeds: 0,
+      errorRequests: 3,
+      foundFast: 3,
+      foundSlow: 0,
+      initializing: false,
+      processedFeeds: 3,
+      totalFeeds: 3
+    })
   })
 
-  await refreshPosts()
-  equal(requestCount, 1)
-  equal(capturedHeaders[0]!['If-Modified-Since'], undefined)
-  equal(refreshStatistics.get().errorRequests, 0)
+  test('sends If-Modified-Since', async () => {
+    await addFeed(testFeed())
 
-  await refreshPosts()
-  equal(requestCount, 2)
-  equal(typeof capturedHeaders[1]!['If-Modified-Since'], 'string')
-  equal(refreshStatistics.get().errorRequests, 0)
+    let requestCount = 0
+    let capturedHeaders: Record<string, string>[] = []
+
+    setRequestMethod((url, opts) => {
+      capturedHeaders.push((opts?.headers ?? {}) as Record<string, string>)
+      requestCount += 1
+      if (requestCount === 1) {
+        return Promise.resolve(
+          new Response(
+            `<?xml version="1.0"?>
+            <rss><channel>
+              <title>Feed</title>
+            </channel></rss>`,
+            {
+              headers: {
+                'Content-Type': 'application/rss+xml',
+                'Last-Modified': 'Thu, 01 Jan 2026 00:00:00 GMT'
+              },
+              status: 200
+            }
+          )
+        )
+      } else {
+        return Promise.resolve(new Response(null, { status: 304 }))
+      }
+    })
+
+    await refreshPosts()
+    equal(requestCount, 1)
+    equal(capturedHeaders[0]!['If-Modified-Since'], undefined)
+    equal(refreshStatistics.get().errorRequests, 0)
+
+    await refreshPosts()
+    equal(requestCount, 2)
+    equal(typeof capturedHeaders[1]!['If-Modified-Since'], 'string')
+    equal(refreshStatistics.get().errorRequests, 0)
+  })
 })

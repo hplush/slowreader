@@ -1,6 +1,6 @@
 import { keepMount } from 'nanostores'
 import { deepEqual, equal } from 'node:assert/strict'
-import { afterEach, beforeEach, test } from 'node:test'
+import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
   addCategory,
@@ -22,232 +22,242 @@ import {
   setTestUser
 } from './utils.ts'
 
-beforeEach(() => {
-  enableClientTest()
-})
-
-afterEach(async () => {
-  await cleanClientTest()
-})
-
-test('opens 404', () => {
-  setBaseTestRoute(undefined)
-  deepEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
-})
-
-test('transforms routers for guest', () => {
-  setTestUser(false)
-  setBaseTestRoute({ params: {}, route: 'home' })
-  deepEqual(router.get(), { params: {}, popups: [], route: 'start' })
-
-  setBaseTestRoute({ params: {}, route: 'slow' })
-  deepEqual(router.get(), { params: {}, popups: [], route: 'start' })
-
-  setBaseTestRoute({ params: {}, route: 'signin' })
-  deepEqual(router.get(), { params: {}, popups: [], route: 'signin' })
-
-  setBaseTestRoute({ params: {}, route: 'signup' })
-  deepEqual(router.get(), { params: {}, popups: [], route: 'signup' })
-
-  setBaseTestRoute(undefined)
-  deepEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
-
-  setBaseTestRoute({ params: {}, route: 'notFound' })
-  deepEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
-})
-
-test('transforms routers for users', () => {
-  setTestUser()
-  setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
-  deepEqual(router.get(), {
-    params: { category: 'general', from: undefined },
-    popups: [],
-    route: 'fast'
+describe('router', () => {
+  beforeEach(() => {
+    enableClientTest()
   })
 
-  setBaseTestRoute({ params: {}, route: 'signup' })
-  deepEqual(router.get(), { params: {}, popups: [], route: 'signup' })
-
-  setBaseTestRoute({ params: {}, route: 'signin' })
-  deepEqual(router.get(), {
-    params: {},
-    popups: [],
-    redirect: true,
-    route: 'home'
+  afterEach(async () => {
+    await cleanClientTest()
   })
 
-  setTestUser(false)
-  deepEqual(router.get(), { params: {}, popups: [], route: 'signin' })
-})
-
-test('has routes groups', () => {
-  setTestUser()
-
-  setBaseTestRoute({ params: {}, route: 'slow' })
-  equal(isOtherRoute(router.get()), false)
-
-  setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
-  equal(isOtherRoute(router.get()), false)
-
-  setBaseTestRoute({ params: {}, route: 'profile' })
-  equal(isOtherRoute(router.get()), true)
-
-  setBaseTestRoute({ params: {}, route: 'feedsByCategories' })
-  equal(isOtherRoute(router.get()), true)
-})
-
-test('converts from to number', async () => {
-  setTestUser()
-  let idA = await addCategory({ title: 'A' })
-
-  setBaseTestRoute({ params: { category: idA, from: 1000 }, route: 'fast' })
-  deepEqual(router.get(), {
-    params: { category: idA, from: 1000 },
-    popups: [],
-    route: 'fast'
+  test('opens 404', () => {
+    setBaseTestRoute(undefined)
+    deepEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
   })
 
-  setBaseTestRoute({ params: { category: idA, from: '1000' }, route: 'fast' })
-  deepEqual(router.get(), {
-    params: { category: idA, from: 1000 },
-    popups: [],
-    route: 'fast'
+  test('transforms routers for guest', () => {
+    setTestUser(false)
+    setBaseTestRoute({ params: {}, route: 'home' })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'start' })
+
+    setBaseTestRoute({ params: {}, route: 'slow' })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'start' })
+
+    setBaseTestRoute({ params: {}, route: 'signin' })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'signin' })
+
+    setBaseTestRoute({ params: {}, route: 'signup' })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'signup' })
+
+    setBaseTestRoute(undefined)
+    deepEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
+
+    setBaseTestRoute({ params: {}, route: 'notFound' })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
   })
 
-  setBaseTestRoute({
-    params: { category: idA, from: '1000k' },
-    route: 'fast'
-  })
-  deepEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
-})
+  test('transforms routers for users', () => {
+    setTestUser()
+    setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
+    deepEqual(router.get(), {
+      params: { category: 'general', from: undefined },
+      popups: [],
+      route: 'fast'
+    })
 
-test('has helpers for popups', () => {
-  equal(
-    addPopup({ params: {}, popups: [], route: 'about' }, 'feed', 'id1'),
-    'feed=id1'
-  )
-  equal(addPopup(undefined, 'feed', 'id1'), 'feed=id1')
-  equal(
-    addPopup(
-      { params: {}, popups: [{ param: 'id1', popup: 'feed' }], route: 'about' },
-      'post',
-      'id2'
-    ),
-    'feed=id1,post=id2'
-  )
-  equal(
-    addPopup(
-      { params: {}, popups: [{ param: 'id1', popup: 'post' }], route: 'about' },
-      'post',
-      'id2'
-    ),
-    'post=id2'
-  )
-  equal(removeLastPopup('feed=id1,post=id2'), 'feed=id1')
-  equal(removeLastPopup('feed=id1'), '')
+    setBaseTestRoute({ params: {}, route: 'signup' })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'signup' })
 
-  setBaseTestRoute({ hash: '', params: {}, route: 'welcome' })
-  openPopup('post', 'id1')
-  deepEqual(router.get(), {
-    params: {},
-    popups: [{ param: 'id1', popup: 'post' }],
-    route: 'welcome'
+    setBaseTestRoute({ params: {}, route: 'signin' })
+    deepEqual(router.get(), {
+      params: {},
+      popups: [],
+      redirect: true,
+      route: 'home'
+    })
+
+    setTestUser(false)
+    deepEqual(router.get(), { params: {}, popups: [], route: 'signin' })
   })
 
-  openPopup('post', 'id2')
-  deepEqual(router.get(), {
-    params: {},
-    popups: [
-      { param: 'id1', popup: 'post' },
-      { param: 'id2', popup: 'post' }
-    ],
-    route: 'welcome'
+  test('has routes groups', () => {
+    setTestUser()
+
+    setBaseTestRoute({ params: {}, route: 'slow' })
+    equal(isOtherRoute(router.get()), false)
+
+    setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
+    equal(isOtherRoute(router.get()), false)
+
+    setBaseTestRoute({ params: {}, route: 'profile' })
+    equal(isOtherRoute(router.get()), true)
+
+    setBaseTestRoute({ params: {}, route: 'feedsByCategories' })
+    equal(isOtherRoute(router.get()), true)
   })
 
-  setPopups([
-    ['post', 'id2'],
-    ['post', 'id1']
-  ])
-  deepEqual(router.get(), {
-    params: {},
-    popups: [
-      { param: 'id2', popup: 'post' },
-      { param: 'id1', popup: 'post' }
-    ],
-    route: 'welcome'
+  test('converts from to number', async () => {
+    setTestUser()
+    let idA = await addCategory({ title: 'A' })
+
+    setBaseTestRoute({ params: { category: idA, from: 1000 }, route: 'fast' })
+    deepEqual(router.get(), {
+      params: { category: idA, from: 1000 },
+      popups: [],
+      route: 'fast'
+    })
+
+    setBaseTestRoute({ params: { category: idA, from: '1000' }, route: 'fast' })
+    deepEqual(router.get(), {
+      params: { category: idA, from: 1000 },
+      popups: [],
+      route: 'fast'
+    })
+
+    setBaseTestRoute({
+      params: { category: idA, from: '1000k' },
+      route: 'fast'
+    })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
   })
 
-  closeLastPopup()
-  deepEqual(router.get(), {
-    params: {},
-    popups: [{ param: 'id2', popup: 'post' }],
-    route: 'welcome'
+  test('has helpers for popups', () => {
+    equal(
+      addPopup({ params: {}, popups: [], route: 'about' }, 'feed', 'id1'),
+      'feed=id1'
+    )
+    equal(addPopup(undefined, 'feed', 'id1'), 'feed=id1')
+    equal(
+      addPopup(
+        {
+          params: {},
+          popups: [{ param: 'id1', popup: 'feed' }],
+          route: 'about'
+        },
+        'post',
+        'id2'
+      ),
+      'feed=id1,post=id2'
+    )
+    equal(
+      addPopup(
+        {
+          params: {},
+          popups: [{ param: 'id1', popup: 'post' }],
+          route: 'about'
+        },
+        'post',
+        'id2'
+      ),
+      'post=id2'
+    )
+    equal(removeLastPopup('feed=id1,post=id2'), 'feed=id1')
+    equal(removeLastPopup('feed=id1'), '')
+
+    setBaseTestRoute({ hash: '', params: {}, route: 'welcome' })
+    openPopup('post', 'id1')
+    deepEqual(router.get(), {
+      params: {},
+      popups: [{ param: 'id1', popup: 'post' }],
+      route: 'welcome'
+    })
+
+    openPopup('post', 'id2')
+    deepEqual(router.get(), {
+      params: {},
+      popups: [
+        { param: 'id1', popup: 'post' },
+        { param: 'id2', popup: 'post' }
+      ],
+      route: 'welcome'
+    })
+
+    setPopups([
+      ['post', 'id2'],
+      ['post', 'id1']
+    ])
+    deepEqual(router.get(), {
+      params: {},
+      popups: [
+        { param: 'id2', popup: 'post' },
+        { param: 'id1', popup: 'post' }
+      ],
+      route: 'welcome'
+    })
+
+    closeLastPopup()
+    deepEqual(router.get(), {
+      params: {},
+      popups: [{ param: 'id2', popup: 'post' }],
+      route: 'welcome'
+    })
+
+    closeLastPopup()
+    deepEqual(router.get(), {
+      params: {},
+      popups: [],
+      route: 'welcome'
+    })
+
+    closeLastPopup()
+    deepEqual(router.get().popups, [])
+
+    openPopup('post', 'id1')
+    openPopup('post', 'id2')
+    closeAllPopups()
+    deepEqual(router.get(), {
+      params: {},
+      popups: [],
+      route: 'welcome'
+    })
+
+    setBaseTestRoute({
+      hash: 'feed=old',
+      params: {},
+      route: 'home'
+    })
+    addPopup(router.get(), 'feed', 'new')
+    deepEqual(router.get().popups, [{ param: 'old', popup: 'feed' }])
   })
 
-  closeLastPopup()
-  deepEqual(router.get(), {
-    params: {},
-    popups: [],
-    route: 'welcome'
+  test('supports # at the beginning of hash', () => {
+    setTestUser()
+
+    setBaseTestRoute({ hash: `#feed=id1`, params: {}, route: 'welcome' })
+    deepEqual(router.get(), {
+      params: {},
+      popups: [{ param: 'id1', popup: 'feed' }],
+      route: 'welcome'
+    })
   })
 
-  closeLastPopup()
-  deepEqual(router.get().popups, [])
+  test('reacts on unknown popups', () => {
+    setTestUser()
+    keepMount(openedPopups)
+    equal(openedPopups.get().length, 0)
 
-  openPopup('post', 'id1')
-  openPopup('post', 'id2')
-  closeAllPopups()
-  deepEqual(router.get(), {
-    params: {},
-    popups: [],
-    route: 'welcome'
+    setBaseTestRoute({ hash: `unknown=id`, params: {}, route: 'fast' })
+    equal(openedPopups.get().length, 0)
+
+    setBaseTestRoute({ hash: `popup:id`, params: {}, route: 'fast' })
+    equal(openedPopups.get().length, 0)
   })
 
-  setBaseTestRoute({
-    hash: 'feed=old',
-    params: {},
-    route: 'home'
+  test('hides popups for guest', () => {
+    setTestUser(false)
+    setBaseTestRoute({ hash: 'post=id1,post=id2', params: {}, route: 'signin' })
+    equal(openedPopups.get().length, 0)
   })
-  addPopup(router.get(), 'feed', 'new')
-  deepEqual(router.get().popups, [{ param: 'old', popup: 'feed' }])
-})
 
-test('supports # at the beginning of hash', () => {
-  setTestUser()
+  test('returns opened post', () => {
+    setTestUser()
+    equal(openedPost.get(), undefined)
 
-  setBaseTestRoute({ hash: `#feed=id1`, params: {}, route: 'welcome' })
-  deepEqual(router.get(), {
-    params: {},
-    popups: [{ param: 'id1', popup: 'feed' }],
-    route: 'welcome'
+    setBaseTestRoute({ hash: 'refresh=1,post=id2', params: {}, route: 'fast' })
+    equal(openedPost.get(), undefined)
+
+    setBaseTestRoute({ hash: 'post=id:2', params: {}, route: 'fast' })
+    equal(openedPost.get(), '2')
   })
-})
-
-test('reacts on unknown popups', () => {
-  setTestUser()
-  keepMount(openedPopups)
-  equal(openedPopups.get().length, 0)
-
-  setBaseTestRoute({ hash: `unknown=id`, params: {}, route: 'fast' })
-  equal(openedPopups.get().length, 0)
-
-  setBaseTestRoute({ hash: `popup:id`, params: {}, route: 'fast' })
-  equal(openedPopups.get().length, 0)
-})
-
-test('hides popups for guest', () => {
-  setTestUser(false)
-  setBaseTestRoute({ hash: 'post=id1,post=id2', params: {}, route: 'signin' })
-  equal(openedPopups.get().length, 0)
-})
-
-test('returns opened post', () => {
-  setTestUser()
-  equal(openedPost.get(), undefined)
-
-  setBaseTestRoute({ hash: 'refresh=1,post=id2', params: {}, route: 'fast' })
-  equal(openedPost.get(), undefined)
-
-  setBaseTestRoute({ hash: 'post=id:2', params: {}, route: 'fast' })
-  equal(openedPost.get(), '2')
 })

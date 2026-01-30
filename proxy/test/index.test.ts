@@ -1,311 +1,316 @@
 import { equal, match } from 'node:assert/strict'
 import { createServer, type IncomingHttpHeaders, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
-import { after, afterEach, test } from 'node:test'
+import { after, afterEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 import { URL } from 'node:url'
 
 import { createProxy } from '../index.ts'
 
-interface EchoResponse {
-  request: {
-    headers: IncomingHttpHeaders
-    method: string
-    queryParams: Record<string, string>
-    requestPath: string
-    url: string
-  }
-  response: 'ok'
-}
-
-function getURL(server: Server): string {
-  let port = (server.address() as AddressInfo).port
-  return `http://localhost:${port}`
-}
-
-let target = createServer(async (req, res) => {
-  let parsedUrl = new URL(req.url!, `http://${req.headers.host}`)
-  let queryParams = Object.fromEntries(parsedUrl.searchParams.entries())
-  if (queryParams.sleep) {
-    await setTimeout(parseInt(queryParams.sleep))
-  }
-
-  if (queryParams.big === 'file') {
-    res.writeHead(200, {
-      'Content-Length': '2000',
-      'Content-Type': 'text/text'
-    })
-    res.end('a'.repeat(2000))
-  } else if (queryParams.error) {
-    res.writeHead(500)
-    res.end('Error')
-  } else {
-    let headers: Record<string, string> = {
-      'Content-Type': 'text/json',
-      'Set-Cookie': 'test=1'
+describe('proxy', () => {
+  interface EchoResponse {
+    request: {
+      headers: IncomingHttpHeaders
+      method: string
+      queryParams: Record<string, string>
+      requestPath: string
+      url: string
     }
-    if (queryParams.lastModified) {
-      headers['Last-Modified'] = queryParams.lastModified
+    response: 'ok'
+  }
+
+  function getURL(server: Server): string {
+    let port = (server.address() as AddressInfo).port
+    return `http://localhost:${port}`
+  }
+
+  let target = createServer(async (req, res) => {
+    let parsedUrl = new URL(req.url!, `http://${req.headers.host}`)
+    let queryParams = Object.fromEntries(parsedUrl.searchParams.entries())
+    if (queryParams.sleep) {
+      await setTimeout(parseInt(queryParams.sleep))
     }
-    res.writeHead(200, headers)
-    res.end(
-      JSON.stringify({
-        request: {
-          headers: req.headers,
-          method: req.method!,
-          queryParams,
-          requestPath: parsedUrl.pathname,
-          url: req.url!
-        },
-        response: 'ok'
-      } satisfies EchoResponse)
-    )
-  }
-})
-target.listen(31597)
 
-let proxy = createServer(
-  createProxy({
-    allowLocalhost: true,
-    allowsFrom: '^http:\\/\\/test.app',
-    bodyTimeout: 100,
-    maxSize: 100,
-    requestTimeout: 100
-  })
-)
-proxy.listen(31598)
-
-let proxyUrl = getURL(proxy)
-let targetUrl = getURL(target)
-
-let otherProxy: Server | undefined
-afterEach(() => {
-  if (otherProxy) {
-    otherProxy.close()
-    otherProxy = undefined
-  }
-})
-
-after(() => {
-  target.close()
-  proxy.close()
-})
-
-function request(url: string, opts: RequestInit = {}): Promise<Response> {
-  return fetch(`${proxyUrl}/${url}`, {
-    ...opts,
-    headers: {
-      Origin: 'http://test.app',
-      ...opts.headers
+    if (queryParams.big === 'file') {
+      res.writeHead(200, {
+        'Content-Length': '2000',
+        'Content-Type': 'text/text'
+      })
+      res.end('a'.repeat(2000))
+    } else if (queryParams.error) {
+      res.writeHead(500)
+      res.end('Error')
+    } else {
+      let headers: Record<string, string> = {
+        'Content-Type': 'text/json',
+        'Set-Cookie': 'test=1'
+      }
+      if (queryParams.lastModified) {
+        headers['Last-Modified'] = queryParams.lastModified
+      }
+      res.writeHead(200, headers)
+      res.end(
+        JSON.stringify({
+          request: {
+            headers: req.headers,
+            method: req.method!,
+            queryParams,
+            requestPath: parsedUrl.pathname,
+            url: req.url!
+          },
+          response: 'ok'
+        } satisfies EchoResponse)
+      )
     }
   })
-}
+  target.listen(31597)
 
-async function expectBadRequest(
-  response: Response,
-  message: string
-): Promise<void> {
-  equal(response.status, 400)
-  equal(await response.text(), message)
-}
-
-test('works', async () => {
-  let response = await request(targetUrl)
-  equal(response.status, 200)
-  let parsedResponse = (await response.json()) as EchoResponse
-  equal(parsedResponse.response, 'ok')
-})
-
-test('has timeout', async () => {
-  let response = await request(`${targetUrl}?sleep=500`, {})
-  await expectBadRequest(response, 'Timeout')
-})
-
-test('transfers query params and path', async () => {
-  let response = await request(`${targetUrl}/foo/bar?foo=bar&bar=foo`)
-  let parsedResponse = (await response.json()) as EchoResponse
-  equal(response.status, 200)
-  equal(parsedResponse.response, 'ok')
-  equal(parsedResponse.request.requestPath, '/foo/bar')
-  equal(parsedResponse.request.queryParams.foo, 'bar')
-  equal(parsedResponse.request.queryParams.bar, 'foo')
-})
-
-test('can use only GET ', async () => {
-  let response = await request(targetUrl, {
-    method: 'POST'
-  })
-  equal(response.status, 405)
-  equal(await response.text(), 'Only GET is allowed')
-})
-
-test('checks URL', async () => {
-  let response1 = await fetch(`${proxyUrl}/bad`, {})
-  await expectBadRequest(response1, 'Invalid URL')
-
-  let response2 = await fetch(proxyUrl, {})
-  await expectBadRequest(response2, 'Invalid URL')
-})
-
-test('can use only HTTP or HTTPS protocols', async () => {
-  let response = await fetch(
-    `${proxyUrl}/${targetUrl.replace('http', 'ftp')}`,
-    {}
-  )
-  await expectBadRequest(response, 'Only HTTP or HTTPS are supported')
-})
-
-test('can not use proxy to query local address', async () => {
-  let response = await request(targetUrl.replace('localhost', '127.0.0.1'))
-  await expectBadRequest(response, 'IP addresses are not allowed')
-})
-
-test('can not use localhost without a setting', async () => {
-  otherProxy = createServer(
+  let proxy = createServer(
     createProxy({
+      allowLocalhost: true,
       allowsFrom: '^http:\\/\\/test.app',
       bodyTimeout: 100,
       maxSize: 100,
       requestTimeout: 100
     })
   )
-  await new Promise<void>(resolve => {
-    otherProxy!.listen(31599, resolve)
-  })
-  let response = await fetch(`${getURL(otherProxy)}/${targetUrl}`, {
-    headers: {
-      Origin: 'http://test.app'
+  proxy.listen(31598)
+
+  let proxyUrl = getURL(proxy)
+  let targetUrl = getURL(target)
+
+  let otherProxy: Server | undefined
+  afterEach(() => {
+    if (otherProxy) {
+      otherProxy.close()
+      otherProxy = undefined
     }
   })
-  await expectBadRequest(response, 'IP addresses are not allowed')
-})
 
-test('clears cookie headers', async () => {
-  let response = await request(targetUrl, {
-    headers: { Cookie: 'a=1' }
+  after(() => {
+    target.close()
+    proxy.close()
   })
 
-  equal(response.status, 200)
-  equal(response.headers.get('set-cookie'), null)
-  let parsedResponse = (await response.json()) as EchoResponse
-  equal(parsedResponse.request.headers.cookie, undefined)
-})
+  function request(url: string, opts: RequestInit = {}): Promise<Response> {
+    return fetch(`${proxyUrl}/${url}`, {
+      ...opts,
+      headers: {
+        Origin: 'http://test.app',
+        ...opts.headers
+      }
+    })
+  }
 
-test('checks Origin', async () => {
-  let options = await fetch(`${proxyUrl}/${targetUrl}`, {
-    headers: {
-      Origin: 'http://test.app'
-    },
-    method: 'OPTIONS'
+  async function expectBadRequest(
+    response: Response,
+    message: string
+  ): Promise<void> {
+    equal(response.status, 400)
+    equal(await response.text(), message)
+  }
+
+  test('works', async () => {
+    let response = await request(targetUrl)
+    equal(response.status, 200)
+    let parsedResponse = (await response.json()) as EchoResponse
+    equal(parsedResponse.response, 'ok')
   })
-  equal(options.status, 204)
-  equal(options.headers.get('access-control-allow-origin'), 'http://test.app')
 
-  let response1 = await request(targetUrl, {
-    headers: { Origin: 'http://test.app' }
+  test('has timeout', async () => {
+    let response = await request(`${targetUrl}?sleep=500`, {})
+    await expectBadRequest(response, 'Timeout')
   })
-  equal(response1.status, 200)
-  equal(response1.headers.get('access-control-allow-origin'), 'http://test.app')
 
-  let response2 = await request(targetUrl, {
-    headers: { Origin: 'anothertest.app' }
+  test('transfers query params and path', async () => {
+    let response = await request(`${targetUrl}/foo/bar?foo=bar&bar=foo`)
+    let parsedResponse = (await response.json()) as EchoResponse
+    equal(response.status, 200)
+    equal(parsedResponse.response, 'ok')
+    equal(parsedResponse.request.requestPath, '/foo/bar')
+    equal(parsedResponse.request.queryParams.foo, 'bar')
+    equal(parsedResponse.request.queryParams.bar, 'foo')
   })
-  await expectBadRequest(
-    response2,
-    'Unauthorized Origin. Only /^http:\\/\\/test.app/ is allowed.'
-  )
 
-  let response3 = await fetch(`${proxyUrl}/${targetUrl}`)
-  await expectBadRequest(
-    response3,
-    'Unauthorized Origin. Only /^http:\\/\\/test.app/ is allowed.'
-  )
-  let referer = await fetch(`${proxyUrl}/${targetUrl}`, {
-    headers: {
-      Referer: 'http://test.app/page'
-    }
+  test('can use only GET ', async () => {
+    let response = await request(targetUrl, {
+      method: 'POST'
+    })
+    equal(response.status, 405)
+    equal(await response.text(), 'Only GET is allowed')
   })
-  equal(referer.status, 200)
-  equal(referer.headers.get('access-control-allow-origin'), null)
 
-  let error = await request(targetUrl + '?big=file', {})
-  equal(error.status, 413)
-  equal(error.headers.get('access-control-allow-origin'), 'http://test.app')
-})
+  test('checks URL', async () => {
+    let response1 = await fetch(`${proxyUrl}/bad`, {})
+    await expectBadRequest(response1, 'Invalid URL')
 
-test('sends user IP to destination', async () => {
-  let response1 = await request(targetUrl)
-  equal(response1.status, 200)
-  let json1 = (await response1.json()) as EchoResponse
-  let forwardedFor1 = json1.request.headers['x-forwarded-for']
-  let localhost = String(forwardedFor1)
-  match(localhost, /^(::1|(::ffff:)?127.0.0.1)$/)
-
-  let response2 = await request(targetUrl, {
-    headers: { 'X-Forwarded-For': '4.4.4.4' }
+    let response2 = await fetch(proxyUrl, {})
+    await expectBadRequest(response2, 'Invalid URL')
   })
-  equal(response2.status, 200)
-  let json2 = (await response2.json()) as EchoResponse
-  equal(
-    String(json2.request.headers['x-forwarded-for']),
-    `4.4.4.4, ${localhost}`
-  )
-})
 
-test('checks response size', async () => {
-  let response1 = await request(targetUrl + '?big=file', {})
-  equal(response1.status, 413)
-  equal(await response1.text(), 'Response too large')
-})
-
-test('is ready for errors', async () => {
-  let response1 = await request(targetUrl + '?error=1', {})
-  equal(response1.status, 500)
-  equal(await response1.text(), 'Error')
-})
-
-test('handles If-Modified-Since and Last-Modified', async () => {
-  let lastModified = new Date(Date.now() - 10e3).toUTCString()
-
-  let futureTime = new Date(Date.now() + 20e3).toUTCString()
-  let pastTime = new Date(Date.now() - 20e3).toUTCString()
-
-  let response1 = await request(`${targetUrl}?lastModified=${lastModified}`, {
-    headers: {
-      'If-Modified-Since': futureTime
-    }
+  test('can use only HTTP or HTTPS protocols', async () => {
+    let response = await fetch(
+      `${proxyUrl}/${targetUrl.replace('http', 'ftp')}`,
+      {}
+    )
+    await expectBadRequest(response, 'Only HTTP or HTTPS are supported')
   })
-  equal(response1.status, 304)
-  equal(response1.headers.get('last-modified'), lastModified)
 
-  let response2 = await request(`${targetUrl}?lastModified=${lastModified}`, {
-    headers: {
-      'If-Modified-Since': pastTime
-    }
+  test('can not use proxy to query local address', async () => {
+    let response = await request(targetUrl.replace('localhost', '127.0.0.1'))
+    await expectBadRequest(response, 'IP addresses are not allowed')
   })
-  equal(response2.status, 200)
-  let json2 = (await response2.json()) as EchoResponse
-  equal(json2.response, 'ok')
-})
 
-test('handles malformed If-Modified-Since and Last-Modified', async () => {
-  let time = new Date(Date.now()).toUTCString()
-
-  let response1 = await request(`${targetUrl}?lastModified=invalid-date`, {
-    headers: {
-      'If-Modified-Since': time
-    }
+  test('can not use localhost without a setting', async () => {
+    otherProxy = createServer(
+      createProxy({
+        allowsFrom: '^http:\\/\\/test.app',
+        bodyTimeout: 100,
+        maxSize: 100,
+        requestTimeout: 100
+      })
+    )
+    await new Promise<void>(resolve => {
+      otherProxy!.listen(31599, resolve)
+    })
+    let response = await fetch(`${getURL(otherProxy)}/${targetUrl}`, {
+      headers: {
+        Origin: 'http://test.app'
+      }
+    })
+    await expectBadRequest(response, 'IP addresses are not allowed')
   })
-  equal(response1.status, 200)
-  let json1 = (await response1.json()) as EchoResponse
-  equal(json1.response, 'ok')
 
-  let response2 = await request(`${targetUrl}?lastModified=${time}`, {
-    headers: {
-      'If-Modified-Since': 'invalid-date'
-    }
+  test('clears cookie headers', async () => {
+    let response = await request(targetUrl, {
+      headers: { Cookie: 'a=1' }
+    })
+
+    equal(response.status, 200)
+    equal(response.headers.get('set-cookie'), null)
+    let parsedResponse = (await response.json()) as EchoResponse
+    equal(parsedResponse.request.headers.cookie, undefined)
   })
-  equal(response2.status, 200)
-  let json2 = (await response2.json()) as EchoResponse
-  equal(json2.response, 'ok')
+
+  test('checks Origin', async () => {
+    let options = await fetch(`${proxyUrl}/${targetUrl}`, {
+      headers: {
+        Origin: 'http://test.app'
+      },
+      method: 'OPTIONS'
+    })
+    equal(options.status, 204)
+    equal(options.headers.get('access-control-allow-origin'), 'http://test.app')
+
+    let response1 = await request(targetUrl, {
+      headers: { Origin: 'http://test.app' }
+    })
+    equal(response1.status, 200)
+    equal(
+      response1.headers.get('access-control-allow-origin'),
+      'http://test.app'
+    )
+
+    let response2 = await request(targetUrl, {
+      headers: { Origin: 'anothertest.app' }
+    })
+    await expectBadRequest(
+      response2,
+      'Unauthorized Origin. Only /^http:\\/\\/test.app/ is allowed.'
+    )
+
+    let response3 = await fetch(`${proxyUrl}/${targetUrl}`)
+    await expectBadRequest(
+      response3,
+      'Unauthorized Origin. Only /^http:\\/\\/test.app/ is allowed.'
+    )
+    let referer = await fetch(`${proxyUrl}/${targetUrl}`, {
+      headers: {
+        Referer: 'http://test.app/page'
+      }
+    })
+    equal(referer.status, 200)
+    equal(referer.headers.get('access-control-allow-origin'), null)
+
+    let error = await request(targetUrl + '?big=file', {})
+    equal(error.status, 413)
+    equal(error.headers.get('access-control-allow-origin'), 'http://test.app')
+  })
+
+  test('sends user IP to destination', async () => {
+    let response1 = await request(targetUrl)
+    equal(response1.status, 200)
+    let json1 = (await response1.json()) as EchoResponse
+    let forwardedFor1 = json1.request.headers['x-forwarded-for']
+    let localhost = String(forwardedFor1)
+    match(localhost, /^(::1|(::ffff:)?127.0.0.1)$/)
+
+    let response2 = await request(targetUrl, {
+      headers: { 'X-Forwarded-For': '4.4.4.4' }
+    })
+    equal(response2.status, 200)
+    let json2 = (await response2.json()) as EchoResponse
+    equal(
+      String(json2.request.headers['x-forwarded-for']),
+      `4.4.4.4, ${localhost}`
+    )
+  })
+
+  test('checks response size', async () => {
+    let response1 = await request(targetUrl + '?big=file', {})
+    equal(response1.status, 413)
+    equal(await response1.text(), 'Response too large')
+  })
+
+  test('is ready for errors', async () => {
+    let response1 = await request(targetUrl + '?error=1', {})
+    equal(response1.status, 500)
+    equal(await response1.text(), 'Error')
+  })
+
+  test('handles If-Modified-Since and Last-Modified', async () => {
+    let lastModified = new Date(Date.now() - 10e3).toUTCString()
+
+    let futureTime = new Date(Date.now() + 20e3).toUTCString()
+    let pastTime = new Date(Date.now() - 20e3).toUTCString()
+
+    let response1 = await request(`${targetUrl}?lastModified=${lastModified}`, {
+      headers: {
+        'If-Modified-Since': futureTime
+      }
+    })
+    equal(response1.status, 304)
+    equal(response1.headers.get('last-modified'), lastModified)
+
+    let response2 = await request(`${targetUrl}?lastModified=${lastModified}`, {
+      headers: {
+        'If-Modified-Since': pastTime
+      }
+    })
+    equal(response2.status, 200)
+    let json2 = (await response2.json()) as EchoResponse
+    equal(json2.response, 'ok')
+  })
+
+  test('handles malformed If-Modified-Since and Last-Modified', async () => {
+    let time = new Date(Date.now()).toUTCString()
+
+    let response1 = await request(`${targetUrl}?lastModified=invalid-date`, {
+      headers: {
+        'If-Modified-Since': time
+      }
+    })
+    equal(response1.status, 200)
+    let json1 = (await response1.json()) as EchoResponse
+    equal(json1.response, 'ok')
+
+    let response2 = await request(`${targetUrl}?lastModified=${time}`, {
+      headers: {
+        'If-Modified-Since': 'invalid-date'
+      }
+    })
+    equal(response2.status, 200)
+    let json2 = (await response2.json()) as EchoResponse
+    equal(json2.response, 'ok')
+  })
 })

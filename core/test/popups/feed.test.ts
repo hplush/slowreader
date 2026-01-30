@@ -3,7 +3,7 @@ import '../dom-parser.ts'
 import { loadValue } from '@logux/client'
 import { cleanStores, keepMount } from 'nanostores'
 import { deepEqual, equal, match, notEqual } from 'node:assert/strict'
-import { afterEach, beforeEach, test } from 'node:test'
+import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
   addCategory,
@@ -30,192 +30,194 @@ import {
   setBaseTestRoute
 } from '../utils.ts'
 
-beforeEach(() => {
-  enableClientTest()
-  setBaseTestRoute({ params: {}, route: 'add' })
-  mockRequest()
-})
+describe('feed popup', () => {
+  beforeEach(() => {
+    enableClientTest()
+    setBaseTestRoute({ params: {}, route: 'add' })
+    mockRequest()
+  })
 
-afterEach(async () => {
-  await cleanClientTest()
-  cleanStores(openedPopups)
-  checkAndRemoveRequestMock()
-})
+  afterEach(async () => {
+    await cleanClientTest()
+    cleanStores(openedPopups)
+    checkAndRemoveRequestMock()
+  })
 
-test('loads 404 for feeds by URL popup', async () => {
-  keepMount(openedPopups)
-  expectRequest('http://a.com/one').andRespond(404)
-  await expectWarning(async () => {
-    let feed1Popup = openTestPopup('feed', 'http://a.com/one')
+  test('loads 404 for feeds by URL popup', async () => {
+    keepMount(openedPopups)
+    expectRequest('http://a.com/one').andRespond(404)
+    await expectWarning(async () => {
+      let feed1Popup = openTestPopup('feed', 'http://a.com/one')
+      equal(openedPopups.get().length, 1)
+      equal(feed1Popup.name, 'feed')
+      equal(feed1Popup.param, 'http://a.com/one')
+      equal(feed1Popup.loading.get(), true)
+
+      await waitLoading(feed1Popup.loading)
+      equal(feed1Popup.notFound, true)
+    }, [new HTTPStatusError(404, 'http://a.com/one', '', new Headers())])
+
+    closeLastPopup()
+    equal(openedPopups.get().length, 0)
+
+    expectRequest('http://a.com/two').andRespond(200, '<html>Nothing</html>')
+    let feed2Popup = openTestPopup('feed', 'http://a.com/two')
     equal(openedPopups.get().length, 1)
-    equal(feed1Popup.name, 'feed')
-    equal(feed1Popup.param, 'http://a.com/one')
-    equal(feed1Popup.loading.get(), true)
+    equal(feed2Popup.param, 'http://a.com/two')
+    equal(feed2Popup.loading.get(), true)
 
-    await waitLoading(feed1Popup.loading)
-    equal(feed1Popup.notFound, true)
-  }, [new HTTPStatusError(404, 'http://a.com/one', '', new Headers())])
+    await waitLoading(feed2Popup.loading)
+    equal(feed2Popup.notFound, true)
+  })
 
-  closeLastPopup()
-  equal(openedPopups.get().length, 0)
+  test('loads existing feed popup on 404', async () => {
+    keepMount(openedPopups)
+    let feedId = await addFeed(testFeed({ url: 'http://a.com/404' }))
+    expectRequest('http://a.com/404').andRespond(404)
+    await expectWarning(async () => {
+      let popup = openTestPopup('feed', 'http://a.com/404')
+      equal(openedPopups.get().length, 1)
+      equal(popup.loading.get(), true)
+      await waitLoading(popup.loading)
+      equal(popup.notFound, false)
+      equal(checkLoadedPopup(popup).feed.get()?.id, feedId)
+      deepEqual(checkLoadedPopup(popup).posts.get().isLoading, false)
+      deepEqual(checkLoadedPopup(popup).posts.get().list.length, 0)
+    }, [new HTTPStatusError(404, 'http://a.com/404', '', new Headers())])
+  })
 
-  expectRequest('http://a.com/two').andRespond(200, '<html>Nothing</html>')
-  let feed2Popup = openTestPopup('feed', 'http://a.com/two')
-  equal(openedPopups.get().length, 1)
-  equal(feed2Popup.param, 'http://a.com/two')
-  equal(feed2Popup.loading.get(), true)
-
-  await waitLoading(feed2Popup.loading)
-  equal(feed2Popup.notFound, true)
-})
-
-test('loads existing feed popup on 404', async () => {
-  keepMount(openedPopups)
-  let feedId = await addFeed(testFeed({ url: 'http://a.com/404' }))
-  expectRequest('http://a.com/404').andRespond(404)
-  await expectWarning(async () => {
-    let popup = openTestPopup('feed', 'http://a.com/404')
+  test('loads feeds by URL popup', async () => {
+    keepMount(openedPopups)
+    expectRequest('https://a.com/atom').andRespond(
+      200,
+      '<feed><title>Atom</title>' +
+        '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
+        '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
+        '</feed>',
+      'text/xml'
+    )
+    let popup = openTestPopup('feed', 'https://a.com/atom')
     equal(openedPopups.get().length, 1)
     equal(popup.loading.get(), true)
+
     await waitLoading(popup.loading)
-    equal(popup.notFound, false)
-    equal(checkLoadedPopup(popup).feed.get()?.id, feedId)
+    equal(checkLoadedPopup(popup).feed.get(), undefined)
     deepEqual(checkLoadedPopup(popup).posts.get().isLoading, false)
-    deepEqual(checkLoadedPopup(popup).posts.get().list.length, 0)
-  }, [new HTTPStatusError(404, 'http://a.com/404', '', new Headers())])
-})
+    deepEqual(checkLoadedPopup(popup).posts.get().list.length, 2)
+    deepEqual(checkLoadedPopup(popup).posts.get().list[0]?.originId, '2')
 
-test('loads feeds by URL popup', async () => {
-  keepMount(openedPopups)
-  expectRequest('https://a.com/atom').andRespond(
-    200,
-    '<feed><title>Atom</title>' +
-      '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
-      '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
-      '</feed>',
-    'text/xml'
-  )
-  let popup = openTestPopup('feed', 'https://a.com/atom')
-  equal(openedPopups.get().length, 1)
-  equal(popup.loading.get(), true)
+    deepEqual(checkLoadedPopup(popup).categories.get(), [
+      ['general', 'General'],
+      ['new', 'Add category…']
+    ])
 
-  await waitLoading(popup.loading)
-  equal(checkLoadedPopup(popup).feed.get(), undefined)
-  deepEqual(checkLoadedPopup(popup).posts.get().isLoading, false)
-  deepEqual(checkLoadedPopup(popup).posts.get().list.length, 2)
-  deepEqual(checkLoadedPopup(popup).posts.get().list[0]?.originId, '2')
+    let id = await addCategory({ title: 'Test' })
+    deepEqual(checkLoadedPopup(popup).categories.get(), [
+      ['general', 'General'],
+      [id, 'Test'],
+      ['new', 'Add category…']
+    ])
 
-  deepEqual(checkLoadedPopup(popup).categories.get(), [
-    ['general', 'General'],
-    ['new', 'Add category…']
-  ])
+    let addedId = await checkLoadedPopup(popup).add()
+    let feedId = checkLoadedPopup(popup).feed.get()!.id
+    equal(addedId, feedId)
+    equal(checkLoadedPopup(popup).feed.get()!.url, 'https://a.com/atom')
+    equal(checkLoadedPopup(popup).feed.get()!.title, 'Atom')
+    equal((await loadValue(getFeed(feedId)))!.title, 'Atom')
+    equal((await loadValue(getFeed(feedId)))!.lastOriginId, '2')
+    equal((await loadValue(getFeed(feedId)))!.lastPublishedAt, 1688169600)
 
-  let id = await addCategory({ title: 'Test' })
-  deepEqual(checkLoadedPopup(popup).categories.get(), [
-    ['general', 'General'],
-    [id, 'Test'],
-    ['new', 'Add category…']
-  ])
+    await changeFeed(feedId, { title: 'Test Atom' })
+    equal(checkLoadedPopup(popup).feed.get()!.title, 'Test Atom')
 
-  let addedId = await checkLoadedPopup(popup).add()
-  let feedId = checkLoadedPopup(popup).feed.get()!.id
-  equal(addedId, feedId)
-  equal(checkLoadedPopup(popup).feed.get()!.url, 'https://a.com/atom')
-  equal(checkLoadedPopup(popup).feed.get()!.title, 'Atom')
-  equal((await loadValue(getFeed(feedId)))!.title, 'Atom')
-  equal((await loadValue(getFeed(feedId)))!.lastOriginId, '2')
-  equal((await loadValue(getFeed(feedId)))!.lastPublishedAt, 1688169600)
-
-  await changeFeed(feedId, { title: 'Test Atom' })
-  equal(checkLoadedPopup(popup).feed.get()!.title, 'Test Atom')
-
-  await checkLoadedPopup(popup).remove()
-  equal(checkLoadedPopup(popup).feed.get(), undefined)
-})
-
-test('destroys replaced popups and keep unchanged', async () => {
-  keepMount(openedPopups)
-  expectRequest('https://a.com/atom').andRespond(
-    200,
-    '<feed><title>Atom</title>' +
-      '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
-      '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
-      '</feed>',
-    'text/xml'
-  )
-  expectRequest('https://a.com/atom').andRespond(
-    200,
-    '<feed><title>Atom</title>' +
-      '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
-      '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
-      '</feed>',
-    'text/xml'
-  )
-
-  setBaseTestRoute({
-    hash: `feed=https://a.com/atom,feed=https://a.com/atom`,
-    params: {},
-    route: 'add'
+    await checkLoadedPopup(popup).remove()
+    equal(checkLoadedPopup(popup).feed.get(), undefined)
   })
-  equal(openedPopups.get().length, 2)
-  let popup1 = getPopup('feed', 0)
-  let popup2 = getPopup('feed', 1)
-  await waitLoading(popup1.loading)
-  equal(checkLoadedPopup(popup1).feed.get(), undefined)
-  equal(checkLoadedPopup(popup2).feed.get(), undefined)
 
-  let feedId = await addFeed(testFeed({ url: 'https://a.com/atom' }))
-  equal(checkLoadedPopup(popup1).feed.get()!.url, 'https://a.com/atom')
-  equal(checkLoadedPopup(popup1).feed.get()?.id, feedId)
-  equal(checkLoadedPopup(popup2).feed.get()?.id, feedId)
+  test('destroys replaced popups and keep unchanged', async () => {
+    keepMount(openedPopups)
+    expectRequest('https://a.com/atom').andRespond(
+      200,
+      '<feed><title>Atom</title>' +
+        '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
+        '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
+        '</feed>',
+      'text/xml'
+    )
+    expectRequest('https://a.com/atom').andRespond(
+      200,
+      '<feed><title>Atom</title>' +
+        '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
+        '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
+        '</feed>',
+      'text/xml'
+    )
 
-  closeLastPopup()
-  deepEqual(openedPopups.get(), [popup1])
+    setBaseTestRoute({
+      hash: `feed=https://a.com/atom,feed=https://a.com/atom`,
+      params: {},
+      route: 'add'
+    })
+    equal(openedPopups.get().length, 2)
+    let popup1 = getPopup('feed', 0)
+    let popup2 = getPopup('feed', 1)
+    await waitLoading(popup1.loading)
+    equal(checkLoadedPopup(popup1).feed.get(), undefined)
+    equal(checkLoadedPopup(popup2).feed.get(), undefined)
 
-  await checkLoadedPopup(popup1).remove()
-  equal(checkLoadedPopup(popup1).feed.get(), undefined)
-  equal(checkLoadedPopup(popup2).feed.get()?.id, feedId)
-})
+    let feedId = await addFeed(testFeed({ url: 'https://a.com/atom' }))
+    equal(checkLoadedPopup(popup1).feed.get()!.url, 'https://a.com/atom')
+    equal(checkLoadedPopup(popup1).feed.get()?.id, feedId)
+    equal(checkLoadedPopup(popup2).feed.get()?.id, feedId)
 
-test('has helpers to generate popup ID', () => {
-  match(getPopupId('feed', 'https://example.com/'), /^[a-z_-]+$/)
-  equal(
-    getPopupId('feed', 'https://example.com/'),
-    getPopupId('feed', 'https://example.com/')
-  )
-  notEqual(
-    getPopupId('feed', 'https://example.com/'),
-    getPopupId('feed', 'http://example.com/')
-  )
-})
+    closeLastPopup()
+    deepEqual(openedPopups.get(), [popup1])
 
-test('ignores url protocol while checking for existing feeds', async () => {
-  keepMount(openedPopups)
-  expectRequest('http://a.com/atom').andRespond(
-    200,
-    '<feed><title>Atom</title>' +
-      '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
-      '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
-      '</feed>',
-    'text/xml'
-  )
-  let popup = openTestPopup('feed', 'http://a.com/atom')
-  await waitLoading(popup.loading)
+    await checkLoadedPopup(popup1).remove()
+    equal(checkLoadedPopup(popup1).feed.get(), undefined)
+    equal(checkLoadedPopup(popup2).feed.get()?.id, feedId)
+  })
 
-  let addedId = await checkLoadedPopup(popup).add()
-  let feedId = checkLoadedPopup(popup).feed.get()!.id
-  equal(addedId, feedId)
-  equal((await loadValue(getFeed(feedId)))!.url, 'http://a.com/atom')
+  test('has helpers to generate popup ID', () => {
+    match(getPopupId('feed', 'https://example.com/'), /^[a-z_-]+$/)
+    equal(
+      getPopupId('feed', 'https://example.com/'),
+      getPopupId('feed', 'https://example.com/')
+    )
+    notEqual(
+      getPopupId('feed', 'https://example.com/'),
+      getPopupId('feed', 'http://example.com/')
+    )
+  })
 
-  expectRequest('https://a.com/atom').andRespond(
-    200,
-    '<feed><title>Atom</title>' +
-      '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
-      '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
-      '</feed>',
-    'text/xml'
-  )
-  let popup2 = openTestPopup('feed', 'https://a.com/atom')
-  await waitLoading(popup2.loading)
-  equal(checkLoadedPopup(popup2).feed.get()!.url, 'http://a.com/atom')
+  test('ignores url protocol while checking for existing feeds', async () => {
+    keepMount(openedPopups)
+    expectRequest('http://a.com/atom').andRespond(
+      200,
+      '<feed><title>Atom</title>' +
+        '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
+        '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
+        '</feed>',
+      'text/xml'
+    )
+    let popup = openTestPopup('feed', 'http://a.com/atom')
+    await waitLoading(popup.loading)
+
+    let addedId = await checkLoadedPopup(popup).add()
+    let feedId = checkLoadedPopup(popup).feed.get()!.id
+    equal(addedId, feedId)
+    equal((await loadValue(getFeed(feedId)))!.url, 'http://a.com/atom')
+
+    expectRequest('https://a.com/atom').andRespond(
+      200,
+      '<feed><title>Atom</title>' +
+        '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
+        '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
+        '</feed>',
+      'text/xml'
+    )
+    let popup2 = openTestPopup('feed', 'https://a.com/atom')
+    await waitLoading(popup2.loading)
+    equal(checkLoadedPopup(popup2).feed.get()!.url, 'http://a.com/atom')
+  })
 })
