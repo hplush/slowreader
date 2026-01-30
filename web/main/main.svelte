@@ -2,8 +2,10 @@
   import {
     busy,
     currentPage,
+    isOutdatedClient,
     layoutType,
     notFound,
+    pages,
     popupsStatus,
     signOut,
     subscribeUntil,
@@ -60,6 +62,8 @@
   {#if !globalLoader}
     <BusyPage />
   {/if}
+{:else if $isOutdatedClient}
+  <UpdateClientPage page={pages.updateClient()} />
 {:else if $currentPage.route === 'notFound'}
   <NotFoundPage />
 {:else if $currentPage.route === 'fast'}
@@ -86,8 +90,6 @@
   <ExportPage page={$currentPage} />
 {:else if $currentPage.route === 'import'}
   <ImportPage page={$currentPage} />
-{:else if $currentPage.route === 'updateClient'}
-  <UpdateClientPage page={$currentPage} />
 {:else}
   <ThinPage title={$currentPage.route}>
     {$currentPage.route}

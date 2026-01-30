@@ -1,10 +1,11 @@
-import { isOutdatedClient } from '../client.ts'
 import { createPage } from './common.ts'
 
 export const updateClientPage = createPage('updateClient', () => {
+  /* node:coverage disable */
   function handleUpdateClient(): void {
-    isOutdatedClient.set(false)
+    location.reload()
   }
+  /* node:coverage enable */
 
   return {
     exit() {},
