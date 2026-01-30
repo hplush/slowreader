@@ -6,7 +6,7 @@ import {
   HTTPStatusError,
   UserFacingError
 } from '../errors.ts'
-import { handleOutdatedClient } from '../index.ts'
+import { isOutdatedClient } from '../index.ts'
 
 /**
  * Takes fetch() wrapper from `@slowreader/api/http` and do the request
@@ -33,7 +33,7 @@ export async function checkErrors<Params extends object, ResponseJSON>(
     let text = await response.text()
     if (response.status === 400 && text !== 'Invalid request') {
       if (text === SUBPROTOCOL_ERROR_MESSAGE) {
-        handleOutdatedClient()
+        isOutdatedClient.set(true)
       }
       throw new UserFacingError(text)
     } else {
