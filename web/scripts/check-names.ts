@@ -101,6 +101,16 @@ await Promise.all(
     let content = await readFile(path, 'utf-8')
     if (!content.includes('<style')) return
 
+    if (path.includes('/pages/')) {
+      errors.push(
+        new FileError(
+          'Pages should not have custom <style>, all CSS should be in ui/',
+          path
+        )
+      )
+      return
+    }
+
     function addError(error: CssSyntaxError): void {
       // postcss-html set the source of the block, not the whole file
       error.source = content

@@ -1,19 +1,8 @@
 <script lang="ts">
   import Loader from '../ui/loader.svelte'
+  import Stack from '../ui/stack.svelte'
 </script>
 
-<div class="busy">
+<Stack align="center" height="stretch" justify="center">
   <Loader />
-</div>
-
-<style>
-  :global {
-    .busy {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  }
-</style>
+</Stack>
