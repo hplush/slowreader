@@ -2,18 +2,8 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "runArgs": [
-    "-p",
-    "2553:2553",
-    "-p",
-    "2554:2554",
-    "-p",
-    "2555:2555",
-    "-p",
-    "2556:2556",
-    "-p",
-    "2557:22"
-  ],
+  "runArgs": ["--net=bridge", "-p", "2557:22"],
+  "forwardPorts": [2553, 2554, 2555],
   "customizations": {
     "vscode": {
       "extensions": [
