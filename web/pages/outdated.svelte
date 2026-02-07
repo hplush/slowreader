@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiSyncOff } from '@mdi/js'
+  import { mdiReload, mdiTimerSandComplete } from '@mdi/js'
   import { getEnvironment, outdatedMessages as t } from '@slowreader/core'
 
   import Button from '../ui/button.svelte'
@@ -11,11 +11,17 @@
 
 <ThinPage align="center" bottomOnMobile={false} title={$t.pageTitle}>
   <Stack align="center" gap="xl">
-    <PageIcon path={mdiSyncOff} />
-    <Title>{$t.pageTitle}</Title>
-    <p>{$t.pageText}</p>
-    <Button onclick={getEnvironment().updateClient} variant="main">
-      {$t.updateButton}
-    </Button>
+    <PageIcon path={mdiTimerSandComplete} />
+    <Stack align="center" gap="l">
+      <Title>{$t.pageTitle}</Title>
+      <Button
+        icon={mdiReload}
+        onclick={getEnvironment().updateClient}
+        size="big"
+        variant="main"
+      >
+        {$t.updateButton}
+      </Button>
+    </Stack>
   </Stack>
 </ThinPage>

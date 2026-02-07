@@ -61,7 +61,7 @@
   {#if !globalLoader}
     <BusyPage />
   {/if}
-{:else if $isOutdatedClient}
+{:else if $isOutdatedClient || $currentPage.route === 'outdated'}
   <OutdatedPage />
 {:else if $currentPage.route === 'notFound'}
   <NotFoundPage />
