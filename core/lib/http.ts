@@ -1,4 +1,4 @@
-import { type Requester, SUBPROTOCOL_ERROR_MESSAGE } from '@slowreader/api'
+import { COMMON_ERRORS, type Requester } from '@slowreader/api'
 
 import { getEnvironment } from '../environment.ts'
 import {
@@ -32,7 +32,7 @@ export async function checkErrors<Params extends object, ResponseJSON>(
   if (!response.ok) {
     let text = await response.text()
     if (response.status === 400 && text !== 'Invalid request') {
-      if (text === SUBPROTOCOL_ERROR_MESSAGE) {
+      if (text === COMMON_ERRORS.OUTDATED_CLIENT) {
         isOutdatedClient.set(true)
       }
       throw new UserFacingError(text)

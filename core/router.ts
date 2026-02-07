@@ -19,6 +19,7 @@ export interface Routes {
   import: {}
   interface: {}
   notFound: {}
+  outdated: {}
   profile: {}
   settings: {}
   signin: {}
@@ -28,7 +29,6 @@ export interface Routes {
     from?: number
   }
   start: {}
-  updateClient: {}
   welcome: {}
 }
 

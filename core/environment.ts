@@ -136,6 +136,11 @@ export interface Environment {
   translationLoader: TranslationLoader
 
   /**
+   * Reload page or open app store page to get latest version.
+   */
+  updateClient(): void
+
+  /**
    * Print warning to help in debugging. Should be not visible by regular user.
    */
   warn(error: unknown): void
@@ -196,6 +201,7 @@ export function setupEnvironment<Router extends BaseRouter>(
     saveSession: env.saveSession,
     server: env.server,
     translationLoader: env.translationLoader,
+    updateClient: env.updateClient,
     warn: env.warn
   }
 

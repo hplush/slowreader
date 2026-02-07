@@ -72,6 +72,7 @@ export function getTestEnvironment(): EnvironmentAndStore {
     translationLoader() {
       return Promise.resolve({})
     },
+    updateClient() {},
     warn(e) {
       if (warningTracking) {
         warningTracking.push(e)

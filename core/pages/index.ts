@@ -14,7 +14,6 @@ import { importPage } from './import.ts'
 import { profilePage } from './profile.ts'
 import { signupPage } from './signup.ts'
 import { startPage } from './start.ts'
-import { updateClientPage } from './update-client.ts'
 
 export type { AboutPage } from './about.ts'
 export type { AddPage } from './add.ts'
@@ -27,7 +26,6 @@ export type { ImportPage } from './import.ts'
 export type { ProfilePage } from './profile.ts'
 export type { SignupPage } from './signup.ts'
 export type { StartPage } from './start.ts'
-export type { UpdateClientPage } from './update-client.ts'
 
 export const pages = {
   about: aboutPage,
@@ -41,13 +39,13 @@ export const pages = {
   import: importPage,
   interface: createSimplePage('interface'),
   notFound: createSimplePage('notFound'),
+  outdated: createSimplePage('outdated'),
   profile: profilePage,
   settings: createRedirectPage('settings', 'interface'),
   signin: createSimplePage('signin'),
   signup: signupPage,
   slow: slowPage,
   start: startPage,
-  updateClient: updateClientPage,
   welcome: createSimplePage('welcome')
 } satisfies {
   [Name in RouteName]: Name extends 'fast' | 'slow'

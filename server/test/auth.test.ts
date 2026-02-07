@@ -1,11 +1,11 @@
 import type { TestServer } from '@logux/server'
 import {
+  COMMON_ERRORS,
   deletePassword,
   setPassword,
   signIn,
   signOut,
-  signUp,
-  SUBPROTOCOL_ERROR_MESSAGE
+  signUp
 } from '@slowreader/api'
 import { eq } from 'drizzle-orm'
 import { deepEqual, equal, notEqual, ok } from 'node:assert/strict'
@@ -364,6 +364,6 @@ describe('server auth', () => {
     })
     equal(response.status, 400)
     let text = await response.text()
-    equal(text, SUBPROTOCOL_ERROR_MESSAGE)
+    equal(text, COMMON_ERRORS.OUTDATED_CLIENT)
   })
 })

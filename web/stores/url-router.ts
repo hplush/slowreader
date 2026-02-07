@@ -28,13 +28,13 @@ export const pathRouter = createRouter({
   import: '/feeds/import',
   interface: '/settings/ui',
   notFound: '/404',
+  outdated: '/outdated',
   profile: '/settings/profile',
   settings: '/settings',
   signin: '/signin',
   signup: '/signup',
   slow: '/slow/:feed?',
   start: '/start',
-  updateClient: '/update-client',
   welcome: '/welcome'
 })
 

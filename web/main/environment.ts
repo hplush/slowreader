@@ -141,6 +141,9 @@ setupEnvironment({
   translationLoader() {
     return Promise.resolve({})
   },
+  updateClient() {
+    location.reload()
+  },
   warn(e) {
     let { details, title } = printWarning(e)
     /* eslint-disable no-console */

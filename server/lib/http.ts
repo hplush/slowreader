@@ -1,5 +1,5 @@
 import type { BaseServer } from '@logux/server'
-import { type Endpoint, SUBPROTOCOL_ERROR_MESSAGE } from '@slowreader/api'
+import { COMMON_ERRORS, type Endpoint } from '@slowreader/api'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
 import { config } from './config.ts'
@@ -75,7 +75,7 @@ export function jsonApi<Response, Request extends object>(
         isNaN(clientSubprotocol) ||
         clientSubprotocol < server.options.minSubprotocol
       ) {
-        return badRequest(res, SUBPROTOCOL_ERROR_MESSAGE)
+        return badRequest(res, COMMON_ERRORS.OUTDATED_CLIENT)
       }
     }
 
