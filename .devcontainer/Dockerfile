@@ -14,11 +14,9 @@ ENV PNPM_VERSION=10.28.2 \
   PNPM_CHECKSUM_X64=9f38396f660cd3b1f71e0b0af0b7ba22dd1fd446dc37840a1b6a025868557390 \
   PNPM_CHECKSUM_ARM64=6f265c811d1aef8e817e0017cd700d0d345a1100bd8a90358db64eaab2fbff85
 
-RUN dnf install -yq zsh micro git tig psmisc procps-ng awk openssh-server \
+RUN dnf install -yq zsh micro git tig psmisc procps-ng awk \
   && dnf clean all \
-  && rm -rf /var/cache/dnf \
-  && mkdir -p /var/run/sshd \
-  && ssh-keygen -A
+  && rm -rf /var/cache/dnf
 
 RUN <<EOF
   if [ "$TARGETARCH" = "amd64" ]; then
