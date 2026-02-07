@@ -4,7 +4,8 @@ import {
   setPassword,
   signIn,
   signOut,
-  signUp
+  signUp,
+  SUBPROTOCOL_ERROR_MESSAGE
 } from '@slowreader/api'
 import { eq } from 'drizzle-orm'
 import { deepEqual, equal, notEqual, ok } from 'node:assert/strict'
@@ -255,5 +256,114 @@ describe('server auth', () => {
       real.headers.get('Access-Control-Allow-Origin'),
       'https://dev.slowreader.app'
     )
+  })
+  test('does not allow to redefine user', async () => {
+    server = buildTestServer()
+    let userA = await testRequest(server, signUp, {
+      password: 'AAAAAAAAAA',
+      userId: '0000000000000000'
+    })
+    await throws(async () => {
+      await testRequest(server!, signUp, {
+        password: 'BBBBBBBBBB',
+        userId: userA.userId
+      })
+    }, 'User ID was already taken')
+  })
+
+  test('has non-cookie API', async () => {
+    server = buildTestServer()
+    let user = await testRequest(server, signUp, {
+      password: 'AAAAAAAAAA',
+      userId: '0000000000000000'
+    })
+    await server.connect(user.userId, { token: user.session })
+    await signOut({ session: user.session }, { fetch: server.fetch })
+    await server.expectWrongCredentials(user.userId, { token: user.session })
+  })
+
+  test('validates request body', async () => {
+    server = buildTestServer()
+    let response1 = await server.fetch('/users', { method: 'PUT' })
+    equal(await response1.text(), 'Not found\n')
+    let response2 = await server.fetch('/users/1', { method: 'PUT' })
+    equal(await response2.text(), 'Wrong content type')
+    let response3 = await server.fetch('/users/1', {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'PUT'
+    })
+    equal(await response3.text(), 'Invalid JSON')
+    let response4 = await server.fetch('/users/1', {
+      body: '{',
+      headers: { 'Content-Type': 'application/json' },
+      method: 'PUT'
+    })
+    equal(await response4.text(), 'Invalid JSON')
+    let response5 = await server.fetch('/users/1', {
+      body: '{"id":"1"}',
+      headers: { 'Content-Type': 'application/json' },
+      method: 'PUT'
+    })
+    equal(await response5.text(), 'Invalid body')
+    let response6 = await server.fetch('/users/1', {
+      body: '{"id":"2","password":"test"}',
+      headers: { 'Content-Type': 'application/json' },
+      method: 'PUT'
+    })
+    equal(await response6.text(), 'Invalid body')
+    await throws(async () => {
+      await testRequest(server!, signOut, {})
+    }, 'Invalid request')
+
+    await throws(async () => {
+      await testRequest(server!, signUp, {
+        password: 'wrong format',
+        userId: 'bad'
+      })
+    }, 'Invalid request')
+  })
+
+  test('supports CORS', async () => {
+    server = buildTestServer()
+    let option = await server.fetch('/users/1', {
+      body: '{"id":"2","password":"test"}',
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': 'https://dev.slowreader.app'
+      },
+      method: 'OPTIONS'
+    })
+    equal(
+      option.headers.get('Access-Control-Allow-Origin'),
+      'https://dev.slowreader.app'
+    )
+    let real = await server.fetch('/users/1', {
+      body: '{"id":"2","password":"test"}',
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': 'https://dev.slowreader.app'
+      },
+      method: 'POST'
+    })
+    equal(
+      real.headers.get('Access-Control-Allow-Origin'),
+      'https://dev.slowreader.app'
+    )
+  })
+
+  test('rejects old clients', async () => {
+    server = buildTestServer()
+    server.options.minSubprotocol = 2
+
+    let response = await server.fetch('/users/1', {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Subprotocol': '0'
+      },
+      method: 'POST'
+    })
+    equal(response.status, 400)
+    let text = await response.text()
+    equal(text, SUBPROTOCOL_ERROR_MESSAGE)
   })
 })

@@ -28,6 +28,7 @@ export interface Routes {
     from?: number
   }
   start: {}
+  updateClient: {}
   welcome: {}
 }
 

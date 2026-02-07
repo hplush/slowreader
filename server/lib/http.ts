@@ -1,5 +1,5 @@
 import type { BaseServer } from '@logux/server'
-import type { Endpoint } from '@slowreader/api'
+import { type Endpoint, SUBPROTOCOL_ERROR_MESSAGE } from '@slowreader/api'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
 import { config } from './config.ts'
@@ -37,7 +37,7 @@ function allowCors(res: ServerResponse, origin: string): void {
     'Access-Control-Allow-Methods',
     'OPTIONS, POST, GET, PUT, DELETE'
   )
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Subprotocol')
 }
 
 const LOCALHOST = /:\/\/localhost:/
@@ -67,6 +67,18 @@ export function jsonApi<Response, Request extends object>(
         allowCors(res, req.headers.origin)
       }
     }
+
+    if (req.headers['x-subprotocol'] && server.options.minSubprotocol) {
+      let clientSubprotocol = Number(req.headers['x-subprotocol'])
+
+      if (
+        isNaN(clientSubprotocol) ||
+        clientSubprotocol < server.options.minSubprotocol
+      ) {
+        return badRequest(res, SUBPROTOCOL_ERROR_MESSAGE)
+      }
+    }
+
     if (req.method === 'OPTIONS') {
       res.writeHead(200)
       res.end()

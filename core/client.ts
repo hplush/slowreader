@@ -51,6 +51,7 @@ function getServer(): ClientOptions['server'] {
 
 let prevClient: CrossTabClient | undefined
 export const client = atom<CrossTabClient | undefined>()
+export const isOutdatedClient = atom<boolean>(false)
 
 onEnvironment(({ logStoreCreator }) => {
   let unbindUser = effect(
@@ -71,6 +72,14 @@ onEnvironment(({ logStoreCreator }) => {
         encryptActions(logux, key, {
           ignore: [deleteUser.type]
         })
+
+        /* node:coverage disable */
+        logux.node.on('error', error => {
+          if (error.type === 'wrong-subprotocol') {
+            isOutdatedClient.set(true)
+          }
+        })
+        /* node:coverage enable */
         logux.start(connect)
         prevClient = logux
         client.set(logux)

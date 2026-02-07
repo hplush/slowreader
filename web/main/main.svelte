@@ -2,8 +2,10 @@
   import {
     busy,
     currentPage,
+    isOutdatedClient,
     layoutType,
     notFound,
+    pages,
     popupsStatus,
     signOut,
     subscribeUntil,
@@ -23,6 +25,7 @@
   import ProfilePage from '../pages/profile.svelte'
   import SignupPage from '../pages/signup.svelte'
   import StartPage from '../pages/start.svelte'
+  import UpdateClientPage from '../pages/update-client.svelte'
   import FeedPopup from '../popups/feed.svelte'
   import LoadingPopup from '../popups/loading.svelte'
   import NotFoundPopup from '../popups/not-found.svelte'
@@ -59,6 +62,8 @@
   {#if !globalLoader}
     <BusyPage />
   {/if}
+{:else if $isOutdatedClient}
+  <UpdateClientPage page={pages.updateClient()} />
 {:else if $currentPage.route === 'notFound'}
   <NotFoundPage />
 {:else if $currentPage.route === 'fast'}

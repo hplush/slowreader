@@ -1,3 +1,5 @@
+import { SUBPROTOCOL } from '../index.ts'
+
 export function isObject(body: unknown): body is object {
   return typeof body === 'object' && body !== null
 }
@@ -54,10 +56,12 @@ export async function fetchJSON<ResponseJSON = unknown>(
     body: JSON.stringify(body),
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'X-Subprotocol': String(SUBPROTOCOL)
     },
     method
   })
+
   if (opts.response) opts.response(response)
   return response as HTTPResponse<ResponseJSON>
 }
