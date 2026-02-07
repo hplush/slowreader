@@ -392,7 +392,10 @@ describe('menu', () => {
     let unbind = syncStatus.listen(() => {})
     equal(syncStatus.get(), 'disconnected')
 
-    getClient().log.add({ reason: 'denied', type: 'logux/undo' })
+    getClient().log.add(
+      { reason: 'denied', type: 'logux/undo' },
+      { id: '0 server:0 0' }
+    )
     await setTimeout(10)
     equal(syncStatus.get(), 'error')
 

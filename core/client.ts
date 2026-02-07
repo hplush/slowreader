@@ -95,6 +95,7 @@ onEnvironment(({ logStoreCreator }) => {
           ignore: [deleteUser.type]
         })
 
+        /* node:coverage disable */
         function removeAction(action: Action, meta: Meta): void {
           logux.log.changeMeta(meta.id, { reasons: [] })
         }
@@ -114,7 +115,6 @@ onEnvironment(({ logStoreCreator }) => {
           }
         })
 
-        /* node:coverage disable */
         logux.node.on('error', error => {
           if (error.type === 'wrong-subprotocol') {
             isOutdatedClient.set(true)

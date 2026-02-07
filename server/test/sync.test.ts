@@ -88,6 +88,8 @@ describe('server sync', () => {
       { id: meta1.id, type: '0/clean' }
     ])
 
+    await client1.process(zeroClean({ id: '0 unknown 0' }))
+
     let client3 = await connect(server, '0000000000000000', 'AAAAAAAAAA')
     await setTimeout(100)
     deepEqual(client3.log.actions(), [
