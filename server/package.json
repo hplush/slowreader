@@ -33,7 +33,7 @@
     "tsx": "4.21.0"
   },
   "devDependencies": {
-    "@logux/client": "0.22.2",
+    "@logux/client": "0.22.3",
     "better-node-test": "0.8.3",
     "drizzle-kit": "0.31.8",
     "eslint": "9.39.2",

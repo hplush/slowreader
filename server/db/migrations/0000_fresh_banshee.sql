@@ -6,7 +6,7 @@ CREATE TABLE "actions" (
 	"id" text PRIMARY KEY NOT NULL,
 	"iv" "bytea" NOT NULL,
 	"subprotocol" integer NOT NULL,
-	"time" integer NOT NULL,
+	"time" bigint NOT NULL,
 	"userId" text NOT NULL
 );
 --> statement-breakpoint

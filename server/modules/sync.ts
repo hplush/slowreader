@@ -5,6 +5,8 @@ import { and, eq, gt } from 'drizzle-orm'
 
 import { actions, db } from '../db/index.ts'
 
+let EPOCH = Date.UTC(2026, 0)
+
 export default (server: BaseServer): void => {
   server.type(zero, {
     access() {
@@ -18,7 +20,7 @@ export default (server: BaseServer): void => {
         id: meta.id,
         iv: Buffer.from(action.iv, 'base64'),
         subprotocol: meta.subprotocol ?? SUBPROTOCOL,
-        time: meta.time,
+        time: meta.time - EPOCH,
         userId: ctx.userId
       })
     },
@@ -32,7 +34,11 @@ export default (server: BaseServer): void => {
       let deleting = await db.query.actions.findFirst({
         where: eq(actions.id, action.id)
       })
-      return deleting?.userId === ctx.userId
+      if (deleting) {
+        return deleting.userId === ctx.userId
+      } else {
+        return true
+      }
     },
     async process(ctx, action) {
       await db.delete(actions).where(eq(actions.id, action.id))
@@ -57,7 +63,7 @@ export default (server: BaseServer): void => {
           added: column.added,
           id: column.id,
           subprotocol: column.subprotocol,
-          time: column.time
+          time: column.time + EPOCH
         }
       ]
     })

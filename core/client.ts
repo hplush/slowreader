@@ -1,3 +1,8 @@
+import type {
+  SyncMapChangedAction,
+  SyncMapCreatedAction,
+  SyncMapDeletedAction
+} from '@logux/actions'
 import {
   type ClientOptions,
   CrossTabClient,
@@ -5,7 +10,14 @@ import {
   status,
   type StatusValue
 } from '@logux/client'
-import { type ServerConnection, TestPair, TestTime } from '@logux/core'
+import {
+  type Action,
+  type Meta,
+  parseId,
+  type ServerConnection,
+  TestPair,
+  TestTime
+} from '@logux/core'
 import { deleteUser, SUBPROTOCOL } from '@slowreader/api'
 import { atom, effect, onMount } from 'nanostores'
 
@@ -53,6 +65,16 @@ let prevClient: CrossTabClient | undefined
 export const client = atom<CrossTabClient | undefined>()
 export const isOutdatedClient = atom<boolean>(false)
 
+function isSyncMapFieldsAction(
+  action: Action
+): action is SyncMapChangedAction | SyncMapCreatedAction {
+  return action.type.endsWith('/changed') || action.type.endsWith('/created')
+}
+
+function isSyncMapDeleyeAction(action: Action): action is SyncMapDeletedAction {
+  return action.type.endsWith('/deleted')
+}
+
 onEnvironment(({ logStoreCreator }) => {
   let unbindUser = effect(
     [userId, hasPassword, encryptionKey],
@@ -71,6 +93,25 @@ onEnvironment(({ logStoreCreator }) => {
         })
         encryptActions(logux, key, {
           ignore: [deleteUser.type]
+        })
+
+        function removeAction(action: Action, meta: Meta): void {
+          logux.log.changeMeta(meta.id, { reasons: [] })
+        }
+
+        logux.on('preadd', (action, meta) => {
+          if (parseId(meta.id).clientId === logux.clientId) {
+            meta.sync = true
+          } else if (isSyncMapFieldsAction(action)) {
+            let plural = action.type.split('/')[0]!
+            for (let i in action.fields) {
+              meta.reasons.push(`${plural}/${action.id}/${i}`)
+            }
+            meta.indexes = [plural, `${plural}/${action.id}`]
+          } else if (isSyncMapDeleyeAction(action)) {
+            let plural = action.type.split('/')[0]!
+            logux.log.each({ index: `${plural}/${action.id}` }, removeAction)
+          }
         })
 
         /* node:coverage disable */

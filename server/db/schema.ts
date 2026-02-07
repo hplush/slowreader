@@ -1,4 +1,5 @@
 import {
+  bigint,
   boolean,
   customType,
   index,
@@ -46,7 +47,7 @@ export const actions = pgTable('actions', {
   id: text('id').primaryKey(),
   iv: bytea('iv').notNull(),
   subprotocol: integer('subprotocol').notNull(),
-  time: integer('time').notNull(),
+  time: bigint('time', { mode: 'number' }).notNull(),
   userId: text('userId')
     .references(() => users.id)
     .notNull()
