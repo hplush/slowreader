@@ -66,7 +66,7 @@ setupEnvironment({
     console.log('App restarted')
   },
   saveSession() {},
-  server: 'localhost:2554',
+  server: 'NO_SERVER',
   warn(e) {
     let warnings = document.getElementById('warnings')
     if (!warnings) {

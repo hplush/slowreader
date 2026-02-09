@@ -127,6 +127,8 @@ export interface Environment {
 
   /**
    * Hostname (without protocol) of default Slow Reader server.
+   *
+   * For test purposes can be also TestServer instance or `"NO_SERVER"`.
    */
   server: string | TestServer
 

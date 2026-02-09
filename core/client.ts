@@ -120,8 +120,12 @@ onEnvironment(({ logStoreCreator }) => {
             isOutdatedClient.set(true)
           }
         })
-        /* node:coverage enable */
-        logux.start(connect)
+        if (getEnvironment().server === 'NO_SERVER') {
+          logux.start(false)
+        } else {
+          /* node:coverage enable */
+          logux.start(connect)
+        }
         prevClient = logux
         client.set(logux)
       } else {
@@ -159,7 +163,7 @@ onMount(syncStatus, () => {
     }
     if (!logux) {
       syncStatus.set('local')
-    } else {
+    } else if (getEnvironment().server !== 'NO_SERVER') {
       unbindState = status(logux, value => {
         if (
           value === 'denied' ||
