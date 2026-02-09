@@ -5,16 +5,11 @@
     mdiImport,
     mdiPlusCircleOutline
   } from '@mdi/js'
-  import {
-    feedsMessages,
-    welcomeMessages as t,
-    type WelcomeReader
-  } from '@slowreader/core'
+  import { welcomeMessages as t, type WelcomeReader } from '@slowreader/core'
 
   import { getURL } from '../../stores/url-router.ts'
   import Button from '../../ui/button.svelte'
   import PageIcon from '../../ui/page-icon.svelte'
-  import PopupablePage from '../../ui/popupable-page.svelte'
   import RichText from '../../ui/rich-text.svelte'
   import Stack from '../../ui/stack.svelte'
 
@@ -22,35 +17,31 @@
 </script>
 
 {#if reader.reading === 'fast'}
-  <PopupablePage title={$feedsMessages.fastTitle}>
-    <PageIcon path={mdiFood}>
-      <Stack gap="l">
-        <RichText text={$t.fastDesc} />
-        <Stack gap="s" row>
-          <Button href={getURL('add')} icon={mdiPlusCircleOutline}
-            >{$t.emptyAdd}</Button
-          >
-          <Button href={getURL('import')} icon={mdiImport}
-            >{$t.emptyImport}</Button
-          >
-        </Stack>
+  <PageIcon path={mdiFood}>
+    <Stack gap="l">
+      <RichText text={$t.fastDesc} />
+      <Stack gap="s" row>
+        <Button href={getURL('add')} icon={mdiPlusCircleOutline}
+          >{$t.emptyAdd}</Button
+        >
+        <Button href={getURL('import')} icon={mdiImport}
+          >{$t.emptyImport}</Button
+        >
       </Stack>
-    </PageIcon>
-  </PopupablePage>
+    </Stack>
+  </PageIcon>
 {:else}
-  <PopupablePage title={$feedsMessages.slowTitle}>
-    <PageIcon path={mdiFireplace}>
-      <Stack gap="l">
-        <RichText text={$t.slowDesc} />
-        <Stack gap="s" row>
-          <Button href={getURL('add')} icon={mdiPlusCircleOutline}
-            >{$t.emptyAdd}</Button
-          >
-          <Button href={getURL('import')} icon={mdiImport}
-            >{$t.emptyImport}</Button
-          >
-        </Stack>
+  <PageIcon path={mdiFireplace}>
+    <Stack gap="l">
+      <RichText text={$t.slowDesc} />
+      <Stack gap="s" row>
+        <Button href={getURL('add')} icon={mdiPlusCircleOutline}
+          >{$t.emptyAdd}</Button
+        >
+        <Button href={getURL('import')} icon={mdiImport}
+          >{$t.emptyImport}</Button
+        >
       </Stack>
-    </PageIcon>
-  </PopupablePage>
+    </Stack>
+  </PageIcon>
 {/if}
