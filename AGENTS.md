@@ -7,7 +7,7 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 - Prefer short one-word variable names. Avoid abbreviations: use `current` instead of `cur`.
 - Do not add any comments to generated code by default.
 - Import only specific functions. Don’t import everything.
-- Don’t use `export default`.
+- Don’t use `export default`, use name exports instead.
 - Always use `.ts` in TS files imports.
 - Use discriminant union in types: `{ missing: true } | { missing: false, content: string }` instead of `{ missing: boolean, content?: string }`.
 - Do not create variable which you will use in single place.
