@@ -35,7 +35,7 @@
   "devDependencies": {
     "@logux/client": "0.22.3",
     "better-node-test": "0.8.3",
-    "drizzle-kit": "0.31.8",
+    "drizzle-kit": "0.31.9",
     "eslint": "9.39.2",
     "prettier": "3.8.1"
   },
