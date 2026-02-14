@@ -5,6 +5,7 @@ import { db } from './db/index.ts'
 import * as tables from './db/schema.ts'
 import addedModule from './modules/added.ts'
 import authModule from './modules/auth.ts'
+import healthModule from './modules/health.ts'
 import passwordsModule from './modules/passwords.ts'
 import syncModule from './modules/sync.ts'
 import usersModule from './modules/users.ts'
@@ -23,6 +24,7 @@ export function buildTestServer(): TestServer {
   let server = new TestServer()
   addedModule(server)
   authModule(server)
+  healthModule(server)
   usersModule(server)
   passwordsModule(server)
   syncModule(server)
