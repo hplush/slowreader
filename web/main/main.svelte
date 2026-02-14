@@ -14,6 +14,7 @@
   import AboutPage from '../pages/about.svelte'
   import AddPage from '../pages/add.svelte'
   import BusyPage from '../pages/busy.svelte'
+  import CloudPage from '../pages/cloud.svelte'
   import DownloadPage from '../pages/download.svelte'
   import ExportPage from '../pages/export.svelte'
   import FeedByCategoriesPage from '../pages/feeds-by-categories.svelte'
@@ -22,7 +23,6 @@
   import InterfacePage from '../pages/interface.svelte'
   import NotFoundPage from '../pages/not-found.svelte'
   import OutdatedPage from '../pages/outdated.svelte'
-  import ProfilePage from '../pages/profile.svelte'
   import SignupPage from '../pages/signup.svelte'
   import StartPage from '../pages/start.svelte'
   import FeedPopup from '../popups/feed.svelte'
@@ -75,8 +75,8 @@
   <FeedByCategoriesPage page={$currentPage} />
 {:else if $currentPage.route === 'about'}
   <AboutPage page={$currentPage} />
-{:else if $currentPage.route === 'profile'}
-  <ProfilePage page={$currentPage} />
+{:else if $currentPage.route === 'cloud'}
+  <CloudPage page={$currentPage} />
 {:else if $currentPage.route === 'start'}
   <StartPage page={$currentPage} />
 {:else if $currentPage.route === 'signup'}

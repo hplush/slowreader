@@ -90,7 +90,7 @@ describe('router', () => {
     setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
     equal(isOtherRoute(router.get()), false)
 
-    setBaseTestRoute({ params: {}, route: 'profile' })
+    setBaseTestRoute({ params: {}, route: 'cloud' })
     equal(isOtherRoute(router.get()), true)
 
     setBaseTestRoute({ params: {}, route: 'feedsByCategories' })

@@ -7,6 +7,7 @@ import { userId } from './settings.ts'
 export interface Routes {
   about: {}
   add: { url?: string }
+  cloud: {}
   download: {}
   export: {}
   fast: {
@@ -20,7 +21,6 @@ export interface Routes {
   interface: {}
   notFound: {}
   outdated: {}
-  profile: {}
   settings: {}
   signin: {}
   signup: {}
@@ -86,7 +86,7 @@ export const FEED_ROUTES = [
 export const SETTINGS_ROUTES = [
   'interface',
   'download',
-  'profile',
+  'cloud',
   'about'
 ] as const satisfies RouteName[]
 

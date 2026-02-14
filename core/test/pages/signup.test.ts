@@ -142,7 +142,7 @@ describe('signup page', () => {
       params: {},
       route: 'signup'
     })
-    equal(currentPage.get().route, 'profile')
+    equal(currentPage.get().route, 'cloud')
   })
 
   test('signs up local user', async () => {

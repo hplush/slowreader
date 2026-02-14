@@ -1,6 +1,7 @@
 import type { RouteName } from '../router.ts'
 import { aboutPage } from './about.ts'
 import { addPage } from './add.ts'
+import { cloudPage } from './cloud.ts'
 import {
   createRedirectPage,
   createSimplePage,
@@ -11,25 +12,25 @@ import { feedsByCategoriesPage } from './feeds-by-categories.ts'
 import { fastPage, slowPage } from './feeds.ts'
 import { homePage } from './home.ts'
 import { importPage } from './import.ts'
-import { profilePage } from './profile.ts'
 import { signupPage } from './signup.ts'
 import { startPage } from './start.ts'
 
 export type { AboutPage } from './about.ts'
 export type { AddPage } from './add.ts'
+export type { CloudPage } from './cloud.ts'
 export * from './common.ts'
 export type { ExportPage } from './export.ts'
 export type { FeedsByCategoriesPage } from './feeds-by-categories.ts'
 export type { FeedsPage } from './feeds.ts'
 export type { HomePage } from './home.ts'
 export type { ImportPage } from './import.ts'
-export type { ProfilePage } from './profile.ts'
 export type { SignupPage } from './signup.ts'
 export type { StartPage } from './start.ts'
 
 export const pages = {
   about: aboutPage,
   add: addPage,
+  cloud: cloudPage,
   download: createSimplePage('download'),
   export: exportPage,
   fast: fastPage,
@@ -40,7 +41,6 @@ export const pages = {
   interface: createSimplePage('interface'),
   notFound: createSimplePage('notFound'),
   outdated: createSimplePage('outdated'),
-  profile: profilePage,
   settings: createRedirectPage('settings', 'interface'),
   signin: createSimplePage('signin'),
   signup: signupPage,

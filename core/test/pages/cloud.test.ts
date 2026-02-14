@@ -31,7 +31,7 @@ describe('profile page', () => {
   test('deletes users', async () => {
     let page = openPage({
       params: {},
-      route: 'profile'
+      route: 'cloud'
     })
     equal(page.hasCloud.get(), false)
     equal(client.get()?.state, 'disconnected')
@@ -43,7 +43,7 @@ describe('profile page', () => {
 
     page = openPage({
       params: {},
-      route: 'profile'
+      route: 'cloud'
     })
     equal(page.hasCloud.get(), true)
     equal(client.get()?.state, 'synchronized')

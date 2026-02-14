@@ -46,7 +46,7 @@
 {#if $syncStatus !== 'synchronized' && $syncStatus !== 'local'}
   <div class="navbar-sync">
     <Button
-      href={getURL({ params: {}, route: 'profile' })}
+      href={getURL({ params: {}, route: 'cloud' })}
       icon={ICONS[$syncStatus]}
       size="pill"
       variant={style}

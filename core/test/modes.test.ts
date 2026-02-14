@@ -38,7 +38,7 @@ describe('modes', () => {
     equal(comfortMode.get(), false)
     equal(errorMode.get(), true)
 
-    setBaseTestRoute({ params: {}, route: 'profile' })
+    setBaseTestRoute({ params: {}, route: 'cloud' })
     equal(comfortMode.get(), true)
     equal(errorMode.get(), false)
   })

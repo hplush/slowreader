@@ -6,7 +6,7 @@ import { getClient, syncStatus } from '../client.ts'
 import { hasPassword, userId } from '../settings.ts'
 import { createPage } from './common.ts'
 
-export const profilePage = createPage('profile', () => {
+export const cloudPage = createPage('cloud', () => {
   let $unsavedData = computed(syncStatus, status => /wait/i.test(status))
 
   let $deletingAccount = atom(false)
@@ -28,4 +28,4 @@ export const profilePage = createPage('profile', () => {
   }
 })
 
-export type ProfilePage = ReturnType<typeof profilePage>
+export type CloudPage = ReturnType<typeof cloudPage>

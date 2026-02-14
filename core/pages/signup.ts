@@ -14,7 +14,7 @@ export const signupPage = createPage('signup', () => {
     getEnvironment().openRoute({
       params: {},
       popups: [],
-      route: 'profile'
+      route: 'cloud'
     })
   }
 

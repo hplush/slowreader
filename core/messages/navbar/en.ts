@@ -3,6 +3,7 @@ import { i18n } from '../../i18n.ts'
 export const navbarMessages = i18n('navbar', {
   about: 'About the app',
   add: 'Add feed',
+  cloud: 'Cloud',
   connectingStatus: 'Connecting…',
   download: 'Feeds fetching',
   errorStatus: 'Sync error',
@@ -15,7 +16,6 @@ export const navbarMessages = i18n('navbar', {
   menu: 'Feeds & settings',
   offlineStatus: 'Offline',
   postRefreshing: 'Checking feeds for new posts…',
-  profile: 'Profile',
   refresh: 'Check for new posts',
   refreshingDone: 'Feeds refreshing finished',
   refreshingError: 'An error during feeds refreshing',

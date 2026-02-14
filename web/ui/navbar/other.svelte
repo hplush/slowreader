@@ -1,6 +1,6 @@
 <script lang="ts">
   import {
-    mdiAccount,
+    mdiCloudSync,
     mdiExport,
     mdiFileDownloadOutline,
     mdiFileTree,
@@ -24,12 +24,12 @@
   const ICONS = {
     about: mdiInformationOutline,
     add: mdiPlusCircleOutline,
+    cloud: mdiCloudSync,
     download: mdiFileDownloadOutline,
     export: mdiExport,
     feedsByCategories: mdiFileTree,
     import: mdiImport,
-    interface: mdiPalette,
-    profile: mdiAccount
+    interface: mdiPalette
   } satisfies Record<OtherName, string>
 </script>
 

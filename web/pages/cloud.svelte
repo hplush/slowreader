@@ -1,7 +1,7 @@
 <script lang="ts">
   import { mdiAccountPlus, mdiExitToApp, mdiTrashCanOutline } from '@mdi/js'
   import {
-    type ProfilePage,
+    type CloudPage,
     settingsMessages,
     profileMessages as t
   } from '@slowreader/core'
@@ -14,7 +14,7 @@
   import ThinPage from '../ui/thin-page.svelte'
   import Title from '../ui/title.svelte'
 
-  let { page }: { page: ProfilePage } = $props()
+  let { page }: { page: CloudPage } = $props()
   let { deletingAccount, hasCloud, unsavedData, userId } = $derived(page)
 </script>
 
