@@ -25,11 +25,12 @@
     sending: mdiCloudUpload,
     sendingAfterWait: mdiCloudUpload,
     synchronizedAfterWait: mdiCloudCheckVariant,
-    wait: mdiCloudOff
+    wait: mdiCloudOff,
+    wrongCredentials: mdiCloudAlert
   } satisfies Partial<Record<SyncStatus, string>>
 
   let style = $derived.by(() => {
-    if ($syncStatus === 'error') {
+    if ($syncStatus === 'error' || $syncStatus === 'wrongCredentials') {
       return 'plain-dangerous' as const
     } else if (
       $syncStatus === 'wait' ||

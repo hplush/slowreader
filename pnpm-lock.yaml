@@ -130,8 +130,8 @@ importers:
         specifier: 0.5.0
         version: 0.5.0(@logux/core@0.10.0)
       '@logux/client':
-        specifier: 0.22.3
-        version: 0.22.3(nanostores@1.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 0.23.0
+        version: 0.23.0(nanostores@1.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@logux/core':
         specifier: 0.10.0
         version: 0.10.0
@@ -265,8 +265,8 @@ importers:
         version: 4.21.0
     devDependencies:
       '@logux/client':
-        specifier: 0.22.3
-        version: 0.22.3(nanostores@1.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 0.23.0
+        version: 0.23.0(nanostores@1.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       better-node-test:
         specifier: 0.8.3
         version: 0.8.3
@@ -298,8 +298,8 @@ importers:
         specifier: 5.2.8
         version: 5.2.8
       '@logux/client':
-        specifier: 0.22.3
-        version: 0.22.3(nanostores@1.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 0.23.0
+        version: 0.23.0(nanostores@1.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@logux/core':
         specifier: 0.10.0
         version: 0.10.0
@@ -1115,8 +1115,8 @@ packages:
     peerDependencies:
       '@logux/core': ^0.10.0
 
-  '@logux/client@0.22.3':
-    resolution: {integrity: sha512-3XOGQTCazp9rVj+pz+1yRLRQ/PpSFOrkJhfUNMb4i2KJdNjIjYYE+SkabrTQaiPTXgXH18XlQZwmp83m8emQ3A==}
+  '@logux/client@0.23.0':
+    resolution: {integrity: sha512-E0Vj8okv29vaDX4JfedOrfk0AERbZUEqonpWyURnhGIIVxU4WjKjJlh34+NYS1dNm+ZlIyOVzoUC26JQzrnHfg==}
     engines: {node: ^20.0.0 || >=22.0.0}
     peerDependencies:
       '@nanostores/preact': '>=0.0.0'
@@ -5290,7 +5290,7 @@ snapshots:
     dependencies:
       '@logux/core': 0.10.0
 
-  '@logux/client@0.22.3(nanostores@1.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@logux/client@0.23.0(nanostores@1.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@logux/actions': 0.5.0(@logux/core@0.10.0)
       '@logux/core': 0.10.0
