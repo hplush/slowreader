@@ -3,7 +3,9 @@
   import {
     type CloudPage,
     settingsMessages,
-    profileMessages as t
+    syncError,
+    syncStatus,
+    cloudMessages as t
   } from '@slowreader/core'
 
   import { getURL } from '../stores/url-router.ts'
@@ -23,6 +25,14 @@
     {#if $hasCloud}
       <Stack>
         <Output label={$t.userId} value={$userId} />
+        {#if $syncStatus === 'error'}
+          <Output
+            label={$t.status}
+            value={$t.errorStatus({ details: $syncError })}
+          />
+        {:else if $syncStatus !== 'local'}
+          <Output label={$t.status} value={$t[`${$syncStatus}Status`]} />
+        {/if}
         {#if $unsavedData}
           <Button
             icon={mdiTrashCanOutline}

@@ -19,7 +19,7 @@ import {
   TestTime
 } from '@logux/core'
 import { deleteUser, SUBPROTOCOL } from '@slowreader/api'
-import { atom, effect, onMount } from 'nanostores'
+import { atom, computed, effect, onMount } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
 import { encryptionKey, hasPassword, syncServer, userId } from './settings.ts'
@@ -153,6 +153,20 @@ export type SyncStatus =
   | Exclude<StatusValue, 'denied' | 'protocolError' | 'syncError'>
 
 export const syncStatus = atom<SyncStatus>('local')
+export const syncStatusType = computed(syncStatus, status => {
+  if (status === 'error' || status === 'wrongCredentials') {
+    return 'error' as const
+  } else if (
+    status === 'wait' ||
+    status === 'connectingAfterWait' ||
+    status === 'sendingAfterWait'
+  ) {
+    return 'wait' as const
+  } else {
+    return 'other' as const
+  }
+})
+export const syncError = atom('')
 
 onMount(syncStatus, () => {
   let unbindState: (() => void) | undefined
@@ -162,16 +176,25 @@ onMount(syncStatus, () => {
       unbindState = undefined
     }
     if (!logux) {
+      syncError.set('')
       syncStatus.set('local')
     } else if (getEnvironment().server !== 'NO_SERVER') {
-      unbindState = status(logux, value => {
+      unbindState = status(logux, (value, details) => {
         if (
           value === 'denied' ||
           value === 'protocolError' ||
           value === 'syncError'
         ) {
           syncStatus.set('error')
+          if (details) {
+            if ('error' in details) {
+              syncError.set(details.error.message)
+            } else {
+              syncError.set(details.action.type)
+            }
+          }
         } else {
+          syncError.set('')
           syncStatus.set(value)
         }
       })

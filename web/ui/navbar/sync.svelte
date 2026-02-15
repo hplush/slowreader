@@ -11,6 +11,7 @@
   import {
     syncStatus,
     type SyncStatus,
+    syncStatusType,
     navbarMessages as t
   } from '@slowreader/core'
 
@@ -29,19 +30,11 @@
     wrongCredentials: mdiCloudAlert
   } satisfies Partial<Record<SyncStatus, string>>
 
-  let style = $derived.by(() => {
-    if ($syncStatus === 'error' || $syncStatus === 'wrongCredentials') {
-      return 'plain-dangerous' as const
-    } else if (
-      $syncStatus === 'wait' ||
-      $syncStatus === 'connectingAfterWait' ||
-      $syncStatus === 'sendingAfterWait'
-    ) {
-      return 'plain' as const
-    } else {
-      return 'plain-secondary' as const
-    }
-  })
+  let STYLES = {
+    error: 'plain-dangerous',
+    other: 'plain-secondary',
+    wait: 'plain'
+  } as const
 </script>
 
 {#if $syncStatus !== 'synchronized' && $syncStatus !== 'local'}
@@ -50,7 +43,7 @@
       href={getURL({ params: {}, route: 'cloud' })}
       icon={ICONS[$syncStatus]}
       size="pill"
-      variant={style}
+      variant={STYLES[$syncStatusType]}
     >
       {#if $syncStatus === 'wait' || $syncStatus === 'disconnected'}
         {$t.offlineStatus}
