@@ -349,7 +349,7 @@
         margin-bottom: var(--navbar-height);
         overflow: auto;
         box-shadow:
-          inset 0 -0.5px 0 oklch(0 0 0 / 30%),
+          inset 0 -0.5px 0 var(--separator-color),
           var(--bottom-panel-shadow);
         translate: 0 100%;
         transition: translate var(--big-time) var(--slide-easing);

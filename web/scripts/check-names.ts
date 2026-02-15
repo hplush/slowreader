@@ -1,6 +1,6 @@
 // Check that all CSS classes in Svelte files follow our BEM name system:
 // ui/foo/bar.svelte should have only classes like: .foo-bar, .foo-bar_element,
-// .foo-bar_element.is-modifier
+// .foo-bar_element.is-modifier. Also force using only colors from tokens.
 
 import { globSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
@@ -21,6 +21,8 @@ import selectorParser, {
 
 let usedNames = new Set<string>()
 let unwrapper = postcss([nesting])
+
+const COLORS_IGNORE = new Set(['ui/loader.svelte'])
 
 function someParent(
   node: SelectorNode,
@@ -165,6 +167,18 @@ await Promise.all(
       })
       classChecker.processSync(rule)
     })
+    if (!COLORS_IGNORE.has(path.slice(WEB.length + 1))) {
+      unwrapped.walkDecls(decl => {
+        if (decl.value.includes('oklch(')) {
+          addError(
+            decl.error(
+              'Use CSS variables from `main/colors.css` instead of `oklch()`',
+              { word: 'oklch(' }
+            )
+          )
+        }
+      })
+    }
     unwrapped.walkAtRules(atrule => {
       if (atrule.name === 'keyframes') {
         let keyframe = atrule.params

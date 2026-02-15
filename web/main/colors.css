@@ -6,6 +6,7 @@
   --dangerous-h: 20;
   --good-h: 140;
   --text-on-accent-color: oklch(1 0 0);
+  --separator-color: oklch(0 0 0 / 30%);
   --paper-background:
     repeating-linear-gradient(
       to right,
