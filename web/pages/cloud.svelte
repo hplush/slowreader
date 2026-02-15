@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiAccountPlus, mdiExitToApp, mdiTrashCanOutline } from '@mdi/js'
+  import { mdiAccountPlus, mdiLogout, mdiTrashCanOutline } from '@mdi/js'
   import {
     type CloudPage,
     settingsMessages,
@@ -48,7 +48,7 @@
           </Button>
         {:else}
           <Button
-            icon={mdiExitToApp}
+            icon={mdiLogout}
             onclick={page.signOut}
             size="wide"
             variant="secondary"
