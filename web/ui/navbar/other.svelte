@@ -14,6 +14,7 @@
     type OtherName,
     router,
     SETTINGS_ROUTES,
+    syncStatusType,
     navbarMessages as t
   } from '@slowreader/core'
 
@@ -49,6 +50,7 @@
     <NavbarItem
       name={$t[route]}
       current={$router.route === route}
+      dot={route === 'cloud' && $syncStatusType === 'error'}
       href={getURL({ params: {}, route })}
       icon={ICONS[route]}
     />
