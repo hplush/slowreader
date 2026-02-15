@@ -190,7 +190,7 @@ onMount(syncStatus, () => {
             if ('error' in details) {
               syncError.set(details.error.message)
             } else {
-              syncError.set(details.action.type)
+              syncError.set(details.action.action.type)
             }
           }
         } else {

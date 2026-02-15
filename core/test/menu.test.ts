@@ -24,13 +24,19 @@ import {
   openMenu,
   setLayoutType,
   slowMenu,
+  syncError,
   syncStatus,
+  syncStatusType,
   testFeed,
   testPost,
   toggleCategory,
   waitLoading
 } from '../index.ts'
 import { cleanClientTest, enableClientTest, setBaseTestRoute } from './utils.ts'
+
+function emit(obj: any, event: string, ...args: any[]): void {
+  obj.emitter.emit(event, ...args)
+}
 
 describe('menu', () => {
   beforeEach(() => {
@@ -390,18 +396,36 @@ describe('menu', () => {
 
   test('has sync status', async () => {
     let unbind = syncStatus.listen(() => {})
+    let unbindType = syncStatusType.listen(() => {})
     equal(syncStatus.get(), 'disconnected')
+    equal(syncStatusType.get(), 'other')
 
+    syncStatus.set('wait')
+    equal(syncStatusType.get(), 'wait')
+
+    emit(getClient().node, 'error', {
+      message: 'test error',
+      type: 'wrong-format'
+    })
+    await setTimeout(10)
+    equal(syncStatus.get(), 'error')
+    equal(syncError.get(), 'test error')
+
+    syncStatus.set('disconnected')
     getClient().log.add(
-      { reason: 'denied', type: 'logux/undo' },
+      { action: { type: 'some' }, reason: 'denied', type: 'logux/undo' },
       { id: '0 server:0 0' }
     )
     await setTimeout(10)
     equal(syncStatus.get(), 'error')
+    equal(syncStatusType.get(), 'error')
+    equal(syncError.get(), 'some')
 
     await cleanClientTest()
     equal(syncStatus.get(), 'local')
+    equal(syncStatusType.get(), 'other')
 
+    unbindType()
     unbind()
   })
 })
