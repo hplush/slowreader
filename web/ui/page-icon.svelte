@@ -6,11 +6,17 @@
   let {
     children,
     extra,
+    padding = true,
     path
-  }: { children?: Snippet; extra?: string; path: string } = $props()
+  }: {
+    children?: Snippet
+    extra?: string
+    padding?: boolean
+    path: string
+  } = $props()
 </script>
 
-<div class="page-icon">
+<div class="page-icon" class:is-padding={padding}>
   <div class="page-icon_position">
     {#if extra}
       <div class="page-icon_extra">
@@ -34,8 +40,11 @@
       flex-direction: column;
       align-items: center;
       min-width: 10rem;
-      margin-top: 10vh;
       color: --tune-background(--placeholder);
+
+      &.is-padding {
+        margin-top: 10vh;
+      }
     }
 
     .page-icon_position {
@@ -58,6 +67,7 @@
       width: 18rem;
       margin-top: 1rem;
       color: var(--secondary-text-color);
+      text-align: center;
     }
   }
 </style>
