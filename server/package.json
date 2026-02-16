@@ -16,7 +16,7 @@
     "production": "node --run build && ./scripts/run-image.sh",
     "build:server": "pnpm -F server --prod deploy dist",
     "build:assets": "mkdir -p web/ && cp -fr ../web/dist web/ && cp ../web/routes.regexp web/",
-    "test:server-coverage": "bnt --coverage 100 --coverage-exclude '{lib/exit.ts,db/index.ts,../api/**,../proxy/**}'",
+    "test:server-coverage": "bnt --coverage 100 --coverage-exclude '{lib/exit.ts,db/index.ts,../api/**,../proxy/**,test.ts}'",
     "clean:build": "rm -rf dist/ web/"
   },
   "dependencies": {

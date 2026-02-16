@@ -4,7 +4,7 @@ import { i18n } from '../../i18n.ts'
 
 export const cloudMessages = i18n('cloud', {
   connectingAfterWaitStatus: 'Connecting… Unsaved changes.',
-  connectingStatus: 'Connecting',
+  connectingStatus: 'Connecting…',
   createAccount: 'Create cloud account',
   dangerousTitle: 'Dangerous action',
   deleteAccount: 'Delete your data from the cloud',

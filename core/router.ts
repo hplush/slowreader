@@ -21,6 +21,7 @@ export interface Routes {
   interface: {}
   notFound: {}
   outdated: {}
+  relogin: {}
   settings: {}
   signin: {}
   signup: {}

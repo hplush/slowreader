@@ -1,4 +1,5 @@
 import { loadValue } from '@logux/client'
+import { LoguxError } from '@logux/core'
 import { cleanStores, keepMount } from 'nanostores'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
@@ -32,7 +33,12 @@ import {
   toggleCategory,
   waitLoading
 } from '../index.ts'
-import { cleanClientTest, enableClientTest, setBaseTestRoute } from './utils.ts'
+import {
+  cleanClientTest,
+  enableClientTest,
+  expectWarning,
+  setBaseTestRoute
+} from './utils.ts'
 
 function emit(obj: any, event: string, ...args: any[]): void {
   obj.emitter.emit(event, ...args)
@@ -403,13 +409,13 @@ describe('menu', () => {
     syncStatus.set('wait')
     equal(syncStatusType.get(), 'wait')
 
-    emit(getClient().node, 'error', {
-      message: 'test error',
-      type: 'wrong-format'
-    })
-    await setTimeout(10)
+    let wrongFormat = new LoguxError('wrong-format', 'test error')
+    await expectWarning(async () => {
+      emit(getClient().node, 'error', wrongFormat)
+      await setTimeout(10)
+    }, [wrongFormat])
     equal(syncStatus.get(), 'error')
-    equal(syncError.get(), 'test error')
+    equal(syncError.get(), 'Wrong message format in test error')
 
     syncStatus.set('disconnected')
     getClient().log.add(

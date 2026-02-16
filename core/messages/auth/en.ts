@@ -9,6 +9,7 @@ export const authMessages = i18n('auth', {
   email: params(
     '// Send this email to yourself\n// If you forget your password, you can search for it later here\n\nUser ID: {user}\nSecret: {secret}'
   ),
+  exit: 'Log out',
   localDescription1:
     'Slow Reader works right on your device. No account needed.',
   localDescription2: 'You can create an account later to sync across devices.',
@@ -23,6 +24,9 @@ export const authMessages = i18n('auth', {
   randomNote:
     'A random user ID is used for privacy. It makes it harder to link your account to your identity.',
   regenerateCredentials: 'Regenerate credentials',
+  relogin: 'Log in again',
+  reloginForm: 'Re-enter your credentials',
+  reloginTitle: 'Re-login',
   savedPromise: 'I’ve saved my User ID and Secret',
   savePassword: 'Save your password',
   secret: 'Secret',
@@ -35,5 +39,6 @@ export const authMessages = i18n('auth', {
   startTitle: 'Start',
   toEmail: 'Email password to myself',
   userId: 'User ID',
-  userIdTaken: 'This User ID is already taken'
+  userIdTaken: 'This User ID is already taken',
+  wrongCredentials: 'Your session was removed from the server'
 })

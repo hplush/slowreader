@@ -12,6 +12,7 @@ import { feedsByCategoriesPage } from './feeds-by-categories.ts'
 import { fastPage, slowPage } from './feeds.ts'
 import { homePage } from './home.ts'
 import { importPage } from './import.ts'
+import { reloginPage } from './relogin.ts'
 import { signupPage } from './signup.ts'
 import { startPage } from './start.ts'
 
@@ -24,6 +25,7 @@ export type { FeedsByCategoriesPage } from './feeds-by-categories.ts'
 export type { FeedsPage } from './feeds.ts'
 export type { HomePage } from './home.ts'
 export type { ImportPage } from './import.ts'
+export type { ReloginPage } from './relogin.ts'
 export type { SignupPage } from './signup.ts'
 export type { StartPage } from './start.ts'
 
@@ -41,6 +43,7 @@ export const pages = {
   interface: createSimplePage('interface'),
   notFound: createSimplePage('notFound'),
   outdated: createSimplePage('outdated'),
+  relogin: reloginPage,
   settings: createRedirectPage('settings', 'interface'),
   signin: createSimplePage('signin'),
   signup: signupPage,

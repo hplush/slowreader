@@ -50,6 +50,7 @@ export async function signIn(
     },
     host
   )
+  userId.set(undefined)
   getEnvironment().saveSession(response.session)
   hasPassword.set(true)
   useCredentials(credentials)

@@ -1,8 +1,9 @@
 import { computed, type ReadableAtom, type WritableStore } from 'nanostores'
 
+import { isOutdatedClient, syncStatus } from './client.ts'
 import { getEnvironment } from './environment.ts'
 import { type Page, pages } from './pages/index.ts'
-import { type Route, router } from './router.ts'
+import { type Route, type RouteName, router } from './router.ts'
 
 /**
  * Iterates over all parameters in page’ URL.
@@ -48,38 +49,49 @@ function getPageParams<SomeRoute extends Route>(
 let prevPage: Page | undefined
 let unbinds: (() => void)[] = []
 
-export const currentPage: ReadableAtom<Page> = computed(router, route => {
-  let startRoute = route.route
-  let page = pages[startRoute]() as Page
-  if (startRoute !== router.get().route) return currentPage.get()
-
-  if (page !== prevPage) {
-    if (prevPage) {
-      for (let unbind of unbinds) unbind()
-      prevPage.destroy()
+export const currentPage: ReadableAtom<Page> = computed(
+  [router, syncStatus, isOutdatedClient],
+  (route, sync, outdated) => {
+    let override: RouteName | undefined
+    if (outdated) {
+      override = 'outdated'
+    } else if (sync === 'wrongCredentials') {
+      override = 'relogin'
     }
-    prevPage = page
+    let startRoute = override ?? route.route
+    let creator = pages[startRoute]
+    let page = creator() as Page
+    // creator() may call openRoute() for redirect pages, re-check current route
+    if (!override && startRoute !== router.get().route) return currentPage.get()
 
-    eachParam(page, route, store => {
-      unbinds.push(
-        store.listen(() => {
-          let currentRoute = router.get()
-          if (currentRoute.route === page.route) {
-            getEnvironment().openRoute({
-              ...route,
-              params: getPageParams(page)
-            } as Route)
-          }
-        })
-      )
+    if (page !== prevPage) {
+      if (prevPage) {
+        for (let unbind of unbinds) unbind()
+        prevPage.destroy()
+      }
+      prevPage = page
+
+      eachParam(page, route, store => {
+        unbinds.push(
+          store.listen(() => {
+            let currentRoute = router.get()
+            if (currentRoute.route === page.route) {
+              getEnvironment().openRoute({
+                ...route,
+                params: getPageParams(page)
+              } as Route)
+            }
+          })
+        )
+      })
+    }
+
+    eachParam(page, route, (store, value) => {
+      if (store.get() !== value) {
+        store.set(value)
+      }
     })
+
+    return page
   }
-
-  eachParam(page, route, (store, value) => {
-    if (store.get() !== value) {
-      store.set(value)
-    }
-  })
-
-  return page
-})
+)

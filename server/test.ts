@@ -10,6 +10,10 @@ import passwordsModule from './modules/passwords.ts'
 import syncModule from './modules/sync.ts'
 import usersModule from './modules/users.ts'
 
+export async function cleanSessions(): Promise<void> {
+  await db.delete(tables.sessions)
+}
+
 export async function cleanAllTables(): Promise<void> {
   await Promise.all(
     Object.values(tables).map(async table => {

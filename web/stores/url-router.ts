@@ -30,6 +30,7 @@ export const pathRouter = createRouter({
   interface: '/settings/ui',
   notFound: '/404',
   outdated: '/outdated',
+  relogin: '/relogin',
   settings: '/settings',
   signin: '/signin',
   signup: '/signup',

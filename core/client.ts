@@ -115,10 +115,11 @@ onEnvironment(({ logStoreCreator }) => {
           }
         })
 
-        logux.node.on('error', error => {
+        logux.node.catch(error => {
           if (error.type === 'wrong-subprotocol') {
             isOutdatedClient.set(true)
           }
+          getEnvironment().warn(error)
         })
         if (getEnvironment().server === 'NO_SERVER') {
           logux.start(false)
