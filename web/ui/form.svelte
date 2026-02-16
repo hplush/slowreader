@@ -9,6 +9,7 @@
 </script>
 
 <form
+  class="form"
   novalidate
   onsubmit={e => {
     e.preventDefault()
@@ -29,3 +30,11 @@
 >
   {@render children()}
 </form>
+
+<style>
+  :global {
+    .form {
+      width: stretch;
+    }
+  }
+</style>
