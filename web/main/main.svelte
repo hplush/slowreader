@@ -23,7 +23,7 @@
   import NotFoundPage from '../pages/not-found.svelte'
   import OutdatedPage from '../pages/outdated.svelte'
   import ReloginPage from '../pages/relogin.svelte'
-  import SignupPage from '../pages/signup.svelte'
+  import SignupPage from '../pages/sign-up.svelte'
   import StartPage from '../pages/start.svelte'
   import FeedPopup from '../popups/feed.svelte'
   import LoadingPopup from '../popups/loading.svelte'
@@ -81,7 +81,7 @@
   <CloudPage page={$currentPage} />
 {:else if $currentPage.route === 'start'}
   <StartPage page={$currentPage} />
-{:else if $currentPage.route === 'signup'}
+{:else if $currentPage.route === 'signUp'}
   <SignupPage page={$currentPage} />
 {:else if $currentPage.route === 'interface'}
   <InterfacePage />

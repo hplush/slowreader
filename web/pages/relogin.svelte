@@ -5,7 +5,7 @@
   import Button from '../ui/button.svelte'
   import Card from '../ui/card.svelte'
   import PageIcon from '../ui/page-icon.svelte'
-  import SignInForm from '../ui/signin-form.svelte'
+  import SignInForm from '../ui/sign-in-form.svelte'
   import Stack from '../ui/stack.svelte'
   import TwoOptionsPage from '../ui/two-options-page.svelte'
 

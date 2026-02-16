@@ -82,7 +82,7 @@
           <p>{$t.noCloudDesc1}</p>
           <p>{$t.noCloudDesc2}</p>
           <Button
-            href={getURL('signup')}
+            href={getURL('signUp')}
             icon={mdiAccountPlus}
             size="wide"
             variant="main"

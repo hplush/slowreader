@@ -3,49 +3,49 @@
   import { testCredentials } from '@slowreader/core/test'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  import SignupPage from '../../pages/signup.svelte'
+  import SignupPage from '../../pages/sign-up.svelte'
   import Scene from '../scene.svelte'
 
   let { Story } = defineMeta({
     component: SignupPage,
-    title: 'Pages/Signup'
+    title: 'Pages/SignUp'
   })
 </script>
 
 <Story name="Light" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      pages.signup().credentials.set(testCredentials())
+      pages.signUp().credentials.set(testCredentials())
     }}
-    route="signup"
+    route="signUp"
     user={false}
   >
-    <SignupPage page={pages.signup()} />
+    <SignupPage page={pages.signUp()} />
   </Scene>
 </Story>
 
 <Story name="Custom Server" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      pages.signup().credentials.set(testCredentials())
-      pages.signup().showCustomServer()
+      pages.signUp().credentials.set(testCredentials())
+      pages.signUp().showCustomServer()
     }}
-    route="signup"
+    route="signUp"
   >
-    <SignupPage page={pages.signup()} />
+    <SignupPage page={pages.signUp()} />
   </Scene>
 </Story>
 
 <Story name="Warning Step" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      pages.signup().credentials.set(testCredentials())
-      pages.signup().warningStep.set(true)
+      pages.signUp().credentials.set(testCredentials())
+      pages.signUp().warningStep.set(true)
     }}
-    route="signup"
+    route="signUp"
     user={false}
   >
-    <SignupPage page={pages.signup()} />
+    <SignupPage page={pages.signUp()} />
   </Scene>
 </Story>
 
@@ -56,11 +56,11 @@
 >
   <Scene
     oninit={() => {
-      pages.signup().credentials.set(testCredentials())
+      pages.signUp().credentials.set(testCredentials())
     }}
-    route="signup"
+    route="signUp"
     user={false}
   >
-    <SignupPage page={pages.signup()} />
+    <SignupPage page={pages.signUp()} />
   </Scene>
 </Story>

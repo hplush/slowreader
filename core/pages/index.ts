@@ -13,7 +13,7 @@ import { fastPage, slowPage } from './feeds.ts'
 import { homePage } from './home.ts'
 import { importPage } from './import.ts'
 import { reloginPage } from './relogin.ts'
-import { signupPage } from './signup.ts'
+import { signUpPage } from './sign-up.ts'
 import { startPage } from './start.ts'
 
 export type { AboutPage } from './about.ts'
@@ -26,7 +26,7 @@ export type { FeedsPage } from './feeds.ts'
 export type { HomePage } from './home.ts'
 export type { ImportPage } from './import.ts'
 export type { ReloginPage } from './relogin.ts'
-export type { SignupPage } from './signup.ts'
+export type { SignUpPage } from './sign-up.ts'
 export type { StartPage } from './start.ts'
 
 export const pages = {
@@ -45,8 +45,7 @@ export const pages = {
   outdated: createSimplePage('outdated'),
   relogin: reloginPage,
   settings: createRedirectPage('settings', 'interface'),
-  signin: createSimplePage('signin'),
-  signup: signupPage,
+  signUp: signUpPage,
   slow: slowPage,
   start: startPage,
   welcome: createSimplePage('welcome')

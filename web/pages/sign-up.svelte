@@ -11,7 +11,7 @@
     mdiTooltipQuestionOutline
   } from '@mdi/js'
   import {
-    type SignupPage,
+    type SignUpPage,
     authMessages as t,
     validServer
   } from '@slowreader/core'
@@ -29,7 +29,7 @@
   import Title from '../ui/title.svelte'
   import TwoOptionsPage from '../ui/two-options-page.svelte'
 
-  let { page }: { page: SignupPage } = $props()
+  let { page }: { page: SignUpPage } = $props()
   let { customServer, error, mailTo, secret, signingUp, userId, warningStep } =
     $derived(page)
 

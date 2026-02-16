@@ -46,7 +46,7 @@ describe('signup page', () => {
   test('shows and hides custom server field', () => {
     let page = openPage({
       params: {},
-      route: 'signup'
+      route: 'signUp'
     })
 
     equal(page.loading.get(), false)
@@ -62,7 +62,7 @@ describe('signup page', () => {
   test('regenerates credentials', () => {
     let page = openPage({
       params: {},
-      route: 'signup'
+      route: 'signUp'
     })
 
     equal(validUserId(page.userId.get()), undefined)
@@ -85,7 +85,7 @@ describe('signup page', () => {
 
     page = openPage({
       params: {},
-      route: 'signup'
+      route: 'signUp'
     })
 
     equal(page.userId.get(), userId.get())
@@ -102,7 +102,7 @@ describe('signup page', () => {
   test('signs up new user', async () => {
     let page = openPage({
       params: {},
-      route: 'signup'
+      route: 'signUp'
     })
 
     equal(page.warningStep.get(), false)
@@ -140,7 +140,7 @@ describe('signup page', () => {
 
     setBaseTestRoute({
       params: {},
-      route: 'signup'
+      route: 'signUp'
     })
     equal(currentPage.get().route, 'cloud')
   })
@@ -155,7 +155,7 @@ describe('signup page', () => {
 
     let page = openPage({
       params: {},
-      route: 'signup'
+      route: 'signUp'
     })
 
     equal(page.warningStep.get(), false)
@@ -179,7 +179,7 @@ describe('signup page', () => {
 
     let page = openPage({
       params: {},
-      route: 'signup'
+      route: 'signUp'
     })
     equal(page.error.get(), undefined)
 
@@ -204,7 +204,7 @@ describe('signup page', () => {
   test('is ready for sign up from another browser tab', async () => {
     openPage({
       params: {},
-      route: 'signup'
+      route: 'signUp'
     })
     await signUp(generateCredentials())
     await setTimeout(10)
@@ -221,7 +221,7 @@ describe('signup page', () => {
 
     let page = openPage({
       params: {},
-      route: 'signup'
+      route: 'signUp'
     })
 
     await signUpApi(
@@ -254,7 +254,7 @@ describe('signup page', () => {
 
     let page = openPage({
       params: {},
-      route: 'signup'
+      route: 'signUp'
     })
     let user = page.userId.get()
     let secret = page.secret.get()

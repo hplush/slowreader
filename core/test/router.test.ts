@@ -44,11 +44,8 @@ describe('router', () => {
     setBaseTestRoute({ params: {}, route: 'slow' })
     deepEqual(router.get(), { params: {}, popups: [], route: 'start' })
 
-    setBaseTestRoute({ params: {}, route: 'signin' })
-    deepEqual(router.get(), { params: {}, popups: [], route: 'signin' })
-
-    setBaseTestRoute({ params: {}, route: 'signup' })
-    deepEqual(router.get(), { params: {}, popups: [], route: 'signup' })
+    setBaseTestRoute({ params: {}, route: 'signUp' })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'signUp' })
 
     setBaseTestRoute(undefined)
     deepEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
@@ -66,10 +63,10 @@ describe('router', () => {
       route: 'fast'
     })
 
-    setBaseTestRoute({ params: {}, route: 'signup' })
-    deepEqual(router.get(), { params: {}, popups: [], route: 'signup' })
+    setBaseTestRoute({ params: {}, route: 'signUp' })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'signUp' })
 
-    setBaseTestRoute({ params: {}, route: 'signin' })
+    setBaseTestRoute({ params: {}, route: 'start' })
     deepEqual(router.get(), {
       params: {},
       popups: [],
@@ -78,7 +75,7 @@ describe('router', () => {
     })
 
     setTestUser(false)
-    deepEqual(router.get(), { params: {}, popups: [], route: 'signin' })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'start' })
   })
 
   test('has routes groups', () => {
@@ -246,7 +243,7 @@ describe('router', () => {
 
   test('hides popups for guest', () => {
     setTestUser(false)
-    setBaseTestRoute({ hash: 'post=id1,post=id2', params: {}, route: 'signin' })
+    setBaseTestRoute({ hash: 'post=id1,post=id2', params: {}, route: 'start' })
     equal(openedPopups.get().length, 0)
   })
 

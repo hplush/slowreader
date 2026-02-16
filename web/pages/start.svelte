@@ -5,7 +5,7 @@
   import { getURL } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
   import Card from '../ui/card.svelte'
-  import SignInForm from '../ui/signin-form.svelte'
+  import SignInForm from '../ui/sign-in-form.svelte'
   import Stack from '../ui/stack.svelte'
   import Title from '../ui/title.svelte'
   import TwoOptionsPage from '../ui/two-options-page.svelte'
@@ -32,7 +32,7 @@
             {$t.start}
           </Button>
           <Button
-            href={getURL('signup')}
+            href={getURL('signUp')}
             icon={mdiAccountPlus}
             size="wide"
             variant="secondary"

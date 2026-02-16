@@ -6,7 +6,7 @@ import { commonMessages } from '../../messages/index.ts'
 import { injectCustomServerField } from './custom-server-field.ts'
 import { createFormSubmit } from './form.ts'
 
-export function injectSingIn(): {
+export function injectSignIn(): {
   customServer: ReadableAtom<string | undefined>
   exit: () => void
   resetCustomServer: () => void

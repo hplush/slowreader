@@ -9,7 +9,7 @@ import { createPage } from './common.ts'
 import { injectCustomServerField } from './mixins/custom-server-field.ts'
 import { createFormSubmit } from './mixins/form.ts'
 
-export const signupPage = createPage('signup', () => {
+export const signUpPage = createPage('signUp', () => {
   if (hasPassword.get()) {
     getEnvironment().openRoute({
       params: {},
@@ -102,4 +102,4 @@ export const signupPage = createPage('signup', () => {
   }
 })
 
-export type SignupPage = ReturnType<typeof signupPage>
+export type SignUpPage = ReturnType<typeof signUpPage>

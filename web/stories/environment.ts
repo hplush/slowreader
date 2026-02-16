@@ -17,7 +17,7 @@ document.getElementById('storybook-root')?.classList.add('main')
 export const baseRouter = atom<BaseRoute>({
   hash: '',
   params: {},
-  route: 'signup'
+  route: 'signUp'
 })
 
 export const locale = atom('en')

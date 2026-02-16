@@ -36,7 +36,7 @@ describe('profile page', () => {
     equal(page.hasCloud.get(), false)
     equal(client.get()?.state, 'disconnected')
 
-    let signupPage = openPage({ params: {}, route: 'signup' })
+    let signupPage = openPage({ params: {}, route: 'signUp' })
     await signupPage.submit()
     await setTimeout(100)
     equal(signupPage.error.get(), undefined)

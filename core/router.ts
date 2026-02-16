@@ -23,8 +23,7 @@ export interface Routes {
   outdated: {}
   relogin: {}
   settings: {}
-  signin: {}
-  signup: {}
+  signUp: {}
   slow: {
     feed?: string
     from?: number
@@ -98,9 +97,9 @@ export type OtherName =
   | (typeof FEED_ROUTES)[number]
   | (typeof SETTINGS_ROUTES)[number]
 
-const GUEST = new Set<RouteName>(['signin', 'start'])
+const GUEST = new Set<RouteName>(['start'])
 
-const BOTH = new Set<RouteName>(['notFound', 'signup'])
+const BOTH = new Set<RouteName>(['notFound', 'signUp'])
 
 const FEEDS = new Set<RouteName>(FEED_ROUTES)
 
