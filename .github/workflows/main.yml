@@ -62,7 +62,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     permissions:
       contents: read
-      id-token: write
+      packages: write
     concurrency:
       group: staging-web
     runs-on: ubuntu-latest
@@ -74,17 +74,10 @@ jobs:
           allowed-endpoints: >
             9236a389bd48b984df91adc1bc924620.r2.cloudflarestorage.com:443
             api.github.com:443
-            artifactregistry.googleapis.com:443
             cgr.dev:443
-            dl.google.com:443
-            europe-west1-docker.pkg.dev:443
-            europe-west1-run.googleapis.com:443
             github.com:443
-            iamcredentials.googleapis.com:443
             raw.githubusercontent.com:443
-            run.googleapis.com:443
-            serviceusage.googleapis.com:443
-            sts.googleapis.com:443
+            ghcr.io:443
       - name: Checkout the repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Download web assets from test step
@@ -92,11 +85,13 @@ jobs:
         with:
           name: web-client-assets-${{ github.sha }}
           path: web/
-      - name: Deploy to Google Cloud
-        uses: ./.github/actions/deploy
+      - name: Build Docker image
+        run: docker build -t ghcr.io/hplush/slowreader-web:dev ./web/
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
-          projectId: slowreader-453400
-          region: europe-west1
-          folder: ./web/
-          registry: staging/web
-          service: staging-web
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push Docker image
+        run: docker push ghcr.io/hplush/slowreader-web:dev

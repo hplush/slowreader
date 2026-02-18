@@ -1,5 +1,9 @@
 FROM cgr.dev/chainguard/wolfi-base@sha256:b5f4a33fa2fee95dd79535e069bafd60f52085c5786677da5724414374c5194c AS base
 
+LABEL org.opencontainers.image.source=https://github.com/hplush/slowreader
+LABEL org.opencontainers.image.description="Proxy server of Slow Reader"
+LABEL org.opencontainers.image.licenses=AGPL-3.0-or-later
+
 ENV NODE_VERSION=24.13.1 \
   NODE_CHECKSUM=sha256:30215f90ea3cd04dfbc06e762c021393fa173a1d392974298bbc871a8e461089
 

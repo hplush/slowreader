@@ -25,18 +25,10 @@ jobs:
             9236a389bd48b984df91adc1bc924620.r2.cloudflarestorage.com:443
             api.github.com:443
             apk.cgr.dev:443
-            artifactregistry.googleapis.com:443
             cgr.dev:443
-            dl.google.com:443
-            europe-west1-docker.pkg.dev:443
-            europe-west1-run.googleapis.com:443
             github.com:443
-            iamcredentials.googleapis.com:443
             nodejs.org:443
             raw.githubusercontent.com:443
-            run.googleapis.com:443
-            serviceusage.googleapis.com:443
-            sts.googleapis.com:443
       - name: Checkout the repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Download server from prepare step
@@ -46,8 +38,6 @@ jobs:
           repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.PREVIEW_ARTIFACT_PAT }}
-      - name: Extract archive to restore symlinks
-        run: tar -xf server.tar
       - name: Extract PR number
         run: |
           PR_NUMBER=$(cat ./preview-id)
@@ -60,19 +50,16 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.event.workflow_run.head_commit.id }}
           env: preview-${{ env.PR_NUMBER }}
-      - name: Deploy to Google Cloud
-        id: deploy
-        uses: ./.github/actions/deploy
+      - name: Load Docker image
+        run: docker load < image.tar
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
-          projectId: slowreader-453400
-          region: europe-west1
-          folder: ./server/
-          registry: staging/server
-          service: staging-server
-          tag: preview-${{ env.PR_NUMBER }}
-          env: ASSETS=1,DATABASE_URL=memory://,PROXY_ORIGIN=^https:\/\/preview-\d+---staging-server-300174498438\.europe-west1\.run\.app$
-          # flags: |
-          #   --update-secrets DATABASE_URL=preview-db-url:latest
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push Docker image
+        run: docker push ghcr.io/hplush/slowreader-proxy:dev
       - name: Update deployment status
         uses: bobheadxi/deployments@648679e8e4915b27893bd7dbc35cb504dc915bc8 # v1.5.0
         if: always()
