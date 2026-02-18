@@ -12,9 +12,6 @@ jobs:
   close:
     name: Close
     runs-on: ubuntu-latest
-    env:
-      PROJECT_ID: slowreader-453400
-      REGION: europe-west1
     steps:
       - name: Harden the runner
         uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
@@ -24,18 +21,10 @@ jobs:
             9236a389bd48b984df91adc1bc924620.r2.cloudflarestorage.com:443
             api.github.com:443
             apk.cgr.dev:443
-            artifactregistry.googleapis.com:443
             cgr.dev:443
-            dl.google.com:443
-            europe-west1-docker.pkg.dev:443
-            europe-west1-run.googleapis.com:443
             github.com:443
-            iamcredentials.googleapis.com:443
             nodejs.org:443
             raw.githubusercontent.com:443
-            run.googleapis.com:443
-            serviceusage.googleapis.com:443
-            sts.googleapis.com:443
       - name: Download PR number from prepare step
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:

@@ -42,10 +42,12 @@ jobs:
           STAGING: 1
       - name: Build server
         run: cd server && node --run build
+      - name: Build Docker image
+        run: docker build -t ghcr.io/hplush/slowreader:preview-${{ github.event.pull_request.number }} ./server/
+      - name: Export image to tar
+        run: docker save ghcr.io/hplush/slowreader:preview-${{ github.event.pull_request.number }} > ./image.tar
       - name: Save PR number
         run: echo "${{ github.event.pull_request.number }}" > ./preview-id
-      - name: Create archive to keep symlinks
-        run: tar -cf server.tar server/dist/
       - name: Save server for deploy
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
@@ -53,8 +55,5 @@ jobs:
           retention-days: 1
           include-hidden-files: true
           path: |
-            server/web/
-            server/Dockerfile
-            server/.dockerignore
             preview-id
-            server.tar
+            image.tar
