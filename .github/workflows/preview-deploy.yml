@@ -42,6 +42,15 @@ jobs:
         run: |
           PR_NUMBER=$(cat ./preview-id)
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+      - name: Check preview label
+        run: |
+          LABELS=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json labels --jq '.labels[].name')
+          if ! echo "$LABELS" | grep -qx 'preview'; then
+            echo "PR #$PR_NUMBER does not have 'preview' label, skipping deploy"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Notify about new deployment
         uses: bobheadxi/deployments@648679e8e4915b27893bd7dbc35cb504dc915bc8 # v1.5.0
         id: status

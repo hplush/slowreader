@@ -1,6 +1,10 @@
 name: Start Preview Deployment
 on:
   pull_request:
+    types:
+      - labeled
+      - synchronize
+      - opened
     paths-ignore:
       - '**/*.md'
       - 'scripts/**'
@@ -19,6 +23,7 @@ jobs:
   prepare:
     name: Prepare
     runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'preview')
     steps:
       - name: Harden the runner
         uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
