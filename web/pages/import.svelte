@@ -40,7 +40,7 @@
         </Stack>
       </PageIcon>
     {:else}
-      <PageIcon path={mdiBriefcaseUploadOutline}>
+      <PageIcon align="start" path={mdiBriefcaseUploadOutline}>
         <Stack gap="l">
           {#if $importing}
             <Loader size="wide" value={$importing} />

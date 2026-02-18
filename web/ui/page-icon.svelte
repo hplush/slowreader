@@ -4,11 +4,13 @@
   import Icon from './icon.svelte'
 
   let {
+    align = 'center',
     children,
     extra,
     padding = true,
     path
   }: {
+    align?: 'center' | 'start'
     children?: Snippet
     extra?: string
     padding?: boolean
@@ -26,7 +28,7 @@
     <Icon {path} />
   </div>
   {#if children}
-    <div class="page-icon_text">
+    <div class="page-icon_text" class:is-center={align === 'center'}>
       {@render children()}
     </div>
   {/if}
@@ -67,7 +69,10 @@
       width: 18rem;
       margin-top: 1rem;
       color: var(--secondary-text-color);
-      text-align: center;
+
+      &.is-center {
+        text-align: center;
+      }
     }
   }
 </style>

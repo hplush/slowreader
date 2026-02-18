@@ -17,30 +17,30 @@
 </script>
 
 {#if reader.reading === 'fast'}
-  <PageIcon path={mdiFood}>
+  <PageIcon align="start" path={mdiFood}>
     <Stack gap="l">
       <RichText text={$t.fastDesc} />
       <Stack gap="s" row>
-        <Button href={getURL('add')} icon={mdiPlusCircleOutline}
-          >{$t.emptyAdd}</Button
-        >
-        <Button href={getURL('import')} icon={mdiImport}
-          >{$t.emptyImport}</Button
-        >
+        <Button href={getURL('add')} icon={mdiPlusCircleOutline}>
+          {$t.emptyAdd}
+        </Button>
+        <Button href={getURL('import')} icon={mdiImport}>
+          {$t.emptyImport}
+        </Button>
       </Stack>
     </Stack>
   </PageIcon>
 {:else}
-  <PageIcon path={mdiFireplace}>
+  <PageIcon align="start" path={mdiFireplace}>
     <Stack gap="l">
       <RichText text={$t.slowDesc} />
       <Stack gap="s" row>
-        <Button href={getURL('add')} icon={mdiPlusCircleOutline}
-          >{$t.emptyAdd}</Button
-        >
-        <Button href={getURL('import')} icon={mdiImport}
-          >{$t.emptyImport}</Button
-        >
+        <Button href={getURL('add')} icon={mdiPlusCircleOutline}>
+          {$t.emptyAdd}
+        </Button>
+        <Button href={getURL('import')} icon={mdiImport}>
+          {$t.emptyImport}
+        </Button>
       </Stack>
     </Stack>
   </PageIcon>
