@@ -8,6 +8,7 @@ on:
 permissions:
   id-token: write
   deployments: write
+  packages: write
 jobs:
   close:
     name: Close
@@ -24,6 +25,7 @@ jobs:
             cgr.dev:443
             github.com:443
             nodejs.org:443
+            ghcr.io:443
             raw.githubusercontent.com:443
       - name: Download PR number from prepare step
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
@@ -43,20 +45,10 @@ jobs:
           step: delete-env
           token: ${{ secrets.PREVIEW_DEPLOYMENT_PAT }}
           env: preview-${{ env.PR_NUMBER }}
-      - name: Auth Google Cloud
-        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+      - name: Delete preview image
+        uses: dataaxiom/ghcr-cleanup-action@cd0cdb900b5dbf3a6f2cc869f0dbb0b8211f50c4 # v1.0.16
         with:
-          workload_identity_provider: projects/300174498438/locations/global/workloadIdentityPools/github/providers/hplush
-          service_account: github-deploy@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
-      - name: Install Google Cloud
-        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
-      - name: Shut down Cloud Run
-        run: gcloud run services update-traffic staging-server --region=${{ env.REGION }} --project=${{ env.PROJECT_ID }} --remove-tags preview-${{ env.PR_NUMBER }} --async
-      - name: Delete image
-        run: |
-          tagged=$(gcloud artifacts docker images list $REGION-docker.pkg.dev/$PROJECT_ID/staging/server --include-tags --format="get(version)" --filter="tags = 'preview-${{ env.PR_NUMBER }}'")
-          for digest in $tagged; do
-            image=$REGION-docker.pkg.dev/$PROJECT_ID/staging/server@$digest
-            echo "Deleting unused image: $image"
-            gcloud artifacts docker images delete $image --delete-tags --quiet
-          done
+          package: slowreader
+          owner: hplush
+          delete-tags: preview-${{ env.PR_NUMBER }}
+          token: ${{ secrets.GITHUB_TOKEN }}

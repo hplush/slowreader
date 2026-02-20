@@ -1,0 +1,49 @@
+name: Clean Old Docker Images
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/clean-images.yml'
+      - '.github/actions/init-node/action.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/clean-images.yml'
+      - '.github/actions/init-node/action.yml'
+  schedule:
+    - cron: '00 10 * * 1' # Every Monday at 10:00 UTC
+permissions:
+  packages: write
+jobs:
+  clean:
+    name: Clean Untagged Images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+      - name: Clean slowreader-web
+        uses: dataaxiom/ghcr-cleanup-action@cd0cdb900b5dbf3a6f2cc869f0dbb0b8211f50c4 # v1.0.16
+        with:
+          package: slowreader-web
+          owner: hplush
+          delete-untagged: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Clean slowreader
+        uses: dataaxiom/ghcr-cleanup-action@cd0cdb900b5dbf3a6f2cc869f0dbb0b8211f50c4 # v1.0.16
+        with:
+          package: slowreader
+          owner: hplush
+          delete-untagged: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Clean slowreader-proxy
+        uses: dataaxiom/ghcr-cleanup-action@cd0cdb900b5dbf3a6f2cc869f0dbb0b8211f50c4 # v1.0.16
+        with:
+          package: slowreader-proxy
+          owner: hplush
+          delete-untagged: true
+          token: ${{ secrets.GITHUB_TOKEN }}
