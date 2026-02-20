@@ -2,7 +2,7 @@
 # so every developer will have the same environment
 
 # registry.fedoraproject.org/fedora:43
-FROM registry.fedoraproject.org/fedora@sha256:d8d470c752362cc8f9bc5be887dfa731122ed4ecacf60181aae655e511f93b25
+FROM registry.fedoraproject.org/fedora@sha256:344c39d33f475dd770dc310c5a24958420a70e51cc928b121ef699baec1f2020
 
 ARG TARGETARCH
 
@@ -10,9 +10,9 @@ ENV NODE_VERSION=24.13.1 \
   NODE_CHECKSUM_X64=30215f90ea3cd04dfbc06e762c021393fa173a1d392974298bbc871a8e461089 \
   NODE_CHECKSUM_ARM64=c827d3d301e2eed1a51f36d0116b71b9e3d9e3b728f081615270ea40faac34c1
 
-ENV PNPM_VERSION=10.29.3 \
-  PNPM_CHECKSUM_X64=2fc98db127c611be0c110af11b5b72759f7d736893dddc81df73b7b59b30f15a \
-  PNPM_CHECKSUM_ARM64=ae70208882b2c5229e143de2454fc4f778b2d2ae959a2e48ec76a6c26e8b3127
+ENV PNPM_VERSION=10.30.1 \
+  PNPM_CHECKSUM_X64=44584d1bf4964eab9117484bbac165279f5584d743b98dfddb72f2cde5caff92 \
+  PNPM_CHECKSUM_ARM64=f6bd5a8b99543511421a0e77935c93b744feaa2e65fdd91969f966460f6b6f5a
 
 RUN dnf install -yq zsh micro git tig psmisc procps-ng awk \
   && dnf clean all \

@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "better-node-test": "0.8.3",
-    "eslint": "9.39.2"
+    "eslint": "10.0.0"
   },
   "engines": {
     "node": "^24.13.0",

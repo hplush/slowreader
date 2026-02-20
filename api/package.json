@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@logux/core": "0.10.0",
-    "eslint": "9.39.2"
+    "eslint": "10.0.0"
   },
   "engines": {
     "node": "^24.13.0",

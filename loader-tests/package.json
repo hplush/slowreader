@@ -12,8 +12,8 @@
     "@slowreader/core": "workspace:*",
     "@slowreader/proxy": "workspace:*",
     "@types/jsdom": "27.0.0",
-    "eslint": "9.39.2",
-    "jsdom": "28.0.0",
+    "eslint": "10.0.0",
+    "jsdom": "28.1.0",
     "nanostores": "1.1.0",
     "yaml": "2.8.2"
   },
