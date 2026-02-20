@@ -127,7 +127,7 @@ Global development tools:
 - [TypeScript](./tsconfig.json) for strict type checking.
 - [ESLint](./eslint.config.ts) to check for popular mistakes in JavaScript.
 - [remark](./.remarkrc) to find mistakes in `.md` files.
-- [Multiocular](https://github.com/multiocular-com/multiocular) to review dependencies updates.
+- [Multiocular](https://github.com/ai/multiocular) to review dependencies updates.
 
 Each project has its own tools, too.
 
