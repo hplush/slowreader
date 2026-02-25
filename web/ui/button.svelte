@@ -39,7 +39,10 @@
     size = 'inline',
     variant = 'secondary',
     ...props
-  }: {
+  }: (
+    | ({ href: string } & HTMLAnchorAttributes)
+    | ({ href?: undefined } & HTMLButtonAttributes)
+  ) & {
     children: Snippet
     disabled?: boolean
     icon?: string
@@ -48,10 +51,7 @@
     pseudostate?: ButtonPseudostate
     size?: ButtonSize
     variant?: ButtonVariant
-  } & (
-    | ({ href: string } & HTMLAnchorAttributes)
-    | ({ href?: undefined } & HTMLButtonAttributes)
-  ) = $props()
+  } = $props()
 
   let title = $state('')
 </script>

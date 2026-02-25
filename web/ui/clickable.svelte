@@ -12,15 +12,15 @@
     disabled,
     onclick,
     ...props
-  }: {
+  }: (
+    | ({ href: string } & HTMLAnchorAttributes)
+    | ({ href?: undefined } & HTMLButtonAttributes)
+  ) & {
     children?: Snippet
     class: ClassValue
     disabled?: boolean
     onclick?: MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>
-  } & (
-    | ({ href: string } & HTMLAnchorAttributes)
-    | ({ href?: undefined } & HTMLButtonAttributes)
-  ) = $props()
+  } = $props()
 </script>
 
 {#if typeof props.href !== 'undefined'}
