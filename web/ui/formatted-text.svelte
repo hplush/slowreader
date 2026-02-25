@@ -20,7 +20,6 @@
   } = $props()
 
   const renderHtml: Attachment = node => {
-    node.innerHTML = ''
     node.replaceChildren(...sanitizeDOM(html ?? '', url).childNodes)
     node.querySelectorAll('a').forEach(link => {
       link.setAttribute('target', '_blank')
