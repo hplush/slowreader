@@ -76,7 +76,7 @@ describe('server assets', () => {
     let index1 = await server.fetch('/')
     checkHeaders(index1, {
       'content-security-policy':
-        "base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='; style-src 'self' 'sha256-mXG7JU8TV69JbFGTY1sCBEeSnX7esCXEfbnsKvyjrqE='",
+        "base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'; require-trusted-types-for 'script'; script-src 'self' 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='; style-src 'self' 'sha256-mXG7JU8TV69JbFGTY1sCBEeSnX7esCXEfbnsKvyjrqE='; trusted-types dompurify slowreader-rich svelte-trusted-html",
       'content-type': 'text/html',
       'strict-transport-security':
         'max-age=31536000; includeSubDomains; preload',
@@ -87,7 +87,7 @@ describe('server assets', () => {
     let html = await server.fetch('/404.html')
     checkHeaders(html, {
       'content-security-policy':
-        "base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'; script-src 'self'; style-src 'self' 'sha256-h3GYPBFE6Av6zUWOZYeC83lN95g5tnhsj1pyM3woz/c='",
+        "base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'; require-trusted-types-for 'script'; script-src 'self'; style-src 'self' 'sha256-h3GYPBFE6Av6zUWOZYeC83lN95g5tnhsj1pyM3woz/c='; trusted-types dompurify slowreader-rich svelte-trusted-html",
       'content-type': 'text/html',
       'strict-transport-security':
         'max-age=31536000; includeSubDomains; preload',

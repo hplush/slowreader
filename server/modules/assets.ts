@@ -36,8 +36,10 @@ const CONTENT_SECURITY_POLICIES = {
   'form-action': "'none'",
   'frame-ancestors': "'none'",
   'object-src': "'none'",
+  'require-trusted-types-for': "'script'",
   'script-src': "'self'",
-  'style-src': "'self'"
+  'style-src': "'self'",
+  'trusted-types': 'dompurify slowreader-rich svelte-trusted-html'
 } as const
 
 const HASHED = /-[\w]{8}\.\w+$/

@@ -172,6 +172,9 @@ importers:
       '@types/jsdom':
         specifier: 28.0.0
         version: 28.0.0
+      '@types/trusted-types':
+        specifier: 2.0.7
+        version: 2.0.7
       better-node-test:
         specifier: 0.8.3
         version: 0.8.3
@@ -206,6 +209,9 @@ importers:
       '@types/jsdom':
         specifier: 28.0.0
         version: 28.0.0
+      '@types/trusted-types':
+        specifier: 2.0.7
+        version: 2.0.7
       eslint:
         specifier: 10.0.2
         version: 10.0.2(jiti@2.6.1)
@@ -382,6 +388,9 @@ importers:
       '@stylistic/stylelint-plugin':
         specifier: 5.0.1
         version: 5.0.1(stylelint@17.3.0(typescript@5.9.3))
+      '@types/trusted-types':
+        specifier: 2.0.7
+        version: 2.0.7
       browserslist:
         specifier: 4.28.1
         version: 4.28.1

@@ -56,6 +56,7 @@
     "@storybook/svelte-vite": "10.2.12",
     "@stylistic/stylelint-config": "4.0.0",
     "@stylistic/stylelint-plugin": "5.0.1",
+    "@types/trusted-types": "2.0.7",
     "browserslist": "4.28.1",
     "chromatic": "15.2.0",
     "eslint": "10.0.2",
