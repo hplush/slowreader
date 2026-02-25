@@ -93,7 +93,7 @@ describe('html', () => {
   test('converts translation Markdown', () => {
     equal(
       parseRichTranslation('- list\n- items\n\n<b>A</b>B'),
-      '<p><ul><li>list</li>\n<li>items</li></ul></p><p>AB</p>'
+      '<ul><li>list</li>\n<li>items</li></ul><p>AB</p>'
     )
   })
 

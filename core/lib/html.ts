@@ -134,7 +134,10 @@ export function parseRichTranslation(text: string, link?: string): string {
     .replace(/^[*-][ .](.*)/gm, '<ul><li>$1</li></ul>')
     .replace(/<\/ul>\n<ul>/g, '\n')
   if (html.includes('\n\n')) {
-    html = `<p>${html.replace(/\n\n/g, '</p><p>')}</p>`
+    html = html
+      .split('\n\n')
+      .map(s => (s.startsWith('<ul>') ? s : `<p>${s}</p>`))
+      .join('')
   }
   if (link) {
     html = html.replace(/\[(.*?)\]/gm, `<a href="${link}">$1</a>`)
