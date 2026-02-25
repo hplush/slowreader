@@ -1,7 +1,4 @@
 <script lang="ts">
-  /* We escape and have XSS tests */
-  /* eslint svelte/no-at-html-tags: "off" */
-
   import { parseRichTranslation } from '@slowreader/core'
 
   let { text, url }: { text: string; url?: string } = $props()
