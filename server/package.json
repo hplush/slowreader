@@ -36,11 +36,11 @@
     "@logux/client": "0.23.1",
     "better-node-test": "0.8.3",
     "drizzle-kit": "0.31.9",
-    "eslint": "10.0.0",
+    "eslint": "10.0.2",
     "prettier": "3.8.1"
   },
   "engines": {
-    "node": "^24.13.0",
+    "node": "^24.14.0",
     "pnpm": "^10.0.0"
   }
 }
