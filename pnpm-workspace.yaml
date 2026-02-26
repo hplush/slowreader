@@ -7,28 +7,33 @@ packages:
   - loader-tests
   - extension
 
-forceLegacyDeploy: true
-
-trustPolicy: no-downgrade
-trustPolicyIgnoreAfter: 10080
+allowBuilds:
+  esbuild: true
+  husky: true
 
 blockExoticSubdeps: true
 
+forceLegacyDeploy: true
+
 minimumReleaseAge: 1440
+
 minimumReleaseAgeExclude:
-  - 'postcss-smooth-shadow'
+  - postcss-smooth-shadow
   - '@nanostores/*'
   - '@logux/*'
-  - 'logux-eslint-config'
+  - logux-eslint-config
   - '@size-limit/*'
-  - 'size-limit'
-  - 'browserslist'
-  - 'update-browserslist-db'
-  - 'caniuse-lite'
-  - 'baseline-browser-mapping'
-  - 'autoprefixer'
-  - 'multiocular'
+  - size-limit
+  - browserslist
+  - update-browserslist-db
+  - caniuse-lite
+  - baseline-browser-mapping
+  - autoprefixer
+  - multiocular
 
-allowBuilds:
-  husky: true
-  esbuild: true
+overrides:
+  rollup@<2.80.0: '>=2.80.0'
+
+trustPolicy: no-downgrade
+
+trustPolicyIgnoreAfter: 10080
