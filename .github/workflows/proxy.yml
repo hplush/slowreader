@@ -30,25 +30,18 @@ jobs:
         with:
           egress-policy: block
           allowed-endpoints: >
-            9236a389bd48b984df91adc1bc924620.r2.cloudflarestorage.com:443
             api.github.com:443
-            apk.cgr.dev:443
-            cgr.dev:443
             github.com:443
             nodejs.org:443
             release-assets.githubusercontent.com:443
             objects.githubusercontent.com:443
             registry.npmjs.org:443
-            ghcr.io:443
       - name: Checkout the repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Initialize Node.js
         uses: ./.github/actions/init-node
       - name: Run tests
         run: cd proxy && pnpm test
-      - name: Test Docker build
-        if: github.ref != 'refs/heads/main'
-        run: cd proxy && node --run build && docker build .
   build:
     name: Proxy Build
     if: github.ref == 'refs/heads/main'

@@ -41,6 +41,7 @@ jobs:
             apk.cgr.dev:443
             cgr.dev:443
             ghcr.io:443
+            pkg-containers.githubusercontent.com:443
       - name: Checkout the repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Initialize Node.js
