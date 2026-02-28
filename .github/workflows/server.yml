@@ -101,7 +101,6 @@ jobs:
             api.github.com:443
             apk.cgr.dev:443
             cgr.dev:443
-            dev-server.slowreader.app:443
             github.com:443
             nodejs.org:443
             release-assets.githubusercontent.com:443
