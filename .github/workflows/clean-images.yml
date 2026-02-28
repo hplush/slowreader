@@ -26,6 +26,7 @@ jobs:
           allowed-endpoints: >
             api.github.com:443
             github.com:443
+            ghcr.io:443
       - name: Clean slowreader-web
         uses: dataaxiom/ghcr-cleanup-action@cd0cdb900b5dbf3a6f2cc869f0dbb0b8211f50c4 # v1.0.16
         with:
