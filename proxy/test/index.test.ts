@@ -110,11 +110,10 @@ describe('proxy', () => {
     equal(await response.text(), message)
   }
 
-  test('works', async () => {
-    let response = await request(targetUrl)
+  test('has health check', async () => {
+    let response = await fetch(`${proxyUrl}/health`)
     equal(response.status, 200)
-    let parsedResponse = (await response.json()) as EchoResponse
-    equal(parsedResponse.response, 'ok')
+    equal(await response.text(), 'OK')
   })
 
   test('has timeout', async () => {
