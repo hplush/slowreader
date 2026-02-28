@@ -10,6 +10,7 @@ packages:
 allowBuilds:
   esbuild: true
   husky: true
+  argon2: false
 
 blockExoticSubdeps: true
 
