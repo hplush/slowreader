@@ -47,6 +47,6 @@ For deploy we:
 We have 2 proxy servers:
 
 - `proxy.slowreader.app` works only for production clients.
-- `dev-proxy.slowreader.app` works with staging.
+- `proxy.dev.slowreader.app` works with staging.
 
 All Google Cloud settings are documented in [script](../scripts/prepare-google-cloud.sh).

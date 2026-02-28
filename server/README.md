@@ -83,7 +83,7 @@ For deploy we:
 We deploy server to:
 
 - `server.slowreader.app` for production.
-- `dev-proxy.slowreader.app` for staging.
+- `server.dev.slowreader.app` for staging.
 - Temporary Google’s domain for pull request preview.
 
 All Google Cloud settings are documented in [script](../scripts/prepare-google-cloud.sh).
