@@ -117,8 +117,6 @@ jobs:
           path: ./
       - name: Extract archive to restore symlinks
         run: tar -xf server.tar
-      - name: Create empty assets
-        run: mkdir server/web
       - name: Deploy
         uses: ./.github/actions/deploy
         with:
