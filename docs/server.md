@@ -167,3 +167,7 @@ ASSETS=1
 DATABASE_URL=memory://
 PROXY_ORIGIN=^https:\/\/preview-\w+.app\.hplush\.dev$
 ```
+
+Copy application ID (last part of application’s URL) to `applicationId` in GitHub workflows.
+
+Create new token in Dokploy and set as `DOKPLOY_TOKEN` secret in GitHub.

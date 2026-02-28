@@ -129,3 +129,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push Docker image
         run: docker push ghcr.io/hplush/slowreader-proxy:dev
+      - name: Trigger Dokploy deployment
+        run: |
+          curl -X 'POST' \
+          'https://cloud.hplush.dev/api/application.deploy' \
+          -H 'accept: application/json' \
+          -H 'x-api-key: ${{ secrets.DOKPLOY_TOKEN }} \
+          -H 'Content-Type: application/json' \
+          -d '{
+            "applicationId": "xZtJmL3JYQb0-4nBulOvn"
+          }'
