@@ -1,4 +1,4 @@
-# Creating Staging Server
+# Creating Server
 
 We are using own virtual server with [Dokploy](https://dokploy.com/) for staging.
 
@@ -128,4 +128,42 @@ Add Docker access to admin user.
 
 ```bash
 sudo usermod -aG docker ai
+```
+
+## 7. Create Project
+
+Create domains:
+
+- `dev.slowreader.app`: `A`/`AAAA` to server’s IP addresses.
+- `server.dev.slowreader.app`: `CNAME` to `dev.slowreader.app`.
+- `proxy.dev.slowreader.app`: `CNAME` to `dev.slowreader.app`.
+- `*.app.hplush.dev`: `CNAME` to `dev.slowreader.app`.
+
+Create `Slow Reader` organization with `Slow Reader Dev` project.
+
+Create `Web` application with `slowreader-dev-web` name and `dev.slowreader.app` domain to `8000` domain with HTTPS. Enable Docker deployment from `ghcr.io/hplush/slowreader-web:dev`.
+
+Create `Database` of `postgres:18` with `slowreader-dev-database` name.
+
+Create `Server` application with `slowreader-dev-server` name and `server.dev.slowreader.app` domain to `2554` domain with HTTPS. Enable Docker deployment from `ghcr.io/hplush/slowreader:dev`. Environment variables:
+
+```env
+ASSETS=
+PROXY_ORIGIN=
+DATABASE_URL=<COPY FROM DATABASE UI>
+```
+
+Create `Proxy` application with `slowreader-dev-proxy` name and `proxy.dev.slowreader.app` domain to `5284` domain with HTTPS. Enable Docker deployment from `ghcr.io/hplush/slowreader-proxy:dev`. Environments:
+
+```env
+STAGING=1
+PROXY_ORIGIN=^https:\/\/dev\.slowreader\.app$
+```
+
+Install GitHuh application and enable Preview Deployments for `Server` with for `*.app.hplush.dev` with:
+
+```env
+ASSETS=1
+DATABASE_URL=memory://
+PROXY_ORIGIN=^https:\/\/preview-\w+.app\.hplush\.dev$
 ```
