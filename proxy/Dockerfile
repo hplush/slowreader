@@ -29,4 +29,4 @@ ENTRYPOINT ["/usr/local/bin/node"]
 CMD ["server.ts"]
 
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
-  CMD ["/usr/bin/httpcheck" "http://localhost:5284/health"]
+  CMD ["/usr/bin/httpcheck", "http://localhost:5284/health"]
