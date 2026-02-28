@@ -66,7 +66,7 @@ alias rg='rg --hidden'
 
 Disable `root` SSH access and text password in `sudo micro /etc/ssh/sshd_config`:
 
-```
+```txt
 PermitRootLogin no
 PasswordAuthentication no
 PermitEmptyPasswords no
@@ -96,7 +96,7 @@ bantime  = 24h
 
 Reboot the system:
 
-```
+```bash
 sudo reboot now
 ```
 
