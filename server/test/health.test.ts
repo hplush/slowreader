@@ -18,6 +18,6 @@ describe('server health', () => {
 
     let response = await server.fetch('/health')
     equal(response.status, 200)
-    equal(await response.text(), 'ok\n')
+    equal(await response.text(), 'OK\n')
   })
 })

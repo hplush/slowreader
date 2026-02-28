@@ -49,7 +49,7 @@ export function createProxy(
     function sendError(statusCode: number, message: string): void {
       if (!sent) {
         res.writeHead(statusCode, { 'Content-Type': 'text/plain' })
-        res.end(message)
+        res.end(message + '\n')
       } else {
         res.end()
       }
@@ -58,7 +58,7 @@ export function createProxy(
 
     if (req.url === '/health') {
       res.writeHead(200, { 'Content-Type': 'text/plain' })
-      return res.end('OK')
+      return res.end('OK\n')
     }
 
     if (req.method === 'OPTIONS' && req.headers.origin) {

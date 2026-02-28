@@ -8,11 +8,11 @@ export default (server: BaseServer): void => {
     try {
       await db.execute(sql`SELECT 1`)
       res.writeHead(200, { 'Content-Type': 'text/plain' })
-      res.end('ok\n')
+      res.end('OK\n')
       /* node:coverage ignore next 4 */
     } catch {
       res.writeHead(503, { 'Content-Type': 'text/plain' })
-      res.end('error\n')
+      res.end('Error\n')
     }
   })
 }

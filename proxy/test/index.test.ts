@@ -16,7 +16,7 @@ describe('proxy', () => {
       requestPath: string
       url: string
     }
-    response: 'ok'
+    response: string
   }
 
   function getURL(server: Server): string {
@@ -58,7 +58,7 @@ describe('proxy', () => {
             requestPath: parsedUrl.pathname,
             url: req.url!
           },
-          response: 'ok'
+          response: 'content'
         } satisfies EchoResponse)
       )
     }
@@ -104,16 +104,17 @@ describe('proxy', () => {
 
   async function expectBadRequest(
     response: Response,
-    message: string
+    message: string,
+    status = 400
   ): Promise<void> {
-    equal(response.status, 400)
-    equal(await response.text(), message)
+    equal(response.status, status)
+    equal(await response.text(), message + '\n')
   }
 
   test('has health check', async () => {
     let response = await fetch(`${proxyUrl}/health`)
     equal(response.status, 200)
-    equal(await response.text(), 'OK')
+    equal(await response.text(), 'OK\n')
   })
 
   test('has timeout', async () => {
@@ -125,7 +126,7 @@ describe('proxy', () => {
     let response = await request(`${targetUrl}/foo/bar?foo=bar&bar=foo`)
     let parsedResponse = (await response.json()) as EchoResponse
     equal(response.status, 200)
-    equal(parsedResponse.response, 'ok')
+    equal(parsedResponse.response, 'content')
     equal(parsedResponse.request.requestPath, '/foo/bar')
     equal(parsedResponse.request.queryParams.foo, 'bar')
     equal(parsedResponse.request.queryParams.bar, 'foo')
@@ -135,8 +136,7 @@ describe('proxy', () => {
     let response = await request(targetUrl, {
       method: 'POST'
     })
-    equal(response.status, 405)
-    equal(await response.text(), 'Only GET is allowed')
+    expectBadRequest(response, 'Only GET is allowed', 405)
   })
 
   test('checks URL', async () => {
@@ -256,15 +256,14 @@ describe('proxy', () => {
   })
 
   test('checks response size', async () => {
-    let response1 = await request(targetUrl + '?big=file', {})
-    equal(response1.status, 413)
-    equal(await response1.text(), 'Response too large')
+    let response = await request(targetUrl + '?big=file', {})
+    expectBadRequest(response, 'Response too large', 413)
   })
 
   test('is ready for errors', async () => {
-    let response1 = await request(targetUrl + '?error=1', {})
-    equal(response1.status, 500)
-    equal(await response1.text(), 'Error')
+    let response = await request(targetUrl + '?error=1', {})
+    equal(response.status, 500)
+    equal(await response.text(), 'Error')
   })
 
   test('handles If-Modified-Since and Last-Modified', async () => {
@@ -288,7 +287,7 @@ describe('proxy', () => {
     })
     equal(response2.status, 200)
     let json2 = (await response2.json()) as EchoResponse
-    equal(json2.response, 'ok')
+    equal(json2.response, 'content')
   })
 
   test('handles malformed If-Modified-Since and Last-Modified', async () => {
@@ -301,7 +300,7 @@ describe('proxy', () => {
     })
     equal(response1.status, 200)
     let json1 = (await response1.json()) as EchoResponse
-    equal(json1.response, 'ok')
+    equal(json1.response, 'content')
 
     let response2 = await request(`${targetUrl}?lastModified=${time}`, {
       headers: {
@@ -310,6 +309,6 @@ describe('proxy', () => {
     })
     equal(response2.status, 200)
     let json2 = (await response2.json()) as EchoResponse
-    equal(json2.response, 'ok')
+    equal(json2.response, 'content')
   })
 })
