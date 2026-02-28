@@ -23,8 +23,6 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
-            apk.cgr.dev:443
-            cgr.dev:443
             github.com:443
             nodejs.org:443
             raw.githubusercontent.com:443
