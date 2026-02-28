@@ -95,6 +95,6 @@ To return app HTML on app’s routes, we [export](./scripts/export-routes.ts) Re
 
 Both preview and staging have Storybook at `/ui/` route.
 
-In staging and production are using **Google Cloud Run** to run nginx server with assets of web client. For pull request preview and self-hosted we use [Logux sever](../server/modules/assets.ts) to serve assets.
+We are using [Dokploy](https://dokploy.com) server to run nginx with assets of web client. For pull request preview and self-hosted we use [server](../server/modules/assets.ts) to serve assets.
 
-All Google Cloud settings are documented in [script](../scripts/prepare-google-cloud.sh).
+Our Dokploy installing process is described in [documentation](../docs/server.md).
