@@ -32,4 +32,4 @@ ENTRYPOINT ["/usr/local/bin/node"]
 CMD ["--import", "tsx", "index.ts"]
 
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
-  CMD ["/usr/bin/httpcheck", "http://localhost:$PORT/health"]
+  CMD ["/usr/bin/httpcheck", "http://localhost:2554/health"]
