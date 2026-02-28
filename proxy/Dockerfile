@@ -15,7 +15,10 @@ RUN strip /usr/local/bin/node
 
 FROM cgr.dev/chainguard/glibc-dynamic@sha256:32e4a9556c591d7a6bfcaf4712d102a943c921c3674a3d07673c8d7cd2e18456
 WORKDIR /var/app
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+  PORT=5284
+
+COPY --from=ghcr.io/tarampampam/microcheck@sha256:79c187c05bfa67518078bf4db117771942fa8fe107dc79a905861c75ddf28dfa /bin/httpcheck /usr/bin/httpcheck
 
 COPY --from=base /usr/local/bin/node /usr/local/bin/node
 COPY ./dist/ /var/app/
@@ -24,3 +27,6 @@ USER nonroot
 
 ENTRYPOINT ["/usr/local/bin/node"]
 CMD ["server.ts"]
+
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+  CMD /usr/bin/httpcheck "http://localhost:$PORT/health"
