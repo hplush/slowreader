@@ -56,6 +56,11 @@ export function createProxy(
     }
     /* node:coverage enable */
 
+    if (req.url === '/health') {
+      res.writeHead(200, { 'Content-Type': 'text/plain' })
+      return res.end('OK')
+    }
+
     if (req.method === 'OPTIONS' && req.headers.origin) {
       allowCors(res, req.headers.origin)
       res.setHeader('Access-Control-Max-Age', '600')

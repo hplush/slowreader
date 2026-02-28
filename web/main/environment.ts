@@ -26,8 +26,8 @@ if (location.hostname === 'localhost') {
   proxy = 'https://proxy.slowreader.app/'
   server = 'server.slowreader.app'
 } else if (location.hostname === 'dev.slowreader.app') {
-  proxy = 'https://dev-proxy.slowreader.app/'
-  server = 'dev-server.slowreader.app'
+  proxy = 'https://proxy.dev.slowreader.app/'
+  server = 'server.dev.slowreader.app'
 }
 
 setRequestMethod(async (url, opts = {}) => {

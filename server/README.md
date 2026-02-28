@@ -78,12 +78,12 @@ For deploy we:
 
 1. Use `pnpm deploy` to create `dist/` only with production dependencies.
 2. Build Docker image with Node.js.
-3. Run this image on Google Cloud Run.
+3. Run this image on our Dokploy server.
 
 We deploy server to:
 
 - `server.slowreader.app` for production.
-- `dev-proxy.slowreader.app` for staging.
+- `server.dev.slowreader.app` for staging.
 - Temporary Google’s domain for pull request preview.
 
-All Google Cloud settings are documented in [script](../scripts/prepare-google-cloud.sh).
+Our Dokploy installing process is described in [documentation](../docs/server.md).

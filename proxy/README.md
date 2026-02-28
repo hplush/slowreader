@@ -42,11 +42,11 @@ For deploy we:
 
 1. Use `pnpm deploy` to create `dist/` only with production dependencies.
 2. Build Docker image with Node.js.
-3. Run this image on Google Cloud Run.
+3. Run this image on our Dokploy server.
 
 We have 2 proxy servers:
 
 - `proxy.slowreader.app` works only for production clients.
-- `dev-proxy.slowreader.app` works with staging.
+- `proxy.dev.slowreader.app` works with staging.
 
-All Google Cloud settings are documented in [script](../scripts/prepare-google-cloud.sh).
+Our Dokploy installing process is described in [documentation](../docs/server.md).
