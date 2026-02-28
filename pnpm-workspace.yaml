@@ -11,6 +11,7 @@ allowBuilds:
   esbuild: true
   husky: true
   argon2: false
+  unrs-resolver: false
 
 blockExoticSubdeps: true
 
