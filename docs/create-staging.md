@@ -20,7 +20,7 @@ Get new server IP4 and IP6 address.
 
 Add `A` and `AAAA` DNS record for `hplush.dev`.
 
-Add `CNAME` for `admin` to `hplush.dev`.
+Add `CNAME` for `cloud` to `hplush.dev`.
 
 ## 3. Create Admin Account
 
@@ -122,7 +122,7 @@ curl -sSL https://dokploy.com/install.sh | sudo sh
 
 Create account in web UI.
 
-Set `admin.hplush.dev` in `/dashboard/settings/server`.
+Set `cloud.hplush.dev` in `/dashboard/settings/server`.
 
 Add Docker access to admin user.
 
