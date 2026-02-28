@@ -1,0 +1,52 @@
+name: Deploy to staging
+description: Build and push Docker image, then trigger Dokploy deployment
+inputs:
+  image-name:
+    required: true
+    description: Docker image name (e.g. slowreader-web)
+  context:
+    required: true
+    description: Docker build context directory (e.g. ./web/)
+  tag:
+    required: false
+    default: dev
+    description: Docker image tag
+  application-id:
+    required: true
+    description: Dokploy application ID
+  cloud:
+    required: false
+    default: cloud.hplush.dev
+    description: Dokploy host
+  token:
+    required: true
+    description: GitHub token for GHCR login
+  dokploy-token:
+    required: true
+    description: Dokploy API token
+runs:
+  using: composite
+  steps:
+    - name: Build Docker image
+      shell: bash
+      run: docker build -t ghcr.io/hplush/${{ inputs.image-name }}:${{ inputs.tag }} ${{ inputs.context }}
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ inputs.token }}
+    - name: Push Docker image
+      shell: bash
+      run: docker push ghcr.io/hplush/${{ inputs.image-name }}:${{ inputs.tag }}
+    - name: Trigger Dokploy deployment
+      shell: bash
+      run: |
+        curl -X 'POST' \
+        'https://${{ inputs.cloud }}/api/application.deploy' \
+        -H 'accept: application/json' \
+        -H 'x-api-key: ${{ inputs.dokploy-token }}' \
+        -H 'Content-Type: application/json' \
+        -d '{
+          "applicationId": "${{ inputs.application-id }}"
+        }'

@@ -118,23 +118,11 @@ jobs:
         run: tar -xf server.tar
       - name: Create empty assets
         run: mkdir server/web
-      - name: Build Docker image
-        run: docker build -t ghcr.io/hplush/slowreader:dev ./server/
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+      - name: Deploy
+        uses: ./.github/actions/deploy
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Push Docker image
-        run: docker push ghcr.io/hplush/slowreader:dev
-      - name: Trigger Dokploy deployment
-        run: |
-          curl -X 'POST' \
-          'https://cloud.hplush.dev/api/application.deploy' \
-          -H 'accept: application/json' \
-          -H 'x-api-key: ${{ secrets.DOKPLOY_TOKEN }} \
-          -H 'Content-Type: application/json' \
-          -d '{
-            "applicationId": "3b5AqgMLia13ku53keAJC"
-          }'
+          image-name: slowreader
+          context: ./server/
+          application-id: 3b5AqgMLia13ku53keAJC
+          token: ${{ secrets.GITHUB_TOKEN }}
+          dokploy-token: ${{ secrets.DOKPLOY_TOKEN }}
