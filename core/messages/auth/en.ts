@@ -35,7 +35,7 @@ export const authMessages = i18n('auth', {
   signingUp: 'Creating account…',
   signup: 'Create account on the server',
   signupTitle: 'Sign up',
-  start: 'Start local app',
+  start: 'RUN',
   startTitle: 'Start',
   toEmail: 'Email password to myself',
   userId: 'User ID',
