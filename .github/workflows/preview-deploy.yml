@@ -7,7 +7,7 @@ on:
       - completed
 permissions:
   contents: read
-  id-token: write
+  packages: write
   deployments: write
 jobs:
   deploy:
