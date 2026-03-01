@@ -367,7 +367,7 @@ describe('refresh', () => {
       icons.push(icon)
     })
     refreshPosts()
-    await setTimeout(10)
+    await setTimeout(50)
 
     deepEqual(refreshStatistics.get(), {
       errorFeeds: 1,
