@@ -10,8 +10,8 @@ permissions:
   deployments: write
   packages: write
 jobs:
-  close:
-    name: Close
+  clean:
+    name: Clean
     runs-on: ubuntu-latest
     steps:
       - name: Harden the runner
