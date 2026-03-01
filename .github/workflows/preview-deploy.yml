@@ -137,6 +137,8 @@ jobs:
             dokploy_api application.redeploy \
               "{\"applicationId\": \"$APP_ID\"}"
           fi
+      - name: Wait for deployment
+        run: sleep 120
       - name: Update deployment status
         uses: bobheadxi/deployments@648679e8e4915b27893bd7dbc35cb504dc915bc8 # v1.5.0
         if: always()
