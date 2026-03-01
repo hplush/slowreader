@@ -117,6 +117,7 @@ jobs:
             dokploy_api domain.create \
               "{\"applicationId\": \"$APP_ID\",
                 \"host\": \"$HOST\",
+                \"port\": 2554,
                 \"https\": true,
                 \"certificateType\": \"letsencrypt\"}"
 
