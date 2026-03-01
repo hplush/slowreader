@@ -141,6 +141,12 @@ Create domains:
 
 Create `Slow Reader` organization with `Slow Reader Dev` project.
 
+Define project’s environment:
+
+```env
+STAGING=1
+```
+
 Create `Web` application with `slowreader-dev-web` name and `dev.slowreader.app` domain to `8000` domain with HTTPS. Enable Docker deployment from `ghcr.io/hplush/slowreader-web:dev`.
 
 Create `Database` of `postgres:18` with `slowreader-dev-database` name.
@@ -156,16 +162,7 @@ DATABASE_URL=<COPY FROM DATABASE UI>
 Create `Proxy` application with `slowreader-dev-proxy` name and `proxy.dev.slowreader.app` domain to `5284` domain with HTTPS. Enable Docker deployment from `ghcr.io/hplush/slowreader-proxy:dev`. Environments:
 
 ```env
-STAGING=1
 PROXY_ORIGIN=^https:\/\/dev\.slowreader\.app$
-```
-
-Install GitHuh application and enable Preview Deployments for `Server` with for `*.app.hplush.dev` with:
-
-```env
-ASSETS=1
-DATABASE_URL=memory://
-PROXY_ORIGIN=^https:\/\/preview-\w+.app\.hplush\.dev$
 ```
 
 Copy application ID (last part of application’s URL) to `applicationId` in GitHub workflows.

@@ -20,6 +20,7 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
+            cloud.hplush.dev:443
             github.com:443
             ghcr.io:443
             raw.githubusercontent.com:443
@@ -41,6 +42,34 @@ jobs:
           step: delete-env
           token: ${{ secrets.PREVIEW_DEPLOYMENT_PAT }}
           env: preview-${{ env.PR_NUMBER }}
+      - name: Delete Dokploy application
+        env:
+          API: https://cloud.hplush.dev/api
+          DOKPLOY_TOKEN: ${{ secrets.DOKPLOY_TOKEN }}
+        run: |
+          dokploy_api() {
+            if [ -n "$2" ]; then
+              curl -s -X POST "$API/$1" \
+                -H 'accept: application/json' \
+                -H "x-api-key: $DOKPLOY_TOKEN" \
+                -H 'Content-Type: application/json' \
+                -d "$2"
+            else
+              curl -s "$API/$1" \
+                -H "x-api-key: $DOKPLOY_TOKEN"
+            fi
+          }
+
+          FIND='[.[].environments[].applications[]
+            | select(.name == $name)][0]
+            | .applicationId // empty'
+          APP_ID=$(dokploy_api project.all \
+            | jq -r --arg name "Preview $PR_NUMBER" "$FIND")
+
+          if [ -n "$APP_ID" ]; then
+            dokploy_api application.delete \
+              "{\"applicationId\": \"$APP_ID\"}"
+          fi
       - name: Delete preview image
         uses: dataaxiom/ghcr-cleanup-action@cd0cdb900b5dbf3a6f2cc869f0dbb0b8211f50c4 # v1.0.16
         with:

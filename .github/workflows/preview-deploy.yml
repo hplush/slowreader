@@ -23,6 +23,8 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
+            cloud.hplush.dev:443
+            ghcr.io:443
             github.com:443
             nodejs.org:443
             raw.githubusercontent.com:443
@@ -41,7 +43,9 @@ jobs:
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
       - name: Check preview label
         run: |
-          LABELS=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json labels --jq '.labels[].name')
+          LABELS=$(gh pr view "$PR_NUMBER" \
+            --repo "$GITHUB_REPOSITORY" \
+            --json labels --jq '.labels[].name')
           if ! echo "$LABELS" | grep -qx 'preview'; then
             echo "PR #$PR_NUMBER does not have 'preview' label, skipping deploy"
             exit 1
@@ -66,6 +70,72 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push Docker image
         run: docker push ghcr.io/hplush/slowreader-proxy:dev
+      - name: Deploy to Dokploy
+        id: deploy
+        env:
+          API: https://cloud.hplush.dev/api
+          DOKPLOY_TOKEN: ${{ secrets.DOKPLOY_TOKEN }}
+        run: |
+          dokploy_api() {
+            if [ -n "$2" ]; then
+              curl -s -X POST "$API/$1" \
+                -H 'accept: application/json' \
+                -H "x-api-key: $DOKPLOY_TOKEN" \
+                -H 'Content-Type: application/json' \
+                -d "$2"
+            else
+              curl -s "$API/$1" \
+                -H "x-api-key: $DOKPLOY_TOKEN"
+            fi
+          }
+
+          APP_NAME="Preview $PR_NUMBER"
+          PROJECTS=$(dokploy_api project.all)
+          FIND='[.[].environments[].applications[]
+            | select(.name == $name)][0]
+            | .applicationId // empty'
+          APP_ID=$(echo "$PROJECTS" \
+            | jq -r --arg name "$APP_NAME" "$FIND")
+          if [ -z "$APP_ID" ]; then
+
+            ENV_ID=$(echo "$PROJECTS" | jq -r \
+              '[.[].environments[]
+                | select(.name == "production")][0]
+                | .environmentId')
+            APP_ID=$(dokploy_api application.create \
+              "{\"name\": \"$APP_NAME\",
+                \"environmentId\": \"$ENV_ID\"}" \
+              | jq -r '.applicationId')
+
+            IMAGE='ghcr.io/hplush/slowreader-proxy:preview-${{ env.PR_NUMBER }}'
+            dokploy_api application.update \
+              "{\"applicationId\": \"$APP_ID\",
+                \"sourceType\": \"docker\",
+                \"dockerImage\": \"$IMAGE\"}"
+
+            HOST="preview-$PR_NUMBER.app.hplush.dev"
+            dokploy_api domain.create \
+              "{\"applicationId\": \"$APP_ID\",
+                \"host\": \"$HOST\",
+                \"https\": true,
+                \"certificateType\": \"letsencrypt\"}"
+
+            ORIGIN="^https:\\/\\/$(echo "$HOST" | sed 's/\./\\\\./g')\$"
+            ENV="ASSETS=1\nDATABASE_URL=memory://\nPROXY_ORIGIN=$ORIGIN"
+            dokploy_api application.saveEnvironment \
+              "{\"applicationId\": \"$APP_ID\",
+                \"env\": \"$ENV\",
+                \"buildArgs\": null,
+                \"buildSecrets\": null,
+                \"createEnvFile\": false}"
+
+            dokploy_api application.deploy \
+              "{\"applicationId\": \"$APP_ID\"}"
+
+          else
+            dokploy_api application.redeploy \
+              "{\"applicationId\": \"$APP_ID\"}"
+          fi
       - name: Update deployment status
         uses: bobheadxi/deployments@648679e8e4915b27893bd7dbc35cb504dc915bc8 # v1.5.0
         if: always()
@@ -74,5 +144,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: ${{ job.status }}
           env: ${{ steps.status.outputs.env }}
-          env_url: ${{ steps.deploy.outputs.url }}/ui/
+          env_url: https://preview-${{ env.PR_NUMBER }}.app.hplush.dev/ui/
           deployment_id: ${{ steps.status.outputs.deployment_id }}
