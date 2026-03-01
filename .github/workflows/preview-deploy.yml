@@ -107,7 +107,7 @@ jobs:
                 \"environmentId\": \"$ENV_ID\"}" \
               | jq -r '.applicationId')
 
-            IMAGE='ghcr.io/hplush/slowreader-proxy:preview-${{ env.PR_NUMBER }}'
+            IMAGE='ghcr.io/hplush/slowreader:preview-${{ env.PR_NUMBER }}'
             dokploy_api application.update \
               "{\"applicationId\": \"$APP_ID\",
                 \"sourceType\": \"docker\",
