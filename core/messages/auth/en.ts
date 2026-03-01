@@ -14,7 +14,7 @@ export const authMessages = i18n('auth', {
     'Slow Reader works right on your device. No account needed.',
   localDescription2: 'You can create an account later to sync across devices.',
   login: 'Log in',
-  newUser: 'LOCAL',
+  newUser: 'LOCAL RUN',
   noRecoveryDesc:
     'Slow Reader uses end-to-end encryption. If you lose your password, no one will be able to decrypt your data.',
   noRecoveryTitle: 'No password recovery',
