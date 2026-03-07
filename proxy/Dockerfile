@@ -1,4 +1,4 @@
-FROM cgr.dev/chainguard/wolfi-base@sha256:9925d3017788558fa8f27e8bb160b791e56202b60c91fbcc5c867de3175986c8 AS base
+FROM cgr.dev/chainguard/wolfi-base@sha256:00f9662b838432de5f24eabe5dc86f20d1510d158eda1bcaf68bbba8412544cc AS base
 
 LABEL org.opencontainers.image.source=https://github.com/hplush/slowreader
 LABEL org.opencontainers.image.description="Proxy server of Slow Reader"
@@ -13,7 +13,7 @@ RUN tar -xf "node.tar.xz" --strip-components=1 -C /usr/local/ \
 RUN apk add --no-cache binutils
 RUN strip /usr/local/bin/node
 
-FROM cgr.dev/chainguard/glibc-dynamic@sha256:32e4a9556c591d7a6bfcaf4712d102a943c921c3674a3d07673c8d7cd2e18456
+FROM cgr.dev/chainguard/glibc-dynamic@sha256:32a62ef6ed1a741a7e764ec7b049da6a844699e0d51004bf1cb532ebb7479d8c
 WORKDIR /var/app
 ENV NODE_ENV=production \
   PORT=5284
