@@ -22,7 +22,6 @@ export const cloudPage = createPage('cloud', () => {
     exit() {},
     hasCloud: hasPassword,
     params: {},
-    signOut,
     unsavedData: $unsavedData,
     userId
   }

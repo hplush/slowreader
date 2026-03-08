@@ -104,5 +104,6 @@ export async function signOut(): Promise<void> {
   let env = getEnvironment()
   env.saveSession(undefined)
   env.cleanStorage()
+  env.openRoute({ params: {}, popups: [], route: 'home' })
   env.restartApp()
 }

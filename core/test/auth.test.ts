@@ -11,6 +11,7 @@ import {
   encryptionKey,
   generateCredentials,
   hasPassword,
+  router,
   setupEnvironment,
   signIn,
   signOut,
@@ -22,6 +23,7 @@ import {
 } from '../index.ts'
 import {
   getTestEnvironment,
+  setBaseTestRoute,
   setTestUser,
   testSession,
   throws
@@ -54,8 +56,10 @@ describe('auth', () => {
     equal(encryptionKey.get(), credentials.encryptionKey)
     equal(typeof syncServer.get(), 'undefined')
     equal(typeof testSession, 'undefined')
+    setBaseTestRoute({ params: {}, route: 'cloud' })
 
     await signOut()
+    equal(router.get().route, 'start')
     equal(typeof client.get(), 'undefined')
     equal(typeof userId.get(), 'undefined')
     equal(typeof encryptionKey.get(), 'undefined')

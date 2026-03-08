@@ -3,6 +3,7 @@
   import {
     type CloudPage,
     settingsMessages,
+    signOut,
     syncError,
     syncStatus,
     cloudMessages as t
@@ -38,7 +39,7 @@
             icon={mdiTrashCanOutline}
             onclick={() => {
               if (confirm(t.get().deleteWarning)) {
-                page.signOut()
+                signOut()
               }
             }}
             size="wide"
@@ -49,7 +50,7 @@
         {:else}
           <Button
             icon={mdiLogout}
-            onclick={page.signOut}
+            onclick={signOut}
             size="wide"
             variant="secondary"
           >
@@ -99,7 +100,7 @@
           icon={mdiTrashCanOutline}
           onclick={() => {
             if (confirm(t.get().deleteWarning)) {
-              page.signOut()
+              signOut()
             }
           }}
           size="wide"
