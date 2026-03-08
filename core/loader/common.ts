@@ -1,5 +1,6 @@
 import type { FeedValue } from '../feed.ts'
 import type { DownloadTask, TextResponse } from '../lib/download.ts'
+import { parseDocument } from '../lib/html.ts'
 import type { PostMedia } from '../post.ts'
 import type { PostsList, PostsListResult } from '../posts-list.ts'
 
@@ -173,12 +174,7 @@ export function findMediaInText(
   text: Element | null | string | undefined
 ): PostMedia[] {
   if (!text) return []
-  let parsed: Document | Element
-  if (typeof text === 'string') {
-    parsed = new DOMParser().parseFromString(text, 'text/html')
-  } else {
-    parsed = text
-  }
+  let parsed = typeof text === 'string' ? parseDocument(text) : text
   let images = parsed.querySelectorAll('img[src]')
   return [...images].map(img => {
     return {

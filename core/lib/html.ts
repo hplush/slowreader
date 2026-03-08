@@ -114,6 +114,17 @@ export function createTrustedPolicy(
 /* node:coverage ignore end */
 
 let getRichPolicy = createTrustedPolicy('slowreader-rich')
+let getParsePolicy = createTrustedPolicy('slowreader-parse')
+
+export function parseDocument(
+  content: string,
+  type: DOMParserSupportedType = 'text/html'
+): Document {
+  return new DOMParser().parseFromString(
+    getParsePolicy().createHTML(content) as string,
+    type
+  )
+}
 
 function isAbsoluteUrl(value: string): boolean {
   return /^[a-z][a-z\d+.-]*:/i.test(value)
@@ -172,9 +183,7 @@ export function parseRichTranslation(
 }
 
 export function decodeHtmlEntities(text: string): string {
-  let parser = new DOMParser()
-  let doc = parser.parseFromString(text, 'text/html')
-  return doc.documentElement.textContent || ''
+  return parseDocument(text).documentElement.textContent || ''
 }
 
 export function stripHTML(html: string): string {
