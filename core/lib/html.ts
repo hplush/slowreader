@@ -91,7 +91,29 @@ const BLOCK_TAGS = new Set([
 const SENTENCE_END = new RegExp('[' + PUNCTUATION_CHARS + ']$')
 
 let DOMPurify: ReturnType<typeof createDOMPurify> | undefined
-let richPolicy: { createHTML(s: string): TrustedHTML } | undefined
+
+type TrustedPolicy = { createHTML(s: string): TrustedHTML }
+
+type NoTrustedTypesFallback = { createHTML(s: string): string }
+
+/* node:coverage ignore start */
+export function createTrustedPolicy(
+  name: string
+): () => NoTrustedTypesFallback | TrustedPolicy {
+  let policy: NoTrustedTypesFallback | TrustedPolicy | undefined
+  return () => {
+    if (!policy) {
+      policy =
+        typeof window !== 'undefined' && window.trustedTypes
+          ? window.trustedTypes.createPolicy(name, { createHTML: s => s })
+          : { createHTML: s => s }
+    }
+    return policy
+  }
+}
+/* node:coverage ignore end */
+
+let getRichPolicy = createTrustedPolicy('slowreader-rich')
 
 function isAbsoluteUrl(value: string): boolean {
   return /^[a-z][a-z\d+.-]*:/i.test(value)
@@ -133,12 +155,6 @@ export function parseRichTranslation(
   link?: string
 ): string | TrustedHTML {
   if (!DOMPurify) DOMPurify = createDOMPurify(window)
-  /* node:coverage ignore next 5 */
-  if (!richPolicy && window.trustedTypes) {
-    richPolicy = window.trustedTypes.createPolicy('slowreader-rich', {
-      createHTML: s => s
-    })
-  }
   let html = DOMPurify.sanitize(text, { ALLOWED_TAGS: [] })
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/^[*-][ .](.*)/gm, '<ul><li>$1</li></ul>')
@@ -152,7 +168,7 @@ export function parseRichTranslation(
   if (link) {
     html = html.replace(/\[(.*?)\]/gm, `<a href="${link}">$1</a>`)
   }
-  return richPolicy ? richPolicy.createHTML(html) : html
+  return getRichPolicy().createHTML(html)
 }
 
 export function decodeHtmlEntities(text: string): string {

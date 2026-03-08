@@ -39,7 +39,8 @@ const CONTENT_SECURITY_POLICIES = {
   'require-trusted-types-for': "'script'",
   'script-src': "'self'",
   'style-src': "'self'",
-  'trusted-types': 'dompurify slowreader-rich svelte-trusted-html'
+  'trusted-types':
+    'dompurify slowreader-rich svelte-trusted-html slowreader-parse'
 } as const
 
 const HASHED = /-[\w]{8}\.\w+$/

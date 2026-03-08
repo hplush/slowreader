@@ -1,5 +1,6 @@
 import { detectNetworkError, HTTPStatusError, ParseError } from '../errors.ts'
 import { request } from '../request.ts'
+import { createTrustedPolicy } from './html.ts'
 
 /**
  * Extracts encoding from XML declaration, e.g., "ISO-8859-1" from
@@ -25,6 +26,8 @@ function extractCharsetFromHeader(
 }
 
 let cache = new Map<string, Response>()
+
+let getParsePolicy = createTrustedPolicy('slowreader-parse')
 
 type JSONDocument = boolean | null | number | object | string
 
@@ -158,7 +161,10 @@ export function createTextResponse(
           contentType === 'text/xml'
         ) {
           let fixed = fixPopularIssues(text)
-          let parsed = new DOMParser().parseFromString(fixed, contentType)
+          let parsed = new DOMParser().parseFromString(
+            getParsePolicy().createHTML(fixed) as string,
+            contentType
+          )
           if (parsed.documentElement.tagName === 'parsererror') {
             let error = new ParseError(
               parsed.documentElement.textContent,
