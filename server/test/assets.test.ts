@@ -76,7 +76,7 @@ describe('server assets', () => {
     let index1 = await server.fetch('/')
     checkHeaders(index1, {
       'content-security-policy':
-        "base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'; require-trusted-types-for 'script'; script-src 'self' 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='; style-src 'self' 'sha256-mXG7JU8TV69JbFGTY1sCBEeSnX7esCXEfbnsKvyjrqE='; trusted-types dompurify slowreader-rich svelte-trusted-html",
+        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-MQAdkik2UpIegx87oj4jDzvVmtZQHZ8UHLkaMPDUYns=' 'sha256-6V2udMXGcrAVUt4WPmtKduau7GKHBV09b7CIdEvxvK4=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'self'; require-trusted-types-for 'script'; trusted-types dompurify slowreader-rich svelte-trusted-html slowreader-parse",
       'content-type': 'text/html',
       'strict-transport-security':
         'max-age=31536000; includeSubDomains; preload',
@@ -87,7 +87,7 @@ describe('server assets', () => {
     let html = await server.fetch('/404.html')
     checkHeaders(html, {
       'content-security-policy':
-        "base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'; require-trusted-types-for 'script'; script-src 'self'; style-src 'self' 'sha256-h3GYPBFE6Av6zUWOZYeC83lN95g5tnhsj1pyM3woz/c='; trusted-types dompurify slowreader-rich svelte-trusted-html",
+        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-MQAdkik2UpIegx87oj4jDzvVmtZQHZ8UHLkaMPDUYns=' 'sha256-6V2udMXGcrAVUt4WPmtKduau7GKHBV09b7CIdEvxvK4=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'self'; require-trusted-types-for 'script'; trusted-types dompurify slowreader-rich svelte-trusted-html slowreader-parse",
       'content-type': 'text/html',
       'strict-transport-security':
         'max-age=31536000; includeSubDomains; preload',

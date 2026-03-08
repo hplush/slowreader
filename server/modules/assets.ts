@@ -1,5 +1,4 @@
 import type { BaseServer } from '@logux/server'
-import { createHash } from 'node:crypto'
 import { existsSync, statSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import type { ServerResponse } from 'node:http'
@@ -15,6 +14,7 @@ interface Asset {
 
 const ASSETS_DIR = join(import.meta.dirname, '..', '..', 'web', 'dist')
 const ROUTES = join(import.meta.dirname, '..', '..', 'web', 'routes.regexp')
+const NGINX_CONF = join(import.meta.dirname, '..', '..', 'web', 'nginx.conf')
 
 const MIME_TYPES: Record<string, string> = {
   '.avif': 'image/avif',
@@ -31,40 +31,14 @@ const MIME_TYPES: Record<string, string> = {
   '.woff2': 'font/woff2'
 }
 
-const CONTENT_SECURITY_POLICIES = {
-  'base-uri': "'none'",
-  'form-action': "'none'",
-  'frame-ancestors': "'none'",
-  'object-src': "'none'",
-  'require-trusted-types-for': "'script'",
-  'script-src': "'self'",
-  'style-src': "'self'",
-  'trusted-types':
-    'dompurify slowreader-rich svelte-trusted-html slowreader-parse'
-} as const
-
 const HASHED = /-[\w]{8}\.\w+$/
 
-function hash(body: string): string {
-  return `'sha256-${createHash('sha256').update(body).digest('base64')}'`
-}
-
-function getPageHeaders(data: Buffer): Asset['headers'] {
-  let headers: Asset['headers'] = {
-    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
-    'X-Content-Type-Options': 'nosniff'
+function parseNginxHeaders(conf: string): Record<string, string> {
+  let headers: Record<string, string> = {}
+  let server = conf.slice(0, conf.indexOf('\n    location'))
+  for (let m of server.matchAll(/add_header\s+(\S+)\s+"([^"]+)"/g)) {
+    headers[m[1]!] = m[2]!
   }
-  let html = data.toString()
-
-  let csp = { ...CONTENT_SECURITY_POLICIES }
-  let css = html.match(/<style>([\s\S]*?)<\/style>/)
-  if (css) csp['style-src'] += ' ' + hash(css[1]!)
-  let js = html.match(/<script>([\s\S]*?)<\/script>/)
-  if (js) csp['script-src'] += ' ' + hash(js[1]!)
-
-  headers['Content-Security-Policy'] = Object.entries(csp)
-    .map(([k, v]) => `${k} ${v}`)
-    .join('; ')
   return headers
 }
 
@@ -80,21 +54,21 @@ export default async (
   server: BaseServer,
   { assets } = config,
   assetsDir = ASSETS_DIR,
-  routes = ROUTES
+  routes = ROUTES,
+  nginxConf = NGINX_CONF
 ): Promise<void> => {
   if (!assets) return
   server.logger.info('Assets serving is enabled')
 
-  // Headers/redirect logics is duplicated between this file and web/nginx.conf.
-  // If you change anything here, change the second place too.
-
   let CACHE: Record<string, Asset> = {}
+
+  let nginxHeaders = parseNginxHeaders(await readFile(nginxConf, 'utf-8'))
 
   let html = await readFile(join(assetsDir, 'index.html'))
   let appHtml: Asset = {
     contentType: 'text/html',
     data: html,
-    headers: getPageHeaders(html)
+    headers: nginxHeaders
   }
 
   let routesData = await readFile(routes)
@@ -126,7 +100,7 @@ export default async (
         headers['Cache-Control'] = 'public, max-age=31536000, immutable'
       }
       if (contentType === 'text/html' && !pathname.includes('/ui')) {
-        headers = getPageHeaders(data)
+        headers = nginxHeaders
       }
       CACHE[cacheKey] = { contentType, data, headers }
     }
