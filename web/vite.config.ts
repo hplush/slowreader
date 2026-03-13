@@ -1,4 +1,6 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte'
+import browserslist from 'browserslist'
+import { browserslistToTargets, Features } from 'lightningcss'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { defineConfig } from 'vite'
@@ -23,6 +25,12 @@ function loadCSP(): string {
 }
 
 export default defineConfig(() => ({
+  css: {
+    lightningcss: {
+      exclude: Features.LightDark,
+      targets: browserslistToTargets(browserslist())
+    }
+  },
   plugins: [
     svelte(),
     {

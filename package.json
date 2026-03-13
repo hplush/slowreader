@@ -30,18 +30,18 @@
   "devDependencies": {
     "@logux/eslint-config": "57.0.2",
     "@types/chrome": "0.1.37",
-    "@types/node": "25.3.5",
+    "@types/node": "25.5.0",
     "@types/ws": "8.18.1",
-    "@typescript/native-preview": "7.0.0-dev.20260306.1",
+    "@typescript/native-preview": "7.0.0-dev.20260312.1",
     "actions-up": "1.12.0",
     "better-node-test": "0.8.3",
-    "eslint": "10.0.2",
-    "eslint-plugin-svelte": "3.15.0",
+    "eslint": "10.0.3",
+    "eslint-plugin-svelte": "3.15.2",
     "husky": "9.1.7",
     "jiti": "2.6.1",
     "multiocular": "0.8.2",
     "nano-staged": "0.9.0",
-    "oxfmt": "0.36.0",
+    "oxfmt": "0.40.0",
     "postcss-html": "1.8.1",
     "prettier": "3.8.1",
     "prettier-plugin-svelte": "3.5.1",
@@ -58,7 +58,7 @@
     "remark-lint-smarty-pants-typography": "1.1.0",
     "remark-validate-links": "13.1.0",
     "stylelint": "17.4.0",
-    "svelte": "5.53.7",
+    "svelte": "5.53.11",
     "svelte-eslint-parser": "1.6.0",
     "svgo": "4.0.1",
     "typescript": "5.9.3"
@@ -67,5 +67,5 @@
     "node": "^24.14.0",
     "pnpm": "^10.0.0"
   },
-  "packageManager": "pnpm@10.30.3"
+  "packageManager": "pnpm@10.32.1"
 }
