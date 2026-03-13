@@ -5,6 +5,7 @@ import { addCategory } from '../category.ts'
 import { addCandidate, addFeed, getFeeds } from '../feed.ts'
 import { addFilter } from '../filter.ts'
 import { createDownloadTask } from '../lib/download.ts'
+import { parseDocument } from '../lib/html.ts'
 import { getLoaderForText } from '../loader/index.ts'
 import { addPost } from '../post.ts'
 import { preloadImages, theme } from '../settings.ts'
@@ -166,8 +167,7 @@ export const importPage = createPage('import', () => {
     }
 
     if (ext === 'opml' || ext === 'xml') {
-      let parser = new DOMParser()
-      let doc = parser.parseFromString(content, 'text/xml')
+      let doc = parseDocument(content, 'text/xml')
       if (doc.documentElement.nodeName === 'opml') {
         await importOpml(doc)
       } else {
