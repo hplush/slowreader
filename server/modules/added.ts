@@ -8,8 +8,8 @@ const NEXT_QUERY = sql.raw(`SELECT nextval('"${actionsAdded.seqName}"')`)
 export default (server: BaseServer): void => {
   server.log.store.getLastAdded = async () => {
     let result = (await db.execute(NEXT_QUERY)) as {
-      rows: [{ nextval: number }]
+      rows?: [{ nextval: number }]
     }
-    return result.rows[0].nextval
+    return result.rows ? result.rows[0].nextval : 0
   }
 }
