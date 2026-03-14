@@ -1,3 +1,4 @@
+import autoprefixer from 'autoprefixer'
 import { join } from 'node:path'
 import type { Config } from 'postcss-load-config'
 import mixins from 'postcss-mixins'
@@ -25,6 +26,7 @@ export default {
     reducedMotion,
     squircleCorner,
     shadows(),
+    autoprefixer(),
     mixins({
       mixinsDir: join(import.meta.dirname, 'postcss', 'mixins')
     })
