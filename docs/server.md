@@ -60,8 +60,6 @@ Set bash settings by adding to `micro ~/.bashrc`:
 ```bash
 export PS1="\n\e[01;31m\h \e[01;36m\w\n\e[0;32m❯\e[m "
 alias ..='cd ..'
-alias cat='bat --plain'
-alias rg='rg --hidden'
 ```
 
 Disable `root` SSH access and text password in `sudo micro /etc/ssh/sshd_config`:
