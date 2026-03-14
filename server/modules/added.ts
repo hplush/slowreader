@@ -10,7 +10,7 @@ export default (server: BaseServer): void => {
     let result = await db.execute(NEXT_QUERY)
     let rows = Array.isArray(result)
       ? (result as { nextval: number }[]) // pglite
-      : (result as { rows: { nextval: number }[] }).rows // postgres.js
-    return rows[0]!.nextval
+      : (result as { rows: { nextval: string }[] }).rows // postgres.js
+    return Number(rows[0]!.nextval)
   }
 }
