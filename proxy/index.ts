@@ -109,10 +109,17 @@ export function createProxy(
         throw new BadRequestError('IP addresses are not allowed')
       }
 
-      // Remove all cookie headers so they will not be set on proxy domain
+      let debug = req.headers['x-slowreader-debug']
       delete req.headers.cookie
       delete req.headers['set-cookie']
       delete req.headers.host
+      delete req.headers.origin
+      delete req.headers.referer
+      for (let header in req.headers) {
+        if (header.startsWith('sec-') || header.startsWith('x-slowreader-')) {
+          delete req.headers[header]
+        }
+      }
 
       let targetResponse: Response
       try {
@@ -175,7 +182,7 @@ export function createProxy(
         'Content-Type':
           targetResponse.headers.get('content-type') ?? 'text/plain'
       }
-      if (req.headers['x-slowreader-debug']) {
+      if (debug) {
         responseHeaders['x-slowreader-response-headers'] = JSON.stringify(
           Object.fromEntries(targetResponse.headers.entries())
         )
