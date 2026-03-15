@@ -52,13 +52,13 @@ describe('proxy', () => {
 
   test('sends debug headers when proxyDebug is set', async () => {
     setProxyAsRequestMethod(proxyUrl + '/')
-    let captured: string
+    let captured: Headers
     proxyDebug.set(headers => {
       captured = headers
     })
     let response = await request(targetUrl, { headers: origin })
     equal(response.status, 200)
-    deepEqual(JSON.parse(captured!)['content-type'], 'text/plain')
+    deepEqual(captured!.get('content-type'), 'text/plain')
     proxyDebug.set(false)
   })
 })
