@@ -10,7 +10,7 @@ export function setRequestMethod(method: RequestMethod): void {
   request = method
 }
 
-export let proxyDebug = atom<((headers: unknown) => void) | false>(false)
+export let proxyDebug = atom<((headers: string) => void) | false>(false)
 
 export function setProxyAsRequestMethod(proxyUrl: string): void {
   setRequestMethod(async (url, opts = {}) => {
@@ -23,11 +23,7 @@ export function setProxyAsRequestMethod(proxyUrl: string): void {
     let response = await fetch(proxyUrl + encodeURIComponent(url), opts)
 
     if (debug) {
-      debug(
-        JSON.parse(
-          response.headers.get('x-slowreader-response-headers') ?? '{}'
-        )
-      )
+      debug(response.headers.get('x-slowreader-response-headers') ?? '')
     }
 
     Object.defineProperty(response, 'url', { value: url })
