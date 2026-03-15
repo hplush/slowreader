@@ -249,7 +249,14 @@ describe('proxy', () => {
     })
     equal(response2.status, 200)
     let json2 = (await response2.json()) as EchoResponse
-    equal(String(json2.request.headers['x-forwarded-for']), localhost)
+    equal(String(json2.request.headers['x-forwarded-for']), '4.4.4.4')
+
+    let response3 = await request(targetUrl, {
+      headers: { 'X-Forwarded-For': '4.4.4.4', 'X-Real-IP': '5.5.5.5' }
+    })
+    equal(response3.status, 200)
+    let json3 = (await response3.json()) as EchoResponse
+    equal(String(json3.request.headers['x-forwarded-for']), '5.5.5.5')
   })
 
   test('checks response size', async () => {
