@@ -9,16 +9,13 @@ import { setTimeout } from 'node:timers/promises'
 import {
   addFeed,
   addFilter,
-  checkAndRemoveRequestMock,
   createPostsList,
   deleteFeed,
-  expectRequest,
   getFeed,
   getPosts,
   HTTPStatusError,
   isRefreshing,
   loaders,
-  mockRequest,
   NetworkError,
   type PostsListResult,
   type PostValue,
@@ -32,7 +29,14 @@ import {
   testFeed,
   waitLoading
 } from '../index.ts'
-import { cleanClientTest, createPromise, enableClientTest } from './utils.ts'
+import {
+  checkAndRemoveRequestMock,
+  cleanClientTest,
+  createPromise,
+  enableClientTest,
+  expectRequest,
+  mockRequest
+} from './utils.ts'
 
 describe('refresh', () => {
   beforeEach(() => {

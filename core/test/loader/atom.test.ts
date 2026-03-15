@@ -4,12 +4,9 @@ import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
-  checkAndRemoveRequestMock,
   createDownloadTask,
   createTextResponse,
-  expectRequest,
   loaders,
-  mockRequest,
   parseMedia,
   setRequestMethod,
   setupEnvironment,
@@ -17,10 +14,13 @@ import {
   type TextResponse
 } from '../../index.ts'
 import {
+  checkAndRemoveRequestMock,
   cleanClientTest,
   expectNotMine,
+  expectRequest,
   expectWarning,
-  getTestEnvironment
+  getTestEnvironment,
+  mockRequest
 } from '../utils.ts'
 
 describe('atom loader', () => {

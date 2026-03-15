@@ -4,18 +4,21 @@ import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
-  checkAndRemoveRequestMock,
   createDownloadTask,
   createTextResponse,
-  expectRequest,
   loaders,
-  mockRequest,
   setRequestMethod,
   setupEnvironment,
   testFeed,
   type TextResponse
 } from '../../index.ts'
-import { expectNotMine, getTestEnvironment } from '../utils.ts'
+import {
+  checkAndRemoveRequestMock,
+  expectNotMine,
+  expectRequest,
+  getTestEnvironment,
+  mockRequest
+} from '../utils.ts'
 
 describe('json feed loader', () => {
   function exampleJson(json: object | string): TextResponse {

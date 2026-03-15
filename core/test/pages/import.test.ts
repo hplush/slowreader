@@ -11,26 +11,30 @@ import {
   addFilter,
   addPost,
   type CategoryValue,
-  checkAndRemoveRequestMock,
   deleteCategory,
   deleteFeed,
   deleteFilter,
   deletePost,
-  expectRequest,
   type FeedValue,
   type FilterValue,
   getCategories,
   getFeeds,
   getFilters,
   getPosts,
-  mockRequest,
   type PostValue,
   preloadImages,
   testFeed,
   theme,
   waitLoading
 } from '../../index.ts'
-import { cleanClientTest, enableClientTest, openPage } from '../utils.ts'
+import {
+  checkAndRemoveRequestMock,
+  cleanClientTest,
+  enableClientTest,
+  expectRequest,
+  mockRequest,
+  openPage
+} from '../utils.ts'
 
 describe('import page', () => {
   let MIME_TYPES = {

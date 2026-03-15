@@ -6,21 +6,21 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
-  checkAndRemoveRequestMock,
-  expectRequest,
   type FeedLoader,
   HTTPStatusError,
   loaders,
-  mockRequest,
   openedPopups,
   router,
   setLayoutType,
   waitLoading
 } from '../../index.ts'
 import {
+  checkAndRemoveRequestMock,
   cleanClientTest,
   enableClientTest,
+  expectRequest,
   getPopup,
+  mockRequest,
   openPage,
   setBaseTestRoute
 } from '../utils.ts'

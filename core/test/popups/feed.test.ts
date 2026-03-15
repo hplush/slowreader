@@ -9,23 +9,23 @@ import {
   addCategory,
   addFeed,
   changeFeed,
-  checkAndRemoveRequestMock,
   closeLastPopup,
-  expectRequest,
   getFeed,
   getPopupId,
   HTTPStatusError,
-  mockRequest,
   openedPopups,
   testFeed,
   waitLoading
 } from '../../index.ts'
 import {
+  checkAndRemoveRequestMock,
   checkLoadedPopup,
   cleanClientTest,
   enableClientTest,
+  expectRequest,
   expectWarning,
   getPopup,
+  mockRequest,
   openTestPopup,
   setBaseTestRoute
 } from '../utils.ts'

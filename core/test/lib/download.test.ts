@@ -5,17 +5,20 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
-  checkAndRemoveRequestMock,
   createDownloadTask,
   createTextResponse,
-  expectRequest,
   ignoreAbortError,
-  mockRequest,
   ParseError,
   setRequestMethod,
   setupEnvironment
 } from '../../index.ts'
-import { expectWarning, getTestEnvironment } from '../utils.ts'
+import {
+  checkAndRemoveRequestMock,
+  expectRequest,
+  expectWarning,
+  getTestEnvironment,
+  mockRequest
+} from '../utils.ts'
 
 describe('download', () => {
   setupEnvironment(getTestEnvironment())

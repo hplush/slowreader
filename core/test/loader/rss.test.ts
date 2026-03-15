@@ -4,17 +4,19 @@ import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
-  checkAndRemoveRequestMock,
   createDownloadTask,
   createTextResponse,
-  expectRequest,
   loaders,
-  mockRequest,
   setRequestMethod,
   testFeed,
   type TextResponse
 } from '../../index.ts'
-import { expectNotMine } from '../utils.ts'
+import {
+  checkAndRemoveRequestMock,
+  expectNotMine,
+  expectRequest,
+  mockRequest
+} from '../utils.ts'
 
 describe('rss loader', () => {
   function exampleRss(responseBody: string): TextResponse {
