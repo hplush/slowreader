@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
-    "test:coverage": "bnt --coverage 100 --coverage-exclude '{devtools.ts,errors.ts,test.ts,request.ts,../api/**,../server/**,**/test/**}'"
+    "test:coverage": "bnt --coverage 100 --coverage-exclude '{devtools.ts,errors.ts,test.ts,../api/**,../server/**,../proxy/**,**/test/**}'"
   },
   "dependencies": {
     "@logux/actions": "0.5.0",
@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@logux/server": "0.14.0",
+    "@slowreader/proxy": "workspace:*",
     "@types/jsdom": "28.0.0",
     "@types/trusted-types": "2.0.7",
     "better-node-test": "0.8.3",

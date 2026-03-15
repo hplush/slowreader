@@ -172,6 +172,9 @@ importers:
       '@logux/server':
         specifier: 0.14.0
         version: 0.14.0
+      '@slowreader/proxy':
+        specifier: workspace:*
+        version: link:../proxy
       '@types/jsdom':
         specifier: 28.0.0
         version: 28.0.0
