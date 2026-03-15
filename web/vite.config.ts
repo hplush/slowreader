@@ -29,6 +29,9 @@ for (let feature in Features) {
 }
 
 export default defineConfig(() => ({
+  build: {
+    sourcemap: true
+  },
   css: {
     lightningcss: {
       exclude: allFeatures,
