@@ -77,7 +77,9 @@ export function enablePostDebug(): void {
  * Create a channel to print response’s headers from the proxy.
  */
 export function enableProxyDebug(): void {
-  proxyDebug.set(true)
+  proxyDebug.set(headers => {
+    console.log(headers)
+  })
 }
 
 export function printWarning(e: unknown): {
