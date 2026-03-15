@@ -121,8 +121,19 @@ export function createProxy(
       delete req.headers.host
       delete req.headers.origin
       delete req.headers.referer
+      delete req.headers['x-real-ip']
+      delete req.headers.te
+      delete req.headers.dnt
+      delete req.headers.pragma
+      delete req.headers.priority
+      delete req.headers['cache-control']
+      delete req.headers.connection
       for (let header in req.headers) {
-        if (header.startsWith('sec-') || header.startsWith('x-slowreader-')) {
+        if (
+          header.startsWith('sec-') ||
+          header.startsWith('x-slowreader-') ||
+          header.startsWith('x-forwarded-')
+        ) {
           delete req.headers[header]
         }
       }
