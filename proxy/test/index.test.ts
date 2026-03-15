@@ -298,16 +298,15 @@ describe('proxy', () => {
     equal(response.status, 200)
     equal(
       response.headers.get('Access-Control-Expose-Headers'),
-      'x-slowreader-response-headers, x-slowreader-request-headers'
+      'x-slowreader-request, x-slowreader-response'
     )
-    let requestHeaders = JSON.parse(
-      response.headers.get('x-slowreader-request-headers')!
-    ) as Record<string, string>
-    equal(requestHeaders.host, new URL(targetUrl).host)
-    let responseHeaders = JSON.parse(
-      response.headers.get('x-slowreader-response-headers')!
-    ) as Record<string, string>
-    equal(responseHeaders['content-type'], 'text/json')
+    match(response.headers.get('x-slowreader-request')!, /^GET /)
+    match(response.headers.get('x-slowreader-request')!, /host: localhost/)
+    match(response.headers.get('x-slowreader-response')!, /^200\\n/)
+    match(
+      response.headers.get('x-slowreader-response')!,
+      /content-type: text\/json/
+    )
     equal(((await response.json()) as EchoResponse).response, 'content')
   })
 

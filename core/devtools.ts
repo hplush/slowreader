@@ -73,25 +73,22 @@ export function enablePostDebug(): void {
   })
 }
 
-function formatHeaders(json: string): string {
-  let headers = JSON.parse(json) as Record<string, string>
-  return Object.entries(headers)
-    .map(([name, value]) => `${name}: ${value}`)
-    .join('\n')
+function decodeHeaderValue(value: string): string {
+  return value.replaceAll('\\n', '\n')
 }
 
 /**
- * Create a channel to print response’s headers from the proxy.
+ * Create a channel to print response's headers from the proxy.
  */
 export function enableProxyDebug(): void {
   proxyDebug.set(headers => {
     console.log(
       'Proxy request:\n' +
-        formatHeaders(headers.get('x-slowreader-request-headers')!)
+        decodeHeaderValue(headers.get('x-slowreader-request')!)
     )
     console.log(
       'Proxy response:\n' +
-        formatHeaders(headers.get('x-slowreader-response-headers')!)
+        decodeHeaderValue(headers.get('x-slowreader-response')!)
     )
   })
 }

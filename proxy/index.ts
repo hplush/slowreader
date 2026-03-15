@@ -5,6 +5,12 @@ import { pipeline } from 'node:stream/promises'
 import type { ReadableStream as WebReadableStream } from 'node:stream/web'
 import { styleText } from 'node:util'
 
+function formatHeaders(obj: Record<string, string>): string {
+  return Object.entries(obj)
+    .map(([name, value]) => `${name}: ${value}`)
+    .join('\\n')
+}
+
 class BadRequestError extends Error {
   code: number
 
@@ -40,7 +46,7 @@ function allowCors(req: IncomingMessage, res: ServerResponse): void {
     if (req.headers['x-slowreader-debug']) {
       res.setHeader(
         'Access-Control-Expose-Headers',
-        'x-slowreader-response-headers, x-slowreader-request-headers'
+        'x-slowreader-request, x-slowreader-response'
       )
     }
   }
@@ -185,11 +191,11 @@ export function createProxy(
           targetResponse.headers.get('content-type') ?? 'text/plain'
       }
       if (debug) {
-        responseHeaders['x-slowreader-request-headers'] =
-          JSON.stringify(requestHeaders)
-        responseHeaders['x-slowreader-response-headers'] = JSON.stringify(
-          Object.fromEntries(targetResponse.headers.entries())
-        )
+        responseHeaders['x-slowreader-request'] =
+          `${req.method} ${url}\\n` + formatHeaders(requestHeaders)
+        responseHeaders['x-slowreader-response'] =
+          `${targetResponse.status}\\n` +
+          formatHeaders(Object.fromEntries(targetResponse.headers.entries()))
       }
       res.writeHead(targetResponse.status, responseHeaders)
       sent = true
