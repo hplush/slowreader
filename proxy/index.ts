@@ -40,7 +40,7 @@ function allowCors(req: IncomingMessage, res: ServerResponse): void {
     if (req.headers['x-slowreader-debug']) {
       res.setHeader(
         'Access-Control-Expose-Headers',
-        'x-slowreader-response-headers'
+        'x-slowreader-response-headers, x-slowreader-request-headers'
       )
     }
   }
@@ -121,14 +121,16 @@ export function createProxy(
         }
       }
 
+      let requestHeaders = {
+        ...(req.headers as Record<string, string>),
+        'host': parsedUrl.host,
+        'X-Forwarded-For': req.socket.remoteAddress!
+      }
+
       let targetResponse: Response
       try {
         targetResponse = await fetch(url, {
-          headers: {
-            ...(req.headers as Record<string, string>),
-            'host': parsedUrl.host,
-            'X-Forwarded-For': req.socket.remoteAddress!
-          },
+          headers: requestHeaders,
           method: req.method,
           signal: AbortSignal.timeout(config.requestTimeout)
         })
@@ -183,6 +185,8 @@ export function createProxy(
           targetResponse.headers.get('content-type') ?? 'text/plain'
       }
       if (debug) {
+        responseHeaders['x-slowreader-request-headers'] =
+          JSON.stringify(requestHeaders)
         responseHeaders['x-slowreader-response-headers'] = JSON.stringify(
           Object.fromEntries(targetResponse.headers.entries())
         )
