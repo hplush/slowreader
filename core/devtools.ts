@@ -78,7 +78,7 @@ export function enablePostDebug(): void {
  */
 export function enableProxyDebug(): void {
   proxyDebug.set(headers => {
-    console.log(headers)
+    console.log(JSON.parse(headers.get('x-slowreader-response-headers')!))
   })
 }
 

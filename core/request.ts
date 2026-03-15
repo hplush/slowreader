@@ -21,10 +21,7 @@ export function setProxyAsRequestMethod(proxyUrl: string): void {
       opts = { ...opts, headers }
     }
     let response = await fetch(proxyUrl + encodeURIComponent(url), opts)
-
-    if (debug) {
-      debug(response.headers)
-    }
+    if (debug) debug(response.headers)
 
     Object.defineProperty(response, 'url', { value: url })
     return response

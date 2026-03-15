@@ -296,6 +296,10 @@ describe('proxy', () => {
     })
 
     equal(response.status, 200)
+    equal(
+      response.headers.get('Access-Control-Expose-Headers'),
+      'x-slowreader-response-headers'
+    )
     let debug = JSON.parse(
       response.headers.get('x-slowreader-response-headers')!
     ) as Record<string, string>

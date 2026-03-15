@@ -29,13 +29,21 @@ export const DEFAULT_PROXY_CONFIG: Omit<ProxyConfig, 'allowsFrom'> = {
   requestTimeout: 10000
 }
 
-function allowCors(res: ServerResponse, origin: string): void {
-  res.setHeader('Access-Control-Allow-Headers', '*')
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'OPTIONS, POST, GET, PUT, DELETE'
-  )
-  res.setHeader('Access-Control-Allow-Origin', origin)
+function allowCors(req: IncomingMessage, res: ServerResponse): void {
+  if (req.headers.origin) {
+    res.setHeader('Access-Control-Allow-Headers', '*')
+    res.setHeader(
+      'Access-Control-Allow-Methods',
+      'OPTIONS, POST, GET, PUT, DELETE'
+    )
+    res.setHeader('Access-Control-Allow-Origin', req.headers.origin)
+    if (req.headers['x-slowreader-debug']) {
+      res.setHeader(
+        'Access-Control-Expose-Headers',
+        'x-slowreader-response-headers'
+      )
+    }
+  }
 }
 
 export function createProxy(
@@ -61,18 +69,15 @@ export function createProxy(
       return res.end('OK\n')
     }
 
-    if (req.method === 'OPTIONS' && req.headers.origin) {
-      allowCors(res, req.headers.origin)
+    allowCors(req, res)
+
+    if (req.method === 'OPTIONS') {
       res.setHeader('Access-Control-Max-Age', '600')
       res.writeHead(204)
       return res.end()
     }
 
     try {
-      if (req.headers.origin) {
-        allowCors(res, req.headers.origin)
-      }
-
       let url = decodeURIComponent(req.url!.slice(1).replace(/^proxy\//, ''))
       let parsedUrl = new URL(url)
 
