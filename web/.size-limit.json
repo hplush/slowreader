@@ -11,6 +11,7 @@
       "!dist/favicon.ico",
       "!dist/assets/devtools-*.js",
       "!dist/assets/*.woff",
+      "!dist/assets/*.map",
       "!dist/assets/noto-*-{cyrillic,greek,devanagari,vietnamese}-*.woff2",
       "!dist/assets/noto-sans-mono-*.woff2",
       "!dist/assets/playpen-sans-*.woff2",
