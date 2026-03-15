@@ -11,7 +11,8 @@
           "^https://browsersl.ist/#q=",
           "^https://code.visualstudio.com/",
           "^mailto:",
-          "^https://dev.slowreader.app/"
+          "^https://dev.slowreader.app/",
+          "^https://npmgraph.js.org/"
         ],
         "deadOrAliveOptions": {
           "maxRetries": 3
