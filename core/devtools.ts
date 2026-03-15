@@ -13,6 +13,7 @@ import {
   getPosts,
   processOriginPost
 } from './post.ts'
+import { proxyDebug } from './request.ts'
 import { router } from './router.ts'
 
 /**
@@ -70,6 +71,13 @@ export function enablePostDebug(): void {
       }
     }
   })
+}
+
+/**
+ * Create a channel to print response’s headers from the proxy.
+ */
+export function enableProxyDebug(): void {
+  proxyDebug.set(true)
 }
 
 export function printWarning(e: unknown): {

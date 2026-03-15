@@ -290,6 +290,19 @@ describe('proxy', () => {
     equal(json2.response, 'content')
   })
 
+  test('sends debug headers back ', async () => {
+    let response = await request(targetUrl, {
+      headers: { 'x-slowreader-debug': '1' }
+    })
+
+    equal(response.status, 200)
+    let debug = JSON.parse(
+      response.headers.get('x-slowreader-response-headers')!
+    ) as Record<string, string>
+    equal(debug['content-type'], 'text/json')
+    equal(((await response.json()) as EchoResponse).response, 'content')
+  })
+
   test('handles malformed If-Modified-Since and Last-Modified', async () => {
     let time = new Date(Date.now()).toUTCString()
 

@@ -8,7 +8,7 @@ import {
   printWarning,
   router,
   setLayoutType,
-  setRequestMethod,
+  setProxyAsRequestMethod,
   setupEnvironment
 } from '@slowreader/core'
 import { effect } from 'nanostores'
@@ -30,15 +30,7 @@ if (location.hostname === 'localhost') {
   server = 'server.dev.slowreader.app'
 }
 
-setRequestMethod(async (url, opts = {}) => {
-  let originUrl = url
-  let nextUrl = proxy + encodeURIComponent(url)
-  let response = await fetch(nextUrl, opts)
-  Object.defineProperty(response, 'url', {
-    value: originUrl
-  })
-  return response
-})
+setProxyAsRequestMethod(proxy)
 
 export const detectNetworkType: NetworkTypeDetector = () => {
   let type: NetworkType

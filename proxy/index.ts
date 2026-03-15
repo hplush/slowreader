@@ -166,10 +166,16 @@ export function createProxy(
         throw new BadRequestError('Response too large', 413)
       }
 
-      res.writeHead(targetResponse.status, {
+      let responseHeaders: Record<string, string> = {
         'Content-Type':
           targetResponse.headers.get('content-type') ?? 'text/plain'
-      })
+      }
+      if (req.headers['x-slowreader-debug']) {
+        responseHeaders['x-slowreader-response-headers'] = JSON.stringify(
+          Object.fromEntries(targetResponse.headers.entries())
+        )
+      }
+      res.writeHead(targetResponse.status, responseHeaders)
       sent = true
 
       if (targetResponse.body) {
