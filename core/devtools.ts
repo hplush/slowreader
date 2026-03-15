@@ -73,8 +73,8 @@ export function enablePostDebug(): void {
   })
 }
 
-function decodeHeaderValue(value: string): string {
-  return value.replaceAll('\\n', '\n')
+function decodeHeader(value: null | string): string {
+  return value ? value.replaceAll('\\n', '\n') : ''
 }
 
 /**
@@ -83,12 +83,10 @@ function decodeHeaderValue(value: string): string {
 export function enableProxyDebug(): void {
   proxyDebug.set(headers => {
     console.log(
-      'Proxy request:\n' +
-        decodeHeaderValue(headers.get('x-slowreader-request')!)
+      `Proxy request:\n${decodeHeader(headers.get('x-slowreader-request'))}`
     )
     console.log(
-      'Proxy response:\n' +
-        decodeHeaderValue(headers.get('x-slowreader-response')!)
+      `Proxy response: \n${decodeHeader(headers.get('x-slowreader-response'))}`
     )
   })
 }
