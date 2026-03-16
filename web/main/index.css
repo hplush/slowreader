@@ -17,14 +17,6 @@
   &.is-dark-theme {
     color-scheme: dark;
   }
-
-  @media (--biggest-font) {
-    font-size: 125%;
-  }
-
-  @media (--bigger-font) {
-    font-size: 110%;
-  }
 }
 
 * {
