@@ -1,6 +1,7 @@
 import { loadValue } from '@logux/client'
 import { atom, computed, map } from 'nanostores'
 
+import { getEnvironment } from './environment.ts'
 import {
   changeFeed,
   type FeedValue,
@@ -156,6 +157,7 @@ export async function refreshPosts(): Promise<void> {
         increaseKey(refreshStatistics, 'errorRequests')
       },
       onTaskFail(feed, error) {
+        getEnvironment().warn(error)
         refreshErrors.set([...refreshErrors.get(), { error, feed }])
         refreshStatus.set('refreshingError')
         increaseKey(refreshStatistics, 'errorFeeds')

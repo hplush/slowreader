@@ -35,6 +35,7 @@ import {
   createPromise,
   enableClientTest,
   expectRequest,
+  expectWarning,
   mockRequest
 } from './utils.ts'
 
@@ -359,10 +360,16 @@ describe('refresh', () => {
         }
       })
     })
+    let atomError = new HTTPStatusError(
+      500,
+      'server is down',
+      '',
+      new Headers()
+    )
     spyOn(loaders.atom, 'getPosts', () => {
       return createPostsList(async () => {
         await setTimeout(1)
-        throw new HTTPStatusError(500, 'server is down', '', new Headers())
+        throw atomError
       })
     })
 
@@ -370,8 +377,10 @@ describe('refresh', () => {
     refreshStatus.subscribe(icon => {
       icons.push(icon)
     })
-    refreshPosts()
-    await setTimeout(50)
+    await expectWarning(async () => {
+      refreshPosts()
+      await setTimeout(50)
+    }, [atomError])
 
     deepEqual(refreshStatistics.get(), {
       errorFeeds: 1,

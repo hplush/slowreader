@@ -74,6 +74,7 @@
           <ErrorList
             list={$refreshErrors.map(item => ({
               errorText: errorToMessage(item.error),
+              feedId: item.feed.id,
               title: item.feed.title,
               url: getPopupHash($router, 'feed', item.feed.url)
             }))}

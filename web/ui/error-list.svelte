@@ -1,5 +1,10 @@
 <script lang="ts">
-  type ErrorItem = { errorText: string; title: string; url: string }
+  type ErrorItem = {
+    errorText: string
+    feedId?: string
+    title: string
+    url: string
+  }
 
   let { list }: { list: ErrorItem[] } = $props()
 </script>
@@ -8,7 +13,7 @@
   {#each list as item (item.url)}
     <li class="error-list_item">
       <a class="error-list_link" href={item.url}>
-        {item.title}
+        {item.title || item.feedId}
       </a>
       <div class="error-list_text">
         {item.errorText}
