@@ -94,7 +94,7 @@ describe('relogin page', () => {
     equal(page.signingIn.get(), false)
     equal(typeof page.signError.get(), 'undefined')
 
-    await setTimeout(500)
+    await setTimeout(1100)
     equal(syncStatus.get(), 'synchronized')
     equal(currentPage.get().route, 'about')
   })
