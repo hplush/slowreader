@@ -49,3 +49,5 @@
 @custom-media --mobile (width <= 704px);
 @custom-media --mobile (width <= 704px);
 @custom-media --no-mobile (width > 704px);
+@custom-media --bigger-font ((width <= 410px) and (width > 380px)) or (width > 1700px);
+@custom-media --biggest-font (width <= 640px) and (width > 410px);
