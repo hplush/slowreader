@@ -24,6 +24,7 @@ feeds:
 
   - title: LiveJournal
     url: https://vintage-ads.livejournal.com/data/rss
+    findFromHome: false
 
   - title: Pika
     url: https://wavelengths.online/posts_feed
