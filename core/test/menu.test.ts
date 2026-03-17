@@ -290,7 +290,6 @@ describe('menu', () => {
     deepEqual(fastMenu.get(), [
       { id: idA, isLoading: false, title: 'A' },
       { id: idB, isLoading: false, title: 'B' },
-      { id: idD, isLoading: false, title: 'D' },
       { id: 'general', title: 'General' }
     ])
 
@@ -314,29 +313,23 @@ describe('menu', () => {
     deepEqual(fastMenu.get(), [
       { id: idA, isLoading: false, title: 'A' },
       { id: idB, isLoading: false, title: 'B' },
-      { id: idD, isLoading: false, title: 'D' },
       { id: 'general', title: 'General' }
     ])
 
     await changeCategory(idA, { title: 'Z' })
     deepEqual(fastMenu.get(), [
       { id: idB, isLoading: false, title: 'B' },
-      { id: idD, isLoading: false, title: 'D' },
       { id: 'general', title: 'General' },
       { id: idA, isLoading: false, title: 'Z' }
     ])
 
     await addPost(testPost({ feedId: 'unknown', reading: 'fast' }))
     await addPost(testPost({ feedId: 'unknown', reading: 'slow' }))
-    let broken = await addFeed(
+    let orphan = await addFeed(
       testFeed({ categoryId: 'unknown', reading: 'fast' })
     )
-    await addPost(testPost({ feedId: broken, reading: 'slow' }))
+    await addPost(testPost({ feedId: orphan, reading: 'slow' }))
     deepEqual(slowMenu.get(), [
-      [
-        { id: 'broken', title: 'Broken category' },
-        [[await loadValue(getFeed(broken)), 1]]
-      ],
       [
         { id: idC, isLoading: false, title: 'C' },
         [[await loadValue(getFeed(feed2)), 1]]
@@ -344,19 +337,6 @@ describe('menu', () => {
       [
         { id: 'general', title: 'General' },
         [
-          [
-            {
-              categoryId: 'general',
-              id: 'missed',
-              lastOriginId: undefined,
-              lastPublishedAt: undefined,
-              loader: 'atom',
-              reading: 'slow',
-              title: 'Missed',
-              url: ''
-            },
-            1
-          ],
           [await loadValue(getFeed(feed4)), 1],
           [await loadValue(getFeed(feed5)), 2]
         ]
@@ -364,8 +344,7 @@ describe('menu', () => {
     ])
     deepEqual(fastMenu.get(), [
       { id: idB, isLoading: false, title: 'B' },
-      { id: 'broken', title: 'Broken category' },
-      { id: idD, isLoading: false, title: 'D' },
+
       { id: 'general', title: 'General' },
       { id: idA, isLoading: false, title: 'Z' }
     ])

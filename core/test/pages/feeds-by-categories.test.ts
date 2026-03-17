@@ -45,7 +45,6 @@ describe('feeds by categories page', () => {
     let idB = await addCategory({ title: 'B' })
     let feed3 = await addFeed(testFeed({ categoryId: idB, title: '1' }))
     let feed4 = await addFeed(testFeed({ categoryId: 'general', title: '1' }))
-    let feed5 = await addFeed(testFeed({ categoryId: 'unknown', title: '1' }))
 
     deepEqual(page.groups.get(), [
       [{ id: 'general', title: 'General' }, [await loadValue(getFeed(feed4))]],
@@ -57,11 +56,7 @@ describe('feeds by categories page', () => {
         { id: idB, isLoading: false, title: 'B' },
         [await loadValue(getFeed(feed3))]
       ],
-      [{ id: idC, isLoading: false, title: 'C' }, []],
-      [
-        { id: 'broken', title: 'Broken category' },
-        [await loadValue(getFeed(feed5))]
-      ]
+      [{ id: idC, isLoading: false, title: 'C' }, []]
     ])
 
     openPage({

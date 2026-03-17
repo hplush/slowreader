@@ -36,7 +36,6 @@ describe('export page', () => {
     await addFeed(testFeed({ categoryId: idA, title: '2' }))
     await addFeed(testFeed({ categoryId: idB, title: '3' }))
     await addFeed(testFeed({ categoryId: 'general', title: '4' }))
-    await addFeed(testFeed({ categoryId: 'unknown', title: '5' }))
 
     let page = openPage({
       params: {},
@@ -68,7 +67,6 @@ describe('export page', () => {
         '    <outline text="B">\n' +
         '      <outline text="3" type="rss" xmlUrl="http://example.com/3" />\n' +
         '    </outline>\n' +
-        '    <outline text="5" type="rss" xmlUrl="http://example.com/5" />\n' +
         '  </body>\n' +
         '</opml>\n'
     )
@@ -112,7 +110,7 @@ describe('export page', () => {
           loader: 'rss',
           reading: 'fast',
           title: '1',
-          url: 'http://example.com/6'
+          url: 'http://example.com/5'
         }
       ],
       filters: [

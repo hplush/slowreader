@@ -125,17 +125,6 @@ export function testFeed(feed: Partial<FeedValue> = {}): FeedValue {
   }
 }
 
-export const BROKEN_FEED: FeedValue = {
-  categoryId: 'general',
-  id: 'missed',
-  lastOriginId: undefined,
-  lastPublishedAt: undefined,
-  loader: 'atom',
-  reading: 'slow',
-  title: 'Missed',
-  url: ''
-}
-
 export const needWelcome = atom<boolean | undefined>()
 onMount(needWelcome, () => {
   return getFeeds().subscribe(feeds => {

@@ -32,10 +32,8 @@ export const Category = syncMapTemplate<CategoryValue>('categories', {
 
 export function getCategory(categoryId: string): SyncMapStore<CategoryValue> {
   if (categoryId === 'general') {
-    /* node:coverage ignore next 4 */
+    /* node:coverage ignore next 2 */
     return atom(getGeneralCategory())
-  } else if (categoryId === 'broken') {
-    return atom(getBrokenCategory())
   } else {
     return Category(categoryId, getClient())
   }
@@ -77,11 +75,6 @@ export const GENERAL_CATEGORY: CategoryValue = {
   title: ''
 }
 
-export const BROKEN_CATEGORY: CategoryValue = {
-  id: 'broken',
-  title: ''
-}
-
 export function feedsByCategory(
   categories: CategoryValue[],
   feeds: FeedValue[]
@@ -89,7 +82,6 @@ export function feedsByCategory(
   let allCategories = categories.sort((a, b) => a.title.localeCompare(b.title))
 
   let general: FeedValue[] = []
-  let broken: FeedValue[] = []
 
   let byId: Record<string, FeedValue[]> = {
     general: []
@@ -103,8 +95,6 @@ export function feedsByCategory(
       general.push(feed)
     } else if (categories.some(i => i.id === feed.categoryId)) {
       byId[feed.categoryId]!.push(feed)
-    } else {
-      broken.push(feed)
     }
   }
 
@@ -113,9 +103,6 @@ export function feedsByCategory(
   })
   if (general.length > 0) {
     result.unshift([getGeneralCategory(), general])
-  }
-  if (broken.length > 0) {
-    result.push([getBrokenCategory(), broken])
   }
 
   for (let i of result) {
@@ -127,8 +114,4 @@ export function feedsByCategory(
 
 export function getGeneralCategory(): CategoryValue {
   return { id: 'general', title: t.value?.generalCategory || 'General' }
-}
-
-export function getBrokenCategory(): CategoryValue {
-  return { id: 'broken', title: t.value?.brokenCategory || 'Broken' }
 }

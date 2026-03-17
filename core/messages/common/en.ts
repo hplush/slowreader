@@ -4,7 +4,6 @@ import { i18n } from '../../i18n.ts'
 
 export const commonMessages = i18n('common', {
   addCategory: 'Add category…',
-  brokenCategory: 'Broken category',
   closePopup: 'Close popup',
   empty: 'The value is required',
   error400: 'Bad request',

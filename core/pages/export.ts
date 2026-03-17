@@ -56,7 +56,6 @@ async function loadList<Value extends SyncMapValues>(
 }
 
 const NO_OPML_CATEGORY: Record<string, boolean> = {
-  broken: true,
   general: true
 }
 

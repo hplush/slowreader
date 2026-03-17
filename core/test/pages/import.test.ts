@@ -421,6 +421,7 @@ describe('import page', () => {
   })
 
   test('imports OPML with .xml extension', async () => {
+    await addCategory(CATEGORY)
     await addFeed(FEED)
 
     let exportPage = openPage({
@@ -449,11 +450,10 @@ describe('import page', () => {
 
     deepEqual(
       (await loadValue(getFeeds())).list.map(i => ({
-        categoryId: i.categoryId,
         loader: i.loader,
         title: i.title
       })),
-      [{ categoryId: 'general', loader: 'rss', title: FEED.title }]
+      [{ loader: 'rss', title: FEED.title }]
     )
   })
 })

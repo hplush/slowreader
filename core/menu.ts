@@ -5,13 +5,12 @@ import { atom, computed, keepMount } from 'nanostores'
 import { busyDuring } from './busy.ts'
 import {
   type CategoryValue,
-  getBrokenCategory,
   getCategories,
   getGeneralCategory
 } from './category.ts'
 import { client } from './client.ts'
 import { layoutType } from './environment.ts'
-import { BROKEN_FEED, type FeedValue, getFeeds } from './feed.ts'
+import { type FeedValue, getFeeds } from './feed.ts'
 import { getFilters } from './filter.ts'
 import { onLogAction, onMountAny, waitLoading } from './lib/stores.ts'
 import { getPosts } from './post.ts'
@@ -93,32 +92,21 @@ async function rebuild(): Promise<void> {
   ])
 
   let slowPosts = posts.list.filter(i => i.reading === 'slow' && !i.read)
-  let fastPosts = posts.list.filter(i => i.reading === 'fast' && !i.read)
   let fastFeeds = feeds.list.filter(i => i.reading === 'fast')
 
   let feedsWithFastFilters = fastFilters.list.map(i => {
     return feeds.stores.get(i.feedId)!.get()
   })
-  let missedFastFeed = fastPosts
-    .map(i => i.feedId)
-    .filter(feedId => {
-      return (
-        !fastFeeds.some(i => i.id === feedId) &&
-        !feedsWithFastFilters.some(i => i.id === feedId)
-      )
-    })
-    .map(id => feeds.stores.get(id)?.get())
 
   let uniqueFastCategories: Record<string, CategoryValue> = {}
-  for (let feed of [...fastFeeds, ...feedsWithFastFilters, ...missedFastFeed]) {
-    if (!feed) continue
+  for (let feed of [...fastFeeds, ...feedsWithFastFilters]) {
     let id = ensureLoaded(feed).categoryId
     if (!uniqueFastCategories[id]) {
       if (id === 'general') {
         uniqueFastCategories[id] = getGeneralCategory()
       } else {
-        uniqueFastCategories[id] =
-          categories.list.find(i => i.id === id) ?? getBrokenCategory()
+        let found = categories.list.find(i => i.id === id)
+        if (found) uniqueFastCategories[id] = found
       }
     }
   }
@@ -135,7 +123,6 @@ async function rebuild(): Promise<void> {
 
   let byCategory: Record<string, [FeedValue, number][]> = {}
   let general = false
-  let broken = false
 
   let unreadByFeed: Record<string, number> = {}
   for (let post of slowPosts) {
@@ -143,21 +130,20 @@ async function rebuild(): Promise<void> {
   }
   for (let [feedId, unread] of Object.entries(unreadByFeed)) {
     let feedStore = feeds.stores.get(feedId)
-    let feed = feedStore ? ensureLoaded(feedStore.get()) : BROKEN_FEED
+    if (!feedStore) continue
+    let feed = ensureLoaded(feedStore.get())
     let category = feed.categoryId
     if (category === 'general') {
       general = true
     } else if (!categories.stores.has(category)) {
-      category = 'broken'
-      broken = true
+      continue
     }
     if (!byCategory[category]) byCategory[category] = []
-    byCategory[category]!.push([feed, unread])
+    byCategory[category].push([feed, unread])
   }
 
   let allCategories = [...categories.list] as CategoryValue[]
   if (general) allCategories.push(getGeneralCategory())
-  if (broken) allCategories.push(getBrokenCategory())
   let categoriesByName = allCategories.sort((a, b) => {
     return a.title.localeCompare(b.title)
   })
