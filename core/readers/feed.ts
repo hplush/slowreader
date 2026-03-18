@@ -10,7 +10,7 @@ import { waitSyncLoading } from '../lib/stores.ts'
 import { changePost, type PostValue } from '../post.ts'
 import { createReader, loadPosts } from './common.ts'
 
-const POSTS_PER_PAGE = 50
+const POSTS_PER_PAGE = 40
 
 export const feedReader = createReader('feed', (filter, params, helpers) => {
   if (!filter.categoryId && !filter.feedId) return
