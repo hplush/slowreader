@@ -1,6 +1,8 @@
 // Bind browser’s API to client core API.
 
+import { confirm } from '@logux/client'
 import {
+  client,
   closeLastPopup,
   comfortMode,
   errorMode,
@@ -116,4 +118,8 @@ window.addEventListener('keyup', e => {
       }
     }
   }
+})
+
+client.subscribe(logux => {
+  if (logux) confirm(logux)
 })
