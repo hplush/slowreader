@@ -12,3 +12,4 @@ function exit(): void {
 
 process.on('SIGTERM', exit)
 process.on('SIGINT', exit)
+process.on('exit', exit)

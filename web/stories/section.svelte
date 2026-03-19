@@ -46,7 +46,7 @@
     }
   }
 
-  const applyClasses: Attachment = section => {
+  let applyClasses: Attachment = section => {
     if (hover) addClass(section, hover, 'is-pseudo-hover')
     if (focus) addClass(section, focus, 'is-pseudo-focus-visible')
     if (active) addClass(section, active, 'is-pseudo-active')

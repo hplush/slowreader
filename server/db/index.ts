@@ -23,20 +23,24 @@ function pgOptions(): PGliteOptions {
 }
 
 let drizzle: PgDatabase<PgQueryResultHKT, typeof schema>
+let pglite: PGlite | undefined
+
 if (config.db.startsWith('memory://') || config.db.startsWith('file://')) {
   if (config.db.startsWith('file://')) {
     let path = config.db.slice(7)
     await mkdir(path, { recursive: true })
     await access(path, constants.R_OK | constants.W_OK)
-
-    onExit(() => {
-      pglite.close()
-    })
   }
-  let pglite = new PGlite(config.db, pgOptions())
+
+  pglite = new PGlite(config.db, pgOptions())
   let drizzlePglite = devDrizzle(pglite, { schema })
   await devMigrate(drizzlePglite, MIGRATE_CONFIG)
   drizzle = drizzlePglite
+
+  // Register cleanup for both memory and file-based databases
+  onExit(() => {
+    pglite?.close()
+  })
 } else {
   drizzle = prodDrizzle(postgres(config.db), { schema })
   let migrateConnection = postgres(config.db, { max: 1 })

@@ -26,7 +26,9 @@ const config: Linter.Config[] = [
       '@typescript-eslint/no-base-to-string': 'off',
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-type-assertion': 'off'
+      '@typescript-eslint/no-unsafe-type-assertion': 'off',
+      // TODO until https://github.com/thefrontside/javascript/pull/88
+      'prefer-let/prefer-let': ['error', { forceUpperCaseConst: false }]
     }
   },
   {

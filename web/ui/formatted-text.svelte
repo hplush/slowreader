@@ -19,7 +19,7 @@
     url: string | undefined
   } = $props()
 
-  const renderHtml: Attachment = node => {
+  let renderHtml: Attachment = node => {
     node.replaceChildren(...sanitizeDOM(html ?? '', url).childNodes)
     node.querySelectorAll('a').forEach(link => {
       link.setAttribute('target', '_blank')

@@ -1,4 +1,4 @@
-FROM cgr.dev/chainguard/wolfi-base@sha256:a9a3a0c9fb954fd70b398afdd055d74a4f196095b9fdfbcfb13495aefeefd075 AS base
+FROM cgr.dev/chainguard/wolfi-base@sha256:550e0d6f3b235cd52f141d98594672401adba71642ec367b8874a676ec61ca44 AS base
 
 LABEL org.opencontainers.image.source=https://github.com/hplush/slowreader
 LABEL org.opencontainers.image.description="Slow Reader"

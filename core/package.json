@@ -23,8 +23,8 @@
     "just-debounce-it": "3.2.0",
     "lz-string": "1.5.0",
     "nanodelay": "2.0.2",
-    "nanoid": "5.1.6",
-    "nanostores": "1.1.1"
+    "nanoid": "5.1.7",
+    "nanostores": "1.2.0"
   },
   "devDependencies": {
     "@logux/server": "0.14.0",
@@ -32,7 +32,7 @@
     "@types/jsdom": "28.0.0",
     "@types/trusted-types": "2.0.7",
     "better-node-test": "0.8.3",
-    "jsdom": "28.1.0",
+    "jsdom": "29.0.0",
     "nanospy": "1.0.0"
   },
   "engines": {

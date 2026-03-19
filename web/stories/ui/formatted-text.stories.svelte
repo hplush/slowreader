@@ -40,7 +40,7 @@
     '  <p>For more information, visit our <a href="https://example.com">website</a>.</p>\n'
 
   // get document.referrer if our story inside iframe
-  const currHref =
+  let currHref =
     window.location !== window.parent.location
       ? document.referrer
       : document.location.href

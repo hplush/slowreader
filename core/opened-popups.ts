@@ -14,11 +14,7 @@ export const openedPopups: ReadableAtom<Popup[]> = computed(router, route => {
   let nextPopups = route.popups.map((popup, index) => {
     lastIndex = index
     let prevPopup = prevPopups[index]
-    if (
-      prevPopup &&
-      prevPopup.name === popup.popup &&
-      prevPopup.param === popup.param
-    ) {
+    if (prevPopup?.name === popup.popup && prevPopup.param === popup.param) {
       return prevPopup
     } else {
       if (prevPopup) prevPopup.destroy()

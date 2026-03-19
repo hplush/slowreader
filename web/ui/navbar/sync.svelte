@@ -30,7 +30,7 @@
     wrongCredentials: mdiCloudAlert
   } satisfies Partial<Record<SyncStatus, string>>
 
-  let STYLES = {
+  const STYLES = {
     error: 'plain-dangerous',
     other: 'plain-secondary',
     wait: 'plain'
