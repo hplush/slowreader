@@ -8,7 +8,7 @@ const config: Linter.Config[] = [
       'web/storybook-static/',
       'web/vite.config.ts.*',
       'server/web/',
-      'web/.fast-check'
+      'web/.svelte-check'
     ]
   },
   ...loguxSvelteConfig.map(item => {

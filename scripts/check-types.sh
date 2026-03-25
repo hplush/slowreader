@@ -68,7 +68,7 @@ for project in $PROJECTS_TO_CHECK; do
     if [ "$FILES_PROVIDED" = false ]; then
       ./node_modules/.bin/tsgo --noEmit -p web
       cd web/
-      ./node_modules/.bin/svelte-fast-check --incremental
+      ./node_modules/.bin/svelte-check --tsgo --incremental
       cd ..
     else
       if has_files_with_ext web ts $RELATIVE_FILES; then
@@ -76,7 +76,7 @@ for project in $PROJECTS_TO_CHECK; do
       fi
       if has_files_with_ext web svelte $RELATIVE_FILES; then
         cd web/
-        ./node_modules/.bin/svelte-fast-check --incremental
+        ./node_modules/.bin/svelte-check --tsgo --incremental
         cd ..
       fi
     fi
