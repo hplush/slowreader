@@ -1,4 +1,4 @@
-Contact: mailto:andrey@sitnik.ru
+Contact: mailto:andrey@sitnik.es
 Expires: 2029-12-31T23:00:00.000Z
 Encryption: https://keybase.io/iskin/key.asc
 Preferred-Languages: en, ru

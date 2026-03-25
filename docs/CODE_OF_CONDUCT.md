@@ -25,7 +25,7 @@ This Code of Conduct applies both within project spaces and in public spaces whe
 
 ## How Can You Report Violations?
 
-Unacceptable behavior may be reported to the community leaders responsible for enforcement at [andrey@sitnik.ru](mailto:andrey@sitnik.ru).
+Unacceptable behavior may be reported to the community leaders responsible for enforcement at [andrey@sitnik.es](mailto:andrey@sitnik.es).
 
 <!-- TODO: When we have more people, add another person in case of conflict with Andrey -->
 
