@@ -19,6 +19,8 @@ forceLegacyDeploy: true
 
 minimumReleaseAge: 1440
 
+dedupePeers: true
+
 minimumReleaseAgeExclude:
   - postcss-smooth-shadow
   - '@nanostores/*'
