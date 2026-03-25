@@ -57,4 +57,4 @@ export const pages = {
 
 export type Pages = typeof pages
 
-export type Page<Name extends RouteName = RouteName> = ReturnType<Pages[Name]>
+export type Page<Name extends RouteName> = ReturnType<Pages[Name]>

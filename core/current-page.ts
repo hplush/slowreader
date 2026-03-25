@@ -11,7 +11,7 @@ import { type Route, type RouteName, router } from './router.ts'
  * Helper to hide dirty types.
  */
 function eachParam<SomeRoute extends Route>(
-  page: Page<SomeRoute['route']>,
+  page: Page<RouteName>,
   route: SomeRoute,
   iterator: <Param extends keyof SomeRoute['params']>(
     store: WritableStore<SomeRoute['params'][Param]>,
@@ -46,10 +46,10 @@ function getPageParams<SomeRoute extends Route>(
   return params
 }
 
-let prevPage: Page | undefined
+let prevPage: Page<RouteName> | undefined
 let unbinds: (() => void)[] = []
 
-export const currentPage: ReadableAtom<Page> = computed(
+export const currentPage: ReadableAtom<Page<RouteName>> = computed(
   [router, syncStatus, isOutdatedClient],
   (route, sync, outdated) => {
     let override: RouteName | undefined
@@ -60,7 +60,7 @@ export const currentPage: ReadableAtom<Page> = computed(
     }
     let startRoute = override ?? route.route
     let creator = pages[startRoute]
-    let page = creator() as Page
+    let page = creator() as Page<RouteName>
     // creator() may call openRoute() for redirect pages, re-check current route
     if (!override && startRoute !== router.get().route) return currentPage.get()
 

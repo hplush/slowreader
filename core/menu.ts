@@ -185,9 +185,9 @@ onMountAny([fastMenu, slowMenu], () => {
   }
 })
 
-export const closedCategories = persistentAtom<Set<string>>(
+export const closedCategories = persistentAtom(
   'slowreader:closed',
-  new Set(),
+  new Set<string>(),
   {
     decode: str => new Set(str.split(' ')),
     encode: set => Array.from(set).join(' ')
