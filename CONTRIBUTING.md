@@ -44,7 +44,7 @@ You can ask any question to the maintainer in Telegram: **[`@sitnik`](https://t.
    - For long-term contribution, we recommend installing Docker and [Dev Container](https://containers.dev) plugin to your text editor. All developers will have the same environment and the development tool will be isolated from the system in the container.
      - [VS Code guide](https://code.visualstudio.com/docs/devcontainers/tutorial)
      - [Jet Brains IDEs](https://www.jetbrains.com/help/idea/start-dev-container-inside-ide.html)
-     - Zed can use Remote Development with [some hacks](https://bsky.app/profile/en.sitnik.ru/post/3lqp2ti6vuk2h).
+     - [Zed](https://zed.dev/docs/dev-containers)
      - [CLI tool](https://github.com/devcontainers/cli)
 
      Then run the project inside that Dev Container. VS Code asks your in popup. But you can manually do it by pressing <kbd>⇧</kbd><kbd>⌘</kbd><kbd>P</kbd> (Mac) / <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>P</kbd> (Windows/Linux), selecting `Dev Containers: Open Folder in Container…` and then opening `slowreader/` folder.
