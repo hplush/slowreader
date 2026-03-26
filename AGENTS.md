@@ -20,7 +20,7 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 ## LLMS
 
 - Never change `eslint.config.ts`. Always change code to fix found issues.
-- Never use `as any`.
+- Never use `as any`. If the type is unknown, use `unknown` and narrow with runtime checks.
 - Always merge type and regular import.
 - Do not use `tsx`, you can import `.ts` and run it in Node.js directly.
 
