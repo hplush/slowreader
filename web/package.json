@@ -17,7 +17,7 @@
     "build:visual": "NODE_ENV=test storybook build --loglevel error",
     "build:web": "vite build && node scripts/generate-csp.ts",
     "format:css": "stylelint --fix .",
-    "clean:build": "rm -rf dist",
+    "clean:build": "rm -rf dist .svelte-check routes.regexp",
     "build-storybook": "pnpm run build:visual"
   },
   "dependencies": {

@@ -25,7 +25,8 @@
     "test:check-tests": "node ./scripts/check-tests.ts",
     "test:messages": "node ./scripts/check-messages.ts",
     "test:versions": "node ./scripts/check-versions.ts",
-    "test:online:markdown": "remark . --frail"
+    "test:online:markdown": "remark . --frail",
+    "clean:types": "rm -f */tsconfig.tsbuildinfo"
   },
   "devDependencies": {
     "@logux/eslint-config": "57.1.0",
