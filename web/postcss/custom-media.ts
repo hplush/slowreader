@@ -2,7 +2,7 @@
 // to load definitions from specific file.
 
 import { readFileSync } from 'node:fs'
-import { type AtRule, parse, type PluginCreator } from 'postcss'
+import { type AtRule, parse, type Plugin, type PluginCreator } from 'postcss'
 
 type CustomMediaMap = [string, string][]
 
@@ -10,7 +10,6 @@ function parseCustomMedia(file: string): CustomMediaMap {
   let root = parse(readFileSync(file, 'utf-8'), { from: file })
   let customMediaMap: CustomMediaMap = []
   root.walkAtRules('custom-media', atrule => {
-    // Parse: @custom-media --name (query)
     let match = atrule.params.match(/^(--[\w-]+)\s+(.+)$/)
     if (match) {
       customMediaMap.push([match[1]!, match[2]!])
@@ -19,8 +18,11 @@ function parseCustomMedia(file: string): CustomMediaMap {
   return customMediaMap
 }
 
-const plugin: PluginCreator<{ file: string }> = opts => {
-  if (!opts) throw new Error('Define file with custom media definitions')
+export function definePlugin<O>(fn: (opts: O) => Plugin): PluginCreator<O> {
+  return Object.assign(fn as (opts?: O) => Plugin, { postcss: true as const })
+}
+
+export default definePlugin<{ file: string }>(opts => {
   let customMedias = parseCustomMedia(opts.file)
 
   return {
@@ -42,7 +44,4 @@ const plugin: PluginCreator<{ file: string }> = opts => {
     },
     postcssPlugin: 'custom-media-resolver'
   }
-}
-plugin.postcss = true
-
-export default plugin
+})

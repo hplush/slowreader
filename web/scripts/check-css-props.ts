@@ -17,7 +17,7 @@ function printWarning(message: string): void {
   process.stderr.write(styleText('yellow', message) + '\n')
 }
 
-const cssChecker = postcss([propsChecker])
+let cssChecker = postcss([propsChecker])
 
 let files = [
   ...globSync(join(import.meta.dirname, '..', 'dist', '**', '*.css')),

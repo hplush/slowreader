@@ -1,6 +1,6 @@
 import { atom, computed } from 'nanostores'
 
-const $tasks = atom(0)
+let $tasks = atom(0)
 
 /**
  * Show loader over whole app until task is running.

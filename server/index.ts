@@ -3,7 +3,7 @@ import { SUBPROTOCOL } from '@slowreader/api'
 
 import { onExit } from './lib/exit.ts'
 
-const server = new Server(
+let server = new Server(
   Server.loadOptions(process, {
     fileUrl: import.meta.url,
     host: '0.0.0.0',

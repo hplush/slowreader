@@ -1,7 +1,7 @@
 import loguxSvelteConfig from '@logux/eslint-config/svelte'
 import type { Linter } from 'eslint'
 
-const config: Linter.Config[] = [
+let config: Linter.Config[] = [
   {
     ignores: [
       '*/dist/',
@@ -26,9 +26,7 @@ const config: Linter.Config[] = [
       '@typescript-eslint/no-base-to-string': 'off',
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-type-assertion': 'off',
-      // TODO until https://github.com/thefrontside/javascript/pull/88
-      'prefer-let/prefer-let': ['error', { forceUpperCaseConst: false }]
+      '@typescript-eslint/no-unsafe-type-assertion': 'off'
     }
   },
   {

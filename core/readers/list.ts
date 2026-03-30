@@ -9,7 +9,7 @@ import {
 import { changePost, type PostValue } from '../post.ts'
 import { createReader, loadPosts } from './common.ts'
 
-let POSTS_PER_PAGE = 100
+const POSTS_PER_PAGE = 100
 
 export const listReader = createReader('list', (filter, params) => {
   if (!filter.categoryId && !filter.feedId) return

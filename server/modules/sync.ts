@@ -5,7 +5,7 @@ import { and, eq, gt } from 'drizzle-orm'
 
 import { actions, db } from '../db/index.ts'
 
-let EPOCH = Date.UTC(2026, 0)
+const EPOCH = Date.UTC(2026, 0)
 
 export default (server: BaseServer): void => {
   server.type(zero, {

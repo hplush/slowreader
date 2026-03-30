@@ -32,7 +32,7 @@ export const sessions = pgTable(
   table => [index('sessionsUserIdx').on(table.userId)]
 )
 
-const bytea = customType<{ data: Buffer; default: false; notNull: false }>({
+let bytea = customType<{ data: Buffer; default: false; notNull: false }>({
   dataType() {
     return 'bytea'
   }

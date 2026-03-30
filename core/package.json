@@ -31,7 +31,7 @@
     "@slowreader/proxy": "workspace:*",
     "@types/jsdom": "28.0.1",
     "@types/trusted-types": "2.0.7",
-    "better-node-test": "0.8.3",
+    "better-node-test": "0.8.4",
     "jsdom": "29.0.1",
     "nanospy": "1.0.0"
   },

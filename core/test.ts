@@ -9,7 +9,7 @@ import { type BaseRoute, stringifyPopups } from './router.ts'
 
 export let testSession: string | undefined
 
-const testRouter = atom<BaseRoute | undefined>()
+let testRouter = atom<BaseRoute | undefined>()
 
 let warningTracking: undefined | unknown[]
 
