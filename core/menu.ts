@@ -111,7 +111,7 @@ async function rebuild(): Promise<void> {
     }
   }
 
-  let fast = Object.values(uniqueFastCategories).sort((a, b) => {
+  let fast = Object.values(uniqueFastCategories).toSorted((a, b) => {
     return a.title.localeCompare(b.title)
   })
 
@@ -144,7 +144,7 @@ async function rebuild(): Promise<void> {
 
   let allCategories = [...categories.list] as CategoryValue[]
   if (general) allCategories.push(getGeneralCategory())
-  let categoriesByName = allCategories.sort((a, b) => {
+  let categoriesByName = allCategories.toSorted((a, b) => {
     return a.title.localeCompare(b.title)
   })
 
@@ -163,7 +163,7 @@ async function rebuild(): Promise<void> {
 onMountAny([fastMenu, slowMenu], () => {
   menuLoading.set(true)
 
-  rebuild().then(() => {
+  void rebuild().then(() => {
     menuLoading.set(false)
   })
   let unbindAction = onLogAction(action => {
@@ -173,7 +173,7 @@ onMountAny([fastMenu, slowMenu], () => {
       action.type.startsWith('posts/') ||
       action.type.startsWith('filters/')
     ) {
-      rebuild()
+      void rebuild()
     }
   })
 

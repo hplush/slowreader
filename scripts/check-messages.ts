@@ -34,6 +34,4 @@ let files =
     ? process.argv.slice(2)
     : globSync(join(MESSAGES, '/**/en.ts'))
 
-for (let filename of files) {
-  checkFile(filename)
-}
+await Promise.all(files.map(file => checkFile(file)))

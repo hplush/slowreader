@@ -93,7 +93,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
             if (!value.isLoading) $category.set(value)
           })
         } else if (!menuLoading.get()) {
-          nextRouteIsRedirect(() => {
+          void nextRouteIsRedirect(() => {
             if (reading === 'fast') {
               let id = fastMenu.get()[0]?.id
               if (id) $categoryId.set(id)
@@ -145,7 +145,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         }
         if (JSON.stringify(filter) !== JSON.stringify(lastFilter)) {
           lastFilter = filter
-          deleteRead()
+          void deleteRead()
         }
         if (readerBuilder) {
           instance = readerBuilder(filter, params, helpers)
@@ -155,29 +155,29 @@ let pages = (['slow', 'fast'] as const).map(reading => {
       }
     )
 
-    function changeReader(reader: UsefulReaderName): void {
+    async function changeReader(reader: UsefulReaderName): Promise<void> {
       $from.set(undefined)
       let feedId = $feedId.get()
       if (feedId) {
-        changeFeed(feedId, { [readerProp]: reader })
-        return
-      }
-      let categoryId = $categoryId.get()
-      if (categoryId) {
-        changeCategory(categoryId, { [readerProp]: reader })
+        await changeFeed(feedId, { [readerProp]: reader })
+      } else {
+        let categoryId = $categoryId.get()
+        if (categoryId) {
+          await changeCategory(categoryId, { [readerProp]: reader })
+        }
       }
     }
 
     return {
       category: $category,
       changeReader,
-      exit() {
+      async exit() {
         unbindTarget()
         unbindRedirect()
         unbindPosts()
         prevReading?.exit()
         prevLoadingUnbind()
-        deleteRead()
+        await deleteRead()
       },
       feed: $feed,
       loading: $loading,

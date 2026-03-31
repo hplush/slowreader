@@ -92,7 +92,7 @@ export async function loadPosts(
     posts = value.list.filter(i => !value.stores.get(i.id)?.deleted)
   }
   return posts
-    .sort((a, b) => b.publishedAt - a.publishedAt)
+    .toSorted((a, b) => b.publishedAt - a.publishedAt)
     .map(i => stores.get(i.id))
     .filter(i => !!i)
     .map(i => ensureLoadedStore(i))

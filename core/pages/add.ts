@@ -87,7 +87,7 @@ export const addPage = createPage('add', () => {
   let openedFeedMixin = injectOpenedFeed()
 
   let $sortedCandidates = computed($candidates, candidates => {
-    return candidates.sort((a, b) => {
+    return candidates.toSorted((a, b) => {
       return a.title.localeCompare(b.title)
     })
   })
@@ -140,7 +140,7 @@ export const addPage = createPage('add', () => {
     inited = true
     if (!url) return
     prevTask = createDownloadTask({ cache: 'write' })
-    addLink(prevTask, url)
+    void addLink(prevTask, url)
     let normalizedUrl = Object.keys($links.get())[0] ?? ''
     prevUrl = normalizedUrl
     $url.set(normalizedUrl)

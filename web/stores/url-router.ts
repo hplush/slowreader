@@ -107,11 +107,11 @@ function moveToSearch<Page extends Route>(
       // @ts-expect-error Too complex to type
       if (typeof page.params[key] !== 'undefined') {
         // @ts-expect-error Too complex to type
-        search[key] = page.params[key]
+        search[key] = page.params[key] as string
       }
     } else {
       // @ts-expect-error Too complex to type
-      rest[key] = page.params[key]
+      rest[key] = page.params[key] as string
     }
   }
   return getPagePath(pathRouter, page.route, rest, search)

@@ -71,7 +71,7 @@ async function addPosts(feed: FeedValue, posts: OriginPost[]): Promise<void> {
   if (!first) return
 
   if (first.publishedAt) {
-    posts = posts.sort((a, b) => {
+    posts.sort((a, b) => {
       return (b.publishedAt ?? 0) - (a.publishedAt ?? 0)
     })
     first = posts[0]!
@@ -110,7 +110,7 @@ async function checkForNextPage(
       await pages.next()
       let error = pages.get().error
       if (error) throw error
-      checkForNextPage(feed, pages)
+      await checkForNextPage(feed, pages)
     })
   } else {
     if (!getFeed(feed.id).deleted) {

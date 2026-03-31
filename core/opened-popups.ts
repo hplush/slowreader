@@ -46,8 +46,8 @@ export const popupsStatus = atom<PopupsStatus>({
 
 onMount(popupsStatus, () => {
   let unbindLast: (() => void) | undefined
-  let unbindPopups = openedPopups.subscribe(popups => {
-    let last = popups[popups.length - 1]
+  let unbindPopups = openedPopups.subscribe(opened => {
+    let last = opened[opened.length - 1]
     if (last) {
       unbindLast?.()
       unbindLast = last.loading.subscribe(loading => {
@@ -56,7 +56,7 @@ onMount(popupsStatus, () => {
           last: last as LoadedPopup<Popup>,
           loading,
           notFound: last.notFound,
-          other: popups.slice(0, -1).reverse().slice(0, 5)
+          other: opened.slice(0, -1).toReversed().slice(0, 5)
         })
       })
     } else {

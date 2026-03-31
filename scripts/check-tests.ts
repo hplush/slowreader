@@ -48,6 +48,4 @@ async function checkFile(filename: string): Promise<void> {
 let files =
   process.argv.length > 2 ? process.argv.slice(2) : globSync('**/*.test.ts')
 
-for (let filename of files) {
-  checkFile(filename)
-}
+await Promise.all(files.map(file => checkFile(file)))

@@ -56,7 +56,7 @@ describe('refresh', () => {
   ): Promise<PostValue[Key][]> {
     let posts = await loadValue(getPosts())
     return posts.list
-      .sort((a, b) => a.originId.localeCompare(b.originId))
+      .toSorted((a, b) => a.originId.localeCompare(b.originId))
       .map(post => post[key])
   }
 

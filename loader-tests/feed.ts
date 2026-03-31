@@ -5,7 +5,7 @@ let cli = createCLI(
   '$ pnpm run feed FEED_URL\n$ pnpm feed FEED_URL HOME_URL'
 )
 
-cli.run(async args => {
+await cli.run(async args => {
   enableTestClient()
 
   let url = args[0]

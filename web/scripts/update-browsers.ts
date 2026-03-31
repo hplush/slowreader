@@ -15,7 +15,7 @@ function formatDate(date: Date): string {
 }
 
 function getBrowsers(config: string): string[] {
-  return browserslist(browserslist.parseConfig(config).defaults).sort()
+  return browserslist(browserslist.parseConfig(config).defaults).toSorted()
 }
 
 function printDiff(before: string[], after: string[]): void {

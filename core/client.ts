@@ -97,7 +97,7 @@ onEnvironment(({ logStoreCreator }) => {
 
         /* node:coverage disable */
         function removeAction(action: Action, meta: Meta): void {
-          logux.log.changeMeta(meta.id, { reasons: [] })
+          void logux.log.changeMeta(meta.id, { reasons: [] })
         }
 
         logux.on('preadd', (action, meta) => {
@@ -111,7 +111,10 @@ onEnvironment(({ logStoreCreator }) => {
             meta.indexes = [plural, `${plural}/${action.id}`]
           } else if (isSyncMapDeleyeAction(action)) {
             let plural = action.type.split('/')[0]!
-            logux.log.each({ index: `${plural}/${action.id}` }, removeAction)
+            void logux.log.each(
+              { index: `${plural}/${action.id}` },
+              removeAction
+            )
           }
         })
 
@@ -154,13 +157,13 @@ export type SyncStatus =
   | Exclude<StatusValue, 'denied' | 'protocolError' | 'syncError'>
 
 export const syncStatus = atom<SyncStatus>('local')
-export const syncStatusType = computed(syncStatus, status => {
-  if (status === 'error' || status === 'wrongCredentials') {
+export const syncStatusType = computed(syncStatus, sync => {
+  if (sync === 'error' || sync === 'wrongCredentials') {
     return 'error' as const
   } else if (
-    status === 'wait' ||
-    status === 'connectingAfterWait' ||
-    status === 'sendingAfterWait'
+    sync === 'wait' ||
+    sync === 'connectingAfterWait' ||
+    sync === 'sendingAfterWait'
   ) {
     return 'wait' as const
   } else {

@@ -69,7 +69,7 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
       $list.set(list)
     })
   }
-  start().then(() => {
+  void start().then(() => {
     $loading.set(false)
   })
 

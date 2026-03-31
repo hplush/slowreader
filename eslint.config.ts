@@ -8,7 +8,9 @@ let config: Linter.Config[] = [
       'web/storybook-static/',
       'web/vite.config.ts.*',
       'server/web/',
-      'web/.svelte-check'
+      'web/.svelte-check',
+      '**/*.js',
+      '**/*.ts'
     ]
   },
   ...loguxSvelteConfig.map(item => {
@@ -25,27 +27,7 @@ let config: Linter.Config[] = [
     rules: {
       '@typescript-eslint/no-base-to-string': 'off',
       '@typescript-eslint/no-floating-promises': 'off',
-      '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-type-assertion': 'off'
-    }
-  },
-  {
-    files: ['**/*.test.ts'],
-    rules: {
-      '@typescript-eslint/no-misused-spread': 'off',
-      '@typescript-eslint/only-throw-error': 'off'
-    }
-  },
-  {
-    files: ['web/stories/*.ts', 'core/devtools.ts'],
-    rules: {
-      'no-console': 'off'
-    }
-  },
-  {
-    files: ['web/pages/**/*', 'web/ui/**/*', 'web/main/**/*', 'core/test/**/*'],
-    rules: {
-      'n/no-unsupported-features/node-builtins': 'off'
     }
   },
   {
@@ -70,23 +52,6 @@ let config: Linter.Config[] = [
         }
       ],
       'svelte/sort-attributes': 'warn'
-    }
-  },
-  {
-    files: ['**/scripts/**.ts'],
-    rules: {
-      'n/no-unsupported-features/node-builtins': [
-        'error',
-        {
-          ignores: ['fs.globSync']
-        }
-      ]
-    }
-  },
-  {
-    files: ['core/router.ts'],
-    rules: {
-      '@typescript-eslint/no-empty-object-type': 'off'
     }
   }
 ] satisfies Linter.Config[]

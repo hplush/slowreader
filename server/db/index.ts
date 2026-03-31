@@ -39,7 +39,7 @@ if (config.db.startsWith('memory://') || config.db.startsWith('file://')) {
 
   // Register cleanup for both memory and file-based databases
   onExit(() => {
-    pglite?.close()
+    void pglite?.close()
   })
 } else {
   drizzle = prodDrizzle(postgres(config.db), { schema })

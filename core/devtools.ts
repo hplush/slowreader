@@ -46,7 +46,7 @@ export async function fillFeedsWithPosts(): Promise<void> {
  * Show post data in browser DevTools on opening post in popup.
  */
 export function enablePostDebug(): void {
-  router.subscribe(page => {
+  router.subscribe(async page => {
     for (let popup of page.popups) {
       if (popup.popup === 'post') {
         let id: string | undefined
@@ -56,17 +56,15 @@ export function enablePostDebug(): void {
           id = popup.param.slice(5)
         }
         if (id) {
-          loadValue(getPost(id)).then(post => {
-            if (!post) return
-            loadValue(getFeed(post.feedId)).then(feed => {
-              loaders[feed!.loader]
-                .getPostSource(feed!, post.originId)
-                .then(source => {
-                  console.log(post)
-                  console.log(source)
-                })
-            })
-          })
+          let post = await loadValue(getPost(id))
+          if (!post) return
+          let feed = await loadValue(getFeed(post.feedId))
+          let source = await loaders[feed!.loader].getPostSource(
+            feed!,
+            post.originId
+          )
+          console.log(post)
+          console.log(source)
         }
       }
     }

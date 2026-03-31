@@ -15,13 +15,13 @@ import { isStateExportFile, type StateExport } from './export.ts'
 async function readFile(file: File): Promise<false | string> {
   return new Promise(resolve => {
     let reader = new FileReader()
-    reader.onload = () => {
+    reader.addEventListener('load', () => {
       resolve(reader.result as string)
-    }
+    })
     /* node:coverage ignore next 3 */
-    reader.onerror = () => {
+    reader.addEventListener('error', () => {
       resolve(false)
-    }
+    })
     reader.readAsText(file)
   })
 }
@@ -176,7 +176,7 @@ export const importPage = createPage('import', () => {
     } else if (ext === 'json') {
       let json
       try {
-        json = JSON.parse(content)
+        json = JSON.parse(content) as unknown
       } catch {}
       if (!json || !isStateExportFile(json)) {
         $fileError.set('brokenFile')

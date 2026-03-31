@@ -8,7 +8,7 @@ import { mount } from 'svelte'
 
 import Main from './main.svelte'
 
-busyUntilMenuLoader()
+void busyUntilMenuLoader()
 
 let target = document.getElementById('main')
 if (target) mount(Main, { target })

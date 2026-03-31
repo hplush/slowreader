@@ -26,7 +26,7 @@ async function parseFeedsFromFile(path: string): Promise<YamlFeed[]> {
 
 let cli = createCLI('Run all tests on feeds.yml')
 
-cli.run(async () => {
+await cli.run(async () => {
   enableTestClient()
 
   let feeds = await parseFeedsFromFile(FEEDS)

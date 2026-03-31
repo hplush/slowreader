@@ -97,7 +97,7 @@ window.addEventListener('load', () => {
 })
 
 window.addEventListener('load', () => {
-  import('./devtools.ts').then(() => {})
+  void import('./devtools.ts').then(() => {})
 })
 
 startKeyUX(window, [

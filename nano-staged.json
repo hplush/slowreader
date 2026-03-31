@@ -1,16 +1,14 @@
 {
   "*.{html,md,json,css,js,ts}": "oxfmt",
-  "*.{svelte,ts}": "sh ./scripts/check-types.sh",
-  "*.{js,ts}": "eslint --fix --concurrency auto",
+  "*.{js,ts}": "oxlint",
   "*.css": "stylelint --fix",
   "web/*.svelte": [
     "node ./web/scripts/check-names.ts",
-    "svelte-check --tsconfig web/tsconfig.json"
-  ],
-  "*.svelte": [
+    "svelte-check --tsconfig web/tsconfig.json",
     "prettier --experimental-cli --write",
     "stylelint --fix",
-    "eslint --fix --concurrency auto"
+    "eslint --fix --concurrency auto",
+    "sh ./web/scripts/check-types.sh"
   ],
   "*.svg": "svgo",
   ".devcontainer/Dockerfile": "node ./scripts/check-versions.ts",

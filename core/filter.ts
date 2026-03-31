@@ -105,7 +105,7 @@ export async function changeFilter(
 }
 
 export function sortFilters(filters: FilterValue[]): FilterValue[] {
-  return filters.sort((a, b) => {
+  return filters.toSorted((a, b) => {
     if (a.priority > b.priority) {
       return 1
     } else if (a.priority < b.priority) {

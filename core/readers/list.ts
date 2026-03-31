@@ -36,7 +36,7 @@ export const listReader = createReader('list', (filter, params) => {
     setPagination($pages, posts.length, POSTS_PER_PAGE)
     unbindFrom = params.from.subscribe(updateList)
   }
-  start().then(() => {
+  void start().then(() => {
     $loading.set(false)
   })
 

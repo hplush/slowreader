@@ -22,7 +22,7 @@ let cli = createCLI(
   '$ pnpm check-opml PATH_TO_YOUR_FILE.opml'
 )
 
-cli.run(async args => {
+await cli.run(async args => {
   let opmlFile: string | undefined
   let proxy = true
   for (let arg of args) {
@@ -99,7 +99,7 @@ cli.run(async args => {
     }
   })
 
-  page.importFile(file)
+  void page.importFile(file)
   await waitLoading(page.importing)
   unbindLastAdded()
   unbindFeedErrors()

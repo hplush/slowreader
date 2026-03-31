@@ -69,9 +69,9 @@ export const post = definePopup('post', async loader => {
     unbindPost = $post.subscribe(value => {
       read!.set(!!value.read)
     })
-    unbindRead = read.listen(value => {
+    unbindRead = read.listen(async value => {
       if (value !== $post.get().read) {
-        changePost(id!, { read: value })
+        await changePost(id!, { read: value })
       }
     })
   }

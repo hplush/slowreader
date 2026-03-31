@@ -79,7 +79,9 @@ export function feedsByCategory(
   categories: CategoryValue[],
   feeds: FeedValue[]
 ): FeedsByCategory {
-  let allCategories = categories.sort((a, b) => a.title.localeCompare(b.title))
+  let allCategories = categories.toSorted((a, b) => {
+    return a.title.localeCompare(b.title)
+  })
 
   let general: FeedValue[] = []
 
@@ -106,7 +108,7 @@ export function feedsByCategory(
   }
 
   for (let i of result) {
-    i[1] = i[1].sort((a, b) => a.title.localeCompare(b.title))
+    i[1].sort((a, b) => a.title.localeCompare(b.title))
   }
 
   return result

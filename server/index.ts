@@ -20,5 +20,5 @@ server.listen().catch((error: unknown) => {
 })
 
 onExit(() => {
-  server.destroy()
+  void server.destroy()
 })
