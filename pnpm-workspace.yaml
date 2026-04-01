@@ -34,8 +34,6 @@ minimumReleaseAgeExclude:
   - autoprefixer
   - multiocular
   - '@logux/oxc-configs'
-  - oxlint
-  - '@oxlint/*'
 
 overrides:
   kysely@>=0.26.0 <0.28.11: '>=0.28.12'
