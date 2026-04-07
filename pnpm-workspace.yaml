@@ -22,6 +22,7 @@ minimumReleaseAge: 1440
 dedupePeers: true
 
 minimumReleaseAgeExclude:
+  - postcss
   - postcss-smooth-shadow
   - '@nanostores/*'
   - '@logux/*'
