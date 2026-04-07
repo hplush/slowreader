@@ -1,6 +1,6 @@
 # Web server to serve web client for staging and pull request previews
 
-FROM cgr.dev/chainguard/nginx@sha256:8987b562107b4275bd594b9dcf2def36737720460b12fce90bb13c729353ca54
+FROM cgr.dev/chainguard/nginx@sha256:25f70f9f4d82518a547ec16a02d7cbd81a8bb0cc3278259789b750f834803798
 
 LABEL org.opencontainers.image.source=https://github.com/hplush/slowreader
 LABEL org.opencontainers.image.description="Web client assets of Slow Reader"
