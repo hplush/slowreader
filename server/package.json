@@ -10,7 +10,7 @@
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
     "start": "node --watch index.ts --port 2554",
-    "migration": "drizzle-kit generate && prettier --write ./db/**/*.json",
+    "migration": "drizzle-kit generate && oxfmt ./db/**/*.json",
     "database": "drizzle-kit studio --host 0.0.0.0 --port 2557",
     "build": "node --run clean:build && pnpm run /^build:/",
     "production": "node --run build && ./scripts/run-image.sh",
@@ -35,9 +35,7 @@
   "devDependencies": {
     "@logux/client": "0.23.2",
     "better-node-test": "0.8.4",
-    "drizzle-kit": "0.31.10",
-    "eslint": "10.2.0",
-    "prettier": "3.8.1"
+    "drizzle-kit": "0.31.10"
   },
   "engines": {
     "node": "^24.14.0",

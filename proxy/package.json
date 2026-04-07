@@ -15,8 +15,7 @@
     "clean:build": "rm -rf dist/"
   },
   "devDependencies": {
-    "better-node-test": "0.8.4",
-    "eslint": "10.2.0"
+    "better-node-test": "0.8.4"
   },
   "engines": {
     "node": "^24.14.0",

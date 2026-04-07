@@ -10,8 +10,7 @@
     "@logux/actions": "0.5.0"
   },
   "devDependencies": {
-    "@logux/core": "0.10.0",
-    "eslint": "10.2.0"
+    "@logux/core": "0.10.0"
   },
   "engines": {
     "node": "^24.14.0",
