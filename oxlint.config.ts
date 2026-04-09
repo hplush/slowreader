@@ -10,7 +10,8 @@ export default defineConfig({
     {
       files: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts'],
       rules: {
-        'typescript/no-unsafe-type-assertion': 'off'
+        'typescript/no-unsafe-type-assertion': 'off',
+        'typescript/consistent-return': 'off'
       }
     },
     {

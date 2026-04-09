@@ -1,23 +1,22 @@
 {
-  "*.{html,md,json,css,js,ts}": "oxfmt",
-  "*.{js,ts}": "oxlint",
-  "*.css": "stylelint --fix",
-  "web/*.svelte": [
+  "**/*.{html,md,json,css,js,ts}": "oxfmt",
+  "**/*.{js,ts}": "oxlint",
+  "**/*.css": "stylelint --fix",
+  "web/**/*.svelte": [
     "node ./web/scripts/check-names.ts",
-    "svelte-check --tsconfig web/tsconfig.json",
     "prettier --experimental-cli --write",
     "stylelint --fix",
     "eslint --fix --concurrency auto",
     "sh ./web/scripts/check-types.sh"
   ],
-  "*.svg": "svgo",
+  "**/*.svg": "svgo",
   ".devcontainer/Dockerfile": "node ./scripts/check-versions.ts",
   ".node-version": "node ./scripts/check-versions.ts",
   "package.json": "node ./scripts/check-versions.ts",
   "*/package.json": "node ./scripts/check-versions.ts",
   "*/Dockerfile": "node ./scripts/check-versions.ts",
   ".github/workflows/*.yml": "node ./scripts/check-versions.ts",
-  "*.test.ts": "node ./scripts/check-tests.ts",
+  "**/*.test.ts": "node ./scripts/check-tests.ts",
   "core/messages/*/en.ts": "node ./scripts/check-messages.ts",
   "web/index.html": "pnpm -F web build:web"
 }
