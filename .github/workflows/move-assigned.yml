@@ -5,6 +5,8 @@ on:
     types:
       - assigned
 
+permissions: {}
+
 jobs:
   move:
     name: Move
