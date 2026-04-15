@@ -50,7 +50,7 @@ describe('server proxy', () => {
     process.env.PROXY_ORIGIN = '^http:\\/\\/test.app$'
     server = new TestServer()
     proxyModule(server, {
-      allowSpecialDestinations: true,
+      allowUnsafeDestinations: true,
       allowsFrom: process.env.PROXY_ORIGIN
     })
 
@@ -79,7 +79,7 @@ describe('server proxy', () => {
   test('can be disabled', async () => {
     server = new TestServer()
     proxyModule(server, {
-      allowSpecialDestinations: true
+      allowUnsafeDestinations: true
     })
 
     let response = await server.fetch(`/proxy/${getURL(target)}/path`, {

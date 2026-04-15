@@ -67,7 +67,7 @@ describe('proxy', () => {
 
   let proxy = createServer(
     createProxy({
-      allowSpecialDestinations: true,
+      allowUnsafeDestinations: true,
       allowsFrom: '^http:\\/\\/test.app',
       bodyTimeout: 100,
       maxSize: 100,

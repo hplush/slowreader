@@ -27,7 +27,7 @@ class BadRequestError extends Error {
 }
 
 export interface ProxyConfig {
-  allowSpecialDestinations?: boolean
+  allowUnsafeDestinations?: boolean
   allowsFrom: string
   bodyTimeout: number
   maxSize: number
@@ -113,7 +113,7 @@ export function createProxy(
         )
       }
 
-      if (!config.allowSpecialDestinations) {
+      if (!config.allowUnsafeDestinations) {
         if (
           !parsedUrl.hostname.includes('.') ||
           parsedUrl.hostname.includes('.localhost') ||
