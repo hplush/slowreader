@@ -67,7 +67,7 @@ describe('proxy', () => {
 
   let proxy = createServer(
     createProxy({
-      allowLocalhost: true,
+      allowSpecialDestinations: true,
       allowsFrom: '^http:\\/\\/test.app',
       bodyTimeout: 100,
       maxSize: 100,
@@ -155,12 +155,7 @@ describe('proxy', () => {
     await expectBadRequest(response, 'Only HTTP or HTTPS are supported')
   })
 
-  test('can not use proxy to query local address', async () => {
-    let response = await request(targetUrl.replace('localhost', '127.0.0.1'))
-    await expectBadRequest(response, 'IP addresses are not allowed')
-  })
-
-  test('can not use localhost without a setting', async () => {
+  test('can not use localhost or IP without a setting', async () => {
     otherProxy = createServer(
       createProxy({
         allowsFrom: '^http:\\/\\/test.app',
@@ -172,12 +167,38 @@ describe('proxy', () => {
     await new Promise<void>(resolve => {
       otherProxy!.listen(31599, resolve)
     })
-    let response = await fetch(`${getURL(otherProxy)}/${targetUrl}`, {
+    let response1 = await fetch(`${getURL(otherProxy)}/${targetUrl}`, {
       headers: {
         Origin: 'http://test.app'
       }
     })
-    await expectBadRequest(response, 'IP addresses are not allowed')
+    await expectBadRequest(
+      response1,
+      'IP addresses or one-name domains are not allowed'
+    )
+
+    let response2 = await fetch(
+      `${getURL(otherProxy)}/${targetUrl.replace('localhost', '127.0.0.1')}`,
+      {
+        headers: {
+          Origin: 'http://test.app'
+        }
+      }
+    )
+    await expectBadRequest(
+      response2,
+      'IP addresses or one-name domains are not allowed'
+    )
+
+    let response3 = await fetch(`${getURL(otherProxy)}/http://google}`, {
+      headers: {
+        Origin: 'http://test.app'
+      }
+    })
+    await expectBadRequest(
+      response3,
+      'IP addresses or one-name domains are not allowed'
+    )
   })
 
   test('clears cookie headers', async () => {

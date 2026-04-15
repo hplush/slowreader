@@ -27,7 +27,7 @@ class BadRequestError extends Error {
 }
 
 export interface ProxyConfig {
-  allowLocalhost?: boolean
+  allowSpecialDestinations?: boolean
   allowsFrom: string
   bodyTimeout: number
   maxSize: number
@@ -113,11 +113,15 @@ export function createProxy(
         )
       }
 
-      if (
-        (!config.allowLocalhost && parsedUrl.hostname === 'localhost') ||
-        isIP(parsedUrl.hostname) !== 0
-      ) {
-        throw new BadRequestError('IP addresses are not allowed')
+      if (!config.allowSpecialDestinations) {
+        if (
+          !parsedUrl.hostname.includes('.') ||
+          isIP(parsedUrl.hostname) !== 0
+        ) {
+          throw new BadRequestError(
+            'IP addresses or one-name domains are not allowed'
+          )
+        }
       }
 
       let debug = req.headers['x-slowreader-debug']
