@@ -32,6 +32,9 @@
         "formulahendry.auto-rename-tag",
         "walnuts1018.oklch-vscode"
       ]
+    },
+    "zed": {
+      "extensions": ["dockerfile", "svelte", "sql", "nginx", "oxc"]
     }
   }
 }
