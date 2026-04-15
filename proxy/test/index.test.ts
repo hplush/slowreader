@@ -174,7 +174,7 @@ describe('proxy', () => {
     })
     await expectBadRequest(
       response1,
-      'IP addresses or one-name domains are not allowed'
+      'IP addresses or local domains are not allowed'
     )
 
     let response2 = await fetch(
@@ -187,7 +187,7 @@ describe('proxy', () => {
     )
     await expectBadRequest(
       response2,
-      'IP addresses or one-name domains are not allowed'
+      'IP addresses or local domains are not allowed'
     )
 
     let response3 = await fetch(`${getURL(otherProxy)}/http://google}`, {
@@ -197,7 +197,66 @@ describe('proxy', () => {
     })
     await expectBadRequest(
       response3,
-      'IP addresses or one-name domains are not allowed'
+      'IP addresses or local domains are not allowed'
+    )
+
+    let response4 = await fetch(`${getURL(otherProxy)}/http://[::1]:31597/`, {
+      headers: {
+        Origin: 'http://test.app'
+      }
+    })
+    await expectBadRequest(
+      response4,
+      'IP addresses or local domains are not allowed'
+    )
+
+    let response5 = await fetch(`${getURL(otherProxy)}/http://foo.local/feed`, {
+      headers: {
+        Origin: 'http://test.app'
+      }
+    })
+    await expectBadRequest(
+      response5,
+      'IP addresses or local domains are not allowed'
+    )
+
+    let response6 = await fetch(
+      `${getURL(otherProxy)}/http://api.internal/feed`,
+      {
+        headers: {
+          Origin: 'http://test.app'
+        }
+      }
+    )
+    await expectBadRequest(
+      response6,
+      'IP addresses or local domains are not allowed'
+    )
+
+    let response7 = await fetch(
+      `${getURL(otherProxy)}/http://app.localhost/feed`,
+      {
+        headers: {
+          Origin: 'http://test.app'
+        }
+      }
+    )
+    await expectBadRequest(
+      response7,
+      'IP addresses or local domains are not allowed'
+    )
+
+    let response8 = await fetch(
+      `${getURL(otherProxy)}/http://localhost./feed`,
+      {
+        headers: {
+          Origin: 'http://test.app'
+        }
+      }
+    )
+    await expectBadRequest(
+      response8,
+      'IP addresses or local domains are not allowed'
     )
   })
 

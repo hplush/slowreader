@@ -116,10 +116,13 @@ export function createProxy(
       if (!config.allowSpecialDestinations) {
         if (
           !parsedUrl.hostname.includes('.') ||
-          isIP(parsedUrl.hostname) !== 0
+          parsedUrl.hostname.includes('.localhost') ||
+          /\.(local|internal)$/.test(parsedUrl.hostname) ||
+          parsedUrl.hostname === 'localhost.' ||
+          isIP(parsedUrl.hostname.replace(/^\[|\]$/g, '')) !== 0
         ) {
           throw new BadRequestError(
-            'IP addresses or one-name domains are not allowed'
+            'IP addresses or local domains are not allowed'
           )
         }
       }
