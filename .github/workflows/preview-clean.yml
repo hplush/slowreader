@@ -34,6 +34,10 @@ jobs:
       - name: Extract PR number
         run: |
           PR_NUMBER=$(cat ./preview-id)
+          if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "Invalid preview-id: $PR_NUMBER"
+            exit 1
+          fi
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
       - name: Disable deploy at GitHub
         continue-on-error: true
