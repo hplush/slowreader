@@ -22,7 +22,7 @@ await new Promise<void>(resolve => target.listen(0, resolve))
 
 let proxy = createServer(
   createProxy({
-    allowLocalhost: true,
+    allowSpecialDestinations: true,
     allowsFrom: '^http://test\\.app',
     bodyTimeout: 10000,
     maxSize: 10 * 1024 * 1024,
