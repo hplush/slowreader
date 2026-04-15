@@ -110,7 +110,7 @@ window.addEventListener('keyup', e => {
   if (e.key === 'Escape') {
     if (openedPopups.get().length > 0) {
       let target = e.target as Element | null
-      let isSpecialKey = e.ctrlKey || e.metaKey || e.altKey
+      let isSpecialKey = e.ctrlKey || e.metaKey || e.altKey || e.isComposing
       let insideEditable =
         target?.tagName === 'TEXTAREA' || target?.tagName === 'INPUT'
       if (!isSpecialKey && !insideEditable) {

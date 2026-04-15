@@ -90,7 +90,7 @@
       if (oninput) oninput(e.currentTarget.value, isValid)
     }}
     onkeyup={e => {
-      if (e.key === 'Escape') onescape?.()
+      if (e.key === 'Escape' && !e.isComposing) onescape?.()
       if (error) error = runValidators(e.currentTarget.value)
     }}
     readonly={disabled}
