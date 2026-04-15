@@ -40,6 +40,10 @@ jobs:
       - name: Extract PR number
         run: |
           PR_NUMBER=$(cat ./preview-id)
+          if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "Invalid preview-id: $PR_NUMBER"
+            exit 1
+          fi
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
       - name: Check preview label
         run: |
@@ -69,7 +73,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push Docker image
-        run: docker push ghcr.io/hplush/slowreader:preview-${{ env.PR_NUMBER }}
+        run: docker push ghcr.io/hplush/slowreader:preview-$PR_NUMBER
       - name: Deploy to Dokploy
         id: deploy
         env:
