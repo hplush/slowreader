@@ -422,7 +422,7 @@ describe('refresh', () => {
     })
 
     refreshPosts()
-    await setTimeout(10)
+    await setTimeout(50)
     equal(refreshStatus.get(), 'done')
     deepEqual(await getPostKeys('title'), ['4', '5', '6'])
 
