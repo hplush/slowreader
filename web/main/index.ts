@@ -1,5 +1,6 @@
 import './environment.ts'
 import './browser.ts'
+import './updater.ts'
 
 import './index.css'
 

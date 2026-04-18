@@ -1,8 +1,11 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { Features } from 'lightningcss'
+import { execSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { defineConfig } from 'vite'
+
+let commitTime = parseInt(execSync('git log -1 --format=%ct').toString().trim())
 
 function replaceIcon(html: string, icon: string): string {
   return html
@@ -31,6 +34,9 @@ for (let feature in Features) {
 export default defineConfig(() => ({
   build: {
     sourcemap: true
+  },
+  define: {
+    COMMIT_TIME: JSON.stringify(commitTime)
   },
   css: {
     lightningcss: {
