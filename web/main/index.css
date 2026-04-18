@@ -29,6 +29,7 @@
 
 * {
   flex-shrink: 0;
+  outline: 0 solid var(--focus-color);
 }
 
 html,
