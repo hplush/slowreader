@@ -1,12 +1,12 @@
 # Web server to serve web client for staging and pull request previews
 
-FROM cgr.dev/chainguard/nginx@sha256:34d9edf274e639efbf2880fe29326710fa42d5c77106f9dd0d97bf3516354f03
+FROM cgr.dev/chainguard/nginx@sha256:2ce17f21e8f27635a53956609e27257b0a2d5bec233f800dd1f3d4b8757dd5fe
 
 LABEL org.opencontainers.image.source=https://github.com/hplush/slowreader
 LABEL org.opencontainers.image.description="Web client assets of Slow Reader"
 LABEL org.opencontainers.image.licenses=AGPL-3.0-or-later
 
-COPY --from=ghcr.io/tarampampam/microcheck@sha256:79c187c05bfa67518078bf4db117771942fa8fe107dc79a905861c75ddf28dfa /bin/httpcheck /usr/bin/httpcheck
+COPY --from=ghcr.io/tarampampam/microcheck@sha256:39bfe96f6c14e715bd5ef44d2b3c3425700adf37e3a39f7a9c0560421df2d19b /bin/httpcheck /usr/bin/httpcheck
 
 COPY ./nginx.conf.compiled /etc/nginx/nginx.conf
 COPY ./dist/ /var/www/

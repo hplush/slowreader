@@ -28,14 +28,14 @@
   },
   "devDependencies": {
     "@logux/eslint-config": "57.1.0",
-    "@logux/oxc-configs": "0.3.3",
+    "@logux/oxc-configs": "0.4.0",
     "@types/chrome": "0.1.40",
     "@types/node": "25.6.0",
     "@types/ws": "8.18.1",
-    "@typescript/native-preview": "7.0.0-dev.20260415.1",
-    "actions-up": "1.13.0",
+    "@typescript/native-preview": "7.0.0-dev.20260420.1",
+    "actions-up": "1.14.1",
     "better-node-test": "0.8.4",
-    "eslint": "10.2.0",
+    "eslint": "10.2.1",
     "eslint-plugin-svelte": "3.17.0",
     "husky": "9.1.7",
     "jiti": "2.6.1",
@@ -43,7 +43,7 @@
     "nano-staged": "1.0.2",
     "oxfmt": "0.45.0",
     "oxlint": "1.60.0",
-    "oxlint-tsgolint": "0.21.0",
+    "oxlint-tsgolint": "0.21.1",
     "postcss-html": "1.8.1",
     "prettier": "3.8.3",
     "prettier-plugin-svelte": "3.5.1",
@@ -63,7 +63,7 @@
     "svelte": "5.55.4",
     "svelte-eslint-parser": "1.6.0",
     "svgo": "4.0.1",
-    "typescript": "6.0.2"
+    "typescript": "6.0.3"
   },
   "engines": {
     "node": "^24.15.0",
