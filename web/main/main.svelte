@@ -10,15 +10,12 @@
     userId
   } from '@slowreader/core'
 
-  import AboutPage from '../pages/about.svelte'
   import AddPage from '../pages/add.svelte'
   import BusyPage from '../pages/busy.svelte'
   import CloudPage from '../pages/cloud.svelte'
   import DownloadPage from '../pages/download.svelte'
-  import ExportPage from '../pages/export.svelte'
   import FeedByCategoriesPage from '../pages/feeds-by-categories.svelte'
   import FeedsPage from '../pages/feeds/index.svelte'
-  import ImportPage from '../pages/import.svelte'
   import InterfacePage from '../pages/interface.svelte'
   import NotFoundPage from '../pages/not-found.svelte'
   import OutdatedPage from '../pages/outdated.svelte'
@@ -76,7 +73,9 @@
 {:else if $currentPage.route === 'feedsByCategories'}
   <FeedByCategoriesPage page={$currentPage} />
 {:else if $currentPage.route === 'about'}
-  <AboutPage page={$currentPage} />
+  {#await import('../pages/about.svelte') then {default: AboutPage}}
+    <AboutPage page={$currentPage} />
+  {/await}
 {:else if $currentPage.route === 'cloud'}
   <CloudPage page={$currentPage} />
 {:else if $currentPage.route === 'start'}
@@ -88,9 +87,13 @@
 {:else if $currentPage.route === 'download'}
   <DownloadPage />
 {:else if $currentPage.route === 'export'}
-  <ExportPage page={$currentPage} />
+  {#await import('../pages/export.svelte') then {default: ExportPage}}
+    <ExportPage page={$currentPage} />
+  {/await}
 {:else if $currentPage.route === 'import'}
-  <ImportPage page={$currentPage} />
+  {#await import('../pages/import.svelte') then {default: ImportPage}}
+    <ImportPage page={$currentPage} />
+  {/await}
 {:else}
   <ThinPage title={$currentPage.route}>
     {$currentPage.route}

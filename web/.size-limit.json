@@ -15,7 +15,8 @@
       "!dist/assets/noto-*-{cyrillic,greek,devanagari,vietnamese}-*.woff2",
       "!dist/assets/noto-sans-mono-*.woff2",
       "!dist/assets/playpen-sans-*.woff2",
-      "!dist/assets/*-{italic,math,latin-ext}-*.woff2"
+      "!dist/assets/*-{italic,math,latin-ext}-*.woff2",
+      "!dist/assets/{export,import,about}-*.js"
     ],
     "limit": "190 KB"
   },
