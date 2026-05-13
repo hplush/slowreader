@@ -14,7 +14,7 @@
     "unused-messages": "node scripts/check-unused-messages.ts",
     "update-browsers": "node web/scripts/update-browsers.ts",
     "update-env": "node ./scripts/update-env.ts",
-    "update-ci": "node --env-file-if-exists=.env node_modules/actions-up/bin/actions-up.js --min-age 1d",
+    "update-ci": "node --env-file-if-exists=.env node_modules/actions-up/bin/actions-up.js --min-age 1",
     "update-review": "node --env-file-if-exists=.env node_modules/multiocular/server/bin.js --port 2556",
     "format:oxfmt": "oxfmt .",
     "format:prettier": "prettier --experimental-cli --write **/*.svelte",
