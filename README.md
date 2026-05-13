@@ -265,21 +265,21 @@ We try to use progressive approach and update dependencies often (every month).
 To update all dependencies:
 
 ```sh
-# Update data lock in web/.browserslistrc
-pnpm update-browsers
-
 # Update Node.js and pnpm
 pnpm update-env
 
 # Update Docker base images
 ./scripts/update-docker.sh
 
-# Update GitHub actions
-pnpm update-ci
-
 # Update Node.js dependencies
 pnpm update --interactive --latest -r --include-workspace-root
 pnpm update -r --include-workspace-root
+
+# Update GitHub actions
+pnpm update-ci
+
+# Update data lock in web/.browserslistrc
+pnpm update-browsers
 
 # Review updates by Multiocular
 pnpm update-review
