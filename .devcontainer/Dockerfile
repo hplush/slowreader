@@ -1,24 +1,27 @@
 # Creates development machine inside docker
 # so every developer will have the same environment
 
-# registry.fedoraproject.org/fedora:43
-FROM registry.fedoraproject.org/fedora@sha256:777ade1ba9da678c512049de928d5d400efbd0ebd85d0423a1c90cb3675fe728
+# registry.fedoraproject.org/fedora:44
+FROM registry.fedoraproject.org/fedora@sha256:b00731118b233046ebcd41da864fc73dde1a1e1725af6f43c328190ff6f25351
 
 ARG TARGETARCH
 
-ENV NODE_VERSION=24.15.0 \
-  NODE_CHECKSUM_X64=472655581fb851559730c48763e0c9d3bc25975c59d518003fc0849d3e4ba0f6 \
-  NODE_CHECKSUM_ARM64=f3d5a797b5d210ce8e2cb265544c8e482eaedcb8aa409a8b46da7e8595d0dda0
+ENV NODE_VERSION=26.1.0 \
+  NODE_CHECKSUM_X64=9fc6f21b6c4a62439727123e510e9c39febb2f563738f4927cd3e0b288c9b3c9 \
+  NODE_CHECKSUM_ARM64=058f00fe6c84f804b4b96aab377f76ed57dd0be5f10af4dcc0fded172746f366
 
-ENV PNPM_VERSION=10.33.0 \
-  PNPM_CHECKSUM_X64=8d4e8f7d778e8ac482022e2577011706a872542f6f6f233e795a4d9f978ea8b5 \
-  PNPM_CHECKSUM_ARM64=06755ad2817548b84317d857d5c8003dc6e9e28416a3ea7467256c49ab400d48
+ENV PNPM_VERSION=11.1.1 \
+  PNPM_CHECKSUM_X64=f5f72f96d131e19ae5b2ce083914641439c8b5b6b14e4b7157320191eaa24bd4 \
+  PNPM_CHECKSUM_ARM64=e2221b71d0d75b2ce32eabad8391253578395d9844f6538343330e9b1940dc79
 
-RUN dnf install -yq zsh micro git tig psmisc procps-ng awk \
+RUN dnf install -yq zsh micro git tig psmisc procps-ng awk libatomic \
   && dnf clean all \
   && rm -rf /var/cache/dnf
 
 RUN <<EOF
+  # Exit immediately if a command fails
+  set -euo pipefail
+
   if [ "$TARGETARCH" = "amd64" ]; then
     export NODE_CHECKSUM=$NODE_CHECKSUM_X64
     export PNPM_CHECKSUM=$PNPM_CHECKSUM_X64
@@ -40,15 +43,17 @@ RUN <<EOF
     --exclude='share' --exclude='lib/node_modules/' --exclude='bin/corepack'
   rm /node.tar.xz
 
-  curl "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-${ARCH}" \
-    --fail --show-error --location --silent --output /usr/local/bin/pnpm
-  echo "$PNPM_CHECKSUM /usr/local/bin/pnpm" | sha256sum -c
-  chmod a+rx /usr/local/bin/pnpm
+  curl "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-${ARCH}.tar.gz" \
+    --fail --show-error --location --silent --output /pnpm.tar.gz
+  echo "$PNPM_CHECKSUM /pnpm.tar.gz" | sha256sum -c
+  mkdir /usr/local/share/pnpm
+  tar -xz -f /pnpm.tar.gz -C /usr/local/share/pnpm
+  ln -s /usr/local/share/pnpm/pnpm /usr/local/bin/pnpm
+  rm /pnpm.tar.gz
 EOF
 
 RUN useradd -s /bin/zsh developer
-USER developer
 
-RUN mkdir -p /home/developer/.local/share/pnpm/store \
-  && pnpm config set store-dir /home/developer/.local/share/pnpm/store
+USER developer
 RUN echo 'PS1="%d$ "' > ~/.zshrc
+RUN mkdir /home/developer/.config && mkdir -p /home/developer/.local/share

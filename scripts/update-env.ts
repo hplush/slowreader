@@ -70,7 +70,7 @@ async function getPnpmSha256(
 ): Promise<string> {
   let binary = await fetch(
     'https://github.com/pnpm/pnpm/releases/download/' +
-      `v${version}/pnpm-linux-${arch}`
+      `v${version}/pnpm-linux-${arch}.tar.gz`
   )
   return createHash('sha256')
     .update(Buffer.from(await binary.arrayBuffer()))
