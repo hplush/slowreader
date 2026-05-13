@@ -6,7 +6,6 @@
 // If you change script and need to update result without new Node.js version
 // run it with `pnpm update-env --force` argument.
 
-import { createHash } from 'node:crypto'
 import { globSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { styleText } from 'node:util'
@@ -33,6 +32,11 @@ interface Release {
   version: string
 }
 
+interface GitHubReleases {
+  assets: { digest: string; name: string }[]
+  tag_name: string
+}
+
 type Architectures = { arm64: string; x64: string }
 
 async function getLatestNodeVersion(
@@ -46,12 +50,22 @@ async function getLatestNodeVersion(
   return filtered[0]!.version.slice(1)
 }
 
-async function getLatestPnpmVersion(): Promise<string> {
+async function getLatestPnpm(): Promise<[string, Architectures]> {
   let response = await fetch(
     'https://api.github.com/repos/pnpm/pnpm/releases/latest'
   )
-  let data = (await response.json()) as { tag_name: string }
-  return data.tag_name.slice(1)
+  let data = (await response.json()) as GitHubReleases
+  return [
+    data.tag_name.slice(1),
+    {
+      arm64: data.assets
+        .find(i => i.name === 'pnpm-linux-arm64.tar.gz')!
+        .digest.replace(/^sha256:/, ''),
+      x64: data.assets
+        .find(i => i.name === 'pnpm-linux-x64.tar.gz')!
+        .digest.replace(/^sha256:/, '')
+    }
+  ]
 }
 
 async function getNodeSha256(version: string): Promise<Architectures> {
@@ -62,19 +76,6 @@ async function getNodeSha256(version: string): Promise<Architectures> {
     arm64: lines.find(i => i.endsWith('-linux-arm64.tar.xz'))!.split(' ')[0]!,
     x64: lines.find(i => i.endsWith('-linux-x64.tar.xz'))!.split(' ')[0]!
   }
-}
-
-async function getPnpmSha256(
-  version: string,
-  arch: 'arm64' | 'x64'
-): Promise<string> {
-  let binary = await fetch(
-    'https://github.com/pnpm/pnpm/releases/download/' +
-      `v${version}/pnpm-linux-${arch}.tar.gz`
-  )
-  return createHash('sha256')
-    .update(Buffer.from(await binary.arrayBuffer()))
-    .digest('hex')
 }
 
 function read(file: string): string {
@@ -141,7 +142,7 @@ let currentPnpm = dockerfile.match(/PNPM_VERSION=(\S+)/)![1]!
 let latestNode = await getLatestNodeVersion(
   getMajor(currentNode.split('.')[0]!)
 )
-let latestPnpm = await getLatestPnpmVersion()
+let [latestPnpm, pnpmChecksums] = await getLatestPnpm()
 
 if (currentNode !== latestNode || FORCE) {
   printUpdate('Node.js', currentNode, latestNode)
@@ -163,14 +164,7 @@ if (currentNode !== latestNode || FORCE) {
 
 if (currentPnpm !== latestPnpm || FORCE) {
   printUpdate('pnpm', currentPnpm, latestPnpm)
-  let [checksumArm, checksumX86] = await Promise.all([
-    getPnpmSha256(latestPnpm, 'arm64'),
-    getPnpmSha256(latestPnpm, 'x64')
-  ])
-  dockerfile = replaceVersionEnv(dockerfile, 'PNPM', latestPnpm, {
-    arm64: checksumArm,
-    x64: checksumX86
-  })
+  dockerfile = replaceVersionEnv(dockerfile, 'PNPM', latestPnpm, pnpmChecksums)
   writeFileSync(join(ROOT, '.devcontainer', 'Dockerfile'), dockerfile)
 
   updatePackages(pkg => {
