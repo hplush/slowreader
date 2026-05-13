@@ -1,5 +1,0 @@
-dist/
-web/storybook-static/
-server/db/migrations/
-server/db/pgdata/
-pnpm-lock.yaml

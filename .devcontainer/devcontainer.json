@@ -20,7 +20,7 @@
       "extensions": [
         "connor4312.nodejs-testing",
         "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
+        "oxc.oxc-vscode",
         "stylelint.vscode-stylelint",
         "svelte.svelte-vscode",
         "webben.browserslist",

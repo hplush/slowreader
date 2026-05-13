@@ -3,7 +3,9 @@
   "editor.tabSize": 2,
   "editor.detectIndentation": false,
   "editor.trimAutoWhitespace": true,
+  "editor.defaultFormatter": "oxc.oxc-vscode",
   "editor.formatOnSave": true,
   "files.insertFinalNewline": true,
-  "files.trimTrailingWhitespace": true
+  "files.trimTrailingWhitespace": true,
+  "oxc.fmt.configPath": "oxfmt.config.ts"
 }

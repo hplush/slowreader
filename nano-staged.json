@@ -1,10 +1,9 @@
 {
-  "**/*.{html,md,json,css,js,ts}": "oxfmt",
+  "**/*.{html,md,json,css,js,ts,svelte}": "oxfmt",
   "**/*.{js,ts}": "oxlint",
   "**/*.css": "stylelint --fix",
   "web/**/*.svelte": [
     "node ./web/scripts/check-names.ts",
-    "prettier --experimental-cli --write",
     "stylelint --fix",
     "eslint --fix --concurrency auto",
     "sh ./web/scripts/check-types.sh"
