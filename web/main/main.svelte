@@ -12,11 +12,11 @@
 
   import AddPage from '../pages/add.svelte'
   import BusyPage from '../pages/busy.svelte'
-  import CloudPage from '../pages/cloud.svelte'
   import DownloadPage from '../pages/download.svelte'
+  import ExportPage from '../pages/export.svelte'
   import FeedByCategoriesPage from '../pages/feeds-by-categories.svelte'
   import FeedsPage from '../pages/feeds/index.svelte'
-  import InterfacePage from '../pages/interface.svelte'
+  import ImportPage from '../pages/import.svelte'
   import NotFoundPage from '../pages/not-found.svelte'
   import OutdatedPage from '../pages/outdated.svelte'
   import ReloginPage from '../pages/relogin.svelte'
@@ -72,28 +72,22 @@
   <AddPage page={$currentPage} />
 {:else if $currentPage.route === 'feedsByCategories'}
   <FeedByCategoriesPage page={$currentPage} />
-{:else if $currentPage.route === 'about'}
-  {#await import('../pages/about.svelte') then {default: AboutPage}}
-    <AboutPage page={$currentPage} />
+{:else if $currentPage.route === 'about' || $currentPage.route === 'interface' || $currentPage.route === 'cloud'}
+  {#await import('../pages/settings/index.svelte')}
+    <BusyPage />
+  {:then { default: SettingsPages }}
+    <SettingsPages />
   {/await}
-{:else if $currentPage.route === 'cloud'}
-  <CloudPage page={$currentPage} />
 {:else if $currentPage.route === 'start'}
   <StartPage page={$currentPage} />
 {:else if $currentPage.route === 'signUp'}
   <SignupPage page={$currentPage} />
-{:else if $currentPage.route === 'interface'}
-  <InterfacePage />
 {:else if $currentPage.route === 'download'}
   <DownloadPage />
 {:else if $currentPage.route === 'export'}
-  {#await import('../pages/export.svelte') then {default: ExportPage}}
-    <ExportPage page={$currentPage} />
-  {/await}
+  <ExportPage page={$currentPage} />
 {:else if $currentPage.route === 'import'}
-  {#await import('../pages/import.svelte') then {default: ImportPage}}
-    <ImportPage page={$currentPage} />
-  {/await}
+  <ImportPage page={$currentPage} />
 {:else}
   <ThinPage title={$currentPage.route}>
     {$currentPage.route}

@@ -9,13 +9,13 @@
     cloudMessages as t
   } from '@slowreader/core'
 
-  import { getURL } from '../stores/url-router.ts'
-  import Button from '../ui/button.svelte'
-  import Card from '../ui/card.svelte'
-  import Output from '../ui/output.svelte'
-  import Stack from '../ui/stack.svelte'
-  import ThinPage from '../ui/thin-page.svelte'
-  import Title from '../ui/title.svelte'
+  import { getURL } from '../../stores/url-router.ts'
+  import Button from '../../ui/button.svelte'
+  import Card from '../../ui/card.svelte'
+  import Output from '../../ui/output.svelte'
+  import Stack from '../../ui/stack.svelte'
+  import ThinPage from '../../ui/thin-page.svelte'
+  import Title from '../../ui/title.svelte'
 
   let { page }: { page: CloudPage } = $props()
   let { deletingAccount, hasCloud, unsavedData, userId } = $derived(page)

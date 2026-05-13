@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  import InterfacePage from '../../pages/interface.svelte'
+  import InterfacePage from '../../pages/settings/interface.svelte'
   import { systemReducedMotion } from '../../stores/media-queries.ts'
   import Scene from '../scene.svelte'
 

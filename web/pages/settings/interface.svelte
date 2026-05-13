@@ -13,12 +13,12 @@
     useReducedMotion
   } from '@slowreader/core'
 
-  import { systemReducedMotion } from '../stores/media-queries.ts'
-  import Radio from '../ui/radio.svelte'
-  import Stack from '../ui/stack.svelte'
-  import Switch from '../ui/switch.svelte'
-  import ThinPage from '../ui/thin-page.svelte'
-  import Title from '../ui/title.svelte'
+  import { systemReducedMotion } from '../../stores/media-queries.ts'
+  import Radio from '../../ui/radio.svelte'
+  import Stack from '../../ui/stack.svelte'
+  import Switch from '../../ui/switch.svelte'
+  import ThinPage from '../../ui/thin-page.svelte'
+  import Title from '../../ui/title.svelte'
 </script>
 
 <ThinPage title={[$t.interfaceTitle, $t.commonTitle]}>
