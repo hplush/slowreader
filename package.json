@@ -31,7 +31,7 @@
     "@types/chrome": "0.1.42",
     "@types/node": "25.7.0",
     "@types/ws": "8.18.1",
-    "@typescript/native-preview": "7.0.0-dev.20260512.1",
+    "@typescript/native-preview": "7.0.0-dev.20260514.1",
     "actions-up": "1.14.1",
     "better-node-test": "0.8.4",
     "eslint": "10.3.0",
@@ -57,7 +57,7 @@
     "remark-lint-smarty-pants-typography": "1.1.0",
     "remark-validate-links": "13.1.0",
     "stylelint": "17.11.0",
-    "svelte": "5.55.5",
+    "svelte": "5.55.7",
     "svelte-eslint-parser": "1.6.1",
     "svgo": "4.0.1",
     "typescript": "6.0.3"
@@ -66,7 +66,7 @@
     "node": "^26.1.0",
     "pnpm": "^11.0.0"
   },
-  "packageManager": "pnpm@11.1.1",
+  "packageManager": "pnpm@11.1.2",
   "pnpm": {
     "overrides": {
       "cssstyle": "6.0.1",
