@@ -30,7 +30,7 @@
     "drizzle-orm": "0.45.2",
     "nanoid": "5.1.11",
     "postgres": "3.4.9",
-    "tsx": "4.21.0"
+    "tsx": "4.22.0"
   },
   "devDependencies": {
     "@logux/client": "0.23.2",

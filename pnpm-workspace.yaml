@@ -36,11 +36,8 @@ minimumReleaseAgeExclude:
   - multiocular
   - '@logux/oxc-configs'
   - keyux
-  - svelte
-  - devalue
 
 overrides:
-  kysely@>=0.26.0 <0.28.11: '>=0.28.12'
   rollup@<2.80.0: '>=2.80.0'
 
 trustPolicy: no-downgrade
