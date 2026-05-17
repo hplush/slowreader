@@ -6,13 +6,15 @@ on:
     paths-ignore:
       - '**/*.md'
       - '.vscode/**'
-      - '.husky/**'
+      - '.claude/**'
+      - '.githooks/**'
       - '.devcontainer/**'
   pull_request:
     paths-ignore:
       - '**/*.md'
       - '.vscode/**'
-      - '.husky/**'
+      - '.claude/**'
+      - '.githooks/**'
       - '.devcontainer/**'
 jobs:
   test:

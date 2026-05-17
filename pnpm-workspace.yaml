@@ -10,7 +10,6 @@ packages:
 allowBuilds:
   argon2: false
   esbuild: true
-  husky: true
   unrs-resolver: false
 
 blockExoticSubdeps: true

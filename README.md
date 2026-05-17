@@ -113,7 +113,7 @@ Slow Reader is a local-first app. Clients do most of the work, and the server ju
 - [`loader-tests/`](./loader-tests/): integration tests for each social network or news format.
 - [`.devcontainer/`](./.devcontainer/): `Dockerfile` and configs to run project in Docker/Podman image on developer’s machine. It increases security (malicious dependency will not have access to the whole machine) and simplify onboarding. We have configs for Docker and [Podman](https://podman.io) (more secure version of Docker).
 - [`.github/`](./.github/): scripts to test projects on CI.
-- [`.husky/`](./.husky/): scripts to call on `git commit` command to avoid popular errors.
+- [`.githooks/`](./.githooks/): git `pre-commit` hook to run formatter and linters. We change default git folder to this folder in `pnpm:devPreinstall` script.
 - [`.vscode/`](./.vscode/): VS Code settings to reduce code format errors for new contributors.
 
 We are using [pnpm monorepo](https://pnpm.io/workspaces). Each project has its dependencies, tools, and configs. Read `README.md` in each project for project’s files and architecture.
