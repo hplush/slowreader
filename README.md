@@ -111,7 +111,8 @@ Slow Reader is a local-first app. Clients do most of the work, and the server ju
 - [`docs/`](./docs/): guides for developers.
 - [`scripts/`](./scripts/): scripts to test project and configure Google Cloud. Check the script’s descriptions for further details.
 - [`loader-tests/`](./loader-tests/): integration tests for each social network or news format.
-- [`.devcontainer/`](./.devcontainer/): `Dockerfile` and configs to run project in Docker/Podman image on developer’s machine. It increases security (malicious dependency will not have access to the whole machine) and simplify onboarding. We have configs for Docker and [Podman](https://podman.io) (more secure version of Docker).
+- [`.claude/`](./.claude/): hook to run formatter and linter after every run.
+- [`.devcontainer/`](./.devcontainer/): `Dockerfile` and configs to run project in Docker/Podman image on developer’s machine. It increases security (malicious dependency will not have access to the whole machine) and simplify onboarding. We have configs for Docker and [Podman](https://podman.io) (more secure version of Docker). It also contyains recommended plugins for VS Code and Zed.
 - [`.github/`](./.github/): scripts to test projects on CI.
 - [`.githooks/`](./.githooks/): git `pre-commit` hook to run formatter and linters. We change default git folder to this folder in `pnpm:devPreinstall` script.
 - [`.vscode/`](./.vscode/): VS Code settings to reduce code format errors for new contributors.
