@@ -15,13 +15,14 @@
       "!dist/assets/noto-*-{cyrillic,greek,devanagari,vietnamese}-*.woff2",
       "!dist/assets/noto-sans-mono-*.woff2",
       "!dist/assets/playpen-sans-*.woff2",
-      "!dist/assets/*-{italic,math,latin-ext}-*.woff2"
+      "!dist/assets/*-{italic,math,latin-ext}-*.woff2",
+      "!dist/assets/{settings}-*.js"
     ],
     "limit": "190 KB"
   },
   {
     "name": "Core scripts to execute",
-    "path": "dist/assets/index-*.js",
+    "path": "dist/assets/{index,core}-*.js",
     "brotli": false,
     "limit": "315 KB"
   }

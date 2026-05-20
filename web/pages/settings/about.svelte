@@ -6,12 +6,12 @@
     aboutMessages as t
   } from '@slowreader/core'
 
-  import Button from '../ui/button.svelte'
-  import Note from '../ui/note.svelte'
-  import Output from '../ui/output.svelte'
-  import Stack from '../ui/stack.svelte'
-  import ThinPage from '../ui/thin-page.svelte'
-  import Title from '../ui/title.svelte'
+  import Button from '../../ui/button.svelte'
+  import Note from '../../ui/note.svelte'
+  import Output from '../../ui/output.svelte'
+  import Stack from '../../ui/stack.svelte'
+  import ThinPage from '../../ui/thin-page.svelte'
+  import Title from '../../ui/title.svelte'
 
   let { page }: { page: AboutPage } = $props()
 </script>

@@ -2,7 +2,7 @@
   import { pages } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  import AboutPage from '../../pages/about.svelte'
+  import AboutPage from '../../pages/settings/about.svelte'
   import Scene from '../scene.svelte'
 
   let { Story } = defineMeta({

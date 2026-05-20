@@ -2,7 +2,7 @@
   import { hasPassword, pages, syncStatus } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  import CloudPage from '../../pages/cloud.svelte'
+  import CloudPage from '../../pages/settings/cloud.svelte'
   import Scene from '../scene.svelte'
 
   let { Story } = defineMeta({
