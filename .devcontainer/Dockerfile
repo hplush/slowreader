@@ -2,19 +2,19 @@
 # so every developer will have the same environment
 
 # registry.fedoraproject.org/fedora:44
-FROM registry.fedoraproject.org/fedora@sha256:b1fe5b4aeef7add2e0a0fd9cd567054ab31989775798c01b99c262495af5b863
+FROM registry.fedoraproject.org/fedora@sha256:590825dbaee41a97a162ecdffc3305264bd11cb3ff1e9cfd710d41ca5f936134
 
 ARG TARGETARCH
 
-ENV NODE_VERSION=26.1.0 \
-  NODE_CHECKSUM_X64=9fc6f21b6c4a62439727123e510e9c39febb2f563738f4927cd3e0b288c9b3c9 \
-  NODE_CHECKSUM_ARM64=058f00fe6c84f804b4b96aab377f76ed57dd0be5f10af4dcc0fded172746f366
+ENV NODE_VERSION=26.5.0 \
+  NODE_CHECKSUM_X64=9f619528f1db5ddc41dccf54211066fb42228d69a156733c69cb9d6cc92e358c \
+  NODE_CHECKSUM_ARM64=036df0b49662ebb350eb56f1cac603699b1e9ed1e2603ee129fefda473479030
 
-ENV PNPM_VERSION=11.1.2 \
-  PNPM_CHECKSUM_X64=f82f761572d9621c5a646ccc00a1ecec4cf5839d66b714497e6ca10cd2e086ee \
-  PNPM_CHECKSUM_ARM64=a62ca954f27cb0494d29f1a632d1d7a8a06d2c3608a4645f5c0714a3204da02b
+ENV PNPM_VERSION=11.17.0 \
+  PNPM_CHECKSUM_X64=bdb1db01bf0f757495405a59a09c5c287f315889dc98d3b14bc374b9fe43a0bf \
+  PNPM_CHECKSUM_ARM64=730d17de742a3efbb020ba91d7acfc0456c6ba6ad1cd8eb49f4c229fe9f504d3
 
-RUN dnf install -yq zsh micro git tig psmisc procps-ng awk libatomic \
+RUN dnf install -yq zsh micro git tig psmisc procps-ng awk libatomic wget \
   && dnf clean all \
   && rm -rf /var/cache/dnf
 

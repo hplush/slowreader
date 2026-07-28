@@ -15,10 +15,10 @@
     "clean:build": "rm -rf dist/"
   },
   "devDependencies": {
-    "better-node-test": "0.8.4"
+    "better-node-test": "1.0.0"
   },
   "engines": {
-    "node": "^26.1.0",
+    "node": "^26.5.0",
     "pnpm": "^11.0.0"
   }
 }

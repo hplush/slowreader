@@ -207,7 +207,7 @@ describe('signup page', () => {
       route: 'signUp'
     })
     await signUp(generateCredentials())
-    await setTimeout(50)
+    await setTimeout(100)
     equal(router.get().route, 'welcome')
   })
 

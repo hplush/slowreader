@@ -10,7 +10,7 @@ import {
   signUpEndpoint
 } from '@slowreader/api'
 import { verify } from 'argon2'
-import cookieJs from 'cookie'
+import { parseCookie } from 'cookie'
 import { and, eq, sql } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 import type { ServerResponse } from 'node:http'
@@ -74,7 +74,7 @@ export default (server: BaseServer): void => {
   jsonApi(server, signOutEndpoint, async (params, res, req) => {
     let token = params.session
     if (!token) {
-      token = cookieJs.parse(req.headers.cookie ?? '').session
+      token = parseCookie(req.headers.cookie ?? '').session
       setSession(res, '')
     }
     if (!token) return false

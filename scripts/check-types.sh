@@ -66,13 +66,13 @@ for project in $PROJECTS_TO_CHECK; do
     echo "Checking web"
 
     if [ "$FILES_PROVIDED" = false ]; then
-      ./node_modules/.bin/tsgo --noEmit -p web
+      ./node_modules/@typescript/native/bin/tsc --noEmit -p web
       cd web/
       ./node_modules/.bin/svelte-check --tsgo --incremental
       cd ..
     else
       if has_files_with_ext web ts $RELATIVE_FILES; then
-        ./node_modules/.bin/tsgo --noEmit -p web
+        ./node_modules/@typescript/native/bin/tsc --noEmit -p web
       fi
       if has_files_with_ext web svelte $RELATIVE_FILES; then
         cd web/
@@ -82,6 +82,6 @@ for project in $PROJECTS_TO_CHECK; do
     fi
   else
     echo "Checking $project"
-    ./node_modules/.bin/tsgo --noEmit -p "$project"
+    ./node_modules/@typescript/native/bin/tsc --noEmit -p "$project"
   fi
 done

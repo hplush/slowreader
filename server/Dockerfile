@@ -1,11 +1,11 @@
-FROM cgr.dev/chainguard/wolfi-base@sha256:0cff4df29a6597173dc8b813787318150141eb96ac783dc3ff4f5ff52c49a1e2 AS base
+FROM cgr.dev/chainguard/wolfi-base@sha256:003627df3c1e1bba0c4116afcddb314aca9594ee2328c7e876a8081a6c988b2e AS base
 
 LABEL org.opencontainers.image.source=https://github.com/hplush/slowreader
 LABEL org.opencontainers.image.description="Slow Reader"
 LABEL org.opencontainers.image.licenses=AGPL-3.0-or-later
 
-ENV NODE_VERSION=26.1.0 \
-  NODE_CHECKSUM=sha256:9fc6f21b6c4a62439727123e510e9c39febb2f563738f4927cd3e0b288c9b3c9
+ENV NODE_VERSION=26.5.0 \
+  NODE_CHECKSUM=sha256:9f619528f1db5ddc41dccf54211066fb42228d69a156733c69cb9d6cc92e358c
 
 ADD --checksum=$NODE_CHECKSUM https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz /node.tar.xz
 RUN tar -xf "node.tar.xz" --strip-components=1 -C /usr/local/ \
@@ -13,7 +13,7 @@ RUN tar -xf "node.tar.xz" --strip-components=1 -C /usr/local/ \
 RUN apk add --no-cache binutils
 RUN strip /usr/local/bin/node
 
-FROM cgr.dev/chainguard/glibc-dynamic@sha256:d7aa809c1ae88f97cd727d6f5f91e4edab579a14f86f52fd0dd8c658c854286d
+FROM cgr.dev/chainguard/glibc-dynamic@sha256:57e5704e70a85b90191182eb6110d1c817df0d8e96035cb041195c5a351f0861
 WORKDIR /var/app
 ENV NODE_ENV=production \
   LOGUX_HOST=0.0.0.0 \

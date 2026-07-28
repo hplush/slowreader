@@ -3,7 +3,6 @@
     "name": "Files to download",
     "path": [
       "dist/**/*",
-      "!dist/.well-known",
       "!dist/ui",
       "!dist/robots.txt",
       "!dist/{404,500}.html",
