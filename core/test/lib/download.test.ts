@@ -155,23 +155,32 @@ describe('download', () => {
       let image = createTextResponse('<jpeg></jpeg>', {
         headers: new Headers({ 'content-type': 'image/jpeg' })
       })
-      throws(() => {
-        image.parseXml()
-      }, new ParseError('Unknown content type: image/jpeg', '<jpeg></jpeg>'))
+      throws(
+        () => {
+          image.parseXml()
+        },
+        new ParseError('Unknown content type: image/jpeg', '<jpeg></jpeg>')
+      )
 
       let json = createTextResponse('{}', {
         headers: new Headers({ 'content-type': 'application/json' })
       })
-      throws(() => {
-        json.parseXml()
-      }, new ParseError('Unknown content type: application/json', '{}'))
+      throws(
+        () => {
+          json.parseXml()
+        },
+        new ParseError('Unknown content type: application/json', '{}')
+      )
 
       let broken = createTextResponse('<top><test', {
         headers: new Headers({ 'content-type': 'application/xml' })
       })
-      throws(() => {
-        broken.parseXml()
-      }, new ParseError('1:10: unclosed tag: top', '<top><test'))
+      throws(
+        () => {
+          broken.parseXml()
+        },
+        new ParseError('1:10: unclosed tag: top', '<top><test')
+      )
     }, [])
   })
 
@@ -188,15 +197,21 @@ describe('download', () => {
       '1.1'
     )
 
-    throws(() => {
-      let brokenJson = createTextResponse(
-        '{ "items": [], "version": 1.1", "title": "test_title" }',
-        {
-          headers: new Headers({ 'content-type': 'application/json' })
-        }
+    throws(
+      () => {
+        let brokenJson = createTextResponse(
+          '{ "items": [], "version": 1.1", "title": "test_title" }',
+          {
+            headers: new Headers({ 'content-type': 'application/json' })
+          }
+        )
+        brokenJson.parseJson()
+      },
+      new ParseError(
+        `Expected ',' or '}' after property value in JSON at position 29 (line 1 column 30)`,
+        '{ "items": [], "version": 1.1", "title": "test_title" }'
       )
-      brokenJson.parseJson()
-    }, new ParseError(`Expected ',' or '}' after property value in JSON at position 29 (line 1 column 30)`, '{ "items": [], "version": 1.1", "title": "test_title" }'))
+    )
   })
 
   test('has helper to ignore abort errors', async () => {
