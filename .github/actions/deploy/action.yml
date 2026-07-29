@@ -29,7 +29,11 @@ runs:
   steps:
     - name: Build Docker image
       shell: bash
-      run: docker build -t ghcr.io/hplush/${{ inputs.image-name }}:${{ inputs.tag }} ${{ inputs.context }}
+      run: docker build -t ghcr.io/hplush/${INPUTS_IMAGE_NAME}:${INPUTS_TAG} ${INPUTS_CONTEXT}
+      env:
+        INPUTS_IMAGE_NAME: ${{ inputs.image-name }}
+        INPUTS_TAG: ${{ inputs.tag }}
+        INPUTS_CONTEXT: ${{ inputs.context }}
     - name: Login to GitHub Container Registry
       uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
       with:
@@ -38,15 +42,22 @@ runs:
         password: ${{ inputs.token }}
     - name: Push Docker image
       shell: bash
-      run: docker push ghcr.io/hplush/${{ inputs.image-name }}:${{ inputs.tag }}
+      run: docker push ghcr.io/hplush/${INPUTS_IMAGE_NAME}:${INPUTS_TAG}
+      env:
+        INPUTS_IMAGE_NAME: ${{ inputs.image-name }}
+        INPUTS_TAG: ${{ inputs.tag }}
     - name: Trigger Dokploy deployment
       shell: bash
       run: |
         curl -X 'POST' \
-        'https://${{ inputs.cloud }}/api/application.deploy' \
+        'https://${INPUTS_CLOUD}/api/application.deploy' \
         -H 'accept: application/json' \
-        -H 'x-api-key: ${{ inputs.dokploy-token }}' \
+        -H 'x-api-key: ${INPUTS_DOKPLOY_TOKEN}' \
         -H 'Content-Type: application/json' \
         -d '{
-          "applicationId": "${{ inputs.application-id }}"
+          "applicationId": "${INPUTS_APPLICATION_ID}"
         }'
+      env:
+        INPUTS_CLOUD: ${{ inputs.cloud }}
+        INPUTS_DOKPLOY_TOKEN: ${{ inputs.dokploy-token }}
+        INPUTS_APPLICATION_ID: ${{ inputs.application-id }}

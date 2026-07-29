@@ -22,4 +22,6 @@ runs:
     - name: Install pnpm dependencies
       if: ${{ inputs.install != 'false' }}
       shell: bash
-      run: pnpm install ${{ inputs.install }}
+      run: pnpm install ${INPUTS_INSTALL}
+      env:
+        INPUTS_INSTALL: ${{ inputs.install }}

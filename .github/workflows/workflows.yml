@@ -1,4 +1,4 @@
-name: Markdown Linter
+name: Workflows Linter
 on:
   push:
     branches:
@@ -12,7 +12,7 @@ permissions:
   contents: read
 jobs:
   test:
-    name: Check Docs
+    name: Check workflows
     runs-on: ubuntu-latest
     steps:
       - name: Harden the runner
