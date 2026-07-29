@@ -16,7 +16,7 @@ function inVisualTest(node: Node): boolean {
   return file?.includes(join('dist', 'ui', 'assets')) ?? false
 }
 
-export const propsChecker: Plugin = {
+export const propsChecker = {
   postcssPlugin: 'props-checker',
   prepare() {
     return {
@@ -59,7 +59,7 @@ export const propsChecker: Plugin = {
       }
     }
   }
-}
+} satisfies Plugin
 
 export function getPropsError(includingVisuals: boolean): string | undefined {
   let unused = []

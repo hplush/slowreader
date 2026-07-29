@@ -32,6 +32,12 @@ export default defineConfig({
       rules: {
         'typescript/no-empty-object-type': 'off'
       }
+    },
+    {
+      files: ['web/postcss/*.ts'],
+      rules: {
+        'prefer-let/prefer-let': 'off'
+      }
     }
   ]
 })
