@@ -45,7 +45,7 @@
     "keyux": "0.11.6",
     "lightningcss": "1.33.0",
     "nanostores": "1.4.1",
-    "postcss": "8.5.24",
+    "postcss": "8.5.25",
     "postcss-load-config": "6.0.1",
     "postcss-mixins": "12.1.2",
     "postcss-smooth-shadow": "0.3.2",
