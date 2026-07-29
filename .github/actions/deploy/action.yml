@@ -49,14 +49,12 @@ runs:
     - name: Trigger Dokploy deployment
       shell: bash
       run: |
-        curl -X 'POST' \
-        'https://${INPUTS_CLOUD}/api/application.deploy' \
+        curl -X POST \
+        "https://$INPUTS_CLOUD/api/application.deploy" \
         -H 'accept: application/json' \
-        -H 'x-api-key: ${INPUTS_DOKPLOY_TOKEN}' \
+        -H "x-api-key: $INPUTS_DOKPLOY_TOKEN" \
         -H 'Content-Type: application/json' \
-        -d '{
-          "applicationId": "${INPUTS_APPLICATION_ID}"
-        }'
+        -d "{\"applicationId\": \"$INPUTS_APPLICATION_ID\"}"
       env:
         INPUTS_CLOUD: ${{ inputs.cloud }}
         INPUTS_DOKPLOY_TOKEN: ${{ inputs.dokploy-token }}
