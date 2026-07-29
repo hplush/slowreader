@@ -1,12 +1,9 @@
 name: Move Assigned Issue to In Progress
-
 on:
   issues:
     types:
       - assigned
-
 permissions: {}
-
 jobs:
   move:
     name: Move

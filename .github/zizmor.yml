@@ -1,0 +1,12 @@
+rules:
+  github-env:
+    ignore:
+      - preview-deploy.yml:44
+      - preview-clean.yml:36
+  dangerous-triggers:
+    ignore:
+      - preview-deploy.yml:2
+      - preview-clean.yml:2
+  template-injection:
+    ignore:
+      - preview-deploy.yml:117

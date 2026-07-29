@@ -4,22 +4,10 @@ on:
     branches:
       - main
     paths:
-      - '**/*.md'
-      - '.remarkrc'
-      - '.remarkignore'
-      - 'pnpm-lock.yaml'
-      - '.github/workflows/docs.yml'
-      - '.github/actions/init-node/action.yml'
+      - '.github/**/*.yml'
   pull_request:
     paths:
-      - '**/*.md'
-      - '.remarkrc'
-      - '.remarkignore'
-      - 'pnpm-lock.yaml'
-      - '.github/workflows/docs.yml'
-      - '.github/actions/init-node/action.yml'
-  schedule:
-    - cron: '00 23 * * 1' # Runs at midnight every Monday
+      - '.github/**/*.yml'
 permissions:
   contents: read
 jobs:
@@ -35,9 +23,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Initialize Node.js
-        uses: ./.github/actions/init-node
+      - name: Lint CI workflows
+        uses: zizmorcore/zizmor-action@6fc4b006235f201fdab3722e17240ab420d580e5 # v0.6.1
         with:
-          install: -F .
-      - name: Check docs
-        run: node --run test:online:markdown
+          advanced-security: false
