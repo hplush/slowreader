@@ -15,6 +15,7 @@ function parseCustomMedia(file?: string): CustomMediaMap {
     if (match) {
       customMediaMap.push([match[1]!, match[2]!])
     }
+    atrule.remove()
   })
   return customMediaMap
 }
@@ -28,7 +29,10 @@ const plugin: PluginCreator<CustomMediaOptions> = (opts = {}) => {
 
   return {
     AtRule: {
-      media(atrule: AtRule) {
+      'custom-media': atrule => {
+        atrule.remove()
+      },
+      'media': (atrule: AtRule) => {
         if (atrule.params.includes('--')) {
           for (let i of customMedias) {
             let [name, value] = i
