@@ -15,6 +15,9 @@ ENV PNPM_VERSION=11.18.0 \
   PNPM_CHECKSUM_ARM64=f9c09bb564421d9d39dfff60af41df88a4864af5637afdabe5f54d12853f8426
 
 RUN dnf install -yq zsh micro git tig psmisc procps-ng awk libatomic wget \
+  gtk3 nss nspr alsa-lib cups-libs mesa-libgbm dbus-libs libX11-xcb \
+  libXcomposite libXdamage libXrandr libXcursor libXi libxkbcommon \
+  google-noto-sans-fonts google-noto-emoji-fonts \
   && dnf clean all \
   && rm -rf /var/cache/dnf
 
