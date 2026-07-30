@@ -47,8 +47,12 @@ describe('server users', () => {
       cookie: { session: userB.session }
     })
 
-    await clientA1.process(zero({ d: 'a', iv: 'a', z: false }))
-    await clientB.process(zero({ d: 'b', iv: 'b', z: false }))
+    await clientA1.process(
+      zero({ compressed: false, d: Buffer.from('a'), iv: Buffer.from('a') })
+    )
+    await clientB.process(
+      zero({ compressed: false, d: Buffer.from('b'), iv: Buffer.from('b') })
+    )
 
     await clientA1.process(deleteUser({}))
     await setTimeout(100)

@@ -12,9 +12,9 @@
     "test:coverage": "bnt --coverage 100 --coverage-exclude '{devtools.ts,errors.ts,test.ts,../api/**,../server/**,../proxy/**,**/test/**}'"
   },
   "dependencies": {
-    "@logux/actions": "0.5.0",
-    "@logux/client": "0.23.2",
-    "@logux/core": "0.10.0",
+    "@logux/actions": "github:logux/actions#next",
+    "@logux/client": "github:logux/client#next",
+    "@logux/core": "github:logux/core#next",
     "@nanostores/i18n": "1.3.3",
     "@nanostores/persistent": "1.3.5",
     "@slowreader/api": "workspace:*",
@@ -24,15 +24,15 @@
     "lz-string": "1.5.0",
     "nanodelay": "2.0.2",
     "nanoid": "6.0.0",
-    "nanostores": "1.4.1"
+    "nanostores": "1.4.2"
   },
   "devDependencies": {
-    "@logux/server": "0.14.0",
+    "@logux/server": "github:logux/server",
     "@slowreader/proxy": "workspace:*",
     "@types/jsdom": "28.0.3",
     "@types/trusted-types": "2.0.7",
     "better-node-test": "1.0.0",
-    "jsdom": "30.0.0",
+    "jsdom": "30.0.1",
     "nanospy": "2.0.2"
   },
   "engines": {
