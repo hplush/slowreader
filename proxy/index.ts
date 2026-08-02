@@ -229,7 +229,7 @@ export function createProxy(
 
       if (targetResponse.body) {
         let nodeStream = Readable.fromWeb(
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+          // oxlint-disable-next-line typescript/no-unnecessary-type-assertion
           targetResponse.body as WebReadableStream
         )
         await pipeline(nodeStream, res, {

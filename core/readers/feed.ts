@@ -47,8 +47,6 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
           )
         )
       )
-      // It could be switched to false during await above
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (exited) return
     }
 
