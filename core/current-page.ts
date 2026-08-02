@@ -40,7 +40,7 @@ function getPageParams<SomeRoute extends Route>(
   for (let i in page.params) {
     let name = i as keyof SomeRoute['params']
     // @ts-expect-error Too complex types for TS
-    // eslint-disable-next-line
+    // oxlint-disable-next-line
     params[name] = page.params[name].get()
   }
   return params

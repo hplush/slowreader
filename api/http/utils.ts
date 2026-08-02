@@ -76,8 +76,7 @@ export function createRequester<Params extends object, ResponseJSON>(
 }
 
 export interface Endpoint<
-  // Need to put it inside type to pass all types to server in a single variable
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // oxlint-disable-next-line no-unused-vars
   Response,
   Request,
   UrlParams extends Record<string, string> = Record<never, string>
