@@ -352,7 +352,7 @@ describe('menu', () => {
 
   test('has helper to block app while menu is loading', async () => {
     busyUntilMenuLoader()
-    equal(busy.get(), true)
+    deepEqual(busy.get(), { label: undefined, progress: undefined })
     await setTimeout(10)
     equal(busy.get(), false)
     equal(menuLoading.get(), false)

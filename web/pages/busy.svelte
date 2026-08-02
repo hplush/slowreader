@@ -1,8 +1,12 @@
 <script lang="ts">
+  import { busy } from '@slowreader/core'
+
+  import Captioned from '../ui/captioned.svelte'
   import Loader from '../ui/loader.svelte'
-  import Stack from '../ui/stack.svelte'
+
+  let operation = $derived($busy || {})
 </script>
 
-<Stack align="center" height="stretch" justify="center">
-  <Loader />
-</Stack>
+<Captioned caption={operation.label} labelled>
+  <Loader label={operation.label} track="app" value={operation.progress} />
+</Captioned>

@@ -1,20 +1,43 @@
-import { atom, computed } from 'nanostores'
+import { atom } from 'nanostores'
 
-let $tasks = atom(0)
+export interface BusyValue {
+  label?: string
+  progress?: number
+}
+
+let tasks: BusyValue[] = []
 
 /**
  * Show loader over whole app until task is running.
  */
-export async function busyDuring(cb: () => Promise<void>): Promise<void> {
-  $tasks.set($tasks.get() + 1)
-  try {
-    await cb()
-  } finally {
-    $tasks.set($tasks.get() - 1)
+export const busy = atom<BusyValue | false>(false)
+
+function update(): void {
+  if (tasks.length === 0) {
+    busy.set(false)
+  } else {
+    let last = tasks.findLast(i => i.label || i.progress !== undefined)
+    busy.set({ label: last?.label, progress: last?.progress })
   }
 }
 
 /**
- * Do we need to show loader over whole app.
+ * Show loader over whole app until task is running.
  */
-export const busy = computed($tasks, tasks => tasks > 0)
+export async function busyDuring<Value>(
+  cb: (setProgress: (progress: number) => void) => Promise<Value>,
+  label?: string
+): Promise<Value> {
+  let task: BusyValue = { label }
+  tasks.push(task)
+  update()
+  try {
+    return await cb(progress => {
+      task.progress = progress
+      update()
+    })
+  } finally {
+    tasks = tasks.filter(i => i !== task)
+    update()
+  }
+}
