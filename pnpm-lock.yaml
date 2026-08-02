@@ -16,8 +16,8 @@ importers:
         specifier: 57.1.0
         version: 57.1.0(@typescript-eslint/utils@8.65.0)(eslint-plugin-svelte@3.22.0)(eslint@10.8.0)(supports-color@10.2.2)(svelte-eslint-parser@1.8.0)(svelte@5.56.8)(typescript@6.0.3)
       '@logux/oxc-configs':
-        specifier: 1.0.0
-        version: 1.0.0(oxlint-tsgolint@7.0.2001)(oxlint@1.76.0)(typescript@6.0.3)
+        specifier: 1.1.0
+        version: 1.1.0(oxlint-tsgolint@7.0.2001)(oxlint@1.76.0)(typescript@6.0.3)
       '@playwright/mcp':
         specifier: 0.0.78
         version: 0.0.78
@@ -1188,8 +1188,8 @@ packages:
       svelte-eslint-parser:
         optional: true
 
-  '@logux/oxc-configs@1.0.0':
-    resolution: {integrity: sha512-BHn8L2r2HT/Kp508jiTX+gTC3Rij2Sua7rjLOjweNzkWkQjzAbJdXwtRYI4DeBkrvdF7PmI8A6EvcCqHtDFNEQ==}
+  '@logux/oxc-configs@1.1.0':
+    resolution: {integrity: sha512-X+yJcCwTpwnaESokhw2zjH2Wn+XAUGX3VsEToYBQzXfgdXQ4IMCyjTUURKhHO+9JoSL+vGgxtqaF7LMGtPHj5w==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
       oxlint: ^1.57.0
@@ -5955,7 +5955,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@logux/oxc-configs@1.0.0(oxlint-tsgolint@7.0.2001)(oxlint@1.76.0)(typescript@6.0.3)':
+  '@logux/oxc-configs@1.1.0(oxlint-tsgolint@7.0.2001)(oxlint@1.76.0)(typescript@6.0.3)':
     dependencies:
       eslint-plugin-prefer-let: 4.2.2
       oxlint: 1.76.0(oxlint-tsgolint@7.0.2001)
