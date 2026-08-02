@@ -1,4 +1,4 @@
-import { ensureLoaded, loadValue } from '@logux/client'
+import { loadValue } from '@logux/client'
 import { persistentAtom } from '@nanostores/persistent'
 import { atom, computed, keepMount } from 'nanostores'
 
@@ -94,13 +94,15 @@ async function rebuild(): Promise<void> {
   let slowPosts = posts.list.filter(i => i.reading === 'slow' && !i.read)
   let fastFeeds = feeds.list.filter(i => i.reading === 'fast')
 
-  let feedsWithFastFilters = fastFilters.list.map(i => {
-    return feeds.stores.get(i.feedId)!.get()
-  })
+  let feedsWithFastFilters = fastFilters.list
+    .map(i => feeds.stores.get(i.feedId)?.get())
+    .filter(i => !!i)
 
   let uniqueFastCategories: Record<string, CategoryValue> = {}
   for (let feed of [...fastFeeds, ...feedsWithFastFilters]) {
-    let id = ensureLoaded(feed).categoryId
+    /* node:coverage ignore next */
+    if (feed.isLoading) continue
+    let id = feed.categoryId
     if (!uniqueFastCategories[id]) {
       if (id === 'general') {
         uniqueFastCategories[id] = getGeneralCategory()
@@ -131,7 +133,9 @@ async function rebuild(): Promise<void> {
   for (let [feedId, unread] of Object.entries(unreadByFeed)) {
     let feedStore = feeds.stores.get(feedId)
     if (!feedStore) continue
-    let feed = ensureLoaded(feedStore.get())
+    let feed = feedStore.get()
+    /* node:coverage ignore next */
+    if (feed.isLoading) continue
     let category = feed.categoryId
     if (category === 'general') {
       general = true
