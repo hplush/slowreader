@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@logux/eslint-config": "57.1.0",
-    "@logux/oxc-configs": "1.0.0",
+    "@logux/oxc-configs": "1.1.0",
     "@playwright/mcp": "0.0.78",
     "@types/chrome": "0.2.2",
     "@types/node": "26.1.2",

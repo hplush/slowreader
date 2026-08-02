@@ -76,8 +76,7 @@ export function createRequester<Params extends object, ResponseJSON>(
 }
 
 export interface Endpoint<
-  // oxlint-disable-next-line no-unused-vars
-  Response,
+  _Response,
   Request,
   UrlParams extends Record<string, string> = Record<never, string>
 > {
