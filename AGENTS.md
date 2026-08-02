@@ -16,6 +16,8 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 ## Architecture
 
 - Avoid adding dependencies.
+- Keep non-browser logic in `core/`. Client folders should have only environment-specific code.
+- Update `README.md` of the package on every new script, folder, or tool.
 
 ## LLMS
 
