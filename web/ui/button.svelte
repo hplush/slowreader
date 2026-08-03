@@ -84,6 +84,7 @@
     {#if loader}
       <Loader
         label={typeof loader === 'string' ? loader : undefined}
+        track="button"
         value={typeof loader === 'number' ? loader : undefined}
         variant={variant === 'main' ? 'accent' : 'auto'}
       />
