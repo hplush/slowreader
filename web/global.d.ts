@@ -28,6 +28,14 @@ interface Performance {
     | undefined
 }
 
+interface StorageEstimate {
+  usageDetails:
+    | {
+        indexedDB?: number
+      }
+    | undefined
+}
+
 declare module '*.avif'
 declare module '*.png'
 

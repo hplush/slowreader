@@ -29,6 +29,9 @@ export const START_TIMEOUT = 600000
 
 const CALM = 30
 
+// Counting all elements is slow, so we do it only on every 10th frame
+const DOM_SAMPLE = 10
+
 export function nextFrame(): Promise<number> {
   return new Promise(resolve => {
     requestAnimationFrame(resolve)
@@ -49,9 +52,23 @@ export function percentile(list: number[], share: number): number {
   )
 }
 
-function trackFrames(): () => { freezes: number; longestFrame: number } {
+interface FramesReport {
+  domSize: number
+  freezes: number
+  longestFrame: number
+  memory: number
+}
+
+function domSize(): number {
+  return document.querySelectorAll('*').length
+}
+
+function trackFrames(): () => FramesReport {
   let freezes = 0
   let longest = 0
+  let memory = 0
+  let nodes = 0
+  let counter = 0
   let prev = performance.now()
   let stopped = false
 
@@ -61,13 +78,22 @@ function trackFrames(): () => { freezes: number; longestFrame: number } {
     prev = time
     if (gap > longest) longest = gap
     if (gap > FREEZE) freezes += 1
+    let used = performance.memory?.usedJSHeapSize ?? 0
+    if (used > memory) memory = used
+    counter += 1
+    if (counter % DOM_SAMPLE === 0) nodes = Math.max(nodes, domSize())
     requestAnimationFrame(frame)
   }
   requestAnimationFrame(frame)
 
   return () => {
     stopped = true
-    return { freezes, longestFrame: Math.round(longest) }
+    return {
+      domSize: Math.max(nodes, domSize()),
+      freezes,
+      longestFrame: Math.round(longest),
+      memory: Math.round(memory / 1024 / 1024)
+    }
   }
 }
 
@@ -142,12 +168,12 @@ export async function measure(
   let duration = ended - started
   let frames = stopFrames()
   return {
-    domSize: document.querySelectorAll('*').length,
+    domSize: frames.domSize,
     duration: Math.round(duration),
     freezes: frames.freezes,
     loaders: reportLoaders(stopLoaders()),
     longestFrame: frames.longestFrame,
     longestTask: stopTasks(),
-    memory: Math.round((performance.memory?.usedJSHeapSize ?? 0) / 1024 / 1024)
+    memory: frames.memory
   }
 }
