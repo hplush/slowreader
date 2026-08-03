@@ -35,6 +35,7 @@
 
     .captioned_content {
       grid-row: 2;
+      inline-size: 100%;
     }
 
     .captioned_caption {
