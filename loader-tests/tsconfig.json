@@ -4,5 +4,5 @@
     "composite": true,
     "types": ["node", "trusted-types"]
   },
-  "include": ["**/*.ts"]
+  "include": ["../scripts/progress.ts", "**/*.ts"]
 }

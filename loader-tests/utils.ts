@@ -17,9 +17,14 @@ import {
 import { getTestEnvironment, setBaseTestRoute } from '@slowreader/core/test'
 import { readFile } from 'node:fs/promises'
 import { isAbsolute, join } from 'node:path'
-import readline from 'node:readline'
-import { isatty } from 'node:tty'
-import { styleText } from 'node:util'
+
+import {
+  error,
+  printAboveProgress,
+  semiSuccess,
+  success,
+  warning
+} from '../scripts/progress.ts'
 
 export interface LoaderTestFeed {
   homeUrl?: string
@@ -65,114 +70,6 @@ export function timeout<Value>(
       }, ms)
     )
   ])
-}
-
-interface NoFileError extends Error {
-  code: string
-  path: string
-}
-
-function isNoFileError(e: unknown): e is NoFileError {
-  return e instanceof Error && `code` in e && e.code === 'ENOENT'
-}
-
-let progress = 0
-let totalJobs = 0
-
-export function initializeProgressBar(totalValue: number): void {
-  if (!process.env.CI) {
-    totalJobs = totalValue
-    renderProgressBar()
-  }
-}
-
-function renderProgressBar(): void {
-  let filled = Math.floor((process.stderr.columns * progress) / totalJobs)
-  process.stderr.write(
-    '█'.repeat(filled) + '░'.repeat(process.stderr.columns - filled) + '\n'
-  )
-  readline.moveCursor(process.stderr, 0, 0)
-}
-
-const SIMPLE_SHELL = !isatty(1) || process.env.CI
-
-function updateProgressBar(): void {
-  if (totalJobs > 0 && progress < totalJobs && !SIMPLE_SHELL) {
-    progress += 1
-    readline.moveCursor(process.stderr, 0, -1)
-    readline.clearLine(process.stderr, 0)
-    if (progress < totalJobs) {
-      renderProgressBar()
-    }
-  }
-}
-
-export function print(msg: string): void {
-  if (totalJobs > 0 && progress < totalJobs && !SIMPLE_SHELL) {
-    readline.moveCursor(process.stderr, 0, -1)
-    readline.clearLine(process.stderr, 0)
-    process.stderr.write(`${msg}\n`)
-    renderProgressBar()
-  } else {
-    process.stderr.write(`${msg}\n`)
-  }
-}
-
-let errors = 0
-
-export function warning(text: string): void {
-  print(styleText('yellow', text))
-  updateProgressBar()
-}
-
-export function error(err: unknown, details?: string): void {
-  errors += 1
-  let msg: string
-  if (isNoFileError(err)) {
-    msg = `File not found: ${err.path}`
-  } else if (err instanceof Error) {
-    msg = err.stack ?? err.message
-  } else {
-    msg = String(err)
-  }
-  print('')
-  print(
-    styleText('bold', styleText('bgRed', ' ERROR ')) +
-      ' ' +
-      styleText('bold', styleText('red', msg))
-  )
-  if (details) print(details)
-  print('')
-  updateProgressBar()
-}
-
-export function finish(msg: string): void {
-  print('')
-  let postfix = ''
-  if (errors > 0) {
-    postfix =
-      ', ' + styleText('red', styleText('bold', `${errors} errors found`))
-  }
-  print(styleText('gray', msg + postfix))
-  process.exit(errors > 0 ? 1 : 0)
-}
-
-export function success(msg: string, details?: string): void {
-  if (details) {
-    msg += ` ${styleText('gray', details)}`
-  }
-  print(styleText('green', styleText('bold', '✓ ') + msg))
-  updateProgressBar()
-}
-
-export function semiSuccess(msg: string, note: string): void {
-  print(
-    styleText(
-      'yellow',
-      styleText('bold', '✓ ') + msg + ' ' + styleText('bold', note)
-    )
-  )
-  updateProgressBar()
 }
 
 export async function fetchAndParsePosts(
@@ -337,8 +234,8 @@ export function createCLI(help: string, usage?: string): CLI {
         args.includes('-h') ||
         args.includes('help')
       ) {
-        print(help)
-        if (usage) print('Usage:\n' + usage)
+        printAboveProgress(help)
+        if (usage) printAboveProgress('Usage:\n' + usage)
         process.exit(0)
       } else {
         try {
@@ -351,7 +248,7 @@ export function createCLI(help: string, usage?: string): CLI {
     },
     wrongArg(message) {
       error(message)
-      if (usage) print('Usage:\n' + usage)
+      if (usage) printAboveProgress('Usage:\n' + usage)
       process.exit(1)
     }
   }

@@ -1,14 +1,13 @@
 import { join } from 'node:path'
 import yaml from 'yaml'
 
+import { finish, startProgress } from '../scripts/progress.ts'
 import {
   completeTasks,
   createCLI,
   enableTestClient,
   fetchAndParsePosts,
   findRSSFromHome,
-  finish,
-  initializeProgressBar,
   type LoaderTestFeed,
   readText
 } from './utils.ts'
@@ -30,7 +29,7 @@ await cli.run(async () => {
   enableTestClient()
 
   let feeds = await parseFeedsFromFile(FEEDS)
-  initializeProgressBar(
+  startProgress(
     feeds.length + feeds.filter(feed => feed.findFromHome !== false).length
   )
 
