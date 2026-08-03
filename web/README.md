@@ -21,6 +21,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
   - [`index.ts`](./main/index.ts): JS entry point.
   - [`environment.ts`](./main/environment.ts): how client core should work with browser environment.
   - [`browser.ts`](./main/browser.ts): connect core stores to global browser settings like `document.title`.
+- [`benchmark/`](./benchmark/): UI performance benchmark, which is loaded only by `?benchmark` in URL. See [benchmark guide](../docs/benchmark.md).
 - [`pages/`](./pages/): Svelte components for pages.
 - [`ui/`](./ui/): shared components between different pages. Some people call it “UI kit”.
 - [`public/`](./public/): static files like favicon and manifests.
@@ -51,6 +52,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 - `cd web && pnpm production`: start web client production build locally.
 - `cd web && pnpm build`: build production files in `web/dist/`.
 - `cd web && pnpm size`: check the JS bundle size of the production build.
+- `cd web && pnpm benchmark`: run [UI performance benchmark](../docs/benchmark.md).
 
 ## Design System
 
