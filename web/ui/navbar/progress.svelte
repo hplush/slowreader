@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { navbarMessages as t } from '@slowreader/core'
+  import { reportLoader, navbarMessages as t } from '@slowreader/core'
 
   let { value }: { value: number } = $props()
 
@@ -9,6 +9,7 @@
 
 <svg
   class="navbar-progress"
+  {@attach () => reportLoader('refresh')}
   aria-label={$t.postRefreshing}
   aria-valuenow={value * 100}
   role="progressbar"

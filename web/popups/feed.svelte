@@ -101,7 +101,7 @@
       <Stack gap="xs">
         <Label tag="h2">{$t.feedPosts}</Label>
         {#if $posts.isLoading}
-          <Loader />
+          <Loader track="feed-popup-posts" />
         {:else}
           <Posts list={$posts.list} />
           {#if $posts.error}

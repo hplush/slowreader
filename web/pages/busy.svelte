@@ -8,5 +8,9 @@
 </script>
 
 <Captioned caption={operation.label} labelled>
-  <Loader label={operation.label} track="app" value={operation.progress} />
+  <Loader
+    label={operation.label}
+    track="app"
+    value={operation.progress || undefined}
+  />
 </Captioned>
