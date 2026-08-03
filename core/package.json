@@ -4,12 +4,13 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
+    "./benchmark": "./benchmark.ts",
     "./package.json": "./package.json",
     "./test": "./test.ts"
   },
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
-    "test:coverage": "bnt --coverage 100 --coverage-exclude '{devtools.ts,errors.ts,test.ts,../api/**,../server/**,../proxy/**,**/test/**}'"
+    "test:coverage": "bnt --coverage 100 --coverage-exclude '{benchmark*,devtools.ts,errors.ts,test.ts,../api/**,../server/**,../proxy/**,**/test/**}'"
   },
   "dependencies": {
     "@logux/actions": "github:logux/actions#next",
