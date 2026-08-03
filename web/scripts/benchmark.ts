@@ -2,7 +2,7 @@
 // See docs/benchmark.md
 
 import { spawn, spawnSync } from 'node:child_process'
-import { globSync, rmSync, writeSync } from 'node:fs'
+import { globSync, readdirSync, readFileSync, rmSync, writeSync } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -24,10 +24,25 @@ const PORT = 2557
 
 const FILL_ATTEMPTS = 900
 
+const PEAK_INTERVAL = 500
+
 interface FillStatistics {
   duration: number
   feeds: number
   posts: number
+}
+
+interface StorageSize {
+  indexedDB: number
+  localStorage: number
+  opfs: number
+  total: number
+}
+
+interface Peaks {
+  documents: number
+  listeners: number
+  renderer: number
 }
 
 interface BenchmarkResults {
@@ -36,6 +51,7 @@ interface BenchmarkResults {
   posts: number
   scenarios: Record<string, Record<string, unknown>>
   start: number
+  storage: { end: StorageSize; start: StorageSize }
   total: Record<string, number>
 }
 
@@ -237,7 +253,8 @@ class Chromium {
       '--disable-gpu',
       '--disable-dev-shm-usage',
       '--hide-scrollbars',
-      '--window-size=1280,900'
+      '--window-size=1280,900',
+      '--enable-precise-memory-info'
     ])
     let endpoint = await new Promise<string>(resolve => {
       child.stderr.on('data', (chunk: Buffer) => {
@@ -280,6 +297,15 @@ class Chromium {
     return result.result.value
   }
 
+  async metrics(): Promise<Record<string, number>> {
+    let result = (await this.send('Performance.getMetrics', {})) as {
+      metrics: { name: string; value: number }[]
+    }
+    let values: Record<string, number> = {}
+    for (let metric of result.metrics) values[metric.name] = metric.value
+    return values
+  }
+
   async open(address: string): Promise<void> {
     let target = (await this.send('Target.createTarget', {
       url: 'about:blank'
@@ -291,6 +317,7 @@ class Chromium {
     this.session = attached.sessionId
     await this.send('Page.enable', {})
     await this.send('Runtime.enable', {})
+    await this.send('Performance.enable', {})
     await this.send('Page.navigate', { url: address })
     await this.waitApi()
   }
@@ -336,11 +363,75 @@ class Chromium {
   }
 }
 
+// performance.memory shows only JS heap of the main isolate. Renderer is
+// killed by the whole process memory: DOM, IndexedDB, images, workers.
+function rendererMemory(): number {
+  let total = 0
+  let processes: string[]
+  try {
+    processes = readdirSync('/proc')
+  } catch {
+    return 0
+  }
+  for (let pid of processes) {
+    try {
+      let cmdline = readFileSync(`/proc/${pid}/cmdline`, 'utf8')
+      if (!cmdline.includes(PROFILE)) continue
+      if (!cmdline.includes('--type=renderer')) continue
+      let used = readFileSync(`/proc/${pid}/status`, 'utf8').match(
+        /VmRSS:\s+(\d+) kB/
+      )
+      if (used) total += Number(used[1]) * 1024
+    } catch {
+      // Process is already dead or is not a process directory
+    }
+  }
+  return total
+}
+
+function trackPeaks(browser: Chromium): () => Promise<Peaks> {
+  let peaks: Peaks = { documents: 0, listeners: 0, renderer: 0 }
+
+  async function sample(): Promise<void> {
+    try {
+      let metrics = await browser.metrics()
+      peaks.documents = Math.max(peaks.documents, metrics.Documents ?? 0)
+      peaks.listeners = Math.max(peaks.listeners, metrics.JSEventListeners ?? 0)
+    } catch {
+      // Page is navigating or browser was closed
+    }
+    peaks.renderer = Math.max(peaks.renderer, rendererMemory())
+  }
+
+  let sampling = Promise.resolve()
+  let busy = false
+  let timer = setInterval(() => {
+    if (busy) return
+    busy = true
+    sampling = sample().finally(() => {
+      busy = false
+    })
+  }, PEAK_INTERVAL)
+
+  return async () => {
+    clearInterval(timer)
+    await sampling
+    return peaks
+  }
+}
+
+function size(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
+  return `${Math.round(bytes / 1024 / 1024)} MB`
+}
+
 let [address, stopServer] = await startServer()
 let chromium = await Chromium.start(findChromium())
+let stopPeaks: (() => Promise<Peaks>) | undefined
 
 try {
   await chromium.open(`${address}/?benchmark${debug ? '=debug' : ''}`)
+  stopPeaks = trackPeaks(chromium)
 
   if (!(await chromium.evaluate<boolean>('!!window.benchmark.data'))) {
     status('Filling database, it will take a while…')
@@ -362,10 +453,17 @@ try {
       ? `window.benchmark.run(${JSON.stringify(scenario)})`
       : 'window.benchmark.run()'
   )
+  let peaks = await stopPeaks()
+  stopPeaks = undefined
+  results.total.documents = peaks.documents
+  results.total.listeners = peaks.listeners
+  results.total.renderer = Math.round(peaks.renderer / 1024 / 1024)
 
   if (json) {
     print(JSON.stringify(results, null, 2))
   } else {
+    let storage = results.storage.end
+    let growth = storage.total - results.storage.start.total
     print('\n')
     print(`Duration: ${results.total.duration} ms (sum)`)
     print(`Loaders: ${results.total.loaders} ms (sum)`)
@@ -373,14 +471,26 @@ try {
     print(`Longest frame: ${results.total.longestFrame} ms (max)`)
     print(`Longest task: ${results.total.longestTask} ms (max)`)
     print(`DOM size: ${results.total.domSize} nodes (sum)`)
-    print(`Memory: ${results.total.memory} MB (sum)`)
+    print(`Documents: ${results.total.documents} (max)`)
+    print(`Listeners: ${results.total.listeners} (max)`)
+    print(`JS heap: ${results.total.memory} MB (max)`)
+    print(`Renderer memory: ${results.total.renderer} MB (max)`)
+    print(
+      `Storage: ${size(storage.total)} ` +
+        `(IndexedDB ${size(storage.indexedDB)}, ` +
+        `OPFS ${size(storage.opfs)}, ` +
+        `localStorage ${size(storage.localStorage)})`
+    )
+    print(`Storage growth: ${size(growth)} during scenarios`)
     print(`Failed: ${results.total.failed} (sum)`)
   }
 } catch (e) {
+  void stopPeaks?.()
   chromium.close()
   stopServer()
   fail(e instanceof Error ? e.message : String(e))
 } finally {
+  void stopPeaks?.()
   chromium.close()
   stopServer()
 }

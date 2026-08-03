@@ -24,10 +24,6 @@ DEBUG=1 pnpm -F web benchmark --clean # faster benchmark for development
 Database is kept in `/tmp/slowreader-benchmark` between runs, so filling
 happens only once. Set `CHROMIUM_PATH` if Chromium is not in Playwright’s cache.
 
-Script raises Chromium’s JS heap limit to 8 GB and waits 10 minutes for
-the app to load the database. Remove both from `web/scripts/benchmark.ts`
-and `web/benchmark/measure.ts` after fixing app’s work with big database.
-
 Script uses Chromium, not Firefox, because only Chromium has long tasks
 and memory API.
 
@@ -56,6 +52,7 @@ Other commands:
 await benchmark.run('read-page') // single scenario, for debugging
 await benchmark.clean() // remove database and reload with new data
 await benchmark.fill() // create data again
+await benchmark.storage() // IndexedDB, OPFS, and localStorage sizes in bytes
 ```
 
 For benchmark development you can use `?benchmark=debug` to make it faster.
@@ -66,21 +63,70 @@ For benchmark development you can use `?benchmark=debug` to make it faster.
 
 Every scenario runs 5 times. Run, which did not finish in 1 minute or did not find element to click, is counted in `failed` and does not stop other scenarios. After 2 failed runs benchmark gives up on the scenario and goes to the next one.
 
-Report has `total` to compare branches by a single object: sum of `duration`, `freezes`, `memory`, `domSize`, `failed`, and all loaders time; the biggest `longestFrame` and `longestTask`. Text report marks every number with `(sum)` or `(max)`.
+Use `total` to compare branches by a single object. Every scenario number
+there is median of its runs. Text report marks every number
+with `(sum)` or `(max)`:
 
-Report also has time of database filling (`fill`), time from page opening to app without loaders (`start`), and for every scenario median of runs:
-
-- `duration` — from action to the moment when no loader is rendered
-  and 2 frames passed
-- `freezes` — number of frames longer than 50 ms
-- `longestFrame` — the longest frame, `0` only if the page did not render
-- `longestTask` — the longest task in the main thread, `0` if there were no
-  tasks longer than 50 ms (Chromium only)
-- `loaders` — how long every loader was rendered
-- `domSize` — elements in the page at the end of the scenario, when all
-  loaders were removed
-- `memory` — JS heap in MB at the same moment (Chromium only, browser
-  rounds the value and does not run garbage collector before)
+```js
+{
+  feeds: 1000, // Feeds in the database
+  fill: 84000, // Time of database filling in ms
+  posts: 70000, // Posts in the database
+  scenarios: {
+    'read-page': {
+      // The biggest number of elements in the page during the scenario,
+      // counted on every 10th frame
+      domSize: 2688,
+      // From start to the moment when no loader is rendered and 2 frames passed
+      duration: 516,
+      // Did not finish in 1 minute or did not find element to click
+      failed: 0,
+      freezes: 7, // Frames longer than 50 ms
+      loaders: { posts: 120 }, // How long every loader was rendered in ms
+      longestFrame: 300, // The longest frame in ms
+      // 0 if the page did not render
+      // The longest task in the main thread in ms
+      // 0 if there were no tasks longer than 50 ms (Chromium only)
+      longestTask: 305,
+      // The biggest JS heap in MB seen on scenario’s frames. Chromium only.
+      memory: 112
+    }
+    //,  … other scenarios
+  },
+  start: 12000, // Time from page opening to app without loaders in ms
+  storage: { // Sizes in bytes
+    end: { // After all scenarios
+      indexedDB: 13000000, // From navigator.storage.estimate()
+      localStorage: 2048, // Sum of all keys and values
+      opfs: 0, // Sum of all files in origin private file system
+      // All storages by navigator.storage.estimate(). Browser counts it
+      // lazily, so it can be smaller than the real size right after big writes
+      total: 13500000
+    },
+    start: {} // The same, but after database filling, before scenarios
+  },
+  total: {
+    domSize: 2688, // Sum of scenarios
+    duration: 35462, // Sum
+    failed: 5, // Sum
+    freezes: 7, // Sum
+    loaders: 749, // Sum of all loaders of all scenarios
+    longestFrame: 300, // The biggest of scenarios
+    longestTask: 305, // The biggest
+    memory: 112, // The biggest
+    // Only the script can take 3 numbers below. They are not in
+    // benchmark.run() results in the browser. They are the biggest values
+    // of the whole session: page opening, database filling, and scenarios.
+    // Documents and listeners show leaks of detached documents and listeners
+    documents: 1004,
+    listeners: 40610,
+    // Memory of all renderer processes in MB. Renderer is killed by this
+    // number, not by JS heap: it also has DOM, IndexedDB, images, workers,
+    // and buffers outside the heap
+    renderer: 1209
+  }
+}
+```
 
 ## Loaders
 

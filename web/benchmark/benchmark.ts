@@ -18,6 +18,7 @@ import {
   waitIdle
 } from './measure.ts'
 import { createScenarios } from './scenarios.ts'
+import { measureStorage, type StorageSize } from './storage.ts'
 
 interface ScenarioResults {
   domSize: number
@@ -47,6 +48,7 @@ interface BenchmarkResults {
   posts: number
   scenarios: Record<string, ScenarioResults>
   start: number
+  storage: { end: StorageSize; start: StorageSize }
   total: BenchmarkTotal
 }
 
@@ -65,7 +67,7 @@ function total(scenarios: ScenarioResults[]): BenchmarkTotal {
     loaders: sum(i => Object.values(i.loaders).reduce((all, j) => all + j, 0)),
     longestFrame: max(i => i.longestFrame),
     longestTask: max(i => i.longestTask),
-    memory: sum(i => i.memory)
+    memory: max(i => i.memory)
   }
 }
 
@@ -142,6 +144,7 @@ async function run(only?: string): Promise<BenchmarkResults> {
     throw new Error('Run await benchmark.fill() and reload the page')
   }
   await prepare()
+  let storageStart = await measureStorage()
 
   let scenarios = createScenarios(
     statistics.biggestCategory,
@@ -173,6 +176,7 @@ async function run(only?: string): Promise<BenchmarkResults> {
     posts: statistics.posts,
     scenarios: list,
     start: await startTime,
+    storage: { end: await measureStorage(), start: storageStart },
     total: total(Object.values(list))
   }
   return window.benchmark.results
@@ -188,6 +192,7 @@ declare global {
       results: BenchmarkResults | undefined
       run(only?: string): Promise<BenchmarkResults>
       scenarios: string[]
+      storage(): Promise<StorageSize>
     }
   }
 }
@@ -201,7 +206,8 @@ window.benchmark = {
   run,
   scenarios: createScenarios('', ['', ''])
     .map(i => i.name)
-    .filter(i => i !== 'freeze')
+    .filter(i => i !== 'freeze'),
+  storage: measureStorage
 }
 
 void fillOnFirstOpen()
