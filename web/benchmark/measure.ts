@@ -25,7 +25,6 @@ const FREEZE = 50
 
 const IDLE_TIMEOUT = 60000
 
-// Remove after fixing app’s loading time on big database
 export const START_TIMEOUT = 600000
 
 const CALM = 30

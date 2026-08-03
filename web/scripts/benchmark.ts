@@ -1,7 +1,7 @@
 // Script to run UI benchmark in Chromium and print results.
 // See docs/benchmark.md
 
-import { spawn } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import { globSync, rmSync, writeSync } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -12,7 +12,8 @@ import {
   printAboveProgress,
   semiSuccess,
   startProgress,
-  success
+  success,
+  warning
 } from '../../scripts/progress.ts'
 
 const ROOT = join(import.meta.dirname, '..')
@@ -139,9 +140,12 @@ async function startServer(): Promise<[string, () => void]> {
 
   let serverArgs = ['--port', String(PORT), '--strictPort']
   if (!dev) {
-    if (globSync(join(ROOT, 'dist/index.html')).length === 0) {
-      fail('No web/dist. Run `pnpm -F web build:web` or use --dev')
-    }
+    status('Building app…')
+    let build = spawnSync(join(ROOT, 'node_modules/.bin/vite'), ['build'], {
+      cwd: ROOT,
+      stdio: 'ignore'
+    })
+    if (build.status !== 0) fail('Vite build failed')
     serverArgs.unshift('preview')
   }
   let child = spawn(join(ROOT, 'node_modules/.bin/vite'), serverArgs, {
@@ -207,10 +211,13 @@ class Chromium {
         } else if (json) {
           // Only errors in JSON mode
         } else if (scenarioLine) {
-          if (scenarioLine[3] === '0') {
-            success(scenarioLine[1]!, scenarioLine[2])
+          let [, name, time, failed] = scenarioLine
+          if (failed === '0') {
+            success(name!, time)
+          } else if (time === '0 ms') {
+            warning(`${name} failed in every run`)
           } else {
-            semiSuccess(scenarioLine[1]!, `${scenarioLine[3]} failed`)
+            semiSuccess(name!, `${failed} failed`)
           }
         } else {
           status(text)
@@ -230,10 +237,7 @@ class Chromium {
       '--disable-gpu',
       '--disable-dev-shm-usage',
       '--hide-scrollbars',
-      '--window-size=1280,900',
-      // Remove after fixing app’s memory usage. Right now the app keeps
-      // a store for every post and crashes the renderer on big database.
-      '--js-flags=--max-old-space-size=8192'
+      '--window-size=1280,900'
     ])
     let endpoint = await new Promise<string>(resolve => {
       child.stderr.on('data', (chunk: Buffer) => {
