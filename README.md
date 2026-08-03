@@ -239,7 +239,7 @@ How we choose dependencies:
 
 You can use [bundlejs.com](https://bundlejs.com/) and [npmgraph.js.org](https://npmgraph.js.org) to get the size in bundle, `node_modules`, and number of sub-dependencies.
 
-After adding a web client dependency, do not forget to call `cd web && pnpm size` to check the real size of dependency in our JS bundle.
+After adding a web client dependency, do not forget to call `pnpm -F web size` to check the real size of dependency in our JS bundle.
 
 We put to `dependencies` only dependencies we need for production deploy. All other dependencies you should put to `devDependencies`. During production deploy we will use `pnpm install --prod` to reduce security risks of having malicious code in some dependency.
 

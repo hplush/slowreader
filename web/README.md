@@ -46,13 +46,13 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 
 ## Scripts
 
-- `cd web && pnpm test`: run all web client tests.
-- `cd web && pnpm visual`: run visual test server.
-- `cd web && pnpm chromatic`: publish visual tests and generate diffs.
-- `cd web && pnpm production`: start web client production build locally.
-- `cd web && pnpm build`: build production files in `web/dist/`.
-- `cd web && pnpm size`: check the JS bundle size of the production build.
-- `cd web && pnpm benchmark`: run [UI performance benchmark](../docs/benchmark.md).
+- `pnpm -F web test`: run all web client tests.
+- `pnpm -F web visual`: run visual test server.
+- `pnpm -F web chromatic`: publish visual tests and generate diffs.
+- `pnpm -F web production`: start web client production build locally.
+- `pnpm -F web build`: build production files in `web/dist/`.
+- `pnpm -F web size`: check the JS bundle size of the production build.
+- `pnpm -F web benchmark`: run [UI performance benchmark](../docs/benchmark.md).
 
 ## Design System
 

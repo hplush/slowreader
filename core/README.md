@@ -32,7 +32,7 @@ In the best scenario, the client should just subscribe to stores, render UI acco
 
 ## Scripts
 
-- `cd core && pnpm test`: run core unit tests and check coverage.
+- `pnpm -F core test`: run core unit tests and check coverage.
 
 ## Client Environments
 
@@ -71,7 +71,7 @@ We run unit tests by `node --test` with [`better-node-test`](https://github.com/
 
 ```sh
 # Run all tests with coverage
-cd core && pnpm test
+pnpm -F core test
 
 # Run all tests without coverage (a little faster)
 cd core && n bnt

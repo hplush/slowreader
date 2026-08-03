@@ -17,11 +17,11 @@ and uses end-to-end encryption not to know what users read and like.
 
 ## Scripts
 
-- `cd server && pnpm start`: start server in development mode.
-- `cd server && pnpm migration`: generate migration based on DB schema changes.
-- `cd server && pnpm database`: see database content.
-- `cd server && pnpm build`: prepare deploy files with production dependencies only.
-- `cd server && pnpm production`: start production build of the server.
+- `pnpm -F server start`: start server in development mode.
+- `pnpm -F server migration`: generate migration based on DB schema changes.
+- `pnpm -F server database`: see database content.
+- `pnpm -F server build`: prepare deploy files with production dependencies only.
+- `pnpm -F server production`: start production build of the server.
 
 ## Environment Variables
 
@@ -63,13 +63,13 @@ To use SQL with TypeScript we are using [Drizzle](https://orm.drizzle.team/docs/
 To change database schema:
 
 1. Change [`./db/schema.ts`](./db/schema.ts).
-2. Run `cd server && pnpm migration` to generate new migration.
+2. Run `pnpm -F server migration` to generate new migration.
 3. Restart server. It will apply all new migrations automatically.
 
 You can see local database content by running:
 
 ```sh
-cd server && pnpm database
+pnpm -F server database
 ```
 
 ## Deploy
