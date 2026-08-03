@@ -7,13 +7,11 @@ import {
 import { createProxy, DEFAULT_PROXY_CONFIG } from '@slowreader/proxy'
 import { createServer } from 'node:http'
 
+import { error, finish, startProgress } from '../scripts/progress.ts'
 import {
   createCLI,
   enableTestClient,
-  error,
   fetchAndParsePosts,
-  finish,
-  initializeProgressBar,
   readText
 } from './utils.ts'
 
@@ -83,7 +81,7 @@ await cli.run(async args => {
   }
 
   let unbindTotal = page.total.listen(all => {
-    initializeProgressBar(all)
+    startProgress(all)
     unbindTotal()
   })
   let unbindLastAdded = page.lastAdded.listen(async url => {
