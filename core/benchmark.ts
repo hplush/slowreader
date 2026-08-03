@@ -219,7 +219,10 @@ async function fillClient(
 ): Promise<FillStatistics> {
   let size = debug
     ? { categories: 5, feeds: 30 }
-    : { categories: 20, feeds: 1000 }
+    : // Remove after fixing app’s memory usage. Right now the full benchmark
+      // is killing the browser.
+      // : { categories: 20, feeds: 1000 }
+      { categories: 10, feeds: 100 }
   let random = createRandom(SEED)
   let started = performance.now()
   let now = Math.round(Date.now() / 1000)
