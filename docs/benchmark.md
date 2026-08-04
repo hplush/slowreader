@@ -6,8 +6,9 @@ It runs inside the real web client (lazy chunk, loaded only with `?benchmark`), 
 
 ## Run Script
 
-Script starts the server, opens Chromium from Playwright’s cache, fills the
-database on the first run, shows the progress bar, and prints total numbers:
+Script starts the server, opens Chromium from Playwright’s cache (downloads it
+on the first run), fills the database on the first run, shows the progress bar,
+and prints total numbers:
 
 ```sh
 pnpm -F web build:web
@@ -22,7 +23,11 @@ DEBUG=1 pnpm -F web benchmark --clean # faster benchmark for development
 ```
 
 Database is kept in `/tmp/slowreader-benchmark` between runs, so filling
-happens only once. Set `CHROMIUM_PATH` if Chromium is not in Playwright’s cache.
+happens only once.
+
+Chromium is downloaded to `~/.cache/ms-playwright/` by
+`playwright-mcp install-browser chromium`, the same cache as Playwright MCP
+uses. Set `CHROMIUM_PATH` to use another binary.
 
 Script uses Chromium, not Firefox, because only Chromium has long tasks
 and memory API.

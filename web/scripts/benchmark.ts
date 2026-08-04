@@ -89,7 +89,7 @@ Options:
 
 Environment:
   DEBUG=1            Small database and single run of every scenario
-  CHROMIUM_PATH      Path to Chromium binary`
+  CHROMIUM_PATH      Path to Chromium binary instead of downloaded one`
 
 if (args.includes('--help') || args.includes('-h')) {
   process.stdout.write(`${HELP}\n`)
@@ -122,13 +122,27 @@ for (let i = 0; i < args.length; i++) {
   }
 }
 
-function findChromium(): string {
-  if (process.env.CHROMIUM_PATH) return process.env.CHROMIUM_PATH
-  let found = globSync(
+function installedChromium(): string | undefined {
+  return globSync(
     join(homedir(), '.cache/ms-playwright/chromium-*/chrome-linux*/chrome')
   )
-  let binary = found.toSorted().pop()
-  if (!binary) fail('No Chromium. Set CHROMIUM_PATH')
+    .toSorted()
+    .pop()
+}
+
+function findChromium(): string {
+  if (process.env.CHROMIUM_PATH) return process.env.CHROMIUM_PATH
+  let installed = installedChromium()
+  if (installed) return installed
+  status('Downloading Chromium…')
+  let install = spawnSync(
+    join(ROOT, '../node_modules/.bin/playwright-mcp'),
+    ['install-browser', 'chromium', '--no-shell'],
+    { stdio: json ? 'ignore' : 'inherit' }
+  )
+  if (install.status !== 0) fail('Chromium install failed. Set CHROMIUM_PATH')
+  let binary = installedChromium()
+  if (!binary) fail('No Chromium after install. Set CHROMIUM_PATH')
   return binary
 }
 
