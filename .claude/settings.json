@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "pnpm quick || exit 2"
+            "command": "out=$(pnpm -w quick 2>&1) || { printf '%s\\n' \"$out\" >&2; exit 2; }"
           }
         ]
       }
