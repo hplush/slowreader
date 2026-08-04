@@ -444,8 +444,11 @@ try {
       `filled in ${Math.round(data.duration)} ms`
   )
 
+  let names = await chromium.evaluate<string[]>('window.benchmark.scenarios')
+  if (scenario && scenario !== 'freeze' && !names.includes(scenario)) {
+    throw new Error(`Unknown scenario ${scenario}`)
+  }
   if (!json) {
-    let names = await chromium.evaluate<string[]>('window.benchmark.scenarios')
     startProgress(scenario ? 1 : names.length)
   }
   let results = await chromium.evaluate<BenchmarkResults>(
