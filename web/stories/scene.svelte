@@ -4,20 +4,17 @@
     addFeed,
     addPost,
     type BaseRoute,
-    Category,
-    type CategoryValue,
+    cleanDatabase,
     client,
     closedCategories,
     currentPage,
     DEFAULT_REFRESH_STATISTICS,
-    Feed,
     type FeedValue,
-    Filter,
     hasPassword,
     needWelcome,
+    type NewCategory,
     pages,
     type ParamlessRouteName,
-    Post,
     type PostValue,
     refreshErrors,
     refreshStatistics,
@@ -32,7 +29,6 @@
     useReducedMotion
   } from '@slowreader/core'
   import { addHashToBaseRoute, testCredentials } from '@slowreader/core/test'
-  import { cleanStores } from 'nanostores'
   import { onDestroy, type Snippet } from 'svelte'
 
   import { systemReducedMotion } from '../stores/media-queries.ts'
@@ -52,7 +48,7 @@
     route,
     user = true
   }: {
-    categories?: CategoryValue[]
+    categories?: NewCategory[]
     children: Snippet
     feeds?: Partial<FeedValue>[]
     oninit?: () => void
@@ -62,9 +58,32 @@
     user?: boolean
   } = $props()
 
-  function cleanLogux(): void {
+  function cleanLogux(): Promise<void> {
     client.get()?.clean()
-    cleanStores(Feed, Filter, Category, Post)
+    return cleanDatabase()
+  }
+
+  async function fillScene(): Promise<void> {
+    await cleanLogux()
+    for (let category of categories ?? []) {
+      await addCategory(category)
+    }
+    for (let feed of feeds ?? []) {
+      await addFeed(testFeed(feed))
+    }
+    for (let post of posts ?? []) {
+      await addPost(testPost(post))
+    }
+
+    oninit()
+
+    if (typeof route === 'string') {
+      baseRouter.set({ hash: '', params: {}, route })
+    } else {
+      baseRouter.set(
+        addHashToBaseRoute(route) ?? { hash: '', params: {}, route: 'slow' }
+      )
+    }
   }
 
   let unbindSyncStatus = syncStatus.listen(() => {})
@@ -77,7 +96,6 @@
     } else if (client.get()) {
       signOut()
     }
-    cleanLogux()
     prepareResponses(responses)
     stopRefreshing()
     refreshStatus.set('start')
@@ -111,25 +129,7 @@
       htmlObserver.disconnect()
     })
 
-    for (let category of categories ?? []) {
-      addCategory(category)
-    }
-    for (let feed of feeds ?? []) {
-      addFeed(testFeed(feed))
-    }
-    for (let post of posts ?? []) {
-      addPost(testPost(post))
-    }
-
-    oninit()
-
-    if (typeof route === 'string') {
-      baseRouter.set({ hash: '', params: {}, route })
-    } else {
-      baseRouter.set(
-        addHashToBaseRoute(route) ?? { hash: '', params: {}, route: 'slow' }
-      )
-    }
+    fillScene()
   })
 
   onDestroy(() => {

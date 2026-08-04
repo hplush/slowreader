@@ -1,17 +1,20 @@
 // Helpers to work with Nano Stores and Logux to simplify code
 // by moving complexity to helper.
 
-import type { Action } from '@logux/core'
+import type { SqlStore } from '@nanostores/sql'
 import {
+  computed,
   type MapStore,
   onMount,
   type ReadableAtom,
   type StoreValue
 } from 'nanostores'
 
-import { client } from '../client.ts'
-
-export type OptionalId<Value> = { id?: string } & Omit<Value, 'id'>
+export function firstRow<Value>(
+  store: SqlStore<Value[]>
+): ReadableAtom<undefined | Value> {
+  return computed(store, rows => (rows.isLoading ? undefined : rows.value[0]))
+}
 
 type NumberKeys<T> = {
   [K in keyof T]: T[K] extends number ? K : never
@@ -48,30 +51,15 @@ export function waitLoading(store: ReadableAtom): Promise<void> {
   })
 }
 
-export type LoadedValue<Type extends { isLoading: boolean }> = {
-  isLoading: false
-} & Type
-
-export type LoadableStore = {
-  readonly loading: Promise<unknown>
-} & ReadableAtom<{ isLoading: boolean }>
-
-/**
- * Return promise which wait until `store.isLoading` is stop to have `true`.
- */
-export async function waitSyncLoading<Store extends LoadableStore>(
-  store: Store
-): Promise<ReadableAtom<LoadedValue<StoreValue<Store>>>> {
-  let value = store.get()
-  if (value.isLoading) {
-    let unbind = store.listen(() => {})
-    try {
-      await store.loading
-    } finally {
-      unbind()
-    }
+export async function waitSql<Row>(store: SqlStore<Row[]>): Promise<Row[]> {
+  let unbind = store.listen(() => {})
+  try {
+    await store.loading
+    let value = store.get()
+    return value.isLoading ? [] : value.value
+  } finally {
+    unbind()
   }
-  return store as unknown as ReadableAtom<LoadedValue<StoreValue<Store>>>
 }
 
 /**
@@ -97,27 +85,6 @@ export function onMountAny(stores: ReadableAtom[], cb: () => () => void): void {
   }
   for (let store of stores) {
     onMount(store, () => watching())
-  }
-}
-
-/**
- * Run callback on every Logux action.
- *
- * It hides complexity of client re-creating on sign-in to re-subscribing.
- */
-export function onLogAction(cb: (action: Action) => void): () => void {
-  let unbindLog: (() => void) | undefined
-  let unbindClient = client.subscribe(loguxClient => {
-    unbindLog?.()
-    unbindLog = undefined
-    if (loguxClient) {
-      unbindLog = loguxClient.on('add', cb)
-    }
-  })
-
-  return () => {
-    unbindLog?.()
-    unbindClient()
   }
 }
 

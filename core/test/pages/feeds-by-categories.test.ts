@@ -1,4 +1,3 @@
-import { loadValue } from '@logux/client'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
@@ -6,7 +5,9 @@ import {
   addCategory,
   addFeed,
   deleteCategory,
-  getFeed,
+  getGeneralCategory,
+  loadCategory,
+  loadFeed,
   testFeed,
   waitLoading
 } from '../../index.ts'
@@ -35,10 +36,7 @@ describe('feeds by categories page', () => {
     let feed1 = await addFeed(testFeed({ categoryId: idA, title: '1' }))
     let feed2 = await addFeed(testFeed({ categoryId: idA, title: '2' }))
     deepEqual(page.groups.get(), [
-      [
-        { id: idA, isLoading: false, title: 'A' },
-        [await loadValue(getFeed(feed1)), await loadValue(getFeed(feed2))]
-      ]
+      [await loadCategory(idA), [await loadFeed(feed1), await loadFeed(feed2)]]
     ])
 
     let idC = await addCategory({ title: 'C' })
@@ -47,16 +45,10 @@ describe('feeds by categories page', () => {
     let feed4 = await addFeed(testFeed({ categoryId: 'general', title: '1' }))
 
     deepEqual(page.groups.get(), [
-      [{ id: 'general', title: 'General' }, [await loadValue(getFeed(feed4))]],
-      [
-        { id: idA, isLoading: false, title: 'A' },
-        [await loadValue(getFeed(feed1)), await loadValue(getFeed(feed2))]
-      ],
-      [
-        { id: idB, isLoading: false, title: 'B' },
-        [await loadValue(getFeed(feed3))]
-      ],
-      [{ id: idC, isLoading: false, title: 'C' }, []]
+      [getGeneralCategory(), [await loadFeed(feed4)]],
+      [await loadCategory(idA), [await loadFeed(feed1), await loadFeed(feed2)]],
+      [await loadCategory(idB), [await loadFeed(feed3)]],
+      [await loadCategory(idC), []]
     ])
 
     openPage({
@@ -78,26 +70,14 @@ describe('feeds by categories page', () => {
     })
     await waitLoading(page.loading)
     deepEqual(page.groups.get(), [
-      [
-        { id: idA, isLoading: false, title: 'A' },
-        [await loadValue(getFeed(feed1)), await loadValue(getFeed(feed2))]
-      ],
-      [
-        { id: idB, isLoading: false, title: 'B' },
-        [await loadValue(getFeed(feed3))]
-      ]
+      [await loadCategory(idA), [await loadFeed(feed1), await loadFeed(feed2)]],
+      [await loadCategory(idB), [await loadFeed(feed3)]]
     ])
 
     await deleteCategory(idA)
     deepEqual(page.groups.get(), [
-      [
-        { id: 'general', title: 'General' },
-        [await loadValue(getFeed(feed1)), await loadValue(getFeed(feed2))]
-      ],
-      [
-        { id: idB, isLoading: false, title: 'B' },
-        [await loadValue(getFeed(feed3))]
-      ]
+      [getGeneralCategory(), [await loadFeed(feed1), await loadFeed(feed2)]],
+      [await loadCategory(idB), [await loadFeed(feed3)]]
     ])
   })
 })

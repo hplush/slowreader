@@ -1,18 +1,15 @@
+import { type PostContent, recalcPostsReading } from './post.ts'
 import {
-  changeSyncMapById,
-  createFilter,
-  createSyncMap,
-  deleteSyncMapById,
-  type FilterStore,
-  loadValue,
-  type Filter as LoguxFilter,
-  syncMapTemplate
-} from '@logux/client'
-import { nanoid } from 'nanoid'
+  createRow,
+  type FeedValue,
+  type FilterChanges,
+  type FilterValue,
+  getTables,
+  type NewFilter,
+  select
+} from './schema.ts'
 
-import { getClient } from './client.ts'
-import type { FeedValue } from './feed.ts'
-import { type OriginPost, recalcPostsReading } from './post.ts'
+export type { FilterValue, NewFilter }
 
 const QUERY_REGEXP = /^(not\s+)?([\w]+)(?:\(([^]+)\))?$/
 
@@ -30,11 +27,11 @@ const QUERIES = {
   }
 } satisfies {
   [Key in string]?: keyof typeof QUERIES_WITH_PARAM extends Key
-    ? (post: OriginPost, param: string) => boolean
-    : (post: OriginPost) => boolean
+    ? (post: PostContent, param: string) => boolean
+    : (post: PostContent) => boolean
 }
 
-export type FilterAction = 'delete' | 'fast' | 'slow'
+export type FilterAction = FilterValue['action']
 
 function maxPriority(filters: FilterValue[]): number {
   let max = 0
@@ -44,34 +41,29 @@ function maxPriority(filters: FilterValue[]): number {
   return max
 }
 
-export type FilterValue = {
-  action: FilterAction
-  feedId: string
-  id: string
-  priority: number
-  query: string
+export function loadFilters(): Promise<FilterValue[]> {
+  return select<FilterValue>`SELECT * FROM "filters" ORDER BY "priority", "id"`
 }
 
-export const Filter = syncMapTemplate<FilterValue>('filters', {
-  offline: true,
-  remote: false
-})
+export function loadFiltersByFeed(feedId: string): Promise<FilterValue[]> {
+  return select<FilterValue>`
+    SELECT * FROM "filters" WHERE "feedId" = ${feedId}
+    ORDER BY "priority", "id"
+  `
+}
 
-export function getFilters(
-  filter: LoguxFilter<FilterValue> = {}
-): FilterStore<FilterValue> {
-  return createFilter(getClient(), Filter, filter)
+export function loadFilter(filterId: string): Promise<FilterValue | undefined> {
+  return select<FilterValue>`
+    SELECT * FROM "filters" WHERE "id" = ${filterId}
+  `.then(rows => rows[0])
 }
 
 export async function addFilter(
-  fields: Omit<FilterValue, 'id' | 'priority'>
+  fields: { priority?: number } & Omit<NewFilter, 'priority'>
 ): Promise<string> {
-  let id = nanoid()
-  let other = await loadValue(getFilters({ feedId: fields.feedId }))
-  let priority = maxPriority(other.list) + 100
-  await createSyncMap(getClient(), Filter, { id, priority, ...fields })
+  let priority = maxPriority(await loadFiltersByFeed(fields.feedId)) + 100
+  let id = await createRow(getTables().filters, { priority, ...fields })
   await recalcPostsReading(fields.feedId)
-
   return id
 }
 
@@ -84,9 +76,9 @@ export async function addFilterForFeed(feed: FeedValue): Promise<string> {
 }
 
 export async function deleteFilter(filterId: string): Promise<void> {
-  let filter = await loadValue(Filter(filterId, getClient()))
+  let filter = await loadFilter(filterId)
 
-  await deleteSyncMapById(getClient(), Filter, filterId)
+  await getTables().filters.delete(filterId)
 
   if (filter) {
     await recalcPostsReading(filter.feedId)
@@ -95,10 +87,10 @@ export async function deleteFilter(filterId: string): Promise<void> {
 
 export async function changeFilter(
   filterId: string,
-  changes: Partial<FilterValue>
+  changes: FilterChanges
 ): Promise<void> {
-  await changeSyncMapById(getClient(), Filter, filterId, changes)
-  let filter = await loadValue(Filter(filterId, getClient()))
+  await getTables().filters.update(filterId, changes)
+  let filter = await loadFilter(filterId)
   if (filter) {
     await recalcPostsReading(filter.feedId)
   }
@@ -121,11 +113,9 @@ export function sortFilters(filters: FilterValue[]): FilterValue[] {
  * relative to neighboring filters to maintain sort order.
  */
 async function move(filterId: string, diff: -1 | 1): Promise<void> {
-  let store = Filter(filterId, getClient())
-  let filter = await loadValue(store)
+  let filter = await loadFilter(filterId)
   if (!filter) return
-  let feedId = filter.feedId
-  let sorted = sortFilters((await loadValue(getFilters({ feedId }))).list)
+  let sorted = sortFilters(await loadFiltersByFeed(filter.feedId))
   let last = sorted.length - 1
   let index = sorted.findIndex(i => i.id === filterId)
   let next = index + diff
@@ -192,7 +182,7 @@ export function isValidFilterQuery(query: string): boolean {
 }
 
 export interface FilterChecker {
-  (post: OriginPost): FilterAction | undefined
+  (post: PostContent): FilterAction | undefined
 }
 
 export function prepareFilters(filters: FilterValue[]): FilterChecker {
@@ -224,9 +214,8 @@ export function prepareFilters(filters: FilterValue[]): FilterChecker {
   }
 }
 
-export async function loadFilters(
-  filter: LoguxFilter<FilterValue> = {}
+export async function loadFilterChecker(
+  feedId: string
 ): Promise<FilterChecker> {
-  let filters = await loadValue(getFilters(filter))
-  return prepareFilters(filters.list)
+  return prepareFilters(await loadFiltersByFeed(feedId))
 }

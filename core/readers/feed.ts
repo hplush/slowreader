@@ -1,12 +1,6 @@
-import {
-  ensureLoadedStore,
-  type LoadedSyncMap,
-  type SyncMapStore
-} from '@logux/client'
 import { atom } from 'nanostores'
 
-import { type FeedValue, getFeed } from '../feed.ts'
-import { waitSyncLoading } from '../lib/stores.ts'
+import { type FeedValue, loadFeedsByCategory } from '../feed.ts'
 import { changePost, type PostValue } from '../post.ts'
 import { createReader, loadPosts } from './common.ts'
 
@@ -17,10 +11,8 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
 
   let exited = false
   let $loading = atom(true)
-  let $list = atom<LoadedSyncMap<SyncMapStore<PostValue>>[]>([])
-  let $authors = atom<Map<string, LoadedSyncMap<SyncMapStore<FeedValue>>>>(
-    new Map()
-  )
+  let $list = atom<PostValue[]>([])
+  let $authors = atom<Map<string, FeedValue>>(new Map())
   let $hasNext = atom(false)
   let $nextFrom = atom<number | undefined>()
   let $prevFrom = atom<number | undefined>()
@@ -28,42 +20,32 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
   let openAt = Date.now()
   let unbindFrom = (): void => {}
   async function start(): Promise<void> {
+    // TODO: more optimized feed to now keep everything in memory
     let posts = await loadPosts(filter)
     if (exited) return
 
     if (filter.categoryId) {
-      let feedIds = new Set<string>()
-      posts.forEach(post => {
-        feedIds.add(post.get().feedId)
-      })
-      $authors.set(
-        new Map(
-          await Promise.all(
-            [...feedIds].map(async id => {
-              let feed = getFeed(id)
-              await waitSyncLoading(feed)
-              return [id, ensureLoadedStore(feed)] as const
-            })
-          )
-        )
-      )
+      let feeds = await loadFeedsByCategory(filter.categoryId)
+      $authors.set(new Map(feeds.map(feed => [feed.id, feed])))
+      // It could be switched to false during await above
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (exited) return
     }
 
     unbindFrom = params.from.subscribe(value => {
       let from = value ?? openAt
-      let fromIndex = posts.findIndex(i => i.get().publishedAt < from)
+      let fromIndex = posts.findIndex(i => i.publishedAt < from)
       if (fromIndex === -1) fromIndex = posts.length
       let list = posts.slice(fromIndex, fromIndex + POSTS_PER_PAGE)
       $hasNext.set(posts.length > fromIndex + POSTS_PER_PAGE)
       if (value) {
         let prevIndex = fromIndex - POSTS_PER_PAGE - 1
-        let prevForm = posts[prevIndex]?.get().publishedAt ?? openAt
+        let prevForm = posts[prevIndex]?.publishedAt ?? openAt
         $prevFrom.set(prevForm === value ? undefined : prevForm)
       } else {
         $prevFrom.set(undefined)
       }
-      $nextFrom.set(list[list.length - 1]?.get().publishedAt)
+      $nextFrom.set(list[list.length - 1]?.publishedAt)
       $list.set(list)
     })
   }
@@ -72,9 +54,11 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
   })
 
   async function readAndNext(): Promise<void> {
-    let promise = Promise.all(
-      $list.get().map(i => changePost(i.get().id, { read: true }))
-    )
+    let list = $list.get()
+    // TODO Logux DB: use one UPDATE SQL query
+    let promise = Promise.all(list.map(i => changePost(i.id, { read: 1 })))
+    // Loaded posts are a snapshot, so we need to mark them as read too
+    for (let post of list) post.read = 1
     if ($hasNext.get()) {
       params.from.set($nextFrom.get())
     } else {

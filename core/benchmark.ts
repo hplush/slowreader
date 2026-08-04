@@ -4,9 +4,13 @@ import { busyDuring } from './busy.ts'
 import { addCategory } from './category.ts'
 import { client } from './client.ts'
 import { addFeed } from './feed.ts'
-import type { OptionalId } from './lib/stores.ts'
 import { setLoaderReporter } from './loader.ts'
-import { addPost, type PostValue, stringifyMedia } from './post.ts'
+import {
+  addPost,
+  type NewPost,
+  type PostValue,
+  stringifyMedia
+} from './post.ts'
 import { setRequestMethod } from './request.ts'
 import { encryptionKey, userId } from './settings.ts'
 
@@ -203,7 +207,7 @@ function createPost(
   index: number,
   reading: PostValue['reading'],
   now: number
-): OptionalId<PostValue> {
+): NewPost {
   return {
     feedId,
     full: paragraphs(random),
@@ -215,7 +219,7 @@ function createPost(
         : undefined,
     originId: `${feedId}-post-${index}`,
     publishedAt: now - Math.floor(random() ** 2 * YEAR),
-    read: false,
+    read: 0,
     reading,
     title: sentence(random, 3, 9),
     url: `https://example.com/${feedId}/post-${index}`

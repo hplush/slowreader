@@ -1,20 +1,14 @@
-import { loadValue } from '@logux/client'
 import { persistentAtom } from '@nanostores/persistent'
-import { atom, computed, keepMount } from 'nanostores'
+import { atom, computed, effect, keepMount } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
-import {
-  type CategoryValue,
-  getCategories,
-  getGeneralCategory
-} from './category.ts'
+import { type CategoryValue, getGeneralCategory } from './category.ts'
 import { client } from './client.ts'
 import { layoutType } from './environment.ts'
-import { type FeedValue, getFeeds } from './feed.ts'
-import { getFilters } from './filter.ts'
-import { onLogAction, onMountAny, waitLoading } from './lib/stores.ts'
-import { getPosts } from './post.ts'
+import type { FeedValue } from './feed.ts'
+import { onMountAny, waitLoading } from './lib/stores.ts'
 import { isOtherRoute, router } from './router.ts'
+import { getDatabase } from './schema.ts'
 
 export type MenuType = 'fast' | 'other' | 'slow'
 
@@ -78,83 +72,58 @@ export let fastMenu = atom<CategoryValue[]>([])
 export let slowMenu = atom<SlowMenu>([])
 export let menuLoading = atom<boolean>(true)
 
+type UnreadCount = { feedId: string; unread: number }
+
 /**
  * Performance optimization is postponed after the prototype.
  *
  * So we rebuild the fast/slow feeds menu on every feed/category/filter changes.
  */
-async function rebuild(): Promise<void> {
-  let [posts, feeds, categories, fastFilters] = await Promise.all([
-    loadValue(getPosts()),
-    loadValue(getFeeds()),
-    loadValue(getCategories()),
-    loadValue(getFilters({ action: 'fast' }))
-  ])
+function rebuild(
+  categories: CategoryValue[],
+  fastCategories: Pick<FeedValue, 'categoryId'>[],
+  slowFeeds: FeedValue[],
+  unread: UnreadCount[]
+): void {
+  let byId = new Map(categories.map(category => [category.id, category]))
 
-  let slowPosts = posts.list.filter(i => i.reading === 'slow' && !i.read)
-  let fastFeeds = feeds.list.filter(i => i.reading === 'fast')
-
-  let feedsWithFastFilters = fastFilters.list
-    .map(i => feeds.stores.get(i.feedId)?.get())
-    .filter(i => !!i)
-
-  let uniqueFastCategories: Record<string, CategoryValue> = {}
-  for (let feed of [...fastFeeds, ...feedsWithFastFilters]) {
-    /* node:coverage ignore next */
-    if (feed.isLoading) continue
-    let id = feed.categoryId
-    if (!uniqueFastCategories[id]) {
-      if (id === 'general') {
-        uniqueFastCategories[id] = getGeneralCategory()
-      } else {
-        let found = categories.list.find(i => i.id === id)
-        if (found) uniqueFastCategories[id] = found
-      }
+  let fast: CategoryValue[] = []
+  for (let { categoryId } of fastCategories) {
+    if (categoryId === 'general') {
+      fast.push(getGeneralCategory())
+    } else {
+      let found = byId.get(categoryId)
+      if (found) fast.push(found)
     }
   }
+  fast.sort((a, b) => a.title.localeCompare(b.title))
+  fastMenu.set(fast.length > 0 ? fast : [getGeneralCategory()])
 
-  let fast = Object.values(uniqueFastCategories).toSorted((a, b) => {
-    return a.title.localeCompare(b.title)
-  })
-
-  if (fast.length > 0) {
-    fastMenu.set(fast)
-  } else {
-    fastMenu.set([getGeneralCategory()])
-  }
-
-  let byCategory: Record<string, [FeedValue, number][]> = {}
+  let unreadByFeed = new Map(unread.map(i => [i.feedId, i.unread]))
+  let byCategory = new Map<string, [FeedValue, number][]>()
   let general = false
-
-  let unreadByFeed: Record<string, number> = {}
-  for (let post of slowPosts) {
-    unreadByFeed[post.feedId] = (unreadByFeed[post.feedId] ?? 0) + 1
-  }
-  for (let [feedId, unread] of Object.entries(unreadByFeed)) {
-    let feedStore = feeds.stores.get(feedId)
-    if (!feedStore) continue
-    let feed = feedStore.get()
-    /* node:coverage ignore next */
-    if (feed.isLoading) continue
-    let category = feed.categoryId
-    if (category === 'general') {
+  for (let feed of slowFeeds) {
+    if (feed.categoryId === 'general') {
       general = true
-    } else if (!categories.stores.has(category)) {
+    } else if (!byId.has(feed.categoryId)) {
       continue
     }
-    if (!byCategory[category]) byCategory[category] = []
-    byCategory[category].push([feed, unread])
+    let list = byCategory.get(feed.categoryId)
+    if (!list) {
+      list = []
+      byCategory.set(feed.categoryId, list)
+    }
+    list.push([feed, unreadByFeed.get(feed.id)!])
   }
 
-  let allCategories = [...categories.list] as CategoryValue[]
+  let allCategories = [...categories]
   if (general) allCategories.push(getGeneralCategory())
-  let categoriesByName = allCategories.toSorted((a, b) => {
-    return a.title.localeCompare(b.title)
-  })
 
   let result: SlowMenu = []
-  for (let category of categoriesByName) {
-    let list = byCategory[category.id]
+  for (let category of allCategories.toSorted((a, b) => {
+    return a.title.localeCompare(b.title)
+  })) {
+    let list = byCategory.get(category.id)
     if (list) {
       list.sort((a, b) => a[0].title.localeCompare(b[0].title))
       result.push([category, list])
@@ -167,22 +136,49 @@ async function rebuild(): Promise<void> {
 onMountAny([fastMenu, slowMenu], () => {
   menuLoading.set(true)
 
-  void rebuild().then(() => {
-    menuLoading.set(false)
-  })
-  let unbindAction = onLogAction(action => {
-    if (
-      action.type.startsWith('categories/') ||
-      action.type.startsWith('feeds/') ||
-      action.type.startsWith('posts/') ||
-      action.type.startsWith('filters/')
-    ) {
-      void rebuild()
+  let database = getDatabase()
+  let unbind = effect(
+    [
+      database.store<CategoryValue>`SELECT * FROM "categories"`,
+      database.store<Pick<FeedValue, 'categoryId'>>`
+        SELECT DISTINCT "categoryId" FROM "feeds"
+        WHERE "reading" = 'fast'
+          OR "id" IN (SELECT "feedId" FROM "filters" WHERE "action" = 'fast')
+      `,
+      database.store<FeedValue>`
+        SELECT * FROM "feeds" WHERE "id" IN (
+          SELECT "feedId" FROM "posts"
+          WHERE "reading" = 'slow' AND "read" = 0
+        )
+      `,
+      database.store<UnreadCount>`
+        SELECT "feedId", COUNT("originId") AS "unread" FROM "posts"
+        WHERE "reading" = 'slow' AND "read" = 0
+        GROUP BY "feedId"
+      `
+    ],
+    (categories, fastCategories, slowFeeds, unread) => {
+      if (
+        categories.isLoading ||
+        fastCategories.isLoading ||
+        slowFeeds.isLoading ||
+        unread.isLoading
+      ) {
+        return
+      }
+      // TODO Logux DB: replace with reducer
+      rebuild(
+        categories.value,
+        fastCategories.value,
+        slowFeeds.value,
+        unread.value
+      )
+      menuLoading.set(false)
     }
-  })
+  )
 
   return () => {
-    unbindAction()
+    unbind()
     fastMenu.set([])
     slowMenu.set([])
     menuLoading.set(true)

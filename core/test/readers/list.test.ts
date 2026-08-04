@@ -1,4 +1,3 @@
-import { loadValue } from '@logux/client'
 import { keepMount } from 'nanostores'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
@@ -9,8 +8,8 @@ import {
   addFeed,
   addPost,
   changePost,
-  getCategory,
-  getFeed,
+  loadCategory,
+  loadFeed,
   slowMenu,
   testFeed,
   testPost,
@@ -50,10 +49,10 @@ describe('list reader', () => {
 
     deepEqual(slowMenu.get(), [
       [
-        await loadValue(getCategory(categoryId)),
+        await loadCategory(categoryId),
         [
-          [await loadValue(getFeed(feed1)), 75],
-          [await loadValue(getFeed(feed2)), 75]
+          [await loadFeed(feed1), 75],
+          [await loadFeed(feed2), 75]
         ]
       ]
     ])
@@ -65,7 +64,7 @@ describe('list reader', () => {
     await waitLoading(page.loading)
     let reader = ensureReader(page.posts, 'list')
     equal(reader.list.get().length, 75)
-    equal(reader.list.get()[0]!.get().title, '150')
+    equal(reader.list.get()[0]!.title, '150')
     deepEqual(reader.pages.get(), {
       count: 1,
       hasNext: false,
@@ -83,8 +82,8 @@ describe('list reader', () => {
     await waitLoading(page.postsLoading)
     reader = ensureReader(page.posts, 'list')
     equal(reader.list.get().length, 100)
-    equal(reader.list.get()[0]!.get().title, '150')
-    equal(reader.list.get()[99]!.get().title, '51')
+    equal(reader.list.get()[0]!.title, '150')
+    equal(reader.list.get()[99]!.title, '51')
     deepEqual(reader.pages.get(), {
       count: 2,
       hasNext: true,
@@ -93,22 +92,22 @@ describe('list reader', () => {
       show: true
     })
 
-    await changePost(reader.list.get()[0]!.get().id, { read: true })
-    await changePost(reader.list.get()[5]!.get().id, { read: true })
+    await changePost(reader.list.get()[0]!.id, { read: 1 })
+    await changePost(reader.list.get()[5]!.id, { read: 1 })
     equal(reader.list.get().length, 100)
     deepEqual(slowMenu.get(), [
       [
-        await loadValue(getCategory(categoryId)),
+        await loadCategory(categoryId),
         [
-          [await loadValue(getFeed(feed1)), 74],
-          [await loadValue(getFeed(feed2)), 74]
+          [await loadFeed(feed1), 74],
+          [await loadFeed(feed2), 74]
         ]
       ]
     ])
 
     page.params.from.set(1)
     equal(reader.list.get().length, 50)
-    equal(reader.list.get()[0]!.get().title, '50')
+    equal(reader.list.get()[0]!.title, '50')
     deepEqual(reader.pages.get(), {
       count: 2,
       hasNext: false,
@@ -122,6 +121,7 @@ describe('list reader', () => {
       params: { feed: feed1 },
       route: 'slow'
     })
+    await setTimeout(10)
 
     page = openPage({
       params: { category: categoryId, from: 1 },
@@ -132,7 +132,7 @@ describe('list reader', () => {
     equal(reader.list.get().length, 48)
 
     page.params.from.set(0)
-    equal(reader.list.get()[99]!.get().title, '49')
+    equal(reader.list.get()[99]!.title, '49')
 
     await reader.readPage()
     equal(page.params.from.get(), 1)
@@ -144,12 +144,13 @@ describe('list reader', () => {
       pages: [0, 1],
       show: true
     })
+    await setTimeout(10)
     deepEqual(slowMenu.get(), [
       [
-        await loadValue(getCategory(categoryId)),
+        await loadCategory(categoryId),
         [
-          [await loadValue(getFeed(feed1)), 24],
-          [await loadValue(getFeed(feed2)), 24]
+          [await loadFeed(feed1), 24],
+          [await loadFeed(feed2), 24]
         ]
       ]
     ])

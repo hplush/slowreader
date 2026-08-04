@@ -1,5 +1,3 @@
-import { ensureLoaded, loadValue } from '@logux/client'
-import { keepMount } from 'nanostores'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
@@ -8,14 +6,15 @@ import {
   addFilter,
   addFilterForFeed,
   type FilterValue,
-  getFeed,
-  getFilters,
   isValidFilterQuery,
+  loadFeed,
+  loadFiltersByFeed,
   moveFilterDown,
   moveFilterUp,
   prepareFilters,
   sortFilters,
-  testFeed
+  testFeed,
+  withoutMeta
 } from '../index.ts'
 import { cleanClientTest, enableClientTest } from './utils.ts'
 
@@ -32,25 +31,23 @@ describe('filter', () => {
     let feedId1 = await addFeed(testFeed({ reading: 'fast' }))
     let feedId2 = await addFeed(testFeed({ reading: 'slow' }))
 
-    let filterId1 = await addFilterForFeed((await loadValue(getFeed(feedId1)))!)
-    let filterId2 = await addFilterForFeed((await loadValue(getFeed(feedId2)))!)
+    let filterId1 = await addFilterForFeed((await loadFeed(feedId1))!)
+    let filterId2 = await addFilterForFeed((await loadFeed(feedId2))!)
 
-    deepEqual((await loadValue(getFilters({ feedId: feedId1 }))).list, [
+    deepEqual(withoutMeta(await loadFiltersByFeed(feedId1)), [
       {
         action: 'slow',
         feedId: feedId1,
         id: filterId1,
-        isLoading: false,
         priority: 100,
         query: ''
       }
     ])
-    deepEqual((await loadValue(getFilters({ feedId: feedId2 }))).list, [
+    deepEqual(withoutMeta(await loadFiltersByFeed(feedId2)), [
       {
         action: 'fast',
         feedId: feedId2,
         id: filterId2,
-        isLoading: false,
         priority: 100,
         query: ''
       }
@@ -61,8 +58,8 @@ describe('filter', () => {
     let common = {
       action: 'fast',
       feedId: '10',
-      isLoading: false,
-      query: 'include(some text)'
+      query: 'include(some text)',
+      updatedAt: '{}'
     } as const
     let filter100: FilterValue = {
       ...common,
@@ -93,14 +90,12 @@ describe('filter', () => {
   })
 
   test('moves filters in sorting order', async () => {
-    let filters10 = getFilters({ feedId: '10' })
-    keepMount(filters10)
-    function getSorted(): string[] {
-      return sortFilters(ensureLoaded(filters10.get()).list).map(i => i.id)
+    async function getSorted(): Promise<string[]> {
+      return sortFilters(await loadFiltersByFeed('10')).map(i => i.id)
     }
-    function getPriorities(): Record<string, number> {
+    async function getPriorities(): Promise<Record<string, number>> {
       return Object.fromEntries(
-        ensureLoaded(filters10.get()).list.map(i => [i.id, i.priority])
+        (await loadFiltersByFeed('10')).map(i => [i.id, i.priority])
       )
     }
 
@@ -113,28 +108,28 @@ describe('filter', () => {
     let id1 = await addFilter({ ...common })
     let id2 = await addFilter({ ...common })
     let id3 = await addFilter({ ...common })
-    deepEqual(getSorted(), [id1, id2, id3])
-    deepEqual(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 300 })
+    deepEqual(await getSorted(), [id1, id2, id3])
+    deepEqual(await getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 300 })
 
     await moveFilterUp(id3)
-    deepEqual(getSorted(), [id1, id3, id2])
-    deepEqual(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 150 })
+    deepEqual(await getSorted(), [id1, id3, id2])
+    deepEqual(await getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 150 })
 
     await moveFilterUp(id3)
-    deepEqual(getSorted(), [id3, id1, id2])
-    deepEqual(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 0 })
+    deepEqual(await getSorted(), [id3, id1, id2])
+    deepEqual(await getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 0 })
 
     await moveFilterUp(id3)
-    deepEqual(getSorted(), [id3, id1, id2])
-    deepEqual(getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 0 })
+    deepEqual(await getSorted(), [id3, id1, id2])
+    deepEqual(await getPriorities(), { [id1]: 100, [id2]: 200, [id3]: 0 })
 
     await moveFilterDown(id1)
-    deepEqual(getSorted(), [id3, id2, id1])
-    deepEqual(getPriorities(), { [id1]: 300, [id2]: 200, [id3]: 0 })
+    deepEqual(await getSorted(), [id3, id2, id1])
+    deepEqual(await getPriorities(), { [id1]: 300, [id2]: 200, [id3]: 0 })
 
     await moveFilterDown(id1)
-    deepEqual(getSorted(), [id3, id2, id1])
-    deepEqual(getPriorities(), { [id1]: 300, [id2]: 200, [id3]: 0 })
+    deepEqual(await getSorted(), [id3, id2, id1])
+    deepEqual(await getPriorities(), { [id1]: 300, [id2]: 200, [id3]: 0 })
   })
 
   test('validates filter query', () => {
@@ -156,14 +151,16 @@ describe('filter', () => {
       feedId: '10',
       id: '2',
       priority: 200,
-      query: 'include(Special Text)'
+      query: 'include(Special Text)',
+      updatedAt: '{}'
     }
     let filterOther: FilterValue = {
       action: 'delete',
       feedId: '10',
       id: '3',
       priority: 300,
-      query: 'include(other text)'
+      query: 'include(other text)',
+      updatedAt: '{}'
     }
     let checker = prepareFilters([filterSpecial, filterOther])
 
@@ -242,14 +239,16 @@ describe('filter', () => {
       feedId: '10',
       id: '1',
       priority: 100,
-      query: 'include(a)'
+      query: 'include(a)',
+      updatedAt: '{}'
     }
     let filterNotB: FilterValue = {
       action: 'slow',
       feedId: '10',
       id: '2',
       priority: 200,
-      query: 'not include(b)'
+      query: 'not include(b)',
+      updatedAt: '{}'
     }
     let checker = prepareFilters([filterA, filterNotB])
 
@@ -295,14 +294,16 @@ describe('filter', () => {
       feedId: '10',
       id: '1',
       priority: 100,
-      query: 'broken'
+      query: 'broken',
+      updatedAt: '{}'
     }
     let filterNotB: FilterValue = {
       action: 'slow',
       feedId: '10',
       id: '2',
       priority: 200,
-      query: 'include(a)'
+      query: 'include(a)',
+      updatedAt: '{}'
     }
     let checker = prepareFilters([filterA, filterNotB])
 

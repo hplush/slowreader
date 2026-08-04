@@ -484,6 +484,14 @@ try {
   }
   stopPeaks = trackPeaks(chromium)
 
+  let saved = await chromium.evaluate<StorageSize>('window.benchmark.storage()')
+  if (saved.opfs === 0) {
+    throw new Error(
+      'Database was not saved to OPFS. Server should send ' +
+        'Cross-Origin-Opener-Policy and Cross-Origin-Embedder-Policy headers'
+    )
+  }
+
   let data = await chromium.evaluate<FillStatistics>('window.benchmark.data')
   status(
     `Data: ${data.feeds} feeds, ${data.posts} posts, ` +

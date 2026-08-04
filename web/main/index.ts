@@ -1,3 +1,4 @@
+import './trusted-types.ts'
 import './environment.ts'
 import './browser.ts'
 import './updater.ts'

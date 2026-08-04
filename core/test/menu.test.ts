@@ -1,4 +1,3 @@
-import { loadValue } from '@logux/client'
 import { LoguxError } from '@logux/core'
 import { cleanStores, keepMount } from 'nanostores'
 import { deepEqual, equal } from 'node:assert/strict'
@@ -17,7 +16,9 @@ import {
   closeMenu,
   fastMenu,
   getClient,
-  getFeed,
+  getGeneralCategory,
+  loadCategory,
+  loadFeed,
   menuLoading,
   menuSlider,
   openCategory,
@@ -63,7 +64,7 @@ describe('menu', () => {
       testFeed({ categoryId: category1, reading: 'slow' })
     )
     await addFeed(testFeed({ categoryId: category1, reading: 'fast' }))
-    await setTimeout(1)
+    await setTimeout(10)
 
     setBaseTestRoute({
       params: {},
@@ -107,7 +108,7 @@ describe('menu', () => {
     equal(openedMenu.get(), undefined)
 
     await addPost(testPost({ feedId: slow, reading: 'slow' }))
-    await setTimeout(1)
+    await setTimeout(10)
     equal(openMenu('slow'), false)
     equal(menuSlider.get(), 'slow')
     equal(openedMenu.get(), 'slow')
@@ -142,7 +143,7 @@ describe('menu', () => {
     })
 
     await addFeed(testFeed({ categoryId: category2, reading: 'fast' }))
-    await setTimeout(1)
+    await setTimeout(10)
 
     equal(openMenu('fast'), false)
     equal(menuSlider.get(), 'fast')
@@ -164,7 +165,7 @@ describe('menu', () => {
       testFeed({ categoryId: category1, reading: 'slow' })
     )
     await addFeed(testFeed({ categoryId: category1, reading: 'fast' }))
-    await setTimeout(1)
+    await setTimeout(10)
 
     setBaseTestRoute({
       params: {},
@@ -207,7 +208,7 @@ describe('menu', () => {
     equal(openedMenu.get(), 'fast')
 
     await addPost(testPost({ feedId: slow, reading: 'slow' }))
-    await setTimeout(1)
+    await setTimeout(10)
     equal(openMenu('slow'), true)
     equal(menuSlider.get(), 'fast')
     equal(openedMenu.get(), 'fast')
@@ -240,7 +241,7 @@ describe('menu', () => {
     })
 
     await addFeed(testFeed({ categoryId: category2, reading: 'fast' }))
-    await setTimeout(1)
+    await setTimeout(10)
 
     equal(openMenu('fast'), true)
     equal(menuSlider.get(), 'other')
@@ -262,7 +263,7 @@ describe('menu', () => {
 
     equal(menuLoading.get(), false)
     deepEqual(slowMenu.get(), [])
-    deepEqual(fastMenu.get(), [{ id: 'general', title: 'General' }])
+    deepEqual(fastMenu.get(), [getGeneralCategory()])
 
     let idB = await addCategory({ title: 'B' })
     let feed1 = await addFeed(testFeed({ categoryId: idB, reading: 'slow' }))
@@ -288,9 +289,9 @@ describe('menu', () => {
 
     deepEqual(slowMenu.get(), [])
     deepEqual(fastMenu.get(), [
-      { id: idA, isLoading: false, title: 'A' },
-      { id: idB, isLoading: false, title: 'B' },
-      { id: 'general', title: 'General' }
+      await loadCategory(idA),
+      await loadCategory(idB),
+      getGeneralCategory()
     ])
 
     await addPost(testPost({ feedId: feed2, reading: 'slow' }))
@@ -298,29 +299,26 @@ describe('menu', () => {
     await addPost(testPost({ feedId: feed5, reading: 'slow' }))
     await addPost(testPost({ feedId: feed5, reading: 'slow' }))
     deepEqual(slowMenu.get(), [
+      [await loadCategory(idC), [[await loadFeed(feed2), 1]]],
       [
-        { id: idC, isLoading: false, title: 'C' },
-        [[await loadValue(getFeed(feed2)), 1]]
-      ],
-      [
-        { id: 'general', title: 'General' },
+        getGeneralCategory(),
         [
-          [await loadValue(getFeed(feed4)), 1],
-          [await loadValue(getFeed(feed5)), 2]
+          [await loadFeed(feed4), 1],
+          [await loadFeed(feed5), 2]
         ]
       ]
     ])
     deepEqual(fastMenu.get(), [
-      { id: idA, isLoading: false, title: 'A' },
-      { id: idB, isLoading: false, title: 'B' },
-      { id: 'general', title: 'General' }
+      await loadCategory(idA),
+      await loadCategory(idB),
+      getGeneralCategory()
     ])
 
     await changeCategory(idA, { title: 'Z' })
     deepEqual(fastMenu.get(), [
-      { id: idB, isLoading: false, title: 'B' },
-      { id: 'general', title: 'General' },
-      { id: idA, isLoading: false, title: 'Z' }
+      await loadCategory(idB),
+      getGeneralCategory(),
+      await loadCategory(idA)
     ])
 
     await addPost(testPost({ feedId: 'unknown', reading: 'fast' }))
@@ -330,23 +328,20 @@ describe('menu', () => {
     )
     await addPost(testPost({ feedId: orphan, reading: 'slow' }))
     deepEqual(slowMenu.get(), [
+      [await loadCategory(idC), [[await loadFeed(feed2), 1]]],
       [
-        { id: idC, isLoading: false, title: 'C' },
-        [[await loadValue(getFeed(feed2)), 1]]
-      ],
-      [
-        { id: 'general', title: 'General' },
+        getGeneralCategory(),
         [
-          [await loadValue(getFeed(feed4)), 1],
-          [await loadValue(getFeed(feed5)), 2]
+          [await loadFeed(feed4), 1],
+          [await loadFeed(feed5), 2]
         ]
       ]
     ])
     deepEqual(fastMenu.get(), [
-      { id: idB, isLoading: false, title: 'B' },
+      await loadCategory(idB),
 
-      { id: 'general', title: 'General' },
-      { id: idA, isLoading: false, title: 'Z' }
+      getGeneralCategory(),
+      await loadCategory(idA)
     ])
   })
 

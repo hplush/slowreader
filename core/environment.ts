@@ -9,12 +9,17 @@ import {
   type PersistentStore,
   setPersistentEngine
 } from '@nanostores/persistent'
+import type { Database } from '@nanostores/sql'
 import { atom, type ReadableAtom, type StoreValue } from 'nanostores'
 
 import type { BaseRouter, Route, Routes } from './router.ts'
 
 interface LogStoreCreator {
   (): ClientOptions['store']
+}
+
+interface DatabaseCreator {
+  (): Database
 }
 
 export type NetworkType = 'free' | 'paid' | 'unknown' | undefined
@@ -71,10 +76,13 @@ export interface Environment {
   cleanStorage(): void
 
   /**
-   * Object like `window` in web or `process` in Node.js to track unhandled
-   * errors.
-   *
-   * For instance, we are using it to catch not-found errors.
+   * SQL database engine. Like SQLocal in Web, in-memory SQLite in Node.js,
+   * Expo for mobile, etc.
+   */
+  databaseCreator: DatabaseCreator
+
+  /**
+   * `window` in web or `process` in Node.js to track unhandled errors.
    */
   errorEvents: ErrorEvents
 
@@ -191,6 +199,7 @@ export function setupEnvironment<Router extends BaseRouter>(
   currentEnvironment = {
     baseRouter: env.baseRouter,
     cleanStorage: env.cleanStorage,
+    databaseCreator: env.databaseCreator,
     errorEvents: env.errorEvents,
     getSession: env.getSession,
     locale: env.locale,

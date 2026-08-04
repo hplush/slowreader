@@ -1,6 +1,5 @@
 import '../dom-parser.ts'
 
-import { loadValue } from '@logux/client'
 import { cleanStores, keepMount } from 'nanostores'
 import { deepEqual, equal, match, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
@@ -10,7 +9,7 @@ import {
   addFeed,
   changeFeed,
   closeLastPopup,
-  getFeed,
+  loadFeed,
   getPopupId,
   HTTPStatusError,
   openedPopups,
@@ -123,9 +122,9 @@ describe('feed popup', () => {
     equal(addedId, feedId)
     equal(checkLoadedPopup(popup).feed.get()!.url, 'https://a.com/atom')
     equal(checkLoadedPopup(popup).feed.get()!.title, 'Atom')
-    equal((await loadValue(getFeed(feedId)))!.title, 'Atom')
-    equal((await loadValue(getFeed(feedId)))!.lastOriginId, '2')
-    equal((await loadValue(getFeed(feedId)))!.lastPublishedAt, 1688169600)
+    equal((await loadFeed(feedId))!.title, 'Atom')
+    equal((await loadFeed(feedId))!.lastOriginId, '2')
+    equal((await loadFeed(feedId))!.lastPublishedAt, 1688169600)
 
     await changeFeed(feedId, { title: 'Test Atom' })
     equal(checkLoadedPopup(popup).feed.get()!.title, 'Test Atom')
@@ -206,7 +205,7 @@ describe('feed popup', () => {
     let addedId = await checkLoadedPopup(popup).add()
     let feedId = checkLoadedPopup(popup).feed.get()!.id
     equal(addedId, feedId)
-    equal((await loadValue(getFeed(feedId)))!.url, 'http://a.com/atom')
+    equal((await loadFeed(feedId))!.url, 'http://a.com/atom')
 
     expectRequest('https://a.com/atom').andRespond(
       200,
