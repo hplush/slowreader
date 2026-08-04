@@ -180,6 +180,13 @@ function rss(url: string): string {
   )
 }
 
+// Random distribution can’t promise them on small database of debug mode.
+const ANCHORS: [PostValue['reading'], number][] = [
+  ['slow', 300],
+  ['slow', 150],
+  ['fast', 300]
+]
+
 function postsInFeed(random: () => number): number {
   let point = random()
   let sum = 0
@@ -208,7 +215,7 @@ function createPost(
         : undefined,
     originId: `${feedId}-post-${index}`,
     publishedAt: now - Math.floor(random() ** 2 * YEAR),
-    read: random() < 0.3,
+    read: false,
     reading,
     title: sentence(random, 3, 9),
     url: `https://example.com/${feedId}/post-${index}`
@@ -219,7 +226,7 @@ async function fillClient(
   progress: (done: number, total: number) => void
 ): Promise<FillStatistics> {
   let size = debug
-    ? { categories: 5, feeds: 30 }
+    ? { categories: 2, feeds: 10 }
     : // Remove after fixing app’s memory usage. Right now the full benchmark
       // is killing the browser.
       // : { categories: 20, feeds: 1000 }
@@ -238,7 +245,9 @@ async function fillClient(
   let posts = 0
   let slow: [string, number][] = []
   for (let i = 0; i < size.feeds; i++) {
-    let reading: PostValue['reading'] = random() < 0.7 ? 'fast' : 'slow'
+    let anchor = ANCHORS[i]
+    let reading: PostValue['reading'] =
+      anchor?.[0] ?? (random() < 0.7 ? 'fast' : 'slow')
     let categoryId = categories[between(random, 0, categories.length)]!
     let feedId = `feed-${i}`
     await addFeed({
@@ -253,7 +262,7 @@ async function fillClient(
       url: `https://example.com/${feedId}.xml`
     })
 
-    let count = postsInFeed(random)
+    let count = anchor?.[1] ?? postsInFeed(random)
     let batch: Promise<string>[] = []
     for (let j = 0; j < count; j++) {
       batch.push(addPost(createPost(random, feedId, j, reading, now)))

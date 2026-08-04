@@ -26,6 +26,8 @@ const FILL_ATTEMPTS = 900
 
 const PEAK_INTERVAL = 500
 
+const CLOSE_TIMEOUT = 5000
+
 interface FillStatistics {
   debug: boolean
   duration: number
@@ -258,7 +260,6 @@ class Chromium {
   }
 
   static async start(binary: string): Promise<Chromium> {
-    if (clean) rmSync(PROFILE, { force: true, recursive: true })
     let child = spawn(binary, [
       '--headless=new',
       '--remote-debugging-port=0',
@@ -285,8 +286,18 @@ class Chromium {
     chromium.kill = () => {
       child.kill()
     }
+    chromium.exit = () => {
+      if (child.exitCode !== null) return Promise.resolve()
+      return new Promise(resolve => {
+        child.once('exit', () => {
+          resolve()
+        })
+      })
+    }
     return chromium
   }
+
+  exit: () => Promise<void> = () => Promise.resolve()
 
   kill: () => void = () => {}
 
@@ -294,6 +305,18 @@ class Chromium {
     this.closed = true
     this.socket.close()
     this.kill()
+  }
+
+  async closeSaving(): Promise<void> {
+    this.session = ''
+    function timeout(): Promise<void> {
+      return new Promise(resolve => {
+        setTimeout(resolve, CLOSE_TIMEOUT)
+      })
+    }
+    await Promise.race([this.send('Browser.close', {}), timeout()])
+    await Promise.race([this.exit(), timeout()])
+    this.close()
   }
 
   async evaluate<Value>(expression: string): Promise<Value> {
@@ -441,18 +464,25 @@ function size(bytes: number): string {
 }
 
 let [address, stopServer] = await startServer()
-let chromium = await Chromium.start(findChromium())
+if (clean) rmSync(PROFILE, { force: true, recursive: true })
+let binary = findChromium()
+let chromium = await Chromium.start(binary)
 let stopPeaks: (() => Promise<Peaks>) | undefined
 
 try {
   if (debug) status('Debug mode: small database and single run of scenarios')
-  await chromium.open(`${address}/?benchmark${debug ? '=debug' : ''}`)
-  stopPeaks = trackPeaks(chromium)
+  let page = `${address}/?benchmark${debug ? '=debug' : ''}`
+  await chromium.open(page)
 
   if (!(await chromium.evaluate<boolean>('!!window.benchmark.data'))) {
     status('Filling database, it will take a while…')
     await chromium.waitFilled()
+    status('Restarting browser to forget memory used by filling')
+    await chromium.closeSaving()
+    chromium = await Chromium.start(binary)
+    await chromium.open(page)
   }
+  stopPeaks = trackPeaks(chromium)
 
   let data = await chromium.evaluate<FillStatistics>('window.benchmark.data')
   status(
@@ -511,12 +541,12 @@ try {
   }
 } catch (e) {
   void stopPeaks?.()
-  chromium.close()
+  await chromium.closeSaving()
   stopServer()
   fail(e instanceof Error ? e.message : String(e))
 } finally {
   void stopPeaks?.()
-  chromium.close()
+  await chromium.closeSaving()
   stopServer()
 }
 

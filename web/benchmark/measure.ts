@@ -148,7 +148,11 @@ export async function waitIdle(timeout = IDLE_TIMEOUT): Promise<number> {
       calm = 0
     }
     if (performance.now() > finish) {
-      throw new Error(`Loaders are still rendered after ${timeout} ms`)
+      let names = getRenderedLoaders().map(i => i.name)
+      if (document.getElementById('loader')) names.push('app')
+      throw new Error(
+        `Loaders are still rendered after ${timeout} ms: ${names.join(', ')}`
+      )
     }
   }
   return ended
