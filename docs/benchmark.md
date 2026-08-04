@@ -63,10 +63,6 @@ For benchmark development you can use `?benchmark=debug` to make it faster.
 
 Every scenario runs 5 times. Run, which did not finish in 1 minute or did not find element to click, is counted in `failed` and does not stop other scenarios. After 2 failed runs benchmark gives up on the scenario and goes to the next one.
 
-Use `total` to compare branches by a single object. Every scenario number
-there is median of its runs. Text report marks every number
-with `(sum)` or `(max)`:
-
 ```js
 {
   feeds: 1000, // Feeds in the database
@@ -116,8 +112,7 @@ with `(sum)` or `(max)`:
     memory: 112, // The biggest
     // Only the script can take 3 numbers below. They are not in
     // benchmark.run() results in the browser. They are the biggest values
-    // of the whole session: page opening, database filling, and scenarios.
-    // Documents and listeners show leaks of detached documents and listeners
+    // of the whole session.
     documents: 1004,
     listeners: 40610,
     // Memory of all renderer processes in MB. Renderer is killed by this

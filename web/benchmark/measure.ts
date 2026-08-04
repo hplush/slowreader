@@ -161,19 +161,25 @@ export async function measure(
   let stopFrames = trackFrames()
   let stopTasks = trackLongTasks()
   let started = performance.now()
-
-  await action()
-  let ended = await waitIdle()
-
-  let duration = ended - started
-  let frames = stopFrames()
+  let ended: number
+  let frames: FramesReport
+  let loaders: LoaderSpan[]
+  let longestTask: number
+  try {
+    await action()
+    ended = await waitIdle()
+  } finally {
+    loaders = stopLoaders()
+    frames = stopFrames()
+    longestTask = stopTasks()
+  }
   return {
     domSize: frames.domSize,
-    duration: Math.round(duration),
+    duration: Math.round(ended - started),
     freezes: frames.freezes,
-    loaders: reportLoaders(stopLoaders()),
+    loaders: reportLoaders(loaders),
     longestFrame: frames.longestFrame,
-    longestTask: stopTasks(),
+    longestTask,
     memory: frames.memory
   }
 }
