@@ -51,6 +51,7 @@ export function getRenderedLoaders(): LoaderSpan[] {
 
 export interface FillStatistics {
   biggestCategory: string
+  debug: boolean
   duration: number
   feeds: number
   posts: number
@@ -275,6 +276,7 @@ async function fillClient(
 
   return {
     biggestCategory,
+    debug,
     duration: performance.now() - started,
     feeds: size.feeds,
     posts,
