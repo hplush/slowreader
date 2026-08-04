@@ -4,8 +4,8 @@ LABEL org.opencontainers.image.source=https://github.com/hplush/slowreader
 LABEL org.opencontainers.image.description="Slow Reader"
 LABEL org.opencontainers.image.licenses=AGPL-3.0-or-later
 
-ENV NODE_VERSION=26.5.1 \
-  NODE_CHECKSUM=sha256:cc7b3484ade63bd203a9d304f21ec37a3b622b988d7bdecf1dc4d68fc44a91b7
+ENV NODE_VERSION=26.6.0 \
+  NODE_CHECKSUM=sha256:e53a8c8ca2ee7135de38e63859bd4f43002ae2d222f5b3a98ac1945db9f544bb
 
 ADD --checksum=$NODE_CHECKSUM https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz /node.tar.xz
 RUN tar -xf "node.tar.xz" --strip-components=1 -C /usr/local/ \
