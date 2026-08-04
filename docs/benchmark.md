@@ -64,15 +64,15 @@ For benchmark development you can use `?benchmark=debug` to make it faster.
 
 ## Methodology
 
-20 categories, 1000 feeds, 0–2000 posts in feed with long tail distribution (most feeds are small, few are huge), ~70 000 posts total. Network is mocked. Every 5th feed returns 3 new posts on every refresh, so `refresh` scenario also measures database inserts and menu rebuilds.
+10 categories, 100 feeds, 0–2000 posts in feed with long tail distribution (most feeds are small, few are huge), ~7000 posts total. Network is mocked. Every 5th feed returns 3 new posts on every refresh, so `refresh` scenario also measures database inserts and menu rebuilds.
 
 Every scenario runs 5 times. Run, which did not finish in 1 minute or did not find element to click, is counted in `failed` and does not stop other scenarios. After 2 failed runs benchmark gives up on the scenario and goes to the next one.
 
 ```js
 {
-  feeds: 1000, // Feeds in the database
-  fill: 84000, // Time of database filling in ms
-  posts: 70000, // Posts in the database
+  feeds: 100, // Feeds in the database
+  fill: 4360, // Time of database filling in ms
+  posts: 7342, // Posts in the database
   scenarios: {
     'read-page': {
       // The biggest number of elements in the page during the scenario,

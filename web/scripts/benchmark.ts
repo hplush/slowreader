@@ -27,6 +27,7 @@ const FILL_ATTEMPTS = 900
 const PEAK_INTERVAL = 500
 
 interface FillStatistics {
+  debug: boolean
   duration: number
   feeds: number
   posts: number
@@ -444,6 +445,7 @@ let chromium = await Chromium.start(findChromium())
 let stopPeaks: (() => Promise<Peaks>) | undefined
 
 try {
+  if (debug) status('Debug mode: small database and single run of scenarios')
   await chromium.open(`${address}/?benchmark${debug ? '=debug' : ''}`)
   stopPeaks = trackPeaks(chromium)
 
@@ -457,6 +459,12 @@ try {
     `Data: ${data.feeds} feeds, ${data.posts} posts, ` +
       `filled in ${Math.round(data.duration)} ms`
   )
+  if (data.debug !== debug) {
+    warning(
+      `Database was filled in ${data.debug ? 'debug' : 'normal'} mode. ` +
+        'Use --clean to fill it again'
+    )
+  }
 
   let names = await chromium.evaluate<string[]>('window.benchmark.scenarios')
   if (scenario && scenario !== 'freeze' && !names.includes(scenario)) {
