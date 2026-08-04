@@ -5,7 +5,7 @@ import { changeFeed, type FeedValue, getFeed, needWelcome } from '../feed.ts'
 import { fastMenu, menuLoading, slowMenu } from '../menu.ts'
 import { deletePost, fastPostsCount, slowPostsCount } from '../post.ts'
 import {
-  loadPosts,
+  loadReadPosts,
   type PostFilter,
   type ReaderHelpers,
   type UsefulReaderName
@@ -37,12 +37,9 @@ let pages = (['slow', 'fast'] as const).map(reading => {
 
     async function deleteRead(): Promise<void> {
       if (lastFilter) {
-        let posts = await loadPosts(lastFilter)
-        await Promise.all(
-          posts.map(async post => {
-            if (post.get().read) await deletePost(post.get().id)
-          })
-        )
+        // TODO Logux DB: do it in one SQL query
+        let posts = await loadReadPosts(lastFilter)
+        await Promise.all(posts.map(post => deletePost(post.id)))
       }
     }
 
@@ -86,11 +83,11 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         $feed.set(undefined)
         if (feedId) {
           unbindTarget = getFeed(feedId).subscribe(value => {
-            if (!value.isLoading) $feed.set(value)
+            if (value) $feed.set(value)
           })
         } else if (categoryId) {
           unbindTarget = getCategory(categoryId).subscribe(value => {
-            if (!value.isLoading) $category.set(value)
+            if (value) $category.set(value)
           })
         } else if (!menuLoading.get()) {
           void nextRouteIsRedirect(() => {

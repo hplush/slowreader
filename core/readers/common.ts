@@ -1,14 +1,8 @@
-import {
-  ensureLoadedStore,
-  type LoadedSyncMap,
-  loadValue,
-  type SyncMapStore
-} from '@logux/client'
 import type { ReadableAtom, WritableAtom } from 'nanostores'
 
-import { getFeeds } from '../feed.ts'
-import { getPosts, type PostValue } from '../post.ts'
+import type { PostValue } from '../post.ts'
 import type { Routes } from '../router.ts'
+import { select } from '../schema.ts'
 
 export interface BaseReader<Name extends ReaderName = ReaderName> {
   exit(): void
@@ -70,30 +64,40 @@ export function createReader<Name extends ReaderName, Rest extends Extra>(
   }
 }
 
-export async function loadPosts(
-  filter: PostFilter
-): Promise<LoadedSyncMap<SyncMapStore<PostValue>>[]> {
-  let posts: PostValue[]
-  let stores: Map<string, SyncMapStore<PostValue>>
-  if ('categoryId' in filter) {
-    let [allPosts, feeds] = await Promise.all([
-      loadValue(getPosts({ reading: filter.reading })),
-      loadValue(getFeeds({ categoryId: filter.categoryId }))
-    ])
-    stores = allPosts.stores
-    posts = allPosts.list.filter(i => {
-      return feeds.stores.has(i.feedId) && !allPosts.stores.get(i.id)?.deleted
-    })
+function selectPosts(filter: PostFilter, read: 0 | 1): Promise<PostValue[]> {
+  if (filter.categoryId) {
+    return select<PostValue>`
+      SELECT "posts".* FROM "posts"
+      JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+      WHERE "posts"."reading" = ${filter.reading}
+        AND "posts"."read" = ${read}
+        AND "feeds"."categoryId" = ${filter.categoryId}
+      ORDER BY "posts"."publishedAt" DESC
+    `
+  } else if (filter.feedId) {
+    return select<PostValue>`
+      SELECT * FROM "posts"
+      WHERE "reading" = ${filter.reading} AND "read" = ${read}
+        AND "feedId" = ${filter.feedId}
+      ORDER BY "publishedAt" DESC
+    `
   } else {
-    let value = await loadValue(
-      getPosts({ feedId: filter.feedId, reading: filter.reading })
-    )
-    stores = value.stores
-    posts = value.list.filter(i => !value.stores.get(i.id)?.deleted)
+    return select<PostValue>`
+      SELECT * FROM "posts"
+      WHERE "reading" = ${filter.reading} AND "read" = ${read}
+      ORDER BY "publishedAt" DESC
+    `
   }
-  return posts
-    .toSorted((a, b) => b.publishedAt - a.publishedAt)
-    .map(i => stores.get(i.id))
-    .filter(i => !!i)
-    .map(i => ensureLoadedStore(i))
+}
+
+/**
+ * Posts to be shown in the reader. Read posts are deleted on opening
+ * the page, so the reader always starts from unread ones.
+ */
+export function loadPosts(filter: PostFilter): Promise<PostValue[]> {
+  return selectPosts(filter, 0)
+}
+
+export function loadReadPosts(filter: PostFilter): Promise<PostValue[]> {
+  return selectPosts(filter, 1)
 }

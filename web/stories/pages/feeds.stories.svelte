@@ -141,8 +141,8 @@
     feeds={[{ id: 'feed', reading: 'slow' }]}
     oninit={() => {
       setTimeout(() => {
-        changePost('post-2', { read: true })
-        changePost('post-3', { read: true })
+        changePost('post-2', { read: 1 })
+        changePost('post-3', { read: 1 })
       }, 1)
     }}
     posts={POSTS}
@@ -184,8 +184,8 @@
     feeds={[{ id: 'feed', reading: 'fast' }]}
     oninit={() => {
       setTimeout(() => {
-        changePost('post-2', { read: true })
-        changePost('post-3', { read: true })
+        changePost('post-2', { read: 1 })
+        changePost('post-3', { read: 1 })
       }, 1)
     }}
     posts={POSTS.map(i => ({ ...i, reading: 'fast' }))}

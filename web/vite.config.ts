@@ -3,6 +3,7 @@ import { Features } from 'lightningcss'
 import { execSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import sqlocal from 'sqlocal/vite'
 import { defineConfig } from 'vite'
 
 let commitTime = parseInt(execSync('git log -1 --format=%ct').toString().trim())
@@ -45,8 +46,29 @@ export default defineConfig(() => ({
     },
     transformer: 'postcss'
   },
+  // SQLite could be saved to OPFS only in cross-origin isolated page.
+  // Production headers are in nginx.conf.
+  preview: {
+    headers: {
+      'Cross-Origin-Embedder-Policy': 'credentialless',
+      'Cross-Origin-Opener-Policy': 'same-origin'
+    }
+  },
   plugins: [
     svelte(),
+    sqlocal(),
+    {
+      configureServer(server) {
+        let csp = loadCSP()
+        server.middlewares.use((req, res, next) => {
+          if (req.headers.accept?.includes('text/html')) {
+            res.setHeader('Content-Security-Policy', csp)
+          }
+          next()
+        })
+      },
+      name: 'csp'
+    },
     {
       enforce: 'pre',
       name: 'html-transform',
@@ -60,10 +82,5 @@ export default defineConfig(() => ({
         }
       }
     }
-  ],
-  server: {
-    headers: {
-      'Content-Security-Policy': loadCSP()
-    }
-  }
+  ]
 }))

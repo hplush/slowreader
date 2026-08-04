@@ -1,12 +1,11 @@
 import './dom-parser.ts'
 
-import { loadValue } from '@logux/client'
 import { deepEqual, doesNotMatch, equal, match } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
   addPost,
-  getPost,
+  loadPost,
   getPostIntro,
   getPostTitle,
   testPost
@@ -42,7 +41,7 @@ describe('post', () => {
 
   test('has helper to load post', async () => {
     let id = await addPost(testPost({ title: 'Test Post' }))
-    let post = await loadValue(getPost(id))
+    let post = await loadPost(id)
     equal(post?.title, 'Test Post')
   })
 

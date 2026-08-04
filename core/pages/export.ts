@@ -1,16 +1,15 @@
-import type { SyncMapValues } from '@logux/actions'
-import { type FilterStore, loadValue } from '@logux/client'
 import { atom } from 'nanostores'
 
 import {
   type CategoryValue,
   feedsByCategory,
-  getCategories
+  loadCategories
 } from '../category.ts'
 import { getEnvironment } from '../environment.ts'
-import { type FeedValue, getFeeds } from '../feed.ts'
-import { type FilterValue, getFilters } from '../filter.ts'
-import { getPosts, type PostValue } from '../post.ts'
+import { type FeedValue, loadFeeds } from '../feed.ts'
+import { type FilterValue, loadFilters } from '../filter.ts'
+import { loadPosts, type PostValue } from '../post.ts'
+import { withoutMeta } from '../schema.ts'
 import {
   preloadImages,
   type Settings,
@@ -21,10 +20,10 @@ import {
 import { createPage } from './common.ts'
 
 export interface StateExport {
-  categories: Omit<CategoryValue, 'isLoading'>[]
-  feeds: Omit<FeedValue, 'isLoading'>[]
-  filters: Omit<FilterValue, 'isLoading'>[]
-  posts: Omit<PostValue, 'isLoading'>[]
+  categories: Omit<CategoryValue, 'updatedAt'>[]
+  feeds: Omit<FeedValue, 'updatedAt'>[]
+  filters: Omit<FilterValue, 'updatedAt'>[]
+  posts: Omit<PostValue, 'updatedAt'>[]
   settings: Settings
 }
 
@@ -43,16 +42,6 @@ export function isStateExportFile(state: unknown): state is StateExport {
     'settings' in state &&
     typeof state.settings === 'object'
   )
-}
-
-async function loadList<Value extends SyncMapValues>(
-  filter: FilterStore<Value>
-): Promise<Omit<Value, 'isLoading'>[]> {
-  return (await loadValue(filter)).list.map(i => {
-    let copy = { ...i } as Omit<Value, 'isLoading'>
-    delete copy.isLoading
-    return copy
-  })
 }
 
 const NO_OPML_CATEGORY: Record<string, boolean> = {
@@ -88,14 +77,14 @@ export const exportPage = createPage('export', () => {
       '  <body>\n'
 
     let [categories, allFeeds] = await Promise.all([
-      loadValue(getCategories()),
-      loadValue(getFeeds())
+      loadCategories(),
+      loadFeeds()
     ])
     if (stopped) {
       $exportingOpml.set(false)
       return
     }
-    let tree = feedsByCategory(categories.list, allFeeds.list)
+    let tree = feedsByCategory(categories, allFeeds)
 
     for (let [category, feeds] of tree) {
       if (!NO_OPML_CATEGORY[category.id]) {
@@ -125,10 +114,10 @@ export const exportPage = createPage('export', () => {
   async function exportBackup(): Promise<void> {
     $exportingBackup.set(true)
     let state = {
-      categories: await loadList(getCategories()),
-      feeds: await loadList(getFeeds()),
-      filters: await loadList(getFilters()),
-      posts: await loadList(getPosts()),
+      categories: withoutMeta(await loadCategories()),
+      feeds: withoutMeta(await loadFeeds()),
+      filters: withoutMeta(await loadFilters()),
+      posts: withoutMeta(await loadPosts()),
       settings: {
         preloadImages: preloadImages.get(),
         theme: theme.get(),

@@ -1,15 +1,14 @@
-import { loadValue } from '@logux/client'
 import { atom, computed, map } from 'nanostores'
 
 import { getEnvironment } from './environment.ts'
 import {
   changeFeed,
   type FeedValue,
-  getFeed,
   getFeedLatestPosts,
-  getFeeds
+  loadFeed,
+  loadFeeds
 } from './feed.ts'
-import { loadFilters } from './filter.ts'
+import { loadFilterChecker } from './filter.ts'
 import { createQueue } from './lib/queue.ts'
 import { increaseKey } from './lib/stores.ts'
 import { addPost, type OriginPost, processOriginPost } from './post.ts'
@@ -78,7 +77,7 @@ async function addPosts(feed: FeedValue, posts: OriginPost[]): Promise<void> {
   }
   if (wasAlreadyAdded(feed, first)) return
 
-  let filters = await loadFilters({ feedId: feed.id })
+  let filters = await loadFilterChecker(feed.id)
   for (let origin of posts) {
     if (wasAlreadyAdded(feed, origin)) {
       break
@@ -113,7 +112,7 @@ async function checkForNextPage(
       await checkForNextPage(feed, pages)
     })
   } else {
-    if (!getFeed(feed.id).deleted) {
+    if (await loadFeed(feed.id)) {
       await addPosts(feed, pages.get().list)
     }
     await changeFeed(feed.id, {
@@ -133,14 +132,14 @@ export async function refreshPosts(): Promise<void> {
   refreshErrors.set([])
   refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: true })
 
-  let feeds = await loadValue(getFeeds())
+  let feeds = await loadFeeds()
   refreshStatistics.set({
     ...refreshStatistics.get(),
     initializing: false,
-    totalFeeds: feeds.list.length
+    totalFeeds: feeds.length
   })
 
-  queue = createQueue(feeds.list)
+  queue = createQueue(feeds)
   await queue.start(
     6,
     feed => {

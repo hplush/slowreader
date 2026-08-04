@@ -13,7 +13,7 @@
     post
   }: { feed: FeedValue | undefined; post: OriginPost | PostValue } = $props()
 
-  let url = $derived(post.url ?? feed?.url)
+  let url = $derived(post.url ?? feed?.url ?? undefined)
 </script>
 
 <div class="post">

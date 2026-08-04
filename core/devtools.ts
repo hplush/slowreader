@@ -1,16 +1,14 @@
-import { loadValue } from '@logux/client'
-
 import { busyDuring } from './busy.ts'
 import { HTTPStatusError } from './errors.ts'
-import { getFeed, getFeedLatestPosts, getFeeds } from './feed.ts'
-import { loadFilters } from './filter.ts'
+import { getFeedLatestPosts, loadFeed, loadFeeds } from './feed.ts'
+import { loadFilterChecker } from './filter.ts'
 import { createDownloadTask } from './lib/download.ts'
 import { loaders } from './loader/index.ts'
 import {
   addPost,
   deletePost,
-  getPost,
-  getPosts,
+  loadPost,
+  loadPostsByFeed,
   processOriginPost
 } from './post.ts'
 import { proxyDebug } from './request.ts'
@@ -22,15 +20,15 @@ import { router } from './router.ts'
 export async function fillFeedsWithPosts(): Promise<void> {
   await busyDuring(async () => {
     let task = createDownloadTask()
-    let feeds = await loadValue(getFeeds())
+    let feeds = await loadFeeds()
     await Promise.all(
-      feeds.list.map(async feed => {
-        let old = await loadValue(getPosts({ feedId: feed.id }))
-        for (let post of old.list) {
+      feeds.map(async feed => {
+        let old = await loadPostsByFeed(feed.id)
+        for (let post of old) {
           await deletePost(post.id)
         }
         let posts = await getFeedLatestPosts(feed, task).next()
-        let filters = await loadFilters({ feedId: feed.id })
+        let filters = await loadFilterChecker(feed.id)
         for (let origin of posts) {
           let reading = filters(origin) ?? feed.reading
           if (reading !== 'delete') {
@@ -56,9 +54,9 @@ export function enablePostDebug(): void {
           id = popup.param.slice(5)
         }
         if (id) {
-          let post = await loadValue(getPost(id))
+          let post = await loadPost(id)
           if (!post) return
-          let feed = await loadValue(getFeed(post.feedId))
+          let feed = await loadFeed(post.feedId)
           let source = await loaders[feed!.loader].getPostSource(
             feed!,
             post.originId

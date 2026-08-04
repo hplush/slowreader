@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { LoadedSyncMap, SyncMapStore } from '@logux/client'
   import {
     getPopupId,
     getPostPopupParam,
@@ -18,12 +17,11 @@
     list
   }: {
     autoread?: boolean
-    list: readonly (LoadedSyncMap<SyncMapStore<PostValue>> | OriginPost)[]
+    list: readonly (OriginPost | PostValue)[]
   } = $props()
 
   let links = $derived(
-    list.map(i => {
-      let post = ('get' in i ? i.get() : i) as OriginPost | PostValue
+    list.map(post => {
       let param = getPostPopupParam(post, autoread)
       return {
         controls: getPopupId('post', param),

@@ -1,27 +1,24 @@
-import { defineSyncMapActions } from '@logux/actions'
-import {
-  changeSyncMapById,
-  createFilter,
-  createSyncMap,
-  deleteSyncMapById,
-  type Filter,
-  type FilterStore,
-  loadValue,
-  type SyncMapStore,
-  syncMapTemplate
-} from '@logux/client'
 import { formatter } from '@nanostores/i18n'
-import { nanoid } from 'nanoid'
-import { atom, onMount } from 'nanostores'
+import { atom, onMount, type ReadableAtom, type WritableAtom } from 'nanostores'
 
-import { getClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
-import { getFeed } from './feed.ts'
-import { loadFilters } from './filter.ts'
+import { loadFeed } from './feed.ts'
+import { loadFilterChecker } from './filter.ts'
 import { $locale } from './i18n.ts'
 import { sanitizeHtml, stripHTML, truncateHTML } from './lib/html.ts'
-import type { OptionalId } from './lib/stores.ts'
+import { firstRow } from './lib/stores.ts'
 import { truncateText } from './lib/text.ts'
+import {
+  createRow,
+  getDatabase,
+  getTables,
+  type NewPost,
+  type PostChanges,
+  type PostValue,
+  select
+} from './schema.ts'
+
+export type { NewPost, PostValue }
 
 export type OriginPost = {
   full?: string
@@ -29,9 +26,21 @@ export type OriginPost = {
   media?: string
   originId: string
   publishedAt?: number
-  read?: boolean
   title?: string
   url?: string
+}
+
+/**
+ * Post’s text from a feed or from the database. Database returns `null`
+ * for missing values, while loaders return `undefined`.
+ */
+export type PostContent = {
+  full?: null | string
+  intro?: null | string
+  originId: string
+  publishedAt?: null | number
+  title?: null | string
+  url?: null | string
 }
 
 export type PostMedia = {
@@ -40,65 +49,61 @@ export type PostMedia = {
   url: string
 }
 
-export type PostValue = {
-  feedId: string
-  id: string
-  publishedAt: number
-  reading: 'fast' | 'slow'
-} & Omit<OriginPost, 'publishedAt'>
-
-export const Post = syncMapTemplate<PostValue>('posts', {
-  offline: true,
-  remote: false
-})
-
-export async function addPost(fields: OptionalId<PostValue>): Promise<string> {
-  let id = fields.id ?? nanoid()
-  await createSyncMap(getClient(), Post, { id, ...fields })
-  return id
+export function addPost(fields: NewPost): Promise<string> {
+  return createRow(getTables().posts, fields)
 }
 
-export function getPost(id: string): SyncMapStore<PostValue> {
-  return Post(id, getClient())
+export function getPost(postId: string): ReadableAtom<PostValue | undefined> {
+  return firstRow(getTables().posts.select`WHERE "id" = ${postId}`)
 }
 
-export function getPosts(
-  filter: Filter<PostValue> = {}
-): FilterStore<PostValue> {
-  return createFilter(getClient(), Post, filter)
+export function loadPost(postId: string): Promise<PostValue | undefined> {
+  return select<PostValue>`SELECT * FROM "posts" WHERE "id" = ${postId}`.then(
+    rows => rows[0]
+  )
+}
+
+export function loadPosts(): Promise<PostValue[]> {
+  return select<PostValue>`SELECT * FROM "posts" ORDER BY "publishedAt" DESC`
+}
+
+export function loadPostsByFeed(feedId: string): Promise<PostValue[]> {
+  return select<PostValue>`
+    SELECT * FROM "posts" WHERE "feedId" = ${feedId}
+    ORDER BY "publishedAt" DESC
+  `
 }
 
 export function deletePost(postId: string): Promise<void> {
-  return deleteSyncMapById(getClient(), Post, postId)
+  return getTables().posts.delete(postId)
 }
 
-export async function changePost(
+export function changePost(
   postId: string,
-  changes: Partial<PostValue>
+  changes: PostChanges
 ): Promise<void> {
-  return changeSyncMapById(getClient(), Post, postId, changes)
+  return getTables().posts.update(postId, changes)
 }
 
 export function processOriginPost(
   origin: OriginPost,
   feedId: string,
   reading: PostValue['reading']
-): PostValue {
+): NewPost {
   return {
     ...origin,
     feedId,
-    id: nanoid(),
     publishedAt: origin.publishedAt ?? Date.now(),
     reading
   }
 }
 
-export function getPostIntro(post: OriginPost): [string, boolean] {
+export function getPostIntro(post: PostContent): [string, boolean] {
   if (post.intro) {
     let more = !!post.full && post.full !== post.intro
     return [post.intro, more]
   } else if (post.full) {
-    let sanitized = sanitizeHtml(post.full, post.url)
+    let sanitized = sanitizeHtml(post.full, post.url ?? undefined)
     let truncated = truncateHTML(sanitized, 300, 500)
     return [truncated, truncated !== sanitized]
   } else {
@@ -106,7 +111,7 @@ export function getPostIntro(post: OriginPost): [string, boolean] {
   }
 }
 
-export function getPostTitle(post: OriginPost): string {
+export function getPostTitle(post: PostContent): string {
   if (post.title) {
     return stripHTML(post.title)
   } else if (post.intro) {
@@ -123,15 +128,15 @@ export function getPostTitle(post: OriginPost): string {
 }
 
 export async function recalcPostsReading(feedId: string): Promise<void> {
-  let feed = await loadValue(getFeed(feedId))
+  let feed = await loadFeed(feedId)
   if (!feed) return
 
   let [filters, posts] = await Promise.all([
-    loadFilters({ feedId }),
-    loadValue(getPosts({ feedId }))
+    loadFilterChecker(feedId),
+    loadPostsByFeed(feedId)
   ])
 
-  for (let post of posts.list) {
+  for (let post of posts) {
     let reading = filters(post) ?? feed.reading
     if (reading !== 'delete') {
       await changePost(post.id, { reading })
@@ -141,35 +146,46 @@ export async function recalcPostsReading(feedId: string): Promise<void> {
 
 let testPostId = 0
 
-export function testPost(feed: Partial<PostValue> = {}): PostValue {
+export function testPost(post: Partial<PostValue> = {}): PostValue {
   testPostId += 1
   return {
     feedId: 'feed-1',
+    full: null,
     id: `post-${testPostId}`,
     intro: `Post ${testPostId}`,
+    media: null,
     originId: `test-${testPostId}`,
     publishedAt: 1000,
+    read: 0,
     reading: 'fast',
+    title: null,
+    updatedAt: '{}',
     url: `http://example.com/${testPostId}`,
-    ...feed
+    ...post
   }
+}
+
+function countPosts(
+  store: WritableAtom<number | undefined>,
+  reading: PostValue['reading']
+): () => void {
+  let $total = getDatabase().store<{ total: number }>`
+    SELECT COUNT("originId") AS "total" FROM "posts" WHERE "reading" = ${reading}
+  `
+  return $total.subscribe(value => {
+    store.set(value.isLoading ? undefined : value.value[0]!.total)
+  })
 }
 
 export const fastPostsCount = atom<number | undefined>(undefined)
 onMount(fastPostsCount, () => {
-  return getPosts({ reading: 'fast' }).subscribe(posts => {
-    fastPostsCount.set(posts.isLoading ? undefined : posts.list.length)
-  })
+  return countPosts(fastPostsCount, 'fast')
 })
 
 export const slowPostsCount = atom<number | undefined>(undefined)
 onMount(slowPostsCount, () => {
-  return getPosts({ reading: 'slow' }).subscribe(posts => {
-    slowPostsCount.set(posts.isLoading ? undefined : posts.list.length)
-  })
+  return countPosts(slowPostsCount, 'slow')
 })
-
-export const postsChangedAction = defineSyncMapActions<PostValue>('posts')[4]
 
 export function stringifyMedia(media: PostMedia[]): string | undefined {
   if (media.length === 0) return undefined
@@ -182,7 +198,7 @@ export function stringifyMedia(media: PostMedia[]): string | undefined {
   return JSON.stringify(unique)
 }
 
-export function parseMedia(value: string | undefined): PostMedia[] {
+export function parseMedia(value: null | string | undefined): PostMedia[] {
   if (!value) return []
   try {
     return JSON.parse(value) as PostMedia[]

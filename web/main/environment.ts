@@ -2,6 +2,8 @@
 
 import { IndexedStore } from '@logux/client'
 import { windowPersistentEvents } from '@nanostores/persistent'
+import { openDb } from '@nanostores/sql'
+import { sqlocalDriver } from '@nanostores/sql/sqlocal'
 import {
   type NetworkType,
   type NetworkTypeDetector,
@@ -67,6 +69,9 @@ setupEnvironment({
   baseRouter: urlRouter,
   cleanStorage() {
     localStorage.clear()
+  },
+  databaseCreator() {
+    return openDb(sqlocalDriver('slowreader.sqlite'))
   },
   errorEvents: window,
   getSession() {

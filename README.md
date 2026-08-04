@@ -77,7 +77,7 @@ The source of truth in the client is a list of changes (action log). An action i
 }
 ```
 
-To render the UI, the client reduces actions from the log into the state (objects of feeds, posts, etc.). We store the state cache in [Nano Stores](https://github.com/nanostores/nanostores).
+To render the UI, the client reduces actions from the log into SQL tables (feeds, posts, etc.) defined in [`core/schema.ts`](./core/schema.ts). The UI subscribes to reactive SQL queries from [Nano Stores SQL](https://github.com/nanostores/sql). Web keeps the database in SQLite compiled to WebAssembly, Node.js tests use in-memory SQLite.
 
 The log simplifies synchronization. We just need to track the last synchronized action and send all actions after that one.
 
