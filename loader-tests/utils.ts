@@ -45,6 +45,9 @@ export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
+// Node.js sends `node` and websites with bot protection block it
+export const USER_AGENT = 'SlowReader/1.0 (+https://slowreader.app)'
+
 export function enableTestClient(route: RouteName = 'home'): void {
   setupEnvironment({
     ...getTestEnvironment(),
@@ -55,7 +58,11 @@ export function enableTestClient(route: RouteName = 'home'): void {
   enableTestTime()
   useCredentials(generateCredentials())
   setBaseTestRoute({ params: {}, route })
-  setRequestMethod(fetch)
+  setRequestMethod((url, opts = {}) => {
+    let headers = new Headers(opts.headers)
+    if (!headers.has('User-Agent')) headers.set('User-Agent', USER_AGENT)
+    return fetch(url, { ...opts, headers })
+  })
 }
 
 export function timeout<Value>(

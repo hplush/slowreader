@@ -12,7 +12,8 @@ import {
   createCLI,
   enableTestClient,
   fetchAndParsePosts,
-  readText
+  readText,
+  USER_AGENT
 } from './utils.ts'
 
 let cli = createCLI(
@@ -56,7 +57,8 @@ await cli.run(async args => {
       let headers = opts.headers as object | undefined
       let response = await fetch(nextUrl, {
         headers: {
-          Origin: 'http://localhost:8000',
+          'Origin': 'http://localhost:8000',
+          'User-Agent': USER_AGENT,
           ...headers
         },
         ...opts
