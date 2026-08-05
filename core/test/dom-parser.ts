@@ -5,5 +5,4 @@ let window = new JSDOM().window
 global.window = window
 global.DOMParser = window.DOMParser
 global.File = window.File
-global.FileReader = window.FileReader
 global.ErrorEvent = window.ErrorEvent
