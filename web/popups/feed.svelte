@@ -36,7 +36,12 @@
 >
   {#snippet header()}
     {#if !$feed}
-      <Button icon={mdiPlusCircleOutline} onclick={popup.add} variant="main">
+      <Button
+        anchor="add-feed"
+        icon={mdiPlusCircleOutline}
+        onclick={popup.add}
+        variant="main"
+      >
         {$t.addFeed}
       </Button>
     {:else}

@@ -34,7 +34,7 @@
   )
 </script>
 
-<Links current={$openedPost} {links}>
+<Links anchor="post" current={$openedPost} {links}>
   {#snippet item(post)}
     {getPostTitle(post)}
   {/snippet}

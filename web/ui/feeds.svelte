@@ -33,7 +33,7 @@
   )
 </script>
 
-<Links {id} {current} {links}>
+<Links {id} anchor="feed" {current} {links}>
   {#snippet item(feed)}
     {feed.title}
   {/snippet}
