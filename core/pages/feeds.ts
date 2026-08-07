@@ -153,15 +153,13 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     )
 
     async function changeReader(reader: UsefulReaderName): Promise<void> {
-      $from.set(undefined)
       let feedId = $feedId.get()
+      let categoryId = $categoryId.get()
+      $from.set(undefined)
       if (feedId) {
         await changeFeed(feedId, { [readerProp]: reader })
-      } else {
-        let categoryId = $categoryId.get()
-        if (categoryId) {
-          await changeCategory(categoryId, { [readerProp]: reader })
-        }
+      } else if (categoryId) {
+        await changeCategory(categoryId, { [readerProp]: reader })
       }
     }
 
