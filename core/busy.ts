@@ -1,7 +1,7 @@
 import { atom } from 'nanostores'
 
 export interface BusyValue {
-  label?: string
+  label: string
   progress?: number
 }
 
@@ -16,7 +16,9 @@ function update(): void {
   if (tasks.length === 0) {
     busy.set(false)
   } else {
-    let last = tasks.findLast(i => i.label || i.progress !== undefined)
+    let last = tasks.findLast(i => i.label || i.progress !== undefined) ?? {
+      label: ''
+    }
     busy.set({ label: last?.label, progress: last?.progress })
   }
 }
@@ -25,8 +27,8 @@ function update(): void {
  * Show loader over whole app until task is running.
  */
 export async function busyDuring<Value>(
-  cb: (setProgress: (progress: number) => void) => Promise<Value>,
-  label?: string
+  label: string,
+  cb: (setProgress: (progress: number) => void) => Promise<Value>
 ): Promise<Value> {
   let task: BusyValue = { label }
   tasks.push(task)
