@@ -30,6 +30,7 @@
   import Loader from './loader.svelte'
 
   let {
+    anchor,
     children,
     disabled,
     icon,
@@ -43,6 +44,7 @@
     | ({ href: string } & HTMLAnchorAttributes)
     | ({ href?: undefined } & HTMLButtonAttributes)
   ) & {
+    anchor?: string
     children: Snippet
     disabled?: boolean
     icon?: string
@@ -76,6 +78,7 @@
     'is-secondary-dangerous': variant === 'secondary-dangerous',
     'is-wide': size === 'wide' || size === 'big'
   }}
+  data-anchor={anchor ?? null}
   disabled={!!loader || !!disabled}
   {onclick}
   title={size === 'icon' ? title : undefined}

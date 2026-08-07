@@ -33,6 +33,7 @@
 <PopupablePage title={[$t.title, $organizeMessages.feedsTitle]}>
   <Stack align="center" {gap}>
     <Input
+      anchor="add-url"
       aria-controls="add-results"
       errorId={$error || $noResults ? 'add-error' : undefined}
       label={$t.urlLabel}

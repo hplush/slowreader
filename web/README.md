@@ -6,6 +6,7 @@ _See the [full architecture guide](../README.md) first._
 - [Tools](#tools)
 - [Scripts](#scripts)
 - [Design System](#design-system)
+- [DOM Anchors](#dom-anchors)
 - [Test Strategy](#test-strategy)
 - [Deploy](#deploy)
 
@@ -68,6 +69,18 @@ For **icons**, we use [Material Design Icons](https://pictogrammers.com/library/
 </script>
 
 <Icon path={mdiAccount} />
+```
+
+## DOM Anchors
+
+`data-anchor` marks elements for external code: [benchmark](../docs/benchmark.md) scenarios, e2e tests, and user plugins (scripts and user styles).
+
+```svelte
+<Button anchor="read-page">{$t.readPage}</Button><div data-anchor="popup"></div>
+```
+
+```js
+document.querySelectorAll('[data-anchor="post"]')
 ```
 
 ## Test Strategy

@@ -23,6 +23,7 @@
     </Button>
   {/if}
   <Button
+    anchor="read-page"
     icon={mdiCheckboxMultipleMarkedOutline}
     onclick={reader.readAndNext}
     size="wide"

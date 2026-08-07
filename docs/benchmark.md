@@ -134,7 +134,7 @@ UI loaders reports itself by `reportLoader()` while it is rendered.
 
 ## Scenarios
 
-Scenarios are in `web/benchmark/scenarios.ts`. They click real elements, so they depend on class names of the real UI.
+Scenarios are in `web/benchmark/scenarios.ts`. They click real elements, found by `data-anchor` markers.
 
 `freeze` scenario blocks the main thread for 200 ms. It is not in the report, but you can run it to check that freeze metrics are still working:
 

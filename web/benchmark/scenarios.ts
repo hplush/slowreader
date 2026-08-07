@@ -19,12 +19,19 @@ function nextFeedUrl(): string {
 
 const WAIT_TIMEOUT = 30000
 
+const READER_SWITCH_TIMEOUT = 120000
+
 const FREEZE_TEST = 200
 
+function byAnchor(anchor: string): string {
+  return `[data-anchor="${anchor}"]`
+}
+
 async function waitFor<Element extends HTMLElement>(
-  selector: string
+  selector: string,
+  timeout = WAIT_TIMEOUT
 ): Promise<Element> {
-  let finish = performance.now() + WAIT_TIMEOUT
+  let finish = performance.now() + timeout
   let element = document.querySelector<Element>(selector)
   while (!element) {
     if (performance.now() > finish) {
@@ -95,7 +102,7 @@ export function createScenarios(
         await open(slowPage(feed, 0))
       },
       async run() {
-        await click('.pagination_button .button')
+        await click(byAnchor('next-page'))
       }
     },
     {
@@ -104,9 +111,9 @@ export function createScenarios(
         await open(slowPage(feed, 0))
       },
       async run() {
-        await click('.radio_input[value="feed"]')
+        await click(byAnchor('reader-feed'))
         await waitIdle()
-        await click('.radio_input[value="list"]')
+        await click(byAnchor('reader-list'))
       }
     },
     {
@@ -116,8 +123,8 @@ export function createScenarios(
         await open(slowPage(feed, 0))
       },
       async run() {
-        await click('.links_item')
-        await waitFor('.popup')
+        await click(byAnchor('post'))
+        await waitFor(byAnchor('popup'))
       }
     },
     {
@@ -126,11 +133,11 @@ export function createScenarios(
         await open(slowPage(feed, 0))
       },
       async run() {
-        let items = document.querySelectorAll('.navbar-item').length
-        for (let i = 0; i < Math.min(5, items); i++) {
-          await click('.navbar-item', i)
-          await waitIdle()
+        for (let id of slowFeeds) {
+          await open(slowPage(id))
         }
+        await open(fastPage(category))
+        await open(getURL('feedsByCategories'))
       }
     },
     {
@@ -146,13 +153,14 @@ export function createScenarios(
       name: 'read-page',
       async prepare() {
         await open(slowPage(disposable, 0))
-        if (document.querySelector('.radio_input[value="feed"]')) {
-          await click('.radio_input[value="feed"]')
+        if (document.querySelector(byAnchor('reader-feed'))) {
+          await click(byAnchor('reader-feed'))
+          await waitFor(byAnchor('read-page'), READER_SWITCH_TIMEOUT)
           await waitIdle()
         }
       },
       async run() {
-        await click('.button.is-attention')
+        await click(byAnchor('read-page'))
       }
     },
     {
@@ -168,11 +176,9 @@ export function createScenarios(
       },
       async run() {
         let url = nextFeedUrl()
-        await typeIn('input', url)
-        await click(
-          `#add-results .links_item[href*="${encodeURIComponent(url)}"]`
-        )
-        await click('.popup .button.is-main')
+        await typeIn(byAnchor('add-url'), url)
+        await click(`${byAnchor('feed')}[href*="${encodeURIComponent(url)}"]`)
+        await click(byAnchor('add-feed'))
       }
     },
     {
@@ -181,7 +187,7 @@ export function createScenarios(
         await open(slowPage(feed, 0))
       },
       async run() {
-        await click('.navbar-button')
+        await click(byAnchor('refresh'))
       }
     },
     {

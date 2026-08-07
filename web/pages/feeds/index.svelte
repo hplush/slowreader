@@ -36,6 +36,7 @@
       {/if}
       {#if $posts && $posts.name !== 'welcome' && $posts.name !== 'empty'}
         <Radio
+          anchor="reader"
           label={$t.reader}
           labelless
           onchange={page.changeReader}

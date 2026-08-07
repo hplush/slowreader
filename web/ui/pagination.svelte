@@ -34,6 +34,7 @@
     </div>
     <div class="pagination_button" aria-hidden={!pages.hasNext}>
       <Button
+        anchor="next-page"
         disabled={!pages.hasNext}
         href={`?from=${pages.page + 1}`}
         icon={mdiArrowRight}
