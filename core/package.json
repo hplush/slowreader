@@ -21,7 +21,7 @@
     "@nanostores/sql": "0.3.1",
     "@slowreader/api": "workspace:*",
     "@slowreader/server": "workspace:*",
-    "dompurify": "3.4.12",
+    "dompurify": "3.4.13",
     "just-debounce-it": "3.2.0",
     "lz-string": "1.5.0",
     "nanodelay": "2.0.2",
@@ -38,7 +38,7 @@
     "nanospy": "2.0.2"
   },
   "engines": {
-    "node": "^26.6.0",
+    "node": "^26.7.0",
     "pnpm": "^11.0.0"
   }
 }
