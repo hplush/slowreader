@@ -5,6 +5,7 @@ import { addCategory } from './category.ts'
 import { client } from './client.ts'
 import { addFeed } from './feed.ts'
 import { setLoaderReporter } from './loader.ts'
+import { benchmarkMessages } from './messages/index.ts'
 import {
   addPost,
   type NewPost,
@@ -362,7 +363,7 @@ export async function fillBenchmarkData(): Promise<FillStatistics> {
     return fillClient((done, total) => {
       setProgress(done / total)
     })
-  }, 'Creating benchmark data')
+  }, benchmarkMessages.get().creatingData)
   benchmarkStatistics.set(statistics)
   return statistics
 }

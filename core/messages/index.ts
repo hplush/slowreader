@@ -1,6 +1,7 @@
 export * from './about/en.ts'
 export * from './add/en.ts'
 export * from './auth/en.ts'
+export * from './benchmark/en.ts'
 export * from './cloud/en.ts'
 export * from './common/en.ts'
 export * from './export/en.ts'
