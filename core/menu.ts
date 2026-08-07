@@ -7,6 +7,7 @@ import { client } from './client.ts'
 import { layoutType } from './environment.ts'
 import type { FeedValue } from './feed.ts'
 import { onMountAny, waitLoading } from './lib/stores.ts'
+import { commonMessages } from './messages/index.ts'
 import { isOtherRoute, router } from './router.ts'
 import { getDatabase } from './schema.ts'
 
@@ -214,7 +215,9 @@ export function busyUntilMenuLoader(): Promise<void> {
   if (client.get()) {
     keepMount(fastMenu)
     keepMount(slowMenu)
-    return busyDuring(() => waitLoading(menuLoading))
+    return busyDuring(commonMessages.get().loadingData, () =>
+      waitLoading(menuLoading)
+    )
   } else {
     return Promise.resolve()
   }

@@ -22,6 +22,7 @@ import { busyDuring } from './busy.ts'
 import { client, isOutdatedClient } from './client.ts'
 import { onEnvironment } from './environment.ts'
 import type { LoaderName } from './loader/index.ts'
+import { commonMessages } from './messages/index.ts'
 import type { UsefulReaderName } from './readers/common.ts'
 
 const READERS = ['feed', 'list'] as const satisfies readonly UsefulReaderName[]
@@ -124,6 +125,15 @@ let currentCrdt: CrdtDatabase | undefined
 let currentDatabase: Database | undefined
 let currentTables: Tables | undefined
 let ready: Promise<void> = Promise.resolve()
+let downloading = false
+
+/**
+ * Tell that the next database will be filled from the server, not from
+ * the local log. Call it on sign in to the existing account.
+ */
+export function markDatabaseDownloading(): void {
+  downloading = true
+}
 
 /**
  * Tables of the database of the current user.
@@ -176,6 +186,10 @@ function openDatabase(logux: CrossTabClient, database: Database): void {
   let crdt = createCrdtDatabase(logux, database, {
     key: 'slowreader:db',
     /* node:coverage ignore next 3 */
+    migrating(done) {
+      void busyDuring(commonMessages.get().migratingDatabase, () => done)
+    },
+    /* node:coverage ignore next 3 */
     stop() {
       isOutdatedClient.set(true)
     }
@@ -187,18 +201,15 @@ function openDatabase(logux: CrossTabClient, database: Database): void {
     filters: crdt.table('filters', filtersSchema),
     posts: crdt.table('posts', postsSchema)
   }
-  ready = new Promise(resolve => {
-    let unbind = crdt.status.subscribe(status => {
-      if (status === 'ready' || status === 'outdated') {
-        resolve()
-        setTimeout(() => {
-          unbind()
-        })
-      }
-    })
-  })
+  ready = crdt.ready
 
-  void busyDuring(() => ready)
+  void busyDuring(
+    downloading
+      ? commonMessages.get().downloadingData
+      : commonMessages.get().loadingData,
+    () => ready
+  )
+  downloading = false
 }
 
 function closeDatabase(): void {

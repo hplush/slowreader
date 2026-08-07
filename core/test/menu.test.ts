@@ -14,6 +14,7 @@ import {
   changeCategory,
   closedCategories,
   closeMenu,
+  commonMessages,
   fastMenu,
   getClient,
   getGeneralCategory,
@@ -347,7 +348,10 @@ describe('menu', () => {
 
   test('has helper to block app while menu is loading', async () => {
     busyUntilMenuLoader()
-    deepEqual(busy.get(), { label: undefined, progress: undefined })
+    deepEqual(busy.get(), {
+      label: commonMessages.get().loadingData,
+      progress: undefined
+    })
     await setTimeout(10)
     equal(busy.get(), false)
     equal(menuLoading.get(), false)

@@ -359,11 +359,14 @@ export async function signInBenchmark(): Promise<void> {
  * Create categories, feeds and posts and save statistics about them.
  */
 export async function fillBenchmarkData(): Promise<FillStatistics> {
-  let statistics = await busyDuring(setProgress => {
-    return fillClient((done, total) => {
-      setProgress(done / total)
-    })
-  }, benchmarkMessages.get().creatingData)
+  let statistics = await busyDuring(
+    benchmarkMessages.get().creatingData,
+    setProgress => {
+      return fillClient((done, total) => {
+        setProgress(done / total)
+      })
+    }
+  )
   benchmarkStatistics.set(statistics)
   return statistics
 }

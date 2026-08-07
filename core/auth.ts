@@ -4,6 +4,7 @@ import { customAlphabet } from 'nanoid'
 import { getClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
 import { checkErrors } from './lib/http.ts'
+import { markDatabaseDownloading } from './schema.ts'
 import { encryptionKey, hasPassword, syncServer, userId } from './settings.ts'
 
 let generateUserId = customAlphabet('0123456789', 16)
@@ -53,6 +54,7 @@ export async function signIn(
   userId.set(undefined)
   getEnvironment().saveSession(response.session)
   hasPassword.set(true)
+  markDatabaseDownloading()
   useCredentials(credentials)
 }
 

@@ -14,7 +14,7 @@
 <Story name="Base" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      busy.set({})
+      busy.set({ label: '' })
     }}
   >
     <BusyPage />

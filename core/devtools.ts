@@ -18,7 +18,7 @@ import { router } from './router.ts'
  * Create test feeds and posts for new client.
  */
 export async function fillFeedsWithPosts(): Promise<void> {
-  await busyDuring(async () => {
+  await busyDuring('', async () => {
     let task = createDownloadTask()
     let feeds = await loadFeeds()
     await Promise.all(
