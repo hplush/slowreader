@@ -81,11 +81,10 @@ To fill your web clients with real posts:
 4. Open browser DevTools.
 5. Run `fillFeedsWithPosts()`.
 
-To run the visual testing tool (Storybook), run it from the `web/` folder:
+To run the visual testing tool (Storybook):
 
 ```sh
-cd web/
-pnpm visual
+pnpm -F web visual
 ```
 
 It will show all UI components and all possible states of pages. It is the best tool to test browser compatibility or change CSS.
