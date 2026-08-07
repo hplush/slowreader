@@ -16,6 +16,7 @@ import {
 } from '@slowreader/core'
 import { getTestEnvironment, setBaseTestRoute } from '@slowreader/core/test'
 import { readFile } from 'node:fs/promises'
+import { setDefaultAutoSelectFamilyAttemptTimeout } from 'node:net'
 import { isAbsolute, join } from 'node:path'
 
 import {
@@ -47,6 +48,10 @@ export function isString(attr: null | string): attr is string {
 
 // Node.js sends `node` and websites with bot protection block it
 export const USER_AGENT = 'SlowReader/1.0 (+https://slowreader.app)'
+
+// Node.js gives every IP address only 500 ms to connect and gives up on all
+// of them. Slow websites need more time than browsers’ default.
+setDefaultAutoSelectFamilyAttemptTimeout(2000)
 
 export function enableTestClient(route: RouteName = 'home'): void {
   setupEnvironment({
