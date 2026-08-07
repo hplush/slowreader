@@ -37,26 +37,26 @@
     "@nanostores/router": "1.1.0",
     "@nanostores/sql": "0.3.1",
     "@slowreader/core": "workspace:*",
-    "@storybook/addon-a11y": "10.5.5",
+    "@storybook/addon-a11y": "10.5.7",
     "@storybook/addon-svelte-csf": "5.1.2",
-    "@storybook/addon-themes": "10.5.5",
-    "@storybook/svelte": "10.5.5",
-    "@storybook/svelte-vite": "10.5.5",
+    "@storybook/addon-themes": "10.5.7",
+    "@storybook/svelte": "10.5.7",
+    "@storybook/svelte-vite": "10.5.7",
     "@sveltejs/vite-plugin-svelte": "7.2.0",
     "autoprefixer": "10.5.4",
     "keyux": "0.11.6",
     "lightningcss": "1.33.0",
     "nanostores": "1.4.2",
-    "postcss": "8.5.25",
+    "postcss": "8.5.26",
     "postcss-load-config": "6.0.1",
     "postcss-mixins": "12.1.2",
     "postcss-smooth-shadow": "0.3.2",
     "rollup": "4.62.4",
     "sqlocal": "0.18.0",
-    "storybook": "10.5.5",
+    "storybook": "10.5.7",
     "svelte": "5.56.8",
-    "tsx": "4.23.5",
-    "vite": "8.2.0"
+    "tsx": "4.23.9",
+    "vite": "8.2.1"
   },
   "devDependencies": {
     "@logux/stylelint-config": "1.0.1",
@@ -76,7 +76,7 @@
     "svelte-check": "4.7.4"
   },
   "engines": {
-    "node": "^26.6.0",
+    "node": "^26.7.0",
     "pnpm": "^11.0.0"
   }
 }

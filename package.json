@@ -29,7 +29,7 @@
   "devDependencies": {
     "@logux/eslint-config": "57.1.0",
     "@logux/oxc-configs": "1.1.0",
-    "@playwright/mcp": "0.0.78",
+    "@playwright/mcp": "0.0.79",
     "@types/chrome": "0.2.5",
     "@types/node": "26.1.2",
     "@types/ws": "8.18.1",
@@ -41,8 +41,8 @@
     "jiti": "2.7.0",
     "multiocular": "0.8.4",
     "nano-staged": "1.0.2",
-    "oxfmt": "0.61.0",
-    "oxlint": "1.76.0",
+    "oxfmt": "0.62.0",
+    "oxlint": "1.77.0",
     "oxlint-tsgolint": "7.0.2001",
     "postcss-html": "2.0.0",
     "remark-cli": "12.0.1",
@@ -64,7 +64,7 @@
     "typescript": "6.0.3"
   },
   "engines": {
-    "node": "^26.6.0",
+    "node": "^26.7.0",
     "pnpm": "^11.0.0"
   },
   "packageManager": "pnpm@11.20.0"
