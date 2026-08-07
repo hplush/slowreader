@@ -74,7 +74,7 @@ We run unit tests by `node --test` with [`better-node-test`](https://github.com/
 pnpm -F core test
 
 # Run all tests without coverage (a little faster)
-cd core && n bnt
+pnpm -F core exec bnt
 
 # Run specific test file
 n bnt core/test/html.test.ts

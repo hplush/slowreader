@@ -140,8 +140,8 @@ Each project has its own tools, too.
 - `pnpm start`: run server and web client development server.
 - `pnpm format`: fix code style in all files.
 - `pnpm clean`: remove all temporary files.
-- `pnpm check-opml`: test loaders with user’s OPML RSS export.
-- `pnpm test-loaders`: test loaders with different blogging platforms.
+- `pnpm -F loader-tests check-opml`: test loaders with user’s OPML RSS export.
+- `pnpm -F loader-tests test`: test loaders with different blogging platforms.
 - `pnpm unused-messages`: check that all messages are used.
 - `pnpm update-env`: check for Node.js and pnpm updates.
 - `pnpm update-review`: run Multiocular to review updates.

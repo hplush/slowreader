@@ -12,7 +12,7 @@ Test that Slow Reader can work with all feeds from your RSS reader by using OPML
 2. Once in the root you can run:
 
    ```sh
-   pnpm check-opml PATH_TO_YOUR_FILE.opml
+   pnpm -F loader-tests check-opml PATH_TO_YOUR_FILE.opml
    ```
 
 ## Check Loaders by Different Blog Platforms
@@ -20,8 +20,7 @@ Test that Slow Reader can work with all feeds from your RSS reader by using OPML
 Test that Slow Reader can work with different feeds from popular blogging platforms.
 
 ```sh
-cd loader-tests/
-pnpm test
+pnpm -F loader-tests test
 ```
 
 ## Debug Feed Search
@@ -29,8 +28,7 @@ pnpm test
 A small helper to run feed searching for specific feed.
 
 ```sh
-cd loader-tests/
-pnpm run feed URL HOME_URL
+pnpm -F loader-tests feed URL HOME_URL
 ```
 
 ## Debug Posts Loading
@@ -38,6 +36,5 @@ pnpm run feed URL HOME_URL
 A small helper to run posts loading for specific feed.
 
 ```sh
-cd loader-tests/
-pnpm run url URL
+pnpm -F loader-tests url URL
 ```
