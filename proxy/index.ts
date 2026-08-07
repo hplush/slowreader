@@ -221,7 +221,7 @@ export function createProxy(
           targetResponse.headers.get('location')!,
           targetUrl
         )
-        checkDestination(targetUrl)
+        checkDestination(targetUrl, config.allowUnsafeDestinations)
         targetResponse = await loadTarget(
           req.method,
           targetUrl,
