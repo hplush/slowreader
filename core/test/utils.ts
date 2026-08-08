@@ -6,7 +6,6 @@ import {
   type BasePopup,
   type BaseReader,
   type BaseRoute,
-  Category,
   client,
   currentPage,
   enableTestTime,
@@ -14,9 +13,7 @@ import {
   type EnvironmentAndStore,
   fastMenu,
   fastPostsCount,
-  Feed,
   type FeedReader,
-  Filter,
   hasPassword,
   type ListReader,
   type Loader,
@@ -27,7 +24,6 @@ import {
   type Page,
   type Popup,
   type PopupName,
-  Post,
   type ReaderName,
   setLayoutType,
   setupEnvironment,
@@ -77,10 +73,6 @@ export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
 
 export async function cleanClientTest(): Promise<void> {
   cleanStores(
-    Feed,
-    Filter,
-    Category,
-    Post,
     fastMenu,
     slowMenu,
     menuLoading,

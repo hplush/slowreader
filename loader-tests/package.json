@@ -13,12 +13,12 @@
     "@slowreader/proxy": "workspace:*",
     "@types/jsdom": "28.0.3",
     "@types/trusted-types": "2.0.7",
-    "jsdom": "30.0.0",
-    "nanostores": "1.4.1",
+    "jsdom": "30.0.1",
+    "nanostores": "1.4.2",
     "yaml": "2.9.0"
   },
   "engines": {
-    "node": "^26.5.0",
+    "node": "^26.7.0",
     "pnpm": "^11.0.0"
   }
 }

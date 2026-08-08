@@ -15,7 +15,11 @@ export default defineConfig({
       }
     },
     {
-      files: ['web/stories/*.ts', 'core/devtools.ts'],
+      files: [
+        'web/stories/*.ts',
+        'core/devtools.ts',
+        'web/benchmark/benchmark.ts'
+      ],
       rules: {
         'no-console': 'off'
       }

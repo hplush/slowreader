@@ -1,78 +1,69 @@
-import {
-  changeSyncMapById,
-  createFilter,
-  createSyncMap,
-  deleteSyncMapById,
-  type FilterStore,
-  loadValue,
-  type SyncMapStore,
-  syncMapTemplate
-} from '@logux/client'
-import { nanoid } from 'nanoid'
-import { atom } from 'nanostores'
+import type { SqlStore } from '@nanostores/sql'
+import { atom, type ReadableAtom } from 'nanostores'
 
-import { getClient } from './client.ts'
-import { changeFeed, type FeedValue, getFeeds } from './feed.ts'
+import { changeFeed, loadFeedsByCategory } from './feed.ts'
+import { firstRow } from './lib/stores.ts'
 import { commonMessages as t } from './messages/index.ts'
-import type { UsefulReaderName } from './readers/common.ts'
+import {
+  type CategoryChanges,
+  type CategoryValue,
+  createRow,
+  type FeedValue,
+  getTables,
+  type NewCategory,
+  select
+} from './schema.ts'
 
-export type CategoryValue = {
-  fastReader?: UsefulReaderName
-  id: string
-  slowReader?: UsefulReaderName
-  title: string
-}
+export type { CategoryValue, NewCategory }
 
 export type FeedsByCategory = [CategoryValue, FeedValue[]][]
 
-export const Category = syncMapTemplate<CategoryValue>('categories', {
-  offline: true,
-  remote: false
-})
-
-export function getCategory(categoryId: string): SyncMapStore<CategoryValue> {
+export function getCategory(
+  categoryId: string
+): ReadableAtom<CategoryValue | undefined> {
   if (categoryId === 'general') {
     /* node:coverage ignore next 2 */
     return atom(getGeneralCategory())
   } else {
-    return Category(categoryId, getClient())
+    return firstRow(getTables().categories.select`WHERE "id" = ${categoryId}`)
   }
 }
 
-export function getCategories(): FilterStore<CategoryValue> {
-  return createFilter(getClient(), Category)
+export function getCategories(): SqlStore<CategoryValue[]> {
+  return getTables().categories.select`ORDER BY "title"`
 }
 
-export async function addCategory(
-  fields: Omit<CategoryValue, 'id'>
-): Promise<string> {
-  let id = nanoid()
-  await createSyncMap(getClient(), Category, { id, ...fields })
-  return id
+export async function loadCategory(
+  categoryId: string
+): Promise<CategoryValue | undefined> {
+  if (categoryId === 'general') return getGeneralCategory()
+  let rows = await select<CategoryValue>`
+    SELECT * FROM "categories" WHERE "id" = ${categoryId}
+  `
+  return rows[0]
 }
 
-export async function changeCategory(
+export function loadCategories(): Promise<CategoryValue[]> {
+  return select<CategoryValue>`SELECT * FROM "categories" ORDER BY "title"`
+}
+
+export function addCategory(fields: NewCategory): Promise<string> {
+  return createRow(getTables().categories, fields)
+}
+
+export function changeCategory(
   categoryId: string,
-  changes: Partial<CategoryValue>
+  changes: CategoryChanges
 ): Promise<void> {
-  return changeSyncMapById(getClient(), Category, categoryId, changes)
+  return getTables().categories.update(categoryId, changes)
 }
 
 export async function deleteCategory(categoryId: string): Promise<void> {
-  let feeds = await loadValue(getFeeds({ categoryId }))
+  let feeds = await loadFeedsByCategory(categoryId)
   await Promise.all(
-    feeds.list.map(async feed => {
-      if (!feeds.stores.get(feed.id)?.deleted) {
-        await changeFeed(feed.id, { categoryId: 'general' })
-      }
-    })
+    feeds.map(feed => changeFeed(feed.id, { categoryId: 'general' }))
   )
-  return deleteSyncMapById(getClient(), Category, categoryId)
-}
-
-export const GENERAL_CATEGORY: CategoryValue = {
-  id: 'general',
-  title: ''
+  return getTables().categories.delete(categoryId)
 }
 
 export function feedsByCategory(
@@ -115,5 +106,11 @@ export function feedsByCategory(
 }
 
 export function getGeneralCategory(): CategoryValue {
-  return { id: 'general', title: t.value?.generalCategory || 'General' }
+  return {
+    fastReader: null,
+    id: 'general',
+    slowReader: null,
+    title: t.value?.generalCategory || 'General',
+    updatedAt: '{}'
+  }
 }

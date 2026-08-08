@@ -15,10 +15,10 @@ export default (server: BaseServer): void => {
     async process(ctx, action, meta) {
       await db.insert(actions).values({
         added: await server.log.store.getLastAdded(),
-        compressed: action.z,
-        encrypted: Buffer.from(action.d, 'base64'),
+        compressed: action.compressed,
+        encrypted: Buffer.from(action.d),
         id: meta.id,
-        iv: Buffer.from(action.iv, 'base64'),
+        iv: Buffer.from(action.iv),
         subprotocol: meta.subprotocol ?? SUBPROTOCOL,
         time: meta.time - EPOCH,
         userId: ctx.userId
@@ -55,9 +55,9 @@ export default (server: BaseServer): void => {
     return list.map(column => {
       return [
         zero({
-          d: Buffer.from(column.encrypted).toString('base64'),
-          iv: Buffer.from(column.iv).toString('base64'),
-          z: column.compressed
+          compressed: column.compressed,
+          d: column.encrypted,
+          iv: column.iv
         }),
         {
           added: column.added,

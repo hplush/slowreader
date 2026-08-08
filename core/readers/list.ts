@@ -1,4 +1,3 @@
-import type { LoadedSyncMap, SyncMapStore } from '@logux/client'
 import { atom } from 'nanostores'
 
 import {
@@ -16,11 +15,12 @@ export const listReader = createReader('list', (filter, params) => {
 
   let exited = false
   let $loading = atom(true)
-  let $list = atom<LoadedSyncMap<SyncMapStore<PostValue>>[]>([])
+  let $list = atom<PostValue[]>([])
   let $pages = createPagination(1, 1)
 
   let unbindFrom = (): void => {}
   async function start(): Promise<void> {
+    // TODO Logux DB: more optimizaed way with SQL
     let posts = await loadPosts(filter)
     if (exited) return
 
@@ -42,9 +42,10 @@ export const listReader = createReader('list', (filter, params) => {
 
   async function readPage(): Promise<void> {
     let list = $list.get()
-    let promise = Promise.all(
-      list.map(i => changePost(i.get().id, { read: true }))
-    )
+    // TODO Logux DB: use one UPDATE SQL query
+    let promise = Promise.all(list.map(i => changePost(i.id, { read: 1 })))
+    // Loaded posts are a snapshot, so we need to mark them as read too
+    for (let post of list) post.read = 1
     if ($pages.get().hasNext) {
       params.from.set($pages.get().page + 1)
     }

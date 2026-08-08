@@ -9,10 +9,10 @@
   },
   "dependencies": {
     "@crxjs/vite-plugin": "2.7.1",
-    "vite": "8.1.5"
+    "vite": "8.2.1"
   },
   "engines": {
-    "node": "^26.5.0",
+    "node": "^26.7.0",
     "pnpm": "^11.0.0"
   }
 }

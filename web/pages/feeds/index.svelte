@@ -36,6 +36,7 @@
       {/if}
       {#if $posts && $posts.name !== 'welcome' && $posts.name !== 'empty'}
         <Radio
+          anchor="reader"
           label={$t.reader}
           labelless
           onchange={page.changeReader}
@@ -50,7 +51,7 @@
     </Stack>
     {#if $postsLoading || !$posts}
       <Stack height="stretch" justify="center">
-        <Loader />
+        <Loader track="posts" />
       </Stack>
     {:else if $posts.name === 'empty'}
       <FeedsEmptyPage reader={$posts} />

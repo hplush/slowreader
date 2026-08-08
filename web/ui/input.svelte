@@ -8,6 +8,7 @@
   import Label from './label.svelte'
 
   let {
+    anchor,
     disabled,
     error,
     errorId,
@@ -23,6 +24,7 @@
     value = $bindable(''),
     ...props
   }: {
+    anchor?: string
     disabled?: boolean
     error?: string
     errorId?: string
@@ -76,6 +78,7 @@
     aria-errormessage={errorId || (error ? `${id}-error` : null)}
     aria-invalid={error || errorId ? true : null}
     aria-label={labelless ? label : null}
+    data-anchor={anchor ?? null}
     data-invalid={!!runValidators(value)}
     onblur={e => {
       value = e.currentTarget.value

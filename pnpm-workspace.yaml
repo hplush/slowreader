@@ -12,7 +12,7 @@ allowBuilds:
   esbuild: true
   unrs-resolver: false
 
-blockExoticSubdeps: true
+blockExoticSubdeps: false
 
 forceLegacyDeploy: true
 

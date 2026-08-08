@@ -77,7 +77,7 @@ The source of truth in the client is a list of changes (action log). An action i
 }
 ```
 
-To render the UI, the client reduces actions from the log into the state (objects of feeds, posts, etc.). We store the state cache in [Nano Stores](https://github.com/nanostores/nanostores).
+To render the UI, the client reduces actions from the log into SQL tables (feeds, posts, etc.) defined in [`core/schema.ts`](./core/schema.ts). The UI subscribes to reactive SQL queries from [Nano Stores SQL](https://github.com/nanostores/sql). Web keeps the database in SQLite compiled to WebAssembly, Node.js tests use in-memory SQLite.
 
 The log simplifies synchronization. We just need to track the last synchronized action and send all actions after that one.
 
@@ -137,11 +137,11 @@ Each project has its own tools, too.
 - `pnpm test`: run all tests.
 - `pnpm quick`: run quick checks for changed files.
 - `pnpm offline`: run all tests expect which need Internet. It is useful for developing in airplane/train.
-- `pnpm start`: run proxy and web client development server.
+- `pnpm start`: run server and web client development server.
 - `pnpm format`: fix code style in all files.
 - `pnpm clean`: remove all temporary files.
-- `pnpm check-opml`: test loaders with user’s OPML RSS export.
-- `pnpm test-loaders`: test loaders with different blogging platforms.
+- `pnpm -F loader-tests check-opml`: test loaders with user’s OPML RSS export.
+- `pnpm -F loader-tests test`: test loaders with different blogging platforms.
 - `pnpm unused-messages`: check that all messages are used.
 - `pnpm update-env`: check for Node.js and pnpm updates.
 - `pnpm update-review`: run Multiocular to review updates.
@@ -239,7 +239,7 @@ How we choose dependencies:
 
 You can use [bundlejs.com](https://bundlejs.com/) and [npmgraph.js.org](https://npmgraph.js.org) to get the size in bundle, `node_modules`, and number of sub-dependencies.
 
-After adding a web client dependency, do not forget to call `cd web && pnpm size` to check the real size of dependency in our JS bundle.
+After adding a web client dependency, do not forget to call `pnpm -F web size` to check the real size of dependency in our JS bundle.
 
 We put to `dependencies` only dependencies we need for production deploy. All other dependencies you should put to `devDependencies`. During production deploy we will use `pnpm install --prod` to reduce security risks of having malicious code in some dependency.
 

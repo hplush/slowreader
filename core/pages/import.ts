@@ -1,8 +1,7 @@
-import { loadValue } from '@logux/client'
 import { atom } from 'nanostores'
 
 import { addCategory } from '../category.ts'
-import { addCandidate, addFeed, getFeeds } from '../feed.ts'
+import { addCandidate, addFeed, loadFeedByUrl } from '../feed.ts'
 import { addFilter } from '../filter.ts'
 import { createDownloadTask } from '../lib/download.ts'
 import { parseDocument } from '../lib/html.ts'
@@ -13,17 +12,12 @@ import { createPage } from './common.ts'
 import { isStateExportFile, type StateExport } from './export.ts'
 
 async function readFile(file: File): Promise<false | string> {
-  return new Promise(resolve => {
-    let reader = new FileReader()
-    reader.addEventListener('load', () => {
-      resolve(reader.result as string)
-    })
+  try {
+    return await file.text()
     /* node:coverage ignore next 3 */
-    reader.addEventListener('error', () => {
-      resolve(false)
-    })
-    reader.readAsText(file)
-  })
+  } catch {
+    return false
+  }
 }
 
 type FeedError = 'exists' | 'noFeeds' | 'unknown' | 'unloadable'
@@ -54,8 +48,7 @@ export const importPage = createPage('import', () => {
   }
 
   async function feedExists(url: string): Promise<boolean> {
-    let feeds = await loadValue(getFeeds({ url }))
-    return feeds.list.some(i => !feeds.stores.get(i.id)!.deleted)
+    return !!(await loadFeedByUrl(url))
   }
 
   async function importOpml(doc: Document): Promise<void> {

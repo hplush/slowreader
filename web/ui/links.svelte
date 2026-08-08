@@ -17,11 +17,13 @@
   import Icon from './icon.svelte'
 
   let {
+    anchor,
     current,
     id,
     item,
     links
   }: {
+    anchor: string
     current?: string
     id?: string
     item: Snippet<[Value]>
@@ -39,6 +41,7 @@
         }}
         aria-controls={i.controls ?? null}
         aria-current={current === i.id ? 'page' : null}
+        data-anchor={anchor}
         href={i.href}
         role="menuitem"
         tabindex={-1}

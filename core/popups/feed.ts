@@ -1,16 +1,21 @@
-import type { FilterStore } from '@logux/client'
 import { atom } from 'nanostores'
 
 import { getCategories } from '../category.ts'
 import { getEnvironment } from '../environment.ts'
 import { errorToMessage, NotFoundError } from '../errors.ts'
-import { addCandidate, deleteFeed, type FeedValue, getFeeds } from '../feed.ts'
+import {
+  addCandidate,
+  deleteFeed,
+  type FeedValue,
+  getFeedsByUrl,
+  loadFeedByUrl
+} from '../feed.ts'
 import {
   createDownloadTask,
   type DownloadTask,
   type TextResponse
 } from '../lib/download.ts'
-import { waitSyncLoading } from '../lib/stores.ts'
+import { waitSql } from '../lib/stores.ts'
 import { type FeedLoader, getLoaderForText } from '../loader/index.ts'
 import { commonMessages } from '../messages/index.ts'
 import { createPostsList } from '../posts-list.ts'
@@ -38,32 +43,28 @@ function swapHttpProtocol(url: string): string {
   return u.toString()
 }
 
-async function getFeedsFilter(url: string): Promise<FilterStore<FeedValue>> {
-  let exactFilter = getFeeds({ url })
-  let feeds = await waitSyncLoading(exactFilter)
-
-  if (feeds.get().list.length === 0) {
-    let fallbackFilter = getFeeds({ url: swapHttpProtocol(url) })
-    feeds = await waitSyncLoading(fallbackFilter)
-    if (feeds.get().list.length > 0) {
-      return fallbackFilter
-    }
-  }
-
-  return exactFilter
+/**
+ * Feed could be saved with another protocol than in the current URL.
+ */
+async function findFeedUrl(url: string): Promise<string> {
+  if (await loadFeedByUrl(url)) return url
+  let swapped = swapHttpProtocol(url)
+  if (await loadFeedByUrl(swapped)) return swapped
+  return url
 }
 
 export const feed = definePopup('feed', async url => {
   let task = createDownloadTask({ cache: 'read' })
-  let feedsFilter = await getFeedsFilter(url)
+  let feedsStore = getFeedsByUrl(await findFeedUrl(url))
+  let categoriesStore = getCategories()
   let error: string | undefined
-  let [responseOrError, categoriesFilter, feeds] = await Promise.all([
+  let [responseOrError, feeds] = await Promise.all([
     loadFeedFromURL(task, url),
-    waitSyncLoading(getCategories()),
-    waitSyncLoading(feedsFilter)
+    waitSql(feedsStore),
+    waitSql(categoriesStore)
   ])
 
-  let existing = feeds.get().list[0]
+  let existing = feeds[0]
   let response: TextResponse | undefined
   let candidate: false | FeedLoader | undefined
   let posts = createPostsList(undefined)
@@ -81,26 +82,16 @@ export const feed = definePopup('feed', async url => {
 
   let $feed = atom<FeedValue | undefined>()
 
-  let unbindFeed = (): void => {}
-  let unbindFeeds = feedsFilter.subscribe(value => {
+  let unbindFeeds = feedsStore.subscribe(value => {
     if (!value.isLoading) {
-      let find = value.list[0]
-      if (find) {
-        let $find = value.stores.get(find.id)!
-        unbindFeed = $find.subscribe(i => {
-          if (!i.isLoading) {
-            $feed.set(i)
-          }
-        })
-      } else {
-        $feed.set(undefined)
-      }
+      $feed.set(value.value[0])
     }
   })
 
   let $categories = atom<[string, string][]>([])
-  let unbindCategories = categoriesFilter.subscribe(value => {
-    let list = value.list.map(
+  let unbindCategories = categoriesStore.subscribe(value => {
+    if (value.isLoading) return
+    let list = value.value.map(
       category => [category.id, category.title] as [string, string]
     )
     $categories.set([
@@ -129,7 +120,6 @@ export const feed = definePopup('feed', async url => {
     destroy() {
       task.destroy()
       unbindFeeds()
-      unbindFeed()
       unbindCategories()
     },
     error,

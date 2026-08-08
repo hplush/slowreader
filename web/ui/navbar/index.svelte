@@ -94,6 +94,7 @@
       {#if $isRefreshing}
         <NavbarButton
           name={$t.refresh}
+          anchor="refresh"
           href={getPopupHash($router, 'refresh', '1')}
           size="icon"
         >
@@ -102,6 +103,7 @@
       {:else if $refreshStatus === 'error'}
         <NavbarButton
           name={$t.refresh}
+          anchor="refresh"
           href={getPopupHash($router, 'refresh', '1')}
           icon={mdiRefresh}
           size="icon"
@@ -109,6 +111,7 @@
       {:else}
         <NavbarButton
           name={$t.refresh}
+          anchor="refresh"
           icon={$refreshStatus === 'done' ? mdiCheckCircleOutline : mdiRefresh}
           onclick={() => {
             refreshPosts()

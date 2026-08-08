@@ -1,4 +1,6 @@
 import { MemoryStore } from '@logux/core'
+import { openDb } from '@nanostores/sql'
+import { nodeDriver } from '@nanostores/sql/node'
 import { delay } from 'nanodelay'
 import { atom } from 'nanostores'
 
@@ -45,6 +47,9 @@ export function getTestEnvironment(): EnvironmentAndStore {
       for (let key in persistentStore) {
         delete persistentStore[key]
       }
+    },
+    databaseCreator() {
+      return openDb(nodeDriver(':memory:'))
     },
     errorEvents: { addEventListener() {} },
     getSession() {

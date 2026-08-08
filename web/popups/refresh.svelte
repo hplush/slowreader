@@ -61,6 +61,7 @@
         </Label>
         <Loader
           size="wide"
+          track="refresh-popup"
           value={$refreshStatistics.initializing ? undefined : $refreshProgress}
         />
       </Stack>

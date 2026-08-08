@@ -76,8 +76,10 @@ describe('server assets', () => {
     let index1 = await server.fetch('/')
     checkHeaders(index1, {
       'content-security-policy':
-        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-MQAdkik2UpIegx87oj4jDzvVmtZQHZ8UHLkaMPDUYns=' 'sha256-6V2udMXGcrAVUt4WPmtKduau7GKHBV09b7CIdEvxvK4=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'self'; require-trusted-types-for 'script'; trusted-types dompurify slowreader-rich svelte-trusted-html slowreader-parse",
+        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-MQAdkik2UpIegx87oj4jDzvVmtZQHZ8UHLkaMPDUYns=' 'sha256-6V2udMXGcrAVUt4WPmtKduau7GKHBV09b7CIdEvxvK4=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'wasm-unsafe-eval' 'self'; require-trusted-types-for 'script'; trusted-types default dompurify slowreader-rich svelte-trusted-html slowreader-parse",
       'content-type': 'text/html',
+      'cross-origin-embedder-policy': 'credentialless',
+      'cross-origin-opener-policy': 'same-origin',
       'strict-transport-security':
         'max-age=31536000; includeSubDomains; preload',
       'x-content-type-options': 'nosniff'
@@ -87,8 +89,10 @@ describe('server assets', () => {
     let html = await server.fetch('/404.html')
     checkHeaders(html, {
       'content-security-policy':
-        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-MQAdkik2UpIegx87oj4jDzvVmtZQHZ8UHLkaMPDUYns=' 'sha256-6V2udMXGcrAVUt4WPmtKduau7GKHBV09b7CIdEvxvK4=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'self'; require-trusted-types-for 'script'; trusted-types dompurify slowreader-rich svelte-trusted-html slowreader-parse",
+        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-MQAdkik2UpIegx87oj4jDzvVmtZQHZ8UHLkaMPDUYns=' 'sha256-6V2udMXGcrAVUt4WPmtKduau7GKHBV09b7CIdEvxvK4=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'wasm-unsafe-eval' 'self'; require-trusted-types-for 'script'; trusted-types default dompurify slowreader-rich svelte-trusted-html slowreader-parse",
       'content-type': 'text/html',
+      'cross-origin-embedder-policy': 'credentialless',
+      'cross-origin-opener-policy': 'same-origin',
       'strict-transport-security':
         'max-age=31536000; includeSubDomains; preload',
       'x-content-type-options': 'nosniff'

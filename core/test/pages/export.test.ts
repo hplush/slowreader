@@ -99,16 +99,23 @@ describe('export page', () => {
     deepEqual(json, {
       categories: [
         {
+          fastReader: null,
           id: category,
+          slowReader: null,
           title: 'A'
         }
       ],
       feeds: [
         {
           categoryId: category,
+          fastReader: null,
           id: feed,
+          lastOriginId: null,
+          lastPublishedAt: null,
           loader: 'rss',
           reading: 'fast',
+          refreshedAt: null,
+          slowReader: null,
           title: '1',
           url: 'http://example.com/5'
         }
@@ -125,11 +132,15 @@ describe('export page', () => {
       posts: [
         {
           feedId: feed,
+          full: null,
           id: post,
           intro: 'Post 1',
+          media: null,
           originId: 'test-1',
           publishedAt: 1000,
+          read: 0,
           reading: 'fast',
+          title: null,
           url: 'http://example.com/1'
         }
       ],

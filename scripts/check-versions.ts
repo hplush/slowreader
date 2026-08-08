@@ -65,7 +65,10 @@ for (let file of globSync(['./*/package.json', 'package.json'])) {
 }
 
 for (let file of globSync('**/Dockerfile')) {
-  let match = read(file).match(/NODE_VERSION=(\d+\.\d+\.\d+)/)
+  let content = read(file)
+  let match =
+    content.match(/NODE_VERSION=(\d+\.\d+\.\d+)/) ||
+    content.match(/nodejs:(\d+\.\d+\.\d+)/)
   if (match && match[1] !== nodeFull) {
     error(
       `Different Node.js version in ${file}: ${styleText('yellow', match[1]!)}`

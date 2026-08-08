@@ -52,6 +52,7 @@
   class="popup"
   class:is-comfort-mode={reading === 'slow'}
   class:is-non-comfort-mode={reading === 'fast'}
+  data-anchor="popup"
   open
 >
   <header

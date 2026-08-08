@@ -1,3 +1,5 @@
+import { openDb } from '@nanostores/sql'
+import { sqlocalDriver } from '@nanostores/sql/sqlocal'
 import {
   type BaseRoute,
   type NetworkTypeDetector,
@@ -46,6 +48,7 @@ effect([mobileMedia, tabletMedia], (mobile, tablet) => {
 setupEnvironment({
   ...getTestEnvironment(),
   baseRouter,
+  databaseCreator: () => openDb(sqlocalDriver(':memory:')),
   errorEvents: window,
   getSession() {
     return undefined

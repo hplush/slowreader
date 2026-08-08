@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { LoadedSyncMap, SyncMapStore } from '@logux/client'
   import { mdiChevronRight, mdiOpenInNew } from '@mdi/js'
   import {
     type FeedValue,
@@ -22,49 +21,49 @@
     author,
     post
   }: {
-    author: LoadedSyncMap<SyncMapStore<FeedValue>> | undefined
-    post: LoadedSyncMap<SyncMapStore<PostValue>>
+    author: FeedValue | undefined
+    post: PostValue
   } = $props()
 
-  let [intro, more] = $derived(getPostIntro($post))
+  let [intro, more] = $derived(getPostIntro(post))
 </script>
 
 <li
   class="feed-post"
-  class:is-current={$openedPost === $post.id}
-  class:is-read={$post.read}
+  class:is-current={$openedPost === post.id}
+  class:is-read={post.read}
 >
   <a
     class="feed-post_link"
-    aria-controls={getPopupId('post', getPostPopupParam($post))}
-    aria-current={$openedPost === $post.id ? 'page' : null}
-    aria-labelledby={`feed-content-${$post.id}`}
-    href={getPopupHash($router, 'post', getPostPopupParam($post))}
+    aria-controls={getPopupId('post', getPostPopupParam(post))}
+    aria-current={$openedPost === post.id ? 'page' : null}
+    aria-labelledby={`feed-content-${post.id}`}
+    href={getPopupHash($router, 'post', getPostPopupParam(post))}
   ></a>
-  <article id={`feed-content-${$post.id}`} class="feed-post_content">
+  <article id={`feed-content-${post.id}`} class="feed-post_content">
     {#if author}
       <div class="feed-post_author">
-        <SmallLink href={getPopupHash($router, 'feed', $author!.url)} shrink>
-          {$author?.title}
+        <SmallLink href={getPopupHash($router, 'feed', author.url)} shrink>
+          {author.title}
         </SmallLink>
       </div>
     {/if}
-    {#if $post.title}
+    {#if post.title}
       <h2 class="feed-post_title">
-        <FormattedText html={$post.title} url={$post.url} />
+        <FormattedText html={post.title} url={post.url ?? undefined} />
       </h2>
     {/if}
-    <FormattedText html={intro} simple url={$post.url} />
-    {#each parseMedia($post.media) as media, index (`${media.url}${index}`)}
+    <FormattedText html={intro} simple url={post.url ?? undefined} />
+    {#each parseMedia(post.media) as media, index (`${media.url}${index}`)}
       {#if !media.fromText && media.type.startsWith('image')}
         <img class="feed-post_image" alt="" src={media.url} />
       {/if}
     {/each}
     <footer class="feed-post_actions">
       <div class="feed-post_fill"></div>
-      {#if $post.url}
+      {#if post.url}
         <Button
-          href={$post.url}
+          href={post.url}
           icon={mdiOpenInNew}
           size="icon"
           target="_blank"
@@ -75,7 +74,7 @@
       {/if}
       {#if more}
         <Button
-          href={getPopupHash($router, 'post', getPostPopupParam($post))}
+          href={getPopupHash($router, 'post', getPostPopupParam(post))}
           icon={mdiChevronRight}
           size="icon"
           variant="plain"

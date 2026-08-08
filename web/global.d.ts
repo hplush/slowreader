@@ -20,6 +20,22 @@ interface Navigator {
     | undefined
 }
 
+interface Performance {
+  memory:
+    | {
+        usedJSHeapSize: number
+      }
+    | undefined
+}
+
+interface StorageEstimate {
+  usageDetails:
+    | {
+        indexedDB?: number
+      }
+    | undefined
+}
+
 declare module '*.avif'
 declare module '*.png'
 

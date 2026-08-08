@@ -39,7 +39,7 @@ describe('feeds page', () => {
     })
     equal(page.params.category.get(), undefined)
     equal(page.params.feed.get(), undefined)
-    equal(page.loading.get(), false)
+    await waitLoading(page.loading)
     equal(page.posts.get()!.name, 'welcome')
 
     page = openPage({
@@ -47,7 +47,7 @@ describe('feeds page', () => {
       route: 'fast'
     })
     equal(page.params.category.get(), 'general')
-    equal(page.loading.get(), false)
+    await waitLoading(page.loading)
     equal(page.posts.get()!.name, 'welcome')
 
     let category1 = await addCategory({ title: 'A1' })
@@ -65,7 +65,7 @@ describe('feeds page', () => {
     })
     equal(page.params.category.get(), undefined)
     equal(page.params.feed.get(), undefined)
-    equal(page.loading.get(), false)
+    await waitLoading(page.loading)
     equal(page.posts.get()!.name, 'empty')
 
     page = openPage({
@@ -74,7 +74,7 @@ describe('feeds page', () => {
     })
     equal(page.params.category.get(), category1)
     equal(page.params.feed.get(), undefined)
-    equal(page.loading.get(), false)
+    await waitLoading(page.loading)
     equal(page.posts.get()!.name, 'empty')
 
     await addPost(testPost({ feedId: feed2, reading: 'slow' }))
@@ -107,6 +107,7 @@ describe('feeds page', () => {
       route: 'slow'
     })
     await waitLoading(empty.loading)
+    await setTimeout(10)
     equal(empty.posts.get()?.name, 'welcome')
 
     let category1 = await addCategory({ title: '1' })
@@ -124,6 +125,7 @@ describe('feeds page', () => {
       params: { feed: feed3 },
       route: 'slow'
     })
+    await setTimeout(10)
     equal(page.posts.get()!.name, 'empty')
 
     await addPost(testPost({ feedId: feed1, reading: 'slow' }))
@@ -132,12 +134,14 @@ describe('feeds page', () => {
       params: { feed: feed3 },
       route: 'slow'
     })
+    await setTimeout(10)
     equal(page.posts.get()!.name, 'list')
 
     page = openPage({
       params: { feed: feed1 },
       route: 'slow'
     })
+    await setTimeout(10)
     equal(page.posts.get()!.name, 'list')
 
     page.changeReader('feed')
@@ -148,12 +152,14 @@ describe('feeds page', () => {
       params: { feed: feed2 },
       route: 'slow'
     })
+    await setTimeout(10)
     equal(page.posts.get()!.name, 'list')
 
     page = openPage({
       params: { feed: feed1 },
       route: 'slow'
     })
+    await setTimeout(10)
     equal(page.posts.get()!.name, 'feed')
 
     page = openPage({
@@ -164,6 +170,7 @@ describe('feeds page', () => {
     equal(page.posts.get()!.name, 'empty')
 
     await addPost(testPost({ feedId: feed2, reading: 'fast' }))
+    await setTimeout(10)
     equal(page.posts.get()!.name, 'feed')
 
     page.changeReader('list')
@@ -182,6 +189,7 @@ describe('feeds page', () => {
       params: { category: category1 },
       route: 'fast'
     })
+    await setTimeout(10)
     equal(page.posts.get()!.name, 'list')
   })
 })

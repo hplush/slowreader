@@ -100,6 +100,14 @@ window.addEventListener('load', () => {
   void import('./devtools.ts').then(() => {})
 })
 
+if (location.search.includes('benchmark')) {
+  let debug = location.search.includes('benchmark=debug')
+  sessionStorage.setItem('benchmark', debug ? 'debug' : '1')
+}
+if (sessionStorage.getItem('benchmark')) {
+  void import('../benchmark/benchmark.ts').then(() => {})
+}
+
 startKeyUX(window, [
   pressKeyUX('is-pseudo-active'),
   focusGroupKeyUX(),

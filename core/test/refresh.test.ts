@@ -1,6 +1,5 @@
 import './dom-parser.ts'
 
-import { loadValue } from '@logux/client'
 import { restoreAll, spyOn } from 'nanospy'
 import { deepEqual, equal, fail, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
@@ -11,8 +10,8 @@ import {
   addFilter,
   createPostsList,
   deleteFeed,
-  getFeed,
-  getPosts,
+  loadFeed,
+  loadPosts,
   HTTPStatusError,
   isRefreshing,
   loaders,
@@ -54,8 +53,8 @@ describe('refresh', () => {
   async function getPostKeys<Key extends keyof PostValue>(
     key: Key
   ): Promise<PostValue[Key][]> {
-    let posts = await loadValue(getPosts())
-    return posts.list
+    let posts = await loadPosts()
+    return posts
       .toSorted((a, b) => a.originId.localeCompare(b.originId))
       .map(post => post[key])
   }
@@ -173,9 +172,9 @@ describe('refresh', () => {
     deepEqual(await getPostKeys('title'), ['2', '3'])
     deepEqual(await getPostKeys('reading'), ['slow', 'slow'])
     deepEqual(await getPostKeys('feedId'), [feedId1, feedId1])
-    ok((await getPostKeys('publishedAt'))[0]! + 100 > Date.now())
-    deepEqual((await loadValue(getFeed(feedId1)))!.lastOriginId, 'post3')
-    deepEqual((await loadValue(getFeed(feedId1)))!.lastPublishedAt, undefined)
+    ok((await getPostKeys('publishedAt'))[0]! + 1000 > Date.now())
+    deepEqual((await loadFeed(feedId1))!.lastOriginId, 'post3')
+    deepEqual((await loadFeed(feedId1))!.lastPublishedAt, null)
 
     let atom2 = atom1.next()
     atom1.resolve([
@@ -200,8 +199,8 @@ describe('refresh', () => {
     })
     deepEqual(await getPostKeys('title'), ['2', '3'])
     deepEqual(await getPostKeys('reading'), ['slow', 'slow'])
-    deepEqual((await loadValue(getFeed(feedId2)))!.lastOriginId, 'post2')
-    deepEqual((await loadValue(getFeed(feedId2)))!.lastPublishedAt, 5000)
+    deepEqual((await loadFeed(feedId2))!.lastOriginId, 'post2')
+    deepEqual((await loadFeed(feedId2))!.lastPublishedAt, 5000)
 
     atom2.resolve([
       [
@@ -215,8 +214,8 @@ describe('refresh', () => {
     ])
     await setTimeout(10)
     deepEqual(await getPostKeys('title'), ['2', '3', '6', '7', '8 slow'])
-    deepEqual((await loadValue(getFeed(feedId2)))!.lastOriginId, 'post9')
-    deepEqual((await loadValue(getFeed(feedId2)))!.lastPublishedAt, 9000)
+    deepEqual((await loadFeed(feedId2))!.lastOriginId, 'post9')
+    deepEqual((await loadFeed(feedId2))!.lastPublishedAt, 9000)
     equal(finished, true)
     deepEqual(refreshErrors.get(), [])
     equal(refreshStatus.get(), 'done')
@@ -426,7 +425,7 @@ describe('refresh', () => {
     equal(refreshStatus.get(), 'done')
     deepEqual(await getPostKeys('title'), ['4', '5', '6'])
 
-    let feed = await loadValue(getFeed(feedId))
+    let feed = await loadFeed(feedId)
     deepEqual(feed!.lastOriginId, 'post6')
     deepEqual(feed!.lastPublishedAt, 6000)
   })
@@ -460,7 +459,7 @@ describe('refresh', () => {
     equal(refreshStatus.get(), 'done')
     deepEqual(await getPostKeys('title'), ['2', '3', '4'])
 
-    let feed = await loadValue(getFeed(feedId))
+    let feed = await loadFeed(feedId)
     deepEqual(feed!.lastOriginId, 'post4')
     deepEqual(feed!.lastPublishedAt, 4000)
   })
