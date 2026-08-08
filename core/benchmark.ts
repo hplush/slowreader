@@ -60,6 +60,7 @@ export interface FillStatistics {
   duration: number
   feeds: number
   posts: number
+  readerFeed: string
   slowFeeds: string[]
 }
 
@@ -192,6 +193,9 @@ const ANCHORS: [PostValue['reading'], number][] = [
   ['fast', 300]
 ]
 
+// Feed reader is set here, so benchmark will not switch reader before scenario
+const READER_FEED = 'feed-1'
+
 function postsInFeed(random: () => number): number {
   let point = random()
   let sum = 0
@@ -263,6 +267,7 @@ async function fillClient(
       loader: 'rss',
       reading,
       refreshedAt: now,
+      slowReader: feedId === READER_FEED ? 'feed' : undefined,
       title: sentence(random, 1, 4),
       url: `https://example.com/${feedId}.xml`
     })
@@ -294,6 +299,7 @@ async function fillClient(
     duration: performance.now() - started,
     feeds: size.feeds,
     posts,
+    readerFeed: READER_FEED,
     slowFeeds: slow
       .toSorted((a, b) => b[1] - a[1])
       .slice(0, 3)

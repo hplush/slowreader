@@ -148,6 +148,7 @@ async function run(only?: string): Promise<BenchmarkResults> {
 
   let scenarios = createScenarios(
     statistics.biggestCategory,
+    statistics.readerFeed,
     statistics.slowFeeds
   ).filter(i => (only ? i.name === only : i.name !== 'freeze'))
 
@@ -204,7 +205,7 @@ window.benchmark = {
   fill,
   results: undefined,
   run,
-  scenarios: createScenarios('', ['', ''])
+  scenarios: createScenarios('', '', ['', ''])
     .map(i => i.name)
     .filter(i => i !== 'freeze'),
   storage: measureStorage
