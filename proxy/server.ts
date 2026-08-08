@@ -18,7 +18,15 @@ if (!process.env.PROXY_ORIGIN) {
 let proxy = createServer(
   createProxy({ ...DEFAULT_PROXY_CONFIG, allowsFrom: process.env.PROXY_ORIGIN })
 )
-proxy.listen(process.env.PORT ?? '5284')
+let port = process.env.PORT ?? '5284'
+proxy.listen(port, () => {
+  process.stdout.write(
+    styleText(
+      'green',
+      `Proxy server is listening at http://localhost:${port}\n`
+    )
+  )
+})
 
 process.on('SIGINT', () => {
   proxy.close()

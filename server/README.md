@@ -11,7 +11,7 @@ and uses end-to-end encryption not to know what users read and like.
 - [`db/`](./db/): database migrations and configs.
 - [`lib/`](./lib/): shared helpers for features.
 - [`test/`](./test/): unit tests for each feature.
-- [`scripts/`](./scripts/): script to test production mode.
+- [`scripts/`](./scripts/): scripts to prepare and test production mode.
 - [`drizzle.config.ts`](./drizzle.config.ts): config for [Drizzle Kit CLI](https://orm.drizzle.team/docs/kit-overview).
 - [`Dockerfile`](./Dockerfile): build image to deploy server.
 
@@ -77,8 +77,9 @@ pnpm -F server database
 For deploy we:
 
 1. Use `pnpm deploy` to create `dist/` only with production dependencies.
-2. Build Docker image with Node.js.
-3. Run this image on our Dokploy server.
+2. Move workspace packages to `dist/vendor/` by [`scripts/vendor-workspace.sh`](./scripts/vendor-workspace.sh) and link them back to `node_modules/`, because Node.js can’t strip types inside `node_modules/`.
+3. Build Docker image with Node.js.
+4. Run this image on our Dokploy server.
 
 We deploy server to:
 
