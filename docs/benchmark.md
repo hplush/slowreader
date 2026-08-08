@@ -11,7 +11,6 @@ on the first run), fills the database on the first run, shows the progress bar,
 and prints total numbers:
 
 ```sh
-pnpm -F web build:web
 pnpm -F web benchmark
 ```
 

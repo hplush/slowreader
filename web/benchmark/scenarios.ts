@@ -19,8 +19,6 @@ function nextFeedUrl(): string {
 
 const WAIT_TIMEOUT = 30000
 
-const READER_SWITCH_TIMEOUT = 120000
-
 const FREEZE_TEST = 200
 
 function byAnchor(anchor: string): string {
@@ -28,10 +26,9 @@ function byAnchor(anchor: string): string {
 }
 
 async function waitFor<Element extends HTMLElement>(
-  selector: string,
-  timeout = WAIT_TIMEOUT
+  selector: string
 ): Promise<Element> {
-  let finish = performance.now() + timeout
+  let finish = performance.now() + WAIT_TIMEOUT
   let element = document.querySelector<Element>(selector)
   while (!element) {
     if (performance.now() > finish) {
@@ -73,10 +70,10 @@ function fastPage(category: string): string {
 
 export function createScenarios(
   category: string,
+  readerFeed: string,
   slowFeeds: string[]
 ): Scenario[] {
   let feed = slowFeeds[0]!
-  let disposable = slowFeeds[1] ?? feed
   return [
     {
       name: 'open-slow-feed',
@@ -152,12 +149,7 @@ export function createScenarios(
     {
       name: 'read-page',
       async prepare() {
-        await open(slowPage(disposable, 0))
-        if (document.querySelector(byAnchor('reader-feed'))) {
-          await click(byAnchor('reader-feed'))
-          await waitFor(byAnchor('read-page'), READER_SWITCH_TIMEOUT)
-          await waitIdle()
-        }
+        await open(slowPage(readerFeed, 0))
       },
       async run() {
         await click(byAnchor('read-page'))
