@@ -149,7 +149,7 @@ export function createScenarios(
     {
       name: 'read-page',
       async prepare() {
-        await open(slowPage(readerFeed, 0))
+        await open(slowPage(readerFeed))
       },
       async run() {
         await click(byAnchor('read-page'))
