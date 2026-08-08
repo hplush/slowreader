@@ -15,7 +15,7 @@
     "test:css": "stylelint .",
     "test:svelte-types": "svelte-check --tsgo",
     "test:build": "node --run build && size-limit && node ./scripts/check-css-props.ts",
-    "build:routes": "tsx ./scripts/export-routes.ts",
+    "build:routes": "node ./scripts/export-routes.ts",
     "build:visual": "NODE_ENV=test storybook build --loglevel error",
     "build:web": "vite build && node scripts/generate-csp.ts",
     "format:css": "stylelint --fix .",
@@ -55,7 +55,6 @@
     "sqlocal": "0.18.0",
     "storybook": "10.5.7",
     "svelte": "5.56.8",
-    "tsx": "4.23.9",
     "vite": "8.2.1"
   },
   "devDependencies": {
