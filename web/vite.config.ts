@@ -54,9 +54,16 @@ export default defineConfig(() => ({
       'Cross-Origin-Opener-Policy': 'same-origin'
     }
   },
+  server: {
+    headers: {
+      'Cross-Origin-Embedder-Policy': 'credentialless',
+      'Cross-Origin-Opener-Policy': 'same-origin'
+    }
+  },
   plugins: [
     svelte(),
-    sqlocal(),
+    // `coi: false` since plugin sets require-corp, which blocks post’s images
+    sqlocal({ coi: false }),
     {
       configureServer(server) {
         let csp = loadCSP()
