@@ -470,7 +470,7 @@ let chromium = await Chromium.start(binary)
 let stopPeaks: (() => Promise<Peaks>) | undefined
 
 try {
-  if (debug) status('Debug mode: small database and single run of scenarios')
+  if (debug) warning('Debug mode: small database and single run of scenarios')
   let page = `${address}/?benchmark${debug ? '=debug' : ''}`
   await chromium.open(page)
 
