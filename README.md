@@ -177,12 +177,9 @@ The server doesn’t see those actions because clients encrypt them before sendi
 
 ## Client Storage
 
-The clients store a list of changes (action log). Durin
-console.log(client1.log.entries())g the start, the client reduces all necessary actions from the log to the [Logux SyncMap stores](https://logux.org/web-api/#globals-syncmaptemplate).
+The clients store a list of changes (action log). During the start, the client reduces all necessary actions from the log to the SQLite table on OPFS.
 
 For simple things like client local settings, we use [Nano Store Persistent](https://github.com/nanostores/persistent).
-
-The web client uses IndexedDB to store log and `localStorage` for the client’s settings.
 
 ## Test Strategy
 

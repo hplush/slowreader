@@ -1,10 +1,11 @@
+import type { WithoutMeta } from '@logux/client/db'
 import type { SqlStore } from '@nanostores/sql'
 import { atom, onMount, type ReadableAtom } from 'nanostores'
 
 import { createDownloadTask, type TextResponse } from './lib/download.ts'
 import { firstRow } from './lib/stores.ts'
 import { type FeedLoader, loaders } from './loader/index.ts'
-import { deletePost, loadPostsByFeed, recalcPostsReading } from './post.ts'
+import { deletePost, loadPostIdsByFeed, recalcPostsReading } from './post.ts'
 import type { PostsList } from './posts-list.ts'
 import {
   createRow,
@@ -13,7 +14,8 @@ import {
   getDatabase,
   getTables,
   type NewFeed,
-  select
+  select,
+  withMeta
 } from './schema.ts'
 
 export type { FeedValue, NewFeed }
@@ -57,17 +59,18 @@ export function addFeed(fields: NewFeed): Promise<string> {
 }
 
 export async function deleteFeed(feedId: string): Promise<void> {
-  let posts = await loadPostsByFeed(feedId)
-  await Promise.all(posts.map(post => deletePost(post.id)))
+  await deletePost(await loadPostIdsByFeed(feedId))
   return getTables().feeds.delete(feedId)
 }
 
 export async function changeFeed(
-  feedId: string,
+  feedId: string[] | string,
   changes: FeedChanges
 ): Promise<void> {
   await getTables().feeds.update(feedId, changes)
-  await recalcPostsReading(feedId)
+  if (changes.reading) {
+    await Promise.all([feedId].flat().map(id => recalcPostsReading(id)))
+  }
 }
 
 /**
@@ -109,9 +112,11 @@ export function getFeedLatestPosts(
 
 let testFeedId = 0
 
-export function testFeed(feed: Partial<FeedValue> = {}): FeedValue {
+export function testFeed(
+  feed: Partial<WithoutMeta<FeedValue>> = {}
+): FeedValue {
   testFeedId += 1
-  return {
+  return withMeta<FeedValue>({
     categoryId: 'general',
     fastReader: null,
     id: `feed-${testFeedId}`,
@@ -122,10 +127,9 @@ export function testFeed(feed: Partial<FeedValue> = {}): FeedValue {
     refreshedAt: null,
     slowReader: null,
     title: `Test ${testFeedId}`,
-    updatedAt: '{}',
     url: `http://example.com/${testFeedId}`,
     ...feed
-  }
+  })
 }
 
 export const needWelcome = atom<boolean | undefined>()

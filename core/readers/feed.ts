@@ -54,17 +54,19 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
   })
 
   async function readAndNext(): Promise<void> {
-    let list = $list.get()
-    // TODO Logux DB: use one UPDATE SQL query
-    let promise = Promise.all(list.map(i => changePost(i.id, { read: 1 })))
+    let unread = $list.get().filter(i => !i.read)
+    let promise = changePost(
+      unread.map(i => i.id),
+      { read: 1 }
+    )
     // Loaded posts are a snapshot, so we need to mark them as read too
-    for (let post of list) post.read = 1
+    for (let post of unread) post.read = 1
     if ($hasNext.get()) {
       params.from.set($nextFrom.get())
     } else {
       helpers.renderEmpty()
     }
-    return promise.then()
+    return promise
   }
 
   return {

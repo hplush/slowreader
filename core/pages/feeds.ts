@@ -5,7 +5,7 @@ import { changeFeed, type FeedValue, getFeed, needWelcome } from '../feed.ts'
 import { fastMenu, menuLoading, slowMenu } from '../menu.ts'
 import { deletePost, fastPostsCount, slowPostsCount } from '../post.ts'
 import {
-  loadReadPosts,
+  loadReadPostIds,
   type PostFilter,
   type ReaderHelpers,
   type UsefulReaderName
@@ -20,6 +20,7 @@ import {
   welcomeReader
 } from '../readers/index.ts'
 import { nextRouteIsRedirect } from '../router.ts'
+import { hasDatabase } from '../schema.ts'
 import { createPage } from './common.ts'
 
 let pages = (['slow', 'fast'] as const).map(reading => {
@@ -36,11 +37,9 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     let lastFilter: PostFilter | undefined
 
     async function deleteRead(): Promise<void> {
-      if (lastFilter) {
-        // TODO Logux DB: do it in one SQL query
-        let posts = await loadReadPosts(lastFilter)
-        await Promise.all(posts.map(post => deletePost(post.id)))
-      }
+      if (!lastFilter || !hasDatabase()) return
+      let posts = await loadReadPostIds(lastFilter)
+      if (hasDatabase()) await deletePost(posts)
     }
 
     let prevLoadingUnbind = (): void => {}

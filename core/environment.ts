@@ -1,7 +1,6 @@
 // Dependency Injection to change behavior in different environment
 // (web, mobile native, tests, etc).
 
-import type { ClientOptions } from '@logux/client'
 import type { TestServer } from '@logux/server'
 import type { TranslationLoader } from '@nanostores/i18n'
 import {
@@ -13,10 +12,6 @@ import type { Database } from '@nanostores/sql'
 import { atom, type ReadableAtom, type StoreValue } from 'nanostores'
 
 import type { BaseRouter, Route, Routes } from './router.ts'
-
-interface LogStoreCreator {
-  (): ClientOptions['store']
-}
 
 interface DatabaseCreator {
   (): Database
@@ -77,7 +72,7 @@ export interface Environment {
 
   /**
    * SQL database engine. Like SQLocal in Web, in-memory SQLite in Node.js,
-   * Expo for mobile, etc.
+   * Expo for mobile, etc. It keeps both Logux log and app’s tables.
    */
   databaseCreator: DatabaseCreator
 
@@ -95,11 +90,6 @@ export interface Environment {
    * Smart store taking user’s language from system.
    */
   locale: ReadableAtom<string>
-
-  /**
-   * Persistent storage for Logux log.
-   */
-  logStoreCreator: LogStoreCreator
 
   /**
    * Detect network type to not download images over expensive tariff.
@@ -203,7 +193,6 @@ export function setupEnvironment<Router extends BaseRouter>(
     errorEvents: env.errorEvents,
     getSession: env.getSession,
     locale: env.locale,
-    logStoreCreator: env.logStoreCreator,
     networkType: env.networkType,
     openRoute: env.openRoute,
     restartApp: env.restartApp,

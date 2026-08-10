@@ -1,4 +1,3 @@
-import { MemoryStore } from '@logux/core'
 import { openDb } from '@nanostores/sql'
 import { nodeDriver } from '@nanostores/sql/node'
 import { delay } from 'nanodelay'
@@ -56,9 +55,6 @@ export function getTestEnvironment(): EnvironmentAndStore {
       return testSession
     },
     locale: atom('en'),
-    logStoreCreator() {
-      return new MemoryStore()
-    },
     networkType() {
       return { saveData: undefined, type: undefined }
     },

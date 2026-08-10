@@ -4,10 +4,14 @@ import { deepEqual, doesNotMatch, equal, match } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
+  addFeed,
+  addFilter,
   addPost,
+  changeFeed,
   loadPost,
   getPostIntro,
   getPostTitle,
+  testFeed,
   testPost
 } from '../index.ts'
 import { cleanClientTest, enableClientTest } from './utils.ts'
@@ -43,6 +47,32 @@ describe('post', () => {
     let id = await addPost(testPost({ title: 'Test Post' }))
     let post = await loadPost(id)
     equal(post?.title, 'Test Post')
+  })
+
+  test('recalculates reading of feed’s posts', async () => {
+    let feedId = await addFeed(testFeed({ reading: 'fast' }))
+    let same = await addPost(testPost({ feedId, reading: 'fast', title: 'A' }))
+    let toFast = await addPost(
+      testPost({ feedId, reading: 'slow', title: 'B' })
+    )
+    let toSlow = await addPost(
+      testPost({ feedId, reading: 'fast', title: 'Slow' })
+    )
+    let deleted = await addPost(
+      testPost({ feedId, reading: 'fast', title: 'Trash' })
+    )
+
+    await addFilter({ action: 'slow', feedId, query: 'include(slow)' })
+    await addFilter({ action: 'delete', feedId, query: 'include(trash)' })
+
+    equal((await loadPost(same))!.reading, 'fast')
+    equal((await loadPost(toFast))!.reading, 'fast')
+    equal((await loadPost(toSlow))!.reading, 'slow')
+    equal((await loadPost(deleted))!.reading, 'fast')
+
+    await changeFeed(feedId, { reading: 'slow' })
+    equal((await loadPost(same))!.reading, 'slow')
+    equal((await loadPost(deleted))!.reading, 'fast')
   })
 
   test('loads post title', () => {

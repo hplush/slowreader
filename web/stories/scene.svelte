@@ -58,13 +58,10 @@
     user?: boolean
   } = $props()
 
-  function cleanLogux(): Promise<void> {
-    client.get()?.clean()
-    return cleanDatabase()
-  }
-
   async function fillScene(): Promise<void> {
-    await cleanLogux()
+    // Waits for the database too, so the app will not reset `busy`
+    // and other stores, which the story sets in `oninit()`
+    await cleanDatabase()
     for (let category of categories ?? []) {
       await addCategory(category)
     }
@@ -135,7 +132,6 @@
   onDestroy(() => {
     unbindSyncStatus()
     baseRouter.set({ hash: '', params: {}, route: 'slow' })
-    cleanLogux()
     for (let page of Object.values(pages)) {
       if (page.cache) page.cache = undefined
     }

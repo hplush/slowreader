@@ -1,5 +1,6 @@
 import '../dom-parser.ts'
 
+import { withoutMeta } from '@logux/client/db'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -24,8 +25,7 @@ import {
   preloadImages,
   testFeed,
   theme,
-  waitLoading,
-  withoutMeta
+  waitLoading
 } from '../../index.ts'
 import {
   checkAndRemoveRequestMock,

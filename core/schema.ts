@@ -14,12 +14,13 @@ import {
   number,
   oneOf,
   optional,
-  string
+  string,
+  type WithoutMeta
 } from '@logux/client/db'
 import type { Database, SqlParam } from '@nanostores/sql'
 
 import { busyDuring } from './busy.ts'
-import { client, isOutdatedClient } from './client.ts'
+import { client, database, isOutdatedClient } from './client.ts'
 import { onEnvironment } from './environment.ts'
 import type { LoaderName } from './loader/index.ts'
 import { commonMessages } from './messages/index.ts'
@@ -108,17 +109,14 @@ export function createRow<Schema extends CrdtTableSchema>(
 }
 
 /**
- * Remove conflict resolution data, which is local and should not be
- * in the backup or in tests expectations.
+ * Add empty conflict resolution data to a row built in tests.
  */
-export function withoutMeta<Value extends { updatedAt: string }>(
-  rows: Value[]
-): Omit<Value, 'updatedAt'>[] {
-  return rows.map(row => {
-    let copy: { updatedAt?: string } & Omit<Value, 'updatedAt'> = { ...row }
-    delete copy.updatedAt
-    return copy
-  })
+export function withMeta<Value>(row: WithoutMeta<Value>): Value {
+  let meta: Record<string, null> = {}
+  for (let key of Object.keys(row)) {
+    if (key !== 'id') meta[`updatedAt_${key}`] = null
+  }
+  return { ...row, ...meta } as Value
 }
 
 let currentCrdt: CrdtDatabase | undefined
@@ -147,6 +145,14 @@ export function getTables(): Tables {
 }
 
 /**
+ * Is the database still open. Sign-out closes it, so async tasks started
+ * before it should stop instead of throwing.
+ */
+export function hasDatabase(): boolean {
+  return !!currentTables
+}
+
+/**
  * Database of the current user for queries across few tables.
  */
 export function getDatabase(): Database {
@@ -168,7 +174,13 @@ export function select<Row>(
 }
 
 /**
- * Remove all rows from all tables. Logux log is not touched.
+ * Remove all rows from all tables, but keep the database working.
+ *
+ * Sign-out cleans the database by `Client#clean()`, which also stops it.
+ * This function is for tests and visual stories, which reset the data
+ * between cases and keep using the same client: the client can’t be
+ * replaced in the same page, since mounted SQL stores will keep
+ * the subscription to the previous database.
  */
 export async function cleanDatabase(): Promise<void> {
   if (!currentDatabase) return
@@ -181,9 +193,9 @@ export async function cleanDatabase(): Promise<void> {
   ])
 }
 
-function openDatabase(logux: CrossTabClient, database: Database): void {
-  currentDatabase = database
-  let crdt = createCrdtDatabase(logux, database, {
+function openDatabase(logux: CrossTabClient, db: Database): void {
+  currentDatabase = db
+  let crdt = createCrdtDatabase(logux, db, {
     key: 'slowreader:db',
     /* node:coverage ignore next 3 */
     migrating(done) {
@@ -230,10 +242,11 @@ function closeDatabase(): void {
   })
 }
 
-onEnvironment(({ databaseCreator }) => {
+onEnvironment(() => {
   let unbind = client.subscribe(logux => {
     closeDatabase()
-    if (logux) openDatabase(logux, databaseCreator())
+    let db = database.get()
+    if (logux && db) openDatabase(logux, db)
   })
   return () => {
     unbind()

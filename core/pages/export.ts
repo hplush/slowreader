@@ -1,3 +1,4 @@
+import { type WithoutMeta, withoutMeta } from '@logux/client/db'
 import { atom } from 'nanostores'
 
 import {
@@ -9,7 +10,6 @@ import { getEnvironment } from '../environment.ts'
 import { type FeedValue, loadFeeds } from '../feed.ts'
 import { type FilterValue, loadFilters } from '../filter.ts'
 import { loadPosts, type PostValue } from '../post.ts'
-import { withoutMeta } from '../schema.ts'
 import {
   preloadImages,
   type Settings,
@@ -20,10 +20,10 @@ import {
 import { createPage } from './common.ts'
 
 export interface StateExport {
-  categories: Omit<CategoryValue, 'updatedAt'>[]
-  feeds: Omit<FeedValue, 'updatedAt'>[]
-  filters: Omit<FilterValue, 'updatedAt'>[]
-  posts: Omit<PostValue, 'updatedAt'>[]
+  categories: WithoutMeta<CategoryValue>[]
+  feeds: WithoutMeta<FeedValue>[]
+  filters: WithoutMeta<FilterValue>[]
+  posts: WithoutMeta<PostValue>[]
   settings: Settings
 }
 

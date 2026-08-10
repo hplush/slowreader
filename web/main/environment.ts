@@ -1,6 +1,5 @@
 // Dependency Injection of unique behavior for web client.
 
-import { IndexedStore } from '@logux/client'
 import { windowPersistentEvents } from '@nanostores/persistent'
 import { openDb } from '@nanostores/sql'
 import { sqlocalDriver } from '@nanostores/sql/sqlocal'
@@ -79,7 +78,6 @@ setupEnvironment({
     return undefined
   },
   locale,
-  logStoreCreator: () => new IndexedStore(),
   networkType: detectNetworkType,
   openRoute,
   persistentEvents: windowPersistentEvents,

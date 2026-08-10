@@ -1,7 +1,7 @@
 import type {
-  SyncMapChangedAction,
-  SyncMapCreatedAction,
-  SyncMapDeletedAction
+  CrdtTableChangedAction,
+  CrdtTableCreatedAction,
+  CrdtTableDeletedAction
 } from '@logux/actions'
 import {
   type ClientOptions,
@@ -10,6 +10,7 @@ import {
   status,
   type StatusValue
 } from '@logux/client'
+import { SqlLogStore } from '@logux/client/db'
 import {
   type Action,
   type Meta,
@@ -18,6 +19,7 @@ import {
   TestPair,
   TestTime
 } from '@logux/core'
+import type { Database } from '@nanostores/sql'
 import { deleteUser, SUBPROTOCOL } from '@slowreader/api'
 import { atom, computed, effect, onMount } from 'nanostores'
 
@@ -63,29 +65,39 @@ function getServer(): ClientOptions['server'] {
 
 let prevClient: CrossTabClient | undefined
 export const client = atom<CrossTabClient | undefined>()
+
+/**
+ * SQLite database for log and data tables.
+ */
+export const database = atom<Database | undefined>()
+
 export const isOutdatedClient = atom<boolean>(false)
 
-function isSyncMapFieldsAction(
-  action: Action
-): action is SyncMapChangedAction | SyncMapCreatedAction {
-  return action.type.endsWith('/changed') || action.type.endsWith('/created')
+type CrdtAction =
+  | CrdtTableChangedAction
+  | CrdtTableCreatedAction
+  | CrdtTableDeletedAction
+
+function isCrdtAction(action: Action): action is CrdtAction {
+  return (
+    action.type.endsWith('/created') ||
+    action.type.endsWith('/changed') ||
+    action.type.endsWith('/deleted')
+  )
 }
 
-function isSyncMapDeleyeAction(action: Action): action is SyncMapDeletedAction {
-  return action.type.endsWith('/deleted')
-}
-
-onEnvironment(({ logStoreCreator }) => {
+onEnvironment(({ databaseCreator }) => {
   let unbindUser = effect(
     [userId, hasPassword, encryptionKey],
     (user, connect, key) => {
       prevClient?.destroy()
 
       if (user && key) {
+        let db = databaseCreator()
         let logux = new CrossTabClient({
           prefix: 'slowreader',
           server: getServer(),
-          store: logStoreCreator(),
+          store: new SqlLogStore(db),
           subprotocol: SUBPROTOCOL,
           time: testTime,
           token: getEnvironment().getSession(),
@@ -100,21 +112,36 @@ onEnvironment(({ logStoreCreator }) => {
           void logux.log.changeMeta(meta.id, { reasons: [] })
         }
 
+        function changedRows(action: CrdtAction): [string, string[]][] {
+          if ('records' in action) {
+            return action.records.map(record => [
+              record.id,
+              Object.keys(record).filter(field => field !== 'id')
+            ])
+          }
+          let fields = 'fields' in action ? Object.keys(action.fields) : []
+          let ids = 'ids' in action ? action.ids : [action.id]
+          return ids.map(id => [id, fields])
+        }
+
         logux.on('preadd', (action, meta) => {
           if (parseId(meta.id).clientId === logux.clientId) {
             meta.sync = true
-          } else if (isSyncMapFieldsAction(action)) {
+          } else if (isCrdtAction(action)) {
             let plural = action.type.split('/')[0]!
-            for (let i in action.fields) {
-              meta.reasons.push(`${plural}/${action.id}/${i}`)
+            let rows = changedRows(action)
+            if (action.type.endsWith('/deleted')) {
+              for (let [id] of rows) {
+                void logux.log.each({ index: `${plural}/${id}` }, removeAction)
+              }
+            } else {
+              for (let [id, fields] of rows) {
+                for (let field of fields) {
+                  meta.reasons.push(`${plural}/${id}/${field}`)
+                }
+              }
+              meta.indexes = [plural, ...rows.map(row => `${plural}/${row[0]}`)]
             }
-            meta.indexes = [plural, `${plural}/${action.id}`]
-          } else if (isSyncMapDeleyeAction(action)) {
-            let plural = action.type.split('/')[0]!
-            void logux.log.each(
-              { index: `${plural}/${action.id}` },
-              removeAction
-            )
           }
         })
 
@@ -131,9 +158,11 @@ onEnvironment(({ logStoreCreator }) => {
           logux.start(connect)
         }
         prevClient = logux
+        database.set(db)
         client.set(logux)
       } else {
         client.set(undefined)
+        database.set(undefined)
       }
     }
   )

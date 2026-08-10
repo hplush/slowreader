@@ -11,7 +11,8 @@ import {
   type FeedValue,
   getTables,
   type NewCategory,
-  select
+  select,
+  withMeta
 } from './schema.ts'
 
 export type { CategoryValue, NewCategory }
@@ -60,8 +61,9 @@ export function changeCategory(
 
 export async function deleteCategory(categoryId: string): Promise<void> {
   let feeds = await loadFeedsByCategory(categoryId)
-  await Promise.all(
-    feeds.map(feed => changeFeed(feed.id, { categoryId: 'general' }))
+  await changeFeed(
+    feeds.map(feed => feed.id),
+    { categoryId: 'general' }
   )
   return getTables().categories.delete(categoryId)
 }
@@ -106,11 +108,10 @@ export function feedsByCategory(
 }
 
 export function getGeneralCategory(): CategoryValue {
-  return {
+  return withMeta<CategoryValue>({
     fastReader: null,
     id: 'general',
     slowReader: null,
-    title: t.value?.generalCategory || 'General',
-    updatedAt: '{}'
-  }
+    title: t.value?.generalCategory || 'General'
+  })
 }

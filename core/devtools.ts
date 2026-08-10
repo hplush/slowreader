@@ -8,7 +8,7 @@ import {
   addPost,
   deletePost,
   loadPost,
-  loadPostsByFeed,
+  loadPostIdsByFeed,
   processOriginPost
 } from './post.ts'
 import { proxyDebug } from './request.ts'
@@ -23,10 +23,7 @@ export async function fillFeedsWithPosts(): Promise<void> {
     let feeds = await loadFeeds()
     await Promise.all(
       feeds.map(async feed => {
-        let old = await loadPostsByFeed(feed.id)
-        for (let post of old) {
-          await deletePost(post.id)
-        }
+        await deletePost(await loadPostIdsByFeed(feed.id))
         let posts = await getFeedLatestPosts(feed, task).next()
         let filters = await loadFilterChecker(feed.id)
         for (let origin of posts) {

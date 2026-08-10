@@ -1,3 +1,4 @@
+import type { WithoutMeta } from '@logux/client/db'
 import { formatter } from '@nanostores/i18n'
 import { atom, onMount, type ReadableAtom, type WritableAtom } from 'nanostores'
 
@@ -15,7 +16,8 @@ import {
   type NewPost,
   type PostChanges,
   type PostValue,
-  select
+  select,
+  withMeta
 } from './schema.ts'
 
 export type { NewPost, PostValue }
@@ -74,12 +76,20 @@ export function loadPostsByFeed(feedId: string): Promise<PostValue[]> {
   `
 }
 
-export function deletePost(postId: string): Promise<void> {
+export function loadPostIdsByFeed(feedId: string): Promise<string[]> {
+  return select<{
+    id: string
+  }>`SELECT "id" FROM "posts" WHERE "feedId" = ${feedId}`.then(rows =>
+    rows.map(row => row.id)
+  )
+}
+
+export function deletePost(postId: string[] | string): Promise<void> {
   return getTables().posts.delete(postId)
 }
 
 export function changePost(
-  postId: string,
+  postId: string[] | string,
   changes: PostChanges
 ): Promise<void> {
   return getTables().posts.update(postId, changes)
@@ -136,19 +146,31 @@ export async function recalcPostsReading(feedId: string): Promise<void> {
     loadPostsByFeed(feedId)
   ])
 
+  let fast: string[] = []
+  let slow: string[] = []
   for (let post of posts) {
     let reading = filters(post) ?? feed.reading
-    if (reading !== 'delete') {
-      await changePost(post.id, { reading })
+    if (reading === 'delete' || reading === post.reading) continue
+    if (reading === 'fast') {
+      fast.push(post.id)
+    } else {
+      slow.push(post.id)
     }
   }
+
+  await Promise.all([
+    changePost(fast, { reading: 'fast' }),
+    changePost(slow, { reading: 'slow' })
+  ])
 }
 
 let testPostId = 0
 
-export function testPost(post: Partial<PostValue> = {}): PostValue {
+export function testPost(
+  post: Partial<WithoutMeta<PostValue>> = {}
+): PostValue {
   testPostId += 1
-  return {
+  return withMeta<PostValue>({
     feedId: 'feed-1',
     full: null,
     id: `post-${testPostId}`,
@@ -159,10 +181,9 @@ export function testPost(post: Partial<PostValue> = {}): PostValue {
     read: 0,
     reading: 'fast',
     title: null,
-    updatedAt: '{}',
     url: `http://example.com/${testPostId}`,
     ...post
-  }
+  })
 }
 
 function countPosts(
