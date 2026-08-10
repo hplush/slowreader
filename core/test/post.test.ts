@@ -49,6 +49,17 @@ describe('post', () => {
     equal(post?.title, 'Test Post')
   })
 
+  test('adds posts by a batch action', async () => {
+    let feedId = await addFeed(testFeed())
+    let ids = await addPost([
+      { feedId, originId: 'a', publishedAt: 1, reading: 'fast' },
+      { feedId, originId: 'b', publishedAt: 2, reading: 'slow' }
+    ])
+    equal(ids.length, 2)
+    equal((await loadPost(ids[0]!))!.originId, 'a')
+    equal((await loadPost(ids[1]!))!.reading, 'slow')
+  })
+
   test('recalculates reading of feed’s posts', async () => {
     let feedId = await addFeed(testFeed({ reading: 'fast' }))
     let same = await addPost(testPost({ feedId, reading: 'fast', title: 'A' }))

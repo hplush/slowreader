@@ -103,9 +103,28 @@ export interface Tables {
 
 export function createRow<Schema extends CrdtTableSchema>(
   table: CrdtTable<Schema>,
+  rows: NewRow<Schema>[]
+): Promise<string[]>
+export function createRow<Schema extends CrdtTableSchema>(
+  table: CrdtTable<Schema>,
   fields: NewRow<Schema>
-): Promise<string> {
-  return table.create(fields as { id?: string } & CrdtCreateFields<Schema>)
+): Promise<string>
+// For callers, which pass the same union to their own overloads
+export function createRow<Schema extends CrdtTableSchema>(
+  table: CrdtTable<Schema>,
+  fields: NewRow<Schema> | NewRow<Schema>[]
+): Promise<string[] | string>
+export function createRow<Schema extends CrdtTableSchema>(
+  table: CrdtTable<Schema>,
+  fields: NewRow<Schema> | NewRow<Schema>[]
+): Promise<string[] | string> {
+  if (Array.isArray(fields)) {
+    return table.create(
+      fields as ({ id?: string } & CrdtCreateFields<Schema>)[]
+    )
+  } else {
+    return table.create(fields as { id?: string } & CrdtCreateFields<Schema>)
+  }
 }
 
 /**

@@ -51,7 +51,11 @@ export type PostMedia = {
   url: string
 }
 
-export function addPost(fields: NewPost): Promise<string> {
+export function addPost(posts: NewPost[]): Promise<string[]>
+export function addPost(fields: NewPost): Promise<string>
+export function addPost(
+  fields: NewPost | NewPost[]
+): Promise<string[] | string> {
   return createRow(getTables().posts, fields)
 }
 

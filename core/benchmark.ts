@@ -196,6 +196,8 @@ const ANCHORS: [PostValue['reading'], number][] = [
 // Feed reader is set here, so benchmark will not switch reader before scenario
 const READER_FEED = 'feed-1'
 
+const POSTS_BATCH = 100
+
 function postsInFeed(random: () => number): number {
   let point = random()
   let sum = 0
@@ -273,15 +275,15 @@ async function fillClient(
     })
 
     let count = anchor?.[1] ?? postsInFeed(random)
-    let batch: Promise<string>[] = []
+    let batch: NewPost[] = []
     for (let j = 0; j < count; j++) {
-      batch.push(addPost(createPost(random, feedId, j, reading, now)))
-      if (batch.length === 100) {
-        await Promise.all(batch)
+      batch.push(createPost(random, feedId, j, reading, now))
+      if (batch.length === POSTS_BATCH) {
+        await addPost(batch)
         batch = []
       }
     }
-    await Promise.all(batch)
+    if (batch.length > 0) await addPost(batch)
 
     if (reading === 'slow') {
       slow.push([feedId, count])
