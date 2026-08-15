@@ -93,10 +93,9 @@ export const urlRouter = computed(pathRouter, path => {
 function moveToSearch<Page extends Route>(
   page: Page,
   move: {
-    [key in Exclude<
-      keyof Page['params'],
-      keyof PathParams[Page['route']]
-    >]: true
+    [
+      key in Exclude<keyof Page['params'], keyof PathParams[Page['route']]>
+    ]: true
   }
 ): string {
   let search = {}

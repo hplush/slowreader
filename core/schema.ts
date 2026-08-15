@@ -79,7 +79,9 @@ export type PostValue = CrdtTableRow<typeof postsSchema>
  * Unlike table’s own type it takes `null` in optional fields.
  */
 export type NewRow<Schema extends CrdtTableSchema> = {
-  [Key in keyof CrdtCreateFields<Schema>]: undefined extends CrdtCreateFields<Schema>[Key]
+  [
+    Key in keyof CrdtCreateFields<Schema>
+  ]: undefined extends CrdtCreateFields<Schema>[Key]
     ? CrdtCreateFields<Schema>[Key] | null
     : CrdtCreateFields<Schema>[Key]
 } & { id?: string }
