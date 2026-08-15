@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // Script to check that:
 // - All dependencies has "1.2.3" requirement and not "^1.2.3" used by npm.
 //   It prevents unexpected updates on lock file issues.

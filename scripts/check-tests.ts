@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // Script to check test files in the codebase.
 // - Avoid focused tests (test.only()) that developer could forget to unfocus
 // - Avoid skipped tests (test.skip())

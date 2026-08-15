@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // Script to find all unused messages
 
 import { execSync } from 'node:child_process'

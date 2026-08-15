@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // Script to update Node.js and pnpm everywhere.
 //
 // By default it will keep Node.js major version, but can update to next major
