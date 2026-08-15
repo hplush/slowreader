@@ -267,7 +267,7 @@ To update all dependencies:
 pnpm update-env
 
 # Update Docker base images
-./scripts/update-docker.sh
+pnpm update-docker
 
 # Update Node.js dependencies
 pnpm update --interactive --latest -r --include-workspace-root
