@@ -270,8 +270,8 @@ pnpm update-env
 pnpm update-docker
 
 # Update Node.js dependencies
-pnpm update --interactive --latest -r --include-workspace-root
-pnpm update -r --include-workspace-root
+pnpm update --interactive --latest -r
+pnpm update -r
 
 # Update GitHub actions
 pnpm update-ci
