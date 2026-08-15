@@ -14,12 +14,12 @@ on:
       - pnpm-lock.yaml
   schedule:
     - cron: '00 23 * * *' # Runs at midnight UTC every day
-permissions:
-  contents: read
 jobs:
   audit:
     name: Audit
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Harden the runner
         uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
@@ -48,6 +48,9 @@ jobs:
   socket:
     name: Check via Socket
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Harden the runner
         uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
