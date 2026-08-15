@@ -22,14 +22,18 @@ function error(msg: string): void {
 }
 
 function getVersion(content: string, regexp: RegExp): string {
-  return content.match(regexp)![1]!
+  let match = content.match(regexp)
+  if (!match) error(`Can not find ${regexp} version`)
+  return match![1]!
 }
+
+const VERSION = String.raw`\d+\.\d+\.\d+(?:-[\w.]+)?`
 
 let dockerfile = read('.devcontainer/Dockerfile')
 
 let nodeFull = getVersion(dockerfile, /NODE_VERSION=(\d+\.\d+\.\d+)/)
 let nodeMinor = nodeFull.split('.').slice(0, 2).join('.')
-let pnpmFull = getVersion(dockerfile, /PNPM_VERSION=(\d+\.\d+\.\d+)/)
+let pnpmFull = getVersion(dockerfile, new RegExp(`PNPM_VERSION=(${VERSION})`))
 let pnpmMajor = pnpmFull.split('.')[0]
 
 let nodeVersion = read('.node-version').trim()
@@ -40,7 +44,7 @@ if (nodeVersion !== nodeFull) {
 }
 let packageManager = getVersion(
   read('package.json'),
-  /"packageManager": "pnpm@(\d+\.\d+\.\d+)"/
+  new RegExp(`"packageManager": "pnpm@(${VERSION})"`)
 )
 if (packageManager !== pnpmFull) {
   error('.devcontainer/Dockerfile and package.json have different pnpm version')
