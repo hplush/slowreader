@@ -1,4 +1,4 @@
-import { withoutMeta } from '@logux/client/db'
+import { withMeta, withoutMeta } from '@logux/client/db'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
@@ -14,8 +14,7 @@ import {
   moveFilterUp,
   prepareFilters,
   sortFilters,
-  testFeed,
-  withMeta
+  testFeed
 } from '../index.ts'
 import { cleanClientTest, enableClientTest } from './utils.ts'
 

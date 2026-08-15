@@ -1,4 +1,4 @@
-import type { WithoutMeta } from '@logux/client/db'
+import { withMeta, type WithoutMeta } from '@logux/client/db'
 import type { SqlStore } from '@nanostores/sql'
 import { atom, onMount, type ReadableAtom } from 'nanostores'
 
@@ -8,14 +8,12 @@ import { type FeedLoader, loaders } from './loader/index.ts'
 import { deletePost, loadPostIdsByFeed, recalcPostsReading } from './post.ts'
 import type { PostsList } from './posts-list.ts'
 import {
-  createRow,
   type FeedChanges,
   type FeedValue,
   getDatabase,
   getTables,
   type NewFeed,
-  select,
-  withMeta
+  select
 } from './schema.ts'
 
 export type { FeedValue, NewFeed }
@@ -55,7 +53,7 @@ export function loadFeedByUrl(url: string): Promise<FeedValue | undefined> {
 }
 
 export function addFeed(fields: NewFeed): Promise<string> {
-  return createRow(getTables().feeds, fields)
+  return getTables().feeds.create(fields)
 }
 
 export async function deleteFeed(feedId: string): Promise<void> {

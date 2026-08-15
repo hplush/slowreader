@@ -4,18 +4,16 @@
 import type { CrossTabClient } from '@logux/client'
 import {
   bigint,
-  type CrdtCreateFields,
   type CrdtDatabase,
+  type NewCrdtRow,
   type CrdtRowFields,
   type CrdtTable,
   type CrdtTableRow,
-  type CrdtTableSchema,
   createCrdtDatabase,
   number,
   oneOf,
   optional,
-  string,
-  type WithoutMeta
+  string
 } from '@logux/client/db'
 import type { Database, SqlParam } from '@nanostores/sql'
 
@@ -75,21 +73,10 @@ export type FeedValue = CrdtTableRow<typeof feedsSchema>
 export type FilterValue = CrdtTableRow<typeof filtersSchema>
 export type PostValue = CrdtTableRow<typeof postsSchema>
 
-/**
- * Unlike table’s own type it takes `null` in optional fields.
- */
-export type NewRow<Schema extends CrdtTableSchema> = {
-  [
-    Key in keyof CrdtCreateFields<Schema>
-  ]: undefined extends CrdtCreateFields<Schema>[Key]
-    ? CrdtCreateFields<Schema>[Key] | null
-    : CrdtCreateFields<Schema>[Key]
-} & { id?: string }
-
-export type NewCategory = NewRow<typeof categoriesSchema>
-export type NewFeed = NewRow<typeof feedsSchema>
-export type NewFilter = NewRow<typeof filtersSchema>
-export type NewPost = NewRow<typeof postsSchema>
+export type NewCategory = NewCrdtRow<typeof categoriesSchema>
+export type NewFeed = NewCrdtRow<typeof feedsSchema>
+export type NewFilter = NewCrdtRow<typeof filtersSchema>
+export type NewPost = NewCrdtRow<typeof postsSchema>
 
 export type CategoryChanges = Partial<CrdtRowFields<typeof categoriesSchema>>
 export type FeedChanges = Partial<CrdtRowFields<typeof feedsSchema>>
@@ -101,43 +88,6 @@ export interface Tables {
   feeds: CrdtTable<typeof feedsSchema>
   filters: CrdtTable<typeof filtersSchema>
   posts: CrdtTable<typeof postsSchema>
-}
-
-export function createRow<Schema extends CrdtTableSchema>(
-  table: CrdtTable<Schema>,
-  rows: NewRow<Schema>[]
-): Promise<string[]>
-export function createRow<Schema extends CrdtTableSchema>(
-  table: CrdtTable<Schema>,
-  fields: NewRow<Schema>
-): Promise<string>
-// For callers, which pass the same union to their own overloads
-export function createRow<Schema extends CrdtTableSchema>(
-  table: CrdtTable<Schema>,
-  fields: NewRow<Schema> | NewRow<Schema>[]
-): Promise<string[] | string>
-export function createRow<Schema extends CrdtTableSchema>(
-  table: CrdtTable<Schema>,
-  fields: NewRow<Schema> | NewRow<Schema>[]
-): Promise<string[] | string> {
-  if (Array.isArray(fields)) {
-    return table.create(
-      fields as ({ id?: string } & CrdtCreateFields<Schema>)[]
-    )
-  } else {
-    return table.create(fields as { id?: string } & CrdtCreateFields<Schema>)
-  }
-}
-
-/**
- * Add empty conflict resolution data to a row built in tests.
- */
-export function withMeta<Value>(row: WithoutMeta<Value>): Value {
-  let meta: Record<string, null> = {}
-  for (let key of Object.keys(row)) {
-    if (key !== 'id') meta[`updatedAt_${key}`] = null
-  }
-  return { ...row, ...meta } as Value
 }
 
 let currentCrdt: CrdtDatabase | undefined

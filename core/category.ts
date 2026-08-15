@@ -1,3 +1,4 @@
+import { withMeta } from '@logux/client/db'
 import type { SqlStore } from '@nanostores/sql'
 import { atom, type ReadableAtom } from 'nanostores'
 
@@ -7,12 +8,10 @@ import { commonMessages as t } from './messages/index.ts'
 import {
   type CategoryChanges,
   type CategoryValue,
-  createRow,
   type FeedValue,
   getTables,
   type NewCategory,
-  select,
-  withMeta
+  select
 } from './schema.ts'
 
 export type { CategoryValue, NewCategory }
@@ -49,7 +48,7 @@ export function loadCategories(): Promise<CategoryValue[]> {
 }
 
 export function addCategory(fields: NewCategory): Promise<string> {
-  return createRow(getTables().categories, fields)
+  return getTables().categories.create(fields)
 }
 
 export function changeCategory(

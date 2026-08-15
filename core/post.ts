@@ -1,4 +1,4 @@
-import type { WithoutMeta } from '@logux/client/db'
+import { withMeta, type WithoutMeta } from '@logux/client/db'
 import { formatter } from '@nanostores/i18n'
 import { atom, onMount, type ReadableAtom, type WritableAtom } from 'nanostores'
 
@@ -10,14 +10,12 @@ import { sanitizeHtml, stripHTML, truncateHTML } from './lib/html.ts'
 import { firstRow } from './lib/stores.ts'
 import { truncateText } from './lib/text.ts'
 import {
-  createRow,
   getDatabase,
   getTables,
   type NewPost,
   type PostChanges,
   type PostValue,
-  select,
-  withMeta
+  select
 } from './schema.ts'
 
 export type { NewPost, PostValue }
@@ -56,7 +54,7 @@ export function addPost(fields: NewPost): Promise<string>
 export function addPost(
   fields: NewPost | NewPost[]
 ): Promise<string[] | string> {
-  return createRow(getTables().posts, fields)
+  return getTables().posts.create(fields)
 }
 
 export function getPost(postId: string): ReadableAtom<PostValue | undefined> {

@@ -1,6 +1,5 @@
 import { type PostContent, recalcPostsReading } from './post.ts'
 import {
-  createRow,
   type FeedValue,
   type FilterChanges,
   type FilterValue,
@@ -62,7 +61,7 @@ export async function addFilter(
   fields: { priority?: number } & Omit<NewFilter, 'priority'>
 ): Promise<string> {
   let priority = maxPriority(await loadFiltersByFeed(fields.feedId)) + 100
-  let id = await createRow(getTables().filters, { priority, ...fields })
+  let id = await getTables().filters.create({ priority, ...fields })
   await recalcPostsReading(fields.feedId)
   return id
 }
