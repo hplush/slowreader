@@ -29,6 +29,7 @@ import {
   setupEnvironment,
   slowMenu,
   slowPostsCount,
+  subscribeUntil,
   type TextResponse,
   userId
 } from '../index.ts'
@@ -83,6 +84,29 @@ export async function cleanClientTest(): Promise<void> {
   await client.get()?.clean()
   client.set(undefined)
   setLayoutType('desktop')
+}
+
+/**
+ * Wait until the store will have the expected value.
+ *
+ * Use it instead of `setTimeout()` to not depend on the machine’s speed.
+ */
+export function waitFor<Value>(
+  store: ReadableAtom<Value>,
+  check: (value: Value) => boolean,
+  ms = 5000
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    let timeout = setTimeout(() => {
+      reject(new Error(`Store did not get the expected value in ${ms}ms`))
+    }, ms)
+    subscribeUntil(store, value => {
+      if (!check(value)) return false
+      clearTimeout(timeout)
+      resolve()
+      return true
+    })
+  })
 }
 
 interface PromiseMock<Result> {
