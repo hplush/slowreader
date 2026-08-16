@@ -22,6 +22,9 @@ minimumReleaseAge: 1440
 
 dedupePeers: true
 
+overrides:
+  '@logux/core': github:logux/core#next
+
 minimumReleaseAgeExclude:
   - postcss
   - postcss-smooth-shadow
@@ -35,7 +38,6 @@ minimumReleaseAgeExclude:
   - baseline-browser-mapping
   - autoprefixer
   - multiocular
-  - '@logux/oxc-configs'
   - keyux
   - esbuild
   - nanoid

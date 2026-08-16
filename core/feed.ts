@@ -10,6 +10,7 @@ import type { PostsList } from './posts-list.ts'
 import {
   type FeedChanges,
   type FeedValue,
+  GENERAL_CATEGORY,
   getDatabase,
   getTables,
   type NewFeed,
@@ -85,7 +86,7 @@ export async function addCandidate(
   let lastPost = posts.get().list[0]
 
   return await addFeed({
-    categoryId: 'general',
+    categoryId: GENERAL_CATEGORY,
     lastOriginId: lastPost?.originId,
     lastPublishedAt: lastPost?.publishedAt ?? Math.round(Date.now() / 1000),
     loader: candidate.name,
@@ -115,7 +116,7 @@ export function testFeed(
 ): FeedValue {
   testFeedId += 1
   return withMeta<FeedValue>({
-    categoryId: 'general',
+    categoryId: GENERAL_CATEGORY,
     fastReader: null,
     id: `feed-${testFeedId}`,
     lastOriginId: null,

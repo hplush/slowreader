@@ -19,6 +19,7 @@ import { waitSql } from '../lib/stores.ts'
 import { type FeedLoader, getLoaderForText } from '../loader/index.ts'
 import { commonMessages } from '../messages/index.ts'
 import { createPostsList } from '../posts-list.ts'
+import { GENERAL_CATEGORY } from '../schema.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
 async function loadFeedFromURL(
@@ -95,7 +96,10 @@ export const feed = definePopup('feed', async url => {
       category => [category.id, category.title] as [string, string]
     )
     $categories.set([
-      ['general', commonMessages.get().generalCategory] as [string, string],
+      [GENERAL_CATEGORY, commonMessages.get().generalCategory] as [
+        string,
+        string
+      ],
       ...list,
       ['new', commonMessages.get().addCategory] as [string, string]
     ])

@@ -7,6 +7,7 @@ import {
   addFeed,
   addPost,
   closeLastPopup,
+  GENERAL_CATEGORY,
   popupsStatus,
   testFeed,
   testPost
@@ -33,7 +34,7 @@ describe('popups', () => {
       other: []
     })
 
-    let feed = await addFeed(testFeed({ categoryId: 'general' }))
+    let feed = await addFeed(testFeed({ categoryId: GENERAL_CATEGORY }))
     let post1 = await addPost(testPost({ feedId: feed }))
     let post2 = await addPost(testPost({ feedId: feed }))
 

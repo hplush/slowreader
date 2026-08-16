@@ -1,6 +1,11 @@
 import { LoguxError } from '@logux/core'
+import { openDb } from '@nanostores/sql'
+import { nodeDriver } from '@nanostores/sql/node'
 import { cleanStores, keepMount } from 'nanostores'
 import { deepEqual, equal } from 'node:assert/strict'
+import { rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -12,20 +17,26 @@ import {
   busy,
   busyUntilMenuLoader,
   changeCategory,
+  changeFeed,
+  changeFilter,
   closedCategories,
   closeMenu,
   commonMessages,
+  deleteCategory,
+  deleteFeed,
+  deleteFilter,
   fastMenu,
+  GENERAL_CATEGORY,
   getClient,
-  getGeneralCategory,
-  loadCategory,
-  loadFeed,
+  getTables,
+  type MenuItem,
   menuLoading,
   menuSlider,
   openCategory,
   openedMenu,
   openMenu,
   setLayoutType,
+  setupEnvironment,
   slowMenu,
   syncError,
   syncStatus,
@@ -33,18 +44,23 @@ import {
   testFeed,
   testPost,
   toggleCategory,
+  userId,
   waitLoading
 } from '../index.ts'
 import {
   cleanClientTest,
   enableClientTest,
   expectWarning,
-  setBaseTestRoute
+  getTestEnvironment,
+  setBaseTestRoute,
+  setTestUser
 } from './utils.ts'
 
 function emit(obj: any, event: string, ...args: any[]): void {
   obj.emitter.emit(event, ...args)
 }
+
+const GENERAL: MenuItem = { id: GENERAL_CATEGORY, title: '' }
 
 describe('menu', () => {
   beforeEach(() => {
@@ -264,35 +280,41 @@ describe('menu', () => {
 
     equal(menuLoading.get(), false)
     deepEqual(slowMenu.get(), [])
-    deepEqual(fastMenu.get(), [getGeneralCategory()])
+    deepEqual(fastMenu.get(), [GENERAL])
 
     let idB = await addCategory({ title: 'B' })
-    let feed1 = await addFeed(testFeed({ categoryId: idB, reading: 'slow' }))
+    let feed1 = await addFeed(
+      testFeed({ categoryId: idB, reading: 'slow', title: '1' })
+    )
     await addFilter({
       action: 'fast',
       feedId: feed1,
       query: 'include(a)'
     })
     let idC = await addCategory({ title: 'C' })
-    let feed2 = await addFeed(testFeed({ categoryId: idC, reading: 'slow' }))
+    let feed2 = await addFeed(
+      testFeed({ categoryId: idC, reading: 'slow', title: '2' })
+    )
     await addFilter({
       action: 'slow',
       feedId: feed2,
       query: 'include(a)'
     })
     let idD = await addCategory({ title: 'D' })
-    let feed3 = await addFeed(testFeed({ categoryId: idD, reading: 'slow' }))
+    let feed3 = await addFeed(
+      testFeed({ categoryId: idD, reading: 'slow', title: '3' })
+    )
     await addPost(testPost({ feedId: feed3, reading: 'fast' }))
-    let feed4 = await addFeed(testFeed({ reading: 'fast' }))
-    let feed5 = await addFeed(testFeed({ reading: 'slow' }))
+    let feed4 = await addFeed(testFeed({ reading: 'fast', title: '4' }))
+    let feed5 = await addFeed(testFeed({ reading: 'slow', title: '5' }))
     let idA = await addCategory({ title: 'A' })
-    await addFeed(testFeed({ categoryId: idA, reading: 'fast' }))
+    await addFeed(testFeed({ categoryId: idA, reading: 'fast', title: '6' }))
 
     deepEqual(slowMenu.get(), [])
     deepEqual(fastMenu.get(), [
-      await loadCategory(idA),
-      await loadCategory(idB),
-      getGeneralCategory()
+      GENERAL,
+      { id: idA, title: 'A' },
+      { id: idB, title: 'B' }
     ])
 
     await addPost(testPost({ feedId: feed2, reading: 'slow' }))
@@ -300,50 +322,271 @@ describe('menu', () => {
     await addPost(testPost({ feedId: feed5, reading: 'slow' }))
     await addPost(testPost({ feedId: feed5, reading: 'slow' }))
     deepEqual(slowMenu.get(), [
-      [await loadCategory(idC), [[await loadFeed(feed2), 1]]],
       [
-        getGeneralCategory(),
+        GENERAL,
         [
-          [await loadFeed(feed4), 1],
-          [await loadFeed(feed5), 2]
+          [{ id: feed4, title: '4' }, 1],
+          [{ id: feed5, title: '5' }, 2]
         ]
-      ]
+      ],
+      [{ id: idC, title: 'C' }, [[{ id: feed2, title: '2' }, 1]]]
     ])
     deepEqual(fastMenu.get(), [
-      await loadCategory(idA),
-      await loadCategory(idB),
-      getGeneralCategory()
+      GENERAL,
+      { id: idA, title: 'A' },
+      { id: idB, title: 'B' }
     ])
 
     await changeCategory(idA, { title: 'Z' })
     deepEqual(fastMenu.get(), [
-      await loadCategory(idB),
-      getGeneralCategory(),
-      await loadCategory(idA)
+      GENERAL,
+      { id: idB, title: 'B' },
+      { id: idA, title: 'Z' }
     ])
 
     await addPost(testPost({ feedId: 'unknown', reading: 'fast' }))
     await addPost(testPost({ feedId: 'unknown', reading: 'slow' }))
     let orphan = await addFeed(
-      testFeed({ categoryId: 'unknown', reading: 'fast' })
+      testFeed({ categoryId: 'unknown', reading: 'fast', title: '7' })
     )
     await addPost(testPost({ feedId: orphan, reading: 'slow' }))
     deepEqual(slowMenu.get(), [
-      [await loadCategory(idC), [[await loadFeed(feed2), 1]]],
       [
-        getGeneralCategory(),
+        GENERAL,
         [
-          [await loadFeed(feed4), 1],
-          [await loadFeed(feed5), 2]
+          [{ id: feed4, title: '4' }, 1],
+          [{ id: feed5, title: '5' }, 2]
+        ]
+      ],
+      [{ id: idC, title: 'C' }, [[{ id: feed2, title: '2' }, 1]]]
+    ])
+    deepEqual(fastMenu.get(), [
+      GENERAL,
+      { id: idB, title: 'B' },
+      { id: idA, title: 'Z' }
+    ])
+  })
+
+  test('updates menu on feed and category changes', async () => {
+    keepMount(fastMenu)
+    keepMount(slowMenu)
+    await waitLoading(menuLoading)
+
+    let idA = await addCategory({ title: 'A' })
+    let idB = await addCategory({ title: 'B' })
+    let feed1 = await addFeed(
+      testFeed({ categoryId: idA, reading: 'slow', title: 'Feed 1' })
+    )
+    let feed2 = await addFeed(
+      testFeed({ categoryId: idA, reading: 'slow', title: 'Feed 2' })
+    )
+    await addPost(testPost({ feedId: feed1, reading: 'slow' }))
+    await addPost(testPost({ feedId: feed2, reading: 'slow' }))
+
+    deepEqual(fastMenu.get(), [GENERAL])
+    deepEqual(slowMenu.get(), [
+      [
+        { id: idA, title: 'A' },
+        [
+          [{ id: feed1, title: 'Feed 1' }, 1],
+          [{ id: feed2, title: 'Feed 2' }, 1]
         ]
       ]
     ])
-    deepEqual(fastMenu.get(), [
-      await loadCategory(idB),
 
-      getGeneralCategory(),
-      await loadCategory(idA)
+    await changeFeed(feed1, { title: 'Feed 3' })
+    deepEqual(slowMenu.get(), [
+      [
+        { id: idA, title: 'A' },
+        [
+          [{ id: feed2, title: 'Feed 2' }, 1],
+          [{ id: feed1, title: 'Feed 3' }, 1]
+        ]
+      ]
     ])
+
+    let sorted = slowMenu.get()
+    await changeFeed(feed1, { title: 'Feed 3' })
+    equal(slowMenu.get(), sorted)
+
+    await changeFeed(feed1, { lastOriginId: '1', refreshedAt: 1000 })
+    equal(slowMenu.get(), sorted)
+
+    await changeFeed(feed1, { categoryId: idB })
+    deepEqual(slowMenu.get(), [
+      [{ id: idA, title: 'A' }, [[{ id: feed2, title: 'Feed 2' }, 1]]],
+      [{ id: idB, title: 'B' }, [[{ id: feed1, title: 'Feed 3' }, 1]]]
+    ])
+
+    await changeFeed([feed1, feed2], {
+      categoryId: GENERAL_CATEGORY,
+      title: 'Feed 4'
+    })
+    deepEqual(slowMenu.get(), [
+      [
+        GENERAL,
+        [
+          [{ id: feed1, title: 'Feed 4' }, 1],
+          [{ id: feed2, title: 'Feed 4' }, 1]
+        ]
+      ]
+    ])
+
+    await changeFeed(feed1, { categoryId: idB, reading: 'fast' })
+    deepEqual(fastMenu.get(), [{ id: idB, title: 'B' }])
+
+    await changeFeed(feed1, { reading: 'slow' })
+    deepEqual(fastMenu.get(), [GENERAL])
+
+    await changeFeed('unknown', { title: 'Unknown' })
+    await deleteFeed(feed1)
+    await deleteFeed(feed1)
+    deepEqual(slowMenu.get(), [
+      [GENERAL, [[{ id: feed2, title: 'Feed 4' }, 1]]]
+    ])
+
+    let general = slowMenu.get()
+    await changeCategory(idB, { fastReader: 'list' })
+    equal(slowMenu.get(), general)
+
+    await deleteCategory(idA)
+    deepEqual(slowMenu.get(), [
+      [GENERAL, [[{ id: feed2, title: 'Feed 4' }, 1]]]
+    ])
+
+    let deleted = slowMenu.get()
+    await deleteCategory(idA)
+    await changeCategory(idA, { title: 'Deleted' })
+    equal(slowMenu.get(), deleted)
+  })
+
+  test('updates menu on filter changes', async () => {
+    keepMount(fastMenu)
+    keepMount(slowMenu)
+    await waitLoading(menuLoading)
+
+    let idA = await addCategory({ title: 'A' })
+    let idB = await addCategory({ title: 'B' })
+    let feed1 = await addFeed(
+      testFeed({ categoryId: idA, reading: 'slow', title: 'Feed 1' })
+    )
+    let feed2 = await addFeed(
+      testFeed({ categoryId: idB, reading: 'slow', title: 'Feed 2' })
+    )
+    deepEqual(fastMenu.get(), [GENERAL])
+
+    let filter = await addFilter({
+      action: 'fast',
+      feedId: feed1,
+      query: 'include(a)'
+    })
+    deepEqual(fastMenu.get(), [{ id: idA, title: 'A' }])
+
+    let fast = fastMenu.get()
+    await changeFilter(filter, { query: 'include(b)' })
+    equal(fastMenu.get(), fast)
+
+    await changeFilter(filter, { feedId: feed2 })
+    deepEqual(fastMenu.get(), [{ id: idB, title: 'B' }])
+
+    await changeFilter(filter, { action: 'slow' })
+    deepEqual(fastMenu.get(), [GENERAL])
+
+    await changeFilter('unknown', { action: 'fast' })
+    deepEqual(fastMenu.get(), [GENERAL])
+
+    await changeFilter(filter, { action: 'fast' })
+    deepEqual(fastMenu.get(), [{ id: idB, title: 'B' }])
+
+    await deleteFilter(filter)
+    deepEqual(fastMenu.get(), [GENERAL])
+
+    let empty = fastMenu.get()
+    await deleteFilter(filter)
+    equal(fastMenu.get(), empty)
+  })
+
+  test('reduces batch actions', async () => {
+    keepMount(fastMenu)
+    keepMount(slowMenu)
+    await waitLoading(menuLoading)
+
+    let [idA, idB] = await getTables().categories.create([
+      { title: 'A' },
+      { title: 'B' }
+    ])
+    let [feed1, feed2] = await getTables().feeds.create([
+      testFeed({ categoryId: idA, reading: 'fast', title: 'Feed 1' }),
+      testFeed({ categoryId: idB!, reading: 'slow', title: 'Feed 2' })
+    ])
+    await addPost(testPost({ feedId: feed2!, reading: 'slow' }))
+
+    deepEqual(fastMenu.get(), [{ id: idA, title: 'A' }])
+    deepEqual(slowMenu.get(), [
+      [{ id: idB, title: 'B' }, [[{ id: feed2, title: 'Feed 2' }, 1]]]
+    ])
+
+    await getTables().feeds.delete([feed1!, feed2!])
+    await getTables().categories.delete([idA!, idB!])
+    deepEqual(fastMenu.get(), [GENERAL])
+    deepEqual(slowMenu.get(), [])
+  })
+
+  test('loads menu from the storage', async () => {
+    await cleanClientTest()
+    setTestUser(false)
+    setupEnvironment(getTestEnvironment())
+    localStorage.setItem('logux:reducer:slowreader:menu', '1')
+    localStorage.setItem(
+      'slowreader:menu',
+      JSON.stringify({
+        categories: [['category', 'From Storage']],
+        fast: { feed: true },
+        feedOf: { feed: 'category' },
+        feeds: { category: [['feed', 'Feed']] },
+        filters: {}
+      })
+    )
+    setTestUser()
+
+    keepMount(fastMenu)
+    keepMount(slowMenu)
+    await waitLoading(menuLoading)
+    deepEqual(fastMenu.get(), [{ id: 'category', title: 'From Storage' }])
+  })
+
+  test('rebuilds menu from the log on new version', async () => {
+    await cleanClientTest()
+    setTestUser(false)
+    let file = join(tmpdir(), `slowreader-menu-${process.pid}.sqlite`)
+    rmSync(file, { force: true })
+    try {
+      enableClientTest({ databaseCreator: () => openDb(nodeDriver(file)) })
+      keepMount(fastMenu)
+      keepMount(slowMenu)
+      await waitLoading(menuLoading)
+
+      let category = await addCategory({ title: 'A' })
+      await addFeed(
+        testFeed({ categoryId: category, reading: 'fast', title: 'Feed' })
+      )
+      deepEqual(fastMenu.get(), [{ id: category, title: 'A' }])
+
+      userId.set(undefined)
+      cleanStores(menuLoading, slowMenu, fastMenu)
+      await setTimeout(100)
+
+      localStorage.setItem('logux:reducer:slowreader:menu', '0')
+      setTestUser()
+      keepMount(fastMenu)
+      keepMount(slowMenu)
+      await waitLoading(menuLoading)
+      deepEqual(fastMenu.get(), [{ id: category, title: 'A' }])
+    } finally {
+      await cleanClientTest()
+      await setTimeout(100)
+      rmSync(file, { force: true })
+    }
   })
 
   test('has helper to block app while menu is loading', async () => {

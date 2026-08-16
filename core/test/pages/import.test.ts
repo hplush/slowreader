@@ -14,6 +14,7 @@ import {
   deleteFeed,
   deleteFilter,
   deletePost,
+  GENERAL_CATEGORY,
   loadCategories,
   loadFeeds,
   loadFilters,
@@ -205,7 +206,7 @@ describe('import page', () => {
       })),
       [
         { categoryId: categories[0]?.id, loader: 'rss', title: FEED.title },
-        { categoryId: 'general', loader: 'atom', title: FEED2.title }
+        { categoryId: GENERAL_CATEGORY, loader: 'atom', title: FEED2.title }
       ]
     )
   })

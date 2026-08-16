@@ -7,6 +7,7 @@ import {
   addFeed,
   addPost,
   closeLastPopup,
+  GENERAL_CATEGORY,
   loadPost,
   openedPopups,
   type OriginPost,
@@ -37,7 +38,7 @@ describe('post popup', () => {
 
   test('opens saved post', async () => {
     keepMount(openedPopups)
-    let feed = await addFeed(testFeed({ categoryId: 'general' }))
+    let feed = await addFeed(testFeed({ categoryId: GENERAL_CATEGORY }))
     let id1 = await addPost(testPost({ feedId: feed }))
     let id2 = await addPost(testPost({ feedId: feed, publishedAt: undefined }))
 
@@ -92,7 +93,7 @@ describe('post popup', () => {
   })
 
   test('read saved post', async () => {
-    let feed = await addFeed(testFeed({ categoryId: 'general' }))
+    let feed = await addFeed(testFeed({ categoryId: GENERAL_CATEGORY }))
     let id1 = await addPost(testPost({ feedId: feed }))
     let id2 = await addPost(testPost({ feedId: feed }))
 

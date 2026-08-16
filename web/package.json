@@ -46,7 +46,7 @@
     "autoprefixer": "10.5.4",
     "keyux": "0.11.6",
     "lightningcss": "1.33.0",
-    "nanostores": "1.4.2",
+    "nanostores": "1.5.0",
     "postcss": "8.5.26",
     "postcss-load-config": "6.0.1",
     "postcss-mixins": "12.1.2",

@@ -36,13 +36,42 @@ export function setBaseTestRoute(
   testRouter.set(addHashToBaseRoute(route))
 }
 
+/**
+ * Logux reducers keep their data in `localStorage`, which Node.js has not.
+ */
+function mockLocalStorage(): void {
+  let items: Record<string, string> = {}
+  globalThis.localStorage = {
+    clear() {
+      items = {}
+    },
+    getItem(key) {
+      return items[key] ?? null
+    },
+    key(index) {
+      return Object.keys(items)[index] ?? null
+    },
+    get length() {
+      return Object.keys(items).length
+    },
+    removeItem(key) {
+      delete items[key]
+    },
+    setItem(key, value) {
+      items[key] = value
+    }
+  }
+}
+
 export function getTestEnvironment(): EnvironmentAndStore {
   testSession = undefined
   let persistentStore: Record<string, string> = {}
+  mockLocalStorage()
 
   return {
     baseRouter: testRouter,
     cleanStorage() {
+      localStorage.clear()
       for (let key in persistentStore) {
         delete persistentStore[key]
       }

@@ -1,14 +1,23 @@
 // Single place with all database tables. Every table is a CRDT LWW map
 // on top of SQL database, which is filled by actions from Logux log.
 
+import {
+  type ActionCreator,
+  type CrdtTableChangedAction,
+  type CrdtTableCreatedAction,
+  type CrdtTableDeletedAction,
+  defineAction
+} from '@logux/actions'
 import type { CrossTabClient } from '@logux/client'
 import {
   bigint,
+  type CrdtCreateFields,
   type CrdtDatabase,
   type NewCrdtRow,
   type CrdtRowFields,
   type CrdtTable,
   type CrdtTableRow,
+  type CrdtTableSchema,
   createCrdtDatabase,
   number,
   oneOf,
@@ -16,6 +25,7 @@ import {
   string
 } from '@logux/client/db'
 import type { Database, SqlParam } from '@nanostores/sql'
+import { atom } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
 import { client, database, isOutdatedClient } from './client.ts'
@@ -23,6 +33,12 @@ import { onEnvironment } from './environment.ts'
 import type { LoaderName } from './loader/index.ts'
 import { commonMessages } from './messages/index.ts'
 import type { UsefulReaderName } from './readers/common.ts'
+
+/**
+ * ID of the virtual category for feeds without a category. Two underscores
+ * to not be taken by a user’s category, which has a random ID.
+ */
+export const GENERAL_CATEGORY = '__general'
 
 const READERS = ['feed', 'list'] as const satisfies readonly UsefulReaderName[]
 
@@ -35,7 +51,7 @@ let categoriesSchema = {
 }
 
 let feedsSchema = {
-  categoryId: string({ default: 'general' }),
+  categoryId: string({ default: GENERAL_CATEGORY }),
   fastReader: optional(oneOf(READERS)),
   lastOriginId: optional(string()),
   lastPublishedAt: optional(bigint()),
@@ -90,8 +106,30 @@ export interface Tables {
   posts: CrdtTable<typeof postsSchema>
 }
 
+type TableActions<Schema extends CrdtTableSchema> = [
+  created: ActionCreator<CrdtTableCreatedAction<CrdtCreateFields<Schema>>>,
+  changed: ActionCreator<CrdtTableChangedAction<CrdtRowFields<Schema>>>,
+  deleted: ActionCreator<CrdtTableDeletedAction>
+]
+
+function crdtActions<Schema extends CrdtTableSchema>(
+  plural: string
+): TableActions<Schema> {
+  return [
+    defineAction(`${plural}/created`),
+    defineAction(`${plural}/changed`),
+    defineAction(`${plural}/deleted`)
+  ]
+}
+
+export const tableActions = {
+  categories: crdtActions<typeof categoriesSchema>('categories'),
+  feeds: crdtActions<typeof feedsSchema>('feeds'),
+  filters: crdtActions<typeof filtersSchema>('filters'),
+  posts: crdtActions<typeof postsSchema>('posts')
+}
+
 let currentCrdt: CrdtDatabase | undefined
-let currentDatabase: Database | undefined
 let currentTables: Tables | undefined
 let ready: Promise<void> = Promise.resolve()
 let downloading = false
@@ -124,14 +162,21 @@ export function hasDatabase(): boolean {
 }
 
 /**
+ * Database of the current user. It is a store to re-create SQL queries
+ * on sign in and sign out.
+ */
+export const openedDatabase = atom<Database | undefined>()
+
+/**
  * Database of the current user for queries across few tables.
  */
 export function getDatabase(): Database {
+  let db = openedDatabase.get()
   /* node:coverage ignore next 3 */
-  if (!currentDatabase) {
+  if (!db) {
     throw new Error('No Slow Reader database')
   }
-  return currentDatabase
+  return db
 }
 
 /**
@@ -154,7 +199,7 @@ export function select<Row>(
  * the subscription to the previous database.
  */
 export async function cleanDatabase(): Promise<void> {
-  if (!currentDatabase) return
+  if (!openedDatabase.get()) return
   await ready
   await Promise.all([
     getDatabase().exec`DELETE FROM "categories"`,
@@ -165,7 +210,6 @@ export async function cleanDatabase(): Promise<void> {
 }
 
 function openDatabase(logux: CrossTabClient, db: Database): void {
-  currentDatabase = db
   let crdt = createCrdtDatabase(logux, db, {
     key: 'slowreader:db',
     /* node:coverage ignore next 3 */
@@ -185,6 +229,7 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
     posts: crdt.table('posts', postsSchema)
   }
   ready = crdt.ready
+  openedDatabase.set(db)
 
   void busyDuring(
     downloading
@@ -196,13 +241,13 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
 }
 
 function closeDatabase(): void {
-  if (!currentDatabase) return
-  let closingDb = currentDatabase
+  let closingDb = openedDatabase.get()
+  if (!closingDb) return
   currentCrdt!.destroy()
 
   currentCrdt = undefined
-  currentDatabase = undefined
   currentTables = undefined
+  openedDatabase.set(undefined)
 
   let filling = ready
   ready = Promise.resolve()

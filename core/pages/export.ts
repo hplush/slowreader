@@ -10,6 +10,7 @@ import { getEnvironment } from '../environment.ts'
 import { type FeedValue, loadFeeds } from '../feed.ts'
 import { type FilterValue, loadFilters } from '../filter.ts'
 import { loadPosts, type PostValue } from '../post.ts'
+import { GENERAL_CATEGORY } from '../schema.ts'
 import {
   preloadImages,
   type Settings,
@@ -45,7 +46,7 @@ export function isStateExportFile(state: unknown): state is StateExport {
 }
 
 const NO_OPML_CATEGORY: Record<string, boolean> = {
-  general: true
+  [GENERAL_CATEGORY]: true
 }
 
 function pad(value: number): string {

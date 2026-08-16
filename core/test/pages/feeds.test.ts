@@ -8,6 +8,7 @@ import {
   addPost,
   busy,
   busyUntilMenuLoader,
+  GENERAL_CATEGORY,
   testFeed,
   testPost,
   waitLoading
@@ -46,7 +47,7 @@ describe('feeds page', () => {
       params: {},
       route: 'fast'
     })
-    equal(page.params.category.get(), 'general')
+    equal(page.params.category.get(), GENERAL_CATEGORY)
     await waitLoading(page.loading)
     equal(page.posts.get()!.name, 'welcome')
 
@@ -119,7 +120,7 @@ describe('feeds page', () => {
       testFeed({ categoryId: category2, reading: 'fast' })
     )
     let feed3 = await addFeed(
-      testFeed({ categoryId: 'general', reading: 'slow' })
+      testFeed({ categoryId: GENERAL_CATEGORY, reading: 'slow' })
     )
     let page = openPage({
       params: { feed: feed3 },

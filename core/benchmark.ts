@@ -13,6 +13,7 @@ import {
   stringifyMedia
 } from './post.ts'
 import { setRequestMethod } from './request.ts'
+import { GENERAL_CATEGORY } from './schema.ts'
 import { encryptionKey, userId } from './settings.ts'
 
 export interface LoaderSpan {
@@ -246,12 +247,12 @@ async function fillClient(
   let started = performance.now()
   let now = Math.round(Date.now() / 1000)
 
-  let categories = ['general']
+  let categories = [GENERAL_CATEGORY]
   for (let i = 1; i < size.categories; i++) {
     categories.push(await addCategory({ title: sentence(random, 1, 3) }))
   }
 
-  let biggestCategory = 'general'
+  let biggestCategory = GENERAL_CATEGORY
   let biggestFast = 0
   let posts = 0
   let slow: [string, number][] = []

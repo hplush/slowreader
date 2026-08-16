@@ -5,7 +5,6 @@ import type { SqlStore } from '@nanostores/sql'
 import {
   computed,
   type MapStore,
-  onMount,
   type ReadableAtom,
   type StoreValue
 } from 'nanostores'
@@ -59,32 +58,6 @@ export async function waitSql<Row>(store: SqlStore<Row[]>): Promise<Row[]> {
     return value.isLoading ? [] : value.value
   } finally {
     unbind()
-  }
-}
-
-/**
- * Run callback when store got first listener.
- *
- * It is like `onMount` in Nano Stores but work with multiple stores.
- * Callback runs on first listener for any of store.
- */
-export function onMountAny(stores: ReadableAtom[], cb: () => () => void): void {
-  let listeners = 0
-  let unbind = (): void => {}
-  function watching(): () => void {
-    listeners++
-    if (listeners === 1) {
-      unbind = cb()
-    }
-    return () => {
-      listeners--
-      if (listeners === 0) {
-        unbind()
-      }
-    }
-  }
-  for (let store of stores) {
-    onMount(store, () => watching())
   }
 }
 

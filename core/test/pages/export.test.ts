@@ -7,6 +7,7 @@ import {
   addFeed,
   addFilter,
   addPost,
+  GENERAL_CATEGORY,
   testFeed,
   testPost,
   waitLoading
@@ -35,7 +36,7 @@ describe('export page', () => {
     await addFeed(testFeed({ categoryId: idA, title: '1' }))
     await addFeed(testFeed({ categoryId: idA, title: '2' }))
     await addFeed(testFeed({ categoryId: idB, title: '3' }))
-    await addFeed(testFeed({ categoryId: 'general', title: '4' }))
+    await addFeed(testFeed({ categoryId: GENERAL_CATEGORY, title: '4' }))
 
     let page = openPage({
       params: {},

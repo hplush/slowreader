@@ -9,9 +9,10 @@ import {
   addFeed,
   changeFeed,
   closeLastPopup,
-  loadFeed,
+  GENERAL_CATEGORY,
   getPopupId,
   HTTPStatusError,
+  loadFeed,
   openedPopups,
   testFeed,
   waitLoading
@@ -106,13 +107,13 @@ describe('feed popup', () => {
     deepEqual(checkLoadedPopup(popup).posts.get().list[0]?.originId, '2')
 
     deepEqual(checkLoadedPopup(popup).categories.get(), [
-      ['general', 'General'],
+      [GENERAL_CATEGORY, 'General'],
       ['new', 'Add category…']
     ])
 
     let id = await addCategory({ title: 'Test' })
     deepEqual(checkLoadedPopup(popup).categories.get(), [
-      ['general', 'General'],
+      [GENERAL_CATEGORY, 'General'],
       [id, 'Test'],
       ['new', 'Add category…']
     ])

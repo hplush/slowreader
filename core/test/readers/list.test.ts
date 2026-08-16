@@ -8,8 +8,6 @@ import {
   addFeed,
   addPost,
   changePost,
-  loadCategory,
-  loadFeed,
   slowMenu,
   testFeed,
   testPost,
@@ -34,8 +32,12 @@ describe('list reader', () => {
   test('loads posts', async () => {
     keepMount(slowMenu)
     let categoryId = await addCategory({ slowReader: 'list', title: 'A' })
-    let feed1 = await addFeed(testFeed({ categoryId, slowReader: 'list' }))
-    let feed2 = await addFeed(testFeed({ categoryId, slowReader: 'list' }))
+    let feed1 = await addFeed(
+      testFeed({ categoryId, slowReader: 'list', title: 'Feed 1' })
+    )
+    let feed2 = await addFeed(
+      testFeed({ categoryId, slowReader: 'list', title: 'Feed 2' })
+    )
     for (let i = 1; i <= 150; i++) {
       await addPost(
         testPost({
@@ -49,10 +51,10 @@ describe('list reader', () => {
 
     deepEqual(slowMenu.get(), [
       [
-        await loadCategory(categoryId),
+        { id: categoryId, title: 'A' },
         [
-          [await loadFeed(feed1), 75],
-          [await loadFeed(feed2), 75]
+          [{ id: feed1, title: 'Feed 1' }, 75],
+          [{ id: feed2, title: 'Feed 2' }, 75]
         ]
       ]
     ])
@@ -97,10 +99,10 @@ describe('list reader', () => {
     equal(reader.list.get().length, 100)
     deepEqual(slowMenu.get(), [
       [
-        await loadCategory(categoryId),
+        { id: categoryId, title: 'A' },
         [
-          [await loadFeed(feed1), 74],
-          [await loadFeed(feed2), 74]
+          [{ id: feed1, title: 'Feed 1' }, 74],
+          [{ id: feed2, title: 'Feed 2' }, 74]
         ]
       ]
     ])
@@ -147,10 +149,10 @@ describe('list reader', () => {
     await setTimeout(10)
     deepEqual(slowMenu.get(), [
       [
-        await loadCategory(categoryId),
+        { id: categoryId, title: 'A' },
         [
-          [await loadFeed(feed1), 24],
-          [await loadFeed(feed2), 24]
+          [{ id: feed1, title: 'Feed 1' }, 24],
+          [{ id: feed2, title: 'Feed 2' }, 24]
         ]
       ]
     ])

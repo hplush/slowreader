@@ -7,6 +7,7 @@ import { createDownloadTask } from '../lib/download.ts'
 import { parseDocument } from '../lib/html.ts'
 import { getLoaderForText } from '../loader/index.ts'
 import { addPost } from '../post.ts'
+import { GENERAL_CATEGORY } from '../schema.ts'
 import { preloadImages, theme } from '../settings.ts'
 import { createPage } from './common.ts'
 import { isStateExportFile, type StateExport } from './export.ts'
@@ -63,7 +64,7 @@ export const importPage = createPage('import', () => {
 
     let categories = new Map<string, string>()
     for (let outline of links) {
-      let categoryId = 'general'
+      let categoryId = GENERAL_CATEGORY
       let parent = outline.parentElement!
       if (parent.nodeName === 'outline') {
         let category = parent.getAttribute('text')!

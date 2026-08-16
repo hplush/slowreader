@@ -5,6 +5,7 @@ import {
   addCategory,
   addFeed,
   deleteCategory,
+  GENERAL_CATEGORY,
   getGeneralCategory,
   loadCategory,
   loadFeed,
@@ -42,7 +43,9 @@ describe('feeds by categories page', () => {
     let idC = await addCategory({ title: 'C' })
     let idB = await addCategory({ title: 'B' })
     let feed3 = await addFeed(testFeed({ categoryId: idB, title: '1' }))
-    let feed4 = await addFeed(testFeed({ categoryId: 'general', title: '1' }))
+    let feed4 = await addFeed(
+      testFeed({ categoryId: GENERAL_CATEGORY, title: '1' })
+    )
 
     deepEqual(page.groups.get(), [
       [getGeneralCategory(), [await loadFeed(feed4)]],

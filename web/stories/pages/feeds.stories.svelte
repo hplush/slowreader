@@ -1,6 +1,7 @@
 <script context="module" lang="ts">
   import {
     changePost,
+    GENERAL_CATEGORY,
     needWelcome,
     pages,
     type PostValue
@@ -189,7 +190,7 @@
       }, 1)
     }}
     posts={POSTS.map(i => ({ ...i, reading: 'fast' }))}
-    route={{ params: { category: 'general' }, route: 'fast' }}
+    route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
   >
     <FeedsPage page={pages.fast()} />
   </Scene>
@@ -201,7 +202,7 @@
     posts={POSTS.map(i => ({ ...i, reading: 'fast' }))}
     route={{
       hash: 'post=id:post-1',
-      params: { category: 'general' },
+      params: { category: GENERAL_CATEGORY },
       route: 'fast'
     }}
   >
@@ -216,7 +217,7 @@
       POSTS.map(i => ({ ...i, reading: 'fast' })),
       50
     )}
-    route={{ params: { category: 'general' }, route: 'fast' }}
+    route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
   >
     <FeedsPage page={pages.fast()} />
   </Scene>

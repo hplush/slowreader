@@ -7,6 +7,7 @@ import {
   addPopup,
   closeAllPopups,
   closeLastPopup,
+  GENERAL_CATEGORY,
   isOtherRoute,
   openedPopups,
   openedPost,
@@ -56,9 +57,9 @@ describe('router', () => {
 
   test('transforms routers for users', () => {
     setTestUser()
-    setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
+    setBaseTestRoute({ params: { category: GENERAL_CATEGORY }, route: 'fast' })
     deepEqual(router.get(), {
-      params: { category: 'general', from: undefined },
+      params: { category: GENERAL_CATEGORY, from: undefined },
       popups: [],
       route: 'fast'
     })
@@ -84,7 +85,7 @@ describe('router', () => {
     setBaseTestRoute({ params: {}, route: 'slow' })
     equal(isOtherRoute(router.get()), false)
 
-    setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
+    setBaseTestRoute({ params: { category: GENERAL_CATEGORY }, route: 'fast' })
     equal(isOtherRoute(router.get()), false)
 
     setBaseTestRoute({ params: {}, route: 'cloud' })
