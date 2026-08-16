@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "check-opml": "node check-opml.ts",
-    "test": "node test-loaders.ts",
+    "test": "pnpm run /^test:/",
+    "test:online:loaders": "node test-loaders.ts",
     "url": "node url.ts",
     "feed": "node feed.ts"
   },

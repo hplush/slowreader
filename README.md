@@ -136,7 +136,7 @@ Each project has its own tools, too.
 
 - `pnpm test`: run all tests.
 - `pnpm quick`: run quick checks for changed files.
-- `pnpm offline`: run all tests expect which need Internet. It is useful for developing in airplane/train.
+- `pnpm offline`: run only tests which do not need Internet. It is useful for developing in airplane/train.
 - `pnpm start`: run server and web client development server.
 - `pnpm format`: fix code style in all files.
 - `pnpm clean`: remove all temporary files.
@@ -148,7 +148,7 @@ Each project has its own tools, too.
 - `pnpm update-ci`: update CI actions.
 - `pnpm update-browsers`: update target browsers of web client.
 
-We use pnpm feature to run scripts in parallel, having scripts like `test:types` and `test:audit`. Then, we run all scripts in all projects by `test:*` prefix.
+We use pnpm feature to run scripts in parallel, naming every test as `<workflow>:<network>:<name>`. First marker is `test:` for tests which `main.yml` runs, or `own:` for tests with own workflow, like `own:online:markdown` in `docs.yml`. Second marker is `online:` for tests which need Internet, or `offline:`. Then every command selects tests by marker: `main.yml` runs `/^test:/`, `pnpm offline` runs `/:offline:/`, `pnpm test` runs `/^(test|own):/`.
 
 ## Synchronization Protocol
 

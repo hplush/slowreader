@@ -43,7 +43,7 @@ jobs:
       - name: Initialize Node.js
         uses: ./.github/actions/init-node
       - name: Run tests
-        run: cd server && pnpm test
+        run: pnpm -F server test
   build:
     name: Server Build
     if: github.ref == 'refs/heads/main'

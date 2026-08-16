@@ -43,7 +43,7 @@ jobs:
       - name: Initialize Node.js
         uses: ./.github/actions/init-node
       - name: Run tests
-        run: cd proxy && pnpm test
+        run: pnpm -F proxy test
   build:
     name: Proxy Build
     if: github.ref == 'refs/heads/main'

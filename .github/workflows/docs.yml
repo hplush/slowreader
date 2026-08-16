@@ -40,4 +40,4 @@ jobs:
         with:
           install: -F .
       - name: Check docs
-        run: node --run test:online:markdown
+        run: node --run own:online:markdown
