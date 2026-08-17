@@ -230,21 +230,26 @@ export async function throws(cb: () => Promise<unknown>): Promise<Error> {
   return error
 }
 
+function warningText(warning: unknown): string {
+  if (warning instanceof Error) return `${warning.name}: ${warning.message}`
+  return String(warning)
+}
+
 export function expectWarning<Result extends Promise<void> | void>(
   cb: () => Result,
   warnings: Error[]
 ): Result {
   let tracking: unknown[] = []
   setWarningTracking(tracking)
+  function check(): void {
+    deepEqual(tracking.map(warningText), warnings.map(warningText))
+    setWarningTracking(undefined)
+  }
   let result = cb()
   if (result) {
-    return result.then(() => {
-      deepEqual(tracking, warnings)
-      setWarningTracking(undefined)
-    }) as Result
+    return result.then(check) as Result
   } else {
-    deepEqual(tracking, warnings)
-    setWarningTracking(undefined)
+    check()
     return undefined as Result
   }
 }
