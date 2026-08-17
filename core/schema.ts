@@ -198,14 +198,7 @@ export function select<Row>(
  * the subscription to the previous database.
  */
 export async function cleanDatabase(): Promise<void> {
-  if (!openedDatabase.get()) return
-  await ready
-  await Promise.all([
-    getDatabase().exec`DELETE FROM "categories"`,
-    getDatabase().exec`DELETE FROM "feeds"`,
-    getDatabase().exec`DELETE FROM "filters"`,
-    getDatabase().exec`DELETE FROM "posts"`
-  ])
+  await currentCrdt?.empty()
 }
 
 function openDatabase(logux: CrossTabClient, db: Database): void {

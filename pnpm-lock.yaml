@@ -223,23 +223,23 @@ importers:
     dependencies:
       '@logux/actions':
         specifier: github:logux/actions#next
-        version: git+https://github.com/logux/actions.git#1af6802df1be40acbec99e1a342d09c1254767a7(@logux/core@@logux/core@git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69)
+        version: https://codeload.github.com/logux/actions/tar.gz/1af6802df1be40acbec99e1a342d09c1254767a7(@logux/core@https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69)
     devDependencies:
       '@logux/core':
         specifier: github:logux/core#next
-        version: git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69
+        version: https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69
 
   core:
     dependencies:
       '@logux/actions':
         specifier: github:logux/actions#next
-        version: git+https://github.com/logux/actions.git#1af6802df1be40acbec99e1a342d09c1254767a7(@logux/core@@logux/core@git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69)
+        version: https://codeload.github.com/logux/actions/tar.gz/1af6802df1be40acbec99e1a342d09c1254767a7(@logux/core@https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69)
       '@logux/client':
         specifier: github:logux/client#next
-        version: git+https://github.com/logux/client.git#41e950a1dcd672cf3cfed70cc1e4b8175b2ecbce(@nanostores/sql@0.4.1)(nanostores@1.5.0)(react-dom@18.3.1)(react@18.3.1)
+        version: https://codeload.github.com/logux/client/tar.gz/a8aa03ce8f707bf5475cb6b084eb20c33370bafd(@nanostores/sql@0.4.1)(nanostores@1.5.0)(react-dom@18.3.1)(react@18.3.1)
       '@logux/core':
         specifier: github:logux/core#next
-        version: git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69
+        version: https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69
       '@nanostores/i18n':
         specifier: 1.3.3
         version: 1.3.3(nanostores@1.5.0)
@@ -276,7 +276,7 @@ importers:
     devDependencies:
       '@logux/server':
         specifier: github:logux/server
-        version: git+https://github.com/logux/server.git#659e0c3a30132545c442e429d4f096f96988a0d0
+        version: https://codeload.github.com/logux/server/tar.gz/659e0c3a30132545c442e429d4f096f96988a0d0
       '@slowreader/proxy':
         specifier: workspace:*
         version: link:../proxy
@@ -342,10 +342,10 @@ importers:
         version: 0.5.5
       '@logux/actions':
         specifier: github:logux/actions#next
-        version: git+https://github.com/logux/actions.git#1af6802df1be40acbec99e1a342d09c1254767a7(@logux/core@https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69)
+        version: https://codeload.github.com/logux/actions/tar.gz/1af6802df1be40acbec99e1a342d09c1254767a7(@logux/core@https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69)
       '@logux/server':
         specifier: github:logux/server
-        version: git+https://github.com/logux/server.git#659e0c3a30132545c442e429d4f096f96988a0d0
+        version: https://codeload.github.com/logux/server/tar.gz/659e0c3a30132545c442e429d4f096f96988a0d0
       '@slowreader/api':
         specifier: workspace:*
         version: link:../api
@@ -370,7 +370,7 @@ importers:
     devDependencies:
       '@logux/client':
         specifier: github:logux/client#next
-        version: git+https://github.com/logux/client.git#41e950a1dcd672cf3cfed70cc1e4b8175b2ecbce(@nanostores/sql@0.4.1)(nanostores@1.5.0)(react-dom@18.3.1)(react@18.3.1)
+        version: https://codeload.github.com/logux/client/tar.gz/a8aa03ce8f707bf5475cb6b084eb20c33370bafd(@nanostores/sql@0.4.1)(nanostores@1.5.0)(react-dom@18.3.1)(react@18.3.1)
       better-node-test:
         specifier: 1.0.0
         version: 1.0.0
@@ -397,10 +397,10 @@ importers:
         version: 5.3.0
       '@logux/client':
         specifier: github:logux/client#next
-        version: git+https://github.com/logux/client.git#41e950a1dcd672cf3cfed70cc1e4b8175b2ecbce(@nanostores/sql@0.4.1)(nanostores@1.5.0)(react-dom@18.3.1)(react@18.3.1)
+        version: https://codeload.github.com/logux/client/tar.gz/a8aa03ce8f707bf5475cb6b084eb20c33370bafd(@nanostores/sql@0.4.1)(nanostores@1.5.0)(react-dom@18.3.1)(react@18.3.1)
       '@logux/core':
         specifier: github:logux/core#next
-        version: git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69
+        version: https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69
       '@mdi/js':
         specifier: 7.4.47
         version: 7.4.47
@@ -1087,15 +1087,15 @@ packages:
     peerDependencies:
       '@logux/core': ^0.10.0
 
-  '@logux/actions@git+https://github.com/logux/actions.git#1af6802df1be40acbec99e1a342d09c1254767a7':
-    resolution: {commit: 1af6802df1be40acbec99e1a342d09c1254767a7, repo: https://github.com/logux/actions.git, type: git}
+  '@logux/actions@https://codeload.github.com/logux/actions/tar.gz/1af6802df1be40acbec99e1a342d09c1254767a7':
+    resolution: {gitHosted: true, integrity: sha512-d2kI4gsAXBol3WzgSOg5OOj17YaOif8G8FXgK/1phGRzI6nhE3fKy6QRUHqs6S/TTqK5nw7WPB3P2P06JWGIeg==, tarball: https://codeload.github.com/logux/actions/tar.gz/1af6802df1be40acbec99e1a342d09c1254767a7}
     version: 0.5.0
     engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
     peerDependencies:
       '@logux/core': ^0.10.0
 
-  '@logux/client@git+https://github.com/logux/client.git#41e950a1dcd672cf3cfed70cc1e4b8175b2ecbce':
-    resolution: {commit: 41e950a1dcd672cf3cfed70cc1e4b8175b2ecbce, repo: https://github.com/logux/client.git, type: git}
+  '@logux/client@https://codeload.github.com/logux/client/tar.gz/a8aa03ce8f707bf5475cb6b084eb20c33370bafd':
+    resolution: {gitHosted: true, integrity: sha512-upzmm3ad4wGoZCM6NG3XBaSevJPH236AzWFkEBbyRcUaC8I/SwV2w5JyrVEpfxn0wxw2FenNrbsQ6w0xyGxKZw==, tarball: https://codeload.github.com/logux/client/tar.gz/a8aa03ce8f707bf5475cb6b084eb20c33370bafd}
     version: 0.23.2
     engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
     peerDependencies:
@@ -1125,11 +1125,6 @@ packages:
         optional: true
       vue:
         optional: true
-
-  '@logux/core@git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69':
-    resolution: {commit: 573f28b54a99540135304140b69bdb9d6cf68a69, repo: https://github.com/logux/core.git, type: git}
-    version: 0.10.0
-    engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
 
   '@logux/core@https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69':
     resolution: {gitHosted: true, integrity: sha512-HIQ+hKgOpcp9NsLfGXbCzCVjWpFFp8aaP9rvnDTzZMAki4fXSdsPpEprBmFQ/dzOjiiaMkmx1aGbbTAc9v/JoQ==, tarball: https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69}
@@ -1164,8 +1159,8 @@ packages:
     resolution: {integrity: sha512-a7KRD30U252cfIekBGktEIRuwFRT7vOPZXkEsD05DwApsPi70iRnFaHEgMde8tZu+jJUuTDN/xMgabtjzHzXaQ==}
     engines: {node: ^20.0.0 || >=22.0.0}
 
-  '@logux/server@git+https://github.com/logux/server.git#659e0c3a30132545c442e429d4f096f96988a0d0':
-    resolution: {commit: 659e0c3a30132545c442e429d4f096f96988a0d0, repo: https://github.com/logux/server.git, type: git}
+  '@logux/server@https://codeload.github.com/logux/server/tar.gz/659e0c3a30132545c442e429d4f096f96988a0d0':
+    resolution: {gitHosted: true, integrity: sha512-UokowNKHTuZLADUDtwoxctaTo4byw/CvoVh+m7PZKz6/OetHBjw0n1nzhIIIvMwdZqAFmnkbNAhj4b7xwJSmLw==, tarball: https://codeload.github.com/logux/server/tar.gz/659e0c3a30132545c442e429d4f096f96988a0d0}
     version: 0.14.0
     engines: {node: ^22.5.0 || ^24.0.0 || >=26.0.0}
 
@@ -5991,26 +5986,18 @@ snapshots:
 
   '@leichtgewicht/ip-codec@2.0.5': {}
 
-  '@logux/actions@0.5.0(@logux/core@@logux/core@git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69)':
-    dependencies:
-      '@logux/core': git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69
-
   '@logux/actions@0.5.0(@logux/core@https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69)':
     dependencies:
       '@logux/core': https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69
 
-  '@logux/actions@git+https://github.com/logux/actions.git#1af6802df1be40acbec99e1a342d09c1254767a7(@logux/core@@logux/core@git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69)':
-    dependencies:
-      '@logux/core': git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69
-
-  '@logux/actions@git+https://github.com/logux/actions.git#1af6802df1be40acbec99e1a342d09c1254767a7(@logux/core@https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69)':
+  '@logux/actions@https://codeload.github.com/logux/actions/tar.gz/1af6802df1be40acbec99e1a342d09c1254767a7(@logux/core@https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69)':
     dependencies:
       '@logux/core': https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69
 
-  '@logux/client@git+https://github.com/logux/client.git#41e950a1dcd672cf3cfed70cc1e4b8175b2ecbce(@nanostores/sql@0.4.1)(nanostores@1.5.0)(react-dom@18.3.1)(react@18.3.1)':
+  '@logux/client@https://codeload.github.com/logux/client/tar.gz/a8aa03ce8f707bf5475cb6b084eb20c33370bafd(@nanostores/sql@0.4.1)(nanostores@1.5.0)(react-dom@18.3.1)(react@18.3.1)':
     dependencies:
-      '@logux/actions': git+https://github.com/logux/actions.git#1af6802df1be40acbec99e1a342d09c1254767a7(@logux/core@@logux/core@git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69)
-      '@logux/core': git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69
+      '@logux/actions': https://codeload.github.com/logux/actions/tar.gz/1af6802df1be40acbec99e1a342d09c1254767a7(@logux/core@https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69)
+      '@logux/core': https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69
       nanoevents: 10.0.0
       nanoid: 6.0.1
       nanostores: 1.5.0
@@ -6018,10 +6005,6 @@ snapshots:
       '@nanostores/sql': 0.4.1(@electric-sql/pglite@0.5.5)(nanostores@1.5.0)(sqlocal@0.18.0)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-
-  '@logux/core@git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69':
-    dependencies:
-      nanoevents: 10.0.0
 
   '@logux/core@https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69':
     dependencies:
@@ -6056,8 +6039,8 @@ snapshots:
 
   '@logux/server@0.14.0':
     dependencies:
-      '@logux/actions': 0.5.0(@logux/core@@logux/core@git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69)
-      '@logux/core': git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69
+      '@logux/actions': 0.5.0(@logux/core@https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69)
+      '@logux/core': https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69
       cookie: 1.1.1
       fastq: 1.20.1
       nanoevents: 9.1.0
@@ -6069,10 +6052,10 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@logux/server@git+https://github.com/logux/server.git#659e0c3a30132545c442e429d4f096f96988a0d0':
+  '@logux/server@https://codeload.github.com/logux/server/tar.gz/659e0c3a30132545c442e429d4f096f96988a0d0':
     dependencies:
-      '@logux/actions': git+https://github.com/logux/actions.git#1af6802df1be40acbec99e1a342d09c1254767a7(@logux/core@@logux/core@git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69)
-      '@logux/core': git+https://github.com/logux/core.git#573f28b54a99540135304140b69bdb9d6cf68a69
+      '@logux/actions': https://codeload.github.com/logux/actions/tar.gz/1af6802df1be40acbec99e1a342d09c1254767a7(@logux/core@https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69)
+      '@logux/core': https://codeload.github.com/logux/core/tar.gz/573f28b54a99540135304140b69bdb9d6cf68a69
       cookie: 2.0.1
       fastq: 1.20.1
       nanoevents: 10.0.0
