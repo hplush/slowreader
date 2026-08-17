@@ -6,18 +6,21 @@ import {
   type FeedValue,
   getFeedLatestPosts,
   loadFeed,
-  loadFeeds
+  loadFeedsForRefresh,
+  type RefreshFeed
 } from './feed.ts'
-import { loadFilterChecker } from './filter.ts'
+import { type FilterChecker, loadFilterChecker } from './filter.ts'
 import { createQueue } from './lib/queue.ts'
 import { increaseKey } from './lib/stores.ts'
 import {
   addPost,
+  loadPostOriginIdsByFeed,
   type NewPost,
   type OriginPost,
   processOriginPost
 } from './post.ts'
 import type { PostsList } from './posts-list.ts'
+import type { FeedChanges } from './schema.ts'
 
 export const DEFAULT_REFRESH_STATISTICS = {
   errorFeeds: 0,
@@ -33,7 +36,7 @@ export type RefreshStatistics = typeof DEFAULT_REFRESH_STATISTICS
 
 export const refreshStatistics = map({ ...DEFAULT_REFRESH_STATISTICS })
 
-export type RefreshError = { error: Error; feed: FeedValue }
+export type RefreshError = { error: Error; feed: RefreshFeed }
 
 export const refreshErrors = atom<RefreshError[]>([])
 
@@ -60,9 +63,20 @@ export const refreshProgress = computed(refreshStatistics, stats => {
   }
 })
 
-let queue = createQueue<FeedValue>([])
+let queue = createQueue<RefreshFeed>([])
 
-function wasAlreadyAdded(feed: FeedValue, origin: OriginPost): boolean {
+interface FeedRefresh {
+  feed: RefreshFeed
+  filters: FilterChecker | undefined
+  known: Set<string> | undefined
+  newest: OriginPost | undefined
+  pages: PostsList
+}
+
+function wasAlreadyAdded(
+  feed: Pick<FeedValue, 'lastOriginId' | 'lastPublishedAt'>,
+  origin: OriginPost
+): boolean {
   if (origin.publishedAt && feed.lastPublishedAt) {
     return origin.publishedAt <= feed.lastPublishedAt
   } else {
@@ -70,19 +84,28 @@ function wasAlreadyAdded(feed: FeedValue, origin: OriginPost): boolean {
   }
 }
 
-async function addPosts(feed: FeedValue, posts: OriginPost[]): Promise<void> {
-  let first = posts[0]
-  if (!first) return
-
-  if (first.publishedAt) {
+function sortPage(posts: OriginPost[]): void {
+  if (posts[0]?.publishedAt) {
     posts.sort((a, b) => {
       return (b.publishedAt ?? 0) - (a.publishedAt ?? 0)
     })
-    first = posts[0]!
   }
-  if (wasAlreadyAdded(feed, first)) return
+}
 
-  let filters = await loadFilterChecker(feed.id)
+/**
+ * Write a single page of the feed. Returns `false` if the feed was deleted
+ * during the refresh.
+ */
+async function writePage(state: FeedRefresh): Promise<boolean> {
+  let feed = await loadFeed(state.feed.id)
+  if (!feed) return false
+
+  let posts = state.pages.get().list
+  let first = posts[0]
+  if (!first || wasAlreadyAdded(feed, first)) return true
+  state.newest ??= first
+
+  state.filters ??= await loadFilterChecker(feed.id)
   let adding: NewPost[] = []
   let fast = 0
   let slow = 0
@@ -90,9 +113,11 @@ async function addPosts(feed: FeedValue, posts: OriginPost[]): Promise<void> {
     if (wasAlreadyAdded(feed, origin)) {
       break
     }
-    let reading = filters(origin) ?? feed.reading
+    if (state.known?.has(origin.originId)) continue
+    let reading = state.filters(origin) ?? feed.reading
     if (reading !== 'delete') {
       adding.push(processOriginPost(origin, feed.id, reading))
+      state.known?.add(origin.originId)
       if (reading === 'fast') {
         fast += 1
       } else {
@@ -103,32 +128,39 @@ async function addPosts(feed: FeedValue, posts: OriginPost[]): Promise<void> {
   await addPost(adding)
   increaseKey(refreshStatistics, 'foundFast', fast)
   increaseKey(refreshStatistics, 'foundSlow', slow)
-
-  await changeFeed(feed.id, {
-    lastOriginId: first.originId,
-    lastPublishedAt: first.publishedAt
-  })
+  return true
 }
 
-async function checkForNextPage(
-  feed: FeedValue,
-  pages: PostsList
-): Promise<void> {
-  let enough = pages.get().list.some(i => wasAlreadyAdded(feed, i))
-  if (!enough && pages.get().hasNext) {
-    queue.add(feed, async () => {
-      await pages.next()
-      let error = pages.get().error
+async function finishFeed(state: FeedRefresh): Promise<void> {
+  let changes: FeedChanges = { refreshedAt: Math.round(Date.now() / 1000) }
+  if (state.newest) {
+    changes.lastOriginId = state.newest.originId
+    changes.lastPublishedAt = state.newest.publishedAt
+  }
+  await changeFeed(state.feed.id, changes)
+}
+
+async function processPage(state: FeedRefresh): Promise<void> {
+  sortPage(state.pages.get().list)
+  let enough = state.pages.get().list.some(i => wasAlreadyAdded(state.feed, i))
+  let more = !enough && state.pages.get().hasNext
+
+  // The marker is written only after the last page, so a failure in the middle
+  // will return to the same pages on the next refresh.
+  if (more) {
+    state.known ??= new Set(await loadPostOriginIdsByFeed(state.feed.id))
+  }
+  let alive = await writePage(state)
+
+  if (alive && more) {
+    queue.add(state.feed, async () => {
+      await state.pages.next()
+      let error = state.pages.get().error
       if (error) throw error
-      await checkForNextPage(feed, pages)
+      await processPage(state)
     })
   } else {
-    if (await loadFeed(feed.id)) {
-      await addPosts(feed, pages.get().list)
-    }
-    await changeFeed(feed.id, {
-      refreshedAt: Math.round(Date.now() / 1000)
-    })
+    if (alive) await finishFeed(state)
     increaseKey(refreshStatistics, 'processedFeeds')
   }
 }
@@ -143,7 +175,7 @@ export async function refreshPosts(): Promise<void> {
   refreshErrors.set([])
   refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: true })
 
-  let feeds = await loadFeeds()
+  let feeds = await loadFeedsForRefresh()
   refreshStatistics.set({
     ...refreshStatistics.get(),
     initializing: false,
@@ -159,7 +191,13 @@ export async function refreshPosts(): Promise<void> {
         if (pages.get().isLoading) await pages.loading
         let error = pages.get().error
         if (error) throw error
-        await checkForNextPage(feed, pages)
+        await processPage({
+          feed,
+          filters: undefined,
+          known: undefined,
+          newest: undefined,
+          pages
+        })
       }
     },
     {

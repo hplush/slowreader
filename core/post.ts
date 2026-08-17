@@ -99,6 +99,18 @@ export function loadPostIdsByFeed(feedId: string): Promise<string[]> {
   )
 }
 
+/**
+ * Origin IDs of feed’s posts to not add the same post twice, if the previous
+ * refresh was stopped in the middle of the feed’s pagination.
+ */
+export function loadPostOriginIdsByFeed(feedId: string): Promise<string[]> {
+  return select<{
+    originId: string
+  }>`SELECT "originId" FROM "posts" WHERE "feedId" = ${feedId}`.then(rows =>
+    rows.map(row => row.originId)
+  )
+}
+
 export function deletePost(postId: string[] | string): Promise<void> {
   return getTables().posts.delete(postId)
 }

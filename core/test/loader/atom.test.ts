@@ -601,7 +601,7 @@ describe('atom loader', () => {
     await posts.next()
   })
 
-  test('has posts from both pages', async () => {
+  test('loads posts page by page', async () => {
     let task = createDownloadTask()
 
     expectRequest('https://example.com/feed').andRespond(
@@ -632,11 +632,12 @@ describe('atom loader', () => {
         </feed>`,
       'application/atom+xml'
     )
-    await posts.next()
+    let page2 = await posts.next()
 
-    equal(posts.get().list.length, 2)
-    equal(posts.get().list[0]?.title, 'Post on page 1')
-    equal(posts.get().list[1]?.title, 'Post on page 2')
+    equal(page2.length, 1)
+    equal(page2[0]?.title, 'Post on page 2')
+    equal(posts.get().list.length, 1)
+    equal(posts.get().list[0]?.title, 'Post on page 2')
   })
 
   test('returns post source', async () => {

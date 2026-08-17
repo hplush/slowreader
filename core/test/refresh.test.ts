@@ -10,6 +10,7 @@ import {
   addFilter,
   createPostsList,
   deleteFeed,
+  getClient,
   loadFeed,
   loadPosts,
   HTTPStatusError,
@@ -191,14 +192,14 @@ describe('refresh', () => {
     deepEqual(refreshStatistics.get(), {
       errorFeeds: 0,
       errorRequests: 0,
-      foundFast: 0,
-      foundSlow: 2,
+      foundFast: 1,
+      foundSlow: 3,
       initializing: false,
       processedFeeds: 1,
       totalFeeds: 2
     })
-    deepEqual(await getPostKeys('title'), ['2', '3'])
-    deepEqual(await getPostKeys('reading'), ['slow', 'slow'])
+    deepEqual(await getPostKeys('title'), ['2', '3', '7', '8 slow'])
+    deepEqual(await getPostKeys('reading'), ['slow', 'slow', 'fast', 'slow'])
     deepEqual((await loadFeed(feedId2))!.lastOriginId, 'post2')
     deepEqual((await loadFeed(feedId2))!.lastPublishedAt, 5000)
 
@@ -292,12 +293,91 @@ describe('refresh', () => {
       ],
       () => rss2.promise()
     ])
+    await setTimeout(10)
+    deepEqual(await getPostKeys('title'), ['4', '5', '6'])
 
     await deleteFeed(feedId)
-    rss2.resolve([[], undefined])
+    rss2.resolve([[{ originId: 'post3', title: '3' }], undefined])
     await setTimeout(10)
     equal(refreshStatus.get(), 'done')
+    equal(await loadFeed(feedId), undefined)
     deepEqual(await getPostKeys('title'), [])
+  })
+
+  test('writes every page and changes feed by one action', async () => {
+    let feedId = await addFeed(
+      testFeed({
+        lastOriginId: 'post1',
+        loader: 'rss',
+        reading: 'slow'
+      })
+    )
+    let actions: string[] = []
+    let unbind = getClient().on('add', action => {
+      actions.push(action.type)
+    })
+
+    let rss1 = createPromise<PostsListResult>()
+    spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => rss1.promise())
+    })
+
+    refreshPosts()
+    await setTimeout(10)
+
+    let rss2 = rss1.next()
+    rss1.resolve([[{ originId: 'post4', title: '4' }], () => rss2.promise()])
+    await setTimeout(10)
+    deepEqual(await getPostKeys('title'), ['4'])
+
+    rss2.resolve([
+      [
+        { originId: 'post3', title: '3' },
+        { originId: 'post1', title: '1' }
+      ],
+      undefined
+    ])
+    await setTimeout(10)
+
+    deepEqual(await getPostKeys('title'), ['3', '4'])
+    deepEqual(actions, ['posts/created', 'posts/created', 'feeds/changed'])
+    equal((await loadFeed(feedId))!.lastOriginId, 'post4')
+    unbind()
+  })
+
+  test('does not add posts twice after a stopped refresh', async () => {
+    await addFeed(
+      testFeed({
+        lastOriginId: 'post1',
+        loader: 'rss',
+        reading: 'slow'
+      })
+    )
+    let rss2 = createPromise<PostsListResult>()
+    spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() =>
+        Promise.resolve([
+          [
+            { originId: 'post4', title: '4' },
+            { originId: 'post3', title: '3' }
+          ],
+          () => rss2.promise()
+        ])
+      )
+    })
+
+    refreshPosts()
+    await setTimeout(10)
+    deepEqual(await getPostKeys('title'), ['3', '4'])
+    stopRefreshing()
+
+    refreshPosts()
+    await setTimeout(10)
+    rss2.resolve([[{ originId: 'post2', title: '2' }], undefined])
+    await setTimeout(10)
+
+    deepEqual(await getPostKeys('title'), ['2', '3', '4'])
+    equal(refreshStatus.get(), 'done')
   })
 
   test('cancels refreshing', async () => {

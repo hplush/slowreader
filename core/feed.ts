@@ -41,6 +41,30 @@ export function loadFeeds(): Promise<FeedValue[]> {
   return select<FeedValue>`SELECT * FROM "feeds" ORDER BY "title"`
 }
 
+/**
+ * Feed’s columns used during the refresh. `SELECT *` returns also
+ * `updatedAt_*` column of every field, and the list of all feeds
+ * is kept in memory until the refresh ends.
+ */
+export type RefreshFeed = Pick<
+  FeedValue,
+  | 'id'
+  | 'lastOriginId'
+  | 'lastPublishedAt'
+  | 'loader'
+  | 'refreshedAt'
+  | 'title'
+  | 'url'
+>
+
+export function loadFeedsForRefresh(): Promise<RefreshFeed[]> {
+  return select<RefreshFeed>`
+    SELECT "id", "title", "url", "loader", "refreshedAt",
+      "lastOriginId", "lastPublishedAt"
+    FROM "feeds" ORDER BY "title"
+  `
+}
+
 export function loadFeedsByCategory(categoryId: string): Promise<FeedValue[]> {
   return select<FeedValue>`
     SELECT * FROM "feeds" WHERE "categoryId" = ${categoryId} ORDER BY "title"
@@ -108,7 +132,7 @@ export async function addCandidate(
 }
 
 export function getFeedLatestPosts(
-  feed: FeedValue,
+  feed: Pick<FeedValue, 'loader' | 'refreshedAt' | 'url'>,
   task = createDownloadTask()
 ): PostsList {
   return loaders[feed.loader].getPosts(
