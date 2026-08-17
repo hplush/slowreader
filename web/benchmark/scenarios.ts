@@ -1,4 +1,5 @@
 import { closeAllPopups } from '@slowreader/core'
+import { fillReaderFeed } from '@slowreader/core/benchmark'
 
 import { getURL, pathRouter } from '../stores/url-router.ts'
 import { nextFrame, waitIdle } from './measure.ts'
@@ -149,6 +150,7 @@ export function createScenarios(
     {
       name: 'read-page',
       async prepare() {
+        await fillReaderFeed()
         await open(slowPage(readerFeed))
       },
       async run() {

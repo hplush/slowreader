@@ -8,12 +8,13 @@ import { setLoaderReporter } from './loader.ts'
 import { benchmarkMessages } from './messages/index.ts'
 import {
   addPost,
+  loadPostIdsByFeed,
   type NewPost,
   type PostValue,
   stringifyMedia
 } from './post.ts'
 import { setRequestMethod } from './request.ts'
-import { GENERAL_CATEGORY } from './schema.ts'
+import { GENERAL_CATEGORY, select } from './schema.ts'
 import { encryptionKey, userId } from './settings.ts'
 
 export interface LoaderSpan {
@@ -195,7 +196,11 @@ const ANCHORS: [PostValue['reading'], number][] = [
 ]
 
 // Feed reader is set here, so benchmark will not switch reader before scenario
-const READER_FEED = 'feed-1'
+const READER_FEED_INDEX = 1
+const READER_FEED = `feed-${READER_FEED_INDEX}`
+
+// Unread posts to keep in the reader’s feed for the `read-page` scenario
+const READER_FEED_POSTS = 120
 
 const POSTS_BATCH = 100
 
@@ -307,6 +312,43 @@ async function fillClient(
       .toSorted((a, b) => b[1] - a[1])
       .slice(0, 3)
       .map(i => i[0])
+  }
+}
+
+/**
+ * Fill the reader’s feed back before the `read-page` scenario.
+ *
+ * The scenario marks a page as read on every run, and read posts are deleted
+ * on leaving the page. Without filling, the feed ends after a few runs,
+ * the reader shows the empty screen and there is no button to click.
+ */
+export async function fillReaderFeed(): Promise<void> {
+  let [ids, unread] = await Promise.all([
+    loadPostIdsByFeed(READER_FEED),
+    select<{ total: number }>`
+      SELECT COUNT("id") AS "total" FROM "posts"
+      WHERE "feedId" = ${READER_FEED} AND "read" = 0
+    `
+  ])
+  let missing = READER_FEED_POSTS - unread[0]!.total
+  if (missing <= 0) return
+
+  // Deleted posts free their index, so new posts continue from the last one
+  let last = 0
+  for (let id of ids) {
+    let index = Number(id.slice(id.lastIndexOf('-') + 1))
+    if (index > last) last = index
+  }
+
+  let random = createRandom(SEED)
+  let now = Math.round(Date.now() / 1000)
+  let reading = ANCHORS[READER_FEED_INDEX]![0]
+  for (let i = 0; i < missing; i += POSTS_BATCH) {
+    let batch: NewPost[] = []
+    for (let j = i; j < Math.min(i + POSTS_BATCH, missing); j++) {
+      batch.push(createPost(random, READER_FEED, last + j + 1, reading, now))
+    }
+    await addPost(batch)
   }
 }
 
