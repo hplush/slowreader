@@ -14,8 +14,8 @@ import { persistentAtom } from '@nanostores/persistent'
 import { atom, computed, effect, keepMount, onMount } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
-import { client } from './client.ts'
-import { layoutType, onEnvironment } from './environment.ts'
+import { client, onClient } from './client.ts'
+import { layoutType } from './environment.ts'
 import type { FilterValue } from './filter.ts'
 import { waitLoading } from './lib/stores.ts'
 import { commonMessages } from './messages/index.ts'
@@ -413,39 +413,17 @@ function buildSlowMenu(tree: MenuTree, counts: Map<string, number>): SlowMenu {
 let $state = atom<MenuState>(EMPTY)
 let $reduced = atom<boolean>(false)
 
-onEnvironment(() => {
-  let reducer: StorageReducer<MenuState> | undefined
-  let unbindState = (): void => {}
-
-  function stop(): void {
-    unbindState()
-    unbindState = () => {}
-    reducer?.destroy()
-    reducer = undefined
-    $reduced.set(false)
-    $state.set(EMPTY)
-  }
-
-  let unbindClient = client.subscribe(logux => {
-    stop()
-    if (logux) {
-      reducer = createMenuReducer(logux)
-      let unbindValue = reducer.value.subscribe(state => {
-        $state.set(state)
-      })
-      let unbindStatus = reducer.status.subscribe(status => {
-        $reduced.set(status === 'ready')
-      })
-      unbindState = () => {
-        unbindValue()
-        unbindStatus()
-      }
-    }
+onClient(logux => {
+  let reducer = createMenuReducer(logux)
+  let unbind = effect([reducer.value, reducer.status], (state, status) => {
+    $state.set(state)
+    $reduced.set(status === 'ready')
   })
-
   return () => {
-    unbindClient()
-    stop()
+    unbind()
+    reducer.destroy()
+    $state.set(EMPTY)
+    $reduced.set(false)
   }
 })
 

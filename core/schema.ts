@@ -28,8 +28,7 @@ import type { Database, SqlParam } from '@nanostores/sql'
 import { atom } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
-import { client, database, isOutdatedClient } from './client.ts'
-import { onEnvironment } from './environment.ts'
+import { database, isOutdatedClient, onClient } from './client.ts'
 import type { LoaderName } from './loader/index.ts'
 import { commonMessages } from './messages/index.ts'
 import type { UsefulReaderName } from './readers/common.ts'
@@ -258,14 +257,7 @@ function closeDatabase(): void {
   })
 }
 
-onEnvironment(() => {
-  let unbind = client.subscribe(logux => {
-    closeDatabase()
-    let db = database.get()
-    if (logux && db) openDatabase(logux, db)
-  })
-  return () => {
-    unbind()
-    closeDatabase()
-  }
+onClient(logux => {
+  openDatabase(logux, database.get()!)
+  return closeDatabase
 })

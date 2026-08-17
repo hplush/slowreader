@@ -63,7 +63,6 @@ function getServer(): ClientOptions['server'] {
   }
 }
 
-let prevClient: CrossTabClient | undefined
 export const client = atom<CrossTabClient | undefined>()
 
 /**
@@ -87,90 +86,93 @@ function isCrdtAction(action: Action): action is CrdtAction {
 }
 
 onEnvironment(({ databaseCreator }) => {
-  let unbindUser = effect(
-    [userId, hasPassword, encryptionKey],
-    (user, connect, key) => {
-      prevClient?.destroy()
+  return effect([userId, hasPassword, encryptionKey], (user, connect, key) => {
+    if (user && key) {
+      let db = databaseCreator()
+      let logux = new CrossTabClient({
+        prefix: 'slowreader',
+        server: getServer(),
+        store: new SqlLogStore(db),
+        subprotocol: SUBPROTOCOL,
+        time: testTime,
+        token: getEnvironment().getSession(),
+        userId: user
+      })
+      encryptActions(logux, key, {
+        ignore: [deleteUser.type]
+      })
 
-      if (user && key) {
-        let db = databaseCreator()
-        let logux = new CrossTabClient({
-          prefix: 'slowreader',
-          server: getServer(),
-          store: new SqlLogStore(db),
-          subprotocol: SUBPROTOCOL,
-          time: testTime,
-          token: getEnvironment().getSession(),
-          userId: user
-        })
-        encryptActions(logux, key, {
-          ignore: [deleteUser.type]
-        })
-
-        /* node:coverage disable */
-        function removeAction(action: Action, meta: Meta): void {
-          void logux.log.changeMeta(meta.id, { reasons: [] })
-        }
-
-        function changedRows(action: CrdtAction): [string, string[]][] {
-          if ('records' in action) {
-            return action.records.map(record => [
-              record.id,
-              Object.keys(record).filter(field => field !== 'id')
-            ])
-          }
-          let fields = 'fields' in action ? Object.keys(action.fields) : []
-          let ids = 'ids' in action ? action.ids : [action.id]
-          return ids.map(id => [id, fields])
-        }
-
-        logux.on('preadd', (action, meta) => {
-          if (parseId(meta.id).clientId === logux.clientId) {
-            meta.sync = true
-          } else if (isCrdtAction(action)) {
-            let plural = action.type.split('/')[0]!
-            let rows = changedRows(action)
-            if (action.type.endsWith('/deleted')) {
-              for (let [id] of rows) {
-                void logux.log.each({ index: `${plural}/${id}` }, removeAction)
-              }
-            } else {
-              for (let [id, fields] of rows) {
-                for (let field of fields) {
-                  meta.reasons.push(`${plural}/${id}/${field}`)
-                }
-              }
-              meta.indexes = [plural, ...rows.map(row => `${plural}/${row[0]}`)]
-            }
-          }
-        })
-
-        logux.node.catch(error => {
-          if (error.type === 'wrong-subprotocol') {
-            isOutdatedClient.set(true)
-          }
-          getEnvironment().warn(error)
-        })
-        if (getEnvironment().server === 'NO_SERVER') {
-          logux.start(false)
-        } else {
-          /* node:coverage enable */
-          logux.start(connect)
-        }
-        prevClient = logux
-        database.set(db)
-        client.set(logux)
-      } else {
-        client.set(undefined)
-        database.set(undefined)
+      /* node:coverage disable */
+      function removeAction(action: Action, meta: Meta): void {
+        void logux.log.changeMeta(meta.id, { reasons: [] })
       }
+
+      function changedRows(action: CrdtAction): [string, string[]][] {
+        if ('records' in action) {
+          return action.records.map(record => [
+            record.id,
+            Object.keys(record).filter(field => field !== 'id')
+          ])
+        }
+        let fields = 'fields' in action ? Object.keys(action.fields) : []
+        let ids = 'ids' in action ? action.ids : [action.id]
+        return ids.map(id => [id, fields])
+      }
+
+      logux.on('preadd', (action, meta) => {
+        if (parseId(meta.id).clientId === logux.clientId) {
+          meta.sync = true
+        } else if (isCrdtAction(action)) {
+          let plural = action.type.split('/')[0]!
+          let rows = changedRows(action)
+          if (action.type.endsWith('/deleted')) {
+            for (let [id] of rows) {
+              void logux.log.each({ index: `${plural}/${id}` }, removeAction)
+            }
+          } else {
+            for (let [id, fields] of rows) {
+              for (let field of fields) {
+                meta.reasons.push(`${plural}/${id}/${field}`)
+              }
+            }
+            meta.indexes = [plural, ...rows.map(row => `${plural}/${row[0]}`)]
+          }
+        }
+      })
+
+      logux.node.catch(error => {
+        if (error.type === 'wrong-subprotocol') {
+          isOutdatedClient.set(true)
+        }
+        getEnvironment().warn(error)
+      })
+      if (getEnvironment().server === 'NO_SERVER') {
+        logux.start(false)
+      } else {
+        /* node:coverage enable */
+        logux.start(connect)
+      }
+      database.set(db)
+      client.set(logux)
+      return () => {
+        logux.destroy()
+      }
+    } else {
+      client.set(undefined)
+      database.set(undefined)
     }
-  )
-  return () => {
-    unbindUser()
-    prevClient?.destroy()
-  }
+  })
 })
+
+/**
+ * Run callback while the user is signed in. Return a cleanup from it: it will
+ * be called on sign out, on switch to another user, and on environment change.
+ */
+export function onClient(
+  cb: (logux: CrossTabClient) => (() => void) | void
+): void {
+  onEnvironment(() => effect(client, logux => (logux ? cb(logux) : undefined)))
+}
 
 export function getClient(): CrossTabClient {
   let logux = client.get()
@@ -202,40 +204,32 @@ export const syncStatusType = computed(syncStatus, sync => {
 export const syncError = atom('')
 
 onMount(syncStatus, () => {
-  let unbindState: (() => void) | undefined
-  let unbindClient = client.subscribe(logux => {
-    if (unbindState) {
-      unbindState()
-      unbindState = undefined
-    }
+  return effect(client, logux => {
     if (!logux) {
       syncError.set('')
       syncStatus.set('local')
-    } else if (getEnvironment().server !== 'NO_SERVER') {
-      unbindState = status(logux, (value, details) => {
-        if (
-          value === 'denied' ||
-          value === 'protocolError' ||
-          value === 'syncError'
-        ) {
-          syncStatus.set('error')
-          if (details) {
-            if ('error' in details) {
-              syncError.set(details.error.message)
-            } else {
-              syncError.set(details.action.action.type)
-            }
-          }
-        } else {
-          syncError.set('')
-          syncStatus.set(value)
-        }
-      })
+      return
     }
+    /* node:coverage ignore next */
+    if (getEnvironment().server === 'NO_SERVER') return
+    return status(logux, (value, details) => {
+      if (
+        value === 'denied' ||
+        value === 'protocolError' ||
+        value === 'syncError'
+      ) {
+        syncStatus.set('error')
+        if (details) {
+          if ('error' in details) {
+            syncError.set(details.error.message)
+          } else {
+            syncError.set(details.action.action.type)
+          }
+        }
+      } else {
+        syncError.set('')
+        syncStatus.set(value)
+      }
+    })
   })
-
-  return () => {
-    unbindClient()
-    unbindState?.()
-  }
 })
