@@ -41,6 +41,7 @@ export function setBaseTestRoute(
  */
 function mockLocalStorage(): void {
   let items: Record<string, string> = {}
+  if (typeof localStorage !== 'undefined') return
   globalThis.localStorage = {
     clear() {
       items = {}
