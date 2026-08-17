@@ -215,10 +215,26 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
   })
   currentCrdt = crdt
   currentTables = {
-    categories: crdt.table('categories', categoriesSchema),
-    feeds: crdt.table('feeds', feedsSchema),
-    filters: crdt.table('filters', filtersSchema),
-    posts: crdt.table('posts', postsSchema)
+    categories: crdt.table('categories', categoriesSchema, ['title']),
+    feeds: crdt.table('feeds', feedsSchema, [
+      // Category reader and feeds list
+      ['categoryId', 'title'],
+      // Duplicate check on adding a feed and on OPML import
+      'url',
+      'title'
+    ]),
+    filters: crdt.table('filters', filtersSchema, [
+      // Filters of the feed in their order
+      ['feedId', 'priority']
+    ]),
+    posts: crdt.table('posts', postsSchema, [
+      // Pages of the feed reader and of the list reader
+      ['feedId', 'reading', 'read', 'publishedAt DESC'],
+      // The same for a category, and unread counters of the menu
+      ['reading', 'read', 'publishedAt DESC'],
+      // Pages of the backup export
+      'publishedAt DESC'
+    ])
   }
   ready = crdt.ready
   openedDatabase.set(db)
