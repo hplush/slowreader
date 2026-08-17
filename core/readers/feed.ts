@@ -1,8 +1,13 @@
 import { atom } from 'nanostores'
 
-import { type FeedValue, loadFeedsByCategory } from '../feed.ts'
-import { changePost, type PostValue } from '../post.ts'
-import { createReader, loadPosts } from './common.ts'
+import { changePost } from '../post.ts'
+import {
+  createReader,
+  loadPostsAbove,
+  loadPostsPage,
+  type PostAuthor,
+  type ReaderPost
+} from './common.ts'
 
 const POSTS_PER_PAGE = 40
 
@@ -11,62 +16,67 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
 
   let exited = false
   let $loading = atom(true)
-  let $list = atom<PostValue[]>([])
-  let $authors = atom<Map<string, FeedValue>>(new Map())
+  let $list = atom<ReaderPost[]>([])
+  let $authors = atom<Map<string, PostAuthor>>(new Map())
   let $hasNext = atom(false)
   let $nextFrom = atom<number | undefined>()
   let $prevFrom = atom<number | undefined>()
 
   let openAt = Date.now()
-  let unbindFrom = (): void => {}
-  async function start(): Promise<void> {
-    // TODO: more optimized feed to now keep everything in memory
-    let posts = await loadPosts(filter)
-    if (exited) return
+  let request = 0
 
-    if (filter.categoryId) {
-      let feeds = await loadFeedsByCategory(filter.categoryId)
-      $authors.set(new Map(feeds.map(feed => [feed.id, feed])))
-      // It could be switched to false during await above
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (exited) return
+  async function loadPage(from: number | undefined): Promise<void> {
+    let current = ++request
+    let [posts, above] = await Promise.all([
+      loadPostsPage(filter, from ?? openAt, POSTS_PER_PAGE + 1),
+      from ? loadPostsAbove(filter, from, POSTS_PER_PAGE + 1) : undefined
+    ])
+    if (exited || current !== request) return
+
+    let list = posts.slice(0, POSTS_PER_PAGE)
+    $hasNext.set(posts.length > POSTS_PER_PAGE)
+    $nextFrom.set(list[list.length - 1]?.publishedAt)
+    if (!above || above.length === 0) {
+      $prevFrom.set(undefined)
+    } else {
+      let prevFrom = above[POSTS_PER_PAGE] ?? openAt
+      $prevFrom.set(prevFrom === from ? undefined : prevFrom)
     }
-
-    unbindFrom = params.from.subscribe(value => {
-      let from = value ?? openAt
-      let fromIndex = posts.findIndex(i => i.publishedAt < from)
-      if (fromIndex === -1) fromIndex = posts.length
-      let list = posts.slice(fromIndex, fromIndex + POSTS_PER_PAGE)
-      $hasNext.set(posts.length > fromIndex + POSTS_PER_PAGE)
-      if (value) {
-        let prevIndex = fromIndex - POSTS_PER_PAGE - 1
-        let prevForm = posts[prevIndex]?.publishedAt ?? openAt
-        $prevFrom.set(prevForm === value ? undefined : prevForm)
-      } else {
-        $prevFrom.set(undefined)
-      }
-      $nextFrom.set(list[list.length - 1]?.publishedAt)
-      $list.set(list)
-    })
-  }
-  void start().then(() => {
+    if (filter.categoryId) {
+      $authors.set(
+        new Map(
+          list.map(post => [
+            post.feedId,
+            { title: post.authorTitle!, url: post.authorUrl! }
+          ])
+        )
+      )
+    }
+    $list.set(list)
     $loading.set(false)
+  }
+
+  let unbindFrom = params.from.subscribe(value => {
+    $loading.set(true)
+    void loadPage(value)
   })
 
+  // The write is awaited before the move, so the next page and the cursor
+  // of the previous page are taken from the database with the marks applied.
   async function readAndNext(): Promise<void> {
-    let unread = $list.get().filter(i => !i.read)
-    let promise = changePost(
-      unread.map(i => i.id),
+    await changePost(
+      $list
+        .get()
+        .filter(post => !post.read)
+        .map(post => post.id),
       { read: 1 }
     )
-    // Loaded posts are a snapshot, so we need to mark them as read too
-    for (let post of unread) post.read = 1
+    if (exited) return
     if ($hasNext.get()) {
       params.from.set($nextFrom.get())
     } else {
       helpers.renderEmpty()
     }
-    return promise
   }
 
   return {

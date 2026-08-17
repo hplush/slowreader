@@ -5,8 +5,13 @@ import {
   moveToPage,
   setPagination
 } from '../lib/pagination.ts'
-import { changePost, type PostValue } from '../post.ts'
-import { createReader, loadPosts } from './common.ts'
+import { changePost } from '../post.ts'
+import {
+  createReader,
+  loadPageCursors,
+  loadPostsPage,
+  type ReaderPost
+} from './common.ts'
 
 const POSTS_PER_PAGE = 100
 
@@ -15,43 +20,49 @@ export const listReader = createReader('list', (filter, params) => {
 
   let exited = false
   let $loading = atom(true)
-  let $list = atom<PostValue[]>([])
-  let $pages = createPagination(1, 1)
+  let $list = atom<ReaderPost[]>([])
+  let $pages = createPagination(1)
+
+  let cursors: number[] = []
+  let request = 0
+
+  async function loadPage(page: number): Promise<void> {
+    let current = ++request
+    let cursor = cursors[page]
+    let posts =
+      typeof cursor === 'undefined'
+        ? []
+        : await loadPostsPage(filter, cursor, POSTS_PER_PAGE, true)
+    if (exited || current !== request) return
+    moveToPage($pages, page)
+    $list.set(posts)
+    $loading.set(false)
+  }
 
   let unbindFrom = (): void => {}
   async function start(): Promise<void> {
-    // TODO Logux DB: more optimizaed way with SQL
-    let posts = await loadPosts(filter)
+    cursors = await loadPageCursors(filter, POSTS_PER_PAGE)
     if (exited) return
-
-    function updateList(): void {
-      let from = params.from.get()
-      if (!from) from = 0
-      let fromIndex = from * POSTS_PER_PAGE
-      let list = posts.slice(fromIndex, fromIndex + POSTS_PER_PAGE)
-      $list.set(list)
-      moveToPage($pages, from)
-    }
-
-    setPagination($pages, posts.length, POSTS_PER_PAGE)
-    unbindFrom = params.from.subscribe(updateList)
+    setPagination($pages, cursors.length)
+    unbindFrom = params.from.subscribe(value => {
+      $loading.set(true)
+      void loadPage(value ?? 0)
+    })
   }
-  void start().then(() => {
-    $loading.set(false)
-  })
+  void start()
 
   async function readPage(): Promise<void> {
-    let unread = $list.get().filter(i => !i.read)
-    let promise = changePost(
-      unread.map(i => i.id),
+    await changePost(
+      $list
+        .get()
+        .filter(post => !post.read)
+        .map(post => post.id),
       { read: 1 }
     )
-    // Loaded posts are a snapshot, so we need to mark them as read too
-    for (let post of unread) post.read = 1
+    if (exited) return
     if ($pages.get().hasNext) {
       params.from.set($pages.get().page + 1)
     }
-    await promise
   }
 
   return {

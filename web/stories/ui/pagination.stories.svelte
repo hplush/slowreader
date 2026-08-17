@@ -1,5 +1,9 @@
 <script lang="ts" module>
-  import type { PaginationValue } from '@slowreader/core'
+  import {
+    createPagination,
+    moveToPage,
+    type PaginationValue
+  } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import Pagination from '../../ui/pagination.svelte'
@@ -13,13 +17,9 @@
 
 <script lang="ts">
   function pages(count: number, page = 0): PaginationValue {
-    return {
-      count,
-      hasNext: page < count - 1,
-      page,
-      pages: Array.from({ length: count }, (_, i) => i),
-      show: true
-    }
+    let pagination = createPagination(count)
+    moveToPage(pagination, page)
+    return pagination.get()
   }
 </script>
 
@@ -41,5 +41,8 @@
   </Section>
   <Section width={400}>
     <Pagination pages={pages(50, 25)} />
+  </Section>
+  <Section width={400}>
+    <Pagination pages={pages(1000, 500)} />
   </Section>
 </Story>

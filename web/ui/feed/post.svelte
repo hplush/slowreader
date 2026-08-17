@@ -1,12 +1,12 @@
 <script lang="ts">
   import { mdiChevronRight, mdiOpenInNew } from '@mdi/js'
   import {
-    type FeedValue,
     getPopupId,
     getPostIntro,
     getPostPopupParam,
     openedPost,
     parseMedia,
+    type PostAuthor,
     type PostValue,
     router,
     feedsMessages as t
@@ -21,7 +21,7 @@
     author,
     post
   }: {
-    author: FeedValue | undefined
+    author: PostAuthor | undefined
     post: PostValue
   } = $props()
 

@@ -8,6 +8,10 @@ import {
   addFeed,
   addPost,
   changePost,
+  deletePost,
+  type ListReader,
+  loadPostsByFeed,
+  type Page,
   slowMenu,
   testFeed,
   testPost,
@@ -19,6 +23,15 @@ import {
   ensureReader,
   openPage
 } from '../utils.ts'
+
+async function moveTo(page: Page<'slow'>, from: number): Promise<void> {
+  page.params.from.set(from)
+  await waitLoading(page.postsLoading)
+}
+
+function titles(reader: ListReader): string[] {
+  return reader.list.get().map(post => post.title!)
+}
 
 describe('list reader', () => {
   beforeEach(() => {
@@ -72,7 +85,8 @@ describe('list reader', () => {
       hasNext: false,
       page: 0,
       pages: [0],
-      show: false
+      show: false,
+      titles: true
     })
 
     page = openPage({
@@ -91,7 +105,8 @@ describe('list reader', () => {
       hasNext: true,
       page: 0,
       pages: [0, 1],
-      show: true
+      show: true,
+      titles: true
     })
 
     await changePost(reader.list.get()[0]!.id, { read: 1 })
@@ -107,7 +122,8 @@ describe('list reader', () => {
       ]
     ])
 
-    page.params.from.set(1)
+    // Page cursors are taken on opening, so reading does not renumber pages
+    await moveTo(page, 1)
     equal(reader.list.get().length, 50)
     equal(reader.list.get()[0]!.title, '50')
     deepEqual(reader.pages.get(), {
@@ -115,7 +131,8 @@ describe('list reader', () => {
       hasNext: false,
       page: 1,
       pages: [0, 1],
-      show: true
+      show: true,
+      titles: true
     })
     await setTimeout(10)
 
@@ -133,18 +150,20 @@ describe('list reader', () => {
     reader = ensureReader(page.posts, 'list')
     equal(reader.list.get().length, 48)
 
-    page.params.from.set(0)
+    await moveTo(page, 0)
     equal(reader.list.get()[99]!.title, '49')
 
     await reader.readPage()
     equal(page.params.from.get(), 1)
+    await waitLoading(page.postsLoading)
     equal(reader.list.get().length, 48)
     deepEqual(reader.pages.get(), {
       count: 2,
       hasNext: false,
       page: 1,
       pages: [0, 1],
-      show: true
+      show: true,
+      titles: true
     })
     await setTimeout(10)
     deepEqual(slowMenu.get(), [
@@ -165,7 +184,8 @@ describe('list reader', () => {
       hasNext: false,
       page: 1,
       pages: [0, 1],
-      show: true
+      show: true,
+      titles: true
     })
 
     openPage({
@@ -179,5 +199,47 @@ describe('list reader', () => {
     })
     await setTimeout(10)
     equal(page.posts.get()?.name, 'empty')
+  })
+
+  test('does not skip posts changed by another client', async () => {
+    let feedId = await addFeed(testFeed({ slowReader: 'list' }))
+    for (let i = 1; i <= 250; i++) {
+      await addPost(
+        testPost({ feedId, publishedAt: i, reading: 'slow', title: `${i}` })
+      )
+    }
+
+    let page = openPage({
+      params: { feed: feedId },
+      route: 'slow'
+    })
+    await waitLoading(page.loading)
+    let reader = ensureReader(page.posts, 'list')
+    equal(reader.pages.get().count, 3)
+    let shown = new Set(titles(reader))
+
+    // Another tab or device reads and deletes posts of the next pages
+    let ids = new Map(
+      (await loadPostsByFeed(feedId)).map(post => [post.title!, post.id])
+    )
+    let read = ['150', '149', '148']
+    let deleted = ['60', '59']
+    await changePost(
+      read.map(title => ids.get(title)!),
+      { read: 1 }
+    )
+    await deletePost(deleted.map(title => ids.get(title)!))
+    let removed = new Set([...read, ...deleted])
+
+    for (let i = 1; i < reader.pages.get().count; i++) {
+      await moveTo(page, i)
+      for (let title of titles(reader)) shown.add(title)
+    }
+
+    for (let i = 1; i <= 250; i++) {
+      let title = `${i}`
+      if (removed.has(title)) continue
+      equal(shown.has(title), true, `Post ${title} was skipped`)
+    }
   })
 })
