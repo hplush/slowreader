@@ -1,7 +1,7 @@
 import {
   bigint,
   boolean,
-  customType,
+  bytea,
   index,
   integer,
   pgSequence,
@@ -31,12 +31,6 @@ export const sessions = pgTable(
   },
   table => [index('sessionsUserIdx').on(table.userId)]
 )
-
-let bytea = customType<{ data: Buffer; default: false; notNull: false }>({
-  dataType() {
-    return 'bytea'
-  }
-})
 
 export const actionsAdded = pgSequence('actionsAdded')
 

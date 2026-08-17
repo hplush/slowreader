@@ -11,7 +11,7 @@ import {
 } from '@slowreader/api'
 import { verify } from 'argon2'
 import { parseCookie } from 'cookie'
-import { and, eq, sql } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 import type { ServerResponse } from 'node:http'
 
@@ -41,7 +41,7 @@ export default (server: BaseServer): void => {
     if (!sessionToken) return false
     let session = await db.query.sessions.findFirst({
       columns: { id: true },
-      where: and(eq(sessions.token, sessionToken), eq(sessions.userId, userId))
+      where: { token: sessionToken, userId }
     })
     if (session) {
       await db
@@ -60,7 +60,7 @@ export default (server: BaseServer): void => {
 
   jsonApi(server, signInEndpoint, async (params, res) => {
     let user = await db.query.users.findFirst({
-      where: eq(users.id, params.userId)
+      where: { id: params.userId }
     })
     if (user?.passwordHash) {
       if (await verify(user.passwordHash, params.password)) {
@@ -80,7 +80,7 @@ export default (server: BaseServer): void => {
     if (!token) return false
 
     let session = await db.query.sessions.findFirst({
-      where: eq(sessions.token, token)
+      where: { token }
     })
     if (session) {
       for (let client of server.connected.values()) {
@@ -99,7 +99,7 @@ export default (server: BaseServer): void => {
 
     let already: object | undefined
     await db.transaction(async tx => {
-      already = await tx.query.users.findFirst({ where: eq(users.id, userId) })
+      already = await tx.query.users.findFirst({ where: { id: userId } })
       if (!already) await tx.insert(users).values({ id: userId })
     })
     if (already) return new ErrorResponse(SIGN_UP_ERRORS.userIdTaken)

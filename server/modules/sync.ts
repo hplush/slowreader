@@ -1,7 +1,7 @@
 import { zero, zeroClean } from '@logux/actions'
 import type { BaseServer } from '@logux/server'
 import { SUBPROTOCOL } from '@slowreader/api'
-import { and, eq, gt } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 
 import { actions, db } from '../db/index.ts'
 
@@ -32,7 +32,7 @@ export default (server: BaseServer): void => {
   server.type(zeroClean, {
     async access(ctx, action) {
       let deleting = await db.query.actions.findFirst({
-        where: eq(actions.id, action.id)
+        where: { id: action.id }
       })
       if (deleting) {
         return deleting.userId === ctx.userId
@@ -50,7 +50,7 @@ export default (server: BaseServer): void => {
 
   server.sendOnConnect(async (ctx, lastSynced) => {
     let list = await db.query.actions.findMany({
-      where: and(eq(actions.userId, ctx.userId), gt(actions.added, lastSynced))
+      where: { added: { gt: lastSynced }, userId: ctx.userId }
     })
     return list.map(column => {
       return [
