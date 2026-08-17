@@ -28,7 +28,8 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 
 ## Testing
 
-- Run specific test by `pnpm bnt path/to/test.test.ts -t 'test name'`
+- Run specific test by `pnpm bnt path/to/test.test.ts -t 'test name'`.
+- Do not run benchmark by your own. Ask user to run it.
 
 ## Browser
 
