@@ -71,6 +71,19 @@ export function loadPosts(): Promise<PostValue[]> {
   return select<PostValue>`SELECT * FROM "posts" ORDER BY "publishedAt" DESC`
 }
 
+/**
+ * Load posts by pages to not keep all of them in memory during the export.
+ */
+export function loadPostsPage(
+  limit: number,
+  offset: number
+): Promise<PostValue[]> {
+  return select<PostValue>`
+    SELECT * FROM "posts" ORDER BY "publishedAt" DESC
+    LIMIT ${limit} OFFSET ${offset}
+  `
+}
+
 export function loadPostsByFeed(feedId: string): Promise<PostValue[]> {
   return select<PostValue>`
     SELECT * FROM "posts" WHERE "feedId" = ${feedId}

@@ -154,6 +154,25 @@ describe('export page', () => {
     })
   })
 
+  test('exports big state by blob parts', async () => {
+    let feed = await addFeed(testFeed({ title: '1' }))
+    await addPost(
+      Array.from({ length: 120 }, () =>
+        testPost({ feedId: feed, full: 'a'.repeat(1000) })
+      )
+    )
+
+    let page = openPage({
+      params: {},
+      route: 'export'
+    })
+
+    page.exportBackup()
+    await waitLoading(page.exportingBackup)
+    let json = JSON.parse(await saved!.content.text()) as { posts: unknown[] }
+    equal(json.posts.length, 120)
+  })
+
   test('cancels export', async () => {
     let category = await addCategory({ title: 'A' })
     let feed = await addFeed(testFeed({ categoryId: category, title: '1' }))
