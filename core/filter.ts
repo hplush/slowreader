@@ -66,6 +66,16 @@ export async function addFilter(
   return id
 }
 
+/**
+ * Create filters from a backup by a single action.
+ *
+ * Unlike {@link addFilter}, rows keep their priority from the backup and
+ * posts are not recalculated: the backup has `reading` in every post.
+ */
+export function importFilters(filters: NewFilter[]): Promise<string[]> {
+  return getTables().filters.create(filters)
+}
+
 export async function addFilterForFeed(feed: FeedValue): Promise<string> {
   return addFilter({
     action: feed.reading === 'fast' ? 'slow' : 'fast',

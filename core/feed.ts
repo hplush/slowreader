@@ -47,13 +47,23 @@ export function loadFeedsByCategory(categoryId: string): Promise<FeedValue[]> {
   `
 }
 
+export function loadFeedUrls(): Promise<string[]> {
+  return select<Pick<FeedValue, 'url'>>`SELECT "url" FROM "feeds"`.then(rows =>
+    rows.map(row => row.url)
+  )
+}
+
 export function loadFeedByUrl(url: string): Promise<FeedValue | undefined> {
   return select<FeedValue>`SELECT * FROM "feeds" WHERE "url" = ${url}`.then(
     rows => rows[0]
   )
 }
 
-export function addFeed(fields: NewFeed): Promise<string> {
+export function addFeed(feeds: NewFeed[]): Promise<string[]>
+export function addFeed(fields: NewFeed): Promise<string>
+export function addFeed(
+  fields: NewFeed | NewFeed[]
+): Promise<string[] | string> {
   return getTables().feeds.create(fields)
 }
 

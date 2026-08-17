@@ -11,7 +11,12 @@ import {
 import { loadFilterChecker } from './filter.ts'
 import { createQueue } from './lib/queue.ts'
 import { increaseKey } from './lib/stores.ts'
-import { addPost, type OriginPost, processOriginPost } from './post.ts'
+import {
+  addPost,
+  type NewPost,
+  type OriginPost,
+  processOriginPost
+} from './post.ts'
 import type { PostsList } from './posts-list.ts'
 
 export const DEFAULT_REFRESH_STATISTICS = {
@@ -78,20 +83,26 @@ async function addPosts(feed: FeedValue, posts: OriginPost[]): Promise<void> {
   if (wasAlreadyAdded(feed, first)) return
 
   let filters = await loadFilterChecker(feed.id)
+  let adding: NewPost[] = []
+  let fast = 0
+  let slow = 0
   for (let origin of posts) {
     if (wasAlreadyAdded(feed, origin)) {
       break
     }
     let reading = filters(origin) ?? feed.reading
     if (reading !== 'delete') {
-      await addPost(processOriginPost(origin, feed.id, reading))
+      adding.push(processOriginPost(origin, feed.id, reading))
       if (reading === 'fast') {
-        increaseKey(refreshStatistics, 'foundFast')
+        fast += 1
       } else {
-        increaseKey(refreshStatistics, 'foundSlow')
+        slow += 1
       }
     }
   }
+  await addPost(adding)
+  increaseKey(refreshStatistics, 'foundFast', fast)
+  increaseKey(refreshStatistics, 'foundSlow', slow)
 
   await changeFeed(feed.id, {
     lastOriginId: first.originId,

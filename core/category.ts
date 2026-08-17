@@ -48,7 +48,11 @@ export function loadCategories(): Promise<CategoryValue[]> {
   return select<CategoryValue>`SELECT * FROM "categories" ORDER BY "title"`
 }
 
-export function addCategory(fields: NewCategory): Promise<string> {
+export function addCategory(categories: NewCategory[]): Promise<string[]>
+export function addCategory(fields: NewCategory): Promise<string>
+export function addCategory(
+  fields: NewCategory | NewCategory[]
+): Promise<string[] | string> {
   return getTables().categories.create(fields)
 }
 

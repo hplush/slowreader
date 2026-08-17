@@ -9,6 +9,7 @@ import {
   deletePost,
   loadPost,
   loadPostIdsByFeed,
+  type NewPost,
   processOriginPost
 } from './post.ts'
 import { proxyDebug } from './request.ts'
@@ -26,12 +27,14 @@ export async function fillFeedsWithPosts(): Promise<void> {
         await deletePost(await loadPostIdsByFeed(feed.id))
         let posts = await getFeedLatestPosts(feed, task).next()
         let filters = await loadFilterChecker(feed.id)
+        let adding: NewPost[] = []
         for (let origin of posts) {
           let reading = filters(origin) ?? feed.reading
           if (reading !== 'delete') {
-            await addPost(processOriginPost(origin, feed.id, reading))
+            adding.push(processOriginPost(origin, feed.id, reading))
           }
         }
+        await addPost(adding)
       })
     )
   })

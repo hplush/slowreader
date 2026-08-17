@@ -21,11 +21,12 @@ type NumberKeys<T> = {
 
 export function increaseKey<Store extends MapStore>(
   store: Store,
-  key: NumberKeys<StoreValue<Store>>
+  key: NumberKeys<StoreValue<Store>>,
+  by = 1
 ): void {
   // oxlint-disable-next-line typescript/no-unsafe-member-access
   let value = store.get()[key] as number
-  store.setKey(key, value + 1)
+  store.setKey(key, value + by)
 }
 
 /**
