@@ -1,12 +1,13 @@
-import { zeroClean } from '@logux/actions'
+import { zero, zeroClean } from '@logux/actions'
 import type { Client } from '@logux/client'
 import { encryptActions } from '@logux/client'
 import { TestClient, type TestServer } from '@logux/server'
 import { signIn, signUp } from '@slowreader/api'
-import { deepEqual } from 'node:assert/strict'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
+import { actions, db } from '../db/index.ts'
 import { buildTestServer, cleanAllTables, testRequest } from './utils.ts'
 
 describe('server sync', () => {
@@ -102,5 +103,33 @@ describe('server sync', () => {
     server.expectDenied(async () => {
       await client1.process(zeroClean({ id: otherMeta.id }))
     })
+  })
+
+  test('ignores action saved before the reconnect', async () => {
+    server = buildTestServer()
+    await signUp(
+      { password: 'AAAAAAAAAA', userId: '0000000000000000' },
+      { fetch: server.fetch }
+    )
+    let client = await connect(server, '0000000000000000', 'AAAAAAAAAA')
+    await client.process({ type: 'A' })
+    let meta = client.log.entries()[0]![1]
+
+    // Client re-sends actions which were not confirmed before the reconnect
+    await server.log.add(
+      zero({
+        compressed: false,
+        d: new Uint8Array([1]),
+        iv: new Uint8Array([2])
+      }),
+      { id: meta.id, reasons: [] }
+    )
+    await setTimeout(100)
+
+    deepEqual(
+      client.log.actions().filter(i => i.type === 'logux/undo'),
+      []
+    )
+    equal((await db.select().from(actions)).length, 1)
   })
 })

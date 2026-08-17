@@ -13,16 +13,22 @@ export default (server: BaseServer): void => {
       return true
     },
     async process(ctx, action, meta) {
-      await db.insert(actions).values({
-        added: await server.log.store.getLastAdded(),
-        compressed: action.compressed,
-        encrypted: Buffer.from(action.d),
-        id: meta.id,
-        iv: Buffer.from(action.iv),
-        subprotocol: meta.subprotocol ?? SUBPROTOCOL,
-        time: meta.time - EPOCH,
-        userId: ctx.userId
-      })
+      // The client re-sends actions which were not confirmed before
+      // the reconnect, and the server could already save some of them.
+      // The action with the same ID always has the same content.
+      await db
+        .insert(actions)
+        .values({
+          added: await server.log.store.getLastAdded(),
+          compressed: action.compressed,
+          encrypted: Buffer.from(action.d),
+          id: meta.id,
+          iv: Buffer.from(action.iv),
+          subprotocol: meta.subprotocol ?? SUBPROTOCOL,
+          time: meta.time - EPOCH,
+          userId: ctx.userId
+        })
+        .onConflictDoNothing({ target: actions.id })
     },
     resend(ctx) {
       return { user: ctx.userId }
