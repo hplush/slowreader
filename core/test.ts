@@ -4,7 +4,7 @@ import { delay } from 'nanodelay'
 import { atom } from 'nanostores'
 
 import type { Credentials } from './auth.ts'
-import type { EnvironmentAndStore } from './environment.ts'
+import type { Environment } from './environment.ts'
 import { type RequestMethod, setRequestMethod } from './request.ts'
 import { type BaseRoute, stringifyPopups } from './router.ts'
 
@@ -36,43 +36,13 @@ export function setBaseTestRoute(
   testRouter.set(addHashToBaseRoute(route))
 }
 
-/**
- * Logux reducers keep their data in `localStorage`, which Node.js has not.
- */
-function mockLocalStorage(): void {
-  let items: Record<string, string> = {}
-  if (typeof localStorage !== 'undefined') return
-  globalThis.localStorage = {
-    clear() {
-      items = {}
-    },
-    getItem(key) {
-      return items[key] ?? null
-    },
-    key(index) {
-      return Object.keys(items)[index] ?? null
-    },
-    get length() {
-      return Object.keys(items).length
-    },
-    removeItem(key) {
-      delete items[key]
-    },
-    setItem(key, value) {
-      items[key] = value
-    }
-  }
-}
-
-export function getTestEnvironment(): EnvironmentAndStore {
+export function getTestEnvironment(): Environment {
   testSession = undefined
   let persistentStore: Record<string, string> = {}
-  mockLocalStorage()
 
   return {
     baseRouter: testRouter,
     cleanStorage() {
-      localStorage.clear()
       for (let key in persistentStore) {
         delete persistentStore[key]
       }

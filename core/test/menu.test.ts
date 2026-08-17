@@ -28,6 +28,7 @@ import {
   fastMenu,
   GENERAL_CATEGORY,
   getClient,
+  getEnvironment,
   getTables,
   type MenuItem,
   menuLoading,
@@ -536,17 +537,15 @@ describe('menu', () => {
     await cleanClientTest()
     setTestUser(false)
     setupEnvironment(getTestEnvironment())
-    localStorage.setItem('logux:reducer:slowreader:menu', '1')
-    localStorage.setItem(
-      'slowreader:menu',
-      JSON.stringify({
-        categories: [['category', 'From Storage']],
-        fast: { feed: true },
-        feedOf: { feed: 'category' },
-        feeds: { category: [['feed', 'Feed']] },
-        filters: {}
-      })
-    )
+    let storage = getEnvironment().persistentStore
+    storage['logux:reducer:slowreader:menu'] = '1'
+    storage['slowreader:menu'] = JSON.stringify({
+      categories: [['category', 'From Storage']],
+      fast: { feed: true },
+      feedOf: { feed: 'category' },
+      feeds: { category: [['feed', 'Feed']] },
+      filters: {}
+    })
     setTestUser()
 
     keepMount(fastMenu)
@@ -576,7 +575,7 @@ describe('menu', () => {
       cleanStores(menuLoading, slowMenu, fastMenu)
       await setTimeout(100)
 
-      localStorage.setItem('logux:reducer:slowreader:menu', '0')
+      getEnvironment().persistentStore['logux:reducer:slowreader:menu'] = '0'
       setTestUser()
       keepMount(fastMenu)
       keepMount(slowMenu)

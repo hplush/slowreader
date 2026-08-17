@@ -15,7 +15,7 @@ import { atom, computed, effect, keepMount, onMount } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
 import { client, onClient } from './client.ts'
-import { layoutType } from './environment.ts'
+import { getEnvironment, layoutType } from './environment.ts'
 import type { FilterValue } from './filter.ts'
 import { waitLoading } from './lib/stores.ts'
 import { commonMessages } from './messages/index.ts'
@@ -213,7 +213,8 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
           if (TYPES.has(action.type)) entries.unshift([action, meta])
         })
         return entries
-      }
+      },
+      storage: getEnvironment().persistentStore
     }
   )
 

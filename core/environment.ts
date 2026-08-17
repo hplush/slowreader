@@ -102,6 +102,17 @@ export interface Environment {
   openRoute(page: Route, redirect?: boolean): void
 
   /**
+   * Web `storage` event like API to subscribe for settings changes.
+   */
+  persistentEvents: PersistentEvents
+
+  /**
+   * `localStorage`-like API to keep per-client persistent settings
+   * and Logux reducers’ data.
+   */
+  persistentStore: PersistentStore
+
+  /**
    * Restart app after sign-out to be sure that all in-memory caches are clean.
    */
   restartApp(): void
@@ -146,18 +157,6 @@ export interface Environment {
   warn(error: unknown): void
 }
 
-export type EnvironmentAndStore = {
-  /**
-   * Web `storage` event like API to subscribe for settings changes.
-   */
-  persistentEvents: PersistentEvents
-
-  /**
-   * `localStorage`-like API to keep per-client persistent settings.
-   */
-  persistentStore: PersistentStore
-} & Environment
-
 let currentEnvironment: Environment | undefined
 
 let listeners: EnvironmentListener[] = []
@@ -181,7 +180,7 @@ export function onEnvironment(cb: EnvironmentListener): void {
 export function setupEnvironment<Router extends BaseRouter>(
   env: {
     baseRouter: ValidateRouter<Router>
-  } & EnvironmentAndStore
+  } & Environment
 ): void {
   for (let unbind of unbinds) unbind?.()
 
@@ -195,6 +194,8 @@ export function setupEnvironment<Router extends BaseRouter>(
     locale: env.locale,
     networkType: env.networkType,
     openRoute: env.openRoute,
+    persistentEvents: env.persistentEvents,
+    persistentStore: env.persistentStore,
     restartApp: env.restartApp,
     saveFile: env.saveFile,
     savePassword: env.savePassword,

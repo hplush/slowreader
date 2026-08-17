@@ -29,6 +29,7 @@ import { atom } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
 import { database, isOutdatedClient, onClient } from './client.ts'
+import { getEnvironment } from './environment.ts'
 import type { LoaderName } from './loader/index.ts'
 import { commonMessages } from './messages/index.ts'
 import type { UsefulReaderName } from './readers/common.ts'
@@ -211,7 +212,8 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
     /* node:coverage ignore next 3 */
     stop() {
       isOutdatedClient.set(true)
-    }
+    },
+    storage: getEnvironment().persistentStore
   })
   currentCrdt = crdt
   currentTables = {

@@ -10,7 +10,7 @@ import {
   currentPage,
   enableTestTime,
   encryptionKey,
-  type EnvironmentAndStore,
+  type Environment,
   fastMenu,
   fastPostsCount,
   type FeedReader,
@@ -65,7 +65,7 @@ export function setTestUser(enable = true): void {
  *
  * Call `cleanClientTest()` in `afterEach()`.
  */
-export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
+export function enableClientTest(env: Partial<Environment> = {}): void {
   setupEnvironment({ ...getTestEnvironment(), ...env })
   setTestUser()
   enableTestTime()
