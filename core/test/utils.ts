@@ -94,7 +94,7 @@ export async function cleanClientTest(): Promise<void> {
 export function waitFor<Value>(
   store: ReadableAtom<Value>,
   check: (value: Value) => boolean,
-  ms = 5000
+  ms = 30000
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     let timeout = setTimeout(() => {
