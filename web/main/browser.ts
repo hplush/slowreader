@@ -6,6 +6,7 @@ import {
   closeLastPopup,
   comfortMode,
   errorMode,
+  hasPassword,
   openedPopups,
   type Route,
   router,
@@ -14,6 +15,7 @@ import {
   useReducedMotion
 } from '@slowreader/core'
 import { focusGroupKeyUX, jumpKeyUX, pressKeyUX, startKeyUX } from 'keyux'
+import { effect } from 'nanostores'
 
 import { locale } from '../stores/locale.ts'
 import { onlyTouch, pageTheme } from '../stores/media-queries.ts'
@@ -128,6 +130,9 @@ window.addEventListener('keyup', e => {
   }
 })
 
-client.subscribe(logux => {
-  if (logux) confirm(logux)
+// Ask to not close the tab only for cloud users. A local client has no
+// server to sync with, so its actions will never become synchronized
+// and the warning would be shown forever.
+effect([client, hasPassword], (logux, cloud) => {
+  if (logux && cloud) return confirm(logux)
 })
