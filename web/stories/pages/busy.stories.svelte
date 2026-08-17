@@ -35,7 +35,7 @@
   <Scene
     oninit={() => {
       busy.set({
-        label: 'Creating benchmark data',
+        label: 'Filling db with benchmark data',
         progress: 0.72
       })
     }}
