@@ -1,41 +1,24 @@
 import { busyDuring } from './busy.ts'
 import { HTTPStatusError } from './errors.ts'
-import { getFeedLatestPosts, loadFeed, loadFeeds } from './feed.ts'
-import { loadFilterChecker } from './filter.ts'
-import { createDownloadTask } from './lib/download.ts'
+import { changeFeed, loadFeed, loadFeeds } from './feed.ts'
 import { loaders } from './loader/index.ts'
-import {
-  addPost,
-  deletePost,
-  loadPost,
-  loadPostIdsByFeed,
-  type NewPost,
-  processOriginPost
-} from './post.ts'
+import { loadPost } from './post.ts'
 import { proxyDebug } from './request.ts'
 import { router } from './router.ts'
 
 /**
- * Create test feeds and posts for new client.
+ * Move refresh markers of all feeds to the past, so the next refresh
+ * will load old posts. Useful to test refresh right after OPML import.
  */
-export async function fillFeedsWithPosts(): Promise<void> {
+export async function moveLastSyncedToPast(days = 30): Promise<void> {
   await busyDuring('', async () => {
-    let task = createDownloadTask()
-    let feeds = await loadFeeds()
-    await Promise.all(
-      feeds.map(async feed => {
-        await deletePost(await loadPostIdsByFeed(feed.id))
-        let posts = await getFeedLatestPosts(feed, task).next()
-        let filters = await loadFilterChecker(feed.id)
-        let adding: NewPost[] = []
-        for (let origin of posts) {
-          let reading = filters(origin) ?? feed.reading
-          if (reading !== 'delete') {
-            adding.push(processOriginPost(origin, feed.id, reading))
-          }
-        }
-        await addPost(adding)
-      })
+    await changeFeed(
+      (await loadFeeds()).map(feed => feed.id),
+      {
+        lastOriginId: null,
+        lastPublishedAt: Math.round(Date.now() / 1000) - days * 24 * 60 * 60,
+        refreshedAt: null
+      }
     )
   })
 }

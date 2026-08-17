@@ -5,6 +5,7 @@ _See the [full architecture guide](../README.md) first._
 - [Project Structure](#project-structure)
 - [Tools](#tools)
 - [Scripts](#scripts)
+- [DevTools Helpers](#devtools-helpers)
 - [Design System](#design-system)
 - [DOM Anchors](#dom-anchors)
 - [Test Strategy](#test-strategy)
@@ -54,6 +55,20 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 - `pnpm -F web build`: build production files in `web/dist/`.
 - `pnpm -F web size`: check the JS bundle size of the production build.
 - `pnpm -F web benchmark`: run [UI performance benchmark](../docs/benchmark.md).
+
+## DevTools Helpers
+
+Debug helpers from [`core/devtools.ts`](../core/devtools.ts) are exported in `window.slowreader` and can be called from the browser console:
+
+- `slowreader.moveLastSyncedToPast(days)`: move refresh markers of all feeds `days` back, so the next refresh will load old posts. Use it to test refresh right after OPML import:
+
+  ```js
+  await slowreader.moveLastSyncedToPast(30)
+  await slowreader.refreshPosts()
+  ```
+
+- `slowreader.enablePostDebug()`: print post data and its source on opening post popup.
+- `slowreader.enableProxyDebug()`: print proxy request and response headers.
 
 ## Design System
 
