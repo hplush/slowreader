@@ -116,8 +116,8 @@ async function clean(): Promise<void> {
   sessionStorage.setItem('benchmark', mode)
 }
 
-function end(): void {
-  sessionStorage.removeItem('benchmark')
+async function end(): Promise<void> {
+  await signOut()
   location.reload()
 }
 
