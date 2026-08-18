@@ -6,7 +6,7 @@ import { getEnvironment } from './environment.ts'
 import { loadFeed } from './feed.ts'
 import { loadFilterChecker } from './filter.ts'
 import { $locale } from './i18n.ts'
-import { sanitizeHtml, stripHTML, truncateHTML } from './lib/html.ts'
+import { sanitizeDOM, stripHTML, truncateDOM } from './lib/html.ts'
 import { firstRow } from './lib/stores.ts'
 import { truncateText } from './lib/text.ts'
 import {
@@ -70,6 +70,12 @@ export type ReaderPost = {
   'feedId' | 'id' | 'media' | 'originId' | 'publishedAt' | 'read' | 'title'
 > &
   PostCardText
+
+/**
+ * How much of the article the card shows, in chars of text.
+ */
+const INTRO_MIN = 300
+const INTRO_MAX = 500
 
 export type PostMedia = {
   fromText?: boolean
@@ -163,15 +169,22 @@ export function processOriginPost(
   }
 }
 
-export function getPostIntro(post: PostCardText): [string, boolean] {
+/**
+ * The intro’s DOM and `true` when the article has more text than the intro.
+ *
+ * The card gets a sanitized node and not a string: the text is sanitized
+ * once here, instead of being serialized back and parsed and sanitized
+ * again on the render.
+ */
+export function getPostIntro(post: PostCardText): [Element, boolean] {
+  let url = post.url ?? undefined
   if (post.intro !== null) {
-    return [post.intro, post.more === 1]
+    return [sanitizeDOM(post.intro, url), post.more === 1]
   } else if (post.full !== null) {
-    let sanitized = sanitizeHtml(post.full, post.url ?? undefined)
-    let truncated = truncateHTML(sanitized, 300, 500)
-    return [truncated, truncated !== sanitized]
+    let article = sanitizeDOM(post.full, url)
+    return [article, truncateDOM(article, INTRO_MIN, INTRO_MAX)]
   } else {
-    return ['', false]
+    return [sanitizeDOM('', url), false]
   }
 }
 

@@ -3,7 +3,18 @@ import '../dom-parser.ts'
 import { equal } from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
-import { parseRichTranslation, sanitizeDOM, truncateHTML } from '../../index.ts'
+import {
+  parseDocument,
+  parseRichTranslation,
+  sanitizeDOM,
+  truncateDOM
+} from '../../index.ts'
+
+function truncate(html: string, min: number, max: number): string {
+  let body = parseDocument(html).body
+  truncateDOM(body, min, max)
+  return body.innerHTML
+}
 
 describe('html', () => {
   test('sanitizes HTML', () => {
@@ -119,12 +130,12 @@ describe('html', () => {
   })
 
   test('truncates HTML at character limit', () => {
-    equal(truncateHTML('<p>Short text</p>', 0, 50), '<p>Short text</p>')
+    equal(truncate('<p>Short text</p>', 0, 50), '<p>Short text</p>')
   })
 
   test('truncates HTML and closes tags', () => {
     equal(
-      truncateHTML(
+      truncate(
         '<p>This is a very long paragraph that should be truncated</p>',
         10,
         25
@@ -135,7 +146,7 @@ describe('html', () => {
 
   test('truncates HTML at paragraph boundary', () => {
     equal(
-      truncateHTML(
+      truncate(
         '<p>First paragraph with enough text to be over min.</p><p>Second paragraph that will exceed the max limit.</p>',
         40,
         80
@@ -144,9 +155,36 @@ describe('html', () => {
     )
   })
 
+  test('truncates HTML at double break', () => {
+    equal(
+      truncate(
+        'Sentence one here.<br />\n<br />\nSecond part that is longer than limit',
+        10,
+        30
+      ),
+      'Sentence one here.<p>…</p>'
+    )
+  })
+
+  test('truncates HTML inside inline tag', () => {
+    equal(
+      truncate(
+        '<p>First sentence here.</p>' +
+          '<p>Second <strong>part which is longer than the limit</strong></p>',
+        10,
+        30
+      ),
+      '<p>First sentence here.</p><p>…</p>'
+    )
+  })
+
+  test('removes break left in the end by truncating', () => {
+    equal(truncate('<p>12345</p><br />67890', 0, 5), '<p>12345</p>')
+  })
+
   test('handles nested tags when truncating at paragraph', () => {
     equal(
-      truncateHTML(
+      truncate(
         '<div><p>First paragraph text here.</p><p>Second paragraph with <strong>bold</strong> text.</p></div>',
         20,
         30

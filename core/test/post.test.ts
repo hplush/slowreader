@@ -10,11 +10,17 @@ import {
   changeFeed,
   loadPost,
   getPostIntro,
+  type PostCardText,
   getPostTitle,
   testFeed,
   testPost
 } from '../index.ts'
 import { cleanClientTest, enableClientTest } from './utils.ts'
+
+function postIntro(post: PostCardText): [string, boolean] {
+  let [node, more] = getPostIntro(post)
+  return [node.innerHTML, more]
+}
 
 describe('post', () => {
   beforeEach(() => {
@@ -26,13 +32,13 @@ describe('post', () => {
   })
 
   function truncateBetweenParagraphs(text: string): void {
-    let result = getPostIntro({ full: text, intro: null, more: 0, url: null })
+    let result = postIntro({ full: text, intro: null, more: 0, url: null })
     equal(result[1], true)
     match(result[0], /<p>…<\/p>$/)
   }
 
   function truncateBetweenSentences(text: string): void {
-    let result = getPostIntro({ full: text, intro: null, more: 0, url: null })
+    let result = postIntro({ full: text, intro: null, more: 0, url: null })
     equal(result[1], true)
     match(result[0], /[.?] …<\/p>/)
   }
@@ -163,24 +169,24 @@ describe('post', () => {
   })
 
   test('loads post content', () => {
-    deepEqual(getPostIntro({ full: null, intro: null, more: 0, url: null }), [
+    deepEqual(postIntro({ full: null, intro: null, more: 0, url: null }), [
       '',
       false
     ])
+    deepEqual(postIntro({ full: 'short', intro: null, more: 0, url: null }), [
+      'short',
+      false
+    ])
+    deepEqual(postIntro({ full: null, intro: 'intro', more: 1, url: null }), [
+      'intro',
+      true
+    ])
+    deepEqual(postIntro({ full: null, intro: 'intro', more: 0, url: null }), [
+      'intro',
+      false
+    ])
     deepEqual(
-      getPostIntro({ full: 'short', intro: null, more: 0, url: null }),
-      ['short', false]
-    )
-    deepEqual(
-      getPostIntro({ full: null, intro: 'intro', more: 1, url: null }),
-      ['intro', true]
-    )
-    deepEqual(
-      getPostIntro({ full: null, intro: 'intro', more: 0, url: null }),
-      ['intro', false]
-    )
-    deepEqual(
-      getPostIntro({
+      postIntro({
         full: 'a'.repeat(600),
         intro: null,
         more: 0,
@@ -216,7 +222,7 @@ describe('post', () => {
 
   test('truncates post full body 6', () => {
     doesNotMatch(
-      getPostIntro({
+      postIntro({
         intro: null,
         more: 0,
         url: null,
@@ -251,7 +257,7 @@ describe('post', () => {
   })
 
   test('truncates post full body with <style>', () => {
-    let result = getPostIntro({
+    let result = postIntro({
       full: `<style>${'*{padding:0;}'.repeat(50)}</style><p>X xxx xxxxxxx xxxxx, xxx xxxx WebGL, xxxxxxxxxxx, xxxxx xxxxxxxx xxxx xxxxxxxxx xxxxxxxxxxxxx xxxxxxxxxx xx xxxxxx, xxx xxxxxxx lastwrd.</p>`,
       intro: null,
       more: 0,
@@ -262,7 +268,7 @@ describe('post', () => {
   })
 
   test('does not touch image if it fits truncate', () => {
-    let result = getPostIntro({
+    let result = postIntro({
       full: `<img src="https://exampl.com/img.png"/><br/><br/>`,
       intro: null,
       more: 0,

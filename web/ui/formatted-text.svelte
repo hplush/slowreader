@@ -13,14 +13,16 @@
     url
   }: {
     comfort?: boolean
-    html: string | undefined
+    html: Element | string | undefined
     scroll?: boolean
     simple?: boolean
     url: string | undefined
   } = $props()
 
   let renderHtml: Attachment = node => {
-    node.replaceChildren(...sanitizeDOM(html ?? '', url).childNodes)
+    // A node is already sanitized by `sanitizeDOM()` of the caller
+    let content = typeof html === 'object' ? html : sanitizeDOM(html ?? '', url)
+    node.replaceChildren(...content.childNodes)
     node.querySelectorAll('a').forEach(link => {
       link.setAttribute('target', '_blank')
       link.setAttribute('rel', 'noopener')
