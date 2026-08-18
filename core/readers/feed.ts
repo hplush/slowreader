@@ -25,22 +25,36 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
   let openAt = Date.now()
   let request = 0
 
+  /**
+   * `readAndNext()` reads the whole page, so unread posts above the next page
+   * are the same as above the current one. The cursor of the previous page
+   * is reused instead of a query, which would see the marks only after
+   * the background write.
+   */
+  let keepPrevFrom = false
+
   async function loadPage(from: number | undefined): Promise<void> {
     let current = ++request
+    let keep = keepPrevFrom
+    keepPrevFrom = false
     let [posts, above] = await Promise.all([
       loadPostsPage(filter, from ?? openAt, POSTS_PER_PAGE + 1),
-      from ? loadPostsAbove(filter, from, POSTS_PER_PAGE + 1) : undefined
+      from && !keep
+        ? loadPostsAbove(filter, from, POSTS_PER_PAGE + 1)
+        : undefined
     ])
     if (exited || current !== request) return
 
     let list = posts.slice(0, POSTS_PER_PAGE)
     $hasNext.set(posts.length > POSTS_PER_PAGE)
     $nextFrom.set(list[list.length - 1]?.publishedAt)
-    if (!above || above.length === 0) {
-      $prevFrom.set(undefined)
-    } else {
-      let prevFrom = above[POSTS_PER_PAGE] ?? openAt
-      $prevFrom.set(prevFrom === from ? undefined : prevFrom)
+    if (!keep) {
+      if (!above || above.length === 0) {
+        $prevFrom.set(undefined)
+      } else {
+        let prevFrom = above[POSTS_PER_PAGE] ?? openAt
+        $prevFrom.set(prevFrom === from ? undefined : prevFrom)
+      }
     }
     if (filter.categoryId) {
       $authors.set(
@@ -61,22 +75,22 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
     void loadPage(value)
   })
 
-  // The write is awaited before the move, so the next page and the cursor
-  // of the previous page are taken from the database with the marks applied.
-  async function readAndNext(): Promise<void> {
-    await changePost(
-      $list
-        .get()
-        .filter(post => !post.read)
-        .map(post => post.id),
-      { read: 1 }
-    )
-    if (exited) return
+  // The move does not wait for the write: the marks are saved in background.
+  // The page of the next cursor does not depend on them, since the cursor
+  // is strict `<`, and the move goes first to put the query of the page
+  // into the database queue before the write.
+  function readAndNext(): Promise<void> {
+    let unread = $list
+      .get()
+      .filter(post => !post.read)
+      .map(post => post.id)
     if ($hasNext.get()) {
+      keepPrevFrom = true
       params.from.set($nextFrom.get())
     } else {
       helpers.renderEmpty()
     }
+    return changePost(unread, { read: 1 })
   }
 
   return {
