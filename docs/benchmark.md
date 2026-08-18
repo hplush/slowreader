@@ -63,7 +63,7 @@ For benchmark development you can use `?benchmark=debug` to make it faster.
 
 ## Methodology
 
-10 categories, 100 feeds, 0–2000 posts in feed with long tail distribution (most feeds are small, few are huge), ~7000 posts total. Network is mocked. Every 5th feed returns 3 new posts on every refresh, so `refresh` scenario also measures database inserts and menu rebuilds.
+10 categories, 100 feeds, 0–2000 posts in feed with long tail distribution (most feeds are small, few are huge), about ~18 500 posts total (2 big feeds with 5000 posts each). Network is mocked. Every 5th feed returns 3 new posts on every refresh, so `refresh` scenario also measures database inserts and menu rebuilds.
 
 Every scenario runs 5 times. Run, which did not finish in 1 minute or did not find element to click, is counted in `failed` and does not stop other scenarios. After 2 failed runs benchmark gives up on the scenario and goes to the next one.
 
@@ -77,7 +77,7 @@ Every scenario runs 5 times. Run, which did not finish in 1 minute or did not fi
       // The biggest number of elements in the page during the scenario,
       // counted on every 10th frame
       domSize: 2688,
-      // From start to the moment when no loader is rendered and 2 frames passed
+      // From start to the moment when the last loader was removed.
       duration: 516,
       // Did not finish in 1 minute or did not find element to click
       failed: 0,
@@ -96,12 +96,11 @@ Every scenario runs 5 times. Run, which did not finish in 1 minute or did not fi
   start: 12000, // Time from page opening to app without loaders in ms
   storage: { // Sizes in bytes
     end: { // After all scenarios
-      indexedDB: 13000000, // From navigator.storage.estimate()
+      indexedDB: 0, // From navigator.storage.estimate()
       localStorage: 2048, // Sum of all keys and values
-      opfs: 0, // Sum of all files in origin private file system
-      // All storages by navigator.storage.estimate(). Browser counts it
-      // lazily, so it can be smaller than the real size right after big writes
-      total: 13500000
+      opfs: 13000000, // Sum of all files in origin private file system
+      // Sum of the three sizes above.
+      total: 13002048
     },
     start: {} // The same, but after database filling, before scenarios
   },

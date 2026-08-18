@@ -104,6 +104,24 @@ export function createScenarios(
       }
     },
     {
+      name: 'open-feed-reader',
+      async prepare() {
+        await open(getURL('about'))
+      },
+      async run() {
+        await open(slowPage(readerFeed))
+      }
+    },
+    {
+      name: 'paginate-feed-reader',
+      async prepare() {
+        await open(slowPage(readerFeed))
+      },
+      async run() {
+        await click(byAnchor('next-page'))
+      }
+    },
+    {
       name: 'switch-reader',
       async prepare() {
         await open(slowPage(feed, 0))

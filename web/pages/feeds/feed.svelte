@@ -36,7 +36,12 @@
     {/if}
   </Button>
   {#if $hasNext}
-    <Button href={`?from=${$nextFrom}`} icon={mdiArrowRight} size="icon">
+    <Button
+      anchor="next-page"
+      href={`?from=${$nextFrom}`}
+      icon={mdiArrowRight}
+      size="icon"
+    >
       {$t.nextPage}
     </Button>
   {/if}

@@ -1,4 +1,9 @@
-import { benchmarkStatistics, signOut } from '@slowreader/core'
+import {
+  benchmarkStatistics,
+  busy,
+  menuLoading,
+  signOut
+} from '@slowreader/core'
 import {
   BENCHMARK_GIVE_UP,
   fillBenchmarkData,
@@ -75,9 +80,14 @@ async function prepare(): Promise<void> {
   await signInBenchmark()
   try {
     await waitIdle(START_TIMEOUT)
-  } catch {
+  } catch (e) {
+    let stuck = busy.get()
     throw new Error(
-      `App did not load database in ${START_TIMEOUT / 1000} seconds`
+      `App did not load database in ${START_TIMEOUT / 1000} seconds. ` +
+        (e instanceof Error ? e.message : String(e)) +
+        `. Busy: ${stuck ? stuck.label : 'no'},` +
+        ` menu loading: ${menuLoading.get()}`,
+      { cause: e }
     )
   }
 }

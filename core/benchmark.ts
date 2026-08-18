@@ -186,12 +186,22 @@ function rss(url: string): string {
   )
 }
 
-// Random distribution can’t promise them on small database of debug mode.
-const ANCHORS: [PostValue['reading'], number][] = [
-  ['slow', 300],
-  ['slow', 150],
-  ['fast', 300]
-]
+/**
+ * Feeds with a fixed size, which random distribution can’t promise
+ * on the small database of debug mode.
+ *
+ * Both slow feeds are huge, because the readers must be measured on a feed
+ * which does not fit into a few pages: scenarios take the biggest slow feed
+ * for the list reader and `READER_FEED` for the feed reader.
+ */
+function getAnchors(): [PostValue['reading'], number][] {
+  let huge = debug ? 200 : 5000
+  return [
+    ['slow', huge],
+    ['slow', huge],
+    ['fast', 300]
+  ]
+}
 
 // Feed reader is set here, so benchmark will not switch reader before scenario
 const READER_FEED_INDEX = 1
@@ -255,12 +265,13 @@ async function fillClient(
     categories.push(await addCategory({ title: sentence(random, 1, 3) }))
   }
 
+  let anchors = getAnchors()
   let biggestCategory = GENERAL_CATEGORY
   let biggestFast = 0
   let posts = 0
   let slow: [string, number][] = []
   for (let i = 0; i < size.feeds; i++) {
-    let anchor = ANCHORS[i]
+    let anchor = anchors[i]
     let reading: PostValue['reading'] =
       anchor?.[0] ?? (random() < 0.7 ? 'fast' : 'slow')
     let categoryId = categories[between(random, 0, categories.length)]!
@@ -340,7 +351,7 @@ export async function fillReaderFeed(): Promise<void> {
 
   let random = createRandom(SEED)
   let now = Math.round(Date.now() / 1000)
-  let reading = ANCHORS[READER_FEED_INDEX]![0]
+  let reading = getAnchors()[READER_FEED_INDEX]![0]
   for (let i = 0; i < missing; i += POSTS_BATCH) {
     let batch: NewPost[] = []
     for (let j = i; j < Math.min(i + POSTS_BATCH, missing); j++) {

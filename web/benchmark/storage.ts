@@ -34,10 +34,15 @@ export async function measureStorage(): Promise<StorageSize> {
   } catch {
     // OPFS is not supported
   }
+  let indexedDB = estimate.usageDetails?.indexedDB ?? 0
+  let localStorage = localStorageSize()
+  // `estimate().usage` counts the OPFS files by the disk space they reserve,
+  // which is gigabytes for a database of a hundred megabytes, so the total
+  // is the sum of the sizes we can measure ourselves
   return {
-    indexedDB: estimate.usageDetails?.indexedDB ?? 0,
-    localStorage: localStorageSize(),
+    indexedDB,
+    localStorage,
     opfs,
-    total: estimate.usage ?? 0
+    total: indexedDB + localStorage + opfs
   }
 }

@@ -135,6 +135,8 @@ export function isBusy(): boolean {
   return getRenderedLoaders().length > 0 || !!document.getElementById('loader')
 }
 
+let lastIdle = 0
+
 export async function waitIdle(timeout = IDLE_TIMEOUT): Promise<number> {
   let finish = performance.now() + timeout
   let ended = performance.now()
@@ -155,6 +157,7 @@ export async function waitIdle(timeout = IDLE_TIMEOUT): Promise<number> {
       )
     }
   }
+  lastIdle = ended
   return ended
 }
 
@@ -167,13 +170,23 @@ export async function measure(
   let started = performance.now()
   let ended: number
   let frames: FramesReport
-  let loaders: LoaderSpan[]
+  let loaders: LoaderSpan[] | undefined
   let longestTask: number
   try {
     await action()
-    ended = await waitIdle()
-  } finally {
+    // A scenario can wait for the idle inside its own steps (`open()` waits
+    // before the next navigation). Such a wait takes `CALM` frames after
+    // the work was over, so its own answer about the calm moment is taken
+    // instead of the moment when the wait was finished
+    let nested = lastIdle
+    let idle = await waitIdle()
     loaders = stopLoaders()
+    ended = Math.max(
+      nested > started ? nested : idle,
+      ...loaders.map(span => span.end ?? 0)
+    )
+  } finally {
+    loaders ??= stopLoaders()
     frames = stopFrames()
     longestTask = stopTasks()
   }

@@ -230,6 +230,15 @@ class Chromium {
         }
       } else if (message.method === 'Page.javascriptDialogOpening') {
         void this.send('Page.handleJavaScriptDialog', { accept: true })
+      } else if (message.method === 'Runtime.exceptionThrown') {
+        let params = message.params as {
+          exceptionDetails: {
+            exception?: { description?: string }
+            text: string
+          }
+        }
+        let details = params.exceptionDetails
+        error(`Page: ${details.exception?.description ?? details.text}`)
       } else if (message.method === 'Runtime.consoleAPICalled') {
         let params = message.params as {
           args: { description?: string; value?: string }[]

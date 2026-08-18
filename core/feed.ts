@@ -4,7 +4,7 @@ import { atom, onMount, type ReadableAtom } from 'nanostores'
 
 import { createDownloadTask, type TextResponse } from './lib/download.ts'
 import { firstRow } from './lib/stores.ts'
-import { type FeedLoader, loaders } from './loader/index.ts'
+import { type FeedLoader, type LoaderName, loaders } from './loader/index.ts'
 import { deletePost, loadPostIdsByFeed, recalcPostsReading } from './post.ts'
 import type { PostsList } from './posts-list.ts'
 import {
@@ -167,10 +167,14 @@ export function testFeed(
 
 export const needWelcome = atom<boolean | undefined>()
 onMount(needWelcome, () => {
-  let $total = getDatabase().store<{
-    total: number
-  }>`SELECT COUNT("url") AS "total" FROM "feeds"`
-  return $total.subscribe(value => {
-    needWelcome.set(value.isLoading ? undefined : value.value[0]!.total === 0)
+  // SQLocal subscribes the reactive query to the tables from `tables_used()`
+  // and throws when the list is empty. Counting an indexed column like `url`
+  // is answered by the index alone, so the query must read a column
+  // without an index.
+  let $first = getDatabase().store<{
+    loader: LoaderName
+  }>`SELECT "loader" FROM "feeds" LIMIT 1`
+  return $first.subscribe(value => {
+    needWelcome.set(value.isLoading ? undefined : value.value.length === 0)
   })
 })
