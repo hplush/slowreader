@@ -7,8 +7,7 @@ export type {
   BaseReader,
   PostAuthor,
   ReaderCreator,
-  ReaderName,
-  ReaderPost
+  ReaderName
 } from './common.ts'
 export * from './empty.ts'
 export * from './feed.ts'

@@ -1,6 +1,6 @@
 import type { ReadableAtom, WritableAtom } from 'nanostores'
 
-import type { PostValue } from '../post.ts'
+import type { ReaderPost } from '../post.ts'
 import type { Routes } from '../router.ts'
 import { select } from '../schema.ts'
 
@@ -70,11 +70,6 @@ export function createReader<Name extends ReaderName, Rest extends Extra>(
  */
 export type PostAuthor = { title: string; url: string }
 
-export type ReaderPost = {
-  authorTitle?: string
-  authorUrl?: string
-} & PostValue
-
 /**
  * A page of unread posts older than the cursor.
  *
@@ -95,7 +90,13 @@ export function loadPostsPage(
   let before = withCursor ? cursor + 1 : cursor
   if (filter.categoryId) {
     return select<ReaderPost>`
-      SELECT "posts".*,
+      SELECT "posts"."id", "posts"."feedId", "posts"."media",
+        "posts"."originId", "posts"."publishedAt", "posts"."read",
+        "posts"."title", "posts"."url",
+        NULLIF("posts"."intro", '') AS "intro",
+        CASE WHEN COALESCE("posts"."intro", '') = ''
+          THEN "posts"."full" END AS "full",
+        COALESCE(NULLIF("posts"."intro", '') <> "posts"."full", 0) AS "more",
         "feeds"."title" AS "authorTitle", "feeds"."url" AS "authorUrl"
       FROM "posts"
       JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
@@ -107,7 +108,11 @@ export function loadPostsPage(
     `
   } else {
     return select<ReaderPost>`
-      SELECT * FROM "posts"
+      SELECT "id", "feedId", "media", "originId", "publishedAt",
+        "read", "title", "url", NULLIF("intro", '') AS "intro",
+        CASE WHEN COALESCE("intro", '') = '' THEN "full" END AS "full",
+        COALESCE(NULLIF("intro", '') <> "full", 0) AS "more"
+      FROM "posts"
       WHERE "reading" = ${filter.reading} AND "read" = 0
         AND "feedId" = ${filter.feedId ?? null}
         AND "publishedAt" < ${before}

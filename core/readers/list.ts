@@ -5,13 +5,8 @@ import {
   moveToPage,
   setPagination
 } from '../lib/pagination.ts'
-import { changePost } from '../post.ts'
-import {
-  createReader,
-  loadPageCursors,
-  loadPostsPage,
-  type ReaderPost
-} from './common.ts'
+import { changePost, type ReaderPost } from '../post.ts'
+import { createReader, loadPageCursors, loadPostsPage } from './common.ts'
 
 const POSTS_PER_PAGE = 100
 

@@ -5,7 +5,7 @@
     getPostTitle,
     openedPost,
     type OriginPost,
-    type PostValue,
+    type ReaderPost,
     router
   } from '@slowreader/core'
 
@@ -17,7 +17,7 @@
     list
   }: {
     autoread?: boolean
-    list: readonly (OriginPost | PostValue)[]
+    list: readonly (OriginPost | ReaderPost)[]
   } = $props()
 
   let links = $derived(

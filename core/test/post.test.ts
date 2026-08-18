@@ -26,19 +26,13 @@ describe('post', () => {
   })
 
   function truncateBetweenParagraphs(text: string): void {
-    let result = getPostIntro({
-      full: text,
-      originId: 'id'
-    })
+    let result = getPostIntro({ full: text, intro: null, more: 0, url: null })
     equal(result[1], true)
     match(result[0], /<p>…<\/p>$/)
   }
 
   function truncateBetweenSentences(text: string): void {
-    let result = getPostIntro({
-      full: text,
-      originId: 'id'
-    })
+    let result = getPostIntro({ full: text, intro: null, more: 0, url: null })
     equal(result[1], true)
     match(result[0], /[.?] …<\/p>/)
   }
@@ -169,16 +163,31 @@ describe('post', () => {
   })
 
   test('loads post content', () => {
-    deepEqual(getPostIntro({ originId: 'id' }), ['', false])
-    deepEqual(getPostIntro({ full: 'short', originId: 'id' }), ['short', false])
-    deepEqual(getPostIntro({ full: 'short', intro: 'intro', originId: 'id' }), [
-      'intro',
-      true
+    deepEqual(getPostIntro({ full: null, intro: null, more: 0, url: null }), [
+      '',
+      false
     ])
-    deepEqual(getPostIntro({ full: 'a'.repeat(600), originId: 'id' }), [
-      'a'.repeat(500) + '…',
-      true
-    ])
+    deepEqual(
+      getPostIntro({ full: 'short', intro: null, more: 0, url: null }),
+      ['short', false]
+    )
+    deepEqual(
+      getPostIntro({ full: null, intro: 'intro', more: 1, url: null }),
+      ['intro', true]
+    )
+    deepEqual(
+      getPostIntro({ full: null, intro: 'intro', more: 0, url: null }),
+      ['intro', false]
+    )
+    deepEqual(
+      getPostIntro({
+        full: 'a'.repeat(600),
+        intro: null,
+        more: 0,
+        url: null
+      }),
+      ['a'.repeat(500) + '…', true]
+    )
   })
 
   test('truncates post full body 1', () => {
@@ -208,8 +217,10 @@ describe('post', () => {
   test('truncates post full body 6', () => {
     doesNotMatch(
       getPostIntro({
-        full: `\n<p>Xxx xxxx xxxxx xx xxx xxxxxxx "Xxx-xxxxxx". X xxxxx xxxxx xxxx xxxxxxx xx 250 xxxxxxxxxxx, xxx xxx xxxx xxxxxxx.</p>\n<p>X xxxxxxxx xxxxxxxxx xxxxx x xxxxxxx xxxxxxxxx xxxxxxxx Xxxxx — xxxx, xxxxxxx xxx xx xxx xx xxxxxxxxx. Xxxxx xxxxxxx xxxxxxxxxxxxxx x xxxxxxxxxxx xx xxxxxxx xxxxxxxxxx <a href="https://example.ru/all/video-iz-1991-goda/">xxxxx xxxxxxxxxxxx xxxx</a>, xxx Xxxxx xxxxx xxxx xxxxxx x xxxxx xxxxxxxxx xxxxxxx.</p>\n<p>Xxxxx x xx xxxxxxxxxxx, xxxxx xxx xxxxxxxxxxxx, xx x xxxxxx xxxxx xxxxx xxxxxxx:</p>\n<blockquote>\n<p>Xx xxxx xxxxxxx x xxxxxx xx xxxxx xxx xxx. Xxxx xxxxxxxxx xxx xxxxxxxxxxx x xxxxxx xxxxxxxxxxxxx xxx. X xxxxxxxx xxxxxx xxxxx xxxx, xxxx xx xxxxxxx x xxx xxxxxxxxxx, xxxxxxx xxxxx xxxxxxxxxxx.</p>\n</blockquote>\n`,
-        originId: 'id'
+        intro: null,
+        more: 0,
+        url: null,
+        full: `\n<p>Xxx xxxx xxxxx xx xxx xxxxxxx "Xxx-xxxxxx". X xxxxx xxxxx xxxx xxxxxxx xx 250 xxxxxxxxxxx, xxx xxx xxxx xxxxxxx.</p>\n<p>X xxxxxxxx xxxxxxxxx xxxxx x xxxxxxx xxxxxxxxx xxxxxxxx Xxxxx — xxxx, xxxxxxx xxx xx xxx xx xxxxxxxxx. Xxxxx xxxxxxx xxxxxxxxxxxxxx x xxxxxxxxxxx xx xxxxxxx xxxxxxxxxx <a href="https://example.ru/all/video-iz-1991-goda/">xxxxx xxxxxxxxxxxx xxxx</a>, xxx Xxxxx xxxxx xxxx xxxxxx x xxxxx xxxxxxxxx xxxxxxx.</p>\n<p>Xxxxx x xx xxxxxxxxxxx, xxxxx xxx xxxxxxxxxxxx, xx x xxxxxx xxxxx xxxxx xxxxxxx:</p>\n<blockquote>\n<p>Xx xxxx xxxxxxx x xxxxxx xx xxxxx xxx xxx. Xxxx xxxxxxxxx xxx xxxxxxxxxxx x xxxxxx xxxxxxxxxxxxx xxx. X xxxxxxxx xxxxxx xxxxx xxxx, xxxx xx xxxxxxx x xxx xxxxxxxxxx, xxxxxxx xxxxx xxxxxxxxxxx.</p>\n</blockquote>\n`
       })[0],
       /<blockquote>$/
     )
@@ -242,7 +253,9 @@ describe('post', () => {
   test('truncates post full body with <style>', () => {
     let result = getPostIntro({
       full: `<style>${'*{padding:0;}'.repeat(50)}</style><p>X xxx xxxxxxx xxxxx, xxx xxxx WebGL, xxxxxxxxxxx, xxxxx xxxxxxxx xxxx xxxxxxxxx xxxxxxxxxxxxx xxxxxxxxxx xx xxxxxx, xxx xxxxxxx lastwrd.</p>`,
-      originId: 'id'
+      intro: null,
+      more: 0,
+      url: null
     })
     match(result[0], /lastwrd/)
     equal(result[1], false)
@@ -251,7 +264,9 @@ describe('post', () => {
   test('does not touch image if it fits truncate', () => {
     let result = getPostIntro({
       full: `<img src="https://exampl.com/img.png"/><br/><br/>`,
-      originId: 'id'
+      intro: null,
+      more: 0,
+      url: null
     })
     match(result[0], /img/)
     equal(result[1], false)

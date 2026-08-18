@@ -43,6 +43,34 @@ export type PostContent = {
   url?: null | string
 }
 
+/**
+ * The text which the card shows, in the two shapes the reader can load.
+ *
+ * The feed’s `intro` and the article never come together: `full` is loaded
+ * only when the feed gave no `intro`, since only then the card has to cut
+ * the article itself. `more` answers the other case, where the article
+ * is compared with the intro in SQL. `url` resolves relative links
+ * of the article.
+ */
+export type PostCardText = {
+  url: null | string
+} & (
+  | { full: null | string; intro: null; more: 0 }
+  | { full: null; intro: string; more: number }
+)
+
+/**
+ * Only the columns which the post card needs
+ */
+export type ReaderPost = {
+  authorTitle?: string
+  authorUrl?: string
+} & Pick<
+  PostValue,
+  'feedId' | 'id' | 'media' | 'originId' | 'publishedAt' | 'read' | 'title'
+> &
+  PostCardText
+
 export type PostMedia = {
   fromText?: boolean
   type: string
@@ -135,11 +163,10 @@ export function processOriginPost(
   }
 }
 
-export function getPostIntro(post: PostContent): [string, boolean] {
-  if (post.intro) {
-    let more = !!post.full && post.full !== post.intro
-    return [post.intro, more]
-  } else if (post.full) {
+export function getPostIntro(post: PostCardText): [string, boolean] {
+  if (post.intro !== null) {
+    return [post.intro, post.more === 1]
+  } else if (post.full !== null) {
     let sanitized = sanitizeHtml(post.full, post.url ?? undefined)
     let truncated = truncateHTML(sanitized, 300, 500)
     return [truncated, truncated !== sanitized]

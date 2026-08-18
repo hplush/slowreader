@@ -1,12 +1,11 @@
 import { atom } from 'nanostores'
 
-import { changePost } from '../post.ts'
+import { changePost, type ReaderPost } from '../post.ts'
 import {
   createReader,
   loadPostsAbove,
   loadPostsPage,
-  type PostAuthor,
-  type ReaderPost
+  type PostAuthor
 } from './common.ts'
 
 const POSTS_PER_PAGE = 40

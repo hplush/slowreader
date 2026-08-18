@@ -181,6 +181,40 @@ describe('feed reader', () => {
     equal(reader.list.get()[0]!.title, '70')
   })
 
+  test('loads intro without the whole article', async () => {
+    let feedId = await addFeed(testFeed({ fastReader: 'feed' }))
+    for (let post of [
+      { full: 'Full article', intro: 'Intro', publishedAt: 4 },
+      { full: 'Same', intro: 'Same', publishedAt: 3 },
+      { full: 'Short article', intro: null, publishedAt: 2 },
+      { full: 'a'.repeat(6000), intro: '', publishedAt: 1 }
+    ]) {
+      await addPost(testPost({ feedId, reading: 'fast', ...post }))
+    }
+
+    let page = openPage({
+      params: { feed: feedId },
+      route: 'fast'
+    })
+    await waitLoading(page.loading)
+    let reader = ensureReader(page.posts, 'feed')
+    let [cut, same, short, long] = reader.list.get()
+
+    // The article is not loaded when the feed has its own intro
+    equal(cut!.full, null)
+    equal(cut!.more, 1)
+    equal(same!.full, null)
+    equal(same!.more, 0)
+
+    // Without the feed’s intro the card cuts the article itself.
+    // An empty intro is the same as no intro, so it comes as `null`
+    equal(short!.full, 'Short article')
+    equal(short!.more, 0)
+    equal(long!.intro, null)
+    equal(long!.full!.length, 6000)
+    equal(long!.more, 0)
+  })
+
   test('does not skip posts changed by another client', async () => {
     let feedId = await addFeed(testFeed({ fastReader: 'feed' }))
     for (let i = 1; i <= 100; i++) {

@@ -7,7 +7,7 @@
     openedPost,
     parseMedia,
     type PostAuthor,
-    type PostValue,
+    type ReaderPost,
     router,
     feedsMessages as t
   } from '@slowreader/core'
@@ -22,10 +22,11 @@
     post
   }: {
     author: PostAuthor | undefined
-    post: PostValue
+    post: ReaderPost
   } = $props()
 
   let [intro, more] = $derived(getPostIntro(post))
+  let media = $derived(parseMedia(post.media))
 </script>
 
 <li
@@ -54,9 +55,9 @@
       </h2>
     {/if}
     <FormattedText html={intro} simple url={post.url ?? undefined} />
-    {#each parseMedia(post.media) as media, index (`${media.url}${index}`)}
-      {#if !media.fromText && media.type.startsWith('image')}
-        <img class="feed-post_image" alt="" src={media.url} />
+    {#each media as image, index (`${image.url}${index}`)}
+      {#if !image.fromText && image.type.startsWith('image')}
+        <img class="feed-post_image" alt="" src={image.url} />
       {/if}
     {/each}
     <footer class="feed-post_actions">
