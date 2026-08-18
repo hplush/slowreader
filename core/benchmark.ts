@@ -1,5 +1,3 @@
-import { persistentAtom } from '@nanostores/persistent'
-
 import { busyDuring } from './busy.ts'
 import { addCategory } from './category.ts'
 import { client } from './client.ts'
@@ -15,7 +13,7 @@ import {
 } from './post.ts'
 import { setRequestMethod } from './request.ts'
 import { GENERAL_CATEGORY, select } from './schema.ts'
-import { encryptionKey, userId } from './settings.ts'
+import { benchmarkStatistics, encryptionKey, userId } from './settings.ts'
 
 export interface LoaderSpan {
   end: number | undefined
@@ -351,22 +349,6 @@ export async function fillReaderFeed(): Promise<void> {
     await addPost(batch)
   }
 }
-
-/**
- * Statistics of the last created benchmark data.
- */
-export const benchmarkStatistics = persistentAtom<FillStatistics | undefined>(
-  'slowreader:benchmark',
-  undefined,
-  {
-    decode(value) {
-      return JSON.parse(value) as FillStatistics
-    },
-    encode(value) {
-      return JSON.stringify(value)
-    }
-  }
-)
 
 /**
  * Answer feed requests with generated RSS instead of the network.

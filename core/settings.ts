@@ -1,6 +1,8 @@
 import { persistentAtom, persistentBoolean } from '@nanostores/persistent'
 import type { StoreValue } from 'nanostores'
 
+import type { FillStatistics } from './benchmark.ts'
+
 export const userId = persistentAtom<string | undefined>('slowreader:userId')
 
 export const encryptionKey = persistentAtom<string | undefined>(
@@ -23,6 +25,21 @@ export const theme = persistentAtom<'dark' | 'light' | 'system'>(
 export const preloadImages = persistentAtom<'always' | 'free' | 'never'>(
   'slowreader:preloadImages',
   'always'
+)
+
+/**
+ * Statistics of the last created benchmark data.
+ *
+ * It lives here and not in `benchmark.ts`, so that `signOut()` can reset it
+ * without loading the whole data generator into the app.
+ */
+export const benchmarkStatistics = persistentAtom<FillStatistics | undefined>(
+  'slowreader:benchmark',
+  undefined,
+  {
+    decode: value => JSON.parse(value) as FillStatistics,
+    encode: value => JSON.stringify(value)
+  }
 )
 
 export const useReducedMotion = persistentBoolean('slowreader:reduced-motion')

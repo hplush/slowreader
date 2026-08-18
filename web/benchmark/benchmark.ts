@@ -1,7 +1,6 @@
-import { signOut } from '@slowreader/core'
+import { benchmarkStatistics, signOut } from '@slowreader/core'
 import {
   BENCHMARK_GIVE_UP,
-  benchmarkStatistics,
   fillBenchmarkData,
   type FillStatistics,
   getBenchmarkRuns,
@@ -109,8 +108,12 @@ async function fill(): Promise<FillStatistics> {
   return statistics
 }
 
-function clean(): Promise<void> {
-  return signOut()
+async function clean(): Promise<void> {
+  let mode = sessionStorage.getItem('benchmark')!
+  await signOut()
+  // `signOut()` cleans the whole storage, but the tab is still a benchmark:
+  // the mark is written back before the reload of `signOut()` takes the tab
+  sessionStorage.setItem('benchmark', mode)
 }
 
 function end(): void {

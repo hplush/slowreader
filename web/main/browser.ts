@@ -7,6 +7,7 @@ import {
   comfortMode,
   errorMode,
   hasPassword,
+  onSignOut,
   openedPopups,
   type Route,
   router,
@@ -109,6 +110,9 @@ if (location.search.includes('benchmark')) {
 if (sessionStorage.getItem('benchmark')) {
   void import('../benchmark/benchmark.ts').then(() => {})
 }
+onSignOut(() => {
+  sessionStorage.removeItem('benchmark')
+})
 
 startKeyUX(window, [
   pressKeyUX('is-pseudo-active'),

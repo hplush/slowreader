@@ -5,7 +5,13 @@ import { getClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
 import { checkErrors } from './lib/http.ts'
 import { markDatabaseDownloading } from './schema.ts'
-import { encryptionKey, hasPassword, syncServer, userId } from './settings.ts'
+import {
+  benchmarkStatistics,
+  encryptionKey,
+  hasPassword,
+  syncServer,
+  userId
+} from './settings.ts'
 
 let generateUserId = customAlphabet('0123456789', 16)
 let generateKey = customAlphabet(
@@ -97,12 +103,30 @@ export function useCredentials(credentials: Credentials): void {
   userId.set(credentials.userId)
 }
 
+let signOutListeners: (() => void)[] = []
+
+/**
+ * Add a callback to clean data which only the client knows about, like
+ * a mode mark in `sessionStorage`. Returns a function to remove the callback.
+ *
+ * `Environment#cleanStorage()` cleans the log and the settings, and this
+ * is for everything else.
+ */
+export function onSignOut(callback: () => void): () => void {
+  signOutListeners.push(callback)
+  return () => {
+    signOutListeners = signOutListeners.filter(i => i !== callback)
+  }
+}
+
 export async function signOut(): Promise<void> {
   await getClient().clean()
   userId.set(undefined)
   hasPassword.set(false)
   encryptionKey.set(undefined)
   syncServer.set(undefined)
+  benchmarkStatistics.set(undefined)
+  for (let listener of signOutListeners) listener()
   let env = getEnvironment()
   env.saveSession(undefined)
   env.cleanStorage()
