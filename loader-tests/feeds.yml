@@ -39,6 +39,3 @@ feeds:
 
   - title: JSON Feed
     url: https://vas3k.club/feed.json
-
-  - title: autoSelectFamilyAttemptTimeout test
-    url: https://bolknote.ru/rss/
