@@ -6,31 +6,31 @@ import { after, afterEach, describe, test } from 'node:test'
 
 import proxyModule from '../modules/proxy.ts'
 
-describe('server proxy', () => {
-  let target = createServer((req, res) => {
-    let parsedUrl = new URL(req.url!, `http://${req.headers.host}`)
-    res.writeHead(200, {
-      'Content-Type': 'text/json',
-      'Set-Cookie': 'test=1'
-    })
-    res.end(
-      JSON.stringify({
-        request: {
-          method: req.method,
-          requestPath: parsedUrl.pathname,
-          url: req.url
-        },
-        response: 'ok'
-      })
-    )
+let target = createServer((req, res) => {
+  let parsedUrl = new URL(req.url!, `http://${req.headers.host}`)
+  res.writeHead(200, {
+    'Content-Type': 'text/json',
+    'Set-Cookie': 'test=1'
   })
-  target.listen(31597)
+  res.end(
+    JSON.stringify({
+      request: {
+        method: req.method,
+        requestPath: parsedUrl.pathname,
+        url: req.url
+      },
+      response: 'ok'
+    })
+  )
+})
+await new Promise<void>(resolve => target.listen(0, resolve))
 
-  function getURL(server: Server): string {
-    let port = (server.address() as AddressInfo).port
-    return `http://localhost:${port}`
-  }
+function getURL(server: Server): string {
+  let port = (server.address() as AddressInfo).port
+  return `http://localhost:${port}`
+}
 
+describe('server proxy', () => {
   let server: TestServer | undefined
   let originEnv = { ...process.env }
 
