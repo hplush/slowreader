@@ -140,7 +140,8 @@ let fetchMock: RequestMethod = async (url, opts = {}) => {
     )
   } else if (expect.error) {
     await delay(10)
-    throw new Error('Network Error')
+    // Real `fetch()` throws `TypeError` on network problems
+    throw new TypeError('Network Error')
   } else {
     let { promise, reject } = Promise.withResolvers()
     function abortCallback(): void {

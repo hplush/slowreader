@@ -32,11 +32,25 @@ export class ParseError extends Error {
 }
 
 /**
+ * `fetch()` hides the reason in `cause`: it always has `fetch failed` message.
+ * Take the deepest reason to have `ECONNREFUSED` or `ENOTFOUND` in the logs.
+ */
+function getReason(error: Error): string {
+  let reason = error.message
+  let cause = error.cause
+  while (cause instanceof Error) {
+    reason = cause.message
+    cause = cause.cause
+  }
+  return reason
+}
+
+/**
  * fetch() was not able to make a network request.
  */
 export class NetworkError extends Error {
   constructor(cause: Error) {
-    super(cause.message, { cause })
+    super(getReason(cause), { cause })
     this.name = 'NetworkError'
     Error.captureStackTrace(this, NetworkError)
   }
@@ -116,8 +130,10 @@ export function errorToMessage(error: unknown): string {
     }
   } else if (error instanceof ParseError) {
     return commonMessages.get().parseError
+  } else if (error instanceof NetworkError) {
+    return commonMessages.get().networkError
   } else {
-    return error.message.replace('NetworkError', 'Network error')
+    return error.message
   }
 }
 
