@@ -175,12 +175,14 @@ export function parseRichTranslation(
   return getRichPolicy().createHTML(html)
 }
 
-export function decodeHtmlEntities(text: string): string {
-  return parseDocument(text).documentElement.textContent || ''
-}
-
+/**
+ * Remove tags and decode HTML entities to show the text in the interface.
+ *
+ * The parser is used instead of a regexp on purpose: `<[^>]*>` on a text
+ * with many `<` and no `>` takes quadratic time, and feeds are not trusted.
+ */
 export function stripHTML(html: string): string {
-  return decodeHtmlEntities(html.replace(/<[^>]*>/g, '')).trim()
+  return (parseDocument(html).documentElement.textContent || '').trim()
 }
 
 const ELEMENT_NODE = 1
