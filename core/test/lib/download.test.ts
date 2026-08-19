@@ -410,6 +410,34 @@ describe('download', () => {
     )
   })
 
+  test('repeats request on network error', async () => {
+    let task = createDownloadTask()
+
+    expectRequest('https://example.com/1').andFail()
+    expectRequest('https://example.com/1').andRespond(200, 'done')
+    equal((await task.text('https://example.com/1')).text, 'done')
+  })
+
+  test('gives up after few network errors', async () => {
+    let task = createDownloadTask()
+
+    expectRequest('https://example.com/1').andFail()
+    expectRequest('https://example.com/1').andFail()
+    expectRequest('https://example.com/1').andFail()
+    let error = await task.text('https://example.com/1').catch(e => e)
+    equal(error.name, 'NetworkError')
+  })
+
+  test('does not repeat request after abort', async () => {
+    let task = createDownloadTask()
+
+    expectRequest('https://example.com/1').andFail()
+    let promise = task.text('https://example.com/1')
+    task.destroy()
+    let error = await promise.catch(e => e)
+    equal(error.name, 'NetworkError')
+  })
+
   test('has cache by request', async () => {
     let write = createDownloadTask({ cache: 'write' })
     let read = createDownloadTask({ cache: 'read' })

@@ -1,4 +1,11 @@
-import { detectNetworkError, HTTPStatusError, ParseError } from '../errors.ts'
+import { delay } from 'nanodelay'
+
+import {
+  detectNetworkError,
+  HTTPStatusError,
+  NetworkError,
+  ParseError
+} from '../errors.ts'
 import { request } from '../request.ts'
 import { parseDocument } from './html.ts'
 
@@ -193,8 +200,27 @@ export function createTextResponse(
   }
 }
 
+const RETRY_DELAY = 500
+
+async function retryNetworkError<Result>(
+  tries: number,
+  cb: () => Promise<Result>,
+  signal: AbortSignal
+): Promise<Result> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await cb()
+    } catch (e) {
+      if (attempt === tries || signal.aborted || !(e instanceof NetworkError)) {
+        throw e
+      }
+      await delay(RETRY_DELAY * attempt)
+    }
+  }
+}
+
 export function createDownloadTask(
-  taskOpts: { cache?: 'read' | 'write' | false } = {}
+  taskOpts: { cache?: 'read' | 'write' | false; tries?: number } = {}
 ): DownloadTask {
   let controller = new AbortController()
   let cached: string[] = []
@@ -213,13 +239,19 @@ export function createDownloadTask(
         }
       }
 
-      let response = await detectNetworkError(() => {
-        return request(url, {
-          redirect: 'follow',
-          signal: controller.signal,
-          ...opts
-        })
-      })
+      let response = await retryNetworkError(
+        taskOpts.tries ?? 3,
+        () => {
+          return detectNetworkError(() => {
+            return request(url, {
+              redirect: 'follow',
+              signal: controller.signal,
+              ...opts
+            })
+          })
+        },
+        controller.signal
+      )
       if (controller.signal.aborted) {
         throw new DOMException('', 'AbortError')
       }
