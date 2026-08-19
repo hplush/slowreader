@@ -32,9 +32,7 @@ const VERSION = String.raw`\d+\.\d+\.\d+(?:-[\w.]+)?`
 let dockerfile = read('.devcontainer/Dockerfile')
 
 let nodeFull = getVersion(dockerfile, /NODE_VERSION=(\d+\.\d+\.\d+)/)
-let nodeMinor = nodeFull.split('.').slice(0, 2).join('.')
 let pnpmFull = getVersion(dockerfile, new RegExp(`PNPM_VERSION=(${VERSION})`))
-let pnpmMajor = pnpmFull.split('.')[0]
 
 let nodeVersion = read('.node-version').trim()
 if (nodeVersion !== nodeFull) {
@@ -52,20 +50,12 @@ if (packageManager !== pnpmFull) {
 
 for (let file of globSync(['./*/package.json', 'package.json'])) {
   let content = read(file)
-  if (!content.includes(`"node": "^${nodeMinor}.`)) {
-    error(`.devcontainer/Dockerfile and ${file} have different Node.js version`)
-  }
-  if (!content.includes(`"pnpm": "^${pnpmMajor}.`)) {
-    error(`.devcontainer/Dockerfile and ${file} have different pnpm version`)
-  }
   let match = content.match(/"[^"]+": "[\^~][^"]+"/g)
   for (let version of match || []) {
-    if (!version.startsWith('"node":') && !version.startsWith('"pnpm":')) {
-      let line = content.split('\n').findIndex(i => i.includes(version)) + 1
-      error(
-        `Not locked version in ${file}:${line}: ${styleText('yellow', version)}`
-      )
-    }
+    let line = content.split('\n').findIndex(i => i.includes(version)) + 1
+    error(
+      `Not locked version in ${file}:${line}: ${styleText('yellow', version)}`
+    )
   }
 }
 

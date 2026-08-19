@@ -2,6 +2,7 @@ import { cleanStores, type ReadableAtom } from 'nanostores'
 import { fail } from 'node:assert'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
 
 import {
   type BasePopup,
@@ -98,16 +99,35 @@ export function waitFor<Value>(
   ms = 30000
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    let timeout = setTimeout(() => {
+    let timeout = globalThis.setTimeout(() => {
       reject(new Error(`Store did not get the expected value in ${ms}ms`))
     }, ms)
     subscribeUntil(store, value => {
       if (!check(value)) return false
-      clearTimeout(timeout)
+      globalThis.clearTimeout(timeout)
       resolve()
       return true
     })
   })
+}
+
+/**
+ * Wait until the check will pass.
+ *
+ * Use it for values outside of stores instead of `setTimeout()`
+ * to not depend on the machine’s speed.
+ */
+export async function waitUntil(
+  check: () => boolean,
+  ms = 30000
+): Promise<void> {
+  let start = Date.now()
+  while (!check()) {
+    if (Date.now() - start > ms) {
+      throw new Error(`Check did not pass in ${ms}ms`)
+    }
+    await setTimeout(10)
+  }
 }
 
 interface PromiseMock<Result> {

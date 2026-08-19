@@ -3,7 +3,6 @@ import { IS_PASSWORD } from '@slowreader/api'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
 import { deepEqual, equal, notEqual, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
-import { setTimeout } from 'node:timers/promises'
 
 import {
   benchmarkStatistics,
@@ -28,7 +27,8 @@ import {
   setBaseTestRoute,
   setTestUser,
   testSession,
-  throws
+  throws,
+  waitUntil
 } from './utils.ts'
 
 describe('auth', () => {
@@ -112,8 +112,7 @@ describe('auth', () => {
     equal(client.get()!.state, 'connecting')
     equal(typeof testSession, 'string')
 
-    await setTimeout(100)
-    equal(client.get()!.connected, true)
+    await waitUntil(() => client.get()!.connected)
 
     await signOut()
     equal(typeof client.get(), 'undefined')
@@ -145,26 +144,22 @@ describe('auth', () => {
     equal(client.get()!.state, 'connecting')
     equal(typeof testSession, 'string')
 
-    await setTimeout(100)
-    equal(client.get()!.connected, true)
+    await waitUntil(() => client.get()!.connected)
     equal(server.connected.size, prevClient + 1)
 
     await signOut()
-    await setTimeout(100)
-    equal(server.connected.size, prevClient)
+    await waitUntil(() => server.connected.size === prevClient)
     equal(typeof client.get(), 'undefined')
     equal(typeof testSession, 'undefined')
 
     await signIn(later)
     equal(client.get()!.state, 'connecting')
-    await setTimeout(100)
-    equal(client.get()!.connected, true)
+    await waitUntil(() => client.get()!.connected)
     equal(userId.get(), later.userId)
     equal(encryptionKey.get(), later.encryptionKey)
     equal(typeof testSession, 'string')
 
-    await setTimeout(100)
-    equal(client.get()!.connected, true)
+    await waitUntil(() => client.get()!.connected)
   })
 
   test('remembers custom server', async () => {
