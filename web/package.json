@@ -37,23 +37,23 @@
     "@nanostores/router": "1.1.0",
     "@nanostores/sql": "0.4.1",
     "@slowreader/core": "workspace:*",
-    "@storybook/addon-a11y": "10.5.8",
+    "@storybook/addon-a11y": "10.5.9",
     "@storybook/addon-svelte-csf": "5.1.2",
-    "@storybook/addon-themes": "10.5.8",
-    "@storybook/svelte": "10.5.8",
-    "@storybook/svelte-vite": "10.5.8",
+    "@storybook/addon-themes": "10.5.9",
+    "@storybook/svelte": "10.5.9",
+    "@storybook/svelte-vite": "10.5.9",
     "@sveltejs/vite-plugin-svelte": "7.3.0",
     "autoprefixer": "10.5.4",
     "keyux": "0.11.6",
     "lightningcss": "1.33.0",
-    "nanostores": "1.5.0",
+    "nanostores": "1.5.1",
     "postcss": "8.5.26",
     "postcss-load-config": "6.0.1",
     "postcss-mixins": "12.1.2",
     "postcss-smooth-shadow": "0.3.2",
     "rollup": "4.62.4",
     "sqlocal": "0.18.0",
-    "storybook": "10.5.8",
+    "storybook": "10.5.9",
     "svelte": "5.56.9",
     "vite": "8.2.1"
   },
@@ -76,6 +76,6 @@
   },
   "engines": {
     "node": "^26.7.0",
-    "pnpm": "^12.0.0-rc.6"
+    "pnpm": "^12.0.0-rc.7"
   }
 }
