@@ -29,6 +29,7 @@ describe('server auth', () => {
 
   test('creates users and check credentials', async () => {
     server = buildTestServer()
+    let start = Date.now()
 
     let sessionCookie: string | undefined
     let userA = await testRequest(
@@ -52,8 +53,8 @@ describe('server auth', () => {
     let session1 = await db.query.sessions.findFirst({
       where: { token: userA.session }
     })
-    ok(session1!.createdAt.valueOf() > Date.now() - 1000)
-    ok(session1!.usedAt.valueOf() > Date.now() - 1000)
+    ok(session1!.createdAt.valueOf() >= start)
+    ok(session1!.usedAt.valueOf() >= start)
 
     await setTimeout(100)
     await server.expectWrongCredentials(userA.userId)

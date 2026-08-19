@@ -78,9 +78,9 @@ describe('proxy', () => {
     createProxy({
       allowUnsafeDestinations: true,
       allowsFrom: '^http:\\/\\/test.app',
-      bodyTimeout: 100,
+      bodyTimeout: 1000,
       maxSize: 100,
-      requestTimeout: 100
+      requestTimeout: 1000
     })
   )
   proxy.listen(31598)
@@ -127,7 +127,7 @@ describe('proxy', () => {
   })
 
   test('has timeout', async () => {
-    let response = await request(`${targetUrl}?sleep=500`, {})
+    let response = await request(`${targetUrl}?sleep=2000`, {})
     await expectBadRequest(response, 'Timeout')
   })
 

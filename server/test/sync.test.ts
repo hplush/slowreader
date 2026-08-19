@@ -8,7 +8,12 @@ import { afterEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import { actions, db } from '../db/index.ts'
-import { buildTestServer, cleanAllTables, testRequest } from './utils.ts'
+import {
+  buildTestServer,
+  cleanAllTables,
+  testRequest,
+  waitForActions
+} from './utils.ts'
 
 describe('server sync', () => {
   let server: TestServer | undefined
@@ -58,21 +63,18 @@ describe('server sync', () => {
     await client1.disconnect()
 
     let client2 = await connect(server, '0000000000000000', 'AAAAAAAAAA')
-    await setTimeout(100)
-    deepEqual(client2.log.actions(), [{ type: 'A' }, { type: 'B', z }])
+    await waitForActions(client2, [{ type: 'A' }, { type: 'B', z }])
 
     await client2.process({ type: 'C' })
     await client1.connect()
-    await setTimeout(100)
-    deepEqual(client1.log.actions(), [
+    await waitForActions(client1, [
       { type: 'A' },
       { type: 'B', z },
       { type: 'C' }
     ])
     await other.process({ type: 'NO2' })
     await client1.process({ type: 'D' })
-    await setTimeout(10)
-    deepEqual(client2.log.actions(), [
+    await waitForActions(client2, [
       { type: 'A' },
       { type: 'B', z },
       { type: 'C' },
@@ -80,8 +82,7 @@ describe('server sync', () => {
     ])
     let meta1 = client1.log.entries()[0]![1]
     await client1.log.removeReason('test', { id: meta1.id })
-    await setTimeout(10)
-    deepEqual(client2.log.actions(), [
+    await waitForActions(client2, [
       { type: 'A' },
       { type: 'B', z },
       { type: 'C' },
@@ -92,8 +93,7 @@ describe('server sync', () => {
     await client1.process(zeroClean({ id: '0 unknown 0' }))
 
     let client3 = await connect(server, '0000000000000000', 'AAAAAAAAAA')
-    await setTimeout(100)
-    deepEqual(client3.log.actions(), [
+    await waitForActions(client3, [
       { type: 'B', z },
       { type: 'C' },
       { type: 'D' }

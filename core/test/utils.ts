@@ -1,6 +1,7 @@
 import { cleanStores, type ReadableAtom } from 'nanostores'
 import { fail } from 'node:assert'
 import { deepEqual, equal } from 'node:assert/strict'
+import { afterEach } from 'node:test'
 
 import {
   type BasePopup,
@@ -190,6 +191,13 @@ export function checkLoadedPopup<SomePopup extends BasePopup>(
   return popup as Loaded<SomePopup>
 }
 
+let unbindPage: (() => void) | undefined
+
+afterEach(() => {
+  unbindPage?.()
+  unbindPage = undefined
+})
+
 /**
  * Change URL, check what page was opened and return page instance
  * with right types.
@@ -198,6 +206,10 @@ export function openPage<SomeRoute extends BaseRoute | Omit<BaseRoute, 'hash'>>(
   route: SomeRoute
 ): Page<SomeRoute['route']> {
   setBaseTestRoute(route)
+  // Clients keep the current page mounted. Without the subscription, `get()`
+  // mounts the page only for a moment and a slow machine can unmount it
+  // in the middle of the test.
+  unbindPage ??= currentPage.listen(() => {})
   let page = currentPage.get()
   if (page.route !== route.route) {
     throw new Error(`Current is ${page.route}, but ${route.route} was expected`)

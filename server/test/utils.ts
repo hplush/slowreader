@@ -1,6 +1,8 @@
-import type { TestServer } from '@logux/server'
+import type { TestClient, TestServer } from '@logux/server'
 import type { Requester } from '@slowreader/api'
 import { equal } from 'node:assert'
+import { deepEqual } from 'node:assert/strict'
+import { setTimeout } from 'node:timers/promises'
 
 export { buildTestServer, cleanAllTables } from '../test.ts'
 
@@ -31,4 +33,23 @@ export async function throws(
   }
   equal(error?.message, msg)
   return error
+}
+
+/**
+ * Wait until the client will receive all expected actions.
+ *
+ * Use it instead of `setTimeout()` to not depend on the machine’s speed.
+ */
+export async function waitForActions(
+  client: TestClient,
+  expected: object[]
+): Promise<void> {
+  for (
+    let i = 0;
+    i < 1000 && client.log.actions().length < expected.length;
+    i++
+  ) {
+    await setTimeout(10)
+  }
+  deepEqual(client.log.actions(), expected)
 }
