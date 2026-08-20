@@ -13,7 +13,7 @@ on:
 permissions:
   contents: read
 jobs:
-  chromatic:
+  unused:
     name: Find Unused
     runs-on: ubuntu-latest
     steps:
@@ -36,21 +36,13 @@ jobs:
       - name: Check if should run
         id: should_run
         run: |
-          if [ "${{ github.event_name }}" == "push" ]; then
-            if git log -1 --pretty=%B | grep -i "Chromatic"; then
-              echo "should_run=true" >> "$GITHUB_OUTPUT"
-            else
-              echo "should_run=false" >> "$GITHUB_OUTPUT"
-            fi
+          now=$(date -u +%s)
+          seven_days_ago=$((now - 604800))
+          last_commit_time=$(git log -1 --format=%ct)
+          if [ "$last_commit_time" -ge "$seven_days_ago" ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
           else
-            now=$(date -u +%s)
-            seven_days_ago=$((now - 604800))
-            last_commit_time=$(git log -1 --format=%ct)
-            if [ "$last_commit_time" -ge "$seven_days_ago" ]; then
-              echo "should_run=true" >> "$GITHUB_OUTPUT"
-            else
-              echo "should_run=false" >> "$GITHUB_OUTPUT"
-            fi
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
           fi
       - name: Initialize Node.js
         if: steps.should_run.outputs.should_run == 'true'
