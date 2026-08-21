@@ -1,11 +1,15 @@
-import { zero, zeroClean } from '@logux/actions'
+import { zero, zeroClean, type ZeroCleanAction } from '@logux/actions'
 import type { BaseServer } from '@logux/server'
 import { SUBPROTOCOL } from '@slowreader/api'
-import { eq } from 'drizzle-orm'
+import { inArray } from 'drizzle-orm'
 
 import { actions, db } from '../db/index.ts'
 
 const EPOCH = Date.UTC(2026, 0)
+
+function cleaning(action: ZeroCleanAction): string[] {
+  return 'id' in action ? [action.id] : action.ids
+}
 
 export default (server: BaseServer): void => {
   server.type(zero, {
@@ -37,17 +41,13 @@ export default (server: BaseServer): void => {
 
   server.type(zeroClean, {
     async access(ctx, action) {
-      let deleting = await db.query.actions.findFirst({
-        where: { id: action.id }
+      let deleting = await db.query.actions.findMany({
+        where: { id: { in: cleaning(action) } }
       })
-      if (deleting) {
-        return deleting.userId === ctx.userId
-      } else {
-        return true
-      }
+      return deleting.every(i => i.userId === ctx.userId)
     },
     async process(ctx, action) {
-      await db.delete(actions).where(eq(actions.id, action.id))
+      await db.delete(actions).where(inArray(actions.id, cleaning(action)))
     },
     resend(ctx) {
       return { user: ctx.userId }

@@ -9,6 +9,6 @@
   },
   "dependencies": {
     "@crxjs/vite-plugin": "2.7.1",
-    "vite": "8.2.1"
+    "vite": "8.2.2"
   }
 }
