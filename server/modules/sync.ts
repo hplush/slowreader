@@ -1,14 +1,28 @@
 import { zero, zeroClean, type ZeroCleanAction } from '@logux/actions'
-import type { BaseServer } from '@logux/server'
-import { SUBPROTOCOL } from '@slowreader/api'
-import { inArray } from 'drizzle-orm'
+import type { BaseServer, ConnectContext } from '@logux/server'
+import { dbReset, RETENTION, SUBPROTOCOL } from '@slowreader/api'
+import { eq, inArray, sql } from 'drizzle-orm'
 
-import { actions, db } from '../db/index.ts'
+import { actions, db, users } from '../db/index.ts'
+import { prevUsedAt } from './auth.ts'
 
 const EPOCH = Date.UTC(2026, 0)
 
 function cleaning(action: ZeroCleanAction): string[] {
   return 'id' in action ? [action.id] : action.ids
+}
+
+async function wasOfflineTooLong(ctx: ConnectContext): Promise<boolean> {
+  let prev = prevUsedAt.get(ctx.clientId)
+  if (!prev) return false
+  let previous = prev.usedAt
+  if (Date.now() - previous.getTime() < RETENTION) return false
+  let user = await db.query.users.findFirst({
+    columns: { lastActionAt: true },
+    where: { id: ctx.userId }
+  })
+  // Nothing was written while the device was away, so it missed nothing
+  return !!user?.lastActionAt && user.lastActionAt > previous
 }
 
 export default (server: BaseServer): void => {
@@ -33,6 +47,10 @@ export default (server: BaseServer): void => {
           userId: ctx.userId
         })
         .onConflictDoNothing({ target: actions.id })
+      await db
+        .update(users)
+        .set({ lastActionAt: sql`now()` })
+        .where(eq(users.id, ctx.userId))
     },
     resend(ctx) {
       return { user: ctx.userId }
@@ -55,6 +73,9 @@ export default (server: BaseServer): void => {
   })
 
   server.sendOnConnect(async (ctx, lastSynced) => {
+    if (lastSynced > 0 && (await wasOfflineTooLong(ctx))) {
+      return [[dbReset({}), { id: server.log.generateId(), time: Date.now() }]]
+    }
     let list = await db.query.actions.findMany({
       where: { added: { gt: lastSynced }, userId: ctx.userId }
     })

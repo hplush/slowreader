@@ -19,20 +19,30 @@ import {
   type CrdtTableRow,
   type CrdtTableSchema,
   createCrdtDatabase,
+  crdtTableToActions,
   number,
   oneOf,
   optional,
   string
 } from '@logux/client/db'
+import type { Action, MetaTime } from '@logux/core'
 import type { Database, SqlParam } from '@nanostores/sql'
 import { atom } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
-import { database, isOutdatedClient, onClient } from './client.ts'
+import {
+  database,
+  isOutdatedClient,
+  onClient,
+  resetDatabase
+} from './client.ts'
 import { getEnvironment } from './environment.ts'
+import { subscribeUntil } from './lib/stores.ts'
 import type { LoaderName } from './loader/index.ts'
+import { type LogTracker, trackLog } from './log.ts'
 import { commonMessages } from './messages/index.ts'
 import type { UsefulReaderName } from './readers/common.ts'
+import { dbMigrating, hasPassword } from './settings.ts'
 
 /**
  * ID of the virtual category for feeds without a category. Two underscores
@@ -129,8 +139,17 @@ export const tableActions = {
   posts: crdtActions<typeof postsSchema>('posts')
 }
 
+/**
+ * Actions restored from the tables. They are the same for the database
+ * migration and for the menu reducer, so they are generated once per boot.
+ */
+export type TableSnapshot = [Action, MetaTime][]
+
 let currentCrdt: CrdtDatabase | undefined
 let currentTables: Tables | undefined
+let currentTracker: LogTracker | undefined
+let openingTimer: ReturnType<typeof setTimeout> | undefined
+let snapshot: Promise<TableSnapshot> | undefined
 let ready: Promise<void> = Promise.resolve()
 let downloading = false
 
@@ -202,13 +221,118 @@ export async function cleanDatabase(): Promise<void> {
   await currentCrdt?.empty()
 }
 
+/**
+ * The log keeps only actions, which are not derivable from the tables,
+ * so the migration replay must restore the rest from the tables themselves.
+ */
+function getSnapshot(): Promise<TableSnapshot> {
+  let tables = getTables()
+  snapshot ??= crdtTableToActions([
+    tables.categories,
+    tables.feeds,
+    tables.filters,
+    tables.posts
+  ])
+  return snapshot
+}
+
+/**
+ * Actions restored from the tables to rebuild a reducer. The reducer can ask
+ * only for the tables it needs, but the snapshot of the database migration
+ * is reused if the tables are being replayed right now.
+ */
+export async function getTableActions(
+  plurals: (keyof Tables)[]
+): Promise<TableSnapshot> {
+  await whenSchemaChecked()
+  let tables = getTables()
+  if (snapshot) {
+    let all = await snapshot
+    return all.filter(entry => {
+      return plurals.some(plural => entry[0].type.startsWith(`${plural}/`))
+    })
+  }
+  return crdtTableToActions(plurals.map(plural => tables[plural]))
+}
+
+/**
+ * The database compares the schema version before it drops the tables,
+ * so the reducer must wait for the comparison to not read the tables
+ * in the middle of the replay.
+ */
+function whenSchemaChecked(): Promise<void> {
+  let status = currentCrdt!.status
+  if (status.get() !== 'initializing') return Promise.resolve()
+  return new Promise(resolve => {
+    subscribeUntil(status, value => {
+      if (value === 'initializing') return false
+      resolve()
+      return true
+    })
+  })
+}
+
+function resetBrokenDatabase(): void {
+  if (hasDatabase() && hasPassword.get()) {
+    void resetDatabase('broken-db')
+  }
+}
+
+export function reportDatabaseError(error: unknown): void {
+  getEnvironment().warn(error)
+  resetBrokenDatabase()
+}
+
+/**
+ * Send the data of the local user to the server on the sign-up. The local
+ * log is empty, so the actions are generated from the tables with fresh meta.
+ *
+ * The account is new, so no other device can conflict with the fresh meta.
+ */
+async function uploadLocalData(logux: CrossTabClient): Promise<void> {
+  dbMigrating.set('signing-up')
+  let actions = await getSnapshot()
+  if (actions.length > 0) {
+    await busyDuring(
+      commonMessages.get().uploadingData,
+      async setProgress => {
+        for (let i = 0; i < actions.length; i++) {
+          if (!hasDatabase()) return
+          await logux.log.add(actions[i]![0], { sync: true })
+          if (i % 20 === 0) setProgress(i / actions.length)
+        }
+      },
+      true
+    )
+  }
+  dbMigrating.set(undefined)
+}
+
 function openDatabase(logux: CrossTabClient, db: Database): void {
+  // The task of the previous start was not finished, so it must be restarted
+  let unfinished = dbMigrating.get()
+  dbMigrating.set(undefined)
+
+  let tracker = trackLog(logux, Object.keys(tableActions))
   let crdt = createCrdtDatabase(logux, db, {
+    applied: tracker.applied,
+    broken: reportDatabaseError,
     key: 'slowreader:db',
-    /* node:coverage ignore next 3 */
+    /* node:coverage ignore next 11 */
     migrating(done) {
-      void busyDuring(commonMessages.get().migratingDatabase, () => done)
+      // Actions are in memory between the drop of the tables and the end
+      // of the replay, so the closed tab loses the data
+      dbMigrating.set('migrating')
+      void busyDuring(
+        commonMessages.get().migratingDatabase,
+        () => done,
+        true
+      ).then(() => {
+        // The sign-up upload could take the mark for itself
+        if (dbMigrating.get() === 'migrating') dbMigrating.set(undefined)
+      })
     },
+    repeat: getSnapshot,
     /* node:coverage ignore next 3 */
     stop() {
       isOutdatedClient.set(true)
@@ -216,6 +340,18 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
     storage: getEnvironment().persistentStore
   })
   currentCrdt = crdt
+  currentTracker = tracker
+  tracker.resume(crdt.ready)
+
+  // The database, which hangs instead of throwing the error, never resolves
+  // `crdt.ready`, so the app would wait for it forever
+  let opening = setTimeout(resetBrokenDatabase, 60_000)
+  openingTimer = opening
+  subscribeUntil(crdt.status, status => {
+    if (status === 'initializing') return false
+    clearTimeout(opening)
+    return true
+  })
   currentTables = {
     categories: crdt.table('categories', categoriesSchema, ['title']),
     feeds: crdt.table('feeds', feedsSchema, [
@@ -248,20 +384,36 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
     () => ready
   )
   downloading = false
+
+  void ready.then(() => {
+    // The user could sign out while the database was filling
+    if (!hasDatabase()) return
+    /* node:coverage ignore next 3 */
+    if (unfinished === 'migrating' && hasPassword.get()) {
+      return resetDatabase('interrupted-migration')
+    } else if (unfinished === 'signing-up') {
+      return uploadLocalData(logux)
+    }
+  })
 }
 
 function closeDatabase(): void {
   let closingDb = openedDatabase.get()
   if (!closingDb) return
+  clearTimeout(openingTimer)
   currentCrdt!.destroy()
+  currentTracker!.destroy()
+  let tracking = currentTracker!.finish()
 
   currentCrdt = undefined
   currentTables = undefined
+  currentTracker = undefined
+  snapshot = undefined
   openedDatabase.set(undefined)
 
   let filling = ready
   ready = Promise.resolve()
-  void filling.then(() => {
+  void Promise.all([filling, tracking]).then(() => {
     setTimeout(() => {
       void closingDb.close()
     })

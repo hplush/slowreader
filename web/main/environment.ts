@@ -7,6 +7,7 @@ import {
   type NetworkType,
   type NetworkTypeDetector,
   printWarning,
+  reportDatabaseError,
   router,
   setLayoutType,
   setProxyAsRequestMethod,
@@ -70,7 +71,9 @@ setupEnvironment({
     localStorage.clear()
   },
   databaseCreator() {
-    return openDb(sqlocalDriver('slowreader.sqlite'))
+    return openDb(sqlocalDriver('slowreader.sqlite'), {
+      onError: reportDatabaseError
+    })
   },
   errorEvents: window,
   getSession() {

@@ -14,6 +14,7 @@ import {
 export const users = pgTable('users', {
   createdAt: timestamp('createdAt').notNull().defaultNow(),
   id: text('id').primaryKey(),
+  lastActionAt: timestamp('lastActionAt'),
   passwordHash: text('passwordHash')
 })
 

@@ -7,6 +7,7 @@ import type { Credentials } from './auth.ts'
 import type { Environment } from './environment.ts'
 import { type RequestMethod, setRequestMethod } from './request.ts'
 import { type BaseRoute, stringifyPopups } from './router.ts'
+import { reportDatabaseError } from './schema.ts'
 
 export let testSession: string | undefined
 
@@ -48,7 +49,9 @@ export function getTestEnvironment(): Environment {
       }
     },
     databaseCreator() {
-      return openDb(nodeDriver(':memory:'))
+      return openDb(nodeDriver(':memory:'), {
+        onError: reportDatabaseError
+      })
     },
     errorEvents: { addEventListener() {} },
     getSession() {

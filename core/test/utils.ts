@@ -118,11 +118,11 @@ export function waitFor<Value>(
  * to not depend on the machine’s speed.
  */
 export async function waitUntil(
-  check: () => boolean,
+  check: () => boolean | Promise<boolean>,
   ms = 30000
 ): Promise<void> {
   let start = Date.now()
-  while (!check()) {
+  while (!(await check())) {
     if (Date.now() - start > ms) {
       throw new Error(`Check did not pass in ${ms}ms`)
     }

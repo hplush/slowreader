@@ -4,6 +4,7 @@ import {
   type BaseRoute,
   type NetworkTypeDetector,
   type RequestMethod,
+  reportDatabaseError,
   setLayoutType,
   setRequestMethod,
   setupEnvironment,
@@ -48,7 +49,8 @@ effect([mobileMedia, tabletMedia], (mobile, tablet) => {
 setupEnvironment({
   ...getTestEnvironment(),
   baseRouter,
-  databaseCreator: () => openDb(sqlocalDriver(':memory:')),
+  databaseCreator: () =>
+    openDb(sqlocalDriver(':memory:'), { onError: reportDatabaseError }),
   errorEvents: window,
   getSession() {
     return undefined

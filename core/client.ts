@@ -1,8 +1,3 @@
-import type {
-  CrdtTableChangedAction,
-  CrdtTableCreatedAction,
-  CrdtTableDeletedAction
-} from '@logux/actions'
 import {
   type ClientOptions,
   CrossTabClient,
@@ -11,20 +6,22 @@ import {
   type StatusValue
 } from '@logux/client'
 import { SqlLogStore } from '@logux/client/db'
-import {
-  type Action,
-  type Meta,
-  parseId,
-  type ServerConnection,
-  TestPair,
-  TestTime
-} from '@logux/core'
+import { type ServerConnection, TestPair, TestTime } from '@logux/core'
 import type { Database } from '@nanostores/sql'
-import { deleteUser, SUBPROTOCOL } from '@slowreader/api'
+import { dbReset, deleteUser, SUBPROTOCOL } from '@slowreader/api'
+import { delay } from 'nanodelay'
 import { atom, computed, effect, onMount } from 'nanostores'
 
+import { busyDuring } from './busy.ts'
 import { getEnvironment, onEnvironment } from './environment.ts'
-import { encryptionKey, hasPassword, syncServer, userId } from './settings.ts'
+import { commonMessages } from './messages/index.ts'
+import {
+  encryptionKey,
+  hasPassword,
+  lastReset,
+  syncServer,
+  userId
+} from './settings.ts'
 
 let testTime: TestTime | undefined
 
@@ -72,17 +69,29 @@ export const database = atom<Database | undefined>()
 
 export const isOutdatedClient = atom<boolean>(false)
 
-type CrdtAction =
-  | CrdtTableChangedAction
-  | CrdtTableCreatedAction
-  | CrdtTableDeletedAction
-
-function isCrdtAction(action: Action): action is CrdtAction {
-  return (
-    action.type.endsWith('/created') ||
-    action.type.endsWith('/changed') ||
-    action.type.endsWith('/deleted')
+/**
+ * Drop the local database and download the whole log from the server again.
+ *
+ * The server asks for it when the device was offline longer than
+ * the tombstone retention window, and the client asks for it when
+ * the tables are broken.
+ */
+export async function resetDatabase(reason: string): Promise<void> {
+  lastReset.set(`${new Date().toISOString()} ${reason}`)
+  await busyDuring(
+    commonMessages.get().downloadingData,
+    async () => {
+      let logux = getClient()
+      if (logux.connected) {
+        // Server stops sending new actions on `db/reset` so we are waiting
+        // only client actions to be sent
+        await Promise.race([logux.waitFor('synchronized'), delay(10_000)])
+      }
+      await logux.clean()
+    },
+    true
   )
+  getEnvironment().restartApp()
 }
 
 onEnvironment(({ databaseCreator }) => {
@@ -99,47 +108,15 @@ onEnvironment(({ databaseCreator }) => {
         userId: user
       })
       encryptActions(logux, key, {
+        clean: false,
         ignore: [deleteUser.type]
       })
 
-      /* node:coverage disable */
-      function removeAction(action: Action, meta: Meta): void {
-        void logux.log.changeMeta(meta.id, { reasons: [] })
-      }
-
-      function changedRows(action: CrdtAction): [string, string[]][] {
-        if ('records' in action) {
-          return action.records.map(record => [
-            record.id,
-            Object.keys(record).filter(field => field !== 'id')
-          ])
-        }
-        let fields = 'fields' in action ? Object.keys(action.fields) : []
-        let ids = 'ids' in action ? action.ids : [action.id]
-        return ids.map(id => [id, fields])
-      }
-
-      logux.on('preadd', (action, meta) => {
-        if (parseId(meta.id).clientId === logux.clientId) {
-          meta.sync = true
-        } else if (isCrdtAction(action)) {
-          let plural = action.type.split('/')[0]!
-          let rows = changedRows(action)
-          if (action.type.endsWith('/deleted')) {
-            for (let [id] of rows) {
-              void logux.log.each({ index: `${plural}/${id}` }, removeAction)
-            }
-          } else {
-            for (let [id, fields] of rows) {
-              for (let field of fields) {
-                meta.reasons.push(`${plural}/${id}/${field}`)
-              }
-            }
-            meta.indexes = [plural, ...rows.map(row => `${plural}/${row[0]}`)]
-          }
-        }
+      logux.type(dbReset, () => {
+        void resetDatabase('server-request')
       })
 
+      /* node:coverage disable */
       logux.node.catch(error => {
         if (error.type === 'wrong-subprotocol') {
           isOutdatedClient.set(true)

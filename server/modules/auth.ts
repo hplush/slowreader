@@ -35,15 +35,26 @@ async function setNewSession(
   return token
 }
 
+export interface PrevUsedAt {
+  usedAt: Date
+  sessionId: number
+}
+
+export const prevUsedAt = new Map<string, PrevUsedAt>()
+
 export default (server: BaseServer): void => {
   server.auth(async ({ client, cookie, token, userId }) => {
     let sessionToken = token || cookie.session
     if (!sessionToken) return false
     let session = await db.query.sessions.findFirst({
-      columns: { id: true },
+      columns: { id: true, usedAt: true },
       where: { token: sessionToken, userId }
     })
     if (session) {
+      prevUsedAt.set(client.clientId!, {
+        usedAt: session.usedAt,
+        sessionId: session.id
+      })
       await db
         .update(sessions)
         .set({ clientId: client.clientId, usedAt: sql`now()` })
@@ -55,6 +66,21 @@ export default (server: BaseServer): void => {
       return true
     } else {
       return false
+    }
+  })
+
+  server.on('disconnected', client => {
+    let prev = prevUsedAt.get(client.clientId!)
+    if (prev) {
+      prevUsedAt.delete(client.clientId!)
+      void db
+        .update(sessions)
+        .set({ usedAt: sql`now()` })
+        .where(eq(sessions.id, prev.sessionId))
+        /* node:coverage ignore next 3 */
+        .catch((error: unknown) => {
+          server.logger.error(error)
+        })
     }
   })
 

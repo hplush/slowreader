@@ -2,12 +2,13 @@ import { zero, zeroClean } from '@logux/actions'
 import type { Client } from '@logux/client'
 import { encryptActions } from '@logux/client'
 import { TestClient, type TestServer } from '@logux/server'
-import { signIn, signUp } from '@slowreader/api'
+import { dbReset, RETENTION, signIn, signUp } from '@slowreader/api'
+import { eq } from 'drizzle-orm'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import { actions, db } from '../db/index.ts'
+import { actions, db, sessions, users } from '../db/index.ts'
 import {
   buildTestServer,
   cleanAllTables,
@@ -103,6 +104,63 @@ describe('server sync', () => {
     server.expectDenied(async () => {
       await client1.process(zeroClean({ id: otherMeta.id }))
     })
+  })
+
+  test('asks the stale client to re-download everything', async () => {
+    server = buildTestServer()
+    await signUp(
+      { password: 'AAAAAAAAAA', userId: '0000000000000000' },
+      { fetch: server.fetch }
+    )
+    let writer = await connect(server, '0000000000000000', 'AAAAAAAAAA')
+    await writer.process({ type: 'A' })
+
+    let reader = await connect(server, '0000000000000000', 'AAAAAAAAAA')
+    await waitForActions(reader, [{ type: 'A' }])
+    await reader.disconnect()
+    await setTimeout(100)
+
+    // The device was offline longer than the tombstone retention window
+    let long = new Date(Date.now() - 2 * RETENTION)
+    await db
+      .update(sessions)
+      .set({ usedAt: long })
+      .where(eq(sessions.clientId, reader.clientId))
+
+    await reader.connect()
+    await waitForActions(reader, [{ type: 'A' }, dbReset({})])
+  })
+
+  test('sends the diff to the client without new actions', async () => {
+    server = buildTestServer()
+    await signUp(
+      { password: 'AAAAAAAAAA', userId: '0000000000000000' },
+      { fetch: server.fetch }
+    )
+    let writer = await connect(server, '0000000000000000', 'AAAAAAAAAA')
+    await writer.process({ type: 'A' })
+
+    let reader = await connect(server, '0000000000000000', 'AAAAAAAAAA')
+    await waitForActions(reader, [{ type: 'A' }])
+    await reader.disconnect()
+    await setTimeout(100)
+
+    // Nothing was written while the device was away
+    await db
+      .update(sessions)
+      .set({ usedAt: new Date(Date.now() - 2 * RETENTION) })
+      .where(eq(sessions.clientId, reader.clientId))
+    await db
+      .update(users)
+      .set({ lastActionAt: new Date(Date.now() - 3 * RETENTION) })
+      .where(eq(users.id, '0000000000000000'))
+
+    await reader.connect()
+    await setTimeout(300)
+    deepEqual(
+      reader.log.actions().filter(i => i.type === dbReset.type),
+      []
+    )
   })
 
   test('ignores action saved before the reconnect', async () => {

@@ -24,6 +24,11 @@ export async function cleanAllTables(): Promise<void> {
   )
 }
 
+export async function getServerLogIds(): Promise<string[]> {
+  let rows = await db.query.actions.findMany({ columns: { id: true } })
+  return rows.map(row => row.id)
+}
+
 export function buildTestServer(): TestServer {
   let server = new TestServer()
   addedModule(server)

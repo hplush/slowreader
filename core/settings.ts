@@ -15,6 +15,14 @@ export const syncServer = persistentAtom<string | undefined>(
 
 export const hasPassword = persistentBoolean('slowreader:has-password')
 
+export const lastReset = persistentAtom<string | undefined>('slowreader:reset')
+
+export type DbMigrating = 'migrating' | 'signing-up'
+
+export const dbMigrating = persistentAtom<DbMigrating | undefined>(
+  'slowreader:migrating'
+)
+
 export type Theme = 'dark' | 'light' | 'system'
 
 export const theme = persistentAtom<'dark' | 'light' | 'system'>(

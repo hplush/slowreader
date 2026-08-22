@@ -28,5 +28,6 @@ export const commonMessages = i18n('common', {
   networkError:
     'Can’t reach the server. Please check your internet connection.',
   parseError: 'Syntax error in the feed file',
-  popupNotFound: 'Not found'
+  popupNotFound: 'Not found',
+  uploadingData: 'Uploading your data to the cloud'
 })

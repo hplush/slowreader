@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { mdiAccountPlus, mdiLogout, mdiTrashCanOutline } from '@mdi/js'
+  import {
+    mdiAccountPlus,
+    mdiCloudDownloadOutline,
+    mdiLogout,
+    mdiTrashCanOutline
+  } from '@mdi/js'
   import {
     type CloudPage,
     settingsMessages,
@@ -62,6 +67,18 @@
     {#if $hasCloud}
       <Stack>
         <Title>{$t.dangerousTitle}</Title>
+        <Button
+          icon={mdiCloudDownloadOutline}
+          onclick={() => {
+            if (confirm(t.get().redownloadWarning)) {
+              page.redownloadData()
+            }
+          }}
+          size="wide"
+          variant="secondary"
+        >
+          {$t.redownload}
+        </Button>
         <Button
           icon={mdiTrashCanOutline}
           loader={$deletingAccount}

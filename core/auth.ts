@@ -7,6 +7,7 @@ import { checkErrors } from './lib/http.ts'
 import { markDatabaseDownloading } from './schema.ts'
 import {
   benchmarkStatistics,
+  dbMigrating,
   encryptionKey,
   hasPassword,
   syncServer,
@@ -75,6 +76,7 @@ export async function signUp(
     host
   )
   getEnvironment().saveSession(response.session)
+  dbMigrating.set('signing-up')
   hasPassword.set(true)
   useCredentials(credentials)
 }

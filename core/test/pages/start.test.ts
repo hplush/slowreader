@@ -1,6 +1,6 @@
 import type { TestServer } from '@logux/server'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
-import { equal, match, ok } from 'node:assert/strict'
+import { equal, match, notEqual, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
@@ -166,7 +166,7 @@ describe('start page', () => {
 
     await promise
     ok(client.get()?.clientId.startsWith(credentials.userId + ':'))
-    equal(client.get()?.state, 'connecting')
+    notEqual(client.get()?.state, 'disconnected')
 
     await waitFor(router, route => route.route === 'welcome')
   })
