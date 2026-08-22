@@ -11,6 +11,7 @@ import {
   finish,
   printAboveProgress,
   semiSuccess,
+  setProgress,
   startProgress,
   success,
   warning
@@ -97,6 +98,14 @@ Environment:
 if (args.includes('--help') || args.includes('-h')) {
   process.stdout.write(`${HELP}\n`)
   process.exit(0)
+}
+
+let runs = 1
+let doneScenarios = 0
+let doneRuns = 0
+
+function updateProgress(): void {
+  setProgress(doneScenarios * runs + doneRuns)
 }
 
 function print(message: string): void {
@@ -252,6 +261,9 @@ class Chromium {
           error(text)
         } else if (json) {
           // Only errors in JSON mode
+        } else if (/^\S+ run \d+\/\d+$/.test(text)) {
+          doneRuns += 1
+          updateProgress()
         } else if (scenarioLine) {
           let [, name, time, failed] = scenarioLine
           if (failed === '0') {
@@ -261,6 +273,9 @@ class Chromium {
           } else {
             semiSuccess(name!, `${failed} failed`)
           }
+          doneScenarios += 1
+          doneRuns = 0
+          updateProgress()
         } else {
           status(text)
         }
@@ -517,8 +532,9 @@ try {
   if (scenario && scenario !== 'freeze' && !names.includes(scenario)) {
     throw new Error(`Unknown scenario ${scenario}`)
   }
+  runs = await chromium.evaluate<number>('window.benchmark.runs')
   if (!json) {
-    startProgress(scenario ? 1 : names.length)
+    startProgress((scenario ? 1 : names.length) * runs)
   }
   let results = await chromium.evaluate<BenchmarkResults>(
     scenario

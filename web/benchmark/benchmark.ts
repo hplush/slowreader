@@ -166,10 +166,11 @@ async function run(only?: string): Promise<BenchmarkResults> {
   ).filter(i => (only ? i.name === only : i.name !== 'freeze'))
 
   let list: Record<string, ScenarioResults> = {}
+  let attempts = getBenchmarkRuns()
   for (let scenario of scenarios) {
     let runs: Measurement[] = []
     let failed = 0
-    for (let i = 0; i < getBenchmarkRuns() && failed < BENCHMARK_GIVE_UP; i++) {
+    for (let i = 0; i < attempts && failed < BENCHMARK_GIVE_UP; i++) {
       try {
         await scenario.prepare?.()
         runs.push(await measure(() => scenario.run()))
@@ -178,6 +179,9 @@ async function run(only?: string): Promise<BenchmarkResults> {
         let message = e instanceof Error ? e.message : String(e)
         console.error(`${scenario.name} failed: ${message}`)
       }
+      // Scenario takes minutes, so the runner moves its progress bar
+      // on every run, not on every scenario
+      console.log(`${scenario.name} run ${i + 1}/${attempts}`)
     }
     let merged = merge(runs, failed)
     list[scenario.name] = merged
@@ -205,6 +209,7 @@ declare global {
       fill(): Promise<FillStatistics>
       results: BenchmarkResults | undefined
       run(only?: string): Promise<BenchmarkResults>
+      runs: number
       scenarios: string[]
       storage(): Promise<StorageSize>
     }
@@ -218,6 +223,7 @@ window.benchmark = {
   fill,
   results: undefined,
   run,
+  runs: getBenchmarkRuns(),
   scenarios: createScenarios('', '', ['', ''])
     .map(i => i.name)
     .filter(i => i !== 'freeze'),

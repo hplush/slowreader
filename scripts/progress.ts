@@ -40,8 +40,12 @@ export function startProgress(steps: number): void {
 }
 
 export function nextProgress(): void {
+  setProgress(current + 1)
+}
+
+export function setProgress(done: number): void {
   if (!rendered()) return
-  current += 1
+  current = Math.min(done, total)
   readline.moveCursor(process.stderr, 0, -1)
   readline.clearLine(process.stderr, 0)
   if (current < total) render()
