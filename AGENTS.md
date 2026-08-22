@@ -30,6 +30,7 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 
 - Run specific test by `pnpm bnt path/to/test.test.ts -t 'test name'`.
 - Do not run benchmark by your own. Ask user to run it.
+- Add story to `web/stories/` for every new UI state.
 
 ## Browser
 
