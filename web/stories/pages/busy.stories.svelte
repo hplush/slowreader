@@ -44,6 +44,20 @@
   </Scene>
 </Story>
 
+<Story name="Blocking" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      busy.set({
+        blocking: true,
+        label: 'Uploading your data to the cloud',
+        progress: 0.4
+      })
+    }}
+  >
+    <BusyPage />
+  </Scene>
+</Story>
+
 <Story name="Long Label" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {

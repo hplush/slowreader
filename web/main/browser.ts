@@ -2,6 +2,7 @@
 
 import { confirm } from '@logux/client'
 import {
+  busy,
   client,
   closeLastPopup,
   comfortMode,
@@ -139,4 +140,16 @@ window.addEventListener('keyup', e => {
 // and the warning would be shown forever.
 effect([client, hasPassword], (logux, cloud) => {
   if (logux && cloud) return confirm(logux)
+})
+
+function blockClosing(event: BeforeUnloadEvent): void {
+  event.preventDefault()
+}
+
+effect(busy, task => {
+  if (!task || !task.blocking) return
+  window.addEventListener('beforeunload', blockClosing)
+  return () => {
+    window.removeEventListener('beforeunload', blockClosing)
+  }
 })

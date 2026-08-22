@@ -4,11 +4,13 @@
   let {
     caption,
     children,
-    labelled = false
+    labelled = false,
+    note
   }: {
     caption?: string
     children: Snippet
     labelled?: boolean
+    note?: Snippet
   } = $props()
 </script>
 
@@ -16,10 +18,17 @@
   <div class="captioned_content">
     {@render children()}
   </div>
-  {#if caption}
-    <p class="captioned_caption" aria-hidden={labelled ? 'true' : null}>
-      {caption}
-    </p>
+  {#if caption || note}
+    <div class="captioned_bottom">
+      {#if caption}
+        <p class="captioned_caption" aria-hidden={labelled ? 'true' : null}>
+          {caption}
+        </p>
+      {/if}
+      {#if note}
+        {@render note()}
+      {/if}
+    </div>
   {/if}
 </div>
 
@@ -38,11 +47,19 @@
       inline-size: 100%;
     }
 
-    .captioned_caption {
+    .captioned_bottom {
+      display: flex;
+      flex-direction: column;
       grid-row: 3;
+
+      /* The caption belongs to the loader, so the note is further away */
+      gap: 1.5rem;
       align-self: start;
       max-inline-size: 20rem;
       padding-block-start: 0.625rem;
+    }
+
+    .captioned_caption {
       font: var(--secondary-font);
       color: var(--secondary-text-color);
       text-align: center;

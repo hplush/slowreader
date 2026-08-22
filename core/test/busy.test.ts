@@ -13,32 +13,64 @@ describe('busy', () => {
   test('allows to manually set busy state', async () => {
     equal(busy.get(), false)
     await busyDuring('', async () => {
-      deepStrictEqual(busy.get(), { label: '', progress: undefined })
+      deepStrictEqual(busy.get(), {
+        blocking: false,
+        label: '',
+        progress: undefined
+      })
       await busyDuring('', async () => {
         await setTimeout(10)
       })
-      deepStrictEqual(busy.get(), { label: '', progress: undefined })
+      deepStrictEqual(busy.get(), {
+        blocking: false,
+        label: '',
+        progress: undefined
+      })
     })
     equal(busy.get(), false)
   })
 
   test('shows label and progress of the latest task', async () => {
     let result = await busyDuring('Loading', async setProgress => {
-      deepStrictEqual(busy.get(), { label: 'Loading', progress: undefined })
+      deepStrictEqual(busy.get(), {
+        blocking: false,
+        label: 'Loading',
+        progress: undefined
+      })
       setProgress(0.5)
-      deepStrictEqual(busy.get(), { label: 'Loading', progress: 0.5 })
+      deepStrictEqual(busy.get(), {
+        blocking: false,
+        label: 'Loading',
+        progress: 0.5
+      })
 
       await busyDuring('', async setNested => {
-        deepStrictEqual(busy.get(), { label: 'Loading', progress: 0.5 })
+        deepStrictEqual(busy.get(), {
+          blocking: false,
+          label: 'Loading',
+          progress: 0.5
+        })
         setNested(0.1)
-        deepStrictEqual(busy.get(), { label: '', progress: 0.1 })
+        deepStrictEqual(busy.get(), {
+          blocking: false,
+          label: '',
+          progress: 0.1
+        })
         await busyDuring('Saving', async () => {
-          deepStrictEqual(busy.get(), { label: 'Saving', progress: undefined })
+          deepStrictEqual(busy.get(), {
+            blocking: false,
+            label: 'Saving',
+            progress: undefined
+          })
           await setTimeout(10)
         })
       })
 
-      deepStrictEqual(busy.get(), { label: 'Loading', progress: 0.5 })
+      deepStrictEqual(busy.get(), {
+        blocking: false,
+        label: 'Loading',
+        progress: 0.5
+      })
       return 'done'
     })
     equal(result, 'done')

@@ -4,6 +4,7 @@
     addFeed,
     addPost,
     type BaseRoute,
+    busy,
     cleanDatabase,
     client,
     closedCategories,
@@ -94,6 +95,7 @@
       signOut()
     }
     prepareResponses(responses)
+    busy.set(false)
     stopRefreshing()
     refreshStatus.set('start')
     refreshErrors.set([])
@@ -131,6 +133,7 @@
 
   onDestroy(() => {
     unbindSyncStatus()
+    busy.set(false)
     baseRouter.set({ hash: '', params: {}, route: 'slow' })
     for (let page of Object.values(pages)) {
       if (page.cache) page.cache = undefined

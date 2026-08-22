@@ -1,6 +1,7 @@
 import { atom } from 'nanostores'
 
 export interface BusyValue {
+  blocking?: boolean
   label: string
   progress?: number
 }
@@ -19,7 +20,11 @@ function update(): void {
     let last = tasks.findLast(i => i.label || i.progress !== undefined) ?? {
       label: ''
     }
-    busy.set({ label: last?.label, progress: last?.progress })
+    busy.set({
+      blocking: tasks.some(i => i.blocking),
+      label: last.label,
+      progress: last.progress
+    })
   }
 }
 
@@ -28,9 +33,10 @@ function update(): void {
  */
 export async function busyDuring<Value>(
   label: string,
-  cb: (setProgress: (progress: number) => void) => Promise<Value>
+  cb: (setProgress: (progress: number) => void) => Promise<Value>,
+  blocking = false
 ): Promise<Value> {
-  let task: BusyValue = { label }
+  let task: BusyValue = { blocking, label }
   tasks.push(task)
   update()
   try {
