@@ -591,6 +591,7 @@ describe('menu', () => {
   test('has helper to block app while menu is loading', async () => {
     busyUntilMenuLoader()
     deepEqual(busy.get(), {
+      blocking: false,
       label: commonMessages.get().loadingData,
       progress: undefined
     })
