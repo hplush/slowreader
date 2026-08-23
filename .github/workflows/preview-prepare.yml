@@ -39,10 +39,16 @@ jobs:
             objects.githubusercontent.com:443
             registry.npmjs.org:443
             storybook.js.org:443
-            apk.cgr.dev:443
-            cgr.dev:443
             ghcr.io:443
             pkg-containers.githubusercontent.com:443
+            registry.access.redhat.com:443
+            cdn.quay.io:443
+            cdn01.quay.io:443
+            cdn02.quay.io:443
+            cdn03.quay.io:443
+            cdn04.quay.io:443
+            cdn05.quay.io:443
+            cdn06.quay.io:443
       - name: Checkout the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
