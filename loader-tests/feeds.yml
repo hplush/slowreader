@@ -21,6 +21,7 @@ feeds:
 
   - title: Tumblr
     url: https://thecollectibles.tumblr.com/rss
+    findFromHome: false
 
   - title: LiveJournal
     url: https://vintage-ads.livejournal.com/data/rss
