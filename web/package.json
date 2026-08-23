@@ -46,7 +46,7 @@
     "autoprefixer": "10.5.4",
     "keyux": "0.11.6",
     "lightningcss": "1.33.0",
-    "nanostores": "1.5.1",
+    "nanostores": "1.5.2",
     "postcss": "8.5.26",
     "postcss-load-config": "6.0.1",
     "postcss-mixins": "12.1.2",
@@ -54,7 +54,7 @@
     "rollup": "4.62.5",
     "sqlocal": "0.18.0",
     "storybook": "10.5.10",
-    "svelte": "5.56.9",
+    "svelte": "5.56.10",
     "vite": "8.2.2"
   },
   "devDependencies": {
@@ -65,7 +65,7 @@
     "@types/trusted-types": "2.0.7",
     "browserslist": "4.28.8",
     "chromatic": "18.5.0",
-    "eslint": "10.8.1",
+    "eslint": "10.9.0",
     "postcss-html": "2.0.0",
     "postcss-nesting": "14.0.1",
     "postcss-selector-parser": "7.1.5",
