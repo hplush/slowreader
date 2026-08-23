@@ -1,6 +1,8 @@
 import { i18n } from '../../i18n.ts'
 
 export const storageMessages = i18n('storage', {
+  compact: 'Compact database',
+  compacting: 'Compacting the database',
   dangerousTitle: 'Dangerous action',
   deleteData: 'Delete all local data',
   deleteWarning:

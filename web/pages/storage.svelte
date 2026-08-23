@@ -1,5 +1,9 @@
 <script lang="ts">
-  import { mdiCloudDownloadOutline, mdiTrashCanOutline } from '@mdi/js'
+  import {
+    mdiBroom,
+    mdiCloudDownloadOutline,
+    mdiTrashCanOutline
+  } from '@mdi/js'
   import {
     formatSize,
     i18nFormat,
@@ -28,6 +32,9 @@
           ? $t.sizeLoading
           : formatSize($i18nFormat, $size)}
       />
+      <Button icon={mdiBroom} onclick={page.compact} size="wide">
+        {$t.compact}
+      </Button>
     </Stack>
     <Stack>
       <Title>{$t.dangerousTitle}</Title>

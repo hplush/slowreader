@@ -217,6 +217,14 @@ export async function getDatabaseSize(): Promise<number> {
 }
 
 /**
+ * Rebuild the database file to free the space taken by deleted rows.
+ */
+export async function compactDatabase(): Promise<void> {
+  await ready
+  await getDatabase().exec`VACUUM`
+}
+
+/**
  * Remove all rows from all tables, but keep the database working.
  *
  * Sign-out cleans the database by `Client#clean()`, which also stops it.
