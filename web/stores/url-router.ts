@@ -35,6 +35,7 @@ export const pathRouter = createRouter({
   signUp: '/signup',
   slow: '/slow/:feed?',
   start: '/start',
+  storage: '/settings/storage',
   welcome: '/welcome'
 })
 

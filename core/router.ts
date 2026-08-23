@@ -29,6 +29,7 @@ export interface Routes {
     from?: number
   }
   start: {}
+  storage: {}
   welcome: {}
 }
 
@@ -87,6 +88,7 @@ export const SETTINGS_ROUTES = [
   'interface',
   'download',
   'cloud',
+  'storage',
   'about'
 ] as const satisfies RouteName[]
 

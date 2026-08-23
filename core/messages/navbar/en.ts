@@ -22,6 +22,7 @@ export const navbarMessages = i18n('navbar', {
   sending: 'Saving…',
   settings: 'Settings',
   slow: 'Useful',
+  storage: 'Storage',
   synchronizedAfterWaitStatus: 'Synchronized',
   wrongCredentialsStatus: 'Auth failed'
 })

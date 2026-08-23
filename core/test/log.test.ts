@@ -336,8 +336,8 @@ describe('log', () => {
     await waitSync()
     await waitUntil(() => typeof storage['slowreader:menu'] === 'string')
 
-    let page = openPage({ params: {}, route: 'cloud' })
-    await page.redownloadData()
+    let page = openPage({ params: {}, route: 'storage' })
+    await page.rebuildDatabase()
 
     equal(typeof lastReset.get(), 'string')
     deepEqual(await logTypes(), [])

@@ -1,4 +1,4 @@
-import { deepEqual } from 'node:assert/strict'
+import { deepEqual, equal, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
@@ -9,6 +9,7 @@ import {
   cleanDatabase,
   database,
   getClient,
+  getDatabaseSize,
   loadCategories,
   loadFeeds,
   loadFilters,
@@ -42,6 +43,31 @@ describe('schema', () => {
 
     await addCategory({ title: 'B' })
     deepEqual((await loadCategories()).length, 1)
+  })
+
+  test('returns the database size', async () => {
+    let empty = await getDatabaseSize()
+    ok(empty > 0)
+
+    let feedId = await addFeed(testFeed())
+    for (let batch = 0; batch < 5; batch++) {
+      await addPost(
+        Array.from({ length: 20 }, (_, i) => {
+          return testPost({
+            feedId,
+            full: 'a'.repeat(4096),
+            originId: `${batch}-${i}`
+          })
+        })
+      )
+    }
+
+    let filled = await getDatabaseSize()
+    ok(filled > empty)
+
+    await cleanDatabase()
+    // Deleted rows go to SQLite’s free list, the file shrinks only on VACUUM
+    equal(await getDatabaseSize(), filled)
   })
 
   test('does nothing without database', async () => {

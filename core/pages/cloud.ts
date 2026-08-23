@@ -2,7 +2,7 @@ import { deleteUser } from '@slowreader/api'
 import { atom, computed } from 'nanostores'
 
 import { signOut } from '../auth.ts'
-import { getClient, resetDatabase, syncStatus } from '../client.ts'
+import { getClient, syncStatus } from '../client.ts'
 import { hasPassword, userId } from '../settings.ts'
 import { createPage } from './common.ts'
 
@@ -22,9 +22,6 @@ export const cloudPage = createPage('cloud', () => {
     exit() {},
     hasCloud: hasPassword,
     params: {},
-    redownloadData() {
-      return resetDatabase('user-request')
-    },
     unsavedData: $unsavedData,
     userId
   }

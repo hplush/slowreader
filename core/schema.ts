@@ -208,6 +208,14 @@ export function select<Row>(
   return ready.then(() => getDatabase().select<Row>(sql, ...params))
 }
 
+export async function getDatabaseSize(): Promise<number> {
+  let rows = await select<{ size: number }>`
+    SELECT page_count * page_size AS size
+    FROM pragma_page_count(), pragma_page_size()
+  `
+  return rows[0]!.size
+}
+
 /**
  * Remove all rows from all tables, but keep the database working.
  *

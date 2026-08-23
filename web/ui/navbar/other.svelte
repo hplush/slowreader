@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     mdiCloudSync,
+    mdiDatabaseOutline,
     mdiExport,
     mdiFileDownloadOutline,
     mdiFileTree,
@@ -30,7 +31,8 @@
     export: mdiExport,
     feedsByCategories: mdiFileTree,
     import: mdiImport,
-    interface: mdiPalette
+    interface: mdiPalette,
+    storage: mdiDatabaseOutline
   } satisfies Record<OtherName, string>
 </script>
 

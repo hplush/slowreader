@@ -2,12 +2,12 @@ import type { Formatter } from '@nanostores/i18n'
 import { equal, match } from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
-import { formatPublishedAt } from '../format.ts'
+import { formatPublishedAt, formatSize } from '../format.ts'
 
 describe('format', () => {
   function createMockFormatter(): Formatter {
     return {
-      number: () => '',
+      number: (num, opts) => `${num} ${opts?.unit}`,
       relativeTime: (num, unit) => `${num} ${unit}`,
       time: date => {
         let d = date instanceof Date ? date : new Date(date ?? 0)
@@ -15,6 +15,13 @@ describe('format', () => {
       }
     }
   }
+
+  test('formats size in kilobytes and megabytes', () => {
+    let format = createMockFormatter()
+
+    equal(formatSize(format, 8192), '8 kilobyte')
+    equal(formatSize(format, 5_500_000), '5.5 megabyte')
+  })
 
   test('formats time as minutes ago when less than hour', () => {
     let format = createMockFormatter()
