@@ -50,6 +50,12 @@ import { dbMigrating, hasPassword } from './settings.ts'
  */
 export const GENERAL_CATEGORY = '__general'
 
+/**
+ * The key keeps the hash of the tables’ schema, so its absence means
+ * that the tables were not created yet.
+ */
+const DB_KEY = 'slowreader:db'
+
 const READERS = ['feed', 'list'] as const satisfies readonly UsefulReaderName[]
 
 const READINGS = ['fast', 'slow'] as const
@@ -324,16 +330,32 @@ async function uploadLocalData(logux: CrossTabClient): Promise<void> {
   dbMigrating.set(undefined)
 }
 
+/**
+ * The first start has no data to load: the time goes to creating the tables.
+ */
+function getOpeningLabel(hasTables: boolean): string {
+  let messages = commonMessages.get()
+  if (downloading) {
+    return messages.downloadingData
+  } else if (hasTables) {
+    return messages.loadingData
+  } else {
+    return messages.creatingDatabase
+  }
+}
+
 function openDatabase(logux: CrossTabClient, db: Database): void {
   // The task of the previous start was not finished, so it must be restarted
   let unfinished = dbMigrating.get()
   dbMigrating.set(undefined)
 
+  let hasTables = !!getEnvironment().persistentStore[DB_KEY]
+
   let tracker = trackLog(logux, Object.keys(tableActions))
   let crdt = createCrdtDatabase(logux, db, {
     applied: tracker.applied,
     broken: reportDatabaseError,
-    key: 'slowreader:db',
+    key: DB_KEY,
     /* node:coverage ignore next 11 */
     migrating(done) {
       // Actions are in memory between the drop of the tables and the end
@@ -393,12 +415,7 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
   ready = crdt.ready
   openedDatabase.set(db)
 
-  void busyDuring(
-    downloading
-      ? commonMessages.get().downloadingData
-      : commonMessages.get().loadingData,
-    () => ready
-  )
+  void busyDuring(getOpeningLabel(hasTables), () => ready)
   downloading = false
 
   void ready.then(() => {

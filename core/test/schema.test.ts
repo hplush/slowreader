@@ -1,12 +1,15 @@
 import { deepEqual, equal, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
 
 import {
   addCategory,
   addFeed,
   addFilter,
   addPost,
+  busy,
   cleanDatabase,
+  commonMessages,
   database,
   getClient,
   getDatabaseSize,
@@ -14,10 +17,12 @@ import {
   loadFeeds,
   loadFilters,
   loadPosts,
+  setupEnvironment,
   testFeed,
   testPost
 } from '../index.ts'
-import { cleanClientTest, enableClientTest } from './utils.ts'
+import { getTestEnvironment } from '../test.ts'
+import { cleanClientTest, enableClientTest, setTestUser } from './utils.ts'
 
 describe('schema', () => {
   beforeEach(() => {
@@ -26,6 +31,30 @@ describe('schema', () => {
 
   afterEach(async () => {
     await cleanClientTest()
+  })
+
+  test('tells that the database is created on the first start', async () => {
+    await cleanClientTest()
+    setTestUser(false)
+    setupEnvironment(getTestEnvironment())
+    let labels: string[] = []
+    let unbind = busy.listen(value => {
+      if (value) labels.push(value.label)
+    })
+
+    setTestUser()
+    await setTimeout(100)
+    deepEqual(labels, [commonMessages.get().creatingDatabase])
+
+    // The hash of the tables’ schema is kept between the starts
+    labels = []
+    setTestUser(false)
+    await setTimeout(100)
+    setTestUser()
+    await setTimeout(100)
+    deepEqual(labels, [commonMessages.get().loadingData])
+
+    unbind()
   })
 
   test('cleans all tables without stopping the database', async () => {
