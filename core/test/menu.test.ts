@@ -533,6 +533,30 @@ describe('menu', () => {
     deepEqual(slowMenu.get(), [])
   })
 
+  test('ignores actions re-sent by the server', async () => {
+    keepMount(slowMenu)
+    await waitLoading(menuLoading)
+
+    let category = await addCategory({ title: 'A' })
+    let feed = await addFeed(
+      testFeed({ categoryId: category, reading: 'slow', title: 'Feed' })
+    )
+    await addPost(testPost({ feedId: feed, reading: 'slow' }))
+
+    // The body of the shadowed action is not in the log anymore,
+    // so the re-sent action is added to the log again
+    await getClient().log.add({
+      fields: { categoryId: category, reading: 'slow', title: 'Feed' },
+      id: feed,
+      type: 'feeds/created'
+    })
+    await setTimeout(10)
+
+    deepEqual(slowMenu.get(), [
+      [{ id: category, title: 'A' }, [[{ id: feed, title: 'Feed' }, 1]]]
+    ])
+  })
+
   test('loads menu from the storage', async () => {
     await cleanClientTest()
     setTestUser(false)

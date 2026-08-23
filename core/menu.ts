@@ -153,18 +153,24 @@ function changedIds(
   return 'ids' in action ? action.ids : [action.id]
 }
 
+/**
+ * The server re-sends the actions, which the client did not confirm as
+ * received, and their bodies are not in the log anymore to be ignored
+ * as duplicates, so creation must be idempotent.
+ */
 function insert(list: Sorted, id: string, title: string): Sorted {
+  let sorted = remove(list, id)
   let low = 0
-  let high = list.length
+  let high = sorted.length
   while (low < high) {
     let middle = (low + high) >> 1
-    if (list[middle]![1].localeCompare(title) <= 0) {
+    if (sorted[middle]![1].localeCompare(title) <= 0) {
       low = middle + 1
     } else {
       high = middle
     }
   }
-  return list.toSpliced(low, 0, [id, title])
+  return sorted.toSpliced(low, 0, [id, title])
 }
 
 function remove(list: Sorted, id: string): Sorted {
