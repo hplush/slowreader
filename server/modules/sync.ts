@@ -4,9 +4,8 @@ import { dbReset, RETENTION, SUBPROTOCOL } from '@slowreader/api'
 import { eq, inArray, sql } from 'drizzle-orm'
 
 import { actions, db, users } from '../db/index.ts'
+import { createBatch } from '../lib/batch.ts'
 import { prevUsedAt } from './auth.ts'
-
-const EPOCH = Date.UTC(2026, 0)
 
 function cleaning(action: ZeroCleanAction): string[] {
   return 'id' in action ? [action.id] : action.ids
@@ -26,6 +25,22 @@ async function wasOfflineTooLong(ctx: ConnectContext): Promise<boolean> {
 }
 
 export default (server: BaseServer): void => {
+  // A single sync message can bring many actions, but we need only one write
+  let lastActionsDebounce = createBatch(50, userId => {
+    void db
+      .update(users)
+      .set({ lastActionAt: sql`now()` })
+      .where(eq(users.id, userId))
+      /* node:coverage ignore next 3 */
+      .catch((error: unknown) => {
+        server.logger.error(error)
+      })
+  })
+
+  server.on('report', event => {
+    if (event === 'destroy') lastActionsDebounce.flush()
+  })
+
   server.type(zero, {
     access() {
       return true
@@ -43,14 +58,11 @@ export default (server: BaseServer): void => {
           id: meta.id,
           iv: Buffer.from(action.iv),
           subprotocol: meta.subprotocol ?? SUBPROTOCOL,
-          time: meta.time - EPOCH,
+          time: meta.time,
           userId: ctx.userId
         })
         .onConflictDoNothing({ target: actions.id })
-      await db
-        .update(users)
-        .set({ lastActionAt: sql`now()` })
-        .where(eq(users.id, ctx.userId))
+      lastActionsDebounce.add(ctx.userId)
     },
     resend(ctx) {
       return { user: ctx.userId }
@@ -90,7 +102,7 @@ export default (server: BaseServer): void => {
           added: column.added,
           id: column.id,
           subprotocol: column.subprotocol,
-          time: column.time + EPOCH
+          time: column.time
         }
       ]
     })

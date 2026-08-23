@@ -4,7 +4,7 @@ import { encryptActions } from '@logux/client'
 import { TestClient, type TestServer } from '@logux/server'
 import { dbReset, RETENTION, signIn, signUp } from '@slowreader/api'
 import { eq } from 'drizzle-orm'
-import { deepEqual, equal } from 'node:assert/strict'
+import { deepEqual, equal, notEqual } from 'node:assert/strict'
 import { afterEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -40,6 +40,14 @@ describe('server sync', () => {
     })
     await client.connect()
     return client
+  }
+
+  async function getLastActionAt(): Promise<Date | null | undefined> {
+    let user = await db.query.users.findFirst({
+      columns: { lastActionAt: true },
+      where: { id: '0000000000000000' }
+    })
+    return user?.lastActionAt
   }
 
   test('syncs action between clients', async () => {
@@ -161,6 +169,21 @@ describe('server sync', () => {
       reader.log.actions().filter(i => i.type === dbReset.type),
       []
     )
+  })
+
+  test('writes the last action time on server destroy', async () => {
+    server = buildTestServer()
+    await signUp(
+      { password: 'AAAAAAAAAA', userId: '0000000000000000' },
+      { fetch: server.fetch }
+    )
+    let client = await connect(server, '0000000000000000', 'AAAAAAAAAA')
+    await client.process({ type: 'A' })
+
+    await server.destroy()
+    server = undefined
+    await setTimeout(100)
+    notEqual(await getLastActionAt(), null)
   })
 
   test('ignores action saved before the reconnect', async () => {
