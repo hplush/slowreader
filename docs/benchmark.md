@@ -4,11 +4,11 @@ Benchmark fills the client with a lot of data, replays user actions in the real 
 
 It runs inside the real web client (lazy chunk, loaded only with `?benchmark`), not in a special page, so numbers include real bundle, real Svelte components, real SQLite in OPFS.
 
+Benchmark user is a cloud user on a local sync server, because the log tracking and the sync are a big part of every write.
+
 ## Run Script
 
-Script starts the server, opens Chromium from Playwright’s cache (downloads it
-on the first run), fills the database on the first run, shows the progress bar,
-and prints total numbers:
+Script starts the web server and the sync server, opens Chromium from Playwright’s cache (downloads it on the first run), fills the database on the first run, shows the progress bar, and prints total numbers:
 
 ```sh
 pnpm -F web benchmark
@@ -21,8 +21,7 @@ pnpm -F web benchmark --help # all options
 DEBUG=1 pnpm -F web benchmark --clean # faster benchmark for development
 ```
 
-Database is kept in `/tmp/slowreader-benchmark` between runs, so filling
-happens only once.
+Databases are kept between runs, so filling happens only once and the account of the previous run is reused: the client’s one is in `/tmp/slowreader-benchmark` (Chromium profile) and the server’s one is in `/tmp/slowreader-benchmark-server` (pglite). `--clean` removes both.
 
 Chromium is downloaded to `~/.cache/ms-playwright/` by
 `playwright-mcp install-browser chromium`, the same cache as Playwright MCP

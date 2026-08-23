@@ -1,3 +1,6 @@
+import { delay } from 'nanodelay'
+
+import { type Credentials, signIn, signUp } from './auth.ts'
 import { busyDuring } from './busy.ts'
 import { addCategory } from './category.ts'
 import { client } from './client.ts'
@@ -13,7 +16,7 @@ import {
 } from './post.ts'
 import { setRequestMethod } from './request.ts'
 import { GENERAL_CATEGORY, select } from './schema.ts'
-import { benchmarkStatistics, encryptionKey, userId } from './settings.ts'
+import { benchmarkStatistics, hasPassword, userId } from './settings.ts'
 
 export interface LoaderSpan {
   end: number | undefined
@@ -378,12 +381,27 @@ export function mockBenchmarkRequests(): void {
 }
 
 /**
- * Create local benchmark user to get the client without the server.
+ * Fixed credentials to reuse the account of the previous run: the server
+ * keeps the user between the runs, and the browser keeps the session cookie.
+ */
+const BENCHMARK_CREDENTIALS: Credentials = {
+  encryptionKey: 'benchmarkKey',
+  password: 'benchmark1',
+  userId: '9999999999999999'
+}
+
+/**
+ * Create cloud benchmark user on the local server. Users read with the server,
+ * so the benchmark must measure the log tracking and the sync too.
  */
 export async function signInBenchmark(): Promise<void> {
-  if (userId.get() !== '9999999999999999') {
-    encryptionKey.set('benchmarkKey')
-    userId.set('9999999999999999')
+  if (userId.get() !== BENCHMARK_CREDENTIALS.userId || !hasPassword.get()) {
+    try {
+      await signUp(BENCHMARK_CREDENTIALS)
+    } catch {
+      // The server keeps the user of the previous run
+      await signIn(BENCHMARK_CREDENTIALS)
+    }
   }
   if (!client.get()) {
     await new Promise<void>(resolve => {
@@ -397,6 +415,16 @@ export async function signInBenchmark(): Promise<void> {
       })
     })
   }
+}
+
+/**
+ * Wait until every action was sent to the server, so the sync of the filling
+ * will not be measured by the scenarios.
+ */
+export async function waitBenchmarkSync(): Promise<void> {
+  let logux = client.get()
+  if (!logux) return
+  await Promise.race([logux.waitFor('synchronized'), delay(300_000)])
 }
 
 /**

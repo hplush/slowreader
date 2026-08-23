@@ -23,6 +23,13 @@ const PROFILE = join(tmpdir(), 'slowreader-benchmark')
 
 const PORT = 2557
 
+/**
+ * Client on `localhost` always syncs with `localhost:2554`.
+ */
+const SYNC_PORT = 2554
+
+const SYNC_DB = join(tmpdir(), 'slowreader-benchmark-server')
+
 const FILL_ATTEMPTS = 900
 
 const PEAK_INTERVAL = 500
@@ -168,6 +175,35 @@ async function waitServer(address: string): Promise<void> {
     }
   }
   fail(`Server ${address} did not start`)
+}
+
+/**
+ * Users read with the server, so the benchmark measures the sync too.
+ * The database is kept between the runs to reuse the benchmark’s account.
+ */
+async function startSyncServer(): Promise<() => void> {
+  let address = `http://localhost:${SYNC_PORT}`
+  try {
+    await fetch(address)
+    status('Using already started sync server')
+    return () => {}
+  } catch {
+    // Server is not started yet
+  }
+  if (clean) rmSync(SYNC_DB, { force: true, recursive: true })
+  let child = spawn(
+    'node',
+    [join(ROOT, '../server/index.ts'), '--port', String(SYNC_PORT)],
+    {
+      cwd: join(ROOT, '../server'),
+      env: { ...process.env, DATABASE_URL: `file://${SYNC_DB}`, DEBUG: '' },
+      stdio: 'ignore'
+    }
+  )
+  await waitServer(address)
+  return () => {
+    child.kill()
+  }
 }
 
 async function startServer(): Promise<[string, () => void]> {
@@ -487,7 +523,12 @@ function size(bytes: number): string {
   return `${Math.round(bytes / 1024 / 1024)} MB`
 }
 
-let [address, stopServer] = await startServer()
+let [address, stopWeb] = await startServer()
+let stopSync = await startSyncServer()
+function stopServer(): void {
+  stopWeb()
+  stopSync()
+}
 if (clean) rmSync(PROFILE, { force: true, recursive: true })
 let binary = findChromium()
 let chromium = await Chromium.start(binary)

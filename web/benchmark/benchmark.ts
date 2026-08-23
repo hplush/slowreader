@@ -11,7 +11,8 @@ import {
   getBenchmarkRuns,
   mockBenchmarkRequests,
   setBenchmarkDebug,
-  signInBenchmark
+  signInBenchmark,
+  waitBenchmarkSync
 } from '@slowreader/core/benchmark'
 
 import {
@@ -78,6 +79,7 @@ function total(scenarios: ScenarioResults[]): BenchmarkTotal {
 async function prepare(): Promise<void> {
   mockBenchmarkRequests()
   await signInBenchmark()
+  await waitBenchmarkSync()
   try {
     await waitIdle(START_TIMEOUT)
   } catch (e) {
@@ -115,6 +117,7 @@ async function fill(): Promise<FillStatistics> {
   mockBenchmarkRequests()
   await signInBenchmark()
   let statistics = await fillBenchmarkData()
+  await waitBenchmarkSync()
   return statistics
 }
 
