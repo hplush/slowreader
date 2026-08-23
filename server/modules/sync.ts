@@ -1,10 +1,10 @@
 import { zero, zeroClean, type ZeroCleanAction } from '@logux/actions'
 import type { BaseServer, ConnectContext } from '@logux/server'
 import { dbReset, RETENTION, SUBPROTOCOL } from '@slowreader/api'
-import { eq, inArray, sql } from 'drizzle-orm'
+import { inArray, sql } from 'drizzle-orm'
+import debounce from 'just-debounce-it'
 
 import { actions, db, users } from '../db/index.ts'
-import { createBatch } from '../lib/batch.ts'
 import { prevUsedAt } from './auth.ts'
 
 function cleaning(action: ZeroCleanAction): string[] {
@@ -26,19 +26,22 @@ async function wasOfflineTooLong(ctx: ConnectContext): Promise<boolean> {
 
 export default (server: BaseServer): void => {
   // A single sync message can bring many actions, but we need only one write
-  let lastActionsDebounce = createBatch(50, userId => {
+  let acted = new Set<string>()
+  let writeLastActions = debounce(() => {
+    let ids = [...acted]
+    acted.clear()
     void db
       .update(users)
       .set({ lastActionAt: sql`now()` })
-      .where(eq(users.id, userId))
+      .where(inArray(users.id, ids))
       /* node:coverage ignore next 3 */
       .catch((error: unknown) => {
         server.logger.error(error)
       })
-  })
+  }, 50)
 
   server.on('report', event => {
-    if (event === 'destroy') lastActionsDebounce.flush()
+    if (event === 'destroy') writeLastActions.flush()
   })
 
   server.type(zero, {
@@ -62,7 +65,8 @@ export default (server: BaseServer): void => {
           userId: ctx.userId
         })
         .onConflictDoNothing({ target: actions.id })
-      lastActionsDebounce.add(ctx.userId)
+      acted.add(ctx.userId)
+      writeLastActions()
     },
     resend(ctx) {
       return { user: ctx.userId }

@@ -25,9 +25,9 @@ import {
 } from '@logux/core'
 import type { Database } from '@nanostores/sql'
 import { RETENTION } from '@slowreader/api'
+import debounce from 'just-debounce-it'
 
 import { getEnvironment } from './environment.ts'
-import { createBatch } from './lib/batch.ts'
 import { createReasonChanges } from './lib/reasons.ts'
 import { createTaskQueue } from './lib/tasks.ts'
 import { hasPassword } from './settings.ts'
@@ -234,11 +234,14 @@ export function trackLog(logux: CrossTabClient, plurals: string[]): LogTracker {
    * Cleaning is batched: marking a page of posts as read cleans
    * hundreds of actions at once.
    */
-  let cleanOnServer = createBatch<string>(batched => {
+  let cleaning = new Set<string>()
+  let cleanOnServer = debounce(() => {
+    let ids = [...cleaning]
+    cleaning.clear()
     tasks.add(async () => {
-      await logux.log.add(zeroClean({ ids: batched }), { sync: true })
+      await logux.log.add(zeroClean({ ids }), { sync: true })
     })
-  })
+  }, 1)
 
   let unbindPreadd = logux.on('preadd', (action, meta) => {
     if (!isTableAction(action)) return
@@ -269,10 +272,13 @@ export function trackLog(logux: CrossTabClient, plurals: string[]): LogTracker {
   let unbindClean = logux.on('clean', (action, meta) => {
     if (!cloud) return
     if (shadow.match(action)) {
-      cleanOnServer.add(action.id)
+      cleaning.add(action.id)
     } else if (isTableAction(action) && !shadowed.delete(meta.id)) {
-      cleanOnServer.add(meta.id)
+      cleaning.add(meta.id)
+    } else {
+      return
     }
+    cleanOnServer()
   })
 
   let unbindProcessed = logux.type(loguxProcessed, action => {
@@ -351,7 +357,7 @@ export function trackLog(logux: CrossTabClient, plurals: string[]): LogTracker {
       }
     },
     destroy() {
-      cleanOnServer.destroy()
+      cleanOnServer.cancel()
       unbindPreadd()
       unbindClean()
       unbindProcessed()
