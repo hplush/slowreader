@@ -2,12 +2,7 @@
 // by moving complexity to helper.
 
 import type { SqlStore } from '@nanostores/sql'
-import {
-  computed,
-  type MapStore,
-  type ReadableAtom,
-  type StoreValue
-} from 'nanostores'
+import { computed, type ReadableAtom } from 'nanostores'
 
 export function firstRow<Value>(
   store: SqlStore<Value[]>
@@ -15,18 +10,17 @@ export function firstRow<Value>(
   return computed(store, rows => (rows.isLoading ? undefined : rows.value[0]))
 }
 
-type NumberKeys<T> = {
-  [K in keyof T]: T[K] extends number ? K : never
-}[keyof T]
+interface NumberMapStore<Key extends string> {
+  get(): Record<Key, number>
+  setKey(key: Key, value: number): void
+}
 
-export function increaseKey<Store extends MapStore>(
-  store: Store,
-  key: NumberKeys<StoreValue<Store>>,
+export function increaseKey<Key extends string>(
+  store: NumberMapStore<NoInfer<Key>>,
+  key: Key,
   by = 1
 ): void {
-  // oxlint-disable-next-line typescript/no-unsafe-member-access
-  let value = store.get()[key] as number
-  store.setKey(key, value + by)
+  store.setKey(key, store.get()[key] + by)
 }
 
 /**
