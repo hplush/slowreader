@@ -27,6 +27,7 @@ const MIME_TYPES: Record<string, string> = {
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
   '.txt': 'text/plain',
+  '.wasm': 'application/wasm',
   '.webmanifest': 'application/manifest+json',
   '.woff2': 'font/woff2'
 }
@@ -63,6 +64,8 @@ export default async (
   let CACHE: Record<string, Asset> = {}
 
   let nginxHeaders = parseNginxHeaders(await readFile(nginxConf, 'utf-8'))
+  let assetHeaders = { ...nginxHeaders }
+  delete assetHeaders['Content-Security-Policy']
 
   let html = await readFile(join(assetsDir, 'index.html'))
   let appHtml: Asset = {
@@ -95,7 +98,7 @@ export default async (
       }
       let contentType = MIME_TYPES[extname(path)] || 'application/octet-stream'
       let data = await readFile(path)
-      let headers: Asset['headers'] = {}
+      let headers: Asset['headers'] = { ...assetHeaders }
       if (pathname.includes('/assets/') && HASHED.test(path)) {
         headers['Cache-Control'] = 'public, max-age=31536000, immutable'
       }
