@@ -20,7 +20,6 @@ import {
   processOriginPost
 } from './post.ts'
 import type { PostsList } from './posts-list.ts'
-import type { FeedChanges } from './schema.ts'
 
 export const DEFAULT_REFRESH_STATISTICS = {
   errorFeeds: 0,
@@ -131,13 +130,24 @@ async function writePage(state: FeedRefresh): Promise<boolean> {
   return true
 }
 
+/**
+ * Time of the current refresh and feeds, which got no new posts. Their marker
+ * is written by a single action in the end: without new posts the interrupted
+ * refresh can not create duplicates, so the marker can wait.
+ */
+let refreshedAt = 0
+let untouched: string[] = []
+
 async function finishFeed(state: FeedRefresh): Promise<void> {
-  let changes: FeedChanges = { refreshedAt: Math.round(Date.now() / 1000) }
   if (state.newest) {
-    changes.lastOriginId = state.newest.originId
-    changes.lastPublishedAt = state.newest.publishedAt
+    await changeFeed(state.feed.id, {
+      lastOriginId: state.newest.originId,
+      lastPublishedAt: state.newest.publishedAt,
+      refreshedAt
+    })
+  } else {
+    untouched.push(state.feed.id)
   }
-  await changeFeed(state.feed.id, changes)
 }
 
 async function processPage(state: FeedRefresh): Promise<void> {
@@ -175,6 +185,8 @@ export async function refreshPosts(): Promise<void> {
   refreshErrors.set([])
   refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: true })
 
+  refreshedAt = Math.round(Date.now() / 1000)
+  untouched = []
   let feeds = await loadFeedsForRefresh()
   refreshStatistics.set({
     ...refreshStatistics.get(),
@@ -213,6 +225,8 @@ export async function refreshPosts(): Promise<void> {
       }
     }
   )
+
+  if (untouched.length > 0) await changeFeed(untouched, { refreshedAt })
 
   if (refreshStatus.get() === 'refreshingError') {
     refreshStatus.set('error')
