@@ -1,6 +1,5 @@
 <script context="module" lang="ts">
   import {
-    changePost,
     GENERAL_CATEGORY,
     needWelcome,
     pages,
@@ -140,12 +139,6 @@
 <Story name="List" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     feeds={[{ id: 'feed', reading: 'slow' }]}
-    oninit={() => {
-      setTimeout(() => {
-        changePost('post-2', { read: 1 })
-        changePost('post-3', { read: 1 })
-      }, 1)
-    }}
     posts={POSTS}
     route={{ params: { feed: 'feed' }, route: 'slow' }}
   >
@@ -183,12 +176,6 @@
 <Story name="Feed" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     feeds={[{ id: 'feed', reading: 'fast' }]}
-    oninit={() => {
-      setTimeout(() => {
-        changePost('post-2', { read: 1 })
-        changePost('post-3', { read: 1 })
-      }, 1)
-    }}
     posts={POSTS.map(i => ({ ...i, reading: 'fast' }))}
     route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
   >
