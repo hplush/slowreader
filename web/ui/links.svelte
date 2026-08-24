@@ -105,10 +105,12 @@
         color: var(--secondary-text-color);
         background: var(--current-background);
 
-        &:hover,
-        &:active,
-        &:focus-visible {
-          background: --tune-background(--flat-button-hover);
+        &:not([aria-current='page']) {
+          &:hover,
+          &:active,
+          &:focus-visible {
+            background: --tune-background(--flat-button-hover);
+          }
         }
       }
 
