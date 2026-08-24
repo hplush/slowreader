@@ -213,7 +213,10 @@ describe('list reader', () => {
       params: { feed: feedId },
       route: 'slow'
     })
-    await waitLoading(page.loading)
+    // Stores are unmounted with a delay, so `currentPage` of the previous
+    // test is still mounted: the page was opened with the empty reader
+    // of the empty database and `page.loading` is `false` since then
+    await waitLoading(page.postsLoading)
     let reader = ensureReader(page.posts, 'list')
     equal(reader.pages.get().count, 3)
     let shown = new Set(titles(reader))

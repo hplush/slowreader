@@ -1,4 +1,3 @@
-import type { BaseServer } from '@logux/server'
 import {
   IS_PASSWORD,
   IS_USER_ID,
@@ -17,6 +16,7 @@ import type { ServerResponse } from 'node:http'
 
 import { db, sessions, users } from '../db/index.ts'
 import { ErrorResponse, jsonApi } from '../lib/http.ts'
+import type { AppServer } from '../lib/types.ts'
 
 function setSession(res: ServerResponse, value: string): void {
   res.setHeader(
@@ -35,14 +35,7 @@ async function setNewSession(
   return token
 }
 
-export interface PrevUsedAt {
-  usedAt: Date
-  sessionId: number
-}
-
-export const prevUsedAt = new Map<string, PrevUsedAt>()
-
-export default (server: BaseServer): void => {
+export default (server: AppServer): void => {
   server.auth(async ({ client, cookie, token, userId }) => {
     let sessionToken = token || cookie.session
     if (!sessionToken) return false
@@ -51,10 +44,8 @@ export default (server: BaseServer): void => {
       where: { token: sessionToken, userId }
     })
     if (session) {
-      prevUsedAt.set(client.clientId!, {
-        usedAt: session.usedAt,
-        sessionId: session.id
-      })
+      client.data.sessionId = session.id
+      client.data.usedAt = session.usedAt
       await db
         .update(sessions)
         .set({ clientId: client.clientId, usedAt: sql`now()` })
@@ -70,18 +61,15 @@ export default (server: BaseServer): void => {
   })
 
   server.on('disconnected', client => {
-    let prev = prevUsedAt.get(client.clientId!)
-    if (prev) {
-      prevUsedAt.delete(client.clientId!)
-      void db
-        .update(sessions)
-        .set({ usedAt: sql`now()` })
-        .where(eq(sessions.id, prev.sessionId))
-        /* node:coverage ignore next 3 */
-        .catch((error: unknown) => {
-          server.logger.error(error)
-        })
-    }
+    if (!client.data.sessionId) return
+    void db
+      .update(sessions)
+      .set({ usedAt: sql`now()` })
+      .where(eq(sessions.id, client.data.sessionId))
+      /* node:coverage ignore next 3 */
+      .catch((error: unknown) => {
+        server.logger.error(error)
+      })
   })
 
   jsonApi(server, signInEndpoint, async (params, res) => {

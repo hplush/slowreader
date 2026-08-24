@@ -86,7 +86,7 @@ Reasons are the reference counter of the cells:
 - `plural/id` is added to every `plural/created`.
 - `tombstone` is added to every `plural/deleted`.
 
-Reasons are removed by the `applied()` hook of the database from new action applied.
+Reasons are removed on the `applied` event of the database from new action applied.
 
 Because all actions are encrypted on the server, clients control server’s log cleaning.
 
@@ -102,15 +102,15 @@ The sign-up generates the actions from the tables with a fresh meta and uploads 
 
 Any change in the tables schema drops the tables and replays the actions. Shadowed actions is restores from the tables by `crdtTableToActions()`. The same snapshot is shared with the menu reducer of [`menu.ts`](./menu.ts).
 
-The `dbMigrating` marker in the storage detects if browser tab was closed in the middle of the migration or of the sign-up upload to run the task again.
+The Logux Client detects the tab closed in the middle of the migration itself and reports `interrupted-migration` in the `corrupted` event. The `uploadingLocalData` marker detects if action uploading during signing-up was interrupted.
 
 ### Reset
 
 In the reset process the client uploads own unsent actions, drops the whole database and restarts the app to download everything from the server again. It is called when:
 
 - The server saw that the device was offline longer than the 12 month and could miss a tombstone.
-- The migration was interrupted.
-- The database or reducer is broken.
+- The database reported the corruption: an interrupted migration, an error, a timeout of the opening or the tables emptied by somebody except the app.
+- The database threw an error outside of the applier.
 - The user asked for it on the profile page.
 
 For debug the reason and the time of the last reset are kept in `localStorage` under `slowreader:reset`.

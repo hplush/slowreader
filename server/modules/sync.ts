@@ -1,20 +1,22 @@
 import { zero, zeroClean, type ZeroCleanAction } from '@logux/actions'
-import type { BaseServer, ConnectContext } from '@logux/server'
+import type { ConnectContext } from '@logux/server'
 import { dbReset, RETENTION, SUBPROTOCOL } from '@slowreader/api'
 import { inArray, sql } from 'drizzle-orm'
 import debounce from 'just-debounce-it'
 
 import { actions, db, users } from '../db/index.ts'
-import { prevUsedAt } from './auth.ts'
+import type { AppServer } from '../lib/types.ts'
 
 function cleaning(action: ZeroCleanAction): string[] {
   return 'id' in action ? [action.id] : action.ids
 }
 
-async function wasOfflineTooLong(ctx: ConnectContext): Promise<boolean> {
-  let prev = prevUsedAt.get(ctx.clientId)
-  if (!prev) return false
-  let previous = prev.usedAt
+async function wasOfflineTooLong(
+  server: AppServer,
+  ctx: ConnectContext
+): Promise<boolean> {
+  let previous = server.clientIds.get(ctx.clientId)?.data.usedAt
+  if (!previous) return false
   if (Date.now() - previous.getTime() < RETENTION) return false
   let user = await db.query.users.findFirst({
     columns: { lastActionAt: true },
@@ -24,7 +26,7 @@ async function wasOfflineTooLong(ctx: ConnectContext): Promise<boolean> {
   return !!user?.lastActionAt && user.lastActionAt > previous
 }
 
-export default (server: BaseServer): void => {
+export default (server: AppServer): void => {
   // A single sync message can bring many actions, but we need only one write
   let acted = new Set<string>()
   let writeLastActions = debounce(() => {
@@ -89,7 +91,7 @@ export default (server: BaseServer): void => {
   })
 
   server.sendOnConnect(async (ctx, lastSynced) => {
-    if (lastSynced > 0 && (await wasOfflineTooLong(ctx))) {
+    if (lastSynced > 0 && (await wasOfflineTooLong(server, ctx))) {
       return [[dbReset({}), { id: server.log.generateId(), time: Date.now() }]]
     }
     let list = await db.query.actions.findMany({

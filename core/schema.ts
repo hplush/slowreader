@@ -42,7 +42,7 @@ import type { LoaderName } from './loader/index.ts'
 import { type LogTracker, trackLog } from './log.ts'
 import { commonMessages } from './messages/index.ts'
 import type { UsefulReaderName } from './readers/common.ts'
-import { dbMigrating, hasPassword } from './settings.ts'
+import { hasPassword, uploadingLocalData } from './settings.ts'
 
 /**
  * ID of the virtual category for feeds without a category. Two underscores
@@ -154,7 +154,6 @@ export type TableSnapshot = [Action, MetaTime][]
 let currentCrdt: CrdtDatabase | undefined
 let currentTables: Tables | undefined
 let currentTracker: LogTracker | undefined
-let openingTimer: ReturnType<typeof setTimeout> | undefined
 let snapshot: Promise<TableSnapshot> | undefined
 let ready: Promise<void> = Promise.resolve()
 let downloading = false
@@ -294,15 +293,11 @@ function whenSchemaChecked(): Promise<void> {
   })
 }
 
-function resetBrokenDatabase(): void {
+export function reportDatabaseError(error: unknown): void {
+  getEnvironment().warn(error)
   if (hasDatabase() && hasPassword.get()) {
     void resetDatabase('broken-db')
   }
-}
-
-export function reportDatabaseError(error: unknown): void {
-  getEnvironment().warn(error)
-  resetBrokenDatabase()
 }
 
 /**
@@ -312,7 +307,7 @@ export function reportDatabaseError(error: unknown): void {
  * The account is new, so no other device can conflict with the fresh meta.
  */
 async function uploadLocalData(logux: CrossTabClient): Promise<void> {
-  dbMigrating.set('signing-up')
+  uploadingLocalData.set(true)
   let actions = await getSnapshot()
   if (actions.length > 0) {
     await busyDuring(
@@ -327,7 +322,7 @@ async function uploadLocalData(logux: CrossTabClient): Promise<void> {
       true
     )
   }
-  dbMigrating.set(undefined)
+  uploadingLocalData.set(false)
 }
 
 /**
@@ -345,51 +340,42 @@ function getOpeningLabel(hasTables: boolean): string {
 }
 
 function openDatabase(logux: CrossTabClient, db: Database): void {
-  // The task of the previous start was not finished, so it must be restarted
-  let unfinished = dbMigrating.get()
-  dbMigrating.set(undefined)
+  let store = getEnvironment().persistentStore
 
-  let hasTables = !!getEnvironment().persistentStore[DB_KEY]
+  // The upload of the previous start was not finished, so it must be restarted.
+  // Remove in the next release: the mark was `slowreader:migrating` before
+  let unfinished = uploadingLocalData.get() || !!store['slowreader:migrating']
+  delete store['slowreader:migrating']
+  uploadingLocalData.set(false)
 
-  let tracker = trackLog(logux, Object.keys(tableActions))
+  let hasTables = !!store[DB_KEY]
+
+  // The client is re-created on every `hasPassword` change, so the mode
+  // can not change during the database’s life
+  let cloud = hasPassword.get()
   let crdt = createCrdtDatabase(logux, db, {
-    applied: tracker.applied,
-    broken: reportDatabaseError,
     key: DB_KEY,
-    /* node:coverage ignore next 11 */
-    migrating(done) {
-      // Actions are in memory between the drop of the tables and the end
-      // of the replay, so the closed tab loses the data
-      dbMigrating.set('migrating')
-      void busyDuring(
-        commonMessages.get().migratingDatabase,
-        () => done,
-        true
-      ).then(() => {
-        // The sign-up upload could take the mark for itself
-        if (dbMigrating.get() === 'migrating') dbMigrating.set(undefined)
-      })
-    },
     repeat: getSnapshot,
-    /* node:coverage ignore next 3 */
-    stop() {
-      isOutdatedClient.set(true)
-    },
-    storage: getEnvironment().persistentStore
+    storage: store,
+    sync: cloud,
+    // The database, which hangs instead of throwing the error, never resolves
+    // `crdt.ready`, so the app would wait for it forever
+    timeout: 60_000
   })
   currentCrdt = crdt
-  currentTracker = tracker
-  tracker.resume(crdt.ready)
 
-  // The database, which hangs instead of throwing the error, never resolves
-  // `crdt.ready`, so the app would wait for it forever
-  let opening = setTimeout(resetBrokenDatabase, 60_000)
-  openingTimer = opening
-  subscribeUntil(crdt.status, status => {
-    if (status === 'initializing') return false
-    clearTimeout(opening)
-    return true
+  /* node:coverage ignore next 6 */
+  crdt.on('migrating', done => {
+    void busyDuring(commonMessages.get().migratingDatabase, () => done, true)
   })
+  crdt.on('stop', () => {
+    isOutdatedClient.set(true)
+  })
+  crdt.on('corrupted', (reason, error) => {
+    if (error) getEnvironment().warn(error)
+    if (hasDatabase() && cloud) void resetDatabase(reason)
+  })
+
   currentTables = {
     categories: crdt.table('categories', categoriesSchema, ['title']),
     feeds: crdt.table('feeds', feedsSchema, [
@@ -412,6 +398,8 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
       'publishedAt DESC'
     ])
   }
+  // The tracker parses actions by the tables, so it is installed after them
+  if (cloud) currentTracker = trackLog(logux, crdt)
   ready = crdt.ready
   openedDatabase.set(db)
 
@@ -421,22 +409,16 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
   void ready.then(() => {
     // The user could sign out while the database was filling
     if (!hasDatabase()) return
-    /* node:coverage ignore next 3 */
-    if (unfinished === 'migrating' && hasPassword.get()) {
-      return resetDatabase('interrupted-migration')
-    } else if (unfinished === 'signing-up') {
-      return uploadLocalData(logux)
-    }
+    if (unfinished) return uploadLocalData(logux)
   })
 }
 
 function closeDatabase(): void {
   let closingDb = openedDatabase.get()
   if (!closingDb) return
-  clearTimeout(openingTimer)
   currentCrdt!.destroy()
-  currentTracker!.destroy()
-  let tracking = currentTracker!.finish()
+  currentTracker?.destroy()
+  let tracking = currentTracker?.finish()
 
   currentCrdt = undefined
   currentTables = undefined

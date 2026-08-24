@@ -2,8 +2,9 @@ import { Server } from '@logux/server'
 import { SUBPROTOCOL } from '@slowreader/api'
 
 import { onExit } from './lib/exit.ts'
+import type { ClientData } from './lib/types.ts'
 
-let server = new Server(
+let server = new Server<object, ClientData>(
   Server.loadOptions(process, {
     fileUrl: import.meta.url,
     host: '0.0.0.0',

@@ -17,11 +17,12 @@ export const hasPassword = persistentBoolean('slowreader:has-password')
 
 export const lastReset = persistentAtom<string | undefined>('slowreader:reset')
 
-export type DbMigrating = 'migrating' | 'signing-up'
-
-export const dbMigrating = persistentAtom<DbMigrating | undefined>(
-  'slowreader:migrating'
-)
+/**
+ * The upload of the local data to the server on the sign-up was started
+ * and not finished yet. The interrupted database migration is detected
+ * by the applier itself.
+ */
+export const uploadingLocalData = persistentBoolean('slowreader:uploading')
 
 export type Theme = 'dark' | 'light' | 'system'
 

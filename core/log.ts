@@ -2,68 +2,33 @@
 // restored from them: unsent actions, tombstones of deleted rows and shadows
 // of the actions, which still own a cell on the server.
 
-import {
-  type CrdtTableChangedAction,
-  type CrdtTableCreatedAction,
-  type CrdtTableDeletedAction,
-  loguxProcessed,
-  shadow,
-  zeroClean
-} from '@logux/actions'
+import { loguxProcessed, shadow, zeroClean } from '@logux/actions'
 import {
   type ClientMeta,
   type CrossTabClient,
   replaceWithShadow
 } from '@logux/client'
-import type { CrdtWonCell } from '@logux/client/db'
 import {
-  type Action,
-  isFirstOlder,
-  isSameClient,
-  type Meta,
-  type MetaTime
-} from '@logux/core'
-import type { Database } from '@nanostores/sql'
+  type CrdtCell,
+  type CrdtDatabase,
+  createCrdtTasks,
+  parseCrdtAction,
+  parseCrdtRows,
+  parseCrdtType
+} from '@logux/client/db'
+import type { Meta, MetaTime } from '@logux/core'
 import { RETENTION } from '@slowreader/api'
 import debounce from 'just-debounce-it'
 
 import { getEnvironment } from './environment.ts'
-import { createReasonChanges } from './lib/reasons.ts'
-import { createTaskQueue } from './lib/tasks.ts'
-import { hasPassword } from './settings.ts'
-
-type TableAction =
-  | CrdtTableChangedAction
-  | CrdtTableCreatedAction
-  | CrdtTableDeletedAction
-
-type Verb = 'changed' | 'created' | 'deleted'
 
 export interface LogTracker {
-  applied(
-    tx: Database,
-    action: Action,
-    meta: MetaTime,
-    won: CrdtWonCell[]
-  ): void
   destroy(): void
   finish(): Promise<void>
-  resume(ready: Promise<void>): void
 }
 
-/**
- * Rows, which the action touched, with the fields it wrote to every row.
- */
-function rowsOf(action: TableAction): [string, string[]][] {
-  if ('records' in action) {
-    return action.records.map(record => [
-      record.id,
-      Object.keys(record).filter(field => field !== 'id')
-    ])
-  }
-  let fields = 'fields' in action ? Object.keys(action.fields) : []
-  let ids = 'ids' in action ? action.ids : [action.id]
-  return ids.map(id => [id, fields])
+function toReasons(cells: CrdtCell[]): string[] {
+  return cells.map(cell => cell.join('/'))
 }
 
 /**
@@ -79,50 +44,43 @@ function reportTaskError(error: unknown): void {
 /* node:coverage enable */
 
 /**
- * Table name and verb of the action, which passed `isTableAction()`.
- */
-function splitType(action: TableAction): [string, Verb] {
-  let slash = action.type.lastIndexOf('/')
-  return [action.type.slice(0, slash), action.type.slice(slash + 1) as Verb]
-}
-
-/**
  * Track the log to keep in it only actions, which are not derivable
- * from the tables.
+ * from the tables. It is used only by the cloud user: the local log
+ * is empty, since the local actions are never sent anywhere.
  *
  * @param logux Logux client.
- * @param plurals Names of all CRDT tables of the database.
+ * @param crdt CRDT database with all the tables.
  */
-export function trackLog(logux: CrossTabClient, plurals: string[]): LogTracker {
-  let tables = new Set(plurals)
-  // The client is re-created on every `hasPassword` change, so the mode
-  // can not change during the tracker’s life
-  let cloud = hasPassword.get()
-
-  function isTableAction(action: Action): action is TableAction {
-    let slash = action.type.lastIndexOf('/')
-    if (slash === -1) return false
-    let verb = action.type.slice(slash + 1)
-    if (verb !== 'changed' && verb !== 'created' && verb !== 'deleted') {
-      return false
-    }
-    return tables.has(action.type.slice(0, slash))
-  }
+export function trackLog(
+  logux: CrossTabClient,
+  crdt: CrdtDatabase
+): LogTracker {
+  // Tracking reads the log and writes it back, so the tasks are serialized
+  // to not overwrite the reasons, which another task has just removed.
+  // They start on `CrdtDatabase#ready`: the migration replay opens its
+  // transactions outside of the log store’s queue, so a log write during
+  // the replay will wait for the transaction, which waits for the write.
+  let tasks = createCrdtTasks(crdt, { onError: reportTaskError })
 
   /**
    * Reasons of the log tracking. Everything else (`syncing`,
    * `applying-to-db`) belongs to Logux and must not be moved to the shadow.
    */
   function isCellReason(reason: string): boolean {
-    return reason === 'tombstone' || tables.has(reason.split('/')[0]!)
+    if (reason === 'tombstone') return true
+    return Object.hasOwn(crdt.tables, reason.split('/')[0]!)
   }
 
-  // Tracking reads the log and writes it back, so the tasks are serialized
-  // to not overwrite the reasons, which another task has just removed.
-  // They start on `CrdtDatabase#ready`: the migration replay opens its
-  // transactions outside of the log store’s queue, so a log write during
-  // the replay will wait for the transaction, which waits for the write.
-  let tasks = createTaskQueue(reportTaskError)
+  /**
+   * Every reason, which the row could be kept by.
+   */
+  function reasonsOf(plural: string, id: string): string[] {
+    let reasons = [`${plural}/${id}`]
+    for (let field in crdt.tables[plural]) {
+      reasons.push(`${plural}/${id}/${field}`)
+    }
+    return reasons
+  }
 
   /**
    * IDs of the actions, which were replaced by the shadow. Their `clean`
@@ -134,16 +92,11 @@ export function trackLog(logux: CrossTabClient, plurals: string[]): LogTracker {
    * Nobody owns cells of the deleted row anymore.
    */
   async function forgetRows(plural: string, ids: string[]): Promise<void> {
-    let changes = createReasonChanges()
     for (let id of ids) {
-      let row = `${plural}/${id}`
-      await logux.log.each({ index: row }, (action, meta) => {
-        changes.keep(meta, reason => {
-          return reason !== row && !reason.startsWith(`${row}/`)
-        })
+      await logux.log.removeReason(reasonsOf(plural, id), {
+        index: `${plural}/${id}`
       })
     }
-    await changes.write(logux.log)
   }
 
   /**
@@ -153,34 +106,30 @@ export function trackLog(logux: CrossTabClient, plurals: string[]): LogTracker {
   async function forgetCells(
     plural: string,
     ids: string[],
-    won: Set<string>,
-    lost: Set<string>,
-    meta: MetaTime
+    won: string[],
+    lost: string[],
+    meta: ClientMeta | MetaTime
   ): Promise<void> {
-    let restored = !('reasons' in meta)
     // `isFirstOlder()` reads only `id` and `time`, but asks for the whole meta
     let applied: Meta = { added: 0, id: meta.id, reasons: [], time: meta.time }
-    let changes = createReasonChanges()
-    for (let id of ids) {
-      await logux.log.each({ index: `${plural}/${id}` }, (action, other) => {
-        // The shadow keeps the ID of the original action in its body
-        let self =
-          other.id === meta.id ||
-          (shadow.match(action) && action.id === meta.id)
-        if (!self) {
-          if (isFirstOlder(other, applied)) {
-            changes.keep(other, reason => !won.has(reason))
-          }
-        } else if (restored) {
-          // The action was restored from the tables, so its shadow could
-          // lose the reasons of the cells, which it still owns
-          changes.add(other, [...won])
-        } else {
-          changes.keep(other, reason => !lost.has(reason))
-        }
-      })
+    if (won.length > 0) {
+      for (let id of ids) {
+        await logux.log.removeReason(won, {
+          index: `${plural}/${id}`,
+          olderThan: applied
+        })
+      }
     }
-    await changes.write(logux.log)
+    if ('reasons' in meta) {
+      if (lost.length > 0) {
+        await logux.log.removeReason(lost, { id: meta.id })
+      }
+    } else if (won.length > 0) {
+      // The action was restored from the tables, so its shadow could lose
+      // the reasons of the cells, which it still owns. The shadow keeps
+      // the ID of the original action in its indexes
+      await logux.log.addReason(won, { index: meta.id })
+    }
   }
 
   /**
@@ -204,7 +153,7 @@ export function trackLog(logux: CrossTabClient, plurals: string[]): LogTracker {
    */
   async function shadowAction(id: string): Promise<void> {
     let [action, meta] = await logux.log.byId(id)
-    if (!action || !meta || !isTableAction(action)) return
+    if (!action || !meta || !parseCrdtType(action.type, crdt)) return
     let reasons = meta.reasons.filter(isCellReason)
     // The action, which lost last write wins for every field, owns nothing,
     // so the `clean` event will ask the server to remove it
@@ -216,10 +165,7 @@ export function trackLog(logux: CrossTabClient, plurals: string[]): LogTracker {
     let previous = await findShadow(id)
     if (previous) {
       // The re-sent action could win the cells back from its own shadow
-      let merged = previous.reasons.concat(
-        reasons.filter(reason => !previous.reasons.includes(reason))
-      )
-      await logux.log.changeMeta(previous.id, { reasons: merged })
+      await logux.log.addReason(reasons, { id: previous.id })
       await logux.log.changeMeta(id, { reasons: [] })
     } else {
       await replaceWithShadow(logux, {
@@ -243,50 +189,6 @@ export function trackLog(logux: CrossTabClient, plurals: string[]): LogTracker {
     })
   }, 1)
 
-  let unbindPreadd = logux.on('preadd', (action, meta) => {
-    if (!isTableAction(action)) return
-    // Tables add every action with `sync`, but the local user has no server
-    if (!cloud) {
-      meta.sync = false
-      meta.reasons = meta.reasons.filter(reason => reason !== 'syncing')
-      return
-    }
-    meta.sync = isSameClient(meta.id, logux.clientId)
-    let [plural, verb] = splitType(action)
-    let rows = rowsOf(action)
-    if (rows.length === 0) return
-    if (verb === 'deleted') {
-      meta.indexes = ['tombstone']
-      meta.reasons.push('tombstone')
-    } else {
-      for (let [id, fields] of rows) {
-        for (let field of fields) meta.reasons.push(`${plural}/${id}/${field}`)
-        // Without it the create is cleaned as soon as every its cell was
-        // overwritten and a new device will get only `*/changed` actions
-        if (verb === 'created') meta.reasons.push(`${plural}/${id}`)
-      }
-      meta.indexes = [plural, ...rows.map(row => `${plural}/${row[0]}`)]
-    }
-  })
-
-  let unbindClean = logux.on('clean', (action, meta) => {
-    if (!cloud) return
-    if (shadow.match(action)) {
-      cleaning.add(action.id)
-    } else if (isTableAction(action) && !shadowed.delete(meta.id)) {
-      cleaning.add(meta.id)
-    } else {
-      return
-    }
-    cleanOnServer()
-  })
-
-  let unbindProcessed = logux.type(loguxProcessed, action => {
-    // Unconfirmed action is our outbox copy and may be re-sent,
-    // so own actions become shadows only after the server confirmation
-    tasks.add(() => shadowAction(action.id))
-  })
-
   /**
    * Deletion is the only action without a row, so somebody must delete it
    * by a timer. Any device can do it: `0/clean` checks the user,
@@ -298,8 +200,8 @@ export function trackLog(logux: CrossTabClient, plurals: string[]): LogTracker {
     await logux.log.each({ index: 'tombstone' }, (action, meta) => {
       if (meta.time < oldest) expired.push(meta.id)
     })
-    for (let id of expired) {
-      await logux.log.removeReason('tombstone', { id })
+    if (expired.length > 0) {
+      await logux.log.removeReason('tombstone', { ids: expired })
     }
   }
 
@@ -313,7 +215,7 @@ export function trackLog(logux: CrossTabClient, plurals: string[]): LogTracker {
     await logux.log.each({ order: 'added' }, (action, meta) => {
       if (shadow.match(action)) {
         shadows.add(action.id)
-      } else if (isTableAction(action)) {
+      } else if (parseCrdtType(action.type, crdt)) {
         originals.push(meta.id)
       }
     })
@@ -325,50 +227,83 @@ export function trackLog(logux: CrossTabClient, plurals: string[]): LogTracker {
     await expireTombstones()
   }
 
-  if (cloud) tasks.add(repairLog)
-  let unbindState = logux.on('state', () => {
-    if (cloud && logux.state === 'synchronized') tasks.add(expireTombstones)
-  })
-
-  return {
-    applied(tx, action, meta, won) {
-      if (!cloud || !isTableAction(action)) return
-      let [plural, verb] = splitType(action)
-      let rows = rowsOf(action)
-      if (rows.length === 0) return
-      let ids = rows.map(row => row[0])
+  let unbinds = [
+    logux.on('preadd', (action, meta) => {
+      let parsed = parseCrdtAction(action, crdt)
+      if (!parsed || parsed.rows.length === 0) return
+      let { plural, rows, verb } = parsed
       if (verb === 'deleted') {
-        tasks.add(() => forgetRows(plural, ids))
+        meta.indexes = ['tombstone']
+        meta.reasons.push('tombstone')
       } else {
-        let winners = new Set(won.map(cell => cell.join('/')))
-        let losers = new Set<string>()
         for (let [id, fields] of rows) {
           for (let field of fields) {
-            let cell = `${plural}/${id}/${field}`
-            if (!winners.has(cell)) losers.add(cell)
+            meta.reasons.push(`${plural}/${id}/${field}`)
           }
+          // Without it the create is cleaned as soon as every its cell was
+          // overwritten and a new device will get only `*/changed` actions
+          if (verb === 'created') meta.reasons.push(`${plural}/${id}`)
         }
-        tasks.add(() => forgetCells(plural, ids, winners, losers, meta))
+        meta.indexes = [plural, ...rows.map(row => `${plural}/${row[0]}`)]
       }
-      // The action of another device is already on the server and will never
-      // be re-sent, so there is nothing to wait for
-      if ('reasons' in meta && !isSameClient(meta.id, logux.clientId)) {
+    }),
+
+    crdt.on('applied', (tx, action, meta, won, touched) => {
+      let parsed = parseCrdtType(action.type, crdt)
+      if (!parsed) return
+      let { plural, verb } = parsed
+      if (verb === 'deleted') {
+        // The only case without cells to take the rows from
+        let ids = parseCrdtRows(action).map(row => row[0])
+        if (ids.length > 0) tasks.add(() => forgetRows(plural, ids))
+      } else if (touched.length > 0) {
+        let ids = [...new Set(touched.map(cell => cell[1]))]
+        let winners = new Set(toReasons(won))
+        let lost = toReasons(touched).filter(cell => !winners.has(cell))
+        tasks.add(() => forgetCells(plural, ids, [...winners], lost, meta))
+      }
+      // The action, which came from the server, will never be sent back,
+      // so there is no `logux/processed` to wait for
+      if ('reasons' in meta && !meta.sync) {
         tasks.add(() => shadowAction(meta.id))
       }
-    },
+    }),
+
+    logux.on('clean', (action, meta) => {
+      if (shadow.match(action)) {
+        cleaning.add(action.id)
+      } else if (
+        parseCrdtType(action.type, crdt) &&
+        !shadowed.delete(meta.id)
+      ) {
+        cleaning.add(meta.id)
+      } else {
+        return
+      }
+      cleanOnServer()
+    }),
+
+    logux.type(loguxProcessed, action => {
+      // Unconfirmed action is our outbox copy and may be re-sent,
+      // so own actions become shadows only after the server confirmation
+      tasks.add(() => shadowAction(action.id))
+    }),
+
+    logux.on('state', () => {
+      if (logux.state === 'synchronized') tasks.add(expireTombstones)
+    })
+  ]
+
+  tasks.add(repairLog)
+
+  return {
     destroy() {
       cleanOnServer.cancel()
-      unbindPreadd()
-      unbindClean()
-      unbindProcessed()
-      unbindState()
+      for (let unbind of unbinds) unbind()
       tasks.destroy()
     },
     finish() {
       return tasks.finish()
-    },
-    resume(ready) {
-      void ready.then(tasks.start)
     }
   }
 }

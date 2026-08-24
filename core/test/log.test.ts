@@ -364,6 +364,26 @@ describe('log', () => {
     equal(meta.reasons.includes('feeds/other-1/title'), true)
   })
 
+  test('forgets the cells, which the late action lost', async () => {
+    let credentials = await signUpCloudUser()
+    let device = await connectOtherDevice(credentials)
+
+    let feedId = await addFeed(testFeed({ title: 'New' }))
+    await waitSync()
+
+    // The action of another device was created before ours, but came later
+    await device.process(
+      { fields: { title: 'Old' }, id: feedId, type: 'feeds/changed' },
+      { time: 1 }
+    )
+
+    // The late action owns nothing, so it is removed from the log
+    // and from the server
+    await waitUntil(async () => (await logTypes()).length === 1)
+    equal((await loadFeeds())[0]!.title, 'New')
+    await waitUntil(async () => (await getServerLogIds()).length === 1)
+  })
+
   test('merges the shadow when the server re-sends the action', async () => {
     await signUpCloudUser()
 
@@ -391,7 +411,9 @@ describe('log', () => {
     await waitSync()
     let original = (await logEntries())[0]![0] as ShadowAction
 
-    // The tab was closed between adding the shadow and clearing the original
+    // The tab was closed between adding the shadow and clearing the original.
+    // The action was already sent and confirmed, so nothing will apply it
+    // or send it again: only the repair on the start can drop the body
     await getClient().log.store.add(
       { fields: { title: 'A' }, id: feedId, type: 'feeds/created' },
       {
@@ -399,7 +421,7 @@ describe('log', () => {
         id: original.id,
         indexes: [`feeds/${feedId}`],
         reasons: [`feeds/${feedId}`],
-        sync: false,
+        sync: true,
         time: Date.now()
       }
     )
@@ -435,6 +457,30 @@ describe('log', () => {
     })
     await waitUntil(() => typeof lastReset.get() === 'string')
     await waitUntil(async () => (await logTypes()).length === 0)
+  })
+
+  test('re-downloads the data when the database file was lost', async () => {
+    await signUpCloudUser()
+    await addFeed(testFeed({ title: 'A' }))
+    await waitSync()
+
+    let user = userId.get()!
+    getClient().node.connection.disconnect()
+    await setTimeout(SETTLE)
+    userId.set(undefined)
+    await waitUntil(() => !client.get())
+    await setTimeout(SETTLE)
+
+    // The browser dropped the origin’s files, but kept `localStorage`,
+    // so the tables are created empty again
+    for (let file of ['app.sqlite', 'app.sqlite-shm', 'app.sqlite-wal']) {
+      rmSync(join(dir, file), { force: true })
+    }
+
+    userId.set(user)
+    await waitUntil(() => !!client.get())
+    await waitUntil(() => typeof lastReset.get() === 'string')
+    equal(lastReset.get()!.endsWith('empty-tables'), true)
   })
 
   test('re-downloads the data on the database error', async () => {

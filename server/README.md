@@ -81,7 +81,7 @@ Clients drive the cleaning:
 - When an action stops owning at least one live cell, the client sends `0/clean` with its ID, and the server deletes the row.
 - Deletions actions are kept as tombstones. Any device of the user removes the tombstones older than 1 month by the same `0/clean`.
 
-A device, which was offline longer than the retention window, can miss a tombstone and keep the deleted row forever. The server detects it in [`modules/sync.ts`](./modules/sync.ts) and asks such a client to drop its database and to download everything again by `db/reset`.
+A device, which was offline longer than the retention window, can miss a tombstone and keep the deleted row forever. The server detects it and asks such a client to drop its database and to download everything again by `db/reset`.
 
 ## Deploy
 

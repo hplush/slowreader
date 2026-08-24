@@ -12,7 +12,7 @@ import { persistentAtom } from '@nanostores/persistent'
 import { atom, computed, effect, keepMount, onMount } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
-import { client, onClient, resetDatabase } from './client.ts'
+import { client, onClient } from './client.ts'
 import { getEnvironment, layoutType } from './environment.ts'
 import type { FilterValue } from './filter.ts'
 import { waitLoading } from './lib/stores.ts'
@@ -22,11 +22,8 @@ import {
   GENERAL_CATEGORY,
   getTableActions,
   openedDatabase,
-  reportDatabaseError,
-  select,
   tableActions
 } from './schema.ts'
-import { hasPassword } from './settings.ts'
 
 export type MenuType = 'fast' | 'other' | 'slow'
 
@@ -407,32 +404,11 @@ function buildSlowMenu(tree: MenuTree, counts: Map<string, number>): SlowMenu {
 let $state = atom<MenuState>(EMPTY)
 let $reduced = atom<boolean>(false)
 
-/**
- * Detects reducer vs database broken state
- */
-async function checkForBrokenState(state: MenuState): Promise<void> {
-  /* node:coverage disable */
-  if (Object.keys(state.feedOf).length === 0) return
-  let rows = await select<{ total: number }>`
-    SELECT COUNT("id") AS "total" FROM "feeds"
-  `
-  if (rows[0]!.total === 0) {
-    await resetDatabase('db-is-empty-menu-not')
-  }
-  /* node:coverage enable */
-}
-
 onClient(logux => {
   let reducer = createMenuReducer(logux)
-  let checked = false
   let unbind = effect([reducer.value, reducer.status], (state, status) => {
     $state.set(state)
     $reduced.set(status === 'ready')
-    /* node:coverage ignore next 4 */
-    if (status === 'ready' && !checked && hasPassword.get()) {
-      checked = true
-      void checkForBrokenState(state).catch(reportDatabaseError)
-    }
   })
   return () => {
     unbind()
