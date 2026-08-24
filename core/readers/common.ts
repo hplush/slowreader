@@ -71,23 +71,50 @@ export function createReader<Name extends ReaderName, Rest extends Extra>(
 export type PostAuthor = { title: string; url: string }
 
 /**
+ * Position of the post in the reading order.
+ *
+ * Feeds often publish posts with the same `publishedAt`, so the cursor takes
+ * `id` as the second key to be unique. Without it a page could hide the posts
+ * of the same second or show them twice.
+ */
+export type PostCursor = {
+  id: string
+  publishedAt: number
+}
+
+/**
+ * The cursor above every post, since no post has an empty `id`.
+ *
+ * `feedReader` pins the first page to the moment of opening the reader,
+ * so posts, which came during the reading, will not move the pages.
+ */
+export function topCursor(publishedAt = Number.MAX_SAFE_INTEGER): PostCursor {
+  return { id: '', publishedAt }
+}
+
+export function parseCursor(from: string | undefined): PostCursor | undefined {
+  if (!from?.includes(':')) return undefined
+  return {
+    id: from.slice(from.indexOf(':') + 1),
+    publishedAt: parseInt(from)
+  }
+}
+
+export function stringifyCursor(cursor: PostCursor): string {
+  return `${cursor.publishedAt}:${cursor.id}`
+}
+
+/**
  * A page of unread posts older than the cursor.
  *
  * Pages are taken by the cursor and not by `OFFSET`, since another tab or
  * another device can read or delete posts at any moment.
- *
- * `feedReader` continues after the last shown post, so it needs posts strictly
- * older than the cursor. `listReader` jumps to the first post of the page,
- * so it needs the cursor’s post too.
  */
 export function loadPostsPage(
   filter: PostFilter,
-  cursor: number,
-  limit: number,
-  withCursor = false
+  cursor: PostCursor,
+  limit: number
 ): Promise<ReaderPost[]> {
-  // `publishedAt` is an integer, so the cursor’s post is included by `+ 1`
-  let before = withCursor ? cursor + 1 : cursor
   if (filter.categoryId) {
     return select<ReaderPost>`
       SELECT "posts"."id", "posts"."feedId", "posts"."media",
@@ -102,8 +129,9 @@ export function loadPostsPage(
       JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 0
         AND "feeds"."categoryId" = ${filter.categoryId}
-        AND "posts"."publishedAt" < ${before}
-      ORDER BY "posts"."publishedAt" DESC
+        AND ("posts"."publishedAt", "posts"."id")
+          < (${cursor.publishedAt}, ${cursor.id})
+      ORDER BY "posts"."publishedAt" DESC, "posts"."id" DESC
       LIMIT ${limit}
     `
   } else {
@@ -115,83 +143,98 @@ export function loadPostsPage(
       FROM "posts"
       WHERE "reading" = ${filter.reading} AND "read" = 0
         AND "feedId" = ${filter.feedId ?? null}
-        AND "publishedAt" < ${before}
-      ORDER BY "publishedAt" DESC
+        AND ("publishedAt", "id") < (${cursor.publishedAt}, ${cursor.id})
+      ORDER BY "publishedAt" DESC, "id" DESC
       LIMIT ${limit}
     `
   }
 }
 
 /**
- * `publishedAt` of unread posts newer than the cursor, from the oldest one.
+ * Cursors of unread posts newer than the cursor, from the oldest one.
  *
  * `feedReader` uses it to find the cursor of the previous page. An empty
  * result means that there is nothing to read above, so the page is the first.
  */
 export function loadPostsAbove(
   filter: PostFilter,
-  cursor: number,
+  cursor: PostCursor,
   limit: number
-): Promise<number[]> {
-  let rows: Promise<{ publishedAt: number }[]>
+): Promise<PostCursor[]> {
   if (filter.categoryId) {
-    rows = select`
-      SELECT "posts"."publishedAt" FROM "posts"
+    return select<PostCursor>`
+      SELECT "posts"."publishedAt", "posts"."id" FROM "posts"
       JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 0
         AND "feeds"."categoryId" = ${filter.categoryId}
-        AND "posts"."publishedAt" >= ${cursor}
-      ORDER BY "posts"."publishedAt" ASC
+        AND ("posts"."publishedAt", "posts"."id")
+          >= (${cursor.publishedAt}, ${cursor.id})
+      ORDER BY "posts"."publishedAt" ASC, "posts"."id" ASC
       LIMIT ${limit}
     `
   } else {
-    rows = select`
-      SELECT "publishedAt" FROM "posts"
+    return select<PostCursor>`
+      SELECT "publishedAt", "id" FROM "posts"
       WHERE "reading" = ${filter.reading} AND "read" = 0
         AND "feedId" = ${filter.feedId ?? null}
-        AND "publishedAt" >= ${cursor}
-      ORDER BY "publishedAt" ASC
+        AND ("publishedAt", "id") >= (${cursor.publishedAt}, ${cursor.id})
+      ORDER BY "publishedAt" ASC, "id" ASC
       LIMIT ${limit}
     `
   }
-  return rows.then(list => list.map(row => row.publishedAt))
 }
 
 /**
- * `publishedAt` of the first post of every page.
+ * The cursor before the first post of every page.
  *
  * `listReader` shows page numbers, so it needs a stable cursor for every page.
  * Cursors are taken once on opening the reader: reading a page must not
  * renumber the pages under the user.
+ *
+ * `LAG()` takes the post above the page, since the cursor is strict `<`.
+ * The first page has no post above and gets `NULL` and `topCursor()`.
  */
 export function loadPageCursors(
   filter: PostFilter,
   perPage: number
-): Promise<number[]> {
-  let rows: Promise<{ publishedAt: number }[]>
+): Promise<PostCursor[]> {
+  let rows: Promise<{ id: null | string; publishedAt: null | number }[]>
   if (filter.categoryId) {
     rows = select`
-      SELECT "publishedAt" FROM (
-        SELECT "posts"."publishedAt" AS "publishedAt",
-          ROW_NUMBER() OVER (ORDER BY "posts"."publishedAt" DESC) AS "row"
+      SELECT "publishedAt", "id" FROM (
+        SELECT LAG("posts"."publishedAt") OVER "reading" AS "publishedAt",
+          LAG("posts"."id") OVER "reading" AS "id",
+          ROW_NUMBER() OVER "reading" AS "row"
         FROM "posts"
         JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
         WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 0
           AND "feeds"."categoryId" = ${filter.categoryId}
+        WINDOW "reading" AS (
+          ORDER BY "posts"."publishedAt" DESC, "posts"."id" DESC
+        )
       ) WHERE ("row" - 1) % ${perPage} = 0
+      ORDER BY "row" ASC
     `
   } else {
     rows = select`
-      SELECT "publishedAt" FROM (
-        SELECT "publishedAt",
-          ROW_NUMBER() OVER (ORDER BY "publishedAt" DESC) AS "row"
+      SELECT "publishedAt", "id" FROM (
+        SELECT LAG("publishedAt") OVER "reading" AS "publishedAt",
+          LAG("id") OVER "reading" AS "id",
+          ROW_NUMBER() OVER "reading" AS "row"
         FROM "posts"
         WHERE "reading" = ${filter.reading} AND "read" = 0
           AND "feedId" = ${filter.feedId ?? null}
+        WINDOW "reading" AS (ORDER BY "publishedAt" DESC, "id" DESC)
       ) WHERE ("row" - 1) % ${perPage} = 0
+      ORDER BY "row" ASC
     `
   }
-  return rows.then(list => list.map(row => row.publishedAt))
+  return rows.then(list =>
+    list.map(row => {
+      if (row.id === null) return topCursor()
+      return { id: row.id, publishedAt: row.publishedAt! }
+    })
+  )
 }
 
 /**

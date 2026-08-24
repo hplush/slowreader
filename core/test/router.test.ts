@@ -95,20 +95,23 @@ describe('router', () => {
     equal(isOtherRoute(router.get()), true)
   })
 
-  test('converts from to number', async () => {
+  test('validates from', async () => {
     setTestUser()
     let idA = await addCategory({ title: 'A' })
 
     setBaseTestRoute({ params: { category: idA, from: 1000 }, route: 'fast' })
     deepEqual(router.get(), {
-      params: { category: idA, from: 1000 },
+      params: { category: idA, from: '1000' },
       popups: [],
       route: 'fast'
     })
 
-    setBaseTestRoute({ params: { category: idA, from: '1000' }, route: 'fast' })
+    setBaseTestRoute({
+      params: { category: idA, from: '1000:post' },
+      route: 'fast'
+    })
     deepEqual(router.get(), {
-      params: { category: idA, from: 1000 },
+      params: { category: idA, from: '1000:post' },
       popups: [],
       route: 'fast'
     })

@@ -42,25 +42,16 @@ export const pathRouter = createRouter({
 
 type PathParams = ParamsFromConfig<ConfigFromRouter<typeof pathRouter>>
 
-function moveFromSearch<Params extends Record<string, number | string>>(
+function moveFromSearch<Params extends Record<string, string>>(
   params: Partial<Record<keyof Params, string>>,
   search: Record<string, string>,
-  move: {
-    [key in keyof Params]: Params[key] extends number | undefined
-      ? 'number'
-      : true
-  }
+  move: { [key in keyof Params]: true }
 ): Params {
   let copy = { ...params } as Params
   for (let name in move) {
     if (name in search) {
-      if (move[name] === 'number') {
-        // @ts-expect-error Too complex to type
-        copy[name] = Number(search[name])
-      } else {
-        // @ts-expect-error Too complex to type
-        copy[name] = search[name]
-      }
+      // @ts-expect-error Too complex to type
+      copy[name] = search[name]
     }
   }
   return copy
@@ -74,7 +65,7 @@ export const urlRouter = computed(pathRouter, path => {
       hash: path.hash,
       params: moveFromSearch<Routes['slow']>(path.params, path.search, {
         feed: true,
-        from: 'number'
+        from: true
       }),
       route: path.route
     }
@@ -83,7 +74,7 @@ export const urlRouter = computed(pathRouter, path => {
       hash: path.hash,
       params: moveFromSearch<Routes['fast']>(path.params, path.search, {
         category: true,
-        from: 'number'
+        from: true
       }),
       route: path.route
     }

@@ -6,7 +6,12 @@ import {
   setPagination
 } from '../lib/pagination.ts'
 import { changePost, type ReaderPost } from '../post.ts'
-import { createReader, loadPageCursors, loadPostsPage } from './common.ts'
+import {
+  createReader,
+  loadPageCursors,
+  loadPostsPage,
+  type PostCursor
+} from './common.ts'
 
 const POSTS_PER_PAGE = 100
 
@@ -18,16 +23,15 @@ export const listReader = createReader('list', (filter, params) => {
   let $list = atom<ReaderPost[]>([])
   let $pages = createPagination(1)
 
-  let cursors: number[] = []
+  let cursors: PostCursor[] = []
   let request = 0
 
   async function loadPage(page: number): Promise<void> {
     let current = ++request
     let cursor = cursors[page]
-    let posts =
-      typeof cursor === 'undefined'
-        ? []
-        : await loadPostsPage(filter, cursor, POSTS_PER_PAGE, true)
+    let posts = cursor
+      ? await loadPostsPage(filter, cursor, POSTS_PER_PAGE)
+      : []
     if (exited || current !== request) return
     moveToPage($pages, page)
     $list.set(posts)
@@ -41,7 +45,7 @@ export const listReader = createReader('list', (filter, params) => {
     setPagination($pages, cursors.length)
     unbindFrom = params.from.subscribe(value => {
       $loading.set(true)
-      void loadPage(value ?? 0)
+      void loadPage(value ? parseInt(value) : 0)
     })
   }
   void start()
@@ -56,7 +60,7 @@ export const listReader = createReader('list', (filter, params) => {
     )
     if (exited) return
     if ($pages.get().hasNext) {
-      params.from.set($pages.get().page + 1)
+      params.from.set(`${$pages.get().page + 1}`)
     }
   }
 

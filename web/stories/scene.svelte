@@ -69,8 +69,14 @@
     for (let feed of feeds ?? []) {
       await addFeed(testFeed(feed))
     }
-    for (let post of posts ?? []) {
-      await addPost(testPost(post))
+    for (let [index, post] of (posts ?? []).entries()) {
+      await addPost(
+        testPost({
+          id: `post-${index + 1}`,
+          publishedAt: 1000 - index,
+          ...post
+        })
+      )
     }
 
     oninit()

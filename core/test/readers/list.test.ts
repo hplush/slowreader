@@ -25,7 +25,7 @@ import {
 } from '../utils.ts'
 
 async function moveTo(page: Page<'slow'>, from: number): Promise<void> {
-  page.params.from.set(from)
+  page.params.from.set(`${from}`)
   await waitLoading(page.postsLoading)
 }
 
@@ -143,7 +143,7 @@ describe('list reader', () => {
     await setTimeout(10)
 
     page = openPage({
-      params: { category: categoryId, from: 1 },
+      params: { category: categoryId, from: '1' },
       route: 'slow'
     })
     await waitLoading(page.postsLoading)
@@ -154,7 +154,7 @@ describe('list reader', () => {
     equal(reader.list.get()[99]!.title, '49')
 
     await reader.readPage()
-    equal(page.params.from.get(), 1)
+    equal(page.params.from.get(), '1')
     await waitLoading(page.postsLoading)
     equal(reader.list.get().length, 48)
     deepEqual(reader.pages.get(), {
@@ -177,7 +177,7 @@ describe('list reader', () => {
     ])
 
     await reader.readPage()
-    equal(page.params.from.get(), 1)
+    equal(page.params.from.get(), '1')
     equal(reader.list.get().length, 48)
     deepEqual(reader.pages.get(), {
       count: 2,
@@ -244,5 +244,26 @@ describe('list reader', () => {
       if (removed.has(title)) continue
       equal(shown.has(title), true, `Post ${title} was skipped`)
     }
+  })
+
+  test('splits posts of the same time between pages', async () => {
+    let feedId = await addFeed(testFeed({ slowReader: 'list' }))
+    for (let i = 1; i <= 250; i++) {
+      await addPost(
+        testPost({ feedId, publishedAt: 1, reading: 'slow', title: `${i}` })
+      )
+    }
+
+    let page = openPage({ params: { feed: feedId }, route: 'slow' })
+    await waitLoading(page.postsLoading)
+    let reader = ensureReader(page.posts, 'list')
+    equal(reader.pages.get().count, 3)
+
+    let shown = new Set(titles(reader))
+    for (let i = 1; i < reader.pages.get().count; i++) {
+      await moveTo(page, i)
+      for (let title of titles(reader)) shown.add(title)
+    }
+    equal(shown.size, 250)
   })
 })

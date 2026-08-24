@@ -39,7 +39,7 @@ function updateTheme(): void {
   }
 }
 
-function fromParam(page: Route): number | undefined {
+function fromParam(page: Route): string | undefined {
   if (page.route === 'fast' || page.route === 'slow') {
     return page.params.from
   } else {

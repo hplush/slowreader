@@ -5,7 +5,10 @@ import {
   createReader,
   loadPostsAbove,
   loadPostsPage,
-  type PostAuthor
+  parseCursor,
+  type PostAuthor,
+  stringifyCursor,
+  topCursor
 } from './common.ts'
 
 const POSTS_PER_PAGE = 40
@@ -18,8 +21,8 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
   let $list = atom<ReaderPost[]>([])
   let $authors = atom<Map<string, PostAuthor>>(new Map())
   let $hasNext = atom(false)
-  let $nextFrom = atom<number | undefined>()
-  let $prevFrom = atom<number | undefined>()
+  let $nextFrom = atom<string | undefined>()
+  let $prevFrom = atom<string | undefined>()
 
   let openAt = Date.now()
   let request = 0
@@ -32,26 +35,30 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
    */
   let keepPrevFrom = false
 
-  async function loadPage(from: number | undefined): Promise<void> {
+  async function loadPage(from: string | undefined): Promise<void> {
     let current = ++request
     let keep = keepPrevFrom
     keepPrevFrom = false
+    let cursor = parseCursor(from) ?? topCursor(openAt)
     let [posts, above] = await Promise.all([
-      loadPostsPage(filter, from ?? openAt, POSTS_PER_PAGE + 1),
+      loadPostsPage(filter, cursor, POSTS_PER_PAGE + 1),
       from && !keep
-        ? loadPostsAbove(filter, from, POSTS_PER_PAGE + 1)
+        ? loadPostsAbove(filter, cursor, POSTS_PER_PAGE + 1)
         : undefined
     ])
     if (exited || current !== request) return
 
     let list = posts.slice(0, POSTS_PER_PAGE)
+    let last = list[list.length - 1]
     $hasNext.set(posts.length > POSTS_PER_PAGE)
-    $nextFrom.set(list[list.length - 1]?.publishedAt)
+    $nextFrom.set(last && stringifyCursor(last))
     if (!keep) {
       if (!above || above.length === 0) {
         $prevFrom.set(undefined)
       } else {
-        let prevFrom = above[POSTS_PER_PAGE] ?? openAt
+        let prevFrom = stringifyCursor(
+          above[POSTS_PER_PAGE] ?? topCursor(openAt)
+        )
         $prevFrom.set(prevFrom === from ? undefined : prevFrom)
       }
     }

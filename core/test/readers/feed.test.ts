@@ -1,4 +1,4 @@
-import { equal, notEqual } from 'node:assert/strict'
+import { deepEqual, equal, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -14,6 +14,7 @@ import {
   testPost,
   waitLoading
 } from '../../index.ts'
+import { stringifyCursor, topCursor } from '../../readers/common.ts'
 import {
   cleanClientTest,
   enableClientTest,
@@ -23,7 +24,7 @@ import {
 
 async function moveTo(
   page: Page<'fast'>,
-  from: number | undefined
+  from: string | undefined
 ): Promise<void> {
   page.params.from.set(from)
   await waitLoading(page.postsLoading)
@@ -87,7 +88,7 @@ describe('feed reader', () => {
     equal(reader.list.get()[0]!.title, '60')
     equal(reader.list.get()[39]!.title, '21')
 
-    await moveTo(page, 10)
+    await moveTo(page, stringifyCursor(topCursor(10)))
     equal(page.loading.get(), false)
     equal(reader.list.get().length, 9)
     equal(reader.list.get()[0]!.title, '9')
@@ -256,5 +257,35 @@ describe('feed reader', () => {
       if (removed.has(title)) continue
       equal(shown.has(title), true, `Post ${title} was skipped`)
     }
+  })
+
+  test('moves between pages of posts of the same time', async () => {
+    let feedId = await addFeed(testFeed({ fastReader: 'feed' }))
+    for (let i = 1; i <= 100; i++) {
+      await addPost(
+        testPost({ feedId, publishedAt: 1, reading: 'fast', title: `${i}` })
+      )
+    }
+
+    let page = openPage({ params: { feed: feedId }, route: 'fast' })
+    await waitLoading(page.loading)
+    let reader = ensureReader(page.posts, 'feed')
+    let shown = new Set(titles(reader))
+    equal(shown.size, 40)
+
+    await moveTo(page, reader.nextFrom.get())
+    let second = titles(reader)
+    for (let title of second) shown.add(title)
+    equal(shown.size, 80)
+
+    // The previous page shows the same posts as before
+    await moveTo(page, reader.prevFrom.get())
+    deepEqual(titles(reader), [...shown].slice(0, 40))
+
+    await moveTo(page, reader.nextFrom.get())
+    await moveTo(page, reader.nextFrom.get())
+    equal(reader.hasNext.get(), false)
+    for (let title of titles(reader)) shown.add(title)
+    equal(shown.size, 100)
   })
 })

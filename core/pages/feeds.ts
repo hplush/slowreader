@@ -35,7 +35,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
   return createPage(reading, () => {
     let $categoryId = atom<string | undefined>()
     let $feedId = atom<string | undefined>()
-    let $from = atom<number | undefined>()
+    let $from = atom<string | undefined>()
     let $loading = atom(true)
     let $postsLoading = atom(true)
     let $posts = atom<Reader | undefined>()

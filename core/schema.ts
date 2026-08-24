@@ -403,10 +403,11 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
       ['feedId', 'priority']
     ]),
     posts: crdt.table('posts', postsSchema, [
-      // Pages of the feed reader and of the list reader
-      ['feedId', 'reading', 'read', 'publishedAt DESC'],
+      // Pages of the feed reader and of the list reader. `id` repeats
+      // the cursor of the readers to keep the pages sorted by the index
+      ['feedId', 'reading', 'read', 'publishedAt DESC', 'id DESC'],
       // The same for a category, and unread counters of the menu
-      ['reading', 'read', 'publishedAt DESC'],
+      ['reading', 'read', 'publishedAt DESC', 'id DESC'],
       // Pages of the backup export
       'publishedAt DESC'
     ])
