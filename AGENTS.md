@@ -11,7 +11,7 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 - Always use `.ts` in TS files imports.
 - Use discriminant union in types: `{ missing: true } | { missing: false, content: string }` instead of `{ missing: boolean, content?: string }`.
 - Do not create variable which you will use in single place.
-- Do not create constants used only once and not planned to change often. Inline the value.
+- Do not create constants used only once. Inline the value even when it looks magic or needs an explanation.
 - Always use I18n, don’t put English messages in UI hardcoded.
 
 ## Architecture
