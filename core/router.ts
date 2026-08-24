@@ -7,6 +7,7 @@ import { userId } from './settings.ts'
 export interface Routes {
   about: {}
   add: { url?: string }
+  brokenDatabase: {}
   cloud: {}
   download: {}
   export: {}

@@ -14,6 +14,7 @@ import {
   type BaseReader,
   type BaseRoute,
   client,
+  brokenDatabase,
   currentPage,
   enableTestTime,
   encryptionKey,
@@ -105,6 +106,7 @@ export async function cleanClientTest(): Promise<void> {
   )
   await client.get()?.clean()
   client.set(undefined)
+  brokenDatabase.set(undefined)
   setLayoutType('desktop')
 }
 

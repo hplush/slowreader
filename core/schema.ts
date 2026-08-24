@@ -296,7 +296,7 @@ function whenSchemaChecked(): Promise<void> {
 export function reportDatabaseError(error: unknown): void {
   getEnvironment().warn(error)
   if (hasDatabase() && hasPassword.get()) {
-    void resetDatabase('broken-db')
+    void resetDatabase('broken-db', error)
   }
 }
 
@@ -374,7 +374,7 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
   })
   crdt.on('corrupted', (reason, error) => {
     if (error) getEnvironment().warn(error)
-    if (hasDatabase() && cloud) void resetDatabase(reason)
+    if (hasDatabase() && cloud) void resetDatabase(reason, error)
   })
 
   currentTables = {

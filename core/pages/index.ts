@@ -34,6 +34,7 @@ export type { StoragePage } from './storage.ts'
 export const pages = {
   about: aboutPage,
   add: addPage,
+  brokenDatabase: createSimplePage('brokenDatabase'),
   cloud: cloudPage,
   download: createSimplePage('download'),
   export: exportPage,

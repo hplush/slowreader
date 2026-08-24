@@ -19,6 +19,7 @@ import { computed } from 'nanostores'
 export const pathRouter = createRouter({
   about: '/settings/about',
   add: '/feeds/add/:url?',
+  brokenDatabase: '/broken-database',
   cloud: '/settings/cloud',
   download: '/settings/download',
   export: '/feeds/export',

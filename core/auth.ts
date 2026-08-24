@@ -107,13 +107,6 @@ export function useCredentials(credentials: Credentials): void {
 
 let signOutListeners: (() => void)[] = []
 
-/**
- * Add a callback to clean data which only the client knows about, like
- * a mode mark in `sessionStorage`. Returns a function to remove the callback.
- *
- * `Environment#cleanStorage()` cleans the log and the settings, and this
- * is for everything else.
- */
 export function onSignOut(callback: () => void): () => void {
   signOutListeners.push(callback)
   return () => {
@@ -121,8 +114,7 @@ export function onSignOut(callback: () => void): () => void {
   }
 }
 
-export async function signOut(): Promise<void> {
-  await getClient().clean()
+export function forgetLocalData(): void {
   userId.set(undefined)
   hasPassword.set(false)
   encryptionKey.set(undefined)
@@ -134,4 +126,9 @@ export async function signOut(): Promise<void> {
   env.cleanStorage()
   env.openRoute({ params: {}, popups: [], route: 'home' })
   env.restartApp()
+}
+
+export async function signOut(): Promise<void> {
+  await getClient().clean()
+  forgetLocalData()
 }

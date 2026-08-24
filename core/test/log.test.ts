@@ -343,7 +343,7 @@ describe('log', () => {
     let page = openPage({ params: {}, route: 'storage' })
     await page.rebuildDatabase()
 
-    equal(typeof lastReset.get(), 'string')
+    equal(typeof lastReset.get(), 'object')
     deepEqual(await logTypes(), [])
     // The reducer is not re-created from the log, so the actions of the next
     // download must not be reduced on top of the old menu
@@ -459,7 +459,7 @@ describe('log', () => {
     await server!.log.add(dbReset({}), {
       clients: [getClient().clientId]
     })
-    await waitUntil(() => typeof lastReset.get() === 'string')
+    await waitUntil(() => !!lastReset.get())
     await waitUntil(async () => (await logTypes()).length === 0)
   })
 
@@ -483,8 +483,8 @@ describe('log', () => {
 
     userId.set(user)
     await waitUntil(() => !!client.get())
-    await waitUntil(() => typeof lastReset.get() === 'string')
-    equal(lastReset.get()!.endsWith('lost-database'), true)
+    await waitUntil(() => !!lastReset.get())
+    equal(lastReset.get()!.reason, 'lost-database')
   })
 
   test('re-downloads the data on the database error', async () => {
@@ -497,7 +497,7 @@ describe('log', () => {
       reportDatabaseError(error)
     }, [error])
 
-    await waitUntil(() => typeof lastReset.get() === 'string')
+    await waitUntil(() => !!lastReset.get())
     await waitUntil(async () => (await logTypes()).length === 0)
   })
 

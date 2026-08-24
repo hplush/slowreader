@@ -16,6 +16,7 @@ import { busyDuring } from './busy.ts'
 import { getEnvironment, onEnvironment } from './environment.ts'
 import { commonMessages } from './messages/index.ts'
 import {
+  type DatabaseFailure,
   encryptionKey,
   hasPassword,
   lastReset,
@@ -69,6 +70,8 @@ export const database = atom<Database | undefined>()
 
 export const isOutdatedClient = atom<boolean>(false)
 
+export const brokenDatabase = atom<DatabaseFailure | undefined>()
+
 /**
  * Drop the local database and download the whole log from the server again.
  *
@@ -76,8 +79,28 @@ export const isOutdatedClient = atom<boolean>(false)
  * the tombstone retention window, and the client asks for it when
  * the tables are broken.
  */
-export async function resetDatabase(reason: string): Promise<void> {
-  lastReset.set(`${new Date().toISOString()} ${reason}`)
+export async function resetDatabase(
+  reason: string,
+  error?: unknown
+): Promise<void> {
+  let failure: DatabaseFailure = {
+    at: new Date(),
+    error: error instanceof Error ? error.message : undefined,
+    reason
+  }
+  let previous = lastReset.get()
+  if (
+    previous &&
+    reason !== 'user-request' &&
+    previous.reason === reason &&
+    failure.at.getTime() - previous.at.getTime() < 10 * 60 * 1000
+  ) {
+    brokenDatabase.set(failure)
+    return
+  }
+
+  lastReset.set(failure)
+
   await busyDuring(
     commonMessages.get().downloadingData,
     async () => {
@@ -87,7 +110,12 @@ export async function resetDatabase(reason: string): Promise<void> {
         // only client actions to be sent
         await Promise.race([logux.waitFor('synchronized'), delay(10_000)])
       }
-      await logux.clean()
+
+      try {
+        await Promise.race([logux.clean(), delay(10_000)])
+      } catch (e) {
+        getEnvironment().warn(e)
+      }
     },
     true
   )

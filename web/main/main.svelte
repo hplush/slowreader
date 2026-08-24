@@ -12,6 +12,7 @@
 
   import AboutPage from '../pages/about.svelte'
   import AddPage from '../pages/add.svelte'
+  import BrokenDatabasePage from '../pages/broken-database.svelte'
   import BusyPage from '../pages/busy.svelte'
   import CloudPage from '../pages/cloud.svelte'
   import DownloadPage from '../pages/download.svelte'
@@ -62,6 +63,8 @@
   {#if !globalLoader}
     <BusyPage />
   {/if}
+{:else if $currentPage.route === 'brokenDatabase'}
+  <BrokenDatabasePage />
 {:else if $currentPage.route === 'outdated'}
   <OutdatedPage />
 {:else if $currentPage.route === 'relogin'}

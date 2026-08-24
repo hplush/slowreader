@@ -15,7 +15,26 @@ export const syncServer = persistentAtom<string | undefined>(
 
 export const hasPassword = persistentBoolean('slowreader:has-password')
 
-export const lastReset = persistentAtom<string | undefined>('slowreader:reset')
+export interface DatabaseFailure {
+  at: Date
+  error?: string
+  reason: string
+}
+
+export const lastReset = persistentAtom<DatabaseFailure | undefined>(
+  'slowreader:reset',
+  undefined,
+  {
+    decode(value) {
+      let json = JSON.parse(value) as DatabaseFailure
+      return { ...json, at: new Date(json.at) }
+    },
+    encode(value) {
+      if (!value) return undefined
+      return JSON.stringify(value)
+    }
+  }
+)
 
 /**
  * The upload of the local data to the server on the sign-up was started
