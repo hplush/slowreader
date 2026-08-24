@@ -35,7 +35,7 @@
     "@types/node": "26.2.0",
     "@types/ws": "8.18.1",
     "@typescript/native": "npm:typescript@7.0.2",
-    "actions-up": "1.17.1",
+    "actions-up": "1.18.0",
     "better-node-test": "1.0.0",
     "eslint": "10.9.0",
     "eslint-plugin-svelte": "3.23.0",

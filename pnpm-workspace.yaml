@@ -14,16 +14,11 @@ allowBuilds:
   esbuild: true
   unrs-resolver: false
 
-blockExoticSubdeps: false
-
 forceLegacyDeploy: true
 
 minimumReleaseAge: 1440
 
 dedupePeers: true
-
-overrides:
-  '@logux/core': github:logux/core#next
 
 minimumReleaseAgeExclude:
   - postcss

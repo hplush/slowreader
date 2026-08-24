@@ -12,91 +12,91 @@ importers:
 
 packages:
 
-  '@pnpm/exe.darwin-arm64@12.0.0-rc.8':
-    resolution: {integrity: sha512-XYgZKxljZDstk+AWEL9c7VVtOYXy2axsNuovybAiZdn3Te2UtpijeaflwVhoHGDuyNKn1Kx/732efkDuAmaVvQ==}
+  '@pnpm/exe.darwin-arm64@12.0.0-rc.10':
+    resolution: {integrity: sha512-IXr7PEMDVAxaUDZSBtfhPVZZ2wa9j5KYSi6K9XqsvuiqNY0syIGuir/wz2bMGTuve5p7CXuUNyMbaGRbl8Imtg==}
     cpu: [arm64]
     os: [darwin]
 
-  '@pnpm/exe.darwin-x64@12.0.0-rc.8':
-    resolution: {integrity: sha512-Sp7QH8SE4oUyq1H27vEN2EwMu71Ai2hnaD7I51RDb9XgoyzkCqPvOS4ArTacF6PHzem83DikM96ri8UALNnBYg==}
+  '@pnpm/exe.darwin-x64@12.0.0-rc.10':
+    resolution: {integrity: sha512-nsitoYdEFYnDuqE7/k/7+yGAek+sZISzDCZ5/LgSVL7BjaA1ha6WRMUIfZzgXLhJyl7jFqul8v5ebfUPwTcRIQ==}
     cpu: [x64]
     os: [darwin]
 
-  '@pnpm/exe.linux-arm64-musl@12.0.0-rc.8':
-    resolution: {integrity: sha512-zDykZQZSheZqwJhtFXOXB6jJdzYM7/e63TM4yDwFGulu1wglsXzlxUbGXe4h/JoARaTxi3aNNrY/vjPA3qE0RA==}
+  '@pnpm/exe.linux-arm64-musl@12.0.0-rc.10':
+    resolution: {integrity: sha512-kagZMPapJwEfs8CL/E+xX8q2fWj5DfTeQHqN3Lq2HTtqD7PEF1VEDR8GWsjYJ2iZu97n8NRJab7/NsATPA9ryg==}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@pnpm/exe.linux-arm64@12.0.0-rc.8':
-    resolution: {integrity: sha512-cB4h4MuzTCUGJ+jwOTLq+Mn6v5ACqmr63OuFhbfjXtaGGsevEdNkOpDZPVTECtrL9QafgxHwSwXOHDuX+khXSg==}
+  '@pnpm/exe.linux-arm64@12.0.0-rc.10':
+    resolution: {integrity: sha512-6vynS/ME8TVFpVxzsIHV/Hi09jhejPx0gxaji+lhqBFipkw/7ldfexfxK0e7mMmupXyvVJJC+qOIMR2m6NWqTA==}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@pnpm/exe.linux-x64-musl@12.0.0-rc.8':
-    resolution: {integrity: sha512-nATQIAF7FhZURrb5pchSxGln+Oo2AIQk/pLmiPY4CImQpqQA3kfCFA3cIpR0B5Wd+YLSztXnOfbmtIi2JqC+tw==}
+  '@pnpm/exe.linux-x64-musl@12.0.0-rc.10':
+    resolution: {integrity: sha512-uijNbNztS4qlkiryxadGfNzSXQEOfbQIGB+YaYGnvRWIIuCbPD0u15wX8kKVuea4Bkx8zvz6ICzzh3EAZPl71g==}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@pnpm/exe.linux-x64@12.0.0-rc.8':
-    resolution: {integrity: sha512-hyl3+mcTHO29oAM7nlsSlZBDaVQa1EOKIJk6UP89w0YvEcW7QlFmqrIkyVU/WdVi4/zfMnlokvz5+Goa+plPzg==}
+  '@pnpm/exe.linux-x64@12.0.0-rc.10':
+    resolution: {integrity: sha512-3njabc/GH6JeVbdqT4D0HxbdRLFM+D/75OWQc9hJjMOTxAcY/YsXFT1/+64Vo4a6nBtImO20WxuDUajYczbh+w==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@pnpm/exe.win32-arm64@12.0.0-rc.8':
-    resolution: {integrity: sha512-C8zZEjUT/c4XgWdSAxga7hd+ycCbYFG+odYUxBNajgcAvihT9K0jkLQy1ZjjFnioSjOelTU1hBBcTvNE4rmHdw==}
+  '@pnpm/exe.win32-arm64@12.0.0-rc.10':
+    resolution: {integrity: sha512-p3+ctebyK/tAi1KyJ6YYpv6RHrZyHTfltUd5BWV4EpM4C9IDhOYkdKNk8Tt+FEyHhl9i6iXi/GN/knobxHHmbw==}
     cpu: [arm64]
     os: [win32]
 
-  '@pnpm/exe.win32-x64@12.0.0-rc.8':
-    resolution: {integrity: sha512-qMIjnUQZvADhJd8dIlvJ9P6TJwwp2umZfD2/JMJ9ioMx53dCOtvsjMMOQTHabsDuJNWz/xZPQBa7BkPpiOzXeA==}
+  '@pnpm/exe.win32-x64@12.0.0-rc.10':
+    resolution: {integrity: sha512-P3n7pkdkMfMq1MY1auybwthEDMBTuObP815HqPJWjn85ukjF+bX95zactJ39fD28f6R9GDRBYddwEofb1mcleA==}
     cpu: [x64]
     os: [win32]
 
-  pnpm@12.0.0-rc.8:
-    resolution: {integrity: sha512-mmOJqeXlh1fc2f4BG6gmN9tGQOD9+zc+wzVuXK9s+cvWrXaQsDD2eRU7M9QMJKm+blPnU0/B8Q3cqFXn8dci1g==}
+  pnpm@12.0.0-rc.10:
+    resolution: {integrity: sha512-joPkcLeTk4DQUbsU2Dv1EBmR9w+RhVomNgyUGogboeXACfDZqGhMfP0zzYyUU6D/fxX2j/dlQJX4aYG8TWRRaw==}
     engines: {node: '>=18.*'}
     hasBin: true
 
 snapshots:
 
-  '@pnpm/exe.darwin-arm64@12.0.0-rc.8':
+  '@pnpm/exe.darwin-arm64@12.0.0-rc.10':
     optional: true
 
-  '@pnpm/exe.darwin-x64@12.0.0-rc.8':
+  '@pnpm/exe.darwin-x64@12.0.0-rc.10':
     optional: true
 
-  '@pnpm/exe.linux-arm64-musl@12.0.0-rc.8':
+  '@pnpm/exe.linux-arm64-musl@12.0.0-rc.10':
     optional: true
 
-  '@pnpm/exe.linux-arm64@12.0.0-rc.8':
+  '@pnpm/exe.linux-arm64@12.0.0-rc.10':
     optional: true
 
-  '@pnpm/exe.linux-x64-musl@12.0.0-rc.8':
+  '@pnpm/exe.linux-x64-musl@12.0.0-rc.10':
     optional: true
 
-  '@pnpm/exe.linux-x64@12.0.0-rc.8':
+  '@pnpm/exe.linux-x64@12.0.0-rc.10':
     optional: true
 
-  '@pnpm/exe.win32-arm64@12.0.0-rc.8':
+  '@pnpm/exe.win32-arm64@12.0.0-rc.10':
     optional: true
 
-  '@pnpm/exe.win32-x64@12.0.0-rc.8':
+  '@pnpm/exe.win32-x64@12.0.0-rc.10':
     optional: true
 
-  pnpm@12.0.0-rc.8:
+  pnpm@12.0.0-rc.10:
     optionalDependencies:
-      '@pnpm/exe.darwin-arm64': 12.0.0-rc.8
-      '@pnpm/exe.darwin-x64': 12.0.0-rc.8
-      '@pnpm/exe.linux-arm64': 12.0.0-rc.8
-      '@pnpm/exe.linux-arm64-musl': 12.0.0-rc.8
-      '@pnpm/exe.linux-x64': 12.0.0-rc.8
-      '@pnpm/exe.linux-x64-musl': 12.0.0-rc.8
-      '@pnpm/exe.win32-arm64': 12.0.0-rc.8
-      '@pnpm/exe.win32-x64': 12.0.0-rc.8
+      '@pnpm/exe.darwin-arm64': 12.0.0-rc.10
+      '@pnpm/exe.darwin-x64': 12.0.0-rc.10
+      '@pnpm/exe.linux-arm64': 12.0.0-rc.10
+      '@pnpm/exe.linux-arm64-musl': 12.0.0-rc.10
+      '@pnpm/exe.linux-x64': 12.0.0-rc.10
+      '@pnpm/exe.linux-x64-musl': 12.0.0-rc.10
+      '@pnpm/exe.win32-arm64': 12.0.0-rc.10
+      '@pnpm/exe.win32-x64': 12.0.0-rc.10
 
 ---
 lockfileVersion: '9.0'
@@ -105,9 +105,6 @@ settings:
   autoInstallPeers: true
   dedupePeers: true
   excludeLinksFromLockfile: false
-
-overrides:
-  '@logux/core': github:logux/core#next
 
 importers:
 
@@ -135,8 +132,8 @@ importers:
         specifier: npm:typescript@7.0.2
         version: typescript@7.0.2
       actions-up:
-        specifier: 1.17.1
-        version: 1.17.1
+        specifier: 1.18.0
+        version: 1.18.0
       better-node-test:
         specifier: 1.0.0
         version: 1.0.0
@@ -151,7 +148,7 @@ importers:
         version: 2.7.0
       multiocular:
         specifier: 0.8.4
-        version: 0.8.4(@logux/core@git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec)
+        version: 0.8.4(@logux/core@0.10.0)
       nano-staged:
         specifier: 1.0.2
         version: 1.0.2
@@ -222,24 +219,24 @@ importers:
   api:
     dependencies:
       '@logux/actions':
-        specifier: github:logux/actions#next
-        version: git+https://github.com/logux/actions.git#eaf920ba94c93526a35f74b86b4f8079cefd170b(@logux/core@git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec)
+        specifier: 0.6.0
+        version: 0.6.0(@logux/core@0.11.0)
     devDependencies:
       '@logux/core':
-        specifier: github:logux/core#next
-        version: git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec
+        specifier: 0.11.0
+        version: 0.11.0
 
   core:
     dependencies:
       '@logux/actions':
-        specifier: github:logux/actions#next
-        version: git+https://github.com/logux/actions.git#eaf920ba94c93526a35f74b86b4f8079cefd170b(@logux/core@git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec)
+        specifier: 0.6.0
+        version: 0.6.0(@logux/core@0.11.0)
       '@logux/client':
-        specifier: github:logux/client#next
-        version: git+https://github.com/logux/client.git#ec28092034098c31dd0cba523fa9aa1d55c775f6(@nanostores/sql@0.5.0)(nanostores@1.5.2)(react@19.2.8)
+        specifier: 0.24.0
+        version: 0.24.0(@nanostores/sql@0.5.0)(nanostores@1.5.2)(react@19.2.8)
       '@logux/core':
-        specifier: github:logux/core#next
-        version: git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec
+        specifier: 0.11.0
+        version: 0.11.0
       '@nanostores/i18n':
         specifier: 1.3.3
         version: 1.3.3(nanostores@1.5.2)
@@ -248,7 +245,7 @@ importers:
         version: 1.3.5(nanostores@1.5.2)
       '@nanostores/sql':
         specifier: 0.5.0
-        version: 0.5.0(@electric-sql/pglite@0.5.6)(nanostores@1.5.2)(sqlocal@0.18.0)
+        version: 0.5.0(@electric-sql/pglite@0.5.7)(nanostores@1.5.2)(sqlocal@0.18.0)
       '@slowreader/api':
         specifier: workspace:*
         version: link:../api
@@ -275,8 +272,8 @@ importers:
         version: 1.5.2
     devDependencies:
       '@logux/server':
-        specifier: github:logux/server
-        version: git+https://github.com/logux/server.git#a6701d70b28b349f70bfa94636af2375c50f8c00
+        specifier: 0.15.0
+        version: 0.15.0
       '@slowreader/proxy':
         specifier: workspace:*
         version: link:../proxy
@@ -338,14 +335,14 @@ importers:
   server:
     dependencies:
       '@electric-sql/pglite':
-        specifier: 0.5.6
-        version: 0.5.6
+        specifier: 0.5.7
+        version: 0.5.7
       '@logux/actions':
-        specifier: github:logux/actions#next
-        version: git+https://github.com/logux/actions.git#eaf920ba94c93526a35f74b86b4f8079cefd170b(@logux/core@git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec)
+        specifier: 0.6.0
+        version: 0.6.0(@logux/core@0.11.0)
       '@logux/server':
-        specifier: github:logux/server
-        version: git+https://github.com/logux/server.git#a6701d70b28b349f70bfa94636af2375c50f8c00
+        specifier: 0.15.0
+        version: 0.15.0
       '@slowreader/api':
         specifier: workspace:*
         version: link:../api
@@ -360,7 +357,7 @@ importers:
         version: 2.0.1
       drizzle-orm:
         specifier: 1.0.0-rc.4
-        version: 1.0.0-rc.4(@electric-sql/pglite@0.5.6)(postgres@3.4.9)
+        version: 1.0.0-rc.4(@electric-sql/pglite@0.5.7)(postgres@3.4.9)
       just-debounce-it:
         specifier: 3.2.0
         version: 3.2.0
@@ -372,8 +369,8 @@ importers:
         version: 3.4.9
     devDependencies:
       '@logux/client':
-        specifier: github:logux/client#next
-        version: git+https://github.com/logux/client.git#ec28092034098c31dd0cba523fa9aa1d55c775f6(@nanostores/sql@0.4.3)(nanostores@1.5.2)(react@19.2.8)
+        specifier: 0.24.0
+        version: 0.24.0(@nanostores/sql@0.5.0)(nanostores@1.5.2)(react@19.2.8)
       better-node-test:
         specifier: 1.0.0
         version: 1.0.0
@@ -399,11 +396,11 @@ importers:
         specifier: 5.3.0
         version: 5.3.0
       '@logux/client':
-        specifier: github:logux/client#next
-        version: git+https://github.com/logux/client.git#ec28092034098c31dd0cba523fa9aa1d55c775f6(@nanostores/sql@0.5.0)(nanostores@1.5.2)(react@19.2.8)
+        specifier: 0.24.0
+        version: 0.24.0(@nanostores/sql@0.5.0)(nanostores@1.5.2)(react@19.2.8)
       '@logux/core':
-        specifier: github:logux/core#next
-        version: git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec
+        specifier: 0.11.0
+        version: 0.11.0
       '@mdi/js':
         specifier: 7.4.47
         version: 7.4.47
@@ -421,7 +418,7 @@ importers:
         version: 1.1.0(nanostores@1.5.2)
       '@nanostores/sql':
         specifier: 0.5.0
-        version: 0.5.0(@electric-sql/pglite@0.5.6)(nanostores@1.5.2)(sqlocal@0.18.0)
+        version: 0.5.0(@electric-sql/pglite@0.5.7)(nanostores@1.5.2)(sqlocal@0.18.0)
       '@slowreader/core':
         specifier: workspace:*
         version: link:../core
@@ -627,8 +624,8 @@ packages:
   '@drizzle-team/brocli@0.12.0':
     resolution: {integrity: sha512-mlUE+rZ8CatQekLhnaiN91Iemdd+e2gFKooGlnRB3oPTL3VghLfX24dx7HrzMNeC1JrIB/0kpsfyty3f5HNfxQ==}
 
-  '@electric-sql/pglite@0.5.6':
-    resolution: {integrity: sha512-ipn6AOHouIRwNSVL+0hIRuM3yDwAWgRmvZuj+45sudzKpmdPbG8hQuQDZ4A8l7U8E0l7u6pJ/VtMEW42w+vEKQ==}
+  '@electric-sql/pglite@0.5.7':
+    resolution: {integrity: sha512-6WBks0NFO6YUhGP03mCNkbJuVFWwrZPrzZ/vsnAPnsCD28pybdZ+yoTrlLlWFoZst3kdaju5pxIslV/jrr36nQ==}
 
   '@emnapi/core@1.10.0':
     resolution: {integrity: sha512-yq6OkJ4p82CAfPl0u9mQebQHKPJkY7WrIuk205cTYnYe+k2Z8YBh11FrbRG/H6ihirqcacOgl2BIO8oyMQLeXw==}
@@ -1085,21 +1082,18 @@ packages:
 
   '@logux/actions@0.5.0':
     resolution: {integrity: sha512-65sgfkuFUzxHqDWSBn2CfNwHrijkoMbFS/LBMeRNtcdMxGRJ4X4mwwwDDdQ/Tci+TNQnfJTAiKCKBIsdiS3VCg==}
-    version: 0.5.0
     engines: {node: ^20.0.0 || >=22.0.0}
     peerDependencies:
       '@logux/core': ^0.10.0
 
-  '@logux/actions@git+https://github.com/logux/actions.git#eaf920ba94c93526a35f74b86b4f8079cefd170b':
-    resolution: {commit: eaf920ba94c93526a35f74b86b4f8079cefd170b, repo: https://github.com/logux/actions.git, type: git}
-    version: 0.5.0
+  '@logux/actions@0.6.0':
+    resolution: {integrity: sha512-06BB0Ixpp6PwYttJlj9IWWTwjy65QgtzpVeRLY6dnUcXwmw3Z1FcdqtBzl8IWSeGjPCLBJPfGIxN2hjPmb/p2g==}
     engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
     peerDependencies:
-      '@logux/core': ^0.10.0
+      '@logux/core': ^0.11.0
 
-  '@logux/client@git+https://github.com/logux/client.git#ec28092034098c31dd0cba523fa9aa1d55c775f6':
-    resolution: {commit: ec28092034098c31dd0cba523fa9aa1d55c775f6, repo: https://github.com/logux/client.git, type: git}
-    version: 0.23.2
+  '@logux/client@0.24.0':
+    resolution: {integrity: sha512-n4P6+7hd4aR5MhpU7bSUdmPKGX7UpO60sTdl+ZygTrcTiVF4hyQIe55bbCyZtZUFiRdc3u1IXsBi88a7GT2asg==}
     engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
     peerDependencies:
       '@nanostores/preact': '>=0.0.0'
@@ -1129,9 +1123,12 @@ packages:
       vue:
         optional: true
 
-  '@logux/core@git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec':
-    resolution: {commit: 4400a3c5051827aa4d57871c60672d012000dfec, repo: https://github.com/logux/core.git, type: git}
-    version: 0.10.0
+  '@logux/core@0.10.0':
+    resolution: {integrity: sha512-VbgVkEloAe2ym5w0cjyRI16Eeyk2R0BgJa9pMYT1FcJEhFnzrB23E0ExIEhrok0iD48bFh7goledwmDLmgWaiw==}
+    engines: {node: ^20.0.0 || >=22.0.0}
+
+  '@logux/core@0.11.0':
+    resolution: {integrity: sha512-MCI7NP6djTrt1xcybiGMwJFCq68VCGUtHdGu/Fq70u7f5sHLQ+385g/c91lueqy5yL7R7HiVGkywmA2n+H7Ltg==}
     engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
 
   '@logux/eslint-config@57.1.0':
@@ -1162,9 +1159,8 @@ packages:
     resolution: {integrity: sha512-a7KRD30U252cfIekBGktEIRuwFRT7vOPZXkEsD05DwApsPi70iRnFaHEgMde8tZu+jJUuTDN/xMgabtjzHzXaQ==}
     engines: {node: ^20.0.0 || >=22.0.0}
 
-  '@logux/server@git+https://github.com/logux/server.git#a6701d70b28b349f70bfa94636af2375c50f8c00':
-    resolution: {commit: a6701d70b28b349f70bfa94636af2375c50f8c00, repo: https://github.com/logux/server.git, type: git}
-    version: 0.14.0
+  '@logux/server@0.15.0':
+    resolution: {integrity: sha512-/UPIU2XGM9ycCSM5GH0mt8F/7FPHR6JgKNdRkyCCFgf3djJE0KIxGo7zmgYmhVWRXoz2vpj2ecMA1PCewmJiBQ==}
     engines: {node: ^22.5.0 || ^24.0.0 || >=26.0.0}
 
   '@logux/stylelint-config@1.0.1':
@@ -1198,22 +1194,6 @@ packages:
     engines: {node: ^20.0.0 || >=22.0.0}
     peerDependencies:
       nanostores: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^1.0.0
-
-  '@nanostores/sql@0.4.3':
-    resolution: {integrity: sha512-3yRh5UNkXszhwA+3uYp3Q68Q5ak+LroHBiGanaIn7aV8cLUX8XLodx01lLJEvWuapYAIVWIJQ57laB9q0UVVzQ==}
-    engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
-    peerDependencies:
-      '@electric-sql/pglite': '>=0.4.0'
-      expo-sqlite: '>=14.0.0'
-      nanostores: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^1.0.0
-      sqlocal: '>=0.12.0'
-    peerDependenciesMeta:
-      '@electric-sql/pglite':
-        optional: true
-      expo-sqlite:
-        optional: true
-      sqlocal:
-        optional: true
 
   '@nanostores/sql@0.5.0':
     resolution: {integrity: sha512-+1I/apmNTD5TnseCq4Y4HkHEsN2HbjJ6meIu1gGKbdO5H74lc9QtWWXCqWMojo+Hgfe4Mbt6a0BHmOLZR/Jocw==}
@@ -2613,8 +2593,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  actions-up@1.17.1:
-    resolution: {integrity: sha512-mj/C3Rs53H+z5LUMvEunpLy8LhycxPatjb+ORPvry9liYtA2p/wdjn3f0+dCCNAPSHxE8LGb/JWS0h5GWSnOBA==}
+  actions-up@1.18.0:
+    resolution: {integrity: sha512-XRgIxvJWIgF9Kvicxb/QmcYZKNEfl8WuEPcpWVrFI1WykNcnMTg38vXC9WHUTnGhHFipEfdNMnv6oqfGIu8MEg==}
     engines: {node: ^18.3.0 || >=20.0.0}
     hasBin: true
 
@@ -2714,8 +2694,8 @@ packages:
     resolution: {integrity: sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA==}
     engines: {node: 18 || 20 || >=22}
 
-  baseline-browser-mapping@2.11.18:
-    resolution: {integrity: sha512-1iEmLEYSiE1SeBoAfPo/Mnx3PzfzHUkDK61ASkCpuk3YXugYLH5DYK1SzqV55F8FMI6s0F+/tCP7Polz1QRjxw==}
+  baseline-browser-mapping@2.11.19:
+    resolution: {integrity: sha512-Grytf1xOxOEMTGRwx6rLGKkTabd4vMg3VrKdj/7joCmV0qgh4QwMMO6xh34YEXQqirAuUdgQGa5orJQQ+69RBw==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -2786,8 +2766,8 @@ packages:
     resolution: {integrity: sha512-QOSvevhslijgYwRx6Rv7zKdMF8lbRmx+uQGx2+vDc+KI/eBnsy9kit5aj23AgGu3pa4t9AgwbnXWqS+iOY+2aA==}
     engines: {node: '>= 6'}
 
-  caniuse-lite@1.0.30001809:
-    resolution: {integrity: sha512-xxWVywk6a6Arlk+hymeycyn/VgqEfLDxupvhH/xiY5SJ/18kmi9o6MiO320DCUzypORHLtvh0I4i04tUhCNHNQ==}
+  caniuse-lite@1.0.30001810:
+    resolution: {integrity: sha512-TITQPUkaz+aVk5GL6NhOdwk1aEaNTSDPsGFWrTuhKGtjTF70jL/Oht2W4c6rXUe5fu7Ie19VIahAXHIIiWWNeg==}
 
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
@@ -3461,8 +3441,8 @@ packages:
   fast-levenshtein@2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
 
-  fast-uri@3.1.5:
-    resolution: {integrity: sha512-gHwA1O9LDIcKunMKhObS/HimwtehO1nPUECKAu5TpKgaO19fcWEl4bliWe1jWxVFvIXztJjjQ4L8XQ1EU9f7Jw==}
+  fast-uri@3.1.6:
+    resolution: {integrity: sha512-7Ical1vFEMr0onbVzEDIreM22I4khW+fzyQPwvAFWBp1iwdshSZRsL4jjRvPG9JP1uiqMHRto+YU6R2/CzDz5Q==}
 
   fastest-levenshtein@1.0.16:
     resolution: {integrity: sha512-eRnCtTTtGZFpQCwhJiUOuxPQWRXVKYDn0b2PeHfXL6/Zi53SLAzAHfVhVWK2AryC/WH05kGfxhFIPvTF0SXQzg==}
@@ -4213,7 +4193,6 @@ packages:
 
   multiocular@0.8.4:
     resolution: {integrity: sha512-8uxpaHVnNghK+jE7KHa8+o4WHM4m/VLsmDkeYQ3kNDAy9g8SytOInvONlu/fk6WXo/m0PzEmaqiUvdWeERbD+w==}
-    version: 0.8.4
     engines: {node: ^22.16.0 || >=24.0.0}
     hasBin: true
 
@@ -5588,7 +5567,7 @@ snapshots:
 
   '@drizzle-team/brocli@0.12.0': {}
 
-  '@electric-sql/pglite@0.5.6': {}
+  '@electric-sql/pglite@0.5.7': {}
 
   '@emnapi/core@1.10.0':
     dependencies:
@@ -5908,37 +5887,30 @@ snapshots:
 
   '@leichtgewicht/ip-codec@2.0.5': {}
 
-  '@logux/actions@0.5.0(@logux/core@git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec)':
+  '@logux/actions@0.5.0(@logux/core@0.10.0)':
     dependencies:
-      '@logux/core': git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec
+      '@logux/core': 0.10.0
 
-  '@logux/actions@git+https://github.com/logux/actions.git#eaf920ba94c93526a35f74b86b4f8079cefd170b(@logux/core@git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec)':
+  '@logux/actions@0.6.0(@logux/core@0.11.0)':
     dependencies:
-      '@logux/core': git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec
+      '@logux/core': 0.11.0
 
-  '@logux/client@git+https://github.com/logux/client.git#ec28092034098c31dd0cba523fa9aa1d55c775f6(@nanostores/sql@0.4.3)(nanostores@1.5.2)(react@19.2.8)':
+  '@logux/client@0.24.0(@nanostores/sql@0.5.0)(nanostores@1.5.2)(react@19.2.8)':
     dependencies:
-      '@logux/actions': git+https://github.com/logux/actions.git#eaf920ba94c93526a35f74b86b4f8079cefd170b(@logux/core@git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec)
-      '@logux/core': git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec
+      '@logux/actions': 0.6.0(@logux/core@0.11.0)
+      '@logux/core': 0.11.0
       nanoevents: 10.0.0
       nanoid: 6.0.1
       nanostores: 1.5.2
     optionalDependencies:
-      '@nanostores/sql': 0.4.3(@electric-sql/pglite@0.5.6)(nanostores@1.5.2)(sqlocal@0.18.0)
+      '@nanostores/sql': 0.5.0(@electric-sql/pglite@0.5.7)(nanostores@1.5.2)(sqlocal@0.18.0)
       react: 19.2.8
 
-  '@logux/client@git+https://github.com/logux/client.git#ec28092034098c31dd0cba523fa9aa1d55c775f6(@nanostores/sql@0.5.0)(nanostores@1.5.2)(react@19.2.8)':
+  '@logux/core@0.10.0':
     dependencies:
-      '@logux/actions': git+https://github.com/logux/actions.git#eaf920ba94c93526a35f74b86b4f8079cefd170b(@logux/core@git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec)
-      '@logux/core': git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec
-      nanoevents: 10.0.0
-      nanoid: 6.0.1
-      nanostores: 1.5.2
-    optionalDependencies:
-      '@nanostores/sql': 0.5.0(@electric-sql/pglite@0.5.6)(nanostores@1.5.2)(sqlocal@0.18.0)
-      react: 19.2.8
+      nanoevents: 9.1.0
 
-  '@logux/core@git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec':
+  '@logux/core@0.11.0':
     dependencies:
       nanoevents: 10.0.0
 
@@ -5972,8 +5944,8 @@ snapshots:
 
   '@logux/server@0.14.0':
     dependencies:
-      '@logux/actions': 0.5.0(@logux/core@git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec)
-      '@logux/core': git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec
+      '@logux/actions': 0.5.0(@logux/core@0.10.0)
+      '@logux/core': 0.10.0
       cookie: 1.1.1
       fastq: 1.20.1
       nanoevents: 9.1.0
@@ -5985,10 +5957,10 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@logux/server@git+https://github.com/logux/server.git#a6701d70b28b349f70bfa94636af2375c50f8c00':
+  '@logux/server@0.15.0':
     dependencies:
-      '@logux/actions': git+https://github.com/logux/actions.git#eaf920ba94c93526a35f74b86b4f8079cefd170b(@logux/core@git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec)
-      '@logux/core': git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec
+      '@logux/actions': 0.6.0(@logux/core@0.11.0)
+      '@logux/core': 0.11.0
       cookie: 2.0.1
       fastq: 1.20.1
       nanoevents: 10.0.0
@@ -6024,19 +5996,11 @@ snapshots:
     dependencies:
       nanostores: 1.5.2
 
-  '@nanostores/sql@0.4.3(@electric-sql/pglite@0.5.6)(nanostores@1.5.2)(sqlocal@0.18.0)':
+  '@nanostores/sql@0.5.0(@electric-sql/pglite@0.5.7)(nanostores@1.5.2)(sqlocal@0.18.0)':
     dependencies:
       nanostores: 1.5.2
     optionalDependencies:
-      '@electric-sql/pglite': 0.5.6
-      sqlocal: 0.18.0(drizzle-orm@1.0.0-rc.4)(react@19.2.8)(vite@8.2.2)
-    optional: true
-
-  '@nanostores/sql@0.5.0(@electric-sql/pglite@0.5.6)(nanostores@1.5.2)(sqlocal@0.18.0)':
-    dependencies:
-      nanostores: 1.5.2
-    optionalDependencies:
-      '@electric-sql/pglite': 0.5.6
+      '@electric-sql/pglite': 0.5.7
       sqlocal: 0.18.0(drizzle-orm@1.0.0-rc.4)(react@19.2.8)(vite@8.2.2)
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
@@ -7037,7 +7001,7 @@ snapshots:
 
   acorn@8.18.0: {}
 
-  actions-up@1.17.1:
+  actions-up@1.18.0:
     dependencies:
       enquirer: 2.4.1
       nanospinner: 1.2.2
@@ -7060,7 +7024,7 @@ snapshots:
   ajv@8.20.0:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 3.1.5
+      fast-uri: 3.1.6
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
@@ -7113,7 +7077,7 @@ snapshots:
   autoprefixer@10.5.4(postcss@8.5.26):
     dependencies:
       browserslist: 4.28.8
-      caniuse-lite: 1.0.30001809
+      caniuse-lite: 1.0.30001810
       fraction.js: 5.3.4
       picocolors: 1.1.1
       postcss: 8.5.26
@@ -7129,7 +7093,7 @@ snapshots:
 
   balanced-match@4.0.4: {}
 
-  baseline-browser-mapping@2.11.18: {}
+  baseline-browser-mapping@2.11.19: {}
 
   bcp-47-match@2.0.3: {}
 
@@ -7162,8 +7126,8 @@ snapshots:
 
   browserslist@4.28.8:
     dependencies:
-      baseline-browser-mapping: 2.11.18
-      caniuse-lite: 1.0.30001809
+      baseline-browser-mapping: 2.11.19
+      caniuse-lite: 1.0.30001810
       electron-to-chromium: 1.5.412
       node-releases: 2.0.53
       update-browserslist-db: 1.3.1(browserslist@4.28.8)
@@ -7200,7 +7164,7 @@ snapshots:
 
   camelcase-css@2.0.1: {}
 
-  caniuse-lite@1.0.30001809: {}
+  caniuse-lite@1.0.30001810: {}
 
   ccount@2.0.1: {}
 
@@ -7477,9 +7441,9 @@ snapshots:
       get-tsconfig: 4.14.3
       jiti: 2.7.0
 
-  drizzle-orm@1.0.0-rc.4(@electric-sql/pglite@0.5.6)(postgres@3.4.9):
+  drizzle-orm@1.0.0-rc.4(@electric-sql/pglite@0.5.7)(postgres@3.4.9):
     optionalDependencies:
-      '@electric-sql/pglite': 0.5.6
+      '@electric-sql/pglite': 0.5.7
       postgres: 3.4.9
 
   eastasianwidth@0.2.0: {}
@@ -7782,7 +7746,7 @@ snapshots:
 
   fast-levenshtein@2.0.6: {}
 
-  fast-uri@3.1.5: {}
+  fast-uri@3.1.6: {}
 
   fastest-levenshtein@1.0.16: {}
 
@@ -8610,9 +8574,9 @@ snapshots:
 
   ms@2.1.3: {}
 
-  multiocular@0.8.4(@logux/core@git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec):
+  multiocular@0.8.4(@logux/core@0.10.0):
     dependencies:
-      '@logux/actions': 0.5.0(@logux/core@git+https://github.com/logux/core.git#4400a3c5051827aa4d57871c60672d012000dfec)
+      '@logux/actions': 0.5.0(@logux/core@0.10.0)
       '@logux/server': 0.14.0
       diff2html: 3.4.56
       dompurify: 3.4.14
@@ -9400,7 +9364,7 @@ snapshots:
       '@sqlite.org/sqlite-wasm': 3.51.2-build9
       coincident: 1.2.3
     optionalDependencies:
-      drizzle-orm: 1.0.0-rc.4(@electric-sql/pglite@0.5.6)(postgres@3.4.9)
+      drizzle-orm: 1.0.0-rc.4(@electric-sql/pglite@0.5.7)(postgres@3.4.9)
       react: 19.2.8
       vite: 8.2.2(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
     transitivePeerDependencies:
