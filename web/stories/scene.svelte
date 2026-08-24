@@ -63,18 +63,18 @@
     // Waits for the database too, so the app will not reset `busy`
     // and other stores, which the story sets in `oninit()`
     await cleanDatabase()
-    for (let category of categories ?? []) {
-      await addCategory(category)
-    }
-    for (let feed of feeds ?? []) {
-      await addFeed(testFeed(feed))
-    }
-    for (let [index, post] of (posts ?? []).entries()) {
+    // Rows are added by a single action: a story with hundreds of posts
+    // will be too slow with an action per row
+    if (categories?.length) await addCategory(categories)
+    if (feeds?.length) await addFeed(feeds.map(feed => testFeed(feed)))
+    if (posts?.length) {
       await addPost(
-        testPost({
-          id: `post-${index + 1}`,
-          publishedAt: 1000 - index,
-          ...post
+        posts.map((post, index) => {
+          return testPost({
+            id: `post-${index + 1}`,
+            publishedAt: 1000 - index,
+            ...post
+          })
         })
       )
     }
