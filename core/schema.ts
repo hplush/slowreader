@@ -341,6 +341,7 @@ function getOpeningLabel(hasTables: boolean): string {
 
 function openDatabase(logux: CrossTabClient, db: Database): void {
   let store = getEnvironment().persistentStore
+  db.on('error', reportDatabaseError)
 
   // The upload of the previous start was not finished, so it must be restarted.
   // Remove in the next release: the mark was `slowreader:migrating` before

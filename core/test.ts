@@ -7,7 +7,6 @@ import type { Credentials } from './auth.ts'
 import type { Environment } from './environment.ts'
 import { type RequestMethod, setRequestMethod } from './request.ts'
 import { type BaseRoute, stringifyPopups } from './router.ts'
-import { reportDatabaseError } from './schema.ts'
 
 export let testSession: string | undefined
 
@@ -49,9 +48,12 @@ export function getTestEnvironment(): Environment {
       }
     },
     databaseCreator() {
-      return openDb(nodeDriver(':memory:'), {
-        onError: reportDatabaseError
-      })
+      // The in-memory database is new and empty for every client, unlike
+      // the file, which the browser re-opens, so the mark of the previous
+      // one must go with it. Tests, which check that the database survives
+      // the client, take `persistentDatabase()` from `./test/utils.ts`
+      delete persistentStore['slowreader:db']
+      return openDb(nodeDriver(':memory:'))
     },
     errorEvents: { addEventListener() {} },
     getSession() {

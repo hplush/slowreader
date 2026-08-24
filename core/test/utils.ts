@@ -1,6 +1,11 @@
+import { openDb } from '@nanostores/sql'
+import { nodeDriver } from '@nanostores/sql/node'
 import { cleanStores, type ReadableAtom } from 'nanostores'
 import { fail } from 'node:assert'
 import { deepEqual, equal } from 'node:assert/strict'
+import { mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { afterEach } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -60,6 +65,21 @@ export function setTestUser(enable = true): void {
     hasPassword.set(false)
     userId.set(undefined)
   }
+}
+
+let testDir: string | undefined
+
+/**
+ * Database, which survives the client, like the file of the browser.
+ *
+ * ```js
+ * enableClientTest({ databaseCreator: persistentDatabase() })
+ * ```
+ */
+export function persistentDatabase(): Environment['databaseCreator'] {
+  testDir = mkdtempSync(join(tmpdir(), 'slowreader-'))
+  let file = join(testDir, 'test.sqlite')
+  return () => openDb(nodeDriver(file))
 }
 
 /**
@@ -216,6 +236,10 @@ let unbindPage: (() => void) | undefined
 afterEach(() => {
   unbindPage?.()
   unbindPage = undefined
+  if (testDir) {
+    rmSync(testDir, { force: true, recursive: true })
+    testDir = undefined
+  }
 })
 
 /**

@@ -22,7 +22,12 @@ import {
   testPost
 } from '../index.ts'
 import { getTestEnvironment } from '../test.ts'
-import { cleanClientTest, enableClientTest, setTestUser } from './utils.ts'
+import {
+  cleanClientTest,
+  enableClientTest,
+  persistentDatabase,
+  setTestUser
+} from './utils.ts'
 
 describe('schema', () => {
   beforeEach(() => {
@@ -36,7 +41,11 @@ describe('schema', () => {
   test('tells that the database is created on the first start', async () => {
     await cleanClientTest()
     setTestUser(false)
-    setupEnvironment(getTestEnvironment())
+    // The test restarts the client and checks that the database was kept
+    setupEnvironment({
+      ...getTestEnvironment(),
+      databaseCreator: persistentDatabase()
+    })
     let labels: string[] = []
     let unbind = busy.listen(value => {
       if (value) labels.push(value.label)

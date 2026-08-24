@@ -109,7 +109,7 @@ The Logux Client detects the tab closed in the middle of the migration itself an
 In the reset process the client uploads own unsent actions, drops the whole database and restarts the app to download everything from the server again. It is called when:
 
 - The server saw that the device was offline longer than the 12 month and could miss a tombstone.
-- The database reported the corruption: an interrupted migration, an error, a timeout of the opening or the tables emptied by somebody except the app.
+- The database reported the corruption: an interrupted migration, an error, a timeout of the opening or a lost database file.
 - The database threw an error outside of the applier.
 - The user asked for it on the profile page.
 

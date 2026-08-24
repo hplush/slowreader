@@ -113,13 +113,14 @@ describe('log', () => {
     rmSync(dir, { force: true, recursive: true })
   })
 
-  async function restartClient(): Promise<void> {
+  async function restartClient(between?: () => Promise<void>): Promise<void> {
     let user = userId.get()!
     getClient().node.connection.disconnect()
     await setTimeout(SETTLE)
     userId.set(undefined)
     await waitUntil(() => !client.get())
     await setTimeout(SETTLE)
+    if (between) await between()
     userId.set(user)
     await waitUntil(() => !!client.get())
     await waitSync()
@@ -229,15 +230,18 @@ describe('log', () => {
     await waitSync()
     let before = await loadFeeds()
 
-    // Any change in the tables schema re-creates the database
-    storage['slowreader:db'] = JSON.stringify({
-      actions: {},
-      tables: {},
-      version: 0
-    })
+    // Any change in the tables schema re-creates the database. The schema
+    // is compared with the hash inside the database, not with the storage
+    let fake = JSON.stringify({ actions: {}, tables: {}, version: 0 })
     // The menu reducer shares the snapshot of the database migration
     storage['logux:reducer:slowreader:menu'] = '0'
-    await restartClient()
+    await restartClient(async () => {
+      let db = openDb(nodeDriver(join(dir, 'app.sqlite')))
+      await db.exec`
+        UPDATE "logux_crdt" SET "value" = ${fake} WHERE "key" = 'schema'
+      `
+      await db.close()
+    })
     await waitUntil(async () => (await loadFeeds()).length === 1)
 
     deepEqual(dropMeta(await loadFeeds()), dropMeta(before))
@@ -480,7 +484,7 @@ describe('log', () => {
     userId.set(user)
     await waitUntil(() => !!client.get())
     await waitUntil(() => typeof lastReset.get() === 'string')
-    equal(lastReset.get()!.endsWith('empty-tables'), true)
+    equal(lastReset.get()!.endsWith('lost-database'), true)
   })
 
   test('re-downloads the data on the database error', async () => {

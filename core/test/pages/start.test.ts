@@ -156,7 +156,7 @@ describe('start page', () => {
       route: 'start'
     })
     equal(page.signingIn.get(), false)
-    equal(typeof page.signError.get(), 'undefined')
+    equal(page.signError.get(), undefined)
 
     page.userId.set(credentials.userId)
     page.secret.set(toSecret(credentials))
