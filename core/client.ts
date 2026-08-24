@@ -126,6 +126,10 @@ onEnvironment(({ databaseCreator }) => {
   return effect([userId, hasPassword, encryptionKey], (user, connect, key) => {
     if (user && key) {
       let db = databaseCreator()
+      // Mass deletions free their pages by `freeDatabasePages()` instead of
+      // long `VACUUM`. SQLite applies the mode only to a database without
+      // tables, so it must be set before the log store creates its own.
+      void db.exec`PRAGMA auto_vacuum = INCREMENTAL`
       let logux = new CrossTabClient({
         prefix: 'slowreader',
         server: getServer(),

@@ -222,11 +222,23 @@ export async function getDatabaseSize(): Promise<number> {
 }
 
 /**
- * Rebuild the database file to free the space taken by deleted rows.
+ * Rewrite the whole database file to free all the space taken by deleted
+ * rows. It blocks the database for the time proportional to its size,
+ * so it is called only on the user’s request.
  */
-export async function compactDatabase(): Promise<void> {
+export async function rebuildDatabase(): Promise<void> {
   await ready
   await getDatabase().exec`VACUUM`
+}
+
+/**
+ * Return a limited number of the pages of deleted rows to the OS. It does not
+ * rewrite the file, so it can be called after every mass deletion.
+ */
+export async function freeDatabasePages(): Promise<void> {
+  await ready
+  if (!hasDatabase()) return
+  await getDatabase().select`PRAGMA incremental_vacuum(1000)`
 }
 
 /**

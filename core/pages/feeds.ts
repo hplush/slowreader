@@ -21,7 +21,7 @@ import {
   welcomeReader
 } from '../readers/index.ts'
 import { nextRouteIsRedirect } from '../router.ts'
-import { hasDatabase } from '../schema.ts'
+import { freeDatabasePages, hasDatabase } from '../schema.ts'
 import { createPage } from './common.ts'
 
 const READERS: { [Name in ReaderName]: ReaderCreator } = {
@@ -191,6 +191,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         prevReading?.exit()
         prevLoadingUnbind()
         await deleteRead()
+        await freeDatabasePages()
       },
       feed: $feed,
       loading: $loading,

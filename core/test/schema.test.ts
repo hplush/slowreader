@@ -11,6 +11,7 @@ import {
   cleanDatabase,
   commonMessages,
   database,
+  freeDatabasePages,
   getClient,
   getDatabaseSize,
   loadCategories,
@@ -108,9 +109,32 @@ describe('schema', () => {
     equal(await getDatabaseSize(), filled)
   })
 
+  test('returns the space of deleted rows to the OS', async () => {
+    let feedId = await addFeed(testFeed())
+    for (let batch = 0; batch < 5; batch++) {
+      await addPost(
+        Array.from({ length: 20 }, (_, i) => {
+          return testPost({
+            feedId,
+            full: 'a'.repeat(4096),
+            originId: `${batch}-${i}`
+          })
+        })
+      )
+    }
+    let filled = await getDatabaseSize()
+
+    await cleanDatabase()
+    equal(await getDatabaseSize(), filled)
+
+    await freeDatabasePages()
+    ok((await getDatabaseSize()) < filled)
+  })
+
   test('does nothing without database', async () => {
     await cleanClientTest()
     await cleanDatabase()
+    await freeDatabasePages()
   })
 
   test('drops all tables on sign-out', async () => {

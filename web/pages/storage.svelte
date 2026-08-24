@@ -43,7 +43,7 @@
           icon={mdiCloudDownloadOutline}
           onclick={() => {
             if (confirm(t.get().rebuildWarning)) {
-              page.rebuildDatabase()
+              page.resetDatabase()
             }
           }}
           size="wide"
