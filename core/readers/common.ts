@@ -1,8 +1,9 @@
+import type { SqlStore } from '@nanostores/sql'
 import type { ReadableAtom, WritableAtom } from 'nanostores'
 
-import type { ReaderPost } from '../post.ts'
+import type { PostValue, ReaderPost } from '../post.ts'
 import type { Routes } from '../router.ts'
-import { select } from '../schema.ts'
+import { getTables, select } from '../schema.ts'
 
 export interface BaseReader<Name extends ReaderName = ReaderName> {
   exit(): void
@@ -262,4 +263,36 @@ export function loadReadPostIds(filter: PostFilter): Promise<string[]> {
     `
   }
   return rows.then(list => list.map(row => row.id))
+}
+
+export function trackReadPosts(
+  filter: PostFilter,
+  list: WritableAtom<ReaderPost[]>
+): () => void {
+  // The table’s store is used instead of a query for IDs, since a query
+  // for the indexed columns only will read the index and not the table,
+  // and the store will not know which table to watch
+  let $read: SqlStore<PostValue[]>
+  if (filter.categoryId) {
+    $read = getTables().posts.select`
+      JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+      WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 1
+        AND "feeds"."categoryId" = ${filter.categoryId}
+    `
+  } else {
+    $read = getTables().posts.select`
+      WHERE "reading" = ${filter.reading} AND "read" = 1
+        AND "feedId" = ${filter.feedId!}
+    `
+  }
+  return $read.subscribe(rows => {
+    if (rows.isLoading) return
+    let read = new Set(rows.value.map(row => row.id))
+    let prev = list.get()
+    let next = prev.map(post => {
+      let value = read.has(post.id) ? 1 : 0
+      return post.read === value ? post : { ...post, read: value }
+    })
+    if (next.some((post, index) => post !== prev[index])) list.set(next)
+  })
 }

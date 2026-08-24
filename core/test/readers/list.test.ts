@@ -246,6 +246,30 @@ describe('list reader', () => {
     }
   })
 
+  test('shows posts read on the open page', async () => {
+    let feedId = await addFeed(testFeed({ slowReader: 'list' }))
+    for (let i = 1; i <= 3; i++) {
+      await addPost(
+        testPost({ feedId, publishedAt: i, reading: 'slow', title: `${i}` })
+      )
+    }
+
+    let page = openPage({ params: { feed: feedId }, route: 'slow' })
+    await waitLoading(page.postsLoading)
+    let reader = ensureReader(page.posts, 'list')
+    deepEqual(titles(reader), ['3', '2', '1'])
+
+    await changePost(reader.list.get()[1]!.id, { read: 1 })
+    await setTimeout(10)
+
+    // The post stays on the page and only changes the style
+    deepEqual(titles(reader), ['3', '2', '1'])
+    deepEqual(
+      reader.list.get().map(post => post.read),
+      [0, 1, 0]
+    )
+  })
+
   test('splits posts of the same time between pages', async () => {
     let feedId = await addFeed(testFeed({ slowReader: 'list' }))
     for (let i = 1; i <= 250; i++) {

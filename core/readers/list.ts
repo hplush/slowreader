@@ -10,7 +10,8 @@ import {
   createReader,
   loadPageCursors,
   loadPostsPage,
-  type PostCursor
+  type PostCursor,
+  trackReadPosts
 } from './common.ts'
 
 const POSTS_PER_PAGE = 100
@@ -39,6 +40,7 @@ export const listReader = createReader('list', (filter, params) => {
   }
 
   let unbindFrom = (): void => {}
+  let unbindRead = trackReadPosts(filter, $list)
   async function start(): Promise<void> {
     cursors = await loadPageCursors(filter, POSTS_PER_PAGE)
     if (exited) return
@@ -68,6 +70,7 @@ export const listReader = createReader('list', (filter, params) => {
     exit() {
       exited = true
       unbindFrom()
+      unbindRead()
     },
     list: $list,
     loading: $loading,

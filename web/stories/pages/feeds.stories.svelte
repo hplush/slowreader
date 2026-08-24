@@ -1,5 +1,7 @@
 <script context="module" lang="ts">
   import {
+    changePost,
+    type FeedsPage as FeedsPageStore,
     GENERAL_CATEGORY,
     needWelcome,
     pages,
@@ -70,6 +72,19 @@
     }
   ] satisfies Partial<PostValue>[]
 
+  /**
+   * Readers load only unread posts, so the read style is visible only
+   * for the posts, which the user read without leaving the page.
+   */
+  function readAfterLoading(page: FeedsPageStore): void {
+    let unbind = page.postsLoading.listen(loading => {
+      if (!loading) {
+        unbind()
+        void changePost(['post-2', 'post-3'], { read: 1 })
+      }
+    })
+  }
+
   function multiply<Value>(array: Value[], count: number): Value[] {
     let result: Value[] = []
     for (let i = 0; i < count; i++) {
@@ -139,6 +154,17 @@
 <Story name="List" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     feeds={[{ id: 'feed', reading: 'slow' }]}
+    posts={POSTS}
+    route={{ params: { feed: 'feed' }, route: 'slow' }}
+  >
+    <FeedsPage page={pages.slow()} />
+  </Scene>
+</Story>
+
+<Story name="List Read" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[{ id: 'feed', reading: 'slow' }]}
+    oninit={() => readAfterLoading(pages.slow())}
     posts={POSTS}
     route={{ params: { feed: 'feed' }, route: 'slow' }}
   >

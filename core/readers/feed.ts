@@ -8,7 +8,8 @@ import {
   parseCursor,
   type PostAuthor,
   stringifyCursor,
-  topCursor
+  topCursor,
+  trackReadPosts
 } from './common.ts'
 
 const POSTS_PER_PAGE = 40
@@ -80,6 +81,7 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
     $loading.set(true)
     void loadPage(value)
   })
+  let unbindRead = trackReadPosts(filter, $list)
 
   // The move does not wait for the write: the marks are saved in background.
   // The page of the next cursor does not depend on them, since the cursor
@@ -104,6 +106,7 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
     exit() {
       exited = true
       unbindFrom()
+      unbindRead()
     },
     hasNext: $hasNext,
     list: $list,
