@@ -37,6 +37,8 @@ minimumReleaseAgeExclude:
   - esbuild
   - nanoid
 
+verifyDepsBeforeRun: false
+
 trustPolicy: no-downgrade
 
 trustPolicyIgnoreAfter: 10080
