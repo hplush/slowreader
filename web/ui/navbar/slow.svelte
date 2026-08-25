@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { router, slowMenu } from '@slowreader/core'
+  import {
+    GENERAL_CATEGORY,
+    router,
+    slowMenu,
+    commonMessages as t
+  } from '@slowreader/core'
 
   import { getURL } from '../../stores/url-router.ts'
   import NavbarCategory from './category.svelte'
@@ -7,7 +12,12 @@
 </script>
 
 {#each $slowMenu as [category, feeds] (category.id)}
-  <NavbarCategory id={category.id} name={category.title}>
+  <NavbarCategory
+    id={category.id}
+    name={category.id === GENERAL_CATEGORY
+      ? $t.generalCategory
+      : category.title}
+  >
     {#each feeds as [feed, unread] (feed.id)}
       <NavbarItem
         name={feed.title}

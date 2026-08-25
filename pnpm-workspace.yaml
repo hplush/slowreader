@@ -7,12 +7,12 @@ packages:
   - loader-tests
   - extension
 
+storeDir: node_modules/.pnpm-store
+
 allowBuilds:
   argon2: false
   esbuild: true
   unrs-resolver: false
-
-blockExoticSubdeps: true
 
 forceLegacyDeploy: true
 
@@ -33,11 +33,9 @@ minimumReleaseAgeExclude:
   - baseline-browser-mapping
   - autoprefixer
   - multiocular
-  - '@logux/oxc-configs'
   - keyux
-
-overrides:
-  rollup@<2.80.0: '>=2.80.0'
+  - esbuild
+  - nanoid
 
 trustPolicy: no-downgrade
 

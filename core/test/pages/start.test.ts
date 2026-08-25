@@ -1,8 +1,7 @@
 import type { TestServer } from '@logux/server'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
-import { equal, match, ok } from 'node:assert/strict'
+import { equal, match, notEqual, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
-import { setTimeout } from 'node:timers/promises'
 
 import {
   client,
@@ -22,7 +21,8 @@ import {
   expectWarning,
   getTestEnvironment,
   openPage,
-  setTestUser
+  setTestUser,
+  waitFor
 } from '../utils.ts'
 
 describe('start page', () => {
@@ -68,8 +68,7 @@ describe('start page', () => {
     equal(client.get()?.state, 'disconnected')
     equal(hasPassword.get(), false)
 
-    await setTimeout(10)
-    equal(router.get().route, 'welcome')
+    await waitFor(router, route => route.route === 'welcome')
   })
 
   test('reports about wrong credentials', async () => {
@@ -157,7 +156,7 @@ describe('start page', () => {
       route: 'start'
     })
     equal(page.signingIn.get(), false)
-    equal(typeof page.signError.get(), 'undefined')
+    equal(page.signError.get(), undefined)
 
     page.userId.set(credentials.userId)
     page.secret.set(toSecret(credentials))
@@ -167,9 +166,8 @@ describe('start page', () => {
 
     await promise
     ok(client.get()?.clientId.startsWith(credentials.userId + ':'))
-    equal(client.get()?.state, 'connecting')
+    notEqual(client.get()?.state, 'disconnected')
 
-    await setTimeout(10)
-    equal(router.get().route, 'welcome')
+    await waitFor(router, route => route.route === 'welcome')
   })
 })

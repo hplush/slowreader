@@ -6,6 +6,11 @@ _See the [full architecture guide](../README.md) first._
 - [Scripts](#scripts)
 - [Client Environments](#client-environments)
 - [URL Routing](#url-routing)
+- [Data Storage](#data-storage)
+  - [Log Retention](#log-retention)
+  - [Local Mode](#local-mode)
+  - [Migrations](#migrations)
+  - [Reset](#reset)
 - [Test Strategy](#test-strategy)
   - [Mocking Requests](#mocking-requests)
 
@@ -32,7 +37,7 @@ In the best scenario, the client should just subscribe to stores, render UI acco
 
 ## Scripts
 
-- `cd core && pnpm test`: run core unit tests and check coverage.
+- `pnpm -F core test`: run core unit tests and check coverage.
 
 ## Client Environments
 
@@ -57,6 +62,59 @@ Instead, core code should use API:
 - `getEnvironment().openRoute(route)` to change current page.
 - Read `router` store to get current page or subscribe to the store to listen for current page changes (for instance, to clean temporary stores when user leaves the page).
 
+## Data Storage
+
+All user’s data is in the SQLite database of [`schema.ts`](./schema.ts). Every table is a CRDT map with per-field last write wins: each field has an `updatedAt_field` column with the the Logux time of its last change. Tables are filled by Logux actions (`feeds/created`, `feeds/changed`, `feeds/deleted`), and the same actions are the sync format between devices.
+
+On the client the tables are the source of truth. The client’s log is not a second copy of them: [`log.ts`](./log.ts) keeps in it only what can not be restored from the tables.
+
+### Log Retention
+
+`updatedAt_field` keeps the sortable Logux meta, so the action ID and the time of every cell are restorable from the table itself. An action is kept only if it is not derivable from the tables:
+
+- It was not sent to the server yet (the log is the outbox).
+- It is a deletion: we keep the tombstone for a month.
+- it is not simple last-write-wins action.
+
+Everything else keeps only a `shadow` action: the ID of the original action, its reasons, its indexes and its time, without the body.
+
+We use `shadow` action to track by `indexes` and `reasons` when the origin even is not needed anymore and remove this action from the server.
+
+Reasons are the reference counter of the cells:
+
+- `plural/id/field` is added in the `preadd` event for every cell the action **touches**.
+- `plural/id` is added to every `plural/created`.
+- `tombstone` is added to every `plural/deleted`.
+
+Reasons are removed on the `applied` event of the database from new action applied.
+
+Because all actions are encrypted on the server, clients control server’s log cleaning.
+
+When the last reason is removed, the client removes `shadow` action and sends `0/clean` to the server, so the log on the server keeps exactly the actions owning at least one live cell, plus the tombstones inside the retention window. Tombstones are deleted by the clients too: any device removes the tombstones older than 1 month on the start and on the connect.
+
+### Local Mode
+
+The user without a cloud account does not keep any actions since it does not need to control server’s log cleaning.
+
+The sign-up generates the actions from the tables with a fresh meta and uploads them.
+
+### Migrations
+
+Any change in the tables schema drops the tables and replays the actions. Shadowed actions is restores from the tables by `crdtTableToActions()`. The same snapshot is shared with the menu reducer of [`menu.ts`](./menu.ts).
+
+The Logux Client detects the tab closed in the middle of the migration itself and reports `interrupted-migration` in the `corrupted` event. The `uploadingLocalData` marker detects if action uploading during signing-up was interrupted.
+
+### Reset
+
+In the reset process the client uploads own unsent actions, drops the whole database and restarts the app to download everything from the server again. It is called when:
+
+- The server saw that the device was offline longer than the 12 month and could miss a tombstone.
+- The database reported the corruption: an interrupted migration, an error, a timeout of the opening or a lost database file.
+- The database threw an error outside of the applier.
+- The user asked for it on the profile page.
+
+For debug the reason and the time of the last reset are kept in `localStorage` under `slowreader:reset`.
+
 ## Test Strategy
 
 Our tests should help us do the refactoring, not blocking us from refactoring by requirement rewriting tests on every change.
@@ -71,10 +129,10 @@ We run unit tests by `node --test` with [`better-node-test`](https://github.com/
 
 ```sh
 # Run all tests with coverage
-cd core && pnpm test
+pnpm -F core test
 
 # Run all tests without coverage (a little faster)
-cd core && n bnt
+pnpm -F core exec bnt
 
 # Run specific test file
 n bnt core/test/html.test.ts

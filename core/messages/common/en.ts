@@ -5,6 +5,9 @@ import { i18n } from '../../i18n.ts'
 export const commonMessages = i18n('common', {
   addCategory: 'Add category…',
   closePopup: 'Close popup',
+  creatingDatabase: 'Creating local database',
+  dontClose: 'Do not close the app until it is finished',
+  downloadingData: 'Downloading your data from the cloud',
   empty: 'The value is required',
   error400: 'Bad request',
   error401: 'Unauthorized',
@@ -21,8 +24,11 @@ export const commonMessages = i18n('common', {
   invalidUrl: 'This doesn’t look like a valid web address',
   invalidUserId: 'User ID must contain 16 digits',
   loading: 'Loading…',
+  loadingData: 'Loading local data',
+  migratingDatabase: 'Migrating local database',
   networkError:
     'Can’t reach the server. Please check your internet connection.',
   parseError: 'Syntax error in the feed file',
-  popupNotFound: 'Not found'
+  popupNotFound: 'Not found',
+  uploadingData: 'Uploading your data to the cloud'
 })

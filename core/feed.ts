@@ -1,74 +1,109 @@
-import {
-  changeSyncMapById,
-  createFilter,
-  createSyncMap,
-  deleteSyncMapById,
-  type Filter,
-  type FilterStore,
-  loadValue,
-  type SyncMapStore,
-  syncMapTemplate
-} from '@logux/client'
-import { nanoid } from 'nanoid'
-import { atom, onMount } from 'nanostores'
+import { withMeta, type WithoutMeta } from '@logux/client/db'
+import type { SqlStore } from '@nanostores/sql'
+import { atom, onMount, type ReadableAtom } from 'nanostores'
 
-import { getClient } from './client.ts'
 import { createDownloadTask, type TextResponse } from './lib/download.ts'
-import type { OptionalId } from './lib/stores.ts'
+import { firstRow } from './lib/stores.ts'
 import { type FeedLoader, type LoaderName, loaders } from './loader/index.ts'
-import { deletePost, getPosts, recalcPostsReading } from './post.ts'
+import { deletePost, loadPostIdsByFeed, recalcPostsReading } from './post.ts'
 import type { PostsList } from './posts-list.ts'
-import type { UsefulReaderName } from './readers/common.ts'
+import {
+  type FeedChanges,
+  type FeedValue,
+  GENERAL_CATEGORY,
+  getDatabase,
+  getTables,
+  type NewFeed,
+  select
+} from './schema.ts'
 
-export type FeedValue = {
-  categoryId: string
-  fastReader?: UsefulReaderName
-  id: string
-  lastOriginId?: string
-  lastPublishedAt?: number
-  loader: LoaderName
-  reading: 'fast' | 'slow'
-  refreshedAt?: number
-  slowReader?: UsefulReaderName
-  title: string
-  url: string
+export type { FeedValue, NewFeed }
+
+export function getFeed(feedId: string): ReadableAtom<FeedValue | undefined> {
+  return firstRow(getTables().feeds.select`WHERE "id" = ${feedId}`)
 }
 
-export const Feed = syncMapTemplate<FeedValue>('feeds', {
-  offline: true,
-  remote: false
-})
-
-export function getFeed(feedId: string): SyncMapStore<FeedValue> {
-  return Feed(feedId, getClient())
+export function getFeeds(): SqlStore<FeedValue[]> {
+  return getTables().feeds.select`ORDER BY "title"`
 }
 
-export function getFeeds(
-  filter: Filter<FeedValue> = {}
-): FilterStore<FeedValue> {
-  return createFilter(getClient(), Feed, filter)
+export function getFeedsByUrl(url: string): SqlStore<FeedValue[]> {
+  return getTables().feeds.select`WHERE "url" = ${url}`
 }
 
-export async function addFeed(fields: OptionalId<FeedValue>): Promise<string> {
-  let id = fields.id ?? nanoid()
-  await createSyncMap(getClient(), Feed, { id, ...fields })
-  return id
+export function loadFeed(feedId: string): Promise<FeedValue | undefined> {
+  return select<FeedValue>`SELECT * FROM "feeds" WHERE "id" = ${feedId}`.then(
+    rows => rows[0]
+  )
+}
+
+export function loadFeeds(): Promise<FeedValue[]> {
+  return select<FeedValue>`SELECT * FROM "feeds" ORDER BY "title"`
+}
+
+/**
+ * Feed’s columns used during the refresh. `SELECT *` returns also
+ * `updatedAt_*` column of every field, and the list of all feeds
+ * is kept in memory until the refresh ends.
+ */
+export type RefreshFeed = Pick<
+  FeedValue,
+  | 'id'
+  | 'lastOriginId'
+  | 'lastPublishedAt'
+  | 'loader'
+  | 'refreshedAt'
+  | 'title'
+  | 'url'
+>
+
+export function loadFeedsForRefresh(): Promise<RefreshFeed[]> {
+  return select<RefreshFeed>`
+    SELECT "id", "title", "url", "loader", "refreshedAt",
+      "lastOriginId", "lastPublishedAt"
+    FROM "feeds" ORDER BY "title"
+  `
+}
+
+export function loadFeedsByCategory(categoryId: string): Promise<FeedValue[]> {
+  return select<FeedValue>`
+    SELECT * FROM "feeds" WHERE "categoryId" = ${categoryId} ORDER BY "title"
+  `
+}
+
+export function loadFeedUrls(): Promise<string[]> {
+  return select<Pick<FeedValue, 'url'>>`SELECT "url" FROM "feeds"`.then(rows =>
+    rows.map(row => row.url)
+  )
+}
+
+export function loadFeedByUrl(url: string): Promise<FeedValue | undefined> {
+  return select<FeedValue>`SELECT * FROM "feeds" WHERE "url" = ${url}`.then(
+    rows => rows[0]
+  )
+}
+
+export function addFeed(feeds: NewFeed[]): Promise<string[]>
+export function addFeed(fields: NewFeed): Promise<string>
+export function addFeed(
+  fields: NewFeed | NewFeed[]
+): Promise<string[] | string> {
+  return getTables().feeds.create(fields)
 }
 
 export async function deleteFeed(feedId: string): Promise<void> {
-  let feed = Feed.cache[feedId]
-  if (feed) feed.deleted = true
-  let posts = await loadValue(getPosts({ feedId }))
-  await Promise.all(posts.list.map(post => deletePost(post.id)))
-  return deleteSyncMapById(getClient(), Feed, feedId)
+  await deletePost(await loadPostIdsByFeed(feedId))
+  return getTables().feeds.delete(feedId)
 }
 
 export async function changeFeed(
-  feedId: string,
-  changes: Partial<FeedValue>
+  feedId: string[] | string,
+  changes: FeedChanges
 ): Promise<void> {
-  await changeSyncMapById(getClient(), Feed, feedId, changes)
-  await recalcPostsReading(feedId)
+  await getTables().feeds.update(feedId, changes)
+  if (changes.reading) {
+    await Promise.all([feedId].flat().map(id => recalcPostsReading(id)))
+  }
 }
 
 /**
@@ -76,7 +111,7 @@ export async function changeFeed(
  */
 export async function addCandidate(
   candidate: FeedLoader,
-  fields: Partial<FeedValue> = {},
+  fields: Partial<NewFeed> = {},
   task = createDownloadTask(),
   response?: TextResponse
 ): Promise<string> {
@@ -85,7 +120,7 @@ export async function addCandidate(
   let lastPost = posts.get().list[0]
 
   return await addFeed({
-    categoryId: 'general',
+    categoryId: GENERAL_CATEGORY,
     lastOriginId: lastPost?.originId,
     lastPublishedAt: lastPost?.publishedAt ?? Math.round(Date.now() / 1000),
     loader: candidate.name,
@@ -97,37 +132,49 @@ export async function addCandidate(
 }
 
 export function getFeedLatestPosts(
-  feed: FeedValue,
+  feed: Pick<FeedValue, 'loader' | 'refreshedAt' | 'url'>,
   task = createDownloadTask()
 ): PostsList {
   return loaders[feed.loader].getPosts(
     task,
     feed.url,
     undefined,
-    feed.refreshedAt
+    feed.refreshedAt ?? undefined
   )
 }
 
 let testFeedId = 0
 
-export function testFeed(feed: Partial<FeedValue> = {}): FeedValue {
+export function testFeed(
+  feed: Partial<WithoutMeta<FeedValue>> = {}
+): FeedValue {
   testFeedId += 1
-  return {
-    categoryId: 'general',
+  return withMeta<FeedValue>({
+    categoryId: GENERAL_CATEGORY,
+    fastReader: null,
     id: `feed-${testFeedId}`,
-    lastOriginId: undefined,
-    lastPublishedAt: undefined,
+    lastOriginId: null,
+    lastPublishedAt: null,
     loader: 'rss',
     reading: 'fast',
+    refreshedAt: null,
+    slowReader: null,
     title: `Test ${testFeedId}`,
     url: `http://example.com/${testFeedId}`,
     ...feed
-  }
+  })
 }
 
 export const needWelcome = atom<boolean | undefined>()
 onMount(needWelcome, () => {
-  return getFeeds().subscribe(feeds => {
-    needWelcome.set(feeds.isLoading ? undefined : feeds.isEmpty)
+  // SQLocal subscribes the reactive query to the tables from `tables_used()`
+  // and throws when the list is empty. Counting an indexed column like `url`
+  // is answered by the index alone, so the query must read a column
+  // without an index.
+  let $first = getDatabase().store<{
+    loader: LoaderName
+  }>`SELECT "loader" FROM "feeds" LIMIT 1`
+  return $first.subscribe(value => {
+    needWelcome.set(value.isLoading ? undefined : value.value.length === 0)
   })
 })

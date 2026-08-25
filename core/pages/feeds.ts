@@ -1,11 +1,11 @@
-import { atom, effect } from 'nanostores'
+import { atom, computed, effect } from 'nanostores'
 
 import { type CategoryValue, changeCategory, getCategory } from '../category.ts'
 import { changeFeed, type FeedValue, getFeed, needWelcome } from '../feed.ts'
 import { fastMenu, menuLoading, slowMenu } from '../menu.ts'
 import { deletePost, fastPostsCount, slowPostsCount } from '../post.ts'
 import {
-  loadPosts,
+  loadReadPostIds,
   type PostFilter,
   type ReaderHelpers,
   type UsefulReaderName
@@ -17,16 +17,25 @@ import {
   listReader,
   type Reader,
   type ReaderCreator,
+  type ReaderName,
   welcomeReader
 } from '../readers/index.ts'
 import { nextRouteIsRedirect } from '../router.ts'
+import { freeDatabasePages, hasDatabase } from '../schema.ts'
 import { createPage } from './common.ts'
+
+const READERS: { [Name in ReaderName]: ReaderCreator } = {
+  empty: emptyReader,
+  feed: feedReader,
+  list: listReader,
+  welcome: welcomeReader
+}
 
 let pages = (['slow', 'fast'] as const).map(reading => {
   return createPage(reading, () => {
     let $categoryId = atom<string | undefined>()
     let $feedId = atom<string | undefined>()
-    let $from = atom<number | undefined>()
+    let $from = atom<string | undefined>()
     let $loading = atom(true)
     let $postsLoading = atom(true)
     let $posts = atom<Reader | undefined>()
@@ -36,14 +45,9 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     let lastFilter: PostFilter | undefined
 
     async function deleteRead(): Promise<void> {
-      if (lastFilter) {
-        let posts = await loadPosts(lastFilter)
-        await Promise.all(
-          posts.map(async post => {
-            if (post.get().read) await deletePost(post.get().id)
-          })
-        )
-      }
+      if (!lastFilter || !hasDatabase()) return
+      let posts = await loadReadPostIds(lastFilter)
+      if (hasDatabase()) await deletePost(posts)
     }
 
     let prevLoadingUnbind = (): void => {}
@@ -86,11 +90,11 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         $feed.set(undefined)
         if (feedId) {
           unbindTarget = getFeed(feedId).subscribe(value => {
-            if (!value.isLoading) $feed.set(value)
+            if (value) $feed.set(value)
           })
         } else if (categoryId) {
           unbindTarget = getCategory(categoryId).subscribe(value => {
-            if (!value.isLoading) $category.set(value)
+            if (value) $category.set(value)
           })
         } else if (!menuLoading.get()) {
           void nextRouteIsRedirect(() => {
@@ -109,32 +113,36 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     let readerProp =
       reading === 'fast' ? ('fastReader' as const) : ('slowReader' as const)
 
+    // Only the emptiness matters here, while the count changes on every added
+    // or deleted post. Without it every post of the refresh would re-create
+    // the reader.
+    let $noPosts = computed(
+      reading === 'fast' ? fastPostsCount : slowPostsCount,
+      count => count === 0
+    )
+
+    // The feed’s row changes on every refresh mark and on every action from
+    // another tab or device, while the reader depends only on the target
+    // and on the reader’s name.
+    let lastKey: string | undefined
+
     let unbindPosts = effect(
-      [$feed, $category, needWelcome, fastPostsCount, slowPostsCount],
-      (feed, category, welcome, fastCount, slowCount) => {
-        let readerBuilder: ReaderCreator | undefined
+      [$feed, $category, needWelcome, $noPosts],
+      (feed, category, welcome, noPosts) => {
+        let readerName: 'none' | ReaderName
         if (welcome) {
-          readerBuilder = welcomeReader
-        } else if (
-          (reading === 'fast' && fastCount === 0) ||
-          (reading === 'slow' && slowCount === 0)
-        ) {
-          readerBuilder = emptyReader
+          readerName = 'welcome'
+        } else if (noPosts) {
+          readerName = 'empty'
         } else if (!feed && !category) {
-          readerBuilder = undefined
+          readerName = 'none'
         } else {
-          let reader: UsefulReaderName
-          if (feed?.[readerProp]) {
-            reader = feed[readerProp]
-          } else if (category?.[readerProp]) {
-            reader = category[readerProp]
-          } else {
-            reader = reading === 'fast' ? 'feed' : 'list'
-          }
-          readerBuilder = reader === 'feed' ? feedReader : listReader
+          readerName =
+            feed?.[readerProp] ??
+            category?.[readerProp] ??
+            (reading === 'fast' ? 'feed' : 'list')
         }
 
-        let instance: BaseReader | undefined
         let filter: PostFilter
         if (category) {
           filter = { categoryId: category.id, reading }
@@ -143,12 +151,19 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         } else {
           filter = { reading }
         }
+
+        let key = `${readerName} ${filter.categoryId ?? ''} ${filter.feedId ?? ''}`
+        if (key === lastKey) return
+        lastKey = key
+
         if (JSON.stringify(filter) !== JSON.stringify(lastFilter)) {
           lastFilter = filter
           void deleteRead()
         }
-        if (readerBuilder) {
-          instance = readerBuilder(filter, params, helpers)
+
+        let instance: BaseReader | undefined
+        if (readerName !== 'none') {
+          instance = READERS[readerName](filter, params, helpers)
         }
 
         setReader(instance as Reader)
@@ -156,15 +171,13 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     )
 
     async function changeReader(reader: UsefulReaderName): Promise<void> {
-      $from.set(undefined)
       let feedId = $feedId.get()
+      let categoryId = $categoryId.get()
+      $from.set(undefined)
       if (feedId) {
         await changeFeed(feedId, { [readerProp]: reader })
-      } else {
-        let categoryId = $categoryId.get()
-        if (categoryId) {
-          await changeCategory(categoryId, { [readerProp]: reader })
-        }
+      } else if (categoryId) {
+        await changeCategory(categoryId, { [readerProp]: reader })
       }
     }
 
@@ -178,6 +191,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         prevReading?.exit()
         prevLoadingUnbind()
         await deleteRead()
+        await freeDatabasePages()
       },
       feed: $feed,
       loading: $loading,

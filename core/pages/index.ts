@@ -15,6 +15,7 @@ import { importPage } from './import.ts'
 import { reloginPage } from './relogin.ts'
 import { signUpPage } from './sign-up.ts'
 import { startPage } from './start.ts'
+import { storagePage } from './storage.ts'
 
 export type { AboutPage } from './about.ts'
 export type { AddPage } from './add.ts'
@@ -28,10 +29,12 @@ export type { ImportPage } from './import.ts'
 export type { ReloginPage } from './relogin.ts'
 export type { SignUpPage } from './sign-up.ts'
 export type { StartPage } from './start.ts'
+export type { StoragePage } from './storage.ts'
 
 export const pages = {
   about: aboutPage,
   add: addPage,
+  brokenDatabase: createSimplePage('brokenDatabase'),
   cloud: cloudPage,
   download: createSimplePage('download'),
   export: exportPage,
@@ -48,6 +51,7 @@ export const pages = {
   signUp: signUpPage,
   slow: slowPage,
   start: startPage,
+  storage: storagePage,
   welcome: createSimplePage('welcome')
 } satisfies {
   [Name in RouteName]: Name extends 'fast' | 'slow'

@@ -7,12 +7,11 @@ import {
   signOut,
   signUp
 } from '@slowreader/api'
-import { eq } from 'drizzle-orm'
 import { deepEqual, equal, notEqual, ok } from 'node:assert/strict'
 import { afterEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import { db, sessions } from '../db/index.ts'
+import { db } from '../db/index.ts'
 import {
   buildTestServer,
   cleanAllTables,
@@ -30,6 +29,7 @@ describe('server auth', () => {
 
   test('creates users and check credentials', async () => {
     server = buildTestServer()
+    let start = Date.now()
 
     let sessionCookie: string | undefined
     let userA = await testRequest(
@@ -51,10 +51,10 @@ describe('server auth', () => {
     notEqual(userB.session, userA.session)
 
     let session1 = await db.query.sessions.findFirst({
-      where: eq(sessions.token, userA.session)
+      where: { token: userA.session }
     })
-    ok(session1!.createdAt.valueOf() > Date.now() - 1000)
-    ok(session1!.usedAt.valueOf() > Date.now() - 1000)
+    ok(session1!.createdAt.valueOf() >= start)
+    ok(session1!.usedAt.valueOf() >= start)
 
     await setTimeout(100)
     await server.expectWrongCredentials(userA.userId)
@@ -65,7 +65,7 @@ describe('server auth', () => {
       cookie: { session: userA.session }
     })
     let session2 = await db.query.sessions.findFirst({
-      where: eq(sessions.token, userA.session)
+      where: { token: userA.session }
     })
     equal(session1!.createdAt.valueOf(), session2!.createdAt.valueOf())
     ok(session2!.usedAt.valueOf() > session1!.usedAt.valueOf())
@@ -84,7 +84,7 @@ describe('server auth', () => {
       cookie: { session: userA.session }
     })
     let sessions1 = await db.query.sessions.findMany({
-      where: eq(sessions.userId, userA.userId)
+      where: { userId: userA.userId }
     })
     deepEqual(sessions1, [])
 
@@ -104,7 +104,7 @@ describe('server auth', () => {
       cookie: { session: token1.session }
     })
     let session3 = await db.query.sessions.findFirst({
-      where: eq(sessions.token, token1.session)
+      where: { token: token1.session }
     })
     ok(session3!.usedAt.valueOf() > session2!.usedAt.valueOf())
 

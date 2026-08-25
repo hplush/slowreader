@@ -2,10 +2,13 @@
 
 import { confirm } from '@logux/client'
 import {
+  busy,
   client,
   closeLastPopup,
   comfortMode,
   errorMode,
+  hasPassword,
+  onSignOut,
   openedPopups,
   type Route,
   router,
@@ -14,6 +17,7 @@ import {
   useReducedMotion
 } from '@slowreader/core'
 import { focusGroupKeyUX, jumpKeyUX, pressKeyUX, startKeyUX } from 'keyux'
+import { effect } from 'nanostores'
 
 import { locale } from '../stores/locale.ts'
 import { onlyTouch, pageTheme } from '../stores/media-queries.ts'
@@ -35,7 +39,7 @@ function updateTheme(): void {
   }
 }
 
-function fromParam(page: Route): number | undefined {
+function fromParam(page: Route): string | undefined {
   if (page.route === 'fast' || page.route === 'slow') {
     return page.params.from
   } else {
@@ -100,6 +104,17 @@ window.addEventListener('load', () => {
   void import('./devtools.ts').then(() => {})
 })
 
+if (location.search.includes('benchmark')) {
+  let debug = location.search.includes('benchmark=debug')
+  sessionStorage.setItem('benchmark', debug ? 'debug' : '1')
+}
+if (sessionStorage.getItem('benchmark')) {
+  void import('../benchmark/benchmark.ts').then(() => {})
+}
+onSignOut(() => {
+  sessionStorage.removeItem('benchmark')
+})
+
 startKeyUX(window, [
   pressKeyUX('is-pseudo-active'),
   focusGroupKeyUX(),
@@ -120,6 +135,21 @@ window.addEventListener('keyup', e => {
   }
 })
 
-client.subscribe(logux => {
-  if (logux) confirm(logux)
+// Ask to not close the tab only for cloud users. A local client has no
+// server to sync with, so its actions will never become synchronized
+// and the warning would be shown forever.
+effect([client, hasPassword], (logux, cloud) => {
+  if (logux && cloud) return confirm(logux)
+})
+
+function blockClosing(event: BeforeUnloadEvent): void {
+  event.preventDefault()
+}
+
+effect(busy, task => {
+  if (!task || !task.blocking) return
+  window.addEventListener('beforeunload', blockClosing)
+  return () => {
+    window.removeEventListener('beforeunload', blockClosing)
+  }
 })

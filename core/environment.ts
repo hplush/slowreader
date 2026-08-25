@@ -1,7 +1,6 @@
 // Dependency Injection to change behavior in different environment
 // (web, mobile native, tests, etc).
 
-import type { ClientOptions } from '@logux/client'
 import type { TestServer } from '@logux/server'
 import type { TranslationLoader } from '@nanostores/i18n'
 import {
@@ -9,12 +8,13 @@ import {
   type PersistentStore,
   setPersistentEngine
 } from '@nanostores/persistent'
+import type { Database } from '@nanostores/sql'
 import { atom, type ReadableAtom, type StoreValue } from 'nanostores'
 
 import type { BaseRouter, Route, Routes } from './router.ts'
 
-interface LogStoreCreator {
-  (): ClientOptions['store']
+interface DatabaseCreator {
+  (): Database
 }
 
 export type NetworkType = 'free' | 'paid' | 'unknown' | undefined
@@ -71,10 +71,13 @@ export interface Environment {
   cleanStorage(): void
 
   /**
-   * Object like `window` in web or `process` in Node.js to track unhandled
-   * errors.
-   *
-   * For instance, we are using it to catch not-found errors.
+   * SQL database engine. Like SQLocal in Web, in-memory SQLite in Node.js,
+   * Expo for mobile, etc. It keeps both Logux log and app’s tables.
+   */
+  databaseCreator: DatabaseCreator
+
+  /**
+   * `window` in web or `process` in Node.js to track unhandled errors.
    */
   errorEvents: ErrorEvents
 
@@ -89,11 +92,6 @@ export interface Environment {
   locale: ReadableAtom<string>
 
   /**
-   * Persistent storage for Logux log.
-   */
-  logStoreCreator: LogStoreCreator
-
-  /**
    * Detect network type to not download images over expensive tariff.
    */
   networkType: NetworkTypeDetector
@@ -102,6 +100,17 @@ export interface Environment {
    * Change current URL.
    */
   openRoute(page: Route, redirect?: boolean): void
+
+  /**
+   * Web `storage` event like API to subscribe for settings changes.
+   */
+  persistentEvents: PersistentEvents
+
+  /**
+   * `localStorage`-like API to keep per-client persistent settings
+   * and Logux reducers’ data.
+   */
+  persistentStore: PersistentStore
 
   /**
    * Restart app after sign-out to be sure that all in-memory caches are clean.
@@ -148,18 +157,6 @@ export interface Environment {
   warn(error: unknown): void
 }
 
-export type EnvironmentAndStore = {
-  /**
-   * Web `storage` event like API to subscribe for settings changes.
-   */
-  persistentEvents: PersistentEvents
-
-  /**
-   * `localStorage`-like API to keep per-client persistent settings.
-   */
-  persistentStore: PersistentStore
-} & Environment
-
 let currentEnvironment: Environment | undefined
 
 let listeners: EnvironmentListener[] = []
@@ -183,7 +180,7 @@ export function onEnvironment(cb: EnvironmentListener): void {
 export function setupEnvironment<Router extends BaseRouter>(
   env: {
     baseRouter: ValidateRouter<Router>
-  } & EnvironmentAndStore
+  } & Environment
 ): void {
   for (let unbind of unbinds) unbind?.()
 
@@ -191,12 +188,14 @@ export function setupEnvironment<Router extends BaseRouter>(
   currentEnvironment = {
     baseRouter: env.baseRouter,
     cleanStorage: env.cleanStorage,
+    databaseCreator: env.databaseCreator,
     errorEvents: env.errorEvents,
     getSession: env.getSession,
     locale: env.locale,
-    logStoreCreator: env.logStoreCreator,
     networkType: env.networkType,
     openRoute: env.openRoute,
+    persistentEvents: env.persistentEvents,
+    persistentStore: env.persistentStore,
     restartApp: env.restartApp,
     saveFile: env.saveFile,
     savePassword: env.savePassword,

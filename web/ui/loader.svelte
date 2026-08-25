@@ -1,14 +1,16 @@
 <script lang="ts">
-  import { commonMessages as t } from '@slowreader/core'
+  import { reportLoader, commonMessages as t } from '@slowreader/core'
 
   let {
     label = $t.loading,
     size = 'normal',
+    track = 'unnamed',
     value,
     variant = 'auto'
   }: {
     label?: string
     size?: 'normal' | 'wide'
+    track?: string
     value?: boolean | number
     variant?: 'accent' | 'auto'
   } = $props()
@@ -25,6 +27,7 @@
       progress.removeAttribute('value')
     }
   }}
+  {@attach () => reportLoader(track)}
   aria-label={label}
 ></progress>
 

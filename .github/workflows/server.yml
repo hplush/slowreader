@@ -26,14 +26,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden the runner
-        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
             github.com:443
             nodejs.org:443
-            release-assets.githubusercontent.com
+            release-assets.githubusercontent.com:443
             objects.githubusercontent.com:443
             registry.npmjs.org:443
       - name: Checkout the repository
@@ -43,7 +43,7 @@ jobs:
       - name: Initialize Node.js
         uses: ./.github/actions/init-node
       - name: Run tests
-        run: cd server && pnpm test
+        run: pnpm -F server test
   build:
     name: Server Build
     if: github.ref == 'refs/heads/main'
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden the runner
-        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           egress-policy: block
           allowed-endpoints: >
@@ -99,19 +99,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden the runner
-        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
+          egress-policy: block
           allowed-endpoints: >
             9236a389bd48b984df91adc1bc924620.r2.cloudflarestorage.com:443
             api.github.com:443
-            apk.cgr.dev:443
-            cgr.dev:443
             github.com:443
             nodejs.org:443
             release-assets.githubusercontent.com:443
             raw.githubusercontent.com:443
             ghcr.io:443
             pkg-containers.githubusercontent.com:443
+            registry.access.redhat.com:443
+            cdn.quay.io:443
+            cdn01.quay.io:443
+            cdn02.quay.io:443
+            cdn03.quay.io:443
+            cdn04.quay.io:443
+            cdn05.quay.io:443
+            cdn06.quay.io:443
             cloud.hplush.dev:443
       - name: Checkout the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

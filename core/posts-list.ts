@@ -52,7 +52,7 @@ export function createPostsList(
           error: undefined,
           hasNext: !!nextLoader,
           isLoading: false,
-          list: $store.get().list.concat(nextPosts)
+          list: nextPosts
         })
         return nextPosts
       })

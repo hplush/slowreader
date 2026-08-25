@@ -1,27 +1,24 @@
-import { defineSyncMapActions } from '@logux/actions'
-import {
-  changeSyncMapById,
-  createFilter,
-  createSyncMap,
-  deleteSyncMapById,
-  type Filter,
-  type FilterStore,
-  loadValue,
-  type SyncMapStore,
-  syncMapTemplate
-} from '@logux/client'
+import { withMeta, type WithoutMeta } from '@logux/client/db'
 import { formatter } from '@nanostores/i18n'
-import { nanoid } from 'nanoid'
-import { atom, onMount } from 'nanostores'
+import { atom, onMount, type ReadableAtom, type WritableAtom } from 'nanostores'
 
-import { getClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
-import { getFeed } from './feed.ts'
-import { loadFilters } from './filter.ts'
+import { loadFeed } from './feed.ts'
+import { loadFilterChecker } from './filter.ts'
 import { $locale } from './i18n.ts'
-import { sanitizeHtml, stripHTML, truncateHTML } from './lib/html.ts'
-import type { OptionalId } from './lib/stores.ts'
+import { sanitizeDOM, stripHTML, truncateDOM } from './lib/html.ts'
+import { firstRow } from './lib/stores.ts'
 import { truncateText } from './lib/text.ts'
+import {
+  getDatabase,
+  getTables,
+  type NewPost,
+  type PostChanges,
+  type PostValue,
+  select
+} from './schema.ts'
+
+export type { NewPost, PostValue }
 
 export type OriginPost = {
   full?: string
@@ -29,10 +26,56 @@ export type OriginPost = {
   media?: string
   originId: string
   publishedAt?: number
-  read?: boolean
   title?: string
   url?: string
 }
+
+/**
+ * Post’s text from a feed or from the database. Database returns `null`
+ * for missing values, while loaders return `undefined`.
+ */
+export type PostContent = {
+  full?: null | string
+  intro?: null | string
+  originId: string
+  publishedAt?: null | number
+  title?: null | string
+  url?: null | string
+}
+
+/**
+ * The text which the card shows, in the two shapes the reader can load.
+ *
+ * The feed’s `intro` and the article never come together: `full` is loaded
+ * only when the feed gave no `intro`, since only then the card has to cut
+ * the article itself. `more` answers the other case, where the article
+ * is compared with the intro in SQL. `url` resolves relative links
+ * of the article.
+ */
+export type PostCardText = {
+  url: null | string
+} & (
+  | { full: null | string; intro: null; more: 0 }
+  | { full: null; intro: string; more: number }
+)
+
+/**
+ * Only the columns which the post card needs
+ */
+export type ReaderPost = {
+  authorTitle?: string
+  authorUrl?: string
+} & Pick<
+  PostValue,
+  'feedId' | 'id' | 'media' | 'originId' | 'publishedAt' | 'read' | 'title'
+> &
+  PostCardText
+
+/**
+ * How much of the article the card shows, in chars of text.
+ */
+const INTRO_MIN = 300
+const INTRO_MAX = 500
 
 export type PostMedia = {
   fromText?: boolean
@@ -40,73 +83,112 @@ export type PostMedia = {
   url: string
 }
 
-export type PostValue = {
-  feedId: string
-  id: string
-  publishedAt: number
-  reading: 'fast' | 'slow'
-} & Omit<OriginPost, 'publishedAt'>
-
-export const Post = syncMapTemplate<PostValue>('posts', {
-  offline: true,
-  remote: false
-})
-
-export async function addPost(fields: OptionalId<PostValue>): Promise<string> {
-  let id = fields.id ?? nanoid()
-  await createSyncMap(getClient(), Post, { id, ...fields })
-  return id
+export function addPost(posts: NewPost[]): Promise<string[]>
+export function addPost(fields: NewPost): Promise<string>
+export function addPost(
+  fields: NewPost | NewPost[]
+): Promise<string[] | string> {
+  return getTables().posts.create(fields)
 }
 
-export function getPost(id: string): SyncMapStore<PostValue> {
-  return Post(id, getClient())
+export function getPost(postId: string): ReadableAtom<PostValue | undefined> {
+  return firstRow(getTables().posts.select`WHERE "id" = ${postId}`)
 }
 
-export function getPosts(
-  filter: Filter<PostValue> = {}
-): FilterStore<PostValue> {
-  return createFilter(getClient(), Post, filter)
+export function loadPost(postId: string): Promise<PostValue | undefined> {
+  return select<PostValue>`SELECT * FROM "posts" WHERE "id" = ${postId}`.then(
+    rows => rows[0]
+  )
 }
 
-export function deletePost(postId: string): Promise<void> {
-  return deleteSyncMapById(getClient(), Post, postId)
+export function loadPosts(): Promise<PostValue[]> {
+  return select<PostValue>`SELECT * FROM "posts" ORDER BY "publishedAt" DESC`
 }
 
-export async function changePost(
-  postId: string,
-  changes: Partial<PostValue>
+/**
+ * Load posts by pages to not keep all of them in memory during the export.
+ */
+export function loadPostsPage(
+  limit: number,
+  offset: number
+): Promise<PostValue[]> {
+  return select<PostValue>`
+    SELECT * FROM "posts" ORDER BY "publishedAt" DESC
+    LIMIT ${limit} OFFSET ${offset}
+  `
+}
+
+export function loadPostsByFeed(feedId: string): Promise<PostValue[]> {
+  return select<PostValue>`
+    SELECT * FROM "posts" WHERE "feedId" = ${feedId}
+    ORDER BY "publishedAt" DESC
+  `
+}
+
+export function loadPostIdsByFeed(feedId: string): Promise<string[]> {
+  return select<{
+    id: string
+  }>`SELECT "id" FROM "posts" WHERE "feedId" = ${feedId}`.then(rows =>
+    rows.map(row => row.id)
+  )
+}
+
+/**
+ * Origin IDs of feed’s posts to not add the same post twice, if the previous
+ * refresh was stopped in the middle of the feed’s pagination.
+ */
+export function loadPostOriginIdsByFeed(feedId: string): Promise<string[]> {
+  return select<{
+    originId: string
+  }>`SELECT "originId" FROM "posts" WHERE "feedId" = ${feedId}`.then(rows =>
+    rows.map(row => row.originId)
+  )
+}
+
+export function deletePost(postId: string[] | string): Promise<void> {
+  return getTables().posts.delete(postId)
+}
+
+export function changePost(
+  postId: string[] | string,
+  changes: PostChanges
 ): Promise<void> {
-  return changeSyncMapById(getClient(), Post, postId, changes)
+  return getTables().posts.update(postId, changes)
 }
 
 export function processOriginPost(
   origin: OriginPost,
   feedId: string,
   reading: PostValue['reading']
-): PostValue {
+): NewPost {
   return {
     ...origin,
     feedId,
-    id: nanoid(),
     publishedAt: origin.publishedAt ?? Date.now(),
     reading
   }
 }
 
-export function getPostIntro(post: OriginPost): [string, boolean] {
-  if (post.intro) {
-    let more = !!post.full && post.full !== post.intro
-    return [post.intro, more]
-  } else if (post.full) {
-    let sanitized = sanitizeHtml(post.full, post.url)
-    let truncated = truncateHTML(sanitized, 300, 500)
-    return [truncated, truncated !== sanitized]
+/**
+ * The intro’s DOM and `true` when the article has more text than the intro.
+ *
+ * The card gets a sanitized node and not a string: the text is sanitized
+ * once here, instead of being serialized back and parsed and sanitized
+ * again on the render.
+ */
+export function getPostIntro(post: PostCardText): [Element, boolean] {
+  let url = post.url ?? undefined
+  if (post.intro !== null) {
+    return [sanitizeDOM(post.intro, url), post.more === 1]
+  } else if (post.full !== null) {
+    let article = sanitizeDOM(post.full, url)
+    return [article, truncateDOM(article, INTRO_MIN, INTRO_MAX)]
   } else {
-    return ['', false]
+    return [sanitizeDOM('', url), false]
   }
 }
 
-export function getPostTitle(post: OriginPost): string {
+export function getPostTitle(post: PostContent): string {
   if (post.title) {
     return stripHTML(post.title)
   } else if (post.intro) {
@@ -123,53 +205,75 @@ export function getPostTitle(post: OriginPost): string {
 }
 
 export async function recalcPostsReading(feedId: string): Promise<void> {
-  let feed = await loadValue(getFeed(feedId))
+  let feed = await loadFeed(feedId)
   if (!feed) return
 
   let [filters, posts] = await Promise.all([
-    loadFilters({ feedId }),
-    loadValue(getPosts({ feedId }))
+    loadFilterChecker(feedId),
+    loadPostsByFeed(feedId)
   ])
 
-  for (let post of posts.list) {
+  let fast: string[] = []
+  let slow: string[] = []
+  for (let post of posts) {
     let reading = filters(post) ?? feed.reading
-    if (reading !== 'delete') {
-      await changePost(post.id, { reading })
+    if (reading === 'delete' || reading === post.reading) continue
+    if (reading === 'fast') {
+      fast.push(post.id)
+    } else {
+      slow.push(post.id)
     }
   }
+
+  await Promise.all([
+    changePost(fast, { reading: 'fast' }),
+    changePost(slow, { reading: 'slow' })
+  ])
 }
 
 let testPostId = 0
 
-export function testPost(feed: Partial<PostValue> = {}): PostValue {
+export function testPost(
+  post: Partial<WithoutMeta<PostValue>> = {}
+): PostValue {
   testPostId += 1
-  return {
+  return withMeta<PostValue>({
     feedId: 'feed-1',
+    full: null,
     id: `post-${testPostId}`,
     intro: `Post ${testPostId}`,
+    media: null,
     originId: `test-${testPostId}`,
     publishedAt: 1000,
+    read: 0,
     reading: 'fast',
+    title: null,
     url: `http://example.com/${testPostId}`,
-    ...feed
-  }
+    ...post
+  })
+}
+
+function countPosts(
+  store: WritableAtom<number | undefined>,
+  reading: PostValue['reading']
+): () => void {
+  let $total = getDatabase().store<{ total: number }>`
+    SELECT COUNT("originId") AS "total" FROM "posts" WHERE "reading" = ${reading}
+  `
+  return $total.subscribe(value => {
+    store.set(value.isLoading ? undefined : value.value[0]!.total)
+  })
 }
 
 export const fastPostsCount = atom<number | undefined>(undefined)
 onMount(fastPostsCount, () => {
-  return getPosts({ reading: 'fast' }).subscribe(posts => {
-    fastPostsCount.set(posts.isLoading ? undefined : posts.list.length)
-  })
+  return countPosts(fastPostsCount, 'fast')
 })
 
 export const slowPostsCount = atom<number | undefined>(undefined)
 onMount(slowPostsCount, () => {
-  return getPosts({ reading: 'slow' }).subscribe(posts => {
-    slowPostsCount.set(posts.isLoading ? undefined : posts.list.length)
-  })
+  return countPosts(slowPostsCount, 'slow')
 })
-
-export const postsChangedAction = defineSyncMapActions<PostValue>('posts')[4]
 
 export function stringifyMedia(media: PostMedia[]): string | undefined {
   if (media.length === 0) return undefined
@@ -182,7 +286,7 @@ export function stringifyMedia(media: PostMedia[]): string | undefined {
   return JSON.stringify(unique)
 }
 
-export function parseMedia(value: string | undefined): PostMedia[] {
+export function parseMedia(value: null | string | undefined): PostMedia[] {
   if (!value) return []
   try {
     return JSON.parse(value) as PostMedia[]

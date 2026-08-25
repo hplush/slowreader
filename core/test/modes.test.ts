@@ -1,7 +1,7 @@
 import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
-import { comfortMode, errorMode } from '../index.ts'
+import { comfortMode, errorMode, GENERAL_CATEGORY } from '../index.ts'
 import {
   cleanClientTest,
   enableClientTest,
@@ -30,7 +30,7 @@ describe('modes', () => {
     equal(comfortMode.get(), true)
     equal(errorMode.get(), false)
 
-    setBaseTestRoute({ params: { category: 'general' }, route: 'fast' })
+    setBaseTestRoute({ params: { category: GENERAL_CATEGORY }, route: 'fast' })
     equal(comfortMode.get(), false)
     equal(errorMode.get(), false)
 

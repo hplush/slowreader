@@ -1,8 +1,3 @@
-import type {
-  SyncMapChangedAction,
-  SyncMapCreatedAction,
-  SyncMapDeletedAction
-} from '@logux/actions'
 import {
   type ClientOptions,
   CrossTabClient,
@@ -10,19 +5,24 @@ import {
   status,
   type StatusValue
 } from '@logux/client'
-import {
-  type Action,
-  type Meta,
-  parseId,
-  type ServerConnection,
-  TestPair,
-  TestTime
-} from '@logux/core'
-import { deleteUser, SUBPROTOCOL } from '@slowreader/api'
+import { SqlLogStore } from '@logux/client/db'
+import { type ServerConnection, TestPair, TestTime } from '@logux/core'
+import type { Database } from '@nanostores/sql'
+import { dbReset, deleteUser, SUBPROTOCOL } from '@slowreader/api'
+import { delay } from 'nanodelay'
 import { atom, computed, effect, onMount } from 'nanostores'
 
+import { busyDuring } from './busy.ts'
 import { getEnvironment, onEnvironment } from './environment.ts'
-import { encryptionKey, hasPassword, syncServer, userId } from './settings.ts'
+import { commonMessages } from './messages/index.ts'
+import {
+  type DatabaseFailure,
+  encryptionKey,
+  hasPassword,
+  lastReset,
+  syncServer,
+  userId
+} from './settings.ts'
 
 let testTime: TestTime | undefined
 
@@ -61,87 +61,127 @@ function getServer(): ClientOptions['server'] {
   }
 }
 
-let prevClient: CrossTabClient | undefined
 export const client = atom<CrossTabClient | undefined>()
+
+/**
+ * SQLite database for log and data tables.
+ */
+export const database = atom<Database | undefined>()
+
 export const isOutdatedClient = atom<boolean>(false)
 
-function isSyncMapFieldsAction(
-  action: Action
-): action is SyncMapChangedAction | SyncMapCreatedAction {
-  return action.type.endsWith('/changed') || action.type.endsWith('/created')
-}
+export const brokenDatabase = atom<DatabaseFailure | undefined>()
 
-function isSyncMapDeleyeAction(action: Action): action is SyncMapDeletedAction {
-  return action.type.endsWith('/deleted')
-}
-
-onEnvironment(({ logStoreCreator }) => {
-  let unbindUser = effect(
-    [userId, hasPassword, encryptionKey],
-    (user, connect, key) => {
-      prevClient?.destroy()
-
-      if (user && key) {
-        let logux = new CrossTabClient({
-          prefix: 'slowreader',
-          server: getServer(),
-          store: logStoreCreator(),
-          subprotocol: SUBPROTOCOL,
-          time: testTime,
-          token: getEnvironment().getSession(),
-          userId: user
-        })
-        encryptActions(logux, key, {
-          ignore: [deleteUser.type]
-        })
-
-        /* node:coverage disable */
-        function removeAction(action: Action, meta: Meta): void {
-          void logux.log.changeMeta(meta.id, { reasons: [] })
-        }
-
-        logux.on('preadd', (action, meta) => {
-          if (parseId(meta.id).clientId === logux.clientId) {
-            meta.sync = true
-          } else if (isSyncMapFieldsAction(action)) {
-            let plural = action.type.split('/')[0]!
-            for (let i in action.fields) {
-              meta.reasons.push(`${plural}/${action.id}/${i}`)
-            }
-            meta.indexes = [plural, `${plural}/${action.id}`]
-          } else if (isSyncMapDeleyeAction(action)) {
-            let plural = action.type.split('/')[0]!
-            void logux.log.each(
-              { index: `${plural}/${action.id}` },
-              removeAction
-            )
-          }
-        })
-
-        logux.node.catch(error => {
-          if (error.type === 'wrong-subprotocol') {
-            isOutdatedClient.set(true)
-          }
-          getEnvironment().warn(error)
-        })
-        if (getEnvironment().server === 'NO_SERVER') {
-          logux.start(false)
-        } else {
-          /* node:coverage enable */
-          logux.start(connect)
-        }
-        prevClient = logux
-        client.set(logux)
-      } else {
-        client.set(undefined)
-      }
-    }
-  )
-  return () => {
-    unbindUser()
-    prevClient?.destroy()
+/**
+ * Drop the local database and download the whole log from the server again.
+ *
+ * The server asks for it when the device was offline longer than
+ * the tombstone retention window, and the client asks for it when
+ * the tables are broken.
+ */
+export async function resetDatabase(
+  reason: string,
+  error?: unknown
+): Promise<void> {
+  let failure: DatabaseFailure = {
+    at: new Date(),
+    error: error instanceof Error ? error.message : undefined,
+    reason
   }
+  let previous = lastReset.get()
+  if (
+    previous &&
+    reason !== 'user-request' &&
+    previous.reason === reason &&
+    failure.at.getTime() - previous.at.getTime() < 10 * 60 * 1000
+  ) {
+    brokenDatabase.set(failure)
+    return
+  }
+
+  lastReset.set(failure)
+
+  await busyDuring(
+    commonMessages.get().downloadingData,
+    async () => {
+      let logux = getClient()
+      if (logux.connected) {
+        // Server stops sending new actions on `db/reset` so we are waiting
+        // only client actions to be sent
+        await Promise.race([logux.waitFor('synchronized'), delay(10_000)])
+      }
+
+      try {
+        await Promise.race([logux.clean(), delay(10_000)])
+      } catch (e) {
+        getEnvironment().warn(e)
+      }
+    },
+    true
+  )
+  getEnvironment().restartApp()
+}
+
+onEnvironment(({ databaseCreator }) => {
+  return effect([userId, hasPassword, encryptionKey], (user, connect, key) => {
+    if (user && key) {
+      let db = databaseCreator()
+      // Mass deletions free their pages by `freeDatabasePages()` instead of
+      // long `VACUUM`. SQLite applies the mode only to a database without
+      // tables, so it must be set before the log store creates its own.
+      void db.exec`PRAGMA auto_vacuum = INCREMENTAL`
+      let logux = new CrossTabClient({
+        prefix: 'slowreader',
+        server: getServer(),
+        store: new SqlLogStore(db),
+        subprotocol: SUBPROTOCOL,
+        time: testTime,
+        token: getEnvironment().getSession(),
+        userId: user
+      })
+      encryptActions(logux, key, {
+        clean: false,
+        ignore: [deleteUser.type]
+      })
+
+      logux.type(dbReset, () => {
+        void resetDatabase('server-request')
+      })
+
+      /* node:coverage disable */
+      logux.node.catch(error => {
+        if (error.type === 'wrong-subprotocol') {
+          isOutdatedClient.set(true)
+        }
+        getEnvironment().warn(error)
+      })
+      if (getEnvironment().server === 'NO_SERVER') {
+        logux.start(false)
+      } else {
+        /* node:coverage enable */
+        logux.start(connect)
+      }
+      database.set(db)
+      client.set(logux)
+      return () => {
+        logux.destroy()
+      }
+    } else {
+      client.set(undefined)
+      database.set(undefined)
+    }
+  })
 })
+
+/**
+ * Run callback while the user is signed in. Return a cleanup from it: it will
+ * be called on sign out, on switch to another user, and on environment change.
+ */
+export function onClient(
+  cb: (logux: CrossTabClient) => (() => void) | void
+): void {
+  onEnvironment(() => effect(client, logux => (logux ? cb(logux) : undefined)))
+}
 
 export function getClient(): CrossTabClient {
   let logux = client.get()
@@ -173,40 +213,32 @@ export const syncStatusType = computed(syncStatus, sync => {
 export const syncError = atom('')
 
 onMount(syncStatus, () => {
-  let unbindState: (() => void) | undefined
-  let unbindClient = client.subscribe(logux => {
-    if (unbindState) {
-      unbindState()
-      unbindState = undefined
-    }
+  return effect(client, logux => {
     if (!logux) {
       syncError.set('')
       syncStatus.set('local')
-    } else if (getEnvironment().server !== 'NO_SERVER') {
-      unbindState = status(logux, (value, details) => {
-        if (
-          value === 'denied' ||
-          value === 'protocolError' ||
-          value === 'syncError'
-        ) {
-          syncStatus.set('error')
-          if (details) {
-            if ('error' in details) {
-              syncError.set(details.error.message)
-            } else {
-              syncError.set(details.action.action.type)
-            }
-          }
-        } else {
-          syncError.set('')
-          syncStatus.set(value)
-        }
-      })
+      return
     }
+    /* node:coverage ignore next */
+    if (getEnvironment().server === 'NO_SERVER') return
+    return status(logux, (value, details) => {
+      if (
+        value === 'denied' ||
+        value === 'protocolError' ||
+        value === 'syncError'
+      ) {
+        syncStatus.set('error')
+        if (details) {
+          if ('error' in details) {
+            syncError.set(details.error.message)
+          } else {
+            syncError.set(details.action.action.type)
+          }
+        }
+      } else {
+        syncError.set('')
+        syncStatus.set(value)
+      }
+    })
   })
-
-  return () => {
-    unbindClient()
-    unbindState?.()
-  }
 })

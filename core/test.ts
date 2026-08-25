@@ -1,9 +1,10 @@
-import { MemoryStore } from '@logux/core'
+import { openDb } from '@nanostores/sql'
+import { nodeDriver } from '@nanostores/sql/node'
 import { delay } from 'nanodelay'
 import { atom } from 'nanostores'
 
 import type { Credentials } from './auth.ts'
-import type { EnvironmentAndStore } from './environment.ts'
+import type { Environment } from './environment.ts'
 import { type RequestMethod, setRequestMethod } from './request.ts'
 import { type BaseRoute, stringifyPopups } from './router.ts'
 
@@ -35,7 +36,7 @@ export function setBaseTestRoute(
   testRouter.set(addHashToBaseRoute(route))
 }
 
-export function getTestEnvironment(): EnvironmentAndStore {
+export function getTestEnvironment(): Environment {
   testSession = undefined
   let persistentStore: Record<string, string> = {}
 
@@ -46,14 +47,19 @@ export function getTestEnvironment(): EnvironmentAndStore {
         delete persistentStore[key]
       }
     },
+    databaseCreator() {
+      // The in-memory database is new and empty for every client, unlike
+      // the file, which the browser re-opens, so the mark of the previous
+      // one must go with it. Tests, which check that the database survives
+      // the client, take `persistentDatabase()` from `./test/utils.ts`
+      delete persistentStore['slowreader:db']
+      return openDb(nodeDriver(':memory:'))
+    },
     errorEvents: { addEventListener() {} },
     getSession() {
       return testSession
     },
     locale: atom('en'),
-    logStoreCreator() {
-      return new MemoryStore()
-    },
     networkType() {
       return { saveData: undefined, type: undefined }
     },
@@ -139,7 +145,8 @@ let fetchMock: RequestMethod = async (url, opts = {}) => {
     )
   } else if (expect.error) {
     await delay(10)
-    throw new Error('Network Error')
+    // Real `fetch()` throws `TypeError` on network problems
+    throw new TypeError('Network Error')
   } else {
     let { promise, reject } = Promise.withResolvers()
     function abortCallback(): void {

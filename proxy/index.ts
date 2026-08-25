@@ -40,6 +40,16 @@ export const DEFAULT_PROXY_CONFIG: Omit<ProxyConfig, 'allowsFrom'> = {
   requestTimeout: 10000
 }
 
+const REDIRECTS = new Set([301, 302, 303, 307, 308])
+
+const MAX_REDIRECTS = 10
+
+function resolveLocation(location: string, from: string): string {
+  let host = new URL(from).host
+  return new URL(location.replace(/^(https?:)\/\/(?=\/)/i, `$1//${host}`), from)
+    .href
+}
+
 function allowCors(req: IncomingMessage, res: ServerResponse): void {
   if (req.headers.origin) {
     res.setHeader('Access-Control-Allow-Headers', '*')
@@ -57,10 +67,59 @@ function allowCors(req: IncomingMessage, res: ServerResponse): void {
   }
 }
 
+function checkDestination(
+  target: string,
+  allowUnsafeDestinations?: boolean
+): URL {
+  let parsed = new URL(target)
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    throw new BadRequestError('Only HTTP or HTTPS are supported')
+  }
+  if (!allowUnsafeDestinations) {
+    if (
+      !parsed.hostname.includes('.') ||
+      parsed.hostname.includes('.localhost') ||
+      /\.(local|internal)$/.test(parsed.hostname) ||
+      parsed.hostname === 'localhost.' ||
+      isIP(parsed.hostname.replace(/^\[|\]$/g, '')) !== 0
+    ) {
+      throw new BadRequestError('IP addresses or local domains are not allowed')
+    }
+  }
+  return parsed
+}
+
+async function loadTarget(
+  method: string,
+  url: string,
+  headers: Record<string, string>,
+  requestTimeout: number
+): Promise<Response> {
+  try {
+    return await fetch(url, {
+      headers: { ...headers, host: new URL(url).host },
+      method: method,
+      redirect: 'manual',
+      signal: AbortSignal.timeout(requestTimeout)
+    })
+  } catch (e) {
+    /* node:coverage disable */
+    if (e instanceof TypeError) {
+      throw new BadRequestError(e.message, 400, { cause: e })
+    } else if (e instanceof Error && e.name === 'TimeoutError') {
+      throw new BadRequestError('Timeout', 400, { cause: e })
+    } else {
+      throw e
+    }
+    /* node:coverage enable */
+  }
+}
+
 export function createProxy(
   config: ProxyConfig
 ): (req: IncomingMessage, res: ServerResponse) => void {
   let allowsFrom = new RegExp(config.allowsFrom)
+
   return async (req, res) => {
     let sent = false
 
@@ -90,12 +149,7 @@ export function createProxy(
 
     try {
       let url = decodeURIComponent(req.url!.slice(1).replace(/^proxy\//, ''))
-      let parsedUrl = new URL(url)
-
-      // Only HTTP or HTTPS protocols are allowed
-      if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        throw new BadRequestError('Only HTTP or HTTPS are supported')
-      }
+      let parsedUrl = checkDestination(url, config.allowUnsafeDestinations)
 
       // We do not typically need non-GET to load RSS
       if (req.method !== 'GET') {
@@ -111,20 +165,6 @@ export function createProxy(
         throw new BadRequestError(
           `Unauthorized Origin. Only ${allowsFrom} is allowed.`
         )
-      }
-
-      if (!config.allowUnsafeDestinations) {
-        if (
-          !parsedUrl.hostname.includes('.') ||
-          parsedUrl.hostname.includes('.localhost') ||
-          /\.(local|internal)$/.test(parsedUrl.hostname) ||
-          parsedUrl.hostname === 'localhost.' ||
-          isIP(parsedUrl.hostname.replace(/^\[|\]$/g, '')) !== 0
-        ) {
-          throw new BadRequestError(
-            'IP addresses or local domains are not allowed'
-          )
-        }
       }
 
       let debug = req.headers['x-slowreader-debug']
@@ -160,23 +200,34 @@ export function createProxy(
         'X-Forwarded-For': clientIp
       }
 
-      let targetResponse: Response
-      try {
-        targetResponse = await fetch(url, {
-          headers: requestHeaders,
-          method: req.method,
-          signal: AbortSignal.timeout(config.requestTimeout)
-        })
-      } catch (e) {
-        /* node:coverage disable */
-        if (e instanceof TypeError) {
-          throw new BadRequestError(e.message, 400, { cause: e })
-        } else if (e instanceof Error && e.name === 'TimeoutError') {
-          throw new BadRequestError('Timeout', 400, { cause: e })
-        } else {
-          throw e
+      let targetUrl = url
+      let targetResponse = await loadTarget(
+        req.method,
+        targetUrl,
+        requestHeaders,
+        config.requestTimeout
+      )
+      let redirects = 0
+      while (
+        REDIRECTS.has(targetResponse.status) &&
+        targetResponse.headers.has('location')
+      ) {
+        if (redirects === MAX_REDIRECTS) {
+          throw new BadRequestError('Too many redirects')
         }
-        /* node:coverage enable */
+        redirects += 1
+        void targetResponse.body?.cancel()
+        targetUrl = resolveLocation(
+          targetResponse.headers.get('location')!,
+          targetUrl
+        )
+        checkDestination(targetUrl, config.allowUnsafeDestinations)
+        targetResponse = await loadTarget(
+          req.method,
+          targetUrl,
+          requestHeaders,
+          config.requestTimeout
+        )
       }
 
       if (
@@ -219,7 +270,7 @@ export function createProxy(
       }
       if (debug) {
         responseHeaders['x-slowreader-request'] =
-          `${req.method} ${url}\\n` + formatHeaders(requestHeaders)
+          `${req.method} ${targetUrl}\\n` + formatHeaders(requestHeaders)
         responseHeaders['x-slowreader-response'] =
           `${targetResponse.status}\\n` +
           formatHeaders(Object.fromEntries(targetResponse.headers.entries()))
@@ -229,7 +280,7 @@ export function createProxy(
 
       if (targetResponse.body) {
         let nodeStream = Readable.fromWeb(
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+          // oxlint-disable-next-line typescript/no-unnecessary-type-assertion
           targetResponse.body as WebReadableStream
         )
         await pipeline(nodeStream, res, {

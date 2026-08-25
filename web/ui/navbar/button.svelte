@@ -6,6 +6,7 @@
   import Icon from '../icon.svelte'
 
   let {
+    anchor,
     children,
     current,
     focusable = false,
@@ -16,6 +17,7 @@
     onclick,
     size = 'inline'
   }: {
+    anchor?: string
     children?: Snippet
     current?: boolean
     focusable?: boolean
@@ -36,6 +38,7 @@
   aria-controls={hasSubmenu || null}
   aria-current={current ? 'page' : null}
   aria-haspopup={hasSubmenu ? 'menu' : null}
+  data-anchor={anchor ?? null}
   {href}
   {onclick}
   role="menuitem"

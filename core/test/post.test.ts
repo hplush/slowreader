@@ -1,17 +1,26 @@
 import './dom-parser.ts'
 
-import { loadValue } from '@logux/client'
 import { deepEqual, doesNotMatch, equal, match } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
+  addFeed,
+  addFilter,
   addPost,
-  getPost,
+  changeFeed,
+  loadPost,
   getPostIntro,
+  type PostCardText,
   getPostTitle,
+  testFeed,
   testPost
 } from '../index.ts'
 import { cleanClientTest, enableClientTest } from './utils.ts'
+
+function postIntro(post: PostCardText): [string, boolean] {
+  let [node, more] = getPostIntro(post)
+  return [node.innerHTML, more]
+}
 
 describe('post', () => {
   beforeEach(() => {
@@ -23,27 +32,58 @@ describe('post', () => {
   })
 
   function truncateBetweenParagraphs(text: string): void {
-    let result = getPostIntro({
-      full: text,
-      originId: 'id'
-    })
+    let result = postIntro({ full: text, intro: null, more: 0, url: null })
     equal(result[1], true)
     match(result[0], /<p>…<\/p>$/)
   }
 
   function truncateBetweenSentences(text: string): void {
-    let result = getPostIntro({
-      full: text,
-      originId: 'id'
-    })
+    let result = postIntro({ full: text, intro: null, more: 0, url: null })
     equal(result[1], true)
     match(result[0], /[.?] …<\/p>/)
   }
 
   test('has helper to load post', async () => {
     let id = await addPost(testPost({ title: 'Test Post' }))
-    let post = await loadValue(getPost(id))
+    let post = await loadPost(id)
     equal(post?.title, 'Test Post')
+  })
+
+  test('adds posts by a batch action', async () => {
+    let feedId = await addFeed(testFeed())
+    let ids = await addPost([
+      { feedId, originId: 'a', publishedAt: 1, reading: 'fast' },
+      { feedId, originId: 'b', publishedAt: 2, reading: 'slow' }
+    ])
+    equal(ids.length, 2)
+    equal((await loadPost(ids[0]!))!.originId, 'a')
+    equal((await loadPost(ids[1]!))!.reading, 'slow')
+  })
+
+  test('recalculates reading of feed’s posts', async () => {
+    let feedId = await addFeed(testFeed({ reading: 'fast' }))
+    let same = await addPost(testPost({ feedId, reading: 'fast', title: 'A' }))
+    let toFast = await addPost(
+      testPost({ feedId, reading: 'slow', title: 'B' })
+    )
+    let toSlow = await addPost(
+      testPost({ feedId, reading: 'fast', title: 'Slow' })
+    )
+    let deleted = await addPost(
+      testPost({ feedId, reading: 'fast', title: 'Trash' })
+    )
+
+    await addFilter({ action: 'slow', feedId, query: 'include(slow)' })
+    await addFilter({ action: 'delete', feedId, query: 'include(trash)' })
+
+    equal((await loadPost(same))!.reading, 'fast')
+    equal((await loadPost(toFast))!.reading, 'fast')
+    equal((await loadPost(toSlow))!.reading, 'slow')
+    equal((await loadPost(deleted))!.reading, 'fast')
+
+    await changeFeed(feedId, { reading: 'slow' })
+    equal((await loadPost(same))!.reading, 'slow')
+    equal((await loadPost(deleted))!.reading, 'fast')
   })
 
   test('loads post title', () => {
@@ -129,16 +169,31 @@ describe('post', () => {
   })
 
   test('loads post content', () => {
-    deepEqual(getPostIntro({ originId: 'id' }), ['', false])
-    deepEqual(getPostIntro({ full: 'short', originId: 'id' }), ['short', false])
-    deepEqual(getPostIntro({ full: 'short', intro: 'intro', originId: 'id' }), [
+    deepEqual(postIntro({ full: null, intro: null, more: 0, url: null }), [
+      '',
+      false
+    ])
+    deepEqual(postIntro({ full: 'short', intro: null, more: 0, url: null }), [
+      'short',
+      false
+    ])
+    deepEqual(postIntro({ full: null, intro: 'intro', more: 1, url: null }), [
       'intro',
       true
     ])
-    deepEqual(getPostIntro({ full: 'a'.repeat(600), originId: 'id' }), [
-      'a'.repeat(500) + '…',
-      true
+    deepEqual(postIntro({ full: null, intro: 'intro', more: 0, url: null }), [
+      'intro',
+      false
     ])
+    deepEqual(
+      postIntro({
+        full: 'a'.repeat(600),
+        intro: null,
+        more: 0,
+        url: null
+      }),
+      ['a'.repeat(500) + '…', true]
+    )
   })
 
   test('truncates post full body 1', () => {
@@ -167,9 +222,11 @@ describe('post', () => {
 
   test('truncates post full body 6', () => {
     doesNotMatch(
-      getPostIntro({
-        full: `\n<p>Xxx xxxx xxxxx xx xxx xxxxxxx "Xxx-xxxxxx". X xxxxx xxxxx xxxx xxxxxxx xx 250 xxxxxxxxxxx, xxx xxx xxxx xxxxxxx.</p>\n<p>X xxxxxxxx xxxxxxxxx xxxxx x xxxxxxx xxxxxxxxx xxxxxxxx Xxxxx — xxxx, xxxxxxx xxx xx xxx xx xxxxxxxxx. Xxxxx xxxxxxx xxxxxxxxxxxxxx x xxxxxxxxxxx xx xxxxxxx xxxxxxxxxx <a href="https://example.ru/all/video-iz-1991-goda/">xxxxx xxxxxxxxxxxx xxxx</a>, xxx Xxxxx xxxxx xxxx xxxxxx x xxxxx xxxxxxxxx xxxxxxx.</p>\n<p>Xxxxx x xx xxxxxxxxxxx, xxxxx xxx xxxxxxxxxxxx, xx x xxxxxx xxxxx xxxxx xxxxxxx:</p>\n<blockquote>\n<p>Xx xxxx xxxxxxx x xxxxxx xx xxxxx xxx xxx. Xxxx xxxxxxxxx xxx xxxxxxxxxxx x xxxxxx xxxxxxxxxxxxx xxx. X xxxxxxxx xxxxxx xxxxx xxxx, xxxx xx xxxxxxx x xxx xxxxxxxxxx, xxxxxxx xxxxx xxxxxxxxxxx.</p>\n</blockquote>\n`,
-        originId: 'id'
+      postIntro({
+        intro: null,
+        more: 0,
+        url: null,
+        full: `\n<p>Xxx xxxx xxxxx xx xxx xxxxxxx "Xxx-xxxxxx". X xxxxx xxxxx xxxx xxxxxxx xx 250 xxxxxxxxxxx, xxx xxx xxxx xxxxxxx.</p>\n<p>X xxxxxxxx xxxxxxxxx xxxxx x xxxxxxx xxxxxxxxx xxxxxxxx Xxxxx — xxxx, xxxxxxx xxx xx xxx xx xxxxxxxxx. Xxxxx xxxxxxx xxxxxxxxxxxxxx x xxxxxxxxxxx xx xxxxxxx xxxxxxxxxx <a href="https://example.ru/all/video-iz-1991-goda/">xxxxx xxxxxxxxxxxx xxxx</a>, xxx Xxxxx xxxxx xxxx xxxxxx x xxxxx xxxxxxxxx xxxxxxx.</p>\n<p>Xxxxx x xx xxxxxxxxxxx, xxxxx xxx xxxxxxxxxxxx, xx x xxxxxx xxxxx xxxxx xxxxxxx:</p>\n<blockquote>\n<p>Xx xxxx xxxxxxx x xxxxxx xx xxxxx xxx xxx. Xxxx xxxxxxxxx xxx xxxxxxxxxxx x xxxxxx xxxxxxxxxxxxx xxx. X xxxxxxxx xxxxxx xxxxx xxxx, xxxx xx xxxxxxx x xxx xxxxxxxxxx, xxxxxxx xxxxx xxxxxxxxxxx.</p>\n</blockquote>\n`
       })[0],
       /<blockquote>$/
     )
@@ -200,18 +257,22 @@ describe('post', () => {
   })
 
   test('truncates post full body with <style>', () => {
-    let result = getPostIntro({
+    let result = postIntro({
       full: `<style>${'*{padding:0;}'.repeat(50)}</style><p>X xxx xxxxxxx xxxxx, xxx xxxx WebGL, xxxxxxxxxxx, xxxxx xxxxxxxx xxxx xxxxxxxxx xxxxxxxxxxxxx xxxxxxxxxx xx xxxxxx, xxx xxxxxxx lastwrd.</p>`,
-      originId: 'id'
+      intro: null,
+      more: 0,
+      url: null
     })
     match(result[0], /lastwrd/)
     equal(result[1], false)
   })
 
   test('does not touch image if it fits truncate', () => {
-    let result = getPostIntro({
+    let result = postIntro({
       full: `<img src="https://exampl.com/img.png"/><br/><br/>`,
-      originId: 'id'
+      intro: null,
+      more: 0,
+      url: null
     })
     match(result[0], /img/)
     equal(result[1], false)

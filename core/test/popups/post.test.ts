@@ -1,4 +1,3 @@
-import { ensureLoaded } from '@logux/client'
 import { cleanStores, keepMount } from 'nanostores'
 import { deepEqual, equal, match } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
@@ -8,7 +7,8 @@ import {
   addFeed,
   addPost,
   closeLastPopup,
-  getPosts,
+  GENERAL_CATEGORY,
+  loadPost,
   openedPopups,
   type OriginPost,
   type PostValue,
@@ -16,7 +16,6 @@ import {
   testPost,
   waitLoading
 } from '../../index.ts'
-import { waitSyncLoading } from '../../lib/stores.ts'
 import { getPostPopupParam } from '../../popups/post.ts'
 import {
   checkLoadedPopup,
@@ -39,7 +38,7 @@ describe('post popup', () => {
 
   test('opens saved post', async () => {
     keepMount(openedPopups)
-    let feed = await addFeed(testFeed({ categoryId: 'general' }))
+    let feed = await addFeed(testFeed({ categoryId: GENERAL_CATEGORY }))
     let id1 = await addPost(testPost({ feedId: feed }))
     let id2 = await addPost(testPost({ feedId: feed, publishedAt: undefined }))
 
@@ -94,29 +93,24 @@ describe('post popup', () => {
   })
 
   test('read saved post', async () => {
-    let feed = await addFeed(testFeed({ categoryId: 'general' }))
+    let feed = await addFeed(testFeed({ categoryId: GENERAL_CATEGORY }))
     let id1 = await addPost(testPost({ feedId: feed }))
     let id2 = await addPost(testPost({ feedId: feed }))
 
-    let posts = getPosts()
-    await waitSyncLoading(posts)
-    let post1 = ensureLoaded(posts.get()).stores.get(id1)!
-    let post2 = ensureLoaded(posts.get()).stores.get(id2)!
-
     let popup = openTestPopup('post', getPostPopupParam({ id: id1 }, true))
     await waitLoading(popup.loading)
-    equal(ensureLoaded(post1.get()).read, undefined)
-    equal(ensureLoaded(post2.get()).read, undefined)
+    equal((await loadPost(id1))!.read, 0)
+    equal((await loadPost(id2))!.read, 0)
 
     checkLoadedPopup(popup).read!.set(true)
     await setTimeout(1)
-    equal(ensureLoaded(post1.get()).read, true)
-    equal(ensureLoaded(post2.get()).read, undefined)
+    equal((await loadPost(id1))!.read, 1)
+    equal((await loadPost(id2))!.read, 0)
 
     checkLoadedPopup(popup).read!.set(false)
     await setTimeout(1)
-    equal(ensureLoaded(post1.get()).read, false)
-    equal(ensureLoaded(post2.get()).read, undefined)
+    equal((await loadPost(id1))!.read, 0)
+    equal((await loadPost(id2))!.read, 0)
   })
 
   test('opens candidate post', async () => {

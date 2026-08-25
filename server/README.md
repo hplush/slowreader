@@ -11,17 +11,17 @@ and uses end-to-end encryption not to know what users read and like.
 - [`db/`](./db/): database migrations and configs.
 - [`lib/`](./lib/): shared helpers for features.
 - [`test/`](./test/): unit tests for each feature.
-- [`scripts/`](./scripts/): script to test production mode.
+- [`scripts/`](./scripts/): scripts to prepare and test production mode.
 - [`drizzle.config.ts`](./drizzle.config.ts): config for [Drizzle Kit CLI](https://orm.drizzle.team/docs/kit-overview).
 - [`Dockerfile`](./Dockerfile): build image to deploy server.
 
 ## Scripts
 
-- `cd server && pnpm start`: start server in development mode.
-- `cd server && pnpm migration`: generate migration based on DB schema changes.
-- `cd server && pnpm database`: see database content.
-- `cd server && pnpm build`: prepare deploy files with production dependencies only.
-- `cd server && pnpm production`: start production build of the server.
+- `pnpm -F server start`: start server in development mode.
+- `pnpm -F server migration`: generate migration based on DB schema changes.
+- `pnpm -F server database`: see database content.
+- `pnpm -F server build`: prepare deploy files with production dependencies only.
+- `pnpm -F server production`: start production build of the server.
 
 ## Environment Variables
 
@@ -63,22 +63,34 @@ To use SQL with TypeScript we are using [Drizzle](https://orm.drizzle.team/docs/
 To change database schema:
 
 1. Change [`./db/schema.ts`](./db/schema.ts).
-2. Run `cd server && pnpm migration` to generate new migration.
+2. Run `pnpm -F server migration` to generate new migration.
 3. Restart server. It will apply all new migrations automatically.
 
 You can see local database content by running:
 
 ```sh
-cd server && pnpm database
+pnpm -F server database
 ```
+
+## Log Retention
+
+The log on the server is the user’s backup, not the source of truth: the data itself lives in the SQLite database of every client. The server keeps only encrypted `0` actions and does not know their types.
+
+Clients drive the cleaning:
+
+- When an action stops owning at least one live cell, the client sends `0/clean` with its ID, and the server deletes the row.
+- Deletions actions are kept as tombstones. Any device of the user removes the tombstones older than 1 month by the same `0/clean`.
+
+A device, which was offline longer than the retention window, can miss a tombstone and keep the deleted row forever. The server detects it and asks such a client to drop its database and to download everything again by `db/reset`.
 
 ## Deploy
 
 For deploy we:
 
 1. Use `pnpm deploy` to create `dist/` only with production dependencies.
-2. Build Docker image with Node.js.
-3. Run this image on our Dokploy server.
+2. Move workspace packages to `dist/vendor/` by [`scripts/vendor-workspace.sh`](./scripts/vendor-workspace.sh) and link them back to `node_modules/`, because Node.js can’t strip types inside `node_modules/`.
+3. Build Docker image with Node.js.
+4. Run this image on our Dokploy server.
 
 We deploy server to:
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // Script to update Node.js and pnpm everywhere.
 //
 // By default it will keep Node.js major version, but can update to next major
@@ -50,18 +51,33 @@ async function getLatestNodeVersion(
   return filtered[0]!.version.slice(1)
 }
 
-async function getLatestPnpm(): Promise<[string, Architectures]> {
+async function getPnpmRelease(current: string): Promise<GitHubReleases> {
+  if (!current.includes('-')) {
+    let response = await fetch(
+      'https://api.github.com/repos/pnpm/pnpm/releases/latest'
+    )
+    return (await response.json()) as GitHubReleases
+  }
+  // Stay on pre-release branch until it will have stable release
+  let major = current.split('.')[0]
   let response = await fetch(
-    'https://api.github.com/repos/pnpm/pnpm/releases/latest'
+    'https://api.github.com/repos/pnpm/pnpm/releases?per_page=10'
   )
-  let data = (await response.json()) as GitHubReleases
+  let releases = (await response.json()) as GitHubReleases[]
+  return releases.find(i => i.tag_name.startsWith(`v${major}.`))!
+}
+
+async function getLatestPnpm(
+  current: string
+): Promise<[string, Architectures]> {
+  let release = await getPnpmRelease(current)
   return [
-    data.tag_name.slice(1),
+    release.tag_name.slice(1),
     {
-      arm64: data.assets
+      arm64: release.assets
         .find(i => i.name === 'pnpm-linux-arm64.tar.gz')!
         .digest.replace(/^sha256:/, ''),
-      x64: data.assets
+      x64: release.assets
         .find(i => i.name === 'pnpm-linux-x64.tar.gz')!
         .digest.replace(/^sha256:/, '')
     }
@@ -128,6 +144,15 @@ function replaceVersionEnv(
   return fixed
 }
 
+// Pre-release versions do not match `^12.0.0` range
+function getPnpmRange(version: string): string {
+  if (version.includes('-')) {
+    return `^${version}`
+  } else {
+    return `^${version.split('.')[0]}.0.0`
+  }
+}
+
 function replaceKey(file: string, key: string, value: string): string {
   return file.replace(
     new RegExp(`"${key}": "[^"]+"`, 'g'),
@@ -142,7 +167,7 @@ let currentPnpm = dockerfile.match(/PNPM_VERSION=(\S+)/)![1]!
 let latestNode = await getLatestNodeVersion(
   getMajor(currentNode.split('.')[0]!)
 )
-let [latestPnpm, pnpmChecksums] = await getLatestPnpm()
+let [latestPnpm, pnpmChecksums] = await getLatestPnpm(currentPnpm)
 
 if (currentNode !== latestNode || FORCE) {
   printUpdate('Node.js', currentNode, latestNode)
@@ -153,7 +178,8 @@ if (currentNode !== latestNode || FORCE) {
   writeFileSync(join(ROOT, '.node-version'), latestNode + '\n')
 
   updateProjectDockerfiles(projectDocker => {
-    return replaceVersionEnv(projectDocker, 'NODE', latestNode, checksums)
+    let fixed = replaceVersionEnv(projectDocker, 'NODE', latestNode, checksums)
+    return fixed.replace(/nodejs:\d+\.\d+\.\d+/g, `nodejs:${latestNode}`)
   })
 
   let minor = latestNode.split('.').slice(0, 2).join('.')
@@ -169,11 +195,7 @@ if (currentPnpm !== latestPnpm || FORCE) {
 
   updatePackages(pkg => {
     pkg = replaceKey(pkg, 'packageManager', `pnpm@${latestPnpm}`)
-    let major = latestPnpm.split('.')[0]
-    if (currentPnpm.split('.')[0] !== major) {
-      pkg = replaceKey(pkg, 'pnpm', `^${major}.0.0`)
-    }
-    return pkg
+    return replaceKey(pkg, 'pnpm', getPnpmRange(latestPnpm))
   })
 }
 

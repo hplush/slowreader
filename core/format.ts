@@ -4,6 +4,23 @@ import { $locale } from './i18n.ts'
 
 export const i18nFormat = formatter($locale)
 
+const KILOBYTE = 1000
+const MEGABYTE = 1000 * KILOBYTE
+
+export function formatSize(format: Formatter, bytes: number): string {
+  if (bytes < MEGABYTE) {
+    return format.number(Math.round(bytes / KILOBYTE), {
+      style: 'unit',
+      unit: 'kilobyte'
+    })
+  }
+  return format.number(bytes / MEGABYTE, {
+    maximumFractionDigits: 1,
+    style: 'unit',
+    unit: 'megabyte'
+  })
+}
+
 const MINUTE = 60 * 1000
 const HOUR = 60 * MINUTE
 const DAY = 24 * HOUR

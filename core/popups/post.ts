@@ -1,4 +1,3 @@
-import { ensureLoadedStore, loadValue } from '@logux/client'
 import lz from 'lz-string'
 import {
   atom,
@@ -8,11 +7,12 @@ import {
 } from 'nanostores'
 
 import { NotFoundError } from '../errors.ts'
-import { type FeedValue, getFeeds } from '../feed.ts'
+import { type FeedValue, loadFeed } from '../feed.ts'
 import { formatPublishedAt, i18nFormat } from '../format.ts'
 import {
   changePost,
-  getPosts,
+  getPost,
+  loadPost,
   type OriginPost,
   type PostValue
 } from '../post.ts'
@@ -45,10 +45,15 @@ export const post = definePopup('post', async loader => {
     id = loader.slice(5)
   }
 
+  let unbindStored = (): void => {}
   if (id) {
-    let filter = await loadValue(getPosts())
-    if (!filter.stores.has(id)) throw new NotFoundError()
-    $post = ensureLoadedStore(filter.stores.get(id)!)
+    let stored = await loadPost(id)
+    if (!stored) throw new NotFoundError()
+    let $stored = atom<OriginPost | PostValue>(stored)
+    unbindStored = getPost(id).subscribe(value => {
+      if (value) $stored.set(value)
+    })
+    $post = $stored
   } else if (loader.startsWith('data:')) {
     let data = loader.slice(5)
     try {
@@ -67,22 +72,20 @@ export const post = definePopup('post', async loader => {
   if (loader.startsWith('read:')) {
     read = atom(false)
     unbindPost = $post.subscribe(value => {
-      read!.set(!!value.read)
+      read!.set('read' in value && value.read === 1)
     })
     unbindRead = read.listen(async value => {
-      if (value !== $post.get().read) {
-        await changePost(id!, { read: value })
+      let current = $post.get()
+      if ('read' in current && current.read !== (value ? 1 : 0)) {
+        await changePost(id!, { read: value ? 1 : 0 })
       }
     })
   }
 
   let postValue = $post.get()
   if ('feedId' in postValue) {
-    let feedId = postValue.feedId
-    let feedFilter = await loadValue(getFeeds())
-    if (feedFilter.stores.has(feedId)) {
-      $feed = ensureLoadedStore(feedFilter.stores.get(feedId)!)
-    }
+    let feedValue = await loadFeed(postValue.feedId)
+    if (feedValue) $feed = atom(feedValue)
   }
 
   let $publishedAt = computed([$post, i18nFormat], (value, format) => {
@@ -93,6 +96,7 @@ export const post = definePopup('post', async loader => {
 
   return {
     destroy() {
+      unbindStored()
       unbindPost()
       unbindRead()
     },

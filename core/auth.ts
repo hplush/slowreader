@@ -4,7 +4,15 @@ import { customAlphabet } from 'nanoid'
 import { getClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
 import { checkErrors } from './lib/http.ts'
-import { encryptionKey, hasPassword, syncServer, userId } from './settings.ts'
+import { markDatabaseDownloading } from './schema.ts'
+import {
+  benchmarkStatistics,
+  encryptionKey,
+  hasPassword,
+  syncServer,
+  uploadingLocalData,
+  userId
+} from './settings.ts'
 
 let generateUserId = customAlphabet('0123456789', 16)
 let generateKey = customAlphabet(
@@ -53,6 +61,7 @@ export async function signIn(
   userId.set(undefined)
   getEnvironment().saveSession(response.session)
   hasPassword.set(true)
+  markDatabaseDownloading()
   useCredentials(credentials)
 }
 
@@ -67,6 +76,7 @@ export async function signUp(
     host
   )
   getEnvironment().saveSession(response.session)
+  uploadingLocalData.set(true)
   hasPassword.set(true)
   useCredentials(credentials)
 }
@@ -95,15 +105,30 @@ export function useCredentials(credentials: Credentials): void {
   userId.set(credentials.userId)
 }
 
-export async function signOut(): Promise<void> {
-  await getClient().clean()
+let signOutListeners: (() => void)[] = []
+
+export function onSignOut(callback: () => void): () => void {
+  signOutListeners.push(callback)
+  return () => {
+    signOutListeners = signOutListeners.filter(i => i !== callback)
+  }
+}
+
+export function forgetLocalData(): void {
   userId.set(undefined)
   hasPassword.set(false)
   encryptionKey.set(undefined)
   syncServer.set(undefined)
+  benchmarkStatistics.set(undefined)
+  for (let listener of signOutListeners) listener()
   let env = getEnvironment()
   env.saveSession(undefined)
   env.cleanStorage()
   env.openRoute({ params: {}, popups: [], route: 'home' })
   env.restartApp()
+}
+
+export async function signOut(): Promise<void> {
+  await getClient().clean()
+  forgetLocalData()
 }

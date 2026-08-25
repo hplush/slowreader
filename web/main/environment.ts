@@ -1,7 +1,8 @@
 // Dependency Injection of unique behavior for web client.
 
-import { IndexedStore } from '@logux/client'
 import { windowPersistentEvents } from '@nanostores/persistent'
+import { openDb } from '@nanostores/sql'
+import { sqlocalDriver } from '@nanostores/sql/sqlocal'
 import {
   type NetworkType,
   type NetworkTypeDetector,
@@ -68,13 +69,15 @@ setupEnvironment({
   cleanStorage() {
     localStorage.clear()
   },
+  databaseCreator() {
+    return openDb(sqlocalDriver('slowreader.sqlite'))
+  },
   errorEvents: window,
   getSession() {
     // Browser will use session from http-only cookie
     return undefined
   },
   locale,
-  logStoreCreator: () => new IndexedStore(),
   networkType: detectNetworkType,
   openRoute,
   persistentEvents: windowPersistentEvents,

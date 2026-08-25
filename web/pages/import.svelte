@@ -43,7 +43,7 @@
       <PageIcon align="start" path={mdiBriefcaseUploadOutline}>
         <Stack gap="l">
           {#if $importing}
-            <Loader size="wide" value={$importing} />
+            <Loader size="wide" track="import" value={$importing} />
           {:else}
             <RichText text={$t.description} url={getURL('export')} />
             <File

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // Script to check that all core/messages/*.en.ts files have the right name.
 // core/messages/foo.en.ts should exports fooMessages with 'foo' name.
 

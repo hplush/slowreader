@@ -31,7 +31,16 @@ describe('proxy', () => {
       await setTimeout(parseInt(queryParams.sleep))
     }
 
-    if (queryParams.big === 'file') {
+    if (queryParams.redirectTo) {
+      res.writeHead(302, { Location: queryParams.redirectTo })
+      res.end()
+    } else if (queryParams.emptyHost) {
+      res.writeHead(302, { Location: 'http:///?redirected=1' })
+      res.end()
+    } else if (queryParams.loop) {
+      res.writeHead(302, { Location: '/?loop=1' })
+      res.end()
+    } else if (queryParams.big === 'file') {
       res.writeHead(200, {
         'Content-Length': '2000',
         'Content-Type': 'text/text'
@@ -69,9 +78,9 @@ describe('proxy', () => {
     createProxy({
       allowUnsafeDestinations: true,
       allowsFrom: '^http:\\/\\/test.app',
-      bodyTimeout: 100,
+      bodyTimeout: 1000,
       maxSize: 100,
-      requestTimeout: 100
+      requestTimeout: 1000
     })
   )
   proxy.listen(31598)
@@ -118,7 +127,7 @@ describe('proxy', () => {
   })
 
   test('has timeout', async () => {
-    let response = await request(`${targetUrl}?sleep=500`, {})
+    let response = await request(`${targetUrl}?sleep=2000`, {})
     await expectBadRequest(response, 'Timeout')
   })
 
@@ -145,6 +154,35 @@ describe('proxy', () => {
 
     let response2 = await fetch(proxyUrl, {})
     await expectBadRequest(response2, 'Invalid URL')
+  })
+
+  test('follows redirects', async () => {
+    let response = await request(
+      `${targetUrl}?redirectTo=${encodeURIComponent(`${targetUrl}/final?redirected=1`)}`
+    )
+    let parsedResponse = (await response.json()) as EchoResponse
+    equal(response.status, 200)
+    equal(parsedResponse.request.requestPath, '/final')
+    equal(parsedResponse.request.queryParams.redirected, '1')
+  })
+
+  test('fixes redirects with empty host', async () => {
+    let response = await request(`${targetUrl}?emptyHost=1`)
+    let parsedResponse = (await response.json()) as EchoResponse
+    equal(response.status, 200)
+    equal(parsedResponse.request.queryParams.redirected, '1')
+  })
+
+  test('stops redirect loops', async () => {
+    let response = await request(`${targetUrl}?loop=1`)
+    await expectBadRequest(response, 'Too many redirects')
+  })
+
+  test('checks redirect destination', async () => {
+    let response = await request(
+      `${targetUrl}?redirectTo=${encodeURIComponent('ftp://example.com/feed')}`
+    )
+    await expectBadRequest(response, 'Only HTTP or HTTPS are supported')
   })
 
   test('can use only HTTP or HTTPS protocols', async () => {

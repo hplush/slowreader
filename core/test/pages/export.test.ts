@@ -7,6 +7,7 @@ import {
   addFeed,
   addFilter,
   addPost,
+  GENERAL_CATEGORY,
   testFeed,
   testPost,
   waitLoading
@@ -35,7 +36,7 @@ describe('export page', () => {
     await addFeed(testFeed({ categoryId: idA, title: '1' }))
     await addFeed(testFeed({ categoryId: idA, title: '2' }))
     await addFeed(testFeed({ categoryId: idB, title: '3' }))
-    await addFeed(testFeed({ categoryId: 'general', title: '4' }))
+    await addFeed(testFeed({ categoryId: GENERAL_CATEGORY, title: '4' }))
 
     let page = openPage({
       params: {},
@@ -99,16 +100,23 @@ describe('export page', () => {
     deepEqual(json, {
       categories: [
         {
+          fastReader: null,
           id: category,
+          slowReader: null,
           title: 'A'
         }
       ],
       feeds: [
         {
           categoryId: category,
+          fastReader: null,
           id: feed,
+          lastOriginId: null,
+          lastPublishedAt: null,
           loader: 'rss',
           reading: 'fast',
+          refreshedAt: null,
+          slowReader: null,
           title: '1',
           url: 'http://example.com/5'
         }
@@ -125,11 +133,15 @@ describe('export page', () => {
       posts: [
         {
           feedId: feed,
+          full: null,
           id: post,
           intro: 'Post 1',
+          media: null,
           originId: 'test-1',
           publishedAt: 1000,
+          read: 0,
           reading: 'fast',
+          title: null,
           url: 'http://example.com/1'
         }
       ],
@@ -140,6 +152,25 @@ describe('export page', () => {
         useReducedMotion: false
       }
     })
+  })
+
+  test('exports big state by blob parts', async () => {
+    let feed = await addFeed(testFeed({ title: '1' }))
+    await addPost(
+      Array.from({ length: 120 }, () =>
+        testPost({ feedId: feed, full: 'a'.repeat(1000) })
+      )
+    )
+
+    let page = openPage({
+      params: {},
+      route: 'export'
+    })
+
+    page.exportBackup()
+    await waitLoading(page.exportingBackup)
+    let json = JSON.parse(await saved!.content.text()) as { posts: unknown[] }
+    equal(json.posts.length, 120)
   })
 
   test('cancels export', async () => {

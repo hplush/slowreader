@@ -3,7 +3,6 @@ import { signUp as signUpApi } from '@slowreader/api'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
 import { deepEqual, equal, match, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
-import { setTimeout } from 'node:timers/promises'
 
 import {
   client,
@@ -26,7 +25,8 @@ import {
   getTestEnvironment,
   openPage,
   setBaseTestRoute,
-  setTestUser
+  setTestUser,
+  waitFor
 } from '../utils.ts'
 
 describe('signup page', () => {
@@ -123,8 +123,7 @@ describe('signup page', () => {
     let user = page.userId.get()
     let secret = page.secret.get()
     page.finish()
-    await setTimeout(10)
-    equal(router.get().route, 'welcome')
+    await waitFor(router, route => route.route === 'welcome')
 
     await signOut()
     let signinPage = openPage({
@@ -135,8 +134,7 @@ describe('signup page', () => {
     signinPage.secret.set(secret)
     await signinPage.signIn()
 
-    await setTimeout(10)
-    equal(router.get().route, 'welcome')
+    await waitFor(router, route => route.route === 'welcome')
 
     setBaseTestRoute({
       params: {},
@@ -207,8 +205,7 @@ describe('signup page', () => {
       route: 'signUp'
     })
     await signUp(generateCredentials())
-    await setTimeout(200)
-    equal(router.get().route, 'welcome')
+    await waitFor(router, route => route.route === 'welcome')
   })
 
   test('is ready for user ID conflict', async () => {

@@ -7,14 +7,13 @@ import {
 import { createProxy, DEFAULT_PROXY_CONFIG } from '@slowreader/proxy'
 import { createServer } from 'node:http'
 
+import { error, finish, startProgress } from '../scripts/progress.ts'
 import {
   createCLI,
   enableTestClient,
-  error,
   fetchAndParsePosts,
-  finish,
-  initializeProgressBar,
-  readText
+  readText,
+  USER_AGENT
 } from './utils.ts'
 
 let cli = createCLI(
@@ -58,7 +57,8 @@ await cli.run(async args => {
       let headers = opts.headers as object | undefined
       let response = await fetch(nextUrl, {
         headers: {
-          Origin: 'http://localhost:8000',
+          'Origin': 'http://localhost:8000',
+          'User-Agent': USER_AGENT,
           ...headers
         },
         ...opts
@@ -83,7 +83,7 @@ await cli.run(async args => {
   }
 
   let unbindTotal = page.total.listen(all => {
-    initializeProgressBar(all)
+    startProgress(all)
     unbindTotal()
   })
   let unbindLastAdded = page.lastAdded.listen(async url => {

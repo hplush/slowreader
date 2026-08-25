@@ -1,14 +1,16 @@
-import {
-  ensureLoadedStore,
-  type LoadedSyncMap,
-  type SyncMapStore
-} from '@logux/client'
 import { atom } from 'nanostores'
 
-import { type FeedValue, getFeed } from '../feed.ts'
-import { waitSyncLoading } from '../lib/stores.ts'
-import { changePost, type PostValue } from '../post.ts'
-import { createReader, loadPosts } from './common.ts'
+import { changePost, type ReaderPost } from '../post.ts'
+import {
+  createReader,
+  loadPostsAbove,
+  loadPostsPage,
+  parseCursor,
+  type PostAuthor,
+  stringifyCursor,
+  topCursor,
+  trackReadPosts
+} from './common.ts'
 
 const POSTS_PER_PAGE = 40
 
@@ -17,72 +19,86 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
 
   let exited = false
   let $loading = atom(true)
-  let $list = atom<LoadedSyncMap<SyncMapStore<PostValue>>[]>([])
-  let $authors = atom<Map<string, LoadedSyncMap<SyncMapStore<FeedValue>>>>(
-    new Map()
-  )
+  let $list = atom<ReaderPost[]>([])
+  let $authors = atom<Map<string, PostAuthor>>(new Map())
   let $hasNext = atom(false)
-  let $nextFrom = atom<number | undefined>()
-  let $prevFrom = atom<number | undefined>()
+  let $nextFrom = atom<string | undefined>()
+  let $prevFrom = atom<string | undefined>()
 
   let openAt = Date.now()
-  let unbindFrom = (): void => {}
-  async function start(): Promise<void> {
-    let posts = await loadPosts(filter)
-    if (exited) return
+  let request = 0
 
+  /**
+   * `readAndNext()` reads the whole page, so unread posts above the next page
+   * are the same as above the current one. The cursor of the previous page
+   * is reused instead of a query, which would see the marks only after
+   * the background write.
+   */
+  let keepPrevFrom = false
+
+  async function loadPage(from: string | undefined): Promise<void> {
+    let current = ++request
+    let keep = keepPrevFrom
+    keepPrevFrom = false
+    let cursor = parseCursor(from) ?? topCursor(openAt)
+    let [posts, above] = await Promise.all([
+      loadPostsPage(filter, cursor, POSTS_PER_PAGE + 1),
+      from && !keep
+        ? loadPostsAbove(filter, cursor, POSTS_PER_PAGE + 1)
+        : undefined
+    ])
+    if (exited || current !== request) return
+
+    let list = posts.slice(0, POSTS_PER_PAGE)
+    let last = list[list.length - 1]
+    $hasNext.set(posts.length > POSTS_PER_PAGE)
+    $nextFrom.set(last && stringifyCursor(last))
+    if (!keep) {
+      if (!above || above.length === 0) {
+        $prevFrom.set(undefined)
+      } else {
+        let prevFrom = stringifyCursor(
+          above[POSTS_PER_PAGE] ?? topCursor(openAt)
+        )
+        $prevFrom.set(prevFrom === from ? undefined : prevFrom)
+      }
+    }
     if (filter.categoryId) {
-      let feedIds = new Set<string>()
-      posts.forEach(post => {
-        feedIds.add(post.get().feedId)
-      })
       $authors.set(
         new Map(
-          await Promise.all(
-            [...feedIds].map(async id => {
-              let feed = getFeed(id)
-              await waitSyncLoading(feed)
-              return [id, ensureLoadedStore(feed)] as const
-            })
-          )
+          list.map(post => [
+            post.feedId,
+            { title: post.authorTitle!, url: post.authorUrl! }
+          ])
         )
       )
-      // It could be switched to false during await above
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (exited) return
     }
-
-    unbindFrom = params.from.subscribe(value => {
-      let from = value ?? openAt
-      let fromIndex = posts.findIndex(i => i.get().publishedAt < from)
-      if (fromIndex === -1) fromIndex = posts.length
-      let list = posts.slice(fromIndex, fromIndex + POSTS_PER_PAGE)
-      $hasNext.set(posts.length > fromIndex + POSTS_PER_PAGE)
-      if (value) {
-        let prevIndex = fromIndex - POSTS_PER_PAGE - 1
-        let prevForm = posts[prevIndex]?.get().publishedAt ?? openAt
-        $prevFrom.set(prevForm === value ? undefined : prevForm)
-      } else {
-        $prevFrom.set(undefined)
-      }
-      $nextFrom.set(list[list.length - 1]?.get().publishedAt)
-      $list.set(list)
-    })
-  }
-  void start().then(() => {
+    $list.set(list)
     $loading.set(false)
-  })
+  }
 
-  async function readAndNext(): Promise<void> {
-    let promise = Promise.all(
-      $list.get().map(i => changePost(i.get().id, { read: true }))
-    )
+  let unbindFrom = params.from.subscribe(value => {
+    $loading.set(true)
+    void loadPage(value)
+  })
+  let unbindRead = trackReadPosts(filter, $list)
+
+  // The move does not wait for the write: the marks are saved in background.
+  // The page of the next cursor does not depend on them, since the cursor
+  // is strict `<`, and the move goes first to put the query of the page
+  // into the database queue before the write.
+  function readAndNext(): Promise<void> {
+    let unread = $list
+      .get()
+      .filter(post => !post.read)
+      .map(post => post.id)
     if ($hasNext.get()) {
+      keepPrevFrom = true
       params.from.set($nextFrom.get())
     } else {
       helpers.renderEmpty()
     }
-    return promise.then()
+    return changePost(unread, { read: 1 })
   }
 
   return {
@@ -90,6 +106,7 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
     exit() {
       exited = true
       unbindFrom()
+      unbindRead()
     },
     hasNext: $hasNext,
     list: $list,

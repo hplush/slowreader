@@ -7,12 +7,13 @@ import { userId } from './settings.ts'
 export interface Routes {
   about: {}
   add: { url?: string }
+  brokenDatabase: {}
   cloud: {}
   download: {}
   export: {}
   fast: {
     category?: string
-    from?: number
+    from?: string
   }
   feeds: {}
   feedsByCategories: {}
@@ -26,9 +27,10 @@ export interface Routes {
   signUp: {}
   slow: {
     feed?: string
-    from?: number
+    from?: string
   }
   start: {}
+  storage: {}
   welcome: {}
 }
 
@@ -87,6 +89,7 @@ export const SETTINGS_ROUTES = [
   'interface',
   'download',
   'cloud',
+  'storage',
   'about'
 ] as const satisfies RouteName[]
 
@@ -113,15 +116,11 @@ function redirect(route: Route): Route {
   return { ...route, redirect: true }
 }
 
-function validateNumber(
-  value: number | string | undefined
-): number | undefined {
-  if (typeof value === 'number') {
+function validateFrom(value: number | string | undefined): string | undefined {
+  if (typeof value === 'undefined') {
     return value
-  } else if (typeof value === 'undefined') {
-    return value
-  } else if (/^\d+$/.test(value)) {
-    return parseInt(value)
+  } else if (/^\d+(:.*)?$/.test(`${value}`)) {
+    return `${value}`
   } else {
     throw new NotFoundError()
   }
@@ -166,7 +165,7 @@ onEnvironment(({ baseRouter }) => {
         nextRoute = {
           params: {
             ...route.params,
-            from: validateNumber(route.params.from)
+            from: validateFrom(route.params.from)
           },
           popups,
           route: route.route

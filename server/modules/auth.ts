@@ -1,4 +1,3 @@
-import type { BaseServer } from '@logux/server'
 import {
   IS_PASSWORD,
   IS_USER_ID,
@@ -11,12 +10,13 @@ import {
 } from '@slowreader/api'
 import { verify } from 'argon2'
 import { parseCookie } from 'cookie'
-import { and, eq, sql } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 import type { ServerResponse } from 'node:http'
 
 import { db, sessions, users } from '../db/index.ts'
 import { ErrorResponse, jsonApi } from '../lib/http.ts'
+import type { AppServer } from '../lib/types.ts'
 
 function setSession(res: ServerResponse, value: string): void {
   res.setHeader(
@@ -35,15 +35,17 @@ async function setNewSession(
   return token
 }
 
-export default (server: BaseServer): void => {
+export default (server: AppServer): void => {
   server.auth(async ({ client, cookie, token, userId }) => {
     let sessionToken = token || cookie.session
     if (!sessionToken) return false
     let session = await db.query.sessions.findFirst({
-      columns: { id: true },
-      where: and(eq(sessions.token, sessionToken), eq(sessions.userId, userId))
+      columns: { id: true, usedAt: true },
+      where: { token: sessionToken, userId }
     })
     if (session) {
+      client.data.sessionId = session.id
+      client.data.usedAt = session.usedAt
       await db
         .update(sessions)
         .set({ clientId: client.clientId, usedAt: sql`now()` })
@@ -58,9 +60,21 @@ export default (server: BaseServer): void => {
     }
   })
 
+  server.on('disconnected', client => {
+    if (!client.data.sessionId) return
+    void db
+      .update(sessions)
+      .set({ usedAt: sql`now()` })
+      .where(eq(sessions.id, client.data.sessionId))
+      /* node:coverage ignore next 3 */
+      .catch((error: unknown) => {
+        server.logger.error(error)
+      })
+  })
+
   jsonApi(server, signInEndpoint, async (params, res) => {
     let user = await db.query.users.findFirst({
-      where: eq(users.id, params.userId)
+      where: { id: params.userId }
     })
     if (user?.passwordHash) {
       if (await verify(user.passwordHash, params.password)) {
@@ -80,7 +94,7 @@ export default (server: BaseServer): void => {
     if (!token) return false
 
     let session = await db.query.sessions.findFirst({
-      where: eq(sessions.token, token)
+      where: { token }
     })
     if (session) {
       for (let client of server.connected.values()) {
@@ -99,7 +113,7 @@ export default (server: BaseServer): void => {
 
     let already: object | undefined
     await db.transaction(async tx => {
-      already = await tx.query.users.findFirst({ where: eq(users.id, userId) })
+      already = await tx.query.users.findFirst({ where: { id: userId } })
       if (!already) await tx.insert(users).values({ id: userId })
     })
     if (already) return new ErrorResponse(SIGN_UP_ERRORS.userIdTaken)

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // Script to check that:
 // - All dependencies has "1.2.3" requirement and not "^1.2.3" used by npm.
 //   It prevents unexpected updates on lock file issues.
@@ -21,15 +22,17 @@ function error(msg: string): void {
 }
 
 function getVersion(content: string, regexp: RegExp): string {
-  return content.match(regexp)![1]!
+  let match = content.match(regexp)
+  if (!match) error(`Can not find ${regexp} version`)
+  return match![1]!
 }
+
+const VERSION = String.raw`\d+\.\d+\.\d+(?:-[\w.]+)?`
 
 let dockerfile = read('.devcontainer/Dockerfile')
 
 let nodeFull = getVersion(dockerfile, /NODE_VERSION=(\d+\.\d+\.\d+)/)
-let nodeMinor = nodeFull.split('.').slice(0, 2).join('.')
-let pnpmFull = getVersion(dockerfile, /PNPM_VERSION=(\d+\.\d+\.\d+)/)
-let pnpmMajor = pnpmFull.split('.')[0]
+let pnpmFull = getVersion(dockerfile, new RegExp(`PNPM_VERSION=(${VERSION})`))
 
 let nodeVersion = read('.node-version').trim()
 if (nodeVersion !== nodeFull) {
@@ -39,7 +42,7 @@ if (nodeVersion !== nodeFull) {
 }
 let packageManager = getVersion(
   read('package.json'),
-  /"packageManager": "pnpm@(\d+\.\d+\.\d+)"/
+  new RegExp(`"packageManager": "pnpm@(${VERSION})"`)
 )
 if (packageManager !== pnpmFull) {
   error('.devcontainer/Dockerfile and package.json have different pnpm version')
@@ -47,25 +50,20 @@ if (packageManager !== pnpmFull) {
 
 for (let file of globSync(['./*/package.json', 'package.json'])) {
   let content = read(file)
-  if (!content.includes(`"node": "^${nodeMinor}.`)) {
-    error(`.devcontainer/Dockerfile and ${file} have different Node.js version`)
-  }
-  if (!content.includes(`"pnpm": "^${pnpmMajor}.`)) {
-    error(`.devcontainer/Dockerfile and ${file} have different pnpm version`)
-  }
   let match = content.match(/"[^"]+": "[\^~][^"]+"/g)
   for (let version of match || []) {
-    if (!version.startsWith('"node":') && !version.startsWith('"pnpm":')) {
-      let line = content.split('\n').findIndex(i => i.includes(version)) + 1
-      error(
-        `Not locked version in ${file}:${line}: ${styleText('yellow', version)}`
-      )
-    }
+    let line = content.split('\n').findIndex(i => i.includes(version)) + 1
+    error(
+      `Not locked version in ${file}:${line}: ${styleText('yellow', version)}`
+    )
   }
 }
 
 for (let file of globSync('**/Dockerfile')) {
-  let match = read(file).match(/NODE_VERSION=(\d+\.\d+\.\d+)/)
+  let content = read(file)
+  let match =
+    content.match(/NODE_VERSION=(\d+\.\d+\.\d+)/) ||
+    content.match(/nodejs:(\d+\.\d+\.\d+)/)
   if (match && match[1] !== nodeFull) {
     error(
       `Different Node.js version in ${file}: ${styleText('yellow', match[1]!)}`

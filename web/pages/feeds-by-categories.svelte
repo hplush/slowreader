@@ -4,6 +4,7 @@
     changeCategory,
     deleteCategory,
     type FeedsByCategoriesPage,
+    GENERAL_CATEGORY,
     organizeMessages as t
   } from '@slowreader/core'
 
@@ -35,7 +36,7 @@
             row
           >
             <Title>{category.title}</Title>
-            {#if category.id !== 'general' && category.id !== 'broken'}
+            {#if category.id !== GENERAL_CATEGORY && category.id !== 'broken'}
               <Stack gap="s" row width="auto">
                 <Button
                   icon={mdiRenameOutline}

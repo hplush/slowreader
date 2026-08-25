@@ -13,6 +13,13 @@ describe('server assets', () => {
   let toDelete: string[] = []
   let server: TestServer | undefined
 
+  let SECURITY = {
+    'cross-origin-embedder-policy': 'credentialless',
+    'cross-origin-opener-policy': 'same-origin',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    'x-content-type-options': 'nosniff'
+  }
+
   let IGNORE_HEADERS = new Set([
     'connection',
     'date',
@@ -60,6 +67,11 @@ describe('server assets', () => {
     await writeFile(join(assetsDir, 'data'), 'D')
     await mkdir(join(assetsDir, 'assets'))
     await writeFile(join(assetsDir, 'assets', 'app-CiUGZyvO.css'), '*{}')
+    await writeFile(
+      join(assetsDir, 'assets', 'worker-CBmSnzIj.js'),
+      'postMessage(1)'
+    )
+    await writeFile(join(assetsDir, 'assets', 'sqlite3-DGXXSD5r.wasm'), 'W')
     toDelete.push(assetsDir)
 
     let hidden = `${nanoid()}.txt`
@@ -76,22 +88,18 @@ describe('server assets', () => {
     let index1 = await server.fetch('/')
     checkHeaders(index1, {
       'content-security-policy':
-        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-MQAdkik2UpIegx87oj4jDzvVmtZQHZ8UHLkaMPDUYns=' 'sha256-6V2udMXGcrAVUt4WPmtKduau7GKHBV09b7CIdEvxvK4=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'self'; require-trusted-types-for 'script'; trusted-types dompurify slowreader-rich svelte-trusted-html slowreader-parse",
+        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-MQAdkik2UpIegx87oj4jDzvVmtZQHZ8UHLkaMPDUYns=' 'sha256-6V2udMXGcrAVUt4WPmtKduau7GKHBV09b7CIdEvxvK4=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'wasm-unsafe-eval' 'self'; require-trusted-types-for 'script'; trusted-types default dompurify slowreader-rich svelte-trusted-html slowreader-parse",
       'content-type': 'text/html',
-      'strict-transport-security':
-        'max-age=31536000; includeSubDomains; preload',
-      'x-content-type-options': 'nosniff'
+      ...SECURITY
     })
     match(await index1.text(), /App/)
 
     let html = await server.fetch('/404.html')
     checkHeaders(html, {
       'content-security-policy':
-        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-MQAdkik2UpIegx87oj4jDzvVmtZQHZ8UHLkaMPDUYns=' 'sha256-6V2udMXGcrAVUt4WPmtKduau7GKHBV09b7CIdEvxvK4=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'self'; require-trusted-types-for 'script'; trusted-types dompurify slowreader-rich svelte-trusted-html slowreader-parse",
+        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-MQAdkik2UpIegx87oj4jDzvVmtZQHZ8UHLkaMPDUYns=' 'sha256-6V2udMXGcrAVUt4WPmtKduau7GKHBV09b7CIdEvxvK4=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'wasm-unsafe-eval' 'self'; require-trusted-types-for 'script'; trusted-types default dompurify slowreader-rich svelte-trusted-html slowreader-parse",
       'content-type': 'text/html',
-      'strict-transport-security':
-        'max-age=31536000; includeSubDomains; preload',
-      'x-content-type-options': 'nosniff'
+      ...SECURITY
     })
     match(await html.text(), /<html>/)
 
@@ -105,30 +113,51 @@ describe('server assets', () => {
     match(await route3.text(), /App/)
 
     let icon1 = await server.fetch('/favicon.ico')
-    checkHeaders(icon1, { 'content-type': 'image/x-icon' })
+    checkHeaders(icon1, { 'content-type': 'image/x-icon', ...SECURITY })
     equal(await icon1.text(), 'A')
 
     let icon2 = await server.fetch('/favicon.ico')
-    checkHeaders(icon2, { 'content-type': 'image/x-icon' })
+    checkHeaders(icon2, { 'content-type': 'image/x-icon', ...SECURITY })
     equal(await icon2.text(), 'A')
 
     let css = await server.fetch('/assets/app-CiUGZyvO.css')
     checkHeaders(css, {
       'cache-control': 'public, max-age=31536000, immutable',
-      'content-type': 'text/css'
+      'content-type': 'text/css',
+      ...SECURITY
     })
     equal(await css.text(), '*{}')
 
+    // The worker will not start without the isolation headers
+    let worker = await server.fetch('/assets/worker-CBmSnzIj.js')
+    checkHeaders(worker, {
+      'cache-control': 'public, max-age=31536000, immutable',
+      'content-type': 'application/javascript',
+      ...SECURITY
+    })
+    equal(await worker.text(), 'postMessage(1)')
+
+    // `WebAssembly.instantiateStreaming()` needs the correct MIME type
+    let wasm = await server.fetch('/assets/sqlite3-DGXXSD5r.wasm')
+    checkHeaders(wasm, {
+      'cache-control': 'public, max-age=31536000, immutable',
+      'content-type': 'application/wasm',
+      ...SECURITY
+    })
+
     let story1 = await server.fetch('/ui/')
-    checkHeaders(story1, { 'content-type': 'text/html' })
+    checkHeaders(story1, { 'content-type': 'text/html', ...SECURITY })
     equal(await story1.text(), '<html>Storybook</html>')
 
     let story2 = await server.fetch('/ui/')
-    checkHeaders(story2, { 'content-type': 'text/html' })
+    checkHeaders(story2, { 'content-type': 'text/html', ...SECURITY })
     equal(await story2.text(), '<html>Storybook</html>')
 
     let data = await server.fetch('/data')
-    checkHeaders(data, { 'content-type': 'application/octet-stream' })
+    checkHeaders(data, {
+      'content-type': 'application/octet-stream',
+      ...SECURITY
+    })
     equal(await data.text(), 'D')
 
     let post = await server.fetch('/', { method: 'POST' })

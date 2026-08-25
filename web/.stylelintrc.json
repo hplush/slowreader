@@ -5,7 +5,8 @@
     "!**/*.css",
     "!**/*.pcss",
     "!**/*.svelte",
-    "dist/**/*"
+    "dist/**/*",
+    "storybook-static/**/*"
   ],
   "plugins": ["stylelint-use-logical", "@stylistic/stylelint-plugin"],
   "languageOptions": {

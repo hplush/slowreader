@@ -1,6 +1,8 @@
 <script context="module" lang="ts">
   import {
     changePost,
+    type FeedsPage as FeedsPageStore,
+    GENERAL_CATEGORY,
     needWelcome,
     pages,
     type PostValue
@@ -69,6 +71,19 @@
       reading: 'slow'
     }
   ] satisfies Partial<PostValue>[]
+
+  /**
+   * Readers load only unread posts, so the read style is visible only
+   * for the posts, which the user read without leaving the page.
+   */
+  function readAfterLoading(page: FeedsPageStore): void {
+    let unbind = page.postsLoading.listen(loading => {
+      if (!loading) {
+        unbind()
+        void changePost(['post-2', 'post-3'], { read: 1 })
+      }
+    })
+  }
 
   function multiply<Value>(array: Value[], count: number): Value[] {
     let result: Value[] = []
@@ -139,12 +154,17 @@
 <Story name="List" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     feeds={[{ id: 'feed', reading: 'slow' }]}
-    oninit={() => {
-      setTimeout(() => {
-        changePost('post-2', { read: true })
-        changePost('post-3', { read: true })
-      }, 1)
-    }}
+    posts={POSTS}
+    route={{ params: { feed: 'feed' }, route: 'slow' }}
+  >
+    <FeedsPage page={pages.slow()} />
+  </Scene>
+</Story>
+
+<Story name="List Read" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[{ id: 'feed', reading: 'slow' }]}
+    oninit={() => readAfterLoading(pages.slow())}
     posts={POSTS}
     route={{ params: { feed: 'feed' }, route: 'slow' }}
   >
@@ -182,14 +202,8 @@
 <Story name="Feed" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     feeds={[{ id: 'feed', reading: 'fast' }]}
-    oninit={() => {
-      setTimeout(() => {
-        changePost('post-2', { read: true })
-        changePost('post-3', { read: true })
-      }, 1)
-    }}
     posts={POSTS.map(i => ({ ...i, reading: 'fast' }))}
-    route={{ params: { category: 'general' }, route: 'fast' }}
+    route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
   >
     <FeedsPage page={pages.fast()} />
   </Scene>
@@ -201,7 +215,7 @@
     posts={POSTS.map(i => ({ ...i, reading: 'fast' }))}
     route={{
       hash: 'post=id:post-1',
-      params: { category: 'general' },
+      params: { category: GENERAL_CATEGORY },
       route: 'fast'
     }}
   >
@@ -216,7 +230,7 @@
       POSTS.map(i => ({ ...i, reading: 'fast' })),
       50
     )}
-    route={{ params: { category: 'general' }, route: 'fast' }}
+    route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
   >
     <FeedsPage page={pages.fast()} />
   </Scene>

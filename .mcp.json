@@ -1,0 +1,44 @@
+{
+  "mcpServers": {
+    "chromium": {
+      "args": [
+        "-c",
+        "./node_modules/.bin/playwright-mcp install-browser chromium 1>&2 && exec ./node_modules/.bin/playwright-mcp \"$@\"",
+        "playwright-mcp",
+        "--headless",
+        "--browser",
+        "chromium",
+        "--caps",
+        "devtools",
+        "--viewport-size",
+        "1280,800",
+        "--user-data-dir",
+        "/home/developer/.local/share/playwright-chromium",
+        "--output-dir",
+        "/home/developer/.local/share/playwright-output/chromium",
+        "--save-session"
+      ],
+      "command": "sh"
+    },
+    "firefox": {
+      "args": [
+        "-c",
+        "./node_modules/.bin/playwright-mcp install-browser firefox 1>&2 && exec ./node_modules/.bin/playwright-mcp \"$@\"",
+        "playwright-mcp",
+        "--headless",
+        "--browser",
+        "firefox",
+        "--caps",
+        "devtools",
+        "--viewport-size",
+        "1280,800",
+        "--user-data-dir",
+        "/home/developer/.local/share/playwright-firefox",
+        "--output-dir",
+        "/home/developer/.local/share/playwright-output/firefox",
+        "--save-session"
+      ],
+      "command": "sh"
+    }
+  }
+}

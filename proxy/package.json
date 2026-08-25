@@ -11,14 +11,10 @@
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
     "build": "node --run clean:build && pnpm -F proxy --prod deploy dist",
     "production": "node --run build && ./scripts/run-image.sh",
-    "test:proxy-coverage": "bnt --coverage 100",
+    "test:offline:coverage": "bnt --coverage 100",
     "clean:build": "rm -rf dist/"
   },
   "devDependencies": {
     "better-node-test": "1.0.0"
-  },
-  "engines": {
-    "node": "^26.5.0",
-    "pnpm": "^11.0.0"
   }
 }

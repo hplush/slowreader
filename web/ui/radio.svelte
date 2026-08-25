@@ -3,6 +3,7 @@
   import Label from './label.svelte'
 
   let {
+    anchor,
     label,
     labelless = false,
     onchange,
@@ -10,6 +11,7 @@
     value,
     values
   }: {
+    anchor?: string
     label: string
     labelless?: boolean
     onchange: (value: Value) => void
@@ -55,6 +57,7 @@
             name={id}
             class="radio_input"
             checked={key === value}
+            data-anchor={anchor ? `${anchor}-${key}` : null}
             onchange={change}
             type="radio"
             value={key}

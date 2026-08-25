@@ -3,6 +3,7 @@ import { PgTable } from 'drizzle-orm/pg-core'
 
 import { db } from './db/index.ts'
 import * as tables from './db/schema.ts'
+import type { ClientData } from './lib/types.ts'
 import addedModule from './modules/added.ts'
 import authModule from './modules/auth.ts'
 import healthModule from './modules/health.ts'
@@ -24,8 +25,13 @@ export async function cleanAllTables(): Promise<void> {
   )
 }
 
-export function buildTestServer(): TestServer {
-  let server = new TestServer()
+export async function getServerLogIds(): Promise<string[]> {
+  let rows = await db.query.actions.findMany({ columns: { id: true } })
+  return rows.map(row => row.id)
+}
+
+export function buildTestServer(): TestServer<object, ClientData> {
+  let server = new TestServer<object, ClientData>()
   addedModule(server)
   authModule(server)
   healthModule(server)

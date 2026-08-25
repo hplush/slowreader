@@ -1,4 +1,3 @@
-import type { LoadedSyncMap, SyncMapStore } from '@logux/client'
 import { atom } from 'nanostores'
 
 import {
@@ -6,8 +5,14 @@ import {
   moveToPage,
   setPagination
 } from '../lib/pagination.ts'
-import { changePost, type PostValue } from '../post.ts'
-import { createReader, loadPosts } from './common.ts'
+import { changePost, type ReaderPost } from '../post.ts'
+import {
+  createReader,
+  loadPageCursors,
+  loadPostsPage,
+  type PostCursor,
+  trackReadPosts
+} from './common.ts'
 
 const POSTS_PER_PAGE = 100
 
@@ -16,45 +21,56 @@ export const listReader = createReader('list', (filter, params) => {
 
   let exited = false
   let $loading = atom(true)
-  let $list = atom<LoadedSyncMap<SyncMapStore<PostValue>>[]>([])
-  let $pages = createPagination(1, 1)
+  let $list = atom<ReaderPost[]>([])
+  let $pages = createPagination(1)
+
+  let cursors: PostCursor[] = []
+  let request = 0
+
+  async function loadPage(page: number): Promise<void> {
+    let current = ++request
+    let cursor = cursors[page]
+    let posts = cursor
+      ? await loadPostsPage(filter, cursor, POSTS_PER_PAGE)
+      : []
+    if (exited || current !== request) return
+    moveToPage($pages, page)
+    $list.set(posts)
+    $loading.set(false)
+  }
 
   let unbindFrom = (): void => {}
+  let unbindRead = trackReadPosts(filter, $list)
   async function start(): Promise<void> {
-    let posts = await loadPosts(filter)
+    cursors = await loadPageCursors(filter, POSTS_PER_PAGE)
     if (exited) return
-
-    function updateList(): void {
-      let from = params.from.get()
-      if (!from) from = 0
-      let fromIndex = from * POSTS_PER_PAGE
-      let list = posts.slice(fromIndex, fromIndex + POSTS_PER_PAGE)
-      $list.set(list)
-      moveToPage($pages, from)
-    }
-
-    setPagination($pages, posts.length, POSTS_PER_PAGE)
-    unbindFrom = params.from.subscribe(updateList)
+    setPagination($pages, cursors.length)
+    unbindFrom = params.from.subscribe(value => {
+      $loading.set(true)
+      void loadPage(value ? parseInt(value) : 0)
+    })
   }
-  void start().then(() => {
-    $loading.set(false)
-  })
+  void start()
 
   async function readPage(): Promise<void> {
-    let list = $list.get()
-    let promise = Promise.all(
-      list.map(i => changePost(i.get().id, { read: true }))
+    await changePost(
+      $list
+        .get()
+        .filter(post => !post.read)
+        .map(post => post.id),
+      { read: 1 }
     )
+    if (exited) return
     if ($pages.get().hasNext) {
-      params.from.set($pages.get().page + 1)
+      params.from.set(`${$pages.get().page + 1}`)
     }
-    await promise
   }
 
   return {
     exit() {
       exited = true
       unbindFrom()
+      unbindRead()
     },
     list: $list,
     loading: $loading,

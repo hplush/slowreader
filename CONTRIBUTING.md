@@ -79,13 +79,13 @@ To fill your web clients with real posts:
 2. Open [`localhost:2553/feeds/add`](http://localhost:2553/feeds/add).
 3. Add feeds from [`loader-tests/feeds.yml`](./loader-tests/feeds.yml).
 4. Open browser DevTools.
-5. Run `fillFeedsWithPosts()`.
+5. Run `await slowreader.moveLastSyncedToPast()` to move feeds to the past.
+6. Press the first “refresh” button in webapp menu.
 
-To run the visual testing tool (Storybook), run it from the `web/` folder:
+To run the visual testing tool (Storybook):
 
 ```sh
-cd web/
-pnpm visual
+pnpm -F web visual
 ```
 
 It will show all UI components and all possible states of pages. It is the best tool to test browser compatibility or change CSS.

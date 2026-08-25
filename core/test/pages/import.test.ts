@@ -1,6 +1,6 @@
 import '../dom-parser.ts'
 
-import { loadValue } from '@logux/client'
+import { withoutMeta } from '@logux/client/db'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -10,18 +10,19 @@ import {
   addFeed,
   addFilter,
   addPost,
-  type CategoryValue,
   deleteCategory,
   deleteFeed,
   deleteFilter,
   deletePost,
-  type FeedValue,
-  type FilterValue,
-  getCategories,
-  getFeeds,
-  getFilters,
-  getPosts,
-  type PostValue,
+  GENERAL_CATEGORY,
+  loadCategories,
+  loadFeeds,
+  loadFilters,
+  loadPosts,
+  type NewCategory,
+  type NewFeed,
+  type NewFilter,
+  type NewPost,
   preloadImages,
   testFeed,
   theme,
@@ -44,7 +45,7 @@ describe('import page', () => {
     xml: 'application/xml'
   }
 
-  let CATEGORY = { id: 'c1', title: 'A' } satisfies CategoryValue
+  let CATEGORY = { id: 'c1', title: 'A' } satisfies NewCategory
   let FEED = {
     categoryId: CATEGORY.id,
     id: 'f1',
@@ -52,14 +53,14 @@ describe('import page', () => {
     reading: 'slow',
     title: 'F1',
     url: 'https://example.com/feed'
-  } satisfies FeedValue
+  } satisfies NewFeed
   let FILTER = {
     action: 'fast',
     feedId: FEED.id,
     id: 'filter1',
     priority: 1,
     query: 'include(text)'
-  } satisfies FilterValue
+  } satisfies NewFilter
   let POST = {
     feedId: FEED.id,
     id: 'p1',
@@ -67,7 +68,7 @@ describe('import page', () => {
     publishedAt: 1000,
     reading: 'fast',
     title: 'Post 1'
-  } satisfies PostValue
+  } satisfies NewPost
 
   function file(format: keyof typeof MIME_TYPES, content: string): File {
     return new File([content], `feeds.${format}`, {
@@ -133,17 +134,22 @@ describe('import page', () => {
     equal(page.done.get(), 1)
     equal(theme.get(), 'light')
     equal(preloadImages.get(), 'never')
-    deepEqual((await loadValue(getCategories())).list, [
-      { ...CATEGORY, isLoading: false }
+    deepEqual(withoutMeta(await loadCategories()), [
+      { ...CATEGORY, fastReader: null, slowReader: null }
     ])
-    deepEqual((await loadValue(getFeeds())).list, [
-      { ...FEED, isLoading: false }
+    deepEqual(withoutMeta(await loadFeeds()), [
+      {
+        ...FEED,
+        fastReader: null,
+        lastOriginId: null,
+        lastPublishedAt: null,
+        refreshedAt: null,
+        slowReader: null
+      }
     ])
-    deepEqual((await loadValue(getFilters())).list, [
-      { ...FILTER, isLoading: false }
-    ])
-    deepEqual((await loadValue(getPosts())).list, [
-      { ...POST, isLoading: false }
+    deepEqual(withoutMeta(await loadFilters()), [FILTER])
+    deepEqual(withoutMeta(await loadPosts()), [
+      { ...POST, full: null, intro: null, media: null, read: 0, url: null }
     ])
   })
 
@@ -187,20 +193,20 @@ describe('import page', () => {
     ])
     equal(page.done.get(), 2)
 
-    let categories = await loadValue(getCategories())
+    let categories = await loadCategories()
     deepEqual(
-      categories.list.map(i => i.title),
+      categories.map(i => i.title),
       ['A']
     )
     deepEqual(
-      (await loadValue(getFeeds())).list.map(i => ({
+      (await loadFeeds()).map(i => ({
         categoryId: i.categoryId,
         loader: i.loader,
         title: i.title
       })),
       [
-        { categoryId: 'general', loader: 'atom', title: FEED2.title },
-        { categoryId: categories.list[0]?.id, loader: 'rss', title: FEED.title }
+        { categoryId: categories[0]?.id, loader: 'rss', title: FEED.title },
+        { categoryId: GENERAL_CATEGORY, loader: 'atom', title: FEED2.title }
       ]
     )
   })
@@ -416,8 +422,7 @@ describe('import page', () => {
     deepEqual(page.feedErrors.get(), [])
     equal(page.done.get(), 0)
 
-    let feeds = await loadValue(getFeeds())
-    equal(feeds.list.length, 2)
+    equal((await loadFeeds()).length, 2)
   })
 
   test('imports OPML with .xml extension', async () => {
@@ -449,7 +454,7 @@ describe('import page', () => {
     equal(page.done.get(), 1)
 
     deepEqual(
-      (await loadValue(getFeeds())).list.map(i => ({
+      (await loadFeeds()).map(i => ({
         loader: i.loader,
         title: i.title
       })),

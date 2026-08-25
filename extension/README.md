@@ -6,13 +6,13 @@ _See the [full architecture guide](../README.md) first._
 
 ## Scripts
 
-- `cd extension && pnpm install` to install dependencies.
-- `cd extension && `pnpm start` to run the plugin in development mode.
-- `cd extension && pnpm build` to build the plugin for production.
+- `pnpm -F extension install` to install dependencies.
+- `pnpm -F extension start` to run the plugin in development mode.
+- `pnpm -F extension build` to build the plugin for production.
 
 ## Quick Start
 
-1. Run `cd extension && pnpm start` to build the extension and watch the changes.
+1. Run `pnpm -F extension start` to build the extension and watch the changes.
 2. Open `chrome://extensions/` → `Load unpacked` and choose `dist` folder from this repo. The extension should appear in the list of your extensions.
 3. In the `.env` file of the main app, place the next line (`EXTENSION_ID` can be found in the `ID` line inside the uploaded extension block):
 

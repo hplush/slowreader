@@ -1,43 +1,24 @@
-import { loadValue } from '@logux/client'
-
 import { busyDuring } from './busy.ts'
 import { HTTPStatusError } from './errors.ts'
-import { getFeed, getFeedLatestPosts, getFeeds } from './feed.ts'
-import { loadFilters } from './filter.ts'
-import { createDownloadTask } from './lib/download.ts'
+import { changeFeed, loadFeed, loadFeeds } from './feed.ts'
 import { loaders } from './loader/index.ts'
-import {
-  addPost,
-  deletePost,
-  getPost,
-  getPosts,
-  processOriginPost
-} from './post.ts'
+import { loadPost } from './post.ts'
 import { proxyDebug } from './request.ts'
 import { router } from './router.ts'
 
 /**
- * Create test feeds and posts for new client.
+ * Move refresh markers of all feeds to the past, so the next refresh
+ * will load old posts. Useful to test refresh right after OPML import.
  */
-export async function fillFeedsWithPosts(): Promise<void> {
-  await busyDuring(async () => {
-    let task = createDownloadTask()
-    let feeds = await loadValue(getFeeds())
-    await Promise.all(
-      feeds.list.map(async feed => {
-        let old = await loadValue(getPosts({ feedId: feed.id }))
-        for (let post of old.list) {
-          await deletePost(post.id)
-        }
-        let posts = await getFeedLatestPosts(feed, task).next()
-        let filters = await loadFilters({ feedId: feed.id })
-        for (let origin of posts) {
-          let reading = filters(origin) ?? feed.reading
-          if (reading !== 'delete') {
-            await addPost(processOriginPost(origin, feed.id, reading))
-          }
-        }
-      })
+export async function moveLastSyncedToPast(days = 30): Promise<void> {
+  await busyDuring('', async () => {
+    await changeFeed(
+      (await loadFeeds()).map(feed => feed.id),
+      {
+        lastOriginId: null,
+        lastPublishedAt: Math.round(Date.now() / 1000) - days * 24 * 60 * 60,
+        refreshedAt: null
+      }
     )
   })
 }
@@ -56,9 +37,9 @@ export function enablePostDebug(): void {
           id = popup.param.slice(5)
         }
         if (id) {
-          let post = await loadValue(getPost(id))
+          let post = await loadPost(id)
           if (!post) return
-          let feed = await loadValue(getFeed(post.feedId))
+          let feed = await loadFeed(post.feedId)
           let source = await loaders[feed!.loader].getPostSource(
             feed!,
             post.originId

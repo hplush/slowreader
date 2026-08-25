@@ -1,16 +1,12 @@
-import type { SyncMapValues } from '@logux/actions'
-import { type FilterStore, loadValue } from '@logux/client'
+import { type WithoutMeta, withoutMeta } from '@logux/client/db'
 import { atom } from 'nanostores'
 
-import {
-  type CategoryValue,
-  feedsByCategory,
-  getCategories
-} from '../category.ts'
+import { type CategoryValue, loadCategories } from '../category.ts'
 import { getEnvironment } from '../environment.ts'
-import { type FeedValue, getFeeds } from '../feed.ts'
-import { type FilterValue, getFilters } from '../filter.ts'
-import { getPosts, type PostValue } from '../post.ts'
+import { type FeedValue, loadFeeds, loadFeedsByCategory } from '../feed.ts'
+import { type FilterValue, loadFilters } from '../filter.ts'
+import { loadPostsPage, type PostValue } from '../post.ts'
+import { GENERAL_CATEGORY } from '../schema.ts'
 import {
   preloadImages,
   type Settings,
@@ -21,10 +17,10 @@ import {
 import { createPage } from './common.ts'
 
 export interface StateExport {
-  categories: Omit<CategoryValue, 'isLoading'>[]
-  feeds: Omit<FeedValue, 'isLoading'>[]
-  filters: Omit<FilterValue, 'isLoading'>[]
-  posts: Omit<PostValue, 'isLoading'>[]
+  categories: WithoutMeta<CategoryValue>[]
+  feeds: WithoutMeta<FeedValue>[]
+  filters: WithoutMeta<FilterValue>[]
+  posts: WithoutMeta<PostValue>[]
   settings: Settings
 }
 
@@ -45,18 +41,50 @@ export function isStateExportFile(state: unknown): state is StateExport {
   )
 }
 
-async function loadList<Value extends SyncMapValues>(
-  filter: FilterStore<Value>
-): Promise<Omit<Value, 'isLoading'>[]> {
-  return (await loadValue(filter)).list.map(i => {
-    let copy = { ...i } as Omit<Value, 'isLoading'>
-    delete copy.isLoading
-    return copy
-  })
+/**
+ * Move the text to `Blob` storage, which browsers can put on disk, by every
+ * this number of characters. It keeps the whole file out of JS memory.
+ */
+const CHUNK_SIZE = 65536
+
+const POSTS_PER_PAGE = 100
+
+interface FileWriter {
+  save(filename: string): void
+  write(text: string): void
 }
 
-const NO_OPML_CATEGORY: Record<string, boolean> = {
-  general: true
+function createFileWriter(type: string): FileWriter {
+  let parts: (Blob | string)[] = []
+  let buffer: string[] = []
+  let size = 0
+  return {
+    save(filename) {
+      parts.push(new Blob(buffer))
+      getEnvironment().saveFile(filename, new Blob(parts, { type }))
+    },
+    write(text) {
+      buffer.push(text)
+      size += text.length
+      if (size > CHUNK_SIZE) {
+        parts.push(new Blob(buffer))
+        buffer = []
+        size = 0
+      }
+    }
+  }
+}
+
+function feedOutline(feed: FeedValue, indent: string): string {
+  return (
+    `${indent}<outline text="${feed.title}" ` +
+    `type="rss" xmlUrl="${feed.url}" />\n`
+  )
+}
+
+function jsonRows(name: string, rows: object[]): string {
+  let json = rows.map(row => `    ${JSON.stringify(row)}`).join(',\n')
+  return `  "${name}": [\n${json}\n  ],\n`
 }
 
 function pad(value: number): string {
@@ -78,45 +106,36 @@ export const exportPage = createPage('export', () => {
 
   async function exportOpml(): Promise<void> {
     $exportingOpml.set(true)
-    let opml =
+    let file = createFileWriter('application/xml')
+    file.write(
       '<?xml version="1.0" encoding="UTF-8"?>\n' +
-      '<opml version="2.0">\n' +
-      '  <head>\n' +
-      '    <title>SlowReader Feeds</title>\n' +
-      `    <dateCreated>${new Date().toISOString()}</dateCreated>\n` +
-      '  </head>\n' +
-      '  <body>\n'
+        '<opml version="2.0">\n' +
+        '  <head>\n' +
+        '    <title>SlowReader Feeds</title>\n' +
+        `    <dateCreated>${new Date().toISOString()}</dateCreated>\n` +
+        '  </head>\n' +
+        '  <body>\n'
+    )
 
-    let [categories, allFeeds] = await Promise.all([
-      loadValue(getCategories()),
-      loadValue(getFeeds())
-    ])
+    let categories = await loadCategories()
+    for (let feed of await loadFeedsByCategory(GENERAL_CATEGORY)) {
+      file.write(feedOutline(feed, '    '))
+    }
+    for (let category of categories) {
+      if (stopped) break
+      file.write(`    <outline text="${category.title}">\n`)
+      for (let feed of await loadFeedsByCategory(category.id)) {
+        file.write(feedOutline(feed, '      '))
+      }
+      file.write(`    </outline>\n`)
+    }
+    file.write('  </body>\n</opml>\n')
+
     if (stopped) {
       $exportingOpml.set(false)
       return
     }
-    let tree = feedsByCategory(categories.list, allFeeds.list)
-
-    for (let [category, feeds] of tree) {
-      if (!NO_OPML_CATEGORY[category.id]) {
-        opml += `    <outline text="${category.title}">\n`
-      }
-      for (let { title, url } of feeds) {
-        opml +=
-          (NO_OPML_CATEGORY[category.id] ? `    ` : `      `) +
-          `<outline text="${title}" type="rss" xmlUrl="${url}" />\n`
-      }
-      if (!NO_OPML_CATEGORY[category.id]) {
-        opml += `    </outline>\n`
-      }
-    }
-    opml += '  </body>\n</opml>\n'
-
-    let blob = new Blob([opml], { type: 'application/xml' })
-    getEnvironment().saveFile(
-      `slowreader-rss-feeds-${formatCurrentTime()}.opml`,
-      blob
-    )
+    file.save(`slowreader-rss-feeds-${formatCurrentTime()}.opml`)
     $exportingOpml.set(false)
   }
 
@@ -124,28 +143,38 @@ export const exportPage = createPage('export', () => {
 
   async function exportBackup(): Promise<void> {
     $exportingBackup.set(true)
-    let state = {
-      categories: await loadList(getCategories()),
-      feeds: await loadList(getFeeds()),
-      filters: await loadList(getFilters()),
-      posts: await loadList(getPosts()),
-      settings: {
-        preloadImages: preloadImages.get(),
-        theme: theme.get(),
-        useQuietCursor: useQuietCursor.get(),
-        useReducedMotion: useReducedMotion.get()
+    let file = createFileWriter('application/json')
+    file.write('{\n')
+    file.write(jsonRows('categories', withoutMeta(await loadCategories())))
+    file.write(jsonRows('feeds', withoutMeta(await loadFeeds())))
+    file.write(jsonRows('filters', withoutMeta(await loadFilters())))
+
+    file.write('  "posts": [')
+    let total = 0
+    while (true) {
+      let page = await loadPostsPage(POSTS_PER_PAGE, total)
+      if (stopped) break
+      for (let post of withoutMeta(page)) {
+        file.write(`${total === 0 ? '\n' : ',\n'}    ${JSON.stringify(post)}`)
+        total += 1
       }
-    } satisfies StateExport
+      if (page.length < POSTS_PER_PAGE) break
+    }
+    file.write(total === 0 ? '],\n' : '\n  ],\n')
+
+    let settings = {
+      preloadImages: preloadImages.get(),
+      theme: theme.get(),
+      useQuietCursor: useQuietCursor.get(),
+      useReducedMotion: useReducedMotion.get()
+    } satisfies Settings
+    file.write(`  "settings": ${JSON.stringify(settings)}\n}\n`)
 
     if (stopped) {
       $exportingBackup.set(false)
       return
     }
-
-    let blob = new Blob([JSON.stringify(state, null, 2)], {
-      type: 'application/json'
-    })
-    getEnvironment().saveFile(`slowreader-${formatCurrentTime()}.json`, blob)
+    file.save(`slowreader-${formatCurrentTime()}.json`)
     $exportingBackup.set(false)
   }
 

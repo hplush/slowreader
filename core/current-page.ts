@@ -1,6 +1,6 @@
 import { computed, type ReadableAtom, type WritableStore } from 'nanostores'
 
-import { isOutdatedClient, syncStatus } from './client.ts'
+import { brokenDatabase, isOutdatedClient, syncStatus } from './client.ts'
 import { getEnvironment } from './environment.ts'
 import { type Page, pages } from './pages/index.ts'
 import { type Route, type RouteName, router } from './router.ts'
@@ -40,7 +40,7 @@ function getPageParams<SomeRoute extends Route>(
   for (let i in page.params) {
     let name = i as keyof SomeRoute['params']
     // @ts-expect-error Too complex types for TS
-    // eslint-disable-next-line
+    // oxlint-disable-next-line
     params[name] = page.params[name].get()
   }
   return params
@@ -50,10 +50,12 @@ let prevPage: Page<RouteName> | undefined
 let unbinds: (() => void)[] = []
 
 export const currentPage: ReadableAtom<Page<RouteName>> = computed(
-  [router, syncStatus, isOutdatedClient],
-  (route, sync, outdated) => {
+  [router, syncStatus, isOutdatedClient, brokenDatabase],
+  (route, sync, outdated, broken) => {
     let override: RouteName | undefined
-    if (outdated) {
+    if (broken) {
+      override = 'brokenDatabase'
+    } else if (outdated) {
       override = 'outdated'
     } else if (sync === 'wrongCredentials') {
       override = 'relogin'

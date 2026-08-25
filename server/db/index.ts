@@ -1,6 +1,7 @@
 import { PGlite, type PGliteOptions } from '@electric-sql/pglite'
+import { defineRelations } from 'drizzle-orm'
 import type { MigrationConfig } from 'drizzle-orm/migrator'
-import type { PgDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core'
+import type { PgAsyncDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core'
 import { drizzle as devDrizzle } from 'drizzle-orm/pglite'
 import { migrate as devMigrate } from 'drizzle-orm/pglite/migrator'
 import { drizzle as prodDrizzle } from 'drizzle-orm/postgres-js'
@@ -22,7 +23,9 @@ function pgOptions(): PGliteOptions {
   return { debug: config.debug ? 5 : undefined }
 }
 
-let drizzle: PgDatabase<PgQueryResultHKT, typeof schema>
+let relations = defineRelations(schema)
+
+let drizzle: PgAsyncDatabase<PgQueryResultHKT, typeof relations>
 let pglite: PGlite | undefined
 
 if (config.db.startsWith('memory://') || config.db.startsWith('file://')) {
@@ -33,7 +36,7 @@ if (config.db.startsWith('memory://') || config.db.startsWith('file://')) {
   }
 
   pglite = new PGlite(config.db, pgOptions())
-  let drizzlePglite = devDrizzle(pglite, { schema })
+  let drizzlePglite = devDrizzle({ client: pglite, relations })
   await devMigrate(drizzlePglite, MIGRATE_CONFIG)
   drizzle = drizzlePglite
 
@@ -42,9 +45,9 @@ if (config.db.startsWith('memory://') || config.db.startsWith('file://')) {
     void pglite?.close()
   })
 } else {
-  drizzle = prodDrizzle(postgres(config.db), { schema })
+  drizzle = prodDrizzle({ client: postgres(config.db), relations })
   let migrateConnection = postgres(config.db, { max: 1 })
-  await prodMigrate(prodDrizzle(migrateConnection), MIGRATE_CONFIG)
+  await prodMigrate(prodDrizzle({ client: migrateConnection }), MIGRATE_CONFIG)
   await migrateConnection.end()
 }
 

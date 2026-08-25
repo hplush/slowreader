@@ -19,7 +19,7 @@ export const feedsByCategoriesPage = createPage('feedsByCategories', () => {
   let $loading = atom(true)
   let unbind = effect([$categories, $feeds], (categories, feeds) => {
     if (!categories.isLoading && !feeds.isLoading) {
-      $groups.set(feedsByCategory(categories.list, feeds.list))
+      $groups.set(feedsByCategory(categories.value, feeds.value))
       $loading.set(false)
     } else {
       $loading.set(true)

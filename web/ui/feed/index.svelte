@@ -1,6 +1,5 @@
 <script lang="ts">
-  import type { LoadedSyncMap, SyncMapStore } from '@logux/client'
-  import type { FeedValue, PostValue } from '@slowreader/core'
+  import type { PostAuthor, ReaderPost } from '@slowreader/core'
 
   import FeedPost from './post.svelte'
 
@@ -8,14 +7,14 @@
     authors,
     posts
   }: {
-    authors?: Map<string, LoadedSyncMap<SyncMapStore<FeedValue>>>
-    posts: readonly LoadedSyncMap<SyncMapStore<PostValue>>[]
+    authors?: ReadonlyMap<string, PostAuthor>
+    posts: readonly ReaderPost[]
   } = $props()
 </script>
 
 <ul class="feed">
-  {#each posts as post (post.get().id)}
-    <FeedPost author={authors?.get(post.get().feedId)} {post} />
+  {#each posts as post (post.id)}
+    <FeedPost author={authors?.get(post.feedId)} {post} />
   {/each}
 </ul>
 

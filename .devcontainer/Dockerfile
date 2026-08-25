@@ -2,19 +2,22 @@
 # so every developer will have the same environment
 
 # registry.fedoraproject.org/fedora:44
-FROM registry.fedoraproject.org/fedora@sha256:590825dbaee41a97a162ecdffc3305264bd11cb3ff1e9cfd710d41ca5f936134
+FROM registry.fedoraproject.org/fedora@sha256:11ee4afbebd03f6b74f35a07f772e7ef92f2184937e05c4664d73e7649d6e640
 
 ARG TARGETARCH
 
-ENV NODE_VERSION=26.5.1 \
-  NODE_CHECKSUM_X64=cc7b3484ade63bd203a9d304f21ec37a3b622b988d7bdecf1dc4d68fc44a91b7 \
-  NODE_CHECKSUM_ARM64=0b6b0cc2a1eecbe736f9918de8b5a6c9a48d286b88bec1298a3c1e3376182ea8
+ENV NODE_VERSION=26.7.0 \
+  NODE_CHECKSUM_X64=982aa24dd8be4c889c6a8ab337ddff3b0896645b20f4239356e80552c16277ee \
+  NODE_CHECKSUM_ARM64=afc7a004018485092ac8985b817b0d5684472bd9472e0b57d2ab88737e50090d
 
-ENV PNPM_VERSION=11.18.0 \
-  PNPM_CHECKSUM_X64=f4e62794c56f7a1ad01097f94b90ca95680080aa2e83ebc3d0a751fb8aa8e4ad \
-  PNPM_CHECKSUM_ARM64=f9c09bb564421d9d39dfff60af41df88a4864af5637afdabe5f54d12853f8426
+ENV PNPM_VERSION=12.0.0-rc.10 \
+  PNPM_CHECKSUM_X64=7bcb79f0d2fbe6c70f2d2502dd66f6ba924a4b80f3b1797c1f24d20013b6d73f \
+  PNPM_CHECKSUM_ARM64=bf07ed9d3aab951edb58b6d396b86d999c984958dda477f565e1910f5225242e
 
 RUN dnf install -yq zsh micro git tig psmisc procps-ng awk libatomic wget \
+  gtk3 nss nspr alsa-lib cups-libs mesa-libgbm dbus-libs libX11-xcb \
+  libXcomposite libXdamage libXrandr libXcursor libXi libxkbcommon \
+  google-noto-sans-fonts google-noto-emoji-fonts \
   && dnf clean all \
   && rm -rf /var/cache/dnf
 

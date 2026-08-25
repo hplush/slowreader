@@ -1,20 +1,29 @@
-import { ensureLoaded, loadValue } from '@logux/client'
+import type {
+  CrdtTableChangedAction,
+  CrdtTableCreatedAction,
+  CrdtTableDeletedAction
+} from '@logux/actions'
+import {
+  createStorageReducer,
+  type CrossTabClient,
+  type StorageReducer
+} from '@logux/client'
 import { persistentAtom } from '@nanostores/persistent'
-import { atom, computed, keepMount } from 'nanostores'
+import { atom, computed, effect, keepMount, onMount } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
-import {
-  type CategoryValue,
-  getCategories,
-  getGeneralCategory
-} from './category.ts'
-import { client } from './client.ts'
-import { layoutType } from './environment.ts'
-import { type FeedValue, getFeeds } from './feed.ts'
-import { getFilters } from './filter.ts'
-import { onLogAction, onMountAny, waitLoading } from './lib/stores.ts'
-import { getPosts } from './post.ts'
+import { client, onClient } from './client.ts'
+import { getEnvironment, layoutType } from './environment.ts'
+import type { FilterValue } from './filter.ts'
+import { waitLoading } from './lib/stores.ts'
+import { commonMessages } from './messages/index.ts'
 import { isOtherRoute, router } from './router.ts'
+import {
+  GENERAL_CATEGORY,
+  getTableActions,
+  openedDatabase,
+  tableActions
+} from './schema.ts'
 
 export type MenuType = 'fast' | 'other' | 'slow'
 
@@ -72,117 +81,380 @@ export function closeMenu(): void {
   $menuOverride.set(undefined)
 }
 
-export type SlowMenu = [CategoryValue, [FeedValue, number][]][]
-
-export let fastMenu = atom<CategoryValue[]>([])
-export let slowMenu = atom<SlowMenu>([])
-export let menuLoading = atom<boolean>(true)
-
-/**
- * Performance optimization is postponed after the prototype.
- *
- * So we rebuild the fast/slow feeds menu on every feed/category/filter changes.
- */
-async function rebuild(): Promise<void> {
-  let [posts, feeds, categories, fastFilters] = await Promise.all([
-    loadValue(getPosts()),
-    loadValue(getFeeds()),
-    loadValue(getCategories()),
-    loadValue(getFilters({ action: 'fast' }))
-  ])
-
-  let slowPosts = posts.list.filter(i => i.reading === 'slow' && !i.read)
-  let fastFeeds = feeds.list.filter(i => i.reading === 'fast')
-
-  let feedsWithFastFilters = fastFilters.list.map(i => {
-    return feeds.stores.get(i.feedId)!.get()
-  })
-
-  let uniqueFastCategories: Record<string, CategoryValue> = {}
-  for (let feed of [...fastFeeds, ...feedsWithFastFilters]) {
-    let id = ensureLoaded(feed).categoryId
-    if (!uniqueFastCategories[id]) {
-      if (id === 'general') {
-        uniqueFastCategories[id] = getGeneralCategory()
-      } else {
-        let found = categories.list.find(i => i.id === id)
-        if (found) uniqueFastCategories[id] = found
-      }
-    }
-  }
-
-  let fast = Object.values(uniqueFastCategories).toSorted((a, b) => {
-    return a.title.localeCompare(b.title)
-  })
-
-  if (fast.length > 0) {
-    fastMenu.set(fast)
-  } else {
-    fastMenu.set([getGeneralCategory()])
-  }
-
-  let byCategory: Record<string, [FeedValue, number][]> = {}
-  let general = false
-
-  let unreadByFeed: Record<string, number> = {}
-  for (let post of slowPosts) {
-    unreadByFeed[post.feedId] = (unreadByFeed[post.feedId] ?? 0) + 1
-  }
-  for (let [feedId, unread] of Object.entries(unreadByFeed)) {
-    let feedStore = feeds.stores.get(feedId)
-    if (!feedStore) continue
-    let feed = ensureLoaded(feedStore.get())
-    let category = feed.categoryId
-    if (category === 'general') {
-      general = true
-    } else if (!categories.stores.has(category)) {
-      continue
-    }
-    if (!byCategory[category]) byCategory[category] = []
-    byCategory[category].push([feed, unread])
-  }
-
-  let allCategories = [...categories.list] as CategoryValue[]
-  if (general) allCategories.push(getGeneralCategory())
-  let categoriesByName = allCategories.toSorted((a, b) => {
-    return a.title.localeCompare(b.title)
-  })
-
-  let result: SlowMenu = []
-  for (let category of categoriesByName) {
-    let list = byCategory[category.id]
-    if (list) {
-      list.sort((a, b) => a[0].title.localeCompare(b[0].title))
-      result.push([category, list])
-    }
-  }
-
-  slowMenu.set(result)
+export interface MenuItem {
+  id: string
+  /**
+   * Empty for the general category: its title is localized,
+   * so it is taken from `commonMessages` in the render.
+   */
+  title: string
 }
 
-onMountAny([fastMenu, slowMenu], () => {
-  menuLoading.set(true)
+export type SlowMenu = [MenuItem, [MenuItem, number][]][]
 
-  void rebuild().then(() => {
-    menuLoading.set(false)
-  })
-  let unbindAction = onLogAction(action => {
-    if (
-      action.type.startsWith('categories/') ||
-      action.type.startsWith('feeds/') ||
-      action.type.startsWith('posts/') ||
-      action.type.startsWith('filters/')
-    ) {
-      void rebuild()
-    }
-  })
+type UnreadCount = { feedId: string; unread: number }
 
-  return () => {
-    unbindAction()
-    fastMenu.set([])
-    slowMenu.set([])
-    menuLoading.set(true)
+/**
+ * Sorted `[id, title]` pairs of categories or of feeds of a single category.
+ */
+type Sorted = [string, string][]
+
+/**
+ * The menu structure reduced from the log to not rebuild and re-sort
+ * everything on every change in the database.
+ *
+ * Posts are not here: their actions have only IDs, so counting unread posts
+ * would need an index of all posts in `localStorage`. Unread counts come
+ * from SQL.
+ */
+interface MenuState {
+  categories: Sorted
+  /**
+   * Feeds with `reading: 'fast'`.
+   */
+  fast: Record<string, true>
+  feedOf: Record<string, string>
+  feeds: Record<string, Sorted>
+  filters: Record<string, [feedId: string, action: FilterValue['action']]>
+}
+
+const EMPTY: MenuState = {
+  categories: [],
+  fast: {},
+  feedOf: {},
+  feeds: {},
+  filters: {}
+}
+
+const REDUCER = 'slowreader:menu'
+
+/**
+ * Increase it on any change in the reducer’s logic or in `MenuState`
+ * to rebuild the menu from the log.
+ */
+const VERSION = 1
+
+function createdRows<Fields extends object>(
+  action: CrdtTableCreatedAction<Fields>
+): [string, Fields][] {
+  if ('records' in action) {
+    return action.records.map(record => [record.id, record])
+  } else {
+    return [[action.id, action.fields]]
   }
+}
+
+function changedIds(
+  action: CrdtTableChangedAction | CrdtTableDeletedAction
+): string[] {
+  return 'ids' in action ? action.ids : [action.id]
+}
+
+/**
+ * The server re-sends the actions, which the client did not confirm as
+ * received, and their bodies are not in the log anymore to be ignored
+ * as duplicates, so creation must be idempotent.
+ */
+function insert(list: Sorted, id: string, title: string): Sorted {
+  let sorted = remove(list, id)
+  let low = 0
+  let high = sorted.length
+  while (low < high) {
+    let middle = (low + high) >> 1
+    if (sorted[middle]![1].localeCompare(title) <= 0) {
+      low = middle + 1
+    } else {
+      high = middle
+    }
+  }
+  return sorted.toSpliced(low, 0, [id, title])
+}
+
+function remove(list: Sorted, id: string): Sorted {
+  let index = list.findIndex(item => item[0] === id)
+  return index === -1 ? list : list.toSpliced(index, 1)
+}
+
+function rename(list: Sorted, id: string, title: string): Sorted {
+  let index = list.findIndex(item => item[0] === id)
+  if (index === -1 || list[index]![1] === title) {
+    return list
+  } else {
+    return insert(list.toSpliced(index, 1), id, title)
+  }
+}
+
+let [createdCategory, changedCategory, deletedCategory] =
+  tableActions.categories
+let [createdFeed, changedFeed, deletedFeed] = tableActions.feeds
+let [createdFilter, changedFilter, deletedFilter] = tableActions.filters
+
+function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
+  let reducer = createStorageReducer<MenuState>(
+    logux,
+    REDUCER,
+    VERSION,
+    EMPTY,
+    {
+      decode(str) {
+        return JSON.parse(str) as MenuState
+      },
+      encode(state) {
+        return JSON.stringify(state)
+      },
+      // The menu has no posts: their actions have only IDs
+      repeat: () => getTableActions(['categories', 'feeds', 'filters']),
+      storage: getEnvironment().persistentStore
+    }
+  )
+
+  reducer.type(createdCategory, (state, action) => {
+    let categories = state.categories
+    for (let [id, fields] of createdRows(action)) {
+      categories = insert(categories, id, fields.title)
+    }
+    return { ...state, categories }
+  })
+
+  reducer.type(changedCategory, (state, action) => {
+    let title = action.fields.title
+    if (typeof title === 'undefined') return state
+    let categories = state.categories
+    for (let id of changedIds(action)) {
+      categories = rename(categories, id, title)
+    }
+    return categories === state.categories ? state : { ...state, categories }
+  })
+
+  reducer.type(deletedCategory, (state, action) => {
+    let categories = state.categories
+    for (let id of changedIds(action)) {
+      categories = remove(categories, id)
+    }
+    return categories === state.categories ? state : { ...state, categories }
+  })
+
+  reducer.type(createdFeed, (state, action) => {
+    let fast = { ...state.fast }
+    let feedOf = { ...state.feedOf }
+    let feeds = { ...state.feeds }
+    for (let [id, fields] of createdRows(action)) {
+      let category = fields.categoryId!
+      feeds[category] = insert(feeds[category] ?? [], id, fields.title)
+      feedOf[id] = category
+      if (fields.reading === 'fast') fast[id] = true
+    }
+    return { ...state, fast, feedOf, feeds }
+  })
+
+  reducer.type(changedFeed, (state, action) => {
+    let { categoryId, reading, title } = action.fields
+    if (
+      typeof categoryId === 'undefined' &&
+      typeof reading === 'undefined' &&
+      typeof title === 'undefined'
+    ) {
+      return state
+    }
+    let changed = false
+    let fast = { ...state.fast }
+    let feedOf = { ...state.feedOf }
+    let feeds = { ...state.feeds }
+    for (let id of changedIds(action)) {
+      let from = feedOf[id]
+      if (typeof from === 'undefined') continue
+      if (reading === 'fast' && !fast[id]) {
+        fast[id] = true
+        changed = true
+      } else if (reading === 'slow' && fast[id]) {
+        delete fast[id]
+        changed = true
+      }
+      let list = feeds[from]!
+      if (typeof categoryId !== 'undefined' && categoryId !== from) {
+        let index = list.findIndex(item => item[0] === id)
+        feeds[from] = list.toSpliced(index, 1)
+        feedOf[id] = categoryId
+        feeds[categoryId] = insert(
+          feeds[categoryId] ?? [],
+          id,
+          title ?? list[index]![1]
+        )
+        changed = true
+      } else if (typeof title !== 'undefined') {
+        let renamed = rename(list, id, title)
+        if (renamed !== list) {
+          feeds[from] = renamed
+          changed = true
+        }
+      }
+    }
+    return changed ? { ...state, fast, feedOf, feeds } : state
+  })
+
+  reducer.type(deletedFeed, (state, action) => {
+    let changed = false
+    let fast = { ...state.fast }
+    let feedOf = { ...state.feedOf }
+    let feeds = { ...state.feeds }
+    for (let id of changedIds(action)) {
+      let from = feedOf[id]
+      if (typeof from === 'undefined') continue
+      feeds[from] = remove(feeds[from]!, id)
+      delete feedOf[id]
+      delete fast[id]
+      changed = true
+    }
+    return changed ? { ...state, fast, feedOf, feeds } : state
+  })
+
+  reducer.type(createdFilter, (state, action) => {
+    let filters = { ...state.filters }
+    for (let [id, fields] of createdRows(action)) {
+      filters[id] = [fields.feedId, fields.action]
+    }
+    return { ...state, filters }
+  })
+
+  reducer.type(changedFilter, (state, action) => {
+    let changes = action.fields
+    if (
+      typeof changes.action === 'undefined' &&
+      typeof changes.feedId === 'undefined'
+    ) {
+      return state
+    }
+    let changed = false
+    let filters = { ...state.filters }
+    for (let id of changedIds(action)) {
+      let filter = filters[id]
+      if (!filter) continue
+      filters[id] = [changes.feedId ?? filter[0], changes.action ?? filter[1]]
+      changed = true
+    }
+    return changed ? { ...state, filters } : state
+  })
+
+  reducer.type(deletedFilter, (state, action) => {
+    let changed = false
+    let filters = { ...state.filters }
+    for (let id of changedIds(action)) {
+      if (!filters[id]) continue
+      delete filters[id]
+      changed = true
+    }
+    return changed ? { ...state, filters } : state
+  })
+
+  return reducer
+}
+
+interface MenuTree {
+  fast: MenuItem[]
+  slow: [MenuItem, MenuItem[]][]
+}
+
+/**
+ * The general category has no title in the menu, so it can’t be sorted
+ * with other categories and is always the first, like in `feedsByCategory()`.
+ */
+const GENERAL: [string, string] = [GENERAL_CATEGORY, '']
+
+/**
+ * Categories and feeds in the render order. It is recalculated only on
+ * feeds/categories/filters changes, not on every read post.
+ */
+function buildTree(state: MenuState): MenuTree {
+  let fastFeeds = new Set(Object.keys(state.fast))
+  for (let id in state.filters) {
+    let filter = state.filters[id]!
+    if (filter[1] === 'fast') fastFeeds.add(filter[0])
+  }
+
+  let categories: Sorted = [GENERAL, ...state.categories]
+  let fast: MenuItem[] = []
+  let slow: [MenuItem, MenuItem[]][] = []
+  for (let [id, title] of categories) {
+    let list = state.feeds[id]
+    if (!list || list.length === 0) continue
+    let category = { id, title }
+    slow.push([category, list.map(feed => ({ id: feed[0], title: feed[1] }))])
+    if (list.some(feed => fastFeeds.has(feed[0]))) fast.push(category)
+  }
+
+  return {
+    fast: fast.length > 0 ? fast : [{ id: GENERAL[0], title: GENERAL[1] }],
+    slow
+  }
+}
+
+function buildSlowMenu(tree: MenuTree, counts: Map<string, number>): SlowMenu {
+  let menu: SlowMenu = []
+  for (let [category, feeds] of tree.slow) {
+    let list: [MenuItem, number][] = []
+    for (let feed of feeds) {
+      let count = counts.get(feed.id)
+      if (count) list.push([feed, count])
+    }
+    if (list.length > 0) menu.push([category, list])
+  }
+  return menu
+}
+
+let $state = atom<MenuState>(EMPTY)
+let $reduced = atom<boolean>(false)
+
+onClient(logux => {
+  let reducer = createMenuReducer(logux)
+  let unbind = effect([reducer.value, reducer.status], (state, status) => {
+    $state.set(state)
+    $reduced.set(status === 'ready')
+  })
+  return () => {
+    unbind()
+    reducer.destroy()
+    $state.set(EMPTY)
+    $reduced.set(false)
+  }
+})
+
+/**
+ * Unread posts count by feed ID. `undefined` until the SQL query is loaded.
+ *
+ * The query is subscribed only while the menu is rendered and is re-created
+ * on the database of the new user.
+ */
+let $unread = atom<Map<string, number> | undefined>()
+
+onMount($unread, () =>
+  effect(openedDatabase, db => {
+    $unread.set(undefined)
+    if (!db) return
+    let store = db.store<UnreadCount>`
+      SELECT "feedId", COUNT("originId") AS "unread" FROM "posts"
+      WHERE "reading" = 'slow' AND "read" = 0
+      GROUP BY "feedId"
+    `
+    return store.subscribe(rows => {
+      if (rows.isLoading) {
+        $unread.set(undefined)
+      } else {
+        $unread.set(new Map(rows.value.map(row => [row.feedId, row.unread])))
+      }
+    })
+  })
+)
+
+let $tree = computed($state, buildTree)
+
+export const fastMenu = computed($tree, tree => tree.fast)
+
+export const slowMenu = computed([$tree, $unread], (tree, unread) => {
+  return unread ? buildSlowMenu(tree, unread) : []
+})
+
+export const menuLoading = computed([$reduced, $unread], (reduced, unread) => {
+  return !reduced || !unread
 })
 
 export const closedCategories = persistentAtom(
@@ -214,7 +486,9 @@ export function busyUntilMenuLoader(): Promise<void> {
   if (client.get()) {
     keepMount(fastMenu)
     keepMount(slowMenu)
-    return busyDuring(() => waitLoading(menuLoading))
+    return busyDuring(commonMessages.get().loadingData, () =>
+      waitLoading(menuLoading)
+    )
   } else {
     return Promise.resolve()
   }

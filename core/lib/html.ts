@@ -72,8 +72,6 @@ const ALLOWED_TAGS = [
   'video'
 ]
 
-const TAG = /(<\/?[^>]+>)|([^<]+)/g
-const SELF_CLOSING = new Set(['br', 'col', 'hr', 'image', 'img', 'source'])
 const BLOCK_TAGS = new Set([
   'blockquote',
   'dd',
@@ -156,11 +154,6 @@ export function sanitizeDOM(html: string, url: string | undefined): Element {
   return node
 }
 
-export function sanitizeHtml(html: string, url: string | undefined): string {
-  if (!DOMPurify) DOMPurify = createDOMPurify(window)
-  return sanitizeDOM(html, url).innerHTML
-}
-
 export function parseRichTranslation(
   text: string,
   link?: string
@@ -182,127 +175,160 @@ export function parseRichTranslation(
   return getRichPolicy().createHTML(html)
 }
 
-export function decodeHtmlEntities(text: string): string {
-  return parseDocument(text).documentElement.textContent || ''
-}
-
+/**
+ * Remove tags and decode HTML entities to show the text in the interface.
+ *
+ * The parser is used instead of a regexp on purpose: `<[^>]*>` on a text
+ * with many `<` and no `>` takes quadratic time, and feeds are not trusted.
+ */
 export function stripHTML(html: string): string {
-  return decodeHtmlEntities(html.replace(/<[^>]*>/g, '')).trim()
+  return (parseDocument(html).documentElement.textContent || '').trim()
 }
 
-function tagName(tag: string): string {
-  return tag.slice(1, -1).trim().split(/\s+/)[0]!.toLowerCase()
+const ELEMENT_NODE = 1
+const TEXT_NODE = 3
+
+function isTag(node: Node | null | undefined, name: string): boolean {
+  return node?.nodeType === ELEMENT_NODE && (node as Element).localName === name
 }
 
-type Token =
-  | { content: string; name: string; type: 'close' }
-  | { content: string; name: string; type: 'open' }
-  | { content: string; name: string; type: 'selfclose' }
-  | { content: string; type: 'text' }
-
-export function truncateHTML(html: string, min: number, max: number): string {
-  if (html.length <= max) return html
-
-  let tokens: Token[] = []
-  let match: null | RegExpExecArray
-  while ((match = TAG.exec(html)) !== null) {
-    if (match[1]) {
-      let tag = match[1]
-      if (tag.startsWith('</')) {
-        let name = tagName(tag.slice(1))
-        tokens.push({ content: tag, name, type: 'close' })
-      } else {
-        let name = tagName(tag)
-        if (tag.endsWith('/>') || SELF_CLOSING.has(name)) {
-          tokens.push({ content: tag, name, type: 'selfclose' })
-        } else {
-          tokens.push({ content: tag, name, type: 'open' })
-        }
-      }
-    } else if (match[2]) {
-      tokens.push({ content: match[2], type: 'text' })
-    }
+function skipSpaces(node: Node | null): Node | null {
+  while (node?.nodeType === TEXT_NODE && !node.nodeValue!.trim()) {
+    node = node.previousSibling
   }
+  return node
+}
 
-  let result = ''
+/**
+ * Cut the sanitized article to `max` chars of text, but not shorter than
+ * `min`. Returns `true` when something was cut.
+ *
+ * The best place to cut is a border of a block, so the last closed block,
+ * the last double `<br>` and the last finished sentence are remembered
+ * as a checkpoint. If the limit is reached inside a block which started
+ * after the checkpoint, everything after it is replaced by `…`.
+ *
+ * The DOM is cut in place, since it goes to the card as is: counting
+ * the chars of the HTML string instead would cut an article with heavy
+ * markup long before the reader had 500 chars to read.
+ */
+export function truncateDOM(root: Element, min: number, max: number): boolean {
+  if (root.textContent.length <= max) return false
+
+  let document = root.ownerDocument
   let chars = 0
-  let stack: string[] = []
-  let checkpoint = { result: '', stack: [] as string[] }
+  let checkpoint: Node | undefined
+  let cut = false
 
-  function saveCheckpoint(): void {
-    checkpoint = { result, stack: [...stack] }
-  }
-
-  function isDoubleBr(i: number): boolean {
-    let prev = tokens[i - 1]
-    let prevPrev = tokens[i - 2]
-    return (
-      i >= 2 &&
-      prev?.type === 'selfclose' &&
-      prev.name === 'br' &&
-      prevPrev?.type === 'selfclose' &&
-      prevPrev.name === 'br'
-    )
-  }
-
-  for (let i = 0; i < tokens.length; i++) {
-    let token = tokens[i]!
-
-    if (token.type === 'close') {
-      if (stack.at(-1) === token.name) {
-        stack.pop()
-        result += token.content
-        if (BLOCK_TAGS.has(token.name)) saveCheckpoint()
-        /* node:coverage ignore next 3 */
-      } else {
-        result += token.content
-      }
-      continue
-    } else if (token.type === 'selfclose') {
-      result += token.content
-      if (token.name === 'br' && i > 0) {
-        let prev = tokens[i - 1]
-        if (prev?.type === 'selfclose' && prev.name === 'br') {
-          saveCheckpoint()
-        }
-      }
-      continue
-    } else if (token.type === 'open') {
-      result += token.content
-      stack.push(token.name)
-      continue
-    } else {
-      let remaining = max - chars
-      if (remaining <= 0) break
-
-      if (token.content.length <= remaining) {
-        result += token.content
-        chars += token.content.length
-        if (SENTENCE_END.test(token.content.trim())) saveCheckpoint()
-        continue
-      }
-
-      let effectiveMin = Math.max(0, min - chars)
-      let truncated = truncateText(token.content, effectiveMin, remaining)
-      let newTags = stack.slice(checkpoint.stack.length)
-      let hasBlockTag = newTags.some(t => BLOCK_TAGS.has(t))
-
-      if (checkpoint.result && (isDoubleBr(i) || hasBlockTag)) {
-        result = checkpoint.result
-        stack = [...checkpoint.stack]
-        result += hasBlockTag ? '<p>…</p>' : ' …'
-      } else {
-        result += truncated
-      }
-      break
+  function removeAfter(node: Node): void {
+    let current: Node | null = node
+    while (current !== null && current !== root) {
+      let parent: Node | null = current.parentNode
+      while (current.nextSibling) current.nextSibling.remove()
+      current = parent
     }
   }
 
-  for (let i = stack.length - 1; i >= 0; i--) {
-    result += `</${stack[i]}>`
+  function inNewBlock(node: Node, from: Node): boolean {
+    let parent: Node | null = node.parentNode
+    while (parent !== null && parent !== root) {
+      let name = (parent as Element).localName
+      if (BLOCK_TAGS.has(name) && !parent.contains(from)) return true
+      parent = parent.parentNode
+    }
+    return false
   }
 
-  return result
-    .replace(/(<br\s*\/?>\s*){2,}…\s*$/, '<p>…</p>')
-    .replace(/(<br\s*\/?>|<hr\s*\/?>)+\s*$/, '')
+  function cutToCheckpoint(block: boolean): void {
+    removeAfter(checkpoint!)
+    let ellipsis: Node
+    if (block) {
+      ellipsis = document.createElement('p')
+      ellipsis.appendChild(document.createTextNode('…'))
+    } else {
+      ellipsis = document.createTextNode(' …')
+    }
+    checkpoint!.parentNode!.appendChild(ellipsis)
+  }
+
+  function cutText(text: Text): void {
+    let remaining = max - chars
+    let previous = skipSpaces(text.previousSibling)
+    let doubleBr =
+      isTag(previous, 'br') &&
+      isTag(skipSpaces(previous!.previousSibling), 'br')
+    let block = !!checkpoint && inNewBlock(text, checkpoint)
+    if (checkpoint && (doubleBr || block)) {
+      cutToCheckpoint(block)
+    } else {
+      text.nodeValue = truncateText(
+        text.nodeValue!,
+        Math.max(0, min - chars),
+        remaining
+      )
+      removeAfter(text)
+    }
+  }
+
+  function walk(parent: Node): void {
+    for (let child of Array.from(parent.childNodes)) {
+      if (child.nodeType === TEXT_NODE) {
+        let text = child.nodeValue!
+        let remaining = max - chars
+        if (remaining <= 0) {
+          removeAfter(child)
+          child.remove()
+          cut = true
+        } else if (text.length <= remaining) {
+          chars += text.length
+          if (SENTENCE_END.test(text.trim())) checkpoint = child
+        } else {
+          cutText(child as Text)
+          cut = true
+        }
+      } else if (child.nodeType === ELEMENT_NODE) {
+        let element = child as Element
+        if (
+          isTag(element, 'br') &&
+          isTag(skipSpaces(element.previousSibling), 'br')
+        ) {
+          checkpoint = element
+        }
+        walk(element)
+        if (!cut && BLOCK_TAGS.has(element.localName)) checkpoint = element
+      }
+      if (cut) return
+    }
+  }
+
+  walk(root)
+  cleanTail(root, document)
+  return cut
+}
+
+/**
+ * `<br><br>…` in the end is a paragraph break, and a tag which separated
+ * something from the cut part has nothing to separate anymore.
+ */
+function cleanTail(root: Element, document: Document): void {
+  let last = root.lastChild
+  if (last?.nodeType === TEXT_NODE && last.nodeValue!.trim() === '…') {
+    let breaks = 0
+    let previous = skipSpaces(last.previousSibling)
+    while (isTag(previous, 'br')) {
+      breaks += 1
+      previous = skipSpaces(previous!.previousSibling)
+    }
+    if (breaks >= 2) {
+      while (root.lastChild && root.lastChild !== previous) {
+        root.lastChild.remove()
+      }
+      let paragraph = document.createElement('p')
+      paragraph.appendChild(document.createTextNode('…'))
+      root.appendChild(paragraph)
+    }
+  }
+  while (isTag(root.lastChild, 'br') || isTag(root.lastChild, 'hr')) {
+    root.lastChild!.remove()
+  }
 }

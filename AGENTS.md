@@ -11,11 +11,14 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 - Always use `.ts` in TS files imports.
 - Use discriminant union in types: `{ missing: true } | { missing: false, content: string }` instead of `{ missing: boolean, content?: string }`.
 - Do not create variable which you will use in single place.
+- Do not create constants used only once. Inline the value even when it looks magic or needs an explanation.
 - Always use I18n, don’t put English messages in UI hardcoded.
 
 ## Architecture
 
 - Avoid adding dependencies.
+- Keep non-browser logic in `core/`. Client folders should have only environment-specific code.
+- Update `README.md` of the package on every new script, folder, or tool.
 
 ## LLMS
 
@@ -26,4 +29,10 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 
 ## Testing
 
-- Run specific test by `pnpm bnt path/to/test.test.ts -t 'test name'`
+- Run specific test by `pnpm bnt path/to/test.test.ts -t 'test name'`.
+- Do not run benchmark by your own. Ask user to run it.
+- Add story to `web/stories/` for every new UI state.
+
+## Browser
+
+- Use Playwright MCP for visual issues and client database bugs. See [docs/browser.md](./docs/browser.md).

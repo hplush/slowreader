@@ -23,6 +23,7 @@
     </Button>
   {/if}
   <Button
+    anchor="read-page"
     icon={mdiCheckboxMultipleMarkedOutline}
     onclick={reader.readAndNext}
     size="wide"
@@ -35,7 +36,12 @@
     {/if}
   </Button>
   {#if $hasNext}
-    <Button href={`?from=${$nextFrom}`} icon={mdiArrowRight} size="icon">
+    <Button
+      anchor="next-page"
+      href={`?from=${$nextFrom}`}
+      icon={mdiArrowRight}
+      size="icon"
+    >
       {$t.nextPage}
     </Button>
   {/if}

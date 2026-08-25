@@ -3,9 +3,15 @@
   "compilerOptions": {
     "moduleResolution": "bundler",
     "module": "ESNext",
-    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "lib": ["ES2024", "DOM", "DOM.AsyncIterable", "DOM.Iterable"],
     "types": ["trusted-types"]
   },
-  "include": ["**/*.ts", "**/*.cts", "**/*.svelte", ".storybook/*.ts"],
+  "include": [
+    "../scripts/progress.ts",
+    "**/*.ts",
+    "**/*.cts",
+    "**/*.svelte",
+    ".storybook/*.ts"
+  ],
   "exclude": ["dist", "storybook-static"]
 }

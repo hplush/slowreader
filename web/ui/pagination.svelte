@@ -24,9 +24,9 @@
           class="pagination_page"
           disabled={page === pages.page}
           href={`?from=${page}`}
-          title={`${page}`}
+          title={`${page + 1}`}
         >
-          {#if pages.count < 16}
+          {#if pages.titles}
             {page + 1}
           {/if}
         </Clickable>
@@ -34,6 +34,7 @@
     </div>
     <div class="pagination_button" aria-hidden={!pages.hasNext}>
       <Button
+        anchor="next-page"
         disabled={!pages.hasNext}
         href={`?from=${pages.page + 1}`}
         icon={mdiArrowRight}
@@ -76,6 +77,7 @@
       inset-block: 0;
       inset-inline-start: var(--pagination-position);
       z-index: 1;
+      min-width: var(--base-radius);
       width: var(--pagination-width);
       background: --tune-background(--current);
       border-radius: var(--base-radius);

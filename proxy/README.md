@@ -10,10 +10,10 @@ _See the [full architecture guide](../README.md) first._
 
 ## Scripts
 
-- `cd proxy && pnpm test`: run all proxy tests.
-- `cd proxy && pnpm start`: run proxy server.
-- `cd proxy && pnpm build`: prepare deploy files with production dependencies only.
-- `cd proxy && pnpm production`: start production build of the proxy server.
+- `pnpm -F proxy test`: run all proxy tests.
+- `pnpm -F proxy start`: run proxy server.
+- `pnpm -F proxy build`: prepare deploy files with production dependencies only.
+- `pnpm -F proxy production`: start production build of the proxy server.
 
 ## Abuse Protection
 

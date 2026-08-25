@@ -1,7 +1,12 @@
 import { createServer } from 'node:http'
+import { setDefaultAutoSelectFamilyAttemptTimeout } from 'node:net'
 import { styleText } from 'node:util'
 
 import { createProxy, DEFAULT_PROXY_CONFIG } from './index.ts'
+
+// Node.js gives every IP address only 500 ms to connect and gives up on all
+// of them. Slow websites need more time than browsers’ default.
+setDefaultAutoSelectFamilyAttemptTimeout(2000)
 
 if (!process.env.PROXY_ORIGIN) {
   process.stderr.write(
@@ -13,7 +18,15 @@ if (!process.env.PROXY_ORIGIN) {
 let proxy = createServer(
   createProxy({ ...DEFAULT_PROXY_CONFIG, allowsFrom: process.env.PROXY_ORIGIN })
 )
-proxy.listen(process.env.PORT ?? '5284')
+let port = process.env.PORT ?? '5284'
+proxy.listen(port, () => {
+  process.stdout.write(
+    styleText(
+      'green',
+      `Proxy server is listening at http://localhost:${port}\n`
+    )
+  )
+})
 
 process.on('SIGINT', () => {
   proxy.close()

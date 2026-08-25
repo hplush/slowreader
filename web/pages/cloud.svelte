@@ -93,22 +93,5 @@
         </Stack>
       </Card>
     {/if}
-    {#if !$hasCloud}
-      <Stack>
-        <Title>{$t.dangerousTitle}</Title>
-        <Button
-          icon={mdiTrashCanOutline}
-          onclick={() => {
-            if (confirm(t.get().deleteWarning)) {
-              signOut()
-            }
-          }}
-          size="wide"
-          variant="secondary-dangerous"
-        >
-          {$t.exitNoCloud}
-        </Button>
-      </Stack>
-    {/if}
   </Stack>
 </ThinPage>

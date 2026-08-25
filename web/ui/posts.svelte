@@ -1,12 +1,11 @@
 <script lang="ts">
-  import type { LoadedSyncMap, SyncMapStore } from '@logux/client'
   import {
     getPopupId,
     getPostPopupParam,
     getPostTitle,
     openedPost,
     type OriginPost,
-    type PostValue,
+    type ReaderPost,
     router
   } from '@slowreader/core'
 
@@ -18,12 +17,11 @@
     list
   }: {
     autoread?: boolean
-    list: readonly (LoadedSyncMap<SyncMapStore<PostValue>> | OriginPost)[]
+    list: readonly (OriginPost | ReaderPost)[]
   } = $props()
 
   let links = $derived(
-    list.map(i => {
-      let post = ('get' in i ? i.get() : i) as OriginPost | PostValue
+    list.map(post => {
       let param = getPostPopupParam(post, autoread)
       return {
         controls: getPopupId('post', param),
@@ -36,7 +34,7 @@
   )
 </script>
 
-<Links current={$openedPost} {links}>
+<Links anchor="post" current={$openedPost} {links}>
   {#snippet item(post)}
     {getPostTitle(post)}
   {/snippet}

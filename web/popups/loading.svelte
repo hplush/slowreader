@@ -10,6 +10,6 @@
 
 <Popup id={`${popup.uniqueId}-loading`}>
   <Stack height="stretch" justify="center">
-    <Loader />
+    <Loader track="popup" />
   </Stack>
 </Popup>

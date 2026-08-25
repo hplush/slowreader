@@ -1,16 +1,17 @@
 import type { TestServer } from '@logux/server'
 import { IS_PASSWORD } from '@slowreader/api'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
-import { equal, notEqual, ok } from 'node:assert/strict'
+import { deepEqual, equal, notEqual, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
-import { setTimeout } from 'node:timers/promises'
 
 import {
+  benchmarkStatistics,
   client,
   enableTestTime,
   encryptionKey,
   generateCredentials,
   hasPassword,
+  onSignOut,
   router,
   setupEnvironment,
   signIn,
@@ -26,14 +27,18 @@ import {
   setBaseTestRoute,
   setTestUser,
   testSession,
-  throws
+  throws,
+  waitUntil
 } from './utils.ts'
 
 describe('auth', () => {
   let server: TestServer
+  let storage: Record<string, string>
   beforeEach(() => {
     server = buildTestServer()
-    setupEnvironment({ ...getTestEnvironment(), server })
+    let environment = getTestEnvironment()
+    storage = environment.persistentStore
+    setupEnvironment({ ...environment, server })
     enableTestTime()
   })
 
@@ -58,11 +63,43 @@ describe('auth', () => {
     equal(typeof testSession, 'undefined')
     setBaseTestRoute({ params: {}, route: 'cloud' })
 
+    let cleaned = 0
+    let unbindSignOut = onSignOut(() => {
+      cleaned += 1
+    })
+    onSignOut(() => {
+      cleaned += 10
+    })()
+
+    // Benchmark data of the previous start
+    let statistics = {
+      biggestCategory: 'category',
+      debug: false,
+      duration: 100,
+      feeds: 10,
+      posts: 100,
+      readerFeed: 'feed',
+      slowFeeds: ['feed']
+    }
+    storage['slowreader:benchmark'] = JSON.stringify(statistics)
+    let unbindStatistics = benchmarkStatistics.listen(() => {})
+    deepEqual(benchmarkStatistics.get(), statistics)
+
+    // Benchmark saved new data during the session
+    let newStatistics = { ...statistics, feeds: 20 }
+    benchmarkStatistics.set(newStatistics)
+    equal(storage['slowreader:benchmark'], JSON.stringify(newStatistics))
+
     await signOut()
     equal(router.get().route, 'start')
     equal(typeof client.get(), 'undefined')
     equal(typeof userId.get(), 'undefined')
     equal(typeof encryptionKey.get(), 'undefined')
+    equal(typeof benchmarkStatistics.get(), 'undefined')
+    equal(typeof storage['slowreader:benchmark'], 'undefined')
+    equal(cleaned, 1)
+    unbindStatistics()
+    unbindSignOut()
   })
 
   test('allows create user', async () => {
@@ -75,8 +112,7 @@ describe('auth', () => {
     equal(client.get()!.state, 'connecting')
     equal(typeof testSession, 'string')
 
-    await setTimeout(100)
-    equal(client.get()!.connected, true)
+    await waitUntil(() => client.get()!.connected)
 
     await signOut()
     equal(typeof client.get(), 'undefined')
@@ -108,26 +144,22 @@ describe('auth', () => {
     equal(client.get()!.state, 'connecting')
     equal(typeof testSession, 'string')
 
-    await setTimeout(100)
-    equal(client.get()!.connected, true)
+    await waitUntil(() => client.get()!.connected)
     equal(server.connected.size, prevClient + 1)
 
     await signOut()
-    await setTimeout(100)
-    equal(server.connected.size, prevClient)
+    await waitUntil(() => server.connected.size === prevClient)
     equal(typeof client.get(), 'undefined')
     equal(typeof testSession, 'undefined')
 
     await signIn(later)
     equal(client.get()!.state, 'connecting')
-    await setTimeout(100)
-    equal(client.get()!.connected, true)
+    await waitUntil(() => client.get()!.connected)
     equal(userId.get(), later.userId)
     equal(encryptionKey.get(), later.encryptionKey)
     equal(typeof testSession, 'string')
 
-    await setTimeout(100)
-    equal(client.get()!.connected, true)
+    await waitUntil(() => client.get()!.connected)
   })
 
   test('remembers custom server', async () => {

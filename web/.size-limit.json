@@ -8,6 +8,7 @@
       "!dist/{404,500}.html",
       "!dist/icon-*.{png,svg}",
       "!dist/favicon.ico",
+      "!dist/assets/benchmark-*.js",
       "!dist/assets/devtools-*.js",
       "!dist/assets/*.woff",
       "!dist/assets/*.map",
@@ -16,12 +17,12 @@
       "!dist/assets/playpen-sans-*.woff2",
       "!dist/assets/*-{italic,math,latin-ext}-*.woff2"
     ],
-    "limit": "190 KB"
+    "limit": "725 KB"
   },
   {
     "name": "Core scripts to execute",
     "path": "dist/assets/index-*.js",
     "brotli": false,
-    "limit": "315 KB"
+    "limit": "390 KB"
   }
 ]

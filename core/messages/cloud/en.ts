@@ -13,7 +13,6 @@ export const cloudMessages = i18n('cloud', {
   disconnectedStatus: 'Offline',
   errorStatus: params('Error: {details}'),
   exit: 'Sign out on this device',
-  exitNoCloud: 'Delete all local data',
   exitWaitSync: 'Delete unsaved data and sign out',
   noCloudDesc1:
     'You don’t have a cloud account. Your data is stored only on this device.',

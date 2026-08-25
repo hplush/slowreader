@@ -9,7 +9,8 @@ import {
   cleanClientTest,
   enableClientTest,
   openPage,
-  setBaseTestRoute
+  setBaseTestRoute,
+  waitUntil
 } from '../utils.ts'
 
 describe('profile page', () => {
@@ -46,7 +47,7 @@ describe('profile page', () => {
       route: 'cloud'
     })
     equal(page.hasCloud.get(), true)
-    equal(client.get()?.state, 'synchronized')
+    await waitUntil(() => client.get()?.state === 'synchronized')
     equal(page.deletingAccount.get(), false)
 
     let promise = page.deleteAccount()

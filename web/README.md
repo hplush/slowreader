@@ -5,7 +5,9 @@ _See the [full architecture guide](../README.md) first._
 - [Project Structure](#project-structure)
 - [Tools](#tools)
 - [Scripts](#scripts)
+- [DevTools Helpers](#devtools-helpers)
 - [Design System](#design-system)
+- [DOM Anchors](#dom-anchors)
 - [Test Strategy](#test-strategy)
 - [Deploy](#deploy)
 
@@ -21,6 +23,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
   - [`index.ts`](./main/index.ts): JS entry point.
   - [`environment.ts`](./main/environment.ts): how client core should work with browser environment.
   - [`browser.ts`](./main/browser.ts): connect core stores to global browser settings like `document.title`.
+- [`benchmark/`](./benchmark/): UI performance benchmark, which is loaded only by `?benchmark` in URL. See [benchmark guide](../docs/benchmark.md).
 - [`pages/`](./pages/): Svelte components for pages.
 - [`ui/`](./ui/): shared components between different pages. Some people call it “UI kit”.
 - [`public/`](./public/): static files like favicon and manifests.
@@ -45,12 +48,27 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 
 ## Scripts
 
-- `cd web && pnpm test`: run all web client tests.
-- `cd web && pnpm visual`: run visual test server.
-- `cd web && pnpm chromatic`: publish visual tests and generate diffs.
-- `cd web && pnpm production`: start web client production build locally.
-- `cd web && pnpm build`: build production files in `web/dist/`.
-- `cd web && pnpm size`: check the JS bundle size of the production build.
+- `pnpm -F web test`: run all web client tests.
+- `pnpm -F web visual`: run visual test server.
+- `pnpm -F web chromatic`: publish visual tests and generate diffs.
+- `pnpm -F web production`: start web client production build locally.
+- `pnpm -F web build`: build production files in `web/dist/`.
+- `pnpm -F web size`: check the JS bundle size of the production build.
+- `pnpm -F web benchmark`: run [UI performance benchmark](../docs/benchmark.md).
+
+## DevTools Helpers
+
+Debug helpers from [`core/devtools.ts`](../core/devtools.ts) are exported in `window.slowreader` and can be called from the browser console:
+
+- `slowreader.moveLastSyncedToPast(days)`: move refresh markers of all feeds `days` back, so the next refresh will load old posts. Use it to test refresh right after OPML import:
+
+  ```js
+  await slowreader.moveLastSyncedToPast(30)
+  await slowreader.refreshPosts()
+  ```
+
+- `slowreader.enablePostDebug()`: print post data and its source on opening post popup.
+- `slowreader.enableProxyDebug()`: print proxy request and response headers.
 
 ## Design System
 
@@ -68,13 +86,25 @@ For **icons**, we use [Material Design Icons](https://pictogrammers.com/library/
 <Icon path={mdiAccount} />
 ```
 
+## DOM Anchors
+
+`data-anchor` marks elements for external code: [benchmark](../docs/benchmark.md) scenarios, e2e tests, and user plugins (scripts and user styles).
+
+```svelte
+<Button anchor="read-page">{$t.readPage}</Button><div data-anchor="popup"></div>
+```
+
+```js
+document.querySelectorAll('[data-anchor="post"]')
+```
+
 ## Test Strategy
 
 Since clients don’t have much logic (we moved logic to the client core), we don’t need to use unit tests.
 
 We can use only visual tests to test web clients UI. We are using **[Storybook](https://storybook.js.org/)** and **[Chromatic snapshots](https://www.chromatic.com/builds?appId=65678843aa11589739e8fbee)**.
 
-Since we use a free plan, we run Chromatic on CI only daily (or by commit with `Chromatic` in message in `main` branch).
+Since we use a free plan, we run Chromatic on CI only daily (or on pull request with `run-visual` label).
 
 We deploy the latest Storybook of `main` branch to staging: [dev.slowreader.app/ui/](https://dev.slowreader.app/ui/)
 

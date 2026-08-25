@@ -1,22 +1,27 @@
+import { openDb } from '@nanostores/sql'
+import { nodeDriver } from '@nanostores/sql/node'
 import { cleanStores, type ReadableAtom } from 'nanostores'
 import { fail } from 'node:assert'
 import { deepEqual, equal } from 'node:assert/strict'
+import { mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { afterEach } from 'node:test'
+import { setTimeout } from 'node:timers/promises'
 
 import {
   type BasePopup,
   type BaseReader,
   type BaseRoute,
-  Category,
   client,
+  brokenDatabase,
   currentPage,
   enableTestTime,
   encryptionKey,
-  type EnvironmentAndStore,
+  type Environment,
   fastMenu,
   fastPostsCount,
-  Feed,
   type FeedReader,
-  Filter,
   hasPassword,
   type ListReader,
   type Loader,
@@ -27,12 +32,12 @@ import {
   type Page,
   type Popup,
   type PopupName,
-  Post,
   type ReaderName,
   setLayoutType,
   setupEnvironment,
   slowMenu,
   slowPostsCount,
+  subscribeUntil,
   type TextResponse,
   userId
 } from '../index.ts'
@@ -63,12 +68,27 @@ export function setTestUser(enable = true): void {
   }
 }
 
+let testDir: string | undefined
+
+/**
+ * Database, which survives the client, like the file of the browser.
+ *
+ * ```js
+ * enableClientTest({ databaseCreator: persistentDatabase() })
+ * ```
+ */
+export function persistentDatabase(): Environment['databaseCreator'] {
+  testDir = mkdtempSync(join(tmpdir(), 'slowreader-'))
+  let file = join(testDir, 'test.sqlite')
+  return () => openDb(nodeDriver(file))
+}
+
 /**
  * Set environment to run application in tests to be used in `beforeEach()`.
  *
  * Call `cleanClientTest()` in `afterEach()`.
  */
-export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
+export function enableClientTest(env: Partial<Environment> = {}): void {
   setupEnvironment({ ...getTestEnvironment(), ...env })
   setTestUser()
   enableTestTime()
@@ -77,10 +97,6 @@ export function enableClientTest(env: Partial<EnvironmentAndStore> = {}): void {
 
 export async function cleanClientTest(): Promise<void> {
   cleanStores(
-    Feed,
-    Filter,
-    Category,
-    Post,
     fastMenu,
     slowMenu,
     menuLoading,
@@ -90,7 +106,50 @@ export async function cleanClientTest(): Promise<void> {
   )
   await client.get()?.clean()
   client.set(undefined)
+  brokenDatabase.set(undefined)
   setLayoutType('desktop')
+}
+
+/**
+ * Wait until the store will have the expected value.
+ *
+ * Use it instead of `setTimeout()` to not depend on the machine’s speed.
+ */
+export function waitFor<Value>(
+  store: ReadableAtom<Value>,
+  check: (value: Value) => boolean,
+  ms = 30000
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    let timeout = globalThis.setTimeout(() => {
+      reject(new Error(`Store did not get the expected value in ${ms}ms`))
+    }, ms)
+    subscribeUntil(store, value => {
+      if (!check(value)) return false
+      globalThis.clearTimeout(timeout)
+      resolve()
+      return true
+    })
+  })
+}
+
+/**
+ * Wait until the check will pass.
+ *
+ * Use it for values outside of stores instead of `setTimeout()`
+ * to not depend on the machine’s speed.
+ */
+export async function waitUntil(
+  check: () => boolean | Promise<boolean>,
+  ms = 30000
+): Promise<void> {
+  let start = Date.now()
+  while (!(await check())) {
+    if (Date.now() - start > ms) {
+      throw new Error(`Check did not pass in ${ms}ms`)
+    }
+    await setTimeout(10)
+  }
 }
 
 interface PromiseMock<Result> {
@@ -174,6 +233,17 @@ export function checkLoadedPopup<SomePopup extends BasePopup>(
   return popup as Loaded<SomePopup>
 }
 
+let unbindPage: (() => void) | undefined
+
+afterEach(() => {
+  unbindPage?.()
+  unbindPage = undefined
+  if (testDir) {
+    rmSync(testDir, { force: true, recursive: true })
+    testDir = undefined
+  }
+})
+
 /**
  * Change URL, check what page was opened and return page instance
  * with right types.
@@ -182,6 +252,10 @@ export function openPage<SomeRoute extends BaseRoute | Omit<BaseRoute, 'hash'>>(
   route: SomeRoute
 ): Page<SomeRoute['route']> {
   setBaseTestRoute(route)
+  // Clients keep the current page mounted. Without the subscription, `get()`
+  // mounts the page only for a moment and a slow machine can unmount it
+  // in the middle of the test.
+  unbindPage ??= currentPage.listen(() => {})
   let page = currentPage.get()
   if (page.route !== route.route) {
     throw new Error(`Current is ${page.route}, but ${route.route} was expected`)
@@ -214,21 +288,26 @@ export async function throws(cb: () => Promise<unknown>): Promise<Error> {
   return error
 }
 
+function warningText(warning: unknown): string {
+  if (warning instanceof Error) return `${warning.name}: ${warning.message}`
+  return String(warning)
+}
+
 export function expectWarning<Result extends Promise<void> | void>(
   cb: () => Result,
   warnings: Error[]
 ): Result {
   let tracking: unknown[] = []
   setWarningTracking(tracking)
+  function check(): void {
+    deepEqual(tracking.map(warningText), warnings.map(warningText))
+    setWarningTracking(undefined)
+  }
   let result = cb()
   if (result) {
-    return result.then(() => {
-      deepEqual(tracking, warnings)
-      setWarningTracking(undefined)
-    }) as Result
+    return result.then(check) as Result
   } else {
-    deepEqual(tracking, warnings)
-    setWarningTracking(undefined)
+    check()
     return undefined as Result
   }
 }

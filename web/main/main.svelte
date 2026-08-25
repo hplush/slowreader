@@ -12,6 +12,7 @@
 
   import AboutPage from '../pages/about.svelte'
   import AddPage from '../pages/add.svelte'
+  import BrokenDatabasePage from '../pages/broken-database.svelte'
   import BusyPage from '../pages/busy.svelte'
   import CloudPage from '../pages/cloud.svelte'
   import DownloadPage from '../pages/download.svelte'
@@ -25,6 +26,7 @@
   import ReloginPage from '../pages/relogin.svelte'
   import SignupPage from '../pages/sign-up.svelte'
   import StartPage from '../pages/start.svelte'
+  import StoragePage from '../pages/storage.svelte'
   import FeedPopup from '../popups/feed.svelte'
   import LoadingPopup from '../popups/loading.svelte'
   import NotFoundPopup from '../popups/not-found.svelte'
@@ -61,6 +63,8 @@
   {#if !globalLoader}
     <BusyPage />
   {/if}
+{:else if $currentPage.route === 'brokenDatabase'}
+  <BrokenDatabasePage />
 {:else if $currentPage.route === 'outdated'}
   <OutdatedPage />
 {:else if $currentPage.route === 'relogin'}
@@ -87,6 +91,8 @@
   <InterfacePage />
 {:else if $currentPage.route === 'download'}
   <DownloadPage />
+{:else if $currentPage.route === 'storage'}
+  <StoragePage page={$currentPage} />
 {:else if $currentPage.route === 'export'}
   <ExportPage page={$currentPage} />
 {:else if $currentPage.route === 'import'}

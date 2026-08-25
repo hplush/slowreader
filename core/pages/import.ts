@@ -1,32 +1,33 @@
-import { loadValue } from '@logux/client'
 import { atom } from 'nanostores'
 
 import { addCategory } from '../category.ts'
-import { addCandidate, addFeed, getFeeds } from '../feed.ts'
-import { addFilter } from '../filter.ts'
+import { addCandidate, addFeed, loadFeedByUrl, loadFeedUrls } from '../feed.ts'
+import { importFilters } from '../filter.ts'
 import { createDownloadTask } from '../lib/download.ts'
 import { parseDocument } from '../lib/html.ts'
 import { getLoaderForText } from '../loader/index.ts'
 import { addPost } from '../post.ts'
+import { GENERAL_CATEGORY } from '../schema.ts'
 import { preloadImages, theme } from '../settings.ts'
 import { createPage } from './common.ts'
 import { isStateExportFile, type StateExport } from './export.ts'
 
 async function readFile(file: File): Promise<false | string> {
-  return new Promise(resolve => {
-    let reader = new FileReader()
-    reader.addEventListener('load', () => {
-      resolve(reader.result as string)
-    })
+  try {
+    return await file.text()
     /* node:coverage ignore next 3 */
-    reader.addEventListener('error', () => {
-      resolve(false)
-    })
-    reader.readAsText(file)
-  })
+  } catch {
+    return false
+  }
 }
 
 type FeedError = 'exists' | 'noFeeds' | 'unknown' | 'unloadable'
+
+/**
+ * Posts are the biggest rows, so they are added by a few actions
+ * instead of a single huge one.
+ */
+const POSTS_PER_ACTION = 100
 
 export const importPage = createPage('import', () => {
   let $importing = atom<false | number | true>(false)
@@ -39,12 +40,12 @@ export const importPage = createPage('import', () => {
   let $total = atom(0)
   let added = 0
 
-  function startProgress(all: number): () => void {
+  function startProgress(all: number): (step?: number) => void {
     $total.set(all)
     let completed = 0
     $importing.set(0)
-    return () => {
-      completed++
+    return (step = 1) => {
+      completed += step
       $importing.set(completed / all)
     }
   }
@@ -54,8 +55,7 @@ export const importPage = createPage('import', () => {
   }
 
   async function feedExists(url: string): Promise<boolean> {
-    let feeds = await loadValue(getFeeds({ url }))
-    return feeds.list.some(i => !feeds.stores.get(i.id)!.deleted)
+    return !!(await loadFeedByUrl(url))
   }
 
   async function importOpml(doc: Document): Promise<void> {
@@ -70,7 +70,7 @@ export const importPage = createPage('import', () => {
 
     let categories = new Map<string, string>()
     for (let outline of links) {
-      let categoryId = 'general'
+      let categoryId = GENERAL_CATEGORY
       let parent = outline.parentElement!
       if (parent.nodeName === 'outline') {
         let category = parent.getAttribute('text')!
@@ -128,25 +128,27 @@ export const importPage = createPage('import', () => {
         json.posts.length
     )
 
-    for (let category of json.categories) {
-      await addCategory(category)
-      done()
-    }
-    for (let filter of json.filters) {
-      await addFilter(filter)
-      done()
-    }
+    await addCategory(json.categories)
+    done(json.categories.length)
+
+    await importFilters(json.filters)
+    done(json.filters.length)
+
     $total.set(json.feeds.length)
-    for (let feed of json.feeds) {
-      if (!(await feedExists(feed.url))) {
-        await addFeed(feed)
-        added++
-      }
-      done()
-    }
-    for (let post of json.posts) {
-      await addPost(post)
-      done()
+    let urls = new Set(await loadFeedUrls())
+    let feeds = json.feeds.filter(feed => {
+      if (urls.has(feed.url)) return false
+      urls.add(feed.url)
+      return true
+    })
+    await addFeed(feeds)
+    added += feeds.length
+    done(json.feeds.length)
+
+    for (let i = 0; i < json.posts.length; i += POSTS_PER_ACTION) {
+      let batch = json.posts.slice(i, i + POSTS_PER_ACTION)
+      await addPost(batch)
+      done(batch.length)
     }
   }
 

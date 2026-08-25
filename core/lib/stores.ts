@@ -1,29 +1,26 @@
 // Helpers to work with Nano Stores and Logux to simplify code
 // by moving complexity to helper.
 
-import type { Action } from '@logux/core'
-import {
-  type MapStore,
-  onMount,
-  type ReadableAtom,
-  type StoreValue
-} from 'nanostores'
+import type { SqlStore } from '@nanostores/sql'
+import { computed, type ReadableAtom } from 'nanostores'
 
-import { client } from '../client.ts'
+export function firstRow<Value>(
+  store: SqlStore<Value[]>
+): ReadableAtom<undefined | Value> {
+  return computed(store, rows => (rows.isLoading ? undefined : rows.value[0]))
+}
 
-export type OptionalId<Value> = { id?: string } & Omit<Value, 'id'>
+interface NumberMapStore<Key extends string> {
+  get(): Record<Key, number>
+  setKey(key: Key, value: number): void
+}
 
-type NumberKeys<T> = {
-  [K in keyof T]: T[K] extends number ? K : never
-}[keyof T]
-
-export function increaseKey<Store extends MapStore>(
-  store: Store,
-  key: NumberKeys<StoreValue<Store>>
+export function increaseKey<Key extends string>(
+  store: NumberMapStore<NoInfer<Key>>,
+  key: Key,
+  by = 1
 ): void {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  let value = store.get()[key] as number
-  store.setKey(key, value + 1)
+  store.setKey(key, store.get()[key] + by)
 }
 
 /**
@@ -48,76 +45,14 @@ export function waitLoading(store: ReadableAtom): Promise<void> {
   })
 }
 
-export type LoadedValue<Type extends { isLoading: boolean }> = {
-  isLoading: false
-} & Type
-
-export type LoadableStore = {
-  readonly loading: Promise<unknown>
-} & ReadableAtom<{ isLoading: boolean }>
-
-/**
- * Return promise which wait until `store.isLoading` is stop to have `true`.
- */
-export async function waitSyncLoading<Store extends LoadableStore>(
-  store: Store
-): Promise<ReadableAtom<LoadedValue<StoreValue<Store>>>> {
-  let value = store.get()
-  if (value.isLoading) {
-    let unbind = store.listen(() => {})
-    try {
-      await store.loading
-    } finally {
-      unbind()
-    }
-  }
-  return store as unknown as ReadableAtom<LoadedValue<StoreValue<Store>>>
-}
-
-/**
- * Run callback when store got first listener.
- *
- * It is like `onMount` in Nano Stores but work with multiple stores.
- * Callback runs on first listener for any of store.
- */
-export function onMountAny(stores: ReadableAtom[], cb: () => () => void): void {
-  let listeners = 0
-  let unbind = (): void => {}
-  function watching(): () => void {
-    listeners++
-    if (listeners === 1) {
-      unbind = cb()
-    }
-    return () => {
-      listeners--
-      if (listeners === 0) {
-        unbind()
-      }
-    }
-  }
-  for (let store of stores) {
-    onMount(store, () => watching())
-  }
-}
-
-/**
- * Run callback on every Logux action.
- *
- * It hides complexity of client re-creating on sign-in to re-subscribing.
- */
-export function onLogAction(cb: (action: Action) => void): () => void {
-  let unbindLog: (() => void) | undefined
-  let unbindClient = client.subscribe(loguxClient => {
-    unbindLog?.()
-    unbindLog = undefined
-    if (loguxClient) {
-      unbindLog = loguxClient.on('add', cb)
-    }
-  })
-
-  return () => {
-    unbindLog?.()
-    unbindClient()
+export async function waitSql<Row>(store: SqlStore<Row[]>): Promise<Row[]> {
+  let unbind = store.listen(() => {})
+  try {
+    await store.loading
+    let value = store.get()
+    return value.isLoading ? [] : value.value
+  } finally {
+    unbind()
   }
 }
 
