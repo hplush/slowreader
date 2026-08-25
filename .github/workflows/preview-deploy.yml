@@ -60,13 +60,28 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Notify about new deployment
-        uses: bobheadxi/deployments@648679e8e4915b27893bd7dbc35cb504dc915bc8 # v1.5.0
-        id: status
-        with:
-          step: start
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ref: ${{ github.event.workflow_run.head_commit.id }}
-          env: preview-${{ env.PR_NUMBER }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REF: ${{ github.event.workflow_run.head_commit.id }}
+        run: |
+          DEPLOY=$(jq -n --arg ref "$REF" \
+            --arg environment "preview-$PR_NUMBER" \
+            '{
+              auto_merge: false,
+              description: "Preview deployment",
+              environment: $environment,
+              ref: $ref,
+              required_contexts: [],
+              transient_environment: true
+            }')
+          ID=$(echo "$DEPLOY" \
+            | gh api "repos/$GITHUB_REPOSITORY/deployments" \
+              --input - --jq '.id')
+          gh api "repos/$GITHUB_REPOSITORY/deployments/$ID/statuses" \
+            -f state=in_progress \
+            -f log_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            > /dev/null
+          echo "DEPLOYMENT_ID=$ID" >> $GITHUB_ENV
       - name: Load Docker image
         run: docker load < ./untrusted/image.tar
       - name: Login to GitHub Container Registry
@@ -147,12 +162,19 @@ jobs:
       - name: Wait for deployment
         run: sleep 120
       - name: Update deployment status
-        uses: bobheadxi/deployments@648679e8e4915b27893bd7dbc35cb504dc915bc8 # v1.5.0
-        if: always()
-        with:
-          step: finish
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: ${{ job.status }}
-          env: ${{ steps.status.outputs.env }}
-          env_url: https://preview-${{ env.PR_NUMBER }}.app.hplush.dev/ui/
-          deployment_id: ${{ steps.status.outputs.deployment_id }}
+        if: always() && env.DEPLOYMENT_ID
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          if [ "$JOB_STATUS" = 'success' ]; then
+            STATE='success'
+          else
+            STATE='failure'
+          fi
+          gh api \
+            "repos/$GITHUB_REPOSITORY/deployments/$DEPLOYMENT_ID/statuses" \
+            -f state="$STATE" \
+            -f environment_url="https://preview-$PR_NUMBER.app.hplush.dev/ui/" \
+            -f log_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            > /dev/null

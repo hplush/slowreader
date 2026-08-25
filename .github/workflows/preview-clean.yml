@@ -42,11 +42,19 @@ jobs:
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
       - name: Disable deploy at GitHub
         continue-on-error: true
-        uses: bobheadxi/deployments@648679e8e4915b27893bd7dbc35cb504dc915bc8 # v1.5.0
-        with:
-          step: delete-env
-          token: ${{ secrets.PREVIEW_DEPLOYMENT_PAT }}
-          env: preview-${{ env.PR_NUMBER }}
+        env:
+          GH_TOKEN: ${{ secrets.PREVIEW_DEPLOYMENT_PAT }}
+        run: |
+          API="repos/$GITHUB_REPOSITORY"
+          ENVIRONMENT="preview-$PR_NUMBER"
+          DEPLOYS=$(gh api "$API/deployments?environment=$ENVIRONMENT" \
+            --jq '.[].id')
+          for ID in $DEPLOYS; do
+            gh api "$API/deployments/$ID/statuses" -f state=inactive \
+              > /dev/null
+            gh api -X DELETE "$API/deployments/$ID"
+          done
+          gh api -X DELETE "$API/environments/$ENVIRONMENT"
       - name: Delete Dokploy application
         env:
           API: https://cloud.hplush.dev/api
