@@ -112,7 +112,7 @@ importers:
     devDependencies:
       '@logux/eslint-config':
         specifier: 57.1.0
-        version: 57.1.0(@typescript-eslint/utils@8.67.0)(eslint-plugin-svelte@3.23.0)(eslint@10.9.0)(jiti@2.7.0)(supports-color@10.2.2)(svelte-eslint-parser@1.8.1)(svelte@5.56.10)(typescript@6.0.3)
+        version: 57.1.0(@typescript-eslint/utils@8.67.0)(eslint-plugin-svelte@3.23.0)(eslint@10.9.0)(supports-color@10.2.2)(svelte-eslint-parser@1.8.1)(svelte@5.56.10)(typescript@6.0.3)
       '@logux/oxc-configs':
         specifier: 1.1.0
         version: 1.1.0(oxlint-tsgolint@7.0.2001)(oxlint@1.79.0)(typescript@6.0.3)
@@ -3853,9 +3853,6 @@ packages:
   json-schema-traverse@1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
 
-  json-schema@0.4.0:
-    resolution: {integrity: sha512-es94M3nTIfsEPisRafak+HDLfHXnKBhV3vU5eqPcS3flIWqcxJWgXHXiey3YrpaNsanY5ei1VoYEbOzijuq9BA==}
-
   json-stable-stringify-without-jsonify@1.0.1:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
 
@@ -5792,13 +5789,11 @@ snapshots:
   '@eslint/core@1.2.1':
     dependencies:
       '@types/json-schema': 7.0.15
-      json-schema: 0.4.0
 
-  '@eslint/eslintrc@3.3.6(jiti@2.7.0)(supports-color@10.2.2)':
+  '@eslint/eslintrc@3.3.6(supports-color@10.2.2)':
     dependencies:
       ajv: 6.15.0
       debug: 4.4.3(supports-color@10.2.2)
-      eslint: 10.9.0(jiti@2.7.0)(supports-color@10.2.2)
       espree: 10.4.0
       globals: 14.0.0
       ignore: 5.3.2
@@ -5807,7 +5802,6 @@ snapshots:
       minimatch: 3.1.5
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
-      - jiti
       - supports-color
 
   '@eslint/object-schema@3.0.5': {}
@@ -5914,9 +5908,9 @@ snapshots:
     dependencies:
       nanoevents: 10.0.0
 
-  '@logux/eslint-config@57.1.0(@typescript-eslint/utils@8.67.0)(eslint-plugin-svelte@3.23.0)(eslint@10.9.0)(jiti@2.7.0)(supports-color@10.2.2)(svelte-eslint-parser@1.8.1)(svelte@5.56.10)(typescript@6.0.3)':
+  '@logux/eslint-config@57.1.0(@typescript-eslint/utils@8.67.0)(eslint-plugin-svelte@3.23.0)(eslint@10.9.0)(supports-color@10.2.2)(svelte-eslint-parser@1.8.1)(svelte@5.56.10)(typescript@6.0.3)':
     dependencies:
-      '@eslint/eslintrc': 3.3.6(jiti@2.7.0)(supports-color@10.2.2)
+      '@eslint/eslintrc': 3.3.6(supports-color@10.2.2)
       eslint: 10.9.0(jiti@2.7.0)(supports-color@10.2.2)
       eslint-plugin-import-x: 4.17.1(@typescript-eslint/utils@8.67.0)(eslint@10.9.0)(supports-color@10.2.2)
       eslint-plugin-n: 17.24.0(eslint@10.9.0)(typescript@6.0.3)
@@ -5931,7 +5925,6 @@ snapshots:
     transitivePeerDependencies:
       - '@typescript-eslint/utils'
       - eslint-import-resolver-node
-      - jiti
       - supports-color
       - typescript
 
@@ -6792,9 +6785,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/types@8.67.0':
-    dependencies:
-      typescript: 6.0.3
+  '@typescript-eslint/types@8.67.0': {}
 
   '@typescript-eslint/typescript-estree@8.67.0(supports-color@10.2.2)(typescript@6.0.3)':
     dependencies:
@@ -8163,8 +8154,6 @@ snapshots:
   json-schema-traverse@0.4.1: {}
 
   json-schema-traverse@1.0.0: {}
-
-  json-schema@0.4.0: {}
 
   json-stable-stringify-without-jsonify@1.0.1: {}
 
