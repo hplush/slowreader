@@ -60,6 +60,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Notify about new deployment
+        id: deployment
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REF: ${{ github.event.workflow_run.head_commit.id }}
@@ -81,7 +82,7 @@ jobs:
             -f state=in_progress \
             -f log_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
             > /dev/null
-          echo "DEPLOYMENT_ID=$ID" >> $GITHUB_ENV
+          echo "id=$ID" >> $GITHUB_OUTPUT
       - name: Load Docker image
         run: docker load < ./untrusted/image.tar
       - name: Login to GitHub Container Registry
@@ -129,7 +130,7 @@ jobs:
                 \"environmentId\": \"$ENV_ID\"}" \
               | jq -r '.applicationId')
 
-            IMAGE='ghcr.io/hplush/slowreader:preview-${{ env.PR_NUMBER }}'
+            IMAGE="ghcr.io/hplush/slowreader:preview-$PR_NUMBER"
             dokploy_api application.update \
               "{\"applicationId\": \"$APP_ID\",
                 \"sourceType\": \"docker\",
@@ -162,8 +163,9 @@ jobs:
       - name: Wait for deployment
         run: sleep 120
       - name: Update deployment status
-        if: always() && env.DEPLOYMENT_ID
+        if: always() && steps.deployment.outputs.id
         env:
+          DEPLOYMENT_ID: ${{ steps.deployment.outputs.id }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JOB_STATUS: ${{ job.status }}
         run: |

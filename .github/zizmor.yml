@@ -7,6 +7,3 @@ rules:
     ignore:
       - preview-deploy.yml:2
       - preview-clean.yml:2
-  template-injection:
-    ignore:
-      - preview-deploy.yml:117
