@@ -10,7 +10,7 @@ import {
   cleanAllTables,
   getServerLogIds
 } from '@slowreader/server/test'
-import { deepEqual, equal, notEqual } from 'node:assert/strict'
+import { deepEqual, equal, notEqual, ok } from 'node:assert/strict'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -19,8 +19,11 @@ import { setTimeout } from 'node:timers/promises'
 
 import {
   addFeed,
+  busy,
   changeFeed,
   client,
+  commonMessages,
+  downloadingCloudData,
   type Credentials,
   deleteFeed,
   type FeedValue,
@@ -353,6 +356,35 @@ describe('log', () => {
     // The reducer is not re-created from the log, so the actions of the next
     // download must not be reduced on top of the old menu
     equal(typeof storage['slowreader:menu'], 'undefined')
+  })
+
+  test('shows the loader until the download is finished', async () => {
+    await signUpCloudUser()
+    await addFeed(testFeed({ title: 'A' }))
+    await waitSync()
+
+    let page = openPage({ params: {}, route: 'storage' })
+    await page.resetDatabase()
+    equal(downloadingCloudData.get(), true)
+
+    let labels: string[] = []
+    let unbind = busy.listen(value => {
+      if (value) labels.push(value.label)
+    })
+
+    // The client was destroyed by the reset, so the app restarts it
+    let user = userId.get()!
+    userId.set(undefined)
+    await waitUntil(() => !client.get())
+    await setTimeout(SETTLE)
+    userId.set(user)
+    await waitUntil(() => !!client.get())
+    ok(labels.includes(commonMessages.get().downloadingData))
+
+    await waitUntil(() => !downloadingCloudData.get())
+    equal(busy.get(), false)
+    equal((await loadFeeds()).length, 1)
+    unbind()
   })
 
   test('shadows the action of another device right after the apply', async () => {

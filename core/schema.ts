@@ -27,7 +27,7 @@ import {
 } from '@logux/client/db'
 import type { Action, MetaTime } from '@logux/core'
 import type { Database, SqlParam } from '@nanostores/sql'
-import { atom } from 'nanostores'
+import { atom, effect } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
 import {
@@ -42,7 +42,11 @@ import type { LoaderName } from './loader/index.ts'
 import { type LogTracker, trackLog } from './log.ts'
 import { commonMessages } from './messages/index.ts'
 import type { UsefulReaderName } from './readers/common.ts'
-import { hasPassword, uploadingLocalData } from './settings.ts'
+import {
+  downloadingCloudData,
+  hasPassword,
+  uploadingLocalData
+} from './settings.ts'
 
 /**
  * ID of the virtual category for feeds without a category. Two underscores
@@ -156,14 +160,13 @@ let currentTables: Tables | undefined
 let currentTracker: LogTracker | undefined
 let snapshot: Promise<TableSnapshot> | undefined
 let ready: Promise<void> = Promise.resolve()
-let downloading = false
 
 /**
  * Tell that the next database will be filled from the server, not from
  * the local log. Call it on sign in to the existing account.
  */
 export function markDatabaseDownloading(): void {
-  downloading = true
+  downloadingCloudData.set(true)
 }
 
 /**
@@ -338,11 +341,50 @@ async function uploadLocalData(logux: CrossTabClient): Promise<void> {
 }
 
 /**
+ * Show the loader after the sign in or the database reset.
+ */
+function showBusyUntilFilled(logux: CrossTabClient): () => void {
+  let stop!: () => void
+  let filled = new Promise<void>(resolve => {
+    let timer: ReturnType<typeof setTimeout> | undefined
+    // The server needs the time to read the log, but then sends all
+    // the batches of the actions one after another
+    function waitMore(ms: number): void {
+      clearTimeout(timer)
+      timer = setTimeout(stop, ms)
+    }
+    let unbindAdd = logux.on('add', () => {
+      waitMore(1000)
+    })
+    let unbindState = logux.on('state', () => {
+      clearTimeout(timer)
+      if (logux.connected) waitMore(10_000)
+    })
+    stop = () => {
+      clearTimeout(timer)
+      unbindAdd()
+      unbindState()
+      resolve()
+    }
+    if (logux.connected) waitMore(10_000)
+  })
+
+  void busyDuring(commonMessages.get().downloadingData, () => filled).then(
+    () => {
+      // The user could sign out while the data was downloading
+      if (hasDatabase()) downloadingCloudData.set(false)
+    }
+  )
+
+  return stop
+}
+
+/**
  * The first start has no data to load: the time goes to creating the tables.
  */
 function getOpeningLabel(hasTables: boolean): string {
   let messages = commonMessages.get()
-  if (downloading) {
+  if (downloadingCloudData.get()) {
     return messages.downloadingData
   } else if (hasTables) {
     return messages.loadingData
@@ -418,7 +460,6 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
   openedDatabase.set(db)
 
   void busyDuring(getOpeningLabel(hasTables), () => ready)
-  downloading = false
 
   void ready.then(() => {
     // The user could sign out while the database was filling
@@ -451,5 +492,12 @@ function closeDatabase(): void {
 
 onClient(logux => {
   openDatabase(logux, database.get()!)
-  return closeDatabase
+  // Detecting resetting database from other browser tabs
+  let unbindDownloading = effect(downloadingCloudData, downloading => {
+    if (downloading) return showBusyUntilFilled(logux)
+  })
+  return () => {
+    unbindDownloading()
+    closeDatabase()
+  }
 })

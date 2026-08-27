@@ -17,6 +17,7 @@ import { getEnvironment, onEnvironment } from './environment.ts'
 import { commonMessages } from './messages/index.ts'
 import {
   type DatabaseFailure,
+  downloadingCloudData,
   encryptionKey,
   hasPassword,
   lastReset,
@@ -119,6 +120,7 @@ export async function resetDatabase(
     },
     true
   )
+  downloadingCloudData.set(true)
   getEnvironment().restartApp()
 }
 

@@ -37,11 +37,14 @@ export const lastReset = persistentAtom<DatabaseFailure | undefined>(
 )
 
 /**
- * The upload of the local data to the server on the sign-up was started
- * and not finished yet. The interrupted database migration is detected
- * by the applier itself.
+ * The upload of the local data to the server on the sign-up
  */
 export const uploadingLocalData = persistentBoolean('slowreader:uploading')
+
+/**
+ * Sign in to the existing account or on the database reset
+ */
+export const downloadingCloudData = persistentBoolean('slowreader:downloading')
 
 export type Theme = 'dark' | 'light' | 'system'
 
