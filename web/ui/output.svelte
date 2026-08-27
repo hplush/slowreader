@@ -57,6 +57,7 @@
     <div class="output_button" class:is-copied={copied}>
       <Button
         icon={copied ? mdiCheck : mdiContentCopy}
+        joined="end"
         onclick={copy}
         size="icon"
         variant="secondary"
@@ -104,11 +105,6 @@
       position: absolute;
       inset-block-start: 0;
       inset-inline-end: 0;
-    }
-
-    .output_button > button {
-      border-start-start-radius: 0;
-      border-end-start-radius: 0;
     }
 
     .output_button.is-copied {
