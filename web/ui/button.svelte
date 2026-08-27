@@ -34,6 +34,7 @@
     children,
     disabled,
     icon,
+    joined,
     loader,
     onclick,
     pseudostate,
@@ -48,6 +49,7 @@
     children: Snippet
     disabled?: boolean
     icon?: string
+    joined?: 'end' | 'middle' | 'start' | undefined
     loader?: boolean | number | string
     onclick?: MouseEventHandler<HTMLAnchorElement | HTMLButtonElement>
     pseudostate?: ButtonPseudostate
@@ -65,6 +67,9 @@
     'is-attention': variant === 'attention',
     'is-big': size === 'big',
     'is-icon': size === 'icon',
+    'is-joined-end': joined === 'end',
+    'is-joined-middle': joined === 'middle',
+    'is-joined-start': joined === 'start',
     'is-loader': !!loader,
     'is-main': variant === 'main',
     'is-pill': size === 'pill',
@@ -134,6 +139,20 @@
         font: var(--control-secondary-font);
         border-radius: 0.75rem;
         corner-shape: round;
+      }
+
+      &.is-joined-start {
+        border-start-end-radius: 0;
+        border-end-end-radius: 0;
+      }
+
+      &.is-joined-middle {
+        border-radius: 0;
+      }
+
+      &.is-joined-end {
+        border-start-start-radius: 0;
+        border-end-start-radius: 0;
       }
 
       &.is-main {
