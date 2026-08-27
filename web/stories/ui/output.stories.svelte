@@ -21,3 +21,15 @@
     <Output label="Base" value="test" />
   </Section>
 </Story>
+
+<Story
+  name="Copied"
+  asChild
+  play={async ({ canvas, userEvent }) => {
+    await userEvent.setup({}).click(canvas.getByRole('button'))
+  }}
+>
+  <Section width={200}>
+    <Output label="Base" value="test" />
+  </Section>
+</Story>
