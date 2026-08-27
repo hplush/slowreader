@@ -106,6 +106,11 @@
       inset-inline-end: 0;
     }
 
+    .output_button > button {
+      border-start-start-radius: 0;
+      border-end-start-radius: 0;
+    }
+
     .output_button.is-copied {
       --text-color: var(--success-text-color);
     }
