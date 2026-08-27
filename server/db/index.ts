@@ -1,11 +1,11 @@
-import { PGlite, type PGliteOptions } from '@electric-sql/pglite'
+import { PGlite } from '@electric-sql/pglite'
 import { defineRelations } from 'drizzle-orm'
 import type { MigrationConfig } from 'drizzle-orm/migrator'
 import type { PgAsyncDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core'
-import { drizzle as devDrizzle } from 'drizzle-orm/pglite'
-import { migrate as devMigrate } from 'drizzle-orm/pglite/migrator'
-import { drizzle as prodDrizzle } from 'drizzle-orm/postgres-js'
-import { migrate as prodMigrate } from 'drizzle-orm/postgres-js/migrator'
+import { drizzle as pgliteDrizzle } from 'drizzle-orm/pglite'
+import { migrate as pgliteMigrate } from 'drizzle-orm/pglite/migrator'
+import { drizzle as postgresDrizzle } from 'drizzle-orm/postgres-js'
+import { migrate as postgresMigrate } from 'drizzle-orm/postgres-js/migrator'
 import { access, constants, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import postgres from 'postgres'
@@ -19,47 +19,31 @@ const MIGRATE_CONFIG: MigrationConfig = {
   migrationsFolder: join(import.meta.dirname, 'migrations')
 }
 
-function pgOptions(): PGliteOptions {
-  return { debug: config.debug ? 5 : undefined }
-}
-
 let relations = defineRelations(schema)
 
-let drizzle: PgAsyncDatabase<PgQueryResultHKT, typeof relations>
-let driver: PGlite | postgres.Sql
-let pglite: PGlite | undefined
-
-if (config.db.startsWith('memory://') || config.db.startsWith('file://')) {
-  if (config.db.startsWith('file://')) {
-    let path = config.db.slice(7)
-    await mkdir(path, { recursive: true })
-    await access(path, constants.R_OK | constants.W_OK)
-  }
-
-  pglite = new PGlite(config.db, pgOptions())
-  let drizzlePglite = devDrizzle({ client: pglite, relations })
-  await devMigrate(drizzlePglite, MIGRATE_CONFIG)
-  drizzle = drizzlePglite
-
-  // Register cleanup for both memory and file-based databases
-  onExit(() => {
-    void pglite?.close()
-  })
-  driver = pglite
-} else {
-  let client = postgres(config.db)
-  drizzle = prodDrizzle({ client, relations })
-  let migrateConnection = postgres(config.db, { max: 1 })
-  await prodMigrate(prodDrizzle({ client: migrateConnection }), MIGRATE_CONFIG)
-  await migrateConnection.end()
-
-  driver = client
+if (config.db.startsWith('file://')) {
+  let path = config.db.slice('file://'.length)
+  await mkdir(path, { recursive: true })
+  await access(path, constants.R_OK | constants.W_OK)
 }
 
-export const db = drizzle
+export const dbDriver =
+  config.db.startsWith('memory://') || config.db.startsWith('file://')
+    ? new PGlite(config.db, { debug: config.debug ? 5 : undefined })
+    : postgres(config.db)
 
-/**
- * Raw database driver for the queries, which can not use Drizzle’s schema,
- * like the Logux log store.
- */
-export const dbDriver = driver
+export const db: PgAsyncDatabase<PgQueryResultHKT, typeof relations> =
+  dbDriver instanceof PGlite
+    ? pgliteDrizzle({ client: dbDriver, relations })
+    : postgresDrizzle({ client: dbDriver, relations })
+
+if (dbDriver instanceof PGlite) {
+  onExit(() => {
+    void dbDriver.close()
+  })
+  await pgliteMigrate(pgliteDrizzle({ client: dbDriver }), MIGRATE_CONFIG)
+} else {
+  let migrator = postgres(config.db, { max: 1 })
+  await postgresMigrate(postgresDrizzle({ client: migrator }), MIGRATE_CONFIG)
+  await migrator.end()
+}
