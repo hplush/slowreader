@@ -32,18 +32,18 @@
     "@logux/oxc-configs": "1.1.0",
     "@playwright/mcp": "0.0.79",
     "@types/chrome": "0.2.7",
-    "@types/node": "26.2.0",
+    "@types/node": "26.3.0",
     "@types/ws": "8.18.1",
     "@typescript/native": "npm:typescript@7.0.2",
     "actions-up": "1.18.0",
     "better-node-test": "1.0.0",
-    "eslint": "10.9.0",
+    "eslint": "10.9.1",
     "eslint-plugin-svelte": "3.23.0",
     "jiti": "2.7.0",
     "multiocular": "0.8.4",
     "nano-staged": "1.0.2",
-    "oxfmt": "0.64.0",
-    "oxlint": "1.79.0",
+    "oxfmt": "0.65.0",
+    "oxlint": "1.80.0",
     "oxlint-tsgolint": "7.0.2001",
     "postcss-html": "2.0.0",
     "remark-cli": "12.0.1",
@@ -61,8 +61,8 @@
     "stylelint": "17.14.1",
     "svelte": "5.56.10",
     "svelte-eslint-parser": "1.8.1",
-    "svgo": "4.0.2",
+    "svgo": "4.1.0",
     "typescript": "6.0.3"
   },
-  "packageManager": "pnpm@12.0.0-rc.10"
+  "packageManager": "pnpm@12.0.0"
 }
