@@ -80,6 +80,10 @@ export const signUpPage = createPage('signUp', () => {
       unbindPassword()
     },
     finish,
+    hideBusy: computed(
+      [$signingUp, $warningStep],
+      (signing, warning) => signing || warning
+    ),
     hideMenu: $hideMenu,
     mailTo: $mailTo,
     params: {},

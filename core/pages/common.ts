@@ -13,6 +13,7 @@ export type ParamStores<Name extends RouteName> = {
 
 export type BasePage<Name extends RouteName = RouteName> = {
   destroy(): void
+  hideBusy: ReadableAtom<boolean>
   hideMenu: ReadableAtom<boolean>
   readonly loading: ReadableAtom<boolean>
   params: ParamStores<Name>
@@ -39,6 +40,7 @@ export function createPage<Name extends RouteName, Rest extends Extra>(
           creator.cache?.exit?.()
           creator.cache = undefined
         },
+        hideBusy: atom(false),
         hideMenu: atom(false),
         loading: atom(false),
         route,

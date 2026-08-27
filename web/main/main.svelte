@@ -49,7 +49,10 @@
   })
 
   let pageLoading = $derived($currentPage.loading)
+  let pageHideBusy = $derived($currentPage.hideBusy)
   let pageHideMenu = $derived($currentPage.hideMenu)
+
+  let showBusy = $derived($busy && !$pageHideBusy)
 
   let popup = $derived($popupsStatus.last)
   let popupLoading = $derived($popupsStatus.loading)
@@ -59,7 +62,7 @@
 
 {#if $notFound}
   <NotFoundPage />
-{:else if $busy || $pageLoading}
+{:else if showBusy || $pageLoading}
   {#if !globalLoader}
     <BusyPage />
   {/if}
@@ -104,7 +107,7 @@
   </ThinPage>
 {/if}
 
-{#if !$busy && $userId && !$pageHideMenu}
+{#if !showBusy && $userId && !$pageHideMenu}
   <Navbar />
 {/if}
 

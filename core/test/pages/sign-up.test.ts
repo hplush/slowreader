@@ -108,9 +108,11 @@ describe('signup page', () => {
     equal(page.warningStep.get(), false)
     equal(page.signingUp.get(), false)
     equal(page.hideMenu.get(), false)
+    equal(page.hideBusy.get(), false)
 
     let promise = page.submit()
     equal(page.signingUp.get(), true)
+    equal(page.hideBusy.get(), true)
     equal(typeof page.error.get(), 'undefined')
 
     await promise
@@ -118,6 +120,7 @@ describe('signup page', () => {
     equal(page.signingUp.get(), false)
     equal(page.warningStep.get(), true)
     equal(page.hideMenu.get(), true)
+    equal(page.hideBusy.get(), true)
     equal(client.get()?.state, 'connecting')
 
     let user = page.userId.get()
@@ -164,6 +167,7 @@ describe('signup page', () => {
     equal(page.signingUp.get(), false)
     equal(page.warningStep.get(), true)
     equal(page.hideMenu.get(), false)
+    equal(page.hideBusy.get(), true)
     equal(client.get()?.state, 'connecting')
     equal(userId.get(), user)
     equal(hasPassword.get(), true)
