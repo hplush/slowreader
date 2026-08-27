@@ -1,15 +1,4 @@
-import {
-  bigint,
-  boolean,
-  bytea,
-  index,
-  integer,
-  pgSequence,
-  pgTable,
-  serial,
-  text,
-  timestamp
-} from 'drizzle-orm/pg-core'
+import { index, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
 
 export const users = pgTable('users', {
   createdAt: timestamp('createdAt').notNull().defaultNow(),
@@ -32,18 +21,3 @@ export const sessions = pgTable(
   },
   table => [index('sessionsUserIdx').on(table.userId)]
 )
-
-export const actionsAdded = pgSequence('actionsAdded')
-
-export const actions = pgTable('actions', {
-  added: integer('added').notNull(),
-  compressed: boolean('compressed').notNull(),
-  encrypted: bytea('encrypted').notNull(),
-  id: text('id').primaryKey(),
-  iv: bytea('iv').notNull(),
-  subprotocol: integer('subprotocol').notNull(),
-  time: bigint('time', { mode: 'number' }).notNull(),
-  userId: text('userId')
-    .references(() => users.id)
-    .notNull()
-})

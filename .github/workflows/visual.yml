@@ -18,8 +18,9 @@ jobs:
     name: Chromatic
     runs-on: ubuntu-latest
     if: >
-      github.event_name != 'pull_request' ||
-      contains(github.event.pull_request.labels.*.name, 'run-visual')
+      github.event_name != 'pull_request' || (
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      contains(github.event.pull_request.labels.*.name, 'run-visual'))
     steps:
       - name: Harden the runner
         uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
@@ -40,6 +41,9 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      - name: Use pull request commit instead of merge commit
+        if: github.event_name == 'pull_request'
+        run: git switch --force-create "$GITHUB_HEAD_REF" HEAD^2
       - name: Check if should run
         id: should_run
         if: github.event_name == 'schedule'
@@ -57,6 +61,6 @@ jobs:
         uses: ./.github/actions/init-node
       - name: Publish to Chromatic
         if: steps.should_run.outputs.should_run != 'false'
-        run: cd web && pnpm chromatic --skip-update-check
+        run: cd web && pnpm chromatic
         env:
           CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}

@@ -1,18 +1,23 @@
-import { Server } from '@logux/server'
+import { PostgresStore, Server } from '@logux/server'
 import { SUBPROTOCOL } from '@slowreader/api'
 
+import { dbDriver } from './db/index.ts'
 import { onExit } from './lib/exit.ts'
 import type { ClientData } from './lib/types.ts'
 
-let server = new Server<object, ClientData>(
-  Server.loadOptions(process, {
+let store = new PostgresStore(dbDriver)
+await store.init()
+
+let server = new Server<object, ClientData>({
+  ...Server.loadOptions(process, {
     fileUrl: import.meta.url,
     host: '0.0.0.0',
     minSubprotocol: 0,
     port: process.env.PORT,
     subprotocol: SUBPROTOCOL
-  })
-)
+  }),
+  store
+})
 
 /**
  * Errors like `DrizzleQueryError` keep only the query in the message,

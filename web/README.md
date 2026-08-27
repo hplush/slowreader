@@ -50,7 +50,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 
 - `pnpm -F web test`: run all web client tests.
 - `pnpm -F web visual`: run visual test server.
-- `pnpm -F web chromatic`: publish visual tests and generate diffs.
+- `pnpm -F web chromatic`: publish visual tests and generate diffs for changed stories.
 - `pnpm -F web production`: start web client production build locally.
 - `pnpm -F web build`: build production files in `web/dist/`.
 - `pnpm -F web size`: check the JS bundle size of the production build.
@@ -104,7 +104,7 @@ Since clients don’t have much logic (we moved logic to the client core), we do
 
 We can use only visual tests to test web clients UI. We are using **[Storybook](https://storybook.js.org/)** and **[Chromatic snapshots](https://www.chromatic.com/builds?appId=65678843aa11589739e8fbee)**.
 
-Since we use a free plan, we run Chromatic on CI only daily (or on pull request with `run-visual` label).
+Since we use a free plan, we run Chromatic on CI only daily (or on pull request with `run-visual` label). Daily builds use [TurboSnap](https://www.chromatic.com/docs/turbosnap/) to snapshot only stories affected by changes.
 
 We deploy the latest Storybook of `main` branch to staging: [dev.slowreader.app/ui/](https://dev.slowreader.app/ui/)
 

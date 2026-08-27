@@ -84,6 +84,14 @@ async function getLatestPnpm(
   ]
 }
 
+async function hasNodeImage(version: string): Promise<boolean> {
+  let response = await fetch(
+    `https://registry.access.redhat.com/v2/hi/nodejs/manifests/${version}`,
+    { method: 'HEAD' }
+  )
+  return response.ok
+}
+
 async function getNodeSha256(version: string): Promise<Architectures> {
   let data = await fetch(`https://nodejs.org/dist/v${version}/SHASUMS256.txt`)
   let text = await data.text()
@@ -169,7 +177,18 @@ let latestNode = await getLatestNodeVersion(
 )
 let [latestPnpm, pnpmChecksums] = await getLatestPnpm(currentPnpm)
 
-if (currentNode !== latestNode || FORCE) {
+let updateNode = currentNode !== latestNode || FORCE
+if (updateNode && !(await hasNodeImage(latestNode))) {
+  process.stderr.write(
+    styleText(
+      'yellow',
+      `Waiting for registry.access.redhat.com/hi/nodejs:${latestNode} image\n`
+    )
+  )
+  updateNode = false
+}
+
+if (updateNode) {
   printUpdate('Node.js', currentNode, latestNode)
   let checksums = await getNodeSha256(latestNode)
   dockerfile = replaceVersionEnv(dockerfile, 'NODE', latestNode, checksums)
@@ -188,7 +207,8 @@ if (currentNode !== latestNode || FORCE) {
   }
 }
 
-if (currentPnpm !== latestPnpm || FORCE) {
+let updatePnpm = currentPnpm !== latestPnpm || FORCE
+if (updatePnpm) {
   printUpdate('pnpm', currentPnpm, latestPnpm)
   dockerfile = replaceVersionEnv(dockerfile, 'PNPM', latestPnpm, pnpmChecksums)
   writeFileSync(join(ROOT, '.devcontainer', 'Dockerfile'), dockerfile)
@@ -199,7 +219,7 @@ if (currentPnpm !== latestPnpm || FORCE) {
   })
 }
 
-if (currentNode === latestNode && currentPnpm === latestPnpm && !FORCE) {
+if (currentNode === latestNode && !updatePnpm) {
   process.stderr.write(
     styleText('gray', 'No Node.js or pnpm updates available\n')
   )

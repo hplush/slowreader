@@ -1,5 +1,5 @@
 # registry.access.redhat.com/hi/nodejs:26.7.0
-FROM registry.access.redhat.com/hi/nodejs@sha256:92d878b7ed88e3b5e51824c470fffa571d512ddc3e7f0709bbb01f82b56bc32e
+FROM registry.access.redhat.com/hi/nodejs@sha256:a5353b43412a384a0b399a42bd4a77ad3296138b1512905c9440ce8808aac520
 
 LABEL org.opencontainers.image.source=https://github.com/hplush/slowreader
 LABEL org.opencontainers.image.description="Proxy server of Slow Reader"
