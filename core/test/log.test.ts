@@ -259,6 +259,11 @@ describe('log', () => {
       reasons.some(list => list.includes(`feeds/${feedId}`)),
       true
     )
+
+    // The server could get `0/clean` after the restore, so the log is checked
+    // when the client finished with the re-sent actions
+    await setTimeout(SETTLE)
+    await waitSync()
     equal((await getServerLogIds()).length, 2)
   })
 

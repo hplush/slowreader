@@ -1,15 +1,9 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "d8c01fd6-6b88-4f13-be11-ac637e2d5736",
-  "prevIds": ["312c4766-a88b-4ce2-b6a8-dbcfe3dea144"],
+  "id": "6b8e0a7d-3c64-4052-96ac-2b52c3556d5c",
+  "prevIds": ["00000000-0000-0000-0000-000000000000"],
   "ddl": [
-    {
-      "isRlsEnabled": false,
-      "name": "actions",
-      "entityType": "tables",
-      "schema": "public"
-    },
     {
       "isRlsEnabled": false,
       "name": "sessions",
@@ -21,110 +15,6 @@
       "name": "users",
       "entityType": "tables",
       "schema": "public"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "added",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "actions"
-    },
-    {
-      "type": "boolean",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "compressed",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "actions"
-    },
-    {
-      "type": "bytea",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "encrypted",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "actions"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "id",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "actions"
-    },
-    {
-      "type": "bytea",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "iv",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "actions"
-    },
-    {
-      "type": "integer",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "subprotocol",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "actions"
-    },
-    {
-      "type": "bigint",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "time",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "actions"
-    },
-    {
-      "type": "text",
-      "typeSchema": null,
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "userId",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "actions"
     },
     {
       "type": "text",
@@ -285,31 +175,10 @@
       "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
-      "name": "actions_userId_users_id_fk",
-      "entityType": "fks",
-      "schema": "public",
-      "table": "actions"
-    },
-    {
-      "nameExplicit": false,
-      "columns": ["userId"],
-      "schemaTo": "public",
-      "tableTo": "users",
-      "columnsTo": ["id"],
-      "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
-      "name": "sessions_userId_users_id_fk",
+      "name": "sessions_userId_users_id_fkey",
       "entityType": "fks",
       "schema": "public",
       "table": "sessions"
-    },
-    {
-      "columns": ["id"],
-      "nameExplicit": false,
-      "name": "actions_pkey",
-      "schema": "public",
-      "table": "actions",
-      "entityType": "pks"
     },
     {
       "columns": ["id"],
@@ -326,17 +195,6 @@
       "schema": "public",
       "table": "users",
       "entityType": "pks"
-    },
-    {
-      "incrementBy": "1",
-      "minValue": "1",
-      "maxValue": "9223372036854775807",
-      "startWith": "1",
-      "cacheSize": 1,
-      "cycle": false,
-      "name": "actionsAdded",
-      "entityType": "sequences",
-      "schema": "public"
     }
   ],
   "renames": []

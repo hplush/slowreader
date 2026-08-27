@@ -26,6 +26,7 @@ function pgOptions(): PGliteOptions {
 let relations = defineRelations(schema)
 
 let drizzle: PgAsyncDatabase<PgQueryResultHKT, typeof relations>
+let driver: PGlite | postgres.Sql
 let pglite: PGlite | undefined
 
 if (config.db.startsWith('memory://') || config.db.startsWith('file://')) {
@@ -44,11 +45,21 @@ if (config.db.startsWith('memory://') || config.db.startsWith('file://')) {
   onExit(() => {
     void pglite?.close()
   })
+  driver = pglite
 } else {
-  drizzle = prodDrizzle({ client: postgres(config.db), relations })
+  let client = postgres(config.db)
+  drizzle = prodDrizzle({ client, relations })
   let migrateConnection = postgres(config.db, { max: 1 })
   await prodMigrate(prodDrizzle({ client: migrateConnection }), MIGRATE_CONFIG)
   await migrateConnection.end()
+
+  driver = client
 }
 
 export const db = drizzle
+
+/**
+ * Raw database driver for the queries, which can not use Drizzle’s schema,
+ * like the Logux log store.
+ */
+export const dbDriver = driver

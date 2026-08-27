@@ -8,10 +8,11 @@ import { deepEqual, equal, notEqual } from 'node:assert/strict'
 import { afterEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import { actions, db, sessions, users } from '../db/index.ts'
+import { db, sessions, users } from '../db/index.ts'
 import {
   buildTestServer,
   cleanAllTables,
+  getServerLogIds,
   testRequest,
   waitForActions
 } from './utils.ts'
@@ -99,7 +100,8 @@ describe('server sync', () => {
       { id: meta1.id, type: '0/clean' }
     ])
 
-    await client1.process(zeroClean({ id: '0 unknown 0' }))
+    // Cleaning the action, which was already removed, is not an error
+    await client1.process(zeroClean({ id: `0 ${client1.clientId}` }))
 
     let client3 = await connect(server, '0000000000000000', 'AAAAAAAAAA')
     await waitForActions(client3, [
@@ -211,6 +213,6 @@ describe('server sync', () => {
       client.log.actions().filter(i => i.type === 'logux/undo'),
       []
     )
-    equal((await db.select().from(actions)).length, 1)
+    equal((await getServerLogIds()).length, 1)
   })
 })

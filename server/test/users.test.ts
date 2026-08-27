@@ -1,14 +1,15 @@
 import { zero } from '@logux/actions'
+import { parseId } from '@logux/core'
 import type { TestServer } from '@logux/server'
 import { deleteUser, signIn, signUp } from '@slowreader/api'
-import { deepEqual, equal } from 'node:assert/strict'
+import { equal } from 'node:assert/strict'
 import { afterEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import { db } from '../db/index.ts'
 import {
   buildTestServer,
   cleanAllTables,
+  getServerLogIds,
   testRequest,
   throws
 } from './utils.ts'
@@ -73,8 +74,8 @@ describe('server users', () => {
       })
     }, 'Invalid credentials')
 
-    deepEqual(await db.query.actions.findMany({ columns: { userId: true } }), [
-      { userId: userB.userId }
-    ])
+    let stored = await getServerLogIds()
+    equal(stored.length, 1)
+    equal(parseId(stored[0]!).userId, userB.userId)
   })
 })

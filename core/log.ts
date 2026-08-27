@@ -114,7 +114,12 @@ export function trackLog(
     let applied: Meta = { added: 0, id: meta.id, reasons: [], time: meta.time }
     if (won.length > 0) {
       for (let id of ids) {
+        // The shadow of the applied action is the action itself, so it keeps
+        // the cells, which the action has just won. The order can not tell
+        // them apart: the server re-sends the action with another `time`,
+        // and the restart writes the shadow under another node ID
         await logux.log.removeReason(won, {
+          exceptIndex: applied.id,
           index: `${plural}/${id}`,
           olderThan: applied
         })
