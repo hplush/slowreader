@@ -13,7 +13,7 @@
     "size": "node --run build:web && size-limit",
     "test:offline:names": "node ./scripts/check-names.ts",
     "test:offline:css": "stylelint .",
-    "test:offline:svelte-types": "svelte-check --tsgo",
+    "test:offline:svelte-types": "svelte-check --tsgo --output human --color",
     "test:offline:build": "node --run build && size-limit && node ./scripts/check-css-props.ts",
     "build:routes": "node ./scripts/export-routes.ts",
     "build:visual": "NODE_ENV=test storybook build --loglevel error",

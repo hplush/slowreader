@@ -4,10 +4,10 @@
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "scripts": {
-    "test": "pnpm run --parallel -F '*' '/^(test|own):/'",
+    "test": "FORCE_COLOR=1 pnpm run --parallel -F '*' '/^(test|own):/'",
     "quick": "nano-staged --unstaged --quiet --bail",
-    "offline": "pnpm run --parallel -F '*' '/:offline:/'",
-    "start": "pnpm run --parallel -F server -F web start",
+    "offline": "FORCE_COLOR=1 pnpm run --parallel -F '*' '/:offline:/'",
+    "start": "FORCE_COLOR=1 pnpm run --parallel -F server -F web start",
     "format": "pnpm run --parallel -F '*' /^format:/",
     "clean": "pnpm run --parallel -F '*' /^clean:/",
     "build": "pnpm run -r build",
