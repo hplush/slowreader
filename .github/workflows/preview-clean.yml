@@ -74,14 +74,6 @@ jobs:
             if (response.ok) core.info(answer)
             else core.setFailed(`${response.status} ${response.statusText}: ${answer}`)
       - name: Delete preview image
-<<<<<<< Updated upstream
-        uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
-        with:
-          package: slowreader
-          owner: hplush
-          delete-tags: preview-${{ steps.pr.outputs.number }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-=======
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -97,4 +89,3 @@ jobs:
           else
             echo "No image for preview-$PR_NUMBER"
           fi
->>>>>>> Stashed changes
