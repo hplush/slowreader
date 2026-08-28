@@ -163,8 +163,17 @@ describe('server assets', () => {
     let post = await server.fetch('/', { method: 'POST' })
     equal(post.status, 404)
 
-    let unknown = await server.fetch('/unknown')
+    let unknown = await server.fetch('/unknown', {
+      headers: { Accept: 'text/html,application/xhtml+xml' }
+    })
     equal(unknown.status, 404)
+    equal(unknown.headers.get('content-type'), 'text/html')
+    match(await unknown.text(), /<404/)
+
+    // Non-browser clients should get the short answer instead of the page
+    let api = await server.fetch('/unknown', { headers: { Accept: '*/*' } })
+    equal(api.status, 404)
+    equal(api.headers.get('content-type'), 'text/plain')
 
     let prohibited1 = await server.fetch('/./db.ts')
     equal(prohibited1.status, 404)
@@ -184,7 +193,6 @@ describe('server assets', () => {
       import.meta.dirname,
       import.meta.filename
     )
-
     let index = await server.fetch('/')
     match(await index.text(), /Logux/)
 

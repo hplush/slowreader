@@ -36,7 +36,9 @@ function logCauses(error: Error): void {
 server.on('error', logCauses)
 server.on('fatal', logCauses)
 
-await server.autoloadModules('modules/*.ts')
+// Assets answer the unknown URLs with the 404 page, so they go last
+await server.autoloadModules(['modules/*.ts', '!modules/assets.ts'])
+await server.autoloadModules('modules/assets.ts')
 
 server.listen().catch((error: unknown) => {
   throw error
