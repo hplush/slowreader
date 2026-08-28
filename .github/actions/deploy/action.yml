@@ -1,5 +1,5 @@
 name: Deploy to staging
-description: Build and push Docker image, then trigger Dokploy deployment
+description: Build and push Docker image, then ask the cloud server to deploy it
 inputs:
   image-name:
     required: true
@@ -11,19 +11,12 @@ inputs:
     required: false
     default: dev
     description: Docker image tag
-  application-id:
+  domain:
     required: true
-    description: Dokploy application ID
-  cloud:
-    required: false
-    default: cloud.hplush.dev
-    description: Dokploy host
+    description: Domain of the app on the cloud server (e.g. dev.slowreader.app)
   token:
     required: true
     description: GitHub token for GHCR login
-  dokploy-token:
-    required: true
-    description: Dokploy API token
 runs:
   using: composite
   steps:
@@ -46,16 +39,17 @@ runs:
       env:
         INPUTS_IMAGE_NAME: ${{ inputs.image-name }}
         INPUTS_TAG: ${{ inputs.tag }}
-    - name: Trigger Dokploy deployment
-      shell: bash
-      run: |
-        curl -X POST \
-        "https://$INPUTS_CLOUD/api/application.deploy" \
-        -H 'accept: application/json' \
-        -H "x-api-key: $INPUTS_DOKPLOY_TOKEN" \
-        -H 'Content-Type: application/json' \
-        -d "{\"applicationId\": \"$INPUTS_APPLICATION_ID\"}"
+    - name: Deploy image
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
-        INPUTS_CLOUD: ${{ inputs.cloud }}
-        INPUTS_DOKPLOY_TOKEN: ${{ inputs.dokploy-token }}
-        INPUTS_APPLICATION_ID: ${{ inputs.application-id }}
+        DOMAIN: ${{ inputs.domain }}
+      with:
+        script: |
+          let token = await core.getIDToken('https://api.cloud.hplush.dev')
+          let response = await fetch(
+            `https://api.cloud.hplush.dev/deploy/${process.env.DOMAIN}`,
+            { method: 'POST', headers: { authorization: `Bearer ${token}` } }
+          )
+          let answer = await response.text()
+          if (response.ok) core.info(answer)
+          else core.setFailed(`${response.status} ${response.statusText}: ${answer}`)

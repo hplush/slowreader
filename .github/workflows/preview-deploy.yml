@@ -7,31 +7,29 @@ on:
       - completed
 permissions:
   contents: read
-  packages: write
   deployments: write
+  id-token: write
+  packages: write
 jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     concurrency:
-      group: staging-web
+      group: deploy-preview-${{ github.event.workflow_run.head_branch }}
+      cancel-in-progress: false
     steps:
       - name: Harden the runner
         uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           egress-policy: block
           allowed-endpoints: >
+            api.cloud.hplush.dev:443
             api.github.com:443
-            cloud.hplush.dev:443
             ghcr.io:443
             github.com:443
             nodejs.org:443
             raw.githubusercontent.com:443
-      - name: Checkout the repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
       - name: Download server from prepare step
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
@@ -93,75 +91,18 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push Docker image
         run: docker push ghcr.io/hplush/slowreader:preview-$PR_NUMBER
-      - name: Deploy to Dokploy
-        id: deploy
-        env:
-          API: https://cloud.hplush.dev/api
-          DOKPLOY_TOKEN: ${{ secrets.DOKPLOY_TOKEN }}
-        run: |
-          dokploy_api() {
-            if [ -n "$2" ]; then
-              curl -s -X POST "$API/$1" \
-                -H 'accept: application/json' \
-                -H "x-api-key: $DOKPLOY_TOKEN" \
-                -H 'Content-Type: application/json' \
-                -d "$2"
-            else
-              curl -s "$API/$1" \
-                -H "x-api-key: $DOKPLOY_TOKEN"
-            fi
-          }
-
-          APP_NAME="Preview $PR_NUMBER"
-          PROJECTS=$(dokploy_api project.all)
-          FIND='[.[].environments[].applications[]
-            | select(.name == $name)][0]
-            | .applicationId // empty'
-          APP_ID=$(echo "$PROJECTS" \
-            | jq -r --arg name "$APP_NAME" "$FIND")
-          if [ -z "$APP_ID" ]; then
-
-            ENV_ID=$(echo "$PROJECTS" | jq -r \
-              '[.[].environments[]
-                | select(.name == "production")][0]
-                | .environmentId')
-            APP_ID=$(dokploy_api application.create \
-              "{\"name\": \"$APP_NAME\",
-                \"environmentId\": \"$ENV_ID\"}" \
-              | jq -r '.applicationId')
-
-            IMAGE="ghcr.io/hplush/slowreader:preview-$PR_NUMBER"
-            dokploy_api application.update \
-              "{\"applicationId\": \"$APP_ID\",
-                \"sourceType\": \"docker\",
-                \"dockerImage\": \"$IMAGE\"}"
-
-            HOST="preview-$PR_NUMBER.app.hplush.dev"
-            dokploy_api domain.create \
-              "{\"applicationId\": \"$APP_ID\",
-                \"host\": \"$HOST\",
-                \"port\": 2554,
-                \"https\": true,
-                \"certificateType\": \"letsencrypt\"}"
-
-            ORIGIN="^https:\\/\\/$(echo "$HOST" | sed 's/\./\\\\./g')\$"
-            ENV="ASSETS=1\nDATABASE_URL=memory://\nPROXY_ORIGIN=$ORIGIN"
-            dokploy_api application.saveEnvironment \
-              "{\"applicationId\": \"$APP_ID\",
-                \"env\": \"$ENV\",
-                \"buildArgs\": null,
-                \"buildSecrets\": null,
-                \"createEnvFile\": false}"
-
-            dokploy_api application.deploy \
-              "{\"applicationId\": \"$APP_ID\"}"
-
-          else
-            dokploy_api application.redeploy \
-              "{\"applicationId\": \"$APP_ID\"}"
-          fi
-      - name: Wait for deployment
-        run: sleep 120
+      - name: Deploy the preview
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            let token = await core.getIDToken('https://api.cloud.hplush.dev')
+            let response = await fetch(
+              `https://api.cloud.hplush.dev/deploy/preview-${process.env.PR_NUMBER}.slowreader.hplush.dev`,
+              { method: 'POST', headers: { authorization: `Bearer ${token}` } }
+            )
+            let answer = await response.text()
+            if (response.ok) core.info(answer)
+            else core.setFailed(`${response.status} ${response.statusText}: ${answer}`)
       - name: Update deployment status
         if: always() && steps.deployment.outputs.id
         env:
@@ -177,6 +118,6 @@ jobs:
           gh api \
             "repos/$GITHUB_REPOSITORY/deployments/$DEPLOYMENT_ID/statuses" \
             -f state="$STATE" \
-            -f environment_url="https://preview-$PR_NUMBER.app.hplush.dev/ui/" \
+            -f environment_url="https://preview-$PR_NUMBER.slowreader.hplush.dev/ui/" \
             -f log_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
             > /dev/null

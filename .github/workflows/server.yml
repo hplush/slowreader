@@ -93,9 +93,11 @@ jobs:
     if: github.ref == 'refs/heads/main'
     permissions:
       contents: read
+      id-token: write
       packages: write
     concurrency:
       group: staging-server
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
       - name: Harden the runner
@@ -104,6 +106,7 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             9236a389bd48b984df91adc1bc924620.r2.cloudflarestorage.com:443
+            api.cloud.hplush.dev:443
             api.github.com:443
             github.com:443
             nodejs.org:443
@@ -119,7 +122,6 @@ jobs:
             cdn04.quay.io:443
             cdn05.quay.io:443
             cdn06.quay.io:443
-            cloud.hplush.dev:443
       - name: Checkout the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -136,6 +138,5 @@ jobs:
         with:
           image-name: slowreader
           context: ./server/
-          application-id: 3b5AqgMLia13ku53keAJC
+          domain: server.dev.slowreader.app
           token: ${{ secrets.GITHUB_TOKEN }}
-          dokploy-token: ${{ secrets.DOKPLOY_TOKEN }}

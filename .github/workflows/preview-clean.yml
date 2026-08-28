@@ -13,14 +13,17 @@ jobs:
   clean:
     name: Clean
     runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-preview-${{ github.event.workflow_run.head_branch }}
+      cancel-in-progress: false
     steps:
       - name: Harden the runner
         uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
         with:
           egress-policy: block
           allowed-endpoints: >
+            api.cloud.hplush.dev:443
             api.github.com:443
-            cloud.hplush.dev:443
             github.com:443
             ghcr.io:443
             raw.githubusercontent.com:443
@@ -55,34 +58,18 @@ jobs:
             gh api -X DELETE "$API/deployments/$ID"
           done
           gh api -X DELETE "$API/environments/$ENVIRONMENT"
-      - name: Delete Dokploy application
-        env:
-          API: https://cloud.hplush.dev/api
-          DOKPLOY_TOKEN: ${{ secrets.DOKPLOY_TOKEN }}
-        run: |
-          dokploy_api() {
-            if [ -n "$2" ]; then
-              curl -s -X POST "$API/$1" \
-                -H 'accept: application/json' \
-                -H "x-api-key: $DOKPLOY_TOKEN" \
-                -H 'Content-Type: application/json' \
-                -d "$2"
-            else
-              curl -s "$API/$1" \
-                -H "x-api-key: $DOKPLOY_TOKEN"
-            fi
-          }
-
-          FIND='[.[].environments[].applications[]
-            | select(.name == $name)][0]
-            | .applicationId // empty'
-          APP_ID=$(dokploy_api project.all \
-            | jq -r --arg name "Preview $PR_NUMBER" "$FIND")
-
-          if [ -n "$APP_ID" ]; then
-            dokploy_api application.delete \
-              "{\"applicationId\": \"$APP_ID\"}"
-          fi
+      - name: Clean the preview
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            let token = await core.getIDToken('https://api.cloud.hplush.dev')
+            let response = await fetch(
+              `https://api.cloud.hplush.dev/deploy/preview-${process.env.PR_NUMBER}.slowreader.hplush.dev`,
+              { method: 'DELETE', headers: { authorization: `Bearer ${token}` } }
+            )
+            let answer = await response.text()
+            if (response.ok) core.info(answer)
+            else core.setFailed(`${response.status} ${response.statusText}: ${answer}`)
       - name: Delete preview image
         uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
         with:

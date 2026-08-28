@@ -108,7 +108,7 @@ Since we use a free plan, we run Chromatic on CI only daily (or on pull request 
 
 We deploy the latest Storybook of `main` branch to staging: [dev.slowreader.app/ui/](https://dev.slowreader.app/ui/)
 
-You can check Storybook of pull request by adding `/ui/` to the preview deploy URL: like <code>https://preview-100---staging-3ryqvfpd5q-ew.a.run.app<b>/ui/</b></code>
+You can check Storybook of pull request by adding `/ui/` to the preview deploy URL: like <code>https://preview-100.slowreader.hplush.dev<b>/ui/</b></code>
 
 But those visuals can be very complex. We do not just test buttons in different states. We test whole pages by mocking network requests and stores states. We use small JS in stories to test animations or some JS code.
 
@@ -125,6 +125,4 @@ To return app HTML on app’s routes, we [export](./scripts/export-routes.ts) Re
 
 Both preview and staging have Storybook at `/ui/` route.
 
-We are using [Dokploy](https://dokploy.com) server to run nginx with assets of web client. For pull request preview and self-hosted we use [server](../server/modules/assets.ts) to serve assets.
-
-Our Dokploy installing process is described in [documentation](../docs/server.md).
+We are using our [cloud server](https://github.com/hplush/cloud) to run nginx with assets of web client. For pull request preview and self-hosted we use [server](../server/modules/assets.ts) to serve assets.

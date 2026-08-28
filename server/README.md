@@ -90,12 +90,10 @@ For deploy we:
 1. Use `pnpm deploy` to create `dist/` only with production dependencies.
 2. Move workspace packages to `dist/vendor/` by [`scripts/vendor-workspace.sh`](./scripts/vendor-workspace.sh) and link them back to `node_modules/`, because Node.js can’t strip types inside `node_modules/`.
 3. Build Docker image with Node.js.
-4. Run this image on our Dokploy server.
+4. Run this image on our [cloud server](https://github.com/hplush/cloud).
 
 We deploy server to:
 
 - `server.slowreader.app` for production.
 - `server.dev.slowreader.app` for staging.
-- Temporary Google’s domain for pull request preview.
-
-Our Dokploy installing process is described in [documentation](../docs/server.md).
+- `preview-*.slowreader.hplush.dev` for pull request preview.

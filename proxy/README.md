@@ -42,11 +42,9 @@ For deploy we:
 
 1. Use `pnpm deploy` to create `dist/` only with production dependencies.
 2. Build Docker image with Node.js.
-3. Run this image on our Dokploy server.
+3. Run this image on our [cloud server](https://github.com/hplush/cloud).
 
 We have 2 proxy servers:
 
 - `proxy.slowreader.app` works only for production clients.
 - `proxy.dev.slowreader.app` works with staging.
-
-Our Dokploy installing process is described in [documentation](../docs/server.md).
