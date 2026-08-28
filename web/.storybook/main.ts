@@ -10,6 +10,9 @@ export default {
   core: {
     disableTelemetry: true
   },
+  features: {
+    sidebarOnboardingChecklist: false
+  },
   framework: '@storybook/svelte-vite',
   stories: ['../stories/**/*.stories.svelte'],
   viteFinal(config: InlineConfig) {
