@@ -18,16 +18,6 @@
   function onclick(): void {}
 </script>
 
-<Story name="Joined" asChild>
-  <Section>
-    <div style="display: flex; width: fit-content;">
-      <Button joined="start" {onclick}>Start</Button>
-      <Button joined="middle" {onclick}>Middle</Button>
-      <Button joined="end" {onclick}>End</Button>
-    </div>
-  </Section>
-</Story>
-
 <Story name="Light Slow" asChild>
   <Scene>
     <Section
@@ -123,6 +113,13 @@
         Secondary
       </Button>
     </Section>
+    <Section>
+      <div style="display: flex; width: fit-content;">
+        <Button joined="start" {onclick}>Start</Button>
+        <Button joined="middle" {onclick}>Middle</Button>
+        <Button joined="end" {onclick}>End</Button>
+      </div>
+    </Section>
   </Scene>
 </Story>
 
@@ -190,6 +187,13 @@
       <Button href="/disabled" {icon} loader variant="secondary">
         Secondary
       </Button>
+    </Section>
+    <Section>
+      <div style="display: flex; width: fit-content;">
+        <Button joined="start" {onclick}>Start</Button>
+        <Button joined="middle" {onclick}>Middle</Button>
+        <Button joined="end" {onclick}>End</Button>
+      </div>
     </Section>
   </Scene>
 </Story>
@@ -263,6 +267,13 @@
         Secondary
       </Button>
     </Section>
+    <Section>
+      <div style="display: flex; width: fit-content;">
+        <Button joined="start" {onclick}>Start</Button>
+        <Button joined="middle" {onclick}>Middle</Button>
+        <Button joined="end" {onclick}>End</Button>
+      </div>
+    </Section>
   </Scene>
 </Story>
 
@@ -334,6 +345,13 @@
       <Button href="/disabled" {icon} loader variant="secondary">
         Secondary
       </Button>
+    </Section>
+    <Section>
+      <div style="display: flex; width: fit-content;">
+        <Button joined="start" {onclick}>Start</Button>
+        <Button joined="middle" {onclick}>Middle</Button>
+        <Button joined="end" {onclick}>End</Button>
+      </div>
     </Section>
   </Scene>
 </Story>

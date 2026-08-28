@@ -145,3 +145,9 @@ export function prepareResponses(
 }
 
 setRequestMethod(mockedRequest)
+
+// Storybook has no permissions for the real clipboard
+Object.defineProperty(navigator, 'clipboard', {
+  configurable: true,
+  value: { writeText: () => Promise.resolve() }
+})
