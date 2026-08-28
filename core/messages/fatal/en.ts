@@ -5,12 +5,14 @@ export const fatalMessages = i18n('fatal', {
     'The app tried to download the data again, but the local database ' +
     'is still broken. Deleting the local data is the last thing, ' +
     'which can help.',
-  brokenDatabaseTitle: 'Local database is broken',
+  brokenDatabaseText: 'Local database is broken',
+  brokenDatabaseTitle: 'Broken DB',
   cleanButton: 'Delete local data',
   error: 'Send this error to the developers',
   home: 'Home',
   notFoundText: 'Page not found',
   notFoundTitle: '404',
-  outdatedTitle: 'Your client is too old',
+  outdatedText: 'Your client is too old',
+  outdatedTitle: 'Outdated',
   updateButton: 'Update client now'
 })

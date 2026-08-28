@@ -64,7 +64,7 @@ describe('fatal page', () => {
 
       setBaseTestRoute({ params: { reason: 'brokenDatabase' }, route: 'fatal' })
       deepEqual(page.reason.get(), {
-        error: undefined,
+        error: 'Test page',
         type: 'brokenDatabase'
       })
 

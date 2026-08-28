@@ -14,7 +14,7 @@ export const fatalPage = createPage('fatal', () => {
       if (error) {
         return error
       } else if (name === 'brokenDatabase') {
-        return { error: undefined, type: 'brokenDatabase' }
+        return { error: 'Test page', type: 'brokenDatabase' }
       } else if (name === 'outdated') {
         return { type: 'outdated' }
       } else {

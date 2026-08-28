@@ -1,7 +1,7 @@
 import { atom, computed, effect, type ReadableAtom } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
-import { type Fatal, fatal, NotFoundError } from './errors.ts'
+import { type Fatal, NotFoundError } from './errors.ts'
 import { userId } from './settings.ts'
 
 export interface Routes {
@@ -124,10 +124,6 @@ function validateFrom(value: number | string | undefined): string | undefined {
   }
 }
 
-/**
- * The URL is the only way to open the errors, which are hard to reproduce,
- * to check their design.
- */
 function validateReason(value: string | undefined): Fatal['type'] | undefined {
   if (
     typeof value === 'undefined' ||
@@ -203,8 +199,6 @@ onEnvironment(({ baseRouter }) => {
     }
     if (JSON.stringify(router.get()) !== JSON.stringify(nextRoute)) {
       router.set(nextRoute)
-      // The not found error was about the previous page
-      if (fatal.get()?.type === 'notFound') fatal.set(undefined)
     }
   })
 })

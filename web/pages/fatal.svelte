@@ -23,20 +23,29 @@
   import ThinPage from '../ui/thin-page.svelte'
   import Title from '../ui/title.svelte'
 
+  const ICONS = {
+    brokenDatabase: mdiDatabaseAlert,
+    notFound: mdiBookOpenPageVariant,
+    outdated: mdiTimerSandComplete
+  }
+
   let { page }: { page: FatalPage } = $props()
   let { reason } = $derived(page)
 </script>
 
-{#if $reason.type === 'brokenDatabase'}
-  <ThinPage
-    align="center"
-    bottomOnMobile={false}
-    title={$t.brokenDatabaseTitle}
-  >
-    <Stack align="center" gap="xl">
-      <PageIcon path={mdiDatabaseAlert} />
-      <Stack align="center" gap="l">
-        <Title>{$t.brokenDatabaseTitle}</Title>
+<ThinPage
+  align="center"
+  bottomOnMobile={false}
+  title={$t[`${$reason.type}Title`]}
+>
+  <Stack align="center" gap="xl">
+    <PageIcon
+      extra={$reason.type === 'notFound' ? mdiFire : undefined}
+      path={ICONS[$reason.type]}
+    />
+    <Stack align="center" gap="l">
+      <Title>{$t[`${$reason.type}Text`]}</Title>
+      {#if $reason.type === 'brokenDatabase'}
         <p>{$t.brokenDatabaseDescription}</p>
         {#if $reason.error}
           <Output label={$t.error} value={$reason.error} />
@@ -49,15 +58,7 @@
         >
           {$t.cleanButton}
         </Button>
-      </Stack>
-    </Stack>
-  </ThinPage>
-{:else if $reason.type === 'outdated'}
-  <ThinPage align="center" bottomOnMobile={false} title={$t.outdatedTitle}>
-    <Stack align="center" gap="xl">
-      <PageIcon path={mdiTimerSandComplete} />
-      <Stack align="center" gap="l">
-        <Title>{$t.outdatedTitle}</Title>
+      {:else if $reason.type === 'outdated'}
         <Button
           icon={mdiReload}
           onclick={getEnvironment().updateClient}
@@ -66,15 +67,7 @@
         >
           {$t.updateButton}
         </Button>
-      </Stack>
-    </Stack>
-  </ThinPage>
-{:else}
-  <ThinPage align="center" bottomOnMobile={false} title={$t.notFoundTitle}>
-    <Stack align="center" gap="xl">
-      <PageIcon extra={mdiFire} path={mdiBookOpenPageVariant} />
-      <Stack align="center" gap="l">
-        <Title>{$t.notFoundText}</Title>
+      {:else}
         <Button
           href={getURL('home')}
           icon={mdiArrowLeft}
@@ -83,7 +76,7 @@
         >
           {$t.home}
         </Button>
-      </Stack>
+      {/if}
     </Stack>
-  </ThinPage>
-{/if}
+  </Stack>
+</ThinPage>

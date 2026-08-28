@@ -124,7 +124,7 @@
 </Story>
 
 <Story name="Light Fast" asChild>
-  <Scene route="fatal">
+  <Scene route="fast">
     <Section
       active="button:nth-child(3)"
       focus="button:nth-child(4)"
@@ -282,7 +282,7 @@
   asChild
   parameters={{ themes: { themeOverride: 'dark' } }}
 >
-  <Scene route="fatal">
+  <Scene route="fast">
     <Section
       active="button:nth-child(3)"
       focus="button:nth-child(4)"

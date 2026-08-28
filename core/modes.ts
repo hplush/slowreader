@@ -7,9 +7,8 @@ import { router } from './router.ts'
  * Colors of the app’s background:
  *
  * - `comfort`: yellow-ish “better to eyes” theme for the reading.
- * - `fast`: other white theme on fast pages to force people read them
- *   more rare.
- * - `error`: the same reading theme, but moved to the dangerous hue.
+ * - `fast`: theme on fast pages to force people read them more rare.
+ * - `error`: dangerous hue.
  */
 export type ThemeMode = 'comfort' | 'error' | 'fast'
 
