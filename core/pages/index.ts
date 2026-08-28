@@ -8,6 +8,7 @@ import {
   type PageCreator
 } from './common.ts'
 import { exportPage } from './export.ts'
+import { fatalPage } from './fatal.ts'
 import { feedsByCategoriesPage } from './feeds-by-categories.ts'
 import { fastPage, slowPage } from './feeds.ts'
 import { homePage } from './home.ts'
@@ -22,6 +23,7 @@ export type { AddPage } from './add.ts'
 export type { CloudPage } from './cloud.ts'
 export * from './common.ts'
 export type { ExportPage } from './export.ts'
+export type { FatalPage } from './fatal.ts'
 export type { FeedsByCategoriesPage } from './feeds-by-categories.ts'
 export type { FeedsPage } from './feeds.ts'
 export type { HomePage } from './home.ts'
@@ -34,18 +36,16 @@ export type { StoragePage } from './storage.ts'
 export const pages = {
   about: aboutPage,
   add: addPage,
-  brokenDatabase: createSimplePage('brokenDatabase'),
   cloud: cloudPage,
   download: createSimplePage('download'),
   export: exportPage,
   fast: fastPage,
+  fatal: fatalPage,
   feeds: createRedirectPage('feeds', 'add'),
   feedsByCategories: feedsByCategoriesPage,
   home: homePage,
   import: importPage,
   interface: createSimplePage('interface'),
-  notFound: createSimplePage('notFound'),
-  outdated: createSimplePage('outdated'),
   relogin: reloginPage,
   settings: createRedirectPage('settings', 'interface'),
   signUp: signUpPage,

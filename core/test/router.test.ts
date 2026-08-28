@@ -34,7 +34,7 @@ describe('router', () => {
 
   test('opens 404', () => {
     setBaseTestRoute(undefined)
-    deepEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'fatal' })
   })
 
   test('transforms routers for guest', () => {
@@ -49,10 +49,10 @@ describe('router', () => {
     deepEqual(router.get(), { params: {}, popups: [], route: 'signUp' })
 
     setBaseTestRoute(undefined)
-    deepEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'fatal' })
 
-    setBaseTestRoute({ params: {}, route: 'notFound' })
-    deepEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
+    setBaseTestRoute({ params: {}, route: 'fatal' })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'fatal' })
   })
 
   test('transforms routers for users', () => {
@@ -120,7 +120,7 @@ describe('router', () => {
       params: { category: idA, from: '1000k' },
       route: 'fast'
     })
-    deepEqual(router.get(), { params: {}, popups: [], route: 'notFound' })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'fatal' })
   })
 
   test('has helpers for popups', () => {

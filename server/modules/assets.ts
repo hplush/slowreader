@@ -43,11 +43,11 @@ function parseNginxHeaders(conf: string): Record<string, string> {
   return headers
 }
 
-function send(res: ServerResponse, asset: Asset): void {
+function send(res: ServerResponse, asset: Asset, status = 200): void {
   for (let [header, value] of Object.entries(asset.headers)) {
     res.setHeader(header, value)
   }
-  res.writeHead(200, { 'Content-Type': asset.contentType })
+  res.writeHead(status, { 'Content-Type': asset.contentType })
   res.end(asset.data)
 }
 
@@ -74,6 +74,12 @@ export default async (
     headers: nginxHeaders
   }
 
+  let notFoundHtml: Asset = {
+    contentType: 'text/html',
+    data: await readFile(join(assetsDir, '404.html')),
+    headers: nginxHeaders
+  }
+
   let routesData = await readFile(routes)
   let routesRegexp = new RegExp(routesData.toString())
 
@@ -92,7 +98,11 @@ export default async (
     }
 
     if (!CACHE[cacheKey]) {
-      if (!existsSync(path)) return false
+      if (!existsSync(path)) {
+        if (!req.headers.accept?.includes('text/html')) return false
+        send(res, notFoundHtml, 404)
+        return true
+      }
       if (statSync(path).isDirectory()) {
         path = join(path, 'index.html')
       }

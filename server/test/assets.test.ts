@@ -88,7 +88,7 @@ describe('server assets', () => {
     let index1 = await server.fetch('/')
     checkHeaders(index1, {
       'content-security-policy':
-        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-MQAdkik2UpIegx87oj4jDzvVmtZQHZ8UHLkaMPDUYns=' 'sha256-6V2udMXGcrAVUt4WPmtKduau7GKHBV09b7CIdEvxvK4=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'wasm-unsafe-eval' 'self'; require-trusted-types-for 'script'; trusted-types default dompurify slowreader-rich svelte-trusted-html slowreader-parse",
+        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-MQAdkik2UpIegx87oj4jDzvVmtZQHZ8UHLkaMPDUYns=' 'sha256-A+WIF57Zi2pZ+PSfiD5lb/2xvVRTUhW02IK/tX5ZT3s=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'wasm-unsafe-eval' 'self'; require-trusted-types-for 'script'; trusted-types default dompurify slowreader-rich svelte-trusted-html slowreader-parse",
       'content-type': 'text/html',
       ...SECURITY
     })
@@ -97,7 +97,7 @@ describe('server assets', () => {
     let html = await server.fetch('/404.html')
     checkHeaders(html, {
       'content-security-policy':
-        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-MQAdkik2UpIegx87oj4jDzvVmtZQHZ8UHLkaMPDUYns=' 'sha256-6V2udMXGcrAVUt4WPmtKduau7GKHBV09b7CIdEvxvK4=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'wasm-unsafe-eval' 'self'; require-trusted-types-for 'script'; trusted-types default dompurify slowreader-rich svelte-trusted-html slowreader-parse",
+        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-MQAdkik2UpIegx87oj4jDzvVmtZQHZ8UHLkaMPDUYns=' 'sha256-A+WIF57Zi2pZ+PSfiD5lb/2xvVRTUhW02IK/tX5ZT3s=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'wasm-unsafe-eval' 'self'; require-trusted-types-for 'script'; trusted-types default dompurify slowreader-rich svelte-trusted-html slowreader-parse",
       'content-type': 'text/html',
       ...SECURITY
     })
@@ -163,8 +163,17 @@ describe('server assets', () => {
     let post = await server.fetch('/', { method: 'POST' })
     equal(post.status, 404)
 
-    let unknown = await server.fetch('/unknown')
+    let unknown = await server.fetch('/unknown', {
+      headers: { Accept: 'text/html,application/xhtml+xml' }
+    })
     equal(unknown.status, 404)
+    equal(unknown.headers.get('content-type'), 'text/html')
+    match(await unknown.text(), /<404/)
+
+    // Non-browser clients should get the short answer instead of the page
+    let api = await server.fetch('/unknown', { headers: { Accept: '*/*' } })
+    equal(api.status, 404)
+    equal(api.headers.get('content-type'), 'text/plain')
 
     let prohibited1 = await server.fetch('/./db.ts')
     equal(prohibited1.status, 404)
@@ -184,7 +193,6 @@ describe('server assets', () => {
       import.meta.dirname,
       import.meta.filename
     )
-
     let index = await server.fetch('/')
     match(await index.text(), /Logux/)
 

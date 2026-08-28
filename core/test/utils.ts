@@ -14,11 +14,11 @@ import {
   type BaseReader,
   type BaseRoute,
   client,
-  brokenDatabase,
   currentPage,
   enableTestTime,
   encryptionKey,
   type Environment,
+  fatal,
   fastMenu,
   fastPostsCount,
   type FeedReader,
@@ -106,7 +106,7 @@ export async function cleanClientTest(): Promise<void> {
   )
   await client.get()?.clean()
   client.set(undefined)
-  brokenDatabase.set(undefined)
+  fatal.set(undefined)
   setLayoutType('desktop')
 }
 

@@ -5,14 +5,13 @@ import {
   busy,
   client,
   closeLastPopup,
-  comfortMode,
-  errorMode,
   hasPassword,
   onSignOut,
   openedPopups,
   type Route,
   router,
   theme,
+  themeMode,
   useQuietCursor,
   useReducedMotion
 } from '@slowreader/core'
@@ -26,11 +25,6 @@ let root = document.documentElement
 let themeTag = document.querySelector('meta[name="theme-color"]')
 
 function updateTheme(): void {
-  if (errorMode.get()) {
-    themeTag?.setAttribute('content', 'var(--dangerous-text-color)')
-    return
-  }
-
   let background = window
     .getComputedStyle(document.body)
     .getPropertyValue('--theme-color')
@@ -60,13 +54,10 @@ if (main) {
   })
 }
 
-errorMode.subscribe(() => {
-  updateTheme()
-})
-
-comfortMode.subscribe(mode => {
-  root.classList.toggle('is-comfort-mode', mode)
-  root.classList.toggle('is-non-comfort-mode', !mode)
+themeMode.subscribe(mode => {
+  root.classList.toggle('is-comfort-mode', mode !== 'fast')
+  root.classList.toggle('is-non-comfort-mode', mode === 'fast')
+  root.classList.toggle('is-error-mode', mode === 'error')
   updateTheme()
 })
 

@@ -20,7 +20,7 @@ describe('profile page', () => {
     enableClientTest({ server })
     setBaseTestRoute({
       params: {},
-      route: 'notFound'
+      route: 'fatal'
     })
   })
 

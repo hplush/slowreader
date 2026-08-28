@@ -26,28 +26,22 @@ jobs:
           allowed-endpoints: >
             api.github.com:443
             github.com:443
-            ghcr.io:443
-      - name: Clean slowreader-web
-        uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
-        with:
-          package: slowreader-web
-          owner: hplush
-          delete-untagged: true
-          older-than: 1 week
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Clean slowreader
-        uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
-        with:
-          package: slowreader
-          owner: hplush
-          delete-untagged: true
-          older-than: 1 week
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Clean slowreader-proxy
-        uses: dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f # v1.2.2
-        with:
-          package: slowreader-proxy
-          owner: hplush
-          delete-untagged: true
-          older-than: 1 week
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Delete untagged images older than a week
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          WEEK_AGO=$(date -u -d '7 days ago' +%Y-%m-%dT%H:%M:%SZ)
+          for PACKAGE in slowreader slowreader-web slowreader-proxy; do
+            VERSIONS="orgs/hplush/packages/container/$PACKAGE/versions"
+            # We push single-platform images without buildx attestations,
+            # so untagged versions are only the images replaced by a new push
+            OLD=$(gh api --paginate "$VERSIONS?per_page=100" \
+              | jq -r --arg date "$WEEK_AGO" \
+                '.[] | select(.metadata.container.tags == [] and
+                  .updated_at < $date) | .id')
+            for ID in $OLD; do
+              echo "Deleting $PACKAGE version $ID"
+              gh api -X DELETE "$VERSIONS/$ID" --silent
+            done
+          done

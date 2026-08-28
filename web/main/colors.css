@@ -48,6 +48,11 @@
   --colorize-c: 0;
 }
 
+/* The fatal page takes the reading colors and moves them to the danger hue */
+.is-error-mode {
+  --accent-color: oklch(0.55 0.2 20);
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     --selection-color: oklch(0.93 0.16 102);
@@ -113,6 +118,13 @@
     --current-c: -0.015;
     --opened-feed-c: -0.03;
     --placeholder-c: 0.04;
+  }
+
+  /* Don’t forget to change public/404.html and public/500.html */
+  .is-error-mode {
+    --land-color: oklch(0.95 0.03 20);
+    --main-land-color: oklch(0.975 0.015 20);
+    --secondary-text-color: oklch(0.6 0.05 20);
   }
 }
 
@@ -181,5 +193,12 @@
     --current-c: 0.02;
     --opened-feed-c: 0.02;
     --placeholder-c: 0.03;
+  }
+
+  /* Don’t forget to change public/404.html and public/500.html */
+  .is-error-mode {
+    --land-color: oklch(0.25 0.03 20);
+    --main-land-color: oklch(0.3 0.03 20);
+    --secondary-text-color: oklch(0.7 0.05 20);
   }
 }

@@ -1,7 +1,7 @@
 import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
-import { comfortMode, errorMode, GENERAL_CATEGORY } from '../index.ts'
+import { fatal, GENERAL_CATEGORY, themeMode } from '../index.ts'
 import {
   cleanClientTest,
   enableClientTest,
@@ -21,25 +21,25 @@ describe('modes', () => {
   test('has routes groups', () => {
     setTestUser(false)
     setBaseTestRoute({ params: {}, route: 'home' })
-    equal(comfortMode.get(), true)
-    equal(errorMode.get(), false)
+    equal(themeMode.get(), 'comfort')
 
     setTestUser()
 
     setBaseTestRoute({ params: {}, route: 'slow' })
-    equal(comfortMode.get(), true)
-    equal(errorMode.get(), false)
+    equal(themeMode.get(), 'comfort')
 
     setBaseTestRoute({ params: { category: GENERAL_CATEGORY }, route: 'fast' })
-    equal(comfortMode.get(), false)
-    equal(errorMode.get(), false)
+    equal(themeMode.get(), 'fast')
 
-    setBaseTestRoute({ params: {}, route: 'notFound' })
-    equal(comfortMode.get(), false)
-    equal(errorMode.get(), true)
+    setBaseTestRoute({ params: {}, route: 'fatal' })
+    equal(themeMode.get(), 'error')
 
     setBaseTestRoute({ params: {}, route: 'cloud' })
-    equal(comfortMode.get(), true)
-    equal(errorMode.get(), false)
+    equal(themeMode.get(), 'comfort')
+
+    // The error can break the app on any page
+    fatal.set({ type: 'outdated' })
+    equal(themeMode.get(), 'error')
+    fatal.set(undefined)
   })
 })

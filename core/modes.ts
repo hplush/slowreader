@@ -1,19 +1,26 @@
 import { computed } from 'nanostores'
 
-import { type RouteName, router } from './router.ts'
-
-const FAST = new Set<RouteName>(['fast', 'notFound'])
+import { fatal } from './errors.ts'
+import { router } from './router.ts'
 
 /**
- * Do we need to use yellow-ish “better to eyes” theme.
+ * Colors of the app’s background:
  *
- * We are using other white theme on fast pages to force people read them
- * more rare.
+ * - `comfort`: yellow-ish “better to eyes” theme for the reading.
+ * - `fast`: theme on fast pages to force people read them more rare.
+ * - `error`: dangerous hue.
  */
-export const comfortMode = computed(router, route => {
-  return !FAST.has(route.route)
-})
+export type ThemeMode = 'comfort' | 'error' | 'fast'
 
-export const errorMode = computed(router, route => {
-  return route.route === 'notFound'
-})
+export const themeMode = computed(
+  [router, fatal],
+  (route, error): ThemeMode => {
+    if (error || route.route === 'fatal') {
+      return 'error'
+    } else if (route.route === 'fast') {
+      return 'fast'
+    } else {
+      return 'comfort'
+    }
+  }
+)
