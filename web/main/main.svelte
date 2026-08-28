@@ -3,7 +3,6 @@
     busy,
     currentPage,
     layoutType,
-    notFound,
     popupsStatus,
     signOut,
     subscribeUntil,
@@ -12,17 +11,15 @@
 
   import AboutPage from '../pages/about.svelte'
   import AddPage from '../pages/add.svelte'
-  import BrokenDatabasePage from '../pages/broken-database.svelte'
   import BusyPage from '../pages/busy.svelte'
   import CloudPage from '../pages/cloud.svelte'
   import DownloadPage from '../pages/download.svelte'
   import ExportPage from '../pages/export.svelte'
+  import FatalPage from '../pages/fatal.svelte'
   import FeedByCategoriesPage from '../pages/feeds-by-categories.svelte'
   import FeedsPage from '../pages/feeds/index.svelte'
   import ImportPage from '../pages/import.svelte'
   import InterfacePage from '../pages/interface.svelte'
-  import NotFoundPage from '../pages/not-found.svelte'
-  import OutdatedPage from '../pages/outdated.svelte'
   import ReloginPage from '../pages/relogin.svelte'
   import SignupPage from '../pages/sign-up.svelte'
   import StartPage from '../pages/start.svelte'
@@ -60,20 +57,14 @@
   let popupOther = $derived($popupsStatus.other)
 </script>
 
-{#if $notFound}
-  <NotFoundPage />
+{#if $currentPage.route === 'fatal'}
+  <FatalPage page={$currentPage} />
 {:else if showBusy || $pageLoading}
   {#if !globalLoader}
     <BusyPage />
   {/if}
-{:else if $currentPage.route === 'brokenDatabase'}
-  <BrokenDatabasePage />
-{:else if $currentPage.route === 'outdated'}
-  <OutdatedPage />
 {:else if $currentPage.route === 'relogin'}
   <ReloginPage page={$currentPage} />
-{:else if $currentPage.route === 'notFound'}
-  <NotFoundPage />
 {:else if $currentPage.route === 'fast'}
   <FeedsPage page={$currentPage} />
 {:else if $currentPage.route === 'slow'}

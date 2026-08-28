@@ -154,7 +154,7 @@
 </Story>
 
 <Story name="Light Fast" asChild>
-  <Scene route="notFound">
+  <Scene route="fatal">
     <Section width={700}>
       <FormattedText html={headingsWithParagraphs} {url} />
     </Section>
@@ -232,7 +232,7 @@
   asChild
   parameters={{ themes: { themeOverride: 'dark' } }}
 >
-  <Scene route="notFound">
+  <Scene route="fatal">
     <Section width={700}>
       <FormattedText html={headingsWithParagraphs} {url} />
     </Section>

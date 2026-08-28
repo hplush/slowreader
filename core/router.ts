@@ -1,13 +1,12 @@
 import { atom, computed, effect, type ReadableAtom } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
-import { NotFoundError } from './errors.ts'
+import { type Fatal, fatal, NotFoundError } from './errors.ts'
 import { userId } from './settings.ts'
 
 export interface Routes {
   about: {}
   add: { url?: string }
-  brokenDatabase: {}
   cloud: {}
   download: {}
   export: {}
@@ -16,12 +15,11 @@ export interface Routes {
     from?: string
   }
   feeds: {}
+  fatal: { reason?: Fatal['type'] }
   feedsByCategories: {}
   home: {}
   import: {}
   interface: {}
-  notFound: {}
-  outdated: {}
   relogin: {}
   settings: {}
   signUp: {}
@@ -102,7 +100,7 @@ export type OtherName =
 
 const GUEST = new Set<RouteName>(['start'])
 
-const BOTH = new Set<RouteName>(['notFound', 'signUp'])
+const BOTH = new Set<RouteName>(['fatal', 'signUp'])
 
 const FEEDS = new Set<RouteName>(FEED_ROUTES)
 
@@ -121,6 +119,23 @@ function validateFrom(value: number | string | undefined): string | undefined {
     return value
   } else if (/^\d+(:.*)?$/.test(`${value}`)) {
     return `${value}`
+  } else {
+    throw new NotFoundError()
+  }
+}
+
+/**
+ * The URL is the only way to open the errors, which are hard to reproduce,
+ * to check their design.
+ */
+function validateReason(value: string | undefined): Fatal['type'] | undefined {
+  if (
+    typeof value === 'undefined' ||
+    value === 'brokenDatabase' ||
+    value === 'notFound' ||
+    value === 'outdated'
+  ) {
+    return value
   } else {
     throw new NotFoundError()
   }
@@ -156,11 +171,17 @@ onEnvironment(({ baseRouter }) => {
     let nextRoute: Route
     try {
       if (!route) {
-        nextRoute = open('notFound')
+        nextRoute = open('fatal')
       } else if (!user && !GUEST.has(route.route) && !BOTH.has(route.route)) {
         nextRoute = open('start')
       } else if (user && GUEST.has(route.route)) {
         nextRoute = redirect(open('home'))
+      } else if (route.route === 'fatal') {
+        nextRoute = {
+          params: { reason: validateReason(route.params.reason) },
+          popups,
+          route: route.route
+        }
       } else if (route.route === 'fast' || route.route === 'slow') {
         nextRoute = {
           params: {
@@ -175,13 +196,15 @@ onEnvironment(({ baseRouter }) => {
       }
     } catch (e) {
       if (e instanceof NotFoundError) {
-        nextRoute = open('notFound')
+        nextRoute = open('fatal')
       } else {
         throw e
       }
     }
     if (JSON.stringify(router.get()) !== JSON.stringify(nextRoute)) {
       router.set(nextRoute)
+      // The not found error was about the previous page
+      if (fatal.get()?.type === 'notFound') fatal.set(undefined)
     }
   })
 })

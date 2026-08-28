@@ -15,7 +15,7 @@ describe('about page', () => {
     enableClientTest()
     setBaseTestRoute({
       params: {},
-      route: 'notFound'
+      route: 'fatal'
     })
   })
 

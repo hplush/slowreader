@@ -1,8 +1,8 @@
 import { LoguxUndoError } from '@logux/client'
-import { equal } from 'node:assert/strict'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, describe, test } from 'node:test'
 
-import { notFound, NotFoundError } from '../errors.ts'
+import { fatal, NotFoundError } from '../errors.ts'
 import { cleanClientTest, enableClientTest, setBaseTestRoute } from './utils.ts'
 
 describe('errors', () => {
@@ -24,7 +24,7 @@ describe('errors', () => {
       params: { feed: 'unknown' },
       route: 'feedsByCategories'
     })
-    equal(notFound.get(), false)
+    equal(fatal.get(), undefined)
 
     listener!({
       reason: new LoguxUndoError({
@@ -34,17 +34,17 @@ describe('errors', () => {
         type: 'logux/undo'
       })
     })
-    equal(notFound.get(), true)
+    deepEqual(fatal.get(), { type: 'notFound' })
 
     setBaseTestRoute({
       params: { feed: 'another' },
       route: 'feedsByCategories'
     })
-    equal(notFound.get(), false)
+    equal(fatal.get(), undefined)
 
     listener!({
       reason: new NotFoundError()
     })
-    equal(notFound.get(), true)
+    deepEqual(fatal.get(), { type: 'notFound' })
   })
 })

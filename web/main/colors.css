@@ -42,10 +42,16 @@
 }
 
 .is-comfort-mode {
+  --land-h: 70;
   --flat-button-c: 0.015;
   --flat-button-hover-c: 0.005;
   --gutter-c: 0.02;
   --colorize-c: 0;
+}
+
+/* The fatal page takes the reading colors and moves them to the danger */
+.is-error-mode {
+  --land-h: var(--dangerous-h);
 }
 
 @media (prefers-color-scheme: light) {
@@ -106,9 +112,9 @@
 
   .is-comfort-mode {
     /* Don’t forget to change index.html and public/manifest.webmanifest */
-    --land-color: oklch(0.95 0.03 70);
-    --main-land-color: oklch(0.975 0.015 70);
-    --secondary-text-color: oklch(0.6 0.05 70);
+    --land-color: oklch(0.95 0.03 var(--land-h));
+    --main-land-color: oklch(0.975 0.015 var(--land-h));
+    --secondary-text-color: oklch(0.6 0.05 var(--land-h));
     --field-c: -0.015;
     --current-c: -0.015;
     --opened-feed-c: -0.03;
@@ -175,9 +181,9 @@
   }
 
   .is-comfort-mode {
-    --land-color: oklch(0.25 0.03 70);
-    --main-land-color: oklch(0.3 0.03 70);
-    --secondary-text-color: oklch(0.7 0.05 70);
+    --land-color: oklch(0.25 0.03 var(--land-h));
+    --main-land-color: oklch(0.3 0.03 var(--land-h));
+    --secondary-text-color: oklch(0.7 0.05 var(--land-h));
     --current-c: 0.02;
     --opened-feed-c: 0.02;
     --placeholder-c: 0.03;

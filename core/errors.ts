@@ -3,7 +3,17 @@ import { atom } from 'nanostores'
 
 import { onEnvironment } from './environment.ts'
 import { commonMessages } from './messages/index.ts'
-import { router } from './router.ts'
+
+/**
+ * The app can not work until the user will fix the problem, so the fatal
+ * page replaces the current route.
+ */
+export type Fatal =
+  | { error: string | undefined; type: 'brokenDatabase' }
+  | { type: 'notFound' }
+  | { type: 'outdated' }
+
+export const fatal = atom<Fatal | undefined>()
 
 /**
  * Errors to render in client UI.
@@ -137,8 +147,6 @@ export function errorToMessage(error: unknown): string {
   }
 }
 
-export const notFound = atom(false)
-
 /* node:coverage disable */
 export function isNotFoundError(
   error: unknown
@@ -156,12 +164,7 @@ export function isNotFoundError(
 onEnvironment(({ errorEvents }) => {
   errorEvents.addEventListener('unhandledrejection', event => {
     if (isNotFoundError(event.reason)) {
-      notFound.set(true)
+      fatal.set({ type: 'notFound' })
     }
-
-    let unbindRouter = router.listen(() => {
-      notFound.set(false)
-      unbindRouter()
-    })
   })
 })

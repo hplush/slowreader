@@ -30,13 +30,9 @@ import type { Database, SqlParam } from '@nanostores/sql'
 import { atom, effect } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
-import {
-  database,
-  isOutdatedClient,
-  onClient,
-  resetDatabase
-} from './client.ts'
+import { database, onClient, resetDatabase } from './client.ts'
 import { getEnvironment } from './environment.ts'
+import { fatal } from './errors.ts'
 import { subscribeUntil } from './lib/stores.ts'
 import type { LoaderName } from './loader/index.ts'
 import { type LogTracker, trackLog } from './log.ts'
@@ -424,7 +420,7 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
     void busyDuring(commonMessages.get().migratingDatabase, () => done, true)
   })
   crdt.on('stop', () => {
-    isOutdatedClient.set(true)
+    fatal.set({ type: 'outdated' })
   })
   crdt.on('corrupted', (reason, error) => {
     if (error) getEnvironment().warn(error)

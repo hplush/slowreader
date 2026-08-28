@@ -3,10 +3,10 @@ import { COMMON_ERRORS, type Requester } from '@slowreader/api'
 import { getEnvironment } from '../environment.ts'
 import {
   detectNetworkError,
+  fatal,
   HTTPStatusError,
   UserFacingError
 } from '../errors.ts'
-import { isOutdatedClient } from '../index.ts'
 
 /**
  * Takes fetch() wrapper from `@slowreader/api/http` and do the request
@@ -33,7 +33,7 @@ export async function checkErrors<Params extends object, ResponseJSON>(
     let text = await response.text()
     if (response.status === 400 && text !== 'Invalid request') {
       if (text === COMMON_ERRORS.OUTDATED_CLIENT) {
-        isOutdatedClient.set(true)
+        fatal.set({ type: 'outdated' })
       }
       throw new UserFacingError(text)
     } else {

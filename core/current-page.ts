@@ -1,7 +1,8 @@
 import { computed, type ReadableAtom, type WritableStore } from 'nanostores'
 
-import { brokenDatabase, isOutdatedClient, syncStatus } from './client.ts'
+import { syncStatus } from './client.ts'
 import { getEnvironment } from './environment.ts'
+import { fatal } from './errors.ts'
 import { type Page, pages } from './pages/index.ts'
 import { type Route, type RouteName, router } from './router.ts'
 
@@ -50,13 +51,11 @@ let prevPage: Page<RouteName> | undefined
 let unbinds: (() => void)[] = []
 
 export const currentPage: ReadableAtom<Page<RouteName>> = computed(
-  [router, syncStatus, isOutdatedClient, brokenDatabase],
-  (route, sync, outdated, broken) => {
+  [router, syncStatus, fatal],
+  (route, sync, fatalError) => {
     let override: RouteName | undefined
-    if (broken) {
-      override = 'brokenDatabase'
-    } else if (outdated) {
-      override = 'outdated'
+    if (fatalError) {
+      override = 'fatal'
     } else if (sync === 'wrongCredentials') {
       override = 'relogin'
     }

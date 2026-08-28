@@ -14,6 +14,7 @@ import { atom, computed, effect, onMount } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
 import { getEnvironment, onEnvironment } from './environment.ts'
+import { fatal } from './errors.ts'
 import { commonMessages } from './messages/index.ts'
 import {
   type DatabaseFailure,
@@ -69,10 +70,6 @@ export const client = atom<CrossTabClient | undefined>()
  */
 export const database = atom<Database | undefined>()
 
-export const isOutdatedClient = atom<boolean>(false)
-
-export const brokenDatabase = atom<DatabaseFailure | undefined>()
-
 /**
  * Drop the local database and download the whole log from the server again.
  *
@@ -96,7 +93,7 @@ export async function resetDatabase(
     previous.reason === reason &&
     failure.at.getTime() - previous.at.getTime() < 10 * 60 * 1000
   ) {
-    brokenDatabase.set(failure)
+    fatal.set({ error: failure.error, type: 'brokenDatabase' })
     return
   }
 
@@ -153,7 +150,7 @@ onEnvironment(({ databaseCreator }) => {
       /* node:coverage disable */
       logux.node.catch(error => {
         if (error.type === 'wrong-subprotocol') {
-          isOutdatedClient.set(true)
+          fatal.set({ type: 'outdated' })
         }
         getEnvironment().warn(error)
       })

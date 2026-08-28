@@ -2,10 +2,10 @@
   import { mdiChevronLeft, mdiClose } from '@mdi/js'
   import {
     closeLastPopup,
-    comfortMode,
     type FeedValue,
     layoutType,
-    commonMessages as t
+    commonMessages as t,
+    themeMode
   } from '@slowreader/core'
   import type { Snippet } from 'svelte'
   import { onMount } from 'svelte'
@@ -57,8 +57,9 @@
 >
   <header
     class="popup_header"
-    class:is-comfort-mode={$layoutType !== 'desktop' && $comfortMode}
-    class:is-non-comfort-mode={$layoutType !== 'desktop' && !$comfortMode}
+    class:is-comfort-mode={$layoutType !== 'desktop' && $themeMode !== 'fast'}
+    class:is-non-comfort-mode={$layoutType !== 'desktop' &&
+      $themeMode === 'fast'}
   >
     <div class="popup_center">
       <div class="popup_other">

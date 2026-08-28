@@ -5,18 +5,27 @@
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="oklch(0.55 0.16 20)" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="oklch(0.95 0.03 20)"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="oklch(0.25 0.03 20)"
+    />
     <title>404 › Slow Reader</title>
     <style>
       :root {
         color-scheme: light dark;
         height: 100%;
         @media (prefers-color-scheme: light) {
-          background: oklch(0.95 0 70);
+          background: oklch(0.95 0.03 20);
           color: oklch(0.3 0 0);
         }
         @media (prefers-color-scheme: dark) {
-          background: oklch(0.25 0 70);
+          background: oklch(0.25 0.03 20);
           color: oklch(0.9 0 0);
         }
       }
@@ -35,12 +44,10 @@
       }
       a {
         padding: 8px 16px;
+        margin-top: 16px;
         color: currentColor;
         text-decoration: none;
         border-radius: 8px;
-        position: absolute;
-        top: 16px;
-        left: 16px;
         &:hover {
           background: rgba(253 250 247 / 0.4);
 
@@ -75,14 +82,6 @@
     </style>
   </head>
   <body>
-    <a href="/">
-      <svg viewBox="0 0 24 24" class="back">
-        <path
-          d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"
-        />
-      </svg>
-      Home
-    </a>
     <div class="image">
       <svg viewBox="0 0 24 24" class="fire">
         <path
@@ -96,5 +95,13 @@
       </svg>
     </div>
     <h1>Page wasn’t found</h1>
+    <a href="/">
+      <svg viewBox="0 0 24 24" class="back">
+        <path
+          d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"
+        />
+      </svg>
+      Home
+    </a>
   </body>
 </html>
