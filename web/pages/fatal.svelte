@@ -79,7 +79,7 @@
           href={getURL('home')}
           icon={mdiArrowLeft}
           size="big"
-          variant="main"
+          variant="secondary"
         >
           {$t.home}
         </Button>
