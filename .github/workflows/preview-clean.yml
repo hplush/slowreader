@@ -36,17 +36,19 @@ jobs:
           github-token: ${{ secrets.PREVIEW_ARTIFACT_PAT }}
           path: ./untrusted/
       - name: Extract PR number
+        id: pr
         run: |
           PR_NUMBER=$(cat ./untrusted/preview-id)
           if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
             echo "Invalid preview-id: $PR_NUMBER"
             exit 1
           fi
-          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+          echo "number=$PR_NUMBER" >> $GITHUB_OUTPUT
       - name: Disable deploy at GitHub
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.PREVIEW_DEPLOYMENT_PAT }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
         run: |
           API="repos/$GITHUB_REPOSITORY"
           ENVIRONMENT="preview-$PR_NUMBER"
@@ -60,6 +62,8 @@ jobs:
           gh api -X DELETE "$API/environments/$ENVIRONMENT"
       - name: Clean the preview
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
         with:
           script: |
             let token = await core.getIDToken('https://api.cloud.hplush.dev')
@@ -75,5 +79,5 @@ jobs:
         with:
           package: slowreader
           owner: hplush
-          delete-tags: preview-${{ env.PR_NUMBER }}
+          delete-tags: preview-${{ steps.pr.outputs.number }}
           token: ${{ secrets.GITHUB_TOKEN }}

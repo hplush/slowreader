@@ -39,13 +39,14 @@ jobs:
           github-token: ${{ secrets.PREVIEW_ARTIFACT_PAT }}
           path: ./untrusted/
       - name: Extract PR number
+        id: pr
         run: |
           PR_NUMBER=$(cat ./untrusted/preview-id)
           if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
             echo "Invalid preview-id: $PR_NUMBER"
             exit 1
           fi
-          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+          echo "number=$PR_NUMBER" >> $GITHUB_OUTPUT
       - name: Check preview label
         run: |
           LABELS=$(gh pr view "$PR_NUMBER" \
@@ -57,10 +58,12 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
       - name: Notify about new deployment
         id: deployment
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
           REF: ${{ github.event.workflow_run.head_commit.id }}
         run: |
           DEPLOY=$(jq -n --arg ref "$REF" \
@@ -91,8 +94,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push Docker image
         run: docker push ghcr.io/hplush/slowreader:preview-$PR_NUMBER
+        env:
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
       - name: Deploy the preview
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
         with:
           script: |
             let token = await core.getIDToken('https://api.cloud.hplush.dev')
@@ -109,6 +116,7 @@ jobs:
           DEPLOYMENT_ID: ${{ steps.deployment.outputs.id }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JOB_STATUS: ${{ job.status }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
         run: |
           if [ "$JOB_STATUS" = 'success' ]; then
             STATE='success'
