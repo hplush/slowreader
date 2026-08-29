@@ -1,77 +1,56 @@
 <script lang="ts">
-  import { mdiFireplace } from '@mdi/js'
+  import { parseDocument } from '@slowreader/core'
 
-  import Icon from '../icon.svelte'
+  import icon from '../../public/icon.svg?raw'
 </script>
 
-<div class="navbar-fireplace">
-  <Icon compensate={1} path={mdiFireplace} />
-  <div class="navbar-fireplace_fire is-main">
-    <Icon compensate={1} path={mdiFireplace} />
-  </div>
-  <div class="navbar-fireplace_fire is-second">
-    <Icon compensate={1} path={mdiFireplace} />
-  </div>
-</div>
+<span
+  class="navbar-fireplace"
+  {@attach node => {
+    node.replaceChildren(parseDocument(icon, 'image/svg+xml').documentElement)
+  }}
+  aria-hidden="true"
+></span>
 
 <style>
   :global {
     .navbar-fireplace {
-      position: relative;
+      display: flex;
+
+      & > svg {
+        width: var(--icon-size);
+        height: var(--icon-size);
+      }
     }
 
-    .navbar-fireplace_fire {
-      --icon-move: -0.5rem -0.3125rem;
-
-      position: absolute;
-      inset-inline-start: 0.3125rem;
-      top: 0.5rem;
-      width: 0.375rem;
-      height: 0.375rem;
-      overflow: hidden;
-      color: var(--fire1-color);
+    :is(a:hover, a:focus-visible) .navbar-fireplace path:nth-of-type(n + 2) {
       transform-origin: 50% 100%;
+      animation:
+        --navbar-fireplace-flame 2s infinite ease-in-out,
+        --navbar-fireplace-flare 1.3s infinite ease-in-out;
     }
 
-    a:hover .navbar-fireplace_fire.is-main,
-    a:focus-visible .navbar-fireplace_fire.is-main {
-      z-index: 2;
-      animation: --navbar-fireplace-rotating 2s infinite ease-in-out;
+    :is(a:hover, a:focus-visible) .navbar-fireplace path:nth-of-type(3) {
+      animation-duration: 1.4s, 1.1s;
     }
 
-    a:hover .navbar-fireplace_fire.is-second,
-    a:focus-visible .navbar-fireplace_fire.is-second {
-      z-index: 1;
-      color: var(--fire2-color);
-      animation: --navbar-fireplace-rotating 3s infinite ease-in-out 0.5s;
+    :is(a:hover, a:focus-visible) .navbar-fireplace path:nth-of-type(5) {
+      animation-duration: 1s, 0.7s;
     }
 
-    a:hover .navbar-fireplace::after,
-    a:focus-visible .navbar-fireplace::after {
-      position: absolute;
-      inset-inline-start: 0.3125rem;
-      top: 0.5313rem;
-      width: 0.375rem;
-      height: 0.3438rem;
-      content: '';
-      background: var(--hover-color);
-    }
-
-    @keyframes --navbar-fireplace-rotating {
-      25% {
-        rotate: 20deg;
+    @keyframes --navbar-fireplace-flame {
+      33% {
+        rotate: 8deg;
       }
 
+      66% {
+        rotate: -8deg;
+      }
+    }
+
+    @keyframes --navbar-fireplace-flare {
       50% {
-        rotate: 0;
-      }
-
-      75% {
-        rotate: -20deg;
-      }
-
-      100% {
-        rotate: 0;
+        scale: 1 1.12;
       }
     }
   }
