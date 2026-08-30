@@ -42,7 +42,10 @@ describe('post popup', () => {
     let id1 = await addPost(testPost({ feedId: feed }))
     let id2 = await addPost(testPost({ feedId: feed, publishedAt: undefined }))
 
-    let popup1 = openTestPopup('post', getPostPopupParam({ id: id1 }))
+    let popup1 = openTestPopup(
+      'post',
+      getPostPopupParam({ feedId: feed, id: id1 })
+    )
     equal(openedPopups.get().length, 1)
     equal(openedPopups.get()[0], popup1)
     equal(popup1.name, 'post')
@@ -54,7 +57,10 @@ describe('post popup', () => {
     equal(checkLoadedPopup(popup1).feed!.get().id, feed)
     equal(checkLoadedPopup(popup1).read, undefined)
 
-    let popup2 = openTestPopup('post', getPostPopupParam({ id: id1 }))
+    let popup2 = openTestPopup(
+      'post',
+      getPostPopupParam({ feedId: feed, id: id1 })
+    )
     equal(openedPopups.get().length, 2)
     equal(popup1.loading.get(), false)
     equal(popup2.loading.get(), true)
@@ -65,8 +71,8 @@ describe('post popup', () => {
 
     setBaseTestRoute({
       hash:
-        `post=${getPostPopupParam({ id: id2 })},` +
-        `post=${getPostPopupParam({ id: id1 })}`,
+        `post=${getPostPopupParam({ feedId: feed, id: id2 })},` +
+        `post=${getPostPopupParam({ feedId: feed, id: id1 })}`,
       params: {},
       route: 'fast'
     })
@@ -97,7 +103,10 @@ describe('post popup', () => {
     let id1 = await addPost(testPost({ feedId: feed }))
     let id2 = await addPost(testPost({ feedId: feed }))
 
-    let popup = openTestPopup('post', getPostPopupParam({ id: id1 }, true))
+    let popup = openTestPopup(
+      'post',
+      getPostPopupParam({ feedId: feed, id: id1 }, true)
+    )
     await waitLoading(popup.loading)
     equal((await loadPost(id1))!.read, 0)
     equal((await loadPost(id2))!.read, 0)
@@ -114,7 +123,7 @@ describe('post popup', () => {
   })
 
   test('opens candidate post', async () => {
-    let post: OriginPost = { originId: 'id', title: 'test' }
+    let post: OriginPost = { id: 'post', originId: 'id', title: 'test' }
     let data = getPostPopupParam(post)
 
     let popup = openTestPopup('post', data)

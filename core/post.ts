@@ -20,7 +20,7 @@ import {
 
 export type { NewPost, PostValue }
 
-export type OriginPost = {
+export type ParsedPost = {
   full?: string
   intro?: string
   media?: string
@@ -29,6 +29,8 @@ export type OriginPost = {
   title?: string
   url?: string
 }
+
+export type OriginPost = { id: string } & ParsedPost
 
 /**
  * Post’s text from a feed or from the database. Database returns `null`

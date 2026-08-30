@@ -1,6 +1,7 @@
+import { nanoid } from 'nanoid'
 import { map, type ReadableAtom, type StoreValue } from 'nanostores'
 
-import type { OriginPost } from './post.ts'
+import type { OriginPost, ParsedPost } from './post.ts'
 
 export interface PostsListValue {
   error: Error | undefined
@@ -14,7 +15,7 @@ export type PostsList = {
   next(): Promise<OriginPost[]>
 } & ReadableAtom<PostsListValue>
 
-export type PostsListResult = [OriginPost[], PostsListLoader | undefined]
+export type PostsListResult = [ParsedPost[], PostsListLoader | undefined]
 
 export interface PostsListLoader {
   (): Promise<PostsListResult>
@@ -22,6 +23,10 @@ export interface PostsListLoader {
 
 export interface PostsListSyncLoader {
   (): PostsListResult
+}
+
+function addIds(posts: ParsedPost[]): OriginPost[] {
+  return posts.map(post => ({ ...post, id: nanoid() }))
 }
 
 /**
@@ -47,14 +52,15 @@ export function createPostsList(
   function handleLoading(promise: Promise<PostsListResult>): void {
     $store.loading = promise
       .then(([nextPosts, nextLoader]) => {
+        let posts = addIds(nextPosts)
         loadNext = nextLoader
         $store.set({
           error: undefined,
           hasNext: !!nextLoader,
           isLoading: false,
-          list: nextPosts
+          list: posts
         })
-        return nextPosts
+        return posts
       })
       .catch((e: unknown) => {
         if (e instanceof Error) {
@@ -80,7 +86,7 @@ export function createPostsList(
           error: undefined,
           hasNext: !!loadNext,
           isLoading: false,
-          list: result[0]
+          list: addIds(result[0])
         })
       }
       /* node:coverage ignore next 3 */

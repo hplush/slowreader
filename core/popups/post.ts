@@ -19,10 +19,10 @@ import {
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
 export function getPostPopupParam(
-  post: { id: string } | OriginPost,
+  post: { feedId: string; id: string } | OriginPost,
   autoread = false
 ): string {
-  if ('id' in post) {
+  if ('feedId' in post) {
     if (autoread) {
       return `read:${post.id}`
     } else {

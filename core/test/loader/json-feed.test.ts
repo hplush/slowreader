@@ -17,7 +17,8 @@ import {
   expectNotMine,
   expectRequest,
   getTestEnvironment,
-  mockRequest
+  mockRequest,
+  postsValue
 } from '../utils.ts'
 
 describe('json feed loader', () => {
@@ -253,8 +254,8 @@ describe('json feed loader', () => {
   test('validate json feed format', () => {
     let task = createDownloadTask()
     deepEqual(
-      loaders.jsonFeed
-        .getPosts(
+      postsValue(
+        loaders.jsonFeed.getPosts(
           task,
           'https://example.com/',
           exampleJson({
@@ -281,7 +282,7 @@ describe('json feed loader', () => {
             version: 'https://jsonfeed.org/version/1.1'
           })
         )
-        .get(),
+      ),
       {
         error: undefined,
         hasNext: false,
@@ -340,7 +341,7 @@ describe('json feed loader', () => {
 
     let task = createDownloadTask()
     let page = loaders.jsonFeed.getPosts(task, 'https://example.com/')
-    deepEqual(page.get(), {
+    deepEqual(postsValue(page), {
       error: undefined,
       hasNext: true,
       isLoading: true,
@@ -348,7 +349,7 @@ describe('json feed loader', () => {
     })
 
     await page.loading
-    deepEqual(page.get(), {
+    deepEqual(postsValue(page), {
       error: undefined,
       hasNext: false,
       isLoading: false,
@@ -446,8 +447,8 @@ describe('json feed loader', () => {
     }
 
     deepEqual(
-      loaders.jsonFeed
-        .getPosts(
+      postsValue(
+        loaders.jsonFeed.getPosts(
           task,
           'https://example.com/',
           exampleJson({
@@ -462,7 +463,7 @@ describe('json feed loader', () => {
             version: 'https://jsonfeed.org/version/1.1'
           })
         )
-        .get(),
+      ),
       {
         error: undefined,
         hasNext: false,
@@ -532,7 +533,7 @@ describe('json feed loader', () => {
 
     let task = createDownloadTask()
     let page = loaders.jsonFeed.getPosts(task, 'https://example.com/')
-    deepEqual(page.get(), {
+    deepEqual(postsValue(page), {
       error: undefined,
       hasNext: true,
       isLoading: true,
@@ -540,7 +541,7 @@ describe('json feed loader', () => {
     })
 
     await page.loading
-    deepEqual(page.get(), {
+    deepEqual(postsValue(page), {
       error: undefined,
       hasNext: false,
       isLoading: false,

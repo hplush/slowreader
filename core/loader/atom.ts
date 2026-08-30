@@ -3,7 +3,7 @@ import {
   type DownloadTask,
   type TextResponse
 } from '../lib/download.ts'
-import { type OriginPost, type PostMedia, stringifyMedia } from '../post.ts'
+import { type ParsedPost, type PostMedia, stringifyMedia } from '../post.ts'
 import { createPostsList, type PostsListResult } from '../posts-list.ts'
 import {
   buildFullURL,
@@ -72,7 +72,7 @@ function parsePostSources(text: TextResponse): Element[] {
   )
 }
 
-function parsePosts(text: TextResponse): OriginPost[] {
+function parsePosts(text: TextResponse): ParsedPost[] {
   return parsePostSources(text).map(entry => {
     let content = entry.querySelector('content')
 

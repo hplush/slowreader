@@ -1,6 +1,6 @@
 import { ParseError } from '../errors.ts'
 import { createDownloadTask, type TextResponse } from '../lib/download.ts'
-import { type OriginPost, type PostMedia, stringifyMedia } from '../post.ts'
+import { type ParsedPost, type PostMedia, stringifyMedia } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import {
   fetchIfModified,
@@ -102,7 +102,7 @@ function parsePostSources(text: TextResponse): JsonFeedItem[] {
   return parsedJson.items
 }
 
-function parsePosts(text: TextResponse): OriginPost[] {
+function parsePosts(text: TextResponse): ParsedPost[] {
   return parsePostSources(text).map(item => {
     let full = (item.content_html || item.content_text) ?? undefined
 

@@ -20,7 +20,8 @@ import {
   expectRequest,
   expectWarning,
   getTestEnvironment,
-  mockRequest
+  mockRequest,
+  postsValue
 } from '../utils.ts'
 
 describe('atom loader', () => {
@@ -324,8 +325,8 @@ describe('atom loader', () => {
   test('parses posts', () => {
     let task = createDownloadTask()
     deepEqual(
-      loaders.atom
-        .getPosts(
+      postsValue(
+        loaders.atom.getPosts(
           task,
           'https://example.com/news/',
           exampleAtom(
@@ -363,7 +364,7 @@ describe('atom loader', () => {
           </feed>`
           )
         )
-        .get(),
+      ),
       {
         error: undefined,
         hasNext: false,
@@ -426,7 +427,7 @@ describe('atom loader', () => {
 
     let task = createDownloadTask()
     let page = loaders.atom.getPosts(task, 'https://example.com/news/')
-    deepEqual(page.get(), {
+    deepEqual(postsValue(page), {
       error: undefined,
       hasNext: true,
       isLoading: true,
@@ -434,7 +435,7 @@ describe('atom loader', () => {
     })
 
     await page.loading
-    deepEqual(page.get(), {
+    deepEqual(postsValue(page), {
       error: undefined,
       hasNext: false,
       isLoading: false,
@@ -454,12 +455,11 @@ describe('atom loader', () => {
 
   test('parses media', () => {
     let task = createDownloadTask()
-    let posts = loaders.atom
-      .getPosts(
-        task,
-        'https://example.com/news/',
-        exampleAtom(
-          `<?xml version="1.0"?>
+    let posts = loaders.atom.getPosts(
+      task,
+      'https://example.com/news/',
+      exampleAtom(
+        `<?xml version="1.0"?>
           <feed xmlns="http://www.w3.org/2005/Atom">
             <title>Feed</title>
             <entry>
@@ -492,10 +492,9 @@ describe('atom loader', () => {
               <updated>2023-06-01T00:00:00Z</updated>
             </entry>
           </feed>`
-        )
       )
-      .get()
-    deepEqual(posts, {
+    )
+    deepEqual(postsValue(posts), {
       error: undefined,
       hasNext: false,
       isLoading: false,
@@ -530,7 +529,7 @@ describe('atom loader', () => {
         }
       ]
     })
-    deepEqual(parseMedia(posts.list[0]?.media), [
+    deepEqual(parseMedia(posts.get().list[0]?.media), [
       {
         fromText: true,
         type: 'image',

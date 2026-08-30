@@ -29,9 +29,11 @@ import {
   needWelcome,
   openedPopups,
   openPopup,
+  type OriginPost,
   type Page,
   type Popup,
   type PopupName,
+  type PostsList,
   type ReaderName,
   setLayoutType,
   setupEnvironment,
@@ -309,6 +311,22 @@ export function expectWarning<Result extends Promise<void> | void>(
   } else {
     check()
     return undefined as Result
+  }
+}
+
+/**
+ * List’s value with generated post IDs removed, to compare it with posts
+ * parsed from the feed.
+ */
+export function postsValue(posts: PostsList): unknown {
+  let value = posts.get()
+  return {
+    ...value,
+    list: value.list.map(post => {
+      let fields: Partial<OriginPost> = { ...post }
+      delete fields.id
+      return fields
+    })
   }
 }
 

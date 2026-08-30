@@ -26,9 +26,9 @@
       return {
         controls: getPopupId('post', param),
         href: getPopupHash($router, 'post', param),
-        id: 'id' in post ? post.id : post.originId,
+        id: post.id,
         item: post,
-        variant: 'id' in post && post.read ? ('read' as const) : undefined
+        variant: 'feedId' in post && post.read ? ('read' as const) : undefined
       }
     })
   )

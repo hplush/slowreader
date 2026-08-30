@@ -38,7 +38,7 @@ describe('popups', () => {
     let post1 = await addPost(testPost({ feedId: feed }))
     let post2 = await addPost(testPost({ feedId: feed }))
 
-    openTestPopup('post', getPostPopupParam({ id: post1 }))
+    openTestPopup('post', getPostPopupParam({ feedId: feed, id: post1 }))
     equal(popupsStatus.get().loading, true)
     equal(popupsStatus.get().notFound, false)
     equal(popupsStatus.get().other.length, 0)
@@ -51,7 +51,7 @@ describe('popups', () => {
     equal(popupsStatus.get().other.length, 0)
     equal(popupsStatus.get().last?.name, 'post')
 
-    openTestPopup('post', getPostPopupParam({ id: post2 }))
+    openTestPopup('post', getPostPopupParam({ feedId: feed, id: post2 }))
     await setTimeout(10)
     equal(popupsStatus.get().loading, false)
     equal(popupsStatus.get().notFound, false)

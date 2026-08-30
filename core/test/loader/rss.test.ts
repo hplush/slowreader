@@ -15,7 +15,8 @@ import {
   checkAndRemoveRequestMock,
   expectNotMine,
   expectRequest,
-  mockRequest
+  mockRequest,
+  postsValue
 } from '../utils.ts'
 
 describe('rss loader', () => {
@@ -195,8 +196,8 @@ describe('rss loader', () => {
   test('parses posts', () => {
     let task = createDownloadTask()
     deepEqual(
-      loaders.rss
-        .getPosts(
+      postsValue(
+        loaders.rss.getPosts(
           task,
           'https://example.com/news/',
           exampleRss(
@@ -225,7 +226,7 @@ describe('rss loader', () => {
           </rss>`
           )
         )
-        .get(),
+      ),
       {
         error: undefined,
         hasNext: false,
@@ -278,7 +279,7 @@ describe('rss loader', () => {
 
     let task = createDownloadTask()
     let page = loaders.rss.getPosts(task, 'https://example.com/news/')
-    deepEqual(page.get(), {
+    deepEqual(postsValue(page), {
       error: undefined,
       hasNext: true,
       isLoading: true,
@@ -286,7 +287,7 @@ describe('rss loader', () => {
     })
 
     await page.loading
-    deepEqual(page.get(), {
+    deepEqual(postsValue(page), {
       error: undefined,
       hasNext: false,
       isLoading: false,
@@ -306,8 +307,8 @@ describe('rss loader', () => {
   test('parses media', () => {
     let task = createDownloadTask()
     deepEqual(
-      loaders.rss
-        .getPosts(
+      postsValue(
+        loaders.rss.getPosts(
           task,
           'https://example.com/news/',
           exampleRss(
@@ -358,7 +359,7 @@ describe('rss loader', () => {
             </rss>`
           )
         )
-        .get(),
+      ),
       {
         error: undefined,
         hasNext: false,
