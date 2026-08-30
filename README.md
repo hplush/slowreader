@@ -285,7 +285,7 @@ pnpm update-review
 
 If you see GitHub limit error in terminal, create `.env` with `GITHUB_TOKEN` with [personal token](https://github.com/settings/personal-access-tokens/new) with access to public repositories
 
-By default `update-env` will keep Node.js major version, but it can update to next major by `pnpm update-env --major` argument.
+By default `update-env` will keep Node.js and pnpm major versions, but it can update to next major by `pnpm update-env --major-node` or `pnpm update-env --major-pnpm` arguments. You can also pass the version: `pnpm update-env --major-node 27`.
 
 If you need just to update specific Node.js dependency:
 

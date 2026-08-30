@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Script to update Node.js and pnpm everywhere.
 //
-// By default it will keep Node.js major version, but can update to next major
-// by `pnpm update-env --major` argument. You can specify version `--major 22`.
+// By default it will keep Node.js and pnpm major versions, but can update
+// to the next major by `pnpm update-env --major-node` and `--major-pnpm`
+// arguments. You can specify version `--major-node 22`.
 //
 // If you change script and need to update result without new Node.js version
 // run it with `pnpm update-env --force` argument.
@@ -13,9 +14,9 @@ import { styleText } from 'node:util'
 
 const FORCE = process.argv.includes('--force')
 
-function getMajor(current: string): string | undefined {
+function getMajor(arg: string, current: string): string | undefined {
   for (let i = 0; i < process.argv.length; i++) {
-    if (process.argv[i] === '--major') {
+    if (process.argv[i] === arg) {
       let next = process.argv[i + 1]
       if (next && /^[\d+.]+$/.test(next)) {
         return next
@@ -51,26 +52,34 @@ async function getLatestNodeVersion(
   return filtered[0]!.version.slice(1)
 }
 
-async function getPnpmRelease(current: string): Promise<GitHubReleases> {
-  if (!current.includes('-')) {
-    let response = await fetch(
-      'https://api.github.com/repos/pnpm/pnpm/releases/latest'
-    )
-    return (await response.json()) as GitHubReleases
-  }
-  // Stay on pre-release branch until it will have stable release
-  let major = current.split('.')[0]
-  let response = await fetch(
-    'https://api.github.com/repos/pnpm/pnpm/releases?per_page=10'
-  )
-  let releases = (await response.json()) as GitHubReleases[]
-  return releases.find(i => i.tag_name.startsWith(`v${major}.`))!
+function getVersionNumbers(tag: string): number[] {
+  return tag
+    .slice(1)
+    .split('.')
+    .map(i => parseInt(i))
 }
 
 async function getLatestPnpm(
-  current: string
+  major: string | undefined
 ): Promise<[string, Architectures]> {
-  let release = await getPnpmRelease(current)
+  let response = await fetch(
+    'https://api.github.com/repos/pnpm/pnpm/releases?per_page=100'
+  )
+  let releases = (await response.json()) as GitHubReleases[]
+  // The repository releases other tools too, and GitHub’s latest release
+  // is the last published one, which can be the older major, since pnpm
+  // releases two branches at once
+  let release = releases
+    .filter(i => i.tag_name.startsWith(major ? `v${major}.` : 'v'))
+    .toSorted((a, b) => {
+      let first = getVersionNumbers(a.tag_name)
+      let second = getVersionNumbers(b.tag_name)
+      return (
+        second[0]! - first[0]! ||
+        second[1]! - first[1]! ||
+        second[2]! - first[2]!
+      )
+    })[0]!
   return [
     release.tag_name.slice(1),
     {
@@ -173,9 +182,11 @@ let currentNode = dockerfile.match(/NODE_VERSION=(\S+)/)![1]!
 let currentPnpm = dockerfile.match(/PNPM_VERSION=(\S+)/)![1]!
 
 let latestNode = await getLatestNodeVersion(
-  getMajor(currentNode.split('.')[0]!)
+  getMajor('--major-node', currentNode.split('.')[0]!)
 )
-let [latestPnpm, pnpmChecksums] = await getLatestPnpm(currentPnpm)
+let [latestPnpm, pnpmChecksums] = await getLatestPnpm(
+  getMajor('--major-pnpm', currentPnpm.split('.')[0]!)
+)
 
 let updateNode = currentNode !== latestNode || FORCE
 if (updateNode && !(await hasNodeImage(latestNode))) {
