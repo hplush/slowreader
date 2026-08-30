@@ -6,6 +6,7 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 
 - Prefer short one-word variable names. Avoid abbreviations: use `current` instead of `cur`.
 - Do not add any comments to generated code by default.
+- Never write a comment, which repeats the name of the function or variable. Comment only what the code can’t say: why, not what.
 - Import only specific functions. Don’t import everything.
 - Don’t use `export default`, use name exports instead.
 - Always use `.ts` in TS files imports.
@@ -26,6 +27,13 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 - Never use `as any`. If the type is unknown, use `unknown` and narrow with runtime checks.
 - Always merge type and regular import.
 - Do not use `tsx`, you can import `.ts` and run it in Node.js directly.
+
+## Debugging
+
+- Explain the bug as a step-by-step story, not as a report: what the value is for, what the code was supposed to do, then numbered steps of what really happened, then the fix.
+- Use the real values from the user’s data (`localStorage` keys, IDs, counts) in every step.
+- Define every term before using it. No jargon, no abbreviations, no `t0`/`t1` timelines, no pseudo-code where a sentence works.
+- Explain why every broken step was broken, including why the app could not recover by itself.
 
 ## Testing
 
