@@ -1,6 +1,7 @@
 {
   "name": "Slow Reader",
   "background_color": "#fcecd9",
+  "display": "standalone",
   "start_url": "/",
   "icons": [
     {
