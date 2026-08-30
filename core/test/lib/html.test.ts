@@ -56,6 +56,46 @@ describe('html', () => {
     )
   })
 
+  test('resolves relative srcset to absolute URLs', () => {
+    equal(
+      (
+        sanitizeDOM(
+          '<img src="/img/a.jpg?w=1200" ' +
+            'srcset="/img/a.jpg?w=500,q=80 500w, /img/a.jpg?w=1200,q=80 1200w">',
+          'https://kottke.org/26/08/post'
+        ) as HTMLElement
+      ).innerHTML,
+      '<img src="https://kottke.org/img/a.jpg?w=1200" ' +
+        'srcset="https://kottke.org/img/a.jpg?w=500,q=80 500w, ' +
+        'https://kottke.org/img/a.jpg?w=1200,q=80 1200w">'
+    )
+  })
+
+  test('keeps absolute srcset unchanged', () => {
+    equal(
+      (
+        sanitizeDOM(
+          '<img srcset="https://example.com/a.jpg 1x, ./b.jpg 2x">',
+          'https://example.com/posts/'
+        ) as HTMLElement
+      ).innerHTML,
+      '<img srcset="https://example.com/a.jpg 1x, ' +
+        'https://example.com/posts/b.jpg 2x">'
+    )
+  })
+
+  test('removes srcset with relative URLs when url is undefined', () => {
+    equal(
+      (
+        sanitizeDOM(
+          '<img src="https://example.com/a.jpg" srcset="b.jpg 2x">',
+          undefined
+        ) as HTMLElement
+      ).innerHTML,
+      '<img src="https://example.com/a.jpg">'
+    )
+  })
+
   test('keeps absolute URLs unchanged', () => {
     equal(
       (

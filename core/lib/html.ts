@@ -128,6 +128,13 @@ function isAbsoluteUrl(value: string): boolean {
   return /^[a-z][a-z\d+.-]*:/i.test(value)
 }
 
+/**
+ * /a.jpg?w=500,q=80 500w, /a.jpg?w=1200,q=80 1200w
+ * /a.jpg 1x,/b.jpg 2x
+ * /a.jpg, /b.jpg 2x
+ */
+const SRCSET_CANDIDATE = /([^\s,]\S*[^\s,]|[^\s,])(\s+[^,]+)?/g
+
 function resolveUrls(node: Element, url: string | undefined): void {
   let elements = node.querySelectorAll('[href], [src]')
   for (let element of elements) {
@@ -140,6 +147,23 @@ function resolveUrls(node: Element, url: string | undefined): void {
         break
       }
       element.setAttribute(attr, new URL(value, url).href)
+    }
+  }
+  for (let element of node.querySelectorAll('[srcset]')) {
+    let value = element.getAttribute('srcset')!
+    if (url === undefined) {
+      element.removeAttribute('srcset')
+    } else {
+      element.setAttribute(
+        'srcset',
+        value.replace(
+          SRCSET_CANDIDATE,
+          (candidate: string, link: string, descriptor: string = '') => {
+            if (isAbsoluteUrl(link)) return candidate
+            return new URL(link, url).href + descriptor
+          }
+        )
+      )
     }
   }
 }
