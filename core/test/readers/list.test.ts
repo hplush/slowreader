@@ -21,7 +21,8 @@ import {
   cleanClientTest,
   enableClientTest,
   ensureReader,
-  openPage
+  openPage,
+  setBaseTestRoute
 } from '../utils.ts'
 
 async function moveTo(page: Page<'slow'>, from: number): Promise<void> {
@@ -39,6 +40,8 @@ describe('list reader', () => {
   })
 
   afterEach(async () => {
+    // Without it the page of the test will be mounted during the next test
+    setBaseTestRoute({ params: {}, route: 'about' })
     await cleanClientTest()
   })
 

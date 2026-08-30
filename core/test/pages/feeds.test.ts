@@ -9,20 +9,24 @@ import {
   busy,
   busyUntilMenuLoader,
   GENERAL_CATEGORY,
+  menuLoading,
   testFeed,
   testPost,
+  userId,
   waitLoading
 } from '../../index.ts'
 import {
   cleanClientTest,
   enableClientTest,
   openPage,
-  setBaseTestRoute
+  persistentDatabase,
+  setBaseTestRoute,
+  setTestUser
 } from '../utils.ts'
 
 describe('feeds page', () => {
   beforeEach(() => {
-    enableClientTest()
+    enableClientTest({ databaseCreator: persistentDatabase() })
   })
 
   afterEach(async () => {
@@ -100,6 +104,49 @@ describe('feeds page', () => {
     equal(page.loading.get(), true)
     await waitLoading(page.loading)
     equal(page.posts.get()!.name, 'feed')
+  })
+
+  test('redirects when the menu was loaded after the page', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let category = await addCategory({ title: 'A' })
+    let feed = await addFeed(
+      testFeed({ categoryId: category, reading: 'slow' })
+    )
+    await addPost(testPost({ feedId: feed, reading: 'slow' }))
+    await setTimeout(10)
+
+    // On the app start the page is created before the menu was counted
+    userId.set(undefined)
+    await setTimeout(10)
+    setTestUser()
+    equal(menuLoading.get(), true)
+
+    let page = openPage({
+      params: {},
+      route: 'slow'
+    })
+    equal(page.params.feed.get(), undefined)
+
+    await waitLoading(page.loading)
+    equal(page.params.feed.get(), feed)
+    equal(page.posts.get()!.name, 'list')
+  })
+
+  test('renders empty reader when the menu has no feed to open', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    await addFeed(testFeed({ reading: 'fast' }))
+    await addPost(testPost({ feedId: 'unknown', reading: 'slow' }))
+    await setTimeout(10)
+
+    let page = openPage({
+      params: {},
+      route: 'slow'
+    })
+    await waitLoading(page.loading)
+    equal(page.params.feed.get(), undefined)
+    equal(page.posts.get()!.name, 'empty')
   })
 
   test('loads readers', async () => {

@@ -82,31 +82,36 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     }
 
     let unbindTarget = (): void => {}
+    let unbindRow = effect([$categoryId, $feedId], (categoryId, feedId) => {
+      unbindTarget()
+      $category.set(undefined)
+      $feed.set(undefined)
+      if (feedId) {
+        unbindTarget = getFeed(feedId).subscribe(value => {
+          if (value) $feed.set(value)
+        })
+      } else if (categoryId) {
+        unbindTarget = getCategory(categoryId).subscribe(value => {
+          if (value) $category.set(value)
+        })
+      }
+    })
+
+    // The page can be opened before the menu was loaded, so the redirect
+    // waits for the menu instead of checking it once.
     let unbindRedirect = effect(
-      [$categoryId, $feedId],
-      (categoryId, feedId) => {
-        unbindTarget()
-        $category.set(undefined)
-        $feed.set(undefined)
-        if (feedId) {
-          unbindTarget = getFeed(feedId).subscribe(value => {
-            if (value) $feed.set(value)
-          })
-        } else if (categoryId) {
-          unbindTarget = getCategory(categoryId).subscribe(value => {
-            if (value) $category.set(value)
-          })
-        } else if (!menuLoading.get()) {
-          void nextRouteIsRedirect(() => {
-            if (reading === 'fast') {
-              let id = fastMenu.get()[0]?.id
-              if (id) $categoryId.set(id)
-            } else {
-              let id = slowMenu.get()[0]?.[1][0]?.[0]?.id
-              if (id) $feedId.set(id)
-            }
-          })
-        }
+      [$categoryId, $feedId, menuLoading],
+      (categoryId, feedId, loadingMenu) => {
+        if (categoryId || feedId || loadingMenu) return
+        void nextRouteIsRedirect(() => {
+          if (reading === 'fast') {
+            let id = fastMenu.get()[0]?.id
+            if (id) $categoryId.set(id)
+          } else {
+            let id = slowMenu.get()[0]?.[1][0]?.[0]?.id
+            if (id) $feedId.set(id)
+          }
+        })
       }
     )
 
@@ -127,15 +132,25 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     let lastKey: string | undefined
 
     let unbindPosts = effect(
-      [$feed, $category, needWelcome, $noPosts],
-      (feed, category, welcome, noPosts) => {
+      [
+        $feed,
+        $category,
+        $feedId,
+        $categoryId,
+        needWelcome,
+        $noPosts,
+        menuLoading
+      ],
+      (feed, category, feedId, categoryId, welcome, noPosts, loadingMenu) => {
         let readerName: 'none' | ReaderName
         if (welcome) {
           readerName = 'welcome'
         } else if (noPosts) {
           readerName = 'empty'
         } else if (!feed && !category) {
-          readerName = 'none'
+          // The loader is only for the target, which is still loading:
+          // the menu without a feed to open is a normal state
+          readerName = loadingMenu || feedId || categoryId ? 'none' : 'empty'
         } else {
           readerName =
             feed?.[readerProp] ??
@@ -186,6 +201,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
       changeReader,
       async exit() {
         unbindTarget()
+        unbindRow()
         unbindRedirect()
         unbindPosts()
         prevReading?.exit()

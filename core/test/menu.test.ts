@@ -54,7 +54,8 @@ import {
   expectWarning,
   getTestEnvironment,
   setBaseTestRoute,
-  setTestUser
+  setTestUser,
+  waitUntil
 } from './utils.ts'
 
 function emit(obj: any, event: string, ...args: any[]): void {
@@ -605,6 +606,49 @@ describe('menu', () => {
       keepMount(slowMenu)
       await waitLoading(menuLoading)
       deepEqual(fastMenu.get(), [{ id: category, title: 'A' }])
+    } finally {
+      await cleanClientTest()
+      await setTimeout(100)
+      rmSync(file, { force: true })
+    }
+  })
+
+  test('rebuilds menu from the tables when the state was lost', async () => {
+    await cleanClientTest()
+    setTestUser(false)
+    let file = join(tmpdir(), `slowreader-lost-${process.pid}.sqlite`)
+    rmSync(file, { force: true })
+    try {
+      enableClientTest({ databaseCreator: () => openDb(nodeDriver(file)) })
+      keepMount(fastMenu)
+      keepMount(slowMenu)
+      await waitLoading(menuLoading)
+
+      let category = await addCategory({ title: 'A' })
+      let feed = await addFeed(
+        testFeed({ categoryId: category, reading: 'slow', title: 'Feed' })
+      )
+      await addPost(testPost({ feedId: feed, reading: 'slow' }))
+
+      userId.set(undefined)
+      cleanStores(menuLoading, slowMenu, fastMenu)
+      await setTimeout(100)
+
+      // The actions were applied to the tables by the tab, which was closed
+      // before the reducer got them
+      let storage = getEnvironment().persistentStore
+      delete storage['slowreader:menu']
+      storage['logux:reducer:slowreader:menu'] = '1'
+      setTestUser()
+      keepMount(fastMenu)
+      keepMount(slowMenu)
+      await waitLoading(menuLoading)
+      await waitUntil(() => slowMenu.get().length > 0)
+
+      deepEqual(slowMenu.get(), [
+        [{ id: category, title: 'A' }, [[{ id: feed, title: 'Feed' }, 1]]]
+      ])
+      equal(storage['logux:reducer:slowreader:menu'], '1')
     } finally {
       await cleanClientTest()
       await setTimeout(100)

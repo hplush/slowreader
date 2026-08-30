@@ -276,8 +276,12 @@ function getSnapshot(): Promise<TableSnapshot> {
 export async function getTableActions(
   plurals: (keyof Tables)[]
 ): Promise<TableSnapshot> {
-  await whenSchemaChecked()
-  let tables = getTables()
+  let crdt = currentCrdt
+  let tables = currentTables
+  if (!crdt || !tables) return []
+  await whenSchemaChecked(crdt)
+  // Sign out could replace the database while the schema was checked
+  if (crdt !== currentCrdt) return []
   if (snapshot) {
     let all = await snapshot
     return all.filter(entry => {
@@ -292,8 +296,8 @@ export async function getTableActions(
  * so the reducer must wait for the comparison to not read the tables
  * in the middle of the replay.
  */
-function whenSchemaChecked(): Promise<void> {
-  let status = currentCrdt!.status
+function whenSchemaChecked(crdt: CrdtDatabase): Promise<void> {
+  let status = crdt.status
   if (status.get() !== 'initializing') return Promise.resolve()
   return new Promise(resolve => {
     subscribeUntil(status, value => {
