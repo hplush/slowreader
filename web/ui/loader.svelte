@@ -1,3 +1,23 @@
+<script lang="ts" module>
+  // On the app start the loader from index.html is replaced by this component.
+  // It is the same animation, but the new element starts it from the beginning,
+  // so the bar jumps. We move every loader to the phase of the first one:
+  // the animation continues on the app start and all loaders bounce in sync.
+  let phase: number | undefined
+
+  function syncPhase(loader: Element): void {
+    if (phase === undefined) {
+      let previous = document.querySelector('#loader') ?? loader
+      let start = previous.getAnimations({ subtree: true })[0]?.startTime
+      if (start === null || start === undefined) return
+      phase = Number(start)
+    }
+    for (let animation of loader.getAnimations({ subtree: true })) {
+      animation.startTime = phase
+    }
+  }
+</script>
+
 <script lang="ts">
   import { reportLoader, commonMessages as t } from '@slowreader/core'
 
@@ -20,6 +40,7 @@
   class="loader"
   class:is-accent={variant === 'accent'}
   class:is-wide={size === 'wide'}
+  {@attach syncPhase}
   {@attach progress => {
     if (typeof value === 'number') {
       progress.value = value

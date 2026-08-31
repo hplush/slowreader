@@ -5,7 +5,6 @@
     layoutType,
     popupsStatus,
     signOut,
-    subscribeUntil,
     userId
   } from '@slowreader/core'
 
@@ -34,17 +33,6 @@
   import PopupShadow from '../ui/popup-shadow.svelte'
   import ThinPage from '../ui/thin-page.svelte'
 
-  // To have smooth app starting loader animation we are re-using loader in HTML
-  // while app is initializing, but need to render new one later
-  let globalLoader = $state(true)
-  subscribeUntil(busy, value => {
-    if (!value) {
-      globalLoader = false
-      document.querySelector('#loader')?.remove()
-      return true
-    }
-  })
-
   let pageLoading = $derived($currentPage.loading)
   let pageHideBusy = $derived($currentPage.hideBusy)
   let pageHideMenu = $derived($currentPage.hideMenu)
@@ -60,9 +48,7 @@
 {#if $currentPage.route === 'fatal'}
   <FatalPage page={$currentPage} />
 {:else if showBusy || $pageLoading}
-  {#if !globalLoader}
-    <BusyPage />
-  {/if}
+  <BusyPage />
 {:else if $currentPage.route === 'relogin'}
   <ReloginPage page={$currentPage} />
 {:else if $currentPage.route === 'fast'}
