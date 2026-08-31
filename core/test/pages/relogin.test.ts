@@ -65,6 +65,11 @@ describe('relogin page', () => {
     await cleanAllTables()
   })
 
+  test('shows the form over the loader of the unfinished tasks', async () => {
+    let { page } = await triggerRelogin()
+    equal(page.hideBusy.get(), true)
+  })
+
   test('signs out', async () => {
     let { page } = await triggerRelogin()
     equal(syncStatus.get(), 'wrongCredentials')

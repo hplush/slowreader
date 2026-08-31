@@ -33,17 +33,26 @@ function update(): void {
  */
 export async function busyDuring<Value>(
   label: string,
-  cb: (setProgress: (progress: number) => void) => Promise<Value>,
+  cb: (
+    setProgress: (progress: number) => void,
+    setLabel: (label: string) => void
+  ) => Promise<Value>,
   blocking = false
 ): Promise<Value> {
   let task: BusyValue = { blocking, label }
   tasks.push(task)
   update()
   try {
-    return await cb(progress => {
-      task.progress = progress
-      update()
-    })
+    return await cb(
+      progress => {
+        task.progress = progress
+        update()
+      },
+      changed => {
+        task.label = changed
+        update()
+      }
+    )
   } finally {
     tasks = tasks.filter(i => i !== task)
     update()

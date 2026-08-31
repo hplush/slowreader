@@ -340,6 +340,11 @@ async function uploadLocalData(logux: CrossTabClient): Promise<void> {
   uploadingLocalData.set(false)
 }
 
+function getDownloadingLabel(logux: CrossTabClient): string {
+  let messages = commonMessages.get()
+  return logux.connected ? messages.downloadingData : messages.waitingConnection
+}
+
 /**
  * Show the loader after the sign in or the database reset.
  */
@@ -369,12 +374,19 @@ function showBusyUntilFilled(logux: CrossTabClient): () => void {
     if (logux.connected) waitMore(10_000)
   })
 
-  void busyDuring(commonMessages.get().downloadingData, () => filled).then(
-    () => {
-      // The user could sign out while the data was downloading
-      if (hasDatabase()) downloadingCloudData.set(false)
+  void busyDuring(getDownloadingLabel(logux), async (setProgress, setLabel) => {
+    let unbindLabel = logux.on('state', () => {
+      setLabel(getDownloadingLabel(logux))
+    })
+    try {
+      await filled
+    } finally {
+      unbindLabel()
     }
-  )
+  }).then(() => {
+    // The user could sign out while the data was downloading
+    if (hasDatabase()) downloadingCloudData.set(false)
+  })
 
   return stop
 }
@@ -461,9 +473,17 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
 
   void busyDuring(getOpeningLabel(hasTables), () => ready)
 
-  void ready.then(() => {
+  void ready.then(async () => {
     // The user could sign out while the database was filling
     if (!hasDatabase()) return
+    // The data is already here, but the mark was not removed: for instance,
+    // the app was closed during the download
+    if (downloadingCloudData.get()) {
+      let feeds = await select<{ id: string }>`
+        SELECT "id" FROM "feeds" LIMIT 1
+      `
+      if (feeds.length > 0 && hasDatabase()) downloadingCloudData.set(false)
+    }
     if (unfinished) return uploadLocalData(logux)
   })
 }

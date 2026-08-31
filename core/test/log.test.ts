@@ -379,12 +379,33 @@ describe('log', () => {
     await setTimeout(SETTLE)
     userId.set(user)
     await waitUntil(() => !!client.get())
-    ok(labels.includes(commonMessages.get().downloadingData))
+    ok(labels.includes(commonMessages.get().waitingConnection))
+    await waitUntil(() => labels.includes(commonMessages.get().downloadingData))
 
     await waitUntil(() => !downloadingCloudData.get())
     equal(busy.get(), false)
     equal((await loadFeeds()).length, 1)
     unbind()
+  })
+
+  test('removes the download mark if the database is already filled', async () => {
+    await signUpCloudUser()
+    await addFeed(testFeed({ title: 'A' }))
+    await waitSync()
+
+    // For instance, the app was closed during the download
+    downloadingCloudData.set(true)
+
+    let user = userId.get()!
+    userId.set(undefined)
+    await waitUntil(() => !client.get())
+    await setTimeout(SETTLE)
+    userId.set(user)
+    await waitUntil(() => !!client.get())
+
+    await waitUntil(() => !downloadingCloudData.get())
+    await waitUntil(() => busy.get() === false)
+    equal((await loadFeeds()).length, 1)
   })
 
   test('shadows the action of another device right after the apply', async () => {

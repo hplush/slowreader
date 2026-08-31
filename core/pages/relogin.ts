@@ -7,6 +7,7 @@ import { injectSignIn } from './mixins/sign-in.ts'
 export const reloginPage = createPage('relogin', () => {
   return {
     ...injectSignIn(),
+    hideBusy: atom(true),
     hideMenu: atom(true),
     loading: atom(false),
     params: {},
