@@ -6,6 +6,7 @@
     aboutMessages as t
   } from '@slowreader/core'
 
+  import AppIcon from '../ui/app-icon.svelte'
   import Button from '../ui/button.svelte'
   import Note from '../ui/note.svelte'
   import Output from '../ui/output.svelte'
@@ -18,7 +19,10 @@
 
 <ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>
   <Stack gap="xl">
-    <Title>Slow Reader</Title>
+    <Stack align="center" gap="s">
+      <AppIcon />
+      <Title>Slow Reader</Title>
+    </Stack>
     <Output label={$t.version} value={page.appVersion} />
     <Note icon={mdiShieldSearch} variant="good">
       <Stack>
