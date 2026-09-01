@@ -19,9 +19,10 @@ import { ErrorResponse, jsonApi } from '../lib/http.ts'
 import type { AppServer } from '../lib/types.ts'
 
 function setSession(res: ServerResponse, value: string): void {
+  let age = value ? 10 * 365 * 24 * 60 * 60 : 0
   res.setHeader(
     'Set-Cookie',
-    `session=${value}; HttpOnly; Path=/; SameSite=None; Secure`
+    `session=${value}; HttpOnly; Path=/; SameSite=None; Secure; Max-Age=${age}`
   )
 }
 

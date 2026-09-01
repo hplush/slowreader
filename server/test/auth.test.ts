@@ -43,6 +43,7 @@ describe('server auth', () => {
     equal(userA.userId, '0000000000000000')
     equal(typeof userA.session, 'string')
     ok(sessionCookie?.includes(`session=${userA.session}`))
+    ok(sessionCookie?.includes('Max-Age=315360000'))
 
     let userB = await testRequest(server, signUp, {
       password: 'BBBBBBBBBB',
@@ -80,6 +81,7 @@ describe('server auth', () => {
     })
     equal(signOutResponse.status, 200)
     ok(signOutResponse.headers.get('Set-Cookie')?.includes(`session=;`))
+    ok(signOutResponse.headers.get('Set-Cookie')?.includes('Max-Age=0'))
     await server.expectWrongCredentials(userA.userId, {
       cookie: { session: userA.session }
     })
