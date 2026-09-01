@@ -50,7 +50,7 @@ describe('feed reader', () => {
     let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
     let feed1 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
     let feed2 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
-    for (let i = 1; i <= 60; i++) {
+    for (let i = 1; i <= 30; i++) {
       await addPost(
         testPost({
           feedId: i % 2 === 0 ? feed1 : feed2,
@@ -72,8 +72,8 @@ describe('feed reader', () => {
     let reader = ensureReader(page.posts, 'feed')
     equal(reader.hasNext.get(), false)
     equal(reader.authors.get().size, 0)
-    equal(reader.list.get().length, 30)
-    equal(reader.list.get()[0]!.title, '60')
+    equal(reader.list.get().length, 15)
+    equal(reader.list.get()[0]!.title, '30')
 
     page = openPage({
       params: { category: categoryId },
@@ -87,9 +87,9 @@ describe('feed reader', () => {
     equal(reader.authors.get().size, 2)
     equal(reader.authors.get().get(feed1)!.title, 'Test 1')
     equal(reader.authors.get().get(feed2)!.url, 'http://example.com/2')
-    equal(reader.list.get().length, 40)
-    equal(reader.list.get()[0]!.title, '60')
-    equal(reader.list.get()[39]!.title, '21')
+    equal(reader.list.get().length, 20)
+    equal(reader.list.get()[0]!.title, '30')
+    equal(reader.list.get()[19]!.title, '11')
 
     await moveTo(page, stringifyCursor(topCursor(10)))
     equal(page.loading.get(), false)
@@ -98,13 +98,13 @@ describe('feed reader', () => {
     equal(reader.hasNext.get(), false)
 
     await moveTo(page, undefined)
-    equal(reader.list.get()[0]!.title, '60')
-    equal(reader.list.get().length, 40)
+    equal(reader.list.get()[0]!.title, '30')
+    equal(reader.list.get().length, 20)
 
     await reader.readAndNext()
     await waitLoading(page.postsLoading)
-    equal(reader.list.get()[0]!.title, '20')
-    equal(reader.list.get().length, 20)
+    equal(reader.list.get()[0]!.title, '10')
+    equal(reader.list.get().length, 10)
     equal(reader.hasNext.get(), false)
 
     await reader.readAndNext()
@@ -134,7 +134,7 @@ describe('feed reader', () => {
     let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
     let feed1 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
     let feed2 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
-    for (let i = 1; i <= 110; i++) {
+    for (let i = 1; i <= 55; i++) {
       await addPost(
         testPost({
           feedId: i % 2 === 0 ? feed1 : feed2,
@@ -153,36 +153,36 @@ describe('feed reader', () => {
     let reader = ensureReader(page.posts, 'feed')
     equal(reader.hasNext.get(), true)
     equal(reader.prevFrom.get(), undefined)
-    equal(reader.list.get().length, 40)
-    equal(reader.list.get()[0]!.title, '110')
+    equal(reader.list.get().length, 20)
+    equal(reader.list.get()[0]!.title, '55')
     equal(reader.list.get()[0]!.read, 0)
 
     await moveTo(page, reader.nextFrom.get())
     equal(reader.hasNext.get(), true)
-    equal(reader.list.get().length, 40)
-    equal(reader.list.get()[0]!.title, '70')
+    equal(reader.list.get().length, 20)
+    equal(reader.list.get()[0]!.title, '35')
 
     // Nothing was read, so the previous page has the same posts as before
     await moveTo(page, reader.prevFrom.get())
-    equal(reader.list.get().length, 40)
-    equal(reader.list.get()[0]!.title, '110')
+    equal(reader.list.get().length, 20)
+    equal(reader.list.get()[0]!.title, '55')
 
     // Read posts are not shown again, so there is no page above anymore
     await reader.readAndNext()
     await waitLoading(page.postsLoading)
-    equal(reader.list.get()[0]!.title, '70')
+    equal(reader.list.get()[0]!.title, '35')
     equal(reader.prevFrom.get(), undefined)
 
     await moveTo(page, reader.nextFrom.get())
     equal(reader.hasNext.get(), false)
-    equal(reader.list.get().length, 30)
-    equal(reader.list.get()[0]!.title, '30')
+    equal(reader.list.get().length, 15)
+    equal(reader.list.get()[0]!.title, '15')
 
     // The previous page is still full of unread posts
     notEqual(reader.prevFrom.get(), undefined)
     await moveTo(page, reader.prevFrom.get())
-    equal(reader.list.get().length, 40)
-    equal(reader.list.get()[0]!.title, '70')
+    equal(reader.list.get().length, 20)
+    equal(reader.list.get()[0]!.title, '35')
   })
 
   test('loads intro without the whole article', async () => {
@@ -221,7 +221,7 @@ describe('feed reader', () => {
 
   test('does not skip posts changed by another client', async () => {
     let feedId = await addFeed(testFeed({ fastReader: 'feed' }))
-    for (let i = 1; i <= 100; i++) {
+    for (let i = 1; i <= 50; i++) {
       await addPost(
         testPost({ feedId, publishedAt: i, reading: 'fast', title: `${i}` })
       )
@@ -234,7 +234,7 @@ describe('feed reader', () => {
     await waitLoading(page.loading)
     let reader = ensureReader(page.posts, 'feed')
     let shown = new Set(titles(reader))
-    equal(shown.size, 40)
+    equal(shown.size, 20)
 
     await moveTo(page, reader.nextFrom.get())
     let second = reader.list.get()
@@ -255,7 +255,7 @@ describe('feed reader', () => {
       await moveTo(page, reader.nextFrom.get())
     }
 
-    for (let i = 1; i <= 100; i++) {
+    for (let i = 1; i <= 50; i++) {
       let title = `${i}`
       if (removed.has(title)) continue
       equal(shown.has(title), true, `Post ${title} was skipped`)
@@ -264,7 +264,7 @@ describe('feed reader', () => {
 
   test('moves between pages of posts of the same time', async () => {
     let feedId = await addFeed(testFeed({ fastReader: 'feed' }))
-    for (let i = 1; i <= 100; i++) {
+    for (let i = 1; i <= 50; i++) {
       await addPost(
         testPost({ feedId, publishedAt: 1, reading: 'fast', title: `${i}` })
       )
@@ -274,21 +274,21 @@ describe('feed reader', () => {
     await waitLoading(page.loading)
     let reader = ensureReader(page.posts, 'feed')
     let shown = new Set(titles(reader))
-    equal(shown.size, 40)
+    equal(shown.size, 20)
 
     await moveTo(page, reader.nextFrom.get())
     let second = titles(reader)
     for (let title of second) shown.add(title)
-    equal(shown.size, 80)
+    equal(shown.size, 40)
 
     // The previous page shows the same posts as before
     await moveTo(page, reader.prevFrom.get())
-    deepEqual(titles(reader), [...shown].slice(0, 40))
+    deepEqual(titles(reader), [...shown].slice(0, 20))
 
     await moveTo(page, reader.nextFrom.get())
     await moveTo(page, reader.nextFrom.get())
     equal(reader.hasNext.get(), false)
     for (let title of titles(reader)) shown.add(title)
-    equal(shown.size, 100)
+    equal(shown.size, 50)
   })
 })

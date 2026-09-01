@@ -12,7 +12,7 @@ import {
   trackReadPosts
 } from './common.ts'
 
-const POSTS_PER_PAGE = 40
+const POSTS_PER_PAGE = 20
 
 export const feedReader = createReader('feed', (filter, params, helpers) => {
   if (!filter.categoryId && !filter.feedId) return
