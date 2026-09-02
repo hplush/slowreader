@@ -13,6 +13,19 @@ describe('server assets', () => {
   let toDelete: string[] = []
   let server: TestServer | undefined
 
+  // The fake nginx config to not change test after every CSP change
+  let NGINX = `server {
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload";
+    add_header X-Content-Type-Options "nosniff";
+    add_header Cross-Origin-Opener-Policy "same-origin";
+    add_header Cross-Origin-Embedder-Policy "credentialless";
+    add_header Content-Security-Policy "test-csp";
+
+    location = /404 {
+      internal;
+    }
+  }`
+
   let SECURITY = {
     'cross-origin-embedder-policy': 'credentialless',
     'cross-origin-opener-policy': 'same-origin',
@@ -84,13 +97,22 @@ describe('server assets', () => {
     await writeFile(routes, '^\\/welcome$|^\\/feeds(?:\\/([^/]+))?$')
     toDelete.push(routes)
 
+    let nginx = join(tmpdir(), nanoid())
+    await writeFile(nginx, NGINX)
+    toDelete.push(nginx)
+
     server = new TestServer()
-    await assetsModule(server, { ...config, assets: true }, assetsDir, routes)
+    await assetsModule(
+      server,
+      { ...config, assets: true },
+      assetsDir,
+      routes,
+      nginx
+    )
 
     let index1 = await server.fetch('/')
     checkHeaders(index1, {
-      'content-security-policy':
-        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-jao29H8BKSlaiUqByFnf6MxYoYKKc1augDeFhsmIVag=' 'sha256-A+WIF57Zi2pZ+PSfiD5lb/2xvVRTUhW02IK/tX5ZT3s=' 'sha256-uiWkQb6L1FmUhEr5KBFM9oqhcGX0BqUksFZpGOiLpWo=' 'sha256-1tI7zFRuDBdCe/c3JvEG6N6f/fad51GVV86/f9tEXVw=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'sha256-qcw7nJXFn+YgQEAEcmC4BSxlmbIgcivQD0w8cwoeqNE=' 'wasm-unsafe-eval' 'self'; require-trusted-types-for 'script'; trusted-types default dompurify slowreader-rich svelte-trusted-html slowreader-parse",
+      'content-security-policy': 'test-csp',
       'content-type': 'text/html',
       ...SECURITY
     })
@@ -98,8 +120,7 @@ describe('server assets', () => {
 
     let html = await server.fetch('/404.html')
     checkHeaders(html, {
-      'content-security-policy':
-        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-jao29H8BKSlaiUqByFnf6MxYoYKKc1augDeFhsmIVag=' 'sha256-A+WIF57Zi2pZ+PSfiD5lb/2xvVRTUhW02IK/tX5ZT3s=' 'sha256-uiWkQb6L1FmUhEr5KBFM9oqhcGX0BqUksFZpGOiLpWo=' 'sha256-1tI7zFRuDBdCe/c3JvEG6N6f/fad51GVV86/f9tEXVw=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'sha256-qcw7nJXFn+YgQEAEcmC4BSxlmbIgcivQD0w8cwoeqNE=' 'wasm-unsafe-eval' 'self'; require-trusted-types-for 'script'; trusted-types default dompurify slowreader-rich svelte-trusted-html slowreader-parse",
+      'content-security-policy': 'test-csp',
       'content-type': 'text/html',
       ...SECURITY
     })
@@ -199,6 +220,36 @@ describe('server assets', () => {
 
     let prohibited2 = await server.fetch(`/../${hidden}`)
     equal(prohibited2.status, 404)
+  })
+
+  test('takes headers from the web client’s nginx config', async () => {
+    let assetsDir = join(tmpdir(), nanoid())
+    await mkdir(assetsDir)
+    await writeFile(join(assetsDir, 'index.html'), '<html>App</html>')
+    await writeFile(join(assetsDir, '404.html'), '<html><404</html>')
+    toDelete.push(assetsDir)
+
+    let routes = join(tmpdir(), nanoid())
+    await writeFile(routes, '^\\/welcome$')
+    toDelete.push(routes)
+
+    server = new TestServer()
+    await assetsModule(server, { ...config, assets: true }, assetsDir, routes)
+
+    let index = await server.fetch('/')
+    let headers = index.headers
+    equal(headers.get('cross-origin-embedder-policy'), 'credentialless')
+    equal(headers.get('cross-origin-opener-policy'), 'same-origin')
+    equal(headers.get('x-content-type-options'), 'nosniff')
+    equal(
+      headers.get('strict-transport-security'),
+      'max-age=31536000; includeSubDomains; preload'
+    )
+    // The hashes of the inline styles and scripts are too volatile to check
+    match(
+      headers.get('content-security-policy')!,
+      /^object-src 'none';.*script-src .+'self'/
+    )
   })
 
   test('ignores on missed environment variable', async () => {
