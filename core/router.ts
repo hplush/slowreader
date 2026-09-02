@@ -1,6 +1,6 @@
 import { atom, computed, effect, type ReadableAtom } from 'nanostores'
 
-import { getEnvironment, onEnvironment } from './environment.ts'
+import { getEnvironment, layoutType, onEnvironment } from './environment.ts'
 import { type Fatal, NotFoundError } from './errors.ts'
 import { userId } from './settings.ts'
 
@@ -34,11 +34,14 @@ export interface Routes {
 
 export const popupNames = {
   feed: true,
+  menu: true,
   post: true,
   refresh: true
 }
 
 export type PopupName = keyof typeof popupNames
+
+export type MenuType = 'fast' | 'other' | 'slow'
 
 export type PopupRoute = { readonly param: string; readonly popup: PopupName }
 
@@ -139,10 +142,17 @@ function validateReason(value: string | undefined): Fatal['type'] | undefined {
 
 export const router = atom<Route>({ params: {}, popups: [], route: 'home' })
 
-function checkPopupName(
-  popup: string | undefined
-): popup is keyof typeof popupNames {
-  return !!popup && popup in popupNames
+function isValidPopup(
+  popup: string | undefined,
+  param: string
+): popup is PopupName {
+  if (!popup || !(popup in popupNames)) {
+    return false
+  } else if (popup === 'menu') {
+    return param === 'fast' || param === 'other' || param === 'slow'
+  } else {
+    return true
+  }
 }
 
 /**
@@ -151,19 +161,22 @@ function checkPopupName(
  */
 export function parsePopups(hash: string): PopupRoute[] {
   let popups: PopupRoute[] = []
-  let parts = hash.replace(/^#/, '').split(',')
-  for (let part of parts) {
+  for (let part of hash.replace(/^#/, '').split(',')) {
     let [popup, param] = part.split('=', 2)
-    if (checkPopupName(popup) && param) {
-      popups.push({ param: decodeURIComponent(param), popup })
+    let decoded = param ? decodeURIComponent(param) : ''
+    if (decoded && isValidPopup(popup, decoded)) {
+      popups.push({ param: decoded, popup })
     }
   }
   return popups
 }
 
 onEnvironment(({ baseRouter }) => {
-  return effect([baseRouter, userId], (route, user) => {
+  return effect([baseRouter, userId, layoutType], (route, user, layout) => {
     let popups = user && route ? parsePopups(route.hash) : []
+    if (layout === 'desktop') {
+      popups = popups.filter(popup => popup.popup !== 'menu')
+    }
     let nextRoute: Route
     try {
       if (!route) {

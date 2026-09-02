@@ -17,11 +17,13 @@
     children,
     header,
     id,
+    navbar = false,
     reading
   }: {
     children: Snippet
     header?: Snippet
     id: string
+    navbar?: boolean
     reading?: FeedValue['reading']
   } = $props()
 
@@ -51,38 +53,45 @@
   {id}
   class="popup"
   class:is-comfort-mode={reading === 'slow'}
+  class:is-navbar={navbar}
   class:is-non-comfort-mode={reading === 'fast'}
   data-anchor="popup"
   open
 >
-  <header
-    class="popup_header"
-    class:is-comfort-mode={$layoutType !== 'desktop' && $themeMode !== 'fast'}
-    class:is-non-comfort-mode={$layoutType !== 'desktop' &&
-      $themeMode === 'fast'}
-  >
-    <div class="popup_center">
-      <div class="popup_other">
-        {#if header}
-          {@render header()}
-        {/if}
+  {#if !navbar}
+    <header
+      class="popup_header"
+      class:is-comfort-mode={$layoutType !== 'desktop' && $themeMode !== 'fast'}
+      class:is-non-comfort-mode={$layoutType !== 'desktop' &&
+        $themeMode === 'fast'}
+    >
+      <div class="popup_center">
+        <div class="popup_other">
+          {#if header}
+            {@render header()}
+          {/if}
+        </div>
+        <Button
+          icon={$layoutType !== 'desktop' ? mdiChevronLeft : mdiClose}
+          onclick={closeLastPopup}
+          size="icon"
+          tabindex={-1}
+          variant="plain"
+        >
+          {$t.closePopup}
+        </Button>
       </div>
-      <Button
-        icon={$layoutType !== 'desktop' ? mdiChevronLeft : mdiClose}
-        onclick={closeLastPopup}
-        size="icon"
-        tabindex={-1}
-        variant="plain"
-      >
-        {$t.closePopup}
-      </Button>
+    </header>
+  {/if}
+  {#if navbar}
+    {@render children()}
+  {:else}
+    <div class="popup_body">
+      <div class="popup_content">
+        {@render children()}
+      </div>
     </div>
-  </header>
-  <div class="popup_body">
-    <div class="popup_content">
-      {@render children()}
-    </div>
-  </div>
+  {/if}
 </dialog>
 
 <style lang="postcss">
@@ -110,6 +119,29 @@
         inset: 0;
         z-index: 20;
         flex-direction: column-reverse;
+      }
+    }
+
+    .popup.is-navbar {
+      @mixin background var(--main-land-color);
+
+      box-sizing: border-box;
+      inset: auto 0 var(--navbar-height) 0;
+      z-index: 9;
+      flex-direction: column;
+      gap: 0.125rem;
+      width: 100%;
+      max-height: calc(100dvh - var(--navbar-height) + var(--min-size));
+      padding: 0.5rem 0.375rem;
+      overflow: auto;
+      box-shadow:
+        inset 0 -0.5px 0 var(--separator-color),
+        var(--bottom-panel-shadow);
+      translate: 0 0;
+      transition: translate var(--big-time) var(--slide-easing);
+
+      @starting-style {
+        translate: 0 100%;
       }
     }
 

@@ -76,11 +76,12 @@ export const currentPage: ReadableAtom<Page<RouteName>> = computed(
         unbinds.push(
           store.listen(() => {
             let currentRoute = router.get()
-            if (currentRoute.route === page.route) {
-              getEnvironment().openRoute({
-                ...route,
-                params: getPageParams(page)
-              } as Route)
+            let params = getPageParams(page)
+            if (
+              currentRoute.route === page.route &&
+              JSON.stringify(params) !== JSON.stringify(currentRoute.params)
+            ) {
+              getEnvironment().openRoute({ ...route, params } as Route)
             }
           })
         )

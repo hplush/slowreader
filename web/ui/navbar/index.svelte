@@ -7,22 +7,21 @@
     mdiRefresh
   } from '@mdi/js'
   import {
-    closeMenu,
+    getPopupId,
     isOtherRoute,
     isRefreshing,
     layoutType,
     menuSlider,
+    type MenuType,
+    openableMenu,
     openedMenu,
-    openMenu,
     refreshPosts,
     refreshProgress,
     refreshStatus,
     router,
     navbarMessages as t
   } from '@slowreader/core'
-  import { effect } from 'nanostores'
   import { onMount, tick } from 'svelte'
-  import { on } from 'svelte/events'
 
   import { getPopupHash, getURL } from '../../stores/url-router.ts'
   import Announce from '../announce.svelte'
@@ -35,31 +34,9 @@
   import NavbarSlow from '../navbar/slow.svelte'
   import NavbarSync from '../navbar/sync.svelte'
 
-  let removeEvent: (() => void) | undefined
-  effect([openedMenu, layoutType], (menu, layout) => {
-    removeEvent?.()
-    if (layout !== 'desktop' && menu) {
-      setTimeout(() => {
-        removeEvent = on(document, 'click', e => {
-          let clicked = e.target as HTMLElement
-          if (
-            !clicked.closest('.navbar') ||
-            clicked.tagName === 'A' ||
-            clicked.closest('a')
-          ) {
-            closeMenu()
-          }
-        })
-      }, 1)
-    } else {
-      removeEvent = undefined
-    }
-  })
-
   onMount(() => {
     document.documentElement.classList.add('has-navbar')
     return () => {
-      removeEvent?.()
       document.documentElement.classList.remove('has-navbar')
     }
   })
@@ -73,6 +50,16 @@
     })
   }
 
+  function menuHref(type: MenuType, page: string): string {
+    return $openableMenu[type] ? getPopupHash($router, 'menu', type) : page
+  }
+
+  function submenuId(type: MenuType): string {
+    return $layoutType === 'desktop'
+      ? 'navbar_submenu'
+      : getPopupId('menu', type)
+  }
+
   let nothingCurrent = $derived(
     !isOtherRoute($router) &&
       $router.route !== 'slow' &&
@@ -84,7 +71,7 @@
   class="navbar"
   class:is-comfort-mode={$openedMenu && $openedMenu !== 'fast'}
   class:is-fast={$menuSlider === 'fast'}
-  class:is-non-comfort-mode={$openedMenu && $openedMenu === 'fast'}
+  class:is-non-comfort-mode={$openedMenu === 'fast'}
   class:is-opened={!!$openedMenu}
   class:is-other={$menuSlider === 'other'}
   class:is-slow={$menuSlider === 'slow'}
@@ -137,54 +124,50 @@
         name={$t.slow}
         current={$router.route === 'slow'}
         focusable={nothingCurrent || $router.route === 'slow'}
-        hasSubmenu="navbar_submenu"
-        href={getURL('slow')}
-        onclick={e => {
-          if (!openMenu('slow')) e.preventDefault()
-        }}
+        hasSubmenu={submenuId('slow')}
+        href={menuHref('slow', getURL('slow'))}
       >
         <NavbarFireplace />
       </NavbarButton>
       <NavbarButton
         name={$t.fast}
         current={$router.route === 'fast'}
-        hasSubmenu="navbar_submenu"
-        href={getURL('fast')}
+        hasSubmenu={submenuId('fast')}
+        href={menuHref('fast', getURL('fast'))}
         icon={mdiFood}
-        onclick={e => {
-          if (!openMenu('fast')) e.preventDefault()
-        }}
       />
     </div>
     <NavbarButton
       name={$t.menu}
       current={isOtherRoute($router)}
-      hasSubmenu="navbar_submenu"
-      href={getURL({
-        params: { candidate: undefined, url: undefined },
-        route: 'add'
-      })}
+      hasSubmenu={submenuId('other')}
+      href={menuHref(
+        'other',
+        getURL({
+          params: { candidate: undefined, url: undefined },
+          route: 'add'
+        })
+      )}
       icon={mdiMenu}
-      onclick={e => {
-        if (!openMenu('other')) e.preventDefault()
-      }}
       size="icon"
     />
   </div>
-  <div
-    id="navbar_submenu"
-    class="navbar_submenu"
-    aria-hidden="true"
-    role="menu"
-  >
-    {#if $openedMenu === 'slow'}
-      <NavbarSlow />
-    {:else if $openedMenu === 'fast'}
-      <NavbarFast />
-    {:else if $openedMenu === 'other'}
-      <NavbarOther />
-    {/if}
-  </div>
+  {#if $layoutType === 'desktop'}
+    <div
+      id="navbar_submenu"
+      class="navbar_submenu"
+      aria-hidden="true"
+      role="menu"
+    >
+      {#if $openedMenu === 'slow'}
+        <NavbarSlow />
+      {:else if $openedMenu === 'fast'}
+        <NavbarFast />
+      {:else if $openedMenu === 'other'}
+        <NavbarOther />
+      {/if}
+    </div>
+  {/if}
   <NavbarSync />
 </nav>
 
@@ -314,16 +297,6 @@
       height: var(--control-height);
     }
 
-    .navbar_error {
-      position: absolute;
-      inset-inline-end: 0;
-      top: 0;
-      z-index: 10;
-      color: var(--dangerous-text-color);
-
-      --icon-size: 0.75rem;
-    }
-
     .navbar_submenu {
       position: relative;
       box-sizing: border-box;
@@ -333,39 +306,18 @@
       flex-direction: column;
       gap: 0.125rem;
       padding: 0.25rem 0.375rem 0.75rem;
+      margin-top: -0.25rem;
       overflow-y: auto;
+    }
 
-      @media (--desktop) {
-        margin-top: -0.25rem;
-      }
+    .navbar_error {
+      position: absolute;
+      inset-inline-end: 0;
+      top: 0;
+      z-index: 10;
+      color: var(--dangerous-text-color);
 
-      @media (--no-desktop) {
-        @mixin background var(--main-land-color);
-
-        position: absolute;
-        bottom: 0;
-        z-index: 1;
-        width: 100%;
-        max-height: calc(100dvh - var(--navbar-height) + var(--min-size));
-        padding-block: 0.5rem;
-        margin-inline-end: 0;
-        margin-bottom: var(--navbar-height);
-        overflow: auto;
-        box-shadow:
-          inset 0 -0.5px 0 var(--separator-color),
-          var(--bottom-panel-shadow);
-        translate: 0 100%;
-        transition: translate var(--big-time) var(--slide-easing);
-
-        .navbar.is-opened & {
-          translate: 0 0;
-        }
-
-        &:empty {
-          padding: 0;
-          transition: none;
-        }
-      }
+      --icon-size: 0.75rem;
     }
   }
 </style>

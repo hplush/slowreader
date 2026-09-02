@@ -25,6 +25,7 @@
   import StoragePage from '../pages/storage.svelte'
   import FeedPopup from '../popups/feed.svelte'
   import LoadingPopup from '../popups/loading.svelte'
+  import MenuPopup from '../popups/menu.svelte'
   import NotFoundPopup from '../popups/not-found.svelte'
   import PostPopup from '../popups/post.svelte'
   import RefreshPopup from '../popups/refresh.svelte'
@@ -42,7 +43,7 @@
   let popup = $derived($popupsStatus.last)
   let popupLoading = $derived($popupsStatus.loading)
   let popupNotFound = $derived($popupsStatus.notFound)
-  let popupOther = $derived($popupsStatus.other)
+  let popupOther = $derived($popupsStatus.other.filter(i => i.name !== 'menu'))
 </script>
 
 {#if $currentPage.route === 'fatal'}
@@ -93,7 +94,11 @@
     <PopupShadow index={popupOther.length - index} />
   {/each}
 {/if}
-{#if popup}
+{#if popup?.name === 'menu'}
+  {#if !popupNotFound}
+    <MenuPopup {popup} />
+  {/if}
+{:else if popup}
   {#if popupLoading}
     <LoadingPopup {popup} />
   {:else if popupNotFound}

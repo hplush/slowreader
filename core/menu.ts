@@ -17,7 +17,7 @@ import { getEnvironment, layoutType } from './environment.ts'
 import type { FilterValue } from './filter.ts'
 import { waitLoading } from './lib/stores.ts'
 import { commonMessages } from './messages/index.ts'
-import { isOtherRoute, router } from './router.ts'
+import { isOtherRoute, type MenuType, type Route, router } from './router.ts'
 import {
   GENERAL_CATEGORY,
   getTableActions,
@@ -25,61 +25,30 @@ import {
   tableActions
 } from './schema.ts'
 
-export type MenuType = 'fast' | 'other' | 'slow'
-
-let $menuOverride = atom<MenuType | undefined>()
-
-export const openedMenu = computed(
-  [layoutType, $menuOverride, router],
-  (layout, override, route) => {
-    if (layout !== 'desktop') {
-      return override
-    } else if (route.route === 'fast') {
-      return 'fast'
-    } else if (route.route === 'slow') {
-      return 'slow'
-    } else if (isOtherRoute(route)) {
-      return 'other'
-    }
-  }
-)
-
-export const menuSlider = computed(
-  [$menuOverride, router],
-  (override, route) => {
-    if (override) {
-      return override
-    } else if (route.route === 'slow') {
-      return 'slow'
-    } else if (route.route === 'fast') {
-      return 'fast'
-    } else if (isOtherRoute(route)) {
-      return 'other'
-    }
-  }
-)
-
-export function openMenu(type: MenuType): boolean {
-  if (layoutType.get() === 'desktop') {
-    return true
-  } else if (type === 'other') {
-    $menuOverride.set('other')
-    return false
-  } else {
-    let open: boolean
-    if (type === 'fast') {
-      open = fastMenu.get().length > 1
-    } else {
-      open = slowMenu.get().length > 0
-    }
-    if (open) $menuOverride.set(type)
-    return !open
+function routeMenu(route: Route): MenuType | undefined {
+  if (route.route === 'slow') {
+    return 'slow'
+  } else if (route.route === 'fast') {
+    return 'fast'
+  } else if (isOtherRoute(route)) {
+    return 'other'
   }
 }
 
-export function closeMenu(): void {
-  $menuOverride.set(undefined)
+function popupMenu(route: Route): MenuType | undefined {
+  // The router drops the menu popups with an unknown menu
+  return route.popups.find(popup => popup.popup === 'menu')?.param as
+    | MenuType
+    | undefined
 }
+
+export const openedMenu = computed([layoutType, router], (layout, route) => {
+  return layout === 'desktop' ? routeMenu(route) : popupMenu(route)
+})
+
+export const menuSlider = computed([openedMenu, router], (opened, route) => {
+  return opened ?? routeMenu(route)
+})
 
 export interface MenuItem {
   id: string
@@ -452,6 +421,15 @@ export const fastMenu = computed($tree, tree => tree.fast)
 export const slowMenu = computed([$tree, $unread], (tree, unread) => {
   return unread ? buildSlowMenu(tree, unread) : []
 })
+
+export const openableMenu = computed(
+  [layoutType, fastMenu, slowMenu],
+  (layout, fast, slow) => ({
+    fast: layout !== 'desktop' && fast.length > 1,
+    other: layout !== 'desktop',
+    slow: layout !== 'desktop' && slow.length > 0
+  })
+)
 
 export const menuLoading = computed([$reduced, $unread], (reduced, unread) => {
   return !reduced || !unread
