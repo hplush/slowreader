@@ -25,6 +25,7 @@ const MIME_TYPES: Record<string, string> = {
   '.js': 'application/javascript',
   '.json': 'application/json',
   '.png': 'image/png',
+  '.sqlite': 'application/vnd.sqlite3',
   '.svg': 'image/svg+xml',
   '.txt': 'text/plain',
   '.wasm': 'application/wasm',
@@ -111,6 +112,9 @@ export default async (
       let headers: Asset['headers'] = { ...assetHeaders }
       if (pathname.includes('/assets/') && HASHED.test(path)) {
         headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+      }
+      if (pathname === '/demo.json' || pathname === '/demo.sqlite') {
+        headers['Cache-Control'] = 'no-store'
       }
       if (contentType === 'text/html' && !pathname.includes('/ui')) {
         headers = nginxHeaders

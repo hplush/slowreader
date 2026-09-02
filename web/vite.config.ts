@@ -4,7 +4,7 @@ import { execSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import sqlocal from 'sqlocal/vite'
-import { defineConfig } from 'vite'
+import { defineConfig, type PreviewServer, type ViteDevServer } from 'vite'
 
 let commitTime = parseInt(execSync('git log -1 --format=%ct').toString().trim())
 
@@ -25,6 +25,15 @@ function loadCSP(): string {
   // Vite inserts a lot of inline <style> in development mode
   csp = csp.replace(/style-src[^;]*;?/, '')
   return csp
+}
+
+function noDemoCache(server: PreviewServer | ViteDevServer): void {
+  server.middlewares.use((req, res, next) => {
+    if (req.url === '/demo.json' || req.url === '/demo.sqlite') {
+      res.setHeader('Cache-Control', 'no-store')
+    }
+    next()
+  })
 }
 
 let allFeatures = 0
@@ -64,6 +73,11 @@ export default defineConfig(() => ({
     svelte(),
     // `coi: false` since plugin sets require-corp, which blocks post’s images
     sqlocal({ coi: false }),
+    {
+      configurePreviewServer: noDemoCache,
+      configureServer: noDemoCache,
+      name: 'demo-no-cache'
+    },
     {
       configureServer(server) {
         let csp = loadCSP()

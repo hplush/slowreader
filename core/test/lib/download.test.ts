@@ -1,5 +1,3 @@
-import '../dom-parser.ts'
-
 import { equal, rejects, throws } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -17,8 +15,11 @@ import {
   expectRequest,
   expectWarning,
   getTestEnvironment,
-  mockRequest
+  mockRequest,
+  setupNodeDom
 } from '../utils.ts'
+
+setupNodeDom()
 
 describe('download', () => {
   setupEnvironment(getTestEnvironment())

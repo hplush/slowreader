@@ -255,6 +255,9 @@ importers:
       dompurify:
         specifier: 3.4.14
         version: 3.4.14
+      jsdom:
+        specifier: 30.0.1
+        version: 30.0.1
       just-debounce-it:
         specifier: 3.2.0
         version: 3.2.0
@@ -286,9 +289,6 @@ importers:
       better-node-test:
         specifier: 1.0.0
         version: 1.0.0
-      jsdom:
-        specifier: 30.0.1
-        version: 30.0.1
       nanospy:
         specifier: 2.0.2
         version: 2.0.2
@@ -310,15 +310,9 @@ importers:
       '@slowreader/proxy':
         specifier: workspace:*
         version: link:../proxy
-      '@types/jsdom':
-        specifier: 30.0.0
-        version: 30.0.0
       '@types/trusted-types':
         specifier: 2.0.7
         version: 2.0.7
-      jsdom:
-        specifier: 30.0.1
-        version: 30.0.1
       nanostores:
         specifier: 1.5.2
         version: 1.5.2

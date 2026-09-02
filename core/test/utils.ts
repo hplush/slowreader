@@ -49,6 +49,7 @@ import {
   setWarningTracking
 } from '../test.ts'
 
+export { setupNodeDom } from '../node.ts'
 export {
   checkAndRemoveRequestMock,
   expectRequest,

@@ -1,5 +1,3 @@
-import '../dom-parser.ts'
-
 import { equal } from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
@@ -9,6 +7,9 @@ import {
   sanitizeDOM,
   truncateDOM
 } from '../../index.ts'
+import { setupNodeDom } from '../utils.ts'
+
+setupNodeDom()
 
 function truncate(html: string, min: number, max: number): string {
   let body = parseDocument(html).body

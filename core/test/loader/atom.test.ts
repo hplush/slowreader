@@ -1,5 +1,3 @@
-import '../dom-parser.ts'
-
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
@@ -21,8 +19,11 @@ import {
   expectWarning,
   getTestEnvironment,
   mockRequest,
-  postsValue
+  postsValue,
+  setupNodeDom
 } from '../utils.ts'
+
+setupNodeDom()
 
 describe('atom loader', () => {
   function exampleAtom(responseBody: string): TextResponse {

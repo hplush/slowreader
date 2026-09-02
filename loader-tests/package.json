@@ -12,9 +12,7 @@
   "devDependencies": {
     "@slowreader/core": "workspace:*",
     "@slowreader/proxy": "workspace:*",
-    "@types/jsdom": "30.0.0",
     "@types/trusted-types": "2.0.7",
-    "jsdom": "30.0.1",
     "nanostores": "1.5.2",
     "yaml": "2.9.0"
   }

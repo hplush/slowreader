@@ -1,0 +1,49 @@
+name: Demo Database
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'web/scripts/build-demo-db.ts'
+      - 'web/scripts/demo-feeds.opml'
+      - '.github/workflows/demo-db.yml'
+      - '.github/actions/init-node/action.yml'
+  pull_request:
+    paths:
+      - 'web/scripts/build-demo-db.ts'
+      - 'web/scripts/demo-feeds.opml'
+      - '.github/workflows/demo-db.yml'
+      - '.github/actions/init-node/action.yml'
+  schedule:
+    - cron: '00 05 * * 1' # Every Monday at 5:00 UTC
+  # To refresh the posts right before a demo
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    name: Build Demo Database
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit # Allow all to load the demo feeds
+      - name: Checkout the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Initialize Node.js
+        uses: ./.github/actions/init-node
+      - name: Build the database
+        run: pnpm -F web build-demo
+        env:
+          FORCE_COLOR: 1
+      - name: Upload the database
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: demo-db
+          retention-days: 30
+          path: |
+            web/public/demo.json
+            web/public/demo.sqlite

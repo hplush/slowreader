@@ -6,6 +6,8 @@
       "!dist/ui",
       "!dist/robots.txt",
       "!dist/{404,500}.html",
+      "!dist/copy-demo-db.html",
+      "!dist/demo.{json,sqlite}",
       "!dist/icon-*.{png,svg}",
       "!dist/apple-touch-icon.png",
       "!dist/favicon.ico",

@@ -1,5 +1,3 @@
-import './dom-api.ts'
-
 import {
   createDownloadTask,
   enableTestTime,
@@ -9,11 +7,11 @@ import {
   pages,
   printWarning,
   type RouteName,
-  setRequestMethod,
   setupEnvironment,
   useCredentials,
   waitLoading
 } from '@slowreader/core'
+import { setNodeRequestMethod, setupNodeDom } from '@slowreader/core/node'
 import { getTestEnvironment, setBaseTestRoute } from '@slowreader/core/test'
 import { readFile } from 'node:fs/promises'
 import { setDefaultAutoSelectFamilyAttemptTimeout } from 'node:net'
@@ -46,12 +44,11 @@ export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
-// Node.js sends `node` and websites with bot protection block it
-export const USER_AGENT = 'SlowReader/1.0 (+https://slowreader.app)'
-
 // Node.js gives every IP address only 500 ms to connect and gives up on all
 // of them. Slow websites need more time than browsers’ default.
 setDefaultAutoSelectFamilyAttemptTimeout(2000)
+
+setupNodeDom()
 
 export function enableTestClient(route: RouteName = 'home'): void {
   setupEnvironment({
@@ -63,11 +60,7 @@ export function enableTestClient(route: RouteName = 'home'): void {
   enableTestTime()
   useCredentials(generateCredentials())
   setBaseTestRoute({ params: {}, route })
-  setRequestMethod((url, opts = {}) => {
-    let headers = new Headers(opts.headers)
-    if (!headers.has('User-Agent')) headers.set('User-Agent', USER_AGENT)
-    return fetch(url, { ...opts, headers })
-  })
+  setNodeRequestMethod()
 }
 
 export function timeout<Value>(

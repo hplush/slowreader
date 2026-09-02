@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+  <head>
+    <title>SlowReader Demo Feeds</title>
+    <dateCreated>2026-08-30T00:00:00.000Z</dateCreated>
+  </head>
+  <body>
+    <outline text="Comics">
+      <outline text="xkcd" type="rss" xmlUrl="https://xkcd.com/rss.xml" />
+      <outline text="Saturday Morning Breakfast Cereal" type="rss" xmlUrl="https://www.smbc-comics.com/comic/rss" />
+      <outline text="Existential Comics" type="rss" xmlUrl="https://existentialcomics.com/rss.xml" />
+      <outline text="Questionable Content" type="rss" xmlUrl="https://www.questionablecontent.net/QCRSS.xml" />
+    </outline>
+    <outline text="Photo">
+      <outline text="NASA Image of the Day" type="rss" xmlUrl="https://www.nasa.gov/feeds/iotd-feed/" />
+      <outline text="Colossal" type="rss" xmlUrl="https://www.thisiscolossal.com/feed/" />
+    </outline>
+    <outline text="Short Facts">
+      <outline text="Merriam-Webster Word of the Day" type="rss" xmlUrl="https://www.merriam-webster.com/wotd/feed/rss2" />
+      <outline text="Futility Closet" type="rss" xmlUrl="https://www.futilitycloset.com/feed/" />
+      <outline text="Now I Know" type="rss" xmlUrl="https://nowiknow.com/feed/" />
+      <outline text="kottke.org" type="rss" xmlUrl="https://kottke.org/index.xml" />
+    </outline>
+    <outline text="Long Lists">
+      <outline text="Dezeen" type="rss" xmlUrl="https://www.dezeen.com/feed/" />
+      <outline text="Simon Willison" type="rss" xmlUrl="https://simonwillison.net/atom/everything/" />
+      <outline text="Longreads" type="rss" xmlUrl="https://longreads.com/feed/" />
+      <outline text="Atlas Obscura" type="rss" xmlUrl="https://www.atlasobscura.com/feeds/latest" />
+    </outline>
+    <outline text="Long Reads">
+      <outline text="Aeon" type="rss" xmlUrl="https://aeon.co/feed.rss" />
+      <outline text="Nautilus" type="rss" xmlUrl="https://nautil.us/feed/" />
+      <outline text="Quanta Magazine" type="rss" xmlUrl="https://www.quantamagazine.org/feed/" />
+      <outline text="The Marginalian" type="rss" xmlUrl="https://www.themarginalian.org/feed/" />
+    </outline>
+  </body>
+</opml>

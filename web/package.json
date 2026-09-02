@@ -7,6 +7,7 @@
     "build": "pnpm run /^build:/ && mv ./storybook-static ./dist/ui",
     "start": "vite --host 0.0.0.0 --port 2553",
     "benchmark": "node ./scripts/benchmark.ts",
+    "build-demo": "node ./scripts/build-demo-db.ts",
     "visual": "storybook dev -p 2555 --no-open --host 0.0.0.0",
     "chromatic": "node --env-file-if-exists=../.env node_modules/chromatic/dist/bin.cjs --exit-zero-on-changes --skip-update-check --exit-once-uploaded --only-changed --externals '**/pnpm-lock.yaml' --externals 'web/public/**'",
     "production": "node --run build && ./scripts/run-image.sh",

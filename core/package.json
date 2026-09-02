@@ -5,12 +5,13 @@
   "exports": {
     ".": "./index.ts",
     "./benchmark": "./benchmark.ts",
+    "./node": "./node.ts",
     "./package.json": "./package.json",
     "./test": "./test.ts"
   },
   "scripts": {
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
-    "test:offline:coverage": "bnt --coverage 100 --coverage-exclude '{benchmark*,devtools.ts,errors.ts,test.ts,../api/**,../server/**,../proxy/**,**/test/**}'"
+    "test:offline:coverage": "bnt --coverage 100 --coverage-exclude '{benchmark*,devtools.ts,errors.ts,node.ts,test.ts,../api/**,../server/**,../proxy/**,**/test/**}'"
   },
   "dependencies": {
     "@logux/actions": "0.7.3",
@@ -22,6 +23,7 @@
     "@slowreader/api": "workspace:*",
     "@slowreader/server": "workspace:*",
     "dompurify": "3.4.14",
+    "jsdom": "30.0.1",
     "just-debounce-it": "3.2.0",
     "lz-string": "1.5.0",
     "nanodelay": "2.0.2",
@@ -34,7 +36,6 @@
     "@types/jsdom": "30.0.0",
     "@types/trusted-types": "2.0.7",
     "better-node-test": "1.0.0",
-    "jsdom": "30.0.1",
     "nanospy": "2.0.2"
   }
 }

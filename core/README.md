@@ -31,6 +31,7 @@ In the best scenario, the client should just subscribe to stores, render UI acco
   - Nano Stores I18n has 2 types of translations: JS files with messages structure for base locale (English) and JSON files for other languages following structure from that JS file.
   - For now, we support only English. We will add more languages later when we stabilize the UI a little.
 - [`lib/`](./lib/): shared functions used in multiple core modules.
+- [`node.ts`](./node.ts): DOM and requests for Node.js scripts, which run the core outside of the browser.
 - [`test/`](./test/): unit tests for modules, loaders and utilities.
 - `{MODULE}.ts`: client logic separated by modules.
   - To avoid name conflict, each module should use the module’s name or term in exported functions and stores.

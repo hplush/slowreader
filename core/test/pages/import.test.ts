@@ -1,5 +1,3 @@
-import '../dom-parser.ts'
-
 import { withoutMeta } from '@logux/client/db'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
@@ -34,8 +32,11 @@ import {
   enableClientTest,
   expectRequest,
   mockRequest,
-  openPage
+  openPage,
+  setupNodeDom
 } from '../utils.ts'
+
+setupNodeDom()
 
 describe('import page', () => {
   let MIME_TYPES = {

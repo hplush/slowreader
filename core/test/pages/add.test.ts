@@ -1,5 +1,3 @@
-import '../dom-parser.ts'
-
 import { keepMount } from 'nanostores'
 import { deepEqual, equal, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
@@ -22,8 +20,11 @@ import {
   getPopup,
   mockRequest,
   openPage,
-  setBaseTestRoute
+  setBaseTestRoute,
+  setupNodeDom
 } from '../utils.ts'
+
+setupNodeDom()
 
 describe('add page', () => {
   beforeEach(() => {

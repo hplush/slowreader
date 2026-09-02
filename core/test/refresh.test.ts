@@ -1,5 +1,3 @@
-import './dom-parser.ts'
-
 import { restoreAll, spyOn } from 'nanospy'
 import { deepEqual, equal, fail, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
@@ -36,8 +34,11 @@ import {
   enableClientTest,
   expectRequest,
   expectWarning,
-  mockRequest
+  mockRequest,
+  setupNodeDom
 } from './utils.ts'
+
+setupNodeDom()
 
 describe('refresh', () => {
   beforeEach(() => {

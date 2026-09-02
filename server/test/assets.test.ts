@@ -65,6 +65,8 @@ describe('server assets', () => {
       '<html><style>:root{}</style><404</html>'
     )
     await writeFile(join(assetsDir, 'data'), 'D')
+    await writeFile(join(assetsDir, 'demo.json'), '{}')
+    await writeFile(join(assetsDir, 'demo.sqlite'), 'S')
     await mkdir(join(assetsDir, 'assets'))
     await writeFile(join(assetsDir, 'assets', 'app-CiUGZyvO.css'), '*{}')
     await writeFile(
@@ -88,7 +90,7 @@ describe('server assets', () => {
     let index1 = await server.fetch('/')
     checkHeaders(index1, {
       'content-security-policy':
-        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-jao29H8BKSlaiUqByFnf6MxYoYKKc1augDeFhsmIVag=' 'sha256-A+WIF57Zi2pZ+PSfiD5lb/2xvVRTUhW02IK/tX5ZT3s=' 'sha256-uiWkQb6L1FmUhEr5KBFM9oqhcGX0BqUksFZpGOiLpWo=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'wasm-unsafe-eval' 'self'; require-trusted-types-for 'script'; trusted-types default dompurify slowreader-rich svelte-trusted-html slowreader-parse",
+        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-jao29H8BKSlaiUqByFnf6MxYoYKKc1augDeFhsmIVag=' 'sha256-A+WIF57Zi2pZ+PSfiD5lb/2xvVRTUhW02IK/tX5ZT3s=' 'sha256-uiWkQb6L1FmUhEr5KBFM9oqhcGX0BqUksFZpGOiLpWo=' 'sha256-1tI7zFRuDBdCe/c3JvEG6N6f/fad51GVV86/f9tEXVw=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'sha256-qcw7nJXFn+YgQEAEcmC4BSxlmbIgcivQD0w8cwoeqNE=' 'wasm-unsafe-eval' 'self'; require-trusted-types-for 'script'; trusted-types default dompurify slowreader-rich svelte-trusted-html slowreader-parse",
       'content-type': 'text/html',
       ...SECURITY
     })
@@ -97,7 +99,7 @@ describe('server assets', () => {
     let html = await server.fetch('/404.html')
     checkHeaders(html, {
       'content-security-policy':
-        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-jao29H8BKSlaiUqByFnf6MxYoYKKc1augDeFhsmIVag=' 'sha256-A+WIF57Zi2pZ+PSfiD5lb/2xvVRTUhW02IK/tX5ZT3s=' 'sha256-uiWkQb6L1FmUhEr5KBFM9oqhcGX0BqUksFZpGOiLpWo=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'wasm-unsafe-eval' 'self'; require-trusted-types-for 'script'; trusted-types default dompurify slowreader-rich svelte-trusted-html slowreader-parse",
+        "object-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'; style-src 'sha256-SmAM1DSNiCCdAEabBHfOLWn8GuDZmajUjuFmodxWN5E=' 'sha256-jao29H8BKSlaiUqByFnf6MxYoYKKc1augDeFhsmIVag=' 'sha256-A+WIF57Zi2pZ+PSfiD5lb/2xvVRTUhW02IK/tX5ZT3s=' 'sha256-uiWkQb6L1FmUhEr5KBFM9oqhcGX0BqUksFZpGOiLpWo=' 'sha256-1tI7zFRuDBdCe/c3JvEG6N6f/fad51GVV86/f9tEXVw=' 'self'; script-src 'sha256-iliif2S6Fr8mQazzDJs2huHUeow98/TYx+Staat/56E=' 'sha256-qcw7nJXFn+YgQEAEcmC4BSxlmbIgcivQD0w8cwoeqNE=' 'wasm-unsafe-eval' 'self'; require-trusted-types-for 'script'; trusted-types default dompurify slowreader-rich svelte-trusted-html slowreader-parse",
       'content-type': 'text/html',
       ...SECURITY
     })
@@ -144,6 +146,23 @@ describe('server assets', () => {
       'content-type': 'application/wasm',
       ...SECURITY
     })
+
+    // The demo files change on every rebuild, so the browser must ask for them
+    let manifest = await server.fetch('/demo.json')
+    checkHeaders(manifest, {
+      'cache-control': 'no-store',
+      'content-type': 'application/json',
+      ...SECURITY
+    })
+    equal(await manifest.text(), '{}')
+
+    let database = await server.fetch('/demo.sqlite')
+    checkHeaders(database, {
+      'cache-control': 'no-store',
+      'content-type': 'application/vnd.sqlite3',
+      ...SECURITY
+    })
+    equal(await database.text(), 'S')
 
     let story1 = await server.fetch('/ui/')
     checkHeaders(story1, { 'content-type': 'text/html', ...SECURITY })

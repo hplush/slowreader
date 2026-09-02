@@ -1,5 +1,3 @@
-import '../dom-parser.ts'
-
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
@@ -18,8 +16,11 @@ import {
   expectRequest,
   getTestEnvironment,
   mockRequest,
-  postsValue
+  postsValue,
+  setupNodeDom
 } from '../utils.ts'
+
+setupNodeDom()
 
 describe('json feed loader', () => {
   function exampleJson(json: object | string): TextResponse {

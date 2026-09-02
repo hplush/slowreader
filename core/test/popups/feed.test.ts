@@ -1,5 +1,3 @@
-import '../dom-parser.ts'
-
 import { cleanStores, keepMount } from 'nanostores'
 import { deepEqual, equal, match, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
@@ -27,8 +25,11 @@ import {
   getPopup,
   mockRequest,
   openTestPopup,
-  setBaseTestRoute
+  setBaseTestRoute,
+  setupNodeDom
 } from '../utils.ts'
+
+setupNodeDom()
 
 describe('feed popup', () => {
   beforeEach(() => {

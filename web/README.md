@@ -5,6 +5,7 @@ _See the [full architecture guide](../README.md) first._
 - [Project Structure](#project-structure)
 - [Tools](#tools)
 - [Scripts](#scripts)
+- [Demo Mode](#demo-mode)
 - [DevTools Helpers](#devtools-helpers)
 - [Design System](#design-system)
 - [DOM Anchors](#dom-anchors)
@@ -55,6 +56,15 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 - `pnpm -F web build`: build production files in `web/dist/`.
 - `pnpm -F web size`: check the JS bundle size of the production build.
 - `pnpm -F web benchmark`: run [UI performance benchmark](../docs/benchmark.md).
+- `pnpm -F web build-demo`: load the feeds from [`web/scripts/demo-feeds.opml`](./scripts/demo-feeds.opml) and write demo DB dump.
+
+## Demo Mode
+
+I mode to quickly see the app with some example content. We pre-generate database to start it quickly.
+
+`/copy-demo-db.html` copies the demo database to OPFS and the demo settings to `localStorage`, then opens the app.
+
+[Demo Database workflow](../.github/workflows/demo-db.yml) rebuilds the files every Monday, and the staging deploy takes them from its artifact.
 
 ## DevTools Helpers
 

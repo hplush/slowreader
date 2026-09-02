@@ -4,6 +4,7 @@ import {
   setRequestMethod,
   waitLoading
 } from '@slowreader/core'
+import { USER_AGENT } from '@slowreader/core/node'
 import { createProxy, DEFAULT_PROXY_CONFIG } from '@slowreader/proxy'
 import { createServer } from 'node:http'
 
@@ -12,8 +13,7 @@ import {
   createCLI,
   enableTestClient,
   fetchAndParsePosts,
-  readText,
-  USER_AGENT
+  readText
 } from './utils.ts'
 
 let cli = createCLI(

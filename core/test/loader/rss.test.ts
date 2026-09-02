@@ -1,5 +1,3 @@
-import '../dom-parser.ts'
-
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
@@ -16,8 +14,11 @@ import {
   expectNotMine,
   expectRequest,
   mockRequest,
-  postsValue
+  postsValue,
+  setupNodeDom
 } from '../utils.ts'
+
+setupNodeDom()
 
 describe('rss loader', () => {
   function exampleRss(responseBody: string): TextResponse {

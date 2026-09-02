@@ -1,5 +1,3 @@
-import './dom-parser.ts'
-
 import { deepEqual, doesNotMatch, equal, match } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
@@ -15,7 +13,9 @@ import {
   testFeed,
   testPost
 } from '../index.ts'
-import { cleanClientTest, enableClientTest } from './utils.ts'
+import { cleanClientTest, enableClientTest, setupNodeDom } from './utils.ts'
+
+setupNodeDom()
 
 function postIntro(post: PostCardText): [string, boolean] {
   let [node, more] = getPostIntro(post)
