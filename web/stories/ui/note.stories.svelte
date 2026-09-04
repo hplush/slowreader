@@ -2,6 +2,7 @@
   import { mdiFireplace } from '@mdi/js'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
+  import Button from '../../ui/button.svelte'
   import Note from '../../ui/note.svelte'
   import Section from '../section.svelte'
 
@@ -30,6 +31,11 @@
       more meaningful and deep content.
     </Note>
     <Note icon={mdiFireplace} variant="neutral">One line</Note>
+    <Note icon={mdiFireplace} variant="good">
+      Slow Reader combines feeds from social networks and RSS and helps read
+      more meaningful and deep content.
+      <Button size="wide">Button</Button>
+    </Note>
   </Section>
 </Story>
 
@@ -50,6 +56,11 @@
     <Note icon={mdiFireplace} title="Warning" variant="dangerous">
       Slow Reader combines feeds from social networks and RSS and helps read
       more meaningful and deep content.
+    </Note>
+    <Note icon={mdiFireplace} variant="good">
+      Slow Reader combines feeds from social networks and RSS and helps read
+      more meaningful and deep content.
+      <Button size="wide">Button</Button>
     </Note>
   </Section>
 </Story>

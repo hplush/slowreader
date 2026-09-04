@@ -37,7 +37,7 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      gap: 0.312rem;
+      gap: 0.5rem;
       align-items: flex-start;
       width: stretch;
       padding: 0.625rem 0.625rem 0.625rem calc(2rem + 0.312rem + 0.312rem);
@@ -75,6 +75,7 @@
     .note_title {
       display: block;
       font: var(--secondary-title-font);
+      margin-bottom: -0.5rem;
     }
   }
 </style>

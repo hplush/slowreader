@@ -30,26 +30,24 @@
   <Stack gap="xl">
     {#if $isDemo}
       <Note icon={mdiBinoculars} title={$t.demoTitle} variant="warning">
-        <Stack gap="m">
-          {$t.demoDesc}
-          <Stack gap="xs" row>
-            <Button
-              joined="start"
-              onclick={page.dropDemo}
-              size="wide"
-              variant="secondary-dangerous"
-            >
-              {$t.demoDrop}
-            </Button>
-            <Button
-              joined="end"
-              onclick={page.keepDemo}
-              size="wide"
-              variant="secondary"
-            >
-              {$t.demoKeep}
-            </Button>
-          </Stack>
+        {$t.demoDesc}
+        <Stack gap="xs" row>
+          <Button
+            joined="start"
+            onclick={page.dropDemo}
+            size="wide"
+            variant="secondary-dangerous"
+          >
+            {$t.demoDrop}
+          </Button>
+          <Button
+            joined="end"
+            onclick={page.keepDemo}
+            size="wide"
+            variant="secondary"
+          >
+            {$t.demoKeep}
+          </Button>
         </Stack>
       </Note>
     {/if}

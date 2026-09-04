@@ -86,17 +86,15 @@
       </Stack>
     {:else if $isDemo}
       <Note icon={mdiBinoculars} title={$t.demoTitle} variant="warning">
-        <Stack gap="m">
-          {$t.demoDesc}
-          <Button
-            href={getURL('storage')}
-            icon={mdiDatabaseOutline}
-            size="wide"
-            variant="secondary"
-          >
-            {$t.demoExit}
-          </Button>
-        </Stack>
+        {$t.demoDesc}
+        <Button
+          href={getURL('storage')}
+          icon={mdiDatabaseOutline}
+          size="wide"
+          variant="secondary"
+        >
+          {$t.demoExit}
+        </Button>
       </Note>
     {:else}
       <Card>
