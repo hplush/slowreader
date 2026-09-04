@@ -4,11 +4,22 @@ import { atom } from 'nanostores'
 import { onEnvironment } from './environment.ts'
 import { commonMessages } from './messages/index.ts'
 
+export const fatalReasons = [
+  'brokenDatabase',
+  'notFound',
+  'outdated',
+  'rejected'
+] as const
+
 export type Fatal =
   | { error: string | undefined; type: 'brokenDatabase' }
   | { error: string; type: 'rejected' }
-  | { type: 'notFound' }
-  | { type: 'outdated' }
+  | {
+      type: Exclude<
+        (typeof fatalReasons)[number],
+        'brokenDatabase' | 'rejected'
+      >
+    }
 
 /**
  * Show error page instead of app.

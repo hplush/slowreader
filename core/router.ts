@@ -1,7 +1,7 @@
 import { atom, computed, effect, type ReadableAtom } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
-import { type Fatal, NotFoundError } from './errors.ts'
+import { type Fatal, fatalReasons, NotFoundError } from './errors.ts'
 import { userId } from './settings.ts'
 
 export interface Routes {
@@ -102,14 +102,10 @@ function validateFrom(value: number | string | undefined): string | undefined {
 }
 
 function validateReason(value: string | undefined): Fatal['type'] | undefined {
-  if (
-    typeof value === 'undefined' ||
-    value === 'brokenDatabase' ||
-    value === 'notFound' ||
-    value === 'outdated' ||
-    value === 'rejected'
-  ) {
-    return value
+  if (typeof value === 'undefined') return value
+  let reason = fatalReasons.find(i => i === value)
+  if (reason) {
+    return reason
   } else {
     throw new NotFoundError()
   }
