@@ -98,6 +98,7 @@
       syncStatus.set('error')
     }}
     posts={POSTS}
+    route="add"
   >
     <Navbar />
   </Scene>

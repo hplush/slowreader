@@ -4,11 +4,13 @@
 
   import Clickable from '../clickable.svelte'
   import Icon from '../icon.svelte'
+  import NavbarDot from './dot.svelte'
 
   let {
     anchor,
     children,
     current,
+    dot,
     focusable = false,
     hasSubmenu = false,
     href,
@@ -20,6 +22,7 @@
     anchor?: string
     children?: Snippet
     current?: boolean
+    dot?: boolean
     focusable?: boolean
     hasSubmenu?: false | string
     href?: string
@@ -56,6 +59,9 @@
       {name}
     {/if}
   </span>
+  {#if dot}
+    <NavbarDot />
+  {/if}
 </Clickable>
 
 <style lang="postcss">

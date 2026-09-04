@@ -15,6 +15,7 @@
     refreshProgress,
     refreshStatus,
     router,
+    syncStatusType,
     navbarMessages as t
   } from '@slowreader/core'
   import { onMount, tick } from 'svelte'
@@ -123,6 +124,7 @@
     <NavbarButton
       name={$t.menu}
       current={isOtherRoute($router)}
+      dot={$syncStatusType === 'error'}
       hasSubmenu="navbar_submenu"
       href={getURL('menu')}
       icon={mdiMenu}

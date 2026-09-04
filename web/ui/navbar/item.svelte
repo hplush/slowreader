@@ -4,6 +4,7 @@
 
   import Clickable from '../clickable.svelte'
   import Icon from '../icon.svelte'
+  import NavbarDot from './dot.svelte'
 
   let {
     children,
@@ -49,7 +50,7 @@
       <div class="navbar-item_icon">
         <Icon path={icon} />
         {#if dot}
-          <div class="navbar-item_dot"></div>
+          <NavbarDot />
         {/if}
       </div>
     {/if}
@@ -135,16 +136,6 @@
     .navbar-item_icon {
       position: relative;
       padding-inline-end: 0.5rem;
-    }
-
-    .navbar-item_dot {
-      position: absolute;
-      inset-inline-end: 0.25rem;
-      top: 0;
-      width: 0.5rem;
-      height: 0.5rem;
-      background: var(--dangerous-text-color);
-      border-radius: 50%;
     }
 
     .navbar-item_text {
