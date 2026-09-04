@@ -21,6 +21,7 @@ import { RETENTION } from '@slowreader/api'
 import debounce from 'just-debounce-it'
 
 import { getEnvironment } from './environment.ts'
+import { deletePost } from './post.ts'
 
 export interface LogTracker {
   destroy(): void
@@ -47,9 +48,6 @@ function reportTaskError(error: unknown): void {
  * Track the log to keep in it only actions, which are not derivable
  * from the tables. It is used only by the cloud user: the local log
  * is empty, since the local actions are never sent anywhere.
- *
- * @param logux Logux client.
- * @param crdt CRDT database with all the tables.
  */
 export function trackLog(
   logux: CrossTabClient,
@@ -238,7 +236,7 @@ export function trackLog(
       if (!parsed || parsed.rows.length === 0) return
       let { plural, rows, verb } = parsed
       if (verb === 'deleted') {
-        meta.indexes = ['tombstone']
+        meta.indexes = ['tombstone', ...rows.map(row => `${plural}/${row[0]}`)]
         meta.reasons.push('tombstone')
       } else {
         for (let [id, fields] of rows) {
@@ -266,6 +264,24 @@ export function trackLog(
         let winners = new Set(toReasons(won))
         let lost = toReasons(touched).filter(cell => !winners.has(cell))
         tasks.add(() => forgetCells(plural, ids, [...winners], lost, meta))
+        if (plural === 'posts' && verb === 'created') {
+          // Prevent posts duplication
+          tasks.add(async () => {
+            let resurrected: string[] = []
+            for (let id of ids) {
+              await logux.log.each(
+                { index: `posts/${id}` },
+                (post, deleted) => {
+                  if (deleted.reasons.includes('tombstone')) {
+                    resurrected.push(id)
+                    return false
+                  }
+                }
+              )
+            }
+            if (resurrected.length > 0) await deletePost(resurrected)
+          })
+        }
       }
       // The action, which came from the server, will never be sent back,
       // so there is no `logux/processed` to wait for

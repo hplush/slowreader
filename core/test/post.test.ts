@@ -1,4 +1,10 @@
-import { deepEqual, doesNotMatch, equal, match } from 'node:assert/strict'
+import {
+  deepEqual,
+  doesNotMatch,
+  equal,
+  match,
+  notEqual
+} from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
@@ -6,6 +12,7 @@ import {
   addFilter,
   addPost,
   changeFeed,
+  getPostId,
   loadPost,
   getPostIntro,
   type PostCardText,
@@ -42,6 +49,27 @@ describe('post', () => {
     equal(result[1], true)
     match(result[0], /[.?] …<\/p>/)
   }
+
+  test('takes the post ID from the feed', () => {
+    let post = { id: 'random', originId: 'origin', url: 'https://one.com/1' }
+    equal(getPostId('feed', post), getPostId('feed', { ...post, id: 'other' }))
+    notEqual(getPostId('feed', post), getPostId('other', post))
+    notEqual(
+      getPostId('feed', post),
+      getPostId('feed', { ...post, originId: '' })
+    )
+
+    // Without the feed’s ID the URL is the only stable key
+    let noOrigin = { ...post, originId: '' }
+    equal(
+      getPostId('feed', noOrigin),
+      getPostId('feed', { ...noOrigin, id: 'x' })
+    )
+
+    // Nothing to recognize the post by, so posts must not share the ID
+    let empty = { id: 'a', originId: '', url: '' }
+    notEqual(getPostId('feed', empty), getPostId('feed', { ...empty, id: 'b' }))
+  })
 
   test('has helper to load post', async () => {
     let id = await addPost(testPost({ title: 'Test Post' }))

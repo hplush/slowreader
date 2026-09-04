@@ -19,7 +19,9 @@ import { setTimeout } from 'node:timers/promises'
 
 import {
   addFeed,
+  addPost,
   busy,
+  deletePost,
   changeFeed,
   client,
   commonMessages,
@@ -29,12 +31,15 @@ import {
   type FeedValue,
   generateCredentials,
   getClient,
+  getPostId,
   lastReset,
   loadFeeds,
+  loadPosts,
   reportDatabaseError,
   setupEnvironment,
   signUp,
   testFeed,
+  testPost,
   useCredentials,
   userId
 } from '../index.ts'
@@ -406,6 +411,75 @@ describe('log', () => {
     await waitUntil(() => !downloadingCloudData.get())
     await waitUntil(() => busy.get() === false)
     equal((await loadFeeds()).length, 1)
+  })
+
+  test('merges the post, which two devices added on their own', async () => {
+    let credentials = await signUpCloudUser()
+    let device = await connectOtherDevice(credentials)
+
+    let feedId = await addFeed(testFeed({ title: 'A' }))
+    let postId = getPostId(feedId, {
+      id: 'random',
+      originId: 'post-1',
+      url: 'https://one.com/1'
+    })
+    // Both devices were offline and added the post on their own
+    await addPost(
+      testPost({ feedId, id: postId, originId: 'post-1', title: 'Mine' })
+    )
+    await device.process(
+      {
+        fields: {
+          feedId,
+          originId: 'post-1',
+          publishedAt: 1000,
+          read: 0,
+          reading: 'slow',
+          title: 'Theirs'
+        },
+        id: postId,
+        type: 'posts/created'
+      },
+      // The action of another device must win the last write to be visible
+      { time: Date.now() + 10_000 }
+    )
+    await waitUntil(async () => (await loadPosts())[0]?.title === 'Theirs')
+
+    // The same row ID, so the merge keeps one post instead of two
+    let posts = await loadPosts()
+    equal(posts.length, 1)
+    equal(posts[0]!.id, postId)
+  })
+
+  test('deletes the post, which the offline device brought back', async () => {
+    let credentials = await signUpCloudUser()
+    let device = await connectOtherDevice(credentials)
+
+    let feedId = await addFeed(testFeed({ title: 'A' }))
+    let postId = await addPost(testPost({ feedId, originId: 'post-1' }))
+    await deletePost(postId)
+    await waitUntil(async () => (await loadPosts()).length === 0)
+
+    // The device was offline during the read, so its create is older
+    // than the deletion, but comes after it
+    await device.process(
+      {
+        fields: {
+          feedId,
+          originId: 'post-1',
+          publishedAt: 1000,
+          read: 0,
+          reading: 'slow',
+          title: 'Back'
+        },
+        id: postId,
+        type: 'posts/created'
+      },
+      { time: 1 }
+    )
+
+    await waitUntil(async () => (await logTypes()).includes('posts/deleted'))
+    await waitUntil(async () => (await loadPosts()).length === 0)
   })
 
   test('shadows the action of another device right after the apply', async () => {
