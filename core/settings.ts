@@ -15,6 +15,12 @@ export const syncServer = persistentAtom<string | undefined>(
 
 export const hasPassword = persistentBoolean('slowreader:has-password')
 
+/**
+ * The database was copied from the demo build, so the feeds and the posts
+ * in it are not the user’s own.
+ */
+export const isDemo = persistentBoolean('slowreader:demo')
+
 export interface DatabaseFailure {
   at: Date
   error?: string

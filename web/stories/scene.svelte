@@ -12,6 +12,7 @@
     DEFAULT_REFRESH_STATISTICS,
     type FeedValue,
     hasPassword,
+    isDemo,
     needWelcome,
     type NewCategory,
     pages,
@@ -101,6 +102,7 @@
       signOut()
     }
     prepareResponses(responses)
+    isDemo.set(false)
     busy.set(false)
     stopRefreshing()
     refreshStatus.set('start')

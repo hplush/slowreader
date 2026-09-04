@@ -10,6 +10,10 @@ export const cloudMessages = i18n('cloud', {
   deleteAccount: 'Delete your data from the cloud',
   deleteWarning:
     'This action cannot be undone. Are you sure you want to delete your data?',
+  demoDesc:
+    'Choose what to do with the demo feeds before you create an account.',
+  demoExit: 'Leave the demo',
+  demoTitle: 'You are in the demo mode',
   disconnectedStatus: 'Offline',
   errorStatus: params('Error: {details}'),
   exit: 'Sign out on this device',

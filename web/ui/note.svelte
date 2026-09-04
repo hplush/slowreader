@@ -12,7 +12,7 @@
     children: Snippet
     icon: string
     title?: string
-    variant: 'dangerous' | 'good' | 'neutral'
+    variant: 'dangerous' | 'good' | 'neutral' | 'warning'
   } = $props()
 </script>
 
@@ -20,6 +20,7 @@
   class="note"
   class:is-dangerous={variant === 'dangerous'}
   class:is-good={variant === 'good'}
+  class:is-warning={variant === 'warning'}
 >
   <div class="note_icon">
     <Icon path={icon} />
@@ -51,6 +52,10 @@
 
       &.is-good {
         @mixin background var(--note-good-background);
+      }
+
+      &.is-warning {
+        @mixin background var(--note-warning-background);
       }
 
       & + & {

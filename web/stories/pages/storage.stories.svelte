@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  import { hasPassword, pages } from '@slowreader/core'
+  import { hasPassword, isDemo, pages } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import StoragePage from '../../pages/storage.svelte'
@@ -21,6 +21,18 @@
   <Scene
     oninit={() => {
       hasPassword.set(false)
+    }}
+    route="storage"
+  >
+    <StoragePage page={pages.storage()} />
+  </Scene>
+</Story>
+
+<Story name="Demo" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      hasPassword.set(false)
+      isDemo.set(true)
     }}
     route="storage"
   >

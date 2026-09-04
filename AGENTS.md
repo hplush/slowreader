@@ -7,6 +7,7 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 - Prefer short one-word variable names. Avoid abbreviations: use `current` instead of `cur`.
 - Do not add any comments to generated code by default.
 - Never write a comment, which repeats the name of the function or variable. Comment only what the code can’t say: why, not what.
+- Do not explain simple functions with a few lines with simple reasons like a batch call being faster than a loop.
 - Import only specific functions. Don’t import everything.
 - Don’t use `export default`, use name exports instead.
 - Always use `.ts` in TS files imports.
@@ -40,6 +41,7 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 - Run specific test by `pnpm bnt path/to/test.test.ts -t 'test name'`.
 - Do not run benchmark by your own. Ask user to run it.
 - Add story to `web/stories/` for every new UI state.
+- New variant of a `web/ui/` component belongs to that component’s story too if it is exists, not only to the page which asked for it.
 - Try to combine cases in stories to reduce number of stories.
 
 ## Browser

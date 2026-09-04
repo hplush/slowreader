@@ -8,6 +8,7 @@ import {
   generateCredentials,
   getDatabase,
   type ImportPage,
+  isDemo,
   loadCategories,
   loadFeedsByCategory,
   moveLastSyncedToPast,
@@ -63,6 +64,7 @@ let storage = environment.persistentStore
 setNodeRequestMethod()
 
 useCredentials(generateCredentials())
+isDemo.set(true)
 
 currentPage.listen(() => {})
 setBaseTestRoute({ params: {}, route: 'import' })

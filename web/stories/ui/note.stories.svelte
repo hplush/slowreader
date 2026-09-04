@@ -21,6 +21,10 @@
       Slow Reader combines feeds from social networks and RSS and helps read
       more meaningful and deep content.
     </Note>
+    <Note icon={mdiFireplace} variant="warning">
+      Slow Reader combines feeds from social networks and RSS and helps read
+      more meaningful and deep content.
+    </Note>
     <Note icon={mdiFireplace} title="Warning" variant="dangerous">
       Slow Reader combines feeds from social networks and RSS and helps read
       more meaningful and deep content.
@@ -36,6 +40,10 @@
       more meaningful and deep content.
     </Note>
     <Note icon={mdiFireplace} variant="good">
+      Slow Reader combines feeds from social networks and RSS and helps read
+      more meaningful and deep content.
+    </Note>
+    <Note icon={mdiFireplace} variant="warning">
       Slow Reader combines feeds from social networks and RSS and helps read
       more meaningful and deep content.
     </Note>

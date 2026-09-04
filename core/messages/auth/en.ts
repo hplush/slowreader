@@ -6,6 +6,7 @@ export const authMessages = i18n('auth', {
   askSaveAgain: 'Show save-password popup',
   createAccount: 'Create cross-device account',
   customServer: 'Use my own server',
+  demo: 'See demo',
   email: params(
     '// Send this email to yourself\n// If you forget your password, you can search for it later here\n\nUser ID: {user}\nSecret: {secret}'
   ),
@@ -35,7 +36,7 @@ export const authMessages = i18n('auth', {
   signingUp: 'Creating account…',
   signup: 'Create account on the server',
   signupTitle: 'Sign up',
-  start: 'Start local app',
+  startLocal: 'Start empty local account',
   startTitle: 'Start',
   toEmail: 'Email password to myself',
   signUpUserId: 'Anonymous User ID',

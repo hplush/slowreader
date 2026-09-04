@@ -9,7 +9,7 @@ import { setLoaderReporter } from './loader.ts'
 import { benchmarkMessages } from './messages/index.ts'
 import {
   addPost,
-  loadPostIdsByFeed,
+  loadPostIds,
   type NewPost,
   type PostValue,
   stringifyMedia
@@ -336,7 +336,7 @@ async function fillClient(
  */
 export async function fillReaderFeed(): Promise<void> {
   let [ids, unread] = await Promise.all([
-    loadPostIdsByFeed(READER_FEED),
+    loadPostIds({ feed: READER_FEED }),
     select<{ total: number }>`
       SELECT COUNT("id") AS "total" FROM "posts"
       WHERE "feedId" = ${READER_FEED} AND "read" = 0

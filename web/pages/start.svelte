@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiAccountPlus, mdiRocketLaunch } from '@mdi/js'
+  import { mdiAccountPlus, mdiBinoculars, mdiHome } from '@mdi/js'
   import { type StartPage, authMessages as t } from '@slowreader/core'
 
   import { getURL } from '../stores/url-router.ts'
@@ -24,17 +24,25 @@
         </Stack>
         <Stack align="center">
           <Button
-            icon={mdiRocketLaunch}
-            onclick={page.startLocal}
+            href="/copy-demo-db.html"
+            icon={mdiBinoculars}
             size="big"
             variant="main"
           >
-            {$t.start}
+            {$t.demo}
+          </Button>
+          <Button
+            icon={mdiHome}
+            onclick={page.startLocal}
+            size="wide"
+            variant="secondary"
+          >
+            {$t.startLocal}
           </Button>
           <Button
             href={getURL('signUp')}
             icon={mdiAccountPlus}
-            size="wide"
+            size="pill"
             variant="secondary"
           >
             {$t.createAccount}

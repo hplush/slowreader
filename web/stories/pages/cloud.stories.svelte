@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  import { hasPassword, pages, syncStatus } from '@slowreader/core'
+  import { hasPassword, isDemo, pages, syncStatus } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import CloudPage from '../../pages/cloud.svelte'
@@ -32,6 +32,18 @@
   <Scene
     oninit={() => {
       syncStatus.set('wait')
+    }}
+    route="cloud"
+  >
+    <CloudPage page={pages.cloud()} />
+  </Scene>
+</Story>
+
+<Story name="Demo" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      hasPassword.set(false)
+      isDemo.set(true)
     }}
     route="cloud"
   >

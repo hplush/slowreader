@@ -127,12 +127,14 @@ export function loadPostsByFeed(feedId: string): Promise<PostValue[]> {
   `
 }
 
-export function loadPostIdsByFeed(feedId: string): Promise<string[]> {
-  return select<{
-    id: string
-  }>`SELECT "id" FROM "posts" WHERE "feedId" = ${feedId}`.then(rows =>
-    rows.map(row => row.id)
-  )
+export function loadPostIds(filter: { feed?: string } = {}): Promise<string[]> {
+  let rows: Promise<{ id: string }[]>
+  if (filter.feed) {
+    rows = select`SELECT "id" FROM "posts" WHERE "feedId" = ${filter.feed}`
+  } else {
+    rows = select`SELECT "id" FROM "posts"`
+  }
+  return rows.then(list => list.map(row => row.id))
 }
 
 /**

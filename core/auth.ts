@@ -9,6 +9,7 @@ import {
   benchmarkStatistics,
   encryptionKey,
   hasPassword,
+  isDemo,
   syncServer,
   uploadingLocalData,
   userId
@@ -117,6 +118,7 @@ export function onSignOut(callback: () => void): () => void {
 export function forgetLocalData(): void {
   userId.set(undefined)
   hasPassword.set(false)
+  isDemo.set(false)
   encryptionKey.set(undefined)
   syncServer.set(undefined)
   benchmarkStatistics.set(undefined)

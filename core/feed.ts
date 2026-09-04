@@ -5,7 +5,7 @@ import { atom, effect, onMount, type ReadableAtom } from 'nanostores'
 import { createDownloadTask, type TextResponse } from './lib/download.ts'
 import { firstRow } from './lib/stores.ts'
 import { type FeedLoader, type LoaderName, loaders } from './loader/index.ts'
-import { deletePost, loadPostIdsByFeed, recalcPostsReading } from './post.ts'
+import { deletePost, loadPostIds, recalcPostsReading } from './post.ts'
 import type { PostsList } from './posts-list.ts'
 import {
   type FeedChanges,
@@ -92,8 +92,14 @@ export function addFeed(
 }
 
 export async function deleteFeed(feedId: string): Promise<void> {
-  await deletePost(await loadPostIdsByFeed(feedId))
+  await deletePost(await loadPostIds({ feed: feedId }))
   return getTables().feeds.delete(feedId)
+}
+
+export async function deleteAllFeeds(): Promise<void> {
+  await deletePost(await loadPostIds())
+  let feeds = await select<{ id: string }>`SELECT "id" FROM "feeds"`
+  await getTables().feeds.delete(feeds.map(feed => feed.id))
 }
 
 export async function changeFeed(
