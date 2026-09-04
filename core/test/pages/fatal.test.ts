@@ -1,4 +1,5 @@
-import { LoguxError } from '@logux/core'
+import { loguxUndo, zero, zeroClean } from '@logux/actions'
+import { type Action, LoguxError } from '@logux/core'
 import type { TestServer } from '@logux/server'
 import { COMMON_ERRORS } from '@slowreader/api'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
@@ -67,6 +68,9 @@ describe('fatal page', () => {
         error: 'Test page',
         type: 'brokenDatabase'
       })
+
+      setBaseTestRoute({ params: { reason: 'rejected' }, route: 'fatal' })
+      deepEqual(page.reason.get(), { error: 'Test page', type: 'rejected' })
 
       // The unknown reason is the same broken URL as any other
       setBaseTestRoute({ params: { reason: 'unknown' }, route: 'fatal' })
@@ -155,6 +159,64 @@ describe('fatal page', () => {
       forgetLocalData()
       equal(userId.get(), undefined)
       equal(restarts, 1)
+    })
+  })
+
+  describe('rejected changes', () => {
+    let restarts: number
+
+    beforeEach(() => {
+      restarts = 0
+      enableClientTest({
+        restartApp() {
+          restarts += 1
+        }
+      })
+    })
+
+    afterEach(async () => {
+      lastReset.set(undefined)
+      await cleanClientTest()
+    })
+
+    function undo(action: Action): Promise<unknown> {
+      return getClient().log.add(
+        loguxUndo({ action, id: '1 1000000000000000:1:1', reason: 'denied' })
+      )
+    }
+
+    test('opens when the server refused the change', async () => {
+      keepMount(currentPage)
+      setBaseTestRoute({ params: {}, route: 'about' })
+
+      // These actions own no cell, so their undo keeps the device equal
+      // to the cloud
+      await undo(zeroClean({ ids: [] }))
+      equal(fatal.get(), undefined)
+      equal(currentPage.get().route, 'about')
+
+      await undo(
+        zero({
+          compressed: false,
+          d: new Uint8Array([1]),
+          iv: new Uint8Array([2])
+        })
+      )
+      // The page shows the reason and the node ID for the bug report
+      deepEqual(fatal.get(), {
+        error: 'denied 1 1000000000000000:1:1',
+        type: 'rejected'
+      })
+      equal(currentPage.get().route, 'fatal')
+    })
+
+    test('downloads the data from the cloud again', async () => {
+      let page = openPage({ params: { reason: 'rejected' }, route: 'fatal' })
+
+      await page.resetDatabase()
+
+      equal(restarts, 1)
+      equal(lastReset.get()!.reason, 'rejected-action')
     })
   })
 

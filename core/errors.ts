@@ -6,6 +6,7 @@ import { commonMessages } from './messages/index.ts'
 
 export type Fatal =
   | { error: string | undefined; type: 'brokenDatabase' }
+  | { error: string; type: 'rejected' }
   | { type: 'notFound' }
   | { type: 'outdated' }
 

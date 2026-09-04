@@ -1,5 +1,6 @@
 import { atom, computed } from 'nanostores'
 
+import { resetDatabase } from '../client.ts'
 import { type Fatal, fatal } from '../errors.ts'
 import { createPage } from './common.ts'
 
@@ -17,10 +18,15 @@ export const fatalPage = createPage('fatal', () => {
         return { error: 'Test page', type: 'brokenDatabase' }
       } else if (name === 'outdated') {
         return { type: 'outdated' }
+      } else if (name === 'rejected') {
+        return { error: 'Test page', type: 'rejected' }
       } else {
         return { type: 'notFound' }
       }
-    })
+    }),
+    resetDatabase() {
+      return resetDatabase('rejected-action')
+    }
   }
 })
 

@@ -44,6 +44,21 @@
   </Scene>
 </Story>
 
+<Story name="Rejected" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      fatal.set({
+        error: 'denied 1757000000000 10000000000000000:F7AhLe:1',
+        type: 'rejected'
+      })
+    }}
+    route="fatal"
+    user={false}
+  >
+    <FatalPage page={pages.fatal()} />
+  </Scene>
+</Story>
+
 <Story
   name="Dark"
   asChild

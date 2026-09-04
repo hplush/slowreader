@@ -106,7 +106,8 @@ function validateReason(value: string | undefined): Fatal['type'] | undefined {
     typeof value === 'undefined' ||
     value === 'brokenDatabase' ||
     value === 'notFound' ||
-    value === 'outdated'
+    value === 'outdated' ||
+    value === 'rejected'
   ) {
     return value
   } else {

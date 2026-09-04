@@ -2,6 +2,8 @@
   import {
     mdiArrowLeft,
     mdiBookOpenPageVariant,
+    mdiCloudAlert,
+    mdiCloudDownloadOutline,
     mdiDatabaseAlert,
     mdiDeleteAlert,
     mdiFire,
@@ -26,11 +28,12 @@
   const ICONS = {
     brokenDatabase: mdiDatabaseAlert,
     notFound: mdiBookOpenPageVariant,
-    outdated: mdiTimerSandComplete
+    outdated: mdiTimerSandComplete,
+    rejected: mdiCloudAlert
   }
 
   let { page }: { page: FatalPage } = $props()
-  let { reason } = $derived(page)
+  let { reason, resetDatabase } = $derived(page)
 </script>
 
 <ThinPage align="center" bottom={false} title={$t[`${$reason.type}Title`]}>
@@ -53,6 +56,16 @@
           variant="main"
         >
           {$t.cleanButton}
+        </Button>
+      {:else if $reason.type === 'rejected'}
+        <Output label={$t.error} value={$reason.error} />
+        <Button
+          icon={mdiCloudDownloadOutline}
+          onclick={resetDatabase}
+          size="big"
+          variant="main"
+        >
+          {$t.downloadButton}
         </Button>
       {:else if $reason.type === 'outdated'}
         <Button

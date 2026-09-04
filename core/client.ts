@@ -1,3 +1,4 @@
+import { loguxUndo, zero } from '@logux/actions'
 import {
   type ClientOptions,
   CrossTabClient,
@@ -145,6 +146,15 @@ onEnvironment(({ databaseCreator }) => {
 
       logux.type(dbReset, () => {
         void resetDatabase('server-request')
+      })
+
+      logux.type(loguxUndo, action => {
+        if (zero.match(action.action)) {
+          fatal.set({
+            error: `${action.reason} ${action.id}`,
+            type: 'rejected'
+          })
+        }
       })
 
       /* node:coverage disable */
