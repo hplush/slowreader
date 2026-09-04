@@ -4,6 +4,13 @@ export type AppMessage = {
 }
 
 export type ExtensionMessage =
-  | { data: string; type: 'fetched' }
   | { error: string; type: 'error' }
   | { type: 'connected' }
+  | {
+      body: string
+      headers: [string, string][]
+      redirected: boolean
+      status: number
+      type: 'fetched'
+      url: string
+    }
