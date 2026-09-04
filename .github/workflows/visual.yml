@@ -58,7 +58,7 @@ jobs:
           fi
       - name: Initialize Node.js
         if: steps.should_run.outputs.should_run != 'false'
-        uses: ./.github/actions/init-node
+        uses: $/.github/actions/init-node
       - name: Publish to Chromatic
         if: steps.should_run.outputs.should_run != 'false'
         run: cd web && pnpm chromatic

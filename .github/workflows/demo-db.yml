@@ -34,7 +34,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Initialize Node.js
-        uses: ./.github/actions/init-node
+        uses: $/.github/actions/init-node
       - name: Build the database
         run: pnpm -F web build-demo
         env:

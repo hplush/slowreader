@@ -36,7 +36,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Initialize Node.js
-        uses: ./.github/actions/init-node
+        uses: $/.github/actions/init-node
         with:
           install: -F .
       - name: Check docs

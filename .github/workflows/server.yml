@@ -41,7 +41,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Initialize Node.js
-        uses: ./.github/actions/init-node
+        uses: $/.github/actions/init-node
       - name: Run tests
         run: pnpm -F server test
   build:
@@ -68,7 +68,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Initialize Node.js
-        uses: ./.github/actions/init-node
+        uses: $/.github/actions/init-node
         with:
           cache: false
           install: -F server -F proxy -F api -F web -F core --prod
@@ -134,7 +134,7 @@ jobs:
       - name: Extract archive to restore symlinks
         run: tar -xf server.tar
       - name: Deploy
-        uses: ./.github/actions/deploy
+        uses: $/.github/actions/deploy
         with:
           image-name: slowreader
           context: ./server/

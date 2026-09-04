@@ -40,7 +40,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Initialize Node.js
-        uses: ./.github/actions/init-node
+        uses: $/.github/actions/init-node
       - name: Run tests
         run: pnpm run --parallel -F '*' -F '!proxy' -F '!server' -F '!loader-tests' '/^test:/'
         env:
@@ -109,7 +109,7 @@ jobs:
             gh run download "$RUN" --name demo-db --dir web/dist/
           fi
       - name: Deploy
-        uses: ./.github/actions/deploy
+        uses: $/.github/actions/deploy
         with:
           image-name: slowreader-web
           context: ./web/

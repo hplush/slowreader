@@ -38,7 +38,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Initialize Node.js
-        uses: ./.github/actions/init-node
+        uses: $/.github/actions/init-node
         with:
           install: false
       - name: Check Node.js version for vulnerabilities

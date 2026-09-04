@@ -38,6 +38,6 @@ jobs:
         with:
           persist-credentials: false
       - name: Initialize Node.js
-        uses: ./.github/actions/init-node
+        uses: $/.github/actions/init-node
       - name: Run tests
         run: pnpm -F loader-tests test

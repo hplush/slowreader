@@ -36,7 +36,7 @@ jobs:
           persist-credentials: true
           ref: ${{ github.head_ref || github.ref_name }}
       - name: Initialize Node.js
-        uses: ./.github/actions/init-node
+        uses: $/.github/actions/init-node
       - name: Check for today commits
         id: today
         run: |
