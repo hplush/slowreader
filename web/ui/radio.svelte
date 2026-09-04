@@ -34,8 +34,6 @@
   class:is-icon={size === 'icon'}
   class:is-wide={size === 'wide'}
   aria-label={labelless ? label : null}
-  aria-orientation="vertical"
-  role="radiogroup"
 >
   {#if !labelless}
     <Label tag="legend">{label}</Label>
