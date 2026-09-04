@@ -1,11 +1,5 @@
 <script lang="ts">
-  import {
-    mdiAlertCircle,
-    mdiCheckCircleOutline,
-    mdiFood,
-    mdiMenu,
-    mdiRefresh
-  } from '@mdi/js'
+  import { mdiCheckCircleOutline, mdiFood, mdiMenu, mdiRefresh } from '@mdi/js'
   import {
     isOtherRoute,
     isRefreshing,
@@ -22,8 +16,8 @@
 
   import { getPopupHash, getURL } from '../../stores/url-router.ts'
   import Announce from '../announce.svelte'
-  import Icon from '../icon.svelte'
   import NavbarButton from '../navbar/button.svelte'
+  import NavbarDot from '../navbar/dot.svelte'
   import NavbarFast from '../navbar/fast.svelte'
   import NavbarFireplace from '../navbar/fireplace.svelte'
   import NavbarOther from '../navbar/other.svelte'
@@ -96,9 +90,7 @@
       {/if}
       {#if $refreshStatus === 'error' || $refreshStatus === 'refreshingError'}
         <Announce text={$t.refreshingDone} />
-        <div class="navbar_error">
-          <Icon path={mdiAlertCircle} />
-        </div>
+        <NavbarDot />
       {/if}
     </div>
     <div class="navbar_switcher">
@@ -287,16 +279,6 @@
       padding: 0.25rem 0.375rem 0.75rem;
       margin-top: -0.25rem;
       overflow-y: auto;
-    }
-
-    .navbar_error {
-      position: absolute;
-      inset-inline-end: 0;
-      top: 0;
-      z-index: 10;
-      color: var(--dangerous-text-color);
-
-      --icon-size: 0.75rem;
     }
   }
 </style>
