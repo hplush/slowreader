@@ -57,6 +57,8 @@
     {/if}
     {#if size === 'inline'}
       {name}
+    {:else}
+      <span class="sr-only">{name}</span>
     {/if}
   </span>
   {#if dot}

@@ -17,7 +17,6 @@
   import { getPopupHash, getURL } from '../../stores/url-router.ts'
   import Announce from '../announce.svelte'
   import NavbarButton from '../navbar/button.svelte'
-  import NavbarDot from '../navbar/dot.svelte'
   import NavbarFast from '../navbar/fast.svelte'
   import NavbarFireplace from '../navbar/fireplace.svelte'
   import NavbarOther from '../navbar/other.svelte'
@@ -60,6 +59,7 @@
         <NavbarButton
           name={$t.refresh}
           anchor="refresh"
+          dot={$refreshStatus === 'refreshingError'}
           href={getPopupHash($router, 'refresh', '1')}
           size="icon"
         >
@@ -69,6 +69,7 @@
         <NavbarButton
           name={$t.refresh}
           anchor="refresh"
+          dot
           href={getPopupHash($router, 'refresh', '1')}
           icon={mdiRefresh}
           size="icon"
@@ -86,11 +87,10 @@
         />
       {/if}
       {#if $refreshStatus === 'done'}
-        <Announce text={$t.refreshingError} />
+        <Announce text={$t.refreshingDone} />
       {/if}
       {#if $refreshStatus === 'error' || $refreshStatus === 'refreshingError'}
-        <Announce text={$t.refreshingDone} />
-        <NavbarDot />
+        <Announce text={$t.refreshingError} />
       {/if}
     </div>
     <div class="navbar_switcher">

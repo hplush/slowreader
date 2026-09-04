@@ -1,4 +1,9 @@
+<script lang="ts">
+  import { navbarMessages as t } from '@slowreader/core'
+</script>
+
 <div class="navbar-dot"></div>
+<span class="sr-only">{$t.error}</span>
 
 <style>
   :global {
