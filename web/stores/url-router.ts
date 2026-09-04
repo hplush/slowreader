@@ -20,7 +20,7 @@ export const pathRouter = createRouter({
   about: '/settings/about',
   add: '/feeds/add/:url?',
   cloud: '/settings/cloud',
-  download: '/settings/download',
+  network: '/settings/network',
   export: '/feeds/export',
   fast: '/fast/:category?',
   fatal: '/fatal/:reason?',

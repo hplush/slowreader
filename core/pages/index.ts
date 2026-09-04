@@ -39,7 +39,7 @@ export const pages = {
   about: aboutPage,
   add: addPage,
   cloud: cloudPage,
-  download: createSimplePage('download'),
+  network: createSimplePage('network'),
   export: exportPage,
   fast: fastPage,
   fatal: fatalPage,

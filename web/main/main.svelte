@@ -12,7 +12,6 @@
   import AddPage from '../pages/add.svelte'
   import BusyPage from '../pages/busy.svelte'
   import CloudPage from '../pages/cloud.svelte'
-  import DownloadPage from '../pages/download.svelte'
   import ExportPage from '../pages/export.svelte'
   import FatalPage from '../pages/fatal.svelte'
   import FeedByCategoriesPage from '../pages/feeds-by-categories.svelte'
@@ -20,6 +19,7 @@
   import ImportPage from '../pages/import.svelte'
   import InterfacePage from '../pages/interface.svelte'
   import MenuPage from '../pages/menu.svelte'
+  import NetworkPage from '../pages/network.svelte'
   import ReloginPage from '../pages/relogin.svelte'
   import SignupPage from '../pages/sign-up.svelte'
   import StartPage from '../pages/start.svelte'
@@ -72,8 +72,8 @@
   <InterfacePage />
 {:else if $currentPage.route === 'menu'}
   <MenuPage />
-{:else if $currentPage.route === 'download'}
-  <DownloadPage />
+{:else if $currentPage.route === 'network'}
+  <NetworkPage />
 {:else if $currentPage.route === 'storage'}
   <StoragePage page={$currentPage} />
 {:else if $currentPage.route === 'export'}

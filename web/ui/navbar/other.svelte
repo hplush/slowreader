@@ -27,11 +27,11 @@
     about: mdiInformationOutline,
     add: mdiPlusCircleOutline,
     cloud: mdiCloudSync,
-    download: mdiFileDownloadOutline,
     export: mdiExport,
     feedsByCategories: mdiFileTree,
     import: mdiImport,
     interface: mdiPalette,
+    network: mdiFileDownloadOutline,
     storage: mdiDatabaseOutline
   } satisfies Record<OtherName, string>
 </script>

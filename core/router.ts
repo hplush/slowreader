@@ -8,7 +8,7 @@ export interface Routes {
   about: {}
   add: { url?: string }
   cloud: {}
-  download: {}
+  network: {}
   export: {}
   fast: {
     category?: string

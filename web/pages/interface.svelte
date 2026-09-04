@@ -7,7 +7,8 @@
     mdiWeatherSunny
   } from '@mdi/js'
   import {
-    settingsMessages as t,
+    settingsMessages,
+    interfaceMessages as t,
     theme,
     useQuietCursor,
     useReducedMotion
@@ -21,7 +22,7 @@
   import Title from '../ui/title.svelte'
 </script>
 
-<ThinPage title={[$t.interfaceTitle, $t.commonTitle]}>
+<ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>
   <Stack gap="xl">
     <Title>{$t.applicationInterface}</Title>
     <Stack gap="m">

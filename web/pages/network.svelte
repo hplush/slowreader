@@ -1,13 +1,17 @@
 <script lang="ts">
   import { mdiGaugeLow, mdiSignal, mdiWifi } from '@mdi/js'
-  import { preloadImages, settingsMessages as t } from '@slowreader/core'
+  import {
+    preloadImages,
+    settingsMessages,
+    networkMessages as t
+  } from '@slowreader/core'
 
   import Radio from '../ui/radio.svelte'
   import Stack from '../ui/stack.svelte'
   import ThinPage from '../ui/thin-page.svelte'
 </script>
 
-<ThinPage title={[$t.downloadTitle, $t.commonTitle]}>
+<ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>
   <Stack>
     <Radio
       label={$t.preloadImages}

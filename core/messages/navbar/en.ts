@@ -5,7 +5,7 @@ export const navbarMessages = i18n('navbar', {
   add: 'Add feed',
   cloud: 'Cloud',
   connectingStatus: 'Connecting…',
-  download: 'Feeds fetching',
+  network: 'Network',
   errorStatus: 'Sync error',
   export: 'Export',
   fast: 'Fun',
