@@ -9,7 +9,7 @@ export const networkMessages = i18n('network', {
   noExtension:
     'The extension makes the requests right from your browser: it is ' +
     'faster, and nobody in the middle knows what you read.',
-  noExtensionTitle: 'Install the browser extension',
+  installExtension: 'Install the extension',
   pageTitle: 'Network',
   preloadAlways: 'Always',
   preloadFree: 'Wi-Fi',

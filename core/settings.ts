@@ -65,6 +65,14 @@ export const preloadImages = persistentAtom<'always' | 'free' | 'never'>(
 )
 
 /**
+ * How to download feeds and files.
+ */
+export const requestMethod = persistentAtom<'extension' | 'proxy'>(
+  'slowreader:requestMethod',
+  'proxy'
+)
+
+/**
  * Statistics of the last created benchmark data.
  *
  * It lives here and not in `benchmark.ts`, so that `signOut()` can reset it

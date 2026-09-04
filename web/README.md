@@ -24,6 +24,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
   - [`index.ts`](./main/index.ts): JS entry point.
   - [`environment.ts`](./main/environment.ts): how client core should work with browser environment.
   - [`browser.ts`](./main/browser.ts): connect core stores to global browser settings like `document.title`.
+  - [`extension.ts`](./main/extension.ts): make network request through the browser extension.
 - [`benchmark/`](./benchmark/): UI performance benchmark, which is loaded only by `?benchmark` in URL. See [benchmark guide](../docs/benchmark.md).
 - [`pages/`](./pages/): Svelte components for pages.
 - [`ui/`](./ui/): shared components between different pages. Some people call it “UI kit”.

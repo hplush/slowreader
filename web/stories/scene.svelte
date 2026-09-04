@@ -21,6 +21,7 @@
     refreshErrors,
     refreshStatistics,
     refreshStatus,
+    requestMethod,
     signOut,
     stopRefreshing,
     syncStatus,
@@ -33,6 +34,7 @@
   import { addHashToBaseRoute, testCredentials } from '@slowreader/core/test'
   import { onDestroy, type Snippet } from 'svelte'
 
+  import { hasExtension } from '../main/extension.ts'
   import { systemReducedMotion } from '../stores/media-queries.ts'
   import {
     baseRouter,
@@ -103,6 +105,8 @@
     }
     prepareResponses(responses)
     isDemo.set(false)
+    hasExtension.set(false)
+    requestMethod.set('proxy')
     busy.set(false)
     stopRefreshing()
     refreshStatus.set('start')

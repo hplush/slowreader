@@ -7,9 +7,11 @@ import {
   type NetworkType,
   type NetworkTypeDetector,
   printWarning,
+  requestMethod,
   router,
   setLayoutType,
   setProxyAsRequestMethod,
+  setRequestMethod,
   setupEnvironment
 } from '@slowreader/core'
 import { effect } from 'nanostores'
@@ -17,6 +19,7 @@ import { effect } from 'nanostores'
 import { locale } from '../stores/locale.ts'
 import { mobileMedia, tabletMedia } from '../stores/media-queries.ts'
 import { openRoute, urlRouter } from '../stores/url-router.ts'
+import { detectExtension, extensionRequest, hasExtension } from './extension.ts'
 
 let server = location.hostname
 let proxy = '/proxy/'
@@ -31,7 +34,15 @@ if (location.hostname === 'localhost') {
   server = 'server.dev.slowreader.app'
 }
 
-setProxyAsRequestMethod(proxy)
+detectExtension()
+
+effect([requestMethod, hasExtension], (method, extension) => {
+  if (method === 'extension' && extension) {
+    setRequestMethod(extensionRequest)
+  } else {
+    setProxyAsRequestMethod(proxy)
+  }
+})
 
 export const detectNetworkType: NetworkTypeDetector = () => {
   let type: NetworkType
