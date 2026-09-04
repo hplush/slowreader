@@ -9,6 +9,8 @@
   --page-padding: 1rem;
   --navbar-padding: 0.3125rem;
   --navbar-height: calc(var(--control-height) + 2 * var(--navbar-padding));
+
+  /* To separate scalable sizes from pixel-based */
   --min-size: 1px;
   --navbar-width: 0px;
   --popup-size: calc((100vw - var(--navbar-width)) / 2);
