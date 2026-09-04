@@ -77,11 +77,11 @@
    * Readers load only unread posts, so the read style is visible only
    * for the posts, which the user read without leaving the page.
    */
-  function readAfterLoading(page: FeedsPageStore): void {
+  function readAfterLoading(page: FeedsPageStore, ids: string[]): void {
     let unbind = page.postsLoading.listen(loading => {
       if (!loading) {
         unbind()
-        void changePost(['post-2', 'post-3'], { read: 1 })
+        void changePost(ids, { read: 1 })
       }
     })
   }
@@ -162,10 +162,21 @@
   </Scene>
 </Story>
 
+<Story name="List All Read" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[{ id: 'feed', reading: 'slow' }]}
+    oninit={() => readAfterLoading(pages.slow(), ['post-1', 'post-2'])}
+    posts={POSTS.slice(0, 2)}
+    route={{ params: { feed: 'feed' }, route: 'slow' }}
+  >
+    <FeedsPage page={pages.slow()} />
+  </Scene>
+</Story>
+
 <Story name="List Read" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     feeds={[{ id: 'feed', reading: 'slow' }]}
-    oninit={() => readAfterLoading(pages.slow())}
+    oninit={() => readAfterLoading(pages.slow(), ['post-2', 'post-3'])}
     posts={POSTS}
     route={{ params: { feed: 'feed' }, route: 'slow' }}
   >
