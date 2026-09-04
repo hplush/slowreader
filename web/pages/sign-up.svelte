@@ -88,7 +88,7 @@
             <Output
               name="username"
               autocomplete="username"
-              label={$t.userId}
+              label={$t.signUpUserId}
               value={$userId}
             />
             <Output

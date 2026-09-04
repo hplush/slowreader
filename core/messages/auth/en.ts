@@ -38,6 +38,7 @@ export const authMessages = i18n('auth', {
   start: 'Start local app',
   startTitle: 'Start',
   toEmail: 'Email password to myself',
+  signUpUserId: 'Anonymous User ID',
   userId: 'User ID',
   userIdTaken: 'This User ID is already taken',
   wrongCredentials: 'Your session was removed from the server'
