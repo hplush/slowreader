@@ -2,7 +2,7 @@
 # so every developer will have the same environment
 
 # registry.fedoraproject.org/fedora:44
-FROM registry.fedoraproject.org/fedora@sha256:f7bf5bc0ffeb620e36d960285d6e7f3d358d7c93a91db1d8d1cdd4759e172770
+FROM registry.fedoraproject.org/fedora@sha256:73f8f084d8328edd72d05d86d192234c346678a491ed3f10595ead0e910f394a
 
 ARG TARGETARCH
 
@@ -10,9 +10,9 @@ ENV NODE_VERSION=26.7.0 \
   NODE_CHECKSUM_X64=982aa24dd8be4c889c6a8ab337ddff3b0896645b20f4239356e80552c16277ee \
   NODE_CHECKSUM_ARM64=afc7a004018485092ac8985b817b0d5684472bd9472e0b57d2ab88737e50090d
 
-ENV PNPM_VERSION=12.1.0 \
-  PNPM_CHECKSUM_X64=ef4c3e31c8f6e587c9f04ca4b42b63d47f331247930617304ffa63354c11db79 \
-  PNPM_CHECKSUM_ARM64=24b202af01579ae885c8b3dc39a29c03d418a0c85eea274a969b216612abcd07
+ENV PNPM_VERSION=12.3.2 \
+  PNPM_CHECKSUM_X64=f3300f14b59da54fa2655d5399ac237a0a5d7e51f515c30cb9e4a893eda01555 \
+  PNPM_CHECKSUM_ARM64=48ec5973741ae04207e5e1a5253726ef2de1c5219dfce2e5894092cac565a740
 
 RUN dnf install -yq zsh micro git tig psmisc procps-ng awk libatomic wget \
   gtk3 nss nspr alsa-lib cups-libs mesa-libgbm dbus-libs libX11-xcb \
