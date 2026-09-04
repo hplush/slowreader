@@ -2,6 +2,10 @@
   "name": "@slowreader/extension",
   "private": true,
   "type": "module",
+  "exports": {
+    "./api": "./api.ts",
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "start": "vite",
     "build": "vite build",
