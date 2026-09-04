@@ -8,6 +8,7 @@ import {
   busy,
   busyUntilMenuLoader,
   currentPage,
+  setLayoutType,
   testFeed,
   waitLoading
 } from '../../index.ts'
@@ -46,6 +47,22 @@ describe('redirects page', () => {
       route: 'feeds'
     })
     equal(currentPage.get().route, 'add')
+  })
+
+  test('redirects from the menu page to add feed page on desktop', () => {
+    keepMount(currentPage)
+    setBaseTestRoute({
+      params: {},
+      route: 'menu'
+    })
+    equal(currentPage.get().route, 'add')
+
+    setLayoutType('mobile')
+    setBaseTestRoute({
+      params: {},
+      route: 'menu'
+    })
+    equal(currentPage.get().route, 'menu')
   })
 
   test('redirects from home depending on feeds', async () => {

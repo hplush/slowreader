@@ -10,6 +10,7 @@ import {
   busyUntilMenuLoader,
   GENERAL_CATEGORY,
   menuLoading,
+  setLayoutType,
   testFeed,
   testPost,
   userId,
@@ -130,6 +131,54 @@ describe('feeds page', () => {
 
     await waitLoading(page.loading)
     equal(page.params.feed.get(), feed)
+    equal(page.posts.get()!.name, 'list')
+  })
+
+  test('shows the menu instead of the redirect outside of the desktop', async () => {
+    setLayoutType('mobile')
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let category1 = await addCategory({ title: 'A1' })
+    let feed = await addFeed(
+      testFeed({ categoryId: category1, reading: 'slow' })
+    )
+    await addFeed(testFeed({ categoryId: category1, reading: 'fast' }))
+    await addPost(testPost({ feedId: feed, reading: 'slow' }))
+    await setTimeout(10)
+
+    let page = openPage({
+      params: {},
+      route: 'slow'
+    })
+    equal(page.menu.get(), true)
+    equal(page.params.feed.get(), undefined)
+    equal(page.loading.get(), false)
+    equal(page.posts.get(), undefined)
+
+    // The only category has nothing to choose from
+    page = openPage({
+      params: {},
+      route: 'fast'
+    })
+    equal(page.menu.get(), false)
+    equal(page.params.category.get(), category1)
+
+    await addFeed(testFeed({ categoryId: await addCategory({ title: 'A2' }) }))
+    await setTimeout(10)
+    page = openPage({
+      params: {},
+      route: 'fast'
+    })
+    equal(page.menu.get(), true)
+    equal(page.params.category.get(), undefined)
+
+    // The feed from the menu hides it
+    page = openPage({
+      params: { feed },
+      route: 'slow'
+    })
+    equal(page.menu.get(), false)
+    await waitLoading(page.loading)
     equal(page.posts.get()!.name, 'list')
   })
 

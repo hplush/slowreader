@@ -34,9 +34,6 @@ import {
   menuSlider,
   openableMenu,
   openCategory,
-  openedMenu,
-  openedPopups,
-  setLayoutType,
   setupEnvironment,
   slowMenu,
   syncError,
@@ -75,10 +72,8 @@ describe('menu', () => {
     await cleanClientTest()
   })
 
-  test('opens menu as popup on mobile', async () => {
-    setLayoutType('mobile')
+  test('points the slider to the route’s menu', async () => {
     let category1 = await addCategory({ title: '1' })
-    let category2 = await addCategory({ title: '2' })
     let slow = await addFeed(
       testFeed({ categoryId: category1, reading: 'slow' })
     )
@@ -86,22 +81,16 @@ describe('menu', () => {
     await setTimeout(10)
 
     setBaseTestRoute({ params: {}, route: 'welcome' })
-    equal(openedMenu.get(), undefined)
     equal(menuSlider.get(), undefined)
-    deepEqual(openableMenu.get(), { fast: false, other: true, slow: false })
+    deepEqual(openableMenu.get(), { fast: false, slow: false })
 
-    setBaseTestRoute({ hash: 'menu=other', params: {}, route: 'welcome' })
-    equal(openedMenu.get(), 'other')
+    setBaseTestRoute({ params: {}, route: 'menu' })
     equal(menuSlider.get(), 'other')
-    equal(openedPopups.get()[0]?.name, 'menu')
 
-    // The slider keeps pointing at the page of the closed menu
     setBaseTestRoute({ params: {}, route: 'add' })
-    equal(openedMenu.get(), undefined)
     equal(menuSlider.get(), 'other')
-    deepEqual(openedPopups.get(), [])
 
-    setBaseTestRoute({ params: {}, route: 'slow' })
+    setBaseTestRoute({ params: { feed: slow }, route: 'slow' })
     equal(menuSlider.get(), 'slow')
 
     setBaseTestRoute({ params: {}, route: 'fast' })
@@ -109,52 +98,11 @@ describe('menu', () => {
 
     await addPost(testPost({ feedId: slow, reading: 'slow' }))
     await setTimeout(10)
-    deepEqual(openableMenu.get(), { fast: false, other: true, slow: true })
+    deepEqual(openableMenu.get(), { fast: false, slow: true })
 
-    // The menu stays open above the page, which the route shows
-    setBaseTestRoute({
-      hash: 'menu=slow',
-      params: { feed: slow },
-      route: 'slow'
-    })
-    equal(openedMenu.get(), 'slow')
-    equal(menuSlider.get(), 'slow')
-
-    await addFeed(testFeed({ categoryId: category2, reading: 'fast' }))
+    await addFeed(testFeed({ categoryId: await addCategory({ title: '2' }) }))
     await setTimeout(10)
-    deepEqual(openableMenu.get(), { fast: true, other: true, slow: true })
-
-    setBaseTestRoute({ hash: 'menu=unknown', params: {}, route: 'fast' })
-    equal(openedMenu.get(), undefined)
-    equal(menuSlider.get(), 'fast')
-    deepEqual(openedPopups.get(), [])
-  })
-
-  test('shows menu without popup on desktop', async () => {
-    let category1 = await addCategory({ title: '1' })
-    await addFeed(testFeed({ categoryId: category1, reading: 'slow' }))
-    await addFeed(testFeed({ categoryId: category1, reading: 'fast' }))
-    await setTimeout(10)
-
-    setBaseTestRoute({ params: {}, route: 'welcome' })
-    equal(openedMenu.get(), undefined)
-    equal(menuSlider.get(), undefined)
-    deepEqual(openableMenu.get(), { fast: false, other: false, slow: false })
-
-    // The navbar always shows the menu, so the popup would be a copy
-    setBaseTestRoute({ hash: 'menu=other', params: {}, route: 'welcome' })
-    equal(openedMenu.get(), undefined)
-    deepEqual(openedPopups.get(), [])
-
-    setBaseTestRoute({ params: {}, route: 'add' })
-    equal(openedMenu.get(), 'other')
-    equal(menuSlider.get(), 'other')
-
-    setBaseTestRoute({ params: {}, route: 'slow' })
-    equal(openedMenu.get(), 'slow')
-
-    setBaseTestRoute({ params: { category: category1 }, route: 'fast' })
-    equal(openedMenu.get(), 'fast')
+    deepEqual(openableMenu.get(), { fast: true, slow: true })
   })
 
   test('renders feeds menu', async () => {

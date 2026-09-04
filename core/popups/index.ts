@@ -1,20 +1,17 @@
 import type { PopupName } from '../router.ts'
 import type { PopupCreator } from './common.ts'
 import { feed } from './feed.ts'
-import { menu } from './menu.ts'
 import { post } from './post.ts'
 import { refresh } from './refresh.ts'
 
 export { type BasePopup, getPopupId, type LoadedPopup } from './common.ts'
 export type { FeedPopup } from './feed.ts'
-export type { MenuPopup } from './menu.ts'
 export type { PostPopup } from './post.ts'
 export { getPostPopupParam } from './post.ts'
 export type { RefreshPopup } from './refresh.ts'
 
 export const popups = {
   feed,
-  menu,
   post,
   refresh
 } satisfies {

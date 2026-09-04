@@ -13,11 +13,11 @@ import { atom, computed, effect, keepMount, onMount } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
 import { client, onClient } from './client.ts'
-import { getEnvironment, layoutType } from './environment.ts'
+import { getEnvironment } from './environment.ts'
 import type { FilterValue } from './filter.ts'
 import { waitLoading } from './lib/stores.ts'
 import { commonMessages } from './messages/index.ts'
-import { isOtherRoute, type MenuType, type Route, router } from './router.ts'
+import { type Route, type RouteName, router } from './router.ts'
 import {
   GENERAL_CATEGORY,
   getTableActions,
@@ -25,7 +25,41 @@ import {
   tableActions
 } from './schema.ts'
 
-function routeMenu(route: Route): MenuType | undefined {
+export const FEED_ROUTES = [
+  'add',
+  'feedsByCategories',
+  'import',
+  'export'
+] as const satisfies RouteName[]
+
+export const SETTINGS_ROUTES = [
+  'interface',
+  'download',
+  'cloud',
+  'storage',
+  'about'
+] as const satisfies RouteName[]
+
+// @ts-expect-error TODO: Remove until we have offline mode
+delete SETTINGS_ROUTES.splice(1, 1)
+
+export type OtherName =
+  | (typeof FEED_ROUTES)[number]
+  | (typeof SETTINGS_ROUTES)[number]
+
+const FEEDS = new Set<RouteName>(FEED_ROUTES)
+
+const SETTINGS = new Set<RouteName>(SETTINGS_ROUTES)
+
+export function isOtherRoute(route: Route): boolean {
+  return (
+    route.route === 'menu' ||
+    SETTINGS.has(route.route) ||
+    FEEDS.has(route.route)
+  )
+}
+
+export const menuSlider = computed(router, route => {
   if (route.route === 'slow') {
     return 'slow'
   } else if (route.route === 'fast') {
@@ -33,21 +67,6 @@ function routeMenu(route: Route): MenuType | undefined {
   } else if (isOtherRoute(route)) {
     return 'other'
   }
-}
-
-function popupMenu(route: Route): MenuType | undefined {
-  // The router drops the menu popups with an unknown menu
-  return route.popups.find(popup => popup.popup === 'menu')?.param as
-    | MenuType
-    | undefined
-}
-
-export const openedMenu = computed([layoutType, router], (layout, route) => {
-  return layout === 'desktop' ? routeMenu(route) : popupMenu(route)
-})
-
-export const menuSlider = computed([openedMenu, router], (opened, route) => {
-  return opened ?? routeMenu(route)
 })
 
 export interface MenuItem {
@@ -422,14 +441,10 @@ export const slowMenu = computed([$tree, $unread], (tree, unread) => {
   return unread ? buildSlowMenu(tree, unread) : []
 })
 
-export const openableMenu = computed(
-  [layoutType, fastMenu, slowMenu],
-  (layout, fast, slow) => ({
-    fast: layout !== 'desktop' && fast.length > 1,
-    other: layout !== 'desktop',
-    slow: layout !== 'desktop' && slow.length > 0
-  })
-)
+export const openableMenu = computed([fastMenu, slowMenu], (fast, slow) => ({
+  fast: fast.length > 1,
+  slow: slow.length > 0
+}))
 
 export const menuLoading = computed([$reduced, $unread], (reduced, unread) => {
   return !reduced || !unread

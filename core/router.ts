@@ -1,6 +1,6 @@
 import { atom, computed, effect, type ReadableAtom } from 'nanostores'
 
-import { getEnvironment, layoutType, onEnvironment } from './environment.ts'
+import { getEnvironment, onEnvironment } from './environment.ts'
 import { type Fatal, NotFoundError } from './errors.ts'
 import { userId } from './settings.ts'
 
@@ -20,6 +20,7 @@ export interface Routes {
   home: {}
   import: {}
   interface: {}
+  menu: {}
   relogin: {}
   settings: {}
   signUp: {}
@@ -34,7 +35,6 @@ export interface Routes {
 
 export const popupNames = {
   feed: true,
-  menu: true,
   post: true,
   refresh: true
 }
@@ -79,35 +79,9 @@ export type BaseRoute<Name extends RouteName = RouteName> = Name extends string
 
 export type BaseRouter = ReadableAtom<BaseRoute | undefined>
 
-export const FEED_ROUTES = [
-  'add',
-  'feedsByCategories',
-  'import',
-  'export'
-] as const satisfies RouteName[]
-
-export const SETTINGS_ROUTES = [
-  'interface',
-  'download',
-  'cloud',
-  'storage',
-  'about'
-] as const satisfies RouteName[]
-
-// @ts-expect-error TODO: Remove until we have offline mode
-delete SETTINGS_ROUTES.splice(1, 1)
-
-export type OtherName =
-  | (typeof FEED_ROUTES)[number]
-  | (typeof SETTINGS_ROUTES)[number]
-
 const GUEST = new Set<RouteName>(['start'])
 
 const BOTH = new Set<RouteName>(['fatal', 'signUp'])
-
-const FEEDS = new Set<RouteName>(FEED_ROUTES)
-
-const SETTINGS = new Set<RouteName>(SETTINGS_ROUTES)
 
 function open(route: ParamlessRouteName): Route {
   return { params: {}, popups: [], route }
@@ -142,19 +116,6 @@ function validateReason(value: string | undefined): Fatal['type'] | undefined {
 
 export const router = atom<Route>({ params: {}, popups: [], route: 'home' })
 
-function isValidPopup(
-  popup: string | undefined,
-  param: string
-): popup is PopupName {
-  if (!popup || !(popup in popupNames)) {
-    return false
-  } else if (popup === 'menu') {
-    return param === 'fast' || param === 'other' || param === 'slow'
-  } else {
-    return true
-  }
-}
-
 /**
  * Parses popup routes from hash string format `popup=param,popup2=param2`
  * into an array of popup route objects.
@@ -162,21 +123,17 @@ function isValidPopup(
 export function parsePopups(hash: string): PopupRoute[] {
   let popups: PopupRoute[] = []
   for (let part of hash.replace(/^#/, '').split(',')) {
-    let [popup, param] = part.split('=', 2)
-    let decoded = param ? decodeURIComponent(param) : ''
-    if (decoded && isValidPopup(popup, decoded)) {
-      popups.push({ param: decoded, popup })
+    let [popup, param] = part.split('=', 2) as [PopupName, string | undefined]
+    if (param && popup in popupNames) {
+      popups.push({ param: decodeURIComponent(param), popup })
     }
   }
   return popups
 }
 
 onEnvironment(({ baseRouter }) => {
-  return effect([baseRouter, userId, layoutType], (route, user, layout) => {
+  return effect([baseRouter, userId], (route, user) => {
     let popups = user && route ? parsePopups(route.hash) : []
-    if (layout === 'desktop') {
-      popups = popups.filter(popup => popup.popup !== 'menu')
-    }
     let nextRoute: Route
     try {
       if (!route) {
@@ -215,10 +172,6 @@ onEnvironment(({ baseRouter }) => {
     }
   })
 })
-
-export function isOtherRoute(route: Route): boolean {
-  return SETTINGS.has(route.route) || FEEDS.has(route.route)
-}
 
 /**
  * Converts popup routes to a hash string format `popup=param,popup2=param2`

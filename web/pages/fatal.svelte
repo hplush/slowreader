@@ -33,11 +33,7 @@
   let { reason } = $derived(page)
 </script>
 
-<ThinPage
-  align="center"
-  bottomOnMobile={false}
-  title={$t[`${$reason.type}Title`]}
->
+<ThinPage align="center" bottom={false} title={$t[`${$reason.type}Title`]}>
   <Stack align="center" gap="xl">
     <PageIcon
       extra={$reason.type === 'notFound' ? mdiFire : undefined}

@@ -10,6 +10,7 @@
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import FeedsPage from '../../pages/feeds/index.svelte'
+  import Navbar from '../../ui/navbar/index.svelte'
   import imgExample from '../assets/long_width_example.avif'
   import Scene from '../scene.svelte'
 
@@ -233,5 +234,27 @@
     route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
   >
     <FeedsPage page={pages.fast()} />
+  </Scene>
+</Story>
+
+<Story
+  name="Mobile Menu"
+  asChild
+  globals={{ viewport: { value: 'mobile2' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene
+    categories={[
+      { id: 'browsers', title: 'Browsers' },
+      { id: 'socials', title: 'Social Medias' }
+    ]}
+    feeds={[
+      { categoryId: 'browsers', id: 'mozilla', title: 'The Mozilla Blog' },
+      { categoryId: 'socials', id: 'mastadon', title: 'Mastodon Blog' }
+    ]}
+    route="fast"
+  >
+    <FeedsPage page={pages.fast()} />
+    <Navbar />
   </Scene>
 </Story>

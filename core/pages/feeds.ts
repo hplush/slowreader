@@ -1,8 +1,9 @@
 import { atom, computed, effect } from 'nanostores'
 
 import { type CategoryValue, changeCategory, getCategory } from '../category.ts'
+import { layoutType } from '../environment.ts'
 import { changeFeed, type FeedValue, getFeed, needWelcome } from '../feed.ts'
-import { fastMenu, menuLoading, slowMenu } from '../menu.ts'
+import { fastMenu, menuLoading, openableMenu, slowMenu } from '../menu.ts'
 import { deletePost, fastPostsCount, slowPostsCount } from '../post.ts'
 import {
   loadReadPostIds,
@@ -97,12 +98,27 @@ let pages = (['slow', 'fast'] as const).map(reading => {
       }
     })
 
+    let $menu = computed(
+      [layoutType, $categoryId, $feedId, menuLoading, openableMenu],
+      (layout, categoryId, feedId, loadingMenu, openable) => {
+        if (layout === 'desktop' || categoryId || feedId || loadingMenu) {
+          return false
+        } else {
+          return openable[reading]
+        }
+      }
+    )
+
+    let unbindMenu = effect($menu, menu => {
+      if (menu) $loading.set(false)
+    })
+
     // The page can be opened before the menu was loaded, so the redirect
     // waits for the menu instead of checking it once.
     let unbindRedirect = effect(
-      [$categoryId, $feedId, menuLoading],
-      (categoryId, feedId, loadingMenu) => {
-        if (categoryId || feedId || loadingMenu) return
+      [$categoryId, $feedId, menuLoading, $menu],
+      (categoryId, feedId, loadingMenu, menu) => {
+        if (categoryId || feedId || loadingMenu || menu) return
         void nextRouteIsRedirect(() => {
           if (reading === 'fast') {
             let id = fastMenu.get()[0]?.id
@@ -139,11 +155,23 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         $categoryId,
         needWelcome,
         $noPosts,
-        menuLoading
+        menuLoading,
+        $menu
       ],
-      (feed, category, feedId, categoryId, welcome, noPosts, loadingMenu) => {
+      (
+        feed,
+        category,
+        feedId,
+        categoryId,
+        welcome,
+        noPosts,
+        loadingMenu,
+        menu
+      ) => {
         let readerName: 'none' | ReaderName
-        if (welcome) {
+        if (menu) {
+          readerName = 'none'
+        } else if (welcome) {
           readerName = 'welcome'
         } else if (noPosts) {
           readerName = 'empty'
@@ -199,9 +227,11 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     return {
       category: $category,
       changeReader,
+      menu: $menu,
       async exit() {
         unbindTarget()
         unbindRow()
+        unbindMenu()
         unbindRedirect()
         unbindPosts()
         prevReading?.exit()

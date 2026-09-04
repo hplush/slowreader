@@ -7,14 +7,10 @@
     mdiRefresh
   } from '@mdi/js'
   import {
-    getPopupId,
     isOtherRoute,
     isRefreshing,
     layoutType,
     menuSlider,
-    type MenuType,
-    openableMenu,
-    openedMenu,
     refreshPosts,
     refreshProgress,
     refreshStatus,
@@ -50,16 +46,6 @@
     })
   }
 
-  function menuHref(type: MenuType, page: string): string {
-    return $openableMenu[type] ? getPopupHash($router, 'menu', type) : page
-  }
-
-  function submenuId(type: MenuType): string {
-    return $layoutType === 'desktop'
-      ? 'navbar_submenu'
-      : getPopupId('menu', type)
-  }
-
   let nothingCurrent = $derived(
     !isOtherRoute($router) &&
       $router.route !== 'slow' &&
@@ -69,10 +55,7 @@
 
 <nav
   class="navbar"
-  class:is-comfort-mode={$openedMenu && $openedMenu !== 'fast'}
   class:is-fast={$menuSlider === 'fast'}
-  class:is-non-comfort-mode={$openedMenu === 'fast'}
-  class:is-opened={!!$openedMenu}
   class:is-other={$menuSlider === 'other'}
   class:is-slow={$menuSlider === 'slow'}
 >
@@ -124,30 +107,24 @@
         name={$t.slow}
         current={$router.route === 'slow'}
         focusable={nothingCurrent || $router.route === 'slow'}
-        hasSubmenu={submenuId('slow')}
-        href={menuHref('slow', getURL('slow'))}
+        hasSubmenu="navbar_submenu"
+        href={getURL('slow')}
       >
         <NavbarFireplace />
       </NavbarButton>
       <NavbarButton
         name={$t.fast}
         current={$router.route === 'fast'}
-        hasSubmenu={submenuId('fast')}
-        href={menuHref('fast', getURL('fast'))}
+        hasSubmenu="navbar_submenu"
+        href={getURL('fast')}
         icon={mdiFood}
       />
     </div>
     <NavbarButton
       name={$t.menu}
       current={isOtherRoute($router)}
-      hasSubmenu={submenuId('other')}
-      href={menuHref(
-        'other',
-        getURL({
-          params: { candidate: undefined, url: undefined },
-          route: 'add'
-        })
-      )}
+      hasSubmenu="navbar_submenu"
+      href={getURL('menu')}
       icon={mdiMenu}
       size="icon"
     />
@@ -159,11 +136,11 @@
       aria-hidden="true"
       role="menu"
     >
-      {#if $openedMenu === 'slow'}
+      {#if $menuSlider === 'slow'}
         <NavbarSlow />
-      {:else if $openedMenu === 'fast'}
+      {:else if $menuSlider === 'fast'}
         <NavbarFast />
-      {:else if $openedMenu === 'other'}
+      {:else if $menuSlider === 'other'}
         <NavbarOther />
       {/if}
     </div>

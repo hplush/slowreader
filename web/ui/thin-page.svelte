@@ -5,12 +5,12 @@
 
   let {
     align = 'start',
-    bottomOnMobile,
+    bottom,
     children,
     title
   }: {
     align?: 'center' | 'start'
-    bottomOnMobile?: boolean
+    bottom?: boolean
     children: Snippet
     title: string | string[]
   } = $props()
@@ -19,7 +19,7 @@
 <Page
   class={{
     'is-center': align === 'center',
-    'is-no-bottom': bottomOnMobile === false,
+    'is-no-bottom': bottom === false,
     'thin-page': true
   }}
   {title}
@@ -43,7 +43,7 @@
         align-items: center;
       }
 
-      @media (--mobile) {
+      @media (--no-desktop) {
         &:not(.is-no-bottom) {
           align-items: flex-end;
         }
