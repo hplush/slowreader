@@ -1,7 +1,7 @@
 <script lang="ts">
   import { mdiCheck, mdiClose } from '@mdi/js'
   import type { WritableAtom } from 'nanostores'
-  import { onMount } from 'svelte'
+  import { onDestroy, untrack } from 'svelte'
 
   import Icon from './icon.svelte'
 
@@ -21,7 +21,11 @@
 
   let value = $state(false)
 
-  onMount(() => {
+  /**
+   * Subscription before the first render, so the slider will not slide
+   * from the default value to the store’s one on the page open.
+   */
+  let unbind = untrack(() => {
     if (store) {
       return store.subscribe(v => {
         value = v
@@ -31,6 +35,10 @@
         value = !v
       })
     }
+  })
+
+  onDestroy(() => {
+    unbind?.()
   })
 
   function onchange(): void {
