@@ -4,7 +4,7 @@
     "moduleResolution": "bundler",
     "module": "ESNext",
     "lib": ["ES2024", "DOM", "DOM.AsyncIterable", "DOM.Iterable"],
-    "types": ["chrome", "trusted-types", "vite/client"]
+    "types": ["trusted-types", "vite/client"]
   },
   "include": [
     "../scripts/progress.ts",

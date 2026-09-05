@@ -1,7 +1,4 @@
-import type { AppMessage, ExtensionMessage } from './api.ts'
-import { config } from './config.ts'
-
-const FETCH_TIMEOUT_MS = 30000
+import type { PortAnswer, PortRequest } from './api.ts'
 
 /**
  * `btoa()` takes a string, and `String.fromCharCode()` takes every byte
@@ -15,23 +12,51 @@ function toBase64(bytes: Uint8Array): string {
   return btoa(binary)
 }
 
-function sendMessage(
-  port: chrome.runtime.Port,
-  message: ExtensionMessage
-): void {
-  port.postMessage(message)
-}
+chrome.runtime.onConnect.addListener(port => {
+  let aborter = new AbortController()
+  let alive = true
 
-chrome.runtime.onConnectExternal.addListener(port => {
-  if (port.sender?.origin === config.HOST) {
-    sendMessage(port, { type: 'connected' })
-    port.onMessage.addListener(async (message: AppMessage) => {
+  function send(answer: PortAnswer): void {
+    if (alive) port.postMessage(answer)
+  }
+
+  port.onDisconnect.addListener(() => {
+    alive = false
+    aborter.abort()
+  })
+
+  port.onMessage.addListener(async (message: PortRequest) => {
+    if (message.type === 'check') {
+      chrome.permissions.contains({ origins: ['*://*/*'] }, granted => {
+        send({ granted, type: 'checked' })
+      })
+    } else if (message.type === 'grant') {
+      void chrome.runtime.openOptionsPage()
+      port.disconnect()
+    } else {
       try {
-        let response = await fetch(message.url, {
-          ...message.options,
-          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS)
+        let url = new URL(message.url)
+        if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+          throw new Error(`Unsupported protocol ${url.protocol}`)
+        }
+        if (message.method !== 'GET' && message.method !== 'HEAD') {
+          throw new Error(`Unsupported method ${message.method}`)
+        }
+        let response = await fetch(url, {
+          cache: 'no-cache',
+          credentials: 'omit',
+          headers: message.headers.filter(([name]) => {
+            return [
+              'accept',
+              'accept-language',
+              'if-modified-since',
+              'if-none-match'
+            ].includes(name.toLowerCase())
+          }),
+          method: message.method,
+          signal: AbortSignal.any([aborter.signal, AbortSignal.timeout(30000)])
         })
-        sendMessage(port, {
+        send({
           body: toBase64(new Uint8Array(await response.arrayBuffer())),
           headers: [...response.headers],
           redirected: response.redirected,
@@ -40,13 +65,17 @@ chrome.runtime.onConnectExternal.addListener(port => {
           url: response.url
         })
       } catch (error) {
-        if (error instanceof Error) {
-          sendMessage(port, {
-            error: error.toString(),
-            type: 'error'
-          })
-        }
+        /**
+         * The user could revoke the access at any moment, and the failed
+         * request is the only place where the extension can notice it.
+         */
+        let text = error instanceof Error ? error.toString() : String(error)
+        chrome.permissions.contains({ origins: ['*://*/*'] }, granted => {
+          send(
+            granted ? { error: text, type: 'error' } : { type: 'restricted' }
+          )
+        })
       }
-    })
-  }
+    }
+  })
 })

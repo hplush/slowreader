@@ -2,26 +2,39 @@
 // so no proxy sees which feeds the user reads.
 
 import type { RequestMethod } from '@slowreader/core'
-import type { AppMessage, ExtensionMessage } from '@slowreader/extension/api'
+import type {
+  AppMessage,
+  ExtensionMessage,
+  FetchAnswer
+} from '@slowreader/extension/api'
 import { atom } from 'nanostores'
 
-/**
- * Did the client find the browser extension. Without it the app can download
- * feeds only through the proxy.
- */
-export const hasExtension = atom(false)
+export type ExtensionState = 'granted' | 'missing' | 'restricted'
 
-const ID = import.meta.env.VITE_EXTENSION_ID as string | undefined
+export const extensionState = atom<ExtensionState>('missing')
 
-function connect(): chrome.runtime.Port | undefined {
-  if (!ID || typeof chrome === 'undefined' || !chrome.runtime?.connect) {
-    return undefined
+/** The reminder is useful just until the page reload. */
+export const installingExtension = atom(false)
+
+function detectStore(): string {
+  // TODO: Put real URL to extension
+  let agent = navigator.userAgent
+  if (agent.includes('Firefox')) {
+    return 'https://addons.mozilla.org/'
+  } else if (agent.includes('Safari') && !agent.includes('Chrome')) {
+    return 'https://apps.apple.com/'
+  } else {
+    return 'https://chromewebstore.google.com/'
   }
-  try {
-    return chrome.runtime.connect(ID)
-  } catch {
-    return undefined
-  }
+}
+
+export const extensionStore = detectStore()
+
+let answers = new Map<number, (answer: FetchAnswer) => void>()
+let lastId = 0
+
+function post(message: AppMessage): void {
+  window.postMessage(message, location.origin)
 }
 
 function fromBase64(base64: string): ArrayBuffer {
@@ -31,36 +44,36 @@ function fromBase64(base64: string): ArrayBuffer {
   return bytes.buffer
 }
 
-/**
- * A port has no place for a request ID, so every request takes its own port
- * instead of guessing which answer belongs to which feed.
- */
+window.addEventListener('message', event => {
+  if (event.source !== window || event.origin !== location.origin) return
+  let message = event.data as ExtensionMessage | undefined
+  if (message?.to !== 'slowreader-app') return
+
+  if (message.type === 'connected') {
+    extensionState.set(message.granted ? 'granted' : 'restricted')
+  } else {
+    answers.get(message.id)?.(message.answer)
+  }
+})
+
 export const extensionRequest: RequestMethod = (url, opts = {}) => {
   return new Promise((resolve, reject) => {
-    let port = connect()
-    if (!port) {
-      reject(new Error('No Slow Reader extension'))
-      return
-    }
-    let message: AppMessage = {
-      options: { headers: [...new Headers(opts.headers)], method: opts.method },
-      url
-    }
-    opts.signal?.addEventListener('abort', () => {
-      port.disconnect()
-      reject(opts.signal!.reason as Error)
-    })
-    port.onDisconnect.addListener(() => {
-      reject(new Error('Slow Reader extension was disconnected'))
-    })
-    port.onMessage.addListener((answer: ExtensionMessage) => {
-      if (answer.type === 'connected') {
-        port.postMessage(message)
+    let id = ++lastId
+    let timeout = setTimeout(() => {
+      answers.delete(id)
+      reject(new Error('Slow Reader extension is not responding'))
+    }, 35000)
+    answers.set(id, answer => {
+      answers.delete(id)
+      clearTimeout(timeout)
+      if (answer.type === 'restricted') {
+        extensionState.set('restricted')
+        reject(
+          new Error('Slow Reader extension has no permission for the site')
+        )
       } else if (answer.type === 'error') {
-        port.disconnect()
         reject(new Error(answer.error))
       } else {
-        port.disconnect()
         let response = new Response(fromBase64(answer.body), {
           headers: answer.headers,
           status: answer.status
@@ -72,19 +85,41 @@ export const extensionRequest: RequestMethod = (url, opts = {}) => {
         resolve(response)
       }
     })
+    opts.signal?.addEventListener('abort', () => {
+      answers.delete(id)
+      clearTimeout(timeout)
+      post({ id, to: 'slowreader-extension', type: 'abort' })
+      reject(opts.signal!.reason as Error)
+    })
+    post({
+      id,
+      request: {
+        headers: [...new Headers(opts.headers)],
+        method: opts.method ?? 'GET',
+        type: 'fetch',
+        url
+      },
+      to: 'slowreader-extension',
+      type: 'request'
+    })
   })
 }
 
+function ping(): void {
+  post({ to: 'slowreader-extension', type: 'ping' })
+}
+
+/**
+ * The content script says hello by itself, but it starts before the app’s
+ * scripts. The user can also grant access in another tab.
+ */
 export function detectExtension(): void {
-  let port = connect()
-  if (!port) return
-  port.onMessage.addListener((answer: ExtensionMessage) => {
-    if (answer.type === 'connected') {
-      hasExtension.set(true)
-      port.disconnect()
-    }
+  ping()
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && extensionState.get() !== 'granted') ping()
   })
-  port.onDisconnect.addListener(() => {
-    hasExtension.set(false)
-  })
+}
+
+export function grantExtension(): void {
+  post({ to: 'slowreader-extension', type: 'grant' })
 }

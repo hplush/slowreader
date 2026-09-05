@@ -34,7 +34,7 @@
   import { addHashToBaseRoute, testCredentials } from '@slowreader/core/test'
   import { onDestroy, type Snippet } from 'svelte'
 
-  import { hasExtension } from '../main/extension.ts'
+  import { extensionState, installingExtension } from '../main/extension.ts'
   import { systemReducedMotion } from '../stores/media-queries.ts'
   import {
     baseRouter,
@@ -105,7 +105,8 @@
     }
     prepareResponses(responses)
     isDemo.set(false)
-    hasExtension.set(false)
+    extensionState.set('missing')
+    installingExtension.set(false)
     requestMethod.set(undefined)
     busy.set(false)
     stopRefreshing()

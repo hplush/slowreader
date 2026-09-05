@@ -2,7 +2,7 @@
   import { requestMethod } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  import { hasExtension } from '../../main/extension.ts'
+  import { extensionState, installingExtension } from '../../main/extension.ts'
   import NetworkPage from '../../pages/network.svelte'
   import Scene from '../scene.svelte'
 
@@ -21,8 +21,30 @@
 <Story name="Extension" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      hasExtension.set(true)
+      extensionState.set('granted')
       requestMethod.set('extension')
+    }}
+    route="network"
+  >
+    <NetworkPage />
+  </Scene>
+</Story>
+
+<Story name="Installing" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      installingExtension.set(true)
+    }}
+    route="network"
+  >
+    <NetworkPage />
+  </Scene>
+</Story>
+
+<Story name="Restricted" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      extensionState.set('restricted')
     }}
     route="network"
   >

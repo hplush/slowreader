@@ -1,11 +1,11 @@
 import { requestMethod } from '@slowreader/core'
 import { computed } from 'nanostores'
 
-import { hasExtension } from '../main/extension.ts'
+import { extensionState } from '../main/extension.ts'
 
 export const usedRequestMethod = computed(
-  [requestMethod, hasExtension],
+  [requestMethod, extensionState],
   (method, extension): 'extension' | 'proxy' => {
-    return method !== 'proxy' && extension ? 'extension' : 'proxy'
+    return method !== 'proxy' && extension === 'granted' ? 'extension' : 'proxy'
   }
 )

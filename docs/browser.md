@@ -30,6 +30,16 @@ Story IDs are in `http://localhost:2555/index.json`. Themes are `theme:light` an
 
 `--caps devtools` adds `browser_start_tracing`, `browser_stop_tracing`, and video tools. Record long scenario to get DOM snapshots, console, and network for every step.
 
+## Debug Extension
+
+Playwright browsers don’t load the extension. Use own Chrome or Firefox profile:
+
+```sh
+pnpm -F extension start
+```
+
+Then load `extension/dist` by `Load unpacked` in `chrome://extensions/` or `extension/dist/manifest.json` by `Load Temporary Add-on` in `about:debugging#/runtime/this-firefox`. See [extension guide](../extension/README.md) for Safari and for the host access errors.
+
 ## Reset State
 
 Browser profile keeps cookies, `localStorage`, and IndexedDB between sessions:
