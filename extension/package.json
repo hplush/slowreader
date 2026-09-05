@@ -12,6 +12,7 @@
     "test": "pnpm build"
   },
   "dependencies": {
+    "sharp": "0.35.4",
     "vite": "8.2.2"
   }
 }

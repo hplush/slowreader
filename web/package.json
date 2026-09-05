@@ -54,6 +54,7 @@
     "postcss-mixins": "12.1.2",
     "postcss-smooth-shadow": "0.3.2",
     "rollup": "4.63.1",
+    "sharp": "0.35.4",
     "sqlocal": "0.18.0",
     "storybook": "10.6.0",
     "svelte": "5.57.0",

@@ -5,5 +5,6 @@ routes.regexp
 nginx.conf.compiled
 build-storybook.log
 .svelte-check
+public/icon-192.png
 public/demo.sqlite
 public/demo.json

@@ -29,6 +29,13 @@ export function manifest(dev: boolean): unknown {
     description: '__MSG_description__',
     /** Feeds live on any host and mostly have no CORS headers. */
     host_permissions: ['*://*/*'],
+    icons: {
+      '16': 'icons/16.png',
+      '32': 'icons/32.png',
+      '48': 'icons/48.png',
+      '96': 'icons/96.png',
+      '128': 'icons/128.png'
+    },
     manifest_version: 3,
     name: '__MSG_name__',
     /** Firefox and Safari can revoke the host access, so the user needs a way

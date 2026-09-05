@@ -3,6 +3,7 @@ import { Features } from 'lightningcss'
 import { execSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import sharp from 'sharp'
 import sqlocal from 'sqlocal/vite'
 import { defineConfig, type PreviewServer, type ViteDevServer } from 'vite'
 
@@ -89,6 +90,16 @@ export default defineConfig(() => ({
         })
       },
       name: 'csp'
+    },
+    {
+      async buildStart() {
+        let icons = join(import.meta.dirname, 'public')
+        await sharp(join(icons, 'icon-512.png'))
+          .resize(192, 192)
+          .png({ palette: true })
+          .toFile(join(icons, 'icon-192.png'))
+      },
+      name: 'small-icon'
     },
     {
       enforce: 'pre',
