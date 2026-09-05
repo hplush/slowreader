@@ -19,12 +19,10 @@
   import Stack from '../ui/stack.svelte'
   import Switch from '../ui/switch.svelte'
   import ThinPage from '../ui/thin-page.svelte'
-  import Title from '../ui/title.svelte'
 </script>
 
 <ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>
   <Stack gap="xl">
-    <Title>{$t.applicationInterface}</Title>
     <Stack gap="m">
       <Radio
         label={$t.theme}

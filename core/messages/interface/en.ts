@@ -1,7 +1,6 @@
 import { i18n } from '../../i18n.ts'
 
 export const interfaceMessages = i18n('interface', {
-  applicationInterface: 'Application',
   pageTitle: 'Interface',
   systemDisabledAnimations: 'Animations are disabled in system',
   theme: 'Theme',

@@ -3,12 +3,12 @@
     mdiCloudSync,
     mdiDatabaseOutline,
     mdiExport,
-    mdiFileDownloadOutline,
     mdiFileTree,
     mdiImport,
     mdiInformationOutline,
     mdiPalette,
-    mdiPlusCircleOutline
+    mdiPlusCircleOutline,
+    mdiWifi
   } from '@mdi/js'
   import {
     FEED_ROUTES,
@@ -31,7 +31,7 @@
     feedsByCategories: mdiFileTree,
     import: mdiImport,
     interface: mdiPalette,
-    network: mdiFileDownloadOutline,
+    network: mdiWifi,
     storage: mdiDatabaseOutline
   } satisfies Record<OtherName, string>
 </script>
