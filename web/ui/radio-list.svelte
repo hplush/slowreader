@@ -136,7 +136,9 @@
       background: transparent;
       border-radius: inherit;
 
-      html:not(.is-quiet-cursor) .radio-list_option:not(:has(:checked, :disabled)) & {
+      html:not(.is-quiet-cursor)
+        .radio-list_option:not(:has(:checked, :disabled))
+        & {
         cursor: pointer;
       }
     }

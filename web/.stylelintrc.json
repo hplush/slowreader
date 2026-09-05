@@ -50,6 +50,7 @@
     "alpha-value-notation": "percentage",
     "@stylistic/declaration-colon-newline-after": null,
     "@stylistic/max-line-length": null,
+    "@stylistic/selector-descendant-combinator-no-non-space": null,
     "@stylistic/indentation": null,
     "@stylistic/declaration-colon-space-after": null,
     "@stylistic/value-list-comma-newline-after": null,
