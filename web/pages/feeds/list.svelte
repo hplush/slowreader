@@ -5,6 +5,7 @@
   import Button from '../../ui/button.svelte'
   import Pagination from '../../ui/pagination.svelte'
   import Posts from '../../ui/posts.svelte'
+  import Stack from '../../ui/stack.svelte'
 
   let { reader }: { reader: ListReader } = $props()
   let { list, pages } = $derived(reader)
@@ -12,17 +13,19 @@
 
 <Posts autoread list={$list} />
 {#if $list.some(post => !post.read)}
-  <Button
-    anchor="read-page"
-    icon={mdiCheckboxMultipleMarkedOutline}
-    onclick={reader.readPage}
-    size="wide"
+  <Stack align="center">
+    <Button
+      anchor="read-page"
+      icon={mdiCheckboxMultipleMarkedOutline}
+      onclick={reader.readPage}
+      size="pill"
+    >
+      {#if $pages.hasNext}
+        {$t.readPageAndNext}
+      {:else}
+        {$t.readPage}
+      {/if}
+    </Button></Stack
   >
-    {#if $pages.hasNext}
-      {$t.readPageAndNext}
-    {:else}
-      {$t.readPage}
-    {/if}
-  </Button>
 {/if}
 <Pagination pages={$pages} />
