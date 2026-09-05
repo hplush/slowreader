@@ -15,6 +15,7 @@
   } from '@slowreader/core'
 
   import { hasExtension } from '../main/extension.ts'
+  import { usedRequestMethod } from '../stores/request-method.ts'
   import Button from '../ui/button.svelte'
   import Note from '../ui/note.svelte'
   import RadioList from '../ui/radio-list.svelte'
@@ -30,7 +31,7 @@
       onchange={value => {
         requestMethod.set(value)
       }}
-      value={$requestMethod}
+      value={$usedRequestMethod}
       values={[
         {
           description: $t.proxyDesc,

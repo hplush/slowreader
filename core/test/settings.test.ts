@@ -3,6 +3,7 @@ import { describe, test } from 'node:test'
 
 import {
   preloadImages,
+  requestMethod,
   theme,
   useQuietCursor,
   useReducedMotion
@@ -15,6 +16,10 @@ describe('settings', () => {
 
   test('has store for images preload settings', () => {
     equal(preloadImages.get(), 'always')
+  })
+
+  test('has store for request method', () => {
+    equal(requestMethod.get(), undefined)
   })
 
   test('has store for animations settings', () => {

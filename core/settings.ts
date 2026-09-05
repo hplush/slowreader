@@ -67,9 +67,8 @@ export const preloadImages = persistentAtom<'always' | 'free' | 'never'>(
 /**
  * How to download feeds and files.
  */
-export const requestMethod = persistentAtom<'extension' | 'proxy'>(
-  'slowreader:requestMethod',
-  'proxy'
+export const requestMethod = persistentAtom<'extension' | 'proxy' | undefined>(
+  'slowreader:requestMethod'
 )
 
 /**

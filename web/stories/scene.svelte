@@ -106,7 +106,7 @@
     prepareResponses(responses)
     isDemo.set(false)
     hasExtension.set(false)
-    requestMethod.set('proxy')
+    requestMethod.set(undefined)
     busy.set(false)
     stopRefreshing()
     refreshStatus.set('start')
