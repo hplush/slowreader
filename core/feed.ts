@@ -16,6 +16,7 @@ import {
   type NewFeed,
   select
 } from './schema.ts'
+import { isDemo } from './settings.ts'
 
 export type { FeedValue, NewFeed }
 
@@ -175,13 +176,13 @@ export const needWelcome = atom<boolean | undefined>()
 onMount(needWelcome, () => {
   // The database is opened after the sign in and is re-created on the reset,
   // so the query must be re-created with it
-  return effect(openedDatabase, database => {
+  return effect([openedDatabase, isDemo], (database, demo) => {
+    if (demo) {
+      needWelcome.set(true)
+      return
+    }
     needWelcome.set(undefined)
     if (!database) return
-    // SQLocal subscribes the reactive query to the tables from `tables_used()`
-    // and throws when the list is empty. Counting an indexed column like `url`
-    // is answered by the index alone, so the query must read a column
-    // without an index.
     let $first = database.store<{
       loader: LoaderName
     }>`SELECT "loader" FROM "feeds" LIMIT 1`
