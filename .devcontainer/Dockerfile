@@ -17,7 +17,7 @@ ENV PNPM_VERSION=12.3.2 \
 RUN dnf install -yq zsh micro git tig psmisc procps-ng awk libatomic wget \
   gtk3 nss nspr alsa-lib cups-libs mesa-libgbm dbus-libs libX11-xcb \
   libXcomposite libXdamage libXrandr libXcursor libXi libxkbcommon \
-  google-noto-sans-fonts google-noto-emoji-fonts \
+  google-noto-sans-fonts google-noto-emoji-fonts gh jq \
   && dnf clean all \
   && rm -rf /var/cache/dnf
 
