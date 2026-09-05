@@ -238,7 +238,7 @@ You can use [bundlejs.com](https://bundlejs.com/) and [npmgraph.js.org](https://
 
 After adding a web client dependency, do not forget to call `pnpm -F web size` to check the real size of dependency in our JS bundle.
 
-We put to `dependencies` only dependencies we need for production deploy. All other dependencies you should put to `devDependencies`. During production deploy we will use `pnpm install --prod` to reduce security risks of having malicious code in some dependency.
+We put to `dependencies` only dependencies we need for production deploy. During production deploy we will use `pnpm install --prod` to reduce security risks of having malicious code in some dependency. For `server/` it means the runtime dependencies. We deploy clients as built files, so for `web/` and `extension/` it means everything, which the build needs, like Vite or Sharp. Linters, tests, and type checkers always go to `devDependencies`.
 
 We are using in `package.json` `1.0.0` version requirement and not `^1.0.0` to not get unexpected dependencies updates (at least, direct dependencies) if we will break the pnpm lock file. The `./scripts/check-versions.ts` in `pre-commit` hook will check that you do not forget this rule.
 
