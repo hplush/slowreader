@@ -51,7 +51,7 @@ Run `pnpm -F extension start` first. It writes `dist/` with the development mani
 
 ### Chrome
 
-1. Open `chrome://extensions/` → `Load unpacked` and choose the `dist/` folder.
+1. Open `chrome://extensions/`, enable Developer mode, click `Load unpacked` and choose the `dist/` folder.
 2. Run the web client and open `http://localhost:2553`.
 
 Re-build by the update button in the extension’s block. Logs are behind the `Inspect views: service worker` link.
