@@ -41,25 +41,36 @@ app → window.postMessage → content script → port → background → CORS's
 
 - [Content script](./content.ts) is the extension’s script, which the browser injects into the Slow Reader pages from `content_scripts.matches`. It sees the page’s DOM and `window`, but not the page’s JS variables.
 - Port is a two-way channel between the extension’s parts, opened by `chrome.runtime.connect()`. The page can’t open it, only the content script can. Its messages are JSON, not structured clone, so the response body travels as base64.
-- [Background](./background.ts) is the extension’s own script without any page. Only it can make requests without the CORS limit. Chrome runs it as a service worker, Firefox and Safari as an event page. The manifest declares both ways, and the code uses only APIs, which work in both.
+- [Background](./background.ts) is the extension’s own script without any page. Only it can make requests without the CORS limit. Chrome runs it as a service worker, Firefox and Safari as an event page. Chrome fails on `background.scripts` and Firefox has no service workers, so every browser gets its own manifest and folder. The code uses only APIs, which work in both.
 
 The app and the content script are in the same tab, but in different JS worlds. `window.postMessage()` is the only way between them, and both sides check `event.origin`.
 
 ## Quick Start
 
-Run `pnpm -F extension start` first. It writes `dist/` with the development manifest, where the content script matches `http://localhost:2553/*`.
+Build extension:
+
+```sh
+pnpm -F extension build
+```
+
+Re-install the extension in the browser after every build.
+
+The local build is named `Slow Reader (local)` and has own Firefox ID, so it installs next to the store’s one.
 
 ### Chrome
 
-1. Open `chrome://extensions/`, enable Developer mode, click `Load unpacked` and choose the `dist/` folder.
+1. Open `chrome://extensions/`, enable Developer mode, click `Load unpacked` and choose the `dist/local/chrome/` folder.
 2. Run the web client and open `http://localhost:2553`.
 
 Re-build by the update button in the extension’s block. Logs are behind the `Inspect views: service worker` link.
 
 ### Firefox
 
-1. Open `about:debugging#/runtime/this-firefox` → `Load Temporary Add-on` and choose `dist/manifest.json`.
-2. Run the web client.
+1. Open `about:debugging#/runtime/this-firefox` → `Load Temporary Add-on` and choose `dist/local/firefox/manifest.json`.
+2. Grant the access on the options page, which the extension opens on the install. `about:addons` → the extension → `Permissions` → `Access your data for all websites` does the same.
+3. Run the web client and reload the page.
+
+The temporary add-on skips the install prompt, so without step 2 Firefox grants no host access, injects no content script, and the app sees no extension at all.
 
 The add-on is removed on the browser restart. `Inspect` opens the console of the event page.
 
@@ -68,7 +79,7 @@ The add-on is removed on the browser restart. `Inspect` opens the console of the
 Safari takes only extensions inside a macOS or iOS app, so it needs macOS with Xcode:
 
 ```sh
-xcrun safari-web-extension-converter extension/dist
+xcrun safari-web-extension-converter extension/dist/local/safari
 ```
 
 Then in Xcode run the generated app and enable the extension in `Safari` → `Settings` → `Extensions`. Turn on `Allow unsigned extensions` in the develop menu for development builds.
@@ -77,7 +88,7 @@ Then in Xcode run the generated app and enable the extension in `Safari` → `Se
 
 The extension asks for `*://*/*` since feeds live on any host.
 
-Chrome grants it on the install. Firefox shows it in the install prompt since Firefox 127, but the user can revoke it later. Safari asks per site and grants nothing by default.
+Chrome grants it on the install. Firefox shows it in the install prompt since Firefox 127, but not for a temporary add-on, and the user can revoke it later. Safari asks per site and grants nothing by default. The background opens the options page right after the install when the access is missing.
 
 The user can also revoke the access later, or grant it only for a day in Safari. The background re-checks the access on every failed request and answers `restricted`, so the app switches back to the proxy and shows the note again instead of blaming the feed.
 
@@ -120,7 +131,7 @@ See possible messages in [types API](./api.ts) and the client’s side in [`web/
 
 ## Publishing
 
-Run `pnpm -F extension build` and zip the content of the `dist/` folder.
+Run `pnpm -F extension build` and zip the content of the browser’s folder in `dist/store/`.
 
 - Chrome: [Chrome Web Store guide](https://developer.chrome.com/docs/webstore/publish).
 - Firefox: [addons.mozilla.org guide](https://extensionworkshop.com/documentation/publish/submitting-an-add-on/). The ID is fixed in `browser_specific_settings.gecko`.

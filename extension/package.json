@@ -7,9 +7,8 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "start": "node build.ts",
-    "build": "NODE_ENV=production node build.ts",
-    "test": "pnpm build"
+    "start": "WATCH=1 node build.ts",
+    "build": "node build.ts"
   },
   "dependencies": {
     "sharp": "0.35.4",

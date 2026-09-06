@@ -12,6 +12,14 @@ function toBase64(bytes: Uint8Array): string {
   return btoa(binary)
 }
 
+/** Firefox and Safari grant no host access on the install, and without it
+ * the extension is invisible for the app. */
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.permissions.contains({ origins: ['*://*/*'] }, granted => {
+    if (!granted) void chrome.runtime.openOptionsPage()
+  })
+})
+
 chrome.runtime.onConnect.addListener(port => {
   let aborter = new AbortController()
   let alive = true
