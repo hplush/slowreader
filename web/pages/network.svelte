@@ -67,17 +67,31 @@
         variant={$installingExtension ? 'warning' : 'good'}
       >
         {$installingExtension ? $t.installedExtension : $t.noExtension}
-        <Button
-          href={extensionStore}
-          icon={mdiPlusCircleOutline}
-          onclick={() => {
-            installingExtension.set(true)
-          }}
-          size="wide"
-          target="_blank"
-        >
-          {$t.installExtension}
-        </Button>
+        <Stack align="center" gap="s">
+          {#if $installingExtension}
+            <Button
+              icon={mdiRefresh}
+              onclick={() => {
+                location.reload()
+              }}
+              size="wide"
+              variant="main"
+            >
+              {$t.reloadApp}
+            </Button>
+          {/if}
+          <Button
+            href={extensionStore}
+            icon={mdiPlusCircleOutline}
+            onclick={() => {
+              installingExtension.set(true)
+            }}
+            size={$installingExtension ? 'pill' : 'wide'}
+            target="_blank"
+          >
+            {$t.installExtension}
+          </Button>
+        </Stack>
       </Note>
     {/if}
     <div style:display="none">

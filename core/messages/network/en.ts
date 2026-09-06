@@ -17,6 +17,7 @@ export const networkMessages = i18n('network', {
   preloadImages: 'Preload post images',
   preloadNever: 'Never',
   installedExtension: 'If you installed the extension, reload the page.',
+  reloadApp: 'Reload the app',
   proxy: 'Proxy',
   proxyDesc:
     'Our server makes the requests for you. Use it if the sites ' +
