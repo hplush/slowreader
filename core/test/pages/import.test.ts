@@ -8,6 +8,7 @@ import {
   addFeed,
   addFilter,
   addPost,
+  busy,
   deleteCategory,
   deleteFeed,
   deleteFilter,
@@ -17,6 +18,7 @@ import {
   loadCategories,
   loadFeeds,
   loadFilters,
+  importMessages,
   loadPosts,
   type NewCategory,
   type NewFeed,
@@ -123,13 +125,18 @@ describe('import page', () => {
       params: {},
       route: 'import'
     })
-    equal(page.importing.get(), false)
+    equal(busy.get(), false)
     equal(page.fileError.get(), false)
     deepEqual(page.feedErrors.get(), [])
     equal(page.done.get(), false)
 
     page.importFile(file('json', await exportedBlob.text()))
-    await waitLoading(page.importing)
+    deepEqual(busy.get(), {
+      blocking: true,
+      label: importMessages.get().importing,
+      progress: undefined
+    })
+    await waitLoading(busy)
     await setTimeout(100)
     equal(page.fileError.get(), false)
     deepEqual(page.feedErrors.get(), [])
@@ -187,7 +194,7 @@ describe('import page', () => {
     expectRequest('https://unknown.com/').andRespond(200, '<html></html>')
     expectRequest(FEED.url).andRespond(200, '<rss></rss>')
     page.importFile(file('opml', await exportedBlob.text()))
-    await waitLoading(page.importing)
+    await waitLoading(busy)
     equal(page.fileError.get(), false)
     deepEqual(page.feedErrors.get(), [
       ['https://broken.com/', 'unloadable'],
@@ -232,7 +239,7 @@ describe('import page', () => {
     let page = openPage({ params: {}, route: 'import' })
     expectRequest(FEED.url).andRespond(200, '<rss></rss>')
     page.importFile(file('opml', await exportedBlob.text()))
-    await waitLoading(page.importing)
+    await waitLoading(busy)
 
     equal(isDemo.get(), false)
     equal(page.done.get(), 1)
@@ -248,7 +255,7 @@ describe('import page', () => {
       route: 'import'
     })
     page.importFile(file('txt', ''))
-    await waitLoading(page.importing)
+    await waitLoading(busy)
     equal(page.fileError.get(), 'unknownFormat')
     deepEqual(page.feedErrors.get(), [])
     equal(page.done.get(), false)
@@ -260,7 +267,7 @@ describe('import page', () => {
       route: 'import'
     })
     page.importFile(file('json', '{'))
-    await waitLoading(page.importing)
+    await waitLoading(busy)
     equal(page.fileError.get(), 'brokenFile')
     deepEqual(page.feedErrors.get(), [])
     equal(page.done.get(), false)
@@ -272,7 +279,7 @@ describe('import page', () => {
       route: 'import'
     })
     page.importFile(file('opml', '<'))
-    await waitLoading(page.importing)
+    await waitLoading(busy)
     equal(page.fileError.get(), 'brokenFile')
     deepEqual(page.feedErrors.get(), [])
     equal(page.done.get(), false)
@@ -284,7 +291,7 @@ describe('import page', () => {
       route: 'import'
     })
     page.importFile(file('opml', '<html></html>'))
-    await waitLoading(page.importing)
+    await waitLoading(busy)
     equal(page.fileError.get(), 'brokenFile')
     deepEqual(page.feedErrors.get(), [])
     equal(page.done.get(), false)
@@ -299,7 +306,7 @@ describe('import page', () => {
       '<?xml version="1.0" encoding="UTF-8"?>' +
       '<opml version="2.0"><body></body></opml>'
     page.importFile(file('opml', emptyOpml))
-    await waitLoading(page.importing)
+    await waitLoading(busy)
     equal(page.fileError.get(), 'noFeeds')
     deepEqual(page.feedErrors.get(), [])
     equal(page.done.get(), false)
@@ -330,7 +337,7 @@ describe('import page', () => {
     })
     equal(page.done.get(), false)
     page.importFile(file('json', await exportedBlob.text()))
-    await waitLoading(page.importing)
+    await waitLoading(busy)
     equal(page.done.get(), 2)
   })
 
@@ -361,7 +368,7 @@ describe('import page', () => {
     expectRequest(FEED2.url).andRespond(200, '<feed></feed>')
     expectRequest(FEED.url).andRespond(200, '<rss></rss>')
     page.importFile(file('opml', await exportedBlob.text()))
-    await waitLoading(page.importing)
+    await waitLoading(busy)
     equal(page.done.get(), 2)
   })
 
@@ -372,7 +379,7 @@ describe('import page', () => {
     })
     equal(page.done.get(), false)
     page.importFile(file('json', '{'))
-    await waitLoading(page.importing)
+    await waitLoading(busy)
     equal(page.done.get(), false)
     equal(page.fileError.get(), 'brokenFile')
   })
@@ -391,7 +398,7 @@ describe('import page', () => {
       settings: { preloadImages: 'always', theme: 'system' }
     })
     page.importFile(file('json', emptyJson))
-    await waitLoading(page.importing)
+    await waitLoading(busy)
     equal(page.done.get(), 0)
     equal(page.fileError.get(), false)
     deepEqual(page.feedErrors.get(), [])
@@ -418,7 +425,7 @@ describe('import page', () => {
       route: 'import'
     })
     page.importFile(file('opml', await exportedBlob.text()))
-    await waitLoading(page.importing)
+    await waitLoading(busy)
     equal(page.fileError.get(), false)
     deepEqual(page.feedErrors.get(), [
       [FEED2.url, 'exists'],
@@ -448,7 +455,7 @@ describe('import page', () => {
       route: 'import'
     })
     page.importFile(file('json', await exportedBlob.text()))
-    await waitLoading(page.importing)
+    await waitLoading(busy)
     equal(page.fileError.get(), false)
     deepEqual(page.feedErrors.get(), [])
     equal(page.done.get(), 0)
@@ -480,7 +487,7 @@ describe('import page', () => {
       type: 'application/xml'
     })
     page.importFile(xmlFile)
-    await waitLoading(page.importing)
+    await waitLoading(busy)
     equal(page.fileError.get(), false)
     equal(page.done.get(), 1)
 

@@ -17,7 +17,6 @@
   import ErrorList from '../ui/error-list.svelte'
   import Error from '../ui/error.svelte'
   import File from '../ui/file.svelte'
-  import Loader from '../ui/loader.svelte'
   import PageIcon from '../ui/page-icon.svelte'
   import RichText from '../ui/rich-text.svelte'
   import Stack from '../ui/stack.svelte'
@@ -25,7 +24,7 @@
   import Title from '../ui/title.svelte'
 
   let { page }: { page: ImportPage } = $props()
-  let { done, feedErrors, fileError, importFile, importing } = $derived(page)
+  let { done, feedErrors, fileError, importFile } = $derived(page)
 </script>
 
 <ThinPage title={[$t.title, $organizeMessages.feedsTitle]}>
@@ -47,24 +46,20 @@
     {:else}
       <PageIcon align="start" path={mdiBriefcaseUploadOutline}>
         <Stack gap="l">
-          {#if $importing}
-            <Loader size="wide" track="import" value={$importing} />
-          {:else}
-            <RichText text={$t.description} url={getURL('export')} />
-            <File
-              accept=".opml,.json,.xml"
-              icon={mdiUpload}
-              onchange={e => {
-                let file = e.currentTarget.files?.[0]
-                if (file) importFile(file)
-                e.currentTarget.value = ''
-              }}
-              size="wide"
-              variant="main"
-            >
-              {$isDemo ? $t.demoSubmit : $t.submit}
-            </File>
-          {/if}
+          <RichText text={$t.description} url={getURL('export')} />
+          <File
+            accept=".opml,.json,.xml"
+            icon={mdiUpload}
+            onchange={e => {
+              let file = e.currentTarget.files?.[0]
+              if (file) importFile(file)
+              e.currentTarget.value = ''
+            }}
+            size="wide"
+            variant="main"
+          >
+            {$isDemo ? $t.demoSubmit : $t.submit}
+          </File>
 
           {#if $fileError}
             <Error>

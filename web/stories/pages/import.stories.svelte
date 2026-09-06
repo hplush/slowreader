@@ -39,21 +39,6 @@
   </Scene>
 </Story>
 
-<Story name="Importing" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene
-    oninit={() => {
-      pages.import().importing.set(0.5)
-      pages.import().feedErrors.set([
-        ['https://example.com/feed1.xml', 'unloadable'],
-        ['https://example.com/feed2.xml', 'unknown']
-      ])
-    }}
-    route="import"
-  >
-    <ImportPage page={pages.import()} />
-  </Scene>
-</Story>
-
 <Story name="Done" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {

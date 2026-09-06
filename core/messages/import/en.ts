@@ -14,6 +14,7 @@ export const importMessages = i18n('import', {
     one: '{count} feed imported'
   }),
   goToFeeds: 'Go to feeds',
+  importing: 'Importing the feeds',
   loadError: 'Feed Errors',
   noFeedsError: 'No feeds found in the file',
   submit: 'Import OPML or backup',

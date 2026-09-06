@@ -1,4 +1,5 @@
 import {
+  busy,
   importMessages,
   pages,
   setRequestMethod,
@@ -100,7 +101,7 @@ await cli.run(async args => {
   })
 
   void page.importFile(file)
-  await waitLoading(page.importing)
+  await waitLoading(busy)
   unbindLastAdded()
   unbindFeedErrors()
 

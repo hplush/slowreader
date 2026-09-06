@@ -1,5 +1,6 @@
 import { atom } from 'nanostores'
 
+import { busyDuring } from '../busy.ts'
 import { addCategory } from '../category.ts'
 import { deleteDemo } from '../demo.ts'
 import { addCandidate, addFeed, loadFeedByUrl, loadFeedUrls } from '../feed.ts'
@@ -7,6 +8,7 @@ import { importFilters } from '../filter.ts'
 import { createDownloadTask } from '../lib/download.ts'
 import { parseDocument } from '../lib/html.ts'
 import { getLoaderForText } from '../loader/index.ts'
+import { importMessages } from '../messages/index.ts'
 import { addPost } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
 import { isDemo, preloadImages, theme } from '../settings.ts'
@@ -31,7 +33,6 @@ type FeedError = 'exists' | 'noFeeds' | 'unknown' | 'unloadable'
 const POSTS_PER_ACTION = 100
 
 export const importPage = createPage('import', () => {
-  let $importing = atom<false | number | true>(false)
   let $fileError = atom<
     'brokenFile' | 'cannotRead' | 'noFeeds' | 'unknownFormat' | false
   >(false)
@@ -41,13 +42,16 @@ export const importPage = createPage('import', () => {
   let $total = atom(0)
   let added = 0
 
-  function startProgress(all: number): (step?: number) => void {
+  function startProgress(
+    setProgress: (progress: number) => void,
+    all: number
+  ): (step?: number) => void {
     $total.set(all)
     let completed = 0
-    $importing.set(0)
+    setProgress(0)
     return (step = 1) => {
       completed += step
-      $importing.set(completed / all)
+      setProgress(completed / all)
     }
   }
 
@@ -59,7 +63,10 @@ export const importPage = createPage('import', () => {
     return !!(await loadFeedByUrl(url))
   }
 
-  async function importOpml(doc: Document): Promise<void> {
+  async function importOpml(
+    doc: Document,
+    setProgress: (progress: number) => void
+  ): Promise<void> {
     let outlines = doc.getElementsByTagName('outline')
     let links = [...outlines].filter(i => i.getAttribute('xmlUrl'))
     if (links.length === 0) {
@@ -68,7 +75,7 @@ export const importPage = createPage('import', () => {
     }
     if (isDemo.get()) await deleteDemo()
     let task = createDownloadTask()
-    let done = startProgress(links.length)
+    let done = startProgress(setProgress, links.length)
 
     let categories = new Map<string, string>()
     for (let outline of links) {
@@ -119,12 +126,16 @@ export const importPage = createPage('import', () => {
     }
   }
 
-  async function importState(json: StateExport): Promise<void> {
+  async function importState(
+    json: StateExport,
+    setProgress: (progress: number) => void
+  ): Promise<void> {
     if (isDemo.get()) await deleteDemo()
     theme.set(json.settings.theme)
     preloadImages.set(json.settings.preloadImages)
 
     let done = startProgress(
+      setProgress,
       json.categories.length +
         json.feeds.length +
         json.filters.length +
@@ -155,47 +166,50 @@ export const importPage = createPage('import', () => {
     }
   }
 
-  async function importFile(file: File): Promise<void> {
-    $importing.set(true)
-    $fileError.set(false)
-    $feedErrors.set([])
-    $done.set(false)
-    added = 0
+  function importFile(file: File): Promise<void> {
+    return busyDuring(
+      importMessages.get().importing,
+      async setProgress => {
+        $fileError.set(false)
+        $feedErrors.set([])
+        $done.set(false)
+        added = 0
 
-    let ext = file.name.split('.').pop()?.toLowerCase()
-    let content = await readFile(file)
-    /* node:coverage ignore next 5 */
-    if (content === false) {
-      $fileError.set('cannotRead')
-      $importing.set(false)
-      return
-    }
+        let ext = file.name.split('.').pop()?.toLowerCase()
+        let content = await readFile(file)
+        /* node:coverage ignore next 4 */
+        if (content === false) {
+          $fileError.set('cannotRead')
+          return
+        }
 
-    if (ext === 'opml' || ext === 'xml') {
-      let doc = parseDocument(content, 'text/xml')
-      if (doc.documentElement.nodeName === 'opml') {
-        await importOpml(doc)
-      } else {
-        $fileError.set('brokenFile')
-      }
-    } else if (ext === 'json') {
-      let json
-      try {
-        json = JSON.parse(content) as unknown
-      } catch {}
-      if (!json || !isStateExportFile(json)) {
-        $fileError.set('brokenFile')
-      } else {
-        await importState(json)
-      }
-    } else {
-      $fileError.set('unknownFormat')
-    }
+        if (ext === 'opml' || ext === 'xml') {
+          let doc = parseDocument(content, 'text/xml')
+          if (doc.documentElement.nodeName === 'opml') {
+            await importOpml(doc, setProgress)
+          } else {
+            $fileError.set('brokenFile')
+          }
+        } else if (ext === 'json') {
+          let json
+          try {
+            json = JSON.parse(content) as unknown
+          } catch {}
+          if (!json || !isStateExportFile(json)) {
+            $fileError.set('brokenFile')
+          } else {
+            await importState(json, setProgress)
+          }
+        } else {
+          $fileError.set('unknownFormat')
+        }
 
-    $importing.set(false)
-    if (!$fileError.get()) {
-      $done.set(added)
-    }
+        if (!$fileError.get()) {
+          $done.set(added)
+        }
+      },
+      true
+    )
   }
 
   return {
@@ -204,7 +218,6 @@ export const importPage = createPage('import', () => {
     feedErrors: $feedErrors,
     fileError: $fileError,
     importFile,
-    importing: $importing,
     lastAdded: $lastAdded,
     params: {},
     total: $total
