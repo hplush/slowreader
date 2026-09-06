@@ -112,7 +112,6 @@ export const addPage = createPage('add', () => {
     $links.set({})
     $candidates.set([])
     prevTask?.destroy()
-    closeAllPopups()
   }
 
   let debouncedInput = debounce((value: string) => {
@@ -136,7 +135,11 @@ export const addPage = createPage('add', () => {
     lastUrl = url ?? ''
     if (url === prevUrl) return
     prevUrl = url
-    if (inited) reset()
+    if (inited) {
+      reset()
+      // Not in reset(): on exit it would navigate over the route we go to
+      closeAllPopups()
+    }
     inited = true
     if (!url) return
     prevTask = createDownloadTask({ cache: 'write' })

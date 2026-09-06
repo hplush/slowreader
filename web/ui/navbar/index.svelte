@@ -118,7 +118,7 @@
       current={isOtherRoute($router)}
       dot={$syncStatusType === 'error'}
       hasSubmenu="navbar_submenu"
-      href={getURL('menu')}
+      href={$layoutType === 'desktop' ? getURL('add') : getURL('menu')}
       icon={mdiMenu}
       size="icon"
     />
