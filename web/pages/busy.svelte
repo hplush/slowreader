@@ -10,7 +10,7 @@
 </script>
 
 {#snippet warning()}
-  <Note icon={mdiHandBackLeft} variant="dangerous">{$t.dontClose}</Note>
+  <Note icon={mdiHandBackLeft} variant="warning">{$t.dontClose}</Note>
 {/snippet}
 
 <Captioned
