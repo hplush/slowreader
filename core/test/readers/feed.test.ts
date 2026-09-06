@@ -10,6 +10,7 @@ import {
   deletePost,
   type FeedReader,
   type Page,
+  router,
   testFeed,
   testPost,
   waitLoading
@@ -107,9 +108,10 @@ describe('feed reader', () => {
     equal(reader.list.get().length, 10)
     equal(reader.hasNext.get(), false)
 
+    // The last page moves to the slow reading: no fast post is left
     await reader.readAndNext()
-    equal(page.posts.get()?.name, 'empty')
     await setTimeout(10)
+    equal(router.get().route, 'slow')
 
     openPage({
       params: {},

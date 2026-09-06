@@ -179,28 +179,11 @@ describe('list reader', () => {
       ]
     ])
 
+    // The last page gives the reading back to the menu
     await reader.readPage()
-    equal(page.params.from.get(), '1')
-    equal(reader.list.get().length, 48)
-    deepEqual(reader.pages.get(), {
-      count: 2,
-      hasNext: false,
-      page: 1,
-      pages: [0, 1],
-      show: true,
-      titles: true
-    })
-
-    openPage({
-      params: { feed: feed1 },
-      route: 'slow'
-    })
     await setTimeout(10)
-    page = openPage({
-      params: { category: categoryId },
-      route: 'slow'
-    })
-    await setTimeout(10)
+    equal(page.params.from.get(), undefined)
+    equal(page.params.category.get(), undefined)
     equal(page.posts.get()?.name, 'empty')
   })
 

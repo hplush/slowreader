@@ -16,7 +16,7 @@ import {
 
 const POSTS_PER_PAGE = 100
 
-export const listReader = createReader('list', (filter, params) => {
+export const listReader = createReader('list', (filter, params, helpers) => {
   if (!filter.categoryId && !filter.feedId) return
 
   let exited = false
@@ -63,6 +63,8 @@ export const listReader = createReader('list', (filter, params) => {
     if (exited) return
     if ($pages.get().hasNext) {
       params.from.set(`${$pages.get().page + 1}`)
+    } else {
+      await helpers.openNext()
     }
   }
 

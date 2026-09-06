@@ -1,10 +1,15 @@
 import { atom, computed, effect } from 'nanostores'
 
 import { type CategoryValue, changeCategory, getCategory } from '../category.ts'
-import { layoutType } from '../environment.ts'
+import { getEnvironment, layoutType } from '../environment.ts'
 import { changeFeed, type FeedValue, getFeed, needWelcome } from '../feed.ts'
 import { fastMenu, menuLoading, openableMenu, slowMenu } from '../menu.ts'
-import { deletePost, fastPostsCount, slowPostsCount } from '../post.ts'
+import {
+  deletePost,
+  fastPostsCount,
+  hasUnreadPosts,
+  slowPostsCount
+} from '../post.ts'
 import {
   loadReadPostIds,
   type PostFilter,
@@ -71,8 +76,16 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     }
 
     let helpers: ReaderHelpers = {
-      renderEmpty() {
-        setReader(emptyReader({ reading }, params, helpers))
+      // The home page opens the next feed on desktop and the menu on mobile,
+      // so the reader only has to give the route back.
+      async openNext() {
+        let route = reading
+        if (reading === 'fast' && !(await hasUnreadPosts('fast'))) {
+          route = 'slow'
+        }
+        await nextRouteIsRedirect(() => {
+          getEnvironment().openRoute({ params: {}, popups: [], route })
+        })
       }
     }
 

@@ -10,6 +10,7 @@ import {
   busyUntilMenuLoader,
   GENERAL_CATEGORY,
   menuLoading,
+  router,
   setLayoutType,
   testFeed,
   testPost,
@@ -19,6 +20,7 @@ import {
 import {
   cleanClientTest,
   enableClientTest,
+  ensureReader,
   openPage,
   persistentDatabase,
   setBaseTestRoute,
@@ -180,6 +182,88 @@ describe('feeds page', () => {
     equal(page.menu.get(), false)
     await waitLoading(page.loading)
     equal(page.posts.get()!.name, 'list')
+  })
+
+  test('opens the next feed after the last page was read', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let category = await addCategory({ title: 'A' })
+    let feed1 = await addFeed(
+      testFeed({ categoryId: category, slowReader: 'list', title: 'F1' })
+    )
+    let feed2 = await addFeed(
+      testFeed({ categoryId: category, slowReader: 'list', title: 'F2' })
+    )
+    await addPost(testPost({ feedId: feed1, reading: 'slow' }))
+    await addPost(testPost({ feedId: feed2, reading: 'slow' }))
+    await setTimeout(10)
+
+    let page = openPage({ params: { feed: feed1 }, route: 'slow' })
+    await waitLoading(page.loading)
+    await ensureReader(page.posts, 'list').readPage()
+    await setTimeout(10)
+
+    equal(page.params.feed.get(), feed2)
+    equal(page.posts.get()!.name, 'list')
+  })
+
+  test('opens the menu after the last page was read outside of the desktop', async () => {
+    setLayoutType('mobile')
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let feed1 = await addFeed(
+      testFeed({
+        categoryId: await addCategory({ title: 'A1' }),
+        slowReader: 'list'
+      })
+    )
+    let feed2 = await addFeed(
+      testFeed({
+        categoryId: await addCategory({ title: 'A2' }),
+        slowReader: 'list'
+      })
+    )
+    await addPost(testPost({ feedId: feed1, reading: 'slow' }))
+    await addPost(testPost({ feedId: feed2, reading: 'slow' }))
+    await setTimeout(10)
+
+    let page = openPage({ params: { feed: feed1 }, route: 'slow' })
+    await waitLoading(page.loading)
+    await ensureReader(page.posts, 'list').readPage()
+    await setTimeout(10)
+
+    equal(page.params.feed.get(), undefined)
+    equal(page.menu.get(), true)
+  })
+
+  test('opens slow feeds after the last fast post was read', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let fast = await addFeed(
+      testFeed({
+        categoryId: await addCategory({ fastReader: 'feed', title: 'A1' }),
+        fastReader: 'feed',
+        reading: 'fast'
+      })
+    )
+    let slow = await addFeed(
+      testFeed({
+        categoryId: await addCategory({ title: 'A2' }),
+        slowReader: 'list'
+      })
+    )
+    await addPost(testPost({ feedId: fast, reading: 'fast' }))
+    await addPost(testPost({ feedId: slow, reading: 'slow' }))
+    await setTimeout(10)
+
+    let page = openPage({ params: {}, route: 'fast' })
+    await waitLoading(page.loading)
+    await ensureReader(page.posts, 'feed').readAndNext()
+    await setTimeout(10)
+
+    let next = openPage({ params: {}, route: 'slow' })
+    equal(next.params.feed.get(), slow)
+    equal(router.get().route, 'slow')
   })
 
   test('renders empty reader when the menu has no feed to open', async () => {

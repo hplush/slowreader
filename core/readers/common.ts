@@ -12,7 +12,11 @@ export interface BaseReader<Name extends ReaderName = ReaderName> {
 }
 
 export interface ReaderHelpers {
-  renderEmpty(): void
+  /**
+   * No next page in the target, so the reader gives the page back to the menu
+   * or to the next feed. Reading posts one-by-one does not call it.
+   */
+  openNext(): Promise<void>
 }
 
 interface Extra {

@@ -87,7 +87,7 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
   // The page of the next cursor does not depend on them, since the cursor
   // is strict `<`, and the move goes first to put the query of the page
   // into the database queue before the write.
-  function readAndNext(): Promise<void> {
+  async function readAndNext(): Promise<void> {
     let unread = $list
       .get()
       .filter(post => !post.read)
@@ -95,10 +95,11 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
     if ($hasNext.get()) {
       keepPrevFrom = true
       params.from.set($nextFrom.get())
+      await changePost(unread, { read: 1 })
     } else {
-      helpers.renderEmpty()
+      await changePost(unread, { read: 1 })
+      if (!exited) await helpers.openNext()
     }
-    return changePost(unread, { read: 1 })
   }
 
   return {
