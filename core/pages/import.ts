@@ -1,6 +1,7 @@
 import { atom } from 'nanostores'
 
 import { addCategory } from '../category.ts'
+import { deleteDemo } from '../demo.ts'
 import { addCandidate, addFeed, loadFeedByUrl, loadFeedUrls } from '../feed.ts'
 import { importFilters } from '../filter.ts'
 import { createDownloadTask } from '../lib/download.ts'
@@ -8,7 +9,7 @@ import { parseDocument } from '../lib/html.ts'
 import { getLoaderForText } from '../loader/index.ts'
 import { addPost } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
-import { preloadImages, theme } from '../settings.ts'
+import { isDemo, preloadImages, theme } from '../settings.ts'
 import { createPage } from './common.ts'
 import { isStateExportFile, type StateExport } from './export.ts'
 
@@ -65,6 +66,7 @@ export const importPage = createPage('import', () => {
       $fileError.set('noFeeds')
       return
     }
+    if (isDemo.get()) await deleteDemo()
     let task = createDownloadTask()
     let done = startProgress(links.length)
 
@@ -118,6 +120,7 @@ export const importPage = createPage('import', () => {
   }
 
   async function importState(json: StateExport): Promise<void> {
+    if (isDemo.get()) await deleteDemo()
     theme.set(json.settings.theme)
     preloadImages.set(json.settings.preloadImages)
 

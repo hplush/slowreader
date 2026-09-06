@@ -2,10 +2,12 @@
   import { mdiRss } from '@mdi/js'
   import {
     type AddPage,
+    isDemo,
     organizeMessages,
     addMessages as t
   } from '@slowreader/core'
 
+  import DemoNote from '../ui/demo-note.svelte'
   import Error from '../ui/error.svelte'
   import Feeds from '../ui/feeds.svelte'
   import Input from '../ui/input.svelte'
@@ -31,36 +33,42 @@
 </script>
 
 <PopupablePage title={[$t.title, $organizeMessages.feedsTitle]}>
-  <Stack align="center" {gap}>
-    <Input
-      anchor="add-url"
-      aria-controls="add-results"
-      errorId={$error || $noResults ? 'add-error' : undefined}
-      label={$t.urlLabel}
-      labelless
-      oninput={value => {
-        page.inputUrl(value)
-      }}
-      placeholder={$t.urlLabel}
-      value={$url}
-    />
-    {#if empty}
-      <PageIcon path={mdiRss}>
-        <RichText text={$t.searchGuide} />
-      </PageIcon>
-    {:else if $searching}
-      <Loader track="add-search" />
-    {:else if $error}
-      <Error id="add-error">{$t[$error]}</Error>
-    {:else if $noResults}
-      <Error id="add-error">
-        <RichText
-          text={$t.noResults}
-          url="https://github.com/hplush/slowreader/issues"
-        />
-      </Error>
-    {:else}
-      <Feeds id="add-results" current={$opened} list={$candidates} />
-    {/if}
-  </Stack>
+  {#if $isDemo}
+    <Stack align="center">
+      <DemoNote type="add" />
+    </Stack>
+  {:else}
+    <Stack align="center" {gap}>
+      <Input
+        anchor="add-url"
+        aria-controls="add-results"
+        errorId={$error || $noResults ? 'add-error' : undefined}
+        label={$t.urlLabel}
+        labelless
+        oninput={value => {
+          page.inputUrl(value)
+        }}
+        placeholder={$t.urlLabel}
+        value={$url}
+      />
+      {#if empty}
+        <PageIcon path={mdiRss}>
+          <RichText text={$t.searchGuide} />
+        </PageIcon>
+      {:else if $searching}
+        <Loader track="add-search" />
+      {:else if $error}
+        <Error id="add-error">{$t[$error]}</Error>
+      {:else if $noResults}
+        <Error id="add-error">
+          <RichText
+            text={$t.noResults}
+            url="https://github.com/hplush/slowreader/issues"
+          />
+        </Error>
+      {:else}
+        <Feeds id="add-results" current={$opened} list={$candidates} />
+      {/if}
+    </Stack>
+  {/if}
 </PopupablePage>

@@ -26,6 +26,7 @@
           <Button
             href="/copy-demo-db.html"
             icon={mdiBinoculars}
+            rel="external"
             size="big"
             variant="main"
           >

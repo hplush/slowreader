@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  import { pages } from '@slowreader/core'
+  import { isDemo, pages } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import ImportPage from '../../pages/import.svelte'
@@ -13,6 +13,17 @@
 
 <Story name="Base" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene route="import">
+    <ImportPage page={pages.import()} />
+  </Scene>
+</Story>
+
+<Story name="Demo" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      isDemo.set(true)
+    }}
+    route="import"
+  >
     <ImportPage page={pages.import()} />
   </Scene>
 </Story>

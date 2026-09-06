@@ -13,6 +13,7 @@ import {
   deleteFilter,
   deletePost,
   GENERAL_CATEGORY,
+  isDemo,
   loadCategories,
   loadFeeds,
   loadFilters,
@@ -209,6 +210,35 @@ describe('import page', () => {
         { categoryId: categories[0]?.id, loader: 'rss', title: FEED.title },
         { categoryId: GENERAL_CATEGORY, loader: 'atom', title: FEED2.title }
       ]
+    )
+  })
+
+  test('replaces the demo feeds', async () => {
+    let DEMO_FEED = testFeed({ title: 'Demo', url: 'https://demo.com/feed' })
+    await addCategory(CATEGORY)
+    await addFeed(FEED)
+
+    let exportPage = openPage({ params: {}, route: 'export' })
+    exportPage.exportOpml()
+    await waitLoading(exportPage.exportingOpml)
+    if (!exportedBlob) {
+      throw new Error('Failed to export OPML')
+    }
+    await deleteFeed(FEED.id)
+    await deleteCategory(CATEGORY.id)
+    await addFeed(DEMO_FEED)
+    isDemo.set(true)
+
+    let page = openPage({ params: {}, route: 'import' })
+    expectRequest(FEED.url).andRespond(200, '<rss></rss>')
+    page.importFile(file('opml', await exportedBlob.text()))
+    await waitLoading(page.importing)
+
+    equal(isDemo.get(), false)
+    equal(page.done.get(), 1)
+    deepEqual(
+      (await loadFeeds()).map(i => i.title),
+      [FEED.title]
     )
   })
 

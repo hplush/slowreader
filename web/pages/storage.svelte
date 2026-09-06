@@ -1,6 +1,5 @@
 <script lang="ts">
   import {
-    mdiBinoculars,
     mdiBroom,
     mdiCloudDownloadOutline,
     mdiTrashCanOutline
@@ -16,7 +15,7 @@
   } from '@slowreader/core'
 
   import Button from '../ui/button.svelte'
-  import Note from '../ui/note.svelte'
+  import DemoNote from '../ui/demo-note.svelte'
   import Output from '../ui/output.svelte'
   import Stack from '../ui/stack.svelte'
   import ThinPage from '../ui/thin-page.svelte'
@@ -29,27 +28,7 @@
 <ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>
   <Stack gap="xl">
     {#if $isDemo}
-      <Note icon={mdiBinoculars} title={$t.demoTitle} variant="warning">
-        {$t.demoDesc}
-        <Stack gap="xs" row>
-          <Button
-            joined="start"
-            onclick={page.dropDemo}
-            size="wide"
-            variant="secondary-dangerous"
-          >
-            {$t.demoDrop}
-          </Button>
-          <Button
-            joined="end"
-            onclick={page.keepDemo}
-            size="wide"
-            variant="secondary"
-          >
-            {$t.demoKeep}
-          </Button>
-        </Stack>
-      </Note>
+      <DemoNote type="storage" />
     {/if}
     <Stack>
       <Output

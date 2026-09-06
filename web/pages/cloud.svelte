@@ -1,11 +1,5 @@
 <script lang="ts">
-  import {
-    mdiAccountPlus,
-    mdiBinoculars,
-    mdiDatabaseOutline,
-    mdiLogout,
-    mdiTrashCanOutline
-  } from '@mdi/js'
+  import { mdiAccountPlus, mdiLogout, mdiTrashCanOutline } from '@mdi/js'
   import {
     type CloudPage,
     isDemo,
@@ -19,7 +13,7 @@
   import { getURL } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
   import Card from '../ui/card.svelte'
-  import Note from '../ui/note.svelte'
+  import DemoNote from '../ui/demo-note.svelte'
   import Output from '../ui/output.svelte'
   import Stack from '../ui/stack.svelte'
   import ThinPage from '../ui/thin-page.svelte'
@@ -85,17 +79,7 @@
         </Button>
       </Stack>
     {:else if $isDemo}
-      <Note icon={mdiBinoculars} title={$t.demoTitle} variant="warning">
-        {$t.demoDesc}
-        <Button
-          href={getURL('storage')}
-          icon={mdiDatabaseOutline}
-          size="wide"
-          variant="secondary"
-        >
-          {$t.demoExit}
-        </Button>
-      </Note>
+      <DemoNote type="cloud" />
     {:else}
       <Card>
         <Stack>

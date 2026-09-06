@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  import { pages } from '@slowreader/core'
+  import { isDemo, pages } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import AddPage from '../../pages/add.svelte'
@@ -84,6 +84,17 @@
 
 <Story name="Base" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene route="add">
+    <AddPage page={pages.add()} />
+  </Scene>
+</Story>
+
+<Story name="Demo" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      isDemo.set(true)
+    }}
+    route="add"
+  >
     <AddPage page={pages.add()} />
   </Scene>
 </Story>

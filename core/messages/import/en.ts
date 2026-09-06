@@ -5,6 +5,7 @@ import { i18n } from '../../i18n.ts'
 export const importMessages = i18n('import', {
   brokenFileError: 'File is corrupted',
   cannotReadError: 'Unable to read the file',
+  demoSubmit: 'Replace the demo feeds',
   description:
     '**OPML** file can be exported from your previous RSS reader. See settings or feeds management sections.\n\nSlow Reader **backup** can be generated in [Export] page.',
   existsError: 'Feed already added',

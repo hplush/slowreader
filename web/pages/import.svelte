@@ -6,12 +6,14 @@
   } from '@mdi/js'
   import {
     type ImportPage,
+    isDemo,
     organizeMessages,
     importMessages as t
   } from '@slowreader/core'
 
   import { getURL } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
+  import DemoNote from '../ui/demo-note.svelte'
   import ErrorList from '../ui/error-list.svelte'
   import Error from '../ui/error.svelte'
   import File from '../ui/file.svelte'
@@ -28,6 +30,9 @@
 
 <ThinPage title={[$t.title, $organizeMessages.feedsTitle]}>
   <Stack align="center" gap="xxl">
+    {#if $isDemo}
+      <DemoNote type="add" />
+    {/if}
     {#if typeof $done === 'number'}
       <PageIcon path={mdiCheckCircleOutline}>
         <Stack align="center" gap="l">
@@ -57,7 +62,7 @@
               size="wide"
               variant="main"
             >
-              {$t.submit}
+              {$isDemo ? $t.demoSubmit : $t.submit}
             </File>
           {/if}
 

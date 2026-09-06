@@ -335,6 +335,7 @@
         for (let [key, value] of Object.entries(manifest.storage)) {
           localStorage.setItem(key, value)
         }
+        localStorage.setItem('slowreader:demo', 'yes')
 
         location.href = '/'
       }

@@ -1,6 +1,7 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { Features } from 'lightningcss'
 import { execSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import sharp from 'sharp'
@@ -25,7 +26,11 @@ function loadCSP(): string {
   let csp = match?.[1] ?? ''
   // Vite inserts a lot of inline <style> in development mode
   csp = csp.replace(/style-src[^;]*;?/, '')
-  return csp
+  let demoPath = join(import.meta.dirname, 'public', 'copy-demo-db.html')
+  let demo = readFileSync(demoPath, 'utf-8')
+  let script = demo.match(/<script type="module">([\s\S]*?)<\/script>/i)![1]!
+  let hash = createHash('sha256').update(script).digest('base64')
+  return csp.replace('script-src ', `script-src 'sha256-${hash}' `)
 }
 
 function noDemoCache(server: PreviewServer | ViteDevServer): void {
@@ -81,10 +86,9 @@ export default defineConfig(() => ({
     },
     {
       configureServer(server) {
-        let csp = loadCSP()
         server.middlewares.use((req, res, next) => {
           if (req.headers.accept?.includes('text/html')) {
-            res.setHeader('Content-Security-Policy', csp)
+            res.setHeader('Content-Security-Policy', loadCSP())
           }
           next()
         })
