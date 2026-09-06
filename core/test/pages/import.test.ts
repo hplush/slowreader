@@ -25,6 +25,7 @@ import {
   type NewFilter,
   type NewPost,
   preloadImages,
+  setRequestMethod,
   testFeed,
   theme,
   waitLoading
@@ -432,6 +433,130 @@ describe('import page', () => {
       [FEED.url, 'exists']
     ])
     equal(page.done.get(), 0)
+  })
+
+  test('imports OPML with special characters in titles and URLs', async () => {
+    let url = 'https://example.com/feed?a=1&b=2'
+    await addCategory({ id: 'c2', title: 'A & B' })
+    await addFeed(
+      testFeed({ categoryId: 'c2', title: 'Tom & <Jerry> "Show"', url })
+    )
+
+    let exportPage = openPage({
+      params: {},
+      route: 'export'
+    })
+    exportPage.exportOpml()
+    await waitLoading(exportPage.exportingOpml)
+    if (!exportedBlob) {
+      throw new Error('Failed to export OPML')
+    }
+    await deleteFeed((await loadFeeds())[0]!.id)
+    await deleteCategory('c2')
+
+    let page = openPage({
+      params: {},
+      route: 'import'
+    })
+    expectRequest(url).andRespond(200, '<rss></rss>')
+    page.importFile(file('opml', await exportedBlob.text()))
+    await waitLoading(busy)
+    equal(page.fileError.get(), false)
+    equal(page.done.get(), 1)
+    deepEqual(
+      (await loadCategories()).map(i => i.title),
+      ['A & B']
+    )
+    deepEqual(
+      (await loadFeeds()).map(i => [i.title, i.url]),
+      [['Tom & <Jerry> "Show"', url]]
+    )
+  })
+
+  test('does not import the part of OPML parsed before the error', async () => {
+    let page = openPage({
+      params: {},
+      route: 'import'
+    })
+    page.importFile(
+      file(
+        'opml',
+        '<opml version="2.0"><body>' +
+          `<outline text="F1" type="rss" xmlUrl="${FEED.url}" />` +
+          '<parsererror>Broken</parsererror>' +
+          '</body></opml>'
+      )
+    )
+    await waitLoading(busy)
+    equal(page.fileError.get(), 'brokenFile')
+    equal(page.done.get(), false)
+    deepEqual(await loadFeeds(), [])
+  })
+
+  test('reuses categories when the same OPML is imported twice', async () => {
+    let opml =
+      '<opml version="2.0"><body>' +
+      '<outline text="A">' +
+      `<outline text="F1" type="rss" xmlUrl="${FEED.url}" />` +
+      '</outline></body></opml>'
+
+    let page = openPage({
+      params: {},
+      route: 'import'
+    })
+    expectRequest(FEED.url).andRespond(200, '<rss></rss>')
+    page.importFile(file('opml', opml))
+    await waitLoading(busy)
+    equal(page.done.get(), 1)
+    deepEqual(
+      (await loadCategories()).map(i => i.title),
+      ['A']
+    )
+
+    page.importFile(file('opml', opml))
+    await waitLoading(busy)
+    equal(page.done.get(), 0)
+    deepEqual(page.feedErrors.get(), [[FEED.url, 'exists']])
+    deepEqual(
+      (await loadCategories()).map(i => i.title),
+      ['A']
+    )
+    equal((await loadFeeds()).length, 1)
+  })
+
+  test('finds the feed moved by a redirect', async () => {
+    let opml =
+      '<opml version="2.0"><body>' +
+      `<outline text="F1" type="rss" xmlUrl="${FEED.url}" />` +
+      '</body></opml>'
+    setRequestMethod(() => {
+      let response = new Response('<rss></rss>', {
+        headers: { 'Content-Type': 'application/xml' },
+        status: 200
+      })
+      Object.defineProperty(response, 'url', {
+        value: 'https://example.com/rss'
+      })
+      return Promise.resolve(response)
+    })
+
+    let page = openPage({
+      params: {},
+      route: 'import'
+    })
+    page.importFile(file('opml', opml))
+    await waitLoading(busy)
+    equal(page.done.get(), 1)
+    deepEqual(
+      (await loadFeeds()).map(i => i.url),
+      ['https://example.com/rss']
+    )
+
+    page.importFile(file('opml', opml))
+    await waitLoading(busy)
+    equal(page.done.get(), 0)
+    deepEqual(page.feedErrors.get(), [[FEED.url, 'exists']])
+    equal((await loadFeeds()).length, 1)
   })
 
   test('prevents importing duplicate feeds from state JSON', async () => {

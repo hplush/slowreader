@@ -1,7 +1,7 @@
 import { atom } from 'nanostores'
 
 import { busyDuring } from '../busy.ts'
-import { addCategory } from '../category.ts'
+import { addCategory, loadCategories } from '../category.ts'
 import { deleteDemo } from '../demo.ts'
 import { addCandidate, addFeed, loadFeedByUrl, loadFeedUrls } from '../feed.ts'
 import { importFilters } from '../filter.ts'
@@ -77,18 +77,13 @@ export const importPage = createPage('import', () => {
     let task = createDownloadTask()
     let done = startProgress(setProgress, links.length)
 
-    let categories = new Map<string, string>()
+    let categories = new Map(
+      (await loadCategories()).map(category => [category.title, category.id])
+    )
     for (let outline of links) {
-      let categoryId = GENERAL_CATEGORY
       let parent = outline.parentElement!
-      if (parent.nodeName === 'outline') {
-        let category = parent.getAttribute('text')!
-        if (!categories.has(category)) {
-          let id = await addCategory({ title: category })
-          categories.set(category, id)
-        }
-        categoryId = categories.get(category)!
-      }
+      let category =
+        parent.nodeName === 'outline' ? parent.getAttribute('text')! : undefined
 
       let title = outline.getAttribute('text')
       let url = outline.getAttribute('xmlUrl')!
@@ -111,7 +106,20 @@ export const importPage = createPage('import', () => {
       let candidate = getLoaderForText(response)
       if (!candidate) {
         addFeedError(url, 'unknown')
+      } else if (await feedExists(candidate.url)) {
+        // Redirects move the feed to another URL, so the check before
+        // the download can’t see the feed added by the previous import
+        addFeedError(url, 'exists')
       } else {
+        // The category is created only here to not leave empty categories
+        // after an import where every feed was already added
+        let categoryId = GENERAL_CATEGORY
+        if (category) {
+          if (!categories.has(category)) {
+            categories.set(category, await addCategory({ title: category }))
+          }
+          categoryId = categories.get(category)!
+        }
         await addCandidate(
           candidate,
           { categoryId, title: title || candidate.title },
@@ -185,7 +193,12 @@ export const importPage = createPage('import', () => {
 
         if (ext === 'opml' || ext === 'xml') {
           let doc = parseDocument(content, 'text/xml')
-          if (doc.documentElement.nodeName === 'opml') {
+          // Browsers keep the part parsed before the error and put
+          // `parsererror` in it, so a broken file must not be half-imported
+          if (
+            doc.documentElement.nodeName === 'opml' &&
+            doc.getElementsByTagName('parsererror').length === 0
+          ) {
             await importOpml(doc, setProgress)
           } else {
             $fileError.set('brokenFile')

@@ -75,10 +75,18 @@ function createFileWriter(type: string): FileWriter {
   }
 }
 
+function escapeXml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+}
+
 function feedOutline(feed: FeedValue, indent: string): string {
   return (
-    `${indent}<outline text="${feed.title}" ` +
-    `type="rss" xmlUrl="${feed.url}" />\n`
+    `${indent}<outline text="${escapeXml(feed.title)}" ` +
+    `type="rss" xmlUrl="${escapeXml(feed.url)}" />\n`
   )
 }
 
@@ -123,7 +131,7 @@ export const exportPage = createPage('export', () => {
     }
     for (let category of categories) {
       if (stopped) break
-      file.write(`    <outline text="${category.title}">\n`)
+      file.write(`    <outline text="${escapeXml(category.title)}">\n`)
       for (let feed of await loadFeedsByCategory(category.id)) {
         file.write(feedOutline(feed, '      '))
       }
