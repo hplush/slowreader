@@ -5,6 +5,7 @@ import { type CategoryValue, loadCategories } from '../category.ts'
 import { getEnvironment } from '../environment.ts'
 import { type FeedValue, loadFeeds, loadFeedsByCategory } from '../feed.ts'
 import { type FilterValue, loadFilters } from '../filter.ts'
+import { escapeXml } from '../lib/html.ts'
 import { loadPostsPage, type PostValue } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
 import {
@@ -73,14 +74,6 @@ function createFileWriter(type: string): FileWriter {
       }
     }
   }
-}
-
-function escapeXml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
 }
 
 function feedOutline(feed: FeedValue, indent: string): string {
