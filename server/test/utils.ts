@@ -4,7 +4,12 @@ import { equal } from 'node:assert'
 import { deepEqual } from 'node:assert/strict'
 import { setTimeout } from 'node:timers/promises'
 
-export { buildTestServer, cleanAllTables, getServerLogIds } from '../test.ts'
+export {
+  buildTestServer,
+  cleanAllTables,
+  emptyTestServer,
+  getServerLogIds
+} from '../test.ts'
 
 export async function testRequest<
   Params extends Record<string, unknown>,

@@ -1,4 +1,3 @@
-import type { TestServer } from '@logux/server'
 import {
   COMMON_ERRORS,
   deletePassword,
@@ -20,15 +19,12 @@ import {
 } from './utils.ts'
 
 describe('server auth', () => {
-  let server: TestServer | undefined
   afterEach(async () => {
     await cleanAllTables()
-    await server?.destroy()
-    server = undefined
   })
 
   test('creates users and check credentials', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
     let start = Date.now()
 
     let sessionCookie: string | undefined
@@ -91,7 +87,7 @@ describe('server auth', () => {
     deepEqual(sessions1, [])
 
     await throws(async () => {
-      await testRequest(server!, signIn, {
+      await testRequest(server, signIn, {
         password: 'BBBBBBBBBB',
         userId: userA.userId
       })
@@ -112,7 +108,7 @@ describe('server auth', () => {
 
     await client2.process(deletePassword({}))
     await throws(async () => {
-      await testRequest(server!, signIn, {
+      await testRequest(server, signIn, {
         password: 'AAAAAAAAAA',
         userId: userA.userId
       })
@@ -123,7 +119,7 @@ describe('server auth', () => {
   })
 
   test('disconnects current client on signOut', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
     let userA = await testRequest(server, signUp, {
       password: 'AAAAAAAAAA',
       userId: '0000000000000000'
@@ -149,7 +145,7 @@ describe('server auth', () => {
   })
 
   test('does not allow to set password for another user', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
     let userA = await testRequest(server, signUp, {
       password: 'AAAAAAAAAA',
       userId: '0000000000000000'
@@ -167,13 +163,13 @@ describe('server auth', () => {
   })
 
   test('does not allow to redefine user', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
     let userA = await testRequest(server, signUp, {
       password: 'AAAAAAAAAA',
       userId: '0000000000000000'
     })
     await throws(async () => {
-      await testRequest(server!, signUp, {
+      await testRequest(server, signUp, {
         password: 'BBBBBBBBBB',
         userId: userA.userId
       })
@@ -181,7 +177,7 @@ describe('server auth', () => {
   })
 
   test('has non-cookie API', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
     let user = await testRequest(server, signUp, {
       password: 'AAAAAAAAAA',
       userId: '0000000000000000'
@@ -192,7 +188,7 @@ describe('server auth', () => {
   })
 
   test('validates request body', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
     let response1 = await server.fetch('/users', { method: 'PUT' })
     equal(await response1.text(), 'Not found\n')
     let response2 = await server.fetch('/users/1', { method: 'PUT' })
@@ -221,11 +217,11 @@ describe('server auth', () => {
     })
     equal(await response6.text(), 'Invalid body')
     await throws(async () => {
-      await testRequest(server!, signOut, {})
+      await testRequest(server, signOut, {})
     }, 'Invalid request')
 
     await throws(async () => {
-      await testRequest(server!, signUp, {
+      await testRequest(server, signUp, {
         password: 'wrong format',
         userId: 'bad'
       })
@@ -233,7 +229,7 @@ describe('server auth', () => {
   })
 
   test('supports CORS', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
     let option = await server.fetch('/users/1', {
       body: '{"id":"2","password":"test"}',
       headers: {
@@ -260,13 +256,13 @@ describe('server auth', () => {
     )
   })
   test('does not allow to redefine user', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
     let userA = await testRequest(server, signUp, {
       password: 'AAAAAAAAAA',
       userId: '0000000000000000'
     })
     await throws(async () => {
-      await testRequest(server!, signUp, {
+      await testRequest(server, signUp, {
         password: 'BBBBBBBBBB',
         userId: userA.userId
       })
@@ -274,7 +270,7 @@ describe('server auth', () => {
   })
 
   test('has non-cookie API', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
     let user = await testRequest(server, signUp, {
       password: 'AAAAAAAAAA',
       userId: '0000000000000000'
@@ -285,7 +281,7 @@ describe('server auth', () => {
   })
 
   test('validates request body', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
     let response1 = await server.fetch('/users', { method: 'PUT' })
     equal(await response1.text(), 'Not found\n')
     let response2 = await server.fetch('/users/1', { method: 'PUT' })
@@ -314,11 +310,11 @@ describe('server auth', () => {
     })
     equal(await response6.text(), 'Invalid body')
     await throws(async () => {
-      await testRequest(server!, signOut, {})
+      await testRequest(server, signOut, {})
     }, 'Invalid request')
 
     await throws(async () => {
-      await testRequest(server!, signUp, {
+      await testRequest(server, signUp, {
         password: 'wrong format',
         userId: 'bad'
       })
@@ -326,7 +322,7 @@ describe('server auth', () => {
   })
 
   test('supports CORS', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
     let option = await server.fetch('/users/1', {
       body: '{"id":"2","password":"test"}',
       headers: {
@@ -354,7 +350,7 @@ describe('server auth', () => {
   })
 
   test('rejects old clients', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
     server.options.minSubprotocol = 2
 
     let response = await server.fetch('/users/1', {

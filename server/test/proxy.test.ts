@@ -1,10 +1,10 @@
-import { TestServer } from '@logux/server'
 import { deepEqual, equal } from 'node:assert/strict'
 import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { after, afterEach, describe, test } from 'node:test'
 
 import proxyModule from '../modules/proxy.ts'
+import { emptyTestServer } from './utils.ts'
 
 let target = createServer((req, res) => {
   let parsedUrl = new URL(req.url!, `http://${req.headers.host}`)
@@ -31,12 +31,9 @@ function getURL(server: Server): string {
 }
 
 describe('server proxy', () => {
-  let server: TestServer | undefined
   let originEnv = { ...process.env }
 
-  afterEach(async () => {
-    await server?.destroy()
-    server = undefined
+  afterEach(() => {
     process.env = { ...originEnv }
   })
 
@@ -48,7 +45,7 @@ describe('server proxy', () => {
 
   test('uses proxy', async () => {
     process.env.PROXY_ORIGIN = '^http:\\/\\/test.app$'
-    server = new TestServer()
+    await using server = emptyTestServer()
     proxyModule(server, {
       allowUnsafeDestinations: true,
       allowsFrom: process.env.PROXY_ORIGIN
@@ -77,7 +74,7 @@ describe('server proxy', () => {
   })
 
   test('can be disabled', async () => {
-    server = new TestServer()
+    await using server = emptyTestServer()
     proxyModule(server, {
       allowUnsafeDestinations: true
     })

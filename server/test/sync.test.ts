@@ -18,11 +18,8 @@ import {
 } from './utils.ts'
 
 describe('server sync', () => {
-  let server: TestServer | undefined
   afterEach(async () => {
     await cleanAllTables()
-    await server?.destroy()
-    server = undefined
   })
 
   async function connect(
@@ -52,7 +49,7 @@ describe('server sync', () => {
   }
 
   test('syncs action between clients', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
 
     await signUp(
       { password: 'AAAAAAAAAA', userId: '0000000000000000' },
@@ -117,7 +114,7 @@ describe('server sync', () => {
   })
 
   test('asks the stale client to re-download everything', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
     await signUp(
       { password: 'AAAAAAAAAA', userId: '0000000000000000' },
       { fetch: server.fetch }
@@ -142,7 +139,7 @@ describe('server sync', () => {
   })
 
   test('sends the diff to the client without new actions', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
     await signUp(
       { password: 'AAAAAAAAAA', userId: '0000000000000000' },
       { fetch: server.fetch }
@@ -174,22 +171,22 @@ describe('server sync', () => {
   })
 
   test('writes the last action time on server destroy', async () => {
-    server = buildTestServer()
-    await signUp(
-      { password: 'AAAAAAAAAA', userId: '0000000000000000' },
-      { fetch: server.fetch }
-    )
-    let client = await connect(server, '0000000000000000', 'AAAAAAAAAA')
-    await client.process({ type: 'A' })
+    {
+      await using server = buildTestServer()
+      await signUp(
+        { password: 'AAAAAAAAAA', userId: '0000000000000000' },
+        { fetch: server.fetch }
+      )
+      let client = await connect(server, '0000000000000000', 'AAAAAAAAAA')
+      await client.process({ type: 'A' })
+    }
 
-    await server.destroy()
-    server = undefined
     await setTimeout(100)
     notEqual(await getLastActionAt(), null)
   })
 
   test('ignores action saved before the reconnect', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
     await signUp(
       { password: 'AAAAAAAAAA', userId: '0000000000000000' },
       { fetch: server.fetch }

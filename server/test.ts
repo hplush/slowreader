@@ -37,12 +37,27 @@ export async function getServerLogIds(): Promise<string[]> {
   return rows.map(row => String(row.id))
 }
 
-export function buildTestServer(): TestServer<object, ClientData> {
+function destroyable<Some extends TestServer>(
+  server: Some
+): AsyncDisposable & Some {
+  return Object.assign(server, {
+    async [Symbol.asyncDispose]() {
+      await server.destroy()
+    }
+  })
+}
+
+export function emptyTestServer(): AsyncDisposable & TestServer {
+  return destroyable(new TestServer())
+}
+
+export function buildTestServer(): AsyncDisposable &
+  TestServer<object, ClientData> {
   let server = new TestServer<object, ClientData>({ store })
   authModule(server)
   healthModule(server)
   usersModule(server)
   passwordsModule(server)
   syncModule(server)
-  return server
+  return destroyable(server)
 }

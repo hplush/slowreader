@@ -1,6 +1,5 @@
 import { zero } from '@logux/actions'
 import { parseId } from '@logux/core'
-import type { TestServer } from '@logux/server'
 import { deleteUser, signIn, signUp } from '@slowreader/api'
 import { equal } from 'node:assert/strict'
 import { afterEach, describe, test } from 'node:test'
@@ -15,15 +14,12 @@ import {
 } from './utils.ts'
 
 describe('server users', () => {
-  let server: TestServer | undefined
   afterEach(async () => {
     await cleanAllTables()
-    await server?.destroy()
-    server = undefined
   })
 
   test('deletes users', async () => {
-    server = buildTestServer()
+    await using server = buildTestServer()
 
     let userA = await testRequest(server, signUp, {
       password: 'AAAAAAAAAA',
@@ -68,7 +64,7 @@ describe('server users', () => {
       cookie: { session: sessionA2.session }
     })
     await throws(async () => {
-      await testRequest(server!, signIn, {
+      await testRequest(server, signIn, {
         password: 'AAAAAAAAAA',
         userId: userA.userId
       })

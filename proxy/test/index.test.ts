@@ -1,7 +1,7 @@
 import { equal, match } from 'node:assert/strict'
 import { createServer, type IncomingHttpHeaders, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
-import { after, afterEach, describe, test } from 'node:test'
+import { after, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 import { URL } from 'node:url'
 
@@ -87,14 +87,6 @@ describe('proxy', () => {
 
   let proxyUrl = getURL(proxy)
   let targetUrl = getURL(target)
-
-  let otherProxy: Server | undefined
-  afterEach(() => {
-    if (otherProxy) {
-      otherProxy.close()
-      otherProxy = undefined
-    }
-  })
 
   after(() => {
     target.close()
@@ -194,7 +186,7 @@ describe('proxy', () => {
   })
 
   test('can not use localhost or IP without a setting', async () => {
-    otherProxy = createServer(
+    await using otherProxy = createServer(
       createProxy({
         allowsFrom: '^http:\\/\\/test.app',
         bodyTimeout: 100,
@@ -203,7 +195,7 @@ describe('proxy', () => {
       })
     )
     await new Promise<void>(resolve => {
-      otherProxy!.listen(31599, resolve)
+      otherProxy.listen(31599, resolve)
     })
     let response1 = await fetch(`${getURL(otherProxy)}/${targetUrl}`, {
       headers: {

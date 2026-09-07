@@ -1,4 +1,3 @@
-import { TestServer } from '@logux/server'
 import { nanoid } from 'nanoid'
 import { deepEqual, equal, match } from 'node:assert/strict'
 import { mkdir, rm, writeFile } from 'node:fs/promises'
@@ -8,10 +7,10 @@ import { afterEach, describe, test } from 'node:test'
 
 import { config } from '../lib/config.ts'
 import assetsModule from '../modules/assets.ts'
+import { emptyTestServer } from './utils.ts'
 
 describe('server assets', () => {
   let toDelete: string[] = []
-  let server: TestServer | undefined
 
   // The fake nginx config to not change test after every CSP change
   let NGINX = `server {
@@ -52,8 +51,6 @@ describe('server assets', () => {
   }
 
   afterEach(async () => {
-    await server?.destroy()
-    server = undefined
     for (let i of toDelete) {
       await rm(i, { recursive: true })
     }
@@ -101,7 +98,7 @@ describe('server assets', () => {
     await writeFile(nginx, NGINX)
     toDelete.push(nginx)
 
-    server = new TestServer()
+    await using server = emptyTestServer()
     await assetsModule(
       server,
       { ...config, assets: true },
@@ -233,7 +230,7 @@ describe('server assets', () => {
     await writeFile(routes, '^\\/welcome$')
     toDelete.push(routes)
 
-    server = new TestServer()
+    await using server = emptyTestServer()
     await assetsModule(server, { ...config, assets: true }, assetsDir, routes)
 
     let index = await server.fetch('/')
@@ -253,7 +250,7 @@ describe('server assets', () => {
   })
 
   test('ignores on missed environment variable', async () => {
-    server = new TestServer()
+    await using server = emptyTestServer()
     await assetsModule(
       server,
       {
