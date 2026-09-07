@@ -21,7 +21,13 @@ function settings(target: Target, local: boolean): object {
           data_collection_permissions: { required: ['none'] },
           /** Own ID keeps the local build next to the store’s one. */
           id: local ? 'local@slowreader.app' : 'extension@slowreader.app',
-          strict_min_version: '128.0'
+          /** `data_collection_permissions` came in Firefox 140. */
+          strict_min_version: '140.0'
+        },
+        /** Without the key the store marks the add-on as desktop-only.
+         * Android took `data_collection_permissions` in 142. */
+        gecko_android: {
+          strict_min_version: '142.0'
         }
       }
     }
