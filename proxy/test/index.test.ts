@@ -1,4 +1,4 @@
-import { equal, match } from 'node:assert/strict'
+import { equal, match, ok } from 'node:assert/strict'
 import { createServer, type IncomingHttpHeaders, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { after, describe, test } from 'node:test'
@@ -24,7 +24,16 @@ describe('proxy', () => {
     return `http://localhost:${port}`
   }
 
+  let inFlight = 0
+  let maxInFlight = 0
+
   let target = createServer(async (req, res) => {
+    inFlight += 1
+    if (inFlight > maxInFlight) maxInFlight = inFlight
+    res.on('close', () => {
+      inFlight -= 1
+    })
+
     let parsedUrl = new URL(req.url!, `http://${req.headers.host}`)
     let queryParams = Object.fromEntries(parsedUrl.searchParams.entries())
     if (queryParams.sleep) {
@@ -46,6 +55,13 @@ describe('proxy', () => {
         'Content-Type': 'text/text'
       })
       res.end('a'.repeat(2000))
+    } else if (queryParams.rateLimit) {
+      let headers: Record<string, string> = {}
+      if (queryParams.retryAfter) {
+        headers['Retry-After'] = queryParams.retryAfter
+      }
+      res.writeHead(429, headers)
+      res.end('Too Many Requests')
     } else if (queryParams.error) {
       res.writeHead(500)
       res.end('Error')
@@ -79,6 +95,7 @@ describe('proxy', () => {
       allowUnsafeDestinations: true,
       allowsFrom: '^http:\\/\\/test.app',
       bodyTimeout: 1000,
+      hostDelay: 0,
       maxSize: 100,
       requestTimeout: 1000
     })
@@ -190,6 +207,7 @@ describe('proxy', () => {
       createProxy({
         allowsFrom: '^http:\\/\\/test.app',
         bodyTimeout: 100,
+        hostDelay: 0,
         maxSize: 100,
         requestTimeout: 100
       })
@@ -361,6 +379,47 @@ describe('proxy', () => {
     equal(parsedResponse.request.headers['x-real-ip'], undefined)
   })
 
+  test('loads one URL per host at a time', async () => {
+    await using otherProxy = createServer(
+      createProxy({
+        allowUnsafeDestinations: true,
+        allowsFrom: '^http:\\/\\/test.app',
+        bodyTimeout: 1000,
+        hostDelay: 50,
+        maxSize: 100,
+        requestTimeout: 1000
+      })
+    )
+    await new Promise<void>(resolve => {
+      otherProxy.listen(31600, resolve)
+    })
+
+    maxInFlight = 0
+    let started = Date.now()
+    let responses = await Promise.all(
+      [1, 2, 3].map(i => {
+        return fetch(`${getURL(otherProxy)}/${targetUrl}?sleep=50&i=${i}`, {
+          headers: { Origin: 'http://test.app' }
+        })
+      })
+    )
+
+    equal(maxInFlight, 1)
+    for (let response of responses) equal(response.status, 200)
+    ok(Date.now() - started >= 3 * 50 + 2 * 50)
+  })
+
+  test('passes rate limit headers to client', async () => {
+    let response = await request(`${targetUrl}?rateLimit=1&retryAfter=5`)
+    equal(response.status, 429)
+    equal(response.headers.get('retry-after'), '5')
+    match(response.headers.get('access-control-expose-headers')!, /Retry-After/)
+
+    let withoutHeader = await request(`${targetUrl}?rateLimit=1`)
+    equal(withoutHeader.status, 429)
+    equal(withoutHeader.headers.get('retry-after'), null)
+  })
+
   test('checks response size', async () => {
     let response = await request(targetUrl + '?big=file', {})
     expectBadRequest(response, 'Response too large', 413)
@@ -404,7 +463,8 @@ describe('proxy', () => {
     equal(response.status, 200)
     equal(
       response.headers.get('Access-Control-Expose-Headers'),
-      'x-slowreader-request, x-slowreader-response'
+      'Retry-After, RateLimit-Reset, X-Rate-Limit-Reset, ' +
+        'x-slowreader-request, x-slowreader-response'
     )
     match(response.headers.get('x-slowreader-request')!, /^GET /)
     match(response.headers.get('x-slowreader-request')!, /host: localhost/)

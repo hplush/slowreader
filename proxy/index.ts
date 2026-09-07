@@ -3,6 +3,7 @@ import { isIP } from 'node:net'
 import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import type { ReadableStream as WebReadableStream } from 'node:stream/web'
+import { setTimeout } from 'node:timers/promises'
 import { styleText } from 'node:util'
 
 function formatHeaders(obj: Record<string, string>): string {
@@ -25,12 +26,14 @@ export interface ProxyConfig {
   allowUnsafeDestinations?: boolean
   allowsFrom: string
   bodyTimeout: number
+  hostDelay: number
   maxSize: number
   requestTimeout: number
 }
 
 export const DEFAULT_PROXY_CONFIG: Omit<ProxyConfig, 'allowsFrom'> = {
   bodyTimeout: 10000,
+  hostDelay: 500,
   maxSize: 10 * 1024 * 1024,
   requestTimeout: 10000
 }
@@ -53,12 +56,11 @@ function allowCors(req: IncomingMessage, res: ServerResponse): void {
       'OPTIONS, POST, GET, PUT, DELETE'
     )
     res.setHeader('Access-Control-Allow-Origin', req.headers.origin)
+    let exposed = 'Retry-After, RateLimit-Reset, X-Rate-Limit-Reset'
     if (req.headers['x-slowreader-debug']) {
-      res.setHeader(
-        'Access-Control-Expose-Headers',
-        'x-slowreader-request, x-slowreader-response'
-      )
+      exposed += ', x-slowreader-request, x-slowreader-response'
     }
+    res.setHeader('Access-Control-Expose-Headers', exposed)
   }
 }
 
@@ -115,6 +117,24 @@ export function createProxy(
 ): (req: IncomingMessage, res: ServerResponse) => void {
   let allowsFrom = new RegExp(config.allowsFrom)
 
+  let queuesByHost = new Map<string, Promise<unknown>>()
+
+  function queueByHost<Result>(
+    host: string,
+    load: () => Promise<Result>
+  ): Promise<Result> {
+    let result = (queuesByHost.get(host) ?? Promise.resolve()).then(load, load)
+    let next = result.then(
+      () => setTimeout(config.hostDelay),
+      () => setTimeout(config.hostDelay)
+    )
+    queuesByHost.set(host, next)
+    void next.then(() => {
+      if (queuesByHost.get(host) === next) queuesByHost.delete(host)
+    })
+    return result
+  }
+
   return async (req, res) => {
     let sent = false
 
@@ -150,6 +170,7 @@ export function createProxy(
       if (req.method !== 'GET') {
         throw new BadRequestError('Only GET is allowed', 405)
       }
+      let method = req.method
 
       // We only allow request from our app
       let origin = req.headers.origin
@@ -192,12 +213,14 @@ export function createProxy(
       }
 
       let targetUrl = url
-      let targetResponse = await loadTarget(
-        req.method,
-        targetUrl,
-        requestHeaders,
-        config.requestTimeout
-      )
+      let targetResponse = await queueByHost(parsedUrl.hostname, () => {
+        return loadTarget(
+          method,
+          targetUrl,
+          requestHeaders,
+          config.requestTimeout
+        )
+      })
       let redirects = 0
       while (
         REDIRECTS.has(targetResponse.status) &&
@@ -212,13 +235,18 @@ export function createProxy(
           targetResponse.headers.get('location')!,
           targetUrl
         )
-        checkDestination(targetUrl, config.allowUnsafeDestinations)
-        targetResponse = await loadTarget(
-          req.method,
+        let redirected = checkDestination(
           targetUrl,
-          requestHeaders,
-          config.requestTimeout
+          config.allowUnsafeDestinations
         )
+        targetResponse = await queueByHost(redirected.hostname, () => {
+          return loadTarget(
+            method,
+            targetUrl,
+            requestHeaders,
+            config.requestTimeout
+          )
+        })
       }
 
       if (
@@ -258,6 +286,14 @@ export function createProxy(
       let responseHeaders: Record<string, string> = {
         'Content-Type':
           targetResponse.headers.get('content-type') ?? 'text/plain'
+      }
+      for (let header of [
+        'Retry-After',
+        'RateLimit-Reset',
+        'X-Rate-Limit-Reset'
+      ]) {
+        let value = targetResponse.headers.get(header)
+        if (value) responseHeaders[header] = value
       }
       if (debug) {
         responseHeaders['x-slowreader-request'] =
