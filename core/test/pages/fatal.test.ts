@@ -79,6 +79,24 @@ describe('fatal page', () => {
       setBaseTestRoute({ params: { reason: 'unknown' }, route: 'fatal' })
       deepEqual(page.reason.get(), { type: 'notFound' })
     })
+
+    test('hides the menu on the errors, which other pages can not fix', () => {
+      let page = openPage({ params: {}, route: 'fatal' })
+      keepMount(page.hideMenu)
+      equal(page.hideMenu.get(), false)
+
+      setBaseTestRoute({ params: { reason: 'noDb' }, route: 'fatal' })
+      equal(page.hideMenu.get(), true)
+
+      setBaseTestRoute({ params: { reason: 'outdated' }, route: 'fatal' })
+      equal(page.hideMenu.get(), true)
+
+      setBaseTestRoute({ params: {}, route: 'fatal' })
+      equal(page.hideMenu.get(), false)
+
+      fatal.set({ error: 'Disk image is malformed', type: 'brokenDatabase' })
+      equal(page.hideMenu.get(), true)
+    })
   })
 
   describe('broken database', () => {

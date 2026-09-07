@@ -5,18 +5,20 @@ import { type Fatal, fatal } from '../errors.ts'
 import { createPage } from './common.ts'
 
 export const fatalPage = createPage('fatal', () => {
-  let $reason = atom<Fatal['type'] | undefined>()
+  let $name = atom<Fatal['type'] | undefined>()
+  let $reason = computed([fatal, $name], (error, name): Fatal => {
+    if (error) return error
+    if (name === 'brokenDatabase' || name === 'rejected') {
+      return { error: 'Test page', type: name }
+    }
+    return { type: name ?? 'notFound' }
+  })
 
   return {
     exit() {},
-    params: { reason: $reason },
-    reason: computed([fatal, $reason], (error, name): Fatal => {
-      if (error) return error
-      if (name === 'brokenDatabase' || name === 'rejected') {
-        return { error: 'Test page', type: name }
-      }
-      return { type: name ?? 'notFound' }
-    }),
+    hideMenu: computed($reason, reason => reason.type !== 'notFound'),
+    params: { reason: $name },
+    reason: $reason,
     resetDatabase() {
       return resetDatabase('rejected-action')
     }
