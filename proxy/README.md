@@ -20,6 +20,7 @@ _See the [full architecture guide](../README.md) first._
 - Allows only GET requests and HTTP/HTTPS protocols.
 - Does not allow requests to in-cloud IP addresses like `127.0.0.1`.
 - Removes cookie headers.
+- Sends constant `User-Agent` instead of the user’s browser one.
 - Sets user’s IP in `X-Forwarded-For` header.
 - Has timeout and response size limit.
 

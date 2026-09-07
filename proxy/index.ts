@@ -197,6 +197,7 @@ export function createProxy(
       let requestHeaders = {
         ...(req.headers as Record<string, string>),
         'host': parsedUrl.host,
+        'user-agent': 'SlowReader/1.0 (+https://slowreader.app)',
         'X-Forwarded-For': clientIp
       }
 

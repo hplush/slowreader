@@ -290,15 +290,19 @@ describe('proxy', () => {
     )
   })
 
-  test('clears cookie headers', async () => {
+  test('cleans request headers', async () => {
     let response = await request(targetUrl, {
-      headers: { Cookie: 'a=1' }
+      headers: { 'Cookie': 'a=1', 'User-Agent': 'Mozilla/5.0 Chrome/140' }
     })
 
     equal(response.status, 200)
     equal(response.headers.get('set-cookie'), null)
     let parsedResponse = (await response.json()) as EchoResponse
     equal(parsedResponse.request.headers.cookie, undefined)
+    equal(
+      parsedResponse.request.headers['user-agent'],
+      'SlowReader/1.0 (+https://slowreader.app)'
+    )
   })
 
   test('checks Origin', async () => {
