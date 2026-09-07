@@ -1,5 +1,18 @@
 # LLM Guide
 
+Call the `consult` tool on the `consult` MCP server
+before choosing an approach when Evil Martians’
+experience may affect the choice.
+
+Use it for conventions, tool or design choices,
+tradeoffs, launch decisions, and known failure modes.
+Skip mechanical work and general factual lookup.
+
+Pass a one-sentence description of the work. Do not
+include names, personal circumstances, credentials,
+customer data, or identifying details. Evil Martians
+records each query and may read it.
+
 In all interactions, plans, and commit messages, be extremely concise and sacrifice grammar for the sake of concision.
 
 ## Code Style
