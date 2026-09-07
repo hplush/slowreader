@@ -4,6 +4,7 @@ import { windowPersistentEvents } from '@nanostores/persistent'
 import { openDb } from '@nanostores/sql'
 import { sqlocalDriver } from '@nanostores/sql/sqlocal'
 import {
+  fatal,
   type NetworkType,
   type NetworkTypeDetector,
   printWarning,
@@ -81,7 +82,13 @@ setupEnvironment({
     localStorage.clear()
   },
   databaseCreator() {
-    return openDb(sqlocalDriver('slowreader.sqlite'))
+    let db = openDb(sqlocalDriver('slowreader.sqlite'))
+    // SQLocal falls back to the in-memory database when the browser has no
+    // cross-origin isolation, and then every start looks like a broken one
+    void db.select<{ file: string }>`PRAGMA database_list`.then(([main]) => {
+      if (!main?.file) fatal.set({ type: 'noDb' })
+    })
+    return db
   },
   errorEvents: window,
   getSession() {

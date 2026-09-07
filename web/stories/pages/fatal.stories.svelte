@@ -44,6 +44,12 @@
   </Scene>
 </Story>
 
+<Story name="No Storage" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene route={{ params: { reason: 'noDb' }, route: 'fatal' }} user={false}>
+    <FatalPage page={pages.fatal()} />
+  </Scene>
+</Story>
+
 <Story name="Rejected" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {

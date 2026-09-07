@@ -72,6 +72,9 @@ describe('fatal page', () => {
       setBaseTestRoute({ params: { reason: 'rejected' }, route: 'fatal' })
       deepEqual(page.reason.get(), { error: 'Test page', type: 'rejected' })
 
+      setBaseTestRoute({ params: { reason: 'noDb' }, route: 'fatal' })
+      deepEqual(page.reason.get(), { type: 'noDb' })
+
       // The unknown reason is the same broken URL as any other
       setBaseTestRoute({ params: { reason: 'unknown' }, route: 'fatal' })
       deepEqual(page.reason.get(), { type: 'notFound' })
@@ -153,6 +156,15 @@ describe('fatal page', () => {
 
       equal(restarts, 1)
       equal(fatal.get(), undefined)
+    })
+
+    test('does not reset the database, which the browser can not save', async () => {
+      fatal.set({ type: 'noDb' })
+
+      await resetDatabase('lost-database')
+
+      equal(restarts, 0)
+      equal(lastReset.get(), undefined)
     })
 
     test('forgets the local data without asking the database', () => {

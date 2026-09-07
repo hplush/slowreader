@@ -82,6 +82,9 @@ export async function resetDatabase(
   reason: string,
   error?: unknown
 ): Promise<void> {
+  // There is no working database to download the data into
+  if (fatal.get()?.type === 'noDb') return
+
   let failure: DatabaseFailure = {
     at: new Date(),
     error: error instanceof Error ? error.message : undefined,

@@ -10,19 +10,12 @@ export const fatalPage = createPage('fatal', () => {
   return {
     exit() {},
     params: { reason: $reason },
-    // The route without the reason is opened by the unknown URL too
     reason: computed([fatal, $reason], (error, name): Fatal => {
-      if (error) {
-        return error
-      } else if (name === 'brokenDatabase') {
-        return { error: 'Test page', type: 'brokenDatabase' }
-      } else if (name === 'outdated') {
-        return { type: 'outdated' }
-      } else if (name === 'rejected') {
-        return { error: 'Test page', type: 'rejected' }
-      } else {
-        return { type: 'notFound' }
+      if (error) return error
+      if (name === 'brokenDatabase' || name === 'rejected') {
+        return { error: 'Test page', type: name }
       }
+      return { type: name ?? 'notFound' }
     }),
     resetDatabase() {
       return resetDatabase('rejected-action')

@@ -6,6 +6,7 @@ import { commonMessages } from './messages/index.ts'
 
 export const fatalReasons = [
   'brokenDatabase',
+  'noDb',
   'notFound',
   'outdated',
   'rejected'

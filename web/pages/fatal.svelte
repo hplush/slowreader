@@ -5,6 +5,7 @@
     mdiCloudAlert,
     mdiCloudDownloadOutline,
     mdiDatabaseAlert,
+    mdiDatabaseOff,
     mdiDeleteAlert,
     mdiFire,
     mdiReload,
@@ -27,6 +28,7 @@
 
   const ICONS = {
     brokenDatabase: mdiDatabaseAlert,
+    noDb: mdiDatabaseOff,
     notFound: mdiBookOpenPageVariant,
     outdated: mdiTimerSandComplete,
     rejected: mdiCloudAlert
@@ -57,6 +59,8 @@
         >
           {$t.cleanButton}
         </Button>
+      {:else if $reason.type === 'noDb'}
+        <p>{$t.noDbDescription}</p>
       {:else if $reason.type === 'rejected'}
         <Output label={$t.error} value={$reason.error} />
         <Button
