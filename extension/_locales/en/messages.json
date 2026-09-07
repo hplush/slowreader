@@ -3,12 +3,12 @@
     "message": "Allow the sites"
   },
   "description": {
-    "message": "Companion extension for Slow Reader to speed-up feeds update"
+    "message": "Companion extension for Slow Reader"
   },
   "name": {
     "message": "Slow Reader Extension"
   },
   "why": {
-    "message": "Slow Reader downloads feeds right from your browser, so nobody in the middle knows what you read. Feeds live on any site, so the extension needs access to all of them."
+    "message": "Slow Reader is local-first social media reader. For privacy and better performance it needs an companion extension to update feeds."
   }
 }
