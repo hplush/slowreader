@@ -1,10 +1,7 @@
 // Dependency Injection of unique behavior for web client.
 
 import { windowPersistentEvents } from '@nanostores/persistent'
-import { openDb } from '@nanostores/sql'
-import { sqlocalDriver } from '@nanostores/sql/sqlocal'
 import {
-  fatal,
   type NetworkType,
   type NetworkTypeDetector,
   printWarning,
@@ -20,6 +17,7 @@ import { locale } from '../stores/locale.ts'
 import { mobileMedia, tabletMedia } from '../stores/media-queries.ts'
 import { usedRequestMethod } from '../stores/request-method.ts'
 import { openRoute, urlRouter } from '../stores/url-router.ts'
+import { createDatabase } from './database.ts'
 import { detectExtension, extensionRequest } from './extension.ts'
 
 let server = location.hostname
@@ -81,15 +79,7 @@ setupEnvironment({
   cleanStorage() {
     localStorage.clear()
   },
-  databaseCreator() {
-    let db = openDb(sqlocalDriver('slowreader.sqlite'))
-    // SQLocal falls back to the in-memory database when the browser has no
-    // cross-origin isolation, and then every start looks like a broken one
-    void db.select<{ file: string }>`PRAGMA database_list`.then(([main]) => {
-      if (!main?.file) fatal.set({ type: 'noDb' })
-    })
-    return db
-  },
+  databaseCreator: createDatabase,
   errorEvents: window,
   getSession() {
     // Browser will use session from http-only cookie

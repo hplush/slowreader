@@ -5,6 +5,7 @@ _See the [full architecture guide](../README.md) first._
 - [Project Structure](#project-structure)
 - [Tools](#tools)
 - [Scripts](#scripts)
+- [Client Storage](#client-storage)
 - [Demo Mode](#demo-mode)
 - [DevTools Helpers](#devtools-helpers)
 - [Design System](#design-system)
@@ -23,6 +24,8 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
   - [`index.css`](./main/index.css): global styles.
   - [`index.ts`](./main/index.ts): JS entry point.
   - [`environment.ts`](./main/environment.ts): how client core should work with browser environment.
+  - [`database.ts`](./main/database.ts): choose the SQLite storage engine and open the database.
+  - [`sahpool-worker.ts`](./main/sahpool-worker.ts): SQLite for browsers without cross-origin isolation. See [client storage](#client-storage).
   - [`browser.ts`](./main/browser.ts): connect core stores to global browser settings like `document.title`.
   - [`extension.ts`](./main/extension.ts): make network request through the browser extension.
 - [`benchmark/`](./benchmark/): UI performance benchmark, which is loaded only by `?benchmark` in URL. See [benchmark guide](../docs/benchmark.md).
@@ -59,11 +62,19 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 - `pnpm -F web benchmark`: run [UI performance benchmark](../docs/benchmark.md).
 - `pnpm -F web build-demo`: load the feeds from [`web/scripts/demo-feeds.opml`](./scripts/demo-feeds.opml) and write demo DB dump.
 
+## Client Storage
+
+We keep SQLite as a file in OPFS, but only cross-origin isolated pages can do it. Browsers without the isolation, like Safari, use the [`opfs-sahpool` VFS](https://sqlite.org/wasm/doc/trunk/persistence.md), which works without multi-tab support.
+
+The engine is chosen on the first start and saved as `slowreader:vfs` in `localStorage`, since the engines can not read each other’s files.
+
 ## Demo Mode
 
 I mode to quickly see the app with some example content. We pre-generate database to start it quickly.
 
 `/copy-demo-db.html` copies the demo database to OPFS and the demo settings to `localStorage`, then opens the app.
+
+The page writes a plain file, which the `opfs-sahpool` engine can not see, so in that mode the app imports the file into the pool on the next start and removes it.
 
 [Demo Database workflow](../.github/workflows/demo-db.yml) rebuilds the files every Monday, and the staging deploy takes them from its artifact.
 

@@ -8,7 +8,7 @@ export const fatalPage = createPage('fatal', () => {
   let $name = atom<Fatal['type'] | undefined>()
   let $reason = computed([fatal, $name], (error, name): Fatal => {
     if (error) return error
-    if (name === 'brokenDatabase' || name === 'rejected') {
+    if (name === 'brokenDatabase' || name === 'noDb' || name === 'rejected') {
       return { error: 'Test page', type: name }
     }
     return { type: name ?? 'notFound' }
