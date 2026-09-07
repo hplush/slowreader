@@ -28,6 +28,7 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 - Never use `as any`. If the type is unknown, use `unknown` and narrow with runtime checks.
 - Always merge type and regular import.
 - Do not use `tsx`, you can import `.ts` and run it in Node.js directly.
+- Kill every server you started, like `pnpm start`, before finishing the work. Kill it by PID: `pkill -f` matches your own shell too and kills it instead.
 
 ## Debugging
 
