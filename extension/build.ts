@@ -63,7 +63,8 @@ async function make(local: boolean): Promise<void> {
           formats: ['iife'],
           name
         },
-        minify: !local,
+        /** Stores review the sources by hand. */
+        minify: false,
         outDir: `dist/${out}/${main}`,
         watch: watch ? {} : null
       },
@@ -87,6 +88,8 @@ async function make(local: boolean): Promise<void> {
   }
 
   if (!local) {
+    /** Stores ask for the icon separately from the ZIP. */
+    await cp(`dist/store/${main}/icons/128.png`, 'dist/store/icon.png')
     for (let target of archives) {
       await zip(
         'zip',
@@ -97,6 +100,17 @@ async function make(local: boolean): Promise<void> {
       )
       await rm(`dist/store/${target}`, { recursive: true })
     }
+    /** Stores ask for the sources, since the code in the ZIP is built. */
+    await zip('zip', [
+      '--recurse-paths',
+      '--quiet',
+      'dist/store/source.zip',
+      '.',
+      '--exclude',
+      './node_modules/*',
+      './dist/*',
+      './tsconfig.tsbuildinfo'
+    ])
   }
 }
 
