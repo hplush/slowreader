@@ -4,7 +4,6 @@
   import { onDestroy } from 'svelte'
   import type { HTMLInputAttributes } from 'svelte/elements'
 
-  import { copyText } from '../lib/clipboard.ts'
   import Announce from './announce.svelte'
   import Button from './button.svelte'
   import Label from './label.svelte'
@@ -29,7 +28,8 @@
 
   async function copy(): Promise<void> {
     try {
-      await copyText(value)
+      // eslint-disable-next-line n/no-unsupported-features/node-builtins
+      await navigator.clipboard.writeText(value)
     } catch {
       return
     }
