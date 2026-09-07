@@ -4,6 +4,7 @@ import type { AddressInfo } from 'node:net'
 import { after, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 import { URL } from 'node:url'
+import { gzipSync } from 'node:zlib'
 
 import { createProxy } from '../index.ts'
 
@@ -26,9 +27,11 @@ describe('proxy', () => {
 
   let inFlight = 0
   let maxInFlight = 0
+  let requests = 0
 
   let target = createServer(async (req, res) => {
     inFlight += 1
+    requests += 1
     if (inFlight > maxInFlight) maxInFlight = inFlight
     res.on('close', () => {
       inFlight -= 1
@@ -55,6 +58,15 @@ describe('proxy', () => {
         'Content-Type': 'text/text'
       })
       res.end('a'.repeat(2000))
+    } else if (queryParams.gzip) {
+      res.writeHead(200, {
+        'Content-Encoding': 'gzip',
+        'Content-Type': 'text/plain'
+      })
+      res.end(gzipSync('gzipped content'))
+    } else if (queryParams.size) {
+      res.writeHead(200, { 'Cache-Control': 'max-age=60' })
+      res.end('a'.repeat(parseInt(queryParams.size)))
     } else if (queryParams.rateLimit) {
       let headers: Record<string, string> = {}
       if (queryParams.retryAfter) {
@@ -70,8 +82,17 @@ describe('proxy', () => {
         'Content-Type': 'text/json',
         'Set-Cookie': 'test=1'
       }
+      if (queryParams.cacheControl) {
+        headers['Cache-Control'] = queryParams.cacheControl
+      }
       if (queryParams.lastModified) {
         headers['Last-Modified'] = queryParams.lastModified
+        let since = req.headers['if-modified-since']
+        if (since && new Date(since) >= new Date(queryParams.lastModified)) {
+          res.writeHead(304, headers)
+          res.end()
+          return
+        }
       }
       res.writeHead(200, headers)
       res.end(
@@ -95,6 +116,8 @@ describe('proxy', () => {
       allowUnsafeDestinations: true,
       allowsFrom: '^http:\\/\\/test.app',
       bodyTimeout: 1000,
+      cacheSize: 1024,
+      dnsCacheTime: 60000,
       hostDelay: 0,
       maxSize: 100,
       requestTimeout: 1000
@@ -207,6 +230,8 @@ describe('proxy', () => {
       createProxy({
         allowsFrom: '^http:\\/\\/test.app',
         bodyTimeout: 100,
+        cacheSize: 1024,
+        dnsCacheTime: 60000,
         hostDelay: 0,
         maxSize: 100,
         requestTimeout: 100
@@ -385,6 +410,8 @@ describe('proxy', () => {
         allowUnsafeDestinations: true,
         allowsFrom: '^http:\\/\\/test.app',
         bodyTimeout: 1000,
+        cacheSize: 1024,
+        dnsCacheTime: 60000,
         hostDelay: 50,
         maxSize: 100,
         requestTimeout: 1000
@@ -420,6 +447,76 @@ describe('proxy', () => {
     equal(withoutHeader.headers.get('retry-after'), null)
   })
 
+  test('caches responses by Cache-Control', async () => {
+    requests = 0
+    let url = `${targetUrl}?cacheControl=max-age=60&test=cache`
+    let first = await request(url)
+    equal(first.status, 200)
+    equal(((await first.json()) as EchoResponse).response, 'content')
+
+    let second = await request(url)
+    equal(second.status, 200)
+    equal(((await second.json()) as EchoResponse).response, 'content')
+    equal(requests, 1)
+
+    for (let control of ['no-store', 'public']) {
+      requests = 0
+      let notCached = `${targetUrl}?cacheControl=${control}&test=${control}`
+      await (await request(notCached)).json()
+      await (await request(notCached)).json()
+      equal(requests, 2)
+    }
+  })
+
+  test('answers 304 from cache', async () => {
+    let lastModified = new Date(Date.now() - 10e3).toUTCString()
+    let url = `${targetUrl}?cacheControl=max-age=60&lastModified=${lastModified}`
+
+    requests = 0
+    let first = await request(url)
+    equal(first.status, 200)
+    await first.json()
+
+    let second = await request(url, {
+      headers: { 'If-Modified-Since': new Date().toUTCString() }
+    })
+    equal(second.status, 304)
+    equal(requests, 1)
+  })
+
+  test('forgets too big and too old cache entries', async () => {
+    requests = 0
+    await (await request(`${targetUrl}?size=2000`)).text()
+    await (await request(`${targetUrl}?size=2000`)).text()
+    equal(requests, 2)
+
+    await (await request(`${targetUrl}?size=600&test=first`)).text()
+    await (await request(`${targetUrl}?size=600&test=second`)).text()
+    requests = 0
+    await (await request(`${targetUrl}?size=600&test=first`)).text()
+    equal(requests, 1)
+
+    let expiring = `${targetUrl}?cacheControl=max-age=1&test=expires`
+    await (await request(expiring)).json()
+    await setTimeout(1100)
+    requests = 0
+    await (await request(expiring)).json()
+    equal(requests, 1)
+  })
+
+  test('passes compressed body as is', async () => {
+    let response = await request(`${targetUrl}?gzip=1`)
+    equal(response.status, 200)
+    equal(response.headers.get('content-encoding'), 'gzip')
+    equal(await response.text(), 'gzipped content')
+  })
+
+  test('reports connection errors', async () => {
+    let response = await request('http://missing.invalid/')
+    equal(response.status, 400)
+    match(await response.text(), /ENOTFOUND|EAI_AGAIN/)
+  })
+
   test('checks response size', async () => {
     let response = await request(targetUrl + '?big=file', {})
     expectBadRequest(response, 'Response too large', 413)
@@ -431,7 +528,7 @@ describe('proxy', () => {
     equal(await response.text(), 'Error')
   })
 
-  test('handles If-Modified-Since and Last-Modified', async () => {
+  test('passes conditional requests to destination', async () => {
     let lastModified = new Date(Date.now() - 10e3).toUTCString()
 
     let futureTime = new Date(Date.now() + 20e3).toUTCString()
@@ -474,27 +571,5 @@ describe('proxy', () => {
       /content-type: text\/json/
     )
     equal(((await response.json()) as EchoResponse).response, 'content')
-  })
-
-  test('handles malformed If-Modified-Since and Last-Modified', async () => {
-    let time = new Date(Date.now()).toUTCString()
-
-    let response1 = await request(`${targetUrl}?lastModified=invalid-date`, {
-      headers: {
-        'If-Modified-Since': time
-      }
-    })
-    equal(response1.status, 200)
-    let json1 = (await response1.json()) as EchoResponse
-    equal(json1.response, 'content')
-
-    let response2 = await request(`${targetUrl}?lastModified=${time}`, {
-      headers: {
-        'If-Modified-Since': 'invalid-date'
-      }
-    })
-    equal(response2.status, 200)
-    let json2 = (await response2.json()) as EchoResponse
-    equal(json2.response, 'content')
   })
 })

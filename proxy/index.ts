@@ -1,14 +1,25 @@
-import type { IncomingMessage, ServerResponse } from 'node:http'
+import {
+  lookup as resolve,
+  type LookupAddress,
+  type LookupOptions
+} from 'node:dns'
+import {
+  Agent as HttpAgent,
+  type IncomingHttpHeaders,
+  type IncomingMessage,
+  request as httpRequest,
+  type ServerResponse
+} from 'node:http'
+import { Agent as HttpsAgent, request as httpsRequest } from 'node:https'
 import { isIP } from 'node:net'
-import { Readable } from 'node:stream'
+import { Transform, type TransformCallback } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
-import type { ReadableStream as WebReadableStream } from 'node:stream/web'
 import { setTimeout } from 'node:timers/promises'
 import { styleText } from 'node:util'
 
-function formatHeaders(obj: Record<string, string>): string {
-  return Object.entries(obj)
-    .map(([name, value]) => `${name}: ${value}`)
+function formatHeaders(headers: IncomingHttpHeaders): string {
+  return Object.entries(headers)
+    .map(([name, value]) => `${name}: ${String(value)}`)
     .join('\\n')
 }
 
@@ -26,6 +37,8 @@ export interface ProxyConfig {
   allowUnsafeDestinations?: boolean
   allowsFrom: string
   bodyTimeout: number
+  cacheSize: number
+  dnsCacheTime: number
   hostDelay: number
   maxSize: number
   requestTimeout: number
@@ -33,14 +46,32 @@ export interface ProxyConfig {
 
 export const DEFAULT_PROXY_CONFIG: Omit<ProxyConfig, 'allowsFrom'> = {
   bodyTimeout: 10000,
+  cacheSize: 32 * 1024 * 1024,
+  dnsCacheTime: 60000,
   hostDelay: 500,
   maxSize: 10 * 1024 * 1024,
   requestTimeout: 10000
 }
 
+interface CachedResponse {
+  body: Buffer
+  expires: number
+  headers: Record<string, string>
+  status: number
+}
+
 const REDIRECTS = new Set([301, 302, 303, 307, 308])
 
 const MAX_REDIRECTS = 10
+
+const PASSED_HEADERS = [
+  'Content-Encoding',
+  'ETag',
+  'Last-Modified',
+  'Retry-After',
+  'RateLimit-Reset',
+  'X-Rate-Limit-Reset'
+]
 
 function resolveLocation(location: string, from: string): string {
   let host = new URL(from).host
@@ -86,36 +117,91 @@ function checkDestination(
   return parsed
 }
 
-async function loadTarget(
-  method: string,
-  url: string,
-  headers: Record<string, string>,
-  requestTimeout: number
-): Promise<Response> {
-  try {
-    return await fetch(url, {
-      headers: { ...headers, host: new URL(url).host },
-      method: method,
-      redirect: 'manual',
-      signal: AbortSignal.timeout(requestTimeout)
-    })
-  } catch (e) {
-    /* node:coverage disable */
-    if (e instanceof TypeError) {
-      throw new BadRequestError(e.message, 400, { cause: e })
-    } else if (e instanceof Error && e.name === 'TimeoutError') {
-      throw new BadRequestError('Timeout', 400, { cause: e })
-    } else {
-      throw e
-    }
-    /* node:coverage enable */
-  }
+function getMaxAge(control: string | string[] | undefined): number {
+  if (typeof control !== 'string') return 0
+  if (/no-store|no-cache|private/.test(control)) return 0
+  let maxAge = /max-age=(\d+)/.exec(control)
+  return maxAge ? parseInt(maxAge[1]!) : 0
 }
 
 export function createProxy(
   config: ProxyConfig
 ): (req: IncomingMessage, res: ServerResponse) => void {
   let allowsFrom = new RegExp(config.allowsFrom)
+
+  let httpAgent = new HttpAgent({ keepAlive: true })
+  let httpsAgent = new HttpsAgent({ keepAlive: true })
+
+  // Node resolves every request from scratch, while feed hosts repeat a lot
+  let addresses = new Map<string, { expires: number; found: LookupAddress[] }>()
+
+  function lookup(
+    hostname: string,
+    options: LookupOptions,
+    done: (
+      error: NodeJS.ErrnoException | null,
+      address: LookupAddress[] | string,
+      family?: number
+    ) => void
+  ): void {
+    function answer(found: LookupAddress[]): void {
+      if (options.all) {
+        done(null, found)
+        /* node:coverage disable */
+      } else {
+        done(null, found[0]!.address, found[0]!.family)
+      }
+      /* node:coverage enable */
+    }
+
+    let key = `${hostname} ${options.family ?? 0}`
+    let cached = addresses.get(key)
+    if (cached && cached.expires > Date.now()) {
+      answer(cached.found)
+    } else {
+      resolve(hostname, { ...options, all: true }, (error, found) => {
+        if (error) {
+          done(error, [])
+        } else {
+          addresses.set(key, {
+            expires: Date.now() + config.dnsCacheTime,
+            found
+          })
+          answer(found)
+        }
+      })
+    }
+  }
+
+  function loadTarget(
+    url: string,
+    headers: IncomingHttpHeaders
+  ): Promise<IncomingMessage> {
+    return new Promise((done, fail) => {
+      let secure = new URL(url).protocol === 'https:'
+      let target = (secure ? httpsRequest : httpRequest)(
+        url,
+        {
+          agent: secure ? httpsAgent : httpAgent,
+          headers,
+          lookup,
+          timeout: config.requestTimeout
+        },
+        done
+      )
+      target.on('timeout', () => {
+        target.destroy(new BadRequestError('Timeout'))
+      })
+      target.on('error', error => {
+        if (error instanceof BadRequestError) {
+          fail(error)
+        } else {
+          fail(new BadRequestError(error.message, 400, { cause: error }))
+        }
+      })
+      target.end()
+    })
+  }
 
   let queuesByHost = new Map<string, Promise<unknown>>()
 
@@ -133,6 +219,17 @@ export function createProxy(
       if (queuesByHost.get(host) === next) queuesByHost.delete(host)
     })
     return result
+  }
+
+  let cache = new Map<string, CachedResponse>()
+  let cachedSize = 0
+
+  function dropCached(key: string): void {
+    let entry = cache.get(key)
+    if (entry) {
+      cachedSize -= entry.body.length
+      cache.delete(key)
+    }
   }
 
   return async (req, res) => {
@@ -170,7 +267,6 @@ export function createProxy(
       if (req.method !== 'GET') {
         throw new BadRequestError('Only GET is allowed', 405)
       }
-      let method = req.method
 
       // We only allow request from our app
       let origin = req.headers.origin
@@ -184,6 +280,9 @@ export function createProxy(
       }
 
       let debug = req.headers['x-slowreader-debug']
+      let since = req.headers['if-modified-since']
+      // Bodies are stored compressed, so the client must accept the same coding
+      let key = `${url} ${req.headers['accept-encoding']}`
       delete req.headers.cookie
       delete req.headers['set-cookie']
       delete req.headers.host
@@ -207,114 +306,115 @@ export function createProxy(
       }
 
       let requestHeaders = {
-        ...(req.headers as Record<string, string>),
+        ...req.headers,
         'host': parsedUrl.host,
         'user-agent': 'SlowReader/1.0 (+https://slowreader.app)'
       }
 
+      let hit = debug ? undefined : cache.get(key)
+      if (hit && hit.expires <= Date.now()) {
+        dropCached(key)
+        hit = undefined
+      }
+      if (hit) {
+        let modified = hit.headers['Last-Modified']
+        if (since && modified && new Date(since) >= new Date(modified)) {
+          res.writeHead(304, hit.headers)
+        } else {
+          res.writeHead(hit.status, hit.headers)
+          res.write(hit.body)
+        }
+        return res.end()
+      }
+
       let targetUrl = url
       let targetResponse = await queueByHost(parsedUrl.hostname, () => {
-        return loadTarget(
-          method,
-          targetUrl,
-          requestHeaders,
-          config.requestTimeout
-        )
+        return loadTarget(targetUrl, requestHeaders)
       })
       let redirects = 0
       while (
-        REDIRECTS.has(targetResponse.status) &&
-        targetResponse.headers.has('location')
+        REDIRECTS.has(targetResponse.statusCode!) &&
+        targetResponse.headers.location
       ) {
         if (redirects === MAX_REDIRECTS) {
           throw new BadRequestError('Too many redirects')
         }
         redirects += 1
-        void targetResponse.body?.cancel()
-        targetUrl = resolveLocation(
-          targetResponse.headers.get('location')!,
-          targetUrl
-        )
+        // Draining lets the agent keep the connection for the next request
+        targetResponse.resume()
+        targetUrl = resolveLocation(targetResponse.headers.location, targetUrl)
         let redirected = checkDestination(
           targetUrl,
           config.allowUnsafeDestinations
         )
         targetResponse = await queueByHost(redirected.hostname, () => {
-          return loadTarget(
-            method,
-            targetUrl,
-            requestHeaders,
-            config.requestTimeout
-          )
+          return loadTarget(targetUrl, requestHeaders)
         })
       }
 
-      if (
-        req.headers['if-modified-since'] &&
-        targetResponse.headers.has('last-modified')
-      ) {
-        try {
-          let cachedAt = new Date(req.headers['if-modified-since'])
-          let updatedAt = new Date(targetResponse.headers.get('last-modified')!)
-
-          if (cachedAt.getTime() >= updatedAt.getTime()) {
-            res.setHeader('Last-Modified', updatedAt.toUTCString())
-            res.writeHead(304)
-            return res.end()
-          }
-          /* node:coverage disable */
-        } catch (e) {
-          let message = 'Skipping cache check due to malformed date headers'
-          if (e instanceof Error) {
-            message += `: ${e.stack ?? e.message}`
-          } else if (typeof e === 'string') {
-            message += `: ${e}`
-          }
-          process.stderr.write(styleText('yellow', message) + '\n')
-        }
-        /* node:coverage enable */
-      }
-
-      let length: number | undefined
-      if (targetResponse.headers.has('content-length')) {
-        length = parseInt(targetResponse.headers.get('content-length')!)
-      }
-      if (length && length > config.maxSize) {
+      let length = parseInt(targetResponse.headers['content-length'] ?? '')
+      if (length > config.maxSize) {
         throw new BadRequestError('Response too large', 413)
       }
 
       let responseHeaders: Record<string, string> = {
-        'Content-Type':
-          targetResponse.headers.get('content-type') ?? 'text/plain'
+        'Content-Type': targetResponse.headers['content-type'] ?? 'text/plain'
       }
-      for (let header of [
-        'Retry-After',
-        'RateLimit-Reset',
-        'X-Rate-Limit-Reset'
-      ]) {
-        let value = targetResponse.headers.get(header)
-        if (value) responseHeaders[header] = value
+      for (let header of PASSED_HEADERS) {
+        let value = targetResponse.headers[header.toLowerCase()]
+        if (typeof value === 'string') responseHeaders[header] = value
       }
       if (debug) {
         responseHeaders['x-slowreader-request'] =
           `${req.method} ${targetUrl}\\n` + formatHeaders(requestHeaders)
         responseHeaders['x-slowreader-response'] =
-          `${targetResponse.status}\\n` +
-          formatHeaders(Object.fromEntries(targetResponse.headers.entries()))
+          `${targetResponse.statusCode}\\n` +
+          formatHeaders(targetResponse.headers)
       }
-      res.writeHead(targetResponse.status, responseHeaders)
+      res.writeHead(targetResponse.statusCode!, responseHeaders)
       sent = true
 
-      if (targetResponse.body) {
-        let nodeStream = Readable.fromWeb(
-          // oxlint-disable-next-line typescript/no-unnecessary-type-assertion
-          targetResponse.body as WebReadableStream
-        )
-        await pipeline(nodeStream, res, {
-          signal: AbortSignal.timeout(config.bodyTimeout)
-        })
-      }
+      let maxAge = debug
+        ? 0
+        : getMaxAge(targetResponse.headers['cache-control'])
+      let cacheable = maxAge > 0 && targetResponse.statusCode === 200
+      let chunks: Buffer[] = []
+      let size = 0
+      await pipeline(
+        targetResponse,
+        new Transform({
+          transform(chunk: Buffer, _: BufferEncoding, next: TransformCallback) {
+            if (cacheable) {
+              size += chunk.length
+              if (size > config.cacheSize) {
+                cacheable = false
+                chunks = []
+              } else {
+                chunks.push(chunk)
+              }
+            }
+            next(null, chunk)
+          }
+        }),
+        res,
+        { signal: AbortSignal.timeout(config.bodyTimeout) }
+      )
       res.end()
+
+      if (cacheable) {
+        dropCached(key)
+        cache.set(key, {
+          body: Buffer.concat(chunks),
+          expires: Date.now() + maxAge * 1000,
+          headers: responseHeaders,
+          status: targetResponse.statusCode!
+        })
+        cachedSize += size
+        for (let old of cache.keys()) {
+          if (cachedSize <= config.cacheSize) break
+          dropCached(old)
+        }
+      }
     } catch (e) {
       /* node:coverage disable */
       // Known errors

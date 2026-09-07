@@ -25,6 +25,8 @@ let proxy = createServer(
     allowUnsafeDestinations: true,
     allowsFrom: '^http://test\\.app',
     bodyTimeout: 10000,
+    cacheSize: 1024,
+    dnsCacheTime: 60000,
     hostDelay: 0,
     maxSize: 10 * 1024 * 1024,
     requestTimeout: 10000

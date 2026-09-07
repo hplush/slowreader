@@ -24,6 +24,12 @@ _See the [full architecture guide](../README.md) first._
 - Loads one URL per host at a time, with a delay between requests.
 - Has timeout and response size limit.
 
+## Performance
+
+- Caches DNS answers and keeps connections to feed hosts alive.
+- Keeps responses in memory, while the feed’s `Cache-Control` allows it.
+- Passes compressed bodies as they came, without unpacking them.
+
 ## Environment Variables
 
 To run proxy server you must define environment variables:
