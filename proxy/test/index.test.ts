@@ -350,27 +350,15 @@ describe('proxy', () => {
     equal(error.headers.get('access-control-allow-origin'), 'http://test.app')
   })
 
-  test('sends user IP to destination', async () => {
-    let response1 = await request(targetUrl)
-    equal(response1.status, 200)
-    let json1 = (await response1.json()) as EchoResponse
-    let forwardedFor1 = json1.request.headers['x-forwarded-for']
-    let localhost = String(forwardedFor1)
-    match(localhost, /^(::1|(::ffff:)?127.0.0.1)$/)
-
-    let response2 = await request(targetUrl, {
-      headers: { 'X-Forwarded-For': '4.4.4.4' }
-    })
-    equal(response2.status, 200)
-    let json2 = (await response2.json()) as EchoResponse
-    equal(String(json2.request.headers['x-forwarded-for']), '4.4.4.4')
-
-    let response3 = await request(targetUrl, {
+  test('hides user IP from destination', async () => {
+    let response = await request(targetUrl, {
       headers: { 'X-Forwarded-For': '4.4.4.4', 'X-Real-IP': '5.5.5.5' }
     })
-    equal(response3.status, 200)
-    let json3 = (await response3.json()) as EchoResponse
-    equal(String(json3.request.headers['x-forwarded-for']), '5.5.5.5')
+
+    equal(response.status, 200)
+    let parsedResponse = (await response.json()) as EchoResponse
+    equal(parsedResponse.request.headers['x-forwarded-for'], undefined)
+    equal(parsedResponse.request.headers['x-real-ip'], undefined)
   })
 
   test('checks response size', async () => {

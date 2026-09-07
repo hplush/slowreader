@@ -5,11 +5,6 @@ import { pipeline } from 'node:stream/promises'
 import type { ReadableStream as WebReadableStream } from 'node:stream/web'
 import { styleText } from 'node:util'
 
-function firstValue(header: string | string[] | undefined): string | undefined {
-  let value = Array.isArray(header) ? header[0] : header
-  return value?.split(',')[0]?.trim()
-}
-
 function formatHeaders(obj: Record<string, string>): string {
   return Object.entries(obj)
     .map(([name, value]) => `${name}: ${value}`)
@@ -168,10 +163,6 @@ export function createProxy(
       }
 
       let debug = req.headers['x-slowreader-debug']
-      let clientIp =
-        firstValue(req.headers['x-real-ip']) ??
-        firstValue(req.headers['x-forwarded-for']) ??
-        req.socket.remoteAddress!
       delete req.headers.cookie
       delete req.headers['set-cookie']
       delete req.headers.host
@@ -197,8 +188,7 @@ export function createProxy(
       let requestHeaders = {
         ...(req.headers as Record<string, string>),
         'host': parsedUrl.host,
-        'user-agent': 'SlowReader/1.0 (+https://slowreader.app)',
-        'X-Forwarded-For': clientIp
+        'user-agent': 'SlowReader/1.0 (+https://slowreader.app)'
       }
 
       let targetUrl = url
