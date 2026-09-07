@@ -14,7 +14,7 @@ ENV PNPM_VERSION=12.3.2 \
   PNPM_CHECKSUM_X64=f3300f14b59da54fa2655d5399ac237a0a5d7e51f515c30cb9e4a893eda01555 \
   PNPM_CHECKSUM_ARM64=48ec5973741ae04207e5e1a5253726ef2de1c5219dfce2e5894092cac565a740
 
-RUN dnf install -yq zsh micro git tig psmisc procps-ng awk libatomic wget \
+RUN dnf install -yq zsh micro git tig psmisc procps-ng awk libatomic wget zip \
   gtk3 nss nspr alsa-lib cups-libs mesa-libgbm dbus-libs libX11-xcb \
   libXcomposite libXdamage libXrandr libXcursor libXi libxkbcommon \
   google-noto-sans-fonts google-noto-emoji-fonts gh jq \

@@ -18,6 +18,7 @@ function settings(target: Target, local: boolean): object {
     return {
       browser_specific_settings: {
         gecko: {
+          data_collection_permissions: { required: ['none'] },
           /** Own ID keeps the local build next to the store’s one. */
           id: local ? 'local@slowreader.app' : 'extension@slowreader.app',
           strict_min_version: '128.0'

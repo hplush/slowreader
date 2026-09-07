@@ -1,13 +1,20 @@
+import { execFile } from 'node:child_process'
 import { cp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { promisify } from 'node:util'
 import sharp from 'sharp'
 import { build } from 'vite'
 
 import { manifest, type Target } from './manifest.ts'
 
+let zip = promisify(execFile)
+
 let watch = !!process.env.WATCH
 
 let main: Target = 'chrome'
 let copies: Target[] = ['firefox', 'safari']
+
+/** Chrome’s and Firefox’s stores take a ZIP, Safari’s converter a folder. */
+let archives: Target[] = ['chrome', 'firefox']
 
 /** Own folder for every build, so a release never replaces the local build,
  * which the browser has already loaded. */
@@ -77,6 +84,19 @@ async function make(local: boolean): Promise<void> {
         }
       ]
     })
+  }
+
+  if (!local) {
+    for (let target of archives) {
+      await zip(
+        'zip',
+        ['--recurse-paths', '--quiet', `../${target}.zip`, '.'],
+        {
+          cwd: `dist/store/${target}`
+        }
+      )
+      await rm(`dist/store/${target}`, { recursive: true })
+    }
   }
 }
 
