@@ -7,8 +7,9 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "start": "WATCH=1 node build.ts",
-    "build": "node build.ts"
+    "start": "node build.ts --watch",
+    "build": "node build.ts",
+    "lint": "node --run build && pnpm dlx web-ext lint --source-dir dist/store/firefox.zip"
   },
   "dependencies": {
     "sharp": "0.35.4",

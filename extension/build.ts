@@ -8,7 +8,7 @@ import { manifest, type Target } from './manifest.ts'
 
 let zip = promisify(execFile)
 
-let watch = !!process.env.WATCH
+let watch = process.argv.includes('--watch')
 
 let main: Target = 'chrome'
 let copies: Target[] = ['firefox', 'safari']

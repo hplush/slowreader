@@ -30,6 +30,7 @@ _See the [full architecture guide](../README.md) first._
 
 - `pnpm -F extension start` to build the extension and watch the changes.
 - `pnpm -F extension build` to build the extension for production.
+- `pnpm -F extension lint` to check the build by [Mozilla’s linter](https://github.com/mozilla/web-ext).
 
 ## Architecture
 
