@@ -8,12 +8,14 @@ This project allows testing of different types of web feed aggregators on the In
 
 Test that Slow Reader can work with all feeds from your RSS reader by using OPML feeds export.
 
-1. Check out [`example.opml`](./example.opml) for the structure of `.opml` file.
+1. Check out [`demo-feeds.opml`](../web/scripts/demo-feeds.opml) for the structure of `.opml` file.
 2. Once in the root you can run:
 
    ```sh
    pnpm -F loader-tests check-opml PATH_TO_YOUR_FILE.opml
    ```
+
+   Requests go through our [proxy](../proxy/), like in the web client. Add `--no-proxy` to load feeds directly.
 
 ## Check Loaders by Different Blog Platforms
 
@@ -22,6 +24,8 @@ Test that Slow Reader can work with different feeds from popular blogging platfo
 ```sh
 pnpm -F loader-tests test
 ```
+
+Requests go through our [proxy](../proxy/), like in the web client. Add `--no-proxy` to load feeds directly.
 
 ## Debug Feed Search
 

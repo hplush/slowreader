@@ -1,4 +1,4 @@
-import { equal, match, ok } from 'node:assert/strict'
+import { deepStrictEqual, equal, match, ok, rejects } from 'node:assert/strict'
 import { createServer, type IncomingHttpHeaders, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { after, describe, test } from 'node:test'
@@ -66,7 +66,13 @@ describe('proxy', () => {
       res.end(gzipSync('gzipped content'))
     } else if (queryParams.size) {
       res.writeHead(200, { 'Cache-Control': 'max-age=60' })
-      res.end('a'.repeat(parseInt(queryParams.size)))
+      let total = parseInt(queryParams.size)
+      for (let sent = 0; sent < total; sent += 100) {
+        if (res.destroyed) return
+        res.write('a'.repeat(Math.min(100, total - sent)))
+        await setTimeout(1)
+      }
+      res.end()
     } else if (queryParams.rateLimit) {
       let headers: Record<string, string> = {}
       if (queryParams.retryAfter) {
@@ -119,7 +125,10 @@ describe('proxy', () => {
       cacheSize: 1024,
       dnsCacheTime: 60000,
       hostDelay: 0,
-      maxSize: 100,
+      ipLimit: 10000,
+      ipWindow: 60000,
+      maxRequests: 100,
+      maxSize: 1500,
       requestTimeout: 1000
     })
   )
@@ -181,10 +190,10 @@ describe('proxy', () => {
   })
 
   test('checks URL', async () => {
-    let response1 = await fetch(`${proxyUrl}/bad`, {})
+    let response1 = await request('bad')
     await expectBadRequest(response1, 'Invalid URL')
 
-    let response2 = await fetch(proxyUrl, {})
+    let response2 = await request('')
     await expectBadRequest(response2, 'Invalid URL')
   })
 
@@ -218,10 +227,7 @@ describe('proxy', () => {
   })
 
   test('can use only HTTP or HTTPS protocols', async () => {
-    let response = await fetch(
-      `${proxyUrl}/${targetUrl.replace('http', 'ftp')}`,
-      {}
-    )
+    let response = await request(targetUrl.replace('http', 'ftp'))
     await expectBadRequest(response, 'Only HTTP or HTTPS are supported')
   })
 
@@ -233,7 +239,10 @@ describe('proxy', () => {
         cacheSize: 1024,
         dnsCacheTime: 60000,
         hostDelay: 0,
-        maxSize: 100,
+        ipLimit: 10000,
+        ipWindow: 60000,
+        maxRequests: 100,
+        maxSize: 1500,
         requestTimeout: 100
       })
     )
@@ -268,10 +277,8 @@ describe('proxy', () => {
         Origin: 'http://test.app'
       }
     })
-    await expectBadRequest(
-      response3,
-      'IP addresses or local domains are not allowed'
-    )
+    equal(response3.status, 400)
+    match(await response3.text(), /ENOTFOUND|EAI_AGAIN/)
 
     let response4 = await fetch(`${getURL(otherProxy)}/http://[::1]:31597/`, {
       headers: {
@@ -335,13 +342,18 @@ describe('proxy', () => {
 
   test('cleans request headers', async () => {
     let response = await request(targetUrl, {
-      headers: { 'Cookie': 'a=1', 'User-Agent': 'Mozilla/5.0 Chrome/140' }
+      headers: {
+        'Accept-Language': 'ru-RU',
+        'Cookie': 'a=1',
+        'User-Agent': 'Mozilla/5.0 Chrome/140'
+      }
     })
 
     equal(response.status, 200)
     equal(response.headers.get('set-cookie'), null)
     let parsedResponse = (await response.json()) as EchoResponse
     equal(parsedResponse.request.headers.cookie, undefined)
+    equal(parsedResponse.request.headers['accept-language'], undefined)
     equal(
       parsedResponse.request.headers['user-agent'],
       'SlowReader/1.0 (+https://slowreader.app)'
@@ -413,7 +425,10 @@ describe('proxy', () => {
         cacheSize: 1024,
         dnsCacheTime: 60000,
         hostDelay: 50,
-        maxSize: 100,
+        ipLimit: 10000,
+        ipWindow: 60000,
+        maxRequests: 100,
+        maxSize: 1500,
         requestTimeout: 1000
       })
     )
@@ -486,8 +501,8 @@ describe('proxy', () => {
 
   test('forgets too big and too old cache entries', async () => {
     requests = 0
-    await (await request(`${targetUrl}?size=2000`)).text()
-    await (await request(`${targetUrl}?size=2000`)).text()
+    await (await request(`${targetUrl}?size=1200`)).text()
+    await (await request(`${targetUrl}?size=1200`)).text()
     equal(requests, 2)
 
     await (await request(`${targetUrl}?size=600&test=first`)).text()
@@ -502,6 +517,91 @@ describe('proxy', () => {
     requests = 0
     await (await request(expiring)).json()
     equal(requests, 1)
+  })
+
+  test('limits response size while streaming', async () => {
+    let response = await request(`${targetUrl}?size=5000`)
+    equal(response.status, 200)
+    await rejects(response.text())
+  })
+
+  test('protects clients from proxied HTML', async () => {
+    let response = await request(targetUrl)
+    equal(response.headers.get('x-content-type-options'), 'nosniff')
+    equal(response.headers.get('content-security-policy'), 'sandbox')
+    await response.json()
+  })
+
+  test('limits requests per IP', async () => {
+    await using otherProxy = createServer(
+      createProxy({
+        allowUnsafeDestinations: true,
+        allowsFrom: '^http:\\/\\/test.app',
+        bodyTimeout: 1000,
+        cacheSize: 1024,
+        dnsCacheTime: 60000,
+        hostDelay: 0,
+        ipLimit: 2,
+        ipWindow: 100,
+        maxRequests: 100,
+        maxSize: 1500,
+        requestTimeout: 1000
+      })
+    )
+    await new Promise<void>(resolve => {
+      otherProxy.listen(31601, resolve)
+    })
+
+    async function load(): Promise<number> {
+      let response = await fetch(`${getURL(otherProxy)}/${targetUrl}`, {
+        headers: { Origin: 'http://test.app' }
+      })
+      await response.text()
+      return response.status
+    }
+
+    equal(await load(), 200)
+    equal(await load(), 200)
+    equal(await load(), 429)
+
+    await setTimeout(150)
+    equal(await load(), 200)
+  })
+
+  test('limits requests in parallel', async () => {
+    await using otherProxy = createServer(
+      createProxy({
+        allowUnsafeDestinations: true,
+        allowsFrom: '^http:\\/\\/test.app',
+        bodyTimeout: 1000,
+        cacheSize: 1024,
+        dnsCacheTime: 60000,
+        hostDelay: 0,
+        ipLimit: 10000,
+        ipWindow: 60000,
+        maxRequests: 1,
+        maxSize: 1500,
+        requestTimeout: 1000
+      })
+    )
+    await new Promise<void>(resolve => {
+      otherProxy.listen(31602, resolve)
+    })
+
+    let statuses = await Promise.all(
+      [1, 2].map(async i => {
+        let response = await fetch(
+          `${getURL(otherProxy)}/${targetUrl}?sleep=200&i=${i}`,
+          { headers: { Origin: 'http://test.app' } }
+        )
+        await response.text()
+        return response.status
+      })
+    )
+    deepStrictEqual(
+      statuses.toSorted((a, b) => a - b),
+      [200, 503]
+    )
   })
 
   test('passes compressed body as is', async () => {

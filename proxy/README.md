@@ -19,10 +19,13 @@ _See the [full architecture guide](../README.md) first._
 
 - Allows only GET requests and HTTP/HTTPS protocols.
 - Does not allow requests to in-cloud IP addresses like `127.0.0.1`.
-- Removes cookie headers.
+- Checks the address after DNS, so no hostname can point us to in-cloud IP addresses.
+- Sends only the few headers a feed needs, and drops everything else.
 - Sends constant `User-Agent: SlowReader/1.0 (+https://slowreader.app)`.
 - Loads one URL per host at a time, with a delay between requests.
-- Has timeout and response size limit.
+- Limits requests per IP and requests in parallel.
+- Marks answers with `nosniff` and `Content-Security-Policy: sandbox` to avoid reading our cookie by proxy’s content if user will be forced to open proxied URL in the browser.
+- Has timeout and response size limit, counted while streaming.
 
 ## Performance
 

@@ -28,6 +28,9 @@ let proxy = createServer(
     cacheSize: 1024,
     dnsCacheTime: 60000,
     hostDelay: 0,
+    ipLimit: 10000,
+    ipWindow: 60000,
+    maxRequests: 100,
     maxSize: 10 * 1024 * 1024,
     requestTimeout: 10000
   })

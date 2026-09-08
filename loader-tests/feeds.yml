@@ -30,6 +30,10 @@ feeds:
   - title: Pika
     url: https://wavelengths.online/posts_feed
 
+  - title: Blogger
+    url: http://chrome.blogspot.com/feeds/posts/default
+    findFromHome: false
+
   # Edge Cases
 
   - title: Wrong Content Type
@@ -40,3 +44,11 @@ feeds:
 
   - title: JSON Feed
     url: https://vas3k.club/feed.json
+
+  - title: Redirect to Another Domain Name
+    url: http://sergeykorol.ru/blog/feed/
+    findFromHome: false
+
+  - title: Redirect to WWW Subdomain
+    url: https://omglinux.com/feed
+    findFromHome: false

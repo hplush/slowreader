@@ -9,7 +9,8 @@ import {
   fetchAndParsePosts,
   findRSSFromHome,
   type LoaderTestFeed,
-  readText
+  readText,
+  useProxy
 } from './utils.ts'
 
 const FEEDS = join(import.meta.dirname, 'feeds.yml')
@@ -23,10 +24,24 @@ async function parseFeedsFromFile(path: string): Promise<YamlFeed[]> {
   return data.feeds
 }
 
-let cli = createCLI('Run all tests on feeds.yml')
+let cli = createCLI(
+  'Run all tests on feeds.yml',
+  '$ pnpm -F loader-tests test:online:loaders [--no-proxy]'
+)
 
-await cli.run(async () => {
+await cli.run(async args => {
+  let proxy = true
+  for (let arg of args) {
+    if (arg === '--no-proxy') {
+      proxy = false
+    } else {
+      cli.wrongArg('Unknown argument: ' + arg)
+      return
+    }
+  }
+
   enableTestClient()
+  let server = proxy ? useProxy() : undefined
 
   let feeds = await parseFeedsFromFile(FEEDS)
   startProgress(
@@ -39,5 +54,6 @@ await cli.run(async () => {
       await findRSSFromHome(feed, 3)
     }
   }
+  server?.close()
   finish(`${feeds.length} ${feeds.length === 1 ? 'feed' : 'feeds'} checked`)
 })

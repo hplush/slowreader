@@ -7,13 +7,16 @@ import {
   pages,
   printWarning,
   type RouteName,
+  setRequestMethod,
   setupEnvironment,
   useCredentials,
   waitLoading
 } from '@slowreader/core'
 import { setNodeRequestMethod, setupNodeDom } from '@slowreader/core/node'
 import { getTestEnvironment, setBaseTestRoute } from '@slowreader/core/test'
+import { createProxy, DEFAULT_PROXY_CONFIG } from '@slowreader/proxy'
 import { readFile } from 'node:fs/promises'
+import { createServer, type Server } from 'node:http'
 import { setDefaultAutoSelectFamilyAttemptTimeout } from 'node:net'
 import { isAbsolute, join } from 'node:path'
 
@@ -61,6 +64,29 @@ export function enableTestClient(route: RouteName = 'home'): void {
   useCredentials(generateCredentials())
   setBaseTestRoute({ params: {}, route })
   setNodeRequestMethod()
+}
+
+// Tests go through the proxy to check the same path as the web client
+export function useProxy(): Server {
+  let server = createServer(
+    createProxy({ ...DEFAULT_PROXY_CONFIG, allowsFrom: 'localhost' })
+  )
+  server.listen(8001)
+
+  setRequestMethod(async (url, opts = {}) => {
+    let headers = opts.headers as object | undefined
+    let response = await fetch(
+      'http://localhost:8001/' + encodeURIComponent(url),
+      {
+        ...opts,
+        headers: { Origin: 'http://localhost:8000', ...headers }
+      }
+    )
+    Object.defineProperty(response, 'url', { value: url })
+    return response
+  })
+
+  return server
 }
 
 export function timeout<Value>(

@@ -11,7 +11,7 @@ import {
   type ServerResponse
 } from 'node:http'
 import { Agent as HttpsAgent, request as httpsRequest } from 'node:https'
-import { isIP } from 'node:net'
+import { BlockList, isIP } from 'node:net'
 import { Transform, type TransformCallback } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { setTimeout } from 'node:timers/promises'
@@ -40,6 +40,9 @@ export interface ProxyConfig {
   cacheSize: number
   dnsCacheTime: number
   hostDelay: number
+  ipLimit: number
+  ipWindow: number
+  maxRequests: number
   maxSize: number
   requestTimeout: number
 }
@@ -49,6 +52,9 @@ export const DEFAULT_PROXY_CONFIG: Omit<ProxyConfig, 'allowsFrom'> = {
   cacheSize: 32 * 1024 * 1024,
   dnsCacheTime: 60000,
   hostDelay: 500,
+  ipLimit: 600,
+  ipWindow: 60000,
+  maxRequests: 100,
   maxSize: 10 * 1024 * 1024,
   requestTimeout: 10000
 }
@@ -64,6 +70,14 @@ const REDIRECTS = new Set([301, 302, 303, 307, 308])
 
 const MAX_REDIRECTS = 10
 
+const SENT_HEADERS = [
+  'accept',
+  'accept-encoding',
+  'if-modified-since',
+  'if-none-match',
+  'range'
+]
+
 const PASSED_HEADERS = [
   'Content-Encoding',
   'ETag',
@@ -73,6 +87,29 @@ const PASSED_HEADERS = [
   'X-Rate-Limit-Reset'
 ]
 
+const PRIVATE = new BlockList()
+PRIVATE.addSubnet('0.0.0.0', 8, 'ipv4')
+PRIVATE.addSubnet('10.0.0.0', 8, 'ipv4')
+PRIVATE.addSubnet('100.64.0.0', 10, 'ipv4')
+PRIVATE.addSubnet('127.0.0.0', 8, 'ipv4')
+PRIVATE.addSubnet('169.254.0.0', 16, 'ipv4')
+PRIVATE.addSubnet('172.16.0.0', 12, 'ipv4')
+PRIVATE.addSubnet('192.0.0.0', 24, 'ipv4')
+PRIVATE.addSubnet('192.168.0.0', 16, 'ipv4')
+PRIVATE.addSubnet('198.18.0.0', 15, 'ipv4')
+PRIVATE.addSubnet('224.0.0.0', 4, 'ipv4')
+PRIVATE.addSubnet('240.0.0.0', 4, 'ipv4')
+PRIVATE.addAddress('::', 'ipv6')
+PRIVATE.addAddress('::1', 'ipv6')
+PRIVATE.addSubnet('fc00::', 7, 'ipv6')
+PRIVATE.addSubnet('fe80::', 10, 'ipv6')
+PRIVATE.addSubnet('ff00::', 8, 'ipv6')
+
+function isPublic(found: LookupAddress): boolean {
+  let address = found.address.replace(/^::ffff:/i, '')
+  return !PRIVATE.check(address, isIP(address) === 4 ? 'ipv4' : 'ipv6')
+}
+
 function resolveLocation(location: string, from: string): string {
   let host = new URL(from).host
   return new URL(location.replace(/^(https?:)\/\/(?=\/)/i, `$1//${host}`), from)
@@ -81,11 +118,11 @@ function resolveLocation(location: string, from: string): string {
 
 function allowCors(req: IncomingMessage, res: ServerResponse): void {
   if (req.headers.origin) {
-    res.setHeader('Access-Control-Allow-Headers', '*')
     res.setHeader(
-      'Access-Control-Allow-Methods',
-      'OPTIONS, POST, GET, PUT, DELETE'
+      'Access-Control-Allow-Headers',
+      'If-Modified-Since, If-None-Match, Range, X-Slowreader-Debug'
     )
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET')
     res.setHeader('Access-Control-Allow-Origin', req.headers.origin)
     let exposed = 'Retry-After, RateLimit-Reset, X-Rate-Limit-Reset'
     if (req.headers['x-slowreader-debug']) {
@@ -103,9 +140,10 @@ function checkDestination(
   if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
     throw new BadRequestError('Only HTTP or HTTPS are supported')
   }
+  // Names without a known local suffix are checked again after DNS,
+  // where rebinding can not hide the real address
   if (!allowUnsafeDestinations) {
     if (
-      !parsed.hostname.includes('.') ||
       parsed.hostname.includes('.localhost') ||
       /\.(local|internal)$/.test(parsed.hostname) ||
       parsed.hostname === 'localhost.' ||
@@ -145,11 +183,16 @@ export function createProxy(
     ) => void
   ): void {
     function answer(found: LookupAddress[]): void {
-      if (options.all) {
-        done(null, found)
+      let allowed = config.allowUnsafeDestinations
+        ? found
+        : found.filter(isPublic)
+      if (allowed.length === 0) {
+        done(new Error('IP addresses or local domains are not allowed'), [])
+      } else if (options.all) {
+        done(null, allowed)
         /* node:coverage disable */
       } else {
-        done(null, found[0]!.address, found[0]!.family)
+        done(null, allowed[0]!.address, allowed[0]!.family)
       }
       /* node:coverage enable */
     }
@@ -183,7 +226,8 @@ export function createProxy(
         url,
         {
           agent: secure ? httpsAgent : httpAgent,
-          headers,
+          // Redirects can move us to another host, so it can not be set once
+          headers: { ...headers, host: new URL(url).host },
           lookup,
           timeout: config.requestTimeout
         },
@@ -219,6 +263,27 @@ export function createProxy(
       if (queuesByHost.get(host) === next) queuesByHost.delete(host)
     })
     return result
+  }
+
+  let requestsByIp = new Map<string, number>()
+  let windowStarted = Date.now()
+  let inFlight = 0
+
+  function countRequest(req: IncomingMessage): number {
+    let now = Date.now()
+    if (now - windowStarted > config.ipWindow) {
+      requestsByIp.clear()
+      windowStarted = now
+    }
+    // Our own load balancer sets the header, clients can not be trusted here
+    let from =
+      req.headers['x-real-ip'] ??
+      req.headers['x-forwarded-for'] ??
+      req.socket.remoteAddress!
+    let ip = (Array.isArray(from) ? from[0]! : from).split(',')[0]!.trim()
+    let count = (requestsByIp.get(ip) ?? 0) + 1
+    requestsByIp.set(ip, count)
+    return count
   }
 
   let cache = new Map<string, CachedResponse>()
@@ -260,9 +325,6 @@ export function createProxy(
     }
 
     try {
-      let url = decodeURIComponent(req.url!.slice(1).replace(/^proxy\//, ''))
-      let parsedUrl = checkDestination(url, config.allowUnsafeDestinations)
-
       // We do not typically need non-GET to load RSS
       if (req.method !== 'GET') {
         throw new BadRequestError('Only GET is allowed', 405)
@@ -279,36 +341,25 @@ export function createProxy(
         )
       }
 
+      // Origin is set by browsers only, so bots still can use us as a relay
+      if (countRequest(req) > config.ipLimit) {
+        throw new BadRequestError('Too many requests', 429)
+      }
+
+      let url = decodeURIComponent(req.url!.slice(1).replace(/^proxy\//, ''))
+      let parsedUrl = checkDestination(url, config.allowUnsafeDestinations)
+
       let debug = req.headers['x-slowreader-debug']
       let since = req.headers['if-modified-since']
       // Bodies are stored compressed, so the client must accept the same coding
       let key = `${url} ${req.headers['accept-encoding']}`
-      delete req.headers.cookie
-      delete req.headers['set-cookie']
-      delete req.headers.host
-      delete req.headers.origin
-      delete req.headers.referer
-      delete req.headers['x-real-ip']
-      delete req.headers.te
-      delete req.headers.dnt
-      delete req.headers.pragma
-      delete req.headers.priority
-      delete req.headers['cache-control']
-      delete req.headers.connection
-      for (let header in req.headers) {
-        if (
-          header.startsWith('sec-') ||
-          header.startsWith('x-slowreader-') ||
-          header.startsWith('x-forwarded-')
-        ) {
-          delete req.headers[header]
-        }
-      }
-
-      let requestHeaders = {
-        ...req.headers,
-        'host': parsedUrl.host,
+      // Anything we do not list here is the user’s data and stays with us
+      let requestHeaders: IncomingHttpHeaders = {
         'user-agent': 'SlowReader/1.0 (+https://slowreader.app)'
+      }
+      for (let header of SENT_HEADERS) {
+        let value = req.headers[header]
+        if (value) requestHeaders[header] = value
       }
 
       let hit = debug ? undefined : cache.get(key)
@@ -327,93 +378,118 @@ export function createProxy(
         return res.end()
       }
 
-      let targetUrl = url
-      let targetResponse = await queueByHost(parsedUrl.hostname, () => {
-        return loadTarget(targetUrl, requestHeaders)
-      })
-      let redirects = 0
-      while (
-        REDIRECTS.has(targetResponse.statusCode!) &&
-        targetResponse.headers.location
-      ) {
-        if (redirects === MAX_REDIRECTS) {
-          throw new BadRequestError('Too many redirects')
-        }
-        redirects += 1
-        // Draining lets the agent keep the connection for the next request
-        targetResponse.resume()
-        targetUrl = resolveLocation(targetResponse.headers.location, targetUrl)
-        let redirected = checkDestination(
-          targetUrl,
-          config.allowUnsafeDestinations
-        )
-        targetResponse = await queueByHost(redirected.hostname, () => {
+      if (inFlight >= config.maxRequests) {
+        throw new BadRequestError('Too many requests', 503)
+      }
+      inFlight += 1
+      try {
+        let targetUrl = url
+        let targetResponse = await queueByHost(parsedUrl.hostname, () => {
           return loadTarget(targetUrl, requestHeaders)
         })
-      }
-
-      let length = parseInt(targetResponse.headers['content-length'] ?? '')
-      if (length > config.maxSize) {
-        throw new BadRequestError('Response too large', 413)
-      }
-
-      let responseHeaders: Record<string, string> = {
-        'Content-Type': targetResponse.headers['content-type'] ?? 'text/plain'
-      }
-      for (let header of PASSED_HEADERS) {
-        let value = targetResponse.headers[header.toLowerCase()]
-        if (typeof value === 'string') responseHeaders[header] = value
-      }
-      if (debug) {
-        responseHeaders['x-slowreader-request'] =
-          `${req.method} ${targetUrl}\\n` + formatHeaders(requestHeaders)
-        responseHeaders['x-slowreader-response'] =
-          `${targetResponse.statusCode}\\n` +
-          formatHeaders(targetResponse.headers)
-      }
-      res.writeHead(targetResponse.statusCode!, responseHeaders)
-      sent = true
-
-      let maxAge = debug
-        ? 0
-        : getMaxAge(targetResponse.headers['cache-control'])
-      let cacheable = maxAge > 0 && targetResponse.statusCode === 200
-      let chunks: Buffer[] = []
-      let size = 0
-      await pipeline(
-        targetResponse,
-        new Transform({
-          transform(chunk: Buffer, _: BufferEncoding, next: TransformCallback) {
-            if (cacheable) {
-              size += chunk.length
-              if (size > config.cacheSize) {
-                cacheable = false
-                chunks = []
-              } else {
-                chunks.push(chunk)
-              }
-            }
-            next(null, chunk)
+        let redirects = 0
+        while (
+          REDIRECTS.has(targetResponse.statusCode!) &&
+          targetResponse.headers.location
+        ) {
+          if (redirects === MAX_REDIRECTS) {
+            throw new BadRequestError('Too many redirects')
           }
-        }),
-        res,
-        { signal: AbortSignal.timeout(config.bodyTimeout) }
-      )
-      res.end()
-
-      if (cacheable) {
-        dropCached(key)
-        cache.set(key, {
-          body: Buffer.concat(chunks),
-          expires: Date.now() + maxAge * 1000,
-          headers: responseHeaders,
-          status: targetResponse.statusCode!
-        })
-        cachedSize += size
-        for (let old of cache.keys()) {
-          if (cachedSize <= config.cacheSize) break
-          dropCached(old)
+          redirects += 1
+          // Draining lets the agent keep the connection for the next request
+          targetResponse.resume()
+          targetUrl = resolveLocation(
+            targetResponse.headers.location,
+            targetUrl
+          )
+          let redirected = checkDestination(
+            targetUrl,
+            config.allowUnsafeDestinations
+          )
+          targetResponse = await queueByHost(redirected.hostname, () => {
+            return loadTarget(targetUrl, requestHeaders)
+          })
         }
+
+        let length = parseInt(targetResponse.headers['content-length'] ?? '')
+        if (length > config.maxSize) {
+          throw new BadRequestError('Response too large', 413)
+        }
+
+        let responseHeaders: Record<string, string> = {
+          // Proxied HTML must not run as our own page on preview deploys
+          'Content-Security-Policy': 'sandbox',
+          'Content-Type':
+            targetResponse.headers['content-type'] ?? 'text/plain',
+          'X-Content-Type-Options': 'nosniff'
+        }
+        for (let header of PASSED_HEADERS) {
+          let value = targetResponse.headers[header.toLowerCase()]
+          if (typeof value === 'string') responseHeaders[header] = value
+        }
+        if (debug) {
+          responseHeaders['x-slowreader-request'] =
+            `${req.method} ${targetUrl}\\n` +
+            formatHeaders({ ...requestHeaders, host: new URL(targetUrl).host })
+          responseHeaders['x-slowreader-response'] =
+            `${targetResponse.statusCode}\\n` +
+            formatHeaders(targetResponse.headers)
+        }
+        res.writeHead(targetResponse.statusCode!, responseHeaders)
+        sent = true
+
+        let maxAge = debug
+          ? 0
+          : getMaxAge(targetResponse.headers['cache-control'])
+        let cacheable = maxAge > 0 && targetResponse.statusCode === 200
+        let chunks: Buffer[] = []
+        let size = 0
+        await pipeline(
+          targetResponse,
+          new Transform({
+            transform(
+              chunk: Buffer,
+              _: BufferEncoding,
+              next: TransformCallback
+            ) {
+              size += chunk.length
+              // Most feeds answer without Content-Length, so we count it here
+              if (size > config.maxSize) {
+                next(new BadRequestError('Response too large', 413))
+                return
+              }
+              if (cacheable) {
+                if (size > config.cacheSize) {
+                  cacheable = false
+                  chunks = []
+                } else {
+                  chunks.push(chunk)
+                }
+              }
+              next(null, chunk)
+            }
+          }),
+          res,
+          { signal: AbortSignal.timeout(config.bodyTimeout) }
+        )
+        res.end()
+
+        if (cacheable) {
+          dropCached(key)
+          cache.set(key, {
+            body: Buffer.concat(chunks),
+            expires: Date.now() + maxAge * 1000,
+            headers: responseHeaders,
+            status: targetResponse.statusCode!
+          })
+          cachedSize += size
+          for (let old of cache.keys()) {
+            if (cachedSize <= config.cacheSize) break
+            dropCached(old)
+          }
+        }
+      } finally {
+        inFlight -= 1
       }
     } catch (e) {
       /* node:coverage disable */

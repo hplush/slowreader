@@ -1,20 +1,13 @@
-import {
-  busy,
-  importMessages,
-  pages,
-  setRequestMethod,
-  waitLoading
-} from '@slowreader/core'
-import { USER_AGENT } from '@slowreader/core/node'
-import { createProxy, DEFAULT_PROXY_CONFIG } from '@slowreader/proxy'
-import { createServer } from 'node:http'
+import { busy, importMessages, pages, waitLoading } from '@slowreader/core'
+import type { Server } from 'node:http'
 
 import { error, finish, startProgress } from '../scripts/progress.ts'
 import {
   createCLI,
   enableTestClient,
   fetchAndParsePosts,
-  readText
+  readText,
+  useProxy
 } from './utils.ts'
 
 let cli = createCLI(
@@ -43,33 +36,8 @@ await cli.run(async args => {
 
   enableTestClient('import')
 
-  let server: ReturnType<typeof createServer> | undefined
-  if (proxy) {
-    let proxyHandler = createProxy({
-      ...DEFAULT_PROXY_CONFIG,
-      allowsFrom: 'localhost'
-    })
-    server = createServer(proxyHandler)
-    server.listen(8001)
-
-    setRequestMethod(async (url, opts = {}) => {
-      let originUrl = url
-      let nextUrl = 'http://localhost:8001/' + encodeURIComponent(url)
-      let headers = opts.headers as object | undefined
-      let response = await fetch(nextUrl, {
-        headers: {
-          'Origin': 'http://localhost:8000',
-          'User-Agent': USER_AGENT,
-          ...headers
-        },
-        ...opts
-      })
-      Object.defineProperty(response, 'url', {
-        value: originUrl
-      })
-      return response
-    })
-  }
+  let server: Server | undefined
+  if (proxy) server = useProxy()
 
   let page = pages.import()
   let content = await readText(opmlFile)
