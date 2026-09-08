@@ -1,6 +1,6 @@
 import { deepStrictEqual, equal, match, ok, rejects } from 'node:assert/strict'
 import { createServer, type IncomingHttpHeaders, type Server } from 'node:http'
-import type { AddressInfo } from 'node:net'
+import type { AddressInfo, Socket } from 'node:net'
 import { after, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 import { URL } from 'node:url'
@@ -28,10 +28,13 @@ describe('proxy', () => {
   let inFlight = 0
   let maxInFlight = 0
   let requests = 0
+  let sockets = new WeakSet<Socket>()
 
   let target = createServer(async (req, res) => {
     inFlight += 1
     requests += 1
+    let reused = sockets.has(req.socket)
+    sockets.add(req.socket)
     if (inFlight > maxInFlight) maxInFlight = inFlight
     res.on('close', () => {
       inFlight -= 1
@@ -43,7 +46,14 @@ describe('proxy', () => {
       await setTimeout(parseInt(queryParams.sleep))
     }
 
-    if (queryParams.redirectTo) {
+    if (queryParams.drop || (queryParams.reset && reused)) {
+      req.socket.destroy()
+    } else if (queryParams.stall) {
+      res.writeHead(200)
+      res.write('a')
+      await setTimeout(parseInt(queryParams.stall))
+      res.end('b')
+    } else if (queryParams.redirectTo) {
       res.writeHead(302, { Location: queryParams.redirectTo })
       res.end()
     } else if (queryParams.emptyHost) {
@@ -70,7 +80,7 @@ describe('proxy', () => {
       for (let sent = 0; sent < total; sent += 100) {
         if (res.destroyed) return
         res.write('a'.repeat(Math.min(100, total - sent)))
-        await setTimeout(1)
+        await setTimeout(parseInt(queryParams.pace ?? '1'))
       }
       res.end()
     } else if (queryParams.rateLimit) {
@@ -170,6 +180,30 @@ describe('proxy', () => {
   test('has timeout', async () => {
     let response = await request(`${targetUrl}?sleep=2000`, {})
     await expectBadRequest(response, 'Timeout')
+  })
+
+  test('waits for slow body while it moves', async () => {
+    let response = await request(`${targetUrl}?size=1200&pace=300`)
+    equal(response.status, 200)
+    equal((await response.text()).length, 1200)
+  })
+
+  test('cuts stalled body', async () => {
+    let response = await request(`${targetUrl}?stall=1500`)
+    equal(response.status, 200)
+    await rejects(response.text())
+  })
+
+  test('retries request on closed kept-alive connection', async () => {
+    await (await request(`${targetUrl}?test=warm`)).text()
+    requests = 0
+    let response = await request(`${targetUrl}?reset=1`)
+    equal(response.status, 200)
+    equal(((await response.json()) as EchoResponse).response, 'content')
+    equal(requests, 2)
+
+    response = await request(`${targetUrl}?drop=1`)
+    await expectBadRequest(response, 'socket hang up')
   })
 
   test('transfers query params and path', async () => {

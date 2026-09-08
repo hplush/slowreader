@@ -52,3 +52,6 @@ feeds:
   - title: Redirect to WWW Subdomain
     url: https://omglinux.com/feed
     findFromHome: false
+
+  - title: Big Slow WordPress Feed
+    url: https://spacemorgue.com/feed

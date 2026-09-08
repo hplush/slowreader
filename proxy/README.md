@@ -25,7 +25,7 @@ _See the [full architecture guide](../README.md) first._
 - Loads one URL per host at a time, with a delay between requests.
 - Limits requests per IP and requests in parallel.
 - Marks answers with `nosniff` and `Content-Security-Policy: sandbox` to avoid reading our cookie by proxy’s content if user will be forced to open proxied URL in the browser.
-- Has timeout and response size limit, counted while streaming.
+- Has timeout to answer, idle timeout while streaming body, and response size limit, counted while streaming.
 
 ## Performance
 

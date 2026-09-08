@@ -14,7 +14,7 @@ import { Agent as HttpsAgent, request as httpsRequest } from 'node:https'
 import { BlockList, isIP } from 'node:net'
 import { Transform, type TransformCallback } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
-import { setTimeout } from 'node:timers/promises'
+import { setTimeout as sleep } from 'node:timers/promises'
 import { styleText } from 'node:util'
 
 function formatHeaders(headers: IncomingHttpHeaders): string {
@@ -167,8 +167,9 @@ export function createProxy(
 ): (req: IncomingMessage, res: ServerResponse) => void {
   let allowsFrom = new RegExp(config.allowsFrom)
 
-  let httpAgent = new HttpAgent({ keepAlive: true })
-  let httpsAgent = new HttpsAgent({ keepAlive: true })
+  // Hosts close idle connections (nginx after 75 s), so we drop ours first
+  let httpAgent = new HttpAgent({ keepAlive: true, timeout: 60000 })
+  let httpsAgent = new HttpsAgent({ keepAlive: true, timeout: 60000 })
 
   // Node resolves every request from scratch, while feed hosts repeat a lot
   let addresses = new Map<string, { expires: number; found: LookupAddress[] }>()
@@ -218,10 +219,12 @@ export function createProxy(
 
   function loadTarget(
     url: string,
-    headers: IncomingHttpHeaders
+    headers: IncomingHttpHeaders,
+    retried = false
   ): Promise<IncomingMessage> {
     return new Promise((done, fail) => {
       let secure = new URL(url).protocol === 'https:'
+      let responded = false
       let target = (secure ? httpsRequest : httpRequest)(
         url,
         {
@@ -231,14 +234,21 @@ export function createProxy(
           lookup,
           timeout: config.requestTimeout
         },
-        done
+        response => {
+          responded = true
+          done(response)
+        }
       )
       target.on('timeout', () => {
-        target.destroy(new BadRequestError('Timeout'))
+        // Body has own timer, and killing socket here would truncate it
+        if (!responded) target.destroy(new BadRequestError('Timeout'))
       })
       target.on('error', error => {
         if (error instanceof BadRequestError) {
           fail(error)
+        } else if (target.reusedSocket && !responded && !retried) {
+          // Host could close kept-alive connection right before we used it
+          loadTarget(url, headers, true).then(done, fail)
         } else {
           fail(new BadRequestError(error.message, 400, { cause: error }))
         }
@@ -255,8 +265,8 @@ export function createProxy(
   ): Promise<Result> {
     let result = (queuesByHost.get(host) ?? Promise.resolve()).then(load, load)
     let next = result.then(
-      () => setTimeout(config.hostDelay),
-      () => setTimeout(config.hostDelay)
+      () => sleep(config.hostDelay),
+      () => sleep(config.hostDelay)
     )
     queuesByHost.set(host, next)
     void next.then(() => {
@@ -444,34 +454,46 @@ export function createProxy(
         let cacheable = maxAge > 0 && targetResponse.statusCode === 200
         let chunks: Buffer[] = []
         let size = 0
-        await pipeline(
-          targetResponse,
-          new Transform({
-            transform(
-              chunk: Buffer,
-              _: BufferEncoding,
-              next: TransformCallback
-            ) {
-              size += chunk.length
-              // Most feeds answer without Content-Length, so we count it here
-              if (size > config.maxSize) {
-                next(new BadRequestError('Response too large', 413))
-                return
-              }
-              if (cacheable) {
-                if (size > config.cacheSize) {
-                  cacheable = false
-                  chunks = []
-                } else {
-                  chunks.push(chunk)
+        let stalled = new AbortController()
+        let idle = setTimeout(() => {
+          stalled.abort(new BadRequestError('Timeout'))
+        }, config.bodyTimeout)
+        try {
+          await pipeline(
+            targetResponse,
+            new Transform({
+              transform(
+                chunk: Buffer,
+                _: BufferEncoding,
+                next: TransformCallback
+              ) {
+                idle.refresh()
+                size += chunk.length
+                // Most feeds answer without Content-Length, so we count it here
+                if (size > config.maxSize) {
+                  next(new BadRequestError('Response too large', 413))
+                  return
                 }
+                if (cacheable) {
+                  if (size > config.cacheSize) {
+                    cacheable = false
+                    chunks = []
+                  } else {
+                    chunks.push(chunk)
+                  }
+                }
+                next(null, chunk)
               }
-              next(null, chunk)
-            }
-          }),
-          res,
-          { signal: AbortSignal.timeout(config.bodyTimeout) }
-        )
+            }),
+            res,
+            { signal: stalled.signal }
+          )
+        } catch (error) {
+          // Socket closed by abort reports itself before our reason
+          throw stalled.signal.reason ?? error
+        } finally {
+          clearTimeout(idle)
+        }
         res.end()
 
         if (cacheable) {
