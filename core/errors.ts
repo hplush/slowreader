@@ -9,16 +9,17 @@ export const fatalReasons = [
   'noDb',
   'notFound',
   'outdated',
-  'rejected'
+  'rejected',
+  'secondTab'
 ] as const
 
 export type Fatal =
-  | { error: string | undefined; type: 'brokenDatabase' }
+  | { error: string | undefined; type: 'brokenDatabase' | 'noDb' }
   | { error: string; type: 'rejected' }
   | {
       type: Exclude<
         (typeof fatalReasons)[number],
-        'brokenDatabase' | 'rejected'
+        'brokenDatabase' | 'noDb' | 'rejected'
       >
     }
 

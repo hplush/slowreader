@@ -9,6 +9,7 @@
     mdiDeleteAlert,
     mdiFire,
     mdiReload,
+    mdiTabRemove,
     mdiTimerSandComplete
   } from '@mdi/js'
   import {
@@ -31,7 +32,8 @@
     noDb: mdiDatabaseOff,
     notFound: mdiBookOpenPageVariant,
     outdated: mdiTimerSandComplete,
-    rejected: mdiCloudAlert
+    rejected: mdiCloudAlert,
+    secondTab: mdiTabRemove
   }
 
   let { page }: { page: FatalPage } = $props()
@@ -61,6 +63,11 @@
         </Button>
       {:else if $reason.type === 'noDb'}
         <p>{$t.noDbDescription}</p>
+        {#if $reason.error}
+          <Output label={$t.error} value={$reason.error} />
+        {/if}
+      {:else if $reason.type === 'secondTab'}
+        <p>{$t.secondTabDescription}</p>
       {:else if $reason.type === 'rejected'}
         <Output label={$t.error} value={$reason.error} />
         <Button

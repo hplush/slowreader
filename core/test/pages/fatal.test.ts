@@ -73,7 +73,7 @@ describe('fatal page', () => {
       deepEqual(page.reason.get(), { error: 'Test page', type: 'rejected' })
 
       setBaseTestRoute({ params: { reason: 'noDb' }, route: 'fatal' })
-      deepEqual(page.reason.get(), { type: 'noDb' })
+      deepEqual(page.reason.get(), { error: 'Test page', type: 'noDb' })
 
       // The unknown reason is the same broken URL as any other
       setBaseTestRoute({ params: { reason: 'unknown' }, route: 'fatal' })
@@ -177,7 +177,7 @@ describe('fatal page', () => {
     })
 
     test('does not reset the database, which the browser can not save', async () => {
-      fatal.set({ type: 'noDb' })
+      fatal.set({ error: undefined, type: 'noDb' })
 
       await resetDatabase('lost-database')
 
