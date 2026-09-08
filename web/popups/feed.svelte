@@ -27,7 +27,7 @@
 
   let { popup }: { popup: FeedPopup } = $props()
 
-  let { categories, feed, posts } = $derived(popup)
+  let { categories, error, feed, posts } = $derived(popup)
 </script>
 
 <Popup
@@ -96,10 +96,10 @@
         />
       </Stack>
     {/if}
-    {#if popup.error}
+    {#if $error}
       <Stack align="center">
         <Note icon={mdiAlertCircleOutline} variant="dangerous">
-          {popup.error}
+          {$error}
         </Note>
       </Stack>
     {:else}

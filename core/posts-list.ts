@@ -33,7 +33,7 @@ function addIds(posts: ParsedPost[]): OriginPost[] {
  * Feed’s posts. Abstraction to hide complexity with pagination.
  */
 export function createPostsList(
-  load: PostsListLoader | PostsListSyncLoader | undefined
+  load: PostsListLoader | PostsListSyncLoader
 ): PostsList {
   let $map = map<StoreValue<PostsList>>({
     error: undefined,
@@ -75,26 +75,22 @@ export function createPostsList(
       })
   }
 
-  if (load) {
-    try {
-      let result = load()
-      if ('then' in result) {
-        handleLoading(result)
-      } else {
-        loadNext = result[1]
-        $store.set({
-          error: undefined,
-          hasNext: !!loadNext,
-          isLoading: false,
-          list: addIds(result[0])
-        })
-      }
-      /* node:coverage ignore next 3 */
-    } catch (e) {
-      if (e instanceof Error) $store.setKey('error', e)
+  try {
+    let result = load()
+    if ('then' in result) {
+      handleLoading(result)
+    } else {
+      loadNext = result[1]
+      $store.set({
+        error: undefined,
+        hasNext: !!loadNext,
+        isLoading: false,
+        list: addIds(result[0])
+      })
     }
-  } else {
-    $store.setKey('isLoading', false)
+    /* node:coverage ignore next 3 */
+  } catch (e) {
+    if (e instanceof Error) $store.setKey('error', e)
   }
 
   async function next(): ReturnType<PostsList['next']> {

@@ -82,9 +82,51 @@ describe('feed popup', () => {
       await waitLoading(popup.loading)
       equal(popup.notFound, false)
       equal(checkLoadedPopup(popup).feed.get()?.id, feedId)
+      equal(checkLoadedPopup(popup).error.get(), undefined)
+      deepEqual(checkLoadedPopup(popup).posts.get().isLoading, true)
+      await checkLoadedPopup(popup).posts.loading
       deepEqual(checkLoadedPopup(popup).posts.get().isLoading, false)
       deepEqual(checkLoadedPopup(popup).posts.get().list.length, 0)
+      equal(checkLoadedPopup(popup).error.get(), 'Not Found')
     }, [new HTTPStatusError(404, 'http://a.com/404', '', new Headers())])
+  })
+
+  test('shows existing feed before posts are loaded', async () => {
+    keepMount(openedPopups)
+    let feedId = await addFeed(testFeed({ url: 'https://a.com/atom' }))
+    expectRequest('https://a.com/atom').andRespond(
+      200,
+      '<feed><title>Atom</title>' +
+        '<link rel="next" href="https://a.com/atom?page=2" />' +
+        '<entry><id>2</id><updated>2023-07-01T00:00:00Z</updated></entry>' +
+        '</feed>',
+      'text/xml'
+    )
+    let popup = openTestPopup('feed', 'https://a.com/atom')
+    await waitLoading(popup.loading)
+    equal(checkLoadedPopup(popup).feed.get()?.id, feedId)
+    equal(checkLoadedPopup(popup).posts.get().isLoading, true)
+
+    await checkLoadedPopup(popup).posts.loading
+    equal(checkLoadedPopup(popup).posts.get().isLoading, false)
+    equal(checkLoadedPopup(popup).posts.get().hasNext, true)
+    deepEqual(checkLoadedPopup(popup).posts.get().list[0]?.originId, '2')
+
+    expectRequest('https://a.com/atom?page=2').andRespond(
+      200,
+      '<feed><title>Atom</title>' +
+        '<entry><id>1</id><updated>2023-06-01T00:00:00Z</updated></entry>' +
+        '</feed>',
+      'text/xml'
+    )
+    await checkLoadedPopup(popup).posts.next()
+    equal(checkLoadedPopup(popup).posts.get().hasNext, false)
+    deepEqual(checkLoadedPopup(popup).posts.get().list[0]?.originId, '1')
+
+    await checkLoadedPopup(popup).remove()
+    equal(checkLoadedPopup(popup).feed.get(), undefined)
+    let addedId = await checkLoadedPopup(popup).add()
+    equal(checkLoadedPopup(popup).feed.get()?.id, addedId)
   })
 
   test('loads feeds by URL popup', async () => {

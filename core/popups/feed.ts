@@ -18,7 +18,11 @@ import {
 import { waitSql } from '../lib/stores.ts'
 import { type FeedLoader, getLoaderForText } from '../loader/index.ts'
 import { commonMessages } from '../messages/index.ts'
-import { createPostsList } from '../posts-list.ts'
+import {
+  createPostsList,
+  type PostsList,
+  type PostsListResult
+} from '../posts-list.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
@@ -58,9 +62,8 @@ export const feed = definePopup('feed', async url => {
   let task = createDownloadTask({ cache: 'read' })
   let feedsStore = getFeedsByUrl(await findFeedUrl(url))
   let categoriesStore = getCategories()
-  let error: string | undefined
-  let [responseOrError, feeds] = await Promise.all([
-    loadFeedFromURL(task, url),
+  let downloading = loadFeedFromURL(task, url)
+  let [feeds] = await Promise.all([
     waitSql(feedsStore),
     waitSql(categoriesStore)
   ])
@@ -68,18 +71,39 @@ export const feed = definePopup('feed', async url => {
   let existing = feeds[0]
   let response: TextResponse | undefined
   let candidate: false | FeedLoader | undefined
-  let posts = createPostsList(undefined)
+  let $error = atom<string | undefined>()
 
-  if (responseOrError instanceof Error) {
-    error = errorToMessage(responseOrError)
-    if (!existing) throw new NotFoundError({ cause: responseOrError })
+  let parsing = downloading.then(responseOrError => {
+    if (responseOrError instanceof Error) {
+      $error.set(errorToMessage(responseOrError))
+    } else {
+      response = responseOrError
+      candidate = getLoaderForText(response)
+    }
+  })
+
+  let posts: PostsList
+  if (existing) {
+    posts = createPostsList(async () => {
+      await parsing
+      if (!candidate || !response) return [[], undefined]
+      let origin = candidate.loader.getPosts(task, url, response)
+      if (origin.get().isLoading) await origin.loading
+      let next = async (): Promise<PostsListResult> => {
+        let list = await origin.next()
+        return [list, origin.get().hasNext ? next : undefined]
+      }
+      return [origin.get().list, origin.get().hasNext ? next : undefined]
+    })
   } else {
-    response = responseOrError
-    candidate = getLoaderForText(response)
-    if (candidate) posts = candidate.loader.getPosts(task, url, response)
+    await parsing
+    let responseOrError = await downloading
+    if (responseOrError instanceof Error) {
+      throw new NotFoundError({ cause: responseOrError })
+    }
+    if (!candidate || !response) throw new NotFoundError()
+    posts = candidate.loader.getPosts(task, url, response)
   }
-
-  if (!candidate && !existing) throw new NotFoundError()
 
   let $feed = atom<FeedValue | undefined>()
 
@@ -113,6 +137,7 @@ export const feed = definePopup('feed', async url => {
   }
 
   async function add(): Promise<string | void> {
+    await parsing
     if (candidate) {
       return await addCandidate(candidate, {}, task, response)
     }
@@ -126,7 +151,7 @@ export const feed = definePopup('feed', async url => {
       unbindFeeds()
       unbindCategories()
     },
-    error,
+    error: $error,
     feed: $feed,
     posts,
     remove
