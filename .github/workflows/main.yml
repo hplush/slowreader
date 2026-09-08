@@ -102,7 +102,7 @@ jobs:
           RUN=$(gh run list --workflow demo-db.yml --branch main \
             --status success --limit 1 --json databaseId --jq '.[0].databaseId')
           if [ -z "$RUN" ]; then
-            echo "::warning::No demo database yet, /copy-demo-db.html will fail"
+            echo "::warning::No demo database yet, /copy-demo-db will fail"
           else
             gh run download "$RUN" --name demo-db --dir web/dist/
           fi

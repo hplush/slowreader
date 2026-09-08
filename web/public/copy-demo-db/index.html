@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="oklch(0.95 0.03 70)"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="oklch(0.25 0.03 70)"
+    />
+    <title>Copy demo DB › Slow Reader</title>
+    <link rel="stylesheet" href="/copy-demo-db/index.css" />
+    <script type="module" src="/copy-demo-db/index.js"></script>
+  </head>
+
+  <body>
+    <div class="captioned">
+      <div class="captioned_content">
+        <progress
+          class="loader"
+          id="loader"
+          aria-label="Copy demo DB"
+        ></progress>
+      </div>
+      <div class="captioned_bottom">
+        <p class="caption" id="caption" aria-hidden="true">Copy demo DB</p>
+      </div>
+    </div>
+  </body>
+</html>

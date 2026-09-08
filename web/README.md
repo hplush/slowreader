@@ -72,7 +72,7 @@ The engine is chosen on the first start and saved as `slowreader:vfs` in `localS
 
 I mode to quickly see the app with some example content. We pre-generate database to start it quickly.
 
-`/copy-demo-db.html` copies the demo database to OPFS and the demo settings to `localStorage`, then opens the app.
+`/copy-demo-db` copies the demo database to OPFS and the demo settings to `localStorage`, then opens the app.
 
 The page writes a plain file, which the `opfs-sahpool` engine can not see, so in that mode the app imports the file into the pool on the next start and removes it.
 

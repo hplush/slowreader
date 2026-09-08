@@ -1,9 +1,8 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { Features } from 'lightningcss'
 import { execSync } from 'node:child_process'
-import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { extname, join } from 'node:path'
 import sharp from 'sharp'
 import sqlocal from 'sqlocal/vite'
 import { defineConfig, type PreviewServer, type ViteDevServer } from 'vite'
@@ -25,12 +24,21 @@ function loadCSP(): string {
   let match = content.match(/add_header Content-Security-Policy "([^"]+)"/)
   let csp = match?.[1] ?? ''
   // Vite inserts a lot of inline <style> in development mode
-  csp = csp.replace(/style-src[^;]*;?/, '')
-  let demoPath = join(import.meta.dirname, 'public', 'copy-demo-db.html')
-  let demo = readFileSync(demoPath, 'utf-8')
-  let script = demo.match(/<script type="module">([\s\S]*?)<\/script>/i)![1]!
-  let hash = createHash('sha256').update(script).digest('base64')
-  return csp.replace('script-src ', `script-src 'sha256-${hash}' `)
+  return csp.replace(/style-src[^;]*;?/, '')
+}
+
+// nginx resolves `/dir` to `/dir/index.html` by `try_files $uri/`
+function dirIndex(server: PreviewServer | ViteDevServer, root: string): void {
+  server.middlewares.use((req, res, next) => {
+    let [path, query] = req.url!.split('?')
+    let dir = path!.replace(/\/$/, '')
+    if (dir && !extname(dir)) {
+      if (existsSync(join(import.meta.dirname, root, dir, 'index.html'))) {
+        req.url = `${dir}/index.html${query ? `?${query}` : ''}`
+      }
+    }
+    next()
+  })
 }
 
 function noDemoCache(server: PreviewServer | ViteDevServer): void {
@@ -83,6 +91,15 @@ export default defineConfig(() => ({
       configurePreviewServer: noDemoCache,
       configureServer: noDemoCache,
       name: 'demo-no-cache'
+    },
+    {
+      configurePreviewServer(server) {
+        dirIndex(server, 'dist')
+      },
+      configureServer(server) {
+        dirIndex(server, 'public')
+      },
+      name: 'dir-index'
     },
     {
       configureServer(server) {

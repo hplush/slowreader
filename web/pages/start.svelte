@@ -24,7 +24,7 @@
         </Stack>
         <Stack align="center">
           <Button
-            href="/copy-demo-db.html"
+            href="/copy-demo-db"
             icon={mdiBinoculars}
             rel="external"
             size="big"
