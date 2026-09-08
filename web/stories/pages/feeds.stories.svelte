@@ -136,7 +136,7 @@
 
 <Story name="Loading" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    feeds={[{ id: 'feed', reading: 'slow' }]}
+    feeds={[{ id: 'feed', reading: 'slow', title: 'The Mozilla Blog' }]}
     oninit={() => {
       setTimeout(() => {
         pages.slow().posts.get()?.loading.set(true)
@@ -154,7 +154,7 @@
 
 <Story name="List" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    feeds={[{ id: 'feed', reading: 'slow' }]}
+    feeds={[{ id: 'feed', reading: 'slow', title: 'The Mozilla Blog' }]}
     posts={POSTS}
     route={{ params: { feed: 'feed' }, route: 'slow' }}
   >
@@ -164,7 +164,7 @@
 
 <Story name="List All Read" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    feeds={[{ id: 'feed', reading: 'slow' }]}
+    feeds={[{ id: 'feed', reading: 'slow', title: 'The Mozilla Blog' }]}
     oninit={() => readAfterLoading(pages.slow(), ['post-1', 'post-2'])}
     posts={POSTS.slice(0, 2)}
     route={{ params: { feed: 'feed' }, route: 'slow' }}
@@ -175,7 +175,7 @@
 
 <Story name="List Read" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    feeds={[{ id: 'feed', reading: 'slow' }]}
+    feeds={[{ id: 'feed', reading: 'slow', title: 'The Mozilla Blog' }]}
     oninit={() => readAfterLoading(pages.slow(), ['post-2', 'post-3'])}
     posts={POSTS}
     route={{ params: { feed: 'feed' }, route: 'slow' }}
@@ -186,7 +186,7 @@
 
 <Story name="List Opened" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    feeds={[{ id: 'feed', reading: 'slow' }]}
+    feeds={[{ id: 'feed', reading: 'slow', title: 'The Mozilla Blog' }]}
     posts={POSTS}
     route={{
       hash: 'post=read:post-1',
@@ -200,7 +200,15 @@
 
 <Story name="List Pagination" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    feeds={[{ id: 'feed', reading: 'slow' }]}
+    feeds={[
+      {
+        id: 'feed',
+        reading: 'slow',
+        title:
+          'Very long feed title which does not fit into the header ' +
+          'and must be cut with ellipsis to keep the reader switch in place'
+      }
+    ]}
     posts={multiply(POSTS, 50)}
     route={{
       params: { feed: 'feed' },
@@ -213,7 +221,7 @@
 
 <Story name="Feed" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    feeds={[{ id: 'feed', reading: 'fast' }]}
+    feeds={[{ id: 'feed', reading: 'fast', title: 'The Mozilla Blog' }]}
     posts={POSTS.map(i => ({ ...i, reading: 'fast' }))}
     route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
   >
@@ -223,7 +231,7 @@
 
 <Story name="Feed Opened" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    feeds={[{ id: 'feed', reading: 'fast' }]}
+    feeds={[{ id: 'feed', reading: 'fast', title: 'The Mozilla Blog' }]}
     posts={POSTS.map(i => ({ ...i, reading: 'fast' }))}
     route={{
       hash: 'post=id:post-1',
@@ -237,7 +245,7 @@
 
 <Story name="Feed Pagination" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    feeds={[{ id: 'feed', reading: 'fast' }]}
+    feeds={[{ id: 'feed', reading: 'fast', title: 'The Mozilla Blog' }]}
     posts={multiply(
       POSTS.map(i => ({ ...i, reading: 'fast' })),
       50

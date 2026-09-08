@@ -11,6 +11,7 @@
   import { onNextVisibility } from '../lib/visitibility.ts'
   import { getPopupHash } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
+  import FeedLink from '../ui/feed-link.svelte'
   import Popup from '../ui/popup.svelte'
   import Post from '../ui/post.svelte'
   import SmallLink from '../ui/small-link.svelte'
@@ -50,9 +51,11 @@
   <Stack>
     <Stack justify="space-between" row width="stretch">
       {#if feed}
-        <SmallLink href={getPopupHash($router, 'feed', $feed!.url)} shrink>
-          {$feed!.title}
-        </SmallLink>
+        <FeedLink
+          href={getPopupHash($router, 'feed', $feed!.url)}
+          title={$feed!.title}
+          variant="secondary"
+        />
       {:else}
         <div></div>
       {/if}

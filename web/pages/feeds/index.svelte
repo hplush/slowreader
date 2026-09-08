@@ -1,9 +1,5 @@
 <script lang="ts">
-  import {
-    mdiFormatListChecks,
-    mdiPageLayoutHeaderFooter,
-    mdiPlaylistEdit
-  } from '@mdi/js'
+  import { mdiFormatListChecks, mdiPageLayoutHeaderFooter } from '@mdi/js'
   import {
     type FeedsPage,
     navbarMessages as navbar,
@@ -12,7 +8,7 @@
   } from '@slowreader/core'
 
   import { getPopupHash } from '../../stores/url-router.ts'
-  import Button from '../../ui/button.svelte'
+  import FeedLink from '../../ui/feed-link.svelte'
   import Loader from '../../ui/loader.svelte'
   import NavbarFast from '../../ui/navbar/fast.svelte'
   import NavbarSlow from '../../ui/navbar/slow.svelte'
@@ -42,12 +38,10 @@
     <Stack height="stretch">
       <Stack justify="space-between" row>
         {#if $feed}
-          <Button
+          <FeedLink
             href={getPopupHash($router, 'feed', $feed.url)}
-            icon={mdiPlaylistEdit}
-          >
-            {$t.feedPopup}
-          </Button>
+            title={$feed.title}
+          />
         {:else}
           <div></div>
         {/if}

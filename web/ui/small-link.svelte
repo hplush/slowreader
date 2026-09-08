@@ -2,14 +2,11 @@
   import type { Snippet } from 'svelte'
   import type { HTMLAnchorAttributes } from 'svelte/elements'
 
-  let {
-    children,
-    shrink,
-    ...props
-  }: { children: Snippet; shrink?: boolean } & HTMLAnchorAttributes = $props()
+  let { children, ...props }: { children: Snippet } & HTMLAnchorAttributes =
+    $props()
 </script>
 
-<a {...props} class="small-link" class:is-shrink={shrink}>
+<a {...props} class="small-link">
   {@render children()}
 </a>
 
@@ -37,10 +34,6 @@
 
       &:active:not([aria-disabled='true']) {
         translate: 0 1px;
-      }
-
-      &.is-shrink {
-        flex-shrink: 1;
       }
     }
   }
