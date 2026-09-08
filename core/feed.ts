@@ -5,7 +5,13 @@ import { atom, effect, onMount, type ReadableAtom } from 'nanostores'
 import { createDownloadTask, type TextResponse } from './lib/download.ts'
 import { firstRow } from './lib/stores.ts'
 import { type FeedLoader, type LoaderName, loaders } from './loader/index.ts'
-import { deletePost, loadPostIds, recalcPostsReading } from './post.ts'
+import {
+  addPost,
+  deletePost,
+  loadPostIds,
+  processOriginPost,
+  recalcPostsReading
+} from './post.ts'
 import type { PostsList } from './posts-list.ts'
 import {
   type FeedChanges,
@@ -126,16 +132,24 @@ export async function addCandidate(
   if (posts.get().isLoading) await posts.loading
   let lastPost = posts.get().list[0]
 
-  return await addFeed({
+  let feed = {
     categoryId: GENERAL_CATEGORY,
     lastOriginId: lastPost?.originId,
     lastPublishedAt: lastPost?.publishedAt ?? Math.round(Date.now() / 1000),
     loader: candidate.name,
-    reading: 'slow',
+    reading: 'slow' as const,
     title: candidate.title,
     url: candidate.url,
     ...fields
-  })
+  }
+  let feedId = await addFeed(feed)
+  await addPost(
+    posts
+      .get()
+      .list.slice(0, 10)
+      .map(origin => processOriginPost(origin, feedId, feed.reading))
+  )
+  return feedId
 }
 
 export function getFeedLatestPosts(

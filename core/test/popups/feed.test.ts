@@ -11,6 +11,7 @@ import {
   getPopupId,
   HTTPStatusError,
   loadFeed,
+  loadPostsByFeed,
   openedPopups,
   testFeed,
   waitLoading
@@ -173,8 +174,43 @@ describe('feed popup', () => {
     await changeFeed(feedId, { title: 'Test Atom' })
     equal(checkLoadedPopup(popup).feed.get()!.title, 'Test Atom')
 
+    let posts = await loadPostsByFeed(feedId)
+    deepEqual(
+      posts.map(post => [post.originId, post.reading]),
+      [
+        ['2', 'slow'],
+        ['1', 'slow']
+      ]
+    )
+
     await checkLoadedPopup(popup).remove()
     equal(checkLoadedPopup(popup).feed.get(), undefined)
+    deepEqual(await loadPostsByFeed(feedId), [])
+  })
+
+  test('adds only 10 latest posts with a feed', async () => {
+    keepMount(openedPopups)
+    let entries = ''
+    for (let i = 12; i > 0; i--) {
+      entries +=
+        `<entry><id>${i}</id>` +
+        `<updated>2023-07-${String(i).padStart(2, '0')}T00:00:00Z</updated>` +
+        '</entry>'
+    }
+    expectRequest('https://a.com/atom').andRespond(
+      200,
+      `<feed><title>Atom</title>${entries}</feed>`,
+      'text/xml'
+    )
+    let popup = openTestPopup('feed', 'https://a.com/atom')
+    await waitLoading(popup.loading)
+
+    let feedId = await checkLoadedPopup(popup).add()
+    let posts = await loadPostsByFeed(feedId!)
+    deepEqual(
+      posts.map(post => post.originId),
+      ['12', '11', '10', '9', '8', '7', '6', '5', '4', '3']
+    )
   })
 
   test('destroys replaced popups and keep unchanged', async () => {
