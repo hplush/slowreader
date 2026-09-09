@@ -16,7 +16,11 @@ if (!process.env.PROXY_ORIGIN) {
 }
 
 let proxy = createServer(
-  createProxy({ ...DEFAULT_PROXY_CONFIG, allowsFrom: process.env.PROXY_ORIGIN })
+  createProxy({
+    ...DEFAULT_PROXY_CONFIG,
+    allowsFrom: process.env.PROXY_ORIGIN,
+    behindBalancer: !!process.env.BEHIND_BALANCER
+  })
 )
 let port = process.env.PORT ?? '5284'
 proxy.listen(port, () => {

@@ -39,6 +39,7 @@ To run proxy server you must define environment variables:
 
 - `PORT` with HTTP post to listen. It is Google Cloud Run convention.
 - `PROXY_ORIGIN` with RegExp for `Origin` header.
+- `BEHIND_BALANCER` (optional) to take client’s IP from `X-Forwarded-For`, when proxy works behind our balancer.
 
 Example:
 

@@ -29,6 +29,7 @@ and uses end-to-end encryption not to know what users read and like.
 - `PROXY_ORIGIN`: enables built-in CORS proxy and specific RegExp to check `Origin` header.
 - `ASSETS`: enables serving web client assets from `../web`.
 - `PORT`: HTTP post to listen (Google Cloud Run convention).
+- `BEHIND_BALANCER`: take client’s IP for proxy limits from `X-Forwarded-For`, when server works behind our balancer.
 
 ## End-to-End Types
 

@@ -602,6 +602,75 @@ describe('proxy', () => {
     equal(await load(), 200)
   })
 
+  test('takes IP from balancer', async () => {
+    await using otherProxy = createServer(
+      createProxy({
+        allowUnsafeDestinations: true,
+        allowsFrom: '^http:\\/\\/test.app',
+        behindBalancer: true,
+        bodyTimeout: 1000,
+        cacheSize: 1024,
+        dnsCacheTime: 60000,
+        hostDelay: 0,
+        ipLimit: 2,
+        ipWindow: 60000,
+        maxRequests: 100,
+        maxSize: 1500,
+        requestTimeout: 1000
+      })
+    )
+    await new Promise<void>(resolve => {
+      otherProxy.listen(31604, resolve)
+    })
+
+    // Balancer appends the real IP to the value, which client sent
+    async function load(forwarded: string): Promise<number> {
+      let response = await fetch(`${getURL(otherProxy)}/${targetUrl}`, {
+        headers: { 'Origin': 'http://test.app', 'X-Forwarded-For': forwarded }
+      })
+      await response.text()
+      return response.status
+    }
+
+    equal(await load('1.1.1.1, 2.2.2.2'), 200)
+    equal(await load('9.9.9.9, 2.2.2.2'), 200)
+    equal(await load('8.8.8.8, 2.2.2.2'), 429)
+    equal(await load('1.1.1.1, 3.3.3.3'), 200)
+  })
+
+  test('ignores balancer headers without balancer', async () => {
+    await using otherProxy = createServer(
+      createProxy({
+        allowUnsafeDestinations: true,
+        allowsFrom: '^http:\\/\\/test.app',
+        bodyTimeout: 1000,
+        cacheSize: 1024,
+        dnsCacheTime: 60000,
+        hostDelay: 0,
+        ipLimit: 2,
+        ipWindow: 60000,
+        maxRequests: 100,
+        maxSize: 1500,
+        requestTimeout: 1000
+      })
+    )
+    await new Promise<void>(resolve => {
+      otherProxy.listen(31605, resolve)
+    })
+
+    async function load(forwarded: string): Promise<number> {
+      let response = await fetch(`${getURL(otherProxy)}/${targetUrl}`, {
+        headers: { 'Origin': 'http://test.app', 'X-Forwarded-For': forwarded }
+      })
+      await response.text()
+      return response.status
+    }
+
+    equal(await load('1.1.1.1'), 200)
+    equal(await load('2.2.2.2'), 200)
+    equal(await load('3.3.3.3'), 429)
+  })
+
   test('limits requests in parallel', async () => {
     await using otherProxy = createServer(
       createProxy({

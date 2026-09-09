@@ -36,6 +36,7 @@ class BadRequestError extends Error {
 export interface ProxyConfig {
   allowUnsafeDestinations?: boolean
   allowsFrom: string
+  behindBalancer?: boolean
   bodyTimeout: number
   cacheSize: number
   dnsCacheTime: number
@@ -285,12 +286,13 @@ export function createProxy(
       requestsByIp.clear()
       windowStarted = now
     }
-    // Our own load balancer sets the header, clients can not be trusted here
-    let from =
-      req.headers['x-real-ip'] ??
-      req.headers['x-forwarded-for'] ??
-      req.socket.remoteAddress!
-    let ip = (Array.isArray(from) ? from[0]! : from).split(',')[0]!.trim()
+    // Client can send any X-Forwarded-For, our balancer appends the real IP
+    // to it, so only the last value can be trusted
+    let forwarded = req.headers['x-forwarded-for']
+    let ip =
+      config.behindBalancer && forwarded
+        ? String(forwarded).split(',').at(-1)!.trim()
+        : req.socket.remoteAddress!
     let count = (requestsByIp.get(ip) ?? 0) + 1
     requestsByIp.set(ip, count)
     return count

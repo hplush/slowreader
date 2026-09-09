@@ -53,6 +53,7 @@ describe('server config', () => {
     deepEqual(
       getConfig({
         ASSETS: '1',
+        BEHIND_BALANCER: '1',
         DATABASE_URL,
         DEBUG: '1',
         NODE_ENV: 'production',
@@ -60,6 +61,7 @@ describe('server config', () => {
       }),
       {
         assets: true,
+        behindBalancer: true,
         db: DATABASE_URL,
         debug: true,
         env: 'production',

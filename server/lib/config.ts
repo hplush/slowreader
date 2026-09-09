@@ -1,5 +1,6 @@
 export type Config = {
   assets: boolean
+  behindBalancer: boolean
   db: string
   debug: boolean
   env: 'development' | 'production' | 'test'
@@ -28,6 +29,7 @@ export function getConfig(from: Record<string, string | undefined>): Config {
   }
   return {
     assets: !!from.ASSETS,
+    behindBalancer: !!from.BEHIND_BALANCER,
     db: from.DATABASE_URL ?? getDefaultDatabase(env),
     debug: !!from.DEBUG,
     env,
