@@ -38,7 +38,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 - [`scripts/`](./scripts/): scripts to check for popular errors, optimize files after Vite build, and deploy. Check the script’s descriptions for further details.
 - `dist/`: `pnpm build` will build the result here for deployment.
 - [`.storybook/`](./.storybook/): visual tests tool config.
-- [`index.html`](./index.html): builder entry point. It also contains styles for the app loading state.
+- [`app.html`](./app.html): builder entry point. It also contains styles for the app loading state.
 - [`Dockerfile`](./Dockerfile) and [`nginx.conf`](./nginx.conf): web server to serve web client for staging and pull request preview servers.
 - [`.browserslistrc`](./.browserslistrc): browsers, which we support. See [actual browsers list](https://browsersl.ist/#q=defaults+and+supports+es6-module).
 - [`.size-limit.json`](./.size-limit.json): budget for JS bundles and whole webpage size. Don’t be afraid to tune the limit. We put it so tight that it makes you feel a small pain every time you add a significant amount of code.

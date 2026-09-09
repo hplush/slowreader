@@ -50,6 +50,7 @@ export const pages = {
   interface: createSimplePage('interface'),
   menu: menuPage,
   relogin: reloginPage,
+  root: createRedirectPage('root', 'home'),
   settings: createRedirectPage('settings', 'interface'),
   signUp: signUpPage,
   slow: slowPage,

@@ -68,11 +68,17 @@ export default async (
   let assetHeaders = { ...nginxHeaders }
   delete assetHeaders['Content-Security-Policy']
 
-  let html = await readFile(join(assetsDir, 'index.html'))
+  let html = await readFile(join(assetsDir, 'app.html'))
   let appHtml: Asset = {
     contentType: 'text/html',
     data: html,
     headers: nginxHeaders
+  }
+
+  let robotsTxt: Asset = {
+    contentType: 'text/plain',
+    data: Buffer.from('User-agent: *\nDisallow: /\n'),
+    headers: assetHeaders
   }
 
   let notFoundHtml: Asset = {
@@ -92,6 +98,11 @@ export default async (
     let safe = normalize(url.pathname).replace(/^(\.\.[/\\])+/, '')
     let cacheKey = safe
     let path = join(assetsDir, safe)
+
+    if (pathname === '/robots.txt') {
+      send(res, robotsTxt)
+      return true
+    }
 
     if (routesRegexp.test(pathname)) {
       send(res, appHtml)

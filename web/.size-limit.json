@@ -24,7 +24,7 @@
   },
   {
     "name": "Core scripts to execute",
-    "path": "dist/assets/index-*.js",
+    "path": "dist/assets/app-*.js",
     "brotli": false,
     "limit": "405 KB"
   }

@@ -22,6 +22,7 @@ export interface Routes {
   interface: {}
   menu: {}
   relogin: {}
+  root: {}
   settings: {}
   signUp: {}
   slow: {

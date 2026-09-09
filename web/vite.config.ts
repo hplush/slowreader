@@ -1,7 +1,7 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { Features } from 'lightningcss'
 import { execSync } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { extname, join } from 'node:path'
 import sharp from 'sharp'
 import sqlocal from 'sqlocal/vite'
@@ -41,6 +41,32 @@ function dirIndex(server: PreviewServer | ViteDevServer, root: string): void {
   })
 }
 
+function appIndex(server: PreviewServer | ViteDevServer, root: string): void {
+  server.middlewares.use((req, res, next) => {
+    let [path, query] = req.url!.split('?')
+    if (req.headers.accept?.includes('text/html') && !extname(path!)) {
+      let index = join(import.meta.dirname, root, 'index.html')
+      if (path !== '/' || !existsSync(index)) {
+        req.url = `/app.html${query ? `?${query}` : ''}`
+      }
+    }
+    next()
+  })
+}
+
+function landing(server: ViteDevServer): void {
+  server.middlewares.use((req, res, next) => {
+    if (req.url!.split('?')[0] === '/') {
+      res.setHeader('Content-Type', 'text/html')
+      res.end(
+        readFileSync(join(import.meta.dirname, '../landings/root/index.html'))
+      )
+    } else {
+      next()
+    }
+  })
+}
+
 function noDemoCache(server: PreviewServer | ViteDevServer): void {
   server.middlewares.use((req, res, next) => {
     if (req.url === '/demo.json' || req.url === '/demo.sqlite') {
@@ -57,6 +83,9 @@ for (let feature in Features) {
 
 export default defineConfig(() => ({
   build: {
+    rolldownOptions: {
+      input: join(import.meta.dirname, 'app.html')
+    },
     sourcemap: true
   },
   define: {
@@ -111,6 +140,30 @@ export default defineConfig(() => ({
         })
       },
       name: 'csp'
+    },
+    {
+      configureServer: landing,
+      name: 'landing'
+    },
+    {
+      configurePreviewServer(server) {
+        appIndex(server, 'dist')
+      },
+      configureServer(server) {
+        appIndex(server, 'public')
+      },
+      name: 'app-index'
+    },
+    {
+      closeBundle() {
+        if (process.env.STAGING) {
+          writeFileSync(
+            join(import.meta.dirname, 'dist', 'robots.txt'),
+            'User-agent: *\nDisallow: /\n'
+          )
+        }
+      },
+      name: 'staging-robots'
     },
     {
       async buildStart() {

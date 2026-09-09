@@ -7,7 +7,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 const NGINX = join(import.meta.dirname, '../nginx.conf')
-const LOADER = join(import.meta.dirname, '../dist/index.html')
+const LOADER = join(import.meta.dirname, '../dist/app.html')
 const ERROR = join(import.meta.dirname, '../dist/404.html')
 const ICON = join(import.meta.dirname, '../dist/icon.svg')
 

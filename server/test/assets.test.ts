@@ -61,7 +61,7 @@ describe('server assets', () => {
     let assetsDir = join(tmpdir(), nanoid())
     await mkdir(assetsDir)
     await writeFile(
-      join(assetsDir, 'index.html'),
+      join(assetsDir, 'app.html'),
       '<html><style>*{}</style><script></script>App</html>'
     )
     await writeFile(join(assetsDir, 'favicon.ico'), 'A')
@@ -70,6 +70,13 @@ describe('server assets', () => {
       join(assetsDir, 'ui', 'index.html'),
       '<html>Storybook</html>'
     )
+    await mkdir(join(assetsDir, 'docs'))
+    await mkdir(join(assetsDir, 'docs', 'landings'))
+    await writeFile(
+      join(assetsDir, 'docs', 'landings', 'index.html'),
+      '<html>Landing</html>'
+    )
+    await writeFile(join(assetsDir, 'robots.txt'), 'User-agent: *\n')
     await writeFile(
       join(assetsDir, '404.html'),
       '<html><style>:root{}</style><404</html>'
@@ -182,6 +189,18 @@ describe('server assets', () => {
     })
     equal(await database.text(), 'S')
 
+    let landing = await server.fetch('/docs/landings/')
+    checkHeaders(landing, {
+      'content-security-policy': 'test-csp',
+      'content-type': 'text/html',
+      ...SECURITY
+    })
+    equal(await landing.text(), '<html>Landing</html>')
+
+    let robots = await server.fetch('/robots.txt')
+    checkHeaders(robots, { 'content-type': 'text/plain', ...SECURITY })
+    equal(await robots.text(), 'User-agent: *\nDisallow: /\n')
+
     let story1 = await server.fetch('/ui/')
     checkHeaders(story1, { 'content-type': 'text/html', ...SECURITY })
     equal(await story1.text(), '<html>Storybook</html>')
@@ -222,7 +241,7 @@ describe('server assets', () => {
   test('takes headers from the web client’s nginx config', async () => {
     let assetsDir = join(tmpdir(), nanoid())
     await mkdir(assetsDir)
-    await writeFile(join(assetsDir, 'index.html'), '<html>App</html>')
+    await writeFile(join(assetsDir, 'app.html'), '<html>App</html>')
     await writeFile(join(assetsDir, '404.html'), '<html><404</html>')
     toDelete.push(assetsDir)
 

@@ -21,7 +21,7 @@ let cssChecker = postcss([propsChecker])
 
 let files = [
   ...globSync(join(import.meta.dirname, '..', 'dist', '**', '*.css')),
-  join(import.meta.dirname, '..', 'dist', 'index.html')
+  join(import.meta.dirname, '..', 'dist', 'app.html')
 ]
 await Promise.all(
   files.map(async file => {

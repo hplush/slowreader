@@ -15,7 +15,7 @@
     "build": "node --run clean:build && pnpm run /^build:/",
     "production": "node --run build && ./scripts/run-image.sh",
     "build:server": "pnpm -F server --prod deploy dist && ./scripts/vendor-workspace.sh",
-    "build:assets": "mkdir -p web/ && cp -fr ../web/dist web/ && cp ../web/routes.regexp ../web/nginx.conf web/",
+    "build:assets": "mkdir -p web/ && cp -fr ../web/dist web/ && cp ../web/routes.regexp ../web/nginx.conf web/ && mkdir -p web/dist/docs/landings/ && mv web/dist/index.html web/dist/docs/landings/",
     "test:offline:coverage": "bnt --coverage 100 --coverage-exclude '{lib/exit.ts,db/index.ts,../api/**,../proxy/**,test.ts}'",
     "clean:build": "rm -rf dist/ web/"
   },

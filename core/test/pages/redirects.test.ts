@@ -65,6 +65,18 @@ describe('redirects page', () => {
     equal(currentPage.get().route, 'menu')
   })
 
+  test('redirects from root to home', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+
+    keepMount(currentPage)
+    setBaseTestRoute({
+      params: {},
+      route: 'root'
+    })
+    equal(currentPage.get().route, 'welcome')
+  })
+
   test('redirects from home depending on feeds', async () => {
     busyUntilMenuLoader()
     await waitLoading(busy)
