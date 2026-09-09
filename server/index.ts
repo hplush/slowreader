@@ -36,6 +36,22 @@ function logCauses(error: Error): void {
 server.on('error', logCauses)
 server.on('fatal', logCauses)
 
+// Logux Server reports client’s IP on connect, but we do not want to know it
+let { info } = server.logger
+server.logger.info = (details, ...args) => {
+  if (
+    typeof details === 'object' &&
+    details !== null &&
+    'ipAddress' in details
+  ) {
+    let anonymous: Record<string, unknown> = { ...details }
+    delete anonymous.ipAddress
+    info(anonymous, ...args)
+  } else {
+    info(details, ...args)
+  }
+}
+
 // Assets answer the unknown URLs with the 404 page, so they go last
 await server.autoloadModules(['modules/*.ts', '!modules/assets.ts'])
 await server.autoloadModules('modules/assets.ts')
