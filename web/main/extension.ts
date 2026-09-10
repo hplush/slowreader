@@ -74,10 +74,13 @@ export const extensionRequest: RequestMethod = (url, opts = {}) => {
       } else if (answer.type === 'error') {
         reject(new Error(answer.error))
       } else {
-        let response = new Response(fromBase64(answer.body), {
-          headers: answer.headers,
-          status: answer.status
-        })
+        // Feeds answer 304 on `if-none-match`, and these statuses forbid a body
+        let response = new Response(
+          [101, 103, 204, 205, 304].includes(answer.status)
+            ? null
+            : fromBase64(answer.body),
+          { headers: answer.headers, status: answer.status }
+        )
         Object.defineProperty(response, 'redirected', {
           value: answer.redirected
         })
