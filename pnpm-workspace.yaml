@@ -3,6 +3,7 @@ packages:
   - core
   - server
   - web
+  - landings
   - proxy
   - loader-tests
   - extension

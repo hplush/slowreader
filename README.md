@@ -104,6 +104,7 @@ Slow Reader is a local-first app. Clients do most of the work, and the server ju
     - See **[`core/README.md`](./core/README.md)** for core architecture.
   - [`web/`](./web/): the client to be run in the browser. Both for desktop and mobile.
     - See **[`web/README.md`](./web/README.md)** for web client architecture.
+- [`landings/`](./landings/): promotion materials.
 - [`server/`](./server/): a small server that syncs data between users’ devices.
 - [`proxy/`](./proxy/): HTTP proxy server to bypass censorship or to try web clients before they install the upcoming extensions (to bypass the CORS limit of the web apps).
 - [`extension/`](./extension/): browser’s extension to avoid CORS limits in web client.

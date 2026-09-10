@@ -2,10 +2,20 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { Features } from 'lightningcss'
 import { execSync } from 'node:child_process'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
-import { extname, join } from 'node:path'
+import { extname, join, normalize } from 'node:path'
 import sharp from 'sharp'
 import sqlocal from 'sqlocal/vite'
 import { defineConfig, type PreviewServer, type ViteDevServer } from 'vite'
+
+const LANDING_TYPES: Record<string, string> = {
+  '.css': 'text/css',
+  '.html': 'text/html',
+  '.js': 'text/javascript',
+  '.png': 'image/png',
+  '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
+  '.woff2': 'font/woff2'
+}
 
 let commitTime = parseInt(execSync('git log -1 --format=%ct').toString().trim())
 
@@ -56,11 +66,13 @@ function appIndex(server: PreviewServer | ViteDevServer, root: string): void {
 
 function landing(server: ViteDevServer): void {
   server.middlewares.use((req, res, next) => {
-    if (req.url!.split('?')[0] === '/') {
-      res.setHeader('Content-Type', 'text/html')
-      res.end(
-        readFileSync(join(import.meta.dirname, '../landings/root/index.html'))
-      )
+    let path = normalize(req.url!.split('?')[0]!).replace(/^(\.\.[/\\])+/, '')
+    let file = join(import.meta.dirname, '../landings/dist', path)
+    if (!extname(file)) file = join(file, 'index.html')
+    let type = LANDING_TYPES[extname(file)]
+    if (type && existsSync(file)) {
+      res.setHeader('Content-Type', type)
+      res.end(readFileSync(file))
     } else {
       next()
     }

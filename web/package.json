@@ -18,7 +18,7 @@
     "test:offline:build": "node --run build && size-limit && node ./scripts/check-css-props.ts",
     "build:routes": "node ./scripts/export-routes.ts",
     "build:visual": "NODE_ENV=test storybook build --loglevel error",
-    "build:web": "vite build && cp -fr ../landings/root/. dist/ && node scripts/generate-csp.ts",
+    "build:web": "vite build && cp -fr ../landings/dist/. dist/ && node scripts/generate-csp.ts",
     "format:css": "stylelint --fix .",
     "clean:build": "rm -rf dist .svelte-check routes.regexp",
     "build-storybook": "pnpm run build:visual"

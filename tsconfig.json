@@ -23,6 +23,7 @@
     { "path": "./api" },
     { "path": "./core" },
     { "path": "./extension" },
+    { "path": "./landings" },
     { "path": "./loader-tests" },
     { "path": "./proxy" },
     { "path": "./scripts" },

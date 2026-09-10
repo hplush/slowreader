@@ -1,0 +1,11 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "lib": ["ES2024", "DOM", "DOM.AsyncIterable", "DOM.Iterable"],
+    "types": ["vite/client"]
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["dist/"]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@slowreader/landings",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "vite build --watch",
+    "build": "vite build",
+    "clean:build": "rm -rf dist/"
+  },
+  "dependencies": {
+    "vite": "8.2.2"
+  }
+}

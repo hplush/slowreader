@@ -71,7 +71,9 @@ jobs:
         uses: $/.github/actions/init-node
         with:
           cache: false
-          install: -F server -F proxy -F api -F web -F core --prod
+          install: -F server -F proxy -F api -F web -F core -F landings --prod
+      - name: Build landings
+        run: cd landings && node --run build
       - name: Build web client
         run: cd web && node --run build
       - name: Build server
