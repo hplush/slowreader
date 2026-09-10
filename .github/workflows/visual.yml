@@ -61,6 +61,6 @@ jobs:
         uses: $/.github/actions/init-node
       - name: Publish to Chromatic
         if: steps.should_run.outputs.should_run != 'false'
-        run: cd web && pnpm chromatic
+        run: pnpm -F web chromatic
         env:
           CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}

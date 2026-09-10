@@ -73,11 +73,11 @@ jobs:
           cache: false
           install: -F server -F proxy -F api -F web -F core -F landings --prod
       - name: Build landings
-        run: cd landings && node --run build
+        run: pnpm -F landings build
       - name: Build web client
-        run: cd web && node --run build
+        run: pnpm -F web build
       - name: Build server
-        run: cd server && node --run build
+        run: pnpm -F server build
       - name: Create archive to keep symlinks
         run: tar -cf server.tar server/dist/ server/web/
       - name: Upload server build

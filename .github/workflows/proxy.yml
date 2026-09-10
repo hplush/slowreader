@@ -72,7 +72,7 @@ jobs:
           cache: false
           install: -F proxy --prod
       - name: Build server
-        run: cd proxy && node --run build
+        run: pnpm -F proxy build
       - name: Create archive to keep symlinks
         run: tar -cf proxy.tar proxy/dist/
       - name: Upload proxy build

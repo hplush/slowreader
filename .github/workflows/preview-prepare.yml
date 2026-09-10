@@ -56,13 +56,13 @@ jobs:
       - name: Initialize Node.js
         uses: $/.github/actions/init-node
       - name: Build landings
-        run: cd landings && node --run build
+        run: pnpm -F landings build
       - name: Build assets
-        run: cd web && node --run build
+        run: pnpm -F web build
         env:
           STAGING: 1
       - name: Build server
-        run: cd server && node --run build
+        run: pnpm -F server build
       - name: Build Docker image
         run: docker build -t ghcr.io/hplush/slowreader:preview-${{ github.event.pull_request.number }} ./server/
       - name: Export image to tar
