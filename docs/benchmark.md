@@ -38,7 +38,7 @@ It is better to use Chrome because it has long tasks and memory API.
 pnpm start
 ```
 
-Open `http://localhost:2553/?benchmark`. On the first opening benchmark
+Open `http://localhost:2553/app?benchmark`. On the first opening benchmark
 creates the database and reloads the page.
 
 Then in browser console:

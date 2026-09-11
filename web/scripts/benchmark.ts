@@ -536,7 +536,7 @@ let stopPeaks: (() => Promise<Peaks>) | undefined
 
 try {
   if (debug) warning('Debug mode: small database and single run of scenarios')
-  let page = `${address}/?benchmark${debug ? '=debug' : ''}`
+  let page = `${address}/app?benchmark${debug ? '=debug' : ''}`
   await chromium.open(page)
 
   if (!(await chromium.evaluate<boolean>('!!window.benchmark.data'))) {
