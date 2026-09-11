@@ -7,7 +7,7 @@ export const storageMessages = i18n('storage', {
   deleteData: 'Delete all local data',
   deleteWarning:
     'This action cannot be undone. Are you sure you want to delete your data?',
-  exportFile: 'Debug DB',
+  exportFile: 'Dump DB',
   exporting: 'Exporting the database',
   pageTitle: 'Storage',
   rebuild: 'Rebuild database from the cloud',
