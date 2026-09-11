@@ -48,6 +48,7 @@ body {
   font: 400 1rem/1.6 var(--text-family);
   color: var(--text-color);
   background: var(--land-color);
+  -webkit-tap-highlight-color: oklch(0 0 0 / 0%);
 }
 
 .header {
@@ -85,6 +86,8 @@ body {
 
 .header_logo_image {
   display: block;
+  inline-size: 2rem;
+  block-size: 2rem;
   border-radius: inherit;
 }
 
@@ -138,13 +141,33 @@ body {
 }
 
 .button:active {
+  translate: 0 1px;
   box-shadow: var(--pressed-shadow);
 }
 
-@supports (corner-shape: squircle) {
-  .header_logo {
-    border-radius: 45%;
-    corner-shape: squircle;
+@media (--no-desktop) {
+  .header {
+    padding: 0.6rem 1.2rem;
+  }
+
+  .header_content {
+    gap: 0.75rem;
+  }
+
+  .header_logo_image {
+    inline-size: 2.4rem;
+    block-size: 2.4rem;
+  }
+
+  .header_name {
+    font-size: 1.35rem;
+  }
+
+  .button {
+    gap: 0.48rem;
+    min-block-size: 2.4rem;
+    padding: 0.48rem 0.9rem;
+    font-size: 1.125rem;
   }
 }
 
