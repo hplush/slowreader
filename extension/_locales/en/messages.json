@@ -3,12 +3,12 @@
     "message": "Allow the sites"
   },
   "description": {
-    "message": "Companion extension for Slow Reader"
+    "message": "Companion extension for Slow Reader to download RSS feeds"
   },
   "name": {
     "message": "Slow Reader Extension"
   },
   "why": {
-    "message": "Slow Reader is local-first social media reader. For privacy and better performance it needs an companion extension to update feeds."
+    "message": "Slow Reader is a local-first RSS reader that runs in the browser. Web apps can't download RSS feeds directly because of CORS restrictions, so Slow Reader uses a companion browser extension to fetch RSS feeds."
   }
 }

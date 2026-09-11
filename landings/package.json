@@ -7,7 +7,7 @@
     "build": "vite build",
     "save-images": "node ./scripts/save-images.ts",
     "clean:build": "rm -rf dist/",
-    "test:offline:landings": "pnpm build",
+    "test:offline:build-landings": "pnpm build",
     "test": "FORCE_COLOR=1 pnpm run /^test:/"
   },
   "dependencies": {

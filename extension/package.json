@@ -9,7 +9,9 @@
   "scripts": {
     "start": "node build.ts --watch",
     "build": "node build.ts",
-    "lint": "node --run build && pnpm dlx web-ext lint --source-dir dist/store/firefox.zip"
+    "lint": "node --run build && pnpm dlx web-ext lint --source-dir dist/store/firefox.zip",
+    "test:offline:build-extension": "pnpm build",
+    "test": "FORCE_COLOR=1 pnpm run /^test:/"
   },
   "dependencies": {
     "sharp": "0.35.4",
