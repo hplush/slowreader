@@ -5,6 +5,8 @@ import type { Plugin } from 'vite'
 
 const IMAGES = join(import.meta.dirname, '..', 'images')
 const GENERATED = join(import.meta.dirname, '..', 'generated')
+// Only the biggest image is in the size budget, see web/.size-limit.json
+const SMALL = join(GENERATED, 'small')
 const ICON = join(
   import.meta.dirname,
   '..',
@@ -30,16 +32,19 @@ export function images(): Plugin {
 
   return {
     async buildStart() {
-      await mkdir(GENERATED, { recursive: true })
+      await mkdir(SMALL, { recursive: true })
 
       for (let dir of await readdir(IMAGES, { withFileTypes: true })) {
         if (!dir.isDirectory()) continue
         let source = join(IMAGES, dir.name, `${dir.name}.avif`)
         let full = (await sharp(source).metadata()).width
-        let sizes = [...WIDTHS.filter(i => i < full), full]
-        widths.set(dir.name, sizes)
-        for (let width of sizes) {
-          let file = join(GENERATED, `${dir.name}-${width}.avif`)
+        let sizes = WIDTHS.filter(i => i < full)
+        widths.set(dir.name, [...sizes, full])
+        for (let width of [...sizes, full]) {
+          let file =
+            width === full
+              ? join(GENERATED, `${dir.name}.avif`)
+              : join(SMALL, `${dir.name}-${width}.avif`)
           if (await fresh(source, file)) continue
           await sharp(source)
             .resize({ width })
@@ -65,9 +70,15 @@ export function images(): Plugin {
         return html.replace(source, (_: string, name: string) => {
           let sizes = widths.get(name)!
           let srcset = sizes
-            .map(i => `../generated/${name}-${i}.avif ${i}w`)
+            .map(i => {
+              let file =
+                i === sizes.at(-1)
+                  ? `../generated/${name}.avif`
+                  : `../generated/small/${name}-${i}.avif`
+              return `${file} ${i}w`
+            })
             .join(', ')
-          return `src="../generated/${name}-${sizes.at(-1)}.avif" srcset="${srcset}"`
+          return `src="../generated/${name}.avif" srcset="${srcset}"`
         })
       },
       order: 'pre'

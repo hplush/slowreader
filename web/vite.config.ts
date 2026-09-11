@@ -1,11 +1,12 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { Features } from 'lightningcss'
 import { execSync } from 'node:child_process'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { extname, join, normalize } from 'node:path'
 import sharp from 'sharp'
 import sqlocal from 'sqlocal/vite'
 import { defineConfig, type PreviewServer, type ViteDevServer } from 'vite'
+
+import { allFeatures } from './vite/lightningcss.ts'
 
 const LANDING_TYPES: Record<string, string> = {
   '.avif': 'image/avif',
@@ -87,11 +88,6 @@ function noDemoCache(server: PreviewServer | ViteDevServer): void {
     }
     next()
   })
-}
-
-let allFeatures = 0
-for (let feature in Features) {
-  allFeatures |= Features[feature as keyof typeof Features]
 }
 
 export default defineConfig(() => ({

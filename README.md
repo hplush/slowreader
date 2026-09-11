@@ -142,6 +142,7 @@ Each project has its own tools, too.
 - `pnpm start`: run server and web client development server.
 - `pnpm format`: fix code style in all files.
 - `pnpm clean`: remove all temporary files.
+- `pnpm size`: build web client with landings and check its [size budget](./web/.size-limit.json).
 - `pnpm -F loader-tests check-opml`: test loaders with user’s OPML RSS export.
 - `pnpm -F loader-tests test`: test loaders with different blogging platforms.
 - `pnpm unused-messages`: check that all messages are used.
@@ -238,7 +239,7 @@ How we choose dependencies:
 
 You can use [bundlejs.com](https://bundlejs.com/) and [npmgraph.js.org](https://npmgraph.js.org) to get the size in bundle, `node_modules`, and number of sub-dependencies.
 
-After adding a web client dependency, do not forget to call `pnpm -F web size` to check the real size of dependency in our JS bundle.
+After adding a web client dependency, do not forget to call `pnpm size` to check the real size of dependency in our JS bundle.
 
 We put to `dependencies` only dependencies we need for production deploy. During production deploy we will use `pnpm install --prod` to reduce security risks of having malicious code in some dependency. For `server/` it means the runtime dependencies. We deploy clients as built files, so for `web/` and `extension/` it means everything, which the build needs, like Vite or Sharp. Linters, tests, and type checkers always go to `devDependencies`.
 

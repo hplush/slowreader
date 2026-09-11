@@ -12,7 +12,7 @@ _See the [full architecture guide](../README.md) first._
 - [`scripts/`](./scripts/): tools to prepare the sources.
 - [`postcss.config.ts`](./postcss.config.ts): PostCSS plugins for pages CSS, some of them are taken from [web client](../web/postcss/).
 - `generated/`: resized images for `srcset`, made by the build.
-- `dist/`: `pnpm build` will build the result here.
+- `dist/`: `pnpm build` will build the result here. Assets go to `landing/`, and smaller `srcset` images to `landing/small/`, which [web client](../web/.size-limit.json) keeps out of the page budget.
 
 ## Scripts
 

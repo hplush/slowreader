@@ -34,6 +34,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 - [`public/`](./public/): static files like favicon and manifests.
 - [`stores/`](./stores/): web client’s own smart stores. For instance, router on top of URL using [Nano Stores Router](https://github.com/nanostores/router).
 - [`postcss/`](./postcss/): [PostCSS](https://postcss.org/) plugins to check CSS and optimize it. Check the plugin’s descriptions for more information.
+- [`vite/`](./vite/): build helpers, which [landings](../landings/) use too.
 - [`stories/`](./stories/): visual tests for pages and UI components by [Storybook](https://storybook.js.org/). The main way to test web client.
 - [`scripts/`](./scripts/): scripts to check for popular errors, optimize files after Vite build, and deploy. Check the script’s descriptions for further details.
 - `dist/`: `pnpm build` will build the result here for deployment.
@@ -41,7 +42,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 - [`app.html`](./app.html): builder entry point. It also contains styles for the app loading state.
 - [`Dockerfile`](./Dockerfile) and [`nginx.conf`](./nginx.conf): web server to serve web client for staging and pull request preview servers.
 - [`.browserslistrc`](./.browserslistrc): browsers, which we support. See [actual browsers list](https://browsersl.ist/#q=defaults+and+supports+es6-module).
-- [`.size-limit.json`](./.size-limit.json): budget for JS bundles and whole webpage size. Don’t be afraid to tune the limit. We put it so tight that it makes you feel a small pain every time you add a significant amount of code.
+- [`.size-limit.json`](./.size-limit.json): budget for JS bundles, whole app page, and [landing](../landings/) size. Don’t be afraid to tune the limit. We put it so tight that it makes you feel a small pain every time you add a significant amount of code.
 - [`global.d.ts`](./global.d.ts): missed web platform types and fixes for Vite imports.
 
 ## Tools
@@ -58,7 +59,6 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 - `pnpm -F web chromatic`: publish visual tests and generate diffs for changed stories.
 - `pnpm -F web production`: start web client production build locally.
 - `pnpm -F web build`: build production files in `web/dist/`.
-- `pnpm -F web size`: check the JS bundle size of the production build.
 - `pnpm -F web benchmark`: run [UI performance benchmark](../docs/benchmark.md).
 - `pnpm -F web build-demo`: load the feeds from [`web/scripts/demo-feeds.opml`](./scripts/demo-feeds.opml) and write demo DB dump.
 

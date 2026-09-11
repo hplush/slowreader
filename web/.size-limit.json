@@ -4,6 +4,8 @@
     "path": [
       "dist/**/*",
       "!dist/ui",
+      "!dist/index.html",
+      "!dist/landing/**",
       "!dist/robots.txt",
       "!dist/{404,500}.html",
       "!dist/copy-demo-db/**",
@@ -21,6 +23,18 @@
       "!dist/assets/*-{italic,math,latin-ext}-*.woff2"
     ],
     "limit": "735 KB"
+  },
+  {
+    "name": "Landing page",
+    "path": [
+      "dist/index.html",
+      "dist/landing/**/*",
+      "!dist/landing/small/**",
+      "!dist/landing/*.woff",
+      "!dist/landing/noto-*-{cyrillic,greek,devanagari,vietnamese}-*.woff2",
+      "!dist/landing/*-latin-ext-*.woff2"
+    ],
+    "limit": "170 KB"
   },
   {
     "name": "Core scripts to execute",

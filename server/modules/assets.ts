@@ -121,7 +121,7 @@ export default async (
       let contentType = MIME_TYPES[extname(path)] || 'application/octet-stream'
       let data = await readFile(path)
       let headers: Asset['headers'] = { ...assetHeaders }
-      if (pathname.includes('/assets/') && HASHED.test(path)) {
+      if (/\/(assets|landing)\//.test(pathname) && HASHED.test(path)) {
         headers['Cache-Control'] = 'public, max-age=31536000, immutable'
       }
       if (pathname === '/demo.json' || pathname === '/demo.sqlite') {
