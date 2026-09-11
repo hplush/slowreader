@@ -20,7 +20,7 @@ function detectStore(): string {
   // TODO: Put real URL to extension
   let agent = navigator.userAgent
   if (agent.includes('Firefox')) {
-    return 'https://addons.mozilla.org/'
+    return 'https://addons.mozilla.org/ru/firefox/addon/slow-reader-extension/'
   } else if (agent.includes('Safari') && !agent.includes('Chrome')) {
     return 'https://apps.apple.com/'
   } else {
