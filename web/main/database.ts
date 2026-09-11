@@ -5,7 +5,9 @@ import { type Database, openDb } from '@nanostores/sql'
 import { sqlocalDriver } from '@nanostores/sql/sqlocal'
 import { fatal } from '@slowreader/core'
 
-import type { SahpoolMessage } from './sahpool-worker.ts'
+import type { FromWorker, ToWorker } from './sahpool-worker.ts'
+
+const DATABASE = 'slowreader.sqlite'
 
 type Vfs = 'opfs' | 'sahpool'
 
@@ -19,6 +21,8 @@ function chooseVfs(): Vfs {
 
 let vfs = chooseVfs()
 
+let current: undefined | Worker
+
 export function createDatabase(): Database {
   let processor
   if (vfs === 'sahpool') {
@@ -28,7 +32,7 @@ export function createDatabase(): Database {
     processor.addEventListener(
       'message',
       // Other messages of the worker are SQLocal’s own protocol
-      ({ data }: MessageEvent<SahpoolMessage | { slowreader?: undefined }>) => {
+      ({ data }: MessageEvent<FromWorker | { slowreader?: undefined }>) => {
         if (data.slowreader === 'secondTab') {
           fatal.set({ type: 'secondTab' })
         } else if (data.slowreader === 'reload') {
@@ -38,8 +42,9 @@ export function createDatabase(): Database {
         }
       }
     )
+    current = processor
   }
-  let db = openDb(sqlocalDriver('slowreader.sqlite', { processor }))
+  let db = openDb(sqlocalDriver(DATABASE, { processor }))
   // SQLocal falls back to the in-memory database when the browser refused
   // the storage, and then every start looks like a broken one
   void db.select<{ file: string }>`PRAGMA database_list`.then(([main]) => {
@@ -48,4 +53,36 @@ export function createDatabase(): Database {
     }
   })
   return db
+}
+
+function requestDatabase(processor: Worker): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    function onExported({
+      data
+    }: MessageEvent<FromWorker | { slowreader?: undefined }>): void {
+      if (data.slowreader === 'database') {
+        processor.removeEventListener('message', onExported)
+        resolve(new Blob([data.database], { type: 'application/x-sqlite3' }))
+      } else if (data.slowreader === 'exportError') {
+        processor.removeEventListener('message', onExported)
+        reject(new Error(data.error))
+      }
+    }
+    processor.addEventListener('message', onExported)
+    processor.postMessage({ slowreader: 'export' } satisfies ToWorker)
+  })
+}
+
+/**
+ * Database file as the browser keeps it, to attach it to a bug report.
+ */
+export async function exportDatabase(): Promise<Blob> {
+  if (vfs === 'opfs') {
+    let root = await navigator.storage.getDirectory()
+    return (await root.getFileHandle(DATABASE)).getFile()
+  } else if (current) {
+    return requestDatabase(current)
+  } else {
+    throw new Error('No database to export')
+  }
 }

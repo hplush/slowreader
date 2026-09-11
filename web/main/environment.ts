@@ -17,7 +17,7 @@ import { locale } from '../stores/locale.ts'
 import { mobileMedia, tabletMedia } from '../stores/media-queries.ts'
 import { usedRequestMethod } from '../stores/request-method.ts'
 import { openRoute, urlRouter } from '../stores/url-router.ts'
-import { createDatabase } from './database.ts'
+import { createDatabase, exportDatabase } from './database.ts'
 import { detectExtension, extensionRequest } from './extension.ts'
 
 let server = location.hostname
@@ -81,6 +81,7 @@ setupEnvironment({
   },
   databaseCreator: createDatabase,
   errorEvents: window,
+  exportDatabase,
   getSession() {
     // Browser will use session from http-only cookie
     return undefined

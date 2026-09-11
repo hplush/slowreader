@@ -10,12 +10,15 @@ import {
 
 const LOCK = 'slowreader:sahpool'
 
-export type SahpoolMessage =
-  | { error: string; slowreader: 'noDb' }
+export type FromWorker =
+  | { database: ArrayBuffer; slowreader: 'database' }
+  | { error: string; slowreader: 'exportError' | 'noDb' }
   | { slowreader: 'reload' | 'secondTab' }
 
-function send(message: SahpoolMessage): void {
-  postMessage(message)
+export type ToWorker = { slowreader: 'export' }
+
+function send(message: FromWorker, transfer: Transferable[] = []): void {
+  postMessage(message, { transfer })
 }
 
 // Without the Web Locks API the pool’s own error is the only guard left
@@ -128,7 +131,19 @@ class SQLiteSahpoolDriver extends SQLiteMemoryDriver {
   }
 }
 
-let processor = new SQLocalProcessor(new SQLiteSahpoolDriver())
+// The pool keeps the database inside its own files with random names,
+// so only the driver can read it for the debug export
+async function sendDatabase(driver: SQLiteSahpoolDriver): Promise<void> {
+  try {
+    let { data } = await driver.export()
+    send({ database: data.buffer, slowreader: 'database' }, [data.buffer])
+  } catch (error) {
+    send({ error: String(error), slowreader: 'exportError' })
+  }
+}
+
+let driver = new SQLiteSahpoolDriver()
+let processor = new SQLocalProcessor(driver)
 
 // `onmessage` of the processor is SQLocal’s own callback, not a DOM handler
 Object.assign(processor, {
@@ -137,6 +152,11 @@ Object.assign(processor, {
   }
 } satisfies Pick<typeof processor, 'onmessage'>)
 
-addEventListener('message', message => {
-  void processor.postMessage(message)
+addEventListener('message', event => {
+  let message = event.data as { slowreader?: undefined } | ToWorker
+  if (message.slowreader === 'export') {
+    void sendDatabase(driver)
+  } else {
+    void processor.postMessage(event)
+  }
 })

@@ -5,6 +5,7 @@ import { type CategoryValue, loadCategories } from '../category.ts'
 import { getEnvironment } from '../environment.ts'
 import { type FeedValue, loadFeeds, loadFeedsByCategory } from '../feed.ts'
 import { type FilterValue, loadFilters } from '../filter.ts'
+import { formatCurrentTime } from '../format.ts'
 import { escapeXml } from '../lib/html.ts'
 import { loadPostsPage, type PostValue } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
@@ -86,18 +87,6 @@ function feedOutline(feed: FeedValue, indent: string): string {
 function jsonRows(name: string, rows: object[]): string {
   let json = rows.map(row => `    ${JSON.stringify(row)}`).join(',\n')
   return `  "${name}": [\n${json}\n  ],\n`
-}
-
-function pad(value: number): string {
-  return String(value).padStart(2, '0')
-}
-
-function formatCurrentTime(): string {
-  let now = new Date()
-  return (
-    `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}-` +
-    `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`
-  )
 }
 
 export const exportPage = createPage('export', () => {

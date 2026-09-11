@@ -2,6 +2,7 @@
   import {
     mdiBroom,
     mdiCloudDownloadOutline,
+    mdiDatabaseExport,
     mdiTrashCanOutline
   } from '@mdi/js'
   import {
@@ -22,7 +23,7 @@
   import Title from '../ui/title.svelte'
 
   let { page }: { page: StoragePage } = $props()
-  let { hasCloud, size } = $derived(page)
+  let { exportDatabase, hasCloud, size } = $derived(page)
 </script>
 
 <ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>
@@ -37,9 +38,26 @@
           ? $t.sizeLoading
           : formatSize($i18nFormat, $size)}
       />
-      <Button icon={mdiBroom} onclick={page.compact} size="wide">
-        {$t.compact}
-      </Button>
+      <Stack gap="xs" row>
+        <Button
+          icon={mdiBroom}
+          joined={exportDatabase ? 'start' : undefined}
+          onclick={page.compact}
+          size="wide"
+        >
+          {$t.compact}
+        </Button>
+        {#if exportDatabase}
+          <Button
+            icon={mdiDatabaseExport}
+            joined="end"
+            onclick={exportDatabase}
+            size="wide"
+          >
+            {$t.exportFile}
+          </Button>
+        {/if}
+      </Stack>
     </Stack>
     <Stack>
       <Title>{$t.dangerousTitle}</Title>

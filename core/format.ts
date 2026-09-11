@@ -39,3 +39,18 @@ export function formatPublishedAt(format: Formatter, time: number): string {
   }
   return format.time(date, { dateStyle: 'short', timeStyle: 'short' })
 }
+
+function pad(value: number): string {
+  return String(value).padStart(2, '0')
+}
+
+/**
+ * Time for file names: sortable and the same in every locale.
+ */
+export function formatCurrentTime(): string {
+  let now = new Date()
+  return (
+    `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}-` +
+    `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`
+  )
+}

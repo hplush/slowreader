@@ -82,6 +82,12 @@ export interface Environment {
   errorEvents: ErrorEvents
 
   /**
+   * Read the database file as is to save it for a bug report. Only clients,
+   * which can read the file of the working database (like web), have it.
+   */
+  exportDatabase?(): Promise<Blob>
+
+  /**
    * Restore server’s session token saves in `saveSession()`.
    */
   getSession(): string | undefined
@@ -190,6 +196,7 @@ export function setupEnvironment<Router extends BaseRouter>(
     cleanStorage: env.cleanStorage,
     databaseCreator: env.databaseCreator,
     errorEvents: env.errorEvents,
+    exportDatabase: env.exportDatabase,
     getSession: env.getSession,
     locale: env.locale,
     networkType: env.networkType,

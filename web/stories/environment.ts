@@ -52,6 +52,9 @@ setupEnvironment({
     return openDb(sqlocalDriver(':memory:'))
   },
   errorEvents: window,
+  exportDatabase() {
+    return Promise.resolve(new Blob(['SQLite format 3\0']))
+  },
   getSession() {
     return undefined
   },
