@@ -163,9 +163,6 @@ settings:
   dedupePeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  '@sqlite.org/sqlite-wasm': 3.53.4-build1
-
 importers:
 
   .:
@@ -489,8 +486,8 @@ importers:
         specifier: workspace:*
         version: link:../extension
       '@sqlite.org/sqlite-wasm':
-        specifier: 3.53.4-build1
-        version: 3.53.4-build1
+        specifier: 3.51.2-build9
+        version: 3.51.2-build9
       '@storybook/addon-a11y':
         specifier: 10.6.0
         version: 10.6.0(storybook@10.6.0)
@@ -2271,8 +2268,8 @@ packages:
     peerDependencies:
       size-limit: 13.0.3
 
-  '@sqlite.org/sqlite-wasm@3.53.4-build1':
-    resolution: {integrity: sha512-U8pvL0patYHMgieD8JxxYJTlh9m1LUX8+BDYb7MiKQzBI89f2qbdmdcG/PvnPaLm9wsBbv4VlVG453ixnxBOnA==}
+  '@sqlite.org/sqlite-wasm@3.51.2-build9':
+    resolution: {integrity: sha512-tj2Sa6X4gVZqS9SiT2xlEeChSUklSGq8Hz6zKNbHW6NRiGyrSXiFcspnrWru1wPBT76RX/VxweESKxawCxfDxg==}
     engines: {node: '>=22'}
 
   '@storybook/addon-a11y@10.6.0':
@@ -6736,7 +6733,7 @@ snapshots:
     dependencies:
       size-limit: 13.0.3
 
-  '@sqlite.org/sqlite-wasm@3.53.4-build1': {}
+  '@sqlite.org/sqlite-wasm@3.51.2-build9': {}
 
   '@storybook/addon-a11y@10.6.0(storybook@10.6.0)':
     dependencies:
@@ -9557,7 +9554,7 @@ snapshots:
 
   sqlocal@0.18.0(drizzle-orm@1.0.0-rc.4)(react@19.3.0)(vite@8.2.2):
     dependencies:
-      '@sqlite.org/sqlite-wasm': 3.53.4-build1
+      '@sqlite.org/sqlite-wasm': 3.51.2-build9
       coincident: 1.2.3
     optionalDependencies:
       drizzle-orm: 1.0.0-rc.4(@electric-sql/pglite@0.5.8)(postgres@3.4.9)

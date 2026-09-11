@@ -8,9 +8,6 @@ packages:
   - loader-tests
   - extension
 
-overrides:
-  '@sqlite.org/sqlite-wasm': 3.53.4-build1
-
 storeDir: node_modules/.pnpm-store
 
 allowBuilds:
