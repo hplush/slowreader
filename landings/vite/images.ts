@@ -30,6 +30,26 @@ async function fresh(source: string, generated: string): Promise<boolean> {
 export function images(): Plugin {
   let widths = new Map<string, number[]>()
 
+  async function variants(
+    source: string,
+    name: string,
+    full: number,
+    crop?: { height: number; left: number; top: number; width: number }
+  ): Promise<void> {
+    let sizes = WIDTHS.filter(i => i < full)
+    widths.set(name, [...sizes, full])
+    for (let width of [...sizes, full]) {
+      let file =
+        width === full
+          ? join(GENERATED, `${name}.avif`)
+          : join(SMALL, `${name}-${width}.avif`)
+      if (await fresh(source, file)) continue
+      let image = sharp(source)
+      if (crop) image = image.extract(crop)
+      await image.resize({ width }).avif({ quality: 70 }).toFile(file)
+    }
+  }
+
   return {
     async buildStart() {
       await mkdir(SMALL, { recursive: true })
@@ -37,20 +57,19 @@ export function images(): Plugin {
       for (let dir of await readdir(IMAGES, { withFileTypes: true })) {
         if (!dir.isDirectory()) continue
         let source = join(IMAGES, dir.name, `${dir.name}.avif`)
-        let full = (await sharp(source).metadata()).width
-        let sizes = WIDTHS.filter(i => i < full)
-        widths.set(dir.name, [...sizes, full])
-        for (let width of [...sizes, full]) {
-          let file =
-            width === full
-              ? join(GENERATED, `${dir.name}.avif`)
-              : join(SMALL, `${dir.name}-${width}.avif`)
-          if (await fresh(source, file)) continue
-          await sharp(source)
-            .resize({ width })
-            .avif({ quality: 70 })
-            .toFile(file)
-        }
+        let { height, width } = await sharp(source).metadata()
+        await variants(source, dir.name, width)
+
+        // Screens taller than 3:4 see less of a wide photo than of this crop.
+        // Keep the ratio in sync with `<source media>` in root.html.
+        // The crop point is the same as `object-position` of `.hero_image`
+        let portrait = Math.round((height * 3) / 4)
+        await variants(source, `${dir.name}-portrait`, portrait, {
+          height,
+          left: Math.round((width - portrait) * 0.1),
+          top: 0,
+          width: portrait
+        })
       }
 
       let logo = join(GENERATED, `logo-${ICON_WIDTH}.png`)
@@ -66,8 +85,8 @@ export function images(): Plugin {
 
     transformIndexHtml: {
       handler(html) {
-        let source = /src="\.\.\/images\/(\w+)\/\1\.avif"/g
-        return html.replace(source, (_: string, name: string) => {
+        let source = /(src|srcset)="\.\.\/images\/\w+\/([\w-]+)\.avif"/g
+        return html.replace(source, (_: string, attr: string, name: string) => {
           let sizes = widths.get(name)!
           let srcset = sizes
             .map(i => {
@@ -78,6 +97,7 @@ export function images(): Plugin {
               return `${file} ${i}w`
             })
             .join(', ')
+          if (attr === 'srcset') return `srcset="${srcset}"`
           return `src="../generated/${name}.avif" srcset="${srcset}"`
         })
       },

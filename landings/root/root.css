@@ -191,25 +191,15 @@ body {
   object-position: 10% center;
 }
 
-.hero::after {
-  position: absolute;
-  inset: 0;
-  content: '';
-  background: linear-gradient(
-    to left,
-    oklch(0.15 0.02 70 / 85%),
-    oklch(0.15 0.02 70 / 55%) 55%,
-    oklch(0.15 0.02 70 / 0%) 95%
-  );
-}
-
 .hero_title {
   position: relative;
   z-index: 1;
   max-inline-size: 48rem;
   margin: 0;
   font: 400 clamp(1.75rem, 3.5vw, 2.75rem) / 1.25 var(--title-family);
-  text-shadow: 0 1px 0.5rem oklch(0.15 0.02 70 / 60%);
+  text-shadow:
+    0 1px 0.25rem oklch(0 0 0 / 85%),
+    0 1px 1.25rem oklch(0 0 0 / 95%);
   text-wrap: balance;
 }
 
@@ -217,14 +207,6 @@ body {
   .hero {
     align-items: flex-end;
     justify-content: center;
-  }
-
-  .hero::after {
-    background: linear-gradient(
-      to top,
-      oklch(0.15 0.02 70 / 90%),
-      oklch(0.15 0.02 70 / 0%) 60%
-    );
   }
 }
 

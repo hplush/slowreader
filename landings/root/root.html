@@ -29,12 +29,18 @@
 
     <main>
       <section class="hero">
-        <img
-          class="hero_image"
-          alt=""
-          fetchpriority="high"
-          src="../images/main/main.avif"
-        />
+        <picture>
+          <source
+            media="(aspect-ratio <= 3/4)"
+            srcset="../images/main/main-portrait.avif"
+          />
+          <img
+            class="hero_image"
+            alt=""
+            fetchpriority="high"
+            src="../images/main/main.avif"
+          />
+        </picture>
         <h2 class="hero_title">
           Silicon Valley broke social media. We have an idea how to fix it.
         </h2>

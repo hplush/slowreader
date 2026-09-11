@@ -25,16 +25,17 @@
     "limit": "735 KB"
   },
   {
-    "name": "Landing page",
+    "name": "Landing page on phone",
     "path": [
       "dist/index.html",
       "dist/landing/**/*",
       "!dist/landing/small/**",
+      "!dist/landing/*.avif",
       "!dist/landing/*.woff",
       "!dist/landing/noto-*-{cyrillic,greek,devanagari,vietnamese}-*.woff2",
       "!dist/landing/*-latin-ext-*.woff2"
     ],
-    "limit": "170 KB"
+    "limit": "150 KB"
   },
   {
     "name": "Core scripts to execute",

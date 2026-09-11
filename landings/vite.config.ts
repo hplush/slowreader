@@ -12,13 +12,17 @@ export default defineConfig({
     rolldownOptions: {
       input: 'root/root.html',
       output: {
-        // Only the biggest image is in the size budget, see web/.size-limit.json
+        // Every orientation has its own size budget, see web/.size-limit.json,
+        // and only its biggest image is in it
         assetFileNames(asset) {
-          return asset.originalFileNames.some(i =>
-            i.includes('/generated/small/')
-          )
-            ? 'landing/small/[name]-[hash][extname]'
-            : 'landing/[name]-[hash][extname]'
+          let source = asset.originalFileNames[0] ?? ''
+          if (source.includes('/generated/small/')) {
+            return 'landing/small/[name]-[hash][extname]'
+          } else if (source.includes('-portrait.')) {
+            return 'landing/portrait/[name]-[hash][extname]'
+          } else {
+            return 'landing/[name]-[hash][extname]'
+          }
         }
       }
     }
