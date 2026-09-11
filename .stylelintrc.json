@@ -5,8 +5,8 @@
     "!**/*.css",
     "!**/*.pcss",
     "!**/*.svelte",
-    "dist/**/*",
-    "storybook-static/**/*"
+    "**/dist/**/*",
+    "**/storybook-static/**/*"
   ],
   "plugins": ["stylelint-use-logical", "@stylistic/stylelint-plugin"],
   "languageOptions": {
@@ -27,7 +27,12 @@
   },
   "rules": {
     "declaration-property-value-no-unknown": true,
-    "property-no-unknown": [true, { "ignoreProperties": ["corner-shape"] }],
+    "property-no-unknown": [
+      true,
+      {
+        "ignoreProperties": ["corner-shape"]
+      }
+    ],
     "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"],
     "unit-disallowed-list": [
       ["px", "em"],
@@ -83,19 +88,19 @@
       "customSyntax": "postcss-html"
     },
     {
-      "files": ["main/colors.css", "main/sizes.css"],
+      "files": ["web/main/colors.css", "web/main/sizes.css"],
       "rules": {
         "unit-disallowed-list": null
       }
     },
     {
-      "files": ["ui/formatted-text.svelte"],
+      "files": ["web/ui/formatted-text.svelte"],
       "rules": {
         "unit-disallowed-list": [["px"]]
       }
     },
     {
-      "files": ["postcss/mixins/*.pcss"],
+      "files": ["web/postcss/mixins/*.pcss"],
       "rules": {
         "nesting-selector-no-missing-scoping-root": null
       }

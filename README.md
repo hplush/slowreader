@@ -127,6 +127,7 @@ Global development tools:
 - [Dev Container](https://containers.dev) to use the same environment for all developers and isolate project from developer’s machine.
 - [oxfmt](./oxfmt.config.ts) to use the same code style formatting.
 - [oxlint](./oxlint.config.ts) to check for popular mistakes in JavaScript.
+- [Stylelint](./.stylelintrc.json) to check CSS of [web client](./web/) and [landings](./landings/).
 - [TypeScript](./tsconfig.json) for strict type checking.
 - [remark](./.remarkrc) to find mistakes in `.md` files.
 - [Multiocular](https://github.com/ai/multiocular) to review dependencies updates.

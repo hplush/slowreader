@@ -1,12 +1,46 @@
 <!doctype html>
-<html lang="en">
+<html class="is-guest" lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Slow Reader</title>
+    <link rel="stylesheet" href="./root.css" />
+    <script type="module" src="./root.js"></script>
   </head>
 
   <body>
-    <a href="/app">Slow Reader</a>
+    <header class="header">
+      <div class="header_content">
+        <span class="header_logo">
+          <img
+            class="header_logo_image"
+            alt=""
+            height="32"
+            src="../generated/logo-64.png"
+            width="32"
+          />
+        </span>
+        <h1 class="header_name">Slow Reader</h1>
+        <a class="button is-app" href="/app">Open app</a>
+        <a class="button is-demo" href="/copy-demo-db">Demo</a>
+        <a class="button is-login" href="/app">Login</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <img
+          class="hero_image"
+          alt=""
+          fetchpriority="high"
+          src="../images/main/main.avif"
+        />
+        <h2 class="hero_title">
+          Silicon Valley broke social media. We have an idea how to fix it.
+        </h2>
+      </section>
+
+      <section class="section"></section>
+    </main>
   </body>
 </html>

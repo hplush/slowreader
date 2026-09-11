@@ -8,6 +8,7 @@ import sqlocal from 'sqlocal/vite'
 import { defineConfig, type PreviewServer, type ViteDevServer } from 'vite'
 
 const LANDING_TYPES: Record<string, string> = {
+  '.avif': 'image/avif',
   '.css': 'text/css',
   '.html': 'text/html',
   '.js': 'text/javascript',
