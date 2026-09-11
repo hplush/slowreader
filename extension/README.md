@@ -2,7 +2,7 @@
 
 Companion extension for Slow Reader.
 
-Slow Reader is a local-first RSS reader that runs in the browser. Web apps can't download RSS feeds directly because of CORS restrictions, so Slow Reader uses a companion browser extension to fetch RSS feeds.
+Slow Reader is a local-first RSS reader that runs in the browser. Web apps can’t download RSS feeds directly because of CORS restrictions, so Slow Reader uses a companion browser extension to fetch RSS feeds.
 
 _See the [full architecture guide](../README.md) first._
 
