@@ -47,7 +47,7 @@
       path={ICONS[$reason.type]}
     />
     <Stack align="center" gap="l">
-      <Title>{$t[`${$reason.type}Text`]}</Title>
+      <Title center>{$t[`${$reason.type}Text`]}</Title>
       {#if $reason.type === 'brokenDatabase'}
         <p>{$t.brokenDatabaseDescription}</p>
         {#if $reason.error}
