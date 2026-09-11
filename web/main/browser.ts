@@ -23,6 +23,10 @@ import { onlyTouch, pageTheme } from '../stores/media-queries.ts'
 
 let root = document.documentElement
 let themeTag = document.querySelector('meta[name="theme-color"]')
+let iconTag = document.querySelector<HTMLLinkElement>(
+  'link[type="image/svg+xml"]'
+)
+let appIcon = iconTag?.href
 
 function updateTheme(): void {
   let background = window
@@ -58,6 +62,10 @@ themeMode.subscribe(mode => {
   root.classList.toggle('is-comfort-mode', mode !== 'fast')
   root.classList.toggle('is-non-comfort-mode', mode === 'fast')
   root.classList.toggle('is-error-mode', mode === 'error')
+  // Don’t forget to change public/404.html and public/500.html
+  if (iconTag && appIcon) {
+    iconTag.href = mode === 'error' ? '/icon-error.svg' : appIcon
+  }
   updateTheme()
 })
 
