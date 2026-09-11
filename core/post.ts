@@ -149,15 +149,6 @@ export function loadPostOriginIdsByFeed(feedId: string): Promise<string[]> {
   )
 }
 
-export function hasUnreadPosts(
-  reading: PostValue['reading']
-): Promise<boolean> {
-  return select`
-    SELECT "id" FROM "posts"
-    WHERE "reading" = ${reading} AND "read" = 0 LIMIT 1
-  `.then(rows => rows.length > 0)
-}
-
 export function deletePost(postId: string[] | string): Promise<void> {
   return getTables().posts.delete(postId)
 }

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
 
-  let { center = false, children }: { center?: boolean; children: Snippet; } =
+  let { center = false, children }: { center?: boolean; children: Snippet } =
     $props()
 </script>
 

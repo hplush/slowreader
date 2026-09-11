@@ -5,22 +5,24 @@ import {
   moveToPage,
   setPagination
 } from '../lib/pagination.ts'
-import { changePost, type ReaderPost } from '../post.ts'
+import type { ReaderPost } from '../post.ts'
 import {
   createReader,
   loadPageCursors,
   loadPostsPage,
   type PostCursor,
+  readAndMove,
   trackReadPosts
 } from './common.ts'
 
 const POSTS_PER_PAGE = 100
 
-export const listReader = createReader('list', (filter, params, helpers) => {
+export const listReader = createReader('list', (filter, params) => {
   if (!filter.categoryId && !filter.feedId) return
 
   let exited = false
   let $loading = atom(true)
+  let $marking = atom(false)
   let $list = atom<ReaderPost[]>([])
   let $pages = createPagination(1)
 
@@ -52,20 +54,14 @@ export const listReader = createReader('list', (filter, params, helpers) => {
   }
   void start()
 
-  async function readPage(): Promise<void> {
-    await changePost(
-      $list
-        .get()
-        .filter(post => !post.read)
-        .map(post => post.id),
-      { read: 1 }
+  function readPage(): Promise<void> {
+    return readAndMove(
+      filter,
+      params,
+      $list.get(),
+      $pages.get().hasNext ? `${$pages.get().page + 1}` : undefined,
+      $marking
     )
-    if (exited) return
-    if ($pages.get().hasNext) {
-      params.from.set(`${$pages.get().page + 1}`)
-    } else {
-      await helpers.openNext()
-    }
   }
 
   return {
@@ -76,6 +72,7 @@ export const listReader = createReader('list', (filter, params, helpers) => {
     },
     list: $list,
     loading: $loading,
+    marking: $marking,
     pages: $pages,
     readPage
   }

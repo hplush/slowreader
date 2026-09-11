@@ -1,12 +1,13 @@
 import { atom } from 'nanostores'
 
-import { changePost, type ReaderPost } from '../post.ts'
+import type { ReaderPost } from '../post.ts'
 import {
   createReader,
   loadPostsAbove,
   loadPostsPage,
   parseCursor,
   type PostAuthor,
+  readAndMove,
   stringifyCursor,
   topCursor,
   trackReadPosts
@@ -14,11 +15,12 @@ import {
 
 const POSTS_PER_PAGE = 20
 
-export const feedReader = createReader('feed', (filter, params, helpers) => {
+export const feedReader = createReader('feed', (filter, params) => {
   if (!filter.categoryId && !filter.feedId) return
 
   let exited = false
   let $loading = atom(true)
+  let $marking = atom(false)
   let $list = atom<ReaderPost[]>([])
   let $authors = atom<Map<string, PostAuthor>>(new Map())
   let $hasNext = atom(false)
@@ -83,23 +85,10 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
   })
   let unbindRead = trackReadPosts(filter, $list)
 
-  // The move does not wait for the write: the marks are saved in background.
-  // The page of the next cursor does not depend on them, since the cursor
-  // is strict `<`, and the move goes first to put the query of the page
-  // into the database queue before the write.
-  async function readAndNext(): Promise<void> {
-    let unread = $list
-      .get()
-      .filter(post => !post.read)
-      .map(post => post.id)
-    if ($hasNext.get()) {
-      keepPrevFrom = true
-      params.from.set($nextFrom.get())
-      await changePost(unread, { read: 1 })
-    } else {
-      await changePost(unread, { read: 1 })
-      if (!exited) await helpers.openNext()
-    }
+  function readAndNext(): Promise<void> {
+    let next = $hasNext.get() ? $nextFrom.get() : undefined
+    keepPrevFrom = !!next
+    return readAndMove(filter, params, $list.get(), next, $marking)
   }
 
   return {
@@ -112,6 +101,7 @@ export const feedReader = createReader('feed', (filter, params, helpers) => {
     hasNext: $hasNext,
     list: $list,
     loading: $loading,
+    marking: $marking,
     nextFrom: $nextFrom,
     prevFrom: $prevFrom,
     readAndNext

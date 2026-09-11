@@ -1,19 +1,13 @@
 import { atom, computed, effect } from 'nanostores'
 
 import { type CategoryValue, changeCategory, getCategory } from '../category.ts'
-import { getEnvironment, layoutType } from '../environment.ts'
+import { layoutType } from '../environment.ts'
 import { changeFeed, type FeedValue, getFeed, needWelcome } from '../feed.ts'
 import { fastMenu, menuLoading, openableMenu, slowMenu } from '../menu.ts'
-import {
-  deletePost,
-  fastPostsCount,
-  hasUnreadPosts,
-  slowPostsCount
-} from '../post.ts'
+import { deletePost, fastPostsCount, slowPostsCount } from '../post.ts'
 import {
   loadReadPostIds,
   type PostFilter,
-  type ReaderHelpers,
   type UsefulReaderName
 } from '../readers/common.ts'
 import {
@@ -73,20 +67,6 @@ let pages = (['slow', 'fast'] as const).map(reading => {
       prevReading?.exit()
       prevReading = reader
       $posts.set(reader)
-    }
-
-    let helpers: ReaderHelpers = {
-      // The home page opens the next feed on desktop and the menu on mobile,
-      // so the reader only has to give the route back.
-      async openNext() {
-        let route = reading
-        if (reading === 'fast' && !(await hasUnreadPosts('fast'))) {
-          route = 'slow'
-        }
-        await nextRouteIsRedirect(() => {
-          getEnvironment().openRoute({ params: {}, popups: [], route })
-        })
-      }
     }
 
     let params = {
@@ -219,7 +199,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
 
         let instance: BaseReader | undefined
         if (readerName !== 'none') {
-          instance = READERS[readerName](filter, params, helpers)
+          instance = READERS[readerName](filter, params)
         }
 
         setReader(instance as Reader)

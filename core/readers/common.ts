@@ -1,22 +1,16 @@
 import type { SqlStore } from '@nanostores/sql'
 import type { ReadableAtom, WritableAtom } from 'nanostores'
 
-import type { PostValue, ReaderPost } from '../post.ts'
-import type { Routes } from '../router.ts'
+import { getEnvironment, layoutType } from '../environment.ts'
+import { slowMenu, unreadFastMenu } from '../menu.ts'
+import { changePost, type PostValue, type ReaderPost } from '../post.ts'
+import { nextRouteIsRedirect, type Routes } from '../router.ts'
 import { getTables, select } from '../schema.ts'
 
 export interface BaseReader<Name extends ReaderName = ReaderName> {
   exit(): void
   loading: ReadableAtom<boolean>
   name: Name
-}
-
-export interface ReaderHelpers {
-  /**
-   * No next page in the target, so the reader gives the page back to the menu
-   * or to the next feed. Reading posts one-by-one does not call it.
-   */
-  openNext(): Promise<void>
 }
 
 interface Extra {
@@ -45,21 +39,16 @@ export interface ReaderCreator<
 > {
   (
     filter: PostFilter,
-    params: FeedStores,
-    helpers: ReaderHelpers
+    params: FeedStores
   ): (BaseReader<Name> & Rest) | undefined
 }
 
 export function createReader<Name extends ReaderName, Rest extends Extra>(
   name: Name,
-  builder: (
-    filter: PostFilter,
-    params: FeedStores,
-    helpers: ReaderHelpers
-  ) => Rest | undefined
+  builder: (filter: PostFilter, params: FeedStores) => Rest | undefined
 ): ReaderCreator<Name, Rest> {
-  return (filter, params, helpers) => {
-    let reader = builder(filter, params, helpers)
+  return (filter, params) => {
+    let reader = builder(filter, params)
     if (reader) {
       return {
         ...reader,
@@ -74,6 +63,72 @@ export function createReader<Name extends ReaderName, Rest extends Extra>(
  * the same query as posts, so a category page does not load all its feeds.
  */
 export type PostAuthor = { title: string; url: string }
+
+function openFast(category: string): Promise<void> {
+  return nextRouteIsRedirect(() => {
+    getEnvironment().openRoute({
+      params: { category },
+      popups: [],
+      route: 'fast'
+    })
+  })
+}
+
+function openSlow(feed?: string): Promise<void> {
+  return nextRouteIsRedirect(() => {
+    getEnvironment().openRoute({
+      params: feed ? { feed } : {},
+      popups: [],
+      route: 'slow'
+    })
+  })
+}
+
+function nextSlowFeed(filter: PostFilter): string | undefined {
+  if (filter.reading !== 'slow' || layoutType.get() !== 'desktop') return
+  for (let [category, feeds] of slowMenu.get()) {
+    if (category.id === filter.categoryId) continue
+    for (let [feed] of feeds) {
+      if (feed.id !== filter.feedId) return feed.id
+    }
+  }
+}
+
+export async function readAndMove(
+  filter: PostFilter,
+  params: FeedStores,
+  posts: ReaderPost[],
+  nextFrom: string | undefined,
+  marking: WritableAtom<boolean>
+): Promise<void> {
+  marking.set(true)
+  let redirected = true
+  if (nextFrom) {
+    params.from.set(nextFrom)
+  } else {
+    let fast =
+      filter.reading === 'fast'
+        ? unreadFastMenu.get().find(i => i.id !== filter.categoryId)?.id
+        : undefined
+    let slow = nextSlowFeed(
+      filter.reading === 'fast' ? { reading: 'slow' } : filter
+    )
+    if (fast) {
+      await openFast(fast)
+    } else if (slow) {
+      await openSlow(slow)
+    } else {
+      redirected = false
+    }
+  }
+
+  await changePost(
+    posts.filter(post => !post.read).map(post => post.id),
+    { read: 1 }
+  )
+  if (!redirected) await openSlow()
+  marking.set(false)
+}
 
 /**
  * Position of the post in the reading order.

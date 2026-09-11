@@ -77,7 +77,13 @@ export interface MenuItem {
 
 export type SlowMenu = [MenuItem, [MenuItem, number][]][]
 
-type UnreadCount = { feedId: string; unread: number }
+type UnreadCount = {
+  feedId: string
+  reading: 'fast' | 'slow'
+  unread: number
+}
+
+type UnreadCounts = { fast: Map<string, number>; slow: Map<string, number> }
 
 /**
  * Sorted `[id, title]` pairs of categories or of feeds of a single category.
@@ -409,22 +415,26 @@ onClient(logux => {
  * The query is subscribed only while the menu is rendered and is re-created
  * on the database of the new user.
  */
-let $unread = atom<Map<string, number> | undefined>()
+let $unread = atom<undefined | UnreadCounts>()
 
 onMount($unread, () =>
   effect(openedDatabase, db => {
     $unread.set(undefined)
     if (!db) return
     let store = db.store<UnreadCount>`
-      SELECT "feedId", COUNT("originId") AS "unread" FROM "posts"
-      WHERE "reading" = 'slow' AND "read" = 0
-      GROUP BY "feedId"
+      SELECT "feedId", "reading", COUNT("originId") AS "unread" FROM "posts"
+      WHERE "read" = 0
+      GROUP BY "feedId", "reading"
     `
     return store.subscribe(rows => {
       if (rows.isLoading) {
         $unread.set(undefined)
       } else {
-        $unread.set(new Map(rows.value.map(row => [row.feedId, row.unread])))
+        let counts: UnreadCounts = { fast: new Map(), slow: new Map() }
+        for (let row of rows.value) {
+          counts[row.reading].set(row.feedId, row.unread)
+        }
+        $unread.set(counts)
       }
     })
   })
@@ -435,7 +445,19 @@ let $tree = computed($state, buildTree)
 export const fastMenu = computed($tree, tree => tree.fast)
 
 export const slowMenu = computed([$tree, $unread], (tree, unread) => {
-  return unread ? buildSlowMenu(tree, unread) : []
+  return unread ? buildSlowMenu(tree, unread.slow) : []
+})
+
+export const unreadFastMenu = computed([$tree, $unread], (tree, unread) => {
+  if (!unread) return []
+  return tree.slow
+    .filter(([category, feeds]) => {
+      return (
+        tree.fast.some(i => i.id === category.id) &&
+        feeds.some(feed => unread.fast.get(feed.id))
+      )
+    })
+    .map(([category]) => category)
 })
 
 export const openableMenu = computed([fastMenu, slowMenu], (fast, slow) => ({

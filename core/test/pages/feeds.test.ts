@@ -207,6 +207,78 @@ describe('feeds page', () => {
     equal(page.posts.get()!.name, 'list')
   })
 
+  test('opens the next feed before the posts were marked as read', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let category = await addCategory({ title: 'A' })
+    let feed1 = await addFeed(
+      testFeed({ categoryId: category, slowReader: 'list', title: 'F1' })
+    )
+    let feed2 = await addFeed(
+      testFeed({ categoryId: category, slowReader: 'list', title: 'F2' })
+    )
+    await addPost(testPost({ feedId: feed1, reading: 'slow' }))
+    await addPost(testPost({ feedId: feed2, reading: 'slow' }))
+    await setTimeout(10)
+
+    let page = openPage({ params: { feed: feed1 }, route: 'slow' })
+    await waitLoading(page.loading)
+    let reading = ensureReader(page.posts, 'list').readPage()
+    await setTimeout(0)
+    equal(page.params.feed.get(), feed2)
+
+    await reading
+  })
+
+  test('gives the reading back when no other feed has posts', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let feed = await addFeed(
+      testFeed({
+        categoryId: await addCategory({ title: 'A' }),
+        slowReader: 'list'
+      })
+    )
+    await addPost(testPost({ feedId: feed, reading: 'slow' }))
+    await setTimeout(10)
+
+    let page = openPage({ params: { feed }, route: 'slow' })
+    await waitLoading(page.loading)
+    await ensureReader(page.posts, 'list').readPage()
+    await setTimeout(10)
+
+    equal(page.params.feed.get(), undefined)
+    equal(page.posts.get()!.name, 'empty')
+  })
+
+  test('opens the next feed even when pages above are unread', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let category = await addCategory({ title: 'A' })
+    let feed1 = await addFeed(
+      testFeed({ categoryId: category, slowReader: 'list', title: 'F1' })
+    )
+    let feed2 = await addFeed(
+      testFeed({ categoryId: category, slowReader: 'list', title: 'F2' })
+    )
+    for (let i = 1; i <= 150; i++) {
+      await addPost(
+        testPost({ feedId: feed1, publishedAt: i, reading: 'slow' })
+      )
+    }
+    await addPost(testPost({ feedId: feed2, reading: 'slow' }))
+    await setTimeout(10)
+
+    let page = openPage({ params: { feed: feed1, from: '1' }, route: 'slow' })
+    await waitLoading(page.loading)
+    let reader = ensureReader(page.posts, 'list')
+    equal(reader.pages.get().hasNext, false)
+
+    await reader.readPage()
+    await setTimeout(10)
+    equal(page.params.feed.get(), feed2)
+  })
+
   test('opens the menu after the last page was read outside of the desktop', async () => {
     setLayoutType('mobile')
     busyUntilMenuLoader()
@@ -234,6 +306,64 @@ describe('feeds page', () => {
 
     equal(page.params.feed.get(), undefined)
     equal(page.menu.get(), true)
+  })
+
+  test('opens the menu before the posts were marked as read', async () => {
+    setLayoutType('mobile')
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let feed1 = await addFeed(
+      testFeed({
+        categoryId: await addCategory({ title: 'A1' }),
+        slowReader: 'list'
+      })
+    )
+    await addFeed(
+      testFeed({
+        categoryId: await addCategory({ title: 'A2' }),
+        slowReader: 'list'
+      })
+    )
+    await addPost(testPost({ feedId: feed1, reading: 'slow' }))
+    await setTimeout(10)
+
+    let page = openPage({ params: { feed: feed1 }, route: 'slow' })
+    await waitLoading(page.loading)
+    let reading = ensureReader(page.posts, 'list').readPage()
+    await setTimeout(0)
+    equal(page.params.feed.get(), undefined)
+
+    await reading
+  })
+
+  test('opens other fast posts after the last post of the category', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let first = await addFeed(
+      testFeed({
+        categoryId: await addCategory({ fastReader: 'feed', title: 'A1' }),
+        fastReader: 'feed',
+        reading: 'fast'
+      })
+    )
+    let second = await addFeed(
+      testFeed({
+        categoryId: await addCategory({ fastReader: 'feed', title: 'A2' }),
+        fastReader: 'feed',
+        reading: 'fast'
+      })
+    )
+    await addPost(testPost({ feedId: first, reading: 'fast' }))
+    await addPost(testPost({ feedId: second, reading: 'fast' }))
+    await setTimeout(10)
+
+    let page = openPage({ params: { feed: second }, route: 'fast' })
+    await waitLoading(page.loading)
+    await ensureReader(page.posts, 'feed').readAndNext()
+    await setTimeout(10)
+
+    equal(router.get().route, 'fast')
+    equal(page.params.feed.get(), undefined)
   })
 
   test('opens slow feeds after the last fast post was read', async () => {
