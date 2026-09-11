@@ -27,6 +27,7 @@ import {
   fastMenu,
   GENERAL_CATEGORY,
   getClient,
+  getDatabase,
   getEnvironment,
   getTables,
   type MenuItem,
@@ -197,6 +198,27 @@ describe('menu', () => {
       GENERAL,
       { id: idB, title: 'B' },
       { id: idA, title: 'Z' }
+    ])
+  })
+
+  test('ignores posts with a broken reading', async () => {
+    keepMount(slowMenu)
+    await waitLoading(menuLoading)
+
+    let category = await addCategory({ title: 'A' })
+    let feed = await addFeed(
+      testFeed({ categoryId: category, reading: 'slow', title: 'Feed' })
+    )
+    await addPost(testPost({ feedId: feed, reading: 'slow' }))
+
+    // Old clients and hand-made backups could add posts without the field
+    await getDatabase().exec`
+      INSERT INTO "posts" ("id", "feedId", "read") VALUES ('broken', ${feed}, 0)
+    `
+
+    await waitUntil(() => slowMenu.get().length > 0)
+    deepEqual(slowMenu.get(), [
+      [{ id: category, title: 'A' }, [[{ id: feed, title: 'Feed' }, 1]]]
     ])
   })
 
