@@ -17,6 +17,7 @@ import {
   loadCategories,
   loadFeeds,
   loadFilters,
+  loadPost,
   loadPosts,
   setupEnvironment,
   testFeed,
@@ -27,7 +28,8 @@ import {
   cleanClientTest,
   enableClientTest,
   persistentDatabase,
-  setTestUser
+  setTestUser,
+  waitUntil
 } from './utils.ts'
 
 describe('schema', () => {
@@ -65,6 +67,20 @@ describe('schema', () => {
     deepEqual(labels, [commonMessages.get().loadingData])
 
     unbind()
+  })
+
+  test('fills the missing reading of the post from another device', async () => {
+    let feedId = await addFeed(testFeed())
+    await getClient().log.add(
+      {
+        fields: { feedId, originId: 'origin', publishedAt: 1, read: 0 },
+        id: 'post-from-old-client',
+        type: 'posts/created'
+      },
+      { id: '1 10:old:1 0', reasons: ['test'], time: 1 }
+    )
+    await waitUntil(async () => !!(await loadPost('post-from-old-client')))
+    equal((await loadPost('post-from-old-client'))!.reading, 'slow')
   })
 
   test('cleans all tables without stopping the database', async () => {

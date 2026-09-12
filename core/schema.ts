@@ -72,7 +72,7 @@ let feedsSchema = {
   lastOriginId: optional(string()),
   lastPublishedAt: optional(bigint()),
   loader: string<LoaderName>(),
-  reading: oneOf(READINGS),
+  reading: oneOf(READINGS, { default: 'slow' }),
   refreshedAt: optional(bigint()),
   slowReader: optional(oneOf(READERS)),
   title: string(),
@@ -95,7 +95,7 @@ let postsSchema = {
   publishedAt: bigint(),
   // SQLite has no boolean, so we are using 0 and 1
   read: number({ default: 0 }),
-  reading: oneOf(READINGS),
+  reading: oneOf(READINGS, { default: 'slow' }),
   title: optional(string()),
   url: optional(string())
 }
