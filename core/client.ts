@@ -10,7 +10,6 @@ import { SqlLogStore } from '@logux/client/db'
 import { type ServerConnection, TestPair, TestTime } from '@logux/core'
 import type { Database } from '@nanostores/sql'
 import { dbReset, deleteUser, SUBPROTOCOL } from '@slowreader/api'
-import { delay } from 'nanodelay'
 import { atom, computed, effect, onMount } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
@@ -108,13 +107,11 @@ export async function resetDatabase(
     async () => {
       let logux = getClient()
       if (logux.connected) {
-        // Server stops sending new actions on `db/reset` so we are waiting
-        // only client actions to be sent
-        await Promise.race([logux.waitFor('synchronized'), delay(10_000)])
+        await logux.waitFor('synchronized')
       }
 
       try {
-        await Promise.race([logux.clean(), delay(10_000)])
+        await logux.clean()
       } catch (e) {
         getEnvironment().warn(e)
       }

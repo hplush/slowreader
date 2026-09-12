@@ -350,29 +350,12 @@ function getDownloadingLabel(logux: CrossTabClient): string {
  */
 function showBusyUntilFilled(logux: CrossTabClient): () => void {
   let stop!: () => void
-  let filled = new Promise<void>(resolve => {
-    let timer: ReturnType<typeof setTimeout> | undefined
-    // The server needs the time to read the log, but then sends all
-    // the batches of the actions one after another
-    function waitMore(ms: number): void {
-      clearTimeout(timer)
-      timer = setTimeout(stop, ms)
-    }
-    let unbindAdd = logux.on('add', () => {
-      waitMore(1000)
+  let filled = Promise.race([
+    logux.waitFor('synchronized'),
+    new Promise<void>(resolve => {
+      stop = resolve
     })
-    let unbindState = logux.on('state', () => {
-      clearTimeout(timer)
-      if (logux.connected) waitMore(10_000)
-    })
-    stop = () => {
-      clearTimeout(timer)
-      unbindAdd()
-      unbindState()
-      resolve()
-    }
-    if (logux.connected) waitMore(10_000)
-  })
+  ])
 
   void busyDuring(getDownloadingLabel(logux), async (setProgress, setLabel) => {
     let unbindLabel = logux.on('state', () => {

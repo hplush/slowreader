@@ -1,5 +1,3 @@
-import { delay } from 'nanodelay'
-
 import { type Credentials, signIn, signUp } from './auth.ts'
 import { busyDuring } from './busy.ts'
 import { addCategory } from './category.ts'
@@ -424,7 +422,7 @@ export async function signInBenchmark(): Promise<void> {
 export async function waitBenchmarkSync(): Promise<void> {
   let logux = client.get()
   if (!logux) return
-  await Promise.race([logux.waitFor('synchronized'), delay(300_000)])
+  await logux.waitFor('synchronized')
 }
 
 /**

@@ -110,11 +110,7 @@ export default async (
     }
 
     if (!CACHE[cacheKey]) {
-      if (!existsSync(path)) {
-        if (!req.headers.accept?.includes('text/html')) return false
-        send(res, notFoundHtml, 404)
-        return true
-      }
+      if (!existsSync(path)) return false
       if (statSync(path).isDirectory()) {
         path = join(path, 'index.html')
       }
@@ -138,5 +134,13 @@ export default async (
   })
   server.http('GET', '/', (req, res) => {
     send(res, appHtml)
+  })
+  server.httpNotFound((req, res) => {
+    if (req.headers.accept?.includes('text/html')) {
+      send(res, notFoundHtml, 404)
+    } else {
+      res.writeHead(404, { 'Content-Type': 'text/plain' })
+      res.end('Not found\n')
+    }
   })
 }

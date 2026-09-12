@@ -52,9 +52,7 @@ server.logger.info = (details, ...args) => {
   }
 }
 
-// Assets answer the unknown URLs with the 404 page, so they go last
-await server.autoloadModules(['modules/*.ts', '!modules/assets.ts'])
-await server.autoloadModules('modules/assets.ts')
+await server.autoloadModules('modules/*.ts')
 
 server.listen().catch((error: unknown) => {
   throw error

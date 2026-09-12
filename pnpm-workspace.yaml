@@ -43,3 +43,6 @@ verifyDepsBeforeRun: false
 trustPolicy: no-downgrade
 
 trustPolicyIgnoreAfter: 10080
+
+# Until we are using unreleased Logux packages
+blockExoticSubdeps: false

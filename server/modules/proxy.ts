@@ -19,12 +19,6 @@ export default (server: BaseServer, opts: Partial<ProxyConfig> = {}): void => {
     allowsFrom
   })
 
-  server.http((req, res) => {
-    if (req.url!.startsWith('/proxy/')) {
-      proxy(req, res)
-      return true
-    } else {
-      return false
-    }
-  })
+  server.http('GET', '/proxy/*', proxy)
+  server.http('OPTIONS', '/proxy/*', proxy)
 }
