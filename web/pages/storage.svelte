@@ -23,7 +23,7 @@
   import Title from '../ui/title.svelte'
 
   let { page }: { page: StoragePage } = $props()
-  let { exportDatabase, hasCloud, size } = $derived(page)
+  let { dumpDatabase, hasCloud, size } = $derived(page)
 </script>
 
 <ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>
@@ -41,20 +41,20 @@
       <Stack gap="xs" row>
         <Button
           icon={mdiBroom}
-          joined={exportDatabase ? 'start' : undefined}
+          joined={dumpDatabase ? 'start' : undefined}
           onclick={page.compact}
           size="wide"
         >
           {$t.compact}
         </Button>
-        {#if exportDatabase}
+        {#if dumpDatabase}
           <Button
             icon={mdiDatabaseExport}
             joined="end"
-            onclick={exportDatabase}
+            onclick={dumpDatabase}
             size="wide"
           >
-            {$t.exportFile}
+            {$t.dump}
           </Button>
         {/if}
       </Stack>

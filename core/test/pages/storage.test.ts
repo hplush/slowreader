@@ -50,10 +50,10 @@ describe('storage page', () => {
     notEqual(page.size.get(), 0)
   })
 
-  test('exports the database file', async () => {
+  test('dumps the database file', async () => {
     let saved: { content: Blob; filename: string } | undefined
     enableClientTest({
-      exportDatabase() {
+      dumpDatabase() {
         return Promise.resolve(new Blob(['SQLite format 3\0']))
       },
       saveFile(filename, content) {
@@ -64,23 +64,23 @@ describe('storage page', () => {
     let page = openPage({ params: {}, route: 'storage' })
     await waitUntil(() => typeof page.size.get() !== 'undefined')
 
-    let exporting = page.exportDatabase!()
+    let dumping = page.dumpDatabase!()
     deepStrictEqual(busy.get(), {
       blocking: true,
-      label: storageMessages.get().exporting,
+      label: storageMessages.get().dumping,
       progress: undefined
     })
 
-    await exporting
+    await dumping
     equal(busy.get(), false)
     equal(saved!.filename.startsWith('slowreader-'), true)
     equal(saved!.filename.endsWith('.sqlite'), true)
     equal(await saved!.content.text(), 'SQLite format 3\0')
   })
 
-  test('has no export without the environment support', () => {
+  test('has no dump without the environment support', () => {
     let page = openPage({ params: {}, route: 'storage' })
-    equal(page.exportDatabase, undefined)
+    equal(page.dumpDatabase, undefined)
   })
 
   test('compacts the database', async () => {

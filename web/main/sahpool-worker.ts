@@ -12,10 +12,10 @@ const LOCK = 'slowreader:sahpool'
 
 export type FromWorker =
   | { database: ArrayBuffer; slowreader: 'database' }
-  | { error: string; slowreader: 'exportError' | 'noDb' }
+  | { error: string; slowreader: 'dumpError' | 'noDb' }
   | { slowreader: 'reload' | 'secondTab' }
 
-export type ToWorker = { slowreader: 'export' }
+export type ToWorker = { slowreader: 'dump' }
 
 function send(message: FromWorker, transfer: Transferable[] = []): void {
   postMessage(message, { transfer })
@@ -132,13 +132,13 @@ class SQLiteSahpoolDriver extends SQLiteMemoryDriver {
 }
 
 // The pool keeps the database inside its own files with random names,
-// so only the driver can read it for the debug export
+// so only the driver can read it for the debug dump
 async function sendDatabase(driver: SQLiteSahpoolDriver): Promise<void> {
   try {
     let { data } = await driver.export()
     send({ database: data.buffer, slowreader: 'database' }, [data.buffer])
   } catch (error) {
-    send({ error: String(error), slowreader: 'exportError' })
+    send({ error: String(error), slowreader: 'dumpError' })
   }
 }
 
@@ -154,7 +154,7 @@ Object.assign(processor, {
 
 addEventListener('message', event => {
   let message = event.data as { slowreader?: undefined } | ToWorker
-  if (message.slowreader === 'export') {
+  if (message.slowreader === 'dump') {
     void sendDatabase(driver)
   } else {
     void processor.postMessage(event)

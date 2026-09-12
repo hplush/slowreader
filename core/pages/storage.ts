@@ -23,7 +23,7 @@ export const storagePage = createPage('storage', () => {
   })
 
   let env = getEnvironment()
-  let exporter = env.exportDatabase
+  let dumper = env.dumpDatabase
 
   return {
     compact() {
@@ -36,21 +36,21 @@ export const storagePage = createPage('storage', () => {
         true
       )
     },
-    exit() {
-      unbindDemo()
-    },
-    exportDatabase: exporter
+    dumpDatabase: dumper
       ? () => {
           return busyDuring(
-            storageMessages.get().exporting,
+            storageMessages.get().dumping,
             async () => {
-              let file = await exporter()
+              let file = await dumper()
               env.saveFile(`slowreader-${formatCurrentTime()}.sqlite`, file)
             },
             true
           )
         }
       : undefined,
+    exit() {
+      unbindDemo()
+    },
     hasCloud: hasPassword,
     params: {},
     resetDatabase() {

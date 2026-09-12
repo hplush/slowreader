@@ -57,32 +57,32 @@ export function createDatabase(): Database {
 
 function requestDatabase(processor: Worker): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    function onExported({
+    function onDumped({
       data
     }: MessageEvent<FromWorker | { slowreader?: undefined }>): void {
       if (data.slowreader === 'database') {
-        processor.removeEventListener('message', onExported)
+        processor.removeEventListener('message', onDumped)
         resolve(new Blob([data.database], { type: 'application/x-sqlite3' }))
-      } else if (data.slowreader === 'exportError') {
-        processor.removeEventListener('message', onExported)
+      } else if (data.slowreader === 'dumpError') {
+        processor.removeEventListener('message', onDumped)
         reject(new Error(data.error))
       }
     }
-    processor.addEventListener('message', onExported)
-    processor.postMessage({ slowreader: 'export' } satisfies ToWorker)
+    processor.addEventListener('message', onDumped)
+    processor.postMessage({ slowreader: 'dump' } satisfies ToWorker)
   })
 }
 
 /**
  * Database file as the browser keeps it, to attach it to a bug report.
  */
-export async function exportDatabase(): Promise<Blob> {
+export async function dumpDatabase(): Promise<Blob> {
   if (vfs === 'opfs') {
     let root = await navigator.storage.getDirectory()
     return (await root.getFileHandle(DATABASE)).getFile()
   } else if (current) {
     return requestDatabase(current)
   } else {
-    throw new Error('No database to export')
+    throw new Error('No database to dump')
   }
 }

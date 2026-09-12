@@ -77,15 +77,15 @@ export interface Environment {
   databaseCreator: DatabaseCreator
 
   /**
-   * `window` in web or `process` in Node.js to track unhandled errors.
-   */
-  errorEvents: ErrorEvents
-
-  /**
    * Read the database file as is to save it for a bug report. Only clients,
    * which can read the file of the working database (like web), have it.
    */
-  exportDatabase?(): Promise<Blob>
+  dumpDatabase?(): Promise<Blob>
+
+  /**
+   * `window` in web or `process` in Node.js to track unhandled errors.
+   */
+  errorEvents: ErrorEvents
 
   /**
    * Restore server’s session token saves in `saveSession()`.
@@ -195,8 +195,8 @@ export function setupEnvironment<Router extends BaseRouter>(
     baseRouter: env.baseRouter,
     cleanStorage: env.cleanStorage,
     databaseCreator: env.databaseCreator,
+    dumpDatabase: env.dumpDatabase,
     errorEvents: env.errorEvents,
-    exportDatabase: env.exportDatabase,
     getSession: env.getSession,
     locale: env.locale,
     networkType: env.networkType,

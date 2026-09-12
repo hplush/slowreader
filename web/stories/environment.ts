@@ -51,10 +51,10 @@ setupEnvironment({
   databaseCreator() {
     return openDb(sqlocalDriver(':memory:'))
   },
-  errorEvents: window,
-  exportDatabase() {
+  dumpDatabase() {
     return Promise.resolve(new Blob(['SQLite format 3\0']))
   },
+  errorEvents: window,
   getSession() {
     return undefined
   },
