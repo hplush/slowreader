@@ -576,7 +576,9 @@ describe('proxy', () => {
         dnsCacheTime: 60000,
         hostDelay: 0,
         ipLimit: 2,
-        ipWindow: 100,
+        // The window starts with the proxy and must outlast three requests
+        // even when the machine runs every test of the project in parallel
+        ipWindow: 1000,
         maxRequests: 100,
         maxSize: 1500,
         requestTimeout: 1000
@@ -598,7 +600,7 @@ describe('proxy', () => {
     equal(await load(), 200)
     equal(await load(), 429)
 
-    await setTimeout(150)
+    await setTimeout(1100)
     equal(await load(), 200)
   })
 
