@@ -1,6 +1,7 @@
 import { zero, zeroClean } from '@logux/actions'
 import type { Client } from '@logux/client'
 import { encryptActions } from '@logux/client'
+import { parseId } from '@logux/core'
 import { TestClient, type TestServer } from '@logux/server'
 import { dbReset, RETENTION, signIn, signUp } from '@slowreader/api'
 import { eq } from 'drizzle-orm'
@@ -36,6 +37,13 @@ describe('server sync', () => {
         meta.sync = true
       }
     })
+    // `TestClient` re-sends the whole log on the reconnect, while the real
+    // client sends only the actions of this device
+    let send = client.node.options.onSend!
+    client.node.options.onSend = (action, meta) => {
+      if (parseId(meta.id).clientId !== client.clientId) return false
+      return send(action, meta)
+    }
     await client.connect()
     return client
   }

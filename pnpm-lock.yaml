@@ -198,8 +198,8 @@ importers:
         specifier: npm:typescript@7.0.2
         version: typescript@7.0.2
       actions-up:
-        specifier: 1.19.0
-        version: 1.19.0
+        specifier: 1.20.0
+        version: 1.20.0
       better-node-test:
         specifier: 1.0.0
         version: 1.0.0
@@ -289,23 +289,23 @@ importers:
     dependencies:
       '@logux/actions':
         specifier: 0.7.3
-        version: 0.7.3(@logux/core@0.11.7)
+        version: 0.7.3(@logux/core@0.11.8)
     devDependencies:
       '@logux/core':
-        specifier: 0.11.7
-        version: 0.11.7
+        specifier: 0.11.8
+        version: 0.11.8
 
   core:
     dependencies:
       '@logux/actions':
         specifier: 0.7.3
-        version: 0.7.3(@logux/core@0.11.7)
+        version: 0.7.3(@logux/core@0.11.8)
       '@logux/client':
-        specifier: 0.25.1
-        version: 0.25.1(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)
+        specifier: 0.25.2
+        version: 0.25.2(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)
       '@logux/core':
-        specifier: 0.11.7
-        version: 0.11.7
+        specifier: 0.11.8
+        version: 0.11.8
       '@nanostores/i18n':
         specifier: 1.3.3
         version: 1.3.3(nanostores@1.5.3)
@@ -344,8 +344,8 @@ importers:
         version: 1.5.3
     devDependencies:
       '@logux/server':
-        specifier: 0.16.2
-        version: 0.16.2
+        specifier: 0.16.3
+        version: 0.16.3
       '@slowreader/proxy':
         specifier: workspace:*
         version: link:../proxy
@@ -368,8 +368,8 @@ importers:
         specifier: 0.35.4
         version: 0.35.4(@types/node@26.4.1)
       vite:
-        specifier: 8.2.2
-        version: 8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
+        specifier: 8.3.0
+        version: 8.3.0(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
 
   landings:
     dependencies:
@@ -386,8 +386,8 @@ importers:
         specifier: 0.35.4
         version: 0.35.4(@types/node@26.4.1)
       vite:
-        specifier: 8.2.2
-        version: 8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
+        specifier: 8.3.0
+        version: 8.3.0(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
 
   loader-tests:
     devDependencies:
@@ -420,13 +420,13 @@ importers:
         version: 0.5.8
       '@logux/actions':
         specifier: 0.7.3
-        version: 0.7.3(@logux/core@0.11.7)
+        version: 0.7.3(@logux/core@0.11.8)
       '@logux/core':
-        specifier: 0.11.7
-        version: 0.11.7
+        specifier: 0.11.8
+        version: 0.11.8
       '@logux/server':
-        specifier: 0.16.2
-        version: 0.16.2
+        specifier: 0.16.3
+        version: 0.16.3
       '@slowreader/api':
         specifier: workspace:*
         version: link:../api
@@ -453,8 +453,8 @@ importers:
         version: 3.4.9
     devDependencies:
       '@logux/client':
-        specifier: 0.25.1
-        version: 0.25.1(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)
+        specifier: 0.25.2
+        version: 0.25.2(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)
       better-node-test:
         specifier: 1.0.0
         version: 1.0.0
@@ -480,11 +480,11 @@ importers:
         specifier: 5.3.0
         version: 5.3.0
       '@logux/client':
-        specifier: 0.25.1
-        version: 0.25.1(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)
+        specifier: 0.25.2
+        version: 0.25.2(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)
       '@logux/core':
-        specifier: 0.11.7
-        version: 0.11.7
+        specifier: 0.11.8
+        version: 0.11.8
       '@mdi/js':
         specifier: 7.4.47
         version: 7.4.47
@@ -517,7 +517,7 @@ importers:
         version: 10.6.0(storybook@10.6.0)
       '@storybook/addon-svelte-csf':
         specifier: 5.1.3
-        version: 5.1.3(@storybook/svelte@10.6.0)(@sveltejs/vite-plugin-svelte@7.3.0)(storybook@10.6.0)(svelte@5.57.0)(vite@8.2.2)
+        version: 5.1.3(@storybook/svelte@10.6.0)(@sveltejs/vite-plugin-svelte@7.3.0)(storybook@10.6.0)(svelte@5.57.0)(vite@8.3.0)
       '@storybook/addon-themes':
         specifier: 10.6.0
         version: 10.6.0(storybook@10.6.0)
@@ -526,13 +526,13 @@ importers:
         version: 10.6.0(storybook@10.6.0)(svelte@5.57.0)
       '@storybook/svelte-vite':
         specifier: 10.6.0
-        version: 10.6.0(@sveltejs/vite-plugin-svelte@7.3.0)(storybook@10.6.0)(svelte@5.57.0)(vite@8.2.2)
+        version: 10.6.0(@sveltejs/vite-plugin-svelte@7.3.0)(storybook@10.6.0)(svelte@5.57.0)(vite@8.3.0)
       '@sveltejs/vite-plugin-svelte':
         specifier: 7.3.0
-        version: 7.3.0(svelte@5.57.0)(vite@8.2.2)
+        version: 7.3.0(svelte@5.57.0)(vite@8.3.0)
       autoprefixer:
-        specifier: 10.5.6
-        version: 10.5.6(postcss@8.5.28)
+        specifier: 10.6.0
+        version: 10.6.0(postcss@8.5.28)
       keyux:
         specifier: 0.11.6
         version: 0.11.6
@@ -562,7 +562,7 @@ importers:
         version: 0.35.4(@types/node@26.4.1)
       sqlocal:
         specifier: 0.18.0
-        version: 0.18.0(drizzle-orm@1.0.0-rc.4)(react@19.3.0)(vite@8.2.2)
+        version: 0.18.0(drizzle-orm@1.0.0-rc.4)(react@19.3.0)(vite@8.3.0)
       storybook:
         specifier: 10.6.0
         version: 10.6.0(react@19.3.0)
@@ -570,12 +570,12 @@ importers:
         specifier: 5.57.0
         version: 5.57.0(@typescript-eslint/types@8.70.0)
       vite:
-        specifier: 8.2.2
-        version: 8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
+        specifier: 8.3.0
+        version: 8.3.0(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
     devDependencies:
       '@size-limit/file':
-        specifier: 13.0.3
-        version: 13.0.3(size-limit@13.0.3)
+        specifier: 13.1.1
+        version: 13.1.1(size-limit@13.1.1)
       '@types/trusted-types':
         specifier: 2.0.7
         version: 2.0.7
@@ -583,8 +583,8 @@ importers:
         specifier: 4.28.9
         version: 4.28.9
       chromatic:
-        specifier: 18.7.4
-        version: 18.7.4
+        specifier: 18.8.1
+        version: 18.8.1
       eslint:
         specifier: 10.10.0
         version: 10.10.0(jiti@2.7.0)(supports-color@10.2.2)
@@ -598,8 +598,8 @@ importers:
         specifier: 7.1.6
         version: 7.1.6
       size-limit:
-        specifier: 13.0.3
-        version: 13.0.3
+        specifier: 13.1.1
+        version: 13.1.1
       svelte-check:
         specifier: 4.7.6
         version: 4.7.6(picomatch@4.0.7)(svelte@5.57.0)(typescript@6.0.3)
@@ -663,8 +663,8 @@ packages:
     peerDependencies:
       '@csstools/css-tokenizer': ^4.0.0
 
-  '@csstools/css-syntax-patches-for-csstree@1.1.12':
-    resolution: {integrity: sha512-3vLQK+dXxhBMR2Wx99PTCifE+vHtW2ndZWyla8yK813ev6oGhyn8Lja8jCyGAWTJ+LEYZK7EVtJxrDj8ztevJw==}
+  '@csstools/css-syntax-patches-for-csstree@1.1.13':
+    resolution: {integrity: sha512-i9ZylF5QNhmNfPA9l0vHAWK4kPrbIp6g9lKgaiIFsIBz2F/WNB7OLrzlNNcCOm+h42bkaSD2v1PG+IBPHhc3ZA==}
     peerDependencies:
       css-tree: ^3.2.1
     peerDependenciesMeta:
@@ -1330,8 +1330,8 @@ packages:
     peerDependencies:
       '@logux/core': ^0.11.0
 
-  '@logux/client@0.25.1':
-    resolution: {integrity: sha512-wKxHHyz4tZ8ylpoxA2k6cSSOB5ZdWciD+/UQB4nk1GtrPIM4kkHDoRHmxbGdmt3s4bGK5H9HfFLXjiDmDAQ/MQ==}
+  '@logux/client@0.25.2':
+    resolution: {integrity: sha512-qyORx3YJ8A7dsTj6v0NOKUhz33CGiMfORz8nwgofEdZ9X3/0pqeE8aOFC6cE3K9fWrN0Hb6Ho0K0pm0i+/VZdQ==}
     engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
     peerDependencies:
       '@nanostores/preact': '>=0.0.0'
@@ -1365,8 +1365,8 @@ packages:
     resolution: {integrity: sha512-VbgVkEloAe2ym5w0cjyRI16Eeyk2R0BgJa9pMYT1FcJEhFnzrB23E0ExIEhrok0iD48bFh7goledwmDLmgWaiw==}
     engines: {node: ^20.0.0 || >=22.0.0}
 
-  '@logux/core@0.11.7':
-    resolution: {integrity: sha512-yF/e3wq/c2rw/yzHOkvFoXNutZ1yhG+Tm0cSx/ZrbiSFoRVdC9D9knSDV/eJlc/GUMZPf6ZPcZRqcS7G58D5pA==}
+  '@logux/core@0.11.8':
+    resolution: {integrity: sha512-AP+qaNqvu6ukGnaHksEgaVWvqmpWlrV9rwwXVc4rEHk5dcgm87+kxWsKJhez1bOeFOQ+l3mzOODrOhyjHnLEfA==}
     engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
 
   '@logux/eslint-config@57.1.0':
@@ -1397,8 +1397,8 @@ packages:
     resolution: {integrity: sha512-a7KRD30U252cfIekBGktEIRuwFRT7vOPZXkEsD05DwApsPi70iRnFaHEgMde8tZu+jJUuTDN/xMgabtjzHzXaQ==}
     engines: {node: ^20.0.0 || >=22.0.0}
 
-  '@logux/server@0.16.2':
-    resolution: {integrity: sha512-mM5HNa8ONKS8P5LKX7qKLPrzFh6H3QWxUnmRWkE4aiwETn136fGEdX22QmDqM45xV1x0kMSuTgWKPuGEHP//pg==}
+  '@logux/server@0.16.3':
+    resolution: {integrity: sha512-5sFRN6vBGZC4lASD845oYVrdiUd8BgW0D/CGl0ZYLQDyBwmElQ9JssGbxUcxqWwLfWPdmYBq3RuTo4/2KABCyA==}
     engines: {node: ^22.5.0 || ^24.0.0 || >=26.0.0}
 
   '@logux/stylelint-config@1.0.1':
@@ -1456,8 +1456,8 @@ packages:
     os: [linux]
     libc: [glibc]
 
-  '@napi-rs/wasm-runtime@1.2.3':
-    resolution: {integrity: sha512-UMduMbqO5s5zF2NkNacMT/yK5Y5QiKvWr2+50bzIIxFDwVJ2h49b+oyjaCGPhJxd2/gC2x39EHv/gHVuu36x2Q==}
+  '@napi-rs/wasm-runtime@1.2.4':
+    resolution: {integrity: sha512-AJxoUD2/15ESHbvpcyjU274nsAPLuOtPHCk0vKJM5pj//Fg/B1FXNWjPnXTT9PymCYYiHo4zPj0ZomXBKhoy7g==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=23.5.0}
     peerDependencies:
       '@emnapi/core': ^1.7.1 || ^2.0.0-alpha.4
@@ -2271,11 +2271,11 @@ packages:
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
 
-  '@size-limit/file@13.0.3':
-    resolution: {integrity: sha512-PWTITIXH5p9aGIf6qq2Fruihn/b9nBQyfkyoAyb6DzFJgS1Ek9MSPJYKxKFLO8jdo0aqSgBPd3sevbS6PyBiJw==}
+  '@size-limit/file@13.1.1':
+    resolution: {integrity: sha512-hWsrLRKBSh1vVFa86e2WcpBWcTYnwRvvZ54o6wzmPduhYUQPgOCr9eWqNMLCxvqLP5EiJeGCwLQFDjdgusGFSw==}
     engines: {node: ^20.0.0 || ^22.0.0 || >=24.0.0}
     peerDependencies:
-      size-limit: 13.0.3
+      size-limit: 13.1.1
 
   '@sqlite.org/sqlite-wasm@3.51.2-build9':
     resolution: {integrity: sha512-tj2Sa6X4gVZqS9SiT2xlEeChSUklSGq8Hz6zKNbHW6NRiGyrSXiFcspnrWru1wPBT76RX/VxweESKxawCxfDxg==}
@@ -2806,8 +2806,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  actions-up@1.19.0:
-    resolution: {integrity: sha512-Xxr0/3/oVpcxPn2/vlWRsPwGPyMI+Vi6eSKZxwKfSYqjDt06+gmTHvp+R2runBlI31DikPmqgUp2EKfzZBnG1w==}
+  actions-up@1.20.0:
+    resolution: {integrity: sha512-Wq1Jdb3YHdyoEv6UriVV889Ymnz683441V8/YApVdDvTtr70QHUqFNHp59FZ05R5gzlC6Y2aaZoymwLg70OAdQ==}
     engines: {node: ^18.3.0 || >=20.0.0}
     hasBin: true
 
@@ -2882,8 +2882,8 @@ packages:
     resolution: {integrity: sha512-Z7tMw1ytTXt5jqMcOP+OQteU1VuNK9Y02uuJtKQ1Sv69jXQKKg5cibLwGJow8yzZP+eAc18EmLGPal0bp36rvQ==}
     engines: {node: '>=8'}
 
-  autoprefixer@10.5.6:
-    resolution: {integrity: sha512-HiH4oYNc5+DQEx/b8FPfMj+WHH/WWUBmbN5r1Uf/ixtfyFkk+wGIlfJT/RD5eAyzlwkeYRtZUCI8qrEi26pl2g==}
+  autoprefixer@10.6.0:
+    resolution: {integrity: sha512-A26d6qs9kqGgkmImIXMYvXTzqb4Qv7AVgpY1NXzr9Y659J8qHHnLOO/zE8ewIGFMprOolAoRAQYDgNryXIJKBw==}
     engines: {node: ^10 || ^12 || >=14}
     hasBin: true
     peerDependencies:
@@ -3017,8 +3017,8 @@ packages:
     resolution: {integrity: sha512-Qgzu8kfBvo+cA4962jnP1KkS6Dop5NS6g7R5LFYJr4b8Ub94PPQXUksCw9PvXoeXPRRddRNC5C1JQUR2SMGtnA==}
     engines: {node: '>= 14.16.0'}
 
-  chromatic@18.7.4:
-    resolution: {integrity: sha512-2PP+l1wY6VsOm8eFAc1Pl3mwQoqmuRdY6JjXGcym6fC7RNR/XHoWbStRTqCHB8CkTCqIZtWW3UfCRLtilDhKxQ==}
+  chromatic@18.8.1:
+    resolution: {integrity: sha512-ATJyUUuUrK1GA3bPNHPHgwQtqw/cSapC/hReF53EBO0HT0yYCl5jEeWBQP64+bAlZTK7zTSjzKe4109qbdKTvQ==}
     engines: {node: '>=22.0.0'}
     hasBin: true
     peerDependencies:
@@ -3426,8 +3426,8 @@ packages:
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
-  electron-to-chromium@1.5.425:
-    resolution: {integrity: sha512-QvPtl41EUOnuT1HBvMKgxXRIaHNcagBPs50u7VULzhZXaGfqTbZyE16LQsctZ/RQHlGu+FOWeDTR4mY6YbeF1g==}
+  electron-to-chromium@1.5.427:
+    resolution: {integrity: sha512-n14zb3FdsChZ2BNobqNHAJMcP3ifFv4paox2LvCrfVAQcqGiSURgbJl+PfMpHVCNFkStnNc+RRVtPBTVW5PDgw==}
 
   emoji-regex@10.6.0:
     resolution: {integrity: sha512-toUI84YS5YmxW219erniWD0CIVOo46xGKColeNQRgOzDorgBi1v4D71/OFzgD9GO2UGKIv1C3Sp8DAn0+j5w7A==}
@@ -4206,8 +4206,8 @@ packages:
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
-  magic-string@1.2.3:
-    resolution: {integrity: sha512-Bpb0W2TbLKOZ7vJnOUnVRGq3WL2p+ISV29M6hYPL1AFCpyKZpdr5ytiXoTSSxRVhg8YW7f65+6gbG8WG6PCa/g==}
+  magic-string@1.3.1:
+    resolution: {integrity: sha512-rm91zr2Ou+XueDTohjQQjdQEcYM6zVi8KVUCG8Ec3vHwUEKrhSdCNyfuIywkA6hcCAteIn0ZOtAHA6eGpiX+Pg==}
 
   markdown-extensions@2.0.0:
     resolution: {integrity: sha512-o5vL7aDWatOTX8LzaS1WMoaoxIiLRQJuIKKe2wAw6IeULDHaqbiqiggmx+pKvZDb1Sj+pE46Sn1T7lCqfFtg1Q==}
@@ -4967,8 +4967,8 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
-  size-limit@13.0.3:
-    resolution: {integrity: sha512-KVb2aNEU49BwTR21SVjD+2QHP9gBV/nWsTHzNB/heRwXtHyA7lLQiDZDQ1TiNh/B/TZXKAZrHYyTt+cvBUrzYw==}
+  size-limit@13.1.1:
+    resolution: {integrity: sha512-Yl3CuQFSB3TSirrg9jyD/ahEUa6+aoMWj4UuucW36XunEsBfYhRACZRQr7vaUKoLkS88Njw0czdpDQFfbvCc+Q==}
     engines: {node: ^22.18.0 || ^24.0.0 || >=26.0.0}
     hasBin: true
 
@@ -5463,13 +5463,13 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
-  vite@8.2.2:
-    resolution: {integrity: sha512-cFKLV/PRgAUlIRm5WjMjJ86jrftzpqcgH+Us+DS8mI3CDNiH30Whrz8uHL3+MOLPAgqbMBAqWdAHAphOAM+z/Q==}
+  vite@8.3.0:
+    resolution: {integrity: sha512-lhZBVvEHefgE+HQZC9O7EBJgCU/nVzFNl7vkS4RE0APtWLP02/8QVIkQtzBxPquh7lq5/78NHipTj7ODQ6XuyQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
       '@types/node': ^20.19.0 || >=22.12.0
-      '@vitejs/devtools': ^0.4.0 || ^0.5.0
+      '@vitejs/devtools': ^0.7.1
       esbuild: ^0.27.0 || ^0.28.0
       jiti: '>=1.21.0'
       less: ^4.0.0
@@ -5536,8 +5536,8 @@ packages:
     resolution: {integrity: sha512-1to4zXBxmXHV3IiSSEInrreIlu02vUOvrhxJJH5vcxYTBDAx51cqZiKdyTxlecdKNSjj8EcxGBxNf6Vg+945gw==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
 
-  whatwg-url@17.1.0:
-    resolution: {integrity: sha512-3GeworPmc2ZfEEHP7lEbUfBX/L75wdEsi0rLNhXcXxnoN5jyq0SL5gCy06SGW2cyTIZdTvWIDQNQoza++vKeaw==}
+  whatwg-url@17.1.1:
+    resolution: {integrity: sha512-ohjk1mdUebJVadRt3bAhQhx8lSnISq+GDttK79LFl8EHQkAPvzwctoasC4hs8tBt6kLAncBWWyq1N52qEfKvDw==}
     engines: {node: ^22.14.0 || >=24.0.0}
 
   which@1.3.1:
@@ -5685,7 +5685,7 @@ snapshots:
     dependencies:
       '@csstools/css-tokenizer': 4.0.0
 
-  '@csstools/css-syntax-patches-for-csstree@1.1.12(css-tree@3.2.1)':
+  '@csstools/css-syntax-patches-for-csstree@1.1.13(css-tree@3.2.1)':
     optionalDependencies:
       css-tree: 3.2.1
 
@@ -6138,14 +6138,14 @@ snapshots:
     dependencies:
       '@logux/core': 0.10.0
 
-  '@logux/actions@0.7.3(@logux/core@0.11.7)':
+  '@logux/actions@0.7.3(@logux/core@0.11.8)':
     dependencies:
-      '@logux/core': 0.11.7
+      '@logux/core': 0.11.8
 
-  '@logux/client@0.25.1(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)':
+  '@logux/client@0.25.2(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)':
     dependencies:
-      '@logux/actions': 0.7.3(@logux/core@0.11.7)
-      '@logux/core': 0.11.7
+      '@logux/actions': 0.7.3(@logux/core@0.11.8)
+      '@logux/core': 0.11.8
       nanoevents: 10.0.0
       nanoid: 6.0.1
       nanostores: 1.5.3
@@ -6157,7 +6157,7 @@ snapshots:
     dependencies:
       nanoevents: 9.1.0
 
-  '@logux/core@0.11.7':
+  '@logux/core@0.11.8':
     dependencies:
       nanoevents: 10.0.0
 
@@ -6203,10 +6203,10 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@logux/server@0.16.2':
+  '@logux/server@0.16.3':
     dependencies:
-      '@logux/actions': 0.7.3(@logux/core@0.11.7)
-      '@logux/core': 0.11.7
+      '@logux/actions': 0.7.3(@logux/core@0.11.8)
+      '@logux/core': 0.11.8
       cookie: 2.0.1
       fastq: 1.20.3
       nanoevents: 10.0.0
@@ -6247,26 +6247,26 @@ snapshots:
       nanostores: 1.5.3
     optionalDependencies:
       '@electric-sql/pglite': 0.5.8
-      sqlocal: 0.18.0(drizzle-orm@1.0.0-rc.4)(react@19.3.0)(vite@8.2.2)
+      sqlocal: 0.18.0(drizzle-orm@1.0.0-rc.4)(react@19.3.0)(vite@8.3.0)
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
 
-  '@napi-rs/wasm-runtime@1.2.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
+  '@napi-rs/wasm-runtime@1.2.4(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
       '@emnapi/core': 1.10.0
       '@emnapi/runtime': 1.10.0
       '@tybys/wasm-util': 0.10.3
     optional: true
 
-  '@napi-rs/wasm-runtime@1.2.3(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)':
+  '@napi-rs/wasm-runtime@1.2.4(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)':
     dependencies:
       '@emnapi/core': 1.11.0
       '@emnapi/runtime': 1.11.0
       '@tybys/wasm-util': 0.10.3
     optional: true
 
-  '@napi-rs/wasm-runtime@1.2.3(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)':
+  '@napi-rs/wasm-runtime@1.2.4(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)':
     dependencies:
       '@emnapi/core': 1.9.2
       '@emnapi/runtime': 1.9.2
@@ -6389,7 +6389,7 @@ snapshots:
     dependencies:
       '@emnapi/core': 1.9.2
       '@emnapi/runtime': 1.9.2
-      '@napi-rs/wasm-runtime': 1.2.3(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)
+      '@napi-rs/wasm-runtime': 1.2.4(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)
     optional: true
 
   '@oxc-parser/binding-win32-arm64-msvc@0.127.0':
@@ -6457,7 +6457,7 @@ snapshots:
     dependencies:
       '@emnapi/core': 1.11.0
       '@emnapi/runtime': 1.11.0
-      '@napi-rs/wasm-runtime': 1.2.3(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
+      '@napi-rs/wasm-runtime': 1.2.4(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
     optional: true
 
   '@oxc-resolver/binding-win32-arm64-msvc@11.21.2':
@@ -6738,9 +6738,9 @@ snapshots:
 
   '@sindresorhus/merge-streams@4.0.0': {}
 
-  '@size-limit/file@13.0.3(size-limit@13.0.3)':
+  '@size-limit/file@13.1.1(size-limit@13.1.1)':
     dependencies:
-      size-limit: 13.0.3
+      size-limit: 13.1.1
 
   '@sqlite.org/sqlite-wasm@3.51.2-build9': {}
 
@@ -6750,11 +6750,11 @@ snapshots:
       axe-core: 4.13.0
       storybook: 10.6.0(react@19.3.0)
 
-  '@storybook/addon-svelte-csf@5.1.3(@storybook/svelte@10.6.0)(@sveltejs/vite-plugin-svelte@7.3.0)(storybook@10.6.0)(svelte@5.57.0)(vite@8.2.2)':
+  '@storybook/addon-svelte-csf@5.1.3(@storybook/svelte@10.6.0)(@sveltejs/vite-plugin-svelte@7.3.0)(storybook@10.6.0)(svelte@5.57.0)(vite@8.3.0)':
     dependencies:
       '@storybook/csf': 0.1.13
       '@storybook/svelte': 10.6.0(storybook@10.6.0)(svelte@5.57.0)
-      '@sveltejs/vite-plugin-svelte': 7.3.0(svelte@5.57.0)(vite@8.2.2)
+      '@sveltejs/vite-plugin-svelte': 7.3.0(svelte@5.57.0)(vite@8.3.0)
       dedent: 1.7.2
       es-toolkit: 1.52.0
       esrap: 1.4.9
@@ -6762,7 +6762,7 @@ snapshots:
       storybook: 10.6.0(react@19.3.0)
       svelte: 5.57.0(@typescript-eslint/types@8.70.0)
       svelte-ast-print: 0.4.2(svelte@5.57.0)
-      vite: 8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
+      vite: 8.3.0(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
       zimmerframe: 1.1.5
     transitivePeerDependencies:
       - babel-plugin-macros
@@ -6772,11 +6772,11 @@ snapshots:
       storybook: 10.6.0(react@19.3.0)
       ts-dedent: 2.3.0
 
-  '@storybook/builder-vite@10.6.0(storybook@10.6.0)(vite@8.2.2)':
+  '@storybook/builder-vite@10.6.0(storybook@10.6.0)(vite@8.3.0)':
     dependencies:
       storybook: 10.6.0(react@19.3.0)
       ts-dedent: 2.3.0
-      vite: 8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
+      vite: 8.3.0(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
 
   '@storybook/csf@0.1.13':
     dependencies:
@@ -6788,17 +6788,17 @@ snapshots:
     dependencies:
       react: 19.3.0
 
-  '@storybook/svelte-vite@10.6.0(@sveltejs/vite-plugin-svelte@7.3.0)(storybook@10.6.0)(svelte@5.57.0)(vite@8.2.2)':
+  '@storybook/svelte-vite@10.6.0(@sveltejs/vite-plugin-svelte@7.3.0)(storybook@10.6.0)(svelte@5.57.0)(vite@8.3.0)':
     dependencies:
-      '@storybook/builder-vite': 10.6.0(storybook@10.6.0)(vite@8.2.2)
+      '@storybook/builder-vite': 10.6.0(storybook@10.6.0)(vite@8.3.0)
       '@storybook/svelte': 10.6.0(storybook@10.6.0)(svelte@5.57.0)
-      '@sveltejs/vite-plugin-svelte': 7.3.0(svelte@5.57.0)(vite@8.2.2)
-      magic-string: 1.2.3
+      '@sveltejs/vite-plugin-svelte': 7.3.0(svelte@5.57.0)(vite@8.3.0)
+      magic-string: 1.3.1
       storybook: 10.6.0(react@19.3.0)
       svelte: 5.57.0(@typescript-eslint/types@8.70.0)
       svelte2tsx: 0.7.61(svelte@5.57.0)(typescript@5.9.3)
       typescript: 5.9.3
-      vite: 8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
+      vite: 8.3.0(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
 
   '@storybook/svelte@10.6.0(storybook@10.6.0)(svelte@5.57.0)':
     dependencies:
@@ -6829,14 +6829,14 @@ snapshots:
 
   '@sveltejs/load-config@0.2.3': {}
 
-  '@sveltejs/vite-plugin-svelte@7.3.0(svelte@5.57.0)(vite@8.2.2)':
+  '@sveltejs/vite-plugin-svelte@7.3.0(svelte@5.57.0)(vite@8.3.0)':
     dependencies:
       deepmerge: 4.3.1
-      magic-string: 1.2.3
+      magic-string: 1.3.1
       obug: 2.2.1
       svelte: 5.57.0(@typescript-eslint/types@8.70.0)
-      vite: 8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
-      vitefu: 1.1.3(vite@8.2.2)
+      vite: 8.3.0(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
+      vitefu: 1.1.3(vite@8.3.0)
 
   '@szmarczak/http-timer@5.0.1':
     dependencies:
@@ -7175,7 +7175,7 @@ snapshots:
     dependencies:
       '@emnapi/core': 1.10.0
       '@emnapi/runtime': 1.10.0
-      '@napi-rs/wasm-runtime': 1.2.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@napi-rs/wasm-runtime': 1.2.4(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
     optional: true
 
   '@unrs/resolver-binding-win32-arm64-msvc@1.12.2':
@@ -7221,7 +7221,7 @@ snapshots:
 
   acorn@8.18.0: {}
 
-  actions-up@1.19.0:
+  actions-up@1.20.0:
     dependencies:
       enquirer: 2.4.1
       nanospinner: 1.2.2
@@ -7294,7 +7294,7 @@ snapshots:
 
   astral-regex@2.0.0: {}
 
-  autoprefixer@10.5.6(postcss@8.5.28):
+  autoprefixer@10.6.0(postcss@8.5.28):
     dependencies:
       browserslist: 4.28.9
       caniuse-lite: 1.0.30001810
@@ -7348,7 +7348,7 @@ snapshots:
     dependencies:
       baseline-browser-mapping: 2.11.22
       caniuse-lite: 1.0.30001810
-      electron-to-chromium: 1.5.425
+      electron-to-chromium: 1.5.427
       node-releases: 2.0.55
       update-browserslist-db: 1.3.3(browserslist@4.28.9)
 
@@ -7424,7 +7424,7 @@ snapshots:
     dependencies:
       readdirp: 4.1.2
 
-  chromatic@18.7.4:
+  chromatic@18.8.1:
     dependencies:
       semver: 7.8.5
 
@@ -7666,7 +7666,7 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  electron-to-chromium@1.5.425: {}
+  electron-to-chromium@1.5.427: {}
 
   emoji-regex@10.6.0: {}
 
@@ -8327,7 +8327,7 @@ snapshots:
       '@asamuzakjp/css-color': 6.0.7
       '@asamuzakjp/dom-selector': 8.3.2
       '@bramus/specificity': 2.4.2
-      '@csstools/css-syntax-patches-for-csstree': 1.1.12(css-tree@3.2.1)
+      '@csstools/css-syntax-patches-for-csstree': 1.1.13(css-tree@3.2.1)
       '@exodus/bytes': 1.15.1
       css-tree: 3.2.1
       data-urls: 7.0.0
@@ -8343,7 +8343,7 @@ snapshots:
       w3c-xmlserializer: 5.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
-      whatwg-url: 17.1.0
+      whatwg-url: 17.1.1
       xml-name-validator: 5.0.0
     transitivePeerDependencies:
       - '@noble/hashes'
@@ -8479,7 +8479,7 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.6.0
 
-  magic-string@1.2.3:
+  magic-string@1.3.1:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.6.0
 
@@ -9525,7 +9525,7 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
-  size-limit@13.0.3:
+  size-limit@13.1.1:
     dependencies:
       bytes-iec: 3.1.1
       lilconfig: 3.1.3
@@ -9561,14 +9561,14 @@ snapshots:
 
   spdx-license-ids@3.0.23: {}
 
-  sqlocal@0.18.0(drizzle-orm@1.0.0-rc.4)(react@19.3.0)(vite@8.2.2):
+  sqlocal@0.18.0(drizzle-orm@1.0.0-rc.4)(react@19.3.0)(vite@8.3.0):
     dependencies:
       '@sqlite.org/sqlite-wasm': 3.51.2-build9
       coincident: 1.2.3
     optionalDependencies:
       drizzle-orm: 1.0.0-rc.4(@electric-sql/pglite@0.5.8)(postgres@3.4.9)
       react: 19.3.0
-      vite: 8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
+      vite: 8.3.0(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -9680,7 +9680,7 @@ snapshots:
     dependencies:
       '@csstools/css-calc': 3.3.0(@csstools/css-parser-algorithms@4.0.0)(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
-      '@csstools/css-syntax-patches-for-csstree': 1.1.12(css-tree@3.2.1)
+      '@csstools/css-syntax-patches-for-csstree': 1.1.13(css-tree@3.2.1)
       '@csstools/css-tokenizer': 4.0.0
       '@csstools/media-query-list-parser': 5.0.0(@csstools/css-parser-algorithms@4.0.0)(@csstools/css-tokenizer@4.0.0)
       '@csstools/selector-resolve-nested': 4.0.1(postcss-selector-parser@7.1.6)
@@ -10188,7 +10188,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite@8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0):
+  vite@8.3.0(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.7
@@ -10203,9 +10203,9 @@ snapshots:
       sugarss: 5.0.1(postcss@8.5.28)
       yaml: 2.9.0
 
-  vitefu@1.1.3(vite@8.2.2):
+  vitefu@1.1.3(vite@8.3.0):
     optionalDependencies:
-      vite: 8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
+      vite: 8.3.0(@types/node@26.4.1)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.0)
 
   w3c-xmlserializer@5.0.0:
     dependencies:
@@ -10227,7 +10227,7 @@ snapshots:
     transitivePeerDependencies:
       - '@noble/hashes'
 
-  whatwg-url@17.1.0:
+  whatwg-url@17.1.1:
     dependencies:
       '@exodus/bytes': 1.15.1
       tr46: 6.0.0
