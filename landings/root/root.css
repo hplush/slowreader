@@ -180,6 +180,7 @@ body {
   padding: 7rem 2rem 4rem;
   overflow: hidden;
   color: oklch(1 0 0);
+  background: --average-color('../images/main/main.avif');
 }
 
 .hero_image {

@@ -9,6 +9,7 @@ _See the [full architecture guide](../README.md) first._
 - [`root/`](./root/): page on `/` with its own CSS and JS. The build renames `root.html` to `index.html`.
 - [`images/`](./images/): AVIF sources for pages and prompts to generate them.
 - [`vite/`](./vite/): Vite plugins of the build.
+- [`postcss/`](./postcss/): custom PostCSS plugins.
 - [`scripts/`](./scripts/): tools to prepare the sources.
 - [`postcss.config.ts`](./postcss.config.ts): PostCSS plugins for pages CSS, some of them are taken from [web client](../web/postcss/).
 - `generated/`: resized images for `srcset`, made by the build.

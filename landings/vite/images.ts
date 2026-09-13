@@ -62,7 +62,7 @@ export function images(): Plugin {
 
         // Screens taller than 3:4 see less of a wide photo than of this crop.
         // Keep the ratio in sync with `<source media>` in root.html.
-        // The crop point is the same as `object-position` of `.hero_image`
+        // The crop point is the same as `object-position` of `.section_image`
         let portrait = Math.round((height * 3) / 4)
         await variants(source, `${dir.name}-portrait`, portrait, {
           height,

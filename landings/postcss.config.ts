@@ -3,6 +3,7 @@ import shadows from 'postcss-smooth-shadow'
 
 import customMedia from '../web/postcss/custom-media.ts'
 import squircleCorner from '../web/postcss/squircle-corner.ts'
+import averageColor from './postcss/average-color.ts'
 
 export default {
   plugins: [
@@ -10,6 +11,7 @@ export default {
       file: join(import.meta.dirname, '..', 'web', 'main', 'sizes.css')
     }),
     squircleCorner,
-    shadows()
+    shadows(),
+    averageColor
   ]
 }
