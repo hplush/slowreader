@@ -13,6 +13,7 @@ jobs:
   clean:
     name: Clean
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     concurrency:
       group: deploy-preview-${{ github.event.workflow_run.head_branch }}
       cancel-in-progress: false
