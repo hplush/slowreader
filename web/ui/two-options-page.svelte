@@ -90,7 +90,7 @@
       }
 
       @media (--mobile) {
-        width: auto;
+        width: stretch;
         margin: 0;
         padding-inline: var(--page-padding);
 
