@@ -45,16 +45,24 @@ export async function throws(
  *
  * Use it instead of `setTimeout()` to not depend on the machine’s speed.
  */
+/**
+ * Data actions of the client without `logux/prepare`, which the server
+ * sends in front of the actions on every connection.
+ */
+function dataActions(client: TestClient): object[] {
+  return client.log.actions().filter(i => i.type !== 'logux/prepare')
+}
+
 export async function waitForActions(
   client: TestClient,
   expected: object[]
 ): Promise<void> {
   for (
     let i = 0;
-    i < 1000 && client.log.actions().length < expected.length;
+    i < 1000 && dataActions(client).length < expected.length;
     i++
   ) {
     await setTimeout(10)
   }
-  deepEqual(client.log.actions(), expected)
+  deepEqual(dataActions(client), expected)
 }
