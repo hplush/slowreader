@@ -78,21 +78,33 @@
       background: --tune-background(--flat-button);
       border: calc(var(--min-size) / 2) solid var(--flat-border-color);
 
+      li:first-child & {
+        margin-top: 0;
+      }
+
       li:not(:last-child) > & {
         border-bottom: none;
       }
 
-      li:first-child & {
-        margin-top: 0;
-        border-radius: var(--base-radius) var(--base-radius) 0 0;
+      @media (--mobile) {
+        margin-inline: calc(-1 * var(--page-padding) - var(--min-size));
+        padding-inline: var(--page-padding);
+        border-inline: none;
       }
 
-      li:last-child & {
-        border-radius: 0 0 var(--base-radius) var(--base-radius);
-      }
+      @media (--no-mobile) {
+        li:first-child & {
+          margin-top: 0;
+          border-radius: var(--base-radius) var(--base-radius) 0 0;
+        }
 
-      li:last-child:first-child & {
-        border-radius: var(--base-radius);
+        li:last-child & {
+          border-radius: 0 0 var(--base-radius) var(--base-radius);
+        }
+
+        li:last-child:first-child & {
+          border-radius: var(--base-radius);
+        }
       }
 
       &:hover,
