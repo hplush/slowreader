@@ -53,7 +53,7 @@
       min-height: 100svh;
 
       @media (--no-desktop) {
-        min-height: calc(100svh - var(--navbart-height));
+        min-height: calc(100svh - var(--navbar-height));
       }
 
       &.is-center {
