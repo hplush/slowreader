@@ -27,6 +27,8 @@ pnpm -F loader-tests test
 
 Requests go through our [proxy](../proxy/), like in the web client. Add `--no-proxy` to load feeds directly.
 
+Add `--retry` to retry failed feeds once after a minute, as CI does to survive flaky websites.
+
 ## Debug Feed Search
 
 A small helper to run feed searching for specific feed.
