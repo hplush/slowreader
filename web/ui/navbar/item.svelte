@@ -112,10 +112,6 @@
           cursor: default;
         }
       }
-
-      @media (--mobile) {
-        margin-inline: calc(-1 * var(--navbar-item-padding));
-      }
     }
 
     .navbar-item_cap {
@@ -124,7 +120,7 @@
       align-items: center;
       justify-content: stretch;
       height: var(--control-height);
-      padding: 0 var(--navbar-item-padding);
+      padding: 0 0.625rem;
 
       .navbar-item:not([aria-current='page']):active & {
         translate: 0 1px;
