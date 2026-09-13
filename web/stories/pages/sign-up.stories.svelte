@@ -64,3 +64,20 @@
     <SignupPage page={pages.signUp()} />
   </Scene>
 </Story>
+
+<Story
+  name="Mobile"
+  asChild
+  globals={{ viewport: { value: 'mobile2' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene
+    oninit={() => {
+      pages.signUp().credentials.set(testCredentials())
+    }}
+    route="signUp"
+    user={false}
+  >
+    <SignupPage page={pages.signUp()} />
+  </Scene>
+</Story>
