@@ -44,8 +44,6 @@
       }
 
       @media (--no-desktop) {
-        padding: 0 1rem;
-
         &:not(.is-no-bottom) {
           align-items: flex-end;
         }

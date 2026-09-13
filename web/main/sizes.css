@@ -24,7 +24,6 @@
   }
 
   @media (--no-desktop) {
-    --page-padding: 0.5rem;
     --navbar-padding: 0.5rem;
 
     &.has-navbar {
