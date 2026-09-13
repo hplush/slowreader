@@ -277,3 +277,35 @@
     <Navbar />
   </Scene>
 </Story>
+
+<Story
+  name="Mobile Feed"
+  asChild
+  globals={{ viewport: { value: 'mobile2' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene
+    feeds={[{ id: 'feed', reading: 'fast', title: 'The Mozilla Blog' }]}
+    posts={POSTS.map(i => ({ ...i, reading: 'fast' }))}
+    route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
+  >
+    <FeedsPage page={pages.fast()} />
+    <Navbar />
+  </Scene>
+</Story>
+
+<Story
+  name="Mobile List"
+  asChild
+  globals={{ viewport: { value: 'mobile2' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene
+    feeds={[{ id: 'feed', reading: 'slow', title: 'The Mozilla Blog' }]}
+    posts={POSTS}
+    route={{ params: { feed: 'feed' }, route: 'slow' }}
+  >
+    <FeedsPage page={pages.slow()} />
+    <Navbar />
+  </Scene>
+</Story>

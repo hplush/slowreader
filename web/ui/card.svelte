@@ -26,6 +26,10 @@
       padding: 1rem;
       border-radius: calc(1rem + var(--base-radius));
 
+      @media (--mobile) {
+        margin-inline: -0.5rem;
+      }
+
       &.is-main {
         @mixin background var(--main-land-color);
       }

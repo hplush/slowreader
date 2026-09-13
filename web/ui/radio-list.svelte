@@ -77,6 +77,10 @@
       background: --tune-background(--flat-button);
       border: calc(var(--min-size) / 2) solid var(--flat-border-color);
 
+      @media (--mobile) {
+        margin-inline: -0.5rem;
+      }
+
       li:not(:last-child) > & {
         border-bottom: none;
       }

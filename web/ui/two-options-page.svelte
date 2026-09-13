@@ -48,12 +48,12 @@
   :global {
     .two-options-page {
       display: flex;
-      flex-grow: 1;
+      flex-grow: 0;
       justify-content: center;
       min-height: 100svh;
 
       @media (--no-desktop) {
-        min-height: calc(100svh - var(--navbart-height));
+        min-height: calc(100svh - var(--navbar-height));
       }
 
       &.is-center {
@@ -77,16 +77,22 @@
         flex-direction: column-reverse;
         gap: 0.5rem;
         height: auto;
+        flex-shrink: 1;
       }
     }
 
     .two-options-page_option {
-      width: 20rem;
-      max-width: 100%;
       margin: var(--navbar-padding) 0 1rem 0;
 
+      @media (--no-mobile) {
+        width: 20rem;
+        max-width: 100%;
+      }
+
       @media (--mobile) {
+        width: auto;
         margin: 0;
+        padding-inline: var(--page-padding);
 
         &:first-child {
           margin-bottom: 2rem;

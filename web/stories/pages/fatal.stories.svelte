@@ -29,7 +29,12 @@
   </Scene>
 </Story>
 
-<Story name="Broken Database" asChild parameters={{ layout: 'fullscreen' }}>
+<Story
+  name="Broken Database"
+  asChild
+  globals={{ viewport: { value: 'mobile2' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
   <Scene
     oninit={() => {
       fatal.set({

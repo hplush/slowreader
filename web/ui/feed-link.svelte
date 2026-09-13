@@ -27,7 +27,6 @@
       align-items: center;
       max-width: 100%;
       height: 2rem;
-      padding-inline: 0.5rem;
       font: var(--text-font);
       color: var(--text-color);
       border-radius: var(--base-radius);

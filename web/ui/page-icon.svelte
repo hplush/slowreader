@@ -73,6 +73,10 @@
       &.is-center {
         text-align: center;
       }
+
+      @media (--mobile) {
+        width: auto;
+      }
     }
   }
 </style>
