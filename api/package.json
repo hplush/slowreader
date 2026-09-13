@@ -7,7 +7,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@logux/actions": "0.7.3"
+    "@logux/actions": "github:logux/actions#next"
   },
   "devDependencies": {
     "@logux/core": "github:logux/core#next"

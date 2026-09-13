@@ -224,6 +224,10 @@ export const syncStatusType = computed(syncStatus, sync => {
 })
 export const syncError = atom('')
 
+export const receivingProgress = atom<number | undefined>()
+
+onMount(receivingProgress, () => syncStatus.listen(() => {}))
+
 onMount(syncStatus, () => {
   return effect(client, logux => {
     if (!logux) {
@@ -234,6 +238,9 @@ onMount(syncStatus, () => {
     /* node:coverage ignore next */
     if (getEnvironment().server === 'NO_SERVER') return
     return status(logux, (value, details) => {
+      receivingProgress.set(
+        value === 'receiving' ? details.done / details.total : undefined
+      )
       if (
         value === 'denied' ||
         value === 'protocolError' ||

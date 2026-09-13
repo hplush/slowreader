@@ -14,7 +14,7 @@
     "test:offline:coverage": "bnt --coverage 100 --coverage-exclude '{benchmark*,devtools.ts,errors.ts,node.ts,test.ts,../api/**,../server/**,../proxy/**,**/test/**}'"
   },
   "dependencies": {
-    "@logux/actions": "0.7.3",
+    "@logux/actions": "github:logux/actions#next",
     "@logux/client": "github:logux/client#next",
     "@logux/core": "github:logux/core#next",
     "@nanostores/i18n": "1.3.3",

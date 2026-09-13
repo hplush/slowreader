@@ -182,7 +182,7 @@
 >
   <Scene
     oninit={() => {
-      syncStatus.set('disconnected')
+      syncStatus.set('receiving')
     }}
     route="fast"
   >

@@ -35,9 +35,11 @@ import {
   lastReset,
   loadFeeds,
   loadPosts,
+  receivingProgress,
   reportDatabaseError,
   setupEnvironment,
   signUp,
+  syncStatus,
   testFeed,
   testPost,
   useCredentials,
@@ -366,6 +368,8 @@ describe('log', () => {
   test('shows the loader until the download is finished', async () => {
     await signUpCloudUser()
     await addFeed(testFeed({ title: 'A' }))
+    await addFeed(testFeed({ title: 'B' }))
+    await addFeed(testFeed({ title: 'C' }))
     await waitSync()
 
     let page = openPage({ params: {}, route: 'storage' })
@@ -373,8 +377,12 @@ describe('log', () => {
     equal(downloadingCloudData.get(), true)
 
     let labels: string[] = []
+    let progresses: (number | undefined)[] = []
     let unbind = busy.listen(value => {
-      if (value) labels.push(value.label)
+      if (value) {
+        labels.push(value.label)
+        progresses.push(value.progress)
+      }
     })
 
     // The client was destroyed by the reset, so the app restarts it
@@ -389,8 +397,38 @@ describe('log', () => {
 
     await waitUntil(() => !downloadingCloudData.get())
     equal(busy.get(), false)
-    equal((await loadFeeds()).length, 1)
+    equal((await loadFeeds()).length, 3)
+    // The loader shows the share of the received actions
+    ok(progresses.some(progress => progress !== undefined && progress < 1))
+    equal(progresses.at(-1), 1)
     unbind()
+  })
+
+  test('shows the progress of the actions sent in the middle', async () => {
+    await signUpCloudUser()
+    let statuses: string[] = []
+    let unbindStatus = syncStatus.listen(status => {
+      statuses.push(status)
+    })
+    let progresses: (number | undefined)[] = []
+    let unbindProgress = receivingProgress.listen(progress => {
+      progresses.push(progress)
+    })
+
+    // The server rebuilds the log by re-sending the actions
+    // with `logux/prepare` in front of them, like after the connection
+    let clients = [getClient().clientId]
+    await server!.log.add({ actions: 2, type: 'logux/prepare' }, { clients })
+    await server!.log.add({ type: 'rebuilt/1' }, { clients })
+    await server!.log.add({ type: 'rebuilt/2' }, { clients })
+    await waitUntil(() => progresses.includes(1))
+    deepEqual(progresses, [0, 0.5, 1])
+
+    await waitUntil(() => statuses.at(-1) === 'synchronized')
+    deepEqual(progresses, [0, 0.5, 1, undefined])
+    ok(statuses.includes('receiving'))
+    unbindStatus()
+    unbindProgress()
   })
 
   test('removes the download mark if the database is already filled', async () => {

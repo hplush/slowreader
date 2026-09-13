@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@electric-sql/pglite": "0.5.8",
-    "@logux/actions": "0.7.3",
+    "@logux/actions": "github:logux/actions#next",
     "@logux/core": "github:logux/core#next",
     "@logux/server": "github:logux/server#next",
     "@slowreader/api": "workspace:*",

@@ -17,6 +17,7 @@ export const navbarMessages = i18n('navbar', {
   menu: 'Feeds & settings',
   offlineStatus: 'Offline',
   postRefreshing: 'Checking feeds for new posts…',
+  receivingStatus: 'Downloading…',
   refresh: 'Check for new posts',
   refreshingDone: 'Feeds refreshing finished',
   refreshingError: 'An error during feeds refreshing',

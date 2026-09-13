@@ -2,6 +2,7 @@
   import {
     mdiCloudAlert,
     mdiCloudCheckVariant,
+    mdiCloudDownloadOutline,
     mdiCloudOff,
     mdiCloudOffOutline,
     mdiCloudRefreshVariant,
@@ -23,6 +24,7 @@
     connectingAfterWait: mdiCloudRefreshVariant,
     disconnected: mdiCloudOffOutline,
     error: mdiCloudAlert,
+    receiving: mdiCloudDownloadOutline,
     sending: mdiCloudUpload,
     sendingAfterWait: mdiCloudUpload,
     synchronizedAfterWait: mdiCloudCheckVariant,

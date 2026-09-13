@@ -20,6 +20,7 @@ export const cloudMessages = i18n('cloud', {
     'To use the same account on another device or back up your data, create a cloud account.',
   noCloudTitle: 'No cloud account',
   pageTitle: 'Profile',
+  receivingStatus: 'Downloading…',
   sendingAfterWaitStatus: 'Connected. Sending unsaved changes…',
   sendingStatus: 'Connected. Requesting changes from the cloud…',
   status: 'Sync status',

@@ -30,7 +30,12 @@ import type { Database, SqlParam } from '@nanostores/sql'
 import { atom, effect } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
-import { database, onClient, resetDatabase } from './client.ts'
+import {
+  database,
+  onClient,
+  receivingProgress,
+  resetDatabase
+} from './client.ts'
 import { getEnvironment } from './environment.ts'
 import { fatal } from './errors.ts'
 import { subscribeUntil } from './lib/stores.ts'
@@ -365,10 +370,14 @@ function showBusyUntilFilled(logux: CrossTabClient): () => void {
       let unbindLabel = logux.on('state', () => {
         setLabel(getDownloadingLabel(logux))
       })
+      let unbindProgress = receivingProgress.subscribe(progress => {
+        if (progress !== undefined) setProgress(progress)
+      })
       try {
         await filled
       } finally {
         unbindLabel()
+        unbindProgress()
       }
     },
     true
