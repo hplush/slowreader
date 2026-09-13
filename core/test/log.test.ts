@@ -384,8 +384,8 @@ describe('log', () => {
     await setTimeout(SETTLE)
     userId.set(user)
     await waitUntil(() => !!client.get())
-    ok(labels.includes(commonMessages.get().waitingConnection))
     await waitUntil(() => labels.includes(commonMessages.get().downloadingData))
+    ok(!labels.includes(commonMessages.get().waitingConnection))
 
     await waitUntil(() => !downloadingCloudData.get())
     equal(busy.get(), false)

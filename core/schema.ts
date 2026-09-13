@@ -342,7 +342,9 @@ async function uploadLocalData(logux: CrossTabClient): Promise<void> {
 
 function getDownloadingLabel(logux: CrossTabClient): string {
   let messages = commonMessages.get()
-  return logux.connected ? messages.downloadingData : messages.waitingConnection
+  return logux.state === 'disconnected'
+    ? messages.waitingConnection
+    : messages.downloadingData
 }
 
 /**
@@ -357,16 +359,20 @@ function showBusyUntilFilled(logux: CrossTabClient): () => void {
     })
   ])
 
-  void busyDuring(getDownloadingLabel(logux), async (setProgress, setLabel) => {
-    let unbindLabel = logux.on('state', () => {
-      setLabel(getDownloadingLabel(logux))
-    })
-    try {
-      await filled
-    } finally {
-      unbindLabel()
-    }
-  }).then(() => {
+  void busyDuring(
+    getDownloadingLabel(logux),
+    async (setProgress, setLabel) => {
+      let unbindLabel = logux.on('state', () => {
+        setLabel(getDownloadingLabel(logux))
+      })
+      try {
+        await filled
+      } finally {
+        unbindLabel()
+      }
+    },
+    true
+  ).then(() => {
     // The user could sign out while the data was downloading
     if (hasDatabase()) downloadingCloudData.set(false)
   })
