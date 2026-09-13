@@ -14,7 +14,7 @@ import { atom, computed, effect, onMount } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
 import { getEnvironment, onEnvironment } from './environment.ts'
-import { fatal } from './errors.ts'
+import { fatal, getUnhandledErrors } from './errors.ts'
 import { commonMessages } from './messages/index.ts'
 import {
   type DatabaseFailure,
@@ -96,7 +96,10 @@ export async function resetDatabase(
     previous.reason === reason &&
     failure.at.getTime() - previous.at.getTime() < 10 * 60 * 1000
   ) {
-    fatal.set({ error: failure.error, type: 'brokenDatabase' })
+    fatal.set({
+      error: failure.error ?? getUnhandledErrors(),
+      type: 'brokenDatabase'
+    })
     return
   }
 

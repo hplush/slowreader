@@ -160,6 +160,30 @@ describe('fatal page', () => {
       notEqual(lastReset.get()!.error, 'Disk image is malformed')
     })
 
+    test('explains the reset without the error by the uncaught ones', async () => {
+      let listener: (event: { reason: unknown }) => void
+      lastReset.set({ at: new Date(), reason: 'server-request' })
+      enableClientTest({
+        errorEvents: {
+          addEventListener(event, cb) {
+            if (event === 'unhandledrejection') listener = cb
+          }
+        },
+        restartApp() {
+          restarts += 1
+        }
+      })
+      listener!({ reason: new Error('Worker is dead') })
+
+      await resetDatabase('server-request')
+
+      equal(restarts, 0)
+      deepEqual(fatal.get(), {
+        error: 'Error: Worker is dead',
+        type: 'brokenDatabase'
+      })
+    })
+
     test('restarts the app even when the cleaning failed', async () => {
       let error = new Error('Broken database')
       let logux = getClient()

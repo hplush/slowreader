@@ -48,8 +48,12 @@ interface EnvironmentListener {
 
 interface ErrorEvents {
   addEventListener(
-    event: 'unhandledrejection',
-    listener: (event: { reason: unknown }) => void
+    event: 'error' | 'unhandledrejection',
+    listener: (event: {
+      error?: unknown
+      message?: string
+      reason?: unknown
+    }) => void
   ): void
 }
 

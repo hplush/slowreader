@@ -3,7 +3,7 @@
 
 import { type Database, openDb } from '@nanostores/sql'
 import { sqlocalDriver } from '@nanostores/sql/sqlocal'
-import { fatal, userId } from '@slowreader/core'
+import { fatal, getUnhandledErrors, userId } from '@slowreader/core'
 
 import type { FromWorker, ToWorker } from './db-worker.ts'
 
@@ -54,7 +54,7 @@ export function createDatabase(): Database {
   // the storage, and then every start looks like a broken one
   void db.select<{ file: string }>`PRAGMA database_list`.then(([main]) => {
     if (!main?.file && !fatal.get()) {
-      fatal.set({ error: undefined, type: 'noDb' })
+      fatal.set({ error: getUnhandledErrors(), type: 'noDb' })
     }
   })
   return db

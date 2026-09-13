@@ -28,6 +28,21 @@ export type Fatal =
  */
 export const fatal = atom<Fatal | undefined>()
 
+let unhandled: string[] = []
+
+/**
+ * Last errors, which nobody caught, to explain the fatal error
+ * with no reason of its own.
+ */
+export function getUnhandledErrors(): string | undefined {
+  return unhandled.length > 0 ? unhandled.join('\n') : undefined
+}
+
+function remember(error: unknown): void {
+  unhandled.push(String(error))
+  if (unhandled.length > 5) unhandled.shift()
+}
+
 /**
  * Errors to render in client UI.
  *
@@ -175,7 +190,13 @@ export function isNotFoundError(
 /* node:coverage enable */
 
 onEnvironment(({ baseRouter, errorEvents }) => {
+  unhandled = []
+  // Cross-origin scripts hide the error and leave only the message
+  errorEvents.addEventListener('error', ({ error, message }) => {
+    remember(error ?? message)
+  })
   errorEvents.addEventListener('unhandledrejection', event => {
+    remember(event.reason)
     if (isNotFoundError(event.reason)) {
       fatal.set({ type: 'notFound' })
     }
