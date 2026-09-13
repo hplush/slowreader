@@ -1,9 +1,11 @@
 import { signIn as signInApi, signUp as signUpApi } from '@slowreader/api'
 import { customAlphabet } from 'nanoid'
 
+import { busyDuring } from './busy.ts'
 import { getClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
 import { checkErrors } from './lib/http.ts'
+import { commonMessages } from './messages/index.ts'
 import { markDatabaseDownloading } from './schema.ts'
 import {
   benchmarkStatistics,
@@ -130,7 +132,13 @@ export function forgetLocalData(): void {
   env.restartApp()
 }
 
-export async function signOut(): Promise<void> {
-  await getClient().clean()
-  forgetLocalData()
+export function signOut(): Promise<void> {
+  return busyDuring(
+    commonMessages.get().signingOut,
+    async () => {
+      await getClient().clean()
+      forgetLocalData()
+    },
+    true
+  )
 }
