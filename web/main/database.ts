@@ -3,9 +3,9 @@
 
 import { type Database, openDb } from '@nanostores/sql'
 import { sqlocalDriver } from '@nanostores/sql/sqlocal'
-import { fatal } from '@slowreader/core'
+import { fatal, userId } from '@slowreader/core'
 
-import type { FromWorker, ToWorker } from './sahpool-worker.ts'
+import type { FromWorker, ToWorker } from './db-worker.ts'
 
 const DATABASE = 'slowreader.sqlite'
 
@@ -23,27 +23,32 @@ let vfs = chooseVfs()
 
 let current: undefined | Worker
 
+// Browsers evict best-effort storage under disk pressure. Chrome grants
+// the persistence silently to the sites the user comes back to, Firefox
+// asks, so the app waits for the account to have something worth asking for.
+userId.subscribe(user => {
+  if (user) void navigator.storage.persist()
+})
+
 export function createDatabase(): Database {
-  let processor
-  if (vfs === 'sahpool') {
-    processor = new Worker(new URL('./sahpool-worker.ts', import.meta.url), {
-      type: 'module'
-    })
-    processor.addEventListener(
-      'message',
-      // Other messages of the worker are SQLocal’s own protocol
-      ({ data }: MessageEvent<FromWorker | { slowreader?: undefined }>) => {
-        if (data.slowreader === 'secondTab') {
-          fatal.set({ type: 'secondTab' })
-        } else if (data.slowreader === 'reload') {
-          location.reload()
-        } else if (data.slowreader === 'noDb') {
-          fatal.set({ error: data.error, type: 'noDb' })
-        }
+  let processor = new Worker(new URL('./db-worker.ts', import.meta.url), {
+    name: vfs,
+    type: 'module'
+  })
+  processor.addEventListener(
+    'message',
+    // Other messages of the worker are SQLocal’s own protocol
+    ({ data }: MessageEvent<FromWorker | { slowreader?: undefined }>) => {
+      if (data.slowreader === 'secondTab') {
+        fatal.set({ type: 'secondTab' })
+      } else if (data.slowreader === 'reload') {
+        location.reload()
+      } else if (data.slowreader === 'noDb') {
+        fatal.set({ error: data.error, type: 'noDb' })
       }
-    )
-    current = processor
-  }
+    }
+  )
+  current = processor
   let db = openDb(sqlocalDriver(DATABASE, { processor }))
   // SQLocal falls back to the in-memory database when the browser refused
   // the storage, and then every start looks like a broken one

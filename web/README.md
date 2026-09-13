@@ -25,7 +25,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
   - [`index.ts`](./main/index.ts): JS entry point.
   - [`environment.ts`](./main/environment.ts): how client core should work with browser environment.
   - [`database.ts`](./main/database.ts): choose the SQLite storage engine and open the database.
-  - [`sahpool-worker.ts`](./main/sahpool-worker.ts): SQLite for browsers without cross-origin isolation. See [client storage](#client-storage).
+  - [`db-worker.ts`](./main/db-worker.ts): SQLite worker with the drivers for both storage engines. See [client storage](#client-storage).
   - [`browser.ts`](./main/browser.ts): connect core stores to global browser settings like `document.title`.
   - [`extension.ts`](./main/extension.ts): make network request through the browser extension.
 - [`benchmark/`](./benchmark/): UI performance benchmark, which is loaded only by `?benchmark` in URL. See [benchmark guide](../docs/benchmark.md).

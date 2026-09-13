@@ -1,10 +1,13 @@
-// SQLocal’s own worker with the driver for the `opfs-sahpool` VFS, which saves
-// the database without cross-origin isolation. See main/database.ts.
+// SQLocal’s own worker with the drivers for both VFS. SQLocal hides
+// the reason of a failed open and switches to the in-memory database,
+// so the page needs the error to explain the browser’s refusal.
+// See main/database.ts.
 
 import type { SAHPoolUtil } from '@sqlite.org/sqlite-wasm'
 import {
   type DriverConfig,
   SQLiteMemoryDriver,
+  SQLiteOpfsDriver,
   SQLocalProcessor
 } from 'sqlocal'
 
@@ -19,6 +22,23 @@ export type ToWorker = { slowreader: 'dump' }
 
 function send(message: FromWorker, transfer: Transferable[] = []): void {
   postMessage(message, { transfer })
+}
+
+// Chrome on Android can refuse the first OPFS call right after its start,
+// while the storage is still initializing, and a retry a moment later works
+async function open(connect: () => Promise<void>): Promise<void> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await connect()
+      return
+    } catch (error) {
+      if (attempt === 3) {
+        send({ error: String(error), slowreader: 'noDb' })
+        throw error
+      }
+      await new Promise(resolve => setTimeout(resolve, 500 * 2 ** attempt))
+    }
+  }
 }
 
 // Without the Web Locks API the pool’s own error is the only guard left
@@ -56,7 +76,13 @@ async function importDemo(pool: SAHPoolUtil, path: string): Promise<void> {
   await root.removeEntry(path)
 }
 
-class SQLiteSahpoolDriver extends SQLiteMemoryDriver {
+class OpfsDriver extends SQLiteOpfsDriver {
+  override init(config: DriverConfig): Promise<void> {
+    return open(() => super.init(config))
+  }
+}
+
+class SahpoolDriver extends SQLiteMemoryDriver {
   override readonly storageType = 'sahpool'
 
   private pool?: SAHPoolUtil
@@ -93,9 +119,7 @@ class SQLiteSahpoolDriver extends SQLiteMemoryDriver {
     if (!databasePath) throw new Error('No databasePath specified')
     if (!(await single)) throw new Error('Another tab has the database')
 
-    // SQLocal hides the reason and switches to the in-memory database,
-    // so the page needs the error to explain the browser’s refusal
-    try {
+    await open(async () => {
       let init = this.sqlite3InitModule
       if (!init) {
         init = (await import('@sqlite.org/sqlite-wasm')).default
@@ -105,8 +129,14 @@ class SQLiteSahpoolDriver extends SQLiteMemoryDriver {
       this.sqlite3 = sqlite3
 
       // The pool keeps a file open for every slot: one for the database,
-      // one for its journal, the rest for the temporary files of big queries
-      let pool = await sqlite3.installOpfsSAHPoolVfs({ initialCapacity: 6 })
+      // one for its journal, the rest for the temporary files of big queries.
+      // `forceReinitIfPreviouslyFailed` is missing in the typings.
+      let pool = await sqlite3.installOpfsSAHPoolVfs(
+        Object.assign(
+          { initialCapacity: 6 },
+          { forceReinitIfPreviouslyFailed: true }
+        )
+      )
       this.pool = pool
 
       if (this.db) await this.destroy()
@@ -114,10 +144,7 @@ class SQLiteSahpoolDriver extends SQLiteMemoryDriver {
       this.db = new pool.OpfsSAHPoolDb(databasePath)
       this.config = config
       this.initWriteHook()
-    } catch (error) {
-      send({ error: String(error), slowreader: 'noDb' })
-      throw error
-    }
+    })
   }
 
   override async isDatabasePersisted(): Promise<boolean> {
@@ -131,18 +158,8 @@ class SQLiteSahpoolDriver extends SQLiteMemoryDriver {
   }
 }
 
-// The pool keeps the database inside its own files with random names,
-// so only the driver can read it for the debug dump
-async function sendDatabase(driver: SQLiteSahpoolDriver): Promise<void> {
-  try {
-    let { data } = await driver.export()
-    send({ database: data.buffer, slowreader: 'database' }, [data.buffer])
-  } catch (error) {
-    send({ error: String(error), slowreader: 'dumpError' })
-  }
-}
-
-let driver = new SQLiteSahpoolDriver()
+// The page passes the VFS as the worker’s name
+let driver = self.name === 'opfs' ? new OpfsDriver() : new SahpoolDriver()
 let processor = new SQLocalProcessor(driver)
 
 // `onmessage` of the processor is SQLocal’s own callback, not a DOM handler
@@ -155,7 +172,15 @@ Object.assign(processor, {
 addEventListener('message', event => {
   let message = event.data as { slowreader?: undefined } | ToWorker
   if (message.slowreader === 'dump') {
-    void sendDatabase(driver)
+    void driver.export().then(
+      ({ data }) => {
+        let buffer = data instanceof Uint8Array ? data.buffer : data
+        send({ database: buffer, slowreader: 'database' }, [buffer])
+      },
+      (error: unknown) => {
+        send({ error: String(error), slowreader: 'dumpError' })
+      }
+    )
   } else {
     void processor.postMessage(event)
   }
