@@ -21,6 +21,6 @@
   <Loader
     label={operation.label || undefined}
     track="app"
-    value={operation.progress || undefined}
+    value={operation.progress}
   />
 </Captioned>
