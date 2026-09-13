@@ -171,6 +171,10 @@
       flex-direction: column;
       min-height: 100%;
       padding: var(--page-padding);
+
+      @media (--mobile) {
+        padding: 0;
+      }
     }
   }
 </style>

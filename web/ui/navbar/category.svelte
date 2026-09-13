@@ -108,6 +108,10 @@
       .navbar-category:not(.is-closable) & {
         padding-inline-start: 2rem;
         cursor: default;
+
+        @media (--mobile) {
+          padding-inline-start: calc(2rem - var(--navbar-item-padding));
+        }
       }
     }
 
