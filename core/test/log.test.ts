@@ -167,6 +167,22 @@ describe('log', () => {
     return credentials
   }
 
+  /**
+   * Drop the local data and download it again, like after the sign in.
+   * `restartApp()` does nothing in tests, so the client is restarted by hand.
+   */
+  async function redownload(): Promise<void> {
+    let page = openPage({ params: {}, route: 'storage' })
+    await page.resetDatabase()
+    let user = userId.get()!
+    userId.set(undefined)
+    await waitUntil(() => !client.get())
+    await setTimeout(SETTLE)
+    userId.set(user)
+    await waitUntil(() => !!client.get())
+    await waitUntil(() => !downloadingCloudData.get())
+  }
+
   test('keeps the log empty in the local mode', async () => {
     setTestUser()
 
@@ -429,6 +445,148 @@ describe('log', () => {
     ok(statuses.includes('receiving'))
     unbindStatus()
     unbindProgress()
+  })
+
+  test('applies the download in the order of the log', async () => {
+    let credentials = await signUpCloudUser()
+    let device = await connectOtherDevice(credentials)
+    getClient().node.connection.disconnect()
+    await setTimeout(SETTLE)
+
+    // The change before its create was lost, when the decryption
+    // of the smaller action finished first
+    await device.process({
+      fields: { loader: 'rss', reading: 'fast', title: 'A', url: 'A' },
+      id: 'other-1',
+      type: 'feeds/created'
+    })
+    await device.process({
+      fields: { title: 'B' },
+      id: 'other-1',
+      type: 'feeds/changed'
+    })
+    await device.process({
+      fields: { title: 'C' },
+      id: 'other-1',
+      type: 'feeds/changed'
+    })
+    await device.process({
+      fields: { loader: 'rss', reading: 'fast', title: 'D', url: 'D' },
+      id: 'other-2',
+      type: 'feeds/created'
+    })
+    await device.process({ ids: ['other-2'], type: 'feeds/deleted' })
+    equal((await getServerLogIds()).length, 5)
+
+    let progresses: (number | undefined)[] = []
+    let unbind = busy.listen(value => {
+      if (value) progresses.push(value.progress)
+    })
+    await redownload()
+    unbind()
+
+    deepEqual(
+      (await loadFeeds()).map(feed => feed.title),
+      ['C']
+    )
+    ok(progresses.some(progress => progress !== undefined && progress > 0))
+    // The actions without cells were removed from the server
+    await waitUntil(async () => (await getServerLogIds()).length === 3)
+    await waitSync()
+    deepEqual(await logTypes(), ['shadow', 'shadow', 'shadow'])
+    let [created, changed, deleted] = await logEntries()
+    ok(created![1].reasons.includes('feeds/other-1'))
+    ok(created![1].reasons.includes('feeds/other-1/url'))
+    ok(!created![1].reasons.includes('feeds/other-1/title'))
+    ok(changed![1].reasons.includes('feeds/other-1/title'))
+    deepEqual(deleted![1].reasons, ['tombstone'])
+  })
+
+  test('deletes the post, which came back in the download', async () => {
+    let credentials = await signUpCloudUser()
+    let device = await connectOtherDevice(credentials)
+
+    let feedId = await addFeed(testFeed({ title: 'A' }))
+    let postId = await addPost(testPost({ feedId, originId: 'post-1' }))
+    await deletePost(postId)
+    await waitSync()
+    getClient().node.connection.disconnect()
+    await setTimeout(SETTLE)
+
+    // The device was offline during the read, so its create is older
+    // than the deletion, but comes after it
+    await device.process(
+      {
+        fields: {
+          feedId,
+          originId: 'post-1',
+          publishedAt: 1000,
+          read: 0,
+          reading: 'slow',
+          title: 'Back'
+        },
+        id: postId,
+        type: 'posts/created'
+      },
+      { time: 1 }
+    )
+
+    await redownload()
+    await waitUntil(async () => (await loadPosts()).length === 0)
+    // The downloaded tombstone and the new one, which removed the post again
+    await waitSync()
+    let tombstones = (await logEntries()).filter(entry => {
+      return entry[1].reasons.includes('tombstone')
+    })
+    ok(tombstones.length >= 2)
+  })
+
+  test('finishes the interrupted download on the next start', async () => {
+    let credentials = await signUpCloudUser()
+    let device = await connectOtherDevice(credentials)
+    let feedId = await addFeed(testFeed({ title: 'A' }))
+    let postId = await addPost(testPost({ feedId, originId: 'post-1' }))
+    await deletePost(postId)
+    await waitSync()
+
+    await restartClient(async () => {
+      await device.process({
+        fields: { title: 'B' },
+        id: feedId,
+        type: 'feeds/changed'
+      })
+      // The device was offline during the read
+      await device.process(
+        {
+          fields: {
+            feedId,
+            originId: 'post-1',
+            publishedAt: 1000,
+            read: 0,
+            reading: 'slow',
+            title: 'Back'
+          },
+          id: postId,
+          type: 'posts/created'
+        },
+        { time: 1 }
+      )
+      // The app was closed during the previous download
+      downloadingCloudData.set(true)
+    })
+    await waitUntil(() => !downloadingCloudData.get())
+
+    equal((await loadFeeds())[0]!.title, 'B')
+    await waitUntil(async () => (await loadPosts()).length === 0)
+    let entries = await logEntries()
+    let created = entries.find(entry =>
+      entry[1].reasons.includes(`feeds/${feedId}`)
+    )
+    let changed = entries.find(entry =>
+      entry[1].reasons.includes(`feeds/${feedId}/title`)
+    )
+    // The shadow, which was in the log before the download, lost the cell
+    ok(created && changed && created !== changed)
   })
 
   test('removes the download mark if the database is already filled', async () => {

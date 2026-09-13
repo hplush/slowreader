@@ -289,23 +289,23 @@ importers:
     dependencies:
       '@logux/actions':
         specifier: github:logux/actions#next
-        version: git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#c9dc727d61ac73c15a1e6515f10cc883d8046ccc)
+        version: git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309)
     devDependencies:
       '@logux/core':
         specifier: github:logux/core#next
-        version: git+https://github.com/logux/core.git#c9dc727d61ac73c15a1e6515f10cc883d8046ccc
+        version: git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309
 
   core:
     dependencies:
       '@logux/actions':
         specifier: github:logux/actions#next
-        version: git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#c9dc727d61ac73c15a1e6515f10cc883d8046ccc)
+        version: git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309)
       '@logux/client':
         specifier: github:logux/client#next
         version: git+https://github.com/logux/client.git#4b06eb8d6da6bd3e60c9fb3abefab3dcf9204e35(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)
       '@logux/core':
         specifier: github:logux/core#next
-        version: git+https://github.com/logux/core.git#c9dc727d61ac73c15a1e6515f10cc883d8046ccc
+        version: git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309
       '@nanostores/i18n':
         specifier: 1.3.3
         version: 1.3.3(nanostores@1.5.3)
@@ -420,10 +420,10 @@ importers:
         version: 0.5.8
       '@logux/actions':
         specifier: github:logux/actions#next
-        version: git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#c9dc727d61ac73c15a1e6515f10cc883d8046ccc)
+        version: git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309)
       '@logux/core':
         specifier: github:logux/core#next
-        version: git+https://github.com/logux/core.git#c9dc727d61ac73c15a1e6515f10cc883d8046ccc
+        version: git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309
       '@logux/server':
         specifier: github:logux/server#next
         version: git+https://github.com/logux/server.git#9b3d6d584c920db090d4d6be65c8f32d898ca12f
@@ -484,7 +484,7 @@ importers:
         version: git+https://github.com/logux/client.git#4b06eb8d6da6bd3e60c9fb3abefab3dcf9204e35(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)
       '@logux/core':
         specifier: github:logux/core#next
-        version: git+https://github.com/logux/core.git#c9dc727d61ac73c15a1e6515f10cc883d8046ccc
+        version: git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309
       '@mdi/js':
         specifier: 7.4.47
         version: 7.4.47
@@ -1367,8 +1367,8 @@ packages:
     resolution: {integrity: sha512-VbgVkEloAe2ym5w0cjyRI16Eeyk2R0BgJa9pMYT1FcJEhFnzrB23E0ExIEhrok0iD48bFh7goledwmDLmgWaiw==}
     engines: {node: ^20.0.0 || >=22.0.0}
 
-  '@logux/core@git+https://github.com/logux/core.git#c9dc727d61ac73c15a1e6515f10cc883d8046ccc':
-    resolution: {commit: c9dc727d61ac73c15a1e6515f10cc883d8046ccc, repo: https://github.com/logux/core.git, type: git}
+  '@logux/core@git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309':
+    resolution: {commit: 233578f53a6e7b0b1c3175a73b9046b9a5384309, repo: https://github.com/logux/core.git, type: git}
     version: 0.11.8
     engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
 
@@ -6142,14 +6142,14 @@ snapshots:
     dependencies:
       '@logux/core': 0.10.0
 
-  '@logux/actions@git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#c9dc727d61ac73c15a1e6515f10cc883d8046ccc)':
+  '@logux/actions@git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309)':
     dependencies:
-      '@logux/core': git+https://github.com/logux/core.git#c9dc727d61ac73c15a1e6515f10cc883d8046ccc
+      '@logux/core': git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309
 
   '@logux/client@git+https://github.com/logux/client.git#4b06eb8d6da6bd3e60c9fb3abefab3dcf9204e35(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)':
     dependencies:
-      '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#c9dc727d61ac73c15a1e6515f10cc883d8046ccc)
-      '@logux/core': git+https://github.com/logux/core.git#c9dc727d61ac73c15a1e6515f10cc883d8046ccc
+      '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309)
+      '@logux/core': git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309
       nanoevents: 10.0.0
       nanoid: 6.0.1
       nanostores: 1.5.3
@@ -6161,7 +6161,7 @@ snapshots:
     dependencies:
       nanoevents: 9.1.0
 
-  '@logux/core@git+https://github.com/logux/core.git#c9dc727d61ac73c15a1e6515f10cc883d8046ccc':
+  '@logux/core@git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309':
     dependencies:
       nanoevents: 10.0.0
 
@@ -6209,8 +6209,8 @@ snapshots:
 
   '@logux/server@git+https://github.com/logux/server.git#9b3d6d584c920db090d4d6be65c8f32d898ca12f':
     dependencies:
-      '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#c9dc727d61ac73c15a1e6515f10cc883d8046ccc)
-      '@logux/core': git+https://github.com/logux/core.git#c9dc727d61ac73c15a1e6515f10cc883d8046ccc
+      '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309)
+      '@logux/core': git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309
       cookie: 2.0.1
       fastq: 1.20.3
       nanoevents: 10.0.0
