@@ -44,11 +44,13 @@
 }
 
 html {
+  scroll-behavior: smooth;
   scroll-snap-type: y mandatory;
 }
 
 body {
   margin: 0;
+  timeline-scope: --hero-buttons;
   font: 400 1rem/1.6 var(--text-family);
   color: var(--text-color);
   background: var(--land-color);
@@ -111,6 +113,7 @@ body {
   font: 500 0.9375rem/1.2 var(--text-family);
   color: var(--text-on-accent-color);
   text-decoration: none;
+  white-space: nowrap;
   user-select: none;
   background: var(--accent-color);
   border-radius: var(--base-radius);
@@ -121,6 +124,45 @@ body {
 .is-guest .button.is-demo,
 .is-guest .button.is-login {
   display: flex;
+}
+
+:root:not(.is-scrolled) .header .button:is(.is-app, .is-demo) {
+  @supports not (animation-timeline: view()) {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    display: none;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .section_actions .button {
+      visibility: hidden;
+    }
+
+    .header .button:is(.is-app, .is-demo) {
+      transform-origin: 0 0;
+      animation: --fly cubic-bezier(0.5, 0, 0.9, 0.4) both;
+      animation-timeline: --hero-buttons;
+      animation-range: exit 0% exit 100%;
+    }
+  }
+}
+
+@keyframes --fly {
+  from {
+    transform: translate(var(--from-x), var(--from-y)) scale(var(--from-scale));
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+.button.is-big {
+  zoom: 1.5;
 }
 
 .button:hover,
@@ -191,6 +233,7 @@ body {
   overflow: hidden;
   color: oklch(1 0 0);
   background: --average-color('../images/main/main.avif');
+  view-timeline: --hero-buttons block;
 }
 
 .section_image {
@@ -202,10 +245,20 @@ body {
   object-position: 10% center;
 }
 
-.section_title {
+.section_content {
   position: relative;
   z-index: 1;
   max-inline-size: 48rem;
+}
+
+.section_actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-block-start: 2rem;
+}
+
+.section_title {
   margin: 0;
   font: 400 clamp(1.75rem, 3.5vw, 2.75rem) / 1.25 var(--title-family);
   text-shadow:
@@ -217,6 +270,10 @@ body {
 @media (width <= 40rem), (aspect-ratio <= 1) {
   .section.is-hero {
     align-items: flex-end;
+    justify-content: center;
+  }
+
+  .section_actions {
     justify-content: center;
   }
 }
