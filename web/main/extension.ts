@@ -24,7 +24,7 @@ function detectStore(): string {
   } else if (agent.includes('Safari') && !agent.includes('Chrome')) {
     return 'https://apps.apple.com/'
   } else {
-    return 'https://chromewebstore.google.com/'
+    return 'https://chromewebstore.google.com/detail/slow-reader-extension/pmoencikdpnikfiemldekomnibmboobn'
   }
 }
 
