@@ -39,7 +39,7 @@ function loadCSP(): string {
   return csp.replace(/style-src[^;]*;?/, '')
 }
 
-// nginx resolves `/dir` to `/dir/index.html` by `try_files $uri/`
+// nginx resolves `/dir` to `/dir/index.html` by `try_files $uri/index.html`
 function dirIndex(server: PreviewServer | ViteDevServer, root: string): void {
   server.middlewares.use((req, res, next) => {
     let [path, query] = req.url!.split('?')
