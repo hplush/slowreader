@@ -746,17 +746,19 @@ describe('log', () => {
     // The tab was closed between adding the shadow and clearing the original.
     // The action was already sent and confirmed, so nothing will apply it
     // or send it again: only the repair on the start can drop the body
-    await getClient().log.store.add(
-      { fields: { title: 'A' }, id: feedId, type: 'feeds/created' },
-      {
-        added: 0,
-        id: original.id,
-        indexes: [`feeds/${feedId}`],
-        reasons: [`feeds/${feedId}`],
-        sync: true,
-        time: Date.now()
-      }
-    )
+    await getClient().log.store.add([
+      [
+        { fields: { title: 'A' }, id: feedId, type: 'feeds/created' },
+        {
+          added: 0,
+          id: original.id,
+          indexes: [`feeds/${feedId}`],
+          reasons: [`feeds/${feedId}`],
+          sync: true,
+          time: Date.now()
+        }
+      ]
+    ])
     await restartClient()
     await waitUntil(async () => (await logTypes()).length === 1)
 

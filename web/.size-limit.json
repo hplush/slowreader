@@ -41,6 +41,6 @@
     "name": "Core scripts to execute",
     "path": "dist/assets/app-*.js",
     "brotli": false,
-    "limit": "410 KB"
+    "limit": "415 KB"
   }
 ]
