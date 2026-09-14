@@ -26,7 +26,7 @@
       display: flex;
       align-items: center;
       max-width: 100%;
-      height: 2rem;
+      height: var(--control-height);
       font: var(--text-font);
       color: var(--text-color);
       border-radius: var(--base-radius);
