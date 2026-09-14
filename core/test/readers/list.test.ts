@@ -54,7 +54,7 @@ describe('list reader', () => {
     let feed2 = await addFeed(
       testFeed({ categoryId, slowReader: 'list', title: 'Feed 2' })
     )
-    for (let i = 1; i <= 150; i++) {
+    for (let i = 1; i <= 75; i++) {
       await addPost(
         testPost({
           feedId: i % 2 === 0 ? feed1 : feed2,
@@ -69,8 +69,8 @@ describe('list reader', () => {
       [
         { id: categoryId, title: 'A' },
         [
-          [{ id: feed1, title: 'Feed 1' }, 75],
-          [{ id: feed2, title: 'Feed 2' }, 75]
+          [{ id: feed1, title: 'Feed 1' }, 37],
+          [{ id: feed2, title: 'Feed 2' }, 38]
         ]
       ]
     ])
@@ -81,8 +81,8 @@ describe('list reader', () => {
     equal(page.loading.get(), true)
     await waitLoading(page.loading)
     let reader = ensureReader(page.posts, 'list')
-    equal(reader.list.get().length, 75)
-    equal(reader.list.get()[0]!.title, '150')
+    equal(reader.list.get().length, 37)
+    equal(reader.list.get()[0]!.title, '74')
     deepEqual(reader.pages.get(), {
       count: 1,
       hasNext: false,
@@ -100,9 +100,9 @@ describe('list reader', () => {
     equal(page.postsLoading.get(), true)
     await waitLoading(page.postsLoading)
     reader = ensureReader(page.posts, 'list')
-    equal(reader.list.get().length, 100)
-    equal(reader.list.get()[0]!.title, '150')
-    equal(reader.list.get()[99]!.title, '51')
+    equal(reader.list.get().length, 50)
+    equal(reader.list.get()[0]!.title, '75')
+    equal(reader.list.get()[49]!.title, '26')
     deepEqual(reader.pages.get(), {
       count: 2,
       hasNext: true,
@@ -114,21 +114,21 @@ describe('list reader', () => {
 
     await changePost(reader.list.get()[0]!.id, { read: 1 })
     await changePost(reader.list.get()[5]!.id, { read: 1 })
-    equal(reader.list.get().length, 100)
+    equal(reader.list.get().length, 50)
     deepEqual(slowMenu.get(), [
       [
         { id: categoryId, title: 'A' },
         [
-          [{ id: feed1, title: 'Feed 1' }, 74],
-          [{ id: feed2, title: 'Feed 2' }, 74]
+          [{ id: feed1, title: 'Feed 1' }, 36],
+          [{ id: feed2, title: 'Feed 2' }, 37]
         ]
       ]
     ])
 
     // Page cursors are taken on opening, so reading does not renumber pages
     await moveTo(page, 1)
-    equal(reader.list.get().length, 50)
-    equal(reader.list.get()[0]!.title, '50')
+    equal(reader.list.get().length, 25)
+    equal(reader.list.get()[0]!.title, '25')
     deepEqual(reader.pages.get(), {
       count: 2,
       hasNext: false,
@@ -151,15 +151,15 @@ describe('list reader', () => {
     })
     await waitLoading(page.postsLoading)
     reader = ensureReader(page.posts, 'list')
-    equal(reader.list.get().length, 48)
+    equal(reader.list.get().length, 23)
 
     await moveTo(page, 0)
-    equal(reader.list.get()[99]!.title, '49')
+    equal(reader.list.get()[49]!.title, '24')
 
     await reader.readPage()
     equal(page.params.from.get(), '1')
     await waitLoading(page.postsLoading)
-    equal(reader.list.get().length, 48)
+    equal(reader.list.get().length, 23)
     deepEqual(reader.pages.get(), {
       count: 2,
       hasNext: false,
@@ -173,8 +173,8 @@ describe('list reader', () => {
       [
         { id: categoryId, title: 'A' },
         [
-          [{ id: feed1, title: 'Feed 1' }, 24],
-          [{ id: feed2, title: 'Feed 2' }, 24]
+          [{ id: feed1, title: 'Feed 1' }, 11],
+          [{ id: feed2, title: 'Feed 2' }, 12]
         ]
       ]
     ])
@@ -204,7 +204,7 @@ describe('list reader', () => {
     // of the empty database and `page.loading` is `false` since then
     await waitLoading(page.postsLoading)
     let reader = ensureReader(page.posts, 'list')
-    equal(reader.pages.get().count, 3)
+    equal(reader.pages.get().count, 5)
     let shown = new Set(titles(reader))
 
     // Another tab or device reads and deletes posts of the next pages
@@ -267,7 +267,7 @@ describe('list reader', () => {
     let page = openPage({ params: { feed: feedId }, route: 'slow' })
     await waitLoading(page.postsLoading)
     let reader = ensureReader(page.posts, 'list')
-    equal(reader.pages.get().count, 3)
+    equal(reader.pages.get().count, 5)
 
     let shown = new Set(titles(reader))
     for (let i = 1; i < reader.pages.get().count; i++) {

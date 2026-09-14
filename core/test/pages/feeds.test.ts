@@ -261,7 +261,7 @@ describe('feeds page', () => {
     let feed2 = await addFeed(
       testFeed({ categoryId: category, slowReader: 'list', title: 'F2' })
     )
-    for (let i = 1; i <= 150; i++) {
+    for (let i = 1; i <= 75; i++) {
       await addPost(
         testPost({ feedId: feed1, publishedAt: i, reading: 'slow' })
       )
