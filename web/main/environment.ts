@@ -20,6 +20,14 @@ import { openRoute, urlRouter } from '../stores/url-router.ts'
 import { createDatabase, dumpDatabase } from './database.ts'
 import { detectExtension, extensionRequest } from './extension.ts'
 
+// Sign out and database reset reload the page, and the tab closing warning
+// must not ask the user to confirm the app’s own reload
+let restarting = false
+
+export function isRestarting(): boolean {
+  return restarting
+}
+
 let server = location.hostname
 let proxy = '/proxy/'
 if (location.hostname === 'localhost') {
@@ -92,6 +100,7 @@ setupEnvironment({
   persistentEvents: windowPersistentEvents,
   persistentStore: localStorage,
   restartApp() {
+    restarting = true
     location.reload()
   },
   saveFile(filename, content) {
