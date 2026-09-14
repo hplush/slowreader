@@ -75,7 +75,7 @@ async function copy() {
   }
   localStorage.setItem('slowreader:demo', 'yes')
 
-  location.href = '/'
+  location.href = '/app'
 }
 
 copy().catch(e => {
