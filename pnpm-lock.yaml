@@ -302,7 +302,7 @@ importers:
         version: git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309)
       '@logux/client':
         specifier: github:logux/client#next
-        version: git+https://github.com/logux/client.git#4b06eb8d6da6bd3e60c9fb3abefab3dcf9204e35(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)
+        version: git+https://github.com/logux/client.git#6c0f3ae3681c6093df598a63b6daca2c2ec86ecf(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)
       '@logux/core':
         specifier: github:logux/core#next
         version: git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309
@@ -457,7 +457,7 @@ importers:
     devDependencies:
       '@logux/client':
         specifier: github:logux/client#next
-        version: git+https://github.com/logux/client.git#4b06eb8d6da6bd3e60c9fb3abefab3dcf9204e35(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)
+        version: git+https://github.com/logux/client.git#6c0f3ae3681c6093df598a63b6daca2c2ec86ecf(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)
       better-node-test:
         specifier: 1.0.0
         version: 1.0.0
@@ -484,7 +484,7 @@ importers:
         version: 5.3.0
       '@logux/client':
         specifier: github:logux/client#next
-        version: git+https://github.com/logux/client.git#4b06eb8d6da6bd3e60c9fb3abefab3dcf9204e35(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)
+        version: git+https://github.com/logux/client.git#6c0f3ae3681c6093df598a63b6daca2c2ec86ecf(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)
       '@logux/core':
         specifier: github:logux/core#next
         version: git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309
@@ -1334,8 +1334,8 @@ packages:
     peerDependencies:
       '@logux/core': ^0.11.0
 
-  '@logux/client@git+https://github.com/logux/client.git#4b06eb8d6da6bd3e60c9fb3abefab3dcf9204e35':
-    resolution: {commit: 4b06eb8d6da6bd3e60c9fb3abefab3dcf9204e35, repo: https://github.com/logux/client.git, type: git}
+  '@logux/client@git+https://github.com/logux/client.git#6c0f3ae3681c6093df598a63b6daca2c2ec86ecf':
+    resolution: {commit: 6c0f3ae3681c6093df598a63b6daca2c2ec86ecf, repo: https://github.com/logux/client.git, type: git}
     version: 0.25.2
     engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
     peerDependencies:
@@ -6149,7 +6149,7 @@ snapshots:
     dependencies:
       '@logux/core': git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309
 
-  '@logux/client@git+https://github.com/logux/client.git#4b06eb8d6da6bd3e60c9fb3abefab3dcf9204e35(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)':
+  '@logux/client@git+https://github.com/logux/client.git#6c0f3ae3681c6093df598a63b6daca2c2ec86ecf(@nanostores/sql@0.5.3)(nanostores@1.5.3)(react@19.3.0)':
     dependencies:
       '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309)
       '@logux/core': git+https://github.com/logux/core.git#233578f53a6e7b0b1c3175a73b9046b9a5384309
