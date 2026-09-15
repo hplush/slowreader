@@ -1,11 +1,15 @@
 import type { TestServer } from '@logux/server'
 import { signUp as signUpApi } from '@slowreader/api'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
+import { keepMount } from 'nanostores'
 import { deepEqual, equal, match, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
+  addFeed,
+  busy,
   client,
+  commonMessages,
   currentPage,
   enableTestTime,
   generateCredentials,
@@ -16,6 +20,7 @@ import {
   setupEnvironment,
   signOut,
   signUp,
+  testFeed,
   userId,
   validSecret,
   validUserId
@@ -24,6 +29,7 @@ import {
   expectWarning,
   getTestEnvironment,
   openPage,
+  persistentDatabase,
   setBaseTestRoute,
   setTestUser,
   waitFor
@@ -171,6 +177,47 @@ describe('signup page', () => {
     equal(client.get()?.state, 'connecting')
     equal(userId.get(), user)
     equal(hasPassword.get(), true)
+  })
+
+  test('hides busy until the second step is closed', async () => {
+    setupEnvironment({
+      ...getTestEnvironment(),
+      databaseCreator: persistentDatabase(),
+      server
+    })
+    let startPage = openPage({
+      params: {},
+      route: 'start'
+    })
+    startPage.startLocal()
+    await addFeed(testFeed())
+
+    let page = openPage({
+      params: {},
+      route: 'signUp'
+    })
+    keepMount(currentPage)
+    let shown: string[] = []
+    function check(): void {
+      let task = busy.get()
+      if (task && !currentPage.get().hideBusy.get()) shown.push(task.label)
+    }
+    let unbinds = [
+      busy.listen(check),
+      page.hideBusy.listen(check),
+      currentPage.listen(check)
+    ]
+
+    await page.submit()
+    equal(page.warningStep.get(), true)
+    let uploading = commonMessages.get().uploadingData
+    await waitFor(busy, task => task !== false && task.label === uploading)
+    await waitFor(busy, task => task === false)
+    deepEqual(shown, [])
+
+    page.finish()
+    equal(currentPage.get().hideBusy.get(), false)
+    for (let unbind of unbinds) unbind()
   })
 
   test('reports about bad connection', async () => {

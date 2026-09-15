@@ -63,7 +63,12 @@ export const currentPage: ReadableAtom<Page<RouteName>> = computed(
     let creator = pages[startRoute]
     let page = creator() as Page<RouteName>
     // creator() may call openRoute() for redirect pages, re-check current route
-    if (!override && startRoute !== router.get().route) return currentPage.get()
+    if (!override && startRoute !== router.get().route) {
+      // The redirect could be applied before the creation finished, then
+      // the page is already replaced and will never be the current one
+      if (page !== prevPage) page.destroy()
+      return currentPage.get()
+    }
 
     if (page !== prevPage) {
       if (prevPage) {

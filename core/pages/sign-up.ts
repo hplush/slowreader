@@ -54,7 +54,10 @@ export const signUpPage = createPage('signUp', () => {
   }
 
   let createUser = createFormSubmit(
-    () => signUp($credentials.get(), customServerMixin.customServer.get()),
+    async () => {
+      await signUp($credentials.get(), customServerMixin.customServer.get())
+      $warningStep.set(true)
+    },
     $signingUp,
     $error,
     SIGN_UP_ERRORS,
@@ -94,7 +97,6 @@ export const signUpPage = createPage('signUp', () => {
       if (!userId.get()) $hideMenu.set(true)
       let created = await createUser()
       if (created) {
-        $warningStep.set(true)
         await getEnvironment().savePassword({
           secret: $secret.get(),
           userId: $userId.get()

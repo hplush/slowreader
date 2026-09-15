@@ -1,4 +1,4 @@
-import { keepMount } from 'nanostores'
+import { cleanStores, keepMount } from 'nanostores'
 import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -8,6 +8,9 @@ import {
   busy,
   busyUntilMenuLoader,
   currentPage,
+  isDemo,
+  keepDemo,
+  needWelcome,
   setLayoutType,
   testFeed,
   waitLoading
@@ -15,7 +18,8 @@ import {
 import {
   cleanClientTest,
   enableClientTest,
-  setBaseTestRoute
+  setBaseTestRoute,
+  waitFor
 } from '../utils.ts'
 
 describe('redirects page', () => {
@@ -95,5 +99,29 @@ describe('redirects page', () => {
     })
     await setTimeout(10)
     equal(currentPage.get().route, 'slow')
+  })
+
+  test('keeps the page after the demo page redirect', async () => {
+    isDemo.set(true)
+    await addFeed(testFeed({ reading: 'slow' }))
+    keepMount(needWelcome)
+    await waitFor(needWelcome, welcome => welcome === true)
+
+    // The app starts on the home page, which redirects during its creation
+    cleanStores(currentPage)
+    setBaseTestRoute({
+      params: {},
+      route: 'home'
+    })
+    keepMount(currentPage)
+    equal(currentPage.get().route, 'welcome')
+
+    setBaseTestRoute({
+      params: {},
+      route: 'cloud'
+    })
+    keepDemo()
+    await waitFor(needWelcome, welcome => welcome === false)
+    equal(currentPage.get().route, 'cloud')
   })
 })
