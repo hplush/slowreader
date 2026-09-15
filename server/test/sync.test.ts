@@ -1,4 +1,4 @@
-import { zero, zeroClean } from '@logux/actions'
+import { zeroClean } from '@logux/actions'
 import type { Client } from '@logux/client'
 import { encryptActions } from '@logux/client'
 import { parseId } from '@logux/core'
@@ -201,17 +201,11 @@ describe('server sync', () => {
     )
     let client = await connect(server, '0000000000000000', 'AAAAAAAAAA')
     await client.process({ type: 'A' })
-    let meta = client.log.entries()[0]![1]
+    await client.disconnect()
 
     // Client re-sends actions which were not confirmed before the reconnect
-    await server.log.add(
-      zero({
-        compressed: false,
-        d: new Uint8Array([1]),
-        iv: new Uint8Array([2])
-      }),
-      { id: meta.id, reasons: [] }
-    )
+    client.node.lastSent = 0
+    await client.connect()
     await setTimeout(100)
 
     deepEqual(

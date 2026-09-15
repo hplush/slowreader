@@ -345,7 +345,7 @@ importers:
     devDependencies:
       '@logux/server':
         specifier: github:logux/server#next
-        version: git+https://github.com/logux/server.git#3d4f3ecaf8346ddfb6db19aa0c296343afb9c424
+        version: git+https://github.com/logux/server.git#a73951490dc59e71573f2f2e4c430c0fc128ce23
       '@slowreader/proxy':
         specifier: workspace:*
         version: link:../proxy
@@ -429,7 +429,7 @@ importers:
         version: git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
       '@logux/server':
         specifier: github:logux/server#next
-        version: git+https://github.com/logux/server.git#3d4f3ecaf8346ddfb6db19aa0c296343afb9c424
+        version: git+https://github.com/logux/server.git#a73951490dc59e71573f2f2e4c430c0fc128ce23
       '@slowreader/api':
         specifier: workspace:*
         version: link:../api
@@ -1403,8 +1403,8 @@ packages:
     resolution: {integrity: sha512-a7KRD30U252cfIekBGktEIRuwFRT7vOPZXkEsD05DwApsPi70iRnFaHEgMde8tZu+jJUuTDN/xMgabtjzHzXaQ==}
     engines: {node: ^20.0.0 || >=22.0.0}
 
-  '@logux/server@git+https://github.com/logux/server.git#3d4f3ecaf8346ddfb6db19aa0c296343afb9c424':
-    resolution: {commit: 3d4f3ecaf8346ddfb6db19aa0c296343afb9c424, repo: https://github.com/logux/server.git, type: git}
+  '@logux/server@git+https://github.com/logux/server.git#a73951490dc59e71573f2f2e4c430c0fc128ce23':
+    resolution: {commit: a73951490dc59e71573f2f2e4c430c0fc128ce23, repo: https://github.com/logux/server.git, type: git}
     version: 0.16.3
     engines: {node: ^22.5.0 || ^24.0.0 || >=26.0.0}
 
@@ -6210,12 +6210,11 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@logux/server@git+https://github.com/logux/server.git#3d4f3ecaf8346ddfb6db19aa0c296343afb9c424':
+  '@logux/server@git+https://github.com/logux/server.git#a73951490dc59e71573f2f2e4c430c0fc128ce23':
     dependencies:
       '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
       '@logux/core': git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
       cookie: 2.0.1
-      fastq: 1.20.3
       nanoevents: 10.0.0
       nanoid: 6.0.1
       ws: 8.21.3

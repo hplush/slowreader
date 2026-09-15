@@ -47,16 +47,13 @@ export default (server: AppServer): void => {
   })
 
   // The log keeps the action for the other devices of the user until
-  // `0/clean` will say that nobody needs it anymore. `users` is set here
-  // and not by `resend()`, because the sync on the connect reads it
-  // from the stored meta
+  // `0/clean` will say that nobody needs it anymore
   server.log.on('preadd', (action, meta) => {
     if (zero.match(action)) {
       let { userId } = parseId(meta.id)
       if (userId) {
         meta.indexes = [`users/${userId}`]
         meta.reasons.push('store')
-        meta.users = [userId]
       }
     }
   })
@@ -67,7 +64,7 @@ export default (server: AppServer): void => {
     wasOfflineTooLong(client)
       .then(tooLong => {
         if (tooLong && client.clientId) {
-          return server.log.add(dbReset({}), { clients: [client.clientId] })
+          return server.process(dbReset({}), { clients: [client.clientId] })
         }
       })
       /* node:coverage ignore next 3 */
@@ -80,6 +77,9 @@ export default (server: AppServer): void => {
     access() {
       return true
     },
+    resend(ctx) {
+      return { users: [ctx.userId] }
+    },
     process(ctx) {
       acted.add(ctx.userId)
       writeLastActions()
@@ -90,11 +90,11 @@ export default (server: AppServer): void => {
     access(ctx, action) {
       return ids(action).every(id => parseId(id).userId === ctx.userId)
     },
+    resend(ctx) {
+      return { users: [ctx.userId] }
+    },
     async process(ctx, action) {
       await server.log.removeReason('store', { ids: ids(action) })
-    },
-    resend(ctx) {
-      return { user: ctx.userId }
     }
   })
 }
