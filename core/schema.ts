@@ -182,6 +182,17 @@ export function getTables(): Tables {
 }
 
 /**
+ * CRDT database of the current user to subscribe to the applied actions.
+ */
+export function getCrdt(): CrdtDatabase {
+  /* node:coverage ignore next 3 */
+  if (!currentCrdt) {
+    throw new Error('No Slow Reader database')
+  }
+  return currentCrdt
+}
+
+/**
  * Is the database still open. Sign-out closes it, so async tasks started
  * before it should stop instead of throwing.
  */

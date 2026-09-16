@@ -1,10 +1,12 @@
 import { withMeta, type WithoutMeta } from '@logux/client/db'
-import type { SqlStore } from '@nanostores/sql'
-import { atom, computed, effect, onMount, type ReadableAtom } from 'nanostores'
+import { persistentAtom } from '@nanostores/persistent'
+import type { Database, SqlStore } from '@nanostores/sql'
+import { computed, effect, type ReadableAtom } from 'nanostores'
 
+import { onClient } from './client.ts'
 import { createDownloadTask, type TextResponse } from './lib/download.ts'
 import { firstRow } from './lib/stores.ts'
-import { type FeedLoader, type LoaderName, loaders } from './loader/index.ts'
+import { type FeedLoader, loaders } from './loader/index.ts'
 import {
   addPost,
   deletePost,
@@ -17,6 +19,7 @@ import {
   type FeedChanges,
   type FeedValue,
   GENERAL_CATEGORY,
+  getCrdt,
   getTables,
   openedDatabase,
   type NewFeed,
@@ -186,24 +189,54 @@ export function testFeed(
   })
 }
 
-export const hasFeeds = atom<boolean | undefined>()
-onMount(hasFeeds, () => {
-  // The database is opened after the sign in and is re-created on the reset,
-  // so the query must be re-created with it
-  return effect(openedDatabase, database => {
-    hasFeeds.set(undefined)
-    if (!database) return
-    // SQLocal subscribes the reactive query to the tables from `tables_used()`
-    // and throws when the list is empty. Counting an indexed column like `url`
-    // is answered by the index alone, so the query must read a column
-    // without an index.
-    let $first = database.store<{
-      loader: LoaderName
-    }>`SELECT "loader" FROM "feeds" LIMIT 1`
-    return $first.subscribe(value => {
-      hasFeeds.set(value.isLoading ? undefined : value.value.length > 0)
+export const hasFeeds = persistentAtom<boolean | undefined>(
+  'slowreader:feeds',
+  undefined,
+  {
+    decode: value => value === 'yes',
+    encode(value) {
+      if (typeof value === 'undefined') return undefined
+      return value ? 'yes' : ''
+    }
+  }
+)
+
+function hasAnyFeed(db: Database): Promise<boolean> {
+  return db.select<{ id: string }>`SELECT "id" FROM "feeds" LIMIT 1`.then(
+    rows => rows.length > 0
+  )
+}
+
+onClient(() => {
+  let unbindCheck = effect([openedDatabase, hasFeeds], (db, known) => {
+    if (!db || typeof known !== 'undefined') return
+    void getCrdt().ready.then(async () => {
+      let found = await hasAnyFeed(db)
+      // A feed could be added while the query was running
+      if (typeof hasFeeds.get() === 'undefined') hasFeeds.set(found)
     })
   })
+
+  let unbindActions = effect(openedDatabase, db => {
+    if (!db) return
+    // Action types are strings to avoid circle dependency with schema.ts
+    return getCrdt().on('applied', (tx, action) => {
+      if (action.type === 'feeds/created') {
+        hasFeeds.set(true)
+      } else if (action.type === 'feeds/deleted') {
+        // The deletion is applied asynchronously, so the rest of the feeds
+        // can be counted only inside the applying transaction
+        return hasAnyFeed(tx).then(found => {
+          hasFeeds.set(found)
+        })
+      }
+    })
+  })
+
+  return () => {
+    unbindCheck()
+    unbindActions()
+  }
 })
 
 export const needWelcome = computed([hasFeeds, isDemo], (feeds, demo) => {

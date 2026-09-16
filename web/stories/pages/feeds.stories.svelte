@@ -3,7 +3,6 @@
     changePost,
     type FeedsPage as FeedsPageStore,
     GENERAL_CATEGORY,
-    hasFeeds,
     pages,
     type PostValue
   } from '@slowreader/core'
@@ -101,23 +100,13 @@
 </script>
 
 <Story name="Slow Welcome" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene
-    oninit={() => {
-      hasFeeds.set(false)
-    }}
-    route="slow"
-  >
+  <Scene route="slow">
     <FeedsPage page={pages.slow()} />
   </Scene>
 </Story>
 
 <Story name="Fast Welcome" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene
-    oninit={() => {
-      hasFeeds.set(false)
-    }}
-    route="fast"
-  >
+  <Scene route="fast">
     <FeedsPage page={pages.fast()} />
   </Scene>
 </Story>

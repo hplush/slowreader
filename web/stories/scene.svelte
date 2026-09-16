@@ -114,7 +114,7 @@
     refreshErrors.set([])
     syncStatus.set('synchronized')
     refreshStatistics.set(DEFAULT_REFRESH_STATISTICS)
-    hasFeeds.set(true)
+    hasFeeds.set(!!feeds?.length)
     closedCategories.set(new Set())
 
     function updateTheme(): void {

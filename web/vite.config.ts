@@ -96,8 +96,13 @@ function noDemoCache(server: PreviewServer | ViteDevServer): void {
 
 export default defineConfig(() => ({
   build: {
+    // Every browser from .browserslistrc supports <link rel="modulepreload">
+    modulePreload: { polyfill: false },
     rolldownOptions: {
-      input: join(import.meta.dirname, 'app.html')
+      input: {
+        'app': join(import.meta.dirname, 'app.html'),
+        'copy-demo-db': join(import.meta.dirname, 'copy-demo-db/index.html')
+      }
     },
     sourcemap: true
   },
@@ -139,7 +144,7 @@ export default defineConfig(() => ({
         dirIndex(server, 'dist')
       },
       configureServer(server) {
-        dirIndex(server, 'public')
+        dirIndex(server, '.')
       },
       name: 'dir-index'
     },

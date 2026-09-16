@@ -4,6 +4,7 @@ import { customAlphabet } from 'nanoid'
 import { busyDuring } from './busy.ts'
 import { getClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
+import { hasFeeds } from './feed.ts'
 import { checkErrors } from './lib/http.ts'
 import { commonMessages } from './messages/index.ts'
 import { markDatabaseDownloading } from './schema.ts'
@@ -65,6 +66,8 @@ export async function signIn(
   getEnvironment().saveSession(response.session)
   hasPassword.set(true)
   markDatabaseDownloading()
+  // The feeds of the account are known only after the download
+  hasFeeds.set(undefined)
   useCredentials(credentials)
 }
 
@@ -120,6 +123,7 @@ export function onSignOut(callback: () => void): () => void {
 export function forgetLocalData(): void {
   userId.set(undefined)
   hasPassword.set(false)
+  hasFeeds.set(undefined)
   isDemo.set(false)
   encryptionKey.set(undefined)
   syncServer.set(undefined)

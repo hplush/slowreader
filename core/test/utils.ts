@@ -62,6 +62,7 @@ export {
 } from '../test.ts'
 
 export function setTestUser(enable = true): void {
+  hasFeeds.set(undefined)
   if (enable) {
     encryptionKey.set('key')
     hasPassword.set(false)
