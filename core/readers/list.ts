@@ -9,7 +9,7 @@ import type { ReaderPost } from '../post.ts'
 import {
   createReader,
   loadPageCursors,
-  loadPostsPage,
+  loadPostsRange,
   type PostCursor,
   readAndMove,
   trackReadPosts
@@ -22,7 +22,7 @@ export const listReader = createReader('list', (filter, params) => {
 
   let exited = false
   let $loading = atom(true)
-  let $marking = atom(false)
+  let $readingPage = atom(false)
   let $list = atom<ReaderPost[]>([])
   let $pages = createPagination(1)
 
@@ -33,7 +33,7 @@ export const listReader = createReader('list', (filter, params) => {
     let current = ++request
     let cursor = cursors[page]
     let posts = cursor
-      ? await loadPostsPage(filter, cursor, POSTS_PER_PAGE)
+      ? await loadPostsRange(filter, cursor, cursors[page + 1])
       : []
     if (exited || current !== request) return
     moveToPage($pages, page)
@@ -60,7 +60,7 @@ export const listReader = createReader('list', (filter, params) => {
       params,
       $list.get(),
       $pages.get().hasNext ? `${$pages.get().page + 1}` : undefined,
-      $marking
+      $readingPage
     )
   }
 
@@ -72,7 +72,7 @@ export const listReader = createReader('list', (filter, params) => {
     },
     list: $list,
     loading: $loading,
-    marking: $marking,
+    readingPage: $readingPage,
     pages: $pages,
     readPage
   }

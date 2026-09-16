@@ -11,7 +11,8 @@
   import Stack from '../../ui/stack.svelte'
 
   let { reader }: { reader: FeedReader } = $props()
-  let { authors, hasNext, list, marking, nextFrom, prevFrom } = $derived(reader)
+  let { authors, hasNext, list, nextFrom, prevFrom, readingPage } =
+    $derived(reader)
 </script>
 
 <Feed authors={$authors} posts={$list} />
@@ -25,8 +26,8 @@
   <Button
     anchor="read-page"
     icon={mdiCheckboxMultipleMarkedOutline}
-    loader={$marking}
-    onclick={reader.readAndNext}
+    loader={$readingPage}
+    onclick={reader.readPage}
     size="wide"
     variant="attention"
   >

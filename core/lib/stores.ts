@@ -45,6 +45,18 @@ export function waitLoading(store: ReadableAtom): Promise<void> {
   })
 }
 
+/**
+ * Return promise which wait until the store will have the next value.
+ */
+export function nextValue(store: ReadableAtom): Promise<void> {
+  return new Promise<void>(resolve => {
+    let unbind = store.listen(() => {
+      unbind()
+      resolve()
+    })
+  })
+}
+
 export async function waitSql<Row>(store: SqlStore<Row[]>): Promise<Row[]> {
   let unbind = store.listen(() => {})
   try {

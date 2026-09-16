@@ -102,14 +102,14 @@ describe('feed reader', () => {
     equal(reader.list.get()[0]!.title, '30')
     equal(reader.list.get().length, 20)
 
-    await reader.readAndNext()
+    await reader.readPage()
     await waitLoading(page.postsLoading)
     equal(reader.list.get()[0]!.title, '10')
     equal(reader.list.get().length, 10)
     equal(reader.hasNext.get(), false)
 
     // The last page moves to the slow reading: no fast post is left
-    await reader.readAndNext()
+    await reader.readPage()
     await setTimeout(10)
     equal(router.get().route, 'slow')
 
@@ -170,7 +170,7 @@ describe('feed reader', () => {
     equal(reader.list.get()[0]!.title, '55')
 
     // Read posts are not shown again, so there is no page above anymore
-    await reader.readAndNext()
+    await reader.readPage()
     await waitLoading(page.postsLoading)
     equal(reader.list.get()[0]!.title, '35')
     equal(reader.prevFrom.get(), undefined)

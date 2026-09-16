@@ -20,7 +20,7 @@ export const feedReader = createReader('feed', (filter, params) => {
 
   let exited = false
   let $loading = atom(true)
-  let $marking = atom(false)
+  let $readingPage = atom(false)
   let $list = atom<ReaderPost[]>([])
   let $authors = atom<Map<string, PostAuthor>>(new Map())
   let $hasNext = atom(false)
@@ -31,7 +31,7 @@ export const feedReader = createReader('feed', (filter, params) => {
   let request = 0
 
   /**
-   * `readAndNext()` reads the whole page, so unread posts above the next page
+   * `readPage()` reads the whole page, so unread posts above the next page
    * are the same as above the current one. The cursor of the previous page
    * is reused instead of a query, which would see the marks only after
    * the background write.
@@ -85,10 +85,10 @@ export const feedReader = createReader('feed', (filter, params) => {
   })
   let unbindRead = trackReadPosts(filter, $list)
 
-  function readAndNext(): Promise<void> {
+  function readPage(): Promise<void> {
     let next = $hasNext.get() ? $nextFrom.get() : undefined
     keepPrevFrom = !!next
-    return readAndMove(filter, params, $list.get(), next, $marking)
+    return readAndMove(filter, params, $list.get(), next, $readingPage)
   }
 
   return {
@@ -101,10 +101,10 @@ export const feedReader = createReader('feed', (filter, params) => {
     hasNext: $hasNext,
     list: $list,
     loading: $loading,
-    marking: $marking,
+    readingPage: $readingPage,
     nextFrom: $nextFrom,
     prevFrom: $prevFrom,
-    readAndNext
+    readPage
   }
 })
 

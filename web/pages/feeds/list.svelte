@@ -8,7 +8,7 @@
   import Stack from '../../ui/stack.svelte'
 
   let { reader }: { reader: ListReader } = $props()
-  let { list, marking, pages } = $derived(reader)
+  let { list, pages, readingPage } = $derived(reader)
 </script>
 
 <Posts autoread list={$list} />
@@ -17,7 +17,7 @@
     <Button
       anchor="read-page"
       icon={mdiCheckboxMultipleMarkedOutline}
-      loader={$marking}
+      loader={$readingPage}
       onclick={reader.readPage}
       size="pill"
     >

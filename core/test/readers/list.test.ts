@@ -168,6 +168,16 @@ describe('list reader', () => {
       show: true,
       titles: true
     })
+    // The read page keeps its posts with the read style
+    await moveTo(page, 0)
+    equal(reader.list.get().length, 50)
+    equal(
+      reader.list.get().every(post => post.read),
+      true
+    )
+    await moveTo(page, 1)
+    equal(reader.list.get().length, 23)
+
     await setTimeout(10)
     deepEqual(slowMenu.get(), [
       [

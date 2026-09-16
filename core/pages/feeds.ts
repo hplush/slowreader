@@ -3,13 +3,7 @@ import { atom, computed, effect } from 'nanostores'
 import { type CategoryValue, changeCategory, getCategory } from '../category.ts'
 import { layoutType } from '../environment.ts'
 import { changeFeed, type FeedValue, getFeed, needWelcome } from '../feed.ts'
-import {
-  fastMenu,
-  menuLoading,
-  openableMenu,
-  slowMenu,
-  unreadFastMenu
-} from '../menu.ts'
+import { menuLoading, openableMenu, slowMenu, unreadFastMenu } from '../menu.ts'
 import { deletePost, fastPostsCount, slowPostsCount } from '../post.ts'
 import {
   loadReadPostIds,
@@ -119,7 +113,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         if (welcome !== false) return
         void nextRouteIsRedirect(() => {
           if (reading === 'fast') {
-            let id = fastMenu.get()[0]?.id
+            let id = unreadFastMenu.get()[0]?.id
             if (id) $categoryId.set(id)
           } else {
             let id = slowMenu.get()[0]?.[1][0]?.[0]?.id
@@ -215,7 +209,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
           filter.categoryId === lastFilter?.categoryId &&
           filter.feedId === lastFilter?.feedId &&
           (prevReading?.name === 'feed' || prevReading?.name === 'list') &&
-          prevReading.marking.get()
+          prevReading.readingPage.get()
         ) {
           return
         }

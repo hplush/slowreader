@@ -149,6 +149,35 @@ export function loadPostOriginIdsByFeed(feedId: string): Promise<string[]> {
   )
 }
 
+export function hasUnreadPosts(
+  reading: PostValue['reading'],
+  target: { categoryId?: string; feedId?: string } = {}
+): Promise<boolean> {
+  let rows: Promise<unknown[]>
+  if (target.feedId) {
+    rows = select`
+      SELECT "id" FROM "posts"
+      WHERE "reading" = ${reading} AND "read" = 0
+        AND "feedId" = ${target.feedId}
+      LIMIT 1
+    `
+  } else if (target.categoryId) {
+    rows = select`
+      SELECT "posts"."id" FROM "posts"
+      JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+      WHERE "posts"."reading" = ${reading} AND "posts"."read" = 0
+        AND "feeds"."categoryId" = ${target.categoryId}
+      LIMIT 1
+    `
+  } else {
+    rows = select`
+      SELECT "id" FROM "posts"
+      WHERE "reading" = ${reading} AND "read" = 0 LIMIT 1
+    `
+  }
+  return rows.then(list => list.length > 0)
+}
+
 export function deletePost(postId: string[] | string): Promise<void> {
   return getTables().posts.delete(postId)
 }

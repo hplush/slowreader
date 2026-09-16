@@ -1,10 +1,16 @@
 import type { SqlStore } from '@nanostores/sql'
 import type { ReadableAtom, WritableAtom } from 'nanostores'
 
-import { getEnvironment, layoutType } from '../environment.ts'
+import { getEnvironment } from '../environment.ts'
+import { nextValue } from '../lib/stores.ts'
 import { slowMenu, unreadFastMenu } from '../menu.ts'
-import { changePost, type PostValue, type ReaderPost } from '../post.ts'
-import { nextRouteIsRedirect, type Routes } from '../router.ts'
+import {
+  changePost,
+  hasUnreadPosts,
+  type PostValue,
+  type ReaderPost
+} from '../post.ts'
+import { nextRouteIsRedirect, router, type Routes } from '../router.ts'
 import { getTables, select } from '../schema.ts'
 
 export interface BaseReader<Name extends ReaderName = ReaderName> {
@@ -64,70 +70,64 @@ export function createReader<Name extends ReaderName, Rest extends Extra>(
  */
 export type PostAuthor = { title: string; url: string }
 
-function openFast(category: string): Promise<void> {
-  return nextRouteIsRedirect(() => {
-    getEnvironment().openRoute({
-      params: { category },
-      popups: [],
-      route: 'fast'
-    })
-  })
-}
-
-function openSlow(feed?: string): Promise<void> {
-  return nextRouteIsRedirect(() => {
-    getEnvironment().openRoute({
-      params: feed ? { feed } : {},
-      popups: [],
-      route: 'slow'
-    })
-  })
-}
-
-function nextSlowFeed(filter: PostFilter): string | undefined {
-  if (filter.reading !== 'slow' || layoutType.get() !== 'desktop') return
-  for (let [category, feeds] of slowMenu.get()) {
-    if (category.id === filter.categoryId) continue
-    for (let [feed] of feeds) {
-      if (feed.id !== filter.feedId) return feed.id
-    }
+function menuHasUnread(filter: PostFilter): boolean {
+  if (filter.reading === 'fast') {
+    return unreadFastMenu.get().some(i => i.id === filter.categoryId)
+  } else {
+    return slowMenu
+      .get()
+      .some(([, feeds]) => feeds.some(([feed]) => feed.id === filter.feedId))
   }
 }
 
+async function waitDisappearFromMenu(filter: PostFilter): Promise<void> {
+  let noNeedWait = await hasUnreadPosts(filter.reading, filter)
+  if (noNeedWait) return
+  let menu = filter.reading === 'fast' ? unreadFastMenu : slowMenu
+  while (menuHasUnread(filter)) await nextValue(menu)
+}
+
+function stillOpened(filter: PostFilter): boolean {
+  let current = router.get()
+  if (current.route !== filter.reading) return false
+  let params: { category?: string; feed?: string } = current.params
+  return params.category === filter.categoryId && params.feed === filter.feedId
+}
+
+/**
+ * Mark the posts as read and move to the next page of the reader
+ * or, without it, give the reading back to the home page.
+ */
 export async function readAndMove(
   filter: PostFilter,
   params: FeedStores,
   posts: ReaderPost[],
   nextFrom: string | undefined,
-  marking: WritableAtom<boolean>
+  readingPage: WritableAtom<boolean>
 ): Promise<void> {
-  marking.set(true)
-  let redirected = true
-  if (nextFrom) {
-    params.from.set(nextFrom)
-  } else {
-    let fast =
-      filter.reading === 'fast'
-        ? unreadFastMenu.get().find(i => i.id !== filter.categoryId)?.id
-        : undefined
-    let slow = nextSlowFeed(
-      filter.reading === 'fast' ? { reading: 'slow' } : filter
-    )
-    if (fast) {
-      await openFast(fast)
-    } else if (slow) {
-      await openSlow(slow)
-    } else {
-      redirected = false
-    }
-  }
-
+  readingPage.set(true)
   await changePost(
     posts.filter(post => !post.read).map(post => post.id),
     { read: 1 }
   )
-  if (!redirected) await openSlow()
-  marking.set(false)
+  let route = filter.reading
+  if (!nextFrom) {
+    await waitDisappearFromMenu(filter)
+    if (filter.reading === 'fast' && !(await hasUnreadPosts('fast'))) {
+      route = 'slow'
+    }
+  }
+  // The user could leave the page during the write
+  if (stillOpened(filter)) {
+    if (nextFrom) {
+      params.from.set(nextFrom)
+    } else {
+      await nextRouteIsRedirect(() => {
+        getEnvironment().openRoute({ params: {}, popups: [], route })
+      })
+    }
+  }
+  readingPage.set(false)
 }
 
 /**
@@ -206,6 +206,55 @@ export function loadPostsPage(
         AND ("publishedAt", "id") < (${cursor.publishedAt}, ${cursor.id})
       ORDER BY "publishedAt" DESC, "id" DESC
       LIMIT ${limit}
+    `
+  }
+}
+
+/**
+ * All posts of the page between its cursor and the cursor of the next page.
+ *
+ * `listReader` takes the pages on opening, so the read page keeps its posts
+ * and only shows them in the read style, like the posts read on the open page.
+ */
+export function loadPostsRange(
+  filter: PostFilter,
+  cursor: PostCursor,
+  until: PostCursor | undefined
+): Promise<ReaderPost[]> {
+  // No post is below the zero time with the empty ID
+  let lowest = until ?? { id: '', publishedAt: 0 }
+  if (filter.categoryId) {
+    return select<ReaderPost>`
+      SELECT "posts"."id", "posts"."feedId", "posts"."media",
+        "posts"."originId", "posts"."publishedAt", "posts"."read",
+        "posts"."title", "posts"."url",
+        NULLIF("posts"."intro", '') AS "intro",
+        CASE WHEN COALESCE("posts"."intro", '') = ''
+          THEN "posts"."full" END AS "full",
+        COALESCE(NULLIF("posts"."intro", '') <> "posts"."full", 0) AS "more",
+        "feeds"."title" AS "authorTitle", "feeds"."url" AS "authorUrl"
+      FROM "posts"
+      JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+      WHERE "posts"."reading" = ${filter.reading}
+        AND "feeds"."categoryId" = ${filter.categoryId}
+        AND ("posts"."publishedAt", "posts"."id")
+          < (${cursor.publishedAt}, ${cursor.id})
+        AND ("posts"."publishedAt", "posts"."id")
+          >= (${lowest.publishedAt}, ${lowest.id})
+      ORDER BY "posts"."publishedAt" DESC, "posts"."id" DESC
+    `
+  } else {
+    return select<ReaderPost>`
+      SELECT "id", "feedId", "media", "originId", "publishedAt",
+        "read", "title", "url", NULLIF("intro", '') AS "intro",
+        CASE WHEN COALESCE("intro", '') = '' THEN "full" END AS "full",
+        COALESCE(NULLIF("intro", '') <> "full", 0) AS "more"
+      FROM "posts"
+      WHERE "reading" = ${filter.reading}
+        AND "feedId" = ${filter.feedId ?? null}
+        AND ("publishedAt", "id") < (${cursor.publishedAt}, ${cursor.id})
+        AND ("publishedAt", "id") >= (${lowest.publishedAt}, ${lowest.id})
+      ORDER BY "publishedAt" DESC, "id" DESC
     `
   }
 }
