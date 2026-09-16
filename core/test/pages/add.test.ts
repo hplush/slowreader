@@ -385,6 +385,12 @@ describe('add page', () => {
       '<rss><channel><title>RSS</title></channel></rss>',
       'application/rss+xml'
     )
+    // The page opens the popup with the first candidate
+    expectRequest('https://example.com/atom').andRespond(
+      200,
+      '<feed><title>Atom</title></feed>',
+      'application/rss+xml'
+    )
     page.params.url.set('https://example.com')
     await setTimeout(10)
     atom(200, '<feed><title>Atom</title></feed>', 'application/rss+xml')

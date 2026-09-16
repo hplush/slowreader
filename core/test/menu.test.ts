@@ -68,8 +68,6 @@ describe('menu', () => {
   })
 
   afterEach(async () => {
-    cleanStores(menuLoading, slowMenu, fastMenu)
-    await setTimeout(10)
     await cleanClient()
   })
 

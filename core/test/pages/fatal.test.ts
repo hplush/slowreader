@@ -117,7 +117,6 @@ describe('fatal page', () => {
     })
 
     test('opens when the reset did not fix the database', async () => {
-      keepMount(currentPage)
       openRoute({ params: {}, route: 'about' })
 
       await resetDatabase(
@@ -145,7 +144,6 @@ describe('fatal page', () => {
           restarts += 1
         }
       })
-      keepMount(currentPage)
       openRoute({ params: {}, route: 'about' })
 
       await resetDatabase('broken-db', new Error('Disk image is malformed'))
@@ -240,7 +238,6 @@ describe('fatal page', () => {
     }
 
     test('opens when the server refused the change', async () => {
-      keepMount(currentPage)
       openRoute({ params: {}, route: 'about' })
 
       // These actions own no cell, so their undo keeps the device equal
@@ -290,7 +287,6 @@ describe('fatal page', () => {
     })
 
     test('opens on wrong-subprotocol error', async () => {
-      keepMount(currentPage)
       await signUp(generateCredentials())
       openRoute({ params: {}, route: 'about' })
 
@@ -307,7 +303,6 @@ describe('fatal page', () => {
     })
 
     test('opens on OUTDATED_CLIENT HTTP response', async () => {
-      keepMount(currentPage)
       openRoute({ params: {}, route: 'about' })
 
       // @ts-expect-error Hacky mocking for tests

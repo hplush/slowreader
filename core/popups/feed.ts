@@ -42,10 +42,15 @@ async function loadFeedFromURL(
   }
 }
 
-function swapHttpProtocol(url: string): string {
-  let u = new URL(url)
-  u.protocol = u.protocol === 'https:' ? 'http:' : 'https:'
-  return u.toString()
+function swapHttpProtocol(url: string): string | undefined {
+  try {
+    let u = new URL(url)
+    u.protocol = u.protocol === 'https:' ? 'http:' : 'https:'
+    return u.toString()
+  } catch {
+    // The user could put anything in the URL hash
+    return undefined
+  }
 }
 
 /**
@@ -54,7 +59,7 @@ function swapHttpProtocol(url: string): string {
 async function findFeedUrl(url: string): Promise<string> {
   if (await loadFeedByUrl(url)) return url
   let swapped = swapHttpProtocol(url)
-  if (await loadFeedByUrl(swapped)) return swapped
+  if (swapped && (await loadFeedByUrl(swapped))) return swapped
   return url
 }
 

@@ -1,4 +1,3 @@
-import { cleanStores, keepMount } from 'nanostores'
 import { deepEqual, equal, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -22,11 +21,9 @@ describe('popups', () => {
 
   afterEach(async () => {
     await cleanClient()
-    cleanStores(popupsStatus)
   })
 
   test('generates popups status', async () => {
-    keepMount(popupsStatus)
     deepEqual(popupsStatus.get(), {
       last: undefined,
       loading: undefined,

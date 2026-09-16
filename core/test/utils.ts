@@ -31,6 +31,7 @@ import {
   needWelcome,
   openedPopups,
   openPopup,
+  popupsStatus,
   type OriginPost,
   type Page,
   type Popup,
@@ -104,17 +105,13 @@ function unmountPage(): void {
 }
 
 function mountPopups(): void {
-  unbindPopups ??= openedPopups.listen(() => {})
+  unbindPopups ??= popupsStatus.listen(() => {})
 }
 
 function unmountPopups(): void {
-  if (!unbindPopups) return
-  unbindPopups()
+  unbindPopups?.()
   unbindPopups = undefined
-  // The store destroys popups only during re-calculation. Without it,
-  // the next test will re-use the popups of this test.
-  openRoute({ params: {}, route: 'home' })
-  openedPopups.get()
+  cleanStores(popupsStatus)
 }
 
 /**
@@ -128,6 +125,7 @@ export function startClient(env: Partial<Environment> = {}): void {
   enableTestTime()
   openRoute({ params: {}, route: 'home' })
   mountPage()
+  mountPopups()
 }
 
 export async function cleanClient(): Promise<void> {
@@ -221,7 +219,6 @@ export function openTestPopup<Name extends PopupName>(
   popup: Name,
   param: string
 ): Popup<Name> {
-  mountPopups()
   openPopup(popup, param)
   return getPopup(popup, openedPopups.get().length - 1)
 }
@@ -233,7 +230,6 @@ export function getPopup<Name extends PopupName>(
   name: Name,
   at = 0
 ): Popup<Name> {
-  mountPopups()
   let popups = openedPopups.get()
   if (popups.length <= at) {
     throw new Error(

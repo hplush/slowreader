@@ -69,6 +69,15 @@ describe('feed popup', () => {
     equal(feed2Popup.notFound, true)
   })
 
+  test('survives not URL in the popup param', async () => {
+    expectRequest('not-url').andRespond(404)
+    await expectWarning(async () => {
+      let popup = openTestPopup('feed', 'not-url')
+      await waitLoading(popup.loading)
+      equal(popup.notFound, true)
+    }, [new HTTPStatusError(404, 'not-url', '', new Headers())])
+  })
+
   test('loads existing feed popup on 404', async () => {
     let feedId = await addFeed(testFeed({ url: 'http://a.com/404' }))
     expectRequest('http://a.com/404').andRespond(404)

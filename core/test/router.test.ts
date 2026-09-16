@@ -208,21 +208,21 @@ describe('router', () => {
     })
 
     openRoute({
-      hash: 'feed=old',
+      hash: 'post=old',
       params: {},
       route: 'home'
     })
-    addPopup(router.get(), 'feed', 'new')
-    deepEqual(router.get().popups, [{ param: 'old', popup: 'feed' }])
+    addPopup(router.get(), 'post', 'new')
+    deepEqual(router.get().popups, [{ param: 'old', popup: 'post' }])
   })
 
   test('supports # at the beginning of hash', () => {
     setTestUser()
 
-    openRoute({ hash: `#feed=id1`, params: {}, route: 'welcome' })
+    openRoute({ hash: `#post=id1`, params: {}, route: 'welcome' })
     deepEqual(router.get(), {
       params: {},
-      popups: [{ param: 'id1', popup: 'feed' }],
+      popups: [{ param: 'id1', popup: 'post' }],
       route: 'welcome'
     })
   })
