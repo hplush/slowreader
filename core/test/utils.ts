@@ -22,7 +22,9 @@ import {
   fastMenu,
   fastPostsCount,
   type FeedReader,
+  hasFeeds,
   hasPassword,
+  isDemo,
   type ListReader,
   type Loader,
   menuLoading,
@@ -104,9 +106,11 @@ export async function cleanClientTest(): Promise<void> {
     slowMenu,
     menuLoading,
     needWelcome,
+    hasFeeds,
     fastPostsCount,
     slowPostsCount
   )
+  isDemo.set(false)
   await client.get()?.clean()
   client.set(undefined)
   fatal.set(undefined)

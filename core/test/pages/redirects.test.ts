@@ -123,5 +123,12 @@ describe('redirects page', () => {
     keepDemo()
     await waitFor(needWelcome, welcome => welcome === false)
     equal(currentPage.get().route, 'cloud')
+
+    setBaseTestRoute({
+      params: {},
+      route: 'home'
+    })
+    await setTimeout(10)
+    equal(currentPage.get().route, 'slow')
   })
 })

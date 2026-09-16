@@ -106,12 +106,11 @@ let pages = (['slow', 'fast'] as const).map(reading => {
       if (menu) $loading.set(false)
     })
 
-    // The page can be opened before the menu was loaded, so the redirect
-    // waits for the menu instead of checking it once.
     let unbindRedirect = effect(
-      [$categoryId, $feedId, menuLoading, $menu],
-      (categoryId, feedId, loadingMenu, menu) => {
+      [$categoryId, $feedId, menuLoading, $menu, needWelcome],
+      (categoryId, feedId, loadingMenu, menu, welcome) => {
         if (categoryId || feedId || loadingMenu || menu) return
+        if (welcome !== false) return
         void nextRouteIsRedirect(() => {
           if (reading === 'fast') {
             let id = fastMenu.get()[0]?.id
@@ -164,14 +163,18 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         let readerName: 'none' | ReaderName
         if (menu) {
           readerName = 'none'
-        } else if (welcome) {
+        } else if (welcome && !feedId && !categoryId) {
+          // The exact feed of the demo has the posts to read
           readerName = 'welcome'
         } else if (noPosts) {
           readerName = 'empty'
         } else if (!feed && !category) {
           // The loader is only for the target, which is still loading:
           // the menu without a feed to open is a normal state
-          readerName = loadingMenu || feedId || categoryId ? 'none' : 'empty'
+          readerName =
+            loadingMenu || feedId || categoryId || welcome === undefined
+              ? 'none'
+              : 'empty'
         } else {
           readerName =
             feed?.[readerProp] ??

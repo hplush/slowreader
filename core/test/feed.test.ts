@@ -29,6 +29,5 @@ describe('feed', () => {
 
     isDemo.set(true)
     await waitFor(needWelcome, welcome => welcome === true)
-    isDemo.set(false)
   })
 })

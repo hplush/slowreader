@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  import { type FeedValue, needWelcome, pages } from '@slowreader/core'
+  import { type FeedValue, hasFeeds, pages } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import FeedsByCategoriesPage from '../../pages/feeds-by-categories.svelte'
@@ -33,7 +33,7 @@
   <Scene
     feeds={[]}
     oninit={() => {
-      needWelcome.set(true)
+      hasFeeds.set(false)
     }}
   >
     <FeedsByCategoriesPage page={pages.feedsByCategories()} />

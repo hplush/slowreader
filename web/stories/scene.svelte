@@ -11,9 +11,9 @@
     currentPage,
     DEFAULT_REFRESH_STATISTICS,
     type FeedValue,
+    hasFeeds,
     hasPassword,
     isDemo,
-    needWelcome,
     type NewCategory,
     pages,
     type ParamlessRouteName,
@@ -114,7 +114,7 @@
     refreshErrors.set([])
     syncStatus.set('synchronized')
     refreshStatistics.set(DEFAULT_REFRESH_STATISTICS)
-    needWelcome.set(false)
+    hasFeeds.set(true)
     closedCategories.set(new Set())
 
     function updateTheme(): void {

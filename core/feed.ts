@@ -1,6 +1,6 @@
 import { withMeta, type WithoutMeta } from '@logux/client/db'
 import type { SqlStore } from '@nanostores/sql'
-import { atom, effect, onMount, type ReadableAtom } from 'nanostores'
+import { atom, computed, effect, onMount, type ReadableAtom } from 'nanostores'
 
 import { createDownloadTask, type TextResponse } from './lib/download.ts'
 import { firstRow } from './lib/stores.ts'
@@ -186,22 +186,27 @@ export function testFeed(
   })
 }
 
-export const needWelcome = atom<boolean | undefined>()
-onMount(needWelcome, () => {
+export const hasFeeds = atom<boolean | undefined>()
+onMount(hasFeeds, () => {
   // The database is opened after the sign in and is re-created on the reset,
   // so the query must be re-created with it
-  return effect([openedDatabase, isDemo], (database, demo) => {
-    if (demo) {
-      needWelcome.set(true)
-      return
-    }
-    needWelcome.set(undefined)
+  return effect(openedDatabase, database => {
+    hasFeeds.set(undefined)
     if (!database) return
+    // SQLocal subscribes the reactive query to the tables from `tables_used()`
+    // and throws when the list is empty. Counting an indexed column like `url`
+    // is answered by the index alone, so the query must read a column
+    // without an index.
     let $first = database.store<{
       loader: LoaderName
     }>`SELECT "loader" FROM "feeds" LIMIT 1`
     return $first.subscribe(value => {
-      needWelcome.set(value.isLoading ? undefined : value.value.length === 0)
+      hasFeeds.set(value.isLoading ? undefined : value.value.length > 0)
     })
   })
+})
+
+export const needWelcome = computed([hasFeeds, isDemo], (feeds, demo) => {
+  if (demo) return true
+  return typeof feeds === 'undefined' ? undefined : !feeds
 })

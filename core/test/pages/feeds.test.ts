@@ -9,6 +9,7 @@ import {
   busy,
   busyUntilMenuLoader,
   GENERAL_CATEGORY,
+  isDemo,
   menuLoading,
   router,
   setLayoutType,
@@ -54,7 +55,7 @@ describe('feeds page', () => {
       params: {},
       route: 'fast'
     })
-    equal(page.params.category.get(), GENERAL_CATEGORY)
+    equal(page.params.category.get(), undefined)
     await waitLoading(page.loading)
     equal(page.posts.get()!.name, 'welcome')
 
@@ -410,6 +411,34 @@ describe('feeds page', () => {
     await waitLoading(page.loading)
     equal(page.params.feed.get(), undefined)
     equal(page.posts.get()!.name, 'empty')
+  })
+
+  test('shows the welcome only without the exact target in the demo mode', async () => {
+    isDemo.set(true)
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let category = await addCategory({ title: 'A' })
+    let feed = await addFeed(
+      testFeed({ categoryId: category, reading: 'slow', slowReader: 'list' })
+    )
+    await addFeed(testFeed({ categoryId: category, reading: 'fast' }))
+    await addPost(testPost({ feedId: feed, reading: 'slow' }))
+    await setTimeout(10)
+
+    let page = openPage({ params: {}, route: 'slow' })
+    await waitLoading(page.loading)
+    equal(page.params.feed.get(), undefined)
+    equal(page.posts.get()!.name, 'welcome')
+
+    page = openPage({ params: {}, route: 'fast' })
+    await waitLoading(page.loading)
+    equal(page.params.category.get(), undefined)
+    equal(page.posts.get()!.name, 'welcome')
+
+    page = openPage({ params: { feed }, route: 'slow' })
+    await setTimeout(10)
+    equal(page.posts.get()!.name, 'list')
+    equal(ensureReader(page.posts, 'list').list.get().length, 1)
   })
 
   test('loads readers', async () => {
