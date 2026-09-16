@@ -3,6 +3,19 @@ const DATABASE = 'slowreader.sqlite'
 // The app’s leader tab holds this lock while it is open
 const APP_LOCK = 'logux_leader'
 
+// CSP requires Trusted Types for the worker URL and allows only these
+// policy names
+if (window.trustedTypes && !window.trustedTypes.defaultPolicy) {
+  window.trustedTypes.createPolicy('default', {
+    createScriptURL(url) {
+      if (new URL(url, location.href).origin !== location.origin) {
+        throw new Error(`Blocked script from ${url}`)
+      }
+      return url
+    }
+  })
+}
+
 let caption = document.getElementById('caption')
 let loader = document.getElementById('loader')
 
@@ -38,6 +51,27 @@ async function sha256(bytes) {
     .join('')
 }
 
+// Safari has no createWritable(), but every browser has the sync handle
+// in a worker
+function write(bytes) {
+  return new Promise((resolve, reject) => {
+    let worker = new Worker('/copy-demo-db/worker.js')
+    worker.addEventListener('message', ({ data }) => {
+      worker.terminate()
+      if (data.done) {
+        resolve()
+      } else {
+        reject(new Error(data.error))
+      }
+    })
+    worker.addEventListener('error', e => {
+      worker.terminate()
+      reject(new Error(e.message))
+    })
+    worker.postMessage({ bytes, name: DATABASE }, [bytes.buffer])
+  })
+}
+
 async function copy() {
   if (await appIsOpen()) {
     message('Slow Reader is open in another tab. Close it and reload.')
@@ -63,11 +97,7 @@ async function copy() {
 
   // The database goes first: the settings without it start the app with
   // an empty database, which its schema mark claims to be already filled
-  let root = await navigator.storage.getDirectory()
-  let file = await root.getFileHandle(DATABASE, { create: true })
-  let writable = await file.createWritable()
-  await writable.write(bytes)
-  await writable.close()
+  await write(bytes)
 
   localStorage.clear()
   for (let [key, value] of Object.entries(manifest.storage)) {

@@ -74,7 +74,7 @@ I mode to quickly see the app with some example content. We pre-generate databas
 
 `/copy-demo-db` copies the demo database to OPFS and the demo settings to `localStorage`, then opens the app.
 
-The page writes a plain file, which the `opfs-sahpool` engine can not see, so in that mode the app imports the file into the pool on the next start and removes it.
+The page writes a plain file from a worker, since Safari has no `createWritable()` on pages. The `opfs-sahpool` engine can not see the file, so in that mode the app imports the file into the pool on the next start and removes it.
 
 [Demo Database workflow](../.github/workflows/demo-db.yml) rebuilds the files every Monday, and the staging deploy takes them from its artifact.
 
