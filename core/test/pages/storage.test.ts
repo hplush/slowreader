@@ -9,20 +9,15 @@ import {
   storageMessages,
   testFeed
 } from '../../index.ts'
-import {
-  cleanClientTest,
-  enableClientTest,
-  openPage,
-  waitUntil
-} from '../utils.ts'
+import { cleanClient, startClient, openPage, waitUntil } from '../utils.ts'
 
 describe('storage page', () => {
   beforeEach(() => {
-    enableClientTest()
+    startClient()
   })
 
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
   })
 
   test('shows the database size', async () => {
@@ -52,7 +47,7 @@ describe('storage page', () => {
 
   test('dumps the database file', async () => {
     let saved: { content: Blob; filename: string } | undefined
-    enableClientTest({
+    startClient({
       dumpDatabase() {
         return Promise.resolve(new Blob(['SQLite format 3\0']))
       },

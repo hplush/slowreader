@@ -21,7 +21,7 @@ import {
   expectWarning,
   getTestEnvironment,
   openPage,
-  setBaseTestRoute,
+  openRoute,
   setTestUser,
   waitFor
 } from '../utils.ts'
@@ -36,7 +36,7 @@ describe('start page', () => {
 
   afterEach(async () => {
     // Without it the page of the test will be mounted during the next test
-    setBaseTestRoute({ params: {}, route: 'signUp' })
+    openRoute({ params: {}, route: 'signUp' })
     setTestUser(false)
     await server.destroy()
     await cleanAllTables()

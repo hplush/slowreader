@@ -30,7 +30,7 @@ export function addHashToBaseRoute(
   return { hash: '', ...route } as BaseRoute
 }
 
-export function setBaseTestRoute(
+export function openRoute(
   route: BaseRoute | Omit<BaseRoute, 'hash'> | undefined
 ): void {
   testRouter.set(addHashToBaseRoute(route))
@@ -64,7 +64,7 @@ export function getTestEnvironment(): Environment {
       return { saveData: undefined, type: undefined }
     },
     openRoute(route) {
-      setBaseTestRoute({ ...route, hash: stringifyPopups(route.popups) })
+      openRoute({ ...route, hash: stringifyPopups(route.popups) })
     },
     persistentEvents: { addEventListener() {}, removeEventListener() {} },
     persistentStore,

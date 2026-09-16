@@ -30,7 +30,7 @@ import {
   getTestEnvironment,
   openPage,
   persistentDatabase,
-  setBaseTestRoute,
+  openRoute,
   setTestUser,
   waitFor
 } from '../utils.ts'
@@ -145,7 +145,7 @@ describe('signup page', () => {
 
     await waitFor(router, route => route.route === 'welcome')
 
-    setBaseTestRoute({
+    openRoute({
       params: {},
       route: 'signUp'
     })

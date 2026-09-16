@@ -13,7 +13,7 @@ import {
 } from '../../index.ts'
 import {
   checkAndRemoveRequestMock,
-  cleanClientTest,
+  cleanClient,
   expectNotMine,
   expectRequest,
   expectWarning,
@@ -42,7 +42,7 @@ describe('atom loader', () => {
 
   afterEach(async () => {
     checkAndRemoveRequestMock()
-    await cleanClientTest()
+    await cleanClient()
   })
 
   test('detects xml:base attribute', () => {

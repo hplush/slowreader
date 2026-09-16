@@ -1,4 +1,4 @@
-import { cleanStores, keepMount } from 'nanostores'
+import { keepMount } from 'nanostores'
 import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -16,28 +16,28 @@ import {
   waitLoading
 } from '../../index.ts'
 import {
-  cleanClientTest,
-  enableClientTest,
-  setBaseTestRoute,
+  cleanClient,
+  openRoute,
+  restartClient,
+  startClient,
   waitFor
 } from '../utils.ts'
 
 describe('redirects page', () => {
   beforeEach(() => {
-    enableClientTest()
-    setBaseTestRoute({
+    startClient()
+    openRoute({
       params: {},
       route: 'fatal'
     })
   })
 
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
   })
 
   test('redirects from settings root to interface page', () => {
-    keepMount(currentPage)
-    setBaseTestRoute({
+    openRoute({
       params: {},
       route: 'settings'
     })
@@ -45,8 +45,7 @@ describe('redirects page', () => {
   })
 
   test('redirects from feeds root to add feed page', () => {
-    keepMount(currentPage)
-    setBaseTestRoute({
+    openRoute({
       params: {},
       route: 'feeds'
     })
@@ -54,15 +53,14 @@ describe('redirects page', () => {
   })
 
   test('redirects from the menu page to add feed page on desktop', () => {
-    keepMount(currentPage)
-    setBaseTestRoute({
+    openRoute({
       params: {},
       route: 'menu'
     })
     equal(currentPage.get().route, 'add')
 
     setLayoutType('mobile')
-    setBaseTestRoute({
+    openRoute({
       params: {},
       route: 'menu'
     })
@@ -73,8 +71,7 @@ describe('redirects page', () => {
     busyUntilMenuLoader()
     await waitLoading(busy)
 
-    keepMount(currentPage)
-    setBaseTestRoute({
+    openRoute({
       params: {},
       route: 'root'
     })
@@ -85,15 +82,14 @@ describe('redirects page', () => {
     busyUntilMenuLoader()
     await waitLoading(busy)
 
-    keepMount(currentPage)
-    setBaseTestRoute({
+    openRoute({
       params: {},
       route: 'home'
     })
     equal(currentPage.get().route, 'welcome')
 
     await addFeed(testFeed({ reading: 'slow' }))
-    setBaseTestRoute({
+    openRoute({
       params: {},
       route: 'home'
     })
@@ -108,15 +104,13 @@ describe('redirects page', () => {
     await waitFor(needWelcome, welcome => welcome === true)
 
     // The app starts on the home page, which redirects during its creation
-    cleanStores(currentPage)
-    setBaseTestRoute({
+    restartClient({
       params: {},
       route: 'home'
     })
-    keepMount(currentPage)
     equal(currentPage.get().route, 'welcome')
 
-    setBaseTestRoute({
+    openRoute({
       params: {},
       route: 'cloud'
     })
@@ -124,7 +118,7 @@ describe('redirects page', () => {
     await waitFor(needWelcome, welcome => welcome === false)
     equal(currentPage.get().route, 'cloud')
 
-    setBaseTestRoute({
+    openRoute({
       params: {},
       route: 'home'
     })

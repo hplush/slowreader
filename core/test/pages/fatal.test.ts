@@ -25,12 +25,12 @@ import {
   userId
 } from '../../index.ts'
 import {
-  cleanClientTest,
-  enableClientTest,
+  cleanClient,
+  startClient,
   expectWarning,
   getTestEnvironment,
   openPage,
-  setBaseTestRoute,
+  openRoute,
   setTestUser
 } from '../utils.ts'
 
@@ -41,11 +41,11 @@ function emit(obj: any, event: string, ...args: any[]): void {
 describe('fatal page', () => {
   describe('reason', () => {
     beforeEach(() => {
-      enableClientTest()
+      startClient()
     })
 
     afterEach(async () => {
-      await cleanClientTest()
+      await cleanClient()
     })
 
     test('shows not found on the unknown URL', () => {
@@ -63,20 +63,20 @@ describe('fatal page', () => {
       let page = openPage({ params: { reason: 'outdated' }, route: 'fatal' })
       deepEqual(page.reason.get(), { type: 'outdated' })
 
-      setBaseTestRoute({ params: { reason: 'brokenDatabase' }, route: 'fatal' })
+      openRoute({ params: { reason: 'brokenDatabase' }, route: 'fatal' })
       deepEqual(page.reason.get(), {
         error: 'Test page',
         type: 'brokenDatabase'
       })
 
-      setBaseTestRoute({ params: { reason: 'rejected' }, route: 'fatal' })
+      openRoute({ params: { reason: 'rejected' }, route: 'fatal' })
       deepEqual(page.reason.get(), { error: 'Test page', type: 'rejected' })
 
-      setBaseTestRoute({ params: { reason: 'noDb' }, route: 'fatal' })
+      openRoute({ params: { reason: 'noDb' }, route: 'fatal' })
       deepEqual(page.reason.get(), { error: 'Test page', type: 'noDb' })
 
       // The unknown reason is the same broken URL as any other
-      setBaseTestRoute({ params: { reason: 'unknown' }, route: 'fatal' })
+      openRoute({ params: { reason: 'unknown' }, route: 'fatal' })
       deepEqual(page.reason.get(), { type: 'notFound' })
     })
 
@@ -85,13 +85,13 @@ describe('fatal page', () => {
       keepMount(page.hideMenu)
       equal(page.hideMenu.get(), false)
 
-      setBaseTestRoute({ params: { reason: 'noDb' }, route: 'fatal' })
+      openRoute({ params: { reason: 'noDb' }, route: 'fatal' })
       equal(page.hideMenu.get(), true)
 
-      setBaseTestRoute({ params: { reason: 'outdated' }, route: 'fatal' })
+      openRoute({ params: { reason: 'outdated' }, route: 'fatal' })
       equal(page.hideMenu.get(), true)
 
-      setBaseTestRoute({ params: {}, route: 'fatal' })
+      openRoute({ params: {}, route: 'fatal' })
       equal(page.hideMenu.get(), false)
 
       fatal.set({ error: 'Disk image is malformed', type: 'brokenDatabase' })
@@ -104,7 +104,7 @@ describe('fatal page', () => {
 
     beforeEach(() => {
       restarts = 0
-      enableClientTest({
+      startClient({
         restartApp() {
           restarts += 1
         }
@@ -113,12 +113,12 @@ describe('fatal page', () => {
 
     afterEach(async () => {
       lastReset.set(undefined)
-      await cleanClientTest()
+      await cleanClient()
     })
 
     test('opens when the reset did not fix the database', async () => {
       keepMount(currentPage)
-      setBaseTestRoute({ params: {}, route: 'about' })
+      openRoute({ params: {}, route: 'about' })
 
       await resetDatabase(
         'broken-db',
@@ -139,14 +139,14 @@ describe('fatal page', () => {
       // Forget the value in the memory, so the store will read the storage
       lastReset.set(undefined)
       cleanStores(lastReset)
-      enableClientTest({
+      startClient({
         ...environment,
         restartApp() {
           restarts += 1
         }
       })
       keepMount(currentPage)
-      setBaseTestRoute({ params: {}, route: 'about' })
+      openRoute({ params: {}, route: 'about' })
 
       await resetDatabase('broken-db', new Error('Disk image is malformed'))
 
@@ -163,7 +163,7 @@ describe('fatal page', () => {
     test('explains the reset without the error by the uncaught ones', async () => {
       let listener: (event: { reason: unknown }) => void
       lastReset.set({ at: new Date(), reason: 'server-request' })
-      enableClientTest({
+      startClient({
         errorEvents: {
           addEventListener(event, cb) {
             if (event === 'unhandledrejection') listener = cb
@@ -221,7 +221,7 @@ describe('fatal page', () => {
 
     beforeEach(() => {
       restarts = 0
-      enableClientTest({
+      startClient({
         restartApp() {
           restarts += 1
         }
@@ -230,7 +230,7 @@ describe('fatal page', () => {
 
     afterEach(async () => {
       lastReset.set(undefined)
-      await cleanClientTest()
+      await cleanClient()
     })
 
     function undo(action: Action): Promise<unknown> {
@@ -241,7 +241,7 @@ describe('fatal page', () => {
 
     test('opens when the server refused the change', async () => {
       keepMount(currentPage)
-      setBaseTestRoute({ params: {}, route: 'about' })
+      openRoute({ params: {}, route: 'about' })
 
       // These actions own no cell, so their undo keeps the device equal
       // to the cloud
@@ -292,7 +292,7 @@ describe('fatal page', () => {
     test('opens on wrong-subprotocol error', async () => {
       keepMount(currentPage)
       await signUp(generateCredentials())
-      setBaseTestRoute({ params: {}, route: 'about' })
+      openRoute({ params: {}, route: 'about' })
 
       let wrongSubprotocol = new LoguxError('wrong-subprotocol', {
         supported: 1,
@@ -308,7 +308,7 @@ describe('fatal page', () => {
 
     test('opens on OUTDATED_CLIENT HTTP response', async () => {
       keepMount(currentPage)
-      setBaseTestRoute({ params: {}, route: 'about' })
+      openRoute({ params: {}, route: 'about' })
 
       // @ts-expect-error Hacky mocking for tests
       server.fetch = () => {

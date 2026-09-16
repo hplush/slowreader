@@ -6,10 +6,10 @@ import { setTimeout } from 'node:timers/promises'
 
 import { client } from '../../index.ts'
 import {
-  cleanClientTest,
-  enableClientTest,
+  cleanClient,
+  startClient,
   openPage,
-  setBaseTestRoute,
+  openRoute,
   waitUntil
 } from '../utils.ts'
 
@@ -17,15 +17,15 @@ describe('profile page', () => {
   let server: TestServer
   beforeEach(() => {
     server = buildTestServer()
-    enableClientTest({ server })
-    setBaseTestRoute({
+    startClient({ server })
+    openRoute({
       params: {},
       route: 'fatal'
     })
   })
 
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
     await cleanAllTables()
   })
 

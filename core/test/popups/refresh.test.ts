@@ -1,18 +1,16 @@
-import { cleanStores } from 'nanostores'
 import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
-import { closeAllPopups, openedPopups, refreshStatus } from '../../index.ts'
-import { cleanClientTest, enableClientTest, openTestPopup } from '../utils.ts'
+import { closeAllPopups, refreshStatus } from '../../index.ts'
+import { cleanClient, startClient, openTestPopup } from '../utils.ts'
 
 describe('refresh popup', () => {
   beforeEach(() => {
-    enableClientTest()
+    startClient()
   })
 
   afterEach(async () => {
-    await cleanClientTest()
-    cleanStores(openedPopups)
+    await cleanClient()
   })
 
   test('cleans error from refresh icon', () => {

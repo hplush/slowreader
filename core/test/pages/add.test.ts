@@ -14,13 +14,13 @@ import {
 } from '../../index.ts'
 import {
   checkAndRemoveRequestMock,
-  cleanClientTest,
-  enableClientTest,
+  cleanClient,
+  startClient,
   expectRequest,
   getPopup,
   mockRequest,
   openPage,
-  setBaseTestRoute,
+  openRoute,
   setupNodeDom
 } from '../utils.ts'
 
@@ -28,7 +28,7 @@ setupNodeDom()
 
 describe('add page', () => {
   beforeEach(() => {
-    enableClientTest({
+    startClient({
       warn(e) {
         if (!(e instanceof HTTPStatusError)) {
           throw e
@@ -39,7 +39,7 @@ describe('add page', () => {
   })
 
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
     checkAndRemoveRequestMock()
   })
 
@@ -510,7 +510,7 @@ describe('add page', () => {
     expectRequest('https://b.com/atom').andRespond(404)
     expectRequest('https://b.com/feed.json').andRespond(404)
     expectRequest('https://b.com/rss').andRespond(404)
-    setBaseTestRoute({
+    openRoute({
       params: {
         candidate: undefined,
         url: 'https://b.com'

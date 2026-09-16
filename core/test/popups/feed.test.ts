@@ -1,4 +1,3 @@
-import { cleanStores, keepMount } from 'nanostores'
 import { deepEqual, equal, match, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
@@ -19,14 +18,14 @@ import {
 import {
   checkAndRemoveRequestMock,
   checkLoadedPopup,
-  cleanClientTest,
-  enableClientTest,
+  cleanClient,
+  startClient,
   expectRequest,
   expectWarning,
   getPopup,
   mockRequest,
   openTestPopup,
-  setBaseTestRoute,
+  openRoute,
   setupNodeDom
 } from '../utils.ts'
 
@@ -34,19 +33,17 @@ setupNodeDom()
 
 describe('feed popup', () => {
   beforeEach(() => {
-    enableClientTest()
-    setBaseTestRoute({ params: {}, route: 'add' })
+    startClient()
+    openRoute({ params: {}, route: 'add' })
     mockRequest()
   })
 
   afterEach(async () => {
-    await cleanClientTest()
-    cleanStores(openedPopups)
+    await cleanClient()
     checkAndRemoveRequestMock()
   })
 
   test('loads 404 for feeds by URL popup', async () => {
-    keepMount(openedPopups)
     expectRequest('http://a.com/one').andRespond(404)
     await expectWarning(async () => {
       let feed1Popup = openTestPopup('feed', 'http://a.com/one')
@@ -73,7 +70,6 @@ describe('feed popup', () => {
   })
 
   test('loads existing feed popup on 404', async () => {
-    keepMount(openedPopups)
     let feedId = await addFeed(testFeed({ url: 'http://a.com/404' }))
     expectRequest('http://a.com/404').andRespond(404)
     await expectWarning(async () => {
@@ -93,7 +89,6 @@ describe('feed popup', () => {
   })
 
   test('shows existing feed before posts are loaded', async () => {
-    keepMount(openedPopups)
     let feedId = await addFeed(testFeed({ url: 'https://a.com/atom' }))
     expectRequest('https://a.com/atom').andRespond(
       200,
@@ -131,7 +126,6 @@ describe('feed popup', () => {
   })
 
   test('loads feeds by URL popup', async () => {
-    keepMount(openedPopups)
     expectRequest('https://a.com/atom').andRespond(
       200,
       '<feed><title>Atom</title>' +
@@ -189,7 +183,6 @@ describe('feed popup', () => {
   })
 
   test('adds only 10 latest posts with a feed', async () => {
-    keepMount(openedPopups)
     let entries = ''
     for (let i = 12; i > 0; i--) {
       entries +=
@@ -214,7 +207,6 @@ describe('feed popup', () => {
   })
 
   test('destroys replaced popups and keep unchanged', async () => {
-    keepMount(openedPopups)
     expectRequest('https://a.com/atom').andRespond(
       200,
       '<feed><title>Atom</title>' +
@@ -232,7 +224,7 @@ describe('feed popup', () => {
       'text/xml'
     )
 
-    setBaseTestRoute({
+    openRoute({
       hash: `feed=https://a.com/atom,feed=https://a.com/atom`,
       params: {},
       route: 'add'
@@ -270,7 +262,6 @@ describe('feed popup', () => {
   })
 
   test('ignores url protocol while checking for existing feeds', async () => {
-    keepMount(openedPopups)
     expectRequest('http://a.com/atom').andRespond(
       200,
       '<feed><title>Atom</title>' +

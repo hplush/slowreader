@@ -2,39 +2,34 @@ import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import { fatal, GENERAL_CATEGORY, themeMode } from '../index.ts'
-import {
-  cleanClientTest,
-  enableClientTest,
-  setBaseTestRoute,
-  setTestUser
-} from './utils.ts'
+import { cleanClient, startClient, openRoute, setTestUser } from './utils.ts'
 
 describe('modes', () => {
   beforeEach(() => {
-    enableClientTest()
+    startClient()
   })
 
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
   })
 
   test('has routes groups', () => {
     setTestUser(false)
-    setBaseTestRoute({ params: {}, route: 'home' })
+    openRoute({ params: {}, route: 'home' })
     equal(themeMode.get(), 'comfort')
 
     setTestUser()
 
-    setBaseTestRoute({ params: {}, route: 'slow' })
+    openRoute({ params: {}, route: 'slow' })
     equal(themeMode.get(), 'comfort')
 
-    setBaseTestRoute({ params: { category: GENERAL_CATEGORY }, route: 'fast' })
+    openRoute({ params: { category: GENERAL_CATEGORY }, route: 'fast' })
     equal(themeMode.get(), 'fast')
 
-    setBaseTestRoute({ params: {}, route: 'fatal' })
+    openRoute({ params: {}, route: 'fatal' })
     equal(themeMode.get(), 'error')
 
-    setBaseTestRoute({ params: {}, route: 'cloud' })
+    openRoute({ params: {}, route: 'cloud' })
     equal(themeMode.get(), 'comfort')
 
     // The error can break the app on any page

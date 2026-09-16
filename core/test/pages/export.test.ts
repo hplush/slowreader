@@ -12,14 +12,14 @@ import {
   testPost,
   waitLoading
 } from '../../index.ts'
-import { cleanClientTest, enableClientTest, openPage } from '../utils.ts'
+import { cleanClient, startClient, openPage } from '../utils.ts'
 
 describe('export page', () => {
   let saved: { content: Blob; filename: string } | undefined
 
   beforeEach(() => {
     saved = undefined
-    enableClientTest({
+    startClient({
       saveFile(filename, content) {
         saved = { content, filename }
       }
@@ -27,7 +27,7 @@ describe('export page', () => {
   })
 
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
   })
 
   test('export OPML', async () => {

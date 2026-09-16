@@ -20,7 +20,7 @@ import {
   testFeed,
   testPost
 } from '../index.ts'
-import { cleanClientTest, enableClientTest, setupNodeDom } from './utils.ts'
+import { cleanClient, startClient, setupNodeDom } from './utils.ts'
 
 setupNodeDom()
 
@@ -31,11 +31,11 @@ function postIntro(post: PostCardText): [string, boolean] {
 
 describe('post', () => {
   beforeEach(() => {
-    enableClientTest()
+    startClient()
   })
 
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
   })
 
   function truncateBetweenParagraphs(text: string): void {

@@ -22,12 +22,12 @@ import {
   waitLoading
 } from '../../index.ts'
 import {
-  cleanClientTest,
-  enableClientTest,
+  cleanClient,
+  startClient,
   ensureReader,
   openPage,
   persistentDatabase,
-  setBaseTestRoute,
+  openRoute,
   setTestUser
 } from '../utils.ts'
 
@@ -64,12 +64,12 @@ function delayedDatabase(): Environment['databaseCreator'] {
 
 describe('feeds page', () => {
   beforeEach(() => {
-    enableClientTest({ databaseCreator: persistentDatabase() })
+    startClient({ databaseCreator: persistentDatabase() })
   })
 
   afterEach(async () => {
-    setBaseTestRoute({ params: {}, route: 'about' })
-    await cleanClientTest()
+    openRoute({ params: {}, route: 'about' })
+    await cleanClient()
   })
 
   test('redirects', async () => {
@@ -243,8 +243,8 @@ describe('feeds page', () => {
   })
 
   test('waits for the menu before opening the next feed', async () => {
-    await cleanClientTest()
-    enableClientTest({ databaseCreator: delayedDatabase() })
+    await cleanClient()
+    startClient({ databaseCreator: delayedDatabase() })
     busyUntilMenuLoader()
     await waitLoading(busy)
     let category = await addCategory({ title: 'A' })
@@ -272,7 +272,7 @@ describe('feeds page', () => {
 
     // The reactive stores of this database are late, so the page
     // is closed here to finish its cleaning before the client is cleaned
-    setBaseTestRoute({ params: {}, route: 'about' })
+    openRoute({ params: {}, route: 'about' })
     await setTimeout(50)
   })
 

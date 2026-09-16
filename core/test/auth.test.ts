@@ -24,7 +24,7 @@ import {
 } from '../index.ts'
 import {
   getTestEnvironment,
-  setBaseTestRoute,
+  openRoute,
   setTestUser,
   testSession,
   throws,
@@ -61,7 +61,7 @@ describe('auth', () => {
     equal(encryptionKey.get(), credentials.encryptionKey)
     equal(typeof syncServer.get(), 'undefined')
     equal(typeof testSession, 'undefined')
-    setBaseTestRoute({ params: {}, route: 'cloud' })
+    openRoute({ params: {}, route: 'cloud' })
 
     let cleaned = 0
     let unbindSignOut = onSignOut(() => {

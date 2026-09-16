@@ -25,8 +25,8 @@ import {
 } from '../index.ts'
 import { getTestEnvironment } from '../test.ts'
 import {
-  cleanClientTest,
-  enableClientTest,
+  cleanClient,
+  startClient,
   persistentDatabase,
   setTestUser,
   waitUntil
@@ -34,15 +34,15 @@ import {
 
 describe('schema', () => {
   beforeEach(() => {
-    enableClientTest()
+    startClient()
   })
 
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
   })
 
   test('tells that the database is created on the first start', async () => {
-    await cleanClientTest()
+    await cleanClient()
     setTestUser(false)
     // The test restarts the client and checks that the database was kept
     setupEnvironment({
@@ -148,7 +148,7 @@ describe('schema', () => {
   })
 
   test('does nothing without database', async () => {
-    await cleanClientTest()
+    await cleanClient()
     await cleanDatabase()
     await freeDatabasePages()
   })

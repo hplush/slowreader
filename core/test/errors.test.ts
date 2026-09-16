@@ -3,11 +3,11 @@ import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, describe, test } from 'node:test'
 
 import { fatal, getUnhandledErrors, NotFoundError } from '../errors.ts'
-import { cleanClientTest, enableClientTest, setBaseTestRoute } from './utils.ts'
+import { cleanClient, startClient, openRoute } from './utils.ts'
 
 describe('errors', () => {
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
   })
 
   function listenErrors(): Record<
@@ -15,7 +15,7 @@ describe('errors', () => {
     (event: { error?: unknown; message?: string; reason?: unknown }) => void
   > {
     let listeners = {} as ReturnType<typeof listenErrors>
-    enableClientTest({
+    startClient({
       errorEvents: {
         addEventListener(event, cb) {
           listeners[event] = cb
@@ -28,7 +28,7 @@ describe('errors', () => {
   test('listens for not found error', () => {
     let listener = listenErrors().unhandledrejection
 
-    setBaseTestRoute({
+    openRoute({
       params: { feed: 'unknown' },
       route: 'feedsByCategories'
     })
@@ -44,7 +44,7 @@ describe('errors', () => {
     })
     deepEqual(fatal.get(), { type: 'notFound' })
 
-    setBaseTestRoute({
+    openRoute({
       params: { feed: 'another' },
       route: 'feedsByCategories'
     })

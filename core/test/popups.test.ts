@@ -13,15 +13,15 @@ import {
   testPost
 } from '../index.ts'
 import { getPostPopupParam } from '../popups/post.ts'
-import { cleanClientTest, enableClientTest, openTestPopup } from './utils.ts'
+import { cleanClient, startClient, openTestPopup } from './utils.ts'
 
 describe('popups', () => {
   beforeEach(() => {
-    enableClientTest()
+    startClient()
   })
 
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
     cleanStores(popupsStatus)
   })
 

@@ -16,15 +16,15 @@ import {
   sortFilters,
   testFeed
 } from '../index.ts'
-import { cleanClientTest, enableClientTest } from './utils.ts'
+import { cleanClient, startClient } from './utils.ts'
 
 describe('filter', () => {
   beforeEach(() => {
-    enableClientTest()
+    startClient()
   })
 
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
   })
 
   test('adds filter for feed', async () => {

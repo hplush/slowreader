@@ -45,11 +45,7 @@ import {
   type TextResponse,
   userId
 } from '../index.ts'
-import {
-  getTestEnvironment,
-  setBaseTestRoute,
-  setWarningTracking
-} from '../test.ts'
+import { getTestEnvironment, openRoute, setWarningTracking } from '../test.ts'
 
 export { setupNodeDom } from '../node.ts'
 export {
@@ -57,7 +53,7 @@ export {
   expectRequest,
   getTestEnvironment,
   mockRequest,
-  setBaseTestRoute,
+  openRoute,
   testSession
 } from '../test.ts'
 
@@ -80,7 +76,7 @@ let testDir: string | undefined
  * Database, which survives the client, like the file of the browser.
  *
  * ```js
- * enableClientTest({ databaseCreator: persistentDatabase() })
+ * startClient({ databaseCreator: persistentDatabase() })
  * ```
  */
 export function persistentDatabase(): Environment['databaseCreator'] {
@@ -89,19 +85,53 @@ export function persistentDatabase(): Environment['databaseCreator'] {
   return () => openDb(nodeDriver(file))
 }
 
+let unbindPage: (() => void) | undefined
+let unbindPopups: (() => void) | undefined
+
+// Clients keep the page and popups mounted. Without the subscription, `get()`
+// mounts the store only for a moment and a slow machine can destroy the page
+// in the middle of the test.
+function mountPage(): void {
+  unbindPage ??= currentPage.listen(() => {})
+}
+
+function unmountPage(): void {
+  unbindPage?.()
+  unbindPage = undefined
+  // Nanostores unmount the store with a delay, but the page should be
+  // destroyed while the database is still alive
+  cleanStores(currentPage)
+}
+
+function mountPopups(): void {
+  unbindPopups ??= openedPopups.listen(() => {})
+}
+
+function unmountPopups(): void {
+  if (!unbindPopups) return
+  unbindPopups()
+  unbindPopups = undefined
+  // The store destroys popups only during re-calculation. Without it,
+  // the next test will re-use the popups of this test.
+  openRoute({ params: {}, route: 'home' })
+  openedPopups.get()
+}
+
 /**
- * Set environment to run application in tests to be used in `beforeEach()`.
+ * Set the test environment and start the client in `beforeEach()`.
  *
- * Call `cleanClientTest()` in `afterEach()`.
+ * Call `cleanClient()` in `afterEach()`.
  */
-export function enableClientTest(env: Partial<Environment> = {}): void {
+export function startClient(env: Partial<Environment> = {}): void {
   setupEnvironment({ ...getTestEnvironment(), ...env })
   setTestUser()
   enableTestTime()
-  setBaseTestRoute({ params: {}, route: 'home' })
+  openRoute({ params: {}, route: 'home' })
+  mountPage()
 }
 
-export async function cleanClientTest(): Promise<void> {
+export async function cleanClient(): Promise<void> {
+  unmountPage()
   cleanStores(
     fastMenu,
     slowMenu,
@@ -116,6 +146,7 @@ export async function cleanClientTest(): Promise<void> {
   client.set(undefined)
   fatal.set(undefined)
   setLayoutType('desktop')
+  unmountPopups()
 }
 
 /**
@@ -190,6 +221,7 @@ export function openTestPopup<Name extends PopupName>(
   popup: Name,
   param: string
 ): Popup<Name> {
+  mountPopups()
   openPopup(popup, param)
   return getPopup(popup, openedPopups.get().length - 1)
 }
@@ -201,6 +233,7 @@ export function getPopup<Name extends PopupName>(
   name: Name,
   at = 0
 ): Popup<Name> {
+  mountPopups()
   let popups = openedPopups.get()
   if (popups.length <= at) {
     throw new Error(
@@ -241,11 +274,7 @@ export function checkLoadedPopup<SomePopup extends BasePopup>(
   return popup as Loaded<SomePopup>
 }
 
-let unbindPage: (() => void) | undefined
-
 afterEach(() => {
-  unbindPage?.()
-  unbindPage = undefined
   if (testDir) {
     rmSync(testDir, { force: true, recursive: true })
     testDir = undefined
@@ -259,16 +288,21 @@ afterEach(() => {
 export function openPage<SomeRoute extends BaseRoute | Omit<BaseRoute, 'hash'>>(
   route: SomeRoute
 ): Page<SomeRoute['route']> {
-  setBaseTestRoute(route)
-  // Clients keep the current page mounted. Without the subscription, `get()`
-  // mounts the page only for a moment and a slow machine can unmount it
-  // in the middle of the test.
-  unbindPage ??= currentPage.listen(() => {})
+  openRoute(route)
   let page = currentPage.get()
   if (page.route !== route.route) {
     throw new Error(`Current is ${page.route}, but ${route.route} was expected`)
   }
   return page as Page<SomeRoute['route']>
+}
+
+/**
+ * Start the client again on the route, like on the browser page reload.
+ */
+export function restartClient(route: Omit<BaseRoute, 'hash'>): void {
+  unmountPage()
+  openRoute(route)
+  mountPage()
 }
 
 /**

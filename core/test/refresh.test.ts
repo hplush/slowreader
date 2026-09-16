@@ -29,9 +29,9 @@ import {
 } from '../index.ts'
 import {
   checkAndRemoveRequestMock,
-  cleanClientTest,
+  cleanClient,
   createPromise,
-  enableClientTest,
+  startClient,
   expectRequest,
   expectWarning,
   mockRequest,
@@ -43,11 +43,11 @@ setupNodeDom()
 describe('refresh', () => {
   beforeEach(() => {
     mockRequest()
-    enableClientTest()
+    startClient()
   })
 
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
     restoreAll()
     checkAndRemoveRequestMock()
   })

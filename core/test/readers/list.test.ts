@@ -18,11 +18,11 @@ import {
   waitLoading
 } from '../../index.ts'
 import {
-  cleanClientTest,
-  enableClientTest,
+  cleanClient,
+  startClient,
   ensureReader,
   openPage,
-  setBaseTestRoute
+  openRoute
 } from '../utils.ts'
 
 async function moveTo(page: Page<'slow'>, from: number): Promise<void> {
@@ -36,13 +36,13 @@ function titles(reader: ListReader): string[] {
 
 describe('list reader', () => {
   beforeEach(() => {
-    enableClientTest()
+    startClient()
   })
 
   afterEach(async () => {
     // Without it the page of the test will be mounted during the next test
-    setBaseTestRoute({ params: {}, route: 'about' })
-    await cleanClientTest()
+    openRoute({ params: {}, route: 'about' })
+    await cleanClient()
   })
 
   test('loads posts', async () => {

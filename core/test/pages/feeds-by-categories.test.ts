@@ -12,15 +12,15 @@ import {
   testFeed,
   waitLoading
 } from '../../index.ts'
-import { cleanClientTest, enableClientTest, openPage } from '../utils.ts'
+import { cleanClient, startClient, openPage } from '../utils.ts'
 
 describe('feeds by categories page', () => {
   beforeEach(() => {
-    enableClientTest()
+    startClient()
   })
 
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
   })
 
   test('groups feeds by categories', async () => {

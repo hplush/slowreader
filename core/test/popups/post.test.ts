@@ -1,4 +1,3 @@
-import { cleanStores, keepMount } from 'nanostores'
 import { deepEqual, equal, match } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -19,25 +18,23 @@ import {
 import { getPostPopupParam } from '../../popups/post.ts'
 import {
   checkLoadedPopup,
-  cleanClientTest,
-  enableClientTest,
+  cleanClient,
+  startClient,
   getPopup,
   openTestPopup,
-  setBaseTestRoute
+  openRoute
 } from '../utils.ts'
 
 describe('post popup', () => {
   beforeEach(() => {
-    enableClientTest()
+    startClient()
   })
 
   afterEach(async () => {
-    await cleanClientTest()
-    cleanStores(openedPopups)
+    await cleanClient()
   })
 
   test('opens saved post', async () => {
-    keepMount(openedPopups)
     let feed = await addFeed(testFeed({ categoryId: GENERAL_CATEGORY }))
     let id1 = await addPost(testPost({ feedId: feed }))
     let id2 = await addPost(testPost({ feedId: feed, publishedAt: undefined }))
@@ -69,7 +66,7 @@ describe('post popup', () => {
     equal(popup1.loading.get(), false)
     equal(popup2.loading.get(), false)
 
-    setBaseTestRoute({
+    openRoute({
       hash:
         `post=${getPostPopupParam({ feedId: feed, id: id2 })},` +
         `post=${getPostPopupParam({ feedId: feed, id: id1 })}`,

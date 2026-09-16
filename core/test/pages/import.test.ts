@@ -32,8 +32,8 @@ import {
 } from '../../index.ts'
 import {
   checkAndRemoveRequestMock,
-  cleanClientTest,
-  enableClientTest,
+  cleanClient,
+  startClient,
   expectRequest,
   mockRequest,
   openPage,
@@ -85,7 +85,7 @@ describe('import page', () => {
 
   beforeEach(() => {
     exportedBlob = undefined
-    enableClientTest({
+    startClient({
       saveFile(filename, content) {
         exportedBlob = content
       }
@@ -94,7 +94,7 @@ describe('import page', () => {
   })
 
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
     checkAndRemoveRequestMock()
   })
 

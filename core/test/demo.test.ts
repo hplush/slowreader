@@ -17,15 +17,15 @@ import {
   testPost,
   userId
 } from '../index.ts'
-import { cleanClientTest, enableClientTest } from './utils.ts'
+import { cleanClient, startClient } from './utils.ts'
 
 describe('demo', () => {
   beforeEach(() => {
-    enableClientTest()
+    startClient()
   })
 
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
   })
 
   test('keeps the demo data as user data', async () => {

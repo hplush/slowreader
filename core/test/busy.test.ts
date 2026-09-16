@@ -3,11 +3,11 @@ import { afterEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import { busy, busyDuring } from '../index.ts'
-import { cleanClientTest } from './utils.ts'
+import { cleanClient } from './utils.ts'
 
 describe('busy', () => {
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
   })
 
   test('allows to manually set busy state', async () => {

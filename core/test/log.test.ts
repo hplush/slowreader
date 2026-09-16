@@ -45,9 +45,9 @@ import {
   useCredentials,
   userId
 } from '../index.ts'
-import { getTestEnvironment, setBaseTestRoute } from '../test.ts'
+import { getTestEnvironment, openRoute } from '../test.ts'
 import {
-  cleanClientTest,
+  cleanClient,
   expectWarning,
   openPage,
   setTestUser,
@@ -105,7 +105,7 @@ describe('log', () => {
       databaseCreator: () => openDb(nodeDriver(join(dir, 'app.sqlite'))),
       server
     })
-    setBaseTestRoute({ params: {}, route: 'home' })
+    openRoute({ params: {}, route: 'home' })
   })
 
   afterEach(async () => {
@@ -117,7 +117,7 @@ describe('log', () => {
     await server?.destroy()
     server = undefined
     await setTimeout(SETTLE)
-    await cleanClientTest()
+    await cleanClient()
     setTestUser(false)
     await cleanAllTables()
     rmSync(dir, { force: true, recursive: true })

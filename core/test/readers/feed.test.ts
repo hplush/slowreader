@@ -17,11 +17,11 @@ import {
 } from '../../index.ts'
 import { stringifyCursor, topCursor } from '../../readers/common.ts'
 import {
-  cleanClientTest,
-  enableClientTest,
+  cleanClient,
+  startClient,
   ensureReader,
   openPage,
-  setBaseTestRoute
+  openRoute
 } from '../utils.ts'
 
 async function moveTo(
@@ -38,13 +38,13 @@ function titles(reader: FeedReader): string[] {
 
 describe('feed reader', () => {
   beforeEach(() => {
-    enableClientTest()
+    startClient()
   })
 
   afterEach(async () => {
     // Without it the page of the test will be mounted during the next test
-    setBaseTestRoute({ params: {}, route: 'about' })
-    await cleanClientTest()
+    openRoute({ params: {}, route: 'about' })
+    await cleanClient()
   })
 
   test('reads posts', async () => {

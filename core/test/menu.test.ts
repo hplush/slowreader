@@ -47,11 +47,11 @@ import {
   waitLoading
 } from '../index.ts'
 import {
-  cleanClientTest,
-  enableClientTest,
+  cleanClient,
+  startClient,
   expectWarning,
   getTestEnvironment,
-  setBaseTestRoute,
+  openRoute,
   setTestUser,
   waitUntil
 } from './utils.ts'
@@ -64,13 +64,13 @@ const GENERAL: MenuItem = { id: GENERAL_CATEGORY, title: '' }
 
 describe('menu', () => {
   beforeEach(() => {
-    enableClientTest()
+    startClient()
   })
 
   afterEach(async () => {
     cleanStores(menuLoading, slowMenu, fastMenu)
     await setTimeout(10)
-    await cleanClientTest()
+    await cleanClient()
   })
 
   test('points the slider to the route’s menu', async () => {
@@ -81,20 +81,20 @@ describe('menu', () => {
     await addFeed(testFeed({ categoryId: category1, reading: 'fast' }))
     await setTimeout(10)
 
-    setBaseTestRoute({ params: {}, route: 'welcome' })
+    openRoute({ params: {}, route: 'welcome' })
     equal(menuSlider.get(), undefined)
     deepEqual(openableMenu.get(), { fast: false, slow: false })
 
-    setBaseTestRoute({ params: {}, route: 'menu' })
+    openRoute({ params: {}, route: 'menu' })
     equal(menuSlider.get(), 'other')
 
-    setBaseTestRoute({ params: {}, route: 'add' })
+    openRoute({ params: {}, route: 'add' })
     equal(menuSlider.get(), 'other')
 
-    setBaseTestRoute({ params: { feed: slow }, route: 'slow' })
+    openRoute({ params: { feed: slow }, route: 'slow' })
     equal(menuSlider.get(), 'slow')
 
-    setBaseTestRoute({ params: {}, route: 'fast' })
+    openRoute({ params: {}, route: 'fast' })
     equal(menuSlider.get(), 'fast')
 
     await addPost(testPost({ feedId: slow, reading: 'slow' }))
@@ -412,7 +412,7 @@ describe('menu', () => {
   })
 
   test('loads menu from the storage', async () => {
-    await cleanClientTest()
+    await cleanClient()
     setTestUser(false)
     setupEnvironment(getTestEnvironment())
     let storage = getEnvironment().persistentStore
@@ -433,12 +433,12 @@ describe('menu', () => {
   })
 
   test('rebuilds menu from the log on new version', async () => {
-    await cleanClientTest()
+    await cleanClient()
     setTestUser(false)
     let file = join(tmpdir(), `slowreader-menu-${process.pid}.sqlite`)
     rmSync(file, { force: true })
     try {
-      enableClientTest({ databaseCreator: () => openDb(nodeDriver(file)) })
+      startClient({ databaseCreator: () => openDb(nodeDriver(file)) })
       keepMount(fastMenu)
       keepMount(slowMenu)
       await waitLoading(menuLoading)
@@ -460,19 +460,19 @@ describe('menu', () => {
       await waitLoading(menuLoading)
       deepEqual(fastMenu.get(), [{ id: category, title: 'A' }])
     } finally {
-      await cleanClientTest()
+      await cleanClient()
       await setTimeout(100)
       rmSync(file, { force: true })
     }
   })
 
   test('rebuilds menu from the tables when the state was lost', async () => {
-    await cleanClientTest()
+    await cleanClient()
     setTestUser(false)
     let file = join(tmpdir(), `slowreader-lost-${process.pid}.sqlite`)
     rmSync(file, { force: true })
     try {
-      enableClientTest({ databaseCreator: () => openDb(nodeDriver(file)) })
+      startClient({ databaseCreator: () => openDb(nodeDriver(file)) })
       keepMount(fastMenu)
       keepMount(slowMenu)
       await waitLoading(menuLoading)
@@ -503,7 +503,7 @@ describe('menu', () => {
       ])
       equal(storage['logux:reducer:slowreader:menu'], '1')
     } finally {
-      await cleanClientTest()
+      await cleanClient()
       await setTimeout(100)
       rmSync(file, { force: true })
     }
@@ -522,7 +522,7 @@ describe('menu', () => {
   })
 
   test('has helper which is ready for no client', async () => {
-    await cleanClientTest()
+    await cleanClient()
     await busyUntilMenuLoader()
   })
 
@@ -569,7 +569,7 @@ describe('menu', () => {
     equal(syncStatusType.get(), 'error')
     equal(syncError.get(), 'some')
 
-    await cleanClientTest()
+    await cleanClient()
     equal(syncStatus.get(), 'local')
     equal(syncStatusType.get(), 'other')
 

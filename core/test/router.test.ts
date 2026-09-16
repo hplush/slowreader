@@ -1,4 +1,3 @@
-import { keepMount } from 'nanostores'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
@@ -16,58 +15,53 @@ import {
   router,
   setPopups
 } from '../index.ts'
-import {
-  cleanClientTest,
-  enableClientTest,
-  setBaseTestRoute,
-  setTestUser
-} from './utils.ts'
+import { cleanClient, startClient, openRoute, setTestUser } from './utils.ts'
 
 describe('router', () => {
   beforeEach(() => {
-    enableClientTest()
+    startClient()
   })
 
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
   })
 
   test('opens 404', () => {
-    setBaseTestRoute(undefined)
+    openRoute(undefined)
     deepEqual(router.get(), { params: {}, popups: [], route: 'fatal' })
   })
 
   test('transforms routers for guest', () => {
     setTestUser(false)
-    setBaseTestRoute({ params: {}, route: 'home' })
+    openRoute({ params: {}, route: 'home' })
     deepEqual(router.get(), { params: {}, popups: [], route: 'start' })
 
-    setBaseTestRoute({ params: {}, route: 'slow' })
+    openRoute({ params: {}, route: 'slow' })
     deepEqual(router.get(), { params: {}, popups: [], route: 'start' })
 
-    setBaseTestRoute({ params: {}, route: 'signUp' })
+    openRoute({ params: {}, route: 'signUp' })
     deepEqual(router.get(), { params: {}, popups: [], route: 'signUp' })
 
-    setBaseTestRoute(undefined)
+    openRoute(undefined)
     deepEqual(router.get(), { params: {}, popups: [], route: 'fatal' })
 
-    setBaseTestRoute({ params: {}, route: 'fatal' })
+    openRoute({ params: {}, route: 'fatal' })
     deepEqual(router.get(), { params: {}, popups: [], route: 'fatal' })
   })
 
   test('transforms routers for users', () => {
     setTestUser()
-    setBaseTestRoute({ params: { category: GENERAL_CATEGORY }, route: 'fast' })
+    openRoute({ params: { category: GENERAL_CATEGORY }, route: 'fast' })
     deepEqual(router.get(), {
       params: { category: GENERAL_CATEGORY, from: undefined },
       popups: [],
       route: 'fast'
     })
 
-    setBaseTestRoute({ params: {}, route: 'signUp' })
+    openRoute({ params: {}, route: 'signUp' })
     deepEqual(router.get(), { params: {}, popups: [], route: 'signUp' })
 
-    setBaseTestRoute({ params: {}, route: 'start' })
+    openRoute({ params: {}, route: 'start' })
     deepEqual(router.get(), {
       params: {},
       popups: [],
@@ -82,16 +76,16 @@ describe('router', () => {
   test('has routes groups', () => {
     setTestUser()
 
-    setBaseTestRoute({ params: {}, route: 'slow' })
+    openRoute({ params: {}, route: 'slow' })
     equal(isOtherRoute(router.get()), false)
 
-    setBaseTestRoute({ params: { category: GENERAL_CATEGORY }, route: 'fast' })
+    openRoute({ params: { category: GENERAL_CATEGORY }, route: 'fast' })
     equal(isOtherRoute(router.get()), false)
 
-    setBaseTestRoute({ params: {}, route: 'cloud' })
+    openRoute({ params: {}, route: 'cloud' })
     equal(isOtherRoute(router.get()), true)
 
-    setBaseTestRoute({ params: {}, route: 'feedsByCategories' })
+    openRoute({ params: {}, route: 'feedsByCategories' })
     equal(isOtherRoute(router.get()), true)
   })
 
@@ -99,14 +93,14 @@ describe('router', () => {
     setTestUser()
     let idA = await addCategory({ title: 'A' })
 
-    setBaseTestRoute({ params: { category: idA, from: 1000 }, route: 'fast' })
+    openRoute({ params: { category: idA, from: 1000 }, route: 'fast' })
     deepEqual(router.get(), {
       params: { category: idA, from: '1000' },
       popups: [],
       route: 'fast'
     })
 
-    setBaseTestRoute({
+    openRoute({
       params: { category: idA, from: '1000:post' },
       route: 'fast'
     })
@@ -116,7 +110,7 @@ describe('router', () => {
       route: 'fast'
     })
 
-    setBaseTestRoute({
+    openRoute({
       params: { category: idA, from: '1000k' },
       route: 'fast'
     })
@@ -156,7 +150,7 @@ describe('router', () => {
     equal(removeLastPopup('feed=id1,post=id2'), 'feed=id1')
     equal(removeLastPopup('feed=id1'), '')
 
-    setBaseTestRoute({ hash: '', params: {}, route: 'welcome' })
+    openRoute({ hash: '', params: {}, route: 'welcome' })
     openPopup('post', 'id1')
     deepEqual(router.get(), {
       params: {},
@@ -213,7 +207,7 @@ describe('router', () => {
       route: 'welcome'
     })
 
-    setBaseTestRoute({
+    openRoute({
       hash: 'feed=old',
       params: {},
       route: 'home'
@@ -225,7 +219,7 @@ describe('router', () => {
   test('supports # at the beginning of hash', () => {
     setTestUser()
 
-    setBaseTestRoute({ hash: `#feed=id1`, params: {}, route: 'welcome' })
+    openRoute({ hash: `#feed=id1`, params: {}, route: 'welcome' })
     deepEqual(router.get(), {
       params: {},
       popups: [{ param: 'id1', popup: 'feed' }],
@@ -235,19 +229,18 @@ describe('router', () => {
 
   test('reacts on unknown popups', () => {
     setTestUser()
-    keepMount(openedPopups)
     equal(openedPopups.get().length, 0)
 
-    setBaseTestRoute({ hash: `unknown=id`, params: {}, route: 'fast' })
+    openRoute({ hash: `unknown=id`, params: {}, route: 'fast' })
     equal(openedPopups.get().length, 0)
 
-    setBaseTestRoute({ hash: `popup:id`, params: {}, route: 'fast' })
+    openRoute({ hash: `popup:id`, params: {}, route: 'fast' })
     equal(openedPopups.get().length, 0)
   })
 
   test('hides popups for guest', () => {
     setTestUser(false)
-    setBaseTestRoute({ hash: 'post=id1,post=id2', params: {}, route: 'start' })
+    openRoute({ hash: 'post=id1,post=id2', params: {}, route: 'start' })
     equal(openedPopups.get().length, 0)
   })
 
@@ -255,10 +248,10 @@ describe('router', () => {
     setTestUser()
     equal(openedPost.get(), undefined)
 
-    setBaseTestRoute({ hash: 'refresh=1,post=id2', params: {}, route: 'fast' })
+    openRoute({ hash: 'refresh=1,post=id2', params: {}, route: 'about' })
     equal(openedPost.get(), undefined)
 
-    setBaseTestRoute({ hash: 'post=id:2', params: {}, route: 'fast' })
+    openRoute({ hash: 'post=id:2', params: {}, route: 'about' })
     equal(openedPost.get(), '2')
   })
 })

@@ -2,11 +2,11 @@ import { deepEqual } from 'node:assert/strict'
 import { afterEach, describe, test } from 'node:test'
 
 import { addFeed, isDemo, needWelcome, testFeed } from '../index.ts'
-import { cleanClientTest, enableClientTest, waitFor } from './utils.ts'
+import { cleanClient, startClient, waitFor } from './utils.ts'
 
 describe('feed', () => {
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
   })
 
   test('waits for the database to know about the welcome', async () => {
@@ -15,7 +15,7 @@ describe('feed', () => {
       values.push(value)
     })
 
-    enableClientTest()
+    startClient()
     await waitFor(needWelcome, welcome => typeof welcome !== 'undefined')
     unbind()
 
@@ -23,7 +23,7 @@ describe('feed', () => {
   })
 
   test('shows the welcome in the demo mode', async () => {
-    enableClientTest()
+    startClient()
     await addFeed(testFeed())
     await waitFor(needWelcome, welcome => welcome === false)
 

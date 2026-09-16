@@ -1,30 +1,22 @@
-import { keepMount } from 'nanostores'
 import { match } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
-import { currentPage } from '../../index.ts'
-import {
-  cleanClientTest,
-  enableClientTest,
-  openPage,
-  setBaseTestRoute
-} from '../utils.ts'
+import { cleanClient, startClient, openPage, openRoute } from '../utils.ts'
 
 describe('about page', () => {
   beforeEach(() => {
-    enableClientTest()
-    setBaseTestRoute({
+    startClient()
+    openRoute({
       params: {},
       route: 'fatal'
     })
   })
 
   afterEach(async () => {
-    await cleanClientTest()
+    await cleanClient()
   })
 
   test('has app version', () => {
-    keepMount(currentPage)
     let page = openPage({
       params: {},
       route: 'about'

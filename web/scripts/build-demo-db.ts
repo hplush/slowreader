@@ -20,7 +20,7 @@ import {
 import { setNodeRequestMethod, setupNodeDom } from '@slowreader/core/node'
 import {
   getTestEnvironment,
-  setBaseTestRoute,
+  openRoute,
   setWarningTracking
 } from '@slowreader/core/test'
 import { createHash } from 'node:crypto'
@@ -67,7 +67,7 @@ useCredentials(generateCredentials())
 isDemo.set(true)
 
 currentPage.listen(() => {})
-setBaseTestRoute({ params: {}, route: 'import' })
+openRoute({ params: {}, route: 'import' })
 let opened = currentPage.get()
 if (opened.route !== 'import') {
   error(new Error(`Opened ${opened.route} instead of the import page`))

@@ -26,7 +26,7 @@ import {
 import {
   expectWarning,
   getTestEnvironment,
-  setBaseTestRoute,
+  openRoute,
   setTestUser
 } from '../utils.ts'
 
@@ -38,7 +38,7 @@ async function triggerRelogin(): Promise<{
   keepMount(syncStatus)
   keepMount(currentPage)
   await signUp(credentials)
-  setBaseTestRoute({ params: {}, route: 'about' })
+  openRoute({ params: {}, route: 'about' })
 
   await cleanSessions()
   let wrongCredentials = new LoguxError('wrong-credentials', undefined, true)

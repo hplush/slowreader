@@ -13,7 +13,7 @@ import {
   waitLoading
 } from '@slowreader/core'
 import { setNodeRequestMethod, setupNodeDom } from '@slowreader/core/node'
-import { getTestEnvironment, setBaseTestRoute } from '@slowreader/core/test'
+import { getTestEnvironment, openRoute } from '@slowreader/core/test'
 import { createProxy, DEFAULT_PROXY_CONFIG } from '@slowreader/proxy'
 import { readFile } from 'node:fs/promises'
 import { createServer, type Server } from 'node:http'
@@ -64,7 +64,7 @@ export function enableTestClient(route: RouteName = 'home'): void {
   })
   enableTestTime()
   useCredentials(generateCredentials())
-  setBaseTestRoute({ params: {}, route })
+  openRoute({ params: {}, route })
   setNodeRequestMethod()
 }
 
@@ -168,7 +168,7 @@ export async function findRSSFromHome(
   tries = 0,
   report: Report = error
 ): Promise<boolean> {
-  setBaseTestRoute({ params: {}, route: 'add' })
+  openRoute({ params: {}, route: 'add' })
   let addPage = pages.add()
   let unbindPreview = addPage.candidates.listen(() => {})
   try {
