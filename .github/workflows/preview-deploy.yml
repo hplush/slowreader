@@ -52,8 +52,8 @@ jobs:
           LABELS=$(gh pr view "$PR_NUMBER" \
             --repo "$GITHUB_REPOSITORY" \
             --json labels --jq '.labels[].name')
-          if ! echo "$LABELS" | grep -qx 'preview'; then
-            echo "PR #$PR_NUMBER does not have 'preview' label, skipping deploy"
+          if ! echo "$LABELS" | grep -qx 'deploy-preview'; then
+            echo "PR #$PR_NUMBER does not have 'deploy-preview' label, skipping deploy"
             exit 1
           fi
         env:
