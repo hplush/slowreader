@@ -74,7 +74,11 @@ function landing(server: ViteDevServer): void {
     let type = LANDING_TYPES[extname(file)]
     if (type && existsSync(file)) {
       res.setHeader('Content-Type', type)
-      res.end(readFileSync(file))
+      if (type === 'text/html') {
+        res.end(replaceIcon(readFileSync(file, 'utf-8'), 'icon-dev'))
+      } else {
+        res.end(readFileSync(file))
+      }
     } else {
       next()
     }
