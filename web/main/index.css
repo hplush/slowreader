@@ -97,6 +97,13 @@ ol[role='list'] {
   @media (--no-desktop) {
     padding-bottom: var(--navbar-height);
   }
+
+  /* Prevent double scroll on mobile */
+  @media (--mobile) {
+    :root.has-popup & {
+      overflow: hidden;
+    }
+  }
 }
 
 pre,

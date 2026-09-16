@@ -88,6 +88,10 @@ useReducedMotion.subscribe(reduced => {
   root.classList.toggle('is-reduced-motion', reduced)
 })
 
+openedPopups.subscribe(opened => {
+  root.classList.toggle('has-popup', opened.length > 0)
+})
+
 onlyTouch.subscribe(touch => {
   root.classList.toggle('is-only-touch', touch)
 })
