@@ -3,6 +3,15 @@
 
 declare const COMMIT_TIME: number
 
+interface FileSystemFileHandle {
+  createSyncAccessHandle(): Promise<{
+    close(): Promise<void>
+    flush(): void
+    truncate(size: number): void
+    write(buffer: AllowSharedBufferSource, options?: { at?: number }): number
+  }>
+}
+
 interface Navigator {
   connection:
     | {

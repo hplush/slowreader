@@ -9,6 +9,8 @@
       "!dist/robots.txt",
       "!dist/{404,500}.html",
       "!dist/copy-demo-db/**",
+      "!dist/assets/copy-demo-db-*.{js,css}",
+      "!dist/assets/opfs-worker-*.js",
       "!dist/demo.{json,sqlite}",
       "!dist/icon-*.{png,svg}",
       "!dist/apple-touch-icon.png",
