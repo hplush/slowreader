@@ -24,7 +24,7 @@
 {#if reader.reading === 'fast'}
   <PageIcon path={mdiWhiteBalanceSunny}>
     <Stack align="center" gap="l">
-      {$t.fastEmpty}
+      {reader.category ? $t.fastCategoryEmpty : $t.fastEmpty}
       <div class="is-comfort-mode">
         <Button href={getURL('slow')} icon={mdiFireplace}>{$t.openSlow}</Button>
       </div>

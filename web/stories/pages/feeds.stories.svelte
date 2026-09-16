@@ -134,6 +134,23 @@
   </Scene>
 </Story>
 
+<Story name="Fast Category Empty" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    categories={[
+      { id: 'read', title: 'Comics' },
+      { id: 'unread', title: 'Photo' }
+    ]}
+    feeds={[
+      { categoryId: 'read', id: 'comics', reading: 'fast', title: 'Comics' },
+      { categoryId: 'unread', id: 'photo', reading: 'fast', title: 'Photo' }
+    ]}
+    posts={[{ feedId: 'photo', reading: 'fast' }]}
+    route={{ params: { category: 'read' }, route: 'fast' }}
+  >
+    <FeedsPage page={pages.fast()} />
+  </Scene>
+</Story>
+
 <Story name="Loading" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     feeds={[{ id: 'feed', reading: 'slow', title: 'The Mozilla Blog' }]}

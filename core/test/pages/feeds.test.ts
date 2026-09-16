@@ -397,6 +397,27 @@ describe('feeds page', () => {
     equal(router.get().route, 'slow')
   })
 
+  test('renders empty reader for the fast category without posts', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let read = await addCategory({ fastReader: 'feed', title: 'A1' })
+    await addFeed(
+      testFeed({ categoryId: read, fastReader: 'feed', reading: 'fast' })
+    )
+    let unread = await addCategory({ fastReader: 'feed', title: 'A2' })
+    let feed = await addFeed(
+      testFeed({ categoryId: unread, fastReader: 'feed', reading: 'fast' })
+    )
+    await addPost(testPost({ feedId: feed, reading: 'fast' }))
+    await setTimeout(10)
+
+    let page = openPage({ params: { category: read }, route: 'fast' })
+    await waitLoading(page.loading)
+    let reader = page.posts.get()
+    equal(reader?.name, 'empty')
+    equal(reader?.name === 'empty' && reader.category, true)
+  })
+
   test('renders empty reader when the menu has no feed to open', async () => {
     busyUntilMenuLoader()
     await waitLoading(busy)
@@ -511,11 +532,7 @@ describe('feeds page', () => {
 
     await addPost(testPost({ feedId: feed2, reading: 'fast' }))
     await setTimeout(10)
-    equal(page.posts.get()!.name, 'feed')
-
-    page.changeReader('list')
-    await setTimeout(10)
-    equal(page.posts.get()!.name, 'list')
+    equal(page.posts.get()!.name, 'empty')
 
     page = openPage({
       params: { category: category2 },
@@ -525,8 +542,19 @@ describe('feeds page', () => {
     await setTimeout(1)
     equal(page.posts.get()!.name, 'feed')
 
+    page.changeReader('list')
+    await setTimeout(10)
+    equal(page.posts.get()!.name, 'list')
+
     page = openPage({
       params: { category: category1 },
+      route: 'fast'
+    })
+    await setTimeout(10)
+    equal(page.posts.get()!.name, 'empty')
+
+    page = openPage({
+      params: { category: category2 },
       route: 'fast'
     })
     await setTimeout(10)

@@ -6,6 +6,7 @@ export const welcomeMessages = i18n('welcome', {
   emptyText: 'You haven’t subscribed to any feed yet',
   fastDesc:
     'Place here deep fun content which you can miss.\n\nFor example: short videos, jokes, news with low signal-to-noise ratio, guilty pleasure.',
+  fastCategoryEmpty: 'You read all Fun posts of this category',
   fastEmpty: 'You read all Fun posts',
   openSlow: 'Read Useful posts',
   refresh: 'Download new posts',

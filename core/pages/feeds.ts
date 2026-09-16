@@ -3,7 +3,13 @@ import { atom, computed, effect } from 'nanostores'
 import { type CategoryValue, changeCategory, getCategory } from '../category.ts'
 import { layoutType } from '../environment.ts'
 import { changeFeed, type FeedValue, getFeed, needWelcome } from '../feed.ts'
-import { fastMenu, menuLoading, openableMenu, slowMenu } from '../menu.ts'
+import {
+  fastMenu,
+  menuLoading,
+  openableMenu,
+  slowMenu,
+  unreadFastMenu
+} from '../menu.ts'
 import { deletePost, fastPostsCount, slowPostsCount } from '../post.ts'
 import {
   loadReadPostIds,
@@ -51,7 +57,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     }
 
     let prevLoadingUnbind = (): void => {}
-    let prevReading: BaseReader | undefined
+    let prevReading: Reader | undefined
     function setReader(reader: Reader | undefined): void {
       prevLoadingUnbind()
       if (reader) {
@@ -148,7 +154,8 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         needWelcome,
         $noPosts,
         menuLoading,
-        $menu
+        $menu,
+        unreadFastMenu
       ],
       (
         feed,
@@ -158,7 +165,8 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         welcome,
         noPosts,
         loadingMenu,
-        menu
+        menu,
+        fast
       ) => {
         let readerName: 'none' | ReaderName
         if (menu) {
@@ -168,6 +176,13 @@ let pages = (['slow', 'fast'] as const).map(reading => {
           readerName = 'welcome'
         } else if (noPosts) {
           readerName = 'empty'
+        } else if (
+          reading === 'fast' &&
+          category &&
+          !fast.some(i => i.id === category.id)
+        ) {
+          // The link to the category, which was read on another device
+          readerName = loadingMenu ? 'none' : 'empty'
         } else if (!feed && !category) {
           // The loader is only for the target, which is still loading:
           // the menu without a feed to open is a normal state
@@ -193,6 +208,17 @@ let pages = (['slow', 'fast'] as const).map(reading => {
 
         let key = `${readerName} ${filter.categoryId ?? ''} ${filter.feedId ?? ''}`
         if (key === lastKey) return
+        // The reader marks the last posts and moves away itself, while
+        // the menu drops the target before the move
+        if (
+          readerName === 'empty' &&
+          filter.categoryId === lastFilter?.categoryId &&
+          filter.feedId === lastFilter?.feedId &&
+          (prevReading?.name === 'feed' || prevReading?.name === 'list') &&
+          prevReading.marking.get()
+        ) {
+          return
+        }
         lastKey = key
 
         if (JSON.stringify(filter) !== JSON.stringify(lastFilter)) {
