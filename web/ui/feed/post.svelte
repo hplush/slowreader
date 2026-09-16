@@ -113,7 +113,7 @@
       }
 
       @media (--mobile) {
-        margin-inline: calc(-1 * var(--page-padding) - var(--min-size));
+        margin-inline: calc(-1 * var(--page-padding));
         border-inline: none;
       }
 

@@ -7,7 +7,7 @@
 :root {
   --theme-color: var(--land-color);
 
-  overscroll-behavior-y: none;
+  overscroll-behavior: none;
   color-scheme: light dark;
 
   &.is-light-theme {
@@ -87,7 +87,7 @@ ol[role='list'] {
   flex-direction: column;
   height: 100%;
   min-height: 100svh;
-  overflow-y: auto;
+  overflow: hidden auto;
   -webkit-overflow-scrolling: touch;
 
   @media (--desktop) {
