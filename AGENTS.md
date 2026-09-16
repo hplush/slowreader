@@ -7,6 +7,7 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 - Prefer short one-word variable names. Avoid abbreviations: use `current` instead of `cur`.
 - Do not add any comments to generated code by default.
 - Never write a comment, which repeats the name of the function or variable. Comment only what the code can’t say: why, not what.
+- If a function or variable needs a comment to explain what it does, rename it to say that instead: `waitDisappearFromMenu()`, `menuHasUnread()`, `noNeedWait`. Keep comments only for why.
 - Do not explain simple functions with a few lines with simple reasons like a batch call being faster than a loop.
 - Import only specific functions. Don’t import everything.
 - Don’t use `export default`, use name exports instead.
