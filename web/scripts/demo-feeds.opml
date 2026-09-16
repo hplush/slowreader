@@ -21,16 +21,16 @@
       <outline text="Now I Know" type="rss" xmlUrl="https://nowiknow.com/feed/" />
       <outline text="kottke.org" type="rss" xmlUrl="https://kottke.org/index.xml" />
     </outline>
-    <outline text="Long Lists">
-      <outline text="Dezeen" type="rss" xmlUrl="https://www.dezeen.com/feed/" />
-      <outline text="Simon Willison" type="rss" xmlUrl="https://simonwillison.net/atom/everything/" />
-      <outline text="Longreads" type="rss" xmlUrl="https://longreads.com/feed/" />
-      <outline text="Atlas Obscura" type="rss" xmlUrl="https://www.atlasobscura.com/feeds/latest" />
-    </outline>
-    <outline text="Long Reads">
+    <outline text="Science">
       <outline text="Aeon" type="rss" xmlUrl="https://aeon.co/feed.rss" />
       <outline text="Nautilus" type="rss" xmlUrl="https://nautil.us/feed/" />
       <outline text="Quanta Magazine" type="rss" xmlUrl="https://www.quantamagazine.org/feed/" />
+      <outline text="Simon Willison" type="rss" xmlUrl="https://simonwillison.net/atom/everything/" />
+    </outline>
+    <outline text="Culture">
+      <outline text="Atlas Obscura" type="rss" xmlUrl="https://www.atlasobscura.com/feeds/latest" />
+      <outline text="Dezeen" type="rss" xmlUrl="https://www.dezeen.com/feed/" />
+      <outline text="Longreads" type="rss" xmlUrl="https://longreads.com/feed/" />
       <outline text="The Marginalian" type="rss" xmlUrl="https://www.themarginalian.org/feed/" />
     </outline>
   </body>
