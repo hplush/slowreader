@@ -12,7 +12,7 @@
   "languageOptions": {
     "syntax": {
       "properties": {
-        "background": "| <--tune-color()> | <--tune-background()> | <--average-color()>",
+        "background": "| <--tune-color()> | <--tune-background()> | <--top-color()>",
         "background-color": "| <--tune-color()> | <--tune-background()>",
         "color": "| <--tune-color()> | <--tune-background()>",
         "border-color": "| <--tune-color()> | <--tune-background()>",
@@ -22,7 +22,7 @@
       "types": {
         "--tune-color()": "--tune-color( <custom-property-name> , <custom-property-name>? )",
         "--tune-background()": "--tune-background( <custom-property-name> <custom-property-name>? <custom-property-name>? , <custom-property-name>? )",
-        "--average-color()": "--average-color( <string> )"
+        "--top-color()": "--top-color( <string> )"
       }
     }
   },

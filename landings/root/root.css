@@ -305,7 +305,8 @@ body {
 }
 
 .section {
-  min-block-size: 100svh;
+  /* Not svh: the section must still fill the screen with hidden browser UI */
+  min-block-size: 100lvh;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   background: oklch(0 0 0);
@@ -316,19 +317,22 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-block-start: calc(-1 * env(safe-area-inset-top));
-  min-block-size: calc(100svh + env(safe-area-inset-top));
-  padding: calc(7rem + env(safe-area-inset-top)) 2rem 4rem;
+  padding: 7rem 2rem 4rem;
   padding-inline: max(2rem, env(safe-area-inset-left))
     max(2rem, env(safe-area-inset-right));
   overflow: hidden;
   color: oklch(1 0 0);
-  background: --average-color('../images/main/main.avif');
+  background: --top-color('../images/main/main.avif');
   view-timeline: --hero-buttons block;
 
+  /* Keep the ratio in sync with `<source media>` in root.html */
+  @media (aspect-ratio <= 3/4) {
+    background: --top-color('../generated/main-portrait.avif');
+  }
+
   @media (--no-desktop) {
-    /* The bar and the bleed grow with the insets, so add them, not max() */
-    padding-block: calc(2rem + env(safe-area-inset-top))
+    /* The bar grows with the inset too, so add it instead of max() */
+    padding-block: max(2rem, env(safe-area-inset-top))
       calc(8rem + env(safe-area-inset-bottom));
   }
 
