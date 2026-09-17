@@ -20,7 +20,7 @@ import { effect } from 'nanostores'
 
 import { locale } from '../stores/locale.ts'
 import { onlyTouch, pageTheme } from '../stores/media-queries.ts'
-import { isRestarting } from './environment.ts'
+import { restarting } from '../stores/restart.ts'
 
 let root = document.documentElement
 let themeTag = document.querySelector('meta[name="theme-color"]')
@@ -147,7 +147,7 @@ effect([client, hasPassword], (logux, cloud) => {
 })
 
 function blockClosing(event: BeforeUnloadEvent): void {
-  if (!isRestarting()) event.preventDefault()
+  if (!restarting.get()) event.preventDefault()
 }
 
 effect(busy, task => {

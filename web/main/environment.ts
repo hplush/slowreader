@@ -16,17 +16,10 @@ import { effect } from 'nanostores'
 import { locale } from '../stores/locale.ts'
 import { mobileMedia, tabletMedia } from '../stores/media-queries.ts'
 import { usedRequestMethod } from '../stores/request-method.ts'
+import { restarting } from '../stores/restart.ts'
 import { openRoute, urlRouter } from '../stores/url-router.ts'
 import { createDatabase, dumpDatabase } from './database.ts'
 import { detectExtension, extensionRequest } from './extension.ts'
-
-// Sign out and database reset reload the page, and the tab closing warning
-// must not ask the user to confirm the app’s own reload
-let restarting = false
-
-export function isRestarting(): boolean {
-  return restarting
-}
 
 let server = location.hostname
 let proxy = '/proxy/'
@@ -100,7 +93,7 @@ setupEnvironment({
   persistentEvents: windowPersistentEvents,
   persistentStore: localStorage,
   restartApp() {
-    restarting = true
+    restarting.set(true)
     location.reload()
   },
   saveFile(filename, content) {
