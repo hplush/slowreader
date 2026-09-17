@@ -6,7 +6,7 @@ _See the [full architecture guide](../README.md) first._
 
 ## Project Structure
 
-- [`root/`](./root/): page on `/` with its own CSS and JS. The build renames `root.html` to `index.html`.
+- [`root/`](./root/): page on `/` with its own CSS and JS. The build renames `root.html` to `index.html`. Open it with `?guest` to see it as a new user.
 - [`images/`](./images/): AVIF sources for pages and prompts to generate them.
 - [`vite/`](./vite/): Vite plugins of the build.
 - [`postcss/`](./postcss/): custom PostCSS plugins.
