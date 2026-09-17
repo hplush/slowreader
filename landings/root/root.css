@@ -62,6 +62,11 @@ body {
   }
 }
 
+main {
+  /* The last snap point needs room when hidden browser UI grows the viewport */
+  padding-block-end: calc(100lvh - 100svh);
+}
+
 .header {
   position: fixed;
   z-index: 100;
@@ -314,7 +319,22 @@ body {
   min-block-size: 100svh;
   scroll-snap-align: start;
   scroll-snap-stop: always;
+
+  /* iOS mirrors the strip above the viewport, so park the seam even higher */
+  @media (--no-desktop) {
+    &:not(:first-child) {
+      min-block-size: calc(100svh + 5rem);
+      scroll-margin-block-start: -5rem;
+    }
+  }
+}
+
+.section.is-second {
   background: oklch(0 0 0);
+}
+
+.section.is-third {
+  background: oklch(1 0 0);
 }
 
 .section.is-hero {
@@ -339,16 +359,6 @@ body {
     /* The bar grows with the inset too, so add it instead of max() */
     padding-block: max(2rem, env(safe-area-inset-top))
       calc(8rem + env(safe-area-inset-bottom));
-
-    /* iOS shows this strip above the viewport, so it must match next section */
-    &::after {
-      position: absolute;
-      inset-block-end: 0;
-      inset-inline: 0;
-      block-size: 8rem;
-      content: '';
-      background: linear-gradient(oklch(0 0 0 / 0%), oklch(0 0 0) 50%);
-    }
   }
 
   @media (width <= 40rem), (aspect-ratio <= 1) {
