@@ -61,7 +61,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 - `pnpm -F web production`: start web client production build locally.
 - `pnpm -F web build`: build production files in `web/dist/`.
 - `pnpm -F web benchmark`: run [UI performance benchmark](../docs/benchmark.md).
-- `pnpm -F web build-demo`: load the feeds from [`web/scripts/demo-feeds.opml`](./scripts/demo-feeds.opml) and write demo DB dump.
+- `pnpm -F web build-demo`: load the feeds from [`web/demo/demo-feeds.opml`](./demo/demo-feeds.opml) and write demo DB dump.
 
 ## Client Storage
 
