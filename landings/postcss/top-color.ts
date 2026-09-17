@@ -1,6 +1,7 @@
-// PostCSS plugin to replace `--top-color('../images/photo.avif')` with the
-// average color of the photo’s top line. The page shows it under the photo
-// until the browser loads it, and the browser paints the status bar with it
+// Replaces `--top-color('../images/photo.avif')` with the average color of the
+// photo’s top line, in CSS here and in HTML from `vite/images.ts`. The page
+// shows it under the photo until the browser loads it, and iOS paints both its
+// interface and the strip above the viewport with it
 
 import { dirname, join } from 'node:path'
 import type { Plugin } from 'postcss'
@@ -19,13 +20,21 @@ async function topLine(file: string): Promise<string> {
   return `rgb(${red} ${green} ${blue})`
 }
 
+export async function replaceTopColors(
+  text: string,
+  dir: string
+): Promise<string> {
+  for (let [call, path] of text.matchAll(CALL)) {
+    text = text.replace(call, await topLine(join(dir, path!)))
+  }
+  return text
+}
+
 export default {
   async Declaration(decl) {
     if (!decl.value.includes('--top-color(')) return
     let dir = dirname(decl.source!.input.file!)
-    for (let [call, path] of decl.value.matchAll(CALL)) {
-      decl.value = decl.value.replace(call, await topLine(join(dir, path!)))
-    }
+    decl.value = await replaceTopColors(decl.value, dir)
   },
   postcssPlugin: 'top-color'
 } satisfies Plugin

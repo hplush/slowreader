@@ -8,11 +8,6 @@ document.documentElement.className = guest ? 'is-guest' : 'is-user'
 let header = document.querySelector('.header')
 let hero = document.querySelector('.section.is-hero')
 
-let theme = document.createElement('meta')
-theme.name = 'theme-color'
-theme.content = getComputedStyle(hero).backgroundColor
-document.head.append(theme)
-
 // The header buttons start at the hero placeholders and follow the scroll
 function fly() {
   for (let name of ['is-app', 'is-demo']) {

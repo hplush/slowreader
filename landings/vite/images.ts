@@ -3,7 +3,10 @@ import { join } from 'node:path'
 import sharp from 'sharp'
 import type { Plugin } from 'vite'
 
+import { replaceTopColors } from '../postcss/top-color.ts'
+
 const IMAGES = join(import.meta.dirname, '..', 'images')
+const PAGES = join(import.meta.dirname, '..', 'root')
 const GENERATED = join(import.meta.dirname, '..', 'generated')
 // Only the biggest image is in the size budget, see web/.size-limit.json
 const SMALL = join(GENERATED, 'small')
@@ -84,22 +87,26 @@ export function images(): Plugin {
     name: 'images',
 
     transformIndexHtml: {
-      handler(html) {
+      async handler(html) {
         let source = /(src|srcset)="\.\.\/images\/\w+\/([\w-]+)\.avif"/g
-        return html.replace(source, (_: string, attr: string, name: string) => {
-          let sizes = widths.get(name)!
-          let srcset = sizes
-            .map(i => {
-              let file =
-                i === sizes.at(-1)
-                  ? `../generated/${name}.avif`
-                  : `../generated/small/${name}-${i}.avif`
-              return `${file} ${i}w`
-            })
-            .join(', ')
-          if (attr === 'srcset') return `srcset="${srcset}"`
-          return `src="../generated/${name}.avif" srcset="${srcset}"`
-        })
+        let sources = html.replace(
+          source,
+          (_: string, attr: string, name: string) => {
+            let sizes = widths.get(name)!
+            let srcset = sizes
+              .map(i => {
+                let file =
+                  i === sizes.at(-1)
+                    ? `../generated/${name}.avif`
+                    : `../generated/small/${name}-${i}.avif`
+                return `${file} ${i}w`
+              })
+              .join(', ')
+            if (attr === 'srcset') return `srcset="${srcset}"`
+            return `src="../generated/${name}.avif" srcset="${srcset}"`
+          }
+        )
+        return replaceTopColors(sources, PAGES)
       },
       order: 'pre'
     }
