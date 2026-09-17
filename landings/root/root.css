@@ -42,6 +42,7 @@
 }
 
 html {
+  overscroll-behavior: none;
   scroll-behavior: smooth;
   scroll-snap-type: y mandatory;
 }
@@ -69,10 +70,9 @@ body {
   }
 
   @media (--no-desktop) {
-    padding: 0.6rem;
-    padding-inline: max(0.6rem, env(safe-area-inset-left))
-      max(0.6rem, env(safe-area-inset-right));
-    padding-block-end: max(0.6rem, env(safe-area-inset-bottom));
+    padding-inline: max(1rem, env(safe-area-inset-left))
+      max(1rem, env(safe-area-inset-right));
+    padding-block-end: max(0.5rem, env(safe-area-inset-bottom));
     bottom: 0;
   }
 }
