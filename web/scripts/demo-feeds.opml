@@ -25,6 +25,9 @@
       <outline text="Aeon" type="rss" xmlUrl="https://aeon.co/feed.rss" />
       <outline text="Nautilus" type="rss" xmlUrl="https://nautil.us/feed/" />
       <outline text="Quanta Magazine" type="rss" xmlUrl="https://www.quantamagazine.org/feed/" />
+    </outline>
+    <outline text="Tech">
+      <outline text="Hacker News" type="rss" xmlUrl="https://hnrss.org/best" />
       <outline text="Simon Willison" type="rss" xmlUrl="https://simonwillison.net/atom/everything/" />
     </outline>
     <outline text="Culture">
