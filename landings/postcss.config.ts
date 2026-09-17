@@ -3,7 +3,7 @@ import shadows from 'postcss-smooth-shadow'
 
 import customMedia from '../web/postcss/custom-media.ts'
 import squircleCorner from '../web/postcss/squircle-corner.ts'
-import averageColor from './postcss/average-color.ts'
+import topColor from './postcss/top-color.ts'
 
 export default {
   plugins: [
@@ -12,6 +12,6 @@ export default {
     }),
     squircleCorner,
     shadows(),
-    averageColor
+    topColor
   ]
 }
