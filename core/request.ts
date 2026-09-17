@@ -12,15 +12,19 @@ export function setRequestMethod(method: RequestMethod): void {
 
 export let proxyDebug = atom<((headers: Headers) => void) | false>(false)
 
-export function setProxyAsRequestMethod(proxyUrl: string): void {
+export function setProxyAsRequestMethod(
+  proxyUrl: string,
+  origin?: string
+): void {
   setRequestMethod(async (url, opts = {}) => {
     let debug = proxyDebug.get()
-    if (debug) {
-      let headers = new Headers(opts.headers)
-      headers.set('x-slowreader-debug', '1')
-      opts = { ...opts, headers }
-    }
-    let response = await fetch(proxyUrl + encodeURIComponent(url), opts)
+    let headers = new Headers(opts.headers)
+    if (origin) headers.set('Origin', origin)
+    if (debug) headers.set('x-slowreader-debug', '1')
+    let response = await fetch(proxyUrl + encodeURIComponent(url), {
+      ...opts,
+      headers
+    })
     if (debug) debug(response.headers)
 
     Object.defineProperty(response, 'url', { value: url })

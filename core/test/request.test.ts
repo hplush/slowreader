@@ -56,6 +56,13 @@ describe('proxy', () => {
     equal(response.url, targetUrl)
   })
 
+  test('sets origin for Node.js scripts', async () => {
+    setProxyAsRequestMethod(proxyUrl + '/', 'http://test.app')
+    let response = await request(targetUrl)
+    equal(response.status, 200)
+    equal(await response.text(), 'hello')
+  })
+
   test('sends debug headers when proxyDebug is set', async () => {
     setProxyAsRequestMethod(proxyUrl + '/')
     let captured: Headers

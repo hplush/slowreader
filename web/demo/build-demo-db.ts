@@ -14,10 +14,11 @@ import {
   moveLastSyncedToPast,
   refreshPosts,
   select,
+  setProxyAsRequestMethod,
   setupEnvironment,
   useCredentials
 } from '@slowreader/core'
-import { setNodeRequestMethod, setupNodeDom } from '@slowreader/core/node'
+import { setupNodeDom } from '@slowreader/core/node'
 import {
   getTestEnvironment,
   openRoute,
@@ -61,7 +62,12 @@ setupEnvironment({
 })
 let storage = environment.persistentStore
 
-setNodeRequestMethod()
+// Some feeds answer to the proxy, but not to GitHub Actions IPs, and the
+// proxy loads the feeds exactly like the web client does for the users
+setProxyAsRequestMethod(
+  'https://proxy.dev.slowreader.app/',
+  'https://dev.slowreader.app'
+)
 
 useCredentials(generateCredentials())
 isDemo.set(true)
