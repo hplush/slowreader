@@ -2,17 +2,17 @@
 # so every developer will have the same environment
 
 # registry.fedoraproject.org/fedora:44
-FROM registry.fedoraproject.org/fedora@sha256:2648f667bd180801195d3f3a385cf0d2e390bd80611dbedac8275253c89cdbc7
+FROM registry.fedoraproject.org/fedora@sha256:e7d398c0a67572b33a43260102f9135ab79b6b8d95efca91faa5179d83b2cdf0
 
 ARG TARGETARCH
 
-ENV NODE_VERSION=26.8.2 \
-  NODE_CHECKSUM_X64=40e1d3225c1c9ae9a2671c98ecb9857e4d5555026394f348645676798840d5c5 \
-  NODE_CHECKSUM_ARM64=81d8f0fdea9dcd3bfdcfeafc5f8359c151f097e9880b0007c0645ca670d07971
+ENV NODE_VERSION=26.9.0 \
+  NODE_CHECKSUM_X64=c6ecd8efc1c1d395265891675319da7a7b3785c6be174bd78933cf4f057624d1 \
+  NODE_CHECKSUM_ARM64=686d07ed3bc5d68d9f7bd4939b7e8849a87d0664ac19c8c5474474f44cc956db
 
-ENV PNPM_VERSION=12.4.1 \
-  PNPM_CHECKSUM_X64=66e9886299085dade56e203ae0e3586f35787f8801a68d33ec07ac17b0de2001 \
-  PNPM_CHECKSUM_ARM64=14f7a3e67d658d4ca8002c2aa0567f27dc5fe056a9f29f98ba7d2bfd6c81591b
+ENV PNPM_VERSION=12.4.2 \
+  PNPM_CHECKSUM_X64=ce1ed690fe9c2f091d7267e1afbe9380abb08bb577e95348fda194a41147d2ec \
+  PNPM_CHECKSUM_ARM64=dc4a29d9848ef005bec3d36d49aae84b115ec3b18c110a3a7f33c37f7fd520bf
 
 RUN dnf install -yq zsh micro git tig psmisc procps-ng awk libatomic wget zip \
   gtk3 nss nspr alsa-lib cups-libs mesa-libgbm dbus-libs libX11-xcb \
