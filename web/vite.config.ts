@@ -147,7 +147,8 @@ export default defineConfig(() => ({
       },
       generateBundle: {
         handler(options, bundle) {
-          bundle['demo/index.html']!.fileName = 'copy-demo-db/index.html'
+          let demo = bundle['demo/index.html']
+          if (demo) demo.fileName = 'copy-demo-db/index.html'
         },
         order: 'post'
       },
