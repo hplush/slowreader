@@ -55,3 +55,22 @@ let visibility = new IntersectionObserver(
   }
 )
 visibility.observe(hero.querySelector('.section_actions'))
+
+// Safari tints its interface with the color of the section you are looking at
+let theme = document.createElement('meta')
+theme.name = 'theme-color'
+document.head.append(theme)
+
+let themes = new IntersectionObserver(
+  entries => {
+    for (let entry of entries) {
+      if (entry.isIntersecting) {
+        theme.content = getComputedStyle(entry.target).backgroundColor
+      }
+    }
+  },
+  { threshold: 0.5 }
+)
+for (let section of document.querySelectorAll('.section')) {
+  themes.observe(section)
+}
