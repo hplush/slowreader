@@ -4,7 +4,8 @@ import { i18n } from '../../i18n.ts'
 
 export const authMessages = i18n('auth', {
   askSaveAgain: 'Show save-password popup',
-  createAccount: 'Create cross-device account',
+  createEmpty: 'Or create your empty account:',
+  createAccount: 'Cloud',
   customServer: 'Use my own server',
   demo: 'See demo',
   email: params(
@@ -36,7 +37,7 @@ export const authMessages = i18n('auth', {
   signingUp: 'Creating account…',
   signup: 'Create account on the server',
   signupTitle: 'Sign up',
-  startLocal: 'Start empty local account',
+  startLocal: 'Local',
   startTitle: 'Start',
   toEmail: 'Email password to myself',
   signUpUserId: 'Anonymous User ID',

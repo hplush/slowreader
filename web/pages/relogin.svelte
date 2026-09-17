@@ -21,12 +21,7 @@
   {#snippet two()}
     <Card variant="transparent">
       <Stack gap="xxl">
-        <SignInForm
-          {page}
-          server={false}
-          submit={$t.relogin}
-          title={$t.reloginForm}
-        />
+        <SignInForm {page} submit={$t.relogin} title={$t.reloginForm} />
         <Button
           icon={mdiLogout}
           onclick={page.signOut}

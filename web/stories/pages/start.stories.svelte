@@ -17,18 +17,6 @@
   </Scene>
 </Story>
 
-<Story name="Custom Server" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene
-    oninit={() => {
-      pages.start().showCustomServer()
-    }}
-    route="start"
-    user={false}
-  >
-    <StartPage page={pages.start()} />
-  </Scene>
-</Story>
-
 <Story name="Submitting" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {

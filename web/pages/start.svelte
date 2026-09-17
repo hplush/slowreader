@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiAccountPlus, mdiBinoculars, mdiHome } from '@mdi/js'
+  import { mdiBinoculars, mdiCloud, mdiHome } from '@mdi/js'
   import { type StartPage, authMessages as t } from '@slowreader/core'
 
   import { getURL } from '../stores/url-router.ts'
@@ -32,29 +32,36 @@
           >
             {$t.demo}
           </Button>
-          <Button
-            icon={mdiHome}
-            onclick={page.startLocal}
-            size="wide"
-            variant="secondary"
-          >
-            {$t.startLocal}
-          </Button>
-          <Button
-            href={getURL('signUp')}
-            icon={mdiAccountPlus}
-            size="pill"
-            variant="secondary"
-          >
-            {$t.createAccount}
-          </Button>
+          <Stack align="center" gap="s">
+            {$t.createEmpty}
+            <Stack gap="xs" row>
+              <Button
+                icon={mdiHome}
+                joined="start"
+                onclick={page.startLocal}
+                size="wide"
+                variant="secondary"
+              >
+                {$t.startLocal}
+              </Button>
+              <Button
+                href={getURL('signUp')}
+                icon={mdiCloud}
+                joined="end"
+                size="wide"
+                variant="secondary"
+              >
+                {$t.createAccount}
+              </Button>
+            </Stack>
+          </Stack>
         </Stack>
       </Stack>
     </Card>
   {/snippet}
   {#snippet two()}
     <Card variant="transparent">
-      <SignInForm {page} server submit={$t.login} title={$t.oldUser} />
+      <SignInForm {page} submit={$t.login} title={$t.oldUser} />
     </Card>
   {/snippet}
 </TwoOptionsPage>

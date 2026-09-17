@@ -1,17 +1,13 @@
 import { SIGN_IN_ERRORS } from '@slowreader/api'
-import { atom, type ReadableAtom, type WritableAtom } from 'nanostores'
+import { atom, type WritableAtom } from 'nanostores'
 
 import { type Credentials, signIn } from '../../auth.ts'
 import { commonMessages } from '../../messages/index.ts'
-import { injectCustomServerField } from './custom-server-field.ts'
 import { createFormSubmit } from './form.ts'
 
 export function injectSignIn(): {
-  customServer: ReadableAtom<string | undefined>
   exit: () => void
-  resetCustomServer: () => void
   secret: WritableAtom<string>
-  showCustomServer: () => void
   signError: WritableAtom<string | undefined>
   signIn: () => Promise<boolean>
   signingIn: WritableAtom<boolean>
@@ -22,11 +18,6 @@ export function injectSignIn(): {
   let $signingIn = atom(false)
   let $signError = atom<string | undefined>()
 
-  let customServerMixin = injectCustomServerField()
-
-  let unbindServer = customServerMixin.customServer.listen(() => {
-    $signError.set(undefined)
-  })
   let unbindUserId = $userId.listen(() => {
     $signError.set(undefined)
   })
@@ -49,16 +40,14 @@ export function injectSignIn(): {
   }
 
   return {
-    ...customServerMixin,
     exit() {
-      unbindServer()
       unbindUserId()
       unbindSecret()
     },
     secret: $secret,
     signError: $signError,
     signIn: createFormSubmit(
-      () => signIn(validateCredential(), customServerMixin.customServer.get()),
+      () => signIn(validateCredential()),
       $signingIn,
       $signError,
       SIGN_IN_ERRORS,

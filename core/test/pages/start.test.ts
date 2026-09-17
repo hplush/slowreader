@@ -42,24 +42,6 @@ describe('start page', () => {
     await cleanAllTables()
   })
 
-  test('shows and hides custom server field', () => {
-    let page = openPage({
-      params: {},
-      route: 'start'
-    })
-
-    equal(page.loading.get(), false)
-    equal(page.userId.get(), '')
-    equal(page.secret.get(), '')
-    equal(typeof page.customServer.get(), 'undefined')
-
-    page.showCustomServer()
-    equal(page.customServer.get(), 'server.slowreader.app')
-
-    page.resetCustomServer()
-    equal(typeof page.customServer.get(), 'undefined')
-  })
-
   test('starts local mode', async () => {
     let page = openPage({
       params: {},
