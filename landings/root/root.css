@@ -8,9 +8,8 @@
   --accent-color: oklch(0.58 0.23 260);
   --text-on-accent-color: oklch(1 0 0);
   --focus-color: oklch(0.72 0.15 240);
-  --glass-background: oklch(0.3 0.03 70 / 65%);
   --base-radius: 0.375rem;
-  --glass-shadow:
+  --header-shadow:
     inset 0 -0.5px 0 oklch(1 0 0 / 10%), inset 0 0.5px 0 oklch(1 0 0 / 10%),
     --linear-shadow(0 0 0.7rem oklch(0 0 0 / 30%));
   --app-icon-shadow:
@@ -72,9 +71,11 @@ main {
   z-index: 100;
   inset-inline: 0;
   padding: 0.5rem 1rem;
-  background: var(--glass-background);
-  box-shadow: var(--glass-shadow);
-  backdrop-filter: blur(1rem) saturate(180%);
+
+  /* JS puts the color of the current section here, so the bar blends into it */
+  background: var(--section-color, oklch(0.3 0.03 70));
+  box-shadow: var(--header-shadow);
+  transition: background 200ms;
 
   @media (--desktop) {
     top: 0;
@@ -133,6 +134,7 @@ main {
   margin-block: 0;
   margin-inline: 0 auto;
   font: 400 1.125rem/1 var(--title-family);
+  color: oklch(1 0 0);
 
   @media (--no-desktop) {
     font-size: 1.35rem;
@@ -323,7 +325,7 @@ main {
   /* iOS mirrors the strip above the viewport, so park the seam even higher */
   @media (--no-desktop) {
     &:not(:first-child) {
-      min-block-size: calc(100svh + 5rem);
+      min-block-size: calc(100lvh + 5rem);
       scroll-margin-block-start: -5rem;
     }
   }
@@ -334,7 +336,7 @@ main {
 }
 
 .section.is-third {
-  background: oklch(1 0 0);
+  background: oklch(0.5 0.15 270);
 }
 
 .section.is-hero {

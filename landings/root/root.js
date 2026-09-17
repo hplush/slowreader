@@ -56,33 +56,19 @@ let visibility = new IntersectionObserver(
 )
 visibility.observe(hero.querySelector('.section_actions'))
 
-let canvas = document.createElement('canvas').getContext('2d', {
-  willReadFrequently: true
-})
-
-// Safari’s `theme-color` ignores OKLCH, and only a painted pixel is sRGB
-function legacyColor(color) {
-  canvas.fillStyle = color
-  canvas.fillRect(0, 0, 1, 1)
-  let [red, green, blue] = canvas.getImageData(0, 0, 1, 1).data
-  return `rgb(${red}, ${green}, ${blue})`
-}
-
-// Safari reads the tag once, so give it a new tag instead of a new color
-function showTheme(section) {
-  for (let old of document.querySelectorAll('meta[name="theme-color"]')) {
-    old.remove()
-  }
-  let meta = document.createElement('meta')
-  meta.name = 'theme-color'
-  meta.content = legacyColor(getComputedStyle(section).backgroundColor)
-  document.head.append(meta)
-}
+// Both the browser interface and the header take the section’s color
+let theme = document.createElement('meta')
+theme.name = 'theme-color'
+document.head.append(theme)
 
 let themes = new IntersectionObserver(
   entries => {
     for (let entry of entries) {
-      if (entry.isIntersecting) showTheme(entry.target)
+      if (entry.isIntersecting) {
+        let color = getComputedStyle(entry.target).backgroundColor
+        theme.content = color
+        document.documentElement.style.setProperty('--section-color', color)
+      }
     }
   },
   { threshold: 0.5 }
