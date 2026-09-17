@@ -56,17 +56,21 @@ let visibility = new IntersectionObserver(
 )
 visibility.observe(hero.querySelector('.section_actions'))
 
-// Safari tints its interface with the color of the section you are looking at
-let theme = document.createElement('meta')
-theme.name = 'theme-color'
-document.head.append(theme)
+// Safari reads the tag once, so give it a new tag instead of a new color
+function showTheme(section) {
+  for (let old of document.querySelectorAll('meta[name="theme-color"]')) {
+    old.remove()
+  }
+  let meta = document.createElement('meta')
+  meta.name = 'theme-color'
+  meta.content = getComputedStyle(section).backgroundColor
+  document.head.append(meta)
+}
 
 let themes = new IntersectionObserver(
   entries => {
     for (let entry of entries) {
-      if (entry.isIntersecting) {
-        theme.content = getComputedStyle(entry.target).backgroundColor
-      }
+      if (entry.isIntersecting) showTheme(entry.target)
     }
   },
   { threshold: 0.5 }
