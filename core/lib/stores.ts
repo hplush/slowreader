@@ -7,7 +7,9 @@ import { computed, type ReadableAtom } from 'nanostores'
 export function firstRow<Value>(
   store: SqlStore<Value[]>
 ): ReadableAtom<undefined | Value> {
-  return computed(store, rows => (rows.isLoading ? undefined : rows.value[0]))
+  return computed(store, rows =>
+    rows.status === 'loading' ? undefined : rows.value[0]
+  )
 }
 
 interface NumberMapStore<Key extends string> {
@@ -62,7 +64,7 @@ export async function waitSql<Row>(store: SqlStore<Row[]>): Promise<Row[]> {
   try {
     await store.loading
     let value = store.get()
-    return value.isLoading ? [] : value.value
+    return value.status === 'loading' ? [] : value.value
   } finally {
     unbind()
   }

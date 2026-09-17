@@ -318,7 +318,7 @@ function countPosts(
     SELECT COUNT("originId") AS "total" FROM "posts" WHERE "reading" = ${reading}
   `
   return $total.subscribe(value => {
-    store.set(value.isLoading ? undefined : value.value[0]!.total)
+    store.set(value.status === 'loading' ? undefined : value.value[0]!.total)
   })
 }
 

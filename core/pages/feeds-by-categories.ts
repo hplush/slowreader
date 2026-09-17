@@ -18,7 +18,7 @@ export const feedsByCategoriesPage = createPage('feedsByCategories', () => {
   let $groups = atom<FeedsByCategory>([])
   let $loading = atom(true)
   let unbind = effect([$categories, $feeds], (categories, feeds) => {
-    if (!categories.isLoading && !feeds.isLoading) {
+    if (categories.status === 'ready' && feeds.status === 'ready') {
       $groups.set(feedsByCategory(categories.value, feeds.value))
       $loading.set(false)
     } else {

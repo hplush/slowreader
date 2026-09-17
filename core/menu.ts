@@ -427,7 +427,7 @@ onMount($unread, () =>
       GROUP BY "feedId", "reading"
     `
     return store.subscribe(rows => {
-      if (rows.isLoading) {
+      if (rows.status === 'loading') {
         $unread.set(undefined)
       } else {
         let counts: UnreadCounts = { fast: new Map(), slow: new Map() }

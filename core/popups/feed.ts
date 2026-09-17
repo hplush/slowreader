@@ -113,14 +113,14 @@ export const feed = definePopup('feed', async url => {
   let $feed = atom<FeedValue | undefined>()
 
   let unbindFeeds = feedsStore.subscribe(value => {
-    if (!value.isLoading) {
+    if (value.status === 'ready') {
       $feed.set(value.value[0])
     }
   })
 
   let $categories = atom<[string, string][]>([])
   let unbindCategories = categoriesStore.subscribe(value => {
-    if (value.isLoading) return
+    if (value.status === 'loading') return
     let list = value.value.map(
       category => [category.id, category.title] as [string, string]
     )

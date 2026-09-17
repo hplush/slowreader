@@ -394,7 +394,7 @@ export function trackReadPosts(
     `
   }
   return $read.subscribe(rows => {
-    if (rows.isLoading) return
+    if (rows.status === 'loading') return
     let read = new Set(rows.value.map(row => row.id))
     let prev = list.get()
     let next = prev.map(post => {
