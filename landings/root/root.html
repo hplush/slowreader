@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <title>Slow Reader</title>
     <link rel="stylesheet" href="./root.css" />
     <script type="module" src="./root.js"></script>
@@ -23,11 +26,13 @@
           />
         </span>
         <h1 class="header_name">Slow Reader</h1>
-        <a class="button is-app" href="/app">Open app</a>
-        <a class="button is-demo" href="/copy-demo-db">
-          <span class="button_long">Start demo</span>
-          <span class="button_short">Demo</span>
-        </a>
+        <span class="header_dock">
+          <a class="button is-app" href="/app">Open app</a>
+          <a class="button is-demo" href="/copy-demo-db">
+            <span class="button_long">Start demo</span>
+            <span class="button_short">Demo</span>
+          </a>
+        </span>
         <a class="button is-login" href="/app">Login</a>
       </div>
     </header>

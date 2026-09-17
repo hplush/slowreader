@@ -10,20 +10,20 @@ let hero = document.querySelector('.section.is-hero')
 
 // The header buttons start at the hero placeholders and follow the scroll
 function fly() {
-  // Offsets are inside the header, which sits at the top or at the bottom
-  let bar = header.getBoundingClientRect()
   for (let name of ['is-app', 'is-demo']) {
     let big = hero.querySelector(`.section_actions .${name}`)
     let small = header.querySelector(`.${name}`)
     let from = big.getBoundingClientRect()
     if (!from.width || !small.offsetWidth) continue
+    // The button is mid-flight, so only the dock tells where it will land
+    let dock = small.offsetParent.getBoundingClientRect()
     small.style.setProperty(
       '--from-x',
-      `${from.left - bar.left - small.offsetLeft}px`
+      `${from.left - dock.left - small.offsetLeft}px`
     )
     small.style.setProperty(
       '--from-y',
-      `${from.top + scrollY - bar.top - small.offsetTop}px`
+      `${from.top + scrollY - dock.top - small.offsetTop}px`
     )
     small.style.setProperty('--from-scale', `${from.width / small.offsetWidth}`)
   }

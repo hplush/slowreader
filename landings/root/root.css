@@ -70,6 +70,9 @@ body {
 
   @media (--no-desktop) {
     padding: 0.6rem;
+    padding-inline: max(0.6rem, env(safe-area-inset-left))
+      max(0.6rem, env(safe-area-inset-right));
+    padding-block-end: max(0.6rem, env(safe-area-inset-bottom));
     bottom: 0;
   }
 }
@@ -106,6 +109,13 @@ body {
     inline-size: 2.4rem;
     block-size: 2.4rem;
   }
+}
+
+/* Zero width, so the flying label never takes the space of the title */
+.header_dock {
+  position: relative;
+  align-self: stretch;
+  inline-size: 0;
 }
 
 .header_name {
@@ -145,6 +155,12 @@ body {
   .is-guest &.is-demo,
   .is-guest &.is-login {
     display: grid;
+  }
+
+  .header_dock & {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0;
   }
 
   :root:not(.is-scrolled) .header &:is(.is-app, .is-demo) {
@@ -301,13 +317,17 @@ body {
   align-items: center;
   justify-content: flex-end;
   padding: 7rem 2rem 4rem;
+  padding-inline: max(2rem, env(safe-area-inset-left))
+    max(2rem, env(safe-area-inset-right));
   overflow: hidden;
   color: oklch(1 0 0);
   background: --average-color('../images/main/main.avif');
   view-timeline: --hero-buttons block;
 
   @media (--no-desktop) {
-    padding-block: 2rem 8rem;
+    /* The bar grows with the inset too, so add it instead of max() */
+    padding-block: max(2rem, env(safe-area-inset-top))
+      calc(8rem + env(safe-area-inset-bottom));
   }
 
   @media (width <= 40rem), (aspect-ratio <= 1) {
