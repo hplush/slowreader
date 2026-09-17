@@ -316,7 +316,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: 7rem 2rem 4rem;
+  margin-block-start: calc(-1 * env(safe-area-inset-top));
+  min-block-size: calc(100svh + env(safe-area-inset-top));
+  padding: calc(7rem + env(safe-area-inset-top)) 2rem 4rem;
   padding-inline: max(2rem, env(safe-area-inset-left))
     max(2rem, env(safe-area-inset-right));
   overflow: hidden;
@@ -325,8 +327,8 @@ body {
   view-timeline: --hero-buttons block;
 
   @media (--no-desktop) {
-    /* The bar grows with the inset too, so add it instead of max() */
-    padding-block: max(2rem, env(safe-area-inset-top))
+    /* The bar and the bleed grow with the insets, so add them, not max() */
+    padding-block: calc(2rem + env(safe-area-inset-top))
       calc(8rem + env(safe-area-inset-bottom));
   }
 
