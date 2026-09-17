@@ -29,7 +29,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
   - [`browser.ts`](./main/browser.ts): connect core stores to global browser settings like `document.title`.
   - [`extension.ts`](./main/extension.ts): make network request through the browser extension.
 - [`benchmark/`](./benchmark/): UI performance benchmark, which is loaded only by `?benchmark` in URL. See [benchmark guide](../docs/benchmark.md).
-- [`copy-demo-db/`](./copy-demo-db/): the page which copies the files of the [demo](#demo-mode) database.
+- [`demo/`](./demo/): the page which copies the files of the [demo](#demo-mode) database and the script to build it.
 - [`pages/`](./pages/): Svelte components for pages.
 - [`ui/`](./ui/): shared components between different pages. Some people call it “UI kit”.
 - [`public/`](./public/): static files like favicon and manifests.

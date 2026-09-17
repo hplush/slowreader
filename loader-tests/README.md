@@ -8,7 +8,7 @@ This project allows testing of different types of web feed aggregators on the In
 
 Test that Slow Reader can work with all feeds from your RSS reader by using OPML feeds export.
 
-1. Check out [`demo-feeds.opml`](../web/scripts/demo-feeds.opml) for the structure of `.opml` file.
+1. Check out [`demo-feeds.opml`](../web/demo/demo-feeds.opml) for the structure of `.opml` file.
 2. Once in the root you can run:
 
    ```sh

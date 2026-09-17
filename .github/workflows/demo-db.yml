@@ -4,14 +4,14 @@ on:
     branches:
       - main
     paths:
-      - 'web/scripts/build-demo-db.ts'
-      - 'web/scripts/demo-feeds.opml'
+      - 'web/demo/build-demo-db.ts'
+      - 'web/demo/demo-feeds.opml'
       - '.github/workflows/demo-db.yml'
       - '.github/actions/init-node/action.yml'
   pull_request:
     paths:
-      - 'web/scripts/build-demo-db.ts'
-      - 'web/scripts/demo-feeds.opml'
+      - 'web/demo/build-demo-db.ts'
+      - 'web/demo/demo-feeds.opml'
       - '.github/workflows/demo-db.yml'
       - '.github/actions/init-node/action.yml'
   schedule:

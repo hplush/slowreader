@@ -136,8 +136,22 @@ export default defineConfig(() => ({
     sqlocal({ coi: false }),
     {
       configurePreviewServer: noDemoCache,
-      configureServer: noDemoCache,
-      name: 'demo-no-cache'
+      configureServer(server) {
+        noDemoCache(server)
+        server.middlewares.use((req, res, next) => {
+          if (req.url?.startsWith('/copy-demo-db')) {
+            req.url = req.url.replace('/copy-demo-db', '/demo/index.html')
+          }
+          next()
+        })
+      },
+      generateBundle: {
+        handler(options, bundle) {
+          bundle['demo/index.html']!.fileName = 'copy-demo-db/index.html'
+        },
+        order: 'post'
+      },
+      name: 'demo'
     },
     {
       configurePreviewServer(server) {
