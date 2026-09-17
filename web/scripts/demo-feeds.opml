@@ -11,9 +11,10 @@
       <outline text="Existential Comics" type="rss" xmlUrl="https://existentialcomics.com/rss.xml" />
       <outline text="Questionable Content" type="rss" xmlUrl="https://www.questionablecontent.net/QCRSS.xml" />
     </outline>
-    <outline text="Photo">
+    <outline text="Art">
       <outline text="NASA Image of the Day" type="rss" xmlUrl="https://www.nasa.gov/feeds/iotd-feed/" />
       <outline text="Colossal" type="rss" xmlUrl="https://www.thisiscolossal.com/feed/" />
+      <outline text="Dense Discovery" type="rss" xmlUrl="https://densediscovery.com/feed" />
     </outline>
     <outline text="Short Facts">
       <outline text="Merriam-Webster Word of the Day" type="rss" xmlUrl="https://www.merriam-webster.com/wotd/feed/rss2" />
