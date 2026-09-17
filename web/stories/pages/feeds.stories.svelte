@@ -285,6 +285,18 @@
 </Story>
 
 <Story
+  name="Mobile Empty"
+  asChild
+  globals={{ viewport: { value: 'mobile2' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene feeds={[{}]} route="fast">
+    <FeedsPage page={pages.fast()} />
+    <Navbar />
+  </Scene>
+</Story>
+
+<Story
   name="Mobile Feed"
   asChild
   globals={{ viewport: { value: 'mobile2' } }}

@@ -47,6 +47,10 @@
       &.is-padding {
         margin-top: 10vh;
       }
+
+      @media (--mobile) {
+        margin-inline: auto;
+      }
     }
 
     .page-icon_position {
