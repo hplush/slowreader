@@ -4,7 +4,6 @@
 :root {
   --text-family: 'Noto Sans Variable', 'Arial', sans-serif;
   --title-family: 'Inika', 'Georgia', serif;
-  --land-color: oklch(0.25 0.03 70);
   --text-color: oklch(0.9 0 0);
   --accent-color: oklch(0.58 0.23 260);
   --text-on-accent-color: oklch(1 0 0);
@@ -52,8 +51,15 @@ body {
   timeline-scope: --hero-buttons;
   font: 400 1rem/1.6 var(--text-family);
   color: var(--text-color);
-  background: var(--land-color);
+
+  /* iOS paints it above the viewport, where the photo’s top line continues */
+  background: --top-color('../images/main/main.avif');
   -webkit-tap-highlight-color: oklch(0 0 0 / 0%);
+
+  /* Keep the ratio in sync with `<source media>` in root.html */
+  @media (aspect-ratio <= 3/4) {
+    background: --top-color('../generated/main-portrait.avif');
+  }
 }
 
 .header {
@@ -305,8 +311,7 @@ body {
 }
 
 .section {
-  /* Not svh: the section must still fill the screen with hidden browser UI */
-  min-block-size: 100lvh;
+  min-block-size: 100svh;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   background: oklch(0 0 0);
@@ -334,6 +339,16 @@ body {
     /* The bar grows with the inset too, so add it instead of max() */
     padding-block: max(2rem, env(safe-area-inset-top))
       calc(8rem + env(safe-area-inset-bottom));
+
+    /* iOS shows this strip above the viewport, so it must match next section */
+    &::after {
+      position: absolute;
+      inset-block-end: 0;
+      inset-inline: 0;
+      block-size: 8rem;
+      content: '';
+      background: linear-gradient(oklch(0 0 0 / 0%), oklch(0 0 0) 50%);
+    }
   }
 
   @media (width <= 40rem), (aspect-ratio <= 1) {
