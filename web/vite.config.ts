@@ -101,7 +101,7 @@ export default defineConfig(() => ({
     rolldownOptions: {
       input: {
         'app': join(import.meta.dirname, 'app.html'),
-        'copy-demo-db': join(import.meta.dirname, 'copy-demo-db/index.html')
+        'copy-demo-db': join(import.meta.dirname, 'demo/index.html')
       }
     },
     sourcemap: true
