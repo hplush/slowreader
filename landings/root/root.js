@@ -8,12 +8,6 @@ document.documentElement.className = guest ? 'is-guest' : 'is-user'
 let header = document.querySelector('.header')
 let hero = document.querySelector('.section.is-hero')
 
-// Safari reads the tag once, so only the color of the first screen can be here
-let theme = document.createElement('meta')
-theme.name = 'theme-color'
-theme.content = getComputedStyle(hero).backgroundColor
-document.head.append(theme)
-
 // The header buttons start at the hero placeholders and follow the scroll
 function fly() {
   for (let name of ['is-app', 'is-demo']) {
@@ -61,3 +55,38 @@ let visibility = new IntersectionObserver(
   }
 )
 visibility.observe(hero.querySelector('.section_actions'))
+
+let canvas = document.createElement('canvas').getContext('2d', {
+  willReadFrequently: true
+})
+
+// Safari’s `theme-color` ignores OKLCH, and only a painted pixel is sRGB
+function legacyColor(color) {
+  canvas.fillStyle = color
+  canvas.fillRect(0, 0, 1, 1)
+  let [red, green, blue] = canvas.getImageData(0, 0, 1, 1).data
+  return `rgb(${red}, ${green}, ${blue})`
+}
+
+// Safari reads the tag once, so give it a new tag instead of a new color
+function showTheme(section) {
+  for (let old of document.querySelectorAll('meta[name="theme-color"]')) {
+    old.remove()
+  }
+  let meta = document.createElement('meta')
+  meta.name = 'theme-color'
+  meta.content = legacyColor(getComputedStyle(section).backgroundColor)
+  document.head.append(meta)
+}
+
+let themes = new IntersectionObserver(
+  entries => {
+    for (let entry of entries) {
+      if (entry.isIntersecting) showTheme(entry.target)
+    }
+  },
+  { threshold: 0.5 }
+)
+for (let section of document.querySelectorAll('.section')) {
+  themes.observe(section)
+}
