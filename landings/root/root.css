@@ -72,9 +72,12 @@ main {
   inset-inline: 0;
   padding: 0.5rem 1rem;
 
-  /* JS puts the color of the current section here, so the bar blends into it */
-  background: var(--section-color, oklch(0.3 0.03 70));
+  /* Frost over the section color, which JS puts into `--section-color` */
+  background: oklch(
+    from var(--section-color, oklch(0.25 0.03 70)) calc(l + 0.05) c h / 65%
+  );
   box-shadow: var(--header-shadow);
+  backdrop-filter: blur(1rem) saturate(180%);
   transition: background 200ms;
 
   @media (--desktop) {
@@ -142,7 +145,7 @@ main {
 }
 
 .button {
-  display: none;
+  display: grid;
   gap: 0.4rem;
   align-items: center;
   justify-content: center;
@@ -164,10 +167,10 @@ main {
     font-size: 1.125rem;
   }
 
-  .is-user &.is-app,
-  .is-guest &.is-demo,
-  .is-guest &.is-login {
-    display: grid;
+  :root.is-user &.is-demo,
+  :root.is-user &.is-login,
+  :root.is-guest &.is-app {
+    display: none;
   }
 
   .header_dock & {
@@ -216,7 +219,7 @@ main {
 
   &.is-login {
     color: var(--text-color);
-    background: oklch(1 0 0 / 20%);
+    background: oklch(1 0 0 / 10%);
     box-shadow: inset 0 0 0 0.5px oklch(1 0 0 / 65%);
 
     &:hover,
