@@ -30,8 +30,28 @@
     --focus-color: oklch(0.68 0.2 240);
     --accent-color: oklch(0.54 0.27 260);
   }
+}
 
-  @media (prefers-color-scheme: light) {
+.is-non-comfort-mode {
+  --flat-button-c: 0;
+  --flat-button-hover-c: 0;
+  --gutter-c: 0;
+  --colorize-c: 0.03;
+}
+
+.is-comfort-mode {
+  --flat-button-c: 0.015;
+  --flat-button-hover-c: 0.005;
+  --gutter-c: 0.02;
+  --colorize-c: 0;
+}
+
+.is-error-mode {
+  --accent-color: oklch(0.58 0.21 20);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
     --selection-color: oklch(0.93 0.16 102);
     --text-color: var(--dark-text-color);
     --dangerous-text-color: oklch(0.5 0.16 20);
@@ -80,7 +100,37 @@
       --soft-shadow(0 1px 3px oklch(0 0 0 / 20%));
   }
 
-  @media (prefers-color-scheme: dark) {
+  .is-non-comfort-mode {
+    --land-color: oklch(0.95 0 70);
+    --main-land-color: oklch(0.975 0 70);
+    --secondary-text-color: oklch(0.6 0 70);
+    --field-c: 0;
+    --current-c: 0;
+    --opened-feed-c: 0;
+    --placeholder-c: 0;
+  }
+
+  .is-comfort-mode {
+    /* Don’t forget to change index.html and public/manifest.webmanifest */
+    --land-color: oklch(0.95 0.03 70);
+    --main-land-color: oklch(0.975 0.015 70);
+    --secondary-text-color: oklch(0.6 0.05 70);
+    --field-c: -0.015;
+    --current-c: -0.015;
+    --opened-feed-c: -0.03;
+    --placeholder-c: 0.04;
+  }
+
+  /* Don’t forget to change public/404.html and public/500.html */
+  .is-error-mode {
+    --land-color: oklch(0.95 0.03 20);
+    --main-land-color: oklch(0.975 0.015 20);
+    --secondary-text-color: oklch(0.6 0.05 20);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
     --selection-color: oklch(0.5 0.1 102);
     --text-color: var(--light-text-color);
     --dangerous-text-color: oklch(0.7 0.16 20);
@@ -131,25 +181,8 @@
       inset 0 1px 0 oklch(1 0 0 / 25%), inset 0 0 0 0.5px oklch(0 0 0 / 50%),
       --soft-shadow(0 1px 3px oklch(0 0 0 / 40%));
   }
-}
 
-.is-non-comfort-mode {
-  --flat-button-c: 0;
-  --flat-button-hover-c: 0;
-  --gutter-c: 0;
-  --colorize-c: 0.03;
-
-  @media (prefers-color-scheme: light) {
-    --land-color: oklch(0.95 0 70);
-    --main-land-color: oklch(0.975 0 70);
-    --secondary-text-color: oklch(0.6 0 70);
-    --field-c: 0;
-    --current-c: 0;
-    --opened-feed-c: 0;
-    --placeholder-c: 0;
-  }
-
-  @media (prefers-color-scheme: dark) {
+  .is-non-comfort-mode {
     --land-color: oklch(0.25 0 70);
     --main-land-color: oklch(0.3 0 70);
     --secondary-text-color: oklch(0.7 0 70);
@@ -157,26 +190,8 @@
     --opened-feed-c: 0;
     --placeholder-c: 0;
   }
-}
 
-.is-comfort-mode {
-  --flat-button-c: 0.015;
-  --flat-button-hover-c: 0.005;
-  --gutter-c: 0.02;
-  --colorize-c: 0;
-
-  @media (prefers-color-scheme: light) {
-    /* Don’t forget to change index.html and public/manifest.webmanifest */
-    --land-color: oklch(0.95 0.03 70);
-    --main-land-color: oklch(0.975 0.015 70);
-    --secondary-text-color: oklch(0.6 0.05 70);
-    --field-c: -0.015;
-    --current-c: -0.015;
-    --opened-feed-c: -0.03;
-    --placeholder-c: 0.04;
-  }
-
-  @media (prefers-color-scheme: dark) {
+  .is-comfort-mode {
     --land-color: oklch(0.25 0.03 70);
     --main-land-color: oklch(0.3 0.03 70);
     --secondary-text-color: oklch(0.7 0.05 70);
@@ -184,19 +199,9 @@
     --opened-feed-c: 0.02;
     --placeholder-c: 0.03;
   }
-}
 
-/* Don’t forget to change public/404.html and public/500.html */
-.is-error-mode {
-  --accent-color: oklch(0.58 0.21 20);
-
-  @media (prefers-color-scheme: light) {
-    --land-color: oklch(0.95 0.03 20);
-    --main-land-color: oklch(0.975 0.015 20);
-    --secondary-text-color: oklch(0.6 0.05 20);
-  }
-
-  @media (prefers-color-scheme: dark) {
+  /* Don’t forget to change public/404.html and public/500.html */
+  .is-error-mode {
     --land-color: oklch(0.25 0.03 20);
     --main-land-color: oklch(0.3 0.03 20);
     --secondary-text-color: oklch(0.7 0.05 20);

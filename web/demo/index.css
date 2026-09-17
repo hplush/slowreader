@@ -86,8 +86,8 @@ body {
   display: none;
 }
 
-.loader {
-  @media (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {
+  .loader {
     background: repeating-linear-gradient(
       -45deg,
       var(--loader-bar),
@@ -96,23 +96,17 @@ body {
       var(--loader-background) 1.25rem
     );
   }
-}
 
-.loader::after {
-  @media (prefers-reduced-motion: reduce) {
+  .loader::after {
     display: none;
   }
-}
 
-.loader::-webkit-progress-value {
-  @media (prefers-reduced-motion: reduce) {
+  .loader::-webkit-progress-value {
     background: transparent;
     animation: none !important;
   }
-}
 
-.loader::-moz-progress-bar {
-  @media (prefers-reduced-motion: reduce) {
+  .loader::-moz-progress-bar {
     background: transparent;
     animation: none !important;
   }
