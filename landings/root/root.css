@@ -398,11 +398,21 @@ main {
   }
 }
 
+.section_kicker,
 .section_title {
   margin: 0;
-  font: 400 clamp(1.75rem, 3.5vw, 2.75rem) / 1.25 var(--title-family);
   text-shadow:
     0 1px 0.25rem oklch(0 0 0 / 85%),
     0 1px 1.25rem oklch(0 0 0 / 95%);
   text-wrap: balance;
+}
+
+.section_kicker {
+  margin-block-end: 0.75rem;
+  font: 500 clamp(1rem, 1.6vw, 1.25rem) / 1.4 var(--text-family);
+  opacity: 85%;
+}
+
+.section_title {
+  font: 400 clamp(1.625rem, 3.2vw, 2.5rem) / 1.25 var(--title-family);
 }
