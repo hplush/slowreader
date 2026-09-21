@@ -18,7 +18,7 @@ permissions:
   contents: read
 jobs:
   test:
-    name: Check Staging
+    name: Check
     runs-on: ubuntu-latest
     env:
       CURL_VERSION: 8.22.0
