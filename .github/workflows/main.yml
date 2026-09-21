@@ -44,7 +44,7 @@ jobs:
       - name: Build landings
         run: pnpm -F landings build
       - name: Run tests
-        run: pnpm run --parallel -F '*' -F '!proxy' -F '!server' -F '!loader-tests' '/^test:/'
+        run: pnpm run --aggregate-output --parallel -F '*' -F '!proxy' -F '!server' -F '!loader-tests' '/^test:/'
         env:
           FORCE_COLOR: 1
           STAGING: 1
