@@ -14,12 +14,11 @@ interface Insights {
 
 interface Audit {
   score: null | number
-  scoreDisplayMode: string
   title: string
 }
 
 interface Category {
-  auditRefs: { id: string }[]
+  auditRefs: { group?: string; id: string }[]
   score: number
   title: string
 }
@@ -81,10 +80,13 @@ export async function checkLighthouse(
         // Hidden sites always lose SEO points on asking to not index them
         if (id === 'seo' && site.hidden) continue
         let score = Math.round(category.score * 100)
-        // Diagnostics have no weight in the score, but we still want them green
+        // Diagnostics have no weight in the score, but we still want them
+        // green. Metrics are the score itself, so they would repeat it.
         let broken = category.auditRefs.flatMap(ref => {
           let audit = insights.lighthouseResult.audits[ref.id]
-          if (audit?.score === 0 && audit.scoreDisplayMode === 'binary') {
+          if (ref.group === 'metrics' || ref.group === 'hidden') {
+            return []
+          } else if (audit && audit.score !== null && audit.score < 1) {
             return `  ${audit.title}\n`
           } else {
             return []
