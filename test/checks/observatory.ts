@@ -1,7 +1,7 @@
 // Check HTTP security headers by MDN HTTP Observatory.
 // It scans only host’s root, other paths are checked by other tests.
 
-import { fail, pass } from './utils.ts'
+import { fail, grade, link, pass } from './utils.ts'
 
 interface Scan {
   details_url: string
@@ -23,13 +23,11 @@ export async function checkObservatory(hosts: string[]): Promise<boolean> {
     } else if (scan.grade !== 'A+' || scan.tests_failed > 0) {
       results.push(
         fail(
-          `Observatory grade of ${host} is ${scan.grade}\n  ${scan.details_url}`
+          `Observatory grade of ${host} is ${grade(scan.grade)}\n  ${link(scan.details_url)}`
         )
       )
     } else {
-      results.push(
-        pass(`Observatory grade of ${host} is A+\n  ${scan.details_url}`)
-      )
+      results.push(pass(`Observatory grade of ${host} is ${grade('A+')}`))
     }
   }
   return results.every(Boolean)

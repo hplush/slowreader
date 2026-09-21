@@ -23,6 +23,18 @@ export function fail(message: string): boolean {
   return false
 }
 
+export function grade(value: null | number | string): string {
+  return styleText('bold', String(value))
+}
+
+export function link(url: string): string {
+  return styleText('gray', url)
+}
+
+export function short(url: string): string {
+  return url.replace('https://', '').replace(/\/$/, '')
+}
+
 export async function resolve(
   doh: string,
   name: string,

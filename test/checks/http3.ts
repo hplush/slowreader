@@ -3,7 +3,7 @@
 
 import { execFileSync } from 'node:child_process'
 
-import { fail, pass, resolve } from './utils.ts'
+import { fail, pass, resolve, short } from './utils.ts'
 
 function getVersion(url: string): string {
   // Socket Firewall sends pnpm scripts through TCP proxy, HTTP/3 needs UDP
@@ -58,9 +58,9 @@ export async function checkHttp3(
   }
   for (let url of pages) {
     if (getVersion(url) === '3') {
-      results.push(pass(`${url} answers by HTTP/3`))
+      results.push(pass(`${short(url)} answers by HTTP/3`))
     } else {
-      results.push(fail(`${url} has no HTTP/3`))
+      results.push(fail(`${short(url)} has no HTTP/3`))
     }
   }
   return results.every(Boolean)

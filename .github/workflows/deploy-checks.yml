@@ -45,3 +45,5 @@ jobs:
           sudo tar -xf /tmp/curl.tar.xz -C /usr/local/bin curl
       - name: Check staging deploy
         run: pnpm -F test checks
+        env:
+          PAGESPEED_KEY: ${{ secrets.PAGESPEED_KEY }}

@@ -3,6 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "checks": "node ./checks/index.ts"
+    "checks": "node --env-file-if-exists=.env ./checks/index.ts"
   }
 }
