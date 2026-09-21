@@ -12,7 +12,6 @@ pnpm -F test checks
 
 - DNS best practices like DNSSEC by NsLookup.io health audit.
 - HTTPS DNS record and real HTTP/3 connection.
-- TLS 1.3 0-RTT to save a round trip for returning readers.
 - HTTP security headers by MDN HTTP Observatory.
 - Performance, best practices, and indexing by Google Lighthouse.
 - Compression better than gzip.

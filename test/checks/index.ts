@@ -10,7 +10,6 @@ import { checkHttp3 } from './http3.ts'
 import { checkLighthouse } from './lighthouse.ts'
 import { checkObservatory } from './observatory.ts'
 import type { Site } from './utils.ts'
-import { checkZeroRtt } from './zero-rtt.ts'
 
 let sites = JSON.parse(
   readFileSync(join(import.meta.dirname, '..', 'sites.json'), 'utf8')
@@ -25,7 +24,6 @@ let results = [
   await checkObservatory(hosts),
   await checkLighthouse(sites),
   await checkHttp3(hosts, pages),
-  checkZeroRtt(pages),
   await checkDnsHealth(hosts),
   await checkCompression(pages)
 ]
