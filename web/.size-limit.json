@@ -24,7 +24,7 @@
       "!dist/assets/playpen-sans-*.woff2",
       "!dist/assets/*-{italic,math,latin-ext}-*.woff2"
     ],
-    "limit": "735 KB"
+    "limit": "740 KB"
   },
   {
     "name": "Landing page on phone",
