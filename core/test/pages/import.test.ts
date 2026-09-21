@@ -159,7 +159,16 @@ describe('import page', () => {
     ])
     deepEqual(withoutMeta(await loadFilters()), [FILTER])
     deepEqual(withoutMeta(await loadPosts()), [
-      { ...POST, full: null, intro: null, media: null, read: 0, url: null }
+      {
+        ...POST,
+        full: null,
+        intro: null,
+        language: null,
+        media: null,
+        read: 0,
+        url: null,
+        warning: null
+      }
     ])
   })
 

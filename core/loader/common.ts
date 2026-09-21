@@ -178,6 +178,7 @@ export function findMediaInText(
   let images = parsed.querySelectorAll('img[src]')
   return [...images].map(img => {
     return {
+      alt: img.getAttribute('alt') || undefined,
       fromText: true,
       type: 'image',
       url: img.getAttribute('src')!

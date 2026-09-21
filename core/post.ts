@@ -23,11 +23,13 @@ export type { NewPost, PostValue }
 export type ParsedPost = {
   full?: string
   intro?: string
+  language?: string
   media?: string
   originId: string
   publishedAt?: number
   title?: string
   url?: string
+  warning?: string
 }
 
 export type OriginPost = { id: string } & ParsedPost
@@ -80,9 +82,16 @@ const INTRO_MIN = 300
 const INTRO_MAX = 500
 
 export type PostMedia = {
+  alt?: string
   fromText?: boolean
+  height?: number
+  likelyHeight?: number
+  likelyWidth?: number
+  preview?: string
+  sensitive?: boolean
   type: string
   url: string
+  width?: number
 }
 
 export function addPost(posts: NewPost[]): Promise<string[]>
@@ -299,6 +308,7 @@ export function testPost(
     full: null,
     id: `post-${testPostId}`,
     intro: `Post ${testPostId}`,
+    language: null,
     media: null,
     originId: `test-${testPostId}`,
     publishedAt: 1000,
@@ -306,6 +316,7 @@ export function testPost(
     reading: 'fast',
     title: null,
     url: `http://example.com/${testPostId}`,
+    warning: null,
     ...post
   })
 }

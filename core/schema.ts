@@ -91,10 +91,12 @@ let filtersSchema = {
   query: string()
 }
 
+// TODO: `author`, `repostedBy` and `replyTo` for Mastodon and Bluesky posts
 let postsSchema = {
   feedId: string(),
   full: optional(string()),
   intro: optional(string()),
+  language: optional(string()),
   media: optional(string()),
   originId: string(),
   publishedAt: bigint(),
@@ -102,7 +104,8 @@ let postsSchema = {
   read: number({ default: 0 }),
   reading: oneOf(READINGS, { default: 'slow' }),
   title: optional(string()),
-  url: optional(string())
+  url: optional(string()),
+  warning: optional(string())
 }
 
 export type CategoryValue = CrdtTableRow<typeof categoriesSchema>
