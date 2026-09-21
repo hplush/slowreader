@@ -1,0 +1,8 @@
+{
+  "name": "@slowreader/test",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "checks": "node ./checks/index.ts"
+  }
+}

@@ -465,6 +465,8 @@ importers:
         specifier: 1.0.0-rc.4
         version: 1.0.0-rc.4
 
+  test: {}
+
   web:
     dependencies:
       '@fontsource-variable/noto-sans':
@@ -6141,13 +6143,17 @@ snapshots:
     dependencies:
       '@logux/core': 0.10.0
 
+  '@logux/actions@git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)':
+    dependencies:
+      '@logux/core': git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
+
   '@logux/actions@git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)':
     dependencies:
       '@logux/core': git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
 
   '@logux/client@git+https://github.com/logux/client.git#fbbe0b6d61ad1a3629f672cd25fc62c70e82ed0e(@nanostores/sql@0.6.0)(nanostores@1.5.3)(react@19.3.0)':
     dependencies:
-      '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
+      '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
       '@logux/core': git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
       nanoevents: 10.0.0
       nanoid: 6.0.1
@@ -6208,7 +6214,7 @@ snapshots:
 
   '@logux/server@git+https://github.com/logux/server.git#a73951490dc59e71573f2f2e4c430c0fc128ce23':
     dependencies:
-      '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
+      '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
       '@logux/core': git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
       cookie: 2.0.1
       nanoevents: 10.0.0

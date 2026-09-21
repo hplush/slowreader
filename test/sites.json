@@ -1,0 +1,6 @@
+{
+  "dev.slowreader.app": {
+    "hidden": true,
+    "paths": ["/", "/app"]
+  }
+}

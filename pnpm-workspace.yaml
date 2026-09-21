@@ -2,6 +2,7 @@ packages:
   - api
   - core
   - server
+  - test
   - web
   - landings
   - proxy

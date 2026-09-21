@@ -28,6 +28,7 @@
     { "path": "./proxy" },
     { "path": "./scripts" },
     { "path": "./server" },
+    { "path": "./test" },
     { "path": "./web" }
   ]
 }

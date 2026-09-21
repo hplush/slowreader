@@ -1,0 +1,47 @@
+name: Deploy Checks
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'test/**'
+      - '.github/workflows/deploy-checks.yml'
+      - '.github/actions/init-node/action.yml'
+  pull_request:
+    paths:
+      - 'test/**'
+      - '.github/workflows/deploy-checks.yml'
+      - '.github/actions/init-node/action.yml'
+  schedule:
+    - cron: '00 09 * * 1' # Runs at 11:00 in Spain every Monday (10:00 in winter)
+permissions:
+  contents: read
+jobs:
+  test:
+    name: Check Staging
+    runs-on: ubuntu-latest
+    env:
+      CURL_VERSION: 8.22.0
+      CURL_CHECKSUM: dfb02460ba2abe513087538f12a3cf79b74b64a5ea3787ce8ac0cdb11251f884
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit # Block mode drops UDP, which HTTP/3 test needs
+      - name: Checkout the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Initialize Node.js
+        uses: $/.github/actions/init-node
+        with:
+          install: false
+      # Ubuntu ships curl without HTTP/3 support
+      - name: Install curl with HTTP/3
+        run: |
+          curl "https://github.com/stunnel/static-curl/releases/download/${CURL_VERSION}/curl-linux-x86_64-musl-${CURL_VERSION}.tar.xz" \
+            --fail --show-error --location --silent --output /tmp/curl.tar.xz
+          echo "$CURL_CHECKSUM /tmp/curl.tar.xz" | sha256sum -c
+          sudo tar -xf /tmp/curl.tar.xz -C /usr/local/bin curl
+      - name: Check staging deploy
+        run: pnpm -F test checks
