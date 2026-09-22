@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 
 import { allFeatures } from '../web/vite/lightningcss.ts'
 import { images } from './vite/images.ts'
+import { inlineCss } from './vite/inline-css.ts'
 
 export default defineConfig({
   build: {
@@ -35,6 +36,7 @@ export default defineConfig({
   },
   plugins: [
     images(),
+    inlineCss(),
     {
       enforce: 'post',
       // nginx and the server serve every page’s dir by index.html
