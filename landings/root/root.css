@@ -1,29 +1,14 @@
 @font-face {
-  font-family: 'Noto Sans Variable';
+  font-family: 'Catamaran Variable';
   font-style: normal;
   font-weight: 100 900;
-  src: url('@fontsource-variable/noto-sans/files/noto-sans-latin-wght-normal.woff2')
+  src: url('@fontsource-variable/catamaran/files/catamaran-latin-wght-normal.woff2')
     format('woff2-variations');
   font-display: swap;
 }
 
-@font-face {
-  font-family: Inika;
-  font-style: normal;
-  font-weight: 400;
-  src: url('@fontsource/inika/files/inika-latin-400-normal.woff2')
-    format('woff2');
-  font-display: swap;
-}
-
 :root {
-  --text-family: 'Noto Sans Variable', 'Arial', sans-serif;
-  --title-family: 'Inika', 'Georgia', serif;
-  --text-color: oklch(0.9 0 0);
-  --accent-color: oklch(0.54 0.21 260);
-  --text-on-accent-color: oklch(1 0 0);
-  --focus-color: oklch(0.72 0.15 240);
-  --base-radius: 0.375rem;
+  /* The shadow mixins are only valid inside a custom property */
   --header-shadow:
     inset 0 -0.5px 0 oklch(1 0 0 / 10%), inset 0 0.5px 0 oklch(1 0 0 / 10%),
     --linear-shadow(0 0 0.7rem oklch(0 0 0 / 30%));
@@ -33,21 +18,8 @@
   --button-shadow:
     inset 0 1px 0 oklch(1 0 0 / 30%), inset 0 -0.5px 0 oklch(0 0 0 / 90%),
     --linear-shadow(0 0.2rem 0.2rem oklch(0 0 0 / 25%));
-  --pressed-shadow:
-    inset 0 1px 2px oklch(0 0 0), inset 0 -0.5px 0 oklch(1 0 0 / 40%);
 
   color-scheme: dark;
-
-  @media (color-gamut: p3) {
-    --accent-color: oklch(0.54 0.27 260);
-    --focus-color: oklch(0.68 0.2 240);
-  }
-}
-
-@supports (corner-shape: squircle) {
-  :root {
-    --base-radius: 0.65rem;
-  }
 }
 
 * {
@@ -63,8 +35,11 @@ html {
 body {
   margin: 0;
   timeline-scope: --hero-buttons;
-  font: 400 1rem/1.6 var(--text-family);
-  color: var(--text-color);
+  font:
+    400 1rem/1.6 'Catamaran Variable',
+    Arial,
+    sans-serif;
+  color: oklch(0.9 0 0);
 
   /* iOS paints it above the viewport, where the photo’s top line continues */
   background: --top-color('../images/main/main.avif');
@@ -151,7 +126,10 @@ main {
 .header_name {
   margin-block: 0;
   margin-inline: 0 auto;
-  font: 400 1.125rem/1 var(--title-family);
+  font:
+    700 1.125rem/1 'Catamaran Variable',
+    Arial,
+    sans-serif;
   color: oklch(1 0 0);
 
   @media (--no-desktop) {
@@ -166,14 +144,25 @@ main {
   justify-content: center;
   min-block-size: 2rem;
   padding: 0.4rem 0.75rem;
-  font: 500 0.9375rem/1.2 var(--text-family);
-  color: var(--text-on-accent-color);
+  font:
+    700 0.9375rem/1.2 'Catamaran Variable',
+    Arial,
+    sans-serif;
+  color: oklch(1 0 0);
   text-decoration: none;
   white-space: nowrap;
   user-select: none;
-  background: var(--accent-color);
-  border-radius: var(--base-radius);
+  background: oklch(0.54 0.21 260);
+  border-radius: 0.375rem;
   box-shadow: var(--button-shadow);
+
+  @media (color-gamut: p3) {
+    background: oklch(0.54 0.27 260);
+  }
+
+  @supports (corner-shape: squircle) {
+    border-radius: 0.65rem;
+  }
 
   @media (--no-desktop) {
     gap: 0.48rem;
@@ -229,11 +218,14 @@ main {
 
   &:hover,
   &:focus-visible {
-    background: oklch(from var(--accent-color) calc(l + 0.03) c h);
+    background: oklch(0.57 0.21 260);
+
+    @media (color-gamut: p3) {
+      background: oklch(0.57 0.25 260);
+    }
   }
 
   &.is-login {
-    color: var(--text-color);
     background: oklch(1 0 0 / 10%);
     box-shadow: inset 0 0 0 0.5px oklch(1 0 0 / 65%);
 
@@ -244,13 +236,19 @@ main {
   }
 
   &:focus-visible {
-    outline: 3px solid var(--focus-color);
+    outline: 3px solid oklch(0.72 0.15 240);
     outline-offset: 2px;
+
+    @media (color-gamut: p3) {
+      outline-color: oklch(0.68 0.2 240);
+    }
   }
 
   &:active {
     translate: 0 1px;
-    box-shadow: var(--pressed-shadow);
+    box-shadow:
+      inset 0 1px 2px oklch(0 0 0),
+      inset 0 -0.5px 0 oklch(1 0 0 / 40%);
   }
 }
 
@@ -361,7 +359,7 @@ main {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   padding: 7rem 2rem 4rem;
   padding-inline: max(2rem, env(safe-area-inset-left))
     max(2rem, env(safe-area-inset-right));
@@ -399,7 +397,14 @@ main {
 .section_content {
   position: relative;
   z-index: 1;
-  max-inline-size: 48rem;
+  max-inline-size: 26rem;
+
+  /* Keep the text on the dark strip between the fireplace and the window.
+     `cover` crops the sides, so the strip drifts right as the screen gets
+     narrower. Centering splits the margin, so the shift is doubled here. */
+  @media (width > 40rem) and (aspect-ratio > 1) {
+    margin-inline-start: max(0rem, calc(1.42 * 100svh - 0.8 * 100vw));
+  }
 }
 
 .section_actions {
@@ -413,21 +418,31 @@ main {
   }
 }
 
-.section_kicker,
+.section_subtitle,
 .section_title {
   margin: 0;
   text-shadow:
-    0 1px 0.25rem oklch(0 0 0 / 85%),
-    0 1px 1.25rem oklch(0 0 0 / 95%);
+    0 1px 0.25rem oklch(0 0 0 / 90%),
+    0 1px 1.5rem oklch(0 0 0 / 95%);
+  letter-spacing: 0.04rem;
   text-wrap: balance;
-}
 
-.section_kicker {
-  margin-block-end: 0.75rem;
-  font: 500 clamp(1rem, 1.6vw, 1.25rem) / 1.4 var(--text-family);
-  opacity: 85%;
+  /* Outline the glyphs, so the photo never shows through a thin stroke */
+  paint-order: stroke fill;
+  -webkit-text-stroke: 0.08rem oklch(0 0 0 / 55%);
 }
 
 .section_title {
-  font: 400 clamp(1.625rem, 3.2vw, 2.5rem) / 1.25 var(--title-family);
+  margin-block-end: 0.75rem;
+  font:
+    700 clamp(1.875rem, 3.1vw, 2.3rem) / 1.2 'Catamaran Variable',
+    Arial,
+    sans-serif;
+}
+
+.section_subtitle {
+  font:
+    500 clamp(1.25rem, 2vw, 1.5rem) / 1.4 'Catamaran Variable',
+    Arial,
+    sans-serif;
 }

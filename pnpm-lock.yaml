@@ -289,7 +289,7 @@ importers:
     dependencies:
       '@logux/actions':
         specifier: github:logux/actions#next
-        version: git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
+        version: git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
     devDependencies:
       '@logux/core':
         specifier: github:logux/core#next
@@ -299,7 +299,7 @@ importers:
     dependencies:
       '@logux/actions':
         specifier: github:logux/actions#next
-        version: git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
+        version: git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
       '@logux/client':
         specifier: github:logux/client#next
         version: git+https://github.com/logux/client.git#fbbe0b6d61ad1a3629f672cd25fc62c70e82ed0e(@nanostores/sql@0.6.0)(nanostores@1.5.3)(react@19.3.0)
@@ -373,10 +373,7 @@ importers:
 
   landings:
     dependencies:
-      '@fontsource-variable/noto-sans':
-        specifier: 5.3.0
-        version: 5.3.0
-      '@fontsource/inika':
+      '@fontsource-variable/catamaran':
         specifier: 5.3.0
         version: 5.3.0
       postcss:
@@ -423,7 +420,7 @@ importers:
         version: 0.5.8
       '@logux/actions':
         specifier: github:logux/actions#next
-        version: git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
+        version: git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
       '@logux/core':
         specifier: github:logux/core#next
         version: git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
@@ -1089,6 +1086,9 @@ packages:
     peerDependenciesMeta:
       '@noble/hashes':
         optional: true
+
+  '@fontsource-variable/catamaran@5.3.0':
+    resolution: {integrity: sha512-MG6ByMbZm7AseTUQh/8M3yBMMR5KIY9wC9J3XzHLKlHgAQVHfMkcCS8ZEQEyI38e5RZiEVhu8E5MMYL6ASCPWw==}
 
   '@fontsource-variable/noto-sans-mono@5.3.0':
     resolution: {integrity: sha512-EgozyWG4nG2U1OT+zfdyHP1L8O0fUFMUBOilVF9urTshqIdfeGV9/FUQxaNHdPvHtV1cQCs1Ql0W1q93SiPK2w==}
@@ -5965,6 +5965,8 @@ snapshots:
 
   '@exodus/bytes@1.15.1': {}
 
+  '@fontsource-variable/catamaran@5.3.0': {}
+
   '@fontsource-variable/noto-sans-mono@5.3.0': {}
 
   '@fontsource-variable/noto-sans@5.3.0': {}
@@ -6144,10 +6146,6 @@ snapshots:
       '@logux/core': 0.10.0
 
   '@logux/actions@git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)':
-    dependencies:
-      '@logux/core': git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
-
-  '@logux/actions@git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)':
     dependencies:
       '@logux/core': git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
 

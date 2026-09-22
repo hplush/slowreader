@@ -11,8 +11,7 @@
     "test": "FORCE_COLOR=1 pnpm run /^test:/"
   },
   "dependencies": {
-    "@fontsource-variable/noto-sans": "5.3.0",
-    "@fontsource/inika": "5.3.0",
+    "@fontsource-variable/catamaran": "5.3.0",
     "postcss": "8.5.28",
     "postcss-smooth-shadow": "0.3.2",
     "sharp": "0.35.4",
