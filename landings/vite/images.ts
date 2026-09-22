@@ -29,6 +29,7 @@ async function fresh(source: string, generated: string): Promise<boolean> {
 
 export function images(): Plugin {
   let widths = new Map<string, number[]>()
+  let heights = new Map<string, number>()
 
   async function variants(
     source: string,
@@ -59,6 +60,7 @@ export function images(): Plugin {
         let source = join(IMAGES, dir.name, `${dir.name}.avif`)
         let { height, width } = await sharp(source).metadata()
         await variants(source, dir.name, width)
+        heights.set(dir.name, height)
 
         // Screens taller than 3:4 see less of a wide photo than of this crop.
         // Keep the ratio in sync with `<source media>` in root.html.
@@ -70,6 +72,7 @@ export function images(): Plugin {
           top: 0,
           width: portrait
         })
+        heights.set(`${dir.name}-portrait`, height)
       }
 
       let logo = join(GENERATED, `logo-${ICON_WIDTH}.png`)
@@ -98,7 +101,10 @@ export function images(): Plugin {
             })
             .join(', ')
           if (attr === 'srcset') return `srcset="${srcset}"`
-          return `src="../generated/${name}.avif" srcset="${srcset}"`
+          return (
+            `src="../generated/${name}.avif" srcset="${srcset}" ` +
+            `width="${sizes.at(-1)}" height="${heights.get(name)}"`
+          )
         })
       },
       order: 'pre'
