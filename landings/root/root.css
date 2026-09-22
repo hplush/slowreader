@@ -1,5 +1,20 @@
-@import url('@fontsource-variable/noto-sans');
-@import url('@fontsource/inika');
+@font-face {
+  font-family: 'Noto Sans Variable';
+  font-style: normal;
+  font-weight: 100 900;
+  src: url('@fontsource-variable/noto-sans/files/noto-sans-latin-wght-normal.woff2')
+    format('woff2-variations');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Inika;
+  font-style: normal;
+  font-weight: 400;
+  src: url('@fontsource/inika/files/inika-latin-400-normal.woff2')
+    format('woff2');
+  font-display: swap;
+}
 
 :root {
   --text-family: 'Noto Sans Variable', 'Arial', sans-serif;
