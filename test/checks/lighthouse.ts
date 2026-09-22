@@ -2,6 +2,8 @@
 // in PageSpeed Insights.
 // Free API key: https://developers.google.com/speed/docs/insights/v5/get-started
 
+import { styleText } from 'node:util'
+
 import { fail, grade, link, pass, short, type Site } from './utils.ts'
 
 interface Insights {
@@ -82,27 +84,39 @@ export async function checkLighthouse(
         let score = Math.round(category.score * 100)
         // Diagnostics have no weight in the score, but we still want them
         // green. Metrics are the score itself, so they would repeat it.
-        let broken = category.auditRefs.flatMap(ref => {
+        let broken: string[] = []
+        let warnings: string[] = []
+        for (let ref of category.auditRefs) {
           let audit = insights.lighthouseResult.audits[ref.id]
-          if (ref.group === 'metrics' || ref.group === 'hidden') {
-            return []
-          } else if (audit && audit.score !== null && audit.score < 1) {
-            return `  ${audit.title}\n`
+          if (ref.group === 'metrics' || ref.group === 'hidden') continue
+          if (!audit || audit.score === null || audit.score === 1) continue
+          // These audits always find something on a fast page too
+          if (
+            id === 'performance' &&
+            score >= 95 &&
+            [
+              'network-dependency-tree-insight',
+              'render-blocking-insight',
+              'render-blocking-resources',
+              'unused-javascript'
+            ].includes(ref.id)
+          ) {
+            warnings.push(`  ${styleText('yellow', audit.title)}`)
           } else {
-            return []
+            broken.push(`  ${audit.title}`)
           }
-        })
+        }
+        let title = `${category.title} of ${short(url)} is ${grade(score)}`
         // Performance score jumps between runs on the same deploy
         if (score < (id === 'performance' ? 90 : 100) || broken.length > 0) {
           results.push(
             fail(
-              `${category.title} of ${short(url)} is ${grade(score)}\n${broken.join('')}  ${link(report)}`
+              [title, ...broken, ...warnings, `  ${link(report)}`].join('\n')
             )
           )
         } else {
-          results.push(
-            pass(`${category.title} of ${short(url)} is ${grade(score)}`)
-          )
+          if (warnings.length > 0) warnings.push(`  ${link(report)}`)
+          results.push(pass([title, ...warnings].join('\n')))
         }
       }
     }
