@@ -70,6 +70,12 @@ body {
   }
 }
 
+.header_content {
+  @media (--mobile) {
+    gap: 0.4rem;
+  }
+}
+
 .header_home {
   display: flex;
   gap: 0.6rem;
@@ -81,14 +87,12 @@ body {
   color: inherit;
   text-decoration: none;
   white-space: nowrap;
-  border-radius: 0.75rem;
+
+  /* Same curve as the logo corner plus the padding around it */
+  border-radius: 0.7rem;
 
   @media (--mobile) {
-    padding-inline-end: 0.3rem;
-  }
-
-  @supports (corner-shape: squircle) {
-    border-radius: 1.3rem;
+    padding-inline-end: 0.5rem;
   }
 
   &:hover,
