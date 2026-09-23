@@ -20,6 +20,12 @@ body {
 }
 
 .header {
+  @media (--no-desktop) {
+    top: 0;
+    bottom: auto;
+    padding-block: max(0.5rem, env(safe-area-inset-top)) 0.5rem;
+  }
+
   @media (prefers-color-scheme: light) {
     box-shadow:
       inset 0 -0.5px 0 oklch(0 0 0 / 8%),
@@ -129,7 +135,8 @@ body {
   margin-inline: auto;
 
   @media (--no-desktop) {
-    padding-block: 2rem calc(5.9rem + max(0.5rem, env(safe-area-inset-bottom)));
+    padding-block: calc(6rem + env(safe-area-inset-top))
+      calc(4rem + env(safe-area-inset-bottom));
     padding-inline: max(1rem, env(safe-area-inset-left))
       max(1rem, env(safe-area-inset-right));
   }
