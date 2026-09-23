@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { styleText } from 'node:util'
 import sharp from 'sharp'
 
-const IMAGES = join(import.meta.dirname, '..', 'images')
+const IMAGES = join(import.meta.dirname, '..', 'generated-images')
 
 for (let dir of await readdir(IMAGES, { withFileTypes: true })) {
   if (!dir.isDirectory()) continue

@@ -49,13 +49,13 @@
         <picture>
           <source
             media="(aspect-ratio <= 3/4)"
-            srcset="../images/main/main-portrait.avif"
+            srcset="../generated-images/main/main-portrait.avif"
           />
           <img
             class="section_image"
             alt=""
             fetchpriority="high"
-            src="../images/main/main.avif"
+            src="../generated-images/main/main.avif"
           />
         </picture>
         <div class="section_content">
@@ -81,7 +81,44 @@
           <p class="construction_eta">ETA: 2026</p>
         </div>
       </section>
-      <section class="section is-third"></section>
     </main>
+
+    <footer class="section footer">
+      <div class="footer_content">
+        <ul class="footer_links">
+          <li>
+            <a class="footer_link" href="https://github.com/hplush/slowreader">
+              Source code
+            </a>
+          </li>
+        </ul>
+        <div class="footer_authors">
+          <a class="footer_author" href="https://hplush.dev/" target="_blank">
+            <img
+              class="footer_logo is-hplush"
+              alt=""
+              height="378"
+              src="../images/hplush.svg"
+              width="300"
+            />
+            <span>Created by <strong>h+h lab</strong></span>
+          </a>
+          <a
+            class="footer_author"
+            href="https://evilmartians.com/"
+            target="_blank"
+          >
+            <img
+              class="footer_logo"
+              alt=""
+              height="202"
+              src="../images/evil-martians.svg"
+              width="294"
+            />
+            <span>Supported by <strong>Evil Martians</strong></span>
+          </a>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>

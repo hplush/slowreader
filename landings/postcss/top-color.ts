@@ -1,4 +1,4 @@
-// PostCSS plugin to replace `--top-color('../images/photo.avif')` with the
+// PostCSS plugin to replace `--top-color('../generated-images/photo.avif')` with the
 // average color of the photo’s top line. The page shows it under the photo
 // until the browser loads it, and iOS paints the strip above the viewport
 // with it

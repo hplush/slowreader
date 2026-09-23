@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import sharp from 'sharp'
 import type { Plugin } from 'vite'
 
-const IMAGES = join(import.meta.dirname, '..', 'images')
+const IMAGES = join(import.meta.dirname, '..', 'generated-images')
 const GENERATED = join(import.meta.dirname, '..', 'generated')
 // Only the biggest image is in the size budget, see web/.size-limit.json
 const SMALL = join(GENERATED, 'small')
@@ -88,7 +88,8 @@ export function images(): Plugin {
 
     transformIndexHtml: {
       handler(html) {
-        let source = /(src|srcset)="\.\.\/images\/\w+\/([\w-]+)\.avif"/g
+        let source =
+          /(src|srcset)="\.\.\/generated-images\/\w+\/([\w-]+)\.avif"/g
         return html.replace(source, (_: string, attr: string, name: string) => {
           let sizes = widths.get(name)!
           let srcset = sizes

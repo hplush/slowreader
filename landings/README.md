@@ -7,7 +7,8 @@ _See the [full architecture guide](../README.md) first._
 ## Project Structure
 
 - [`root/`](./root/): page on `/` with its own CSS and JS. The build renames `root.html` to `index.html`. Open it with `?guest` to see it as a new user.
-- [`images/`](./images/): AVIF sources for pages and prompts to generate them.
+- [`generated-images/`](./generated-images/): AVIF sources for pages and prompts to generate them.
+- [`images/`](./images/): SVG logos of the project authors for the footer.
 - [`vite/`](./vite/): Vite plugins of the build.
 - [`postcss/`](./postcss/): custom PostCSS plugins.
 - [`scripts/`](./scripts/): tools to prepare the sources.
@@ -19,7 +20,7 @@ _See the [full architecture guide](../README.md) first._
 
 - `pnpm -F landings start`: watch and rebuild `dist/` on every change.
 - `pnpm -F landings build`: build production files in `landings/dist/`.
-- `pnpm -F landings save-images`: convert new PNG from generator in `images/*/` to AVIF source to store.
+- `pnpm -F landings save-images`: convert new PNG from generator in `generated-images/*/` to AVIF source to store.
 
 ## Deploy
 
