@@ -1,3 +1,5 @@
+@import url('./sizes.css');
+
 @font-face {
   font-family: 'Catamaran Variable';
   font-style: normal;
@@ -13,6 +15,20 @@
 
 * {
   box-sizing: border-box;
+  outline: 0 solid oklch(0.72 0.15 240);
+
+  @media (color-gamut: p3) {
+    outline-color: oklch(0.68 0.2 240);
+  }
+}
+
+:focus-visible {
+  z-index: 10;
+  outline-width: 3px;
+  outline-offset: 2px;
+  transition:
+    outline 150ms,
+    outline-offset 150ms;
 }
 
 body {
@@ -179,15 +195,6 @@ body {
     &:hover,
     &:focus-visible {
       background: oklch(1 0 0 / 25%);
-    }
-  }
-
-  &:focus-visible {
-    outline: 3px solid oklch(0.72 0.15 240);
-    outline-offset: 2px;
-
-    @media (color-gamut: p3) {
-      outline-color: oklch(0.68 0.2 240);
     }
   }
 

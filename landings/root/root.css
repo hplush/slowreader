@@ -390,13 +390,18 @@ body {
 
 .footer_link {
   display: inline-block;
-  font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 600;
   color: oklch(0.9 0 0);
   text-decoration-color: oklch(0.9 0 0 / 40%);
   text-underline-offset: 0.2rem;
   padding: 0.25rem 1rem;
   margin: -0.25rem -1rem;
   border-radius: 0.5rem;
+
+  @media (--mobile) {
+    font-size: 1.3rem;
+  }
 
   &:hover,
   &:focus-visible {
@@ -426,7 +431,7 @@ body {
   padding: 0.5rem 1.25rem 0.5rem 0.75rem;
   margin: -0.75rem -1.25rem -0.75rem -0.75rem;
   line-height: 1.3;
-  color: oklch(0.8 0 0);
+  color: oklch(0.75 0 0);
   text-decoration: none;
   border-radius: 0.75rem;
 
@@ -436,6 +441,7 @@ body {
 
   strong {
     display: block;
+    font-weight: 900;
     white-space: nowrap;
     color: oklch(0.9 0 0);
   }
@@ -443,11 +449,6 @@ body {
   &:hover,
   &:focus-visible {
     background: oklch(0.27 0 0);
-  }
-
-  &:focus-visible {
-    outline: 3px solid oklch(0.72 0.15 240);
-    outline-offset: 2px;
   }
 
   &:active {
@@ -463,7 +464,9 @@ body {
   inline-size: 4.5rem;
   block-size: 4.5rem;
   object-fit: contain;
-  filter: invert(30%);
+
+  /* Black SVG becomes `oklch(0.62 0 0)`, APCA Lc 33 on the footer */
+  filter: invert(52%);
 
   &.is-hplush {
     block-size: 3.25rem;

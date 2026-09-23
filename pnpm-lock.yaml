@@ -388,6 +388,9 @@ importers:
       sharp:
         specifier: 0.35.4
         version: 0.35.4(@types/node@26.6.2)
+      typograf:
+        specifier: 7.8.0
+        version: 7.8.0
       vite:
         specifier: 8.3.0
         version: 8.3.0(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.1)
@@ -5324,6 +5327,10 @@ packages:
     engines: {node: '>=16.20.0'}
     hasBin: true
 
+  typograf@7.8.0:
+    resolution: {integrity: sha512-Eo+Fu7iM0ASkYOgsI3veGtdkxI+QhMgJBmyftB16Or+g6B2pC4NgsAPT7nP36BzVx7720IMmvkWf7N9O33HNHg==}
+    engines: {node: '>= 4'}
+
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
@@ -6145,13 +6152,17 @@ snapshots:
     dependencies:
       '@logux/core': 0.10.0
 
+  '@logux/actions@git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)':
+    dependencies:
+      '@logux/core': git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
+
   '@logux/actions@git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)':
     dependencies:
       '@logux/core': git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
 
   '@logux/client@git+https://github.com/logux/client.git#9703763969d2f1a330b18ad4f2864dadefb3b15e(@nanostores/sql@0.6.0)(nanostores@1.5.3)(react@19.3.0)':
     dependencies:
-      '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
+      '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
       '@logux/core': git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
       nanoevents: 10.0.0
       nanoid: 6.0.1
@@ -6212,7 +6223,7 @@ snapshots:
 
   '@logux/server@git+https://github.com/logux/server.git#a73951490dc59e71573f2f2e4c430c0fc128ce23':
     dependencies:
-      '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
+      '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
       '@logux/core': git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
       cookie: 2.0.1
       nanoevents: 10.0.0
@@ -9925,6 +9936,8 @@ snapshots:
       '@typescript/typescript-sunos-x64': 7.0.2
       '@typescript/typescript-win32-arm64': 7.0.2
       '@typescript/typescript-win32-x64': 7.0.2
+
+  typograf@7.8.0: {}
 
   undici-types@6.21.0: {}
 

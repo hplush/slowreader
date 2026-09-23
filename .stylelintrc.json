@@ -95,7 +95,11 @@
       "customSyntax": "postcss-html"
     },
     {
-      "files": ["web/main/colors.css", "web/main/sizes.css"],
+      "files": [
+        "web/main/colors.css",
+        "web/main/sizes.css",
+        "landings/layout/sizes.css"
+      ],
       "rules": {
         "unit-disallowed-list": null
       }

@@ -1,0 +1,4 @@
+:root {
+  /* To separate scalable sizes from pixel-based */
+  --min-size: 1px;
+}
