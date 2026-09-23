@@ -23,7 +23,7 @@
     "@slowreader/api": "workspace:*",
     "@slowreader/server": "workspace:*",
     "dompurify": "3.4.15",
-    "jsdom": "30.0.1",
+    "jsdom": "30.1.1",
     "just-debounce-it": "3.2.0",
     "lz-string": "1.5.0",
     "nanodelay": "2.0.2",
