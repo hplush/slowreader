@@ -347,8 +347,101 @@ main {
   }
 }
 
-.section.is-second {
-  background: oklch(0 0 0);
+.section.is-feeds {
+  display: flex;
+  padding-block-start: 3rem;
+  background: oklch(0.3 0 0);
+
+  @media (--no-desktop) {
+    /* The top 5rem are parked above the viewport */
+    padding-block: 5rem calc(2.9rem + max(0.5rem, env(safe-area-inset-bottom)));
+  }
+}
+
+/* A recessed hole in the page, where the feature will be */
+.construction {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem max(1rem, env(safe-area-inset-right)) 3rem
+    max(1rem, env(safe-area-inset-left));
+  text-align: center;
+  background:
+    linear-gradient(oklch(0.26 0 0), oklch(0.26 0 0)) padding-box,
+    repeating-linear-gradient(
+        -45deg,
+        oklch(0.4 0 0) 0 1.5rem,
+        oklch(0.22 0 0) 1.5rem 3rem
+      )
+      border-box;
+  border: 1.875rem solid transparent;
+}
+
+/* Inset `box-shadow` of the block itself would stay inside the border */
+.construction::after {
+  position: absolute;
+  inset: -1.875rem;
+  pointer-events: none;
+  content: '';
+  box-shadow:
+    inset 0 0 5rem 0.5rem oklch(0 0 0 / 70%),
+    inset 0 0.25rem 0.5rem oklch(0 0 0 / 70%);
+}
+
+.construction_note,
+.construction_title,
+.construction_text,
+.construction_eta {
+  margin: 0;
+  text-wrap: balance;
+}
+
+.construction_note {
+  padding: 0.15rem 0.6rem;
+  font:
+    700 0.875rem/1.4 'Catamaran Variable',
+    Arial,
+    sans-serif;
+  color: oklch(0.2 0.03 90);
+  text-transform: uppercase;
+  letter-spacing: 0.06rem;
+  background: oklch(0.87 0.17 95);
+  border-radius: 0.25rem;
+  box-shadow: 0 0.2rem 0.4rem oklch(0 0 0 / 40%);
+}
+
+.construction_title {
+  font:
+    700 clamp(1.875rem, 3.1vw, 2.3rem) / 1.2 'Catamaran Variable',
+    Arial,
+    sans-serif;
+  color: oklch(1 0 0);
+  letter-spacing: 0.04rem;
+}
+
+.construction_text {
+  max-inline-size: 30rem;
+  font:
+    500 clamp(1.125rem, 1.6vw, 1.25rem) / 1.5 'Catamaran Variable',
+    Arial,
+    sans-serif;
+  color: oklch(0.8 0 0);
+}
+
+.construction_eta {
+  margin-block-start: 1rem;
+  padding: 0.3rem 0.9rem;
+  font:
+    700 1rem/1.4 'Catamaran Variable',
+    Arial,
+    sans-serif;
+  color: oklch(0.85 0 0);
+  border: 2px dashed oklch(0.55 0 0);
+  border-radius: 0.375rem;
 }
 
 .section.is-third {
