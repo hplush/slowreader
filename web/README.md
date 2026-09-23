@@ -28,7 +28,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
   - [`db-worker.ts`](./main/db-worker.ts): SQLite worker with the drivers for both storage engines. See [client storage](#client-storage).
   - [`browser.ts`](./main/browser.ts): connect core stores to global browser settings like `document.title`.
   - [`extension.ts`](./main/extension.ts): make network request through the browser extension.
-- [`benchmark/`](./benchmark/): UI performance benchmark, which is loaded only by `?benchmark` in URL. See [benchmark guide](../docs/benchmark.md).
+- [`benchmark/`](./benchmark/): UI performance benchmark, which is loaded only by `?benchmark` in URL. See [benchmark guide](../docs/development/benchmark.md).
 - [`demo/`](./demo/): the page which copies the files of the [demo](#demo-mode) database and the script to build it.
 - [`pages/`](./pages/): Svelte components for pages.
 - [`ui/`](./ui/): shared components between different pages. Some people call it “UI kit”.
@@ -60,7 +60,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 - `pnpm -F web chromatic`: publish visual tests and generate diffs for changed stories.
 - `pnpm -F web production`: start web client production build locally.
 - `pnpm -F web build`: build production files in `web/dist/`.
-- `pnpm -F web benchmark`: run [UI performance benchmark](../docs/benchmark.md).
+- `pnpm -F web benchmark`: run [UI performance benchmark](../docs/development/benchmark.md).
 - `pnpm -F web build-demo`: load the feeds from [`web/demo/demo-feeds.opml`](./demo/demo-feeds.opml) and write demo DB dump.
 
 ## Client Storage
@@ -111,7 +111,7 @@ For **icons**, we use [Material Design Icons](https://pictogrammers.com/library/
 
 ## DOM Anchors
 
-`data-anchor` marks elements for external code: [benchmark](../docs/benchmark.md) scenarios, e2e tests, and user plugins (scripts and user styles).
+`data-anchor` marks elements for external code: [benchmark](../docs/development/benchmark.md) scenarios, e2e tests, and user plugins (scripts and user styles).
 
 ```svelte
 <Button anchor="read-page">{$t.readPage}</Button><div data-anchor="popup"></div>

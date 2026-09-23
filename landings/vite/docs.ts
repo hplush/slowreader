@@ -4,11 +4,13 @@ import { readFile } from 'node:fs/promises'
 import { basename, join } from 'node:path'
 import type { Plugin } from 'vite'
 
-const DOCS = join(import.meta.dirname, '..', 'docs')
+const DOCS = join(import.meta.dirname, '..', '..', 'docs')
+// Vite names the result file by the page path inside `landings/`
+const PAGES = join(import.meta.dirname, '..', 'docs')
 
 export const docPages = readdirSync(DOCS)
   .filter(i => i.endsWith('.md'))
-  .map(i => join(DOCS, i.replace(/\.md$/, '.html')))
+  .map(i => join(PAGES, i.replace(/\.md$/, '.html')))
 
 export function docs(): Plugin {
   return {
@@ -21,7 +23,7 @@ export function docs(): Plugin {
           join(import.meta.dirname, '..', 'layout', 'layout.html'),
           'utf8'
         ),
-        readFile(id.replace(/\.html$/, '.md'), 'utf8')
+        readFile(join(DOCS, basename(id, '.html') + '.md'), 'utf8')
       ])
       let title = markdown.match(/^# (.+)$/m)?.[1] ?? basename(id, '.html')
       return layout

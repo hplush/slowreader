@@ -50,4 +50,4 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 
 ## Browser
 
-- Use Playwright MCP for visual issues and client database bugs. See [docs/browser.md](./docs/browser.md).
+- Use Playwright MCP for visual issues and client database bugs. See [docs/development/browser.md](./docs/development/browser.md).

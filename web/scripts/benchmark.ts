@@ -1,5 +1,5 @@
 // Script to run UI benchmark in Chromium and print results.
-// See docs/benchmark.md
+// See docs/development/benchmark.md
 
 import { spawn, spawnSync } from 'node:child_process'
 import { globSync, readdirSync, readFileSync, rmSync, writeSync } from 'node:fs'

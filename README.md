@@ -109,13 +109,14 @@ Slow Reader is a local-first app. Clients do most of the work, and the server ju
 - [`proxy/`](./proxy/): HTTP proxy server to bypass censorship or to try web clients before they install the upcoming extensions (to bypass the CORS limit of the web apps).
 - [`extension/`](./extension/): browser’s extension to avoid CORS limits in web client.
 - [`api/`](./api/): types and constants shared between clients and server.
-- [`docs/`](./docs/): guides for developers.
+- [`docs/`](./docs/): public pages like Privacy Policy, which [landings](./landings/) render to `/docs/<name>`.
+  - [`docs/development/`](./docs/development/): guides for developers.
 - [`scripts/`](./scripts/): scripts to test project and configure Google Cloud. Check the script’s descriptions for further details.
 - [`test/`](./test/): end-to-end tests of the deployed app.
 - [`loader-tests/`](./loader-tests/): integration tests for each social network or news format.
 - [`.claude/`](./.claude/): hook to run formatter and linter after every run.
 - [`.devcontainer/`](./.devcontainer/): `Dockerfile` and configs to run project in Docker/Podman image on developer’s machine. It increases security (malicious dependency will not have access to the whole machine) and simplify onboarding. We have configs for Docker and [Podman](https://podman.io) (more secure version of Docker). It also contyains recommended plugins for VS Code and Zed.
-- [`.github/`](./.github/): scripts to test projects on CI.
+- [`.github/`](./.github/): scripts to test projects on CI, security policy, code of conduct, and pull request template.
 - [`.githooks/`](./.githooks/): git `pre-commit` hook to run formatter and linters. We change default git folder to this folder in `pnpm:devPreinstall` script.
 - [`.vscode/`](./.vscode/): VS Code settings to reduce code format errors for new contributors.
 
@@ -192,7 +193,7 @@ If any mistake happens a few times, we should add an automatic tool to **prevent
 1. Types.
 2. [Scripts](./scripts/), custom ESLint or Stylelint plugins.
 3. Tests.
-4. [Pull request checklist](./docs/pull_request_template.md).
+4. [Pull request checklist](./.github/pull_request_template.md).
 
 Any **code-style** rule should be implemented as a `pre-commit` hook or linter’s rule.
 
@@ -321,4 +322,4 @@ Don’t forget necessary files to `.dockerignore` since we are using allow-list 
 
 ## Guides
 
-- [How to Add New Page to Web Client?](./docs/new_page.md)
+- [How to Add New Page to Web Client?](./docs/development/new_page.md)

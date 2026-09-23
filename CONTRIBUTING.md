@@ -146,7 +146,7 @@ In commit’s messages example **why** you did changes, **not what** you changed
 + git commit -m 'Add .editorconfig to sync text editor settings'
 ```
 
-We recommend signing [your commits](./docs/onboarding.md#enable-signing-git-commits).
+We recommend signing [your commits](./docs/development/onboarding.md#enable-signing-git-commits).
 
 ### Branches
 
