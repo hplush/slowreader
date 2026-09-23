@@ -218,7 +218,6 @@ body {
     sans-serif;
   color: oklch(0.2 0.03 90);
   text-transform: uppercase;
-  letter-spacing: 0.06rem;
   background: oklch(0.87 0.17 95);
   border-radius: 0.25rem;
   box-shadow: 0 0.2rem 0.4rem oklch(0 0 0 / 40%);
@@ -230,7 +229,6 @@ body {
     Arial,
     sans-serif;
   color: oklch(1 0 0);
-  letter-spacing: 0.04rem;
 }
 
 .construction_text {
@@ -330,7 +328,6 @@ body {
   text-shadow:
     0 1px 0.25rem oklch(0 0 0 / 90%),
     0 1px 1.5rem oklch(0 0 0 / 95%);
-  letter-spacing: 0.04rem;
   max-inline-size: 26rem;
   text-wrap: balance;
 
@@ -390,7 +387,7 @@ body {
 
 .footer_link {
   display: inline-block;
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 600;
   color: oklch(0.9 0 0);
   text-decoration-color: oklch(0.9 0 0 / 40%);
@@ -442,13 +439,19 @@ body {
   strong {
     display: block;
     font-weight: 900;
+    letter-spacing: 0.04em;
     white-space: nowrap;
     color: oklch(0.9 0 0);
+    text-underline-offset: 0.2rem;
   }
 
   &:hover,
   &:focus-visible {
     background: oklch(0.27 0 0);
+
+    strong {
+      text-decoration: underline;
+    }
   }
 
   &:active {

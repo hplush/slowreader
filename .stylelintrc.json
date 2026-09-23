@@ -51,8 +51,10 @@
             "/border/",
             "/-radius$/",
             "/outline/",
-            "translate"
-          ]
+            "translate",
+            "letter-spacing"
+          ],
+          "em": ["letter-spacing"]
         }
       }
     ],

@@ -13,8 +13,10 @@
   color-scheme: dark;
 }
 
+/* Not on `body`, because inherited `em` would not follow the font size */
 * {
   box-sizing: border-box;
+  letter-spacing: 0.01em;
   outline: 0 solid oklch(0.72 0.15 240);
 
   @media (color-gamut: p3) {

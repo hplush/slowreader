@@ -172,7 +172,7 @@ body {
     &:hover,
     &:focus-visible {
       color: oklch(0.88 0.058 260);
-      text-decoration: none;
+      text-decoration-color: currentcolor;
 
       @media (prefers-color-scheme: light) {
         color: oklch(0.6 0.2 260);
