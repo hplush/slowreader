@@ -572,15 +572,25 @@ body {
 }
 
 .footer_link {
+  display: inline-block;
   font-weight: 700;
   color: oklch(0.9 0 0);
   text-decoration-color: oklch(0.9 0 0 / 40%);
   text-underline-offset: 0.2rem;
+  padding: 0.25rem 1rem;
+  margin: -0.25rem -1rem;
+  border-radius: 0.5rem;
 
   &:hover,
   &:focus-visible {
-    color: oklch(1 0 0);
     text-decoration-color: currentcolor;
+    background: oklch(0.27 0 0);
+  }
+
+  &:active {
+    translate: 0 1px;
+    background: oklch(0.24 0 0);
+    box-shadow: inset 0 0.0625rem 0.25rem oklch(0 0 0 / 60%);
   }
 }
 
@@ -614,8 +624,7 @@ body {
 
   &:hover,
   &:focus-visible {
-    color: oklch(1 0 0);
-    background: oklch(0.36 0 0);
+    background: oklch(0.27 0 0);
   }
 
   &:focus-visible {
@@ -625,7 +634,7 @@ body {
 
   &:active {
     translate: 0 1px;
-    background: oklch(0.27 0 0);
+    background: oklch(0.24 0 0);
     box-shadow: inset 0 0.0625rem 0.25rem oklch(0 0 0 / 60%);
   }
 }
@@ -640,6 +649,11 @@ body {
 
   &.is-hplush {
     block-size: 3.25rem;
+  }
+
+  .footer_author:hover &,
+  .footer_author:focus-visible & {
+    filter: invert(5%) drop-shadow(0 0.0625rem 0 oklch(1 0 0 / 20%));
   }
 
   .footer_author:active & {
