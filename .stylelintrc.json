@@ -17,9 +17,15 @@
         "color": "| <--tune-color()> | <--tune-background()>",
         "border-color": "| <--tune-color()> | <--tune-background()>",
         "border": "| <line-width> <line-style> <--tune-color()> | <line-width> <line-style> <--tune-background()>",
-        "border-top": "| <line-width> <line-style> <--tune-color()> | <line-width> <line-style> <--tune-background()>"
+        "border-top": "| <line-width> <line-style> <--tune-color()> | <line-width> <line-style> <--tune-background()>",
+        "box-shadow": "| [ <shadow> | <smooth-shadow> ]#",
+        "text-shadow": "| [ <shadow-t> | <smooth-shadow> ]#"
       },
       "types": {
+        "smooth-shadow": "<--linear-shadow()> | <--soft-shadow()> | <--sharp-shadow()>",
+        "--linear-shadow()": "--linear-shadow( inset? <length>{3} <color> )",
+        "--soft-shadow()": "--soft-shadow( inset? <length>{3} <color> )",
+        "--sharp-shadow()": "--sharp-shadow( inset? <length>{3} <color> )",
         "--tune-color()": "--tune-color( <custom-property-name> , <custom-property-name>? )",
         "--tune-background()": "--tune-background( <custom-property-name> <custom-property-name>? <custom-property-name>? , <custom-property-name>? )",
         "--top-color()": "--top-color( <string> )"
