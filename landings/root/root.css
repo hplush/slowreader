@@ -547,8 +547,10 @@ body {
   background: oklch(0.3 0 0);
 
   @media (--no-desktop) {
-    /* The top 5rem are parked above the viewport */
-    padding-block: 7rem calc(5.9rem + max(0.5rem, env(safe-area-inset-bottom)));
+    /* The top 5rem are parked above the viewport, and the bottom is hidden
+       by the browser bar until it collapses */
+    padding-block: 7rem
+      calc(5.9rem + max(0.5rem, env(safe-area-inset-bottom)) + 100lvh - 100svh);
   }
 }
 
