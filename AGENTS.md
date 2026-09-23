@@ -23,7 +23,7 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 - Keep non-browser logic in `core/`. Client folders should have only environment-specific code.
 - Update `README.md` of the package on every new script, folder, or tool.
 - App’s error page (`web/pages/fatal.svelte`, error mode styles and icons) is duplicated in static `web/public/404.html` and `web/public/500.html`. Change all of them together.
-- Use OKLCH color mode for many color operations.
+- Use OKLCH color mode and APCA contrast check for any color operations.
 
 ## LLMS
 
