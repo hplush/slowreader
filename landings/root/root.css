@@ -376,12 +376,11 @@ main {
   @media (--no-desktop) {
     /* The bar grows with the inset too, so add it instead of max() */
     padding-block: max(2rem, env(safe-area-inset-top))
-      calc(8rem + env(safe-area-inset-bottom));
+      calc(6rem + env(safe-area-inset-bottom));
   }
 
   @media (width <= 40rem), (aspect-ratio <= 1) {
-    align-items: flex-end;
-    justify-content: center;
+    align-items: stretch;
   }
 }
 
@@ -405,6 +404,13 @@ main {
   @media (width > 40rem) and (aspect-ratio > 1) {
     margin-inline-start: max(0rem, calc(1.42 * 100svh - 0.8 * 100vw));
   }
+
+  @media (width <= 40rem), (aspect-ratio <= 1) {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    max-inline-size: none;
+  }
 }
 
 .section_actions {
@@ -415,6 +421,7 @@ main {
 
   @media (width <= 40rem), (aspect-ratio <= 1) {
     justify-content: center;
+    margin-block-start: auto;
   }
 }
 
@@ -425,6 +432,7 @@ main {
     0 1px 0.25rem oklch(0 0 0 / 90%),
     0 1px 1.5rem oklch(0 0 0 / 95%);
   letter-spacing: 0.04rem;
+  max-inline-size: 26rem;
   text-wrap: balance;
 
   /* Outline the glyphs, so the photo never shows through a thin stroke */
