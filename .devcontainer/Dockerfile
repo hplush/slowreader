@@ -57,6 +57,8 @@ EOF
 
 RUN useradd -s /bin/zsh developer
 
+RUN mkdir /workspaces && chown developer:developer /workspaces
+
 USER developer
 RUN echo 'PS1="%d$ "' > ~/.zshrc
 RUN mkdir /home/developer/.config && mkdir -p /home/developer/.local/share
