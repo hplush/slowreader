@@ -21,10 +21,3 @@ export function validUserId(value: string): string | undefined {
 export function validSecret(value: string): string | undefined {
   if (!IS_SECRET.test(value)) return t.get().invalidSecret
 }
-
-export function validServer(value: string): string | undefined {
-  let withProtocol = `https://${value}`
-  if (!URL.canParse(withProtocol)) return t.get().invalidServer
-  if (/^[a-zA-Z]+:/.test(value)) return t.get().invalidServer
-  if (new URL(withProtocol).username) return t.get().invalidServer
-}

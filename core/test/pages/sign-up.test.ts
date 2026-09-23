@@ -49,22 +49,6 @@ describe('signup page', () => {
     await cleanAllTables()
   })
 
-  test('shows and hides custom server field', () => {
-    let page = openPage({
-      params: {},
-      route: 'signUp'
-    })
-
-    equal(page.loading.get(), false)
-    equal(typeof page.customServer.get(), 'undefined')
-
-    page.showCustomServer()
-    equal(page.customServer.get(), 'server.slowreader.app')
-
-    page.resetCustomServer()
-    equal(typeof page.customServer.get(), 'undefined')
-  })
-
   test('regenerates credentials', () => {
     let page = openPage({
       params: {},
@@ -236,14 +220,6 @@ describe('signup page', () => {
       await page.submit()
     }, [new NetworkError(noDomainError)])
     equal(page.signingUp.get(), false)
-    match(page.error.get()!, /connection/)
-
-    page.showCustomServer()
-    equal(page.error.get(), undefined)
-
-    await expectWarning(async () => {
-      await page.submit()
-    }, [new NetworkError(noDomainError)])
     match(page.error.get()!, /connection/)
 
     page.regenerate()

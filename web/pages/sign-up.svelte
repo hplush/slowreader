@@ -1,26 +1,22 @@
 <script lang="ts">
   import {
-    mdiCloudPlus,
     mdiDiceMultipleOutline,
     mdiEmailFast,
     mdiEyeOff,
     mdiLogin,
     mdiPiggyBankOutline,
     mdiRestartOff,
+    mdiScriptTextOutline,
+    mdiShieldCheckOutline,
     mdiStickerCheckOutline,
     mdiTooltipQuestionOutline
   } from '@mdi/js'
-  import {
-    type SignUpPage,
-    authMessages as t,
-    validServer
-  } from '@slowreader/core'
+  import { type SignUpPage, authMessages as t } from '@slowreader/core'
 
   import Button from '../ui/button.svelte'
   import Card from '../ui/card.svelte'
   import Error from '../ui/error.svelte'
   import Form from '../ui/form.svelte'
-  import Input from '../ui/input.svelte'
   import Note from '../ui/note.svelte'
   import Output from '../ui/output.svelte'
   import Paper from '../ui/paper.svelte'
@@ -30,16 +26,7 @@
   import TwoOptionsPage from '../ui/two-options-page.svelte'
 
   let { page }: { page: SignUpPage } = $props()
-  let { customServer, error, mailTo, secret, signingUp, userId, warningStep } =
-    $derived(page)
-
-  let serverInput: HTMLInputElement | undefined = $state()
-
-  $effect(() => {
-    if ($customServer && serverInput) {
-      serverInput.select()
-    }
-  })
+  let { error, mailTo, secret, signingUp, userId, warningStep } = $derived(page)
 </script>
 
 {#if $warningStep}
@@ -84,7 +71,7 @@
     {#snippet one()}
       <Card>
         <Form loading={$signingUp} onsubmit={page.submit}>
-          <Stack align="center">
+          <Stack align="center" gap="l">
             <Output
               name="username"
               autocomplete="username"
@@ -98,37 +85,10 @@
               type="text"
               value={$secret}
             />
-            {#if $customServer}
-              <Input
-                disabled={$signingUp}
-                inputmode="url"
-                label={$t.server}
-                onescape={() => {
-                  page.resetCustomServer()
-                }}
-                placeholder="server.slowreader.app"
-                validate={validServer}
-                bind:value={$customServer}
-                bind:input={serverInput}
-              />
-            {/if}
             {#if $error}
               <Error id="start-server-error">
                 {$error}
               </Error>
-            {/if}
-            {#if !$customServer}
-              <Button
-                disabled={$signingUp}
-                icon={mdiCloudPlus}
-                onclick={() => {
-                  page.showCustomServer()
-                }}
-                size="pill"
-                variant="secondary"
-              >
-                {$t.customServer}
-              </Button>
             {/if}
             <Button
               icon={mdiLogin}
@@ -157,6 +117,18 @@
             variant="secondary"
           >
             {$t.regenerateCredentials}
+          </Button>
+        </Note>
+        <Note icon={mdiShieldCheckOutline} variant="good">
+          {$t.privacyNote}
+          <Button
+            href="/docs/privacy"
+            icon={mdiScriptTextOutline}
+            size="pill"
+            target="_blank"
+            variant="secondary"
+          >
+            {$t.privacyPolicy}
           </Button>
         </Note>
         <Note icon={mdiPiggyBankOutline} variant="neutral">

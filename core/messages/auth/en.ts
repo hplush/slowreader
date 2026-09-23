@@ -6,7 +6,6 @@ export const authMessages = i18n('auth', {
   askSaveAgain: 'Show save-password popup',
   createEmpty: 'Or create your empty account:',
   createAccount: 'Cloud',
-  customServer: 'Use my own server',
   demo: 'See demo',
   email: params(
     '// Send this email to yourself\n// If you forget your password, you can search for it later here\n\nUser ID: {user}\nSecret: {secret}'
@@ -22,9 +21,10 @@ export const authMessages = i18n('auth', {
   noRecoveryTitle: 'No password recovery',
   oldUser: 'Sign in to your account',
   payWarning:
-    'After the beta, a small monthly subscription will support server development. Self-hosted use will stay free.',
-  randomNote:
-    'A random user ID is used for privacy. It makes it harder to link your account to your identity.',
+    'After the beta, sync will need a small monthly fee. Self-hosting stays free.',
+  privacyNote: 'Your data is encrypted. We can’t read it or track you.',
+  privacyPolicy: 'Privacy Policy',
+  randomNote: 'Your ID is random, so no one can link the account to you.',
   regenerateCredentials: 'Regenerate credentials',
   relogin: 'Log in again',
   reloginForm: 'Re-enter your credentials',
@@ -32,7 +32,6 @@ export const authMessages = i18n('auth', {
   savedPromise: 'I’ve saved my User ID and Secret',
   savePassword: 'Save your password',
   secret: 'Secret',
-  server: 'Custom server',
   signingIn: 'Signing in…',
   signingUp: 'Creating account…',
   signup: 'Create account on the server',

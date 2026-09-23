@@ -24,18 +24,6 @@
   </Scene>
 </Story>
 
-<Story name="Custom Server" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene
-    oninit={() => {
-      pages.signUp().credentials.set(testCredentials())
-      pages.signUp().showCustomServer()
-    }}
-    route="signUp"
-  >
-    <SignupPage page={pages.signUp()} />
-  </Scene>
-</Story>
-
 <Story name="Warning Step" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {

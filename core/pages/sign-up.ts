@@ -6,7 +6,6 @@ import { getEnvironment } from '../environment.ts'
 import { authMessages as t } from '../messages/index.ts'
 import { encryptionKey, hasPassword, userId } from '../settings.ts'
 import { createPage } from './common.ts'
-import { injectCustomServerField } from './mixins/custom-server-field.ts'
 import { createFormSubmit } from './mixins/form.ts'
 
 export const signUpPage = createPage('signUp', () => {
@@ -25,8 +24,6 @@ export const signUpPage = createPage('signUp', () => {
   let $signingUp = atom(false)
   let $warningStep = atom(false)
 
-  let customServerMixin = injectCustomServerField()
-
   let $hideMenu = atom<boolean>(false)
 
   let $userId = computed($credentials, credentials => credentials.userId)
@@ -39,9 +36,6 @@ export const signUpPage = createPage('signUp', () => {
     )
   })
 
-  let unbindServer = customServerMixin.customServer.listen(() => {
-    $error.set(undefined)
-  })
   let unbindPassword = hasPassword.listen(created => {
     if (created && !$signingUp.get()) {
       finish()
@@ -55,7 +49,7 @@ export const signUpPage = createPage('signUp', () => {
 
   let createUser = createFormSubmit(
     async () => {
-      await signUp($credentials.get(), customServerMixin.customServer.get())
+      await signUp($credentials.get())
       $warningStep.set(true)
     },
     $signingUp,
@@ -69,7 +63,6 @@ export const signUpPage = createPage('signUp', () => {
   }
 
   return {
-    ...customServerMixin,
     async askAgain() {
       await getEnvironment().savePassword({
         secret: $secret.get(),
@@ -79,7 +72,6 @@ export const signUpPage = createPage('signUp', () => {
     credentials: $credentials,
     error: $error,
     exit() {
-      unbindServer()
       unbindPassword()
     },
     finish,
