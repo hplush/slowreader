@@ -76,7 +76,7 @@ body {
   align-items: center;
 
   /* Negative margin keeps the logo on the same place as on the landing */
-  padding: 0.25rem 0.4rem 0.25rem 0.25rem;
+  padding: 0.25rem 0.7rem 0.25rem 0.25rem;
   margin: -0.25rem auto -0.25rem -0.25rem;
   color: inherit;
   text-decoration: none;
