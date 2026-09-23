@@ -1,0 +1,149 @@
+:root {
+  /* The header frosts over it, like over the landing sections */
+  --section-color: oklch(0.24 0 0);
+
+  color-scheme: light dark;
+
+  @media (prefers-color-scheme: light) {
+    --section-color: oklch(0.92 0 0);
+  }
+}
+
+body {
+  color: oklch(0.9 0 0);
+  background: oklch(0.24 0 0);
+
+  @media (prefers-color-scheme: light) {
+    color: oklch(0.33 0 0);
+    background: oklch(0.97 0 0);
+  }
+}
+
+.header {
+  @media (prefers-color-scheme: light) {
+    box-shadow:
+      inset 0 -0.5px 0 oklch(0 0 0 / 8%),
+      inset 0 0.5px 0 oklch(0 0 0 / 8%),
+      --linear-shadow(0 0 0.7rem oklch(0 0 0 / 10%));
+  }
+}
+
+.button {
+  @media (prefers-color-scheme: light) {
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 30%),
+      inset 0 -0.5px 0 oklch(0 0 0 / 40%),
+      --linear-shadow(0 0.2rem 0.2rem oklch(0 0 0 / 10%));
+  }
+}
+
+.header_name {
+  color: oklch(0.94 0 0);
+
+  @media (prefers-color-scheme: light) {
+    color: oklch(0.25 0 0);
+  }
+}
+
+.button.is-login {
+  color: oklch(0.94 0 0);
+
+  @media (prefers-color-scheme: light) {
+    color: oklch(0.25 0 0);
+    background: oklch(0 0 0 / 4%);
+    box-shadow: inset 0 0 0 0.5px oklch(0 0 0 / 45%);
+
+    &:hover,
+    &:focus-visible {
+      background: oklch(0 0 0 / 10%);
+    }
+
+    &:active {
+      box-shadow: inset 0 1px 2px oklch(0 0 0 / 40%);
+    }
+  }
+}
+
+.header_home {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  /* Negative margin keeps the logo on the same place as on the landing */
+  padding: 0.25rem 0.4rem 0.25rem 0.25rem;
+  margin: -0.25rem auto -0.25rem -0.25rem;
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  border-radius: 0.75rem;
+
+  @supports (corner-shape: squircle) {
+    border-radius: 1.3rem;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: oklch(1 0 0 / 8%);
+
+    @media (prefers-color-scheme: light) {
+      background: oklch(0 0 0 / 6%);
+    }
+  }
+
+  &:focus-visible {
+    outline: 3px solid oklch(0.72 0.15 240);
+    outline-offset: 2px;
+  }
+
+  &:active {
+    translate: 0 1px;
+    background: oklch(0 0 0 / 15%);
+    box-shadow: inset 0 0.0625rem 0.25rem oklch(0 0 0 / 60%);
+
+    @media (prefers-color-scheme: light) {
+      background: oklch(0 0 0 / 10%);
+      box-shadow: inset 0 0.0625rem 0.25rem oklch(0 0 0 / 30%);
+    }
+  }
+}
+
+.button_long {
+  @media (--mobile) {
+    display: none;
+  }
+}
+
+.button_short {
+  display: none;
+
+  @media (--mobile) {
+    display: block;
+  }
+}
+
+/* Content box is as wide as the header content */
+.doc {
+  box-sizing: content-box;
+  max-inline-size: 56rem;
+  padding: 6rem 1rem 4rem;
+  margin-inline: auto;
+
+  @media (--no-desktop) {
+    padding-block: 2rem calc(5.9rem + max(0.5rem, env(safe-area-inset-bottom)));
+    padding-inline: max(1rem, env(safe-area-inset-left))
+      max(1rem, env(safe-area-inset-right));
+  }
+
+  h1 {
+    margin: 0 0 1rem;
+    font:
+      700 clamp(1.875rem, 3.1vw, 2.3rem) / 1.2 'Catamaran Variable',
+      Arial,
+      sans-serif;
+    color: oklch(0.94 0 0);
+
+    @media (prefers-color-scheme: light) {
+      color: oklch(0.25 0 0);
+    }
+  }
+}

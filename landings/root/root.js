@@ -1,9 +1,4 @@
-// `?guest` shows the landing as for a new user to demo or debug it
-let guest =
-  new URLSearchParams(location.search).has('guest') ||
-  !localStorage.getItem('slowreader:userId')
-
-document.documentElement.className = guest ? 'is-guest' : 'is-user'
+import '../layout/layout.js'
 
 let header = document.querySelector('.header')
 let hero = document.querySelector('.section.is-hero')

@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 
 import { allFeatures } from '../web/vite/lightningcss.ts'
+import { docPages, docs } from './vite/docs.ts'
 import { images } from './vite/images.ts'
 import { inlineCss } from './vite/inline-css.ts'
 
@@ -9,9 +10,9 @@ export default defineConfig({
     assetsDir: 'landing',
     assetsInlineLimit: 0,
     emptyOutDir: true,
-    outDir: '../dist',
+    outDir: 'dist',
     rolldownOptions: {
-      input: 'root/root.html',
+      input: ['root/root.html', ...docPages],
       output: {
         // Every orientation has its own size budget, see web/.size-limit.json,
         // and only its biggest image is in it
@@ -35,6 +36,7 @@ export default defineConfig({
     }
   },
   plugins: [
+    docs(),
     images(),
     inlineCss(),
     {
@@ -42,11 +44,14 @@ export default defineConfig({
       // nginx and the server serve every page’s dir by index.html
       generateBundle(options, bundle) {
         for (let file of Object.values(bundle)) {
-          if (file.fileName === 'root.html') file.fileName = 'index.html'
+          if (file.fileName === 'root/root.html') {
+            file.fileName = 'index.html'
+          } else if (file.fileName.startsWith('docs/')) {
+            file.fileName = file.fileName.replace(/\.html$/, '/index.html')
+          }
         }
       },
       name: 'page-index'
     }
-  ],
-  root: 'root'
+  ]
 })

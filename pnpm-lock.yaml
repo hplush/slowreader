@@ -376,6 +376,9 @@ importers:
       '@fontsource-variable/catamaran':
         specifier: 5.3.0
         version: 5.3.0
+      marked:
+        specifier: 18.0.14
+        version: 18.0.14
       postcss:
         specifier: 8.5.28
         version: 8.5.28

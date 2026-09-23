@@ -1,0 +1,60 @@
+<!doctype html>
+<html class="is-guest is-top" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="oklch(0.97 0 0)"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="oklch(0.24 0 0)"
+    />
+    <title>{{title}} › Slow Reader</title>
+    <link
+      rel="preload"
+      as="font"
+      href="../node_modules/@fontsource-variable/catamaran/files/catamaran-latin-wght-normal.woff2"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="../layout/layout.css" />
+    <link rel="stylesheet" href="../layout/docs.css" />
+    <script type="module" src="../layout/layout.js"></script>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="header_content">
+        <a class="header_home" href="/">
+          <span class="header_logo">
+            <img
+              class="header_logo_image"
+              alt=""
+              height="32"
+              src="../generated/logo-64.png"
+              width="32"
+            />
+          </span>
+          <span class="header_name">Slow Reader</span>
+        </a>
+        <a class="button is-app" href="/app">Open app</a>
+        <a class="button is-demo" href="/copy-demo-db">
+          <span class="button_long">Start demo</span>
+          <span class="button_short">Demo</span>
+        </a>
+        <a class="button is-login" href="/app">Log in</a>
+      </div>
+    </header>
+
+    <main class="doc">{{content}}</main>
+  </body>
+</html>

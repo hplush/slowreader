@@ -5,10 +5,11 @@ export function inlineCss(): Plugin {
     enforce: 'post',
 
     generateBundle(options, bundle) {
-      for (let file of Object.values(bundle)) {
-        if (file.type !== 'asset' || !file.fileName.endsWith('.html')) continue
-        let html = file.source.toString()
-        file.source = html.replace(
+      let landing = bundle['root/root.html']
+      if (!landing || landing.type !== 'asset') return
+      landing.source = landing.source
+        .toString()
+        .replace(
           /<link rel="stylesheet"[^>]*href="\/([^"]+\.css)"[^>]*>/g,
           (link, name: string) => {
             let css = bundle[name]
@@ -17,7 +18,6 @@ export function inlineCss(): Plugin {
             return `<style>${css.source.toString()}</style>`
           }
         )
-      }
     },
     name: 'inline-css'
   }
