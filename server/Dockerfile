@@ -1,7 +1,7 @@
 FROM cgr.dev/chainguard/wolfi-base@sha256:fac38d12efdb4bf43ac9e599a31db10a27ad5dd71e5f1618790962eda8d66180 AS node
 
-ENV NODE_VERSION=26.9.0 \
-  NODE_CHECKSUM_X64=c6ecd8efc1c1d395265891675319da7a7b3785c6be174bd78933cf4f057624d1
+ENV NODE_VERSION=26.10.0 \
+  NODE_CHECKSUM_X64=ca70e9e349de048b9522abb3adc05b3bd6f43c5ffd3ec57916c7da292f59f022
 
 RUN apk add --no-cache curl libatomic
 
