@@ -36,10 +36,8 @@ body {
 
 .button {
   @media (prefers-color-scheme: light) {
-    box-shadow:
-      inset 0 1px 0 oklch(1 0 0 / 30%),
-      inset 0 -0.5px 0 oklch(0 0 0 / 40%),
-      --linear-shadow(0 0.2rem 0.2rem oklch(0 0 0 / 10%));
+    --button-edge: oklch(0 0 0 / 40%);
+    --button-drop: oklch(0 0 0 / 10%);
   }
 }
 

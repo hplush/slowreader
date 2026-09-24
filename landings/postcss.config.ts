@@ -1,8 +1,8 @@
 import { join } from 'node:path'
+import corners from 'postcss-smooth-corners'
 import shadows from 'postcss-smooth-shadow'
 
 import customMedia from '../web/postcss/custom-media.ts'
-import squircleCorner from '../web/postcss/squircle-corner.ts'
 import topColor from './postcss/top-color.ts'
 
 export default {
@@ -10,7 +10,7 @@ export default {
     customMedia({
       file: join(import.meta.dirname, '..', 'web', 'main', 'sizes.css')
     }),
-    squircleCorner,
+    corners({ auto: true, autoMinSize: 8 }),
     shadows(),
     topColor
   ]

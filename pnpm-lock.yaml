@@ -382,6 +382,9 @@ importers:
       postcss:
         specifier: 8.5.28
         version: 8.5.28
+      postcss-smooth-corners:
+        specifier: 0.1.1
+        version: 0.1.1(postcss@8.5.28)
       postcss-smooth-shadow:
         specifier: 0.3.2
         version: 0.3.2(postcss@8.5.28)
@@ -556,6 +559,9 @@ importers:
       postcss-mixins:
         specifier: 12.1.2
         version: 12.1.2(postcss@8.5.28)
+      postcss-smooth-corners:
+        specifier: 0.1.1
+        version: 0.1.1(postcss@8.5.28)
       postcss-smooth-shadow:
         specifier: 0.3.2
         version: 0.3.2(postcss@8.5.28)
@@ -4714,6 +4720,12 @@ packages:
     peerDependencies:
       postcss: ^8.2.1
 
+  postcss-smooth-corners@0.1.1:
+    resolution: {integrity: sha512-ol+p0chG1+LfWN6KgJy8wL8ZZslkVcaAgQJs+NBjGNoldq9WTfZoCYSM5FxeF1YAYb9jeUxKVxhO+MzQClejZA==}
+    engines: {node: '>=22.0'}
+    peerDependencies:
+      postcss: ^8.4.0
+
   postcss-smooth-shadow@0.3.2:
     resolution: {integrity: sha512-qaqZYhPXblEoGjZalk3AgUUWB00I5uvSROFdJpJmooB3shupLQOzCpd64V/fjD2HpyG2yPi6kCJER7pqv4t74w==}
     engines: {node: ^20.0 || ^22.0 || >=24.0}
@@ -6149,13 +6161,17 @@ snapshots:
     dependencies:
       '@logux/core': 0.10.0
 
+  '@logux/actions@git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)':
+    dependencies:
+      '@logux/core': git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
+
   '@logux/actions@git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)':
     dependencies:
       '@logux/core': git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
 
   '@logux/client@git+https://github.com/logux/client.git#9703763969d2f1a330b18ad4f2864dadefb3b15e(@nanostores/sql@0.6.0)(nanostores@1.5.3)(react@19.3.0)':
     dependencies:
-      '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
+      '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
       '@logux/core': git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
       nanoevents: 10.0.0
       nanoid: 6.0.1
@@ -6216,7 +6232,7 @@ snapshots:
 
   '@logux/server@git+https://github.com/logux/server.git#a73951490dc59e71573f2f2e4c430c0fc128ce23':
     dependencies:
-      '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
+      '@logux/actions': git+https://github.com/logux/actions.git#a25e3218e2d1a8295d935ca70d14b38337ee678a(@logux/core@@logux/core@git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4)
       '@logux/core': git+https://github.com/logux/core.git#f1e5a4cb28d241cb9a62524866552eb9e6064aa4
       cookie: 2.0.1
       nanoevents: 10.0.0
@@ -9144,6 +9160,10 @@ snapshots:
       util-deprecate: 1.0.2
 
   postcss-simple-vars@7.0.1(postcss@8.5.28):
+    dependencies:
+      postcss: 8.5.28
+
+  postcss-smooth-corners@0.1.1(postcss@8.5.28):
     dependencies:
       postcss: 8.5.28
 

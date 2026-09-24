@@ -25,6 +25,7 @@ dedupePeers: true
 minimumReleaseAgeExclude:
   - postcss
   - postcss-smooth-shadow
+  - postcss-smooth-corners
   - '@nanostores/*'
   - '@logux/*'
   - '@size-limit/*'

@@ -19,10 +19,6 @@
     --navbar-width: 16rem;
   }
 
-  @supports (corner-shape: squircle) {
-    --base-radius: 0.65rem;
-  }
-
   @media (--no-desktop) {
     --navbar-padding: 0.5rem;
 

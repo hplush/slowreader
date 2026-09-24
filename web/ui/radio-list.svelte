@@ -138,7 +138,7 @@
       inset: 0;
       appearance: none;
       background: transparent;
-      border-radius: inherit;
+      border-radius: 50%;
 
       html:not(.is-quiet-cursor)
         .radio-list_option:not(:has(:checked, :disabled))

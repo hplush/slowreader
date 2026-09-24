@@ -437,10 +437,6 @@ body {
   text-decoration: none;
   border-radius: 0.75rem;
 
-  @supports (corner-shape: squircle) {
-    border-radius: 1.3rem;
-  }
-
   strong {
     display: block;
     font-weight: 900;
