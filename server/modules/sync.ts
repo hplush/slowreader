@@ -3,9 +3,9 @@ import { parseId } from '@logux/core'
 import type { ServerClient } from '@logux/server'
 import { dbReset, RETENTION } from '@slowreader/api'
 import { inArray, sql } from 'drizzle-orm'
-import debounce from 'just-debounce-it'
 
 import { db, users } from '../db/index.ts'
+import { debounce } from '../lib/debounce.ts'
 import type { AppServer, ClientData } from '../lib/types.ts'
 
 function ids(action: ZeroCleanAction): string[] {
@@ -82,7 +82,7 @@ export default (server: AppServer): void => {
     },
     process(ctx) {
       acted.add(ctx.userId)
-      writeLastActions()
+      void writeLastActions()
     }
   })
 

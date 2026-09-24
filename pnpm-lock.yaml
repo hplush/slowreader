@@ -448,9 +448,6 @@ importers:
       drizzle-orm:
         specifier: 1.0.0-rc.4
         version: 1.0.0-rc.4(@electric-sql/pglite@0.5.8)(postgres@3.4.9)
-      just-debounce-it:
-        specifier: 3.2.0
-        version: 3.2.0
       nanoid:
         specifier: 6.0.1
         version: 6.0.1
