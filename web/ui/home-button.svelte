@@ -2,12 +2,13 @@
   import { mdiArrowLeft } from '@mdi/js'
   import { currentPage, authMessages as t, userId } from '@slowreader/core'
 
+  import { hasLanding } from '../lib/landing.ts'
   import Button from './button.svelte'
 
   let hideMenu = $derived($currentPage.hideMenu)
 </script>
 
-{#if !$userId || $hideMenu}
+{#if hasLanding && (!$userId || $hideMenu)}
   <div class="home-button">
     <Button href="/" icon={mdiArrowLeft} rel="external" variant="plain">
       {$t.home}
