@@ -34,6 +34,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 - [`ui/`](./ui/): shared components between different pages. Some people call it “UI kit”.
 - [`public/`](./public/): static files like favicon and manifests.
 - [`stores/`](./stores/): web client’s own smart stores. For instance, router on top of URL using [Nano Stores Router](https://github.com/nanostores/router).
+- [`lib/`](./lib/): browser helpers without stores or components.
 - [`postcss/`](./postcss/): [PostCSS](https://postcss.org/) plugins to check CSS and optimize it. Check the plugin’s descriptions for more information.
 - [`vite/`](./vite/): build helpers, which [landings](../landings/) use too.
 - [`stories/`](./stories/): visual tests for pages and UI components by [Storybook](https://storybook.js.org/). The main way to test web client.
