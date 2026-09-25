@@ -237,7 +237,7 @@ main > .section.is-mobile {
     repeating-linear-gradient(
         -45deg,
         oklch(0.4 0 0) 0 1.5rem,
-        oklch(0.22 0 0) 1.5rem 3rem
+        oklch(0.26 0 0) 1.5rem 3rem
       )
       border-box;
   border: 1.875rem solid transparent;
