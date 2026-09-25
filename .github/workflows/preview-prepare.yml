@@ -19,6 +19,7 @@ on:
       - '.devcontainer/**'
       - 'extension/**'
 permissions:
+  actions: read
   contents: read
 jobs:
   prepare:
@@ -49,6 +50,14 @@ jobs:
           persist-credentials: false
       - name: Initialize Node.js
         uses: $/.github/actions/init-node
+      - name: Download landing screenshots
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN=$(gh run list --workflow demo-db.yml --branch main \
+            --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          gh run download "$RUN" --name landing-screenshots --dir landings/screenshots/
       - name: Build landings
         run: pnpm -F landings build
       - name: Build assets

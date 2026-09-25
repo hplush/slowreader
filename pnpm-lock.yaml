@@ -397,6 +397,10 @@ importers:
       vite:
         specifier: 8.3.0
         version: 8.3.0(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.1)
+    devDependencies:
+      playwright:
+        specifier: 1.64.0-alpha-1789764292000
+        version: 1.64.0-alpha-1789764292000
 
   loader-tests:
     devDependencies:

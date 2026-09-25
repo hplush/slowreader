@@ -60,7 +60,39 @@
             <a class="button is-app is-big" href="/app">Open app</a>
             <a class="button is-demo is-big" href="/copy-demo-db">Start demo</a>
           </div>
+          <div class="devices">
+            <picture class="laptop">
+              <source
+                media="(width > 64rem) and (aspect-ratio > 1)"
+                srcset="../screenshots/slow-laptop.avif"
+              />
+              <img class="laptop_screen" alt="" height="860" width="1290" />
+            </picture>
+            <picture class="phone">
+              <source
+                media="(width > 64rem) and (aspect-ratio > 1)"
+                srcset="../screenshots/slow-phone.avif"
+              />
+              <img class="phone_screen" alt="" height="915" width="412" />
+            </picture>
+          </div>
         </div>
+      </section>
+
+      <section class="section is-mobile is-phone">
+        <picture class="phone">
+          <source
+            media="(width <= 64rem), (aspect-ratio <= 1)"
+            srcset="../screenshots/slow-phone.avif"
+          />
+          <img
+            class="phone_screen"
+            alt=""
+            height="915"
+            loading="lazy"
+            width="412"
+          />
+        </picture>
       </section>
 
       <section class="section is-under-construction">

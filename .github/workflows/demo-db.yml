@@ -8,12 +8,14 @@ on:
       - 'web/demo/demo-feeds.opml'
       - '.github/workflows/demo-db.yml'
       - '.github/actions/init-node/action.yml'
+      - 'landings/scripts/screenshots.ts'
   pull_request:
     paths:
       - 'web/demo/build-demo-db.ts'
       - 'web/demo/demo-feeds.opml'
       - '.github/workflows/demo-db.yml'
       - '.github/actions/init-node/action.yml'
+      - 'landings/scripts/screenshots.ts'
   schedule:
     - cron: '00 05 * * 1' # Every Monday at 5:00 UTC
   # To refresh the posts right before a demo
@@ -22,7 +24,7 @@ permissions:
   contents: read
 jobs:
   build:
-    name: Build Demo Database
+    name: Build Demo Database and Screenshots
     runs-on: ubuntu-latest
     steps:
       - name: Harden the runner
@@ -47,3 +49,15 @@ jobs:
           path: |
             web/public/demo.json
             web/public/demo.sqlite
+      - name: Install the browser
+        run: pnpm -F landings exec playwright install chromium
+      - name: Make landing screenshots
+        run: pnpm -F landings screenshots
+        env:
+          FORCE_COLOR: 1
+      - name: Upload landing screenshots
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: landing-screenshots
+          retention-days: 30
+          path: landings/screenshots/

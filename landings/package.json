@@ -6,6 +6,7 @@
     "start": "vite build --watch",
     "build": "vite build",
     "save-images": "node ./scripts/save-images.ts",
+    "screenshots": "node ./scripts/screenshots.ts",
     "clean:build": "rm -rf dist/",
     "test:offline:build-landings": "pnpm build",
     "test": "FORCE_COLOR=1 pnpm run /^test:/"
@@ -19,5 +20,8 @@
     "sharp": "0.35.4",
     "typograf": "7.8.0",
     "vite": "8.3.0"
+  },
+  "devDependencies": {
+    "playwright": "1.64.0-alpha-1789764292000"
   }
 }

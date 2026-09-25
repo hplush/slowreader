@@ -48,6 +48,7 @@ jobs:
     name: Server Build
     if: github.ref == 'refs/heads/main'
     permissions:
+      actions: read
       contents: read
     runs-on: ubuntu-latest
     steps:
@@ -72,6 +73,14 @@ jobs:
         with:
           cache: false
           install: -F server -F proxy -F api -F web -F core -F landings --prod
+      - name: Download landing screenshots
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN=$(gh run list --workflow demo-db.yml --branch main \
+            --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          gh run download "$RUN" --name landing-screenshots --dir landings/screenshots/
       - name: Build landings
         run: pnpm -F landings build
       - name: Build web client

@@ -1,3 +1,4 @@
 dist/
 generated/
 vite.config.ts.timestamp*
+screenshots/

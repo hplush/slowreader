@@ -8,17 +8,13 @@ html {
 
 body {
   timeline-scope: --hero-buttons;
-
-  /* iOS paints it above the viewport, where the photo’s top line continues */
   background: --top-color('../generated-images/main/main.avif');
 
-  /* Keep the ratio in sync with `<source media>` in root.html */
   @media (aspect-ratio <= 3/4) {
     background: --top-color('../generated/main-portrait.avif');
   }
 }
 
-/* Zero width, so the flying label never takes the space of the title */
 .header_dock {
   position: relative;
   align-self: stretch;
@@ -42,7 +38,6 @@ body {
     }
   }
 
-  /* Demo button joins Log in only after it lands in the header */
   :root:not(.is-scrolled) .header &:is(.is-demo, .is-login) {
     border-radius: 0.375rem;
   }
@@ -67,7 +62,6 @@ body {
   }
 }
 
-/* Both labels share the cell, so they can cross-fade while the button flies */
 .button_long,
 .button_short {
   grid-area: 1 / 1;
@@ -111,7 +105,6 @@ body {
   }
 }
 
-/* Zero font size, not zero width, so the button never clips the letters */
 @keyframes --shrink {
   0% {
     font-size: 100%;
@@ -153,7 +146,6 @@ body {
   scroll-snap-align: start;
   scroll-snap-stop: always;
 
-  /* iOS mirrors the strip above the viewport, so park the seam even higher */
   @media (--no-desktop) {
     &:not(:first-child) {
       min-block-size: calc(100lvh + 5rem);
@@ -162,18 +154,29 @@ body {
   }
 }
 
-.section.is-under-construction {
+main > .section.is-mobile {
+  @media (width > 64rem) and (aspect-ratio > 1) {
+    display: none;
+  }
+}
+
+.section.is-under-construction,
+.section.is-phone {
   display: flex;
   padding-block-start: 3rem;
   background: oklch(0.3 0 0);
 
   @media (--no-desktop) {
-    /* The top 5rem are parked above the viewport */
-    padding-block: 5rem calc(2.9rem + max(0.5rem, env(safe-area-inset-bottom)));
+    padding-block: calc(5rem + env(safe-area-inset-top))
+      calc(2.9rem + max(0.5rem, env(safe-area-inset-bottom)) + 100lvh - 100svh);
   }
 }
 
-/* A recessed hole in the page, where the feature will be */
+.section.is-phone {
+  align-items: center;
+  justify-content: center;
+}
+
 .construction {
   position: relative;
   display: flex;
@@ -196,7 +199,6 @@ body {
   border: 1.875rem solid transparent;
 }
 
-/* Inset `box-shadow` of the block itself would stay inside the border */
 .construction::after {
   position: absolute;
   inset: -1.875rem;
@@ -258,6 +260,8 @@ body {
 }
 
 .section.is-hero {
+  --hero-shift: calc(max(0rem, calc(1.42 * 100svh - 0.8 * 100vw)) + 10vw);
+
   position: relative;
   display: flex;
   align-items: center;
@@ -270,13 +274,11 @@ body {
   background: --top-color('../generated-images/main/main.avif');
   view-timeline: --hero-buttons block;
 
-  /* Keep the ratio in sync with `<source media>` in root.html */
   @media (aspect-ratio <= 3/4) {
     background: --top-color('../generated/main-portrait.avif');
   }
 
   @media (--no-desktop) {
-    /* The bar grows with the inset too, so add it instead of max() */
     padding-block: max(2rem, env(safe-area-inset-top))
       calc(6rem + env(safe-area-inset-bottom));
   }
@@ -300,11 +302,8 @@ body {
   z-index: 1;
   max-inline-size: 26rem;
 
-  /* Keep the text on the dark strip between the fireplace and the window.
-     `cover` crops the sides, so the strip drifts right as the screen gets
-     narrower. Centering splits the margin, so the shift is doubled here. */
   @media (width > 40rem) and (aspect-ratio > 1) {
-    margin-inline-start: max(0rem, calc(1.42 * 100svh - 0.8 * 100vw));
+    margin-inline-start: var(--hero-shift);
   }
 
   @media (width <= 40rem), (aspect-ratio <= 1) {
@@ -313,6 +312,145 @@ body {
     flex-direction: column;
     max-inline-size: none;
   }
+}
+
+.devices {
+  position: relative;
+  display: none;
+  inline-size: min(
+    calc(((100vw + 26rem - var(--hero-shift)) / 2 - 3rem) / 1.1),
+    calc((100svh - 30rem) / 0.74),
+    60rem
+  );
+  margin-block-start: 3rem;
+
+  @media (width > 64rem) and (aspect-ratio > 1) {
+    display: block;
+  }
+}
+
+.laptop {
+  position: relative;
+  display: block;
+  container-type: inline-size;
+  inline-size: 90%;
+  background: oklch(0.13 0 0);
+  border-radius: 1.5% 1.5% 0 0 / 2.2% 2.2% 0 0;
+  corner-shape: round;
+  filter: drop-shadow(0 1rem 1.5rem oklch(0 0 0 / 60%));
+}
+
+.laptop_screen {
+  box-sizing: content-box;
+  display: block;
+  inline-size: calc(100% - 4cqi);
+  block-size: auto;
+  background: oklch(0.25 0.03 70);
+  border: 2cqi solid oklch(0.13 0 0);
+  border-block-start-width: 2.6cqi;
+  border-block-end-width: 3cqi;
+  border-radius: 1.5cqi 1.5cqi 0 0;
+  corner-shape: round;
+  box-shadow:
+    0 0 0 0.8cqi oklch(0.24 0 0),
+    0 0 0 calc(0.8cqi + 0.5px) oklch(0.45 0 0);
+}
+
+.laptop::before {
+  position: absolute;
+  inset-block-start: 0.8cqi;
+  inset-inline-start: calc(50% - 4.5cqi);
+  inline-size: 9cqi;
+  block-size: 1cqi;
+  content: '';
+  background:
+    radial-gradient(
+        circle,
+        oklch(0.3 0.04 260) 0.2cqi,
+        oklch(0.05 0 0) 0.3cqi 0.45cqi,
+        transparent 0.5cqi
+      )
+      center / 1cqi 1cqi no-repeat,
+    linear-gradient(oklch(0.08 0 0), oklch(0.02 0 0)) 2.8cqi center / 1.2cqi
+      0.9cqi no-repeat,
+    linear-gradient(oklch(0.24 0.05 25), oklch(0.24 0.05 25)) 0.5cqi center /
+      0.25cqi 0.7cqi no-repeat,
+    linear-gradient(oklch(0.24 0.05 25), oklch(0.24 0.05 25)) 8.25cqi center /
+      0.25cqi 0.7cqi no-repeat,
+    linear-gradient(oklch(0.09 0 0), oklch(0.09 0 0)) left center / 2cqi 0.9cqi
+      no-repeat,
+    linear-gradient(oklch(0.09 0 0), oklch(0.09 0 0)) right center / 2cqi 0.9cqi
+      no-repeat;
+}
+
+.laptop::after {
+  display: block;
+  block-size: 3cqi;
+  margin-inline: -1.5cqi;
+  content: '';
+  background:
+    linear-gradient(to bottom left, oklch(0.39 0 0) 50%, transparent 50%)
+      40.5cqi 0 / 0.8cqi 0.8cqi no-repeat,
+    linear-gradient(oklch(0.39 0 0), oklch(0.33 0 0)) 41.3cqi 0 / 20.4cqi 0.8cqi
+      no-repeat,
+    linear-gradient(to bottom right, oklch(0.39 0 0) 50%, transparent 50%)
+      61.7cqi 0 / 0.8cqi 0.8cqi no-repeat,
+    linear-gradient(oklch(0.1 0 0), oklch(0.1 0 0)) top / 100% 0.4cqi no-repeat,
+    linear-gradient(oklch(0.36 0 0), oklch(0.2 0 0));
+  border-radius: 0 0 1.5cqi 1.5cqi;
+  box-shadow: 0 0 0 0.5px oklch(0.45 0 0);
+}
+
+.phone {
+  position: relative;
+  display: block;
+  container-type: inline-size;
+  background: oklch(0.15 0 0);
+  border-radius: 14% / 6.5%;
+  corner-shape: round;
+  filter: drop-shadow(0 0.75rem 1rem oklch(0 0 0 / 70%));
+
+  .devices & {
+    position: absolute;
+    inset-block-end: -4%;
+    inset-inline-end: -10%;
+    inline-size: 34%;
+  }
+
+  .section.is-phone & {
+    inline-size: min(
+      92vw,
+      28rem,
+      calc(
+        (100svh - env(safe-area-inset-top) -
+            max(0.5rem, env(safe-area-inset-bottom)) - 5rem) /
+          2.135
+      )
+    );
+  }
+}
+
+.phone_screen {
+  box-sizing: content-box;
+  display: block;
+  inline-size: calc(100% - 7cqi);
+  block-size: auto;
+  background: oklch(0.25 0.03 70);
+  border: 3.5cqi solid oklch(0.15 0 0);
+  border-radius: 14cqi;
+  corner-shape: round;
+  box-shadow: 0 0 0 0.5px oklch(1 0 0 / 30%);
+}
+
+.phone::after {
+  position: absolute;
+  inset-block-start: 6cqi;
+  inset-inline-start: calc(50% - 2.5cqi);
+  inline-size: 5cqi;
+  block-size: 5cqi;
+  content: '';
+  background: oklch(0.1 0 0);
+  border-radius: 50%;
 }
 
 .section_actions {
@@ -335,8 +473,6 @@ body {
     0 1px 1.5rem oklch(0 0 0 / 95%);
   max-inline-size: 26rem;
   text-wrap: balance;
-
-  /* Outline the glyphs, so the photo never shows through a thin stroke */
   paint-order: stroke fill;
   -webkit-text-stroke: 0.08rem oklch(0 0 0 / 55%);
 }
@@ -364,8 +500,6 @@ body {
   background: oklch(0.3 0 0);
 
   @media (--no-desktop) {
-    /* The top 5rem are parked above the viewport, and the bottom is hidden
-       by the browser bar until it collapses */
     padding-block: 7rem
       calc(5.9rem + max(0.5rem, env(safe-area-inset-bottom)) + 100lvh - 100svh);
   }
@@ -428,8 +562,6 @@ body {
   display: flex;
   gap: 1rem;
   align-items: center;
-
-  /* Negative margin keeps the logo aligned with the links on the left */
   padding: 0.5rem 1.25rem 0.5rem 0.75rem;
   margin: -0.75rem -1.25rem -0.75rem -0.75rem;
   line-height: 1.3;
@@ -462,14 +594,11 @@ body {
   }
 }
 
-/* Engraved into the footer: darker than it with a light lower edge */
 .footer_logo {
   flex-shrink: 0;
   inline-size: 4.5rem;
   block-size: 4.5rem;
   object-fit: contain;
-
-  /* Black SVG becomes `oklch(0.62 0 0)`, APCA Lc 33 on the footer */
   filter: invert(52%);
 
   &.is-hplush {

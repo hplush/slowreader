@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { mkdir, readdir, stat } from 'node:fs/promises'
 import { join } from 'node:path'
 import sharp from 'sharp'
@@ -5,6 +6,7 @@ import type { Plugin } from 'vite'
 
 const IMAGES = join(import.meta.dirname, '..', 'generated-images')
 const GENERATED = join(import.meta.dirname, '..', 'generated')
+const SCREENSHOTS = join(import.meta.dirname, '..', 'screenshots')
 // Only the biggest image is in the size budget, see web/.size-limit.json
 const SMALL = join(GENERATED, 'small')
 const ICON = join(
@@ -88,6 +90,13 @@ export function images(): Plugin {
 
     transformIndexHtml: {
       handler(html) {
+        for (let [, file] of html.matchAll(
+          /\.\.\/screenshots\/([\w-]+\.avif)/g
+        )) {
+          if (!existsSync(join(SCREENSHOTS, file!))) {
+            throw new Error(`Run pnpm -F landings screenshots to make ${file}`)
+          }
+        }
         let source =
           /(src|srcset)="\.\.\/generated-images\/\w+\/([\w-]+)\.avif"/g
         return html.replace(source, (_: string, attr: string, name: string) => {
