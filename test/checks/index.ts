@@ -4,6 +4,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
+import { checkCertificate } from './certificate.ts'
 import { checkCompression } from './compression.ts'
 import { checkDnsHealth } from './dns-health.ts'
 import { checkHttp3 } from './http3.ts'
@@ -25,7 +26,8 @@ let results = [
   await checkLighthouse(sites),
   await checkHttp3(hosts, pages),
   await checkDnsHealth(hosts),
-  await checkCompression(pages)
+  await checkCompression(pages),
+  await checkCertificate(hosts)
 ]
 
 if (!results.every(Boolean)) process.exit(1)

@@ -15,6 +15,7 @@ pnpm -F test checks
 - HTTP security headers by [Mozilla HTTP Observatory](https://developer.mozilla.org/en-US/observatory).
 - Performance, best practices, and indexing by [Lighthouse](https://developer.chrome.com/docs/lighthouse) in [PageSpeed Insights](https://pagespeed.web.dev/).
 - Brotli or Zstandard compression instead of gzip.
+- TLS certificate is valid for at least 7 more days.
 
 Add new domains and paths to [`sites.json`](./sites.json).
 
