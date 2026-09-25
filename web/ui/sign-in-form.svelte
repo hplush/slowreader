@@ -71,7 +71,7 @@
         loader={$signingIn ? $t.signingIn : undefined}
         size="wide"
         type="submit"
-        variant="attention"
+        variant="main"
       >
         {submit}
       </Button>

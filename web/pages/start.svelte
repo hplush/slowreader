@@ -16,6 +16,11 @@
 <TwoOptionsPage align="center" title={$t.startTitle}>
   {#snippet one()}
     <Card>
+      <SignInForm {page} submit={$t.login} title={$t.oldUser} />
+    </Card>
+  {/snippet}
+  {#snippet two()}
+    <Card variant="transparent">
       <Stack gap="l">
         <Stack gap="s">
           <Title>{$t.newUser}</Title>
@@ -28,7 +33,7 @@
             icon={mdiBinoculars}
             rel="external"
             size="big"
-            variant="main"
+            variant="attention"
           >
             {$t.demo}
           </Button>
@@ -57,11 +62,6 @@
           </Stack>
         </Stack>
       </Stack>
-    </Card>
-  {/snippet}
-  {#snippet two()}
-    <Card variant="transparent">
-      <SignInForm {page} submit={$t.login} title={$t.oldUser} />
     </Card>
   {/snippet}
 </TwoOptionsPage>
