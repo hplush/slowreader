@@ -10,7 +10,7 @@ export default {
     customMedia({
       file: join(import.meta.dirname, '..', 'web', 'main', 'sizes.css')
     }),
-    corners({ auto: true, autoMinSize: 8 }),
+    corners({ auto: true }),
     shadows(),
     topColor
   ]
