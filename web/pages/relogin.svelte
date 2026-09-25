@@ -4,6 +4,7 @@
 
   import Button from '../ui/button.svelte'
   import Card from '../ui/card.svelte'
+  import HomeButton from '../ui/home-button.svelte'
   import PageIcon from '../ui/page-icon.svelte'
   import SignInForm from '../ui/sign-in-form.svelte'
   import Stack from '../ui/stack.svelte'
@@ -11,6 +12,8 @@
 
   let { page }: { page: ReloginPage } = $props()
 </script>
+
+<HomeButton />
 
 <TwoOptionsPage align="center" title={$t.reloginTitle}>
   {#snippet one()}

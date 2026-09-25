@@ -23,14 +23,16 @@
   }: {
     page: ReloginPage | StartPage
     submit: string
-    title: string
+    title?: string
   } = $props()
   let { secret, signError, signingIn, userId } = $derived(page)
 </script>
 
 <Form loading={$signingIn} onsubmit={page.signIn}>
   <Stack gap="l">
-    <Title>{title}</Title>
+    {#if title}
+      <Title>{title}</Title>
+    {/if}
     <Stack>
       <Input
         name="username"
@@ -69,7 +71,7 @@
       <Button
         icon={mdiLogin}
         loader={$signingIn ? $t.signingIn : undefined}
-        size="wide"
+        size="big"
         type="submit"
         variant="main"
       >

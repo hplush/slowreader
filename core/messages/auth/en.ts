@@ -11,11 +11,10 @@ export const authMessages = i18n('auth', {
     '// Send this email to yourself\n// If you forget your password, you can search for it later here\n\nUser ID: {user}\nSecret: {secret}'
   ),
   exit: 'Log out',
+  home: 'Home',
   localDescription1:
     'Slow Reader works right on your device. No account needed.',
   localDescription2: 'You can create an account later to sync across devices.',
-  login: 'Log in',
-  newUser: 'Get started locally',
   noRecoveryDesc:
     'Slow Reader uses end-to-end encryption. If you lose your password, no one will be able to decrypt your data.',
   noRecoveryTitle: 'No password recovery',

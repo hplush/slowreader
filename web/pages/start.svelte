@@ -5,38 +5,39 @@
   import { getURL } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
   import Card from '../ui/card.svelte'
+  import HomeButton from '../ui/home-button.svelte'
   import SignInForm from '../ui/sign-in-form.svelte'
   import Stack from '../ui/stack.svelte'
-  import Title from '../ui/title.svelte'
   import TwoOptionsPage from '../ui/two-options-page.svelte'
 
   let { page }: { page: StartPage } = $props()
 </script>
 
+<HomeButton />
+
 <TwoOptionsPage align="center" title={$t.startTitle}>
   {#snippet one()}
     <Card>
-      <SignInForm {page} submit={$t.login} title={$t.oldUser} />
+      <SignInForm {page} submit={$t.oldUser} />
     </Card>
   {/snippet}
   {#snippet two()}
     <Card variant="transparent">
       <Stack gap="l">
         <Stack gap="s">
-          <Title>{$t.newUser}</Title>
           <p>{$t.localDescription1}</p>
           <p>{$t.localDescription2}</p>
-        </Stack>
-        <Stack align="center">
           <Button
             href="/copy-demo-db"
             icon={mdiBinoculars}
             rel="external"
-            size="big"
-            variant="attention"
+            size="wide"
+            variant="secondary"
           >
             {$t.demo}
           </Button>
+        </Stack>
+        <Stack align="center">
           <Stack align="center" gap="s">
             {$t.createEmpty}
             <Stack gap="xs" row>

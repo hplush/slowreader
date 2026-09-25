@@ -17,6 +17,7 @@
   import Card from '../ui/card.svelte'
   import Error from '../ui/error.svelte'
   import Form from '../ui/form.svelte'
+  import HomeButton from '../ui/home-button.svelte'
   import Note from '../ui/note.svelte'
   import Output from '../ui/output.svelte'
   import Paper from '../ui/paper.svelte'
@@ -28,6 +29,8 @@
   let { page }: { page: SignUpPage } = $props()
   let { error, mailTo, secret, signingUp, userId, warningStep } = $derived(page)
 </script>
+
+<HomeButton />
 
 {#if $warningStep}
   <ThinPage align="center" title={$t.signupTitle}>
