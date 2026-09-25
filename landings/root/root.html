@@ -79,20 +79,45 @@
         </div>
       </section>
 
-      <section class="section is-mobile is-phone">
-        <picture class="phone">
-          <source
-            media="(width <= 64rem), (aspect-ratio <= 1)"
-            srcset="../screenshots/slow-phone.avif"
-          />
-          <img
-            class="phone_screen"
-            alt=""
-            height="915"
-            loading="lazy"
-            width="412"
-          />
-        </picture>
+      <section class="section is-mobile is-screenshots">
+        <div class="slider">
+          <div class="slider_slides">
+            <div class="slider_slide">
+              <picture class="phone">
+                <source
+                  media="(width <= 64rem), (aspect-ratio <= 1)"
+                  srcset="../screenshots/slow-phone.avif"
+                />
+                <img
+                  class="phone_screen"
+                  alt=""
+                  height="915"
+                  loading="lazy"
+                  width="412"
+                />
+              </picture>
+            </div>
+            <div class="slider_slide">
+              <picture class="laptop">
+                <source
+                  media="(width <= 64rem), (aspect-ratio <= 1)"
+                  srcset="../screenshots/slow-laptop.avif"
+                />
+                <img
+                  class="laptop_screen"
+                  alt=""
+                  height="860"
+                  loading="lazy"
+                  width="1290"
+                />
+              </picture>
+            </div>
+          </div>
+          <div class="slider_dots">
+            <span class="slider_dot is-current"></span>
+            <span class="slider_dot"></span>
+          </div>
+        </div>
       </section>
 
       <section class="section is-under-construction">

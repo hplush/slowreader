@@ -161,7 +161,7 @@ main > .section.is-mobile {
 }
 
 .section.is-under-construction,
-.section.is-phone {
+.section.is-screenshots {
   display: flex;
   padding-block-start: 3rem;
   background: oklch(0.3 0 0);
@@ -172,9 +172,53 @@ main > .section.is-mobile {
   }
 }
 
-.section.is-phone {
+.slider {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+
+.slider_slides {
+  display: flex;
+  flex: 1;
+  margin-block-end: -2rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.slider_slide {
+  display: flex;
+  flex: 0 0 100%;
   align-items: center;
   justify-content: center;
+  padding: 0.5rem 0.5rem 2.5rem;
+  scroll-snap-align: center;
+}
+
+.slider_dots {
+  position: absolute;
+  inset-block-end: 0.25rem;
+  inset-inline: 0;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.slider_dot {
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  background: oklch(1 0 0 / 30%);
+  border-radius: 50%;
+  transition: background 200ms;
+
+  &.is-current {
+    background: oklch(1 0 0 / 90%);
+  }
 }
 
 .construction {
@@ -333,11 +377,26 @@ main > .section.is-mobile {
   position: relative;
   display: block;
   container-type: inline-size;
-  inline-size: 90%;
   background: oklch(0.13 0 0);
   border-radius: 1.5% 1.5% 0 0 / 2.2% 2.2% 0 0;
   corner-shape: round;
   filter: drop-shadow(0 1rem 1.5rem oklch(0 0 0 / 60%));
+
+  .devices & {
+    inline-size: 90%;
+  }
+
+  .section.is-screenshots & {
+    inline-size: min(
+      100%,
+      40rem,
+      calc(
+        (100svh - env(safe-area-inset-top) -
+            max(0.5rem, env(safe-area-inset-bottom)) - 5rem) /
+          0.73
+      )
+    );
+  }
 }
 
 .laptop_screen {
@@ -417,9 +476,9 @@ main > .section.is-mobile {
     inline-size: 34%;
   }
 
-  .section.is-phone & {
+  .section.is-screenshots & {
     inline-size: min(
-      92vw,
+      100%,
       28rem,
       calc(
         (100svh - env(safe-area-inset-top) -

@@ -71,3 +71,22 @@ let themes = new IntersectionObserver(
 for (let section of document.querySelectorAll('.section')) {
   themes.observe(section)
 }
+
+for (let slider of document.querySelectorAll('.slider')) {
+  let slides = slider.querySelector('.slider_slides')
+  let dots = slider.querySelectorAll('.slider_dot')
+  let current = new IntersectionObserver(
+    entries => {
+      for (let entry of entries) {
+        if (entry.isIntersecting) {
+          let index = [...slides.children].indexOf(entry.target)
+          for (let [i, dot] of dots.entries()) {
+            dot.classList.toggle('is-current', i === index)
+          }
+        }
+      }
+    },
+    { root: slides, threshold: 0.5 }
+  )
+  for (let slide of slides.children) current.observe(slide)
+}
