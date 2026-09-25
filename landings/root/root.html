@@ -64,6 +64,7 @@
             <picture class="laptop">
               <source
                 media="(width > 64rem) and (aspect-ratio > 1)"
+                sizes="min(54rem, 50vw)"
                 srcset="../screenshots/slow-laptop.avif"
               />
               <img class="laptop_screen" alt="" height="860" width="1290" />
@@ -71,6 +72,7 @@
             <picture class="phone">
               <source
                 media="(width > 64rem) and (aspect-ratio > 1)"
+                sizes="min(20rem, 17vw)"
                 srcset="../screenshots/slow-phone.avif"
               />
               <img class="phone_screen" alt="" height="915" width="412" />
@@ -86,6 +88,7 @@
               <picture class="phone">
                 <source
                   media="(width <= 64rem), (aspect-ratio <= 1)"
+                  sizes="min(28rem, 92vw)"
                   srcset="../screenshots/slow-phone.avif"
                 />
                 <img
@@ -101,6 +104,7 @@
               <picture class="laptop">
                 <source
                   media="(width <= 64rem), (aspect-ratio <= 1)"
+                  sizes="min(40rem, 100vw)"
                   srcset="../screenshots/slow-laptop.avif"
                 />
                 <img

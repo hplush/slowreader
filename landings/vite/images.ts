@@ -32,6 +32,7 @@ async function fresh(source: string, generated: string): Promise<boolean> {
 export function images(): Plugin {
   let widths = new Map<string, number[]>()
   let heights = new Map<string, number>()
+  let screenshots = new Map<string, number>()
 
   async function variants(
     source: string,
@@ -77,6 +78,24 @@ export function images(): Plugin {
         heights.set(`${dir.name}-portrait`, height)
       }
 
+      // Screenshots are made for 2x screens, their half is enough for phones,
+      // where devices take a small part of the screen
+      if (existsSync(SCREENSHOTS)) {
+        for (let file of await readdir(SCREENSHOTS)) {
+          if (!file.endsWith('.avif')) continue
+          let source = join(SCREENSHOTS, file)
+          let { width } = await sharp(source).metadata()
+          let name = file.replace(/\.avif$/, '')
+          screenshots.set(name, width)
+          let half = join(SMALL, `${name}-${Math.round(width / 2)}.avif`)
+          if (await fresh(source, half)) continue
+          await sharp(source)
+            .resize({ width: Math.round(width / 2) })
+            .avif({ chromaSubsampling: '4:4:4', quality: 70 })
+            .toFile(half)
+        }
+      }
+
       let logo = join(GENERATED, `logo-${ICON_WIDTH}.png`)
       if (!(await fresh(ICON, logo))) {
         await sharp(ICON)
@@ -97,6 +116,17 @@ export function images(): Plugin {
             throw new Error(`Run pnpm -F landings screenshots to make ${file}`)
           }
         }
+        html = html.replace(
+          /srcset="\.\.\/screenshots\/([\w-]+)\.avif"/g,
+          (_: string, name: string) => {
+            let width = screenshots.get(name)!
+            let half = Math.round(width / 2)
+            return (
+              `srcset="../generated/small/${name}-${half}.avif ${half}w, ` +
+              `../screenshots/${name}.avif ${width}w"`
+            )
+          }
+        )
         let source =
           /(src|srcset)="\.\.\/generated-images\/\w+\/([\w-]+)\.avif"/g
         return html.replace(source, (_: string, attr: string, name: string) => {
