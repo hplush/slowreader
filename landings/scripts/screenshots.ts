@@ -102,11 +102,11 @@ try {
         ? await page.locator(screenshot.area).screenshot()
         : await page.screenshot()
     )
-      .avif({ chromaSubsampling: '4:4:4', quality: 70 })
-      .toFile(join(SCREENSHOTS, `${name}.avif`))
+      .png({ compressionLevel: 9, effort: 10 })
+      .toFile(join(SCREENSHOTS, `${name}.png`))
     await context.close()
     process.stderr.write(
-      `${name}.avif ${styleText('green', `${Math.round(size / 1024)} KB`)}\n`
+      `${name}.png ${styleText('green', `${Math.round(size / 1024)} KB`)}\n`
     )
   }
 } finally {

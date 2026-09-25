@@ -32,7 +32,7 @@ async function fresh(source: string, generated: string): Promise<boolean> {
 export function images(): Plugin {
   let widths = new Map<string, number[]>()
   let heights = new Map<string, number>()
-  let screenshots = new Map<string, number>()
+  let screenshots = new Map<string, number[]>()
 
   async function variants(
     source: string,
@@ -78,22 +78,33 @@ export function images(): Plugin {
         heights.set(`${dir.name}-portrait`, height)
       }
 
-      // Screenshots are made for 2x screens, their half is enough for phones,
-      // where devices take a small part of the screen
+      // Devices take different parts of different screens, so small steps
+      // between sizes let every screen take a file close to its need
       if (existsSync(SCREENSHOTS)) {
-        for (let file of await readdir(SCREENSHOTS)) {
-          if (!file.endsWith('.avif')) continue
-          let source = join(SCREENSHOTS, file)
-          let { width } = await sharp(source).metadata()
-          let name = file.replace(/\.avif$/, '')
-          screenshots.set(name, width)
-          let half = join(SMALL, `${name}-${Math.round(width / 2)}.avif`)
-          if (await fresh(source, half)) continue
-          await sharp(source)
-            .resize({ width: Math.round(width / 2) })
-            .avif({ chromaSubsampling: '4:4:4', quality: 70 })
-            .toFile(half)
-        }
+        await Promise.all(
+          (await readdir(SCREENSHOTS))
+            .filter(file => file.endsWith('.png'))
+            .map(async file => {
+              let source = join(SCREENSHOTS, file)
+              let { width } = await sharp(source).metadata()
+              let name = file.replace(/\.png$/, '')
+              let sizes = []
+              for (let size = width; size >= 320; size /= 1.2) {
+                sizes.push(Math.round(size))
+              }
+              screenshots.set(name, sizes)
+              await Promise.all(
+                sizes.map(async size => {
+                  let avif = join(SMALL, `${name}-${size}.avif`)
+                  if (await fresh(source, avif)) return
+                  await sharp(source)
+                    .resize({ width: size })
+                    .avif({ chromaSubsampling: '4:2:0', quality: 50 })
+                    .toFile(avif)
+                })
+              )
+            })
+        )
       }
 
       let logo = join(GENERATED, `logo-${ICON_WIDTH}.png`)
@@ -110,21 +121,20 @@ export function images(): Plugin {
     transformIndexHtml: {
       handler(html) {
         for (let [, file] of html.matchAll(
-          /\.\.\/screenshots\/([\w-]+\.avif)/g
+          /\.\.\/screenshots\/([\w-]+\.png)/g
         )) {
           if (!existsSync(join(SCREENSHOTS, file!))) {
             throw new Error(`Run pnpm -F landings screenshots to make ${file}`)
           }
         }
         html = html.replace(
-          /srcset="\.\.\/screenshots\/([\w-]+)\.avif"/g,
+          /srcset="\.\.\/screenshots\/([\w-]+)\.png"/g,
           (_: string, name: string) => {
-            let width = screenshots.get(name)!
-            let half = Math.round(width / 2)
-            return (
-              `srcset="../generated/small/${name}-${half}.avif ${half}w, ` +
-              `../screenshots/${name}.avif ${width}w"`
-            )
+            let srcset = screenshots
+              .get(name)!
+              .map(i => `../generated/small/${name}-${i}.avif ${i}w`)
+              .join(', ')
+            return `srcset="${srcset}"`
           }
         )
         let source =
