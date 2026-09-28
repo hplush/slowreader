@@ -69,7 +69,7 @@ setProxyAsRequestMethod(
   'https://dev.slowreader.app'
 )
 
-useCredentials(generateCredentials())
+await useCredentials(generateCredentials())
 isDemo.set(true)
 
 currentPage.listen(() => {})
@@ -86,7 +86,7 @@ await page.importFile(
   new File([opml], 'demo.opml', { type: 'application/xml' })
 )
 for (let [url, reason] of page.feedErrors.get()) {
-  error(new Error(`Failed to import ${url}: ${reason}`))
+  error(new Error(`Failed to import ${url} ${reason}`))
 }
 success(`Imported ${page.done.get()} feeds`)
 
