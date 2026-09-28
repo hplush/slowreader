@@ -16,7 +16,6 @@
     "update-browsers": "node web/scripts/update-browsers.ts",
     "update-env": "node ./scripts/update-env.ts",
     "update-docker": "node ./scripts/update-docker.ts",
-    "update-ci": "node --env-file-if-exists=.env node_modules/actions-up/bin/actions-up.js --min-age 1",
     "update-review": "node --env-file-if-exists=.env node_modules/multiocular/server/bin.js --port 2556",
     "format:oxfmt": "oxfmt .",
     "format:css": "stylelint --fix .",
@@ -42,7 +41,6 @@
     "@types/node": "26.6.2",
     "@types/ws": "8.18.1",
     "@typescript/native": "npm:typescript@7.0.2",
-    "actions-up": "1.20.1",
     "better-node-test": "1.0.0",
     "eslint": "10.11.0",
     "eslint-plugin-svelte": "3.23.0",
@@ -72,5 +70,5 @@
     "svgo": "4.1.0",
     "typescript": "6.0.3"
   },
-  "packageManager": "pnpm@12.6.0"
+  "packageManager": "pnpm@12.8.0"
 }

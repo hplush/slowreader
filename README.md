@@ -150,7 +150,6 @@ Each project has its own tools, too.
 - `pnpm unused-messages`: check that all messages are used.
 - `pnpm update-env`: check for Node.js and pnpm updates.
 - `pnpm update-review`: run Multiocular to review updates.
-- `pnpm update-ci`: update CI actions.
 - `pnpm update-browsers`: update target browsers of web client.
 
 We use pnpm feature to run scripts in parallel, naming every test as `<workflow>:<network>:<name>`. First marker is `test:` for tests which `main.yml` runs, or `own:` for tests with own workflow, like `own:online:markdown` in `docs.yml`. Second marker is `online:` for tests which need Internet, or `offline:`. Then every command selects tests by marker: `main.yml` runs `/^test:/`, `pnpm offline` runs `/:offline:/`, `pnpm test` runs `/^(test|own):/`.
@@ -274,12 +273,9 @@ pnpm update-env
 # Update Docker base images
 pnpm update-docker
 
-# Update Node.js dependencies
-pnpm update --interactive --latest -r
+# Update Node.js dependencies and CI actions
+pnpm update --interactive --latest -r --include-github-actions
 pnpm update -r
-
-# Update GitHub actions
-pnpm update-ci
 
 # Update data lock in web/.browserslistrc
 pnpm update-browsers
