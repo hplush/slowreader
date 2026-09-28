@@ -4,17 +4,27 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 
 import { config } from './config.ts'
 
-function badRequest(res: ServerResponse, msg: string): true {
-  res.writeHead(400, { 'Content-Type': 'text/plain' })
+function badRequest(res: ServerResponse, msg: string, status = 400): true {
+  res.writeHead(status, { 'Content-Type': 'text/plain' })
   res.end(msg)
   return true
 }
 
-function collectBody(req: IncomingMessage): Promise<string> {
+const MAX_BODY = 64 * 1024
+
+function collectBody(req: IncomingMessage): Promise<false | string> {
   return new Promise(resolve => {
     let data = ''
-    req.on('data', chunk => {
-      data += String(chunk)
+    let size = 0
+    req.on('data', (chunk: Buffer) => {
+      size += chunk.length
+      if (size > MAX_BODY) {
+        req.removeAllListeners('data')
+        req.resume()
+        resolve(false)
+      } else {
+        data += String(chunk)
+      }
     })
     req.on('end', () => {
       resolve(data)
@@ -93,6 +103,9 @@ export function jsonApi<Response, Request extends object>(
           return badRequest(res, 'Wrong content type')
         }
         let data = await collectBody(req)
+        if (data === false) {
+          return badRequest(res, 'Request is too big', 413)
+        }
         let body: unknown
         try {
           body = JSON.parse(data)

@@ -216,6 +216,13 @@ describe('server auth', () => {
       method: 'PUT'
     })
     equal(await response6.text(), 'Invalid body')
+    let big = await server.fetch('/users/1', {
+      body: JSON.stringify({ id: 'A'.repeat(70 * 1024) }),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'PUT'
+    })
+    equal(big.status, 413)
+    equal(await big.text(), 'Request is too big')
     await throws(async () => {
       await testRequest(server, signOut, {})
     }, 'Invalid request')
