@@ -51,9 +51,10 @@ export function emptyTestServer(): AsyncDisposable & TestServer {
   return destroyable(new TestServer())
 }
 
-export function buildTestServer(): AsyncDisposable &
-  TestServer<object, ClientData> {
-  let server = new TestServer<object, ClientData>({ store })
+export function buildTestServer(
+  opts: ConstructorParameters<typeof TestServer>[0] = {}
+): AsyncDisposable & TestServer<object, ClientData> {
+  let server = new TestServer<object, ClientData>({ store, ...opts })
   authModule(server)
   healthModule(server)
   usersModule(server)

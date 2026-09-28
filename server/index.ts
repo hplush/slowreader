@@ -4,6 +4,7 @@ import { SUBPROTOCOL } from '@slowreader/api'
 import { downloadProvidersIfMissed, loadProviders } from './aaguids/utils.ts'
 import { dbDriver } from './db/index.ts'
 import { onExit } from './lib/exit.ts'
+import { redactLogger } from './lib/redact.ts'
 import type { ClientData } from './lib/types.ts'
 
 await downloadProvidersIfMissed()
@@ -40,21 +41,7 @@ function logCauses(error: Error): void {
 server.on('error', logCauses)
 server.on('fatal', logCauses)
 
-// Logux Server reports client’s IP on connect, but we do not want to know it
-let { info } = server.logger
-server.logger.info = (details, ...args) => {
-  if (
-    typeof details === 'object' &&
-    details !== null &&
-    'ipAddress' in details
-  ) {
-    let anonymous: Record<string, unknown> = { ...details }
-    delete anonymous.ipAddress
-    info(anonymous, ...args)
-  } else {
-    info(details, ...args)
-  }
-}
+redactLogger(server.logger)
 
 await server.autoloadModules('modules/*.ts')
 
