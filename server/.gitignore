@@ -1,3 +1,4 @@
 db/pgdata/
 dist/
 web/
+aaguids/names.json

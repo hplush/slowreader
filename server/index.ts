@@ -1,9 +1,13 @@
 import { PostgresStore, Server } from '@logux/server'
 import { SUBPROTOCOL } from '@slowreader/api'
 
+import { downloadProvidersIfMissed, loadProviders } from './aaguids/utils.ts'
 import { dbDriver } from './db/index.ts'
 import { onExit } from './lib/exit.ts'
 import type { ClientData } from './lib/types.ts'
+
+await downloadProvidersIfMissed()
+await loadProviders()
 
 let store = new PostgresStore(dbDriver)
 await store.init()
