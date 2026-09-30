@@ -2,6 +2,15 @@
 <html class="is-guest is-top" lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // `?guest` shows pages as for a new user to demo or debug them
+      if (
+        !new URLSearchParams(location.search).has('guest') &&
+        localStorage.getItem('slowreader:userId')
+      ) {
+        document.documentElement.classList.replace('is-guest', 'is-user')
+      }
+    </script>
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <meta

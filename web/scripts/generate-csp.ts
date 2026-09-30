@@ -28,6 +28,7 @@ let landingCSS = landing.match(/<style>[\s\S]*?<\/style>/gi)!
 let errorCSS = error.match(/<style>[\s\S]*?<\/style>/gi)!
 let iconCSS = icon.match(/<style>[\s\S]*?<\/style>/gi)!
 let loaderJS = loader.match(/<script>([\s\S]*?)<\/script>/i)![1]!
+let landingJS = landing.match(/<script>([\s\S]*?)<\/script>/i)![1]!
 
 let hashesCSS = loaderStyles
   .concat(landingCSS)
@@ -36,7 +37,7 @@ let hashesCSS = loaderStyles
   .map(i => hash(i.slice(7, -8)))
   .join(' ')
 
-let hashesJS = hash(loaderJS)
+let hashesJS = [loaderJS, landingJS].map(hash).join(' ')
 
 nginx = nginx
   .replace(/style-src ('sha\d+-[^']+'\s*)+/g, `style-src ${hashesCSS} `)
