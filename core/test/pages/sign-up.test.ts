@@ -13,16 +13,16 @@ import {
   currentPage,
   enableTestTime,
   generateCredentials,
-  hasPassword,
+  hasCloud,
   NetworkError,
   router,
   type SavedPassword,
   setupEnvironment,
   signOut,
-  signUp,
+  signUpByPassword,
   testFeed,
   userId,
-  validSecret,
+  validPassword,
   validUserId
 } from '../../index.ts'
 import {
@@ -49,29 +49,29 @@ describe('signup page', () => {
     await cleanAllTables()
   })
 
-  test('regenerates credentials', () => {
+  test('regenerates credentials', async () => {
     let page = openPage({
       params: {},
       route: 'signUp'
     })
 
     equal(validUserId(page.userId.get()), undefined)
-    equal(validSecret(page.secret.get()), undefined)
+    equal(validPassword(page.password.get()), undefined)
 
     let prevUserId1 = page.userId.get()
-    let prevSecret1 = page.secret.get()
+    let prevPassword1 = page.password.get()
 
     page.regenerate()
     notEqual(page.userId.get(), prevUserId1)
-    notEqual(page.secret.get(), prevSecret1)
+    notEqual(page.password.get(), prevPassword1)
     equal(validUserId(page.userId.get()), undefined)
-    equal(validSecret(page.secret.get()), undefined)
+    equal(validPassword(page.password.get()), undefined)
 
     let startPage = openPage({
       params: {},
       route: 'start'
     })
-    startPage.startLocal()
+    await startPage.startLocal()
 
     page = openPage({
       params: {},
@@ -79,14 +79,14 @@ describe('signup page', () => {
     })
 
     equal(page.userId.get(), userId.get())
-    equal(validSecret(page.secret.get()), undefined)
+    equal(validPassword(page.password.get()), undefined)
 
     let prevUserId2 = page.userId.get()
-    let prevSecret2 = page.secret.get()
+    let prevPassword2 = page.password.get()
 
     page.regenerate()
     equal(page.userId.get(), prevUserId2)
-    notEqual(page.secret.get(), prevSecret2)
+    notEqual(page.password.get(), prevPassword2)
   })
 
   test('signs up new user', async () => {
@@ -95,7 +95,8 @@ describe('signup page', () => {
       route: 'signUp'
     })
 
-    equal(page.warningStep.get(), false)
+    deepEqual(page.step.get(), { type: 'form' })
+    equal(page.usePassword.get(), true)
     equal(page.signingUp.get(), false)
     equal(page.hideMenu.get(), false)
     equal(page.hideBusy.get(), false)
@@ -108,13 +109,13 @@ describe('signup page', () => {
     await promise
     equal(typeof page.error.get(), 'undefined')
     equal(page.signingUp.get(), false)
-    equal(page.warningStep.get(), true)
+    deepEqual(page.step.get(), { type: 'password' })
     equal(page.hideMenu.get(), true)
     equal(page.hideBusy.get(), true)
     equal(client.get()?.state, 'connecting')
 
     let user = page.userId.get()
-    let secret = page.secret.get()
+    let password = page.password.get()
     page.finish()
     await waitFor(router, route => route.route === 'welcome')
 
@@ -124,8 +125,8 @@ describe('signup page', () => {
       route: 'start'
     })
     signinPage.userId.set(user)
-    signinPage.secret.set(secret)
-    await signinPage.signIn()
+    signinPage.password.set(password)
+    await signinPage.signInByPassword()
 
     await waitFor(router, route => route.route === 'welcome')
 
@@ -141,7 +142,7 @@ describe('signup page', () => {
       params: {},
       route: 'start'
     })
-    startPage.startLocal()
+    await startPage.startLocal()
     let user = userId.get()
 
     let page = openPage({
@@ -149,18 +150,18 @@ describe('signup page', () => {
       route: 'signUp'
     })
 
-    equal(page.warningStep.get(), false)
+    deepEqual(page.step.get(), { type: 'form' })
     equal(page.hideMenu.get(), false)
 
     await page.submit()
     equal(typeof page.error.get(), 'undefined')
     equal(page.signingUp.get(), false)
-    equal(page.warningStep.get(), true)
+    equal(page.step.get().type, 'password')
     equal(page.hideMenu.get(), false)
     equal(page.hideBusy.get(), true)
     equal(client.get()?.state, 'connecting')
     equal(userId.get(), user)
-    equal(hasPassword.get(), true)
+    equal(hasCloud.get(), true)
   })
 
   test('hides busy until the second step is closed', async () => {
@@ -173,7 +174,7 @@ describe('signup page', () => {
       params: {},
       route: 'start'
     })
-    startPage.startLocal()
+    await startPage.startLocal()
     await addFeed(testFeed())
 
     let page = openPage({
@@ -193,7 +194,7 @@ describe('signup page', () => {
     ]
 
     await page.submit()
-    equal(page.warningStep.get(), true)
+    equal(page.step.get().type, 'password')
     let uploading = commonMessages.get().uploadingData
     await waitFor(busy, task => task !== false && task.label === uploading)
     await waitFor(busy, task => task === false)
@@ -231,7 +232,7 @@ describe('signup page', () => {
       params: {},
       route: 'signUp'
     })
-    await signUp(generateCredentials())
+    await signUpByPassword(generateCredentials())
     await waitFor(router, route => route.route === 'welcome')
   })
 
@@ -240,7 +241,7 @@ describe('signup page', () => {
       params: {},
       route: 'start'
     })
-    startPage.startLocal()
+    await startPage.startLocal()
     let user = userId.get()
 
     let page = openPage({
@@ -250,7 +251,7 @@ describe('signup page', () => {
 
     await signUpApi(
       {
-        password: generateCredentials().password,
+        password: { authKey: 'A'.repeat(22), lockedKey: 'L'.repeat(80) },
         userId: page.userId.get()
       },
       { fetch: server.fetch }
@@ -259,7 +260,7 @@ describe('signup page', () => {
 
     match(page.error.get()!, /taken/)
     equal(page.signingUp.get(), false)
-    equal(page.warningStep.get(), false)
+    deepEqual(page.step.get(), { type: 'form' })
     equal(page.userId.get(), user)
     equal(userId.get(), page.userId.get())
     equal(client.get()?.state, 'disconnected')
@@ -281,17 +282,17 @@ describe('signup page', () => {
       route: 'signUp'
     })
     let user = page.userId.get()
-    let secret = page.secret.get()
-    equal(page.warningStep.get(), false)
+    let password = page.password.get()
+    deepEqual(page.step.get(), { type: 'form' })
     deepEqual(calls, [])
 
     await page.submit()
-    deepEqual(calls, [{ secret, userId: user }])
+    deepEqual(calls, [{ password, userId: user }])
 
-    page.askAgain()
+    await page.askAgain()
     deepEqual(calls, [
-      { secret, userId: user },
-      { secret, userId: user }
+      { password, userId: user },
+      { password, userId: user }
     ])
 
     match(page.mailTo.get(), /mailto:/)

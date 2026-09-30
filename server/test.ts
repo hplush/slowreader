@@ -1,14 +1,22 @@
 import { PostgresStore, TestServer } from '@logux/server'
 import { PgTable } from 'drizzle-orm/pg-core'
 
+import { downloadProvidersIfMissed, loadProviders } from './aaguids/utils.ts'
 import { db, dbDriver } from './db/index.ts'
 import * as tables from './db/schema.ts'
+import { resetLimits } from './lib/limits.ts'
 import type { ClientData } from './lib/types.ts'
 import authModule from './modules/auth.ts'
 import healthModule from './modules/health.ts'
-import passwordsModule from './modules/passwords.ts'
+import passkeysModule from './modules/passkeys.ts'
+import sessionsModule from './modules/sessions.ts'
 import syncModule from './modules/sync.ts'
 import usersModule from './modules/users.ts'
+
+export { FakeAuthenticator } from './test/authenticator.ts'
+
+await downloadProvidersIfMissed()
+await loadProviders()
 
 let store = new PostgresStore(dbDriver)
 await store.init()
@@ -18,14 +26,16 @@ export async function cleanSessions(): Promise<void> {
 }
 
 export async function cleanAllTables(): Promise<void> {
+  resetLimits()
   await Promise.all([
     store.clean(),
     ...Object.values(tables).map(async table => {
-      if (table instanceof PgTable) {
+      if (table instanceof PgTable && table !== tables.users) {
         await db.delete(table)
       }
     })
   ])
+  await db.delete(tables.users)
 }
 
 export async function getServerLogIds(): Promise<string[]> {
@@ -58,7 +68,8 @@ export function buildTestServer(
   authModule(server)
   healthModule(server)
   usersModule(server)
-  passwordsModule(server)
+  passkeysModule(server)
+  sessionsModule(server)
   syncModule(server)
   return destroyable(server)
 }

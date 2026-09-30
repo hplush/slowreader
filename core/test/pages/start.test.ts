@@ -1,4 +1,5 @@
 import type { TestServer } from '@logux/server'
+import { COMMON_ERRORS } from '@slowreader/api'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
 import { equal, match, notEqual, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
@@ -7,14 +8,13 @@ import {
   client,
   enableTestTime,
   generateCredentials,
-  hasPassword,
+  hasCloud,
   HTTPStatusError,
   NetworkError,
   router,
   setupEnvironment,
   signOut,
-  signUp,
-  toSecret,
+  signUpByPassword,
   userId
 } from '../../index.ts'
 import {
@@ -48,10 +48,10 @@ describe('start page', () => {
       route: 'start'
     })
 
-    page.startLocal()
+    await page.startLocal()
     ok(client.get()?.clientId.startsWith(userId.get() + ':'))
     equal(client.get()?.state, 'disconnected')
-    equal(hasPassword.get(), false)
+    equal(hasCloud.get(), false)
 
     await waitFor(router, route => route.route === 'welcome')
   })
@@ -66,9 +66,9 @@ describe('start page', () => {
     equal(typeof page.signError.get(), 'undefined')
 
     page.userId.set(credentials.userId)
-    page.secret.set(toSecret(credentials))
+    page.password.set(credentials.password)
 
-    let promise = page.signIn()
+    let promise = page.signInByPassword()
     equal(page.signingIn.get(), true)
     equal(typeof page.signError.get(), 'undefined')
 
@@ -93,13 +93,38 @@ describe('start page', () => {
     })
 
     page.userId.set(credentials.userId)
-    page.secret.set(toSecret(credentials))
+    page.password.set(credentials.password)
 
     await expectWarning(async () => {
-      await page.signIn()
+      await page.signInByPassword()
     }, [new NetworkError(noDomainError)])
     equal(page.signingIn.get(), false)
     match(page.signError.get()!, /connection/)
+  })
+
+  test('reports about too many requests', async () => {
+    // @ts-expect-error Hacky mocking for tests
+    server.fetch = () => {
+      return Promise.resolve({
+        headers: new Headers(),
+        ok: false,
+        status: 429,
+        text: () => Promise.resolve(COMMON_ERRORS.TOO_MANY_REQUESTS),
+        url: 'example.com'
+      })
+    }
+
+    let credentials = generateCredentials()
+    let page = openPage({
+      params: {},
+      route: 'start'
+    })
+
+    page.userId.set(credentials.userId)
+    page.password.set(credentials.password)
+
+    await page.signInByPassword()
+    match(page.signError.get()!, /try\sagain\slater/)
   })
 
   test('reports about server errors', async () => {
@@ -123,9 +148,9 @@ describe('start page', () => {
       })
 
       page.userId.set(credentials.userId)
-      page.secret.set(toSecret(credentials))
+      page.password.set(credentials.password)
 
-      await page.signIn()
+      await page.signInByPassword()
       equal(page.signingIn.get(), false)
       match(page.signError.get()!, /try\sagain/)
     }, [new HTTPStatusError(500, 'example.com', 'DB is down', new Headers())])
@@ -133,7 +158,7 @@ describe('start page', () => {
 
   test('signs in', async () => {
     let credentials = generateCredentials()
-    await signUp(credentials)
+    await signUpByPassword(credentials)
     await signOut()
 
     let page = openPage({
@@ -144,9 +169,9 @@ describe('start page', () => {
     equal(page.signError.get(), undefined)
 
     page.userId.set(credentials.userId)
-    page.secret.set(toSecret(credentials))
+    page.password.set(credentials.password)
 
-    let promise = page.signIn()
+    let promise = page.signInByPassword()
     equal(page.signingIn.get(), true)
 
     await promise

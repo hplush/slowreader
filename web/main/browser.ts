@@ -5,7 +5,7 @@ import {
   busy,
   client,
   closeLastPopup,
-  hasPassword,
+  hasCloud,
   onSignOut,
   openedPopups,
   type Route,
@@ -142,7 +142,7 @@ window.addEventListener('keyup', e => {
 // Ask to not close the tab only for cloud users. A local client has no
 // server to sync with, so its actions will never become synchronized
 // and the warning would be shown forever.
-effect([client, hasPassword], (logux, cloud) => {
+effect([client, hasCloud], (logux, cloud) => {
   if (logux && cloud) return confirm(logux)
 })
 

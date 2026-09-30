@@ -34,10 +34,16 @@ function collectBody(req: IncomingMessage): Promise<false | string> {
 
 export class ErrorResponse {
   message: string
+  status: number
 
-  constructor(message: string) {
+  constructor(message: string, status = 400) {
     this.message = message
+    this.status = status
   }
+}
+
+export function tooManyRequests(): ErrorResponse {
+  return new ErrorResponse(COMMON_ERRORS.TOO_MANY_REQUESTS, 429)
 }
 
 function allowCors(res: ServerResponse, origin: string): void {
@@ -50,8 +56,7 @@ function allowCors(res: ServerResponse, origin: string): void {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Subprotocol')
 }
 
-const LOCALHOST = /:\/\/localhost:/
-const PRODUCTION = /(:\/\/|\.)slowreader\.app$/
+const LOCALHOST = /^http:\/\/localhost:\d+$/
 
 export function jsonApi<Response, Request extends object>(
   server: BaseServer,
@@ -72,7 +77,7 @@ export function jsonApi<Response, Request extends object>(
     if (req.headers.origin) {
       if (
         (config.env === 'development' && LOCALHOST.test(req.headers.origin)) ||
-        PRODUCTION.test(req.headers.origin)
+        req.headers.origin === config.webOrigin
       ) {
         allowCors(res, req.headers.origin)
       }
@@ -120,7 +125,7 @@ export function jsonApi<Response, Request extends object>(
         if (answer === false) {
           return badRequest(res, 'Invalid request')
         } else if (answer instanceof ErrorResponse) {
-          return badRequest(res, answer.message)
+          return badRequest(res, answer.message, answer.status)
         }
         res.writeHead(200, { 'Content-Type': 'application/json' })
         res.end(JSON.stringify(answer))

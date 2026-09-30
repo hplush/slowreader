@@ -6,7 +6,7 @@ let cli = createCLI(
 )
 
 await cli.run(async args => {
-  enableTestClient()
+  await enableTestClient()
 
   let url = args[0]
   let homeUrl = args[1]

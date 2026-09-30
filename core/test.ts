@@ -4,11 +4,16 @@ import { delay } from 'nanodelay'
 import { atom } from 'nanostores'
 
 import type { Credentials } from './auth.ts'
-import type { Environment } from './environment.ts'
+import type { Environment, PasskeySignal } from './environment.ts'
 import { type RequestMethod, setRequestMethod } from './request.ts'
 import { type BaseRoute, stringifyPopups } from './router.ts'
 
 export let testSession: string | undefined
+
+/**
+ * Passkey signals, which the app sent to the passkey provider.
+ */
+export let testSignals: PasskeySignal[] = []
 
 let testRouter = atom<BaseRoute | undefined>()
 
@@ -38,7 +43,9 @@ export function openRoute(
 
 export function getTestEnvironment(): Environment {
   testSession = undefined
+  testSignals = []
   let persistentStore: Record<string, string> = {}
+  let savedKey: CryptoKey | undefined
 
   return {
     baseRouter: testRouter,
@@ -46,6 +53,10 @@ export function getTestEnvironment(): Environment {
       for (let key in persistentStore) {
         delete persistentStore[key]
       }
+      savedKey = undefined
+    },
+    createPasskey() {
+      return Promise.resolve(undefined)
     },
     databaseCreator() {
       // The in-memory database is new and empty for every client, unlike
@@ -56,8 +67,14 @@ export function getTestEnvironment(): Environment {
       return openDb(nodeDriver(':memory:'))
     },
     errorEvents: { addEventListener() {} },
+    getPasskey() {
+      return Promise.resolve(undefined)
+    },
     getSession() {
       return testSession
+    },
+    loadEncryptionKey() {
+      return Promise.resolve(savedKey)
     },
     locale: atom('en'),
     networkType() {
@@ -66,9 +83,14 @@ export function getTestEnvironment(): Environment {
     openRoute(route) {
       openRoute({ ...route, hash: stringifyPopups(route.popups) })
     },
+    passkeySupport: false,
     persistentEvents: { addEventListener() {}, removeEventListener() {} },
     persistentStore,
     restartApp() {},
+    saveEncryptionKey(key) {
+      savedKey = key
+      return Promise.resolve()
+    },
     saveFile() {},
     savePassword() {
       return Promise.resolve()
@@ -77,6 +99,9 @@ export function getTestEnvironment(): Environment {
       testSession = session
     },
     server: 'localhost:2554',
+    signalPasskeys(signal) {
+      testSignals.push(signal)
+    },
     translationLoader() {
       return Promise.resolve({})
     },
@@ -96,8 +121,9 @@ export function getTestEnvironment(): Environment {
  */
 export function testCredentials(): Credentials {
   return {
-    encryptionKey: '5>@v9xbKP!',
-    password: '&5$K?EJuJ=',
+    encryptionKey: new Uint8Array(32).fill(7),
+    password:
+      'PDn2M6eYaGPcG5eBC231rdJ8xJB34EryNVzP1xSjadrHbViwxHNeJ4CSEa5T18YhFT',
     userId: '2750177048377147'
   }
 }

@@ -8,26 +8,30 @@ import {
 import { keepMount } from 'nanostores'
 import { equal, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
-import { setTimeout } from 'node:timers/promises'
 
 import {
   client,
   currentPage,
   enableTestTime,
+  encryptionKey,
+  encryptionKeyLost,
+  type Environment,
   generateCredentials,
+  getEnvironment,
   type ReloginPage,
   router,
   setupEnvironment,
-  signUp,
+  signUpByPassword,
   syncStatus,
-  toSecret,
   userId
 } from '../../index.ts'
 import {
   expectWarning,
   getTestEnvironment,
   openRoute,
-  setTestUser
+  setTestUser,
+  waitFor,
+  waitUntil
 } from '../utils.ts'
 
 async function triggerRelogin(): Promise<{
@@ -37,7 +41,7 @@ async function triggerRelogin(): Promise<{
   let credentials = generateCredentials()
   keepMount(syncStatus)
   keepMount(currentPage)
-  await signUp(credentials)
+  await signUpByPassword(credentials)
   openRoute({ params: {}, route: 'about' })
 
   await cleanSessions()
@@ -45,7 +49,7 @@ async function triggerRelogin(): Promise<{
   await expectWarning(async () => {
     client.get()!.node.connection.disconnect()
     client.get()!.node.connection.connect()
-    await setTimeout(100)
+    await waitFor(syncStatus, status => status === 'wrongCredentials')
   }, [wrongCredentials])
   equal(currentPage.get().route, 'relogin')
   return { credentials, page: currentPage.get() as ReloginPage }
@@ -53,9 +57,11 @@ async function triggerRelogin(): Promise<{
 
 describe('relogin page', () => {
   let server: TestServer
+  let environment: Environment
   beforeEach(() => {
     server = buildTestServer()
-    setupEnvironment({ ...getTestEnvironment(), server })
+    environment = getTestEnvironment()
+    setupEnvironment({ ...environment, server })
     enableTestTime()
   })
 
@@ -78,8 +84,7 @@ describe('relogin page', () => {
     equal(typeof userId.get(), 'undefined')
     equal(syncStatus.get(), 'local')
 
-    await setTimeout(10)
-    equal(router.get().route, 'start')
+    await waitFor(router, route => route.route === 'start')
   })
 
   test('signs in', async () => {
@@ -89,9 +94,9 @@ describe('relogin page', () => {
     equal(typeof page.signError.get(), 'undefined')
 
     page.userId.set(credentials.userId)
-    page.secret.set(toSecret(credentials))
+    page.password.set(credentials.password)
 
-    let promise = page.signIn()
+    let promise = page.signInByPassword()
     equal(page.signingIn.get(), true)
 
     await promise
@@ -99,8 +104,42 @@ describe('relogin page', () => {
     equal(page.signingIn.get(), false)
     equal(typeof page.signError.get(), 'undefined')
 
-    await setTimeout(1100)
-    equal(syncStatus.get(), 'synchronized')
+    await waitFor(syncStatus, status => status === 'synchronized')
     equal(currentPage.get().route, 'about')
+  })
+
+  test('asks to sign in if encryption key was lost', async () => {
+    let credentials = generateCredentials()
+    keepMount(currentPage)
+    await signUpByPassword(credentials)
+    openRoute({ params: {}, route: 'about' })
+
+    await environment.saveEncryptionKey(undefined)
+    encryptionKey.set(undefined)
+    setupEnvironment({ ...environment, server })
+    await waitUntil(() => encryptionKeyLost.get())
+    equal(client.get(), undefined)
+    equal(currentPage.get().route, 'relogin')
+
+    let page = currentPage.get() as ReloginPage
+    page.userId.set(credentials.userId)
+    page.password.set(credentials.password)
+    await page.signInByPassword()
+    ok(encryptionKey.get())
+    equal(await getEnvironment().loadEncryptionKey(), encryptionKey.get())
+    equal(currentPage.get().route, 'about')
+    await waitFor(syncStatus, status => status === 'synchronized')
+  })
+
+  test('signs out if encryption key was lost', async () => {
+    keepMount(currentPage)
+    await signUpByPassword(generateCredentials())
+    await environment.saveEncryptionKey(undefined)
+    encryptionKey.set(undefined)
+    setupEnvironment({ ...environment, server })
+    await waitUntil(() => encryptionKeyLost.get())
+
+    await (currentPage.get() as ReloginPage).signOut()
+    equal(userId.get(), undefined)
   })
 })

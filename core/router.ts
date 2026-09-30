@@ -36,8 +36,10 @@ export interface Routes {
 
 export const popupNames = {
   feed: true,
+  passkey: true,
   post: true,
-  refresh: true
+  refresh: true,
+  session: true
 }
 
 export type PopupName = keyof typeof popupNames

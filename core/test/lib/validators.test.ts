@@ -4,8 +4,7 @@ import { describe, test } from 'node:test'
 import {
   generateCredentials,
   notEmpty,
-  toSecret,
-  validSecret,
+  validPassword,
   validUrl,
   validUserId
 } from '../../index.ts'
@@ -42,14 +41,14 @@ describe('validators', () => {
     valid(validUserId(generateCredentials().userId))
   })
 
-  test('validates secret', () => {
-    notValid(validSecret(''))
-    notValid(validSecret(''))
-    notValid(validSecret(''))
-    notValid(validSecret('123456789 1234567890'))
-    notValid(validSecret('1234567890 12345678901'))
+  test('validates password', () => {
+    notValid(validPassword(''))
+    notValid(validPassword('1234567890 ab3@5!7.-0'))
+    notValid(validPassword('a'.repeat(65)))
+    notValid(validPassword('a'.repeat(65) + '0'))
+    notValid(validPassword('a'.repeat(65) + 'l'))
 
-    valid(validSecret('1234567890 ab3@5!7.-0'))
-    valid(validSecret(toSecret(generateCredentials())))
+    valid(validPassword('a'.repeat(66)))
+    valid(validPassword(generateCredentials().password))
   })
 })

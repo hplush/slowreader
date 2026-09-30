@@ -11,24 +11,25 @@
     currentPage,
     DEFAULT_REFRESH_STATISTICS,
     type FeedValue,
+    hasCloud,
     hasFeeds,
-    hasPassword,
     isDemo,
     type NewCategory,
     pages,
     type ParamlessRouteName,
+    passkeyOnly,
     type PostValue,
     refreshErrors,
     refreshStatistics,
     refreshStatus,
     requestMethod,
     signOut,
+    startLocalUser,
     stopRefreshing,
     syncStatus,
     testFeed,
     testPost,
     theme,
-    useCredentials,
     useReducedMotion
   } from '@slowreader/core'
   import { addHashToBaseRoute, testCredentials } from '@slowreader/core/test'
@@ -39,7 +40,8 @@
   import {
     baseRouter,
     type PreparedResponse,
-    prepareResponses
+    prepareResponses,
+    setPasskeySupport
   } from './environment.ts'
 
   let {
@@ -47,6 +49,7 @@
     children,
     feeds,
     oninit = () => {},
+    passkeys = true,
     posts,
     responses = [],
     route,
@@ -56,6 +59,7 @@
     children: Snippet
     feeds?: Partial<FeedValue>[]
     oninit?: () => void
+    passkeys?: boolean
     posts?: Partial<PostValue>[]
     responses?: [string, PreparedResponse | string][]
     route?: BaseRoute | Omit<BaseRoute, 'hash'> | ParamlessRouteName
@@ -97,14 +101,16 @@
 
   $effect.pre(() => {
     currentPage.get().destroy()
+    setPasskeySupport(passkeys)
     if (user) {
-      useCredentials(testCredentials())
-      hasPassword.set(true)
+      startLocalUser(testCredentials())
+      hasCloud.set(true)
     } else if (client.get()) {
       signOut()
     }
     prepareResponses(responses)
     isDemo.set(false)
+    passkeyOnly.set(false)
     extensionState.set('missing')
     installingExtension.set(false)
     requestMethod.set(undefined)
@@ -152,6 +158,7 @@
       if (page.cache) page.cache = undefined
     }
     useReducedMotion.set(false)
+    setPasskeySupport(true)
     // @ts-expect-error Hack for tests
     systemReducedMotion.set(false)
   })

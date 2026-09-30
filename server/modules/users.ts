@@ -1,15 +1,16 @@
-import type { BaseServer } from '@logux/server'
-import { deleteUser } from '@slowreader/api'
+import { deleteUser, isDeleteUserAction } from '@slowreader/api'
 import { eq } from 'drizzle-orm'
 
-import { db, sessions, users } from '../db/index.ts'
+import { challenges, db, sessions, users } from '../db/index.ts'
+import type { AppServer } from '../lib/types.ts'
 
 async function deleteUserData(
-  server: BaseServer,
+  server: AppServer,
   userId: string
 ): Promise<void> {
   await db.transaction(async tx => {
     await tx.delete(sessions).where(eq(sessions.userId, userId))
+    await tx.delete(challenges).where(eq(challenges.userId, userId))
     await tx.delete(users).where(eq(users.id, userId))
   })
   await server.log.removeReason('store', { index: `users/${userId}` })
@@ -19,10 +20,10 @@ async function deleteUserData(
   }
 }
 
-export default (server: BaseServer): void => {
+export default (server: AppServer): void => {
   server.type(deleteUser, {
-    access() {
-      return true
+    access(ctx, action) {
+      return isDeleteUserAction(action)
     },
     process(ctx) {
       /* node:coverage ignore next 3 */

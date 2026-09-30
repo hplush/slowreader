@@ -1,3 +1,4 @@
+import { saveEncryptionKey } from '../lib/encryption-key.ts'
 import type { FromWorker, ToWorker } from './opfs-worker.ts'
 
 type Manifest = {
@@ -109,6 +110,13 @@ async function copy(): Promise<void> {
   // The database goes first: the settings without it start the app with
   // an empty database, which its schema mark claims to be already filled
   await write(bytes)
+  // App can’t start without a key, but the manifest can’t contain CryptoKey
+  await saveEncryptionKey(
+    await crypto.subtle.generateKey({ length: 256, name: 'AES-GCM' }, false, [
+      'encrypt',
+      'decrypt'
+    ])
+  )
 
   localStorage.clear()
   for (let [key, value] of Object.entries(manifest.storage)) {

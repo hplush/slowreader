@@ -1,15 +1,29 @@
 import { SIGN_UP_ERRORS } from '@slowreader/api'
 import { atom, computed } from 'nanostores'
 
-import { generateCredentials, signUp, toSecret } from '../auth.ts'
+import {
+  generateCredentials,
+  signUpByPasskey,
+  signUpByPassword
+} from '../auth.ts'
 import { getEnvironment } from '../environment.ts'
+import { UserFacingError } from '../errors.ts'
 import { authMessages as t } from '../messages/index.ts'
-import { encryptionKey, hasPassword, userId } from '../settings.ts'
+import { hasCloud, userId } from '../settings.ts'
 import { createPage } from './common.ts'
 import { createFormSubmit } from './mixins/form.ts'
 
+/**
+ * Synced passkey skips the password step, because the account has
+ * no password. Device-bound passkey still needs a backup password.
+ */
+export type SignUpStep =
+  | { provider: null | string; type: 'passkey' }
+  | { type: 'form' }
+  | { type: 'password' }
+
 export const signUpPage = createPage('signUp', () => {
-  if (hasPassword.get()) {
+  if (hasCloud.get()) {
     getEnvironment().openRoute({
       params: {},
       popups: [],
@@ -17,26 +31,26 @@ export const signUpPage = createPage('signUp', () => {
     })
   }
 
-  let $credentials = atom(
-    generateCredentials(userId.get(), encryptionKey.get())
-  )
+  let { passkeySupport } = getEnvironment()
+  let $credentials = atom(generateCredentials(userId.get()))
   let $error = atom<string | undefined>()
   let $signingUp = atom(false)
-  let $warningStep = atom(false)
+  let $step = atom<SignUpStep>({ type: 'form' })
+  let $usePassword = atom(!passkeySupport)
 
   let $hideMenu = atom<boolean>(false)
 
   let $userId = computed($credentials, credentials => credentials.userId)
-  let $secret = computed($credentials, credentials => toSecret(credentials))
-  let $mailTo = computed([$userId, $secret], (user, secret) => {
+  let $password = computed($credentials, credentials => credentials.password)
+  let $mailTo = computed([$userId, $password], (user, password) => {
     return (
       `mailto:?` +
       `subject=Slow Reader Recovery Pack&` +
-      `body=${encodeURIComponent(t.get().email({ secret, user }))}`
+      `body=${encodeURIComponent(t.get().email({ password, user }))}`
     )
   })
 
-  let unbindPassword = hasPassword.listen(created => {
+  let unbindPassword = hasCloud.listen(created => {
     if (created && !$signingUp.get()) {
       finish()
     }
@@ -44,13 +58,31 @@ export const signUpPage = createPage('signUp', () => {
 
   function regenerate(): void {
     $error.set(undefined)
-    $credentials.set(generateCredentials(userId.get(), encryptionKey.get()))
+    $credentials.set(generateCredentials(userId.get()))
+  }
+
+  function savePassword(): Promise<void> {
+    return getEnvironment().savePassword({
+      password: $password.get(),
+      userId: $userId.get()
+    })
   }
 
   let createUser = createFormSubmit(
     async () => {
-      await signUp($credentials.get())
-      $warningStep.set(true)
+      if ($usePassword.get()) {
+        await signUpByPassword($credentials.get())
+        $step.set({ type: 'password' })
+      } else {
+        let result = await signUpByPasskey($credentials.get())
+        if (result.type === 'passkey' && result.passkey.synced) {
+          finish()
+        } else if (result.type === 'passkey') {
+          $step.set({ provider: result.passkey.provider, type: 'passkey' })
+        } else if (result.type === 'noPrf') {
+          throw new UserFacingError(t.get().passkeyNoPrf)
+        }
+      }
     },
     $signingUp,
     $error,
@@ -63,12 +95,14 @@ export const signUpPage = createPage('signUp', () => {
   }
 
   return {
-    async askAgain() {
-      await getEnvironment().savePassword({
-        secret: $secret.get(),
-        userId: $userId.get()
-      })
+    /**
+     * Second passkey on another device replaces the backup password
+     * for a device-bound passkey.
+     */
+    addAnotherPasskey(): void {
+      getEnvironment().openRoute({ params: {}, popups: [], route: 'cloud' })
     },
+    askAgain: savePassword,
     credentials: $credentials,
     error: $error,
     exit() {
@@ -76,27 +110,28 @@ export const signUpPage = createPage('signUp', () => {
     },
     finish,
     hideBusy: computed(
-      [$signingUp, $warningStep],
-      (signing, warning) => signing || warning
+      [$signingUp, $step],
+      (signing, step) => signing || step.type !== 'form'
     ),
     hideMenu: $hideMenu,
     mailTo: $mailTo,
     params: {},
+    passkeySupport,
+    password: $password,
     regenerate,
-    secret: $secret,
     signingUp: $signingUp,
+    step: $step,
     async submit() {
       if (!userId.get()) $hideMenu.set(true)
       let created = await createUser()
-      if (created) {
-        await getEnvironment().savePassword({
-          secret: $secret.get(),
-          userId: $userId.get()
-        })
+      if (created && $step.get().type === 'password') {
+        await savePassword()
+      } else if ($step.get().type === 'form') {
+        $hideMenu.set(false)
       }
     },
-    userId: $userId,
-    warningStep: $warningStep
+    usePassword: $usePassword,
+    userId: $userId
   }
 })
 

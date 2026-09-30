@@ -7,7 +7,7 @@ let cli = createCLI(
 
 cli
   .run(async args => {
-    enableTestClient()
+    await enableTestClient()
 
     let url = args[0]
     if (!url) {

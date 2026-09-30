@@ -1,20 +1,36 @@
 import type { TestClient, TestServer } from '@logux/server'
-import type { Requester } from '@slowreader/api'
+import {
+  type ChallengeType,
+  type Requester,
+  passkeyChallenge,
+  signUp
+} from '@slowreader/api'
 import { equal } from 'node:assert'
 import { deepEqual } from 'node:assert/strict'
 import { setTimeout } from 'node:timers/promises'
+
+import type { FakeAuthenticator } from './authenticator.ts'
 
 export {
   buildTestServer,
   cleanAllTables,
   emptyTestServer,
+  FakeAuthenticator,
   getServerLogIds
 } from '../test.ts'
 
-export async function testRequest<
-  Params extends Record<string, unknown>,
-  ResponseJSON
->(
+export const LOCKED_KEY = 'L'.repeat(80)
+
+export const PASSKEY_LOCKED_KEY = 'P'.repeat(80)
+
+/**
+ * Base58 has no `0`, so user IDs ending with `0` get `Z` keys.
+ */
+export function authKey(letter: string): string {
+  return letter.replace('0', 'Z').repeat(22)
+}
+
+export async function testRequest<Params extends object, ResponseJSON>(
   server: TestServer,
   requester: Requester<Params, ResponseJSON>,
   params: Params,
@@ -65,4 +81,41 @@ export async function waitForActions(
     await setTimeout(10)
   }
   deepEqual(dataActions(client), expected)
+}
+
+export async function getChallenge(
+  server: TestServer,
+  type: ChallengeType,
+  session?: string
+): Promise<string> {
+  let answer = await testRequest(
+    server,
+    passkeyChallenge,
+    session ? { session, type } : { type }
+  )
+  return answer.challenge
+}
+
+export async function signUpUser(
+  server: TestServer,
+  userId: string,
+  passkey?: FakeAuthenticator
+): Promise<{ key: string; passkeyId: string | undefined; session: string }> {
+  let key = authKey(userId.slice(-1))
+  if (passkey) {
+    let challenge = await getChallenge(server, 'signUp')
+    let { response } = passkey.create({ challenge, userId })
+    let answer = await testRequest(server, signUp, {
+      password: { authKey: key, lockedKey: LOCKED_KEY },
+      passkey: { lockedKey: PASSKEY_LOCKED_KEY, response },
+      userId
+    })
+    return { key, passkeyId: response.id, session: answer.session }
+  } else {
+    let answer = await testRequest(server, signUp, {
+      password: { authKey: key, lockedKey: LOCKED_KEY },
+      userId
+    })
+    return { key, passkeyId: undefined, session: answer.session }
+  }
 }

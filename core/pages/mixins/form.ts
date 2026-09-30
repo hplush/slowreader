@@ -1,3 +1,4 @@
+import { COMMON_ERRORS } from '@slowreader/api'
 import type { ReadableAtom, WritableAtom } from 'nanostores'
 
 import { getEnvironment } from '../../environment.ts'
@@ -25,7 +26,10 @@ export function createFormSubmit<
       if (e instanceof NetworkError) {
         $error.set(t.get().networkError)
       } else if (e instanceof UserFacingError) {
-        let error = e.message
+        let error =
+          e.message === COMMON_ERRORS.TOO_MANY_REQUESTS
+            ? t.get().tooManyRequests
+            : e.message
         for (let code in errors) {
           if (errors[code] === e.message) {
             error = messages.get()[code]

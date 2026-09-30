@@ -2,6 +2,7 @@ import { openDb } from '@nanostores/sql'
 import { sqlocalDriver } from '@nanostores/sql/sqlocal'
 import {
   type BaseRoute,
+  getEnvironment,
   type NetworkTypeDetector,
   type RequestMethod,
   setLayoutType,
@@ -28,6 +29,10 @@ export const persistentStore = {}
 
 export function setNetworkType(network: ReturnType<NetworkTypeDetector>): void {
   networkType = network
+}
+
+export function setPasskeySupport(support: boolean): void {
+  getEnvironment().passkeySupport = support
 }
 
 let networkType: ReturnType<NetworkTypeDetector> = {
@@ -65,6 +70,7 @@ setupEnvironment({
   openRoute(page) {
     baseRouter.set({ ...page, hash: stringifyPopups(page.popups) })
   },
+  passkeySupport: true,
   persistentEvents: {
     addEventListener() {},
     removeEventListener() {}
@@ -148,6 +154,13 @@ export function prepareResponses(
 }
 
 setRequestMethod(mockedRequest)
+
+let originalFetch = window.fetch
+window.fetch = (input, init) => {
+  let url = input instanceof Request ? input.url : String(input)
+  if (url.includes('NO_SERVER')) return new Promise(() => {})
+  return originalFetch(input, init)
+}
 
 // Storybook has no permissions for the real clipboard
 Object.defineProperty(navigator, 'clipboard', {

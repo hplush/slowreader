@@ -1,39 +1,92 @@
 import {
-  IS_PASSWORD,
-  IS_USER_ID,
-  setPassword,
+  passkeyChallengeEndpoint,
+  type ChallengeType,
+  newPasswordEndpoint,
+  passwordLockedKeyEndpoint,
+  type Proof,
+  REAUTH_ERRORS,
   SIGN_IN_ERRORS,
   SIGN_UP_ERRORS,
   signInEndpoint,
   signOutEndpoint,
   signUpEndpoint
 } from '@slowreader/api'
-import { verify } from 'argon2'
+import { hash } from 'argon2'
 import { parseCookie } from 'cookie'
 import { eq, sql } from 'drizzle-orm'
-import { nanoid } from 'nanoid'
-import type { ServerResponse } from 'node:http'
+import type { IncomingMessage } from 'node:http'
 
-import { db, sessions, users } from '../db/index.ts'
-import { ErrorResponse, jsonApi } from '../lib/http.ts'
+import { getProvider } from '../aaguids/utils.ts'
+import { db, passkeys, sessions, users } from '../db/index.ts'
+import {
+  createChallenge,
+  type ChallengeKind,
+  TooManyChallenges
+} from '../lib/challenges.ts'
+import { config } from '../lib/config.ts'
+import { getDevice } from '../lib/device.ts'
+import { ErrorResponse, jsonApi, tooManyRequests } from '../lib/http.ts'
+import {
+  anonymousChallenges,
+  countFailure,
+  requestIp,
+  tooManyFailures
+} from '../lib/limits.ts'
+import {
+  createSession,
+  findSession,
+  hashToken,
+  insertSession,
+  notifyCreated,
+  notifyDeleted,
+  setSessionCookie
+} from '../lib/sessions.ts'
 import type { AppServer } from '../lib/types.ts'
+import {
+  pickPasskeyName,
+  TooManyAttempts,
+  verifyAssertion,
+  verifyPassword,
+  verifyProof,
+  verifyRegistration
+} from '../lib/webauthn.ts'
 
-function setSession(res: ServerResponse, value: string): void {
-  let age = value ? 10 * 365 * 24 * 60 * 60 : 0
-  res.setHeader(
-    'Set-Cookie',
-    `session=${value}; HttpOnly; Path=/; SameSite=None; Secure; Max-Age=${age}`
-  )
+const CHALLENGE_KINDS: Record<ChallengeType, ChallengeKind> = {
+  add: 'registration',
+  reauth: 'reauth',
+  signIn: 'authentication',
+  signUp: 'registration'
 }
 
-async function setNewSession(
-  res: ServerResponse,
-  userId: string
-): Promise<string> {
-  let token = nanoid()
-  await db.insert(sessions).values({ token, usedAt: sql`now()`, userId })
-  setSession(res, token)
-  return token
+function getToken(
+  req: IncomingMessage,
+  params: { session?: string }
+): string | undefined {
+  return params.session ?? parseCookie(req.headers.cookie ?? '').session
+}
+
+async function getSessionUser(
+  req: IncomingMessage,
+  params: { session?: string }
+): Promise<undefined | { id: string; userId: string }> {
+  let token = getToken(req, params)
+  if (!token) return undefined
+  return findSession(token)
+}
+
+async function checkReauth(
+  req: IncomingMessage,
+  proof: Proof,
+  session: { userId: string }
+): Promise<ErrorResponse | { passkeyId: null | string }> {
+  try {
+    let checked = await verifyProof(proof, session.userId, requestIp(req))
+    return checked || new ErrorResponse(REAUTH_ERRORS.wrongProof)
+  } catch (e) {
+    if (e instanceof TooManyAttempts) return tooManyRequests()
+    /* node:coverage ignore next 2 */
+    throw e
+  }
 }
 
 export default (server: AppServer): void => {
@@ -42,23 +95,18 @@ export default (server: AppServer): void => {
     if (!sessionToken) return false
     let session = await db.query.sessions.findFirst({
       columns: { id: true, usedAt: true },
-      where: { token: sessionToken, userId }
+      where: { tokenHash: hashToken(sessionToken), userId }
     })
-    if (session) {
-      client.data.sessionId = session.id
-      client.data.usedAt = session.usedAt
-      await db
-        .update(sessions)
-        .set({ clientId: client.clientId, usedAt: sql`now()` })
-        .where(eq(sessions.id, session.id))
-        /* node:coverage ignore next 3 */
-        .catch((error: unknown) => {
-          server.logger.error(error)
-        })
-      return true
-    } else {
-      return false
-    }
+    if (!session) return false
+    client.data.sessionId = session.id
+    client.data.usedAt = session.usedAt
+    // Revocation between the read and sessionId set could miss this client
+    let updated = await db
+      .update(sessions)
+      .set({ usedAt: sql`now()` })
+      .where(eq(sessions.id, session.id))
+      .returning({ id: sessions.id })
+    return updated.length > 0
   })
 
   server.on('disconnected', client => {
@@ -73,54 +121,194 @@ export default (server: AppServer): void => {
       })
   })
 
-  jsonApi(server, signInEndpoint, async (params, res) => {
-    let user = await db.query.users.findFirst({
-      where: { id: params.userId }
-    })
-    if (user?.passwordHash) {
-      if (await verify(user.passwordHash, params.password)) {
-        let token = await setNewSession(res, params.userId)
-        return { session: token }
+  jsonApi(server, passkeyChallengeEndpoint, async (params, res, req) => {
+    let userId: null | string = null
+    if (params.type === 'add' || params.type === 'reauth') {
+      let session = await getSessionUser(req, params)
+      if (!session) return false
+      userId = session.userId
+    } else {
+      let ip = requestIp(req)
+      if (anonymousChallenges.isOver(ip)) return tooManyRequests()
+      anonymousChallenges.add(ip)
+    }
+    try {
+      let challenge = await createChallenge(
+        CHALLENGE_KINDS[params.type],
+        userId
+      )
+      let credentials = userId
+        ? await db
+            .select({ id: passkeys.id, transports: passkeys.transports })
+            .from(passkeys)
+            .where(eq(passkeys.userId, userId))
+        : []
+      return {
+        challenge,
+        credentials,
+        rpId: new URL(config.webOrigin).hostname
+      }
+    } catch (e) {
+      if (e instanceof TooManyChallenges) return tooManyRequests()
+      /* node:coverage ignore next 2 */
+      throw e
+    }
+  })
+
+  jsonApi(server, signInEndpoint, async (params, res, req) => {
+    let ip = requestIp(req)
+    if ('password' in params) {
+      if (tooManyFailures(params.userId, ip)) return tooManyRequests()
+      let checked = await verifyPassword(params.userId, params.password.authKey)
+      if (!checked) {
+        countFailure(params.userId, ip)
+        return new ErrorResponse(SIGN_IN_ERRORS.invalidCredentials)
+      }
+      let token = await createSession(server, res, {
+        device: getDevice(req.headers['user-agent']),
+        passkeyId: null,
+        userId: params.userId
+      })
+      return {
+        hasPassword: true,
+        lockedKey: checked.lockedKey,
+        session: token,
+        userId: params.userId
       }
     }
-    return new ErrorResponse(SIGN_IN_ERRORS.invalidCredentials)
+    if (tooManyFailures(undefined, ip)) return tooManyRequests()
+    let result = await verifyAssertion(params.passkey, 'authentication', null)
+    if (!result.valid) {
+      countFailure(undefined, ip)
+      if (result.unknown) {
+        return new ErrorResponse(SIGN_IN_ERRORS.unknownPasskey)
+      } else {
+        return new ErrorResponse(SIGN_IN_ERRORS.invalidCredentials)
+      }
+    }
+    if (tooManyFailures(result.passkey.userId, ip)) return tooManyRequests()
+    let user = await db.query.users.findFirst({
+      columns: { passwordHash: true },
+      where: { id: result.passkey.userId }
+    })
+    let token = await createSession(server, res, {
+      device: getDevice(req.headers['user-agent']),
+      passkeyId: result.passkey.id,
+      userId: result.passkey.userId
+    })
+    return {
+      hasPassword: !!user?.passwordHash,
+      lockedKey: result.passkey.lockedKey,
+      session: token,
+      userId: result.passkey.userId
+    }
   })
 
   jsonApi(server, signOutEndpoint, async (params, res, req) => {
     let token = params.session
     if (!token) {
       token = parseCookie(req.headers.cookie ?? '').session
-      setSession(res, '')
+      setSessionCookie(res, '')
     }
     if (!token) return false
 
-    let session = await db.query.sessions.findFirst({
-      where: { token }
-    })
-    if (session) {
-      for (let client of server.connected.values()) {
-        if (client.clientId === session.clientId) client.destroy()
-      }
-      await db.delete(sessions).where(eq(sessions.token, token))
-    }
+    let [deleted] = await db
+      .delete(sessions)
+      .where(eq(sessions.tokenHash, hashToken(token)))
+      .returning({ id: sessions.id, userId: sessions.userId })
+    if (deleted) await notifyDeleted(server, deleted.userId, [deleted.id])
     return {}
   })
 
-  jsonApi(server, signUpEndpoint, async (params, res) => {
+  jsonApi(server, signUpEndpoint, async (params, res, req) => {
     let userId = params.userId
-    let password = params.password
 
-    if (!IS_USER_ID.test(userId) || !IS_PASSWORD.test(password)) return false
+    let passkey = params.passkey
+      ? await verifyRegistration(params.passkey.response, null)
+      : undefined
+    if (passkey === false) {
+      return new ErrorResponse(SIGN_UP_ERRORS.invalidPasskey)
+    }
 
-    let already: object | undefined
-    await db.transaction(async tx => {
-      already = await tx.query.users.findFirst({ where: { id: userId } })
-      if (!already) await tx.insert(users).values({ id: userId })
+    let password = 'password' in params ? params.password : undefined
+    let passwordHash = password ? await hash(password.authKey) : null
+    let provider = passkey ? getProvider(passkey.aaguid) : null
+    let created = await db.transaction(async tx => {
+      let already = await tx.query.users.findFirst({ where: { id: userId } })
+      if (already) return undefined
+      await tx.insert(users).values({
+        id: userId,
+        passwordHash,
+        passwordLockedKey: password?.lockedKey ?? null
+      })
+      if (passkey && params.passkey) {
+        await tx.insert(passkeys).values({
+          ...passkey,
+          lockedKey: params.passkey.lockedKey,
+          name: pickPasskeyName(provider, []),
+          userId
+        })
+      }
+      return insertSession(tx, {
+        device: getDevice(req.headers['user-agent']),
+        passkeyId: passkey ? passkey.id : null,
+        userId
+      })
     })
-    if (already) return new ErrorResponse(SIGN_UP_ERRORS.userIdTaken)
+    if (!created) return new ErrorResponse(SIGN_UP_ERRORS.userIdTaken)
+    setSessionCookie(res, created.token)
+    await notifyCreated(server, userId, created.id)
+    if (passkey) {
+      return {
+        passkey: { provider, synced: passkey.synced },
+        session: created.token,
+        userId
+      }
+    } else {
+      return { session: created.token, userId }
+    }
+  })
 
-    await server.process(setPassword({ password, userId }))
-    let session = await setNewSession(res, userId)
-    return { session, userId }
+  jsonApi(server, passwordLockedKeyEndpoint, async (params, _, req) => {
+    let current = await getSessionUser(req, params)
+    if (!current) return false
+    let proof = await checkReauth(req, { authKey: params.authKey }, current)
+    if (proof instanceof ErrorResponse) return proof
+    let user = await db.query.users.findFirst({
+      columns: { passwordLockedKey: true },
+      where: { id: current.userId }
+    })
+    return { lockedKey: user!.passwordLockedKey! }
+  })
+
+  jsonApi(server, newPasswordEndpoint, async (params, res, req) => {
+    let current = await getSessionUser(req, params)
+    if (!current) return false
+    let userId = current.userId
+    let proof = await checkReauth(req, params.proof, current)
+    if (proof instanceof ErrorResponse) return proof
+
+    let passwordHash = await hash(params.authKey)
+    let passkeyId = proof.passkeyId
+    let { id, old, token } = await db.transaction(async tx => {
+      await tx
+        .update(users)
+        .set({ passwordHash, passwordLockedKey: params.lockedKey })
+        .where(eq(users.id, userId))
+      let deleted = await tx
+        .delete(sessions)
+        .where(eq(sessions.userId, userId))
+        .returning({ id: sessions.id })
+      let created = await insertSession(tx, {
+        device: getDevice(req.headers['user-agent']),
+        passkeyId,
+        userId
+      })
+      return { ...created, old: deleted.map(i => i.id) }
+    })
+    setSessionCookie(res, token)
+    await notifyDeleted(server, userId, old)
+    await notifyCreated(server, userId, id)
+    return { session: token }
   })
 }

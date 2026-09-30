@@ -62,7 +62,7 @@ await cli.run(async args => {
     }
   }
 
-  enableTestClient()
+  await enableTestClient()
   let server = proxy ? useProxy() : undefined
 
   let feeds = await parseFeedsFromFile(FEEDS)

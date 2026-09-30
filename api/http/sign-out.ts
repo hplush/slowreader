@@ -1,9 +1,5 @@
-import {
-  createRequester,
-  type Endpoint,
-  hasStringKey,
-  isEmptyObject
-} from './utils.ts'
+import { hasStringKey, isEmptyObject } from '../validators/utils.ts'
+import { createRequester, type Endpoint } from './utils.ts'
 
 export type SignOutRequest = {
   session?: string

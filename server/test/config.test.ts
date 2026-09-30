@@ -5,15 +5,17 @@ import { config, getConfig } from '../lib/config.ts'
 
 describe('server config', () => {
   let DATABASE_URL = 'postgresql://user:pass@localhost:5432/db'
+  let WEB_ORIGIN = 'https://slowreader.app'
 
   test('throws on missed DATABASE_URL in production', () => {
     throws(() => {
-      getConfig({ NODE_ENV: 'production' })
+      getConfig({ NODE_ENV: 'production', WEB_ORIGIN })
     }, /Set DATABASE_URL with PostgreSQL credentials/)
     equal(
       getConfig({
         DATABASE_URL,
-        NODE_ENV: 'production'
+        NODE_ENV: 'production',
+        WEB_ORIGIN
       }).db,
       DATABASE_URL
     )
@@ -36,14 +38,16 @@ describe('server config', () => {
   test('sets proxy origin', () => {
     match(getConfig({ NODE_ENV: 'development' }).proxyOrigin!, /localhost/)
     equal(
-      getConfig({ DATABASE_URL, NODE_ENV: 'production' }).proxyOrigin,
+      getConfig({ DATABASE_URL, NODE_ENV: 'production', WEB_ORIGIN })
+        .proxyOrigin,
       undefined
     )
     equal(
       getConfig({
         DATABASE_URL,
         NODE_ENV: 'production',
-        PROXY_ORIGIN: '^http:\\/\\/slowreader.app$'
+        PROXY_ORIGIN: '^http:\\/\\/slowreader.app$',
+        WEB_ORIGIN
       }).proxyOrigin,
       '^http:\\/\\/slowreader.app$'
     )
@@ -57,7 +61,8 @@ describe('server config', () => {
         DATABASE_URL,
         DEBUG: '1',
         NODE_ENV: 'production',
-        PROXY_ORIGIN: '^http:\\/\\/slowreader.app$'
+        PROXY_ORIGIN: '^http:\\/\\/slowreader.app$',
+        WEB_ORIGIN: 'https://slowreader.app/'
       }),
       {
         assets: true,
@@ -66,9 +71,24 @@ describe('server config', () => {
         debug: true,
         env: 'production',
         proxyOrigin: '^http:\\/\\/slowreader.app$',
-        staging: false
+        staging: false,
+        webOrigin: 'https://slowreader.app'
       }
     )
+  })
+
+  test('sets web origin', () => {
+    throws(() => {
+      getConfig({ DATABASE_URL, NODE_ENV: 'production' })
+    }, /Set WEB_ORIGIN/)
+    let dev = getConfig({})
+    equal(dev.webOrigin, 'http://localhost:2553')
+    let preview = getConfig({
+      DATABASE_URL,
+      NODE_ENV: 'production',
+      WEB_ORIGIN: 'https://preview-1.slowreader.hplush.dev'
+    })
+    equal(preview.webOrigin, 'https://preview-1.slowreader.hplush.dev')
   })
 
   test('has predefined config', () => {

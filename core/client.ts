@@ -9,7 +9,16 @@ import {
 import { SqlLogStore } from '@logux/client/db'
 import { type ServerConnection, TestPair, TestTime } from '@logux/core'
 import type { Database } from '@nanostores/sql'
-import { dbReset, deleteUser, SUBPROTOCOL } from '@slowreader/api'
+import {
+  addPasskeyAction,
+  dbReset,
+  deleteOtherSessions,
+  deletePasskeyAction,
+  deleteSessionAction,
+  deleteUser,
+  renamePasskeyAction,
+  SUBPROTOCOL
+} from '@slowreader/api'
 import { atom, computed, effect, onMount } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
@@ -20,7 +29,7 @@ import {
   type DatabaseFailure,
   downloadingCloudData,
   encryptionKey,
-  hasPassword,
+  hasCloud,
   lastReset,
   syncServer,
   userId
@@ -31,11 +40,13 @@ let testTime: TestTime | undefined
 /**
  * Logux uses complex time https://logux.org/guide/concepts/meta/#id-and-time
  *
- * Test time on every test run will return the same result
- * (it is more like counter, than time).
+ * Client shares the test server’s counter, because separate counters
+ * make client changes look older than server data and sync map
+ * stores ignore them.
  */
 export function enableTestTime(): TestTime {
-  testTime = new TestTime()
+  let server = getEnvironment().server
+  testTime = typeof server === 'string' ? new TestTime() : server.time
   return testTime
 }
 
@@ -52,7 +63,9 @@ function getServer(): ClientOptions['server'] {
         headers: {}
       }
     }
-    server.addClient(pair.right as unknown as ServerConnection)
+    pair.left.on('connecting', () => {
+      server.addClient(pair.right as unknown as ServerConnection)
+    })
     return pair.left
   } else if (testTime) {
     return new TestPair().right
@@ -126,7 +139,7 @@ export async function resetDatabase(
 }
 
 onEnvironment(({ databaseCreator }) => {
-  return effect([userId, hasPassword, encryptionKey], (user, connect, key) => {
+  return effect([userId, hasCloud, encryptionKey], (user, connect, key) => {
     if (user && key) {
       let db = databaseCreator()
       // Mass deletions free their pages by `freeDatabasePages()` instead of
@@ -139,12 +152,20 @@ onEnvironment(({ databaseCreator }) => {
         store: new SqlLogStore(db),
         subprotocol: SUBPROTOCOL,
         time: testTime,
-        token: getEnvironment().getSession(),
+        token: () => Promise.resolve(getEnvironment().getSession() ?? ''),
         userId: user
       })
       encryptActions(logux, key, {
         clean: false,
-        ignore: [deleteUser.type]
+        // Server must read them
+        ignore: [
+          addPasskeyAction.type,
+          deleteOtherSessions.type,
+          deletePasskeyAction.type,
+          renamePasskeyAction.type,
+          deleteSessionAction.type,
+          deleteUser.type
+        ]
       })
 
       logux.type(dbReset, () => {

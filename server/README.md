@@ -27,6 +27,7 @@ and uses end-to-end encryption not to know what users read and like.
 ## Environment Variables
 
 - `DATABASE_URL`: PostgreSQL credentials with support of pglite’s `file://` and `memory://` schemas. You must set it when `NODE_ENV=production`.
+- `WEB_ORIGIN`: exact origin of the web client like `https://slowreader.app` for CORS and passkeys. Passkeys work only on this domain. You must set it when `NODE_ENV=production`.
 - `PROXY_ORIGIN`: enables built-in CORS proxy and specific RegExp to check `Origin` header.
 - `ASSETS`: enables serving web client assets from `../web`.
 - `PORT`: HTTP post to listen (Google Cloud Run convention).
@@ -47,11 +48,12 @@ But for pull request preview and self-hosted you can use this server for everyth
 - To enable CORS proxy user need to specify `PROXY_ORIGIN` environment variable with `Origin` RegExp.
 - To server web client assets user need to set `ASSETS=1`. The server will get assets from `../web`.
 - `DATABASE_URL` should be set to pglite’s folder.
+- `WEB_ORIGIN` should be set to the server’s own origin.
 
 Example:
 
 ```sh
-PROXY_ORIGIN=^http:\\/\\/localhost:5173$ ASSETS=1 DATABASE_URL=file://./db/pgdata pnpm start
+PROXY_ORIGIN=^http:\\/\\/localhost:5173$ ASSETS=1 DATABASE_URL=file://./db/pgdata WEB_ORIGIN=http://localhost:2554 pnpm start
 ```
 
 ## Database

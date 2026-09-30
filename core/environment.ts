@@ -9,6 +9,10 @@ import {
   setPersistentEngine
 } from '@nanostores/persistent'
 import type { Database } from '@nanostores/sql'
+import type {
+  AuthenticationResponse,
+  RegistrationResponse
+} from '@slowreader/api'
 import { atom, type ReadableAtom, type StoreValue } from 'nanostores'
 
 import type { BaseRouter, Route, Routes } from './router.ts'
@@ -58,9 +62,46 @@ interface ErrorEvents {
 }
 
 export interface SavedPassword {
-  secret: string
+  password: string
   userId: string
 }
+
+export interface PasskeyCredential {
+  id: string
+  transports: string[]
+}
+
+export interface PasskeyCreation {
+  challenge: string
+  conditional?: boolean
+  excludeCredentials: PasskeyCredential[]
+  prfSalt: Uint8Array<ArrayBuffer>
+  rpId: string
+  userId: string
+}
+
+export interface PasskeyRequest {
+  allowCredentials: PasskeyCredential[]
+  challenge: string
+  conditional?: boolean
+  prfSalt: Uint8Array<ArrayBuffer>
+  rpId: string
+  signal?: AbortSignal
+}
+
+/**
+ * PRF output is outside of `response`, so it will never be sent
+ * to the server by mistake.
+ */
+export interface PasskeyResult<Response> {
+  prf: ArrayBuffer | undefined
+  response: Response
+}
+
+export type PasskeySignal =
+  | { credentialId: string; type: 'unknown' }
+  | { ids: string[]; type: 'accepted'; userId: string }
+  | { type: 'details'; userId: string }
 
 export interface Environment {
   /**
@@ -73,6 +114,13 @@ export interface Environment {
    * or profile deletion.
    */
   cleanStorage(): void
+
+  /**
+   * Create passkey by WebAuthn. Returns `undefined` if user cancelled it.
+   */
+  createPasskey(
+    options: PasskeyCreation
+  ): Promise<PasskeyResult<RegistrationResponse> | undefined>
 
   /**
    * SQL database engine. Like SQLocal in Web, in-memory SQLite in Node.js,
@@ -92,9 +140,21 @@ export interface Environment {
   errorEvents: ErrorEvents
 
   /**
+   * Sign in or re-auth by passkey. Returns `undefined` if user cancelled it.
+   */
+  getPasskey(
+    options: PasskeyRequest
+  ): Promise<PasskeyResult<AuthenticationResponse> | undefined>
+
+  /**
    * Restore server’s session token saves in `saveSession()`.
    */
   getSession(): string | undefined
+
+  /**
+   * Restore non-extractable key, saved by `saveEncryptionKey()`.
+   */
+  loadEncryptionKey(): Promise<CryptoKey | undefined>
 
   /**
    * Smart store taking user’s language from system.
@@ -110,6 +170,11 @@ export interface Environment {
    * Change current URL.
    */
   openRoute(page: Route, redirect?: boolean): void
+
+  /**
+   * Does the environment support WebAuthn passkeys.
+   */
+  passkeySupport: boolean
 
   /**
    * Web `storage` event like API to subscribe for settings changes.
@@ -133,6 +198,12 @@ export interface Environment {
   saveFile(filename: string, content: Blob): void
 
   /**
+   * Keep non-extractable encryption key in storage, where scripts can’t
+   * read key’s bytes.
+   */
+  saveEncryptionKey(key: CryptoKey | undefined): Promise<void>
+
+  /**
    * Save credentials to system's password manager.
    */
   savePassword(fields: SavedPassword): Promise<void>
@@ -150,6 +221,11 @@ export interface Environment {
    * For test purposes can be also TestServer instance or `"NO_SERVER"`.
    */
   server: string | TestServer
+
+  /**
+   * Tell passkey provider about changes in passkeys on the server.
+   */
+  signalPasskeys(signal: PasskeySignal): void
 
   /**
    * Load app's translation. Based on Nano Stores I18n API.
@@ -198,20 +274,26 @@ export function setupEnvironment<Router extends BaseRouter>(
   currentEnvironment = {
     baseRouter: env.baseRouter,
     cleanStorage: env.cleanStorage,
+    createPasskey: env.createPasskey,
     databaseCreator: env.databaseCreator,
     dumpDatabase: env.dumpDatabase,
     errorEvents: env.errorEvents,
+    getPasskey: env.getPasskey,
     getSession: env.getSession,
+    loadEncryptionKey: env.loadEncryptionKey,
     locale: env.locale,
     networkType: env.networkType,
     openRoute: env.openRoute,
+    passkeySupport: env.passkeySupport,
     persistentEvents: env.persistentEvents,
     persistentStore: env.persistentStore,
     restartApp: env.restartApp,
+    saveEncryptionKey: env.saveEncryptionKey,
     saveFile: env.saveFile,
     savePassword: env.savePassword,
     saveSession: env.saveSession,
     server: env.server,
+    signalPasskeys: env.signalPasskeys,
     translationLoader: env.translationLoader,
     updateClient: env.updateClient,
     warn: env.warn

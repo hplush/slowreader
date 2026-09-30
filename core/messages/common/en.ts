@@ -21,7 +21,7 @@ export const commonMessages = i18n('common', {
   generalCategory: 'General',
   internalError: 'The app crashed. Please try again later while we fix it.',
   invalidCredentials: 'No user found with this credentials',
-  invalidSecret: 'Secret must contain two words of 10 characters each',
+  invalidPassword: 'Password must contain 65 letters, digits, - or _',
   invalidUrl: 'This doesn’t look like a valid web address',
   invalidUserId: 'User ID must contain 16 digits',
   loading: 'Loading…',
@@ -30,8 +30,15 @@ export const commonMessages = i18n('common', {
   networkError:
     'Can’t reach the server. Please check your internet connection.',
   parseError: 'Syntax error in the feed file',
+  passkeyExists:
+    'Your passkey provider already has a passkey for this account. Use another provider or device.',
+  passkeyNoPrf:
+    'Your passkey provider can’t protect encrypted data. Sign in with password.',
   popupNotFound: 'Not found',
   signingOut: 'Signing out',
+  tooManyRequests: 'Too many attempts. Please try again later.',
+  unknownPasskey:
+    'This passkey was deleted from your account. Sign in with password.',
   uploadingData: 'Uploading your data to the cloud',
   waitingConnection: 'Waiting for connection to download'
 })

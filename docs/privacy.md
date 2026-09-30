@@ -14,7 +14,10 @@ The server needs some data unencrypted to sync your devices. This is all the une
 
 - the random user ID;
 - a hash of your password;
+- your encryption key, encrypted so only you can use it;
+- your passkeys’ public keys, names, and when you used them;
 - random IDs of your devices;
+- your devices’ browser and OS names and last use, so you can sign out a lost device;
 - when you created the account;
 - when, from which device, and how much encrypted data your devices send.
 

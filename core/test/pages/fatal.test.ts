@@ -20,8 +20,7 @@ import {
   lastReset,
   resetDatabase,
   setupEnvironment,
-  signUp,
-  toSecret,
+  signUpByPassword,
   userId
 } from '../../index.ts'
 import {
@@ -287,7 +286,7 @@ describe('fatal page', () => {
     })
 
     test('opens on wrong-subprotocol error', async () => {
-      await signUp(generateCredentials())
+      await signUpByPassword(generateCredentials())
       openRoute({ params: {}, route: 'about' })
 
       let wrongSubprotocol = new LoguxError('wrong-subprotocol', {
@@ -319,9 +318,9 @@ describe('fatal page', () => {
       let credentials = generateCredentials()
       let page = openPage({ params: {}, route: 'start' })
       page.userId.set(credentials.userId)
-      page.secret.set(toSecret(credentials))
+      page.password.set(credentials.password)
       try {
-        await page.signIn()
+        await page.signInByPassword()
       } catch {}
 
       deepEqual(fatal.get(), { type: 'outdated' })
