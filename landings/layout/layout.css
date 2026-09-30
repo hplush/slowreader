@@ -96,6 +96,7 @@ body {
 .header_logo {
   position: relative;
   display: block;
+  background: oklch(0.6105 0.1783 43.67);
   border-radius: 22.5%;
 }
 
