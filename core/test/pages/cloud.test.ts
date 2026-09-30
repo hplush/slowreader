@@ -250,8 +250,6 @@ describe('cloud page', () => {
     await waitUntil(() => client.get()?.state === 'synchronized')
 
     deepEqual(saved, [newPassword])
-    await page.saveNewPassword()
-    deepEqual(saved, [newPassword, newPassword])
 
     page.finishNewPassword()
     equal(page.newPassword.get(), undefined)

@@ -3,7 +3,6 @@ import { params } from '@nanostores/i18n'
 import { i18n } from '../../i18n.ts'
 
 export const authMessages = i18n('auth', {
-  askSaveAgain: 'Show save-password popup',
   createEmpty: 'Or create your empty account:',
   createAccount: 'Cloud',
   demo: 'See demo',

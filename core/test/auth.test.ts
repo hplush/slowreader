@@ -402,6 +402,7 @@ describe('passkey auth', () => {
     equal(passkeyOnly.get(), false)
     let password = page.password.get()
     let user = page.userId.get()
+    deepEqual(saved, [{ password, userId: user }])
     page.addAnotherPasskey()
     equal(router.get().route, 'cloud')
     await waitUntil(() => client.get()?.state === 'synchronized')

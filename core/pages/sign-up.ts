@@ -61,13 +61,6 @@ export const signUpPage = createPage('signUp', () => {
     $credentials.set(generateCredentials(userId.get()))
   }
 
-  function savePassword(): Promise<void> {
-    return getEnvironment().savePassword({
-      password: $password.get(),
-      userId: $userId.get()
-    })
-  }
-
   let createUser = createFormSubmit(
     async () => {
       if ($usePassword.get()) {
@@ -79,6 +72,10 @@ export const signUpPage = createPage('signUp', () => {
           finish()
         } else if (result.type === 'passkey') {
           $step.set({ provider: result.passkey.provider, type: 'passkey' })
+          void getEnvironment().savePassword({
+            password: $password.get(),
+            userId: $userId.get()
+          })
         } else if (result.type === 'noPrf') {
           throw new UserFacingError(t.get().passkeyNoPrf)
         }
@@ -102,7 +99,6 @@ export const signUpPage = createPage('signUp', () => {
     addAnotherPasskey(): void {
       getEnvironment().openRoute({ params: {}, popups: [], route: 'cloud' })
     },
-    askAgain: savePassword,
     credentials: $credentials,
     error: $error,
     exit() {
@@ -123,10 +119,8 @@ export const signUpPage = createPage('signUp', () => {
     step: $step,
     async submit() {
       if (!userId.get()) $hideMenu.set(true)
-      let created = await createUser()
-      if (created && $step.get().type === 'password') {
-        await savePassword()
-      } else if ($step.get().type === 'form') {
+      await createUser()
+      if ($step.get().type === 'form') {
         $hideMenu.set(false)
       }
     },

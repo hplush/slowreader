@@ -121,7 +121,6 @@ export const cloudPage = createPage('cloud', () => {
     passkeys: passkeysList,
     passkeyOnly,
     passkeySupport,
-    saveNewPassword,
     sessions: sessionsList,
     suggestSecondPasskey: computed(passkeysList, list => {
       return (
