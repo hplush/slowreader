@@ -44,11 +44,17 @@
       {/if}
       <Output
         label={$t.created}
-        value={$i18nFormat.time($session.createdAt, { dateStyle: 'medium' })}
+        value={$i18nFormat.time($session.createdAt, {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        })}
       />
       <Output
         label={$t.used}
-        value={$i18nFormat.time($session.usedAt, { dateStyle: 'medium' })}
+        value={$i18nFormat.time($session.usedAt, {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        })}
       />
     </Stack>
   {/if}

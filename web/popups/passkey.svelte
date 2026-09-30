@@ -47,11 +47,17 @@
       />
       <Output
         label={$t.created}
-        value={$i18nFormat.time($passkey.createdAt, { dateStyle: 'medium' })}
+        value={$i18nFormat.time($passkey.createdAt, {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        })}
       />
       <Output
         label={$t.used}
-        value={$i18nFormat.time($passkey.usedAt, { dateStyle: 'medium' })}
+        value={$i18nFormat.time($passkey.usedAt, {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        })}
       />
     </Stack>
   {/if}
