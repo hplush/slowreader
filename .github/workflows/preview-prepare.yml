@@ -50,13 +50,22 @@ jobs:
           persist-credentials: false
       - name: Initialize Node.js
         uses: $/.github/actions/init-node
-      - name: Download landing screenshots
+      - name: Download demo database and landing screenshots
         env:
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          RUN=$(gh run list --workflow demo-db.yml --branch main \
-            --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          RUN=$(gh run list --workflow demo-db.yml --commit "$SHA" \
+            --event pull_request --limit 1 --json databaseId --jq '.[0].databaseId')
+          if [ -n "$RUN" ]; then
+            gh run watch "$RUN" --exit-status > /dev/null
+          else
+            RUN=$(gh run list --workflow demo-db.yml --branch main \
+              --status success --limit 20 --json databaseId,event \
+                --jq '[.[] | select(.event != "pull_request")][0].databaseId')
+          fi
+          gh run download "$RUN" --name demo-db --dir web/public/
           gh run download "$RUN" --name landing-screenshots --dir landings/screenshots/
       - name: Build landings
         run: pnpm -F landings build
