@@ -1,6 +1,12 @@
 import { withMeta, type WithoutMeta } from '@logux/client/db'
 import { formatter } from '@nanostores/i18n'
-import { atom, onMount, type ReadableAtom, type WritableAtom } from 'nanostores'
+import {
+  atom,
+  effect,
+  onMount,
+  type ReadableAtom,
+  type WritableAtom
+} from 'nanostores'
 
 import { getEnvironment } from './environment.ts'
 import { loadFeed } from './feed.ts'
@@ -10,9 +16,9 @@ import { sanitizeDOM, stripHTML, truncateDOM } from './lib/html.ts'
 import { firstRow } from './lib/stores.ts'
 import { truncateText } from './lib/text.ts'
 import {
-  getDatabase,
   getTables,
   type NewPost,
+  openedDatabase,
   type PostChanges,
   type PostValue,
   select
@@ -314,11 +320,16 @@ function countPosts(
   store: WritableAtom<number | undefined>,
   reading: PostValue['reading']
 ): () => void {
-  let $total = getDatabase().store<{ total: number }>`
-    SELECT COUNT("originId") AS "total" FROM "posts" WHERE "reading" = ${reading}
-  `
-  return $total.subscribe(value => {
-    store.set(value.status === 'loading' ? undefined : value.value[0]!.total)
+  return effect(openedDatabase, db => {
+    store.set(undefined)
+    if (!db) return
+    let $total = db.store<{ total: number }>`
+      SELECT COUNT("originId") AS "total" FROM "posts"
+      WHERE "reading" = ${reading}
+    `
+    return $total.subscribe(value => {
+      store.set(value.status === 'loading' ? undefined : value.value[0]!.total)
+    })
   })
 }
 

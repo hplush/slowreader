@@ -1,3 +1,4 @@
+import { keepMount } from 'nanostores'
 import {
   deepEqual,
   doesNotMatch,
@@ -12,15 +13,23 @@ import {
   addFilter,
   addPost,
   changeFeed,
+  encryptionKey,
   getPostId,
   loadPost,
   getPostIntro,
   type PostCardText,
   getPostTitle,
+  slowPostsCount,
   testFeed,
   testPost
 } from '../index.ts'
-import { cleanClient, startClient, setupNodeDom } from './utils.ts'
+import {
+  cleanClient,
+  setTestUser,
+  setupNodeDom,
+  startClient,
+  waitFor
+} from './utils.ts'
 
 setupNodeDom()
 
@@ -86,6 +95,16 @@ describe('post', () => {
     equal(ids.length, 2)
     equal((await loadPost(ids[0]!))!.originId, 'a')
     equal((await loadPost(ids[1]!))!.reading, 'slow')
+  })
+
+  test('counts posts only after the encryption key is loaded', async () => {
+    encryptionKey.set(undefined)
+    keepMount(slowPostsCount)
+    equal(slowPostsCount.get(), undefined)
+
+    setTestUser()
+    await addPost(testPost({ reading: 'slow' }))
+    await waitFor(slowPostsCount, count => count === 1)
   })
 
   test('recalculates reading of feed’s posts', async () => {
