@@ -19,7 +19,6 @@
     <outline text="Short Facts">
       <outline text="Merriam-Webster Word of the Day" type="rss" xmlUrl="https://www.merriam-webster.com/wotd/feed/rss2" />
       <outline text="Futility Closet" type="rss" xmlUrl="https://www.futilitycloset.com/feed/" />
-      <outline text="Now I Know" type="rss" xmlUrl="https://nowiknow.com/feed/" />
       <outline text="kottke.org" type="rss" xmlUrl="https://kottke.org/index.xml" />
     </outline>
     <outline text="Science">
