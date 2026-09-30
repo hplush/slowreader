@@ -9,7 +9,7 @@ export const fatalMessages = i18n('fatal', {
   brokenDatabaseTitle: 'Broken DB',
   cleanButton: 'Delete local data',
   crashDescription:
-    'Reload the app. If it happens again, send the error to the developers.',
+    'Reload the app. If it happens again, contact the developers.',
   crashText: 'The app crashed',
   crashTitle: 'Crash',
   downloadButton: 'Download data from the cloud',
