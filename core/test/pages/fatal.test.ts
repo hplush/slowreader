@@ -18,6 +18,7 @@ import {
   getClient,
   getEnvironment,
   lastReset,
+  pages,
   resetDatabase,
   setupEnvironment,
   signUpByPassword,
@@ -74,6 +75,9 @@ describe('fatal page', () => {
       openRoute({ params: { reason: 'noDb' }, route: 'fatal' })
       deepEqual(page.reason.get(), { error: 'Test page', type: 'noDb' })
 
+      openRoute({ params: { reason: 'crash' }, route: 'fatal' })
+      deepEqual(page.reason.get(), { error: 'Test page', type: 'crash' })
+
       // The unknown reason is the same broken URL as any other
       openRoute({ params: { reason: 'unknown' }, route: 'fatal' })
       deepEqual(page.reason.get(), { type: 'notFound' })
@@ -95,6 +99,36 @@ describe('fatal page', () => {
 
       fatal.set({ error: 'Disk image is malformed', type: 'brokenDatabase' })
       equal(page.hideMenu.get(), true)
+    })
+  })
+
+  describe('crash', () => {
+    let about = pages.about
+
+    beforeEach(() => {
+      startClient()
+    })
+
+    afterEach(async () => {
+      pages.about = about
+      await cleanClient()
+    })
+
+    test('opens when the page could not be created', () => {
+      let first = new Error('No database')
+      pages.about = () => {
+        throw first
+      }
+      expectWarning(() => {
+        openRoute({ params: {}, route: 'about' })
+        keepMount(currentPage)
+      }, [first])
+      equal(currentPage.get().route, 'fatal')
+      deepEqual(fatal.get(), { error: 'Error: No database', type: 'crash' })
+
+      openRoute({ params: {}, route: 'about' })
+      equal(currentPage.get().route, 'fatal')
+      deepEqual(fatal.get(), { error: 'Error: No database', type: 'crash' })
     })
   })
 

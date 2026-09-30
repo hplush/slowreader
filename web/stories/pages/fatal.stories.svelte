@@ -49,6 +49,21 @@
   </Scene>
 </Story>
 
+<Story name="Crash" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      fatal.set({
+        error: 'Error: No Slow Reader database',
+        type: 'crash'
+      })
+    }}
+    route="fatal"
+    user={false}
+  >
+    <FatalPage page={pages.fatal()} />
+  </Scene>
+</Story>
+
 <Story name="No Storage" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene route={{ params: { reason: 'noDb' }, route: 'fatal' }} user={false}>
     <FatalPage page={pages.fatal()} />

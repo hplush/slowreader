@@ -3,7 +3,9 @@
     busy,
     currentPage,
     layoutType,
+    pages,
     popupsStatus,
+    showCrash,
     signOut,
     userId
   } from '@slowreader/core'
@@ -48,70 +50,76 @@
   let popupOther = $derived($popupsStatus.other)
 </script>
 
-{#if $currentPage.route === 'fatal'}
-  <FatalPage page={$currentPage} />
-{:else if showBusy || $pageLoading}
-  <BusyPage />
-{:else if $currentPage.route === 'relogin'}
-  <ReloginPage page={$currentPage} />
-{:else if $currentPage.route === 'fast'}
-  <FeedsPage page={$currentPage} />
-{:else if $currentPage.route === 'slow'}
-  <FeedsPage page={$currentPage} />
-{:else if $currentPage.route === 'add'}
-  <AddPage page={$currentPage} />
-{:else if $currentPage.route === 'feedsByCategories'}
-  <FeedByCategoriesPage page={$currentPage} />
-{:else if $currentPage.route === 'about'}
-  <AboutPage page={$currentPage} />
-{:else if $currentPage.route === 'cloud'}
-  <CloudPage page={$currentPage} />
-{:else if $currentPage.route === 'start'}
-  <StartPage page={$currentPage} />
-{:else if $currentPage.route === 'signUp'}
-  <SignupPage page={$currentPage} />
-{:else if $currentPage.route === 'interface'}
-  <InterfacePage />
-{:else if $currentPage.route === 'menu'}
-  <MenuPage />
-{:else if $currentPage.route === 'network'}
-  <NetworkPage />
-{:else if $currentPage.route === 'storage'}
-  <StoragePage page={$currentPage} />
-{:else if $currentPage.route === 'export'}
-  <ExportPage page={$currentPage} />
-{:else if $currentPage.route === 'import'}
-  <ImportPage page={$currentPage} />
-{:else}
-  <ThinPage title={$currentPage.route}>
-    {$currentPage.route}
-    <Button onclick={signOut}>Exit</Button>
-  </ThinPage>
-{/if}
-
-{#if !showBusy && $userId && !$pageHideMenu}
-  <Navbar />
-{/if}
-
-{#if $layoutType !== 'mobile'}
-  {#each popupOther as i, index (i.uniqueId)}
-    <PopupShadow index={popupOther.length - index} />
-  {/each}
-{/if}
-{#if popup}
-  {#if popupLoading}
-    <LoadingPopup {popup} />
-  {:else if popupNotFound}
-    <NotFoundPopup {popup} />
-  {:else if popup.name === 'post'}
-    <PostPopup {popup} />
-  {:else if popup.name === 'feed'}
-    <FeedPopup {popup} />
-  {:else if popup.name === 'refresh'}
-    <RefreshPopup />
-  {:else if popup.name === 'passkey'}
-    <PasskeyPopup {popup} />
-  {:else if popup.name === 'session'}
-    <SessionPopup {popup} />
+<svelte:boundary onerror={showCrash}>
+  {#if $currentPage.route === 'fatal'}
+    <FatalPage page={$currentPage} />
+  {:else if showBusy || $pageLoading}
+    <BusyPage />
+  {:else if $currentPage.route === 'relogin'}
+    <ReloginPage page={$currentPage} />
+  {:else if $currentPage.route === 'fast'}
+    <FeedsPage page={$currentPage} />
+  {:else if $currentPage.route === 'slow'}
+    <FeedsPage page={$currentPage} />
+  {:else if $currentPage.route === 'add'}
+    <AddPage page={$currentPage} />
+  {:else if $currentPage.route === 'feedsByCategories'}
+    <FeedByCategoriesPage page={$currentPage} />
+  {:else if $currentPage.route === 'about'}
+    <AboutPage page={$currentPage} />
+  {:else if $currentPage.route === 'cloud'}
+    <CloudPage page={$currentPage} />
+  {:else if $currentPage.route === 'start'}
+    <StartPage page={$currentPage} />
+  {:else if $currentPage.route === 'signUp'}
+    <SignupPage page={$currentPage} />
+  {:else if $currentPage.route === 'interface'}
+    <InterfacePage />
+  {:else if $currentPage.route === 'menu'}
+    <MenuPage />
+  {:else if $currentPage.route === 'network'}
+    <NetworkPage />
+  {:else if $currentPage.route === 'storage'}
+    <StoragePage page={$currentPage} />
+  {:else if $currentPage.route === 'export'}
+    <ExportPage page={$currentPage} />
+  {:else if $currentPage.route === 'import'}
+    <ImportPage page={$currentPage} />
+  {:else}
+    <ThinPage title={$currentPage.route}>
+      {$currentPage.route}
+      <Button onclick={signOut}>Exit</Button>
+    </ThinPage>
   {/if}
-{/if}
+
+  {#if !showBusy && $userId && !$pageHideMenu}
+    <Navbar />
+  {/if}
+
+  {#if $layoutType !== 'mobile'}
+    {#each popupOther as i, index (i.uniqueId)}
+      <PopupShadow index={popupOther.length - index} />
+    {/each}
+  {/if}
+  {#if popup}
+    {#if popupLoading}
+      <LoadingPopup {popup} />
+    {:else if popupNotFound}
+      <NotFoundPopup {popup} />
+    {:else if popup.name === 'post'}
+      <PostPopup {popup} />
+    {:else if popup.name === 'feed'}
+      <FeedPopup {popup} />
+    {:else if popup.name === 'refresh'}
+      <RefreshPopup />
+    {:else if popup.name === 'passkey'}
+      <PasskeyPopup {popup} />
+    {:else if popup.name === 'session'}
+      <SessionPopup {popup} />
+    {/if}
+  {/if}
+
+  {#snippet failed()}
+    <FatalPage page={pages.fatal()} />
+  {/snippet}
+</svelte:boundary>

@@ -2,6 +2,7 @@
   import {
     mdiArrowLeft,
     mdiBookOpenPageVariant,
+    mdiBug,
     mdiCloudAlert,
     mdiCloudDownloadOutline,
     mdiDatabaseAlert,
@@ -29,6 +30,7 @@
 
   const ICONS = {
     brokenDatabase: mdiDatabaseAlert,
+    crash: mdiBug,
     noDb: mdiDatabaseOff,
     notFound: mdiBookOpenPageVariant,
     outdated: mdiTimerSandComplete,
@@ -60,6 +62,17 @@
           variant="main"
         >
           {$t.cleanButton}
+        </Button>
+      {:else if $reason.type === 'crash'}
+        <p>{$t.crashDescription}</p>
+        <Output label={$t.error} value={$reason.error} />
+        <Button
+          icon={mdiReload}
+          onclick={getEnvironment().restartApp}
+          size="big"
+          variant="main"
+        >
+          {$t.reloadButton}
         </Button>
       {:else if $reason.type === 'noDb'}
         <p>{$t.noDbDescription}</p>

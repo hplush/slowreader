@@ -8,6 +8,10 @@ export const fatalMessages = i18n('fatal', {
   brokenDatabaseText: 'Local database is broken',
   brokenDatabaseTitle: 'Broken DB',
   cleanButton: 'Delete local data',
+  crashDescription:
+    'Reload the app. If it happens again, send the error to the developers.',
+  crashText: 'The app crashed',
+  crashTitle: 'Crash',
   downloadButton: 'Download data from the cloud',
   error: 'Send this error to the developers',
   home: 'Home',
@@ -23,6 +27,7 @@ export const fatalMessages = i18n('fatal', {
   outdatedTitle: 'Outdated',
   rejectedText: 'Cloud communication error',
   rejectedTitle: 'Rejected',
+  reloadButton: 'Reload the app',
   secondTabDescription:
     'Safari and some other browsers can save the data only from a single ' +
     'tab. Close the other tab, and this page will open the app by itself.',

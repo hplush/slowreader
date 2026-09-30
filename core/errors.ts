@@ -1,11 +1,12 @@
 import type { LoguxUndoError } from '@logux/client'
 import { atom } from 'nanostores'
 
-import { onEnvironment } from './environment.ts'
+import { getEnvironment, onEnvironment } from './environment.ts'
 import { commonMessages } from './messages/index.ts'
 
 export const fatalReasons = [
   'brokenDatabase',
+  'crash',
   'noDb',
   'notFound',
   'outdated',
@@ -15,11 +16,11 @@ export const fatalReasons = [
 
 export type Fatal =
   | { error: string | undefined; type: 'brokenDatabase' | 'noDb' }
-  | { error: string; type: 'rejected' }
+  | { error: string; type: 'crash' | 'rejected' }
   | {
       type: Exclude<
         (typeof fatalReasons)[number],
-        'brokenDatabase' | 'noDb' | 'rejected'
+        'brokenDatabase' | 'crash' | 'noDb' | 'rejected'
       >
     }
 
@@ -29,6 +30,15 @@ export type Fatal =
 export const fatal = atom<Fatal | undefined>()
 
 let unhandled: string[] = []
+
+/**
+ * Show error page on unexpected error, which broke the UI. It keeps
+ * the first reason, since the next errors could be caused by it.
+ */
+export function showCrash(error: unknown): void {
+  getEnvironment().warn(error)
+  if (!fatal.get()) fatal.set({ error: String(error), type: 'crash' })
+}
 
 /**
  * Last errors, which nobody caught, to explain the fatal error

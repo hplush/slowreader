@@ -2,7 +2,7 @@ import { computed, type ReadableAtom, type WritableStore } from 'nanostores'
 
 import { syncStatus } from './client.ts'
 import { getEnvironment } from './environment.ts'
-import { fatal } from './errors.ts'
+import { fatal, showCrash } from './errors.ts'
 import { type Page, pages } from './pages/index.ts'
 import { type Route, type RouteName, router } from './router.ts'
 import { encryptionKeyLost } from './settings.ts'
@@ -61,9 +61,15 @@ export const currentPage: ReadableAtom<Page<RouteName>> = computed(
       override = 'relogin'
     }
     let startRoute = override ?? route.route
-    let creator = pages[startRoute]
-    let page = creator() as Page<RouteName>
-    // creator() may call openRoute() for redirect pages, re-check current route
+    let page: Page<RouteName>
+    try {
+      page = pages[startRoute]()
+    } catch (e) {
+      if (startRoute === 'fatal') throw e
+      showCrash(e)
+      return pages.fatal()
+    }
+    // Page creation may call openRoute() for redirect pages, re-check the route
     if (!override && startRoute !== router.get().route) {
       // The redirect could be applied before the creation finished, then
       // the page is already replaced and will never be the current one
