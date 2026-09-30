@@ -12,7 +12,6 @@
     mdiLogout,
     mdiRestartOff,
     mdiStickerCheckOutline,
-    mdiTooltipQuestionOutline,
     mdiTrashCanOutline
   } from '@mdi/js'
   import {
@@ -217,14 +216,6 @@
             target="_blank"
           >
             {$authMessages.toEmail}
-          </Button>
-          <Button
-            icon={mdiTooltipQuestionOutline}
-            onclick={page.saveNewPassword}
-            size="wide"
-            variant="secondary"
-          >
-            {$authMessages.askSaveAgain}
           </Button>
           <Button
             icon={mdiStickerCheckOutline}

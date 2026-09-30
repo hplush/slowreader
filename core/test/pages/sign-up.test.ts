@@ -266,7 +266,7 @@ describe('signup page', () => {
     equal(client.get()?.state, 'disconnected')
   })
 
-  test('gives a way to save password', async () => {
+  test('does not save password on password sign up', async () => {
     let calls: SavedPassword[] = []
     setupEnvironment({
       ...getTestEnvironment(),
@@ -284,16 +284,11 @@ describe('signup page', () => {
     let user = page.userId.get()
     let password = page.password.get()
     deepEqual(page.step.get(), { type: 'form' })
-    deepEqual(calls, [])
 
     await page.submit()
-    deepEqual(calls, [{ password, userId: user }])
-
-    await page.askAgain()
-    deepEqual(calls, [
-      { password, userId: user },
-      { password, userId: user }
-    ])
+    deepEqual(page.step.get(), { type: 'password' })
+    equal(page.password.get(), password)
+    deepEqual(calls, [])
 
     match(page.mailTo.get(), /mailto:/)
     match(page.mailTo.get(), new RegExp(user))

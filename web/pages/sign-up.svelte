@@ -13,8 +13,7 @@
     mdiRestartOff,
     mdiScriptTextOutline,
     mdiShieldCheckOutline,
-    mdiStickerCheckOutline,
-    mdiTooltipQuestionOutline
+    mdiStickerCheckOutline
   } from '@mdi/js'
   import { type SignUpPage, authMessages as t } from '@slowreader/core'
 
@@ -87,14 +86,6 @@
             target="_blank"
           >
             {$t.toEmail}
-          </Button>
-          <Button
-            icon={mdiTooltipQuestionOutline}
-            onclick={page.askAgain}
-            size="wide"
-            variant="secondary"
-          >
-            {$t.askSaveAgain}
           </Button>
           <Button
             icon={mdiStickerCheckOutline}
