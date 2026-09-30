@@ -22,6 +22,7 @@ function fly() {
     )
     small.style.setProperty('--from-scale', `${from.width / small.offsetWidth}`)
   }
+  document.documentElement.classList.add('is-flying')
 }
 
 // Title reflow on font load moves the placeholders without resizing them
