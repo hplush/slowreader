@@ -25,7 +25,7 @@
     "@logux/actions": "github:logux/actions#next",
     "@logux/core": "github:logux/core#next",
     "@logux/server": "github:logux/server#next",
-    "@simplewebauthn/server": "14.0.2",
+    "@simplewebauthn/server": "14.0.3",
     "@slowreader/api": "workspace:*",
     "@slowreader/proxy": "workspace:*",
     "argon2": "0.45.1",

@@ -67,7 +67,7 @@ export function createRequester<Params extends object, ResponseJSON>(
 export interface Endpoint<
   _Response,
   Request,
-  UrlParams extends Record<string, string> = Record<never, string>
+  UrlParams extends Record<string, string> = Record<string, never>
 > {
   checkBody(body: unknown, urlParams: UrlParams): false | Request
   method: string

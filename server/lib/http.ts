@@ -60,7 +60,7 @@ const LOCALHOST = /^http:\/\/localhost:\d+$/
 
 export function jsonApi<Response, Request extends object>(
   server: BaseServer,
-  endpoint: Endpoint<Response, Request>,
+  endpoint: Endpoint<Response, Request, Record<string, string>>,
   listener: (
     params: Request,
     res: ServerResponse,

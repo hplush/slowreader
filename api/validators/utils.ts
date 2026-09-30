@@ -2,7 +2,7 @@ export function isObject(body: unknown): body is object {
   return typeof body === 'object' && body !== null
 }
 
-export function isEmptyObject(body: unknown): body is Record<never, never> {
+export function isEmptyObject(body: unknown): body is Record<string, never> {
   return isObject(body) && Object.keys(body).length === 0
 }
 
