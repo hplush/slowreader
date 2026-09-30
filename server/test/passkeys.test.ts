@@ -209,7 +209,7 @@ describe('server passkeys', () => {
         response: third.response
       })
     )
-    deepEqual(await names(), ['Passkey', 'Passkey 1', 'Passkey 2'])
+    deepEqual(await names(), ['Passkey', 'Passkey 2', 'Passkey 3'])
 
     let fourth = await newPasskey(
       server,
@@ -277,7 +277,7 @@ describe('server passkeys', () => {
     deepEqual(renamed, [
       { id: user.passkeyId!, name: 'Work', type: 'passkeys/rename' }
     ])
-    deepEqual(await names(), ['Work', 'Apple Passwords 1'])
+    deepEqual(await names(), ['Work', 'Apple Passwords 2'])
 
     await server.expectDenied(async () => {
       await client.process(
@@ -345,7 +345,7 @@ describe('server passkeys', () => {
         proof: await passkeyProof(server, passkey, user.session, user.passkeyId)
       })
     )
-    deepEqual(await names(), ['Apple Passwords 1'])
+    deepEqual(await names(), ['Apple Passwords 2'])
 
     await client.process(
       deletePasskeyAction({

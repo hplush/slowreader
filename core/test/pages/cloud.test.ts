@@ -160,7 +160,7 @@ describe('cloud page', () => {
     await waitFor(page.passkeys, list => ready(list)?.length === 2)
     deepEqual(
       ready(page.passkeys.get())!.map(i => i.name),
-      ['Apple Passwords', 'Apple Passwords 1']
+      ['Apple Passwords', 'Apple Passwords 2']
     )
 
     let firstPopup = openTestPopup('passkey', first[0]!.id)

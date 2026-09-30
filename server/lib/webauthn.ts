@@ -24,7 +24,7 @@ export function pickPasskeyName(
   let base = provider ?? 'Passkey'
   let names = new Set(used)
   if (!names.has(base)) return base
-  let index = 1
+  let index = 2
   while (names.has(`${base} ${index}`)) index += 1
   return `${base} ${index}`
 }
