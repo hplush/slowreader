@@ -276,7 +276,7 @@
       flex-shrink: 1;
       flex-direction: column;
       gap: 0.125rem;
-      padding: 0.25rem 0.375rem 0.75rem;
+      padding: 0.25rem 0.375rem 0.75rem 0.375rem;
       margin-top: -0.25rem;
       overflow-y: auto;
     }

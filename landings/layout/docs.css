@@ -113,7 +113,7 @@ body {
 .doc {
   box-sizing: content-box;
   max-inline-size: 56rem;
-  padding: 6rem 1rem 4rem;
+  padding: 6rem 1rem 4rem 1rem;
   margin-inline: auto;
   font-size: 1.15rem;
 
@@ -183,7 +183,7 @@ body {
   }
 
   h1 {
-    margin: 0 0 1rem;
+    margin: 0 0 1rem 0;
     font:
       700 clamp(1.875rem, 3.1vw, 2.3rem) / 1.2 'Catamaran Variable',
       Arial,

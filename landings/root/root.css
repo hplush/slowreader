@@ -199,7 +199,7 @@ main > .section.is-mobile {
   flex: 0 0 100%;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 0.5rem 2.5rem;
+  padding: 0.5rem 0.5rem 2.5rem 0.5rem;
   scroll-snap-align: center;
 }
 
@@ -314,7 +314,7 @@ main > .section.is-mobile {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 7rem 2rem 4rem;
+  padding: 7rem 2rem 4rem 2rem;
   padding-inline: max(2rem, env(safe-area-inset-left))
     max(2rem, env(safe-area-inset-right));
   overflow: hidden;

@@ -27,7 +27,7 @@
 <style>
   :global {
     .paper {
-      margin: 0.25rem 0 0.5rem;
+      margin: 0.25rem 0 0.5rem 0;
       padding: 0.5rem 0;
       background: var(--paper-background);
       border-radius: 2px;

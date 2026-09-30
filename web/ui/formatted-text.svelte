@@ -87,7 +87,7 @@
     }
 
     .formatted-text :is(h1, h2, h3, h4, h5, h6) {
-      margin: 1.6em 0 0.8em;
+      margin: 1.6em 0 0.8em 0;
       font-weight: bold;
     }
 
@@ -236,7 +236,7 @@
       font-size: 80%;
       background-color: --tune-background(--current);
       border: 0 solid var(--border-color);
-      border-width: 0.125em 0.125em 0.25em;
+      border-width: 0.125em 0.125em 0.25em 0.125em;
       border-radius: 0.25em;
     }
 

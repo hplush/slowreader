@@ -24,7 +24,7 @@
     }
 
     .posts-numbers_title {
-      padding: 0.25rem 1rem 0;
+      padding: 0.25rem 1rem 0 1rem;
       background: --tune-background(--gutter);
 
       &:first-of-type {
@@ -37,7 +37,7 @@
     }
 
     .posts-numbers_value {
-      padding: 0.125rem 1rem 0.75rem;
+      padding: 0.125rem 1rem 0.75rem 1rem;
       font: var(--counter-font);
       background: --tune-background(--gutter);
 
@@ -53,7 +53,7 @@
     .posts-numbers_footer {
       grid-row: 3;
       grid-column: 1 / 3;
-      padding: 0.25rem 0 0;
+      padding: 0.25rem 0 0 0;
       font: var(--secondary-font);
     }
   }
