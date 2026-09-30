@@ -120,6 +120,14 @@
         <Button joined="end" {onclick}>End</Button>
       </div>
     </Section>
+    <Section width={300}>
+      <div style="display: flex;">
+        <Button joined="start" {onclick} size="wide">Delete</Button>
+        <Button joined="end" {onclick} size="wide">
+          Keep as mine with a long text
+        </Button>
+      </div>
+    </Section>
   </Scene>
 </Story>
 

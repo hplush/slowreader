@@ -141,6 +141,10 @@
         corner-shape: round;
       }
 
+      &:is(.is-joined-start, .is-joined-middle, .is-joined-end) {
+        align-self: stretch;
+      }
+
       &.is-joined-start {
         border-start-end-radius: 0;
         border-end-end-radius: 0;
@@ -255,6 +259,10 @@
 
       .button:active:not([aria-disabled='true']) & {
         translate: 0 1px;
+      }
+
+      .button:is(.is-joined-start, .is-joined-middle, .is-joined-end) & {
+        height: 100%;
       }
 
       .button.is-icon & {
