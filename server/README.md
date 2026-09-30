@@ -21,6 +21,7 @@ and uses end-to-end encryption not to know what users read and like.
 - `pnpm -F server start`: start server in development mode.
 - `pnpm -F server migration`: generate migration based on DB schema changes.
 - `pnpm -F server database`: see database content.
+- `pnpm -F server aaguids`: re-download passkey providers list.
 - `pnpm -F server build`: prepare deploy files with production dependencies only.
 - `pnpm -F server production`: start production build of the server.
 

@@ -43,6 +43,8 @@ jobs:
           persist-credentials: false
       - name: Initialize Node.js
         uses: $/.github/actions/init-node
+      - name: Download passkey providers
+        run: pnpm -F server aaguids
       - name: Run tests
         run: pnpm -F server test
   build:

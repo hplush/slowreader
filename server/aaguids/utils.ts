@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs'
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile, rename, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 let names: Record<string, string> = {}
@@ -24,13 +24,22 @@ export async function downloadProvidersIfMissed(
   for (let [aaguid, { name }] of Object.entries(list)) {
     result[aaguid] = name
   }
-  await writeFile(output, JSON.stringify(result))
+  let partial = `${output}.${process.pid}`
+  await writeFile(partial, JSON.stringify(result))
+  await rename(partial, output)
 }
 
 export async function loadProviders(): Promise<void> {
-  names = JSON.parse(
-    await readFile(join(import.meta.dirname, 'names.json'), 'utf8')
-  ) as Record<string, string>
+  let file = join(import.meta.dirname, 'names.json')
+  try {
+    names = JSON.parse(await readFile(file, 'utf8')) as Record<string, string>
+  } catch (e) {
+    throw new Error(
+      `Passkey providers list ${file} is broken. ` +
+        'Run `pnpm -F server aaguids`',
+      { cause: e }
+    )
+  }
 }
 
 export function getProvider(aaguid: string): null | string {

@@ -54,6 +54,8 @@ jobs:
           gh run download "$RUN" --name landing-screenshots --dir landings/screenshots/
       - name: Build landings
         run: pnpm -F landings build
+      - name: Download passkey providers
+        run: pnpm -F server aaguids
       - name: Run tests
         run: pnpm run --aggregate-output --parallel -F '*' -F '!proxy' -F '!server' -F '!loader-tests' '/^test:/'
         env:
