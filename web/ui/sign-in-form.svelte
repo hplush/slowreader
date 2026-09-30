@@ -1,13 +1,14 @@
 <script lang="ts">
-  import { mdiLogin } from '@mdi/js'
+  import { mdiFormTextboxPassword, mdiKeyVariant, mdiLogin } from '@mdi/js'
   import {
     commonMessages,
     type ReloginPage,
     type StartPage,
     authMessages as t,
-    validSecret,
+    validPassword,
     validUserId
   } from '@slowreader/core'
+  import { onMount, tick } from 'svelte'
 
   import Button from './button.svelte'
   import Error from './error.svelte'
@@ -25,18 +26,41 @@
     submit: string
     title?: string
   } = $props()
-  let { secret, signError, signingIn, userId } = $derived(page)
+  let { password, signError, signingIn, usePassword, userId } = $derived(page)
+
+  let passwordInput = $state<HTMLInputElement>()
+
+  onMount(() => {
+    page.startAutofill()
+  })
+
+  async function signInByPasskey(): Promise<void> {
+    await page.signInByPasskey()
+    page.startAutofill()
+  }
 </script>
 
-<Form loading={$signingIn} onsubmit={page.signIn}>
-  <Stack gap="l">
+<Form
+  loading={$signingIn}
+  onsubmit={() => {
+    if ($usePassword) {
+      void page.signInByPassword()
+    } else {
+      usePassword.set(true)
+      void tick().then(() => {
+        passwordInput?.focus()
+      })
+    }
+  }}
+>
+  <Stack>
     {#if title}
       <Title>{title}</Title>
     {/if}
     <Stack>
       <Input
         name="username"
-        autocomplete="username"
+        autocomplete="username webauthn"
         disabled={$signingIn}
         errorId={$signError === commonMessages.get().invalidCredentials
           ? 'start-server-error'
@@ -45,29 +69,39 @@
         inputmode="numeric"
         label={$t.userId}
         pattern="[0-9]*"
-        required
-        validate={validUserId}
+        required={$usePassword}
+        validate={$usePassword ? validUserId : []}
         bind:value={$userId}
       />
-      <Input
-        name="password"
-        autocomplete="current-password"
-        disabled={$signingIn}
-        errorId={$signError === commonMessages.get().invalidCredentials
-          ? 'start-server-error'
-          : undefined}
-        font="mono"
-        label={$t.secret}
-        required
-        type="password"
-        validate={validSecret}
-        bind:value={$secret}
-      />
+      <!-- Password manager fills both fields, then core shows the password -->
+      <div
+        class="sign-in-form_password"
+        class:is-visible={$usePassword}
+        class:sr-only={!$usePassword}
+        aria-hidden={$usePassword ? undefined : 'true'}
+      >
+        <Input
+          name="password"
+          autocomplete="current-password"
+          disabled={$signingIn}
+          errorId={$signError === commonMessages.get().invalidCredentials
+            ? 'start-server-error'
+            : undefined}
+          font="mono"
+          label={$t.password}
+          required={$usePassword}
+          tabindex={$usePassword ? undefined : -1}
+          type="password"
+          validate={$usePassword ? validPassword : []}
+          bind:input={passwordInput}
+          bind:value={$password}
+        />
+      </div>
     </Stack>
     {#if $signError}
       <Error id="start-server-error">{$signError}</Error>
     {/if}
-    <Stack align="center">
+    {#if $usePassword}
       <Button
         icon={mdiLogin}
         loader={$signingIn ? $t.signingIn : undefined}
@@ -77,6 +111,33 @@
       >
         {submit}
       </Button>
-    </Stack>
+    {:else}
+      <Button
+        disabled={$signingIn}
+        icon={mdiFormTextboxPassword}
+        size="wide"
+        type="submit"
+        variant="secondary"
+      >
+        {$t.signInWithPassword}
+      </Button>
+      <Button
+        icon={mdiKeyVariant}
+        loader={$signingIn ? $t.signingIn : undefined}
+        onclick={signInByPasskey}
+        size="big"
+        variant="main"
+      >
+        {$t.signInWithPasskey}
+      </Button>
+    {/if}
   </Stack>
 </Form>
+
+<style>
+  :global {
+    .sign-in-form_password.is-visible {
+      width: stretch;
+    }
+  }
+</style>

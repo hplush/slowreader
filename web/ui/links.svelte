@@ -1,6 +1,7 @@
 <script lang="ts" module>
   export interface Link<ItemValue> {
     controls?: string
+    hint?: string
     href: string
     id: string
     item: ItemValue
@@ -47,6 +48,9 @@
         tabindex={-1}
       >
         {@render item(i.item)}
+        {#if i.hint}
+          <span class="links_hint">{i.hint}</span>
+        {/if}
         {@const icon = i.mark}
         {#if icon}
           <div class="links_mark" title={i.markTitle}>
@@ -141,6 +145,15 @@
         border-color: transparent;
         box-shadow: var(--current-shadow);
       }
+    }
+
+    .links_hint {
+      flex-shrink: 0;
+      margin-inline-start: auto;
+      padding-inline-start: 0.5rem;
+      font: var(--secondary-font);
+      color: var(--secondary-text-color);
+      white-space: nowrap;
     }
 
     .links_mark {

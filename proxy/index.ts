@@ -48,6 +48,24 @@ export interface ProxyConfig {
   requestTimeout: number
 }
 
+/**
+ * Client can send any `X-Forwarded-For`, our balancer appends the real IP
+ * to it, so only the last value can be trusted.
+ */
+export function getClientIp(
+  req: Pick<IncomingMessage, 'headers'> & {
+    socket: { remoteAddress?: string }
+  },
+  behindBalancer: boolean
+): string {
+  let forwarded = req.headers['x-forwarded-for']
+  if (behindBalancer && forwarded) {
+    return String(forwarded).split(',').at(-1)!.trim()
+  } else {
+    return req.socket.remoteAddress!
+  }
+}
+
 export const DEFAULT_PROXY_CONFIG: Omit<ProxyConfig, 'allowsFrom'> = {
   bodyTimeout: 10000,
   cacheSize: 32 * 1024 * 1024,
@@ -286,13 +304,7 @@ export function createProxy(
       requestsByIp.clear()
       windowStarted = now
     }
-    // Client can send any X-Forwarded-For, our balancer appends the real IP
-    // to it, so only the last value can be trusted
-    let forwarded = req.headers['x-forwarded-for']
-    let ip =
-      config.behindBalancer && forwarded
-        ? String(forwarded).split(',').at(-1)!.trim()
-        : req.socket.remoteAddress!
+    let ip = getClientIp(req, !!config.behindBalancer)
     let count = (requestsByIp.get(ip) ?? 0) + 1
     requestsByIp.set(ip, count)
     return count

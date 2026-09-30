@@ -31,7 +31,10 @@ export async function checkErrors<Params extends object, ResponseJSON>(
   }
   if (!response.ok) {
     let text = await response.text()
-    if (response.status === 400 && text !== 'Invalid request') {
+    if (
+      (response.status === 400 && text !== 'Invalid request') ||
+      response.status === 429
+    ) {
       if (text === COMMON_ERRORS.OUTDATED_CLIENT) {
         fatal.set({ type: 'outdated' })
       }

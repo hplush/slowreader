@@ -9,7 +9,7 @@ import {
   type RouteName,
   setRequestMethod,
   setupEnvironment,
-  useCredentials,
+  startLocalUser,
   waitLoading
 } from '@slowreader/core'
 import { setNodeRequestMethod, setupNodeDom } from '@slowreader/core/node'
@@ -55,7 +55,9 @@ setDefaultAutoSelectFamilyAttemptTimeout(2000)
 
 setupNodeDom()
 
-export function enableTestClient(route: RouteName = 'home'): void {
+export async function enableTestClient(
+  route: RouteName = 'home'
+): Promise<void> {
   setupEnvironment({
     ...getTestEnvironment(),
     warn(e) {
@@ -63,7 +65,7 @@ export function enableTestClient(route: RouteName = 'home'): void {
     }
   })
   enableTestTime()
-  useCredentials(generateCredentials())
+  await startLocalUser(generateCredentials())
   openRoute({ params: {}, route })
   setNodeRequestMethod()
 }

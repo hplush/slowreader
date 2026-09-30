@@ -38,13 +38,14 @@ import {
   receivingProgress,
   reportDatabaseError,
   setupEnvironment,
-  signUp,
+  signUpByPassword,
   syncStatus,
   testFeed,
   testPost,
-  useCredentials,
+  startLocalUser,
   userId
 } from '../index.ts'
+import { splitPassword, toEncryptionKey } from '../lib/keys.ts'
 import { getTestEnvironment, openRoute } from '../test.ts'
 import {
   cleanClient,
@@ -143,12 +144,18 @@ describe('log', () => {
     credentials: Credentials
   ): Promise<TestClient> {
     let response = await signIn(
-      { password: credentials.password, userId: credentials.userId },
+      {
+        password: { authKey: splitPassword(credentials.password).authKey },
+        userId: credentials.userId
+      },
       { fetch: server!.fetch }
     )
     let { session } = await response.json()
     let device = new TestClient(server!, credentials.userId, { token: session })
-    encryptActions(device as unknown as Client, credentials.encryptionKey)
+    encryptActions(
+      device as unknown as Client,
+      await toEncryptionKey(credentials.encryptionKey)
+    )
     device.log.on('preadd', (action, meta) => {
       if (action.type !== 'logux/processed') {
         meta.reasons.push('test')
@@ -162,7 +169,7 @@ describe('log', () => {
 
   async function signUpCloudUser(): Promise<Credentials> {
     let credentials = generateCredentials()
-    await signUp(credentials)
+    await signUpByPassword(credentials)
     await waitSync()
     return credentials
   }
@@ -833,11 +840,11 @@ describe('log', () => {
 
   test('uploads local data on the sign up', async () => {
     let credentials = generateCredentials()
-    useCredentials(credentials)
+    await startLocalUser(credentials)
     let feedId = await addFeed(testFeed({ title: 'A' }))
     await waitUntil(async () => (await logTypes()).length === 0)
 
-    await signUp(credentials)
+    await signUpByPassword(credentials)
     await waitSync()
 
     deepEqual(await logTypes(), ['shadow'])

@@ -4,17 +4,27 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 
 import { config } from './config.ts'
 
-function badRequest(res: ServerResponse, msg: string): true {
-  res.writeHead(400, { 'Content-Type': 'text/plain' })
+function badRequest(res: ServerResponse, msg: string, status = 400): true {
+  res.writeHead(status, { 'Content-Type': 'text/plain' })
   res.end(msg)
   return true
 }
 
-function collectBody(req: IncomingMessage): Promise<string> {
+const MAX_BODY = 64 * 1024
+
+function collectBody(req: IncomingMessage): Promise<false | string> {
   return new Promise(resolve => {
     let data = ''
-    req.on('data', chunk => {
-      data += String(chunk)
+    let size = 0
+    req.on('data', (chunk: Buffer) => {
+      size += chunk.length
+      if (size > MAX_BODY) {
+        req.removeAllListeners('data')
+        req.resume()
+        resolve(false)
+      } else {
+        data += String(chunk)
+      }
     })
     req.on('end', () => {
       resolve(data)
@@ -24,10 +34,16 @@ function collectBody(req: IncomingMessage): Promise<string> {
 
 export class ErrorResponse {
   message: string
+  status: number
 
-  constructor(message: string) {
+  constructor(message: string, status = 400) {
     this.message = message
+    this.status = status
   }
+}
+
+export function tooManyRequests(): ErrorResponse {
+  return new ErrorResponse(COMMON_ERRORS.TOO_MANY_REQUESTS, 429)
 }
 
 function allowCors(res: ServerResponse, origin: string): void {
@@ -40,8 +56,7 @@ function allowCors(res: ServerResponse, origin: string): void {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Subprotocol')
 }
 
-const LOCALHOST = /:\/\/localhost:/
-const PRODUCTION = /(:\/\/|\.)slowreader\.app$/
+const LOCALHOST = /^http:\/\/localhost:\d+$/
 
 export function jsonApi<Response, Request extends object>(
   server: BaseServer,
@@ -62,7 +77,7 @@ export function jsonApi<Response, Request extends object>(
     if (req.headers.origin) {
       if (
         (config.env === 'development' && LOCALHOST.test(req.headers.origin)) ||
-        PRODUCTION.test(req.headers.origin)
+        req.headers.origin === config.webOrigin
       ) {
         allowCors(res, req.headers.origin)
       }
@@ -93,6 +108,9 @@ export function jsonApi<Response, Request extends object>(
           return badRequest(res, 'Wrong content type')
         }
         let data = await collectBody(req)
+        if (data === false) {
+          return badRequest(res, 'Request is too big', 413)
+        }
         let body: unknown
         try {
           body = JSON.parse(data)
@@ -107,7 +125,7 @@ export function jsonApi<Response, Request extends object>(
         if (answer === false) {
           return badRequest(res, 'Invalid request')
         } else if (answer instanceof ErrorResponse) {
-          return badRequest(res, answer.message)
+          return badRequest(res, answer.message, answer.status)
         }
         res.writeHead(200, { 'Content-Type': 'application/json' })
         res.end(JSON.stringify(answer))

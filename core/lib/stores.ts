@@ -1,8 +1,13 @@
 // Helpers to work with Nano Stores and Logux to simplify code
 // by moving complexity to helper.
 
+import { loguxSubscribe, loguxUnsubscribe } from '@logux/actions'
+import type { CrossTabClient } from '@logux/client'
 import type { SqlStore } from '@nanostores/sql'
-import { computed, type ReadableAtom } from 'nanostores'
+import { atom, computed, effect, onMount, type ReadableAtom } from 'nanostores'
+
+import { client } from '../client.ts'
+import { hasCloud } from '../settings.ts'
 
 export function firstRow<Value>(
   store: SqlStore<Value[]>
@@ -87,4 +92,52 @@ export function subscribeUntil<Value>(
       }
     })
   }
+}
+
+/**
+ * Value of async store, like `SqlStoreValue` from Nano Stores SQL.
+ */
+export type Loadable<Value> =
+  | { status: 'loading' }
+  | { status: 'ready'; value: Value }
+
+export interface ListChanges<Item> {
+  set(items: Item[]): void
+  update(change: (items: Item[]) => Item[]): void
+}
+
+/**
+ * List from the server’s `users/:id/:name` channel, which follows
+ * the current client. It stays loading for users without cloud.
+ */
+export function channelList<Item>(
+  name: string,
+  listen: (logux: CrossTabClient, list: ListChanges<Item>) => (() => void)[]
+): ReadableAtom<Loadable<Item[]>> {
+  let $list = atom<Loadable<Item[]>>({ status: 'loading' })
+  let changes: ListChanges<Item> = {
+    set(items) {
+      $list.set({ status: 'ready', value: items })
+    },
+    update(change) {
+      let list = $list.get()
+      if (list.status === 'ready') {
+        $list.set({ status: 'ready', value: change(list.value) })
+      }
+    }
+  }
+  onMount($list, () => {
+    return effect([client, hasCloud], (logux, cloud) => {
+      $list.set({ status: 'loading' })
+      if (!logux || !cloud) return undefined
+      let channel = `users/${logux.options.userId}/${name}`
+      let unbinds = listen(logux, changes)
+      void logux.sync(loguxSubscribe({ channel }))
+      return () => {
+        for (let unbind of unbinds) unbind()
+        void logux.sync(loguxUnsubscribe({ channel }))
+      }
+    })
+  })
+  return $list
 }

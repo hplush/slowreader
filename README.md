@@ -150,6 +150,7 @@ Each project has its own tools, too.
 - `pnpm update-env`: check for Node.js and pnpm updates.
 - `pnpm update-review`: run Multiocular to review updates.
 - `pnpm update-browsers`: update target browsers of web client.
+- `pnpm update-aaguids`: update passkey providers names.
 
 We use pnpm feature to run scripts in parallel, naming every test as `<workflow>:<network>:<name>`. First marker is `test:` for tests which `main.yml` runs, or `own:` for tests with own workflow, like `own:online:markdown` in `docs.yml`. Second marker is `online:` for tests which need Internet, or `offline:`. Then every command selects tests by marker: `main.yml` runs `/^test:/`, `pnpm offline` runs `/:offline:/`, `pnpm test` runs `/^(test|own):/`.
 
@@ -278,6 +279,9 @@ pnpm update -r
 
 # Update data lock in web/.browserslistrc
 pnpm update-browsers
+
+# Update passkey providers in server/aaguids/commit.lock
+pnpm update-aaguids
 
 # Review updates by Multiocular
 pnpm update-review

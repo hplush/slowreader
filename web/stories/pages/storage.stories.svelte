@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  import { hasPassword, isDemo, pages } from '@slowreader/core'
+  import { hasCloud, isDemo, pages } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import StoragePage from '../../pages/storage.svelte'
@@ -20,7 +20,7 @@
 <Story name="Local" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      hasPassword.set(false)
+      hasCloud.set(false)
     }}
     route="storage"
   >
@@ -31,7 +31,7 @@
 <Story name="Demo" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      hasPassword.set(false)
+      hasCloud.set(false)
       isDemo.set(true)
     }}
     route="storage"

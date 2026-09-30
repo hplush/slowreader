@@ -55,3 +55,7 @@ interface Window {
       }
     | undefined
 }
+
+interface CredentialCreationOptions {
+  mediation?: CredentialMediationRequirement
+}

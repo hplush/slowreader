@@ -6,7 +6,7 @@ import { getEnvironment } from '../environment.ts'
 import { formatCurrentTime } from '../format.ts'
 import { storageMessages } from '../messages/index.ts'
 import { getDatabaseSize, rebuildDatabase } from '../schema.ts'
-import { hasPassword, isDemo } from '../settings.ts'
+import { hasCloud, isDemo } from '../settings.ts'
 import { createPage } from './common.ts'
 
 export const storagePage = createPage('storage', () => {
@@ -51,7 +51,7 @@ export const storagePage = createPage('storage', () => {
     exit() {
       unbindDemo()
     },
-    hasCloud: hasPassword,
+    hasCloud,
     params: {},
     resetDatabase() {
       return resetDatabase('user-request')

@@ -5,6 +5,7 @@ import { getEnvironment } from './environment.ts'
 import { fatal } from './errors.ts'
 import { type Page, pages } from './pages/index.ts'
 import { type Route, type RouteName, router } from './router.ts'
+import { encryptionKeyLost } from './settings.ts'
 
 /**
  * Iterates over all parameters in page’ URL.
@@ -51,12 +52,12 @@ let prevPage: Page<RouteName> | undefined
 let unbinds: (() => void)[] = []
 
 export const currentPage: ReadableAtom<Page<RouteName>> = computed(
-  [router, syncStatus, fatal],
-  (route, sync, fatalError) => {
+  [router, syncStatus, fatal, encryptionKeyLost],
+  (route, sync, fatalError, keyLost) => {
     let override: RouteName | undefined
     if (fatalError) {
       override = 'fatal'
-    } else if (sync === 'wrongCredentials') {
+    } else if (sync === 'wrongCredentials' || keyLost) {
       override = 'relogin'
     }
     let startRoute = override ?? route.route

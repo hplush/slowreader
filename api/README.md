@@ -29,3 +29,7 @@ It allows us to verify that client and server API is compatible.
 ## Validators
 
 To have the same validation on the client and on the server, we share [RexExps](./validators/).
+
+## Types
+
+Shared [types](./types/), which are used by both HTTP requests and Logux actions.

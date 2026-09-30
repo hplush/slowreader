@@ -68,6 +68,37 @@
     />
   </Section>
   <Section stack width={300}>
+    <Links
+      anchor="link"
+      current="Hint current"
+      item={title}
+      links={[
+        {
+          hint: 'Online',
+          href: '#',
+          id: 'Hint',
+          item: { title: 'Hint' },
+          mark: mdiChevronRight
+        },
+        {
+          hint: 'This device',
+          href: '#',
+          id: 'Hint current',
+          item: { title: 'Hint current' },
+          mark: mdiChevronRight
+        },
+        {
+          hint: 'Sep 20, 2026',
+          href: '#',
+          id: 'Hint long',
+          item: { title: 'Hint with a very long title, which wraps' },
+          mark: mdiChevronRight,
+          variant: 'read'
+        }
+      ]}
+    />
+  </Section>
+  <Section stack width={300}>
     {@render currents('current')}
   </Section>
   <Section hover stack width={300}>

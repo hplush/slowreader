@@ -6,6 +6,7 @@ export type Config = {
   env: 'development' | 'production' | 'test'
   proxyOrigin: string | undefined
   staging: boolean
+  webOrigin: string
 }
 
 function getDefaultDatabase(env: Config['env']): string {
@@ -18,6 +19,16 @@ function getDefaultDatabase(env: Config['env']): string {
   }
 }
 
+function getDefaultWebOrigin(env: Config['env']): string {
+  if (env === 'production') {
+    throw new Error('Set WEB_ORIGIN with the web client origin')
+  } else if (env === 'test') {
+    return 'https://test.slowreader.app'
+  } else {
+    return 'http://localhost:2553'
+  }
+}
+
 export function getConfig(from: Record<string, string | undefined>): Config {
   let env = from.NODE_ENV ?? 'development'
   if (env !== 'test' && env !== 'production' && env !== 'development') {
@@ -27,6 +38,7 @@ export function getConfig(from: Record<string, string | undefined>): Config {
   if (!proxyOrigin && env === 'development') {
     proxyOrigin = '^http:\\/\\/localhost:\\d+$'
   }
+  let webOrigin = new URL(from.WEB_ORIGIN ?? getDefaultWebOrigin(env)).origin
   return {
     assets: !!from.ASSETS,
     behindBalancer: !!from.BEHIND_BALANCER,
@@ -34,7 +46,8 @@ export function getConfig(from: Record<string, string | undefined>): Config {
     debug: !!from.DEBUG,
     env,
     proxyOrigin,
-    staging: !!from.STAGING
+    staging: !!from.STAGING,
+    webOrigin
   }
 }
 

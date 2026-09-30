@@ -45,7 +45,7 @@ import { commonMessages } from './messages/index.ts'
 import type { UsefulReaderName } from './readers/common.ts'
 import {
   downloadingCloudData,
-  hasPassword,
+  hasCloud,
   uploadingLocalData
 } from './settings.ts'
 
@@ -326,7 +326,7 @@ function whenSchemaChecked(crdt: CrdtDatabase): Promise<void> {
 
 export function reportDatabaseError(error: unknown): void {
   getEnvironment().warn(error)
-  if (hasDatabase() && hasPassword.get()) {
+  if (hasDatabase() && hasCloud.get()) {
     void resetDatabase('broken-db', error)
   }
 }
@@ -426,9 +426,9 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
 
   let hasTables = !!store[DB_KEY]
 
-  // The client is re-created on every `hasPassword` change, so the mode
+  // The client is re-created on every `hasCloud` change, so the mode
   // can not change during the database’s life
-  let cloud = hasPassword.get()
+  let cloud = hasCloud.get()
   let crdt = createCrdtDatabase(logux, db, {
     key: DB_KEY,
     repeat: getSnapshot,

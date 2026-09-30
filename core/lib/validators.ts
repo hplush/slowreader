@@ -1,4 +1,4 @@
-import { IS_SECRET, IS_USER_ID } from '@slowreader/api'
+import { IS_PASSWORD, IS_USER_ID } from '@slowreader/api'
 
 import { commonMessages as t } from '../messages/index.ts'
 
@@ -18,6 +18,6 @@ export function validUserId(value: string): string | undefined {
   if (!IS_USER_ID.test(value)) return t.get().invalidUserId
 }
 
-export function validSecret(value: string): string | undefined {
-  if (!IS_SECRET.test(value)) return t.get().invalidSecret
+export function validPassword(value: string): string | undefined {
+  if (!IS_PASSWORD.test(value)) return t.get().invalidPassword
 }

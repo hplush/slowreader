@@ -1,4 +1,4 @@
-import { type Credentials, signIn, signUp } from './auth.ts'
+import { type Credentials, signInByPassword, signUpByPassword } from './auth.ts'
 import { busyDuring } from './busy.ts'
 import { addCategory } from './category.ts'
 import { client } from './client.ts'
@@ -14,7 +14,7 @@ import {
 } from './post.ts'
 import { setRequestMethod } from './request.ts'
 import { GENERAL_CATEGORY, select } from './schema.ts'
-import { benchmarkStatistics, hasPassword, userId } from './settings.ts'
+import { benchmarkStatistics, hasCloud, userId } from './settings.ts'
 
 export interface LoaderSpan {
   end: number | undefined
@@ -383,8 +383,9 @@ export function mockBenchmarkRequests(): void {
  * keeps the user between the runs, and the browser keeps the session cookie.
  */
 const BENCHMARK_CREDENTIALS: Credentials = {
-  encryptionKey: 'benchmarkKey',
-  password: 'benchmark1',
+  encryptionKey: new Uint8Array(32).fill(1),
+  password:
+    'benchmarkPasswordAuthKbenchmarkPasswordUnsafeKeyForTheBenchmarkRun',
   userId: '9999999999999999'
 }
 
@@ -393,12 +394,15 @@ const BENCHMARK_CREDENTIALS: Credentials = {
  * so the benchmark must measure the log tracking and the sync too.
  */
 export async function signInBenchmark(): Promise<void> {
-  if (userId.get() !== BENCHMARK_CREDENTIALS.userId || !hasPassword.get()) {
+  if (userId.get() !== BENCHMARK_CREDENTIALS.userId || !hasCloud.get()) {
     try {
-      await signUp(BENCHMARK_CREDENTIALS)
+      await signUpByPassword(BENCHMARK_CREDENTIALS)
     } catch {
       // The server keeps the user of the previous run
-      await signIn(BENCHMARK_CREDENTIALS)
+      await signInByPassword(
+        BENCHMARK_CREDENTIALS.userId,
+        BENCHMARK_CREDENTIALS.password
+      )
     }
   }
   if (!client.get()) {

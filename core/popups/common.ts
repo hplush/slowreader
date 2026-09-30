@@ -1,7 +1,8 @@
 import { nanoid } from 'nanoid/non-secure'
-import { atom, type ReadableAtom } from 'nanostores'
+import { atom, computed, type ReadableAtom } from 'nanostores'
 
-import { isNotFoundError } from '../errors.ts'
+import { isNotFoundError, NotFoundError } from '../errors.ts'
+import { type Loadable, subscribeUntil } from '../lib/stores.ts'
 import type { PopupName } from '../router.ts'
 
 type Extra = {
@@ -89,4 +90,31 @@ export function definePopup<Name extends PopupName, Rest extends Extra>(
     return popup as ReturnType<PopupCreator<Name, Rest>>
   }
   return creator
+}
+
+/**
+ * Keeps the list loaded while the popup is open.
+ */
+export async function loadListItem<Item extends { id: string }>(
+  $list: ReadableAtom<Loadable<Item[]>>,
+  id: string
+): Promise<{ $item: ReadableAtom<Item | undefined>; unbind: () => void }> {
+  let unbind = $list.listen(() => {})
+  let items = await new Promise<Item[]>(resolve => {
+    subscribeUntil($list, list => {
+      if (list.status === 'loading') return false
+      resolve(list.value)
+      return true
+    })
+  })
+  if (!items.some(i => i.id === id)) {
+    unbind()
+    throw new NotFoundError()
+  }
+  let $item = computed($list, list => {
+    return list.status === 'ready'
+      ? list.value.find(i => i.id === id)
+      : undefined
+  })
+  return { $item, unbind }
 }

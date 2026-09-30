@@ -1,5 +1,6 @@
 import { openDb } from '@nanostores/sql'
 import { nodeDriver } from '@nanostores/sql/node'
+import type { FakeAuthenticator } from '@slowreader/server/test'
 import { cleanStores, type ReadableAtom } from 'nanostores'
 import { fail } from 'node:assert'
 import { deepEqual, equal } from 'node:assert/strict'
@@ -17,13 +18,14 @@ import {
   currentPage,
   enableTestTime,
   encryptionKey,
+  encryptionKeyLost,
   type Environment,
   fatal,
   fastMenu,
   fastPostsCount,
   type FeedReader,
   hasFeeds,
-  hasPassword,
+  hasCloud,
   isDemo,
   type ListReader,
   type Loader,
@@ -46,6 +48,7 @@ import {
   type TextResponse,
   userId
 } from '../index.ts'
+import { toEncryptionKey } from '../lib/keys.ts'
 import { getTestEnvironment, openRoute, setWarningTracking } from '../test.ts'
 
 export { setupNodeDom } from '../node.ts'
@@ -55,18 +58,54 @@ export {
   getTestEnvironment,
   mockRequest,
   openRoute,
-  testSession
+  testSession,
+  testSignals
 } from '../test.ts'
+
+/**
+ * Environment with passkeys by software authenticator.
+ */
+export function passkeyEnvironment(
+  authenticator: FakeAuthenticator,
+  requests: object[] = []
+): Partial<Environment> {
+  return {
+    createPasskey(opts) {
+      requests.push(opts)
+      return Promise.resolve(
+        authenticator.create({
+          challenge: opts.challenge,
+          prfSalt: opts.prfSalt,
+          userId: opts.userId
+        })
+      )
+    },
+    getPasskey(opts) {
+      requests.push(opts)
+      return Promise.resolve(
+        authenticator.get({
+          challenge: opts.challenge,
+          id: opts.allowCredentials[0]?.id,
+          prfSalt: opts.prfSalt
+        })
+      )
+    },
+    passkeySupport: true
+  }
+}
+
+let testKey = await toEncryptionKey(new Uint8Array(32))
 
 export function setTestUser(enable = true): void {
   hasFeeds.set(undefined)
+  encryptionKeyLost.set(false)
   if (enable) {
-    encryptionKey.set('key')
-    hasPassword.set(false)
+    encryptionKey.set(testKey)
+    hasCloud.set(false)
     userId.set('1000000000000000')
   } else {
     encryptionKey.set(undefined)
-    hasPassword.set(false)
+    hasCloud.set(false)
     userId.set(undefined)
   }
 }
@@ -271,6 +310,7 @@ export function checkLoadedPopup<SomePopup extends BasePopup>(
 }
 
 afterEach(() => {
+  unmountPage()
   if (testDir) {
     rmSync(testDir, { force: true, recursive: true })
     testDir = undefined
@@ -285,6 +325,9 @@ export function openPage<SomeRoute extends BaseRoute | Omit<BaseRoute, 'hash'>>(
   route: SomeRoute
 ): Page<SomeRoute['route']> {
   openRoute(route)
+  // The app always listens to the current page, so redirects inside the page
+  // happen only while it is mounted
+  mountPage()
   let page = currentPage.get()
   if (page.route !== route.route) {
     throw new Error(`Current is ${page.route}, but ${route.route} was expected`)

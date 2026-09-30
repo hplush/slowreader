@@ -34,7 +34,7 @@ await cli.run(async args => {
     return
   }
 
-  enableTestClient('import')
+  await enableTestClient('import')
 
   let server: Server | undefined
   if (proxy) server = useProxy()

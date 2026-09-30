@@ -16,6 +16,7 @@
     "update-browsers": "node web/scripts/update-browsers.ts",
     "update-env": "node ./scripts/update-env.ts",
     "update-docker": "node ./scripts/update-docker.ts",
+    "update-aaguids": "node --env-file-if-exists=.env server/aaguids/update.ts",
     "update-review": "node --env-file-if-exists=.env node_modules/multiocular/server/bin.js --port 2556",
     "format:oxfmt": "oxfmt .",
     "format:css": "stylelint --fix .",

@@ -1,8 +1,13 @@
 <script lang="ts">
   import {
+    mdiCellphoneKey,
+    mdiCheckCircleOutline,
     mdiDiceMultipleOutline,
     mdiEmailFast,
     mdiEyeOff,
+    mdiFormTextboxPassword,
+    mdiKeyPlus,
+    mdiKeyVariant,
     mdiLogin,
     mdiPiggyBankOutline,
     mdiRestartOff,
@@ -27,45 +32,89 @@
   import TwoOptionsPage from '../ui/two-options-page.svelte'
 
   let { page }: { page: SignUpPage } = $props()
-  let { error, mailTo, secret, signingUp, userId, warningStep } = $derived(page)
+  let { error, mailTo, password, signingUp, step, usePassword, userId } =
+    $derived(page)
 </script>
 
 <HomeButton />
 
-{#if $warningStep}
+{#if $step.type !== 'form'}
   <ThinPage align="center" title={$t.signupTitle}>
     <Stack align="center" gap="xl">
-      <Note icon={mdiRestartOff} title={$t.noRecoveryTitle} variant="dangerous">
-        {$t.noRecoveryDesc}
-      </Note>
-      <Paper lines={[$userId, $secret]} />
-      <Stack align="center">
-        <Title>{$t.savePassword}</Title>
-        <Button
-          href={$mailTo}
-          icon={mdiEmailFast}
-          onclick={page.finish}
-          size="wide"
-          target="_blank"
+      {#if $step.type === 'passkey'}
+        <Note
+          icon={mdiCheckCircleOutline}
+          title={$step.provider
+            ? $t.passkeySavedIn({ provider: $step.provider })
+            : $t.passkeySaved}
+          variant="good"
         >
-          {$t.toEmail}
-        </Button>
-        <Button
-          icon={mdiTooltipQuestionOutline}
-          onclick={page.askAgain}
-          size="wide"
-          variant="secondary"
-        >
-          {$t.askSaveAgain}
-        </Button>
-        <Button
-          icon={mdiStickerCheckOutline}
-          onclick={page.finish}
-          size="wide"
-          variant="secondary"
-        >
-          {$t.savedPromise}
-        </Button>
+          {$t.passkeySavedDesc}
+        </Note>
+      {/if}
+      <Stack align="center" gap="s">
+        {#if $step.type === 'passkey'}
+          <Title center>{$t.saveBackupPassword}</Title>
+          <Note
+            icon={mdiCellphoneKey}
+            title={$t.deviceOnlyTitle}
+            variant="dangerous"
+          >
+            {$t.deviceOnlyDesc}
+          </Note>
+        {:else}
+          <Title center>{$t.savePassword}</Title>
+          <Note
+            icon={mdiRestartOff}
+            title={$t.noRecoveryTitle}
+            variant="dangerous"
+          >
+            {$t.noRecoveryDesc}
+          </Note>
+        {/if}
+        <Paper
+          lines={[
+            { label: $t.paperUser, value: $userId },
+            { label: $t.password, value: $password }
+          ]}
+        />
+        <Stack gap="s">
+          <Button
+            href={$mailTo}
+            icon={mdiEmailFast}
+            onclick={page.finish}
+            size="wide"
+            target="_blank"
+          >
+            {$t.toEmail}
+          </Button>
+          <Button
+            icon={mdiTooltipQuestionOutline}
+            onclick={page.askAgain}
+            size="wide"
+            variant="secondary"
+          >
+            {$t.askSaveAgain}
+          </Button>
+          <Button
+            icon={mdiStickerCheckOutline}
+            onclick={page.finish}
+            size="wide"
+            variant="secondary"
+          >
+            {$t.savedPromise}
+          </Button>
+          {#if $step.type === 'passkey'}
+            <Button
+              icon={mdiKeyPlus}
+              onclick={page.addAnotherPasskey}
+              size="wide"
+              variant="secondary"
+            >
+              {$t.addAnotherPasskey}
+            </Button>
+          {/if}
+        </Stack>
       </Stack>
     </Stack>
   </ThinPage>
@@ -74,34 +123,50 @@
     {#snippet one()}
       <Card>
         <Form loading={$signingUp} onsubmit={page.submit}>
-          <Stack align="center" gap="l">
+          <Stack align="center">
             <Output
               name="username"
               autocomplete="username"
               label={$t.signUpUserId}
               value={$userId}
             />
-            <Output
-              name="password"
-              autocomplete="new-password"
-              label={$t.secret}
-              type="text"
-              value={$secret}
-            />
+            {#if $usePassword}
+              <Output
+                name="password"
+                autocomplete="new-password"
+                label={$t.generatedPassword}
+                type="text"
+                value={$password}
+              />
+            {/if}
             {#if $error}
               <Error id="start-server-error">
                 {$error}
               </Error>
             {/if}
             <Button
-              icon={mdiLogin}
+              icon={$usePassword ? mdiLogin : mdiKeyVariant}
               loader={$signingUp ? $t.signingUp : undefined}
               size="wide"
               type="submit"
               variant="main"
             >
-              {$t.signup}
+              {$usePassword ? $t.signup : $t.signupWithPasskey}
             </Button>
+            {#if page.passkeySupport}
+              <Button
+                disabled={$signingUp}
+                icon={$usePassword ? mdiKeyVariant : mdiFormTextboxPassword}
+                onclick={() => {
+                  error.set(undefined)
+                  usePassword.set(!$usePassword)
+                }}
+                size="wide"
+                variant="secondary"
+              >
+                {$usePassword ? $t.usePasskey : $t.usePassword}
+              </Button>
+            {/if}
           </Stack>
         </Form>
       </Card>

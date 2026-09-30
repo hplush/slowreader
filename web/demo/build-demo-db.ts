@@ -16,7 +16,7 @@ import {
   select,
   setProxyAsRequestMethod,
   setupEnvironment,
-  useCredentials
+  startLocalUser
 } from '@slowreader/core'
 import { setupNodeDom } from '@slowreader/core/node'
 import {
@@ -69,7 +69,7 @@ setProxyAsRequestMethod(
   'https://dev.slowreader.app'
 )
 
-await useCredentials(generateCredentials())
+await startLocalUser(generateCredentials())
 isDemo.set(true)
 
 currentPage.listen(() => {})

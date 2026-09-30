@@ -13,6 +13,17 @@ import {
 } from '@slowreader/core'
 import { effect } from 'nanostores'
 
+import {
+  loadEncryptionKey,
+  saveEncryptionKey,
+  waitKeySaving
+} from '../lib/encryption-key.ts'
+import {
+  createPasskey,
+  getPasskey,
+  passkeySupport,
+  signalPasskeys
+} from '../lib/passkey.ts'
 import { locale } from '../stores/locale.ts'
 import { mobileMedia, tabletMedia } from '../stores/media-queries.ts'
 import { usedRequestMethod } from '../stores/request-method.ts'
@@ -79,23 +90,31 @@ setupEnvironment({
   baseRouter: urlRouter,
   cleanStorage() {
     localStorage.clear()
+    void saveEncryptionKey(undefined)
   },
+  createPasskey,
   databaseCreator: createDatabase,
   errorEvents: window,
   dumpDatabase,
+  getPasskey,
   getSession() {
     // Browser will use session from http-only cookie
     return undefined
   },
+  loadEncryptionKey,
   locale,
   networkType: detectNetworkType,
   openRoute,
+  passkeySupport,
   persistentEvents: windowPersistentEvents,
   persistentStore: localStorage,
   restartApp() {
     restarting.set(true)
-    location.reload()
+    void waitKeySaving().then(() => {
+      location.reload()
+    })
   },
+  saveEncryptionKey,
   saveFile(filename, content) {
     let url = URL.createObjectURL(content)
     let a = document.createElement('a')
@@ -109,7 +128,7 @@ setupEnvironment({
       await navigator.credentials.store(
         new window.PasswordCredential({
           id: fields.userId,
-          password: fields.secret
+          password: fields.password
         })
       )
     } else {
@@ -128,7 +147,7 @@ setupEnvironment({
       passwordInput.type = 'password'
       passwordInput.name = 'password'
       passwordInput.autocomplete = 'new-password'
-      passwordInput.value = fields.secret
+      passwordInput.value = fields.password
       form.appendChild(passwordInput)
       let button = document.createElement('button')
       button.type = 'submit'
@@ -144,6 +163,7 @@ setupEnvironment({
     // Browser will keep session in http-only cookie
   },
   server,
+  signalPasskeys,
   translationLoader() {
     return Promise.resolve({})
   },

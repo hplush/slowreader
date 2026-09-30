@@ -27,8 +27,10 @@
   import FeedPopup from '../popups/feed.svelte'
   import LoadingPopup from '../popups/loading.svelte'
   import NotFoundPopup from '../popups/not-found.svelte'
+  import PasskeyPopup from '../popups/passkey.svelte'
   import PostPopup from '../popups/post.svelte'
   import RefreshPopup from '../popups/refresh.svelte'
+  import SessionPopup from '../popups/session.svelte'
   import Button from '../ui/button.svelte'
   import Navbar from '../ui/navbar/index.svelte'
   import PopupShadow from '../ui/popup-shadow.svelte'
@@ -107,5 +109,9 @@
     <FeedPopup {popup} />
   {:else if popup.name === 'refresh'}
     <RefreshPopup />
+  {:else if popup.name === 'passkey'}
+    <PasskeyPopup {popup} />
+  {:else if popup.name === 'session'}
+    <SessionPopup {popup} />
   {/if}
 {/if}

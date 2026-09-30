@@ -20,8 +20,6 @@
 <Story name="Submitting" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
-      pages.start().userId.set('4581658299936829')
-      pages.start().secret.set('Yo;wV*5Ktm }&OqUv2RB>')
       pages.start().signingIn.set(true)
     }}
     route="start"
@@ -35,12 +33,35 @@
   <Scene
     oninit={() => {
       pages.start().userId.set('4581658299936829')
-      pages.start().secret.set('Yo;wV*5Ktm }&OqUv2RB>')
+      pages
+        .start()
+        .password.set(
+          'PDn2M6eYaGPcG5eBC231rdJ8xJB34EryNVzP1xSjadrHbViwxHNeJ4CSEa5T18YhFT'
+        )
       pages.start().signError.set(t.get().invalidCredentials)
     }}
     route="start"
     user={false}
   >
+    <StartPage page={pages.start()} />
+  </Scene>
+</Story>
+
+<Story name="Passkey Without PRF" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      pages.start().usePassword.set(true)
+      pages.start().signError.set(t.get().passkeyNoPrf)
+    }}
+    route="start"
+    user={false}
+  >
+    <StartPage page={pages.start()} />
+  </Scene>
+</Story>
+
+<Story name="No Passkeys" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene passkeys={false} route="start" user={false}>
     <StartPage page={pages.start()} />
   </Scene>
 </Story>

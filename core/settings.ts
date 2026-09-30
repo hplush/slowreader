@@ -1,19 +1,31 @@
 import { persistentAtom, persistentBoolean } from '@nanostores/persistent'
-import type { StoreValue } from 'nanostores'
+import { atom, type StoreValue } from 'nanostores'
 
 import type { FillStatistics } from './benchmark.ts'
 
 export const userId = persistentAtom<string | undefined>('slowreader:userId')
 
-export const encryptionKey = persistentAtom<string | undefined>(
-  'slowreader:encryptionKey'
-)
+/**
+ * Non-extractable key, which the environment keeps outside of `localStorage`.
+ */
+export const encryptionKey = atom<CryptoKey | undefined>()
+
+/**
+ * Cloud user must sign in again to unlock the key from the server.
+ */
+export const encryptionKeyLost = atom(false)
 
 export const syncServer = persistentAtom<string | undefined>(
   'slowreader:server'
 )
 
-export const hasPassword = persistentBoolean('slowreader:has-password')
+export const hasCloud = persistentBoolean('slowreader:has-cloud')
+
+/**
+ * Account was created with a synced passkey and the user has not created
+ * a backup password yet.
+ */
+export const passkeyOnly = persistentBoolean('slowreader:passkey-only')
 
 /**
  * The database was copied from the demo build, so the feeds and the posts
