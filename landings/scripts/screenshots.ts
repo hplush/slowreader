@@ -24,7 +24,7 @@ const DEVICES = {
 
 interface Screenshot {
   /**
-   * CSS selector to crop the screenshot to one part of the UI.
+   * CSS selector to crop the UI.
    */
   area?: string
   device: keyof typeof DEVICES
