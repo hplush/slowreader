@@ -52,7 +52,8 @@
     id: string,
     method: SessionItem['method'],
     online: boolean,
-    current = false
+    current = false,
+    usedAt = new Date('2026-09-20T10:00:00Z')
   ): SessionItem {
     let [browser = '', os = ''] = id.split('|')
     return {
@@ -64,7 +65,7 @@
       name: browser ? `${browser} on ${os}` : 'Unknown device',
       online,
       os,
-      usedAt: new Date('2026-09-20T10:00:00Z')
+      usedAt
     }
   }
 
@@ -72,6 +73,13 @@
     session('Firefox|Linux', { type: 'password' }, true, true),
     session('Safari|iOS', { name: 'Apple Passwords', type: 'passkey' }, true),
     session('Chrome|Windows', { name: 'YubiKey', type: 'passkey' }, false),
+    session(
+      'Edge|macOS',
+      { type: 'password' },
+      false,
+      false,
+      new Date(new Date().setHours(10, 0, 0, 0))
+    ),
     session('|', { type: 'deleted' }, false)
   ]
 

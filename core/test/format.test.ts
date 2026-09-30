@@ -2,15 +2,17 @@ import type { Formatter } from '@nanostores/i18n'
 import { equal, match } from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
-import { formatPublishedAt, formatSize } from '../format.ts'
+import { formatPublishedAt, formatSize, formatTimeShort } from '../format.ts'
 
 describe('format', () => {
   function createMockFormatter(): Formatter {
     return {
       number: (num, opts) => `${num} ${opts?.unit}`,
       relativeTime: (num, unit) => `${num} ${unit}`,
-      time: date => {
+      time: (date, opts) => {
         let d = date instanceof Date ? date : new Date(date ?? 0)
+        if (opts?.timeStyle && !opts.dateStyle) return 'time'
+        if (opts?.dateStyle && !opts.timeStyle) return 'date'
         return d.toISOString()
       }
     }
@@ -48,5 +50,14 @@ describe('format', () => {
     let result = formatPublishedAt(format, twoDaysAgo)
 
     match(result, /^\d{4}-\d{2}-\d{2}T/)
+  })
+
+  test('formats short time as time for today and as date before', () => {
+    let format = createMockFormatter()
+    let yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+
+    equal(formatTimeShort(format, new Date()), 'time')
+    equal(formatTimeShort(format, yesterday), 'date')
   })
 })

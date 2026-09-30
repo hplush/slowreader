@@ -18,6 +18,7 @@
   import {
     authMessages,
     type CloudPage,
+    formatTimeShort,
     getPopupId,
     i18nFormat,
     isDemo,
@@ -83,7 +84,7 @@
     } else if (session.online) {
       return $t.online
     } else {
-      return $i18nFormat.time(session.usedAt, { dateStyle: 'medium' })
+      return formatTimeShort($i18nFormat, session.usedAt)
     }
   }
 </script>

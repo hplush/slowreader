@@ -40,6 +40,13 @@ export function formatPublishedAt(format: Formatter, time: number): string {
   return format.time(date, { dateStyle: 'short', timeStyle: 'short' })
 }
 
+export function formatTimeShort(format: Formatter, date: Date): string {
+  if (date.toDateString() === new Date().toDateString()) {
+    return format.time(date, { timeStyle: 'short' })
+  }
+  return format.time(date, { dateStyle: 'medium' })
+}
+
 function pad(value: number): string {
   return String(value).padStart(2, '0')
 }
