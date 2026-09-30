@@ -8,7 +8,7 @@ Slow Reader is a local-first app. Your feeds, posts, and settings live on your d
 
 If you create a cloud account to sync your devices, the app encrypts your data on your device before sending it to our server. Only your devices have the key, so we can’t read your data.
 
-The app gives you a random user ID instead of asking for your email or name. We can’t connect your account to you or track you by it.
+The app gives you a random user ID instead of asking for your email or name.
 
 The server needs some data unencrypted to sync your devices. This is all the unencrypted data it has:
 
@@ -21,40 +21,47 @@ The server needs some data unencrypted to sync your devices. This is all the une
 - when you created the account;
 - when, from which device, and how much encrypted data your devices send.
 
+Sync can’t work without this data, so there is no way to have a cloud account with less data.
+
 We keep this data until you delete it. The _Delete your data from the cloud_ button on the _Cloud_ page deletes all of it immediately.
 
 ## Loading Feeds
 
 Without the Slow Reader browser extension, the web app downloads feeds through our proxy, because browsers block direct requests to other websites. The proxy doesn’t record which feeds you read.
 
-## Analytics
-
-We count page views with <a href="https://plausible.io/data-policy" target="_blank">Plausible Analytics</a> running on our own server. It doesn’t use cookies, doesn’t count unique visitors, and doesn’t store your IP address or other personal data.
-
-Our analytics are open for everyone to review.
+With the extension, the app downloads feeds directly, so feed websites see your IP address.
 
 ## Tracking
 
-We don’t use cookies or other ways to track you. We don’t share any information about you with advertisers, marketing companies, or anyone else.
+We don’t track you. The only cookie we set keeps you signed in to the cloud, and we remove it when you sign out. We don’t share any information about you with advertisers, marketing companies, or anyone else.
 
 ## Logs
 
-We don’t write your IP address or other personal data to our logs.
+Our logs don’t have your IP address or data, only your random user ID and device IDs.
 
 ## Hosting
 
 Our servers run at Hetzner in the EU. You can read <a href="https://www.hetzner.com/legal/privacy-policy/" target="_blank">Hetzner’s privacy policy</a>.
 
-## Agreement
+## Your Rights
 
-By creating a cloud account, you agree to this policy. Sync can’t work without the unencrypted data listed in the Cloud section, so there is no way to have a cloud account with less data.
+You can access, export, and delete your data in the app:
 
-If you don’t want our analytics, you can <a href="https://github.com/hplush/slowreader" target="_blank">host Slow Reader yourself</a>. Analytics is disabled in the self-hosted version.
+- _Export_ page saves your feeds, posts, and settings to a file.
+- _Download server data_ button on the _Cloud_ page saves everything our server has about your account.
+- _Cloud_ page shows your devices and passkeys and lets you remove them.
+- _Delete your data from the cloud_ button on the _Cloud_ page deletes your cloud account.
+
+We don’t know who you are, so we can’t confirm your identity by email. If you lose your password and all passkeys, we can’t give you access to the account or its data.
+
+For questions, email [andrey@sitnik.es](mailto:andrey@sitnik.es). We answer within one month. You can also complain to your local data protection authority.
 
 ## Contact
 
-Slow Reader is run by <a href="https://github.com/ai" target="_blank">Andrey Sitnik</a>. For questions or comments about privacy, you can contact us at [andrey@sitnik.es](mailto:andrey@sitnik.es).
+Slow Reader is run by <a href="https://github.com/ai" target="_blank">Andrey Sitnik</a> in Spain. For questions or comments about privacy, you can contact us at [andrey@sitnik.es](mailto:andrey@sitnik.es).
+
+If you email us, we use your email address and message only to answer you. We delete them when you ask us. Our email runs on Google Workspace, so Google stores it in the US.
 
 ## Changes
 
-We may change this policy at any time. Check this page for the latest version. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.
+We may change this policy at any time. Check this page for the latest version. Last change: September 30, 2026. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.
