@@ -57,6 +57,7 @@ export function images(): Plugin {
   return {
     async buildStart() {
       await mkdir(SMALL, { recursive: true })
+      await mkdir(join(GENERATED, 'og'), { recursive: true })
 
       for (let dir of await readdir(IMAGES, { withFileTypes: true })) {
         if (!dir.isDirectory()) continue
@@ -113,6 +114,11 @@ export function images(): Plugin {
           .resize(ICON_WIDTH, ICON_WIDTH)
           .png({ palette: true })
           .toFile(logo)
+      }
+
+      let ogLogo = join(GENERATED, 'og', 'logo.png')
+      if (!(await fresh(ICON, ogLogo))) {
+        await sharp(ICON).resize(96, 96).png({ palette: true }).toFile(ogLogo)
       }
     },
 

@@ -7,6 +7,7 @@ _See the [full architecture guide](../README.md) first._
 ## Project Structure
 
 - [`root/`](./root/): page on `/` with its own CSS and JS. The build renames `root.html` to `index.html`. Open it with `?guest` to see it as a new user.
+- [`og/`](./og/): page on `/og`, which the build renders to `og.jpg` for social networks.
 - [`layout/`](./layout/): header, styles, and script shared by all pages, and the template for [`docs/`](../docs/) pages. The build renders each `docs/*.md` to `/docs/<name>`.
 - [`generated-images/`](./generated-images/): AVIF sources for pages and prompts to generate them.
 - [`images/`](./images/): SVG logos of the project authors for the footer.
@@ -21,7 +22,7 @@ _See the [full architecture guide](../README.md) first._
 ## Scripts
 
 - `pnpm -F landings start`: watch and rebuild `dist/` on every change.
-- `pnpm -F landings build`: build production files in `landings/dist/`.
+- `pnpm -F landings build`: build production files in `landings/dist/`. Needs Chromium from `pnpm -F landings exec playwright install chromium`.
 - `pnpm -F landings save-images`: convert new PNG from generator in `generated-images/*/` to AVIF source to store.
 - `pnpm -F landings screenshots`: open the web client with the demo database and save screenshots from the list in [`scripts/screenshots.ts`](./scripts/screenshots.ts) to `screenshots/`.
 

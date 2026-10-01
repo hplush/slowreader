@@ -1,0 +1,78 @@
+@import url('../layout/layout.css');
+
+body {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  inline-size: 75rem;
+  block-size: 39.375rem;
+  padding-inline-end: 4.5rem;
+  overflow: hidden;
+  color: oklch(1 0 0);
+  background: --top-color('../generated-images/main/main.avif');
+}
+
+body::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: linear-gradient(
+    to right,
+    oklch(0.17 0.02 60 / 0%) 25%,
+    oklch(0.17 0.02 60 / 60%) 55%,
+    oklch(0.17 0.02 60 / 70%)
+  );
+}
+
+.og_image {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  object-position: 10% center;
+}
+
+.og_content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  z-index: 1;
+  inline-size: 36rem;
+}
+
+.og_app {
+  display: flex;
+  gap: 1.75rem;
+  align-items: center;
+}
+
+.og_logo {
+  display: block;
+  inline-size: 6rem;
+  block-size: 6rem;
+  border-radius: inherit;
+}
+
+.og_name,
+.og_motto {
+  margin: 0;
+  text-shadow: 0 1px 1rem oklch(0 0 0 / 60%);
+}
+
+.og_name {
+  font:
+    700 4.2rem/1 'Catamaran Variable',
+    Arial,
+    sans-serif;
+}
+
+.og_motto {
+  font:
+    800 6.5rem/0.95 'Catamaran Variable',
+    Arial,
+    sans-serif;
+  text-wrap: balance;
+}

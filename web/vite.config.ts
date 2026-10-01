@@ -12,6 +12,7 @@ const LANDING_TYPES: Record<string, string> = {
   '.avif': 'image/avif',
   '.css': 'text/css',
   '.html': 'text/html',
+  '.jpg': 'image/jpeg',
   '.js': 'text/javascript',
   '.png': 'image/png',
   '.svg': 'image/svg+xml',

@@ -376,6 +376,9 @@ importers:
       marked:
         specifier: 18.0.14
         version: 18.0.14
+      playwright:
+        specifier: 1.64.0-alpha-1789764292000
+        version: 1.64.0-alpha-1789764292000
       postcss:
         specifier: 8.5.28
         version: 8.5.28
@@ -394,10 +397,6 @@ importers:
       vite:
         specifier: 8.3.1
         version: 8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.1)(yaml@2.9.1)
-    devDependencies:
-      playwright:
-        specifier: 1.64.0-alpha-1789764292000
-        version: 1.64.0-alpha-1789764292000
 
   loader-tests:
     devDependencies:
