@@ -195,21 +195,23 @@
               ? $authMessages.saveBackupPassword
               : $authMessages.savePassword}
           </Title>
+          <p>{$firstPassword ? $t.firstPasswordDesc : $t.newPasswordDesc}</p>
+        </Stack>
+        <Stack align="center" gap="m">
           <Note
             icon={mdiRestartOff}
             title={$authMessages.noRecoveryTitle}
             variant="dangerous"
           >
-            {$firstPassword ? $t.firstPasswordDesc : $t.newPasswordDesc}
             {$authMessages.noRecoveryDesc}
           </Note>
+          <Paper
+            lines={[
+              { label: $authMessages.paperUser, value: $userId ?? '' },
+              { label: $authMessages.password, value: $newPassword }
+            ]}
+          />
         </Stack>
-        <Paper
-          lines={[
-            { label: $authMessages.paperUser, value: $userId ?? '' },
-            { label: $authMessages.password, value: $newPassword }
-          ]}
-        />
         <Stack align="center">
           <Button
             href={$newPasswordMailTo}
