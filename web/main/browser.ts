@@ -164,8 +164,7 @@ effect(busy, task => {
 })
 
 // Android Chrome opens links from the installed app only in the in-app browser
-document.addEventListener('click', event => {
-  if (!hasInAppBrowser.get() || !openLinksInBrowser.get()) return
+function openInBrowser(event: MouseEvent): void {
   if (!(event.target instanceof Element)) return
   let link = event.target.closest('a')
   if (
@@ -175,5 +174,13 @@ document.addEventListener('click', event => {
   ) {
     event.preventDefault()
     location.href = toBrowserIntent(new URL(link.href))
+  }
+}
+
+effect([hasInAppBrowser, openLinksInBrowser], (has, open) => {
+  if (!has || !open) return
+  document.addEventListener('click', openInBrowser)
+  return () => {
+    document.removeEventListener('click', openInBrowser)
   }
 })
