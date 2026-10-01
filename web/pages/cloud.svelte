@@ -3,6 +3,7 @@
     mdiAccountPlus,
     mdiCellphoneKey,
     mdiChevronRight,
+    mdiCloudAlert,
     mdiEmailFast,
     mdiKeyPlus,
     mdiKeyVariant,
@@ -11,6 +12,7 @@
     mdiLogin,
     mdiLogout,
     mdiRestartOff,
+    mdiServer,
     mdiStickerCheckOutline,
     mdiTrashCanOutline
   } from '@mdi/js'
@@ -375,6 +377,21 @@
     {:else if $isDemo}
       <DemoNote type="cloud" />
     {:else}
+      {#if page.stagingServer}
+        <Note icon={mdiCloudAlert} variant="warning">
+          <Stack>
+            {$t.stagingDesc}
+            <Button
+              href="https://slowreader.app/app"
+              icon={mdiServer}
+              size="wide"
+              variant="secondary"
+            >
+              {$t.stableServer}
+            </Button>
+          </Stack>
+        </Note>
+      {/if}
       <Card>
         <Stack>
           <Title>{$t.noCloudTitle}</Title>

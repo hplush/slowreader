@@ -226,7 +226,7 @@
     }}
     route="cloud"
   >
-    <CloudPageComponent page={pages.cloud()} />
+    <CloudPageComponent page={{ ...pages.cloud(), stagingServer: true }} />
   </Scene>
 </Story>
 

@@ -27,6 +27,9 @@ export const cloudMessages = i18n('cloud', {
   receivingStatus: 'Downloading…',
   sendingAfterWaitStatus: 'Connected. Sending unsaved changes…',
   sendingStatus: 'Connected. Requesting changes from the cloud…',
+  stableServer: 'Stable server',
+  stagingDesc:
+    'This is a development preview server. Your data in the cloud can be lost here.',
   status: 'Sync status',
   synchronizedAfterWaitStatus: 'Online. All changes was synchronized.',
   synchronizedStatus: 'Online',

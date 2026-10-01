@@ -11,6 +11,7 @@ import {
   client,
   type Loadable,
   closeLastPopup,
+  getEnvironment,
   cloudMessages,
   currentSessionId,
   hasCloud,
@@ -391,5 +392,14 @@ describe('cloud page', () => {
     let localSession = openTestPopup('session', id)
     await waitLoading(localSession.loading)
     equal(localSession.notFound, true)
+  })
+
+  test('warns about staging server', () => {
+    equal(openPage({ params: {}, route: 'cloud' }).stagingServer, false)
+    openRoute({ params: {}, route: 'fatal' })
+    let original = getEnvironment().server
+    getEnvironment().server = 'server.dev.slowreader.app'
+    equal(openPage({ params: {}, route: 'cloud' }).stagingServer, true)
+    getEnvironment().server = original
   })
 })

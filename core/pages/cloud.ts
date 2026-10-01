@@ -122,6 +122,7 @@ export const cloudPage = createPage('cloud', () => {
     passkeyOnly,
     passkeySupport,
     sessions: sessionsList,
+    stagingServer: getEnvironment().server === 'server.dev.slowreader.app',
     suggestSecondPasskey: computed(passkeysList, list => {
       return (
         list.status === 'ready' &&
