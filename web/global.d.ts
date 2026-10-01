@@ -59,3 +59,11 @@ interface Window {
 interface CredentialCreationOptions {
   mediation?: CredentialMediationRequirement
 }
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<{ outcome: 'accepted' | 'dismissed' }>
+}
+
+interface WindowEventMap {
+  beforeinstallprompt: BeforeInstallPromptEvent
+}

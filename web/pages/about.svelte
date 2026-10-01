@@ -1,11 +1,19 @@
 <script lang="ts">
-  import { mdiBug, mdiEye, mdiShieldSearch } from '@mdi/js'
+  import {
+    mdiBug,
+    mdiCellphoneArrowDown,
+    mdiEye,
+    mdiRefresh,
+    mdiShieldSearch
+  } from '@mdi/js'
   import {
     type AboutPage,
+    getEnvironment,
     settingsMessages,
     aboutMessages as t
   } from '@slowreader/core'
 
+  import { installApp, installation } from '../stores/install.ts'
   import AppIcon from '../ui/app-icon.svelte'
   import Button from '../ui/button.svelte'
   import Note from '../ui/note.svelte'
@@ -24,6 +32,16 @@
       <Title>Slow Reader</Title>
     </Stack>
     <Output label={$t.version} value={page.appVersion} />
+    {#if $installation === 'available'}
+      <Button
+        icon={mdiCellphoneArrowDown}
+        onclick={installApp}
+        size="big"
+        variant="main"
+      >
+        {$t.install}
+      </Button>
+    {/if}
     <Note icon={mdiShieldSearch} variant="good">
       <Stack>
         {$t.opensource}
@@ -38,14 +56,26 @@
         </Button>
       </Stack>
     </Note>
-    <Button
-      href="https://github.com/hplush/slowreader/issues/new"
-      icon={mdiBug}
-      size="wide"
-      target="_blank"
-      variant="secondary"
-    >
-      {$t.reportIssue}
-    </Button>
+    <Stack gap="s">
+      {#if $installation === 'installed'}
+        <Button
+          icon={mdiRefresh}
+          onclick={getEnvironment().updateClient}
+          size="wide"
+          variant="secondary"
+        >
+          {$t.update}
+        </Button>
+      {/if}
+      <Button
+        href="https://github.com/hplush/slowreader/issues/new"
+        icon={mdiBug}
+        size="wide"
+        target="_blank"
+        variant="secondary"
+      >
+        {$t.reportIssue}
+      </Button>
+    </Stack>
   </Stack>
 </ThinPage>
