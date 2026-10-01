@@ -13,6 +13,12 @@ interface FileSystemFileHandle {
 }
 
 interface Navigator {
+  userAgentData:
+    | {
+        brands: { brand: string; version: string }[]
+        platform: string
+      }
+    | undefined
   connection:
     | {
         saveData?: boolean

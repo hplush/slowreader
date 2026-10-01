@@ -26,6 +26,7 @@
     <Switch {icon} label="Off" store={storeOff} />
     <Switch disabled {icon} label="Disabled" store={storeOff} />
     <Switch {icon} label="Reverse" reverseStore={storeOn} />
+    <Switch {icon} label="Note" note="Secondary text" store={storeOn} />
     <Switch
       {icon}
       label="Very-very long label with longlonglongwordthat couldbreakcontainer"
@@ -50,6 +51,7 @@
     <Switch {icon} label="Base" store={storeOn} />
     <Switch {icon} label="Off" store={storeOff} />
     <Switch disabled {icon} label="Disabled" store={storeOff} />
+    <Switch {icon} label="Note" note="Secondary text" store={storeOn} />
   </Section>
   <Section
     active="label:nth-child(2)"

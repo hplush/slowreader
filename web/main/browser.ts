@@ -18,6 +18,11 @@ import {
 import { focusGroupKeyUX, jumpKeyUX, pressKeyUX, startKeyUX } from 'keyux'
 import { effect } from 'nanostores'
 
+import {
+  hasInAppBrowser,
+  openLinksInBrowser,
+  toBrowserIntent
+} from '../stores/links.ts'
 import { locale } from '../stores/locale.ts'
 import { onlyTouch, pageTheme } from '../stores/media-queries.ts'
 import { restarting } from '../stores/restart.ts'
@@ -155,5 +160,20 @@ effect(busy, task => {
   window.addEventListener('beforeunload', blockClosing)
   return () => {
     window.removeEventListener('beforeunload', blockClosing)
+  }
+})
+
+// Android Chrome opens links from the installed app only in the in-app browser
+document.addEventListener('click', event => {
+  if (!hasInAppBrowser.get() || !openLinksInBrowser.get()) return
+  if (!(event.target instanceof Element)) return
+  let link = event.target.closest('a')
+  if (
+    link &&
+    link.origin !== location.origin &&
+    /^https?:$/.test(link.protocol)
+  ) {
+    event.preventDefault()
+    location.href = toBrowserIntent(new URL(link.href))
   }
 })

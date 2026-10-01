@@ -2,6 +2,7 @@
   import {
     mdiAnimationOutline,
     mdiButtonCursor,
+    mdiOpenInApp,
     mdiThemeLightDark,
     mdiWeatherNight,
     mdiWeatherSunny
@@ -14,6 +15,7 @@
     useReducedMotion
   } from '@slowreader/core'
 
+  import { hasInAppBrowser, openLinksInBrowser } from '../stores/links.ts'
   import { systemReducedMotion } from '../stores/media-queries.ts'
   import Radio from '../ui/radio.svelte'
   import Stack from '../ui/stack.svelte'
@@ -53,6 +55,14 @@
           icon={mdiAnimationOutline}
           label={$t.useAnimations}
           reverseStore={useReducedMotion}
+        />
+      {/if}
+      {#if $hasInAppBrowser}
+        <Switch
+          icon={mdiOpenInApp}
+          label={$t.inAppBrowser}
+          note={$t.inAppBrowserLimit}
+          reverseStore={openLinksInBrowser}
         />
       {/if}
     </Stack>

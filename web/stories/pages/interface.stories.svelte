@@ -2,6 +2,7 @@
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import InterfacePage from '../../pages/interface.svelte'
+  import { hasInAppBrowser } from '../../stores/links.ts'
   import { systemReducedMotion } from '../../stores/media-queries.ts'
   import Scene from '../scene.svelte'
 
@@ -12,7 +13,12 @@
 </script>
 
 <Story name="Base" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene route="interface">
+  <Scene
+    oninit={() => {
+      hasInAppBrowser.set(true)
+    }}
+    route="interface"
+  >
     <InterfacePage />
   </Scene>
 </Story>
@@ -22,6 +28,7 @@
     oninit={() => {
       // @ts-expect-error Hack for tests
       systemReducedMotion.set(true)
+      hasInAppBrowser.set(false)
     }}
     route="interface"
   >

@@ -9,12 +9,14 @@
     disabled = false,
     icon,
     label,
+    note,
     reverseStore,
     store
   }: {
     disabled?: boolean
     icon?: string
     label: string
+    note?: string
     reverseStore?: WritableAtom<boolean>
     store?: WritableAtom<boolean>
   } = $props()
@@ -54,6 +56,9 @@
     {/if}
     <div class="switch_text">
       {label}
+      {#if note}
+        <div class="switch_note">{note}</div>
+      {/if}
     </div>
   </div>
   <input
@@ -117,6 +122,12 @@
       font: var(--control-font);
       overflow-wrap: anywhere;
       user-select: none;
+    }
+
+    .switch_note {
+      margin-top: 0.1875rem;
+      font: var(--secondary-font);
+      color: var(--secondary-text-color);
     }
 
     .switch_gutter {
