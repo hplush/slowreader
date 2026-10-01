@@ -1,8 +1,9 @@
 <script context="module" lang="ts">
-  import type { PasskeyItem, PasskeyPopup } from '@slowreader/core'
+  import { pages, type PasskeyItem, type PasskeyPopup } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
   import { atom } from 'nanostores'
 
+  import CloudPage from '../../pages/cloud.svelte'
   import PasskeyPopupComponent from '../../popups/passkey.svelte'
   import Scene from '../scene.svelte'
 
@@ -35,7 +36,8 @@
 </script>
 
 <Story name="Synced" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene route="cloud">
+  <Scene route={{ hash: 'passkey=apple', params: {}, route: 'cloud' }}>
+    <CloudPage page={pages.cloud()} />
     <PasskeyPopupComponent
       popup={popup({
         ...BASE,

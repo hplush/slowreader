@@ -43,6 +43,12 @@
         align-items: center;
       }
 
+      @media (--no-mobile) {
+        :root.has-popup & {
+          padding-inline-end: calc(var(--popup-size) + var(--page-padding));
+        }
+      }
+
       @media (--no-desktop) {
         &:not(.is-no-bottom) {
           align-items: flex-end;
