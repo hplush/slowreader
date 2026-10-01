@@ -66,6 +66,14 @@
         >
           {$t.update}
         </Button>
+        <Button
+          href="/link-test.html"
+          size="wide"
+          target="_self"
+          variant="secondary"
+        >
+          Link test
+        </Button>
       {/if}
       <Button
         href="https://github.com/hplush/slowreader/issues/new"

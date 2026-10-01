@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Link test</title>
+  </head>
+  <body>
+    <h1>External link test</h1>
+    <p>
+      Open from installed app. Note for every link: in-app tab, Chrome, other
+      browser, or nothing.
+    </p>
+    <ol>
+      <li>
+        <a href="https://example.com/" target="_blank">Plain _blank</a>
+      </li>
+      <li>
+        <a
+          href="intent://example.com/#Intent;scheme=https;package=com.android.chrome;end"
+          >Intent to Chrome</a
+        >
+      </li>
+      <li>
+        <a
+          href="intent://example.com/#Intent;scheme=https;package=com.android.chrome;launchFlags=0x10000000;end"
+          >Intent to Chrome + NEW_TASK</a
+        >
+      </li>
+      <li>
+        <a
+          href="intent://example.com/#Intent;scheme=https;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;launchFlags=0x10000000;end"
+          >Intent without package + BROWSABLE + NEW_TASK</a
+        >
+      </li>
+      <li>
+        <a
+          href="intent://example.com/#Intent;scheme=https;action=android.intent.action.VIEW;S.browser_fallback_url=https%3A%2F%2Fexample.com%2F;end"
+          >Intent with fallback URL</a
+        >
+      </li>
+      <li>
+        <a href="googlechrome://navigate?url=https://example.com/"
+          >googlechrome:// scheme</a
+        >
+      </li>
+      <li>
+        <a
+          href="intent://example.com/#Intent;scheme=https;package=org.mozilla.firefox;end"
+          >Intent to Firefox</a
+        >
+      </li>
+    </ol>
+  </body>
+</html>
