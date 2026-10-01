@@ -76,6 +76,14 @@
       & + & {
         padding-top: 0;
       }
+
+      &[align='left'] {
+        margin-inline-end: 1em;
+      }
+
+      &[align='right'] {
+        margin-inline-start: 1em;
+      }
     }
 
     .formatted-text p {

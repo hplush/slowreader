@@ -23,7 +23,9 @@
 
   let images =
     `<img src="${imgExample1}" alt="" loading="lazy">` +
-    `<img src="${imgExample2}" alt="">`
+    `<img src="${imgExample2}" alt="">` +
+    `<p><img src="${imgExample1}" alt="" align="left">${'Text wraps the image floated to the left. '.repeat(8)}</p>` +
+    `<p><img src="${imgExample1}" alt="" align="right">${'Text wraps the image floated to the right. '.repeat(8)}</p>`
 
   let inlineTagsExample =
     '  <p><b>Bold</b> Text Example</p>\n' +
