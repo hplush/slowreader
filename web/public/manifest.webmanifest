@@ -1,6 +1,7 @@
 {
   "name": "Slow Reader",
   "background_color": "#fcecd9",
+  "theme_color": "#2b1f11",
   "display": "standalone",
   "start_url": "/app",
   "launch_handler": {

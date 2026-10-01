@@ -192,6 +192,7 @@
   }
 
   .is-comfort-mode {
+    /* Don’t forget to change public/manifest.webmanifest */
     --land-color: oklch(0.25 0.03 70);
     --main-land-color: oklch(0.3 0.03 70);
     --secondary-text-color: oklch(0.7 0.05 70);
