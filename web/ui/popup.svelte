@@ -129,6 +129,7 @@
         @mixin background var(--main-land-color);
 
         height: var(--navbar-height);
+        padding-bottom: env(safe-area-inset-bottom);
         box-shadow: var(--bottom-panel-shadow);
       }
     }
@@ -160,6 +161,7 @@
       overflow: hidden auto;
 
       @media (--mobile) {
+        height: calc(100% - var(--bottom-panel-height));
         padding: var(--page-padding);
       }
     }

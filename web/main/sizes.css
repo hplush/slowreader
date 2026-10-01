@@ -9,6 +9,9 @@
   --page-padding: 1rem;
   --navbar-padding: 0.3125rem;
   --navbar-height: calc(var(--control-height) + 2 * var(--navbar-padding));
+  --bottom-panel-height: calc(
+    var(--navbar-height) + env(safe-area-inset-bottom)
+  );
 
   /* To separate scalable sizes from pixel-based */
   --min-size: 1px;

@@ -194,8 +194,11 @@
         z-index: 2;
         justify-content: center;
         width: stretch;
-        height: var(--navbar-height);
+        height: var(--bottom-panel-height);
         padding-inline: 1rem;
+        padding-bottom: calc(
+          var(--navbar-padding) + env(safe-area-inset-bottom)
+        );
 
         .navbar:not(.is-opened) & {
           box-shadow: var(--bottom-panel-shadow);

@@ -38,7 +38,7 @@
       }
 
       @media (--no-desktop) {
-        min-height: calc(100svh - var(--navbar-height));
+        min-height: calc(100svh - var(--bottom-panel-height));
       }
 
       @media (--mobile) {
