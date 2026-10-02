@@ -133,7 +133,9 @@ export async function fetchAndParsePosts(
       report(`Can not found loader for feed ${url}`)
       return
     }
-    let page = candidate.loader.getPosts(task, url, response).get()
+    let posts = candidate.loader.getPosts(task, url, response)
+    await posts.loading
+    let page = posts.get()
     if (page.error) {
       report(page.error)
     } else if (page.list.length === 0) {
