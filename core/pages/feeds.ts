@@ -21,7 +21,7 @@ import {
   welcomeReader
 } from '../readers/index.ts'
 import { nextRouteIsRedirect } from '../router.ts'
-import { freeDatabasePages, hasDatabase } from '../schema.ts'
+import { freeDatabasePages, hasDatabase, openedDatabase } from '../schema.ts'
 import { createPage } from './common.ts'
 
 const READERS: { [Name in ReaderName]: ReaderCreator } = {
@@ -76,20 +76,25 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     }
 
     let unbindTarget = (): void => {}
-    let unbindRow = effect([$categoryId, $feedId], (categoryId, feedId) => {
-      unbindTarget()
-      $category.set(undefined)
-      $feed.set(undefined)
-      if (feedId) {
-        unbindTarget = getFeed(feedId).subscribe(value => {
-          if (value) $feed.set(value)
-        })
-      } else if (categoryId) {
-        unbindTarget = getCategory(categoryId).subscribe(value => {
-          if (value) $category.set(value)
-        })
+    let unbindRow = effect(
+      [$categoryId, $feedId, openedDatabase],
+      (categoryId, feedId, db) => {
+        unbindTarget()
+        unbindTarget = () => {}
+        $category.set(undefined)
+        $feed.set(undefined)
+        if (!db) return
+        if (feedId) {
+          unbindTarget = getFeed(feedId).subscribe(value => {
+            if (value) $feed.set(value)
+          })
+        } else if (categoryId) {
+          unbindTarget = getCategory(categoryId).subscribe(value => {
+            if (value) $category.set(value)
+          })
+        }
       }
-    })
+    )
 
     let $menu = computed(
       [layoutType, $categoryId, $feedId, menuLoading, openableMenu],

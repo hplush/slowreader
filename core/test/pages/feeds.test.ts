@@ -11,6 +11,7 @@ import {
   addPost,
   busy,
   busyUntilMenuLoader,
+  encryptionKey,
   GENERAL_CATEGORY,
   isDemo,
   menuLoading,
@@ -168,6 +169,32 @@ describe('feeds page', () => {
 
     await waitLoading(page.loading)
     equal(page.params.feed.get(), feed)
+    equal(page.posts.get()!.name, 'list')
+  })
+
+  test('opens the feed from URL before the encryption key', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let category = await addCategory({ title: 'A' })
+    let feed = await addFeed(
+      testFeed({ categoryId: category, reading: 'slow' })
+    )
+    await addPost(testPost({ feedId: feed, reading: 'slow' }))
+    await setTimeout(10)
+
+    // The app loads the key from IndexedDB after the URL was parsed
+    let key = encryptionKey.get()
+    encryptionKey.set(undefined)
+    await setTimeout(10)
+    let page = openPage({
+      params: { feed },
+      route: 'slow'
+    })
+    equal(page.feed.get(), undefined)
+
+    encryptionKey.set(key)
+    await waitLoading(page.loading)
+    equal(page.feed.get()?.id, feed)
     equal(page.posts.get()!.name, 'list')
   })
 
