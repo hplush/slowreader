@@ -61,20 +61,20 @@ body {
 .caption {
   margin: 0;
   font-size: 0.875rem;
-  color: oklch(0.6 0.05 70);
+  color: oklch(0.48 0.05 70);
   text-align: center;
 
   @media (prefers-color-scheme: dark) {
-    color: oklch(0.7 0.05 70);
+    color: oklch(0.82 0.05 70);
   }
 }
 
 .is-light-theme .caption {
-  color: oklch(0.6 0.05 70);
+  color: oklch(0.48 0.05 70);
 }
 
 .is-dark-theme .caption {
-  color: oklch(0.7 0.05 70);
+  color: oklch(0.82 0.05 70);
 }
 
 .caption.is-message {
