@@ -33,6 +33,42 @@ describe('html', () => {
     )
   })
 
+  test('keeps only attributes of the content', () => {
+    equal(
+      (
+        sanitizeDOM(
+          '<figure style="position: relative" class="image" id="menu">' +
+            '<img src="https://example.com/a.jpg" alt="A" width="10" ' +
+            'style="position: absolute" data-id="1" aria-hidden="true" ' +
+            'background="https://example.com/b.jpg" tabindex="0">' +
+            '</figure>' +
+            '<p popover="auto" role="button" name="x">' +
+            '<a href="https://example.com/" title="B" ' +
+            'popovertarget="menu" commandfor="menu" command="show-modal">' +
+            'Link</a></p>',
+          undefined
+        ) as HTMLElement
+      ).innerHTML,
+      '<figure><img src="https://example.com/a.jpg" alt="A" width="10">' +
+        '</figure><p><a href="https://example.com/" title="B">Link</a></p>'
+    )
+  })
+
+  test('keeps picture sources', () => {
+    equal(
+      (
+        sanitizeDOM(
+          '<picture><source srcset="dark.avif" type="image/avif" ' +
+            'media="(prefers-color-scheme: dark)"><img src="a.jpg"></picture>',
+          'https://example.com/'
+        ) as HTMLElement
+      ).innerHTML,
+      '<picture><source srcset="https://example.com/dark.avif" ' +
+        'type="image/avif" media="(prefers-color-scheme: dark)">' +
+        '<img src="https://example.com/a.jpg"></picture>'
+    )
+  })
+
   test('resolves relative href to absolute URL', () => {
     equal(
       (

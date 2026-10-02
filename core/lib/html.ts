@@ -47,6 +47,7 @@ const ALLOWED_TAGS = [
   'mark',
   'ol',
   'p',
+  'picture',
   'pre',
   'q',
   'rp',
@@ -186,6 +187,40 @@ function resolveUrls(node: Element, url: string | undefined): void {
 export function sanitizeDOM(html: string, url: string | undefined): Element {
   if (!DOMPurify) DOMPurify = createDOMPurify(window)
   let node = DOMPurify.sanitize(html, {
+    ALLOW_ARIA_ATTR: false,
+    ALLOW_DATA_ATTR: false,
+    ALLOWED_ATTR: [
+      'abbr',
+      'align',
+      'alt',
+      'cite',
+      'colspan',
+      'controls',
+      'datetime',
+      'dir',
+      'headers',
+      'height',
+      'href',
+      'lang',
+      'loop',
+      'media',
+      'muted',
+      'open',
+      'playsinline',
+      'poster',
+      'preload',
+      'reversed',
+      'rowspan',
+      'scope',
+      'sizes',
+      'src',
+      'srcset',
+      'start',
+      'title',
+      'type',
+      'value',
+      'width'
+    ],
     ALLOWED_TAGS,
     RETURN_DOM: true
   }) as Element

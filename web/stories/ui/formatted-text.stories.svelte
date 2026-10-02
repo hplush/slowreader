@@ -25,7 +25,9 @@
     `<img src="${imgExample1}" alt="" loading="lazy">` +
     `<img src="${imgExample2}" alt="">` +
     `<p><img src="${imgExample1}" alt="" align="left">${'Text wraps the image floated to the left. '.repeat(8)}</p>` +
-    `<p><img src="${imgExample1}" alt="" align="right">${'Text wraps the image floated to the right. '.repeat(8)}</p>`
+    `<p><img src="${imgExample1}" alt="" align="right">${'Text wraps the image floated to the right. '.repeat(8)}</p>` +
+    `<figure style="position: relative; padding-bottom: 50%; margin: 0"><img src="${imgExample2}" alt="" style="position: absolute"></figure>` +
+    '<p>Text after the image with inline styles of the site.</p>'
 
   let inlineTagsExample =
     '  <p><b>Bold</b> Text Example</p>\n' +

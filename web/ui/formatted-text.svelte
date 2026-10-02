@@ -27,9 +27,6 @@
       link.setAttribute('target', '_blank')
       link.setAttribute('rel', 'noopener')
     })
-    node.querySelectorAll('[class]').forEach(link => {
-      link.removeAttribute('class')
-    })
   }
 </script>
 

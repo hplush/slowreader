@@ -562,7 +562,7 @@ describe('atom loader', () => {
             <id>1</id>
             <link href="https://example.com/1" />
             <summary type="html">&lt;img src="a.png"&gt;</summary>
-            <content type="html">&lt;img srcset="b.png 2x"&gt;</content>
+            <content type="html">&lt;picture&gt;&lt;source srcset="c.avif"&gt;&lt;img srcset="b.png 2x"&gt;&lt;/picture&gt;</content>
           </entry>
         </feed>`
       )
@@ -573,7 +573,8 @@ describe('atom loader', () => {
       [
         [
           '<img src="https://cdn.example.com/posts/a.png">',
-          '<img srcset="https://cdn.example.com/posts/b.png 2x">'
+          '<picture><source srcset="https://cdn.example.com/posts/c.avif">' +
+            '<img srcset="https://cdn.example.com/posts/b.png 2x"></picture>'
         ]
       ]
     )

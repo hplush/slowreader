@@ -118,7 +118,7 @@ export function createImagesResolver(
     if (!html || !/<img/i.test(html)) return html
     let document = parseDocument(html)
     let links: string[] = []
-    for (let image of document.querySelectorAll('img')) {
+    for (let image of document.querySelectorAll('img, picture source')) {
       let src = image.getAttribute('src')
       if (src && !isAbsoluteUrl(src)) links.push(src)
       let srcset = image.getAttribute('srcset')
@@ -143,7 +143,7 @@ export function createImagesResolver(
       }
     }
     let resolve = (link: string): string => new URL(link, base ?? url).href
-    for (let image of document.querySelectorAll('img')) {
+    for (let image of document.querySelectorAll('img, picture source')) {
       let src = image.getAttribute('src')
       if (src && !isAbsoluteUrl(src)) image.setAttribute('src', resolve(src))
       let srcset = image.getAttribute('srcset')
