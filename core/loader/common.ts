@@ -1,6 +1,6 @@
 import type { FeedValue } from '../feed.ts'
 import type { DownloadTask, TextResponse } from '../lib/download.ts'
-import { parseDocument } from '../lib/html.ts'
+import { isAbsoluteUrl, mapRelativeSrcset, parseDocument } from '../lib/html.ts'
 import type { PostMedia } from '../post.ts'
 import type { PostsList, PostsListResult } from '../posts-list.ts'
 
@@ -59,6 +59,23 @@ export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
+export function findXmlBase(
+  element: Element | null,
+  url: string
+): string | undefined {
+  let bases: string[] = []
+  while (element) {
+    let base = element.getAttribute('xml:base')
+    if (base) {
+      bases.push(base)
+      if (base.startsWith('/') || base.startsWith('http')) break
+    }
+    element = element.parentElement
+  }
+  if (bases.length === 0) return undefined
+  return bases.reduceRight((parent, base) => new URL(base, parent).href, url)
+}
+
 /**
  * Returns full URL for link HTML element, which includes not only
  * the explicitly provided base URL, but also the base URL specified
@@ -68,22 +85,74 @@ export function buildFullURL(
   link: HTMLAnchorElement | HTMLLinkElement,
   baseUrl: string
 ): string {
-  let href = link.getAttribute('href')!
-  let urlSegments: string[] = [href]
-  let parent: Element | null = link.parentElement
-  while (parent) {
-    let path = parent.getAttribute('xml:base') || ''
-    urlSegments.push(path)
-    parent = parent.parentElement
+  return new URL(
+    link.getAttribute('href')!,
+    findXmlBase(link.parentElement, baseUrl) ?? baseUrl
+  ).href
+}
 
-    if (path.startsWith('/') || path.startsWith('http')) {
-      break
-    }
+async function isBroken(task: DownloadTask, url: string): Promise<boolean> {
+  try {
+    let response = await task.request(url)
+    await response.body?.cancel()
+    return false
+  } catch {
+    return true
   }
-  return urlSegments.reduceRight(
-    (base, url) => new URL(url, base).href,
-    baseUrl
-  )
+}
+
+/**
+ * Feed has no `<base>` of the site page, so relative image could be relative
+ * to the post or to the site root. Sites use the same layout for all posts,
+ * so one HTTP check is enough for the whole feed.
+ */
+export function createImagesResolver(
+  task: DownloadTask
+): (
+  html: string | undefined,
+  xmlBase: string | undefined,
+  url: string
+) => Promise<string | undefined> {
+  let rootBased: Promise<boolean> | undefined
+  return async (html, xmlBase, url) => {
+    if (!html || !/<img/i.test(html)) return html
+    let document = parseDocument(html)
+    let links: string[] = []
+    for (let image of document.querySelectorAll('img')) {
+      let src = image.getAttribute('src')
+      if (src && !isAbsoluteUrl(src)) links.push(src)
+      let srcset = image.getAttribute('srcset')
+      if (srcset) {
+        mapRelativeSrcset(srcset, link => {
+          links.push(link)
+          return link
+        })
+      }
+    }
+    if (links.length === 0) return html
+
+    let base = xmlBase
+    if (!base) {
+      let root = new URL('/', url).href
+      let relative = links.find(
+        link => new URL(link, url).href !== new URL(link, root).href
+      )
+      if (relative) {
+        rootBased ??= isBroken(task, new URL(relative, url).href)
+        if (await rootBased) base = root
+      }
+    }
+    let resolve = (link: string): string => new URL(link, base ?? url).href
+    for (let image of document.querySelectorAll('img')) {
+      let src = image.getAttribute('src')
+      if (src && !isAbsoluteUrl(src)) image.setAttribute('src', resolve(src))
+      let srcset = image.getAttribute('srcset')
+      if (srcset) {
+        image.setAttribute('srcset', mapRelativeSrcset(srcset, resolve))
+      }
+    }
+    return document.body.innerHTML
+  }
 }
 
 /**
@@ -192,7 +261,9 @@ export async function fetchIfModified(
   task: DownloadTask,
   url: string,
   refreshedAt: number | undefined,
-  parseCb: (response: TextResponse) => PostsListResult
+  parseCb: (
+    response: TextResponse
+  ) => Promise<PostsListResult> | PostsListResult
 ): Promise<PostsListResult> {
   let headers = refreshedAt
     ? { 'If-Modified-Since': new Date(refreshedAt * 1000).toUTCString() }

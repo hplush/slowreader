@@ -132,7 +132,7 @@ export function escapeXml(value: string): string {
     .replaceAll('"', '&quot;')
 }
 
-function isAbsoluteUrl(value: string): boolean {
+export function isAbsoluteUrl(value: string): boolean {
   return /^[a-z][a-z\d+.-]*:/i.test(value)
 }
 
@@ -142,6 +142,19 @@ function isAbsoluteUrl(value: string): boolean {
  * /a.jpg, /b.jpg 2x
  */
 const SRCSET_CANDIDATE = /([^\s,]\S*[^\s,]|[^\s,])(\s+[^,]+)?/g
+
+export function mapRelativeSrcset(
+  value: string,
+  resolve: (link: string) => string
+): string {
+  return value.replace(
+    SRCSET_CANDIDATE,
+    (candidate: string, link: string, descriptor: string = '') => {
+      if (isAbsoluteUrl(link)) return candidate
+      return resolve(link) + descriptor
+    }
+  )
+}
 
 function resolveUrls(node: Element, url: string | undefined): void {
   let elements = node.querySelectorAll('[href], [src]')
@@ -164,13 +177,7 @@ function resolveUrls(node: Element, url: string | undefined): void {
     } else {
       element.setAttribute(
         'srcset',
-        value.replace(
-          SRCSET_CANDIDATE,
-          (candidate: string, link: string, descriptor: string = '') => {
-            if (isAbsoluteUrl(link)) return candidate
-            return new URL(link, url).href + descriptor
-          }
-        )
+        mapRelativeSrcset(value, link => new URL(link, url).href)
       )
     }
   }

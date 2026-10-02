@@ -108,6 +108,7 @@ export const feed = definePopup('feed', async url => {
     }
     if (!candidate || !response) throw new NotFoundError()
     posts = candidate.loader.getPosts(task, url, response)
+    if (posts.get().isLoading) await posts.loading
   }
 
   let $feed = atom<FeedValue | undefined>()

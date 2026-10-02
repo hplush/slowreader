@@ -409,6 +409,11 @@ export function postsValue(posts: PostsList): unknown {
   }
 }
 
+export async function loadedPostsValue(posts: PostsList): Promise<unknown> {
+  await posts.loading
+  return postsValue(posts)
+}
+
 export function expectNotMine(loader: Loader, text: TextResponse): void {
   let title: false | string
   try {

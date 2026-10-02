@@ -19,6 +19,7 @@ import {
   expectWarning,
   getTestEnvironment,
   mockRequest,
+  loadedPostsValue,
   postsValue,
   setupNodeDom
 } from '../utils.ts'
@@ -323,10 +324,10 @@ describe('atom loader', () => {
     )
   })
 
-  test('parses posts', () => {
+  test('parses posts', async () => {
     let task = createDownloadTask()
     deepEqual(
-      postsValue(
+      await loadedPostsValue(
         loaders.atom.getPosts(
           task,
           'https://example.com/news/',
@@ -454,7 +455,7 @@ describe('atom loader', () => {
     })
   })
 
-  test('parses media', () => {
+  test('parses media', async () => {
     let task = createDownloadTask()
     let posts = loaders.atom.getPosts(
       task,
@@ -495,7 +496,7 @@ describe('atom loader', () => {
           </feed>`
       )
     )
-    deepEqual(postsValue(posts), {
+    deepEqual(await loadedPostsValue(posts), {
       error: undefined,
       hasNext: false,
       isLoading: false,
@@ -549,7 +550,35 @@ describe('atom loader', () => {
     }, [new SyntaxError('Unexpected end of JSON input')])
   })
 
-  test('detects pagination with rel="next" link', () => {
+  test('resolves images by xml:base', async () => {
+    let posts = loaders.atom.getPosts(
+      createDownloadTask(),
+      'https://example.com/feed',
+      exampleAtom(
+        `<?xml version="1.0"?>
+        <feed xmlns="http://www.w3.org/2005/Atom"
+          xml:base="https://cdn.example.com/">
+          <entry xml:base="posts/">
+            <id>1</id>
+            <link href="https://example.com/1" />
+            <summary type="html">&lt;img src="a.png"&gt;</summary>
+            <content type="html">&lt;img srcset="b.png 2x"&gt;</content>
+          </entry>
+        </feed>`
+      )
+    )
+    await posts.loading
+    deepEqual(
+      posts.get().list.map(i => [i.intro, i.full]),
+      [
+        [
+          '<img src="https://cdn.example.com/posts/a.png">',
+          '<img srcset="https://cdn.example.com/posts/b.png 2x">'
+        ]
+      ]
+    )
+  })
+  test('detects pagination with rel="next" link', async () => {
     let $store = loaders.atom.getPosts(
       createDownloadTask(),
       'https://example.com/feed/',
@@ -561,10 +590,11 @@ describe('atom loader', () => {
         </feed>`
       )
     )
+    await $store.loading
     equal($store.get().hasNext, true)
   })
 
-  test('detects when there is no pagination', () => {
+  test('detects when there is no pagination', async () => {
     let $store = loaders.atom.getPosts(
       createDownloadTask(),
       'https://example.com/feed/',
@@ -574,6 +604,7 @@ describe('atom loader', () => {
         </feed>`
       )
     )
+    await $store.loading
     equal($store.get().hasNext, false)
   })
 

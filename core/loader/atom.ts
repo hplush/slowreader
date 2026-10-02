@@ -7,11 +7,13 @@ import { type ParsedPost, type PostMedia, stringifyMedia } from '../post.ts'
 import { createPostsList, type PostsListResult } from '../posts-list.ts'
 import {
   buildFullURL,
+  createImagesResolver,
   fetchIfModified,
   findAnchorHrefs,
   findDocumentLinks,
   findHeaderLinks,
   findMediaInText,
+  findXmlBase,
   type Loader,
   toTime
 } from './common.ts'
@@ -72,45 +74,61 @@ function parsePostSources(text: TextResponse): Element[] {
   )
 }
 
-function parsePosts(text: TextResponse): ParsedPost[] {
-  return parsePostSources(text).map(entry => {
-    let content = entry.querySelector('content')
-
-    let textMedia = findMediaInText(content)
-    let postMedia: PostMedia[] = []
-    let enclosures = entry.querySelectorAll('link[rel=enclosure]')
-    for (let enclosure of enclosures) {
-      let url = enclosure.getAttribute('href')
-      let type = enclosure.getAttribute('type')
-      if (url && type) {
-        postMedia.push({ type, url })
-      }
-    }
-    postMedia = postMedia.concat(findMRSS(entry))
-
-    return {
-      full: extractHtml(content),
-      intro: extractHtml(entry.querySelector('summary')),
-      media: stringifyMedia([...postMedia, ...textMedia]),
-      originId: entry.querySelector('id')!.textContent,
-      publishedAt: toTime(
-        entry.querySelector('published')?.textContent ??
-          entry.querySelector('updated')?.textContent
-      ),
-      title: entry.querySelector('title')?.textContent ?? undefined,
-      url:
+function parsePosts(
+  task: DownloadTask,
+  text: TextResponse
+): Promise<ParsedPost[]> {
+  let resolveImages = createImagesResolver(task)
+  return Promise.all(
+    parsePostSources(text).map(async entry => {
+      let content = entry.querySelector('content')
+      let summary = entry.querySelector('summary')
+      let url =
         entry
           .querySelector('link[rel=alternate], link:not([rel])')
           ?.getAttribute('href') ?? undefined
-    }
-  })
+
+      let textMedia = findMediaInText(content)
+      let postMedia: PostMedia[] = []
+      let enclosures = entry.querySelectorAll('link[rel=enclosure]')
+      for (let enclosure of enclosures) {
+        let enclosureUrl = enclosure.getAttribute('href')
+        let type = enclosure.getAttribute('type')
+        if (enclosureUrl && type) {
+          postMedia.push({ type, url: enclosureUrl })
+        }
+      }
+      postMedia = postMedia.concat(findMRSS(entry))
+
+      return {
+        full: await resolveImages(
+          extractHtml(content),
+          findXmlBase(content, text.url),
+          url ?? text.url
+        ),
+        intro: await resolveImages(
+          extractHtml(summary),
+          findXmlBase(summary, text.url),
+          url ?? text.url
+        ),
+        media: stringifyMedia([...postMedia, ...textMedia]),
+        originId: entry.querySelector('id')!.textContent,
+        publishedAt: toTime(
+          entry.querySelector('published')?.textContent ??
+            entry.querySelector('updated')?.textContent
+        ),
+        title: entry.querySelector('title')?.textContent ?? undefined,
+        url
+      }
+    })
+  )
 }
 
-function parseFeed(
+async function parseFeed(
   task: DownloadTask,
   response: TextResponse
-): PostsListResult {
-  let posts = parsePosts(response)
+): Promise<PostsListResult> {
+  let posts = await parsePosts(task, response)
   let document = response.parseXml()
   let nextPage = document.querySelector<HTMLLinkElement>('link[rel=next]')
   if (nextPage) {

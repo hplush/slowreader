@@ -1,13 +1,19 @@
-import { createDownloadTask, type TextResponse } from '../lib/download.ts'
+import {
+  createDownloadTask,
+  type DownloadTask,
+  type TextResponse
+} from '../lib/download.ts'
 import { type ParsedPost, type PostMedia, stringifyMedia } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import { findMRSS } from './atom.ts'
 import {
+  createImagesResolver,
   fetchIfModified,
   findAnchorHrefs,
   findDocumentLinks,
   findHeaderLinks,
   findMediaInText,
+  findXmlBase,
   type Loader,
   toTime
 } from './common.ts'
@@ -21,33 +27,45 @@ function parsePostSources(text: TextResponse): Element[] {
   )
 }
 
-function parsePosts(text: TextResponse): ParsedPost[] {
-  return parsePostSources(text).map(item => {
-    let description = item.querySelector('description')
+function parsePosts(
+  task: DownloadTask,
+  text: TextResponse
+): Promise<ParsedPost[]> {
+  let resolveImages = createImagesResolver(task)
+  return Promise.all(
+    parsePostSources(text).map(async item => {
+      let description = item.querySelector('description')
+      let url = item.querySelector('link')?.textContent ?? undefined
+      let full = await resolveImages(
+        description?.textContent ?? undefined,
+        findXmlBase(description, text.url),
+        url ?? text.url
+      )
 
-    let textMedia = findMediaInText(description?.textContent)
-    let postMedia: PostMedia[] = []
-    let enclosures = item.querySelectorAll('enclosure')
-    for (let enclosure of enclosures) {
-      let url = enclosure.getAttribute('url')
-      let type = enclosure.getAttribute('type')
-      if (url && type) {
-        postMedia.push({ type, url })
+      let textMedia = findMediaInText(full)
+      let postMedia: PostMedia[] = []
+      let enclosures = item.querySelectorAll('enclosure')
+      for (let enclosure of enclosures) {
+        let enclosureUrl = enclosure.getAttribute('url')
+        let type = enclosure.getAttribute('type')
+        if (enclosureUrl && type) {
+          postMedia.push({ type, url: enclosureUrl })
+        }
       }
-    }
-    postMedia = postMedia.concat(findMRSS(item))
+      postMedia = postMedia.concat(findMRSS(item))
 
-    return {
-      full: description?.textContent ?? undefined,
-      media: stringifyMedia([...postMedia, ...textMedia]),
-      originId:
-        item.querySelector('guid')?.textContent ??
-        item.querySelector('link')!.textContent,
-      publishedAt: toTime(item.querySelector('pubDate')?.textContent),
-      title: item.querySelector('title')?.textContent ?? undefined,
-      url: item.querySelector('link')?.textContent ?? undefined
-    }
-  })
+      return {
+        full,
+        media: stringifyMedia([...postMedia, ...textMedia]),
+        originId:
+          item.querySelector('guid')?.textContent ??
+          item.querySelector('link')!.textContent,
+        publishedAt: toTime(item.querySelector('pubDate')?.textContent),
+        title: item.querySelector('title')?.textContent ?? undefined,
+        url
+      }
+    })
+  )
 }
 
 export const rss: Loader = {
@@ -63,11 +81,14 @@ export const rss: Loader = {
 
   getPosts(task, url, text, refreshedAt) {
     if (text) {
-      return createPostsList(() => [parsePosts(text), undefined])
+      return createPostsList(async () => [
+        await parsePosts(task, text),
+        undefined
+      ])
     } else {
       return createPostsList(() =>
-        fetchIfModified(task, url, refreshedAt, response => [
-          parsePosts(response),
+        fetchIfModified(task, url, refreshedAt, async response => [
+          await parsePosts(task, response),
           undefined
         ])
       )

@@ -14,6 +14,7 @@ import {
   expectNotMine,
   expectRequest,
   mockRequest,
+  loadedPostsValue,
   postsValue,
   setupNodeDom
 } from '../utils.ts'
@@ -194,10 +195,10 @@ describe('rss loader', () => {
     )
   })
 
-  test('parses posts', () => {
+  test('parses posts', async () => {
     let task = createDownloadTask()
     deepEqual(
-      postsValue(
+      await loadedPostsValue(
         loaders.rss.getPosts(
           task,
           'https://example.com/news/',
@@ -305,10 +306,10 @@ describe('rss loader', () => {
     })
   })
 
-  test('parses media', () => {
+  test('parses media', async () => {
     let task = createDownloadTask()
     deepEqual(
-      postsValue(
+      await loadedPostsValue(
         loaders.rss.getPosts(
           task,
           'https://example.com/news/',
@@ -401,6 +402,114 @@ describe('rss loader', () => {
     )
   })
 
+  test('resolves images by xml:base and site root', async () => {
+    let posts = loaders.rss.getPosts(
+      createDownloadTask(),
+      'https://example.com/feed',
+      exampleRss(
+        `<?xml version="1.0"?>
+        <rss version="2.0">
+          <channel>
+            <item xml:base="https://cdn.example.com/files/">
+              <link>https://example.com/posts/1</link>
+              <description><![CDATA[<img src="a.png">]]></description>
+            </item>
+            <item>
+              <link>https://example.com/posts/2</link>
+              <description><![CDATA[<img src="/b.png">]]></description>
+            </item>
+          </channel>
+        </rss>`
+      )
+    )
+    await posts.loading
+    deepEqual(
+      posts.get().list.map(i => [i.full, i.media]),
+      [
+        [
+          '<img src="https://cdn.example.com/files/a.png">',
+          '[{"fromText":true,"type":"image",' +
+            '"url":"https://cdn.example.com/files/a.png"}]'
+        ],
+        [
+          '<img src="https://example.com/b.png">',
+          '[{"fromText":true,"type":"image",' +
+            '"url":"https://example.com/b.png"}]'
+        ]
+      ]
+    )
+  })
+
+  test('checks relative images by HTTP', async () => {
+    expectRequest('https://example.com/posts/1/a.png').andRespond(200)
+    let posts = loaders.rss.getPosts(
+      createDownloadTask(),
+      'https://example.com/feed',
+      exampleRss(
+        `<?xml version="1.0"?>
+        <rss version="2.0">
+          <channel>
+            <item>
+              <link>https://example.com/posts/1/</link>
+              <description><![CDATA[<img src="a.png">]]></description>
+            </item>
+            <item>
+              <link>https://example.com/posts/2/</link>
+              <description><![CDATA[<img src="b.png">]]></description>
+            </item>
+          </channel>
+        </rss>`
+      )
+    )
+    await posts.loading
+    deepEqual(
+      posts.get().list.map(i => i.full),
+      [
+        '<img src="https://example.com/posts/1/a.png">',
+        '<img src="https://example.com/posts/2/b.png">'
+      ]
+    )
+  })
+
+  test('uses site root for broken relative images', async () => {
+    expectRequest(
+      'https://www.linux.org.ru/news/development/images/1/500px.jpg'
+    ).andRespond(404)
+    let posts = loaders.rss.getPosts(
+      createDownloadTask(),
+      'https://www.linux.org.ru/section-rss.jsp?section=1',
+      exampleRss(
+        `<?xml version="1.0"?>
+        <rss version="2.0">
+          <channel>
+            <item>
+              <link>https://www.linux.org.ru/news/development/1</link>
+              <description><![CDATA[
+                <img src="https://www.linux.org.ru/images/1/1000px.jpg"
+                  srcset="images/1/500px.jpg 500w,
+                    https://www.linux.org.ru/images/1/original.png 900w">
+              ]]></description>
+            </item>
+            <item>
+              <link>https://www.linux.org.ru/news/development/2</link>
+              <description><![CDATA[<img src="images/2/a.jpg">]]></description>
+            </item>
+          </channel>
+        </rss>`
+      )
+    )
+    await posts.loading
+    deepEqual(
+      posts.get().list.map(i => i.full?.trim()),
+      [
+        '<img src="https://www.linux.org.ru/images/1/1000px.jpg" ' +
+          'srcset="https://www.linux.org.ru/images/1/500px.jpg 500w,\n' +
+          '                    ' +
+          'https://www.linux.org.ru/images/1/original.png 900w">',
+        '<img src="https://www.linux.org.ru/images/2/a.jpg">'
+      ]
+    )
+  })
   test('returns post source', async () => {
     let xml = `<?xml version="1.0"?>
     <rss version="2.0">
