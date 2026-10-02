@@ -4,6 +4,12 @@ html {
   overscroll-behavior: none;
   scroll-behavior: smooth;
   scroll-snap-type: y mandatory;
+
+  /* Mobile browsers hide URL bar only on the document scroll */
+  @media (--no-desktop) {
+    overflow: hidden;
+    scroll-snap-type: none;
+  }
 }
 
 body {
@@ -12,6 +18,15 @@ body {
 
   @media (aspect-ratio <= 3/4) {
     background: --top-color('../generated/main-portrait.avif');
+  }
+
+  @media (--no-desktop) {
+    /* Chrome makes a viewport-sized scroller the root one and hides URL bar */
+    block-size: calc(100dvh - 0.0625rem);
+    overflow-y: auto;
+    overscroll-behavior: none;
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
   }
 }
 
@@ -146,13 +161,13 @@ body {
 }
 
 .section {
-  min-block-size: 100svh;
+  min-block-size: 100dvh;
   scroll-snap-align: start;
   scroll-snap-stop: always;
 
   @media (--no-desktop) {
     &:not(:first-child) {
-      min-block-size: calc(100lvh + 5rem);
+      min-block-size: calc(100dvh + 5rem);
       scroll-margin-block-start: -5rem;
     }
   }
@@ -172,7 +187,7 @@ main > .section.is-mobile {
 
   @media (--no-desktop) {
     padding-block: calc(5rem + env(safe-area-inset-top))
-      calc(2.9rem + max(0.5rem, env(safe-area-inset-bottom)) + 100lvh - 100svh);
+      calc(2.9rem + max(0.5rem, env(safe-area-inset-bottom)));
   }
 }
 
@@ -563,8 +578,7 @@ main > .section.is-mobile {
   background: oklch(0.3 0 0);
 
   @media (--no-desktop) {
-    padding-block: 7rem
-      calc(5.9rem + max(0.5rem, env(safe-area-inset-bottom)) + 100lvh - 100svh);
+    padding-block: 7rem calc(5.9rem + max(0.5rem, env(safe-area-inset-bottom)));
   }
 }
 

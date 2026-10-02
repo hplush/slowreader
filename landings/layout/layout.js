@@ -1,7 +1,9 @@
 let root = document.documentElement
 
 function checkTop() {
-  root.classList.toggle('is-top', scrollY === 0)
+  // Root landing scrolls body on mobile to keep the URL bar
+  root.classList.toggle('is-top', scrollY + document.body.scrollTop === 0)
 }
-addEventListener('scroll', checkTop, { passive: true })
+// Body’s scroll event does not bubble
+document.addEventListener('scroll', checkTop, { capture: true, passive: true })
 checkTop()

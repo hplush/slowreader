@@ -18,7 +18,7 @@ function fly() {
     )
     small.style.setProperty(
       '--from-y',
-      `${from.top + scrollY - dock.top - small.offsetTop}px`
+      `${from.top + scrollY + document.body.scrollTop - dock.top - small.offsetTop}px`
     )
     small.style.setProperty('--from-scale', `${from.width / small.offsetWidth}`)
   }
