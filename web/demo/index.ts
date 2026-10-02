@@ -89,8 +89,8 @@ async function copy(): Promise<void> {
     message('Slow Reader is open in another tab. Close it and reload.')
     return
   }
-  // “Delete all local data” keeps the empty database file in OPFS,
-  // so only the user says whether the browser has data to lose
+  // “Delete all local data” removes the database file only on the next
+  // app start, so only the user says whether the browser has data to lose
   if (localStorage.getItem('slowreader:userId')) {
     message('Slow Reader has data here. Delete it in Storage settings.')
     return

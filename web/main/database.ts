@@ -19,6 +19,15 @@ function chooseVfs(): Vfs {
   return vfs
 }
 
+// The opened database holds its files, so they are deleted on the next start
+if (localStorage.getItem('slowreader:wipe')) {
+  let root = await navigator.storage.getDirectory()
+  for await (let name of root.keys()) {
+    await root.removeEntry(name, { recursive: true }).catch(() => {})
+  }
+  localStorage.removeItem('slowreader:wipe')
+}
+
 let vfs = chooseVfs()
 
 let current: undefined | Worker

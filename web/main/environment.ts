@@ -91,6 +91,7 @@ setupEnvironment({
   baseRouter: urlRouter,
   cleanStorage() {
     localStorage.clear()
+    localStorage.setItem('slowreader:wipe', 'yes')
     void saveEncryptionKey(undefined)
   },
   createPasskey,

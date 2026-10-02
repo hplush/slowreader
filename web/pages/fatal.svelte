@@ -17,6 +17,7 @@
     type FatalPage,
     forgetLocalData,
     getEnvironment,
+    hasCloud,
     fatalMessages as t
   } from '@slowreader/core'
 
@@ -74,6 +75,16 @@
         >
           {$t.reloadButton}
         </Button>
+        {#if $hasCloud}
+          <Button
+            icon={mdiDeleteAlert}
+            onclick={forgetLocalData}
+            size="pill"
+            variant="secondary-dangerous"
+          >
+            {$t.cleanButton}
+          </Button>
+        {/if}
       {:else if $reason.type === 'noDb'}
         <p>{$t.noDbDescription}</p>
         {#if $reason.error}

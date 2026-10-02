@@ -58,7 +58,6 @@
       })
     }}
     route="fatal"
-    user={false}
   >
     <FatalPage page={pages.fatal()} />
   </Scene>
