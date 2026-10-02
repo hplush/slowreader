@@ -7,7 +7,7 @@ import { type ParsedPost, type PostMedia, stringifyMedia } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import { findMRSS } from './atom.ts'
 import {
-  createImagesResolver,
+  createUrlsResolver,
   fetchIfModified,
   findAnchorHrefs,
   findDocumentLinks,
@@ -31,12 +31,12 @@ function parsePosts(
   task: DownloadTask,
   text: TextResponse
 ): Promise<ParsedPost[]> {
-  let resolveImages = createImagesResolver(task)
+  let resolveUrls = createUrlsResolver(task)
   return Promise.all(
     parsePostSources(text).map(async item => {
       let description = item.querySelector('description')
       let url = item.querySelector('link')?.textContent ?? undefined
-      let full = await resolveImages(
+      let full = await resolveUrls(
         description?.textContent ?? undefined,
         findXmlBase(description, text.url),
         url ?? text.url

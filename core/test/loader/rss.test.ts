@@ -440,6 +440,85 @@ describe('rss loader', () => {
     )
   })
 
+  test('resolves lazy-load images', async () => {
+    let posts = loaders.rss.getPosts(
+      createDownloadTask(),
+      'https://example.com/feed',
+      exampleRss(
+        `<?xml version="1.0"?>
+        <rss version="2.0">
+          <channel>
+            <item xml:base="https://cdn.example.com/files/">
+              <link>https://example.com/posts/1</link>
+              <description><![CDATA[
+                <img src="p.gif" data-src="a.png" data-srcset="a.png 1x, b.png 2x">
+                <img data-lazy-src="c.png" data-lazy-srcset="d.png 2x">
+                <picture><source data-srcset="e.avif"><img data-original="f.png"></picture>
+              ]]></description>
+            </item>
+          </channel>
+        </rss>`
+      )
+    )
+    await posts.loading
+    deepEqual(
+      posts.get().list.map(i => [i.full!.trim(), i.media]),
+      [
+        [
+          '<img src="https://cdn.example.com/files/a.png" ' +
+            'srcset="https://cdn.example.com/files/a.png 1x, ' +
+            'https://cdn.example.com/files/b.png 2x">\n' +
+            '                <img src="https://cdn.example.com/files/c.png" ' +
+            'srcset="https://cdn.example.com/files/d.png 2x">\n' +
+            '                <picture><source ' +
+            'srcset="https://cdn.example.com/files/e.avif">' +
+            '<img src="https://cdn.example.com/files/f.png"></picture>',
+          '[{"fromText":true,"type":"image",' +
+            '"url":"https://cdn.example.com/files/a.png"},' +
+            '{"fromText":true,"type":"image",' +
+            '"url":"https://cdn.example.com/files/c.png"},' +
+            '{"fromText":true,"type":"image",' +
+            '"url":"https://cdn.example.com/files/f.png"}]'
+        ]
+      ]
+    )
+  })
+
+  test('resolves links and media', async () => {
+    let posts = loaders.rss.getPosts(
+      createDownloadTask(),
+      'https://example.com/feed',
+      exampleRss(
+        `<?xml version="1.0"?>
+        <rss version="2.0">
+          <channel>
+            <item>
+              <link>https://example.com/posts/1</link>
+              <description><![CDATA[<p><a href="/page">A</a><sup id="ref1"><a href="#fn1">1</a></sup><a href="#top">B</a></p><video src="a.mp4"><track src="/a.vtt"></video><ol><li id="fn1"><a href="#ref1">C</a></li></ol>]]></description>
+            </item>
+            <item>
+              <link>https://example.com/posts/2</link>
+              <description><![CDATA[<p><a href="https://other.com/">A</a></p>]]></description>
+            </item>
+          </channel>
+        </rss>`
+      )
+    )
+    await posts.loading
+    deepEqual(
+      posts.get().list.map(i => i.full),
+      [
+        '<p><a href="https://example.com/page">A</a>' +
+          '<sup id="ref1"><a href="#fn1">1</a></sup>' +
+          '<a href="https://example.com/posts/1#top">B</a></p>' +
+          '<video src="https://example.com/posts/a.mp4">' +
+          '<track src="https://example.com/a.vtt"></video>' +
+          '<ol><li id="fn1"><a href="#ref1">C</a></li></ol>',
+        '<p><a href="https://other.com/">A</a></p>'
+      ]
+    )
+  })
+
   test('checks relative images by HTTP', async () => {
     expectRequest('https://example.com/posts/1/a.png').andRespond(200)
     let posts = loaders.rss.getPosts(

@@ -5,6 +5,7 @@ import {
   createDownloadTask,
   createTextResponse,
   loaders,
+  type PostsList,
   setRequestMethod,
   setupEnvironment,
   testFeed,
@@ -21,6 +22,11 @@ import {
 } from '../utils.ts'
 
 setupNodeDom()
+
+async function loadedPosts(posts: PostsList): Promise<unknown> {
+  await posts.loading
+  return postsValue(posts)
+}
 
 describe('json feed loader', () => {
   function exampleJson(json: object | string): TextResponse {
@@ -252,10 +258,10 @@ describe('json feed loader', () => {
     )
   })
 
-  test('validate json feed format', () => {
+  test('validate json feed format', async () => {
     let task = createDownloadTask()
     deepEqual(
-      postsValue(
+      await loadedPosts(
         loaders.jsonFeed.getPosts(
           task,
           'https://example.com/',
@@ -377,7 +383,7 @@ describe('json feed loader', () => {
     })
   })
 
-  test('validate wrong json feed format', () => {
+  test('validate wrong json feed format', async () => {
     let task = createDownloadTask()
 
     expectNotMine(loaders.jsonFeed, exampleJson('1'))
@@ -448,7 +454,7 @@ describe('json feed loader', () => {
     }
 
     deepEqual(
-      postsValue(
+      await loadedPosts(
         loaders.jsonFeed.getPosts(
           task,
           'https://example.com/',
@@ -481,6 +487,39 @@ describe('json feed loader', () => {
           }
         ]
       }
+    )
+  })
+
+  test('resolves URLs', async () => {
+    expectRequest('https://example.com/posts/b.png').andRespond(200)
+    let posts = loaders.jsonFeed.getPosts(
+      createDownloadTask(),
+      'https://example.com/feed.json',
+      exampleJson({
+        items: [
+          {
+            content_html: '<a href="/a">A</a><img data-src="b.png">',
+            id: '1',
+            url: 'https://example.com/posts/1'
+          },
+          { content_text: 'Text <a href="/a">', id: '2' }
+        ],
+        title: 'Feed',
+        version: 'https://jsonfeed.org/version/1.1'
+      })
+    )
+    await posts.loading
+    deepEqual(
+      posts.get().list.map(i => [i.full, i.media]),
+      [
+        [
+          '<a href="https://example.com/a">A</a>' +
+            '<img src="https://example.com/posts/b.png">',
+          '[{"fromText":true,"type":"image",' +
+            '"url":"https://example.com/posts/b.png"}]'
+        ],
+        ['Text <a href="/a">', undefined]
+      ]
     )
   })
 

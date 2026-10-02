@@ -1,5 +1,7 @@
 import createDOMPurify from 'dompurify'
 
+import { getEnvironment } from '../environment.ts'
+import { preloadImages } from '../settings.ts'
 import { PUNCTUATION_CHARS, truncateText } from './text.ts'
 
 const ALLOWED_TAGS = [
@@ -68,7 +70,9 @@ const ALLOWED_TAGS = [
   'tfoot',
   'th',
   'thead',
+  'time',
   'tr',
+  'track',
   'ul',
   'video'
 ]
@@ -87,7 +91,34 @@ const BLOCK_TAGS = new Set([
   'li',
   'p'
 ])
+
+const ELEMENT_NODE = 1
+const TEXT_NODE = 3
+
 const SENTENCE_END = new RegExp('[' + PUNCTUATION_CHARS + ']$')
+
+const ID_TAGS = new Set([
+  'a',
+  'dd',
+  'dl',
+  'dt',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'li',
+  'ol',
+  'sup',
+  'ul'
+])
+
+/**
+ * DOMPurify’s `SANITIZE_NAMED_PROPS` prefix, which protects app’s IDs
+ * from collisions and DOM clobbering.
+ */
+const ID_PREFIX = 'user-content-'
 
 let DOMPurify: ReturnType<typeof createDOMPurify> | undefined
 
@@ -157,36 +188,82 @@ export function mapRelativeSrcset(
   )
 }
 
-function resolveUrls(node: Element, url: string | undefined): void {
-  let elements = node.querySelectorAll('[href], [src]')
-  for (let element of elements) {
+function isHidden(element: Element): boolean {
+  if (element.hasAttribute('hidden')) return true
+  let style = element.getAttribute('style')
+  if (style && /display\s*:\s*none|visibility\s*:\s*hidden/i.test(style)) {
+    return true
+  }
+  return (
+    element.localName === 'img' &&
+    /^[01](px)?$/.test(element.getAttribute('width') ?? '') &&
+    /^[01](px)?$/.test(element.getAttribute('height') ?? '')
+  )
+}
+
+function getPurify(): ReturnType<typeof createDOMPurify> {
+  if (!DOMPurify) {
+    DOMPurify = createDOMPurify(window)
+    DOMPurify.addHook('uponSanitizeElement', node => {
+      let element = node as Element
+      if (node.nodeType === ELEMENT_NODE && isHidden(element)) {
+        element.remove()
+      }
+    })
+    DOMPurify.addHook('uponSanitizeAttribute', (node, data) => {
+      if (data.attrName === 'id' && !ID_TAGS.has(node.localName)) {
+        data.keepAttr = false
+      }
+    })
+  }
+  return DOMPurify
+}
+
+function shouldPreloadImages(): boolean {
+  let preload = preloadImages.get()
+  if (preload === 'free') {
+    let network = getEnvironment().networkType()
+    return network.type === 'free' && !network.saveData
+  }
+  return preload === 'always'
+}
+
+/**
+ * Loader resolves URLs on refresh. Relative URL, which left after it,
+ * would load from the app’s domain.
+ */
+function removeRelativeUrls(node: Element): void {
+  let ids = new Set(
+    Array.from(node.querySelectorAll('[id]'), element => element.id)
+  )
+  for (let element of node.querySelectorAll('[href], [src]')) {
     for (let attr of ['href', 'src']) {
       let value = element.getAttribute(attr)
-      if (value === null) continue
-      if (isAbsoluteUrl(value)) continue
-      if (url === undefined) {
-        element.remove()
-        break
+      if (value === null || isAbsoluteUrl(value)) continue
+      if (
+        attr === 'href' &&
+        value.startsWith('#') &&
+        ids.has(ID_PREFIX + value.slice(1))
+      ) {
+        element.setAttribute('href', '#' + ID_PREFIX + value.slice(1))
+        continue
       }
-      element.setAttribute(attr, new URL(value, url).href)
+      element.remove()
+      break
     }
   }
   for (let element of node.querySelectorAll('[srcset]')) {
-    let value = element.getAttribute('srcset')!
-    if (url === undefined) {
-      element.removeAttribute('srcset')
-    } else {
-      element.setAttribute(
-        'srcset',
-        mapRelativeSrcset(value, link => new URL(link, url).href)
-      )
-    }
+    let relative = false
+    mapRelativeSrcset(element.getAttribute('srcset')!, link => {
+      relative = true
+      return link
+    })
+    if (relative) element.removeAttribute('srcset')
   }
 }
 
-export function sanitizeDOM(html: string, url: string | undefined): Element {
-  if (!DOMPurify) DOMPurify = createDOMPurify(window)
-  let node = DOMPurify.sanitize(html, {
+export function sanitizeDOM(html: string): Element {
+  let node = getPurify().sanitize(html, {
     ALLOW_ARIA_ATTR: false,
     ALLOW_DATA_ATTR: false,
     ALLOWED_ATTR: [
@@ -195,12 +272,15 @@ export function sanitizeDOM(html: string, url: string | undefined): Element {
       'alt',
       'cite',
       'colspan',
-      'controls',
       'datetime',
+      'default',
       'dir',
       'headers',
       'height',
       'href',
+      'id',
+      'kind',
+      'label',
       'lang',
       'loop',
       'media',
@@ -208,23 +288,35 @@ export function sanitizeDOM(html: string, url: string | undefined): Element {
       'open',
       'playsinline',
       'poster',
-      'preload',
       'reversed',
       'rowspan',
       'scope',
       'sizes',
+      'span',
       'src',
+      'srclang',
       'srcset',
       'start',
       'title',
+      'translate',
       'type',
       'value',
       'width'
     ],
     ALLOWED_TAGS,
-    RETURN_DOM: true
+    RETURN_DOM: true,
+    SANITIZE_NAMED_PROPS: true
   }) as Element
-  resolveUrls(node, url)
+  removeRelativeUrls(node)
+  for (let media of node.querySelectorAll('video, audio')) {
+    media.setAttribute('controls', '')
+    media.setAttribute('preload', 'none')
+  }
+  let loading = shouldPreloadImages() ? 'eager' : 'lazy'
+  for (let image of node.querySelectorAll('img')) {
+    image.setAttribute('loading', loading)
+    image.setAttribute('decoding', 'async')
+  }
   return node
 }
 
@@ -232,8 +324,8 @@ export function parseRichTranslation(
   text: string,
   link?: string
 ): string | TrustedHTML {
-  if (!DOMPurify) DOMPurify = createDOMPurify(window)
-  let html = DOMPurify.sanitize(text, { ALLOWED_TAGS: [] })
+  let html = getPurify()
+    .sanitize(text, { ALLOWED_TAGS: [] })
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/^[*-][ .](.*)/gm, '<ul><li>$1</li></ul>')
     .replace(/<\/ul>\n<ul>/g, '\n')
@@ -258,9 +350,6 @@ export function parseRichTranslation(
 export function stripHTML(html: string): string {
   return (parseDocument(html).documentElement.textContent || '').trim()
 }
-
-const ELEMENT_NODE = 1
-const TEXT_NODE = 3
 
 function isTag(node: Node | null | undefined, name: string): boolean {
   return node?.nodeType === ELEMENT_NODE && (node as Element).localName === name

@@ -2,8 +2,8 @@
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import FormattedText from '../../ui/formatted-text.svelte'
-  import imgExample2 from '../assets/long_width_example.avif'
-  import imgExample1 from '../assets/short_width_example.avif'
+  import longImage from '../assets/long_width_example.avif'
+  import shortImage from '../assets/short_width_example.avif'
   import Scene from '../scene.svelte'
   import Section from '../section.svelte'
 
@@ -12,12 +12,15 @@
     title: 'UI/FormattedText'
   })
 
+  let imgExample1 = new URL(shortImage, location.href).href
+  let imgExample2 = new URL(longImage, location.href).href
+
   let paragraph = `<p>Reading is generally an individual activity, done silently, although on occasion a person reads out loud for other listeners; or reads aloud for one's own use, for better comprehension. Before the reintroduction of separated text (spaces between words) in the late Middle Ages, the ability to read silently was considered rather remarkable.</p>`
 
   let longHeadingText =
     'This is a very long heading text that goes on and on. It is meant to test the rendering of long headings in the UI. It includes many words and phrases to ensure that the heading wraps correctly and maintains its styling.'
 
-  let longHeadings = `<h1>${longHeadingText}</h1><h2><a href="#">${longHeadingText}</a></h2><h3>${longHeadingText}</h3><h5>${longHeadingText}</h5><h6>${longHeadingText}</h6>`
+  let longHeadings = `<h1>${longHeadingText}</h1><h2><a href="https://example.com/">${longHeadingText}</a></h2><h3>${longHeadingText}</h3><h5>${longHeadingText}</h5><h6>${longHeadingText}</h6>`
 
   let headingsWithParagraphs = `<h1>Heading H1</h1>${paragraph}${paragraph}<h2>Heading H2</h2><p>${paragraph}${paragraph}${paragraph}</p><h3>Heading H3</h3><p>${paragraph}</p><h4>Heading H4</h4><p>${paragraph}</p><h5>Heading H5</h5><p>${paragraph}</p><h6>Heading H6</h6><p>${paragraph}</p>`
 
@@ -88,18 +91,21 @@
     '  <kbd>Ctrl+C</kbd>\n' +
     '  <ruby>\n' +
     '    漢 <rt>ㄏㄢˋ</rt>\n' +
-    '  </ruby>'
+    '  </ruby>\n' +
+    '  <p>Posted <time datetime="2026-10-02">today</time> with a footnote<sup id="ref1"><a href="#fn1">1</a></sup>.</p>\n' +
+    '  <p hidden>Hidden SEO text</p>\n' +
+    '  <ol><li id="fn1">Footnote text. <a href="#ref1">↩</a></li></ol>'
 
   let mediaTags =
     '<video controls>\n' +
-    '    <source src="movie.mp4" type="video/mp4">\n' +
-    '    <source src="movie.ogg" type="video/ogg">\n' +
+    '    <source src="https://example.com/movie.mp4" type="video/mp4">\n' +
+    '    <source src="https://example.com/movie.ogg" type="video/ogg">\n' +
     '    Your browser does not support the video tag.\n' +
     '  </video>\n' +
     '\n' +
     '  <audio controls>\n' +
-    '    <source src="horse.ogg" type="audio/ogg">\n' +
-    '    <source src="horse.mp3" type="audio/mpeg">\n' +
+    '    <source src="https://example.com/horse.ogg" type="audio/ogg">\n' +
+    '    <source src="https://example.com/horse.mp3" type="audio/mpeg">\n' +
     '    Your browser does not support the audio element.\n' +
     '  </audio>\n'
 
@@ -119,76 +125,74 @@
     '<td>Data 1</td><td>Data 2</td><td>Data 3</td><td>Data 4</td></tr>' +
     '</tbody><tfoot><tr><td colspan="7">Footer information</td></tr></tfoot>' +
     '</table>'
-
-  let url = 'https://example.com'
 </script>
 
 <Story name="Light Slow" asChild>
   <Section width={700}>
-    <FormattedText comfort html={headingsWithParagraphs} {url} />
+    <FormattedText comfort html={headingsWithParagraphs} />
   </Section>
   <Section width={700}>
-    <FormattedText comfort html={longHeadings} {url} />
+    <FormattedText comfort html={longHeadings} />
   </Section>
   <Section width={500}>
-    <FormattedText comfort html={images} {url} />
+    <FormattedText comfort html={images} />
   </Section>
   <Section>
-    <FormattedText comfort html={inlineTagsExample} {url} />
+    <FormattedText comfort html={inlineTagsExample} />
   </Section>
   <Section>
-    <FormattedText comfort html={unorderedList} {url} />
-    <FormattedText comfort html={orderedList} {url} />
+    <FormattedText comfort html={unorderedList} />
+    <FormattedText comfort html={orderedList} />
   </Section>
   <Section>
-    <FormattedText comfort html={contentTags} {url} />
+    <FormattedText comfort html={contentTags} />
   </Section>
   <Section>
-    <FormattedText comfort html={mediaTags} {url} />
+    <FormattedText comfort html={mediaTags} />
   </Section>
   <Section>
-    <FormattedText comfort html={code} {url} />
+    <FormattedText comfort html={code} />
   </Section>
   <Section>
-    <FormattedText comfort html={codeInline} {url} />
+    <FormattedText comfort html={codeInline} />
   </Section>
   <Section>
-    <FormattedText comfort html={tableExample} {url} />
+    <FormattedText comfort html={tableExample} />
   </Section>
 </Story>
 
 <Story name="Light Fast" asChild>
   <Scene route="fast">
     <Section width={700}>
-      <FormattedText html={headingsWithParagraphs} {url} />
+      <FormattedText html={headingsWithParagraphs} />
     </Section>
     <Section width={700}>
-      <FormattedText html={longHeadings} {url} />
+      <FormattedText html={longHeadings} />
     </Section>
     <Section width={500}>
-      <FormattedText html={images} {url} />
+      <FormattedText html={images} />
     </Section>
     <Section>
-      <FormattedText html={inlineTagsExample} {url} />
+      <FormattedText html={inlineTagsExample} />
     </Section>
     <Section>
-      <FormattedText html={unorderedList} {url} />
-      <FormattedText html={orderedList} {url} />
+      <FormattedText html={unorderedList} />
+      <FormattedText html={orderedList} />
     </Section>
     <Section>
-      <FormattedText html={contentTags} {url} />
+      <FormattedText html={contentTags} />
     </Section>
     <Section>
-      <FormattedText html={mediaTags} {url} />
+      <FormattedText html={mediaTags} />
     </Section>
     <Section>
-      <FormattedText html={code} {url} />
+      <FormattedText html={code} />
     </Section>
     <Section>
-      <FormattedText html={codeInline} {url} />
+      <FormattedText html={codeInline} />
     </Section>
     <Section>
-      <FormattedText html={tableExample} {url} />
+      <FormattedText html={tableExample} />
     </Section>
   </Scene>
 </Story>
@@ -199,35 +203,35 @@
   parameters={{ themes: { themeOverride: 'dark' } }}
 >
   <Section width={700}>
-    <FormattedText comfort html={headingsWithParagraphs} {url} />
+    <FormattedText comfort html={headingsWithParagraphs} />
   </Section>
   <Section width={700}>
-    <FormattedText comfort html={longHeadings} {url} />
+    <FormattedText comfort html={longHeadings} />
   </Section>
   <Section width={500}>
-    <FormattedText comfort html="{images}comfort" {url} />
+    <FormattedText comfort html="{images}comfort" />
   </Section>
   <Section>
-    <FormattedText comfort html={inlineTagsExample} {url} />
+    <FormattedText comfort html={inlineTagsExample} />
   </Section>
   <Section>
-    <FormattedText comfort html={unorderedList} {url} />
-    <FormattedText comfort html={orderedList} {url} />
+    <FormattedText comfort html={unorderedList} />
+    <FormattedText comfort html={orderedList} />
   </Section>
   <Section>
-    <FormattedText comfort html={contentTags} {url} />
+    <FormattedText comfort html={contentTags} />
   </Section>
   <Section>
-    <FormattedText comfort html={mediaTags} {url} />
+    <FormattedText comfort html={mediaTags} />
   </Section>
   <Section>
-    <FormattedText comfort html={code} {url} />
+    <FormattedText comfort html={code} />
   </Section>
   <Section>
-    <FormattedText comfort html={codeInline} {url} />
+    <FormattedText comfort html={codeInline} />
   </Section>
   <Section>
-    <FormattedText comfort html={tableExample} {url} />
+    <FormattedText comfort html={tableExample} />
   </Section>
 </Story>
 
@@ -238,35 +242,35 @@
 >
   <Scene route="fast">
     <Section width={700}>
-      <FormattedText html={headingsWithParagraphs} {url} />
+      <FormattedText html={headingsWithParagraphs} />
     </Section>
     <Section width={700}>
-      <FormattedText html={longHeadings} {url} />
+      <FormattedText html={longHeadings} />
     </Section>
     <Section width={500}>
-      <FormattedText html="{images}comfort" {url} />
+      <FormattedText html="{images}comfort" />
     </Section>
     <Section>
-      <FormattedText html={inlineTagsExample} {url} />
+      <FormattedText html={inlineTagsExample} />
     </Section>
     <Section>
-      <FormattedText html={unorderedList} {url} />
-      <FormattedText html={orderedList} {url} />
+      <FormattedText html={unorderedList} />
+      <FormattedText html={orderedList} />
     </Section>
     <Section>
-      <FormattedText html={contentTags} {url} />
+      <FormattedText html={contentTags} />
     </Section>
     <Section>
-      <FormattedText html={mediaTags} {url} />
+      <FormattedText html={mediaTags} />
     </Section>
     <Section>
-      <FormattedText html={code} {url} />
+      <FormattedText html={code} />
     </Section>
     <Section>
-      <FormattedText html={codeInline} {url} />
+      <FormattedText html={codeInline} />
     </Section>
     <Section>
-      <FormattedText html={tableExample} {url} />
+      <FormattedText html={tableExample} />
     </Section>
   </Scene>
 </Story>

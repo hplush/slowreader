@@ -4,28 +4,39 @@
 
   import { sanitizeDOM } from '@slowreader/core'
   import type { Attachment } from 'svelte/attachments'
+  import { on } from 'svelte/events'
 
   let {
     comfort,
     html,
     scroll = true,
-    simple = false,
-    url
+    simple = false
   }: {
     comfort?: boolean
     html: Element | string | undefined
     scroll?: boolean
     simple?: boolean
-    url: string | undefined
   } = $props()
 
   let renderHtml: Attachment = node => {
     // A node is already sanitized by `sanitizeDOM()` of the caller
-    let content = typeof html === 'object' ? html : sanitizeDOM(html ?? '', url)
+    let content = typeof html === 'object' ? html : sanitizeDOM(html ?? '')
     node.replaceChildren(...content.childNodes)
     node.querySelectorAll('a').forEach(link => {
-      link.setAttribute('target', '_blank')
-      link.setAttribute('rel', 'noopener')
+      let href = link.getAttribute('href')
+      if (href?.startsWith('#')) {
+        // Router keeps popups in the hash
+        on(link, 'click', event => {
+          event.preventDefault()
+          let id = href.slice(1)
+          Array.from(node.querySelectorAll('[id]'))
+            .find(element => element.id === id)
+            ?.scrollIntoView()
+        })
+      } else {
+        link.setAttribute('target', '_blank')
+        link.setAttribute('rel', 'noopener')
+      }
     })
   }
 </script>

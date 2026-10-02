@@ -17,164 +17,145 @@ function truncate(html: string, min: number, max: number): string {
   return body.innerHTML
 }
 
+function sanitize(html: string): string {
+  return sanitizeDOM(html).innerHTML
+}
+
 describe('html', () => {
   test('sanitizes HTML', () => {
     equal(
-      (
-        sanitizeDOM(
-          '<script>alert("XSS")</script>' +
-            '<b>Safe</b>' +
-            '<form></form>' +
-            '<iframe//src=jAva&Tab;script:alert(3)>',
-          undefined
-        ) as HTMLElement
-      ).innerHTML,
+      sanitize(
+        '<script>alert("XSS")</script>' +
+          '<b>Safe</b>' +
+          '<form></form>' +
+          '<iframe//src=jAva&Tab;script:alert(3)>'
+      ),
       '<b>Safe</b>'
     )
   })
 
   test('keeps only attributes of the content', () => {
     equal(
-      (
-        sanitizeDOM(
-          '<figure style="position: relative" class="image" id="menu">' +
-            '<img src="https://example.com/a.jpg" alt="A" width="10" ' +
-            'style="position: absolute" data-id="1" aria-hidden="true" ' +
-            'background="https://example.com/b.jpg" tabindex="0">' +
-            '</figure>' +
-            '<p popover="auto" role="button" name="x">' +
-            '<a href="https://example.com/" title="B" ' +
-            'popovertarget="menu" commandfor="menu" command="show-modal">' +
-            'Link</a></p>',
-          undefined
-        ) as HTMLElement
-      ).innerHTML,
-      '<figure><img src="https://example.com/a.jpg" alt="A" width="10">' +
+      sanitize(
+        '<figure style="position: relative" class="image" id="menu">' +
+          '<img src="https://example.com/a.jpg" alt="A" width="10" ' +
+          'style="position: absolute" data-id="1" aria-hidden="true" ' +
+          'background="https://example.com/b.jpg" tabindex="0">' +
+          '</figure>' +
+          '<p popover="auto" role="button" name="x">' +
+          '<a href="https://example.com/" title="B" ' +
+          'popovertarget="menu" commandfor="menu" command="show-modal">' +
+          'Link</a></p>'
+      ),
+      '<figure><img src="https://example.com/a.jpg" alt="A" width="10" ' +
+        'loading="eager" decoding="async">' +
         '</figure><p><a href="https://example.com/" title="B">Link</a></p>'
     )
   })
 
   test('keeps picture sources', () => {
     equal(
-      (
-        sanitizeDOM(
-          '<picture><source srcset="dark.avif" type="image/avif" ' +
-            'media="(prefers-color-scheme: dark)"><img src="a.jpg"></picture>',
-          'https://example.com/'
-        ) as HTMLElement
-      ).innerHTML,
+      sanitize(
+        '<picture><source srcset="https://example.com/dark.avif" ' +
+          'type="image/avif" media="(prefers-color-scheme: dark)">' +
+          '<img src="https://example.com/a.jpg"></picture>'
+      ),
       '<picture><source srcset="https://example.com/dark.avif" ' +
         'type="image/avif" media="(prefers-color-scheme: dark)">' +
-        '<img src="https://example.com/a.jpg"></picture>'
+        '<img src="https://example.com/a.jpg" loading="eager" ' +
+        'decoding="async"></picture>'
     )
   })
 
-  test('resolves relative href to absolute URL', () => {
+  test('keeps absolute URLs', () => {
     equal(
-      (
-        sanitizeDOM(
-          '<a href="./page">Link</a>',
-          'https://example.com/base/'
-        ) as HTMLElement
-      ).innerHTML,
-      '<a href="https://example.com/base/page">Link</a>'
+      sanitize(
+        '<a href="https://other.com/page">Link</a>' +
+          '<a href="mailto:test@example.com">Email</a>' +
+          '<img srcset="https://example.com/a.jpg 1x, ' +
+          'https://example.com/b.jpg 2x">'
+      ),
+      '<a href="https://other.com/page">Link</a>' +
+        '<a href="mailto:test@example.com">Email</a>' +
+        '<img srcset="https://example.com/a.jpg 1x, ' +
+        'https://example.com/b.jpg 2x" loading="eager" decoding="async">'
     )
   })
 
-  test('resolves relative src to absolute URL', () => {
+  test('removes relative URLs', () => {
     equal(
-      (
-        sanitizeDOM(
-          '<img src="image.png">',
-          'https://example.com/posts/1/'
-        ) as HTMLElement
-      ).innerHTML,
-      '<img src="https://example.com/posts/1/image.png">'
+      sanitize(
+        '<p>Text <a href="/path">Link</a> more</p>' +
+          '<p>Text <img src="image.png"> more</p>' +
+          '<img src="https://example.com/a.jpg" ' +
+          'srcset="https://example.com/a.jpg 1x, b.jpg 2x">'
+      ),
+      '<p>Text  more</p><p>Text  more</p>' +
+        '<img src="https://example.com/a.jpg" loading="eager" ' +
+        'decoding="async">'
     )
   })
 
-  test('resolves relative srcset to absolute URLs', () => {
+  test('removes hidden content and tracking pixels', () => {
     equal(
-      (
-        sanitizeDOM(
-          '<img src="/img/a.jpg?w=1200" ' +
-            'srcset="/img/a.jpg?w=500,q=80 500w, /img/a.jpg?w=1200,q=80 1200w">',
-          'https://kottke.org/26/08/post'
-        ) as HTMLElement
-      ).innerHTML,
-      '<img src="https://kottke.org/img/a.jpg?w=1200" ' +
-        'srcset="https://kottke.org/img/a.jpg?w=500,q=80 500w, ' +
-        'https://kottke.org/img/a.jpg?w=1200,q=80 1200w">'
+      sanitize(
+        '<p>Text</p><p hidden>SEO</p>' +
+          '<div style="color: red; display:none">Share</div>' +
+          '<span style="VISIBILITY: hidden">Tracking</span>' +
+          '<img src="https://example.com/t.gif" width="1" height="1">' +
+          '<img src="https://example.com/a.gif" width="1" height="10">'
+      ),
+      '<p>Text</p><img src="https://example.com/a.gif" width="1" ' +
+        'height="10" loading="eager" decoding="async">'
     )
   })
 
-  test('keeps absolute srcset unchanged', () => {
+  test('prefixes IDs for footnotes', () => {
     equal(
-      (
-        sanitizeDOM(
-          '<img srcset="https://example.com/a.jpg 1x, ./b.jpg 2x">',
-          'https://example.com/posts/'
-        ) as HTMLElement
-      ).innerHTML,
-      '<img srcset="https://example.com/a.jpg 1x, ' +
-        'https://example.com/posts/b.jpg 2x">'
+      sanitize(
+        '<p id="intro">Text<sup id="ref1"><a href="#fn1">1</a></sup>' +
+          '<a href="#missing">A</a></p>' +
+          '<ol><li id="fn1">Note <a href="#ref1">↩</a></li></ol>' +
+          '<h2 id="cookie">Title</h2>'
+      ),
+      '<p>Text<sup id="user-content-ref1">' +
+        '<a href="#user-content-fn1">1</a></sup></p>' +
+        '<ol><li id="user-content-fn1">Note ' +
+        '<a href="#user-content-ref1">↩</a></li></ol>' +
+        '<h2 id="user-content-cookie">Title</h2>'
     )
   })
 
-  test('removes srcset with relative URLs when url is undefined', () => {
+  test('sets media behavior', () => {
     equal(
-      (
-        sanitizeDOM(
-          '<img src="https://example.com/a.jpg" srcset="b.jpg 2x">',
-          undefined
-        ) as HTMLElement
-      ).innerHTML,
-      '<img src="https://example.com/a.jpg">'
+      sanitize(
+        '<video src="https://example.com/a.mp4" autoplay preload="auto">' +
+          '<track src="https://example.com/a.vtt" kind="subtitles" ' +
+          'srclang="en" label="EN" default></video>' +
+          '<audio src="https://example.com/a.mp3" controls></audio>' +
+          '<img src="https://example.com/a.jpg" loading="eager" ' +
+          'fetchpriority="high">'
+      ),
+      '<video src="https://example.com/a.mp4" controls="" preload="none">' +
+        '<track src="https://example.com/a.vtt" kind="subtitles" ' +
+        'srclang="en" label="EN" default=""></video>' +
+        '<audio src="https://example.com/a.mp3" controls="" ' +
+        'preload="none"></audio>' +
+        '<img src="https://example.com/a.jpg" loading="eager" ' +
+        'decoding="async">'
     )
   })
 
-  test('keeps absolute URLs unchanged', () => {
+  test('keeps table column groups, time, and translate', () => {
     equal(
-      (
-        sanitizeDOM(
-          '<a href="https://other.com/page">Link</a>',
-          'https://example.com/'
-        ) as HTMLElement
-      ).innerHTML,
-      '<a href="https://other.com/page">Link</a>'
-    )
-  })
-
-  test('removes elements with relative URLs when url is undefined', () => {
-    equal(
-      (
-        sanitizeDOM(
-          '<p>Text <a href="/path">Link</a> more</p>',
-          undefined
-        ) as HTMLElement
-      ).innerHTML,
-      '<p>Text  more</p>'
-    )
-    equal(
-      (
-        sanitizeDOM(
-          '<p>Text <img src="image.png"> more</p>',
-          undefined
-        ) as HTMLElement
-      ).innerHTML,
-      '<p>Text  more</p>'
-    )
-  })
-
-  test('keeps absolute URLs with other protocols unchanged', () => {
-    equal(
-      (
-        sanitizeDOM(
-          '<a href="mailto:test@example.com">Email</a>',
-          'https://example.com/'
-        ) as HTMLElement
-      ).innerHTML,
-      '<a href="mailto:test@example.com">Email</a>'
+      sanitize(
+        '<table><colgroup span="2"><col span="1"></colgroup></table>' +
+          '<p><time datetime="2026-10-02">Today</time> ' +
+          '<code translate="no">npm</code></p>'
+      ),
+      '<table><colgroup span="2"><col span="1"></colgroup></table>' +
+        '<p><time datetime="2026-10-02">Today</time> ' +
+        '<code translate="no">npm</code></p>'
     )
   })
 

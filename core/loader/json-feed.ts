@@ -1,8 +1,13 @@
 import { ParseError } from '../errors.ts'
-import { createDownloadTask, type TextResponse } from '../lib/download.ts'
+import {
+  createDownloadTask,
+  type DownloadTask,
+  type TextResponse
+} from '../lib/download.ts'
 import { type ParsedPost, type PostMedia, stringifyMedia } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import {
+  createUrlsResolver,
   fetchIfModified,
   findAnchorHrefs,
   findDocumentLinks,
@@ -102,34 +107,45 @@ function parsePostSources(text: TextResponse): JsonFeedItem[] {
   return parsedJson.items
 }
 
-function parsePosts(text: TextResponse): ParsedPost[] {
-  return parsePostSources(text).map(item => {
-    let full = (item.content_html || item.content_text) ?? undefined
+function parsePosts(
+  task: DownloadTask,
+  text: TextResponse
+): Promise<ParsedPost[]> {
+  let resolveUrls = createUrlsResolver(task)
+  return Promise.all(
+    parsePostSources(text).map(async item => {
+      let html = await resolveUrls(
+        item.content_html,
+        undefined,
+        item.url ?? text.url
+      )
+      let full = (html || item.content_text) ?? undefined
 
-    let textMedia = findMediaInText(item.content_html)
-    let postMedia: PostMedia[] = []
-    if (item.image) {
-      postMedia.push({ type: 'image', url: item.image })
-    }
-    if (item.banner_image) {
-      postMedia.push({ type: 'image', url: item.banner_image })
-    }
-    for (let attachment of item.attachments ?? []) {
-      if (attachment.url && attachment.mime_type) {
-        postMedia.push({ type: attachment.mime_type, url: attachment.url })
+      let textMedia = findMediaInText(html)
+      let postMedia: PostMedia[] = []
+      if (item.image) {
+        postMedia.push({ type: 'image', url: item.image })
       }
-    }
+      if (item.banner_image) {
+        postMedia.push({ type: 'image', url: item.banner_image })
+      }
+      for (let attachment of item.attachments ?? []) {
+        if (attachment.url && attachment.mime_type) {
+          postMedia.push({ type: attachment.mime_type, url: attachment.url })
+        }
+      }
 
-    return {
-      full,
-      intro: item.summary ?? undefined,
-      media: stringifyMedia([...postMedia, ...textMedia]),
-      originId: item.id,
-      publishedAt: toTime(item.date_published) ?? undefined,
-      title: item.title,
-      url: item.url ?? undefined
-    }
-  })
+      return {
+        full,
+        intro: item.summary ?? undefined,
+        media: stringifyMedia([...postMedia, ...textMedia]),
+        originId: item.id,
+        publishedAt: toTime(item.date_published) ?? undefined,
+        title: item.title,
+        url: item.url ?? undefined
+      }
+    })
+  )
 }
 
 export const jsonFeed: Loader = {
@@ -145,11 +161,14 @@ export const jsonFeed: Loader = {
 
   getPosts(task, url, text, refreshedAt) {
     if (text) {
-      return createPostsList(() => [parsePosts(text), undefined])
+      return createPostsList(async () => [
+        await parsePosts(task, text),
+        undefined
+      ])
     } else {
       return createPostsList(() =>
-        fetchIfModified(task, url, refreshedAt, response => [
-          parsePosts(response),
+        fetchIfModified(task, url, refreshedAt, async response => [
+          await parsePosts(task, response),
           undefined
         ])
       )

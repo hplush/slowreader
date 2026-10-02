@@ -7,7 +7,7 @@ import { type ParsedPost, type PostMedia, stringifyMedia } from '../post.ts'
 import { createPostsList, type PostsListResult } from '../posts-list.ts'
 import {
   buildFullURL,
-  createImagesResolver,
+  createUrlsResolver,
   fetchIfModified,
   findAnchorHrefs,
   findDocumentLinks,
@@ -78,7 +78,7 @@ function parsePosts(
   task: DownloadTask,
   text: TextResponse
 ): Promise<ParsedPost[]> {
-  let resolveImages = createImagesResolver(task)
+  let resolveUrls = createUrlsResolver(task)
   return Promise.all(
     parsePostSources(text).map(async entry => {
       let content = entry.querySelector('content')
@@ -88,7 +88,13 @@ function parsePosts(
           .querySelector('link[rel=alternate], link:not([rel])')
           ?.getAttribute('href') ?? undefined
 
-      let textMedia = findMediaInText(content)
+      let full = await resolveUrls(
+        extractHtml(content),
+        findXmlBase(content, text.url),
+        url ?? text.url
+      )
+
+      let textMedia = findMediaInText(full)
       let postMedia: PostMedia[] = []
       let enclosures = entry.querySelectorAll('link[rel=enclosure]')
       for (let enclosure of enclosures) {
@@ -101,12 +107,8 @@ function parsePosts(
       postMedia = postMedia.concat(findMRSS(entry))
 
       return {
-        full: await resolveImages(
-          extractHtml(content),
-          findXmlBase(content, text.url),
-          url ?? text.url
-        ),
-        intro: await resolveImages(
+        full,
+        intro: await resolveUrls(
           extractHtml(summary),
           findXmlBase(summary, text.url),
           url ?? text.url

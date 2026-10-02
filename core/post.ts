@@ -57,8 +57,7 @@ export type PostContent = {
  * The feed’s `intro` and the article never come together: `full` is loaded
  * only when the feed gave no `intro`, since only then the card has to cut
  * the article itself. `more` answers the other case, where the article
- * is compared with the intro in SQL. `url` resolves relative links
- * of the article.
+ * is compared with the intro in SQL.
  */
 export type PostCardText = {
   url: null | string
@@ -240,14 +239,13 @@ export function processOriginPost(
  * again on the render.
  */
 export function getPostIntro(post: PostCardText): [Element, boolean] {
-  let url = post.url ?? undefined
   if (post.intro !== null) {
-    return [sanitizeDOM(post.intro, url), post.more === 1]
+    return [sanitizeDOM(post.intro), post.more === 1]
   } else if (post.full !== null) {
-    let article = sanitizeDOM(post.full, url)
+    let article = sanitizeDOM(post.full)
     return [article, truncateDOM(article, INTRO_MIN, INTRO_MAX)]
   } else {
-    return [sanitizeDOM('', url), false]
+    return [sanitizeDOM(''), false]
   }
 }
 

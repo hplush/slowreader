@@ -64,7 +64,7 @@
       </SmallLink>
     </Stack>
     <Stack gap="xxl">
-      <Post feed={$feed} post={$post} />
+      <Post post={$post} />
       <Stack>
         {#if $post.url}
           <Button

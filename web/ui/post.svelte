@@ -1,19 +1,9 @@
 <script lang="ts">
-  import {
-    type FeedValue,
-    type OriginPost,
-    parseMedia,
-    type PostValue
-  } from '@slowreader/core'
+  import { type OriginPost, parseMedia, type PostValue } from '@slowreader/core'
 
   import FormattedText from './formatted-text.svelte'
 
-  let {
-    feed,
-    post
-  }: { feed: FeedValue | undefined; post: OriginPost | PostValue } = $props()
-
-  let url = $derived(post.url ?? feed?.url ?? undefined)
+  let { post }: { post: OriginPost | PostValue } = $props()
 </script>
 
 <div class="post">
@@ -21,10 +11,10 @@
     <h1 class="post_title">
       {#if post.url}
         <a class="post_title-url" href={post.url} target="_blank">
-          <FormattedText html={post.title} scroll={false} {url} />
+          <FormattedText html={post.title} scroll={false} />
         </a>
       {:else}
-        <FormattedText html={post.title} scroll={false} {url} />
+        <FormattedText html={post.title} scroll={false} />
       {/if}
     </h1>
   {/if}
@@ -36,9 +26,9 @@
   {/each}
 
   {#if post.full}
-    <FormattedText html={post.full} {url} />
+    <FormattedText html={post.full} />
   {:else if post.intro}
-    <FormattedText html={post.intro} {url} />
+    <FormattedText html={post.intro} />
   {/if}
 </div>
 

@@ -53,10 +53,10 @@
     {/if}
     {#if post.title}
       <h2 class="feed-post_title">
-        <FormattedText html={post.title} url={post.url ?? undefined} />
+        <FormattedText html={post.title} />
       </h2>
     {/if}
-    <FormattedText html={intro} simple url={post.url ?? undefined} />
+    <FormattedText html={intro} simple />
     {#each media as image, index (`${image.url}${index}`)}
       {#if !image.fromText && image.type.startsWith('image')}
         <img class="feed-post_image" alt="" src={image.url} />

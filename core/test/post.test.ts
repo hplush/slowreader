@@ -19,6 +19,8 @@ import {
   getPostIntro,
   type PostCardText,
   getPostTitle,
+  preloadImages,
+  setupEnvironment,
   slowPostsCount,
   testFeed,
   testPost
@@ -27,6 +29,7 @@ import {
   cleanClient,
   setTestUser,
   setupNodeDom,
+  getTestEnvironment,
   startClient,
   waitFor
 } from './utils.ts'
@@ -58,6 +61,35 @@ describe('post', () => {
     equal(result[1], true)
     match(result[0], /[.?] …<\/p>/)
   }
+
+  test('preloads images by the setting', () => {
+    let post = {
+      full: null,
+      intro: '<img src="https://example.com/a.jpg">',
+      more: 0,
+      url: null
+    }
+    let loading = (): string | null =>
+      getPostIntro(post)[0].querySelector('img')!.getAttribute('loading')
+    equal(loading(), 'eager')
+
+    preloadImages.set('never')
+    equal(loading(), 'lazy')
+
+    preloadImages.set('free')
+    equal(loading(), 'lazy')
+    setupEnvironment({
+      ...getTestEnvironment(),
+      networkType: () => ({ saveData: false, type: 'free' })
+    })
+    equal(loading(), 'eager')
+    setupEnvironment({
+      ...getTestEnvironment(),
+      networkType: () => ({ saveData: true, type: 'free' })
+    })
+    equal(loading(), 'lazy')
+    preloadImages.set('always')
+  })
 
   test('takes the post ID from the feed', () => {
     let post = { id: 'random', originId: 'origin', url: 'https://one.com/1' }

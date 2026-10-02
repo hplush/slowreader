@@ -579,6 +579,31 @@ describe('atom loader', () => {
       ]
     )
   })
+  test('finds resolved images in media', async () => {
+    let posts = loaders.atom.getPosts(
+      createDownloadTask(),
+      'https://example.com/feed',
+      exampleAtom(
+        `<?xml version="1.0"?>
+        <feed xmlns="http://www.w3.org/2005/Atom">
+          <entry xml:base="https://cdn.example.com/">
+            <id>1</id>
+            <link href="https://example.com/1" />
+            <content type="html">&lt;img src="p.gif" data-src="a.png"&gt;</content>
+          </entry>
+        </feed>`
+      )
+    )
+    await posts.loading
+    deepEqual(
+      posts.get().list.map(i => i.media),
+      [
+        '[{"fromText":true,"type":"image",' +
+          '"url":"https://cdn.example.com/a.png"}]'
+      ]
+    )
+  })
+
   test('detects pagination with rel="next" link', async () => {
     let $store = loaders.atom.getPosts(
       createDownloadTask(),

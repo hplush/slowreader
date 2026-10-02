@@ -102,11 +102,33 @@ async function isBroken(task: DownloadTask, url: string): Promise<boolean> {
 }
 
 /**
- * Feed has no `<base>` of the site page, so relative image could be relative
- * to the post or to the site root. Sites use the same layout for all posts,
- * so one HTTP check is enough for the whole feed.
+ * WordPress and Medium put the real image to `data-*` and a placeholder
+ * to `src`.
  */
-export function createImagesResolver(
+function restoreLazyImage(image: Element): boolean {
+  let restored = false
+  for (let [lazy, attr] of [
+    ['data-original', 'src'],
+    ['data-lazy-src', 'src'],
+    ['data-src', 'src'],
+    ['data-lazy-srcset', 'srcset'],
+    ['data-srcset', 'srcset']
+  ] as const) {
+    let value = image.getAttribute(lazy)
+    if (value === null) continue
+    if (value) image.setAttribute(attr, value)
+    image.removeAttribute(lazy)
+    restored = true
+  }
+  return restored
+}
+
+/**
+ * Feed has no `<base>` of the site page, so relative URL could be relative
+ * to the post or to the site root. Sites use the same layout for all posts,
+ * so one HTTP check of an image is enough for the whole feed.
+ */
+export function createUrlsResolver(
   task: DownloadTask
 ): (
   html: string | undefined,
@@ -115,26 +137,27 @@ export function createImagesResolver(
 ) => Promise<string | undefined> {
   let rootBased: Promise<boolean> | undefined
   return async (html, xmlBase, url) => {
-    if (!html || !/<img/i.test(html)) return html
+    if (!html) return html
     let document = parseDocument(html)
-    let links: string[] = []
+    let changed = false
+    let images: string[] = []
     for (let image of document.querySelectorAll('img, picture source')) {
+      if (restoreLazyImage(image)) changed = true
       let src = image.getAttribute('src')
-      if (src && !isAbsoluteUrl(src)) links.push(src)
+      if (src && !isAbsoluteUrl(src)) images.push(src)
       let srcset = image.getAttribute('srcset')
       if (srcset) {
         mapRelativeSrcset(srcset, link => {
-          links.push(link)
+          images.push(link)
           return link
         })
       }
     }
-    if (links.length === 0) return html
 
     let base = xmlBase
     if (!base) {
       let root = new URL('/', url).href
-      let relative = links.find(
+      let relative = images.find(
         link => new URL(link, url).href !== new URL(link, root).href
       )
       if (relative) {
@@ -143,15 +166,33 @@ export function createImagesResolver(
       }
     }
     let resolve = (link: string): string => new URL(link, base ?? url).href
-    for (let image of document.querySelectorAll('img, picture source')) {
-      let src = image.getAttribute('src')
-      if (src && !isAbsoluteUrl(src)) image.setAttribute('src', resolve(src))
-      let srcset = image.getAttribute('srcset')
-      if (srcset) {
-        image.setAttribute('srcset', mapRelativeSrcset(srcset, resolve))
+    let ids = new Set(
+      Array.from(document.querySelectorAll('[id]'), element => element.id)
+    )
+    for (let element of document.querySelectorAll('[href], [src]')) {
+      for (let attr of ['href', 'src']) {
+        let value = element.getAttribute(attr)
+        if (value === null || isAbsoluteUrl(value)) continue
+        if (
+          attr === 'href' &&
+          value.startsWith('#') &&
+          ids.has(value.slice(1))
+        ) {
+          continue
+        }
+        element.setAttribute(attr, resolve(value))
+        changed = true
       }
     }
-    return document.body.innerHTML
+    for (let element of document.querySelectorAll('[srcset]')) {
+      let srcset = element.getAttribute('srcset')!
+      let resolved = mapRelativeSrcset(srcset, resolve)
+      if (resolved !== srcset) {
+        element.setAttribute('srcset', resolved)
+        changed = true
+      }
+    }
+    return changed ? document.body.innerHTML : html
   }
 }
 
@@ -237,14 +278,11 @@ export function toTime(date: null | string | undefined): number | undefined {
 }
 
 /**
- * Find all images in HTML node.
+ * Find all images in HTML.
  */
-export function findMediaInText(
-  text: Element | null | string | undefined
-): PostMedia[] {
-  if (!text) return []
-  let parsed = typeof text === 'string' ? parseDocument(text) : text
-  let images = parsed.querySelectorAll('img[src]')
+export function findMediaInText(html: string | undefined): PostMedia[] {
+  if (!html) return []
+  let images = parseDocument(html).querySelectorAll('img[src]')
   return [...images].map(img => {
     return {
       fromText: true,
