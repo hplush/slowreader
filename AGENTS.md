@@ -8,7 +8,6 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 - Do not add any comments to generated code by default.
 - Never write a comment, which repeats the name of the function or variable. Comment only what the code can’t say: why, not what.
 - If a function or variable needs a comment to explain what it does, rename it to say that instead: `waitDisappearFromMenu()`, `menuHasUnread()`, `noNeedWait`. Keep comments only for why.
-- Do not explain simple functions with a few lines with simple reasons like a batch call being faster than a loop.
 - Import only specific functions. Don’t import everything.
 - Don’t use `export default`, use name exports instead.
 - Always use `.ts` in TS files imports.
@@ -30,7 +29,7 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 - Never change `eslint.config.ts`. Always change code to fix found issues.
 - Never use `as any`. If the type is unknown, use `unknown` and narrow with runtime checks.
 - Always merge type and regular import.
-- Do not use `tsx`, you can import `.ts` and run it in Node.js directly.
+- Import and run `.ts` directly by Node.js without `tsx`.
 - Kill every server you started, like `pnpm start`, before finishing the work. Kill it by PID: `pkill -f` matches your own shell too and kills it instead.
 
 ## Debugging
