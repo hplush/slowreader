@@ -164,4 +164,6 @@
   })
 </script>
 
-{@render children()}
+{#if !user || $client}
+  {@render children()}
+{/if}
