@@ -67,6 +67,7 @@
   } = $props()
 
   async function fillScene(): Promise<void> {
+    if (user) await startLocalUser(testCredentials())
     // Waits for the database too, so the app will not reset `busy`
     // and other stores, which the story sets in `oninit()`
     await cleanDatabase()
@@ -103,7 +104,6 @@
     currentPage.get().destroy()
     setPasskeySupport(passkeys)
     if (user) {
-      startLocalUser(testCredentials())
       hasCloud.set(true)
     } else if (client.get()) {
       signOut()
