@@ -64,4 +64,4 @@ If you email us, we use your email address and message only to answer you. We de
 
 ## Changes
 
-We may change this policy at any time. Check this page for the latest version. Last change: {{updated}}. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.
+We may change this policy at any time. Check this page for the latest version. Last change: October 6, 2026. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.

@@ -16,6 +16,7 @@
   "*/Dockerfile": "node ./scripts/check-versions.ts",
   ".github/workflows/*.yml": "node ./scripts/check-versions.ts",
   "**/*.test.ts": "node ./scripts/check-tests.ts",
+  "docs/*.md": "node ./scripts/check-docs-dates.ts",
   "core/messages/*/en.ts": "node ./scripts/check-messages.ts",
   "web/app.html": "pnpm -F web build:web"
 }
