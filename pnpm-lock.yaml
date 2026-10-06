@@ -315,9 +315,6 @@ importers:
       '@slowreader/api':
         specifier: workspace:*
         version: link:../api
-      '@slowreader/server':
-        specifier: workspace:*
-        version: link:../server
       dompurify:
         specifier: 3.4.16
         version: 3.4.16
@@ -346,6 +343,9 @@ importers:
       '@slowreader/proxy':
         specifier: workspace:*
         version: link:../proxy
+      '@slowreader/server':
+        specifier: workspace:*
+        version: link:../server
       '@types/jsdom':
         specifier: 30.0.0
         version: 30.0.0
