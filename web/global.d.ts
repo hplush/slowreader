@@ -1,8 +1,6 @@
 /// <reference types="svelte" />
 /// <reference types="vite/client" />
 
-declare const COMMIT_TIME: number
-
 interface FileSystemFileHandle {
   createSyncAccessHandle(): Promise<{
     close(): Promise<void>

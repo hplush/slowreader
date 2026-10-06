@@ -1,5 +1,4 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { execSync } from 'node:child_process'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { extname, join, normalize } from 'node:path'
 import sharp from 'sharp'
@@ -19,8 +18,6 @@ const LANDING_TYPES: Record<string, string> = {
   '.webp': 'image/webp',
   '.woff2': 'font/woff2'
 }
-
-let commitTime = parseInt(execSync('git log -1 --format=%ct').toString().trim())
 
 function replaceIcon(html: string, icon: string): string {
   return html
@@ -106,9 +103,6 @@ export default defineConfig(() => ({
       }
     },
     sourcemap: true
-  },
-  define: {
-    COMMIT_TIME: JSON.stringify(commitTime)
   },
   css: {
     lightningcss: {
