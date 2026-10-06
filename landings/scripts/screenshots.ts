@@ -5,9 +5,11 @@ import { existsSync } from 'node:fs'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { styleText } from 'node:util'
-import { chromium, type Page } from 'playwright'
+import type { Page } from 'playwright'
 import sharp from 'sharp'
 import { createServer } from 'vite'
+
+import { launchChromium } from '../chromium.ts'
 
 const WEB = join(import.meta.dirname, '..', '..', 'web')
 const SCREENSHOTS = join(import.meta.dirname, '..', 'screenshots')
@@ -66,7 +68,7 @@ let server = await createServer({
 })
 await server.listen()
 
-let browser = await chromium.launch()
+let browser = await launchChromium()
 try {
   for (let [name, screenshot] of Object.entries(LIST)) {
     let context = await browser.newContext({

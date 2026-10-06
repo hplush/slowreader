@@ -1,7 +1,8 @@
 import { join } from 'node:path'
-import { chromium } from 'playwright'
 import sharp from 'sharp'
 import type { Plugin } from 'vite'
+
+import { launchChromium } from '../chromium.ts'
 
 export function og(): Plugin {
   return {
@@ -9,10 +10,7 @@ export function og(): Plugin {
 
     async writeBundle(options) {
       let dist = options.dir!
-      // GitHub runners have Chrome, so CI does not need to download a browser
-      let browser = await chromium.launch(
-        process.env.CI ? { channel: 'chrome' } : {}
-      )
+      let browser = await launchChromium()
       try {
         let page = await browser.newPage({
           viewport: { height: 630, width: 1200 }

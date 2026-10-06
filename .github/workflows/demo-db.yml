@@ -49,8 +49,6 @@ jobs:
           path: |
             web/public/demo.json
             web/public/demo.sqlite
-      - name: Install the browser
-        run: pnpm -F landings exec playwright install chromium
       - name: Make landing screenshots
         run: pnpm -F landings screenshots
         env:
