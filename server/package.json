@@ -22,21 +22,21 @@
   },
   "dependencies": {
     "@electric-sql/pglite": "0.5.8",
-    "@logux/actions": "github:logux/actions#next",
-    "@logux/core": "github:logux/core#next",
-    "@logux/server": "github:logux/server#next",
+    "@logux/actions": "0.8.0",
+    "@logux/core": "0.12.0",
+    "@logux/server": "0.17.0",
     "@simplewebauthn/server": "14.0.3",
     "@slowreader/api": "workspace:*",
     "@slowreader/proxy": "workspace:*",
     "argon2": "0.45.1",
     "cookie": "2.0.1",
     "drizzle-orm": "1.0.0-rc.4",
-    "nanoid": "6.0.1",
+    "nanoid": "6.0.2",
     "postgres": "3.4.9",
     "ua-parser-js": "2.0.10"
   },
   "devDependencies": {
-    "@logux/client": "github:logux/client#next",
+    "@logux/client": "0.26.0",
     "better-node-test": "1.0.0",
     "drizzle-kit": "1.0.0-rc.4"
   }

@@ -7,9 +7,9 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@logux/actions": "github:logux/actions#next"
+    "@logux/actions": "0.8.0"
   },
   "devDependencies": {
-    "@logux/core": "github:logux/core#next"
+    "@logux/core": "0.12.0"
   }
 }
