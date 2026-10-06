@@ -252,12 +252,6 @@ We wait a day since the dependency’s release before updating it using pnpm’s
 
 For security reasons we are pinning actions in [GitHub workflows](./.github/workflows/) by hash, rather than by version.
 
-We have [`actions-up`](https://github.com/azat-io/actions-up) tool to pin and update versions. If you need to add some action, just add it as `uses: some/action@v1.0.0` and then run:
-
-```sh
-pnpm actions-up
-```
-
 We are using [Harden Runner](https://docs.stepsecurity.io/harden-runner) to enforce network host allow-list for security reasons. If you need new domain, add it to the list in first `Harden the runner` step of your workflow.
 
 ### Update
@@ -267,9 +261,6 @@ We try to use progressive approach and update dependencies often (every month).
 To update all dependencies:
 
 ```sh
-# Update Node.js and pnpm
-pnpm update-env
-
 # Update Docker base images
 pnpm update-docker
 
@@ -282,6 +273,9 @@ pnpm update-browsers
 
 # Update passkey providers in server/aaguids/commit.lock
 pnpm update-aaguids
+
+# Update Node.js and pnpm
+pnpm update-env
 
 # Review updates by Multiocular
 pnpm update-review
