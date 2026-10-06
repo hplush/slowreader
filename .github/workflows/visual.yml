@@ -48,10 +48,7 @@ jobs:
         id: should_run
         if: github.event_name == 'schedule'
         run: |
-          now=$(date -u +%s)
-          twenty_four_hours_ago=$((now - 86400))
-          last_commit_time=$(git log -1 --format=%ct)
-          if [ "$last_commit_time" -ge "$twenty_four_hours_ago" ]; then
+          if [ -n "$(git log --since='24 hours ago' --format=%H -- web/ pnpm-lock.yaml)" ]; then
             echo "should_run=true" >> "$GITHUB_OUTPUT"
           else
             echo "should_run=false" >> "$GITHUB_OUTPUT"
