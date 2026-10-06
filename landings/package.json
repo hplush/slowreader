@@ -7,9 +7,7 @@
     "build": "vite build",
     "save-images": "node ./scripts/save-images.ts",
     "screenshots": "node ./scripts/screenshots.ts",
-    "clean:build": "rm -rf dist/",
-    "test:offline:build-landings": "pnpm build",
-    "test": "FORCE_COLOR=1 pnpm run /^test:/"
+    "clean:build": "rm -rf dist/"
   },
   "dependencies": {
     "@fontsource-variable/catamaran": "5.3.0",
