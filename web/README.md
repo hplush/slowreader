@@ -78,7 +78,7 @@ I mode to quickly see the app with some example content. We pre-generate databas
 
 The page writes a plain file from a worker, since Safari has no `createWritable()` on pages. The `opfs-sahpool` engine can not see the file, so in that mode the app imports the file into the pool on the next start and removes it.
 
-[Demo Database workflow](../.github/workflows/demo-db.yml) rebuilds the files every Monday, and the staging deploy takes them from its artifact.
+[Demo Database workflow](../.github/workflows/demo-db.yml) rebuilds the files every Monday. The staging deploy takes them from its artifact, and [`demo/Dockerfile`](./demo/Dockerfile) packs them with landing screenshots and OG image to `ghcr.io/hplush/slowreader-demo` image.
 
 ## DevTools Helpers
 
@@ -115,7 +115,8 @@ For **icons**, we use [Material Design Icons](https://pictogrammers.com/library/
 `data-anchor` marks elements for external code: [benchmark](../docs/development/benchmark.md) scenarios, e2e tests, and user plugins (scripts and user styles).
 
 ```svelte
-<Button anchor="read-page">{$t.readPage}</Button><div data-anchor="popup"></div>
+<Button anchor="read-page">{$t.readPage}</Button>
+<div data-anchor="popup"></div>
 ```
 
 ```js

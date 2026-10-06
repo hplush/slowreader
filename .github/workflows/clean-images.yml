@@ -45,3 +45,20 @@ jobs:
               gh api -X DELETE "$VERSIONS/$ID" --silent
             done
           done
+      - name: Delete demo images older than 6 months
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          HALF_YEAR_AGO=$(date -u -d '6 months ago' +%Y-%m-%dT%H:%M:%SZ)
+          VERSIONS="orgs/hplush/packages/container/slowreader-demo/versions"
+          # Dockerfile pins demo image by digest, so we keep old images
+          # to rebuild the same image from 6 months old commits
+          OLD=$(gh api --paginate "$VERSIONS?per_page=100" \
+            | jq -r --arg date "$HALF_YEAR_AGO" \
+              '.[] | select((.metadata.container.tags | index("latest") | not)
+                and .created_at < $date) | .id')
+          for ID in $OLD; do
+            echo "Deleting slowreader-demo version $ID"
+            gh api -X DELETE "$VERSIONS/$ID" --silent
+          done

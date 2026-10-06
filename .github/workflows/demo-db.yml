@@ -7,24 +7,31 @@ on:
       - 'web/demo/build-demo-db.ts'
       - 'web/demo/demo-feeds.opml'
       - '.github/workflows/demo-db.yml'
-      - '.github/actions/init-node/action.yml'
+      - 'web/demo/Dockerfile'
       - 'landings/scripts/screenshots.ts'
+      - 'landings/og/**'
+      - 'landings/vite/og.ts'
+      - 'landings/chromium.ts'
   pull_request:
     paths:
       - 'web/demo/build-demo-db.ts'
       - 'web/demo/demo-feeds.opml'
       - '.github/workflows/demo-db.yml'
-      - '.github/actions/init-node/action.yml'
+      - 'web/demo/Dockerfile'
       - 'landings/scripts/screenshots.ts'
+      - 'landings/og/**'
+      - 'landings/vite/og.ts'
+      - 'landings/chromium.ts'
   schedule:
     - cron: '00 05 * * 1' # Every Monday at 5:00 UTC
   # To refresh the posts right before a demo
   workflow_dispatch:
-permissions:
-  contents: read
 jobs:
   build:
     name: Build Demo Database and Screenshots
+    permissions:
+      contents: read
+      packages: write
     runs-on: ubuntu-latest
     steps:
       - name: Harden the runner
@@ -59,3 +66,23 @@ jobs:
           name: landing-screenshots
           retention-days: 30
           path: landings/screenshots/
+      - name: Make OG image
+        run: pnpm -F landings build
+        env:
+          FORCE_COLOR: 1
+      - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # Dated tag keeps old images, which Dockerfile can still pin
+      - name: Build the image
+        run: |
+          IMAGE=ghcr.io/hplush/slowreader-demo
+          docker build -f web/demo/Dockerfile \
+            -t "$IMAGE:$(date -u +%Y-%m-%d-%H%M)" -t "$IMAGE:latest" .
+      - name: Push the image
+        if: github.event_name != 'pull_request'
+        run: docker push --all-tags ghcr.io/hplush/slowreader-demo
