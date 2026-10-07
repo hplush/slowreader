@@ -43,7 +43,7 @@ A supply chain attack is malicious code, which comes to the project not from our
 4. **Multi-stage build.** Web client and server are built separately with only their own dependencies. A malicious web client dependency can’t change the server code, which has access to the database.
 5. **No network in build.** Dependencies’ code never runs with internet access during the image build. Server has no build step, and web client is built without network. A malicious build tool can’t download the rest of the attack or send anything away.
 6. **Non-root read-only container.** The server runs without root rights in a read-only container, so attackers who get into it can’t change our code or leave their files for later.
-7. **Reproducible build.** Anyone can check that we run the published source code. The build is reproducible: building the image from the same commit gives the same files as in our published image. We use the same image for production, staging, previews, and self-hosted servers, so there is only one image to check. CI checks it every week ([`test/reproducible.sh`](../../test/reproducible.sh)).
+7. **Reproducible build.** Anyone can check that we run the published source code. The build is reproducible: building the image from the same commit gives the same files as in our published image. We use the same image for production and self-hosted servers, so there is only one image to check. CI checks it every week ([`test/reproducible.sh`](../../test/reproducible.sh)).
 8. **Separated time-sensitive image.** Demo database and landing screenshots change on every build, so they come from a separated image, built every week by [Demo Database workflow](../../.github/workflows/demo-db.yml) and fixed by hash.
 
 ## Runtime

@@ -71,10 +71,14 @@ COPY web/ web/
 COPY --from=demo /screenshots/ landings/screenshots/
 COPY --from=demo /demo.json /demo.sqlite web/public/
 COPY --from=demo /og.jpg /og.jpg
-# Storybook writes build time to project.json, which only Chromatic needs
 RUN --network=none OG_IMAGE=/og.jpg pnpm -F landings build && \
-  pnpm -F web build && \
-  rm web/dist/ui/project.json
+  pnpm -F web build:routes && \
+  pnpm -F web build:web
+
+FROM client AS storybook
+# Storybook writes build time to project.json, which only Chromatic needs
+RUN --network=none pnpm -F web build:visual && \
+  rm web/storybook-static/project.json
 
 FROM base AS server
 COPY server/aaguids/ server/aaguids/
@@ -92,7 +96,7 @@ COPY proxy/ proxy/
 COPY server/ server/
 
 # cgr.dev/chainguard/nginx:latest
-FROM cgr.dev/chainguard/nginx@sha256:a104d1995e56b7a15e8f152078dfbdb1ecbf9f9d1af311e7906e7b4c0c790cf2
+FROM cgr.dev/chainguard/nginx@sha256:a104d1995e56b7a15e8f152078dfbdb1ecbf9f9d1af311e7906e7b4c0c790cf2 AS production
 
 LABEL org.opencontainers.image.source=https://github.com/hplush/slowreader
 LABEL org.opencontainers.image.description="Slow Reader"
@@ -125,3 +129,10 @@ CMD []
 
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
   CMD ["/usr/bin/httpcheck", "http://localhost:2553/health"]
+
+# Staging and previews add Storybook on top of the same production layers
+FROM production AS staging
+COPY --from=storybook /app/web/storybook-static/ /var/www/ui/
+
+# Default target for `docker build .`
+FROM production

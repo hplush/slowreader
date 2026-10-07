@@ -16,7 +16,7 @@ on:
       - '.devcontainer/**'
 jobs:
   test:
-    name: General Tests
+    name: Tests
     permissions:
       contents: read
     runs-on: ubuntu-latest
@@ -104,7 +104,7 @@ jobs:
           # Docker’s own builder can’t rewrite timestamps
           docker buildx create --use --driver docker-container
           SOURCE_DATE_EPOCH=$(git log -1 --format=%ct) \
-            docker buildx build --provenance=false --metadata-file meta.json \
+            docker buildx build --provenance=false --target staging --metadata-file meta.json \
               --output type=image,name=ghcr.io/hplush/slowreader,push-by-digest=true,push=true,rewrite-timestamp=true .
           echo "digest=$(jq -r '.["containerimage.digest"]' meta.json)" >> "$GITHUB_OUTPUT"
   tag:

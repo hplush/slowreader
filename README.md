@@ -300,6 +300,8 @@ pnpm update DEPENDENCY
 
 Slow Reader has a single Docker image, which runs everywhere: production, staging, pull request previews, and self-hosted servers. The same image in all places means that we test exactly what users will run.
 
+Staging and previews use `staging` target, which only adds Storybook on `/ui/` on top of the production image.
+
 We use Docker instead of lambda functions or other cloud vendor lock-ins to be able to change the cloud at any moment. We prefer Podman to Docker for security reasons.
 
 ### Parts
