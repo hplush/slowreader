@@ -24,6 +24,10 @@ A supply chain attack is malicious code, which comes to the project not from our
 1. **Dev Container.** Developers work inside [Dev Container](../../.devcontainer/). If some dependency is malicious, it gets access only to the container, but not to the developer’s SSH keys, browser, and other projects.
 2. **Checksums.** Dev Container’s base image, Node.js, and pnpm are checked by hash, so attackers can’t replace them on the download server.
 
+## Maintainer Accounts
+
+1. **Hardware keys.** Maintainers use hardware keys as the second factor for their accounts and to access critical parts like our cloud servers. Attackers can steal a password or a one-time code by a fake login page, but a hardware key checks the real domain and never gives its secret away. Malware on the maintainer’s computer can’t copy the key to use it later from its own machine.
+
 ## GitHub Actions
 
 1. **Actions pinned by hash.** We use actions by commit hash, not by version tag. The action’s author or attacker with the author’s account can move a tag to malicious code, but can’t change the code of a commit (`scripts/check-versions.ts` checks it).
