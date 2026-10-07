@@ -342,3 +342,4 @@ docker run -p 2553:2553 -v slowreader:/data -e DATABASE_URL=file:///data -e WEB_
 ## Guides
 
 - [How to Add New Page to Web Client?](./docs/development/new_page.md)
+- [How We Protect From Supply Chain Attacks?](./docs/development/supply-chain.md)
