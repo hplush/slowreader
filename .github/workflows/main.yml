@@ -70,6 +70,7 @@ jobs:
         with:
           egress-policy: block
           allowed-endpoints: >
+            9236a389bd48b984df91adc1bc924620.r2.cloudflarestorage.com:443
             api.github.com:443
             apk.cgr.dev:443
             auth.docker.io:443
@@ -81,6 +82,7 @@ jobs:
             objects.githubusercontent.com:443
             pkg-containers.githubusercontent.com:443
             production.cloudflare.docker.com:443
+            production.cloudfront.docker.com:443
             raw.githubusercontent.com:443
             registry-1.docker.io:443
             registry.npmjs.org:443
