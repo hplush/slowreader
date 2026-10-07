@@ -5,13 +5,13 @@ A supply chain attack is malicious code, which comes to the project not from our
 ## Choosing Dependencies
 
 1. **Few dependencies.** We avoid adding dependencies. Every dependency is one more team, which can be hacked. Before adding one, we compare alternatives by project activity, size, and number of sub-dependencies (see [README](../../README.md#dependencies)).
-2. **`--prod` install.** We do not install development tools during the deploy. Linters, tests, and type checkers can be hacked too, but they never get to our servers, because we keep them in `devDependencies` and install only production ones (`--prod`).
 
 ## Installing Dependencies
 
 1. **Release cooldown.** We do not install a new version during the first day after its release. Malicious versions are usually found and removed by npm in a few hours, so a day of waiting protects us from most of the attacks on popular packages. Only our own and a few well-known packages skip the waiting (`minimumReleaseAge` in [`pnpm-workspace.yaml`](../../pnpm-workspace.yaml)).
 2. **npm provenance.** We do not install a version, which was published in a less secure way than the previous ones. Many packages are published from CI, and npm shows a proof that this version was built from a specific commit of the package’s repository. If attackers steal the maintainer’s npm token, they can publish a version only from their own machine without such proof. So when a package, which always had the proof, suddenly releases a version without it, it is a sign of attack and pnpm refuses to install it (`trustPolicy: no-downgrade`).
 3. **No install scripts.** We do not run `postinstall` and other scripts of dependencies during the install. These scripts run on developer machines and CI right during `pnpm install` even before anyone uses the package, so they are the favorite place for malicious code. Only `esbuild` can run a script to download its binary (`allowBuilds`).
+4. **`--prod` install.** We do not install development tools during the deploy. Linters, tests, and type checkers can be hacked too, but they never get to our servers, because we keep them in `devDependencies` and install only production ones (`--prod`).
 
 ## Updating Dependencies
 
@@ -23,10 +23,7 @@ A supply chain attack is malicious code, which comes to the project not from our
 
 1. **Dev Container.** Developers work inside [Dev Container](../../.devcontainer/). If some dependency is malicious, it gets access only to the container, but not to the developer’s SSH keys, browser, and other projects.
 2. **Checksums.** Dev Container’s base image, Node.js, and pnpm are checked by hash, so attackers can’t replace them on the download server.
-
-## Maintainer Accounts
-
-1. **Hardware keys.** Maintainers use hardware keys as the second factor for their accounts and to access critical parts like our cloud servers. Attackers can steal a password or a one-time code by a fake login page, but a hardware key checks the real domain and never gives its secret away. Malware on the maintainer’s computer can’t copy the key to use it later from its own machine.
+3. **Hardware keys.** Maintainers use hardware keys as the second factor for their accounts and to access critical parts like our cloud servers. Attackers can steal a password or a one-time code by a fake login page, but a hardware key checks the real domain and never gives its secret away. Malware on the maintainer’s computer can’t copy the key to use it later from its own machine.
 
 ## GitHub Actions
 
