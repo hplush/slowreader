@@ -120,6 +120,7 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             ghcr.io:443
+            pkg-containers.githubusercontent.com:443
       - name: Login to GitHub Container Registry
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
