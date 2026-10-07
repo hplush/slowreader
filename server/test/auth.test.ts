@@ -41,7 +41,6 @@ function post(
 
 describe('server auth', () => {
   afterEach(async () => {
-    config.behindBalancer = false
     await cleanAllTables()
   })
 
@@ -367,7 +366,6 @@ describe('server auth', () => {
 
   test('limits failed sign-in attempts per IP', async () => {
     await using server = buildTestServer()
-    config.behindBalancer = true
     await signUpUser(server, '0000000000000000')
     let user = await signUpUser(server, '0000000000000001')
     for (let i = 0; i < 10; i++) {

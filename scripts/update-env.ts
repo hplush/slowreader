@@ -203,6 +203,9 @@ if (updatePnpm) {
   printUpdate('pnpm', currentPnpm, latestPnpm)
   dockerfile = replaceVersionEnv(dockerfile, 'PNPM', latestPnpm, pnpmChecksums)
   writeFileSync(join(ROOT, '.devcontainer', 'Dockerfile'), dockerfile)
+  updateProjectDockerfiles(projectDocker =>
+    replaceVersionEnv(projectDocker, 'PNPM', latestPnpm, pnpmChecksums)
+  )
 
   updatePackages(pkg => {
     pkg = replaceKey(pkg, 'packageManager', `pnpm@${latestPnpm}`)

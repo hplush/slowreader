@@ -398,7 +398,7 @@ describe('cloud page', () => {
     equal(openPage({ params: {}, route: 'cloud' }).stagingServer, false)
     openRoute({ params: {}, route: 'fatal' })
     let original = getEnvironment().server
-    getEnvironment().server = 'server.dev.slowreader.app'
+    getEnvironment().server = 'dev.slowreader.app'
     equal(openPage({ params: {}, route: 'cloud' }).stagingServer, true)
     getEnvironment().server = original
   })

@@ -1,3 +1,4 @@
+import { copyFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import sharp from 'sharp'
 import type { Plugin } from 'vite'
@@ -10,6 +11,11 @@ export function og(): Plugin {
 
     async writeBundle(options) {
       let dist = options.dir!
+      // Docker image build has no browser and takes the image from demo stage
+      if (process.env.OG_IMAGE) {
+        await copyFile(process.env.OG_IMAGE, join(dist, 'og.jpg'))
+        return
+      }
       let browser = await launchChromium()
       try {
         let page = await browser.newPage({

@@ -67,6 +67,10 @@ for (let file of globSync('**/Dockerfile')) {
       `Different Node.js version in ${file}: ${styleText('yellow', match[1]!)}`
     )
   }
+  let pnpm = content.match(new RegExp(`PNPM_VERSION=(${VERSION})`))
+  if (pnpm && pnpm[1] !== pnpmFull) {
+    error(`Different pnpm version in ${file}: ${styleText('yellow', pnpm[1]!)}`)
+  }
 }
 
 for (let file of globSync('.github/**/*.yml')) {

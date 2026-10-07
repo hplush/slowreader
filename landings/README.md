@@ -29,6 +29,4 @@ _See the [full architecture guide](../README.md) first._
 
 ## Deploy
 
-The [web client](../web/) copies `dist/` to its own build, and then [nginx](../web/nginx.conf) serves the landing on `/`.
-
-The [server](../server/modules/assets.ts) keeps the app on `/` and serves the landing on `/docs/landings/`.
+[Web client](../web/) build includes the landing, so its nginx serves the landing on `/`. [Self-hosted](../README.md#self-hosted) image opens the app on `/`, because users already chose the app.

@@ -32,18 +32,16 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           WEEK_AGO=$(date -u -d '7 days ago' +%Y-%m-%dT%H:%M:%SZ)
-          for PACKAGE in slowreader slowreader-web slowreader-proxy; do
-            VERSIONS="orgs/hplush/packages/container/$PACKAGE/versions"
-            # We push single-platform images without buildx attestations,
-            # so untagged versions are only the images replaced by a new push
-            OLD=$(gh api --paginate "$VERSIONS?per_page=100" \
-              | jq -r --arg date "$WEEK_AGO" \
-                '.[] | select(.metadata.container.tags == [] and
-                  .updated_at < $date) | .id')
-            for ID in $OLD; do
-              echo "Deleting $PACKAGE version $ID"
-              gh api -X DELETE "$VERSIONS/$ID" --silent
-            done
+          VERSIONS="orgs/hplush/packages/container/slowreader/versions"
+          # We push single-platform images without buildx attestations,
+          # so untagged versions are only the images replaced by a new push
+          OLD=$(gh api --paginate "$VERSIONS?per_page=100" \
+            | jq -r --arg date "$WEEK_AGO" \
+              '.[] | select(.metadata.container.tags == [] and
+                .updated_at < $date) | .id')
+          for ID in $OLD; do
+            echo "Deleting slowreader version $ID"
+            gh api -X DELETE "$VERSIONS/$ID" --silent
           done
       - name: Delete demo images older than 6 months
         shell: bash

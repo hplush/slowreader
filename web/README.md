@@ -42,7 +42,7 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 - `dist/`: `pnpm build` will build the result here for deployment.
 - [`.storybook/`](./.storybook/): visual tests tool config.
 - [`app.html`](./app.html): builder entry point of the app.
-- [`Dockerfile`](./Dockerfile) and [`nginx.conf`](./nginx.conf): web server to serve web client for staging and pull request preview servers.
+- [`nginx.conf`](./nginx.conf): web server config for [Docker image](../Dockerfile). Server's [`entrypoint.ts`](../server/entrypoint.ts) apply changes to it.
 - [`.browserslistrc`](./.browserslistrc): browsers, which we support. See [actual browsers list](https://browsersl.ist/#q=defaults+and+supports+es6-module).
 - [`.size-limit.json`](./.size-limit.json): budget for JS bundles, whole app page, and [landing](../landings/) size. Don’t be afraid to tune the limit. We put it so tight that it makes you feel a small pain every time you add a significant amount of code.
 - [`global.d.ts`](./global.d.ts): missed web platform types and fixes for Vite imports.
@@ -59,7 +59,6 @@ We use **[Svelte](https://joyofcode.xyz/learn-svelte)** as the UI framework and 
 - `pnpm -F web test`: run all web client tests.
 - `pnpm -F web visual`: run visual test server.
 - `pnpm -F web chromatic`: publish visual tests and generate diffs for changed stories.
-- `pnpm -F web production`: start web client production build locally.
 - `pnpm -F web build`: build production files in `web/dist/`.
 - `pnpm -F web benchmark`: run [UI performance benchmark](../docs/development/benchmark.md).
 - `pnpm -F web build-demo`: load the feeds from [`web/demo/demo-feeds.opml`](./demo/demo-feeds.opml) and write demo DB dump.
@@ -78,7 +77,7 @@ I mode to quickly see the app with some example content. We pre-generate databas
 
 The page writes a plain file from a worker, since Safari has no `createWritable()` on pages. The `opfs-sahpool` engine can not see the file, so in that mode the app imports the file into the pool on the next start and removes it.
 
-[Demo Database workflow](../.github/workflows/demo-db.yml) rebuilds the files every Monday. The staging deploy takes them from its artifact, and [`demo/Dockerfile`](./demo/Dockerfile) packs them with landing screenshots and OG image to `ghcr.io/hplush/slowreader-demo` image.
+[Demo Database workflow](../.github/workflows/demo-db.yml) rebuilds the files every Monday and pushes them with landing screenshots and OG image by [`demo/Dockerfile`](./demo/Dockerfile) as `slowreader-demo` image. Run `pnpm update-docker` to pin the latest one in the [main image](../Dockerfile).
 
 ## DevTools Helpers
 
@@ -143,11 +142,8 @@ We should cover with stories every page and every UI component which can be used
 
 ## Deploy
 
-1. **Pull request preview:** the CI will publish a `View deployment` link to pull request events in 2 minutes.
-2. **Staging**: `main` branch is on [`dev.slowreader.app`](https://dev.slowreader.app).
-
-To return app HTML on app’s routes, we [export](./scripts/export-routes.ts) RegExp of all routes from web client to `routes.regexp` file and use it in [`nginx.conf`](./nginx.conf) or [Logux HTTP sever](../server/modules/assets.ts).
+Web client runs in the [single image](../README.md#deploy) as nginx with static files. nginx passes other requests to the [server](../server/).
 
 Both preview and staging have Storybook at `/ui/` route.
 
-We are using our [cloud server](https://github.com/hplush/cloud) to run nginx with assets of web client. For pull request preview and self-hosted we use [server](../server/modules/assets.ts) to serve assets.
+To return app HTML on app’s routes, we [export](./scripts/export-routes.ts) RegExp of all routes to `routes.regexp` and use it in [`nginx.conf`](./nginx.conf).

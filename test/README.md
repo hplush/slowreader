@@ -2,6 +2,8 @@
 
 Tests of the deployed app instead of the source code.
 
+CI repeats checks and reproducible build every Monday.
+
 ## Checks
 
 Check DNS, HTTP, and search engines settings of the deploy:
@@ -21,4 +23,10 @@ Add new domains and paths to [`sites.json`](./sites.json).
 
 Copy [`.env.sample`](./.env.sample) to `.env` and put keys there. CI takes them from repository secrets.
 
-CI repeats checks every Monday.
+## Reproducible Build
+
+Build the Docker image twice without cache and check that both builds have the same layers:
+
+```sh
+pnpm -F test reproducible
+```

@@ -1,5 +1,5 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { extname, join, normalize } from 'node:path'
 import sharp from 'sharp'
 import sqlocal from 'sqlocal/vite'
@@ -183,17 +183,6 @@ export default defineConfig(() => ({
       name: 'app-index'
     },
     {
-      closeBundle() {
-        if (process.env.STAGING) {
-          writeFileSync(
-            join(import.meta.dirname, 'dist', 'robots.txt'),
-            'User-agent: *\nDisallow: /\n'
-          )
-        }
-      },
-      name: 'staging-robots'
-    },
-    {
       async buildStart() {
         let icons = join(import.meta.dirname, 'public')
         await sharp(join(icons, 'icon-512.png'))
@@ -209,8 +198,6 @@ export default defineConfig(() => ({
       transformIndexHtml(html) {
         if (process.env.NODE_ENV === 'development') {
           return replaceIcon(html, 'icon-dev')
-        } else if (process.env.STAGING) {
-          return replaceIcon(html, 'icon-staging')
         } else {
           return html
         }

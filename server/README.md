@@ -11,10 +11,9 @@ and uses end-to-end encryption not to know what users read and like.
 - [`db/`](./db/): database migrations and configs.
 - [`lib/`](./lib/): shared helpers for features.
 - [`test/`](./test/): unit tests for each feature.
-- [`scripts/`](./scripts/): scripts to prepare and test production mode.
 - [`aaguids/`](./aaguids/): database of passkey providers and scripts to update it.
 - [`drizzle.config.ts`](./drizzle.config.ts): config for [Drizzle Kit CLI](https://orm.drizzle.team/docs/kit-overview).
-- [`Dockerfile`](./Dockerfile): build image to deploy server.
+- [`entrypoint.ts`](./entrypoint.ts): start of the [Docker image](../Dockerfile), which runs the app (web client’s nginx with server) or proxy by `ROLE`.
 
 ## Scripts
 
@@ -22,40 +21,19 @@ and uses end-to-end encryption not to know what users read and like.
 - `pnpm -F server migration`: generate migration based on DB schema changes.
 - `pnpm -F server database`: see database content.
 - `pnpm -F server aaguids`: re-download passkey providers list.
-- `pnpm -F server build`: prepare deploy files with production dependencies only.
-- `pnpm -F server production`: start production build of the server.
 
 ## Environment Variables
 
 - `DATABASE_URL`: PostgreSQL credentials with support of pglite’s `file://` and `memory://` schemas. You must set it when `NODE_ENV=production`.
 - `WEB_ORIGIN`: exact origin of the web client like `https://slowreader.app` for CORS and passkeys. Passkeys work only on this domain. You must set it when `NODE_ENV=production`.
 - `PROXY_ORIGIN`: enables built-in CORS proxy and specific RegExp to check `Origin` header.
-- `ASSETS`: enables serving web client assets from `../web`.
 - `PORT`: HTTP post to listen (Google Cloud Run convention).
-- `BEHIND_BALANCER`: take client’s IP for proxy limits from `X-Forwarded-For`, when server works behind our balancer.
 
 ## End-to-End Types
 
 All HTTP endpoints and [Logux actions](https://logux.org/guide/concepts/action/) are defined in [`api/`](../api/).
 
 It allows us to verify that client and server use the same API.
-
-## One Server Mode
-
-On staging and production server we have separated servers for [CORS proxy](../proxy/) and [serving web client assets](../web/nginx.conf) because of performance and attack surface reasons.
-
-But for pull request preview and self-hosted you can use this server for everything. With pglite it allows user to have the single Docker image for the whole app.
-
-- To enable CORS proxy user need to specify `PROXY_ORIGIN` environment variable with `Origin` RegExp.
-- To server web client assets user need to set `ASSETS=1`. The server will get assets from `../web`.
-- `DATABASE_URL` should be set to pglite’s folder.
-- `WEB_ORIGIN` should be set to the server’s own origin.
-
-Example:
-
-```sh
-PROXY_ORIGIN=^http:\\/\\/localhost:5173$ ASSETS=1 DATABASE_URL=file://./db/pgdata WEB_ORIGIN=http://localhost:2554 pnpm start
-```
 
 ## Database
 
@@ -90,15 +68,4 @@ A device, which was offline longer than the retention window, can miss a tombsto
 
 ## Deploy
 
-For deploy we:
-
-1. Use `pnpm deploy` to create `dist/` only with production dependencies.
-2. Move workspace packages to `dist/vendor/` by [`scripts/vendor-workspace.sh`](./scripts/vendor-workspace.sh) and link them back to `node_modules/`, because Node.js can’t strip types inside `node_modules/`.
-3. Build Docker image with Node.js.
-4. Run this image on our [cloud server](https://github.com/hplush/cloud).
-
-We deploy server to:
-
-- `server.slowreader.app` for production.
-- `server.dev.slowreader.app` for staging.
-- `preview-*.slowreader.hplush.dev` for pull request preview.
+Server runs in the [single image](../README.md#deploy) with `ROLE=app` behind web client’s nginx.

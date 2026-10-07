@@ -14,7 +14,7 @@ export default (server: BaseServer, opts: Partial<ProxyConfig> = {}): void => {
 
   let proxy = createProxy({
     ...DEFAULT_PROXY_CONFIG,
-    behindBalancer: config.behindBalancer,
+    behindBalancer: true,
     ...opts,
     allowsFrom
   })

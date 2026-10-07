@@ -3,7 +3,6 @@ import type { Proof } from '@slowreader/api'
 import { getClientIp } from '@slowreader/proxy'
 import type { IncomingMessage } from 'node:http'
 
-import { config } from './config.ts'
 import type { AppServer } from './types.ts'
 import { TooManyAttempts, verifyProof } from './webauthn.ts'
 
@@ -47,8 +46,9 @@ export function createCounter(max: number, window: number): Counter {
   }
 }
 
+// nginx in front of the server replaces X-Forwarded-For with the real IP
 export function requestIp(req: IncomingMessage): string {
-  return getClientIp(req, config.behindBalancer)
+  return getClientIp(req, true)
 }
 
 export function clientIp(client: ServerClient | undefined): string {
@@ -58,7 +58,7 @@ export function clientIp(client: ServerClient | undefined): string {
       headers: client.httpHeaders,
       socket: { remoteAddress: client.remoteAddress }
     },
-    config.behindBalancer
+    true
   )
 }
 

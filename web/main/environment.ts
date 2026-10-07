@@ -40,10 +40,8 @@ if (location.hostname === 'localhost') {
   server = 'localhost:2554'
 } else if (location.hostname === 'slowreader.app') {
   proxy = 'https://proxy.slowreader.app/'
-  server = 'server.slowreader.app'
 } else if (location.hostname === 'dev.slowreader.app') {
   proxy = 'https://proxy.dev.slowreader.app/'
-  server = 'server.dev.slowreader.app'
 }
 
 detectExtension()

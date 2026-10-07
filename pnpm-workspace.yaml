@@ -16,8 +16,6 @@ allowBuilds:
   esbuild: true
   unrs-resolver: false
 
-forceLegacyDeploy: true
-
 minimumReleaseAge: 1440
 
 dedupePeers: true
@@ -45,6 +43,3 @@ verifyDepsBeforeRun: false
 trustPolicy: no-downgrade
 
 trustPolicyIgnoreAfter: 10080
-
-# Until we are using unreleased Logux packages
-blockExoticSubdeps: false

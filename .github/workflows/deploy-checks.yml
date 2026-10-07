@@ -47,3 +47,8 @@ jobs:
         run: pnpm -F test checks
         env:
           PAGESPEED_KEY: ${{ secrets.PAGESPEED_KEY }}
+      - name: Check reproducible build
+        run: |
+          # Docker’s own builder can’t rewrite timestamps
+          docker buildx create --use --driver docker-container
+          ./test/reproducible.sh

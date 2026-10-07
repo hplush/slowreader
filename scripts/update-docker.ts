@@ -26,6 +26,9 @@ function print(message: string): void {
 function splitName(name: string): [string, string] {
   let slash = name.indexOf('/')
   let registry = name.slice(0, slash)
+  if (registry === 'docker.io') {
+    return ['registry-1.docker.io', name.slice(slash + 1)]
+  }
   if (!registry.includes('.') && !registry.includes(':')) {
     return ['registry-1.docker.io', name]
   }
@@ -70,7 +73,8 @@ async function getDigest(
       response = await fetch(url, { headers })
     }
   }
-  if (!response.ok) return undefined
+  let type = response.headers.get('content-type')?.split(';')[0]
+  if (!response.ok || !type || !ACCEPT.includes(type)) return undefined
   let manifest = Buffer.from(await response.arrayBuffer())
   return 'sha256:' + createHash('sha256').update(manifest).digest('hex')
 }

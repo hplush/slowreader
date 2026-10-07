@@ -35,6 +35,10 @@ To ask any question: **[h+h lab Discord](https://discord.gg/TyFTp6mAZT)**
   - [GitHub Actions](#github-actions)
   - [Update](#update)
 - [Deploy](#deploy)
+  - [Parts](#parts)
+  - [Image](#image)
+  - [Environments](#environments)
+  - [Self-Hosted](#self-hosted)
 - [Guides](#guides)
 
 ## License
@@ -111,6 +115,7 @@ Slow Reader is a local-first app. Clients do most of the work, and the server ju
 - [`api/`](./api/): types and constants shared between clients and server.
 - [`docs/`](./docs/): public pages like Privacy Policy, which [landings](./landings/) render to `/docs/<name>`.
   - [`docs/development/`](./docs/development/): guides for developers.
+- [`Dockerfile`](./Dockerfile): single production image for the app and proxy, where `ROLE` environment variable chooses what to run.
 - [`scripts/`](./scripts/): scripts to test project and configure Google Cloud. Check the script’s descriptions for further details.
 - [`test/`](./test/): end-to-end tests of the deployed app.
 - [`loader-tests/`](./loader-tests/): integration tests for each social network or news format.
@@ -293,25 +298,46 @@ pnpm update DEPENDENCY
 
 ## Deploy
 
-We prefer to use Docker containers (instead of lambda functions and other cloud vendor lock-ins) to be able to change cloud in any moment.
+Slow Reader has a single Docker image, which runs everywhere: production, staging, pull request previews, and self-hosted servers. The same image in all places means that we test exactly what users will run.
 
-We also need to think about self-hosted solutions. Ideally it should one Docker image to run everything.
+We use Docker instead of lambda functions or other cloud vendor lock-ins to be able to change the cloud at any moment. We prefer Podman to Docker for security reasons.
 
-Self-hosted users, and we should use environment variable to configure images.
+### Parts
 
-We should make Docker images as small as possible to reduce attack surface. We recommend:
+On our servers we run the app (web client with server) and CORS proxy as separated instances of the same image on different domains. Proxied content from any website can’t access the app’s storage, and the server can’t link loaded feed URLs to the user’s account. `ROLE` environment variable chooses the part: `app` or `proxy`.
 
-- Use distroless images without package manager and CLI tools.
-- Use multi-stage build if we need package manager.
-- Prefer to install only binaries we really use, instead of using big base images with many non-relevant tools.
+The image without `ROLE` runs everything together with the app on `/` instead of the landing.
 
-See [`proxy/Dockerfile`](./proxy/Dockerfile) as an example.
+### Image
 
-All projects have `./script/run-image.sh` script to build production image and run it. We recommend installing Podman instead of Docker for security reasons.
+The image has the `/health` endpoint for the container health check.
 
-If you need to debug Docker image, add `-dev` to base image.
+We keep the image small and build every part in its own stage with only its own dependencies, so a malicious web client dependency can’t change the server code.
 
-Don’t forget necessary files to `.dockerignore` since we are using allow-list there.
+The build is reproducible: anyone can build the same image from the same commit and check that we run the published source code. Time-sensitive files (demo database and landing screenshots) come from a separated image, which [Demo Database workflow](./.github/workflows/demo-db.yml) builds every Monday.
+
+Other environment variables:
+
+- `STAGING`: hides the web client from search engines and changes the icon.
+- `BEHIND_BALANCER`: takes the client’s IP from `X-Forwarded-For`.
+
+See [server](./server/README.md#environment-variables) and [proxy](./proxy/README.md#environment-variables) for their own variables.
+
+### Environments
+
+- **Production:** `slowreader.app` and `proxy.slowreader.app` on Google Cloud.
+- **Staging:** `main` branch is on `dev.slowreader.app` and `proxy.dev.slowreader.app` on our [cloud](https://github.com/hplush/cloud).
+- **Pull request preview:** CI publishes a `View deployment` link to the pull request in 2 minutes. Preview runs everything in one instance on our [cloud](https://github.com/hplush/cloud).
+
+Run `./scripts/run-image.sh ROLE` to build and run the image locally.
+
+### Self-Hosted
+
+Run the image without `ROLE` and keep the database in the pglite folder. Users need the CORS proxy, because the browser extension doesn’t work with unknown domains.
+
+```sh
+docker run -p 2553:2553 -v slowreader:/data -e DATABASE_URL=file:///data -e WEB_ORIGIN=http://localhost:2553 -e 'PROXY_ORIGIN=^http://localhost:2553$' ghcr.io/hplush/slowreader:dev
+```
 
 ## Guides
 

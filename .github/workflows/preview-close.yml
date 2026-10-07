@@ -7,7 +7,6 @@ on:
       - '**/*.md'
       - 'scripts/**'
       - '.vscode/**'
-      - '.claude/**'
       - '.githooks/**'
       - '.github/**'
       - 'core/test/**'

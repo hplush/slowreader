@@ -24,7 +24,7 @@
     "own:online:markdown": "remark . --frail",
     "test:offline:css": "stylelint .",
     "test:offline:docs-dates": "node ./scripts/check-docs-dates.ts",
-    "test:offline:build": "pnpm -F landings build && pnpm -F web build && pnpm -F web check-dist && pnpm -F server build",
+    "test:offline:build": "pnpm -F landings build && pnpm -F web build && pnpm -F web check-dist",
     "test:offline:js": "oxlint",
     "test:offline:messages": "node ./scripts/check-messages.ts",
     "test:offline:tests": "node ./scripts/check-tests.ts",

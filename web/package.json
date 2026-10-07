@@ -10,7 +10,6 @@
     "build-demo": "node ./demo/build-demo-db.ts",
     "visual": "storybook dev -p 2555 --no-open --host 0.0.0.0",
     "chromatic": "node --env-file-if-exists=../.env node_modules/chromatic/dist/bin.cjs --exit-zero-on-changes --skip-update-check --exit-once-uploaded --only-changed --externals '**/pnpm-lock.yaml' --externals 'web/public/**'",
-    "production": "node --run build && ./scripts/run-image.sh",
     "size": "size-limit",
     "check-dist": "size-limit && node ./scripts/check-css-props.ts",
     "test:offline:names": "node ./scripts/check-names.ts",

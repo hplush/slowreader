@@ -12,8 +12,6 @@ _See the [full architecture guide](../README.md) first._
 
 - `pnpm -F proxy test`: run all proxy tests.
 - `pnpm -F proxy start`: run proxy server.
-- `pnpm -F proxy build`: prepare deploy files with production dependencies only.
-- `pnpm -F proxy production`: start production build of the proxy server.
 
 ## Abuse Protection
 
@@ -49,13 +47,4 @@ PORT=8080 PROXY_ORIGIN=^http:\\/\\/localhost:5173$ pnpm start
 
 ## Deploy
 
-For deploy we:
-
-1. Use `pnpm deploy` to create `dist/` only with production dependencies.
-2. Build Docker image with Node.js.
-3. Run this image on our [cloud server](https://github.com/hplush/cloud).
-
-We have 2 proxy servers:
-
-- `proxy.slowreader.app` works only for production clients.
-- `proxy.dev.slowreader.app` works with staging.
+Proxy runs in the [single image](../README.md#parts) with `ROLE=proxy` on a separated domain, so proxied content can’t access the app’s storage and the server can’t link feed URLs to the user’s account.

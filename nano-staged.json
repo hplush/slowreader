@@ -13,7 +13,7 @@
   ".node-version": "node ./scripts/check-versions.ts",
   "package.json": "node ./scripts/check-versions.ts",
   "*/package.json": "node ./scripts/check-versions.ts",
-  "*/Dockerfile": "node ./scripts/check-versions.ts",
+  "Dockerfile": "node ./scripts/check-versions.ts",
   ".github/workflows/*.yml": "node ./scripts/check-versions.ts",
   "**/*.test.ts": "node ./scripts/check-tests.ts",
   "docs/*.md": "node ./scripts/check-docs-dates.ts",
