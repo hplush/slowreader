@@ -35,6 +35,7 @@ jobs:
           VERSIONS="orgs/hplush/packages/container/slowreader/versions"
           # We push single-platform images without buildx attestations,
           # so untagged versions are only the images replaced by a new push
+          # or not tagged because of failed tests
           OLD=$(gh api --paginate "$VERSIONS?per_page=100" \
             | jq -r --arg date "$WEEK_AGO" \
               '.[] | select(.metadata.container.tags == [] and

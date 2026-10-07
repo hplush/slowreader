@@ -28,7 +28,7 @@ A supply chain attack is malicious code, which comes to the project not from our
 
 1. **Actions pinned by hash.** We use actions by commit hash, not by version tag. The action’s author or attacker with the author’s account can move a tag to malicious code, but can’t change the code of a commit (`scripts/check-versions.ts` checks it).
 2. **Egress allow-list.** CI can connect only to the hosts from the workflow’s allow-list. Even if malicious code runs in CI, it can’t send our secrets away or download the rest of the attack ([Harden Runner](https://docs.stepsecurity.io/harden-runner)).
-3. **Minimal job permissions.** Every job gets only the permissions it needs. Tests run a lot of tools, so they can only read the repository. Only the image build job can publish images, and only the deploy job can deploy.
+3. **Minimal job permissions.** Every job gets only the permissions it needs. Tests run a lot of tools, so they can only read the repository. Only the image build and tag jobs can publish images, and only the deploy job can deploy.
 4. **`persist-credentials: false`.** Later steps of the job can’t take GitHub token from the repository checkout (`persist-credentials: false`).
 5. **Isolated build job.** Image build runs on a separated machine from tests. Nothing from the test machine, where many development tools run, gets into the image.
 6. **OIDC deploy.** Staging deploy has no long-living secret, which can be stolen. GitHub gives the deploy job a token, which works a few minutes, and our cloud accepts it only from our deploy workflow.

@@ -58,8 +58,9 @@ jobs:
           FORCE_COLOR: 1
   build:
     name: Image Build
-    needs: test
     if: github.ref == 'refs/heads/main'
+    outputs:
+      digest: ${{ steps.push.outputs.digest }}
     permissions:
       contents: read
       packages: write
@@ -97,24 +98,51 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push image
+      - name: Build and push untagged image
+        id: push
         run: |
           # Docker’s own builder can’t rewrite timestamps
           docker buildx create --use --driver docker-container
           SOURCE_DATE_EPOCH=$(git log -1 --format=%ct) \
-            docker buildx build --provenance=false \
-              --output type=image,name=ghcr.io/hplush/slowreader:dev,push=true,rewrite-timestamp=true .
-  staging:
-    name: Staging Deploy
-    needs: build
+            docker buildx build --provenance=false --metadata-file meta.json \
+              --output type=image,name=ghcr.io/hplush/slowreader,push-by-digest=true,push=true,rewrite-timestamp=true .
+          echo "digest=$(jq -r '.["containerimage.digest"]' meta.json)" >> "$GITHUB_OUTPUT"
+  tag:
+    name: Image Tag
+    needs: [test, build]
     permissions:
-      contents: read
-      id-token: write
+      packages: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            ghcr.io:443
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Tag tested image
+        env:
+          DIGEST: ${{ needs.build.outputs.digest }}
+        run: |
+          docker buildx imagetools create \
+            --tag ghcr.io/hplush/slowreader:dev ghcr.io/hplush/slowreader@$DIGEST
+  staging:
     strategy:
       matrix:
         domain:
           - dev.slowreader.app
           - proxy.dev.slowreader.app
+    name: Deploy ${{ matrix.domain }}
+    needs: tag
+    permissions:
+      contents: read
+      id-token: write
     concurrency:
       group: staging-${{ matrix.domain }}
       cancel-in-progress: false
