@@ -27,7 +27,7 @@
     "lz-string": "1.5.0",
     "nanodelay": "2.0.2",
     "nanoid": "6.0.2",
-    "nanostores": "1.5.4"
+    "nanostores": "1.5.5"
   },
   "devDependencies": {
     "@logux/server": "0.17.0",

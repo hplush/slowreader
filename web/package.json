@@ -46,29 +46,29 @@
     "autoprefixer": "10.6.1",
     "keyux": "0.11.6",
     "lightningcss": "1.33.0",
-    "nanostores": "1.5.4",
+    "nanostores": "1.5.5",
     "postcss": "8.5.29",
     "postcss-load-config": "6.0.1",
     "postcss-mixins": "12.1.2",
     "postcss-smooth-corners": "0.1.1",
     "postcss-smooth-shadow": "0.3.2",
-    "rollup": "4.64.0",
+    "rollup": "4.64.2",
     "sharp": "0.35.5",
     "sqlocal": "0.18.0",
     "storybook": "10.6.1",
-    "svelte": "5.57.1",
-    "vite": "8.3.2"
+    "svelte": "5.57.2",
+    "vite": "8.3.3"
   },
   "devDependencies": {
-    "@size-limit/file": "14.1.0",
+    "@size-limit/file": "14.2.0",
     "@types/trusted-types": "2.0.7",
     "browserslist": "4.29.3",
     "chromatic": "18.11.0",
     "eslint": "10.12.0",
     "postcss-html": "2.0.0",
-    "postcss-nesting": "14.0.2",
+    "postcss-nesting": "14.0.3",
     "postcss-selector-parser": "7.1.6",
-    "size-limit": "14.1.0",
+    "size-limit": "14.2.0",
     "svelte-check": "4.7.6"
   }
 }

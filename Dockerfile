@@ -5,12 +5,12 @@
 # dependencies, so a malicious web dependency can’t change the server code.
 
 # cgr.dev/chainguard/wolfi-base:latest
-FROM cgr.dev/chainguard/wolfi-base@sha256:238642d42c5613936474d00b900c4e65fb6f637d8991c913403ff09a09cf43a3 AS base
+FROM cgr.dev/chainguard/wolfi-base@sha256:05d24163df148be377275af8374c16523a1dc7e19bf4f1c689784791553c5e45 AS base
 
-ENV NODE_VERSION=26.10.0 \
-  NODE_CHECKSUM_X64=ca70e9e349de048b9522abb3adc05b3bd6f43c5ffd3ec57916c7da292f59f022 \
-  PNPM_VERSION=12.10.1 \
-  PNPM_CHECKSUM_X64=502a275984a4cd01e5579ac72049a241091cac5118e44becf84951130c3e079e
+ENV NODE_VERSION=26.11.1 \
+  NODE_CHECKSUM_X64=3883bfc73f9a680ca4eab04b196068aaaab1373ffa77d8fc1a4408222495b651 \
+  PNPM_VERSION=12.11.0 \
+  PNPM_CHECKSUM_X64=95225136257d2082718f67fcdcdc07e73bb49242d1a74bec0ff180c67ef29f18
 
 # Exact versions to get the same libraries in every build
 RUN apk add --no-cache curl libatomic=16.2.0-r1 libstdc++=16.2.0-r1
@@ -53,7 +53,7 @@ COPY web/tsconfig.json web/
 # Demo database loads real feeds, so web/demo/Dockerfile builds it separately.
 # Run `pnpm update-docker` to take the latest one.
 # ghcr.io/hplush/slowreader-demo:latest
-FROM ghcr.io/hplush/slowreader-demo@sha256:5cc488c7dadcfb6fb26d43b8667120da9bfe395a6cf677eb78e33203ec7c030d AS demo
+FROM ghcr.io/hplush/slowreader-demo@sha256:da620b36e3cb81970a12d271cfd2d2889660fb0c051aea0cd73d6f644813f337 AS demo
 
 FROM base AS client
 COPY api/package.json api/
@@ -96,7 +96,7 @@ COPY proxy/ proxy/
 COPY server/ server/
 
 # cgr.dev/chainguard/nginx:latest
-FROM cgr.dev/chainguard/nginx@sha256:a104d1995e56b7a15e8f152078dfbdb1ecbf9f9d1af311e7906e7b4c0c790cf2 AS production
+FROM cgr.dev/chainguard/nginx@sha256:4d1a034e20cf62edc65b279e83025deec3dfb38bee92cde9e5d51b44752fd7f9 AS production
 
 LABEL org.opencontainers.image.source=https://github.com/hplush/slowreader
 LABEL org.opencontainers.image.description="Slow Reader"
