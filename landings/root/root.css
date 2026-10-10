@@ -410,8 +410,10 @@ main > .section.is-mobile {
       100%,
       40rem,
       calc(
-        (100svh - env(safe-area-inset-top) -
-            max(0.5rem, env(safe-area-inset-bottom)) - 5rem) /
+        (
+            100svh - env(safe-area-inset-top) -
+              max(0.5rem, env(safe-area-inset-bottom)) - 5rem
+          ) /
           0.73
       )
     );
@@ -500,8 +502,10 @@ main > .section.is-mobile {
       100%,
       28rem,
       calc(
-        (100svh - env(safe-area-inset-top) -
-            max(0.5rem, env(safe-area-inset-bottom)) - 5rem) /
+        (
+            100svh - env(safe-area-inset-top) -
+              max(0.5rem, env(safe-area-inset-bottom)) - 5rem
+          ) /
           2.135
       )
     );
