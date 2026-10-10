@@ -1,9 +1,9 @@
 import { busyDuring } from './busy.ts'
 import { deleteCategory, loadCategories } from './category.ts'
 import { deleteAllFeeds } from './feed.ts'
-import { demoMessages } from './messages/index.ts'
+import { welcomeMessages } from './messages/index.ts'
 import { freeDatabasePages } from './schema.ts'
-import { isDemo } from './settings.ts'
+import { isDemo } from './welcome.ts'
 
 export async function deleteDemo(): Promise<void> {
   await deleteAllFeeds()
@@ -15,7 +15,7 @@ export async function deleteDemo(): Promise<void> {
 }
 
 export function deleteDemoWithBusy(): Promise<void> {
-  return busyDuring(demoMessages.get().deleting, deleteDemo, true)
+  return busyDuring(welcomeMessages.get().deleting, deleteDemo, true)
 }
 
 export function keepDemo(): void {

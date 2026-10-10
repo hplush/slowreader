@@ -9,6 +9,7 @@
     mdiWifi
   } from '@mdi/js'
   import {
+    extensionState,
     layoutType,
     preloadImages,
     requestMethod,
@@ -17,7 +18,6 @@
   } from '@slowreader/core'
 
   import {
-    extensionState,
     extensionStore,
     grantExtension,
     installingExtension

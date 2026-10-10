@@ -26,6 +26,7 @@
   import SignupPage from '../pages/sign-up.svelte'
   import StartPage from '../pages/start.svelte'
   import StoragePage from '../pages/storage.svelte'
+  import WelcomePage from '../pages/welcome.svelte'
   import FeedPopup from '../popups/feed.svelte'
   import LoadingPopup from '../popups/loading.svelte'
   import NotFoundPopup from '../popups/not-found.svelte'
@@ -85,6 +86,8 @@
     <ExportPage page={$currentPage} />
   {:else if $currentPage.route === 'import'}
     <ImportPage page={$currentPage} />
+  {:else if $currentPage.route === 'welcome'}
+    <WelcomePage />
   {:else}
     <ThinPage title={$currentPage.route}>
       {$currentPage.route}

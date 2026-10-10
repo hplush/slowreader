@@ -47,12 +47,12 @@ import {
   encryptionKey,
   encryptionKeyLost,
   hasCloud,
-  isDemo,
   passkeyOnly,
   syncServer,
   uploadingLocalData,
   userId
 } from './settings.ts'
+import { isDemo, welcomeSteps } from './welcome.ts'
 
 let generateUserId = customAlphabet('0123456789', 16)
 
@@ -440,6 +440,7 @@ export function forgetLocalData(): void {
   passkeyOnly.set(false)
   hasFeeds.set(undefined)
   isDemo.set(false)
+  welcomeSteps.set(undefined)
   encryptionKey.set(undefined)
   syncServer.set(undefined)
   benchmarkStatistics.set(undefined)

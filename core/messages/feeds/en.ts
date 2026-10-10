@@ -1,7 +1,6 @@
 import { i18n } from '../../i18n.ts'
 
 export const feedsMessages = i18n('feeds', {
-  fastTitle: 'Fast',
   feedReader: 'Feed',
   listReader: 'Post one-by-one',
   more: 'Open post to see more content',
@@ -10,6 +9,5 @@ export const feedsMessages = i18n('feeds', {
   prevPage: 'Back',
   reader: 'Read mode',
   readPage: 'Mark as read',
-  readPageAndNext: 'Mark as read & load next',
-  slowTitle: 'Slow'
+  readPageAndNext: 'Mark as read & load next'
 })

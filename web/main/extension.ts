@@ -1,17 +1,13 @@
 // Downloading feeds by the browser extension: it goes to the feed directly,
 // so no proxy sees which feeds the user reads.
 
-import type { RequestMethod } from '@slowreader/core'
+import { extensionState, type RequestMethod } from '@slowreader/core'
 import type {
   AppMessage,
   ExtensionMessage,
   FetchAnswer
 } from '@slowreader/extension/api'
 import { atom } from 'nanostores'
-
-export type ExtensionState = 'granted' | 'missing' | 'restricted'
-
-export const extensionState = atom<ExtensionState>('missing')
 
 /** The reminder is useful just until the page reload. */
 export const installingExtension = atom(false)

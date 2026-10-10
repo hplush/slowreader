@@ -1,8 +1,8 @@
 <script context="module" lang="ts">
-  import { requestMethod } from '@slowreader/core'
+  import { extensionState, requestMethod } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  import { extensionState, installingExtension } from '../../main/extension.ts'
+  import { installingExtension } from '../../main/extension.ts'
   import NetworkPage from '../../pages/network.svelte'
   import Scene from '../scene.svelte'
 

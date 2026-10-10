@@ -1,7 +1,7 @@
 import { withMeta, type WithoutMeta } from '@logux/client/db'
 import { persistentAtom } from '@nanostores/persistent'
 import type { Database, SqlStore } from '@nanostores/sql'
-import { computed, effect, type ReadableAtom } from 'nanostores'
+import { effect, type ReadableAtom } from 'nanostores'
 
 import { onClient } from './client.ts'
 import { createDownloadTask, type TextResponse } from './lib/download.ts'
@@ -25,7 +25,6 @@ import {
   type NewFeed,
   select
 } from './schema.ts'
-import { isDemo } from './settings.ts'
 
 export type { FeedValue, NewFeed }
 
@@ -237,9 +236,4 @@ onClient(() => {
     unbindCheck()
     unbindActions()
   }
-})
-
-export const needWelcome = computed([hasFeeds, isDemo], (feeds, demo) => {
-  if (demo) return true
-  return typeof feeds === 'undefined' ? undefined : !feeds
 })

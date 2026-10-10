@@ -1,7 +1,5 @@
-import { requestMethod } from '@slowreader/core'
+import { extensionState, requestMethod } from '@slowreader/core'
 import { computed } from 'nanostores'
-
-import { extensionState } from '../main/extension.ts'
 
 export const usedRequestMethod = computed(
   [requestMethod, extensionState],

@@ -6,7 +6,6 @@ import {
   addFeed,
   addPost,
   busy,
-  demoMessages,
   deleteDemoWithBusy,
   isDemo,
   keepDemo,
@@ -15,7 +14,8 @@ import {
   loadPosts,
   testFeed,
   testPost,
-  userId
+  userId,
+  welcomeMessages
 } from '../index.ts'
 import { cleanClient, startClient } from './utils.ts'
 
@@ -51,7 +51,7 @@ describe('demo', () => {
     let deleting = deleteDemoWithBusy()
     deepStrictEqual(busy.get(), {
       blocking: true,
-      label: demoMessages.get().deleting,
+      label: welcomeMessages.get().deleting,
       progress: undefined
     })
     await deleting

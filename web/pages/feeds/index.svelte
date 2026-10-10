@@ -33,8 +33,12 @@
       <NavbarFast />
     {/if}
   </ThinPage>
+{:else if $posts?.name === 'welcome'}
+  <ThinPage title={page.reading === 'slow' ? $navbar.slow : $navbar.fast}>
+    <FeedsWelcomePage reader={$posts} />
+  </ThinPage>
 {:else}
-  <PopupablePage title={page.reading === 'slow' ? $t.slowTitle : $t.fastTitle}>
+  <PopupablePage title={page.reading === 'slow' ? $navbar.slow : $navbar.fast}>
     <Stack height="stretch">
       <Stack justify="space-between" row>
         {#if $feed}
@@ -45,7 +49,7 @@
         {:else}
           <div></div>
         {/if}
-        {#if $posts && $posts.name !== 'welcome' && $posts.name !== 'empty'}
+        {#if $posts && $posts.name !== 'empty'}
           <Radio
             anchor="reader"
             label={$t.reader}
@@ -66,8 +70,6 @@
         </Stack>
       {:else if $posts.name === 'empty'}
         <FeedsEmptyPage reader={$posts} />
-      {:else if $posts.name === 'welcome'}
-        <FeedsWelcomePage reader={$posts} />
       {:else if $posts.name === 'feed'}
         <FeedsFeedPage reader={$posts} />
       {:else if $posts.name === 'list'}

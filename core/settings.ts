@@ -27,12 +27,6 @@ export const hasCloud = persistentBoolean('slowreader:has-cloud')
  */
 export const passkeyOnly = persistentBoolean('slowreader:passkey-only')
 
-/**
- * The database was copied from the demo build, so the feeds and the posts
- * in it are not the user’s own.
- */
-export const isDemo = persistentBoolean('slowreader:demo')
-
 export interface DatabaseFailure {
   at: Date
   error?: string

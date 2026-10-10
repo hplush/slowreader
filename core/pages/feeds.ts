@@ -2,7 +2,7 @@ import { atom, computed, effect } from 'nanostores'
 
 import { type CategoryValue, changeCategory, getCategory } from '../category.ts'
 import { layoutType } from '../environment.ts'
-import { changeFeed, type FeedValue, getFeed, needWelcome } from '../feed.ts'
+import { changeFeed, type FeedValue, getFeed } from '../feed.ts'
 import { menuLoading, openableMenu, slowMenu, unreadFastMenu } from '../menu.ts'
 import { deletePost, fastPostsCount, slowPostsCount } from '../post.ts'
 import {
@@ -22,6 +22,7 @@ import {
 } from '../readers/index.ts'
 import { nextRouteIsRedirect } from '../router.ts'
 import { freeDatabasePages, hasDatabase, openedDatabase } from '../schema.ts'
+import { needWelcome } from '../welcome.ts'
 import { createPage } from './common.ts'
 
 const READERS: { [Name in ReaderName]: ReaderCreator } = {

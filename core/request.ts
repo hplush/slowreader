@@ -6,6 +6,10 @@ export interface RequestMethod {
 
 export let request: RequestMethod
 
+export type ExtensionState = 'granted' | 'missing' | 'restricted'
+
+export const extensionState = atom<ExtensionState>('missing')
+
 export function setRequestMethod(method: RequestMethod): void {
   request = method
 }

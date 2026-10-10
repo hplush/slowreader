@@ -3,7 +3,7 @@
   import {
     deleteDemoWithBusy,
     keepDemo,
-    demoMessages as t
+    welcomeMessages as t
   } from '@slowreader/core'
 
   import Button from './button.svelte'
@@ -13,7 +13,7 @@
   let { type }: { type: 'add' | 'cloud' | 'storage' } = $props()
 </script>
 
-<Note icon={mdiBinoculars} title={$t.title} variant="warning">
+<Note icon={mdiBinoculars} title={$t.demoTitle} variant="warning">
   {$t[`${type}Desc`]}
   <Stack gap="xs" row>
     <Button

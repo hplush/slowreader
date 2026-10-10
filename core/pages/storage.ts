@@ -6,7 +6,8 @@ import { getEnvironment } from '../environment.ts'
 import { formatCurrentTime } from '../format.ts'
 import { storageMessages } from '../messages/index.ts'
 import { getDatabaseSize, rebuildDatabase } from '../schema.ts'
-import { hasCloud, isDemo } from '../settings.ts'
+import { hasCloud } from '../settings.ts'
+import { isDemo } from '../welcome.ts'
 import { createPage } from './common.ts'
 
 export const storagePage = createPage('storage', () => {

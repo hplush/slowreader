@@ -20,6 +20,7 @@ import {
   encryptionKey,
   encryptionKeyLost,
   type Environment,
+  extensionState,
   fatal,
   fastMenu,
   fastPostsCount,
@@ -46,7 +47,8 @@ import {
   slowPostsCount,
   subscribeUntil,
   type TextResponse,
-  userId
+  userId,
+  welcomeSteps
 } from '../index.ts'
 import { toEncryptionKey } from '../lib/keys.ts'
 import { getTestEnvironment, openRoute, setWarningTracking } from '../test.ts'
@@ -98,6 +100,8 @@ let testKey = await toEncryptionKey(new Uint8Array(32))
 
 export function setTestUser(enable = true): void {
   hasFeeds.set(undefined)
+  welcomeSteps.set(undefined)
+  extensionState.set('missing')
   encryptionKeyLost.set(false)
   if (enable) {
     encryptionKey.set(testKey)

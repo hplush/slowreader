@@ -10,6 +10,7 @@
     closedCategories,
     currentPage,
     DEFAULT_REFRESH_STATISTICS,
+    extensionState,
     type FeedValue,
     hasCloud,
     hasFeeds,
@@ -30,12 +31,13 @@
     testFeed,
     testPost,
     theme,
-    useReducedMotion
+    useReducedMotion,
+    welcomeSteps
   } from '@slowreader/core'
   import { addHashToBaseRoute, testCredentials } from '@slowreader/core/test'
   import { onDestroy, type Snippet } from 'svelte'
 
-  import { extensionState, installingExtension } from '../main/extension.ts'
+  import { installingExtension } from '../main/extension.ts'
   import { systemReducedMotion } from '../stores/media-queries.ts'
   import {
     baseRouter,
@@ -121,6 +123,7 @@
     syncStatus.set('synchronized')
     refreshStatistics.set(DEFAULT_REFRESH_STATISTICS)
     hasFeeds.set(!!feeds?.length)
+    welcomeSteps.set(undefined)
     closedCategories.set(new Set())
 
     function updateTheme(): void {

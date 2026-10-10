@@ -1,7 +1,7 @@
 import { atom } from 'nanostores'
 
 import { getEnvironment } from '../environment.ts'
-import { needWelcome } from '../feed.ts'
+import { needWelcome } from '../welcome.ts'
 import { createPage } from './common.ts'
 
 export const homePage = createPage('home', () => {

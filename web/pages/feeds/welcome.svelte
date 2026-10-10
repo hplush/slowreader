@@ -1,10 +1,5 @@
 <script lang="ts">
-  import {
-    mdiFireplace,
-    mdiFood,
-    mdiImport,
-    mdiPlusCircleOutline
-  } from '@mdi/js'
+  import { mdiFireplace, mdiFood, mdiFormatListChecks } from '@mdi/js'
   import { welcomeMessages as t, type WelcomeReader } from '@slowreader/core'
 
   import { getURL } from '../../stores/url-router.ts'
@@ -16,32 +11,14 @@
   let { reader }: { reader: WelcomeReader } = $props()
 </script>
 
-{#if reader.reading === 'fast'}
-  <PageIcon align="start" path={mdiFood}>
-    <Stack gap="l">
-      <RichText text={$t.fastDesc} />
-      <Stack gap="s" row>
-        <Button href={getURL('add')} icon={mdiPlusCircleOutline}>
-          {$t.emptyAdd}
-        </Button>
-        <Button href={getURL('import')} icon={mdiImport}>
-          {$t.emptyImport}
-        </Button>
-      </Stack>
-    </Stack>
-  </PageIcon>
-{:else}
-  <PageIcon align="start" path={mdiFireplace}>
-    <Stack gap="l">
-      <RichText text={$t.slowDesc} />
-      <Stack gap="s" row>
-        <Button href={getURL('add')} icon={mdiPlusCircleOutline}>
-          {$t.emptyAdd}
-        </Button>
-        <Button href={getURL('import')} icon={mdiImport}>
-          {$t.emptyImport}
-        </Button>
-      </Stack>
-    </Stack>
-  </PageIcon>
-{/if}
+<PageIcon
+  align="start"
+  path={reader.reading === 'fast' ? mdiFood : mdiFireplace}
+>
+  <Stack gap="l">
+    <RichText text={reader.reading === 'fast' ? $t.fastDesc : $t.slowDesc} />
+    <Button href={getURL('welcome')} icon={mdiFormatListChecks}>
+      {$t.openWelcome}
+    </Button>
+  </Stack>
+</PageIcon>
