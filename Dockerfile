@@ -9,8 +9,8 @@ FROM cgr.dev/chainguard/wolfi-base@sha256:05d24163df148be377275af8374c16523a1dc7
 
 ENV NODE_VERSION=26.11.1 \
   NODE_CHECKSUM_X64=3883bfc73f9a680ca4eab04b196068aaaab1373ffa77d8fc1a4408222495b651 \
-  PNPM_VERSION=12.11.0 \
-  PNPM_CHECKSUM_X64=95225136257d2082718f67fcdcdc07e73bb49242d1a74bec0ff180c67ef29f18
+  PNPM_VERSION=12.12.0 \
+  PNPM_CHECKSUM_X64=20d68d53bfa89ba9cf727c1ffd0d3c1c3193e933d097b36e7f29f743257713d9
 
 # Exact versions to get the same libraries in every build
 RUN apk add --no-cache curl libatomic=16.2.0-r1 libstdc++=16.2.0-r1
