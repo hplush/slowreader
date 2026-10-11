@@ -57,17 +57,17 @@ function buildNginxConfig(selfHosted: boolean, webOrigin: string): string {
     '__ROUTES__',
     readFileSync('/etc/nginx/routes.regexp', 'utf8').trim()
   )
-  let scripts = Object.entries(manifest.integrity).filter(([url]) =>
+  let scripts = Object.keys(manifest.integrity).filter(url =>
     url.endsWith('.js')
   )
   conf = replace(
     conf,
-    '__SCRIPT_HASHES__',
+    '__INLINE_SCRIPT_HASHES__',
     toSources(
       hashInline(
         '**/*.html',
         /<script(?: type="importmap")?>([\s\S]*?)<\/script>/g
-      ).concat(scripts.map(([, hash]) => hash))
+      )
     )
   )
   // Browsers open SVG as a document with our Content-Security-Policy
@@ -76,11 +76,12 @@ function buildNginxConfig(selfHosted: boolean, webOrigin: string): string {
     '__STYLE_HASHES__',
     toSources(hashInline('**/*.{html,svg}', /<style>([\s\S]*?)<\/style>/g))
   )
-  // Browsers can’t check hashes of workers, so we allow only exact URLs
+  // Safari ignores import map hashes in CSP and no browser checks worker’s
+  // hash, so we allow JS by exact URLs. `integrity` still checks the content.
   conf = replace(
     conf,
     '__SCRIPT_URLS__',
-    scripts.map(([url]) => new URL(url, webOrigin).href).join(' ')
+    scripts.map(url => new URL(url, webOrigin).href).join(' ')
   )
   let rules = ''
 

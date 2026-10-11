@@ -1,6 +1,7 @@
 // Save hashes of all JS and HTML files to dist/manifest.json as import map’s
-// `integrity` with extra `commit` key. Server’s entrypoint.ts puts JS hashes
-// to Content-Security-Policy, so the page can run only these files.
+// `integrity` with extra `commit` key. Server’s entrypoint.ts puts JS URLs
+// to Content-Security-Policy, so the page can run only these files,
+// and `integrity` in HTML and import map checks their content.
 
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'

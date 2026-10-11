@@ -37,8 +37,8 @@ function loadCSP(): string {
   // and has no manifest.json with JS hashes
   return csp
     .replace(/style-src[^;]*;?/, '')
-    .replace('__SCRIPT_HASHES__', "'self' 'unsafe-inline'")
-    .replace('__SCRIPT_URLS__', "'self'")
+    .replace('__INLINE_SCRIPT_HASHES__', "'unsafe-inline'")
+    .replaceAll('__SCRIPT_URLS__', "'self'")
 }
 
 // nginx resolves `/dir` to `/dir/index.html` by `try_files $uri/index.html`
