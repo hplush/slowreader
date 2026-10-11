@@ -32,19 +32,21 @@
     "name": "Landing page on phone",
     "path": [
       "dist/index.html",
+      "dist/icon.svg",
       "dist/landing/**/*",
       "!dist/landing/small/**",
       "!dist/landing/og/**",
-      "!dist/landing/*.avif",
+      "!dist/landing/!(slow-phone-824-*|slow-laptop-1244-*).avif",
+      "!dist/landing/*.css",
       "!dist/landing/*.woff",
       "!dist/landing/noto-*-{cyrillic,greek,devanagari,vietnamese}-*.woff2",
       "!dist/landing/*-latin-ext-*.woff2"
     ],
-    "limit": "150 KB"
+    "limit": "190 KB"
   },
   {
     "name": "Core scripts to execute",
-    "path": "dist/assets/app-*.js",
+    "path": ["dist/assets/app-*.js", "dist/assets/core-*.js"],
     "brotli": false,
     "limit": "465 KB"
   }
