@@ -1,12 +1,38 @@
 // Docker image starts with this file. ROLE environment variable chooses
-// which part of Slow Reader container runs.
+// which part of Slow Reader container runs. `manifest` argument prints
+// hashes of web client’s JS and HTML files to compare them with the deployed
+// ones.
 
 import { spawn } from 'node:child_process'
-import { readFileSync, writeFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import { globSync, readFileSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+interface Manifest {
+  integrity: Record<string, string>
+}
+
+function toSources(hashes: string[]): string {
+  return hashes.map(hash => `'${hash}'`).join(' ')
+}
 
 function replace(conf: string, from: string, to: string): string {
   if (!conf.includes(from)) throw new Error(`No ${from} in nginx.conf`)
-  return conf.replace(from, to)
+  return conf.replaceAll(from, to)
+}
+
+function hashInline(pattern: string, tag: RegExp): string[] {
+  let hashes = new Set<string>()
+  for (let file of globSync(pattern, { cwd: '/var/www' })) {
+    if (file.startsWith('ui/')) continue
+    let content = readFileSync(join('/var/www', file), 'utf8')
+    for (let [, code] of content.matchAll(tag)) {
+      hashes.add(
+        `sha256-${createHash('sha256').update(code!).digest('base64')}`
+      )
+    }
+  }
+  return [...hashes].toSorted()
 }
 
 function findSvgIcons(): Set<string> {
@@ -22,11 +48,39 @@ function findSvgIcons(): Set<string> {
   return icons
 }
 
-function buildNginxConfig(selfHosted: boolean): string {
+function buildNginxConfig(selfHosted: boolean, webOrigin: string): string {
+  let manifest = JSON.parse(
+    readFileSync('/var/www/manifest.json', 'utf8')
+  ) as Manifest
   let conf = replace(
     readFileSync('/etc/nginx/nginx.conf', 'utf8'),
     '__ROUTES__',
     readFileSync('/etc/nginx/routes.regexp', 'utf8').trim()
+  )
+  let scripts = Object.entries(manifest.integrity).filter(([url]) =>
+    url.endsWith('.js')
+  )
+  conf = replace(
+    conf,
+    '__SCRIPT_HASHES__',
+    toSources(
+      hashInline(
+        '**/*.html',
+        /<script(?: type="importmap")?>([\s\S]*?)<\/script>/g
+      ).concat(scripts.map(([, hash]) => hash))
+    )
+  )
+  // Browsers open SVG as a document with our Content-Security-Policy
+  conf = replace(
+    conf,
+    '__STYLE_HASHES__',
+    toSources(hashInline('**/*.{html,svg}', /<style>([\s\S]*?)<\/style>/g))
+  )
+  // Browsers can’t check hashes of workers, so we allow only exact URLs
+  conf = replace(
+    conf,
+    '__SCRIPT_URLS__',
+    scripts.map(([url]) => new URL(url, webOrigin).href).join(' ')
   )
   let rules = ''
 
@@ -71,8 +125,8 @@ function buildNginxConfig(selfHosted: boolean): string {
   )
 }
 
-function startNginx(selfHosted: boolean): void {
-  writeFileSync('/tmp/nginx.conf', buildNginxConfig(selfHosted))
+function startNginx(selfHosted: boolean, webOrigin: string): void {
+  writeFileSync('/tmp/nginx.conf', buildNginxConfig(selfHosted, webOrigin))
   let nginx = spawn(
     '/usr/bin/nginx',
     ['-c', '/tmp/nginx.conf', '-e', '/dev/stderr', '-g', 'daemon off;'],
@@ -90,11 +144,14 @@ function startNginx(selfHosted: boolean): void {
 }
 
 let role = process.env.ROLE ?? ''
-if (role === 'proxy') {
+if (process.argv[2] === 'manifest') {
+  process.stdout.write(readFileSync('/var/www/manifest.json'))
+} else if (role === 'proxy') {
   process.env.PORT = '2553'
   await import('@slowreader/proxy/server')
 } else if (role === 'app' || role === '') {
-  startNginx(role === '')
+  let { config } = await import('./lib/config.ts')
+  startNginx(role === '', config.webOrigin)
   process.env.LOGUX_HOST = '127.0.0.1'
   process.env.PORT = '2554'
   await import('./index.ts')

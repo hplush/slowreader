@@ -57,6 +57,7 @@ jobs:
           docker buildx create --use --driver docker-container
           SOURCE_DATE_EPOCH=$(git log -1 --format=%ct) \
             docker buildx build --provenance=false --target staging \
+              --build-arg COMMIT="$(git rev-parse HEAD)" \
               --output type=docker,name=ghcr.io/hplush/slowreader:preview-${{ github.event.pull_request.number }},dest=image.tar,rewrite-timestamp=true .
       - name: Save PR number
         run: echo "${{ github.event.pull_request.number }}" > ./preview-id

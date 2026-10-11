@@ -71,6 +71,8 @@ COPY web/ web/
 COPY --from=demo /screenshots/ landings/screenshots/
 COPY --from=demo /demo.json /demo.sqlite web/public/
 COPY --from=demo /og.jpg /og.jpg
+# manifest.json takes the commit from it, since the image has no .git
+ARG COMMIT
 RUN --network=none OG_IMAGE=/og.jpg pnpm -F landings build && \
   pnpm -F web build:routes && \
   pnpm -F web build:web

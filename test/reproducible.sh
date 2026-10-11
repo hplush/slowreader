@@ -17,16 +17,17 @@ else
 fi
 ROOT="$(dirname "$0")/.."
 EPOCH=$(git log -1 --format=%ct)
+COMMIT=$(git rev-parse HEAD)
 ID_FILE=$(mktemp)
 trap 'rm -f "$ID_FILE"' EXIT
 
 layers() {
   if [ "$TOOL" = "podman" ]; then
-    podman build --no-cache --iidfile "$ID_FILE" \
+    podman build --no-cache --iidfile "$ID_FILE" --build-arg COMMIT="$COMMIT" \
       --source-date-epoch "$EPOCH" --rewrite-timestamp "$ROOT" > /dev/null
   else
     docker buildx build --no-cache --iidfile "$ID_FILE" \
-      --build-arg SOURCE_DATE_EPOCH="$EPOCH" \
+      --build-arg SOURCE_DATE_EPOCH="$EPOCH" --build-arg COMMIT="$COMMIT" \
       --output type=docker,rewrite-timestamp=true "$ROOT" > /dev/null
   fi
   $TOOL image inspect "$(cat "$ID_FILE")" --format='{{json .RootFS.Layers}}'

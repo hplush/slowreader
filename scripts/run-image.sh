@@ -25,7 +25,8 @@ ID_FILE=$(mktemp)
 trap 'rm -f "$ID_FILE"' EXIT
 
 echo "Building image with $TOOL"
-OUTPUT=$($TOOL build --iidfile "$ID_FILE" "$(dirname "$0")/.." 2>&1) || {
+OUTPUT=$($TOOL build --iidfile "$ID_FILE" \
+  --build-arg COMMIT="$(git rev-parse HEAD)" "$(dirname "$0")/.." 2>&1) || {
   echo -e "${ERROR}Build failed:${NC}\n$OUTPUT"
   exit 1
 }
