@@ -103,6 +103,8 @@ FROM cgr.dev/chainguard/nginx@sha256:4d1a034e20cf62edc65b279e83025deec3dfb38bee9
 LABEL org.opencontainers.image.source=https://github.com/hplush/slowreader
 LABEL org.opencontainers.image.description="Slow Reader"
 LABEL org.opencontainers.image.licenses=AGPL-3.0-or-later
+ARG COMMIT
+LABEL org.opencontainers.image.revision=$COMMIT
 
 WORKDIR /var/app
 ENV NODE_ENV=production \

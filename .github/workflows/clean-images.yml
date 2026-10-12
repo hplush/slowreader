@@ -25,6 +25,7 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
+            ghcr.io:443
             github.com:443
       - name: Delete untagged images older than a week
         shell: bash
@@ -33,13 +34,19 @@ jobs:
         run: |
           WEEK_AGO=$(date -u -d '7 days ago' +%Y-%m-%dT%H:%M:%SZ)
           VERSIONS="orgs/hplush/packages/container/slowreader/versions"
-          # We push single-platform images without buildx attestations,
-          # so untagged versions are only the images replaced by a new push
+          ALL=$(gh api --paginate "$VERSIONS?per_page=100" | jq -s 'add')
+          # Tagged image index refers to untagged image and provenance
+          KEEP=$(jq -r '.[].metadata.container.tags[]' <<< "$ALL" \
+            | xargs -I {} docker buildx imagetools inspect --raw \
+              ghcr.io/hplush/slowreader:{} \
+            | jq -s '[.[].manifests[]?.digest]')
+          # Other untagged versions are images replaced by a new push
           # or not tagged because of failed tests
-          OLD=$(gh api --paginate "$VERSIONS?per_page=100" \
-            | jq -r --arg date "$WEEK_AGO" \
-              '.[] | select(.metadata.container.tags == [] and
-                .updated_at < $date) | .id')
+          OLD=$(jq -r --arg date "$WEEK_AGO" --argjson keep "$KEEP" \
+            '.[] | select(.metadata.container.tags == [] and
+              .updated_at < $date and
+              (.name | IN($keep[]) | not)) | .id' \
+            <<< "$ALL")
           for ID in $OLD; do
             echo "Deleting slowreader version $ID"
             gh api -X DELETE "$VERSIONS/$ID" --silent

@@ -103,11 +103,13 @@ jobs:
         run: |
           # Docker’s own builder can’t rewrite timestamps
           docker buildx create --use --driver docker-container
-          # Podman ignores HEALTHCHECK in OCI images
-          SOURCE_DATE_EPOCH=$(git log -1 --format=%ct) \
-            docker buildx build --provenance=false --target staging --metadata-file meta.json \
-              --build-arg COMMIT="$(git rev-parse HEAD)" \
-              --output type=image,name=ghcr.io/hplush/slowreader,push-by-digest=true,push=true,rewrite-timestamp=true,oci-mediatypes=false .
+          # Same as release.yml, but staging target and untagged until tests pass
+          docker buildx build --target staging --metadata-file meta.json \
+            --provenance=mode=max,version=v1 \
+            --build-arg SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)" \
+            --build-arg COMMIT="$GITHUB_SHA" \
+            --output type=image,name=ghcr.io/hplush/slowreader,push-by-digest=true,push=true,rewrite-timestamp=true \
+            "https://github.com/$GITHUB_REPOSITORY.git#$GITHUB_SHA"
           echo "digest=$(jq -r '.["containerimage.digest"]' meta.json)" >> "$GITHUB_OUTPUT"
   tag:
     name: Image Tag
