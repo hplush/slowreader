@@ -10,21 +10,20 @@
 - [`containers.tf`](./containers.tf): app and proxy containers, and their domains.
 - [`dns.tf`](./dns.tf): all records of `slowreader.app`.
 - [`.terraform.lock.hcl`](./.terraform.lock.hcl): providers checksums. Run `pnpm update-infra` to update providers.
-- [`tofu.sh`](./tofu.sh): runs OpenTofu with Scaleway keys and the state passphrase after `tofu init`.
+- [`scripts/tofu.sh`](./scripts/tofu.sh): runs OpenTofu with Scaleway keys and the state passphrase after `tofu init`.
 
 ## Apply Changes
 
 We keep Scaleway keys only in the memory of OpenTofu process.
 
 1. Create an API key in Scaleway console:
-   1. Open **IAM & API keys** in the Organization drop-down menu at the top right.
-   2. Open **API keys** tab and click **+ Generate API key**.
-   3. Select `tofu` IAM application as the bearer.
-   4. Set **1 hour** expiration.
-   5. Select **Yes, set up preferred Project** and choose `Slow Reader` for Object Storage.
-   6. Click **Generate API key** and keep the window open until OpenTofu asks the keys.
+   1. Open [**API keys**](https://console.scaleway.com/iam/api-keys) in **IAM & API keys** and click **+ Generate API key**.
+   2. Select `tofu` IAM application as the bearer.
+   3. Set **1 hour** expiration.
+   4. Select **Yes, set up preferred Project** and choose `Slow Reader` for Object Storage.
+   5. Click **Generate API key** and keep the window open until OpenTofu asks the keys.
 2. Stop dev servers and tests, since a malicious dependency can read the keys from OpenTofu process.
-3. Run `./infra/tofu.sh apply` instead of `tofu apply`. It asks the keys and the state passphrase, shows the plan, and waits for `yes`.
+3. Run `./infra/scripts/tofu.sh apply` instead of `tofu apply`. It asks the keys and the state passphrase, shows the plan, and waits for `yes`.
 4. Delete the API key after the work.
 
 ## Manual Setup
@@ -66,7 +65,7 @@ Steps, which OpenTofu can’t do. You need them only once.
 Apply initial status:
 
 ```sh
-./infra/tofu.sh apply
+./infra/scripts/tofu.sh apply
 ```
 
 Enable DNSSEC:
