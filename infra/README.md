@@ -31,8 +31,6 @@ We keep Scaleway keys only in the memory of OpenTofu process.
 
 Steps, which OpenTofu can’t do. You need them only once.
 
-### Account
-
 1. Add a hardware key as the second factor in [Account Security](https://console.scaleway.com/settings/account/security).
 2. Create `Slow Reader` project in **Projects** tab of [Organization Dashboard](https://console.scaleway.com/organization).
 3. Copy the Project ID from the Project’s **Settings** and the Organization ID by **Copy ID** in Organization Settings to `project_id` and `organization_id` of `provider "scaleway"` in [`versions.tf`](./versions.tf).
@@ -70,3 +68,16 @@ Apply initial status:
 ```sh
 ./infra/tofu.sh apply
 ```
+
+Enable DNSSEC:
+
+1. Sign the zone and copy `ds_records` from the output:
+
+   ```sh
+   curl -X POST https://api.scaleway.com/domain/v2beta1/domains/slowreader.app/enable-dnssec \
+     -H "X-Auth-Token: $SCW_SECRET_KEY" -H 'Content-Type: application/json' -d '{}'
+   ```
+
+2. Wait until `dig +short DNSKEY slowreader.app @ns0.dom.scw.cloud` returns keys.
+3. Open the domain in register, go to DNSSEC settings and add a DS record: `key_id` as key tag, `algorithm` (`13` for `ecdsap256sha256`), `digest.type` (`2` for `sha_256`), and `digest.digest`.
+4. Check the chain on [DNSViz](https://dnsviz.net/d/slowreader.app/dnssec/).
