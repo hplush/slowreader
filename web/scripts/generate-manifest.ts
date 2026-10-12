@@ -1,4 +1,4 @@
-// Save hashes of all JS and HTML files to dist/manifest.json as import map’s
+// Save hashes of all JS files and main HTML pages to dist/manifest.json as import map’s
 // `integrity` with extra `commit` key. Server’s entrypoint.ts puts JS URLs
 // to Content-Security-Policy, so the page can run only these files,
 // and `integrity` in HTML and import map checks their content.
@@ -20,12 +20,14 @@ function findDistFiles(pattern: string): string[] {
     .toSorted()
 }
 
-function hashFiles(pattern: string): Record<string, string> {
+function hashFiles(
+  pattern: string,
+  exclude: string[] = []
+): Record<string, string> {
   return Object.fromEntries(
-    findDistFiles(pattern).map(file => [
-      `/${file}`,
-      sha256(readFileSync(join(DIST, file)))
-    ])
+    findDistFiles(pattern)
+      .filter(file => !exclude.includes(file))
+      .map(file => [`/${file}`, sha256(readFileSync(join(DIST, file)))])
   )
 }
 
@@ -77,7 +79,10 @@ for (let page of findDistFiles('**/*.html')) {
 
 let manifest = {
   commit: getCommit(),
-  integrity: concatHashes(integrity, hashFiles('**/*.html'))
+  integrity: concatHashes(
+    integrity,
+    hashFiles('**/*.html', ['404.html', '500.html', 'og/index.html'])
+  )
 }
 
 writeFileSync(
