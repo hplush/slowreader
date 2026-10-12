@@ -33,7 +33,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          persist-credentials: true
+          persist-credentials: false
           ref: ${{ github.head_ref || github.ref_name }}
       - name: Initialize Node.js
         uses: $/.github/actions/init-node
@@ -53,13 +53,29 @@ jobs:
         run: node --run format
       - name: Commit changes
         if: steps.today.outputs.has_commits == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          if [ -n "$(git status --porcelain)" ]; then
-            git commit -m "Auto-format code"
-            git push
-          else
+          if git diff --quiet; then
             echo "No changes to commit"
+            exit 0
           fi
+          # GitHub signs commits made by API, so they pass signed commits rule
+          git diff --name-only -z | while read -r -d '' file; do
+            jq -n --arg path "$file" --rawfile contents <(base64 -w0 "$file") \
+              '{path: $path, contents: $contents}'
+          done | jq -s \
+            --arg repo "$GITHUB_REPOSITORY" \
+            --arg branch "$BRANCH" \
+            --arg head "$(git rev-parse HEAD)" \
+            '{
+              query: "mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { url } } }",
+              variables: { input: {
+                branch: { repositoryNameWithOwner: $repo, branchName: $branch },
+                expectedHeadOid: $head,
+                message: { headline: "Auto-format code" },
+                fileChanges: { additions: . }
+              } }
+            }' > request.json
+          gh api graphql --input request.json --jq .data.createCommitOnBranch.commit.url
