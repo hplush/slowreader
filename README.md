@@ -116,6 +116,7 @@ Slow Reader is a local-first app. Clients do most of the work, and the server ju
 - [`docs/`](./docs/): public pages like Privacy Policy, which [landings](./landings/) render to `/docs/<name>`.
   - [`docs/development/`](./docs/development/): guides for developers.
 - [`Dockerfile`](./Dockerfile): single production image for the app and proxy, where `ROLE` environment variable chooses what to run.
+- [`infra/`](./infra/): production servers config.
 - [`scripts/`](./scripts/): scripts to test project and configure Google Cloud. Check the script’s descriptions for further details.
 - [`test/`](./test/): end-to-end tests of the deployed app.
 - [`loader-tests/`](./loader-tests/): integration tests for each social network or news format.
@@ -152,7 +153,8 @@ Each project has its own tools, too.
 - `pnpm -F loader-tests check-opml`: test loaders with user’s OPML RSS export.
 - `pnpm -F loader-tests test`: test loaders with different blogging platforms.
 - `pnpm unused-messages`: check that all messages are used.
-- `pnpm update-env`: check for Node.js and pnpm updates.
+- `pnpm update-tools`: check for Node.js, pnpm, and OpenTofu updates.
+- `pnpm update-infra`: update OpenTofu providers in `infra/`.
 - `pnpm update-review`: run Multiocular to review updates.
 - `pnpm update-browsers`: update target browsers of web client.
 - `pnpm update-aaguids`: update passkey providers names and print the changes.
@@ -279,8 +281,11 @@ pnpm update-browsers
 # Update passkey providers in server/aaguids/commit.lock
 pnpm update-aaguids
 
-# Update Node.js and pnpm
-pnpm update-env
+# Update Node.js, pnpm, and OpenTofu
+pnpm update-tools
+
+# Update OpenTofu providers in infra/
+pnpm update-infra
 
 # Review updates by Multiocular
 pnpm update-review
@@ -288,7 +293,7 @@ pnpm update-review
 
 If you see GitHub limit error in terminal, create `.env` with `GITHUB_TOKEN` with [personal token](https://github.com/settings/personal-access-tokens/new) with access to public repositories
 
-By default `update-env` will keep Node.js and pnpm major versions, but it can update to next major by `pnpm update-env --major-node` or `pnpm update-env --major-pnpm` arguments. You can also pass the version: `pnpm update-env --major-node 27`.
+By default `update-tools` will keep Node.js and pnpm major versions, but it can update to next major by `pnpm update-tools --major-node` or `pnpm update-tools --major-pnpm` arguments. You can also pass the version: `pnpm update-tools --major-node 27`.
 
 If you need just to update specific Node.js dependency:
 

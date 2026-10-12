@@ -23,7 +23,7 @@ The server needs some data unencrypted to sync your devices. This is all the une
 
 Sync can’t work without this data, so there is no way to have a cloud account with less data.
 
-We keep this data until you delete it. The _Delete your data from the cloud_ button on the _Cloud_ page deletes all of it immediately.
+We keep this data until you delete it. The _Delete your data from the cloud_ button on the _Cloud_ page deletes all of it immediately. Daily database backups keep a copy for 7 more days.
 
 ## Loading Feeds
 
@@ -41,7 +41,9 @@ Our logs don’t have your IP address or data, only your random user ID and devi
 
 ## Hosting
 
-Our servers run at Hetzner in the EU. You can read <a href="https://www.hetzner.com/legal/privacy-policy/" target="_blank">Hetzner’s privacy policy</a>.
+Our servers and database run at Scaleway in Paris, France. Database backups are stored in another Scaleway data center in the EU. You can read <a href="https://www.scaleway.com/en/privacy-policy/" target="_blank">Scaleway’s privacy policy</a>.
+
+The test version at `dev.slowreader.app` runs at Hetzner in the EU. You can read <a href="https://www.hetzner.com/legal/privacy-policy/" target="_blank">Hetzner’s privacy policy</a>.
 
 ## Your Rights
 
@@ -64,4 +66,4 @@ If you email us, we use your email address and message only to answer you. We de
 
 ## Changes
 
-We may change this policy at any time. Check this page for the latest version. Last change: October 6, 2026. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.
+We may change this policy at any time. Check this page for the latest version. Last change: October 12, 2026. See <a href="https://github.com/hplush/slowreader/commits/main/docs/privacy.md" target="_blank">the history of changes</a> of this policy.

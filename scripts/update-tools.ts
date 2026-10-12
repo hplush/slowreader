@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// Script to update Node.js and pnpm everywhere.
+// Script to update Node.js, pnpm, and OpenTofu everywhere.
 //
 // By default it will keep Node.js and pnpm major versions, but can update
-// to the next major by `pnpm update-env --major-node` and `--major-pnpm`
+// to the next major by `pnpm update-tools --major-node` and `--major-pnpm`
 // arguments. You can specify version `--major-node 22`.
 //
 // If you change script and need to update result without new Node.js version
-// run it with `pnpm update-env --force` argument.
+// run it with `pnpm update-tools --force` argument.
 
 import { globSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -36,6 +36,7 @@ interface Release {
 
 interface GitHubReleases {
   assets: { digest: string; name: string }[]
+  prerelease: boolean
   tag_name: string
 }
 
@@ -59,18 +60,14 @@ function getVersionNumbers(tag: string): number[] {
     .map(i => parseInt(i))
 }
 
-async function getLatestPnpm(
-  major: string | undefined
-): Promise<[string, Architectures]> {
-  let response = await fetch(
-    'https://api.github.com/repos/pnpm/pnpm/releases?per_page=100'
-  )
-  let releases = (await response.json()) as GitHubReleases[]
-  // The repository releases other tools too, and GitHub’s latest release
-  // is the last published one, which can be the older major, since pnpm
-  // releases two branches at once
-  let release = releases
-    .filter(i => i.tag_name.startsWith(major ? `v${major}.` : 'v'))
+// GitHub’s latest release is the last published one, which can be a fix
+// for the older branch, since pnpm and OpenTofu release several branches
+function findNewestRelease(
+  releases: GitHubReleases[],
+  prefix: string
+): GitHubReleases {
+  return releases
+    .filter(i => i.tag_name.startsWith(prefix))
     .toSorted((a, b) => {
       let first = getVersionNumbers(a.tag_name)
       let second = getVersionNumbers(b.tag_name)
@@ -80,15 +77,46 @@ async function getLatestPnpm(
         second[2]! - first[2]!
       )
     })[0]!
+}
+
+function getAssetSha256(release: GitHubReleases, name: string): string {
+  return release.assets
+    .find(i => i.name === name)!
+    .digest.replace(/^sha256:/, '')
+}
+
+async function getLatestPnpm(
+  major: string | undefined
+): Promise<[string, Architectures]> {
+  let response = await fetch(
+    'https://api.github.com/repos/pnpm/pnpm/releases?per_page=100'
+  )
+  let releases = (await response.json()) as GitHubReleases[]
+  let release = findNewestRelease(releases, major ? `v${major}.` : 'v')
   return [
     release.tag_name.slice(1),
     {
-      arm64: release.assets
-        .find(i => i.name === 'pnpm-linux-arm64.tar.gz')!
-        .digest.replace(/^sha256:/, ''),
-      x64: release.assets
-        .find(i => i.name === 'pnpm-linux-x64.tar.gz')!
-        .digest.replace(/^sha256:/, '')
+      arm64: getAssetSha256(release, 'pnpm-linux-arm64.tar.gz'),
+      x64: getAssetSha256(release, 'pnpm-linux-x64.tar.gz')
+    }
+  ]
+}
+
+async function getLatestTofu(): Promise<[string, Architectures]> {
+  let response = await fetch(
+    'https://api.github.com/repos/opentofu/opentofu/releases?per_page=100'
+  )
+  let releases = (await response.json()) as GitHubReleases[]
+  let release = findNewestRelease(
+    releases.filter(i => !i.prerelease),
+    'v'
+  )
+  let version = release.tag_name.slice(1)
+  return [
+    version,
+    {
+      arm64: getAssetSha256(release, `tofu_${version}_linux_arm64.tar.gz`),
+      x64: getAssetSha256(release, `tofu_${version}_linux_amd64.tar.gz`)
     }
   ]
 }
@@ -172,6 +200,7 @@ function replaceKey(file: string, key: string, value: string): string {
 let dockerfile = read(join(ROOT, '.devcontainer', 'Dockerfile'))
 let currentNode = dockerfile.match(/NODE_VERSION=(\S+)/)![1]!
 let currentPnpm = dockerfile.match(/PNPM_VERSION=(\S+)/)![1]!
+let currentTofu = dockerfile.match(/TOFU_VERSION=(\S+)/)![1]!
 
 let latestNode = await getLatestNodeVersion(
   getMajor('--major-node', currentNode.split('.')[0]!)
@@ -179,6 +208,7 @@ let latestNode = await getLatestNodeVersion(
 let [latestPnpm, pnpmChecksums] = await getLatestPnpm(
   getMajor('--major-pnpm', currentPnpm.split('.')[0]!)
 )
+let [latestTofu, tofuChecksums] = await getLatestTofu()
 
 if (currentNode !== latestNode || FORCE) {
   printUpdate('Node.js', currentNode, latestNode)
@@ -213,8 +243,15 @@ if (updatePnpm) {
   })
 }
 
-if (currentNode === latestNode && !updatePnpm) {
+let updateTofu = currentTofu !== latestTofu || FORCE
+if (updateTofu) {
+  printUpdate('OpenTofu', currentTofu, latestTofu)
+  dockerfile = replaceVersionEnv(dockerfile, 'TOFU', latestTofu, tofuChecksums)
+  writeFileSync(join(ROOT, '.devcontainer', 'Dockerfile'), dockerfile)
+}
+
+if (currentNode === latestNode && !updatePnpm && !updateTofu) {
   process.stderr.write(
-    styleText('gray', 'No Node.js or pnpm updates available\n')
+    styleText('gray', 'No Node.js, pnpm, or OpenTofu updates available\n')
   )
 }
