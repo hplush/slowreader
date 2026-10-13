@@ -1,4 +1,12 @@
 {
+  "slowreader.app": {
+    "hidden": false,
+    "paths": ["/", "/app"]
+  },
+  "proxy.slowreader.app": {
+    "hidden": true,
+    "paths": []
+  },
   "dev.slowreader.app": {
     "hidden": true,
     "paths": ["/", "/app"]
