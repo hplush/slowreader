@@ -4,7 +4,8 @@
 #
 # Run it outside Dev Container.
 #
-# Use `SKIP_VERIFIER=1 ./script/release.sh` to skip waiting for verifier.
+# Use `SKIP_VERIFIER=1 ./scripts/release.sh` to skip waiting for verifier.
+# Use `ONLY_DEPLOY=1 ./scripts/release.sh` to deploy the latest release again.
 
 set -euo pipefail
 export LC_ALL=C
@@ -32,6 +33,60 @@ ask() {
   printf "$GRAY"
 }
 
+deploy() {
+  # SKIP_VERIFIER=1 for the first release, which verifier can’t check yet
+  if [ -z "${SKIP_VERIFIER:-}" ]; then
+    step "Waiting for the verifier, it runs every hour"
+    until curl -fsS -o "$WORK/verified.json" \
+      "https://gitlab.com/hplush/slowreader-verifier/-/raw/main/releases/$VERSION.json" \
+      2> /dev/null; do
+      sleep 60
+    done
+    if [ "$(jq -r .status "$WORK/verified.json")" != "verified" ]; then
+      error "Verifier: $(jq -r .reason "$WORK/verified.json")"
+    fi
+    if [ "$(jq -r .image "$WORK/verified.json")" != "$(cat "$WORK/image.txt")" ]; then
+      error "Verifier checked $(jq -r .image "$WORK/verified.json")"
+    fi
+  fi
+
+  step "Create 1 hour API key for deploy application:"
+  step "https://console.scaleway.com/iam/api-keys"
+  ask 'Scaleway secret key: ' -s
+  SECRET=$ANSWER
+  echo
+  API=https://api.scaleway.com/containers/v1/regions/fr-par
+  NAMESPACE=$(curl -fsS "$API/namespaces?name=slowreader" -H "X-Auth-Token: $SECRET" \
+    | jq -r '.namespaces[0].id')
+  IDS=()
+  for NAME in app proxy; do
+    ID=$(curl -fsS "$API/containers?namespace_id=$NAMESPACE&name=$NAME" \
+      -H "X-Auth-Token: $SECRET" | jq -r '.containers[0].id')
+    # Digest instead of tag, so production runs exactly the signed image
+    jq -n --arg image "$(cat "$WORK/image.txt")" '{image: $image}' \
+      | curl -fsS -X PATCH "$API/containers/$ID" -H "X-Auth-Token: $SECRET" \
+        -H 'Content-Type: application/json' --data @- > /dev/null
+    IDS+=("$ID")
+  done
+  for ID in "${IDS[@]}"; do
+    STATUS=""
+    until [ "$STATUS" = "ready" ]; do
+      sleep 10
+      CONTAINER=$(curl -fsS "$API/containers/$ID" -H "X-Auth-Token: $SECRET")
+      STATUS=$(jq -r .status <<< "$CONTAINER")
+      if [ "$STATUS" = "error" ]; then
+        error "$(jq -r '"\(.name): \(.error_message)"' <<< "$CONTAINER")"
+      fi
+    done
+  done
+
+  DEPLOYED=$(curl -fsS https://slowreader.app/manifest.json | jq -r .commit)
+  if [ "$DEPLOYED" != "$RELEASED" ]; then
+    error "slowreader.app runs $DEPLOYED commit"
+  fi
+  step "Deployed. Delete API key: https://console.scaleway.com/iam/api-keys"
+}
+
 # Commands output is gray to separate it from script’s steps
 printf "$GRAY"
 
@@ -39,6 +94,22 @@ printf "$GRAY"
 if [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
   error "Run it outside of Dev Container"
 fi
+
+if [ -n "${ONLY_DEPLOY:-}" ]; then
+  VERSION=$(curl -fsSI "https://github.com/$REPO/releases/latest" \
+    | tr -d '\r' | sed -n 's|^location: .*/tag/||Ip')
+  DOWNLOAD="https://github.com/$REPO/releases/download/$VERSION"
+  curl -fsSL -o "$WORK/image.txt" "$DOWNLOAD/image.txt"
+  curl -fsSL -o "$WORK/image.txt.sig" "$DOWNLOAD/image.txt.sig"
+  ssh-keygen -Y verify -f "$ROOT/verifier/allowed_signers" -I release \
+    -n slowreader-release -s "$WORK/image.txt.sig" < "$WORK/image.txt" \
+    || error "Wrong signature of $VERSION image"
+  RELEASED=$(curl -fsSL "$DOWNLOAD/manifest.json" | jq -r .commit)
+  step "Deploying $VERSION"
+  deploy
+  exit
+fi
+
 # Fixes are cherry-picked to release branch to skip unreleased features
 if [ "${1:-}" = "fix" ]; then
   BRANCH=release
@@ -154,54 +225,4 @@ until curl -fsI "https://github.com/$REPO/releases/tag/$VERSION" > /dev/null; do
 done
 step "https://github.com/$REPO/releases/tag/$VERSION"
 
-# SKIP_VERIFIER=1 for the first release, which verifier can’t check yet
-if [ -z "${SKIP_VERIFIER:-}" ]; then
-  step "Waiting for the verifier, it runs every hour"
-  until curl -fsS -o "$WORK/verified.json" \
-    "https://gitlab.com/hplush/slowreader-verifier/-/raw/main/releases/$VERSION.json" \
-    2> /dev/null; do
-    sleep 60
-  done
-  if [ "$(jq -r .status "$WORK/verified.json")" != "verified" ]; then
-    error "Verifier: $(jq -r .reason "$WORK/verified.json")"
-  fi
-  if [ "$(jq -r .image "$WORK/verified.json")" != "$(cat "$WORK/image.txt")" ]; then
-    error "Verifier checked $(jq -r .image "$WORK/verified.json")"
-  fi
-fi
-
-step "Create 1 hour API key for deploy application:"
-step "https://console.scaleway.com/iam/api-keys"
-ask 'Scaleway secret key: ' -s
-SECRET=$ANSWER
-echo
-API=https://api.scaleway.com/containers/v1/regions/fr-par
-NAMESPACE=$(curl -fsS "$API/namespaces?name=slowreader" -H "X-Auth-Token: $SECRET" \
-  | jq -r '.namespaces[0].id')
-IDS=()
-for NAME in app proxy; do
-  ID=$(curl -fsS "$API/containers?namespace_id=$NAMESPACE&name=$NAME" \
-    -H "X-Auth-Token: $SECRET" | jq -r '.containers[0].id')
-  # Digest instead of tag, so production runs exactly the signed image
-  jq -n --arg image "$(cat "$WORK/image.txt")" '{image: $image}' \
-    | curl -fsS -X PATCH "$API/containers/$ID" -H "X-Auth-Token: $SECRET" \
-      -H 'Content-Type: application/json' --data @- > /dev/null
-  IDS+=("$ID")
-done
-for ID in "${IDS[@]}"; do
-  STATUS=""
-  until [ "$STATUS" = "ready" ]; do
-    sleep 10
-    CONTAINER=$(curl -fsS "$API/containers/$ID" -H "X-Auth-Token: $SECRET")
-    STATUS=$(jq -r .status <<< "$CONTAINER")
-    if [ "$STATUS" = "error" ]; then
-      error "$(jq -r '"\(.name): \(.error_message)"' <<< "$CONTAINER")"
-    fi
-  done
-done
-
-DEPLOYED=$(curl -fsS https://slowreader.app/manifest.json | jq -r .commit)
-if [ "$DEPLOYED" != "$RELEASED" ]; then
-  error "slowreader.app runs $DEPLOYED commit"
-fi
-step "Deployed. Delete API key: https://console.scaleway.com/iam/api-keys"
+deploy
