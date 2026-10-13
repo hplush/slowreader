@@ -1,0 +1,140 @@
+name: Release
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+permissions: {}
+jobs:
+  build:
+    name: Image Build
+    outputs:
+      digest: ${{ steps.push.outputs.digest }}
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            9236a389bd48b984df91adc1bc924620.r2.cloudflarestorage.com:443
+            api.github.com:443
+            apk.cgr.dev:443
+            auth.docker.io:443
+            cgr.dev:443
+            codeload.github.com:443
+            fulcio.sigstore.dev:443
+            ghcr.io:443
+            github.com:443
+            nodejs.org:443
+            objects.githubusercontent.com:443
+            pkg-containers.githubusercontent.com:443
+            production.cloudflare.docker.com:443
+            production.cloudfront.docker.com:443
+            raw.githubusercontent.com:443
+            registry-1.docker.io:443
+            registry.npmjs.org:443
+            rekor.sigstore.dev:443
+            release-assets.githubusercontent.com:443
+            tuf-repo-cdn.sigstore.dev:443
+      - name: Checkout the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push image
+        id: push
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          # Docker’s own builder can’t rewrite timestamps
+          docker buildx create --use --driver docker-container
+          # `buildx replay` needs Git context and full provenance
+          docker buildx build --target production --metadata-file meta.json \
+            --provenance=mode=max,version=v1 \
+            --build-arg SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)" \
+            --build-arg COMMIT="$GITHUB_SHA" \
+            --tag "ghcr.io/hplush/slowreader:$TAG" \
+            --tag ghcr.io/hplush/slowreader:latest \
+            --output type=registry,rewrite-timestamp=true \
+            "https://github.com/$GITHUB_REPOSITORY.git#$GITHUB_SHA"
+          echo "digest=$(jq -r '.["containerimage.digest"]' meta.json)" >> "$GITHUB_OUTPUT"
+      - name: Sign build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-name: ghcr.io/hplush/slowreader
+          subject-digest: ${{ steps.push.outputs.digest }}
+  release:
+    name: GitHub Release
+    needs: build
+    environment: release
+    permissions:
+      actions: read
+      contents: write
+      packages: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            ghcr.io:443
+            github.com:443
+            pkg-containers.githubusercontent.com:443
+            uploads.github.com:443
+      - name: Checkout the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            CHANGELOG.md
+            verifier/allowed_signers
+          sparse-checkout-cone-mode: false
+      - name: Check maintainer signature from approval comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE: ghcr.io/hplush/slowreader@${{ needs.build.outputs.digest }}
+        run: |
+          echo "$IMAGE" > image.txt
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/approvals" \
+            --jq '[.[] | select(.state == "approved")][0].comment' \
+            | tr -d ' \r\n' | fold -w 70 > signature.txt
+          {
+            echo '-----BEGIN SSH SIGNATURE-----'
+            cat signature.txt
+            echo
+            echo '-----END SSH SIGNATURE-----'
+          } > image.txt.sig
+          ssh-keygen -Y verify -f verifier/allowed_signers -I release \
+            -n slowreader-release -s image.txt.sig < image.txt
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          IMAGE: ghcr.io/hplush/slowreader@${{ needs.build.outputs.digest }}
+        run: |
+          ID=$(docker create "$IMAGE")
+          docker cp "$ID:/var/www/manifest.json" manifest.json
+          awk -v version="## $TAG" \
+            '$0 == version { found = 1; next } /^## / { found = 0 } found' \
+            CHANGELOG.md > notes.md
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --verify-tag \
+            --title "$TAG" --notes-file notes.md \
+            image.txt image.txt.sig manifest.json
