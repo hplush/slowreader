@@ -6,6 +6,7 @@ export const aboutMessages = i18n('about', {
     'This app is open source. Anyone, including developers and LLMs, can see exactly how it works and verify our promises.',
   pageTitle: 'About',
   reportIssue: 'Report an issue',
+  serverVerification: 'Server verification',
   update: 'Update app',
   version: 'App version',
   viewSources: 'View source code'

@@ -4,6 +4,7 @@
     mdiCellphoneArrowDown,
     mdiEye,
     mdiRefresh,
+    mdiServerSecurity,
     mdiShieldSearch
   } from '@mdi/js'
   import {
@@ -53,6 +54,15 @@
           variant="secondary"
         >
           {$t.viewSources}
+        </Button>
+        <Button
+          href="https://hplush.gitlab.io/slowreader-verifier/"
+          icon={mdiServerSecurity}
+          size="wide"
+          target="_blank"
+          variant="secondary"
+        >
+          {$t.serverVerification}
         </Button>
       </Stack>
     </Note>
