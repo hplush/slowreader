@@ -15,8 +15,8 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"; printf "$RESET"' EXIT
 
-GRAY='\033[90m'
-GREEN='\033[32m'
+GRAY='\033[0;90m'
+GREEN='\033[1;32m'
 RED='\033[31m'
 BOLD='\033[0;1m'
 RESET='\033[0m'
