@@ -6,6 +6,8 @@ set -euo pipefail
 
 # Static hosting can’t list folders, so the page needs a list of results
 mkdir -p public
+# Git doesn’t keep empty folders, so they are missing before the first results
+mkdir -p releases checks
 # Copy the page
 cp "$(dirname "$0")/index.html" public/
 # Copy results with their signatures
