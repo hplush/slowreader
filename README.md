@@ -350,9 +350,8 @@ We release every week. Version is `MAJOR.DATE.PATCH` like `0.20261012.1`: `DATE`
 1. Run `./scripts/release.sh` outside Dev Container:
    - Weekly release: run it without arguments from `main`. It moves `release` branch to `main`.
    - Quick fix with all changes from `main`:
-     1. Run `git switch release && git pull`.
-     2. Run `git merge --ff-only origin/main`.
-     3. Run `./scripts/release.sh fix`.
+     1. Run `git switch release && git pull && git merge --ff-only origin/main`.
+     2. Run `./scripts/release.sh fix`.
    - Quick fix without unreleased features from `main`:
      1. Run `git switch release && git pull`.
      2. Run `git cherry-pick COMMIT` for every fix from `main`.
