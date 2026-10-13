@@ -20,6 +20,7 @@ find "$WORK/repo" -mindepth 1 -maxdepth 1 \
   ! -name .git ! -name releases ! -name checks -exec rm -rf {} +
 git -C "$ROOT" archive HEAD:verifier | tar -x -C "$WORK/repo"
 rm -r "$WORK/repo/scripts"
+git -C "$ROOT" show HEAD:LICENSE.md > "$WORK/repo/LICENSE.md"
 
 git -C "$WORK/repo" add --all
 if git -C "$WORK/repo" diff --cached --quiet; then
