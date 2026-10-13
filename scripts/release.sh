@@ -205,7 +205,7 @@ sed -i.bak "s/^export const VERSION = '.*'$/export const VERSION = '$VERSION'/" 
 rm "$ROOT/api/index.ts.bak"
 git -C "$ROOT" add CHANGELOG.md api/index.ts
 # Hooks need Dev Container tools, and we change only generated text
-git -C "$ROOT" commit --no-verify -m "Release $VERSION release"
+git -C "$ROOT" commit --no-verify -m "Release $VERSION version"
 git -C "$ROOT" tag -a "$VERSION" -m "$VERSION"
 RELEASED=$(git -C "$ROOT" rev-parse HEAD)
 if [ "$BRANCH" = "main" ]; then
