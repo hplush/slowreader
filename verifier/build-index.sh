@@ -12,10 +12,19 @@ mkdir -p releases checks
 cp "$(dirname "$0")/index.html" "$(dirname "$0")/favicon.svg" public/
 # Copy results with their signatures
 cp -r releases checks public/
-# Release results, newest first, and names of days with site checks
-find releases -name '*[0-9].json' -exec cat {} + | jq -s \
-  --args '{
-    releases: sort_by(.tag | split(".") | map(tonumber)) | reverse,
-    days: $ARGS.positional | sort | reverse
-  }' \
-  $(find checks -name '*.txt' -exec basename {} .txt \;) > public/index.json
+# Release results, newest first
+RELEASES=$(find releases -name '*[0-9].json' -exec cat {} + |
+  jq -s 'sort_by(.tag | split(".") | map(tonumber)) | reverse')
+# Count checks and problems of every day, so the page doesn’t download all days
+DAYS=$(for file in checks/*.txt; do
+  # Skip the pattern itself when there are no files yet
+  [ -f "$file" ] || continue
+  # Day name, count of check lines, and count of failed checks
+  jq -n --arg day "$(basename "$file" .txt)" \
+    --argjson checks "$(grep -c '^[0-9]' "$file" || true)" \
+    --argjson problems "$(grep -cE '^[0-9:]+ (fail|down)' "$file" || true)" \
+    '{day: $day, checks: $checks, problems: $problems}'
+done | jq -s 'sort_by(.day) | reverse')
+# Index for the page
+jq -n --argjson releases "$RELEASES" --argjson days "$DAYS" \
+  '{releases: $releases, days: $days}' > public/index.json

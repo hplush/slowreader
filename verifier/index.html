@@ -117,10 +117,13 @@
         padding-left: 11ch;
       }
       /* Days go one by one like a bar, but are high enough to tap on mobile */
-      #history {
+      #history div {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
+      }
+      #history .label {
+        white-space: pre;
       }
       #history button {
         min-height: 24px;
@@ -613,10 +616,13 @@ done</pre>
         }
       }
 
+      // Count of checks and problems of every day with checks
+      let summaries = Object.fromEntries(index.days.map(i => [i.day, i]))
+
       // Load lines of the day as [time, result, details]
       async function loadDay(day) {
         // Missed day has no file
-        if (!index.days.includes(day)) return []
+        if (!summaries[day]) return []
         // Check results without the verifier line
         return (await (await fetch(`checks/${day}.txt`)).text())
           .split('\n')
@@ -682,74 +688,107 @@ done</pre>
         return block
       }
 
+      // Day in the format of check files
+      function dayName(ago) {
+        return new Date(Date.now() - ago * DAY).toISOString().slice(0, 10)
+      }
+
+      // Button with one symbol for the day, which opens day details
+      function dayButton(day) {
+        // Count of checks and problems of the day
+        let summary = summaries[day]
+        // Button opens details of the day
+        let button = document.createElement('button')
+        // Dot for missed day, square for good, triangle for problem
+        button.append(
+          !summary
+            ? span('·', 'dim')
+            : summary.problems
+              ? span('▲', 'bad')
+              : span('■', 'good')
+        )
+        // Text for screen readers
+        button.setAttribute(
+          'aria-label',
+          summary
+            ? `${day}: ${summary.checks} checks, ${summary.problems} problems`
+            : `${day}: no checks`
+        )
+        // Open the day details near the symbol
+        button.addEventListener('click', async () => {
+          // Day name in the title
+          document.getElementById('day-title').textContent = day
+          // Hourly bar and events of the day
+          let content = document.getElementById('day-content')
+          content.replaceChildren(renderDay(await loadDay(day)))
+          // Raw results are signed, so link them for own check
+          if (summary) {
+            let link = document.createElement('a')
+            link.href = `checks/${day}.txt`
+            link.textContent = 'Raw results'
+            content.append(link)
+          }
+          openNear(document.getElementById('day'), button)
+        })
+        return button
+      }
+
       // Show site checks and count share of good checks
       async function showDays() {
-        // Last 30 days from today to the past in the format of check files
-        let days = Array.from({ length: 30 }, (_, ago) =>
-          new Date(Date.now() - ago * DAY).toISOString().slice(0, 10)
+        // Today with the hourly bar
+        let today = document.getElementById('today')
+        today.replaceChildren(
+          span('Today'.padEnd(11)),
+          renderDay(await loadDay(dayName(0)))
         )
-        // Lines of every day, loaded in parallel
-        let lines = await Promise.all(days.map(loadDay))
-        // All results of the month for the percent
-        let results = lines.flat().map(([, result]) => result)
+        today.lastChild.style.display = 'inline'
+
+        // Row per month for the current month and 5 previous months
+        let history = document.getElementById('history')
+        // Rows by month name like 2026-10
+        let rows = new Map()
+        // From yesterday to the first day of the oldest month
+        for (let ago = 1; ; ago++) {
+          // Day of the check
+          let day = dayName(ago)
+          // Month of the day
+          let monthName = day.slice(0, 7)
+          // Stop after 6 months
+          if (!rows.has(monthName) && rows.size === 6) break
+          // Create the row with month label on first day of the month
+          if (!rows.has(monthName)) {
+            // Row of the month
+            let row = document.createElement('div')
+            // Month label like Oct 2026 with fixed width
+            let label = new Date(`${day}T00:00:00Z`).toLocaleString('en', {
+              month: 'short',
+              timeZone: 'UTC',
+              year: 'numeric'
+            })
+            row.append(span(label.padEnd(11), 'label'))
+            rows.set(monthName, row)
+            history.append(row)
+          }
+          // Days go from the first day of the month
+          rows.get(monthName).children[0].after(dayButton(day))
+        }
+
+        // Days with checks since the first day of the oldest shown month
+        let shown = index.days.filter(
+          i => i.day >= `${[...rows.keys()].at(-1)}-01`
+        )
+        // Count of checks and problems for the percent
+        let checks = shown.reduce((sum, i) => sum + i.checks, 0)
+        let problems = shown.reduce((sum, i) => sum + i.problems, 0)
         // Share of good checks, rounded down to never show 100% with problems
-        let percent = results.length
-          ? `${Math.floor((results.filter(isGood).length / results.length) * 100)}%`
+        let percent = checks
+          ? `${Math.floor(((checks - problems) / checks) * 100)}%`
           : '–%'
         // Show the percent
         let percentMark = document.getElementById('percent')
         percentMark.className = ''
         percentMark.textContent = percent
         document.getElementById('percent-text').textContent = percent
-
-        // Today with the hourly bar
-        let today = document.getElementById('today')
-        today.replaceChildren(span('Today'.padEnd(11)), renderDay(lines[0]))
-        today.lastChild.style.display = 'inline'
-
-        // Other days as one symbol per day, oldest first
-        let history = document.getElementById('history')
-        history.before(span('Last month'))
-        for (let ago = days.length - 1; ago >= 1; ago--) {
-          // Checks of the day
-          let dayLines = lines[ago]
-          // Count of problems
-          let problems = dayLines.filter(([, result]) => !isGood(result)).length
-          // Button opens details of the day
-          let button = document.createElement('button')
-          // Dot for missed day, square for good, triangle for problem
-          button.append(
-            dayLines.length === 0
-              ? span('·', 'dim')
-              : problems
-                ? span('▲', 'bad')
-                : span('■', 'good')
-          )
-          // Text for screen readers
-          button.setAttribute(
-            'aria-label',
-            dayLines.length === 0
-              ? `${days[ago]}: no checks`
-              : `${days[ago]}: ${dayLines.length} checks, ${problems} problems`
-          )
-          // Open the day details near the symbol
-          button.addEventListener('click', () => {
-            // Day name in the title
-            document.getElementById('day-title').textContent = days[ago]
-            // Hourly bar, events, and link to the raw results
-            let content = document.getElementById('day-content')
-            content.replaceChildren(renderDay(dayLines))
-            // Raw results are signed, so link them for own check
-            if (dayLines.length > 0) {
-              let link = document.createElement('a')
-              link.href = `checks/${days[ago]}.txt`
-              link.textContent = 'Raw results'
-              content.append(link)
-            }
-            openNear(document.getElementById('day'), button)
-          })
-          history.append(button)
-        }
       }
 
       // Releases need no network
