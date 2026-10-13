@@ -62,6 +62,7 @@
       }
       footer {
         margin-top: 1.6em;
+        color: var(--dim);
       }
       ul {
         padding: 0;
@@ -99,7 +100,8 @@
       .bad {
         color: var(--bad);
       }
-      .dim {
+      .dim,
+      footer a {
         color: var(--dim);
       }
       .events {
@@ -250,11 +252,18 @@
       <ul id="builds">
         <li><span class="loading" aria-hidden="true"></span> Loading builds</li>
       </ul>
-      <h2>Site checks (UTC)</h2>
+      <a
+        href="https://gitlab.com/hplush/slowreader-verifier/-/tree/main/releases"
+        >All builds</a
+      >
+      <h2>Site checks <span class="dim">(UTC)</span></h2>
       <div id="today">
         <span class="loading" aria-hidden="true"></span> Loading checks
       </div>
       <div id="history"></div>
+      <a href="https://gitlab.com/hplush/slowreader-verifier/-/tree/main/checks"
+        >Checks sources</a
+      >
       <footer>
         <a href="https://gitlab.com/hplush/slowreader-verifier">Sources</a>
         ·
@@ -448,9 +457,11 @@ done</pre>
       }
 
       // Create link to the release page on GitHub
-      function releaseLink(tag, text) {
+      function releaseLink(tag, text, color) {
         // New link
         let link = document.createElement('a')
+        // Color, if we need it
+        if (color) link.className = color
         // Release page with its files and changelog
         link.href = `https://github.com/hplush/slowreader/releases/tag/${tag}`
         // Visible text
@@ -459,9 +470,11 @@ done</pre>
       }
 
       // Create link to the commit on GitHub
-      function commitLink(commit) {
+      function commitLink(commit, color) {
         // New link
         let link = document.createElement('a')
+        // Color, if we need it
+        if (color) link.className = color
         // Commit page
         link.href = `https://github.com/hplush/slowreader/commit/${commit}`
         // Short hash like in git log
@@ -546,26 +559,32 @@ done</pre>
         // Show deployed commit
         document
           .getElementById('commit')
-          .replaceChildren(commitLink(manifest.commit))
+          .replaceChildren(commitLink(manifest.commit, 'good'))
         finish(1, 'passed')
 
         // Our release with this commit
         let release = index.releases.find(i => i.commit === manifest.commit)
+        // Release passed the rebuild
+        let verified = release?.status === 'verified'
         // Show release name and fill it in the help commands
         if (release) {
           // Commit leads to its release
           document
             .getElementById('commit')
             .replaceChildren(
-              releaseLink(release.tag, release.commit.slice(0, 7))
+              releaseLink(release.tag, release.commit.slice(0, 7), 'good')
             )
-          document.getElementById('release').textContent = release.tag
+          document
+            .getElementById('release')
+            .replaceChildren(
+              releaseLink(release.tag, release.tag, verified ? 'good' : 'bad')
+            )
           for (let tag of document.querySelectorAll('.tag')) {
             tag.textContent = release.tag
           }
         }
         // Release must pass the rebuild
-        if (release?.status !== 'verified') {
+        if (!verified) {
           finish(2, 'failed')
           return skip(3)
         }
@@ -603,7 +622,8 @@ done</pre>
         let builds = document.getElementById('builds')
         // Remove the loader
         builds.replaceChildren()
-        for (let release of index.releases) {
+        // Older builds are in the repository by the link under the list
+        for (let release of index.releases.slice(0, 10)) {
           // Release passed the rebuild
           let ok = release.status === 'verified'
           // Line of the build
