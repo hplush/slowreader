@@ -49,18 +49,24 @@ Steps, which OpenTofu can’t do. You need them only once.
       - **Object Storage** → `ObjectStorageFullAccess`.
    4. Select **Specific projects**, choose `Slow Reader`, and click **Next**.
    5. Skip conditions, click **Confirm rule**, and **Create policy**.
-6. Create a bucket for the Tofu state:
+6. Create `deploy` IAM application for `scripts/release.sh`:
+   1. In **IAM & API keys** open **Applications** tab and click **Create application**.
+   2. Enter `deploy` name and click **Create application**.
+   3. Open **Policies** tab, click **Create policy**, enter `deploy` name, and select `deploy` application as the principal.
+   4. In **Resource management** tick **Serverless Containers** → `ContainersFullAccess` and click **Next**.
+   5. Select **Specific projects**, choose `Slow Reader`, click **Next**, **Confirm rule**, and **Create policy**.
+7. Create a bucket for the Tofu state:
    1. Open **Create** → **Object Storage Bucket**.
    2. Select `Paris` (`fr-par`) region and enter `slowreader-tofu-state` name.
    3. Select **Private** visibility.
    4. Tick **Enable bucket versioning** to restore a broken state.
    5. Click **Create bucket**.
-7. Add `slowreader.app` as an external domain:
+8. Add `slowreader.app` as an external domain:
    1. Open **Domains & DNS** in the side menu.
    2. Click **+ Search domain name**, enter `slowreader.app`, and click the search icon.
    3. Click **Manage as external** in **Exact match** and **Manage as external** again to confirm.
-8. Create an API key as we tell in `Apply Changes` section above.
-9. Generate a passphrase with at least 16 symbols and save it in a password manager. State is encrypted by it, and we can’t read the state without it.
+9. Create an API key as we tell in `Apply Changes` section above.
+10. Generate a passphrase with at least 16 symbols and save it in a password manager. State is encrypted by it, and we can’t read the state without it.
 
 Apply initial status:
 

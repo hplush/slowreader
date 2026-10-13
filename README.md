@@ -38,6 +38,7 @@ To ask any question: **[h+h lab Discord](https://discord.gg/TyFTp6mAZT)**
   - [Parts](#parts)
   - [Image](#image)
   - [Environments](#environments)
+  - [Release](#release)
   - [Self-Hosted](#self-hosted)
 - [Guides](#guides)
 
@@ -117,6 +118,8 @@ Slow Reader is a local-first app. Clients do most of the work, and the server ju
   - [`docs/development/`](./docs/development/): guides for developers.
 - [`Dockerfile`](./Dockerfile): single production image for the app and proxy, where `ROLE` environment variable chooses what to run.
 - [`infra/`](./infra/): production servers config.
+- [`unreleased-changes/`](./unreleased-changes/): changes for the next release, which `scripts/release.sh` moves to [`CHANGELOG.md`](./CHANGELOG.md).
+- [`verifier/`](./verifier/): scripts to check that releases are reproducible and `slowreader.app` runs a verified release, which GitLab CI runs every hour.
 - [`scripts/`](./scripts/): scripts to test project and configure Google Cloud. Check the script’s descriptions for further details.
 - [`test/`](./test/): end-to-end tests of the deployed app.
 - [`loader-tests/`](./loader-tests/): integration tests for each social network or news format.
@@ -332,11 +335,28 @@ See [server](./server/README.md#environment-variables) and [proxy](./proxy/READM
 
 ### Environments
 
-- **Production:** `slowreader.app` and `proxy.slowreader.app` on Google Cloud.
+- **Production:** `slowreader.app` and `proxy.slowreader.app` on [Scaleway](./infra/).
 - **Staging:** `main` branch is on `dev.slowreader.app` and `proxy.dev.slowreader.app` on our [cloud](https://github.com/hplush/cloud).
 - **Pull request preview:** CI publishes a `View deployment` link to the pull request in 2 minutes. Preview runs everything in one instance on our [cloud](https://github.com/hplush/cloud).
 
 Run `./scripts/run-image.sh ROLE` to build and run the image locally.
+
+### Release
+
+We release every week. Version is `MAJOR.DATE.PATCH` like `0.20261012.1`: `DATE` is the day of the weekly release and `PATCH` counts quick fixes after it.
+
+1. Run `./scripts/release.sh` outside Dev Container for weekly release from `main` or `./scripts/release.sh fix` for a quick fix from `release` branch.
+2. It moves [`unreleased-changes/`](./unreleased-changes/) to [`CHANGELOG.md`](./CHANGELOG.md), updates the version, tags the release, and waits for the image from [release workflow](./.github/workflows/release.yml).
+3. Touch the hardware key from [`verifier/allowed_signers`](./verifier/allowed_signers) to sign the image.
+4. Paste the signature as a comment to `release` environment approval.
+5. Wait for [verifier](./verifier/) to rebuild the image. It runs every hour.
+6. Paste 1 hour API key of `deploy` IAM application from [Scaleway console](https://console.scaleway.com/iam/api-keys). The script deploys the image to production by digest.
+
+`release` branch always has the latest release. The weekly release moves it to `main`. For a quick fix without unreleased features from `main`:
+
+1. Run `git switch release && git pull`.
+2. Run `git cherry-pick COMMIT` for every fix from `main`.
+3. Run `./scripts/release.sh fix`. After pushing the release it merges `release` back to `main`. If merge has conflicts, resolve them and push `main`.
 
 ### Self-Hosted
 
