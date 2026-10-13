@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.20261013.3
+
+### Fixes
+
+- Added server verification status link to About page and landing.
+- Allowed status pages on other websites to check `slowreader.app` files from the browser.
+
 ## 0.20261013.2
 
 ### Fixes
