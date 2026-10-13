@@ -359,7 +359,7 @@ We release every week. Version is `MAJOR.DATE.PATCH` like `0.20261012.1`: `DATE`
 2. It moves [`unreleased-changes/`](./unreleased-changes/) to [`CHANGELOG.md`](./CHANGELOG.md), updates the version, tags the release, and waits for the image from [release workflow](./.github/workflows/release.yml).
 3. It asks to touch the hardware key from [`verifier/allowed_signers`](./verifier/allowed_signers) to sign the image.
 4. It asks to paste the signature as a comment to `release` environment approval.
-5. It waits for [verifier](./verifier/) to rebuild the image. It runs every hour.
+5. It waits for [verifier](./verifier/) to check the image.
 6. It asks 1 hour API key of `deploy` IAM application from [Scaleway console](https://console.scaleway.com/iam/api-keys) and deploys the image to production by digest.
 
 ### Self-Hosted

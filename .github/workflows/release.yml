@@ -91,6 +91,7 @@ jobs:
             api.github.com:443
             ghcr.io:443
             github.com:443
+            gitlab.com:443
             pkg-containers.githubusercontent.com:443
             uploads.github.com:443
       - name: Checkout the repository
@@ -145,3 +146,10 @@ jobs:
           gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --verify-tag \
             --title "$TAG" --notes-file notes.md \
             image.txt image.txt.sig manifest.json
+      - name: Start verifier check
+        env:
+          VERIFIER_TRIGGER: ${{ secrets.VERIFIER_TRIGGER }}
+        run: |
+          # Release script waits for verifier, which runs only every hour
+          curl -fsS -o /dev/null -X POST -F token="$VERIFIER_TRIGGER" -F ref=main \
+            https://gitlab.com/api/v4/projects/hplush%2Fslowreader-verifier/trigger/pipeline

@@ -46,6 +46,7 @@ A supply chain attack is malicious code, which comes to the project not from our
 6. **Non-root read-only container.** The server runs without root rights in a read-only container, so attackers who get into it can’t change our code or leave their files for later.
 7. **Reproducible build.** Anyone can check that we run the published source code. The build is reproducible: building the image from the same commit gives the same files as in our published image. We use the same image for production and self-hosted servers, so there is only one image to check. CI checks it every week ([`test/reproducible.sh`](../../test/reproducible.sh)).
 8. **Separated time-sensitive image.** Demo database and landing screenshots change on every build, so they come from a separated image, built every week by [Demo Database workflow](../../.github/workflows/demo-db.yml) and fixed by hash.
+9. **Independent verifier.** A [script](../../verifier/) on separated CI, outside of our GitHub, rebuilds every release from its provenance by `docker buildx replay`, checks GitHub’s signature that our release workflow built it from the tag, checks maintainer’s hardware key signature and every hour compares `slowreader.app` files with the rebuilt image. Results go to the public append-only [Rekor](https://docs.sigstore.dev/logging/overview/) log, so nobody can hide a failed check later.
 
 ## Runtime
 

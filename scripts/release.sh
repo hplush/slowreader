@@ -49,7 +49,7 @@ scaleway() {
 deploy() {
   # SKIP_VERIFIER=1 for the first release, which verifier can’t check yet
   if [ -z "${SKIP_VERIFIER:-}" ]; then
-    step "Waiting for the verifier, it runs every hour"
+    step "Waiting for the verifier"
     until curl -fsS -o "$WORK/verified.json" \
       "https://gitlab.com/hplush/slowreader-verifier/-/raw/main/releases/$VERSION.json" \
       2> /dev/null; do
