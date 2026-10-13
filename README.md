@@ -119,7 +119,7 @@ Slow Reader is a local-first app. Clients do most of the work, and the server ju
 - [`Dockerfile`](./Dockerfile): single production image for the app and proxy, where `ROLE` environment variable chooses what to run.
 - [`infra/`](./infra/): production servers config.
 - [`unreleased-changes/`](./unreleased-changes/): changes for the next release, which `scripts/release.sh` moves to [`CHANGELOG.md`](./CHANGELOG.md).
-- [`verifier/`](./verifier/): scripts to check that releases are reproducible and `slowreader.app` runs a verified release, which GitLab CI runs every hour.
+- [`verifier/`](./verifier/): scripts to check that releases are reproducible and `slowreader.app` runs a verified release.
 - [`scripts/`](./scripts/): scripts to test project and configure Google Cloud. Check the script’s descriptions for further details.
 - [`test/`](./test/): end-to-end tests of the deployed app.
 - [`loader-tests/`](./loader-tests/): integration tests for each social network or news format.
