@@ -16,7 +16,8 @@ WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"; printf "$RESET"' EXIT
 
 GRAY='\033[0;90m'
-GREEN='\033[1;32m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
 RED='\033[31m'
 BOLD='\033[0;1m'
 RESET='\033[0m'
@@ -29,6 +30,9 @@ success() {
 }
 action() {
   printf "$BOLD%s$GRAY\n" "$1"
+}
+highlight() {
+  printf "$YELLOW%s$GRAY\n" "$1"
 }
 error() {
   printf "$RED%s$RESET\n" "$1" >&2
@@ -64,8 +68,8 @@ deploy() {
     success "Verifier rebuilt the same image"
   fi
 
-  action "Create 1 hour API key for deploy application:"
-  action "https://console.scaleway.com/iam/api-keys"
+  highlight "Create 1 hour API key for deploy application:"
+  highlight "https://console.scaleway.com/iam/api-keys"
   ask 'Scaleway secret key: ' -s
   SECRET=$ANSWER
   echo
@@ -235,8 +239,12 @@ success "Image is built"
 echo "ghcr.io/$REPO@$DIGEST" > "$WORK/image.txt"
 action "Touch hardware key to sign $(cat "$WORK/image.txt")"
 ssh-keygen -Y sign -n slowreader-release -f "$WORK/key.pub" "$WORK/image.txt"
+# Workflow run with approval button, or list of runs if GitHub API limits us
+RUN=$(curl -fsS "https://api.github.com/repos/$REPO/actions/workflows/release.yml/runs?head_sha=$RELEASED" \
+  | jq -r '.workflow_runs[0].html_url // empty' || true)
 action "Approve release environment with this comment:"
-printf "$RESET\n"
+highlight "${RUN:-https://github.com/$REPO/actions/workflows/release.yml?query=branch%3A$VERSION}"
+printf "$YELLOW\n"
 sed '1d;$d' "$WORK/image.txt.sig" | tr -d '\n'
 printf "\n\n$GRAY"
 
