@@ -17,13 +17,14 @@ resource "scaleway_domain_record" "app" {
   data     = "${trimprefix(scaleway_container.app.public_endpoint, "https://")}."
 }
 
+# TODO: Return HTTPS records after fixing them
 # Serverless Containers have no HTTP/3
-resource "scaleway_domain_record" "app_https" {
-  dns_zone = "slowreader.app"
-  name     = ""
-  type     = "HTTPS"
-  data     = "1 . alpn=h2"
-}
+# resource "scaleway_domain_record" "app_https" {
+#   dns_zone = "slowreader.app"
+#   name     = ""
+#   type     = "HTTPS"
+#   data     = "1 . alpn=h2"
+# }
 
 resource "scaleway_domain_record" "proxy" {
   dns_zone = "slowreader.app"
@@ -47,12 +48,12 @@ resource "scaleway_domain_record" "staging_ipv6" {
   data     = "2a01:4f8:c012:2e6f::1"
 }
 
-resource "scaleway_domain_record" "staging_https" {
-  dns_zone = "slowreader.app"
-  name     = "dev"
-  type     = "HTTPS"
-  data     = "1 . alpn=h3,h2"
-}
+# resource "scaleway_domain_record" "staging_https" {
+#   dns_zone = "slowreader.app"
+#   name     = "dev"
+#   type     = "HTTPS"
+#   data     = "1 . alpn=h3,h2"
+# }
 
 resource "scaleway_domain_record" "staging_proxy" {
   dns_zone = "slowreader.app"
