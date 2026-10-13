@@ -18,19 +18,32 @@ trap 'rm -rf "$WORK"; printf "$RESET"' EXIT
 GRAY='\033[90m'
 GREEN='\033[32m'
 RED='\033[31m'
+BOLD='\033[0;1m'
 RESET='\033[0m'
 
 step() {
+  printf "$RESET%s$GRAY\n" "$1"
+}
+success() {
   printf "$GREEN%s$GRAY\n" "$1"
+}
+action() {
+  printf "$BOLD%s$GRAY\n" "$1"
 }
 error() {
   printf "$RED%s$RESET\n" "$1" >&2
   exit 1
 }
 ask() {
-  printf "$RESET"
+  printf "$BOLD"
   read -r "${@:2}" -p "$1" ANSWER
   printf "$GRAY"
+}
+scaleway() {
+  curl -sS --fail-with-body -o "$WORK/scaleway.json" \
+    -H "X-Auth-Token: $SECRET" "$@" \
+    || error "Scaleway: $(cat "$WORK/scaleway.json")"
+  cat "$WORK/scaleway.json"
 }
 
 deploy() {
@@ -48,23 +61,29 @@ deploy() {
     if [ "$(jq -r .image "$WORK/verified.json")" != "$(cat "$WORK/image.txt")" ]; then
       error "Verifier checked $(jq -r .image "$WORK/verified.json")"
     fi
+    success "Verifier rebuilt the same image"
   fi
 
-  step "Create 1 hour API key for deploy application:"
-  step "https://console.scaleway.com/iam/api-keys"
+  action "Create 1 hour API key for deploy application:"
+  action "https://console.scaleway.com/iam/api-keys"
   ask 'Scaleway secret key: ' -s
   SECRET=$ANSWER
   echo
   API=https://api.scaleway.com/containers/v1/regions/fr-par
-  NAMESPACE=$(curl -fsS "$API/namespaces?name=slowreader" -H "X-Auth-Token: $SECRET" \
-    | jq -r '.namespaces[0].id')
+  NAMESPACE=$(scaleway "$API/namespaces?name=slowreader" \
+    | jq -r '.namespaces[0].id // empty')
+  [ -n "$NAMESPACE" ] || error "Key has no access to slowreader namespace"
+  # Name filter needs at least 4 symbols, so we can’t ask for app container
+  scaleway "$API/containers?namespace_id=$NAMESPACE" > "$WORK/containers.json"
   IDS=()
   for NAME in app proxy; do
-    ID=$(curl -fsS "$API/containers?namespace_id=$NAMESPACE&name=$NAME" \
-      -H "X-Auth-Token: $SECRET" | jq -r '.containers[0].id')
+    ID=$(jq -r --arg name "$NAME" \
+      '.containers[] | select(.name == $name) | .id' "$WORK/containers.json")
+    [ -n "$ID" ] || error "No $NAME container"
+    step "Deploying $NAME"
     # Digest instead of tag, so production runs exactly the signed image
     jq -n --arg image "$(cat "$WORK/image.txt")" '{image: $image}' \
-      | curl -fsS -X PATCH "$API/containers/$ID" -H "X-Auth-Token: $SECRET" \
+      | scaleway -X PATCH "$API/containers/$ID" \
         -H 'Content-Type: application/json' --data @- > /dev/null
     IDS+=("$ID")
   done
@@ -72,7 +91,7 @@ deploy() {
     STATUS=""
     until [ "$STATUS" = "ready" ]; do
       sleep 10
-      CONTAINER=$(curl -fsS "$API/containers/$ID" -H "X-Auth-Token: $SECRET")
+      CONTAINER=$(scaleway "$API/containers/$ID")
       STATUS=$(jq -r .status <<< "$CONTAINER")
       if [ "$STATUS" = "error" ]; then
         error "$(jq -r '"\(.name): \(.error_message)"' <<< "$CONTAINER")"
@@ -84,7 +103,8 @@ deploy() {
   if [ "$DEPLOYED" != "$RELEASED" ]; then
     error "slowreader.app runs $DEPLOYED commit"
   fi
-  step "Deployed. Delete API key: https://console.scaleway.com/iam/api-keys"
+  success "Deployed $VERSION"
+  action "Delete API key: https://console.scaleway.com/iam/api-keys"
 }
 
 # Commands output is gray to separate it from script’s steps
@@ -211,10 +231,11 @@ until [ -n "$DIGEST" ]; do
     | tr -d '\r' | sed -n 's/^docker-content-digest: //Ip')
 done
 
+success "Image is built"
 echo "ghcr.io/$REPO@$DIGEST" > "$WORK/image.txt"
-step "Touch hardware key to sign $(cat "$WORK/image.txt")"
+action "Touch hardware key to sign $(cat "$WORK/image.txt")"
 ssh-keygen -Y sign -n slowreader-release -f "$WORK/key.pub" "$WORK/image.txt"
-step "Approve release environment with this comment:"
+action "Approve release environment with this comment:"
 printf "$RESET\n"
 sed '1d;$d' "$WORK/image.txt.sig" | tr -d '\n'
 printf "\n\n$GRAY"
@@ -223,6 +244,6 @@ step "Waiting for the release"
 until curl -fsI "https://github.com/$REPO/releases/tag/$VERSION" > /dev/null; do
   sleep 15
 done
-step "https://github.com/$REPO/releases/tag/$VERSION"
+success "Released https://github.com/$REPO/releases/tag/$VERSION"
 
 deploy
