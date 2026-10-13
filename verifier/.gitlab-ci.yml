@@ -23,9 +23,11 @@ verify:
     - git config --global user.name "Slow Reader Verifier"
     - git config --global user.email "verifier@slowreader.app"
     # Project access tokens need GitLab Premium
-    - chmod 600 "$PUSH_KEY"
+    # GitLab removes the last line break, but OpenSSH can’t read key without it
+    - "{ tr -d '\\r' < \"$PUSH_KEY\"; echo; } > /tmp/push_key"
+    - chmod 600 /tmp/push_key
     - echo "gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf" > /tmp/known_hosts
-    - export GIT_SSH_COMMAND="ssh -i $PUSH_KEY -o UserKnownHostsFile=/tmp/known_hosts"
+    - export GIT_SSH_COMMAND="ssh -i /tmp/push_key -o UserKnownHostsFile=/tmp/known_hosts"
   script:
     - |
       STATUS=0
