@@ -1,3 +1,6 @@
 LICENSE.md
 */dist/
 infra/.terraform
+CHANGELOG.md
+unreleased-changes/*.md
+!unreleased-changes/README.md
