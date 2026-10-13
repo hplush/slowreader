@@ -21,6 +21,7 @@ find "$WORK/repo" -mindepth 1 -maxdepth 1 \
 git -C "$ROOT" archive HEAD:verifier | tar -x -C "$WORK/repo"
 rm -r "$WORK/repo/scripts"
 git -C "$ROOT" show HEAD:LICENSE.md > "$WORK/repo/LICENSE.md"
+git -C "$ROOT" show HEAD:web/public/icon-dev.svg > "$WORK/repo/favicon.svg"
 
 git -C "$WORK/repo" add --all
 if git -C "$WORK/repo" diff --cached --quiet; then

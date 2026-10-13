@@ -8,8 +8,8 @@ set -euo pipefail
 mkdir -p public
 # Git doesn’t keep empty folders, so they are missing before the first results
 mkdir -p releases checks
-# Copy the page
-cp "$(dirname "$0")/index.html" public/
+# Copy the page and its icon
+cp "$(dirname "$0")/index.html" "$(dirname "$0")/favicon.svg" public/
 # Copy results with their signatures
 cp -r releases checks public/
 # Release results, newest first, and names of days with site checks

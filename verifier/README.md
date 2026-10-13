@@ -17,7 +17,7 @@ Scripts write results to the current folder. To run them locally, you need Docke
 
 ## Publish
 
-GitLab repository has a copy of this folder. Run [`verifier/scripts/publish.sh`](https://github.com/hplush/slowreader/blob/main/verifier/scripts/publish.sh) from Slow Reader repository outside of Dev Container to replace scripts there by committed `verifier/` from `HEAD` without `scripts/` and adds root `LICENSE.md`. It keeps `releases/` and `checks/`, starts the check by new scripts, and waits for the result.
+GitLab repository has a copy of this folder. Run [`verifier/scripts/publish.sh`](https://github.com/hplush/slowreader/blob/main/verifier/scripts/publish.sh) from Slow Reader repository outside of Dev Container to replace scripts there by committed `verifier/` from `HEAD` without `scripts/` and adds root `LICENSE.md` and `web/public/icon-dev.svg` as `favicon.svg`. It keeps `releases/` and `checks/`, starts the check by new scripts, and waits for the result.
 
 ## Setup
 
