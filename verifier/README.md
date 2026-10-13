@@ -24,7 +24,7 @@ GitLab repository has a copy of this folder. Run [`verifier/scripts/publish.sh`]
 1. Create push key by `ssh-keygen -t ed25519 -N '' -C verifier -f push_key` outside of Dev Container and add `push_key.pub` in GitLab **Settings** → **Repository** → **Deploy keys** with **Grant write permissions to this key**.
 2. In **Settings** → **Repository** → **Branch rules** open `main` rule (or add it by **Add branch rule** → **Branch name or pattern**), set **Allowed to push and merge** to Maintainers and the deploy key, and disable **Allow force push**.
 3. Create signing key by `cosign generate-key-pair` outside of Dev Container, commit `cosign.pub` to `verifier/`, and save `cosign.key` with its password in a password manager.
-4. Create GitHub fine-grained token with **Public repositories** read-only access. `gh` refuses to work without login even for public data.
+4. Create GitHub fine-grained token with **Public repositories** read-only access and expiration of 1 year or less, since `hplush` organization forbids longer tokens. `gh` refuses to work without login even for public data. Renew it every year.
 5. Add protected variables in **Settings** → **CI/CD** → **Variables**:
    - `COSIGN_KEY`: File type with `cosign.key` content.
    - `COSIGN_PASSWORD`: masked and hidden.
@@ -32,5 +32,5 @@ GitLab repository has a copy of this folder. Run [`verifier/scripts/publish.sh`]
    - `PUSH_KEY`: File type with `push_key` content. Delete `push_key` after it.
 6. Run `./verifier/scripts/publish.sh`.
 7. Create hourly schedule in **Build** → **Pipeline schedules** with `0 * * * *` for `main` branch.
-8. In **Deploy** → **Pages** uncheck **Use unique domain** to get `hplush.gitlab.io/slowreader-verifier` address. In **Settings** → **General** → **Visibility** set **Pages** to **Everyone**.
+8. In **Deploy** → **Pages** uncheck **Use unique domain** and click **Save changes** to get `hplush.gitlab.io/slowreader-verifier` address. In **Settings** → **General** → **Visibility, project features, permissions** set **Project visibility** to **Public**, set **Pages** to **Everyone**, and click **Save changes**. Otherwise the status page asks visitors to log in to GitLab.
 9. Create pipeline trigger token in **Settings** → **CI/CD** → **Pipeline trigger tokens** and add it as `VERIFIER_TRIGGER` secret to GitHub repository. Release workflow uses it to start the check right after the release.
