@@ -24,6 +24,12 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 - App’s error page (`web/pages/fatal.svelte`, error mode styles and icons) is duplicated in static `web/public/404.html` and `web/public/500.html`. Change all of them together.
 - Use OKLCH color mode and APCA contrast check for any color operations.
 
+## Changelog
+
+- If change is visible to users or self-hosters, add file to `unreleased-changes/`: `feature-NAME.md` with `# Title` and a short description, or `fix-NAME.md` with one sentence.
+- Write for users, not developers. Skip CI, docs, refactoring, tests, and dependency updates.
+- Update existing file in `unreleased-changes/` instead of adding a new one, if the change improves an unreleased feature.
+
 ## LLMS
 
 - Never change `eslint.config.ts`. Always change code to fix found issues.
