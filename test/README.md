@@ -2,7 +2,7 @@
 
 Tests of the deployed app instead of the source code.
 
-CI repeats checks and reproducible build every Monday.
+CI repeats checks and reproducible build every Wednesday.
 
 ## Checks
 
