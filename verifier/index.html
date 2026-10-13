@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Slow Reader Verification Status</title>
+    <style>
+      /* Colors in OKLCH, every text color has APCA Lc 60+ on the background */
+      :root {
+        --back: oklch(0.985 0.003 90);
+        --text: oklch(0.25 0.01 260);
+        --dim: oklch(0.47 0.01 260);
+        --good: oklch(0.48 0.12 150);
+        --bad: oklch(0.5 0.19 27);
+        --link: oklch(0.45 0.15 260);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --back: oklch(0.19 0.01 260);
+          --text: oklch(0.92 0.01 260);
+          --dim: oklch(0.78 0.01 260);
+          --good: oklch(0.82 0.16 150);
+          --bad: oklch(0.8 0.1 25);
+          --link: oklch(0.82 0.1 240);
+        }
+      }
+      /* Terminal look: beautiful monospace font, which OS already has */
+      body {
+        margin: 0;
+        font:
+          15px/1.6 ui-monospace,
+          'SF Mono',
+          'Cascadia Code',
+          'JetBrains Mono',
+          'Fira Code',
+          'Ubuntu Mono',
+          'Noto Sans Mono',
+          Menlo,
+          Consolas,
+          'DejaVu Sans Mono',
+          monospace;
+        color: var(--text);
+        background: var(--back);
+      }
+      main {
+        max-width: 80ch;
+        padding: 1em 2ch;
+      }
+      h1,
+      h2 {
+        margin: 1.6em 0 0;
+        font-size: inherit;
+      }
+      /* Empty line between the title and the checks, like in terminal */
+      h1 {
+        margin: 0 0 1.6em;
+      }
+      .normal {
+        font-weight: normal;
+      }
+      ul {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+      }
+      pre {
+        margin: 0;
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
+      }
+      a,
+      .link {
+        color: var(--link);
+      }
+      /* Buttons look like terminal links */
+      button {
+        padding: 0;
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        background: none;
+        border: 0;
+      }
+      .link {
+        text-decoration: underline;
+      }
+      :focus-visible {
+        outline: 2px solid var(--link);
+        outline-offset: 2px;
+      }
+      .good {
+        color: var(--good);
+      }
+      .bad {
+        color: var(--bad);
+      }
+      .dim {
+        color: var(--dim);
+      }
+      .events {
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
+      }
+      /* Wrapped line starts after the status symbol, like in terminal */
+      #checks li,
+      #builds li {
+        padding-left: 2ch;
+        text-indent: -2ch;
+      }
+      /* Spaces after Today align the bar with events */
+      #today > :first-child {
+        white-space: pre;
+      }
+      #today .events {
+        padding-left: 11ch;
+      }
+      /* Days go one by one like a bar, but are high enough to tap on mobile */
+      #history {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      #history button {
+        min-height: 24px;
+      }
+      .mark {
+        font-weight: bold;
+      }
+      /* Text only for screen readers */
+      .sr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+      /* Dialog is placed near its button by JS */
+      dialog {
+        position: fixed;
+        box-sizing: border-box;
+        width: max-content;
+        max-width: min(90ch, calc(100vw - 16px));
+        max-height: calc(100dvh - 16px);
+        padding: 0;
+        margin: 0;
+        overflow: auto;
+        color: var(--text);
+        background: var(--back);
+        border: 1px solid var(--text);
+      }
+      dialog::backdrop {
+        background: color-mix(in oklch, var(--back) 60%, transparent);
+      }
+      dialog header {
+        position: sticky;
+        top: 0;
+        display: flex;
+        gap: 2ch;
+        justify-content: space-between;
+        padding: 0 2ch;
+        color: var(--back);
+        background: var(--text);
+      }
+      dialog h2 {
+        margin: 0;
+      }
+      dialog .content {
+        padding: 1em 2ch;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1 aria-live="polite">
+        Slow Reader Verification Status:
+        <span id="percent" class="loading" aria-hidden="true"></span>
+        <span id="percent-text" class="sr">Counting</span>
+        <span class="normal">verified and available</span>
+      </h1>
+      <ul id="checks" aria-live="polite">
+        <li>
+          <span class="loading" aria-hidden="true"></span>
+          <span class="sr">checking:</span> Web app is available
+          <button
+            class="link"
+            data-help="health"
+            aria-label="How to repeat: web app is available"
+          >
+            [?]
+          </button>
+        </li>
+        <li>
+          <span class="loading" aria-hidden="true"></span>
+          <span class="sr">checking:</span> Detecting commit:
+          <span id="commit">…</span>
+          <button
+            class="link"
+            data-help="commit"
+            aria-label="How to repeat: detecting commit"
+          >
+            [?]
+          </button>
+        </li>
+        <li>
+          <span class="loading" aria-hidden="true"></span>
+          <span class="sr">checking:</span> CI verified build reproducibility
+          <span id="release"></span>
+          <button
+            class="link"
+            data-help="build"
+            aria-label="How to repeat: CI verified build reproducibility"
+          >
+            [?]
+          </button>
+        </li>
+        <li>
+          <span class="loading" aria-hidden="true"></span>
+          <span class="sr">checking:</span> CI verified HTML &amp; JS hashes
+          <button
+            class="link"
+            data-help="manifest"
+            aria-label="How to repeat: CI verified HTML and JS hashes"
+          >
+            [?]
+          </button>
+        </li>
+        <li>
+          <span class="loading" aria-hidden="true"></span>
+          <span class="sr">checking:</span> Assets match hashes from the build
+          <span id="assets"></span>
+          <button
+            class="link"
+            data-help="assets"
+            aria-label="How to repeat: assets match hashes from the build"
+          >
+            [?]
+          </button>
+        </li>
+      </ul>
+      <h2>Builds</h2>
+      <ul id="builds">
+        <li><span class="loading" aria-hidden="true"></span> Loading builds</li>
+      </ul>
+      <h2>Site checks (UTC)</h2>
+      <div id="today">
+        <span class="loading" aria-hidden="true"></span> Loading checks
+      </div>
+      <div id="history"></div>
+    </main>
+
+    <dialog id="help-health" aria-labelledby="help-health-title">
+      <header>
+        <h2 id="help-health-title">Web app is available</h2>
+        <form method="dialog"><button aria-label="Close">[x]</button></form>
+      </header>
+      <pre class="content">
+<span class="dim"># Server answers OK when it can reach the database</span>
+curl -fsS https://slowreader.app/health</pre>
+    </dialog>
+
+    <dialog id="help-commit" aria-labelledby="help-commit-title">
+      <header>
+        <h2 id="help-commit-title">Detecting commit</h2>
+        <form method="dialog"><button aria-label="Close">[x]</button></form>
+      </header>
+      <pre class="content">
+<span class="dim"># Every build has manifest.json with its commit</span>
+curl -fsS https://slowreader.app/manifest.json | jq -r .commit</pre>
+    </dialog>
+
+    <dialog id="help-build" aria-labelledby="help-build-title">
+      <header>
+        <h2 id="help-build-title">CI verified build reproducibility</h2>
+        <form method="dialog"><button aria-label="Close">[x]</button></form>
+      </header>
+      <pre class="content">
+<span class="dim"># Release with this commit</span>
+TAG=<span class="tag">TAG</span>
+FILES=https://github.com/hplush/slowreader/releases/download/$TAG
+
+<span class="dim"># Image digest and maintainer’s hardware key signature of it</span>
+curl -fsSLO $FILES/image.txt
+curl -fsSLO $FILES/image.txt.sig
+curl -fsSLO https://gitlab.com/hplush/slowreader-verifier/-/raw/main/allowed_signers
+ssh-keygen -Y verify -f allowed_signers -I release -n slowreader-release \
+  -s image.txt.sig &lt; image.txt
+
+<span class="dim"># GitHub signature, that our release workflow built it from the tag</span>
+gh attestation verify oci://$(cat image.txt) --repo hplush/slowreader \
+  --source-ref refs/tags/$TAG
+
+<span class="dim"># Rebuild the image from the same commit and base images</span>
+docker buildx create --use --driver docker-container
+docker buildx replay build $(cat image.txt) \
+  --output type=oci,dest=replay.tar,rewrite-timestamp=true
+mkdir replay &amp;&amp; tar -xf replay.tar -C replay
+REBUILT=$(jq -r '.manifests[0].digest' replay/index.json)
+jq -r .config.digest replay/blobs/sha256/${REBUILT#sha256:}
+
+<span class="dim"># Config digest of the published image must be the same</span>
+PLATFORM=$(docker buildx imagetools inspect --raw $(cat image.txt) \
+  | jq -r '.manifests[] | select(.platform.architecture == "amd64") | .digest')
+docker buildx imagetools inspect --raw ghcr.io/hplush/slowreader@$PLATFORM \
+  | jq -r .config.digest</pre>
+    </dialog>
+
+    <dialog id="help-manifest" aria-labelledby="help-manifest-title">
+      <header>
+        <h2 id="help-manifest-title">CI verified HTML &amp; JS hashes</h2>
+        <form method="dialog"><button aria-label="Close">[x]</button></form>
+      </header>
+      <pre class="content">
+<span class="dim"># Release has manifest.json from the image, which verifier rebuilt</span>
+TAG=<span class="tag">TAG</span>
+curl -fsSL https://github.com/hplush/slowreader/releases/download/$TAG/manifest.json \
+  -o release-manifest.json
+
+<span class="dim"># Server must send the same manifest.json</span>
+curl -fsS https://slowreader.app/manifest.json -o site-manifest.json
+diff release-manifest.json site-manifest.json &amp;&amp; echo same</pre>
+    </dialog>
+
+    <dialog id="help-assets" aria-labelledby="help-assets-title">
+      <header>
+        <h2 id="help-assets-title">Assets match hashes from the build</h2>
+        <form method="dialog"><button aria-label="Close">[x]</button></form>
+      </header>
+      <pre class="content">
+<span class="dim"># Hash every file from manifest.json and compare</span>
+curl -fsS https://slowreader.app/manifest.json -o site-manifest.json
+for url in $(jq -r '.integrity | keys[]' site-manifest.json); do
+  hash="sha256-$(curl -fsS https://slowreader.app$url \
+    | openssl dgst -sha256 -binary | base64)"
+  expected=$(jq -r --arg url "$url" '.integrity[$url]' site-manifest.json)
+  [ "$hash" = "$expected" ] &amp;&amp; echo "✓ $url" || echo "✗ $url"
+done
+
+<span class="dim"># Users open pages by short address, check them too</span>
+for page in / /welcome; do
+  curl -fsS https://slowreader.app$page | openssl dgst -sha256 -binary | base64
+done</pre>
+    </dialog>
+
+    <dialog id="day" aria-labelledby="day-title">
+      <header>
+        <h2 id="day-title"></h2>
+        <form method="dialog"><button aria-label="Close">[x]</button></form>
+      </header>
+      <div id="day-content" class="content"></div>
+    </dialog>
+
+    <script type="module">
+      // Production web client
+      const SITE = 'https://slowreader.app'
+      // Frames of terminal-like loader
+      const FRAMES = '⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+      // One day in milliseconds
+      const DAY = 24 * 60 * 60 * 1000
+
+      // Rotating loader distracts some people, they get static dots
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        for (let mark of document.querySelectorAll('.loading')) {
+          mark.textContent = '…'
+        }
+      } else {
+        // Current frame for all loaders
+        let frame = 0
+        // Rotate loaders until checks finish
+        setInterval(() => {
+          // Next frame
+          frame = (frame + 1) % FRAMES.length
+          // Update every running loader
+          for (let mark of document.querySelectorAll('.loading')) {
+            mark.textContent = FRAMES[frame]
+          }
+        }, 80)
+      }
+
+      // Open dialog near the button, which opened it
+      function openNear(dialog, button) {
+        // Modal dialog closes by Esc and keeps focus inside
+        dialog.showModal()
+        // Button position on the screen
+        let rect = button.getBoundingClientRect()
+        // Keep dialog inside the screen horizontally
+        let left = Math.min(rect.left, innerWidth - dialog.offsetWidth - 8)
+        // Below the button if it fits, above otherwise
+        let top =
+          innerHeight - rect.bottom >= dialog.offsetHeight + 8
+            ? rect.bottom + 4
+            : rect.top - dialog.offsetHeight - 4
+        // Keep dialog inside the screen
+        dialog.style.left = `${Math.max(8, left)}px`
+        dialog.style.top = `${Math.max(8, Math.min(top, innerHeight - dialog.offsetHeight - 8))}px`
+      }
+
+      // Open help dialog by [?] button
+      for (let button of document.querySelectorAll('[data-help]')) {
+        button.addEventListener('click', () => {
+          openNear(
+            document.getElementById(`help-${button.dataset.help}`),
+            button
+          )
+        })
+      }
+
+      // Click on the backdrop closes the dialog
+      for (let dialog of document.querySelectorAll('dialog')) {
+        dialog.addEventListener('click', event => {
+          if (event.target === dialog) dialog.close()
+        })
+      }
+
+      // Create element with text and optional color class
+      function span(text, color) {
+        // New element
+        let element = document.createElement('span')
+        // Text inside
+        element.textContent = text
+        // Color, if we need it
+        if (color) element.className = color
+        return element
+      }
+
+      // Symbol, which screen readers skip, with text, which only they read
+      function mark(symbol, color, label) {
+        // Visible bold symbol
+        let visible = span(symbol, `mark ${color}`)
+        // Screen readers read the label instead
+        visible.setAttribute('aria-hidden', 'true')
+        return [visible, span(label, 'sr')]
+      }
+
+      // Create link to the release page on GitHub
+      function releaseLink(tag, text) {
+        // New link
+        let link = document.createElement('a')
+        // Release page with its files and changelog
+        link.href = `https://github.com/hplush/slowreader/releases/tag/${tag}`
+        // Visible text
+        link.textContent = text
+        return link
+      }
+
+      // Create link to the commit on GitHub
+      function commitLink(commit) {
+        // New link
+        let link = document.createElement('a')
+        // Commit page
+        link.href = `https://github.com/hplush/slowreader/commit/${commit}`
+        // Short hash like in git log
+        link.textContent = commit.slice(0, 7)
+        return link
+      }
+
+      // Download the address from the site and hash it in the manifest format
+      async function hash(address) {
+        // Skip browser cache to check what the server sends now
+        let response = await fetch(SITE + address, { cache: 'no-store' })
+        // Broken answer can’t match
+        if (!response.ok) return `HTTP ${response.status}`
+        // SHA-256 of the content
+        let digest = await crypto.subtle.digest(
+          'SHA-256',
+          await response.arrayBuffer()
+        )
+        // Base64 like in manifest.json
+        return 'sha256-' + btoa(String.fromCharCode(...new Uint8Array(digest)))
+      }
+
+      // Address which users open for the file, same as in check-site.sh
+      function pageOf(url) {
+        return url
+          .replace(/^\/app\.html$/, '/welcome')
+          .replace(/index\.html$/, '')
+          .replace(/(.)\/$/, '$1')
+      }
+
+      // Results of the verifier, built by build-index.sh
+      let index = await (await fetch('index.json')).json()
+      // Lines of the browser checks in the page order
+      let checks = [...document.querySelectorAll('#checks li')]
+
+      // Replace loader and screen reader text by the result
+      function finish(number, result) {
+        // Visible symbol and its color for every result
+        let [symbol, color] = {
+          passed: ['✓', 'good'],
+          failed: ['✗', 'bad'],
+          skipped: ['–', 'dim']
+        }[result]
+        // Loader and its screen reader text
+        let [loader, label] = checks[number].querySelectorAll('span')
+        // Show the result symbol
+        loader.className = `mark ${color}`
+        loader.textContent = symbol
+        // Tell the result to screen readers
+        label.textContent = `${result}:`
+      }
+
+      // Mark checks, which can’t run after failed previous check
+      function skip(from) {
+        for (let number = from; number < checks.length; number++) {
+          finish(number, 'skipped')
+        }
+      }
+
+      // Check the site from the visitor’s browser
+      async function checkSite() {
+        // Server answers when it works
+        let available = await fetch(SITE + '/health', { cache: 'no-store' })
+          .then(response => response.ok)
+          .catch(() => false)
+        // Show the server status
+        finish(0, available ? 'passed' : 'failed')
+        // Nothing to check on down server
+        if (!available) return skip(1)
+
+        // Hashes of JS and HTML files, which the server sends now
+        let manifest = await fetch(SITE + '/manifest.json', {
+          cache: 'no-store'
+        })
+          .then(response => response.json())
+          .catch(() => undefined)
+        // Without manifest we don’t know what to check
+        if (!manifest) {
+          finish(1, 'failed')
+          return skip(2)
+        }
+        // Show deployed commit
+        document
+          .getElementById('commit')
+          .replaceChildren(commitLink(manifest.commit))
+        finish(1, 'passed')
+
+        // Our release with this commit
+        let release = index.releases.find(i => i.commit === manifest.commit)
+        // Show release name and fill it in the help commands
+        if (release) {
+          // Commit leads to its release
+          document
+            .getElementById('commit')
+            .replaceChildren(
+              releaseLink(release.tag, release.commit.slice(0, 7))
+            )
+          document.getElementById('release').textContent = release.tag
+          for (let tag of document.querySelectorAll('.tag')) {
+            tag.textContent = release.tag
+          }
+        }
+        // Release must pass the rebuild
+        if (release?.status !== 'verified') {
+          finish(2, 'failed')
+          return skip(3)
+        }
+        finish(2, 'passed')
+
+        // Deployed manifest must be the same as in the rebuilt image
+        if (JSON.stringify(release.manifest) !== JSON.stringify(manifest)) {
+          finish(3, 'failed')
+          return skip(4)
+        }
+        finish(3, 'passed')
+
+        // Files and pages, which the server sends different
+        let wrong = []
+        // Check every file from the manifest
+        for (let [url, expected] of Object.entries(manifest.integrity)) {
+          // Check the file and the page address, which users open
+          for (let address of new Set([url, pageOf(url)])) {
+            // Remember the wrong address
+            if ((await hash(address)) !== expected) wrong.push(address)
+          }
+        }
+        // Show wrong addresses
+        if (wrong.length > 0) {
+          document
+            .getElementById('assets')
+            .replaceChildren(span(`(${wrong.join(', ')} differ)`, 'bad'))
+        }
+        finish(4, wrong.length === 0 ? 'passed' : 'failed')
+      }
+
+      // Show release results
+      function showBuilds() {
+        // List of builds
+        let builds = document.getElementById('builds')
+        // Remove the loader
+        builds.replaceChildren()
+        for (let release of index.releases) {
+          // Release passed the rebuild
+          let ok = release.status === 'verified'
+          // Line of the build
+          let item = document.createElement('li')
+          // Symbol, release name, and its commit
+          item.append(
+            ...mark(
+              ok ? '✓' : '✗',
+              ok ? 'good' : 'bad',
+              ok ? 'verified:' : 'broken:'
+            ),
+            ' ',
+            releaseLink(release.tag, release.tag),
+            ' ',
+            commitLink(release.commit)
+          )
+          // Reason of broken build
+          if (release.reason) item.append(span(` ${release.reason}`, 'bad'))
+          builds.append(item)
+        }
+      }
+
+      // Load lines of the day as [time, result, details]
+      async function loadDay(day) {
+        // Missed day has no file
+        if (!index.days.includes(day)) return []
+        // Check results without the verifier line
+        return (await (await fetch(`checks/${day}.txt`)).text())
+          .split('\n')
+          .filter(line => /^\d\d:/.test(line))
+          .map(line => {
+            // Time, result, and details by spaces
+            let [time, result, ...details] = line.split(' ')
+            return [time.slice(0, 5), result, details.join(' ')]
+          })
+      }
+
+      // Result is good for the visitor
+      function isGood(result) {
+        return result === 'ok' || result === 'same'
+      }
+
+      // Hourly bar and events of the day
+      function renderDay(lines) {
+        // Container for the bar and events
+        let block = document.createElement('div')
+        // Bar with one symbol per hour, screen readers get the summary
+        let bar = document.createElement('span')
+        bar.setAttribute('aria-hidden', 'true')
+        for (let hour = 0; hour < 24; hour++) {
+          // Check result of the hour
+          let line = lines.find(([time]) => Number(time.slice(0, 2)) === hour)
+          // Dot for missed hour, square for good, triangle for problem
+          bar.append(
+            !line
+              ? span('·', 'dim')
+              : isGood(line[1])
+                ? span('■', 'good')
+                : span('▲', 'bad')
+          )
+        }
+        // Count of problems for the summary
+        let problems = lines.filter(([, result]) => !isGood(result)).length
+        // Visible bar and its text for screen readers
+        block.append(
+          bar,
+          span(`${lines.length} checks, ${problems} problems`, 'sr')
+        )
+        // Deploys and problems under the bar
+        let events = document.createElement('div')
+        events.className = 'events'
+        for (let [time, result, details] of lines) {
+          // Usual check is not an event
+          if (result === 'same') continue
+          // Deploy is a good event, other results are problems
+          let text =
+            result === 'ok'
+              ? `deploy ${details.split(' ')[0]}`
+              : `${result} ${details}`
+          // Event line
+          events.append(
+            span(
+              `${time} ${text}`.trim() + '\n',
+              result === 'ok' ? 'dim' : 'bad'
+            )
+          )
+        }
+        block.append(events)
+        return block
+      }
+
+      // Show site checks and count share of good checks
+      async function showDays() {
+        // Last 30 days from today to the past in the format of check files
+        let days = Array.from({ length: 30 }, (_, ago) =>
+          new Date(Date.now() - ago * DAY).toISOString().slice(0, 10)
+        )
+        // Lines of every day, loaded in parallel
+        let lines = await Promise.all(days.map(loadDay))
+        // All results of the month for the percent
+        let results = lines.flat().map(([, result]) => result)
+        // Share of good checks, rounded down to never show 100% with problems
+        let percent = results.length
+          ? `${Math.floor((results.filter(isGood).length / results.length) * 100)}%`
+          : '–%'
+        // Show the percent
+        let percentMark = document.getElementById('percent')
+        percentMark.className = ''
+        percentMark.textContent = percent
+        document.getElementById('percent-text').textContent = percent
+
+        // Today with the hourly bar
+        let today = document.getElementById('today')
+        today.replaceChildren(span('Today'.padEnd(11)), renderDay(lines[0]))
+        today.lastChild.style.display = 'inline'
+
+        // Other days as one symbol per day, oldest first
+        let history = document.getElementById('history')
+        history.before(span('Last month'))
+        for (let ago = days.length - 1; ago >= 1; ago--) {
+          // Checks of the day
+          let dayLines = lines[ago]
+          // Count of problems
+          let problems = dayLines.filter(([, result]) => !isGood(result)).length
+          // Button opens details of the day
+          let button = document.createElement('button')
+          // Dot for missed day, square for good, triangle for problem
+          button.append(
+            dayLines.length === 0
+              ? span('·', 'dim')
+              : problems
+                ? span('▲', 'bad')
+                : span('■', 'good')
+          )
+          // Text for screen readers
+          button.setAttribute(
+            'aria-label',
+            dayLines.length === 0
+              ? `${days[ago]}: no checks`
+              : `${days[ago]}: ${dayLines.length} checks, ${problems} problems`
+          )
+          // Open the day details near the symbol
+          button.addEventListener('click', () => {
+            // Day name in the title
+            document.getElementById('day-title').textContent = days[ago]
+            // Hourly bar, events, and link to the raw results
+            let content = document.getElementById('day-content')
+            content.replaceChildren(renderDay(dayLines))
+            // Raw results are signed, so link them for own check
+            if (dayLines.length > 0) {
+              let link = document.createElement('a')
+              link.href = `checks/${days[ago]}.txt`
+              link.textContent = 'Raw results'
+              content.append(link)
+            }
+            openNear(document.getElementById('day'), button)
+          })
+          history.append(button)
+        }
+      }
+
+      // Releases need no network
+      showBuilds()
+      // Site checks history and browser check go in parallel
+      await Promise.all([showDays(), checkSite()])
+    </script>
+  </body>
+</html>

@@ -15,11 +15,15 @@ verify:
     # Scripts find the last commit with verifier code in the history
     GIT_DEPTH: 0
   before_script:
-    - apk add --no-cache bash cosign curl git github-cli jq openssh-keygen openssl
+    - apk add --no-cache bash cosign curl git github-cli jq openssh-client openssh-keygen openssl
     # Docker’s own builder can’t replay builds
     - docker buildx create --use --driver docker-container
     - git config --global user.name "Slow Reader Verifier"
     - git config --global user.email "verifier@slowreader.app"
+    # Project access tokens need GitLab Premium
+    - chmod 600 "$PUSH_KEY"
+    - echo "gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf" > /tmp/known_hosts
+    - export GIT_SSH_COMMAND="ssh -i $PUSH_KEY -o UserKnownHostsFile=/tmp/known_hosts"
   script:
     - |
       STATUS=0
@@ -31,5 +35,23 @@ verify:
       git fetch -q origin main
       git rebase -q FETCH_HEAD
       # Results push should not start another check
-      git push -q -o ci.skip "https://verifier:${PUSH_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git" HEAD:main
+      git push -q -o ci.skip "git@gitlab.com:${CI_PROJECT_PATH}.git" HEAD:main
       exit $STATUS
+
+pages:
+  # Publish status page even after failed check, to show the failure
+  needs: [verify]
+  rules:
+    - if: $CI_PIPELINE_SOURCE =~ /^(schedule|push|trigger|web)$/
+      when: always
+  image: alpine:3.24.2@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
+  before_script:
+    - apk add --no-cache bash git jq
+  script:
+    # Take results, which verify job just committed
+    - git fetch -q origin main
+    - git checkout -q FETCH_HEAD
+    - ./build-index.sh
+  artifacts:
+    paths:
+      - public
