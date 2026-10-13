@@ -128,6 +128,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.ref_name }}
+          DIGEST: ${{ needs.build.outputs.digest }}
           IMAGE: ghcr.io/hplush/slowreader@${{ needs.build.outputs.digest }}
         run: |
           ID=$(docker create "$IMAGE")
@@ -135,6 +136,12 @@ jobs:
           awk -v version="## $TAG" \
             '$0 == version { found = 1; next } /^## / { found = 0 } found' \
             CHANGELOG.md > notes.md
+          # Release page can’t show packages, so we link the image version
+          PACKAGE=$(gh api --paginate \
+            orgs/hplush/packages/container/slowreader/versions \
+            --jq ".[] | select(.name == \"$DIGEST\") | .id")
+          printf '\nImage: [`%s`](https://github.com/%s/pkgs/container/slowreader/%s)\n' \
+            "$IMAGE" "$GITHUB_REPOSITORY" "$PACKAGE" >> notes.md
           gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --verify-tag \
             --title "$TAG" --notes-file notes.md \
             image.txt image.txt.sig manifest.json
