@@ -7,6 +7,7 @@
 # Use `SKIP_VERIFIER=1 ./script/release.sh` to skip waiting for verifier.
 
 set -euo pipefail
+export LC_ALL=C
 
 REPO=hplush/slowreader
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -80,7 +81,9 @@ fi
     done
   fi
 } > "$WORK/changes.md"
+echo
 cat "$WORK/changes.md"
+echo
 read -r -p "Release $VERSION with these changes? [y/N] " ANSWER
 [ "$ANSWER" = "y" ] || exit 1
 
