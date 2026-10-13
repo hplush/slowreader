@@ -12,12 +12,32 @@ export LC_ALL=C
 REPO=hplush/slowreader
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK=$(mktemp -d)
-trap 'rm -rf "$WORK"' EXIT
+trap 'rm -rf "$WORK"; printf "$RESET"' EXIT
+
+GRAY='\033[90m'
+GREEN='\033[32m'
+RED='\033[31m'
+RESET='\033[0m'
+
+step() {
+  printf "$GREEN%s$GRAY\n" "$1"
+}
+error() {
+  printf "$RED%s$RESET\n" "$1" >&2
+  exit 1
+}
+ask() {
+  printf "$RESET"
+  read -r "${@:2}" -p "$1" ANSWER
+  printf "$GRAY"
+}
+
+# Commands output is gray to separate it from script’s steps
+printf "$GRAY"
 
 # Malicious dependency in Dev Container could steal the deploy key
 if [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
-  echo "Run it outside of Dev Container" >&2
-  exit 1
+  error "Run it outside of Dev Container"
 fi
 # Fixes are cherry-picked to release branch to skip unreleased features
 if [ "${1:-}" = "fix" ]; then
@@ -26,12 +46,10 @@ else
   BRANCH=main
 fi
 if [ "$(git -C "$ROOT" branch --show-current)" != "$BRANCH" ]; then
-  echo "Switch to $BRANCH branch" >&2
-  exit 1
+  error "Switch to $BRANCH branch"
 fi
 if [ -n "$(git -C "$ROOT" status --porcelain)" ]; then
-  echo "Commit or stash changes first" >&2
-  exit 1
+  error "Commit or stash changes first"
 fi
 git -C "$ROOT" pull --ff-only
 
@@ -43,28 +61,24 @@ if [ "${1:-}" = "fix" ]; then
 elif [ -z "${1:-}" ]; then
   VERSION="$MAJOR.$(date -u +%Y%m%d).0"
 else
-  echo "Usage: ./scripts/release.sh [fix]" >&2
-  exit 1
+  error "Usage: ./scripts/release.sh [fix]"
 fi
 if git -C "$ROOT" rev-parse -q --verify "refs/tags/$VERSION" > /dev/null; then
-  echo "$VERSION was already released, use ./scripts/release.sh fix" >&2
-  exit 1
+  error "$VERSION was already released, use ./scripts/release.sh fix"
 fi
 
 # Choose the key from allowed_signers, which ssh-agent has
 ssh-add -L | grep -F "$(cut -d' ' -f3,4 "$ROOT/verifier/allowed_signers")" \
   | head -n 1 > "$WORK/key.pub" || true
 if [ ! -s "$WORK/key.pub" ]; then
-  echo "Add hardware key from verifier/allowed_signers to ssh-agent" >&2
-  exit 1
+  error "Add hardware key from verifier/allowed_signers to ssh-agent"
 fi
 
 shopt -s nullglob
 FEATURES=("$ROOT"/unreleased-changes/feature-*.md)
 FIXES=("$ROOT"/unreleased-changes/fix-*.md)
 if [ ${#FEATURES[@]} -eq 0 ] && [ ${#FIXES[@]} -eq 0 ]; then
-  echo "Add changes to unreleased-changes/" >&2
-  exit 1
+  error "Add changes to unreleased-changes/"
 fi
 {
   echo "## $VERSION"
@@ -81,10 +95,10 @@ fi
     done
   fi
 } > "$WORK/changes.md"
-echo
+printf "$RESET\n"
 cat "$WORK/changes.md"
 echo
-read -r -p "Release $VERSION with these changes? [y/N] " ANSWER
+ask "Release $VERSION with these changes? [y/N] "
 [ "$ANSWER" = "y" ] || exit 1
 
 {
@@ -113,9 +127,9 @@ else
   git -C "$ROOT" merge -q --no-edit release
   git -C "$ROOT" push -q origin main
 fi
-echo "https://github.com/$REPO/actions/workflows/release.yml?query=branch%3A$VERSION"
+step "https://github.com/$REPO/actions/workflows/release.yml?query=branch%3A$VERSION"
 
-echo "Waiting for the image"
+step "Waiting for the image"
 TOKEN=$(curl -fsS "https://ghcr.io/token?scope=repository:$REPO:pull" | jq -r .token)
 DIGEST=""
 until [ -n "$DIGEST" ]; do
@@ -127,42 +141,39 @@ until [ -n "$DIGEST" ]; do
 done
 
 echo "ghcr.io/$REPO@$DIGEST" > "$WORK/image.txt"
-echo "Touch hardware key to sign $(cat "$WORK/image.txt")"
+step "Touch hardware key to sign $(cat "$WORK/image.txt")"
 ssh-keygen -Y sign -n slowreader-release -f "$WORK/key.pub" "$WORK/image.txt"
-echo
-echo "Approve release environment with this comment:"
-echo
+step "Approve release environment with this comment:"
+printf "$RESET\n"
 sed '1d;$d' "$WORK/image.txt.sig" | tr -d '\n'
-echo
-echo
+printf "\n\n$GRAY"
 
-echo "Waiting for the release"
+step "Waiting for the release"
 until curl -fsI "https://github.com/$REPO/releases/tag/$VERSION" > /dev/null; do
   sleep 15
 done
-echo "https://github.com/$REPO/releases/tag/$VERSION"
+step "https://github.com/$REPO/releases/tag/$VERSION"
 
 # SKIP_VERIFIER=1 for the first release, which verifier can’t check yet
 if [ -z "${SKIP_VERIFIER:-}" ]; then
-  echo "Waiting for the verifier, it runs every hour"
+  step "Waiting for the verifier, it runs every hour"
   until curl -fsS -o "$WORK/verified.json" \
     "https://gitlab.com/hplush/slowreader-verifier/-/raw/main/releases/$VERSION.json" \
     2> /dev/null; do
     sleep 60
   done
   if [ "$(jq -r .status "$WORK/verified.json")" != "verified" ]; then
-    echo "Verifier: $(jq -r .reason "$WORK/verified.json")" >&2
-    exit 1
+    error "Verifier: $(jq -r .reason "$WORK/verified.json")"
   fi
   if [ "$(jq -r .image "$WORK/verified.json")" != "$(cat "$WORK/image.txt")" ]; then
-    echo "Verifier checked $(jq -r .image "$WORK/verified.json")" >&2
-    exit 1
+    error "Verifier checked $(jq -r .image "$WORK/verified.json")"
   fi
 fi
 
-echo "Create 1 hour API key for deploy application:"
-echo "https://console.scaleway.com/iam/api-keys"
-read -rsp 'Scaleway secret key: ' SECRET
+step "Create 1 hour API key for deploy application:"
+step "https://console.scaleway.com/iam/api-keys"
+ask 'Scaleway secret key: ' -s
+SECRET=$ANSWER
 echo
 API=https://api.scaleway.com/containers/v1/regions/fr-par
 NAMESPACE=$(curl -fsS "$API/namespaces?name=slowreader" -H "X-Auth-Token: $SECRET" \
@@ -184,15 +195,13 @@ for ID in "${IDS[@]}"; do
     CONTAINER=$(curl -fsS "$API/containers/$ID" -H "X-Auth-Token: $SECRET")
     STATUS=$(jq -r .status <<< "$CONTAINER")
     if [ "$STATUS" = "error" ]; then
-      jq -r '"\(.name): \(.error_message)"' <<< "$CONTAINER" >&2
-      exit 1
+      error "$(jq -r '"\(.name): \(.error_message)"' <<< "$CONTAINER")"
     fi
   done
 done
 
 DEPLOYED=$(curl -fsS https://slowreader.app/manifest.json | jq -r .commit)
 if [ "$DEPLOYED" != "$RELEASED" ]; then
-  echo "slowreader.app runs $DEPLOYED commit" >&2
-  exit 1
+  error "slowreader.app runs $DEPLOYED commit"
 fi
-echo "Deployed. Delete API key: https://console.scaleway.com/iam/api-keys"
+step "Deployed. Delete API key: https://console.scaleway.com/iam/api-keys"
