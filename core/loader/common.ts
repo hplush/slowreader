@@ -140,6 +140,11 @@ export function createUrlsResolver(
     if (!html) return html
     let document = parseDocument(html)
     let changed = false
+    // Trusted Types block setting script URL from other origin even here
+    for (let script of document.querySelectorAll('script')) {
+      script.remove()
+      changed = true
+    }
     let images: string[] = []
     for (let image of document.querySelectorAll('img, picture source')) {
       if (restoreLazyImage(image)) changed = true

@@ -519,6 +519,29 @@ describe('rss loader', () => {
     )
   })
 
+  test('removes scripts before resolving links', async () => {
+    let posts = loaders.rss.getPosts(
+      createDownloadTask(),
+      'https://svelte.dev/blog/rss.xml',
+      exampleRss(
+        `<?xml version="1.0"?>
+        <rss version="2.0">
+          <channel>
+            <item>
+              <link>https://svelte.dev/blog/1</link>
+              <description><![CDATA[<p>A</p><script async src="//cdn.changelog.com/embed.js"></script><script src="/logogen.js"></script>]]></description>
+            </item>
+          </channel>
+        </rss>`
+      )
+    )
+    await posts.loading
+    deepEqual(
+      posts.get().list.map(i => i.full),
+      ['<p>A</p>']
+    )
+  })
+
   test('checks relative images by HTTP', async () => {
     expectRequest('https://example.com/posts/1/a.png').andRespond(200)
     let posts = loaders.rss.getPosts(
