@@ -16,8 +16,10 @@ verify:
     GIT_DEPTH: 0
   before_script:
     - apk add --no-cache bash cosign curl git github-cli jq openssh-client openssh-keygen openssl
+    # Builder can’t take TLS settings of docker:dind service from environment
+    - docker context create dind
     # Docker’s own builder can’t replay builds
-    - docker buildx create --use --driver docker-container
+    - docker buildx create --use --driver docker-container dind
     - git config --global user.name "Slow Reader Verifier"
     - git config --global user.email "verifier@slowreader.app"
     # Project access tokens need GitLab Premium
