@@ -1,1 +1,1 @@
-- Fix release script.
+Fix release script.
