@@ -345,18 +345,23 @@ Run `./scripts/run-image.sh ROLE` to build and run the image locally.
 
 We release every week. Version is `MAJOR.DATE.PATCH` like `0.20261012.1`: `DATE` is the day of the weekly release and `PATCH` counts quick fixes after it.
 
-1. Run `./scripts/release.sh` outside Dev Container for weekly release from `main` or `./scripts/release.sh fix` for a quick fix from `release` branch.
+`release` branch always has the latest release.
+
+1. Run `./scripts/release.sh` outside Dev Container:
+   - Weekly release: run it without arguments from `main`. It moves `release` branch to `main`.
+   - Quick fix with all changes from `main`:
+     1. Run `git switch release && git pull`.
+     2. Run `git merge --ff-only origin/main`.
+     3. Run `./scripts/release.sh fix`.
+   - Quick fix without unreleased features from `main`:
+     1. Run `git switch release && git pull`.
+     2. Run `git cherry-pick COMMIT` for every fix from `main`.
+     3. Run `./scripts/release.sh fix`. After pushing the release it merges `release` back to `main`. If merge has conflicts, resolve them and push `main`.
 2. It moves [`unreleased-changes/`](./unreleased-changes/) to [`CHANGELOG.md`](./CHANGELOG.md), updates the version, tags the release, and waits for the image from [release workflow](./.github/workflows/release.yml).
-3. Touch the hardware key from [`verifier/allowed_signers`](./verifier/allowed_signers) to sign the image.
-4. Paste the signature as a comment to `release` environment approval.
-5. Wait for [verifier](./verifier/) to rebuild the image. It runs every hour.
-6. Paste 1 hour API key of `deploy` IAM application from [Scaleway console](https://console.scaleway.com/iam/api-keys). The script deploys the image to production by digest.
-
-`release` branch always has the latest release. The weekly release moves it to `main`. For a quick fix without unreleased features from `main`:
-
-1. Run `git switch release && git pull`.
-2. Run `git cherry-pick COMMIT` for every fix from `main`.
-3. Run `./scripts/release.sh fix`. After pushing the release it merges `release` back to `main`. If merge has conflicts, resolve them and push `main`.
+3. It asks to touch the hardware key from [`verifier/allowed_signers`](./verifier/allowed_signers) to sign the image.
+4. It asks to paste the signature as a comment to `release` environment approval.
+5. It waits for [verifier](./verifier/) to rebuild the image. It runs every hour.
+6. It asks 1 hour API key of `deploy` IAM application from [Scaleway console](https://console.scaleway.com/iam/api-keys) and deploys the image to production by digest.
 
 ### Self-Hosted
 
