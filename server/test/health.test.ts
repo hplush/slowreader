@@ -13,4 +13,13 @@ describe('server health', () => {
     equal(response.status, 200)
     equal(await response.text(), 'OK\n')
   })
+
+  test('answers HEAD for uptime monitors', async () => {
+    await using server = emptyTestServer()
+    healthModule(server)
+
+    let response = await server.fetch('/health', { method: 'HEAD' })
+    equal(response.status, 200)
+    equal(await response.text(), '')
+  })
 })
