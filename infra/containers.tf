@@ -5,7 +5,7 @@ resource "scaleway_container_namespace" "main" {
 resource "scaleway_container" "app" {
   name         = "app"
   namespace_id = scaleway_container_namespace.main.id
-  image        = "ghcr.io/hplush/slowreader:dev"
+  image        = "ghcr.io/hplush/slowreader:latest"
   port         = 2553
 
   cpu_limit          = 560
@@ -64,7 +64,7 @@ resource "scaleway_container" "app" {
 resource "scaleway_container" "proxy" {
   name         = "proxy"
   namespace_id = scaleway_container_namespace.main.id
-  image        = "ghcr.io/hplush/slowreader:dev"
+  image        = "ghcr.io/hplush/slowreader:latest"
   port         = 2553
 
   cpu_limit          = 560
