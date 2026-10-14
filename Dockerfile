@@ -124,7 +124,6 @@ LABEL org.opencontainers.image.licenses=AGPL-3.0-or-later
 ARG COMMIT
 LABEL org.opencontainers.image.revision=$COMMIT
 
-WORKDIR /var/app
 ENV NODE_ENV=production \
   LOGUX_HOST=0.0.0.0 \
   LOGUX_LOGGER=json
@@ -137,10 +136,13 @@ COPY --from=client /app/web/nginx.conf /app/web/routes.regexp /etc/nginx/
 COPY --from=client /app/web/dist/ /var/www/
 # Workspace packages are symlinks to the folders next to node_modules/,
 # so Node.js can strip their types
-COPY --from=server /app/node_modules/ node_modules/
-COPY --from=server /app/api/ api/
-COPY --from=server /app/proxy/ proxy/
-COPY --from=server /app/server/ server/
+COPY --from=server /app/node_modules/ /var/app/node_modules/
+COPY --from=server /app/api/ /var/app/api/
+COPY --from=server /app/proxy/ /var/app/proxy/
+COPY --from=server /app/server/ /var/app/server/
+# Base image runs as nginx user, so WORKDIR before COPY would give
+# the server user rights to replace code folders
+WORKDIR /var/app
 
 USER 65532
 
