@@ -145,6 +145,13 @@
       .mark {
         font-weight: bold;
       }
+      /* Fallback font for loader and status symbols can be wider than 1ch */
+      .loading,
+      .mark {
+        display: inline-block;
+        width: 1ch;
+        text-indent: 0;
+      }
       /* Text only for screen readers */
       .sr {
         position: absolute;
@@ -193,13 +200,13 @@
     <main>
       <h1 aria-live="polite">
         <a href="https://slowreader.app">Slow Reader</a> Verification Status:
-        <span id="percent" class="loading" aria-hidden="true"></span>
+        <span id="percent" class="loading" aria-hidden="true">⠋</span>
         <span id="percent-text" class="sr">Counting</span>
         <span class="normal">verified and available</span>
       </h1>
       <ul id="checks" aria-live="polite">
         <li>
-          <span class="loading" aria-hidden="true"></span>
+          <span class="loading" aria-hidden="true">⠋</span>
           <span class="sr">checking:</span> Web app is available
           <button
             class="link"
@@ -210,7 +217,7 @@
           </button>
         </li>
         <li>
-          <span class="loading" aria-hidden="true"></span>
+          <span class="loading" aria-hidden="true">⠋</span>
           <span class="sr">checking:</span> Detecting commit:
           <span id="commit">…</span>
           <button
@@ -222,7 +229,7 @@
           </button>
         </li>
         <li>
-          <span class="loading" aria-hidden="true"></span>
+          <span class="loading" aria-hidden="true">⠋</span>
           <span class="sr">checking:</span> CI verified build reproducibility
           <span id="release"></span>
           <button
@@ -234,7 +241,7 @@
           </button>
         </li>
         <li>
-          <span class="loading" aria-hidden="true"></span>
+          <span class="loading" aria-hidden="true">⠋</span>
           <span class="sr">checking:</span> Site hashes match CI rebuild
           <button
             class="link"
@@ -245,7 +252,7 @@
           </button>
         </li>
         <li>
-          <span class="loading" aria-hidden="true"></span>
+          <span class="loading" aria-hidden="true">⠋</span>
           <span class="sr">checking:</span> Assets match hashes
           <span id="assets"></span>
           <button
@@ -259,7 +266,9 @@
       </ul>
       <h2>Builds</h2>
       <ul id="builds">
-        <li><span class="loading" aria-hidden="true"></span> Loading builds</li>
+        <li>
+          <span class="loading" aria-hidden="true">⠋</span> Loading builds
+        </li>
       </ul>
       <a
         href="https://gitlab.com/hplush/slowreader-verifier/-/tree/main/releases"
@@ -267,7 +276,7 @@
       >
       <h2>Site checks <span class="dim">(UTC)</span></h2>
       <div id="today">
-        <span class="loading" aria-hidden="true"></span> Loading checks
+        <span class="loading" aria-hidden="true">⠋</span> Loading checks
       </div>
       <div id="history"></div>
       <a href="https://gitlab.com/hplush/slowreader-verifier/-/tree/main/checks"
