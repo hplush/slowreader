@@ -13,6 +13,7 @@ import {
   findDocumentLinks,
   findHeaderLinks,
   findMediaInText,
+  getUpdatedAt,
   type Loader,
   toTime
 } from './common.ts'
@@ -61,6 +62,7 @@ interface JsonFeedItem {
 
 interface JSONFeedAttachment {
   mime_type: string
+  title?: string
   url: string
 }
 
@@ -131,17 +133,26 @@ function parsePosts(
       }
       for (let attachment of item.attachments ?? []) {
         if (attachment.url && attachment.mime_type) {
-          postMedia.push({ type: attachment.mime_type, url: attachment.url })
+          let media: PostMedia = {
+            type: attachment.mime_type,
+            url: attachment.url
+          }
+          if (attachment.title) media.name = attachment.title
+          postMedia.push(media)
         }
       }
+
+      let updatedAt = toTime(item.date_modified)
+      let publishedAt = toTime(item.date_published) ?? updatedAt
 
       return {
         full,
         intro: item.summary ?? undefined,
         media: stringifyMedia([...postMedia, ...textMedia]),
         originId: item.id,
-        publishedAt: toTime(item.date_published) ?? undefined,
+        publishedAt,
         title: item.title,
+        updatedAt: getUpdatedAt(publishedAt, updatedAt),
         url: item.url ?? undefined
       }
     })

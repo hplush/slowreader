@@ -103,6 +103,9 @@ let postsSchema = {
   read: number({ default: 0 }),
   reading: oneOf(READINGS, { default: 'slow' }),
   title: optional(string()),
+  unsupported: optional(number()),
+  // -1 for posts with the edited mark, but without the time
+  updatedAt: optional(bigint()),
   url: optional(string()),
   warning: optional(string())
 }

@@ -379,6 +379,7 @@ describe('atom loader', () => {
             originId: '1',
             publishedAt: 1672531200,
             title: '1 XSS',
+            updatedAt: 1685577600,
             url: 'https://example.com/1'
           },
           {
@@ -388,6 +389,7 @@ describe('atom loader', () => {
             originId: '2',
             publishedAt: 1685577600,
             title: '2',
+            updatedAt: undefined,
             url: undefined
           },
           {
@@ -397,6 +399,7 @@ describe('atom loader', () => {
             originId: '3',
             publishedAt: undefined,
             title: '3',
+            updatedAt: undefined,
             url: 'https://example.com/3'
           },
           {
@@ -406,6 +409,7 @@ describe('atom loader', () => {
             originId: '5',
             publishedAt: undefined,
             title: undefined,
+            updatedAt: undefined,
             url: undefined
           }
         ]
@@ -449,6 +453,7 @@ describe('atom loader', () => {
           originId: '1',
           publishedAt: undefined,
           title: '1',
+          updatedAt: undefined,
           url: undefined
         }
       ]
@@ -481,7 +486,7 @@ describe('atom loader', () => {
             </entry>
             <entry>
               <title>2</title>
-              <link rel="enclosure" type="image/png"
+              <link rel="enclosure" type="image/png" title="Chart"
                 href="https://example.com/img.png" />
               <content type="xhtml">
                 <xhtml:div xmlns:xhtml="http://www.w3.org/1999/xhtml">
@@ -514,6 +519,7 @@ describe('atom loader', () => {
           originId: '1',
           publishedAt: 1672531200,
           title: '1 XSS',
+          updatedAt: 1685577600,
           url: 'https://example.com/1'
         },
         {
@@ -523,10 +529,11 @@ describe('atom loader', () => {
             '                ',
           intro: 'Post 2',
           media:
-            '[{"type":"image/png","url":"https://example.com/img.png"},{"fromText":true,"type":"image","url":"https://example.com/img.webp"}]',
+            '[{"type":"image/png","url":"https://example.com/img.png","name":"Chart"},{"fromText":true,"type":"image","url":"https://example.com/img.webp"}]',
           originId: '2',
           publishedAt: 1672531200,
           title: '2',
+          updatedAt: 1685577600,
           url: undefined
         }
       ]

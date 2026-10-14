@@ -283,6 +283,33 @@ export function toTime(date: null | string | undefined): number | undefined {
 }
 
 /**
+ * Unlike `querySelector()`, ignores tags from other namespaces,
+ * like `media:description` for RSS `description`.
+ */
+export function findOwnChild(parent: Element, name: string): Element | null {
+  return (
+    [...parent.children].find(i => {
+      return i.localName === name && i.namespaceURI === parent.namespaceURI
+    }) ?? null
+  )
+}
+
+/**
+ * Feeds often repeat the publish time in the update time. Negative time
+ * is ignored, since -1 means an edit at unknown time.
+ */
+export function getUpdatedAt(
+  publishedAt: number | undefined,
+  updatedAt: number | undefined
+): number | undefined {
+  if (publishedAt && updatedAt && updatedAt > publishedAt && updatedAt > 0) {
+    return updatedAt
+  } else {
+    return undefined
+  }
+}
+
+/**
  * Find all images in HTML.
  */
 export function findMediaInText(html: string | undefined): PostMedia[] {

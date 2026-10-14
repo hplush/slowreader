@@ -174,7 +174,8 @@ describe('refresh', () => {
     deepEqual(await getPostKeys('title'), ['2', '3'])
     deepEqual(await getPostKeys('reading'), ['slow', 'slow'])
     deepEqual(await getPostKeys('feedId'), [feedId1, feedId1])
-    ok((await getPostKeys('publishedAt'))[0]! + 1000 > Date.now())
+    let publishedAt = (await getPostKeys('publishedAt'))[0]!
+    ok(Math.abs(publishedAt - Date.now() / 1000) < 2)
     deepEqual((await loadFeed(feedId1))!.lastOriginId, 'post3')
     deepEqual((await loadFeed(feedId1))!.lastPublishedAt, null)
 

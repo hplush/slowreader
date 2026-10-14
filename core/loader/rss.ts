@@ -13,6 +13,7 @@ import {
   findDocumentLinks,
   findHeaderLinks,
   findMediaInText,
+  findOwnChild,
   findXmlBase,
   type Loader,
   toTime
@@ -34,7 +35,7 @@ function parsePosts(
   let resolveUrls = createUrlsResolver(task)
   return Promise.all(
     parsePostSources(text).map(async item => {
-      let description = item.querySelector('description')
+      let description = findOwnChild(item, 'description')
       let url = item.querySelector('link')?.textContent ?? undefined
       let full = await resolveUrls(
         description?.textContent ?? undefined,
@@ -61,7 +62,7 @@ function parsePosts(
           item.querySelector('guid')?.textContent ??
           item.querySelector('link')!.textContent,
         publishedAt: toTime(item.querySelector('pubDate')?.textContent),
-        title: item.querySelector('title')?.textContent ?? undefined,
+        title: findOwnChild(item, 'title')?.textContent ?? undefined,
         url
       }
     })

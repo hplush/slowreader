@@ -143,6 +143,8 @@ describe('export page', () => {
           read: 0,
           reading: 'fast',
           title: null,
+          unsupported: null,
+          updatedAt: null,
           url: 'http://example.com/1',
           warning: null
         }

@@ -302,6 +302,7 @@ describe('json feed loader', () => {
             originId: 'somehashid',
             publishedAt: 1641254400,
             title: 'title_1',
+            updatedAt: undefined,
             url: 'https://example.com/'
           },
           {
@@ -311,6 +312,7 @@ describe('json feed loader', () => {
             originId: 'somehashid2',
             publishedAt: 1641254400,
             title: 'title_2',
+            updatedAt: undefined,
             url: 'https://example.com/2'
           }
         ]
@@ -368,6 +370,7 @@ describe('json feed loader', () => {
           originId: 'somehashid',
           publishedAt: 1641254400,
           title: 'title_1',
+          updatedAt: undefined,
           url: 'https://example.com/'
         },
         {
@@ -377,6 +380,7 @@ describe('json feed loader', () => {
           originId: 'somehashid2',
           publishedAt: 1641254400,
           title: 'title_2',
+          updatedAt: undefined,
           url: 'https://example.com/2'
         }
       ]
@@ -483,6 +487,7 @@ describe('json feed loader', () => {
             originId: 'somehashid',
             publishedAt: undefined,
             title: undefined,
+            updatedAt: undefined,
             url: undefined
           }
         ]
@@ -558,6 +563,7 @@ describe('json feed loader', () => {
             attachments: [
               {
                 mime_type: 'image/png',
+                title: 'Chart',
                 url: 'https://example.com/img.png'
               }
             ],
@@ -594,6 +600,7 @@ describe('json feed loader', () => {
           originId: 'somehashid',
           publishedAt: 1641254400,
           title: 'title_1',
+          updatedAt: undefined,
           url: 'https://example.com/'
         },
         {
@@ -605,19 +612,67 @@ describe('json feed loader', () => {
           originId: 'somehashid2',
           publishedAt: 1641254400,
           title: 'title_2',
+          updatedAt: undefined,
           url: 'https://example.com/2'
         },
         {
           full: '3',
           intro: undefined,
-          media: '[{"type":"image/png","url":"https://example.com/img.png"}]',
+          media:
+            '[{"type":"image/png","url":"https://example.com/img.png","name":"Chart"}]',
           originId: 'somehashid3',
           publishedAt: undefined,
           title: 'title_3',
+          updatedAt: undefined,
           url: 'https://example.com/3'
         }
       ]
     })
+  })
+
+  test('parses update time', async () => {
+    let posts = loaders.jsonFeed.getPosts(
+      createDownloadTask(),
+      'https://example.com/',
+      exampleJson({
+        items: [
+          {
+            date_modified: '2022-01-05T00:00:00Z',
+            date_published: '2022-01-04T00:00:00Z',
+            id: 'edited'
+          },
+          {
+            date_modified: '2022-01-04T00:00:00Z',
+            date_published: '2022-01-04T00:00:00Z',
+            id: 'same'
+          },
+          { date_modified: '2022-01-05T00:00:00Z', id: 'unpublished' },
+          {
+            date_modified: '1969-12-31T23:59:59Z',
+            date_published: '1969-12-31T00:00:00Z',
+            id: 'negative'
+          },
+          {
+            date_modified: 'broken',
+            date_published: '2022-01-04T00:00:00Z',
+            id: 'broken'
+          }
+        ],
+        title: 'Feed',
+        version: 'https://jsonfeed.org/version/1.1'
+      })
+    )
+    await posts.loading
+    deepEqual(
+      posts.get().list.map(post => [post.publishedAt, post.updatedAt]),
+      [
+        [1641254400, 1641340800],
+        [1641254400, undefined],
+        [1641340800, undefined],
+        [-86400, undefined],
+        [1641254400, undefined]
+      ]
+    )
   })
 
   test('returns post source', async () => {

@@ -351,10 +351,26 @@ describe('rss loader', () => {
                     <media:content
                       medium="image"
                       url="https://example.com/image.jpg"
-                    />
+                    >
+                      <media:description> Cat </media:description>
+                    </media:content>
                   <description>
                     &lt;img src="https://example.com/img.webp"/&gt;
                   </description>
+                  <pubDate>Mon, 01 Jan 2023 00:00:00 GMT</pubDate>
+                </item>
+                <item>
+                  <title>4</title>
+                  <link>https://example.com/4</link>
+                  <media:group>
+                    <media:content
+                      type="video/mp4"
+                      url="https://example.com/video.mp4"
+                    >
+                      <media:title>Video</media:title>
+                    </media:content>
+                    <media:thumbnail url="https://example.com/poster.png" />
+                  </media:group>
                   <pubDate>Mon, 01 Jan 2023 00:00:00 GMT</pubDate>
                 </item>
               </channel>
@@ -391,11 +407,20 @@ describe('rss loader', () => {
               '<img src="https://example.com/img.webp"/>' +
               '\n                  ',
             media:
-              '[{"type":"image/jpeg","url":"https://example.com/image.jpg"},{"fromText":true,"type":"image","url":"https://example.com/img.webp"}]',
+              '[{"type":"image/jpeg","url":"https://example.com/image.jpg","alt":"Cat"},{"fromText":true,"type":"image","url":"https://example.com/img.webp"}]',
             originId: 'https://example.com/3',
             publishedAt: 1672531200,
             title: '3',
             url: 'https://example.com/3'
+          },
+          {
+            full: undefined,
+            media:
+              '[{"type":"video/mp4","url":"https://example.com/video.mp4","name":"Video","poster":"https://example.com/poster.png"}]',
+            originId: 'https://example.com/4',
+            publishedAt: 1672531200,
+            title: '4',
+            url: 'https://example.com/4'
           }
         ]
       }

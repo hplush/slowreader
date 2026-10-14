@@ -166,6 +166,8 @@ describe('import page', () => {
         media: null,
         preview: null,
         read: 0,
+        unsupported: null,
+        updatedAt: null,
         url: null,
         warning: null
       }

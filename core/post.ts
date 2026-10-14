@@ -34,6 +34,8 @@ export type ParsedPost = {
   preview?: string
   publishedAt?: number
   title?: string
+  unsupported?: 1
+  updatedAt?: number
   url?: string
   warning?: string
 }
@@ -87,7 +89,10 @@ const INTRO_MIN = 300
 const INTRO_MAX = 500
 
 export type PostMedia = {
+  alt?: string
   fromText?: boolean
+  name?: string
+  poster?: string
   sensitive?: true
   type: string
   url: string
@@ -323,6 +328,8 @@ export function testPost(
     read: 0,
     reading: 'fast',
     title: null,
+    unsupported: null,
+    updatedAt: null,
     url: `http://example.com/${testPostId}`,
     warning: null,
     ...post
@@ -358,13 +365,10 @@ onMount(slowPostsCount, () => {
 
 export function stringifyMedia(media: PostMedia[]): string | undefined {
   if (media.length === 0) return undefined
-  let used = new Set<string>()
-  let unique = media.filter(i => {
-    let already = used.has(i.url)
-    if (!already) used.add(i.url)
-    return !already
-  })
-  return JSON.stringify(unique)
+  let unique = new Map<string, PostMedia>()
+  // Feeds repeat the same file in enclosure and MRSS with different details
+  for (let i of media) unique.set(i.url, { ...i, ...unique.get(i.url) })
+  return JSON.stringify([...unique.values()])
 }
 
 export function parseMedia(value: null | string | undefined): PostMedia[] {

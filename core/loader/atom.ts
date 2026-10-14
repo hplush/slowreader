@@ -13,7 +13,9 @@ import {
   findDocumentLinks,
   findHeaderLinks,
   findMediaInText,
+  findOwnChild,
   findXmlBase,
+  getUpdatedAt,
   type Loader,
   toTime
 } from './common.ts'
@@ -26,13 +28,23 @@ export function findMRSS(element: Element): PostMedia[] {
   )
   for (let content of mrss) {
     let type = content.getAttribute('type') ?? content.getAttribute('medium')
-    let url = content.getAttribute('url')
-    if (!url) {
-      let thumbnail = content.querySelector('thumbnail')
-      if (thumbnail) url = thumbnail.getAttribute('url')
-    }
+    let group =
+      content.parentElement?.localName === 'group'
+        ? [...content.parentElement.children]
+        : []
+    let poster = (
+      content.querySelector('thumbnail') ??
+      group.find(i => i.localName === 'thumbnail')
+    )?.getAttribute('url')
+    let url = content.getAttribute('url') ?? poster
     if (url && type) {
-      result.push({ type, url })
+      let media: PostMedia = { type, url }
+      let alt = content.querySelector('description')?.textContent.trim()
+      let name = content.querySelector('title')?.textContent.trim()
+      if (alt) media.alt = alt
+      if (name) media.name = name
+      if (poster && poster !== url) media.poster = poster
+      result.push(media)
     }
   }
   return result
@@ -81,7 +93,7 @@ function parsePosts(
   let resolveUrls = createUrlsResolver(task)
   return Promise.all(
     parsePostSources(text).map(async entry => {
-      let content = entry.querySelector('content')
+      let content = findOwnChild(entry, 'content')
       let summary = entry.querySelector('summary')
       let url =
         entry
@@ -101,10 +113,17 @@ function parsePosts(
         let enclosureUrl = enclosure.getAttribute('href')
         let type = enclosure.getAttribute('type')
         if (enclosureUrl && type) {
-          postMedia.push({ type, url: enclosureUrl })
+          let media: PostMedia = { type, url: enclosureUrl }
+          let name = enclosure.getAttribute('title')
+          if (name) media.name = name
+          postMedia.push(media)
         }
       }
       postMedia = postMedia.concat(findMRSS(entry))
+
+      let updatedAt = toTime(entry.querySelector('updated')?.textContent)
+      let publishedAt =
+        toTime(entry.querySelector('published')?.textContent) ?? updatedAt
 
       return {
         full,
@@ -115,11 +134,9 @@ function parsePosts(
         ),
         media: stringifyMedia([...postMedia, ...textMedia]),
         originId: entry.querySelector('id')!.textContent,
-        publishedAt: toTime(
-          entry.querySelector('published')?.textContent ??
-            entry.querySelector('updated')?.textContent
-        ),
-        title: entry.querySelector('title')?.textContent ?? undefined,
+        publishedAt,
+        title: findOwnChild(entry, 'title')?.textContent ?? undefined,
+        updatedAt: getUpdatedAt(publishedAt, updatedAt),
         url
       }
     })
