@@ -239,7 +239,7 @@ export function processOriginPost(
     ...origin,
     feedId,
     id: getPostId(feedId, origin),
-    publishedAt: origin.publishedAt ?? Date.now(),
+    publishedAt: origin.publishedAt ?? Math.round(Date.now() / 1000),
     reading
   }
 }
