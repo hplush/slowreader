@@ -235,23 +235,23 @@
         </li>
         <li>
           <span class="loading" aria-hidden="true"></span>
-          <span class="sr">checking:</span> CI verified HTML &amp; JS hashes
+          <span class="sr">checking:</span> Site hashes match CI rebuild
           <button
             class="link"
             data-help="manifest"
-            aria-label="How to repeat: CI verified HTML and JS hashes"
+            aria-label="How to repeat: site hashes match CI rebuild"
           >
             [?]
           </button>
         </li>
         <li>
           <span class="loading" aria-hidden="true"></span>
-          <span class="sr">checking:</span> Assets match hashes from the build
+          <span class="sr">checking:</span> Assets match hashes
           <span id="assets"></span>
           <button
             class="link"
             data-help="assets"
-            aria-label="How to repeat: assets match hashes from the build"
+            aria-label="How to repeat: assets match hashes"
           >
             [?]
           </button>
@@ -340,7 +340,7 @@ docker buildx imagetools inspect --raw ghcr.io/hplush/slowreader@$PLATFORM \
 
     <dialog id="help-manifest" aria-labelledby="help-manifest-title">
       <header>
-        <h2 id="help-manifest-title">CI verified HTML &amp; JS hashes</h2>
+        <h2 id="help-manifest-title">Site hashes match CI rebuild</h2>
         <form method="dialog"><button aria-label="Close">[x]</button></form>
       </header>
       <pre class="content">
@@ -356,7 +356,7 @@ diff release-manifest.json site-manifest.json &amp;&amp; echo same</pre>
 
     <dialog id="help-assets" aria-labelledby="help-assets-title">
       <header>
-        <h2 id="help-assets-title">Assets match hashes from the build</h2>
+        <h2 id="help-assets-title">Assets match hashes</h2>
         <form method="dialog"><button aria-label="Close">[x]</button></form>
       </header>
       <pre class="content">
