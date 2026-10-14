@@ -36,14 +36,21 @@ API="https://gitlab.com/api/v4/projects/hplush%2Fslowreader-verifier/pipelines"
 SHA=$(git -C "$WORK/repo" rev-parse HEAD)
 PIPELINE=""
 until [ -n "$PIPELINE" ]; do
-  sleep 5
+  sleep 10
   PIPELINE=$(curl -fsS "$API?sha=$SHA" | jq -r '.[0].id // empty')
 done
 echo "https://gitlab.com/hplush/slowreader-verifier/-/pipelines/$PIPELINE"
+# GitLab limits anonymous API by 60 requests per hour, but not SSH
 STATUS=""
+STEP=0
 until [[ $STATUS =~ ^(success|failed|canceled|skipped)$ ]]; do
-  sleep 15
-  STATUS=$(curl -fsS "$API/$PIPELINE" | jq -r .status)
+  sleep 10
+  STEP=$((STEP + 1))
+  # Check could fail before pushing results
+  if [ "$(git -C "$WORK/repo" ls-remote origin main | cut -f1)" != "$SHA" ] \
+    || [ $((STEP % 30)) -eq 0 ]; then
+    STATUS=$(curl -fsS "$API/$PIPELINE" | jq -r .status)
+  fi
 done
 
 curl -fsS "https://gitlab.com/hplush/slowreader-verifier/-/raw/main/checks/$(date -u +%F).txt" \
