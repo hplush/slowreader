@@ -240,7 +240,7 @@
             <li>
               <span class="loading" aria-hidden="true">⠋</span>
               <span class="sr">checking:</span> Signed by
-              <span id="signer">core team</span>
+              <span id="signer">…</span>
               <button
                 class="link"
                 data-help="signature"
@@ -252,7 +252,7 @@
             <li>
               <span class="loading" aria-hidden="true">⠋</span>
               <span class="sr">checking:</span> Built by
-              <span id="workflow">project CI</span>
+              <span id="workflow">…</span>
               <button
                 class="link"
                 data-help="provenance"
@@ -395,9 +395,12 @@ gh attestation verify oci://$(cat image.txt) --repo hplush/slowreader \
 TAG=<span class="tag">TAG</span>
 curl -fsSLO https://github.com/hplush/slowreader/releases/download/$TAG/image.txt
 
+<span class="dim"># Image for amd64 or arm64, other one needs QEMU emulation</span>
+ARCH=amd64
+
 <span class="dim"># Rebuild the image from the same commit and base images</span>
 docker buildx create --use --driver docker-container
-docker buildx replay build $(cat image.txt) \
+docker buildx replay build $(cat image.txt) --platform linux/$ARCH \
   --output type=oci,dest=replay.tar,rewrite-timestamp=true
 mkdir replay &amp;&amp; tar -xf replay.tar -C replay
 REBUILT=$(jq -r '.manifests[0].digest' replay/index.json)
@@ -405,7 +408,7 @@ jq -r .config.digest replay/blobs/sha256/${REBUILT#sha256:}
 
 <span class="dim"># Config digest of the published image must be the same</span>
 PLATFORM=$(docker buildx imagetools inspect --raw $(cat image.txt) \
-  | jq -r '.manifests[] | select(.platform.architecture == "amd64") | .digest')
+  | jq -r '.manifests[] | select(.platform.architecture == "'$ARCH'") | .digest')
 docker buildx imagetools inspect --raw ghcr.io/hplush/slowreader@$PLATFORM \
   | jq -r .config.digest</pre>
     </dialog>
@@ -669,18 +672,20 @@ done</pre>
           for (let tag of document.querySelectorAll('.tag')) {
             tag.textContent = release.tag
           }
-          // Old results have no signer and build
-          if (release.signer) {
-            document.getElementById('signer').textContent = release.signer
-          }
-          if (release.build) {
-            let link = document.createElement('a')
-            link.href = release.build
-            link.textContent = 'project CI'
-            document.getElementById('workflow').replaceChildren(link)
-          }
         } else {
           document.getElementById('release').replaceChildren()
+        }
+        // Old results have no signer and build
+        document.getElementById('signer').textContent =
+          release?.signer ?? 'core team'
+        let workflow = document.getElementById('workflow')
+        if (release?.build) {
+          let link = document.createElement('a')
+          link.href = release.build
+          link.textContent = 'project CI'
+          workflow.replaceChildren(link)
+        } else {
+          workflow.textContent = 'project CI'
         }
         // Without release CI did not check this commit
         if (!release) {
