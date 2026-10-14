@@ -1,19 +1,13 @@
 # Slow Reader
 
-Web app to combine feeds from social networks and RSS and to help read more meaningful and deep content.
-
-Right now, it is just a _prototype_. We plan to have features:
+Web app coach to help you read more thoughtful content from your feeds .
 
 - Combine all feeds (social media, RSS) in a single app.
 - Track how each subscription is useful for you.
-- Split subscriptions to **slow** (something useful, deep) and **fast-food** (fun and small).
+- Split subscriptions to **Useful** (slow/deep) and **Fun** (fast-food).
 - Spend more time on slow content by blocking fast in the evening, etc.
 
-Pre-alpha prototype: [`dev.slowreader.app`](https://dev.slowreader.app/)
-
-**[↬ How to contribute and join the team](./CONTRIBUTING.md)**
-
-To ask any question: **[h+h lab Discord](https://discord.gg/TyFTp6mAZT)**
+See in action: [`slowreader.app`](https://slowreader.app/)
 
 ---
 
