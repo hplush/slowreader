@@ -7,10 +7,14 @@
 # cgr.dev/chainguard/wolfi-base:latest
 FROM cgr.dev/chainguard/wolfi-base@sha256:05d24163df148be377275af8374c16523a1dc7e19bf4f1c689784791553c5e45 AS base
 
+ARG TARGETARCH
+
 ENV NODE_VERSION=26.11.1 \
   NODE_CHECKSUM_X64=3883bfc73f9a680ca4eab04b196068aaaab1373ffa77d8fc1a4408222495b651 \
+  NODE_CHECKSUM_ARM64=0945e2cde6aa0f54d980f03874dfe5cf3a549ce714c7fb9019e591ce0accf282 \
   PNPM_VERSION=12.12.0 \
-  PNPM_CHECKSUM_X64=20d68d53bfa89ba9cf727c1ffd0d3c1c3193e933d097b36e7f29f743257713d9
+  PNPM_CHECKSUM_X64=20d68d53bfa89ba9cf727c1ffd0d3c1c3193e933d097b36e7f29f743257713d9 \
+  PNPM_CHECKSUM_ARM64=cf3e59a576d3561b721ab214a8abde7a37982777001c4ba75019edeed1098ae6
 
 # Exact versions to get the same libraries in every build
 RUN apk add --no-cache curl libatomic=16.2.0-r1 libstdc++=16.2.0-r1
@@ -19,17 +23,30 @@ RUN <<EOF
   # Exit immediately if a command fails
   set -euo pipefail
 
-  curl "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" \
+  if [ "$TARGETARCH" = "amd64" ]; then
+    export NODE_ARCH="x64"
+    export NODE_CHECKSUM=$NODE_CHECKSUM_X64
+    export PNPM_CHECKSUM=$PNPM_CHECKSUM_X64
+  elif [ "$TARGETARCH" = "arm64" ]; then
+    export NODE_ARCH="arm64"
+    export NODE_CHECKSUM=$NODE_CHECKSUM_ARM64
+    export PNPM_CHECKSUM=$PNPM_CHECKSUM_ARM64
+  else
+    echo "Unsupported architecture: $TARGETARCH"
+    exit 1
+  fi
+
+  curl "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz" \
     --fail --show-error --location --silent --output /node.tar.xz
-  echo "$NODE_CHECKSUM_X64 /node.tar.xz" | sha256sum -c
+  echo "$NODE_CHECKSUM /node.tar.xz" | sha256sum -c
   mkdir -p /usr/local/bin
   tar -xf /node.tar.xz -C /usr/local/bin --strip-components=2 \
-    "node-v${NODE_VERSION}-linux-x64/bin/node"
+    "node-v${NODE_VERSION}-linux-${NODE_ARCH}/bin/node"
   rm /node.tar.xz
 
-  curl "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-x64.tar.gz" \
+  curl "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-${NODE_ARCH}.tar.gz" \
     --fail --show-error --location --silent --output /pnpm.tar.gz
-  echo "$PNPM_CHECKSUM_X64 /pnpm.tar.gz" | sha256sum -c
+  echo "$PNPM_CHECKSUM /pnpm.tar.gz" | sha256sum -c
   mkdir -p /usr/local/share/pnpm
   tar -xz -f /pnpm.tar.gz -C /usr/local/share/pnpm
   ln -s /usr/local/share/pnpm/pnpm /usr/local/bin/pnpm
@@ -52,8 +69,9 @@ COPY web/tsconfig.json web/
 
 # Demo database loads real feeds, so web/demo/Dockerfile builds it separately.
 # Run `pnpm update-docker` to take the latest one.
+# Only files are copied from the demo image, so its x64 platform is fine on ARM.
 # ghcr.io/hplush/slowreader-demo:latest
-FROM ghcr.io/hplush/slowreader-demo@sha256:da620b36e3cb81970a12d271cfd2d2889660fb0c051aea0cd73d6f644813f337 AS demo
+FROM --platform=linux/amd64 ghcr.io/hplush/slowreader-demo@sha256:da620b36e3cb81970a12d271cfd2d2889660fb0c051aea0cd73d6f644813f337 AS demo
 
 FROM base AS client
 COPY api/package.json api/
