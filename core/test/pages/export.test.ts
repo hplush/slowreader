@@ -138,11 +138,13 @@ describe('export page', () => {
           intro: 'Post 1',
           media: null,
           originId: 'test-1',
+          preview: null,
           publishedAt: 1000,
           read: 0,
           reading: 'fast',
           title: null,
-          url: 'http://example.com/1'
+          url: 'http://example.com/1',
+          warning: null
         }
       ],
       settings: {

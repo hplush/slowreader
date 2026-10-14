@@ -31,9 +31,11 @@ export type ParsedPost = {
   intro?: string
   media?: string
   originId: string
+  preview?: string
   publishedAt?: number
   title?: string
   url?: string
+  warning?: string
 }
 
 export type OriginPost = { id: string } & ParsedPost
@@ -86,7 +88,18 @@ const INTRO_MAX = 500
 
 export type PostMedia = {
   fromText?: boolean
+  sensitive?: true
   type: string
+  url: string
+}
+
+/**
+ * Link preview card of Mastodon and Bluesky posts
+ */
+export type PostPreview = {
+  description?: string
+  image?: string
+  title?: string
   url: string
 }
 
@@ -305,11 +318,13 @@ export function testPost(
     intro: `Post ${testPostId}`,
     media: null,
     originId: `test-${testPostId}`,
+    preview: null,
     publishedAt: 1000,
     read: 0,
     reading: 'fast',
     title: null,
     url: `http://example.com/${testPostId}`,
+    warning: null,
     ...post
   })
 }
@@ -359,5 +374,17 @@ export function parseMedia(value: null | string | undefined): PostMedia[] {
   } catch (e) {
     getEnvironment().warn(e)
     return []
+  }
+}
+
+export function parsePreview(
+  value: null | string | undefined
+): PostPreview | undefined {
+  if (!value) return undefined
+  try {
+    return JSON.parse(value) as PostPreview
+  } catch (e) {
+    getEnvironment().warn(e)
+    return undefined
   }
 }

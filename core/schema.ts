@@ -97,12 +97,14 @@ let postsSchema = {
   intro: optional(string()),
   media: optional(string()),
   originId: string(),
+  preview: optional(string()),
   publishedAt: bigint(),
   // SQLite has no boolean, so we are using 0 and 1
   read: number({ default: 0 }),
   reading: oneOf(READINGS, { default: 'slow' }),
   title: optional(string()),
-  url: optional(string())
+  url: optional(string()),
+  warning: optional(string())
 }
 
 export type CategoryValue = CrdtTableRow<typeof categoriesSchema>

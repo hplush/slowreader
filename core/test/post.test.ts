@@ -17,6 +17,7 @@ import {
   getPostId,
   loadPost,
   getPostIntro,
+  parsePreview,
   type PostCardText,
   getPostTitle,
   preloadImages,
@@ -27,6 +28,7 @@ import {
 } from '../index.ts'
 import {
   cleanClient,
+  expectWarning,
   setTestUser,
   setupNodeDom,
   getTestEnvironment,
@@ -116,6 +118,25 @@ describe('post', () => {
     let id = await addPost(testPost({ title: 'Test Post' }))
     let post = await loadPost(id)
     equal(post?.title, 'Test Post')
+  })
+
+  test('stores social network fields', async () => {
+    let preview = {
+      description: 'Description',
+      image: 'https://example.com/img.webp',
+      title: 'Title',
+      url: 'https://example.com/'
+    }
+    let id = await addPost(
+      testPost({ preview: JSON.stringify(preview), warning: 'Spoiler' })
+    )
+    let post = await loadPost(id)
+    deepEqual(parsePreview(post!.preview), preview)
+    equal(post!.warning, 'Spoiler')
+    equal(parsePreview(null), undefined)
+    expectWarning(() => {
+      equal(parsePreview('['), undefined)
+    }, [new SyntaxError('Unexpected end of JSON input')])
   })
 
   test('adds posts by a batch action', async () => {
