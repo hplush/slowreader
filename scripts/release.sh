@@ -163,7 +163,7 @@ if git -C "$ROOT" rev-parse -q --verify "refs/tags/$VERSION" > /dev/null; then
 fi
 
 # Choose the key from allowed_signers, which ssh-agent has
-ssh-add -L | grep -F "$(cut -d' ' -f3,4 "$ROOT/verifier/allowed_signers")" \
+ssh-add -L | grep -F -f <(grep -oE 'sk-ssh-[^ ]+ [^ ]+' "$ROOT/verifier/allowed_signers") \
   | head -n 1 > "$WORK/key.pub" || true
 if [ ! -s "$WORK/key.pub" ]; then
   error "Add hardware key from verifier/allowed_signers to ssh-agent"

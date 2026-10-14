@@ -21,8 +21,12 @@ trap 'rm -rf "$WORK"' EXIT
 # Add release data to the result from stdin and put its signature to the append-only log
 save() {
   # Result with tag, image, commit, and verifier version
+  # Signer and build only after their checks passed, so the page knows the failed step
   jq --arg tag "$TAG" --arg image "$IMAGE@$DIGEST" --arg commit "$COMMIT" --arg verifier "$VERIFIER" \
-    '{tag: $tag, image: $image, commit: $commit, verifier: $verifier} + .' > "releases/$TAG.json"
+    --arg signer "$SIGNER" --arg build "$BUILD" \
+    '{tag: $tag, image: $image, commit: $commit, verifier: $verifier}
+      + ({signer: $signer, build: $build} | with_entries(select(.value != ""))) + .' \
+    > "releases/$TAG.json"
   # Public Rekor log keeps signatures forever, so nobody can change the result
   cosign sign-blob --yes --key "$COSIGN_KEY" \
     --bundle "releases/$TAG.sigstore.json" "releases/$TAG.json" > /dev/null
@@ -44,6 +48,10 @@ for TAG in $(gh release list --repo "$REPO" --json tagName --jq '.[].tagName'); 
   DIGEST=unknown
   # Unknown until we verify CI provenance
   COMMIT=unknown
+  # Unknown until we verify maintainer signature
+  SIGNER=""
+  # Unknown until we verify CI provenance
+  BUILD=""
   # Count attempts, because regular errors stop the script before saving
   echo >> "releases/$TAG.tries"
   # 3 failed hourly runs mean the release itself is the problem, not the network
@@ -62,6 +70,9 @@ for TAG in $(gh release list --repo "$REPO" --json tagName --jq '.[].tagName'); 
     broken "no maintainer signature"
     continue
   fi
+  # Maintainer’s name, which allowed_signers has next to the release role
+  SIGNER=$(ssh-keygen -Y find-principals -f "$(dirname "$0")/allowed_signers" -n slowreader-release \
+    -s "$WORK/image.txt.sig" | grep -vx release)
   # GitHub signature proves that our release workflow built it from this tag
   gh attestation verify "oci://$IMAGE@$DIGEST" --repo "$REPO" \
     --source-ref "refs/tags/$TAG" \
@@ -77,6 +88,8 @@ for TAG in $(gh release list --repo "$REPO" --json tagName --jq '.[].tagName'); 
     broken "provenance has $SOURCE commit"
     continue
   fi
+  # GitHub Actions run, which built the image
+  BUILD=$(jq -r '.[0].verificationResult.signature.certificate.runInvocationURI' "$WORK/attestation.json")
 
   # Image index has image and provenance, we need only the image
   PLATFORM=$(docker buildx imagetools inspect --raw "$IMAGE@$DIGEST" \

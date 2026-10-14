@@ -6,7 +6,7 @@ Separated [GitLab CI](https://gitlab.com/hplush/slowreader-verifier/-/pipelines)
 
 - [`check-releases.sh`](./check-releases.sh): checks maintainer’s hardware key signature and CI provenance of new GitHub Releases, rebuilds the image by `docker buildx replay`, and saves the result to `releases/`.
 - [`check-site.sh`](./check-site.sh): checks `/health`, compares `slowreader.app/manifest.json` and all its files with a verified release, and saves the result to `checks/DAY.txt`.
-- [`allowed_signers`](./allowed_signers): maintainers’ hardware SSH keys, which sign release images.
+- [`allowed_signers`](./allowed_signers): maintainers’ hardware SSH keys, which sign release images. Each line has `"release,Full Name"` principals, so the status page shows who signed the release.
 - [`index.html`](./index.html): status page, which also checks `slowreader.app` from the visitor’s browser.
 - [`build-index.sh`](./build-index.sh): prepares `public/` with the page, results, and `index.json` list of them, since static hosting can’t list folders.
 - [`.gitlab-ci.yml`](./.gitlab-ci.yml): hourly CI job and status page publishing by GitLab Pages.

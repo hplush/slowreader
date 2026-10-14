@@ -142,6 +142,10 @@
       #history button {
         min-height: 24px;
       }
+      #today button:hover,
+      #history button:hover {
+        background: var(--hover);
+      }
       .mark {
         font-weight: bold;
       }
@@ -230,15 +234,45 @@
         </li>
         <li>
           <span class="loading" aria-hidden="true">⠋</span>
-          <span class="sr">checking:</span> CI verified build reproducibility
+          <span class="sr">checking:</span> CI verified release
           <span id="release">…</span>
-          <button
-            class="link"
-            data-help="build"
-            aria-label="How to repeat: CI verified build reproducibility"
-          >
-            [?]
-          </button>
+          <ul>
+            <li>
+              <span class="loading" aria-hidden="true">⠋</span>
+              <span class="sr">checking:</span> Signed by
+              <span id="signer">core team</span>
+              <button
+                class="link"
+                data-help="signature"
+                aria-label="How to repeat: signed by core team"
+              >
+                [?]
+              </button>
+            </li>
+            <li>
+              <span class="loading" aria-hidden="true">⠋</span>
+              <span class="sr">checking:</span> Built by
+              <span id="workflow">project CI</span>
+              <button
+                class="link"
+                data-help="provenance"
+                aria-label="How to repeat: built by project CI"
+              >
+                [?]
+              </button>
+            </li>
+            <li>
+              <span class="loading" aria-hidden="true">⠋</span>
+              <span class="sr">checking:</span> Build is reproducible
+              <button
+                class="link"
+                data-help="build"
+                aria-label="How to repeat: build is reproducible"
+              >
+                [?]
+              </button>
+            </li>
+          </ul>
         </li>
         <li>
           <span class="loading" aria-hidden="true">⠋</span>
@@ -311,9 +345,9 @@ curl -fsS https://slowreader.app/health</pre>
 curl -fsS https://slowreader.app/manifest.json | jq -r .commit</pre>
     </dialog>
 
-    <dialog id="help-build" aria-labelledby="help-build-title">
+    <dialog id="help-signature" aria-labelledby="help-signature-title">
       <header>
-        <h2 id="help-build-title">CI verified build reproducibility</h2>
+        <h2 id="help-signature-title">Signed by core team</h2>
         <form method="dialog"><button aria-label="Close">[x]</button></form>
       </header>
       <pre class="content">
@@ -328,9 +362,38 @@ curl -fsSLO https://gitlab.com/hplush/slowreader-verifier/-/raw/main/allowed_sig
 ssh-keygen -Y verify -f allowed_signers -I release -n slowreader-release \
   -s image.txt.sig &lt; image.txt
 
+<span class="dim"># Name of the maintainer, who signed it</span>
+ssh-keygen -Y find-principals -f allowed_signers -n slowreader-release \
+  -s image.txt.sig | grep -vx release</pre>
+    </dialog>
+
+    <dialog id="help-provenance" aria-labelledby="help-provenance-title">
+      <header>
+        <h2 id="help-provenance-title">Built by project CI</h2>
+        <form method="dialog"><button aria-label="Close">[x]</button></form>
+      </header>
+      <pre class="content">
+<span class="dim"># Release with this commit</span>
+TAG=<span class="tag">TAG</span>
+curl -fsSLO https://github.com/hplush/slowreader/releases/download/$TAG/image.txt
+
 <span class="dim"># GitHub signature, that our release workflow built it from the tag</span>
 gh attestation verify oci://$(cat image.txt) --repo hplush/slowreader \
-  --source-ref refs/tags/$TAG
+  --source-ref refs/tags/$TAG \
+  --signer-workflow hplush/slowreader/.github/workflows/release.yml \
+  --format json \
+  | jq -r '.[0].verificationResult.signature.certificate.runInvocationURI'</pre>
+    </dialog>
+
+    <dialog id="help-build" aria-labelledby="help-build-title">
+      <header>
+        <h2 id="help-build-title">Build is reproducible</h2>
+        <form method="dialog"><button aria-label="Close">[x]</button></form>
+      </header>
+      <pre class="content">
+<span class="dim"># Release with this commit</span>
+TAG=<span class="tag">TAG</span>
+curl -fsSLO https://github.com/hplush/slowreader/releases/download/$TAG/image.txt
 
 <span class="dim"># Rebuild the image from the same commit and base images</span>
 docker buildx create --use --driver docker-container
@@ -597,25 +660,52 @@ done</pre>
             .replaceChildren(
               releaseLink(release.tag, release.tag, verified ? 'good' : 'bad')
             )
+          // Explain why CI rejected the release
+          if (release.reason) {
+            document
+              .getElementById('release')
+              .append(span(` ${release.reason}`, 'bad'))
+          }
           for (let tag of document.querySelectorAll('.tag')) {
             tag.textContent = release.tag
+          }
+          // Old results have no signer and build
+          if (release.signer) {
+            document.getElementById('signer').textContent = release.signer
+          }
+          if (release.build) {
+            let link = document.createElement('a')
+            link.href = release.build
+            link.textContent = 'project CI'
+            document.getElementById('workflow').replaceChildren(link)
           }
         } else {
           document.getElementById('release').replaceChildren()
         }
-        // Release must pass the rebuild
-        if (!verified) {
+        // Without release CI did not check this commit
+        if (!release) {
           finish(2, 'failed')
           return skip(3)
         }
-        finish(2, 'passed')
+        // Release must pass every CI step
+        if (!verified) {
+          // CI saves signer and build only after their steps passed
+          let passed = release.build ? 2 : release.signer ? 1 : 0
+          finish(2, 'failed')
+          for (let number = 3; number < 3 + passed; number++) {
+            finish(number, 'passed')
+          }
+          finish(3 + passed, 'failed')
+          return skip(4 + passed)
+        }
+        for (let number = 2; number < 6; number++) finish(number, 'passed')
 
         // Deployed manifest must be the same as in the rebuilt image
         if (JSON.stringify(release.manifest) !== JSON.stringify(manifest)) {
-          finish(3, 'failed')
-          return skip(4)
+          finish(6, 'failed')
+          return skip(7)
         }
-        finish(3, 'passed')
+        finish(6, 'passed')
 
         // Files and pages, which the server sends different
         let wrong = []
@@ -633,7 +723,7 @@ done</pre>
             .getElementById('assets')
             .replaceChildren(span(`(${wrong.join(', ')} differ)`, 'bad'))
         }
-        finish(4, wrong.length === 0 ? 'passed' : 'failed')
+        finish(7, wrong.length === 0 ? 'passed' : 'failed')
       }
 
       // Show release results
@@ -705,7 +795,7 @@ done</pre>
             : isGood(line[1])
               ? span('■', 'good')
               : span('▲', 'bad')
-          mark.title = `${String(hour).padStart(2, '0')}:00 UTC`
+          mark.title = `${String(hour).padStart(2, '0')}:00`
           bar.append(mark)
         }
         // Count of problems for the summary
@@ -765,33 +855,38 @@ done</pre>
             ? `${day}: ${summary.checks} checks, ${summary.problems} problems`
             : `${day}: no checks`
         )
-        // Open the day details near the symbol
-        button.addEventListener('click', async () => {
-          // Day name in the title
-          document.getElementById('day-title').textContent = day
-          // Hourly bar and events of the day
-          let content = document.getElementById('day-content')
-          content.replaceChildren(renderDay(await loadDay(day)))
-          // Raw results are signed, so link them for own check
-          if (summary) {
-            let link = document.createElement('a')
-            link.href = `checks/${day}.txt`
-            link.textContent = 'Raw results'
-            content.append(link)
-          }
-          openNear(document.getElementById('day'), button)
-        })
+        button.addEventListener('click', () => openDay(day, button))
         return button
+      }
+
+      // Open the day details near the button
+      async function openDay(day, button) {
+        // Day name in the title
+        document.getElementById('day-title').textContent = day
+        // Hourly bar and events of the day
+        let content = document.getElementById('day-content')
+        content.replaceChildren(renderDay(await loadDay(day)))
+        // Raw results are signed, so link them for own check
+        if (summaries[day]) {
+          let link = document.createElement('a')
+          link.href = `checks/${day}.txt`
+          link.textContent = 'Raw results'
+          content.append(link)
+        }
+        openNear(document.getElementById('day'), button)
       }
 
       // Show site checks and count share of good checks
       async function showDays() {
         // Today with the hourly bar
         let today = document.getElementById('today')
-        today.replaceChildren(
-          span('Today'.padEnd(11)),
-          renderDay(await loadDay(dayName(0)))
-        )
+        let block = renderDay(await loadDay(dayName(0)))
+        // Hourly bar opens raw results like other days
+        let button = document.createElement('button')
+        button.append(...[...block.children].slice(0, 2))
+        button.addEventListener('click', () => openDay(dayName(0), button))
+        block.prepend(button)
+        today.replaceChildren(span('Today'.padEnd(11)), block)
         today.lastChild.style.display = 'inline'
 
         // Row per month for the current month and 5 previous months
