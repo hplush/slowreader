@@ -15,6 +15,7 @@
         --good: oklch(0.48 0.12 150);
         --bad: oklch(0.5 0.19 27);
         --link: oklch(0.45 0.15 260);
+        --hover: oklch(0.95 0.08 100);
       }
       @media (prefers-color-scheme: dark) {
         :root {
@@ -24,6 +25,7 @@
           --good: oklch(0.82 0.16 150);
           --bad: oklch(0.8 0.1 25);
           --link: oklch(0.82 0.1 240);
+          --hover: oklch(0.27 0.045 95);
         }
       }
       /* Terminal look: beautiful monospace font, which OS already has */
@@ -92,6 +94,10 @@
       }
       .link {
         text-decoration: underline;
+      }
+      a:hover,
+      .link:hover {
+        background: var(--hover);
       }
       :focus-visible {
         outline: 2px solid var(--link);
