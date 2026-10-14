@@ -700,13 +700,13 @@ done</pre>
           // Check result of the hour
           let line = lines.find(([time]) => Number(time.slice(0, 2)) === hour)
           // Dot for missed hour, square for good, triangle for problem
-          bar.append(
-            !line
-              ? span('·', 'dim')
-              : isGood(line[1])
-                ? span('■', 'good')
-                : span('▲', 'bad')
-          )
+          let mark = !line
+            ? span('·', 'dim')
+            : isGood(line[1])
+              ? span('■', 'good')
+              : span('▲', 'bad')
+          mark.title = `${String(hour).padStart(2, '0')}:00 UTC`
+          bar.append(mark)
         }
         // Count of problems for the summary
         let problems = lines.filter(([, result]) => !isGood(result)).length
@@ -757,6 +757,7 @@ done</pre>
               ? span('▲', 'bad')
               : span('■', 'good')
         )
+        button.title = day
         // Text for screen readers
         button.setAttribute(
           'aria-label',
