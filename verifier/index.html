@@ -231,7 +231,7 @@
         <li>
           <span class="loading" aria-hidden="true">⠋</span>
           <span class="sr">checking:</span> CI verified build reproducibility
-          <span id="release"></span>
+          <span id="release">…</span>
           <button
             class="link"
             data-help="build"
@@ -600,6 +600,8 @@ done</pre>
           for (let tag of document.querySelectorAll('.tag')) {
             tag.textContent = release.tag
           }
+        } else {
+          document.getElementById('release').replaceChildren()
         }
         // Release must pass the rebuild
         if (!verified) {
