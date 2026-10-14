@@ -81,8 +81,9 @@ for TAG in $(gh release list --repo "$REPO" --json tagName --jq '.[].tagName'); 
   # Commit, which GitHub checked out for the workflow
   COMMIT=$(jq -r '.[0].verificationResult.signature.certificate.sourceRepositoryDigest' "$WORK/attestation.json")
   # Commit, which BuildKit wrote to provenance and replay will build
+  # Multi-platform releases have provenance per platform, we rebuild only amd64
   SOURCE=$(docker buildx imagetools inspect "$IMAGE@$DIGEST" --format '{{json .Provenance}}' \
-    | jq -r .SLSA.buildDefinition.externalParameters.configSource.digest.sha1)
+    | jq -r '(."linux/amd64" // .).SLSA.buildDefinition.externalParameters.configSource.digest.sha1')
   # Provenance must not point to another source code
   if [ "$SOURCE" != "$COMMIT" ]; then
     broken "provenance has $SOURCE commit"
@@ -97,7 +98,7 @@ for TAG in $(gh release list --repo "$REPO" --json tagName --jq '.[].tagName'); 
   # Config digest covers all files and settings of the image
   CONFIG=$(docker buildx imagetools inspect --raw "$IMAGE@$PLATFORM" | jq -r .config.digest)
   # Rebuild the image from the same commit, base images, and build arguments
-  docker buildx replay build "$IMAGE@$DIGEST" --progress quiet \
+  docker buildx replay build "$IMAGE@$DIGEST" --platform linux/amd64 --progress quiet \
     --output "type=oci,dest=$WORK/replay.tar,rewrite-timestamp=true"
   # Clean the previous release’s rebuild
   rm -rf "$WORK/replay" && mkdir "$WORK/replay"

@@ -358,7 +358,11 @@ We release every week. Version is `MAJOR.DATE.PATCH` like `0.20261012.1`: `DATE`
 
 ### Self-Hosted
 
-Run the image without `ROLE` and keep the database in the pglite folder. Users need the CORS proxy, because the browser extension doesn’t work with unknown domains.
+Run the image without `ROLE` and keep the database in the pglite folder.
+
+Releases have `amd64` and `arm64` images.
+
+Users need the CORS proxy, because the browser extension doesn’t work with unknown domains.
 
 ```sh
 docker run -p 2553:2553 -v slowreader:/data -e DATABASE_URL=file:///data -e WEB_ORIGIN=http://localhost:2553 -e 'PROXY_ORIGIN=^http://localhost:2553$' ghcr.io/hplush/slowreader:dev

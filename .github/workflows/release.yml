@@ -56,10 +56,16 @@ jobs:
         env:
           TAG: ${{ github.ref_name }}
         run: |
+          # Harden Runner can’t block network on free ARM runners,
+          # so we build ARM image by emulation
+          docker run --privileged --rm \
+            tonistiigi/binfmt:qemu-v10.2.3@sha256:400a4873b838d1b89194d982c45e5fb3cda4593fbfd7e08a02e76b03b21166f0 \
+            --install arm64
           # Docker’s own builder can’t rewrite timestamps
           docker buildx create --use --driver docker-container
           # `buildx replay` needs Git context and full provenance
           docker buildx build --target production --metadata-file meta.json \
+            --platform linux/amd64,linux/arm64 \
             --provenance=mode=max,version=v1 \
             --build-arg SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)" \
             --build-arg COMMIT="$GITHUB_SHA" \
