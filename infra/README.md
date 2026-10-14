@@ -85,4 +85,3 @@ Enable DNSSEC:
 
 2. Wait until `dig +short DNSKEY slowreader.app @ns0.dom.scw.cloud` returns keys.
 3. Open the domain in register, go to DNSSEC settings and add a DS record: `key_id` as key tag, `algorithm` (`13` for `ecdsap256sha256`), `digest.type` (`2` for `sha_256`), and `digest.digest`.
-4. Check the chain on [DNSViz](https://dnsviz.net/d/slowreader.app/dnssec/).
