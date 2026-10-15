@@ -30,6 +30,7 @@ export type ParsedPost = {
   full?: string
   intro?: string
   media?: string
+  mediaSizes?: string
   originId: string
   preview?: string
   publishedAt?: number
@@ -106,6 +107,13 @@ export type PostPreview = {
   image?: string
   title?: string
   url: string
+}
+
+export type MediaSize = {
+  approximate?: true
+  bytes?: number
+  height?: number
+  width?: number
 }
 
 export function addPost(posts: NewPost[]): Promise<string[]>
@@ -322,6 +330,7 @@ export function testPost(
     id: `post-${testPostId}`,
     intro: `Post ${testPostId}`,
     media: null,
+    mediaSizes: null,
     originId: `test-${testPostId}`,
     preview: null,
     publishedAt: 1000,
@@ -390,5 +399,20 @@ export function parsePreview(
   } catch (e) {
     getEnvironment().warn(e)
     return undefined
+  }
+}
+
+/**
+ * Sizes are in the same order as `media`, `null` for unknown sizes.
+ */
+export function parseMediaSizes(
+  value: null | string | undefined
+): (MediaSize | null)[] {
+  if (!value) return []
+  try {
+    return JSON.parse(value) as (MediaSize | null)[]
+  } catch (e) {
+    getEnvironment().warn(e)
+    return []
   }
 }

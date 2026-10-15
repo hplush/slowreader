@@ -137,6 +137,7 @@ describe('export page', () => {
           id: post,
           intro: 'Post 1',
           media: null,
+          mediaSizes: null,
           originId: 'test-1',
           preview: null,
           publishedAt: 1000,

@@ -17,6 +17,7 @@ import {
   getPostId,
   loadPost,
   getPostIntro,
+  parseMediaSizes,
   parsePreview,
   type PostCardText,
   getPostTitle,
@@ -127,16 +128,27 @@ describe('post', () => {
       title: 'Title',
       url: 'https://example.com/'
     }
+    let sizes = [{ approximate: true as const, height: 9, width: 16 }, null]
     let id = await addPost(
-      testPost({ preview: JSON.stringify(preview), warning: 'Spoiler' })
+      testPost({
+        mediaSizes: JSON.stringify(sizes),
+        preview: JSON.stringify(preview),
+        warning: 'Spoiler'
+      })
     )
     let post = await loadPost(id)
     deepEqual(parsePreview(post!.preview), preview)
+    deepEqual(parseMediaSizes(post!.mediaSizes), sizes)
     equal(post!.warning, 'Spoiler')
     equal(parsePreview(null), undefined)
+    deepEqual(parseMediaSizes(null), [])
     expectWarning(() => {
       equal(parsePreview('['), undefined)
-    }, [new SyntaxError('Unexpected end of JSON input')])
+      deepEqual(parseMediaSizes('['), [])
+    }, [
+      new SyntaxError('Unexpected end of JSON input'),
+      new SyntaxError('Unexpected end of JSON input')
+    ])
   })
 
   test('adds posts by a batch action', async () => {

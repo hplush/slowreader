@@ -96,6 +96,8 @@ let postsSchema = {
   full: optional(string()),
   intro: optional(string()),
   media: optional(string()),
+  // Separated from media to fill it after the first image loading
+  mediaSizes: optional(string()),
   originId: string(),
   preview: optional(string()),
   publishedAt: bigint(),
