@@ -9,7 +9,13 @@ import {
   storageMessages,
   testFeed
 } from '../../index.ts'
-import { cleanClient, startClient, openPage, waitUntil } from '../utils.ts'
+import {
+  cleanClient,
+  startClient,
+  startUserBeforeKey,
+  openPage,
+  waitUntil
+} from '../utils.ts'
 
 describe('storage page', () => {
   beforeEach(() => {
@@ -27,6 +33,13 @@ describe('storage page', () => {
     equal(page.hasCloud.get(), false)
     equal(page.size.get(), undefined)
 
+    await waitUntil(() => typeof page.size.get() !== 'undefined')
+    notEqual(page.size.get(), 0)
+  })
+
+  test('shows the size before the encryption key is loaded', async () => {
+    startUserBeforeKey()
+    let page = openPage({ params: {}, route: 'storage' })
     await waitUntil(() => typeof page.size.get() !== 'undefined')
     notEqual(page.size.get(), 0)
   })

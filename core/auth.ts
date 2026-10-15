@@ -253,10 +253,10 @@ async function createUser(
   // Client must be created once with the new key and the connection,
   // so it will not send local data encrypted by the previous key
   encryptionKey.set(undefined)
-  userId.set(credentials.userId)
   getEnvironment().saveSession(response.session)
   uploadingLocalData.set(true)
   hasCloud.set(true)
+  userId.set(credentials.userId)
   passkeyOnly.set(!!passkey?.synced)
   encryptionKey.set(key)
   return response.passkey

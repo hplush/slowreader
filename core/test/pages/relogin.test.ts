@@ -118,7 +118,7 @@ describe('relogin page', () => {
     encryptionKey.set(undefined)
     setupEnvironment({ ...environment, server })
     await waitUntil(() => encryptionKeyLost.get())
-    equal(client.get(), undefined)
+    equal(client.get()!.state, 'disconnected')
     equal(currentPage.get().route, 'relogin')
 
     let page = currentPage.get() as ReloginPage

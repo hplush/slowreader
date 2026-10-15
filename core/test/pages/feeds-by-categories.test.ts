@@ -12,7 +12,12 @@ import {
   testFeed,
   waitLoading
 } from '../../index.ts'
-import { cleanClient, startClient, openPage } from '../utils.ts'
+import {
+  cleanClient,
+  startClient,
+  startUserBeforeKey,
+  openPage
+} from '../utils.ts'
 
 describe('feeds by categories page', () => {
   beforeEach(() => {
@@ -21,6 +26,16 @@ describe('feeds by categories page', () => {
 
   afterEach(async () => {
     await cleanClient()
+  })
+
+  test('opens before the encryption key is loaded', async () => {
+    startUserBeforeKey()
+    let page = openPage({
+      params: {},
+      route: 'feedsByCategories'
+    })
+    await waitLoading(page.loading)
+    deepEqual(page.groups.get(), [])
   })
 
   test('groups feeds by categories', async () => {

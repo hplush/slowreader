@@ -108,10 +108,21 @@ export function setTestUser(enable = true): void {
     hasCloud.set(false)
     userId.set('1000000000000000')
   } else {
+    // Cloud mode change re-creates the client of the signed-in user
+    userId.set(undefined)
     encryptionKey.set(undefined)
     hasCloud.set(false)
-    userId.set(undefined)
   }
+}
+
+/**
+ * Re-create the client like on the page reload, when the encryption key
+ * is still loading from IndexedDB.
+ */
+export function startUserBeforeKey(): void {
+  userId.set(undefined)
+  encryptionKey.set(undefined)
+  userId.set('1000000000000000')
 }
 
 let testDir: string | undefined

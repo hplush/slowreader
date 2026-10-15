@@ -139,22 +139,57 @@ export async function resetDatabase(
 }
 
 onEnvironment(({ databaseCreator }) => {
-  return effect([userId, hasCloud, encryptionKey], (user, connect, key) => {
-    if (user && key) {
-      let db = databaseCreator()
-      // Mass deletions free their pages by `freeDatabasePages()` instead of
-      // long `VACUUM`. SQLite applies the mode only to a database without
-      // tables, so it must be set before the log store creates its own.
-      void db.exec`PRAGMA auto_vacuum = INCREMENTAL`
-      let logux = new CrossTabClient({
-        prefix: 'slowreader',
-        server: getServer(),
-        store: new SqlLogStore(db),
-        subprotocol: SUBPROTOCOL,
-        time: testTime,
-        token: () => Promise.resolve(getEnvironment().getSession() ?? ''),
-        userId: user
-      })
+  return effect([userId, hasCloud], (user, connect) => {
+    if (!user) {
+      client.set(undefined)
+      database.set(undefined)
+      return
+    }
+    let db = databaseCreator()
+    // Mass deletions free their pages by `freeDatabasePages()` instead of
+    // long `VACUUM`. SQLite applies the mode only to a database without
+    // tables, so it must be set before the log store creates its own.
+    void db.exec`PRAGMA auto_vacuum = INCREMENTAL`
+    let logux = new CrossTabClient({
+      prefix: 'slowreader',
+      server: getServer(),
+      store: new SqlLogStore(db),
+      subprotocol: SUBPROTOCOL,
+      time: testTime,
+      token: () => Promise.resolve(getEnvironment().getSession() ?? ''),
+      userId: user
+    })
+
+    logux.type(dbReset, () => {
+      void resetDatabase('server-request')
+    })
+
+    logux.type(loguxUndo, action => {
+      if (zero.match(action.action)) {
+        fatal.set({
+          error: `${action.reason} ${action.id}`,
+          type: 'rejected'
+        })
+      }
+    })
+
+    /* node:coverage disable */
+    logux.node.catch(error => {
+      if (error.type === 'wrong-subprotocol') {
+        fatal.set({ type: 'outdated' })
+      }
+      getEnvironment().warn(error)
+    })
+    /* node:coverage enable */
+
+    // The key is loaded from IndexedDB after the page was opened. Only
+    // the sync uses it, so the database is ready for the page right away.
+    // Key changes come with a change of the user or of the cloud mode,
+    // which re-create the client.
+    let started = false
+    let unbindKey = effect(encryptionKey, key => {
+      if (!key || started) return
+      started = true
       encryptActions(logux, key, {
         clean: false,
         // Server must read them
@@ -167,41 +202,20 @@ onEnvironment(({ databaseCreator }) => {
           deleteUser.type
         ]
       })
-
-      logux.type(dbReset, () => {
-        void resetDatabase('server-request')
-      })
-
-      logux.type(loguxUndo, action => {
-        if (zero.match(action.action)) {
-          fatal.set({
-            error: `${action.reason} ${action.id}`,
-            type: 'rejected'
-          })
-        }
-      })
-
       /* node:coverage disable */
-      logux.node.catch(error => {
-        if (error.type === 'wrong-subprotocol') {
-          fatal.set({ type: 'outdated' })
-        }
-        getEnvironment().warn(error)
-      })
       if (getEnvironment().server === 'NO_SERVER') {
         logux.start(false)
       } else {
         /* node:coverage enable */
         logux.start(connect)
       }
-      database.set(db)
-      client.set(logux)
-      return () => {
-        logux.destroy()
-      }
-    } else {
-      client.set(undefined)
-      database.set(undefined)
+    })
+
+    database.set(db)
+    client.set(logux)
+    return () => {
+      unbindKey()
+      logux.destroy()
     }
   })
 })
