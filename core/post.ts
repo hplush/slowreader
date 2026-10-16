@@ -1,41 +1,50 @@
 import { withMeta, type WithoutMeta } from '@logux/client/db'
 import { formatter } from '@nanostores/i18n'
-import {
-  atom,
-  effect,
-  onMount,
-  type ReadableAtom,
-  type WritableAtom
-} from 'nanostores'
+import type { SqlStore } from '@nanostores/sql'
+import { atom, effect, onMount, type WritableAtom } from 'nanostores'
 
-import { getEnvironment } from './environment.ts'
 import { loadFeed } from './feed.ts'
 import { loadFilterChecker } from './filter.ts'
 import { $locale } from './i18n.ts'
 import { sanitizeDOM, stripHTML, truncateDOM } from './lib/html.ts'
-import { firstRow } from './lib/stores.ts'
 import { truncateText } from './lib/text.ts'
 import {
+  getCrdt,
   getTables,
+  type MediaSize,
   type NewPost,
   openedDatabase,
+  type PostAuthor,
   type PostChanges,
+  type PostMedia,
+  type PostPreview,
   type PostValue,
-  select
+  type QuotedPost
 } from './schema.ts'
 
-export type { NewPost, PostValue }
+export type {
+  MediaSize,
+  NewPost,
+  PostAuthor,
+  PostMedia,
+  PostPreview,
+  PostValue,
+  QuotedPost
+}
 
 export type ParsedPost = {
+  author?: PostAuthor
   full?: string
   intro?: string
-  media?: string
-  mediaSizes?: string
+  media?: PostMedia[]
+  mediaSizes?: (MediaSize | null)[]
   originId: string
-  preview?: string
+  preview?: PostPreview
   publishedAt?: number
+  quoted?: QuotedPost
+  repostedBy?: PostAuthor
   title?: string
-  unsupported?: 1
+  unsupported?: true
   updatedAt?: number
   url?: string
   warning?: string
@@ -71,50 +80,28 @@ export type PostCardText = {
   | { full: null; intro: string; more: number }
 )
 
+export type ReaderMedia = { size?: MediaSize } & PostMedia
+
 /**
  * Only the columns which the post card needs
  */
-export type ReaderPost = {
+export type ReaderPostWith<Media> = {
   authorTitle?: string
   authorUrl?: string
+  media: Media
 } & Pick<
   PostValue,
-  'feedId' | 'id' | 'media' | 'originId' | 'publishedAt' | 'read' | 'title'
+  'feedId' | 'id' | 'originId' | 'publishedAt' | 'read' | 'title'
 > &
   PostCardText
+
+export type ReaderPost = ReaderPostWith<ReaderMedia[]>
 
 /**
  * How much of the article the card shows, in chars of text.
  */
 const INTRO_MIN = 300
 const INTRO_MAX = 500
-
-export type PostMedia = {
-  alt?: string
-  fromText?: boolean
-  name?: string
-  poster?: string
-  sensitive?: true
-  type: string
-  url: string
-}
-
-/**
- * Link preview card of Mastodon and Bluesky posts
- */
-export type PostPreview = {
-  description?: string
-  image?: string
-  title?: string
-  url: string
-}
-
-export type MediaSize = {
-  approximate?: true
-  bytes?: number
-  height?: number
-  width?: number
-}
 
 export function addPost(posts: NewPost[]): Promise<string[]>
 export function addPost(fields: NewPost): Promise<string>
@@ -124,18 +111,16 @@ export function addPost(
   return getTables().posts.create(fields)
 }
 
-export function getPost(postId: string): ReadableAtom<PostValue | undefined> {
-  return firstRow(getTables().posts.select`WHERE "id" = ${postId}`)
+export function getPost(postId: string): SqlStore<PostValue | undefined> {
+  return getTables().posts.row(postId)
 }
 
 export function loadPost(postId: string): Promise<PostValue | undefined> {
-  return select<PostValue>`SELECT * FROM "posts" WHERE "id" = ${postId}`.then(
-    rows => rows[0]
-  )
+  return getTables().posts.get(postId)
 }
 
 export function loadPosts(): Promise<PostValue[]> {
-  return select<PostValue>`SELECT * FROM "posts" ORDER BY "publishedAt" DESC`
+  return getTables().posts.load`ORDER BY "publishedAt" DESC`
 }
 
 /**
@@ -145,27 +130,15 @@ export function loadPostsPage(
   limit: number,
   offset: number
 ): Promise<PostValue[]> {
-  return select<PostValue>`
-    SELECT * FROM "posts" ORDER BY "publishedAt" DESC
-    LIMIT ${limit} OFFSET ${offset}
+  return getTables().posts.load`
+    ORDER BY "publishedAt" DESC LIMIT ${limit} OFFSET ${offset}
   `
 }
 
 export function loadPostsByFeed(feedId: string): Promise<PostValue[]> {
-  return select<PostValue>`
-    SELECT * FROM "posts" WHERE "feedId" = ${feedId}
-    ORDER BY "publishedAt" DESC
+  return getTables().posts.load`
+    WHERE "feedId" = ${feedId} ORDER BY "publishedAt" DESC
   `
-}
-
-export function loadPostIds(filter: { feed?: string } = {}): Promise<string[]> {
-  let rows: Promise<{ id: string }[]>
-  if (filter.feed) {
-    rows = select`SELECT "id" FROM "posts" WHERE "feedId" = ${filter.feed}`
-  } else {
-    rows = select`SELECT "id" FROM "posts"`
-  }
-  return rows.then(list => list.map(row => row.id))
 }
 
 /**
@@ -173,7 +146,7 @@ export function loadPostIds(filter: { feed?: string } = {}): Promise<string[]> {
  * refresh was stopped in the middle of the feed’s pagination.
  */
 export function loadPostOriginIdsByFeed(feedId: string): Promise<string[]> {
-  return select<{
+  return getCrdt().select<{
     originId: string
   }>`SELECT "originId" FROM "posts" WHERE "feedId" = ${feedId}`.then(rows =>
     rows.map(row => row.originId)
@@ -184,16 +157,17 @@ export function hasUnreadPosts(
   reading: PostValue['reading'],
   target: { categoryId?: string; feedId?: string } = {}
 ): Promise<boolean> {
+  let crdt = getCrdt()
   let rows: Promise<unknown[]>
   if (target.feedId) {
-    rows = select`
+    rows = crdt.select`
       SELECT "id" FROM "posts"
       WHERE "reading" = ${reading} AND "read" = 0
         AND "feedId" = ${target.feedId}
       LIMIT 1
     `
   } else if (target.categoryId) {
-    rows = select`
+    rows = crdt.select`
       SELECT "posts"."id" FROM "posts"
       JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
       WHERE "posts"."reading" = ${reading} AND "posts"."read" = 0
@@ -201,7 +175,7 @@ export function hasUnreadPosts(
       LIMIT 1
     `
   } else {
-    rows = select`
+    rows = crdt.select`
       SELECT "id" FROM "posts"
       WHERE "reading" = ${reading} AND "read" = 0 LIMIT 1
     `
@@ -325,6 +299,7 @@ export function testPost(
 ): PostValue {
   testPostId += 1
   return withMeta<PostValue>({
+    author: null,
     feedId: 'feed-1',
     full: null,
     id: `post-${testPostId}`,
@@ -334,8 +309,10 @@ export function testPost(
     originId: `test-${testPostId}`,
     preview: null,
     publishedAt: 1000,
-    read: 0,
+    quoted: null,
+    read: false,
     reading: 'fast',
+    repostedBy: null,
     title: null,
     unsupported: null,
     updatedAt: null,
@@ -372,47 +349,10 @@ onMount(slowPostsCount, () => {
   return countPosts(slowPostsCount, 'slow')
 })
 
-export function stringifyMedia(media: PostMedia[]): string | undefined {
+export function uniqueMedia(media: PostMedia[]): PostMedia[] | undefined {
   if (media.length === 0) return undefined
   let unique = new Map<string, PostMedia>()
   // Feeds repeat the same file in enclosure and MRSS with different details
   for (let i of media) unique.set(i.url, { ...i, ...unique.get(i.url) })
-  return JSON.stringify([...unique.values()])
-}
-
-export function parseMedia(value: null | string | undefined): PostMedia[] {
-  if (!value) return []
-  try {
-    return JSON.parse(value) as PostMedia[]
-  } catch (e) {
-    getEnvironment().warn(e)
-    return []
-  }
-}
-
-export function parsePreview(
-  value: null | string | undefined
-): PostPreview | undefined {
-  if (!value) return undefined
-  try {
-    return JSON.parse(value) as PostPreview
-  } catch (e) {
-    getEnvironment().warn(e)
-    return undefined
-  }
-}
-
-/**
- * Sizes are in the same order as `media`, `null` for unknown sizes.
- */
-export function parseMediaSizes(
-  value: null | string | undefined
-): (MediaSize | null)[] {
-  if (!value) return []
-  try {
-    return JSON.parse(value) as (MediaSize | null)[]
-  } catch (e) {
-    getEnvironment().warn(e)
-    return []
-  }
+  return [...unique.values()]
 }

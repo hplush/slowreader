@@ -285,24 +285,24 @@ importers:
   api:
     dependencies:
       '@logux/actions':
-        specifier: 0.8.0
-        version: 0.8.0(@logux/core@0.12.0)
+        specifier: 0.8.1
+        version: 0.8.1(@logux/core@0.12.1)
     devDependencies:
       '@logux/core':
-        specifier: 0.12.0
-        version: 0.12.0
+        specifier: 0.12.1
+        version: 0.12.1
 
   core:
     dependencies:
       '@logux/actions':
-        specifier: 0.8.0
-        version: 0.8.0(@logux/core@0.12.0)
+        specifier: 0.8.1
+        version: 0.8.1(@logux/core@0.12.1)
       '@logux/client':
-        specifier: 0.26.0
-        version: 0.26.0(@nanostores/sql@0.6.0)(nanostores@1.5.5)(react@19.3.0)
+        specifier: 0.27.0
+        version: 0.27.0(@nanostores/sql@0.7.0)(nanostores@1.5.5)(react@19.3.0)
       '@logux/core':
-        specifier: 0.12.0
-        version: 0.12.0
+        specifier: 0.12.1
+        version: 0.12.1
       '@nanostores/i18n':
         specifier: 1.3.3
         version: 1.3.3(nanostores@1.5.5)
@@ -310,8 +310,8 @@ importers:
         specifier: 1.3.5
         version: 1.3.5(nanostores@1.5.5)
       '@nanostores/sql':
-        specifier: 0.6.0
-        version: 0.6.0(@electric-sql/pglite@0.5.8)(nanostores@1.5.5)(sqlocal@0.18.0)
+        specifier: 0.7.0
+        version: 0.7.0(@electric-sql/pglite@0.5.8)(nanostores@1.5.5)(sqlocal@0.18.0)
       '@slowreader/api':
         specifier: workspace:*
         version: link:../api
@@ -428,11 +428,11 @@ importers:
         specifier: 0.5.8
         version: 0.5.8
       '@logux/actions':
-        specifier: 0.8.0
-        version: 0.8.0(@logux/core@0.12.0)
+        specifier: 0.8.1
+        version: 0.8.1(@logux/core@0.12.1)
       '@logux/core':
-        specifier: 0.12.0
-        version: 0.12.0
+        specifier: 0.12.1
+        version: 0.12.1
       '@logux/server':
         specifier: 0.17.0
         version: 0.17.0
@@ -465,8 +465,8 @@ importers:
         version: 2.0.10
     devDependencies:
       '@logux/client':
-        specifier: 0.26.0
-        version: 0.26.0(@nanostores/sql@0.6.0)(nanostores@1.5.5)(react@19.3.0)
+        specifier: 0.27.0
+        version: 0.27.0(@nanostores/sql@0.7.0)(nanostores@1.5.5)(react@19.3.0)
       better-node-test:
         specifier: 1.0.0
         version: 1.0.0
@@ -494,11 +494,11 @@ importers:
         specifier: 5.3.0
         version: 5.3.0
       '@logux/client':
-        specifier: 0.26.0
-        version: 0.26.0(@nanostores/sql@0.6.0)(nanostores@1.5.5)(react@19.3.0)
+        specifier: 0.27.0
+        version: 0.27.0(@nanostores/sql@0.7.0)(nanostores@1.5.5)(react@19.3.0)
       '@logux/core':
-        specifier: 0.12.0
-        version: 0.12.0
+        specifier: 0.12.1
+        version: 0.12.1
       '@mdi/js':
         specifier: 7.4.47
         version: 7.4.47
@@ -515,8 +515,8 @@ importers:
         specifier: 2.0.0
         version: 2.0.0(nanostores@1.5.5)
       '@nanostores/sql':
-        specifier: 0.6.0
-        version: 0.6.0(@electric-sql/pglite@0.5.8)(nanostores@1.5.5)(sqlocal@0.18.0)
+        specifier: 0.7.0
+        version: 0.7.0(@electric-sql/pglite@0.5.8)(nanostores@1.5.5)(sqlocal@0.18.0)
       '@slowreader/core':
         specifier: workspace:*
         version: link:../core
@@ -1350,19 +1350,19 @@ packages:
     peerDependencies:
       '@logux/core': ^0.10.0
 
-  '@logux/actions@0.8.0':
-    resolution: {integrity: sha512-jrsx3U611EGziXWo1NtLibc4NUB7nleuifj1j087owWn7NZCw8i+zYg+ACfN85iGeR2zBEOMJ/aTxBuF8B4Nww==}
+  '@logux/actions@0.8.1':
+    resolution: {integrity: sha512-c/o6TFI1nIFV9Nfqmbwc897H+RPNXYIyibqyEMqDyM8pnduQB11xXuj9PV289G9yFjed9ncESp+10LBGmwZ3Qg==}
     engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
     peerDependencies:
-      '@logux/core': ^0.11.0
+      '@logux/core': ^0.12.0
 
-  '@logux/client@0.26.0':
-    resolution: {integrity: sha512-ngjAh7QrW7Y1a1SRyA0WlnrUv4TWYJRblIvH43O+vJaac+jFF7nDynL+2C25xg74zyk8zYzMYFdUbITbkcfSUA==}
+  '@logux/client@0.27.0':
+    resolution: {integrity: sha512-uR6ZnJK8f4w/KgTMSCqTzX7qeRuPaD6ENJz4DgyUN98FPIXrEjfZhXL4a7PFuSxQF3sX3YrIC7FHGMtCW3QwOQ==}
     engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
     peerDependencies:
       '@nanostores/preact': '>=0.0.0'
       '@nanostores/react': '>=0.0.0'
-      '@nanostores/sql': '>=0.6.0'
+      '@nanostores/sql': '>=0.7.0'
       '@nanostores/vue': '>=0.0.0'
       nanostores: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^1.0.0
       preact: '>=10.0.0'
@@ -1391,8 +1391,8 @@ packages:
     resolution: {integrity: sha512-VbgVkEloAe2ym5w0cjyRI16Eeyk2R0BgJa9pMYT1FcJEhFnzrB23E0ExIEhrok0iD48bFh7goledwmDLmgWaiw==}
     engines: {node: ^20.0.0 || >=22.0.0}
 
-  '@logux/core@0.12.0':
-    resolution: {integrity: sha512-SmBJYTcseiLq7jx8y7yHjZLZNRLbdb96WK9W35jL5GaLtnve8RFJmE8zACZiB/JLysbGyi5l5eC/LIzPW7kj+A==}
+  '@logux/core@0.12.1':
+    resolution: {integrity: sha512-fZghDzVtENTZXyuQ0JzP7G4+y8tZsKLT9NH1AdLKmU/sHu8l+vcZ7NINbjhP1r3X9ByLmX0WrKYe2vER0UMQuw==}
     engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
 
   '@logux/eslint-config@57.1.0':
@@ -1459,8 +1459,8 @@ packages:
     peerDependencies:
       nanostores: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^1.0.0
 
-  '@nanostores/sql@0.6.0':
-    resolution: {integrity: sha512-qAH2owXzTqsg7h82atgsdGrflsSqnfx8bjx9ZONCU6mgQV6qrl4sTVvaOl03iESaT9uuAvmhgUk8gy53d2cRbQ==}
+  '@nanostores/sql@0.7.0':
+    resolution: {integrity: sha512-fgdK3CyV/BmQJtKyvVmjA6WYgL1qr6TpOfRyxpJs3AKI1T2a9sEFtGyglx0QC1uMr5ofW6irNKIyGaKbgegZGQ==}
     engines: {node: ^22.13.0 || ^24.0.0 || >=26.0.0}
     peerDependencies:
       '@electric-sql/pglite': '>=0.4.0'
@@ -6268,26 +6268,26 @@ snapshots:
     dependencies:
       '@logux/core': 0.10.0
 
-  '@logux/actions@0.8.0(@logux/core@0.12.0)':
+  '@logux/actions@0.8.1(@logux/core@0.12.1)':
     dependencies:
-      '@logux/core': 0.12.0
+      '@logux/core': 0.12.1
 
-  '@logux/client@0.26.0(@nanostores/sql@0.6.0)(nanostores@1.5.5)(react@19.3.0)':
+  '@logux/client@0.27.0(@nanostores/sql@0.7.0)(nanostores@1.5.5)(react@19.3.0)':
     dependencies:
-      '@logux/actions': 0.8.0(@logux/core@0.12.0)
-      '@logux/core': 0.12.0
+      '@logux/actions': 0.8.1(@logux/core@0.12.1)
+      '@logux/core': 0.12.1
       nanoevents: 10.0.0
       nanoid: 6.0.2
       nanostores: 1.5.5
     optionalDependencies:
-      '@nanostores/sql': 0.6.0(@electric-sql/pglite@0.5.8)(nanostores@1.5.5)(sqlocal@0.18.0)
+      '@nanostores/sql': 0.7.0(@electric-sql/pglite@0.5.8)(nanostores@1.5.5)(sqlocal@0.18.0)
       react: 19.3.0
 
   '@logux/core@0.10.0':
     dependencies:
       nanoevents: 9.1.0
 
-  '@logux/core@0.12.0':
+  '@logux/core@0.12.1':
     dependencies:
       nanoevents: 10.0.0
 
@@ -6335,8 +6335,8 @@ snapshots:
 
   '@logux/server@0.17.0':
     dependencies:
-      '@logux/actions': 0.8.0(@logux/core@0.12.0)
-      '@logux/core': 0.12.0
+      '@logux/actions': 0.8.1(@logux/core@0.12.1)
+      '@logux/core': 0.12.1
       cookie: 2.0.1
       nanoevents: 10.0.0
       nanoid: 6.0.2
@@ -6371,7 +6371,7 @@ snapshots:
     dependencies:
       nanostores: 1.5.5
 
-  '@nanostores/sql@0.6.0(@electric-sql/pglite@0.5.8)(nanostores@1.5.5)(sqlocal@0.18.0)':
+  '@nanostores/sql@0.7.0(@electric-sql/pglite@0.5.8)(nanostores@1.5.5)(sqlocal@0.18.0)':
     dependencies:
       nanostores: 1.5.5
     optionalDependencies:

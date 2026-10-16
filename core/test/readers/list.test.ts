@@ -112,8 +112,8 @@ describe('list reader', () => {
       titles: true
     })
 
-    await changePost(reader.list.get()[0]!.id, { read: 1 })
-    await changePost(reader.list.get()[5]!.id, { read: 1 })
+    await changePost(reader.list.get()[0]!.id, { read: true })
+    await changePost(reader.list.get()[5]!.id, { read: true })
     equal(reader.list.get().length, 50)
     deepEqual(slowMenu.get(), [
       [
@@ -225,7 +225,7 @@ describe('list reader', () => {
     let deleted = ['60', '59']
     await changePost(
       read.map(title => ids.get(title)!),
-      { read: 1 }
+      { read: true }
     )
     await deletePost(deleted.map(title => ids.get(title)!))
     let removed = new Set([...read, ...deleted])
@@ -255,14 +255,14 @@ describe('list reader', () => {
     let reader = ensureReader(page.posts, 'list')
     deepEqual(titles(reader), ['3', '2', '1'])
 
-    await changePost(reader.list.get()[1]!.id, { read: 1 })
+    await changePost(reader.list.get()[1]!.id, { read: true })
     await setTimeout(10)
 
     // The post stays on the page and only changes the style
     deepEqual(titles(reader), ['3', '2', '1'])
     deepEqual(
       reader.list.get().map(post => post.read),
-      [0, 1, 0]
+      [false, true, false]
     )
   })
 

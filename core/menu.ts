@@ -1,13 +1,9 @@
-import type {
-  CrdtTableChangedAction,
-  CrdtTableCreatedAction,
-  CrdtTableDeletedAction
-} from '@logux/actions'
 import {
   createStorageReducer,
   type CrossTabClient,
   type StorageReducer
 } from '@logux/client'
+import { parseCrdtRows } from '@logux/client/db'
 import { persistentAtom } from '@nanostores/persistent'
 import { atom, computed, effect, keepMount, onMount } from 'nanostores'
 
@@ -19,10 +15,13 @@ import { waitLoading } from './lib/stores.ts'
 import { commonMessages } from './messages/index.ts'
 import { type Route, type RouteName, router } from './router.ts'
 import {
+  categoriesTable,
+  feedsTable,
+  filtersTable,
   GENERAL_CATEGORY,
+  getCrdt,
   getTableActions,
-  openedDatabase,
-  tableActions
+  openedDatabase
 } from './schema.ts'
 
 export const FEED_ROUTES = [
@@ -125,22 +124,6 @@ const REDUCER = 'slowreader:menu'
  */
 const VERSION = 1
 
-function createdRows<Fields extends object>(
-  action: CrdtTableCreatedAction<Fields>
-): [string, Fields][] {
-  if ('records' in action) {
-    return action.records.map(record => [record.id, record])
-  } else {
-    return [[action.id, action.fields]]
-  }
-}
-
-function changedIds(
-  action: CrdtTableChangedAction | CrdtTableDeletedAction
-): string[] {
-  return 'ids' in action ? action.ids : [action.id]
-}
-
 /**
  * The server re-sends the actions, which the client did not confirm as
  * received, and their bodies are not in the log anymore to be ignored
@@ -175,11 +158,6 @@ function rename(list: Sorted, id: string, title: string): Sorted {
   }
 }
 
-let [createdCategory, changedCategory, deletedCategory] =
-  tableActions.categories
-let [createdFeed, changedFeed, deletedFeed] = tableActions.feeds
-let [createdFilter, changedFilter, deletedFilter] = tableActions.filters
-
 function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
   let reducer = createStorageReducer<MenuState>(
     logux,
@@ -199,37 +177,37 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
     }
   )
 
-  reducer.type(createdCategory, (state, action) => {
+  reducer.type(categoriesTable.created, (state, action) => {
     let categories = state.categories
-    for (let [id, fields] of createdRows(action)) {
+    for (let [id, fields] of parseCrdtRows(action)) {
       categories = insert(categories, id, fields.title)
     }
     return { ...state, categories }
   })
 
-  reducer.type(changedCategory, (state, action) => {
+  reducer.type(categoriesTable.changed, (state, action) => {
     let title = action.fields.title
     if (typeof title === 'undefined') return state
     let categories = state.categories
-    for (let id of changedIds(action)) {
+    for (let [id] of parseCrdtRows(action)) {
       categories = rename(categories, id, title)
     }
     return categories === state.categories ? state : { ...state, categories }
   })
 
-  reducer.type(deletedCategory, (state, action) => {
+  reducer.type(categoriesTable.deleted, (state, action) => {
     let categories = state.categories
-    for (let id of changedIds(action)) {
+    for (let [id] of parseCrdtRows(action)) {
       categories = remove(categories, id)
     }
     return categories === state.categories ? state : { ...state, categories }
   })
 
-  reducer.type(createdFeed, (state, action) => {
+  reducer.type(feedsTable.created, (state, action) => {
     let fast = { ...state.fast }
     let feedOf = { ...state.feedOf }
     let feeds = { ...state.feeds }
-    for (let [id, fields] of createdRows(action)) {
+    for (let [id, fields] of parseCrdtRows(action)) {
       let category = fields.categoryId!
       feeds[category] = insert(feeds[category] ?? [], id, fields.title)
       feedOf[id] = category
@@ -238,7 +216,7 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
     return { ...state, fast, feedOf, feeds }
   })
 
-  reducer.type(changedFeed, (state, action) => {
+  reducer.type(feedsTable.changed, (state, action) => {
     let { categoryId, reading, title } = action.fields
     if (
       typeof categoryId === 'undefined' &&
@@ -251,7 +229,7 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
     let fast = { ...state.fast }
     let feedOf = { ...state.feedOf }
     let feeds = { ...state.feeds }
-    for (let id of changedIds(action)) {
+    for (let [id] of parseCrdtRows(action)) {
       let from = feedOf[id]
       if (typeof from === 'undefined') continue
       if (reading === 'fast' && !fast[id]) {
@@ -283,12 +261,12 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
     return changed ? { ...state, fast, feedOf, feeds } : state
   })
 
-  reducer.type(deletedFeed, (state, action) => {
+  reducer.type(feedsTable.deleted, (state, action) => {
     let changed = false
     let fast = { ...state.fast }
     let feedOf = { ...state.feedOf }
     let feeds = { ...state.feeds }
-    for (let id of changedIds(action)) {
+    for (let [id] of parseCrdtRows(action)) {
       let from = feedOf[id]
       if (typeof from === 'undefined') continue
       feeds[from] = remove(feeds[from]!, id)
@@ -299,15 +277,15 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
     return changed ? { ...state, fast, feedOf, feeds } : state
   })
 
-  reducer.type(createdFilter, (state, action) => {
+  reducer.type(filtersTable.created, (state, action) => {
     let filters = { ...state.filters }
-    for (let [id, fields] of createdRows(action)) {
+    for (let [id, fields] of parseCrdtRows(action)) {
       filters[id] = [fields.feedId, fields.action]
     }
     return { ...state, filters }
   })
 
-  reducer.type(changedFilter, (state, action) => {
+  reducer.type(filtersTable.changed, (state, action) => {
     let changes = action.fields
     if (
       typeof changes.action === 'undefined' &&
@@ -317,7 +295,7 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
     }
     let changed = false
     let filters = { ...state.filters }
-    for (let id of changedIds(action)) {
+    for (let [id] of parseCrdtRows(action)) {
       let filter = filters[id]
       if (!filter) continue
       filters[id] = [changes.feedId ?? filter[0], changes.action ?? filter[1]]
@@ -326,10 +304,10 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
     return changed ? { ...state, filters } : state
   })
 
-  reducer.type(deletedFilter, (state, action) => {
+  reducer.type(filtersTable.deleted, (state, action) => {
     let changed = false
     let filters = { ...state.filters }
-    for (let id of changedIds(action)) {
+    for (let [id] of parseCrdtRows(action)) {
       if (!filters[id]) continue
       delete filters[id]
       changed = true
@@ -396,14 +374,34 @@ let $state = atom<MenuState>(EMPTY)
 let $reduced = atom<boolean>(false)
 
 onClient(logux => {
-  let reducer = createMenuReducer(logux)
-  let unbind = effect([reducer.value, reducer.status], (state, status) => {
-    $state.set(state)
-    $reduced.set(status === 'ready')
-  })
-  return () => {
+  let reducer: StorageReducer<MenuState>
+  let unbind: () => void
+  function start(): void {
+    reducer = createMenuReducer(logux)
+    unbind = effect([reducer.value, reducer.status], (state, status) => {
+      $state.set(state)
+      $reduced.set(status === 'ready')
+    })
+  }
+  function stop(): void {
     unbind()
     reducer.destroy()
+  }
+  start()
+
+  // Tests and stories empty the tables between cases, while the stored menu
+  // has the same version and will not be rebuilt by itself
+  let unbindEmpty = getCrdt().on('empty', () => {
+    stop()
+    let storage = getEnvironment().persistentStore
+    delete storage[REDUCER]
+    delete storage[`logux:reducer:${REDUCER}`]
+    start()
+  })
+
+  return () => {
+    unbindEmpty()
+    stop()
     $state.set(EMPTY)
     $reduced.set(false)
   }

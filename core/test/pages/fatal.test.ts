@@ -1,4 +1,4 @@
-import { loguxUndo, zero, zeroClean } from '@logux/actions'
+import { loguxUndo, zeroClean } from '@logux/actions'
 import { type Action, LoguxError } from '@logux/core'
 import type { TestServer } from '@logux/server'
 import { COMMON_ERRORS } from '@slowreader/api'
@@ -13,6 +13,7 @@ import {
   currentPage,
   enableTestTime,
   fatal,
+  feedsTable,
   forgetLocalData,
   generateCredentials,
   getClient,
@@ -279,13 +280,8 @@ describe('fatal page', () => {
       equal(fatal.get(), undefined)
       equal(currentPage.get().route, 'about')
 
-      await undo(
-        zero({
-          compressed: false,
-          d: new Uint8Array([1]),
-          iv: new Uint8Array([2])
-        })
-      )
+      // Encryption decrypts the action inside the undo from the server
+      await undo(feedsTable.changed({ fields: { title: 'A' }, id: 'feed' }))
       // The page shows the reason and the node ID for the bug report
       deepEqual(fatal.get(), {
         error: 'denied 1 1000000000000000:1:1',

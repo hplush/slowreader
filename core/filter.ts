@@ -4,8 +4,7 @@ import {
   type FilterChanges,
   type FilterValue,
   getTables,
-  type NewFilter,
-  select
+  type NewFilter
 } from './schema.ts'
 
 export type { FilterValue, NewFilter }
@@ -41,20 +40,17 @@ function maxPriority(filters: FilterValue[]): number {
 }
 
 export function loadFilters(): Promise<FilterValue[]> {
-  return select<FilterValue>`SELECT * FROM "filters" ORDER BY "priority", "id"`
+  return getTables().filters.load`ORDER BY "priority", "id"`
 }
 
 export function loadFiltersByFeed(feedId: string): Promise<FilterValue[]> {
-  return select<FilterValue>`
-    SELECT * FROM "filters" WHERE "feedId" = ${feedId}
-    ORDER BY "priority", "id"
+  return getTables().filters.load`
+    WHERE "feedId" = ${feedId} ORDER BY "priority", "id"
   `
 }
 
 export function loadFilter(filterId: string): Promise<FilterValue | undefined> {
-  return select<FilterValue>`
-    SELECT * FROM "filters" WHERE "id" = ${filterId}
-  `.then(rows => rows[0])
+  return getTables().filters.get(filterId)
 }
 
 export async function addFilter(

@@ -58,15 +58,15 @@ export function createDatabase(): Database {
     }
   )
   current = processor
-  let db = openDb(sqlocalDriver(DATABASE, { processor }))
+  let driver = sqlocalDriver(DATABASE, { processor })
   // SQLocal falls back to the in-memory database when the browser refused
-  // the storage, and then every start looks like a broken one
-  void db.select<{ file: string }>`PRAGMA database_list`.then(([main]) => {
-    if (!main?.file && !fatal.get()) {
+  // the storage
+  void driver.persistent().then(persistent => {
+    if (!persistent && !fatal.get()) {
       fatal.set({ error: getUnhandledErrors(), type: 'noDb' })
     }
   })
-  return db
+  return openDb(driver)
 }
 
 function requestDatabase(processor: Worker): Promise<Blob> {

@@ -7,7 +7,7 @@ import { deepEqual, equal } from 'node:assert/strict'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { afterEach } from 'node:test'
+import { after, afterEach } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
@@ -125,7 +125,7 @@ export function startUserBeforeKey(): void {
   userId.set('1000000000000000')
 }
 
-let testDir: string | undefined
+let testDirs: string[] = []
 
 /**
  * Database, which survives the client, like the file of the browser.
@@ -135,8 +135,9 @@ let testDir: string | undefined
  * ```
  */
 export function persistentDatabase(): Environment['databaseCreator'] {
-  testDir = mkdtempSync(join(tmpdir(), 'slowreader-'))
-  let file = join(testDir, 'test.sqlite')
+  let dir = mkdtempSync(join(tmpdir(), 'slowreader-'))
+  testDirs.push(dir)
+  let file = join(dir, 'test.sqlite')
   return () => openDb(nodeDriver(file))
 }
 
@@ -326,10 +327,12 @@ export function checkLoadedPopup<SomePopup extends BasePopup>(
 
 afterEach(() => {
   unmountPage()
-  if (testDir) {
-    rmSync(testDir, { force: true, recursive: true })
-    testDir = undefined
-  }
+})
+
+// Tests do not wait for the client to finish the writes and close the file
+after(() => {
+  for (let dir of testDirs) rmSync(dir, { force: true, recursive: true })
+  testDirs = []
 })
 
 /**

@@ -385,8 +385,12 @@ describe('rss loader', () => {
         list: [
           {
             full: 'Post 1 XSS',
-            media:
-              '[{"type":"image","url":"https://example.com/image_from_media_content.webp"}]',
+            media: [
+              {
+                type: 'image',
+                url: 'https://example.com/image_from_media_content.webp'
+              }
+            ],
             originId: 'https://example.com/1',
             publishedAt: 1672531200,
             title: '1 XSS',
@@ -394,8 +398,9 @@ describe('rss loader', () => {
           },
           {
             full: '2 text',
-            media:
-              '[{"type":"image/png","url":"https://example.com/thumbnail.png"}]',
+            media: [
+              { type: 'image/png', url: 'https://example.com/thumbnail.png' }
+            ],
             originId: 'https://example.com/2',
             publishedAt: 1672531200,
             title: '2',
@@ -406,8 +411,18 @@ describe('rss loader', () => {
               '\n                    ' +
               '<img src="https://example.com/img.webp"/>' +
               '\n                  ',
-            media:
-              '[{"type":"image/jpeg","url":"https://example.com/image.jpg","alt":"Cat"},{"fromText":true,"type":"image","url":"https://example.com/img.webp"}]',
+            media: [
+              {
+                type: 'image/jpeg',
+                url: 'https://example.com/image.jpg',
+                alt: 'Cat'
+              },
+              {
+                fromText: true,
+                type: 'image',
+                url: 'https://example.com/img.webp'
+              }
+            ],
             originId: 'https://example.com/3',
             publishedAt: 1672531200,
             title: '3',
@@ -415,8 +430,14 @@ describe('rss loader', () => {
           },
           {
             full: undefined,
-            media:
-              '[{"type":"video/mp4","url":"https://example.com/video.mp4","name":"Video","poster":"https://example.com/poster.png"}]',
+            media: [
+              {
+                type: 'video/mp4',
+                url: 'https://example.com/video.mp4',
+                name: 'Video',
+                poster: 'https://example.com/poster.png'
+              }
+            ],
             originId: 'https://example.com/4',
             publishedAt: 1672531200,
             title: '4',
@@ -453,13 +474,17 @@ describe('rss loader', () => {
       [
         [
           '<img src="https://cdn.example.com/files/a.png">',
-          '[{"fromText":true,"type":"image",' +
-            '"url":"https://cdn.example.com/files/a.png"}]'
+          [
+            {
+              fromText: true,
+              type: 'image',
+              url: 'https://cdn.example.com/files/a.png'
+            }
+          ]
         ],
         [
           '<img src="https://example.com/b.png">',
-          '[{"fromText":true,"type":"image",' +
-            '"url":"https://example.com/b.png"}]'
+          [{ fromText: true, type: 'image', url: 'https://example.com/b.png' }]
         ]
       ]
     )
@@ -498,12 +523,23 @@ describe('rss loader', () => {
             '                <picture><source ' +
             'srcset="https://cdn.example.com/files/e.avif">' +
             '<img src="https://cdn.example.com/files/f.png"></picture>',
-          '[{"fromText":true,"type":"image",' +
-            '"url":"https://cdn.example.com/files/a.png"},' +
-            '{"fromText":true,"type":"image",' +
-            '"url":"https://cdn.example.com/files/c.png"},' +
-            '{"fromText":true,"type":"image",' +
-            '"url":"https://cdn.example.com/files/f.png"}]'
+          [
+            {
+              fromText: true,
+              type: 'image',
+              url: 'https://cdn.example.com/files/a.png'
+            },
+            {
+              fromText: true,
+              type: 'image',
+              url: 'https://cdn.example.com/files/c.png'
+            },
+            {
+              fromText: true,
+              type: 'image',
+              url: 'https://cdn.example.com/files/f.png'
+            }
+          ]
         ]
       ]
     )

@@ -6,6 +6,7 @@ import {
   changeFeed,
   currentPage,
   generateCredentials,
+  getCrdt,
   getDatabase,
   type ImportPage,
   isDemo,
@@ -13,7 +14,6 @@ import {
   loadFeedsByCategory,
   moveLastSyncedToPast,
   refreshPosts,
-  select,
   setProxyAsRequestMethod,
   setupEnvironment,
   startLocalUser
@@ -103,8 +103,9 @@ for (let category of await loadCategories()) {
 await moveLastSyncedToPast(DAYS)
 await refreshPosts()
 for (let warned of warnings) error(warned)
-let [posts] = await select<{ count: number }>`SELECT count(*) AS count
-                                              FROM posts`
+let [posts] = await getCrdt().select<{ count: number }>`
+  SELECT count(*) AS count FROM posts
+`
 success(`Loaded ${posts!.count} posts`, `for the last ${DAYS} days`)
 
 await getDatabase().close()

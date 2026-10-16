@@ -1,7 +1,7 @@
 /**
  * Client’s protocol version
  */
-export const SUBPROTOCOL = 0
+export const SUBPROTOCOL = 1
 
 /**
  * Project’s version to use in UI.

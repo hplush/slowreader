@@ -17,8 +17,7 @@ import {
   getPostId,
   loadPost,
   getPostIntro,
-  parseMediaSizes,
-  parsePreview,
+  getPost,
   type PostCardText,
   getPostTitle,
   preloadImages,
@@ -29,7 +28,6 @@ import {
 } from '../index.ts'
 import {
   cleanClient,
-  expectWarning,
   setTestUser,
   setupNodeDom,
   getTestEnvironment,
@@ -128,27 +126,36 @@ describe('post', () => {
       title: 'Title',
       url: 'https://example.com/'
     }
-    let sizes = [{ approximate: true as const, height: 9, width: 16 }, null]
+    let author = { title: 'Author', url: 'https://example.com/@author' }
+    let quoted = {
+      author: { title: 'Quoted' },
+      full: 'Text',
+      media: [{ type: 'image', url: 'https://example.com/img.webp' }],
+      missing: false
+    }
+    let sizes = [{ approximate: true, height: 9, width: 16 }]
     let id = await addPost(
       testPost({
-        mediaSizes: JSON.stringify(sizes),
-        preview: JSON.stringify(preview),
+        author,
+        mediaSizes: sizes,
+        preview,
+        quoted,
+        repostedBy: { title: 'Reposter' },
         warning: 'Spoiler'
       })
     )
     let post = await loadPost(id)
-    deepEqual(parsePreview(post!.preview), preview)
-    deepEqual(parseMediaSizes(post!.mediaSizes), sizes)
+    deepEqual(post!.author, author)
+    deepEqual(post!.preview, preview)
+    deepEqual(post!.quoted, quoted)
+    deepEqual(post!.mediaSizes, sizes)
+    deepEqual(post!.repostedBy, { title: 'Reposter' })
     equal(post!.warning, 'Spoiler')
-    equal(parsePreview(null), undefined)
-    deepEqual(parseMediaSizes(null), [])
-    expectWarning(() => {
-      equal(parsePreview('['), undefined)
-      deepEqual(parseMediaSizes('['), [])
-    }, [
-      new SyntaxError('Unexpected end of JSON input'),
-      new SyntaxError('Unexpected end of JSON input')
-    ])
+
+    let $post = getPost(id)
+    keepMount($post)
+    await waitFor($post, row => row.status === 'ready')
+    deepEqual($post.get(), { status: 'ready', value: post })
   })
 
   test('adds posts by a batch action', async () => {

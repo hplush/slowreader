@@ -3,7 +3,7 @@ import {
   type DownloadTask,
   type TextResponse
 } from '../lib/download.ts'
-import { type ParsedPost, type PostMedia, stringifyMedia } from '../post.ts'
+import { type ParsedPost, type PostMedia, uniqueMedia } from '../post.ts'
 import { createPostsList, type PostsListResult } from '../posts-list.ts'
 import {
   buildFullURL,
@@ -132,7 +132,7 @@ function parsePosts(
           findXmlBase(summary, text.url),
           url ?? text.url
         ),
-        media: stringifyMedia([...postMedia, ...textMedia]),
+        media: uniqueMedia([...postMedia, ...textMedia]),
         originId: entry.querySelector('id')!.textContent,
         publishedAt,
         title: findOwnChild(entry, 'title')?.textContent ?? undefined,

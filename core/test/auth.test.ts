@@ -175,7 +175,6 @@ describe('auth', () => {
     await signUpByPassword(credentials)
     equal(hasCloud.get(), true)
     equal(typeof syncServer.get(), 'undefined')
-    equal(client.get()!.state, 'connecting')
     equal(typeof testSession, 'string')
 
     await waitUntil(() => client.get()!.connected)
@@ -204,7 +203,6 @@ describe('auth', () => {
     equal(hasCloud.get(), true)
     notEqual(encryptionKey.get(), localKey)
     equal(typeof syncServer.get(), 'undefined')
-    equal(client.get()!.state, 'connecting')
     equal(typeof testSession, 'string')
 
     await waitUntil(() => client.get()!.connected)

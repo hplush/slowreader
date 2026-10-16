@@ -520,8 +520,13 @@ describe('json feed loader', () => {
         [
           '<a href="https://example.com/a">A</a>' +
             '<img src="https://example.com/posts/b.png">',
-          '[{"fromText":true,"type":"image",' +
-            '"url":"https://example.com/posts/b.png"}]'
+          [
+            {
+              fromText: true,
+              type: 'image',
+              url: 'https://example.com/posts/b.png'
+            }
+          ]
         ],
         ['Text <a href="/a">', undefined]
       ]
@@ -595,8 +600,15 @@ describe('json feed loader', () => {
         {
           full: '<p>HTML<img src="https://example.com/img_h.webp" /></p>',
           intro: 'summary',
-          media:
-            '[{"type":"image","url":"https://example.com/image.webp"},{"type":"image","url":"https://example.com/banner_image.webp"},{"fromText":true,"type":"image","url":"https://example.com/img_h.webp"}]',
+          media: [
+            { type: 'image', url: 'https://example.com/image.webp' },
+            { type: 'image', url: 'https://example.com/banner_image.webp' },
+            {
+              fromText: true,
+              type: 'image',
+              url: 'https://example.com/img_h.webp'
+            }
+          ],
           originId: 'somehashid',
           publishedAt: 1641254400,
           title: 'title_1',
@@ -608,7 +620,7 @@ describe('json feed loader', () => {
             '<p><img src="https://example.com/img_0.webp">Text' +
             '<img src="https://example.com/img_1.webp"></p>',
           intro: undefined,
-          media: '[{"type":"image","url":"https://example.com/img.webp"}]',
+          media: [{ type: 'image', url: 'https://example.com/img.webp' }],
           originId: 'somehashid2',
           publishedAt: 1641254400,
           title: 'title_2',
@@ -618,8 +630,13 @@ describe('json feed loader', () => {
         {
           full: '3',
           intro: undefined,
-          media:
-            '[{"type":"image/png","url":"https://example.com/img.png","name":"Chart"}]',
+          media: [
+            {
+              type: 'image/png',
+              url: 'https://example.com/img.png',
+              name: 'Chart'
+            }
+          ],
           originId: 'somehashid3',
           publishedAt: undefined,
           title: 'title_3',

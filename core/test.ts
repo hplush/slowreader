@@ -59,11 +59,6 @@ export function getTestEnvironment(): Environment {
       return Promise.resolve(undefined)
     },
     databaseCreator() {
-      // The in-memory database is new and empty for every client, unlike
-      // the file, which the browser re-opens, so the mark of the previous
-      // one must go with it. Tests, which check that the database survives
-      // the client, take `persistentDatabase()` from `./test/utils.ts`
-      delete persistentStore['slowreader:db']
       return openDb(nodeDriver(':memory:'))
     },
     errorEvents: { addEventListener() {} },

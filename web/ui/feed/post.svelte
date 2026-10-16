@@ -1,12 +1,11 @@
 <script lang="ts">
   import { mdiChevronRight, mdiOpenInNew } from '@mdi/js'
   import {
+    type FeedAuthor,
     getPopupId,
     getPostIntro,
     getPostPopupParam,
     openedPost,
-    parseMedia,
-    type PostAuthor,
     type ReaderPost,
     router,
     feedsMessages as t
@@ -21,12 +20,11 @@
     author,
     post
   }: {
-    author: PostAuthor | undefined
+    author: FeedAuthor | undefined
     post: ReaderPost
   } = $props()
 
   let [intro, more] = $derived(getPostIntro(post))
-  let media = $derived(parseMedia(post.media))
 </script>
 
 <li
@@ -57,7 +55,7 @@
       </h2>
     {/if}
     <FormattedText html={intro} simple />
-    {#each media as image, index (`${image.url}${index}`)}
+    {#each post.media as image, index (`${image.url}${index}`)}
       {#if !image.fromText && image.type.startsWith('image')}
         <img class="feed-post_image" alt="" src={image.url} />
       {/if}

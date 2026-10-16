@@ -105,18 +105,18 @@ describe('post popup', () => {
       getPostPopupParam({ feedId: feed, id: id1 }, true)
     )
     await waitLoading(popup.loading)
-    equal((await loadPost(id1))!.read, 0)
-    equal((await loadPost(id2))!.read, 0)
+    equal((await loadPost(id1))!.read, false)
+    equal((await loadPost(id2))!.read, false)
 
     checkLoadedPopup(popup).read!.set(true)
     await setTimeout(1)
-    equal((await loadPost(id1))!.read, 1)
-    equal((await loadPost(id2))!.read, 0)
+    equal((await loadPost(id1))!.read, true)
+    equal((await loadPost(id2))!.read, false)
 
     checkLoadedPopup(popup).read!.set(false)
     await setTimeout(1)
-    equal((await loadPost(id1))!.read, 0)
-    equal((await loadPost(id2))!.read, 0)
+    equal((await loadPost(id1))!.read, false)
+    equal((await loadPost(id2))!.read, false)
   })
 
   test('opens candidate post', async () => {

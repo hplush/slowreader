@@ -50,8 +50,8 @@ export const post = definePopup('post', async loader => {
     let stored = await loadPost(id)
     if (!stored) throw new NotFoundError()
     let $stored = atom<OriginPost | PostValue>(stored)
-    unbindStored = getPost(id).subscribe(value => {
-      if (value) $stored.set(value)
+    unbindStored = getPost(id).subscribe(row => {
+      if (row.status === 'ready' && row.value) $stored.set(row.value)
     })
     $post = $stored
   } else if (loader.startsWith('data:')) {
@@ -72,12 +72,12 @@ export const post = definePopup('post', async loader => {
   if (loader.startsWith('read:')) {
     read = atom(false)
     unbindPost = $post.subscribe(value => {
-      read!.set('read' in value && value.read === 1)
+      read!.set('read' in value && value.read)
     })
     unbindRead = read.listen(async value => {
       let current = $post.get()
-      if ('read' in current && current.read !== (value ? 1 : 0)) {
-        await changePost(id!, { read: value ? 1 : 0 })
+      if ('read' in current && current.read !== value) {
+        await changePost(id!, { read: value })
       }
     })
   }

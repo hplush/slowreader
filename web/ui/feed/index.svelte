@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { PostAuthor, ReaderPost } from '@slowreader/core'
+  import type { FeedAuthor, ReaderPost } from '@slowreader/core'
 
   import FeedPost from './post.svelte'
 
@@ -7,7 +7,7 @@
     authors,
     posts
   }: {
-    authors?: ReadonlyMap<string, PostAuthor>
+    authors?: ReadonlyMap<string, FeedAuthor>
     posts: readonly ReaderPost[]
   } = $props()
 </script>

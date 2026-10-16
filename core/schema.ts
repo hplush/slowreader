@@ -1,32 +1,27 @@
 // Single place with all database tables. Every table is a CRDT LWW map
 // on top of SQL database, which is filled by actions from Logux log.
 
-import {
-  type ActionCreator,
-  type CrdtTableChangedAction,
-  type CrdtTableCreatedAction,
-  type CrdtTableDeletedAction,
-  defineAction
-} from '@logux/actions'
 import type { CrossTabClient } from '@logux/client'
 import {
   bigint,
-  type CrdtCreateFields,
+  boolean,
   type CrdtDatabase,
+  type CrdtJsonType,
   type NewCrdtRow,
   type CrdtRowFields,
   type CrdtTable,
   type CrdtTableRow,
-  type CrdtTableSchema,
   createCrdtDatabase,
   crdtTableToActions,
+  defineCrdtTable,
+  json,
   number,
   oneOf,
   optional,
   string
 } from '@logux/client/db'
 import type { Action, MetaTime } from '@logux/core'
-import type { Database, SqlParam } from '@nanostores/sql'
+import type { Database } from '@nanostores/sql'
 import { atom, effect } from 'nanostores'
 
 import { busyDuring } from './busy.ts'
@@ -38,7 +33,6 @@ import {
 } from './client.ts'
 import { getEnvironment } from './environment.ts'
 import { fatal } from './errors.ts'
-import { subscribeUntil } from './lib/stores.ts'
 import type { LoaderName } from './loader/index.ts'
 import { type LogTracker, trackLog } from './log.ts'
 import { commonMessages } from './messages/index.ts'
@@ -55,119 +49,184 @@ import {
  */
 export const GENERAL_CATEGORY = '__general'
 
-/**
- * The key keeps the hash of the tables’ schema, so its absence means
- * that the tables were not created yet.
- */
-const DB_KEY = 'slowreader:db'
-
 const READERS = ['feed', 'list'] as const satisfies readonly UsefulReaderName[]
 
 const READINGS = ['fast', 'slow'] as const
 
-let categoriesSchema = {
-  fastReader: optional(oneOf(READERS)),
-  slowReader: optional(oneOf(READERS)),
-  title: string()
+export const categoriesTable = defineCrdtTable(
+  'categories',
+  {
+    fastReader: optional(oneOf(READERS)),
+    slowReader: optional(oneOf(READERS)),
+    title: string()
+  },
+  ['title']
+)
+
+export const feedsTable = defineCrdtTable(
+  'feeds',
+  {
+    avatar: optional(string()),
+    categoryId: string({ default: GENERAL_CATEGORY }),
+    fastReader: optional(oneOf(READERS)),
+    lastOriginId: optional(string()),
+    lastPublishedAt: optional(bigint()),
+    loader: string<LoaderName>(),
+    reading: oneOf(READINGS, { default: 'slow' }),
+    refreshedAt: optional(bigint()),
+    slowReader: optional(oneOf(READERS)),
+    title: string(),
+    url: string()
+  },
+  [
+    // Category reader and feeds list
+    ['categoryId', 'title'],
+    // Duplicate check on adding a feed and on OPML import
+    'url',
+    'title'
+  ]
+)
+
+export const filtersTable = defineCrdtTable(
+  'filters',
+  {
+    action: oneOf(['delete', 'fast', 'slow']),
+    feedId: string(),
+    priority: number(),
+    query: string()
+  },
+  [
+    // Filters of the feed in their order
+    ['feedId', 'priority']
+  ]
+)
+
+let authorShape = {
+  avatar: optional(string()),
+  title: string(),
+  url: optional(string())
 }
 
-let feedsSchema = {
-  categoryId: string({ default: GENERAL_CATEGORY }),
-  fastReader: optional(oneOf(READERS)),
-  lastOriginId: optional(string()),
-  lastPublishedAt: optional(bigint()),
-  loader: string<LoaderName>(),
-  reading: oneOf(READINGS, { default: 'slow' }),
-  refreshedAt: optional(bigint()),
-  slowReader: optional(oneOf(READERS)),
-  title: string(),
+let mediaShape = {
+  alt: optional(string()),
+  fromText: optional(boolean()),
+  name: optional(string()),
+  poster: optional(string()),
+  sensitive: optional(boolean()),
+  type: string(),
   url: string()
 }
 
-let filtersSchema = {
-  action: oneOf(['delete', 'fast', 'slow']),
-  feedId: string(),
-  priority: number(),
-  query: string()
+/**
+ * Sizes from the feed are only hints, so they are replaced by real sizes
+ * after the image loading. `approximate` sizes are useful only for ratio.
+ */
+let mediaSizeShape = {
+  approximate: optional(boolean()),
+  bytes: optional(number()),
+  height: optional(number()),
+  width: optional(number())
 }
 
-let postsSchema = {
-  feedId: string(),
-  full: optional(string()),
-  intro: optional(string()),
-  media: optional(string()),
-  // Separated from media to fill it after the first image loading
-  mediaSizes: optional(string()),
-  originId: string(),
-  preview: optional(string()),
-  publishedAt: bigint(),
-  // SQLite has no boolean, so we are using 0 and 1
-  read: number({ default: 0 }),
-  reading: oneOf(READINGS, { default: 'slow' }),
+let previewShape = {
+  description: optional(string()),
+  image: optional(string()),
   title: optional(string()),
-  unsupported: optional(number()),
-  // -1 for posts with the edited mark, but without the time
+  url: string()
+}
+
+/**
+ * Quotes are only one level deep, so the quote of the quoted post
+ * is only a link.
+ */
+let quotedShape = {
+  author: optional(json(authorShape)),
+  full: optional(string()),
+  media: optional(json([json(mediaShape)])),
+  mediaSizes: optional(json([optional(json(mediaSizeShape))])),
+  missing: boolean(),
+  preview: optional(json(previewShape)),
+  publishedAt: optional(bigint()),
+  quotedUrl: optional(string()),
+  title: optional(string()),
   updatedAt: optional(bigint()),
   url: optional(string()),
   warning: optional(string())
 }
 
-export type CategoryValue = CrdtTableRow<typeof categoriesSchema>
-export type FeedValue = CrdtTableRow<typeof feedsSchema>
-export type FilterValue = CrdtTableRow<typeof filtersSchema>
-export type PostValue = CrdtTableRow<typeof postsSchema>
+export type PostAuthor = CrdtJsonType<typeof authorShape>
+export type PostMedia = CrdtJsonType<typeof mediaShape>
+export type MediaSize = CrdtJsonType<typeof mediaSizeShape>
+export type PostPreview = CrdtJsonType<typeof previewShape>
+export type QuotedPost = CrdtJsonType<typeof quotedShape>
 
-export type NewCategory = NewCrdtRow<typeof categoriesSchema>
-export type NewFeed = NewCrdtRow<typeof feedsSchema>
-export type NewFilter = NewCrdtRow<typeof filtersSchema>
-export type NewPost = NewCrdtRow<typeof postsSchema>
+export const postsTable = defineCrdtTable(
+  'posts',
+  {
+    // Only when the feed is not the author, like for reposts
+    author: optional(json(authorShape)),
+    feedId: string(),
+    full: optional(string()),
+    intro: optional(string()),
+    media: optional(json([json(mediaShape)])),
+    // Separated from media to fill it after the first image loading
+    mediaSizes: optional(json([optional(json(mediaSizeShape))])),
+    originId: string(),
+    preview: optional(json(previewShape)),
+    publishedAt: bigint(),
+    quoted: optional(json(quotedShape)),
+    read: boolean({ default: false }),
+    reading: oneOf(READINGS, { default: 'slow' }),
+    // Even if the feed reposted it to separate reposts from account’s posts
+    repostedBy: optional(json(authorShape)),
+    title: optional(string()),
+    unsupported: optional(boolean()),
+    // -1 for posts with the edited mark, but without the time
+    updatedAt: optional(bigint()),
+    url: optional(string()),
+    warning: optional(string())
+  },
+  [
+    // Pages of the feed reader and of the list reader. `id` repeats
+    // the cursor of the readers to keep the pages sorted by the index
+    ['feedId', 'reading', 'read', 'publishedAt DESC', 'id DESC'],
+    // The same for a category, and unread counters of the menu
+    ['reading', 'read', 'publishedAt DESC', 'id DESC'],
+    // Pages of the backup export
+    'publishedAt DESC'
+  ]
+)
 
-export type CategoryChanges = Partial<CrdtRowFields<typeof categoriesSchema>>
-export type FeedChanges = Partial<CrdtRowFields<typeof feedsSchema>>
-export type FilterChanges = Partial<CrdtRowFields<typeof filtersSchema>>
-export type PostChanges = Partial<CrdtRowFields<typeof postsSchema>>
+type CategoriesSchema = typeof categoriesTable.schema
+type FeedsSchema = typeof feedsTable.schema
+type FiltersSchema = typeof filtersTable.schema
+type PostsSchema = typeof postsTable.schema
+
+export type CategoryValue = CrdtTableRow<CategoriesSchema>
+export type FeedValue = CrdtTableRow<FeedsSchema>
+export type FilterValue = CrdtTableRow<FiltersSchema>
+export type PostValue = CrdtTableRow<PostsSchema>
+
+export type NewCategory = NewCrdtRow<CategoriesSchema>
+export type NewFeed = NewCrdtRow<FeedsSchema>
+export type NewFilter = NewCrdtRow<FiltersSchema>
+export type NewPost = NewCrdtRow<PostsSchema>
+
+export type CategoryChanges = Partial<CrdtRowFields<CategoriesSchema>>
+export type FeedChanges = Partial<CrdtRowFields<FeedsSchema>>
+export type FilterChanges = Partial<CrdtRowFields<FiltersSchema>>
+export type PostChanges = Partial<CrdtRowFields<PostsSchema>>
 
 export interface Tables {
-  categories: CrdtTable<typeof categoriesSchema>
-  feeds: CrdtTable<typeof feedsSchema>
-  filters: CrdtTable<typeof filtersSchema>
-  posts: CrdtTable<typeof postsSchema>
+  categories: CrdtTable<CategoriesSchema>
+  feeds: CrdtTable<FeedsSchema>
+  filters: CrdtTable<FiltersSchema>
+  posts: CrdtTable<PostsSchema>
 }
-
-type TableActions<Schema extends CrdtTableSchema> = [
-  created: ActionCreator<CrdtTableCreatedAction<CrdtCreateFields<Schema>>>,
-  changed: ActionCreator<CrdtTableChangedAction<CrdtRowFields<Schema>>>,
-  deleted: ActionCreator<CrdtTableDeletedAction>
-]
-
-function crdtActions<Schema extends CrdtTableSchema>(
-  plural: string
-): TableActions<Schema> {
-  return [
-    defineAction(`${plural}/created`),
-    defineAction(`${plural}/changed`),
-    defineAction(`${plural}/deleted`)
-  ]
-}
-
-export const tableActions = {
-  categories: crdtActions<typeof categoriesSchema>('categories'),
-  feeds: crdtActions<typeof feedsSchema>('feeds'),
-  filters: crdtActions<typeof filtersSchema>('filters'),
-  posts: crdtActions<typeof postsSchema>('posts')
-}
-
-/**
- * Actions restored from the tables. They are the same for the database
- * migration and for the menu reducer, so they are generated once per boot.
- */
-export type TableSnapshot = [Action, MetaTime][]
 
 let currentCrdt: CrdtDatabase | undefined
 let currentTables: Tables | undefined
 let currentTracker: LogTracker | undefined
-let snapshot: Promise<TableSnapshot> | undefined
-let ready: Promise<void> = Promise.resolve()
 
 /**
  * Tell that the next database will be filled from the server, not from
@@ -226,21 +285,21 @@ export function getDatabase(): Database {
 }
 
 /**
- * One-time SQL query, which waits for tables to be filled from Logux log.
+ * `crdt.ready` is resolved also when the database was stopped, for instance,
+ * by sign out during the opening. Raw SQL and empty results of `load()`
+ * can’t tell it from the empty tables.
  */
-export function select<Row>(
-  sql: TemplateStringsArray,
-  ...params: SqlParam[]
-): Promise<Row[]> {
-  return ready.then(() => getDatabase().select<Row>(sql, ...params))
+export function isReady(crdt: CrdtDatabase): boolean {
+  return crdt === currentCrdt && crdt.status.get() === 'ready'
 }
 
 export async function getDatabaseSize(): Promise<number> {
-  let rows = await select<{ size: number }>`
+  let rows = await getCrdt().select<{ size: number }>`
     SELECT page_count * page_size AS size
     FROM pragma_page_count(), pragma_page_size()
   `
-  return rows[0]!.size
+  // The stopped database returns no rows
+  return rows[0]?.size ?? 0
 }
 
 /**
@@ -249,7 +308,7 @@ export async function getDatabaseSize(): Promise<number> {
  * so it is called only on the user’s request.
  */
 export async function rebuildDatabase(): Promise<void> {
-  await ready
+  await getCrdt().ready
   await getDatabase().exec`VACUUM`
 }
 
@@ -258,9 +317,8 @@ export async function rebuildDatabase(): Promise<void> {
  * rewrite the file, so it can be called after every mass deletion.
  */
 export async function freeDatabasePages(): Promise<void> {
-  await ready
   if (!hasDatabase()) return
-  await getDatabase().select`PRAGMA incremental_vacuum(1000)`
+  await getCrdt().select`PRAGMA incremental_vacuum(1000)`
 }
 
 /**
@@ -277,58 +335,19 @@ export async function cleanDatabase(): Promise<void> {
 }
 
 /**
- * The log keeps only actions, which are not derivable from the tables,
- * so the migration replay must restore the rest from the tables themselves.
- */
-function getSnapshot(): Promise<TableSnapshot> {
-  let tables = getTables()
-  snapshot ??= crdtTableToActions([
-    tables.categories,
-    tables.feeds,
-    tables.filters,
-    tables.posts
-  ])
-  return snapshot
-}
-
-/**
- * Actions restored from the tables to rebuild a reducer. The reducer can ask
- * only for the tables it needs, but the snapshot of the database migration
- * is reused if the tables are being replayed right now.
+ * Actions restored from the tables to rebuild a reducer. The log keeps
+ * only actions, which are not derivable from the tables. The tables are
+ * read after the migration to not get them in the middle of the replay.
  */
 export async function getTableActions(
   plurals: (keyof Tables)[]
-): Promise<TableSnapshot> {
+): Promise<[Action, MetaTime][]> {
   let crdt = currentCrdt
   let tables = currentTables
   if (!crdt || !tables) return []
-  await whenSchemaChecked(crdt)
-  // Sign out could replace the database while the schema was checked
-  if (crdt !== currentCrdt) return []
-  if (snapshot) {
-    let all = await snapshot
-    return all.filter(entry => {
-      return plurals.some(plural => entry[0].type.startsWith(`${plural}/`))
-    })
-  }
+  await crdt.ready
+  if (!isReady(crdt)) return []
   return crdtTableToActions(plurals.map(plural => tables[plural]))
-}
-
-/**
- * The database compares the schema version before it drops the tables,
- * so the reducer must wait for the comparison to not read the tables
- * in the middle of the replay.
- */
-function whenSchemaChecked(crdt: CrdtDatabase): Promise<void> {
-  let status = crdt.status
-  if (status.get() !== 'initializing') return Promise.resolve()
-  return new Promise(resolve => {
-    subscribeUntil(status, value => {
-      if (value === 'initializing') return false
-      resolve()
-      return true
-    })
-  })
 }
 
 export function reportDatabaseError(error: unknown): void {
@@ -346,7 +365,13 @@ export function reportDatabaseError(error: unknown): void {
  */
 async function uploadLocalData(logux: CrossTabClient): Promise<void> {
   uploadingLocalData.set(true)
-  let actions = await getSnapshot()
+  let tables = getTables()
+  let actions = await crdtTableToActions([
+    tables.categories,
+    tables.feeds,
+    tables.filters,
+    tables.posts
+  ])
   if (actions.length > 0) {
     await busyDuring(
       commonMessages.get().uploadingData,
@@ -410,14 +435,14 @@ function showBusyUntilFilled(logux: CrossTabClient): () => void {
 /**
  * The first start has no data to load: the time goes to creating the tables.
  */
-function getOpeningLabel(hasTables: boolean): string {
+function getOpeningLabel(crdt: CrdtDatabase): string {
   let messages = commonMessages.get()
   if (downloadingCloudData.get()) {
     return messages.downloadingData
-  } else if (hasTables) {
-    return messages.loadingData
-  } else {
+  } else if (crdt.status.get() === 'creating') {
     return messages.creatingDatabase
+  } else {
+    return messages.loadingData
   }
 }
 
@@ -431,14 +456,11 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
   delete store['slowreader:migrating']
   uploadingLocalData.set(false)
 
-  let hasTables = !!store[DB_KEY]
-
   // The client is re-created on every `hasCloud` change, so the mode
   // can not change during the database’s life
   let cloud = hasCloud.get()
   let crdt = createCrdtDatabase(logux, db, {
-    key: DB_KEY,
-    repeat: getSnapshot,
+    key: 'slowreader:db',
     storage: store,
     sync: cloud,
     // The database, which hangs instead of throwing the error, never resolves
@@ -460,70 +482,50 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
   })
 
   currentTables = {
-    categories: crdt.table('categories', categoriesSchema, ['title']),
-    feeds: crdt.table('feeds', feedsSchema, [
-      // Category reader and feeds list
-      ['categoryId', 'title'],
-      // Duplicate check on adding a feed and on OPML import
-      'url',
-      'title'
-    ]),
-    filters: crdt.table('filters', filtersSchema, [
-      // Filters of the feed in their order
-      ['feedId', 'priority']
-    ]),
-    posts: crdt.table('posts', postsSchema, [
-      // Pages of the feed reader and of the list reader. `id` repeats
-      // the cursor of the readers to keep the pages sorted by the index
-      ['feedId', 'reading', 'read', 'publishedAt DESC', 'id DESC'],
-      // The same for a category, and unread counters of the menu
-      ['reading', 'read', 'publishedAt DESC', 'id DESC'],
-      // Pages of the backup export
-      'publishedAt DESC'
-    ])
+    categories: crdt.table(categoriesTable),
+    feeds: crdt.table(feedsTable),
+    filters: crdt.table(filtersTable),
+    posts: crdt.table(postsTable)
   }
   // The tracker parses actions by the tables, so it is installed after them
   if (cloud) currentTracker = trackLog(logux, crdt)
-  ready = crdt.ready
   openedDatabase.set(db)
 
-  void busyDuring(getOpeningLabel(hasTables), () => ready)
+  void crdt.checked.then(() =>
+    busyDuring(getOpeningLabel(crdt), () => crdt.ready)
+  )
 
-  void ready.then(async () => {
+  void crdt.ready.then(async () => {
     // The user could sign out while the database was filling
-    if (!hasDatabase()) return
+    if (!isReady(crdt)) return
     // The data is already here, but the mark was not removed: for instance,
     // the app was closed during the download
     if (downloadingCloudData.get()) {
-      let feeds = await select<{ id: string }>`
-        SELECT "id" FROM "feeds" LIMIT 1
-      `
-      if (feeds.length > 0 && hasDatabase()) downloadingCloudData.set(false)
+      let feeds = await getTables().feeds.load`LIMIT 1`
+      if (feeds.length > 0) downloadingCloudData.set(false)
     }
     if (unfinished) return uploadLocalData(logux)
   })
 }
 
-function closeDatabase(): void {
+/**
+ * The client is destroyed here and not in `client.ts`, since its log store
+ * shares the database and must finish the writes before the closing.
+ */
+function closeDatabase(logux: CrossTabClient): void {
   let closingDb = openedDatabase.get()
-  if (!closingDb) return
-  currentCrdt!.destroy()
+  let destroying = currentCrdt?.destroy()
   currentTracker?.destroy()
   let tracking = currentTracker?.finish()
 
   currentCrdt = undefined
   currentTables = undefined
   currentTracker = undefined
-  snapshot = undefined
   openedDatabase.set(undefined)
 
-  let filling = ready
-  ready = Promise.resolve()
-  void Promise.all([filling, tracking]).then(() => {
-    setTimeout(() => {
-      void closingDb.close()
-    })
-  })
+  void Promise.all([destroying, tracking])
+    .then(() => logux.destroy())
+    .then(() => closingDb?.close())
 }
 
 onClient(logux => {
@@ -534,6 +536,6 @@ onClient(logux => {
   })
   return () => {
     unbindDownloading()
-    closeDatabase()
+    closeDatabase(logux)
   }
 })

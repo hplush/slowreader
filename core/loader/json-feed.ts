@@ -4,7 +4,7 @@ import {
   type DownloadTask,
   type TextResponse
 } from '../lib/download.ts'
-import { type ParsedPost, type PostMedia, stringifyMedia } from '../post.ts'
+import { type ParsedPost, type PostMedia, uniqueMedia } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import {
   createUrlsResolver,
@@ -148,7 +148,7 @@ function parsePosts(
       return {
         full,
         intro: item.summary ?? undefined,
-        media: stringifyMedia([...postMedia, ...textMedia]),
+        media: uniqueMedia([...postMedia, ...textMedia]),
         originId: item.id,
         publishedAt,
         title: item.title,

@@ -1,5 +1,4 @@
 import { zeroClean } from '@logux/actions'
-import type { Client } from '@logux/client'
 import { encryptActions } from '@logux/client'
 import { parseId } from '@logux/core'
 import { TestClient, type TestServer } from '@logux/server'
@@ -35,7 +34,7 @@ describe('server sync', () => {
       userId
     })
     let client = new TestClient(testServer, userId, { token: user.session })
-    encryptActions(client as unknown as Client, userId)
+    encryptActions(client, userId)
     client.log.on('preadd', (action, meta) => {
       if (action.type !== 'logux/processed') {
         meta.reasons.push('test')

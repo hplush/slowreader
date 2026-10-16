@@ -1,9 +1,7 @@
 import { withMeta } from '@logux/client/db'
-import type { SqlStore } from '@nanostores/sql'
+import type { SqlStore, SqlStoreValue } from '@nanostores/sql'
 import { atom, type ReadableAtom } from 'nanostores'
 
-import { changeFeed, loadFeedsByCategory } from './feed.ts'
-import { firstRow } from './lib/stores.ts'
 import { commonMessages as t } from './messages/index.ts'
 import {
   type CategoryChanges,
@@ -11,8 +9,7 @@ import {
   type FeedValue,
   GENERAL_CATEGORY,
   getTables,
-  type NewCategory,
-  select
+  type NewCategory
 } from './schema.ts'
 
 export type { CategoryValue, NewCategory }
@@ -21,12 +18,12 @@ export type FeedsByCategory = [CategoryValue, FeedValue[]][]
 
 export function getCategory(
   categoryId: string
-): ReadableAtom<CategoryValue | undefined> {
+): ReadableAtom<SqlStoreValue<CategoryValue | undefined>> {
   if (categoryId === GENERAL_CATEGORY) {
     /* node:coverage ignore next 2 */
-    return atom(getGeneralCategory())
+    return atom({ status: 'ready', value: getGeneralCategory() })
   } else {
-    return firstRow(getTables().categories.select`WHERE "id" = ${categoryId}`)
+    return getTables().categories.row(categoryId)
   }
 }
 
@@ -38,14 +35,11 @@ export async function loadCategory(
   categoryId: string
 ): Promise<CategoryValue | undefined> {
   if (categoryId === GENERAL_CATEGORY) return getGeneralCategory()
-  let rows = await select<CategoryValue>`
-    SELECT * FROM "categories" WHERE "id" = ${categoryId}
-  `
-  return rows[0]
+  return getTables().categories.get(categoryId)
 }
 
 export function loadCategories(): Promise<CategoryValue[]> {
-  return select<CategoryValue>`SELECT * FROM "categories" ORDER BY "title"`
+  return getTables().categories.load`ORDER BY "title"`
 }
 
 export function addCategory(categories: NewCategory[]): Promise<string[]>
@@ -64,11 +58,9 @@ export function changeCategory(
 }
 
 export async function deleteCategory(categoryId: string): Promise<void> {
-  let feeds = await loadFeedsByCategory(categoryId)
-  await changeFeed(
-    feeds.map(feed => feed.id),
-    { categoryId: GENERAL_CATEGORY }
-  )
+  await getTables().feeds.updateWhere({ categoryId: GENERAL_CATEGORY })`
+    "categoryId" = ${categoryId}
+  `
   return getTables().categories.delete(categoryId)
 }
 

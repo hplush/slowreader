@@ -5,7 +5,7 @@ import type { WelcomeReader } from './welcome.ts'
 
 export type {
   BaseReader,
-  PostAuthor,
+  FeedAuthor,
   ReaderCreator,
   ReaderName
 } from './common.ts'

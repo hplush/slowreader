@@ -157,7 +157,7 @@ describe('feed reader', () => {
     equal(reader.prevFrom.get(), undefined)
     equal(reader.list.get().length, 20)
     equal(reader.list.get()[0]!.title, '55')
-    equal(reader.list.get()[0]!.read, 0)
+    equal(reader.list.get()[0]!.read, false)
 
     await moveTo(page, reader.nextFrom.get())
     equal(reader.hasNext.get(), true)
@@ -221,6 +221,30 @@ describe('feed reader', () => {
     equal(long!.more, 0)
   })
 
+  test('loads media with their sizes', async () => {
+    let feedId = await addFeed(testFeed({ fastReader: 'feed' }))
+    let first = { type: 'image', url: 'https://example.com/a.png' }
+    let second = { type: 'image', url: 'https://example.com/b.png' }
+    await addPost(
+      testPost({
+        feedId,
+        media: [first, second],
+        mediaSizes: [{ height: 10, width: 20 }, null],
+        publishedAt: 2,
+        reading: 'fast'
+      })
+    )
+    await addPost(testPost({ feedId, publishedAt: 1, reading: 'fast' }))
+
+    let page = openPage({ params: { feed: feedId }, route: 'fast' })
+    await waitLoading(page.loading)
+    let reader = ensureReader(page.posts, 'feed')
+    deepEqual(
+      reader.list.get().map(post => post.media),
+      [[{ ...first, size: { height: 10, width: 20 } }, second], []]
+    )
+  })
+
   test('does not skip posts changed by another client', async () => {
     let feedId = await addFeed(testFeed({ fastReader: 'feed' }))
     for (let i = 1; i <= 50; i++) {
@@ -244,7 +268,7 @@ describe('feed reader', () => {
     // Another tab or device reads and deletes posts of the current page
     await changePost(
       second.slice(0, 5).map(post => post.id),
-      { read: 1 }
+      { read: true }
     )
     await deletePost(second.slice(5, 10).map(post => post.id))
     let removed = new Set(second.slice(0, 10).map(post => post.title!))

@@ -6,7 +6,7 @@ import {
   loadPostsAbove,
   loadPostsPage,
   parseCursor,
-  type PostAuthor,
+  type FeedAuthor,
   readAndMove,
   stringifyCursor,
   topCursor,
@@ -22,7 +22,7 @@ export const feedReader = createReader('feed', (filter, params) => {
   let $loading = atom(true)
   let $readingPage = atom(false)
   let $list = atom<ReaderPost[]>([])
-  let $authors = atom<Map<string, PostAuthor>>(new Map())
+  let $authors = atom<Map<string, FeedAuthor>>(new Map())
   let $hasNext = atom(false)
   let $nextFrom = atom<string | undefined>()
   let $prevFrom = atom<string | undefined>()

@@ -23,14 +23,14 @@
     },
     {
       feedId: 'feed',
-      media: `[{"type":"image","url":"${imgExample}"}]`,
+      media: [{ type: 'image', url: imgExample }],
       reading: 'slow'
     },
     {
       feedId: 'feed',
       full: '',
       intro: '',
-      media: `[{"fromText":true,"type":"image","url":"${imgExample}"}]`,
+      media: [{ fromText: true, type: 'image', url: imgExample }],
       reading: 'slow',
       title: 'The Future is Ours to Build - Together'
     },
@@ -80,7 +80,7 @@
     let unbind = page.postsLoading.listen(loading => {
       if (!loading) {
         unbind()
-        void changePost(ids, { read: 1 })
+        void changePost(ids, { read: true })
       }
     })
   }

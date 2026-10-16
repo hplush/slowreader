@@ -28,7 +28,7 @@
       'with a few blocks and how the reading column is limited.</p>',
     intro: 'Example released a big update.',
     publishedAt: 1600000000,
-    read: 1,
+    read: true,
     reading: 'slow',
     title: 'A big changes for Example',
     url: 'https://example.com/news/1'
@@ -92,7 +92,7 @@
   <Scene
     feeds={[FEED]}
     oninit={open()}
-    posts={[{ ...POST, media: `[{"type":"image","url":"${imgExample}"}]` }]}
+    posts={[{ ...POST, media: [{ type: 'image', url: imgExample }] }]}
   >
     {#if popup}
       <LoadedPopup {popup}>

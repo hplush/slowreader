@@ -11,6 +11,22 @@ export const userId = persistentAtom<string | undefined>('slowreader:userId')
 export const encryptionKey = atom<CryptoKey | undefined>()
 
 /**
+ * Key loader helper to simplify client's code.
+ */
+export function waitEncryptionKey(): CryptoKey | Promise<CryptoKey> {
+  return (
+    encryptionKey.get() ??
+    new Promise(resolve => {
+      let unbind = encryptionKey.listen(key => {
+        if (!key) return
+        unbind()
+        resolve(key)
+      })
+    })
+  )
+}
+
+/**
  * Cloud user must sign in again to unlock the key from the server.
  */
 export const encryptionKeyLost = atom(false)

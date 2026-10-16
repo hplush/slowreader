@@ -8,10 +8,11 @@ import {
   changePost,
   hasUnreadPosts,
   type PostValue,
-  type ReaderPost
+  type ReaderPost,
+  type ReaderPostWith
 } from '../post.ts'
 import { nextRouteIsRedirect, router, type Routes } from '../router.ts'
-import { getTables, select } from '../schema.ts'
+import { getCrdt, getTables } from '../schema.ts'
 
 export interface BaseReader<Name extends ReaderName = ReaderName> {
   exit(): void
@@ -68,7 +69,7 @@ export function createReader<Name extends ReaderName, Rest extends Extra>(
  * Feed’s title and URL for the post’s author line. Readers take them from
  * the same query as posts, so a category page does not load all its feeds.
  */
-export type PostAuthor = { title: string; url: string }
+export type FeedAuthor = { title: string; url: string }
 
 function menuHasUnread(filter: PostFilter): boolean {
   if (filter.reading === 'fast') {
@@ -108,7 +109,7 @@ export async function readAndMove(
   readingPage.set(true)
   await changePost(
     posts.filter(post => !post.read).map(post => post.id),
-    { read: 1 }
+    { read: true }
   )
   let route = filter.reading
   if (!nextFrom) {
@@ -164,6 +165,20 @@ export function stringifyCursor(cursor: PostCursor): string {
   return `${cursor.publishedAt}:${cursor.id}`
 }
 
+type ReaderPostRow = Pick<PostValue, 'mediaSizes'> &
+  ReaderPostWith<PostValue['media']>
+
+function toReaderPost(row: ReaderPostRow): ReaderPost {
+  let { mediaSizes, ...post } = getTables().posts.parseRow(row)
+  return {
+    ...post,
+    media: (post.media ?? []).map((item, index) => {
+      let size = mediaSizes?.[index]
+      return size ? { ...item, size } : item
+    })
+  }
+}
+
 /**
  * A page of unread posts older than the cursor.
  *
@@ -175,11 +190,12 @@ export function loadPostsPage(
   cursor: PostCursor,
   limit: number
 ): Promise<ReaderPost[]> {
+  let rows: Promise<ReaderPostRow[]>
   if (filter.categoryId) {
-    return select<ReaderPost>`
+    rows = getCrdt().select<ReaderPostRow>`
       SELECT "posts"."id", "posts"."feedId", "posts"."media",
-        "posts"."originId", "posts"."publishedAt", "posts"."read",
-        "posts"."title", "posts"."url",
+        "posts"."mediaSizes", "posts"."originId", "posts"."publishedAt",
+        "posts"."read", "posts"."title", "posts"."url",
         NULLIF("posts"."intro", '') AS "intro",
         CASE WHEN COALESCE("posts"."intro", '') = ''
           THEN "posts"."full" END AS "full",
@@ -195,9 +211,9 @@ export function loadPostsPage(
       LIMIT ${limit}
     `
   } else {
-    return select<ReaderPost>`
-      SELECT "id", "feedId", "media", "originId", "publishedAt",
-        "read", "title", "url", NULLIF("intro", '') AS "intro",
+    rows = getCrdt().select<ReaderPostRow>`
+      SELECT "id", "feedId", "media", "mediaSizes", "originId",
+        "publishedAt", "read", "title", "url", NULLIF("intro", '') AS "intro",
         CASE WHEN COALESCE("intro", '') = '' THEN "full" END AS "full",
         COALESCE(NULLIF("intro", '') <> "full", 0) AS "more"
       FROM "posts"
@@ -208,6 +224,7 @@ export function loadPostsPage(
       LIMIT ${limit}
     `
   }
+  return rows.then(list => list.map(toReaderPost))
 }
 
 /**
@@ -221,13 +238,14 @@ export function loadPostsRange(
   cursor: PostCursor,
   until: PostCursor | undefined
 ): Promise<ReaderPost[]> {
+  let rows: Promise<ReaderPostRow[]>
   // No post is below the zero time with the empty ID
   let lowest = until ?? { id: '', publishedAt: 0 }
   if (filter.categoryId) {
-    return select<ReaderPost>`
+    rows = getCrdt().select<ReaderPostRow>`
       SELECT "posts"."id", "posts"."feedId", "posts"."media",
-        "posts"."originId", "posts"."publishedAt", "posts"."read",
-        "posts"."title", "posts"."url",
+        "posts"."mediaSizes", "posts"."originId", "posts"."publishedAt",
+        "posts"."read", "posts"."title", "posts"."url",
         NULLIF("posts"."intro", '') AS "intro",
         CASE WHEN COALESCE("posts"."intro", '') = ''
           THEN "posts"."full" END AS "full",
@@ -244,9 +262,9 @@ export function loadPostsRange(
       ORDER BY "posts"."publishedAt" DESC, "posts"."id" DESC
     `
   } else {
-    return select<ReaderPost>`
-      SELECT "id", "feedId", "media", "originId", "publishedAt",
-        "read", "title", "url", NULLIF("intro", '') AS "intro",
+    rows = getCrdt().select<ReaderPostRow>`
+      SELECT "id", "feedId", "media", "mediaSizes", "originId",
+        "publishedAt", "read", "title", "url", NULLIF("intro", '') AS "intro",
         CASE WHEN COALESCE("intro", '') = '' THEN "full" END AS "full",
         COALESCE(NULLIF("intro", '') <> "full", 0) AS "more"
       FROM "posts"
@@ -257,6 +275,7 @@ export function loadPostsRange(
       ORDER BY "publishedAt" DESC, "id" DESC
     `
   }
+  return rows.then(list => list.map(toReaderPost))
 }
 
 /**
@@ -271,7 +290,7 @@ export function loadPostsAbove(
   limit: number
 ): Promise<PostCursor[]> {
   if (filter.categoryId) {
-    return select<PostCursor>`
+    return getCrdt().select<PostCursor>`
       SELECT "posts"."publishedAt", "posts"."id" FROM "posts"
       JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 0
@@ -282,7 +301,7 @@ export function loadPostsAbove(
       LIMIT ${limit}
     `
   } else {
-    return select<PostCursor>`
+    return getCrdt().select<PostCursor>`
       SELECT "publishedAt", "id" FROM "posts"
       WHERE "reading" = ${filter.reading} AND "read" = 0
         AND "feedId" = ${filter.feedId ?? null}
@@ -309,7 +328,7 @@ export function loadPageCursors(
 ): Promise<PostCursor[]> {
   let rows: Promise<{ id: null | string; publishedAt: null | number }[]>
   if (filter.categoryId) {
-    rows = select`
+    rows = getCrdt().select`
       SELECT "publishedAt", "id" FROM (
         SELECT LAG("posts"."publishedAt") OVER "reading" AS "publishedAt",
           LAG("posts"."id") OVER "reading" AS "id",
@@ -325,7 +344,7 @@ export function loadPageCursors(
       ORDER BY "row" ASC
     `
   } else {
-    rows = select`
+    rows = getCrdt().select`
       SELECT "publishedAt", "id" FROM (
         SELECT LAG("publishedAt") OVER "reading" AS "publishedAt",
           LAG("id") OVER "reading" AS "id",
@@ -352,20 +371,20 @@ export function loadPageCursors(
 export function loadReadPostIds(filter: PostFilter): Promise<string[]> {
   let rows: Promise<{ id: string }[]>
   if (filter.categoryId) {
-    rows = select`
+    rows = getCrdt().select`
       SELECT "posts"."id" FROM "posts"
       JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 1
         AND "feeds"."categoryId" = ${filter.categoryId}
     `
   } else if (filter.feedId) {
-    rows = select`
+    rows = getCrdt().select`
       SELECT "id" FROM "posts"
       WHERE "reading" = ${filter.reading} AND "read" = 1
         AND "feedId" = ${filter.feedId}
     `
   } else {
-    rows = select`
+    rows = getCrdt().select`
       SELECT "id" FROM "posts"
       WHERE "reading" = ${filter.reading} AND "read" = 1
     `
@@ -398,7 +417,7 @@ export function trackReadPosts(
     let read = new Set(rows.value.map(row => row.id))
     let prev = list.get()
     let next = prev.map(post => {
-      let value = read.has(post.id) ? 1 : 0
+      let value = read.has(post.id)
       return post.read === value ? post : { ...post, read: value }
     })
     if (next.some((post, index) => post !== prev[index])) list.set(next)

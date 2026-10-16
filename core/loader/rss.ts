@@ -3,7 +3,7 @@ import {
   type DownloadTask,
   type TextResponse
 } from '../lib/download.ts'
-import { type ParsedPost, type PostMedia, stringifyMedia } from '../post.ts'
+import { type ParsedPost, type PostMedia, uniqueMedia } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import { findMRSS } from './atom.ts'
 import {
@@ -57,7 +57,7 @@ function parsePosts(
 
       return {
         full,
-        media: stringifyMedia([...postMedia, ...textMedia]),
+        media: uniqueMedia([...postMedia, ...textMedia]),
         originId:
           item.querySelector('guid')?.textContent ??
           item.querySelector('link')!.textContent,

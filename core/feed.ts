@@ -1,35 +1,29 @@
 import { withMeta, type WithoutMeta } from '@logux/client/db'
 import { persistentAtom } from '@nanostores/persistent'
 import type { Database, SqlStore } from '@nanostores/sql'
-import { effect, type ReadableAtom } from 'nanostores'
+import { effect } from 'nanostores'
 
 import { onClient } from './client.ts'
 import { createDownloadTask, type TextResponse } from './lib/download.ts'
-import { firstRow } from './lib/stores.ts'
 import { type FeedLoader, loaders } from './loader/index.ts'
-import {
-  addPost,
-  deletePost,
-  loadPostIds,
-  processOriginPost,
-  recalcPostsReading
-} from './post.ts'
+import { addPost, processOriginPost, recalcPostsReading } from './post.ts'
 import type { PostsList } from './posts-list.ts'
 import {
   type FeedChanges,
+  feedsTable,
   type FeedValue,
   GENERAL_CATEGORY,
   getCrdt,
   getTables,
+  isReady,
   openedDatabase,
-  type NewFeed,
-  select
+  type NewFeed
 } from './schema.ts'
 
 export type { FeedValue, NewFeed }
 
-export function getFeed(feedId: string): ReadableAtom<FeedValue | undefined> {
-  return firstRow(getTables().feeds.select`WHERE "id" = ${feedId}`)
+export function getFeed(feedId: string): SqlStore<FeedValue | undefined> {
+  return getTables().feeds.row(feedId)
 }
 
 export function getFeeds(): SqlStore<FeedValue[]> {
@@ -41,13 +35,11 @@ export function getFeedsByUrl(url: string): SqlStore<FeedValue[]> {
 }
 
 export function loadFeed(feedId: string): Promise<FeedValue | undefined> {
-  return select<FeedValue>`SELECT * FROM "feeds" WHERE "id" = ${feedId}`.then(
-    rows => rows[0]
-  )
+  return getTables().feeds.get(feedId)
 }
 
 export function loadFeeds(): Promise<FeedValue[]> {
-  return select<FeedValue>`SELECT * FROM "feeds" ORDER BY "title"`
+  return getTables().feeds.load`ORDER BY "title"`
 }
 
 /**
@@ -67,7 +59,7 @@ export type RefreshFeed = Pick<
 >
 
 export function loadFeedsForRefresh(): Promise<RefreshFeed[]> {
-  return select<RefreshFeed>`
+  return getCrdt().select<RefreshFeed>`
     SELECT "id", "title", "url", "loader", "refreshedAt",
       "lastOriginId", "lastPublishedAt"
     FROM "feeds" ORDER BY "title"
@@ -75,21 +67,19 @@ export function loadFeedsForRefresh(): Promise<RefreshFeed[]> {
 }
 
 export function loadFeedsByCategory(categoryId: string): Promise<FeedValue[]> {
-  return select<FeedValue>`
-    SELECT * FROM "feeds" WHERE "categoryId" = ${categoryId} ORDER BY "title"
+  return getTables().feeds.load`
+    WHERE "categoryId" = ${categoryId} ORDER BY "title"
   `
 }
 
 export function loadFeedUrls(): Promise<string[]> {
-  return select<Pick<FeedValue, 'url'>>`SELECT "url" FROM "feeds"`.then(rows =>
-    rows.map(row => row.url)
-  )
+  return getCrdt().select<
+    Pick<FeedValue, 'url'>
+  >`SELECT "url" FROM "feeds"`.then(rows => rows.map(row => row.url))
 }
 
 export function loadFeedByUrl(url: string): Promise<FeedValue | undefined> {
-  return select<FeedValue>`SELECT * FROM "feeds" WHERE "url" = ${url}`.then(
-    rows => rows[0]
-  )
+  return getTables().feeds.load`WHERE "url" = ${url}`.then(rows => rows[0])
 }
 
 export function addFeed(feeds: NewFeed[]): Promise<string[]>
@@ -101,14 +91,13 @@ export function addFeed(
 }
 
 export async function deleteFeed(feedId: string): Promise<void> {
-  await deletePost(await loadPostIds({ feed: feedId }))
+  await getTables().posts.deleteWhere`"feedId" = ${feedId}`
   return getTables().feeds.delete(feedId)
 }
 
 export async function deleteAllFeeds(): Promise<void> {
-  await deletePost(await loadPostIds())
-  let feeds = await select<{ id: string }>`SELECT "id" FROM "feeds"`
-  await getTables().feeds.delete(feeds.map(feed => feed.id))
+  await getTables().posts.deleteWhere()
+  await getTables().feeds.deleteWhere()
 }
 
 export async function changeFeed(
@@ -173,6 +162,7 @@ export function testFeed(
 ): FeedValue {
   testFeedId += 1
   return withMeta<FeedValue>({
+    avatar: null,
     categoryId: GENERAL_CATEGORY,
     fastReader: null,
     id: `feed-${testFeedId}`,
@@ -209,7 +199,9 @@ function hasAnyFeed(db: Database): Promise<boolean> {
 onClient(() => {
   let unbindCheck = effect([openedDatabase, hasFeeds], (db, known) => {
     if (!db || typeof known !== 'undefined') return
-    void getCrdt().ready.then(async () => {
+    let crdt = getCrdt()
+    void crdt.ready.then(async () => {
+      if (!isReady(crdt)) return
       let found = await hasAnyFeed(db)
       // A feed could be added while the query was running
       if (typeof hasFeeds.get() === 'undefined') hasFeeds.set(found)
@@ -218,11 +210,10 @@ onClient(() => {
 
   let unbindActions = effect(openedDatabase, db => {
     if (!db) return
-    // Action types are strings to avoid circle dependency with schema.ts
     return getCrdt().on('applied', (tx, action) => {
-      if (action.type === 'feeds/created') {
+      if (feedsTable.created.match(action)) {
         hasFeeds.set(true)
-      } else if (action.type === 'feeds/deleted') {
+      } else if (feedsTable.deleted.match(action)) {
         // The deletion is applied asynchronously, so the rest of the feeds
         // can be counted only inside the applying transaction
         return hasAnyFeed(tx).then(found => {

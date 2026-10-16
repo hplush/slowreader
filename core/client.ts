@@ -1,4 +1,4 @@
-import { loguxUndo, zero } from '@logux/actions'
+import { loguxUndo, zeroClean } from '@logux/actions'
 import {
   type ClientOptions,
   CrossTabClient,
@@ -25,17 +25,28 @@ import { busyDuring } from './busy.ts'
 import { getEnvironment, onEnvironment } from './environment.ts'
 import { fatal, getUnhandledErrors } from './errors.ts'
 import { commonMessages } from './messages/index.ts'
+import { migrations } from './migrations.ts'
 import {
   type DatabaseFailure,
   downloadingCloudData,
-  encryptionKey,
   hasCloud,
   lastReset,
   syncServer,
-  userId
+  userId,
+  waitEncryptionKey
 } from './settings.ts'
 
 let testTime: TestTime | undefined
+
+// Server must read them
+const SERVER_ACTIONS = [
+  addPasskeyAction,
+  deleteOtherSessions,
+  deletePasskeyAction,
+  renamePasskeyAction,
+  deleteSessionAction,
+  deleteUser
+]
 
 /**
  * Logux uses complex time https://logux.org/guide/concepts/meta/#id-and-time
@@ -151,6 +162,7 @@ onEnvironment(({ databaseCreator }) => {
     // tables, so it must be set before the log store creates its own.
     void db.exec`PRAGMA auto_vacuum = INCREMENTAL`
     let logux = new CrossTabClient({
+      migrations,
       prefix: 'slowreader',
       server: getServer(),
       store: new SqlLogStore(db),
@@ -165,7 +177,14 @@ onEnvironment(({ databaseCreator }) => {
     })
 
     logux.type(loguxUndo, action => {
-      if (zero.match(action.action)) {
+      let type = action.action.type
+      // Only data changes own cells, so only their undo makes the device
+      // different from the cloud
+      if (
+        type !== zeroClean.type &&
+        !type.startsWith('logux/') &&
+        !SERVER_ACTIONS.some(creator => creator.type === type)
+      ) {
         fatal.set({
           error: `${action.reason} ${action.id}`,
           type: 'rejected'
@@ -183,40 +202,24 @@ onEnvironment(({ databaseCreator }) => {
     /* node:coverage enable */
 
     // The key is loaded from IndexedDB after the page was opened. Only
-    // the sync uses it, so the database is ready for the page right away.
+    // the sync uses it, so the database is ready for the page right away,
+    // and the client connects only after the key is loaded.
     // Key changes come with a change of the user or of the cloud mode,
     // which re-create the client.
-    let started = false
-    let unbindKey = effect(encryptionKey, key => {
-      if (!key || started) return
-      started = true
-      encryptActions(logux, key, {
-        clean: false,
-        // Server must read them
-        ignore: [
-          addPasskeyAction.type,
-          deleteOtherSessions.type,
-          deletePasskeyAction.type,
-          renamePasskeyAction.type,
-          deleteSessionAction.type,
-          deleteUser.type
-        ]
-      })
-      /* node:coverage disable */
-      if (getEnvironment().server === 'NO_SERVER') {
-        logux.start(false)
-      } else {
-        /* node:coverage enable */
-        logux.start(connect)
-      }
+    encryptActions(logux, waitEncryptionKey(), {
+      clean: false,
+      ignore: SERVER_ACTIONS
     })
+    /* node:coverage disable */
+    if (getEnvironment().server === 'NO_SERVER') {
+      logux.start(false)
+    } else {
+      /* node:coverage enable */
+      logux.start(connect)
+    }
 
     database.set(db)
     client.set(logux)
-    return () => {
-      unbindKey()
-      logux.destroy()
-    }
   })
 })
 
@@ -241,7 +244,7 @@ export function getClient(): CrossTabClient {
 
 export type SyncStatus =
   | 'local'
-  | Exclude<StatusValue, 'denied' | 'protocolError' | 'syncError'>
+  | Exclude<StatusValue, 'denied' | 'outdated' | 'protocolError' | 'syncError'>
 
 export const syncStatus = atom<SyncStatus>('local')
 export const syncStatusType = computed(syncStatus, sync => {
@@ -278,6 +281,7 @@ onMount(syncStatus, () => {
       )
       if (
         value === 'denied' ||
+        value === 'outdated' ||
         value === 'protocolError' ||
         value === 'syncError'
       ) {

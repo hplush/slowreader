@@ -1,4 +1,5 @@
 import { withoutMeta } from '@logux/client/db'
+import { SUBPROTOCOL } from '@slowreader/api'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -150,6 +151,7 @@ describe('import page', () => {
     deepEqual(withoutMeta(await loadFeeds()), [
       {
         ...FEED,
+        avatar: null,
         fastReader: null,
         lastOriginId: null,
         lastPublishedAt: null,
@@ -161,12 +163,15 @@ describe('import page', () => {
     deepEqual(withoutMeta(await loadPosts()), [
       {
         ...POST,
+        author: null,
         full: null,
         intro: null,
         media: null,
         mediaSizes: null,
         preview: null,
-        read: 0,
+        quoted: null,
+        read: false,
+        repostedBy: null,
         unsupported: null,
         updatedAt: null,
         url: null,
@@ -408,13 +413,47 @@ describe('import page', () => {
       feeds: [],
       filters: [],
       posts: [],
-      settings: { preloadImages: 'always', theme: 'system' }
+      settings: { preloadImages: 'always', theme: 'system' },
+      subprotocol: SUBPROTOCOL
     })
     page.importFile(file('json', emptyJson))
     await waitLoading(busy)
     equal(page.done.get(), 0)
     equal(page.fileError.get(), false)
     deepEqual(page.feedErrors.get(), [])
+  })
+
+  test('rejects backups from other versions', async () => {
+    let page = openPage({
+      params: {},
+      route: 'import'
+    })
+    let backup = {
+      categories: [],
+      feeds: [{ ...FEED, title: 'Old' }],
+      filters: [],
+      posts: [],
+      settings: { preloadImages: 'always', theme: 'system' }
+    }
+
+    page.importFile(file('json', JSON.stringify(backup)))
+    await waitLoading(busy)
+    equal(page.fileError.get(), 'oldBackup')
+    equal(page.done.get(), false)
+
+    page.importFile(
+      file('json', JSON.stringify({ ...backup, subprotocol: SUBPROTOCOL - 1 }))
+    )
+    await waitLoading(busy)
+    equal(page.fileError.get(), 'oldBackup')
+
+    page.importFile(
+      file('json', JSON.stringify({ ...backup, subprotocol: SUBPROTOCOL + 1 }))
+    )
+    await waitLoading(busy)
+    equal(page.fileError.get(), 'newBackup')
+    equal(page.done.get(), false)
+    deepEqual(await loadFeeds(), [])
   })
 
   test('prevents importing duplicate feeds from OPML', async () => {

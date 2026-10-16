@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type OriginPost, parseMedia, type PostValue } from '@slowreader/core'
+  import type { OriginPost, PostValue } from '@slowreader/core'
 
   import FormattedText from './formatted-text.svelte'
 
@@ -19,7 +19,7 @@
     </h1>
   {/if}
 
-  {#each parseMedia(post.media) as media, index (`${media.url}${index}`)}
+  {#each post.media ?? [] as media, index (`${media.url}${index}`)}
     {#if !media.fromText && media.type.startsWith('image')}
       <img class="post_image" alt="" src={media.url} />
     {/if}

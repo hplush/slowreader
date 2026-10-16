@@ -86,12 +86,12 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         $feed.set(undefined)
         if (!db) return
         if (feedId) {
-          unbindTarget = getFeed(feedId).subscribe(value => {
-            if (value) $feed.set(value)
+          unbindTarget = getFeed(feedId).subscribe(row => {
+            if (row.status === 'ready' && row.value) $feed.set(row.value)
           })
         } else if (categoryId) {
-          unbindTarget = getCategory(categoryId).subscribe(value => {
-            if (value) $category.set(value)
+          unbindTarget = getCategory(categoryId).subscribe(row => {
+            if (row.status === 'ready' && row.value) $category.set(row.value)
           })
         }
       }

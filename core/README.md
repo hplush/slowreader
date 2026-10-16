@@ -101,7 +101,9 @@ The sign-up generates the actions from the tables with a fresh meta and uploads 
 
 ### Migrations
 
-Any change in the tables schema drops the tables and replays the actions. Shadowed actions is restores from the tables by `crdtTableToActions()`. The same snapshot is shared with the menu reducer of [`menu.ts`](./menu.ts).
+Any change in the tables schema drops the tables and replays the actions. Logux Client restores shadowed actions from the old tables by the old schema and converts them by [`migrations.ts`](./migrations.ts). The menu reducer of [`menu.ts`](./menu.ts) restores its actions from the tables after the migration.
+
+See [how to change the data & action format](../docs/development/migrations.md).
 
 The Logux Client detects the tab closed in the middle of the migration itself and reports `interrupted-migration` in the `corrupted` event. The `uploadingLocalData` marker detects if action uploading during signing-up was interrupted.
 

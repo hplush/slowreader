@@ -5,15 +5,9 @@ import { client } from './client.ts'
 import { addFeed } from './feed.ts'
 import { setLoaderReporter } from './loader.ts'
 import { benchmarkMessages } from './messages/index.ts'
-import {
-  addPost,
-  loadPostIds,
-  type NewPost,
-  type PostValue,
-  stringifyMedia
-} from './post.ts'
+import { addPost, type NewPost, type PostValue, uniqueMedia } from './post.ts'
 import { setRequestMethod } from './request.ts'
-import { GENERAL_CATEGORY, select } from './schema.ts'
+import { GENERAL_CATEGORY, getCrdt } from './schema.ts'
 import { benchmarkStatistics, hasCloud, userId } from './settings.ts'
 
 export interface LoaderSpan {
@@ -237,11 +231,11 @@ function createPost(
     intro: `<p>${sentence(random, 15, 40)}.</p>`,
     media:
       random() < 0.2
-        ? stringifyMedia([{ type: 'image/svg+xml', url: IMAGE }])
+        ? uniqueMedia([{ type: 'image/svg+xml', url: IMAGE }])
         : undefined,
     originId: `${feedId}-post-${index}`,
     publishedAt: now - Math.floor(random() ** 2 * YEAR),
-    read: 0,
+    read: false,
     reading,
     title: sentence(random, 3, 9),
     url: `https://example.com/${feedId}/post-${index}`
@@ -333,9 +327,12 @@ async function fillClient(
  * the reader shows the empty screen and there is no button to click.
  */
 export async function fillReaderFeed(): Promise<void> {
+  let crdt = getCrdt()
   let [ids, unread] = await Promise.all([
-    loadPostIds({ feed: READER_FEED }),
-    select<{ total: number }>`
+    crdt.select<{ id: string }>`
+      SELECT "id" FROM "posts" WHERE "feedId" = ${READER_FEED}
+    `,
+    crdt.select<{ total: number }>`
       SELECT COUNT("id") AS "total" FROM "posts"
       WHERE "feedId" = ${READER_FEED} AND "read" = 0
     `
@@ -345,7 +342,7 @@ export async function fillReaderFeed(): Promise<void> {
 
   // Deleted posts free their index, so new posts continue from the last one
   let last = 0
-  for (let id of ids) {
+  for (let { id } of ids) {
     let index = Number(id.slice(id.lastIndexOf('-') + 1))
     if (index > last) last = index
   }

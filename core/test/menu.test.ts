@@ -464,6 +464,48 @@ describe('menu', () => {
     }
   })
 
+  test('keeps the moved feed after the rebuild from the tables', async () => {
+    await cleanClient()
+    setTestUser(false)
+    let file = join(tmpdir(), `slowreader-moved-${process.pid}.sqlite`)
+    rmSync(file, { force: true })
+    try {
+      startClient({ databaseCreator: () => openDb(nodeDriver(file)) })
+      keepMount(fastMenu)
+      keepMount(slowMenu)
+      await waitLoading(menuLoading)
+
+      let first = await addCategory({ title: 'A' })
+      let second = await addCategory({ title: 'B' })
+      let feed = await addFeed(
+        testFeed({ categoryId: first, reading: 'fast', title: 'Feed' })
+      )
+      await changeFeed(feed, { categoryId: second })
+      deepEqual(fastMenu.get(), [{ id: second, title: 'B' }])
+
+      userId.set(undefined)
+      cleanStores(menuLoading, slowMenu, fastMenu)
+      await setTimeout(100)
+
+      // The feed is restored as created in the first category
+      // and changed to the second one later
+      let storage = getEnvironment().persistentStore
+      delete storage['slowreader:menu']
+      storage['logux:reducer:slowreader:menu'] = '0'
+      setTestUser()
+      keepMount(fastMenu)
+      keepMount(slowMenu)
+      await waitLoading(menuLoading)
+      await waitUntil(() => fastMenu.get()[0]?.id === second)
+
+      deepEqual(fastMenu.get(), [{ id: second, title: 'B' }])
+    } finally {
+      await cleanClient()
+      await setTimeout(100)
+      rmSync(file, { force: true })
+    }
+  })
+
   test('rebuilds menu from the tables when the state was lost', async () => {
     await cleanClient()
     setTestUser(false)

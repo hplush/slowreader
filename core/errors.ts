@@ -1,4 +1,4 @@
-import type { LoguxUndoError } from '@logux/client'
+import { LoguxUndoError } from '@logux/client'
 import { atom } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
@@ -144,6 +144,10 @@ export class HTTPStatusError extends Error {
  * When some object was not find to render 404 popup/page in UI.
  */
 export class NotFoundError extends Error {
+  static is(thrown: unknown): thrown is NotFoundError {
+    return thrown instanceof Error && thrown.name === 'NotFoundError'
+  }
+
   constructor(options?: ErrorOptions) {
     super('Not found', options)
     this.name = 'NotFoundError'
@@ -189,13 +193,7 @@ export function errorToMessage(error: unknown): string {
 export function isNotFoundError(
   error: unknown
 ): error is LoguxUndoError | NotFoundError {
-  if (error instanceof Error) {
-    return (
-      error.name === 'NotFoundError' ||
-      (error.name === 'LoguxUndoError' && error.message.includes('notFound'))
-    )
-  }
-  return false
+  return NotFoundError.is(error) || LoguxUndoError.is(error, 'notFound')
 }
 /* node:coverage enable */
 

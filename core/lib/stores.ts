@@ -4,18 +4,10 @@
 import { loguxSubscribe, loguxUnsubscribe } from '@logux/actions'
 import type { CrossTabClient } from '@logux/client'
 import type { SqlStore } from '@nanostores/sql'
-import { atom, computed, effect, onMount, type ReadableAtom } from 'nanostores'
+import { atom, effect, onMount, type ReadableAtom } from 'nanostores'
 
 import { client } from '../client.ts'
 import { hasCloud } from '../settings.ts'
-
-export function firstRow<Value>(
-  store: SqlStore<Value[]>
-): ReadableAtom<undefined | Value> {
-  return computed(store, rows =>
-    rows.status === 'loading' ? undefined : rows.value[0]
-  )
-}
 
 interface NumberMapStore<Key extends string> {
   get(): Record<Key, number>

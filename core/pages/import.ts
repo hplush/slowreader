@@ -1,3 +1,4 @@
+import { SUBPROTOCOL } from '@slowreader/api'
 import { atom } from 'nanostores'
 
 import { busyDuring } from '../busy.ts'
@@ -35,7 +36,13 @@ const POSTS_PER_ACTION = 100
 
 export const importPage = createPage('import', () => {
   let $fileError = atom<
-    'brokenFile' | 'cannotRead' | 'noFeeds' | 'unknownFormat' | false
+    | 'brokenFile'
+    | 'cannotRead'
+    | 'newBackup'
+    | 'noFeeds'
+    | 'oldBackup'
+    | 'unknownFormat'
+    | false
   >(false)
   let $feedErrors = atom<[string, FeedError][]>([])
   let $done = atom<false | number>(false)
@@ -211,6 +218,10 @@ export const importPage = createPage('import', () => {
           } catch {}
           if (!json || !isStateExportFile(json)) {
             $fileError.set('brokenFile')
+          } else if (json.subprotocol !== SUBPROTOCOL) {
+            $fileError.set(
+              (json.subprotocol ?? 0) > SUBPROTOCOL ? 'newBackup' : 'oldBackup'
+            )
           } else {
             await importState(json, setProgress)
           }

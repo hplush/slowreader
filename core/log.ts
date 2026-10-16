@@ -16,7 +16,7 @@ import {
   parseCrdtRows,
   parseCrdtType
 } from '@logux/client/db'
-import type { Meta, MetaTime } from '@logux/core'
+import type { MetaTime } from '@logux/core'
 import { RETENTION } from '@slowreader/api'
 import debounce from 'just-debounce-it'
 
@@ -108,8 +108,6 @@ export function trackLog(
     lost: string[],
     meta: ClientMeta | MetaTime
   ): Promise<void> {
-    // `isFirstOlder()` reads only `id` and `time`, but asks for the whole meta
-    let applied: Meta = { added: 0, id: meta.id, reasons: [], time: meta.time }
     if (won.length > 0) {
       for (let id of ids) {
         // The shadow of the applied action is the action itself, so it keeps
@@ -117,9 +115,9 @@ export function trackLog(
         // them apart: the server re-sends the action with another `time`,
         // and the restart writes the shadow under another node ID
         await logux.log.removeReason(won, {
-          exceptIndex: applied.id,
+          exceptIndex: meta.id,
           index: `${plural}/${id}`,
-          olderThan: applied
+          olderThan: meta
         })
       }
     }

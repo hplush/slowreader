@@ -1,4 +1,5 @@
 import { type WithoutMeta, withoutMeta } from '@logux/client/db'
+import { SUBPROTOCOL } from '@slowreader/api'
 import { atom } from 'nanostores'
 
 import { type CategoryValue, loadCategories } from '../category.ts'
@@ -24,6 +25,7 @@ export interface StateExport {
   filters: WithoutMeta<FilterValue>[]
   posts: WithoutMeta<PostValue>[]
   settings: Settings
+  subprotocol: number
 }
 
 export function isStateExportFile(state: unknown): state is StateExport {
@@ -158,7 +160,8 @@ export const exportPage = createPage('export', () => {
       useQuietCursor: useQuietCursor.get(),
       useReducedMotion: useReducedMotion.get()
     } satisfies Settings
-    file.write(`  "settings": ${JSON.stringify(settings)}\n}\n`)
+    file.write(`  "settings": ${JSON.stringify(settings)},\n`)
+    file.write(`  "subprotocol": ${SUBPROTOCOL}\n}\n`)
 
     if (stopped) {
       $exportingBackup.set(false)

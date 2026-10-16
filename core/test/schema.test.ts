@@ -13,6 +13,7 @@ import {
   database,
   freeDatabasePages,
   getClient,
+  getCrdt,
   getDatabaseSize,
   loadCategories,
   loadFeeds,
@@ -67,6 +68,44 @@ describe('schema', () => {
     deepEqual(labels, [commonMessages.get().loadingData])
 
     unbind()
+  })
+
+  test('converts the old tables by the migrations', async () => {
+    await cleanClient()
+    setTestUser(false)
+    let creator = persistentDatabase()
+    setupEnvironment({ ...getTestEnvironment(), databaseCreator: creator })
+    setTestUser()
+    let media = [{ type: 'image', url: 'https://example.com/a.png' }]
+    let postId = await addPost(testPost({ media, read: true }))
+    // The first start writes the schema after the post was applied
+    await getCrdt().ready
+    setTestUser(false)
+    await setTimeout(100)
+
+    // Subprotocol 0 kept media as JSON string and read as 0 or 1
+    let db = creator()
+    let [stored] = await db.select<{ value: string }>`
+      SELECT "value" FROM "logux_crdt" WHERE "key" = 'schema'
+    `
+    let schema = JSON.parse(stored!.value) as {
+      tables: Record<string, { columns: Record<string, object> }>
+    }
+    schema.tables.posts!.columns.media = { type: 'TEXT' }
+    schema.tables.posts!.columns.read = { type: 'DOUBLE PRECISION' }
+    await db.exec`
+      UPDATE "logux_crdt" SET "value" = ${JSON.stringify(schema)}
+      WHERE "key" = 'schema'
+    `
+    await db.exec`
+      UPDATE "logux_crdt" SET "value" = '0' WHERE "key" = 'subprotocol'
+    `
+    await db.close()
+
+    setTestUser()
+    let post = await loadPost(postId)
+    deepEqual(post!.media, media)
+    equal(post!.read, true)
   })
 
   test('fills the missing reading of the post from another device', async () => {

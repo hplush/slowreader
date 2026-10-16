@@ -1,5 +1,5 @@
 import type { ShadowAction } from '@logux/actions'
-import { type Client, type ClientMeta, encryptActions } from '@logux/client'
+import { type ClientMeta, encryptActions } from '@logux/client'
 import type { Action } from '@logux/core'
 import { TestClient, type TestServer } from '@logux/server'
 import { openDb } from '@nanostores/sql'
@@ -152,10 +152,7 @@ describe('log', () => {
     )
     let { session } = await response.json()
     let device = new TestClient(server!, credentials.userId, { token: session })
-    encryptActions(
-      device as unknown as Client,
-      await toEncryptionKey(credentials.encryptionKey)
-    )
+    encryptActions(device, await toEncryptionKey(credentials.encryptionKey))
     device.log.on('preadd', (action, meta) => {
       if (action.type !== 'logux/processed') {
         meta.reasons.push('test')
@@ -265,13 +262,19 @@ describe('log', () => {
 
     // Any change in the tables schema re-creates the database. The schema
     // is compared with the hash inside the database, not with the storage
-    let fake = JSON.stringify({ actions: {}, tables: {}, version: 0 })
-    // The menu reducer shares the snapshot of the database migration
     storage['logux:reducer:slowreader:menu'] = '0'
     await restartClient(async () => {
       let db = openDb(nodeDriver(join(dir, 'app.sqlite')))
+      let [stored] = await db.select<{ value: string }>`
+        SELECT "value" FROM "logux_crdt" WHERE "key" = 'schema'
+      `
+      let schema = JSON.parse(stored!.value) as {
+        tables: Record<string, { columns: Record<string, object> }>
+      }
+      schema.tables.feeds!.columns.removed = { type: 'TEXT' }
       await db.exec`
-        UPDATE "logux_crdt" SET "value" = ${fake} WHERE "key" = 'schema'
+        UPDATE "logux_crdt" SET "value" = ${JSON.stringify(schema)}
+        WHERE "key" = 'schema'
       `
       await db.close()
     })
@@ -528,7 +531,7 @@ describe('log', () => {
           feedId,
           originId: 'post-1',
           publishedAt: 1000,
-          read: 0,
+          read: false,
           reading: 'slow',
           title: 'Back'
         },
@@ -569,7 +572,7 @@ describe('log', () => {
             feedId,
             originId: 'post-1',
             publishedAt: 1000,
-            read: 0,
+            read: false,
             reading: 'slow',
             title: 'Back'
           },
@@ -636,7 +639,7 @@ describe('log', () => {
           feedId,
           originId: 'post-1',
           publishedAt: 1000,
-          read: 0,
+          read: false,
           reading: 'slow',
           title: 'Theirs'
         },
@@ -671,7 +674,7 @@ describe('log', () => {
           feedId,
           originId: 'post-1',
           publishedAt: 1000,
-          read: 0,
+          read: false,
           reading: 'slow',
           title: 'Back'
         },

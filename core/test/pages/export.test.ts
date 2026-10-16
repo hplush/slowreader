@@ -1,3 +1,4 @@
+import { SUBPROTOCOL } from '@slowreader/api'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -108,6 +109,7 @@ describe('export page', () => {
       ],
       feeds: [
         {
+          avatar: null,
           categoryId: category,
           fastReader: null,
           id: feed,
@@ -132,6 +134,7 @@ describe('export page', () => {
       ],
       posts: [
         {
+          author: null,
           feedId: feed,
           full: null,
           id: post,
@@ -141,8 +144,10 @@ describe('export page', () => {
           originId: 'test-1',
           preview: null,
           publishedAt: 1000,
-          read: 0,
+          quoted: null,
+          read: false,
           reading: 'fast',
+          repostedBy: null,
           title: null,
           unsupported: null,
           updatedAt: null,
@@ -155,7 +160,8 @@ describe('export page', () => {
         theme: 'system',
         useQuietCursor: false,
         useReducedMotion: false
-      }
+      },
+      subprotocol: SUBPROTOCOL
     })
   })
 

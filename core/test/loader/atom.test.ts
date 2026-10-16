@@ -5,7 +5,6 @@ import {
   createDownloadTask,
   createTextResponse,
   loaders,
-  parseMedia,
   setRequestMethod,
   setupEnvironment,
   testFeed,
@@ -16,7 +15,6 @@ import {
   cleanClient,
   expectNotMine,
   expectRequest,
-  expectWarning,
   getTestEnvironment,
   mockRequest,
   loadedPostsValue,
@@ -514,8 +512,18 @@ describe('atom loader', () => {
             '                  <img src="https://example.com/img_second.webp"></img>\n' +
             '                ',
           intro: 'Post 1 XSS',
-          media:
-            '[{"fromText":true,"type":"image","url":"https://example.com/img_first.webp"},{"fromText":true,"type":"image","url":"https://example.com/img_second.webp"}]',
+          media: [
+            {
+              fromText: true,
+              type: 'image',
+              url: 'https://example.com/img_first.webp'
+            },
+            {
+              fromText: true,
+              type: 'image',
+              url: 'https://example.com/img_second.webp'
+            }
+          ],
           originId: '1',
           publishedAt: 1672531200,
           title: '1 XSS',
@@ -528,8 +536,18 @@ describe('atom loader', () => {
             '                  <img src="https://example.com/img.webp"></img>\n' +
             '                ',
           intro: 'Post 2',
-          media:
-            '[{"type":"image/png","url":"https://example.com/img.png","name":"Chart"},{"fromText":true,"type":"image","url":"https://example.com/img.webp"}]',
+          media: [
+            {
+              type: 'image/png',
+              url: 'https://example.com/img.png',
+              name: 'Chart'
+            },
+            {
+              fromText: true,
+              type: 'image',
+              url: 'https://example.com/img.webp'
+            }
+          ],
           originId: '2',
           publishedAt: 1672531200,
           title: '2',
@@ -538,7 +556,7 @@ describe('atom loader', () => {
         }
       ]
     })
-    deepEqual(parseMedia(posts.get().list[0]?.media), [
+    deepEqual(posts.get().list[0]?.media, [
       {
         fromText: true,
         type: 'image',
@@ -550,11 +568,6 @@ describe('atom loader', () => {
         url: 'https://example.com/img_second.webp'
       }
     ])
-    deepEqual(parseMedia(undefined), [])
-
-    expectWarning(() => {
-      deepEqual(parseMedia('['), [])
-    }, [new SyntaxError('Unexpected end of JSON input')])
   })
 
   test('resolves images by xml:base', async () => {
@@ -605,8 +618,13 @@ describe('atom loader', () => {
     deepEqual(
       posts.get().list.map(i => i.media),
       [
-        '[{"fromText":true,"type":"image",' +
-          '"url":"https://cdn.example.com/a.png"}]'
+        [
+          {
+            fromText: true,
+            type: 'image',
+            url: 'https://cdn.example.com/a.png'
+          }
+        ]
       ]
     )
   })
