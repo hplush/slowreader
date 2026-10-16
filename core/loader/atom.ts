@@ -17,6 +17,7 @@ import {
   findXmlBase,
   getUpdatedAt,
   type Loader,
+  toAvatarUrl,
   toTime
 } from './common.ts'
 
@@ -169,6 +170,14 @@ async function loadFeed(
 }
 
 export const atom: Loader = {
+  getAvatarFromText(text) {
+    let icon = text.parseXml().querySelector(':root > icon')
+    return toAvatarUrl(
+      icon?.textContent,
+      findXmlBase(icon, text.url) ?? text.url
+    )
+  },
+
   getMineLinksFromText(text) {
     let type = 'application/atom+xml'
     let headerLinks = findHeaderLinks(text, type)

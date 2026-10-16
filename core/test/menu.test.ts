@@ -313,6 +313,46 @@ describe('menu', () => {
     equal(slowMenu.get(), deleted)
   })
 
+  test('shows feed avatars', async () => {
+    keepMount(slowMenu)
+    await waitLoading(menuLoading)
+
+    let feed1 = await addFeed(
+      testFeed({ avatar: 'https://a.com/1.svg', reading: 'slow', title: '1' })
+    )
+    let feed2 = await addFeed(testFeed({ reading: 'slow', title: '2' }))
+    await addPost(testPost({ feedId: feed1, reading: 'slow' }))
+    await addPost(testPost({ feedId: feed2, reading: 'slow' }))
+    deepEqual(slowMenu.get(), [
+      [
+        GENERAL,
+        [
+          [{ avatar: 'https://a.com/1.svg', id: feed1, title: '1' }, 1],
+          [{ id: feed2, title: '2' }, 1]
+        ]
+      ]
+    ])
+
+    let before = slowMenu.get()
+    await changeFeed(feed1, { avatar: 'https://a.com/1.svg' })
+    equal(slowMenu.get(), before)
+
+    await changeFeed(feed1, { avatar: null })
+    await changeFeed(feed2, { avatar: 'https://a.com/2.png' })
+    deepEqual(slowMenu.get(), [
+      [
+        GENERAL,
+        [
+          [{ id: feed1, title: '1' }, 1],
+          [{ avatar: 'https://a.com/2.png', id: feed2, title: '2' }, 1]
+        ]
+      ]
+    ])
+
+    await deleteFeed(feed2)
+    deepEqual(slowMenu.get(), [[GENERAL, [[{ id: feed1, title: '1' }, 1]]]])
+  })
+
   test('updates menu on filter changes', async () => {
     keepMount(fastMenu)
     keepMount(slowMenu)
@@ -414,8 +454,9 @@ describe('menu', () => {
     setTestUser(false)
     setupEnvironment(getTestEnvironment())
     let storage = getEnvironment().persistentStore
-    storage['logux:reducer:slowreader:menu'] = '1'
+    storage['logux:reducer:slowreader:menu'] = '2'
     storage['slowreader:menu'] = JSON.stringify({
+      avatars: {},
       categories: [['category', 'From Storage']],
       fast: { feed: true },
       feedOf: { feed: 'category' },
@@ -531,7 +572,7 @@ describe('menu', () => {
       // before the reducer got them
       let storage = getEnvironment().persistentStore
       delete storage['slowreader:menu']
-      storage['logux:reducer:slowreader:menu'] = '1'
+      storage['logux:reducer:slowreader:menu'] = '2'
       setTestUser()
       keepMount(fastMenu)
       keepMount(slowMenu)
@@ -541,7 +582,7 @@ describe('menu', () => {
       deepEqual(slowMenu.get(), [
         [{ id: category, title: 'A' }, [[{ id: feed, title: 'Feed' }, 1]]]
       ])
-      equal(storage['logux:reducer:slowreader:menu'], '1')
+      equal(storage['logux:reducer:slowreader:menu'], '2')
     } finally {
       await cleanClient()
       await setTimeout(100)

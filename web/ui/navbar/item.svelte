@@ -55,7 +55,9 @@
       </div>
     {/if}
     {#if children}
-      {@render children()}
+      <div class="navbar-item_icon">
+        {@render children()}
+      </div>
     {/if}
     <div class="navbar-item_text">{name}</div>
     {#if number}

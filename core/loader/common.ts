@@ -6,6 +6,11 @@ import type { PostsList, PostsListResult } from '../posts-list.ts'
 
 export type Loader = {
   /**
+   * Feed’s own icon. Without it, the icon is taken from the site.
+   */
+  getAvatarFromText(response: TextResponse): string | undefined
+
+  /**
    * Find feeds URLs from HTML or HTTP headers.
    */
   getMineLinksFromText(response: TextResponse): string[]
@@ -341,4 +346,110 @@ export async function fetchIfModified(
   let response = await task.text(url, { headers })
   if (response.status === 304) return [[], undefined]
   return parseCb(response)
+}
+
+/**
+ * Feeds and sites put relative and broken URLs to their icons.
+ */
+export function toAvatarUrl(
+  link: null | string | undefined,
+  base: string
+): string | undefined {
+  let trimmed = link?.trim()
+  if (!trimmed || !URL.canParse(trimmed, base)) return undefined
+  return new URL(trimmed, base).href
+}
+
+const APPLE_ICONS = ['apple-touch-icon', 'apple-touch-icon-precomposed']
+
+/**
+ * 52×52 icon of the feed popup on 2x screen.
+ */
+const MIN_ICON_SIZE = 104
+
+/**
+ * `Infinity` for vector icons and 0 for unknown size. Apple’s icons
+ * without `sizes` are 180×180 by Apple’s guidelines.
+ */
+function getIconSize(link: Element, rels: string[]): number {
+  let sizes = link.getAttribute('sizes')?.toLowerCase().split(/\s+/) ?? []
+  if (
+    sizes.includes('any') ||
+    link.getAttribute('type') === 'image/svg+xml' ||
+    /\.svg($|\?)/i.test(link.getAttribute('href')!)
+  ) {
+    return Infinity
+  }
+  let largest = Math.max(0, ...sizes.map(size => parseInt(size) || 0))
+  if (largest === 0 && rels.some(rel => APPLE_ICONS.includes(rel))) return 180
+  return largest
+}
+
+/**
+ * SVG is the best for any screen. Then the smallest sharp one
+ * to not load 512×512 image.
+ */
+function sortIcons(icons: [Element, number][]): Element[] {
+  let vector = icons.filter(([, size]) => size === Infinity)
+  let sized = icons
+    .filter(([, size]) => size > 0 && size !== Infinity)
+    .toSorted((a, b) => a[1] - b[1])
+  let sharp = sized.filter(([, size]) => size >= MIN_ICON_SIZE)
+  let blurry = sized.filter(([, size]) => size < MIN_ICON_SIZE).toReversed()
+  let unknown = icons.filter(([, size]) => size === 0)
+  return [...vector, ...sharp, ...blurry, ...unknown].map(([link]) => link)
+}
+
+/**
+ * Sites keep links to deleted icons in HTML.
+ */
+export async function isLoadableIcon(
+  task: DownloadTask,
+  url: string
+): Promise<boolean> {
+  try {
+    let response = await task.request(url)
+    await response.body?.cancel()
+    // Single-page apps answer with HTML on any path
+    return !response.headers.get('content-type')?.startsWith('text/')
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Icon from the site’s HTML. Without it, `/favicon.ico`, which browsers
+ * look for by default.
+ */
+export async function findSiteIcon(
+  task: DownloadTask,
+  url: string
+): Promise<string | undefined> {
+  let root = new URL('/', url).href
+  let candidates: string[] = []
+  try {
+    let response = await task.text(root)
+    let document = response.tryParseHTML()
+    if (document) {
+      let icons: [Element, number][] = []
+      for (let link of document.querySelectorAll('link[href]')) {
+        let rels = link.getAttribute('rel')?.toLowerCase().split(/\s+/) ?? []
+        if (
+          rels.includes('icon') ||
+          rels.some(rel => APPLE_ICONS.includes(rel))
+        ) {
+          icons.push([link, getIconSize(link, rels)])
+        }
+      }
+      for (let link of sortIcons(icons)) {
+        let icon = toAvatarUrl(link.getAttribute('href'), response.url)
+        if (icon) candidates.push(icon)
+      }
+    }
+  } catch {}
+  candidates.push(new URL('/favicon.ico', root).href)
+  for (let icon of new Set(candidates)) {
+    if (await isLoadableIcon(task, icon)) return icon
+  }
+  return undefined
 }

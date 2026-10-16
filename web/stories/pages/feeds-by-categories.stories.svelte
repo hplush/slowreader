@@ -12,6 +12,12 @@
 
   const FEEDS: Partial<FeedValue>[] = [
     {
+      avatar:
+        'data:image/svg+xml,' +
+        encodeURIComponent(
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">' +
+            '<circle cx="8" cy="8" r="8" fill="#e66000"/></svg>'
+        ),
       categoryId: 'code',
       id: 'a',
       loader: 'atom',

@@ -66,10 +66,10 @@ export function createReader<Name extends ReaderName, Rest extends Extra>(
 }
 
 /**
- * Feed’s title and URL for the post’s author line. Readers take them from
- * the same query as posts, so a category page does not load all its feeds.
+ * Feed’s title, URL, and icon for the post’s author line. Readers take them
+ * from the same query as posts, so a category page does not load all its feeds.
  */
-export type FeedAuthor = { title: string; url: string }
+export type FeedAuthor = { avatar: null | string; title: string; url: string }
 
 function menuHasUnread(filter: PostFilter): boolean {
   if (filter.reading === 'fast') {
@@ -200,7 +200,8 @@ export function loadPostsPage(
         CASE WHEN COALESCE("posts"."intro", '') = ''
           THEN "posts"."full" END AS "full",
         COALESCE(NULLIF("posts"."intro", '') <> "posts"."full", 0) AS "more",
-        "feeds"."title" AS "authorTitle", "feeds"."url" AS "authorUrl"
+        "feeds"."title" AS "authorTitle", "feeds"."url" AS "authorUrl",
+        "feeds"."avatar" AS "authorAvatar"
       FROM "posts"
       JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 0
@@ -250,7 +251,8 @@ export function loadPostsRange(
         CASE WHEN COALESCE("posts"."intro", '') = ''
           THEN "posts"."full" END AS "full",
         COALESCE(NULLIF("posts"."intro", '') <> "posts"."full", 0) AS "more",
-        "feeds"."title" AS "authorTitle", "feeds"."url" AS "authorUrl"
+        "feeds"."title" AS "authorTitle", "feeds"."url" AS "authorUrl",
+        "feeds"."avatar" AS "authorAvatar"
       FROM "posts"
       JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
       WHERE "posts"."reading" = ${filter.reading}

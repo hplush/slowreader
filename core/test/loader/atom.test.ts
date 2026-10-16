@@ -239,6 +239,30 @@ describe('atom loader', () => {
     )
   })
 
+  test('finds avatar', () => {
+    equal(
+      loaders.atom.getAvatarFromText(
+        exampleAtom(
+          `<feed xmlns="http://www.w3.org/2005/Atom" xml:base="/blog/">
+            <icon>icon.svg</icon>
+            <logo>logo.png</logo>
+          </feed>`
+        )
+      ),
+      'https://example.com/blog/icon.svg'
+    )
+    equal(
+      loaders.atom.getAvatarFromText(
+        exampleAtom(
+          `<feed xmlns="http://www.w3.org/2005/Atom">
+            <logo>logo.png</logo>
+          </feed>`
+        )
+      ),
+      undefined
+    )
+  })
+
   test('detects titles', () => {
     equal(loaders.atom.isMineText(exampleAtom('<feed></feed>')), '')
     equal(

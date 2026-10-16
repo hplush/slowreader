@@ -8,6 +8,7 @@
   } from '@slowreader/core'
 
   import { getPopupHash } from '../stores/url-router.ts'
+  import FeedAvatar from './feed-avatar.svelte'
   import Links from './links.svelte'
 
   type FeedLike = FeedLoader | FeedValue
@@ -35,6 +36,24 @@
 
 <Links {id} anchor="feed" {current} {links}>
   {#snippet item(feed)}
-    {feed.title}
+    <span class="feeds_title">
+      {#if 'id' in feed}
+        <FeedAvatar avatar={feed.avatar} feedId={feed.id} />
+      {/if}
+      {feed.title}
+    </span>
   {/snippet}
 </Links>
+
+<style>
+  :global {
+    .feeds_title {
+      display: flex;
+      flex-grow: 1;
+      gap: 0.5rem;
+      flex-shrink: 1;
+      align-items: center;
+      min-width: 0;
+    }
+  }
+</style>

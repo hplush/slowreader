@@ -5,6 +5,7 @@ import { effect } from 'nanostores'
 
 import { onClient } from './client.ts'
 import { createDownloadTask, type TextResponse } from './lib/download.ts'
+import { findSiteIcon, isLoadableIcon } from './loader/common.ts'
 import { type FeedLoader, loaders } from './loader/index.ts'
 import { addPost, processOriginPost, recalcPostsReading } from './post.ts'
 import type { PostsList } from './posts-list.ts'
@@ -15,6 +16,7 @@ import {
   GENERAL_CATEGORY,
   getCrdt,
   getTables,
+  hasDatabase,
   isReady,
   openedDatabase,
   type NewFeed
@@ -153,6 +155,49 @@ export function getFeedLatestPosts(
     undefined,
     feed.refreshedAt ?? undefined
   )
+}
+
+async function findFeedAvatar(
+  feed: Pick<FeedValue, 'loader' | 'url'>
+): Promise<string | undefined> {
+  let task = createDownloadTask({ tries: 1 })
+  try {
+    let fromFeed = loaders[feed.loader].getAvatarFromText(
+      await task.text(feed.url)
+    )
+    if (fromFeed && (await isLoadableIcon(task, fromFeed))) return fromFeed
+  } catch {}
+  return findSiteIcon(task, feed.url)
+}
+
+/**
+ * Searches are kept for the whole session, since every render of the feed
+ * with a missed or broken icon asks for it again.
+ */
+let avatarSearches = new Map<string, Promise<void>>()
+
+onClient(() => () => {
+  avatarSearches.clear()
+})
+
+/**
+ * Look for the feed’s icon again, since the site could change it.
+ */
+export function updateFeedAvatar(feedId: string): Promise<void> {
+  let search = avatarSearches.get(feedId)
+  if (!search) {
+    search = loadFeed(feedId).then(async feed => {
+      if (!feed) return
+      let avatar = (await findFeedAvatar(feed)) ?? null
+      // The user could sign out or delete the feed during the search
+      if (!hasDatabase() || avatar === feed.avatar) return
+      if (await loadFeed(feedId)) {
+        await changeFeed(feedId, { avatar })
+      }
+    })
+    avatarSearches.set(feedId, search)
+  }
+  return search
 }
 
 let testFeedId = 0

@@ -208,6 +208,12 @@
   <Scene
     feeds={[
       {
+        avatar:
+          'data:image/svg+xml,' +
+          encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">' +
+              '<rect width="16" height="16" fill="#0060df"/></svg>'
+          ),
         id: 'feed',
         reading: 'slow',
         title:
@@ -227,7 +233,19 @@
 
 <Story name="Feed" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    feeds={[{ id: 'feed', reading: 'fast', title: 'The Mozilla Blog' }]}
+    feeds={[
+      {
+        avatar:
+          'data:image/svg+xml,' +
+          encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">' +
+              '<circle cx="8" cy="8" r="8" fill="#e66000"/></svg>'
+          ),
+        id: 'feed',
+        reading: 'fast',
+        title: 'The Mozilla Blog'
+      }
+    ]}
     posts={POSTS.map(i => ({ ...i, reading: 'fast' }))}
     route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
   >

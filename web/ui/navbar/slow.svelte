@@ -7,6 +7,7 @@
   } from '@slowreader/core'
 
   import { getURL } from '../../stores/url-router.ts'
+  import FeedAvatar from '../feed-avatar.svelte'
   import NavbarCategory from './category.svelte'
   import NavbarItem from './item.svelte'
 </script>
@@ -24,7 +25,9 @@
         current={$router.route === 'slow' && $router.params.feed === feed.id}
         href={getURL({ params: { feed: feed.id }, route: 'slow' })}
         number={unread}
-      />
+      >
+        <FeedAvatar avatar={feed.avatar} feedId={feed.id} />
+      </NavbarItem>
     {/each}
   </NavbarCategory>
 {/each}

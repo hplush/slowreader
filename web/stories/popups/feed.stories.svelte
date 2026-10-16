@@ -46,7 +46,17 @@
 
 <Story name="Added" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    feeds={[{ url: 'https://example.com/news.atom' }]}
+    feeds={[
+      {
+        avatar:
+          'data:image/svg+xml,' +
+          encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">' +
+              '<rect width="16" height="16" fill="#0060df"/></svg>'
+          ),
+        url: 'https://example.com/news.atom'
+      }
+    ]}
     responses={[['https://example.com/news.atom', ATOM]]}
   >
     <LoadedPopup popup={popups.feed('https://example.com/news.atom')}>
@@ -72,7 +82,14 @@
 
 <Story name="Added Fast" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    feeds={[{ reading: 'fast', url: 'https://example.com/news.atom' }]}
+    feeds={[
+      {
+        avatar:
+          'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAFklEQVR42mPQmmtPEmIY1TCqYfhqAAA1jwYQh1fDuAAAAABJRU5ErkJggg==',
+        reading: 'fast',
+        url: 'https://example.com/news.atom'
+      }
+    ]}
     responses={[['https://example.com/news.atom', ATOM]]}
   >
     <LoadedPopup popup={popups.feed('https://example.com/news.atom')}>

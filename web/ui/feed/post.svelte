@@ -43,6 +43,9 @@
     {#if author}
       <div class="feed-post_author">
         <FeedLink
+          avatar={author.avatar}
+          avatarSize="medium"
+          feedId={post.feedId}
           href={getPopupHash($router, 'feed', author.url)}
           title={author.title}
           variant="secondary"
@@ -182,8 +185,8 @@
     }
 
     .feed-post_author {
-      margin-top: -0.5rem;
-      margin-bottom: 0.5rem;
+      margin-top: -0.125rem;
+      margin-bottom: 0.75rem;
     }
 
     .feed-post_content {

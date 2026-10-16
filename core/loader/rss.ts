@@ -16,6 +16,7 @@ import {
   findOwnChild,
   findXmlBase,
   type Loader,
+  toAvatarUrl,
   toTime
 } from './common.ts'
 
@@ -70,6 +71,13 @@ function parsePosts(
 }
 
 export const rss: Loader = {
+  getAvatarFromText(text) {
+    return toAvatarUrl(
+      text.parseXml().querySelector('channel > image > url')?.textContent,
+      text.url
+    )
+  },
+
   getMineLinksFromText(text) {
     let type = 'application/rss+xml'
     let headerLinks = findHeaderLinks(text, type)

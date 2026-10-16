@@ -25,8 +25,23 @@
     { id: 'socials', title: 'Social Medias' }
   ] satisfies Partial<CategoryValue>[]
   const FEEDS = [
-    { categoryId: 'browsers', id: 'mozilla', title: 'The Mozilla Blog' },
-    { categoryId: 'socials', id: 'mastadon', title: 'Mastodon Blog' },
+    {
+      avatar:
+        'data:image/svg+xml,' +
+        encodeURIComponent(
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">' +
+            '<circle cx="8" cy="8" r="8" fill="#e66000"/></svg>'
+        ),
+      categoryId: 'browsers',
+      id: 'mozilla',
+      title: 'The Mozilla Blog'
+    },
+    {
+      avatar: 'https://NO_SERVER/broken.png',
+      categoryId: 'socials',
+      id: 'mastadon',
+      title: 'Mastodon Blog'
+    },
     { categoryId: 'socials', id: 'bluesky', title: 'Bluesky' }
   ] satisfies Partial<FeedValue>[]
   const POSTS = [

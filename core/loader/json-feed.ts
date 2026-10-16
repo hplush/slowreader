@@ -15,6 +15,7 @@ import {
   findMediaInText,
   getUpdatedAt,
   type Loader,
+  toAvatarUrl,
   toTime
 } from './common.ts'
 
@@ -160,6 +161,12 @@ function parsePosts(
 }
 
 export const jsonFeed: Loader = {
+  getAvatarFromText(text) {
+    let feed = text.parseJson()
+    validate(text.text, feed)
+    return toAvatarUrl(feed.favicon ?? feed.icon, text.url)
+  },
+
   getMineLinksFromText(text) {
     let type = 'application/feed+json'
     let headerLinks = findHeaderLinks(text, type)

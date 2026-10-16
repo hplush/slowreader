@@ -91,10 +91,10 @@
 
       position: relative;
       display: flex;
-      gap: 0.3125rem;
+      gap: 0.5rem;
       align-items: center;
       width: stretch;
-      padding: 0.3125rem 0 0.125rem 0.5rem;
+      padding: 0.3125rem 0 0.125rem 0.625rem;
       color: var(--secondary-text-color);
       background: transparent;
       border-radius: var(--base-radius);
@@ -106,7 +106,7 @@
       }
 
       .navbar-category:not(.is-closable) & {
-        padding-inline-start: 2rem;
+        padding-inline-start: 2.125rem;
         cursor: default;
       }
     }

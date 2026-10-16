@@ -14,6 +14,7 @@
   } from '@slowreader/core'
 
   import Button from '../ui/button.svelte'
+  import FeedAvatar from '../ui/feed-avatar.svelte'
   import Input from '../ui/input.svelte'
   import Label from '../ui/label.svelte'
   import Loader from '../ui/loader.svelte'
@@ -59,15 +60,20 @@
     {/if}
   {/snippet}
   <Stack gap="l">
+    {#if $feed}
+      <Stack align="end" gap="s" row>
+        <FeedAvatar avatar={$feed.avatar} feedId={$feed.id} size="large" />
+        <Input
+          label={$t.title}
+          onchange={title => {
+            changeFeed($feed.id, { title })
+          }}
+          value={$feed.title}
+        />
+      </Stack>
+    {/if}
     <Output label={$t.feedUrl} value={popup.param} />
     {#if $feed}
-      <Input
-        label={$t.title}
-        onchange={title => {
-          changeFeed($feed.id, { title })
-        }}
-        value={$feed.title}
-      />
       <Stack row>
         <Radio
           label={$t.type}

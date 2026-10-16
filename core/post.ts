@@ -86,6 +86,7 @@ export type ReaderMedia = { size?: MediaSize } & PostMedia
  * Only the columns which the post card needs
  */
 export type ReaderPostWith<Media> = {
+  authorAvatar?: null | string
   authorTitle?: string
   authorUrl?: string
   media: Media

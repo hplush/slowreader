@@ -43,6 +43,8 @@
       <Stack justify="space-between" row>
         {#if $feed}
           <FeedLink
+            avatar={$feed.avatar}
+            feedId={$feed.id}
             href={getPopupHash($router, 'feed', $feed.url)}
             title={$feed.title}
           />

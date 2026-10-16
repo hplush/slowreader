@@ -70,7 +70,11 @@ export const feedReader = createReader('feed', (filter, params) => {
         new Map(
           list.map(post => [
             post.feedId,
-            { title: post.authorTitle!, url: post.authorUrl! }
+            {
+              avatar: post.authorAvatar ?? null,
+              title: post.authorTitle!,
+              url: post.authorUrl!
+            }
           ])
         )
       )

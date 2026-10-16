@@ -1,13 +1,26 @@
 <script lang="ts">
+  import FeedAvatar from './feed-avatar.svelte'
+
   let {
+    avatar,
+    avatarSize,
+    feedId,
     href,
     title,
     variant = 'main'
-  }: { href: string; title: string; variant?: 'main' | 'secondary' } = $props()
+  }: {
+    avatar: null | string
+    avatarSize?: 'medium' | 'small'
+    feedId: string
+    href: string
+    title: string
+    variant?: 'main' | 'secondary'
+  } = $props()
 </script>
 
 <div class="feed-link" class:is-secondary={variant === 'secondary'}>
   <a class="feed-link_link" {href}>
+    <FeedAvatar {avatar} {feedId} size={avatarSize} />
     <span class="feed-link_text">{title}</span>
   </a>
 </div>
@@ -24,6 +37,7 @@
       @mixin clickable;
 
       display: flex;
+      gap: 0.5rem;
       align-items: center;
       max-width: 100%;
       height: var(--control-height);

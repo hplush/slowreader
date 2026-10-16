@@ -138,6 +138,27 @@ describe('rss loader', () => {
     )
   })
 
+  test('finds avatar', () => {
+    equal(
+      loaders.rss.getAvatarFromText(
+        exampleRss(
+          `<rss version="2.0">
+            <channel>
+              <image><url> /logo.png </url></image>
+            </channel>
+          </rss>`
+        )
+      ),
+      'https://example.com/logo.png'
+    )
+    equal(
+      loaders.rss.getAvatarFromText(
+        exampleRss('<rss version="2.0"><channel></channel></rss>')
+      ),
+      undefined
+    )
+  })
+
   test('detects titles', () => {
     equal(
       loaders.rss.isMineText(
