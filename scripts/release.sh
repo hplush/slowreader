@@ -196,6 +196,36 @@ echo
 ask "Release $VERSION with these changes? [y/N] "
 [ "$ANSWER" = "y" ] || exit 1
 
+# The demo database must be in the format of the released code. Fixes keep
+# the pinned demo, since the demo workflow builds main, which can be newer.
+if [ "$BRANCH" = "main" ]; then
+  DEMO=hplush/slowreader-demo
+  DEMO_TOKEN=$(curl -fsS "https://ghcr.io/token?scope=repository:$DEMO:pull" \
+    | jq -r .token)
+  demo_digest() {
+    curl -sI "https://ghcr.io/v2/$DEMO/manifests/latest" \
+      -H "Authorization: Bearer $DEMO_TOKEN" \
+      -H "Accept: application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json" \
+      | tr -d '\r' | sed -n 's/^docker-content-digest: //Ip'
+  }
+  OLD_DEMO=$(demo_digest)
+  [ -n "$OLD_DEMO" ] || error "Can’t load $DEMO image"
+  action "Run Demo Database workflow on main branch:"
+  highlight "https://github.com/$REPO/actions/workflows/demo-db.yml"
+  step "Waiting for the demo image"
+  NEW_DEMO=$OLD_DEMO
+  until [ -n "$NEW_DEMO" ] && [ "$NEW_DEMO" != "$OLD_DEMO" ]; do
+    sleep 15
+    NEW_DEMO=$(demo_digest)
+  done
+  sed -i.bak "s|ghcr.io/$DEMO@sha256:[0-9a-f]*|ghcr.io/$DEMO@$NEW_DEMO|" \
+    "$ROOT/Dockerfile"
+  rm "$ROOT/Dockerfile.bak"
+  git -C "$ROOT" add Dockerfile
+  git -C "$ROOT" commit --no-verify -m "Update demo database"
+  success "Demo database is updated"
+fi
+
 {
   echo "# Change Log"
   echo

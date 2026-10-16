@@ -318,7 +318,7 @@ The image has the `/health` endpoint for the container health check.
 
 We keep the image small and build every part in its own stage with only its own dependencies, so a malicious web client dependency can’t change the server code.
 
-The build is reproducible: anyone can build the same image from the same commit and check that we run the published source code. Time-sensitive files (demo database and landing screenshots) come from a separated image, which [Demo Database workflow](./.github/workflows/demo-db.yml) builds every Monday.
+The build is reproducible: anyone can build the same image from the same commit and check that we run the published source code. Time-sensitive files (demo database and landing screenshots) come from a separated image, which [Demo Database workflow](./.github/workflows/demo-db.yml) builds before every weekly release.
 
 Other environment variables:
 
@@ -350,11 +350,12 @@ We release every week. Version is `MAJOR.DATE.PATCH` like `0.20261012.1`: `DATE`
      1. Run `git switch release && git pull`.
      2. Run `git cherry-pick COMMIT` for every fix from `main`.
      3. Run `./scripts/release.sh fix`. After pushing the release it merges `release` back to `main`. If merge has conflicts, resolve them and push `main`.
-2. It moves [`unreleased-changes/`](./unreleased-changes/) to [`CHANGELOG.md`](./CHANGELOG.md), updates the version, tags the release, and waits for the image from [release workflow](./.github/workflows/release.yml).
-3. It asks to touch the hardware key from [`verifier/allowed_signers`](./verifier/allowed_signers) to sign the image.
-4. It asks to paste the signature as a comment to `release` environment approval.
-5. It waits for [verifier](./verifier/) to check the image.
-6. It asks 1 hour API key of `deploy` IAM application from [Scaleway console](https://console.scaleway.com/iam/api-keys) and deploys the image to production by digest.
+2. On weekly release it asks to run [Demo Database workflow](./.github/workflows/demo-db.yml) and pins the new demo image. Quick fixes keep the pinned demo.
+3. It moves [`unreleased-changes/`](./unreleased-changes/) to [`CHANGELOG.md`](./CHANGELOG.md), updates the version, tags the release, and waits for the image from [release workflow](./.github/workflows/release.yml).
+4. It asks to touch the hardware key from [`verifier/allowed_signers`](./verifier/allowed_signers) to sign the image.
+5. It asks to paste the signature as a comment to `release` environment approval.
+6. It waits for [verifier](./verifier/) to check the image.
+7. It asks 1 hour API key of `deploy` IAM application from [Scaleway console](https://console.scaleway.com/iam/api-keys) and deploys the image to production by digest.
 
 ### Self-Hosted
 

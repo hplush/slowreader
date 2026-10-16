@@ -1,17 +1,5 @@
 name: Demo Database
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'web/demo/build-demo-db.ts'
-      - 'web/demo/demo-feeds.opml'
-      - '.github/workflows/demo-db.yml'
-      - 'web/demo/Dockerfile'
-      - 'landings/scripts/screenshots.ts'
-      - 'landings/og/**'
-      - 'landings/vite/og.ts'
-      - 'landings/chromium.ts'
   pull_request:
     paths:
       - 'web/demo/build-demo-db.ts'
@@ -22,9 +10,7 @@ on:
       - 'landings/og/**'
       - 'landings/vite/og.ts'
       - 'landings/chromium.ts'
-  schedule:
-    - cron: '00 05 * * 1' # Every Monday at 5:00 UTC
-  # To refresh the posts right before a demo
+  # Release script asks to run it, also to refresh the posts before a demo
   workflow_dispatch:
 jobs:
   build:
