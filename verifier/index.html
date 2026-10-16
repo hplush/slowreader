@@ -55,9 +55,15 @@
         margin: 1.6em 0 0;
         font-size: inherit;
       }
-      /* Empty line between the title and the checks, like in terminal */
       h1 {
+        margin: 0;
+      }
+      /* Empty line between the totals and the checks, like in terminal */
+      .totals {
         margin: 0 0 1.6em;
+      }
+      .totals span:not(.sr) {
+        font-weight: bold;
       }
       h1 a {
         color: inherit;
@@ -202,12 +208,15 @@
   </head>
   <body>
     <main>
-      <h1 aria-live="polite">
-        <a href="https://slowreader.app">Slow Reader</a> Verification Status:
-        <span id="percent" class="loading" aria-hidden="true">⠋</span>
-        <span id="percent-text" class="sr">Counting</span>
-        <span class="normal">verified and available</span>
+      <h1>
+        <a href="https://slowreader.app">Slow Reader</a> Verification Status
       </h1>
+      <p class="totals" aria-live="polite">
+        <span id="verified" class="loading" aria-hidden="true">⠋</span>
+        <span id="verified-text" class="sr">Counting</span> verified<br />
+        <span id="available" class="loading" aria-hidden="true">⠋</span>
+        <span id="available-text" class="sr">Counting</span> available
+      </p>
       <ul id="checks" aria-live="polite">
         <li>
           <span class="loading" aria-hidden="true">⠋</span>
@@ -878,6 +887,17 @@ done</pre>
         openNear(document.getElementById('day'), button)
       }
 
+      // Show share of good checks, rounded down to never show 100% with problems
+      function showPercent(id, checks, problems) {
+        let percent = checks
+          ? `${Math.floor(((checks - problems) / checks) * 100)}%`
+          : '–%'
+        let percentMark = document.getElementById(id)
+        percentMark.className = ''
+        percentMark.textContent = percent
+        document.getElementById(`${id}-text`).textContent = percent
+      }
+
       // Show site checks and count share of good checks
       async function showDays() {
         // Today with the hourly bar
@@ -925,18 +945,13 @@ done</pre>
         let shown = index.days.filter(
           i => i.day >= `${[...rows.keys()].at(-1)}-01`
         )
-        // Count of checks and problems for the percent
+        // Count of checks, failed checks, and checks of down server
         let checks = shown.reduce((sum, i) => sum + i.checks, 0)
-        let problems = shown.reduce((sum, i) => sum + i.problems, 0)
-        // Share of good checks, rounded down to never show 100% with problems
-        let percent = checks
-          ? `${Math.floor(((checks - problems) / checks) * 100)}%`
-          : '–%'
-        // Show the percent
-        let percentMark = document.getElementById('percent')
-        percentMark.className = ''
-        percentMark.textContent = percent
-        document.getElementById('percent-text').textContent = percent
+        let fails = shown.reduce((sum, i) => sum + i.fails, 0)
+        let downs = shown.reduce((sum, i) => sum + i.downs, 0)
+        // Down server has nothing to verify
+        showPercent('verified', checks - downs, fails)
+        showPercent('available', checks, downs)
       }
 
       // Releases need no network

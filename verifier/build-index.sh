@@ -19,11 +19,13 @@ RELEASES=$(find releases -name '*[0-9].json' -exec cat {} + |
 DAYS=$(for file in checks/*.txt; do
   # Skip the pattern itself when there are no files yet
   [ -f "$file" ] || continue
-  # Day name, count of check lines, and count of failed checks
+  # Day name, count of check lines, failed checks, and checks of down server
   jq -n --arg day "$(basename "$file" .txt)" \
     --argjson checks "$(grep -c '^[0-9]' "$file" || true)" \
-    --argjson problems "$(grep -cE '^[0-9:]+ (fail|down)' "$file" || true)" \
-    '{day: $day, checks: $checks, problems: $problems}'
+    --argjson fails "$(grep -cE '^[0-9:]+ fail' "$file" || true)" \
+    --argjson downs "$(grep -cE '^[0-9:]+ down' "$file" || true)" \
+    '{day: $day, checks: $checks, fails: $fails, downs: $downs,
+      problems: ($fails + $downs)}'
 done | jq -s 'sort_by(.day) | reverse')
 # Index for the page
 jq -n --argjson releases "$RELEASES" --argjson days "$DAYS" \
