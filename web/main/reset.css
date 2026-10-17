@@ -66,3 +66,9 @@ fieldset,
 dialog {
   border: none;
 }
+
+/* Replace CanvasText color from browser styles */
+
+dialog {
+  color: inherit;
+}

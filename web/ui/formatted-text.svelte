@@ -140,14 +140,14 @@
     }
 
     .formatted-text a {
-      color: var(--link-color);
+      color: var(--url-color);
       overflow-wrap: break-word;
       text-decoration: underline;
       opacity: 100%;
     }
 
     .formatted-text a:visited {
-      color: var(--link-color-visited);
+      color: var(--url-visited-color);
     }
 
     .formatted-text a:hover {
