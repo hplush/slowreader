@@ -53,6 +53,18 @@ describe('html', () => {
     )
   })
 
+  test('keeps only emoji class', () => {
+    equal(
+      sanitize(
+        '<p class="emoji">A<img class="emoji big" src="https://a.com/e.png">' +
+          '<img class="photo" src="https://a.com/p.png"></p>'
+      ),
+      '<p>A<img class="emoji" src="https://a.com/e.png" loading="eager" ' +
+        'decoding="async"><img src="https://a.com/p.png" loading="eager" ' +
+        'decoding="async"></p>'
+    )
+  })
+
   test('keeps picture sources', () => {
     equal(
       sanitize(

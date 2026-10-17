@@ -213,6 +213,12 @@ function getPurify(): ReturnType<typeof createDOMPurify> {
     DOMPurify.addHook('uponSanitizeAttribute', (node, data) => {
       if (data.attrName === 'id' && !ID_TAGS.has(node.localName)) {
         data.keepAttr = false
+      } else if (data.attrName === 'class') {
+        // Emoji should stay inside the text line, unlike other images
+        data.keepAttr =
+          node.localName === 'img' &&
+          data.attrValue.split(' ').includes('emoji')
+        data.attrValue = 'emoji'
       }
     })
   }
@@ -271,6 +277,7 @@ export function sanitizeDOM(html: string): Element {
       'align',
       'alt',
       'cite',
+      'class',
       'colspan',
       'datetime',
       'default',

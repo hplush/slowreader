@@ -50,7 +50,7 @@ function somePrevClass(
   return false
 }
 
-const ALLOW_GLOBAL = /^(has-[a-z-]+|is-[a-z-]+|card)$/
+const ALLOW_GLOBAL = /^(has-[a-z-]+|is-[a-z-]+|card|emoji)$/
 
 function isGlobalModifier(node: ClassName): boolean {
   return ALLOW_GLOBAL.test(node.value)

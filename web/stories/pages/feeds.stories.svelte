@@ -11,6 +11,7 @@
   import FeedsPage from '../../pages/feeds/index.svelte'
   import Navbar from '../../ui/navbar/index.svelte'
   import imgExample from '../assets/long_width_example.avif'
+  import emojiExample from '../assets/short_width_example.avif'
   import Scene from '../scene.svelte'
 
   const POSTS = [
@@ -72,6 +73,10 @@
     }
   ] satisfies Partial<PostValue>[]
 
+  const EMOJI =
+    `<img class="emoji" src="${new URL(emojiExample, location.href).href}" ` +
+    'alt=":blob:" title=":blob:">'
+
   const AUTHOR = {
     avatar: imgExample,
     title: 'Jane Doe',
@@ -82,7 +87,7 @@
     {
       author: AUTHOR,
       feedId: 'mastodon',
-      full: '<p>Reposted post with a link card</p>',
+      full: `<p>Reposted post with a link card ${EMOJI}</p>`,
       intro: null,
       preview: {
         description: 'Description of the link from the page’s meta tags',
@@ -100,7 +105,7 @@
       intro: null,
       publishedAt: 5,
       reading: 'fast',
-      warning: 'Movie spoilers'
+      warning: `Movie spoilers ${EMOJI}`
     },
     {
       feedId: 'mastodon',

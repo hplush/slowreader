@@ -92,6 +92,15 @@
       &[align='right'] {
         margin-inline-start: 1em;
       }
+
+      &.emoji {
+        display: inline;
+        width: auto;
+        height: 1.2em;
+        padding: 0;
+        margin: 0;
+        vertical-align: -0.25em;
+      }
     }
 
     .formatted-text p {

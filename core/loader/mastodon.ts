@@ -22,10 +22,17 @@ import {
   toTime
 } from './common.ts'
 
+// https://docs.joinmastodon.org/entities/CustomEmoji/
+interface MastodonEmoji {
+  shortcode: string
+  static_url: string
+}
+
 // https://docs.joinmastodon.org/entities/Account/
 interface MastodonAccount {
   avatar: string
   display_name: string
+  emojis?: MastodonEmoji[]
   id: string
   url: string
   username: string
@@ -63,6 +70,7 @@ interface MastodonStatus {
   content: string
   created_at: string
   edited_at: null | string
+  emojis?: MastodonEmoji[]
   id: string
   media_attachments: MastodonMedia[]
   poll: null | object
@@ -75,6 +83,8 @@ interface MastodonStatus {
 }
 
 const PROFILE = /^\/@([^/]+)\/?$/
+
+const SHORTCODE = /:(\w{2,}):/g
 
 const POPULAR = new Set([
   'fosstodon.org',
@@ -137,26 +147,73 @@ function getMeta(response: TextResponse, property: string): string | undefined {
   )
 }
 
+/**
+ * Names are plain text in menus and labels, so we do not show emoji there
+ */
+function removeShortcodes(name: string): string {
+  return name
+    .replace(SHORTCODE, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+}
+
 function toAuthor(account: MastodonAccount): PostAuthor {
   let author: PostAuthor = {
-    title: account.display_name || account.username,
+    title: removeShortcodes(account.display_name) || account.username,
     url: account.url
   }
   if (account.avatar) author.avatar = account.avatar
   return author
 }
 
+function addEmojis(parent: Node, images: Map<string, string>): void {
+  // Copy, since replaceWith() changes live childNodes during the loop
+  for (let node of Array.from(parent.childNodes)) {
+    if (node.nodeType === node.TEXT_NODE) {
+      // split() puts shortcodes from the RegExp group to odd indexes
+      let parts = node.textContent!.split(SHORTCODE)
+      if (parts.length === 1) continue
+      node.replaceWith(
+        ...parts.map((part, index) => {
+          let url = index % 2 === 1 ? images.get(part) : undefined
+          if (!url) return index % 2 === 1 ? `:${part}:` : part
+          let image = node.ownerDocument!.createElement('img')
+          image.className = 'emoji'
+          image.src = url
+          image.alt = `:${part}:`
+          image.title = `:${part}:`
+          return image
+        })
+      )
+    } else if (!['a', 'code', 'pre'].includes((node as Element).localName)) {
+      addEmojis(node, images)
+    }
+  }
+}
+
 /**
  * Mastodon hides parts of links and the quote’s link for old clients
  * by classes, which sanitizer will remove.
  */
-function cleanContent(html: string): string {
-  if (!html.includes('class="')) return html
+function cleanContent(html: string, emojis: MastodonEmoji[] = []): string {
+  if (!html.includes('class="') && emojis.length === 0) return html
   let document = parseDocument(html)
   for (let hidden of document.querySelectorAll('.invisible, .quote-inline')) {
     hidden.remove()
   }
   for (let cut of document.querySelectorAll('.ellipsis')) cut.append('…')
+  addEmojis(document.body, toEmojiMap(emojis))
+  return document.body.innerHTML
+}
+
+function toEmojiMap(emojis: MastodonEmoji[]): Map<string, string> {
+  return new Map(emojis.map(emoji => [emoji.shortcode, emoji.static_url]))
+}
+
+function textToHtml(text: string, emojis: MastodonEmoji[] = []): string {
+  let document = parseDocument('')
+  document.body.textContent = text
+  addEmojis(document.body, toEmojiMap(emojis))
   return document.body.innerHTML
 }
 
@@ -202,14 +259,16 @@ function parsePreview(card: MastodonCard | null): PostPreview | undefined {
 function parseContent(status: MastodonStatus): Omit<ParsedPost, 'originId'> {
   let publishedAt = toTime(status.created_at)
   let post: Omit<ParsedPost, 'originId'> = {
-    full: cleanContent(status.content),
+    full: cleanContent(status.content, status.emojis),
     publishedAt,
     url: status.url ?? status.uri,
     ...parseMedia(status)
   }
   let preview = parsePreview(status.card)
   if (preview) post.preview = preview
-  if (status.spoiler_text) post.warning = status.spoiler_text
+  if (status.spoiler_text) {
+    post.warning = textToHtml(status.spoiler_text, status.emojis)
+  }
   let updatedAt = getUpdatedAt(publishedAt, toTime(status.edited_at))
   if (updatedAt) post.updatedAt = updatedAt
   return post
@@ -332,7 +391,10 @@ export const mastodon: Loader = {
   isMineText(text) {
     if (!isProfile(text)) return false
     let title = getMeta(text, 'og:title') ?? ''
-    return title.replace(/\s*\(@[^)]+\)$/, '') || getApi(text.url).acct
+    return (
+      removeShortcodes(title.replace(/\s*\(@[^)]+\)$/, '')) ||
+      getApi(text.url).acct
+    )
   },
 
   isMineUrl(url) {

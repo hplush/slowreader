@@ -4,6 +4,7 @@
   import type { Snippet } from 'svelte'
 
   import Button from '../button.svelte'
+  import FormattedText from '../formatted-text.svelte'
   import Icon from '../icon.svelte'
 
   let {
@@ -23,7 +24,7 @@
       <span class="post-warning_icon">
         <Icon path={mdiAlertOutline} />
       </span>
-      {warning}
+      <FormattedText html={warning} simple />
     </div>
     <div class="post-warning_button">
       <Button

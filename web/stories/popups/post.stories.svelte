@@ -12,8 +12,13 @@
 
   import PostPopupComponent from '../../popups/post.svelte'
   import imgExample from '../assets/long_width_example.avif'
+  import emojiExample from '../assets/short_width_example.avif'
   import LoadedPopup from '../loaded-popup.svelte'
   import Scene from '../scene.svelte'
+
+  const EMOJI =
+    `<img class="emoji" src="${new URL(emojiExample, location.href).href}" ` +
+    'alt=":blob:" title=":blob:">'
 
   const FEED = {
     id: 'feed',
@@ -44,7 +49,7 @@
     },
     feedId: 'mastodon',
     full:
-      '<p>Reposted post with all Mastodon features, ' +
+      `<p>${EMOJI} Reposted post with all Mastodon features, ` +
       'which Slow Reader supports.</p>',
     media: [
       {
@@ -190,7 +195,7 @@
         quoted: { missing: true },
         reading: 'slow',
         url: 'https://mastodon.social/@Mastodon/2',
-        warning: 'Movie spoilers'
+        warning: `Movie spoilers ${EMOJI}`
       }
     ]}
   >
@@ -230,7 +235,7 @@
         ],
         reading: 'slow',
         url: 'https://mastodon.social/@Mastodon/2',
-        warning: 'Movie spoilers'
+        warning: `Movie spoilers ${EMOJI}`
       }
     ]}
   >

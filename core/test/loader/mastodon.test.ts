@@ -6,6 +6,7 @@ import {
   createTextResponse,
   loaders,
   ParseError,
+  type ParsedPost,
   setupEnvironment,
   testFeed
 } from '../../index.ts'
@@ -410,6 +411,87 @@ describe('mastodon loader', () => {
         broken
       ).loading
     }
+  })
+
+  test('adds custom emoji', async () => {
+    let blob = { shortcode: 'blob', static_url: 'https://a.social/blob.png' }
+    let image =
+      '<img class="emoji" src="https://a.social/blob.png" ' +
+      'alt=":blob:" title=":blob:">'
+    expectRequest(
+      `${API}/accounts/saved/statuses?exclude_replies=true`
+    ).andRespond(
+      200,
+      JSON.stringify([
+        status('1', {
+          account: account('jane', {
+            display_name: 'Jane :verified: :blob:',
+            emojis: [blob]
+          }),
+          content:
+            '<p>Hi :blob: :unknown: <a href="https://a.social/">:blob:</a></p>',
+          emojis: [blob],
+          reblog: status('2', {
+            account: account('bob', { display_name: ':verified:' }),
+            content: '<p>:blob:</p>',
+            emojis: [blob],
+            spoiler_text: 'Tom & :blob:'
+          })
+        })
+      ]),
+      'application/json'
+    )
+    let posts = loaders.mastodon.getPosts(
+      createDownloadTask(),
+      'https://mastodon.social/@jane',
+      undefined,
+      undefined,
+      '{"id":"saved"}'
+    )
+    let { list } = (await loadedPostsValue(posts)) as { list: ParsedPost[] }
+    let post = list[0]!
+    equal(post.full, `<p>${image}</p>`)
+    equal(post.warning, `Tom &amp; ${image}`)
+    equal(post.author?.title, 'bob')
+    equal(post.repostedBy?.title, 'Jane')
+
+    expectRequest(
+      `${API}/accounts/saved/statuses?exclude_replies=true`
+    ).andRespond(
+      200,
+      JSON.stringify([
+        status('3', {
+          content:
+            '<p>Hi :blob: :unknown: <a href="https://a.social/">:blob:</a></p>',
+          emojis: [blob]
+        })
+      ]),
+      'application/json'
+    )
+    let text = loaders.mastodon.getPosts(
+      createDownloadTask(),
+      'https://mastodon.social/@jane',
+      undefined,
+      undefined,
+      '{"id":"saved"}'
+    )
+    let { list: other } = (await loadedPostsValue(text)) as {
+      list: ParsedPost[]
+    }
+    equal(
+      other[0]!.full,
+      `<p>Hi ${image} :unknown: <a href="https://a.social/">:blob:</a></p>`
+    )
+
+    equal(
+      loaders.mastodon.isMineText(
+        profile(
+          'https://mastodon.social/@jane',
+          PROFILE.replace('Jane Doe (', 'Jane :verified: Doe (')
+        )
+      ),
+      'Jane Doe'
+    )
   })
 
   test('validates API answers', async () => {
