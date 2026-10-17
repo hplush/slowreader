@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiEyeCheckOutline, mdiOpenInNew, mdiReply } from '@mdi/js'
+  import { mdiEyeCheckOutline, mdiOpenInNew } from '@mdi/js'
   import {
     getPopupId,
     type PostPopup,
@@ -21,7 +21,7 @@
 
   let { popup }: { popup: PostPopup } = $props()
 
-  let { feed, post, publishedAt, read, replyUrl } = $derived(popup)
+  let { feed, post, publishedAt, read } = $derived(popup)
 
   onMount(() => {
     if (popup.read) {
@@ -80,11 +80,6 @@
             variant="attention"
           >
             {$t.url}
-          </Button>
-        {/if}
-        {#if $replyUrl}
-          <Button href={$replyUrl} icon={mdiReply} size="wide" target="_blank">
-            {$t.reply}
           </Button>
         {/if}
         {#if popup.read}
