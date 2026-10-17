@@ -12,6 +12,7 @@ import {
 } from '@slowreader/core'
 import { getTestEnvironment } from '@slowreader/core/test'
 import { atom, effect } from 'nanostores'
+import { SQLiteMemoryDriver, SQLocalProcessor } from 'sqlocal'
 
 import { mobileMedia, tabletMedia } from '../stores/media-queries.ts'
 
@@ -54,7 +55,13 @@ setupEnvironment({
   ...getTestEnvironment(),
   baseRouter,
   databaseCreator() {
-    return openDb(sqlocalDriver(':memory:'))
+    // SQLite deletes the config after the start
+    Object.assign(globalThis, { sqlite3ApiConfig: { warn() {} } })
+    return openDb(
+      sqlocalDriver(':memory:', {
+        processor: new SQLocalProcessor(new SQLiteMemoryDriver())
+      })
+    )
   },
   dumpDatabase() {
     return Promise.resolve(new Blob(['SQLite format 3\0']))

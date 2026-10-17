@@ -8,6 +8,8 @@ export default {
     '@storybook/addon-a11y'
   ],
   core: {
+    // Dev Container exposes Storybook by --host 0.0.0.0
+    allowedHosts: true,
     disableTelemetry: true
   },
   features: {
