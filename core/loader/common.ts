@@ -16,6 +16,11 @@ export type Loader = {
   getMineLinksFromText(response: TextResponse): string[]
 
   /**
+   * Data to save in the feed and to pass to `getPosts()` on refresh.
+   */
+  getLoaderData?(task: DownloadTask, url: string): Promise<string | undefined>
+
+  /**
    * Extracts the feed's posts.
    *
    * If the URL’s document was already downloaded during the feed’s search.
@@ -27,7 +32,8 @@ export type Loader = {
     task: DownloadTask,
     url: string,
     text?: TextResponse,
-    refreshedAt?: number
+    refreshedAt?: number,
+    loaderData?: null | string
   ): PostsList
 
   /**
@@ -41,6 +47,11 @@ export type Loader = {
    * For instance, by parsing <meta> or guessing URLs like `/rss` for RSS.
    */
   getSuggestedLinksFromText(response: TextResponse): string[]
+
+  /**
+   * Other feeds with the same posts, but less data, like RSS of social profile.
+   */
+  getSupersededLinksFromText?(response: TextResponse): string[]
 
   /**
    * Detects that document is a loader’s feed.

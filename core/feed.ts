@@ -55,6 +55,7 @@ export type RefreshFeed = Pick<
   | 'lastOriginId'
   | 'lastPublishedAt'
   | 'loader'
+  | 'loaderData'
   | 'refreshedAt'
   | 'title'
   | 'url'
@@ -62,7 +63,7 @@ export type RefreshFeed = Pick<
 
 export function loadFeedsForRefresh(): Promise<RefreshFeed[]> {
   return getCrdt().select<RefreshFeed>`
-    SELECT "id", "title", "url", "loader", "refreshedAt",
+    SELECT "id", "title", "url", "loader", "loaderData", "refreshedAt",
       "lastOriginId", "lastPublishedAt"
     FROM "feeds" ORDER BY "title"
   `
@@ -121,7 +122,17 @@ export async function addCandidate(
   task = createDownloadTask(),
   response?: TextResponse
 ): Promise<string> {
-  let posts = candidate.loader.getPosts(task, candidate.url, response)
+  let loaderData = await candidate.loader
+    .getLoaderData?.(task, candidate.url)
+    // getPosts() will look for it again and will show the error
+    .catch(() => undefined)
+  let posts = candidate.loader.getPosts(
+    task,
+    candidate.url,
+    response,
+    undefined,
+    loaderData
+  )
   if (posts.get().isLoading) await posts.loading
   let lastPost = posts.get().list[0]
 
@@ -130,6 +141,7 @@ export async function addCandidate(
     lastOriginId: lastPost?.originId,
     lastPublishedAt: lastPost?.publishedAt ?? Math.round(Date.now() / 1000),
     loader: candidate.name,
+    loaderData,
     reading: 'slow' as const,
     title: candidate.title,
     url: candidate.url,
@@ -146,14 +158,15 @@ export async function addCandidate(
 }
 
 export function getFeedLatestPosts(
-  feed: Pick<FeedValue, 'loader' | 'refreshedAt' | 'url'>,
+  feed: Pick<FeedValue, 'loader' | 'loaderData' | 'refreshedAt' | 'url'>,
   task = createDownloadTask()
 ): PostsList {
   return loaders[feed.loader].getPosts(
     task,
     feed.url,
     undefined,
-    feed.refreshedAt ?? undefined
+    feed.refreshedAt ?? undefined,
+    feed.loaderData
   )
 }
 
@@ -214,6 +227,7 @@ export function testFeed(
     lastOriginId: null,
     lastPublishedAt: null,
     loader: 'rss',
+    loaderData: null,
     reading: 'fast',
     refreshedAt: null,
     slowReader: null,

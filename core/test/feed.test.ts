@@ -2,9 +2,12 @@ import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
+  addCandidate,
   addFeed,
   deleteFeed,
+  getFeedLatestPosts,
   loadFeed,
+  loaders,
   testFeed,
   updateFeedAvatar
 } from '../index.ts'
@@ -37,6 +40,35 @@ describe('feed', () => {
   async function getAvatar(feedId: string): Promise<null | string | undefined> {
     return (await loadFeed(feedId))?.avatar
   }
+
+  test('keeps loader data', async () => {
+    let candidate = {
+      loader: loaders.mastodon,
+      name: 'mastodon' as const,
+      title: 'Jane',
+      url: 'https://mastodon.social/@jane'
+    }
+    let statuses =
+      'https://mastodon.social/api/v1/accounts/1/statuses?exclude_replies=true'
+    expectRequest(
+      'https://mastodon.social/api/v1/accounts/lookup?acct=jane'
+    ).andRespond(200, '{"id":"1"}', 'application/json')
+    expectRequest(statuses).andRespond(200, '[]', 'application/json')
+    let feed = await loadFeed(await addCandidate(candidate))
+    equal(feed!.loaderData, '{"id":"1"}')
+
+    expectRequest(statuses).andRespond(200, '[]', 'application/json')
+    await getFeedLatestPosts(feed!).loading
+
+    expectRequest(
+      'https://mastodon.social/api/v1/accounts/lookup?acct=jane'
+    ).andRespond(404)
+    expectRequest(
+      'https://mastodon.social/api/v1/accounts/lookup?acct=jane'
+    ).andRespond(404)
+    let broken = await loadFeed(await addCandidate(candidate))
+    equal(broken!.loaderData, null)
+  })
 
   test('takes avatar from the feed', async () => {
     let feedId = await addFeed(

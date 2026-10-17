@@ -48,6 +48,10 @@ function normalizeUrl(url: string): string {
   return url.replace(/\/$/, '')
 }
 
+function toLinkKey(url: string): string {
+  return normalizeUrl(url.replace(/^https?:\/\//, 'https://'))
+}
+
 function findSimilarUrl(links: AddLinksValue, url: string): string | undefined {
   let normalized = normalizeUrl(url)
   return Object.keys(links).find(i => normalizeUrl(i) === normalized)
@@ -86,11 +90,19 @@ export const addPage = createPage('add', () => {
 
   let openedFeedMixin = injectOpenedFeed()
 
-  let $sortedCandidates = computed($candidates, candidates => {
-    return candidates.toSorted((a, b) => {
-      return a.title.localeCompare(b.title)
-    })
-  })
+  /**
+   * Keys of feeds which other candidates replace with more data
+   */
+  let $superseded = atom<string[]>([])
+
+  let $sortedCandidates = computed(
+    [$candidates, $superseded],
+    (candidates, superseded) => {
+      return candidates
+        .filter(i => !superseded.includes(toLinkKey(i.url)))
+        .toSorted((a, b) => a.title.localeCompare(b.title))
+    }
+  )
 
   let httpsTest = false
   let $searching = computed($links, links => {
@@ -110,6 +122,7 @@ export const addPage = createPage('add', () => {
   function reset(): void {
     debouncedInput.cancel()
     $links.set({})
+    $superseded.set([])
     $candidates.set([])
     prevTask?.destroy()
   }
@@ -155,7 +168,7 @@ export const addPage = createPage('add', () => {
   function dedupeLinks(links: string[]): string[] {
     let seen = new Set<string>()
     return links.filter(link => {
-      let key = link.replace(/^https?:\/\//, 'https://')
+      let key = toLinkKey(link)
       if (seen.has(key)) return false
       seen.add(key)
       return true
@@ -249,11 +262,18 @@ export const addPage = createPage('add', () => {
         return
       }
       let byText = getLoaderForText(response)
+      if (byText) {
+        let superseded =
+          byText.loader.getSupersededLinksFromText?.(response) ?? []
+        $superseded.set([...$superseded.get(), ...superseded.map(toLinkKey)])
+      }
       if (!deep) {
-        let links = getLinksFromText(response)
+        let links = getLinksFromText(response).filter(
+          i => !$superseded.get().includes(toLinkKey(i))
+        )
         if (links.length > 0) {
           await Promise.all(links.map(i => addLink(task, i, true)))
-        } else if ($candidates.get().length === 0) {
+        } else if (!byText && $candidates.get().length === 0) {
           let suggested = getSuggestedLinksFromText(response)
           await Promise.all(suggested.map(i => addLink(task, i, true)))
         }

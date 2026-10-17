@@ -34,6 +34,20 @@ feeds:
     url: http://chrome.blogspot.com/feeds/posts/default
     findFromHome: false
 
+  # Mastodon
+
+  - title: Mastodon Official
+    url: https://mastodon.social/@Mastodon
+    homeUrl: https://mastodon.social/@Mastodon
+
+  - title: Mastodon Not Popular Server
+    url: https://mastodon.art/@Curator
+    homeUrl: https://mastodon.art/@Curator
+
+  - title: Mastodon Glitch-soc Fork
+    url: https://infosec.exchange/@briankrebs
+    homeUrl: https://infosec.exchange/@briankrebs
+
   # Edge Cases
 
   - title: Wrong Content Type

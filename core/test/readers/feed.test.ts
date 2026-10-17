@@ -245,6 +245,34 @@ describe('feed reader', () => {
     )
   })
 
+  test('loads social fields', async () => {
+    let feedId = await addFeed(testFeed({ fastReader: 'feed' }))
+    let social = {
+      author: { title: 'Author' },
+      preview: { url: 'https://example.com/' },
+      quoted: { missing: true },
+      repostedBy: { title: 'Reposter' },
+      unsupported: true,
+      warning: 'Spoiler'
+    }
+    await addPost(testPost({ feedId, reading: 'fast', ...social }))
+
+    let page = openPage({ params: { feed: feedId }, route: 'fast' })
+    await waitLoading(page.loading)
+    let post = ensureReader(page.posts, 'feed').list.get()[0]!
+    deepEqual(
+      {
+        author: post.author,
+        preview: post.preview,
+        quoted: post.quoted,
+        repostedBy: post.repostedBy,
+        unsupported: post.unsupported,
+        warning: post.warning
+      },
+      social
+    )
+  })
+
   test('does not skip posts changed by another client', async () => {
     let feedId = await addFeed(testFeed({ fastReader: 'feed' }))
     for (let i = 1; i <= 50; i++) {

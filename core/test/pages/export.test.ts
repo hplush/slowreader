@@ -116,6 +116,7 @@ describe('export page', () => {
           lastOriginId: null,
           lastPublishedAt: null,
           loader: 'rss',
+          loaderData: null,
           reading: 'fast',
           refreshedAt: null,
           slowReader: null,

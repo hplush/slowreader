@@ -72,6 +72,87 @@
     }
   ] satisfies Partial<PostValue>[]
 
+  const AUTHOR = {
+    avatar: imgExample,
+    title: 'Jane Doe',
+    url: 'https://mastodon.social/@jane'
+  }
+
+  const MASTODON = [
+    {
+      author: AUTHOR,
+      feedId: 'mastodon',
+      full: '<p>Reposted post with a link card</p>',
+      intro: null,
+      preview: {
+        description: 'Description of the link from the page’s meta tags',
+        image: imgExample,
+        title: 'Link title',
+        url: 'https://example.com/article'
+      },
+      publishedAt: 6,
+      reading: 'fast',
+      repostedBy: { title: 'Mastodon' }
+    },
+    {
+      feedId: 'mastodon',
+      full: '<p>Spoiler of the movie</p>',
+      intro: null,
+      publishedAt: 5,
+      reading: 'fast',
+      warning: 'Movie spoilers'
+    },
+    {
+      feedId: 'mastodon',
+      full: '<p>Photos and video with alt text</p>',
+      intro: null,
+      media: [
+        { alt: 'Wide image', sensitive: true, type: 'image', url: imgExample },
+        {
+          alt: 'Video',
+          poster: imgExample,
+          sensitive: true,
+          type: 'video',
+          url: 'https://example.com/video.mp4'
+        },
+        {
+          alt: 'GIF',
+          poster: imgExample,
+          sensitive: true,
+          type: 'video;mode=gif',
+          url: 'https://example.com/gif.mp4'
+        }
+      ],
+      mediaSizes: [{ height: 480, width: 1920 }, null, null],
+      publishedAt: 4,
+      reading: 'fast'
+    },
+    {
+      feedId: 'mastodon',
+      full: '<p>Quoting other post</p>',
+      intro: null,
+      publishedAt: 3,
+      quoted: {
+        author: AUTHOR,
+        full: '<p>Quoted post, which quotes another one</p>',
+        media: [{ type: 'image', url: imgExample }],
+        missing: false,
+        quotedUrl: 'https://mastodon.social/@other/2',
+        url: 'https://mastodon.social/@jane/1'
+      },
+      reading: 'fast'
+    },
+    {
+      feedId: 'mastodon',
+      full: '<p>Quoting deleted post with a poll</p>',
+      intro: null,
+      publishedAt: 2,
+      quoted: { missing: true },
+      reading: 'fast',
+      unsupported: true
+    }
+  ] satisfies Partial<PostValue>[]
+
   /**
    * Readers load only unread posts, so the read style is visible only
    * for the posts, which the user read without leaving the page.
@@ -247,6 +328,24 @@
       }
     ]}
     posts={POSTS.map(i => ({ ...i, reading: 'fast' }))}
+    route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
+  >
+    <FeedsPage page={pages.fast()} />
+  </Scene>
+</Story>
+
+<Story name="Feed Mastodon" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[
+      {
+        id: 'mastodon',
+        loader: 'mastodon',
+        reading: 'fast',
+        title: 'Mastodon',
+        url: 'https://mastodon.social/@Mastodon'
+      }
+    ]}
+    posts={MASTODON}
     route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
   >
     <FeedsPage page={pages.fast()} />

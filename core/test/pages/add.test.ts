@@ -223,6 +223,68 @@ describe('add page', () => {
     equal(page.noResults.get(), false)
   })
 
+  test('uses Mastodon profile instead of its RSS', async () => {
+    let page = openPage({
+      params: {},
+      route: 'add'
+    })
+    keepMount(page.searching)
+    keepMount(page.candidates)
+
+    let profile =
+      '<!DOCTYPE html><html><head>' +
+      '<link href="https://mastodon.social/@jane.rss" rel="alternate" ' +
+      'type="application/rss+xml">' +
+      '<link href="https://mastodon.social/users/jane" rel="alternate" ' +
+      'type="application/activity+json">' +
+      '<meta content="Jane (@jane@mastodon.social)" property="og:title">' +
+      '</head></html>'
+    expectRequest('https://mastodon.social/@jane/1').andRespond(200, profile)
+    expectRequest('https://mastodon.social/@jane').andRespond(200, profile)
+    expectRequest('https://mastodon.social/@jane.rss').andRespond(
+      200,
+      '<rss><channel><title>Jane</title></channel></rss>',
+      'application/rss+xml'
+    )
+    page.params.url.set('https://mastodon.social/@jane/1')
+    await waitLoading(page.searching)
+    equalWithText(page.candidates.get(), [
+      {
+        loader: loaders.mastodon,
+        name: 'mastodon',
+        title: 'Jane',
+        url: 'https://mastodon.social/@jane'
+      }
+    ])
+  })
+
+  test('does not load superseded links', async () => {
+    let page = openPage({
+      params: {},
+      route: 'add'
+    })
+    keepMount(page.searching)
+    keepMount(page.candidates)
+
+    expectRequest('https://mastodon.social/@jane').andRespond(
+      200,
+      '<!DOCTYPE html><html><head>' +
+        '<link href="/@jane.rss" rel="alternate" type="application/rss+xml">' +
+        '<meta content="Jane (@jane@mastodon.social)" property="og:title">' +
+        '</head></html>'
+    )
+    page.params.url.set('https://mastodon.social/@jane')
+    await waitLoading(page.searching)
+    equalWithText(page.candidates.get(), [
+      {
+        loader: loaders.mastodon,
+        name: 'mastodon',
+        title: 'Jane',
+        url: 'https://mastodon.social/@jane'
+      }
+    ])
+  })
+
   test('is ready for empty title', async () => {
     let page = openPage({
       params: {},
@@ -470,9 +532,6 @@ describe('add page', () => {
       200,
       '<feed><title></title></feed>'
     )
-    expectRequest('http://example.com/atom').andRespond(404)
-    expectRequest('http://example.com/feed.json').andRespond(404)
-    expectRequest('http://example.com/rss').andRespond(404)
     page.params.url.set('example.com/feed')
     await waitLoading(page.searching)
     equal(page.searching.get(), false)

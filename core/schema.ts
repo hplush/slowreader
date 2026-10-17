@@ -72,6 +72,7 @@ export const feedsTable = defineCrdtTable(
     lastOriginId: optional(string()),
     lastPublishedAt: optional(bigint()),
     loader: string<LoaderName>(),
+    loaderData: optional(string()),
     reading: oneOf(READINGS, { default: 'slow' }),
     refreshedAt: optional(bigint()),
     slowReader: optional(oneOf(READERS)),

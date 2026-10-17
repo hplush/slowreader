@@ -2,6 +2,7 @@ import type { TextResponse } from '../lib/download.ts'
 import { atom } from './atom.ts'
 import type { Loader } from './common.ts'
 import { jsonFeed } from './json-feed.ts'
+import { mastodon } from './mastodon.ts'
 import { rss } from './rss.ts'
 
 export type { Loader }
@@ -9,6 +10,7 @@ export type { Loader }
 export const loaders = {
   atom,
   jsonFeed,
+  mastodon,
   rss
 } satisfies {
   [Name in string]: Loader
