@@ -61,7 +61,7 @@ We use **Svelte** as the UI framework and **Vite** as the builder.
 - `pnpm -F web chromatic`: publish visual tests and generate diffs for changed stories.
 - `pnpm -F web build`: build production files in `web/dist/`.
 - `pnpm -F web benchmark`: run [UI performance benchmark](../docs/development/benchmark.md).
-- `pnpm -F web build-demo`: load the feeds from [`web/demo/demo-feeds.opml`](./demo/demo-feeds.opml) and write demo DB dump.
+- `pnpm -F web build-demo`: load the feeds from [`web/demo/demo-feeds.opml`](./demo/demo-feeds.opml) & [`web/demo/demo-sources.json`](./demo/demo-sources.json) and write demo DB dump.
 
 ## Client Storage
 
