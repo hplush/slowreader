@@ -15,6 +15,7 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 - Do not create variable which you will use in single place.
 - Do not create constants used only once. Inline the value even when it looks magic or needs an explanation.
 - Always use I18n, don’t put English messages in UI hardcoded.
+- Follow BEM: block styles only its own elements. Never change other block by nesting (`.a .b`, `.a + .b`). Wrap it into own element or add a prop to that block.
 
 ## Architecture
 
