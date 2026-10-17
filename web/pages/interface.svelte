@@ -1,14 +1,18 @@
 <script lang="ts">
   import {
+    mdiAlertOutline,
     mdiAnimationOutline,
     mdiButtonCursor,
+    mdiEyeOutline,
     mdiOpenInApp,
     mdiThemeLightDark,
     mdiWeatherNight,
     mdiWeatherSunny
   } from '@mdi/js'
   import {
+    openWarnings,
     settingsMessages,
+    showSensitiveMedia,
     interfaceMessages as t,
     theme,
     useQuietCursor,
@@ -57,6 +61,16 @@
           reverseStore={useReducedMotion}
         />
       {/if}
+      <Switch
+        icon={mdiAlertOutline}
+        label={$t.openWarnings}
+        store={openWarnings}
+      />
+      <Switch
+        icon={mdiEyeOutline}
+        label={$t.showSensitiveMedia}
+        store={showSensitiveMedia}
+      />
       {#if $hasInAppBrowser}
         <Switch
           icon={mdiOpenInApp}

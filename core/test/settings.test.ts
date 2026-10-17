@@ -5,6 +5,8 @@ import {
   preloadImages,
   requestMethod,
   theme,
+  openWarnings,
+  showSensitiveMedia,
   useQuietCursor,
   useReducedMotion
 } from '../index.ts'
@@ -28,5 +30,13 @@ describe('settings', () => {
 
   test('has store for cursor reactions settings', () => {
     equal(useQuietCursor.get(), false)
+  })
+
+  test('has store for content warnings settings', () => {
+    equal(openWarnings.get(), false)
+  })
+
+  test('has store for sensitive media settings', () => {
+    equal(showSensitiveMedia.get(), false)
   })
 })

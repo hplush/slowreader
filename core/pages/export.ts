@@ -12,7 +12,9 @@ import { loadPostsPage, type PostValue } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
 import {
   preloadImages,
+  openWarnings,
   type Settings,
+  showSensitiveMedia,
   theme,
   useQuietCursor,
   useReducedMotion
@@ -155,7 +157,9 @@ export const exportPage = createPage('export', () => {
     file.write(total === 0 ? '],\n' : '\n  ],\n')
 
     let settings = {
+      openWarnings: openWarnings.get(),
       preloadImages: preloadImages.get(),
+      showSensitiveMedia: showSensitiveMedia.get(),
       theme: theme.get(),
       useQuietCursor: useQuietCursor.get(),
       useReducedMotion: useReducedMotion.get()

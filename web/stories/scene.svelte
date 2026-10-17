@@ -16,6 +16,7 @@
     hasFeeds,
     isDemo,
     type NewCategory,
+    openWarnings,
     pages,
     type ParamlessRouteName,
     passkeyOnly,
@@ -24,6 +25,7 @@
     refreshStatistics,
     refreshStatus,
     requestMethod,
+    showSensitiveMedia,
     signOut,
     startLocalUser,
     stopRefreshing,
@@ -161,6 +163,8 @@
       if (page.cache) page.cache = undefined
     }
     useReducedMotion.set(false)
+    showSensitiveMedia.set(false)
+    openWarnings.set(false)
     setPasskeySupport(true)
     // @ts-expect-error Hack for tests
     systemReducedMotion.set(false)

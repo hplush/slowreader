@@ -1,6 +1,6 @@
 <script lang="ts">
   import { mdiAlertOutline, mdiEyeOffOutline, mdiEyeOutline } from '@mdi/js'
-  import { postMessages as t } from '@slowreader/core'
+  import { openWarnings, postMessages as t } from '@slowreader/core'
   import type { Snippet } from 'svelte'
 
   import Button from '../button.svelte'
@@ -14,7 +14,7 @@
     warning: null | string | undefined
   } = $props()
 
-  let shown = $state(false)
+  let shown = $state(openWarnings.get())
 </script>
 
 {#if warning}

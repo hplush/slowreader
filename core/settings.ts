@@ -112,8 +112,14 @@ export const useReducedMotion = persistentBoolean('slowreader:reduced-motion')
 
 export const useQuietCursor = persistentBoolean('slowreader:quiet-cursor')
 
+export const showSensitiveMedia = persistentBoolean('slowreader:show-sensitive')
+
+export const openWarnings = persistentBoolean('slowreader:open-warnings')
+
 export interface Settings {
+  openWarnings: StoreValue<typeof openWarnings>
   preloadImages: StoreValue<typeof preloadImages>
+  showSensitiveMedia: StoreValue<typeof showSensitiveMedia>
   theme: StoreValue<typeof theme>
   useQuietCursor: StoreValue<typeof useQuietCursor>
   useReducedMotion: StoreValue<typeof useReducedMotion>

@@ -1,6 +1,10 @@
 <script lang="ts">
   import { mdiEyeOutline } from '@mdi/js'
-  import { type ReaderMedia, postMessages as t } from '@slowreader/core'
+  import {
+    type ReaderMedia,
+    showSensitiveMedia,
+    postMessages as t
+  } from '@slowreader/core'
 
   import Button from '../button.svelte'
 
@@ -8,7 +12,9 @@
 
   let attached = $derived(media.filter(item => !item.fromText))
   let revealed = $state(false)
-  let hidden = $derived(!revealed && attached.some(item => item.sensitive))
+  let hidden = $derived(
+    !revealed && !$showSensitiveMedia && attached.some(item => item.sensitive)
+  )
 </script>
 
 {#if attached.length > 0}

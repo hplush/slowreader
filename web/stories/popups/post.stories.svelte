@@ -2,9 +2,11 @@
   import {
     type FeedValue,
     getPostPopupParam,
+    openWarnings,
     type Popup,
     popups,
-    type PostValue
+    type PostValue,
+    showSensitiveMedia
   } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
@@ -186,6 +188,46 @@
         feedId: 'mastodon',
         full: '<p>Hidden text</p>',
         quoted: { missing: true },
+        reading: 'slow',
+        url: 'https://mastodon.social/@Mastodon/2',
+        warning: 'Movie spoilers'
+      }
+    ]}
+  >
+    {#if popup}
+      <LoadedPopup {popup}>
+        {#snippet loaded(loadedPopup)}
+          <PostPopupComponent popup={loadedPopup} />
+        {/snippet}
+      </LoadedPopup>
+    {/if}
+  </Scene>
+</Story>
+
+<Story
+  name="Mastodon Opened Sensitive"
+  asChild
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene
+    feeds={[MASTODON_FEED]}
+    oninit={() => {
+      openWarnings.set(true)
+      showSensitiveMedia.set(true)
+      open(false, 'mastodon')()
+    }}
+    posts={[
+      {
+        feedId: 'mastodon',
+        full: '<p>Hidden text</p>',
+        media: [
+          {
+            alt: 'Sensitive image',
+            sensitive: true,
+            type: 'image',
+            url: imgExample
+          }
+        ],
         reading: 'slow',
         url: 'https://mastodon.social/@Mastodon/2',
         warning: 'Movie spoilers'

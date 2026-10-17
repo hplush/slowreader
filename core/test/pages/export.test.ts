@@ -157,7 +157,9 @@ describe('export page', () => {
         }
       ],
       settings: {
+        openWarnings: false,
         preloadImages: 'always',
+        showSensitiveMedia: false,
         theme: 'system',
         useQuietCursor: false,
         useReducedMotion: false
