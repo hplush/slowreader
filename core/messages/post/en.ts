@@ -8,7 +8,6 @@ export const postMessages = i18n('post', {
   quoteOfQuote: 'Quote…',
   read: 'Mark post was read',
   readCheckbox: 'Post was read',
-  reply: 'Reply',
   repostedBy: params('Reposted by {name}'),
   showSensitive: 'Show sensitive media',
   showWarning: 'Show post',
