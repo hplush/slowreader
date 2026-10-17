@@ -3,7 +3,11 @@
 import { openDb } from '@nanostores/sql'
 import { nodeDriver } from '@nanostores/sql/node'
 import {
+  addCandidate,
+  addCategory,
   changeFeed,
+  createDownloadTask,
+  getLoaderForText,
   currentPage,
   generateCredentials,
   getCrdt,
@@ -31,6 +35,7 @@ import { join } from 'node:path'
 import { error, finish, success } from '../../scripts/progress.ts'
 
 const OPML = join(import.meta.dirname, 'demo-feeds.opml')
+const SOURCES = join(import.meta.dirname, 'demo-sources.json')
 const PUBLIC = join(import.meta.dirname, '..', 'public')
 const DATABASE = join(PUBLIC, 'demo.sqlite')
 const MANIFEST = join(PUBLIC, 'demo.json')
@@ -38,7 +43,7 @@ const MANIFEST = join(PUBLIC, 'demo.json')
 /**
  * Categories to show in the fast mode. The rest goes to the slow mode.
  */
-const FAST = ['Comics', 'Art', 'Short Facts']
+const FAST = ['Comics', 'Art', 'Mastodon', 'Short Facts']
 
 /**
  * How deep to load the feeds’ history. Feeds publish only their latest
@@ -89,6 +94,30 @@ for (let [url, reason] of page.feedErrors.get()) {
   error(new Error(`Failed to import ${url} ${reason}`))
 }
 success(`Imported ${page.done.get()} feeds`)
+
+let sources = JSON.parse(readFileSync(SOURCES, 'utf8')) as Record<
+  string,
+  { title: string; url: string }[]
+>
+let task = createDownloadTask()
+for (let [title, feeds] of Object.entries(sources)) {
+  let categoryId = await addCategory({ title })
+  for (let feed of feeds) {
+    let response = await task.text(feed.url)
+    let candidate = getLoaderForText(response)
+    if (!candidate) {
+      error(new Error(`Failed to import ${feed.url} unknown`))
+      continue
+    }
+    await addCandidate(
+      candidate,
+      { categoryId, title: feed.title },
+      task,
+      response
+    )
+  }
+  success(`Imported ${title}`, `${feeds.length} feeds`)
+}
 
 for (let category of await loadCategories()) {
   if (!FAST.includes(category.title)) continue

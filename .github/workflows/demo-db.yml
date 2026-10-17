@@ -4,6 +4,7 @@ on:
     paths:
       - 'web/demo/build-demo-db.ts'
       - 'web/demo/demo-feeds.opml'
+      - 'web/demo/demo-sources.json'
       - '.github/workflows/demo-db.yml'
       - 'web/demo/Dockerfile'
       - 'landings/scripts/screenshots.ts'
