@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid/non-secure'
 import { atom, computed, type ReadableAtom } from 'nanostores'
 
-import { isNotFoundError, NotFoundError } from '../errors.ts'
+import { isNotFoundError, NotFoundError, showCrash } from '../errors.ts'
 import { type Loadable, subscribeUntil } from '../lib/stores.ts'
 import type { PopupName } from '../router.ts'
 
@@ -82,9 +82,8 @@ export function definePopup<Name extends PopupName, Rest extends Extra>(
           popup.notFound = true
           popup.destroy()
           loading.set(false)
-          /* node:coverage ignore next 3 */
         } else {
-          throw e
+          showCrash(e)
         }
       })
     return popup as ReturnType<PopupCreator<Name, Rest>>
