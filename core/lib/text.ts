@@ -1,6 +1,7 @@
 export const PUNCTUATION_CHARS = '.!?。．！？'
 
-const SENTENCE_WITH_NEWLINE = new RegExp('[' + PUNCTUATION_CHARS + '\\n]', 'g')
+// Dot without a space is a part of domain or number, but CJK has no spaces
+const SENTENCE_WITH_NEWLINE = /[.!?](?=\s)|[。．！？\n]/g
 
 function findLastMatch(
   str: string,
@@ -29,8 +30,12 @@ export function truncateText(text: string, min: number, max: number): string {
   let upToMax = text.slice(0, max)
 
   // Try to cut by sentence
-  let bySentence = findLastMatch(upToMax, SENTENCE_WITH_NEWLINE, min)
-  if (bySentence) return bySentence + ' …'
+  let bySentence = findLastMatch(
+    text.slice(0, max + 1),
+    SENTENCE_WITH_NEWLINE,
+    min
+  )
+  if (bySentence) return bySentence.trimEnd() + ' …'
 
   // Try to cut by word
   let byWord = findLastMatch(upToMax, /\s/g, min)

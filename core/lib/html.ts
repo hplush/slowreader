@@ -348,7 +348,13 @@ export function parseRichTranslation(
  * with many `<` and no `>` takes quadratic time, and feeds are not trusted.
  */
 export function stripHTML(html: string): string {
-  return (parseDocument(html).documentElement.textContent || '').trim()
+  let root = parseDocument(html).documentElement
+  for (let block of root.querySelectorAll(
+    'blockquote, br, div, h1, h2, h3, h4, h5, h6, li, p, pre, tr'
+  )) {
+    block.after('\n')
+  }
+  return (root.textContent || '').trim()
 }
 
 function isTag(node: Node | null | undefined, name: string): boolean {

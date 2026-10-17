@@ -236,6 +236,13 @@ describe('html', () => {
     )
   })
 
+  test('does not truncate HTML at dot inside domain', () => {
+    equal(
+      truncate('<p>Visit lamardecitas.net for more information</p>', 10, 25),
+      '<p>Visit lamardecitas.net …</p>'
+    )
+  })
+
   test('removes break left in the end by truncating', () => {
     equal(truncate('<p>12345</p><br />67890', 0, 5), '<p>12345</p>')
   })
