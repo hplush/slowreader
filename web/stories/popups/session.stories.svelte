@@ -14,6 +14,7 @@
   function popup(session: Partial<SessionItem>): SessionPopup {
     return {
       destroy() {},
+      error: undefined,
       loading: atom(false),
       name: 'session',
       notFound: false,

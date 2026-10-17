@@ -6,7 +6,9 @@ import {
   addFeed,
   addPost,
   closeLastPopup,
+  commonMessages,
   GENERAL_CATEGORY,
+  HTTPStatusError,
   loadPost,
   openedPopups,
   type OriginPost,
@@ -15,12 +17,16 @@ import {
   testPost,
   waitLoading
 } from '../../index.ts'
-import { getPostPopupParam } from '../../popups/post.ts'
+import { canOpenPostUrl, getPostPopupParam } from '../../popups/post.ts'
 import {
+  checkAndRemoveRequestMock,
   checkLoadedPopup,
   cleanClient,
   startClient,
+  expectRequest,
+  expectWarning,
   getPopup,
+  mockRequest,
   openTestPopup,
   openRoute
 } from '../utils.ts'
@@ -136,5 +142,74 @@ describe('post popup', () => {
     let broken2 = openTestPopup('post', 'aaa')
     await waitLoading(broken2.loading)
     equal(broken2.notFound, true)
+  })
+
+  test('opens post by URL', async () => {
+    equal(canOpenPostUrl('https://mastodon.social/@jane/1'), true)
+    equal(canOpenPostUrl('http://mastodon.social/@jane/1'), false)
+    equal(canOpenPostUrl('https://example.com/news/1'), false)
+    equal(canOpenPostUrl('https:'), false)
+
+    mockRequest()
+    expectRequest('https://mastodon.social/api/v1/statuses/1').andRespond(
+      200,
+      JSON.stringify({
+        account: {
+          avatar: '',
+          display_name: 'Jane',
+          id: 'jane',
+          url: 'https://mastodon.social/@jane',
+          username: 'jane'
+        },
+        card: null,
+        content: '<p>Text</p>',
+        created_at: '2026-01-01T00:00:00.000Z',
+        edited_at: null,
+        id: '1',
+        media_attachments: [],
+        poll: null,
+        reblog: null,
+        sensitive: false,
+        spoiler_text: '',
+        uri: 'https://mastodon.social/users/jane/statuses/1',
+        url: 'https://mastodon.social/@jane/1'
+      }),
+      'application/json'
+    )
+    let popup = openTestPopup('post', 'https://mastodon.social/@jane/1')
+    await waitLoading(popup.loading)
+    deepEqual(checkLoadedPopup(popup).post.get(), {
+      author: { title: 'Jane', url: 'https://mastodon.social/@jane' },
+      full: '<p>Text</p>',
+      id: 'https://mastodon.social/@jane/1',
+      originId: '1',
+      publishedAt: 1767225600,
+      url: 'https://mastodon.social/@jane/1'
+    })
+
+    let unknown = openTestPopup('post', 'https://example.com/news/1')
+    await waitLoading(unknown.loading)
+    equal(unknown.notFound, true)
+
+    expectRequest('https://mastodon.social/api/v1/statuses/2').andRespond(404)
+    let missing = openTestPopup('post', 'https://mastodon.social/@jane/2')
+    await waitLoading(missing.loading)
+    equal(missing.notFound, true)
+
+    expectRequest('https://mastodon.social/api/v1/statuses/3').andRespond(500)
+    await expectWarning(async () => {
+      let broken = openTestPopup('post', 'https://mastodon.social/@jane/3')
+      await waitLoading(broken.loading)
+      equal(broken.notFound, false)
+      equal(broken.error, commonMessages.get().error5xx)
+    }, [
+      new HTTPStatusError(
+        500,
+        'https://mastodon.social/api/v1/statuses/3',
+        '',
+        new Headers()
+      )
+    ])
+    checkAndRemoveRequestMock()
   })
 })

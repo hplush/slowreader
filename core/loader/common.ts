@@ -1,7 +1,7 @@
 import type { FeedValue } from '../feed.ts'
 import type { DownloadTask, TextResponse } from '../lib/download.ts'
 import { isAbsoluteUrl, mapRelativeSrcset, parseDocument } from '../lib/html.ts'
-import type { PostMedia } from '../post.ts'
+import type { OriginPost, PostMedia } from '../post.ts'
 import type { PostsList, PostsListResult } from '../posts-list.ts'
 
 export type Loader = {
@@ -37,6 +37,11 @@ export type Loader = {
   ): PostsList
 
   /**
+   * Load a single post to open it in the app without adding its feed.
+   */
+  getPostByUrl?(task: DownloadTask, url: string): Promise<OriginPost>
+
+  /**
    * Get source data of post from loader's API for debug purposes.
    */
   getPostSource(feed: FeedValue, originId: string): Promise<unknown>
@@ -69,6 +74,11 @@ export type Loader = {
    * just by URL.
    */
   isMineUrl(url: URL): false | string | undefined
+
+  /**
+   * Can `getPostByUrl()` load this URL.
+   */
+  isPostUrl?(url: URL): boolean
 }
 
 export function isString(attr: null | string): attr is string {

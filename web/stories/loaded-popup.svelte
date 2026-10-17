@@ -2,6 +2,8 @@
   import type { LoadedPopup, Popup } from '@slowreader/core'
   import type { Snippet } from 'svelte'
 
+  import ErrorPopup from '../popups/error.svelte'
+
   let {
     loaded,
     popup
@@ -12,8 +14,8 @@
 
 {#if $loading}
   loading
-{:else if popup.notFound}
-  404
+{:else if popup.notFound || popup.error}
+  <ErrorPopup {popup} />
 {:else}
   {@render loaded(popup as LoadedPopup<SomePopup>)}
 {/if}

@@ -45,7 +45,7 @@
     <PostMedia media={addMediaSizes(post.media, post.mediaSizes)} />
 
     {#if post.quoted}
-      <PostQuote full quoted={post.quoted} />
+      <PostQuote full linked quoted={post.quoted} />
     {/if}
     {#if post.preview}
       <PostPreview preview={post.preview} />

@@ -9,6 +9,8 @@ import {
 import { NotFoundError } from '../errors.ts'
 import { type FeedValue, loadFeed } from '../feed.ts'
 import { formatPublishedAt, i18nFormat } from '../format.ts'
+import { createDownloadTask } from '../lib/download.ts'
+import { type Loader, loaders } from '../loader/index.ts'
 import {
   changePost,
   getPost,
@@ -33,6 +35,22 @@ export function getPostPopupParam(
   }
 }
 
+function findPostLoader(url: string): Loader | undefined {
+  let parsed = URL.parse(url)
+  if (!parsed) return undefined
+  return Object.values(loaders).find(i => i.isPostUrl?.(parsed))
+}
+
+export function canOpenPostUrl(url: string): boolean {
+  return url.startsWith('https:') && !!findPostLoader(url)
+}
+
+function loadPostByUrl(url: string): Promise<OriginPost> {
+  let loader = findPostLoader(url)
+  if (!loader) throw new NotFoundError()
+  return loader.getPostByUrl!(createDownloadTask({ cache: 'read' }), url)
+}
+
 export const post = definePopup('post', async loader => {
   let $post: ReadableAtom<OriginPost | PostValue>
   let $feed: ReadableAtom<FeedValue> | undefined
@@ -54,6 +72,8 @@ export const post = definePopup('post', async loader => {
       if (row.status === 'ready' && row.value) $stored.set(row.value)
     })
     $post = $stored
+  } else if (loader.startsWith('https:')) {
+    $post = atom(await loadPostByUrl(loader))
   } else if (loader.startsWith('data:')) {
     let data = loader.slice(5)
     try {

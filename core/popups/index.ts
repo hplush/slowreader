@@ -10,7 +10,7 @@ export { type BasePopup, getPopupId, type LoadedPopup } from './common.ts'
 export type { FeedPopup } from './feed.ts'
 export type { PasskeyPopup } from './passkey.ts'
 export type { PostPopup } from './post.ts'
-export { getPostPopupParam } from './post.ts'
+export { canOpenPostUrl, getPostPopupParam } from './post.ts'
 export type { RefreshPopup } from './refresh.ts'
 export type { SessionPopup } from './session.ts'
 

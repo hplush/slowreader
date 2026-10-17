@@ -523,6 +523,53 @@ describe('mastodon loader', () => {
     equal(posts.get().error instanceof ParseError, true)
   })
 
+  test('loads post by URL', async () => {
+    let { mastodon } = loaders
+    equal(mastodon.isPostUrl!(new URL('https://other.social/@jane/1')), true)
+    equal(mastodon.isPostUrl!(new URL('https://other.social/@jane')), false)
+    equal(mastodon.isPostUrl!(new URL('https://other.social/notes/1')), false)
+
+    expectRequest('https://other.social/api/v1/statuses/1').andRespond(
+      200,
+      JSON.stringify(status('1')),
+      'application/json'
+    )
+    deepEqual(
+      await mastodon.getPostByUrl!(
+        createDownloadTask(),
+        'https://other.social/@jane/1'
+      ),
+      {
+        author: {
+          avatar: 'https://mastodon.social/jane.png',
+          title: 'JANE',
+          url: 'https://mastodon.social/@jane'
+        },
+        full: '<p>1</p>',
+        id: 'https://other.social/@jane/1',
+        originId: '1',
+        publishedAt: 1767225600,
+        url: 'https://mastodon.social/@jane/1'
+      }
+    )
+
+    expectRequest('https://other.social/api/v1/statuses/2').andRespond(
+      200,
+      '{}',
+      'application/json'
+    )
+    let error: unknown
+    try {
+      await mastodon.getPostByUrl!(
+        createDownloadTask(),
+        'https://other.social/@jane/2'
+      )
+    } catch (e) {
+      error = e
+    }
+    equal(error instanceof ParseError, true)
+  })
+
   test('returns post source', async () => {
     expectRequest(`${API}/statuses/1`).andRespond(
       200,

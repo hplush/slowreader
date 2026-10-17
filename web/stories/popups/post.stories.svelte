@@ -92,6 +92,52 @@
     url: 'https://mastodon.social/@jane/1'
   } satisfies Partial<PostValue>
 
+  const QUOTED_STATUS = {
+    account: {
+      avatar: new URL(imgExample, location.href).href,
+      display_name: 'Quoted Author',
+      id: 'q',
+      url: 'https://mastodon.social/@q',
+      username: 'q'
+    },
+    card: null,
+    content: '<p>Quoted post</p>',
+    created_at: '2020-09-13T12:26:40.000Z',
+    edited_at: null,
+    id: '1',
+    media_attachments: [],
+    poll: null,
+    quote: {
+      quoted_status: {
+        account: {
+          avatar: '',
+          display_name: 'Other',
+          id: 'other',
+          url: 'https://mastodon.social/@other',
+          username: 'other'
+        },
+        card: null,
+        content: '<p>Post inside the quote</p>',
+        created_at: '2020-09-13T12:26:40.000Z',
+        edited_at: null,
+        id: '2',
+        media_attachments: [],
+        poll: null,
+        reblog: null,
+        sensitive: false,
+        spoiler_text: '',
+        uri: 'https://mastodon.social/users/other/statuses/2',
+        url: 'https://mastodon.social/@other/2'
+      },
+      state: 'accepted'
+    },
+    reblog: null,
+    sensitive: false,
+    spoiler_text: '',
+    uri: 'https://mastodon.social/users/q/statuses/1',
+    url: 'https://mastodon.social/@q/1'
+  }
+
   const MASTODON_FEED = {
     id: 'mastodon',
     loader: 'mastodon',
@@ -144,6 +190,31 @@
         <PostPopupComponent popup={loadedPopup} />
       {/snippet}
     </LoadedPopup>
+  </Scene>
+</Story>
+
+<Story name="Quote" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      popup = popups.post(MASTODON.quoted.url)
+    }}
+    responses={[
+      [
+        'https://mastodon.social/api/v1/statuses/1',
+        {
+          body: JSON.stringify(QUOTED_STATUS),
+          contentType: 'application/json'
+        }
+      ]
+    ]}
+  >
+    {#if popup}
+      <LoadedPopup {popup}>
+        {#snippet loaded(loadedPopup)}
+          <PostPopupComponent popup={loadedPopup} />
+        {/snippet}
+      </LoadedPopup>
+    {/if}
   </Scene>
 </Story>
 

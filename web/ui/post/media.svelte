@@ -92,7 +92,7 @@
   :global {
     .post-media {
       position: relative;
-      padding-top: 0.625rem;
+      margin-top: 0.625rem;
       overflow: hidden;
       border-radius: var(--base-radius);
     }

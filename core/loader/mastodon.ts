@@ -84,6 +84,8 @@ interface MastodonStatus {
 
 const PROFILE = /^\/@([^/]+)\/?$/
 
+const POST = /^\/(@[^/]+)\/(\d+)\/?$/
+
 const SHORTCODE = /:(\w{2,}):/g
 
 const POPULAR = new Set([
@@ -117,6 +119,14 @@ function parseStatuses(response: TextResponse): MastodonStatus[] {
     throw new ParseError('Mastodon statuses are not an array', response.text)
   }
   return statuses as unknown as MastodonStatus[]
+}
+
+function parseStatusResponse(response: TextResponse): MastodonStatus {
+  let status = response.parseJson()
+  if (!isObject(status) || typeof status.id !== 'string') {
+    throw new ParseError('Mastodon status has no ID', response.text)
+  }
+  return status as unknown as MastodonStatus
 }
 
 function hasActivityLink(response: TextResponse): boolean {
@@ -356,7 +366,7 @@ export const mastodon: Loader = {
 
   getMineLinksFromText(text) {
     let url = new URL(text.url)
-    let post = url.pathname.match(/^\/(@[^/]+)\/\d+\/?$/)
+    let post = url.pathname.match(POST)
     if (!post) return []
     if (!POPULAR.has(url.hostname) && !hasActivityLink(text)) return []
     return [`${url.origin}/${post[1]}`]
@@ -371,6 +381,20 @@ export const mastodon: Loader = {
       let id = parseLoaderData(loaderData) ?? (await loadAccountId(task, url))
       return loadPage(task, getApi(url).origin, id)
     })
+  },
+
+  async getPostByUrl(task, url) {
+    let parsed = new URL(url)
+    let status = parseStatusResponse(
+      await task.text(
+        `${parsed.origin}/api/v1/statuses/${parsed.pathname.match(POST)![2]}`
+      )
+    )
+    return {
+      author: toAuthor(status.account),
+      ...parseStatus(status),
+      id: url
+    }
   },
 
   async getPostSource(feed, originId) {
@@ -404,5 +428,9 @@ export const mastodon: Loader = {
       return decodeURIComponent(profile[1]!)
     }
     return undefined
+  },
+
+  isPostUrl(url) {
+    return POST.test(url.pathname)
   }
 }

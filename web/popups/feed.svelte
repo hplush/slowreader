@@ -28,7 +28,7 @@
 
   let { popup }: { popup: FeedPopup } = $props()
 
-  let { categories, error, feed, posts } = $derived(popup)
+  let { categories, feed, posts } = $derived(popup)
 </script>
 
 <Popup
@@ -102,29 +102,21 @@
         />
       </Stack>
     {/if}
-    {#if $error}
-      <Stack align="center">
-        <Note icon={mdiAlertCircleOutline} variant="dangerous">
-          {$error}
-        </Note>
-      </Stack>
-    {:else}
-      <Stack gap="xs">
-        <Label tag="h2">{$t.feedPosts}</Label>
-        {#if $posts.isLoading}
-          <Loader track="feed-popup-posts" />
-        {:else}
-          <Posts list={$posts.list} />
-          {#if $posts.error}
-            <Note icon={mdiAlertCircleOutline} variant="dangerous">
-              {errorToMessage($posts.error)}
-            </Note>
-          {/if}
-          {#if $posts.hasNext}
-            <Button onclick={posts.next} size="wide">{$t.morePosts}</Button>
-          {/if}
+    <Stack gap="xs">
+      <Label tag="h2">{$t.feedPosts}</Label>
+      {#if $posts.isLoading}
+        <Loader track="feed-popup-posts" />
+      {:else}
+        <Posts list={$posts.list} />
+        {#if $posts.error}
+          <Note icon={mdiAlertCircleOutline} variant="dangerous">
+            {errorToMessage($posts.error)}
+          </Note>
         {/if}
-      </Stack>
-    {/if}
+        {#if $posts.hasNext}
+          <Button onclick={posts.next} size="wide">{$t.morePosts}</Button>
+        {/if}
+      {/if}
+    </Stack>
   </Stack>
 </Popup>
