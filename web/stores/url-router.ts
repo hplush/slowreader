@@ -40,6 +40,24 @@ export const pathRouter = createRouter({
   welcome: '/welcome'
 })
 
+/**
+ * Paths of the app’s pages for nginx and dev server to return the app HTML.
+ */
+export function getAppRoutes(): RegExp {
+  return new RegExp(
+    pathRouter.routes
+      .map(([, regexp]) => {
+        let source = regexp.source.replace(/\(\?<(\w+?)>\(\?<=\\\/\)/g, '(')
+        // Other params are IDs, but `add` takes any URL with dots and slashes
+        return source === '^\\/feeds\\/add(?:\\/([^/]+))?$'
+          ? '^/feeds/add(/|$)'
+          : source
+      })
+      .join('|'),
+    'i'
+  )
+}
+
 type PathParams = ParamsFromConfig<ConfigFromRouter<typeof pathRouter>>
 
 function moveFromSearch<Params extends Record<string, string>>(

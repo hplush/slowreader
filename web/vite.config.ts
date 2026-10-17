@@ -5,6 +5,7 @@ import sharp from 'sharp'
 import sqlocal from 'sqlocal/vite'
 import { defineConfig, type PreviewServer, type ViteDevServer } from 'vite'
 
+import { getAppRoutes } from './stores/url-router.ts'
 import { allFeatures } from './vite/lightningcss.ts'
 
 const LANDING_TYPES: Record<string, string> = {
@@ -56,9 +57,15 @@ function dirIndex(server: PreviewServer | ViteDevServer, root: string): void {
 }
 
 function appIndex(server: PreviewServer | ViteDevServer, root: string): void {
+  let routes = getAppRoutes()
   server.middlewares.use((req, res, next) => {
     let [path, query] = req.url!.split('?')
-    if (req.headers.accept?.includes('text/html') && !extname(path!)) {
+    let isApp = false
+    try {
+      // nginx tests decoded path with merged slashes
+      isApp = routes.test(decodeURIComponent(path!).replace(/\/{2,}/g, '/'))
+    } catch {}
+    if (req.headers.accept?.includes('text/html') && isApp) {
       let index = join(import.meta.dirname, root, 'index.html')
       if (path !== '/' || !existsSync(index)) {
         req.url = `/app.html${query ? `?${query}` : ''}`

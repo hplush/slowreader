@@ -146,6 +146,6 @@ Web client runs in the [single image](../README.md#deploy) as nginx with static 
 
 Both preview and staging have Storybook at `/ui/` route.
 
-To return app HTML on app’s routes, we [export](./scripts/export-routes.ts) RegExp of all routes to `routes.regexp` and use it in [`nginx.conf`](./nginx.conf).
+To return app HTML on app’s routes, we [export](./scripts/export-routes.ts) RegExp of all routes to `routes.regexp` and use it in [`nginx.conf`](./nginx.conf) and in Vite.
 
 After the build, we [save](./scripts/generate-manifest.ts) hashes of all JS files and main HTML pages to `dist/manifest.json` and add import map with JS hashes to HTML. Server’s [`entrypoint.ts`](../server/entrypoint.ts) puts these hashes to Content Security Policy, so browsers run only JS from our build.
