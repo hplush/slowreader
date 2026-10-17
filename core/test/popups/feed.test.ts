@@ -54,7 +54,7 @@ describe('feed popup', () => {
 
       await waitLoading(feed1Popup.loading)
       equal(feed1Popup.notFound, true)
-    }, [new HTTPStatusError(404, 'http://a.com/one', '', new Headers())])
+    }, [])
 
     closeLastPopup()
     equal(openedPopups.get().length, 0)
@@ -75,7 +75,7 @@ describe('feed popup', () => {
       let popup = openTestPopup('feed', 'not-url')
       await waitLoading(popup.loading)
       equal(popup.notFound, true)
-    }, [new HTTPStatusError(404, 'not-url', '', new Headers())])
+    }, [])
   })
 
   test('loads existing feed popup on 404', async () => {
@@ -88,13 +88,15 @@ describe('feed popup', () => {
       await waitLoading(popup.loading)
       equal(popup.notFound, false)
       equal(checkLoadedPopup(popup).feed.get()?.id, feedId)
-      equal(checkLoadedPopup(popup).error.get(), undefined)
       deepEqual(checkLoadedPopup(popup).posts.get().isLoading, true)
       await checkLoadedPopup(popup).posts.loading
       deepEqual(checkLoadedPopup(popup).posts.get().isLoading, false)
       deepEqual(checkLoadedPopup(popup).posts.get().list.length, 0)
-      equal(checkLoadedPopup(popup).error.get(), 'Not Found')
-    }, [new HTTPStatusError(404, 'http://a.com/404', '', new Headers())])
+      equal(
+        HTTPStatusError.is(checkLoadedPopup(popup).posts.get().error, [404]),
+        true
+      )
+    }, [])
   })
 
   test('shows existing feed before posts are loaded', async () => {

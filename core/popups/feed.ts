@@ -1,8 +1,7 @@
 import { atom } from 'nanostores'
 
 import { getCategories } from '../category.ts'
-import { getEnvironment } from '../environment.ts'
-import { errorToMessage, NotFoundError } from '../errors.ts'
+import { NotFoundError } from '../errors.ts'
 import {
   addCandidate,
   deleteFeed,
@@ -10,11 +9,7 @@ import {
   getFeedsByUrl,
   loadFeedByUrl
 } from '../feed.ts'
-import {
-  createDownloadTask,
-  type DownloadTask,
-  type TextResponse
-} from '../lib/download.ts'
+import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import { waitSql } from '../lib/stores.ts'
 import { type FeedLoader, getLoaderForText } from '../loader/index.ts'
 import { commonMessages } from '../messages/index.ts'
@@ -25,22 +20,6 @@ import {
 } from '../posts-list.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
-
-async function loadFeedFromURL(
-  task: DownloadTask,
-  url: string
-): Promise<Error | TextResponse> {
-  try {
-    return await task.text(url)
-  } catch (e) {
-    /* node:coverage ignore next 6 */
-    if (e instanceof Error) {
-      getEnvironment().warn(e)
-      return e
-    }
-    throw e
-  }
-}
 
 function swapHttpProtocol(url: string): string | undefined {
   try {
@@ -67,7 +46,7 @@ export const feed = definePopup('feed', async url => {
   let task = createDownloadTask({ cache: 'read' })
   let feedsStore = getFeedsByUrl(await findFeedUrl(url))
   let categoriesStore = getCategories()
-  let downloading = loadFeedFromURL(task, url)
+  let downloading = task.text(url)
   let [feeds] = await Promise.all([
     waitSql(feedsStore),
     waitSql(categoriesStore)
@@ -76,15 +55,10 @@ export const feed = definePopup('feed', async url => {
   let existing = feeds[0]
   let response: TextResponse | undefined
   let candidate: false | FeedLoader | undefined
-  let $error = atom<string | undefined>()
 
-  let parsing = downloading.then(responseOrError => {
-    if (responseOrError instanceof Error) {
-      $error.set(errorToMessage(responseOrError))
-    } else {
-      response = responseOrError
-      candidate = getLoaderForText(response)
-    }
+  let parsing = downloading.then(downloaded => {
+    response = downloaded
+    candidate = getLoaderForText(response)
   })
 
   let posts: PostsList
@@ -102,10 +76,6 @@ export const feed = definePopup('feed', async url => {
     })
   } else {
     await parsing
-    let responseOrError = await downloading
-    if (responseOrError instanceof Error) {
-      throw new NotFoundError({ cause: responseOrError })
-    }
     if (!candidate || !response) throw new NotFoundError()
     posts = candidate.loader.getPosts(task, url, response)
     if (posts.get().isLoading) await posts.loading
@@ -157,7 +127,6 @@ export const feed = definePopup('feed', async url => {
       unbindFeeds()
       unbindCategories()
     },
-    error: $error,
     feed: $feed,
     posts,
     remove

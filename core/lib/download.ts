@@ -211,7 +211,7 @@ async function retryNetworkError<Result>(
     try {
       return await cb()
     } catch (e) {
-      if (attempt === tries || signal.aborted || !(e instanceof NetworkError)) {
+      if (attempt === tries || signal.aborted || !NetworkError.is(e)) {
         throw e
       }
       await delay(RETRY_DELAY * attempt)

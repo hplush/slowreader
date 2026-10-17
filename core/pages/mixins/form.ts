@@ -23,7 +23,7 @@ export function createFormSubmit<
       await submit()
       done = true
     } catch (e) {
-      if (e instanceof NetworkError) {
+      if (NetworkError.is(e)) {
         $error.set(t.get().networkError)
       } else if (e instanceof UserFacingError) {
         let error =

@@ -78,7 +78,7 @@ export function printWarning(e: unknown): {
   let details: unknown[] = []
   if (e instanceof Error) {
     details.push(e)
-    if (e instanceof HTTPStatusError) details.push(e.response)
+    if (HTTPStatusError.is(e)) details.push(e.response)
   }
   return { details, title }
 }

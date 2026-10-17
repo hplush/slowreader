@@ -1,7 +1,13 @@
 import { nanoid } from 'nanoid/non-secure'
 import { atom, computed, type ReadableAtom } from 'nanostores'
 
-import { isNotFoundError, NotFoundError, showCrash } from '../errors.ts'
+import { getEnvironment } from '../environment.ts'
+import {
+  errorToMessage,
+  HTTPStatusError,
+  isNotFoundError,
+  NotFoundError
+} from '../errors.ts'
 import { type Loadable, subscribeUntil } from '../lib/stores.ts'
 import type { PopupName } from '../router.ts'
 
@@ -12,9 +18,11 @@ type Extra = {
 export type BasePopup<
   Name extends PopupName = PopupName,
   Loading extends boolean = boolean,
-  NotFound extends boolean = boolean
+  NotFound extends boolean = boolean,
+  ErrorMessage extends string | undefined = string | undefined
 > = {
   destroy(): void
+  readonly error: ErrorMessage
   readonly loading: ReadableAtom<Loading>
   readonly name: Name
   readonly notFound: NotFound
@@ -29,14 +37,15 @@ export interface PopupCreator<
   (
     param: string
   ):
-    | (BasePopup<Name, false, false> & Rest)
-    | BasePopup<Name, false, true>
-    | BasePopup<Name, true>
+    | (BasePopup<Name, false, false, undefined> & Rest)
+    | BasePopup<Name, false, false, string>
+    | BasePopup<Name, false, true, undefined>
+    | BasePopup<Name, true, false, undefined>
 }
 
 export type LoadedPopup<Popup extends BasePopup> = Extract<
   Popup,
-  { loading: ReadableAtom<false>; notFound: false }
+  { error: undefined; loading: ReadableAtom<false>; notFound: false }
 >
 
 export type CreatedLoadedPopup<Creator extends PopupCreator<PopupName>> =
@@ -59,6 +68,7 @@ export function definePopup<Name extends PopupName, Rest extends Extra>(
         destroyed = true
         rest?.destroy()
       },
+      error: undefined as string | undefined,
       loading,
       name,
       notFound: false,
@@ -78,13 +88,14 @@ export function definePopup<Name extends PopupName, Rest extends Extra>(
         loading.set(false)
       })
       .catch((e: unknown) => {
-        if (isNotFoundError(e)) {
+        if (isNotFoundError(e) || HTTPStatusError.is(e, [404, 410])) {
           popup.notFound = true
-          popup.destroy()
-          loading.set(false)
         } else {
-          showCrash(e)
+          getEnvironment().warn(e)
+          popup.error = errorToMessage(e)
         }
+        popup.destroy()
+        loading.set(false)
       })
     return popup as ReturnType<PopupCreator<Name, Rest>>
   }

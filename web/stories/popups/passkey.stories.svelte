@@ -15,6 +15,7 @@
   function popup(passkey: PasskeyItem): PasskeyPopup {
     return {
       destroy() {},
+      error: undefined,
       loading: atom(false),
       name: 'passkey',
       notFound: false,

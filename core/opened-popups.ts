@@ -30,14 +30,22 @@ export const openedPopups: ReadableAtom<Popup[]> = computed(router, route => {
 
 export type PopupsStatus =
   | {
+      error: string | undefined
       last: LoadedPopup<Popup>
       loading: boolean
       notFound: boolean
       other: Popup[]
     }
-  | { last: undefined; loading: undefined; notFound: undefined; other: [] }
+  | {
+      error: undefined
+      last: undefined
+      loading: undefined
+      notFound: undefined
+      other: []
+    }
 
 export const popupsStatus = atom<PopupsStatus>({
+  error: undefined,
   last: undefined,
   loading: undefined,
   notFound: undefined,
@@ -52,6 +60,7 @@ onMount(popupsStatus, () => {
       unbindLast?.()
       unbindLast = last.loading.subscribe(loading => {
         popupsStatus.set({
+          error: last.error,
           // Could not make proper branded type in Svelte
           last: last as LoadedPopup<Popup>,
           loading,
@@ -63,6 +72,7 @@ onMount(popupsStatus, () => {
       unbindLast?.()
       unbindLast = undefined
       popupsStatus.set({
+        error: undefined,
         last: undefined,
         loading: undefined,
         notFound: undefined,

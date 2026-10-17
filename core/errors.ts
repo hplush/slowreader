@@ -97,6 +97,12 @@ function getReason(error: Error): string {
  * fetch() was not able to make a network request.
  */
 export class NetworkError extends Error {
+  static is(thrown: unknown): thrown is NetworkError {
+    return thrown instanceof Error && thrown.name === 'NetworkError'
+  }
+
+  declare name: 'NetworkError'
+
   constructor(cause: Error) {
     super(getReason(cause), { cause })
     this.name = 'NetworkError'
@@ -125,6 +131,14 @@ export async function detectNetworkError<Result>(
  * Internal errors for non-200 HTTP response.
  */
 export class HTTPStatusError extends Error {
+  static is(thrown: unknown, statuses?: number[]): thrown is HTTPStatusError {
+    return (
+      thrown instanceof Error &&
+      thrown.name === 'HTTPStatusError' &&
+      (!statuses || statuses.includes((thrown as HTTPStatusError).status))
+    )
+  }
+
   headers: Headers
   response: string
   status: number
@@ -160,7 +174,7 @@ type PopularErrors = 400 | 401 | 403 | 404 | 451
 export function errorToMessage(error: unknown): string {
   if (!(error instanceof Error)) {
     return String(error)
-  } else if (error instanceof HTTPStatusError) {
+  } else if (HTTPStatusError.is(error)) {
     if (
       error.response.length > 2 &&
       error.response.length < 100 &&
@@ -182,7 +196,7 @@ export function errorToMessage(error: unknown): string {
     }
   } else if (error instanceof ParseError) {
     return commonMessages.get().parseError
-  } else if (error instanceof NetworkError) {
+  } else if (NetworkError.is(error)) {
     return commonMessages.get().networkError
   } else {
     return error.message

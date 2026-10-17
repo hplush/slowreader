@@ -50,7 +50,7 @@ function buildTask<Data>(
 }
 
 function runAfter(attempt: number, error: Error): number | undefined {
-  if (!(error instanceof HTTPStatusError)) {
+  if (!HTTPStatusError.is(error)) {
     return undefined
   }
   if (error.status !== 429 && error.status !== 503) {
@@ -106,7 +106,7 @@ export function createQueue<Data>(initial: Data[]): Queue<Data> {
   function processError(task: QueueTask<Data>, e: Error): void {
     if (e.name === 'AbortError') return
 
-    if (e instanceof HTTPStatusError || e instanceof NetworkError) {
+    if (HTTPStatusError.is(e) || NetworkError.is(e)) {
       task.fails += 1
       onRequestError(task.data, e)
       if (task.fails === MAX_ATTEMPTS) {

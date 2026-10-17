@@ -27,9 +27,9 @@
   import StartPage from '../pages/start.svelte'
   import StoragePage from '../pages/storage.svelte'
   import WelcomePage from '../pages/welcome.svelte'
+  import ErrorPopup from '../popups/error.svelte'
   import FeedPopup from '../popups/feed.svelte'
   import LoadingPopup from '../popups/loading.svelte'
-  import NotFoundPopup from '../popups/not-found.svelte'
   import PasskeyPopup from '../popups/passkey.svelte'
   import PostPopup from '../popups/post.svelte'
   import RefreshPopup from '../popups/refresh.svelte'
@@ -48,6 +48,7 @@
   let popup = $derived($popupsStatus.last)
   let popupLoading = $derived($popupsStatus.loading)
   let popupNotFound = $derived($popupsStatus.notFound)
+  let popupError = $derived($popupsStatus.error)
   let popupOther = $derived($popupsStatus.other)
 </script>
 
@@ -107,8 +108,8 @@
   {#if popup}
     {#if popupLoading}
       <LoadingPopup {popup} />
-    {:else if popupNotFound}
-      <NotFoundPopup {popup} />
+    {:else if popupNotFound || popupError}
+      <ErrorPopup {popup} />
     {:else if popup.name === 'post'}
       <PostPopup {popup} />
     {:else if popup.name === 'feed'}

@@ -25,6 +25,7 @@ describe('popups', () => {
 
   test('generates popups status', async () => {
     deepEqual(popupsStatus.get(), {
+      error: undefined,
       last: undefined,
       loading: undefined,
       notFound: undefined,

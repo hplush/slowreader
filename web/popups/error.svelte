@@ -10,9 +10,9 @@
   let { popup }: { popup: BasePopup } = $props()
 </script>
 
-<Popup id={`${popup.uniqueId}-not-found`}>
+<Popup id={`${popup.uniqueId}-error`}>
   <Stack align="center" gap="xl">
     <PageIcon extra={mdiFire} path={mdiBookOpenPageVariant} />
-    <Title>{$t.popupNotFound}</Title>
+    <Title>{popup.error ?? $t.popupNotFound}</Title>
   </Stack>
 </Popup>

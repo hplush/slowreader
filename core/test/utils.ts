@@ -307,7 +307,7 @@ export function getPopup<Name extends PopupName>(
 
 export type Loaded<SomePopup extends BasePopup> = Extract<
   SomePopup,
-  { loading: ReadableAtom<false>; notFound: false }
+  { error: undefined; loading: ReadableAtom<false>; notFound: false }
 >
 
 /**
@@ -321,6 +321,9 @@ export function checkLoadedPopup<SomePopup extends BasePopup>(
   }
   if (popup.notFound) {
     throw new Error('Popup data was not found')
+  }
+  if (popup.error) {
+    throw new Error(`Popup failed: ${popup.error}`)
   }
   return popup as Loaded<SomePopup>
 }

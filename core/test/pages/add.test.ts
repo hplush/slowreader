@@ -30,7 +30,7 @@ describe('add page', () => {
   beforeEach(() => {
     startClient({
       warn(e) {
-        if (!(e instanceof HTTPStatusError)) {
+        if (!HTTPStatusError.is(e)) {
           throw e
         }
       }
