@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiEyeCheckOutline, mdiOpenInNew } from '@mdi/js'
+  import { mdiEyeCheckOutline, mdiOpenInNew, mdiReply } from '@mdi/js'
   import {
     getPopupId,
     type PostPopup,
@@ -13,7 +13,7 @@
   import Button from '../ui/button.svelte'
   import FeedLink from '../ui/feed-link.svelte'
   import Popup from '../ui/popup.svelte'
-  import Post from '../ui/post.svelte'
+  import Post from '../ui/post/index.svelte'
   import SmallLink from '../ui/small-link.svelte'
   import Stack from '../ui/stack.svelte'
   import Switch from '../ui/switch.svelte'
@@ -21,7 +21,7 @@
 
   let { popup }: { popup: PostPopup } = $props()
 
-  let { feed, post, publishedAt, read } = $derived(popup)
+  let { feed, post, publishedAt, read, replyUrl } = $derived(popup)
 
   onMount(() => {
     if (popup.read) {
@@ -66,7 +66,10 @@
       </SmallLink>
     </Stack>
     <Stack gap="xxl">
-      <Post post={$post} />
+      <Post
+        post={$post}
+        repostHref={feed && getPopupHash($router, 'feed', $feed!.url)}
+      />
       <Stack>
         {#if $post.url}
           <Button
@@ -77,6 +80,11 @@
             variant="attention"
           >
             {$t.url}
+          </Button>
+        {/if}
+        {#if $replyUrl}
+          <Button href={$replyUrl} icon={mdiReply} size="wide" target="_blank">
+            {$t.reply}
           </Button>
         {/if}
         {#if popup.read}

@@ -5,16 +5,19 @@
 
   let {
     authors,
+    feedUrl,
     posts
   }: {
     authors?: ReadonlyMap<string, FeedAuthor>
+    feedUrl?: string
     posts: readonly ReaderPost[]
   } = $props()
 </script>
 
 <ul class="feed">
   {#each posts as post (post.id)}
-    <FeedPost author={authors?.get(post.feedId)} {post} />
+    {@const author = authors?.get(post.feedId)}
+    <FeedPost {author} feedUrl={author?.url ?? feedUrl} {post} />
   {/each}
 </ul>
 

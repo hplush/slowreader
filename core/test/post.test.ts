@@ -18,6 +18,7 @@ import {
   loadPost,
   getPostIntro,
   getPost,
+  getQuotedIntro,
   type PostCardText,
   getPostTitle,
   preloadImages,
@@ -255,6 +256,16 @@ describe('post', () => {
     )
     equal(
       getPostTitle({
+        full:
+          '<p>Опенсорс-инструмент для поиска «сит» в Испании.</p>' +
+          '<p><a href="https://lamardecitas.net/">lamardecitas.net/</a></p>' +
+          '<p>В отличие от кучи ботов — решение работает локально</p>',
+        originId: 'id'
+      }),
+      'Опенсорс-инструмент для поиска «сит» в Испании. lamardecitas.net/ …'
+    )
+    equal(
+      getPostTitle({
         intro:
           '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本' +
           '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本' +
@@ -312,6 +323,14 @@ describe('post', () => {
         url: null
       }),
       ['a'.repeat(500) + '…', true]
+    )
+  })
+
+  test('loads quoted post intro', () => {
+    equal(getQuotedIntro({ missing: false }).innerHTML, '')
+    equal(
+      getQuotedIntro({ full: 'a'.repeat(600), missing: false }).innerHTML,
+      'a'.repeat(500) + '…'
     )
   })
 

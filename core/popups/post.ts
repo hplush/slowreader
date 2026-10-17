@@ -94,6 +94,13 @@ export const post = definePopup('post', async loader => {
       : undefined
   })
 
+  // Replies will be inside the app after Mastodon accounts support
+  let $replyUrl = computed($post, value => {
+    return $feed?.get().loader === 'mastodon'
+      ? (value.url ?? undefined)
+      : undefined
+  })
+
   return {
     destroy() {
       unbindStored()
@@ -103,7 +110,8 @@ export const post = definePopup('post', async loader => {
     feed: $feed,
     post: $post,
     publishedAt: $publishedAt,
-    read
+    read,
+    replyUrl: $replyUrl
   }
 })
 

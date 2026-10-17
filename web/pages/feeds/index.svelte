@@ -73,7 +73,7 @@
       {:else if $posts.name === 'empty'}
         <FeedsEmptyPage reader={$posts} />
       {:else if $posts.name === 'feed'}
-        <FeedsFeedPage reader={$posts} />
+        <FeedsFeedPage feedUrl={$feed?.url} reader={$posts} />
       {:else if $posts.name === 'list'}
         <FeedsListPage reader={$posts} />
       {/if}

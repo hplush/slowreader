@@ -1,0 +1,84 @@
+<script lang="ts">
+  import { mdiAlertOutline, mdiEyeOffOutline, mdiEyeOutline } from '@mdi/js'
+  import { postMessages as t } from '@slowreader/core'
+  import type { Snippet } from 'svelte'
+
+  import Button from '../button.svelte'
+  import Icon from '../icon.svelte'
+
+  let {
+    children,
+    warning
+  }: {
+    children: Snippet
+    warning: null | string | undefined
+  } = $props()
+
+  let shown = $state(false)
+</script>
+
+{#if warning}
+  <div class="post-warning">
+    <div class="post-warning_text">
+      <span class="post-warning_icon">
+        <Icon path={mdiAlertOutline} />
+      </span>
+      {warning}
+    </div>
+    <div class="post-warning_button">
+      <Button
+        aria-expanded={shown}
+        icon={shown ? mdiEyeOffOutline : mdiEyeOutline}
+        onclick={() => {
+          shown = !shown
+        }}
+        size="wide"
+      >
+        {shown ? $t.hideWarning : $t.showWarning}
+      </Button>
+    </div>
+  </div>
+{/if}
+{#if !warning || shown}
+  {@render children()}
+{/if}
+
+<style lang="postcss">
+  :global {
+    .post-warning {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      padding: 0.25rem;
+      margin-bottom: 0.625rem;
+      border: 0.125rem solid;
+      border-color: --tune-background(--note);
+      border-radius: var(--base-radius);
+
+      @mixin background var(--note-warning-background);
+    }
+
+    .post-warning_text {
+      display: flex;
+      flex: 1 1 10rem;
+      gap: 0.25rem;
+      align-items: center;
+      padding-inline-start: 0.25rem;
+      font: var(--secondary-font);
+    }
+
+    .post-warning_icon {
+      --icon-size: 1.25rem;
+
+      color: --tune-background(--note);
+    }
+
+    .post-warning_button {
+      display: flex;
+      flex: 0 0 8rem;
+    }
+  }
+</style>

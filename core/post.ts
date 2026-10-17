@@ -92,7 +92,18 @@ export type ReaderPostWith<Media> = {
   media: Media
 } & Pick<
   PostValue,
-  'feedId' | 'id' | 'originId' | 'publishedAt' | 'read' | 'title'
+  | 'author'
+  | 'feedId'
+  | 'id'
+  | 'originId'
+  | 'preview'
+  | 'publishedAt'
+  | 'quoted'
+  | 'read'
+  | 'repostedBy'
+  | 'title'
+  | 'unsupported'
+  | 'warning'
 > &
   PostCardText
 
@@ -250,13 +261,17 @@ export function getPostIntro(post: PostCardText): [Element, boolean] {
   }
 }
 
+function toOneLine(text: string): string {
+  return text.replace(/\s*\n\s*/g, ' ')
+}
+
 export function getPostTitle(post: PostContent): string {
   if (post.title) {
     return stripHTML(post.title)
   } else if (post.intro) {
-    return truncateText(stripHTML(post.intro), 40, 80)
+    return toOneLine(truncateText(stripHTML(post.intro), 40, 80))
   } else if (post.full) {
-    return truncateText(stripHTML(post.full), 40, 80)
+    return toOneLine(truncateText(stripHTML(post.full), 40, 80))
   } else if (post.publishedAt) {
     return formatter($locale)
       .get()
@@ -356,4 +371,20 @@ export function uniqueMedia(media: PostMedia[]): PostMedia[] | undefined {
   // Feeds repeat the same file in enclosure and MRSS with different details
   for (let i of media) unique.set(i.url, { ...i, ...unique.get(i.url) })
   return [...unique.values()]
+}
+
+export function addMediaSizes(
+  media: null | PostMedia[] | undefined,
+  sizes: (MediaSize | null)[] | null | undefined
+): ReaderMedia[] {
+  return (media ?? []).map((item, index) => {
+    let size = sizes?.[index]
+    return size ? { ...item, size } : item
+  })
+}
+
+export function getQuotedIntro(quoted: QuotedPost): Element {
+  let text = sanitizeDOM(quoted.full ?? '')
+  truncateDOM(text, INTRO_MIN, INTRO_MAX)
+  return text
 }

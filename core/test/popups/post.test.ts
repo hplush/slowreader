@@ -119,6 +119,32 @@ describe('post popup', () => {
     equal((await loadPost(id2))!.read, false)
   })
 
+  test('links reply to Mastodon', async () => {
+    let rss = await addFeed(testFeed())
+    let mastodon = await addFeed(testFeed({ loader: 'mastodon' }))
+    let rssPost = await addPost(testPost({ feedId: rss }))
+    let mastodonPost = await addPost(
+      testPost({ feedId: mastodon, url: 'https://mastodon.social/@a/1' })
+    )
+
+    let popup1 = openTestPopup(
+      'post',
+      getPostPopupParam({ feedId: rss, id: rssPost })
+    )
+    await waitLoading(popup1.loading)
+    equal(checkLoadedPopup(popup1).replyUrl.get(), undefined)
+
+    let popup2 = openTestPopup(
+      'post',
+      getPostPopupParam({ feedId: mastodon, id: mastodonPost })
+    )
+    await waitLoading(popup2.loading)
+    equal(
+      checkLoadedPopup(popup2).replyUrl.get(),
+      'https://mastodon.social/@a/1'
+    )
+  })
+
   test('opens candidate post', async () => {
     let post: OriginPost = { id: 'post', originId: 'id', title: 'test' }
     let data = getPostPopupParam(post)
@@ -128,6 +154,7 @@ describe('post popup', () => {
     deepEqual(checkLoadedPopup(popup).post.get(), post)
     deepEqual(checkLoadedPopup(popup).read, undefined)
     equal(checkLoadedPopup(popup).feed, undefined)
+    equal(checkLoadedPopup(popup).replyUrl.get(), undefined)
 
     let broken1 = openTestPopup('post', 'data:aaa')
     await waitLoading(broken1.loading)

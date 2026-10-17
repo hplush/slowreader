@@ -170,6 +170,12 @@ describe('mastodon loader', () => {
       []
     )
     deepEqual(
+      loaders.mastodon.getSupersededLinksFromText!(
+        profile('https://mastodon.social/@jane')
+      ),
+      ['https://mastodon.social/@jane.rss']
+    )
+    deepEqual(
       loaders.mastodon.getSuggestedLinksFromText(
         profile('https://mastodon.social/@jane')
       ),

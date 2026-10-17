@@ -5,6 +5,7 @@ import { getEnvironment } from '../environment.ts'
 import { nextValue } from '../lib/stores.ts'
 import { slowMenu, unreadFastMenu } from '../menu.ts'
 import {
+  addMediaSizes,
   changePost,
   hasUnreadPosts,
   type PostValue,
@@ -170,13 +171,7 @@ type ReaderPostRow = Pick<PostValue, 'mediaSizes'> &
 
 function toReaderPost(row: ReaderPostRow): ReaderPost {
   let { mediaSizes, ...post } = getTables().posts.parseRow(row)
-  return {
-    ...post,
-    media: (post.media ?? []).map((item, index) => {
-      let size = mediaSizes?.[index]
-      return size ? { ...item, size } : item
-    })
-  }
+  return { ...post, media: addMediaSizes(post.media, mediaSizes) }
 }
 
 /**
@@ -195,7 +190,9 @@ export function loadPostsPage(
     rows = getCrdt().select<ReaderPostRow>`
       SELECT "posts"."id", "posts"."feedId", "posts"."media",
         "posts"."mediaSizes", "posts"."originId", "posts"."publishedAt",
-        "posts"."read", "posts"."title", "posts"."url",
+        "posts"."read", "posts"."title", "posts"."url", "posts"."author",
+        "posts"."preview", "posts"."quoted", "posts"."repostedBy",
+        "posts"."unsupported", "posts"."warning",
         NULLIF("posts"."intro", '') AS "intro",
         CASE WHEN COALESCE("posts"."intro", '') = ''
           THEN "posts"."full" END AS "full",
@@ -214,7 +211,8 @@ export function loadPostsPage(
   } else {
     rows = getCrdt().select<ReaderPostRow>`
       SELECT "id", "feedId", "media", "mediaSizes", "originId",
-        "publishedAt", "read", "title", "url", NULLIF("intro", '') AS "intro",
+        "publishedAt", "read", "title", "url", "author", "preview", "quoted",
+        "repostedBy", "unsupported", "warning", NULLIF("intro", '') AS "intro",
         CASE WHEN COALESCE("intro", '') = '' THEN "full" END AS "full",
         COALESCE(NULLIF("intro", '') <> "full", 0) AS "more"
       FROM "posts"
@@ -246,7 +244,9 @@ export function loadPostsRange(
     rows = getCrdt().select<ReaderPostRow>`
       SELECT "posts"."id", "posts"."feedId", "posts"."media",
         "posts"."mediaSizes", "posts"."originId", "posts"."publishedAt",
-        "posts"."read", "posts"."title", "posts"."url",
+        "posts"."read", "posts"."title", "posts"."url", "posts"."author",
+        "posts"."preview", "posts"."quoted", "posts"."repostedBy",
+        "posts"."unsupported", "posts"."warning",
         NULLIF("posts"."intro", '') AS "intro",
         CASE WHEN COALESCE("posts"."intro", '') = ''
           THEN "posts"."full" END AS "full",
@@ -266,7 +266,8 @@ export function loadPostsRange(
   } else {
     rows = getCrdt().select<ReaderPostRow>`
       SELECT "id", "feedId", "media", "mediaSizes", "originId",
-        "publishedAt", "read", "title", "url", NULLIF("intro", '') AS "intro",
+        "publishedAt", "read", "title", "url", "author", "preview", "quoted",
+        "repostedBy", "unsupported", "warning", NULLIF("intro", '') AS "intro",
         CASE WHEN COALESCE("intro", '') = '' THEN "full" END AS "full",
         COALESCE(NULLIF("intro", '') <> "full", 0) AS "more"
       FROM "posts"

@@ -10,12 +10,12 @@
   import Feed from '../../ui/feed/index.svelte'
   import Stack from '../../ui/stack.svelte'
 
-  let { reader }: { reader: FeedReader } = $props()
+  let { feedUrl, reader }: { feedUrl?: string; reader: FeedReader } = $props()
   let { authors, hasNext, list, nextFrom, prevFrom, readingPage } =
     $derived(reader)
 </script>
 
-<Feed authors={$authors} posts={$list} />
+<Feed authors={$authors} {feedUrl} posts={$list} />
 
 <Stack gap="s" row>
   {#if $prevFrom}

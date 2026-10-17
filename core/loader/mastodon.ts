@@ -14,7 +14,13 @@ import type {
   QuotedPost
 } from '../post.ts'
 import { createPostsList, type PostsListResult } from '../posts-list.ts'
-import { getUpdatedAt, type Loader, toAvatarUrl, toTime } from './common.ts'
+import {
+  findDocumentLinks,
+  getUpdatedAt,
+  type Loader,
+  toAvatarUrl,
+  toTime
+} from './common.ts'
 
 // https://docs.joinmastodon.org/entities/Account/
 interface MastodonAccount {
@@ -317,6 +323,10 @@ export const mastodon: Loader = {
 
   getSuggestedLinksFromText() {
     return []
+  },
+
+  getSupersededLinksFromText(text) {
+    return findDocumentLinks(text, 'application/rss+xml')
   },
 
   isMineText(text) {

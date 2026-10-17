@@ -34,6 +34,65 @@
     url: 'https://example.com/news/1'
   } satisfies Partial<PostValue>
 
+  const MASTODON = {
+    author: {
+      avatar: imgExample,
+      title: 'Jane Doe',
+      url: 'https://mastodon.social/@jane'
+    },
+    feedId: 'mastodon',
+    full:
+      '<p>Reposted post with all Mastodon features, ' +
+      'which Slow Reader supports.</p>',
+    media: [
+      {
+        alt: 'Sensitive image',
+        sensitive: true,
+        type: 'image',
+        url: imgExample
+      }
+    ],
+    mediaSizes: [{ height: 480, width: 1920 }],
+    preview: {
+      description: 'Description of the link',
+      image: imgExample,
+      title: 'Link title',
+      url: 'https://example.com/article'
+    },
+    publishedAt: 1600000000,
+    quoted: {
+      author: {
+        avatar: imgExample,
+        title: 'Quoted Author',
+        url: 'https://mastodon.social/@q'
+      },
+      full: '<p>Quoted post</p>',
+      media: [
+        {
+          alt: 'Video',
+          poster: imgExample,
+          type: 'video',
+          url: 'https://example.com/video.mp4'
+        }
+      ],
+      missing: false,
+      quotedUrl: 'https://mastodon.social/@other/2',
+      url: 'https://mastodon.social/@q/1'
+    },
+    reading: 'slow',
+    repostedBy: { title: 'Mastodon' },
+    unsupported: true,
+    url: 'https://mastodon.social/@jane/1'
+  } satisfies Partial<PostValue>
+
+  const MASTODON_FEED = {
+    id: 'mastodon',
+    loader: 'mastodon',
+    reading: 'slow',
+    title: 'Mastodon',
+    url: 'https://mastodon.social/@Mastodon'
+  } satisfies Partial<FeedValue>
+
   const ORIGIN = getPostPopupParam({
     full: '<p>The post from the feed, which was not added yet.</p>',
     id: 'origin',
@@ -52,11 +111,9 @@
 <script lang="ts">
   let popup: Popup<'post'> | undefined = $state()
 
-  function open(autoread = false): () => void {
+  function open(autoread = false, feedId = 'feed'): () => void {
     return () => {
-      popup = popups.post(
-        getPostPopupParam({ feedId: 'feed', id: 'post-1' }, autoread)
-      )
+      popup = popups.post(getPostPopupParam({ feedId, id: 'post-1' }, autoread))
     }
   }
 </script>
@@ -93,6 +150,47 @@
     feeds={[FEED]}
     oninit={open()}
     posts={[{ ...POST, media: [{ type: 'image', url: imgExample }] }]}
+  >
+    {#if popup}
+      <LoadedPopup {popup}>
+        {#snippet loaded(loadedPopup)}
+          <PostPopupComponent popup={loadedPopup} />
+        {/snippet}
+      </LoadedPopup>
+    {/if}
+  </Scene>
+</Story>
+
+<Story name="Mastodon" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[MASTODON_FEED]}
+    oninit={open(false, 'mastodon')}
+    posts={[MASTODON]}
+  >
+    {#if popup}
+      <LoadedPopup {popup}>
+        {#snippet loaded(loadedPopup)}
+          <PostPopupComponent popup={loadedPopup} />
+        {/snippet}
+      </LoadedPopup>
+    {/if}
+  </Scene>
+</Story>
+
+<Story name="Mastodon Warning" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[MASTODON_FEED]}
+    oninit={open(false, 'mastodon')}
+    posts={[
+      {
+        feedId: 'mastodon',
+        full: '<p>Hidden text</p>',
+        quoted: { missing: true },
+        reading: 'slow',
+        url: 'https://mastodon.social/@Mastodon/2',
+        warning: 'Movie spoilers'
+      }
+    ]}
   >
     {#if popup}
       <LoadedPopup {popup}>

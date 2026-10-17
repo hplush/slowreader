@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { mdiChevronRight, mdiOpenInNew } from '@mdi/js'
+  import { mdiChevronRight, mdiOpenInNew, mdiPuzzleOutline } from '@mdi/js'
   import {
     type FeedAuthor,
     getPopupId,
     getPostIntro,
     getPostPopupParam,
     openedPost,
+    postMessages,
     type ReaderPost,
     router,
     feedsMessages as t
@@ -15,12 +16,20 @@
   import Button from '../button.svelte'
   import FeedLink from '../feed-link.svelte'
   import FormattedText from '../formatted-text.svelte'
+  import Note from '../note.svelte'
+  import PostByline from '../post/byline.svelte'
+  import PostMedia from '../post/media.svelte'
+  import PostPreview from '../post/preview.svelte'
+  import PostQuote from '../post/quote.svelte'
+  import PostWarning from '../post/warning.svelte'
 
   let {
     author,
+    feedUrl,
     post
   }: {
     author: FeedAuthor | undefined
+    feedUrl: string | undefined
     post: ReaderPost
   } = $props()
 
@@ -52,17 +61,33 @@
         />
       </div>
     {/if}
+    <PostByline
+      author={post.author}
+      repostHref={feedUrl && getPopupHash($router, 'feed', feedUrl)}
+      repostedBy={post.repostedBy}
+    />
     {#if post.title}
       <h2 class="feed-post_title">
         <FormattedText html={post.title} />
       </h2>
     {/if}
-    <FormattedText html={intro} simple />
-    {#each post.media as image, index (`${image.url}${index}`)}
-      {#if !image.fromText && image.type.startsWith('image')}
-        <img class="feed-post_image" alt="" src={image.url} />
+    <PostWarning warning={post.warning}>
+      <FormattedText html={intro} simple />
+      <PostMedia media={post.media} />
+      {#if post.quoted}
+        <PostQuote quoted={post.quoted} />
       {/if}
-    {/each}
+      {#if post.preview}
+        <PostPreview preview={post.preview} />
+      {/if}
+    </PostWarning>
+    {#if post.unsupported}
+      <div class="feed-post_unsupported">
+        <Note icon={mdiPuzzleOutline} variant="neutral">
+          {$postMessages.unsupported}
+        </Note>
+      </div>
+    {/if}
     <footer class="feed-post_actions">
       <div class="feed-post_fill"></div>
       {#if post.url}
@@ -201,11 +226,8 @@
       font: var(--subtitle-font);
     }
 
-    .feed-post_image {
-      max-width: 100%;
-      height: auto;
-      padding-top: 0.625rem;
-      margin: 0 auto;
+    .feed-post_unsupported {
+      margin-top: 0.625rem;
     }
 
     .feed-post_actions {
