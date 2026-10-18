@@ -11,7 +11,6 @@ import { join } from 'node:path'
 import postgres from 'postgres'
 
 import { config } from '../lib/config.ts'
-import { onExit } from '../lib/exit.ts'
 import * as schema from './schema.ts'
 export * from './schema.ts'
 
@@ -37,10 +36,11 @@ export const db: PgAsyncDatabase<PgQueryResultHKT, typeof relations> =
     ? pgliteDrizzle({ client: dbDriver, relations })
     : postgresDrizzle({ client: dbDriver, relations })
 
+export function closeDb(): Promise<void> {
+  return dbDriver instanceof PGlite ? dbDriver.close() : dbDriver.end()
+}
+
 if (dbDriver instanceof PGlite) {
-  onExit(() => {
-    void dbDriver.close()
-  })
   await pgliteMigrate(pgliteDrizzle({ client: dbDriver }), MIGRATE_CONFIG)
 } else {
   let migrator = postgres(config.db, { max: 1 })

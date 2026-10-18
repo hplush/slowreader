@@ -2,8 +2,7 @@ import { PostgresStore, Server } from '@logux/server'
 import { SUBPROTOCOL } from '@slowreader/api'
 
 import { downloadProvidersIfMissed, loadProviders } from './aaguids/utils.ts'
-import { dbDriver } from './db/index.ts'
-import { onExit } from './lib/exit.ts'
+import { closeDb, dbDriver } from './db/index.ts'
 import { redactLogger } from './lib/redact.ts'
 import type { ClientData } from './lib/types.ts'
 
@@ -49,6 +48,4 @@ server.listen().catch((error: unknown) => {
   throw error
 })
 
-onExit(() => {
-  void server.destroy()
-})
+server.on('destroyed', closeDb)

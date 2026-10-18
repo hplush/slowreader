@@ -338,8 +338,8 @@ importers:
         version: 1.5.5
     devDependencies:
       '@logux/server':
-        specifier: 0.17.0
-        version: 0.17.0
+        specifier: 0.17.1
+        version: 0.17.1
       '@slowreader/proxy':
         specifier: workspace:*
         version: link:../proxy
@@ -434,8 +434,8 @@ importers:
         specifier: 0.12.1
         version: 0.12.1
       '@logux/server':
-        specifier: 0.17.0
-        version: 0.17.0
+        specifier: 0.17.1
+        version: 0.17.1
       '@simplewebauthn/server':
         specifier: 14.0.3
         version: 14.0.3
@@ -1423,8 +1423,8 @@ packages:
     resolution: {integrity: sha512-a7KRD30U252cfIekBGktEIRuwFRT7vOPZXkEsD05DwApsPi70iRnFaHEgMde8tZu+jJUuTDN/xMgabtjzHzXaQ==}
     engines: {node: ^20.0.0 || >=22.0.0}
 
-  '@logux/server@0.17.0':
-    resolution: {integrity: sha512-nQ51vd+50ZqECC8lYb6C8lL9hDh4wk2o7wQUePb1qMrDd8wLjdJjTrg31OE6hzTi5bBWmg4MuUKT+mtmLpEp3A==}
+  '@logux/server@0.17.1':
+    resolution: {integrity: sha512-vubmEYWqS0Yno010vWkM86G8nEo0luLaJn0A8j4msQRL1fGLvnpYTY2JBVuWhApQyNsI/qXPRgIxoGFgG3hdEA==}
     engines: {node: ^22.5.0 || ^24.0.0 || >=26.0.0}
 
   '@logux/stylelint-config@1.1.0':
@@ -6336,7 +6336,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@logux/server@0.17.0':
+  '@logux/server@0.17.1':
     dependencies:
       '@logux/actions': 0.8.1(@logux/core@0.12.1)
       '@logux/core': 0.12.1
