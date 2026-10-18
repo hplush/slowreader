@@ -7,8 +7,15 @@ import type { PostsList, PostsListResult } from '../posts-list.ts'
 export type Loader = {
   /**
    * Feed’s own icon. Without it, the icon is taken from the site.
+   *
+   * The `url` is the feed’s URL, since the `response` could come
+   * from a redirect.
    */
-  getAvatarFromText(response: TextResponse): string | undefined
+  getAvatar(
+    response: TextResponse,
+    task: DownloadTask,
+    url: string
+  ): Promise<string | undefined> | string | undefined
 
   /**
    * Find feeds URLs from HTML or HTTP headers.

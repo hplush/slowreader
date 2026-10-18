@@ -194,20 +194,36 @@ describe('json feed loader', () => {
     )
   })
 
-  test('finds avatar', () => {
+  test('finds avatar', async () => {
+    let task = createDownloadTask()
     equal(
-      loaders.jsonFeed.getAvatarFromText(
-        exampleJson({ ...jsonStub, favicon: '/favicon.png', icon: '/icon.png' })
+      await loaders.jsonFeed.getAvatar(
+        exampleJson({
+          ...jsonStub,
+          favicon: '/favicon.png',
+          icon: '/icon.png'
+        }),
+        task,
+        'https://example.com/'
       ),
       'https://example.com/icon.png'
     )
     equal(
-      loaders.jsonFeed.getAvatarFromText(
-        exampleJson({ ...jsonStub, favicon: 'https://cdn.com/favicon.png' })
+      await loaders.jsonFeed.getAvatar(
+        exampleJson({ ...jsonStub, favicon: 'https://cdn.com/favicon.png' }),
+        task,
+        'https://example.com/'
       ),
       'https://cdn.com/favicon.png'
     )
-    equal(loaders.jsonFeed.getAvatarFromText(exampleJson(jsonStub)), undefined)
+    equal(
+      await loaders.jsonFeed.getAvatar(
+        exampleJson(jsonStub),
+        task,
+        'https://example.com/'
+      ),
+      undefined
+    )
   })
 
   test('detects titles', () => {

@@ -161,7 +161,7 @@ function parsePosts(
 }
 
 export const jsonFeed: Loader = {
-  getAvatarFromText(text) {
+  getAvatar(text) {
     let feed = text.parseJson()
     validate(text.text, feed)
     // Spec’s `favicon` is 64×64, too blurry for the feed popup

@@ -89,14 +89,19 @@ export const feed = definePopup('feed', async url => {
   // Lazy to not download icons for popups without UI
   onMount($avatar, () => {
     void parsing.then(async () => {
-      if (!candidate) return
-      let avatar = await findFeedAvatar(
-        { loader: candidate.name, url: candidate.url },
-        task,
-        response
-      )
-      $avatar.set(avatar)
-      if (existing) await saveFoundFeedAvatar(existing.id, avatar)
+      if (existing) {
+        let avatar = await findFeedAvatar(existing, task, response)
+        $avatar.set(avatar)
+        await saveFoundFeedAvatar(existing.id, avatar)
+      } else if (candidate) {
+        $avatar.set(
+          await findFeedAvatar(
+            { loader: candidate.name, url: candidate.url },
+            task,
+            response
+          )
+        )
+      }
     })
   })
 

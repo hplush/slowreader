@@ -179,8 +179,10 @@ export async function findFeedAvatar(
   response?: TextResponse
 ): Promise<string | undefined> {
   try {
-    let fromFeed = loaders[feed.loader].getAvatarFromText(
-      response ?? (await task.text(feed.url))
+    let fromFeed = await loaders[feed.loader].getAvatar(
+      response ?? (await task.text(feed.url)),
+      task,
+      feed.url
     )
     if (fromFeed && (await isLoadableIcon(task, fromFeed))) return fromFeed
   } catch {}

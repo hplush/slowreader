@@ -166,18 +166,29 @@ describe('mastodon loader', () => {
     ])
   })
 
-  test('finds avatar', () => {
+  test('finds avatar', async () => {
+    let task = createDownloadTask()
     equal(
-      loaders.mastodon.getAvatarFromText(
-        profile('https://mastodon.social/@jane')
+      await loaders.mastodon.getAvatar(
+        profile('https://mastodon.social/@jane'),
+        task,
+        'https://mastodon.social/@jane'
       ),
       'https://mastodon.social/avatar.png'
     )
+
+    expectRequest(`${API}/accounts/lookup?acct=bob%40other.social`).andRespond(
+      200,
+      JSON.stringify(account('bob')),
+      'application/json'
+    )
     equal(
-      loaders.mastodon.getAvatarFromText(
-        profile('https://mastodon.social/about')
+      await loaders.mastodon.getAvatar(
+        profile('https://mastodon.social/redirect/accounts/1'),
+        task,
+        'https://mastodon.social/@bob@other.social'
       ),
-      undefined
+      'https://mastodon.social/bob.png'
     )
   })
 

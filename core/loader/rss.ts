@@ -72,7 +72,7 @@ function parsePosts(
 }
 
 export const rss: Loader = {
-  getAvatarFromText(text) {
+  getAvatar(text) {
     let image = text.parseXml().querySelector('channel > image')
     // WordPress puts 32×32 icon here, while the site has a bigger one
     let small = ['width', 'height'].some(side => {

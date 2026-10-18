@@ -239,25 +239,30 @@ describe('atom loader', () => {
     )
   })
 
-  test('finds avatar', () => {
+  test('finds avatar', async () => {
+    let task = createDownloadTask()
     equal(
-      loaders.atom.getAvatarFromText(
+      await loaders.atom.getAvatar(
         exampleAtom(
           `<feed xmlns="http://www.w3.org/2005/Atom" xml:base="/blog/">
             <icon>icon.svg</icon>
             <logo>logo.png</logo>
           </feed>`
-        )
+        ),
+        task,
+        'https://example.com/'
       ),
       'https://example.com/blog/icon.svg'
     )
     equal(
-      loaders.atom.getAvatarFromText(
+      await loaders.atom.getAvatar(
         exampleAtom(
           `<feed xmlns="http://www.w3.org/2005/Atom">
             <logo>logo.png</logo>
           </feed>`
-        )
+        ),
+        task,
+        'https://example.com/'
       ),
       undefined
     )

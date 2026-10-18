@@ -170,7 +170,7 @@ async function loadFeed(
 }
 
 export const atom: Loader = {
-  getAvatarFromText(text) {
+  getAvatar(text) {
     let icon = text.parseXml().querySelector(':root > icon')
     return toAvatarUrl(
       icon?.textContent,

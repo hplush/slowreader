@@ -367,12 +367,15 @@ function getApi(url: string): { acct: string; origin: string } {
   }
 }
 
-async function loadAccountId(task: DownloadTask, url: string): Promise<string> {
+async function loadAccount(
+  task: DownloadTask,
+  url: string
+): Promise<MastodonAccount> {
   let { acct, origin } = getApi(url)
   let response = await task.text(
     `${origin}/api/v1/accounts/lookup?acct=${encodeURIComponent(acct)}`
   )
-  return parseAccount(response).id
+  return parseAccount(response)
 }
 
 function parseLoaderData(data: null | string | undefined): string | undefined {
@@ -404,9 +407,13 @@ async function loadPage(
 }
 
 export const mastodon: Loader = {
-  getAvatarFromText(text) {
-    if (!isProfile(text)) return undefined
-    return toAvatarUrl(getMeta(text, 'og:image'), text.url)
+  async getAvatar(text, task, url) {
+    if (isProfile(text)) {
+      let image = toAvatarUrl(getMeta(text, 'og:image'), text.url)
+      if (image) return image
+    }
+    // Remote profiles redirect to the page without avatar
+    return toAvatarUrl((await loadAccount(task, url)).avatar, url)
   },
 
   getMineLinksFromText(text) {
@@ -418,12 +425,12 @@ export const mastodon: Loader = {
   },
 
   async getLoaderData(task, url) {
-    return JSON.stringify({ id: await loadAccountId(task, url) })
+    return JSON.stringify({ id: (await loadAccount(task, url)).id })
   },
 
   getPosts(task, url, text, refreshedAt, loaderData) {
     return createPostsList(async () => {
-      let id = parseLoaderData(loaderData) ?? (await loadAccountId(task, url))
+      let id = parseLoaderData(loaderData) ?? (await loadAccount(task, url)).id
       return loadPage(task, getApi(url).origin, id)
     })
   },

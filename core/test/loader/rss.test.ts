@@ -138,21 +138,24 @@ describe('rss loader', () => {
     )
   })
 
-  test('finds avatar', () => {
+  test('finds avatar', async () => {
+    let task = createDownloadTask()
     equal(
-      loaders.rss.getAvatarFromText(
+      await loaders.rss.getAvatar(
         exampleRss(
           `<rss version="2.0">
             <channel>
               <image><url> /logo.png </url></image>
             </channel>
           </rss>`
-        )
+        ),
+        task,
+        'https://example.com/'
       ),
       'https://example.com/logo.png'
     )
     equal(
-      loaders.rss.getAvatarFromText(
+      await loaders.rss.getAvatar(
         exampleRss(
           `<rss version="2.0">
             <channel>
@@ -163,12 +166,14 @@ describe('rss loader', () => {
               </image>
             </channel>
           </rss>`
-        )
+        ),
+        task,
+        'https://example.com/'
       ),
       'https://example.com/big.png'
     )
     equal(
-      loaders.rss.getAvatarFromText(
+      await loaders.rss.getAvatar(
         exampleRss(
           `<rss version="2.0">
             <channel>
@@ -179,13 +184,17 @@ describe('rss loader', () => {
               </image>
             </channel>
           </rss>`
-        )
+        ),
+        task,
+        'https://example.com/'
       ),
       undefined
     )
     equal(
-      loaders.rss.getAvatarFromText(
-        exampleRss('<rss version="2.0"><channel></channel></rss>')
+      await loaders.rss.getAvatar(
+        exampleRss('<rss version="2.0"><channel></channel></rss>'),
+        task,
+        'https://example.com/'
       ),
       undefined
     )
