@@ -2,8 +2,10 @@
   import { mdiPuzzleOutline } from '@mdi/js'
   import {
     addMediaSizes,
+    getMediaOutsideText,
     type OriginPost,
     type PostValue,
+    sanitizeDOM,
     postMessages as t
   } from '@slowreader/core'
 
@@ -19,6 +21,8 @@
     post,
     repostHref
   }: { post: OriginPost | PostValue; repostHref?: string } = $props()
+
+  let text = $derived(sanitizeDOM(post.full || post.intro || ''))
 </script>
 
 <div class="post">
@@ -41,13 +45,17 @@
     </div>
   {/if}
   <PostWarning warning={post.warning}>
-    {#if post.full}
-      <FormattedText html={post.full} />
-    {:else if post.intro}
-      <FormattedText html={post.intro} />
+    {#if post.full || post.intro}
+      <FormattedText html={text} />
     {/if}
 
-    <PostMedia media={addMediaSizes(post.media, post.mediaSizes)} />
+    <PostMedia
+      media={getMediaOutsideText(
+        addMediaSizes(post.media, post.mediaSizes),
+        text,
+        false
+      )}
+    />
 
     {#if post.quoted}
       <PostQuote full linked quoted={post.quoted} />

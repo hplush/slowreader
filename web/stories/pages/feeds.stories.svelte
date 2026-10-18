@@ -29,11 +29,20 @@
     },
     {
       feedId: 'feed',
-      full: '',
-      intro: '',
+      full: `<img src="${new URL(imgExample, location.href).href}">`,
+      intro: 'Image from text is visible, since card shows summary',
       media: [{ fromText: true, type: 'image', url: imgExample }],
       reading: 'slow',
       title: 'The Future is Ours to Build - Together'
+    },
+    {
+      feedId: 'feed',
+      full:
+        '<p>Image is not repeated</p>' +
+        `<img src="${new URL(imgExample, location.href).href}">`,
+      intro: null,
+      media: [{ fromText: true, type: 'image', url: imgExample }],
+      reading: 'slow'
     },
     { feedId: 'feed', full: '', intro: '', reading: 'slow', title: '' },
     {

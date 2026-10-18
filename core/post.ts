@@ -397,6 +397,22 @@ export function getPostIntro(
   return [intro, more]
 }
 
+/**
+ * Text cut from the article shows only some of its images, but the rest
+ * should not fill the card.
+ */
+export function getMediaOutsideText(
+  media: ReaderMedia[],
+  text: Element,
+  cut: boolean
+): ReaderMedia[] {
+  if (cut) return media.filter(i => !i.fromText)
+  let shown = new Set(
+    [...text.querySelectorAll('img')].map(i => i.getAttribute('src'))
+  )
+  return media.filter(i => !shown.has(i.url))
+}
+
 function toOneLine(text: string): string {
   return text.replace(/\s*\n\s*/g, ' ')
 }

@@ -2,6 +2,7 @@
   import { mdiChevronRight, mdiOpenInNew, mdiPuzzleOutline } from '@mdi/js'
   import {
     type FeedAuthor,
+    getMediaOutsideText,
     getPopupId,
     getPostIntro,
     getPostPopupParam,
@@ -80,7 +81,9 @@
     {/if}
     <PostWarning warning={post.warning}>
       <FormattedText html={intro} simple />
-      <PostMedia media={post.media} />
+      <PostMedia
+        media={getMediaOutsideText(post.media, intro, post.intro === null)}
+      />
       {#if post.quoted}
         <PostQuote quoted={post.quoted} />
       {/if}

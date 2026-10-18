@@ -10,10 +10,9 @@
 
   let { media }: { media: ReaderMedia[] } = $props()
 
-  let attached = $derived(media.filter(item => !item.fromText))
   let revealed = $state(false)
   let hidden = $derived(
-    !revealed && !$showSensitiveMedia && attached.some(item => item.sensitive)
+    !revealed && !$showSensitiveMedia && media.some(item => item.sensitive)
   )
 </script>
 
@@ -24,10 +23,10 @@
   <source src={item.url} />
 {/snippet}
 
-{#if attached.length > 0}
+{#if media.length > 0}
   <div class="post-media" class:is-hidden={hidden}>
     <div class="post-media_list" inert={hidden}>
-      {#each attached as item, index (`${item.url}${index}`)}
+      {#each media as item, index (`${item.url}${index}`)}
         {#if item.type.startsWith('image')}
           <img
             class="post-media_item"

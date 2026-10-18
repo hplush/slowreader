@@ -2,9 +2,11 @@
   import {
     addMediaSizes,
     canOpenPostUrl,
+    getMediaOutsideText,
     getQuotedIntro,
     type QuotedPost,
     router,
+    sanitizeDOM,
     postMessages as t
   } from '@slowreader/core'
 
@@ -29,6 +31,10 @@
   } = $props()
 
   let id = $props.id()
+
+  let text = $derived(
+    full ? sanitizeDOM(quoted.full ?? '') : getQuotedIntro(quoted)
+  )
 
   let href = $derived(
     linked && !quoted.missing && quoted.url
@@ -76,11 +82,14 @@
       </div>
     {/if}
     <PostWarning warning={quoted.warning}>
-      <FormattedText
-        html={full ? (quoted.full ?? undefined) : getQuotedIntro(quoted)}
-        simple={!full}
+      <FormattedText html={text} simple={!full} />
+      <PostMedia
+        media={getMediaOutsideText(
+          addMediaSizes(quoted.media, quoted.mediaSizes),
+          text,
+          !full
+        )}
       />
-      <PostMedia media={addMediaSizes(quoted.media, quoted.mediaSizes)} />
       {#if quoted.preview}
         <PostPreview preview={quoted.preview} />
       {/if}

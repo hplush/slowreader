@@ -14,6 +14,7 @@ import {
   addPost,
   changeFeed,
   encryptionKey,
+  getMediaOutsideText,
   getPostId,
   loadPost,
   getPostIntro,
@@ -22,6 +23,7 @@ import {
   type PostCardText,
   getPostTitle,
   preloadImages,
+  sanitizeDOM,
   setupEnvironment,
   slowPostsCount,
   testFeed,
@@ -64,6 +66,15 @@ describe('post', () => {
     equal(result[1], true)
     match(result[0], /[.?] …<\/p>/)
   }
+
+  test('shows media outside of text', () => {
+    let a = { fromText: true, type: 'image', url: 'https://example.com/a.jpg' }
+    let b = { fromText: true, type: 'image', url: 'https://example.com/b.jpg' }
+    let c = { type: 'image', url: 'https://example.com/c.jpg' }
+    let text = sanitizeDOM('<img src="https://example.com/a.jpg">')
+    deepEqual(getMediaOutsideText([a, b, c], text, false), [b, c])
+    deepEqual(getMediaOutsideText([a, b, c], text, true), [c])
+  })
 
   test('preloads images by the setting', () => {
     let post = {
