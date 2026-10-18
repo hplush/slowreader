@@ -16,8 +16,11 @@ import type {
 import { createPostsList, type PostsListResult } from '../posts-list.ts'
 import {
   findDocumentLinks,
+  findMetaProperty,
   getUpdatedAt,
+  isObject,
   type Loader,
+  readLoaderData,
   toAvatarUrl,
   toTime
 } from './common.ts'
@@ -106,10 +109,6 @@ const POPULAR = new Set([
   'techhub.social'
 ])
 
-function isObject(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value)
-}
-
 function parseAccount(response: TextResponse): MastodonAccount {
   let account = response.parseJson()
   if (!isObject(account) || typeof account.id !== 'string') {
@@ -165,22 +164,12 @@ function getCanonicalUrl(
   response: TextResponse,
   origin: string
 ): string | undefined {
-  let canonical = getMeta(response, 'og:url')
+  let canonical = findMetaProperty(response, 'og:url')
   if (!canonical || !URL.canParse(canonical)) return undefined
   let parsed = new URL(canonical)
   let profile = parsed.pathname.match(PROFILE)
   if (parsed.origin !== origin || !profile) return undefined
   return `${origin}/@${decodeURIComponent(profile[1]!)}`
-}
-
-function getMeta(response: TextResponse, property: string): string | undefined {
-  let document = response.tryParseHTML()
-  if (!document) return undefined
-  return (
-    document
-      .querySelector(`meta[property="${property}"]`)
-      ?.getAttribute('content') ?? undefined
-  )
 }
 
 /**
@@ -408,15 +397,6 @@ async function loadAccount(
   return parseAccount(response)
 }
 
-function parseLoaderData(data: null | string | undefined): string | undefined {
-  if (!data) return undefined
-  try {
-    let parsed: unknown = JSON.parse(data)
-    if (isObject(parsed) && typeof parsed.id === 'string') return parsed.id
-  } catch {}
-  return undefined
-}
-
 async function loadPage(
   task: DownloadTask,
   origin: string,
@@ -439,7 +419,7 @@ async function loadPage(
 export const mastodon: Loader = {
   async getAvatar(text, task, url) {
     if (isProfile(text, text.url)) {
-      let image = toAvatarUrl(getMeta(text, 'og:image'), text.url)
+      let image = toAvatarUrl(findMetaProperty(text, 'og:image'), text.url)
       if (image) return image
     }
     // Remote profiles redirect to the page without avatar
@@ -460,7 +440,8 @@ export const mastodon: Loader = {
 
   getPosts(task, url, text, refreshedAt, loaderData) {
     return createPostsList(async () => {
-      let id = parseLoaderData(loaderData) ?? (await loadAccount(task, url)).id
+      let id =
+        readLoaderData(loaderData, 'id') ?? (await loadAccount(task, url)).id
       return loadPage(task, getApi(url).origin, id)
     })
   },
@@ -544,7 +525,7 @@ export const mastodon: Loader = {
     if (!isProfile(text, url)) return false
     let { acct, origin } = getApi(url)
     // Redirect page could have meta of something else
-    let title = isProfile(text, text.url) && getMeta(text, 'og:title')
+    let title = isProfile(text, text.url) && findMetaProperty(text, 'og:title')
     if (title) {
       let [, name = title, handle = acct] =
         title.match(/^(.*?)\s*\(@([^)]+)\)$/) ?? []

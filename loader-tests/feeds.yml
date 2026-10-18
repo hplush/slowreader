@@ -48,6 +48,16 @@ feeds:
     url: https://infosec.exchange/@briankrebs
     homeUrl: https://infosec.exchange/@briankrebs
 
+  # Bluesky
+
+  - title: Bluesky Official
+    url: https://bsky.app/profile/bsky.app
+    homeUrl: https://bsky.app/profile/bsky.app
+
+  - title: Bluesky Custom Domain
+    url: https://bsky.app/profile/pfrazee.com
+    homeUrl: https://bsky.app/profile/pfrazee.com
+
   # Edge Cases
 
   - title: Wrong Content Type

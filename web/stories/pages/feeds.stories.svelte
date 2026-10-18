@@ -70,6 +70,26 @@
         '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文' +
         '文本文本文本文本文本文本文本文本文本文本文本文本文本文本文本文',
       reading: 'slow'
+    },
+    {
+      feedId: 'feed',
+      full: '<p>Video with HLS stream and MP4 fallback</p>',
+      intro: null,
+      media: [
+        {
+          alt: 'Video',
+          poster: imgExample,
+          sources: [
+            {
+              type: 'application/vnd.apple.mpegurl',
+              url: 'https://example.com/playlist.m3u8'
+            }
+          ],
+          type: 'video',
+          url: 'https://example.com/original.mp4'
+        }
+      ],
+      reading: 'slow'
     }
   ] satisfies Partial<PostValue>[]
 

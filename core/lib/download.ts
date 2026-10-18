@@ -138,6 +138,7 @@ export function createTextResponse(
       if (!jsonCache) {
         if (
           contentType !== 'application/json' &&
+          contentType !== 'application/did+ld+json' &&
           contentType !== 'application/feed+json' &&
           contentType !== 'application/jrd+json'
         ) {

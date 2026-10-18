@@ -1,5 +1,6 @@
 import type { DownloadTask, TextResponse } from '../lib/download.ts'
 import { atom } from './atom.ts'
+import { bluesky } from './bluesky.ts'
 import type { Loader, DetectedFeed } from './common.ts'
 import { jsonFeed } from './json-feed.ts'
 import { mastodon } from './mastodon.ts'
@@ -9,6 +10,7 @@ export type { Loader, DetectedFeed }
 
 export const loaders = {
   atom,
+  bluesky,
   jsonFeed,
   mastodon,
   rss

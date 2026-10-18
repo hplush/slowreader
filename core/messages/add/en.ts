@@ -11,7 +11,7 @@ export const addMessages = i18n('add', {
   title: 'Add',
   unknownHandle:
     'Unknown social network. Please enter the full handle with the server, ' +
-    'like @user@mastodon.social, or a profile URL.',
+    'like @user@mastodon.social or @user.bsky.social, or a profile URL.',
   unloadable: 'Can’t open this website',
   urlLabel: 'Web page URL or social media handle'
 })

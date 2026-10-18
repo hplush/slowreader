@@ -108,12 +108,18 @@ let authorShape = {
   url: optional(string())
 }
 
+let mediaSourceShape = {
+  type: string(),
+  url: string()
+}
+
 let mediaShape = {
   alt: optional(string()),
   fromText: optional(boolean()),
   name: optional(string()),
   poster: optional(string()),
   sensitive: optional(boolean()),
+  sources: optional(json([json(mediaSourceShape)])),
   type: string(),
   url: string()
 }

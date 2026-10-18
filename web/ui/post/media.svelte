@@ -17,6 +17,13 @@
   )
 </script>
 
+{#snippet sources(item: ReaderMedia)}
+  {#each item.sources ?? [] as source (source.url)}
+    <source src={source.url} type={source.type} />
+  {/each}
+  <source src={item.url} />
+{/snippet}
+
 {#if attached.length > 0}
   <div class="post-media" class:is-hidden={hidden}>
     <div class="post-media_list" inert={hidden}>
@@ -43,10 +50,11 @@
             muted
             playsinline
             poster={item.poster}
-            src={item.url}
             title={item.alt}
             width={item.size?.width}
-          ></video>
+          >
+            {@render sources(item)}
+          </video>
         {:else if item.type.startsWith('video')}
           <!-- svelte-ignore a11y_media_has_caption: feeds have no captions -->
           <video
@@ -57,10 +65,11 @@
             playsinline
             poster={item.poster}
             preload="none"
-            src={item.url}
             title={item.alt}
             width={item.size?.width}
-          ></video>
+          >
+            {@render sources(item)}
+          </video>
         {:else if item.type.startsWith('audio')}
           <audio
             class="post-media_audio"

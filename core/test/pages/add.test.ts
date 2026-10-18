@@ -294,6 +294,37 @@ describe('add page', () => {
     ])
   })
 
+  test('finds Bluesky profile by handle', async () => {
+    let page = openPage({
+      params: {},
+      route: 'add'
+    })
+    keepMount(page.searching)
+    keepMount(page.candidates)
+
+    expectRequest('https://bsky.app/profile/jane.bsky.social').andRespond(
+      200,
+      '<!DOCTYPE html><html><head>' +
+        '<meta property="og:url" ' +
+        'content="https://bsky.app/profile/jane.bsky.social">' +
+        '<meta property="og:title" content="Jane (@jane.bsky.social)">' +
+        '<link rel="alternate" type="application/rss+xml" ' +
+        'href="https://bsky.app/profile/did:plc:jane/rss">' +
+        '</head></html>'
+    )
+    page.params.url.set('@jane.bsky.social')
+    await waitLoading(page.searching)
+    equal(page.error.get(), undefined)
+    equalWithText(page.candidates.get(), [
+      {
+        loader: loaders.bluesky,
+        name: 'bluesky',
+        title: 'Jane',
+        url: 'https://bsky.app/profile/jane.bsky.social'
+      }
+    ])
+  })
+
   test('loads remote Mastodon profile from API', async () => {
     let page = openPage({
       params: {},

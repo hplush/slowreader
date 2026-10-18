@@ -114,6 +114,22 @@ export type Loader = {
   isPostUrl?(url: URL): boolean
 }
 
+export function isObject(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+export function readLoaderData(
+  data: null | string | undefined,
+  key: string
+): string | undefined {
+  if (!data) return undefined
+  try {
+    let parsed: unknown = JSON.parse(data)
+    if (isObject(parsed) && typeof parsed[key] === 'string') return parsed[key]
+  } catch {}
+  return undefined
+}
+
 export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
@@ -273,6 +289,19 @@ export function findDocumentLinks(text: TextResponse, type: string): string[] {
         isString(link.getAttribute('href'))
     )
     .map(link => buildFullURL(link, text.url))
+}
+
+export function findMetaProperty(
+  response: TextResponse,
+  property: string
+): string | undefined {
+  let document = response.tryParseHTML()
+  if (!document) return undefined
+  return (
+    document
+      .querySelector(`meta[property="${property}"]`)
+      ?.getAttribute('content') ?? undefined
+  )
 }
 
 /**

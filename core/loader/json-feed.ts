@@ -14,6 +14,7 @@ import {
   findHeaderLinks,
   findMediaInText,
   getUpdatedAt,
+  isObject,
   type Loader,
   toAvatarUrl,
   toTime
@@ -82,10 +83,6 @@ const JSON_FEED_VALIDATORS = {
     return JSON_FEED_VERSIONS.includes(version!)
   }
 } satisfies ValidationRules
-
-function isObject(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value)
-}
 
 function validate(text: string, value: unknown): asserts value is JsonFeed {
   if (!isObject(value)) {
