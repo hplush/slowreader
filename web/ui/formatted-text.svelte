@@ -19,8 +19,10 @@
   } = $props()
 
   let renderHtml: Attachment = node => {
-    // A node is already sanitized by `sanitizeDOM()` of the caller
-    let content = typeof html === 'object' ? html : sanitizeDOM(html ?? '')
+    // A node is already sanitized by `sanitizeDOM()` of the caller.
+    // Cloned, because moving its children empties it for the next mount.
+    let content =
+      typeof html === 'object' ? html.cloneNode(true) : sanitizeDOM(html ?? '')
     node.replaceChildren(...content.childNodes)
     node.querySelectorAll('a').forEach(link => {
       let href = link.getAttribute('href')
