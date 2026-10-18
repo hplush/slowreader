@@ -517,7 +517,7 @@ export const mastodon: Loader = {
     return []
   },
 
-  getSupersededLinksFromText(text) {
+  getWorseLinksFromText(text) {
     return findDocumentLinks(text, 'application/rss+xml')
   },
 

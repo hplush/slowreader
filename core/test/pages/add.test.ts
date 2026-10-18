@@ -407,7 +407,7 @@ describe('add page', () => {
     equal(page.error.get(), 'unknownHandle')
   })
 
-  test('does not load superseded links', async () => {
+  test('does not load worse links', async () => {
     let page = openPage({
       params: {},
       route: 'add'

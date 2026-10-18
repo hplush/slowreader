@@ -295,7 +295,7 @@ describe('mastodon loader', () => {
       []
     )
     deepEqual(
-      loaders.mastodon.getSupersededLinksFromText!(
+      loaders.mastodon.getWorseLinksFromText!(
         profile('https://mastodon.social/@jane')
       ),
       ['https://mastodon.social/@jane.rss']

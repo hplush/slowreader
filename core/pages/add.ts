@@ -93,13 +93,13 @@ export const addPage = createPage('add', () => {
   /**
    * Keys of feeds which other candidates replace with more data
    */
-  let $superseded = atom<string[]>([])
+  let $worse = atom<string[]>([])
 
   let $sortedCandidates = computed(
-    [$candidates, $superseded],
-    (candidates, superseded) => {
+    [$candidates, $worse],
+    (candidates, worse) => {
       return candidates
-        .filter(i => !superseded.includes(toLinkKey(i.url)))
+        .filter(i => !worse.includes(toLinkKey(i.url)))
         .toSorted((a, b) => a.title.localeCompare(b.title))
     }
   )
@@ -122,7 +122,7 @@ export const addPage = createPage('add', () => {
   function reset(): void {
     debouncedInput.cancel()
     $links.set({})
-    $superseded.set([])
+    $worse.set([])
     $candidates.set([])
     prevTask?.destroy()
   }
@@ -268,13 +268,12 @@ export const addPage = createPage('add', () => {
       }
       let byText = await getLoaderForText(response, task, url)
       if (byText) {
-        let superseded =
-          byText.loader.getSupersededLinksFromText?.(response) ?? []
-        $superseded.set([...$superseded.get(), ...superseded.map(toLinkKey)])
+        let worse = byText.loader.getWorseLinksFromText?.(response) ?? []
+        $worse.set([...$worse.get(), ...worse.map(toLinkKey)])
       }
       if (!deep) {
         let links = getLinksFromText(response).filter(
-          i => !$superseded.get().includes(toLinkKey(i))
+          i => !$worse.get().includes(toLinkKey(i))
         )
         if (links.length > 0) {
           await Promise.all(links.map(i => addLink(task, i, true)))

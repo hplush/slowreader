@@ -84,7 +84,7 @@ export type Loader = {
   /**
    * Other feeds with the same posts, but less data, like RSS of social profile.
    */
-  getSupersededLinksFromText?(response: TextResponse): string[]
+  getWorseLinksFromText?(response: TextResponse): string[]
 
   /**
    * Detects that document is a loader’s feed.

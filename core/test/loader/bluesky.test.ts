@@ -197,7 +197,7 @@ describe('bluesky loader', () => {
       []
     )
     deepEqual(
-      bluesky.getSupersededLinksFromText!(
+      bluesky.getWorseLinksFromText!(
         page('https://bsky.app/profile/jane.bsky.social')
       ),
       ['https://bsky.app/profile/did:plc:jane/rss']
