@@ -78,13 +78,13 @@ describe('schema', () => {
     setupEnvironment({ ...getTestEnvironment(), databaseCreator: creator })
     setTestUser()
     let media = [{ type: 'image', url: 'https://example.com/a.png' }]
-    let postId = await addPost(testPost({ media, read: true }))
+    let postId = await addPost(testPost({ media, publishedAt: 10, read: true }))
     // The first start writes the schema after the post was applied
     await getCrdt().ready
     setTestUser(false)
     await setTimeout(100)
 
-    // Subprotocol 0 kept media as JSON string and read as 0 or 1
+    // Subprotocol 0 kept media as JSON string, read as 0 or 1, and no sortedAt
     let db = creator()
     let [stored] = await db.select<{ value: string }>`
       SELECT "value" FROM "logux_crdt" WHERE "key" = 'schema'
@@ -94,6 +94,7 @@ describe('schema', () => {
     }
     schema.tables.posts!.columns.media = { type: 'TEXT' }
     schema.tables.posts!.columns.read = { type: 'DOUBLE PRECISION' }
+    delete schema.tables.posts!.columns.sortedAt
     await db.exec`
       UPDATE "logux_crdt" SET "value" = ${JSON.stringify(schema)}
       WHERE "key" = 'schema'
@@ -107,6 +108,7 @@ describe('schema', () => {
     let post = await loadPost(postId)
     deepEqual(post!.media, media)
     equal(post!.read, true)
+    equal(post!.sortedAt, 10)
   })
 
   test('fills the missing reading of the post from another device', async () => {
