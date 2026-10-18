@@ -371,6 +371,9 @@ describe('mastodon loader', () => {
         status('4', {
           content: '<p class="quote-inline">RE: link</p><p>Text</p>',
           quote: { quoted_status: null, state: 'deleted' }
+        }),
+        status('5', {
+          quote: status('sharkey', { quote: status('sharkey-deep') })
         })
       ]),
       'application/json'
@@ -453,12 +456,30 @@ describe('mastodon loader', () => {
           publishedAt: 1767225600,
           quoted: { missing: true },
           url: 'https://mastodon.social/@jane/4'
+        },
+        {
+          full: '<p>5</p>',
+          originId: '5',
+          publishedAt: 1767225600,
+          quoted: {
+            author: {
+              avatar: 'https://mastodon.social/jane.png',
+              title: 'JANE',
+              url: 'https://mastodon.social/@jane'
+            },
+            full: '<p>sharkey</p>',
+            missing: false,
+            publishedAt: 1767225600,
+            quotedUrl: 'https://mastodon.social/@jane/sharkey-deep',
+            url: 'https://mastodon.social/@jane/sharkey'
+          },
+          url: 'https://mastodon.social/@jane/5'
         }
       ]
     })
 
     expectRequest(
-      `${API}/accounts/jane-id/statuses?exclude_replies=true&max_id=4`
+      `${API}/accounts/jane-id/statuses?exclude_replies=true&max_id=5`
     ).andRespond(200, '[]', 'application/json')
     await posts.next()
     deepEqual(posts.get().list, [])

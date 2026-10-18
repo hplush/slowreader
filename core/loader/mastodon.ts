@@ -77,7 +77,7 @@ interface MastodonStatus {
   in_reply_to_id: null | string
   media_attachments: MastodonMedia[]
   poll: null | object
-  quote?: MastodonQuote | null
+  quote?: MastodonQuote | MastodonStatus | null
   reblog: MastodonStatus | null
   sensitive: boolean
   spoiler_text: string
@@ -294,20 +294,28 @@ function parseContent(status: MastodonStatus): Omit<ParsedPost, 'originId'> {
   return post
 }
 
+function unwrapQuote(
+  quote: MastodonQuote | MastodonStatus
+): MastodonStatus | null | undefined {
+  // Sharkey, Akkoma, and Fedibird put the status without Mastodon’s wrapper
+  return 'account' in quote ? quote : quote.quoted_status
+}
+
 function toQuoted(status: MastodonStatus): QuotedPost {
   let quoted: QuotedPost = {
     ...parseContent(status),
     author: toAuthor(status.account),
     missing: false
   }
-  let deeper = status.quote?.quoted_status
+  let deeper = status.quote && unwrapQuote(status.quote)
   if (deeper) quoted.quotedUrl = deeper.url ?? deeper.uri
   return quoted
 }
 
-function parseQuote(quote: MastodonQuote): QuotedPost {
-  if (!quote.quoted_status) return { missing: true }
-  return toQuoted(quote.quoted_status)
+function parseQuote(quote: MastodonQuote | MastodonStatus): QuotedPost {
+  let quoted = unwrapQuote(quote)
+  if (!quoted) return { missing: true }
+  return toQuoted(quoted)
 }
 
 function parseStatus(status: MastodonStatus): ParsedPost {
