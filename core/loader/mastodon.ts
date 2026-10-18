@@ -30,6 +30,7 @@ interface MastodonEmoji {
 
 // https://docs.joinmastodon.org/entities/Account/
 interface MastodonAccount {
+  acct: string
   avatar: string
   display_name: string
   emojis?: MastodonEmoji[]
@@ -145,10 +146,15 @@ function hasActivityLink(response: TextResponse): boolean {
  * Mastodon has no own domain, so on unknown servers any HTML page
  * with ActivityPub link and `/@user` path is a profile.
  */
-function isProfile(response: TextResponse): boolean {
-  let url = new URL(response.url)
-  if (!PROFILE.test(url.pathname)) return false
-  return POPULAR.has(url.hostname) || hasActivityLink(response)
+function isProfile(response: TextResponse, url: string): boolean {
+  let parsed = new URL(url)
+  if (!PROFILE.test(parsed.pathname)) return false
+  return POPULAR.has(parsed.hostname) || hasActivityLink(response)
+}
+
+function toProfileUrl(origin: string, acct: string): string {
+  let server = `@${new URL(origin).host}`
+  return `${origin}/@${acct.endsWith(server) ? acct.slice(0, -server.length) : acct}`
 }
 
 function getMeta(response: TextResponse, property: string): string | undefined {
@@ -408,7 +414,7 @@ async function loadPage(
 
 export const mastodon: Loader = {
   async getAvatar(text, task, url) {
-    if (isProfile(text)) {
+    if (isProfile(text, text.url)) {
       let image = toAvatarUrl(getMeta(text, 'og:image'), text.url)
       if (image) return image
     }
@@ -510,13 +516,29 @@ export const mastodon: Loader = {
     return findDocumentLinks(text, 'application/rss+xml')
   },
 
-  isMineText(text) {
-    if (!isProfile(text)) return false
-    let title = getMeta(text, 'og:title') ?? ''
-    return (
-      removeShortcodes(title.replace(/\s*\(@[^)]+\)$/, '')) ||
-      getApi(text.url).acct
-    )
+  async detectFeed(text, task, url) {
+    if (!isProfile(text, url)) return false
+    let { acct, origin } = getApi(url)
+    // Redirect page could have meta of something else
+    let title = isProfile(text, text.url) && getMeta(text, 'og:title')
+    if (title) {
+      let [, name = title, handle = acct] =
+        title.match(/^(.*?)\s*\(@([^)]+)\)$/) ?? []
+      return {
+        title: removeShortcodes(name) || acct,
+        url: toProfileUrl(origin, handle)
+      }
+    }
+    // Remote profiles are rendered by JS, so HTML has no meta tags
+    try {
+      let account = await loadAccount(task, url)
+      return {
+        title: removeShortcodes(account.display_name) || account.username,
+        url: toProfileUrl(origin, account.acct)
+      }
+    } catch {
+      return { title: acct, url: toProfileUrl(origin, acct) }
+    }
   },
 
   isMineUrl(url) {

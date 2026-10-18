@@ -213,10 +213,12 @@ export const atom: Loader = {
     return [new URL('/feed', origin).href, new URL('/atom', origin).href]
   },
 
-  isMineText(text) {
+  detectFeed(text) {
     let document = text.parseXml()
     if (document.firstElementChild?.nodeName === 'feed') {
-      return document.querySelector(':root > title')?.textContent ?? ''
+      return {
+        title: document.querySelector(':root > title')?.textContent ?? ''
+      }
     } else {
       return false
     }

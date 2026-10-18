@@ -4,6 +4,11 @@ import { isAbsoluteUrl, mapRelativeSrcset, parseDocument } from '../lib/html.ts'
 import type { OriginPost, ParsedPost, PostMedia } from '../post.ts'
 import type { PostsList, PostsListResult } from '../posts-list.ts'
 
+export interface DetectedFeed {
+  title: string
+  url?: string
+}
+
 export type Loader = {
   /**
    * Feed’s own icon. Without it, the icon is taken from the site.
@@ -84,9 +89,14 @@ export type Loader = {
   /**
    * Detects that document is a loader’s feed.
    *
-   * Return feed’s title if true.
+   * The `url` is the requested URL, since the `response` could come
+   * from a redirect. Loader can return canonical `url` of the feed.
    */
-  isMineText(response: TextResponse): false | string
+  detectFeed(
+    response: TextResponse,
+    task: DownloadTask,
+    url: string
+  ): false | DetectedFeed | Promise<false | DetectedFeed>
 
   /**
    * It detects that URL is 100% for this loader.

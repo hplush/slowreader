@@ -203,10 +203,10 @@ export const jsonFeed: Loader = {
     return [new URL('/feed.json', new URL(text.url).origin).href]
   },
 
-  isMineText(text) {
+  detectFeed(text) {
     let parsedJson = text.parseJson()
     validate(text.text, parsedJson)
-    return parsedJson.title
+    return { title: parsedJson.title }
   },
 
   isMineUrl() {

@@ -228,8 +228,8 @@ describe('atom loader', () => {
     )
   })
 
-  test('ignores non-XML content', () => {
-    expectNotMine(
+  test('ignores non-XML content', async () => {
+    await expectNotMine(
       loaders.atom,
       createTextResponse('{}', {
         headers: new Headers({
@@ -268,86 +268,112 @@ describe('atom loader', () => {
     )
   })
 
-  test('detects titles', () => {
-    equal(loaders.atom.isMineText(exampleAtom('<feed></feed>')), '')
-    equal(
-      loaders.atom.isMineText(
+  test('detects titles', async () => {
+    deepEqual(
+      loaders.atom.detectFeed(
+        exampleAtom('<feed></feed>'),
+        createDownloadTask(),
+        'https://example.com/'
+      ),
+      { title: '' }
+    )
+    deepEqual(
+      loaders.atom.detectFeed(
         exampleAtom(
           `<?xml version="1.0" encoding="utf-8"?>
           <feed xmlns="http://www.w3.org/2005/Atom">
             <title>Test 2</title>
           </feed>`
-        )
+        ),
+        createDownloadTask(),
+        'https://example.com/'
       ),
-      'Test 2'
+      { title: 'Test 2' }
     )
-    expectNotMine(
+    await expectNotMine(
       loaders.atom,
       exampleAtom('<unknown><title>No</title></unknown>')
     )
   })
 
   test('detects content type by content', () => {
-    equal(
-      loaders.atom.isMineText(
+    deepEqual(
+      loaders.atom.detectFeed(
         createTextResponse('<feed><title>A</title></feed>', {
           headers: new Headers({ 'Content-Type': `text/html` })
-        })
+        }),
+        createDownloadTask(),
+        'https://example.com/'
       ),
-      'A'
+      { title: 'A' }
     )
-    equal(
-      loaders.atom.isMineText(
+    deepEqual(
+      loaders.atom.detectFeed(
         createTextResponse(
           '<?xml version="1.0" encoding="UTF-8"?> ' +
             '<feed><title>B</title></feed>'
-        )
+        ),
+        createDownloadTask(),
+        'https://example.com/'
       ),
-      'B'
+      { title: 'B' }
     )
   })
 
-  test('detects type', () => {
-    equal(loaders.atom.isMineText(exampleAtom('<feed></feed>')), '')
-    equal(
-      loaders.atom.isMineText(
+  test('detects type', async () => {
+    deepEqual(
+      loaders.atom.detectFeed(
+        exampleAtom('<feed></feed>'),
+        createDownloadTask(),
+        'https://example.com/'
+      ),
+      { title: '' }
+    )
+    deepEqual(
+      loaders.atom.detectFeed(
         exampleAtom(
           `<?xml version="1.0" encoding="utf-8"?>
           <feed xmlns="http://www.w3.org/2005/Atom">
             <title>Test 2</title>
           </feed>`
-        )
+        ),
+        createDownloadTask(),
+        'https://example.com/'
       ),
-      'Test 2'
+      { title: 'Test 2' }
     )
-    expectNotMine(
+    await expectNotMine(
       loaders.atom,
       exampleAtom('<unknown><title>No</title></unknown>')
     )
   })
 
   test('detects popular XML mistakes', () => {
-    equal(
-      loaders.atom.isMineText(
+    deepEqual(
+      loaders.atom.detectFeed(
         exampleAtom(
           `\r\n\r\n<?xml version="1.0" encoding="utf-8"?>
           <feed xmlns="http://www.w3.org/2005/Atom">
             <title>Space before XML</title>
           </feed>`
-        )
+        ),
+        createDownloadTask(),
+        'https://example.com/'
       ),
-      'Space before XML'
+      { title: 'Space before XML' }
     )
   })
 
   test('ignores text & comment nodes when probing', () => {
-    equal(
-      loaders.atom.isMineText(
+    deepEqual(
+      loaders.atom.detectFeed(
         exampleAtom(
           '<?xml-stylesheet type="text/xsl" href="/nope"?><feed><title>Test</title></feed>'
-        )
+        ),
+        createDownloadTask(),
+        'https://example.com/'
       ),
-      'Test'
+      { title: 'Test' }
     )
   })
 

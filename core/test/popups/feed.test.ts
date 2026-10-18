@@ -240,6 +240,21 @@ describe('feed popup', () => {
     equal(checkLoadedPopup(popup).avatar.get(), 'https://a.com/new.png')
   })
 
+  test('finds existing feed by normalized URL', async () => {
+    let feedId = await addFeed(
+      testFeed({ loader: 'mastodon', url: 'https://mastodon.social/@jane' })
+    )
+    expectRequest('https://mastodon.social/@Jane/').andRespond(
+      200,
+      '<!DOCTYPE html><html><head>' +
+        '<meta content="Jane (@jane@mastodon.social)" property="og:title">' +
+        '</head></html>'
+    )
+    let popup = openTestPopup('feed', 'https://mastodon.social/@Jane/')
+    await waitLoading(popup.loading)
+    equal(checkLoadedPopup(popup).feed.get()?.id, feedId)
+  })
+
   test('adds only 10 latest posts with a feed', async () => {
     let entries = ''
     for (let i = 12; i > 0; i--) {

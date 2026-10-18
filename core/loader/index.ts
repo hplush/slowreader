@@ -1,11 +1,11 @@
-import type { TextResponse } from '../lib/download.ts'
+import type { DownloadTask, TextResponse } from '../lib/download.ts'
 import { atom } from './atom.ts'
-import type { Loader } from './common.ts'
+import type { Loader, DetectedFeed } from './common.ts'
 import { jsonFeed } from './json-feed.ts'
 import { mastodon } from './mastodon.ts'
 import { rss } from './rss.ts'
 
-export type { Loader }
+export type { Loader, DetectedFeed }
 
 export const loaders = {
   atom,
@@ -28,23 +28,26 @@ export interface FeedLoader {
 /**
  * Decides which loader to use for the given feed response.
  */
-export function getLoaderForText(response: TextResponse): false | FeedLoader {
+export async function getLoaderForText(
+  response: TextResponse,
+  task: DownloadTask,
+  url: string
+): Promise<false | FeedLoader> {
   let names = Object.keys(loaders) as LoaderName[]
-  let parsed = new URL(response.url)
   for (let name of names) {
-    if (loaders[name].isMineUrl(parsed) !== false) {
-      let title: false | string
+    if (loaders[name].isMineUrl(new URL(url)) !== false) {
+      let detected: false | DetectedFeed
       try {
-        title = loaders[name].isMineText(response)
+        detected = await loaders[name].detectFeed(response, task, url)
       } catch {
-        title = false
+        detected = false
       }
-      if (title !== false) {
+      if (detected !== false) {
         return {
           loader: loaders[name],
           name,
-          title: title.trim() || parsed.hostname,
-          url: response.url
+          title: detected.title.trim() || new URL(response.url).hostname,
+          url: detected.url ?? response.url
         }
       }
     }

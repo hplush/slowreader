@@ -15,6 +15,7 @@ import {
   type BaseReader,
   type BaseRoute,
   client,
+  createDownloadTask,
   currentPage,
   enableTestTime,
   encryptionKey,
@@ -30,6 +31,7 @@ import {
   isDemo,
   type ListReader,
   type Loader,
+  type DetectedFeed,
   menuLoading,
   needWelcome,
   openedPopups,
@@ -435,12 +437,15 @@ export async function loadedPostsValue(posts: PostsList): Promise<unknown> {
   return postsValue(posts)
 }
 
-export function expectNotMine(loader: Loader, text: TextResponse): void {
-  let title: false | string
+export async function expectNotMine(
+  loader: Loader,
+  text: TextResponse
+): Promise<void> {
+  let detected: false | DetectedFeed
   try {
-    title = loader.isMineText(text)
+    detected = await loader.detectFeed(text, createDownloadTask(), text.url)
   } catch {
     return
   }
-  equal(title, false)
+  equal(detected, false)
 }

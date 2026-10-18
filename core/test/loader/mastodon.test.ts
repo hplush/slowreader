@@ -6,6 +6,7 @@ import {
   createTextResponse,
   loaders,
   ParseError,
+  type DetectedFeed,
   type ParsedPost,
   setupEnvironment,
   testFeed
@@ -43,6 +44,7 @@ function profile(
 
 function account(name: string, fields: object = {}): Record<string, unknown> {
   return {
+    acct: name,
     avatar: `https://mastodon.social/${name}.png`,
     display_name: name.toUpperCase(),
     id: `${name}-id`,
@@ -94,37 +96,84 @@ describe('mastodon loader', () => {
     equal(mastodon.isMineUrl(new URL('https://example.com/feed')), false)
   })
 
-  test('detects profiles', () => {
+  test('detects profiles', async () => {
     let { mastodon } = loaders
-    equal(
-      mastodon.isMineText(profile('https://mastodon.social/@jane')),
-      'Jane Doe'
-    )
-    equal(
-      mastodon.isMineText(
-        profile(
-          'https://mastodon.social/@bob@other.social/',
-          '<!DOCTYPE html><html><head><link rel="alternate" ' +
-            'type="application/activity+json" href="/users/bob">' +
-            '</head></html>'
-        )
+    let task = createDownloadTask()
+    async function detect(
+      url: string,
+      html?: string,
+      requested = url
+    ): Promise<false | DetectedFeed> {
+      return mastodon.detectFeed(profile(url, html), task, requested)
+    }
+
+    deepEqual(await detect('https://mastodon.social/@jane'), {
+      title: 'Jane Doe',
+      url: 'https://mastodon.social/@jane'
+    })
+    deepEqual(await detect('https://mastodon.social/@Jane/'), {
+      title: 'Jane Doe',
+      url: 'https://mastodon.social/@jane'
+    })
+    deepEqual(await detect('https://example.com/@jane'), {
+      title: 'Jane Doe',
+      url: 'https://example.com/@jane@mastodon.social'
+    })
+
+    expectRequest(
+      `${API}/accounts/lookup?acct=${encodeURIComponent('bob@other.social')}`
+    ).andRespond(
+      200,
+      JSON.stringify(
+        account('bob', { acct: 'bob@other.social', display_name: ':blob: Bob' })
       ),
-      'bob@other.social'
+      'application/json'
     )
-    equal(
-      mastodon.isMineText(
-        profile('https://mastodon.social/@jane', '<!DOCTYPE html><html></html>')
+    deepEqual(
+      await detect(
+        'https://mastodon.social/redirect/accounts/1',
+        PROFILE,
+        'https://mastodon.social/@bob@other.social/'
       ),
-      'jane'
+      { title: 'Bob', url: 'https://mastodon.social/@bob@other.social' }
     )
-    equal(mastodon.isMineText(profile('https://example.com/@jane')), 'Jane Doe')
-    expectNotMine(mastodon, profile('https://mastodon.social/@jane/1'))
-    expectNotMine(mastodon, profile('https://mastodon.social/about'))
-    expectNotMine(
+
+    expectRequest(`${API}/accounts/lookup?acct=jane`).andRespond(
+      200,
+      JSON.stringify(account('jane', { display_name: '' })),
+      'application/json'
+    )
+    deepEqual(
+      await detect(
+        'https://mastodon.social/@jane',
+        '<!DOCTYPE html><html></html>'
+      ),
+      { title: 'jane', url: 'https://mastodon.social/@jane' }
+    )
+
+    expectRequest(`${API}/accounts/lookup?acct=jane`).andRespond(404)
+    deepEqual(
+      await detect(
+        'https://mastodon.social/@jane',
+        '<!DOCTYPE html><html></html>'
+      ),
+      { title: 'jane', url: 'https://mastodon.social/@jane' }
+    )
+
+    deepEqual(
+      await detect(
+        'https://mastodon.social/@jane',
+        PROFILE.replace('Jane Doe (', ':blob: (')
+      ),
+      { title: 'jane', url: 'https://mastodon.social/@jane' }
+    )
+    await expectNotMine(mastodon, profile('https://mastodon.social/@jane/1'))
+    await expectNotMine(mastodon, profile('https://mastodon.social/about'))
+    await expectNotMine(
       mastodon,
       profile('https://example.com/@jane', '<!DOCTYPE html><html></html>')
     )
-    expectNotMine(
+    await expectNotMine(
       mastodon,
       createTextResponse('<rss></rss>', { url: 'https://example.com/@jane' })
     )
@@ -530,14 +579,16 @@ describe('mastodon loader', () => {
       `<p>Hi ${image} :unknown: <a href="https://a.social/">:blob:</a></p>`
     )
 
-    equal(
-      loaders.mastodon.isMineText(
+    deepEqual(
+      await loaders.mastodon.detectFeed(
         profile(
           'https://mastodon.social/@jane',
           PROFILE.replace('Jane Doe (', 'Jane :verified: Doe (')
-        )
+        ),
+        createDownloadTask(),
+        'https://mastodon.social/@jane'
       ),
-      'Jane Doe'
+      { title: 'Jane Doe', url: 'https://mastodon.social/@jane' }
     )
   })
 

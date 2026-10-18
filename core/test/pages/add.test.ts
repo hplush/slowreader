@@ -294,6 +294,43 @@ describe('add page', () => {
     ])
   })
 
+  test('loads remote Mastodon profile from API', async () => {
+    let page = openPage({
+      params: {},
+      route: 'add'
+    })
+    keepMount(page.searching)
+    keepMount(page.candidates)
+
+    expectRequest('https://mastodon.social/@kyva@meetiko.org/').andRespond(
+      200,
+      '<!DOCTYPE html><html><head><title>Mastodon</title></head></html>'
+    )
+    expectRequest(
+      'https://mastodon.social/api/v1/accounts/lookup' +
+        '?acct=kyva%40meetiko.org'
+    ).andRespond(
+      200,
+      JSON.stringify({
+        acct: 'kyva@meetiko.org',
+        display_name: '⁂ Kyva',
+        id: '1',
+        username: 'kyva'
+      }),
+      'application/json'
+    )
+    page.params.url.set('https://mastodon.social/@kyva@meetiko.org/')
+    await waitLoading(page.searching)
+    equalWithText(page.candidates.get(), [
+      {
+        loader: loaders.mastodon,
+        name: 'mastodon',
+        title: '⁂ Kyva',
+        url: 'https://mastodon.social/@kyva@meetiko.org'
+      }
+    ])
+  })
+
   test('shows unknown handle', async () => {
     let page = openPage({
       params: {},

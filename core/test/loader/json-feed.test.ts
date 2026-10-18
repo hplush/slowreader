@@ -183,8 +183,8 @@ describe('json feed loader', () => {
     )
   })
 
-  test('ignores non-JSON content', () => {
-    expectNotMine(
+  test('ignores non-JSON content', async () => {
+    await expectNotMine(
       loaders.jsonFeed,
       createTextResponse('<feed></feed>', {
         headers: new Headers({
@@ -226,13 +226,17 @@ describe('json feed loader', () => {
     )
   })
 
-  test('detects titles', () => {
-    equal(
-      loaders.jsonFeed.isMineText(exampleJson(jsonStub)),
-      'Some JSON Feed title'
+  test('detects titles', async () => {
+    deepEqual(
+      loaders.jsonFeed.detectFeed(
+        exampleJson(jsonStub),
+        createDownloadTask(),
+        'https://example.com/'
+      ),
+      { title: 'Some JSON Feed title' }
     )
     deepEqual(
-      loaders.jsonFeed.isMineText(
+      loaders.jsonFeed.detectFeed(
         exampleJson({
           author: {
             name: 'name',
@@ -241,11 +245,13 @@ describe('json feed loader', () => {
           items: [],
           title: 'Title JSON feed version 1',
           version: 'https://jsonfeed.org/version/1'
-        })
+        }),
+        createDownloadTask(),
+        'https://example.com/'
       ),
-      'Title JSON feed version 1'
+      { title: 'Title JSON feed version 1' }
     )
-    expectNotMine(
+    await expectNotMine(
       loaders.jsonFeed,
       exampleJson({
         author: {
@@ -257,7 +263,7 @@ describe('json feed loader', () => {
       })
     )
     deepEqual(
-      loaders.jsonFeed.isMineText(
+      loaders.jsonFeed.detectFeed(
         exampleJson({
           author: {
             name: 'name',
@@ -266,15 +272,17 @@ describe('json feed loader', () => {
           items: [],
           title: '',
           version: 'https://jsonfeed.org/version/1.1'
-        })
+        }),
+        createDownloadTask(),
+        'https://example.com/'
       ),
-      ''
+      { title: '' }
     )
   })
 
   test('detects content type by content', () => {
-    equal(
-      loaders.jsonFeed.isMineText(
+    deepEqual(
+      loaders.jsonFeed.detectFeed(
         createTextResponse(
           JSON.stringify({
             items: [],
@@ -284,9 +292,11 @@ describe('json feed loader', () => {
           {
             headers: new Headers({ 'Content-Type': `text/html` })
           }
-        )
+        ),
+        createDownloadTask(),
+        'https://example.com/'
       ),
-      'A'
+      { title: 'A' }
     )
   })
 
@@ -422,11 +432,11 @@ describe('json feed loader', () => {
   test('validate wrong json feed format', async () => {
     let task = createDownloadTask()
 
-    expectNotMine(loaders.jsonFeed, exampleJson('1'))
-    expectNotMine(loaders.jsonFeed, exampleJson('true'))
-    expectNotMine(loaders.jsonFeed, exampleJson('null'))
-    expectNotMine(loaders.jsonFeed, exampleJson('[]'))
-    expectNotMine(loaders.jsonFeed, exampleJson('{'))
+    await expectNotMine(loaders.jsonFeed, exampleJson('1'))
+    await expectNotMine(loaders.jsonFeed, exampleJson('true'))
+    await expectNotMine(loaders.jsonFeed, exampleJson('null'))
+    await expectNotMine(loaders.jsonFeed, exampleJson('[]'))
+    await expectNotMine(loaders.jsonFeed, exampleJson('{'))
 
     // not valid versions
     let notValidDataVersions = [
@@ -437,7 +447,7 @@ describe('json feed loader', () => {
     ]
 
     for (let version of notValidDataVersions) {
-      expectNotMine(
+      await expectNotMine(
         loaders.jsonFeed,
         exampleJson({
           items: [
@@ -458,7 +468,7 @@ describe('json feed loader', () => {
     }
 
     // not valid title
-    expectNotMine(
+    await expectNotMine(
       loaders.jsonFeed,
       exampleJson({
         items: [
@@ -479,7 +489,7 @@ describe('json feed loader', () => {
 
     let notValidItems = [{}, 4, 'someString', false]
     for (let notValidItem of notValidItems) {
-      expectNotMine(
+      await expectNotMine(
         loaders.jsonFeed,
         exampleJson({
           items: notValidItem,

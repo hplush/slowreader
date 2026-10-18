@@ -129,7 +129,7 @@ export async function fetchAndParsePosts(
       semiSuccess(url, `redirect to HTML`)
       return
     }
-    let candidate = getLoaderForText(response)
+    let candidate = await getLoaderForText(response, task, url)
     if (!candidate) {
       report(`Can not found loader for feed ${url}`)
       return

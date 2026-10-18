@@ -127,8 +127,8 @@ describe('rss loader', () => {
     )
   })
 
-  test('ignores non-XML content', () => {
-    expectNotMine(
+  test('ignores non-XML content', async () => {
+    await expectNotMine(
       loaders.rss,
       createTextResponse('{}', {
         headers: new Headers({
@@ -200,9 +200,9 @@ describe('rss loader', () => {
     )
   })
 
-  test('detects titles', () => {
-    equal(
-      loaders.rss.isMineText(
+  test('detects titles', async () => {
+    deepEqual(
+      loaders.rss.detectFeed(
         exampleRss(
           `<?xml version="1.0"?>
           <rss version="2.0">
@@ -210,40 +210,53 @@ describe('rss loader', () => {
               <title>Test 1 <b>XSS</b></title>
             </channel>
           </rss>`
-        )
+        ),
+        createDownloadTask(),
+        'https://example.com/'
       ),
-      'Test 1 XSS'
+      { title: 'Test 1 XSS' }
     )
-    equal(loaders.rss.isMineText(exampleRss('<rss version="2.0"></rss>')), '')
-    expectNotMine(
+    deepEqual(
+      loaders.rss.detectFeed(
+        exampleRss('<rss version="2.0"></rss>'),
+        createDownloadTask(),
+        'https://example.com/'
+      ),
+      { title: '' }
+    )
+    await expectNotMine(
       loaders.rss,
       exampleRss('<unknown><title>No</title></unknown>')
     )
   })
 
   test('detects content type by content', () => {
-    equal(
-      loaders.rss.isMineText(
+    deepEqual(
+      loaders.rss.detectFeed(
         createTextResponse('<rss><channel><title>A</title></channel></rss>', {
           headers: new Headers({ 'Content-Type': `text/html` })
-        })
+        }),
+        createDownloadTask(),
+        'https://example.com/'
       ),
-      'A'
+      { title: 'A' }
     )
-    equal(
-      loaders.rss.isMineText(
+    deepEqual(
+      loaders.rss.detectFeed(
         createTextResponse(
           '<?xml version="1.0" encoding="UTF-8"?> ' +
             '<rss><channel><title>B</title></channel></rss>'
-        )
+        ),
+        createDownloadTask(),
+        'https://example.com/'
       ),
-      'B'
+      { title: 'B' }
     )
   })
 
   test('ignores text & comment nodes when probing', () => {
-    equal(
-      loaders.rss.isMineText(
+    deepEqual(
+      loaders.rss.detectFeed(
         exampleRss(
           `<?xml-stylesheet type="text/xsl" href="/nope"?>
           <rss version="2.0">
@@ -251,9 +264,11 @@ describe('rss loader', () => {
               <title>Test</title>
             </channel>
           </rss>`
-        )
+        ),
+        createDownloadTask(),
+        'https://example.com/'
       ),
-      'Test'
+      { title: 'Test' }
     )
   })
 

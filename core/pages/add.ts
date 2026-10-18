@@ -266,7 +266,7 @@ export const addPage = createPage('add', () => {
         unloadable(e)
         return
       }
-      let byText = getLoaderForText(response)
+      let byText = await getLoaderForText(response, task, url)
       if (byText) {
         let superseded =
           byText.loader.getSupersededLinksFromText?.(response) ?? []

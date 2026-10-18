@@ -58,10 +58,19 @@ export const feed = definePopup('feed', async url => {
   let response: TextResponse | undefined
   let candidate: false | FeedLoader | undefined
 
-  let parsing = downloading.then(downloaded => {
+  let parsing = downloading.then(async downloaded => {
     response = downloaded
-    candidate = getLoaderForText(response)
+    candidate = await getLoaderForText(response, task, url)
   })
+
+  if (!existing) {
+    await parsing
+    // Loader could normalize the URL, like removing the trailing slash
+    if (candidate && candidate.url !== url) {
+      feedsStore = getFeedsByUrl(candidate.url)
+      existing = (await waitSql(feedsStore))[0]
+    }
+  }
 
   let posts: PostsList
   if (existing) {

@@ -104,7 +104,7 @@ for (let [title, feeds] of Object.entries(sources)) {
   let categoryId = await addCategory({ title })
   for (let feed of feeds) {
     let response = await task.text(feed.url)
-    let candidate = getLoaderForText(response)
+    let candidate = await getLoaderForText(response, task, feed.url)
     if (!candidate) {
       error(new Error(`Failed to import ${feed.url} unknown`))
       continue

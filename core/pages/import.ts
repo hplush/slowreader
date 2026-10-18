@@ -111,7 +111,7 @@ export const importPage = createPage('import', () => {
         continue
       }
 
-      let candidate = getLoaderForText(response)
+      let candidate = await getLoaderForText(response, task, url)
       if (!candidate) {
         addFeedError(url, 'unknown')
       } else if (await feedExists(candidate.url)) {
