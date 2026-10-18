@@ -24,6 +24,7 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 - Update `README.md` of the package on every new script, folder, or tool.
 - App’s error page (`web/pages/fatal.svelte`, error mode styles and icons) is duplicated in static `web/public/404.html` and `web/public/500.html`. Change all of them together.
 - Use OKLCH color mode and APCA contrast check for any color operations.
+- Keep `core/schema.ts` loader-agnostic. Never add a field for one loader or service. Map loader data to a universal shape, like `<source>` list instead of `hls` URL.
 
 ## Changelog
 
