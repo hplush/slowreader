@@ -69,7 +69,7 @@ export function createPostsList(
         if (e instanceof Error) {
           $store.set({
             error: e,
-            hasNext: true,
+            hasNext: false,
             isLoading: false,
             list: $store.get().list
           })
