@@ -157,6 +157,22 @@ function toProfileUrl(origin: string, acct: string): string {
   return `${origin}/@${acct.endsWith(server) ? acct.slice(0, -server.length) : acct}`
 }
 
+/**
+ * GoToSocial can serve `user@example.com` from `fedi.example.com`,
+ * so the handle’s domain does not say if the profile is local.
+ */
+function getCanonicalUrl(
+  response: TextResponse,
+  origin: string
+): string | undefined {
+  let canonical = getMeta(response, 'og:url')
+  if (!canonical || !URL.canParse(canonical)) return undefined
+  let parsed = new URL(canonical)
+  let profile = parsed.pathname.match(PROFILE)
+  if (parsed.origin !== origin || !profile) return undefined
+  return `${origin}/@${decodeURIComponent(profile[1]!)}`
+}
+
 function getMeta(response: TextResponse, property: string): string | undefined {
   let document = response.tryParseHTML()
   if (!document) return undefined
@@ -534,7 +550,7 @@ export const mastodon: Loader = {
         title.match(/^(.*?)\s*\(@([^)]+)\)$/) ?? []
       return {
         title: removeShortcodes(name) || acct,
-        url: toProfileUrl(origin, handle)
+        url: getCanonicalUrl(text, origin) ?? toProfileUrl(origin, handle)
       }
     }
     // Remote profiles are rendered by JS, so HTML has no meta tags

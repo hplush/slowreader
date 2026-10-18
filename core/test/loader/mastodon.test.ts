@@ -119,6 +119,34 @@ describe('mastodon loader', () => {
       title: 'Jane Doe',
       url: 'https://example.com/@jane@mastodon.social'
     })
+    deepEqual(
+      await detect(
+        'https://fedi.example.com/@jane/',
+        PROFILE.replace(
+          '<meta content="/avatar.png"',
+          '<meta content="https://fedi.example.com/@jane" property="og:url">' +
+            '<meta content="/avatar.png"'
+        ).replace('@jane@mastodon.social', '@jane@example.com')
+      ),
+      { title: 'Jane Doe', url: 'https://fedi.example.com/@jane' }
+    )
+    for (let canonical of [
+      'not a url',
+      'https://example.com/about',
+      'https://other.example.com/@jane'
+    ]) {
+      deepEqual(
+        await detect(
+          'https://example.com/@jane',
+          PROFILE.replace(
+            '<meta content="/avatar.png"',
+            `<meta content="${canonical}" property="og:url">` +
+              '<meta content="/avatar.png"'
+          )
+        ),
+        { title: 'Jane Doe', url: 'https://example.com/@jane@mastodon.social' }
+      )
+    }
 
     expectRequest(
       `${API}/accounts/lookup?acct=${encodeURIComponent('bob@other.social')}`
