@@ -472,6 +472,10 @@ export function createProxy(
         let idle = setTimeout(() => {
           stalled.abort(new BadRequestError('Timeout'))
         }, config.bodyTimeout)
+        let cancelled = false
+        res.once('close', () => {
+          cancelled = !res.writableFinished && !targetResponse.errored
+        })
         try {
           await pipeline(
             targetResponse,
@@ -503,6 +507,7 @@ export function createProxy(
             { signal: stalled.signal }
           )
         } catch (error) {
+          if (cancelled && !stalled.signal.aborted) return
           // Socket closed by abort reports itself before our reason
           throw stalled.signal.reason ?? error
         } finally {
