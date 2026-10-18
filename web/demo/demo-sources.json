@@ -5,5 +5,15 @@
       "title": "Emojipedia",
       "url": "https://mastodon.world/@emojipedia"
     }
+  ],
+  "BlueSky": [
+    {
+      "title": "Depths of Wikipedia",
+      "url": "https://bsky.app/profile/depthsofwikipedia.bsky.social"
+    },
+    {
+      "title": "The Public Domain Review",
+      "url": "https://bsky.app/profile/publicdomainrev.bsky.social"
+    }
   ]
 }
