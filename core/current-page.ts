@@ -1,10 +1,15 @@
 import { computed, type ReadableAtom, type WritableStore } from 'nanostores'
 
 import { syncStatus } from './client.ts'
-import { getEnvironment } from './environment.ts'
 import { fatal, showCrash } from './errors.ts'
 import { type Page, pages } from './pages/index.ts'
-import { type Route, type RouteName, router } from './router.ts'
+import {
+  getLatestRoute,
+  navigate,
+  type Route,
+  type RouteName,
+  router
+} from './router.ts'
 import { encryptionKeyLost } from './settings.ts'
 
 /**
@@ -69,7 +74,7 @@ export const currentPage: ReadableAtom<Page<RouteName>> = computed(
       showCrash(e)
       return pages.fatal()
     }
-    // Page creation may call openRoute() for redirect pages, re-check the route
+    // Page creation may call navigate() for redirect pages, re-check the route
     if (!override && startRoute !== router.get().route) {
       // The redirect could be applied before the creation finished, then
       // the page is already replaced and will never be the current one
@@ -87,13 +92,13 @@ export const currentPage: ReadableAtom<Page<RouteName>> = computed(
       eachParam(page, route, store => {
         unbinds.push(
           store.listen(() => {
-            let currentRoute = router.get()
+            let currentRoute = getLatestRoute()
             let params = getPageParams(page)
             if (
               currentRoute.route === page.route &&
               JSON.stringify(params) !== JSON.stringify(currentRoute.params)
             ) {
-              getEnvironment().openRoute({ ...route, params } as Route)
+              navigate({ ...currentRoute, params } as Route)
             }
           })
         )

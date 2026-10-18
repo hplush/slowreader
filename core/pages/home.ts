@@ -1,13 +1,13 @@
 import { atom } from 'nanostores'
 
-import { getEnvironment } from '../environment.ts'
+import { navigate } from '../router.ts'
 import { needWelcome } from '../welcome.ts'
 import { createPage } from './common.ts'
 
 export const homePage = createPage('home', () => {
   let unbindWelcome = needWelcome.subscribe(welcome => {
     if (typeof welcome !== 'undefined') {
-      getEnvironment().openRoute(
+      navigate(
         {
           params: {},
           popups: [],

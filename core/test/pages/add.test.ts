@@ -849,6 +849,41 @@ describe('add page', () => {
     equal(page.opened.get(), undefined)
   })
 
+  test('closes popups on URL change', async () => {
+    expectRequest('https://a.com').andRespond(
+      200,
+      '<rss><channel><title>A</title></channel></rss>',
+      'application/rss+xml'
+    )
+    let page = openPage({
+      hash: 'feed=https%3A%2F%2Fa.com',
+      params: { url: 'https://a.com' },
+      route: 'add'
+    })
+    await waitLoading(page.searching)
+    await setTimeout(10)
+
+    expectRequest('https://b.com').andRespond(
+      200,
+      '<rss><channel><title>B</title></channel></rss>',
+      'application/rss+xml'
+    )
+    page.inputUrl('b.com')
+    await setTimeout(600)
+    deepEqual(router.get().params, { url: 'https://b.com' })
+    deepEqual(router.get().popups, [])
+    await waitLoading(page.searching)
+
+    openRoute({
+      hash: 'post=id%3A1',
+      params: { url: 'https://b.com' },
+      route: 'add'
+    })
+    page.inputUrl('')
+    await setTimeout(600)
+    deepEqual(router.get().popups, [])
+  })
+
   test('supports links with query parameters', async () => {
     let page = openPage({
       params: {},

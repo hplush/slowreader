@@ -136,8 +136,9 @@ describe('feed reader', () => {
     let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
     let feed1 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
     let feed2 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
+    let last = ''
     for (let i = 1; i <= 55; i++) {
-      await addPost(
+      last = await addPost(
         testPost({
           feedId: i % 2 === 0 ? feed1 : feed2,
           publishedAt: i,
@@ -148,6 +149,7 @@ describe('feed reader', () => {
     }
 
     let page = openPage({
+      hash: `post=id%3A${last}`,
       params: { category: categoryId },
       route: 'fast'
     })
@@ -174,6 +176,7 @@ describe('feed reader', () => {
     await waitLoading(page.postsLoading)
     equal(reader.list.get()[0]!.title, '35')
     equal(reader.prevFrom.get(), undefined)
+    deepEqual(router.get().popups, [])
 
     await moveTo(page, reader.nextFrom.get())
     equal(reader.hasNext.get(), false)

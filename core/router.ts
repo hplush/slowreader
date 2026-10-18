@@ -117,6 +117,12 @@ function validateReason(value: string | undefined): Fatal['type'] | undefined {
 export const router = atom<Route>({ params: {}, popups: [], route: 'home' })
 
 /**
+ * The route from the last `navigate()`, which `router` did not get yet.
+ * Inside store listener `router` is updated only after other listeners.
+ */
+let openingRoute: Route | undefined
+
+/**
  * Parses popup routes from hash string format `popup=param,popup2=param2`
  * into an array of popup route objects.
  */
@@ -133,6 +139,7 @@ export function parsePopups(hash: string): PopupRoute[] {
 
 onEnvironment(({ baseRouter }) => {
   return effect([baseRouter, userId], (route, user) => {
+    openingRoute = undefined
     let popups = user && route ? parsePopups(route.hash) : []
     let nextRoute: Route
     try {
@@ -173,6 +180,19 @@ onEnvironment(({ baseRouter }) => {
   })
 })
 
+export function navigate(route: Route, replace?: boolean): void {
+  openingRoute = route
+  getEnvironment().openRoute(route, replace)
+}
+
+/**
+ * Use it instead of `router` to change the current route, since `router`
+ * could still have the previous one.
+ */
+export function getLatestRoute(): Route {
+  return openingRoute ?? router.get()
+}
+
 /**
  * Converts popup routes to a hash string format `popup=param,popup2=param2`
  */
@@ -203,32 +223,32 @@ export function removeLastPopup(hash: string): string {
 }
 
 export function setPopups(popups: [PopupName, string][]): void {
-  let currentRoute = router.get()
-  getEnvironment().openRoute({
+  let currentRoute = getLatestRoute()
+  navigate({
     ...currentRoute,
     popups: popups.map(([popup, param]) => ({ param, popup }))
   })
 }
 
 export function openPopup(popup: PopupName, param: string): void {
-  let currentRoute = router.get()
-  getEnvironment().openRoute({
+  let currentRoute = getLatestRoute()
+  navigate({
     ...currentRoute,
     popups: currentRoute.popups.concat({ param, popup })
   })
 }
 
 export function closeLastPopup(): void {
-  let currentRoute = router.get()
-  getEnvironment().openRoute({
+  let currentRoute = getLatestRoute()
+  navigate({
     ...currentRoute,
     popups: currentRoute.popups.slice(0, -1)
   })
 }
 
 export function closeAllPopups(): void {
-  getEnvironment().openRoute({
-    ...router.get(),
+  navigate({
+    ...getLatestRoute(),
     popups: []
   })
 }

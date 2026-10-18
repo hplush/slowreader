@@ -1,7 +1,6 @@
 import type { SqlStore } from '@nanostores/sql'
 import type { ReadableAtom, WritableAtom } from 'nanostores'
 
-import { getEnvironment } from '../environment.ts'
 import { nextValue } from '../lib/stores.ts'
 import { slowMenu, unreadFastMenu } from '../menu.ts'
 import {
@@ -12,7 +11,13 @@ import {
   type ReaderPost,
   type ReaderPostWith
 } from '../post.ts'
-import { nextRouteIsRedirect, router, type Routes } from '../router.ts'
+import {
+  closeAllPopups,
+  navigate,
+  nextRouteIsRedirect,
+  router,
+  type Routes
+} from '../router.ts'
 import { getCrdt, getTables } from '../schema.ts'
 
 export interface BaseReader<Name extends ReaderName = ReaderName> {
@@ -122,10 +127,11 @@ export async function readAndMove(
   // The user could leave the page during the write
   if (stillOpened(filter)) {
     if (nextFrom) {
+      closeAllPopups()
       params.from.set(nextFrom)
     } else {
       await nextRouteIsRedirect(() => {
-        getEnvironment().openRoute({ params: {}, popups: [], route })
+        navigate({ params: {}, popups: [], route })
       })
     }
   }

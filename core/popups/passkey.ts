@@ -1,7 +1,7 @@
-import { getEnvironment } from '../environment.ts'
 import { NotFoundError } from '../errors.ts'
 import { pages } from '../pages/index.ts'
 import { passkeysList, renamePasskey } from '../passkeys.ts'
+import { navigate } from '../router.ts'
 import { hasCloud } from '../settings.ts'
 import { type CreatedLoadedPopup, definePopup, loadListItem } from './common.ts'
 
@@ -16,7 +16,7 @@ export const passkey = definePopup('passkey', async id => {
      * by the Cloud page.
      */
     remove(): void {
-      getEnvironment().openRoute({ params: {}, popups: [], route: 'cloud' })
+      navigate({ params: {}, popups: [], route: 'cloud' })
       pages.cloud().deletePasskey(id)
     },
     rename(name: string): Promise<void> {

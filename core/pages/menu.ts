@@ -1,12 +1,13 @@
 import { effect } from 'nanostores'
 
-import { getEnvironment, layoutType } from '../environment.ts'
+import { layoutType } from '../environment.ts'
+import { navigate } from '../router.ts'
 import { createPage } from './common.ts'
 
 export const menuPage = createPage('menu', () => {
   let unbindLayout = effect(layoutType, layout => {
     if (layout === 'desktop') {
-      getEnvironment().openRoute({ params: {}, popups: [], route: 'add' }, true)
+      navigate({ params: {}, popups: [], route: 'add' }, true)
     }
   })
 

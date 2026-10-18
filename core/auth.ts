@@ -41,6 +41,7 @@ import {
   PasskeyNoPrfError
 } from './lib/webauthn.ts'
 import { commonMessages } from './messages/index.ts'
+import { navigate } from './router.ts'
 import { markDatabaseDownloading } from './schema.ts'
 import {
   benchmarkStatistics,
@@ -449,7 +450,7 @@ export function forgetLocalData(): void {
   env.saveSession(undefined)
   void env.saveEncryptionKey(undefined)
   env.cleanStorage()
-  env.openRoute({ params: {}, popups: [], route: 'home' })
+  navigate({ params: {}, popups: [], route: 'home' })
   env.restartApp()
 }
 

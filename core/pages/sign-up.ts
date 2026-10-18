@@ -9,6 +9,7 @@ import {
 import { getEnvironment } from '../environment.ts'
 import { UserFacingError } from '../errors.ts'
 import { authMessages as t } from '../messages/index.ts'
+import { navigate } from '../router.ts'
 import { hasCloud, userId } from '../settings.ts'
 import { createPage } from './common.ts'
 import { createFormSubmit } from './mixins/form.ts'
@@ -24,7 +25,7 @@ export type SignUpStep =
 
 export const signUpPage = createPage('signUp', () => {
   if (hasCloud.get()) {
-    getEnvironment().openRoute({
+    navigate({
       params: {},
       popups: [],
       route: 'cloud'
@@ -88,7 +89,7 @@ export const signUpPage = createPage('signUp', () => {
   )
 
   function finish(): void {
-    getEnvironment().openRoute({ params: {}, popups: [], route: 'home' })
+    navigate({ params: {}, popups: [], route: 'home' })
   }
 
   return {
@@ -97,7 +98,7 @@ export const signUpPage = createPage('signUp', () => {
      * for a device-bound passkey.
      */
     addAnotherPasskey(): void {
-      getEnvironment().openRoute({ params: {}, popups: [], route: 'cloud' })
+      navigate({ params: {}, popups: [], route: 'cloud' })
     },
     credentials: $credentials,
     error: $error,

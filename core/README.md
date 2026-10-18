@@ -60,7 +60,8 @@ This is why core code should not rely on URL routing, since not every client wil
 
 Instead, core code should use API:
 
-- `getEnvironment().openRoute(route)` to change current page.
+- `navigate(route)` to change current page.
+- `getLatestRoute()` instead of `router` to build the next route from the current one.
 - Read `router` store to get current page or subscribe to the store to listen for current page changes (for instance, to clean temporary stores when user leaves the page).
 
 ## Data Storage
