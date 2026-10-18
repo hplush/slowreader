@@ -1,9 +1,9 @@
 # Browsers that we support. See actual browsers:
-# https://browsersl.ist/#q=baseline+widely+available+on+2026-10-09+with+downstream%2C+not+chrome+%3C+127%2C+not+edge+%3C+127%2C+not+opera+%3C+113%2C+not+samsung+%3C+28%2C+not+firefox+%3C+138%2C+not+safari+%3C+18%2C+not+ios_saf+%3C+18
+# https://browsersl.ist/#q=baseline+widely+available+on+2026-10-18+with+downstream%2C+not+chrome+%3C+127%2C+not+edge+%3C+127%2C+not+opera+%3C+113%2C+not+samsung+%3C+28%2C+not+firefox+%3C+138%2C+not+safari+%3C+18%2C+not+ios_saf+%3C+18
 #
 # Run `pnpm update-browsers` to update links after changes.
 
-baseline widely available on 2026-10-09 with downstream
+baseline widely available on 2026-10-18 with downstream
 # Import map with `integrity` to check JS hashes by CSP
 not chrome < 127
 not edge < 127
