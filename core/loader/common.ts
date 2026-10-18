@@ -402,7 +402,7 @@ const APPLE_ICONS = ['apple-touch-icon', 'apple-touch-icon-precomposed']
 /**
  * 52×52 icon of the feed popup on 2x screen.
  */
-const MIN_ICON_SIZE = 104
+export const MIN_ICON_SIZE = 104
 
 /**
  * `Infinity` for vector icons and 0 for unknown size. Apple’s icons

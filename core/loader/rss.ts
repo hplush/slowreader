@@ -16,6 +16,7 @@ import {
   findOwnChild,
   findXmlBase,
   type Loader,
+  MIN_ICON_SIZE,
   toAvatarUrl,
   toTime
 } from './common.ts'
@@ -72,10 +73,14 @@ function parsePosts(
 
 export const rss: Loader = {
   getAvatarFromText(text) {
-    return toAvatarUrl(
-      text.parseXml().querySelector('channel > image > url')?.textContent,
-      text.url
-    )
+    let image = text.parseXml().querySelector('channel > image')
+    // WordPress puts 32×32 icon here, while the site has a bigger one
+    let small = ['width', 'height'].some(side => {
+      let size = parseInt(image?.querySelector(side)?.textContent ?? '')
+      return size < MIN_ICON_SIZE
+    })
+    if (small) return undefined
+    return toAvatarUrl(image?.querySelector('url')?.textContent, text.url)
   },
 
   getMineLinksFromText(text) {

@@ -199,13 +199,13 @@ describe('json feed loader', () => {
       loaders.jsonFeed.getAvatarFromText(
         exampleJson({ ...jsonStub, favicon: '/favicon.png', icon: '/icon.png' })
       ),
-      'https://example.com/favicon.png'
+      'https://example.com/icon.png'
     )
     equal(
       loaders.jsonFeed.getAvatarFromText(
-        exampleJson({ ...jsonStub, icon: 'https://cdn.com/icon.png' })
+        exampleJson({ ...jsonStub, favicon: 'https://cdn.com/favicon.png' })
       ),
-      'https://cdn.com/icon.png'
+      'https://cdn.com/favicon.png'
     )
     equal(loaders.jsonFeed.getAvatarFromText(exampleJson(jsonStub)), undefined)
   })

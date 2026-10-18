@@ -153,6 +153,38 @@ describe('rss loader', () => {
     )
     equal(
       loaders.rss.getAvatarFromText(
+        exampleRss(
+          `<rss version="2.0">
+            <channel>
+              <image>
+                <url>/big.png</url>
+                <width>144</width>
+                <height>144</height>
+              </image>
+            </channel>
+          </rss>`
+        )
+      ),
+      'https://example.com/big.png'
+    )
+    equal(
+      loaders.rss.getAvatarFromText(
+        exampleRss(
+          `<rss version="2.0">
+            <channel>
+              <image>
+                <url>/small.png?fit=32%2C32</url>
+                <width>32</width>
+                <height>32</height>
+              </image>
+            </channel>
+          </rss>`
+        )
+      ),
+      undefined
+    )
+    equal(
+      loaders.rss.getAvatarFromText(
         exampleRss('<rss version="2.0"><channel></channel></rss>')
       ),
       undefined

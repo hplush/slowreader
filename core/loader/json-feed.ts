@@ -164,7 +164,8 @@ export const jsonFeed: Loader = {
   getAvatarFromText(text) {
     let feed = text.parseJson()
     validate(text.text, feed)
-    return toAvatarUrl(feed.favicon ?? feed.icon, text.url)
+    // Spec’s `favicon` is 64×64, too blurry for the feed popup
+    return toAvatarUrl(feed.icon ?? feed.favicon, text.url)
   },
 
   getMineLinksFromText(text) {
