@@ -6,8 +6,8 @@ export const addMessages = i18n('add', {
     'No feeds were found on this website.\n\n' +
     'Please check the URL or [open an issue] if it looks correct.',
   searchGuide:
-    'Currently, Slow Reader supports RSS.\n\n' +
-    'More sources are coming soon, but you can already use RSS wrappers for them.',
+    'Currently, Slow Reader supports RSS, Mastodon, and BlueSky.\n\n' +
+    'More sources are coming soon.',
   title: 'Add',
   unknownHandle:
     'Unknown social network. Please enter the full handle with the server, ' +
