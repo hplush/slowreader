@@ -197,6 +197,18 @@ onClient(() => () => {
   avatarSearches.clear()
 })
 
+export async function saveFoundFeedAvatar(
+  feedId: string,
+  found: string | undefined
+): Promise<void> {
+  if (!hasDatabase()) return
+  let feed = await loadFeed(feedId)
+  let avatar = found ?? null
+  if (feed && feed.avatar !== avatar) {
+    await changeFeed(feedId, { avatar })
+  }
+}
+
 /**
  * Look for the feed’s icon again, since the site could change it.
  */
@@ -205,12 +217,7 @@ export function updateFeedAvatar(feedId: string): Promise<void> {
   if (!search) {
     search = loadFeed(feedId).then(async feed => {
       if (!feed) return
-      let avatar = (await findFeedAvatar(feed)) ?? null
-      // The user could sign out or delete the feed during the search
-      if (!hasDatabase() || avatar === feed.avatar) return
-      if (await loadFeed(feedId)) {
-        await changeFeed(feedId, { avatar })
-      }
+      await saveFoundFeedAvatar(feedId, await findFeedAvatar(feed))
     })
     avatarSearches.set(feedId, search)
   }

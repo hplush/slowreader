@@ -8,7 +8,8 @@ import {
   type FeedValue,
   findFeedAvatar,
   getFeedsByUrl,
-  loadFeedByUrl
+  loadFeedByUrl,
+  saveFoundFeedAvatar
 } from '../feed.ts'
 import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import { waitSql } from '../lib/stores.ts'
@@ -87,13 +88,15 @@ export const feed = definePopup('feed', async url => {
   let $avatar = atom<string | undefined>()
   // Lazy to not download icons for popups without UI
   onMount($avatar, () => {
-    if (existing || !candidate) return
-    void findFeedAvatar(
-      { loader: candidate.name, url: candidate.url },
-      task,
-      response
-    ).then(avatar => {
+    void parsing.then(async () => {
+      if (!candidate) return
+      let avatar = await findFeedAvatar(
+        { loader: candidate.name, url: candidate.url },
+        task,
+        response
+      )
       $avatar.set(avatar)
+      if (existing) await saveFoundFeedAvatar(existing.id, avatar)
     })
   })
 

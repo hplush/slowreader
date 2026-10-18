@@ -63,7 +63,7 @@
   <Stack gap="l">
     <Stack align="end" gap="s" row>
       <FeedAvatar
-        avatar={$feed ? $feed.avatar : $avatar}
+        avatar={$avatar ?? $feed?.avatar}
         feedId={$feed?.id}
         size="large"
       />

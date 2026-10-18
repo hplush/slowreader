@@ -219,6 +219,27 @@ describe('feed popup', () => {
     equal((await loadFeed(feedId!))!.avatar, 'https://a.com/logo.png')
   })
 
+  test('updates avatar of subscribed feed', async () => {
+    let feedId = await addFeed(
+      testFeed({ avatar: 'https://a.com/old.png', url: 'https://a.com/rss' })
+    )
+    expectRequest('https://a.com/rss').andRespond(
+      200,
+      '<rss><channel><title>RSS</title>' +
+        '<image><url>new.png</url></image></channel></rss>',
+      'application/rss+xml'
+    )
+    let popup = openTestPopup('feed', 'https://a.com/rss')
+    await waitLoading(popup.loading)
+
+    expectRequest('https://a.com/new.png').andRespond(200, 'IMAGE', 'image/png')
+    keepMount(checkLoadedPopup(popup).avatar)
+    await waitUntil(
+      async () => (await loadFeed(feedId))?.avatar === 'https://a.com/new.png'
+    )
+    equal(checkLoadedPopup(popup).avatar.get(), 'https://a.com/new.png')
+  })
+
   test('adds only 10 latest posts with a feed', async () => {
     let entries = ''
     for (let i = 12; i > 0; i--) {
