@@ -30,7 +30,7 @@
     "nanostores": "1.5.5"
   },
   "devDependencies": {
-    "@logux/server": "0.17.0",
+    "@logux/server": "0.17.1",
     "@slowreader/proxy": "workspace:*",
     "@slowreader/server": "workspace:*",
     "@types/jsdom": "30.0.0",
