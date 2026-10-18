@@ -178,7 +178,8 @@ export function errorToMessage(error: unknown): string {
     if (
       error.response.length > 2 &&
       error.response.length < 100 &&
-      !error.response.includes('<html')
+      !error.response.includes('<html') &&
+      !error.response.startsWith('{')
     ) {
       return error.response.replace(/^\w/, letter => letter.toUpperCase())
     } else {

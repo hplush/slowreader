@@ -98,6 +98,7 @@ describe('feed popup', () => {
         HTTPStatusError.is(checkLoadedPopup(popup).posts.get().error, [404]),
         true
       )
+      equal(checkLoadedPopup(popup).posts.get().hasNext, false)
     }, [])
   })
 

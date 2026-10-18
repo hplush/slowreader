@@ -83,6 +83,36 @@
   </Scene>
 </Story>
 
+<Story name="New Closed" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    responses={[
+      [
+        'https://fedi.example.com/@jane',
+        '<!DOCTYPE html><html><head>' +
+          '<meta content="Jane (@jane@example.com)" property="og:title">' +
+          '<meta content="https://fedi.example.com/@jane" property="og:url">' +
+          '<link href="/users/jane" rel="alternate" ' +
+          'type="application/activity+json">' +
+          '</head></html>'
+      ],
+      [
+        'https://fedi.example.com/api/v1/accounts/lookup?acct=jane',
+        {
+          body: '{"error":"Unauthorized: token not supplied"}',
+          contentType: 'application/json',
+          status: 401
+        }
+      ]
+    ]}
+  >
+    <LoadedPopup popup={popups.feed('https://fedi.example.com/@jane')}>
+      {#snippet loaded(popup)}
+        <FeedPopupComponent {popup} />
+      {/snippet}
+    </LoadedPopup>
+  </Scene>
+</Story>
+
 <Story name="Added" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     feeds={[

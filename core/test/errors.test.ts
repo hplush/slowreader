@@ -2,7 +2,14 @@ import { LoguxUndoError } from '@logux/client'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, describe, test } from 'node:test'
 
-import { fatal, getUnhandledErrors, NotFoundError } from '../errors.ts'
+import {
+  errorToMessage,
+  fatal,
+  getUnhandledErrors,
+  HTTPStatusError,
+  NotFoundError
+} from '../errors.ts'
+import { commonMessages } from '../messages/index.ts'
 import { cleanClient, startClient, openRoute } from './utils.ts'
 
 describe('errors', () => {
@@ -54,6 +61,24 @@ describe('errors', () => {
       reason: new NotFoundError()
     })
     deepEqual(fatal.get(), { type: 'notFound' })
+  })
+
+  test('converts HTTP errors to messages', () => {
+    startClient()
+    function message(status: number, response: string): string {
+      return errorToMessage(
+        new HTTPStatusError(status, 'https://a.com/', response, new Headers())
+      )
+    }
+    equal(message(400, 'bad feed id'), 'Bad feed id')
+    equal(message(400, '<html>'), commonMessages.get().error400)
+    equal(
+      message(401, '{"error":"Unauthorized: token not supplied"}'),
+      commonMessages.get().error401
+    )
+    equal(message(404, ''), commonMessages.get().error404)
+    equal(message(503, 'x'), commonMessages.get().error5xx)
+    equal(message(418, 'x'), 'Feed server error: 418')
   })
 
   test('keeps last unhandled errors for the fatal page', () => {
