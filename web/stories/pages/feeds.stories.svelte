@@ -100,7 +100,13 @@
   const MASTODON = [
     {
       feedId: 'mastodon',
-      full: '<p>The first post of the thread</p>',
+      full:
+        '<p>The first post of the thread is long to be cut in the card.</p>' +
+        '<p>' +
+        'Its second paragraph does not fit into the card of the feed reader, '.repeat(
+          10
+        ) +
+        '</p>',
       intro: null,
       originId: 'thread',
       publishedAt: 7,

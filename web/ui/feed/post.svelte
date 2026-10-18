@@ -78,9 +78,6 @@
     {/if}
     <PostWarning warning={post.warning}>
       <FormattedText html={intro} simple />
-      {#if post.threadSize > 1}
-        <div class="feed-post_thread-more">…</div>
-      {/if}
       <PostMedia media={post.media} />
       {#if post.quoted}
         <PostQuote quoted={post.quoted} />
@@ -256,10 +253,6 @@
 
     .feed-post_replied {
       margin-bottom: 0.625rem;
-    }
-
-    .feed-post_thread-more {
-      margin-top: 0.5rem;
     }
 
     .feed-post_thread {

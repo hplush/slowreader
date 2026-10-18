@@ -38,8 +38,8 @@ import {
 
 setupNodeDom()
 
-function postIntro(post: PostCardText): [string, boolean] {
-  let [node, more] = getPostIntro(post)
+function postIntro(post: PostCardText, threadSize = 1): [string, boolean] {
+  let [node, more] = getPostIntro({ ...post, threadSize })
   return [node.innerHTML, more]
 }
 
@@ -69,6 +69,7 @@ describe('post', () => {
       full: null,
       intro: '<img src="https://example.com/a.jpg">',
       more: 0,
+      threadSize: 1,
       url: null
     }
     let loading = (): string | null =>
@@ -331,6 +332,37 @@ describe('post', () => {
     equal(
       getQuotedIntro({ full: 'a'.repeat(600), missing: false }).innerHTML,
       'a'.repeat(500) + '…'
+    )
+  })
+
+  test('adds single ellipsis to the thread intro', () => {
+    let short = {
+      full: '<p>Short</p>',
+      intro: null,
+      more: 0,
+      url: null
+    } as const
+    equal(postIntro(short, 2)[0], '<p>Short</p><p>…</p>')
+    equal(postIntro(short)[0], '<p>Short</p>')
+
+    let [cut, more] = postIntro(
+      {
+        full: `<p>${'Long text of the thread start '.repeat(30)}</p>`,
+        intro: null,
+        more: 0,
+        url: null
+      },
+      2
+    )
+    equal(more, true)
+    equal(cut.match(/…/g)!.length, 1)
+
+    equal(
+      postIntro(
+        { full: null, intro: '<p>Intro …</p>', more: 1, url: null },
+        3
+      )[0],
+      '<p>Intro …</p>'
     )
   })
 

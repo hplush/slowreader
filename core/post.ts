@@ -6,7 +6,12 @@ import { atom, effect, onMount, type WritableAtom } from 'nanostores'
 import { loadFeed } from './feed.ts'
 import { loadFilterChecker } from './filter.ts'
 import { $locale } from './i18n.ts'
-import { sanitizeDOM, stripHTML, truncateDOM } from './lib/html.ts'
+import {
+  endsWithEllipsis,
+  sanitizeDOM,
+  stripHTML,
+  truncateDOM
+} from './lib/html.ts'
 import { truncateText } from './lib/text.ts'
 import {
   getCrdt,
@@ -333,20 +338,33 @@ export function processOriginPost(
 
 /**
  * The intro’s DOM and `true` when the article has more text than the intro.
+ * The intro of the thread ends with `…` to show its next posts.
  *
  * The card gets a sanitized node and not a string: the text is sanitized
  * once here, instead of being serialized back and parsed and sanitized
  * again on the render.
  */
-export function getPostIntro(post: PostCardText): [Element, boolean] {
+export function getPostIntro(
+  post: Pick<ReaderPost, 'threadSize'> & PostCardText
+): [Element, boolean] {
+  let intro: Element
+  let more: boolean
   if (post.intro !== null) {
-    return [sanitizeDOM(post.intro), post.more === 1]
+    intro = sanitizeDOM(post.intro)
+    more = post.more === 1
   } else if (post.full !== null) {
-    let article = sanitizeDOM(post.full)
-    return [article, truncateDOM(article, INTRO_MIN, INTRO_MAX)]
+    intro = sanitizeDOM(post.full)
+    more = truncateDOM(intro, INTRO_MIN, INTRO_MAX)
   } else {
-    return [sanitizeDOM(''), false]
+    intro = sanitizeDOM('')
+    more = false
   }
+  if (post.threadSize > 1 && !endsWithEllipsis(intro)) {
+    let ellipsis = intro.ownerDocument.createElement('p')
+    ellipsis.append('…')
+    intro.append(ellipsis)
+  }
+  return [intro, more]
 }
 
 function toOneLine(text: string): string {

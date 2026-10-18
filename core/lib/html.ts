@@ -482,6 +482,10 @@ export function truncateDOM(root: Element, min: number, max: number): boolean {
   return cut
 }
 
+export function endsWithEllipsis(root: Element): boolean {
+  return root.textContent.trimEnd().endsWith('…')
+}
+
 /**
  * `<br><br>…` in the end is a paragraph break, and a tag which separated
  * something from the cut part has nothing to separate anymore.
