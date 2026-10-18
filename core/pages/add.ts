@@ -21,7 +21,7 @@ import { injectOpenedFeed } from './mixins/opened-feed.ts'
 export type AddLinksValue = Record<
   string,
   | {
-      error: 'invalidUrl'
+      error: 'invalidUrl' | 'unknownHandle'
       state: 'invalid'
     }
   | {
@@ -74,7 +74,7 @@ export const addPage = createPage('add', () => {
 
   let $error = computed(
     $links,
-    (links): 'invalidUrl' | 'unloadable' | undefined => {
+    (links): 'invalidUrl' | 'unknownHandle' | 'unloadable' | undefined => {
       let first = Object.keys(links)[0]
       if (typeof first !== 'undefined') {
         let link = links[first]!
@@ -223,6 +223,11 @@ export const addPage = createPage('add', () => {
     url = url.trim()
     if (url === '') return
 
+    if (url.startsWith('@')) {
+      await addHandle(task, url)
+      return
+    }
+
     let httpsGuest = false
     if (!url.startsWith('https://') && !url.startsWith('http://')) {
       if (/^\w+:/.test(url)) {
@@ -285,6 +290,27 @@ export const addPage = createPage('add', () => {
       }
     } catch (error) {
       ignoreAbortError(error)
+    }
+  }
+
+  async function addHandle(task: DownloadTask, handle: string): Promise<void> {
+    $links.setKey(handle, { state: 'loading' })
+    let names = Object.keys(loaders) as LoaderName[]
+    let profiles = await Promise.all(
+      names.map(name => {
+        return (
+          loaders[name].getProfilesByHandle?.(task, handle) ??
+          Promise.resolve([])
+        )
+      })
+    )
+    if (task !== prevTask) return
+    let links = profiles.flat()
+    if (links.length === 0) {
+      $links.setKey(handle, { error: 'unknownHandle', state: 'invalid' })
+    } else {
+      await Promise.all(links.map(i => addLink(task, i)))
+      if (task === prevTask) $links.setKey(handle, { state: 'processed' })
     }
   }
 

@@ -130,6 +130,42 @@ describe('mastodon loader', () => {
     )
   })
 
+  test('finds profile by handle', async () => {
+    let { mastodon } = loaders
+    let task = createDownloadTask()
+    deepEqual(await mastodon.getProfilesByHandle!(task, '@jane'), [])
+    deepEqual(
+      await mastodon.getProfilesByHandle!(task, '@jane.bsky.social'),
+      []
+    )
+
+    expectRequest(
+      'https://example.com/.well-known/webfinger?resource=acct%3Ajane%40example.com'
+    ).andRespond(
+      200,
+      JSON.stringify({
+        links: [
+          { href: 'https://example.com/users/jane', rel: 'self' },
+          {
+            href: 'https://social.example.com/@jane',
+            rel: 'http://webfinger.net/rel/profile-page'
+          }
+        ]
+      }),
+      'application/jrd+json'
+    )
+    deepEqual(await mastodon.getProfilesByHandle!(task, '@jane@example.com'), [
+      'https://social.example.com/@jane'
+    ])
+
+    expectRequest(
+      'https://example.com/.well-known/webfinger?resource=acct%3Ajohn%40example.com'
+    ).andRespond(404)
+    deepEqual(await mastodon.getProfilesByHandle!(task, '@john@example.com'), [
+      'https://example.com/@john'
+    ])
+  })
+
   test('finds avatar', () => {
     equal(
       loaders.mastodon.getAvatarFromText(

@@ -258,6 +258,87 @@ describe('add page', () => {
     ])
   })
 
+  test('finds Mastodon profile by handle', async () => {
+    let page = openPage({
+      params: {},
+      route: 'add'
+    })
+    keepMount(page.searching)
+    keepMount(page.candidates)
+
+    let profile =
+      '<!DOCTYPE html><html><head>' +
+      '<link href="https://mastodon.social/@jane.rss" rel="alternate" ' +
+      'type="application/rss+xml">' +
+      '<link href="https://mastodon.social/users/jane" rel="alternate" ' +
+      'type="application/activity+json">' +
+      '<meta content="Jane (@jane@mastodon.social)" property="og:title">' +
+      '</head></html>'
+    expectRequest(
+      'https://mastodon.social/.well-known/webfinger' +
+        '?resource=acct%3Ajane%40mastodon.social'
+    ).andRespond(404)
+    expectRequest('https://mastodon.social/@jane').andRespond(200, profile)
+    page.params.url.set('@jane@mastodon.social')
+    equal(page.params.url.get(), '@jane@mastodon.social')
+    await waitLoading(page.searching)
+    equal(page.params.url.get(), '@jane@mastodon.social')
+    equal(page.error.get(), undefined)
+    equalWithText(page.candidates.get(), [
+      {
+        loader: loaders.mastodon,
+        name: 'mastodon',
+        title: 'Jane',
+        url: 'https://mastodon.social/@jane'
+      }
+    ])
+  })
+
+  test('shows unknown handle', async () => {
+    let page = openPage({
+      params: {},
+      route: 'add'
+    })
+    keepMount(page.searching)
+    keepMount(page.error)
+
+    page.params.url.set('@jane')
+    await waitLoading(page.searching)
+    equal(page.params.url.get(), '@jane')
+    equal(page.error.get(), 'unknownHandle')
+  })
+
+  test('ignores handle results after URL change', async () => {
+    let page = openPage({
+      params: {},
+      route: 'add'
+    })
+    keepMount(page.searching)
+    keepMount(page.error)
+
+    let finger = expectRequest(
+      'https://mastodon.social/.well-known/webfinger' +
+        '?resource=acct%3Ajane%40mastodon.social'
+    ).andWait()
+    page.params.url.set('@jane@mastodon.social')
+    page.params.url.set('@jane')
+    await waitLoading(page.searching)
+    equal(finger.aborted, true)
+    equal(page.error.get(), 'unknownHandle')
+
+    expectRequest(
+      'https://mastodon.social/.well-known/webfinger' +
+        '?resource=acct%3Ajohn%40mastodon.social'
+    ).andRespond(404)
+    let profile = expectRequest('https://mastodon.social/@john').andWait()
+    page.params.url.set('@john@mastodon.social')
+    await setTimeout(10)
+    page.params.url.set('@jane')
+    await waitLoading(page.searching)
+    equal(profile.aborted, true)
+    equal(page.error.get(), 'unknownHandle')
+  })
+
   test('does not load superseded links', async () => {
     let page = openPage({
       params: {},

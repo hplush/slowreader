@@ -47,6 +47,12 @@ export type Loader = {
   getPostSource(feed: FeedValue, originId: string): Promise<unknown>
 
   /**
+   * Profile URLs for the `@handle` from the Add page. Empty, if it is
+   * a handle of another loader.
+   */
+  getProfilesByHandle?(task: DownloadTask, handle: string): Promise<string[]>
+
+  /**
    * Earlier posts of the author’s thread from the oldest one, when refresh
    * has none of them. Empty if the thread starts with a reply to others.
    */

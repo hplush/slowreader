@@ -138,7 +138,8 @@ export function createTextResponse(
       if (!jsonCache) {
         if (
           contentType !== 'application/json' &&
-          contentType !== 'application/feed+json'
+          contentType !== 'application/feed+json' &&
+          contentType !== 'application/jrd+json'
         ) {
           throw new ParseError('Unknown content type: ' + contentType, text)
         }

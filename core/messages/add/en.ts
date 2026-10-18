@@ -9,6 +9,9 @@ export const addMessages = i18n('add', {
     'Currently, Slow Reader supports RSS.\n\n' +
     'More sources are coming soon, but you can already use RSS wrappers for them.',
   title: 'Add',
+  unknownHandle:
+    'Unknown social network. Please enter the full handle with the server, ' +
+    'like @user@mastodon.social, or a profile URL.',
   unloadable: 'Can’t open this website',
   urlLabel: 'Web page URL or social media handle'
 })

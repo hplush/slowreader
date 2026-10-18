@@ -119,6 +119,14 @@
   </Scene>
 </Story>
 
+<Story name="Handle Error" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    route={{ params: { candidate: undefined, url: '@jane' }, route: 'add' }}
+  >
+    <AddPage page={pages.add()} />
+  </Scene>
+</Story>
+
 <Story name="Loading Error" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     responses={[['https://example.com', { status: 404 }]]}

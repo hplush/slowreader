@@ -88,6 +88,8 @@ const PROFILE = /^\/@([^/]+)\/?$/
 
 const POST = /^\/(@[^/]+)\/(\d+)\/?$/
 
+const HANDLE = /^@([^@\s/]+)@([^@\s/]+)$/
+
 const SHORTCODE = /:(\w{2,}):/g
 
 const POPULAR = new Set([
@@ -438,6 +440,31 @@ export const mastodon: Loader = {
       ...parseStatus(status),
       id: url
     }
+  },
+
+  async getProfilesByHandle(task, handle) {
+    let match = handle.match(HANDLE)
+    if (!match) return []
+    let [, user, host] = match
+    // Handle’s domain can differ from the server’s one
+    try {
+      let response = await task.text(
+        `https://${host}/.well-known/webfinger?resource=` +
+          encodeURIComponent(`acct:${user}@${host}`)
+      )
+      let data = response.parseJson()
+      if (isObject(data) && Array.isArray(data.links)) {
+        let page: unknown = data.links.find(
+          link =>
+            isObject(link) &&
+            link.rel === 'http://webfinger.net/rel/profile-page'
+        )
+        if (isObject(page) && typeof page.href === 'string') return [page.href]
+      }
+    } catch {
+      // Not every server has WebFinger, but most of them have this path
+    }
+    return [`https://${host}/@${user}`]
   },
 
   async getPostSource(feed, originId) {
