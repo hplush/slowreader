@@ -1,6 +1,7 @@
 import {
   createDownloadTask,
   enableTestTime,
+  findFeedAvatar,
   generateCredentials,
   getLoaderForText,
   HTTPStatusError,
@@ -143,6 +144,14 @@ export async function fetchAndParsePosts(
         semiSuccess(url, '0 posts')
       } else {
         report(`Can not found posts for feed ${url}`)
+      }
+    } else if (
+      !(await findFeedAvatar({ loader: candidate.name, url }, task, response))
+    ) {
+      if (badSource) {
+        semiSuccess(url, 'no avatar')
+      } else {
+        report(`Can not found avatar for feed ${url}`)
       }
     } else {
       success(

@@ -1,7 +1,7 @@
 import { deepStrictEqual, equal, match, ok, rejects } from 'node:assert/strict'
 import { createServer, type IncomingHttpHeaders, type Server } from 'node:http'
 import type { AddressInfo, Socket } from 'node:net'
-import { after, describe, test } from 'node:test'
+import { after, describe, mock, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 import { URL } from 'node:url'
 import { gzipSync } from 'node:zlib'
@@ -557,6 +557,21 @@ describe('proxy', () => {
     let response = await request(`${targetUrl}?size=5000`)
     equal(response.status, 200)
     await rejects(response.text())
+  })
+
+  test('ignores body cancel by client', async () => {
+    let write = mock.method(process.stderr, 'write', () => true)
+    try {
+      for (let i = 0; i < 5; i++) {
+        let response = await request(`${targetUrl}?size=1400&pace=20`)
+        equal(response.status, 200)
+        await response.body?.cancel()
+      }
+      await setTimeout(300)
+    } finally {
+      write.mock.restore()
+    }
+    equal(write.mock.callCount(), 0)
   })
 
   test('protects clients from proxied HTML', async () => {
