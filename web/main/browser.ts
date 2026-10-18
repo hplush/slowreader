@@ -144,6 +144,13 @@ window.addEventListener('keyup', e => {
   }
 })
 
+let openingOtherApp = false
+
+// Must be the first listener to stop Logux and busy task warnings
+window.addEventListener('beforeunload', event => {
+  if (openingOtherApp) event.stopImmediatePropagation()
+})
+
 // Ask to not close the tab only for cloud users. A local client has no
 // server to sync with, so its actions will never become synchronized
 // and the warning would be shown forever.
@@ -173,7 +180,9 @@ function openInBrowser(event: MouseEvent): void {
     /^https?:$/.test(link.protocol)
   ) {
     event.preventDefault()
+    openingOtherApp = true
     location.href = toBrowserIntent(new URL(link.href))
+    openingOtherApp = false
   }
 }
 
