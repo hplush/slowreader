@@ -29,7 +29,7 @@
 
   let { popup }: { popup: FeedPopup } = $props()
 
-  let { categories, feed, posts } = $derived(popup)
+  let { avatar, categories, feed, posts } = $derived(popup)
 </script>
 
 <Popup
@@ -61,9 +61,13 @@
     {/if}
   {/snippet}
   <Stack gap="l">
-    {#if $feed}
-      <Stack align="end" gap="s" row>
-        <FeedAvatar avatar={$feed.avatar} feedId={$feed.id} size="large" />
+    <Stack align="end" gap="s" row>
+      <FeedAvatar
+        avatar={$feed ? $feed.avatar : $avatar}
+        feedId={$feed?.id}
+        size="large"
+      />
+      {#if $feed}
         <Input
           label={$t.title}
           onchange={title => {
@@ -71,8 +75,10 @@
           }}
           value={$feed.title}
         />
-      </Stack>
-    {/if}
+      {:else}
+        <Output label={$t.title} value={popup.title} />
+      {/if}
+    </Stack>
     <Output label={$t.feedUrl} value={popup.param} />
     {#if $feed}
       <Stack row>

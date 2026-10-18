@@ -173,13 +173,14 @@ export function getFeedLatestPosts(
   )
 }
 
-async function findFeedAvatar(
-  feed: Pick<FeedValue, 'loader' | 'url'>
+export async function findFeedAvatar(
+  feed: Pick<FeedValue, 'loader' | 'url'>,
+  task = createDownloadTask({ tries: 1 }),
+  response?: TextResponse
 ): Promise<string | undefined> {
-  let task = createDownloadTask({ tries: 1 })
   try {
     let fromFeed = loaders[feed.loader].getAvatarFromText(
-      await task.text(feed.url)
+      response ?? (await task.text(feed.url))
     )
     if (fromFeed && (await isLoadableIcon(task, fromFeed))) return fromFeed
   } catch {}

@@ -10,14 +10,14 @@
     size = 'small'
   }: {
     avatar: null | string | undefined
-    feedId: string
+    feedId?: string
     size?: 'large' | 'medium' | 'small'
   } = $props()
 
   let broken = $state<string>()
 
   $effect(() => {
-    if (!avatar) void updateFeedAvatar(feedId)
+    if (!avatar && feedId) void updateFeedAvatar(feedId)
   })
 </script>
 
@@ -32,7 +32,7 @@
     loading="lazy"
     onerror={() => {
       broken = avatar
-      void updateFeedAvatar(feedId)
+      if (feedId) void updateFeedAvatar(feedId)
     }}
     referrerpolicy="no-referrer"
     src={avatar}

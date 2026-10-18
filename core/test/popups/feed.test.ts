@@ -1,3 +1,4 @@
+import { keepMount } from 'nanostores'
 import { deepEqual, equal, match, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
@@ -26,7 +27,8 @@ import {
   mockRequest,
   openTestPopup,
   openRoute,
-  setupNodeDom
+  setupNodeDom,
+  waitUntil
 } from '../utils.ts'
 
 setupNodeDom()
@@ -151,6 +153,7 @@ describe('feed popup', () => {
 
     await waitLoading(popup.loading)
     equal(checkLoadedPopup(popup).feed.get(), undefined)
+    equal(checkLoadedPopup(popup).title, 'Atom')
     deepEqual(checkLoadedPopup(popup).posts.get().isLoading, false)
     deepEqual(checkLoadedPopup(popup).posts.get().list.length, 2)
     deepEqual(checkLoadedPopup(popup).posts.get().list[0]?.originId, '2')
@@ -191,6 +194,29 @@ describe('feed popup', () => {
     await checkLoadedPopup(popup).remove()
     equal(checkLoadedPopup(popup).feed.get(), undefined)
     deepEqual(await loadPostsByFeed(feedId), [])
+  })
+
+  test('finds avatar of unsubscribed feed', async () => {
+    expectRequest('https://a.com/rss').andRespond(
+      200,
+      '<rss><channel><title>RSS</title>' +
+        '<image><url>logo.png</url></image></channel></rss>',
+      'application/rss+xml'
+    )
+    let popup = openTestPopup('feed', 'https://a.com/rss')
+    await waitLoading(popup.loading)
+
+    expectRequest('https://a.com/logo.png').andRespond(
+      200,
+      'IMAGE',
+      'image/png'
+    )
+    keepMount(checkLoadedPopup(popup).avatar)
+    await waitUntil(() => !!checkLoadedPopup(popup).avatar.get())
+    equal(checkLoadedPopup(popup).avatar.get(), 'https://a.com/logo.png')
+
+    let feedId = await checkLoadedPopup(popup).add()
+    equal((await loadFeed(feedId!))!.avatar, 'https://a.com/logo.png')
   })
 
   test('adds only 10 latest posts with a feed', async () => {

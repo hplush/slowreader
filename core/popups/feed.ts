@@ -1,4 +1,4 @@
-import { atom } from 'nanostores'
+import { atom, onMount } from 'nanostores'
 
 import { getCategories } from '../category.ts'
 import { NotFoundError } from '../errors.ts'
@@ -6,6 +6,7 @@ import {
   addCandidate,
   deleteFeed,
   type FeedValue,
+  findFeedAvatar,
   getFeedsByUrl,
   loadFeedByUrl
 } from '../feed.ts'
@@ -83,6 +84,19 @@ export const feed = definePopup('feed', async url => {
 
   let $feed = atom<FeedValue | undefined>()
 
+  let $avatar = atom<string | undefined>()
+  // Lazy to not download icons for popups without UI
+  onMount($avatar, () => {
+    if (existing || !candidate) return
+    void findFeedAvatar(
+      { loader: candidate.name, url: candidate.url },
+      task,
+      response
+    ).then(avatar => {
+      $avatar.set(avatar)
+    })
+  })
+
   let unbindFeeds = feedsStore.subscribe(value => {
     if (value.status === 'ready') {
       $feed.set(value.value[0])
@@ -115,12 +129,18 @@ export const feed = definePopup('feed', async url => {
   async function add(): Promise<string | void> {
     await parsing
     if (candidate) {
-      return await addCandidate(candidate, {}, task, response)
+      return await addCandidate(
+        candidate,
+        { avatar: $avatar.get() },
+        task,
+        response
+      )
     }
   }
 
   return {
     add,
+    avatar: $avatar,
     categories: $categories,
     destroy() {
       task.destroy()
@@ -129,7 +149,8 @@ export const feed = definePopup('feed', async url => {
     },
     feed: $feed,
     posts,
-    remove
+    remove,
+    title: candidate ? candidate.title : ''
   }
 })
 
