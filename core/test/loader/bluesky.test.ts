@@ -95,6 +95,8 @@ describe('bluesky loader', () => {
       false
     )
     equal(bluesky.isMineUrl(new URL('https://example.com/profile/a')), false)
+    equal(bluesky.isMineUrl(new URL('https://example.com')), undefined)
+    equal(bluesky.isMineUrl(new URL('http://localhost')), false)
   })
 
   test('detects profiles', async () => {
@@ -151,6 +153,33 @@ describe('bluesky loader', () => {
       false
     )
 
+    expectRequest(`${API}/app.bsky.actor.getProfile?actor=jane.com`).andRespond(
+      200,
+      JSON.stringify(profile('jane', { handle: 'jane.com' })),
+      'application/json'
+    )
+    deepEqual(
+      await detect(
+        'https://example.com/jane',
+        '<!DOCTYPE html><html></html>',
+        'https://jane.com'
+      ),
+      { title: 'JANE', url: 'https://bsky.app/profile/jane.com' }
+    )
+
+    expectRequest(
+      `${API}/app.bsky.actor.getProfile?actor=example.com`
+    ).andRespond(400)
+    equal(await detect('https://example.com/', '<html></html>'), false)
+
+    await expectNotMine(
+      bluesky,
+      createTextResponse('<rss></rss>', {
+        contentType: 'application/rss+xml',
+        url: 'https://jane.com/'
+      })
+    )
+    await expectNotMine(bluesky, page('https://jane.com/?a'))
     await expectNotMine(
       bluesky,
       page('https://bsky.app/profile/jane.com/post/1')
@@ -201,6 +230,15 @@ describe('bluesky loader', () => {
         page('https://bsky.app/profile/jane.bsky.social')
       ),
       ['https://bsky.app/profile/did:plc:jane/rss']
+    )
+    deepEqual(
+      bluesky.getWorseLinksFromText!(
+        page(
+          'https://jane.com/',
+          '<link rel="alternate" type="application/rss+xml" href="/rss">'
+        )
+      ),
+      []
     )
     deepEqual(
       bluesky.getSuggestedLinksFromText(

@@ -185,6 +185,11 @@ function getActor(url: string): string {
   return decodeURIComponent(new URL(url).pathname.match(PROFILE)![1]!)
 }
 
+function isDomainRoot(url: string): boolean {
+  let { hostname, pathname, search } = new URL(url)
+  return pathname === '/' && !search && hostname.includes('.')
+}
+
 function isProfile(url: string): boolean {
   let parsed = new URL(url)
   return parsed.hostname === 'bsky.app' && PROFILE.test(parsed.pathname)
@@ -688,24 +693,34 @@ export const bluesky: Loader = {
   },
 
   getWorseLinksFromText(text) {
-    return findDocumentLinks(text, 'application/rss+xml')
+    return findDocumentLinks(text, 'application/rss+xml').filter(
+      link => new URL(link).hostname === 'bsky.app'
+    )
   },
 
   async detectFeed(text, task, url) {
-    if (!isProfile(url)) return false
-    // Redirect page could have meta of something else
-    let title = isProfile(text.url) && findMetaProperty(text, 'og:title')
-    let canonical = findMetaProperty(text, 'og:url')
-    if (title && canonical && isProfile(canonical)) {
-      let [, name = title] = title.match(/^(.*?)\s*\(@[^)]+\)$/) ?? []
-      return {
-        title: name || getActor(canonical),
-        url: `${APP}/profile/${getActor(canonical)}`
+    let actor: string
+    if (isProfile(url)) {
+      // Redirect page could have meta of something else
+      let title = isProfile(text.url) && findMetaProperty(text, 'og:title')
+      let canonical = findMetaProperty(text, 'og:url')
+      if (title && canonical && isProfile(canonical)) {
+        let [, name = title] = title.match(/^(.*?)\s*\(@[^)]+\)$/) ?? []
+        return {
+          title: name || getActor(canonical),
+          url: `${APP}/profile/${getActor(canonical)}`
+        }
       }
+      actor = getActor(url)
+    } else if (isDomainRoot(url) && text.contentType.includes('html')) {
+      // Custom domain handle can redirect to any site
+      actor = new URL(url).hostname
+    } else {
+      return false
     }
     // Unknown profile has a page without meta tags
     try {
-      let profile = await loadProfile(task, getActor(url))
+      let profile = await loadProfile(task, actor)
       return {
         title: profile.displayName?.trim() || profile.handle,
         url: toProfileUrl(profile)
@@ -716,6 +731,7 @@ export const bluesky: Loader = {
   },
 
   isMineUrl(url) {
+    if (isDomainRoot(url.href)) return undefined
     if (url.hostname !== 'bsky.app') return false
     let profile = url.pathname.match(PROFILE)
     return profile ? decodeURIComponent(profile[1]!) : false

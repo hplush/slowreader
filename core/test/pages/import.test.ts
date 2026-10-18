@@ -215,6 +215,10 @@ describe('import page', () => {
     expectRequest(FEED2.url).andRespond(200, '<feed></feed>')
     expectRequest('https://broken.com/').andRespond(404)
     expectRequest('https://unknown.com/').andRespond(200, '<html></html>')
+    expectRequest(
+      'https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile' +
+        '?actor=unknown.com'
+    ).andRespond(400)
     expectRequest(FEED.url).andRespond(200, '<rss></rss>')
     page.importFile(file('opml', await exportedBlob.text()))
     await waitLoading(busy)

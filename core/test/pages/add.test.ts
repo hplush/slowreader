@@ -1,3 +1,4 @@
+import { restoreAll, spyOn } from 'nanospy'
 import { keepMount } from 'nanostores'
 import { deepEqual, equal, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
@@ -26,6 +27,8 @@ import {
 
 setupNodeDom()
 
+let detectBluesky = loaders.bluesky.detectFeed
+
 describe('add page', () => {
   beforeEach(() => {
     startClient({
@@ -36,9 +39,15 @@ describe('add page', () => {
       }
     })
     mockRequest()
+    // Domain handle check sends a request for every site
+    spyOn(loaders.bluesky, 'detectFeed', (text, task, url) => {
+      if (new URL(url).hostname !== 'bsky.app') return false
+      return detectBluesky(text, task, url)
+    })
   })
 
   afterEach(async () => {
+    restoreAll()
     await cleanClient()
     checkAndRemoveRequestMock()
   })
@@ -321,6 +330,56 @@ describe('add page', () => {
         name: 'bluesky',
         title: 'Jane',
         url: 'https://bsky.app/profile/jane.bsky.social'
+      }
+    ])
+  })
+
+  test('finds Bluesky profile by domain handle', async () => {
+    restoreAll()
+    let page = openPage({
+      params: {},
+      route: 'add'
+    })
+    keepMount(page.searching)
+    keepMount(page.candidates)
+
+    expectRequest('https://jane.example.com').andRespond(
+      200,
+      '<html><head><link rel="alternate" type="application/rss+xml" ' +
+        'href="https://example.com/rss"></head></html>'
+    )
+    expectRequest(
+      'https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile' +
+        '?actor=jane.example.com'
+    ).andRespond(
+      200,
+      JSON.stringify({
+        did: 'did:plc:jane',
+        displayName: 'Jane',
+        handle: 'jane.example.com'
+      }),
+      'application/json'
+    )
+    expectRequest('https://example.com/rss').andRespond(
+      200,
+      '<rss version="2.0"><channel><title>Blog</title></channel></rss>',
+      'application/rss+xml'
+    )
+    page.params.url.set('jane.example.com')
+    await waitLoading(page.searching)
+    equal(page.error.get(), undefined)
+    equalWithText(page.candidates.get(), [
+      {
+        loader: loaders.rss,
+        name: 'rss',
+        title: 'Blog',
+        url: 'https://example.com/rss'
+      },
+      {
+        loader: loaders.bluesky,
+        name: 'bluesky',
+        title: 'Jane',
+        url: 'https://bsky.app/profile/jane.example.com'
       }
     ])
   })
