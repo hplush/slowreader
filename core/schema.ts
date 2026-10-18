@@ -455,7 +455,10 @@ function getOpeningLabel(crdt: CrdtDatabase): string {
 
 function openDatabase(logux: CrossTabClient, db: Database): void {
   let store = getEnvironment().persistentStore
-  db.on('error', reportDatabaseError)
+  db.on('error', error => {
+    // Client restart closes the database under unfinished queries
+    if (openedDatabase.get() === db) reportDatabaseError(error)
+  })
 
   // The upload of the previous start was not finished, so it must be restarted.
   // Remove in the next release: the mark was `slowreader:migrating` before

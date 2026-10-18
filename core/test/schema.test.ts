@@ -1,4 +1,4 @@
-import { deepEqual, equal, ok } from 'node:assert/strict'
+import { deepEqual, equal, ok, rejects } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -15,6 +15,7 @@ import {
   getClient,
   getCrdt,
   getDatabaseSize,
+  hasCloud,
   loadCategories,
   loadFeeds,
   loadFilters,
@@ -190,6 +191,13 @@ describe('schema', () => {
     await cleanClient()
     await cleanDatabase()
     await freeDatabasePages()
+  })
+
+  test('ignores errors of the closed database', async () => {
+    let db = database.get()!
+    hasCloud.set(true)
+    await waitUntil(() => database.get() !== db)
+    await rejects(db.select`SELECT * FROM "filters"`)
   })
 
   test('drops all tables on sign-out', async () => {
