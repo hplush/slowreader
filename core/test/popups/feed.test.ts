@@ -130,7 +130,12 @@ describe('feed popup', () => {
     )
     await checkLoadedPopup(popup).posts.next()
     equal(checkLoadedPopup(popup).posts.get().hasNext, false)
-    deepEqual(checkLoadedPopup(popup).posts.get().list[0]?.originId, '1')
+    deepEqual(
+      checkLoadedPopup(popup)
+        .posts.get()
+        .list.map(post => post.originId),
+      ['2', '1']
+    )
 
     await checkLoadedPopup(popup).remove()
     equal(checkLoadedPopup(popup).feed.get(), undefined)

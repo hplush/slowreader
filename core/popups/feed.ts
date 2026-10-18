@@ -15,12 +15,9 @@ import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import { waitSql } from '../lib/stores.ts'
 import { type FeedLoader, getLoaderForText } from '../loader/index.ts'
 import { commonMessages } from '../messages/index.ts'
-import {
-  createPostsList,
-  type PostsList,
-  type PostsListResult
-} from '../posts-list.ts'
+import { createPostsList, type PostsList } from '../posts-list.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
+import { addThreadStarts } from '../thread.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
 function swapHttpProtocol(url: string): string | undefined {
@@ -77,18 +74,24 @@ export const feed = definePopup('feed', async url => {
     posts = createPostsList(async () => {
       await parsing
       if (!candidate || !response) return [[], undefined]
-      let origin = candidate.loader.getPosts(task, url, response)
-      if (origin.get().isLoading) await origin.loading
-      let next = async (): Promise<PostsListResult> => {
-        let list = await origin.next()
-        return [list, origin.get().hasNext ? next : undefined]
-      }
-      return [origin.get().list, origin.get().hasNext ? next : undefined]
+      return addThreadStarts(
+        task,
+        candidate.loader,
+        url,
+        candidate.loader.getPosts(task, url, response)
+      )()
     })
   } else {
     await parsing
     if (!candidate || !response) throw new NotFoundError()
-    posts = candidate.loader.getPosts(task, url, response)
+    posts = createPostsList(
+      addThreadStarts(
+        task,
+        candidate.loader,
+        url,
+        candidate.loader.getPosts(task, url, response)
+      )
+    )
     if (posts.get().isLoading) await posts.loading
   }
 

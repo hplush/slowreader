@@ -72,6 +72,7 @@ interface FeedRefresh {
   filters: FilterChecker | undefined
   known: Set<string> | undefined
   newest: OriginPost | undefined
+  page: OriginPost[]
   pages: PostsList
 }
 
@@ -102,7 +103,7 @@ async function writePage(state: FeedRefresh): Promise<boolean> {
   let feed = await loadFeed(state.feed.id)
   if (!feed) return false
 
-  let posts = state.pages.get().list
+  let posts = state.page
   let first = posts[0]
   if (!first || wasAlreadyAdded(feed, first)) return true
   state.newest ??= first
@@ -161,8 +162,8 @@ async function finishFeed(state: FeedRefresh): Promise<void> {
 }
 
 async function processPage(state: FeedRefresh): Promise<void> {
-  sortPage(state.pages.get().list)
-  let enough = state.pages.get().list.some(i => wasAlreadyAdded(state.feed, i))
+  sortPage(state.page)
+  let enough = state.page.some(i => wasAlreadyAdded(state.feed, i))
   let more = !enough && state.pages.get().hasNext
 
   // The marker is written only after the last page, so a failure in the middle
@@ -174,7 +175,7 @@ async function processPage(state: FeedRefresh): Promise<void> {
 
   if (alive && more) {
     queue.add(state.feed, async () => {
-      await state.pages.next()
+      state.page = await state.pages.next()
       let error = state.pages.get().error
       if (error) throw error
       await processPage(state)
@@ -218,6 +219,7 @@ export async function refreshPosts(): Promise<void> {
           filters: undefined,
           known: undefined,
           newest: undefined,
+          page: pages.get().list,
           pages,
           task
         })

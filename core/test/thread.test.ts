@@ -8,6 +8,7 @@ import {
   changeRead,
   collapseThreads,
   createDownloadTask,
+  createPostsList,
   getPostId,
   hasUnreadPosts,
   loaders,
@@ -20,7 +21,7 @@ import {
   testPost
 } from '../index.ts'
 import { loadPostsPage, topCursor } from '../readers/common.ts'
-import { linkThreads } from '../thread.ts'
+import { addThreadStarts, linkThreads } from '../thread.ts'
 import { cleanClient, startClient } from './utils.ts'
 
 const URL = 'https://mastodon.social/@jane'
@@ -220,6 +221,65 @@ describe('threads', () => {
         ['7', ['8']]
       ]
     )
+  })
+
+  test('loads thread starts for the feed preview', async () => {
+    let ancestors = spyOn(mastodon, 'getThreadAncestors', () => {
+      return Promise.resolve([
+        { originId: 'a', publishedAt: 1 },
+        { originId: 'b', publishedAt: 2, selfReplyTo: 'a' }
+      ])
+    })
+    let pages = createPostsList(() => [
+      [
+        { originId: 'd', publishedAt: 4 },
+        { originId: 'c', publishedAt: 3, selfReplyTo: 'b' },
+        { originId: 'b', publishedAt: 2, selfReplyTo: 'a' },
+        { originId: 'x', selfReplyTo: 'y' }
+      ],
+      () => {
+        return Promise.resolve([
+          [
+            { originId: 'a', publishedAt: 1 },
+            { originId: 'e', selfReplyTo: 'z' }
+          ],
+          () => Promise.reject(new Error('Broken page'))
+        ])
+      }
+    ])
+    let preview = createPostsList(
+      addThreadStarts(createDownloadTask(), mastodon, URL, pages)
+    )
+    function shown(): unknown[] {
+      return collapseThreads(preview.get().list).map(post => [
+        post.originId,
+        post.threadParts?.map(part => part.originId)
+      ])
+    }
+
+    await preview.loading
+    deepEqual(
+      ancestors.calls.map(call => call[2]),
+      ['b', 'x']
+    )
+    deepEqual(shown(), [
+      ['d', undefined],
+      ['a', ['b', 'c']],
+      ['x', undefined]
+    ])
+
+    ancestors.nextResult(Promise.reject(new Error('No context')))
+    await preview.next()
+    deepEqual(shown(), [
+      ['d', undefined],
+      ['a', ['b', 'c']],
+      ['x', undefined],
+      ['e', undefined]
+    ])
+
+    await preview.next()
+    equal(preview.get().error?.message, 'Broken page')
+    equal(preview.get().list.length, 6)
   })
 
   test('shows thread as its first post', async () => {

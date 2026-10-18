@@ -773,8 +773,10 @@ describe('atom loader', () => {
 
     equal(page2.length, 1)
     equal(page2[0]?.title, 'Post on page 2')
-    equal(posts.get().list.length, 1)
-    equal(posts.get().list[0]?.title, 'Post on page 2')
+    deepEqual(
+      posts.get().list.map(post => post.title),
+      ['Post on page 1', 'Post on page 2']
+    )
   })
 
   test('returns post source', async () => {

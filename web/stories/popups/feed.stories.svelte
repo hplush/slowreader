@@ -40,6 +40,32 @@
     </feed>`,
     contentType: 'application/atom+xml'
   }
+
+  const MASTODON_API = 'https://mastodon.social/api/v1/accounts'
+
+  const STATUSES = [1, 2, 3].map(id => ({
+    account: {
+      avatar: '',
+      display_name: 'Jane',
+      id: 'jane',
+      url: 'https://mastodon.social/@jane',
+      username: 'jane'
+    },
+    card: null,
+    content: `<p>Post number ${id}</p>`,
+    created_at: `2021-01-0${4 - id}T00:00:00.000Z`,
+    edited_at: null,
+    id: `${id}`,
+    in_reply_to_account_id: null,
+    in_reply_to_id: null,
+    media_attachments: [],
+    poll: null,
+    reblog: null,
+    sensitive: false,
+    spoiler_text: '',
+    uri: `https://mastodon.social/users/jane/statuses/${id}`,
+    url: `https://mastodon.social/@jane/${id}`
+  }))
 </script>
 
 <Story name="New" asChild parameters={{ layout: 'fullscreen' }}>
@@ -83,6 +109,42 @@
     <LoadedPopup popup={popups.feed('https://example.com/news.atom')}>
       {#snippet loaded(popup)}
         <FeedPopupComponent {popup} />
+      {/snippet}
+    </LoadedPopup>
+  </Scene>
+</Story>
+
+<Story name="Added Loading More" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[{ loader: 'mastodon', url: 'https://mastodon.social/@jane' }]}
+    responses={[
+      [
+        'https://mastodon.social/@jane',
+        '<!DOCTYPE html><html><head>' +
+          '<meta content="Jane (@jane@mastodon.social)" property="og:title">' +
+          '</head></html>'
+      ],
+      [
+        `${MASTODON_API}/lookup?acct=jane`,
+        {
+          body: JSON.stringify(STATUSES[0]!.account),
+          contentType: 'application/json'
+        }
+      ],
+      [
+        `${MASTODON_API}/jane/statuses?exclude_replies=true`,
+        { body: JSON.stringify(STATUSES), contentType: 'application/json' }
+      ],
+      [
+        `${MASTODON_API}/jane/statuses?exclude_replies=true&max_id=3`,
+        { loading: true }
+      ]
+    ]}
+  >
+    <LoadedPopup popup={popups.feed('https://mastodon.social/@jane')}>
+      {#snippet loaded(popup)}
+        <FeedPopupComponent {popup} />
+        {#await popup.posts.loading.then(popup.posts.next)}{/await}
       {/snippet}
     </LoadedPopup>
   </Scene>

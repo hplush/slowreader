@@ -1,13 +1,19 @@
 import type { FeedValue } from './feed.ts'
 import type { DownloadTask } from './lib/download.ts'
-import { loaders } from './loader/index.ts'
+import { type Loader, loaders } from './loader/index.ts'
 import {
   changePost,
   getPostId,
   loadPost,
   type OriginPost,
+  type ParsedPost,
   type PostValue
 } from './post.ts'
+import type {
+  PostsList,
+  PostsListLoader,
+  PostsListResult
+} from './posts-list.ts'
 
 function loadByOriginId(
   feedId: string,
@@ -140,4 +146,54 @@ export async function linkThreads(
     if (!sortedAt) return { ...saved, merged: false, threadId }
     return { ...saved, merged: false, sortedAt, threadId }
   })
+}
+
+/**
+ * Feed preview shows the thread as its first post, like readers. Without
+ * earlier parts, the next page would replace the shown reply by its start.
+ */
+export function addThreadStarts(
+  task: DownloadTask,
+  loader: Loader,
+  feedUrl: string,
+  posts: PostsList
+): PostsListLoader {
+  let known = new Set<string>()
+
+  async function withStarts(page: ParsedPost[]): Promise<ParsedPost[]> {
+    let added = page.filter(post => !known.has(post.originId))
+    for (let post of added) known.add(post.originId)
+    let restored: ParsedPost[] = []
+    for (let post of added) {
+      if (post.selfReplyTo && !known.has(post.selfReplyTo)) {
+        let ancestors = await loader
+          .getThreadAncestors?.(task, feedUrl, post.originId)
+          // Preview can show the reply without its thread
+          .catch(() => [])
+        for (let ancestor of ancestors ?? []) {
+          if (known.has(ancestor.originId)) continue
+          known.add(ancestor.originId)
+          restored.push(ancestor)
+        }
+      }
+    }
+    return [...added, ...restored]
+  }
+
+  async function next(): Promise<PostsListResult> {
+    let page = await posts.next()
+    let error = posts.get().error
+    if (error) throw error
+    return [await withStarts(page), posts.get().hasNext ? next : undefined]
+  }
+
+  return async () => {
+    if (posts.get().isLoading) await posts.loading
+    let error = posts.get().error
+    if (error) throw error
+    return [
+      await withStarts(posts.get().list),
+      posts.get().hasNext ? next : undefined
+    ]
+  }
 }

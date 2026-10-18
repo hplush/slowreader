@@ -12,6 +12,9 @@ export interface PostsListValue {
 
 export type PostsList = {
   loading: Promise<OriginPost[]>
+  /**
+   * Add the next page to the end of `list`. Returns only the new posts.
+   */
   next(): Promise<OriginPost[]>
 } & ReadableAtom<PostsListValue>
 
@@ -58,7 +61,7 @@ export function createPostsList(
           error: undefined,
           hasNext: !!nextLoader,
           isLoading: false,
-          list: posts
+          list: [...$store.get().list, ...posts]
         })
         return posts
       })

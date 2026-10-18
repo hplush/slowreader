@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     mdiAlertCircleOutline,
+    mdiChevronDown,
     mdiPlusCircleOutline,
     mdiTrashCanOutline
   } from '@mdi/js'
@@ -109,19 +110,25 @@
         />
       </Stack>
     {/if}
-    <Stack gap="xs">
-      <Label tag="h2">{$t.feedPosts}</Label>
+    <Stack gap="s">
+      <Stack gap="xs">
+        <Label tag="h2">{$t.feedPosts}</Label>
+        {#if $posts.list.length > 0}
+          <Posts list={collapseThreads($posts.list)} />
+        {/if}
+      </Stack>
       {#if $posts.isLoading}
         <Loader track="feed-popup-posts" />
       {:else}
-        <Posts list={collapseThreads($posts.list)} />
         {#if $posts.error}
           <Note icon={mdiAlertCircleOutline} variant="dangerous">
             {errorToMessage($posts.error)}
           </Note>
         {/if}
         {#if $posts.hasNext}
-          <Button onclick={posts.next} size="wide">{$t.morePosts}</Button>
+          <Button icon={mdiChevronDown} onclick={posts.next} size="wide">
+            {$t.morePosts}
+          </Button>
         {/if}
       {/if}
     </Stack>

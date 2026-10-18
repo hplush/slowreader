@@ -481,8 +481,9 @@ describe('mastodon loader', () => {
     expectRequest(
       `${API}/accounts/jane-id/statuses?exclude_replies=true&max_id=5`
     ).andRespond(200, '[]', 'application/json')
-    await posts.next()
-    deepEqual(posts.get().list, [])
+    let first = posts.get().list
+    deepEqual(await posts.next(), [])
+    deepEqual(posts.get().list, first)
     equal(posts.get().hasNext, false)
   })
 
