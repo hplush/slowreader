@@ -7,6 +7,7 @@
     getPostPopupParam,
     openedPost,
     postMessages,
+    type PreviewPost,
     type ReaderPost,
     router,
     feedsMessages as t
@@ -30,26 +31,27 @@
   }: {
     author: FeedAuthor | undefined
     feedUrl: string | undefined
-    post: ReaderPost
+    post: PreviewPost | ReaderPost
   } = $props()
 
   let [intro, more] = $derived(getPostIntro(post))
+  let param = $derived(getPostPopupParam('origin' in post ? post.origin : post))
 </script>
 
 <li
   class="feed-post"
   class:is-current={$openedPost === post.id}
-  class:is-read={post.read}
+  class:is-read={'read' in post && post.read}
 >
   <a
     class="feed-post_link"
-    aria-controls={getPopupId('post', getPostPopupParam(post))}
+    aria-controls={getPopupId('post', param)}
     aria-current={$openedPost === post.id ? 'page' : null}
     aria-labelledby={`feed-content-${post.id}`}
-    href={getPopupHash($router, 'post', getPostPopupParam(post))}
+    href={getPopupHash($router, 'post', param)}
   ></a>
   <article id={`feed-content-${post.id}`} class="feed-post_content">
-    {#if author}
+    {#if author && 'feedId' in post}
       <div class="feed-post_author">
         <FeedLink
           avatar={author.avatar}
@@ -116,7 +118,7 @@
       {/if}
       {#if more}
         <Button
-          href={getPopupHash($router, 'post', getPostPopupParam(post))}
+          href={getPopupHash($router, 'post', param)}
           icon={mdiChevronRight}
           size="icon"
           variant="plain"

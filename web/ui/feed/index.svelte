@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { FeedAuthor, ReaderPost } from '@slowreader/core'
+  import type { FeedAuthor, PreviewPost, ReaderPost } from '@slowreader/core'
 
   import FeedPost from './post.svelte'
 
@@ -10,13 +10,13 @@
   }: {
     authors?: ReadonlyMap<string, FeedAuthor>
     feedUrl?: string
-    posts: readonly ReaderPost[]
+    posts: readonly (PreviewPost | ReaderPost)[]
   } = $props()
 </script>
 
 <ul class="feed">
   {#each posts as post (post.id)}
-    {@const author = authors?.get(post.feedId)}
+    {@const author = 'feedId' in post ? authors?.get(post.feedId) : undefined}
     <FeedPost {author} feedUrl={author?.url ?? feedUrl} {post} />
   {/each}
 </ul>

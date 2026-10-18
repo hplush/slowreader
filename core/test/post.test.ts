@@ -25,7 +25,8 @@ import {
   setupEnvironment,
   slowPostsCount,
   testFeed,
-  testPost
+  testPost,
+  toPreviewPost
 } from '../index.ts'
 import {
   cleanClient,
@@ -446,5 +447,68 @@ describe('post', () => {
     })
     match(result[0], /img/)
     equal(result[1], false)
+  })
+
+  test('converts feed preview post to card', () => {
+    let image = { type: 'image/png', url: 'https://example.com/a.png' }
+    let size = { height: 1, width: 2 }
+    let part = { id: '2', originId: '2' }
+    deepEqual(
+      toPreviewPost({
+        full: 'Full',
+        id: '1',
+        intro: 'Intro',
+        media: [image],
+        mediaSizes: [size],
+        originId: '1',
+        threadParts: [part],
+        url: 'https://example.com/1'
+      }),
+      {
+        full: null,
+        id: '1',
+        intro: 'Intro',
+        media: [{ ...image, size }],
+        mediaSizes: [size],
+        more: 1,
+        origin: {
+          full: 'Full',
+          id: '1',
+          intro: 'Intro',
+          media: [image],
+          mediaSizes: [size],
+          originId: '1',
+          threadParts: [part],
+          url: 'https://example.com/1'
+        },
+        originId: '1',
+        threadParts: [part],
+        threadSize: 2,
+        url: 'https://example.com/1'
+      }
+    )
+    deepEqual(toPreviewPost({ id: '1', intro: 'Intro', originId: '1' }), {
+      full: null,
+      id: '1',
+      intro: 'Intro',
+      media: [],
+      more: 0,
+      origin: { id: '1', intro: 'Intro', originId: '1' },
+      originId: '1',
+      threadSize: 1,
+      url: null
+    })
+    deepEqual(toPreviewPost({ full: 'Full', id: '1', originId: '1' }), {
+      full: 'Full',
+      id: '1',
+      intro: null,
+      media: [],
+      more: 0,
+      origin: { full: 'Full', id: '1', originId: '1' },
+      originId: '1',
+      threadSize: 1,
+      url: null
+    })
+    equal(toPreviewPost({ id: '1', originId: '1' }).full, null)
   })
 })

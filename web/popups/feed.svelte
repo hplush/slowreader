@@ -12,18 +12,19 @@
     errorToMessage,
     type FeedPopup,
     getPopupId,
-    organizeMessages as t
+    organizeMessages as t,
+    toPreviewPost
   } from '@slowreader/core'
 
   import Button from '../ui/button.svelte'
   import FeedAvatar from '../ui/feed-avatar.svelte'
+  import Feed from '../ui/feed/index.svelte'
   import Input from '../ui/input.svelte'
   import Label from '../ui/label.svelte'
   import Loader from '../ui/loader.svelte'
   import Note from '../ui/note.svelte'
   import Output from '../ui/output.svelte'
   import Popup from '../ui/popup.svelte'
-  import Posts from '../ui/posts.svelte'
   import Radio from '../ui/radio.svelte'
   import Select from '../ui/select.svelte'
   import Stack from '../ui/stack.svelte'
@@ -114,7 +115,10 @@
       <Stack gap="xs">
         <Label tag="h2">{$t.feedPosts}</Label>
         {#if $posts.list.length > 0}
-          <Posts list={collapseThreads($posts.list)} />
+          <Feed
+            feedUrl={popup.param}
+            posts={collapseThreads($posts.list).map(toPreviewPost)}
+          />
         {/if}
       </Stack>
       {#if $posts.isLoading}

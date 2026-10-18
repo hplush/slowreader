@@ -127,6 +127,17 @@ export type ReaderPostWith<Media> = {
 export type ReaderPost = ReaderPostWith<ReaderMedia[]>
 
 /**
+ * The card of not yet added feed’s post. Keeps `origin` to open the post
+ * popup without the database.
+ */
+export type PreviewPost = {
+  media: ReaderMedia[]
+  origin: OriginPost
+  threadSize: number
+} & Omit<OriginPost, 'full' | 'intro' | 'media' | 'url'> &
+  PostCardText
+
+/**
  * How much of the article the card shows, in chars of text.
  */
 const INTRO_MIN = 300
@@ -318,6 +329,25 @@ export function collapseThreads(posts: readonly OriginPost[]): OriginPost[] {
     }
   }
   return result
+}
+
+export function toPreviewPost(origin: OriginPost): PreviewPost {
+  let url = origin.url ?? null
+  let text: PostCardText = origin.intro
+    ? {
+        full: null,
+        intro: origin.intro,
+        more: origin.full && origin.full !== origin.intro ? 1 : 0,
+        url
+      }
+    : { full: origin.full ?? null, intro: null, more: 0, url }
+  return {
+    ...origin,
+    ...text,
+    media: addMediaSizes(origin.media, origin.mediaSizes),
+    origin,
+    threadSize: (origin.threadParts?.length ?? 0) + 1
+  }
 }
 
 export function processOriginPost(
