@@ -10,6 +10,7 @@ import {
   type RefreshFeed
 } from './feed.ts'
 import { type FilterChecker, loadFilterChecker } from './filter.ts'
+import type { DownloadTask } from './lib/download.ts'
 import { createQueue } from './lib/queue.ts'
 import { increaseKey } from './lib/stores.ts'
 import {
@@ -20,6 +21,7 @@ import {
   processOriginPost
 } from './post.ts'
 import type { PostsList } from './posts-list.ts'
+import { linkThreads } from './thread.ts'
 
 export const DEFAULT_REFRESH_STATISTICS = {
   errorFeeds: 0,
@@ -66,6 +68,7 @@ let queue = createQueue<RefreshFeed>([])
 
 interface FeedRefresh {
   feed: RefreshFeed
+  task: DownloadTask
   filters: FilterChecker | undefined
   known: Set<string> | undefined
   newest: OriginPost | undefined
@@ -105,9 +108,8 @@ async function writePage(state: FeedRefresh): Promise<boolean> {
   state.newest ??= first
 
   state.filters ??= await loadFilterChecker(feed.id)
-  let adding: NewPost[] = []
-  let fast = 0
-  let slow = 0
+  let readings = new Map<string, NewPost['reading']>()
+  let accepted: OriginPost[] = []
   for (let origin of posts) {
     if (wasAlreadyAdded(feed, origin)) {
       break
@@ -115,13 +117,21 @@ async function writePage(state: FeedRefresh): Promise<boolean> {
     if (state.known?.has(origin.originId)) continue
     let reading = state.filters(origin) ?? feed.reading
     if (reading !== 'delete') {
-      adding.push(processOriginPost(origin, feed.id, reading))
-      state.known?.add(origin.originId)
-      if (reading === 'fast') {
-        fast += 1
-      } else {
-        slow += 1
-      }
+      accepted.push(origin)
+      readings.set(origin.originId, reading)
+    }
+  }
+  let adding: NewPost[] = []
+  let fast = 0
+  let slow = 0
+  for (let origin of await linkThreads(state.task, feed, accepted)) {
+    let reading = readings.get(origin.originId) ?? feed.reading
+    adding.push(processOriginPost(origin, feed.id, reading))
+    state.known?.add(origin.originId)
+    if (reading === 'fast') {
+      fast += 1
+    } else {
+      slow += 1
     }
   }
   await addPost(adding)
@@ -208,7 +218,8 @@ export async function refreshPosts(): Promise<void> {
           filters: undefined,
           known: undefined,
           newest: undefined,
-          pages
+          pages,
+          task
         })
       }
     },

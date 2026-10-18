@@ -450,7 +450,7 @@ onMount($unread, () =>
     if (!db) return
     let store = db.store<UnreadCount>`
       SELECT "feedId", "reading", COUNT("originId") AS "unread" FROM "posts"
-      WHERE "read" = 0 AND "reading" IN ('fast', 'slow')
+      WHERE "read" = 0 AND "merged" = 0 AND "reading" IN ('fast', 'slow')
       GROUP BY "feedId", "reading"
     `
     return store.subscribe(rows => {

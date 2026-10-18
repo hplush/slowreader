@@ -12,9 +12,10 @@ import { formatPublishedAt, i18nFormat } from '../format.ts'
 import { createDownloadTask } from '../lib/download.ts'
 import { type Loader, loaders } from '../loader/index.ts'
 import {
-  changePost,
+  changeRead,
   getPost,
   loadPost,
+  loadThreadPosts,
   type OriginPost,
   type PostValue
 } from '../post.ts'
@@ -97,21 +98,38 @@ export const post = definePopup('post', async loader => {
     unbindRead = read.listen(async value => {
       let current = $post.get()
       if ('read' in current && current.read !== value) {
-        await changePost(id!, { read: value })
+        await changeRead([id!], value)
       }
     })
   }
 
   let postValue = $post.get()
+  let parts: (OriginPost | PostValue)[] =
+    'threadParts' in postValue ? (postValue.threadParts ?? []) : []
   if ('feedId' in postValue) {
     let feedValue = await loadFeed(postValue.feedId)
     if (feedValue) $feed = atom(feedValue)
+    if (postValue.threadId) {
+      let shownId = postValue.id
+      parts = (
+        await loadThreadPosts(postValue.feedId, postValue.threadId)
+      ).filter(part => part.id !== shownId)
+    }
   }
 
   let $publishedAt = computed([$post, i18nFormat], (value, format) => {
     return value.publishedAt
       ? formatPublishedAt(format, value.publishedAt)
       : undefined
+  })
+
+  let $thread = computed(i18nFormat, format => {
+    return parts.map(part => ({
+      ...part,
+      publishedAtText: part.publishedAt
+        ? formatPublishedAt(format, part.publishedAt)
+        : undefined
+    }))
   })
 
   return {
@@ -123,7 +141,8 @@ export const post = definePopup('post', async loader => {
     feed: $feed,
     post: $post,
     publishedAt: $publishedAt,
-    read
+    read,
+    thread: $thread
   }
 })
 

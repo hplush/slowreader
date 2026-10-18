@@ -523,6 +523,152 @@ describe('mastodon loader', () => {
     equal(posts.get().error instanceof ParseError, true)
   })
 
+  test('links threads and loads replied posts', async () => {
+    expectRequest(`${API}/accounts/lookup?acct=jane`).andRespond(
+      200,
+      JSON.stringify(account('jane')),
+      'application/json'
+    )
+    expectRequest(
+      `${API}/accounts/jane-id/statuses?exclude_replies=true`
+    ).andRespond(
+      200,
+      JSON.stringify([
+        status('2', {
+          in_reply_to_account_id: 'jane-id',
+          in_reply_to_id: '1'
+        }),
+        status('3', {
+          account: account('jane'),
+          reblog: status('r', {
+            account: account('bob'),
+            in_reply_to_account_id: 'alice-id',
+            in_reply_to_id: 'parent'
+          })
+        }),
+        status('4', {
+          reblog: status('r2', {
+            account: account('bob'),
+            in_reply_to_account_id: 'alice-id',
+            in_reply_to_id: 'deleted'
+          })
+        })
+      ]),
+      'application/json'
+    )
+    expectRequest(`${API}/statuses/parent`).andRespond(
+      200,
+      JSON.stringify(status('parent', { account: account('alice') })),
+      'application/json'
+    )
+    expectRequest(`${API}/statuses/deleted`).andRespond(404)
+    let posts = loaders.mastodon.getPosts(
+      createDownloadTask(),
+      'https://mastodon.social/@jane'
+    )
+    await posts.loading
+    let list = posts.get().list
+    equal(list[0]!.selfReplyTo, '1')
+    equal(list[1]!.selfReplyTo, undefined)
+    deepEqual(list[1]!.replied, {
+      author: {
+        avatar: 'https://mastodon.social/alice.png',
+        title: 'ALICE',
+        url: 'https://mastodon.social/@alice'
+      },
+      full: '<p>parent</p>',
+      missing: false,
+      publishedAt: 1767225600,
+      url: 'https://mastodon.social/@jane/parent'
+    })
+    deepEqual(list[2]!.replied, { missing: true })
+
+    expectRequest(`${API}/accounts/lookup?acct=jane`).andRespond(
+      200,
+      JSON.stringify(account('jane')),
+      'application/json'
+    )
+    expectRequest(
+      `${API}/accounts/jane-id/statuses?exclude_replies=true`
+    ).andRespond(
+      200,
+      JSON.stringify([
+        status('5', {
+          reblog: status('r3', { in_reply_to_id: 'broken' })
+        })
+      ]),
+      'application/json'
+    )
+    expectRequest(`${API}/statuses/broken`).andRespond(500)
+    posts = loaders.mastodon.getPosts(
+      createDownloadTask({ tries: 1 }),
+      'https://mastodon.social/@jane'
+    )
+    await posts.loading
+    equal(posts.get().error?.name, 'HTTPStatusError')
+  })
+
+  test('finds earlier posts of the thread', async () => {
+    let { mastodon } = loaders
+    let feed = 'https://mastodon.social/@jane'
+    expectRequest(`${API}/statuses/3/context`).andRespond(
+      200,
+      JSON.stringify({
+        ancestors: [
+          status('0', { account: account('bob') }),
+          status('1', { account: account('jane') }),
+          status('2', { account: account('jane'), in_reply_to_id: '1' })
+        ],
+        descendants: []
+      }),
+      'application/json'
+    )
+    deepEqual(
+      (await mastodon.getThreadAncestors!(createDownloadTask(), feed, '3')).map(
+        post => post.originId
+      ),
+      ['1', '2']
+    )
+
+    expectRequest(`${API}/statuses/5/context`).andRespond(
+      200,
+      JSON.stringify({
+        ancestors: [
+          status('3', { account: account('bob') }),
+          status('4', { account: account('jane'), in_reply_to_id: '3' })
+        ]
+      }),
+      'application/json'
+    )
+    deepEqual(
+      await mastodon.getThreadAncestors!(createDownloadTask(), feed, '5'),
+      []
+    )
+
+    expectRequest(`${API}/statuses/6/context`).andRespond(
+      200,
+      JSON.stringify({ ancestors: [] }),
+      'application/json'
+    )
+    deepEqual(
+      await mastodon.getThreadAncestors!(createDownloadTask(), feed, '6'),
+      []
+    )
+
+    expectRequest(`${API}/statuses/7/context`).andRespond(
+      200,
+      '{}',
+      'application/json'
+    )
+    let error: unknown
+    try {
+      await mastodon.getThreadAncestors!(createDownloadTask(), feed, '7')
+    } catch (e) {
+      error = e
+    }
+    equal(error instanceof ParseError, true)
+  })
+
   test('loads post by URL', async () => {
     let { mastodon } = loaders
     equal(mastodon.isPostUrl!(new URL('https://other.social/@jane/1')), true)

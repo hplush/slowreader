@@ -172,14 +172,18 @@ export const postsTable = defineCrdtTable(
     media: optional(json([json(mediaShape)])),
     // Separated from media to fill it after the first image loading
     mediaSizes: optional(json([optional(json(mediaSizeShape))])),
+    // Thread’s parts after the first post, which readers show in its card
+    merged: boolean({ default: false }),
     originId: string(),
     preview: optional(json(previewShape)),
     publishedAt: bigint(),
     quoted: optional(json(quotedShape)),
     read: boolean({ default: false }),
     reading: oneOf(READINGS, { default: 'slow' }),
-    // Even if the feed reposted it to separate reposts from account’s posts
+    replied: optional(json(quotedShape)),
     repostedBy: optional(json(authorShape)),
+    sortedAt: bigint(),
+    threadId: optional(string()),
     title: optional(string()),
     unsupported: optional(boolean()),
     // -1 for posts with the edited mark, but without the time
@@ -190,9 +194,11 @@ export const postsTable = defineCrdtTable(
   [
     // Pages of the feed reader and of the list reader. `id` repeats
     // the cursor of the readers to keep the pages sorted by the index
-    ['feedId', 'reading', 'read', 'publishedAt DESC', 'id DESC'],
+    ['feedId', 'reading', 'read', 'merged', 'sortedAt DESC', 'id DESC'],
     // The same for a category, and unread counters of the menu
-    ['reading', 'read', 'publishedAt DESC', 'id DESC'],
+    ['reading', 'read', 'merged', 'sortedAt DESC', 'id DESC'],
+    // Parts of the thread
+    ['feedId', 'threadId'],
     // Pages of the backup export
     'publishedAt DESC'
   ]

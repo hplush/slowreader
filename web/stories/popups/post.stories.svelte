@@ -87,10 +87,29 @@
       url: 'https://mastodon.social/@q/1'
     },
     reading: 'slow',
+    replied: {
+      author: { title: 'Bob', url: 'https://mastodon.social/@bob' },
+      full: '<p>The question, which the reposted post answers</p>',
+      missing: false,
+      url: 'https://mastodon.social/@bob/1'
+    },
     repostedBy: { title: 'Mastodon' },
     unsupported: true,
     url: 'https://mastodon.social/@jane/1'
   } satisfies Partial<PostValue>
+
+  const THREAD = [1, 2, 3].map(index => {
+    return {
+      feedId: 'mastodon',
+      full: `<p>The post number ${index} of the thread</p>`,
+      merged: index > 1,
+      originId: `thread-${index}`,
+      publishedAt: 1600000000 + index * 60,
+      reading: 'slow',
+      threadId: 'thread-1',
+      url: `https://mastodon.social/@Mastodon/${index}`
+    } satisfies Partial<PostValue>
+  })
 
   const QUOTED_STATUS = {
     account: {
@@ -244,6 +263,22 @@
     feeds={[MASTODON_FEED]}
     oninit={open(false, 'mastodon')}
     posts={[MASTODON]}
+  >
+    {#if popup}
+      <LoadedPopup {popup}>
+        {#snippet loaded(loadedPopup)}
+          <PostPopupComponent popup={loadedPopup} />
+        {/snippet}
+      </LoadedPopup>
+    {/if}
+  </Scene>
+</Story>
+
+<Story name="Thread" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[MASTODON_FEED]}
+    oninit={open(false, 'mastodon')}
+    posts={THREAD}
   >
     {#if popup}
       <LoadedPopup {popup}>

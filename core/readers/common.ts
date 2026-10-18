@@ -6,7 +6,7 @@ import { nextValue } from '../lib/stores.ts'
 import { slowMenu, unreadFastMenu } from '../menu.ts'
 import {
   addMediaSizes,
-  changePost,
+  changeRead,
   hasUnreadPosts,
   type PostValue,
   type ReaderPost,
@@ -108,9 +108,9 @@ export async function readAndMove(
   readingPage: WritableAtom<boolean>
 ): Promise<void> {
   readingPage.set(true)
-  await changePost(
+  await changeRead(
     posts.filter(post => !post.read).map(post => post.id),
-    { read: true }
+    true
   )
   let route = filter.reading
   if (!nextFrom) {
@@ -135,13 +135,13 @@ export async function readAndMove(
 /**
  * Position of the post in the reading order.
  *
- * Feeds often publish posts with the same `publishedAt`, so the cursor takes
+ * Feeds often publish posts with the same `sortedAt`, so the cursor takes
  * `id` as the second key to be unique. Without it a page could hide the posts
  * of the same second or show them twice.
  */
 export type PostCursor = {
   id: string
-  publishedAt: number
+  sortedAt: number
 }
 
 /**
@@ -150,20 +150,20 @@ export type PostCursor = {
  * `feedReader` pins the first page to the moment of opening the reader,
  * so posts, which came during the reading, will not move the pages.
  */
-export function topCursor(publishedAt = Number.MAX_SAFE_INTEGER): PostCursor {
-  return { id: '', publishedAt }
+export function topCursor(sortedAt = Number.MAX_SAFE_INTEGER): PostCursor {
+  return { id: '', sortedAt }
 }
 
 export function parseCursor(from: string | undefined): PostCursor | undefined {
   if (!from?.includes(':')) return undefined
   return {
     id: from.slice(from.indexOf(':') + 1),
-    publishedAt: parseInt(from)
+    sortedAt: parseInt(from)
   }
 }
 
 export function stringifyCursor(cursor: PostCursor): string {
-  return `${cursor.publishedAt}:${cursor.id}`
+  return `${cursor.sortedAt}:${cursor.id}`
 }
 
 type ReaderPostRow = Pick<PostValue, 'mediaSizes'> &
@@ -190,9 +190,13 @@ export function loadPostsPage(
     rows = getCrdt().select<ReaderPostRow>`
       SELECT "posts"."id", "posts"."feedId", "posts"."media",
         "posts"."mediaSizes", "posts"."originId", "posts"."publishedAt",
+        "posts"."sortedAt",
         "posts"."read", "posts"."title", "posts"."url", "posts"."author",
-        "posts"."preview", "posts"."quoted", "posts"."repostedBy",
-        "posts"."unsupported", "posts"."warning",
+        "posts"."preview", "posts"."quoted", "posts"."replied",
+        "posts"."repostedBy", "posts"."threadId", "posts"."unsupported",
+        "posts"."warning", (SELECT COUNT(*) FROM "posts" AS "thread"
+          WHERE "thread"."feedId" = "posts"."feedId"
+            AND "thread"."threadId" = "posts"."threadId") AS "threadSize",
         NULLIF("posts"."intro", '') AS "intro",
         CASE WHEN COALESCE("posts"."intro", '') = ''
           THEN "posts"."full" END AS "full",
@@ -202,24 +206,30 @@ export function loadPostsPage(
       FROM "posts"
       JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 0
+        AND "posts"."merged" = 0
         AND "feeds"."categoryId" = ${filter.categoryId}
-        AND ("posts"."publishedAt", "posts"."id")
-          < (${cursor.publishedAt}, ${cursor.id})
-      ORDER BY "posts"."publishedAt" DESC, "posts"."id" DESC
+        AND ("posts"."sortedAt", "posts"."id")
+          < (${cursor.sortedAt}, ${cursor.id})
+      ORDER BY "posts"."sortedAt" DESC, "posts"."id" DESC
       LIMIT ${limit}
     `
   } else {
     rows = getCrdt().select<ReaderPostRow>`
       SELECT "id", "feedId", "media", "mediaSizes", "originId",
-        "publishedAt", "read", "title", "url", "author", "preview", "quoted",
-        "repostedBy", "unsupported", "warning", NULLIF("intro", '') AS "intro",
+        "publishedAt", "sortedAt", "read", "title", "url", "author", "preview",
+        "quoted",
+        "replied", "repostedBy", "threadId", "unsupported", "warning",
+        (SELECT COUNT(*) FROM "posts" AS "thread"
+          WHERE "thread"."feedId" = "posts"."feedId"
+            AND "thread"."threadId" = "posts"."threadId") AS "threadSize",
+        NULLIF("intro", '') AS "intro",
         CASE WHEN COALESCE("intro", '') = '' THEN "full" END AS "full",
         COALESCE(NULLIF("intro", '') <> "full", 0) AS "more"
       FROM "posts"
-      WHERE "reading" = ${filter.reading} AND "read" = 0
+      WHERE "reading" = ${filter.reading} AND "read" = 0 AND "merged" = 0
         AND "feedId" = ${filter.feedId ?? null}
-        AND ("publishedAt", "id") < (${cursor.publishedAt}, ${cursor.id})
-      ORDER BY "publishedAt" DESC, "id" DESC
+        AND ("sortedAt", "id") < (${cursor.sortedAt}, ${cursor.id})
+      ORDER BY "sortedAt" DESC, "id" DESC
       LIMIT ${limit}
     `
   }
@@ -239,14 +249,18 @@ export function loadPostsRange(
 ): Promise<ReaderPost[]> {
   let rows: Promise<ReaderPostRow[]>
   // No post is below the zero time with the empty ID
-  let lowest = until ?? { id: '', publishedAt: 0 }
+  let lowest = until ?? { id: '', sortedAt: 0 }
   if (filter.categoryId) {
     rows = getCrdt().select<ReaderPostRow>`
       SELECT "posts"."id", "posts"."feedId", "posts"."media",
         "posts"."mediaSizes", "posts"."originId", "posts"."publishedAt",
+        "posts"."sortedAt",
         "posts"."read", "posts"."title", "posts"."url", "posts"."author",
-        "posts"."preview", "posts"."quoted", "posts"."repostedBy",
-        "posts"."unsupported", "posts"."warning",
+        "posts"."preview", "posts"."quoted", "posts"."replied",
+        "posts"."repostedBy", "posts"."threadId", "posts"."unsupported",
+        "posts"."warning", (SELECT COUNT(*) FROM "posts" AS "thread"
+          WHERE "thread"."feedId" = "posts"."feedId"
+            AND "thread"."threadId" = "posts"."threadId") AS "threadSize",
         NULLIF("posts"."intro", '') AS "intro",
         CASE WHEN COALESCE("posts"."intro", '') = ''
           THEN "posts"."full" END AS "full",
@@ -255,27 +269,32 @@ export function loadPostsRange(
         "feeds"."avatar" AS "authorAvatar"
       FROM "posts"
       JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
-      WHERE "posts"."reading" = ${filter.reading}
+      WHERE "posts"."reading" = ${filter.reading} AND "posts"."merged" = 0
         AND "feeds"."categoryId" = ${filter.categoryId}
-        AND ("posts"."publishedAt", "posts"."id")
-          < (${cursor.publishedAt}, ${cursor.id})
-        AND ("posts"."publishedAt", "posts"."id")
-          >= (${lowest.publishedAt}, ${lowest.id})
-      ORDER BY "posts"."publishedAt" DESC, "posts"."id" DESC
+        AND ("posts"."sortedAt", "posts"."id")
+          < (${cursor.sortedAt}, ${cursor.id})
+        AND ("posts"."sortedAt", "posts"."id")
+          >= (${lowest.sortedAt}, ${lowest.id})
+      ORDER BY "posts"."sortedAt" DESC, "posts"."id" DESC
     `
   } else {
     rows = getCrdt().select<ReaderPostRow>`
       SELECT "id", "feedId", "media", "mediaSizes", "originId",
-        "publishedAt", "read", "title", "url", "author", "preview", "quoted",
-        "repostedBy", "unsupported", "warning", NULLIF("intro", '') AS "intro",
+        "publishedAt", "sortedAt", "read", "title", "url", "author", "preview",
+        "quoted",
+        "replied", "repostedBy", "threadId", "unsupported", "warning",
+        (SELECT COUNT(*) FROM "posts" AS "thread"
+          WHERE "thread"."feedId" = "posts"."feedId"
+            AND "thread"."threadId" = "posts"."threadId") AS "threadSize",
+        NULLIF("intro", '') AS "intro",
         CASE WHEN COALESCE("intro", '') = '' THEN "full" END AS "full",
         COALESCE(NULLIF("intro", '') <> "full", 0) AS "more"
       FROM "posts"
-      WHERE "reading" = ${filter.reading}
+      WHERE "reading" = ${filter.reading} AND "merged" = 0
         AND "feedId" = ${filter.feedId ?? null}
-        AND ("publishedAt", "id") < (${cursor.publishedAt}, ${cursor.id})
-        AND ("publishedAt", "id") >= (${lowest.publishedAt}, ${lowest.id})
-      ORDER BY "publishedAt" DESC, "id" DESC
+        AND ("sortedAt", "id") < (${cursor.sortedAt}, ${cursor.id})
+        AND ("sortedAt", "id") >= (${lowest.sortedAt}, ${lowest.id})
+      ORDER BY "sortedAt" DESC, "id" DESC
     `
   }
   return rows.then(list => list.map(toReaderPost))
@@ -294,22 +313,23 @@ export function loadPostsAbove(
 ): Promise<PostCursor[]> {
   if (filter.categoryId) {
     return getCrdt().select<PostCursor>`
-      SELECT "posts"."publishedAt", "posts"."id" FROM "posts"
+      SELECT "posts"."sortedAt", "posts"."id" FROM "posts"
       JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 0
+        AND "posts"."merged" = 0
         AND "feeds"."categoryId" = ${filter.categoryId}
-        AND ("posts"."publishedAt", "posts"."id")
-          >= (${cursor.publishedAt}, ${cursor.id})
-      ORDER BY "posts"."publishedAt" ASC, "posts"."id" ASC
+        AND ("posts"."sortedAt", "posts"."id")
+          >= (${cursor.sortedAt}, ${cursor.id})
+      ORDER BY "posts"."sortedAt" ASC, "posts"."id" ASC
       LIMIT ${limit}
     `
   } else {
     return getCrdt().select<PostCursor>`
-      SELECT "publishedAt", "id" FROM "posts"
-      WHERE "reading" = ${filter.reading} AND "read" = 0
+      SELECT "sortedAt", "id" FROM "posts"
+      WHERE "reading" = ${filter.reading} AND "read" = 0 AND "merged" = 0
         AND "feedId" = ${filter.feedId ?? null}
-        AND ("publishedAt", "id") >= (${cursor.publishedAt}, ${cursor.id})
-      ORDER BY "publishedAt" ASC, "id" ASC
+        AND ("sortedAt", "id") >= (${cursor.sortedAt}, ${cursor.id})
+      ORDER BY "sortedAt" ASC, "id" ASC
       LIMIT ${limit}
     `
   }
@@ -329,33 +349,33 @@ export function loadPageCursors(
   filter: PostFilter,
   perPage: number
 ): Promise<PostCursor[]> {
-  let rows: Promise<{ id: null | string; publishedAt: null | number }[]>
+  let rows: Promise<{ id: null | string; sortedAt: null | number }[]>
   if (filter.categoryId) {
     rows = getCrdt().select`
-      SELECT "publishedAt", "id" FROM (
-        SELECT LAG("posts"."publishedAt") OVER "reading" AS "publishedAt",
+      SELECT "sortedAt", "id" FROM (
+        SELECT LAG("posts"."sortedAt") OVER "reading" AS "sortedAt",
           LAG("posts"."id") OVER "reading" AS "id",
           ROW_NUMBER() OVER "reading" AS "row"
         FROM "posts"
         JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
         WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 0
-          AND "feeds"."categoryId" = ${filter.categoryId}
+          AND "posts"."merged" = 0 AND "feeds"."categoryId" = ${filter.categoryId}
         WINDOW "reading" AS (
-          ORDER BY "posts"."publishedAt" DESC, "posts"."id" DESC
+          ORDER BY "posts"."sortedAt" DESC, "posts"."id" DESC
         )
       ) WHERE ("row" - 1) % ${perPage} = 0
       ORDER BY "row" ASC
     `
   } else {
     rows = getCrdt().select`
-      SELECT "publishedAt", "id" FROM (
-        SELECT LAG("publishedAt") OVER "reading" AS "publishedAt",
+      SELECT "sortedAt", "id" FROM (
+        SELECT LAG("sortedAt") OVER "reading" AS "sortedAt",
           LAG("id") OVER "reading" AS "id",
           ROW_NUMBER() OVER "reading" AS "row"
         FROM "posts"
-        WHERE "reading" = ${filter.reading} AND "read" = 0
+        WHERE "reading" = ${filter.reading} AND "read" = 0 AND "merged" = 0
           AND "feedId" = ${filter.feedId ?? null}
-        WINDOW "reading" AS (ORDER BY "publishedAt" DESC, "id" DESC)
+        WINDOW "reading" AS (ORDER BY "sortedAt" DESC, "id" DESC)
       ) WHERE ("row" - 1) % ${perPage} = 0
       ORDER BY "row" ASC
     `
@@ -363,7 +383,7 @@ export function loadPageCursors(
   return rows.then(list =>
     list.map(row => {
       if (row.id === null) return topCursor()
-      return { id: row.id, publishedAt: row.publishedAt! }
+      return { id: row.id, sortedAt: row.sortedAt! }
     })
   )
 }

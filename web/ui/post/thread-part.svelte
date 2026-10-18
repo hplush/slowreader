@@ -1,0 +1,48 @@
+<script lang="ts">
+  import type { OriginPost, PostValue } from '@slowreader/core'
+
+  import SmallLink from '../small-link.svelte'
+  import Post from './index.svelte'
+
+  let {
+    post,
+    publishedAt
+  }: { post: OriginPost | PostValue; publishedAt: string | undefined } =
+    $props()
+</script>
+
+<article class="post-thread-part">
+  <div class="post-thread-part_header">
+    <hr class="post-thread-part_separator" />
+    {#if publishedAt}
+      <SmallLink href={post.url ?? undefined} target="_blank">
+        {publishedAt}
+      </SmallLink>
+    {/if}
+  </div>
+  <Post {post} />
+</article>
+
+<style lang="postcss">
+  :global {
+    .post-thread-part {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+      align-self: stretch;
+    }
+
+    .post-thread-part_header {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .post-thread-part_separator {
+      flex-grow: 1;
+      margin: 0;
+      border: none;
+      border-top: calc(var(--min-size) / 2) solid var(--flat-border-color);
+    }
+  }
+</style>

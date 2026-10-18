@@ -38,11 +38,16 @@ export type ParsedPost = {
   intro?: string
   media?: PostMedia[]
   mediaSizes?: (MediaSize | null)[]
+  merged?: boolean
   originId: string
   preview?: PostPreview
   publishedAt?: number
   quoted?: QuotedPost
+  replied?: QuotedPost
   repostedBy?: PostAuthor
+  sortedAt?: number
+  selfReplyTo?: string
+  threadId?: string
   title?: string
   unsupported?: true
   updatedAt?: number
@@ -50,7 +55,10 @@ export type ParsedPost = {
   warning?: string
 }
 
-export type OriginPost = { id: string } & ParsedPost
+export type OriginPost = {
+  id: string
+  threadParts?: OriginPost[]
+} & ParsedPost
 
 /**
  * Post’s text from a feed or from the database. Database returns `null`
@@ -90,6 +98,7 @@ export type ReaderPostWith<Media> = {
   authorTitle?: string
   authorUrl?: string
   media: Media
+  threadSize: number
 } & Pick<
   PostValue,
   | 'author'
@@ -100,7 +109,10 @@ export type ReaderPostWith<Media> = {
   | 'publishedAt'
   | 'quoted'
   | 'read'
+  | 'replied'
   | 'repostedBy'
+  | 'sortedAt'
+  | 'threadId'
   | 'title'
   | 'unsupported'
   | 'warning'
@@ -154,6 +166,19 @@ export function loadPostsByFeed(feedId: string): Promise<PostValue[]> {
 }
 
 /**
+ * All posts of the thread in the order of writing.
+ */
+export function loadThreadPosts(
+  feedId: string,
+  threadId: string
+): Promise<PostValue[]> {
+  return getTables().posts.load`
+    WHERE "feedId" = ${feedId} AND "threadId" = ${threadId}
+    ORDER BY "publishedAt" ASC, "id" ASC
+  `
+}
+
+/**
  * Origin IDs of feed’s posts to not add the same post twice, if the previous
  * refresh was stopped in the middle of the feed’s pagination.
  */
@@ -174,7 +199,7 @@ export function hasUnreadPosts(
   if (target.feedId) {
     rows = crdt.select`
       SELECT "id" FROM "posts"
-      WHERE "reading" = ${reading} AND "read" = 0
+      WHERE "reading" = ${reading} AND "read" = 0 AND "merged" = 0
         AND "feedId" = ${target.feedId}
       LIMIT 1
     `
@@ -183,13 +208,14 @@ export function hasUnreadPosts(
       SELECT "posts"."id" FROM "posts"
       JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
       WHERE "posts"."reading" = ${reading} AND "posts"."read" = 0
+        AND "posts"."merged" = 0
         AND "feeds"."categoryId" = ${target.categoryId}
       LIMIT 1
     `
   } else {
     rows = crdt.select`
       SELECT "id" FROM "posts"
-      WHERE "reading" = ${reading} AND "read" = 0 LIMIT 1
+      WHERE "reading" = ${reading} AND "read" = 0 AND "merged" = 0 LIMIT 1
     `
   }
   return rows.then(list => list.length > 0)
@@ -204,6 +230,29 @@ export function changePost(
   changes: PostChanges
 ): Promise<void> {
   return getTables().posts.update(postId, changes)
+}
+
+/**
+ * Readers show the thread as a single post, so the whole thread is read
+ * with it.
+ */
+export async function changeRead(
+  postIds: string[],
+  read: boolean
+): Promise<void> {
+  let parts = await Promise.all(
+    postIds.map(id => {
+      return getCrdt().select<{ id: string }>`
+        SELECT "part"."id" FROM "posts" AS "part"
+        JOIN "posts" AS "shown" ON "shown"."feedId" = "part"."feedId"
+          AND "shown"."threadId" = "part"."threadId"
+        WHERE "shown"."id" = ${id} AND "part"."id" <> ${id}
+      `
+    })
+  )
+  await changePost([...postIds, ...parts.flat().map(part => part.id)], {
+    read
+  })
 }
 
 /**
@@ -229,17 +278,56 @@ export function getPostId(feedId: string, origin: OriginPost): string {
   return (4294967296 * (2097151 & hash2) + (hash1 >>> 0)).toString(36)
 }
 
+/**
+ * Show the thread in the feed preview like readers do: on the place of its
+ * newest post with the content of its first post. Parts without the loaded
+ * previous post stay as separated posts.
+ */
+export function collapseThreads(posts: readonly OriginPost[]): OriginPost[] {
+  let byOrigin = new Map(posts.map(post => [post.originId, post]))
+  function findStart(post: OriginPost): OriginPost {
+    let parent = post.selfReplyTo && byOrigin.get(post.selfReplyTo)
+    return parent ? findStart(parent) : post
+  }
+  let parts = new Map<OriginPost, OriginPost[]>()
+  for (let post of posts) {
+    let start = findStart(post)
+    if (start !== post) parts.set(start, [...(parts.get(start) ?? []), post])
+  }
+  let placed = new Set<OriginPost>()
+  let result: OriginPost[] = []
+  for (let post of posts) {
+    let start = findStart(post)
+    if (placed.has(start)) continue
+    placed.add(start)
+    let threadParts = parts.get(start)
+    if (threadParts) {
+      result.push({
+        ...start,
+        threadParts: threadParts.toSorted(
+          (a, b) => (a.publishedAt ?? 0) - (b.publishedAt ?? 0)
+        )
+      })
+    } else {
+      result.push(start)
+    }
+  }
+  return result
+}
+
 export function processOriginPost(
   origin: OriginPost,
   feedId: string,
   reading: PostValue['reading']
 ): { id: string } & NewPost {
+  let publishedAt = origin.publishedAt ?? Math.round(Date.now() / 1000)
   return {
     ...origin,
     feedId,
     id: getPostId(feedId, origin),
-    publishedAt: origin.publishedAt ?? Math.round(Date.now() / 1000),
-    reading
+    publishedAt,
+    reading,
+    sortedAt: origin.sortedAt ?? publishedAt
   }
 }
 
@@ -322,13 +410,17 @@ export function testPost(
     intro: `Post ${testPostId}`,
     media: null,
     mediaSizes: null,
+    merged: false,
     originId: `test-${testPostId}`,
     preview: null,
     publishedAt: 1000,
     quoted: null,
     read: false,
     reading: 'fast',
+    replied: null,
     repostedBy: null,
+    sortedAt: post.publishedAt ?? 1000,
+    threadId: null,
     title: null,
     unsupported: null,
     updatedAt: null,

@@ -8,9 +8,12 @@ export const postMessages = i18n('post', {
   quoteOfQuote: 'Quote…',
   read: 'Mark post was read',
   readCheckbox: 'Post was read',
+  replyingTo: 'In reply to',
   repostedBy: params('Reposted by {name}'),
   showSensitive: 'Show sensitive media',
   showWarning: 'Show post',
+  thread: params('1/{size}'),
+  threadLabel: params('Thread of {size} posts'),
   unread: 'Mark post as unread',
   unsupported: 'Some parts of this post are not supported yet',
   url: 'Open post link'

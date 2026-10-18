@@ -1,7 +1,7 @@
 import type { FeedValue } from '../feed.ts'
 import type { DownloadTask, TextResponse } from '../lib/download.ts'
 import { isAbsoluteUrl, mapRelativeSrcset, parseDocument } from '../lib/html.ts'
-import type { OriginPost, PostMedia } from '../post.ts'
+import type { OriginPost, ParsedPost, PostMedia } from '../post.ts'
 import type { PostsList, PostsListResult } from '../posts-list.ts'
 
 export type Loader = {
@@ -45,6 +45,16 @@ export type Loader = {
    * Get source data of post from loader's API for debug purposes.
    */
   getPostSource(feed: FeedValue, originId: string): Promise<unknown>
+
+  /**
+   * Earlier posts of the author’s thread from the oldest one, when refresh
+   * has none of them. Empty if the thread starts with a reply to others.
+   */
+  getThreadAncestors?(
+    task: DownloadTask,
+    feedUrl: string,
+    originId: string
+  ): Promise<ParsedPost[]>
 
   /**
    * Try to suggest feed for given URL/document.

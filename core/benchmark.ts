@@ -224,6 +224,7 @@ function createPost(
   reading: PostValue['reading'],
   now: number
 ): NewPost {
+  let publishedAt = now - Math.floor(random() ** 2 * YEAR)
   return {
     feedId,
     full: paragraphs(random),
@@ -234,9 +235,10 @@ function createPost(
         ? uniqueMedia([{ type: 'image/svg+xml', url: IMAGE }])
         : undefined,
     originId: `${feedId}-post-${index}`,
-    publishedAt: now - Math.floor(random() ** 2 * YEAR),
+    publishedAt,
     read: false,
     reading,
+    sortedAt: publishedAt,
     title: sentence(random, 3, 9),
     url: `https://example.com/${feedId}/post-${index}`
   }

@@ -21,6 +21,7 @@ import {
   openedDatabase,
   type NewFeed
 } from './schema.ts'
+import { linkThreads } from './thread.ts'
 
 export type { FeedValue, NewFeed }
 
@@ -148,11 +149,13 @@ export async function addCandidate(
     ...fields
   }
   let feedId = await addFeed(feed)
+  let linked = await linkThreads(
+    task,
+    { id: feedId, loader: feed.loader, url: feed.url },
+    posts.get().list.slice(0, 10)
+  )
   await addPost(
-    posts
-      .get()
-      .list.slice(0, 10)
-      .map(origin => processOriginPost(origin, feedId, feed.reading))
+    linked.map(origin => processOriginPost(origin, feedId, feed.reading))
   )
   return feedId
 }

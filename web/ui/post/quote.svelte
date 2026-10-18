@@ -17,10 +17,16 @@
   import PostWarning from './warning.svelte'
 
   let {
+    caption,
     full,
     linked,
     quoted
-  }: { full?: boolean; linked?: boolean; quoted: QuotedPost } = $props()
+  }: {
+    caption?: string
+    full?: boolean
+    linked?: boolean
+    quoted: QuotedPost
+  } = $props()
 
   let id = $props.id()
 
@@ -55,6 +61,9 @@
   <blockquote {id} class="post-quote" cite={quoted.url}>
     {#if href}
       <a class="post-quote_link" aria-labelledby={id} {href}></a>
+    {/if}
+    {#if caption}
+      <div class="post-quote_caption">{caption}</div>
     {/if}
     {#if quoted.author || (!href && quoted.url)}
       <div class="post-quote_header">
@@ -142,6 +151,11 @@
       &.is-alone {
         margin-top: 0.625rem;
       }
+    }
+
+    .post-quote_caption {
+      font: var(--secondary-font);
+      color: var(--secondary-text-color);
     }
 
     .post-quote_header {

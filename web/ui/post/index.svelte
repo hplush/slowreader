@@ -35,6 +35,11 @@
     </h1>
   {/if}
 
+  {#if post.replied && !post.replied.missing}
+    <div class="post_replied">
+      <PostQuote caption={$t.replyingTo} full linked quoted={post.replied} />
+    </div>
+  {/if}
   <PostWarning warning={post.warning}>
     {#if post.full}
       <FormattedText html={post.full} />
@@ -86,6 +91,10 @@
       &:focus-visible {
         border-radius: var(--base-radius);
       }
+    }
+
+    .post_replied {
+      margin-bottom: 0.625rem;
     }
 
     .post_unsupported {

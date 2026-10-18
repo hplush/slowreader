@@ -1,4 +1,4 @@
-import { ParseError } from '../errors.ts'
+import { HTTPStatusError, ParseError } from '../errors.ts'
 import {
   createDownloadTask,
   type DownloadTask,
@@ -72,6 +72,8 @@ interface MastodonStatus {
   edited_at: null | string
   emojis?: MastodonEmoji[]
   id: string
+  in_reply_to_account_id: null | string
+  in_reply_to_id: null | string
   media_attachments: MastodonMedia[]
   poll: null | object
   quote?: MastodonQuote | null
@@ -113,7 +115,7 @@ function parseAccount(response: TextResponse): MastodonAccount {
   return account as unknown as MastodonAccount
 }
 
-function parseStatuses(response: TextResponse): MastodonStatus[] {
+function parseStatusList(response: TextResponse): MastodonStatus[] {
   let statuses = response.parseJson()
   if (!Array.isArray(statuses) || !statuses.every(isObject)) {
     throw new ParseError('Mastodon statuses are not an array', response.text)
@@ -284,9 +286,7 @@ function parseContent(status: MastodonStatus): Omit<ParsedPost, 'originId'> {
   return post
 }
 
-function parseQuote(quote: MastodonQuote): QuotedPost {
-  let status = quote.quoted_status
-  if (!status) return { missing: true }
+function toQuoted(status: MastodonStatus): QuotedPost {
   let quoted: QuotedPost = {
     ...parseContent(status),
     author: toAuthor(status.account),
@@ -295,6 +295,11 @@ function parseQuote(quote: MastodonQuote): QuotedPost {
   let deeper = status.quote?.quoted_status
   if (deeper) quoted.quotedUrl = deeper.url ?? deeper.uri
   return quoted
+}
+
+function parseQuote(quote: MastodonQuote): QuotedPost {
+  if (!quote.quoted_status) return { missing: true }
+  return toQuoted(quote.quoted_status)
 }
 
 function parseStatus(status: MastodonStatus): ParsedPost {
@@ -311,7 +316,45 @@ function parseStatus(status: MastodonStatus): ParsedPost {
   }
   if (shown.quote) post.quoted = parseQuote(shown.quote)
   if (shown.poll) post.unsupported = true
+  if (
+    !status.reblog &&
+    status.in_reply_to_id &&
+    status.in_reply_to_account_id === status.account.id
+  ) {
+    post.selfReplyTo = status.in_reply_to_id
+  }
   return post
+}
+
+async function loadReplied(
+  task: DownloadTask,
+  origin: string,
+  id: string
+): Promise<QuotedPost> {
+  try {
+    return toQuoted(
+      parseStatusResponse(await task.text(`${origin}/api/v1/statuses/${id}`))
+    )
+  } catch (e) {
+    // Deleted or private post
+    if (HTTPStatusError.is(e, [404, 410])) return { missing: true }
+    throw e
+  }
+}
+
+async function parseStatuses(
+  task: DownloadTask,
+  origin: string,
+  statuses: MastodonStatus[]
+): Promise<ParsedPost[]> {
+  return Promise.all(
+    statuses.map(async status => {
+      let post = parseStatus(status)
+      let repliedId = status.reblog?.in_reply_to_id
+      if (repliedId) post.replied = await loadReplied(task, origin, repliedId)
+      return post
+    })
+  )
 }
 
 function getApi(url: string): { acct: string; origin: string } {
@@ -345,7 +388,7 @@ async function loadPage(
   id: string,
   maxId?: string
 ): Promise<PostsListResult> {
-  let statuses = parseStatuses(
+  let statuses = parseStatusList(
     await task.text(
       `${origin}/api/v1/accounts/${id}/statuses?exclude_replies=true` +
         (maxId ? `&max_id=${maxId}` : '')
@@ -353,7 +396,7 @@ async function loadPage(
   )
   let last = statuses[statuses.length - 1]
   return [
-    statuses.map(parseStatus),
+    await parseStatuses(task, origin, statuses),
     last ? () => loadPage(task, origin, id, last.id) : undefined
   ]
 }
@@ -402,6 +445,27 @@ export const mastodon: Loader = {
     let { origin } = getApi(feed.url)
     let response = await task.text(`${origin}/api/v1/statuses/${originId}`)
     return response.parseJson()
+  },
+
+  async getThreadAncestors(task, feedUrl, originId) {
+    let { origin } = getApi(feedUrl)
+    let response = await task.text(
+      `${origin}/api/v1/statuses/${originId}/context`
+    )
+    let context = response.parseJson()
+    if (!isObject(context) || !Array.isArray(context.ancestors)) {
+      throw new ParseError('Mastodon context has no ancestors', response.text)
+    }
+    // Ancestors go from the oldest one, so the author’s chain is in the end
+    let ancestors = context.ancestors as MastodonStatus[]
+    let author = ancestors.at(-1)?.account.id
+    let chain: MastodonStatus[] = []
+    for (let i = ancestors.length - 1; i >= 0; i--) {
+      if (ancestors[i]!.account.id !== author) break
+      chain.unshift(ancestors[i]!)
+    }
+    if (chain.length === 0 || chain[0]!.in_reply_to_id) return []
+    return chain.map(parseStatus)
   },
 
   getSuggestedLinksFromText() {

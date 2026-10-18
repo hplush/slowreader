@@ -73,6 +73,7 @@ describe('import page', () => {
     originId: 'test-1',
     publishedAt: 1000,
     reading: 'fast',
+    sortedAt: 1000,
     title: 'Post 1'
   } satisfies NewPost
 
@@ -169,10 +170,13 @@ describe('import page', () => {
         intro: null,
         media: null,
         mediaSizes: null,
+        merged: false,
         preview: null,
         quoted: null,
         read: false,
+        replied: null,
         repostedBy: null,
+        threadId: null,
         unsupported: null,
         updatedAt: null,
         url: null,

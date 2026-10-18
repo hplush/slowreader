@@ -7,8 +7,10 @@ import {
   addPost,
   closeLastPopup,
   commonMessages,
+  formatPublishedAt,
   GENERAL_CATEGORY,
   HTTPStatusError,
+  i18nFormat,
   loadPost,
   openedPopups,
   type OriginPost,
@@ -142,6 +144,54 @@ describe('post popup', () => {
     let broken2 = openTestPopup('post', 'aaa')
     await waitLoading(broken2.loading)
     equal(broken2.notFound, true)
+  })
+
+  test('opens thread', async () => {
+    let feed = await addFeed(testFeed({ categoryId: GENERAL_CATEGORY }))
+    let start = await addPost(
+      testPost({ feedId: feed, originId: 's', threadId: 's' })
+    )
+    await addPost(
+      testPost({
+        feedId: feed,
+        merged: true,
+        originId: 'p',
+        publishedAt: 2000,
+        threadId: 's'
+      })
+    )
+    let popup = openTestPopup('post', `id:${start}`)
+    await waitLoading(popup.loading)
+    deepEqual(
+      checkLoadedPopup(popup)
+        .thread.get()
+        .map(post => [post.originId, post.publishedAtText]),
+      [['p', formatPublishedAt(i18nFormat.get(), 2000)]]
+    )
+  })
+
+  test('opens thread from the feed preview', async () => {
+    let popup = openTestPopup(
+      'post',
+      getPostPopupParam({
+        id: '1',
+        originId: '1',
+        threadParts: [
+          { id: '2', originId: '2', publishedAt: 2000 },
+          { id: '3', originId: '3' }
+        ]
+      })
+    )
+    await waitLoading(popup.loading)
+    deepEqual(
+      checkLoadedPopup(popup)
+        .thread.get()
+        .map(post => [post.originId, post.publishedAtText]),
+      [
+        ['2', formatPublishedAt(i18nFormat.get(), 2000)],
+        ['3', undefined]
+      ]
+    )
   })
 
   test('opens post by URL', async () => {

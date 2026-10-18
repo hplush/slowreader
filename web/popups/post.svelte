@@ -14,6 +14,7 @@
   import FeedLink from '../ui/feed-link.svelte'
   import Popup from '../ui/popup.svelte'
   import Post from '../ui/post/index.svelte'
+  import PostThreadPart from '../ui/post/thread-part.svelte'
   import SmallLink from '../ui/small-link.svelte'
   import Stack from '../ui/stack.svelte'
   import Switch from '../ui/switch.svelte'
@@ -21,7 +22,7 @@
 
   let { popup }: { popup: PostPopup } = $props()
 
-  let { feed, post, publishedAt, read } = $derived(popup)
+  let { feed, post, publishedAt, read, thread } = $derived(popup)
 
   onMount(() => {
     if (popup.read) {
@@ -66,10 +67,15 @@
       </SmallLink>
     </Stack>
     <Stack gap="xxl">
-      <Post
-        post={$post}
-        repostHref={feed && getPopupHash($router, 'feed', $feed!.url)}
-      />
+      <Stack gap="s">
+        <Post
+          post={$post}
+          repostHref={feed && getPopupHash($router, 'feed', $feed!.url)}
+        />
+        {#each $thread as part (part.id)}
+          <PostThreadPart post={part} publishedAt={part.publishedAtText} />
+        {/each}
+      </Stack>
       <Stack>
         {#if $post.url}
           <Button

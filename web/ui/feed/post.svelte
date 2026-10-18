@@ -71,8 +71,16 @@
         <FormattedText html={post.title} />
       </h2>
     {/if}
+    {#if post.replied && !post.replied.missing}
+      <div class="feed-post_replied">
+        <PostQuote caption={$postMessages.replyingTo} quoted={post.replied} />
+      </div>
+    {/if}
     <PostWarning warning={post.warning}>
       <FormattedText html={intro} simple />
+      {#if post.threadSize > 1}
+        <div class="feed-post_thread-more">…</div>
+      {/if}
       <PostMedia media={post.media} />
       {#if post.quoted}
         <PostQuote quoted={post.quoted} />
@@ -89,6 +97,14 @@
       </div>
     {/if}
     <footer class="feed-post_actions">
+      {#if post.threadSize > 1}
+        <span
+          class="feed-post_thread"
+          title={$postMessages.threadLabel({ size: post.threadSize })}
+        >
+          {$postMessages.thread({ size: post.threadSize })}
+        </span>
+      {/if}
       <div class="feed-post_fill"></div>
       {#if post.url}
         <Button
@@ -236,6 +252,22 @@
       display: flex;
       padding: 0.25rem;
       margin-inline: calc(-1 * var(--control-padding));
+    }
+
+    .feed-post_replied {
+      margin-bottom: 0.625rem;
+    }
+
+    .feed-post_thread-more {
+      margin-top: 0.5rem;
+    }
+
+    .feed-post_thread {
+      display: flex;
+      align-items: center;
+      padding-inline: calc(var(--control-padding) - 0.25rem);
+      font: var(--secondary-font);
+      color: var(--secondary-text-color);
     }
 
     .feed-post_fill {

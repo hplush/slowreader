@@ -38,6 +38,17 @@ describe('migrations', () => {
       ),
       { records: [{ id: 'a', media, read: false }], type: 'posts/created' }
     )
+    deepEqual(
+      migrations[1]!(
+        { fields: { publishedAt: 10 }, id: 'post', type: 'posts/created' },
+        {}
+      ),
+      {
+        fields: { publishedAt: 10, sortedAt: 10 },
+        id: 'post',
+        type: 'posts/created'
+      }
+    )
   })
 
   test('keeps other actions', () => {

@@ -7,6 +7,7 @@
   import {
     addCategory,
     changeFeed,
+    collapseThreads,
     errorToMessage,
     type FeedPopup,
     getPopupId,
@@ -107,7 +108,7 @@
       {#if $posts.isLoading}
         <Loader track="feed-popup-posts" />
       {:else}
-        <Posts list={$posts.list} />
+        <Posts list={collapseThreads($posts.list)} />
         {#if $posts.error}
           <Note icon={mdiAlertCircleOutline} variant="dangerous">
             {errorToMessage($posts.error)}

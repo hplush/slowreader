@@ -83,11 +83,55 @@
     url: 'https://mastodon.social/@jane'
   }
 
+  const LIST_THREAD = [1, 2].map(index => {
+    return {
+      feedId: 'feed',
+      full: `<p>The post number ${index} of the thread</p>`,
+      intro: null,
+      merged: index > 1,
+      originId: `thread-${index}`,
+      publishedAt: 2000 + index,
+      reading: 'slow',
+      sortedAt: 2002,
+      threadId: 'thread-1'
+    } satisfies Partial<PostValue>
+  })
+
   const MASTODON = [
+    {
+      feedId: 'mastodon',
+      full: '<p>The first post of the thread</p>',
+      intro: null,
+      originId: 'thread',
+      publishedAt: 7,
+      reading: 'fast',
+      sortedAt: 9,
+      threadId: 'thread'
+    },
+    {
+      feedId: 'mastodon',
+      full: '<p>The second post of the thread</p>',
+      intro: null,
+      merged: true,
+      originId: 'thread-2',
+      publishedAt: 8,
+      reading: 'fast',
+      threadId: 'thread'
+    },
+    {
+      feedId: 'mastodon',
+      full: '<p>The third post of the thread</p>',
+      intro: null,
+      merged: true,
+      originId: 'thread-3',
+      publishedAt: 9,
+      reading: 'fast',
+      threadId: 'thread'
+    },
     {
       author: AUTHOR,
       feedId: 'mastodon',
-      full: `<p>Reposted post with a link card ${EMOJI}</p>`,
+      full: `<p>Reposted reply with a link card ${EMOJI}</p>`,
       intro: null,
       preview: {
         description: 'Description of the link from the page’s meta tags',
@@ -97,6 +141,12 @@
       },
       publishedAt: 6,
       reading: 'fast',
+      replied: {
+        author: { title: 'Bob', url: 'https://mastodon.social/@bob' },
+        full: '<p>The question, which the reposted post answers</p>',
+        missing: false,
+        url: 'https://mastodon.social/@bob/1'
+      },
       repostedBy: { title: 'Mastodon' }
     },
     {
@@ -247,7 +297,7 @@
 <Story name="List" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     feeds={[{ id: 'feed', reading: 'slow', title: 'The Mozilla Blog' }]}
-    posts={POSTS}
+    posts={[...LIST_THREAD, ...POSTS]}
     route={{ params: { feed: 'feed' }, route: 'slow' }}
   >
     <FeedsPage page={pages.slow()} />
