@@ -103,7 +103,7 @@
   <Scene
     responses={[['https://example.com', { loading: true }]]}
     route={{
-      params: { candidate: undefined, url: 'https://example.com' },
+      params: { url: 'https://example.com' },
       route: 'add'
     }}
   >
@@ -112,17 +112,13 @@
 </Story>
 
 <Story name="URL Error" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene
-    route={{ params: { candidate: undefined, url: 'not a URL' }, route: 'add' }}
-  >
+  <Scene route={{ params: { url: 'not a URL' }, route: 'add' }}>
     <AddPage page={pages.add()} />
   </Scene>
 </Story>
 
 <Story name="Handle Error" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene
-    route={{ params: { candidate: undefined, url: '@jane' }, route: 'add' }}
-  >
+  <Scene route={{ params: { url: '@jane' }, route: 'add' }}>
     <AddPage page={pages.add()} />
   </Scene>
 </Story>
@@ -131,7 +127,7 @@
   <Scene
     responses={[['https://example.com', { status: 404 }]]}
     route={{
-      params: { candidate: undefined, url: 'https://example.com' },
+      params: { url: 'https://example.com' },
       route: 'add'
     }}
   >
@@ -146,7 +142,7 @@
       ['https://example.com', '<html></html>']
     ]}
     route={{
-      params: { candidate: undefined, url: 'https://example.com' },
+      params: { url: 'https://example.com' },
       route: 'add'
     }}
   >
@@ -164,7 +160,7 @@
     ]}
     route={{
       hash: `#feed=https://example.com/news.atom`,
-      params: { candidate: undefined, url: 'https://example.com' },
+      params: { url: 'https://example.com' },
       route: 'add'
     }}
   >
@@ -180,7 +176,7 @@
       ['https://example.com/news.atom', ATOM]
     ]}
     route={{
-      params: { candidate: undefined, url: 'https://example.com' },
+      params: { url: 'https://example.com' },
       route: 'add'
     }}
   >
@@ -201,7 +197,7 @@
       ['https://example.com/news.atom', ATOM]
     ]}
     route={{
-      params: { candidate: undefined, url: 'https://example.com' },
+      params: { url: 'https://example.com' },
       route: 'add'
     }}
   >
@@ -221,7 +217,7 @@
       ['https://example.com/news.atom', ATOM]
     ]}
     route={{
-      params: { candidate: undefined, url: 'https://example.com' },
+      params: { url: 'https://example.com' },
       route: 'add'
     }}
   >
