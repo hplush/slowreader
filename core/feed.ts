@@ -7,7 +7,12 @@ import { onClient } from './client.ts'
 import { createDownloadTask, type TextResponse } from './lib/download.ts'
 import { findSiteIcon, isLoadableIcon } from './loader/common.ts'
 import { type FeedLoader, loaders } from './loader/index.ts'
-import { addPost, processOriginPost, recalcPostsReading } from './post.ts'
+import {
+  addPost,
+  collapseThreads,
+  processOriginPost,
+  recalcPostsReading
+} from './post.ts'
 import type { PostsList } from './posts-list.ts'
 import {
   type FeedChanges,
@@ -152,7 +157,9 @@ export async function addCandidate(
   let linked = await linkThreads(
     task,
     { id: feedId, loader: feed.loader, url: feed.url },
-    posts.get().list.slice(0, 10)
+    collapseThreads(posts.get().list)
+      .slice(0, 10)
+      .flatMap(({ threadParts, ...start }) => [start, ...(threadParts ?? [])])
   )
   await addPost(
     linked.map(origin => processOriginPost(origin, feedId, feed.reading))

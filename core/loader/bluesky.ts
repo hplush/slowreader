@@ -46,7 +46,7 @@ interface BlueskyRecord {
   createdAt: string
   facets?: BlueskyFacet[]
   labels?: { values?: BlueskyLabel[] }
-  reply?: { parent: { uri: string } }
+  reply?: { parent: { uri: string }; root: { uri: string } }
   text: string
 }
 
@@ -106,6 +106,7 @@ interface BlueskyPost {
   embed?: BlueskyEmbed
   labels?: BlueskyLabel[]
   record: BlueskyRecord
+  replyCount?: number
   uri: string
 }
 
@@ -133,6 +134,7 @@ interface BlueskyThread {
   $type: string
   parent?: BlueskyThread
   post?: BlueskyPost
+  replies?: BlueskyThread[]
 }
 
 type PdsFinder = (did: string) => Promise<string | undefined>
@@ -536,6 +538,7 @@ async function parsePost(
   if (parent && getDid(parent) === post.author.did) {
     parsed.selfReplyTo = parent
   }
+  if (post.replyCount && !post.record.reply) parsed.hasReplies = true
   return parsed
 }
 
@@ -586,13 +589,71 @@ async function loadProfile(
 async function loadThread(
   task: DownloadTask,
   uri: string,
-  parentHeight: number
+  parentHeight: number,
+  depth: number
 ): Promise<BlueskyThread> {
   return parseThread(
     await task.text(
       `${API}/app.bsky.feed.getPostThread?uri=${encodeURIComponent(uri)}` +
-        `&depth=0&parentHeight=${parentHeight}`
+        `&depth=${depth}&parentHeight=${parentHeight}`
     )
+  )
+}
+
+/**
+ * Earlier refresh already loaded them
+ */
+function isOlderThanRefresh(
+  item: BlueskyFeedItem,
+  refreshedAt: number | undefined
+): boolean {
+  let date = toTime(item.reason?.indexedAt ?? item.post.record.createdAt)
+  return !!refreshedAt && !!date && date < refreshedAt
+}
+
+/**
+ * Feed has replies to others too, which we skip like Mastodon’s
+ * `exclude_replies`. Author’s replies to own thread are thread parts.
+ */
+function isReplyToOthers(item: BlueskyFeedItem): boolean {
+  let reply = item.post.record.reply
+  if (item.reason || !reply) return false
+  let author = item.post.author.did
+  return (
+    getDid(reply.parent.uri) !== author || getDid(reply.root.uri) !== author
+  )
+}
+
+/**
+ * Thread API returns only 10 levels of replies
+ */
+async function loadSelfReplies(
+  task: DownloadTask,
+  findPds: PdsFinder,
+  uri: string
+): Promise<ParsedPost[]> {
+  let author = getDid(uri)
+  let parts: BlueskyPost[] = []
+  let current: BlueskyThread | undefined = await loadThread(task, uri, 0, 10)
+  while (current) {
+    if (!current.replies && current.post?.replyCount) {
+      current = await loadThread(task, current.post.uri, 0, 10)
+    }
+    // Bluesky shows the earliest self-reply as the next part
+    current = current.replies
+      ?.filter(reply => reply.post?.author.did === author)
+      .toSorted(
+        (a, b) =>
+          Date.parse(a.post!.record.createdAt) -
+          Date.parse(b.post!.record.createdAt)
+      )[0]
+    if (current) parts.push(current.post!)
+  }
+  return Promise.all(
+    parts.map(async part => ({
+      ...(await parsePost(part, findPds)),
+      author: toAuthor(part.author)
+    }))
   )
 }
 
@@ -600,20 +661,28 @@ async function loadPage(
   task: DownloadTask,
   findPds: PdsFinder,
   actor: string,
+  refreshedAt: number | undefined,
   cursor?: string
 ): Promise<PostsListResult> {
   let page = parseFeed(
     await task.text(
       `${API}/app.bsky.feed.getAuthorFeed?actor=${encodeURIComponent(actor)}` +
-        '&filter=posts_and_author_threads' +
+        '&filter=posts_with_replies' +
         (cursor ? `&cursor=${encodeURIComponent(cursor)}` : '')
     )
   )
   let next = page.cursor
   return [
-    await Promise.all(page.feed.map(item => parseItem(item, findPds))),
-    next && page.feed.length > 0
-      ? () => loadPage(task, findPds, actor, next)
+    await Promise.all(
+      page.feed
+        .filter(item => !isReplyToOthers(item))
+        .map(item => parseItem(item, findPds))
+    ),
+    // Replies to others could make the whole page empty
+    next &&
+    page.feed.length > 0 &&
+    !isOlderThanRefresh(page.feed.at(-1)!, refreshedAt)
+      ? () => loadPage(task, findPds, actor, refreshedAt, next)
       : undefined
   ]
 }
@@ -639,7 +708,8 @@ export const bluesky: Loader = {
       loadPage(
         task,
         createPdsFinder(task),
-        readLoaderData(loaderData, 'did') ?? getActor(url)
+        readLoaderData(loaderData, 'did') ?? getActor(url),
+        refreshedAt
       )
     )
   },
@@ -649,6 +719,7 @@ export const bluesky: Loader = {
     let thread = await loadThread(
       task,
       `at://${decodeURIComponent(actor!)}/app.bsky.feed.post/${rkey}`,
+      0,
       0
     )
     if (!thread.post) {
@@ -669,12 +740,12 @@ export const bluesky: Loader = {
   },
 
   async getPostSource(feed, originId) {
-    let thread = await loadThread(createDownloadTask(), originId, 0)
+    let thread = await loadThread(createDownloadTask(), originId, 0, 0)
     return thread.post
   },
 
   async getThreadAncestors(task, feedUrl, originId) {
-    let thread = await loadThread(task, originId, 1000)
+    let thread = await loadThread(task, originId, 1000, 0)
     let author = getDid(originId)
     let chain: BlueskyPost[] = []
     let current = thread.parent
@@ -686,6 +757,10 @@ export const bluesky: Loader = {
     if (current) return []
     let findPds = createPdsFinder(task)
     return Promise.all(chain.map(post => parsePost(post, findPds)))
+  },
+
+  getThreadDescendants(task, feedUrl, originId) {
+    return loadSelfReplies(task, createPdsFinder(task), originId)
   },
 
   getSuggestedLinksFromText() {

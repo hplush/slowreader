@@ -1,13 +1,16 @@
-import { equal } from 'node:assert/strict'
+import { restoreAll, spyOn } from 'nanospy'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
   addCandidate,
   addFeed,
+  createPostsList,
   deleteFeed,
   getFeedLatestPosts,
   loadFeed,
   loaders,
+  loadPosts,
   testFeed,
   updateFeedAvatar
 } from '../index.ts'
@@ -30,6 +33,7 @@ describe('feed', () => {
 
   afterEach(async () => {
     await cleanClient()
+    restoreAll()
     checkAndRemoveRequestMock()
   })
 
@@ -68,6 +72,44 @@ describe('feed', () => {
     ).andRespond(404)
     let broken = await loadFeed(await addCandidate(candidate))
     equal(broken!.loaderData, null)
+  })
+
+  test('counts thread as one post of new feed', async () => {
+    spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => {
+        return Promise.resolve([
+          [
+            { originId: 'start', publishedAt: 100 },
+            { originId: 'part1', publishedAt: 50, selfReplyTo: 'start' },
+            { originId: 'part2', publishedAt: 60, selfReplyTo: 'part1' },
+            ...Array.from({ length: 10 }, (_, i) => ({
+              originId: `post${i}`,
+              publishedAt: 90 - i
+            }))
+          ],
+          undefined
+        ])
+      })
+    })
+    await addCandidate({
+      loader: loaders.rss,
+      name: 'rss',
+      title: 'Jane',
+      url: 'https://a.com/rss'
+    })
+    deepEqual(
+      Object.fromEntries(
+        (await loadPosts()).map(post => [post.originId, post.threadId])
+      ),
+      {
+        part1: 'start',
+        part2: 'start',
+        start: 'start',
+        ...Object.fromEntries(
+          Array.from({ length: 9 }, (_, i) => [`post${i}`, null])
+        )
+      }
+    )
   })
 
   test('takes avatar from the feed', async () => {

@@ -546,6 +546,77 @@ describe('refresh', () => {
     deepEqual(feed!.lastPublishedAt, 4000)
   })
 
+  test('adds parts of reposted thread', async () => {
+    let bluesky = loaders.bluesky as Required<typeof loaders.bluesky>
+    await addFeed(
+      testFeed({
+        lastOriginId: 'post1',
+        lastPublishedAt: 1000,
+        loader: 'bluesky',
+        url: 'https://bsky.app/profile/jane'
+      })
+    )
+    let jane = { title: 'Jane' }
+    spyOn(bluesky, 'getPosts', () => {
+      return createPostsList(() => {
+        return Promise.resolve([
+          [
+            {
+              hasReplies: true,
+              originId: 'start',
+              publishedAt: 3000,
+              repostedBy: jane,
+              title: 'start'
+            },
+            {
+              originId: 'part2',
+              publishedAt: 2500,
+              repostedBy: jane,
+              title: 'part2'
+            },
+            { originId: 'single', publishedAt: 2000, repostedBy: jane },
+            { originId: 'post1', publishedAt: 1000, title: '1' }
+          ],
+          undefined
+        ])
+      })
+    })
+    let descendants = spyOn(bluesky, 'getThreadDescendants', () =>
+      Promise.resolve([
+        {
+          hasReplies: true,
+          originId: 'part1',
+          publishedAt: 500,
+          selfReplyTo: 'original',
+          title: 'part1'
+        },
+        {
+          originId: 'part2',
+          publishedAt: 600,
+          selfReplyTo: 'part1',
+          title: 'part2'
+        }
+      ])
+    )
+
+    refreshPosts()
+    await setTimeout(10)
+    equal(refreshStatus.get(), 'done')
+    deepEqual(
+      descendants.calls.map(call => call[2]),
+      ['start']
+    )
+    deepEqual(await getPostKeys('originId'), [
+      'part1',
+      'part2',
+      'single',
+      'start'
+    ])
+    deepEqual(await getPostKeys('threadId'), ['start', 'start', null, 'start'])
+    deepEqual(await getPostKeys('merged'), [true, true, false, false])
+    deepEqual(await getPostKeys('sortedAt'), [500, 600, 2000, 3000])
+  })
+
   test('retries with some delay', async () => {
     await addFeed(testFeed({ url: 'https://a.com/' }))
     await addFeed(testFeed({ url: 'https://b.com/' }))

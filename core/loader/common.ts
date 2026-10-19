@@ -75,6 +75,16 @@ export type Loader = {
   ): Promise<ParsedPost[]>
 
   /**
+   * Next posts of the author’s thread after the given one from the oldest
+   * one. Feed could miss them, like new parts of the reposted thread.
+   */
+  getThreadDescendants?(
+    task: DownloadTask,
+    feedUrl: string,
+    originId: string
+  ): Promise<ParsedPost[]>
+
+  /**
    * Try to suggest feed for given URL/document.
    *
    * For instance, by parsing <meta> or guessing URLs like `/rss` for RSS.

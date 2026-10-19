@@ -691,7 +691,8 @@ describe('mastodon loader', () => {
           reblog: status('r', {
             account: account('bob'),
             in_reply_to_account_id: 'alice-id',
-            in_reply_to_id: 'parent'
+            in_reply_to_id: 'parent',
+            replies_count: 1
           })
         }),
         status('4', {
@@ -699,6 +700,12 @@ describe('mastodon loader', () => {
             account: account('bob'),
             in_reply_to_account_id: 'alice-id',
             in_reply_to_id: 'deleted'
+          })
+        }),
+        status('6', {
+          reblog: status('thread', {
+            account: account('bob'),
+            replies_count: 2
           })
         })
       ]),
@@ -730,6 +737,10 @@ describe('mastodon loader', () => {
       url: 'https://mastodon.social/@jane/parent'
     })
     deepEqual(list[2]!.replied, { missing: true })
+    deepEqual(
+      list.map(i => i.hasReplies),
+      [undefined, undefined, undefined, true]
+    )
 
     expectRequest(`${API}/accounts/lookup?acct=jane`).andRespond(
       200,
@@ -811,6 +822,114 @@ describe('mastodon loader', () => {
     let error: unknown
     try {
       await mastodon.getThreadAncestors!(createDownloadTask(), feed, '7')
+    } catch (e) {
+      error = e
+    }
+    equal(error instanceof ParseError, true)
+  })
+
+  test('finds next posts of the thread', async () => {
+    let { mastodon } = loaders
+    let feed = 'https://mastodon.social/@jane'
+    let bob = account('bob')
+    expectRequest(`${API}/statuses/r/context`).andRespond(
+      200,
+      JSON.stringify({ ancestors: [], descendants: [] }),
+      'application/json'
+    )
+    expectRequest(`${API}/statuses/r`).andRespond(
+      200,
+      JSON.stringify(status('r', { reblog: status('1', { account: bob }) })),
+      'application/json'
+    )
+    expectRequest(`${API}/statuses/1/context`).andRespond(
+      200,
+      JSON.stringify({
+        ancestors: [],
+        descendants: [
+          status('2', { account: bob, in_reply_to_id: '1' }),
+          status('3', { in_reply_to_id: '2' }),
+          status('5', {
+            account: bob,
+            created_at: '2026-01-03T00:00:00.000Z',
+            in_reply_to_id: '2'
+          }),
+          status('4', {
+            account: bob,
+            created_at: '2026-01-02T00:00:00.000Z',
+            in_reply_to_id: '2'
+          })
+        ]
+      }),
+      'application/json'
+    )
+    deepEqual(
+      (
+        await mastodon.getThreadDescendants!(createDownloadTask(), feed, 'r')
+      ).map(post => [post.originId, post.author?.title]),
+      [
+        ['2', 'BOB'],
+        ['4', 'BOB']
+      ]
+    )
+
+    expectRequest(`${API}/statuses/6/context`).andRespond(
+      200,
+      JSON.stringify({
+        descendants: [
+          status('7', {
+            in_reply_to_account_id: 'jane-id',
+            in_reply_to_id: '6'
+          }),
+          status('8', {
+            account: bob,
+            in_reply_to_account_id: 'jane-id',
+            in_reply_to_id: '6'
+          })
+        ]
+      }),
+      'application/json'
+    )
+    deepEqual(
+      await mastodon.getThreadDescendants!(
+        createDownloadTask(),
+        'https://mastodon.social/@jane/6',
+        '6'
+      ),
+      [
+        {
+          full: '<p>7</p>',
+          originId: '7',
+          publishedAt: 1767225600,
+          selfReplyTo: '6',
+          url: 'https://mastodon.social/@jane/7'
+        }
+      ]
+    )
+
+    expectRequest(`${API}/statuses/9/context`).andRespond(
+      200,
+      JSON.stringify({ descendants: [] }),
+      'application/json'
+    )
+    expectRequest(`${API}/statuses/9`).andRespond(
+      200,
+      JSON.stringify(status('9')),
+      'application/json'
+    )
+    deepEqual(
+      await mastodon.getThreadDescendants!(createDownloadTask(), feed, '9'),
+      []
+    )
+
+    expectRequest(`${API}/statuses/10/context`).andRespond(
+      200,
+      '{}',
+      'application/json'
+    )
+    let error: unknown
+    try {
+      await mastodon.getThreadDescendants!(createDownloadTask(), feed, '10')
     } catch (e) {
       error = e
     }

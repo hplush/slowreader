@@ -82,6 +82,7 @@ interface MastodonStatus {
   poll: null | object
   quote?: MastodonQuote | MastodonStatus | null
   reblog: MastodonStatus | null
+  replies_count?: number
   sensitive: boolean
   spoiler_text: string
   uri: string
@@ -337,6 +338,7 @@ function parseStatus(status: MastodonStatus): ParsedPost {
   }
   if (shown.quote) post.quoted = parseQuote(shown.quote)
   if (shown.poll) post.unsupported = true
+  if (shown.replies_count && !shown.in_reply_to_id) post.hasReplies = true
   if (
     !status.reblog &&
     status.in_reply_to_id &&
@@ -384,6 +386,44 @@ function getApi(url: string): { acct: string; origin: string } {
     acct: decodeURIComponent(profile.pathname.match(PROFILE)![1]!),
     origin: profile.origin
   }
+}
+
+async function loadDescendants(
+  task: DownloadTask,
+  origin: string,
+  id: string
+): Promise<MastodonStatus[]> {
+  let response = await task.text(`${origin}/api/v1/statuses/${id}/context`)
+  let context = response.parseJson()
+  if (!isObject(context) || !Array.isArray(context.descendants)) {
+    throw new ParseError('Mastodon context has no descendants', response.text)
+  }
+  return context.descendants as MastodonStatus[]
+}
+
+function findNextParts(
+  descendants: MastodonStatus[],
+  startId: string,
+  author: string
+): MastodonStatus[] {
+  function findNext(parentId: string): MastodonStatus | undefined {
+    // Several self-replies to one part are branches, the earliest continues
+    return descendants
+      .filter(
+        reply =>
+          reply.in_reply_to_id === parentId && reply.account.id === author
+      )
+      .toSorted(
+        (a, b) => Date.parse(a.created_at) - Date.parse(b.created_at)
+      )[0]
+  }
+  let parts: MastodonStatus[] = []
+  let next = findNext(startId)
+  while (next) {
+    parts.push(next)
+    next = findNext(next.id)
+  }
+  return parts
 }
 
 async function loadAccount(
@@ -493,7 +533,7 @@ export const mastodon: Loader = {
   },
 
   async getThreadAncestors(task, feedUrl, originId) {
-    let { origin } = getApi(feedUrl)
+    let { origin } = new URL(feedUrl)
     let response = await task.text(
       `${origin}/api/v1/statuses/${originId}/context`
     )
@@ -511,6 +551,27 @@ export const mastodon: Loader = {
     }
     if (chain.length === 0 || chain[0]!.in_reply_to_id) return []
     return chain.map(parseStatus)
+  },
+
+  async getThreadDescendants(task, feedUrl, originId) {
+    let { origin } = new URL(feedUrl)
+    let descendants = await loadDescendants(task, origin, originId)
+    let author = descendants.find(
+      reply => reply.in_reply_to_id === originId
+    )?.in_reply_to_account_id
+    if (author) {
+      return findNextParts(descendants, originId, author).map(parseStatus)
+    }
+    // Reblog has no replies, they are linked to the original post
+    let { reblog } = parseStatusResponse(
+      await task.text(`${origin}/api/v1/statuses/${originId}`)
+    )
+    if (!reblog) return []
+    return findNextParts(
+      await loadDescendants(task, origin, reblog.id),
+      reblog.id,
+      reblog.account.id
+    ).map(part => ({ ...parseStatus(part), author: toAuthor(part.account) }))
   },
 
   getSuggestedLinksFromText() {

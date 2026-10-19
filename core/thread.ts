@@ -2,11 +2,14 @@ import type { FeedValue } from './feed.ts'
 import type { DownloadTask } from './lib/download.ts'
 import { type Loader, loaders } from './loader/index.ts'
 import {
+  addPost,
   changePost,
   getPostId,
   loadPost,
+  loadThreadPosts,
   type OriginPost,
   type ParsedPost,
+  processOriginPost,
   type PostValue
 } from './post.ts'
 import type {
@@ -41,6 +44,43 @@ async function reopenPost(
 }
 
 /**
+ * Feed has only the repost of the thread start, since next parts are posted
+ * by another author.
+ */
+async function loadRepostedParts(
+  task: DownloadTask,
+  feed: Pick<FeedValue, 'loader' | 'url'>,
+  posts: OriginPost[]
+): Promise<OriginPost[]> {
+  let loader = loaders[feed.loader]
+  let threads = await Promise.all(
+    posts
+      .filter(post => post.repostedBy && post.hasReplies)
+      .map(async start => {
+        let parts =
+          (await loader.getThreadDescendants?.(
+            task,
+            feed.url,
+            start.originId
+          )) ?? []
+        // Mastodon links the first part to the original post, not to repost
+        return parts.map((part, index) => ({
+          ...part,
+          id: part.originId,
+          selfReplyTo: (parts[index - 1] ?? start).originId
+        }))
+      })
+  )
+  let known = new Set<string>()
+  return threads.flat().filter(part => {
+    // Mastodon has different IDs for two reposts of the same post
+    if (known.has(part.originId)) return false
+    known.add(part.originId)
+    return true
+  })
+}
+
+/**
  * Turns `selfReplyTo` links of the new posts into threads.
  *
  * Readers show the thread as its first post, other posts are `merged` into
@@ -49,13 +89,21 @@ async function reopenPost(
  * parts of the thread, it loads them again to show new parts in the context
  * and with the real size of the thread.
  *
- * Returns the new posts and the restored earlier posts to add.
+ * Returns the new posts, the restored earlier posts, and the loaded parts
+ * of reposted threads to add.
  */
 export async function linkThreads(
   task: DownloadTask,
   feed: Pick<FeedValue, 'id' | 'loader' | 'url'>,
-  posts: OriginPost[]
+  found: OriginPost[]
 ): Promise<OriginPost[]> {
+  let parts = await loadRepostedParts(task, feed, found)
+  let partIds = new Set(parts.map(part => part.originId))
+  let posts = [
+    // Thread part can be reposted too
+    ...found.filter(post => !partIds.has(post.originId)),
+    ...parts
+  ]
   let byOrigin = new Map(posts.map(post => [post.originId, post]))
   let threads = new Map<OriginPost, string | undefined>()
   let restored: OriginPost[] = []
@@ -137,6 +185,7 @@ export async function linkThreads(
     let threadId = getThreadId(post)
     let saved = { ...post }
     delete saved.selfReplyTo
+    delete saved.hasReplies
     if (!threadId) return saved
     if (threadId !== post.originId) {
       return { ...saved, merged: true, threadId }
@@ -146,6 +195,89 @@ export async function linkThreads(
     if (!sortedAt) return { ...saved, merged: false, threadId }
     return { ...saved, merged: false, sortedAt, threadId }
   })
+}
+
+/**
+ * Feed could miss new parts, like parts of the reposted thread added after
+ * the repost, so the opened thread asks the loader for them.
+ *
+ * Returns all posts of the thread.
+ */
+export async function updateThread(
+  task: DownloadTask,
+  feed: Pick<FeedValue, 'id' | 'loader' | 'url'>,
+  start: PostValue
+): Promise<PostValue[]> {
+  let threadId = start.threadId ?? start.originId
+  let posts = await loadThreadPosts(feed.id, threadId)
+  let loader = loaders[feed.loader]
+  if (!loader.getThreadDescendants) return posts
+  // Reposted thread start has the repost’s date, so it is not the last one
+  let last = posts.filter(post => post.originId !== threadId).at(-1) ?? start
+  let known = new Set(posts.map(post => post.originId))
+  let added = (
+    await loader.getThreadDescendants(task, feed.url, last.originId)
+  ).filter(post => !known.has(post.originId))
+  if (added.length === 0) return posts
+  // Feed had no parts of the reposted thread on refresh
+  if (!start.threadId) await changePost(start.id, { threadId })
+  await addPost(
+    added.map(post => {
+      let saved = {
+        ...post,
+        id: post.originId,
+        merged: true,
+        threadId
+      }
+      delete saved.selfReplyTo
+      delete saved.hasReplies
+      return {
+        ...processOriginPost(saved, feed.id, start.reading),
+        read: start.read
+      }
+    })
+  )
+  return loadThreadPosts(feed.id, threadId)
+}
+
+/**
+ * Post opened by URL is not in the database, so refresh did not link
+ * its thread. Returns all posts of the thread from the start.
+ */
+export async function loadThreadByUrl(
+  task: DownloadTask,
+  loader: Loader,
+  post: OriginPost & { url: string }
+): Promise<OriginPost[]> {
+  let [ancestors, descendants] = await Promise.all([
+    post.selfReplyTo
+      ? loader.getThreadAncestors?.(task, post.url, post.originId)
+      : undefined,
+    loader.getThreadDescendants?.(task, post.url, post.originId)
+  ])
+  let toPart = (part: ParsedPost): OriginPost => ({
+    author: post.author,
+    ...part,
+    id: part.originId
+  })
+  return [
+    ...(ancestors ?? []).map(toPart),
+    post,
+    ...(descendants ?? []).map(toPart)
+  ]
+}
+
+/**
+ * Preview post is not saved, and the repost’s `originId` could be from
+ * another server, so the thread is loaded by the post’s own URL.
+ */
+export async function loadPreviewThread(
+  task: DownloadTask,
+  loader: Loader,
+  url: string
+): Promise<OriginPost[]> {
+  let post = await loader.getPostByUrl!(task, url)
+  return loadThreadByUrl(task, loader, { ...post, url })
 }
 
 /**

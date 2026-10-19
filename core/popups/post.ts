@@ -19,6 +19,7 @@ import {
   type OriginPost,
   type PostValue
 } from '../post.ts'
+import { loadPreviewThread, loadThreadByUrl, updateThread } from '../thread.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
 export function getPostPopupParam(
@@ -46,12 +47,6 @@ export function canOpenPostUrl(url: string): boolean {
   return url.startsWith('https:') && !!findPostLoader(url)
 }
 
-function loadPostByUrl(url: string): Promise<OriginPost> {
-  let loader = findPostLoader(url)
-  if (!loader) throw new NotFoundError()
-  return loader.getPostByUrl!(createDownloadTask({ cache: 'read' }), url)
-}
-
 export const post = definePopup('post', async loader => {
   let $post: ReadableAtom<OriginPost | PostValue>
   let $feed: ReadableAtom<FeedValue> | undefined
@@ -64,6 +59,9 @@ export const post = definePopup('post', async loader => {
     id = loader.slice(5)
   }
 
+  let task = createDownloadTask()
+  let $parts = atom<(OriginPost | PostValue)[]>([])
+  let updating: Promise<(OriginPost | PostValue)[]> | undefined
   let unbindStored = (): void => {}
   if (id) {
     let stored = await loadPost(id)
@@ -74,15 +72,40 @@ export const post = definePopup('post', async loader => {
     })
     $post = $stored
   } else if (loader.startsWith('https:')) {
-    $post = atom(await loadPostByUrl(loader))
+    let postLoader = findPostLoader(loader)
+    if (!postLoader) throw new NotFoundError()
+    let $byUrl = atom(
+      await postLoader.getPostByUrl!(
+        createDownloadTask({ cache: 'read' }),
+        loader
+      )
+    )
+    updating = loadThreadByUrl(task, postLoader, {
+      ...$byUrl.get(),
+      url: loader
+    }).then(([start, ...parts]) => {
+      $byUrl.set(start!)
+      return parts
+    })
+    $post = $byUrl
   } else if (loader.startsWith('data:')) {
     let data = loader.slice(5)
+    let preview: OriginPost
     try {
-      $post = atom(
-        JSON.parse(lz.decompressFromEncodedURIComponent(data)) as OriginPost
-      )
+      preview = JSON.parse(
+        lz.decompressFromEncodedURIComponent(data)
+      ) as OriginPost
     } catch {
       throw new NotFoundError()
+    }
+    $post = atom(preview)
+    $parts.set(preview.threadParts ?? [])
+    let postLoader = preview.url ? findPostLoader(preview.url) : undefined
+    if (postLoader) {
+      // Preview has no parts of reposted threads
+      updating = loadPreviewThread(task, postLoader, preview.url!).then(
+        thread => thread.filter(part => part.url !== preview.url)
+      )
     }
   } else {
     throw new NotFoundError()
@@ -104,18 +127,33 @@ export const post = definePopup('post', async loader => {
   }
 
   let postValue = $post.get()
-  let parts: (OriginPost | PostValue)[] =
-    'threadParts' in postValue ? (postValue.threadParts ?? []) : []
   if ('feedId' in postValue) {
     let feedValue = await loadFeed(postValue.feedId)
     if (feedValue) $feed = atom(feedValue)
-    if (postValue.threadId) {
-      let shownId = postValue.id
-      parts = (
-        await loadThreadPosts(postValue.feedId, postValue.threadId)
-      ).filter(part => part.id !== shownId)
+    let { id: shownId, threadId } = postValue
+    if (threadId) {
+      $parts.set(
+        (await loadThreadPosts(postValue.feedId, threadId)).filter(
+          part => part.id !== shownId
+        )
+      )
+    }
+    // Refresh could save the reposted thread start without its parts
+    if (
+      feedValue &&
+      (threadId || (postValue.repostedBy && !postValue.replied))
+    ) {
+      updating = updateThread(task, feedValue, postValue).then(posts =>
+        posts.filter(part => part.id !== shownId)
+      )
     }
   }
+  updating
+    ?.then(parts => {
+      $parts.set(parts)
+    })
+    // Offline or closed popup still shows saved parts
+    .catch(() => {})
 
   let $publishedAt = computed([$post, i18nFormat], (value, format) => {
     return value.publishedAt
@@ -123,7 +161,7 @@ export const post = definePopup('post', async loader => {
       : undefined
   })
 
-  let $thread = computed(i18nFormat, format => {
+  let $thread = computed([$parts, i18nFormat], (parts, format) => {
     return parts.map(part => ({
       ...part,
       publishedAtText: part.publishedAt
@@ -134,6 +172,7 @@ export const post = definePopup('post', async loader => {
 
   return {
     destroy() {
+      task.destroy()
       unbindStored()
       unbindPost()
       unbindRead()

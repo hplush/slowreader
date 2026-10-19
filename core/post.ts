@@ -40,6 +40,11 @@ export type {
 export type ParsedPost = {
   author?: PostAuthor
   full?: string
+  /**
+   * Post is not a reply and has replies. Loader’s hint to not ask for parts
+   * of every reposted post. Not saved to the database.
+   */
+  hasReplies?: true
   intro?: string
   media?: PostMedia[]
   mediaSizes?: (MediaSize | null)[]

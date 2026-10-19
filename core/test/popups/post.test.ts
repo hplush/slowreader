@@ -1,3 +1,4 @@
+import { restoreAll, spyOn } from 'nanospy'
 import { deepEqual, equal, match } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -11,7 +12,9 @@ import {
   GENERAL_CATEGORY,
   HTTPStatusError,
   i18nFormat,
+  loaders,
   loadPost,
+  loadThreadPosts,
   openedPopups,
   type OriginPost,
   type PostValue,
@@ -40,6 +43,7 @@ describe('post popup', () => {
 
   afterEach(async () => {
     await cleanClient()
+    restoreAll()
   })
 
   test('opens saved post', async () => {
@@ -170,6 +174,140 @@ describe('post popup', () => {
     )
   })
 
+  test('loads new parts of opened thread', async () => {
+    // Spy needs the optional method to be required
+    let bluesky = loaders.bluesky as Required<typeof loaders.bluesky>
+    let feed = await addFeed(
+      testFeed({ categoryId: GENERAL_CATEGORY, loader: 'bluesky' })
+    )
+    let start = await addPost(
+      testPost({
+        feedId: feed,
+        originId: 's',
+        publishedAt: 3000,
+        read: true,
+        threadId: 's'
+      })
+    )
+    await addPost(
+      testPost({
+        feedId: feed,
+        merged: true,
+        originId: 'p',
+        publishedAt: 2000,
+        threadId: 's'
+      })
+    )
+    let descendants = spyOn(bluesky, 'getThreadDescendants', () =>
+      Promise.resolve([
+        { originId: 'p', publishedAt: 2000 },
+        { originId: 'n', publishedAt: 4000, selfReplyTo: 'p' }
+      ])
+    )
+    let popup = openTestPopup('post', `id:${start}`)
+    await waitLoading(popup.loading)
+    let thread = checkLoadedPopup(popup).thread
+    deepEqual(
+      thread.get().map(post => post.originId),
+      ['p']
+    )
+    await setTimeout(10)
+    equal(descendants.calls[0]![2], 'p')
+    deepEqual(
+      thread.get().map(post => post.originId),
+      ['p', 'n']
+    )
+    deepEqual(
+      (await loadThreadPosts(feed, 's')).map(post => [
+        post.originId,
+        post.merged,
+        post.read
+      ]),
+      [
+        ['p', true, false],
+        ['s', false, true],
+        ['n', true, true]
+      ]
+    )
+    closeLastPopup()
+
+    spyOn(bluesky, 'getThreadDescendants', () =>
+      Promise.reject(new Error('Offline'))
+    )
+    let offline = openTestPopup('post', `id:${start}`)
+    await waitLoading(offline.loading)
+    await setTimeout(10)
+    deepEqual(
+      checkLoadedPopup(offline)
+        .thread.get()
+        .map(post => post.originId),
+      ['p', 'n']
+    )
+  })
+
+  test('loads thread of saved repost', async () => {
+    let mastodon = loaders.mastodon as Required<typeof loaders.mastodon>
+    let feed = await addFeed(
+      testFeed({ categoryId: GENERAL_CATEGORY, loader: 'mastodon' })
+    )
+    let bob = { title: 'Bob' }
+    let repost = await addPost(
+      testPost({
+        feedId: feed,
+        originId: 'r',
+        publishedAt: 3000,
+        repostedBy: { title: 'Jane' }
+      })
+    )
+    let reply = await addPost(
+      testPost({
+        feedId: feed,
+        originId: 'q',
+        replied: { missing: true },
+        repostedBy: { title: 'Jane' }
+      })
+    )
+    let own = await addPost(testPost({ feedId: feed, originId: 'o' }))
+    let descendants = spyOn(mastodon, 'getThreadDescendants', () =>
+      Promise.resolve([
+        { author: bob, originId: 'p1', publishedAt: 1000, selfReplyTo: 'x' },
+        { author: bob, originId: 'p2', publishedAt: 2000, selfReplyTo: 'p1' }
+      ])
+    )
+
+    let popup = openTestPopup('post', `id:${repost}`)
+    await waitLoading(popup.loading)
+    await setTimeout(10)
+    equal(descendants.calls[0]![2], 'r')
+    deepEqual(
+      checkLoadedPopup(popup)
+        .thread.get()
+        .map(post => post.originId),
+      ['p1', 'p2']
+    )
+    deepEqual(
+      (await loadThreadPosts(feed, 'r')).map(post => [
+        post.originId,
+        post.merged,
+        post.author?.title
+      ]),
+      [
+        ['p1', true, 'Bob'],
+        ['p2', true, 'Bob'],
+        ['r', false, undefined]
+      ]
+    )
+    closeLastPopup()
+
+    for (let id of [reply, own]) {
+      let other = openTestPopup('post', `id:${id}`)
+      await waitLoading(other.loading)
+      await setTimeout(10)
+      closeLastPopup()
+    }
+    equal(descendants.calls.length, 1)
+  })
+
   test('opens thread from the feed preview', async () => {
     let popup = openTestPopup(
       'post',
@@ -192,6 +330,95 @@ describe('post popup', () => {
         ['3', undefined]
       ]
     )
+  })
+
+  test('loads thread of post opened by URL', async () => {
+    let mastodon = loaders.mastodon as Required<typeof loaders.mastodon>
+    let url = 'https://mastodon.social/@jane/2'
+    let jane = { title: 'Jane' }
+    let offline = false
+    spyOn(mastodon, 'getPostByUrl', () =>
+      Promise.resolve({
+        author: jane,
+        id: url,
+        originId: '2',
+        url,
+        ...(offline ? {} : { selfReplyTo: '1' })
+      })
+    )
+    let ancestors = spyOn(mastodon, 'getThreadAncestors', () =>
+      Promise.resolve([{ originId: '1' }])
+    )
+    let descendants = spyOn(mastodon, 'getThreadDescendants', () =>
+      offline
+        ? Promise.reject(new Error('Offline'))
+        : Promise.resolve([{ originId: '3', selfReplyTo: '2' }])
+    )
+    let popup = openTestPopup('post', url)
+    await waitLoading(popup.loading)
+    await setTimeout(10)
+    deepEqual(ancestors.calls[0]!.slice(1), [url, '2'])
+    deepEqual(descendants.calls[0]!.slice(1), [url, '2'])
+    let loaded = checkLoadedPopup(popup)
+    deepEqual(loaded.post.get(), { author: jane, id: '1', originId: '1' })
+    deepEqual(
+      loaded.thread.get().map(post => [post.originId, post.author?.title]),
+      [
+        ['2', 'Jane'],
+        ['3', 'Jane']
+      ]
+    )
+    closeLastPopup()
+
+    offline = true
+    let broken = openTestPopup('post', url)
+    await waitLoading(broken.loading)
+    await setTimeout(10)
+    equal(ancestors.calls.length, 1)
+    equal(checkLoadedPopup(broken).post.get().originId, '2')
+    deepEqual(checkLoadedPopup(broken).thread.get(), [])
+  })
+
+  test('loads thread of preview post', async () => {
+    let mastodon = loaders.mastodon as Required<typeof loaders.mastodon>
+    let url = 'https://other.social/@bob/1'
+    let byUrl = spyOn(mastodon, 'getPostByUrl', () =>
+      Promise.resolve({ id: url, originId: '1', url })
+    )
+    let descendants = spyOn(mastodon, 'getThreadDescendants', () =>
+      Promise.resolve([{ originId: '2', selfReplyTo: '1' }])
+    )
+    let popup = openTestPopup(
+      'post',
+      getPostPopupParam({
+        id: 'r',
+        originId: 'r',
+        repostedBy: { title: 'Jane' },
+        url
+      })
+    )
+    await waitLoading(popup.loading)
+    await setTimeout(10)
+    deepEqual(descendants.calls[0]!.slice(1), [url, '1'])
+    let loaded = checkLoadedPopup(popup)
+    equal(loaded.post.get().originId, 'r')
+    deepEqual(
+      loaded.thread.get().map(post => post.originId),
+      ['2']
+    )
+    closeLastPopup()
+
+    let rss = openTestPopup(
+      'post',
+      getPostPopupParam({
+        id: 'a',
+        originId: 'a',
+        url: 'https://example.com/a'
+      })
+    )
+    await waitLoading(rss.loading)
+    await setTimeout(10)
+    equal(byUrl.calls.length, 1)
   })
 
   test('opens post by URL', async () => {
@@ -226,8 +453,22 @@ describe('post popup', () => {
       }),
       'application/json'
     )
+    expectRequest(
+      'https://mastodon.social/api/v1/statuses/1/context'
+    ).andRespond(
+      200,
+      JSON.stringify({ ancestors: [], descendants: [] }),
+      'application/json'
+    )
+    expectRequest('https://mastodon.social/api/v1/statuses/1').andRespond(
+      200,
+      JSON.stringify({ id: '1', reblog: null }),
+      'application/json'
+    )
     let popup = openTestPopup('post', 'https://mastodon.social/@jane/1')
     await waitLoading(popup.loading)
+    await setTimeout(10)
+    deepEqual(checkLoadedPopup(popup).thread.get(), [])
     deepEqual(checkLoadedPopup(popup).post.get(), {
       author: { title: 'Jane', url: 'https://mastodon.social/@jane' },
       full: '<p>Text</p>',

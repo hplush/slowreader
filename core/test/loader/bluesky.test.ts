@@ -34,7 +34,7 @@ const API = 'https://public.api.bsky.app/xrpc'
 
 const FEED =
   `${API}/app.bsky.feed.getAuthorFeed?actor=` +
-  `${encodeURIComponent('did:plc:jane')}&filter=posts_and_author_threads`
+  `${encodeURIComponent('did:plc:jane')}&filter=posts_with_replies`
 
 function page(url: string, html = PAGE): ReturnType<typeof createTextResponse> {
   return createTextResponse(html, { url })
@@ -66,11 +66,26 @@ function post(id: string, fields: object = {}): Record<string, unknown> {
   }
 }
 
-function threadUrl(at: string, parentHeight: number): string {
+function threadUrl(at: string, parentHeight: number, depth = 0): string {
   return (
     `${API}/app.bsky.feed.getPostThread?uri=${encodeURIComponent(at)}` +
-    `&depth=0&parentHeight=${parentHeight}`
+    `&depth=${depth}&parentHeight=${parentHeight}`
   )
+}
+
+function bobPost(id: string, fields: object = {}): Record<string, unknown> {
+  return post(id, { author: profile('bob'), uri: uri('bob', id), ...fields })
+}
+
+function repost(reposted: object): Record<string, unknown> {
+  return {
+    post: reposted,
+    reason: {
+      $type: 'app.bsky.feed.defs#reasonRepost',
+      by: profile('jane'),
+      indexedAt: '2026-02-01T00:00:00.000Z'
+    }
+  }
 }
 
 describe('bluesky loader', () => {
@@ -251,7 +266,7 @@ describe('bluesky loader', () => {
   test('loads posts', async () => {
     expectRequest(
       `${API}/app.bsky.feed.getAuthorFeed?actor=jane.bsky.social` +
-        '&filter=posts_and_author_threads'
+        '&filter=posts_with_replies'
     ).andRespond(
       200,
       JSON.stringify({
@@ -585,7 +600,7 @@ describe('bluesky loader', () => {
 
     expectRequest(
       `${API}/app.bsky.feed.getAuthorFeed?actor=jane.bsky.social` +
-        '&filter=posts_and_author_threads&cursor=next'
+        '&filter=posts_with_replies&cursor=next'
     ).andRespond(200, '{"feed":[]}', 'application/json')
     let first = posts.get().list
     deepEqual(await posts.next(), [])
@@ -617,7 +632,7 @@ describe('bluesky loader', () => {
     for (let broken of ['{', '{"did":1}']) {
       expectRequest(
         `${API}/app.bsky.feed.getAuthorFeed?actor=jane.bsky.social` +
-          '&filter=posts_and_author_threads'
+          '&filter=posts_with_replies'
       ).andRespond(200, '{"feed":[]}', 'application/json')
       await loaders.bluesky.getPosts(
         createDownloadTask(),
@@ -662,7 +677,10 @@ describe('bluesky loader', () => {
             post: post('2', {
               record: {
                 createdAt: '2026-01-01T00:00:00.000Z',
-                reply: { parent: { uri: uri('jane', '1') } },
+                reply: {
+                  parent: { uri: uri('jane', '1') },
+                  root: { uri: uri('jane', '1') }
+                },
                 text: '2'
               }
             })
@@ -672,7 +690,10 @@ describe('bluesky loader', () => {
               author: profile('bob'),
               record: {
                 createdAt: '2026-01-01T00:00:00.000Z',
-                reply: { parent: { uri: uri('bob', 'self') } },
+                reply: {
+                  parent: { uri: uri('bob', 'self') },
+                  root: { uri: uri('bob', 'self') }
+                },
                 text: 'r'
               },
               uri: uri('bob', 'r')
@@ -734,6 +755,165 @@ describe('bluesky loader', () => {
     deepEqual(list[2]!.replied, { missing: true })
   })
 
+  test('skips replies to others', async () => {
+    let janeReply = (id: string, parent: string, root: string): object =>
+      post(id, {
+        record: {
+          createdAt: '2026-01-01T00:00:00.000Z',
+          reply: { parent: { uri: parent }, root: { uri: root } },
+          text: id
+        }
+      })
+    let feed = JSON.stringify({
+      cursor: 'next',
+      feed: [
+        repost(bobPost('1', { replyCount: 3 })),
+        repost(
+          bobPost('2', {
+            record: {
+              createdAt: '2026-01-01T00:00:00.000Z',
+              reply: {
+                parent: { uri: uri('bob', '1') },
+                root: { uri: uri('bob', '1') }
+              },
+              text: '2'
+            },
+            replyCount: 1
+          })
+        ),
+        repost(bobPost('single')),
+        { post: janeReply('j2', uri('jane', 'j1'), uri('jane', 'j1')) },
+        { post: janeReply('toBob', uri('bob', '1'), uri('bob', '1')) },
+        { post: janeReply('inBob', uri('jane', 'toBob'), uri('bob', '1')) },
+        { post: post('j1', { replyCount: 1 }) }
+      ]
+    })
+    expectRequest(FEED).andRespond(200, feed, 'application/json')
+    let posts = loaders.bluesky.getPosts(
+      createDownloadTask(),
+      'https://bsky.app/profile/did:plc:jane'
+    )
+    await posts.loading
+    deepEqual(
+      posts
+        .get()
+        .list.map(i => [
+          i.originId.split('/').at(-1),
+          i.selfReplyTo?.split('/').at(-1),
+          i.repostedBy?.title,
+          i.hasReplies
+        ]),
+      [
+        ['1', undefined, 'JANE', true],
+        ['2', undefined, 'JANE', undefined],
+        ['single', undefined, 'JANE', undefined],
+        ['j2', 'j1', undefined, undefined],
+        ['j1', undefined, undefined, true]
+      ]
+    )
+    equal(posts.get().hasNext, true)
+
+    expectRequest(FEED).andRespond(200, feed, 'application/json')
+    let refreshed = loaders.bluesky.getPosts(
+      createDownloadTask(),
+      'https://bsky.app/profile/did:plc:jane',
+      undefined,
+      Date.parse('2026-02-02T00:00:00.000Z') / 1000
+    )
+    await refreshed.loading
+    equal(refreshed.get().list.length, 5)
+    equal(refreshed.get().hasNext, false)
+  })
+
+  test('finds next posts of the thread', async () => {
+    let reply = (
+      id: string,
+      parent: string,
+      hour: string,
+      fields: object = {}
+    ): object =>
+      bobPost(id, {
+        record: {
+          createdAt: `2026-01-01T${hour}:00:00.000Z`,
+          reply: {
+            parent: { uri: uri('bob', parent) },
+            root: { uri: uri('bob', '1') }
+          },
+          text: id
+        },
+        ...fields
+      })
+    expectRequest(threadUrl(uri('bob', '1'), 0, 10)).andRespond(
+      200,
+      JSON.stringify({
+        thread: {
+          $type: 'app.bsky.feed.defs#threadViewPost',
+          post: bobPost('1'),
+          replies: [
+            {
+              $type: 'app.bsky.feed.defs#threadViewPost',
+              post: post('alice', {
+                author: profile('alice'),
+                uri: uri('alice', 'alice')
+              })
+            },
+            {
+              $type: 'app.bsky.feed.defs#threadViewPost',
+              post: reply('later', '1', '02')
+            },
+            {
+              $type: 'app.bsky.feed.defs#threadViewPost',
+              post: reply('2', '1', '01'),
+              replies: [
+                {
+                  $type: 'app.bsky.feed.defs#threadViewPost',
+                  post: reply('3', '2', '03', { replyCount: 1 })
+                }
+              ]
+            },
+            { $type: 'app.bsky.feed.defs#blockedPost' }
+          ]
+        }
+      }),
+      'application/json'
+    )
+    expectRequest(threadUrl(uri('bob', '3'), 0, 10)).andRespond(
+      200,
+      JSON.stringify({
+        thread: {
+          $type: 'app.bsky.feed.defs#threadViewPost',
+          post: reply('3', '2', '03', { replyCount: 1 }),
+          replies: [
+            {
+              $type: 'app.bsky.feed.defs#threadViewPost',
+              post: reply('4', '3', '04'),
+              replies: []
+            }
+          ]
+        }
+      }),
+      'application/json'
+    )
+    deepEqual(
+      (
+        await loaders.bluesky.getThreadDescendants!(
+          createDownloadTask(),
+          'https://bsky.app/profile/jane.bsky.social',
+          uri('bob', '1')
+        )
+      ).map(i => [
+        i.originId.split('/').at(-1),
+        i.selfReplyTo?.split('/').at(-1),
+        i.author?.title
+      ]),
+      [
+        ['2', '1', 'BOB'],
+        ['3', '2', 'BOB'],
+        ['4', '3', 'BOB']
+      ]
+    )
+  })
+
   test('finds earlier posts of the thread', async () => {
     let { bluesky } = loaders
     let feed = 'https://bsky.app/profile/jane.bsky.social'
@@ -751,7 +931,10 @@ describe('bluesky loader', () => {
             post: post('2', {
               record: {
                 createdAt: '2026-01-01T00:00:00.000Z',
-                reply: { parent: { uri: uri('jane', '1') } },
+                reply: {
+                  parent: { uri: uri('jane', '1') },
+                  root: { uri: uri('jane', '1') }
+                },
                 text: '2'
               }
             })
