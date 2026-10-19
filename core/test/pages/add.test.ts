@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
+  closeLastPopup,
   type FeedLoader,
   HTTPStatusError,
   loaders,
@@ -22,7 +23,8 @@ import {
   mockRequest,
   openPage,
   openRoute,
-  setupNodeDom
+  setupNodeDom,
+  testHistory
 } from '../utils.ts'
 
 setupNodeDom()
@@ -83,13 +85,13 @@ describe('add page', () => {
     })
     keepMount(page.error)
 
-    page.params.url.set('mailto:user@example.com')
+    page.search('mailto:user@example.com')
     equal(page.error.get(), 'invalidUrl')
 
-    page.params.url.set('http://a b')
+    page.search('http://a b')
     equal(page.error.get(), 'invalidUrl')
 
-    page.params.url.set('not URL')
+    page.search('not URL')
     equal(page.error.get(), 'invalidUrl')
 
     equal(page.noResults.get(), false)
@@ -104,7 +106,7 @@ describe('add page', () => {
     keepMount(page.candidates)
 
     let reply = expectRequest('https://example.com').andWait()
-    page.params.url.set('https://example.com')
+    page.search('https://example.com')
     await setTimeout(10)
     openPage({
       params: {},
@@ -114,7 +116,7 @@ describe('add page', () => {
     deepEqual(page.candidates.get(), [])
     equal(reply.aborted, true)
 
-    page.params.url.set('https://other.com')
+    page.search('https://other.com')
     equal(page.searching.get(), false)
 
     let page2 = openPage({
@@ -125,7 +127,7 @@ describe('add page', () => {
     keepMount(page2.candidates)
     notEqual(page2, page)
 
-    page2.params.url.set('not URL')
+    page2.search('not URL')
     openPage({
       params: {},
       route: 'welcome'
@@ -143,7 +145,7 @@ describe('add page', () => {
     keepMount(page.error)
 
     let reply = expectRequest('https://example.com').andWait()
-    page.params.url.set('https://example.com')
+    page.search('https://example.com')
     equal(page.searching.get(), true)
     equal(page.error.get(), undefined)
     equal(page.noResults.get(), false)
@@ -153,7 +155,7 @@ describe('add page', () => {
     equal(page.error.get(), 'unloadable')
     equal(page.noResults.get(), false)
 
-    page.params.url.set('')
+    page.search('')
     equal(page.searching.get(), false)
     equal(page.error.get(), undefined)
     equal(page.noResults.get(), false)
@@ -165,14 +167,14 @@ describe('add page', () => {
       route: 'add'
     })
     let reply1 = expectRequest('https://example.com').andWait()
-    page.params.url.set('https://example.com')
+    page.search('https://example.com')
 
-    page.params.url.set('')
+    page.search('')
     await setTimeout(10)
     equal(reply1.aborted, true)
 
     let reply2 = expectRequest('https://other.com').andWait()
-    page.params.url.set('https://other.com')
+    page.search('https://other.com')
 
     openPage({
       params: {},
@@ -197,7 +199,7 @@ describe('add page', () => {
     })
 
     let replyHtml = expectRequest('https://example.com').andWait()
-    page.params.url.set('https://example.com')
+    page.search('https://example.com')
     equal(page.searching.get(), true)
     equal(page.error.get(), undefined)
     deepEqual(page.candidates.get(), [])
@@ -255,7 +257,7 @@ describe('add page', () => {
       '<rss><channel><title>Jane</title></channel></rss>',
       'application/rss+xml'
     )
-    page.params.url.set('https://mastodon.social/@jane/1')
+    page.search('https://mastodon.social/@jane/1')
     await waitLoading(page.searching)
     equalWithText(page.candidates.get(), [
       {
@@ -288,7 +290,7 @@ describe('add page', () => {
         '?resource=acct%3Ajane%40mastodon.social'
     ).andRespond(404)
     expectRequest('https://mastodon.social/@jane').andRespond(200, profile)
-    page.params.url.set('@jane@mastodon.social')
+    page.search('@jane@mastodon.social')
     equal(page.params.url.get(), '@jane@mastodon.social')
     await waitLoading(page.searching)
     equal(page.params.url.get(), '@jane@mastodon.social')
@@ -321,7 +323,7 @@ describe('add page', () => {
         'href="https://bsky.app/profile/did:plc:jane/rss">' +
         '</head></html>'
     )
-    page.params.url.set('@jane.bsky.social')
+    page.search('@jane.bsky.social')
     await waitLoading(page.searching)
     equal(page.error.get(), undefined)
     equalWithText(page.candidates.get(), [
@@ -365,7 +367,7 @@ describe('add page', () => {
       '<rss version="2.0"><channel><title>Blog</title></channel></rss>',
       'application/rss+xml'
     )
-    page.params.url.set('jane.example.com')
+    page.search('jane.example.com')
     await waitLoading(page.searching)
     equal(page.error.get(), undefined)
     equalWithText(page.candidates.get(), [
@@ -409,7 +411,7 @@ describe('add page', () => {
       }),
       'application/json'
     )
-    page.params.url.set('https://mastodon.social/@kyva@meetiko.org/')
+    page.search('https://mastodon.social/@kyva@meetiko.org/')
     await waitLoading(page.searching)
     equalWithText(page.candidates.get(), [
       {
@@ -429,7 +431,7 @@ describe('add page', () => {
     keepMount(page.searching)
     keepMount(page.error)
 
-    page.params.url.set('@jane')
+    page.search('@jane')
     await waitLoading(page.searching)
     equal(page.params.url.get(), '@jane')
     equal(page.error.get(), 'unknownHandle')
@@ -447,8 +449,8 @@ describe('add page', () => {
       'https://mastodon.social/.well-known/webfinger' +
         '?resource=acct%3Ajane%40mastodon.social'
     ).andWait()
-    page.params.url.set('@jane@mastodon.social')
-    page.params.url.set('@jane')
+    page.search('@jane@mastodon.social')
+    page.search('@jane')
     await waitLoading(page.searching)
     equal(finger.aborted, true)
     equal(page.error.get(), 'unknownHandle')
@@ -458,9 +460,9 @@ describe('add page', () => {
         '?resource=acct%3Ajohn%40mastodon.social'
     ).andRespond(404)
     let profile = expectRequest('https://mastodon.social/@john').andWait()
-    page.params.url.set('@john@mastodon.social')
+    page.search('@john@mastodon.social')
     await setTimeout(10)
-    page.params.url.set('@jane')
+    page.search('@jane')
     await waitLoading(page.searching)
     equal(profile.aborted, true)
     equal(page.error.get(), 'unknownHandle')
@@ -481,7 +483,7 @@ describe('add page', () => {
         '<meta content="Jane (@jane@mastodon.social)" property="og:title">' +
         '</head></html>'
     )
-    page.params.url.set('https://mastodon.social/@jane')
+    page.search('https://mastodon.social/@jane')
     await waitLoading(page.searching)
     equalWithText(page.candidates.get(), [
       {
@@ -511,7 +513,7 @@ describe('add page', () => {
     let atom = '<feed><title></title></feed>'
     expectRequest('https://other.com/atom').andRespond(200, atom, 'text/xml')
 
-    page.params.url.set('https://example.com')
+    page.search('https://example.com')
     await waitLoading(page.searching)
     equal(page.error.get(), undefined)
     equalWithText(page.candidates.get(), [
@@ -543,7 +545,7 @@ describe('add page', () => {
     let rss = '<feed><title>Feed</title></feed>'
     expectRequest('https://other.com/atom').andRespond(200, rss, 'text/xml')
 
-    page.params.url.set('https://example.com')
+    page.search('https://example.com')
     await waitLoading(page.searching)
     equal(page.error.get(), undefined)
     equalWithText(page.candidates.get(), [
@@ -572,7 +574,7 @@ describe('add page', () => {
     expectRequest('https://example.com/feed.json').andRespond(404)
     expectRequest('https://example.com/rss').andRespond(404)
 
-    page.params.url.set('https://example.com')
+    page.search('https://example.com')
     await waitLoading(page.searching)
     equal(page.error.get(), undefined)
     equalWithText(page.candidates.get(), [
@@ -601,7 +603,7 @@ describe('add page', () => {
     expectRequest('https://example.com/feed.json').andRespond(404)
     expectRequest('https://example.com/rss').andRespond(404)
 
-    page.params.url.set('https://example.com')
+    page.search('https://example.com')
     await waitLoading(page.searching)
     equal(page.error.get(), undefined)
     deepEqual(page.candidates.get(), [])
@@ -631,7 +633,7 @@ describe('add page', () => {
       '<rss><channel><title>RSS</title></channel></rss>',
       'application/rss+xml'
     )
-    page.params.url.set('https://example.com')
+    page.search('https://example.com')
     await waitLoading(page.searching)
     deepEqual(
       page.candidates.get().map(i => i.title),
@@ -661,7 +663,7 @@ describe('add page', () => {
       '<feed><title>Atom</title></feed>',
       'application/rss+xml'
     )
-    page.params.url.set('https://example.com')
+    page.search('https://example.com')
     await setTimeout(10)
     atom(200, '<feed><title>Atom</title></feed>', 'application/rss+xml')
     jsonFeed(
@@ -684,15 +686,15 @@ describe('add page', () => {
     })
     equal(page.params.url.get(), undefined)
 
-    page.params.url.set('')
-    equal(page.params.url.get(), '')
+    page.search('')
+    equal(page.params.url.get(), undefined)
 
     expectRequest('https://example.com').andRespond(200, '<html>Nothing</html>')
     expectRequest('https://example.com/feed').andRespond(404)
     expectRequest('https://example.com/atom').andRespond(404)
     expectRequest('https://example.com/feed.json').andRespond(404)
     expectRequest('https://example.com/rss').andRespond(404)
-    page.params.url.set('example.com')
+    page.search('example.com')
     equal(page.params.url.get(), 'https://example.com')
     await setTimeout(10)
 
@@ -717,7 +719,7 @@ describe('add page', () => {
     expectRequest('https://example.com/feed.json').andRespond(404)
     expectRequest('https://example.com/rss').andRespond(404)
     page.inputUrl('other.net/some')
-    page.params.url.set('example.com')
+    page.search('example.com')
     await setTimeout(500)
     equal(page.params.url.get(), 'https://example.com')
 
@@ -740,7 +742,7 @@ describe('add page', () => {
       200,
       '<feed><title></title></feed>'
     )
-    page.params.url.set('example.com/feed')
+    page.search('example.com/feed')
     await waitLoading(page.searching)
     equal(page.searching.get(), false)
     equal(page.error.get(), undefined)
@@ -754,7 +756,7 @@ describe('add page', () => {
     ])
 
     expectRequest('https://example.com/feed').andRespond(500)
-    page.params.url.set('https://example.com/feed')
+    page.search('https://example.com/feed')
     await waitLoading(page.searching)
     equal(page.searching.get(), false)
     equal(page.error.get(), 'unloadable')
@@ -771,7 +773,7 @@ describe('add page', () => {
     expectRequest('https://a.com/atom').andRespond(404)
     expectRequest('https://a.com/feed.json').andRespond(404)
     expectRequest('https://a.com/rss').andRespond(404)
-    page.params.url.set('https://a.com')
+    page.search('https://a.com')
     equal(page.params.url.get(), 'https://a.com')
     deepEqual(router.get().params, {
       url: 'https://a.com'
@@ -783,13 +785,7 @@ describe('add page', () => {
     expectRequest('https://b.com/atom').andRespond(404)
     expectRequest('https://b.com/feed.json').andRespond(404)
     expectRequest('https://b.com/rss').andRespond(404)
-    openRoute({
-      params: {
-        candidate: undefined,
-        url: 'https://b.com'
-      },
-      route: 'add'
-    })
+    openRoute({ params: { url: 'https://b.com' }, route: 'add' })
     equal(page.params.url.get(), 'https://b.com')
     await waitLoading(page.searching)
   })
@@ -814,7 +810,7 @@ describe('add page', () => {
       '<rss><channel><title>RSS</title></channel></rss>',
       'application/rss+xml'
     )
-    page.params.url.set('https://example.com')
+    page.search('https://example.com')
     await waitLoading(page.searching)
 
     equal(page.opened.get(), 'https://example.com/atom')
@@ -825,7 +821,7 @@ describe('add page', () => {
     equal(popup.loading.get(), false)
     equal(popup.notFound, false)
 
-    page.params.url.set('')
+    page.search('')
     equal(page.opened.get(), undefined)
     equal(openedPopups.get().length, 0)
 
@@ -843,7 +839,7 @@ describe('add page', () => {
       '<rss><channel><title>RSS</title></channel></rss>',
       'application/rss+xml'
     )
-    page.params.url.set('https://other.com')
+    page.search('https://other.com')
     await waitLoading(page.searching)
     equal(openedPopups.get().length, 0)
     equal(page.opened.get(), undefined)
@@ -856,8 +852,8 @@ describe('add page', () => {
       'application/rss+xml'
     )
     let page = openPage({
-      hash: 'feed=https%3A%2F%2Fa.com',
       params: { url: 'https://a.com' },
+      popups: [{ param: 'https://a.com', popup: 'feed' }],
       route: 'add'
     })
     await waitLoading(page.searching)
@@ -884,6 +880,37 @@ describe('add page', () => {
     deepEqual(router.get().popups, [])
   })
 
+  test('does not return closed popups', async () => {
+    let rss = '<rss><channel><title>A</title></channel></rss>'
+    expectRequest('https://a.com').andRespond(200, rss, 'application/rss+xml')
+    let page = openPage({
+      params: { url: 'https://a.com' },
+      popups: [{ param: 'https://a.com', popup: 'feed' }],
+      route: 'add'
+    })
+    deepEqual(router.get().popups, [{ param: 'https://a.com', popup: 'feed' }])
+    await waitLoading(page.searching)
+
+    closeLastPopup()
+    await setTimeout(10)
+    deepEqual(router.get().popups, [])
+
+    expectRequest('https://b.com').andRespond(200, rss, 'application/rss+xml')
+    page.search('b.com')
+    deepEqual(router.get(), {
+      params: { url: 'https://b.com' },
+      popups: [],
+      route: 'add'
+    })
+    deepEqual(testHistory.slice(-2), [
+      { hash: '', params: { url: 'https://a.com' }, route: 'add' },
+      { hash: '', params: { url: 'https://b.com' }, route: 'add' }
+    ])
+    await waitLoading(page.searching)
+    await setTimeout(10)
+    deepEqual(router.get().popups, [])
+  })
+
   test('supports links with query parameters', async () => {
     let page = openPage({
       params: {},
@@ -905,7 +932,7 @@ describe('add page', () => {
       'application/rss+xml'
     )
 
-    page.params.url.set('example.com')
+    page.search('example.com')
     await waitLoading(page.searching)
     equal(page.error.get(), undefined)
     equalWithText(page.candidates.get(), [
@@ -947,7 +974,7 @@ describe('add page', () => {
       'text/xml'
     )
 
-    page.params.url.set('http://example.com')
+    page.search('http://example.com')
     await waitLoading(page.searching)
 
     let popup = getPopup('feed')

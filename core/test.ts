@@ -1,12 +1,18 @@
 import { openDb } from '@nanostores/sql'
 import { nodeDriver } from '@nanostores/sql/node'
 import { delay } from 'nanodelay'
-import { atom } from 'nanostores'
+import { atom, computed } from 'nanostores'
 
 import type { Credentials } from './auth.ts'
 import type { Environment, PasskeySignal } from './environment.ts'
 import { type RequestMethod, setRequestMethod } from './request.ts'
-import { type BaseRoute, stringifyPopups } from './router.ts'
+import {
+  type BaseRoute,
+  type PopupRoute,
+  type RouteName,
+  type Routes,
+  stringifyPopups
+} from './router.ts'
 
 export let testSession: string | undefined
 
@@ -15,7 +21,36 @@ export let testSession: string | undefined
  */
 export let testSignals: PasskeySignal[] = []
 
-let testRouter = atom<BaseRoute | undefined>()
+/**
+ * Fake browser history: every opened route, where replace changes the last one.
+ */
+export let testHistory: BaseRoute[] = []
+
+let testRoute = atom<BaseRoute | undefined>()
+
+// The same listeners order as the web client with its computed router
+let testRouter = computed(testRoute, route => route)
+
+function toBaseRoute(route: {
+  hash?: string
+  params: object
+  popups?: readonly PopupRoute[]
+  route: RouteName
+}): BaseRoute {
+  let params: Record<string, string> = {}
+  for (let [key, value] of Object.entries(route.params)) {
+    if (typeof value === 'number') {
+      params[key] = `${value}`
+    } else if (typeof value === 'string') {
+      params[key] = value
+    }
+  }
+  return {
+    hash: route.hash ?? stringifyPopups(route.popups ?? []),
+    params,
+    route: route.route
+  }
+}
 
 let warningTracking: undefined | unknown[]
 
@@ -23,27 +58,33 @@ export function setWarningTracking(tracking: undefined | unknown[]): void {
   warningTracking = tracking
 }
 
-/**
- * Ensures a route has a hash property, adding an empty string if missing.
- *
- * Syntax sugar to avoid setting `hash` in every route in tests.
- */
-export function addHashToBaseRoute(
-  route: BaseRoute | Omit<BaseRoute, 'hash'> | undefined
-): BaseRoute | undefined {
-  if (!route) return undefined
-  return { hash: '', ...route } as BaseRoute
-}
+export type TestRoute<Name extends RouteName = RouteName> = Name extends string
+  ? {
+      params: { [Param in keyof Routes[Name]]?: number | string }
+      popups?: readonly PopupRoute[]
+      route: Name
+    }
+  : never
 
+/**
+ * Opens the URL like user does by link, Back button, or in the address bar.
+ */
 export function openRoute(
-  route: BaseRoute | Omit<BaseRoute, 'hash'> | undefined
+  route: ({ hash?: string } & TestRoute) | undefined,
+  replace = false
 ): void {
-  testRouter.set(addHashToBaseRoute(route))
+  let base = route && toBaseRoute(route)
+  if (base) {
+    if (replace) testHistory.pop()
+    testHistory.push(base)
+  }
+  testRoute.set(base)
 }
 
 export function getTestEnvironment(): Environment {
   testSession = undefined
   testSignals = []
+  testHistory = []
   let persistentStore: Record<string, string> = {}
   let savedKey: CryptoKey | undefined
 
@@ -75,9 +116,7 @@ export function getTestEnvironment(): Environment {
     networkType() {
       return { saveData: undefined, type: undefined }
     },
-    openRoute(route) {
-      openRoute({ ...route, hash: stringifyPopups(route.popups) })
-    },
+    openRoute,
     passkeySupport: false,
     persistentEvents: { addEventListener() {}, removeEventListener() {} },
     persistentStore,

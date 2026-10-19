@@ -14,9 +14,26 @@ import {
   type LoaderName,
   loaders
 } from '../loader/index.ts'
-import { closeAllPopups, setPopups } from '../router.ts'
-import { createPage } from './common.ts'
+import { navigate, setPopups } from '../router.ts'
+import { createPage, routeParam } from './common.ts'
 import { injectOpenedFeed } from './mixins/opened-feed.ts'
+
+function nowOrLater<Value>(
+  action: (value: Value) => void,
+  ms: number
+): { cancel(): void; later(value: Value): void; now(value: Value): void } {
+  let delayed = debounce(action, ms)
+  return {
+    cancel() {
+      delayed.cancel()
+    },
+    later: delayed,
+    now(value) {
+      delayed.cancel()
+      action(value)
+    }
+  }
+}
 
 export type AddLinksValue = Record<
   string,
@@ -58,7 +75,7 @@ function findSimilarUrl(links: AddLinksValue, url: string): string | undefined {
 }
 
 export const addPage = createPage('add', () => {
-  let $url = atom<string | undefined>()
+  let $url = routeParam('add', 'url')
 
   /**
    * Map of all URLs found in the document with URLs as keys and loading state
@@ -120,46 +137,50 @@ export const addPage = createPage('add', () => {
   )
 
   function reset(): void {
-    debouncedInput.cancel()
+    urlSearch.cancel()
     $links.set({})
     $worse.set([])
     $candidates.set([])
     prevTask?.destroy()
   }
 
-  let debouncedInput = debounce((value: string) => {
-    if (value === '') {
-      $url.set(undefined)
-    } else {
-      $url.set(value)
-    }
+  function openUrl(url: string, replace: boolean, closePopups: boolean): void {
+    navigate(
+      route =>
+        route.route === 'add'
+          ? {
+              params: { url },
+              popups: closePopups ? [] : route.popups,
+              route: 'add'
+            }
+          : route,
+      replace
+    )
+  }
+
+  let urlSearch = nowOrLater((url: string) => {
+    openUrl(url, false, true)
   }, 500)
 
   let lastUrl = ''
   function inputUrl(value: string): void {
     lastUrl = value
-    debouncedInput(value)
+    urlSearch.later(value)
   }
 
   let prevTask: DownloadTask | undefined
-  let prevUrl: string | undefined
-  let inited = false
-  let unbindUrl = $url.listen(url => {
+  let searched: string | undefined
+  let unbindUrl = $url.subscribe(url => {
     lastUrl = url ?? ''
-    if (url === prevUrl) return
-    prevUrl = url
-    if (inited) {
-      reset()
-      // Not in reset(): on exit it would navigate over the route we go to
-      closeAllPopups()
-    }
-    inited = true
+    // Skips the URL normalization below
+    if (url === searched) return
+    reset()
+    searched = url
     if (!url) return
     prevTask = createDownloadTask({ cache: 'write' })
     void addLink(prevTask, url)
-    let normalizedUrl = Object.keys($links.get())[0] ?? ''
-    prevUrl = normalizedUrl
-    $url.set(normalizedUrl)
+    searched = Object.keys($links.get())[0] ?? ''
+    if (searched !== url) openUrl(searched, true, false)
   })
 
   /**
@@ -243,7 +264,7 @@ export const addPage = createPage('add', () => {
       getEnvironment().warn(e)
       if (httpsGuest && isValidDomain(url) && lastUrl === url) {
         httpsTest = true
-        $url.set(url.replace(/^https:\/\//, 'http://'))
+        openUrl(url.replace(/^https:\/\//, 'http://'), true, false)
         httpsTest = false
       } else {
         $links.setKey(url, { state: 'unloadable' })
@@ -341,6 +362,7 @@ export const addPage = createPage('add', () => {
     params: {
       url: $url
     },
+    search: urlSearch.now,
     searching: $searching
   }
 })

@@ -9,7 +9,7 @@ import {
   changePost,
   deletePost,
   type FeedReader,
-  type Page,
+  type FeedsPage,
   router,
   testFeed,
   testPost,
@@ -25,10 +25,10 @@ import {
 } from '../utils.ts'
 
 async function moveTo(
-  page: Page<'fast'>,
+  page: FeedsPage,
   from: string | undefined
 ): Promise<void> {
-  page.params.from.set(from)
+  openRoute({ params: { ...router.get().params, from }, route: page.reading })
   await waitLoading(page.postsLoading)
 }
 
@@ -63,7 +63,7 @@ describe('feed reader', () => {
     }
 
     let page = openPage({
-      params: { feed: feed1 },
+      params: { category: categoryId },
       route: 'fast'
     })
     equal(page.loading.get(), true)
@@ -71,19 +71,6 @@ describe('feed reader', () => {
     await waitLoading(page.loading)
     equal(page.postsLoading.get(), false)
     let reader = ensureReader(page.posts, 'feed')
-    equal(reader.hasNext.get(), false)
-    equal(reader.authors.get().size, 0)
-    equal(reader.list.get().length, 15)
-    equal(reader.list.get()[0]!.title, '30')
-
-    page = openPage({
-      params: { category: categoryId },
-      route: 'fast'
-    })
-    equal(page.loading.get(), false)
-    equal(page.postsLoading.get(), true)
-    await waitLoading(page.postsLoading)
-    reader = ensureReader(page.posts, 'feed')
     equal(reader.hasNext.get(), true)
     equal(reader.authors.get().size, 2)
     equal(reader.authors.get().get(feed1)!.title, 'Test 1')
@@ -119,13 +106,6 @@ describe('feed reader', () => {
     })
     await setTimeout(10)
     page = openPage({
-      params: { feed: feed1 },
-      route: 'fast'
-    })
-    await setTimeout(10)
-    equal(page.posts.get()?.name, 'empty')
-
-    page = openPage({
       params: { category: categoryId },
       route: 'fast'
     })
@@ -149,8 +129,8 @@ describe('feed reader', () => {
     }
 
     let page = openPage({
-      hash: `post=id%3A${last}`,
       params: { category: categoryId },
+      popups: [{ param: `id:${last}`, popup: 'post' }],
       route: 'fast'
     })
     await waitLoading(page.loading)
@@ -191,22 +171,23 @@ describe('feed reader', () => {
   })
 
   test('loads intro without the whole article', async () => {
-    let feedId = await addFeed(testFeed({ fastReader: 'feed' }))
+    let feedId = await addFeed(testFeed({ slowReader: 'feed' }))
     for (let post of [
       { full: 'Full article', intro: 'Intro', publishedAt: 4 },
       { full: 'Same', intro: 'Same', publishedAt: 3 },
       { full: 'Short article', intro: null, publishedAt: 2 },
       { full: 'a'.repeat(6000), intro: '', publishedAt: 1 }
     ]) {
-      await addPost(testPost({ feedId, reading: 'fast', ...post }))
+      await addPost(testPost({ feedId, reading: 'slow', ...post }))
     }
 
     let page = openPage({
       params: { feed: feedId },
-      route: 'fast'
+      route: 'slow'
     })
-    await waitLoading(page.loading)
+    await waitLoading(page.postsLoading)
     let reader = ensureReader(page.posts, 'feed')
+    equal(reader.authors.get().size, 0)
     let [cut, same, short, long] = reader.list.get()
 
     // The article is not loaded when the feed has its own intro
@@ -225,7 +206,7 @@ describe('feed reader', () => {
   })
 
   test('loads media with their sizes', async () => {
-    let feedId = await addFeed(testFeed({ fastReader: 'feed' }))
+    let feedId = await addFeed(testFeed({ slowReader: 'feed' }))
     let first = { type: 'image', url: 'https://example.com/a.png' }
     let second = { type: 'image', url: 'https://example.com/b.png' }
     await addPost(
@@ -234,13 +215,13 @@ describe('feed reader', () => {
         media: [first, second],
         mediaSizes: [{ height: 10, width: 20 }, null],
         publishedAt: 2,
-        reading: 'fast'
+        reading: 'slow'
       })
     )
-    await addPost(testPost({ feedId, publishedAt: 1, reading: 'fast' }))
+    await addPost(testPost({ feedId, publishedAt: 1, reading: 'slow' }))
 
-    let page = openPage({ params: { feed: feedId }, route: 'fast' })
-    await waitLoading(page.loading)
+    let page = openPage({ params: { feed: feedId }, route: 'slow' })
+    await waitLoading(page.postsLoading)
     let reader = ensureReader(page.posts, 'feed')
     deepEqual(
       reader.list.get().map(post => post.media),
@@ -249,7 +230,7 @@ describe('feed reader', () => {
   })
 
   test('loads social fields', async () => {
-    let feedId = await addFeed(testFeed({ fastReader: 'feed' }))
+    let feedId = await addFeed(testFeed({ slowReader: 'feed' }))
     let social = {
       author: { title: 'Author' },
       preview: { url: 'https://example.com/' },
@@ -258,10 +239,10 @@ describe('feed reader', () => {
       unsupported: true,
       warning: 'Spoiler'
     }
-    await addPost(testPost({ feedId, reading: 'fast', ...social }))
+    await addPost(testPost({ feedId, reading: 'slow', ...social }))
 
-    let page = openPage({ params: { feed: feedId }, route: 'fast' })
-    await waitLoading(page.loading)
+    let page = openPage({ params: { feed: feedId }, route: 'slow' })
+    await waitLoading(page.postsLoading)
     let post = ensureReader(page.posts, 'feed').list.get()[0]!
     deepEqual(
       {
@@ -277,18 +258,18 @@ describe('feed reader', () => {
   })
 
   test('does not skip posts changed by another client', async () => {
-    let feedId = await addFeed(testFeed({ fastReader: 'feed' }))
+    let feedId = await addFeed(testFeed({ slowReader: 'feed' }))
     for (let i = 1; i <= 50; i++) {
       await addPost(
-        testPost({ feedId, publishedAt: i, reading: 'fast', title: `${i}` })
+        testPost({ feedId, publishedAt: i, reading: 'slow', title: `${i}` })
       )
     }
 
     let page = openPage({
       params: { feed: feedId },
-      route: 'fast'
+      route: 'slow'
     })
-    await waitLoading(page.loading)
+    await waitLoading(page.postsLoading)
     let reader = ensureReader(page.posts, 'feed')
     let shown = new Set(titles(reader))
     equal(shown.size, 20)
@@ -320,15 +301,15 @@ describe('feed reader', () => {
   })
 
   test('moves between pages of posts of the same time', async () => {
-    let feedId = await addFeed(testFeed({ fastReader: 'feed' }))
+    let feedId = await addFeed(testFeed({ slowReader: 'feed' }))
     for (let i = 1; i <= 50; i++) {
       await addPost(
-        testPost({ feedId, publishedAt: 1, reading: 'fast', title: `${i}` })
+        testPost({ feedId, publishedAt: 1, reading: 'slow', title: `${i}` })
       )
     }
 
-    let page = openPage({ params: { feed: feedId }, route: 'fast' })
-    await waitLoading(page.loading)
+    let page = openPage({ params: { feed: feedId }, route: 'slow' })
+    await waitLoading(page.postsLoading)
     let reader = ensureReader(page.posts, 'feed')
     let shown = new Set(titles(reader))
     equal(shown.size, 20)

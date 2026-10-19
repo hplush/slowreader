@@ -9,9 +9,10 @@ import {
   addPost,
   changePost,
   deletePost,
+  type FeedsPage,
   type ListReader,
   loadPostsByFeed,
-  type Page,
+  router,
   slowMenu,
   testFeed,
   testPost,
@@ -25,8 +26,8 @@ import {
   openRoute
 } from '../utils.ts'
 
-async function moveTo(page: Page<'slow'>, from: number): Promise<void> {
-  page.params.from.set(`${from}`)
+async function moveTo(page: FeedsPage, from: number): Promise<void> {
+  openRoute({ params: { ...router.get().params, from }, route: page.reading })
   await waitLoading(page.postsLoading)
 }
 
@@ -47,7 +48,7 @@ describe('list reader', () => {
 
   test('loads posts', async () => {
     keepMount(slowMenu)
-    let categoryId = await addCategory({ slowReader: 'list', title: 'A' })
+    let categoryId = await addCategory({ title: 'A' })
     let feed1 = await addFeed(
       testFeed({ categoryId, slowReader: 'list', title: 'Feed 1' })
     )
@@ -57,10 +58,20 @@ describe('list reader', () => {
     for (let i = 1; i <= 75; i++) {
       await addPost(
         testPost({
-          feedId: i % 2 === 0 ? feed1 : feed2,
+          feedId: feed1,
           publishedAt: i,
           reading: 'slow',
           title: `${i}`
+        })
+      )
+    }
+    for (let i = 1; i <= 3; i++) {
+      await addPost(
+        testPost({
+          feedId: feed2,
+          publishedAt: i,
+          reading: 'slow',
+          title: `b${i}`
         })
       )
     }
@@ -69,20 +80,19 @@ describe('list reader', () => {
       [
         { id: categoryId, title: 'A' },
         [
-          [{ id: feed1, title: 'Feed 1' }, 37],
-          [{ id: feed2, title: 'Feed 2' }, 38]
+          [{ id: feed1, title: 'Feed 1' }, 75],
+          [{ id: feed2, title: 'Feed 2' }, 3]
         ]
       ]
     ])
     let page = openPage({
-      params: { feed: feed1 },
+      params: { feed: feed2 },
       route: 'slow'
     })
     equal(page.loading.get(), true)
     await waitLoading(page.loading)
     let reader = ensureReader(page.posts, 'list')
-    equal(reader.list.get().length, 37)
-    equal(reader.list.get()[0]!.title, '74')
+    deepEqual(titles(reader), ['b3', 'b2', 'b1'])
     deepEqual(reader.pages.get(), {
       count: 1,
       hasNext: false,
@@ -93,7 +103,7 @@ describe('list reader', () => {
     })
 
     page = openPage({
-      params: { category: categoryId },
+      params: { feed: feed1 },
       route: 'slow'
     })
     equal(page.loading.get(), false)
@@ -119,8 +129,8 @@ describe('list reader', () => {
       [
         { id: categoryId, title: 'A' },
         [
-          [{ id: feed1, title: 'Feed 1' }, 36],
-          [{ id: feed2, title: 'Feed 2' }, 37]
+          [{ id: feed1, title: 'Feed 1' }, 73],
+          [{ id: feed2, title: 'Feed 2' }, 3]
         ]
       ]
     ])
@@ -140,13 +150,13 @@ describe('list reader', () => {
     await setTimeout(10)
 
     openPage({
-      params: { feed: feed1 },
+      params: { feed: feed2 },
       route: 'slow'
     })
     await setTimeout(10)
 
     page = openPage({
-      params: { category: categoryId, from: '1' },
+      params: { feed: feed1, from: '1' },
       route: 'slow'
     })
     await waitLoading(page.postsLoading)
@@ -183,8 +193,8 @@ describe('list reader', () => {
       [
         { id: categoryId, title: 'A' },
         [
-          [{ id: feed1, title: 'Feed 1' }, 11],
-          [{ id: feed2, title: 'Feed 2' }, 12]
+          [{ id: feed1, title: 'Feed 1' }, 23],
+          [{ id: feed2, title: 'Feed 2' }, 3]
         ]
       ]
     ])
@@ -193,8 +203,36 @@ describe('list reader', () => {
     await reader.readPage()
     await setTimeout(10)
     equal(page.params.from.get(), undefined)
-    equal(page.params.category.get(), undefined)
-    equal(page.posts.get()?.name, 'empty')
+    equal(page.params.feed.get(), feed2)
+    equal(page.posts.get()?.name, 'list')
+  })
+
+  test('loads posts of the category', async () => {
+    let categoryId = await addCategory({ fastReader: 'list', title: 'A' })
+    let feed1 = await addFeed(testFeed({ categoryId }))
+    let feed2 = await addFeed(testFeed({ categoryId }))
+    for (let i = 1; i <= 75; i++) {
+      await addPost(
+        testPost({
+          feedId: i % 2 === 0 ? feed1 : feed2,
+          publishedAt: i,
+          reading: 'fast',
+          title: `${i}`
+        })
+      )
+    }
+
+    let page = openPage({ params: { category: categoryId }, route: 'fast' })
+    await waitLoading(page.postsLoading)
+    let reader = ensureReader(page.posts, 'list')
+    equal(reader.list.get().length, 50)
+    equal(reader.list.get()[0]!.title, '75')
+    equal(reader.list.get()[49]!.title, '26')
+    equal(reader.pages.get().count, 2)
+
+    await moveTo(page, 1)
+    equal(reader.list.get().length, 25)
+    equal(reader.list.get()[0]!.title, '25')
   })
 
   test('does not skip posts changed by another client', async () => {

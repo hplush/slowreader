@@ -8,6 +8,7 @@ import {
   closeLastPopup,
   GENERAL_CATEGORY,
   isOtherRoute,
+  navigate,
   openedPopups,
   openedPost,
   openPopup,
@@ -15,7 +16,13 @@ import {
   router,
   setPopups
 } from '../index.ts'
-import { cleanClient, startClient, openRoute, setTestUser } from './utils.ts'
+import {
+  cleanClient,
+  openRoute,
+  setTestUser,
+  startClient,
+  testHistory
+} from './utils.ts'
 
 describe('router', () => {
   beforeEach(() => {
@@ -28,7 +35,11 @@ describe('router', () => {
 
   test('opens 404', () => {
     openRoute(undefined)
-    deepEqual(router.get(), { params: {}, popups: [], route: 'fatal' })
+    deepEqual(router.get(), {
+      params: { reason: 'notFound' },
+      popups: [],
+      route: 'fatal'
+    })
   })
 
   test('transforms routers for guest', () => {
@@ -43,7 +54,11 @@ describe('router', () => {
     deepEqual(router.get(), { params: {}, popups: [], route: 'signUp' })
 
     openRoute(undefined)
-    deepEqual(router.get(), { params: {}, popups: [], route: 'fatal' })
+    deepEqual(router.get(), {
+      params: { reason: 'notFound' },
+      popups: [],
+      route: 'fatal'
+    })
 
     openRoute({ params: {}, route: 'fatal' })
     deepEqual(router.get(), { params: {}, popups: [], route: 'fatal' })
@@ -53,7 +68,7 @@ describe('router', () => {
     setTestUser()
     openRoute({ params: { category: GENERAL_CATEGORY }, route: 'fast' })
     deepEqual(router.get(), {
-      params: { category: GENERAL_CATEGORY, from: undefined },
+      params: { category: GENERAL_CATEGORY },
       popups: [],
       route: 'fast'
     })
@@ -62,12 +77,11 @@ describe('router', () => {
     deepEqual(router.get(), { params: {}, popups: [], route: 'signUp' })
 
     openRoute({ params: {}, route: 'start' })
-    deepEqual(router.get(), {
-      params: {},
-      popups: [],
-      redirect: true,
-      route: 'home'
-    })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'home' })
+    deepEqual(testHistory.slice(-2), [
+      { hash: '', params: {}, route: 'signUp' },
+      { hash: '', params: {}, route: 'home' }
+    ])
 
     setTestUser(false)
     deepEqual(router.get(), { params: {}, popups: [], route: 'start' })
@@ -114,7 +128,11 @@ describe('router', () => {
       params: { category: idA, from: '1000k' },
       route: 'fast'
     })
-    deepEqual(router.get(), { params: {}, popups: [], route: 'fatal' })
+    deepEqual(router.get(), {
+      params: { reason: 'notFound' },
+      popups: [],
+      route: 'fatal'
+    })
   })
 
   test('has helpers for popups', () => {
@@ -253,5 +271,55 @@ describe('router', () => {
 
     openRoute({ hash: 'post=id:2', params: {}, route: 'about' })
     equal(openedPost.get(), '2')
+  })
+
+  test('changes route synchronously inside listeners', () => {
+    setTestUser()
+    openRoute({ params: {}, route: 'welcome' })
+    let unbind = router.listen(route => {
+      if (route.popups.length === 0) {
+        openPopup('post', 'id1')
+        openPopup('post', 'id2')
+      }
+    })
+    navigate({ params: {}, popups: [], route: 'about' })
+    unbind()
+    deepEqual(router.get(), {
+      params: {},
+      popups: [
+        { param: 'id1', popup: 'post' },
+        { param: 'id2', popup: 'post' }
+      ],
+      route: 'about'
+    })
+    deepEqual(testHistory.slice(-1), [
+      { hash: 'post=id1,post=id2', params: {}, route: 'about' }
+    ])
+  })
+
+  test('normalizes routes', () => {
+    setTestUser()
+    openRoute({ hash: 'post=,unknown=1', params: { url: '' }, route: 'add' })
+    deepEqual(router.get(), { params: {}, popups: [], route: 'add' })
+
+    let history = testHistory.length
+    navigate({ params: { url: undefined }, popups: [], route: 'add' })
+    equal(testHistory.length, history)
+
+    navigate({ params: {}, popups: [], route: 'fatal' })
+    navigate({ params: { reason: 'crash' }, popups: [], route: 'fatal' })
+    navigate({ params: { reason: 'noDb' }, popups: [], route: 'fatal' })
+    equal(testHistory.length, history + 3)
+  })
+
+  test('replaces URL on redirect during page creation', () => {
+    setTestUser()
+    openRoute({ params: {}, route: 'about' })
+    navigate({ params: {}, popups: [], route: 'settings' })
+    equal(router.get().route, 'interface')
+    deepEqual(testHistory.slice(-2), [
+      { hash: '', params: {}, route: 'about' },
+      { hash: '', params: {}, route: 'interface' }
+    ])
   })
 })

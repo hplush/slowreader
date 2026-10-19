@@ -169,7 +169,7 @@ export interface Environment {
   /**
    * Change current URL.
    */
-  openRoute(page: Route, redirect?: boolean): void
+  openRoute(page: Route, replace: boolean): void
 
   /**
    * Does the environment support WebAuthn passkeys.

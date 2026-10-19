@@ -3,7 +3,12 @@ import { atom, computed, effect } from 'nanostores'
 import { type CategoryValue, changeCategory, getCategory } from '../category.ts'
 import { layoutType } from '../environment.ts'
 import { changeFeed, type FeedValue, getFeed } from '../feed.ts'
-import { menuLoading, openableMenu, slowMenu, unreadFastMenu } from '../menu.ts'
+import {
+  firstUnreadSlowFeedId,
+  menuLoading,
+  openableMenu,
+  unreadFastMenu
+} from '../menu.ts'
 import { deletePost, fastPostsCount, slowPostsCount } from '../post.ts'
 import {
   loadReadPostIds,
@@ -20,10 +25,10 @@ import {
   type ReaderName,
   welcomeReader
 } from '../readers/index.ts'
-import { nextRouteIsRedirect } from '../router.ts'
+import { navigate } from '../router.ts'
 import { freeDatabasePages, hasDatabase, openedDatabase } from '../schema.ts'
 import { needWelcome } from '../welcome.ts'
-import { createPage } from './common.ts'
+import { createPage, routeParam } from './common.ts'
 
 const READERS: { [Name in ReaderName]: ReaderCreator } = {
   empty: emptyReader,
@@ -34,9 +39,15 @@ const READERS: { [Name in ReaderName]: ReaderCreator } = {
 
 let pages = (['slow', 'fast'] as const).map(reading => {
   return createPage(reading, () => {
-    let $categoryId = atom<string | undefined>()
-    let $feedId = atom<string | undefined>()
-    let $from = atom<string | undefined>()
+    let $categoryId =
+      reading === 'fast'
+        ? routeParam('fast', 'category')
+        : atom<string | undefined>()
+    let $feedId =
+      reading === 'slow'
+        ? routeParam('slow', 'feed')
+        : atom<string | undefined>()
+    let $from = routeParam(reading, 'from')
     let $loading = atom(true)
     let $postsLoading = atom(true)
     let $posts = atom<Reader | undefined>()
@@ -117,15 +128,31 @@ let pages = (['slow', 'fast'] as const).map(reading => {
       (categoryId, feedId, loadingMenu, menu, welcome) => {
         if (categoryId || feedId || loadingMenu || menu) return
         if (welcome !== false) return
-        void nextRouteIsRedirect(() => {
-          if (reading === 'fast') {
-            let id = unreadFastMenu.get()[0]?.id
-            if (id) $categoryId.set(id)
-          } else {
-            let id = slowMenu.get()[0]?.[1][0]?.[0]?.id
-            if (id) $feedId.set(id)
+        if (reading === 'fast') {
+          let id = unreadFastMenu.get()[0]?.id
+          if (id) {
+            navigate(
+              route => ({
+                params: { category: id },
+                popups: route.popups,
+                route: 'fast'
+              }),
+              true
+            )
           }
-        })
+        } else {
+          let id = firstUnreadSlowFeedId()
+          if (id) {
+            navigate(
+              route => ({
+                params: { feed: id },
+                popups: route.popups,
+                route: 'slow'
+              }),
+              true
+            )
+          }
+        }
       }
     )
 
@@ -238,7 +265,11 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     async function changeReader(reader: UsefulReaderName): Promise<void> {
       let feedId = $feedId.get()
       let categoryId = $categoryId.get()
-      $from.set(undefined)
+      navigate(route =>
+        route.route === reading
+          ? { ...route, params: { ...route.params, from: undefined } }
+          : route
+      )
       if (feedId) {
         await changeFeed(feedId, { [readerProp]: reader })
       } else if (categoryId) {

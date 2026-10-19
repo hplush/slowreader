@@ -475,6 +475,14 @@ export const slowMenu = computed([$tree, $unread], (tree, unread) => {
   return unread ? buildSlowMenu(tree, unread.slow) : []
 })
 
+export function firstUnreadSlowFeedId(): string | undefined {
+  let [firstCategory] = slowMenu.get()
+  if (!firstCategory) return undefined
+  let [, feeds] = firstCategory
+  let [firstFeed] = feeds
+  return firstFeed?.[0].id
+}
+
 /**
  * Fast categories with unread posts. The fast menu itself keeps all
  * categories, since the navbar is a list of tabs, not a list of tasks.

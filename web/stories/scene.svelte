@@ -36,7 +36,7 @@
     useReducedMotion,
     welcomeSteps
   } from '@slowreader/core'
-  import { addHashToBaseRoute, testCredentials } from '@slowreader/core/test'
+  import { testCredentials } from '@slowreader/core/test'
   import { onDestroy, type Snippet } from 'svelte'
 
   import { installingExtension } from '../main/extension.ts'
@@ -97,7 +97,9 @@
       baseRouter.set({ hash: '', params: {}, route })
     } else {
       baseRouter.set(
-        addHashToBaseRoute(route) ?? { hash: '', params: {}, route: 'slow' }
+        route
+          ? ({ hash: '', ...route } as BaseRoute)
+          : { hash: '', params: {}, route: 'slow' }
       )
     }
   }

@@ -13,7 +13,6 @@ import { setTimeout } from 'node:timers/promises'
 import {
   type BasePopup,
   type BaseReader,
-  type BaseRoute,
   client,
   createDownloadTask,
   currentPage,
@@ -43,6 +42,7 @@ import {
   type PopupName,
   type PostsList,
   type ReaderName,
+  type RouteName,
   setLayoutType,
   setupEnvironment,
   slowMenu,
@@ -53,7 +53,12 @@ import {
   welcomeSteps
 } from '../index.ts'
 import { toEncryptionKey } from '../lib/keys.ts'
-import { getTestEnvironment, openRoute, setWarningTracking } from '../test.ts'
+import {
+  getTestEnvironment,
+  openRoute,
+  setWarningTracking,
+  type TestRoute
+} from '../test.ts'
 
 export { setupNodeDom } from '../node.ts'
 export {
@@ -62,6 +67,7 @@ export {
   getTestEnvironment,
   mockRequest,
   openRoute,
+  testHistory,
   testSession,
   testSignals
 } from '../test.ts'
@@ -344,9 +350,9 @@ after(() => {
  * Change URL, check what page was opened and return page instance
  * with right types.
  */
-export function openPage<SomeRoute extends BaseRoute | Omit<BaseRoute, 'hash'>>(
-  route: SomeRoute
-): Page<SomeRoute['route']> {
+export function openPage<Name extends RouteName>(
+  route: TestRoute<Name>
+): Page<Name> {
   openRoute(route)
   // The app always listens to the current page, so redirects inside the page
   // happen only while it is mounted
@@ -355,13 +361,13 @@ export function openPage<SomeRoute extends BaseRoute | Omit<BaseRoute, 'hash'>>(
   if (page.route !== route.route) {
     throw new Error(`Current is ${page.route}, but ${route.route} was expected`)
   }
-  return page as Page<SomeRoute['route']>
+  return page as Page<Name>
 }
 
 /**
  * Start the client again on the route, like on the browser page reload.
  */
-export function restartClient(route: Omit<BaseRoute, 'hash'>): void {
+export function restartClient(route: TestRoute): void {
   unmountPage()
   openRoute(route)
   mountPage()

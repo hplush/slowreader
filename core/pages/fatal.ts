@@ -1,11 +1,11 @@
-import { atom, computed } from 'nanostores'
+import { computed } from 'nanostores'
 
 import { resetDatabase } from '../client.ts'
 import { type Fatal, fatal } from '../errors.ts'
-import { createPage } from './common.ts'
+import { createPage, routeParam } from './common.ts'
 
 export const fatalPage = createPage('fatal', () => {
-  let $name = atom<Fatal['type'] | undefined>()
+  let $name = routeParam('fatal', 'reason')
   let $reason = computed([fatal, $name], (error, name): Fatal => {
     if (error) return error
     if (

@@ -11,13 +11,7 @@ import {
   type ReaderPost,
   type ReaderPostWith
 } from '../post.ts'
-import {
-  closeAllPopups,
-  navigate,
-  nextRouteIsRedirect,
-  router,
-  type Routes
-} from '../router.ts'
+import { navigate, router, type Routes } from '../router.ts'
 import { getCrdt, getTables } from '../schema.ts'
 
 export interface BaseReader<Name extends ReaderName = ReaderName> {
@@ -39,7 +33,7 @@ export type PostFilter = {
 
 type FeedParams = Routes['fast'] | Routes['slow']
 type FeedStores = {
-  [K in keyof FeedParams]-?: WritableAtom<FeedParams[K]>
+  [K in keyof FeedParams]-?: ReadableAtom<FeedParams[K]>
 }
 
 export type ReaderName = 'empty' | 'feed' | 'list' | 'welcome'
@@ -127,12 +121,17 @@ export async function readAndMove(
   // The user could leave the page during the write
   if (stillOpened(filter)) {
     if (nextFrom) {
-      closeAllPopups()
-      params.from.set(nextFrom)
+      navigate(current =>
+        current.route === 'fast' || current.route === 'slow'
+          ? {
+              ...current,
+              params: { ...current.params, from: nextFrom },
+              popups: []
+            }
+          : current
+      )
     } else {
-      await nextRouteIsRedirect(() => {
-        navigate({ params: {}, popups: [], route })
-      })
+      navigate({ params: {}, popups: [], route }, true)
     }
   }
   readingPage.set(false)

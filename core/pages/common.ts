@@ -1,8 +1,9 @@
-import { atom, type ReadableAtom, type WritableStore } from 'nanostores'
+import { atom, computed, type ReadableAtom } from 'nanostores'
 
 import {
   navigate,
   type ParamlessRouteName,
+  router,
   type RouteName,
   type Routes
 } from '../router.ts'
@@ -12,7 +13,24 @@ type Extra = {
 }
 
 export type ParamStores<Name extends RouteName> = {
-  [Param in keyof Routes[Name]]-?: WritableStore<Routes[Name][Param]>
+  [Param in keyof Routes[Name]]-?: ReadableAtom<Routes[Name][Param]>
+}
+
+/**
+ * Keeps the last value after leaving the route, so the page will not react
+ * on a missing param before it will be destroyed.
+ */
+export function routeParam<
+  Name extends RouteName,
+  Param extends keyof Routes[Name]
+>(route: Name, param: Param): ReadableAtom<Routes[Name][Param]> {
+  let last: Routes[Name][Param] | undefined
+  return computed(router, current => {
+    if (current.route === route) {
+      last = (current.params as Routes[Name])[param]
+    }
+    return last as Routes[Name][Param]
+  })
 }
 
 export type BasePage<Name extends RouteName = RouteName> = {

@@ -8,7 +8,6 @@ import {
   addPopup,
   type ParamlessRouteName,
   type PopupName,
-  redirectMode,
   removeLastPopup,
   type Route,
   type Routes,
@@ -157,11 +156,8 @@ export function getURL(
   return url + hash
 }
 
-export function openRoute(
-  route: Route,
-  redirect: boolean = redirectMode
-): void {
-  pathRouter.open(getURL(route), redirect)
+export function openRoute(route: Route, replace: boolean): void {
+  pathRouter.open(getURL(route), replace)
 }
 
 export function getPopupHash(

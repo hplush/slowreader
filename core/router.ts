@@ -1,7 +1,7 @@
 import { atom, computed, effect, type ReadableAtom } from 'nanostores'
 
 import { getEnvironment, onEnvironment } from './environment.ts'
-import { type Fatal, fatalReasons, NotFoundError } from './errors.ts'
+import { type Fatal, fatalReasons } from './errors.ts'
 import { userId } from './settings.ts'
 
 export interface Routes {
@@ -67,7 +67,6 @@ export type Route<Name extends RouteName = RouteName> = Name extends string
   ? {
       readonly params: Routes[Name]
       readonly popups: readonly PopupRoute[]
-      readonly redirect?: boolean
       readonly route: Name
     }
   : never
@@ -90,37 +89,27 @@ function open(route: ParamlessRouteName): Route {
   return { params: {}, popups: [], route }
 }
 
-function redirect(route: Route): Route {
-  return { ...route, redirect: true }
+function notFound(): Route {
+  return { params: { reason: 'notFound' }, popups: [], route: 'fatal' }
 }
 
-function validateFrom(value: number | string | undefined): string | undefined {
-  if (typeof value === 'undefined') {
-    return value
-  } else if (/^\d+(:.*)?$/.test(`${value}`)) {
-    return `${value}`
+function validParams(
+  route: RouteName,
+  params: Record<string, string>
+): boolean {
+  if (route === 'fatal' && typeof params.reason !== 'undefined') {
+    return fatalReasons.some(i => i === params.reason)
+  } else if (
+    (route === 'fast' || route === 'slow') &&
+    typeof params.from !== 'undefined'
+  ) {
+    return /^\d+(:.*)?$/.test(params.from)
   } else {
-    throw new NotFoundError()
-  }
-}
-
-function validateReason(value: string | undefined): Fatal['type'] | undefined {
-  if (typeof value === 'undefined') return value
-  let reason = fatalReasons.find(i => i === value)
-  if (reason) {
-    return reason
-  } else {
-    throw new NotFoundError()
+    return true
   }
 }
 
 export const router = atom<Route>({ params: {}, popups: [], route: 'home' })
-
-/**
- * The route from the last `navigate()`, which `router` did not get yet.
- * Inside store listener `router` is updated only after other listeners.
- */
-let openingRoute: Route | undefined
 
 /**
  * Parses popup routes from hash string format `popup=param,popup2=param2`
@@ -130,67 +119,111 @@ export function parsePopups(hash: string): PopupRoute[] {
   let popups: PopupRoute[] = []
   for (let part of hash.replace(/^#/, '').split(',')) {
     let [popup, param] = part.split('=', 2) as [PopupName, string | undefined]
-    if (param && popup in popupNames) {
-      popups.push({ param: decodeURIComponent(param), popup })
-    }
+    if (param) popups.push({ param: decodeURIComponent(param), popup })
   }
   return popups
 }
 
+/**
+ * Gives every client the same route: without empty params, unknown popups,
+ * and with guards for guests and users. `replace` marks a guard redirect.
+ */
+function normalizeRoute(
+  route: {
+    params: Record<string, number | string | undefined>
+    popups: readonly PopupRoute[]
+    route: RouteName
+  },
+  user: string | undefined
+): { replace: boolean; route: Route } {
+  if (!user && !GUEST.has(route.route) && !BOTH.has(route.route)) {
+    // Keeps URL to return to it after the sign in
+    return { replace: false, route: open('start') }
+  } else if (user && GUEST.has(route.route)) {
+    return { replace: true, route: open('home') }
+  }
+  let params: Record<string, string> = {}
+  for (let key in route.params) {
+    let value = route.params[key]
+    if (typeof value !== 'undefined' && value !== '') params[key] = `${value}`
+  }
+  if (!validParams(route.route, params)) {
+    return { replace: false, route: notFound() }
+  }
+  let popups = user
+    ? route.popups.filter(
+        i => i.param !== '' && Object.hasOwn(popupNames, i.popup)
+      )
+    : []
+  return {
+    replace: false,
+    route: { params, popups, route: route.route }
+  }
+}
+
+function isSameRoute(a: Route, b: Route): boolean {
+  let aParams: Record<string, string | undefined> = a.params
+  let bParams: Record<string, string | undefined> = b.params
+  let keys = Object.keys(aParams)
+  return (
+    a.route === b.route &&
+    stringifyPopups(a.popups) === stringifyPopups(b.popups) &&
+    keys.length === Object.keys(bParams).length &&
+    keys.every(key => aParams[key] === bParams[key])
+  )
+}
+
 onEnvironment(({ baseRouter }) => {
-  return effect([baseRouter, userId], (route, user) => {
-    openingRoute = undefined
-    let popups = user && route ? parsePopups(route.hash) : []
-    let nextRoute: Route
-    try {
-      if (!route) {
-        nextRoute = open('fatal')
-      } else if (!user && !GUEST.has(route.route) && !BOTH.has(route.route)) {
-        nextRoute = open('start')
-      } else if (user && GUEST.has(route.route)) {
-        nextRoute = redirect(open('home'))
-      } else if (route.route === 'fatal') {
-        nextRoute = {
-          params: { reason: validateReason(route.params.reason) },
-          popups,
-          route: route.route
-        }
-      } else if (route.route === 'fast' || route.route === 'slow') {
-        nextRoute = {
-          params: {
-            ...route.params,
-            from: validateFrom(route.params.from)
+  return effect([baseRouter, userId], (base, user) => {
+    let next = base
+      ? normalizeRoute(
+          {
+            params: base.params,
+            popups: parsePopups(base.hash),
+            route: base.route
           },
-          popups,
-          route: route.route
-        }
-      } else {
-        nextRoute = { params: route.params, popups, route: route.route }
-      }
-    } catch (e) {
-      if (e instanceof NotFoundError) {
-        nextRoute = open('fatal')
-      } else {
-        throw e
-      }
-    }
-    if (JSON.stringify(router.get()) !== JSON.stringify(nextRoute)) {
-      router.set(nextRoute)
+          user
+        )
+      : { replace: false, route: notFound() }
+    if (!isSameRoute(next.route, router.get())) router.set(next.route)
+    // Page creation could already navigate to another route
+    if (next.replace && isSameRoute(next.route, router.get())) {
+      getEnvironment().openRoute(next.route, true)
     }
   })
 })
 
-export function navigate(route: Route, replace?: boolean): void {
-  openingRoute = route
-  getEnvironment().openRoute(route, replace)
-}
+let routerListenersRunning = false
 
 /**
- * Use it instead of `router` to change the current route, since `router`
- * could still have the previous one.
+ * Changes current route. Pass a callback to build the new route from
+ * the current one.
+ *
+ * @param replace Replace the current history entry instead of adding a new
+ *                one, so the Back button skips the current route. Use it
+ *                for redirects and URL corrections, which user did not ask.
  */
-export function getLatestRoute(): Route {
-  return openingRoute ?? router.get()
+export function navigate(
+  change: ((route: Route) => Route) | Route,
+  replace = false
+): void {
+  let next = normalizeRoute(
+    typeof change === 'function' ? change(router.get()) : change,
+    userId.get()
+  )
+  if (isSameRoute(next.route, router.get())) return
+  if (routerListenersRunning) {
+    router.set(next.route)
+  } else {
+    routerListenersRunning = true
+    try {
+      router.set(next.route)
+    } finally {
+      routerListenersRunning = false
+    }
+    // Page creation could navigate again, and URL needs only the last route
+    getEnvironment().openRoute(router.get(), replace || next.replace)
+  }
 }
 
 /**
@@ -223,47 +256,25 @@ export function removeLastPopup(hash: string): string {
 }
 
 export function setPopups(popups: [PopupName, string][]): void {
-  let currentRoute = getLatestRoute()
-  navigate({
-    ...currentRoute,
+  navigate(route => ({
+    ...route,
     popups: popups.map(([popup, param]) => ({ param, popup }))
-  })
+  }))
 }
 
 export function openPopup(popup: PopupName, param: string): void {
-  let currentRoute = getLatestRoute()
-  navigate({
-    ...currentRoute,
-    popups: currentRoute.popups.concat({ param, popup })
-  })
+  navigate(route => ({
+    ...route,
+    popups: route.popups.concat({ param, popup })
+  }))
 }
 
 export function closeLastPopup(): void {
-  let currentRoute = getLatestRoute()
-  navigate({
-    ...currentRoute,
-    popups: currentRoute.popups.slice(0, -1)
-  })
+  navigate(route => ({ ...route, popups: route.popups.slice(0, -1) }))
 }
 
 export function closeAllPopups(): void {
-  navigate({
-    ...getLatestRoute(),
-    popups: []
-  })
-}
-
-export let redirectMode = false
-let nestedRedirect = 0
-
-export async function nextRouteIsRedirect(
-  cb: () => Promise<void> | void
-): Promise<void> {
-  redirectMode = true
-  nestedRedirect += 1
-  await cb()
-  nestedRedirect -= 1
-  if (nestedRedirect === 0) redirectMode = false
+  navigate(route => ({ ...route, popups: [] }))
 }
 
 export const openedPost = computed(router, page => {

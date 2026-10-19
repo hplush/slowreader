@@ -25,11 +25,7 @@ export type SignUpStep =
 
 export const signUpPage = createPage('signUp', () => {
   if (hasCloud.get()) {
-    navigate({
-      params: {},
-      popups: [],
-      route: 'cloud'
-    })
+    navigate({ params: {}, popups: [], route: 'cloud' })
   }
 
   let { passkeySupport } = getEnvironment()

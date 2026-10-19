@@ -5,7 +5,6 @@ import {
   type NetworkType,
   type NetworkTypeDetector,
   printWarning,
-  router,
   setLayoutType,
   setProxyAsRequestMethod,
   setRequestMethod,
@@ -147,11 +146,5 @@ setupEnvironment({
       console.groupEnd()
     }
     /* eslint-enable no-console */
-  }
-})
-
-router.subscribe(page => {
-  if (page.redirect) {
-    openRoute(page, true)
   }
 })

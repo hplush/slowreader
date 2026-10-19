@@ -8,11 +8,7 @@ export const homePage = createPage('home', () => {
   let unbindWelcome = needWelcome.subscribe(welcome => {
     if (typeof welcome !== 'undefined') {
       navigate(
-        {
-          params: {},
-          popups: [],
-          route: welcome ? 'welcome' : 'slow'
-        },
+        { params: {}, popups: [], route: welcome ? 'welcome' : 'slow' },
         true
       )
     }
