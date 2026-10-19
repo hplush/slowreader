@@ -46,7 +46,7 @@
 >
   <a
     class="feed-post_link"
-    aria-controls={getPopupId('post', param)}
+    aria-controls={$openedPost === post.id ? getPopupId('post', param) : null}
     aria-current={$openedPost === post.id ? 'page' : null}
     aria-labelledby={`feed-content-${post.id}`}
     href={getPopupHash($router, 'post', param)}
