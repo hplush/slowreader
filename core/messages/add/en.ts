@@ -14,9 +14,7 @@ export const addMessages = i18n('add', {
     'Currently, Slow Reader supports RSS, Mastodon, and BlueSky.\n\n' +
     'More sources are coming soon.',
   title: 'Add',
-  unknownHandle:
-    'Unknown social network. Please enter the full handle with the server, ' +
-    'like @user@mastodon.social or @user.bsky.social, or a profile URL.',
+  unknownHandle: 'This user was not found on supported social networks.',
   unloadable: 'Can’t open this website',
   urlLabel: 'Web page URL or social media handle'
 })
