@@ -15,10 +15,12 @@
 
   let {
     current,
+    hints,
     id,
     list
   }: {
     current: string | undefined
+    hints?: Record<string, string>
     id?: string
     list: readonly FeedLike[]
   } = $props()
@@ -26,6 +28,7 @@
   let links = $derived(
     list.map(feed => ({
       controls: getPopupId('feed', feed.url),
+      hint: hints?.[feed.url],
       href: getPopupHash($router, 'feed', feed.url),
       id: feed.url,
       item: feed,

@@ -149,6 +149,7 @@
 
     .links_hint {
       flex-shrink: 0;
+      align-self: center;
       margin-inline-start: auto;
       padding-inline-start: 0.5rem;
       font: var(--secondary-font);

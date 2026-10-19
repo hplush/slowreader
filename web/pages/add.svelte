@@ -18,8 +18,15 @@
   import Stack from '../ui/stack.svelte'
 
   let { page }: { page: AddPage } = $props()
-  let { candidates, error, noResults, opened, searching } = $derived(page)
+  let { candidates, error, mixed, noResults, opened, searching } =
+    $derived(page)
   let { url } = $derived(page.params)
+
+  let hints = $derived(
+    $mixed
+      ? Object.fromEntries($candidates.map(i => [i.url, $t[`${i.name}Loader`]]))
+      : undefined
+  )
 
   let empty = $derived(!$noResults && !$searching && !$url)
 
@@ -67,7 +74,7 @@
           />
         </Error>
       {:else}
-        <Feeds id="add-results" current={$opened} list={$candidates} />
+        <Feeds id="add-results" current={$opened} {hints} list={$candidates} />
       {/if}
     </Stack>
   {/if}
