@@ -84,7 +84,7 @@ describe('schema', () => {
     setTestUser(false)
     await setTimeout(100)
 
-    // Subprotocol 0 kept media as JSON string, read as 0 or 1, and no sortedAt
+    // Subprotocol 0 kept media as JSON string, read as 0 or 1, 1 had no sortedAt
     let db = creator()
     let [stored] = await db.select<{ value: string }>`
       SELECT "value" FROM "logux_crdt" WHERE "key" = 'schema'

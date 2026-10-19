@@ -18,14 +18,16 @@ export const migrations: ActionMigrations = {
       }
       // `read` was 0 or 1 before boolean columns in SQLite
       if (typeof fields.read === 'number') result.read = fields.read === 1
-      if (
-        action.type === 'posts/created' &&
-        fields.sortedAt === undefined &&
-        fields.publishedAt !== undefined
-      ) {
-        result.sortedAt = fields.publishedAt
-      }
       return result
+    })
+  },
+  2: action => {
+    if (action.type !== 'posts/created') return action
+    return mapCrdtFields(action, fields => {
+      if (fields.sortedAt !== undefined || fields.publishedAt === undefined) {
+        return fields
+      }
+      return { ...fields, sortedAt: fields.publishedAt }
     })
   }
 }

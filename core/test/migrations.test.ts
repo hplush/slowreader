@@ -38,8 +38,11 @@ describe('migrations', () => {
       ),
       { records: [{ id: 'a', media, read: false }], type: 'posts/created' }
     )
+  })
+
+  test('adds sortedAt to posts from subprotocol 1', () => {
     deepEqual(
-      migrations[1]!(
+      migrations[2]!(
         { fields: { publishedAt: 10 }, id: 'post', type: 'posts/created' },
         {}
       ),
@@ -49,6 +52,25 @@ describe('migrations', () => {
         type: 'posts/created'
       }
     )
+    deepEqual(
+      migrations[2]!(
+        {
+          records: [{ id: 'a', publishedAt: 10 }, { id: 'b' }],
+          type: 'posts/created'
+        },
+        {}
+      ),
+      {
+        records: [{ id: 'a', publishedAt: 10, sortedAt: 10 }, { id: 'b' }],
+        type: 'posts/created'
+      }
+    )
+    let changed = {
+      fields: { publishedAt: 10 },
+      ids: ['a'],
+      type: 'posts/changed'
+    }
+    equal(migrations[2]!(changed, {}), changed)
   })
 
   test('keeps other actions', () => {

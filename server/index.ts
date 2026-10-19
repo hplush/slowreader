@@ -16,7 +16,7 @@ let server = new Server<object, ClientData>({
   ...Server.loadOptions(process, {
     fileUrl: import.meta.url,
     host: '0.0.0.0',
-    minSubprotocol: 1,
+    minSubprotocol: 2,
     port: process.env.PORT,
     subprotocol: SUBPROTOCOL
   }),
