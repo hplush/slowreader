@@ -262,10 +262,15 @@
 
     .feed-post_thread {
       display: flex;
+      align-self: center;
       align-items: center;
-      padding-inline: calc(var(--control-padding) - 0.25rem);
-      font: var(--secondary-font);
+      padding: 0.25rem 0.5rem;
+      margin-inline-start: 0.5rem;
+      font: var(--tertiary-font);
+      font-weight: 500;
       color: var(--secondary-text-color);
+      background: --tune-background(--gutter);
+      border-radius: 1rem;
     }
 
     .feed-post_fill {
