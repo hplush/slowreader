@@ -155,6 +155,10 @@
       .mark {
         font-weight: bold;
       }
+      /* Hour marks have title tooltip, but are not text to select */
+      .hours {
+        cursor: default;
+      }
       /* Fallback font for loader and status symbols can be wider than 1ch */
       .loading,
       .mark {
@@ -796,6 +800,7 @@ done</pre>
         let block = document.createElement('div')
         // Bar with one symbol per hour, screen readers get the summary
         let bar = document.createElement('span')
+        bar.className = 'hours'
         bar.setAttribute('aria-hidden', 'true')
         for (let hour = 0; hour < 24; hour++) {
           // Check result of the hour
