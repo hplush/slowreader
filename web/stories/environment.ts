@@ -18,6 +18,11 @@ import { mobileMedia, tabletMedia } from '../stores/media-queries.ts'
 
 document.getElementById('storybook-root')?.classList.add('main')
 
+// Stories never sync, so Logux and busy tasks would block every reload
+window.addEventListener('beforeunload', event => {
+  event.stopImmediatePropagation()
+})
+
 export const baseRouter = atom<BaseRoute>({
   hash: '',
   params: {},
