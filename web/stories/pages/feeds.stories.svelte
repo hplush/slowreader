@@ -24,14 +24,21 @@
     },
     {
       feedId: 'feed',
-      media: [{ type: 'image', url: imgExample }],
+      media: [{ alt: 'Wide image', type: 'image', url: imgExample }],
       reading: 'slow'
     },
     {
       feedId: 'feed',
-      full: `<img src="${new URL(imgExample, location.href).href}">`,
+      full: `<img alt="Wide image" src="${new URL(imgExample, location.href).href}">`,
       intro: 'Image from text is visible, since card shows summary',
-      media: [{ fromText: true, type: 'image', url: imgExample }],
+      media: [
+        {
+          alt: 'Wide image',
+          fromText: true,
+          type: 'image',
+          url: imgExample
+        }
+      ],
       reading: 'slow',
       title: 'The Future is Ours to Build - Together'
     },
@@ -39,9 +46,16 @@
       feedId: 'feed',
       full:
         '<p>Image is not repeated</p>' +
-        `<img src="${new URL(imgExample, location.href).href}">`,
+        `<img alt="Wide image" src="${new URL(imgExample, location.href).href}">`,
       intro: null,
-      media: [{ fromText: true, type: 'image', url: imgExample }],
+      media: [
+        {
+          alt: 'Wide image',
+          fromText: true,
+          type: 'image',
+          url: imgExample
+        }
+      ],
       reading: 'slow'
     },
     { feedId: 'feed', full: '', intro: '', reading: 'slow', title: '' },
@@ -225,7 +239,7 @@
       quoted: {
         author: AUTHOR,
         full: '<p>Quoted post, which quotes another one</p>',
-        media: [{ type: 'image', url: imgExample }],
+        media: [{ alt: 'Wide image', type: 'image', url: imgExample }],
         missing: false,
         quotedUrl: 'https://mastodon.social/@other/2',
         url: 'https://mastodon.social/@jane/1'
