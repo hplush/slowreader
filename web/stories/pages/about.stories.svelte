@@ -3,6 +3,7 @@
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import AboutPage from '../../pages/about.svelte'
+  import { clientUpdate } from '../../stores/client-update.ts'
   import { installation } from '../../stores/install.ts'
   import Scene from '../scene.svelte'
 
@@ -16,6 +17,7 @@
   <Scene
     oninit={() => {
       installation.set('available')
+      clientUpdate.set('available')
     }}
     route="about"
   >
@@ -27,6 +29,30 @@
   <Scene
     oninit={() => {
       installation.set('installed')
+      clientUpdate.set('latest')
+    }}
+    route="about"
+  >
+    <AboutPage page={pages.about()} />
+  </Scene>
+</Story>
+
+<Story name="Offline" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      installation.set('unavailable')
+      clientUpdate.set('offline')
+    }}
+    route="about"
+  >
+    <AboutPage page={pages.about()} />
+  </Scene>
+</Story>
+
+<Story name="Checking" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      installation.set('unavailable')
     }}
     route="about"
   >

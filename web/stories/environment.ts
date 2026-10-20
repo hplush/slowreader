@@ -165,7 +165,9 @@ setRequestMethod(mockedRequest)
 let originalFetch = window.fetch
 window.fetch = (input, init) => {
   let url = input instanceof Request ? input.url : String(input)
-  if (url.includes('NO_SERVER')) return new Promise(() => {})
+  if (url.includes('NO_SERVER') || url === '/app.html') {
+    return new Promise(() => {})
+  }
   return originalFetch(input, init)
 }
 

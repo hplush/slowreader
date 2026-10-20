@@ -13,7 +13,9 @@
     settingsMessages,
     aboutMessages as t
   } from '@slowreader/core'
+  import { onMount } from 'svelte'
 
+  import { checkClientUpdate, clientUpdate } from '../stores/client-update.ts'
   import { installApp, installation } from '../stores/install.ts'
   import AppIcon from '../ui/app-icon.svelte'
   import Button from '../ui/button.svelte'
@@ -24,6 +26,10 @@
   import Title from '../ui/title.svelte'
 
   let { page }: { page: AboutPage } = $props()
+
+  onMount(() => {
+    void checkClientUpdate()
+  })
 </script>
 
 <ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>
@@ -67,16 +73,22 @@
       </Stack>
     </Note>
     <Stack gap="s">
-      {#if $installation === 'installed'}
-        <Button
-          icon={mdiRefresh}
-          onclick={getEnvironment().updateClient}
-          size="wide"
-          variant="secondary"
-        >
+      <Button
+        disabled={$clientUpdate !== 'available'}
+        icon={mdiRefresh}
+        loader={$clientUpdate === 'checking'}
+        onclick={getEnvironment().updateClient}
+        size="wide"
+        variant="secondary"
+      >
+        {#if $clientUpdate === 'offline'}
+          {$t.offline}
+        {:else if $clientUpdate === 'latest'}
+          {$t.noUpdates}
+        {:else}
           {$t.update}
-        </Button>
-      {/if}
+        {/if}
+      </Button>
       <Button
         href="https://github.com/hplush/slowreader/issues/new"
         icon={mdiBug}
