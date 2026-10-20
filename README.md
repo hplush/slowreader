@@ -350,7 +350,7 @@ We release every week. Version is `MAJOR.DATE.PATCH` like `0.20261012.1`: `DATE`
      1. Run `git switch release && git pull`.
      2. Run `git cherry-pick COMMIT` for every fix from `main`.
      3. Run `./scripts/release.sh fix`. After pushing the release it merges `release` back to `main`. If merge has conflicts, resolve them and push `main`.
-2. On weekly release it asks to run [Demo Database workflow](./.github/workflows/demo-db.yml) and pins the new demo image. Quick fixes keep the pinned demo.
+2. On weekly release it asks you to click `Run workflow` in [Demo Database workflow](./.github/workflows/demo-db.yml) and pins the new demo image. Quick fixes keep the pinned demo.
 3. It moves [`unreleased-changes/`](./unreleased-changes/) to [`CHANGELOG.md`](./CHANGELOG.md), updates the version, tags the release, and waits for the image from [release workflow](./.github/workflows/release.yml).
 4. It asks to touch the hardware key from [`verifier/allowed_signers`](./verifier/allowed_signers) to sign the image.
 5. It asks to paste the signature as a comment to `release` environment approval.
