@@ -121,4 +121,30 @@ describe('server logs', () => {
     ok(output.includes('passkeys/add'))
     ok(output.includes('"proof":"[redacted]"'))
   })
+
+  test('keeps binary marker of log formatter', () => {
+    let records: unknown[] = []
+    function write(...args: unknown[]): void {
+      records.push(...args)
+    }
+    let logger = {
+      debug: write,
+      error: write,
+      fatal: write,
+      info: write,
+      warn: write
+    }
+    redactLogger(logger)
+    let binary = {
+      toJSON() {
+        return '[binary]'
+      }
+    }
+    let buffer = new ArrayBuffer(1)
+    logger.info({ action: { data: binary, file: buffer } }, 'Added')
+    equal(records.length, 2)
+    let { action } = records[0] as { action: Record<string, unknown> }
+    equal(action.data, binary)
+    equal(action.file, buffer)
+  })
 })

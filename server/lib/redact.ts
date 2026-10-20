@@ -21,7 +21,9 @@ function redact(value: unknown): unknown {
   } else if (
     typeof value !== 'object' ||
     value === null ||
-    ArrayBuffer.isView(value)
+    ArrayBuffer.isView(value) ||
+    value instanceof ArrayBuffer ||
+    'toJSON' in value
   ) {
     return value
   } else if (value instanceof Error) {
