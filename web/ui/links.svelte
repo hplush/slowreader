@@ -74,6 +74,7 @@
 
       position: relative;
       display: flex;
+      align-items: center;
       justify-content: space-between;
       padding: 0.875rem var(--control-padding);
       margin-top: calc(-1 * var(--min-size));
