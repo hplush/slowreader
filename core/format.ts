@@ -40,6 +40,34 @@ export function formatPublishedAt(format: Formatter, time: number): string {
   return format.time(date, { dateStyle: 'short', timeStyle: 'short' })
 }
 
+export function formatDuration(format: Formatter, seconds: number): string {
+  let diff = seconds * 1000
+  if (diff < MINUTE) {
+    return format.number(seconds, {
+      style: 'unit',
+      unit: 'second',
+      unitDisplay: 'long'
+    })
+  } else if (diff < HOUR) {
+    return format.number(Math.round(diff / MINUTE), {
+      style: 'unit',
+      unit: 'minute',
+      unitDisplay: 'long'
+    })
+  } else if (diff < DAY) {
+    return format.number(Math.round(diff / HOUR), {
+      style: 'unit',
+      unit: 'hour',
+      unitDisplay: 'long'
+    })
+  }
+  return format.number(Math.round(diff / DAY), {
+    style: 'unit',
+    unit: 'day',
+    unitDisplay: 'long'
+  })
+}
+
 export function formatTimeShort(format: Formatter, date: Date): string {
   if (date.toDateString() === new Date().toDateString()) {
     return format.time(date, { timeStyle: 'short' })

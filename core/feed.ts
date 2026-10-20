@@ -10,6 +10,7 @@ import { type FeedLoader, loaders } from './loader/index.ts'
 import {
   addPost,
   collapseThreads,
+  getSortedAt,
   processOriginPost,
   recalcPostsReading
 } from './post.ts'
@@ -145,7 +146,8 @@ export async function addCandidate(
   let feed = {
     categoryId: GENERAL_CATEGORY,
     lastOriginId: lastPost?.originId,
-    lastPublishedAt: lastPost?.publishedAt ?? Math.round(Date.now() / 1000),
+    lastPublishedAt:
+      (lastPost && getSortedAt(lastPost)) ?? Math.round(Date.now() / 1000),
     loader: candidate.name,
     loaderData,
     reading: 'slow' as const,

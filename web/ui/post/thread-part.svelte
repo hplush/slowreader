@@ -5,18 +5,26 @@
   import Post from './index.svelte'
 
   let {
+    afterFirst,
     post,
     publishedAt
-  }: { post: OriginPost | PostValue; publishedAt: string | undefined } =
-    $props()
+  }: {
+    afterFirst: string | undefined
+    post: OriginPost | PostValue
+    publishedAt: string | undefined
+  } = $props()
 </script>
 
 <article class="post-thread-part">
   <div class="post-thread-part_header">
     <hr class="post-thread-part_separator" />
-    {#if publishedAt}
-      <SmallLink href={post.url ?? undefined} target="_blank">
-        {publishedAt}
+    {#if afterFirst ?? publishedAt}
+      <SmallLink
+        href={post.url ?? undefined}
+        target="_blank"
+        title={afterFirst ? publishedAt : undefined}
+      >
+        {afterFirst ?? publishedAt}
       </SmallLink>
     {/if}
   </div>

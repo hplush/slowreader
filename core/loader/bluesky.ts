@@ -566,7 +566,7 @@ async function parseItem(
   if (item.reason?.$type === 'app.bsky.feed.defs#reasonRepost') {
     post.author = toAuthor(item.post.author)
     post.repostedBy = toAuthor(item.reason.by)
-    post.publishedAt = toTime(item.reason.indexedAt)
+    post.sortedAt = toTime(item.reason.indexedAt)
     delete post.selfReplyTo
     if (item.reply) {
       post.replied = await parseReplied(item.reply.parent, findPds)

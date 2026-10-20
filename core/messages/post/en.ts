@@ -3,6 +3,7 @@ import { params } from '@nanostores/i18n'
 import { i18n } from '../../i18n.ts'
 
 export const postMessages = i18n('post', {
+  afterFirst: params('{time} after'),
   hideWarning: 'Hide',
   quoteMissing: 'Quoted post is unavailable',
   quoteOfQuote: 'Quote…',

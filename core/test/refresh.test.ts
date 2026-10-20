@@ -548,7 +548,7 @@ describe('refresh', () => {
 
   test('adds parts of reposted thread', async () => {
     let bluesky = loaders.bluesky as Required<typeof loaders.bluesky>
-    await addFeed(
+    let feedId = await addFeed(
       testFeed({
         lastOriginId: 'post1',
         lastPublishedAt: 1000,
@@ -564,17 +564,24 @@ describe('refresh', () => {
             {
               hasReplies: true,
               originId: 'start',
-              publishedAt: 3000,
+              publishedAt: 400,
               repostedBy: jane,
+              sortedAt: 3000,
               title: 'start'
             },
             {
               originId: 'part2',
-              publishedAt: 2500,
+              publishedAt: 600,
               repostedBy: jane,
+              sortedAt: 2500,
               title: 'part2'
             },
-            { originId: 'single', publishedAt: 2000, repostedBy: jane },
+            {
+              originId: 'single',
+              publishedAt: 200,
+              repostedBy: jane,
+              sortedAt: 2000
+            },
             { originId: 'post1', publishedAt: 1000, title: '1' }
           ],
           undefined
@@ -615,6 +622,8 @@ describe('refresh', () => {
     deepEqual(await getPostKeys('threadId'), ['start', 'start', null, 'start'])
     deepEqual(await getPostKeys('merged'), [true, true, false, false])
     deepEqual(await getPostKeys('sortedAt'), [500, 600, 2000, 3000])
+    deepEqual(await getPostKeys('publishedAt'), [500, 600, 200, 400])
+    deepEqual((await loadFeed(feedId))!.lastPublishedAt, 3000)
   })
 
   test('retries with some delay', async () => {

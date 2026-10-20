@@ -15,6 +15,7 @@ import { createQueue } from './lib/queue.ts'
 import { increaseKey } from './lib/stores.ts'
 import {
   addPost,
+  getSortedAt,
   loadPostOriginIdsByFeed,
   type NewPost,
   type OriginPost,
@@ -80,17 +81,18 @@ function wasAlreadyAdded(
   feed: Pick<FeedValue, 'lastOriginId' | 'lastPublishedAt'>,
   origin: OriginPost
 ): boolean {
-  if (origin.publishedAt && feed.lastPublishedAt) {
-    return origin.publishedAt <= feed.lastPublishedAt
+  let sortedAt = getSortedAt(origin)
+  if (sortedAt && feed.lastPublishedAt) {
+    return sortedAt <= feed.lastPublishedAt
   } else {
     return origin.originId === feed.lastOriginId
   }
 }
 
 function sortPage(posts: OriginPost[]): void {
-  if (posts[0]?.publishedAt) {
+  if (posts[0] && getSortedAt(posts[0])) {
     posts.sort((a, b) => {
-      return (b.publishedAt ?? 0) - (a.publishedAt ?? 0)
+      return (getSortedAt(b) ?? 0) - (getSortedAt(a) ?? 0)
     })
   }
 }
@@ -153,7 +155,7 @@ async function finishFeed(state: FeedRefresh): Promise<void> {
   if (state.newest) {
     await changeFeed(state.feed.id, {
       lastOriginId: state.newest.originId,
-      lastPublishedAt: state.newest.publishedAt,
+      lastPublishedAt: getSortedAt(state.newest),
       refreshedAt
     })
   } else {

@@ -561,7 +561,7 @@ describe('bluesky loader', () => {
           full: '<p>original</p>',
           media: [{ type: 'image', url: 'https://cdn.bsky.app/a.jpg' }],
           originId: uri('bob', 'original'),
-          publishedAt: 1767398400,
+          publishedAt: 1767225600,
           quoted: {
             author: {
               avatar: 'https://cdn.bsky.app/jane.jpg',
@@ -579,6 +579,7 @@ describe('bluesky loader', () => {
             title: 'jane.bsky.social',
             url: 'https://bsky.app/profile/jane.bsky.social'
           },
+          sortedAt: 1767398400,
           url: 'https://bsky.app/profile/bob.bsky.social/post/original'
         },
         {

@@ -456,7 +456,7 @@ describe('mastodon loader', () => {
           author: { title: 'BOB', url: 'https://mastodon.social/@bob' },
           full: '<p>original</p>',
           originId: '3',
-          publishedAt: 1767398400,
+          publishedAt: 1767225600,
           quoted: {
             author: {
               avatar: 'https://mastodon.social/jane.png',
@@ -475,7 +475,8 @@ describe('mastodon loader', () => {
             title: 'bot',
             url: 'https://mastodon.social/@bot'
           },
-          updatedAt: undefined,
+          sortedAt: 1767398400,
+          updatedAt: 1767312000,
           url: 'https://mastodon.social/@jane/original'
         },
         {

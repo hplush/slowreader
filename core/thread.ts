@@ -5,6 +5,7 @@ import {
   addPost,
   changePost,
   getPostId,
+  getSortedAt,
   loadPost,
   loadThreadPosts,
   type OriginPost,
@@ -169,7 +170,7 @@ export async function linkThreads(
     if (threadId) {
       newest.set(
         threadId,
-        Math.max(newest.get(threadId) ?? 0, post.publishedAt ?? 0)
+        Math.max(newest.get(threadId) ?? 0, getSortedAt(post) ?? 0)
       )
     }
   }
@@ -212,7 +213,8 @@ export async function updateThread(
   let posts = await loadThreadPosts(feed.id, threadId)
   let loader = loaders[feed.loader]
   if (!loader.getThreadDescendants) return posts
-  // Reposted thread start has the repost’s date, so it is not the last one
+  // Reposts from old versions have the repost’s date in `publishedAt`,
+  // so the thread start can be after its parts
   let last = posts.filter(post => post.originId !== threadId).at(-1) ?? start
   let known = new Set(posts.map(post => post.originId))
   let added = (

@@ -355,6 +355,16 @@ export function toPreviewPost(origin: OriginPost): PreviewPost {
   }
 }
 
+/**
+ * Reposts have the time of the repost in `sortedAt`.
+ */
+export function getSortedAt(post: {
+  publishedAt?: null | number
+  sortedAt?: number
+}): number | undefined {
+  return post.sortedAt ?? post.publishedAt ?? undefined
+}
+
 export function processOriginPost(
   origin: OriginPost,
   feedId: string,

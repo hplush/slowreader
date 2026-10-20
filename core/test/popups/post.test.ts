@@ -8,6 +8,7 @@ import {
   addPost,
   closeLastPopup,
   commonMessages,
+  formatDuration,
   formatPublishedAt,
   GENERAL_CATEGORY,
   HTTPStatusError,
@@ -17,6 +18,7 @@ import {
   loadThreadPosts,
   openedPopups,
   type OriginPost,
+  postMessages,
   type PostValue,
   testFeed,
   testPost,
@@ -169,8 +171,20 @@ describe('post popup', () => {
     deepEqual(
       checkLoadedPopup(popup)
         .thread.get()
-        .map(post => [post.originId, post.publishedAtText]),
-      [['p', formatPublishedAt(i18nFormat.get(), 2000)]]
+        .map(post => [
+          post.originId,
+          post.publishedAtText,
+          post.afterFirstText
+        ]),
+      [
+        [
+          'p',
+          formatPublishedAt(i18nFormat.get(), 2000),
+          postMessages.get().afterFirst({
+            time: formatDuration(i18nFormat.get(), 1000)
+          })
+        ]
+      ]
     )
   })
 
@@ -245,6 +259,45 @@ describe('post popup', () => {
     )
   })
 
+  test('shows time of thread parts from the original post of repost', async () => {
+    let mastodon = loaders.mastodon as Required<typeof loaders.mastodon>
+    spyOn(mastodon, 'getThreadDescendants', () => Promise.resolve([]))
+    let feed = await addFeed(
+      testFeed({ categoryId: GENERAL_CATEGORY, loader: 'mastodon' })
+    )
+    let repost = await addPost(
+      testPost({
+        feedId: feed,
+        originId: 'r',
+        publishedAt: 1000,
+        repostedBy: { title: 'Jane' },
+        sortedAt: 9000,
+        threadId: 'r'
+      })
+    )
+    await addPost(
+      testPost({
+        feedId: feed,
+        merged: true,
+        originId: 'p',
+        publishedAt: 1060,
+        threadId: 'r'
+      })
+    )
+    let popup = openTestPopup('post', `id:${repost}`)
+    await waitLoading(popup.loading)
+    deepEqual(
+      checkLoadedPopup(popup)
+        .thread.get()
+        .map(post => post.afterFirstText),
+      [
+        postMessages.get().afterFirst({
+          time: formatDuration(i18nFormat.get(), 60)
+        })
+      ]
+    )
+  })
+
   test('loads thread of saved repost', async () => {
     let mastodon = loaders.mastodon as Required<typeof loaders.mastodon>
     let feed = await addFeed(
@@ -282,8 +335,11 @@ describe('post popup', () => {
     deepEqual(
       checkLoadedPopup(popup)
         .thread.get()
-        .map(post => post.originId),
-      ['p1', 'p2']
+        .map(post => [post.originId, post.afterFirstText]),
+      [
+        ['p1', undefined],
+        ['p2', undefined]
+      ]
     )
     deepEqual(
       (await loadThreadPosts(feed, 'r')).map(post => [

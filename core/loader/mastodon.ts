@@ -328,13 +328,12 @@ function parseStatus(status: MastodonStatus): ParsedPost {
   let shown = status.reblog ?? status
   let post: ParsedPost = {
     ...parseContent(shown),
-    originId: status.id,
-    publishedAt: toTime(status.created_at)
+    originId: status.id
   }
   if (status.reblog) {
     post.author = toAuthor(shown.account)
     post.repostedBy = toAuthor(status.account)
-    post.updatedAt = getUpdatedAt(post.publishedAt, post.updatedAt)
+    post.sortedAt = toTime(status.created_at)
   }
   if (shown.quote) post.quoted = parseQuote(shown.quote)
   if (shown.poll) post.unsupported = true

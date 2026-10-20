@@ -8,9 +8,10 @@ import {
 
 import { NotFoundError } from '../errors.ts'
 import { type FeedValue, loadFeed } from '../feed.ts'
-import { formatPublishedAt, i18nFormat } from '../format.ts'
+import { formatDuration, formatPublishedAt, i18nFormat } from '../format.ts'
 import { createDownloadTask } from '../lib/download.ts'
 import { type Loader, loaders } from '../loader/index.ts'
+import { postMessages } from '../messages/index.ts'
 import {
   changeRead,
   getPost,
@@ -161,14 +162,29 @@ export const post = definePopup('post', async loader => {
       : undefined
   })
 
-  let $thread = computed([$parts, i18nFormat], (parts, format) => {
-    return parts.map(part => ({
-      ...part,
-      publishedAtText: part.publishedAt
-        ? formatPublishedAt(format, part.publishedAt)
-        : undefined
-    }))
-  })
+  let $thread = computed(
+    [$parts, $post, i18nFormat, postMessages],
+    (parts, first, format, t) => {
+      return parts.map(part => ({
+        ...part,
+        afterFirstText:
+          // Reposts from old versions have the repost’s date in `publishedAt`
+          part.publishedAt &&
+          first.publishedAt &&
+          part.publishedAt >= first.publishedAt
+            ? t.afterFirst({
+                time: formatDuration(
+                  format,
+                  part.publishedAt - first.publishedAt
+                )
+              })
+            : undefined,
+        publishedAtText: part.publishedAt
+          ? formatPublishedAt(format, part.publishedAt)
+          : undefined
+      }))
+    }
+  )
 
   return {
     destroy() {

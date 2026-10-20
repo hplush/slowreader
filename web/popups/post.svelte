@@ -73,7 +73,11 @@
           repostHref={feed && getPopupHash($router, 'feed', $feed!.url)}
         />
         {#each $thread as part (part.id)}
-          <PostThreadPart post={part} publishedAt={part.publishedAtText} />
+          <PostThreadPart
+            afterFirst={part.afterFirstText}
+            post={part}
+            publishedAt={part.publishedAtText}
+          />
         {/each}
       </Stack>
       <Stack>
