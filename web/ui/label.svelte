@@ -8,7 +8,7 @@
   }: {
     children: Snippet
     id?: null | string
-    tag?: 'h2' | 'label' | 'legend'
+    tag?: 'div' | 'h2' | 'label' | 'legend'
   } = $props()
 </script>
 

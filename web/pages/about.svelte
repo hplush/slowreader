@@ -2,6 +2,8 @@
   import {
     mdiBug,
     mdiCellphoneArrowDown,
+    mdiCheck,
+    mdiCloudOffOutline,
     mdiEye,
     mdiRefresh,
     mdiServerSecurity,
@@ -22,6 +24,7 @@
   import Note from '../ui/note.svelte'
   import Output from '../ui/output.svelte'
   import Stack from '../ui/stack.svelte'
+  import Status from '../ui/status.svelte'
   import ThinPage from '../ui/thin-page.svelte'
   import Title from '../ui/title.svelte'
 
@@ -73,22 +76,21 @@
       </Stack>
     </Note>
     <Stack gap="s">
-      <Button
-        disabled={$clientUpdate !== 'available'}
-        icon={mdiRefresh}
-        loader={$clientUpdate === 'checking'}
-        onclick={getEnvironment().updateClient}
-        size="wide"
-        variant="secondary"
-      >
-        {#if $clientUpdate === 'offline'}
-          {$t.offline}
-        {:else if $clientUpdate === 'latest'}
-          {$t.noUpdates}
-        {:else}
+      {#if $clientUpdate === 'offline'}
+        <Status icon={mdiCloudOffOutline}>{$t.offline}</Status>
+      {:else if $clientUpdate === 'latest'}
+        <Status icon={mdiCheck}>{$t.noUpdates}</Status>
+      {:else}
+        <Button
+          icon={mdiRefresh}
+          loader={$clientUpdate === 'checking'}
+          onclick={getEnvironment().updateClient}
+          size="wide"
+          variant="secondary"
+        >
           {$t.update}
-        {/if}
-      </Button>
+        </Button>
+      {/if}
       <Button
         href="https://github.com/hplush/slowreader/issues/new"
         icon={mdiBug}

@@ -46,6 +46,7 @@
   import Output from '../ui/output.svelte'
   import Paper from '../ui/paper.svelte'
   import Stack from '../ui/stack.svelte'
+  import Status from '../ui/status.svelte'
   import ThinPage from '../ui/thin-page.svelte'
   import Title from '../ui/title.svelte'
 
@@ -236,12 +237,11 @@
       <Stack>
         <Output label={$t.userId} value={$userId} />
         {#if $syncStatus === 'error'}
-          <Output
-            label={$t.status}
-            value={$t.errorStatus({ details: $syncError })}
-          />
+          <Status label={$t.status}>
+            {$t.errorStatus({ details: $syncError })}
+          </Status>
         {:else if $syncStatus !== 'local'}
-          <Output label={$t.status} value={$t[`${$syncStatus}Status`]} />
+          <Status label={$t.status}>{$t[`${$syncStatus}Status`]}</Status>
         {/if}
         {#if $unsavedData}
           <Button
