@@ -1,6 +1,6 @@
 import { withMeta } from '@logux/client/db'
 import type { SqlStore, SqlStoreValue } from '@nanostores/sql'
-import { atom, type ReadableAtom } from 'nanostores'
+import { atom, computed, type ReadableAtom } from 'nanostores'
 
 import { commonMessages as t } from './messages/index.ts'
 import {
@@ -29,6 +29,22 @@ export function getCategory(
 
 export function getCategories(): SqlStore<CategoryValue[]> {
   return getTables().categories.select`ORDER BY "title"`
+}
+
+/**
+ * Values for the category select with the option to add a new category.
+ * Pass already loaded store to not show the select without categories.
+ */
+export function getCategoryOptions(
+  $categories = getCategories()
+): ReadableAtom<[string, string][]> {
+  return computed([$categories, t], (categories, messages) => [
+    [GENERAL_CATEGORY, messages.generalCategory] as [string, string],
+    ...(categories.status === 'ready'
+      ? categories.value.map((i): [string, string] => [i.id, i.title])
+      : []),
+    ['new', messages.addCategory] as [string, string]
+  ])
 }
 
 export async function loadCategory(

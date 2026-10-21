@@ -2,6 +2,7 @@
   import { mdiRenameOutline, mdiTrashCanOutline } from '@mdi/js'
   import {
     changeCategory,
+    commonMessages,
     deleteCategory,
     type FeedsByCategoriesPage,
     GENERAL_CATEGORY,
@@ -41,7 +42,10 @@
                 <Button
                   icon={mdiRenameOutline}
                   onclick={() => {
-                    let title = prompt($t.categoryName, category.title)
+                    let title = prompt(
+                      $commonMessages.categoryName,
+                      category.title
+                    )
                     if (title) {
                       changeCategory(category.id, { title })
                     }

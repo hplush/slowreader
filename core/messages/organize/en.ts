@@ -3,8 +3,6 @@ import { i18n } from '../../i18n.ts'
 export const organizeMessages = i18n('organize', {
   addFeed: 'Subscribe',
   byCategoryTitle: 'By category',
-  category: 'Category',
-  categoryName: 'Category name',
   deleteCategory: 'Delete category',
   deleteCategoryConform:
     'All feeds in this category will be moved to General. Are you sure you want to continue?',

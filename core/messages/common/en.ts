@@ -4,6 +4,8 @@ import { i18n } from '../../i18n.ts'
 
 export const commonMessages = i18n('common', {
   addCategory: 'Add category…',
+  category: 'Category',
+  categoryName: 'Category name',
   closePopup: 'Close popup',
   copied: 'Copied',
   copyToClipboard: 'Copy to clipboard',

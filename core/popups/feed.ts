@@ -1,6 +1,6 @@
 import { atom, onMount } from 'nanostores'
 
-import { getCategories } from '../category.ts'
+import { getCategories, getCategoryOptions } from '../category.ts'
 import { NotFoundError } from '../errors.ts'
 import {
   addCandidate,
@@ -14,9 +14,7 @@ import {
 import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import { waitSql } from '../lib/stores.ts'
 import { type FeedLoader, getLoaderForText } from '../loader/index.ts'
-import { commonMessages } from '../messages/index.ts'
 import { createPostsList, type PostsList } from '../posts-list.ts'
-import { GENERAL_CATEGORY } from '../schema.ts'
 import { addThreadStarts } from '../thread.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
@@ -123,22 +121,6 @@ export const feed = definePopup('feed', async url => {
     }
   })
 
-  let $categories = atom<[string, string][]>([])
-  let unbindCategories = categoriesStore.subscribe(value => {
-    if (value.status === 'loading') return
-    let list = value.value.map(
-      category => [category.id, category.title] as [string, string]
-    )
-    $categories.set([
-      [GENERAL_CATEGORY, commonMessages.get().generalCategory] as [
-        string,
-        string
-      ],
-      ...list,
-      ['new', commonMessages.get().addCategory] as [string, string]
-    ])
-  })
-
   async function remove(): Promise<void> {
     let created = $feed.get()
     if (created) {
@@ -161,11 +143,10 @@ export const feed = definePopup('feed', async url => {
   return {
     add,
     avatar: $avatar,
-    categories: $categories,
+    categories: getCategoryOptions(categoriesStore),
     destroy() {
       task.destroy()
       unbindFeeds()
-      unbindCategories()
     },
     feed: $feed,
     posts,

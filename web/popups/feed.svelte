@@ -6,7 +6,6 @@
     mdiTrashCanOutline
   } from '@mdi/js'
   import {
-    addCategory,
     changeFeed,
     collapseThreads,
     errorToMessage,
@@ -17,6 +16,7 @@
   } from '@slowreader/core'
 
   import Button from '../ui/button.svelte'
+  import CategorySelect from '../ui/category-select.svelte'
   import FeedAvatar from '../ui/feed-avatar.svelte'
   import Feed from '../ui/feed/index.svelte'
   import Input from '../ui/input.svelte'
@@ -26,7 +26,6 @@
   import Output from '../ui/output.svelte'
   import Popup from '../ui/popup.svelte'
   import Radio from '../ui/radio.svelte'
-  import Select from '../ui/select.svelte'
   import Stack from '../ui/stack.svelte'
 
   let { popup }: { popup: FeedPopup } = $props()
@@ -96,15 +95,9 @@
             ['fast', $t.fast]
           ]}
         />
-        <Select
-          label={$t.category}
-          onchange={async value => {
-            if (value === 'new') {
-              let title = prompt($t.categoryName)
-              if (!title) return
-              value = await addCategory({ title })
-            }
-            changeFeed($feed.id, { categoryId: value })
+        <CategorySelect
+          onchange={categoryId => {
+            changeFeed($feed.id, { categoryId })
           }}
           value={$feed.categoryId}
           values={$categories}
