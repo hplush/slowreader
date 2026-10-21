@@ -15,8 +15,14 @@
 <Story name="Base" asChild>
   <Section width={300}>
     <Status icon={mdiCheck}>No updates</Status>
+  </Section>
+  <Section width={300}>
     <Status>Without icon</Status>
+  </Section>
+  <Section width={300}>
     <Status label="Sync status">Synchronized</Status>
+  </Section>
+  <Section width={300}>
     <Button icon={mdiCheck} size="wide">Button to compare</Button>
   </Section>
 </Story>
