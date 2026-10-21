@@ -33,6 +33,13 @@ let iconTag = document.querySelector<HTMLLinkElement>(
   'link[type="image/svg+xml"]'
 )
 let appIcon = iconTag?.href
+if (
+  location.hostname === 'dev.slowreader.app' ||
+  location.hostname.endsWith('.slowreader.hplush.dev')
+) {
+  document.querySelector('link[href="/favicon.ico"]')?.remove()
+  appIcon = '/icon-staging.svg'
+}
 
 function updateTheme(): void {
   let background = window

@@ -322,7 +322,7 @@ The build is reproducible: anyone can build the same image from the same commit 
 
 Other environment variables:
 
-- `STAGING`: hides the web client from search engines and changes the icon.
+- `STAGING`: hides the web client from search engines.
 - `BEHIND_BALANCER`: takes the client’s IP from `X-Forwarded-For`.
 
 See [server](./server/README.md#environment-variables) and [proxy](./proxy/README.md#environment-variables) for their own variables.

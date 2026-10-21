@@ -35,19 +35,6 @@ function hashInline(pattern: string, tag: RegExp): string[] {
   return [...hashes].toSorted()
 }
 
-function findSvgIcons(): Set<string> {
-  let icons = new Set<string>()
-  for (let page of ['app.html', 'index.html']) {
-    let html = readFileSync(`/var/www/${page}`, 'utf8')
-    for (let [tag] of html.matchAll(
-      /<link rel="icon" href="[^"]+" type="image\/svg\+xml" \/>/g
-    )) {
-      icons.add(tag)
-    }
-  }
-  return icons
-}
-
 function buildNginxConfig(selfHosted: boolean, webOrigin: string): string {
   let manifest = JSON.parse(
     readFileSync('/var/www/manifest.json', 'utf8')
@@ -92,16 +79,6 @@ function buildNginxConfig(selfHosted: boolean, webOrigin: string): string {
       '      default_type text/plain;\n' +
       '      return 200 "User-agent: *\\nDisallow: /\\n";\n' +
       '    }\n\n'
-  }
-
-  if (process.env.STAGING) {
-    rules +=
-      '    sub_filter_once off;\n' +
-      `    sub_filter '<link rel="icon" href="/favicon.ico" sizes="32x32" />' '';\n`
-    for (let icon of findSvgIcons()) {
-      rules += `    sub_filter '${icon}' '<link rel="icon" href="/icon-staging.svg" type="image/svg+xml" />';\n`
-    }
-    rules += '\n'
   }
 
   if (process.env.BEHIND_BALANCER) {
