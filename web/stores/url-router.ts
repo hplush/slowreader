@@ -96,6 +96,16 @@ export const urlRouter = computed(pathRouter, path => {
       }),
       route: path.route
     }
+  } else if (
+    path.route === 'accounts' &&
+    ('code' in path.search || 'error' in path.search)
+  ) {
+    // Mastodon’s Authorize form drops `response_mode=fragment`
+    return {
+      hash: new URLSearchParams(path.search).toString(),
+      params: {},
+      route: path.route
+    }
   } else {
     return path
   }

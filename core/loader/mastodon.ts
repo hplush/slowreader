@@ -728,7 +728,8 @@ let mastodonAccount: AccountLoader<MastodonSignIn> = {
       code_challenge: pkce.challenge,
       code_challenge_method: 'S256',
       redirect_uri: pkce.redirect,
-      // Fragment is not sent to the server, so the code will not be in logs
+      // Fragment keeps the code out of server logs. Mastodon loses it
+      // on the Authorize button for now and returns the code in query.
       response_mode: 'fragment',
       response_type: 'code',
       scope: 'read write:follows',
