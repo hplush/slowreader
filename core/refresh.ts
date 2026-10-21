@@ -327,7 +327,16 @@ async function processPage(state: TargetRefresh): Promise<void> {
   sortPage(state.page)
   let marker = getMarker(state.target)
   let enough = state.page.some(i => wasAlreadyAdded(marker, i))
-  let more = !enough && state.pages.get().hasNext
+  let more =
+    !enough &&
+    state.pages.get().hasNext &&
+    // Home timeline goes back for months, so the first refresh of the account
+    // takes only the newest page
+    !(
+      'account' in state.target &&
+      !marker.lastOriginId &&
+      !marker.lastPublishedAt
+    )
 
   // The marker is written only after the last page, so a failure in the middle
   // will return to the same pages on the next refresh.

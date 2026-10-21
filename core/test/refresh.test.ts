@@ -938,6 +938,34 @@ describe('refresh of accounts', () => {
     equal((await loadAccount(accountId))!.lastOriginId, '3')
   })
 
+  test('loads only the newest timeline page on the first refresh', async () => {
+    let accountId = await addAccount(testAccount())
+    let timeline = spyTimeline(
+      [by('dave', '2', { publishedAt: 200 })],
+      [by('dave', '1', { publishedAt: 100 })]
+    )
+    await refreshPosts()
+    deepEqual(
+      (await loadSorted()).map(i => i.originId),
+      ['2']
+    )
+    let account = await loadAccount(accountId)
+    equal(account!.lastOriginId, '2')
+    equal(account!.lastPublishedAt, 200)
+
+    timeline.restore()
+    spyTimeline(
+      [by('dave', '4', { publishedAt: 400 })],
+      [by('dave', '3', { publishedAt: 300 })],
+      [by('dave', '2', { publishedAt: 200 })]
+    )
+    await refreshPosts()
+    deepEqual(
+      (await loadSorted()).map(i => i.originId),
+      ['2', '3', '4']
+    )
+  })
+
   test('marks account without new posts', async () => {
     let accountId = await addAccount(
       testAccount({ lastOriginId: 'old', lastPublishedAt: 100 })
