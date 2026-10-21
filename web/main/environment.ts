@@ -28,7 +28,7 @@ import { locale } from '../stores/locale.ts'
 import { mobileMedia, tabletMedia } from '../stores/media-queries.ts'
 import { usedRequestMethod } from '../stores/request-method.ts'
 import { restarting } from '../stores/restart.ts'
-import { openRoute, urlRouter } from '../stores/url-router.ts'
+import { getURL, openRoute, urlRouter } from '../stores/url-router.ts'
 import { createDatabase, dumpDatabase } from './database.ts'
 import { detectExtension, extensionRequest } from './extension.ts'
 
@@ -103,6 +103,11 @@ setupEnvironment({
   loadEncryptionKey,
   locale,
   networkType: detectNetworkType,
+  oauthRedirect: location.origin + getURL('accounts'),
+  openOAuthPage(url) {
+    location.assign(url)
+    return new Promise(() => {})
+  },
   openRoute,
   passkeySupport,
   persistentEvents: windowPersistentEvents,

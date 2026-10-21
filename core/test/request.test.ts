@@ -63,6 +63,13 @@ describe('proxy', () => {
     equal(await response.text(), 'hello')
   })
 
+  test('skips proxy for direct requests', async () => {
+    setProxyAsRequestMethod('http://localhost:1/')
+    let response = await request(targetUrl, {}, true)
+    equal(response.status, 200)
+    equal(await response.text(), 'hello')
+  })
+
   test('sends debug headers when proxyDebug is set', async () => {
     setProxyAsRequestMethod(proxyUrl + '/')
     let captured: Headers

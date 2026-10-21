@@ -3,7 +3,10 @@
     busy,
     currentPage,
     layoutType,
+    type LoadedPopup,
     pages,
+    type Popup,
+    type PopupName,
     popupsStatus,
     showCrash,
     signOut,
@@ -11,6 +14,7 @@
   } from '@slowreader/core'
 
   import AboutPage from '../pages/about.svelte'
+  import AccountsPage from '../pages/accounts.svelte'
   import AddPage from '../pages/add.svelte'
   import BusyPage from '../pages/busy.svelte'
   import CloudPage from '../pages/cloud.svelte'
@@ -27,6 +31,7 @@
   import StartPage from '../pages/start.svelte'
   import StoragePage from '../pages/storage.svelte'
   import WelcomePage from '../pages/welcome.svelte'
+  import AccountPopup from '../popups/account.svelte'
   import ErrorPopup from '../popups/error.svelte'
   import FeedPopup from '../popups/feed.svelte'
   import LoadingPopup from '../popups/loading.svelte'
@@ -50,6 +55,20 @@
   let popupNotFound = $derived($popupsStatus.notFound)
   let popupError = $derived($popupsStatus.error)
   let popupOther = $derived($popupsStatus.other)
+
+  function isPopup<Name extends PopupName>(
+    opened: LoadedPopup<Popup>,
+    name: Name
+  ): opened is LoadedPopup<Popup<Name>> {
+    return opened.name === name
+  }
+
+  /**
+   * Type check fails here if some popup is not rendered above.
+   */
+  function missedPopup(missed: never): never {
+    throw new Error(`Unknown popup ${String(missed)}`)
+  }
 </script>
 
 <svelte:boundary onerror={showCrash}>
@@ -69,6 +88,8 @@
     <FeedByCategoriesPage page={$currentPage} />
   {:else if $currentPage.route === 'about'}
     <AboutPage page={$currentPage} />
+  {:else if $currentPage.route === 'accounts'}
+    <AccountsPage page={$currentPage} />
   {:else if $currentPage.route === 'cloud'}
     <CloudPage page={$currentPage} />
   {:else if $currentPage.route === 'start'}
@@ -110,16 +131,20 @@
       <LoadingPopup {popup} />
     {:else if popupNotFound || popupError}
       <ErrorPopup {popup} />
-    {:else if popup.name === 'post'}
+    {:else if isPopup(popup, 'post')}
       <PostPopup {popup} />
-    {:else if popup.name === 'feed'}
+    {:else if isPopup(popup, 'feed')}
       <FeedPopup {popup} />
-    {:else if popup.name === 'refresh'}
+    {:else if isPopup(popup, 'refresh')}
       <RefreshPopup />
-    {:else if popup.name === 'passkey'}
+    {:else if isPopup(popup, 'passkey')}
       <PasskeyPopup {popup} />
-    {:else if popup.name === 'session'}
+    {:else if isPopup(popup, 'account')}
+      <AccountPopup {popup} />
+    {:else if isPopup(popup, 'session')}
       <SessionPopup {popup} />
+    {:else}
+      {missedPopup(popup)}
     {/if}
   {/if}
 

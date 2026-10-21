@@ -1,7 +1,6 @@
 import {
   createDownloadTask,
   enableTestTime,
-  findFeedAvatar,
   generateCredentials,
   getLoaderForText,
   HTTPStatusError,
@@ -11,6 +10,7 @@ import {
   setRequestMethod,
   setupEnvironment,
   startLocalUser,
+  tryLoadFeedData,
   waitLoading
 } from '@slowreader/core'
 import { setNodeRequestMethod, setupNodeDom } from '@slowreader/core/node'
@@ -146,7 +146,7 @@ export async function fetchAndParsePosts(
         report(`Can not found posts for feed ${url}`)
       }
     } else if (
-      !(await findFeedAvatar({ loader: candidate.name, url }, task, response))
+      !(await tryLoadFeedData(task, candidate.name, url, { response }))?.avatar
     ) {
       if (badSource) {
         semiSuccess(url, 'no avatar')

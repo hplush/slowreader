@@ -1,0 +1,12 @@
+{
+  "application_type": "web",
+  "client_id": "https://slowreader.app/oauth/bluesky.json",
+  "client_name": "Slow Reader",
+  "client_uri": "https://slowreader.app",
+  "dpop_bound_access_tokens": true,
+  "grant_types": ["authorization_code", "refresh_token"],
+  "redirect_uris": ["https://slowreader.app/settings/accounts"],
+  "response_types": ["code"],
+  "scope": "atproto transition:generic",
+  "token_endpoint_auth_method": "none"
+}

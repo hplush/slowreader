@@ -167,6 +167,17 @@ export interface Environment {
   networkType: NetworkTypeDetector
 
   /**
+   * URL of the Accounts page, where OAuth returns after the sign in.
+   */
+  oauthRedirect: string
+
+  /**
+   * Open OAuth sign in page of the service and return the fragment
+   * of the callback URL or `undefined` if user closed the page.
+   */
+  openOAuthPage(url: string): Promise<string | undefined>
+
+  /**
    * Change current URL.
    */
   openRoute(page: Route, replace: boolean): void
@@ -283,6 +294,8 @@ export function setupEnvironment<Router extends BaseRouter>(
     loadEncryptionKey: env.loadEncryptionKey,
     locale: env.locale,
     networkType: env.networkType,
+    oauthRedirect: env.oauthRedirect,
+    openOAuthPage: env.openOAuthPage,
     openRoute: env.openRoute,
     passkeySupport: env.passkeySupport,
     persistentEvents: env.persistentEvents,

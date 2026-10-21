@@ -187,6 +187,12 @@ describe('feed popup', () => {
 
     await changeFeed(feedId, { title: 'Test Atom' })
     equal(checkLoadedPopup(popup).feed.get()!.title, 'Test Atom')
+    equal((await loadFeed(feedId))!.originTitle, 'Atom')
+
+    await checkLoadedPopup(popup).rename('  Mine  ')
+    equal((await loadFeed(feedId))!.title, 'Mine')
+    await checkLoadedPopup(popup).rename(' ')
+    equal((await loadFeed(feedId))!.title, 'Atom')
 
     let posts = await loadPostsByFeed(feedId)
     deepEqual(

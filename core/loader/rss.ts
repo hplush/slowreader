@@ -11,6 +11,7 @@ import {
   fetchIfModified,
   findAnchorHrefs,
   findDocumentLinks,
+  findFeedIcon,
   findHeaderLinks,
   findMediaInText,
   findOwnChild,
@@ -72,17 +73,6 @@ function parsePosts(
 }
 
 export const rss: Loader = {
-  getAvatar(text) {
-    let image = text.parseXml().querySelector('channel > image')
-    // WordPress puts 32×32 icon here, while the site has a bigger one
-    let small = ['width', 'height'].some(side => {
-      let size = parseInt(image?.querySelector(side)?.textContent ?? '')
-      return size < MIN_ICON_SIZE
-    })
-    if (small) return undefined
-    return toAvatarUrl(image?.querySelector('url')?.textContent, text.url)
-  },
-
   getMineLinksFromText(text) {
     let type = 'application/rss+xml'
     let headerLinks = findHeaderLinks(text, type)
@@ -121,6 +111,28 @@ export const rss: Loader = {
 
   getSuggestedLinksFromText(text) {
     return [new URL('/rss', new URL(text.url).origin).href]
+  },
+
+  async loadFeedData(task, url, opts = {}) {
+    let text = opts.response ?? (await task.text(url))
+    let channel = text.parseXml().querySelector('channel')
+    let image = channel?.querySelector(':scope > image')
+    // WordPress puts 32×32 icon here, while the site has a bigger one
+    let small = ['width', 'height'].some(side => {
+      let size = parseInt(image?.querySelector(side)?.textContent ?? '')
+      return size < MIN_ICON_SIZE
+    })
+    return {
+      avatar: await findFeedIcon(
+        task,
+        url,
+        small
+          ? undefined
+          : toAvatarUrl(image?.querySelector('url')?.textContent, text.url)
+      ),
+      title: channel?.querySelector(':scope > title')?.textContent ?? '',
+      url
+    }
   },
 
   detectFeed(text) {

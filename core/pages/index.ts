@@ -1,5 +1,6 @@
 import type { RouteName } from '../router.ts'
 import { aboutPage } from './about.ts'
+import { accountsPage } from './accounts.ts'
 import { addPage } from './add.ts'
 import { cloudPage } from './cloud.ts'
 import {
@@ -20,6 +21,7 @@ import { startPage } from './start.ts'
 import { storagePage } from './storage.ts'
 
 export type { AboutPage } from './about.ts'
+export type { AccountsPage, AccountsStep } from './accounts.ts'
 export type { AddPage } from './add.ts'
 export type { CloudPage } from './cloud.ts'
 export * from './common.ts'
@@ -37,6 +39,7 @@ export type { StoragePage } from './storage.ts'
 
 export const pages = {
   about: aboutPage,
+  accounts: accountsPage,
   add: addPage,
   cloud: cloudPage,
   network: createSimplePage('network'),

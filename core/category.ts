@@ -77,6 +77,9 @@ export async function deleteCategory(categoryId: string): Promise<void> {
   await getTables().feeds.updateWhere({ categoryId: GENERAL_CATEGORY })`
     "categoryId" = ${categoryId}
   `
+  await getTables().accounts.updateWhere({ categoryId: GENERAL_CATEGORY })`
+    "categoryId" = ${categoryId}
+  `
   return getTables().categories.delete(categoryId)
 }
 

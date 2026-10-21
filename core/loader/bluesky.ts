@@ -1,10 +1,24 @@
-import { ParseError } from '../errors.ts'
+import {
+  detectNetworkError,
+  HTTPStatusError,
+  ParseError,
+  UserFacingError
+} from '../errors.ts'
 import {
   createDownloadTask,
   type DownloadTask,
   type TextResponse
 } from '../lib/download.ts'
 import { parseDocument } from '../lib/html.ts'
+import { toBase64 } from '../lib/keys.ts'
+import {
+  createPkce,
+  parseJson,
+  randomToken,
+  readString,
+  requestJson
+} from '../lib/oauth.ts'
+import { accountsMessages as t } from '../messages/index.ts'
 import type {
   MediaSize,
   ParsedPost,
@@ -14,13 +28,16 @@ import type {
   QuotedPost
 } from '../post.ts'
 import { createPostsList, type PostsListResult } from '../posts-list.ts'
+import { request } from '../request.ts'
+import type { DpopKey } from '../schema.ts'
 import {
+  type AccountLoader,
+  type FeedData,
   findDocumentLinks,
   findMetaProperty,
   isObject,
   type Loader,
   readLoaderData,
-  toAvatarUrl,
   toTime
 } from './common.ts'
 
@@ -687,10 +704,263 @@ async function loadPage(
   ]
 }
 
-export const bluesky: Loader = {
-  async getAvatar(text, task, url) {
-    return toAvatarUrl((await loadProfile(task, getActor(url))).avatar, url)
+/**
+ * Bluesky has no app registration: client ID is the URL of the metadata file.
+ * Server’s `entrypoint.ts` generates it for every domain.
+ */
+export function getBlueskyClientId(redirect: string): string {
+  let { hostname, origin } = new URL(redirect)
+  if (hostname === '127.0.0.1' || hostname === '[::1]') {
+    // Special development client, which needs no metadata file
+    return (
+      `http://localhost?redirect_uri=${encodeURIComponent(redirect)}` +
+      `&scope=${encodeURIComponent('atproto transition:generic')}`
+    )
+  }
+  return `${origin}/oauth/bluesky.json`
+}
+
+/**
+ * Key is extractable to sync it with tokens between devices.
+ */
+async function generateDpopKey(): Promise<DpopKey> {
+  let pair = await crypto.subtle.generateKey(
+    { name: 'ECDSA', namedCurve: 'P-256' },
+    true,
+    ['sign', 'verify']
+  )
+  let jwk = await crypto.subtle.exportKey('jwk', pair.privateKey)
+  return { crv: jwk.crv!, d: jwk.d!, kty: jwk.kty!, x: jwk.x!, y: jwk.y! }
+}
+
+function encodeJson(json: object): string {
+  return toBase64(new TextEncoder().encode(JSON.stringify(json)))
+}
+
+async function createDpopProof(
+  key: DpopKey,
+  url: string,
+  nonce: string | undefined
+): Promise<string> {
+  let privateKey = await crypto.subtle.importKey(
+    'jwk',
+    key,
+    { name: 'ECDSA', namedCurve: 'P-256' },
+    false,
+    ['sign']
+  )
+  let header = encodeJson({
+    alg: 'ES256',
+    jwk: { crv: key.crv, kty: key.kty, x: key.x, y: key.y },
+    typ: 'dpop+jwt'
+  })
+  let payload = encodeJson({
+    htm: 'POST',
+    htu: url,
+    iat: Math.floor(Date.now() / 1000),
+    jti: randomToken(),
+    nonce
+  })
+  let signature = await crypto.subtle.sign(
+    { hash: 'SHA-256', name: 'ECDSA' },
+    privateKey,
+    new TextEncoder().encode(`${header}.${payload}`)
+  )
+  return `${header}.${payload}.${toBase64(new Uint8Array(signature))}`
+}
+
+/**
+ * Server asks to repeat the first request with its nonce.
+ */
+async function dpopPost(
+  key: DpopKey,
+  url: string,
+  body: URLSearchParams,
+  nonce?: string
+): Promise<Record<string, unknown>> {
+  let proof = await createDpopProof(key, url, nonce)
+  let response = await detectNetworkError(() => {
+    return request(
+      url,
+      { body, headers: { DPoP: proof }, method: 'POST' },
+      true
+    )
+  })
+  if (!response.ok) {
+    let text = await response.text()
+    let next = response.headers.get('DPoP-Nonce')
+    if (!nonce && next && text.includes('use_dpop_nonce')) {
+      return dpopPost(key, url, body, next)
+    }
+    throw new HTTPStatusError(response.status, url, text, response.headers)
+  }
+  return parseJson(response)
+}
+
+/**
+ * Takes `@user.bsky.social`, `user.bsky.social`, or profile URL.
+ */
+function parseHandle(input: string): string {
+  return input
+    .trim()
+    .replace(/^https?:\/\/(www\.)?bsky\.app\/profile\//i, '')
+    .replace(/\/$/, '')
+    .replace(/^@?/, '@')
+}
+
+/**
+ * Accounts on Eurosky, Blacksky, or self-hosted PDS can’t sign in
+ * through `bsky.social`, so we always ask the handle to find user’s server.
+ */
+async function resolveHandle(
+  task: DownloadTask,
+  input: string
+): Promise<{ did: string; handle: string; server: string }> {
+  let [profile] = await bluesky.getProfilesByHandle!(task, parseHandle(input))
+  if (!profile) throw new UserFacingError(t.get().invalidHandle)
+  let handle = profile.split('/').pop()!
+  let resolved: unknown
+  try {
+    let response = await task.text(
+      'https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle' +
+        `?handle=${encodeURIComponent(handle)}`
+    )
+    resolved = response.parseJson()
+  } catch (e) {
+    if (HTTPStatusError.is(e, [400, 404])) {
+      throw new UserFacingError(t.get().unknownHandle)
+    }
+    throw e
+  }
+  if (!isObject(resolved) || typeof resolved.did !== 'string') {
+    throw new UserFacingError(t.get().unknownHandle)
+  }
+  let server = await loadPds(task, resolved.did)
+  if (!server) throw new UserFacingError(t.get().unknownHandle)
+  return { did: resolved.did, handle, server }
+}
+
+interface BlueskySignIn {
+  clientId: string
+  did: string
+  dpopKey: DpopKey
+  issuer: string
+  redirect: string
+  server: string
+  tokenUrl: string
+  verifier: string
+}
+
+function toFeedData(profile: BlueskyProfile): { handle: string } & FeedData {
+  return {
+    avatar: profile.avatar,
+    handle: `@${profile.handle}`,
+    title: profile.displayName || profile.handle,
+    url: toProfileUrl(profile)
+  }
+}
+
+let blueskyAccount: AccountLoader<BlueskySignIn> = {
+  async continueSignIn(task, data, answer) {
+    let params =
+      answer.type === 'return' ? answer.params : new URLSearchParams()
+    if (params.get('iss') !== data.issuer) {
+      throw new UserFacingError(t.get().signInFailed)
+    }
+    let token = await dpopPost(
+      data.dpopKey,
+      data.tokenUrl,
+      new URLSearchParams({
+        client_id: data.clientId,
+        code: params.get('code') ?? '',
+        code_verifier: data.verifier,
+        grant_type: 'authorization_code',
+        redirect_uri: data.redirect
+      })
+    )
+    if (token.sub !== data.did) {
+      throw new UserFacingError(t.get().signInFailed)
+    }
+    return {
+      account: {
+        ...toFeedData(await loadProfile(task, data.did)),
+        credentials: {
+          accessToken: readString(token, 'access_token'),
+          clientId: data.clientId,
+          dpopKey: data.dpopKey,
+          expiresAt:
+            typeof token.expires_in === 'number'
+              ? Math.round(Date.now() / 1000) + token.expires_in
+              : undefined,
+          refreshToken: readString(token, 'refresh_token'),
+          tokenUrl: data.tokenUrl
+        },
+        server: data.server,
+        // DID URL keeps working after the handle change
+        url: `${APP}/profile/${data.did}`
+      },
+      type: 'done'
+    }
   },
+
+  firstField: 'handle',
+
+  async startSignIn(task, input) {
+    let { did, handle, server } = await resolveHandle(task, input)
+    let resource = await requestJson(
+      `${server}/.well-known/oauth-protected-resource`
+    )
+    let issuers = resource.authorization_servers
+    if (!Array.isArray(issuers) || typeof issuers[0] !== 'string') {
+      throw new UserFacingError(t.get().signInFailed)
+    }
+    let metadata = await requestJson(
+      `${issuers[0]}/.well-known/oauth-authorization-server`
+    )
+    let pkce = await createPkce()
+    let clientId = getBlueskyClientId(pkce.redirect)
+    let dpopKey = await generateDpopKey()
+    let pushed = await dpopPost(
+      dpopKey,
+      readString(metadata, 'pushed_authorization_request_endpoint'),
+      new URLSearchParams({
+        client_id: clientId,
+        code_challenge: pkce.challenge,
+        code_challenge_method: 'S256',
+        login_hint: handle,
+        redirect_uri: pkce.redirect,
+        // Fragment is not sent to the server, so the code will not be in logs
+        response_mode: 'fragment',
+        response_type: 'code',
+        scope: 'atproto transition:generic',
+        state: pkce.state
+      })
+    )
+    let url = new URL(readString(metadata, 'authorization_endpoint'))
+    url.search = new URLSearchParams({
+      client_id: clientId,
+      request_uri: readString(pushed, 'request_uri')
+    }).toString()
+    return {
+      data: {
+        clientId,
+        did,
+        dpopKey,
+        issuer: readString(metadata, 'issuer'),
+        redirect: pkce.redirect,
+        server,
+        tokenUrl: readString(metadata, 'token_endpoint'),
+        verifier: pkce.verifier
+      },
+      state: pkce.state,
+      type: 'open',
+      url: url.href
+    }
+  }
+}
+
+export const bluesky: Loader = {
+  account: blueskyAccount,
 
   getMineLinksFromText(text) {
     let url = new URL(text.url)
@@ -803,6 +1073,10 @@ export const bluesky: Loader = {
     } catch {
       return false
     }
+  },
+
+  async loadFeedData(task, url) {
+    return toFeedData(await loadProfile(task, getActor(url)))
   },
 
   isMineUrl(url) {

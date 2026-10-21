@@ -2,9 +2,15 @@
 // by moving complexity to helper.
 
 import { loguxSubscribe, loguxUnsubscribe } from '@logux/actions'
-import type { CrossTabClient } from '@logux/client'
+import { type CrossTabClient, loadValue } from '@logux/client'
 import type { SqlStore } from '@nanostores/sql'
-import { atom, effect, onMount, type ReadableAtom } from 'nanostores'
+import {
+  atom,
+  effect,
+  onMount,
+  type ReadableAtom,
+  type WritableAtom
+} from 'nanostores'
 
 import { client } from '../client.ts'
 import { hasCloud } from '../settings.ts'
@@ -56,15 +62,23 @@ export function nextValue(store: ReadableAtom): Promise<void> {
   })
 }
 
-export async function waitSql<Row>(store: SqlStore<Row[]>): Promise<Row[]> {
-  let unbind = store.listen(() => {})
-  try {
-    await store.loading
-    let value = store.get()
-    return value.status === 'loading' ? [] : value.value
-  } finally {
-    unbind()
-  }
+/**
+ * SQL store after the first query result.
+ */
+export type LoadedSqlStore<Value> = ReadableAtom<{
+  status: 'ready'
+  value: Value
+}>
+
+/**
+ * Wait for the first query result. The store keeps the value, so it could
+ * be used as loaded store.
+ */
+export async function waitSql<Value>(
+  store: SqlStore<Value>
+): Promise<LoadedSqlStore<Value>> {
+  await loadValue(store)
+  return store as LoadedSqlStore<Value>
 }
 
 /**
@@ -132,4 +146,31 @@ export function channelList<Item>(
     })
   })
   return $list
+}
+
+/**
+ * Writable store of the row’s column for form controls like `Switch`.
+ * It follows the row and saves user’s changes by `change`.
+ */
+export function storeFromColumn<Row extends object, Column extends keyof Row>(
+  $row: ReadableAtom<{ value: Row | undefined }>,
+  column: Column,
+  fallback: Row[Column],
+  change: (value: Row[Column]) => Promise<void>
+): WritableAtom<Row[Column]> {
+  let $value = atom(fallback)
+  onMount($value, () => {
+    let unbindRow = $row.subscribe(({ value: row }) => {
+      if (row) $value.set(row[column])
+    })
+    let unbindValue = $value.listen(value => {
+      let row = $row.get().value
+      if (row && row[column] !== value) void change(value as Row[Column])
+    })
+    return () => {
+      unbindRow()
+      unbindValue()
+    }
+  })
+  return $value
 }

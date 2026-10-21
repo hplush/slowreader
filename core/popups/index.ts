@@ -1,4 +1,5 @@
 import type { PopupName } from '../router.ts'
+import { account } from './account.ts'
 import type { PopupCreator } from './common.ts'
 import { feed } from './feed.ts'
 import { passkey } from './passkey.ts'
@@ -6,6 +7,7 @@ import { post } from './post.ts'
 import { refresh } from './refresh.ts'
 import { session } from './session.ts'
 
+export type { AccountPopup } from './account.ts'
 export { type BasePopup, getPopupId, type LoadedPopup } from './common.ts'
 export type { FeedPopup } from './feed.ts'
 export type { PasskeyPopup } from './passkey.ts'
@@ -15,6 +17,7 @@ export type { RefreshPopup } from './refresh.ts'
 export type { SessionPopup } from './session.ts'
 
 export const popups = {
+  account,
   feed,
   passkey,
   post,

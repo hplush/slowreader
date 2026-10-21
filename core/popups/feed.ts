@@ -4,16 +4,20 @@ import { getCategories, getCategoryOptions } from '../category.ts'
 import { NotFoundError } from '../errors.ts'
 import {
   addCandidate,
+  changeFeed,
   deleteFeed,
   type FeedValue,
-  findFeedAvatar,
   getFeedsByUrl,
   loadFeedByUrl,
-  saveFoundFeedAvatar
+  updateFeedData
 } from '../feed.ts'
 import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import { waitSql } from '../lib/stores.ts'
-import { type FeedLoader, getLoaderForText } from '../loader/index.ts'
+import {
+  type FeedLoader,
+  getLoaderForText,
+  tryLoadFeedData
+} from '../loader/index.ts'
 import { createPostsList, type PostsList } from '../posts-list.ts'
 import { addThreadStarts } from '../thread.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
@@ -44,12 +48,12 @@ export const feed = definePopup('feed', async url => {
   let feedsStore = getFeedsByUrl(await findFeedUrl(url))
   let categoriesStore = getCategories()
   let downloading = task.text(url)
-  let [feeds] = await Promise.all([
+  let [$feeds] = await Promise.all([
     waitSql(feedsStore),
     waitSql(categoriesStore)
   ])
 
-  let existing = feeds[0]
+  let existing = $feeds.get().value[0]
   let response: TextResponse | undefined
   let candidate: false | FeedLoader | undefined
 
@@ -63,7 +67,7 @@ export const feed = definePopup('feed', async url => {
     // Loader could normalize the URL, like removing the trailing slash
     if (candidate && candidate.url !== url) {
       feedsStore = getFeedsByUrl(candidate.url)
-      existing = (await waitSql(feedsStore))[0]
+      existing = (await waitSql(feedsStore)).get().value[0]
     }
   }
 
@@ -100,17 +104,12 @@ export const feed = definePopup('feed', async url => {
   onMount($avatar, () => {
     void parsing.then(async () => {
       if (existing) {
-        let avatar = await findFeedAvatar(existing, task, response)
-        $avatar.set(avatar)
-        await saveFoundFeedAvatar(existing.id, avatar)
+        $avatar.set(await updateFeedData(existing.id, response))
       } else if (candidate) {
-        $avatar.set(
-          await findFeedAvatar(
-            { loader: candidate.name, url: candidate.url },
-            task,
-            response
-          )
-        )
+        let data = await tryLoadFeedData(task, candidate.name, candidate.url, {
+          response
+        })
+        $avatar.set(data?.avatar)
       }
     })
   })
@@ -120,6 +119,18 @@ export const feed = definePopup('feed', async url => {
       $feed.set(value.value[0])
     }
   })
+
+  /**
+   * Empty title returns the title from the feed’s source.
+   */
+  async function rename(title: string): Promise<void> {
+    let created = $feed.get()
+    if (created) {
+      await changeFeed(created.id, {
+        title: title.trim() || created.originTitle || created.title
+      })
+    }
+  }
 
   async function remove(): Promise<void> {
     let created = $feed.get()
@@ -151,6 +162,7 @@ export const feed = definePopup('feed', async url => {
     feed: $feed,
     posts,
     remove,
+    rename,
     title: candidate ? candidate.title : ''
   }
 })

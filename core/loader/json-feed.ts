@@ -11,6 +11,7 @@ import {
   fetchIfModified,
   findAnchorHrefs,
   findDocumentLinks,
+  findFeedIcon,
   findHeaderLinks,
   findMediaInText,
   getUpdatedAt,
@@ -158,13 +159,6 @@ function parsePosts(
 }
 
 export const jsonFeed: Loader = {
-  getAvatar(text) {
-    let feed = text.parseJson()
-    validate(text.text, feed)
-    // Spec’s `favicon` is 64×64, too blurry for the feed popup
-    return toAvatarUrl(feed.icon ?? feed.favicon, text.url)
-  },
-
   getMineLinksFromText(text) {
     let type = 'application/feed+json'
     let headerLinks = findHeaderLinks(text, type)
@@ -198,6 +192,22 @@ export const jsonFeed: Loader = {
 
   getSuggestedLinksFromText(text) {
     return [new URL('/feed.json', new URL(text.url).origin).href]
+  },
+
+  async loadFeedData(task, url, opts = {}) {
+    let text = opts.response ?? (await task.text(url))
+    let feed = text.parseJson()
+    validate(text.text, feed)
+    return {
+      // Spec’s `favicon` is 64×64, too blurry for the feed popup
+      avatar: await findFeedIcon(
+        task,
+        url,
+        toAvatarUrl(feed.icon ?? feed.favicon, text.url)
+      ),
+      title: feed.title,
+      url
+    }
   },
 
   detectFeed(text) {

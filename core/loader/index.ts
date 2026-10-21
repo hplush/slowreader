@@ -1,7 +1,10 @@
+import { getEnvironment } from '../environment.ts'
+import { isRemoteError } from '../errors.ts'
 import type { DownloadTask, TextResponse } from '../lib/download.ts'
+import type { AccountValue } from '../schema.ts'
 import { atom } from './atom.ts'
 import { bluesky } from './bluesky.ts'
-import type { Loader, DetectedFeed } from './common.ts'
+import type { DetectedFeed, FeedData, Loader } from './common.ts'
 import { jsonFeed } from './json-feed.ts'
 import { mastodon } from './mastodon.ts'
 import { rss } from './rss.ts'
@@ -55,4 +58,22 @@ export async function getLoaderForText(
     }
   }
   return false
+}
+
+/**
+ * Network and service errors are ignored, since the saved feed’s title
+ * and avatar are still good.
+ */
+export async function tryLoadFeedData(
+  task: DownloadTask,
+  loader: LoaderName,
+  url: string,
+  opts?: { account?: AccountValue; response?: TextResponse }
+): Promise<FeedData | undefined> {
+  try {
+    return await loaders[loader].loadFeedData(task, url, opts)
+  } catch (e) {
+    if (!isRemoteError(e)) getEnvironment().warn(e)
+    return undefined
+  }
 }

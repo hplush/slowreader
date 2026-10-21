@@ -204,6 +204,18 @@ export function errorToMessage(error: unknown): string {
   }
 }
 
+/**
+ * Network or other server failed, so the app can’t fix it.
+ */
+export function isRemoteError(error: unknown): boolean {
+  return (
+    NetworkError.is(error) ||
+    HTTPStatusError.is(error) ||
+    error instanceof ParseError ||
+    (error instanceof Error && error.name === 'AbortError')
+  )
+}
+
 /* node:coverage disable */
 export function isNotFoundError(
   error: unknown

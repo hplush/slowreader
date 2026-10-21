@@ -2,6 +2,7 @@ import { i18n } from '../../i18n.ts'
 
 export const navbarMessages = i18n('navbar', {
   about: 'About the app',
+  accounts: 'Accounts',
   add: 'Add feed',
   cloud: 'Cloud',
   connectingStatus: 'Connecting…',

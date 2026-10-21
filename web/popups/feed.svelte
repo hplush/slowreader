@@ -72,8 +72,9 @@
         <Input
           label={$t.title}
           onchange={title => {
-            changeFeed($feed.id, { title })
+            popup.rename(title)
           }}
+          placeholder={$feed.originTitle ?? undefined}
           value={$feed.title}
         />
       {:else}

@@ -11,6 +11,7 @@ import {
   fetchIfModified,
   findAnchorHrefs,
   findDocumentLinks,
+  findFeedIcon,
   findHeaderLinks,
   findMediaInText,
   findOwnChild,
@@ -170,14 +171,6 @@ async function loadFeed(
 }
 
 export const atom: Loader = {
-  getAvatar(text) {
-    let icon = text.parseXml().querySelector(':root > icon')
-    return toAvatarUrl(
-      icon?.textContent,
-      findXmlBase(icon, text.url) ?? text.url
-    )
-  },
-
   getMineLinksFromText(text) {
     let type = 'application/atom+xml'
     let headerLinks = findHeaderLinks(text, type)
@@ -211,6 +204,21 @@ export const atom: Loader = {
   getSuggestedLinksFromText(text) {
     let { origin } = new URL(text.url)
     return [new URL('/feed', origin).href, new URL('/atom', origin).href]
+  },
+
+  async loadFeedData(task, url, opts = {}) {
+    let text = opts.response ?? (await task.text(url))
+    let document = text.parseXml()
+    let icon = document.querySelector(':root > icon')
+    return {
+      avatar: await findFeedIcon(
+        task,
+        url,
+        toAvatarUrl(icon?.textContent, findXmlBase(icon, text.url) ?? text.url)
+      ),
+      title: document.querySelector(':root > title')?.textContent ?? '',
+      url
+    }
   },
 
   detectFeed(text) {

@@ -5,8 +5,7 @@ import { effect } from 'nanostores'
 
 import { onClient } from './client.ts'
 import { createDownloadTask, type TextResponse } from './lib/download.ts'
-import { findSiteIcon, isLoadableIcon } from './loader/common.ts'
-import { type FeedLoader, loaders } from './loader/index.ts'
+import { type FeedLoader, loaders, tryLoadFeedData } from './loader/index.ts'
 import {
   addPost,
   collapseThreads,
@@ -150,6 +149,7 @@ export async function addCandidate(
       (lastPost && getSortedAt(lastPost)) ?? Math.round(Date.now() / 1000),
     loader: candidate.name,
     loaderData,
+    originTitle: candidate.title,
     reading: 'slow' as const,
     title: candidate.title,
     url: candidate.url,
@@ -182,57 +182,56 @@ export function getFeedLatestPosts(
   )
 }
 
-export async function findFeedAvatar(
-  feed: Pick<FeedValue, 'loader' | 'url'>,
-  task = createDownloadTask({ tries: 1 }),
-  response?: TextResponse
-): Promise<string | undefined> {
-  try {
-    let fromFeed = await loaders[feed.loader].getAvatar(
-      response ?? (await task.text(feed.url)),
-      task,
-      feed.url
-    )
-    if (fromFeed && (await isLoadableIcon(task, fromFeed))) return fromFeed
-  } catch {}
-  return findSiteIcon(task, feed.url)
-}
-
 /**
- * Searches are kept for the whole session, since every render of the feed
+ * Updates are kept for the whole session, since every render of the feed
  * with a missed or broken icon asks for it again.
  */
-let avatarSearches = new Map<string, Promise<void>>()
+let dataUpdates = new Map<string, Promise<string | undefined>>()
 
 onClient(() => () => {
-  avatarSearches.clear()
+  dataUpdates.clear()
 })
 
-export async function saveFoundFeedAvatar(
-  feedId: string,
-  found: string | undefined
-): Promise<void> {
-  if (!hasDatabase()) return
-  let feed = await loadFeed(feedId)
-  let avatar = found ?? null
-  if (feed && feed.avatar !== avatar) {
-    await changeFeed(feedId, { avatar })
-  }
-}
-
 /**
- * Look for the feed’s icon again, since the site could change it.
+ * Author could change the name or avatar, and the site could change the icon
+ * after the subscription. Returns the actual avatar.
  */
-export function updateFeedAvatar(feedId: string): Promise<void> {
-  let search = avatarSearches.get(feedId)
-  if (!search) {
-    search = loadFeed(feedId).then(async feed => {
-      if (!feed) return
-      await saveFoundFeedAvatar(feedId, await findFeedAvatar(feed))
+export function updateFeedData(
+  feedId: string,
+  response?: TextResponse
+): Promise<string | undefined> {
+  let update = dataUpdates.get(feedId)
+  if (!update) {
+    update = loadFeed(feedId).then(async feed => {
+      if (!feed) return undefined
+      let task = createDownloadTask({ tries: 1 })
+      let data = await tryLoadFeedData(task, feed.loader, feed.url, {
+        response
+      })
+      // Keep the saved data, if the feed is offline
+      if (!data) return feed.avatar ?? undefined
+      let changes: FeedChanges = {}
+      let avatar = data.avatar ?? null
+      if (avatar !== feed.avatar) changes.avatar = avatar
+      let title = data.title.trim()
+      if (title && title !== feed.originTitle) {
+        changes.originTitle = title
+        // Keep the title, which user set
+        if (feed.title === feed.originTitle) changes.title = title
+      }
+      // User could delete the feed or sign out during the loading
+      if (
+        Object.keys(changes).length > 0 &&
+        hasDatabase() &&
+        (await loadFeed(feedId))
+      ) {
+        await changeFeed(feedId, changes)
+      }
+      return data.avatar
     })
-    avatarSearches.set(feedId, search)
+    dataUpdates.set(feedId, update)
   }
-  return search
+  return update
 }
 
 let testFeedId = 0
@@ -250,6 +249,7 @@ export function testFeed(
     lastPublishedAt: null,
     loader: 'rss',
     loaderData: null,
+    originTitle: null,
     reading: 'fast',
     refreshedAt: null,
     slowReader: null,

@@ -26,7 +26,7 @@
       "!dist/assets/playpen-sans-*.woff2",
       "!dist/assets/*-{italic,math,latin-ext}-*.woff2"
     ],
-    "limit": "775 KB"
+    "limit": "780 KB"
   },
   {
     "name": "Landing page on phone",
@@ -48,6 +48,6 @@
     "name": "Core scripts to execute",
     "path": ["dist/assets/app-*.js", "dist/assets/core-*.js"],
     "brotli": false,
-    "limit": "515 KB"
+    "limit": "540 KB"
   }
 ]

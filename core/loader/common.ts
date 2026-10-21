@@ -3,24 +3,96 @@ import type { DownloadTask, TextResponse } from '../lib/download.ts'
 import { isAbsoluteUrl, mapRelativeSrcset, parseDocument } from '../lib/html.ts'
 import type { OriginPost, ParsedPost, PostMedia } from '../post.ts'
 import type { PostsList, PostsListResult } from '../posts-list.ts'
+import type { AccountValue, NewAccount } from '../schema.ts'
 
 export interface DetectedFeed {
   title: string
   url?: string
 }
 
+/**
+ * Feed’s title and avatar from its source, like author’s profile
+ * or RSS document.
+ */
+export interface FeedData {
+  avatar?: string
+  /**
+   * Only social profiles have it.
+   */
+  handle?: string
+  title: string
+  url: string
+}
+
+/**
+ * Account’s fields, which the loader got from the service after the sign in.
+ */
+export type SignedInAccount = { handle: string } & Omit<FeedData, 'handle'> &
+  Pick<NewAccount, 'credentials' | 'server'>
+
+/**
+ * Field of the sign in form, which loader asks from the user.
+ */
+export type SignInField = 'handle' | 'server'
+
+/**
+ * Next step of the sign in. Loader could ask user for the form field
+ * (like a code from SMS), open service’s page (like OAuth),
+ * or finish the sign in.
+ */
+export type SignInStep<Data> =
+  | { account: SignedInAccount; type: 'done' }
+  | { data: Data; field: SignInField; type: 'ask' }
+  | {
+      data: Data
+      /**
+       * Random OAuth `state`: service returns it in the callback URL,
+       * so core knows it is the return of the same sign in.
+       */
+      state: string
+      type: 'open'
+      url: string
+    }
+
+/**
+ * User’s answer to the previous step: form field value or URL fragment
+ * of the return from the opened page.
+ */
+export type SignInAnswer =
+  | { params: URLSearchParams; type: 'return' }
+  | { type: 'input'; value: string }
+
+/**
+ * User’s account on the service to read the home timeline and follow authors.
+ */
+export interface AccountLoader<Data = unknown> {
+  /**
+   * Continue the sign in with user’s answer to the previous step.
+   * Throw `UserFacingError` on wrong answer to ask the same field again.
+   */
+  continueSignIn(
+    task: DownloadTask,
+    data: Data,
+    answer: SignInAnswer
+  ): Promise<SignInStep<Data>>
+
+  /**
+   * The first field of the sign in form.
+   */
+  firstField: SignInField
+
+  /**
+   * Start the sign in by the first field value. For instance, find user’s
+   * server and return its OAuth page.
+   */
+  startSignIn(task: DownloadTask, input: string): Promise<SignInStep<Data>>
+}
+
 export type Loader = {
   /**
-   * Feed’s own icon. Without it, the icon is taken from the site.
-   *
-   * The `url` is the feed’s URL, since the `response` could come
-   * from a redirect.
+   * Service supports user’s accounts.
    */
-  getAvatar(
-    response: TextResponse,
-    task: DownloadTask,
-    url: string
-  ): Promise<string | undefined> | string | undefined
+  account?: AccountLoader
 
   /**
    * Find feeds URLs from HTML or HTTP headers.
@@ -107,6 +179,18 @@ export type Loader = {
     task: DownloadTask,
     url: string
   ): false | DetectedFeed | Promise<false | DetectedFeed>
+
+  /**
+   * Load feed’s title and avatar from its source. Social loaders return
+   * author’s profile, and with user’s account they load own profile, which
+   * some servers hide from guests. Pass `response` if the feed was already
+   * downloaded.
+   */
+  loadFeedData(
+    task: DownloadTask,
+    url: string,
+    opts?: { account?: AccountValue; response?: TextResponse }
+  ): Promise<FeedData>
 
   /**
    * It detects that URL is 100% for this loader.
@@ -545,4 +629,16 @@ export async function findSiteIcon(
     if (await isLoadableIcon(task, icon)) return icon
   }
   return undefined
+}
+
+/**
+ * Feed’s own icon if it loads, or the icon of the feed’s site.
+ */
+export async function findFeedIcon(
+  task: DownloadTask,
+  url: string,
+  fromFeed: string | undefined
+): Promise<string | undefined> {
+  if (fromFeed && (await isLoadableIcon(task, fromFeed))) return fromFeed
+  return findSiteIcon(task, url)
 }

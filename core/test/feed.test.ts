@@ -12,12 +12,13 @@ import {
   loaders,
   loadPosts,
   testFeed,
-  updateFeedAvatar
+  updateFeedData
 } from '../index.ts'
 import {
   checkAndRemoveRequestMock,
   cleanClient,
   expectRequest,
+  expectWarning,
   mockRequest,
   setupNodeDom,
   startClient
@@ -122,10 +123,10 @@ describe('feed', () => {
       'application/rss+xml'
     )
     expectIcon('https://a.com/blog/logo.png')
-    await updateFeedAvatar(feedId)
+    await updateFeedData(feedId)
     equal(await getAvatar(feedId), 'https://a.com/blog/logo.png')
 
-    await updateFeedAvatar(feedId)
+    await updateFeedData(feedId)
   })
 
   test('prefers SVG icon from the site', async () => {
@@ -146,7 +147,7 @@ describe('feed', () => {
         '</head></html>'
     )
     expectIcon('https://a.com/icon.svg?v=1')
-    await updateFeedAvatar(feedId)
+    await updateFeedData(feedId)
     equal(await getAvatar(feedId), 'https://a.com/icon.svg?v=1')
   })
 
@@ -184,13 +185,17 @@ describe('feed', () => {
       let feedId = await addFeed(
         testFeed({ loader: 'rss', url: `https://${index}.com/rss` })
       )
-      expectRequest(`https://${index}.com/rss`).andRespond(404)
+      expectRequest(`https://${index}.com/rss`).andRespond(
+        200,
+        '<rss version="2.0"><channel></channel></rss>',
+        'application/rss+xml'
+      )
       expectRequest(`https://${index}.com/`).andRespond(
         200,
         `<!DOCTYPE html><html><head>${html}</head></html>`
       )
       expectIcon(`https://${index}.com${avatar}`)
-      await updateFeedAvatar(feedId)
+      await updateFeedData(feedId)
       equal(await getAvatar(feedId), `https://${index}.com${avatar}`)
     }
   })
@@ -218,7 +223,7 @@ describe('feed', () => {
     expectRequest('https://a.com/apple.png').andRespond(200, '<html>')
     expectRequest('https://a.com/96.png').andFail()
     expectIcon('https://a.com/32.png')
-    await updateFeedAvatar(feedId)
+    await updateFeedData(feedId)
     equal(await getAvatar(feedId), 'https://a.com/32.png')
   })
 
@@ -226,7 +231,11 @@ describe('feed', () => {
     let feedId = await addFeed(
       testFeed({ loader: 'atom', url: 'https://a.com/atom' })
     )
-    expectRequest('https://a.com/atom').andFail()
+    expectRequest('https://a.com/atom').andRespond(
+      200,
+      '<feed xmlns="http://www.w3.org/2005/Atom"></feed>',
+      'application/atom+xml'
+    )
     expectRequest('https://a.com/').andRespond(
       200,
       '<!DOCTYPE html><html><head><link rel="icon" href=""></head></html>'
@@ -236,7 +245,7 @@ describe('feed', () => {
       'ICO',
       'image/x-icon'
     )
-    await updateFeedAvatar(feedId)
+    await updateFeedData(feedId)
     equal(await getAvatar(feedId), 'https://a.com/favicon.ico')
   })
 
@@ -248,10 +257,18 @@ describe('feed', () => {
         url: 'https://a.com/feed.json'
       })
     )
-    expectRequest('https://a.com/feed.json').andRespond(404)
+    expectRequest('https://a.com/feed.json').andRespond(
+      200,
+      JSON.stringify({
+        items: [],
+        title: 'A',
+        version: 'https://jsonfeed.org/version/1.1'
+      }),
+      'application/feed+json'
+    )
     expectRequest('https://a.com/').andRespond(404)
     expectRequest('https://a.com/favicon.ico').andRespond(200, '<html>')
-    await updateFeedAvatar(feedId)
+    await updateFeedData(feedId)
     equal(await getAvatar(feedId), null)
   })
 
@@ -261,7 +278,7 @@ describe('feed', () => {
     )
     let reply = expectRequest('https://a.com/rss').andWait()
     expectIcon('https://a.com/a.png')
-    let updating = updateFeedAvatar(feedId)
+    let updating = updateFeedData(feedId)
     await deleteFeed(feedId)
     await reply(
       200,
@@ -271,6 +288,61 @@ describe('feed', () => {
     await updating
     equal(await loadFeed(feedId), undefined)
 
-    await updateFeedAvatar('unknown')
+    await updateFeedData('unknown')
+  })
+
+  test('updates feed data', async () => {
+    let profile =
+      'https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile' +
+      '?actor=user.bsky.social'
+    function bluesky(title: string, originTitle: string): Promise<string> {
+      return addFeed(
+        testFeed({
+          loader: 'bluesky',
+          originTitle,
+          title,
+          url: 'https://bsky.app/profile/user.bsky.social'
+        })
+      )
+    }
+    function respondProfile(): void {
+      expectRequest(profile).andRespond(
+        200,
+        JSON.stringify({
+          avatar: 'https://cdn.bsky.app/user.jpg',
+          did: 'did:plc:user',
+          displayName: 'New',
+          handle: 'user.bsky.social'
+        }),
+        'application/json'
+      )
+    }
+
+    let followed = await bluesky('Old', 'Old')
+    respondProfile()
+    equal(await updateFeedData(followed), 'https://cdn.bsky.app/user.jpg')
+    let feed = await loadFeed(followed)
+    equal(feed?.title, 'New')
+    equal(feed?.originTitle, 'New')
+    equal(await updateFeedData(followed), 'https://cdn.bsky.app/user.jpg')
+
+    let renamed = await bluesky('Mine', 'Old')
+    respondProfile()
+    await updateFeedData(renamed)
+    feed = await loadFeed(renamed)
+    equal(feed?.title, 'Mine')
+    equal(feed?.originTitle, 'New')
+
+    let failed = await bluesky('Old', 'Old')
+    expectRequest(profile).andRespond(500)
+    equal(await updateFeedData(failed), undefined)
+    equal((await loadFeed(failed))?.title, 'Old')
+
+    let broken = await addFeed(
+      testFeed({ loader: 'bluesky', url: 'https://bsky.app/' })
+    )
+    await expectWarning(async () => {
+      await updateFeedData(broken)
+    }, [new TypeError("Cannot read properties of null (reading '1')")])
   })
 })

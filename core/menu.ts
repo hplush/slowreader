@@ -34,6 +34,7 @@ export const FEED_ROUTES = [
 export const SETTINGS_ROUTES = [
   'interface',
   'network',
+  'accounts',
   'cloud',
   'storage',
   'about'

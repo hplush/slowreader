@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 import {
   createDownloadTask,
   createTextResponse,
+  type DownloadTask,
   loaders,
   type PostsList,
   setRequestMethod,
@@ -26,6 +27,23 @@ setupNodeDom()
 async function loadedPosts(posts: PostsList): Promise<unknown> {
   await posts.loading
   return postsValue(posts)
+}
+
+function expectIcon(url: string): void {
+  expectRequest(url).andRespond(200, 'IMAGE', 'image/png')
+}
+
+function expectNoSiteIcon(): void {
+  expectRequest('https://example.com/').andRespond(404)
+  expectRequest('https://example.com/favicon.ico').andRespond(404)
+}
+
+async function loadAvatar(
+  response: TextResponse,
+  task: DownloadTask,
+  url: string
+): Promise<string | undefined> {
+  return (await loaders.jsonFeed.loadFeedData(task, url, { response })).avatar
 }
 
 describe('json feed loader', () => {
@@ -194,10 +212,11 @@ describe('json feed loader', () => {
     )
   })
 
-  test('finds avatar', async () => {
+  test('loads feed avatar', async () => {
     let task = createDownloadTask()
+    expectIcon('https://example.com/icon.png')
     equal(
-      await loaders.jsonFeed.getAvatar(
+      await loadAvatar(
         exampleJson({
           ...jsonStub,
           favicon: '/favicon.png',
@@ -208,21 +227,28 @@ describe('json feed loader', () => {
       ),
       'https://example.com/icon.png'
     )
+    expectIcon('https://cdn.com/favicon.png')
     equal(
-      await loaders.jsonFeed.getAvatar(
+      await loadAvatar(
         exampleJson({ ...jsonStub, favicon: 'https://cdn.com/favicon.png' }),
         task,
         'https://example.com/'
       ),
       'https://cdn.com/favicon.png'
     )
+    expectNoSiteIcon()
     equal(
-      await loaders.jsonFeed.getAvatar(
-        exampleJson(jsonStub),
-        task,
-        'https://example.com/'
-      ),
+      await loadAvatar(exampleJson(jsonStub), task, 'https://example.com/'),
       undefined
+    )
+    expectNoSiteIcon()
+    equal(
+      (
+        await loaders.jsonFeed.loadFeedData(task, 'https://example.com/', {
+          response: exampleJson(jsonStub)
+        })
+      ).title,
+      jsonStub.title
     )
   })
 

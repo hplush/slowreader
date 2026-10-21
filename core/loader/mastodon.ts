@@ -1,10 +1,13 @@
-import { HTTPStatusError, ParseError } from '../errors.ts'
+import { getEnvironment } from '../environment.ts'
+import { HTTPStatusError, ParseError, UserFacingError } from '../errors.ts'
 import {
   createDownloadTask,
   type DownloadTask,
   type TextResponse
 } from '../lib/download.ts'
 import { parseDocument } from '../lib/html.ts'
+import { createPkce, readString, requestJson } from '../lib/oauth.ts'
+import { accountsMessages as t } from '../messages/index.ts'
 import type {
   MediaSize,
   ParsedPost,
@@ -15,13 +18,14 @@ import type {
 } from '../post.ts'
 import { createPostsList, type PostsListResult } from '../posts-list.ts'
 import {
+  type AccountLoader,
+  type FeedData,
   findDocumentLinks,
   findMetaProperty,
   getUpdatedAt,
   isObject,
   type Loader,
   readLoaderData,
-  toAvatarUrl,
   toTime
 } from './common.ts'
 
@@ -455,15 +459,192 @@ async function loadPage(
   ]
 }
 
-export const mastodon: Loader = {
-  async getAvatar(text, task, url) {
-    if (isProfile(text, text.url)) {
-      let image = toAvatarUrl(findMetaProperty(text, 'og:image'), text.url)
-      if (image) return image
+interface MastodonApp {
+  clientId: string
+  clientSecret: string
+}
+
+interface MastodonSignIn extends MastodonApp {
+  redirect: string
+  server: string
+  tokenUrl: string
+  verifier: string
+}
+
+/**
+ * Takes `mastodon.social`, `@user@mastodon.social`, or profile URL.
+ */
+async function resolveServer(
+  task: DownloadTask,
+  input: string
+): Promise<string> {
+  let value = input.trim()
+  if (/^@?[^@\s/]+@[^@\s/]+$/.test(value)) {
+    let [profile] = await mastodon.getProfilesByHandle!(
+      task,
+      value.replace(/^@?/, '@')
+    )
+    value = profile!
+  }
+  let url: URL
+  try {
+    url = new URL(/^https?:\/\//i.test(value) ? value : `https://${value}`)
+  } catch {
+    throw new UserFacingError(t.get().invalidServer)
+  }
+  if (!url.hostname.includes('.')) {
+    throw new UserFacingError(t.get().invalidServer)
+  }
+  return url.origin
+}
+
+/**
+ * PKCE appeared in Mastodon 4.3 together with the metadata endpoint.
+ */
+async function loadMetadata(server: string): Promise<Record<string, unknown>> {
+  let metadata: Record<string, unknown>
+  try {
+    metadata = await requestJson(
+      `${server}/.well-known/oauth-authorization-server`
+    )
+  } catch (e) {
+    if (HTTPStatusError.is(e, [404])) {
+      throw new UserFacingError(t.get().oldMastodon)
     }
-    // Remote profiles redirect to the page without avatar
-    return toAvatarUrl((await loadAccount(task, url)).avatar, url)
+    throw e
+  }
+  let methods = metadata.code_challenge_methods_supported
+  if (!Array.isArray(methods) || !methods.includes('S256')) {
+    throw new UserFacingError(t.get().oldMastodon)
+  }
+  return metadata
+}
+
+/**
+ * Mastodon has no app portal, so the app is registered on every server
+ * on the first sign in.
+ */
+async function registerApp(
+  server: string,
+  redirect: string
+): Promise<MastodonApp> {
+  let store = getEnvironment().persistentStore
+  let apps = JSON.parse(store['slowreader:mastodonApps'] ?? '{}') as Record<
+    string,
+    MastodonApp
+  >
+  let cached = apps[server]
+  if (cached) return cached
+  let app = await requestJson(`${server}/api/v1/apps`, {
+    body: JSON.stringify({
+      client_name: 'Slow Reader',
+      redirect_uris: redirect,
+      scopes: 'read write:follows',
+      website: 'https://slowreader.app'
+    }),
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST'
+  })
+  let registered = {
+    clientId: readString(app, 'client_id'),
+    clientSecret: readString(app, 'client_secret')
+  }
+  store['slowreader:mastodonApps'] = JSON.stringify({
+    ...apps,
+    [server]: registered
+  })
+  return registered
+}
+
+async function loadOwnAccount(account: {
+  accessToken: string
+  server: string
+}): Promise<MastodonAccount> {
+  let json = await requestJson(
+    `${account.server}/api/v1/accounts/verify_credentials`,
+    { headers: { Authorization: `Bearer ${account.accessToken}` } }
+  )
+  readString(json, 'id')
+  return json as unknown as MastodonAccount
+}
+
+function toFeedData(account: MastodonAccount): { handle: string } & FeedData {
+  return {
+    avatar: account.avatar || undefined,
+    handle: `@${account.username}@${new URL(account.url).hostname}`,
+    title: removeShortcodes(account.display_name) || account.username,
+    url: account.url
+  }
+}
+
+let mastodonAccount: AccountLoader<MastodonSignIn> = {
+  async continueSignIn(task, data, answer) {
+    let code = answer.type === 'return' ? answer.params.get('code') : null
+    let token = await requestJson(data.tokenUrl, {
+      body: new URLSearchParams({
+        client_id: data.clientId,
+        client_secret: data.clientSecret,
+        code: code ?? '',
+        code_verifier: data.verifier,
+        grant_type: 'authorization_code',
+        redirect_uri: data.redirect
+      }),
+      method: 'POST'
+    })
+    let accessToken = readString(token, 'access_token')
+    return {
+      account: {
+        ...toFeedData(
+          await loadOwnAccount({ accessToken, server: data.server })
+        ),
+        credentials: {
+          accessToken,
+          clientId: data.clientId,
+          clientSecret: data.clientSecret,
+          tokenUrl: data.tokenUrl
+        },
+        server: data.server
+      },
+      type: 'done'
+    }
   },
+
+  firstField: 'server',
+
+  async startSignIn(task, input) {
+    let server = await resolveServer(task, input)
+    let metadata = await loadMetadata(server)
+    let pkce = await createPkce()
+    let app = await registerApp(server, pkce.redirect)
+    let url = new URL(readString(metadata, 'authorization_endpoint'))
+    url.search = new URLSearchParams({
+      client_id: app.clientId,
+      code_challenge: pkce.challenge,
+      code_challenge_method: 'S256',
+      redirect_uri: pkce.redirect,
+      // Fragment is not sent to the server, so the code will not be in logs
+      response_mode: 'fragment',
+      response_type: 'code',
+      scope: 'read write:follows',
+      state: pkce.state
+    }).toString()
+    return {
+      data: {
+        ...app,
+        redirect: pkce.redirect,
+        server,
+        tokenUrl: readString(metadata, 'token_endpoint'),
+        verifier: pkce.verifier
+      },
+      state: pkce.state,
+      type: 'open',
+      url: url.href
+    }
+  }
+}
+
+export const mastodon: Loader = {
+  account: mastodonAccount,
 
   getMineLinksFromText(text) {
     let url = new URL(text.url)
@@ -604,6 +785,17 @@ export const mastodon: Loader = {
     } catch {
       return { title: acct, url: toProfileUrl(origin, acct) }
     }
+  },
+
+  async loadFeedData(task, url, opts = {}) {
+    return toFeedData(
+      opts.account
+        ? await loadOwnAccount({
+            accessToken: opts.account.credentials.accessToken,
+            server: opts.account.server
+          })
+        : await loadAccount(task, url)
+    )
   },
 
   isMineUrl(url) {

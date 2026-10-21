@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+    mdiAccountMultiple,
     mdiCloudSync,
     mdiDatabaseOutline,
     mdiExport,
@@ -25,6 +26,7 @@
 
   const ICONS = {
     about: mdiInformationOutline,
+    accounts: mdiAccountMultiple,
     add: mdiPlusCircleOutline,
     cloud: mdiCloudSync,
     export: mdiExport,

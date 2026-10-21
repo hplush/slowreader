@@ -1,5 +1,6 @@
 <script lang="ts" module>
   export interface Link<ItemValue> {
+    avatar?: { icon: string; url: null | string }
     controls?: string
     hint?: string
     href: string
@@ -15,6 +16,7 @@
   import type { Snippet } from 'svelte'
 
   import Clickable from './clickable.svelte'
+  import FeedAvatar from './feed-avatar.svelte'
   import Icon from './icon.svelte'
 
   let {
@@ -47,7 +49,14 @@
         role="menuitem"
         tabindex={-1}
       >
-        {@render item(i.item)}
+        {#if i.avatar}
+          <span class="links_main">
+            <FeedAvatar avatar={i.avatar.url} icon={i.avatar.icon} />
+            {@render item(i.item)}
+          </span>
+        {:else}
+          {@render item(i.item)}
+        {/if}
         {#if i.hint}
           <span class="links_hint">{i.hint}</span>
         {/if}
@@ -148,13 +157,24 @@
       }
     }
 
+    .links_main {
+      display: flex;
+      flex: 1 1 auto;
+      gap: 0.5rem;
+      align-items: center;
+      min-width: 0;
+    }
+
     .links_hint {
       flex-shrink: 0;
       align-self: center;
+      max-width: 50%;
       margin-inline-start: auto;
       padding-inline-start: 0.5rem;
+      overflow: hidden;
       font: var(--secondary-font);
       color: var(--secondary-text-color);
+      text-overflow: ellipsis;
       white-space: nowrap;
     }
 

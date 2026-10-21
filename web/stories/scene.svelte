@@ -1,5 +1,7 @@
 <script lang="ts">
   import {
+    type AccountValue,
+    addAccount,
     addCategory,
     addFeed,
     addPost,
@@ -30,6 +32,7 @@
     startLocalUser,
     stopRefreshing,
     syncStatus,
+    testAccount,
     testFeed,
     testPost,
     theme,
@@ -49,6 +52,7 @@
   } from './environment.ts'
 
   let {
+    accounts,
     categories,
     children,
     feeds,
@@ -59,6 +63,7 @@
     route,
     user = true
   }: {
+    accounts?: Partial<AccountValue>[]
     categories?: NewCategory[]
     children: Snippet
     feeds?: Partial<FeedValue>[]
@@ -81,6 +86,7 @@
     // Rows are added by a single action: a story with hundreds of posts
     // will be too slow with an action per row
     if (categories?.length) await addCategory(categories)
+    for (let account of accounts ?? []) await addAccount(testAccount(account))
     if (feeds?.length) await addFeed(feeds.map(feed => testFeed(feed)))
     if (posts?.length) {
       await addPost(

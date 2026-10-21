@@ -26,6 +26,11 @@ export let testSignals: PasskeySignal[] = []
  */
 export let testHistory: BaseRoute[] = []
 
+/**
+ * OAuth sign in pages of services, which the app opened.
+ */
+export let testOAuthPages: string[] = []
+
 let testRoute = atom<BaseRoute | undefined>()
 
 // The same listeners order as the web client with its computed router
@@ -60,6 +65,10 @@ export function setWarningTracking(tracking: undefined | unknown[]): void {
 
 export type TestRoute<Name extends RouteName = RouteName> = Name extends string
   ? {
+      /**
+       * Raw URL hash, like OAuth callback. It replaces `popups`.
+       */
+      hash?: string
       params: { [Param in keyof Routes[Name]]?: number | string }
       popups?: readonly PopupRoute[]
       route: Name
@@ -69,10 +78,7 @@ export type TestRoute<Name extends RouteName = RouteName> = Name extends string
 /**
  * Opens the URL like user does by link, Back button, or in the address bar.
  */
-export function openRoute(
-  route: ({ hash?: string } & TestRoute) | undefined,
-  replace = false
-): void {
+export function openRoute(route: TestRoute | undefined, replace = false): void {
   let base = route && toBaseRoute(route)
   if (base) {
     if (replace) testHistory.pop()
@@ -85,6 +91,7 @@ export function getTestEnvironment(): Environment {
   testSession = undefined
   testSignals = []
   testHistory = []
+  testOAuthPages = []
   let persistentStore: Record<string, string> = {}
   let savedKey: CryptoKey | undefined
 
@@ -115,6 +122,11 @@ export function getTestEnvironment(): Environment {
     locale: atom('en'),
     networkType() {
       return { saveData: undefined, type: undefined }
+    },
+    oauthRedirect: 'http://127.0.0.1:2553/settings/accounts',
+    openOAuthPage(url) {
+      testOAuthPages.push(url)
+      return new Promise(() => {})
     },
     openRoute,
     passkeySupport: false,
@@ -169,13 +181,21 @@ export interface RequestWaiter {
 
 export interface RequestMock {
   andFail(): void
-  andRespond(status: number, body?: null | string, contentType?: string): void
+  andRespond(
+    status: number,
+    body?: null | string,
+    contentType?: string,
+    headers?: Record<string, string>
+  ): void
   andWait(): RequestWaiter
+  sent(): RequestInit
 }
 
 interface RequestExpect {
   contentType: string
   error: boolean
+  headers: Record<string, string>
+  opts: RequestInit | undefined
   response: null | string
   status: number
   url: string
@@ -203,7 +223,9 @@ let fetchMock: RequestMethod = async (url, opts = {}) => {
     throw new MockRequestError(
       `Expected request ${expect.url} instead of ${url}`
     )
-  } else if (expect.error) {
+  }
+  expect.opts = opts
+  if (expect.error) {
     await delay(10)
     // Real `fetch()` throws `TypeError` on network problems
     throw new TypeError('Network Error')
@@ -219,7 +241,7 @@ let fetchMock: RequestMethod = async (url, opts = {}) => {
     opts.signal?.removeEventListener('abort', abortCallback)
 
     let response = new Response(expect.response, {
-      headers: { 'Content-Type': expect.contentType },
+      headers: { 'Content-Type': expect.contentType, ...expect.headers },
       status: expect.status
     })
     Object.defineProperty(response, 'url', { value: url })
@@ -244,6 +266,8 @@ export function expectRequest(url: string): RequestMock {
   let expect: RequestExpect = {
     contentType: 'text/html',
     error: false,
+    headers: {},
+    opts: undefined,
     response: '',
     status: 200,
     url,
@@ -261,8 +285,9 @@ export function expectRequest(url: string): RequestMock {
     /**
      * Setup simple immediately response
      */
-    andRespond(status, body = '', contentType = 'text/html') {
+    andRespond(status, body = '', contentType = 'text/html', headers = {}) {
       expect.contentType = contentType
+      expect.headers = headers
       expect.status = status
       expect.response = body
     },
@@ -280,6 +305,13 @@ export function expectRequest(url: string): RequestMock {
         return delay(10)
       }
       return expect.waiter
+    },
+    /**
+     * Options of the sent request to check its body and headers
+     */
+    sent() {
+      if (!expect.opts) throw new Error(`${url} was not requested`)
+      return expect.opts
     }
   }
 }

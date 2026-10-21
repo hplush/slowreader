@@ -1,5 +1,5 @@
 <script lang="ts" module>
-  import { mdiChevronRight } from '@mdi/js'
+  import { mdiAccount, mdiChevronRight } from '@mdi/js'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import Links, { type Link } from '../../ui/links.svelte'
@@ -94,6 +94,14 @@
           item: { title: 'Hint with a very long title, which wraps' },
           mark: mdiChevronRight,
           variant: 'read'
+        },
+        {
+          avatar: { icon: mdiAccount, url: null },
+          hint: '@user@mastodon.social',
+          href: '#',
+          id: 'Avatar',
+          item: { title: 'Avatar' },
+          mark: mdiChevronRight
         }
       ]}
     />

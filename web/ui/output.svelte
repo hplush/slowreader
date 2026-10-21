@@ -74,6 +74,7 @@
     .output {
       flex-shrink: 1;
       width: stretch;
+      min-width: 0;
     }
 
     .output_control {

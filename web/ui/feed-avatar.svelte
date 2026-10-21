@@ -1,23 +1,25 @@
 <script lang="ts">
   import { mdiRss } from '@mdi/js'
-  import { updateFeedAvatar } from '@slowreader/core'
+  import { updateFeedData } from '@slowreader/core'
 
   import Icon from './icon.svelte'
 
   let {
     avatar,
     feedId,
+    icon = mdiRss,
     size = 'small'
   }: {
     avatar: null | string | undefined
     feedId?: string
+    icon?: string
     size?: 'large' | 'medium' | 'small'
   } = $props()
 
   let broken = $state<string>()
 
   $effect(() => {
-    if (!avatar && feedId) void updateFeedAvatar(feedId)
+    if (!avatar && feedId) void updateFeedData(feedId)
   })
 </script>
 
@@ -32,7 +34,7 @@
     loading="lazy"
     onerror={() => {
       broken = avatar
-      if (feedId) void updateFeedAvatar(feedId)
+      if (feedId) void updateFeedData(feedId)
     }}
     referrerpolicy="no-referrer"
     src={avatar}
@@ -43,7 +45,7 @@
     class:is-large={size === 'large'}
     class:is-medium={size === 'medium'}
   >
-    <Icon path={mdiRss} />
+    <Icon path={icon} />
   </span>
 {/if}
 

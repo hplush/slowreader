@@ -68,6 +68,7 @@ export {
   mockRequest,
   openRoute,
   testHistory,
+  testOAuthPages,
   testSession,
   testSignals
 } from '../test.ts'

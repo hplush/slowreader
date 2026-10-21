@@ -7,7 +7,7 @@ export class WrongPasswordError extends Error {
   }
 }
 
-function toBase64(bytes: Uint8Array): string {
+export function toBase64(bytes: Uint8Array): string {
   let binary = ''
   for (let byte of bytes) binary += String.fromCharCode(byte)
   return btoa(binary)

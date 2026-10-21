@@ -6,6 +6,7 @@ import { userId } from './settings.ts'
 
 export interface Routes {
   about: {}
+  accounts: {}
   add: { url?: string }
   cloud: {}
   network: {}
@@ -35,6 +36,7 @@ export interface Routes {
 }
 
 export const popupNames = {
+  account: true,
   feed: true,
   passkey: true,
   post: true,

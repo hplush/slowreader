@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 import {
   createDownloadTask,
   createTextResponse,
+  type DownloadTask,
   loaders,
   setRequestMethod,
   testFeed,
@@ -20,6 +21,23 @@ import {
 } from '../utils.ts'
 
 setupNodeDom()
+
+function expectIcon(url: string): void {
+  expectRequest(url).andRespond(200, 'IMAGE', 'image/png')
+}
+
+function expectNoSiteIcon(): void {
+  expectRequest('https://example.com/').andRespond(404)
+  expectRequest('https://example.com/favicon.ico').andRespond(404)
+}
+
+async function loadAvatar(
+  response: TextResponse,
+  task: DownloadTask,
+  url: string
+): Promise<string | undefined> {
+  return (await loaders.rss.loadFeedData(task, url, { response })).avatar
+}
 
 describe('rss loader', () => {
   function exampleRss(responseBody: string): TextResponse {
@@ -138,10 +156,11 @@ describe('rss loader', () => {
     )
   })
 
-  test('finds avatar', async () => {
+  test('loads feed avatar', async () => {
     let task = createDownloadTask()
+    expectIcon('https://example.com/logo.png')
     equal(
-      await loaders.rss.getAvatar(
+      await loadAvatar(
         exampleRss(
           `<rss version="2.0">
             <channel>
@@ -154,8 +173,9 @@ describe('rss loader', () => {
       ),
       'https://example.com/logo.png'
     )
+    expectIcon('https://example.com/big.png')
     equal(
-      await loaders.rss.getAvatar(
+      await loadAvatar(
         exampleRss(
           `<rss version="2.0">
             <channel>
@@ -172,8 +192,9 @@ describe('rss loader', () => {
       ),
       'https://example.com/big.png'
     )
+    expectNoSiteIcon()
     equal(
-      await loaders.rss.getAvatar(
+      await loadAvatar(
         exampleRss(
           `<rss version="2.0">
             <channel>
@@ -190,13 +211,23 @@ describe('rss loader', () => {
       ),
       undefined
     )
+    expectNoSiteIcon()
     equal(
-      await loaders.rss.getAvatar(
+      await loadAvatar(
         exampleRss('<rss version="2.0"><channel></channel></rss>'),
         task,
         'https://example.com/'
       ),
       undefined
+    )
+    expectNoSiteIcon()
+    deepEqual(
+      await loaders.rss.loadFeedData(task, 'https://example.com/', {
+        response: exampleRss(
+          '<rss version="2.0"><channel><title>Blog</title></channel></rss>'
+        )
+      }),
+      { avatar: undefined, title: 'Blog', url: 'https://example.com/' }
     )
   })
 

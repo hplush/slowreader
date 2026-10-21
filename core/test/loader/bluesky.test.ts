@@ -212,17 +212,21 @@ describe('bluesky loader', () => {
     ])
   })
 
-  test('finds avatar', async () => {
+  test('loads feed data', async () => {
     expectRequest(
       `${API}/app.bsky.actor.getProfile?actor=jane.bsky.social`
     ).andRespond(200, JSON.stringify(profile('jane')), 'application/json')
-    equal(
-      await loaders.bluesky.getAvatar(
-        page('https://bsky.app/profile/jane.bsky.social'),
+    deepEqual(
+      await loaders.bluesky.loadFeedData(
         createDownloadTask(),
         'https://bsky.app/profile/jane.bsky.social'
       ),
-      'https://cdn.bsky.app/jane.jpg'
+      {
+        avatar: 'https://cdn.bsky.app/jane.jpg',
+        handle: '@jane.bsky.social',
+        title: 'JANE',
+        url: 'https://bsky.app/profile/jane.bsky.social'
+      }
     )
   })
 

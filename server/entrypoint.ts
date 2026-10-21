@@ -83,6 +83,7 @@ function buildNginxConfig(selfHosted: boolean, webOrigin: string): string {
     '__SCRIPT_URLS__',
     scripts.map(url => new URL(url, webOrigin).href).join(' ')
   )
+  conf = replace(conf, '__WEB_ORIGIN__', webOrigin)
   let rules = ''
 
   if (process.env.STAGING || selfHosted) {

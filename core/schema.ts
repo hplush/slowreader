@@ -53,6 +53,52 @@ const READERS = ['feed', 'list'] as const satisfies readonly UsefulReaderName[]
 
 const READINGS = ['fast', 'slow'] as const
 
+export const ACCOUNT_SERVICES = ['mastodon', 'bluesky'] as const
+
+export type AccountService = (typeof ACCOUNT_SERVICES)[number]
+
+/**
+ * Private JWK of the DPoP key. It is synced, so another device could use
+ * the tokens bound to it.
+ */
+let dpopKeyShape = {
+  crv: string(),
+  d: string(),
+  kty: string(),
+  x: string(),
+  y: string()
+}
+
+let credentialsShape = {
+  accessToken: string(),
+  clientId: string(),
+  clientSecret: optional(string()),
+  dpopKey: optional(json(dpopKeyShape)),
+  expiresAt: optional(bigint()),
+  refreshToken: optional(string()),
+  tokenUrl: string()
+}
+
+export type AccountCredentials = CrdtJsonType<typeof credentialsShape>
+export type DpopKey = CrdtJsonType<typeof dpopKeyShape>
+
+export const accountsTable = defineCrdtTable(
+  'accounts',
+  {
+    avatar: optional(string()),
+    categoryId: string({ default: GENERAL_CATEGORY }),
+    credentials: json(credentialsShape),
+    // Use the account by default on subscribing to its service’s author
+    follow: boolean({ default: false }),
+    handle: string(),
+    server: string(),
+    service: oneOf(ACCOUNT_SERVICES),
+    title: string(),
+    url: string()
+  },
+  ['title']
+)
+
 export const categoriesTable = defineCrdtTable(
   'categories',
   {
@@ -73,6 +119,7 @@ export const feedsTable = defineCrdtTable(
     lastPublishedAt: optional(bigint()),
     loader: string<LoaderName>(),
     loaderData: optional(string()),
+    originTitle: optional(string()),
     reading: oneOf(READINGS, { default: 'slow' }),
     refreshedAt: optional(bigint()),
     slowReader: optional(oneOf(READERS)),
@@ -210,27 +257,32 @@ export const postsTable = defineCrdtTable(
   ]
 )
 
+type AccountsSchema = typeof accountsTable.schema
 type CategoriesSchema = typeof categoriesTable.schema
 type FeedsSchema = typeof feedsTable.schema
 type FiltersSchema = typeof filtersTable.schema
 type PostsSchema = typeof postsTable.schema
 
+export type AccountValue = CrdtTableRow<AccountsSchema>
 export type CategoryValue = CrdtTableRow<CategoriesSchema>
 export type FeedValue = CrdtTableRow<FeedsSchema>
 export type FilterValue = CrdtTableRow<FiltersSchema>
 export type PostValue = CrdtTableRow<PostsSchema>
 
+export type NewAccount = NewCrdtRow<AccountsSchema>
 export type NewCategory = NewCrdtRow<CategoriesSchema>
 export type NewFeed = NewCrdtRow<FeedsSchema>
 export type NewFilter = NewCrdtRow<FiltersSchema>
 export type NewPost = NewCrdtRow<PostsSchema>
 
+export type AccountChanges = Partial<CrdtRowFields<AccountsSchema>>
 export type CategoryChanges = Partial<CrdtRowFields<CategoriesSchema>>
 export type FeedChanges = Partial<CrdtRowFields<FeedsSchema>>
 export type FilterChanges = Partial<CrdtRowFields<FiltersSchema>>
 export type PostChanges = Partial<CrdtRowFields<PostsSchema>>
 
 export interface Tables {
+  accounts: CrdtTable<AccountsSchema>
   categories: CrdtTable<CategoriesSchema>
   feeds: CrdtTable<FeedsSchema>
   filters: CrdtTable<FiltersSchema>
@@ -380,6 +432,7 @@ async function uploadLocalData(logux: CrossTabClient): Promise<void> {
   uploadingLocalData.set(true)
   let tables = getTables()
   let actions = await crdtTableToActions([
+    tables.accounts,
     tables.categories,
     tables.feeds,
     tables.filters,
@@ -498,6 +551,7 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
   })
 
   currentTables = {
+    accounts: crdt.table(accountsTable),
     categories: crdt.table(categoriesTable),
     feeds: crdt.table(feedsTable),
     filters: crdt.table(filtersTable),

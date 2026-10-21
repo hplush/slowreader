@@ -1,7 +1,11 @@
 import { atom } from 'nanostores'
 
 export interface RequestMethod {
-  (url: string, opts?: RequestInit): Promise<Response>
+  /**
+   * @param direct Request has user’s tokens, so it must skip the proxy
+   *               and go right to the service.
+   */
+  (url: string, opts?: RequestInit, direct?: boolean): Promise<Response>
 }
 
 export let request: RequestMethod
@@ -20,7 +24,8 @@ export function setProxyAsRequestMethod(
   proxyUrl: string,
   origin?: string
 ): void {
-  setRequestMethod(async (url, opts = {}) => {
+  setRequestMethod(async (url, opts = {}, direct = false) => {
+    if (direct) return fetch(url, opts)
     let debug = proxyDebug.get()
     let headers = new Headers(opts.headers)
     if (origin) headers.set('Origin', origin)
