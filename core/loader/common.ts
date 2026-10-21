@@ -3,7 +3,7 @@ import type { DownloadTask, TextResponse } from '../lib/download.ts'
 import { isAbsoluteUrl, mapRelativeSrcset, parseDocument } from '../lib/html.ts'
 import type { OriginPost, ParsedPost, PostMedia } from '../post.ts'
 import type { PostsList, PostsListResult } from '../posts-list.ts'
-import type { AccountValue, NewAccount } from '../schema.ts'
+import type { AccountCredentials, AccountValue, NewAccount } from '../schema.ts'
 
 export interface DetectedFeed {
   title: string
@@ -63,6 +63,26 @@ export type SignInAnswer =
   | { type: 'input'; value: string }
 
 /**
+ * Account with tokens for requests. Loader changes `account.credentials`
+ * after the token refresh.
+ */
+export interface AccountAuth {
+  account: AccountValue
+
+  /**
+   * Refresh token is single-use, so the failed refresh could mean that
+   * another device already used it. Returns tokens from that device after
+   * the sync, if they are new.
+   */
+  reload(): Promise<AccountCredentials | undefined>
+
+  /**
+   * Save tokens after the refresh.
+   */
+  save(credentials: AccountCredentials): Promise<void>
+}
+
+/**
  * User’s account on the service to read the home timeline and follow authors.
  */
 export interface AccountLoader<Data = unknown> {
@@ -81,11 +101,31 @@ export interface AccountLoader<Data = unknown> {
    */
   firstField: SignInField
 
+  follow(task: DownloadTask, auth: AccountAuth, url: string): Promise<void>
+
+  /**
+   * Home timeline from the newest post. Every post has `author`.
+   * Replies to other authors are skipped like in profile feeds.
+   */
+  getTimeline(
+    task: DownloadTask,
+    auth: AccountAuth,
+    refreshedAt?: number
+  ): PostsList
+
+  isFollowing(
+    task: DownloadTask,
+    auth: AccountAuth,
+    url: string
+  ): Promise<boolean>
+
   /**
    * Start the sign in by the first field value. For instance, find user’s
    * server and return its OAuth page.
    */
   startSignIn(task: DownloadTask, input: string): Promise<SignInStep<Data>>
+
+  unfollow(task: DownloadTask, auth: AccountAuth, url: string): Promise<void>
 }
 
 export type Loader = {

@@ -16,7 +16,8 @@ import {
   parseJson,
   randomToken,
   readString,
-  requestJson
+  requestJson,
+  sha256
 } from '../lib/oauth.ts'
 import { accountsMessages as t } from '../messages/index.ts'
 import type {
@@ -29,8 +30,9 @@ import type {
 } from '../post.ts'
 import { createPostsList, type PostsListResult } from '../posts-list.ts'
 import { request } from '../request.ts'
-import type { DpopKey } from '../schema.ts'
+import type { AccountCredentials, DpopKey } from '../schema.ts'
 import {
+  type AccountAuth,
   type AccountLoader,
   type FeedData,
   findDocumentLinks,
@@ -47,6 +49,7 @@ interface BlueskyProfile {
   did: string
   displayName?: string
   handle: string
+  viewer?: { following?: string }
 }
 
 interface BlueskyLabel {
@@ -739,8 +742,10 @@ function encodeJson(json: object): string {
 
 async function createDpopProof(
   key: DpopKey,
+  method: string,
   url: string,
-  nonce: string | undefined
+  nonce: string | undefined,
+  accessToken?: string
 ): Promise<string> {
   let privateKey = await crypto.subtle.importKey(
     'jwk',
@@ -755,8 +760,9 @@ async function createDpopProof(
     typ: 'dpop+jwt'
   })
   let payload = encodeJson({
-    htm: 'POST',
-    htu: url,
+    ath: accessToken && (await sha256(accessToken)),
+    htm: method,
+    htu: url.split('?')[0],
     iat: Math.floor(Date.now() / 1000),
     jti: randomToken(),
     nonce
@@ -778,7 +784,7 @@ async function dpopPost(
   body: URLSearchParams,
   nonce?: string
 ): Promise<Record<string, unknown>> {
-  let proof = await createDpopProof(key, url, nonce)
+  let proof = await createDpopProof(key, 'POST', url, nonce)
   let response = await detectNetworkError(() => {
     return request(
       url,
@@ -795,6 +801,166 @@ async function dpopPost(
     throw new HTTPStatusError(response.status, url, text, response.headers)
   }
   return parseJson(response)
+}
+
+function toCredentials(
+  token: Record<string, unknown>,
+  previous: Omit<AccountCredentials, 'accessToken' | 'refreshToken'>
+): AccountCredentials {
+  return {
+    ...previous,
+    accessToken: readString(token, 'access_token'),
+    expiresAt:
+      typeof token.expires_in === 'number'
+        ? Math.round(Date.now() / 1000) + token.expires_in
+        : undefined,
+    refreshToken: readString(token, 'refresh_token')
+  }
+}
+
+async function refreshTokens(auth: AccountAuth): Promise<void> {
+  let { credentials } = auth.account
+  let token: Record<string, unknown>
+  try {
+    token = await dpopPost(
+      credentials.dpopKey!,
+      credentials.tokenUrl,
+      new URLSearchParams({
+        client_id: credentials.clientId,
+        grant_type: 'refresh_token',
+        refresh_token: credentials.refreshToken ?? ''
+      })
+    )
+  } catch (e) {
+    if (!HTTPStatusError.is(e, [400, 401])) throw e
+    let fromOtherDevice = await auth.reload()
+    if (!fromOtherDevice) throw new UserFacingError(t.get().signInAgain)
+    auth.account = { ...auth.account, credentials: fromOtherDevice }
+    return
+  }
+  let refreshed = toCredentials(token, credentials)
+  auth.account = { ...auth.account, credentials: refreshed }
+  await auth.save(refreshed)
+}
+
+/**
+ * PDS asks for a new nonce from time to time, so the last one is kept
+ * to not repeat every request.
+ */
+let pdsNonces = new Map<string, string>()
+
+function needNonce(error: HTTPStatusError): boolean {
+  return (
+    error.response.includes('use_dpop_nonce') ||
+    !!error.headers.get('WWW-Authenticate')?.includes('use_dpop_nonce')
+  )
+}
+
+/**
+ * Request to user’s PDS, which proxies `app.bsky.*` methods to AppView.
+ */
+async function requestByAccount(
+  task: DownloadTask,
+  auth: AccountAuth,
+  path: string,
+  body?: object,
+  retried: { nonce?: true; token?: true } = {}
+): Promise<TextResponse> {
+  let { credentials, server } = auth.account
+  let now = Math.round(Date.now() / 1000)
+  if (!retried.token && credentials.expiresAt && credentials.expiresAt < now) {
+    await refreshTokens(auth)
+    return requestByAccount(task, auth, path, body, { ...retried, token: true })
+  }
+  let url = `${server}/xrpc/${path}`
+  let method = body ? 'POST' : 'GET'
+  let { origin } = new URL(url)
+  let headers: Record<string, string> = {
+    Authorization: `DPoP ${credentials.accessToken}`,
+    DPoP: await createDpopProof(
+      credentials.dpopKey!,
+      method,
+      url,
+      pdsNonces.get(origin),
+      credentials.accessToken
+    )
+  }
+  if (body) headers['Content-Type'] = 'application/json'
+  try {
+    let response = await task.text(
+      url,
+      { body: body && JSON.stringify(body), headers, method },
+      true
+    )
+    let nonce = response.headers.get('DPoP-Nonce')
+    if (nonce) pdsNonces.set(origin, nonce)
+    return response
+  } catch (e) {
+    if (!HTTPStatusError.is(e, [400, 401])) throw e
+    let nonce = e.headers.get('DPoP-Nonce')
+    if (nonce) pdsNonces.set(origin, nonce)
+    if (!retried.nonce && nonce && needNonce(e)) {
+      return requestByAccount(task, auth, path, body, {
+        ...retried,
+        nonce: true
+      })
+    }
+    if (!retried.token && e.status === 401) {
+      await refreshTokens(auth)
+      return requestByAccount(task, auth, path, body, {
+        ...retried,
+        token: true
+      })
+    }
+    throw e
+  }
+}
+
+async function loadTimelinePage(
+  task: DownloadTask,
+  auth: AccountAuth,
+  findPds: PdsFinder,
+  refreshedAt: number | undefined,
+  cursor?: string
+): Promise<PostsListResult> {
+  let page = parseFeed(
+    await requestByAccount(
+      task,
+      auth,
+      'app.bsky.feed.getTimeline?limit=50' +
+        (cursor ? `&cursor=${encodeURIComponent(cursor)}` : '')
+    )
+  )
+  let next = page.cursor
+  return [
+    await Promise.all(
+      page.feed
+        .filter(item => !isReplyToOthers(item))
+        .map(async item => ({
+          author: toAuthor(item.post.author),
+          ...(await parseItem(item, findPds))
+        }))
+    ),
+    next &&
+    page.feed.length > 0 &&
+    !isOlderThanRefresh(page.feed.at(-1)!, refreshedAt)
+      ? () => loadTimelinePage(task, auth, findPds, refreshedAt, next)
+      : undefined
+  ]
+}
+
+async function loadProfileByAccount(
+  task: DownloadTask,
+  auth: AccountAuth,
+  url: string
+): Promise<BlueskyProfile> {
+  return parseProfile(
+    await requestByAccount(
+      task,
+      auth,
+      `app.bsky.actor.getProfile?actor=${encodeURIComponent(getActor(url))}`
+    )
+  )
 }
 
 /**
@@ -884,17 +1050,11 @@ let blueskyAccount: AccountLoader<BlueskySignIn> = {
     return {
       account: {
         ...toFeedData(await loadProfile(task, data.did)),
-        credentials: {
-          accessToken: readString(token, 'access_token'),
+        credentials: toCredentials(token, {
           clientId: data.clientId,
           dpopKey: data.dpopKey,
-          expiresAt:
-            typeof token.expires_in === 'number'
-              ? Math.round(Date.now() / 1000) + token.expires_in
-              : undefined,
-          refreshToken: readString(token, 'refresh_token'),
           tokenUrl: data.tokenUrl
-        },
+        }),
         server: data.server,
         // DID URL keeps working after the handle change
         url: `${APP}/profile/${data.did}`
@@ -904,6 +1064,31 @@ let blueskyAccount: AccountLoader<BlueskySignIn> = {
   },
 
   firstField: 'handle',
+
+  async follow(task, auth, url) {
+    let profile = await loadProfileByAccount(task, auth, url)
+    if (profile.viewer?.following) return
+    await requestByAccount(task, auth, 'com.atproto.repo.createRecord', {
+      collection: 'app.bsky.graph.follow',
+      record: {
+        $type: 'app.bsky.graph.follow',
+        createdAt: new Date().toISOString(),
+        subject: profile.did
+      },
+      repo: getActor(auth.account.url)
+    })
+  },
+
+  getTimeline(task, auth, refreshedAt) {
+    return createPostsList(() =>
+      loadTimelinePage(task, auth, createPdsFinder(task), refreshedAt)
+    )
+  },
+
+  async isFollowing(task, auth, url) {
+    let profile = await loadProfileByAccount(task, auth, url)
+    return !!profile.viewer?.following
+  },
 
   async startSignIn(task, input) {
     let { did, handle, server } = await resolveHandle(task, input)
@@ -956,6 +1141,17 @@ let blueskyAccount: AccountLoader<BlueskySignIn> = {
       type: 'open',
       url: url.href
     }
+  },
+
+  async unfollow(task, auth, url) {
+    let profile = await loadProfileByAccount(task, auth, url)
+    let following = profile.viewer?.following
+    if (!following) return
+    await requestByAccount(task, auth, 'com.atproto.repo.deleteRecord', {
+      collection: 'app.bsky.graph.follow',
+      repo: getActor(auth.account.url),
+      rkey: following.split('/').pop()
+    })
   }
 }
 

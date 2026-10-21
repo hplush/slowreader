@@ -231,7 +231,7 @@ export function createDownloadTask(
       for (let url of cached) cache.delete(url)
       controller.abort()
     },
-    async request(url, opts = {}) {
+    async request(url, opts = {}, direct) {
       if (taskOpts.cache) {
         let fromCache = cache.get(url)
         if (fromCache) {
@@ -245,11 +245,11 @@ export function createDownloadTask(
         taskOpts.tries ?? 3,
         () => {
           return detectNetworkError(() => {
-            return request(url, {
-              redirect: 'follow',
-              signal: controller.signal,
-              ...opts
-            })
+            return request(
+              url,
+              { redirect: 'follow', signal: controller.signal, ...opts },
+              direct
+            )
           })
         },
         controller.signal
@@ -271,8 +271,8 @@ export function createDownloadTask(
       }
       return response
     },
-    async text(url, opts) {
-      let response = await this.request(url, opts)
+    async text(url, opts, direct) {
+      let response = await this.request(url, opts, direct)
 
       let headerCharset = extractCharsetFromHeader(response.headers)
       let buffer = new Uint8Array(await response.arrayBuffer())

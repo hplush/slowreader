@@ -66,6 +66,21 @@
     uri: `https://mastodon.social/users/jane/statuses/${id}`,
     url: `https://mastodon.social/@jane/${id}`
   }))
+
+  const ACCOUNTS = [
+    {
+      handle: '@me@mastodon.social',
+      id: 'account-me',
+      title: 'Me',
+      url: 'https://mastodon.social/@me'
+    },
+    {
+      handle: '@work@mastodon.social',
+      id: 'account-work',
+      title: 'Work',
+      url: 'https://mastodon.social/@work'
+    }
+  ]
 </script>
 
 <Story name="New" asChild parameters={{ layout: 'fullscreen' }}>
@@ -146,6 +161,7 @@
 
 <Story name="Added Loading More" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
+    accounts={ACCOUNTS}
     feeds={[{ loader: 'mastodon', url: 'https://mastodon.social/@jane' }]}
     responses={[
       [
@@ -180,26 +196,6 @@
   </Scene>
 </Story>
 
-<Story name="Added Fast" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene
-    feeds={[
-      {
-        avatar:
-          'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAFklEQVR42mPQmmtPEmIY1TCqYfhqAAA1jwYQh1fDuAAAAABJRU5ErkJggg==',
-        reading: 'fast',
-        url: 'https://example.com/news.atom'
-      }
-    ]}
-    responses={[['https://example.com/news.atom', ATOM]]}
-  >
-    <LoadedPopup popup={popups.feed('https://example.com/news.atom')}>
-      {#snippet loaded(popup)}
-        <FeedPopupComponent {popup} />
-      {/snippet}
-    </LoadedPopup>
-  </Scene>
-</Story>
-
 <Story
   name="New Mobile"
   asChild
@@ -226,6 +222,45 @@
     responses={[['https://example.com/news.atom', ATOM]]}
   >
     <LoadedPopup popup={popups.feed('https://example.com/news.atom')}>
+      {#snippet loaded(popup)}
+        <FeedPopupComponent {popup} />
+      {/snippet}
+    </LoadedPopup>
+  </Scene>
+</Story>
+
+<Story name="Virtual" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    accounts={ACCOUNTS}
+    feeds={[
+      {
+        accountId: 'account-work',
+        loader: 'mastodon',
+        reading: 'slow',
+        url: 'https://mastodon.social/@jane'
+      }
+    ]}
+    responses={[
+      [
+        'https://mastodon.social/@jane',
+        '<!DOCTYPE html><html><head>' +
+          '<meta content="Jane (@jane@mastodon.social)" property="og:title">' +
+          '</head></html>'
+      ],
+      [
+        `${MASTODON_API}/lookup?acct=jane`,
+        {
+          body: JSON.stringify(STATUSES[0]!.account),
+          contentType: 'application/json'
+        }
+      ],
+      [
+        `${MASTODON_API}/jane/statuses?exclude_replies=true`,
+        { body: JSON.stringify(STATUSES), contentType: 'application/json' }
+      ]
+    ]}
+  >
+    <LoadedPopup popup={popups.feed('https://mastodon.social/@jane')}>
       {#snippet loaded(popup)}
         <FeedPopupComponent {popup} />
       {/snippet}

@@ -3,11 +3,12 @@ import type { FeedReader } from './feed.ts'
 import type { ListReader } from './list.ts'
 import type { WelcomeReader } from './welcome.ts'
 
-export type {
-  BaseReader,
-  FeedAuthor,
-  ReaderCreator,
-  ReaderName
+export {
+  type BaseReader,
+  type FeedAuthor,
+  getFeedAuthor,
+  type ReaderCreator,
+  type ReaderName
 } from './common.ts'
 export * from './empty.ts'
 export * from './feed.ts'

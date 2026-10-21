@@ -1,5 +1,10 @@
 <script lang="ts">
-  import type { FeedAuthor, PreviewPost, ReaderPost } from '@slowreader/core'
+  import {
+    type FeedAuthor,
+    getFeedAuthor,
+    type PreviewPost,
+    type ReaderPost
+  } from '@slowreader/core'
 
   import FeedPost from './post.svelte'
 
@@ -16,7 +21,7 @@
 
 <ul class="feed">
   {#each posts as post (post.id)}
-    {@const author = 'feedId' in post ? authors?.get(post.feedId) : undefined}
+    {@const author = getFeedAuthor(post, authors)}
     <FeedPost {author} feedUrl={author?.url ?? feedUrl} {post} />
   {/each}
 </ul>

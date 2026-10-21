@@ -24,7 +24,7 @@ import { loadPreviewThread, loadThreadByUrl, updateThread } from '../thread.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
 export function getPostPopupParam(
-  post: { feedId: string; id: string } | OriginPost,
+  post: { feedId: null | string; id: string } | OriginPost,
   autoread = false
 ): string {
   if ('feedId' in post) {
@@ -129,12 +129,15 @@ export const post = definePopup('post', async loader => {
 
   let postValue = $post.get()
   if ('feedId' in postValue) {
-    let feedValue = await loadFeed(postValue.feedId)
+    let feedValue = postValue.feedId
+      ? await loadFeed(postValue.feedId)
+      : undefined
     if (feedValue) $feed = atom(feedValue)
     let { id: shownId, threadId } = postValue
     if (threadId) {
+      let sourceId = postValue.feedId ?? postValue.accountId!
       $parts.set(
-        (await loadThreadPosts(postValue.feedId, threadId)).filter(
+        (await loadThreadPosts(sourceId, threadId)).filter(
           part => part.id !== shownId
         )
       )

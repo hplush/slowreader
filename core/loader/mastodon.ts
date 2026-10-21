@@ -1,5 +1,10 @@
 import { getEnvironment } from '../environment.ts'
-import { HTTPStatusError, ParseError, UserFacingError } from '../errors.ts'
+import {
+  HTTPStatusError,
+  NotFoundError,
+  ParseError,
+  UserFacingError
+} from '../errors.ts'
 import {
   createDownloadTask,
   type DownloadTask,
@@ -18,6 +23,7 @@ import type {
 } from '../post.ts'
 import { createPostsList, type PostsListResult } from '../posts-list.ts'
 import {
+  type AccountAuth,
   type AccountLoader,
   type FeedData,
   findDocumentLinks,
@@ -568,6 +574,82 @@ async function loadOwnAccount(account: {
   return json as unknown as MastodonAccount
 }
 
+function requestByAccount(
+  task: DownloadTask,
+  auth: AccountAuth,
+  path: string,
+  method = 'GET'
+): Promise<TextResponse> {
+  let { credentials, server } = auth.account
+  return task.text(
+    `${server}${path}`,
+    { headers: { Authorization: `Bearer ${credentials.accessToken}` }, method },
+    true
+  )
+}
+
+/**
+ * Home timeline has replies to other authors, which profile feeds skip
+ * by `exclude_replies`. Author’s replies to own thread are thread parts.
+ */
+function isReplyToOthers(status: MastodonStatus): boolean {
+  return (
+    !status.reblog &&
+    !!status.in_reply_to_id &&
+    status.in_reply_to_account_id !== status.account.id
+  )
+}
+
+async function loadTimelinePage(
+  task: DownloadTask,
+  auth: AccountAuth,
+  maxId?: string
+): Promise<PostsListResult> {
+  let statuses = parseStatusList(
+    await requestByAccount(
+      task,
+      auth,
+      '/api/v1/timelines/home?limit=40' + (maxId ? `&max_id=${maxId}` : '')
+    )
+  )
+  let last = statuses[statuses.length - 1]
+  let shown = statuses.filter(status => !isReplyToOthers(status))
+  let posts = await parseStatuses(task, auth.account.server, shown)
+  return [
+    posts.map((post, index) => ({
+      author: toAuthor(shown[index]!.account),
+      ...post
+    })),
+    last ? () => loadTimelinePage(task, auth, last.id) : undefined
+  ]
+}
+
+/**
+ * Author’s ID on the account’s server. The search loads remote authors,
+ * which the server did not see before.
+ */
+async function findAuthorId(
+  task: DownloadTask,
+  auth: AccountAuth,
+  url: string
+): Promise<string> {
+  let response = await requestByAccount(
+    task,
+    auth,
+    `/api/v2/search?q=${encodeURIComponent(url)}` +
+      '&resolve=true&type=accounts&limit=1'
+  )
+  let result = response.parseJson()
+  if (!isObject(result) || !Array.isArray(result.accounts)) {
+    throw new ParseError('Mastodon search has no accounts', response.text)
+  }
+  let found: unknown = result.accounts[0]
+  if (!isObject(found) || typeof found.id !== 'string') {
+    throw new NotFoundError()
+  }
+  return found.id
+}
+
 function toFeedData(account: MastodonAccount): { handle: string } & FeedData {
   return {
     avatar: account.avatar || undefined,
@@ -611,6 +693,30 @@ let mastodonAccount: AccountLoader<MastodonSignIn> = {
 
   firstField: 'server',
 
+  async follow(task, auth, url) {
+    let id = await findAuthorId(task, auth, url)
+    await requestByAccount(task, auth, `/api/v1/accounts/${id}/follow`, 'POST')
+  },
+
+  getTimeline(task, auth) {
+    return createPostsList(() => loadTimelinePage(task, auth))
+  },
+
+  async isFollowing(task, auth, url) {
+    let id = await findAuthorId(task, auth, url)
+    let response = await requestByAccount(
+      task,
+      auth,
+      `/api/v1/accounts/relationships?id[]=${id}`
+    )
+    let relationships = response.parseJson()
+    if (!Array.isArray(relationships)) {
+      throw new ParseError('Mastodon relationships are wrong', response.text)
+    }
+    let relationship: unknown = relationships[0]
+    return isObject(relationship) && relationship.following === true
+  },
+
   async startSignIn(task, input) {
     let server = await resolveServer(task, input)
     let metadata = await loadMetadata(server)
@@ -640,6 +746,16 @@ let mastodonAccount: AccountLoader<MastodonSignIn> = {
       type: 'open',
       url: url.href
     }
+  },
+
+  async unfollow(task, auth, url) {
+    let id = await findAuthorId(task, auth, url)
+    await requestByAccount(
+      task,
+      auth,
+      `/api/v1/accounts/${id}/unfollow`,
+      'POST'
+    )
   }
 }
 

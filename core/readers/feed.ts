@@ -66,18 +66,17 @@ export const feedReader = createReader('feed', (filter, params) => {
       }
     }
     if (filter.categoryId) {
-      $authors.set(
-        new Map(
-          list.map(post => [
-            post.feedId,
-            {
-              avatar: post.authorAvatar ?? null,
-              title: post.authorTitle!,
-              url: post.authorUrl!
-            }
-          ])
-        )
-      )
+      let authors = new Map<string, FeedAuthor>()
+      for (let post of list) {
+        if (!post.feedId) continue
+        authors.set(post.feedId, {
+          avatar: post.authorAvatar ?? null,
+          feedId: post.feedId,
+          title: post.authorTitle!,
+          url: post.authorUrl!
+        })
+      }
+      $authors.set(authors)
     }
     $list.set(list)
     $loading.set(false)

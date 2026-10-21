@@ -10,17 +10,20 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
+  addAccount,
   addCategory,
   addFeed,
   addFilter,
   addPost,
   busy,
   busyUntilMenuLoader,
+  changeAccount,
   changeCategory,
   changeFeed,
   changeFilter,
   closedCategories,
   commonMessages,
+  deleteAccount,
   deleteCategory,
   deleteFeed,
   deleteFilter,
@@ -40,9 +43,11 @@ import {
   syncError,
   syncStatus,
   syncStatusType,
+  testAccount,
   testFeed,
   testPost,
   toggleCategory,
+  unreadFastMenu,
   userId,
   waitLoading
 } from '../index.ts'
@@ -197,6 +202,40 @@ describe('menu', () => {
       { id: idB, title: 'B' },
       { id: idA, title: 'Z' }
     ])
+  })
+
+  test('shows accounts in fast menu', async () => {
+    keepMount(fastMenu)
+    keepMount(slowMenu)
+    keepMount(unreadFastMenu)
+    await waitLoading(menuLoading)
+
+    let idA = await addCategory({ title: 'A' })
+    let idB = await addCategory({ title: 'B' })
+    let accountId = await addAccount(testAccount({ categoryId: idA }))
+    await addAccount({
+      credentials: testAccount().credentials,
+      handle: '@me@other.social',
+      server: 'https://other.social',
+      service: 'mastodon',
+      title: 'Other',
+      url: 'https://other.social/@me'
+    })
+    deepEqual(fastMenu.get(), [GENERAL, { id: idA, title: 'A' }])
+    deepEqual(unreadFastMenu.get(), [])
+    deepEqual(slowMenu.get(), [])
+
+    await addPost(testPost({ accountId, feedId: null, reading: 'fast' }))
+    deepEqual(unreadFastMenu.get(), [{ id: idA, title: 'A' }])
+
+    await changeAccount(accountId, { title: 'New' })
+    await changeAccount(accountId, { categoryId: idB })
+    deepEqual(fastMenu.get(), [GENERAL, { id: idB, title: 'B' }])
+    deepEqual(unreadFastMenu.get(), [{ id: idB, title: 'B' }])
+
+    await deleteAccount(accountId)
+    deepEqual(fastMenu.get(), [GENERAL])
+    deepEqual(unreadFastMenu.get(), [])
   })
 
   test('ignores posts with a broken reading', async () => {
@@ -454,8 +493,9 @@ describe('menu', () => {
     setTestUser(false)
     setupEnvironment(getTestEnvironment())
     let storage = getEnvironment().persistentStore
-    storage['logux:reducer:slowreader:menu'] = '2'
+    storage['logux:reducer:slowreader:menu'] = '3'
     storage['slowreader:menu'] = JSON.stringify({
+      accounts: {},
       avatars: {},
       categories: [['category', 'From Storage']],
       fast: { feed: true },
@@ -572,7 +612,7 @@ describe('menu', () => {
       // before the reducer got them
       let storage = getEnvironment().persistentStore
       delete storage['slowreader:menu']
-      storage['logux:reducer:slowreader:menu'] = '2'
+      storage['logux:reducer:slowreader:menu'] = '3'
       setTestUser()
       keepMount(fastMenu)
       keepMount(slowMenu)
@@ -582,7 +622,7 @@ describe('menu', () => {
       deepEqual(slowMenu.get(), [
         [{ id: category, title: 'A' }, [[{ id: feed, title: 'Feed' }, 1]]]
       ])
-      equal(storage['logux:reducer:slowreader:menu'], '2')
+      equal(storage['logux:reducer:slowreader:menu'], '3')
     } finally {
       await cleanClient()
       await setTimeout(100)

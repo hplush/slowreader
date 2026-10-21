@@ -98,6 +98,12 @@ export type PostCardText = {
   | { full: null; intro: string; more: number }
 )
 
+/**
+ * Feed or account, which loaded the post. Both tables have random IDs,
+ * so queries can look for the source in both columns by a single ID.
+ */
+export type PostSource = { accountId: string } | { feedId: string }
+
 export type ReaderMedia = { size?: MediaSize } & PostMedia
 
 /**
@@ -111,6 +117,7 @@ export type ReaderPostWith<Media> = {
   threadSize: number
 } & Pick<
   PostValue,
+  | 'accountId'
   | 'author'
   | 'feedId'
   | 'id'
@@ -190,11 +197,12 @@ export function loadPostsByFeed(feedId: string): Promise<PostValue[]> {
  * All posts of the thread in the order of writing.
  */
 export function loadThreadPosts(
-  feedId: string,
+  sourceId: string,
   threadId: string
 ): Promise<PostValue[]> {
   return getTables().posts.load`
-    WHERE "feedId" = ${feedId} AND "threadId" = ${threadId}
+    WHERE ("feedId" = ${sourceId} OR "accountId" = ${sourceId})
+      AND "threadId" = ${threadId}
     ORDER BY "publishedAt" ASC, "id" ASC
   `
 }
@@ -209,6 +217,20 @@ export function loadPostOriginIdsByFeed(feedId: string): Promise<string[]> {
   }>`SELECT "originId" FROM "posts" WHERE "feedId" = ${feedId}`.then(rows =>
     rows.map(row => row.originId)
   )
+}
+
+/**
+ * The same for the home timeline, which puts posts to the virtual feeds too.
+ */
+export function loadPostOriginIdsByAccount(
+  accountId: string
+): Promise<string[]> {
+  return getCrdt().select<{ originId: string }>`
+      SELECT "originId" FROM "posts" WHERE "accountId" = ${accountId}
+        OR "feedId" IN (
+          SELECT "id" FROM "feeds" WHERE "accountId" = ${accountId}
+        )
+    `.then(rows => rows.map(row => row.originId))
 }
 
 export function hasUnreadPosts(
@@ -227,10 +249,12 @@ export function hasUnreadPosts(
   } else if (target.categoryId) {
     rows = crdt.select`
       SELECT "posts"."id" FROM "posts"
-      JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+      LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+      LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"
       WHERE "posts"."reading" = ${reading} AND "posts"."read" = 0
         AND "posts"."merged" = 0
-        AND "feeds"."categoryId" = ${target.categoryId}
+        AND COALESCE("feeds"."categoryId", "accounts"."categoryId")
+          = ${target.categoryId}
       LIMIT 1
     `
   } else {
@@ -265,8 +289,9 @@ export async function changeRead(
     postIds.map(id => {
       return getCrdt().select<{ id: string }>`
         SELECT "part"."id" FROM "posts" AS "part"
-        JOIN "posts" AS "shown" ON "shown"."feedId" = "part"."feedId"
-          AND "shown"."threadId" = "part"."threadId"
+        JOIN "posts" AS "shown" ON "shown"."threadId" = "part"."threadId"
+          AND "shown"."feedId" IS "part"."feedId"
+          AND "shown"."accountId" IS "part"."accountId"
         WHERE "shown"."id" = ${id} AND "part"."id" <> ${id}
       `
     })
@@ -281,8 +306,8 @@ export async function changeRead(
  *
  * The hash is cyrb53. `crypto.subtle.digest()` hashes better, but it is async.
  */
-export function getPostId(feedId: string, origin: OriginPost): string {
-  let key = `${feedId} ${origin.originId || origin.url || origin.id}`
+export function getPostId(sourceId: string, origin: OriginPost): string {
+  let key = `${sourceId} ${origin.originId || origin.url || origin.id}`
   let hash1 = 0xdeadbeef
   let hash2 = 0x41c6ce57
   for (let i = 0; i < key.length; i++) {
@@ -365,16 +390,20 @@ export function getSortedAt(post: {
   return post.sortedAt ?? post.publishedAt ?? undefined
 }
 
+export function getSourceId(source: PostSource): string {
+  return 'feedId' in source ? source.feedId : source.accountId
+}
+
 export function processOriginPost(
   origin: OriginPost,
-  feedId: string,
+  source: PostSource,
   reading: PostValue['reading']
 ): { id: string } & NewPost {
   let publishedAt = origin.publishedAt ?? Math.round(Date.now() / 1000)
   return {
     ...origin,
-    feedId,
-    id: getPostId(feedId, origin),
+    ...source,
+    id: getPostId(getSourceId(source), origin),
     publishedAt,
     reading,
     sortedAt: origin.sortedAt ?? publishedAt
@@ -482,6 +511,7 @@ export function testPost(
 ): PostValue {
   testPostId += 1
   return withMeta<PostValue>({
+    accountId: null,
     author: null,
     feedId: 'feed-1',
     full: null,

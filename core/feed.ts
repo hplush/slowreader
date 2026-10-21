@@ -67,12 +67,29 @@ export type RefreshFeed = Pick<
   | 'url'
 >
 
+/**
+ * Feeds with `accountId` get posts from the account’s home timeline.
+ */
 export function loadFeedsForRefresh(): Promise<RefreshFeed[]> {
   return getCrdt().select<RefreshFeed>`
     SELECT "id", "title", "url", "loader", "loaderData", "refreshedAt",
       "lastOriginId", "lastPublishedAt"
-    FROM "feeds" ORDER BY "title"
+    FROM "feeds" WHERE "accountId" IS NULL ORDER BY "title"
   `
+}
+
+export type FeedByUrl = Pick<
+  FeedValue,
+  'accountId' | 'id' | 'loader' | 'reading' | 'url'
+>
+
+/**
+ * Home timeline puts posts to feeds by author’s URL.
+ */
+export function loadFeedsByUrls(): Promise<Map<string, FeedByUrl>> {
+  return getCrdt().select<FeedByUrl>`
+      SELECT "id", "url", "accountId", "loader", "reading" FROM "feeds"
+    `.then(rows => new Map(rows.map(row => [row.url, row])))
 }
 
 export function loadFeedsByCategory(categoryId: string): Promise<FeedValue[]> {
@@ -164,7 +181,7 @@ export async function addCandidate(
       .flatMap(({ threadParts, ...start }) => [start, ...(threadParts ?? [])])
   )
   await addPost(
-    linked.map(origin => processOriginPost(origin, feedId, feed.reading))
+    linked.map(origin => processOriginPost(origin, { feedId }, feed.reading))
   )
   return feedId
 }
@@ -241,6 +258,7 @@ export function testFeed(
 ): FeedValue {
   testFeedId += 1
   return withMeta<FeedValue>({
+    accountId: null,
     avatar: null,
     categoryId: GENERAL_CATEGORY,
     fastReader: null,

@@ -6,7 +6,6 @@
     mdiTrashCanOutline
   } from '@mdi/js'
   import {
-    changeFeed,
     collapseThreads,
     errorToMessage,
     type FeedPopup,
@@ -26,19 +25,24 @@
   import Output from '../ui/output.svelte'
   import Popup from '../ui/popup.svelte'
   import Radio from '../ui/radio.svelte'
+  import Select from '../ui/select.svelte'
   import Stack from '../ui/stack.svelte'
+  import Status from '../ui/status.svelte'
 
   let { popup }: { popup: FeedPopup } = $props()
 
-  let { avatar, categories, feed, posts } = $derived(popup)
+  let { accountError, avatar, categories, feed, followedBy, posts } =
+    $derived(popup)
+
+  let subscribed = $derived($feed ?? $followedBy)
 </script>
 
 <Popup
   id={getPopupId(popup.name, popup.param)}
-  reading={$feed ? $feed.reading : undefined}
+  reading={subscribed ? ($feed?.reading ?? 'fast') : undefined}
 >
   {#snippet header()}
-    {#if !$feed}
+    {#if !subscribed}
       <Button
         anchor="add-feed"
         icon={mdiPlusCircleOutline}
@@ -68,29 +72,34 @@
         feedId={$feed?.id}
         size="large"
       />
-      {#if $feed}
+      {#if subscribed}
         <Input
           label={$t.title}
           onchange={title => {
             popup.rename(title)
           }}
-          placeholder={$feed.originTitle ?? undefined}
-          value={$feed.title}
+          placeholder={$feed ? ($feed.originTitle ?? undefined) : popup.title}
+          value={$feed ? $feed.title : popup.title}
         />
       {:else}
         <Output label={$t.title} value={popup.title} />
       {/if}
     </Stack>
     <Output label={$t.feedUrl} value={popup.param} />
-    {#if $feed}
+    {#if $accountError}
+      <Note icon={mdiAlertCircleOutline} variant="dangerous">
+        {$accountError}
+      </Note>
+    {/if}
+    {#if subscribed}
       <Stack row>
         <Radio
           label={$t.type}
           onchange={reading => {
-            changeFeed($feed.id, { reading })
+            popup.change({ reading })
           }}
           size="wide"
-          value={$feed.reading}
+          value={$feed ? $feed.reading : 'fast'}
           values={[
             ['slow', $t.slow],
             ['fast', $t.fast]
@@ -98,12 +107,27 @@
         />
         <CategorySelect
           onchange={categoryId => {
-            changeFeed($feed.id, { categoryId })
+            popup.change({ categoryId })
           }}
-          value={$feed.categoryId}
+          value={subscribed.categoryId}
           values={$categories}
         />
       </Stack>
+      {#if popup.accounts.length > 0}
+        <Select
+          label={$t.account}
+          onchange={accountId => {
+            popup.changeAccount(accountId || undefined)
+          }}
+          value={$feed ? ($feed.accountId ?? '') : ($followedBy?.id ?? '')}
+          values={[
+            ['', $t.anonymous],
+            ...popup.accounts.map(i => [i.id, i.handle] as [string, string])
+          ]}
+        />
+      {:else}
+        <Status label={$t.account}>{$t.anonymous}</Status>
+      {/if}
     {/if}
     <Stack gap="s">
       <Stack gap="xs">

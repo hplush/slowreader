@@ -38,7 +38,7 @@ export function enablePostDebug(): void {
         }
         if (id) {
           let post = await loadPost(id)
-          if (!post) return
+          if (!post?.feedId) return
           let feed = await loadFeed(post.feedId)
           let source = await loaders[feed!.loader].getPostSource(
             feed!,

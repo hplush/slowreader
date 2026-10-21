@@ -1,21 +1,34 @@
+import { atom } from 'nanostores'
 import { deepEqual, equal, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
+  addAccount,
   addCategory,
   addFeed,
   addPost,
   changePost,
+  changeRead,
   deletePost,
   type FeedReader,
   type FeedsPage,
+  getFeedAuthor,
+  hasUnreadPosts,
+  listReader,
+  loadPost,
   router,
+  testAccount,
   testFeed,
   testPost,
+  toPreviewPost,
   waitLoading
 } from '../../index.ts'
-import { stringifyCursor, topCursor } from '../../readers/common.ts'
+import {
+  loadReadPostIds,
+  stringifyCursor,
+  topCursor
+} from '../../readers/common.ts'
 import {
   cleanClient,
   startClient,
@@ -75,6 +88,7 @@ describe('feed reader', () => {
     equal(reader.authors.get().size, 2)
     equal(reader.authors.get().get(feed1)!.title, 'Test 1')
     equal(reader.authors.get().get(feed2)!.url, 'http://example.com/2')
+    equal(reader.authors.get().get(feed2)!.feedId, feed2)
     equal(reader.list.get().length, 20)
     equal(reader.list.get()[0]!.title, '30')
     equal(reader.list.get()[19]!.title, '11')
@@ -328,5 +342,84 @@ describe('feed reader', () => {
     equal(reader.hasNext.get(), false)
     for (let title of titles(reader)) shown.add(title)
     equal(shown.size, 50)
+  })
+
+  test('reads account posts', async () => {
+    let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
+    let other = await addCategory({ title: 'B' })
+    let feedId = await addFeed(testFeed({ categoryId }))
+    let accountId = await addAccount(testAccount({ categoryId }))
+    let otherAccount = await addAccount(testAccount({ categoryId: other }))
+    function accountPost(
+      id: string,
+      sortedAt: number,
+      fields: Parameters<typeof testPost>[0] = {}
+    ): ReturnType<typeof testPost> {
+      return testPost({
+        accountId,
+        author: { title: 'Bob', url: 'https://bob.social/@bob' },
+        feedId: null,
+        id,
+        publishedAt: sortedAt,
+        reading: 'fast',
+        title: id,
+        ...fields
+      })
+    }
+    await addPost([
+      testPost({
+        feedId,
+        id: 'f1',
+        publishedAt: 1,
+        reading: 'fast',
+        title: 'f1'
+      }),
+      accountPost('a1', 3, { threadId: 'a1' }),
+      accountPost('a2', 4, { merged: true, threadId: 'a1' }),
+      accountPost('a3', 2),
+      accountPost('o1', 5, { accountId: otherAccount })
+    ])
+
+    let page = openPage({ params: { category: categoryId }, route: 'fast' })
+    await waitLoading(page.loading)
+    let reader = ensureReader(page.posts, 'feed')
+    deepEqual(titles(reader), ['a1', 'a3', 'f1'])
+    deepEqual([...reader.authors.get().keys()], [feedId])
+    let authors = reader.authors.get()
+    let [first, , feedPost] = reader.list.get()
+    equal(getFeedAuthor(first!, authors), undefined)
+    equal(getFeedAuthor(feedPost!, authors)?.feedId, feedId)
+    equal(getFeedAuthor(feedPost!, undefined), undefined)
+    equal(
+      getFeedAuthor(toPreviewPost({ id: 'preview', originId: 'p' }), authors),
+      undefined
+    )
+    equal(reader.list.get()[0]!.threadSize, 2)
+    equal(reader.list.get()[0]!.author?.title, 'Bob')
+
+    let params = {
+      category: atom<string | undefined>(),
+      feed: atom<string | undefined>(),
+      from: atom<string | undefined>()
+    }
+    let filter = { categoryId, reading: 'fast' as const }
+    equal(await hasUnreadPosts('fast', { categoryId }), true)
+    let list = listReader(filter, params)!
+    await waitLoading(list.loading)
+    deepEqual(
+      list.list.get().map(post => post.title),
+      ['a1', 'a3', 'f1']
+    )
+
+    await changeRead(['a1'], true)
+    await setTimeout(10)
+    equal(list.list.get()[0]!.read, true)
+    deepEqual((await loadReadPostIds(filter)).toSorted(), ['a1', 'a2'])
+    list.exit()
+
+    await reader.readPage()
+    await setTimeout(10)
+    equal(await hasUnreadPosts('fast', { categoryId }), false)
+    equal((await loadPost('o1'))!.read, false)
   })
 })

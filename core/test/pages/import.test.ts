@@ -31,6 +31,7 @@ import {
   setRequestMethod,
   testAccount,
   testFeed,
+  testPost,
   theme,
   waitLoading
 } from '../../index.ts'
@@ -155,6 +156,7 @@ describe('import page', () => {
     deepEqual(withoutMeta(await loadFeeds()), [
       {
         ...FEED,
+        accountId: null,
         avatar: null,
         fastReader: null,
         lastOriginId: null,
@@ -169,6 +171,7 @@ describe('import page', () => {
     deepEqual(withoutMeta(await loadPosts()), [
       {
         ...POST,
+        accountId: null,
         author: null,
         full: null,
         intro: null,
@@ -199,9 +202,12 @@ describe('import page', () => {
         testAccount({ handle: '@work@mastodon.social', id: 'a2' })
       ]),
       categories: [],
-      feeds: [],
+      feeds: withoutMeta([testFeed({ accountId: 'a1', id: 'virtual' })]),
       filters: [],
-      posts: [],
+      posts: withoutMeta([
+        testPost({ accountId: 'a2', feedId: null, id: 'p1' }),
+        testPost({ feedId: 'virtual', id: 'p2' })
+      ]),
       settings: { preloadImages: 'always', theme: 'system' },
       subprotocol: SUBPROTOCOL
     }
@@ -210,11 +216,23 @@ describe('import page', () => {
     await waitLoading(busy)
     await setTimeout(100)
     equal(page.fileError.get(), false)
+
     deepEqual(
       (await loadAccounts()).map(i => [i.id, i.handle]),
       [
         [signedIn, '@me@mastodon.social'],
         ['a2', '@work@mastodon.social']
+      ]
+    )
+    deepEqual(
+      (await loadFeeds()).map(i => [i.id, i.accountId]),
+      [['virtual', signedIn]]
+    )
+    deepEqual(
+      (await loadPosts()).map(i => [i.id, i.feedId, i.accountId]),
+      [
+        ['p1', null, 'a2'],
+        ['p2', 'virtual', null]
       ]
     )
   })

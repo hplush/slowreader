@@ -1,19 +1,31 @@
+import { restoreAll, spyOn } from 'nanospy'
 import { keepMount } from 'nanostores'
 import { deepEqual, equal, match, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
+  addAccount,
   addCategory,
   addFeed,
+  addPost,
   changeFeed,
   closeLastPopup,
+  commonMessages,
+  createPostsList,
+  type FeedPopup,
   GENERAL_CATEGORY,
   getPopupId,
   HTTPStatusError,
+  loaders,
   loadFeed,
+  loadFeeds,
+  loadPosts,
   loadPostsByFeed,
+  NetworkError,
   openedPopups,
+  testAccount,
   testFeed,
+  testPost,
   waitLoading
 } from '../../index.ts'
 import {
@@ -374,5 +386,320 @@ describe('feed popup', () => {
     let popup2 = openTestPopup('feed', 'https://a.com/atom')
     await waitLoading(popup2.loading)
     equal(checkLoadedPopup(popup2).feed.get()!.url, 'http://a.com/atom')
+  })
+})
+
+const AUTHOR = 'https://mastodon.social/@jane'
+
+describe('feed popup with accounts', () => {
+  beforeEach(() => {
+    startClient()
+    openRoute({ params: {}, route: 'add' })
+    mockRequest()
+  })
+
+  afterEach(async () => {
+    await cleanClient()
+    restoreAll()
+    checkAndRemoveRequestMock()
+  })
+
+  let account = loaders.mastodon.account!
+
+  function spyPosts(): ReturnType<typeof spyOn> {
+    spyOn(loaders.mastodon, 'loadFeedData', () => {
+      return Promise.resolve({ title: 'Jane', url: AUTHOR })
+    })
+    return spyOn(loaders.mastodon, 'getPosts', () => {
+      return createPostsList(() =>
+        Promise.resolve([
+          [{ originId: 'recent', publishedAt: 5000 }],
+          undefined
+        ])
+      )
+    })
+  }
+
+  async function openAuthor(): Promise<FeedPopup> {
+    expectRequest(AUTHOR).andRespond(
+      200,
+      '<!DOCTYPE html><html><head>' +
+        '<meta content="Jane (@jane@mastodon.social)" property="og:title">' +
+        '</head></html>'
+    )
+    let popup = openTestPopup('feed', AUTHOR)
+    await waitLoading(popup.loading)
+    return checkLoadedPopup(popup)
+  }
+
+  function authorPost(
+    accountId: string,
+    originId: string
+  ): ReturnType<typeof testPost> {
+    return testPost({
+      accountId,
+      author: { title: 'Jane', url: AUTHOR },
+      feedId: null,
+      originId
+    })
+  }
+
+  test('shows followed author as subscribed', async () => {
+    spyPosts()
+    let other = await addAccount(testAccount({ title: 'A' }))
+    let followed = await addAccount(testAccount({ title: 'B' }))
+    let checks = spyOn(account, 'isFollowing', (task, auth) => {
+      return Promise.resolve(auth.account.id === followed)
+    })
+
+    let popup = await openAuthor()
+    deepEqual(
+      popup.accounts.map(i => i.id),
+      [other, followed]
+    )
+    equal(popup.followedBy.get()?.id, followed)
+    equal(popup.feed.get(), undefined)
+    deepEqual(
+      checks.calls.map(call => call[2]),
+      [AUTHOR, AUTHOR]
+    )
+  })
+
+  test('checks following by posts offline', async () => {
+    spyPosts()
+    let accountId = await addAccount(testAccount())
+    await addPost(authorPost(accountId, '1'))
+    spyOn(account, 'isFollowing', () => {
+      return Promise.reject(new NetworkError(new TypeError('offline')))
+    })
+
+    let popup = await openAuthor()
+    equal(popup.followedBy.get()?.id, accountId)
+  })
+
+  test('does not check following for other services', async () => {
+    let checks = spyOn(account, 'isFollowing', () => Promise.resolve(true))
+    await addAccount(testAccount({ service: 'bluesky' }))
+    spyPosts()
+    let popup = await openAuthor()
+    equal(popup.accounts.length, 0)
+    equal(popup.followedBy.get(), undefined)
+    equal(checks.calls.length, 0)
+  })
+
+  test('creates virtual feed on changes of followed author', async () => {
+    spyPosts()
+    let categoryId = await addCategory({ title: 'Social' })
+    let accountId = await addAccount(testAccount({ categoryId }))
+    spyOn(account, 'isFollowing', () => Promise.resolve(true))
+    await addPost([
+      authorPost(accountId, '1'),
+      testPost({
+        accountId,
+        author: { title: 'Other', url: 'https://a.social/@other' },
+        feedId: null,
+        originId: '2',
+        repostedBy: { title: 'Jane', url: AUTHOR }
+      }),
+      testPost({
+        accountId,
+        author: { title: 'Other', url: 'https://a.social/@other' },
+        feedId: null,
+        originId: '3'
+      })
+    ])
+
+    let popup = await openAuthor()
+    await popup.change({ reading: 'slow' })
+
+    let [feed] = await loadFeeds()
+    equal(feed!.accountId, accountId)
+    equal(feed!.categoryId, categoryId)
+    equal(feed!.reading, 'slow')
+    equal(feed!.title, 'Jane')
+    equal(feed!.url, AUTHOR)
+    equal(popup.feed.get()?.id, feed!.id)
+    equal(popup.followedBy.get(), undefined)
+
+    let posts = (await loadPosts()).toSorted((a, b) => {
+      return a.originId.localeCompare(b.originId)
+    })
+    deepEqual(
+      posts.map(i => [i.originId, i.feedId, i.accountId, i.reading]),
+      [
+        ['1', feed!.id, null, 'slow'],
+        ['2', feed!.id, null, 'slow'],
+        ['3', null, accountId, 'fast']
+      ]
+    )
+    equal(posts[0]!.author, null)
+    equal(posts[1]!.author?.title, 'Other')
+  })
+
+  test('renames followed author', async () => {
+    spyPosts()
+    await addAccount(testAccount())
+    spyOn(account, 'isFollowing', () => Promise.resolve(true))
+    let popup = await openAuthor()
+
+    await popup.rename(' ')
+    equal((await loadFeeds()).length, 0)
+
+    await popup.rename('My Jane')
+    equal((await loadFeeds())[0]!.title, 'My Jane')
+    equal((await loadFeeds())[0]!.reading, 'fast')
+  })
+
+  test('follows by default account on subscribing', async () => {
+    spyPosts()
+    await addAccount(testAccount({ title: 'A' }))
+    let accountId = await addAccount(testAccount({ follow: true, title: 'B' }))
+    spyOn(account, 'isFollowing', () => Promise.resolve(false))
+    let follows = spyOn(account, 'follow', () => Promise.resolve())
+
+    let popup = await openAuthor()
+    equal(popup.followedBy.get(), undefined)
+    let feedId = await popup.add()
+
+    equal((await loadFeed(feedId!))!.accountId, accountId)
+    deepEqual(
+      follows.calls.map(call => [call[1].account.id, call[2]]),
+      [[accountId, AUTHOR]]
+    )
+  })
+
+  test('keeps author unsubscribed on follow error', async () => {
+    spyPosts()
+    await addAccount(testAccount({ follow: true }))
+    spyOn(account, 'isFollowing', () => Promise.resolve(false))
+    spyOn(account, 'follow', () => {
+      return Promise.reject(new NetworkError(new TypeError('offline')))
+    })
+
+    let popup = await openAuthor()
+    equal(await popup.add(), undefined)
+    equal(popup.accountError.get(), commonMessages.get().networkError)
+    equal((await loadFeeds()).length, 0)
+  })
+
+  test('changes account of the feed', async () => {
+    spyPosts()
+    let a = await addAccount(testAccount({ title: 'A' }))
+    let b = await addAccount(testAccount({ title: 'B' }))
+    let feedId = await addFeed(
+      testFeed({ lastPublishedAt: 1000, loader: 'mastodon', url: AUTHOR })
+    )
+    let calls: string[] = []
+    spyOn(account, 'follow', (task, auth) => {
+      calls.push(`follow ${auth.account.id}`)
+      return Promise.resolve()
+    })
+    spyOn(account, 'unfollow', (task, auth) => {
+      calls.push(`unfollow ${auth.account.id}`)
+      return Promise.resolve()
+    })
+    let popup = await openAuthor()
+    await popup.change({ reading: 'slow' })
+    equal((await loadFeed(feedId))!.reading, 'slow')
+
+    await popup.changeAccount(a)
+    equal((await loadFeed(feedId))!.accountId, a)
+    deepEqual(calls, [`follow ${a}`])
+    deepEqual(
+      (await loadPostsByFeed(feedId)).map(i => i.originId),
+      ['recent']
+    )
+
+    await popup.changeAccount(a)
+    deepEqual(calls, [`follow ${a}`])
+
+    await popup.changeAccount(b)
+    equal((await loadFeed(feedId))!.accountId, b)
+    deepEqual(calls, [`follow ${a}`, `follow ${b}`, `unfollow ${a}`])
+    equal((await loadPostsByFeed(feedId)).length, 1)
+
+    await popup.changeAccount(undefined)
+    equal((await loadFeed(feedId))!.accountId, null)
+    deepEqual(calls, [
+      `follow ${a}`,
+      `follow ${b}`,
+      `unfollow ${a}`,
+      `unfollow ${b}`
+    ])
+  })
+
+  test('keeps account on unfollow error', async () => {
+    spyPosts()
+    let a = await addAccount(testAccount({ title: 'A' }))
+    let b = await addAccount(testAccount({ title: 'B' }))
+    let feedId = await addFeed(
+      testFeed({ accountId: a, loader: 'mastodon', url: AUTHOR })
+    )
+    spyOn(account, 'follow', () => Promise.resolve())
+    spyOn(account, 'unfollow', () => {
+      return Promise.reject(new HTTPStatusError(500, AUTHOR, '', new Headers()))
+    })
+    let popup = await openAuthor()
+
+    await popup.changeAccount(b)
+    equal((await loadFeed(feedId))!.accountId, a)
+    equal(popup.accountError.get(), commonMessages.get().error5xx)
+
+    await popup.remove()
+    equal((await loadFeeds()).length, 1)
+  })
+
+  test('changes account of followed author', async () => {
+    spyPosts()
+    let a = await addAccount(testAccount({ title: 'A' }))
+    spyOn(account, 'isFollowing', () => Promise.resolve(true))
+    let unfollows = spyOn(account, 'unfollow', () => Promise.resolve())
+    let popup = await openAuthor()
+
+    await popup.changeAccount(undefined)
+    equal(unfollows.calls[0]![1].account.id, a)
+    let [feed] = await loadFeeds()
+    equal(feed!.accountId, null)
+    equal(feed!.reading, 'fast')
+  })
+
+  test('unsubscribes virtual feed', async () => {
+    spyPosts()
+    let accountId = await addAccount(testAccount())
+    let feedId = await addFeed(
+      testFeed({ accountId, loader: 'mastodon', url: AUTHOR })
+    )
+    await addPost(testPost({ feedId }))
+    let unfollows = spyOn(account, 'unfollow', () => Promise.resolve())
+    let popup = await openAuthor()
+
+    await popup.remove()
+    equal(unfollows.calls[0]![2], AUTHOR)
+    deepEqual(await loadFeeds(), [])
+    deepEqual(await loadPosts(), [])
+  })
+
+  test('unsubscribes followed author', async () => {
+    spyPosts()
+    let accountId = await addAccount(testAccount())
+    await addPost([
+      authorPost(accountId, '1'),
+      testPost({
+        accountId,
+        author: { title: 'Other', url: 'https://a.social/@other' },
+        feedId: null,
+        originId: '2'
+      })
+    ])
+    spyOn(account, 'isFollowing', () => Promise.resolve(true))
+    spyOn(account, 'unfollow', () => Promise.resolve())
+    let popup = await openAuthor()
+
+    await popup.remove()
+    equal(popup.followedBy.get(), undefined)
+    deepEqual(
+      (await loadPosts()).map(i => i.originId),
+      ['2']
+    )
   })
 })

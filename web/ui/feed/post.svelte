@@ -52,12 +52,12 @@
     href={getPopupHash($router, 'post', param)}
   ></a>
   <article id={`feed-content-${post.id}`} class="feed-post_content">
-    {#if author && 'feedId' in post}
+    {#if author}
       <div class="feed-post_author">
         <FeedLink
           avatar={author.avatar}
           avatarSize="medium"
-          feedId={post.feedId}
+          feedId={author.feedId}
           href={getPopupHash($router, 'feed', author.url)}
           title={author.title}
           variant="secondary"

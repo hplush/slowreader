@@ -138,7 +138,9 @@ describe('threads', () => {
     equal(single!.threadId, 'x')
     equal(single!.sortedAt, 11)
 
-    await addPost(linked.map(post => processOriginPost(post, feed.id, 'slow')))
+    await addPost(
+      linked.map(post => processOriginPost(post, { feedId: feed.id }, 'slow'))
+    )
     await linkThreads(createDownloadTask(), feed, [
       origin('old', { publishedAt: 5, selfReplyTo: 'n1' })
     ])
@@ -289,7 +291,9 @@ describe('threads', () => {
       origin('2', { publishedAt: 2 }),
       origin('1', { full: 'First', publishedAt: 1 })
     ])
-    await addPost(linked.map(post => processOriginPost(post, feed.id, 'slow')))
+    await addPost(
+      linked.map(post => processOriginPost(post, { feedId: feed.id }, 'slow'))
+    )
     let filter = { feedId: feed.id, reading: 'slow' as const }
 
     let page = await loadPostsPage(filter, topCursor(), 10)

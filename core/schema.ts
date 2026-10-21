@@ -91,6 +91,9 @@ export const accountsTable = defineCrdtTable(
     // Use the account by default on subscribing to its service’s author
     follow: boolean({ default: false }),
     handle: string(),
+    lastOriginId: optional(string()),
+    lastPublishedAt: optional(bigint()),
+    refreshedAt: optional(bigint()),
     server: string(),
     service: oneOf(ACCOUNT_SERVICES),
     title: string(),
@@ -112,6 +115,7 @@ export const categoriesTable = defineCrdtTable(
 export const feedsTable = defineCrdtTable(
   'feeds',
   {
+    accountId: optional(string()),
     avatar: optional(string()),
     categoryId: string({ default: GENERAL_CATEGORY }),
     fastReader: optional(oneOf(READERS)),
@@ -217,9 +221,10 @@ export type QuotedPost = CrdtJsonType<typeof quotedShape>
 export const postsTable = defineCrdtTable(
   'posts',
   {
+    accountId: optional(string()),
     // Only when the feed is not the author, like for reposts
     author: optional(json(authorShape)),
-    feedId: string(),
+    feedId: optional(string()),
     full: optional(string()),
     intro: optional(string()),
     media: optional(json([json(mediaShape)])),
@@ -250,8 +255,11 @@ export const postsTable = defineCrdtTable(
     ['feedId', 'reading', 'read', 'merged', 'sortedAt DESC', 'id DESC'],
     // The same for a category, and unread counters of the menu
     ['reading', 'read', 'merged', 'sortedAt DESC', 'id DESC'],
+    // The same for posts of the account without a feed
+    ['accountId', 'reading', 'read', 'merged', 'sortedAt DESC', 'id DESC'],
     // Parts of the thread
     ['feedId', 'threadId'],
+    ['accountId', 'threadId'],
     // Pages of the backup export
     'publishedAt DESC'
   ]

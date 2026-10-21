@@ -24,6 +24,7 @@ export const accountsMessages = i18n('accounts', {
   pageTitle: 'Accounts',
   serverField: 'Server or your handle',
   signIn: 'Sign in',
+  signInAgain: 'Account’s sign in expired. Sign in again on Accounts page.',
   signInFailed: 'The service did not accept the sign in. Try again.',
   unknownHandle: 'Can’t find this handle'
 })

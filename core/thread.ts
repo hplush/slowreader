@@ -234,7 +234,7 @@ export async function updateThread(
       delete saved.selfReplyTo
       delete saved.hasReplies
       return {
-        ...processOriginPost(saved, feed.id, start.reading),
+        ...processOriginPost(saved, { feedId: feed.id }, start.reading),
         read: start.read
       }
     })

@@ -15,6 +15,7 @@ import { waitLoading } from './lib/stores.ts'
 import { commonMessages } from './messages/index.ts'
 import { type Route, type RouteName, router } from './router.ts'
 import {
+  accountsTable,
   categoriesTable,
   feedsTable,
   filtersTable,
@@ -80,7 +81,8 @@ export type MenuFeed = MenuItem & { avatar?: string }
 export type SlowMenu = [MenuItem, [MenuFeed, number][]][]
 
 type UnreadCount = {
-  feedId: string
+  accountId: null | string
+  feedId: null | string
   reading: 'fast' | 'slow'
   unread: number
 }
@@ -101,6 +103,10 @@ type Sorted = [string, string][]
  * from SQL.
  */
 interface MenuState {
+  /**
+   * Category of the account. Account’s posts are always fast.
+   */
+  accounts: Record<string, string>
   avatars: Record<string, string>
   categories: Sorted
   /**
@@ -113,6 +119,7 @@ interface MenuState {
 }
 
 const EMPTY: MenuState = {
+  accounts: {},
   avatars: {},
   categories: [],
   fast: {},
@@ -127,7 +134,7 @@ const REDUCER = 'slowreader:menu'
  * Increase it on any change in the reducer’s logic or in `MenuState`
  * to rebuild the menu from the log.
  */
-const VERSION = 2
+const VERSION = 3
 
 /**
  * The server re-sends the actions, which the client did not confirm as
@@ -177,10 +184,35 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
         return JSON.stringify(state)
       },
       // The menu has no posts: their actions have only IDs
-      repeat: () => getTableActions(['categories', 'feeds', 'filters']),
+      repeat: () =>
+        getTableActions(['accounts', 'categories', 'feeds', 'filters']),
       storage: getEnvironment().persistentStore
     }
   )
+
+  reducer.type(accountsTable.created, (state, action) => {
+    let accounts = { ...state.accounts }
+    for (let [id, fields] of parseCrdtRows(action)) {
+      accounts[id] = fields.categoryId ?? GENERAL_CATEGORY
+    }
+    return { ...state, accounts }
+  })
+
+  reducer.type(accountsTable.changed, (state, action) => {
+    let { categoryId } = action.fields
+    if (typeof categoryId === 'undefined') return state
+    let accounts = { ...state.accounts }
+    for (let [id] of parseCrdtRows(action)) {
+      if (accounts[id]) accounts[id] = categoryId
+    }
+    return { ...state, accounts }
+  })
+
+  reducer.type(accountsTable.deleted, (state, action) => {
+    let accounts = { ...state.accounts }
+    for (let [id] of parseCrdtRows(action)) delete accounts[id]
+    return { ...state, accounts }
+  })
 
   reducer.type(categoriesTable.created, (state, action) => {
     let categories = state.categories
@@ -343,6 +375,10 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
 interface MenuTree {
   fast: MenuItem[]
   slow: [MenuItem, MenuFeed[]][]
+  /**
+   * IDs of feeds and accounts by category to count fast unread posts
+   */
+  sources: Map<string, string[]>
 }
 
 /**
@@ -362,13 +398,29 @@ function buildTree(state: MenuState): MenuTree {
     if (filter[1] === 'fast') fastFeeds.add(filter[0])
   }
 
+  let accountsByCategory = new Map<string, string[]>()
+  for (let accountId in state.accounts) {
+    let categoryId = state.accounts[accountId]!
+    accountsByCategory.set(categoryId, [
+      ...(accountsByCategory.get(categoryId) ?? []),
+      accountId
+    ])
+  }
+
   let categories: Sorted = [GENERAL, ...state.categories]
   let fast: MenuItem[] = []
   let slow: [MenuItem, MenuFeed[]][] = []
+  let sources = new Map<string, string[]>()
   for (let [id, title] of categories) {
-    let list = state.feeds[id]
-    if (!list || list.length === 0) continue
+    let list = state.feeds[id] ?? []
+    let accounts = accountsByCategory.get(id) ?? []
+    if (list.length === 0 && accounts.length === 0) continue
     let category = { id, title }
+    sources.set(id, [...list.map(feed => feed[0]), ...accounts])
+    if (accounts.length > 0 || list.some(feed => fastFeeds.has(feed[0]))) {
+      fast.push(category)
+    }
+    if (list.length === 0) continue
     slow.push([
       category,
       list.map(([feedId, name]) => {
@@ -378,12 +430,12 @@ function buildTree(state: MenuState): MenuTree {
           : { id: feedId, title: name }
       })
     ])
-    if (list.some(feed => fastFeeds.has(feed[0]))) fast.push(category)
   }
 
   return {
     fast: fast.length > 0 ? fast : [{ id: GENERAL[0], title: GENERAL[1] }],
-    slow
+    slow,
+    sources
   }
 }
 
@@ -450,9 +502,10 @@ onMount($unread, () =>
     $unread.set(undefined)
     if (!db) return
     let store = db.store<UnreadCount>`
-      SELECT "feedId", "reading", COUNT("originId") AS "unread" FROM "posts"
+      SELECT "feedId", "accountId", "reading", COUNT("originId") AS "unread"
+      FROM "posts"
       WHERE "read" = 0 AND "merged" = 0 AND "reading" IN ('fast', 'slow')
-      GROUP BY "feedId", "reading"
+      GROUP BY "feedId", "accountId", "reading"
     `
     return store.subscribe(rows => {
       if (rows.status === 'loading') {
@@ -460,7 +513,7 @@ onMount($unread, () =>
       } else {
         let counts: UnreadCounts = { fast: new Map(), slow: new Map() }
         for (let row of rows.value) {
-          counts[row.reading].set(row.feedId, row.unread)
+          counts[row.reading].set(row.feedId ?? row.accountId!, row.unread)
         }
         $unread.set(counts)
       }
@@ -491,11 +544,7 @@ export function firstUnreadSlowFeedId(): string | undefined {
 export const unreadFastMenu = computed([$tree, $unread], (tree, unread) => {
   if (!unread) return []
   return tree.fast.filter(category => {
-    return tree.slow.some(([item, feeds]) => {
-      return (
-        item.id === category.id && feeds.some(feed => unread.fast.get(feed.id))
-      )
-    })
+    return tree.sources.get(category.id)?.some(id => unread.fast.get(id))
   })
 })
 

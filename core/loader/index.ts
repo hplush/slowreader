@@ -4,12 +4,12 @@ import type { DownloadTask, TextResponse } from '../lib/download.ts'
 import type { AccountValue } from '../schema.ts'
 import { atom } from './atom.ts'
 import { bluesky } from './bluesky.ts'
-import type { DetectedFeed, FeedData, Loader } from './common.ts'
+import type { AccountAuth, DetectedFeed, FeedData, Loader } from './common.ts'
 import { jsonFeed } from './json-feed.ts'
 import { mastodon } from './mastodon.ts'
 import { rss } from './rss.ts'
 
-export type { Loader, DetectedFeed }
+export type { AccountAuth, DetectedFeed, Loader }
 
 export const loaders = {
   atom,

@@ -160,8 +160,13 @@ export const importPage = createPage('import', () => {
         json.posts.length
     )
 
-    // Signed in account gets only new tokens
-    for (let account of json.accounts) await addAccount(account)
+    let accountIds = new Map<string, string>()
+    for (let account of json.accounts) {
+      accountIds.set(account.id, await addAccount(account))
+    }
+    function toAccountId(id: null | string): null | string {
+      return id && (accountIds.get(id) ?? id)
+    }
     done(json.accounts.length)
 
     await addCategory(json.categories)
@@ -177,13 +182,17 @@ export const importPage = createPage('import', () => {
       urls.add(feed.url)
       return true
     })
-    await addFeed(feeds)
+    await addFeed(
+      feeds.map(feed => ({ ...feed, accountId: toAccountId(feed.accountId) }))
+    )
     added += feeds.length
     done(json.feeds.length)
 
     for (let i = 0; i < json.posts.length; i += POSTS_PER_ACTION) {
       let batch = json.posts.slice(i, i + POSTS_PER_ACTION)
-      await addPost(batch)
+      await addPost(
+        batch.map(post => ({ ...post, accountId: toAccountId(post.accountId) }))
+      )
       done(batch.length)
     }
   }

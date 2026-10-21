@@ -115,6 +115,7 @@ describe('export page', () => {
       ],
       feeds: [
         {
+          accountId: null,
           avatar: null,
           categoryId: category,
           fastReader: null,
@@ -142,6 +143,7 @@ describe('export page', () => {
       ],
       posts: [
         {
+          accountId: null,
           author: null,
           feedId: feed,
           full: null,

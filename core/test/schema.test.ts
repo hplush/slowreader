@@ -111,6 +111,44 @@ describe('schema', () => {
     equal(post!.sortedAt, 10)
   })
 
+  test('rebuilds the tables without accounts’ columns', async () => {
+    await cleanClient()
+    setTestUser(false)
+    let creator = persistentDatabase()
+    setupEnvironment({ ...getTestEnvironment(), databaseCreator: creator })
+    setTestUser()
+    let feedId = await addFeed(testFeed())
+    let postId = await addPost(testPost({ feedId }))
+    await getCrdt().ready
+    setTestUser(false)
+    await setTimeout(100)
+
+    // Tables before accounts had no accounts’ posts and required `feedId`
+    let db = creator()
+    let [stored] = await db.select<{ value: string }>`
+      SELECT "value" FROM "logux_crdt" WHERE "key" = 'schema'
+    `
+    let schema = JSON.parse(stored!.value) as {
+      tables: Record<string, { columns: Record<string, object> }>
+    }
+    let posts = schema.tables.posts!.columns
+    posts.feedId = posts.originId!
+    delete posts.accountId
+    delete schema.tables.feeds!.columns.accountId
+    delete schema.tables.accounts!.columns.lastOriginId
+    await db.exec`
+      UPDATE "logux_crdt" SET "value" = ${JSON.stringify(schema)}
+      WHERE "key" = 'schema'
+    `
+    await db.close()
+
+    setTestUser()
+    let post = await loadPost(postId)
+    equal(post!.feedId, feedId)
+    equal(post!.accountId, null)
+    equal((await loadFeeds())[0]!.accountId, null)
+  })
+
   test('fills the missing reading of the post from another device', async () => {
     let feedId = await addFeed(testFeed())
     await getClient().log.add(

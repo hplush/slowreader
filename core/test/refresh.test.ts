@@ -1,16 +1,22 @@
-import { restoreAll, spyOn } from 'nanospy'
+import { restoreAll, type Spy, spyOn } from 'nanospy'
 import { deepEqual, equal, fail, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
+  addAccount,
   addFeed,
   addFilter,
   createPostsList,
+  deleteAccount,
   deleteFeed,
   getClient,
+  loadAccount,
   loadFeed,
   loadPosts,
+  loadRecentPosts,
+  type OriginPost,
+  ParseError,
   HTTPStatusError,
   isRefreshing,
   loaders,
@@ -24,6 +30,7 @@ import {
   refreshStatus,
   setRequestMethod,
   stopRefreshing,
+  testAccount,
   testFeed,
   waitLoading
 } from '../index.ts'
@@ -35,7 +42,8 @@ import {
   expectRequest,
   expectWarning,
   mockRequest,
-  setupNodeDom
+  setupNodeDom,
+  throws
 } from './utils.ts'
 
 setupNodeDom()
@@ -743,5 +751,271 @@ describe('refresh', () => {
     equal(requestCount, 2)
     equal(typeof capturedHeaders[1]!['If-Modified-Since'], 'string')
     equal(refreshStatistics.get().errorRequests, 0)
+  })
+})
+
+const BOB = 'https://bob.social/@bob'
+
+describe('refresh of accounts', () => {
+  beforeEach(() => {
+    mockRequest()
+    startClient()
+  })
+
+  afterEach(async () => {
+    await cleanClient()
+    restoreAll()
+    checkAndRemoveRequestMock()
+  })
+
+  let signedIn = loaders.mastodon.account!
+
+  function by(
+    name: string,
+    originId: string,
+    fields: Partial<OriginPost> = {}
+  ): OriginPost {
+    return {
+      author: { title: name, url: `https://${name}.social/@${name}` },
+      id: originId,
+      originId,
+      ...fields
+    }
+  }
+
+  function spyTimeline(
+    ...pages: OriginPost[][]
+  ): Spy<typeof signedIn.getTimeline> {
+    return spyOn(signedIn, 'getTimeline', () => {
+      function load(index: number): Promise<PostsListResult> {
+        return Promise.resolve([
+          pages[index]!,
+          pages[index + 1] ? () => load(index + 1) : undefined
+        ])
+      }
+      return createPostsList(() => load(0))
+    })
+  }
+
+  async function loadSorted(): Promise<PostValue[]> {
+    return (await loadPosts()).toSorted((a, b) => {
+      return a.originId.localeCompare(b.originId)
+    })
+  }
+
+  test('puts home timeline posts to feeds and account', async () => {
+    let accountId = await addAccount(
+      testAccount({ lastPublishedAt: 100, refreshedAt: 10 })
+    )
+    let virtual = await addFeed(
+      testFeed({
+        accountId,
+        loader: 'mastodon',
+        reading: 'slow',
+        url: BOB
+      })
+    )
+    await addFilter({
+      action: 'delete',
+      feedId: virtual,
+      query: 'include(spam)'
+    })
+    await addFeed(
+      testFeed({ loader: 'rss', url: 'https://carol.social/@carol' })
+    )
+    await addFeed(
+      testFeed({
+        accountId: 'other',
+        loader: 'mastodon',
+        url: 'https://erin.social/@erin'
+      })
+    )
+    let rss = spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => Promise.resolve([[], undefined]))
+    })
+    let mastodonFeeds = spyOn(loaders.mastodon, 'getPosts', () => {
+      return createPostsList(() => Promise.resolve([[], undefined]))
+    })
+    let mastodon = loaders.mastodon as Required<typeof loaders.mastodon>
+    spyOn(mastodon, 'getThreadAncestors', () =>
+      Promise.resolve([{ full: 'Start', originId: 'd0', publishedAt: 240 }])
+    )
+    let timeline = spyTimeline([
+      by('bob', 'b1', { full: 'Hi', publishedAt: 300 }),
+      by('bob', 'b2', { full: 'spam', publishedAt: 290 }),
+      by('carol', 'c1', { publishedAt: 280 }),
+      by('erin', 'e1', { publishedAt: 275 }),
+      by('dave', 'd1', { publishedAt: 250, selfReplyTo: 'd0' }),
+      by('frank', 'f1', {
+        publishedAt: 100,
+        repostedBy: { title: 'bob', url: BOB },
+        sortedAt: 270
+      }),
+      by('dave', 'old', { publishedAt: 50 })
+    ])
+
+    await refreshPosts()
+    equal(timeline.calls[0]![1].account.id, accountId)
+    equal(timeline.calls[0]![2], 10)
+    equal(rss.calls.length, 1)
+    equal(mastodonFeeds.calls.length, 0)
+    deepEqual(refreshStatistics.get(), {
+      errorFeeds: 0,
+      errorRequests: 0,
+      foundFast: 2,
+      foundSlow: 2,
+      initializing: false,
+      processedFeeds: 2,
+      totalFeeds: 2
+    })
+
+    let posts = await loadSorted()
+    deepEqual(
+      posts.map(i => [
+        i.originId,
+        i.feedId,
+        i.accountId,
+        i.reading,
+        i.author?.title ?? null,
+        i.threadId
+      ]),
+      [
+        ['b1', virtual, null, 'slow', null, null],
+        ['d0', null, accountId, 'fast', 'dave', 'd0'],
+        ['d1', null, accountId, 'fast', 'dave', 'd0'],
+        ['f1', virtual, null, 'slow', 'frank', null]
+      ]
+    )
+
+    let account = await loadAccount(accountId)
+    equal(account!.lastOriginId, 'b1')
+    equal(account!.lastPublishedAt, 300)
+    let feed = await loadFeed(virtual)
+    equal(feed!.lastOriginId, 'b1')
+    equal(feed!.lastPublishedAt, 300)
+  })
+
+  test('sorts timeline by repost time', async () => {
+    let accountId = await addAccount(testAccount({ lastPublishedAt: 200 }))
+    spyTimeline([
+      by('dave', 'new', { publishedAt: 210 }),
+      by('dave', 'reposted', {
+        publishedAt: 100,
+        repostedBy: { title: 'erin', url: 'https://erin.social/@erin' },
+        sortedAt: 300
+      }),
+      by('dave', 'old', { publishedAt: 150 })
+    ])
+
+    await refreshPosts()
+    deepEqual(
+      (await loadSorted()).map(i => [i.originId, i.sortedAt]),
+      [
+        ['new', 210],
+        ['reposted', 300]
+      ]
+    )
+    let account = await loadAccount(accountId)
+    equal(account!.lastOriginId, 'reposted')
+    equal(account!.lastPublishedAt, 300)
+  })
+
+  test('loads every timeline page', async () => {
+    let accountId = await addAccount(testAccount({ lastPublishedAt: 100 }))
+    spyTimeline(
+      [by('dave', '3', { publishedAt: 300 })],
+      [
+        by('dave', '2', { publishedAt: 200 }),
+        by('dave', '3', { publishedAt: 300 })
+      ],
+      [by('dave', '1', { publishedAt: 50 })]
+    )
+    await refreshPosts()
+    deepEqual(
+      (await loadSorted()).map(i => i.originId),
+      ['2', '3']
+    )
+    equal((await loadAccount(accountId))!.lastOriginId, '3')
+  })
+
+  test('marks account without new posts', async () => {
+    let accountId = await addAccount(
+      testAccount({ lastOriginId: 'old', lastPublishedAt: 100 })
+    )
+    spyTimeline([by('dave', 'old', { publishedAt: 100 })])
+    await refreshPosts()
+    let account = await loadAccount(accountId)
+    equal(account!.lastOriginId, 'old')
+    equal(typeof account!.refreshedAt, 'number')
+    deepEqual(await loadPosts(), [])
+  })
+
+  test('is ready to account deletion during refreshing', async () => {
+    let accountId = await addAccount(testAccount())
+    spyOn(signedIn, 'getTimeline', () => {
+      return createPostsList(async () => {
+        await deleteAccount(accountId)
+        return [[by('dave', '1', { publishedAt: 100 })], undefined]
+      })
+    })
+    await refreshPosts()
+    deepEqual(await loadPosts(), [])
+  })
+
+  test('shows account errors', async () => {
+    let accountId = await addAccount(
+      testAccount({ title: 'Me', url: 'https://mastodon.social/@me' })
+    )
+    let error = new ParseError('broken')
+    spyOn(signedIn, 'getTimeline', () => {
+      return createPostsList(() => Promise.reject(error))
+    })
+    await expectWarning(() => refreshPosts(), [error])
+    deepEqual(refreshErrors.get(), [
+      {
+        error,
+        feed: {
+          id: accountId,
+          title: 'Me',
+          url: 'https://mastodon.social/@me'
+        }
+      }
+    ])
+  })
+
+  test('loads recent posts of the feed', async () => {
+    let feedId = await addFeed(
+      testFeed({ lastPublishedAt: 100, loader: 'mastodon', url: BOB })
+    )
+    spyOn(loaders.mastodon, 'getPosts', () => {
+      return createPostsList(() =>
+        Promise.resolve([
+          [
+            { originId: 'old', publishedAt: 50 },
+            { originId: 'new', publishedAt: 200 }
+          ],
+          undefined
+        ])
+      )
+    })
+    await loadRecentPosts(feedId)
+    deepEqual(
+      (await loadPosts()).map(i => i.originId),
+      ['new']
+    )
+    let feed = await loadFeed(feedId)
+    equal(feed!.lastOriginId, 'new')
+    equal(feed!.lastPublishedAt, 200)
+
+    await loadRecentPosts(feedId)
+    equal((await loadPosts()).length, 1)
+
+    await loadRecentPosts('unknown')
+
+    let error = new ParseError('broken')
+    spyOn(loaders.mastodon, 'getPosts', () => {
+      return createPostsList(() => Promise.reject(error))
+    })
+    equal(await throws(() => loadRecentPosts(feedId)), error)
   })
 })

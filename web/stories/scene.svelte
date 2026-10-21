@@ -1,7 +1,6 @@
 <script lang="ts">
   import {
     type AccountValue,
-    addAccount,
     addCategory,
     addFeed,
     addPost,
@@ -14,6 +13,7 @@
     DEFAULT_REFRESH_STATISTICS,
     extensionState,
     type FeedValue,
+    getTables,
     hasCloud,
     hasFeeds,
     isDemo,
@@ -86,7 +86,11 @@
     // Rows are added by a single action: a story with hundreds of posts
     // will be too slow with an action per row
     if (categories?.length) await addCategory(categories)
-    for (let account of accounts ?? []) await addAccount(testAccount(account))
+    if (accounts?.length) {
+      await getTables().accounts.create(
+        accounts.map(account => testAccount(account))
+      )
+    }
     if (feeds?.length) await addFeed(feeds.map(feed => testFeed(feed)))
     if (posts?.length) {
       await addPost(

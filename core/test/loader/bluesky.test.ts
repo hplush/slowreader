@@ -2,14 +2,20 @@ import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
+  type AccountAuth,
+  type AccountCredentials,
+  accountsMessages,
   createDownloadTask,
   createTextResponse,
   type DetectedFeed,
+  HTTPStatusError,
   loaders,
   ParseError,
   setupEnvironment,
+  testAccount,
   testFeed
 } from '../../index.ts'
+import { sha256 } from '../../lib/oauth.ts'
 import {
   checkAndRemoveRequestMock,
   expectNotMine,
@@ -17,7 +23,8 @@ import {
   getTestEnvironment,
   loadedPostsValue,
   mockRequest,
-  setupNodeDom
+  setupNodeDom,
+  throws
 } from '../utils.ts'
 
 setupNodeDom()
@@ -1115,5 +1122,335 @@ describe('bluesky loader', () => {
       ),
       post('1')
     )
+  })
+})
+
+let pair = await crypto.subtle.generateKey(
+  { name: 'ECDSA', namedCurve: 'P-256' },
+  true,
+  ['sign', 'verify']
+)
+let jwk = await crypto.subtle.exportKey('jwk', pair.privateKey)
+let dpopKey = { crv: jwk.crv!, d: jwk.d!, kty: jwk.kty!, x: jwk.x!, y: jwk.y! }
+
+const TOKEN = 'https://auth.example.com/oauth/token'
+
+describe('bluesky account', () => {
+  setupEnvironment(getTestEnvironment())
+
+  beforeEach(() => {
+    mockRequest()
+  })
+
+  afterEach(() => {
+    checkAndRemoveRequestMock()
+  })
+
+  let signedIn = loaders.bluesky.account!
+
+  let servers = 0
+
+  /**
+   * PDS nonce is cached by origin, so every test has own server
+   */
+  function createAuth(
+    credentials: Partial<AccountCredentials> = {},
+    reload?: AccountCredentials
+  ): { auth: AccountAuth; saved: AccountCredentials[] } {
+    servers += 1
+    let saved: AccountCredentials[] = []
+    let auth: AccountAuth = {
+      account: testAccount({
+        credentials: {
+          accessToken: 'access',
+          clientId: 'client',
+          clientSecret: null,
+          dpopKey,
+          expiresAt: Math.round(Date.now() / 1000) + 3600,
+          refreshToken: 'refresh',
+          tokenUrl: TOKEN,
+          ...credentials
+        },
+        server: `https://pds${servers}.example.com`,
+        service: 'bluesky',
+        url: 'https://bsky.app/profile/did:plc:me'
+      }),
+      reload: () => Promise.resolve(reload),
+      save(value: AccountCredentials) {
+        saved.push(value)
+        return Promise.resolve()
+      }
+    }
+    return { auth, saved }
+  }
+
+  function xrpc(auth: AccountAuth, path: string): string {
+    return `${auth.account.server}/xrpc/${path}`
+  }
+
+  function respond(
+    url: string,
+    body: unknown,
+    status = 200,
+    headers: Record<string, string> = {}
+  ): ReturnType<typeof expectRequest> {
+    let request = expectRequest(url)
+    request.andRespond(
+      status,
+      JSON.stringify(body),
+      'application/json',
+      headers
+    )
+    return request
+  }
+
+  function decode(part: string): Record<string, unknown> {
+    let json = atob(part.replaceAll('-', '+').replaceAll('_', '/'))
+    return JSON.parse(json) as Record<string, unknown>
+  }
+
+  function getProof(
+    request: ReturnType<typeof expectRequest>
+  ): Record<string, unknown> {
+    let headers = new Headers(request.sent().headers)
+    return {
+      authorization: headers.get('Authorization'),
+      ...decode(headers.get('DPoP')!.split('.')[1]!)
+    }
+  }
+
+  function timeline(auth: AccountAuth, cursor?: string): string {
+    return xrpc(
+      auth,
+      'app.bsky.feed.getTimeline?limit=50' + (cursor ? `&cursor=${cursor}` : '')
+    )
+  }
+
+  function bobProfile(auth: AccountAuth): string {
+    return xrpc(
+      auth,
+      `app.bsky.actor.getProfile?actor=${encodeURIComponent('bob.bsky.social')}`
+    )
+  }
+
+  test('loads home timeline', async () => {
+    let { auth } = createAuth()
+    let first = respond(timeline(auth), {
+      cursor: 'c1',
+      feed: [
+        { post: bobPost('1') },
+        {
+          post: bobPost('2', {
+            record: {
+              createdAt: '2026-01-01T00:00:00.000Z',
+              reply: {
+                parent: { uri: uri('alice', 'a') },
+                root: { uri: uri('alice', 'a') }
+              },
+              text: '2'
+            }
+          })
+        },
+        repost(bobPost('3'))
+      ]
+    })
+    let posts = signedIn.getTimeline(createDownloadTask(), auth, 0)
+    await posts.loading
+    let proof = getProof(first)
+    equal(proof.authorization, 'DPoP access')
+    equal(proof.htm, 'GET')
+    equal(proof.htu, xrpc(auth, 'app.bsky.feed.getTimeline'))
+    equal(proof.ath, await sha256('access'))
+    deepEqual(
+      posts
+        .get()
+        .list.map(item => [
+          item.originId,
+          item.author?.title,
+          item.repostedBy?.title,
+          item.sortedAt
+        ]),
+      [
+        [uri('bob', '1'), 'BOB', undefined, undefined],
+        [uri('bob', '3'), 'BOB', 'JANE', 1769904000]
+      ]
+    )
+    equal(posts.get().hasNext, true)
+
+    respond(timeline(auth, 'c1'), { feed: [] })
+    await posts.next()
+    equal(posts.get().hasNext, false)
+  })
+
+  test('stops timeline on the previous refresh', async () => {
+    let { auth } = createAuth()
+    respond(timeline(auth), { cursor: 'c1', feed: [{ post: bobPost('1') }] })
+    let posts = signedIn.getTimeline(
+      createDownloadTask(),
+      auth,
+      Math.round(Date.now() / 1000)
+    )
+    await posts.loading
+    equal(posts.get().hasNext, false)
+  })
+
+  test('repeats request with nonce', async () => {
+    let { auth } = createAuth()
+    respond(bobProfile(auth), { error: 'use_dpop_nonce' }, 401, {
+      'DPoP-Nonce': 'n1'
+    })
+    let second = respond(bobProfile(auth), profile('bob'), 200, {
+      'DPoP-Nonce': 'n2'
+    })
+    let url = 'https://bsky.app/profile/bob.bsky.social'
+    let task = createDownloadTask()
+    equal(await signedIn.isFollowing(task, auth, url), false)
+    equal(getProof(second).nonce, 'n1')
+
+    let third = respond(
+      bobProfile(auth),
+      profile('bob', { viewer: { following: 'at://follow' } })
+    )
+    equal(await signedIn.isFollowing(task, auth, url), true)
+    equal(getProof(third).nonce, 'n2')
+
+    respond(bobProfile(auth), {}, 401, {
+      'DPoP-Nonce': 'n3',
+      'WWW-Authenticate': 'DPoP error="use_dpop_nonce"'
+    })
+    let fourth = respond(bobProfile(auth), profile('bob'))
+    await signedIn.isFollowing(task, auth, url)
+    equal(getProof(fourth).nonce, 'n3')
+  })
+
+  test('refreshes expired token', async () => {
+    let { auth, saved } = createAuth({ expiresAt: 1 })
+    let refresh = respond(TOKEN, {
+      access_token: 'access2',
+      expires_in: 60,
+      refresh_token: 'refresh2'
+    })
+    let request = respond(timeline(auth), { feed: [] })
+    let posts = signedIn.getTimeline(createDownloadTask(), auth)
+    await posts.loading
+    let body = refresh.sent().body as URLSearchParams
+    equal(body.get('grant_type'), 'refresh_token')
+    equal(body.get('refresh_token'), 'refresh')
+    equal(body.get('client_id'), 'client')
+    equal(getProof(request).authorization, 'DPoP access2')
+    equal(saved.length, 1)
+    equal(saved[0]!.accessToken, 'access2')
+    equal(saved[0]!.refreshToken, 'refresh2')
+    equal(saved[0]!.dpopKey, dpopKey)
+    equal(auth.account.credentials.accessToken, 'access2')
+  })
+
+  test('refreshes token on wrong token error', async () => {
+    let { auth } = createAuth()
+    respond(timeline(auth), { error: 'invalid_token' }, 401)
+    respond(TOKEN, { access_token: 'access2', refresh_token: 'refresh2' })
+    let retry = respond(timeline(auth), { feed: [] })
+    let posts = signedIn.getTimeline(createDownloadTask(), auth)
+    await posts.loading
+    equal(posts.get().error, undefined)
+    equal(getProof(retry).authorization, 'DPoP access2')
+    equal(auth.account.credentials.expiresAt, undefined)
+  })
+
+  test('takes token from another device', async () => {
+    let { auth, saved } = createAuth(
+      { expiresAt: 1 },
+      {
+        accessToken: 'other',
+        clientId: 'client',
+        dpopKey,
+        refreshToken: 'other-refresh',
+        tokenUrl: TOKEN
+      }
+    )
+    respond(TOKEN, { error: 'invalid_grant' }, 400)
+    let request = respond(timeline(auth), { feed: [] })
+    let posts = signedIn.getTimeline(createDownloadTask(), auth)
+    await posts.loading
+    equal(getProof(request).authorization, 'DPoP other')
+    equal(saved.length, 0)
+  })
+
+  test('asks to sign in again', async () => {
+    let { auth } = createAuth({ expiresAt: 1 })
+    respond(TOKEN, { error: 'invalid_grant' }, 400)
+    let posts = signedIn.getTimeline(createDownloadTask(), auth)
+    await posts.loading
+    equal(posts.get().error?.message, accountsMessages.get().signInAgain)
+  })
+
+  test('throws other errors', async () => {
+    let { auth } = createAuth()
+    respond(timeline(auth), {}, 500)
+    let posts = signedIn.getTimeline(createDownloadTask(), auth)
+    await posts.loading
+    equal(HTTPStatusError.is(posts.get().error, [500]), true)
+
+    respond(timeline(auth), {}, 400)
+    posts = signedIn.getTimeline(createDownloadTask(), auth)
+    await posts.loading
+    equal(HTTPStatusError.is(posts.get().error, [400]), true)
+
+    respond(timeline(auth), {}, 401)
+    respond(TOKEN, {}, 500)
+    let error = await throws(async () => {
+      posts = signedIn.getTimeline(createDownloadTask(), auth)
+      await posts.loading
+      let failed = posts.get().error
+      if (failed) throw failed
+    })
+    equal(HTTPStatusError.is(error, [500]), true)
+  })
+
+  test('follows and unfollows authors', async () => {
+    let { auth } = createAuth()
+    let task = createDownloadTask()
+    let url = 'https://bsky.app/profile/bob.bsky.social'
+
+    respond(bobProfile(auth), profile('bob'))
+    let create = respond(xrpc(auth, 'com.atproto.repo.createRecord'), {})
+    await signedIn.follow(task, auth, url)
+    equal(getProof(create).htm, 'POST')
+    let created = JSON.parse(create.sent().body as string) as {
+      record: Record<string, unknown>
+    }
+    equal(created.record.createdAt?.constructor, String)
+    deepEqual(
+      { ...created, record: { ...created.record, createdAt: 0 } },
+      {
+        collection: 'app.bsky.graph.follow',
+        record: {
+          $type: 'app.bsky.graph.follow',
+          createdAt: 0,
+          subject: 'did:plc:bob'
+        },
+        repo: 'did:plc:me'
+      }
+    )
+    equal(
+      new Headers(create.sent().headers).get('Content-Type'),
+      'application/json'
+    )
+
+    let following = 'at://did:plc:me/app.bsky.graph.follow/rkey1'
+    respond(bobProfile(auth), profile('bob', { viewer: { following } }))
+    await signedIn.follow(task, auth, url)
+
+    respond(bobProfile(auth), profile('bob', { viewer: { following } }))
+    let remove = respond(xrpc(auth, 'com.atproto.repo.deleteRecord'), {})
+    await signedIn.unfollow(task, auth, url)
+    deepEqual(JSON.parse(remove.sent().body as string), {
+      collection: 'app.bsky.graph.follow',
+      repo: 'did:plc:me',
+      rkey: 'rkey1'
+    })
+
+    respond(bobProfile(auth), profile('bob'))
+    await signedIn.unfollow(task, auth, url)
   })
 })

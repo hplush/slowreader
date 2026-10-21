@@ -2,13 +2,16 @@ import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
+  type AccountAuth,
   createDownloadTask,
   createTextResponse,
   loaders,
+  NotFoundError,
   ParseError,
   type DetectedFeed,
   type ParsedPost,
   setupEnvironment,
+  testAccount,
   testFeed
 } from '../../index.ts'
 import {
@@ -18,7 +21,8 @@ import {
   getTestEnvironment,
   loadedPostsValue,
   mockRequest,
-  setupNodeDom
+  setupNodeDom,
+  throws
 } from '../utils.ts'
 
 setupNodeDom()
@@ -992,5 +996,143 @@ describe('mastodon loader', () => {
       ),
       status('1')
     )
+  })
+})
+
+const SEARCH =
+  `${API.replace('v1', 'v2')}/search?q=` +
+  encodeURIComponent('https://other.social/@bob') +
+  '&resolve=true&type=accounts&limit=1'
+
+describe('mastodon account', () => {
+  setupEnvironment(getTestEnvironment())
+
+  beforeEach(() => {
+    mockRequest()
+  })
+
+  afterEach(() => {
+    checkAndRemoveRequestMock()
+  })
+
+  let auth: AccountAuth = {
+    account: testAccount({
+      credentials: {
+        accessToken: 'token',
+        clientId: 'client',
+        clientSecret: 'secret',
+        dpopKey: null,
+        expiresAt: null,
+        refreshToken: null,
+        tokenUrl: 'https://mastodon.social/oauth/token'
+      }
+    }),
+    reload: () => Promise.resolve(undefined),
+    save: () => Promise.resolve()
+  }
+
+  let signedIn = loaders.mastodon.account!
+
+  function respond(
+    url: string,
+    body: unknown
+  ): ReturnType<typeof expectRequest> {
+    let request = expectRequest(url)
+    request.andRespond(200, JSON.stringify(body), 'application/json')
+    return request
+  }
+
+  function checkToken(request: ReturnType<typeof expectRequest>): void {
+    equal(
+      new Headers(request.sent().headers).get('Authorization'),
+      'Bearer token'
+    )
+  }
+
+  test('loads home timeline', async () => {
+    let first = respond(`${API}/timelines/home?limit=40`, [
+      status('1', { account: account('bob') }),
+      status('2', {
+        account: account('bob'),
+        in_reply_to_account_id: 'alice-id',
+        in_reply_to_id: 'other'
+      }),
+      status('3', {
+        account: account('bob'),
+        in_reply_to_account_id: 'bob-id',
+        in_reply_to_id: '1'
+      }),
+      status('4', {
+        created_at: '2026-02-01T00:00:00.000Z',
+        reblog: status('5', { account: account('bob') })
+      })
+    ])
+    let posts = signedIn.getTimeline(createDownloadTask(), auth)
+    await posts.loading
+    checkToken(first)
+    deepEqual(
+      posts
+        .get()
+        .list.map(post => [
+          post.originId,
+          post.author?.title,
+          post.repostedBy?.title,
+          post.selfReplyTo
+        ]),
+      [
+        ['1', 'BOB', undefined, undefined],
+        ['3', 'BOB', undefined, '1'],
+        ['4', 'BOB', 'JANE', undefined]
+      ]
+    )
+    equal(posts.get().hasNext, true)
+
+    respond(`${API}/timelines/home?limit=40&max_id=4`, [])
+    await posts.next()
+    equal(posts.get().list.length, 3)
+    equal(posts.get().hasNext, false)
+  })
+
+  test('follows and unfollows authors', async () => {
+    let task = createDownloadTask()
+    let url = 'https://other.social/@bob'
+
+    let search = respond(SEARCH, { accounts: [{ id: 'bob-id' }] })
+    respond(`${API}/accounts/relationships?id[]=bob-id`, [{ following: true }])
+    equal(await signedIn.isFollowing(task, auth, url), true)
+    checkToken(search)
+
+    respond(SEARCH, { accounts: [{ id: 'bob-id' }] })
+    respond(`${API}/accounts/relationships?id[]=bob-id`, [{ following: false }])
+    equal(await signedIn.isFollowing(task, auth, url), false)
+
+    respond(SEARCH, { accounts: [{ id: 'bob-id' }] })
+    let follow = respond(`${API}/accounts/bob-id/follow`, {})
+    await signedIn.follow(task, auth, url)
+    equal(follow.sent().method, 'POST')
+    checkToken(follow)
+
+    respond(SEARCH, { accounts: [{ id: 'bob-id' }] })
+    let unfollow = respond(`${API}/accounts/bob-id/unfollow`, {})
+    await signedIn.unfollow(task, auth, url)
+    equal(unfollow.sent().method, 'POST')
+  })
+
+  test('validates follow answers', async () => {
+    let task = createDownloadTask()
+    let url = 'https://other.social/@bob'
+
+    respond(SEARCH, { accounts: [] })
+    let error = await throws(() => signedIn.isFollowing(task, auth, url))
+    equal(error.name, NotFoundError.name)
+
+    respond(SEARCH, {})
+    error = await throws(() => signedIn.isFollowing(task, auth, url))
+    equal(error.name, ParseError.name)
+
+    respond(SEARCH, { accounts: [{ id: 'bob-id' }] })
+    respond(`${API}/accounts/relationships?id[]=bob-id`, {})
+    error = await throws(() => signedIn.isFollowing(task, auth, url))
+    equal(error.name, ParseError.name)
   })
 })

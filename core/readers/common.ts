@@ -8,6 +8,7 @@ import {
   changeRead,
   hasUnreadPosts,
   type PostValue,
+  type PreviewPost,
   type ReaderPost,
   type ReaderPostWith
 } from '../post.ts'
@@ -69,7 +70,23 @@ export function createReader<Name extends ReaderName, Rest extends Extra>(
  * Feed’s title, URL, and icon for the post’s author line. Readers take them
  * from the same query as posts, so a category page does not load all its feeds.
  */
-export type FeedAuthor = { avatar: null | string; title: string; url: string }
+export type FeedAuthor = {
+  avatar: null | string
+  feedId: string
+  title: string
+  url: string
+}
+
+/**
+ * Feed previews and account’s posts have no feed and show their own `author`.
+ */
+export function getFeedAuthor(
+  post: PreviewPost | ReaderPost,
+  authors: ReadonlyMap<string, FeedAuthor> | undefined
+): FeedAuthor | undefined {
+  if ('feedId' in post && post.feedId) return authors?.get(post.feedId)
+  return undefined
+}
 
 function menuHasUnread(filter: PostFilter): boolean {
   if (filter.reading === 'fast') {
@@ -200,8 +217,9 @@ export function loadPostsPage(
         "posts"."preview", "posts"."quoted", "posts"."replied",
         "posts"."repostedBy", "posts"."threadId", "posts"."unsupported",
         "posts"."warning", (SELECT COUNT(*) FROM "posts" AS "thread"
-          WHERE "thread"."feedId" = "posts"."feedId"
-            AND "thread"."threadId" = "posts"."threadId") AS "threadSize",
+          WHERE "thread"."threadId" = "posts"."threadId"
+            AND "thread"."feedId" IS "posts"."feedId"
+            AND "thread"."accountId" IS "posts"."accountId") AS "threadSize",
         NULLIF("posts"."intro", '') AS "intro",
         CASE WHEN COALESCE("posts"."intro", '') = ''
           THEN "posts"."full" END AS "full",
@@ -209,10 +227,12 @@ export function loadPostsPage(
         "feeds"."title" AS "authorTitle", "feeds"."url" AS "authorUrl",
         "feeds"."avatar" AS "authorAvatar"
       FROM "posts"
-      JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+      LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+      LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 0
         AND "posts"."merged" = 0
-        AND "feeds"."categoryId" = ${filter.categoryId}
+        AND COALESCE("feeds"."categoryId", "accounts"."categoryId")
+          = ${filter.categoryId}
         AND ("posts"."sortedAt", "posts"."id")
           < (${cursor.sortedAt}, ${cursor.id})
       ORDER BY "posts"."sortedAt" DESC, "posts"."id" DESC
@@ -264,8 +284,9 @@ export function loadPostsRange(
         "posts"."preview", "posts"."quoted", "posts"."replied",
         "posts"."repostedBy", "posts"."threadId", "posts"."unsupported",
         "posts"."warning", (SELECT COUNT(*) FROM "posts" AS "thread"
-          WHERE "thread"."feedId" = "posts"."feedId"
-            AND "thread"."threadId" = "posts"."threadId") AS "threadSize",
+          WHERE "thread"."threadId" = "posts"."threadId"
+            AND "thread"."feedId" IS "posts"."feedId"
+            AND "thread"."accountId" IS "posts"."accountId") AS "threadSize",
         NULLIF("posts"."intro", '') AS "intro",
         CASE WHEN COALESCE("posts"."intro", '') = ''
           THEN "posts"."full" END AS "full",
@@ -273,9 +294,11 @@ export function loadPostsRange(
         "feeds"."title" AS "authorTitle", "feeds"."url" AS "authorUrl",
         "feeds"."avatar" AS "authorAvatar"
       FROM "posts"
-      JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+      LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+      LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."merged" = 0
-        AND "feeds"."categoryId" = ${filter.categoryId}
+        AND COALESCE("feeds"."categoryId", "accounts"."categoryId")
+          = ${filter.categoryId}
         AND ("posts"."sortedAt", "posts"."id")
           < (${cursor.sortedAt}, ${cursor.id})
         AND ("posts"."sortedAt", "posts"."id")
@@ -319,10 +342,12 @@ export function loadPostsAbove(
   if (filter.categoryId) {
     return getCrdt().select<PostCursor>`
       SELECT "posts"."sortedAt", "posts"."id" FROM "posts"
-      JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+      LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+      LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 0
         AND "posts"."merged" = 0
-        AND "feeds"."categoryId" = ${filter.categoryId}
+        AND COALESCE("feeds"."categoryId", "accounts"."categoryId")
+          = ${filter.categoryId}
         AND ("posts"."sortedAt", "posts"."id")
           >= (${cursor.sortedAt}, ${cursor.id})
       ORDER BY "posts"."sortedAt" ASC, "posts"."id" ASC
@@ -362,9 +387,12 @@ export function loadPageCursors(
           LAG("posts"."id") OVER "reading" AS "id",
           ROW_NUMBER() OVER "reading" AS "row"
         FROM "posts"
-        JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+        LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+        LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"
         WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 0
-          AND "posts"."merged" = 0 AND "feeds"."categoryId" = ${filter.categoryId}
+          AND "posts"."merged" = 0
+          AND COALESCE("feeds"."categoryId", "accounts"."categoryId")
+            = ${filter.categoryId}
         WINDOW "reading" AS (
           ORDER BY "posts"."sortedAt" DESC, "posts"."id" DESC
         )
@@ -401,9 +429,11 @@ export function loadReadPostIds(filter: PostFilter): Promise<string[]> {
   if (filter.categoryId) {
     rows = getCrdt().select`
       SELECT "posts"."id" FROM "posts"
-      JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+      LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+      LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 1
-        AND "feeds"."categoryId" = ${filter.categoryId}
+        AND COALESCE("feeds"."categoryId", "accounts"."categoryId")
+          = ${filter.categoryId}
     `
   } else if (filter.feedId) {
     rows = getCrdt().select`
@@ -430,9 +460,11 @@ export function trackReadPosts(
   let $read: SqlStore<PostValue[]>
   if (filter.categoryId) {
     $read = getTables().posts.select`
-      JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+      LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
+      LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"
       WHERE "posts"."reading" = ${filter.reading} AND "posts"."read" = 1
-        AND "feeds"."categoryId" = ${filter.categoryId}
+        AND COALESCE("feeds"."categoryId", "accounts"."categoryId")
+          = ${filter.categoryId}
     `
   } else {
     $read = getTables().posts.select`
