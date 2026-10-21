@@ -372,7 +372,7 @@ export function findHeaderLinks(
  */
 export function toTime(date: null | string | undefined): number | undefined {
   if (!date) return undefined
-  let time = new Date(date).getTime() / 1000
+  let time = Math.floor(new Date(date).getTime() / 1000)
   if (isNaN(time)) {
     return undefined
   } else {

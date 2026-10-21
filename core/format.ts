@@ -41,31 +41,21 @@ export function formatPublishedAt(format: Formatter, time: number): string {
 }
 
 export function formatDuration(format: Formatter, seconds: number): string {
-  let diff = seconds * 1000
-  if (diff < MINUTE) {
-    return format.number(seconds, {
-      style: 'unit',
-      unit: 'second',
-      unitDisplay: 'long'
-    })
-  } else if (diff < HOUR) {
-    return format.number(Math.round(diff / MINUTE), {
-      style: 'unit',
-      unit: 'minute',
-      unitDisplay: 'long'
-    })
-  } else if (diff < DAY) {
-    return format.number(Math.round(diff / HOUR), {
-      style: 'unit',
-      unit: 'hour',
-      unitDisplay: 'long'
-    })
+  let value = Math.round(seconds)
+  let unit: 'day' | 'hour' | 'minute' | 'second' = 'second'
+  if (value >= 60) {
+    value = Math.round(seconds / 60)
+    unit = 'minute'
   }
-  return format.number(Math.round(diff / DAY), {
-    style: 'unit',
-    unit: 'day',
-    unitDisplay: 'long'
-  })
+  if (value >= 60 && unit === 'minute') {
+    value = Math.round(seconds / 3600)
+    unit = 'hour'
+  }
+  if (value >= 24 && unit === 'hour') {
+    value = Math.round(seconds / 86400)
+    unit = 'day'
+  }
+  return format.number(value, { style: 'unit', unit, unitDisplay: 'long' })
 }
 
 export function formatTimeShort(format: Formatter, date: Date): string {

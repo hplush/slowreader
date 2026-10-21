@@ -10,6 +10,7 @@ export const postMessages = i18n('post', {
   read: 'Mark post was read',
   readCheckbox: 'Post was read',
   replyingTo: 'In reply to',
+  rightAfter: 'Right after',
   repostedBy: params('Reposted by {name}'),
   showSensitive: 'Show sensitive media',
   showWarning: 'Show post',

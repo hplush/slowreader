@@ -58,7 +58,7 @@ function post(id: string, fields: object = {}): Record<string, unknown> {
   return {
     author: profile('jane'),
     record: {
-      createdAt: '2026-01-01T00:00:00.000Z',
+      createdAt: '2026-01-01T00:00:00.342Z',
       text: id
     },
     uri: uri('jane', id),

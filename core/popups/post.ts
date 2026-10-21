@@ -165,20 +165,19 @@ export const post = definePopup('post', async loader => {
   let $thread = computed(
     [$parts, $post, i18nFormat, postMessages],
     (parts, first, format, t) => {
+      function formatAfterFirst(
+        part: OriginPost | PostValue
+      ): string | undefined {
+        // Reposts from old versions have the repost’s date in `publishedAt`
+        if (!part.publishedAt || !first.publishedAt) return undefined
+        let diff = Math.round(part.publishedAt - first.publishedAt)
+        if (diff < 0) return undefined
+        if (diff === 0) return t.rightAfter
+        return t.afterFirst({ time: formatDuration(format, diff) })
+      }
       return parts.map(part => ({
         ...part,
-        afterFirstText:
-          // Reposts from old versions have the repost’s date in `publishedAt`
-          part.publishedAt &&
-          first.publishedAt &&
-          part.publishedAt >= first.publishedAt
-            ? t.afterFirst({
-                time: formatDuration(
-                  format,
-                  part.publishedAt - first.publishedAt
-                )
-              })
-            : undefined,
+        afterFirstText: formatAfterFirst(part),
         publishedAtText: part.publishedAt
           ? formatPublishedAt(format, part.publishedAt)
           : undefined

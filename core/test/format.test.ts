@@ -34,6 +34,10 @@ describe('format', () => {
     let format = createMockFormatter()
 
     equal(formatDuration(format, 45), '45 second')
+    equal(formatDuration(format, 42.342), '42 second')
+    equal(formatDuration(format, 59.6), '1 minute')
+    equal(formatDuration(format, 59.6 * 60), '1 hour')
+    equal(formatDuration(format, 23.6 * 3600), '1 day')
     equal(formatDuration(format, 1000), '17 minute')
     equal(formatDuration(format, 3 * 3600), '3 hour')
     equal(formatDuration(format, 2 * 86400), '2 day')

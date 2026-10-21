@@ -275,7 +275,14 @@ describe('post popup', () => {
         threadId: 'r'
       })
     )
-    await addPost(
+    await addPost([
+      testPost({
+        feedId: feed,
+        merged: true,
+        originId: 'same',
+        publishedAt: 1000.342,
+        threadId: 'r'
+      }),
       testPost({
         feedId: feed,
         merged: true,
@@ -283,7 +290,7 @@ describe('post popup', () => {
         publishedAt: 1060,
         threadId: 'r'
       })
-    )
+    ])
     let popup = openTestPopup('post', `id:${repost}`)
     await waitLoading(popup.loading)
     deepEqual(
@@ -291,6 +298,7 @@ describe('post popup', () => {
         .thread.get()
         .map(post => post.afterFirstText),
       [
+        postMessages.get().rightAfter,
         postMessages.get().afterFirst({
           time: formatDuration(i18nFormat.get(), 60)
         })
