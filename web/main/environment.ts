@@ -34,7 +34,7 @@ import { detectExtension, extensionRequest } from './extension.ts'
 
 let server = location.hostname
 let proxy = '/proxy/'
-if (location.hostname === 'localhost') {
+if (['localhost', '127.0.0.1'].includes(location.hostname)) {
   proxy = 'http://localhost:2554/proxy/'
   server = 'localhost:2554'
 } else if (location.hostname === 'slowreader.app') {

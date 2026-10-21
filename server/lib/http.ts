@@ -56,7 +56,7 @@ function allowCors(res: ServerResponse, origin: string): void {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Subprotocol')
 }
 
-const LOCALHOST = /^http:\/\/localhost:\d+$/
+const LOCALHOST = /^http:\/\/(localhost|127\.0\.0\.1|\[::1\]):\d+$/
 
 export function jsonApi<Response, Request extends object>(
   server: BaseServer,

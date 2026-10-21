@@ -34,7 +34,7 @@ export function getConfig(from: Record<string, string | undefined>): Config {
   }
   let proxyOrigin = from.PROXY_ORIGIN
   if (!proxyOrigin && env === 'development') {
-    proxyOrigin = '^http:\\/\\/localhost:\\d+$'
+    proxyOrigin = '^http:\\/\\/(localhost|127\\.0\\.0\\.1|\\[::1\\]):\\d+$'
   }
   let webOrigin = new URL(from.WEB_ORIGIN ?? getDefaultWebOrigin(env)).origin
   return {

@@ -1,4 +1,4 @@
-import { deepEqual, equal, match, throws } from 'node:assert/strict'
+import { deepEqual, equal, throws } from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
 import { config, getConfig } from '../lib/config.ts'
@@ -36,7 +36,11 @@ describe('server config', () => {
   })
 
   test('sets proxy origin', () => {
-    match(getConfig({ NODE_ENV: 'development' }).proxyOrigin!, /localhost/)
+    let dev = new RegExp(getConfig({ NODE_ENV: 'development' }).proxyOrigin!)
+    equal(dev.test('http://localhost:2553'), true)
+    equal(dev.test('http://127.0.0.1:2553'), true)
+    equal(dev.test('http://[::1]:2553'), true)
+    equal(dev.test('https://example.com'), false)
     equal(
       getConfig({ DATABASE_URL, NODE_ENV: 'production', WEB_ORIGIN })
         .proxyOrigin,
