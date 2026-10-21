@@ -450,6 +450,22 @@ describe('accounts page', () => {
     await page.submit()
     equal(page.error.get(), accountsMessages.get().invalidServer)
 
+    equal(page.mastodonServers[0], 'mastodon.social')
+    expectRequest(
+      'https://mas.to/.well-known/oauth-authorization-server'
+    ).andRespond(404)
+    await page.signInTo('mas.to')
+    equal(page.input.get(), 'mas.to')
+    equal(page.error.get(), accountsMessages.get().oldMastodon)
+
+    equal(page.mastodonServers[0], 'mastodon.social')
+    expectRequest(
+      'https://mas.to/.well-known/oauth-authorization-server'
+    ).andRespond(404)
+    await page.signInTo('mas.to')
+    equal(page.input.get(), 'mas.to')
+    equal(page.error.get(), accountsMessages.get().oldMastodon)
+
     page.input.set('old.example.com')
     expectRequest(
       'https://old.example.com/.well-known/oauth-authorization-server'

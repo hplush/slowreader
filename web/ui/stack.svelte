@@ -10,7 +10,8 @@
     justify = 'start',
     role,
     row = false,
-    width = 'stretch'
+    width = 'stretch',
+    wrap = false
   }: {
     align?: 'baseline' | 'center' | 'end' | 'start'
     children: Snippet
@@ -21,6 +22,7 @@
     role?: 'menu' | 'menuitem'
     row?: boolean
     width?: 'auto' | 'stretch'
+    wrap?: boolean
   } = $props()
 </script>
 
@@ -46,6 +48,7 @@
   class:is-row={row}
   class:is-width-auto={width === 'auto'}
   class:is-width-stretch={width === 'stretch'}
+  class:is-wrap={wrap}
   aria-controls={controls}
   {role}
   tabindex={controls ? 0 : null}
@@ -111,6 +114,10 @@
       &.is-row {
         flex-direction: row;
         padding: 0 var(--stack-padding);
+      }
+
+      &.is-wrap {
+        flex-wrap: wrap;
       }
 
       &.is-gap-xxl {

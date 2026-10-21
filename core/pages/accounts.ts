@@ -18,6 +18,7 @@ import {
 } from '../errors.ts'
 import type { SignInField, SignInStep } from '../loader/common.ts'
 import { loaders } from '../loader/index.ts'
+import { POPULAR_MASTODON_SERVERS } from '../loader/mastodon.ts'
 import { accountsMessages as t } from '../messages/index.ts'
 import { navigate, router } from '../router.ts'
 import type { AccountService } from '../schema.ts'
@@ -105,6 +106,29 @@ export const accountsPage = createPage('accounts', () => {
     }
   }
 
+  async function submit(): Promise<void> {
+    let step = $step.get()
+    if (step.type !== 'form') return
+    let value = $input.get()
+    $error.set(undefined)
+    $submitting.set(true)
+    try {
+      await next(
+        step.service,
+        asked === undefined
+          ? await startAccountSignIn(step.service, value)
+          : await continueAccountSignIn(step.service, asked.data, {
+              type: 'input',
+              value
+            })
+      )
+    } catch (e) {
+      $error.set(toMessage(e))
+    } finally {
+      $submitting.set(false)
+    }
+  }
+
   // Web returns from the service by opening the page again
   let hash = env.baseRouter.get()?.hash.replace(/^#/, '') ?? ''
   if (/(^|&)(code|error)=/.test(hash)) {
@@ -128,34 +152,18 @@ export const accountsPage = createPage('accounts', () => {
     error: $error,
     exit() {},
     input: $input,
+    mastodonServers: POPULAR_MASTODON_SERVERS,
     /**
      * ID of the account in the opened popup.
      */
     opened: computed(router, route => route.popups[0]?.param),
     params: {},
-    step: $step,
-    async submit(): Promise<void> {
-      let step = $step.get()
-      if (step.type !== 'form') return
-      let value = $input.get()
-      $error.set(undefined)
-      $submitting.set(true)
-      try {
-        await next(
-          step.service,
-          asked === undefined
-            ? await startAccountSignIn(step.service, value)
-            : await continueAccountSignIn(step.service, asked.data, {
-                type: 'input',
-                value
-              })
-        )
-      } catch (e) {
-        $error.set(toMessage(e))
-      } finally {
-        $submitting.set(false)
-      }
+    signInTo(server: string): Promise<void> {
+      $input.set(server)
+      return submit()
     },
+    step: $step,
+    submit,
     submitting: $submitting
   }
 })

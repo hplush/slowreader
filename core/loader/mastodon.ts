@@ -107,18 +107,21 @@ const HANDLE = /^@([^@\s/]+)@([^@\s/]+)$/
 
 const SHORTCODE = /:(\w{2,}):/g
 
-const POPULAR = new Set([
-  'fosstodon.org',
-  'hachyderm.io',
-  'infosec.exchange',
-  'mas.to',
-  'mastodon.online',
+/**
+ * From the biggest one, to suggest them on the sign in
+ */
+export const POPULAR_MASTODON_SERVERS = [
   'mastodon.social',
-  'mastodon.world',
   'mstdn.jp',
+  'mastodon.world',
+  'mastodon.online',
   'mstdn.social',
-  'techhub.social'
-])
+  'mas.to',
+  'infosec.exchange',
+  'fosstodon.org'
+]
+
+const POPULAR = new Set(POPULAR_MASTODON_SERVERS)
 
 function parseAccount(response: TextResponse): MastodonAccount {
   let account = response.parseJson()

@@ -102,6 +102,22 @@
           {#if $error}
             <Error id="accounts-error">{$error}</Error>
           {/if}
+          {#if $step.service === 'mastodon'}
+            <Stack gap="s" row wrap>
+              {#each page.mastodonServers as server (server)}
+                <Button
+                  disabled={$submitting}
+                  onclick={() => {
+                    page.signInTo(server)
+                  }}
+                  size="pill"
+                  variant="secondary"
+                >
+                  {server}
+                </Button>
+              {/each}
+            </Stack>
+          {/if}
         </Stack>
         <Stack align="center">
           <Button
