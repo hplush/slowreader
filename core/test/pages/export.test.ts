@@ -1,14 +1,17 @@
+import { withoutMeta } from '@logux/client/db'
 import { SUBPROTOCOL } from '@slowreader/api'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
+  addAccount,
   addCategory,
   addFeed,
   addFilter,
   addPost,
   GENERAL_CATEGORY,
+  testAccount,
   testFeed,
   testPost,
   waitLoading
@@ -76,6 +79,8 @@ describe('export page', () => {
 
   test('export state JSON', async () => {
     let category = await addCategory({ title: 'A' })
+    let account = testAccount({ categoryId: category })
+    await addAccount(account)
     let feed = await addFeed(testFeed({ categoryId: category, title: '1' }))
     let filter = await addFilter({
       action: 'slow',
@@ -99,6 +104,7 @@ describe('export page', () => {
     equal(filename.endsWith('.json'), true)
     let json = JSON.parse(await saved!.content.text())
     deepEqual(json, {
+      accounts: withoutMeta([account]),
       categories: [
         {
           fastReader: null,

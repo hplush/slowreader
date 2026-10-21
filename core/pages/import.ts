@@ -1,6 +1,7 @@
 import { SUBPROTOCOL } from '@slowreader/api'
 import { atom } from 'nanostores'
 
+import { addAccount } from '../account.ts'
 import { busyDuring } from '../busy.ts'
 import { addCategory, loadCategories } from '../category.ts'
 import { deleteDemo } from '../demo.ts'
@@ -152,11 +153,16 @@ export const importPage = createPage('import', () => {
 
     let done = startProgress(
       setProgress,
-      json.categories.length +
+      json.accounts.length +
+        json.categories.length +
         json.feeds.length +
         json.filters.length +
         json.posts.length
     )
+
+    // Signed in account gets only new tokens
+    for (let account of json.accounts) await addAccount(account)
+    done(json.accounts.length)
 
     await addCategory(json.categories)
     done(json.categories.length)

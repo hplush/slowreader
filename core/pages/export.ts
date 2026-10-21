@@ -2,6 +2,7 @@ import { type WithoutMeta, withoutMeta } from '@logux/client/db'
 import { SUBPROTOCOL } from '@slowreader/api'
 import { atom } from 'nanostores'
 
+import { type AccountValue, loadAccounts } from '../account.ts'
 import { type CategoryValue, loadCategories } from '../category.ts'
 import { getEnvironment } from '../environment.ts'
 import { type FeedValue, loadFeeds, loadFeedsByCategory } from '../feed.ts'
@@ -22,6 +23,7 @@ import {
 import { createPage } from './common.ts'
 
 export interface StateExport {
+  accounts: WithoutMeta<AccountValue>[]
   categories: WithoutMeta<CategoryValue>[]
   feeds: WithoutMeta<FeedValue>[]
   filters: WithoutMeta<FilterValue>[]
@@ -34,6 +36,8 @@ export function isStateExportFile(state: unknown): state is StateExport {
   return (
     typeof state === 'object' &&
     state !== null &&
+    'accounts' in state &&
+    Array.isArray(state.accounts) &&
     'feeds' in state &&
     Array.isArray(state.feeds) &&
     'categories' in state &&
@@ -139,6 +143,7 @@ export const exportPage = createPage('export', () => {
     $exportingBackup.set(true)
     let file = createFileWriter('application/json')
     file.write('{\n')
+    file.write(jsonRows('accounts', withoutMeta(await loadAccounts())))
     file.write(jsonRows('categories', withoutMeta(await loadCategories())))
     file.write(jsonRows('feeds', withoutMeta(await loadFeeds())))
     file.write(jsonRows('filters', withoutMeta(await loadFilters())))

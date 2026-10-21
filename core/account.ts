@@ -26,6 +26,10 @@ export function getAccount(
   return getTables().accounts.row(accountId)
 }
 
+export function loadAccounts(): Promise<AccountValue[]> {
+  return getTables().accounts.load`ORDER BY "title"`
+}
+
 /**
  * Sign in to the same account again only updates its tokens.
  * The first account of the service is used on subscribing by default.

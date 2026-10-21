@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
+  addAccount,
   addCategory,
   addFeed,
   addFilter,
@@ -16,6 +17,7 @@ import {
   deletePost,
   GENERAL_CATEGORY,
   isDemo,
+  loadAccounts,
   loadCategories,
   loadFeeds,
   loadFilters,
@@ -27,6 +29,7 @@ import {
   type NewPost,
   preloadImages,
   setRequestMethod,
+  testAccount,
   testFeed,
   theme,
   waitLoading
@@ -184,6 +187,36 @@ describe('import page', () => {
         warning: null
       }
     ])
+  })
+
+  test('imports accounts', async () => {
+    let signedIn = await addAccount(
+      testAccount({ handle: '@me@mastodon.social', id: 'current' })
+    )
+    let backup = {
+      accounts: withoutMeta([
+        testAccount({ handle: '@me@mastodon.social', id: 'a1' }),
+        testAccount({ handle: '@work@mastodon.social', id: 'a2' })
+      ]),
+      categories: [],
+      feeds: [],
+      filters: [],
+      posts: [],
+      settings: { preloadImages: 'always', theme: 'system' },
+      subprotocol: SUBPROTOCOL
+    }
+    let page = openPage({ params: {}, route: 'import' })
+    page.importFile(file('json', JSON.stringify(backup)))
+    await waitLoading(busy)
+    await setTimeout(100)
+    equal(page.fileError.get(), false)
+    deepEqual(
+      (await loadAccounts()).map(i => [i.id, i.handle]),
+      [
+        [signedIn, '@me@mastodon.social'],
+        ['a2', '@work@mastodon.social']
+      ]
+    )
   })
 
   test('imports OPML from the app', async () => {
@@ -419,6 +452,7 @@ describe('import page', () => {
     })
     equal(page.done.get(), false)
     let emptyJson = JSON.stringify({
+      accounts: [],
       categories: [],
       feeds: [],
       filters: [],
@@ -439,6 +473,7 @@ describe('import page', () => {
       route: 'import'
     })
     let backup = {
+      accounts: [],
       categories: [],
       feeds: [{ ...FEED, title: 'Old' }],
       filters: [],
