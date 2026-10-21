@@ -1,7 +1,8 @@
 <script lang="ts">
   import { mdiRepeatVariant } from '@mdi/js'
-  import { type PostAuthor, postMessages as t } from '@slowreader/core'
+  import { type PostAuthor, postMessages as t, router } from '@slowreader/core'
 
+  import { getPopupHash } from '../../stores/url-router.ts'
   import Icon from '../icon.svelte'
   import PostAuthorLine from './author.svelte'
 
@@ -16,6 +17,12 @@
   } = $props()
 
   let [before, after] = $derived($t.repostedBy({ name: '\0' }).split('\0'))
+
+  // Account’s posts have no feed to link, but reposter has own profile
+  let reposterHref = $derived(
+    repostHref ??
+      (repostedBy?.url && getPopupHash($router, 'feed', repostedBy.url))
+  )
 </script>
 
 {#if repostedBy || author}
@@ -23,9 +30,9 @@
     {#if repostedBy}
       <div class="post-byline_repost">
         <Icon path={mdiRepeatVariant} />
-        {#if repostHref}
+        {#if reposterHref}
           <span>
-            {before}<a class="post-byline_link" href={repostHref}
+            {before}<a class="post-byline_link" href={reposterHref}
               >{repostedBy.title}</a
             >{after}
           </span>

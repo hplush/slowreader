@@ -142,6 +142,20 @@
 
   const MASTODON = [
     {
+      accountId: 'account-me',
+      author: {
+        title: 'Alice',
+        url: 'https://mastodon.social/@alice'
+      },
+      feedId: null,
+      full: '<p>Repost from the home timeline of the account</p>',
+      intro: null,
+      originId: 'from-account',
+      publishedAt: 10,
+      reading: 'fast',
+      repostedBy: { title: 'Bob', url: 'https://mastodon.social/@bob' }
+    },
+    {
       feedId: 'mastodon',
       full:
         '<p>The first post of the thread is long to be cut in the card.</p>' +
@@ -440,6 +454,7 @@
 
 <Story name="Feed Mastodon" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
+    accounts={[{ id: 'account-me' }]}
     feeds={[
       {
         id: 'mastodon',
