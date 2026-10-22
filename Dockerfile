@@ -14,7 +14,19 @@ ENV NODE_VERSION=26.12.1 \
   PNPM_CHECKSUM_X64=55b5ed0092bd11176c1669598e231ae52e7cedac59de6efd0d415730f37d0598 \
   PNPM_CHECKSUM_ARM64=d7ce93a2c7d847d3a34bd3f559b60c14f578b1320c17cc352a2c5c5fdf956117
 
-RUN apk add --no-cache curl
+# Docker downloads them and checks the hash, so we need no curl
+ADD --checksum=sha256:${NODE_CHECKSUM_X64} \
+  https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz \
+  /download/node-amd64.tar.xz
+ADD --checksum=sha256:${NODE_CHECKSUM_ARM64} \
+  https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-arm64.tar.xz \
+  /download/node-arm64.tar.xz
+ADD --checksum=sha256:${PNPM_CHECKSUM_X64} \
+  https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-x64.tar.gz \
+  /download/pnpm-amd64.tar.gz
+ADD --checksum=sha256:${PNPM_CHECKSUM_ARM64} \
+  https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-arm64.tar.gz \
+  /download/pnpm-arm64.tar.gz
 
 # Node.js and pnpm for both architectures in /tools/amd64 and /tools/arm64
 RUN <<EOF
@@ -24,29 +36,16 @@ RUN <<EOF
   for ARCH in amd64 arm64; do
     if [ "$ARCH" = "amd64" ]; then
       NODE_ARCH="x64"
-      NODE_CHECKSUM=$NODE_CHECKSUM_X64
-      PNPM_CHECKSUM=$PNPM_CHECKSUM_X64
     else
       NODE_ARCH="arm64"
-      NODE_CHECKSUM=$NODE_CHECKSUM_ARM64
-      PNPM_CHECKSUM=$PNPM_CHECKSUM_ARM64
     fi
     mkdir -p "/tools/$ARCH/bin" "/tools/$ARCH/share/pnpm"
-
-    curl "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz" \
-      --fail --show-error --location --silent --output /node.tar.xz
-    echo "$NODE_CHECKSUM /node.tar.xz" | sha256sum -c
-    tar -xf /node.tar.xz -C "/tools/$ARCH/bin" --strip-components=2 \
-      "node-v${NODE_VERSION}-linux-${NODE_ARCH}/bin/node"
-    rm /node.tar.xz
-
-    curl "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-${NODE_ARCH}.tar.gz" \
-      --fail --show-error --location --silent --output /pnpm.tar.gz
-    echo "$PNPM_CHECKSUM /pnpm.tar.gz" | sha256sum -c
-    tar -xz -f /pnpm.tar.gz -C "/tools/$ARCH/share/pnpm"
+    tar -xf "/download/node-$ARCH.tar.xz" -C "/tools/$ARCH/bin" \
+      --strip-components=2 "node-v${NODE_VERSION}-linux-${NODE_ARCH}/bin/node"
+    tar -xz -f "/download/pnpm-$ARCH.tar.gz" -C "/tools/$ARCH/share/pnpm"
     ln -s /usr/local/share/pnpm/pnpm "/tools/$ARCH/bin/pnpm"
-    rm /pnpm.tar.gz
   done
+  rm -r /download
 EOF
 
 WORKDIR /app
