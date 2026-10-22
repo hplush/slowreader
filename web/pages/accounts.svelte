@@ -1,11 +1,5 @@
 <script lang="ts">
-  import {
-    mdiAccount,
-    mdiButterfly,
-    mdiChevronRight,
-    mdiLogin,
-    mdiMastodon
-  } from '@mdi/js'
+  import { mdiAccount, mdiChevronRight, mdiLogin } from '@mdi/js'
   import {
     type AccountsPage,
     getPopupId,
@@ -18,6 +12,8 @@
   import Button from '../ui/button.svelte'
   import Error from '../ui/error.svelte'
   import Form from '../ui/form.svelte'
+  import brandBluesky from '../ui/icons/bluesky.svg?path'
+  import brandMastodon from '../ui/icons/mastodon.svg?path'
   import Input from '../ui/input.svelte'
   import Links from '../ui/links.svelte'
   import Loader from '../ui/loader.svelte'
@@ -59,7 +55,7 @@
         <Title>{$t.addTitle}</Title>
         <Stack gap="s">
           <Button
-            icon={mdiMastodon}
+            icon={brandMastodon}
             onclick={() => {
               page.add('mastodon')
             }}
@@ -68,7 +64,7 @@
             {$t.addMastodon}
           </Button>
           <Button
-            icon={mdiButterfly}
+            icon={brandBluesky}
             onclick={() => {
               page.add('bluesky')
             }}

@@ -200,6 +200,19 @@ export default defineConfig(() => ({
       name: 'app-index'
     },
     {
+      enforce: 'pre',
+      load(id) {
+        if (!id.endsWith('.svg?path')) return null
+        let svg = readFileSync(id.replace('?path', ''), 'utf-8')
+        let paths = [...svg.matchAll(/<path[^>]* d="([^"]+)"/g)]
+        if (paths.length !== 1) {
+          throw new Error(`${id} must have exactly one <path>`)
+        }
+        return `export default ${JSON.stringify(paths[0]![1])}`
+      },
+      name: 'svg-path'
+    },
+    {
       async buildStart() {
         let icons = join(import.meta.dirname, 'public')
         await sharp(join(icons, 'icon-512.png'))

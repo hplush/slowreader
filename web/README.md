@@ -33,6 +33,7 @@ We use **Svelte** as the UI framework and **Vite** as the builder.
 - [`demo/`](./demo/): the page which copies the files of the [demo](#demo-mode) database and the script to build it.
 - [`pages/`](./pages/): Svelte components for pages.
 - [`ui/`](./ui/): shared components between different pages. Some people call it “UI kit”.
+  - [`icons/`](./ui/icons/): own SVG icons, when `@mdi/js` has no or outdated one.
 - [`public/`](./public/): static files like favicon and manifests.
 - [`stores/`](./stores/): web client’s own smart stores. For instance, router on top of URL using [Nano Stores Router](https://github.com/nanostores/router).
 - [`lib/`](./lib/): browser helpers without stores or components.
@@ -108,6 +109,16 @@ For **icons**, we use [Material Design Icons](https://pictogrammers.com/library/
 </script>
 
 <Icon path={mdiAccount} />
+```
+
+When MDI has no icon, put SVG with single `<path>` to [`ui/icons/`](./ui/icons/) and import it with `?path` to get path string.
+
+```svelte
+<script lang="ts">
+  import brandMastodon from '../ui/icons/mastodon.svg?path'
+</script>
+
+<Icon path={brandMastodon} />
 ```
 
 ## DOM Anchors

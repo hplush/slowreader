@@ -52,6 +52,11 @@ interface StorageEstimate {
 declare module '*.avif'
 declare module '*.png'
 
+declare module '*.svg?path' {
+  let path: string
+  export default path
+}
+
 interface Window {
   PasswordCredential:
     | {
