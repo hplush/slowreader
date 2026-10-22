@@ -5,16 +5,16 @@
 # dependencies, so a malicious web dependency can’t change the server code.
 
 # cgr.dev/chainguard/wolfi-base:latest
-FROM cgr.dev/chainguard/wolfi-base@sha256:c2a4815b6ca49b9bbafd451b4bde690d567a86b2b6b54877faac8082a7bc4296 AS base
+FROM cgr.dev/chainguard/wolfi-base@sha256:bc76fa39ddd1482dd56a761b3331e03ba8f0e093ebb525618a56d014b480da88 AS base
 
 ARG TARGETARCH
 
-ENV NODE_VERSION=26.12.0 \
-  NODE_CHECKSUM_X64=fd47865ecd6391ebb431fc815e01b9135bf83ded5cf373247e9331e196b7aded \
-  NODE_CHECKSUM_ARM64=fd6cc729fa4448c2ac27c3fca5606019ced63c65a15c152c8df03e0cbce7f4c5 \
-  PNPM_VERSION=12.14.0 \
-  PNPM_CHECKSUM_X64=3910c3852136bed5bc1511b9137a45fd4357ed6b3970d9d08893641e9005867e \
-  PNPM_CHECKSUM_ARM64=cfc780b9e690549e6633e1045fb1fb6ef84e390711e2099e6ccbae91c32456ea
+ENV NODE_VERSION=26.12.1 \
+  NODE_CHECKSUM_X64=6170b2d474e1c626f43cff3adc118df9fe3b573258a4fc3d850c8dbc6b079bbd \
+  NODE_CHECKSUM_ARM64=42aa04922591ee5d4dbc7740d452621acf28508239daa512f5ee8c47ee224fdb \
+  PNPM_VERSION=12.15.0 \
+  PNPM_CHECKSUM_X64=55b5ed0092bd11176c1669598e231ae52e7cedac59de6efd0d415730f37d0598 \
+  PNPM_CHECKSUM_ARM64=d7ce93a2c7d847d3a34bd3f559b60c14f578b1320c17cc352a2c5c5fdf956117
 
 # Exact versions to get the same libraries in every build
 RUN apk add --no-cache curl libatomic=16.2.0-r1 libstdc++=16.2.0-r1
@@ -106,17 +106,15 @@ RUN node server/aaguids/download.ts
 COPY api/package.json api/
 COPY proxy/package.json proxy/
 COPY server/package.json server/
-# pnpm-workspace.yaml puts the store into node_modules/, and pnpm writes
-# install time to its state files, which Node.js does not need
+ARG SOURCE_DATE_EPOCH
 RUN pnpm install --frozen-lockfile --ignore-scripts --prod -F server... && \
-  rm -r node_modules/.pnpm-store node_modules/.modules.yaml \
-    node_modules/.pnpm-workspace-state-v1.json
+  rm -r node_modules/.pnpm-store
 COPY api/ api/
 COPY proxy/ proxy/
 COPY server/ server/
 
 # cgr.dev/chainguard/nginx:latest
-FROM cgr.dev/chainguard/nginx@sha256:cfd045c63b7ff6c038f8039e8d2ac09b4c40213ff1505a6834852c6460ec8d2d AS production
+FROM cgr.dev/chainguard/nginx@sha256:9d34c0a9f349eaf64ec75b3e8c09774fa234152a03cee94121e09e7220e2a560 AS production
 
 LABEL org.opencontainers.image.source=https://github.com/hplush/slowreader
 LABEL org.opencontainers.image.description="Slow Reader"
