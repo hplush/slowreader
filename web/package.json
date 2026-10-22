@@ -70,5 +70,8 @@
     "postcss-selector-parser": "7.1.7",
     "size-limit": "14.2.0",
     "svelte-check": "4.7.7"
+  },
+  "engines": {
+    "node": ">=26"
   }
 }

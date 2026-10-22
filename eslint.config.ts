@@ -28,6 +28,7 @@ let config: Linter.Config[] = [
       '@typescript-eslint/no-base-to-string': 'off',
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/no-unsafe-type-assertion': 'off',
+      'n/no-unsupported-features/node-builtins': 'off',
       'no-void': 'off'
     }
   },
