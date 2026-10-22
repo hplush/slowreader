@@ -131,12 +131,21 @@ export async function detectNetworkError<Result>(
  * Internal errors for non-200 HTTP response.
  */
 export class HTTPStatusError extends Error {
-  static is(thrown: unknown, statuses?: number[]): thrown is HTTPStatusError {
-    return (
-      thrown instanceof Error &&
-      thrown.name === 'HTTPStatusError' &&
-      (!statuses || statuses.includes((thrown as HTTPStatusError).status))
-    )
+  static is(
+    thrown: unknown,
+    statuses?: number[] | RegExp
+  ): thrown is HTTPStatusError {
+    if (!(thrown instanceof Error) || thrown.name !== 'HTTPStatusError') {
+      return false
+    }
+    let status = (thrown as HTTPStatusError).status
+    if (!statuses) {
+      return true
+    } else if (Array.isArray(statuses)) {
+      return statuses.includes(status)
+    } else {
+      return statuses.test(String(status))
+    }
   }
 
   headers: Headers

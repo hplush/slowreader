@@ -1,5 +1,5 @@
 import { restoreAll, spyOn } from 'nanospy'
-import { deepEqual, equal } from 'node:assert/strict'
+import { deepEqual, equal, rejects } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import {
@@ -11,6 +11,7 @@ import {
   createPostsList,
   getPostId,
   hasUnreadPosts,
+  HTTPStatusError,
   loaders,
   loadPost,
   loadPosts,
@@ -22,7 +23,7 @@ import {
 } from '../index.ts'
 import { loadPostsPage, topCursor } from '../readers/common.ts'
 import { addThreadStarts, linkThreads } from '../thread.ts'
-import { cleanClient, startClient } from './utils.ts'
+import { cleanClient, expectWarning, startClient } from './utils.ts'
 
 const URL = 'https://mastodon.social/@jane'
 
@@ -108,6 +109,46 @@ describe('threads', () => {
       ['7', true, '6', undefined],
       ['6', false, '6', undefined]
     ])
+  })
+
+  test('retries broken server of the original post', async () => {
+    let feed = await prepareFeed()
+    let start = origin('start', {
+      hasReplies: true,
+      repostedBy: { title: 'A' }
+    })
+    let error = new HTTPStatusError(502, URL, '', new Headers())
+    let fails = 1
+    spyOn(mastodon, 'getThreadDescendants', () => {
+      if (fails-- > 0) return Promise.reject(error)
+      return Promise.resolve([{ originId: 'part' }])
+    })
+    deepEqual(
+      (await linkThreads(createDownloadTask(), feed, [start])).map(
+        post => post.originId
+      ),
+      ['start', 'part']
+    )
+
+    fails = 3
+    let posts: OriginPost[] = []
+    await expectWarning(async () => {
+      posts = await linkThreads(createDownloadTask(), feed, [start])
+    }, [error])
+    deepEqual(
+      posts.map(post => post.originId),
+      ['start']
+    )
+
+    let missing = new HTTPStatusError(404, URL, '', new Headers())
+    spyOn(mastodon, 'getThreadDescendants', () => Promise.reject(missing))
+    await expectWarning(async () => {
+      await linkThreads(createDownloadTask(), feed, [start])
+    }, [missing])
+
+    let bug = new Error('Bug')
+    spyOn(mastodon, 'getThreadDescendants', () => Promise.reject(bug))
+    await rejects(linkThreads(createDownloadTask(), feed, [start]), bug)
   })
 
   test('continues stored threads', async () => {

@@ -50,10 +50,7 @@ function buildTask<Data>(
 }
 
 function runAfter(attempt: number, error: Error): number | undefined {
-  if (!HTTPStatusError.is(error)) {
-    return undefined
-  }
-  if (error.status !== 429 && error.status !== 503) {
+  if (!HTTPStatusError.is(error, [429, 503])) {
     return undefined
   }
   let now = Date.now()

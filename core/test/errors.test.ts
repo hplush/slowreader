@@ -63,6 +63,16 @@ describe('errors', () => {
     deepEqual(fatal.get(), { type: 'notFound' })
   })
 
+  test('checks HTTP error status', () => {
+    let error = new HTTPStatusError(502, 'https://a.com/', '', new Headers())
+    equal(HTTPStatusError.is(error), true)
+    equal(HTTPStatusError.is(error, [404, 502]), true)
+    equal(HTTPStatusError.is(error, [404]), false)
+    equal(HTTPStatusError.is(error, /^5\d\d$/), true)
+    equal(HTTPStatusError.is(error, /^4\d\d$/), false)
+    equal(HTTPStatusError.is(new Error('502')), false)
+  })
+
   test('converts HTTP errors to messages', () => {
     startClient()
     function message(status: number, response: string): string {

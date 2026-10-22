@@ -391,7 +391,7 @@ export async function syncMediaCache(): Promise<void> {
           })
         } catch (e) {
           // Missed file will not appear on retry, unlike a rate limit
-          if (HTTPStatusError.is(e) && e.status < 500 && e.status !== 429) {
+          if (HTTPStatusError.is(e, /^4\d\d$/) && e.status !== 429) {
             failMedia({ error: e, type: 'file', url })
             return
           }

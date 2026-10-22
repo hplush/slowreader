@@ -1,3 +1,7 @@
+import { delay } from 'nanodelay'
+
+import { getEnvironment } from './environment.ts'
+import { HTTPStatusError, NetworkError, ParseError } from './errors.ts'
 import type { FeedValue } from './feed.ts'
 import type { DownloadTask } from './lib/download.ts'
 import { type Loader, loaders } from './loader/index.ts'
@@ -44,6 +48,34 @@ async function reopenPost(
   return true
 }
 
+async function loadThreadDescendants(
+  task: DownloadTask,
+  feed: Pick<FeedValue, 'loader' | 'url'>,
+  originId: string,
+  attempt = 1
+): Promise<ParsedPost[]> {
+  try {
+    return (
+      (await loaders[feed.loader].getThreadDescendants?.(
+        task,
+        feed.url,
+        originId
+      )) ?? []
+    )
+  } catch (e) {
+    let temporary = NetworkError.is(e) || HTTPStatusError.is(e, /^5\d\d$/)
+    if (temporary && attempt < 3) {
+      await delay(500 * attempt)
+      return loadThreadDescendants(task, feed, originId, attempt + 1)
+    } else if (temporary || HTTPStatusError.is(e) || e instanceof ParseError) {
+      getEnvironment().warn(e)
+      return []
+    } else {
+      throw e
+    }
+  }
+}
+
 /**
  * Feed has only the repost of the thread start, since next parts are posted
  * by another author.
@@ -53,17 +85,11 @@ async function loadRepostedParts(
   feed: Pick<FeedValue, 'loader' | 'url'>,
   posts: OriginPost[]
 ): Promise<OriginPost[]> {
-  let loader = loaders[feed.loader]
   let threads = await Promise.all(
     posts
       .filter(post => post.repostedBy && post.hasReplies)
       .map(async start => {
-        let parts =
-          (await loader.getThreadDescendants?.(
-            task,
-            feed.url,
-            start.originId
-          )) ?? []
+        let parts = await loadThreadDescendants(task, feed, start.originId)
         // Mastodon links the first part to the original post, not to repost
         return parts.map((part, index) => ({
           ...part,
