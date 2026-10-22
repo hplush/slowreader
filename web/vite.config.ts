@@ -191,6 +191,21 @@ export default defineConfig(() => ({
       name: 'landing'
     },
     {
+      configureServer(server) {
+        let print = server.printUrls
+        server.printUrls = () => {
+          let urls = server.resolvedUrls
+          if (urls) {
+            urls.local = urls.local.map(url =>
+              url.replace('//localhost:', '//127.0.0.1:')
+            )
+          }
+          print()
+        }
+      },
+      name: 'loopback-url'
+    },
+    {
       configurePreviewServer(server) {
         appIndex(server, 'dist')
       },
