@@ -43,7 +43,8 @@
       "!dist/landing/noto-*-{cyrillic,greek,devanagari,vietnamese}-*.woff2",
       "!dist/landing/*-latin-ext-*.woff2"
     ],
-    "limit": "190 KB"
+    // Keep it a little bigger since screenshots may from demo DB
+    "limit": "220 KB"
   },
   {
     "name": "Core scripts to execute",
