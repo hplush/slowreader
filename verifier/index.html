@@ -751,7 +751,7 @@ done</pre>
         // Remove the loader
         builds.replaceChildren()
         // Older builds are in the repository by the link under the list
-        for (let release of index.releases.slice(0, 10)) {
+        for (let release of index.releases.slice(0, 5)) {
           // Release passed the rebuild
           let ok = release.status === 'verified'
           // Line of the build
