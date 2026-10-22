@@ -199,6 +199,8 @@ export function errorToMessage(error: unknown): string {
     return commonMessages.get().parseError
   } else if (NetworkError.is(error)) {
     return commonMessages.get().networkError
+  } else if (error.name === 'QuotaExceededError') {
+    return commonMessages.get().quotaError
   } else {
     return error.message
   }

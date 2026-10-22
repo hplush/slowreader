@@ -3,6 +3,7 @@
   import {
     errorToMessage,
     isRefreshing,
+    mediaErrors,
     mediaProgress,
     mediaStatistics,
     refreshErrors,
@@ -11,10 +12,11 @@
     refreshStatistics,
     router,
     stopRefreshing,
+    storageMessages,
     refreshMessages as t
   } from '@slowreader/core'
 
-  import { getPopupHash } from '../stores/url-router.ts'
+  import { getPopupHash, getURL } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
   import ErrorList from '../ui/error-list.svelte'
   import Label from '../ui/label.svelte'
@@ -84,21 +86,36 @@
             {/if}
           </Label>
           <Loader size="wide" track="refresh-media" value={$mediaProgress} />
-          {#if $mediaStatistics.failed > 0}
-            <Label>{$t.mediaFailed({ count: $mediaStatistics.failed })}</Label>
-          {/if}
         </Stack>
       {/if}
-      {#if $refreshErrors.length > 0}
+      {#if $refreshErrors.length > 0 || $mediaErrors.length > 0}
         <Stack>
           <Title>{$t.errors}</Title>
           <ErrorList
-            list={$refreshErrors.map(item => ({
-              errorText: errorToMessage(item.error),
-              feedId: item.feed.id,
-              title: item.feed.title,
-              url: getPopupHash($router, 'feed', item.feed.url)
-            }))}
+            list={[
+              ...$refreshErrors.map(item => ({
+                errorText: errorToMessage(item.error),
+                feedId: item.feed.id,
+                title: item.feed.title,
+                url: getPopupHash($router, 'feed', item.feed.url)
+              })),
+              ...$mediaErrors.map(item => {
+                if (item.type === 'quota') {
+                  return {
+                    errorText: errorToMessage(item.error),
+                    title: $storageMessages.pageTitle,
+                    url: getURL('storage')
+                  }
+                } else {
+                  return {
+                    errorText: errorToMessage(item.error),
+                    target: '_blank' as const,
+                    title: item.url,
+                    url: item.url
+                  }
+                }
+              })
+            ]}
           />
         </Stack>
       {/if}

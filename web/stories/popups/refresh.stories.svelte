@@ -1,6 +1,7 @@
 <script context="module" lang="ts">
   import {
     HTTPStatusError,
+    mediaErrors,
     mediaStatistics,
     NetworkError,
     refreshErrors,
@@ -108,6 +109,32 @@
             title:
               'Veryveryverylongfeedtitletooverflowthelistinthepopupcontentareaattheleftpfthepage'
           })
+        }
+      ])
+      mediaErrors.set([
+        {
+          error: new HTTPStatusError(
+            404,
+            'https://img.example.com/1.jpg',
+            '',
+            new Headers()
+          ),
+          type: 'file',
+          url: 'https://img.example.com/1.jpg'
+        },
+        {
+          error: new HTTPStatusError(
+            413,
+            'https://video.example.com/very/long/path/to/the/video/file.mp4',
+            'Response too large',
+            new Headers()
+          ),
+          type: 'file',
+          url: 'https://video.example.com/very/long/path/to/the/video/file.mp4'
+        },
+        {
+          error: new DOMException('', 'QuotaExceededError'),
+          type: 'quota'
         }
       ])
     }}

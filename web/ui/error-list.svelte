@@ -2,6 +2,7 @@
   type ErrorItem = {
     errorText: string
     feedId?: string
+    target?: '_blank'
     title: string
     url: string
   }
@@ -12,7 +13,7 @@
 <ul class="error-list">
   {#each list as item (item.url)}
     <li class="error-list_item">
-      <a class="error-list_link" href={item.url}>
+      <a class="error-list_link" href={item.url} target={item.target}>
         {item.title || item.feedId}
       </a>
       <div class="error-list_text">

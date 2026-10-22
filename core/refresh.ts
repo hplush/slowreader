@@ -24,6 +24,7 @@ import { increaseKey } from './lib/stores.ts'
 import { loaders } from './loader/index.ts'
 import {
   DEFAULT_MEDIA_STATISTICS,
+  mediaErrors,
   mediaProgress,
   mediaStatistics,
   stopMediaCache,
@@ -450,6 +451,7 @@ export async function refreshPosts(): Promise<void> {
   refreshErrors.set([])
   refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: true })
   mediaStatistics.set({ ...DEFAULT_MEDIA_STATISTICS })
+  mediaErrors.set([])
 
   refreshedAt = Math.round(Date.now() / 1000)
   untouched = []

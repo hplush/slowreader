@@ -1,4 +1,4 @@
-import { computed, map } from 'nanostores'
+import { atom, computed, map } from 'nanostores'
 
 import { type CachedMedia, getEnvironment } from './environment.ts'
 import { HTTPStatusError } from './errors.ts'
@@ -25,6 +25,21 @@ export const DEFAULT_MEDIA_STATISTICS = {
 export type MediaStatistics = typeof DEFAULT_MEDIA_STATISTICS
 
 export const mediaStatistics = map({ ...DEFAULT_MEDIA_STATISTICS })
+
+export type MediaError =
+  | { error: Error; type: 'file'; url: string }
+  | { error: Error; type: 'quota' }
+
+export const mediaErrors = atom<MediaError[]>([])
+
+function failMedia(item: MediaError): void {
+  let list = mediaErrors.get()
+  // Parallel downloads hit the full disk together
+  if (item.type === 'file' || !list.some(i => i.type === 'quota')) {
+    mediaErrors.set([...list, item])
+  }
+  increaseKey(mediaStatistics, 'failed')
+}
 
 export const mediaProgress = computed(mediaStatistics, stats => {
   if (stats.total === 0) return 0
@@ -266,6 +281,7 @@ export async function syncMediaCache(): Promise<void> {
     .map(([url]) => url)
   if (stopped || missing.length === 0) return
   mediaStatistics.set({ ...DEFAULT_MEDIA_STATISTICS, total: missing.length })
+  mediaErrors.set([])
 
   let found: [SizeTarget, CachedMedia][] = []
   queue = createQueue(missing)
@@ -282,7 +298,7 @@ export async function syncMediaCache(): Promise<void> {
         } catch (e) {
           // Missed file will not appear on retry, unlike a rate limit
           if (HTTPStatusError.is(e) && e.status < 500 && e.status !== 429) {
-            increaseKey(mediaStatistics, 'failed')
+            failMedia({ error: e, type: 'file', url })
             return
           }
           throw e
@@ -296,8 +312,12 @@ export async function syncMediaCache(): Promise<void> {
       {
         onRequestError() {},
         onTaskFail(url, error) {
-          if (error.name === 'QuotaExceededError') queue.stop()
-          increaseKey(mediaStatistics, 'failed')
+          if (error.name === 'QuotaExceededError') {
+            queue.stop()
+            failMedia({ error, type: 'quota' })
+          } else {
+            failMedia({ error, type: 'file', url })
+          }
         }
       }
     )

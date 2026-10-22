@@ -81,6 +81,14 @@ describe('errors', () => {
     equal(message(418, 'x'), 'Feed server error: 418')
   })
 
+  test('converts full disk error to message', () => {
+    startClient()
+    equal(
+      errorToMessage(new DOMException('', 'QuotaExceededError')),
+      commonMessages.get().quotaError
+    )
+  })
+
   test('keeps last unhandled errors for the fatal page', () => {
     let listeners = listenErrors()
     equal(getUnhandledErrors(), undefined)

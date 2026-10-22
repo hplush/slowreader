@@ -10,7 +10,9 @@ import {
   changePost,
   deletePost,
   getEnvironment,
+  HTTPStatusError,
   loadPost,
+  mediaErrors,
   mediaProgress,
   mediaStatistics,
   type NetworkTypeDetector,
@@ -226,6 +228,10 @@ describe('media cache', () => {
     await syncMediaCache()
     deepEqual(await cached(), ['https://img.com/2.jpg'])
     deepEqual(mediaStatistics.get(), { done: 1, failed: 1, total: 2 })
+    let [error, ...other] = mediaErrors.get()
+    equal(other.length, 0)
+    equal(error?.type === 'file' && error.url, 'https://img.com/1.jpg')
+    equal(HTTPStatusError.is(error?.error, [404]), true)
   })
 
   test('saves real sizes', async () => {
@@ -409,6 +415,10 @@ describe('media cache', () => {
     }
     await syncMediaCache()
     deepEqual(mediaStatistics.get(), { done: 0, failed: 4, total: 6 })
+    deepEqual(
+      mediaErrors.get().map(i => i.type),
+      ['quota']
+    )
   })
 
   test('clears cache on sign out', async () => {

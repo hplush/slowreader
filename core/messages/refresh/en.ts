@@ -9,7 +9,6 @@ export const refreshMessages = i18n('refresh', {
   fastPosts: 'Fun',
   media: params('Saving media for offline: {done}/{all}'),
   mediaDone: params('Saved media for offline: {done}'),
-  mediaFailed: params('Not saved: {count}'),
   postsLoaded: 'New posts found',
   slowPosts: 'Useful',
   start: 'Check for new posts',

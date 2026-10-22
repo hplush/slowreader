@@ -37,6 +37,7 @@ export const commonMessages = i18n('common', {
   passkeyNoPrf:
     'Your passkey provider can’t protect encrypted data. Sign in with password.',
   popupNotFound: 'Not found',
+  quotaError: 'Not enough disk space',
   signingOut: 'Signing out',
   tooManyRequests: 'Too many attempts. Please try again later.',
   unknownPasskey:

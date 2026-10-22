@@ -21,6 +21,7 @@
     hasCloud,
     hasSources,
     isDemo,
+    mediaErrors,
     mediaStatistics,
     type NetworkType,
     type NewCategory,
@@ -151,6 +152,7 @@
     syncStatus.set('synchronized')
     refreshStatistics.set(DEFAULT_REFRESH_STATISTICS)
     mediaStatistics.set(DEFAULT_MEDIA_STATISTICS)
+    mediaErrors.set([])
     hasSources.set(!!feeds?.length)
     welcomeSteps.set(undefined)
     closedCategories.set(new Set())
