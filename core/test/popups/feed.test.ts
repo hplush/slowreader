@@ -8,6 +8,7 @@ import {
   addCategory,
   addFeed,
   addPost,
+  canOpenMention,
   changeFeed,
   closeLastPopup,
   commonMessages,
@@ -55,6 +56,19 @@ describe('feed popup', () => {
   afterEach(async () => {
     await cleanClient()
     checkAndRemoveRequestMock()
+  })
+
+  test('opens mentions', () => {
+    equal(canOpenMention('@jane', 'https://bsky.app/profile/did:plc:1'), true)
+    equal(canOpenMention('@jane', 'https://other.social/@jane'), true)
+    equal(canOpenMention('Jane', 'https://other.social/@jane'), false)
+    equal(canOpenMention('@jane', 'http://other.social/@jane'), false)
+    equal(
+      canOpenMention('@jane', 'https://bsky.app/profile/jane/post/1'),
+      false
+    )
+    equal(canOpenMention('@jane', 'https://example.com/jane'), false)
+    equal(canOpenMention('@jane', 'https:'), false)
   })
 
   test('loads 404 for feeds by URL popup', async () => {

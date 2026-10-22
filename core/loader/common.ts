@@ -246,6 +246,11 @@ export type Loader = {
    * Can `getPostByUrl()` load this URL.
    */
   isPostUrl?(url: URL): boolean
+
+  /**
+   * Can feed popup open this URL as author’s profile.
+   */
+  isProfileUrl?(url: URL): boolean
 }
 
 export function isObject(value: unknown): value is Record<string, unknown> {

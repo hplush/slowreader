@@ -941,6 +941,11 @@ describe('mastodon loader', () => {
     equal(mastodon.isPostUrl!(new URL('https://other.social/@jane/1')), true)
     equal(mastodon.isPostUrl!(new URL('https://other.social/@jane')), false)
     equal(mastodon.isPostUrl!(new URL('https://other.social/notes/1')), false)
+    equal(mastodon.isProfileUrl!(new URL('https://other.social/@jane')), true)
+    equal(
+      mastodon.isProfileUrl!(new URL('https://other.social/@jane/1')),
+      false
+    )
 
     expectRequest('https://other.social/api/v1/statuses/1').andRespond(
       200,

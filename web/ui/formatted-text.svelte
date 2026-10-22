@@ -2,7 +2,7 @@
   /* We escape and have XSS tests */
   /* eslint svelte/no-at-html-tags: "off" */
 
-  import { sanitizeDOM } from '@slowreader/core'
+  import { canOpenMention, openPopup, sanitizeDOM } from '@slowreader/core'
   import type { Attachment } from 'svelte/attachments'
   import { on } from 'svelte/events'
 
@@ -38,6 +38,13 @@
       } else {
         link.setAttribute('target', '_blank')
         link.setAttribute('rel', 'noopener')
+        if (href && canOpenMention(link.textContent, href)) {
+          on(link, 'click', event => {
+            if (event.ctrlKey || event.metaKey || event.shiftKey) return
+            event.preventDefault()
+            openPopup('feed', href)
+          })
+        }
       }
     })
   }

@@ -9,7 +9,7 @@ import { session } from './session.ts'
 
 export type { AccountPopup } from './account.ts'
 export { type BasePopup, getPopupId, type LoadedPopup } from './common.ts'
-export type { FeedPopup } from './feed.ts'
+export { canOpenMention, type FeedPopup } from './feed.ts'
 export type { PasskeyPopup } from './passkey.ts'
 export type { PostPopup } from './post.ts'
 export { canOpenPostUrl, getPostPopupParam } from './post.ts'

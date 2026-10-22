@@ -1284,5 +1284,9 @@ export const bluesky: Loader = {
 
   isPostUrl(url) {
     return url.hostname === 'bsky.app' && POST.test(url.pathname)
+  },
+
+  isProfileUrl(url) {
+    return url.hostname === 'bsky.app' && PROFILE.test(url.pathname)
   }
 }

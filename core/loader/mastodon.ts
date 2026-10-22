@@ -929,5 +929,9 @@ export const mastodon: Loader = {
 
   isPostUrl(url) {
     return POST.test(url.pathname)
+  },
+
+  isProfileUrl(url) {
+    return PROFILE.test(url.pathname)
   }
 }

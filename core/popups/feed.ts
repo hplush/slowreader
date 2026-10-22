@@ -28,6 +28,7 @@ import { waitSql } from '../lib/stores.ts'
 import {
   type FeedLoader,
   getLoaderForText,
+  loaders,
   tryLoadFeedData
 } from '../loader/index.ts'
 import { createPostsList, type PostsList } from '../posts-list.ts'
@@ -35,6 +36,18 @@ import { loadRecentPosts } from '../refresh.ts'
 import type { FeedChanges } from '../schema.ts'
 import { addThreadStarts } from '../thread.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
+
+/**
+ * Link text is checked too, because Mastodon’s `/@user` path is used
+ * by other sites like Medium, which have no feed on the profile URL.
+ */
+export function canOpenMention(text: string, url: string): boolean {
+  let parsed = URL.parse(url)
+  if (!text.trim().startsWith('@') || parsed?.protocol !== 'https:') {
+    return false
+  }
+  return Object.values(loaders).some(i => i.isProfileUrl?.(parsed))
+}
 
 function swapHttpProtocol(url: string): string | undefined {
   try {

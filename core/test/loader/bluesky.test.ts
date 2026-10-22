@@ -1054,6 +1054,20 @@ describe('bluesky loader', () => {
       ),
       false
     )
+    equal(
+      bluesky.isProfileUrl!(new URL('https://bsky.app/profile/jane.com')),
+      true
+    )
+    equal(
+      bluesky.isProfileUrl!(
+        new URL('https://bsky.app/profile/jane.com/post/1')
+      ),
+      false
+    )
+    equal(
+      bluesky.isProfileUrl!(new URL('https://example.com/profile/jane.com')),
+      false
+    )
 
     expectRequest(
       threadUrl('at://jane.bsky.social/app.bsky.feed.post/1', 0)
