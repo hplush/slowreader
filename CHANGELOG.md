@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.20261022.1
+
+### Fixes
+
+- Use less memory when building Docker images.
+
 ## 0.20261022.0
 
 ### Accounts
