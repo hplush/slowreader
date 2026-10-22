@@ -41,7 +41,24 @@
       <AppIcon />
       <Title>Slow Reader</Title>
     </Stack>
-    <Output label={$t.version} value={page.appVersion} />
+    <Stack gap="s">
+      <Output label={$t.version} value={page.appVersion} />
+      {#if $clientUpdate === 'offline'}
+        <Status icon={mdiAirplane}>{$t.offline}</Status>
+      {:else if $clientUpdate === 'latest'}
+        <Status icon={mdiCheck}>{$t.noUpdates}</Status>
+      {:else if $clientUpdate}
+        <Button
+          icon={mdiRefresh}
+          loader={$clientUpdate === 'checking'}
+          onclick={getEnvironment().updateClient}
+          size="wide"
+          variant="secondary"
+        >
+          {$t.update}
+        </Button>
+      {/if}
+    </Stack>
     {#if $installation === 'available'}
       <Button
         icon={mdiCellphoneArrowDown}
@@ -75,31 +92,14 @@
         </Button>
       </Stack>
     </Note>
-    <Stack gap="s">
-      {#if $clientUpdate === 'offline'}
-        <Status icon={mdiAirplane}>{$t.offline}</Status>
-      {:else if $clientUpdate === 'latest'}
-        <Status icon={mdiCheck}>{$t.noUpdates}</Status>
-      {:else if $clientUpdate}
-        <Button
-          icon={mdiRefresh}
-          loader={$clientUpdate === 'checking'}
-          onclick={getEnvironment().updateClient}
-          size="wide"
-          variant="secondary"
-        >
-          {$t.update}
-        </Button>
-      {/if}
-      <Button
-        href="https://github.com/hplush/slowreader/issues/new"
-        icon={mdiBug}
-        size="wide"
-        target="_blank"
-        variant="secondary"
-      >
-        {$t.reportIssue}
-      </Button>
-    </Stack>
+    <Button
+      href="https://github.com/hplush/slowreader/issues/new"
+      icon={mdiBug}
+      size="wide"
+      target="_blank"
+      variant="secondary"
+    >
+      {$t.reportIssue}
+    </Button>
   </Stack>
 </ThinPage>
