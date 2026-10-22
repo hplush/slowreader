@@ -43,7 +43,12 @@ import {
 } from './post.ts'
 import type { PostsList } from './posts-list.ts'
 import { getTables } from './schema.ts'
-import { cacheImages, cacheVideos, fastPostsLifetime } from './settings.ts'
+import {
+  cacheImages,
+  cacheMediaReading,
+  cacheVideos,
+  fastPostsLifetime
+} from './settings.ts'
 import { linkThreads } from './thread.ts'
 
 export const DEFAULT_REFRESH_STATISTICS = {
@@ -98,10 +103,19 @@ export const refreshProgress = computed(refreshStatistics, stats => {
  * of the navbar progress.
  */
 export const refreshTotalProgress = computed(
-  [refreshStatistics, refreshProgress, mediaProgress, cacheImages, cacheVideos],
-  (stats, feeds, media, images, videos) => {
+  [
+    refreshStatistics,
+    refreshProgress,
+    mediaProgress,
+    cacheMediaReading,
+    cacheImages,
+    cacheVideos
+  ],
+  (stats, feeds, media, reading, images, videos) => {
     let checked = stats.totalFeeds === 0 && !stats.initializing ? 1 : feeds
-    if (images === 'never' && videos === 'never') return checked
+    if (reading === 'none' || (images === 'never' && videos === 'never')) {
+      return checked
+    }
     return Math.floor((checked + media) * 50) / 100
   }
 )

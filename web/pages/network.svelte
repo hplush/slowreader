@@ -1,6 +1,9 @@
 <script lang="ts">
   import {
+    mdiCancel,
+    mdiCheckAll,
     mdiCloudOffOutline,
+    mdiFire,
     mdiGaugeLow,
     mdiLockOpenOutline,
     mdiPlusCircleOutline,
@@ -11,6 +14,7 @@
   } from '@mdi/js'
   import {
     cacheImages,
+    cacheMediaReading,
     cacheVideos,
     canDetectNetwork,
     extensionState,
@@ -130,23 +134,38 @@
     {/if}
     <Stack gap="m">
       <Radio
-        label={$t.cacheImages}
+        label={$t.cacheMediaReading}
         onchange={value => {
-          cacheImages.set(value)
+          cacheMediaReading.set(value)
         }}
         size="wide"
-        value={shownDownload($cacheImages)}
-        values={downloadValues}
+        value={$cacheMediaReading}
+        values={[
+          ['all', $t.cacheMediaReadingAll, mdiCheckAll],
+          ['slow', $t.cacheMediaReadingSlow, mdiFire],
+          ['none', $t.cacheMediaReadingNone, mdiCancel]
+        ]}
       />
-      <Radio
-        label={$t.cacheVideos}
-        onchange={value => {
-          cacheVideos.set(value)
-        }}
-        size="wide"
-        value={shownDownload($cacheVideos)}
-        values={downloadValues}
-      />
+      {#if $cacheMediaReading !== 'none'}
+        <Radio
+          label={$t.cacheImages}
+          onchange={value => {
+            cacheImages.set(value)
+          }}
+          size="wide"
+          value={shownDownload($cacheImages)}
+          values={downloadValues}
+        />
+        <Radio
+          label={$t.cacheVideos}
+          onchange={value => {
+            cacheVideos.set(value)
+          }}
+          size="wide"
+          value={shownDownload($cacheVideos)}
+          values={downloadValues}
+        />
+      {/if}
     </Stack>
   </Stack>
 </ThinPage>

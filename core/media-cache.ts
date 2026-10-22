@@ -19,7 +19,7 @@ import {
   type PostValue,
   type QuotedPost
 } from './schema.ts'
-import { cacheImages, cacheVideos } from './settings.ts'
+import { cacheImages, cacheMediaReading, cacheVideos } from './settings.ts'
 
 export const DEFAULT_MEDIA_STATISTICS = {
   done: 0,
@@ -226,7 +226,8 @@ interface MediaFileRow {
  */
 async function loadWantedMedia(
   images: boolean,
-  videos: boolean
+  videos: boolean,
+  onlySlow: boolean
 ): Promise<Map<string, WantedMedia>> {
   let wanted = new Map<string, WantedMedia>()
   if (!images && !videos) return wanted
@@ -241,7 +242,9 @@ async function loadWantedMedia(
 
   if (images) {
     let feeds = await getCrdt().select<{ avatar: string }>`
-      SELECT "avatar" FROM "feeds" WHERE "avatar" IS NOT NULL
+      SELECT "avatar" FROM "feeds"
+      WHERE "avatar" IS NOT NULL
+        AND (${onlySlow ? 1 : 0} = 0 OR "reading" = 'slow')
     `
     for (let feed of feeds) addUrl(wanted, feed.avatar, false)
   }
@@ -250,6 +253,7 @@ async function loadWantedMedia(
     SELECT "mediaFiles".* FROM "mediaFiles"
     JOIN "posts" ON "posts"."id" = "mediaFiles"."postId"
     WHERE "mediaFiles"."url" IS NOT NULL
+      AND (${onlySlow ? 1 : 0} = 0 OR "posts"."reading" = 'slow')
     ORDER BY "posts"."sortedAt" DESC
   `
   for (let file of files) {
@@ -349,9 +353,14 @@ let stopped = false
  */
 export async function syncMediaCache(): Promise<void> {
   stopped = false
+  let reading = cacheMediaReading.get()
   let images = cacheImages.get()
   let videos = cacheVideos.get()
-  let wanted = await loadWantedMedia(images !== 'never', videos !== 'never')
+  let wanted = await loadWantedMedia(
+    reading !== 'none' && images !== 'never',
+    reading !== 'none' && videos !== 'never',
+    reading === 'slow'
+  )
   let cache = getEnvironment().mediaCache
   let cached = new Set(await cache.keys())
   let unused = [...cached].filter(url => !wanted.has(url))

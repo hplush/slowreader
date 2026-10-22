@@ -7,6 +7,7 @@
     type BaseRoute,
     busy,
     cacheImages,
+    cacheMediaReading,
     cacheVideos,
     cleanDatabase,
     client,
@@ -195,6 +196,7 @@
     showSensitiveMedia.set(false)
     openWarnings.set(false)
     fastPostsLifetime.set('month')
+    cacheMediaReading.set('all')
     cacheImages.set('always')
     cacheVideos.set('never')
     setMediaCacheSize(0)

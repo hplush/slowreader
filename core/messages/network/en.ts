@@ -6,6 +6,10 @@ export const networkMessages = i18n('network', {
   cacheFree: 'Wi-Fi',
   cacheImages: 'Save images for offline',
   cacheNever: 'Never',
+  cacheMediaReading: 'Save media of posts',
+  cacheMediaReadingAll: 'All',
+  cacheMediaReadingNone: 'None',
+  cacheMediaReadingSlow: 'Useful',
   cacheVideos: 'Save videos for offline',
   extension: 'Extension',
   extensionDesc:

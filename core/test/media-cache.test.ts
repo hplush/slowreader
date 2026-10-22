@@ -5,6 +5,7 @@ import {
   addFeed,
   addPost,
   cacheImages,
+  cacheMediaReading,
   cacheVideos,
   canDetectNetwork,
   changePost,
@@ -48,6 +49,7 @@ describe('media cache', () => {
   })
 
   afterEach(async () => {
+    cacheMediaReading.set('all')
     cacheImages.set('always')
     cacheVideos.set('never')
     await cleanClient()
@@ -205,6 +207,44 @@ describe('media cache', () => {
     await syncMediaCache()
 
     await deleteFeed(feedId)
+    deepEqual(await cached(), [])
+  })
+
+  test('downloads media only of useful posts', async () => {
+    await addFeed(
+      testFeed({ avatar: 'https://feed.com/fast.png', reading: 'fast' })
+    )
+    await addFeed(
+      testFeed({ avatar: 'https://feed.com/slow.png', reading: 'slow' })
+    )
+    await addPost(
+      testPost({
+        media: [{ type: 'image', url: 'https://img.com/fast.jpg' }],
+        reading: 'fast'
+      })
+    )
+    await addPost(
+      testPost({
+        media: [{ type: 'image', url: 'https://img.com/slow.jpg' }],
+        reading: 'slow'
+      })
+    )
+    expectRequest('https://feed.com/fast.png').andRespond(200, '1')
+    expectRequest('https://feed.com/slow.png').andRespond(200, '1')
+    expectRequest('https://img.com/fast.jpg').andRespond(200, '1')
+    expectRequest('https://img.com/slow.jpg').andRespond(200, '1')
+    await syncMediaCache()
+
+    cacheMediaReading.set('slow')
+    await syncMediaCache()
+    deepEqual(await cached(), [
+      'https://feed.com/slow.png',
+      'https://img.com/slow.jpg'
+    ])
+
+    cacheMediaReading.set('none')
+    equal(refreshTotalProgress.get(), 1)
+    await syncMediaCache()
     deepEqual(await cached(), [])
   })
 

@@ -93,6 +93,16 @@ export const cacheVideos = persistentAtom<MediaDownload>(
   'never'
 )
 
+export type MediaReading = 'all' | 'none' | 'slow'
+
+/**
+ * Posts of which reading need media offline.
+ */
+export const cacheMediaReading = persistentAtom<MediaReading>(
+  'slowreader:cacheMediaReading',
+  'all'
+)
+
 /**
  * How to download feeds and files.
  */

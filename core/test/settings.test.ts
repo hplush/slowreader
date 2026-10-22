@@ -3,6 +3,7 @@ import { describe, test } from 'node:test'
 
 import {
   cacheImages,
+  cacheMediaReading,
   cacheVideos,
   fastPostsLifetime,
   requestMethod,
@@ -21,6 +22,7 @@ describe('settings', () => {
   test('has stores for media download settings', () => {
     equal(cacheImages.get(), 'always')
     equal(cacheVideos.get(), 'never')
+    equal(cacheMediaReading.get(), 'all')
   })
 
   test('has store for request method', () => {
