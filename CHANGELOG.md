@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.20261022.3
+
+### Fixes
+
+- Fixed checking the service worker file in the browser version of the verifier.
+
 ## 0.20261022.2
 
 ### Fixes
