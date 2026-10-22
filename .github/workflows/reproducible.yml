@@ -1,4 +1,4 @@
-name: Image Build
+name: Reproducible Build
 on:
   push:
     branches:
@@ -7,22 +7,20 @@ on:
       - 'Dockerfile'
       - '.dockerignore'
       - 'test/reproducible.sh'
-      - 'test/arm.sh'
-      - '.github/workflows/image-build.yml'
+      - '.github/workflows/reproducible.yml'
   pull_request:
     paths:
       - 'Dockerfile'
       - '.dockerignore'
       - 'test/reproducible.sh'
-      - 'test/arm.sh'
-      - '.github/workflows/image-build.yml'
+      - '.github/workflows/reproducible.yml'
   schedule:
     - cron: '00 09 * * 3' # Every Wednesday at 09:00 UTC
 permissions:
   contents: read
 jobs:
-  reproducible:
-    name: Reproducible
+  test:
+    name: Check
     runs-on: ubuntu-latest
     steps:
       - name: Harden the runner
@@ -35,26 +33,10 @@ jobs:
           persist-credentials: false
       - name: Check reproducible build
         run: |
-          # Docker’s own builder can’t rewrite timestamps
-          docker buildx create --use --driver docker-container
-          ./test/reproducible.sh
-  arm:
-    name: ARM
-    runs-on: ubuntu-latest
-    steps:
-      - name: Harden the runner
-        uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
-        with:
-          egress-policy: audit # Build downloads from many registries
-      - name: Checkout the repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Check ARM build
-        run: |
           # The same emulation as in the release workflow
           docker run --privileged --rm \
             tonistiigi/binfmt:qemu-v10.2.3@sha256:400a4873b838d1b89194d982c45e5fb3cda4593fbfd7e08a02e76b03b21166f0 \
             --install arm64
+          # Docker’s own builder can’t build several platforms
           docker buildx create --use --driver docker-container
-          ./test/arm.sh
+          ./test/reproducible.sh

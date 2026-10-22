@@ -3,7 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "arm": "./arm.sh",
     "checks": "node --env-file-if-exists=.env ./checks/index.ts",
     "reproducible": "./reproducible.sh"
   }
