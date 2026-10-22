@@ -2,7 +2,7 @@
 
 Tests of the deployed app instead of the source code.
 
-CI repeats checks and reproducible build every Wednesday.
+CI repeats checks and reproducible build every Wednesday. Reproducible build also runs on every `Dockerfile` change.
 
 ## Checks
 
