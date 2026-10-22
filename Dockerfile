@@ -79,6 +79,8 @@ COPY core/package.json core/
 COPY extension/package.json extension/
 COPY landings/package.json landings/
 COPY web/package.json web/
+COPY proxy/package.json proxy/
+COPY server/package.json server/
 RUN pnpm install --frozen-lockfile --ignore-scripts --prod -F web... -F landings
 COPY docs/ docs/
 COPY api/ api/
