@@ -110,7 +110,13 @@ export default defineConfig(() => ({
     rolldownOptions: {
       input: {
         'app': join(import.meta.dirname, 'app.html'),
-        'copy-demo-db': join(import.meta.dirname, 'demo/index.html')
+        'copy-demo-db': join(import.meta.dirname, 'demo/index.html'),
+        'sw': join(import.meta.dirname, 'main/sw.ts')
+      },
+      output: {
+        // Service worker must have the same URL in every version
+        entryFileNames: chunk =>
+          chunk.name === 'sw' ? 'sw.js' : 'assets/[name]-[hash].js'
       }
     },
     sourcemap: true

@@ -80,7 +80,7 @@
         <Status icon={mdiCloudOffOutline}>{$t.offline}</Status>
       {:else if $clientUpdate === 'latest'}
         <Status icon={mdiCheck}>{$t.noUpdates}</Status>
-      {:else}
+      {:else if $clientUpdate}
         <Button
           icon={mdiRefresh}
           loader={$clientUpdate === 'checking'}

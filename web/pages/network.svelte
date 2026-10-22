@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+    mdiCloudOffOutline,
     mdiGaugeLow,
     mdiLockOpenOutline,
     mdiPlusCircleOutline,
@@ -22,6 +23,7 @@
     grantExtension,
     installingExtension
   } from '../main/extension.ts'
+  import { clientUpdate } from '../stores/client-update.ts'
   import { usedRequestMethod } from '../stores/request-method.ts'
   import Button from '../ui/button.svelte'
   import Note from '../ui/note.svelte'
@@ -93,6 +95,9 @@
           </Button>
         </Stack>
       </Note>
+    {/if}
+    {#if $clientUpdate}
+      <Note icon={mdiCloudOffOutline} variant="good">{$t.offline}</Note>
     {/if}
     <div style:display="none">
       <Radio

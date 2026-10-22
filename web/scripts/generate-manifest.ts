@@ -2,11 +2,14 @@
 // `integrity` with extra `commit` key. Server’s entrypoint.ts puts JS URLs
 // to Content-Security-Policy, so the page can run only these files,
 // and `integrity` in HTML and import map checks their content.
+// Also put precached files with hashes and app routes to the service worker.
 
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { globSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+
+import { getAppRoutes } from '../stores/url-router.ts'
 
 const DIST = join(import.meta.dirname, '../dist')
 
@@ -48,7 +51,13 @@ function getCommit(): string {
   )
 }
 
-let integrity = hashFiles('**/*.js')
+function replace(code: string, from: string, to: string): string {
+  if (!code.includes(from)) throw new Error(`No ${from} in sw.js`)
+  return code.replaceAll(from, to)
+}
+
+let integrity = hashFiles('**/*.js', ['sw.js'])
+let commit = getCommit()
 
 function getIntegrity(url: string): string {
   let hash = integrity[url]
@@ -77,10 +86,41 @@ for (let page of findDistFiles('**/*.html')) {
   }
 }
 
+let sw = readFileSync(join(DIST, 'sw.js'), 'utf8')
+sw = replace(
+  sw,
+  'SW_ASSETS',
+  JSON.stringify(
+    Object.fromEntries(
+      globSync(
+        [
+          'app.html',
+          'apple-touch-icon.png',
+          'assets/*',
+          'docs/**/index.html',
+          'favicon.ico',
+          'icon*.{png,svg}',
+          'landing/*.{css,js,png,svg,woff2}',
+          'manifest.webmanifest'
+        ],
+        { cwd: DIST, exclude: ['**/*.{map,woff}'] }
+      )
+        .toSorted()
+        .map(file => [
+          `/${file.replace(/\/index\.html$/, '')}`,
+          sha256(readFileSync(join(DIST, file)))
+        ])
+    )
+  )
+)
+sw = replace(sw, 'SW_COMMIT', JSON.stringify(commit))
+sw = replace(sw, 'SW_ROUTES', String(getAppRoutes()))
+writeFileSync(join(DIST, 'sw.js'), sw)
+
 let manifest = {
-  commit: getCommit(),
+  commit,
   integrity: concatHashes(
-    integrity,
+    hashFiles('**/*.js'),
     hashFiles('**/*.html', ['404.html', '500.html', 'og/index.html'])
   )
 }

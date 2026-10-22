@@ -24,6 +24,7 @@ import {
   signalPasskeys
 } from '../lib/passkey.ts'
 import { savePassword } from '../lib/password.ts'
+import { updateClient } from '../stores/client-update.ts'
 import { locale } from '../stores/locale.ts'
 import { mobileMedia, tabletMedia } from '../stores/media-queries.ts'
 import { usedRequestMethod } from '../stores/request-method.ts'
@@ -136,9 +137,7 @@ setupEnvironment({
   translationLoader() {
     return Promise.resolve({})
   },
-  updateClient() {
-    location.reload()
-  },
+  updateClient,
   warn(e) {
     let { details, title } = printWarning(e)
     /* eslint-disable no-console */

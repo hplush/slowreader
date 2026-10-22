@@ -7,6 +7,7 @@ export const networkMessages = i18n('network', {
     'The browser makes the requests itself. It is the fastest way, ' +
     'and nobody in the middle knows what you read.',
   method: 'Network requests',
+  offline: 'App works without network',
   noExtension:
     'The extension makes the requests right from your browser: it is ' +
     'faster, and nobody in the middle knows what you read.',

@@ -53,6 +53,7 @@
   <Scene
     oninit={() => {
       installation.set('unavailable')
+      clientUpdate.set('checking')
     }}
     route="about"
   >

@@ -23,6 +23,7 @@ We use **Svelte** as the UI framework and **Vite** as the builder.
   - [`reset.css`](./main/reset.css): CSS reset to minimize the difference between browsers.
   - [`index.css`](./main/index.css): global styles.
   - [`index.ts`](./main/index.ts): JS entry point.
+  - [`sw.ts`](./main/sw.ts): service worker, which precaches the app to work offline.
   - [`environment.ts`](./main/environment.ts): how client core should work with browser environment.
   - [`database.ts`](./main/database.ts): choose the SQLite storage engine and open the database.
   - [`db-worker.ts`](./main/db-worker.ts): SQLite worker with the drivers for both storage engines. See [client storage](#client-storage).
@@ -148,4 +149,6 @@ Both preview and staging have Storybook at `/ui/` route.
 
 To return app HTML on app’s routes, we [export](./scripts/export-routes.ts) RegExp of all routes to `routes.regexp` and use it in [`nginx.conf`](./nginx.conf) and in Vite.
 
-After the build, we [save](./scripts/generate-manifest.ts) hashes of all JS files and main HTML pages to `dist/manifest.json` and add import map with JS hashes to HTML. Server’s [`entrypoint.ts`](../server/entrypoint.ts) puts these hashes to Content Security Policy, so browsers run only JS from our build.
+After the build, we [save](./scripts/generate-manifest.ts) hashes of all JS files and main HTML pages to `dist/manifest.json`, add import map with JS hashes to HTML, and put hashes of app files to the [service worker](./main/sw.ts). Server’s [`entrypoint.ts`](../server/entrypoint.ts) puts JS hashes to Content Security Policy, so browsers run only JS from our build.
+
+The service worker downloads app files by `integrity` and serves them from the cache until the next app start or Update button in About.
