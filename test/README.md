@@ -2,7 +2,7 @@
 
 Tests of the deployed app instead of the source code.
 
-CI repeats checks and reproducible build every Wednesday. Reproducible build also runs on every `Dockerfile` change.
+CI repeats checks, reproducible and ARM builds every Wednesday. Reproducible and ARM builds also run on every `Dockerfile` change.
 
 ## Checks
 
@@ -30,3 +30,13 @@ Build the Docker image twice without cache and check that both builds have the s
 ```sh
 pnpm -F test reproducible
 ```
+
+## ARM Build
+
+Build the ARM image by emulation and check that it runs Node.js for ARM:
+
+```sh
+pnpm -F test arm
+```
+
+Install emulation first, if your machine is not ARM: `docker run --privileged --rm tonistiigi/binfmt --install arm64`.
