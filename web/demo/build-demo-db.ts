@@ -5,6 +5,7 @@ import { nodeDriver } from '@nanostores/sql/node'
 import {
   addCandidate,
   addCategory,
+  cacheMediaReading,
   changeFeed,
   createDownloadTask,
   currentPage,
@@ -23,6 +24,7 @@ import {
   moveLastSyncedToPast,
   refreshErrors,
   refreshPosts,
+  refreshStatistics,
   setProxyAsRequestMethod,
   setupEnvironment,
   startLocalUser
@@ -37,7 +39,15 @@ import { createHash } from 'node:crypto'
 import { readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { error, finish, success, warning } from '../../scripts/progress.ts'
+import {
+  error,
+  finish,
+  printAboveProgress,
+  setProgress,
+  startProgress,
+  success,
+  warning
+} from '../../scripts/progress.ts'
 
 const OPML = join(import.meta.dirname, 'demo-feeds.opml')
 const SOURCES = join(import.meta.dirname, 'demo-sources.json')
@@ -48,7 +58,7 @@ const MANIFEST = join(PUBLIC, 'demo.json')
 /**
  * Categories to show in the fast mode. The rest goes to the slow mode.
  */
-const FAST = ['Comics', 'Art', 'Mastodon', 'BlueSky', 'Short Facts']
+const FAST = ['Comics', 'Art', 'Social', 'BlueSky', 'Short Facts']
 
 /**
  * How deep to load the feeds’ history. Feeds publish only their latest
@@ -91,15 +101,30 @@ if (opened.route !== 'import') {
 }
 let page = opened as ImportPage
 
+printAboveProgress('Adding feeds from demo-feeds.opml')
 let opml = readFileSync(OPML, 'utf8')
+let added: Promise<void>[] = []
+let unbindAdded = page.lastAdded.listen(url => {
+  added.push(
+    loadFeedByUrl(url).then(feed => {
+      success(`Added ${feed!.title}`)
+    })
+  )
+})
+// Broken source is just not added to the demo
+let unbindErrors = page.feedErrors.listen(errors => {
+  let last = errors.at(-1)
+  if (last) warning(`Skipped ${last[0]}: ${last[1]}`)
+})
 await page.importFile(
   new File([opml], 'demo.opml', { type: 'application/xml' })
 )
-// Broken source is just not added to the demo
-for (let [url, reason] of page.feedErrors.get()) {
-  warning(`Skipped ${url}: ${reason}`)
-}
-success(`Imported ${page.done.get()} feeds`)
+await Promise.all(added)
+unbindAdded()
+unbindErrors()
+
+printAboveProgress('')
+printAboveProgress('Adding feeds from demo-sources.json')
 
 let sources = JSON.parse(readFileSync(SOURCES, 'utf8')) as Record<
   string,
@@ -108,7 +133,6 @@ let sources = JSON.parse(readFileSync(SOURCES, 'utf8')) as Record<
 let task = createDownloadTask()
 for (let [title, feeds] of Object.entries(sources)) {
   let categoryId = await addCategory({ title })
-  let added = 0
   for (let feed of feeds) {
     let url = feed.url
     try {
@@ -125,7 +149,7 @@ for (let [title, feeds] of Object.entries(sources)) {
         task,
         response
       )
-      added += 1
+      success(`Added ${feed.title}`)
     } catch (e) {
       if (!isRemoteError(e)) throw e
       warning(`Skipped ${feed.url}: ${errorToMessage(e)}`)
@@ -134,21 +158,44 @@ for (let [title, feeds] of Object.entries(sources)) {
       if (broken) await deleteFeed(broken.id)
     }
   }
-  success(`Imported ${title}`, `${added} feeds`)
 }
 
-for (let category of await loadCategories()) {
-  if (!FAST.includes(category.title)) continue
+let categories = await loadCategories()
+for (let title of FAST) {
+  let category = categories.find(i => i.title === title)
+  if (!category) {
+    error(new Error(`Category ${title} from FAST was not found`))
+    continue
+  }
   let feeds = await loadFeedsByCategory(category.id)
   await changeFeed(
     feeds.map(feed => feed.id),
     { reading: 'fast' }
   )
-  success(`${category.title} is fast`, `${feeds.length} feeds`)
 }
 
+printAboveProgress('')
+printAboveProgress(`Loading posts for the last ${DAYS} days`)
 await moveLastSyncedToPast(DAYS)
+let processed = 0
+let found = 0
+let unbindRefresh = refreshStatistics.listen(stats => {
+  if (stats.processedFeeds === processed) return
+  if (processed === 0) startProgress(stats.totalFeeds)
+  processed = stats.processedFeeds
+  let posts = stats.foundFast + stats.foundSlow
+  printAboveProgress(
+    `  ${processed} of ${stats.totalFeeds} feeds +${posts - found} posts`,
+    'status'
+  )
+  found = posts
+  setProgress(processed)
+})
+// Build environment keeps the media in memory, so it is not in the database
+cacheMediaReading.set('none')
 await refreshPosts()
+unbindRefresh()
+delete storage['slowreader:cacheMediaReading']
 for (let failed of refreshErrors.get()) {
   warning(`Skipped ${failed.feed.url}: ${errorToMessage(failed.error)}`)
   await deleteFeed(failed.feed.id)
@@ -156,10 +203,16 @@ for (let failed of refreshErrors.get()) {
 for (let warned of warnings) {
   if (!isRemoteError(warned)) error(warned)
 }
-let [posts] = await getCrdt().select<{ count: number }>`
-  SELECT count(*) AS count FROM posts
+let empty = await getCrdt().select<{ title: string }>`
+  SELECT "feeds"."title" FROM "feeds"
+  LEFT JOIN "posts" ON "posts"."feedId" = "feeds"."id"
+  GROUP BY "feeds"."id" HAVING COUNT("posts"."id") = 0
 `
-success(`Loaded ${posts!.count} posts`, `for the last ${DAYS} days`)
+for (let feed of empty) {
+  warning(`No posts in ${DAYS} days: ${feed.title}`)
+}
+
+printAboveProgress('')
 
 await getDatabase().close()
 
@@ -194,6 +247,9 @@ writeFileSync(
   )
 )
 success('Wrote public/demo.sqlite', `${Math.round(bytes.length / 1024)} KB`)
-success('Wrote public/demo.json', `${statSync(MANIFEST).size} B`)
+success(
+  'Wrote public/demo.json',
+  `${Math.round(statSync(MANIFEST).size / 1024)} KB`
+)
 
 finish('Demo database is ready')
