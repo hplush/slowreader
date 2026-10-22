@@ -1,8 +1,8 @@
 <script lang="ts">
   import {
+    mdiAirplane,
     mdiCancel,
     mdiCheckAll,
-    mdiCloudOffOutline,
     mdiFire,
     mdiGaugeLow,
     mdiLockOpenOutline,
@@ -129,7 +129,7 @@
     {#if $clientUpdate}
       <Stack gap="xs">
         <Label tag="h2">{$t.offlineMode}</Label>
-        <Note icon={mdiCloudOffOutline} variant="good">{$t.offline}</Note>
+        <Note icon={mdiAirplane} variant="good">{$t.offline}</Note>
       </Stack>
     {/if}
     <Stack gap="m">

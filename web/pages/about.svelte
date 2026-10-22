@@ -1,9 +1,9 @@
 <script lang="ts">
   import {
+    mdiAirplane,
     mdiBug,
     mdiCellphoneArrowDown,
     mdiCheck,
-    mdiCloudOffOutline,
     mdiEye,
     mdiRefresh,
     mdiServerSecurity,
@@ -77,7 +77,7 @@
     </Note>
     <Stack gap="s">
       {#if $clientUpdate === 'offline'}
-        <Status icon={mdiCloudOffOutline}>{$t.offline}</Status>
+        <Status icon={mdiAirplane}>{$t.offline}</Status>
       {:else if $clientUpdate === 'latest'}
         <Status icon={mdiCheck}>{$t.noUpdates}</Status>
       {:else if $clientUpdate}
