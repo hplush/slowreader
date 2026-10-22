@@ -15,7 +15,7 @@ export default defineConfig({
     rolldownOptions: {
       input: ['root/root.html', 'og/og.html', ...docPages],
       output: {
-        // Every orientation has its own size budget, see web/.size-limit.json,
+        // Every orientation has its own size budget, see web/.size-limit.jsonc,
         // and only its biggest image is in it. OG page is only to render og.jpg
         assetFileNames(asset) {
           let source = asset.originalFileNames[0] ?? ''

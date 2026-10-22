@@ -7,7 +7,7 @@ import type { Plugin } from 'vite'
 const IMAGES = join(import.meta.dirname, '..', 'generated-images')
 const GENERATED = join(import.meta.dirname, '..', 'generated')
 const SCREENSHOTS = join(import.meta.dirname, '..', 'screenshots')
-// Only the biggest image is in the size budget, see web/.size-limit.json
+// Only the biggest image is in the size budget, see web/.size-limit.jsonc
 const SMALL = join(GENERATED, 'small')
 const ICON = join(
   import.meta.dirname,

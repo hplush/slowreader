@@ -16,7 +16,7 @@
     "test:offline:coverage": "bnt --coverage 100 --coverage-exclude '{db/index.ts,aaguids/utils.ts,../api/**,../proxy/**,test.ts,test/**}'"
   },
   "dependencies": {
-    "@electric-sql/pglite": "0.5.10",
+    "@electric-sql/pglite": "0.5.11",
     "@logux/actions": "0.8.1",
     "@logux/core": "0.12.1",
     "@logux/server": "0.17.1",

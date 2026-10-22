@@ -52,3 +52,4 @@
     "limit": "560 KB"
   }
 ]
+// Bump limits by 5 KB steps

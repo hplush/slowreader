@@ -311,7 +311,7 @@ importers:
         version: 1.3.5(nanostores@1.5.5)
       '@nanostores/sql':
         specifier: 0.7.0
-        version: 0.7.0(@electric-sql/pglite@0.5.10)(nanostores@1.5.5)(sqlocal@0.18.0)
+        version: 0.7.0(@electric-sql/pglite@0.5.11)(nanostores@1.5.5)(sqlocal@0.18.0)
       '@slowreader/api':
         specifier: workspace:*
         version: link:../api
@@ -425,8 +425,8 @@ importers:
   server:
     dependencies:
       '@electric-sql/pglite':
-        specifier: 0.5.10
-        version: 0.5.10
+        specifier: 0.5.11
+        version: 0.5.11
       '@logux/actions':
         specifier: 0.8.1
         version: 0.8.1(@logux/core@0.12.1)
@@ -453,7 +453,7 @@ importers:
         version: 2.0.1
       drizzle-orm:
         specifier: 1.0.0-rc.4
-        version: 1.0.0-rc.4(@electric-sql/pglite@0.5.10)(postgres@3.4.9)
+        version: 1.0.0-rc.4(@electric-sql/pglite@0.5.11)(postgres@3.4.9)
       nanoid:
         specifier: 6.0.2
         version: 6.0.2
@@ -516,7 +516,7 @@ importers:
         version: 2.0.0(nanostores@1.5.5)
       '@nanostores/sql':
         specifier: 0.7.0
-        version: 0.7.0(@electric-sql/pglite@0.5.10)(nanostores@1.5.5)(sqlocal@0.18.0)
+        version: 0.7.0(@electric-sql/pglite@0.5.11)(nanostores@1.5.5)(sqlocal@0.18.0)
       '@slowreader/core':
         specifier: workspace:*
         version: link:../core
@@ -591,8 +591,8 @@ importers:
         version: 8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.2)(yaml@2.9.1)
     devDependencies:
       '@size-limit/file':
-        specifier: 14.2.0
-        version: 14.2.0(size-limit@14.2.0)
+        specifier: 14.3.0
+        version: 14.3.0(size-limit@14.3.0)
       '@types/trusted-types':
         specifier: 2.0.7
         version: 2.0.7
@@ -600,8 +600,8 @@ importers:
         specifier: 4.29.4
         version: 4.29.4
       chromatic:
-        specifier: 18.13.0
-        version: 18.13.0
+        specifier: 18.13.2
+        version: 18.13.2
       eslint:
         specifier: 10.13.0
         version: 10.13.0(jiti@2.7.0)(supports-color@10.2.2)
@@ -615,8 +615,8 @@ importers:
         specifier: 7.1.7
         version: 7.1.7
       size-limit:
-        specifier: 14.2.0
-        version: 14.2.0
+        specifier: 14.3.0
+        version: 14.3.0
       svelte-check:
         specifier: 4.7.7
         version: 4.7.7(picomatch@4.0.7)(svelte@5.57.2)(typescript@6.0.3)
@@ -714,8 +714,8 @@ packages:
   '@drizzle-team/brocli@0.12.1':
     resolution: {integrity: sha512-yHwomvolVafvUXhy5TdiJVkuNCxXn+bKOs2aWiWEQh/5YaV97Oa/abJz3dmx7lxgIUsUlS1Jl4mEfvJPo3YsVw==}
 
-  '@electric-sql/pglite@0.5.10':
-    resolution: {integrity: sha512-tXc/25U3ulOkiRQuTFdwIv+JhBqtMdAF7Gvo6CfZZWtSB4+hgC4Wr2vwK5ngvvN5PJfAAEGIsfyCVy1JhCOBYw==}
+  '@electric-sql/pglite@0.5.11':
+    resolution: {integrity: sha512-SWuqsTjA4DDWqgZ05PC1RJaq8e00p5KACxbqaikDFQ8dIGA0SLRzuPniky7IW+q/c5RDNMdEXwv7mFBWIx9Hxw==}
 
   '@emnapi/core@1.10.0':
     resolution: {integrity: sha512-yq6OkJ4p82CAfPl0u9mQebQHKPJkY7WrIuk205cTYnYe+k2Z8YBh11FrbRG/H6ihirqcacOgl2BIO8oyMQLeXw==}
@@ -2360,11 +2360,11 @@ packages:
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
 
-  '@size-limit/file@14.2.0':
-    resolution: {integrity: sha512-ROqMjC8Pi/ogIIm79Y4u8YieXJb++MaZWbdv/am16l4cS9CxSUXmqP3igIXyv3gK3LMG6DkZdWSM5KVND2ug7g==}
+  '@size-limit/file@14.3.0':
+    resolution: {integrity: sha512-GWKOi0rorXPbYmwbT926Z91t28rg5gd5hv8ywY1FNcaYf8NbibgK5K5YabYbLkV6KpGwuuixBRtIzl3ZpPzUfw==}
     engines: {node: ^22.19.0 || ^24.5.0 || >=26.0.0}
     peerDependencies:
-      size-limit: 14.2.0
+      size-limit: 14.3.0
 
   '@sqlite.org/sqlite-wasm@3.51.2-build9':
     resolution: {integrity: sha512-tj2Sa6X4gVZqS9SiT2xlEeChSUklSGq8Hz6zKNbHW6NRiGyrSXiFcspnrWru1wPBT76RX/VxweESKxawCxfDxg==}
@@ -3091,8 +3091,8 @@ packages:
     resolution: {integrity: sha512-Qgzu8kfBvo+cA4962jnP1KkS6Dop5NS6g7R5LFYJr4b8Ub94PPQXUksCw9PvXoeXPRRddRNC5C1JQUR2SMGtnA==}
     engines: {node: '>= 14.16.0'}
 
-  chromatic@18.13.0:
-    resolution: {integrity: sha512-AdN6tHB9anx/sdJKIMQ7JkQQV2RhVe1iTvXOFLlwFBRecbl9rp50h/25N0sZJDdpx22gG7Y81HoUALOORfMuxQ==}
+  chromatic@18.13.2:
+    resolution: {integrity: sha512-bUd236+LocDIFt8nBtgS05kSnn1JyauX693GaZMhZQeTq203ZUXBOCj4mEshDIfn+orLWIqKve5B+bQQCwy1Kw==}
     engines: {node: '>=22.0.0'}
     hasBin: true
     peerDependencies:
@@ -5077,8 +5077,8 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
-  size-limit@14.2.0:
-    resolution: {integrity: sha512-/h8+T+2TxSdZhKRv70gtjAfMKK72p6+FEJMqEZHjzbLXfACF6esikRT8aHqmVLQvT+9lNlAa8GOAVFC3XeI1VA==}
+  size-limit@14.3.0:
+    resolution: {integrity: sha512-SoT7DtEYQ9AkOIyrNmmHu8IyJyA3P/Q6EUVjUUinT0iBuaI6IOpWxwyI+teUxg8WdLwcTwbu9moKvw/LGlCE7g==}
     engines: {node: ^22.19.0 || ^24.5.0 || >=26.0.0}
     hasBin: true
 
@@ -5827,7 +5827,7 @@ snapshots:
 
   '@drizzle-team/brocli@0.12.1': {}
 
-  '@electric-sql/pglite@0.5.10': {}
+  '@electric-sql/pglite@0.5.11': {}
 
   '@emnapi/core@1.10.0':
     dependencies:
@@ -6277,7 +6277,7 @@ snapshots:
       nanoid: 6.0.2
       nanostores: 1.5.5
     optionalDependencies:
-      '@nanostores/sql': 0.7.0(@electric-sql/pglite@0.5.10)(nanostores@1.5.5)(sqlocal@0.18.0)
+      '@nanostores/sql': 0.7.0(@electric-sql/pglite@0.5.11)(nanostores@1.5.5)(sqlocal@0.18.0)
       react: 19.3.1
 
   '@logux/core@0.10.0':
@@ -6368,11 +6368,11 @@ snapshots:
     dependencies:
       nanostores: 1.5.5
 
-  '@nanostores/sql@0.7.0(@electric-sql/pglite@0.5.10)(nanostores@1.5.5)(sqlocal@0.18.0)':
+  '@nanostores/sql@0.7.0(@electric-sql/pglite@0.5.11)(nanostores@1.5.5)(sqlocal@0.18.0)':
     dependencies:
       nanostores: 1.5.5
     optionalDependencies:
-      '@electric-sql/pglite': 0.5.10
+      '@electric-sql/pglite': 0.5.11
       sqlocal: 0.18.0(drizzle-orm@1.0.0-rc.4)(react@19.3.1)(vite@8.3.5)
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
@@ -6993,9 +6993,9 @@ snapshots:
 
   '@sindresorhus/merge-streams@4.0.0': {}
 
-  '@size-limit/file@14.2.0(size-limit@14.2.0)':
+  '@size-limit/file@14.3.0(size-limit@14.3.0)':
     dependencies:
-      size-limit: 14.2.0
+      size-limit: 14.3.0
 
   '@sqlite.org/sqlite-wasm@3.51.2-build9': {}
 
@@ -7666,7 +7666,7 @@ snapshots:
     dependencies:
       readdirp: 4.1.2
 
-  chromatic@18.13.0:
+  chromatic@18.13.2:
     dependencies:
       semver: 7.8.5
 
@@ -7903,9 +7903,9 @@ snapshots:
       get-tsconfig: 4.14.3
       jiti: 2.7.0
 
-  drizzle-orm@1.0.0-rc.4(@electric-sql/pglite@0.5.10)(postgres@3.4.9):
+  drizzle-orm@1.0.0-rc.4(@electric-sql/pglite@0.5.11)(postgres@3.4.9):
     optionalDependencies:
-      '@electric-sql/pglite': 0.5.10
+      '@electric-sql/pglite': 0.5.11
       postgres: 3.4.9
 
   eastasianwidth@0.2.0: {}
@@ -9793,7 +9793,7 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
-  size-limit@14.2.0:
+  size-limit@14.3.0:
     dependencies:
       lilconfig: 3.1.4
       nanospinner: 1.2.2
@@ -9833,7 +9833,7 @@ snapshots:
       '@sqlite.org/sqlite-wasm': 3.51.2-build9
       coincident: 1.2.3
     optionalDependencies:
-      drizzle-orm: 1.0.0-rc.4(@electric-sql/pglite@0.5.10)(postgres@3.4.9)
+      drizzle-orm: 1.0.0-rc.4(@electric-sql/pglite@0.5.11)(postgres@3.4.9)
       react: 19.3.1
       vite: 8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sugarss@5.0.2)(yaml@2.9.1)
     transitivePeerDependencies:

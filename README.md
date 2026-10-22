@@ -147,7 +147,7 @@ Each project has its own tools, too.
 - `pnpm start`: run server and web client development server.
 - `pnpm format`: fix code style in all files.
 - `pnpm clean`: remove all temporary files.
-- `pnpm size`: build web client with landings and check its [size budget](./web/.size-limit.json).
+- `pnpm size`: build web client with landings and check its [size budget](./web/.size-limit.jsonc).
 - `pnpm -F loader-tests check-opml`: test loaders with user’s OPML RSS export.
 - `pnpm -F loader-tests test`: test loaders with different blogging platforms.
 - `pnpm unused-messages`: check that all messages are used.
