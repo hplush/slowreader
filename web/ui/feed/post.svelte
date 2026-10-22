@@ -6,6 +6,7 @@
     getPopupId,
     getPostIntro,
     getPostPopupParam,
+    isOpenedPost,
     openedPost,
     postMessages,
     type PreviewPost,
@@ -37,17 +38,18 @@
 
   let [intro, more] = $derived(getPostIntro(post))
   let param = $derived(getPostPopupParam('origin' in post ? post.origin : post))
+  let current = $derived(isOpenedPost($openedPost, post))
 </script>
 
 <li
   class="feed-post"
-  class:is-current={$openedPost === post.id}
+  class:is-current={current}
   class:is-read={'read' in post && post.read}
 >
   <a
     class="feed-post_link"
-    aria-controls={$openedPost === post.id ? getPopupId('post', param) : null}
-    aria-current={$openedPost === post.id ? 'page' : null}
+    aria-controls={current ? getPopupId('post', param) : null}
+    aria-current={current ? 'page' : null}
     aria-labelledby={`feed-content-${post.id}`}
     href={getPopupHash($router, 'post', param)}
   ></a>

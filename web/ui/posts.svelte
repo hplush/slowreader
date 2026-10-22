@@ -3,6 +3,7 @@
     getPopupId,
     getPostPopupParam,
     getPostTitle,
+    isOpenedPost,
     openedPost,
     type OriginPost,
     type ReaderPost,
@@ -34,7 +35,11 @@
   )
 </script>
 
-<Links anchor="post" current={$openedPost} {links}>
+<Links
+  anchor="post"
+  current={list.find(post => isOpenedPost($openedPost, post))?.id}
+  {links}
+>
   {#snippet item(post)}
     {getPostTitle(post)}
   {/snippet}

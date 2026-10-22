@@ -2,7 +2,7 @@ import { busyDuring } from './busy.ts'
 import { HTTPStatusError } from './errors.ts'
 import { changeFeed, loadFeed, loadFeeds } from './feed.ts'
 import { loaders } from './loader/index.ts'
-import { loadPost } from './post.ts'
+import { loadPopupPost } from './popups/post.ts'
 import { proxyDebug } from './request.ts'
 import { router } from './router.ts'
 
@@ -30,23 +30,15 @@ export function enablePostDebug(): void {
   router.subscribe(async page => {
     for (let popup of page.popups) {
       if (popup.popup === 'post') {
-        let id: string | undefined
-        if (popup.param.startsWith('id:')) {
-          id = popup.param.slice(3)
-        } else if (popup.param.startsWith('read:')) {
-          id = popup.param.slice(5)
-        }
-        if (id) {
-          let post = await loadPost(id)
-          if (!post?.feedId) return
-          let feed = await loadFeed(post.feedId)
-          let source = await loaders[feed!.loader].getPostSource(
-            feed!,
-            post.originId
-          )
-          console.log(post)
-          console.log(source)
-        }
+        let post = await loadPopupPost(popup.param)
+        if (!post?.feedId) return
+        let feed = await loadFeed(post.feedId)
+        let source = await loaders[feed!.loader].getPostSource(
+          feed!,
+          post.originId
+        )
+        console.log(post)
+        console.log(source)
       }
     }
   })

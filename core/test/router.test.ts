@@ -10,6 +10,7 @@ import {
   isOtherRoute,
   navigate,
   openedPopups,
+  isOpenedPost,
   openedPost,
   openPopup,
   removeLastPopup,
@@ -271,6 +272,18 @@ describe('router', () => {
 
     openRoute({ hash: 'post=id:2', params: {}, route: 'about' })
     equal(openedPost.get(), '2')
+    equal(isOpenedPost(openedPost.get(), { id: '2' }), true)
+    equal(isOpenedPost(openedPost.get(), { id: '3', url: null }), false)
+
+    let url = 'https://example.com/1'
+    openRoute({
+      hash: `post=${encodeURIComponent(`read:${url}`)}`,
+      params: {},
+      route: 'about'
+    })
+    equal(openedPost.get(), url)
+    equal(isOpenedPost(openedPost.get(), { id: '2', url }), true)
+    equal(isOpenedPost(undefined, { id: '2', url: undefined }), false)
   })
 
   test('changes route synchronously inside listeners', () => {

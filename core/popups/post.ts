@@ -16,6 +16,7 @@ import {
   changeRead,
   getPost,
   loadPost,
+  loadPostByUrl,
   loadThreadPosts,
   type OriginPost,
   type PostValue
@@ -23,15 +24,20 @@ import {
 import { loadPreviewThread, loadThreadByUrl, updateThread } from '../thread.ts'
 import { type CreatedLoadedPopup, definePopup } from './common.ts'
 
+/**
+ * Post with URL is opened by URL to load it from the network,
+ * when the post was already deleted from the database.
+ */
 export function getPostPopupParam(
-  post: { feedId: null | string; id: string } | OriginPost,
+  post: { feedId: null | string; id: string; url?: null | string } | OriginPost,
   autoread = false
 ): string {
   if ('feedId' in post) {
+    let url = post.url && canOpenPostUrl(post.url) ? post.url : undefined
     if (autoread) {
-      return `read:${post.id}`
+      return `read:${url ?? post.id}`
     } else {
-      return `id:${post.id}`
+      return url ?? `id:${post.id}`
     }
   } else {
     return `data:${lz.compressToEncodedURIComponent(JSON.stringify(post))}`
@@ -48,42 +54,47 @@ export function canOpenPostUrl(url: string): boolean {
   return url.startsWith('https:') && !!findPostLoader(url)
 }
 
+export function loadPopupPost(param: string): Promise<PostValue | undefined> {
+  let target = param.replace(/^read:/, '')
+  if (target.startsWith('https:')) {
+    return loadPostByUrl(target)
+  } else if (target.startsWith('id:') || target !== param) {
+    return loadPost(target.replace(/^id:/, ''))
+  } else {
+    return Promise.resolve(undefined)
+  }
+}
+
 export const post = definePopup('post', async loader => {
   let $post: ReadableAtom<OriginPost | PostValue>
   let $feed: ReadableAtom<FeedValue> | undefined
   let read: undefined | WritableAtom<boolean>
 
-  let id: string | undefined
-  if (loader.startsWith('id:')) {
-    id = loader.slice(3)
-  } else if (loader.startsWith('read:')) {
-    id = loader.slice(5)
-  }
+  let target = loader.replace(/^read:/, '')
+  let stored = await loadPopupPost(loader)
 
   let task = createDownloadTask()
   let $parts = atom<(OriginPost | PostValue)[]>([])
   let updating: Promise<(OriginPost | PostValue)[]> | undefined
   let unbindStored = (): void => {}
-  if (id) {
-    let stored = await loadPost(id)
-    if (!stored) throw new NotFoundError()
+  if (stored) {
     let $stored = atom<OriginPost | PostValue>(stored)
-    unbindStored = getPost(id).subscribe(row => {
+    unbindStored = getPost(stored.id).subscribe(row => {
       if (row.status === 'ready' && row.value) $stored.set(row.value)
     })
     $post = $stored
-  } else if (loader.startsWith('https:')) {
-    let postLoader = findPostLoader(loader)
+  } else if (target.startsWith('https:')) {
+    let postLoader = findPostLoader(target)
     if (!postLoader) throw new NotFoundError()
     let $byUrl = atom(
       await postLoader.getPostByUrl!(
         createDownloadTask({ cache: 'read' }),
-        loader
+        target
       )
     )
     updating = loadThreadByUrl(task, postLoader, {
       ...$byUrl.get(),
-      url: loader
+      url: target
     }).then(([start, ...parts]) => {
       $byUrl.set(start!)
       return parts
@@ -114,7 +125,8 @@ export const post = definePopup('post', async loader => {
 
   let unbindPost = (): void => {}
   let unbindRead = (): void => {}
-  if (loader.startsWith('read:')) {
+  if (stored && loader.startsWith('read:')) {
+    let id = stored.id
     read = atom(false)
     unbindPost = $post.subscribe(value => {
       read!.set('read' in value && value.read)
@@ -122,7 +134,7 @@ export const post = definePopup('post', async loader => {
     unbindRead = read.listen(async value => {
       let current = $post.get()
       if ('read' in current && current.read !== value) {
-        await changeRead([id!], value)
+        await changeRead([id], value)
       }
     })
   }

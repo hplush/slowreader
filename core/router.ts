@@ -284,6 +284,13 @@ export const openedPost = computed(router, page => {
   if (!first) {
     return undefined
   } else if (first.popup === 'post') {
-    return first.param.replace(/^\w+:/, '')
+    return first.param.replace(/^(?:read:)?(?:id:)?/, '')
   }
 })
+
+export function isOpenedPost(
+  opened: string | undefined,
+  post: { id: string; url?: null | string }
+): boolean {
+  return !!opened && (opened === post.id || opened === post.url)
+}

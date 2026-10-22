@@ -171,6 +171,12 @@ export function loadPost(postId: string): Promise<PostValue | undefined> {
   return getTables().posts.get(postId)
 }
 
+export function loadPostByUrl(url: string): Promise<PostValue | undefined> {
+  return getTables().posts.load`WHERE "url" = ${url} LIMIT 1`.then(
+    rows => rows[0]
+  )
+}
+
 export function loadPosts(): Promise<PostValue[]> {
   return getTables().posts.load`ORDER BY "publishedAt" DESC`
 }

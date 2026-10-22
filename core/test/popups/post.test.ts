@@ -8,6 +8,7 @@ import {
   addPost,
   closeLastPopup,
   commonMessages,
+  deletePost,
   formatDuration,
   formatPublishedAt,
   GENERAL_CATEGORY,
@@ -131,6 +132,50 @@ describe('post popup', () => {
     await setTimeout(1)
     equal((await loadPost(id1))!.read, false)
     equal((await loadPost(id2))!.read, false)
+  })
+
+  test('opens saved post by URL', async () => {
+    let mastodon = loaders.mastodon as Required<typeof loaders.mastodon>
+    let url = 'https://mastodon.social/@jane/1'
+    let byUrl = spyOn(mastodon, 'getPostByUrl', () =>
+      Promise.resolve({ id: url, originId: '1', title: 'Network', url })
+    )
+    spyOn(mastodon, 'getThreadAncestors', () => Promise.resolve([]))
+    spyOn(mastodon, 'getThreadDescendants', () => Promise.resolve([]))
+    let feed = await addFeed(testFeed({ categoryId: GENERAL_CATEGORY }))
+    let id = await addPost(testPost({ feedId: feed, title: 'Saved', url }))
+    let rss = await addPost(
+      testPost({ feedId: feed, url: 'https://example.com/1' })
+    )
+
+    equal(getPostPopupParam({ feedId: feed, id, url }), url)
+    equal(getPostPopupParam({ feedId: feed, id, url }, true), `read:${url}`)
+    equal(
+      getPostPopupParam({
+        feedId: feed,
+        id: rss,
+        url: 'https://example.com/1'
+      }),
+      `id:${rss}`
+    )
+    equal(getPostPopupParam({ feedId: feed, id: rss }, true), `read:${rss}`)
+
+    let saved = openTestPopup('post', `read:${url}`)
+    await waitLoading(saved.loading)
+    equal(byUrl.calls.length, 0)
+    equal(checkLoadedPopup(saved).post.get().title, 'Saved')
+    equal(checkLoadedPopup(saved).feed!.get().id, feed)
+    checkLoadedPopup(saved).read!.set(true)
+    await setTimeout(1)
+    equal((await loadPost(id))!.read, true)
+    closeLastPopup()
+
+    await deletePost(id)
+    let deleted = openTestPopup('post', `read:${url}`)
+    await waitLoading(deleted.loading)
+    equal(byUrl.calls.length, 1)
+    equal(checkLoadedPopup(deleted).post.get().title, 'Network')
+    equal(checkLoadedPopup(deleted).read, undefined)
   })
 
   test('opens candidate post', async () => {
