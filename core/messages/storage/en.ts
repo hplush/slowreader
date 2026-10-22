@@ -8,6 +8,10 @@ export const storageMessages = i18n('storage', {
   deleteWarning:
     'This action cannot be undone. Are you sure you want to delete your data?',
   dump: 'Dump DB',
+  fastLifetime: 'Keep fast posts',
+  fastLifetimeForever: 'Forever',
+  fastLifetimeMonth: '1 month',
+  fastLifetimeWeek: '1 week',
   dumping: 'Dumping the database',
   pageTitle: 'Storage',
   rebuild: 'Rebuild database from the cloud',

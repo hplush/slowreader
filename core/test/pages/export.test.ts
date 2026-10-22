@@ -170,6 +170,7 @@ describe('export page', () => {
         }
       ],
       settings: {
+        fastPostsLifetime: 'month',
         openWarnings: false,
         preloadImages: 'always',
         showSensitiveMedia: false,

@@ -270,6 +270,13 @@ export function deletePost(postId: string[] | string): Promise<void> {
   return getTables().posts.delete(postId)
 }
 
+export async function deleteFastPostsBefore(time: number): Promise<void> {
+  let rows = await getCrdt().select<{ id: string }>`
+    SELECT "id" FROM "posts" WHERE "reading" = 'fast' AND "sortedAt" < ${time}
+  `
+  if (rows.length > 0) await deletePost(rows.map(row => row.id))
+}
+
 export function changePost(
   postId: string[] | string,
   changes: PostChanges

@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  import { hasCloud, isDemo, pages } from '@slowreader/core'
+  import { fastPostsLifetime, hasCloud, isDemo, pages } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import StoragePage from '../../pages/storage.svelte'
@@ -21,6 +21,7 @@
   <Scene
     oninit={() => {
       hasCloud.set(false)
+      fastPostsLifetime.set('forever')
     }}
     route="storage"
   >

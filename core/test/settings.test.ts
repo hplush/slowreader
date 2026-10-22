@@ -2,6 +2,7 @@ import { equal } from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
 import {
+  fastPostsLifetime,
   preloadImages,
   requestMethod,
   theme,
@@ -34,6 +35,10 @@ describe('settings', () => {
 
   test('has store for content warnings settings', () => {
     equal(openWarnings.get(), false)
+  })
+
+  test('has store for fast posts lifetime', () => {
+    equal(fastPostsLifetime.get(), 'month')
   })
 
   test('has store for sensitive media settings', () => {

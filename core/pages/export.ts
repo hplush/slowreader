@@ -12,6 +12,7 @@ import { escapeXml } from '../lib/html.ts'
 import { loadPostsPage, type PostValue } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
 import {
+  fastPostsLifetime,
   preloadImages,
   openWarnings,
   type Settings,
@@ -162,6 +163,7 @@ export const exportPage = createPage('export', () => {
     file.write(total === 0 ? '],\n' : '\n  ],\n')
 
     let settings = {
+      fastPostsLifetime: fastPostsLifetime.get(),
       openWarnings: openWarnings.get(),
       preloadImages: preloadImages.get(),
       showSensitiveMedia: showSensitiveMedia.get(),

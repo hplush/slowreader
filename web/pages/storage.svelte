@@ -6,6 +6,7 @@
     mdiTrashCanOutline
   } from '@mdi/js'
   import {
+    fastPostsLifetime,
     formatSize,
     i18nFormat,
     isDemo,
@@ -18,6 +19,7 @@
   import Button from '../ui/button.svelte'
   import DemoNote from '../ui/demo-note.svelte'
   import Output from '../ui/output.svelte'
+  import Radio from '../ui/radio.svelte'
   import Stack from '../ui/stack.svelte'
   import ThinPage from '../ui/thin-page.svelte'
   import Title from '../ui/title.svelte'
@@ -59,6 +61,19 @@
         {/if}
       </Stack>
     </Stack>
+    <Radio
+      label={$t.fastLifetime}
+      onchange={value => {
+        fastPostsLifetime.set(value)
+      }}
+      size="wide"
+      value={$fastPostsLifetime}
+      values={[
+        ['week', $t.fastLifetimeWeek],
+        ['month', $t.fastLifetimeMonth],
+        ['forever', $t.fastLifetimeForever]
+      ]}
+    />
     <Stack>
       <Title>{$t.dangerousTitle}</Title>
       {#if $hasCloud}

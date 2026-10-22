@@ -7,9 +7,11 @@ import {
   addAccount,
   addFeed,
   addFilter,
+  addPost,
   createPostsList,
   deleteAccount,
   deleteFeed,
+  fastPostsLifetime,
   getClient,
   loadAccount,
   loadFeed,
@@ -32,6 +34,7 @@ import {
   stopRefreshing,
   testAccount,
   testFeed,
+  testPost,
   waitLoading
 } from '../index.ts'
 import {
@@ -52,9 +55,11 @@ describe('refresh', () => {
   beforeEach(() => {
     mockRequest()
     startClient()
+    fastPostsLifetime.set('forever')
   })
 
   afterEach(async () => {
+    fastPostsLifetime.set('month')
     await cleanClient()
     restoreAll()
     checkAndRemoveRequestMock()
@@ -752,6 +757,37 @@ describe('refresh', () => {
     equal(typeof capturedHeaders[1]!['If-Modified-Since'], 'string')
     equal(refreshStatistics.get().errorRequests, 0)
   })
+
+  test('deletes old fast posts before refresh', async () => {
+    let now = Math.round(Date.now() / 1000)
+    let day = 24 * 60 * 60
+    await addPost([
+      testPost({ originId: 'fast2', publishedAt: now - 2 * day }),
+      testPost({ originId: 'fast10', publishedAt: now - 10 * day }),
+      testPost({ originId: 'fast40', publishedAt: now - 40 * day }),
+      testPost({
+        originId: 'slow40',
+        publishedAt: now - 40 * day,
+        reading: 'slow'
+      })
+    ])
+
+    await refreshPosts()
+    deepEqual(await getPostKeys('originId'), [
+      'fast10',
+      'fast2',
+      'fast40',
+      'slow40'
+    ])
+
+    fastPostsLifetime.set('month')
+    await refreshPosts()
+    deepEqual(await getPostKeys('originId'), ['fast10', 'fast2', 'slow40'])
+
+    fastPostsLifetime.set('week')
+    await refreshPosts()
+    deepEqual(await getPostKeys('originId'), ['fast2', 'slow40'])
+  })
 })
 
 const BOB = 'https://bob.social/@bob'
@@ -760,9 +796,11 @@ describe('refresh of accounts', () => {
   beforeEach(() => {
     mockRequest()
     startClient()
+    fastPostsLifetime.set('forever')
   })
 
   afterEach(async () => {
+    fastPostsLifetime.set('month')
     await cleanClient()
     restoreAll()
     checkAndRemoveRequestMock()

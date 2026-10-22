@@ -24,6 +24,7 @@ import { increaseKey } from './lib/stores.ts'
 import { loaders } from './loader/index.ts'
 import {
   addPost,
+  deleteFastPostsBefore,
   getSortedAt,
   loadPostOriginIdsByAccount,
   loadPostOriginIdsByFeed,
@@ -34,6 +35,7 @@ import {
 } from './post.ts'
 import type { PostsList } from './posts-list.ts'
 import { getTables } from './schema.ts'
+import { fastPostsLifetime } from './settings.ts'
 import { linkThreads } from './thread.ts'
 
 export const DEFAULT_REFRESH_STATISTICS = {
@@ -431,6 +433,12 @@ export async function refreshPosts(): Promise<void> {
   refreshedAt = Math.round(Date.now() / 1000)
   untouched = []
   untouchedAccounts = []
+  let lifetime = fastPostsLifetime.get()
+  if (lifetime !== 'forever') {
+    await deleteFastPostsBefore(
+      refreshedAt - (lifetime === 'week' ? 7 : 30) * 24 * 60 * 60
+    )
+  }
   let [feeds, accounts] = await Promise.all([
     loadFeedsForRefresh(),
     loadAccounts()

@@ -12,6 +12,7 @@
     currentPage,
     DEFAULT_REFRESH_STATISTICS,
     extensionState,
+    fastPostsLifetime,
     type FeedValue,
     getTables,
     hasCloud,
@@ -180,6 +181,7 @@
     useReducedMotion.set(false)
     showSensitiveMedia.set(false)
     openWarnings.set(false)
+    fastPostsLifetime.set('month')
     setPasskeySupport(true)
     // @ts-expect-error Hack for tests
     systemReducedMotion.set(false)

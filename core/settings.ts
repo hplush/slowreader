@@ -116,7 +116,13 @@ export const showSensitiveMedia = persistentBoolean('slowreader:show-sensitive')
 
 export const openWarnings = persistentBoolean('slowreader:open-warnings')
 
+export const fastPostsLifetime = persistentAtom<'forever' | 'month' | 'week'>(
+  'slowreader:fast-lifetime',
+  'month'
+)
+
 export interface Settings {
+  fastPostsLifetime: StoreValue<typeof fastPostsLifetime>
   openWarnings: StoreValue<typeof openWarnings>
   preloadImages: StoreValue<typeof preloadImages>
   showSensitiveMedia: StoreValue<typeof showSensitiveMedia>
