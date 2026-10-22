@@ -26,6 +26,7 @@
   import { clientUpdate } from '../stores/client-update.ts'
   import { usedRequestMethod } from '../stores/request-method.ts'
   import Button from '../ui/button.svelte'
+  import Label from '../ui/label.svelte'
   import Note from '../ui/note.svelte'
   import RadioList from '../ui/radio-list.svelte'
   import Radio from '../ui/radio.svelte'
@@ -34,70 +35,79 @@
 </script>
 
 <ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>
-  <Stack gap="m">
-    <RadioList
-      label={$t.method}
-      onchange={value => {
-        requestMethod.set(value)
-      }}
-      value={$usedRequestMethod}
-      values={[
-        {
-          description: $t.proxyDesc,
-          name: $t.proxy,
-          value: 'proxy'
-        },
-        {
-          description: $t.extensionDesc,
-          disabled: $extensionState !== 'granted',
-          name: $t.extension,
-          value: 'extension'
-        }
-      ]}
-    />
-    {#if $extensionState === 'restricted'}
-      <Note icon={mdiPuzzle} variant="dangerous">
-        {$t.restrictedExtension}
-        <Button icon={mdiLockOpenOutline} onclick={grantExtension} size="wide">
-          {$t.allowExtension}
-        </Button>
-      </Note>
-      <!-- Mobile browsers can not install the extension -->
-    {:else if $extensionState === 'missing' && $layoutType !== 'mobile'}
-      <Note
-        icon={$installingExtension ? mdiRefresh : mdiPuzzle}
-        variant={$installingExtension ? 'warning' : 'good'}
-      >
-        {$installingExtension ? $t.installedExtension : $t.noExtension}
-        <Stack align="center" gap="s">
-          {#if $installingExtension}
-            <Button
-              icon={mdiRefresh}
-              onclick={() => {
-                location.reload()
-              }}
-              size="wide"
-              variant="main"
-            >
-              {$t.reloadApp}
-            </Button>
-          {/if}
+  <Stack gap="xl">
+    <Stack gap="m">
+      <RadioList
+        label={$t.method}
+        onchange={value => {
+          requestMethod.set(value)
+        }}
+        value={$usedRequestMethod}
+        values={[
+          {
+            description: $t.proxyDesc,
+            name: $t.proxy,
+            value: 'proxy'
+          },
+          {
+            description: $t.extensionDesc,
+            disabled: $extensionState !== 'granted',
+            name: $t.extension,
+            value: 'extension'
+          }
+        ]}
+      />
+      {#if $extensionState === 'restricted'}
+        <Note icon={mdiPuzzle} variant="dangerous">
+          {$t.restrictedExtension}
           <Button
-            href={extensionStore}
-            icon={mdiPlusCircleOutline}
-            onclick={() => {
-              installingExtension.set(true)
-            }}
-            size={$installingExtension ? 'pill' : 'wide'}
-            target="_blank"
+            icon={mdiLockOpenOutline}
+            onclick={grantExtension}
+            size="wide"
           >
-            {$t.installExtension}
+            {$t.allowExtension}
           </Button>
-        </Stack>
-      </Note>
-    {/if}
+        </Note>
+        <!-- Mobile browsers can not install the extension -->
+      {:else if $extensionState === 'missing' && $layoutType !== 'mobile'}
+        <Note
+          icon={$installingExtension ? mdiRefresh : mdiPuzzle}
+          variant={$installingExtension ? 'warning' : 'good'}
+        >
+          {$installingExtension ? $t.installedExtension : $t.noExtension}
+          <Stack align="center" gap="s">
+            {#if $installingExtension}
+              <Button
+                icon={mdiRefresh}
+                onclick={() => {
+                  location.reload()
+                }}
+                size="wide"
+                variant="main"
+              >
+                {$t.reloadApp}
+              </Button>
+            {/if}
+            <Button
+              href={extensionStore}
+              icon={mdiPlusCircleOutline}
+              onclick={() => {
+                installingExtension.set(true)
+              }}
+              size={$installingExtension ? 'pill' : 'wide'}
+              target="_blank"
+            >
+              {$t.installExtension}
+            </Button>
+          </Stack>
+        </Note>
+      {/if}
+    </Stack>
     {#if $clientUpdate}
-      <Note icon={mdiCloudOffOutline} variant="good">{$t.offline}</Note>
+      <Stack gap="xs">
+        <Label tag="h2">{$t.offlineMode}</Label>
+        <Note icon={mdiCloudOffOutline} variant="good">{$t.offline}</Note>
+      </Stack>
     {/if}
     <div style:display="none">
       <Radio
