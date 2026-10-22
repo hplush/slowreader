@@ -8,7 +8,11 @@ import {
   cacheVideos,
   canDetectNetwork,
   changePost,
+  deleteFeed,
+  clearMediaCache,
   deletePost,
+  getClient,
+  getDatabase,
   getEnvironment,
   HTTPStatusError,
   loadPost,
@@ -33,7 +37,8 @@ import {
   expectWarning,
   getTestEnvironment,
   mockRequest,
-  startClient
+  startClient,
+  waitUntil
 } from './utils.ts'
 
 describe('media cache', () => {
@@ -164,12 +169,42 @@ describe('media cache', () => {
     ])
 
     await deletePost([read, deleted])
+    deepEqual(await cached(), ['https://author.com/a.png'])
     await syncMediaCache()
     deepEqual(await cached(), ['https://author.com/a.png'])
     deepEqual(mediaStatistics.get(), { done: 3, failed: 0, total: 3 })
 
     cacheImages.set('never')
     await syncMediaCache()
+    deepEqual(await cached(), [])
+  })
+
+  test('deletes media of posts deleted on another device', async () => {
+    let id = await addPost(
+      testPost({ media: [{ type: 'image', url: 'https://img.com/1.jpg' }] })
+    )
+    expectRequest('https://img.com/1.jpg').andRespond(200, '1')
+    await syncMediaCache()
+
+    await getClient().log.add(
+      { id, type: 'posts/deleted' },
+      { id: '1 10:other:1 0', reasons: ['test'], time: Date.now() }
+    )
+    await waitUntil(async () => (await cached()).length === 0)
+  })
+
+  test('deletes media with the feed', async () => {
+    let feedId = await addFeed(testFeed())
+    await addPost(
+      testPost({
+        feedId,
+        media: [{ type: 'image', url: 'https://img.com/1.jpg' }]
+      })
+    )
+    expectRequest('https://img.com/1.jpg').andRespond(200, '1')
+    await syncMediaCache()
+
+    await deleteFeed(feedId)
     deepEqual(await cached(), [])
   })
 
@@ -329,6 +364,27 @@ describe('media cache', () => {
     equal(refreshStatus.get(), 'done')
   })
 
+  test('shows broken file in errors', async () => {
+    let error = new Error('Cache is broken')
+    setupEnvironment({
+      ...getTestEnvironment(),
+      mediaCache: {
+        ...getTestEnvironment().mediaCache,
+        put() {
+          return Promise.reject(error)
+        }
+      }
+    })
+    await addPost(
+      testPost({ media: [{ type: 'image', url: 'https://img.com/1.jpg' }] })
+    )
+    expectRequest('https://img.com/1.jpg').andRespond(200, '1')
+    await syncMediaCache()
+    deepEqual(mediaErrors.get(), [
+      { error, type: 'file', url: 'https://img.com/1.jpg' }
+    ])
+  })
+
   test('stops with refresh', async () => {
     await addPost(
       testPost({
@@ -419,6 +475,52 @@ describe('media cache', () => {
       mediaErrors.get().map(i => i.type),
       ['quota']
     )
+  })
+
+  test('parses every post once', async () => {
+    let id = await addPost(
+      testPost({ media: [{ type: 'image', url: 'https://img.com/1.jpg' }] })
+    )
+    expectRequest('https://img.com/1.jpg').andRespond(200, '1')
+    await syncMediaCache()
+
+    let media = JSON.stringify([
+      { type: 'image', url: 'https://img.com/2.jpg' }
+    ])
+    await getDatabase().exec`
+      UPDATE "posts" SET "media" = ${media} WHERE "id" = ${id}
+    `
+    await syncMediaCache()
+    deepEqual(await cached(), ['https://img.com/1.jpg'])
+  })
+
+  test('parses changed media again', async () => {
+    let id = await addPost(
+      testPost({ media: [{ type: 'image', url: 'https://img.com/1.jpg' }] })
+    )
+    expectRequest('https://img.com/1.jpg').andRespond(200, '1')
+    await syncMediaCache()
+
+    await changePost(id, {
+      media: [{ type: 'image', url: 'https://img.com/2.jpg' }]
+    })
+    expectRequest('https://img.com/2.jpg').andRespond(200, '2')
+    await syncMediaCache()
+    deepEqual(await cached(), ['https://img.com/2.jpg'])
+  })
+
+  test('downloads media again after cleaning', async () => {
+    await addPost(
+      testPost({ media: [{ type: 'image', url: 'https://img.com/1.jpg' }] })
+    )
+    expectRequest('https://img.com/1.jpg').andRespond(200, '1')
+    await syncMediaCache()
+    await clearMediaCache()
+    deepEqual(await cached(), [])
+
+    expectRequest('https://img.com/1.jpg').andRespond(200, '1')
+    await syncMediaCache()
+    deepEqual(await cached(), ['https://img.com/1.jpg'])
   })
 
   test('clears cache on sign out', async () => {

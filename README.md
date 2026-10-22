@@ -188,6 +188,8 @@ The server doesn’t see those actions because clients encrypt them before sendi
 
 The clients store a list of changes (action log). During the start, the client reduces all necessary actions from the log to the SQLite table on OPFS.
 
+Offline media lives in Cache Storage.
+
 For simple things like client local settings, we use [Nano Store Persistent](https://github.com/nanostores/persistent).
 
 ## Test Strategy
