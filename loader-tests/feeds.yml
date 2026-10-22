@@ -22,6 +22,8 @@ feeds:
   - title: Tumblr
     url: https://thecollectibles.tumblr.com/rss
     findFromHome: false
+    # Bot check on blog’s page hides the avatar
+    checkFeedData: false
 
   - title: LiveJournal
     url: https://vintage-ads.livejournal.com/data/rss

@@ -24,6 +24,7 @@ import {
 const FEEDS = join(import.meta.dirname, 'feeds.yml')
 
 interface YamlFeed extends LoaderTestFeed {
+  checkFeedData?: boolean
   findFromHome?: boolean
 }
 
@@ -70,14 +71,15 @@ await cli.run(async args => {
     feeds.length + feeds.filter(feed => feed.findFromHome !== false).length
   )
 
-  let failedPosts: string[] = []
+  let failedPosts: YamlFeed[] = []
   let failedHomes: YamlFeed[] = []
   await completeTasks(
     feeds.map(feed => () => {
       return fetchAndParsePosts(
         feed.url,
         false,
-        postpone(retry, () => failedPosts.push(feed.url))
+        postpone(retry, () => failedPosts.push(feed)),
+        feed.checkFeedData
       )
     })
   )
@@ -96,7 +98,12 @@ await cli.run(async args => {
       'status'
     )
     await setTimeout(60_000)
-    await completeTasks(failedPosts.map(url => () => fetchAndParsePosts(url)))
+    await completeTasks(
+      failedPosts.map(
+        feed => () =>
+          fetchAndParsePosts(feed.url, false, error, feed.checkFeedData)
+      )
+    )
     for (let feed of failedHomes) {
       await findRSSFromHome(feed, 3)
     }

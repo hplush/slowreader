@@ -111,7 +111,8 @@ export function timeout<Value>(
 export async function fetchAndParsePosts(
   url: string,
   badSource = false,
-  report: Report = error
+  report: Report = error,
+  checkFeedData = true
 ): Promise<void> {
   try {
     let task = createDownloadTask()
@@ -146,6 +147,7 @@ export async function fetchAndParsePosts(
         report(`Can not found posts for feed ${url}`)
       }
     } else if (
+      checkFeedData &&
       !(await tryLoadFeedData(task, candidate.name, url, { response }))?.avatar
     ) {
       if (badSource) {
