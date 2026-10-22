@@ -148,6 +148,20 @@ if [ -n "$(git -C "$ROOT" status --porcelain)" ]; then
 fi
 git -C "$ROOT" pull --ff-only
 
+# It is not a CVE database check: Node.js marks releases with security fixes,
+# so a newer one in the same line means that our version has known issues
+NODE=$(cat "$ROOT/.node-version")
+NODE_FIX=$(curl -fsS https://nodejs.org/dist/index.json | jq -r --arg node "$NODE" '
+  ($node | split(".") | map(tonumber)) as $current
+  | [.[] | select(.security)
+    | (.version | ltrimstr("v") | split(".") | map(tonumber)) as $version
+    | select($version[0] == $current[0] and $version > $current)][0].version
+  // empty')
+if [ -n "$NODE_FIX" ]; then
+  error "Node.js $NODE_FIX is a security release, update by pnpm update-tools"
+fi
+success "Node.js $NODE has no newer security release"
+
 # MAJOR.DATE.PATCH
 CURRENT=$(sed -n "s/^export const VERSION = '\(.*\)'$/\1/p" "$ROOT/api/index.ts")
 IFS=. read -r MAJOR DATE PATCH <<< "$CURRENT"
