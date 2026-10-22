@@ -247,7 +247,7 @@
         </li>
         <li>
           <span class="loading" aria-hidden="true">⠋</span>
-          <span class="sr">checking:</span> CI verified release
+          <span class="sr">checking:</span> CI verified release:
           <span id="release">…</span>
           <ul>
             <li>
@@ -686,14 +686,23 @@ done</pre>
           document.getElementById('release').replaceChildren()
         }
         // Old results have no signer and build
-        document.getElementById('signer').textContent =
-          release?.signer ?? 'core team'
+        let signer = document.getElementById('signer')
+        if (release?.signer) {
+          signer.replaceChildren(
+            'core team member: ',
+            span(release.signer, 'good')
+          )
+        } else {
+          signer.textContent = 'core team'
+        }
         let workflow = document.getElementById('workflow')
         if (release?.build) {
           let link = document.createElement('a')
+          link.className = 'good'
           link.href = release.build
-          link.textContent = 'project CI'
-          workflow.replaceChildren(link)
+          // Run ID from …/actions/runs/ID/attempts/N
+          link.textContent = release.build.match(/runs\/(\d+)/)?.[1] ?? 'run'
+          workflow.replaceChildren('project CI: ', link)
         } else {
           workflow.textContent = 'project CI'
         }
