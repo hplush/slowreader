@@ -71,7 +71,7 @@ COPY web/tsconfig.json web/
 # Run `pnpm update-docker` to take the latest one.
 # Only files are copied from the demo image, so its x64 platform is fine on ARM.
 # ghcr.io/hplush/slowreader-demo:latest
-FROM --platform=linux/amd64 ghcr.io/hplush/slowreader-demo@sha256:c3556c43db6fc6d095d1f83374a8e9fc65129e152e0f2ab200d1cd34369146c3 AS demo
+FROM --platform=linux/amd64 ghcr.io/hplush/slowreader-demo@sha256:f71e6abee31a92b4460aaf374d7328a82d31f5ccbce041a174a68bec49f36b4b AS demo
 
 FROM base AS client
 COPY api/package.json api/
