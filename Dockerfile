@@ -5,7 +5,7 @@
 # dependencies, so a malicious web dependency can’t change the server code.
 
 # cgr.dev/chainguard/wolfi-base:latest
-FROM cgr.dev/chainguard/wolfi-base@sha256:bc76fa39ddd1482dd56a761b3331e03ba8f0e093ebb525618a56d014b480da88 AS base
+FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base@sha256:bc76fa39ddd1482dd56a761b3331e03ba8f0e093ebb525618a56d014b480da88 AS tools
 
 ENV NODE_VERSION=26.12.1 \
   NODE_CHECKSUM_X64=6170b2d474e1c626f43cff3adc118df9fe3b573258a4fc3d850c8dbc6b079bbd \
@@ -14,44 +14,39 @@ ENV NODE_VERSION=26.12.1 \
   PNPM_CHECKSUM_X64=55b5ed0092bd11176c1669598e231ae52e7cedac59de6efd0d415730f37d0598 \
   PNPM_CHECKSUM_ARM64=d7ce93a2c7d847d3a34bd3f559b60c14f578b1320c17cc352a2c5c5fdf956117
 
-# Exact versions to get the same libraries in every build
-RUN apk add --no-cache curl libatomic=16.2.0-r1 libstdc++=16.2.0-r1
+RUN apk add --no-cache curl
 
+# Node.js and pnpm for both architectures in /tools/amd64 and /tools/arm64
 RUN <<EOF
   # Exit immediately if a command fails
   set -euo pipefail
 
-  # The stage’s own architecture instead of TARGETARCH, since client stage
-  # runs it on the build platform even for the ARM image
-  ARCH=$(uname -m)
-  if [ "$ARCH" = "x86_64" ]; then
-    export NODE_ARCH="x64"
-    export NODE_CHECKSUM=$NODE_CHECKSUM_X64
-    export PNPM_CHECKSUM=$PNPM_CHECKSUM_X64
-  elif [ "$ARCH" = "aarch64" ]; then
-    export NODE_ARCH="arm64"
-    export NODE_CHECKSUM=$NODE_CHECKSUM_ARM64
-    export PNPM_CHECKSUM=$PNPM_CHECKSUM_ARM64
-  else
-    echo "Unsupported architecture: $ARCH"
-    exit 1
-  fi
+  for ARCH in amd64 arm64; do
+    if [ "$ARCH" = "amd64" ]; then
+      NODE_ARCH="x64"
+      NODE_CHECKSUM=$NODE_CHECKSUM_X64
+      PNPM_CHECKSUM=$PNPM_CHECKSUM_X64
+    else
+      NODE_ARCH="arm64"
+      NODE_CHECKSUM=$NODE_CHECKSUM_ARM64
+      PNPM_CHECKSUM=$PNPM_CHECKSUM_ARM64
+    fi
+    mkdir -p "/tools/$ARCH/bin" "/tools/$ARCH/share/pnpm"
 
-  curl "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz" \
-    --fail --show-error --location --silent --output /node.tar.xz
-  echo "$NODE_CHECKSUM /node.tar.xz" | sha256sum -c
-  mkdir -p /usr/local/bin
-  tar -xf /node.tar.xz -C /usr/local/bin --strip-components=2 \
-    "node-v${NODE_VERSION}-linux-${NODE_ARCH}/bin/node"
-  rm /node.tar.xz
+    curl "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz" \
+      --fail --show-error --location --silent --output /node.tar.xz
+    echo "$NODE_CHECKSUM /node.tar.xz" | sha256sum -c
+    tar -xf /node.tar.xz -C "/tools/$ARCH/bin" --strip-components=2 \
+      "node-v${NODE_VERSION}-linux-${NODE_ARCH}/bin/node"
+    rm /node.tar.xz
 
-  curl "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-${NODE_ARCH}.tar.gz" \
-    --fail --show-error --location --silent --output /pnpm.tar.gz
-  echo "$PNPM_CHECKSUM /pnpm.tar.gz" | sha256sum -c
-  mkdir -p /usr/local/share/pnpm
-  tar -xz -f /pnpm.tar.gz -C /usr/local/share/pnpm
-  ln -s /usr/local/share/pnpm/pnpm /usr/local/bin/pnpm
-  rm /pnpm.tar.gz
+    curl "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-${NODE_ARCH}.tar.gz" \
+      --fail --show-error --location --silent --output /pnpm.tar.gz
+    echo "$PNPM_CHECKSUM /pnpm.tar.gz" | sha256sum -c
+    tar -xz -f /pnpm.tar.gz -C "/tools/$ARCH/share/pnpm"
+    ln -s /usr/local/share/pnpm/pnpm "/tools/$ARCH/bin/pnpm"
+    rm /pnpm.tar.gz
+  done
 EOF
 
 WORKDIR /app
@@ -68,14 +63,32 @@ COPY server/tsconfig.json server/
 COPY test/tsconfig.json test/
 COPY web/tsconfig.json web/
 
+# Node.js for the image’s platform, for the server and the final image
+# cgr.dev/chainguard/wolfi-base:latest
+FROM cgr.dev/chainguard/wolfi-base@sha256:bc76fa39ddd1482dd56a761b3331e03ba8f0e093ebb525618a56d014b480da88 AS target
+ARG TARGETARCH
+# Exact versions to get the same libraries in every build
+RUN apk add --no-cache libatomic=16.2.0-r1 libstdc++=16.2.0-r1
+COPY --from=tools /tools/${TARGETARCH}/ /usr/local/
+COPY --from=tools /app/ /app/
+WORKDIR /app
+
+# Web assets are the same on ARM, and Node.js crashes in ARM emulation
+# cgr.dev/chainguard/wolfi-base:latest
+FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base@sha256:bc76fa39ddd1482dd56a761b3331e03ba8f0e093ebb525618a56d014b480da88 AS native
+ARG BUILDARCH
+RUN apk add --no-cache libatomic=16.2.0-r1 libstdc++=16.2.0-r1
+COPY --from=tools /tools/${BUILDARCH}/ /usr/local/
+COPY --from=tools /app/ /app/
+WORKDIR /app
+
 # Demo database loads real feeds, so web/demo/Dockerfile builds it separately.
 # Run `pnpm update-docker` to take the latest one.
 # Only files are copied from the demo image, so its x64 platform is fine on ARM.
 # ghcr.io/hplush/slowreader-demo:latest
 FROM --platform=linux/amd64 ghcr.io/hplush/slowreader-demo@sha256:f71e6abee31a92b4460aaf374d7328a82d31f5ccbce041a174a68bec49f36b4b AS demo
 
-# Static files are the same on ARM, and Node.js crashes in ARM emulation
-FROM --platform=$BUILDPLATFORM base AS client
+FROM native AS client
 COPY api/package.json api/
 COPY core/package.json core/
 COPY extension/package.json extension/
@@ -104,7 +117,7 @@ FROM client AS storybook
 RUN --network=none pnpm -F web build:visual && \
   rm web/storybook-static/project.json
 
-FROM base AS server
+FROM target AS server
 COPY server/aaguids/ server/aaguids/
 RUN node server/aaguids/download.ts
 COPY api/package.json api/
@@ -130,8 +143,8 @@ ENV NODE_ENV=production \
   LOGUX_HOST=0.0.0.0 \
   LOGUX_LOGGER=json
 
-COPY --from=base /usr/local/bin/node /usr/local/bin/node
-COPY --from=base /usr/lib/libatomic.so.1 /usr/lib/libstdc++.so.6 /usr/lib/
+COPY --from=target /usr/local/bin/node /usr/local/bin/node
+COPY --from=target /usr/lib/libatomic.so.1 /usr/lib/libstdc++.so.6 /usr/lib/
 COPY --from=ghcr.io/tarampampam/microcheck@sha256:c9f79cd408626de7c10f2d487d67339f49adf0ba61dde96ede65343269db1f85 /bin/httpcheck /usr/bin/httpcheck
 
 COPY --from=client /app/web/nginx.conf /app/web/routes.regexp /etc/nginx/
