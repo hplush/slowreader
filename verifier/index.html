@@ -797,8 +797,8 @@ done</pre>
         return result === 'ok' || result === 'same'
       }
 
-      // Hourly bar and events of the day
-      function renderDay(lines) {
+      // Hourly bar and events of the day, home page shows only problems
+      function renderDay(lines, deploys = true) {
         // Container for the bar and events
         let block = document.createElement('div')
         // Bar with one symbol per hour, screen readers get the summary
@@ -829,7 +829,7 @@ done</pre>
         events.className = 'events'
         for (let [time, result, details] of lines) {
           // Usual check is not an event
-          if (result === 'same') continue
+          if (result === 'same' || (result === 'ok' && !deploys)) continue
           // Deploy is a good event, other results are problems
           let text =
             result === 'ok'
@@ -910,7 +910,7 @@ done</pre>
       async function showDays() {
         // Today with the hourly bar
         let today = document.getElementById('today')
-        let block = renderDay(await loadDay(dayName(0)))
+        let block = renderDay(await loadDay(dayName(0)), false)
         // Hourly bar opens raw results like other days
         let button = document.createElement('button')
         button.append(...[...block.children].slice(0, 2))
