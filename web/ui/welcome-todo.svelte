@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+    mdiAccountMultiple,
     mdiCheck,
     mdiFireplace,
     mdiFood,
@@ -91,7 +92,14 @@
   <li class="welcome-todo_step">
     {@render checkbox(['import'], $t.import)}
     {#if !todo.done.has('import')}
-      <Button href={getURL('import')} icon={mdiImport}>{$t.openImport}</Button>
+      <Stack gap="m" row>
+        <Button href={getURL('accounts')} icon={mdiAccountMultiple}>
+          {$t.openAccounts}
+        </Button>
+        <Button href={getURL('import')} icon={mdiImport}>
+          {$t.openImport}
+        </Button>
+      </Stack>
     {/if}
   </li>
   <li class="welcome-todo_step">

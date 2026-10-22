@@ -25,8 +25,8 @@ import {
   fastMenu,
   fastPostsCount,
   type FeedReader,
-  hasFeeds,
   hasCloud,
+  hasSources,
   isDemo,
   type ListReader,
   type Loader,
@@ -108,7 +108,7 @@ export function passkeyEnvironment(
 let testKey = await toEncryptionKey(new Uint8Array(32))
 
 export function setTestUser(enable = true): void {
-  hasFeeds.set(undefined)
+  hasSources.set(undefined)
   welcomeSteps.set(undefined)
   extensionState.set('missing')
   encryptionKeyLost.set(false)
@@ -199,7 +199,7 @@ export async function cleanClient(): Promise<void> {
     slowMenu,
     menuLoading,
     needWelcome,
-    hasFeeds,
+    hasSources,
     fastPostsCount,
     slowPostsCount
   )

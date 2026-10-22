@@ -2,7 +2,7 @@ import { persistentAtom, persistentBoolean } from '@nanostores/persistent'
 import { computed, effect } from 'nanostores'
 
 import { onEnvironment } from './environment.ts'
-import { hasFeeds } from './feed.ts'
+import { hasSources } from './feed.ts'
 import { extensionState } from './request.ts'
 import { router } from './router.ts'
 import { downloadingCloudData } from './settings.ts'
@@ -35,9 +35,9 @@ export const welcomeSteps = persistentAtom<undefined | WelcomeSteps>(
   }
 )
 
-export const needWelcome = computed([hasFeeds, isDemo], (feeds, demo) => {
+export const needWelcome = computed([hasSources, isDemo], (sources, demo) => {
   if (demo) return true
-  return typeof feeds === 'undefined' ? undefined : !feeds
+  return typeof sources === 'undefined' ? undefined : !sources
 })
 
 export interface WelcomeTodo {
@@ -46,11 +46,11 @@ export interface WelcomeTodo {
 }
 
 export const welcomeTodo = computed(
-  [welcomeSteps, isDemo, hasFeeds],
-  (steps, demo, feeds): WelcomeTodo => {
+  [welcomeSteps, isDemo, hasSources],
+  (steps, demo, sources): WelcomeTodo => {
     let done = new Set(steps?.done)
     if (!demo) done.add('clean')
-    if (!demo && feeds) done.add('import')
+    if (!demo && sources) done.add('import')
     return { demo: demo || !!steps?.demo, done }
   }
 )

@@ -15,6 +15,7 @@ import {
 } from './post.ts'
 import type { PostsList } from './posts-list.ts'
 import {
+  accountsTable,
   type FeedChanges,
   feedsTable,
   type FeedValue,
@@ -277,7 +278,7 @@ export function testFeed(
   })
 }
 
-export const hasFeeds = persistentAtom<boolean | undefined>(
+export const hasSources = persistentAtom<boolean | undefined>(
   'slowreader:feeds',
   undefined,
   {
@@ -289,34 +290,40 @@ export const hasFeeds = persistentAtom<boolean | undefined>(
   }
 )
 
-function hasAnyFeed(db: Database): Promise<boolean> {
-  return db.select<{ id: string }>`SELECT "id" FROM "feeds" LIMIT 1`.then(
-    rows => rows.length > 0
-  )
+function hasAnySource(db: Database): Promise<boolean> {
+  return db.select<{ id: string }>`
+    SELECT "id" FROM "feeds" UNION ALL SELECT "id" FROM "accounts" LIMIT 1
+  `.then(rows => rows.length > 0)
 }
 
 onClient(() => {
-  let unbindCheck = effect([openedDatabase, hasFeeds], (db, known) => {
+  let unbindCheck = effect([openedDatabase, hasSources], (db, known) => {
     if (!db || typeof known !== 'undefined') return
     let crdt = getCrdt()
     void crdt.ready.then(async () => {
       if (!isReady(crdt)) return
-      let found = await hasAnyFeed(db)
+      let found = await hasAnySource(db)
       // A feed could be added while the query was running
-      if (typeof hasFeeds.get() === 'undefined') hasFeeds.set(found)
+      if (typeof hasSources.get() === 'undefined') hasSources.set(found)
     })
   })
 
   let unbindActions = effect(openedDatabase, db => {
     if (!db) return
     return getCrdt().on('applied', (tx, action) => {
-      if (feedsTable.created.match(action)) {
-        hasFeeds.set(true)
-      } else if (feedsTable.deleted.match(action)) {
+      if (
+        feedsTable.created.match(action) ||
+        accountsTable.created.match(action)
+      ) {
+        hasSources.set(true)
+      } else if (
+        feedsTable.deleted.match(action) ||
+        accountsTable.deleted.match(action)
+      ) {
         // The deletion is applied asynchronously, so the rest of the feeds
         // can be counted only inside the applying transaction
-        return hasAnyFeed(tx).then(found => {
-          hasFeeds.set(found)
+        return hasAnySource(tx).then(found => {
+          hasSources.set(found)
         })
       }
     })

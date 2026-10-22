@@ -16,7 +16,7 @@
     type FeedValue,
     getTables,
     hasCloud,
-    hasFeeds,
+    hasSources,
     isDemo,
     type NewCategory,
     openWarnings,
@@ -140,7 +140,7 @@
     refreshErrors.set([])
     syncStatus.set('synchronized')
     refreshStatistics.set(DEFAULT_REFRESH_STATISTICS)
-    hasFeeds.set(!!feeds?.length)
+    hasSources.set(!!feeds?.length)
     welcomeSteps.set(undefined)
     closedCategories.set(new Set())
 

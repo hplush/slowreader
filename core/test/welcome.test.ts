@@ -2,13 +2,16 @@ import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, describe, test } from 'node:test'
 
 import {
+  addAccount,
   addFeed,
+  deleteAccount,
   downloadingCloudData,
   extensionState,
   isDemo,
   keepDemo,
   markWelcomeStep,
   needWelcome,
+  testAccount,
   testFeed,
   welcomeSteps,
   welcomeTodo
@@ -82,6 +85,21 @@ describe('welcome', () => {
       demo: false,
       done: new Set(['clean', 'import'])
     })
+  })
+
+  test('finishes with account', async () => {
+    startClient()
+    await waitFor(needWelcome, welcome => welcome === true)
+
+    let accountId = await addAccount(testAccount())
+    await waitFor(needWelcome, welcome => welcome === false)
+    deepEqual(welcomeTodo.get(), {
+      demo: false,
+      done: new Set(['clean', 'import'])
+    })
+
+    await deleteAccount(accountId)
+    await waitFor(needWelcome, welcome => welcome === true)
   })
 
   test('waits for the cloud download to start the welcome', async () => {

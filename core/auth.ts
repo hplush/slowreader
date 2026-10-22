@@ -18,7 +18,7 @@ import { busyDuring } from './busy.ts'
 import { client, getClient } from './client.ts'
 import { getEnvironment, onEnvironment } from './environment.ts'
 import { UserFacingError } from './errors.ts'
-import { hasFeeds } from './feed.ts'
+import { hasSources } from './feed.ts'
 import { checkErrors } from './lib/http.ts'
 import {
   generateDataKey,
@@ -148,7 +148,7 @@ export async function startCloudSession(
   hasCloud.set(true)
   markDatabaseDownloading()
   // The feeds of the account are known only after the download
-  hasFeeds.set(undefined)
+  hasSources.set(undefined)
   userId.set(credentials.userId)
 }
 
@@ -439,7 +439,7 @@ export function forgetLocalData(): void {
   userId.set(undefined)
   hasCloud.set(false)
   passkeyOnly.set(false)
-  hasFeeds.set(undefined)
+  hasSources.set(undefined)
   isDemo.set(false)
   welcomeSteps.set(undefined)
   encryptionKey.set(undefined)
