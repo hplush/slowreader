@@ -21,7 +21,7 @@ on:
       - '.github/workflows/test-loaders.yml'
       - '.github/actions/init-node/action.yml'
   schedule:
-    - cron: '00 23 * * *' # Runs at midnight UTC every day
+    - cron: '00 23 * * *' # Every day at 23:00 UTC
 permissions:
   contents: read
 jobs:

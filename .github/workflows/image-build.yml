@@ -17,7 +17,7 @@ on:
       - 'test/arm.sh'
       - '.github/workflows/image-build.yml'
   schedule:
-    - cron: '00 09 * * 3' # Runs at 11:00 in Spain every Wednesday (10:00 in winter)
+    - cron: '00 09 * * 3' # Every Wednesday at 09:00 UTC
 permissions:
   contents: read
 jobs:

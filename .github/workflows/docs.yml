@@ -19,7 +19,7 @@ on:
       - '.github/workflows/docs.yml'
       - '.github/actions/init-node/action.yml'
   schedule:
-    - cron: '00 23 * * 1' # Runs at midnight every Monday
+    - cron: '00 23 * * 1' # Every Monday at 23:00 UTC
 permissions:
   contents: read
 jobs:
