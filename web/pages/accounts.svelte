@@ -115,7 +115,15 @@
             </Stack>
           {/if}
         </Stack>
-        <Stack align="center">
+        <Stack gap="s" row>
+          <Button
+            disabled={$submitting}
+            onclick={page.cancel}
+            size="wide"
+            variant="plain-secondary"
+          >
+            {$t.cancel}
+          </Button>
           <Button
             icon={mdiLogin}
             loader={$submitting ? $t.authorizing : undefined}
@@ -124,14 +132,6 @@
             variant="main"
           >
             {$t.signIn}
-          </Button>
-          <Button
-            disabled={$submitting}
-            onclick={page.cancel}
-            size="wide"
-            variant="plain-secondary"
-          >
-            {$t.cancel}
           </Button>
         </Stack>
       </Stack>
