@@ -8,7 +8,7 @@
     "./server": "./server.ts"
   },
   "scripts": {
-    "start": "PROXY_ORIGIN=localhost node --watch server.ts",
+    "start": "PROXY_ORIGIN=127.0.0.1 node --watch server.ts",
     "test": "FORCE_COLOR=1 pnpm run /^test:/",
     "test:offline:coverage": "bnt --coverage 100"
   },

@@ -63,7 +63,7 @@ The local build is named `Slow Reader (local)` and has own Firefox ID, so it ins
 ### Chrome
 
 1. Open `chrome://extensions/`, enable Developer mode, click `Load unpacked` and choose the `dist/local/chrome/` folder.
-2. Run the web client and open `http://localhost:2553`.
+2. Run the web client and open `http://127.0.0.1:2553`.
 
 Re-build by the update button in the extension’s block. Logs are behind the `Inspect views: service worker` link.
 

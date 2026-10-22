@@ -23,7 +23,7 @@ function getDefaultWebOrigin(env: Config['env']): string {
   } else if (env === 'test') {
     return 'https://test.slowreader.app'
   } else {
-    return 'http://localhost:2553'
+    return 'http://127.0.0.1:2553'
   }
 }
 

@@ -144,7 +144,7 @@ export function getTestEnvironment(): Environment {
     saveSession(session) {
       testSession = session
     },
-    server: 'localhost:2554',
+    server: '127.0.0.1:2554',
     signalPasskeys(signal) {
       testSignals.push(signal)
     },

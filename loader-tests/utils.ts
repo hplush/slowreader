@@ -74,17 +74,17 @@ export async function enableTestClient(
 // Tests go through the proxy to check the same path as the web client
 export function useProxy(): Server {
   let server = createServer(
-    createProxy({ ...DEFAULT_PROXY_CONFIG, allowsFrom: 'localhost' })
+    createProxy({ ...DEFAULT_PROXY_CONFIG, allowsFrom: '127.0.0.1' })
   )
   server.listen(8001)
 
   setRequestMethod(async (url, opts = {}) => {
     let headers = opts.headers as object | undefined
     let response = await fetch(
-      'http://localhost:8001/' + encodeURIComponent(url),
+      'http://127.0.0.1:8001/' + encodeURIComponent(url),
       {
         ...opts,
-        headers: { Origin: 'http://localhost:8000', ...headers }
+        headers: { Origin: 'http://127.0.0.1:8000', ...headers }
       }
     )
     Object.defineProperty(response, 'url', { value: url })

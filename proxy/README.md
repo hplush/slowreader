@@ -42,7 +42,7 @@ To run proxy server you must define environment variables:
 Example:
 
 ```sh
-PORT=8080 PROXY_ORIGIN=^http:\\/\\/localhost:5173$ pnpm start
+PORT=8080 PROXY_ORIGIN=^http:\\/\\/127\\.0\\.0\\.1:5173$ pnpm start
 ```
 
 ## Deploy

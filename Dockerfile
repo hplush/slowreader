@@ -152,7 +152,7 @@ ENTRYPOINT ["/usr/local/bin/node", "/var/app/server/entrypoint.ts"]
 CMD []
 
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
-  CMD ["/usr/bin/httpcheck", "http://localhost:2553/health"]
+  CMD ["/usr/bin/httpcheck", "http://127.0.0.1:2553/health"]
 
 # Staging and previews add Storybook on top of the same production layers
 FROM production AS staging

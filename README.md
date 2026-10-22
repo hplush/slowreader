@@ -366,7 +366,7 @@ Releases have `amd64` and `arm64` images.
 Users need the CORS proxy, because the browser extension doesn’t work with unknown domains.
 
 ```sh
-docker run -p 2553:2553 -v slowreader:/data -e DATABASE_URL=file:///data -e WEB_ORIGIN=http://localhost:2553 -e 'PROXY_ORIGIN=^http://localhost:2553$' ghcr.io/hplush/slowreader:dev
+docker run -p 2553:2553 -v slowreader:/data -e DATABASE_URL=file:///data -e WEB_ORIGIN=http://127.0.0.1:2553 -e 'PROXY_ORIGIN=^http://127\.0\.0\.1:2553$' ghcr.io/hplush/slowreader:dev
 ```
 
 ## Guides

@@ -27,7 +27,7 @@ proxy.listen(port, () => {
   process.stdout.write(
     styleText(
       'green',
-      `Proxy server is listening at http://localhost:${port}\n`
+      `Proxy server is listening at http://127.0.0.1:${port}\n`
     )
   )
 })

@@ -91,7 +91,7 @@ export function getServerUrl(domain?: string): string {
       }
     }
   }
-  let protocol = domain.startsWith('localhost') ? 'http' : 'https'
+  let protocol = /^(localhost|127\.0\.0\.1)\b/.test(domain) ? 'http' : 'https'
   return `${protocol}://${domain}`
 }
 

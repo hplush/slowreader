@@ -76,7 +76,7 @@ It will run a web server and proxy (the website, by default, can make HTTP reque
 To fill your web clients with real posts:
 
 1. Start web client.
-2. Open [`localhost:2553/feeds/add`](http://localhost:2553/feeds/add).
+2. Open [`127.0.0.1:2553/feeds/add`](http://127.0.0.1:2553/feeds/add).
 3. Add feeds from [`loader-tests/feeds.yml`](./loader-tests/feeds.yml).
 4. Open browser DevTools.
 5. Run `await slowreader.moveLastSyncedToPast()` to move feeds to the past.

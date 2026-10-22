@@ -82,7 +82,7 @@ function getServer(): ClientOptions['server'] {
     return new TestPair().right
   } else {
     let domain = syncServer.get() ?? server
-    let protocol = domain.startsWith('localhost') ? 'ws' : 'wss'
+    let protocol = /^(localhost|127\.0\.0\.1)\b/.test(domain) ? 'ws' : 'wss'
     return `${protocol}://${domain}`
   }
 }

@@ -8,7 +8,7 @@ Dev Container has Firefox and Chromium with [Playwright MCP](https://github.com/
 pnpm start
 ```
 
-Web client will be on `http://localhost:2553`.
+Web client will be on `http://127.0.0.1:2553`.
 
 Storybook is a separate process:
 
@@ -21,10 +21,10 @@ pnpm -F web visual
 Open story without Storybook UI to keep screenshot clean:
 
 ```text
-http://localhost:2555/iframe.html?id=STORY_ID&globals=theme:light
+http://127.0.0.1:2555/iframe.html?id=STORY_ID&globals=theme:light
 ```
 
-Story IDs are in `http://localhost:2555/index.json`. Themes are `theme:light` and `theme:dark`.
+Story IDs are in `http://127.0.0.1:2555/index.json`. Themes are `theme:light` and `theme:dark`.
 
 ## Record Steps
 

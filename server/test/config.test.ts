@@ -82,7 +82,7 @@ describe('server config', () => {
       getConfig({ DATABASE_URL, NODE_ENV: 'production' })
     }, /Set WEB_ORIGIN/)
     let dev = getConfig({})
-    equal(dev.webOrigin, 'http://localhost:2553')
+    equal(dev.webOrigin, 'http://127.0.0.1:2553')
     let preview = getConfig({
       DATABASE_URL,
       NODE_ENV: 'production',

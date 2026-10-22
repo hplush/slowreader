@@ -24,7 +24,7 @@ const PROFILE = join(tmpdir(), 'slowreader-benchmark')
 const PORT = 2557
 
 /**
- * Client on `localhost` always syncs with `localhost:2554`.
+ * Client on `127.0.0.1` always syncs with `127.0.0.1:2554`.
  */
 const SYNC_PORT = 2554
 
@@ -182,7 +182,7 @@ async function waitServer(address: string): Promise<void> {
  * The database is kept between the runs to reuse the benchmark’s account.
  */
 async function startSyncServer(): Promise<() => void> {
-  let address = `http://localhost:${SYNC_PORT}`
+  let address = `http://127.0.0.1:${SYNC_PORT}`
   try {
     await fetch(address)
     status('Using already started sync server')
@@ -208,7 +208,7 @@ async function startSyncServer(): Promise<() => void> {
 
 async function startServer(): Promise<[string, () => void]> {
   if (url) return [url, () => {}]
-  let address = `http://localhost:${PORT}`
+  let address = `http://127.0.0.1:${PORT}`
   try {
     await fetch(address)
     fail(`Port ${PORT} is busy. Stop that server or use --url`)

@@ -12,13 +12,13 @@ else
   TOOL=docker
 fi
 
-SERVER=(-e DATABASE_URL=memory:// -e WEB_ORIGIN=http://localhost:2553)
+SERVER=(-e DATABASE_URL=memory:// -e WEB_ORIGIN=http://127.0.0.1:2553)
 if [ "$1" = "app" ]; then
   ENVS=(-e ROLE=app "${SERVER[@]}")
 elif [ "$1" = "proxy" ]; then
-  ENVS=(-e ROLE=proxy -e 'PROXY_ORIGIN=^http:\/\/localhost:5173$')
+  ENVS=(-e ROLE=proxy -e 'PROXY_ORIGIN=^http:\/\/127\.0\.0\.1:5173$')
 else
-  ENVS=("${SERVER[@]}" -e 'PROXY_ORIGIN=^http:\/\/localhost:2553$')
+  ENVS=("${SERVER[@]}" -e 'PROXY_ORIGIN=^http:\/\/127\.0\.0\.1:2553$')
 fi
 
 ID_FILE=$(mktemp)
