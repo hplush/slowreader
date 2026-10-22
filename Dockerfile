@@ -7,8 +7,6 @@
 # cgr.dev/chainguard/wolfi-base:latest
 FROM cgr.dev/chainguard/wolfi-base@sha256:bc76fa39ddd1482dd56a761b3331e03ba8f0e093ebb525618a56d014b480da88 AS base
 
-ARG TARGETARCH
-
 ENV NODE_VERSION=26.12.1 \
   NODE_CHECKSUM_X64=6170b2d474e1c626f43cff3adc118df9fe3b573258a4fc3d850c8dbc6b079bbd \
   NODE_CHECKSUM_ARM64=42aa04922591ee5d4dbc7740d452621acf28508239daa512f5ee8c47ee224fdb \
@@ -23,16 +21,19 @@ RUN <<EOF
   # Exit immediately if a command fails
   set -euo pipefail
 
-  if [ "$TARGETARCH" = "amd64" ]; then
+  # The stage’s own architecture instead of TARGETARCH, since client stage
+  # runs it on the build platform even for the ARM image
+  ARCH=$(uname -m)
+  if [ "$ARCH" = "x86_64" ]; then
     export NODE_ARCH="x64"
     export NODE_CHECKSUM=$NODE_CHECKSUM_X64
     export PNPM_CHECKSUM=$PNPM_CHECKSUM_X64
-  elif [ "$TARGETARCH" = "arm64" ]; then
+  elif [ "$ARCH" = "aarch64" ]; then
     export NODE_ARCH="arm64"
     export NODE_CHECKSUM=$NODE_CHECKSUM_ARM64
     export PNPM_CHECKSUM=$PNPM_CHECKSUM_ARM64
   else
-    echo "Unsupported architecture: $TARGETARCH"
+    echo "Unsupported architecture: $ARCH"
     exit 1
   fi
 
@@ -73,7 +74,8 @@ COPY web/tsconfig.json web/
 # ghcr.io/hplush/slowreader-demo:latest
 FROM --platform=linux/amd64 ghcr.io/hplush/slowreader-demo@sha256:f71e6abee31a92b4460aaf374d7328a82d31f5ccbce041a174a68bec49f36b4b AS demo
 
-FROM base AS client
+# Static files are the same on ARM, and Node.js crashes in ARM emulation
+FROM --platform=$BUILDPLATFORM base AS client
 COPY api/package.json api/
 COPY core/package.json core/
 COPY extension/package.json extension/
