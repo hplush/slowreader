@@ -1387,19 +1387,19 @@ describe('bluesky account', () => {
   test('throws other errors', async () => {
     let { auth } = createAuth()
     respond(timeline(auth), {}, 500)
-    let posts = signedIn.getTimeline(createDownloadTask(), auth)
+    let posts = signedIn.getTimeline(createDownloadTask({ tries: 1 }), auth)
     await posts.loading
     equal(HTTPStatusError.is(posts.get().error, [500]), true)
 
     respond(timeline(auth), {}, 400)
-    posts = signedIn.getTimeline(createDownloadTask(), auth)
+    posts = signedIn.getTimeline(createDownloadTask({ tries: 1 }), auth)
     await posts.loading
     equal(HTTPStatusError.is(posts.get().error, [400]), true)
 
     respond(timeline(auth), {}, 401)
     respond(TOKEN, {}, 500)
     let error = await throws(async () => {
-      posts = signedIn.getTimeline(createDownloadTask(), auth)
+      posts = signedIn.getTimeline(createDownloadTask({ tries: 1 }), auth)
       await posts.loading
       let failed = posts.get().error
       if (failed) throw failed

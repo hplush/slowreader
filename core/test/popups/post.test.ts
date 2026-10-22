@@ -597,6 +597,8 @@ describe('post popup', () => {
     equal(missing.notFound, true)
 
     expectRequest('https://mastodon.social/api/v1/statuses/3').andRespond(500)
+    expectRequest('https://mastodon.social/api/v1/statuses/3').andRespond(500)
+    expectRequest('https://mastodon.social/api/v1/statuses/3').andRespond(500)
     await expectWarning(async () => {
       let broken = openTestPopup('post', 'https://mastodon.social/@jane/3')
       await waitLoading(broken.loading)

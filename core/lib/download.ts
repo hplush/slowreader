@@ -204,7 +204,7 @@ export function createTextResponse(
 
 const RETRY_DELAY = 500
 
-async function retryNetworkError<Result>(
+async function retryTemporaryError<Result>(
   tries: number,
   cb: () => Promise<Result>,
   signal: AbortSignal
@@ -213,7 +213,8 @@ async function retryNetworkError<Result>(
     try {
       return await cb()
     } catch (e) {
-      if (attempt === tries || signal.aborted || !NetworkError.is(e)) {
+      let temporary = NetworkError.is(e) || HTTPStatusError.is(e, /^5\d\d$/)
+      if (attempt === tries || signal.aborted || !temporary) {
         throw e
       }
       await delay(RETRY_DELAY * attempt)
@@ -241,29 +242,34 @@ export function createDownloadTask(
         }
       }
 
-      let response = await retryNetworkError(
+      let response = await retryTemporaryError(
         taskOpts.tries ?? 3,
-        () => {
-          return detectNetworkError(() => {
+        async () => {
+          let answer = await detectNetworkError(() => {
             return request(
               url,
               { redirect: 'follow', signal: controller.signal, ...opts },
               direct
             )
           })
+          if (
+            !answer.ok &&
+            answer.status !== 304 &&
+            !controller.signal.aborted
+          ) {
+            throw new HTTPStatusError(
+              answer.status,
+              url,
+              await answer.text(),
+              answer.headers
+            )
+          }
+          return answer
         },
         controller.signal
       )
       if (controller.signal.aborted) {
         throw new DOMException('', 'AbortError')
-      }
-      if (!response.ok && response.status !== 304) {
-        throw new HTTPStatusError(
-          response.status,
-          url,
-          await response.text(),
-          response.headers
-        )
       }
       if (taskOpts.cache === 'write') {
         cached.push(url)

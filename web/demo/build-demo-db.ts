@@ -7,16 +7,21 @@ import {
   addCategory,
   changeFeed,
   createDownloadTask,
-  getLoaderForText,
   currentPage,
+  deleteFeed,
+  errorToMessage,
   generateCredentials,
   getCrdt,
   getDatabase,
+  getLoaderForText,
   type ImportPage,
   isDemo,
+  isRemoteError,
   loadCategories,
+  loadFeedByUrl,
   loadFeedsByCategory,
   moveLastSyncedToPast,
+  refreshErrors,
   refreshPosts,
   setProxyAsRequestMethod,
   setupEnvironment,
@@ -32,7 +37,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { error, finish, success } from '../../scripts/progress.ts'
+import { error, finish, success, warning } from '../../scripts/progress.ts'
 
 const OPML = join(import.meta.dirname, 'demo-feeds.opml')
 const SOURCES = join(import.meta.dirname, 'demo-sources.json')
@@ -90,8 +95,9 @@ let opml = readFileSync(OPML, 'utf8')
 await page.importFile(
   new File([opml], 'demo.opml', { type: 'application/xml' })
 )
+// Broken source is just not added to the demo
 for (let [url, reason] of page.feedErrors.get()) {
-  error(new Error(`Failed to import ${url} ${reason}`))
+  warning(`Skipped ${url}: ${reason}`)
 }
 success(`Imported ${page.done.get()} feeds`)
 
@@ -102,21 +108,33 @@ let sources = JSON.parse(readFileSync(SOURCES, 'utf8')) as Record<
 let task = createDownloadTask()
 for (let [title, feeds] of Object.entries(sources)) {
   let categoryId = await addCategory({ title })
+  let added = 0
   for (let feed of feeds) {
-    let response = await task.text(feed.url)
-    let candidate = await getLoaderForText(response, task, feed.url)
-    if (!candidate) {
-      error(new Error(`Failed to import ${feed.url} unknown`))
-      continue
+    let url = feed.url
+    try {
+      let response = await task.text(feed.url)
+      let candidate = await getLoaderForText(response, task, feed.url)
+      if (!candidate) {
+        warning(`Skipped ${feed.url}: unknown`)
+        continue
+      }
+      url = candidate.url
+      await addCandidate(
+        candidate,
+        { categoryId, title: feed.title },
+        task,
+        response
+      )
+      added += 1
+    } catch (e) {
+      if (!isRemoteError(e)) throw e
+      warning(`Skipped ${feed.url}: ${errorToMessage(e)}`)
+      // The feed is saved before its posts
+      let broken = await loadFeedByUrl(url)
+      if (broken) await deleteFeed(broken.id)
     }
-    await addCandidate(
-      candidate,
-      { categoryId, title: feed.title },
-      task,
-      response
-    )
   }
-  success(`Imported ${title}`, `${feeds.length} feeds`)
+  success(`Imported ${title}`, `${added} feeds`)
 }
 
 for (let category of await loadCategories()) {
@@ -131,7 +149,13 @@ for (let category of await loadCategories()) {
 
 await moveLastSyncedToPast(DAYS)
 await refreshPosts()
-for (let warned of warnings) error(warned)
+for (let failed of refreshErrors.get()) {
+  warning(`Skipped ${failed.feed.url}: ${errorToMessage(failed.error)}`)
+  await deleteFeed(failed.feed.id)
+}
+for (let warned of warnings) {
+  if (!isRemoteError(warned)) error(warned)
+}
 let [posts] = await getCrdt().select<{ count: number }>`
   SELECT count(*) AS count FROM posts
 `

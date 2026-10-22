@@ -740,6 +740,8 @@ describe('add page', () => {
     keepMount(page.candidates)
 
     expectRequest('https://example.com/feed').andRespond(500)
+    expectRequest('https://example.com/feed').andRespond(500)
+    expectRequest('https://example.com/feed').andRespond(500)
     expectRequest('http://example.com/feed').andRespond(
       200,
       '<feed><title></title></feed>'
@@ -757,6 +759,8 @@ describe('add page', () => {
       }
     ])
 
+    expectRequest('https://example.com/feed').andRespond(500)
+    expectRequest('https://example.com/feed').andRespond(500)
     expectRequest('https://example.com/feed').andRespond(500)
     page.search('https://example.com/feed')
     await waitLoading(page.searching)

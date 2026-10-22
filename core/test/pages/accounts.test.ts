@@ -712,6 +712,8 @@ describe('accounts page', () => {
     equal(page.error.get(), accountsMessages.get().signInFailed)
 
     expectRequest(resolve).andRespond(500)
+    expectRequest(resolve).andRespond(500)
+    expectRequest(resolve).andRespond(500)
     await expectWarning(
       () => page.submit(),
       [new HTTPStatusError(500, resolve, '', new Headers())]

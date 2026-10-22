@@ -5,6 +5,7 @@ import { setTimeout } from 'node:timers/promises'
 import {
   createDownloadTask,
   createTextResponse,
+  HTTPStatusError,
   ignoreAbortError,
   ParseError,
   setRequestMethod,
@@ -427,6 +428,18 @@ describe('download', () => {
     expectRequest('https://example.com/1').andFail()
     let error = await task.text('https://example.com/1').catch(e => e)
     equal(error.name, 'NetworkError')
+  })
+
+  test('repeats request on server error', async () => {
+    let task = createDownloadTask()
+
+    expectRequest('https://example.com/1').andRespond(502)
+    expectRequest('https://example.com/1').andRespond(200, 'done')
+    equal((await task.text('https://example.com/1')).text, 'done')
+
+    expectRequest('https://example.com/2').andRespond(404)
+    let error = await task.text('https://example.com/2').catch(e => e)
+    equal(HTTPStatusError.is(error, [404]), true)
   })
 
   test('does not repeat request after abort', async () => {
