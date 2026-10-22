@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.20261022.2
+
+### Fixes
+
+- Fixed ARM64 Docker image build.
+
 ## 0.20261022.1
 
 ### Fixes
