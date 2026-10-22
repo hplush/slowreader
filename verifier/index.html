@@ -252,19 +252,19 @@
           <ul>
             <li>
               <span class="loading" aria-hidden="true">⠋</span>
-              <span class="sr">checking:</span> Signed by
+              <span class="sr">checking:</span> Signed by maintainer:
               <span id="signer">…</span>
               <button
                 class="link"
                 data-help="signature"
-                aria-label="How to repeat: signed by core team"
+                aria-label="How to repeat: signed by maintainer"
               >
                 [?]
               </button>
             </li>
             <li>
               <span class="loading" aria-hidden="true">⠋</span>
-              <span class="sr">checking:</span> Built by
+              <span class="sr">checking:</span> Built by project CI:
               <span id="workflow">…</span>
               <button
                 class="link"
@@ -360,7 +360,7 @@ curl -fsS https://slowreader.app/manifest.json | jq -r .commit</pre>
 
     <dialog id="help-signature" aria-labelledby="help-signature-title">
       <header>
-        <h2 id="help-signature-title">Signed by core team</h2>
+        <h2 id="help-signature-title">Signed by maintainer</h2>
         <form method="dialog"><button aria-label="Close">[x]</button></form>
       </header>
       <pre class="content">
@@ -686,15 +686,9 @@ done</pre>
           document.getElementById('release').replaceChildren()
         }
         // Old results have no signer and build
-        let signer = document.getElementById('signer')
-        if (release?.signer) {
-          signer.replaceChildren(
-            'core team member: ',
-            span(release.signer, 'good')
-          )
-        } else {
-          signer.textContent = 'core team'
-        }
+        document
+          .getElementById('signer')
+          .replaceChildren(release?.signer ? span(release.signer, 'good') : '')
         let workflow = document.getElementById('workflow')
         if (release?.build) {
           let link = document.createElement('a')
@@ -702,9 +696,9 @@ done</pre>
           link.href = release.build
           // Run ID from …/actions/runs/ID/attempts/N
           link.textContent = release.build.match(/runs\/(\d+)/)?.[1] ?? 'run'
-          workflow.replaceChildren('project CI: ', link)
+          workflow.replaceChildren(link)
         } else {
-          workflow.textContent = 'project CI'
+          workflow.replaceChildren()
         }
         // Without release CI did not check this commit
         if (!release) {
