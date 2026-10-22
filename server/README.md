@@ -22,14 +22,6 @@ and uses end-to-end encryption not to know what users read and like.
 - `pnpm -F server database`: see database content.
 - `pnpm -F server aaguids`: re-download passkey providers list.
 
-## Environment Variables
-
-- `DATABASE_URL`: PostgreSQL credentials with support of pglite’s `file://` and `memory://` schemas. You must set it when `NODE_ENV=production`.
-- `WEB_ORIGIN`: exact origin of the web client like `https://slowreader.app` for CORS and passkeys. Passkeys work only on this domain. You must set it when `NODE_ENV=production`.
-- `PROXY_ORIGIN`: enables built-in CORS proxy and specific RegExp to check `Origin` header.
-- `PROXY_MAX_MEDIA_SIZE`: max size in MB of images and videos, which the built-in proxy loads for offline reading. 100 by default.
-- `PORT`: HTTP post to listen (Google Cloud Run convention).
-
 ## End-to-End Types
 
 All HTTP endpoints and [Logux actions](https://logux.org/guide/concepts/action/) are defined in [`api/`](../api/).

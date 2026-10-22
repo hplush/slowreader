@@ -31,6 +31,7 @@ See in action: [`slowreader.app`](https://slowreader.app/)
 - [Deploy](#deploy)
   - [Parts](#parts)
   - [Image](#image)
+  - [Environment Variables](#environment-variables)
   - [Environments](#environments)
   - [Release](#release)
   - [Self-Hosted](#self-hosted)
@@ -320,12 +321,16 @@ We keep the image small and build every part in its own stage with only its own 
 
 The build is reproducible: anyone can build the same image from the same commit and check that we run the published source code. Time-sensitive files (demo database and landing screenshots) come from a separated image, which [Demo Database workflow](./.github/workflows/demo-db.yml) builds before every weekly release.
 
-Other environment variables:
+### Environment Variables
 
+- `ROLE`: chooses the [part](#parts): `app` or `proxy`.
 - `STAGING`: hides the web client from search engines.
 - `BEHIND_BALANCER`: takes the client’s IP from `X-Forwarded-For`.
-
-See [server](./server/README.md#environment-variables) and [proxy](./proxy/README.md#environment-variables) for their own variables.
+- `DATABASE_URL`: PostgreSQL credentials with support of pglite’s `file://` and `memory://` schemas.
+- `WEB_ORIGIN`: exact origin of the web client like `https://slowreader.app` for CORS and passkeys. Passkeys work only on this domain. You must set it when `NODE_ENV=production`.
+- `PROXY_ORIGIN`: RegExp to check `Origin` header in CORS proxy. Without `ROLE` it enables built-in proxy. You must set it with `ROLE=proxy`.
+- `PROXY_MAX_MEDIA_SIZE`: max size in MB of images and videos, which the proxy loads for offline reading. 100 by default.
+- `PORT`: HTTP port to listen.
 
 ### Environments
 
@@ -368,6 +373,8 @@ Users need the CORS proxy, because the browser extension doesn’t work with unk
 ```sh
 docker run -p 2553:2553 -v slowreader:/data -e DATABASE_URL=file:///data -e WEB_ORIGIN=http://127.0.0.1:2553 -e 'PROXY_ORIGIN=^http://127\.0\.0\.1:2553$' ghcr.io/hplush/slowreader:dev
 ```
+
+See [environment variables](#environment-variables) for other options.
 
 ## Guides
 

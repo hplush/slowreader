@@ -31,21 +31,6 @@ _See the [full architecture guide](../README.md) first._
 - Keeps responses in memory, while the feed’s `Cache-Control` allows it. Media files skip this cache.
 - Passes compressed bodies as they came, without unpacking them.
 
-## Environment Variables
-
-To run proxy server you must define environment variables:
-
-- `PORT` with HTTP post to listen. It is Google Cloud Run convention.
-- `PROXY_ORIGIN` with RegExp for `Origin` header.
-- `BEHIND_BALANCER` (optional) to take client’s IP from `X-Forwarded-For`, when proxy works behind our balancer.
-- `PROXY_MAX_MEDIA_SIZE` (optional) with max size in MB of images and videos, which client saves for offline reading. 100 by default.
-
-Example:
-
-```sh
-PORT=8080 PROXY_ORIGIN=^http:\\/\\/127\\.0\\.0\\.1:5173$ pnpm start
-```
-
 ## Deploy
 
 Proxy runs in the [single image](../README.md#parts) with `ROLE=proxy` on a separated domain, so proxied content can’t access the app’s storage and the server can’t link feed URLs to the user’s account.
