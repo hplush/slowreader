@@ -19,7 +19,10 @@ let proxy = createServer(
   createProxy({
     ...DEFAULT_PROXY_CONFIG,
     allowsFrom: process.env.PROXY_ORIGIN,
-    behindBalancer: !!process.env.BEHIND_BALANCER
+    behindBalancer: !!process.env.BEHIND_BALANCER,
+    ...(process.env.PROXY_MAX_MEDIA_SIZE && {
+      maxMediaSize: Number(process.env.PROXY_MAX_MEDIA_SIZE) * 1024 * 1024
+    })
   })
 )
 let port = process.env.PORT ?? '5284'

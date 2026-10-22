@@ -20,7 +20,7 @@ _See the [full architecture guide](../README.md) first._
 - Checks the address after DNS, so no hostname can point us to in-cloud IP addresses.
 - Sends only the few headers a feed needs, and drops everything else.
 - Sends constant `User-Agent: SlowReader/1.0 (+https://slowreader.app)`.
-- Loads one URL per host at a time, with a delay between requests.
+- Loads one URL per host at a time, with a delay between requests. Requests with `Accept: image/*` or `video/*` skip it, since media is on CDNs.
 - Limits requests per IP and requests in parallel.
 - Marks answers with `nosniff` and `Content-Security-Policy: sandbox` to avoid reading our cookie by proxy’s content if user will be forced to open proxied URL in the browser.
 - Has timeout to answer, idle timeout while streaming body, and response size limit, counted while streaming.
@@ -28,7 +28,7 @@ _See the [full architecture guide](../README.md) first._
 ## Performance
 
 - Caches DNS answers and keeps connections to feed hosts alive.
-- Keeps responses in memory, while the feed’s `Cache-Control` allows it.
+- Keeps responses in memory, while the feed’s `Cache-Control` allows it. Media files skip this cache.
 - Passes compressed bodies as they came, without unpacking them.
 
 ## Environment Variables
@@ -38,6 +38,7 @@ To run proxy server you must define environment variables:
 - `PORT` with HTTP post to listen. It is Google Cloud Run convention.
 - `PROXY_ORIGIN` with RegExp for `Origin` header.
 - `BEHIND_BALANCER` (optional) to take client’s IP from `X-Forwarded-For`, when proxy works behind our balancer.
+- `PROXY_MAX_MEDIA_SIZE` (optional) with max size in MB of images and videos, which client saves for offline reading. 100 by default.
 
 Example:
 

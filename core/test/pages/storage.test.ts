@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 import {
   addFeed,
   busy,
+  getEnvironment,
   isDemo,
   keepDemo,
   storageMessages,
@@ -35,6 +36,20 @@ describe('storage page', () => {
 
     await waitUntil(() => typeof page.size.get() !== 'undefined')
     notEqual(page.size.get(), 0)
+  })
+
+  test('shows and clears the media cache size', async () => {
+    await getEnvironment().mediaCache.put(
+      'https://img.com/1.jpg',
+      new Response('1234')
+    )
+    let page = openPage({ params: {}, route: 'storage' })
+    equal(page.mediaSize.get(), undefined)
+    await waitUntil(() => typeof page.mediaSize.get() !== 'undefined')
+    equal(page.mediaSize.get(), 4)
+
+    await page.clearMedia()
+    equal(page.mediaSize.get(), 0)
   })
 
   test('shows the size before the encryption key is loaded', async () => {

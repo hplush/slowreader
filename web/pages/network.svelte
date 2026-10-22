@@ -10,9 +10,12 @@
     mdiWifi
   } from '@mdi/js'
   import {
+    cacheImages,
+    cacheVideos,
+    canDetectNetwork,
     extensionState,
     layoutType,
-    preloadImages,
+    type MediaDownload,
     requestMethod,
     settingsMessages,
     networkMessages as t
@@ -32,6 +35,22 @@
   import Radio from '../ui/radio.svelte'
   import Stack from '../ui/stack.svelte'
   import ThinPage from '../ui/thin-page.svelte'
+
+  let wifi = canDetectNetwork()
+
+  let downloadValues = $derived(
+    (
+      [
+        ['always', $t.cacheAlways, mdiSignal],
+        ['free', $t.cacheFree, mdiWifi],
+        ['never', $t.cacheNever, mdiGaugeLow]
+      ] satisfies [MediaDownload, string, string][]
+    ).filter(([value]) => wifi || value !== 'free')
+  )
+
+  function shownDownload(value: MediaDownload): MediaDownload {
+    return !wifi && value === 'free' ? 'always' : value
+  }
 </script>
 
 <ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>
@@ -109,20 +128,25 @@
         <Note icon={mdiCloudOffOutline} variant="good">{$t.offline}</Note>
       </Stack>
     {/if}
-    <div style:display="none">
+    <Stack gap="m">
       <Radio
-        label={$t.preloadImages}
+        label={$t.cacheImages}
         onchange={value => {
-          preloadImages.set(value)
+          cacheImages.set(value)
         }}
         size="wide"
-        value={$preloadImages}
-        values={[
-          ['always', $t.preloadAlways, mdiSignal],
-          ['free', $t.preloadFree, mdiWifi],
-          ['never', $t.preloadNever, mdiGaugeLow]
-        ]}
+        value={shownDownload($cacheImages)}
+        values={downloadValues}
       />
-    </div>
+      <Radio
+        label={$t.cacheVideos}
+        onchange={value => {
+          cacheVideos.set(value)
+        }}
+        size="wide"
+        value={shownDownload($cacheVideos)}
+        values={downloadValues}
+      />
+    </Stack>
   </Stack>
 </ThinPage>

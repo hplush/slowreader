@@ -3,6 +3,7 @@
     mdiBroom,
     mdiCloudDownloadOutline,
     mdiDatabaseExport,
+    mdiImageRemoveOutline,
     mdiTrashCanOutline
   } from '@mdi/js'
   import {
@@ -25,7 +26,7 @@
   import Title from '../ui/title.svelte'
 
   let { page }: { page: StoragePage } = $props()
-  let { dumpDatabase, hasCloud, size } = $derived(page)
+  let { dumpDatabase, hasCloud, mediaSize, size } = $derived(page)
 </script>
 
 <ThinPage title={[$t.pageTitle, $settingsMessages.commonTitle]}>
@@ -60,6 +61,21 @@
           </Button>
         {/if}
       </Stack>
+    </Stack>
+    <Stack>
+      <Output
+        label={$t.mediaSize}
+        value={$mediaSize === undefined
+          ? $t.sizeLoading
+          : formatSize($i18nFormat, $mediaSize)}
+      />
+      <Button
+        icon={mdiImageRemoveOutline}
+        onclick={page.clearMedia}
+        size="wide"
+      >
+        {$t.clearMedia}
+      </Button>
     </Stack>
     <Radio
       label={$t.fastLifetime}

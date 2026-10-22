@@ -6,8 +6,8 @@
     layoutType,
     menuSlider,
     refreshPosts,
-    refreshProgress,
     refreshStatus,
+    refreshTotalProgress,
     router,
     syncStatusType,
     navbarMessages as t
@@ -63,7 +63,7 @@
           href={getPopupHash($router, 'refresh', '1')}
           size="icon"
         >
-          <NavbarProgress value={$refreshProgress} />
+          <NavbarProgress value={$refreshTotalProgress} />
         </NavbarButton>
       {:else if $refreshStatus === 'error'}
         <NavbarButton

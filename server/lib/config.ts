@@ -1,7 +1,10 @@
+import { DEFAULT_PROXY_CONFIG } from '@slowreader/proxy'
+
 export type Config = {
   db: string
   debug: boolean
   env: 'development' | 'production' | 'test'
+  proxyMaxMediaSize: number
   proxyOrigin: string | undefined
   staging: boolean
   webOrigin: string
@@ -41,6 +44,9 @@ export function getConfig(from: Record<string, string | undefined>): Config {
     db: from.DATABASE_URL ?? getDefaultDatabase(env),
     debug: !!from.DEBUG,
     env,
+    proxyMaxMediaSize: from.PROXY_MAX_MEDIA_SIZE
+      ? Number(from.PROXY_MAX_MEDIA_SIZE) * 1024 * 1024
+      : DEFAULT_PROXY_CONFIG.maxMediaSize,
     proxyOrigin,
     staging: !!from.STAGING,
     webOrigin

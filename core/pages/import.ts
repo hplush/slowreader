@@ -13,7 +13,7 @@ import { getLoaderForText } from '../loader/index.ts'
 import { importMessages } from '../messages/index.ts'
 import { addPost } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
-import { preloadImages, theme } from '../settings.ts'
+import { theme } from '../settings.ts'
 import { isDemo } from '../welcome.ts'
 import { createPage } from './common.ts'
 import { isStateExportFile, type StateExport } from './export.ts'
@@ -149,7 +149,6 @@ export const importPage = createPage('import', () => {
   ): Promise<void> {
     if (isDemo.get()) await deleteDemo()
     theme.set(json.settings.theme)
-    preloadImages.set(json.settings.preloadImages)
 
     let done = startProgress(
       setProgress,

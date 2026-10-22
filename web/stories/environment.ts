@@ -37,9 +37,15 @@ export function setNetworkType(network: ReturnType<NetworkTypeDetector>): void {
   networkType = network
 }
 
+export function setMediaCacheSize(size: number): void {
+  mediaCacheSize = size
+}
+
 export function setPasskeySupport(support: boolean): void {
   getEnvironment().passkeySupport = support
 }
+
+let mediaCacheSize = 0
 
 let networkType: ReturnType<NetworkTypeDetector> = {
   saveData: false,
@@ -56,8 +62,10 @@ effect([mobileMedia, tabletMedia], (mobile, tablet) => {
   }
 })
 
+let testEnvironment = getTestEnvironment()
+
 setupEnvironment({
-  ...getTestEnvironment(),
+  ...testEnvironment,
   baseRouter,
   databaseCreator() {
     // SQLite deletes the config after the start
@@ -76,6 +84,12 @@ setupEnvironment({
     return undefined
   },
   locale,
+  mediaCache: {
+    ...testEnvironment.mediaCache,
+    size() {
+      return Promise.resolve(mediaCacheSize)
+    }
+  },
   networkType() {
     return networkType
   },

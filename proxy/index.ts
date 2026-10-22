@@ -43,6 +43,7 @@ export interface ProxyConfig {
   hostDelay: number
   ipLimit: number
   ipWindow: number
+  maxMediaSize: number
   maxRequests: number
   maxSize: number
   requestTimeout: number
@@ -73,6 +74,7 @@ export const DEFAULT_PROXY_CONFIG: Omit<ProxyConfig, 'allowsFrom'> = {
   hostDelay: 500,
   ipLimit: 600,
   ipWindow: 60000,
+  maxMediaSize: 100 * 1024 * 1024,
   maxRequests: 100,
   maxSize: 10 * 1024 * 1024,
   requestTimeout: 10000
@@ -408,9 +410,13 @@ export function createProxy(
       inFlight += 1
       try {
         let targetUrl = url
-        let targetResponse = await queueByHost(parsedUrl.hostname, () => {
-          return loadTarget(targetUrl, requestHeaders)
-        })
+        // Media hosts are CDNs, which expect many parallel requests
+        let skipQueue = /^(audio|image|video)\//.test(req.headers.accept ?? '')
+        function load(host: string): Promise<IncomingMessage> {
+          if (skipQueue) return loadTarget(targetUrl, requestHeaders)
+          return queueByHost(host, () => loadTarget(targetUrl, requestHeaders))
+        }
+        let targetResponse = await load(parsedUrl.hostname)
         let redirects = 0
         while (
           REDIRECTS.has(targetResponse.statusCode!) &&
@@ -430,21 +436,22 @@ export function createProxy(
             targetUrl,
             config.allowUnsafeDestinations
           )
-          targetResponse = await queueByHost(redirected.hostname, () => {
-            return loadTarget(targetUrl, requestHeaders)
-          })
+          targetResponse = await load(redirected.hostname)
         }
 
+        let contentType = targetResponse.headers['content-type'] ?? 'text/plain'
+        // Client saves post media for offline reading
+        let media = /^(audio|image|video)\//.test(contentType)
+        let maxSize = media ? config.maxMediaSize : config.maxSize
         let length = parseInt(targetResponse.headers['content-length'] ?? '')
-        if (length > config.maxSize) {
+        if (length > maxSize) {
           throw new BadRequestError('Response too large', 413)
         }
 
         let responseHeaders: Record<string, string> = {
           // Proxied HTML must not run as our own page on preview deploys
           'Content-Security-Policy': 'sandbox',
-          'Content-Type':
-            targetResponse.headers['content-type'] ?? 'text/plain',
+          'Content-Type': contentType,
           'X-Content-Type-Options': 'nosniff'
         }
         for (let header of PASSED_HEADERS) {
@@ -465,7 +472,9 @@ export function createProxy(
         let maxAge = debug
           ? 0
           : getMaxAge(targetResponse.headers['cache-control'])
-        let cacheable = maxAge > 0 && targetResponse.statusCode === 200
+        // Big media files would push feeds out of the small cache
+        let cacheable =
+          maxAge > 0 && targetResponse.statusCode === 200 && !media
         let chunks: Buffer[] = []
         let size = 0
         let stalled = new AbortController()
@@ -488,7 +497,7 @@ export function createProxy(
                 idle.refresh()
                 size += chunk.length
                 // Most feeds answer without Content-Length, so we count it here
-                if (size > config.maxSize) {
+                if (size > maxSize) {
                   next(new BadRequestError('Response too large', 413))
                   return
                 }

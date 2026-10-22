@@ -2,6 +2,11 @@ import { i18n } from '../../i18n.ts'
 
 export const networkMessages = i18n('network', {
   allowExtension: 'Allow the sites',
+  cacheAlways: 'Always',
+  cacheFree: 'Wi-Fi',
+  cacheImages: 'Save images for offline',
+  cacheNever: 'Never',
+  cacheVideos: 'Save videos for offline',
   extension: 'Extension',
   extensionDesc:
     'The browser makes the requests itself. It is the fastest way, ' +
@@ -14,10 +19,6 @@ export const networkMessages = i18n('network', {
     'faster, and nobody in the middle knows what you read.',
   installExtension: 'Install the extension',
   pageTitle: 'Network',
-  preloadAlways: 'Always',
-  preloadFree: 'Wi-Fi',
-  preloadImages: 'Preload post images',
-  preloadNever: 'Never',
   installedExtension: 'If you installed the extension, reload the page.',
   reloadApp: 'Reload the app',
   proxy: 'Proxy',

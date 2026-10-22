@@ -4,7 +4,7 @@ import { delay } from 'nanodelay'
 import { atom, computed } from 'nanostores'
 
 import type { Credentials } from './auth.ts'
-import type { Environment, PasskeySignal } from './environment.ts'
+import type { CachedMedia, Environment, PasskeySignal } from './environment.ts'
 import { type RequestMethod, setRequestMethod } from './request.ts'
 import {
   type BaseRoute,
@@ -94,6 +94,7 @@ export function getTestEnvironment(): Environment {
   testOAuthPages = []
   let persistentStore: Record<string, string> = {}
   let savedKey: CryptoKey | undefined
+  let media = new Map<string, CachedMedia>()
 
   return {
     baseRouter: testRouter,
@@ -120,6 +121,29 @@ export function getTestEnvironment(): Environment {
       return Promise.resolve(savedKey)
     },
     locale: atom('en'),
+    mediaCache: {
+      clear() {
+        media.clear()
+        return Promise.resolve()
+      },
+      delete(urls) {
+        for (let url of urls) media.delete(url)
+        return Promise.resolve()
+      },
+      keys() {
+        return Promise.resolve([...media.keys()])
+      },
+      async put(url, response) {
+        let cached = { bytes: (await response.arrayBuffer()).byteLength }
+        media.set(url, cached)
+        return cached
+      },
+      size() {
+        let total = 0
+        for (let cached of media.values()) total += cached.bytes
+        return Promise.resolve(total)
+      }
+    },
     networkType() {
       return { saveData: undefined, type: undefined }
     },

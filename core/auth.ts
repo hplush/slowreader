@@ -474,6 +474,7 @@ export function signOut(): Promise<void> {
         } catch {}
       }
       await client.get()?.clean()
+      await getEnvironment().mediaCache.clear()
       forgetLocalData()
     },
     true

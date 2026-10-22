@@ -63,6 +63,7 @@ describe('server config', () => {
         DATABASE_URL,
         DEBUG: '1',
         NODE_ENV: 'production',
+        PROXY_MAX_MEDIA_SIZE: '50',
         PROXY_ORIGIN: '^http:\\/\\/slowreader.app$',
         WEB_ORIGIN: 'https://slowreader.app/'
       }),
@@ -70,6 +71,7 @@ describe('server config', () => {
         db: DATABASE_URL,
         debug: true,
         env: 'production',
+        proxyMaxMediaSize: 50 * 1024 * 1024,
         proxyOrigin: '^http:\\/\\/slowreader.app$',
         staging: false,
         webOrigin: 'https://slowreader.app'

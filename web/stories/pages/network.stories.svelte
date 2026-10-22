@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  import { extensionState, requestMethod } from '@slowreader/core'
+  import { cacheVideos, extensionState, requestMethod } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import { installingExtension } from '../../main/extension.ts'
@@ -26,10 +26,12 @@
 
 <Story name="Extension" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
+    network="unknown"
     oninit={() => {
       clientUpdate.set('latest')
       extensionState.set('granted')
       requestMethod.set('extension')
+      cacheVideos.set('free')
     }}
     route="network"
   >

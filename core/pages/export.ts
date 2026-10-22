@@ -13,7 +13,6 @@ import { loadPostsPage, type PostValue } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
 import {
   fastPostsLifetime,
-  preloadImages,
   openWarnings,
   type Settings,
   showSensitiveMedia,
@@ -165,7 +164,6 @@ export const exportPage = createPage('export', () => {
     let settings = {
       fastPostsLifetime: fastPostsLifetime.get(),
       openWarnings: openWarnings.get(),
-      preloadImages: preloadImages.get(),
       showSensitiveMedia: showSensitiveMedia.get(),
       theme: theme.get(),
       useQuietCursor: useQuietCursor.get(),

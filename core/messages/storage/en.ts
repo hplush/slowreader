@@ -1,6 +1,7 @@
 import { i18n } from '../../i18n.ts'
 
 export const storageMessages = i18n('storage', {
+  clearMedia: 'Clear media',
   compact: 'Compact DB',
   compacting: 'Compacting the database',
   dangerousTitle: 'Dangerous action',
@@ -12,6 +13,7 @@ export const storageMessages = i18n('storage', {
   fastLifetimeForever: 'Forever',
   fastLifetimeMonth: '1 month',
   fastLifetimeWeek: '1 week',
+  mediaSize: 'Offline media size',
   dumping: 'Dumping the database',
   pageTitle: 'Storage',
   rebuild: 'Rebuild database from the cloud',

@@ -17,6 +17,7 @@ import {
   saveEncryptionKey,
   waitKeySaving
 } from '../lib/encryption-key.ts'
+import { mediaCache } from '../lib/media-cache.ts'
 import {
   createPasskey,
   getPasskey,
@@ -103,6 +104,7 @@ setupEnvironment({
   },
   loadEncryptionKey,
   locale,
+  mediaCache,
   networkType: detectNetworkType,
   oauthRedirect: location.origin + getURL('accounts'),
   openOAuthPage(url) {

@@ -11,6 +11,7 @@ import {
   addFilter,
   addPost,
   busy,
+  cacheImages,
   deleteCategory,
   deleteFeed,
   deleteFilter,
@@ -27,7 +28,6 @@ import {
   type NewFeed,
   type NewFilter,
   type NewPost,
-  preloadImages,
   setRequestMethod,
   testAccount,
   testFeed,
@@ -110,7 +110,7 @@ describe('import page', () => {
     await addFilter(FILTER)
     await addPost(POST)
     theme.set('light')
-    preloadImages.set('never')
+    cacheImages.set('never')
 
     let exportPage = openPage({
       params: {},
@@ -126,7 +126,7 @@ describe('import page', () => {
     await deleteFeed(FEED.id)
     await deleteCategory(CATEGORY.id)
     theme.set('system')
-    preloadImages.set('always')
+    cacheImages.set('always')
 
     let page = openPage({
       params: {},
@@ -149,7 +149,7 @@ describe('import page', () => {
     deepEqual(page.feedErrors.get(), [])
     equal(page.done.get(), 1)
     equal(theme.get(), 'light')
-    equal(preloadImages.get(), 'never')
+    equal(cacheImages.get(), 'always')
     deepEqual(withoutMeta(await loadCategories()), [
       { ...CATEGORY, fastReader: null, slowReader: null }
     ])

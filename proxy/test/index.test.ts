@@ -68,6 +68,12 @@ describe('proxy', () => {
         'Content-Type': 'text/text'
       })
       res.end('a'.repeat(2000))
+    } else if (queryParams.media) {
+      res.writeHead(200, {
+        'Cache-Control': 'max-age=60',
+        'Content-Type': 'image/png'
+      })
+      res.end('a'.repeat(parseInt(queryParams.media)))
     } else if (queryParams.gzip) {
       res.writeHead(200, {
         'Content-Encoding': 'gzip',
@@ -137,6 +143,7 @@ describe('proxy', () => {
       hostDelay: 0,
       ipLimit: 10000,
       ipWindow: 60000,
+      maxMediaSize: 3000,
       maxRequests: 100,
       maxSize: 1500,
       requestTimeout: 1000
@@ -275,6 +282,7 @@ describe('proxy', () => {
         hostDelay: 0,
         ipLimit: 10000,
         ipWindow: 60000,
+        maxMediaSize: 3000,
         maxRequests: 100,
         maxSize: 1500,
         requestTimeout: 100
@@ -461,6 +469,7 @@ describe('proxy', () => {
         hostDelay: 50,
         ipLimit: 10000,
         ipWindow: 60000,
+        maxMediaSize: 3000,
         maxRequests: 100,
         maxSize: 1500,
         requestTimeout: 1000
@@ -483,6 +492,18 @@ describe('proxy', () => {
     equal(maxInFlight, 1)
     for (let response of responses) equal(response.status, 200)
     ok(Date.now() - started >= 3 * 50 + 2 * 50)
+
+    maxInFlight = 0
+    await Promise.all(
+      [1, 2, 3].map(async i => {
+        let response = await fetch(
+          `${getURL(otherProxy)}/${targetUrl}?sleep=50&media=10&i=${i}`,
+          { headers: { Accept: 'image/*', Origin: 'http://test.app' } }
+        )
+        await response.text()
+      })
+    )
+    equal(maxInFlight, 3)
   })
 
   test('passes rate limit headers to client', async () => {
@@ -594,6 +615,7 @@ describe('proxy', () => {
         // The window starts with the proxy and must outlast three requests
         // even when the machine runs every test of the project in parallel
         ipWindow: 1000,
+        maxMediaSize: 3000,
         maxRequests: 100,
         maxSize: 1500,
         requestTimeout: 1000
@@ -631,6 +653,7 @@ describe('proxy', () => {
         hostDelay: 0,
         ipLimit: 2,
         ipWindow: 60000,
+        maxMediaSize: 3000,
         maxRequests: 100,
         maxSize: 1500,
         requestTimeout: 1000
@@ -666,6 +689,7 @@ describe('proxy', () => {
         hostDelay: 0,
         ipLimit: 2,
         ipWindow: 60000,
+        maxMediaSize: 3000,
         maxRequests: 100,
         maxSize: 1500,
         requestTimeout: 1000
@@ -699,6 +723,7 @@ describe('proxy', () => {
         hostDelay: 0,
         ipLimit: 10000,
         ipWindow: 60000,
+        maxMediaSize: 3000,
         maxRequests: 1,
         maxSize: 1500,
         requestTimeout: 1000
@@ -740,6 +765,21 @@ describe('proxy', () => {
   test('checks response size', async () => {
     let response = await request(targetUrl + '?big=file', {})
     expectBadRequest(response, 'Response too large', 413)
+  })
+
+  test('has bigger size limit for media and does not cache it', async () => {
+    let big = await request(targetUrl + '?media=2000')
+    equal(big.status, 200)
+    equal(big.headers.get('content-type'), 'image/png')
+    equal((await big.text()).length, 2000)
+
+    let before = requests
+    await (await request(targetUrl + '?media=2000')).text()
+    equal(requests, before + 1)
+
+    await rejects(async () => {
+      await (await request(targetUrl + '?media=4000')).text()
+    })
   })
 
   test('is ready for errors', async () => {

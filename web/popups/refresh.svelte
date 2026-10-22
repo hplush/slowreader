@@ -3,6 +3,8 @@
   import {
     errorToMessage,
     isRefreshing,
+    mediaProgress,
+    mediaStatistics,
     refreshErrors,
     refreshPosts,
     refreshProgress,
@@ -69,6 +71,24 @@
         fast={$refreshStatistics.foundFast}
         slow={$refreshStatistics.foundSlow}
       />
+      {#if $mediaStatistics.total > 0}
+        <Stack gap="s">
+          <Label>
+            {#if $isRefreshing}
+              {$t.media({
+                all: $mediaStatistics.total,
+                done: $mediaStatistics.done + $mediaStatistics.failed
+              })}
+            {:else}
+              {$t.mediaDone({ done: $mediaStatistics.done })}
+            {/if}
+          </Label>
+          <Loader size="wide" track="refresh-media" value={$mediaProgress} />
+          {#if $mediaStatistics.failed > 0}
+            <Label>{$t.mediaFailed({ count: $mediaStatistics.failed })}</Label>
+          {/if}
+        </Stack>
+      {/if}
       {#if $refreshErrors.length > 0}
         <Stack>
           <Title>{$t.errors}</Title>

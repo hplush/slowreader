@@ -6,10 +6,13 @@
     addPost,
     type BaseRoute,
     busy,
+    cacheImages,
+    cacheVideos,
     cleanDatabase,
     client,
     closedCategories,
     currentPage,
+    DEFAULT_MEDIA_STATISTICS,
     DEFAULT_REFRESH_STATISTICS,
     extensionState,
     fastPostsLifetime,
@@ -18,6 +21,8 @@
     hasCloud,
     hasSources,
     isDemo,
+    mediaStatistics,
+    type NetworkType,
     type NewCategory,
     openWarnings,
     pages,
@@ -49,6 +54,8 @@
     baseRouter,
     type PreparedResponse,
     prepareResponses,
+    setMediaCacheSize,
+    setNetworkType,
     setPasskeySupport
   } from './environment.ts'
 
@@ -57,6 +64,7 @@
     categories,
     children,
     feeds,
+    network = 'free',
     oninit = () => {},
     passkeys = true,
     posts,
@@ -68,6 +76,7 @@
     categories?: NewCategory[]
     children: Snippet
     feeds?: Partial<FeedValue>[]
+    network?: NetworkType
     oninit?: () => void
     passkeys?: boolean
     posts?: Partial<PostValue>[]
@@ -123,6 +132,7 @@
   $effect.pre(() => {
     currentPage.get().destroy()
     setPasskeySupport(passkeys)
+    setNetworkType({ saveData: false, type: network })
     if (user) {
       hasCloud.set(true)
     } else if (client.get()) {
@@ -140,6 +150,7 @@
     refreshErrors.set([])
     syncStatus.set('synchronized')
     refreshStatistics.set(DEFAULT_REFRESH_STATISTICS)
+    mediaStatistics.set(DEFAULT_MEDIA_STATISTICS)
     hasSources.set(!!feeds?.length)
     welcomeSteps.set(undefined)
     closedCategories.set(new Set())
@@ -182,6 +193,10 @@
     showSensitiveMedia.set(false)
     openWarnings.set(false)
     fastPostsLifetime.set('month')
+    cacheImages.set('always')
+    cacheVideos.set('never')
+    setMediaCacheSize(0)
+    setNetworkType({ saveData: false, type: 'free' })
     setPasskeySupport(true)
     // @ts-expect-error Hack for tests
     systemReducedMotion.set(false)

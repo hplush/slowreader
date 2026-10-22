@@ -2,8 +2,9 @@ import { equal } from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
 import {
+  cacheImages,
+  cacheVideos,
   fastPostsLifetime,
-  preloadImages,
   requestMethod,
   theme,
   openWarnings,
@@ -17,8 +18,9 @@ describe('settings', () => {
     equal(theme.get(), 'system')
   })
 
-  test('has store for images preload settings', () => {
-    equal(preloadImages.get(), 'always')
+  test('has stores for media download settings', () => {
+    equal(cacheImages.get(), 'always')
+    equal(cacheVideos.get(), 'never')
   })
 
   test('has store for request method', () => {

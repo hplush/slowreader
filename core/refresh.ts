@@ -23,6 +23,13 @@ import { createQueue } from './lib/queue.ts'
 import { increaseKey } from './lib/stores.ts'
 import { loaders } from './loader/index.ts'
 import {
+  DEFAULT_MEDIA_STATISTICS,
+  mediaProgress,
+  mediaStatistics,
+  stopMediaCache,
+  syncMediaCache
+} from './media-cache.ts'
+import {
   addPost,
   deleteFastPostsBefore,
   getSortedAt,
@@ -35,7 +42,7 @@ import {
 } from './post.ts'
 import type { PostsList } from './posts-list.ts'
 import { getTables } from './schema.ts'
-import { fastPostsLifetime } from './settings.ts'
+import { cacheImages, cacheVideos, fastPostsLifetime } from './settings.ts'
 import { linkThreads } from './thread.ts'
 
 export const DEFAULT_REFRESH_STATISTICS = {
@@ -84,6 +91,19 @@ export const refreshProgress = computed(refreshStatistics, stats => {
     return Math.floor((stats.processedFeeds / stats.totalFeeds) * 100) / 100
   }
 })
+
+/**
+ * Media downloading goes after feeds, so feeds take the first half
+ * of the navbar progress.
+ */
+export const refreshTotalProgress = computed(
+  [refreshStatistics, refreshProgress, mediaProgress, cacheImages, cacheVideos],
+  (stats, feeds, media, images, videos) => {
+    let checked = stats.totalFeeds === 0 && !stats.initializing ? 1 : feeds
+    if (images === 'never' && videos === 'never') return checked
+    return Math.floor((checked + media) * 50) / 100
+  }
+)
 
 type RefreshTarget = { account: AccountValue } | { feed: RefreshFeed }
 
@@ -429,6 +449,7 @@ export async function refreshPosts(): Promise<void> {
   refreshStatus.set('refreshing')
   refreshErrors.set([])
   refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: true })
+  mediaStatistics.set({ ...DEFAULT_MEDIA_STATISTICS })
 
   refreshedAt = Math.round(Date.now() / 1000)
   untouched = []
@@ -492,6 +513,14 @@ export async function refreshPosts(): Promise<void> {
     await getTables().accounts.update(untouchedAccounts, { refreshedAt })
   }
 
+  if (isRefreshing.get()) {
+    try {
+      await syncMediaCache()
+    } catch (e) {
+      getEnvironment().warn(e)
+    }
+  }
+
   if (refreshStatus.get() === 'refreshingError') {
     refreshStatus.set('error')
   } else {
@@ -506,4 +535,5 @@ export function stopRefreshing(): void {
   if (!isRefreshing.get()) return
   refreshStatus.set('start')
   queue.stop()
+  stopMediaCache()
 }

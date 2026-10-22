@@ -23,7 +23,7 @@ We use **Svelte** as the UI framework and **Vite** as the builder.
   - [`reset.css`](./main/reset.css): CSS reset to minimize the difference between browsers.
   - [`index.css`](./main/index.css): global styles.
   - [`index.ts`](./main/index.ts): JS entry point.
-  - [`sw.ts`](./main/sw.ts): service worker, which precaches the app to work offline.
+  - [`sw.ts`](./main/sw.ts): service worker, which precaches the app to work offline and serves saved post media.
   - [`environment.ts`](./main/environment.ts): how client core should work with browser environment.
   - [`database.ts`](./main/database.ts): choose the SQLite storage engine and open the database.
   - [`db-worker.ts`](./main/db-worker.ts): SQLite worker with the drivers for both storage engines. See [client storage](#client-storage).

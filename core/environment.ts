@@ -98,6 +98,20 @@ export interface PasskeyResult<Response> {
   response: Response
 }
 
+export interface CachedMedia {
+  bytes: number
+  height?: number
+  width?: number
+}
+
+export interface MediaCache {
+  clear(): Promise<void>
+  delete(urls: string[]): Promise<void>
+  keys(): Promise<string[]>
+  put(url: string, response: Response): Promise<CachedMedia>
+  size(): Promise<number>
+}
+
 export type PasskeySignal =
   | { credentialId: string; type: 'unknown' }
   | { ids: string[]; type: 'accepted'; userId: string }
@@ -160,6 +174,11 @@ export interface Environment {
    * Smart store taking user’s language from system.
    */
   locale: ReadableAtom<string>
+
+  /**
+   * Post media files for offline reading. It is per-device and is not synced.
+   */
+  mediaCache: MediaCache
 
   /**
    * Detect network type to not download images over expensive tariff.
@@ -293,6 +312,7 @@ export function setupEnvironment<Router extends BaseRouter>(
     getSession: env.getSession,
     loadEncryptionKey: env.loadEncryptionKey,
     locale: env.locale,
+    mediaCache: env.mediaCache,
     networkType: env.networkType,
     oauthRedirect: env.oauthRedirect,
     openOAuthPage: env.openOAuthPage,

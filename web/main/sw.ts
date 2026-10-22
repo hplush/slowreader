@@ -7,6 +7,11 @@ declare const SW_ROUTES: RegExp
 
 export type ToServiceWorker = 'skipWaiting'
 
+// Caches of old versions are deleted, but not this one
+const MEDIA_CACHE = 'slowreader-media'
+
+export type MediaCacheName = typeof MEDIA_CACHE
+
 interface ExtendableEvent extends Event {
   waitUntil(promise: Promise<unknown>): void
 }
@@ -37,6 +42,41 @@ let commit = SW_COMMIT
 async function fromCache(url: string): Promise<Response> {
   let cache = await caches.open(commit)
   return (await cache.match(url)) ?? fetch(url)
+}
+
+/**
+ * Media player asks for parts of the video to seek it.
+ */
+async function sliceRange(
+  cached: Response,
+  range: string | null
+): Promise<Response> {
+  let match = range?.match(/^bytes=(\d+)-(\d*)$/)
+  if (!match) return cached
+  let blob = await cached.blob()
+  let start = Number(match[1])
+  let end = match[2] ? Math.min(Number(match[2]) + 1, blob.size) : blob.size
+  if (start >= blob.size) {
+    return new Response(null, {
+      headers: { 'Content-Range': `bytes */${blob.size}` },
+      status: 416
+    })
+  }
+  return new Response(blob.slice(start, end), {
+    headers: {
+      'Content-Length': String(end - start),
+      'Content-Range': `bytes ${start}-${end - 1}/${blob.size}`,
+      'Content-Type': cached.headers.get('Content-Type') ?? ''
+    },
+    status: 206
+  })
+}
+
+async function fromMediaCache(request: Request): Promise<Response> {
+  let cache = await caches.open(MEDIA_CACHE)
+  let cached = await cache.match(request.url)
+  if (!cached) return fetch(request)
+  return sliceRange(cached, request.headers.get('Range'))
 }
 
 function isAppRoute(path: string): boolean {
@@ -71,7 +111,9 @@ worker.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(async names => {
       await Promise.all(
-        names.filter(i => i !== commit).map(i => caches.delete(i))
+        names
+          .filter(i => i !== commit && i !== MEDIA_CACHE)
+          .map(i => caches.delete(i))
       )
       await worker.clients.claim()
     })
@@ -81,7 +123,13 @@ worker.addEventListener('activate', event => {
 worker.addEventListener('fetch', event => {
   let { request } = event
   let url = new URL(request.url)
-  if (url.origin !== location.origin || request.method !== 'GET') return
+  if (request.method !== 'GET') return
+  if (url.origin !== location.origin) {
+    if (request.destination === 'image' || request.destination === 'video') {
+      event.respondWith(fromMediaCache(request))
+    }
+    return
+  }
   let navigate = request.mode === 'navigate'
   if (navigate && url.pathname === '/') {
     // Landing or self-hosted app, which only the server knows

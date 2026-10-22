@@ -81,9 +81,16 @@ export const theme = persistentAtom<'dark' | 'light' | 'system'>(
   'system'
 )
 
-export const preloadImages = persistentAtom<'always' | 'free' | 'never'>(
-  'slowreader:preloadImages',
+export type MediaDownload = 'always' | 'free' | 'never'
+
+export const cacheImages = persistentAtom<MediaDownload>(
+  'slowreader:cacheImages',
   'always'
+)
+
+export const cacheVideos = persistentAtom<MediaDownload>(
+  'slowreader:cacheVideos',
+  'never'
 )
 
 /**
@@ -124,7 +131,6 @@ export const fastPostsLifetime = persistentAtom<'forever' | 'month' | 'week'>(
 export interface Settings {
   fastPostsLifetime: StoreValue<typeof fastPostsLifetime>
   openWarnings: StoreValue<typeof openWarnings>
-  preloadImages: StoreValue<typeof preloadImages>
   showSensitiveMedia: StoreValue<typeof showSensitiveMedia>
   theme: StoreValue<typeof theme>
   useQuietCursor: StoreValue<typeof useQuietCursor>

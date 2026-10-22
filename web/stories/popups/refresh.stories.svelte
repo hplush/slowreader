@@ -1,6 +1,7 @@
 <script context="module" lang="ts">
   import {
     HTTPStatusError,
+    mediaStatistics,
     NetworkError,
     refreshErrors,
     refreshStatistics,
@@ -37,6 +38,27 @@
         processedFeeds: 100,
         totalFeeds: 100
       })
+      mediaStatistics.set({ done: 117, failed: 3, total: 120 })
+    }}
+  >
+    <RefreshPopup />
+  </Scene>
+</Story>
+
+<Story name="Saving Media" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      refreshStatus.set('refreshing')
+      refreshStatistics.set({
+        errorFeeds: 0,
+        errorRequests: 0,
+        foundFast: 15,
+        foundSlow: 2,
+        initializing: false,
+        processedFeeds: 100,
+        totalFeeds: 100
+      })
+      mediaStatistics.set({ done: 40, failed: 2, total: 120 })
     }}
   >
     <RefreshPopup />

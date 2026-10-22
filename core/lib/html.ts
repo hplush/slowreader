@@ -1,7 +1,7 @@
 import createDOMPurify from 'dompurify'
 
-import { getEnvironment } from '../environment.ts'
-import { preloadImages } from '../settings.ts'
+import { cacheImages } from '../settings.ts'
+import { canDownloadMedia } from './network.ts'
 import { PUNCTUATION_CHARS, truncateText } from './text.ts'
 
 const ALLOWED_TAGS = [
@@ -225,15 +225,6 @@ function getPurify(): ReturnType<typeof createDOMPurify> {
   return DOMPurify
 }
 
-function shouldPreloadImages(): boolean {
-  let preload = preloadImages.get()
-  if (preload === 'free') {
-    let network = getEnvironment().networkType()
-    return network.type === 'free' && !network.saveData
-  }
-  return preload === 'always'
-}
-
 /**
  * Loader resolves URLs on refresh. Relative URL, which left after it,
  * would load from the app’s domain.
@@ -319,7 +310,7 @@ export function sanitizeDOM(html: string): Element {
     media.setAttribute('controls', '')
     media.setAttribute('preload', 'none')
   }
-  let loading = shouldPreloadImages() ? 'eager' : 'lazy'
+  let loading = canDownloadMedia(cacheImages.get()) ? 'eager' : 'lazy'
   for (let image of node.querySelectorAll('img')) {
     image.setAttribute('loading', loading)
     image.setAttribute('decoding', 'async')

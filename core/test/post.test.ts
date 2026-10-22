@@ -22,7 +22,7 @@ import {
   getQuotedIntro,
   type PostCardText,
   getPostTitle,
-  preloadImages,
+  cacheImages,
   sanitizeDOM,
   setupEnvironment,
   slowPostsCount,
@@ -88,10 +88,15 @@ describe('post', () => {
       getPostIntro(post)[0].querySelector('img')!.getAttribute('loading')
     equal(loading(), 'eager')
 
-    preloadImages.set('never')
+    cacheImages.set('never')
     equal(loading(), 'lazy')
 
-    preloadImages.set('free')
+    cacheImages.set('free')
+    equal(loading(), 'eager')
+    setupEnvironment({
+      ...getTestEnvironment(),
+      networkType: () => ({ saveData: false, type: 'paid' })
+    })
     equal(loading(), 'lazy')
     setupEnvironment({
       ...getTestEnvironment(),
@@ -103,7 +108,7 @@ describe('post', () => {
       networkType: () => ({ saveData: true, type: 'free' })
     })
     equal(loading(), 'lazy')
-    preloadImages.set('always')
+    cacheImages.set('always')
   })
 
   test('takes the post ID from the feed', () => {
