@@ -6,10 +6,12 @@
     mdiTrashCanOutline
   } from '@mdi/js'
   import {
+    addMessages as add,
     collapseThreads,
     errorToMessage,
     type FeedPopup,
     getPopupId,
+    isAccountService,
     organizeMessages as t,
     toPreviewPost
   } from '@slowreader/core'
@@ -85,7 +87,10 @@
         <Output label={$t.title} value={popup.title} />
       {/if}
     </Stack>
-    <Output label={$t.feedUrl} value={popup.param} />
+    <Output
+      label={$t.feedUrl({ type: $add[`${popup.loader}Loader`] })}
+      value={popup.param}
+    />
     {#if $accountError}
       <Note icon={mdiAlertCircleOutline} variant="dangerous">
         {$accountError}
@@ -125,7 +130,7 @@
             ...popup.accounts.map(i => [i.id, i.handle] as [string, string])
           ]}
         />
-      {:else}
+      {:else if isAccountService(popup.loader)}
         <Status label={$t.account}>{$t.anonymous}</Status>
       {/if}
     {/if}

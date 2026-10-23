@@ -1,3 +1,5 @@
+import { params } from '@nanostores/i18n'
+
 import { i18n } from '../../i18n.ts'
 
 export const organizeMessages = i18n('organize', {
@@ -14,7 +16,7 @@ export const organizeMessages = i18n('organize', {
   fast: 'Fun',
   feedPosts: 'Recent posts',
   feedsTitle: 'Feeds',
-  feedUrl: 'Feed URL',
+  feedUrl: params('Feed URL ({type})'),
   morePosts: 'More posts',
   renameCategory: 'Rename category',
   slow: 'Useful',

@@ -186,6 +186,7 @@ describe('feed popup', () => {
     await waitLoading(popup.loading)
     equal(checkLoadedPopup(popup).feed.get(), undefined)
     equal(checkLoadedPopup(popup).title, 'Atom')
+    equal(checkLoadedPopup(popup).loader, 'atom')
     deepEqual(checkLoadedPopup(popup).posts.get().isLoading, false)
     deepEqual(checkLoadedPopup(popup).posts.get().list.length, 2)
     deepEqual(checkLoadedPopup(popup).posts.get().list[0]?.originId, '2')

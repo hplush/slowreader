@@ -146,8 +146,8 @@ export const feed = definePopup('feed', async url => {
   }
 
   let service = candidate ? candidate.name : existing?.loader
-  let accounts =
-    service && isAccountService(service) ? await loadAccounts(service) : []
+  if (!service) throw new NotFoundError()
+  let accounts = isAccountService(service) ? await loadAccounts(service) : []
   let accountTask = createDownloadTask()
   let $followedBy = atom<AccountValue | undefined>()
   if (!existing && candidate && accounts.length > 0) {
@@ -325,6 +325,7 @@ export const feed = definePopup('feed', async url => {
     },
     feed: $feed,
     followedBy: $followedBy,
+    loader: service,
     posts,
     remove,
     rename,
