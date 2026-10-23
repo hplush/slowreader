@@ -8,6 +8,7 @@ import type { AccountAuth, DetectedFeed, FeedData, Loader } from './common.ts'
 import { jsonFeed } from './json-feed.ts'
 import { mastodon } from './mastodon.ts'
 import { rss } from './rss.ts'
+import { rss1 } from './rss1.ts'
 
 export type { AccountAuth, DetectedFeed, Loader }
 
@@ -16,7 +17,8 @@ export const loaders = {
   bluesky,
   jsonFeed,
   mastodon,
-  rss
+  rss,
+  rss1
 } satisfies {
   [Name in string]: Loader
 }

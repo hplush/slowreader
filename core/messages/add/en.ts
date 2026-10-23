@@ -9,6 +9,7 @@ export const addMessages = i18n('add', {
   noResults:
     'No feeds were found on this website.\n\n' +
     'Please check the URL or [open an issue] if it looks correct.',
+  rss1Loader: 'RSS 1.0',
   rssLoader: 'RSS',
   searchGuide:
     'Currently, Slow Reader supports RSS, Mastodon, and BlueSky.\n\n' +
