@@ -976,6 +976,53 @@ describe('refresh of accounts', () => {
     equal((await loadAccount(accountId))!.lastOriginId, '3')
   })
 
+  test('loads retry and next timeline page before feeds', async () => {
+    await addAccount(testAccount({ lastPublishedAt: 100 }))
+    for (let i = 1; i <= 7; i++) {
+      await addFeed(testFeed({ title: `${i}`, url: `https://${i}.com/` }))
+    }
+    let calls: string[] = []
+    spyOn(signedIn, 'getTimeline', () => {
+      return createPostsList(() => {
+        calls.push('timeline 1')
+        if (calls.length === 1) {
+          let headers = new Headers({ 'Retry-After': '0' })
+          throw new HTTPStatusError(429, 'timeline', 'Rate limited', headers)
+        }
+        return Promise.resolve([
+          [by('dave', '2', { publishedAt: 200 })],
+          () => {
+            calls.push('timeline 2')
+            return Promise.resolve([
+              [by('dave', '1', { publishedAt: 150 })],
+              undefined
+            ])
+          }
+        ])
+      })
+    })
+    spyOn(loaders.rss, 'getPosts', (task, url) => {
+      calls.push(url)
+      return createPostsList(async () => {
+        await setTimeout(10)
+        return [[], undefined]
+      })
+    })
+    await refreshPosts()
+    deepEqual(calls, [
+      'timeline 1',
+      'https://1.com/',
+      'https://2.com/',
+      'https://3.com/',
+      'https://4.com/',
+      'https://5.com/',
+      'timeline 1',
+      'timeline 2',
+      'https://6.com/',
+      'https://7.com/'
+    ])
+  })
+
   test('loads only the newest timeline page on the first refresh', async () => {
     let accountId = await addAccount(testAccount())
     let timeline = spyTimeline(

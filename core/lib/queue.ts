@@ -6,8 +6,8 @@ import { createDownloadTask, type DownloadTask } from './download.ts'
 const MAX_ATTEMPTS = 3
 const MAX_DELAY = getExponentialDelay(MAX_ATTEMPTS)
 
-interface QueueCallback {
-  (task: DownloadTask): Promise<void>
+export interface QueueCallback {
+  (task: DownloadTask): Promise<QueueCallback | void>
 }
 
 interface QueueErrorCallback<Data> {
@@ -26,7 +26,6 @@ interface QueueProcessor<Data> {
 }
 
 interface Queue<Data> {
-  add(data: Data, callback?: QueueCallback): void
   start(
     workers: number,
     processor: QueueProcessor<Data>,
@@ -40,13 +39,6 @@ interface Queue<Data> {
 
 function getExponentialDelay(attempt: number): number {
   return Math.ceil(2 ** (attempt - 1)) * 1000
-}
-
-function buildTask<Data>(
-  data: Data,
-  callback?: QueueCallback
-): QueueTask<Data> {
-  return { after: undefined, callback, data, fails: 0 }
 }
 
 function runAfter(attempt: number, error: Error): number | undefined {
@@ -92,10 +84,16 @@ function findNext<Data>(
   }
 }
 
+/**
+ * Tasks run in the order of the list. Retries and next steps
+ * keep the place of their task: before the tasks, which did not start.
+ */
 export function createQueue<Data>(initial: Data[]): Queue<Data> {
   // The queue repeats failed tasks by itself, no need in repeating requests
   let download = createDownloadTask({ tries: 1 })
-  let tasks = initial.map(i => buildTask(i))
+  let tasks: QueueTask<Data>[] = initial.map(data => {
+    return { after: undefined, data, fails: 0 }
+  })
   let stopped = false
   let onRequestError: QueueErrorCallback<Data> = () => {}
   let onTaskFail: QueueErrorCallback<Data> = () => {}
@@ -110,7 +108,7 @@ export function createQueue<Data>(initial: Data[]): Queue<Data> {
         onTaskFail(task.data, e)
       } else {
         task.after = runAfter(task.fails, e)
-        tasks.push(task)
+        tasks.unshift(task)
       }
       /* node:coverage ignore next 3 */
     } else {
@@ -120,29 +118,32 @@ export function createQueue<Data>(initial: Data[]): Queue<Data> {
 
   async function worker(processor: QueueProcessor<Data>): Promise<void> {
     if (stopped) return
-    if (tasks.length === 0) return
     let [task, wait] = findNext(tasks)
     if (wait) {
       await delay(wait)
       return worker(processor)
     }
-    if (task) {
-      try {
-        let callback = task.callback ?? processor(task.data)
-        await callback(download)
-      } catch (e) {
-        if (e instanceof Error) {
-          processError(task, e)
-        }
+    if (!task) return
+    try {
+      let callback = task.callback ?? processor(task.data)
+      let next = await callback(download)
+      if (next) {
+        tasks.unshift({
+          after: undefined,
+          callback: next,
+          data: task.data,
+          fails: 0
+        })
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        processError(task, e)
       }
     }
     return worker(processor)
   }
 
   return {
-    add(data, callback) {
-      tasks.push(buildTask(data, callback))
-    },
     start(workers, processor, opts) {
       onRequestError = opts.onRequestError
       onTaskFail = opts.onTaskFail

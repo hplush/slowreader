@@ -19,7 +19,7 @@ import {
 } from './feed.ts'
 import { type FilterChecker, loadFilterChecker } from './filter.ts'
 import { createDownloadTask, type DownloadTask } from './lib/download.ts'
-import { createQueue } from './lib/queue.ts'
+import { createQueue, type QueueCallback } from './lib/queue.ts'
 import { increaseKey } from './lib/stores.ts'
 import { loaders } from './loader/index.ts'
 import {
@@ -360,7 +360,9 @@ function loadKnown(target: RefreshTarget): Promise<string[]> {
   }
 }
 
-async function processPage(state: TargetRefresh): Promise<void> {
+async function processPage(
+  state: TargetRefresh
+): Promise<QueueCallback | void> {
   sortPage(state.page)
   let marker = getMarker(state.target)
   let enough = state.page.some(i => wasAlreadyAdded(marker, i))
@@ -387,12 +389,12 @@ async function processPage(state: TargetRefresh): Promise<void> {
   }
 
   if (found && more) {
-    queue.add(state.target, async () => {
+    return async () => {
       state.page = await state.pages.next()
       let error = state.pages.get().error
       if (error) throw error
-      await processPage(state)
-    })
+      return processPage(state)
+    }
   } else {
     if (found) await finishTarget(state)
     increaseKey(refreshStatistics, 'processedFeeds')
@@ -499,7 +501,7 @@ export async function refreshPosts(): Promise<void> {
         if (pages.get().isLoading) await pages.loading
         let error = pages.get().error
         if (error) throw error
-        await processPage(createState(target, pages, task))
+        return processPage(createState(target, pages, task))
       }
     },
     {
