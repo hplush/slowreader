@@ -12,7 +12,6 @@
 
   import { getPopupHash } from '../../stores/url-router.ts'
   import FormattedText from '../formatted-text.svelte'
-  import SmallLink from '../small-link.svelte'
   import PostAuthorLine from './author.svelte'
   import PostMedia from './media.svelte'
   import PostPreview from './preview.svelte'
@@ -71,15 +70,8 @@
     {#if caption}
       <div class="post-quote_caption">{caption}</div>
     {/if}
-    {#if quoted.author || (!href && quoted.url)}
-      <div class="post-quote_header">
-        {#if quoted.author}
-          <PostAuthorLine author={quoted.author} />
-        {/if}
-        {#if !href && quoted.url}
-          <SmallLink href={quoted.url} target="_blank">{$t.url}</SmallLink>
-        {/if}
-      </div>
+    {#if quoted.author}
+      <PostAuthorLine author={quoted.author} />
     {/if}
     <PostWarning warning={quoted.warning}>
       <FormattedText html={text} simple={!full} />
@@ -165,13 +157,6 @@
     .post-quote_caption {
       font: var(--secondary-font);
       color: var(--secondary-text-color);
-    }
-
-    .post-quote_header {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-      justify-content: space-between;
     }
   }
 </style>
