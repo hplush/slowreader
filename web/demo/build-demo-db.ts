@@ -58,7 +58,7 @@ const MANIFEST = join(PUBLIC, 'demo.json')
 /**
  * Categories to show in the fast mode. The rest goes to the slow mode.
  */
-const FAST = ['Comics', 'Art', 'Social', 'BlueSky', 'Short Facts']
+const FAST = ['Comics', 'Art', 'Mastodon', 'BlueSky', 'Short Facts']
 
 /**
  * How deep to load the feeds’ history. Feeds publish only their latest
