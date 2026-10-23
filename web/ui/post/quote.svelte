@@ -73,8 +73,8 @@
     {#if quoted.author}
       <PostAuthorLine author={quoted.author} />
     {/if}
-    <PostWarning warning={quoted.warning}>
-      <FormattedText html={text} simple={!full} />
+    <PostWarning lang={quoted.lang} warning={quoted.warning}>
+      <FormattedText html={text} lang={quoted.lang} simple={!full} />
       <PostMedia
         media={getMediaOutsideText(
           addMediaSizes(quoted.media, quoted.mediaSizes),

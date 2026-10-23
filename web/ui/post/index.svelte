@@ -31,10 +31,10 @@
     <h1 class="post_title">
       {#if post.url}
         <a class="post_title-url" href={post.url} target="_blank">
-          <FormattedText html={post.title} scroll={false} />
+          <FormattedText html={post.title} lang={post.lang} scroll={false} />
         </a>
       {:else}
-        <FormattedText html={post.title} scroll={false} />
+        <FormattedText html={post.title} lang={post.lang} scroll={false} />
       {/if}
     </h1>
   {/if}
@@ -44,9 +44,9 @@
       <PostQuote caption={$t.replyingTo} full linked quoted={post.replied} />
     </div>
   {/if}
-  <PostWarning warning={post.warning}>
+  <PostWarning lang={post.lang} warning={post.warning}>
     {#if post.full || post.intro}
-      <FormattedText html={text} />
+      <FormattedText html={text} lang={post.lang} />
     {/if}
 
     <PostMedia

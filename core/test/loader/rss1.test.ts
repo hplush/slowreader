@@ -172,6 +172,7 @@ describe('rss1 loader', () => {
           exampleRdf(`
             <channel rdf:about="https://example.com/">
               <title>Blog</title>
+              <dc:language>en-gb</dc:language>
             </channel>
             <item rdf:about="https://example.com/1">
               <title>1 <b>XSS</b></title>
@@ -199,6 +200,7 @@ describe('rss1 loader', () => {
         list: [
           {
             full: '<p>Full <img src="https://example.com/a.png"></p>',
+            lang: 'en-GB',
             media: [
               {
                 fromText: true,
@@ -213,6 +215,7 @@ describe('rss1 loader', () => {
           },
           {
             full: 'Text',
+            lang: 'en-GB',
             media: [{ type: 'image', url: 'https://example.com/b.png' }],
             originId: 'https://example.com/2',
             publishedAt: undefined,

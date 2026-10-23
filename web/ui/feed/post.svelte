@@ -75,7 +75,7 @@
     />
     {#if post.title}
       <h2 class="feed-post_title">
-        <FormattedText html={post.title} />
+        <FormattedText html={post.title} lang={post.lang} />
       </h2>
     {/if}
     {#if post.replied && !post.replied.missing}
@@ -83,8 +83,8 @@
         <PostQuote caption={$postMessages.replyingTo} quoted={post.replied} />
       </div>
     {/if}
-    <PostWarning warning={post.warning}>
-      <FormattedText html={intro} simple />
+    <PostWarning lang={post.lang} warning={post.warning}>
+      <FormattedText html={intro} lang={post.lang} simple />
       <PostMedia
         media={getMediaOutsideText(post.media, intro, post.intro === null)}
       />

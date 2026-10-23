@@ -212,7 +212,7 @@ export function loadPostsPage(
     rows = getCrdt().select<ReaderPostRow>`
       SELECT "posts"."id", "posts"."feedId", "posts"."media",
         "posts"."mediaSizes", "posts"."originId", "posts"."publishedAt",
-        "posts"."sortedAt",
+        "posts"."sortedAt", "posts"."lang",
         "posts"."read", "posts"."title", "posts"."url", "posts"."author",
         "posts"."preview", "posts"."quoted", "posts"."replied",
         "posts"."repostedBy", "posts"."threadId", "posts"."unsupported",
@@ -242,7 +242,7 @@ export function loadPostsPage(
     rows = getCrdt().select<ReaderPostRow>`
       SELECT "id", "feedId", "media", "mediaSizes", "originId",
         "publishedAt", "sortedAt", "read", "title", "url", "author", "preview",
-        "quoted",
+        "quoted", "lang",
         "replied", "repostedBy", "threadId", "unsupported", "warning",
         (SELECT COUNT(*) FROM "posts" AS "thread"
           WHERE "thread"."feedId" = "posts"."feedId"
@@ -279,7 +279,7 @@ export function loadPostsRange(
     rows = getCrdt().select<ReaderPostRow>`
       SELECT "posts"."id", "posts"."feedId", "posts"."media",
         "posts"."mediaSizes", "posts"."originId", "posts"."publishedAt",
-        "posts"."sortedAt",
+        "posts"."sortedAt", "posts"."lang",
         "posts"."read", "posts"."title", "posts"."url", "posts"."author",
         "posts"."preview", "posts"."quoted", "posts"."replied",
         "posts"."repostedBy", "posts"."threadId", "posts"."unsupported",
@@ -309,7 +309,7 @@ export function loadPostsRange(
     rows = getCrdt().select<ReaderPostRow>`
       SELECT "id", "feedId", "media", "mediaSizes", "originId",
         "publishedAt", "sortedAt", "read", "title", "url", "author", "preview",
-        "quoted",
+        "quoted", "lang",
         "replied", "repostedBy", "threadId", "unsupported", "warning",
         (SELECT COUNT(*) FROM "posts" AS "thread"
           WHERE "thread"."feedId" = "posts"."feedId"

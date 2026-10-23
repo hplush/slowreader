@@ -32,6 +32,7 @@ import {
   isObject,
   type Loader,
   readLoaderData,
+  toLang,
   toTime
 } from './common.ts'
 
@@ -88,6 +89,7 @@ interface MastodonStatus {
   id: string
   in_reply_to_account_id: null | string
   in_reply_to_id: null | string
+  language?: null | string
   media_attachments: MastodonMedia[]
   poll: null | object
   quote?: MastodonQuote | MastodonStatus | null
@@ -305,6 +307,8 @@ function parseContent(status: MastodonStatus): Omit<ParsedPost, 'originId'> {
   }
   let preview = parsePreview(status.card)
   if (preview) post.preview = preview
+  let lang = toLang(status.language)
+  if (lang) post.lang = lang
   if (status.spoiler_text) {
     post.warning = textToHtml(status.spoiler_text, status.emojis)
   }

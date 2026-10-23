@@ -40,6 +40,7 @@ import {
   isObject,
   type Loader,
   readLoaderData,
+  toLang,
   toTime
 } from './common.ts'
 
@@ -66,6 +67,7 @@ interface BlueskyRecord {
   createdAt: string
   facets?: BlueskyFacet[]
   labels?: { values?: BlueskyLabel[] }
+  langs?: string[]
   reply?: { parent: { uri: string }; root: { uri: string } }
   text: string
 }
@@ -482,6 +484,8 @@ async function parseContent(
   }
   let full = textToHtml(record)
   if (full) post.full = full
+  let lang = toLang(record.langs?.[0])
+  if (lang) post.lang = lang
   return post
 }
 

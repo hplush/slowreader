@@ -1252,7 +1252,15 @@ describe('bluesky account', () => {
     let first = respond(timeline(auth), {
       cursor: 'c1',
       feed: [
-        { post: bobPost('1') },
+        {
+          post: bobPost('1', {
+            record: {
+              createdAt: '2026-01-01T00:00:00.000Z',
+              langs: ['pt-br', 'en'],
+              text: '1'
+            }
+          })
+        },
         {
           post: bobPost('2', {
             record: {
@@ -1282,11 +1290,12 @@ describe('bluesky account', () => {
           item.originId,
           item.author?.title,
           item.repostedBy?.title,
-          item.sortedAt
+          item.sortedAt,
+          item.lang
         ]),
       [
-        [uri('bob', '1'), 'BOB', undefined, undefined],
-        [uri('bob', '3'), 'BOB', 'JANE', 1769904000]
+        [uri('bob', '1'), 'BOB', undefined, undefined, 'pt-BR'],
+        [uri('bob', '3'), 'BOB', 'JANE', 1769904000, undefined]
       ]
     )
     equal(posts.get().hasNext, true)

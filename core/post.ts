@@ -46,6 +46,7 @@ export type ParsedPost = {
    */
   hasReplies?: true
   intro?: string
+  lang?: string
   media?: PostMedia[]
   mediaSizes?: (MediaSize | null)[]
   merged?: boolean
@@ -121,6 +122,7 @@ export type ReaderPostWith<Media> = {
   | 'author'
   | 'feedId'
   | 'id'
+  | 'lang'
   | 'originId'
   | 'preview'
   | 'publishedAt'
@@ -530,6 +532,7 @@ export function testPost(
     full: null,
     id: `post-${testPostId}`,
     intro: `Post ${testPostId}`,
+    lang: null,
     media: null,
     mediaSizes: null,
     merged: false,

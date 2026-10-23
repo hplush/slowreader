@@ -200,6 +200,7 @@ let previewShape = {
 let quotedShape = {
   author: optional(json(authorShape)),
   full: optional(string()),
+  lang: optional(string()),
   media: optional(json([json(mediaShape)])),
   mediaSizes: optional(json([optional(json(mediaSizeShape))])),
   missing: boolean(),
@@ -227,6 +228,7 @@ export const postsTable = defineCrdtTable(
     feedId: optional(string()),
     full: optional(string()),
     intro: optional(string()),
+    lang: optional(string()),
     media: optional(json([json(mediaShape)])),
     // Separated from media to fill it after the first image loading
     mediaSizes: optional(json([optional(json(mediaSizeShape))])),

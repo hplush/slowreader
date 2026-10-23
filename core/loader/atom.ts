@@ -16,6 +16,7 @@ import {
   findMediaInText,
   findOwnChild,
   findXmlBase,
+  findXmlLang,
   getUpdatedAt,
   type Loader,
   toAvatarUrl,
@@ -123,6 +124,7 @@ function parsePosts(
       }
       postMedia = postMedia.concat(findMRSS(entry))
 
+      let lang = findXmlLang(entry)
       let updatedAt = toTime(entry.querySelector('updated')?.textContent)
       let publishedAt =
         toTime(entry.querySelector('published')?.textContent) ?? updatedAt
@@ -134,6 +136,7 @@ function parsePosts(
           findXmlBase(summary, text.url),
           url ?? text.url
         ),
+        ...(lang && { lang }),
         media: uniqueMedia([...postMedia, ...textMedia]),
         originId: entry.querySelector('id')!.textContent,
         publishedAt,

@@ -273,6 +273,15 @@ export function isString(attr: null | string): attr is string {
   return typeof attr === 'string' && attr.length > 0
 }
 
+export function findXmlLang(element: Element | null): string | undefined {
+  while (element) {
+    let lang = element.getAttribute('xml:lang')
+    if (lang) return toLang(lang)
+    element = element.parentElement
+  }
+  return undefined
+}
+
 export function findXmlBase(
   element: Element | null,
   url: string
@@ -494,6 +503,20 @@ export function findHeaderLinks(
     }
     return urls
   }, [])
+}
+
+/**
+ * Sources use BCP 47 in different cases (`en-us`) and some RSS feeds put
+ * a language name (`English`) instead of the code.
+ */
+export function toLang(lang: null | string | undefined): string | undefined {
+  let tag = lang?.trim().replaceAll('_', '-')
+  if (!tag || !/^[a-z]{2,3}(-[a-z0-9]{1,8})*$/i.test(tag)) return undefined
+  try {
+    return Intl.getCanonicalLocales(tag)[0]
+  } catch {
+    return undefined
+  }
 }
 
 /**

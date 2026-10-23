@@ -18,6 +18,7 @@ import {
   isObject,
   type Loader,
   toAvatarUrl,
+  toLang,
   toTime
 } from './common.ts'
 
@@ -32,6 +33,7 @@ interface JsonFeed {
   home_page_url?: string
   icon?: string
   items: JsonFeedItem[]
+  language?: string
   next_url?: string
   title: string
   user_comment?: string
@@ -57,6 +59,7 @@ interface JsonFeedItem {
   external_url?: string
   id: string
   image?: string
+  language?: string
   summary?: string
   tags?: string[]
   title?: string
@@ -102,10 +105,10 @@ function validate(text: string, value: unknown): asserts value is JsonFeed {
   }
 }
 
-function parsePostSources(text: TextResponse): JsonFeedItem[] {
+function parseFeed(text: TextResponse): JsonFeed {
   let parsedJson = text.parseJson()
   validate(text.text, parsedJson)
-  return parsedJson.items
+  return parsedJson
 }
 
 function parsePosts(
@@ -113,8 +116,10 @@ function parsePosts(
   text: TextResponse
 ): Promise<ParsedPost[]> {
   let resolveUrls = createUrlsResolver(task)
+  let feed = parseFeed(text)
   return Promise.all(
-    parsePostSources(text).map(async item => {
+    feed.items.map(async item => {
+      let lang = toLang(item.language ?? feed.language)
       let html = await resolveUrls(
         item.content_html,
         undefined,
@@ -147,6 +152,7 @@ function parsePosts(
       return {
         full,
         intro: item.summary ?? undefined,
+        ...(lang && { lang }),
         media: uniqueMedia([...postMedia, ...textMedia]),
         originId: item.id,
         publishedAt,
@@ -187,7 +193,7 @@ export const jsonFeed: Loader = {
 
   async getPostSource(feed, originId) {
     let json = await createDownloadTask().text(feed.url)
-    return parsePostSources(json).find(i => i.id === originId)
+    return parseFeed(json).items.find(i => i.id === originId)
   },
 
   getSuggestedLinksFromText(text) {

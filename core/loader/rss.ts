@@ -19,6 +19,7 @@ import {
   type Loader,
   MIN_ICON_SIZE,
   toAvatarUrl,
+  toLang,
   toTime
 } from './common.ts'
 
@@ -36,6 +37,9 @@ function parsePosts(
   text: TextResponse
 ): Promise<ParsedPost[]> {
   let resolveUrls = createUrlsResolver(task)
+  let lang = toLang(
+    text.parseXml().querySelector('channel > language')?.textContent
+  )
   return Promise.all(
     parsePostSources(text).map(async item => {
       let description = findOwnChild(item, 'description')
@@ -60,6 +64,7 @@ function parsePosts(
 
       return {
         full,
+        ...(lang && { lang }),
         media: uniqueMedia([...postMedia, ...textMedia]),
         originId:
           item.querySelector('guid')?.textContent ||

@@ -9,9 +9,11 @@
 
   let {
     children,
+    lang,
     warning
   }: {
     children: Snippet
+    lang: null | string | undefined
     warning: null | string | undefined
   } = $props()
 
@@ -24,7 +26,7 @@
       <span class="post-warning_icon">
         <Icon path={mdiAlertOutline} />
       </span>
-      <FormattedText html={warning} simple />
+      <FormattedText html={warning} {lang} simple />
     </div>
     <div class="post-warning_button">
       <Button

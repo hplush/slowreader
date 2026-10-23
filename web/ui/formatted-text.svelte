@@ -9,11 +9,13 @@
   let {
     comfort,
     html,
+    lang,
     scroll = true,
     simple = false
   }: {
     comfort?: boolean
     html: Element | string | undefined
+    lang?: null | string
     scroll?: boolean
     simple?: boolean
   } = $props()
@@ -56,6 +58,7 @@
   class:is-scroll={scroll}
   class:is-simple={simple}
   {@attach renderHtml}
+  {lang}
 ></div>
 
 <style lang="postcss">

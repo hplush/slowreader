@@ -399,6 +399,7 @@ describe('json feed loader', () => {
             content_text: '<p>Skipped content</p>',
             date_published: '2022-01-04T00:00:00Z',
             id: 'somehashid',
+            language: 'de',
             summary: 'summary',
             title: 'title_1',
             url: 'https://example.com/'
@@ -434,6 +435,7 @@ describe('json feed loader', () => {
         {
           full: '<p>Priority Content</p>',
           intro: 'summary',
+          lang: 'de',
           media: undefined,
           originId: 'somehashid',
           publishedAt: 1641254400,
@@ -444,6 +446,7 @@ describe('json feed loader', () => {
         {
           full: '<p>Alternative content</p>',
           intro: undefined,
+          lang: 'en',
           media: undefined,
           originId: 'somehashid2',
           publishedAt: 1641254400,
@@ -677,6 +680,7 @@ describe('json feed loader', () => {
               url: 'https://example.com/img_h.webp'
             }
           ],
+          lang: 'en',
           originId: 'somehashid',
           publishedAt: 1641254400,
           title: 'title_1',
@@ -689,6 +693,7 @@ describe('json feed loader', () => {
             '<img src="https://example.com/img_1.webp"></p>',
           intro: undefined,
           media: [{ type: 'image', url: 'https://example.com/img.webp' }],
+          lang: 'en',
           originId: 'somehashid2',
           publishedAt: 1641254400,
           title: 'title_2',
@@ -705,6 +710,7 @@ describe('json feed loader', () => {
               name: 'Chart'
             }
           ],
+          lang: 'en',
           originId: 'somehashid3',
           publishedAt: undefined,
           title: 'title_3',

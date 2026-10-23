@@ -384,6 +384,29 @@ describe('rss loader', () => {
     )
   })
 
+  test('parses language', async () => {
+    let task = createDownloadTask()
+    let langs: (string | undefined)[] = []
+    for (let lang of ['en-us', ' zh_TW ', 'English', 'en-a']) {
+      let page = loaders.rss.getPosts(
+        task,
+        'https://example.com/news/',
+        exampleRss(
+          `<?xml version="1.0"?>
+          <rss version="2.0">
+            <channel>
+              <language>${lang}</language>
+              <item><guid>1</guid></item>
+            </channel>
+          </rss>`
+        )
+      )
+      await page.loading
+      langs.push(page.get().list[0]!.lang)
+    }
+    deepEqual(langs, ['en-US', 'zh-TW', undefined, undefined])
+  })
+
   test('loads text to parse posts', async () => {
     expectRequest('https://example.com/news/').andRespond(
       200,

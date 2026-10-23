@@ -17,11 +17,13 @@ import {
   findXmlBase,
   type Loader,
   toAvatarUrl,
+  toLang,
   toTime
 } from './common.ts'
 
 const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
 const RSS = 'http://purl.org/rss/1.0/'
+const DC = 'http://purl.org/dc/elements/1.1/'
 
 function findChild(
   parent: Element | undefined,
@@ -62,6 +64,9 @@ function parsePosts(
   text: TextResponse
 ): Promise<ParsedPost[]> {
   let resolveUrls = createUrlsResolver(task)
+  let lang = toLang(
+    findChild(findChild(findRoot(text), 'channel'), 'language', DC)?.textContent
+  )
   return Promise.all(
     parsePostSources(text).map(async item => {
       let content =
@@ -76,9 +81,10 @@ function parsePosts(
         findXmlBase(content ?? null, text.url),
         url ?? text.url
       )
-      let date = findChild(item, 'date', 'http://purl.org/dc/elements/1.1/')
+      let date = findChild(item, 'date', DC)
       return {
         full,
+        ...(lang && { lang }),
         media: uniqueMedia([...findMRSS(item), ...findMediaInText(full)]),
         originId: getOriginId(item)!,
         publishedAt: toTime(date?.textContent),

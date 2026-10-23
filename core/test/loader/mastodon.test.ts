@@ -1056,7 +1056,7 @@ describe('mastodon account', () => {
 
   test('loads home timeline', async () => {
     let first = respond(`${API}/timelines/home?limit=40`, [
-      status('1', { account: account('bob') }),
+      status('1', { account: account('bob'), language: 'en' }),
       status('2', {
         account: account('bob'),
         in_reply_to_account_id: 'alice-id',
@@ -1069,7 +1069,8 @@ describe('mastodon account', () => {
       }),
       status('4', {
         created_at: '2026-02-01T00:00:00.000Z',
-        reblog: status('5', { account: account('bob') })
+        language: 'fr',
+        reblog: status('5', { account: account('bob'), language: 'de' })
       })
     ])
     let posts = signedIn.getTimeline(createDownloadTask(), auth)
@@ -1082,12 +1083,13 @@ describe('mastodon account', () => {
           post.originId,
           post.author?.title,
           post.repostedBy?.title,
-          post.selfReplyTo
+          post.selfReplyTo,
+          post.lang
         ]),
       [
-        ['1', 'BOB', undefined, undefined],
-        ['3', 'BOB', undefined, '1'],
-        ['4', 'BOB', 'JANE', undefined]
+        ['1', 'BOB', undefined, undefined, 'en'],
+        ['3', 'BOB', undefined, '1', undefined],
+        ['4', 'BOB', 'JANE', undefined, 'de']
       ]
     )
     equal(posts.get().hasNext, true)

@@ -415,7 +415,7 @@ describe('atom loader', () => {
           'https://example.com/news/',
           exampleAtom(
             `<?xml version="1.0"?>
-          <feed xmlns="http://www.w3.org/2005/Atom">
+          <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
             <title>Feed</title>
             <entry>
               <title>1 <b>XSS</b></title>
@@ -426,7 +426,7 @@ describe('atom loader', () => {
               <published>2023-01-01T00:00:00Z</published>
               <updated>2023-06-01T00:00:00Z</updated>
             </entry>
-            <entry>
+            <entry xml:lang="de">
               <title>2</title>
               <id>2</id>
               <link rel="related" href="https://example.com/2" />
@@ -457,6 +457,7 @@ describe('atom loader', () => {
           {
             full: 'Full 1',
             intro: 'Post 1 XSS',
+            lang: 'en',
             media: undefined,
             originId: '1',
             publishedAt: 1672531200,
@@ -467,6 +468,7 @@ describe('atom loader', () => {
           {
             full: undefined,
             intro: undefined,
+            lang: 'de',
             media: undefined,
             originId: '2',
             publishedAt: 1685577600,
@@ -477,6 +479,7 @@ describe('atom loader', () => {
           {
             full: undefined,
             intro: undefined,
+            lang: 'en',
             media: undefined,
             originId: '3',
             publishedAt: undefined,
@@ -487,6 +490,7 @@ describe('atom loader', () => {
           {
             full: undefined,
             intro: undefined,
+            lang: 'en',
             media: undefined,
             originId: '5',
             publishedAt: undefined,
