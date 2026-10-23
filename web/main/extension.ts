@@ -52,7 +52,12 @@ window.addEventListener('message', event => {
   }
 })
 
-export const extensionRequest: RequestMethod = (url, opts = {}) => {
+export const extensionRequest: RequestMethod = (
+  url,
+  opts = {},
+  direct = false
+) => {
+  if (direct) return fetch(url, opts)
   return new Promise((resolve, reject) => {
     let id = ++lastId
     let timeout = setTimeout(() => {

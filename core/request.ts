@@ -3,7 +3,7 @@ import { atom } from 'nanostores'
 export interface RequestMethod {
   /**
    * @param direct Request has user’s tokens, so it must skip the proxy
-   *               and go right to the service.
+   *               and the extension and go right to the service.
    */
   (url: string, opts?: RequestInit, direct?: boolean): Promise<Response>
 }
