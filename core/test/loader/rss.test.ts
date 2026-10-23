@@ -332,6 +332,11 @@ describe('rss loader', () => {
               <item>
                 <guid>4</guid>
               </item>
+              <item>
+                <title>5</title>
+                <link>https://example.com/5</link>
+                <guid></guid>
+              </item>
             </channel>
           </rss>`
           )
@@ -365,6 +370,14 @@ describe('rss loader', () => {
             publishedAt: undefined,
             title: undefined,
             url: undefined
+          },
+          {
+            full: undefined,
+            media: undefined,
+            originId: 'https://example.com/5',
+            publishedAt: undefined,
+            title: '5',
+            url: 'https://example.com/5'
           }
         ]
       }

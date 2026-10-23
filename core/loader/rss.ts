@@ -26,7 +26,7 @@ function parsePostSources(text: TextResponse): Element[] {
   let document = text.parseXml()
   return [...document.querySelectorAll('item')].filter(
     item =>
-      item.querySelector('guid')?.textContent ??
+      item.querySelector('guid')?.textContent ||
       item.querySelector('link')?.textContent
   )
 }
@@ -62,7 +62,7 @@ function parsePosts(
         full,
         media: uniqueMedia([...postMedia, ...textMedia]),
         originId:
-          item.querySelector('guid')?.textContent ??
+          item.querySelector('guid')?.textContent ||
           item.querySelector('link')!.textContent,
         publishedAt: toTime(item.querySelector('pubDate')?.textContent),
         title: findOwnChild(item, 'title')?.textContent ?? undefined,
