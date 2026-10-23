@@ -23,6 +23,7 @@ import {
   busy,
   deletePost,
   changeFeed,
+  changePost,
   client,
   commonMessages,
   downloadingCloudData,
@@ -356,6 +357,32 @@ describe('log', () => {
       (await logEntries()).map(entry => entry[1].reasons),
       [['tombstone'], ['tombstone']]
     )
+  })
+
+  test('adds the post with the same ID again', async () => {
+    await signUpCloudUser()
+
+    let feedId = await addFeed(testFeed())
+    let post = testPost({ feedId, id: 'x', originId: 'x' })
+    await addPost({ ...post, title: '1' })
+    await Promise.all([
+      addPost({ ...post, title: '2' }),
+      addPost({ ...post, title: '3' })
+    ])
+    await addPost([
+      { ...post, title: '4' },
+      { ...post, title: '5' }
+    ])
+    await changePost(['x', 'x'], { reading: 'slow' })
+    await waitSync()
+    deepEqual(
+      (await loadPosts()).map(i => [i.id, i.reading]),
+      [['x', 'slow']]
+    )
+
+    await deletePost(['x', 'x'])
+    await waitSync()
+    deepEqual(await loadPosts(), [])
   })
 
   test('ignores actions of unknown tables and verbs', async () => {
