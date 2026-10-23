@@ -996,4 +996,35 @@ describe('add page', () => {
       }
     ])
   })
+
+  test('loads avatars of candidates', async () => {
+    setLayoutType('mobile')
+    let page = openPage({
+      params: {},
+      route: 'add'
+    })
+    keepMount(page.avatars)
+
+    expectRequest('https://example.com').andRespond(
+      200,
+      '<link type="application/atom+xml" href="/feed.atom">'
+    )
+    expectRequest('https://example.com/feed.atom').andRespond(
+      200,
+      '<feed><title>Feed</title><icon>/icon.png</icon></feed>',
+      'text/xml'
+    )
+    expectRequest('https://example.com/icon.png').andRespond(
+      200,
+      'IMAGE',
+      'image/png'
+    )
+
+    page.search('https://example.com')
+    await waitLoading(page.searching)
+    await setTimeout(10)
+    deepEqual(page.avatars.get(), {
+      'https://example.com/feed.atom': 'https://example.com/icon.png'
+    })
+  })
 })

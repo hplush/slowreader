@@ -34,10 +34,18 @@
         <body></body>
       </html>
     `
+  const ICON =
+    'data:image/svg+xml,' +
+    encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">' +
+        '<rect width="16" height="16" fill="#0060df"/></svg>'
+    )
+
   const ATOM = {
     body: `<?xml version="1.0" encoding="utf-8"?>
       <feed xmlns="http://www.w3.org/2005/Atom">
         <title>Example News</title>
+        <icon>${ICON}</icon>
         <updated>2021-01-01T00:00:00Z</updated>
         <id>https://example.com/news.atom</id>
         <entry>

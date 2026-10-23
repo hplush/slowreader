@@ -14,11 +14,13 @@
   type FeedLike = FeedLoader | FeedValue
 
   let {
+    avatars,
     current,
     hints,
     id,
     list
   }: {
+    avatars?: Record<string, string>
     current: string | undefined
     hints?: Record<string, string>
     id?: string
@@ -42,6 +44,8 @@
     <span class="feeds_title">
       {#if 'id' in feed}
         <FeedAvatar avatar={feed.avatar} feedId={feed.id} />
+      {:else if avatars}
+        <FeedAvatar avatar={avatars[feed.url]} />
       {/if}
       {feed.title}
     </span>

@@ -317,7 +317,7 @@ export function buildFullURL(
 async function isBroken(task: DownloadTask, url: string): Promise<boolean> {
   try {
     let response = await task.request(url)
-    await response.body?.cancel()
+    void response.body?.cancel()
     return false
   } catch {
     return true
@@ -657,7 +657,7 @@ export async function isLoadableIcon(
 ): Promise<boolean> {
   try {
     let response = await task.request(url)
-    await response.body?.cancel()
+    void response.body?.cancel()
     // Single-page apps answer with HTML on any path
     return !response.headers.get('content-type')?.startsWith('text/')
   } catch {

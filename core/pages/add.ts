@@ -1,5 +1,5 @@
 import debounce from 'just-debounce-it'
-import { atom, computed, map } from 'nanostores'
+import { atom, computed, map, onMount } from 'nanostores'
 
 import { getEnvironment, layoutType } from '../environment.ts'
 import {
@@ -12,7 +12,8 @@ import {
   type FeedLoader,
   getLoaderForText,
   type LoaderName,
-  loaders
+  loaders,
+  tryLoadFeedData
 } from '../loader/index.ts'
 import { navigate, setPopups } from '../router.ts'
 import { createPage, routeParam } from './common.ts'
@@ -121,6 +122,23 @@ export const addPage = createPage('add', () => {
     }
   )
 
+  let $avatars = map<Record<string, string>>({})
+  onMount($avatars, () => {
+    return $sortedCandidates.subscribe(candidates => {
+      let task = prevTask
+      if (!task) return
+      for (let { name, url } of candidates) {
+        if (url in $avatars.get()) continue
+        $avatars.setKey(url, '')
+        void tryLoadFeedData(task, name, url).then(data => {
+          if (data?.avatar && task === prevTask) {
+            $avatars.setKey(url, data.avatar)
+          }
+        })
+      }
+    })
+  })
+
   let $mixed = computed($sortedCandidates, candidates => {
     return new Set(candidates.map(i => i.name)).size > 1
   })
@@ -145,6 +163,7 @@ export const addPage = createPage('add', () => {
     $links.set({})
     $worse.set([])
     $candidates.set([])
+    $avatars.set({})
     prevTask?.destroy()
   }
 
@@ -354,6 +373,7 @@ export const addPage = createPage('add', () => {
 
   return {
     ...openedFeedMixin,
+    avatars: $avatars,
     candidates: $sortedCandidates,
     mixed: $mixed,
     error: $error,

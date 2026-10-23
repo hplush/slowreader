@@ -18,7 +18,7 @@
   import Stack from '../ui/stack.svelte'
 
   let { page }: { page: AddPage } = $props()
-  let { candidates, error, mixed, noResults, opened, searching } =
+  let { avatars, candidates, error, mixed, noResults, opened, searching } =
     $derived(page)
   let { url } = $derived(page.params)
 
@@ -74,7 +74,13 @@
           />
         </Error>
       {:else}
-        <Feeds id="add-results" current={$opened} {hints} list={$candidates} />
+        <Feeds
+          id="add-results"
+          avatars={$avatars}
+          current={$opened}
+          {hints}
+          list={$candidates}
+        />
       {/if}
     </Stack>
   {/if}
