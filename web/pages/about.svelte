@@ -47,13 +47,22 @@
         <Status icon={mdiAirplane}>{$t.offline}</Status>
       {:else if $clientUpdate === 'latest'}
         <Status icon={mdiCheck}>{$t.noUpdates}</Status>
-      {:else if $clientUpdate}
+      {:else if $clientUpdate === 'checking'}
         <Button
           icon={mdiRefresh}
-          loader={$clientUpdate === 'checking'}
+          loader
           onclick={getEnvironment().updateClient}
           size="wide"
           variant="secondary"
+        >
+          {$t.update}
+        </Button>
+      {:else if $clientUpdate}
+        <Button
+          icon={mdiRefresh}
+          onclick={getEnvironment().updateClient}
+          size="wide"
+          variant="attention"
         >
           {$t.update}
         </Button>
