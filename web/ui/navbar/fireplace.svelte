@@ -24,18 +24,27 @@
     }
 
     :is(a:hover, a:focus-visible) .navbar-fireplace path:nth-of-type(n + 2) {
+      --navbar-fireplace-rest: var(--fire-outer-color);
+      --navbar-fireplace-hot: var(--fire-middle-color);
+
       transform-origin: 50% 100%;
       animation:
-        --navbar-fireplace-flame 2s infinite ease-in-out,
-        --navbar-fireplace-flare 1.3s infinite ease-in-out;
+        --navbar-fireplace-flame 1.5s infinite ease-in-out,
+        --navbar-fireplace-flare 1s infinite ease-in-out;
     }
 
     :is(a:hover, a:focus-visible) .navbar-fireplace path:nth-of-type(3) {
-      animation-duration: 1.4s, 1.1s;
+      --navbar-fireplace-rest: var(--fire-middle-color);
+      --navbar-fireplace-hot: var(--fire-inner-color);
+
+      animation-duration: 1.05s, 0.8s;
     }
 
-    :is(a:hover, a:focus-visible) .navbar-fireplace path:nth-of-type(5) {
-      animation-duration: 1s, 0.7s;
+    :is(a:hover, a:focus-visible) .navbar-fireplace path:nth-of-type(4) {
+      --navbar-fireplace-rest: var(--fire-inner-color);
+      --navbar-fireplace-hot: var(--fire-hot-color);
+
+      animation-duration: 0.75s, 0.5s;
     }
 
     @keyframes --navbar-fireplace-flame {
@@ -49,8 +58,15 @@
     }
 
     @keyframes --navbar-fireplace-flare {
+      0%,
+      40%,
+      100% {
+        fill: var(--navbar-fireplace-rest);
+      }
+
       50% {
         scale: 1 1.12;
+        fill: var(--navbar-fireplace-hot);
       }
     }
   }
