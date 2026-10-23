@@ -11,10 +11,12 @@
   let {
     authors,
     feedUrl,
+    highlight = true,
     posts
   }: {
     authors?: ReadonlyMap<string, FeedAuthor>
     feedUrl?: string
+    highlight?: boolean
     posts: readonly (PreviewPost | ReaderPost)[]
   } = $props()
 </script>
@@ -22,7 +24,7 @@
 <ul class="feed">
   {#each posts as post (post.id)}
     {@const author = getFeedAuthor(post, authors)}
-    <FeedPost {author} feedUrl={author?.url ?? feedUrl} {post} />
+    <FeedPost {author} feedUrl={author?.url ?? feedUrl} {highlight} {post} />
   {/each}
 </ul>
 

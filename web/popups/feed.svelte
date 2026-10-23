@@ -135,6 +135,7 @@
         {#if $posts.list.length > 0}
           <Feed
             feedUrl={popup.param}
+            highlight={false}
             posts={collapseThreads($posts.list).map(toPreviewPost)}
           />
         {/if}

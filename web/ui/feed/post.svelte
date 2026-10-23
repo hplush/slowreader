@@ -29,16 +29,18 @@
   let {
     author,
     feedUrl,
+    highlight,
     post
   }: {
     author: FeedAuthor | undefined
     feedUrl: string | undefined
+    highlight: boolean
     post: PreviewPost | ReaderPost
   } = $props()
 
   let [intro, more] = $derived(getPostIntro(post))
   let param = $derived(getPostPopupParam('origin' in post ? post.origin : post))
-  let current = $derived(isOpenedPost($openedPost, post))
+  let current = $derived(highlight && isOpenedPost($openedPost, post))
 </script>
 
 <li
