@@ -602,11 +602,11 @@ describe('rss loader', () => {
           <channel>
             <item xml:base="https://cdn.example.com/files/">
               <link>https://example.com/posts/1</link>
-              <description><![CDATA[<img src="a.png">]]></description>
+              <description><![CDATA[<img src="a.png" alt="">]]></description>
             </item>
             <item>
               <link>https://example.com/posts/2</link>
-              <description><![CDATA[<img src="/b.png">]]></description>
+              <description><![CDATA[<img src="/b.png" alt=" Cat ">]]></description>
             </item>
           </channel>
         </rss>`
@@ -617,7 +617,7 @@ describe('rss loader', () => {
       posts.get().list.map(i => [i.full, i.media]),
       [
         [
-          '<img src="https://cdn.example.com/files/a.png">',
+          '<img src="https://cdn.example.com/files/a.png" alt="">',
           [
             {
               fromText: true,
@@ -627,8 +627,15 @@ describe('rss loader', () => {
           ]
         ],
         [
-          '<img src="https://example.com/b.png">',
-          [{ fromText: true, type: 'image', url: 'https://example.com/b.png' }]
+          '<img src="https://example.com/b.png" alt=" Cat ">',
+          [
+            {
+              alt: 'Cat',
+              fromText: true,
+              type: 'image',
+              url: 'https://example.com/b.png'
+            }
+          ]
         ]
       ]
     )

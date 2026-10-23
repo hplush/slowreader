@@ -566,11 +566,14 @@ export function findMediaInText(html: string | undefined): PostMedia[] {
   if (!html) return []
   let images = parseDocument(html).querySelectorAll('img[src]')
   return [...images].map(img => {
-    return {
+    let media: PostMedia = {
       fromText: true,
       type: 'image',
       url: img.getAttribute('src')!
-    } satisfies PostMedia
+    }
+    let alt = img.getAttribute('alt')?.trim()
+    if (alt) media.alt = alt
+    return media
   })
 }
 
