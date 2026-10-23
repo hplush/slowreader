@@ -5,6 +5,7 @@
     mdiCellphoneArrowDown,
     mdiCheck,
     mdiEye,
+    mdiHistory,
     mdiRefresh,
     mdiServerSecurity,
     mdiShieldSearch
@@ -43,30 +44,44 @@
     </Stack>
     <Stack gap="s">
       <Output label={$t.version} value={page.appVersion} />
-      {#if $clientUpdate === 'offline'}
-        <Status icon={mdiAirplane}>{$t.offline}</Status>
-      {:else if $clientUpdate === 'latest'}
-        <Status icon={mdiCheck}>{$t.noUpdates}</Status>
-      {:else if $clientUpdate === 'checking'}
+      <Stack gap="xs" row>
+        {#if $clientUpdate === 'offline'}
+          <Status icon={mdiAirplane} joined="start">{$t.offline}</Status>
+        {:else if $clientUpdate === 'latest'}
+          <Status icon={mdiCheck} joined="start">{$t.noUpdates}</Status>
+        {:else if $clientUpdate === 'checking'}
+          <Button
+            icon={mdiRefresh}
+            joined="start"
+            loader
+            onclick={getEnvironment().updateClient}
+            size="wide"
+            variant="secondary"
+          >
+            {$t.update}
+          </Button>
+        {:else if $clientUpdate}
+          <Button
+            icon={mdiRefresh}
+            joined="start"
+            onclick={getEnvironment().updateClient}
+            size="wide"
+            variant="attention"
+          >
+            {$t.update}
+          </Button>
+        {/if}
         <Button
-          icon={mdiRefresh}
-          loader
-          onclick={getEnvironment().updateClient}
+          href="https://github.com/hplush/slowreader/blob/main/CHANGELOG.md"
+          icon={mdiHistory}
+          joined="end"
           size="wide"
+          target="_blank"
           variant="secondary"
         >
-          {$t.update}
+          {$t.changelog}
         </Button>
-      {:else if $clientUpdate}
-        <Button
-          icon={mdiRefresh}
-          onclick={getEnvironment().updateClient}
-          size="wide"
-          variant="attention"
-        >
-          {$t.update}
-        </Button>
-      {/if}
+      </Stack>
     </Stack>
     {#if $installation === 'available'}
       <Button

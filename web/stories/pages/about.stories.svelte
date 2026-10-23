@@ -25,7 +25,12 @@
   </Scene>
 </Story>
 
-<Story name="Installed" asChild parameters={{ layout: 'fullscreen' }}>
+<Story
+  name="Installed Mobile"
+  asChild
+  globals={{ viewport: { value: 'mobile2' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
   <Scene
     oninit={() => {
       installation.set('installed')

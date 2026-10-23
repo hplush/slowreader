@@ -3,6 +3,7 @@
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import Button from '../../ui/button.svelte'
+  import Stack from '../../ui/stack.svelte'
   import Status from '../../ui/status.svelte'
   import Section from '../section.svelte'
 
@@ -24,5 +25,11 @@
   </Section>
   <Section width={300}>
     <Button icon={mdiCheck} size="wide">Button to compare</Button>
+  </Section>
+  <Section width={300}>
+    <Stack gap="xs" row>
+      <Status icon={mdiCheck} joined="start">Joined</Status>
+      <Button joined="end" size="wide">Button</Button>
+    </Stack>
   </Section>
 </Story>
