@@ -129,7 +129,13 @@ describe('feed popup', () => {
   })
 
   test('shows existing feed before posts are loaded', async () => {
-    let feedId = await addFeed(testFeed({ url: 'https://a.com/atom' }))
+    let feedId = await addFeed(
+      testFeed({
+        originTitle: 'Atom',
+        title: 'Mine',
+        url: 'https://a.com/atom'
+      })
+    )
     expectRequest('https://a.com/atom').andRespond(
       200,
       '<feed><title>Atom</title>' +
@@ -166,8 +172,23 @@ describe('feed popup', () => {
 
     await checkLoadedPopup(popup).remove()
     equal(checkLoadedPopup(popup).feed.get(), undefined)
+    equal(checkLoadedPopup(popup).title, 'Atom')
     let addedId = await checkLoadedPopup(popup).add()
     equal(checkLoadedPopup(popup).feed.get()?.id, addedId)
+  })
+
+  test('keeps title of unsubscribed feed without origin title', async () => {
+    await addFeed(testFeed({ title: 'Mine', url: 'https://a.com/atom' }))
+    expectRequest('https://a.com/atom').andRespond(
+      200,
+      '<feed><title>Atom</title></feed>',
+      'text/xml'
+    )
+    let popup = openTestPopup('feed', 'https://a.com/atom')
+    await waitLoading(popup.loading)
+    await checkLoadedPopup(popup).remove()
+    equal(checkLoadedPopup(popup).feed.get(), undefined)
+    equal(checkLoadedPopup(popup).title, 'Mine')
   })
 
   test('loads feeds by URL popup', async () => {

@@ -310,6 +310,13 @@ export const feed = definePopup('feed', async url => {
     }
   }
 
+  let title = ''
+  if (existing) {
+    title = existing.originTitle || existing.title
+  } else if (candidate) {
+    title = candidate.title
+  }
+
   return {
     accountError: $accountError,
     accounts,
@@ -329,7 +336,7 @@ export const feed = definePopup('feed', async url => {
     posts,
     remove,
     rename,
-    title: candidate ? candidate.title : ''
+    title
   }
 })
 
