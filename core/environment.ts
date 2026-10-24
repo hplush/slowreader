@@ -154,6 +154,12 @@ export interface Environment {
   errorEvents: ErrorEvents
 
   /**
+   * Keep welcome page even after user created own feeds,
+   * like until PWA install in Safari.
+   */
+  forceWelcome?: ReadableAtom<boolean>
+
+  /**
    * Sign in or re-auth by passkey. Returns `undefined` if user cancelled it.
    */
   getPasskey(
@@ -308,6 +314,7 @@ export function setupEnvironment<Router extends BaseRouter>(
     databaseCreator: env.databaseCreator,
     dumpDatabase: env.dumpDatabase,
     errorEvents: env.errorEvents,
+    forceWelcome: env.forceWelcome,
     getPasskey: env.getPasskey,
     getSession: env.getSession,
     loadEncryptionKey: env.loadEncryptionKey,

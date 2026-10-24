@@ -18,7 +18,7 @@
   import { onMount } from 'svelte'
 
   import { checkClientUpdate, clientUpdate } from '../stores/client-update.ts'
-  import { installApp, installation } from '../stores/install.ts'
+  import { installApp, mobileInstall } from '../stores/install.ts'
   import AppIcon from '../ui/app-icon.svelte'
   import Button from '../ui/button.svelte'
   import Note from '../ui/note.svelte'
@@ -77,11 +77,21 @@
         </Button>
       {/if}
     </Stack>
-    {#if $installation === 'available'}
+    {#if $mobileInstall.type === 'prompt'}
       <Button
         icon={mdiCellphoneArrowDown}
         onclick={installApp}
         size="big"
+        variant="main"
+      >
+        {$t.install}
+      </Button>
+    {:else if $mobileInstall.type === 'guide'}
+      <Button
+        href={$mobileInstall.help}
+        icon={mdiCellphoneArrowDown}
+        size="big"
+        target="_blank"
         variant="main"
       >
         {$t.install}

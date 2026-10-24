@@ -1,5 +1,5 @@
 import { persistentAtom, persistentBoolean } from '@nanostores/persistent'
-import { computed, effect } from 'nanostores'
+import { atom, computed, effect } from 'nanostores'
 
 import { onEnvironment } from './environment.ts'
 import { hasSources } from './feed.ts'
@@ -18,6 +18,7 @@ export type WelcomeStep =
   | 'extension'
   | 'fast'
   | 'import'
+  | 'install'
   | 'read'
   | 'slow'
 
@@ -35,23 +36,25 @@ export const welcomeSteps = persistentAtom<undefined | WelcomeSteps>(
   }
 )
 
-export const needWelcome = computed([hasSources, isDemo], (sources, demo) => {
-  if (demo) return true
-  return typeof sources === 'undefined' ? undefined : !sources
-})
+export const needWelcome = atom<boolean | undefined>()
 
 export interface WelcomeTodo {
   demo: boolean
   done: Set<WelcomeStep>
+  locked: Set<WelcomeStep>
 }
 
 export const welcomeTodo = computed(
   [welcomeSteps, isDemo, hasSources],
   (steps, demo, sources): WelcomeTodo => {
-    let done = new Set(steps?.done)
-    if (!demo) done.add('clean')
-    if (!demo && sources) done.add('import')
-    return { demo: demo || !!steps?.demo, done }
+    let locked = new Set<WelcomeStep>()
+    if (!demo) locked.add('clean')
+    if (!demo && sources) locked.add('import')
+    return {
+      demo: demo || !!steps?.demo,
+      done: new Set([...(steps?.done ?? []), ...locked]),
+      locked
+    }
   }
 )
 
@@ -64,7 +67,27 @@ export function markWelcomeStep(...steps: WelcomeStep[]): void {
   }
 }
 
-onEnvironment(() => {
+export function unmarkWelcomeStep(...steps: WelcomeStep[]): void {
+  let current = welcomeSteps.get()
+  if (!current) return
+  welcomeSteps.set({
+    ...current,
+    done: current.done.filter(step => !steps.includes(step))
+  })
+}
+
+onEnvironment(({ forceWelcome = atom(false) }) => {
+  let unbindNeed = effect(
+    [hasSources, isDemo, forceWelcome],
+    (sources, demo, forced) => {
+      if (demo || forced) {
+        needWelcome.set(true)
+      } else {
+        needWelcome.set(typeof sources === 'undefined' ? undefined : !sources)
+      }
+    }
+  )
+
   let unbindSteps = effect(
     [welcomeSteps, needWelcome, downloadingCloudData, router],
     (steps, welcome, downloading, { route }) => {
@@ -87,6 +110,7 @@ onEnvironment(() => {
   })
 
   return () => {
+    unbindNeed()
     unbindSteps()
     unbindVisits()
     unbindExtension()

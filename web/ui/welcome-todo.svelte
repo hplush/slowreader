@@ -1,7 +1,10 @@
 <script lang="ts">
   import {
     mdiAccountMultiple,
+    mdiCellphoneArrowDown,
     mdiCheck,
+    mdiCloudUpload,
+    mdiDeleteClock,
     mdiFireplace,
     mdiFood,
     mdiImport,
@@ -12,58 +15,82 @@
     keepDemo,
     markWelcomeStep,
     welcomeMessages as t,
+    unmarkWelcomeStep,
     type WelcomeStep,
     type WelcomeTodo
   } from '@slowreader/core'
 
+  import { installApp } from '../stores/install.ts'
   import { getURL } from '../stores/url-router.ts'
   import Button from './button.svelte'
   import Icon from './icon.svelte'
+  import Note from './note.svelte'
+  import RichText from './rich-text.svelte'
   import Stack from './stack.svelte'
 
-  let { extension, todo }: { extension: string; todo: WelcomeTodo } = $props()
+  let {
+    extension,
+    install,
+    todo
+  }: {
+    extension: string | undefined
+    install: { help: string; type: 'guide' } | { type: 'none' | 'prompt' }
+    todo: WelcomeTodo
+  } = $props()
+
+  let uid = $props.id()
 </script>
 
 {#snippet checkbox(steps: WelcomeStep[], text: string, labelless = false)}
   {@const done = steps.every(step => todo.done.has(step))}
-  <label class="welcome-todo_label">
-    <input
-      class="sr-only"
-      aria-label={labelless ? text : undefined}
-      checked={done}
-      disabled={done}
-      onchange={() => {
-        markWelcomeStep(...steps)
-      }}
-      type="checkbox"
-    />
-    <span class="welcome-todo_mark">
-      {#if done}
-        <Icon path={mdiCheck} />
-      {/if}
-    </span>
+  {@const textId = uid + steps.join('-')}
+  <div class="welcome-todo_title">
+    <label class="welcome-todo_box">
+      <input
+        class="sr-only"
+        aria-label={labelless ? text : undefined}
+        aria-labelledby={labelless ? undefined : textId}
+        checked={done}
+        disabled={steps.some(step => todo.locked.has(step))}
+        onchange={e => {
+          if (e.currentTarget.checked) {
+            markWelcomeStep(...steps)
+          } else {
+            unmarkWelcomeStep(...steps)
+          }
+        }}
+        type="checkbox"
+      />
+      <span class="welcome-todo_mark">
+        {#if done}
+          <Icon path={mdiCheck} />
+        {/if}
+      </span>
+    </label>
     {#if !labelless}
-      <span class="welcome-todo_text">{text}</span>
+      <span id={textId} class="welcome-todo_text">{text}</span>
     {/if}
-  </label>
+  </div>
 {/snippet}
 
 <ol class="welcome-todo">
   {#if todo.demo}
     <li class="welcome-todo_step">
       {@render checkbox(['slow', 'fast'], $t.explore)}
-      <ol class="welcome-todo_substeps">
-        <li class="welcome-todo_substep">
-          {@render checkbox(['slow'], $t.slowFeeds, true)}
-          <Button href={getURL('slow')} icon={mdiFireplace}>
-            {$t.slowFeeds}
-          </Button>
-        </li>
-        <li class="welcome-todo_substep">
-          {@render checkbox(['fast'], $t.fastFeeds, true)}
-          <Button href={getURL('fast')} icon={mdiFood}>{$t.fastFeeds}</Button>
-        </li>
-      </ol>
+      {#if !todo.done.has('slow') || !todo.done.has('fast')}
+        <ol class="welcome-todo_substeps">
+          <li class="welcome-todo_substep">
+            {@render checkbox(['slow'], $t.slowFeeds, true)}
+            <Button href={getURL('slow')} icon={mdiFireplace}>
+              {$t.slowFeeds}
+            </Button>
+          </li>
+          <li class="welcome-todo_substep">
+            {@render checkbox(['fast'], $t.fastFeeds, true)}
+            <Button href={getURL('fast')} icon={mdiFood}>{$t.fastFeeds}</Button>
+          </li>
+        </ol>
+      {/if}
     </li>
     <li class="welcome-todo_step">
       {@render checkbox(['clean'], $t.clean)}
@@ -82,14 +109,6 @@
     </li>
   {/if}
   <li class="welcome-todo_step">
-    {@render checkbox(['extension'], $t.extension)}
-    {#if !todo.done.has('extension')}
-      <Button href={extension} icon={mdiPuzzle} target="_blank">
-        {$t.install}
-      </Button>
-    {/if}
-  </li>
-  <li class="welcome-todo_step">
     {@render checkbox(['import'], $t.import)}
     {#if !todo.done.has('import')}
       <Stack gap="m" row>
@@ -102,6 +121,47 @@
       </Stack>
     {/if}
   </li>
+  {#if extension}
+    <li class="welcome-todo_step">
+      {@render checkbox(['extension'], $t.extension)}
+      {#if !todo.done.has('extension')}
+        <Button href={extension} icon={mdiPuzzle} target="_blank">
+          {$t.install}
+        </Button>
+      {/if}
+    </li>
+  {/if}
+  {#if install.type === 'guide'}
+    <li class="welcome-todo_step">
+      {@render checkbox(['install'], $t.installApp)}
+      {#if !todo.done.has('install')}
+        <div class="welcome-todo_wide">
+          <Note icon={mdiDeleteClock} variant="warning">
+            {$t.installWarning}
+          </Note>
+        </div>
+        <RichText text={$t.installSteps} url={install.help} />
+        <Button href={getURL('signUp')} icon={mdiCloudUpload}>
+          {$t.signUp}
+        </Button>
+      {/if}
+    </li>
+  {:else if install.type === 'prompt'}
+    <li class="welcome-todo_step">
+      {@render checkbox(['install'], $t.installApp)}
+      {#if !todo.done.has('install')}
+        <Button
+          icon={mdiCellphoneArrowDown}
+          onclick={() => {
+            markWelcomeStep('install')
+            void installApp()
+          }}
+        >
+          {$t.install}
+        </Button>
+      {/if}
+    </li>
+  {/if}
   <li class="welcome-todo_step">
     {@render checkbox(['read'], $t.read)}
   </li>
@@ -140,11 +200,15 @@
       align-items: center;
     }
 
-    .welcome-todo_label {
+    .welcome-todo_wide {
+      align-self: stretch;
+      margin-inline-start: calc(-2 * (1rem + var(--control-padding)));
+    }
+
+    .welcome-todo_title {
       display: flex;
       gap: var(--control-padding);
       align-items: flex-start;
-      border-radius: var(--base-radius);
 
       .welcome-todo_step > & {
         margin-inline-start: calc(-2 * (1rem + var(--control-padding)));
@@ -158,10 +222,11 @@
           content: counter(step) '.';
         }
       }
+    }
 
-      &:has(:focus-visible) {
-        @mixin focus;
-      }
+    .welcome-todo_box {
+      display: flex;
+      flex-shrink: 0;
 
       html:not(.is-quiet-cursor) &:not(:has(:disabled)) {
         cursor: pointer;
@@ -182,11 +247,15 @@
 
       --icon-size: 0.875rem;
 
-      .welcome-todo_label:has(:checked) & {
+      .welcome-todo_box:has(:focus-visible) & {
+        @mixin focus;
+      }
+
+      .welcome-todo_box:has(:checked) & {
         background: var(--accent-color);
       }
 
-      .welcome-todo_label:not(:has(:disabled)):active & {
+      .welcome-todo_box:not(:has(:disabled)):active & {
         translate: 0 1px;
       }
     }
@@ -195,7 +264,7 @@
       font: var(--control-font);
       overflow-wrap: anywhere;
 
-      .welcome-todo_label:has(:checked) & {
+      .welcome-todo_title:has(:checked) & {
         color: var(--secondary-text-color);
       }
     }

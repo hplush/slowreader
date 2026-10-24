@@ -4,7 +4,7 @@
 
   import AboutPage from '../../pages/about.svelte'
   import { clientUpdate } from '../../stores/client-update.ts'
-  import { installation } from '../../stores/install.ts'
+  import { installation, safariBrowser } from '../../stores/install.ts'
   import Scene from '../scene.svelte'
 
   let { Story } = defineMeta({
@@ -17,6 +17,7 @@
   <Scene
     oninit={() => {
       installation.set('available')
+      safariBrowser.set(false)
       clientUpdate.set('available')
     }}
     route="about"
@@ -34,6 +35,7 @@
   <Scene
     oninit={() => {
       installation.set('installed')
+      safariBrowser.set(false)
       clientUpdate.set('latest')
     }}
     route="about"
@@ -42,10 +44,16 @@
   </Scene>
 </Story>
 
-<Story name="Offline" asChild parameters={{ layout: 'fullscreen' }}>
+<Story
+  name="Offline Mobile"
+  asChild
+  globals={{ viewport: { value: 'mobile2' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
   <Scene
     oninit={() => {
-      installation.set('unavailable')
+      installation.set('available')
+      safariBrowser.set(false)
       clientUpdate.set('offline')
     }}
     route="about"
@@ -54,10 +62,16 @@
   </Scene>
 </Story>
 
-<Story name="Checking" asChild parameters={{ layout: 'fullscreen' }}>
+<Story
+  name="Checking Mobile"
+  asChild
+  globals={{ viewport: { value: 'mobile2' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
   <Scene
     oninit={() => {
       installation.set('unavailable')
+      safariBrowser.set(true)
       clientUpdate.set('checking')
     }}
     route="about"

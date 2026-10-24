@@ -20,6 +20,11 @@ export const welcomeMessages = i18n('welcome', {
   fastFeeds: 'Fun feeds',
   import: 'Add social feeds or/and import RSS',
   install: 'Install',
+  installApp: 'Install the app',
+  installSteps:
+    '[Install] via **…** → **Share** → **Add to Home Screen**, or create a cloud account',
+  signUp: 'Sign up for cloud',
+  installWarning: 'Safari deletes your feeds after 7 days without visits',
   keep: 'Keep as mine',
   openAccounts: 'Accounts',
   openImport: 'Import RSS',

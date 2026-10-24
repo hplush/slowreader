@@ -26,6 +26,7 @@ import {
 } from '../lib/passkey.ts'
 import { savePassword } from '../lib/password.ts'
 import { updateClient } from '../stores/client-update.ts'
+import { safariNeedsInstall } from '../stores/install.ts'
 import { locale } from '../stores/locale.ts'
 import { mobileMedia, tabletMedia } from '../stores/media-queries.ts'
 import { usedRequestMethod } from '../stores/request-method.ts'
@@ -97,6 +98,7 @@ setupEnvironment({
   databaseCreator: createDatabase,
   errorEvents: window,
   dumpDatabase,
+  forceWelcome: safariNeedsInstall,
   getPasskey,
   getSession() {
     // Browser will use session from http-only cookie
