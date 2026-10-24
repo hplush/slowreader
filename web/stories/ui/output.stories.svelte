@@ -21,7 +21,7 @@
       return args[1] && args[1] >= 1000 ? 0 : timeout(...args)
     }) as typeof window.setTimeout
 
-    await userEvent.setup({}).click(canvas.getAllByRole('button')[1]!)
+    await userEvent.setup({}).click(canvas.getAllByRole('button')[2]!)
     await canvas.findByRole('button', { name: 'Copied' })
     window.setTimeout = timeout
   }
@@ -30,6 +30,7 @@
 <Story name="Light" asChild play={copy}>
   <Section stack width={200}>
     <Output label="Base" value="test" />
+    <Output font="normal" label="Normal" value="Feed title" />
     <Output label="Copied" value="test" />
   </Section>
 </Story>
@@ -42,6 +43,7 @@
 >
   <Section stack width={200}>
     <Output label="Base" value="test" />
+    <Output font="normal" label="Normal" value="Feed title" />
     <Output label="Copied" value="test" />
   </Section>
 </Story>

@@ -36,6 +36,7 @@
     {/if}
     <Stack>
       <Output
+        font="normal"
         label={$t.size}
         value={$size === undefined
           ? $t.sizeLoading
@@ -64,6 +65,7 @@
     </Stack>
     <Stack>
       <Output
+        font="normal"
         label={$t.mediaSize}
         value={$mediaSize === undefined
           ? $t.sizeLoading

@@ -9,10 +9,12 @@
   import Label from './label.svelte'
 
   let {
+    font = 'mono',
     label,
     value = $bindable(''),
     ...props
   }: {
+    font?: 'mono' | 'normal'
     label: string
   } & HTMLInputAttributes = $props()
 
@@ -28,7 +30,7 @@
 
   async function copy(): Promise<void> {
     try {
-      // eslint-disable-next-line n/no-unsupported-features/node-builtins
+       
       await navigator.clipboard.writeText(value)
     } catch {
       return
@@ -47,6 +49,7 @@
     <input
       {id}
       class="output_field"
+      class:is-mono={font === 'mono'}
       onfocus={e => {
         e.currentTarget.select()
       }}
@@ -93,11 +96,14 @@
       padding-block: 0;
       padding-inline: var(--control-padding)
         calc(var(--control-height) + var(--control-padding));
-      font: var(--mono-font);
       color: inherit;
       background: transparent;
       border: none;
       border-radius: var(--base-radius);
+
+      &.is-mono {
+        font: var(--mono-font);
+      }
     }
 
     .output_button {

@@ -39,13 +39,15 @@
         value={$passkey.name}
       />
       {#if $passkey.provider}
-        <Output label={$t.provider} value={$passkey.provider} />
+        <Output font="normal" label={$t.provider} value={$passkey.provider} />
       {/if}
       <Output
+        font="normal"
         label={$t.passkeyType}
         value={$passkey.synced ? $t.synced : $t.deviceBound}
       />
       <Output
+        font="normal"
         label={$t.created}
         value={$i18nFormat.time($passkey.createdAt, {
           dateStyle: 'medium',
@@ -53,6 +55,7 @@
         })}
       />
       <Output
+        font="normal"
         label={$t.used}
         value={$i18nFormat.time($passkey.usedAt, {
           dateStyle: 'medium',

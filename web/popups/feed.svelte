@@ -84,7 +84,7 @@
           value={$feed ? $feed.title : popup.title}
         />
       {:else}
-        <Output label={$t.title} value={popup.title} />
+        <Output font="normal" label={$t.title} value={popup.title} />
       {/if}
     </Stack>
     <Output

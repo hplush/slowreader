@@ -37,7 +37,7 @@
     <Stack gap="l">
       <Stack align="end" gap="s" row>
         <FeedAvatar avatar={row.avatar} icon={mdiAccount} size="large" />
-        <Output label={$t.name} value={row.title} />
+        <Output font="normal" label={$t.name} value={row.title} />
       </Stack>
       <Output label={$t.handle} value={row.handle} />
       <CategorySelect

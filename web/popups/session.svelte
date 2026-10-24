@@ -31,18 +31,27 @@
     <Stack gap="l">
       <Title>{$session.name}</Title>
       {#if $session.current}
-        <Output label={$t.sessionStatus} value={$t.thisDevice} />
+        <Output font="normal" label={$t.sessionStatus} value={$t.thisDevice} />
       {:else if $session.online}
-        <Output label={$t.sessionStatus} value={$t.online} />
+        <Output font="normal" label={$t.sessionStatus} value={$t.online} />
       {/if}
       {#if $session.method.type === 'passkey'}
-        <Output label={$t.signInMethod} value={$session.method.name} />
+        <Output
+          font="normal"
+          label={$t.signInMethod}
+          value={$session.method.name}
+        />
       {:else if $session.method.type === 'deleted'}
-        <Output label={$t.signInMethod} value={$t.byDeletedPasskey} />
+        <Output
+          font="normal"
+          label={$t.signInMethod}
+          value={$t.byDeletedPasskey}
+        />
       {:else}
-        <Output label={$t.signInMethod} value={$t.byPassword} />
+        <Output font="normal" label={$t.signInMethod} value={$t.byPassword} />
       {/if}
       <Output
+        font="normal"
         label={$t.created}
         value={$i18nFormat.time($session.createdAt, {
           dateStyle: 'medium',
@@ -50,6 +59,7 @@
         })}
       />
       <Output
+        font="normal"
         label={$t.used}
         value={$i18nFormat.time($session.usedAt, {
           dateStyle: 'medium',
