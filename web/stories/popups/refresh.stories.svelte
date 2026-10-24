@@ -1,5 +1,6 @@
 <script context="module" lang="ts">
   import {
+    accountsMessages,
     HTTPStatusError,
     mediaErrors,
     mediaStatistics,
@@ -7,7 +8,8 @@
     refreshErrors,
     refreshStatistics,
     refreshStatus,
-    testFeed
+    testFeed,
+    UserFacingError
   } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
@@ -102,6 +104,10 @@
         {
           error: new NetworkError(new TypeError('fetch failed')),
           feed: testFeed()
+        },
+        {
+          account: { id: 'account', title: 'Андрей Ситник' },
+          error: new UserFacingError(accountsMessages.get().signInExpired)
         },
         {
           error: new HTTPStatusError(500, 'server is down', '', new Headers()),

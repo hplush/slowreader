@@ -13,6 +13,7 @@
   const ACCOUNTS = [
     { handle: '@sitnik@mastodon.social', title: 'Andrey Sitnik' },
     {
+      expired: true,
       handle: '@sitnik.bsky.social',
       server: 'https://amanita.us-east.host.bsky.network',
       service: 'bluesky' as const,

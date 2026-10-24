@@ -362,6 +362,7 @@ describe('accounts page', () => {
         clientSecret: 'secret',
         tokenUrl: 'https://social.example.com/oauth/token'
       },
+      expired: false,
       follow: true,
       handle: '@user@social.example.com',
       lastOriginId: null,
@@ -621,6 +622,7 @@ describe('accounts page', () => {
           refreshToken: 'refresh',
           tokenUrl: BLUESKY_METADATA.token_endpoint
         },
+        expired: false,
         follow: true,
         handle: '@user.bsky.social',
         lastOriginId: null,

@@ -838,7 +838,10 @@ async function refreshTokens(auth: AccountAuth): Promise<void> {
   } catch (e) {
     if (!HTTPStatusError.is(e, [400, 401])) throw e
     let fromOtherDevice = await auth.reload()
-    if (!fromOtherDevice) throw new UserFacingError(t.get().signInAgain)
+    if (!fromOtherDevice) {
+      await auth.expire()
+      throw new UserFacingError(t.get().signInExpired)
+    }
     auth.account = { ...auth.account, credentials: fromOtherDevice }
     return
   }

@@ -6,16 +6,12 @@ import {
   getAccounts,
   openAccountSignInPage,
   returnToAccountSignIn,
+  signInErrorToMessage,
   startAccountSignIn
 } from '../account.ts'
 import { busyDuring } from '../busy.ts'
 import { getEnvironment } from '../environment.ts'
-import {
-  errorToMessage,
-  NetworkError,
-  showCrash,
-  UserFacingError
-} from '../errors.ts'
+import { showCrash } from '../errors.ts'
 import type { SignInField, SignInStep } from '../loader/common.ts'
 import { loaders } from '../loader/index.ts'
 import { POPULAR_MASTODON_SERVERS } from '../loader/mastodon.ts'
@@ -34,15 +30,6 @@ export const accountsPage = createPage('accounts', () => {
   let $input = atom('')
   let $step = atom<AccountsStep>({ type: 'list' })
   let $submitting = atom(false)
-
-  function toMessage(e: unknown): string {
-    if (e instanceof UserFacingError || NetworkError.is(e)) {
-      return errorToMessage(e)
-    } else {
-      env.warn(e)
-      return t.get().signInFailed
-    }
-  }
 
   /**
    * Data of the loader between form fields.
@@ -123,7 +110,7 @@ export const accountsPage = createPage('accounts', () => {
             })
       )
     } catch (e) {
-      $error.set(toMessage(e))
+      $error.set(signInErrorToMessage(e))
     } finally {
       $submitting.set(false)
     }

@@ -197,8 +197,10 @@ await refreshPosts()
 unbindRefresh()
 delete storage['slowreader:cacheMediaReading']
 for (let failed of refreshErrors.get()) {
-  warning(`Skipped ${failed.feed.url}: ${errorToMessage(failed.error)}`)
-  await deleteFeed(failed.feed.id)
+  if ('feed' in failed) {
+    warning(`Skipped ${failed.feed.url}: ${errorToMessage(failed.error)}`)
+    await deleteFeed(failed.feed.id)
+  }
 }
 for (let warned of warnings) {
   if (!isRemoteError(warned)) error(warned)

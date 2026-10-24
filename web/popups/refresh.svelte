@@ -93,12 +93,22 @@
           <Title>{$t.errors}</Title>
           <ErrorList
             list={[
-              ...$refreshErrors.map(item => ({
-                errorText: errorToMessage(item.error),
-                feedId: item.feed.id,
-                title: item.feed.title,
-                url: getPopupHash($router, 'feed', item.feed.url)
-              })),
+              ...$refreshErrors.map(item => {
+                if ('account' in item) {
+                  return {
+                    errorText: errorToMessage(item.error),
+                    title: item.account.title,
+                    url: getPopupHash($router, 'account', item.account.id)
+                  }
+                } else {
+                  return {
+                    errorText: errorToMessage(item.error),
+                    feedId: item.feed.id,
+                    title: item.feed.title,
+                    url: getPopupHash($router, 'feed', item.feed.url)
+                  }
+                }
+              }),
               ...$mediaErrors.map(item => {
                 if (item.type === 'quota') {
                   return {

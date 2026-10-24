@@ -1032,6 +1032,7 @@ describe('mastodon account', () => {
         tokenUrl: 'https://mastodon.social/oauth/token'
       }
     }),
+    expire: () => Promise.resolve(),
     reload: () => Promise.resolve(undefined),
     save: () => Promise.resolve()
   }

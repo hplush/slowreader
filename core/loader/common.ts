@@ -70,6 +70,11 @@ export interface AccountAuth {
   account: AccountValue
 
   /**
+   * Mark that the service refused the credentials and nothing can renew them.
+   */
+  expire(): Promise<void>
+
+  /**
    * Refresh token is single-use, so the failed refresh could mean that
    * another device already used it. Returns tokens from that device after
    * the sync, if they are new.

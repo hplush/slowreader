@@ -16,7 +16,10 @@
     title: 'Popups/Account'
   })
 
-  function popup(account: Partial<AccountValue>): AccountPopup {
+  function popup(
+    account: Partial<AccountValue>,
+    signInError?: string
+  ): AccountPopup {
     return {
       account: atom({
         status: 'ready',
@@ -40,6 +43,11 @@
       remove() {
         return Promise.resolve()
       },
+      signInAgain() {
+        return Promise.resolve()
+      },
+      signInError: atom(signInError),
+      signingIn: atom(false),
       uniqueId: 'account'
     }
   }
@@ -65,12 +73,17 @@
 >
   <Scene route="accounts">
     <AccountPopupComponent
-      popup={popup({
-        categoryId: 'social',
-        handle: '@alexander.hamilton.personal.account.very-long-domain.example',
-        service: 'bluesky',
-        title: 'Alexander Hamilton with a very long display name on Bluesky'
-      })}
+      popup={popup(
+        {
+          categoryId: 'social',
+          expired: true,
+          handle:
+            '@alexander.hamilton.personal.account.very-long-domain.example',
+          service: 'bluesky',
+          title: 'Alexander Hamilton with a very long display name on Bluesky'
+        },
+        'The service did not accept the sign in. Try again.'
+      )}
     />
   </Scene>
 </Story>

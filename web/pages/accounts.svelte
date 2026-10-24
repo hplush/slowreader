@@ -39,7 +39,7 @@
           links={$accounts.value.map(account => ({
             avatar: { icon: mdiAccount, url: account.avatar },
             controls: getPopupId('account', account.id),
-            hint: account.handle,
+            hint: account.expired ? $t.signInExpired : account.handle,
             href: getPopupHash($router, 'account', account.id),
             id: account.id,
             item: account,

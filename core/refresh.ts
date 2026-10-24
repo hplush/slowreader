@@ -68,10 +68,9 @@ export const refreshStatistics = map({ ...DEFAULT_REFRESH_STATISTICS })
 /**
  * Feed or account, which failed. Account is shown like a feed.
  */
-export type RefreshError = {
-  error: Error
-  feed: Pick<RefreshFeed, 'id' | 'title' | 'url'>
-}
+export type RefreshError =
+  | { account: Pick<AccountValue, 'id' | 'title'>; error: Error }
+  | { error: Error; feed: Pick<RefreshFeed, 'id' | 'title' | 'url'> }
 
 export const refreshErrors = atom<RefreshError[]>([])
 
@@ -510,15 +509,15 @@ export async function refreshPosts(): Promise<void> {
       },
       onTaskFail(target, error) {
         getEnvironment().warn(error)
-        let feed =
+        refreshErrors.set([
+          ...refreshErrors.get(),
           'feed' in target
-            ? target.feed
+            ? { error, feed: target.feed }
             : {
-                id: target.account.id,
-                title: target.account.title,
-                url: target.account.url
+                account: { id: target.account.id, title: target.account.title },
+                error
               }
-        refreshErrors.set([...refreshErrors.get(), { error, feed }])
+        ])
         refreshStatus.set('refreshingError')
         increaseKey(refreshStatistics, 'errorFeeds')
         increaseKey(refreshStatistics, 'processedFeeds')

@@ -486,9 +486,10 @@ describe('refresh', () => {
       totalFeeds: 2
     })
     deepEqual(icons, ['done', 'refreshing', 'refreshingError', 'error'])
-    equal(refreshErrors.get().length, 1)
-    deepEqual(refreshErrors.get()[0]?.error.name, 'HTTPStatusError')
-    deepEqual(refreshErrors.get()[0]?.feed.id, feed2)
+    deepEqual(
+      refreshErrors.get().map(i => ['feed' in i && i.feed.id, i.error.name]),
+      [[feed2, 'HTTPStatusError']]
+    )
 
     await setTimeout(1500)
     equal(refreshStatus.get(), 'error')
@@ -1085,14 +1086,7 @@ describe('refresh of accounts', () => {
     })
     await expectWarning(() => refreshPosts(), [error])
     deepEqual(refreshErrors.get(), [
-      {
-        error,
-        feed: {
-          id: accountId,
-          title: 'Me',
-          url: 'https://mastodon.social/@me'
-        }
-      }
+      { account: { id: accountId, title: 'Me' }, error }
     ])
   })
 

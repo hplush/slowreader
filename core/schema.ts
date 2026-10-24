@@ -88,7 +88,7 @@ export const accountsTable = defineCrdtTable(
     avatar: optional(string()),
     categoryId: string({ default: GENERAL_CATEGORY }),
     credentials: json(credentialsShape),
-    // Use the account by default on subscribing to its service’s author
+    expired: boolean({ default: false }),
     follow: boolean({ default: false }),
     handle: string(),
     lastOriginId: optional(string()),

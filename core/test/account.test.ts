@@ -122,6 +122,11 @@ describe('account', () => {
     await changeAccount(accountId, { credentials: fromOtherDevice })
     deepEqual(await auth.reload(), fromOtherDevice)
 
+    await auth.expire()
+    equal((await loadAccount(accountId))!.expired, true)
+    await addAccount({ ...auth.account, expired: true })
+    equal((await loadAccount(accountId))!.expired, false)
+
     await deleteAccount(accountId)
     equal(await auth.reload(), undefined)
   })

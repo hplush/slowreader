@@ -1,3 +1,4 @@
+import { restoreAll, spyOn } from 'nanospy'
 import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -7,8 +8,10 @@ import {
   addCategory,
   GENERAL_CATEGORY,
   getTables,
+  loaders,
   openedPopups,
   testAccount,
+  UserFacingError,
   waitLoading
 } from '../../index.ts'
 import {
@@ -20,6 +23,7 @@ import {
   mockRequest,
   openTestPopup,
   startClient,
+  testOAuthPages,
   waitUntil
 } from '../utils.ts'
 
@@ -45,6 +49,7 @@ describe('account popup', () => {
   })
 
   afterEach(async () => {
+    restoreAll()
     await cleanClient()
     checkAndRemoveRequestMock()
   })
@@ -168,5 +173,48 @@ describe('account popup', () => {
     let popup = openTestPopup('account', 'unknown')
     await waitLoading(popup.loading)
     equal(popup.notFound, true)
+  })
+
+  test('signs in again', async () => {
+    let id = await addAccount(
+      testAccount({
+        handle: '@user@mastodon.social',
+        server: 'https://mastodon.social'
+      })
+    )
+    respondProfile({
+      display_name: 'User',
+      id: '1',
+      url: 'https://mastodon.social/@user',
+      username: 'user'
+    })
+    let opened = openTestPopup('account', id)
+    await waitLoading(opened.loading)
+    let popup = checkLoadedPopup(opened)
+
+    let inputs: string[] = []
+    spyOn(loaders.mastodon.account!, 'startSignIn', (task, input) => {
+      inputs.push(input)
+      if (inputs.length === 1) {
+        return Promise.reject(new UserFacingError('Server is down'))
+      }
+      return Promise.resolve({
+        data: {},
+        state: 'STATE',
+        type: 'open',
+        url: 'https://mastodon.social/oauth/authorize'
+      })
+    })
+
+    await popup.signInAgain()
+    equal(popup.signInError.get(), 'Server is down')
+    equal(popup.signingIn.get(), false)
+
+    void popup.signInAgain()
+    equal(popup.signingIn.get(), true)
+    equal(popup.signInError.get(), undefined)
+    await waitUntil(() => testOAuthPages.length > 0)
+    deepEqual(inputs, ['https://mastodon.social', 'https://mastodon.social'])
+    equal(testOAuthPages.at(-1), 'https://mastodon.social/oauth/authorize')
   })
 })

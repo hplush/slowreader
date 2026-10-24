@@ -4,10 +4,12 @@ import { delay } from 'nanodelay'
 
 import { getClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
+import { errorToMessage, NetworkError, UserFacingError } from './errors.ts'
 import { addFeed, type NewFeed } from './feed.ts'
 import { createDownloadTask, type DownloadTask } from './lib/download.ts'
 import type { AccountAuth, SignInAnswer, SignInStep } from './loader/common.ts'
 import { loaders, tryLoadFeedData } from './loader/index.ts'
+import { accountsMessages } from './messages/index.ts'
 import { recalcPostsReading } from './post.ts'
 import {
   ACCOUNT_SERVICES,
@@ -68,6 +70,7 @@ export async function addAccount(fields: NewAccount): Promise<string> {
     await getTables().accounts.update(existing.id, {
       avatar: fields.avatar,
       credentials: fields.credentials,
+      expired: false,
       server: fields.server,
       title: fields.title
     })
@@ -124,6 +127,9 @@ export async function deleteAccount(accountId: string): Promise<void> {
 export function getAccountAuth(account: AccountValue): AccountAuth {
   let auth: AccountAuth = {
     account,
+    expire() {
+      return changeAccount(account.id, { expired: true })
+    },
     async reload() {
       /* node:coverage ignore next 4 */
       if (hasCloud.get()) {
@@ -265,6 +271,18 @@ export function continueAccountSignIn(
 }
 
 /**
+ * Other errors are our bugs, so the user gets a generic text and we a warning.
+ */
+export function signInErrorToMessage(error: unknown): string {
+  if (error instanceof UserFacingError || NetworkError.is(error)) {
+    return errorToMessage(error)
+  } else {
+    getEnvironment().warn(error)
+    return accountsMessages.get().signInFailed
+  }
+}
+
+/**
  * Open service’s page and return URL fragment, when user will return back.
  * Web leaves the app, so the next Accounts page will call `returnToAccountSignIn()`.
  */
@@ -342,6 +360,7 @@ export function testAccount(
       refreshToken: null,
       tokenUrl: 'https://mastodon.social/oauth/token'
     },
+    expired: false,
     follow: false,
     handle: `@user${testAccountId}@mastodon.social`,
     id: `account-${testAccountId}`,

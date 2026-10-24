@@ -1170,9 +1170,10 @@ describe('bluesky account', () => {
   function createAuth(
     credentials: Partial<AccountCredentials> = {},
     reload?: AccountCredentials
-  ): { auth: AccountAuth; saved: AccountCredentials[] } {
+  ): { auth: AccountAuth; expired: boolean[]; saved: AccountCredentials[] } {
     servers += 1
     let saved: AccountCredentials[] = []
+    let expired: boolean[] = []
     let auth: AccountAuth = {
       account: testAccount({
         credentials: {
@@ -1189,13 +1190,17 @@ describe('bluesky account', () => {
         service: 'bluesky',
         url: 'https://bsky.app/profile/did:plc:me'
       }),
+      expire() {
+        expired.push(true)
+        return Promise.resolve()
+      },
       reload: () => Promise.resolve(reload),
       save(value: AccountCredentials) {
         saved.push(value)
         return Promise.resolve()
       }
     }
-    return { auth, saved }
+    return { auth, expired, saved }
   }
 
   function xrpc(auth: AccountAuth, path: string): string {
@@ -1400,11 +1405,12 @@ describe('bluesky account', () => {
   })
 
   test('asks to sign in again', async () => {
-    let { auth } = createAuth({ expiresAt: 1 })
+    let { auth, expired } = createAuth({ expiresAt: 1 })
     respond(TOKEN, { error: 'invalid_grant' }, 400)
     let posts = signedIn.getTimeline(createDownloadTask(), auth)
     await posts.loading
-    equal(posts.get().error?.message, accountsMessages.get().signInAgain)
+    equal(posts.get().error?.message, accountsMessages.get().signInExpired)
+    deepEqual(expired, [true])
   })
 
   test('throws other errors', async () => {
