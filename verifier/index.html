@@ -686,9 +686,17 @@ done</pre>
           document.getElementById('release').replaceChildren()
         }
         // Old results have no signer and build
-        document
-          .getElementById('signer')
-          .replaceChildren(release?.signer ? span(release.signer, 'good') : '')
+        let signer = document.getElementById('signer')
+        if (release?.signer) {
+          let link = document.createElement('a')
+          link.className = 'good'
+          link.href =
+            'https://gitlab.com/hplush/slowreader-verifier/-/blob/main/allowed_signers'
+          link.textContent = release.signer
+          signer.replaceChildren(link)
+        } else {
+          signer.replaceChildren()
+        }
         let workflow = document.getElementById('workflow')
         if (release?.build) {
           let link = document.createElement('a')
