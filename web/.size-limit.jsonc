@@ -17,6 +17,7 @@
       "!dist/og.jpg",
       "!dist/og/**",
       "!dist/releases/**",
+      "!dist/docs/branding/**",
       "!dist/releases.atom",
       "!dist/favicon.ico",
       "!dist/assets/benchmark-*.js",

@@ -103,7 +103,14 @@ sw = replace(
           'landing/*.{css,js,png,svg,woff2}',
           'manifest.webmanifest'
         ],
-        { cwd: DIST, exclude: ['**/*.{map,woff}'] }
+        {
+          cwd: DIST,
+          exclude: [
+            '**/*.{map,woff}',
+            'docs/branding/**',
+            'landing/releases-*.css'
+          ]
+        }
       )
         .toSorted()
         .map(file => [
