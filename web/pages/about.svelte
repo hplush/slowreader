@@ -3,10 +3,10 @@
     mdiAirplane,
     mdiBug,
     mdiCellphoneArrowDown,
+    mdiCheckDecagram,
     mdiEye,
     mdiGift,
     mdiRefresh,
-    mdiServerSecurity,
     mdiShieldSearch
   } from '@mdi/js'
   import {
@@ -23,6 +23,7 @@
   import Button from '../ui/button.svelte'
   import Note from '../ui/note.svelte'
   import Output from '../ui/output.svelte'
+  import RichText from '../ui/rich-text.svelte'
   import Stack from '../ui/stack.svelte'
   import Status from '../ui/status.svelte'
   import ThinPage from '../ui/thin-page.svelte'
@@ -87,27 +88,31 @@
       </Button>
     {/if}
     <Note icon={mdiShieldSearch} variant="good">
-      <Stack>
-        {$t.opensource}
-        <Button
-          href="https://github.com/hplush/slowreader"
-          icon={mdiEye}
-          size="wide"
-          target="_blank"
-          variant="secondary"
-        >
-          {$t.viewSources}
-        </Button>
-        <Button
-          href="https://hplush.gitlab.io/slowreader-verifier/"
-          icon={mdiServerSecurity}
-          size="wide"
-          target="_blank"
-          variant="secondary"
-        >
-          {$t.serverVerification}
-        </Button>
-      </Stack>
+      <RichText text={$t.opensource} />
+      {#snippet footer()}
+        <Stack gap="xs" row>
+          <Button
+            href="https://github.com/hplush/slowreader"
+            icon={mdiEye}
+            joined="start"
+            size="wide"
+            target="_blank"
+            variant="secondary"
+          >
+            {$t.source}
+          </Button>
+          <Button
+            href="https://hplush.gitlab.io/slowreader-verifier/"
+            icon={mdiCheckDecagram}
+            joined="end"
+            size="wide"
+            target="_blank"
+            variant="secondary"
+          >
+            {$t.verification}
+          </Button>
+        </Stack>
+      {/snippet}
     </Note>
     <Button
       href="https://github.com/hplush/slowreader/issues/new"

@@ -5,11 +5,13 @@
 
   let {
     children,
+    footer,
     icon,
     title,
     variant
   }: {
     children: Snippet
+    footer?: Snippet
     icon: string
     title?: string
     variant: 'dangerous' | 'good' | 'neutral' | 'warning'
@@ -29,6 +31,11 @@
     <string class="note_title">{title}</string>
   {/if}
   {@render children()}
+  {#if footer}
+    <div class="note_footer">
+      {@render footer()}
+    </div>
+  {/if}
 </section>
 
 <style lang="postcss">
@@ -70,6 +77,11 @@
       inset-inline-start: 0.312rem;
       top: 0.312rem;
       color: --tune-background(--note);
+    }
+
+    .note_footer {
+      align-self: stretch;
+      margin-inline-start: calc(0.625rem - 2rem - 0.312rem - 0.312rem);
     }
 
     .note_title {

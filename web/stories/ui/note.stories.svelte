@@ -4,6 +4,7 @@
 
   import Button from '../../ui/button.svelte'
   import Note from '../../ui/note.svelte'
+  import Stack from '../../ui/stack.svelte'
   import Section from '../section.svelte'
 
   let { Story } = defineMeta({
@@ -35,6 +36,12 @@
       Slow Reader combines feeds from social networks and RSS and helps read
       more meaningful and deep content.
       <Button size="wide">Button</Button>
+      {#snippet footer()}
+        <Stack gap="xs" row>
+          <Button joined="start" size="wide">Footer</Button>
+          <Button joined="end" size="wide">Footer</Button>
+        </Stack>
+      {/snippet}
     </Note>
   </Section>
 </Story>
@@ -61,6 +68,12 @@
       Slow Reader combines feeds from social networks and RSS and helps read
       more meaningful and deep content.
       <Button size="wide">Button</Button>
+      {#snippet footer()}
+        <Stack gap="xs" row>
+          <Button joined="start" size="wide">Footer</Button>
+          <Button joined="end" size="wide">Footer</Button>
+        </Stack>
+      {/snippet}
     </Note>
   </Section>
 </Story>

@@ -5,11 +5,11 @@ export const aboutMessages = i18n('about', {
   latest: 'Latest. What’s new',
   offline: 'Offline',
   opensource:
-    'This app is open source. Anyone, including developers and LLMs, can see exactly how it works and verify our promises.',
+    '**Open source**. Anyone, even LLMs, can see how the app works and verify our promises.',
   pageTitle: 'About',
   reportIssue: 'Report an issue',
-  serverVerification: 'Server verification',
+  source: 'Source',
   update: 'Update app',
-  version: 'App version',
-  viewSources: 'View source code'
+  verification: 'Verification',
+  version: 'App version'
 })
