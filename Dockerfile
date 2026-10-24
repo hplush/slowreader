@@ -97,6 +97,7 @@ COPY proxy/package.json proxy/
 COPY server/package.json server/
 RUN pnpm install --frozen-lockfile --ignore-scripts --prod -F web... -F landings
 COPY docs/ docs/
+COPY CHANGELOG.md ./
 COPY api/ api/
 COPY core/ core/
 COPY extension/ extension/
