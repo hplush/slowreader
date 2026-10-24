@@ -107,6 +107,27 @@
       }
     },
     {
+      "files": ["landings/layout/docs.css"],
+      "rules": {
+        "unit-disallowed-list": [
+          ["px"],
+          {
+            "ignoreProperties": {
+              "px": [
+                "font-size",
+                "/-shadow$/",
+                "/border/",
+                "/-radius$/",
+                "/outline/",
+                "translate",
+                "letter-spacing"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "files": ["web/ui/formatted-text.svelte"],
       "rules": {
         "unit-disallowed-list": [["px"]]

@@ -71,7 +71,7 @@ body {
   border-radius: 0.7rem;
 
   @media (--mobile) {
-    padding-inline-end: 0.5rem;
+    padding-inline-end: 0.4em;
   }
 
   &:hover,
@@ -132,6 +132,42 @@ body {
   em {
     font-style: normal;
     font-weight: 600;
+  }
+
+  /* 45–75 characters per line are the most readable */
+  & > :is(p, ul) {
+    max-inline-size: 34rem;
+  }
+
+  ul {
+    padding: 0 0 0 1.2em;
+    list-style: none;
+  }
+
+  /* List continues the sentence before it */
+  p:has(+ ul) {
+    margin-block-end: 0;
+  }
+
+  p + ul {
+    margin-block-start: 0;
+  }
+
+  /* Monospace fonts have smaller x-height than Catamaran */
+  code {
+    font-family: ui-monospace, monospace;
+    font-size: 0.85em;
+  }
+
+  li {
+    position: relative;
+  }
+
+  li::before {
+    position: absolute;
+    inset-inline-end: 100%;
+    padding-inline-end: 0.4em;
+    content: '–';
   }
 
   /* Hue of the accent color, lightness and chroma for readable text */
