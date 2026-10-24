@@ -1,8 +1,12 @@
 # How to Change the Data Format?
 
-We sync state by sending Logux actions. Old actions stay in the cloud and in the device logs forever, so a change in a column or an action format needs a migration, which converts actions from the previous format.
+We sync state by sending Logux actions. Old actions stay in the cloud and in the device logs forever, so a change in the format of an existing column or action needs a migration, which converts actions from the previous format.
 
-## Steps
+## New Column
+
+Add it to the table in [`core/schema.ts`](../../core/schema.ts) as `optional()` or with `default`, so old actions without it stay valid. It needs no migration and no `SUBPROTOCOL` bump.
+
+## Format Change
 
 1. Change the table in [`core/schema.ts`](../../core/schema.ts).
 2. Increase `SUBPROTOCOL` in [`api/index.ts`](../../api/index.ts) and `minSubprotocol` in [`server/index.ts`](../../server/index.ts) to the same number. Devices with the old client will show the “outdated” page and stop sending actions in the old format.
