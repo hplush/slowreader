@@ -3,9 +3,8 @@
     mdiAirplane,
     mdiBug,
     mdiCellphoneArrowDown,
-    mdiCheck,
     mdiEye,
-    mdiHistory,
+    mdiGift,
     mdiRefresh,
     mdiServerSecurity,
     mdiShieldSearch
@@ -44,44 +43,38 @@
     </Stack>
     <Stack gap="s">
       <Output label={$t.version} value={page.appVersion} />
-      <Stack gap="xs" row>
-        {#if $clientUpdate === 'offline'}
-          <Status icon={mdiAirplane} joined="start">{$t.offline}</Status>
-        {:else if $clientUpdate === 'latest'}
-          <Status icon={mdiCheck} joined="start">{$t.noUpdates}</Status>
-        {:else if $clientUpdate === 'checking'}
-          <Button
-            icon={mdiRefresh}
-            joined="start"
-            loader
-            onclick={getEnvironment().updateClient}
-            size="wide"
-            variant="secondary"
-          >
-            {$t.update}
-          </Button>
-        {:else if $clientUpdate}
-          <Button
-            icon={mdiRefresh}
-            joined="start"
-            onclick={getEnvironment().updateClient}
-            size="wide"
-            variant="attention"
-          >
-            {$t.update}
-          </Button>
-        {/if}
+      {#if $clientUpdate === 'latest'}
         <Button
           href={`https://slowreader.app/releases/${page.appVersion}`}
-          icon={mdiHistory}
-          joined="end"
+          icon={mdiGift}
           size="wide"
           target="_blank"
           variant="secondary"
         >
-          {$t.changelog}
+          {$t.latest}
         </Button>
-      </Stack>
+      {:else if $clientUpdate === 'offline'}
+        <Status icon={mdiAirplane}>{$t.offline}</Status>
+      {:else if $clientUpdate === 'checking'}
+        <Button
+          icon={mdiRefresh}
+          loader
+          onclick={getEnvironment().updateClient}
+          size="wide"
+          variant="secondary"
+        >
+          {$t.update}
+        </Button>
+      {:else if $clientUpdate}
+        <Button
+          icon={mdiRefresh}
+          onclick={getEnvironment().updateClient}
+          size="wide"
+          variant="attention"
+        >
+          {$t.update}
+        </Button>
+      {/if}
     </Stack>
     {#if $installation === 'available'}
       <Button
