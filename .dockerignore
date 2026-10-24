@@ -16,6 +16,7 @@
 !scripts/*.ts
 
 !docs/*.md
+!CHANGELOG.md
 
 !landings/
 landings/*.md

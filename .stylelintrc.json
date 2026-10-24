@@ -107,7 +107,7 @@
       }
     },
     {
-      "files": ["landings/layout/docs.css"],
+      "files": ["landings/layout/docs.css", "landings/layout/releases.css"],
       "rules": {
         "unit-disallowed-list": [
           ["px"],

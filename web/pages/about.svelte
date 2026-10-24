@@ -72,7 +72,7 @@
           </Button>
         {/if}
         <Button
-          href="https://github.com/hplush/slowreader/blob/main/CHANGELOG.md"
+          href={`https://slowreader.app/releases/${page.appVersion}`}
           icon={mdiHistory}
           joined="end"
           size="wide"

@@ -9,6 +9,7 @@ import { getAppRoutes } from './stores/url-router.ts'
 import { allFeatures } from './vite/lightningcss.ts'
 
 const LANDING_TYPES: Record<string, string> = {
+  '.atom': 'application/atom+xml',
   '.avif': 'image/avif',
   '.css': 'text/css',
   '.html': 'text/html',
@@ -79,7 +80,8 @@ function landing(server: ViteDevServer): void {
   server.middlewares.use((req, res, next) => {
     let path = normalize(req.url!.split('?')[0]!).replace(/^(\.\.[/\\])+/, '')
     let file = join(import.meta.dirname, '../landings/dist', path)
-    if (!extname(file)) file = join(file, 'index.html')
+    // Versions like 0.20261022.3 look like a file extension
+    if (!LANDING_TYPES[extname(file)]) file = join(file, 'index.html')
     let type = LANDING_TYPES[extname(file)]
     if (type && existsSync(file)) {
       res.setHeader('Content-Type', type)

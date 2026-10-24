@@ -2,11 +2,15 @@
 
 ## 0.20261022.3
 
+_2026-10-22_
+
 ### Fixes
 
 - Fixed checking the service worker file in the browser version of the verifier.
 
 ## 0.20261022.2
+
+_2026-10-22_
 
 ### Fixes
 
@@ -14,11 +18,15 @@
 
 ## 0.20261022.1
 
+_2026-10-22_
+
 ### Fixes
 
 - Use less memory when building Docker images.
 
 ## 0.20261022.0
+
+_2026-10-22_
 
 ### Accounts
 
@@ -83,12 +91,16 @@ About page now checks for a new app version and shows `Update app` button only w
 
 ## 0.20261013.3
 
+_2026-10-13_
+
 ### Fixes
 
 - Added server verification status link to About page and landing.
 - Allowed status pages on other websites to check `slowreader.app` files from the browser.
 
 ## 0.20261013.2
+
+_2026-10-13_
 
 ### Fixes
 
@@ -97,10 +109,14 @@ About page now checks for a new app version and shows `Update app` button only w
 
 ## 0.20261013.1
 
+_2026-10-13_
+
 ### Fixes
 
 - Fix release script.
 
 ## 0.20261013.0
+
+_2026-10-13_
 
 Initial release.

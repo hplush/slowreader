@@ -1,0 +1,176 @@
+/* Nested in the block to beat typography of `.doc` */
+.releases {
+  /* Side heads let the reader scan sections without reading the details */
+  .releases_release {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 34rem);
+    column-gap: 1.5rem;
+    margin-block-start: 2.5lh;
+
+    & > * {
+      align-self: baseline;
+    }
+
+    &:first-child {
+      margin-block-start: 0;
+    }
+
+    @media (--mobile) {
+      grid-template-columns: minmax(0, 1fr);
+      margin-block-start: 2lh;
+    }
+  }
+
+  h1 + .releases_release {
+    margin-block-start: 1.25lh;
+  }
+
+  .releases_date,
+  .releases_side {
+    margin: 0;
+    font-size: 1em;
+    text-align: end;
+
+    @media (--mobile) {
+      text-align: start;
+    }
+  }
+
+  .releases_date {
+    color: oklch(0.72 0 0);
+
+    @media (prefers-color-scheme: light) {
+      color: oklch(0.48 0 0);
+    }
+  }
+
+  .releases_side {
+    font-weight: 700;
+    line-height: 1.25;
+
+    /* Without the margin position only size separates it from the text */
+    @media (--mobile) {
+      font-size: 1.25em;
+    }
+  }
+
+  .releases_version {
+    margin: 0 0 0.5lh;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .releases_text {
+    grid-column: 2;
+    margin-block-end: 0.75lh;
+
+    &:last-child,
+    & > :last-child {
+      margin-block-end: 0;
+    }
+
+    & > :first-child {
+      margin-block-start: 0;
+    }
+
+    p {
+      margin-block: 0 0.3lh;
+    }
+
+    li + li {
+      margin-block-start: 0.15lh;
+    }
+
+    /* Hanging dashes keep list text on the edge of paragraphs */
+    ul {
+      padding: 0;
+
+      @media (--mobile) {
+        padding-inline-start: 1.2em;
+      }
+    }
+
+    @media (--mobile) {
+      grid-column: auto;
+    }
+  }
+
+  .releases_pages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5lh 2em;
+    justify-content: space-between;
+    max-inline-size: 46.5rem;
+    padding-inline-start: 12.5rem;
+    margin-block-start: 2.5lh;
+
+    @media (--mobile) {
+      padding-inline-start: 0;
+    }
+  }
+
+  .releases_page {
+    display: flex;
+    flex-direction: column;
+    padding: 0.25lh 1rem;
+    margin: -0.25lh -1rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: 0.75rem;
+
+    &:hover,
+    &:focus-visible {
+      background: oklch(1 0 0 / 6%);
+
+      @media (prefers-color-scheme: light) {
+        background: oklch(0 0 0 / 5%);
+      }
+    }
+
+    /* Block link can move, unlike the inline one in text */
+    &:active {
+      top: 0;
+      translate: 0 1px;
+    }
+
+    /* Space for the arrow inside the hover background */
+    &.is-previous {
+      padding-inline-start: 2.2em;
+      margin-inline-start: -2.2em;
+
+      @media (--mobile) {
+        padding-inline-start: 1rem;
+        margin-inline-start: -1rem;
+      }
+    }
+
+    &.is-end {
+      align-items: flex-end;
+      margin-inline-start: auto;
+      text-align: end;
+    }
+  }
+
+  .releases_label {
+    position: relative;
+    font-weight: 400;
+    color: oklch(0.72 0 0);
+
+    @media (prefers-color-scheme: light) {
+      color: oklch(0.48 0 0);
+    }
+  }
+
+  /* Hangs to keep the link text on the edge of the text above */
+  .releases_arrow {
+    position: absolute;
+    inset-inline-end: calc(100% + 0.3em);
+
+    /* Page edge is too close */
+    @media (--mobile) {
+      position: static;
+      margin-inline-end: 0.3em;
+    }
+  }
+}

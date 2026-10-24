@@ -5,6 +5,7 @@ import { docPages, docs } from './vite/docs.ts'
 import { images } from './vite/images.ts'
 import { inlineCss } from './vite/inline-css.ts'
 import { og } from './vite/og.ts'
+import { releasePages, releases } from './vite/releases.ts'
 
 export default defineConfig({
   build: {
@@ -13,7 +14,7 @@ export default defineConfig({
     emptyOutDir: true,
     outDir: 'dist',
     rolldownOptions: {
-      input: ['root/root.html', 'og/og.html', ...docPages],
+      input: ['root/root.html', 'og/og.html', ...docPages, ...releasePages],
       output: {
         // Every orientation has its own size budget, see web/.size-limit.jsonc,
         // and only its biggest image is in it. OG page is only to render og.jpg
@@ -46,6 +47,7 @@ export default defineConfig({
     images(),
     inlineCss(),
     og(),
+    releases(),
     {
       enforce: 'post',
       // nginx and the server serve every page’s dir by index.html
@@ -55,7 +57,10 @@ export default defineConfig({
             file.fileName = 'index.html'
           } else if (file.fileName === 'og/og.html') {
             file.fileName = 'og/index.html'
-          } else if (file.fileName.startsWith('docs/')) {
+          } else if (
+            /^(docs|releases)\//.test(file.fileName) &&
+            !file.fileName.endsWith('/index.html')
+          ) {
             file.fileName = file.fileName.replace(/\.html$/, '/index.html')
           }
         }

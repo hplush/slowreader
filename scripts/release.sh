@@ -191,6 +191,8 @@ if [ ${#FEATURES[@]} -eq 0 ] && [ ${#FIXES[@]} -eq 0 ]; then
 fi
 {
   echo "## $VERSION"
+  echo
+  echo "_$(date -u +%Y-%m-%d)_"
   for file in "${FEATURES[@]}"; do
     echo
     sed '1s/^# /### /' "$file"

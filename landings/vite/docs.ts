@@ -9,7 +9,7 @@ const DOCS = join(import.meta.dirname, '..', '..', 'docs')
 // Vite names the result file by the page path inside `landings/`
 const PAGES = join(import.meta.dirname, '..', 'docs')
 
-let typograf = new Typograf({
+export const typograf = new Typograf({
   disableRule: '*',
   enableRule: 'common/nbsp/*',
   locale: ['en-US']
@@ -19,7 +19,7 @@ export const docPages = readdirSync(DOCS)
   .filter(i => i.endsWith('.md'))
   .map(i => join(PAGES, i.replace(/\.md$/, '.html')))
 
-function replaceTemplate(
+export function replaceTemplate(
   template: string,
   values: Record<string, string>
 ): string {

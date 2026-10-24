@@ -16,6 +16,8 @@
       "!dist/apple-touch-icon.png",
       "!dist/og.jpg",
       "!dist/og/**",
+      "!dist/releases/**",
+      "!dist/releases.atom",
       "!dist/favicon.ico",
       "!dist/assets/benchmark-*.js",
       "!dist/assets/devtools-*.js",

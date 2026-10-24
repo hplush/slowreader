@@ -8,7 +8,7 @@ _See the [full architecture guide](../README.md) first._
 
 - [`root/`](./root/): page on `/` with its own CSS and JS. The build renames `root.html` to `index.html`. Open it with `?guest` to see it as a new user.
 - [`og/`](./og/): page on `/og`, which the build renders to `og.jpg` for social networks.
-- [`layout/`](./layout/): header, styles, and script shared by all pages, and the template for [`docs/`](../docs/) pages. The build renders each `docs/*.md` to `/docs/<name>`.
+- [`layout/`](./layout/): header, styles, and script shared by all pages, and the template for [`docs/`](../docs/) pages. The build renders each `docs/*.md` and [`CHANGELOG.md`](../CHANGELOG.md).
 - [`generated-images/`](./generated-images/): AVIF sources for pages and prompts to generate them.
 - [`images/`](./images/): SVG logos of the project authors for the footer.
 - [`vite/`](./vite/): Vite plugins of the build.
