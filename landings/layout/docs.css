@@ -153,6 +153,44 @@ body {
     margin-block-start: 0;
   }
 
+  img {
+    max-inline-size: 100%;
+    block-size: auto;
+  }
+
+  .doc_logos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-block-end: 0.5lh;
+  }
+
+  /* Full logo has its own background around the main shape */
+  .doc_simplified {
+    padding: 1rem;
+    background: oklch(1 0 0);
+    border-radius: 0.75rem;
+
+    /* Shows that monochrome logo works in any color */
+    &:hover .doc_monochrome {
+      @media (prefers-reduced-motion: no-preference) {
+        animation: --hue 2s linear infinite;
+      }
+    }
+  }
+
+  /* Luminance layer cuts the white flame out of the black shape */
+  .doc_monochrome {
+    display: block;
+    inline-size: 6rem;
+    block-size: 6rem;
+    background: oklch(0 0 0);
+    mask:
+      url('/icon-monochrome.svg') center / contain no-repeat alpha,
+      url('/icon-monochrome.svg') center / contain no-repeat luminance;
+    mask-composite: subtract;
+  }
+
   /* Monospace fonts have smaller x-height than Catamaran */
   code {
     font-family: ui-monospace, monospace;
@@ -172,38 +210,38 @@ body {
 
   /* Hue of the accent color, lightness and chroma for readable text */
   a {
-    color: oklch(0.78 0.111 260);
+    color: oklch(0.65 0.11 260);
     text-decoration-color: oklch(from currentcolor l c h / 40%);
     text-underline-offset: 0.2rem;
 
     @media (prefers-color-scheme: light) {
-      color: oklch(0.5 0.2 260);
+      color: oklch(0.65 0.11 260);
     }
 
     &:visited {
-      color: oklch(0.78 0.131 300);
+      color: oklch(0.65 0.11 300);
 
       @media (prefers-color-scheme: light) {
-        color: oklch(0.5 0.2 300);
+        color: oklch(0.65 0.11 300);
       }
     }
 
     &:hover,
     &:focus-visible {
-      color: oklch(0.88 0.058 260);
+      color: oklch(0.65 0.11 260);
       text-decoration-color: currentcolor;
 
       @media (prefers-color-scheme: light) {
-        color: oklch(0.6 0.2 260);
+        color: oklch(0.65 0.11 260);
       }
     }
 
     &:visited:hover,
     &:visited:focus-visible {
-      color: oklch(0.88 0.068 300);
+      color: oklch(0.65 0.11 300);
 
       @media (prefers-color-scheme: light) {
-        color: oklch(0.6 0.2 300);
+        color: oklch(0.65 0.11 300);
       }
     }
 
@@ -238,5 +276,35 @@ body {
 
   h2 + * {
     margin-block-start: 0;
+  }
+}
+
+@keyframes --hue {
+  0% {
+    background: oklch(0.65 0.25 0);
+  }
+
+  17% {
+    background: oklch(0.65 0.15 60);
+  }
+
+  33% {
+    background: oklch(0.65 0.15 120);
+  }
+
+  50% {
+    background: oklch(0.65 0.11 180);
+  }
+
+  67% {
+    background: oklch(0.65 0.14 240);
+  }
+
+  83% {
+    background: oklch(0.65 0.22 300);
+  }
+
+  100% {
+    background: oklch(0.65 0.25 360);
   }
 }
