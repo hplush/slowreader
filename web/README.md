@@ -94,6 +94,8 @@ Debug helpers from [`core/devtools.ts`](../core/devtools.ts) are exported in `wi
 
 - `slowreader.enablePostDebug()`: print post data and its source on opening post popup.
 - `slowreader.enableProxyDebug()`: print proxy request and response headers.
+- `slowreader.removeTombstones()`: remove deleted rows’ actions from the log without waiting for expiration.
+- `slowreader.printActionCounts()`: print a table with the number of log actions by type and the total.
 
 ## Design System
 
