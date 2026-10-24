@@ -270,8 +270,7 @@
       align-items: center;
       padding: 0.25rem 0.5rem;
       margin-inline-start: 0.5rem;
-      font: var(--tertiary-font);
-      font-weight: 500;
+      font: var(--badge-font);
       color: var(--secondary-text-color);
       background: --tune-background(--gutter);
       border-radius: 1rem;

@@ -21,16 +21,32 @@
   --mono-family: 'Noto Mono Sans Variable', monospace;
   --handwritten-family: 'Playpen Sans', monospace;
   --title-family: 'Inika', 'Noto Serif Variable', 'Georgia', serif;
-  --text-font: 400 0.9375rem/1.6 var(--text-family);
-  --secondary-font: 400 0.875rem/1.6 var(--text-family);
-  --tertiary-font: 400 0.75rem/1 var(--text-family);
-  --secondary-title-font: 600 0.875rem/1.6 var(--text-family);
+  --regular-weight: 400;
+  --control-weight: 500;
+  --semibold-weight: 600;
+  --bold-weight: 700;
+  --text-font: var(--regular-weight) 0.9375rem/1.6 var(--text-family);
+  --secondary-font: var(--regular-weight) 0.875rem/1.6 var(--text-family);
+  --tertiary-font: var(--regular-weight) 0.75rem/1 var(--text-family);
+  --badge-font: var(--control-weight) 0.75rem/1 var(--text-family);
+  --secondary-title-font: var(--semibold-weight) 0.875rem/1.6 var(--text-family);
   --app-title-font: 400 1.5rem/1.2 var(--app-title-family);
   --post-title-font: 400 1.5rem/1.2 var(--title-family);
   --subtitle-font: 400 1.25rem/1.4 var(--title-family);
   --counter-font: 600 1.5rem/1.2 var(--app-title-family);
-  --control-font: 500 0.9375rem/1.2 var(--text-family);
-  --control-secondary-font: 500 0.875rem/1.2 var(--text-family);
-  --mono-font: 400 1rem/1.6 var(--mono-family);
+  --control-font: var(--control-weight) 0.9375rem/1.2 var(--text-family);
+  --control-secondary-font: var(--control-weight) 0.875rem/1.2
+    var(--text-family);
+  --mono-font: var(--regular-weight) 1rem/1.6 var(--mono-family);
   --handwritten-font: 600 1.125rem/1 var(--handwritten-family);
+}
+
+/* Light text on dark background looks bolder, variable fonts can compensate */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --regular-weight: 350;
+    --control-weight: 450;
+    --semibold-weight: 550;
+    --bold-weight: 650;
+  }
 }

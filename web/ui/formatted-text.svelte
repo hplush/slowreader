@@ -125,7 +125,7 @@
 
     .formatted-text :is(h1, h2, h3, h4, h5, h6) {
       margin: 1.6em 0 0.8em 0;
-      font-weight: bold;
+      font-weight: var(--bold-weight);
     }
 
     .formatted-text > :is(h1, h2, h3, h4, h5, h6):first-child {
@@ -177,7 +177,7 @@
 
     .formatted-text em {
       font-style: italic;
-      font-weight: 600;
+      font-weight: var(--semibold-weight);
     }
 
     .formatted-text ul {
