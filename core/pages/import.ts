@@ -7,9 +7,9 @@ import { addCategory, loadCategories } from '../category.ts'
 import { deleteDemo } from '../demo.ts'
 import { addCandidate, addFeed, loadFeedByUrl, loadFeedUrls } from '../feed.ts'
 import { importFilters } from '../filter.ts'
-import { createDownloadTask } from '../lib/download.ts'
+import { createDownloadTask, type TextResponse } from '../lib/download.ts'
 import { parseDocument } from '../lib/html.ts'
-import { getLoaderForText } from '../loader/index.ts'
+import { type FeedLoader, getLoaderForText } from '../loader/index.ts'
 import { importMessages } from '../messages/index.ts'
 import { addPost } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
@@ -96,23 +96,54 @@ export const importPage = createPage('import', () => {
 
       let title = outline.getAttribute('text')
       let url = outline.getAttribute('xmlUrl')!
+      let normalized = url
+      let secure = url
+      try {
+        let parsed = new URL(url)
+        normalized = parsed.href
+        if (parsed.protocol === 'http:') {
+          parsed.protocol = 'https:'
+          secure = parsed.href
+        }
+      } catch {}
 
-      if (await feedExists(url)) {
+      if (
+        (await feedExists(url)) ||
+        (normalized !== url && (await feedExists(normalized))) ||
+        (secure !== url && secure !== normalized && (await feedExists(secure)))
+      ) {
         addFeedError(url, 'exists')
         done()
         continue
       }
 
-      let response
-      try {
-        response = await task.text(url)
-      } catch {
-        addFeedError(url, 'unloadable')
-        done()
-        continue
+      let response: TextResponse | undefined
+      let candidate: false | FeedLoader = false
+      if (secure !== url) {
+        let probe = createDownloadTask({ tries: 1 })
+        let timeout = setTimeout(() => {
+          probe.destroy()
+        }, 5000)
+        try {
+          response = await probe.text(secure)
+          candidate = await getLoaderForText(response, probe, secure)
+        } catch {
+        } finally {
+          clearTimeout(timeout)
+        }
       }
 
-      let candidate = await getLoaderForText(response, task, url)
+      if (!candidate) {
+        try {
+          response = await task.text(url)
+        } catch {
+          addFeedError(url, 'unloadable')
+          done()
+          continue
+        }
+        candidate = await getLoaderForText(response, task, url)
+      }
+
       if (!candidate) {
         addFeedError(url, 'unknown')
       } else if (await feedExists(candidate.url)) {

@@ -241,6 +241,7 @@ export function createProxy(
   function loadTarget(
     url: string,
     headers: IncomingHttpHeaders,
+    signal: AbortSignal,
     retried = false
   ): Promise<IncomingMessage> {
     return new Promise((done, fail) => {
@@ -253,6 +254,7 @@ export function createProxy(
           // Redirects can move us to another host, so it can not be set once
           headers: { ...headers, host: new URL(url).host },
           lookup,
+          signal,
           timeout: config.requestTimeout
         },
         response => {
@@ -265,11 +267,13 @@ export function createProxy(
         if (!responded) target.destroy(new BadRequestError('Timeout'))
       })
       target.on('error', error => {
-        if (error instanceof BadRequestError) {
+        if (signal.aborted) {
+          fail(error)
+        } else if (error instanceof BadRequestError) {
           fail(error)
         } else if (target.reusedSocket && !responded && !retried) {
           // Host could close kept-alive connection right before we used it
-          loadTarget(url, headers, true).then(done, fail)
+          loadTarget(url, headers, signal, true).then(done, fail)
         } else {
           fail(new BadRequestError(error.message, 400, { cause: error }))
         }
@@ -408,13 +412,26 @@ export function createProxy(
         throw new BadRequestError('Too many requests', 503)
       }
       inFlight += 1
+      let current: IncomingMessage | undefined
+      let cancelled = req.signal.aborted
+      function cancel(): void {
+        // Upstream errors also close the client socket, so preserve their
+        // cause before cancellation tears down both streams.
+        cancelled = !current?.errored
+      }
+      req.signal.addEventListener('abort', cancel, { once: true })
       try {
         let targetUrl = url
         // Media hosts are CDNs, which expect many parallel requests
         let skipQueue = /^(audio|image|video)\//.test(req.headers.accept ?? '')
-        function load(host: string): Promise<IncomingMessage> {
-          if (skipQueue) return loadTarget(targetUrl, requestHeaders)
-          return queueByHost(host, () => loadTarget(targetUrl, requestHeaders))
+        async function load(host: string): Promise<IncomingMessage> {
+          current = undefined
+          function download(): Promise<IncomingMessage> {
+            req.signal.throwIfAborted()
+            return loadTarget(targetUrl, requestHeaders, req.signal)
+          }
+          current = await (skipQueue ? download() : queueByHost(host, download))
+          return current
         }
         let targetResponse = await load(parsedUrl.hostname)
         let redirects = 0
@@ -481,10 +498,6 @@ export function createProxy(
         let idle = setTimeout(() => {
           stalled.abort(new BadRequestError('Timeout'))
         }, config.bodyTimeout)
-        let cancelled = false
-        res.once('close', () => {
-          cancelled = !res.writableFinished && !targetResponse.errored
-        })
         try {
           await pipeline(
             targetResponse,
@@ -513,10 +526,9 @@ export function createProxy(
               }
             }),
             res,
-            { signal: stalled.signal }
+            { signal: AbortSignal.any([req.signal, stalled.signal]) }
           )
         } catch (error) {
-          if (cancelled && !stalled.signal.aborted) return
           // Socket closed by abort reports itself before our reason
           throw stalled.signal.reason ?? error
         } finally {
@@ -538,7 +550,10 @@ export function createProxy(
             dropCached(old)
           }
         }
+      } catch (error) {
+        if (!cancelled) throw error
       } finally {
+        req.signal.removeEventListener('abort', cancel)
         inFlight -= 1
       }
     } catch (e) {

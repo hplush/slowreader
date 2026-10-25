@@ -1,5 +1,10 @@
 import { deepStrictEqual, equal, match, ok, rejects } from 'node:assert/strict'
-import { createServer, type IncomingHttpHeaders, type Server } from 'node:http'
+import {
+  createServer,
+  type IncomingHttpHeaders,
+  type IncomingMessage,
+  type Server
+} from 'node:http'
 import type { AddressInfo, Socket } from 'node:net'
 import { after, describe, mock, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
@@ -46,7 +51,20 @@ describe('proxy', () => {
       await setTimeout(parseInt(queryParams.sleep))
     }
 
-    if (queryParams.drop || (queryParams.reset && reused)) {
+    if (queryParams.headers) {
+      req.socket.write('HTTP/1.1 200 OK\r\nX-Slow: ')
+      let interval = setInterval(() => {
+        req.socket.write('x')
+      }, 20)
+      req.socket.once('close', () => {
+        clearInterval(interval)
+      })
+    } else if (queryParams.cut) {
+      res.writeHead(200, { 'Content-Length': '100' })
+      res.write('a')
+      await setTimeout(10)
+      req.socket.destroy()
+    } else if (queryParams.drop || (queryParams.reset && reused)) {
       req.socket.destroy()
     } else if (queryParams.stall) {
       res.writeHead(200)
@@ -594,6 +612,96 @@ describe('proxy', () => {
     }
     equal(write.mock.callCount(), 0)
   })
+
+  test('reports unexpected upstream body errors', async () => {
+    let logged = Promise.withResolvers<void>()
+    let timer: NodeJS.Timeout | undefined
+    let write = mock.method(process.stderr, 'write', () => {
+      logged.resolve()
+      return true
+    })
+    try {
+      let response = await request(`${targetUrl}?cut=1`)
+      equal(response.status, 200)
+      await rejects(response.text())
+      timer = globalThis.setTimeout(() => {
+        logged.reject(new Error('Upstream error was not reported'))
+      }, 3000)
+      await logged.promise
+    } finally {
+      clearTimeout(timer)
+      write.mock.restore()
+    }
+    equal(write.mock.callCount(), 1)
+    match(String(write.mock.calls[0]!.arguments[0]), /aborted|ECONNRESET/)
+  })
+
+  test(
+    'cancels upstream and queued requests before response headers',
+    {
+      timeout: 10000
+    },
+    async () => {
+      let write = mock.method(process.stderr, 'write', () => true)
+      try {
+        for (let cancelQueued of [false, true]) {
+          await (await request(`${targetUrl}?warm=1`)).text()
+          let paths: string[] = []
+          let upstream: Socket | undefined
+          let started = Promise.withResolvers<void>()
+          let closed = Promise.withResolvers<void>()
+          let queued = Promise.withResolvers<void>()
+          function track(req: IncomingMessage): void {
+            paths.push(req.url!)
+            if (req.url!.includes('headers=1')) {
+              upstream = req.socket
+              req.socket.once('close', closed.resolve)
+              started.resolve()
+            }
+          }
+          function enqueue(req: IncomingMessage): void {
+            if (req.url!.includes('cancelled=1')) queued.resolve()
+          }
+          target.on('request', track)
+          proxy.on('request', enqueue)
+          let controller = new AbortController()
+          let pending = request(`${targetUrl}?headers=1`, {
+            signal: controller.signal
+          })
+          try {
+            await started.promise
+            if (cancelQueued) {
+              let waiting = new AbortController()
+              let cancelled = request(`${targetUrl}?cancelled=1`, {
+                signal: waiting.signal
+              })
+              await queued.promise
+              waiting.abort()
+              await rejects(cancelled, { name: 'AbortError' })
+            }
+            let next = request(`${targetUrl}?afterCancel=1`, {
+              signal: AbortSignal.timeout(3000)
+            })
+            controller.abort()
+            await rejects(pending, { name: 'AbortError' })
+            let response = await next
+            equal(response.status, 200)
+            equal(((await response.json()) as EchoResponse).response, 'content')
+            await closed.promise
+            deepStrictEqual(paths, ['/?headers=1', '/?afterCancel=1'])
+          } finally {
+            controller.abort()
+            upstream?.destroy()
+            target.off('request', track)
+            proxy.off('request', enqueue)
+          }
+        }
+      } finally {
+        write.mock.restore()
+      }
+      equal(write.mock.callCount(), 0)
+    }
+  )
 
   test('protects clients from proxied HTML', async () => {
     let response = await request(targetUrl)

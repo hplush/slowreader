@@ -674,6 +674,328 @@ describe('import page', () => {
     equal((await loadFeeds()).length, 1)
   })
 
+  test('prefers HTTPS when importing HTTP feeds', async () => {
+    let url = 'http://example.com/feed?a=1&b=2'
+    let secure = 'https://example.com/feed?a=1&b=2'
+    let opml =
+      '<opml version="2.0"><body><outline text="A">' +
+      '<outline text="Imported" xmlUrl="http://example.com/feed?a=1&amp;b=2" />' +
+      '<outline text="Duplicate" xmlUrl="https://example.com/feed?a=1&amp;b=2" />' +
+      '</outline></body></opml>'
+    let response =
+      '<rss><channel><title>Secure</title><item>' +
+      '<guid>post-1</guid><title>Secure post</title>' +
+      '<link>https://example.com/post-1</link>' +
+      '</item></channel></rss>'
+    let requests: string[] = []
+    setRequestMethod(address => {
+      requests.push(address)
+      let answer = new Response(response)
+      Object.defineProperty(answer, 'url', { value: address })
+      return Promise.resolve(answer)
+    })
+    let page = openPage({ params: {}, route: 'import' })
+    await page.importFile(file('opml', opml))
+
+    deepEqual(requests, [secure])
+    equal(page.fileError.get(), false)
+    equal(page.done.get(), 1)
+    equal(page.lastAdded.get(), secure)
+    deepEqual(page.feedErrors.get(), [[secure, 'exists']])
+    let categories = await loadCategories()
+    deepEqual(
+      categories.map(i => i.title),
+      ['A']
+    )
+    deepEqual(
+      (await loadFeeds()).map(i => [i.url, i.loader, i.title, i.categoryId]),
+      [[secure, 'rss', 'Imported', categories[0]?.id]]
+    )
+    deepEqual(
+      (await loadPosts()).map(i => i.title),
+      ['Secure post']
+    )
+
+    await page.importFile(file('opml', opml))
+    equal(page.done.get(), 0)
+    deepEqual(page.feedErrors.get(), [
+      [url, 'exists'],
+      [secure, 'exists']
+    ])
+    equal((await loadFeeds()).length, 1)
+    equal((await loadCategories()).length, 1)
+    deepEqual(requests, [secure])
+  })
+
+  test('upgrades HTTP feeds for every feed format', async () => {
+    let responses: [string, string][] = [
+      ['atom', '<feed><title>Atom</title></feed>'],
+      [
+        'jsonFeed',
+        '{"version":"https://jsonfeed.org/version/1","title":"JSON","items":[]}'
+      ],
+      [
+        'rss1',
+        '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" ' +
+          'xmlns="http://purl.org/rss/1.0/"><channel><title>RSS</title></channel></rdf:RDF>'
+      ]
+    ]
+    let opml = '<opml version="2.0"><body>'
+    for (let [loader, response] of responses) {
+      opml += `<outline xmlUrl="http://example.com/${loader}" />`
+      expectRequest(`https://example.com/${loader}`).andRespond(
+        200,
+        response,
+        loader === 'jsonFeed' ? 'application/feed+json' : 'application/xml'
+      )
+    }
+    let page = openPage({ params: {}, route: 'import' })
+    await page.importFile(file('opml', opml + '</body></opml>'))
+
+    equal(page.done.get(), 3)
+    deepEqual(page.feedErrors.get(), [])
+    deepEqual(
+      (await loadFeeds()).map(i => [i.url, i.loader]),
+      responses.map(([loader]) => [`https://example.com/${loader}`, loader])
+    )
+  })
+
+  test('normalizes HTTP URLs before checking HTTPS', async () => {
+    let page = openPage({ params: {}, route: 'import' })
+    for (let [url, secure] of [
+      ['http://example.com:80/feed', 'https://example.com/feed'],
+      [
+        'HTTP://EXAMPLE.com:80/feed?a=1&b=2',
+        'https://example.com/feed?a=1&b=2'
+      ],
+      ['http://example.com:8080/feed', 'https://example.com:8080/feed'],
+      ['  http://example.com:80/spaced  ', 'https://example.com/spaced']
+    ]) {
+      expectRequest(secure!).andRespond(200, '<rss></rss>')
+      await page.importFile(
+        file(
+          'opml',
+          '<opml><body><outline xmlUrl="' +
+            url!.replaceAll('&', '&amp;') +
+            '" /></body></opml>'
+        )
+      )
+      equal(page.done.get(), 1)
+      equal(page.lastAdded.get(), secure)
+      deepEqual(page.feedErrors.get(), [])
+    }
+    equal((await loadFeeds()).length, 4)
+  })
+
+  test('skips existing HTTPS feeds for an HTTP URL with its default port', async () => {
+    await addFeed(testFeed({ url: 'https://example.com/feed' }))
+    let requests: string[] = []
+    setRequestMethod(url => {
+      requests.push(url)
+      return Promise.reject(new Error('Unexpected request'))
+    })
+    let page = openPage({ params: {}, route: 'import' })
+    await page.importFile(
+      file(
+        'opml',
+        '<opml><body><outline text="Empty">' +
+          '<outline xmlUrl="http://example.com:80/feed" />' +
+          '</outline></body></opml>'
+      )
+    )
+
+    equal(page.done.get(), 0)
+    deepEqual(page.feedErrors.get(), [['http://example.com:80/feed', 'exists']])
+    equal((await loadFeeds()).length, 1)
+    deepEqual(await loadCategories(), [])
+    deepEqual(requests, [])
+  })
+
+  test('falls back to HTTP when HTTPS is unavailable or not a feed', async () => {
+    let opml = '<opml version="2.0"><body>'
+    for (let name of ['missing', 'server', 'network', 'html', 'xml', 'json']) {
+      opml += `<outline xmlUrl="http://example.com/${name}" />`
+      let request = expectRequest(`https://example.com/${name}`)
+      if (name === 'missing') {
+        request.andRespond(404)
+      } else if (name === 'server') {
+        request.andRespond(503)
+      } else if (name === 'network') {
+        request.andFail()
+      } else if (name === 'html') {
+        request.andRespond(200, '<html></html>')
+      } else if (name === 'xml') {
+        request.andRespond(200, '<rss><', 'application/xml')
+      } else {
+        request.andRespond(200, '{', 'application/json')
+      }
+      expectRequest(`http://example.com/${name}`).andRespond(200, '<rss></rss>')
+    }
+    let page = openPage({ params: {}, route: 'import' })
+    await page.importFile(file('opml', opml + '</body></opml>'))
+
+    equal(page.done.get(), 6)
+    equal(page.fileError.get(), false)
+    deepEqual(page.feedErrors.get(), [])
+    deepEqual(
+      (await loadFeeds()).map(i => i.url),
+      ['missing', 'server', 'network', 'html', 'xml', 'json'].map(
+        name => `http://example.com/${name}`
+      )
+    )
+  })
+
+  test('keeps HTTP import errors after a failed HTTPS check', async () => {
+    let opml =
+      '<opml version="2.0"><body><outline text="Empty">' +
+      '<outline xmlUrl="http://example.com/missing" />' +
+      '<outline xmlUrl="http://example.com/unknown" />' +
+      '<outline xmlUrl="http://[" />' +
+      '</outline><outline xmlUrl="https://example.com/working" /></body></opml>'
+    expectRequest('https://example.com/missing').andRespond(404)
+    expectRequest('http://example.com/missing').andRespond(404)
+    expectRequest('https://example.com/unknown').andRespond(
+      200,
+      '<html></html>'
+    )
+    expectRequest('http://example.com/unknown').andRespond(200, '<html></html>')
+    expectRequest('http://[').andRespond(404)
+    expectRequest('https://example.com/working').andRespond(200, '<rss></rss>')
+    let page = openPage({ params: {}, route: 'import' })
+    await page.importFile(file('opml', opml))
+
+    equal(page.done.get(), 1)
+    deepEqual(page.feedErrors.get(), [
+      ['http://example.com/missing', 'unloadable'],
+      ['http://example.com/unknown', 'unknown'],
+      ['http://[', 'unloadable']
+    ])
+    deepEqual(await loadCategories(), [])
+    deepEqual(
+      (await loadFeeds()).map(i => i.url),
+      ['https://example.com/working']
+    )
+  })
+
+  test('uses the final URL of an HTTPS check for duplicate detection', async () => {
+    let opml =
+      '<opml version="2.0"><body>' +
+      '<outline xmlUrl="http://example.com/old" />' +
+      '</body></opml>'
+    let requests: string[] = []
+    setRequestMethod(url => {
+      requests.push(url)
+      let response = new Response('<rss></rss>')
+      Object.defineProperty(response, 'url', {
+        value: 'https://example.com/new'
+      })
+      return Promise.resolve(response)
+    })
+    let page = openPage({ params: {}, route: 'import' })
+    await page.importFile(file('opml', opml))
+    equal(page.done.get(), 1)
+    equal(page.lastAdded.get(), 'https://example.com/new')
+    deepEqual(
+      (await loadFeeds()).map(i => i.url),
+      ['https://example.com/new']
+    )
+
+    await page.importFile(file('opml', opml))
+    equal(page.done.get(), 0)
+    deepEqual(page.feedErrors.get(), [['http://example.com/old', 'exists']])
+    equal((await loadFeeds()).length, 1)
+    deepEqual(requests, ['https://example.com/old', 'https://example.com/old'])
+  })
+
+  test('keeps the final HTTP URL when HTTPS redirects back to HTTP', async () => {
+    let url = 'http://example.com/feed'
+    let requests: string[] = []
+    setRequestMethod(address => {
+      requests.push(address)
+      let response = new Response('<rss></rss>')
+      Object.defineProperty(response, 'url', { value: url })
+      return Promise.resolve(response)
+    })
+    let page = openPage({ params: {}, route: 'import' })
+    await page.importFile(
+      file('opml', `<opml><body><outline xmlUrl="${url}" /></body></opml>`)
+    )
+
+    equal(page.done.get(), 1)
+    deepEqual(
+      (await loadFeeds()).map(i => i.url),
+      [url]
+    )
+    deepEqual(requests, ['https://example.com/feed'])
+  })
+
+  test('falls back to HTTP when the HTTPS check times out', async context => {
+    let timeout = globalThis.setTimeout
+    context.mock.method(
+      globalThis,
+      'setTimeout',
+      (
+        callback: (...args: unknown[]) => void,
+        ms?: number,
+        ...args: unknown[]
+      ) => timeout(callback, ms === 5000 ? 0 : ms, ...args)
+    )
+    let reply = expectRequest('https://example.com/feed').andWait()
+    expectRequest('http://example.com/feed').andRespond(200, '<rss></rss>')
+    let page = openPage({ params: {}, route: 'import' })
+    await page.importFile(
+      file(
+        'opml',
+        '<opml><body><outline xmlUrl="http://example.com/feed" /></body></opml>'
+      )
+    )
+
+    equal(reply.aborted, true)
+    equal(page.done.get(), 1)
+    deepEqual(page.feedErrors.get(), [])
+    deepEqual(
+      (await loadFeeds()).map(i => i.url),
+      ['http://example.com/feed']
+    )
+  })
+
+  test('skips existing HTTP feeds before checking HTTPS', async () => {
+    await addFeed(testFeed({ url: 'http://example.com/feed' }))
+    let requests: string[] = []
+    setRequestMethod(url => {
+      requests.push(url)
+      return Promise.reject(new Error('Unexpected request'))
+    })
+    let page = openPage({ params: {}, route: 'import' })
+    for (let url of ['http://example.com/feed', 'http://example.com:80/feed']) {
+      await page.importFile(
+        file('opml', `<opml><body><outline xmlUrl="${url}" /></body></opml>`)
+      )
+      equal(page.done.get(), 0)
+      deepEqual(page.feedErrors.get(), [[url, 'exists']])
+    }
+    equal((await loadFeeds()).length, 1)
+    deepEqual(requests, [])
+  })
+
+  test('skips existing HTTPS feeds before checking an HTTP import', async () => {
+    await addFeed(testFeed({ url: 'https://example.com/feed' }))
+    let page = openPage({ params: {}, route: 'import' })
+    await page.importFile(
+      file(
+        'opml',
+        '<opml><body><outline text="Empty">' +
+          '<outline xmlUrl="http://example.com/feed" />' +
+          '</outline></body></opml>'
+      )
+    )
+
+    equal(page.done.get(), 0)
+    deepEqual(page.feedErrors.get(), [['http://example.com/feed', 'exists']])
+    equal((await loadFeeds()).length, 1)
+    deepEqual(await loadCategories(), [])
+  })
+
   test('prevents importing duplicate feeds from state JSON', async () => {
     let FEED2 = testFeed({ url: 'https://a.com/atom' })
     await addCategory(CATEGORY)
