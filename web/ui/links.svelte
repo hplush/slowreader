@@ -8,7 +8,7 @@
     item: ItemValue
     mark?: string
     markTitle?: string
-    variant?: 'normal' | 'read'
+    variant?: 'dangerous' | 'normal' | 'read'
   }
 </script>
 
@@ -39,6 +39,7 @@
     <li>
       <Clickable
         class={{
+          'is-dangerous': i.variant === 'dangerous',
           'is-read': i.variant === 'read',
           'links_item': true
         }}
@@ -140,6 +141,19 @@
         }
       }
 
+      &.is-dangerous:not([aria-current='page']) {
+        background: --tune-background(--flat-button --colorize, --dangerous);
+
+        &:hover,
+        &:active,
+        &:focus-visible {
+          background: --tune-background(
+            --flat-button --flat-button-hover --colorize,
+            --dangerous
+          );
+        }
+      }
+
       &:not([aria-current='page']):active {
         z-index: 1;
         padding-block: calc(0.875rem + var(--min-size))
@@ -176,6 +190,10 @@
       color: var(--secondary-text-color);
       text-overflow: ellipsis;
       white-space: nowrap;
+
+      .links_item.is-dangerous & {
+        color: var(--dangerous-text-color);
+      }
     }
 
     .links_mark {

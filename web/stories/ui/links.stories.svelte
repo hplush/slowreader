@@ -102,6 +102,15 @@
           id: 'Avatar',
           item: { title: 'Avatar' },
           mark: mdiChevronRight
+        },
+        {
+          avatar: { icon: mdiAccount, url: null },
+          hint: 'Sign in expired',
+          href: '#',
+          id: 'Dangerous',
+          item: { title: 'Dangerous' },
+          mark: mdiChevronRight,
+          variant: 'dangerous'
         }
       ]}
     />

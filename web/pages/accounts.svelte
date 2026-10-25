@@ -43,7 +43,8 @@
             href: getPopupHash($router, 'account', account.id),
             id: account.id,
             item: account,
-            mark: mdiChevronRight
+            mark: mdiChevronRight,
+            variant: account.expired ? 'dangerous' : 'normal'
           }))}
         >
           {#snippet item(account)}

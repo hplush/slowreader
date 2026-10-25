@@ -56,20 +56,16 @@
       {#if row.expired}
         <Note icon={mdiAccountAlert} variant="warning">
           {$t.signInExpired}
-          {#snippet footer()}
-            <Stack gap="s">
-              <Button
-                icon={mdiLogin}
-                loader={$signingIn}
-                onclick={popup.signInAgain}
-              >
-                {$t.signInAgain}
-              </Button>
-              {#if $signInError}
-                <Error>{$signInError}</Error>
-              {/if}
-            </Stack>
-          {/snippet}
+          <Button
+            icon={mdiLogin}
+            loader={$signingIn}
+            onclick={popup.signInAgain}
+          >
+            {$t.signInAgain}
+          </Button>
+          {#if $signInError}
+            <Error>{$signInError}</Error>
+          {/if}
         </Note>
       {/if}
     </Stack>
