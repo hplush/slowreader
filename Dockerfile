@@ -126,9 +126,15 @@ COPY server/package.json server/
 ARG SOURCE_DATE_EPOCH
 RUN pnpm install --frozen-lockfile --ignore-scripts --prod -F server... && \
   rm -r node_modules/.pnpm-store
+RUN --network=none pnpm -F server... sbom --prod --sbom-format cyclonedx \
+  --sbom-spec-version 1.6 > /server.cdx.json
 COPY api/ api/
 COPY proxy/ proxy/
 COPY server/ server/
+
+FROM client AS sbom
+COPY --from=server /server.cdx.json /server.cdx.json
+RUN --network=none node web/scripts/merge-sbom.ts /server.cdx.json
 
 # cgr.dev/chainguard/nginx:latest
 FROM cgr.dev/chainguard/nginx@sha256:9aa6c46648f17b2835d009fd4338b38591b2396670a07270ee19b532f83dbbb5 AS production
@@ -148,7 +154,7 @@ COPY --from=target /usr/lib/libatomic.so.1 /usr/lib/libstdc++.so.6 /usr/lib/
 COPY --from=ghcr.io/tarampampam/microcheck@sha256:c9f79cd408626de7c10f2d487d67339f49adf0ba61dde96ede65343269db1f85 /bin/httpcheck /usr/bin/httpcheck
 
 COPY --from=client /app/web/nginx.conf /app/web/routes.regexp /etc/nginx/
-COPY --from=client /app/web/dist/ /var/www/
+COPY --from=sbom /app/web/dist/ /var/www/
 # Workspace packages are symlinks to the folders next to node_modules/,
 # so Node.js can strip their types
 COPY --from=server /app/node_modules/ /var/app/node_modules/
