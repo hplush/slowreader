@@ -1,7 +1,32 @@
-verify:
-  # Hourly schedule, publish, new release, or manual run
+.push:
+  script:
+    # Project access tokens need GitLab Premium
+    # GitLab removes the last line break, but OpenSSH can’t read key without it
+    - "{ tr -d '\\r' < \"$PUSH_KEY\"; echo; } > /tmp/push_key"
+    - chmod 600 /tmp/push_key
+    - echo "gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf" > /tmp/known_hosts
+    - export GIT_SSH_COMMAND="ssh -i /tmp/push_key -o UserKnownHostsFile=/tmp/known_hosts"
+    - git config --global user.name "Slow Reader Verifier"
+    - git config --global user.email "verifier@slowreader.app"
+
+.commit:
+  script:
+    - git add --all
+    - git diff --cached --quiet || git commit -qm "Check $(date -u +%FT%TZ)"
+    # Scripts could be published during the check
+    - git fetch -q origin main
+    - git rebase -q FETCH_HEAD
+    # Results push should not start another check
+    - git push -q -o ci.skip "git@gitlab.com:${CI_PROJECT_PATH}.git" HEAD:main
+
+variables:
+  # Scripts find the last commit with verifier code in the history
+  GIT_DEPTH: 0
+
+releases:
+  # New release, publish, or manual run, not hourly to save compute minutes
   rules:
-    - if: $CI_PIPELINE_SOURCE =~ /^(schedule|push|trigger|web)$/
+    - if: $CI_PIPELINE_SOURCE =~ /^(push|trigger|web)$/
   # Only these hosted runners are privileged, which buildx replay needs
   tags:
     - saas-linux-small-amd64
@@ -12,39 +37,46 @@ verify:
     - docker:29.9.0-dind@sha256:0b6d18a4a222e71c88be6034926b4f6cde2fc33c2218643d03ccfddc65995470
   variables:
     DOCKER_TLS_CERTDIR: /certs
-    # Scripts find the last commit with verifier code in the history
-    GIT_DEPTH: 0
   before_script:
-    - apk add --no-cache bash cosign curl git github-cli jq openssh-client openssh-keygen openssl
+    - apk add --no-cache bash cosign curl git github-cli jq openssh-client openssh-keygen
     # Builder can’t take TLS settings of docker:dind service from environment
     - docker context create dind
     # Docker’s own builder can’t replay builds
     - docker buildx create --use --driver docker-container dind
-    - git config --global user.name "Slow Reader Verifier"
-    - git config --global user.email "verifier@slowreader.app"
-    # Project access tokens need GitLab Premium
-    # GitLab removes the last line break, but OpenSSH can’t read key without it
-    - "{ tr -d '\\r' < \"$PUSH_KEY\"; echo; } > /tmp/push_key"
-    - chmod 600 /tmp/push_key
-    - echo "gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf" > /tmp/known_hosts
-    - export GIT_SSH_COMMAND="ssh -i /tmp/push_key -o UserKnownHostsFile=/tmp/known_hosts"
+    - !reference [.push, script]
   script:
-    - |
-      STATUS=0
-      ./check-releases.sh || STATUS=1
-      ./check-site.sh || STATUS=1
-      git add --all
-      git diff --cached --quiet || git commit -qm "Check $(date -u +%FT%TZ)"
-      # Scripts could be published during the check
-      git fetch -q origin main
-      git rebase -q FETCH_HEAD
-      # Results push should not start another check
-      git push -q -o ci.skip "git@gitlab.com:${CI_PROJECT_PATH}.git" HEAD:main
-      exit $STATUS
+    - STATUS=0
+    - ./check-releases.sh || STATUS=1
+    - !reference [.commit, script]
+    - exit $STATUS
+
+site:
+  # Hourly schedule, publish, new release, or manual run
+  # Check the site even after failed release check
+  rules:
+    - if: $CI_PIPELINE_SOURCE =~ /^(schedule|push|trigger|web)$/
+      when: always
+  needs:
+    - job: releases
+      optional: true
+  resource_group: verify
+  # No Docker, since only releases job rebuilds images
+  image: alpine:3.24.2@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
+  before_script:
+    - apk add --no-cache bash cosign curl git jq openssh-client openssl
+    - !reference [.push, script]
+  script:
+    # Take results, which releases job just committed
+    - git fetch -q origin main
+    - git checkout -q FETCH_HEAD
+    - STATUS=0
+    - ./check-site.sh || STATUS=1
+    - !reference [.commit, script]
+    - exit $STATUS
 
 pages:
   # Publish status page even after failed check, to show the failure
-  needs: [verify]
+  needs: [site]
   rules:
     - if: $CI_PIPELINE_SOURCE =~ /^(schedule|push|trigger|web)$/
       when: always
@@ -52,7 +84,7 @@ pages:
   before_script:
     - apk add --no-cache bash git jq
   script:
-    # Take results, which verify job just committed
+    # Take results, which site job just committed
     - git fetch -q origin main
     - git checkout -q FETCH_HEAD
     - ./build-index.sh

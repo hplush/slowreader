@@ -1,7 +1,7 @@
 #!/bin/bash
 # Rebuild every new GitHub Release and check that we get the same image
 
-# Stop on any unexpected error, the next hourly run will try again
+# Stop on any unexpected error, the next release, publish, or manual run will try again
 set -euo pipefail
 
 # Repository with the source code and releases
@@ -54,7 +54,7 @@ for TAG in $(gh release list --repo "$REPO" --json tagName --jq '.[].tagName'); 
   BUILD=""
   # Count attempts, because regular errors stop the script before saving
   echo >> "releases/$TAG.tries"
-  # 3 failed hourly runs mean the release itself is the problem, not the network
+  # 3 failed runs mean the release itself is the problem, not the network
   if [ "$(wc -l < "releases/$TAG.tries")" -gt 3 ]; then
     broken "verification fails 3 times"
     continue
