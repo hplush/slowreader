@@ -1,5 +1,6 @@
 import { withMeta } from '@logux/client/db'
 import type { SqlStore, SqlStoreValue } from '@nanostores/sql'
+import { nanoid } from 'nanoid'
 import { atom, computed, type ReadableAtom } from 'nanostores'
 
 import { commonMessages as t } from './messages/index.ts'
@@ -58,12 +59,27 @@ export function loadCategories(): Promise<CategoryValue[]> {
   return getTables().categories.load`ORDER BY "title"`
 }
 
+function shortId(used: Set<string>): string {
+  let id = nanoid(6)
+  while (used.has(id)) id = nanoid(6)
+  used.add(id)
+  return id
+}
+
 export function addCategory(categories: NewCategory[]): Promise<string[]>
 export function addCategory(fields: NewCategory): Promise<string>
-export function addCategory(
+export async function addCategory(
   fields: NewCategory | NewCategory[]
 ): Promise<string[] | string> {
-  return getTables().categories.create(fields)
+  let categories = getTables().categories
+  let used = new Set((await categories.load()).map(i => i.id))
+  if (Array.isArray(fields)) {
+    return categories.create(
+      fields.map(i => ({ ...i, id: i.id ?? shortId(used) }))
+    )
+  } else {
+    return categories.create({ ...fields, id: fields.id ?? shortId(used) })
+  }
 }
 
 export function changeCategory(
