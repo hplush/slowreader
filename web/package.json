@@ -16,7 +16,7 @@
     "test:offline:svelte-types": "svelte-check --tsgo --output human --color",
     "build:routes": "node ./scripts/export-routes.ts",
     "build:visual": "NODE_ENV=test storybook build --loglevel error",
-    "build:web": "vite build && cp -fr ../landings/dist/. dist/ && node scripts/generate-manifest.ts",
+    "build:web": "vite build && cp -fr ../landings/dist/. dist/ && node scripts/generate-manifest.ts && node scripts/merge-sbom.ts",
     "clean:build": "rm -rf dist .svelte-check routes.regexp",
     "build-storybook": "pnpm run build:visual"
   },

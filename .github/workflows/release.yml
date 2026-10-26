@@ -67,6 +67,7 @@ jobs:
           docker buildx build --target production --metadata-file meta.json \
             --platform linux/amd64,linux/arm64 \
             --provenance=mode=max,version=v1 \
+            --sbom=generator=docker/buildkit-syft-scanner:latest@sha256:873a7458c3c8ac8e32c7b796c10e1600b07b963d2aa000a72a2d97aaaa2d6315 \
             --build-arg SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)" \
             --build-arg COMMIT="$GITHUB_SHA" \
             --tag "ghcr.io/hplush/slowreader:$TAG" \
@@ -140,6 +141,7 @@ jobs:
         run: |
           ID=$(docker create "$IMAGE")
           docker cp "$ID:/var/www/manifest.json" manifest.json
+          docker cp "$ID:/var/www/.well-known/sbom" sbom.cdx.json
           awk -v version="## $TAG" \
             '$0 == version { found = 1; next } /^## / { found = 0 } found' \
             CHANGELOG.md > notes.md
@@ -151,7 +153,7 @@ jobs:
             "$IMAGE" "$GITHUB_REPOSITORY" "$PACKAGE" >> notes.md
           gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --verify-tag \
             --title "$TAG" --notes-file notes.md \
-            image.txt image.txt.sig manifest.json
+            image.txt image.txt.sig manifest.json sbom.cdx.json
       - name: Start verifier check
         env:
           VERIFIER_TRIGGER: ${{ secrets.VERIFIER_TRIGGER }}

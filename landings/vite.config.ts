@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 
 import { allFeatures } from '../web/vite/lightningcss.ts'
+import { sbom } from '../web/vite/sbom.ts'
 import { docPages, docs } from './vite/docs.ts'
 import { images } from './vite/images.ts'
 import { inlineCss } from './vite/inline-css.ts'
@@ -48,6 +49,7 @@ export default defineConfig({
     inlineCss(),
     og(),
     releases(),
+    sbom('landing/sbom.cdx.json'),
     {
       enforce: 'post',
       // nginx and the server serve every page’s dir by index.html

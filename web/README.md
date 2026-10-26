@@ -164,4 +164,6 @@ To return app HTML on app’s routes, we [export](./scripts/export-routes.ts) Re
 
 After the build, we [save](./scripts/generate-manifest.ts) hashes of all JS files and main HTML pages to `dist/manifest.json`, add import map with JS hashes to HTML, and put hashes of app files to the [service worker](./main/sw.ts). Server’s [`entrypoint.ts`](../server/entrypoint.ts) puts JS hashes to Content Security Policy, so browsers run only JS from our build.
 
+[`vite/sbom.ts`](./vite/sbom.ts) writes packages from the bundle to [SBOM](../README.md#self-hosted), since the image scanner can’t see them inside JS, and [`merge-sbom.ts`](./scripts/merge-sbom.ts) adds server’s packages and Node.js to `dist/.well-known/sbom`.
+
 The service worker downloads app files by `integrity` and serves them from the cache until the next app start or Update button in About.

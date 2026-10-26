@@ -162,6 +162,77 @@ if [ -n "$NODE_FIX" ]; then
 fi
 success "Node.js $NODE has no newer security release"
 
+osv_cves() {
+  local version
+  for version in $2; do
+    curl -fsS https://api.osv.dev/v1/query \
+      -d "$(jq -n --arg purl "$1@$version" '{package: {purl: $purl}}')" \
+      | jq -r '.vulns[]? | ((.aliases // []) | map(select(startswith("CVE-"))) | .[0]) // .id'
+  done | sort -u
+}
+
+# Node.js has no CVE database with versions, but its changelog marks
+# security fixes by CVE in every version
+node_cves() {
+  curl -fsS "https://raw.githubusercontent.com/nodejs/node/main/doc/changelogs/CHANGELOG_V${2%%.*}.md" \
+    | awk -v old="$1" -v new="$2" '
+      function number(version, parts) {
+        split(version, parts, ".")
+        return parts[1] * 1000000 + parts[2] * 1000 + parts[3]
+      }
+      /^<a id="[0-9.]+"><\/a>$/ {
+        gsub(/[^0-9.]/, "")
+        inside = number($0) > number(old) && number($0) <= number(new)
+      }
+      inside' \
+    | { grep -oE 'CVE-[0-9]{4}-[0-9]+' || true; } | sort -u
+}
+
+# Staging runs main, so the new SBOM is there. Release runs outside
+# Dev Container, so it must not build the SBOM by running dependencies.
+touch "$WORK/deps.md"
+PREVIOUS=$(git -C "$ROOT" describe --tags --abbrev=0)
+if [ "$BRANCH" != "main" ]; then
+  highlight "Fix release can’t find fixed CVEs, add them to unreleased-changes/"
+elif ! curl -fsSL -o "$WORK/previous.json" \
+  "https://github.com/$REPO/releases/download/$PREVIOUS/sbom.cdx.json"; then
+  highlight "$PREVIOUS has no SBOM, add fixed CVEs to unreleased-changes/"
+else
+  step "Waiting for staging to deploy $(git -C "$ROOT" rev-parse --short HEAD)"
+  until [ "$(curl -fsS https://dev.slowreader.app/manifest.json | jq -r .commit)" \
+    = "$(git -C "$ROOT" rev-parse HEAD)" ]; do
+    sleep 15
+  done
+  curl -fsS -o "$WORK/next.json" https://dev.slowreader.app/.well-known/sbom
+  # Package, its removed versions, all new versions, and added versions
+  jq -r --slurpfile next "$WORK/next.json" '
+    def versions: reduce .components[] as $c ({};
+      .[$c.purl | sub("@[^@]*$"; "")] += [$c.version]);
+    ($next[0] | versions) as $new
+    | versions | to_entries[]
+    | select($new[.key] and ($new[.key] | sort) != (.value | sort))
+    | [.key, (.value - $new[.key] | join(" ")), ($new[.key] | join(" ")),
+      ($new[.key] - .value | join(", "))]
+    | @tsv' "$WORK/previous.json" \
+    | while IFS=$'\t' read -r PACKAGE OLD NEW ADDED; do
+      if [ "$PACKAGE" = "pkg:generic/node" ]; then
+        # Older major versions get the same fixes in their own changelog
+        [ "${OLD%%.*}" = "${NEW%%.*}" ] || continue
+        NAME="Node.js"
+        node_cves "$OLD" "$NEW" > "$WORK/fixed.txt"
+      else
+        NAME="\`$(sed 's|^pkg:npm/||; s|%40|@|' <<< "$PACKAGE")\`"
+        comm -23 <(osv_cves "$PACKAGE" "$OLD") <(osv_cves "$PACKAGE" "$NEW") \
+          > "$WORK/fixed.txt"
+      fi
+      if [ -s "$WORK/fixed.txt" ]; then
+        echo "Updated $NAME to ${ADDED:-$NEW} to fix $(paste -sd, - < "$WORK/fixed.txt" | sed 's/,/, /g')." \
+          >> "$WORK/deps.md"
+      fi
+    done
+  success "Found $(wc -l < "$WORK/deps.md" | tr -d ' ') dependencies with fixed CVEs"
+fi
+
 # MAJOR.DATE.PATCH
 CURRENT=$(sed -n "s/^export const VERSION = '\(.*\)'$/\1/p" "$ROOT/api/index.ts")
 IFS=. read -r MAJOR DATE PATCH <<< "$CURRENT"
@@ -188,7 +259,7 @@ FEATURES=("$ROOT"/unreleased-changes/feature-*.md)
 SECURITY=("$ROOT"/unreleased-changes/security-*.md)
 FIXES=("$ROOT"/unreleased-changes/fix-*.md)
 if [ ${#FEATURES[@]} -eq 0 ] && [ ${#SECURITY[@]} -eq 0 ] \
-  && [ ${#FIXES[@]} -eq 0 ]; then
+  && [ ${#FIXES[@]} -eq 0 ] && [ ! -s "$WORK/deps.md" ]; then
   error "Add changes to unreleased-changes/"
 fi
 {
@@ -199,13 +270,14 @@ fi
     echo
     sed '1s/^# /### /' "$file"
   done
-  if [ ${#SECURITY[@]} -gt 0 ]; then
+  if [ ${#SECURITY[@]} -gt 0 ] || [ -s "$WORK/deps.md" ]; then
     echo
     echo "### Security & Privacy"
     echo
     for file in "${SECURITY[@]}"; do
       echo "- $(cat "$file")"
     done
+    sed 's/^/- /' "$WORK/deps.md"
   fi
   if [ ${#FIXES[@]} -gt 0 ]; then
     echo

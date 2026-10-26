@@ -7,6 +7,7 @@ import { defineConfig, type PreviewServer, type ViteDevServer } from 'vite'
 
 import { getAppRoutes } from './stores/url-router.ts'
 import { allFeatures } from './vite/lightningcss.ts'
+import { collectPackages, type Packages, sbom } from './vite/sbom.ts'
 
 const LANDING_TYPES: Record<string, string> = {
   '.atom': 'application/atom+xml',
@@ -104,6 +105,8 @@ function noDemoCache(server: PreviewServer | ViteDevServer): void {
     next()
   })
 }
+
+let workerPackages: Packages = new Map()
 
 export default defineConfig(() => ({
   build: {
@@ -249,6 +252,10 @@ export default defineConfig(() => ({
           return html
         }
       }
-    }
-  ]
+    },
+    sbom('.well-known/sbom', workerPackages)
+  ],
+  worker: {
+    plugins: () => [collectPackages(workerPackages)]
+  }
 }))

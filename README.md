@@ -357,12 +357,13 @@ We release every week. Version is `MAJOR.DATE.PATCH` like `0.20261012.1`: `DATE`
      2. Run `git cherry-pick COMMIT` for every fix from `main`.
      3. Run `./scripts/release.sh fix`. After pushing the release it merges `release` back to `main`. If merge has conflicts, resolve them and push `main`.
 2. It stops if Node.js has a newer security release in the same major version.
-3. On weekly release it asks you to click `Run workflow` in [Demo Database workflow](./.github/workflows/demo-db.yml) and pins the new demo image. Quick fixes keep the pinned demo.
-4. It moves [`unreleased-changes/`](./unreleased-changes/) to [`CHANGELOG.md`](./CHANGELOG.md), updates the version, tags the release, and waits for the image from [release workflow](./.github/workflows/release.yml).
-5. It asks to touch the hardware key from [`verifier/allowed_signers`](./verifier/allowed_signers) to sign the image.
-6. It asks to paste the signature as a comment to `release` environment approval.
-7. It waits for [verifier](./verifier/) to check the image.
-8. It asks 1 hour API key of `deploy` IAM application from [Scaleway console](https://console.scaleway.com/iam/api-keys) and deploys the image to production by digest.
+3. On weekly release it compares SBOM of the previous release and staging, finds CVEs fixed by dependencies’ updates in [OSV](https://osv.dev/) and Node.js changelog, and adds them to the changelog.
+4. On weekly release it asks you to click `Run workflow` in [Demo Database workflow](./.github/workflows/demo-db.yml) and pins the new demo image. Quick fixes keep the pinned demo.
+5. It moves [`unreleased-changes/`](./unreleased-changes/) to [`CHANGELOG.md`](./CHANGELOG.md), updates the version, tags the release, and waits for the image from [release workflow](./.github/workflows/release.yml).
+6. It asks to touch the hardware key from [`verifier/allowed_signers`](./verifier/allowed_signers) to sign the image.
+7. It asks to paste the signature as a comment to `release` environment approval.
+8. It waits for [verifier](./verifier/) to check the image.
+9. It asks 1 hour API key of `deploy` IAM application from [Scaleway console](https://console.scaleway.com/iam/api-keys) and deploys the image to production by digest.
 
 ### Self-Hosted
 
@@ -377,6 +378,8 @@ docker run -p 2553:2553 -v slowreader:/data -e DATABASE_URL=file:///data -e WEB_
 ```
 
 See [environment variables](#environment-variables) for other options.
+
+Every release has `sbom.cdx.json` CycloneDX SBOM with Node.js, server’s production npm packages, and npm packages inside web client and landing assets (not build tools like Vite). Servers also give it on `/.well-known/sbom`. The image also has SPDX SBOM attestation with system packages.
 
 ## Guides
 
