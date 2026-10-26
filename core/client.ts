@@ -242,6 +242,27 @@ export function getClient(): CrossTabClient {
   return logux
 }
 
+/**
+ * Offline client will never be synchronized, so it waits only
+ * for the current connection.
+ */
+export function waitSyncOrOffline(): Promise<void> {
+  let logux = client.get()
+  if (!logux) return Promise.resolve()
+  return new Promise(resolve => {
+    if (logux.state === 'synchronized' || logux.state === 'disconnected') {
+      resolve()
+    } else {
+      let unbind = logux.on('state', () => {
+        if (logux.state === 'synchronized' || logux.state === 'disconnected') {
+          unbind()
+          resolve()
+        }
+      })
+    }
+  })
+}
+
 export type SyncStatus =
   | 'local'
   | Exclude<StatusValue, 'denied' | 'outdated' | 'protocolError' | 'syncError'>

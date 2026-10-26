@@ -1,3 +1,4 @@
+import type { CrossTabClient } from '@logux/client'
 import { restoreAll, type Spy, spyOn } from 'nanospy'
 import { deepEqual, equal, fail, ok } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
@@ -9,6 +10,7 @@ import {
   addFilter,
   addPost,
   createPostsList,
+  DEFAULT_REFRESH_STATISTICS,
   deleteAccount,
   deleteFeed,
   fastPostsLifetime,
@@ -60,6 +62,7 @@ describe('refresh', () => {
 
   afterEach(async () => {
     fastPostsLifetime.set('month')
+    refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS })
     await cleanClient()
     restoreAll()
     checkAndRemoveRequestMock()
@@ -76,6 +79,55 @@ describe('refresh', () => {
 
   test('is ready to be stopped from the start', () => {
     stopRefreshing()
+  })
+
+  function fakeSyncState(state: CrossTabClient['state']): typeof fakeState {
+    let logux = getClient()
+    let on = logux.on.bind(logux)
+    let listener: () => void = () => {}
+    spyOn(logux, 'on', ((event: 'state', callback: () => void) => {
+      if (event === 'state') listener = callback
+      return on(event, callback)
+    }) as typeof logux.on)
+    function fakeState(next: CrossTabClient['state']): void {
+      logux.state = next
+      listener()
+    }
+    logux.state = state
+    return fakeState
+  }
+
+  test('waits for the sync before refresh', async () => {
+    await addFeed(testFeed({ loader: 'rss', url: 'https://one.com/' }))
+    let load = spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => Promise.resolve([[], undefined]))
+    })
+    let changeState = fakeSyncState('sending')
+
+    let finished = refreshPosts()
+    await setTimeout(10)
+    equal(refreshStatus.get(), 'refreshing')
+    equal(load.callCount, 0)
+
+    changeState('synchronized')
+    await finished
+    equal(load.callCount, 1)
+    equal(refreshStatus.get(), 'done')
+  })
+
+  test('stops refresh while waiting for the sync', async () => {
+    await addFeed(testFeed({ loader: 'rss', url: 'https://one.com/' }))
+    let load = spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => Promise.resolve([[], undefined]))
+    })
+    let changeState = fakeSyncState('connecting')
+
+    let finished = refreshPosts()
+    stopRefreshing()
+    changeState('disconnected')
+    await finished
+    equal(load.callCount, 0)
+    equal(refreshStatus.get(), 'start')
   })
 
   test('updates posts', async () => {

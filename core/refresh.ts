@@ -6,6 +6,7 @@ import {
   loadAccount,
   loadAccounts
 } from './account.ts'
+import { waitSyncOrOffline } from './client.ts'
 import { getEnvironment } from './environment.ts'
 import {
   changeFeed,
@@ -467,6 +468,10 @@ export async function refreshPosts(): Promise<void> {
   refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS, initializing: true })
   mediaStatistics.set({ ...DEFAULT_MEDIA_STATISTICS })
   mediaErrors.set([])
+
+  // Other device could already load these posts and move feed markers
+  await waitSyncOrOffline()
+  if (!isRefreshing.get()) return
 
   refreshedAt = Math.round(Date.now() / 1000)
   untouched = []
