@@ -233,21 +233,18 @@ export function trackLog(
       let parsed = parseCrdtAction(action, crdt)
       if (!parsed || parsed.rows.length === 0) return
       let { plural, rows, verb } = parsed
-      let reasons = new Set(meta.reasons)
-      let indexes = new Set(rows.map(row => `${plural}/${row[0]}`))
       if (verb === 'deleted') {
-        meta.indexes = ['tombstone', ...indexes]
-        reasons.add('tombstone')
+        meta.indexes = ['tombstone', ...rows.map(row => `${plural}/${row[0]}`)]
+        meta.reasons.push('tombstone')
       } else {
         for (let [id, fields] of rows) {
           for (let field of fields) {
-            reasons.add(`${plural}/${id}/${field}`)
+            meta.reasons.push(`${plural}/${id}/${field}`)
           }
-          if (verb === 'created') reasons.add(`${plural}/${id}`)
+          if (verb === 'created') meta.reasons.push(`${plural}/${id}`)
         }
-        meta.indexes = [plural, ...indexes]
+        meta.indexes = [plural, ...rows.map(row => `${plural}/${row[0]}`)]
       }
-      meta.reasons = [...reasons]
     }),
 
     crdt.on('applied', (tx, action, meta, won, touched) => {

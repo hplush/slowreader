@@ -31,7 +31,7 @@
     "ua-parser-js": "2.0.10"
   },
   "devDependencies": {
-    "@logux/client": "0.27.0",
+    "@logux/client": "0.27.1",
     "better-node-test": "1.0.0",
     "drizzle-kit": "1.0.0-rc.4"
   }
