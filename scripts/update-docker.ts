@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// Update images in FROM and COPY --from= inside Dockerfile to a specific
-// hash for security and having the same environment everywhere.
+// Update images in FROM and COPY --from= inside Dockerfile and images with tag
+// and hash in GitHub workflows to a specific hash for security and having
+// the same environment everywhere.
 
 import { createHash } from 'node:crypto'
 import { globSync, readFileSync, writeFileSync } from 'node:fs'
@@ -18,6 +19,7 @@ const ACCEPT = [
 
 const FROM = /^\s*FROM\s+(?:--platform=\S+\s+)?(\S+)/i
 const COPY = /^\s*COPY\s+--from=(\S+)/i
+const PINNED = /([\w.-]+(?:\/[\w.-]+)+:[\w.-]+@sha256:[\da-f]{64})/
 
 function print(message: string): void {
   process.stdout.write(message + '\n')
@@ -131,17 +133,23 @@ async function updateReference(
   return updated
 }
 
-let files = globSync(['**/Dockerfile', '.devcontainer/Dockerfile'], {
-  cwd: ROOT,
-  exclude: ['**/node_modules/**', '**/dist/**']
-})
+let files = globSync(
+  ['**/Dockerfile', '.devcontainer/Dockerfile', '.github/workflows/*.yml'],
+  {
+    cwd: ROOT,
+    exclude: ['**/node_modules/**', '**/dist/**']
+  }
+)
 
 for (let file of files) {
   let path = join(ROOT, file)
   let lines = readFileSync(path, 'utf-8').split('\n')
   let changed = false
   for (let i = 0; i < lines.length; i++) {
-    let reference = lines[i]!.match(FROM)?.[1] ?? lines[i]!.match(COPY)?.[1]
+    let reference =
+      lines[i]!.match(FROM)?.[1] ??
+      lines[i]!.match(COPY)?.[1] ??
+      lines[i]!.match(PINNED)?.[1]
     if (!reference) continue
     let updated = await updateReference(file, i, lines, reference)
     if (updated) {

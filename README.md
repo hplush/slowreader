@@ -267,7 +267,7 @@ We try to use progressive approach and update dependencies often (every month).
 To update all dependencies:
 
 ```sh
-# Update Docker base images
+# Update Docker base images and images in CI workflows
 pnpm update-docker
 
 # Update Node.js dependencies and CI actions
