@@ -29,7 +29,8 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 ## Changelog
 
 - If change is visible to users or self-hosters, add file to `unreleased-changes/`: `feature-NAME.md` with `# Title` and a short description, or `fix-NAME.md` with one sentence.
-- Write for users, not developers. Skip CI, docs, refactoring, tests, and dependency updates.
+- Add `security-NAME.md` with one sentence for every security or privacy improvement, even internal one, like CI hardening or dependency isolation.
+- Write for users, not developers. Skip CI, docs, refactoring, tests, and dependency updates, unless it improves security.
 - Update existing file in `unreleased-changes/` instead of adding a new one, if the change improves an unreleased feature.
 
 ## LLMS

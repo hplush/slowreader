@@ -185,8 +185,10 @@ fi
 
 shopt -s nullglob
 FEATURES=("$ROOT"/unreleased-changes/feature-*.md)
+SECURITY=("$ROOT"/unreleased-changes/security-*.md)
 FIXES=("$ROOT"/unreleased-changes/fix-*.md)
-if [ ${#FEATURES[@]} -eq 0 ] && [ ${#FIXES[@]} -eq 0 ]; then
+if [ ${#FEATURES[@]} -eq 0 ] && [ ${#SECURITY[@]} -eq 0 ] \
+  && [ ${#FIXES[@]} -eq 0 ]; then
   error "Add changes to unreleased-changes/"
 fi
 {
@@ -197,6 +199,14 @@ fi
     echo
     sed '1s/^# /### /' "$file"
   done
+  if [ ${#SECURITY[@]} -gt 0 ]; then
+    echo
+    echo "### Security & Privacy"
+    echo
+    for file in "${SECURITY[@]}"; do
+      echo "- $(cat "$file")"
+    done
+  fi
   if [ ${#FIXES[@]} -gt 0 ]; then
     echo
     echo "### Fixes"
@@ -249,7 +259,7 @@ fi
   tail -n +2 "$ROOT/CHANGELOG.md"
 } > "$WORK/CHANGELOG.md"
 mv "$WORK/CHANGELOG.md" "$ROOT/CHANGELOG.md"
-git -C "$ROOT" rm -q "${FEATURES[@]}" "${FIXES[@]}"
+git -C "$ROOT" rm -q "${FEATURES[@]}" "${SECURITY[@]}" "${FIXES[@]}"
 sed -i.bak "s/^export const VERSION = '.*'$/export const VERSION = '$VERSION'/" \
   "$ROOT/api/index.ts"
 rm "$ROOT/api/index.ts.bak"
