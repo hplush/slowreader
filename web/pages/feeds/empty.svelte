@@ -1,10 +1,5 @@
 <script lang="ts">
-  import {
-    mdiFireplace,
-    mdiFireplaceOff,
-    mdiReload,
-    mdiWhiteBalanceSunny
-  } from '@mdi/js'
+  import { mdiFire, mdiFireOff, mdiReload, mdiWhiteBalanceSunny } from '@mdi/js'
   import {
     type EmptyReader,
     isRefreshing,
@@ -26,12 +21,12 @@
     <Stack align="center" gap="l">
       {reader.category ? $t.fastCategoryEmpty : $t.fastEmpty}
       <div class="is-comfort-mode">
-        <Button href={getURL('slow')} icon={mdiFireplace}>{$t.openSlow}</Button>
+        <Button href={getURL('slow')} icon={mdiFire}>{$t.openSlow}</Button>
       </div>
     </Stack>
   </PageIcon>
 {:else}
-  <PageIcon path={mdiFireplaceOff}>
+  <PageIcon path={mdiFireOff}>
     <Stack align="center" gap="l">
       {$t.slowEmpty}
       <div class="is-comfort-mode">

@@ -5,7 +5,7 @@
     mdiCheck,
     mdiCloudUpload,
     mdiDeleteClock,
-    mdiFireplace,
+    mdiFire,
     mdiFood,
     mdiImport,
     mdiPuzzle
@@ -81,7 +81,7 @@
         <ol class="welcome-todo_substeps">
           <li class="welcome-todo_substep">
             {@render checkbox(['slow'], $t.slowFeeds, true)}
-            <Button href={getURL('slow')} icon={mdiFireplace}>
+            <Button href={getURL('slow')} icon={mdiFire}>
               {$t.slowFeeds}
             </Button>
           </li>

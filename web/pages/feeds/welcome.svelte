@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiFireplace, mdiFood, mdiFormatListChecks } from '@mdi/js'
+  import { mdiFire, mdiFood, mdiFormatListChecks } from '@mdi/js'
   import { welcomeMessages as t, type WelcomeReader } from '@slowreader/core'
 
   import { getURL } from '../../stores/url-router.ts'
@@ -11,10 +11,7 @@
   let { reader }: { reader: WelcomeReader } = $props()
 </script>
 
-<PageIcon
-  align="start"
-  path={reader.reading === 'fast' ? mdiFood : mdiFireplace}
->
+<PageIcon align="start" path={reader.reading === 'fast' ? mdiFood : mdiFire}>
   <Stack gap="l">
     <RichText text={reader.reading === 'fast' ? $t.fastDesc : $t.slowDesc} />
     <Button href={getURL('welcome')} icon={mdiFormatListChecks}>
