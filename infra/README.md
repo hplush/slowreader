@@ -9,7 +9,7 @@
 - [`database.tf`](./database.tf): PostgreSQL instance, database, and the app’s user.
 - [`containers.tf`](./containers.tf): app and proxy containers, and their domains.
 - [`dns.tf`](./dns.tf): all records of `slowreader.app`.
-- [`.terraform.lock.hcl`](./.terraform.lock.hcl): providers checksums. Run `pnpm update-infra` to update providers.
+- [`.terraform.lock.hcl`](./.terraform.lock.hcl): providers checksums. Run `node ./scripts/update-infra.ts` to update providers.
 - [`scripts/tofu.sh`](./scripts/tofu.sh): runs OpenTofu with Scaleway keys and the state passphrase after `tofu init`.
 
 ## Apply Changes

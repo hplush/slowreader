@@ -15,7 +15,6 @@
     "unused-messages": "node scripts/check-unused-messages.ts",
     "update-browsers": "node web/scripts/update-browsers.ts",
     "update-tools": "node ./scripts/update-tools.ts",
-    "update-infra": "node ./scripts/update-infra.ts",
     "update-docker": "node ./scripts/update-docker.ts",
     "update-aaguids": "node --env-file-if-exists=.env server/aaguids/update.ts",
     "update-review": "node --env-file-if-exists=.env node_modules/multiocular/server/bin.js --port 2556",

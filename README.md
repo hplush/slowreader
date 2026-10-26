@@ -152,7 +152,6 @@ Each project has its own tools, too.
 - `pnpm -F loader-tests test`: test loaders with different blogging platforms.
 - `pnpm unused-messages`: check that all messages are used.
 - `pnpm update-tools`: check for Node.js, pnpm, and OpenTofu updates.
-- `pnpm update-infra`: update OpenTofu providers in `infra/`.
 - `pnpm update-review`: run Multiocular to review updates.
 - `pnpm update-browsers`: update target browsers of web client.
 - `pnpm update-aaguids`: update passkey providers names and print the changes.
@@ -285,7 +284,7 @@ pnpm update-aaguids
 pnpm update-tools
 
 # Update OpenTofu providers in infra/
-pnpm update-infra
+node ./scripts/update-infra.ts
 
 # Review updates by Multiocular
 pnpm update-review
