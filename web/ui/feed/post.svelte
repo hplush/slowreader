@@ -66,6 +66,7 @@
       <div class="feed-post_author">
         <FeedLink
           avatar={author.avatar}
+          avatarRound={author.round}
           avatarSize="medium"
           feedId={author.feedId}
           href={getPopupHash($router, 'feed', author.url)}

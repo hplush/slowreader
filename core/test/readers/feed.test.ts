@@ -347,7 +347,7 @@ describe('feed reader', () => {
   test('reads account posts', async () => {
     let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
     let other = await addCategory({ title: 'B' })
-    let feedId = await addFeed(testFeed({ categoryId }))
+    let feedId = await addFeed(testFeed({ categoryId, loader: 'mastodon' }))
     let accountId = await addAccount(testAccount({ categoryId }))
     let otherAccount = await addAccount(testAccount({ categoryId: other }))
     function accountPost(
@@ -389,6 +389,7 @@ describe('feed reader', () => {
     let [first, , feedPost] = reader.list.get()
     equal(getFeedAuthor(first!, authors), undefined)
     equal(getFeedAuthor(feedPost!, authors)?.feedId, feedId)
+    equal(getFeedAuthor(feedPost!, authors)?.round, true)
     equal(getFeedAuthor(feedPost!, undefined), undefined)
     equal(
       getFeedAuthor(toPreviewPost({ id: 'preview', originId: 'p' }), authors),

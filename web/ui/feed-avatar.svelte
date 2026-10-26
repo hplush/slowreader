@@ -9,11 +9,13 @@
     avatar,
     feedId,
     icon = mdiRss,
+    round,
     size = 'small'
   }: {
     avatar: null | string | undefined
     feedId?: string
     icon?: string
+    round?: boolean
     size?: 'large' | 'medium' | 'small'
   } = $props()
 
@@ -32,6 +34,7 @@
     class:is-loading={loaded !== avatar}
     class:is-medium={size === 'medium'}
     class:is-raster={!/^data:image\/svg|\.svg($|[?#])/i.test(avatar)}
+    class:is-round={round}
     alt=""
     decoding="async"
     loading="lazy"
@@ -52,6 +55,7 @@
     class="feed-avatar is-missed"
     class:is-large={size === 'large'}
     class:is-medium={size === 'medium'}
+    class:is-round={round}
   >
     <Icon path={icon} />
   </span>
@@ -84,6 +88,14 @@
 
       &.is-large {
         --icon-size: 3.25rem;
+      }
+
+      &.is-round {
+        border-radius: 50%;
+
+        &.is-raster {
+          object-fit: cover;
+        }
       }
 
       &.is-loading {

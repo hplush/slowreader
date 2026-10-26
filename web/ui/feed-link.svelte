@@ -3,6 +3,7 @@
 
   let {
     avatar,
+    avatarRound,
     avatarSize,
     feedId,
     href,
@@ -10,6 +11,7 @@
     variant = 'main'
   }: {
     avatar: null | string
+    avatarRound: boolean
     avatarSize?: 'medium' | 'small'
     feedId: string
     href: string
@@ -20,7 +22,7 @@
 
 <div class="feed-link" class:is-secondary={variant === 'secondary'}>
   <a class="feed-link_link" {href}>
-    <FeedAvatar {avatar} {feedId} size={avatarSize} />
+    <FeedAvatar {avatar} {feedId} round={avatarRound} size={avatarSize} />
     <span class="feed-link_text">{title}</span>
   </a>
 </div>

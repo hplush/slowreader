@@ -1,6 +1,7 @@
 import { atom } from 'nanostores'
 
 import { getUserPostUrls } from '../account.ts'
+import { hasPersonAvatar } from '../loader/index.ts'
 import type { ReaderPost } from '../post.ts'
 import {
   createReader,
@@ -73,6 +74,7 @@ export const feedReader = createReader('feed', (filter, params) => {
         authors.set(post.feedId, {
           avatar: post.authorAvatar ?? null,
           feedId: post.feedId,
+          round: hasPersonAvatar(post.authorLoader),
           title: post.authorTitle!,
           url: post.authorUrl!
         })

@@ -2,6 +2,7 @@
   import { mdiFormatListChecks, mdiPageLayoutHeaderFooter } from '@mdi/js'
   import {
     type FeedsPage,
+    hasPersonAvatar,
     navbarMessages as navbar,
     router,
     feedsMessages as t
@@ -44,6 +45,7 @@
         {#if $feed}
           <FeedLink
             avatar={$feed.avatar}
+            avatarRound={hasPersonAvatar($feed.loader)}
             feedId={$feed.id}
             href={getPopupHash($router, 'feed', $feed.url)}
             title={$feed.title}
@@ -74,7 +76,7 @@
         <FeedsEmptyPage reader={$posts} />
       {:else if $posts.name === 'feed'}
         <FeedsFeedPage feedUrl={$feed?.url} reader={$posts} />
-      {:else if $posts.name === 'list'}
+      {:else}
         <FeedsListPage reader={$posts} />
       {/if}
     </Stack>

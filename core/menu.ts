@@ -12,6 +12,7 @@ import { client, onClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
 import type { FilterValue } from './filter.ts'
 import { waitLoading } from './lib/stores.ts'
+import { hasPersonAvatar } from './loader/index.ts'
 import { commonMessages } from './messages/index.ts'
 import { type Route, type RouteName, router } from './router.ts'
 import {
@@ -76,7 +77,7 @@ export interface MenuItem {
   title: string
 }
 
-export type MenuFeed = MenuItem & { avatar?: string }
+export type MenuFeed = MenuItem & { avatar?: string; round?: true }
 
 export type SlowMenu = [MenuItem, [MenuFeed, number][]][]
 
@@ -116,6 +117,7 @@ interface MenuState {
   feedOf: Record<string, string>
   feeds: Record<string, Sorted>
   filters: Record<string, [feedId: string, action: FilterValue['action']]>
+  round: Record<string, true>
 }
 
 const EMPTY: MenuState = {
@@ -125,7 +127,8 @@ const EMPTY: MenuState = {
   fast: {},
   feedOf: {},
   feeds: {},
-  filters: {}
+  filters: {},
+  round: {}
 }
 
 const REDUCER = 'slowreader:menu'
@@ -134,7 +137,7 @@ const REDUCER = 'slowreader:menu'
  * Increase it on any change in the reducer’s logic or in `MenuState`
  * to rebuild the menu from the log.
  */
-const VERSION = 3
+const VERSION = 4
 
 /**
  * The server re-sends the actions, which the client did not confirm as
@@ -245,18 +248,20 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
     let fast = { ...state.fast }
     let feedOf = { ...state.feedOf }
     let feeds = { ...state.feeds }
+    let round = { ...state.round }
     for (let [id, fields] of parseCrdtRows(action)) {
       let category = fields.categoryId!
       feeds[category] = insert(feeds[category] ?? [], id, fields.title)
       feedOf[id] = category
       if (fields.reading === 'fast') fast[id] = true
+      if (hasPersonAvatar(fields.loader)) round[id] = true
       if (fields.avatar) {
         avatars[id] = fields.avatar
       } else {
         delete avatars[id]
       }
     }
-    return { ...state, avatars, fast, feedOf, feeds }
+    return { ...state, avatars, fast, feedOf, feeds, round }
   })
 
   reducer.type(feedsTable.changed, (state, action) => {
@@ -319,6 +324,7 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
     let fast = { ...state.fast }
     let feedOf = { ...state.feedOf }
     let feeds = { ...state.feeds }
+    let round = { ...state.round }
     for (let [id] of parseCrdtRows(action)) {
       let from = feedOf[id]
       if (typeof from === 'undefined') continue
@@ -326,9 +332,10 @@ function createMenuReducer(logux: CrossTabClient): StorageReducer<MenuState> {
       delete avatars[id]
       delete feedOf[id]
       delete fast[id]
+      delete round[id]
       changed = true
     }
-    return changed ? { ...state, avatars, fast, feedOf, feeds } : state
+    return changed ? { ...state, avatars, fast, feedOf, feeds, round } : state
   })
 
   reducer.type(filtersTable.created, (state, action) => {
@@ -424,10 +431,11 @@ function buildTree(state: MenuState): MenuTree {
     slow.push([
       category,
       list.map(([feedId, name]) => {
+        let feed: MenuFeed = { id: feedId, title: name }
         let avatar = state.avatars[feedId]
-        return avatar
-          ? { avatar, id: feedId, title: name }
-          : { id: feedId, title: name }
+        if (avatar) feed.avatar = avatar
+        if (state.round[feedId]) feed.round = true
+        return feed
       })
     ])
   }

@@ -3,6 +3,7 @@
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import AccountsPage from '../../pages/accounts.svelte'
+  import avatarExample from '../assets/short_width_example.avif'
   import Scene from '../scene.svelte'
 
   let { Story } = defineMeta({
@@ -11,7 +12,11 @@
   })
 
   const ACCOUNTS = [
-    { handle: '@sitnik@mastodon.social', title: 'Andrey Sitnik' },
+    {
+      avatar: avatarExample,
+      handle: '@sitnik@mastodon.social',
+      title: 'Andrey Sitnik'
+    },
     {
       expired: true,
       handle: '@sitnik.bsky.social',

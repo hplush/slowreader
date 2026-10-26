@@ -11,6 +11,7 @@
     errorToMessage,
     type FeedPopup,
     getPopupId,
+    hasPersonAvatar,
     isAccountService,
     organizeMessages as t,
     toPreviewPost
@@ -79,6 +80,7 @@
       <FeedAvatar
         avatar={$avatar ?? $feed?.avatar}
         feedId={$feed?.id}
+        round={hasPersonAvatar(popup.loader)}
         size="large"
       />
       {#if subscribed}

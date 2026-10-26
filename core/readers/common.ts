@@ -73,6 +73,7 @@ export function createReader<Name extends ReaderName, Rest extends Extra>(
 export type FeedAuthor = {
   avatar: null | string
   feedId: string
+  round: boolean
   title: string
   url: string
 }
@@ -225,7 +226,8 @@ export function loadPostsPage(
           THEN "posts"."full" END AS "full",
         COALESCE(NULLIF("posts"."intro", '') <> "posts"."full", 0) AS "more",
         "feeds"."title" AS "authorTitle", "feeds"."url" AS "authorUrl",
-        "feeds"."avatar" AS "authorAvatar"
+        "feeds"."avatar" AS "authorAvatar",
+        "feeds"."loader" AS "authorLoader"
       FROM "posts"
       LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
       LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"
@@ -292,7 +294,8 @@ export function loadPostsRange(
           THEN "posts"."full" END AS "full",
         COALESCE(NULLIF("posts"."intro", '') <> "posts"."full", 0) AS "more",
         "feeds"."title" AS "authorTitle", "feeds"."url" AS "authorUrl",
-        "feeds"."avatar" AS "authorAvatar"
+        "feeds"."avatar" AS "authorAvatar",
+        "feeds"."loader" AS "authorLoader"
       FROM "posts"
       LEFT JOIN "feeds" ON "feeds"."id" = "posts"."feedId"
       LEFT JOIN "accounts" ON "accounts"."id" = "posts"."accountId"

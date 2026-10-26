@@ -4,6 +4,7 @@
     type FeedLoader,
     type FeedValue,
     getPopupId,
+    hasPersonAvatar,
     router
   } from '@slowreader/core'
 
@@ -43,9 +44,16 @@
   {#snippet item(feed)}
     <span class="feeds_title">
       {#if 'id' in feed}
-        <FeedAvatar avatar={feed.avatar} feedId={feed.id} />
+        <FeedAvatar
+          avatar={feed.avatar}
+          feedId={feed.id}
+          round={hasPersonAvatar(feed.loader)}
+        />
       {:else if avatars}
-        <FeedAvatar avatar={avatars[feed.url]} />
+        <FeedAvatar
+          avatar={avatars[feed.url]}
+          round={hasPersonAvatar(feed.name)}
+        />
       {/if}
       {feed.title}
     </span>

@@ -43,7 +43,7 @@
     {@const row = $account.value}
     <Stack gap="l">
       <Stack align="end" gap="s" row>
-        <FeedAvatar avatar={row.avatar} icon={mdiAccount} size="large" />
+        <FeedAvatar avatar={row.avatar} icon={mdiAccount} round size="large" />
         <Output font="normal" label={$t.name} value={row.title} />
       </Stack>
       <Output label={$t.handle} value={row.handle} />

@@ -71,7 +71,7 @@
       width: 1.5rem;
       height: 1.5rem;
       overflow: hidden;
-      border-radius: 0.1875rem;
+      border-radius: 50%;
 
       &.is-loading {
         background: --tune-background(--image-placeholder);

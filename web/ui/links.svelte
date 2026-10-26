@@ -1,6 +1,6 @@
 <script lang="ts" module>
   export interface Link<ItemValue> {
-    avatar?: { icon: string; url: null | string }
+    avatar?: { icon: string; round?: boolean; url: null | string }
     controls?: string
     hint?: string
     href: string
@@ -52,7 +52,11 @@
       >
         {#if i.avatar}
           <span class="links_main">
-            <FeedAvatar avatar={i.avatar.url} icon={i.avatar.icon} />
+            <FeedAvatar
+              avatar={i.avatar.url}
+              icon={i.avatar.icon}
+              round={i.avatar.round}
+            />
             {@render item(i.item)}
           </span>
         {:else}

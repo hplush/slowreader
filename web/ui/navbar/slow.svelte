@@ -26,7 +26,7 @@
         href={getURL({ params: { feed: feed.id }, route: 'slow' })}
         number={unread}
       >
-        <FeedAvatar avatar={feed.avatar} feedId={feed.id} />
+        <FeedAvatar avatar={feed.avatar} feedId={feed.id} round={feed.round} />
       </NavbarItem>
     {/each}
   </NavbarCategory>

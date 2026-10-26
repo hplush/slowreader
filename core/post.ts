@@ -13,6 +13,7 @@ import {
   truncateDOM
 } from './lib/html.ts'
 import { truncateText } from './lib/text.ts'
+import type { LoaderName } from './loader/index.ts'
 import {
   getCrdt,
   getTables,
@@ -115,6 +116,7 @@ export type ReaderMedia = { size?: MediaSize } & PostMedia
  */
 export type ReaderPostWith<Media> = {
   authorAvatar?: null | string
+  authorLoader?: LoaderName
   authorTitle?: string
   authorUrl?: string
   media: Media

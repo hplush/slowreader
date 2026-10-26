@@ -25,6 +25,15 @@ export const loaders = {
 
 export type LoaderName = keyof typeof loaders
 
+/**
+ * Feeds with profile URLs belong to people from social networks,
+ * which show avatars as circles.
+ */
+export function hasPersonAvatar(loader: string | undefined): boolean {
+  let found: Loader | undefined = loaders[loader as LoaderName]
+  return !!found?.isProfileUrl
+}
+
 export interface FeedLoader {
   loader: Loader
   name: LoaderName

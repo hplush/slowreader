@@ -471,6 +471,7 @@
     accounts={[{ id: 'account-me' }]}
     feeds={[
       {
+        avatar: imgExample,
         id: 'mastodon',
         loader: 'mastodon',
         reading: 'fast',

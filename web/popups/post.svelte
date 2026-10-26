@@ -2,6 +2,7 @@
   import { mdiEyeCheckOutline, mdiOpenInNew } from '@mdi/js'
   import {
     getPopupId,
+    hasPersonAvatar,
     type PostPopup,
     router,
     postMessages as t
@@ -56,6 +57,7 @@
       {#if feed}
         <FeedLink
           avatar={$feed!.avatar}
+          avatarRound={hasPersonAvatar($feed!.loader)}
           feedId={$feed!.id}
           href={getPopupHash($router, 'feed', $feed!.url)}
           title={$feed!.title}
