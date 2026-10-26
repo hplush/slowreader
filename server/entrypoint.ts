@@ -3,10 +3,11 @@
 // hashes of web client’s JS and HTML files to compare them with the deployed
 // ones.
 
-import { spawn } from 'node:child_process'
+import { type ChildProcess, spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { globSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 interface Manifest {
   integrity: Record<string, string>
@@ -104,22 +105,50 @@ function buildNginxConfig(selfHosted: boolean, webOrigin: string): string {
   )
 }
 
-function startNginx(selfHosted: boolean, webOrigin: string): void {
-  writeFileSync('/tmp/nginx.conf', buildNginxConfig(selfHosted, webOrigin))
-  let nginx = spawn(
-    '/usr/bin/nginx',
-    ['-c', '/tmp/nginx.conf', '-e', '/dev/stderr', '-g', 'daemon off;'],
-    { stdio: 'inherit' }
-  )
+let children = new Set<ChildProcess>()
+let stopping = false
+
+function start(
+  command: string,
+  args: string[],
+  stopSignal: NodeJS.Signals
+): void {
+  let child = spawn(command, args, { stdio: 'inherit' })
+  children.add(child)
   // Container must restart if nginx or Node.js server stops
-  nginx.on('exit', code => {
-    process.exit(code ?? 1)
+  child.on('exit', code => {
+    children.delete(child)
+    if (!stopping || children.size === 0) process.exit(code ?? 1)
   })
   for (let signal of ['SIGINT', 'SIGTERM'] as const) {
     process.on(signal, () => {
-      nginx.kill('SIGQUIT')
+      stopping = true
+      child.kill(stopSignal)
     })
   }
+}
+
+function startNginx(selfHosted: boolean, webOrigin: string): void {
+  writeFileSync('/tmp/nginx.conf', buildNginxConfig(selfHosted, webOrigin))
+  start(
+    '/usr/bin/nginx',
+    ['-c', '/tmp/nginx.conf', '-e', '/dev/stderr', '-g', 'daemon off;'],
+    'SIGQUIT'
+  )
+}
+
+function startSandboxed(file: string): void {
+  start(
+    process.execPath,
+    [
+      '--permission',
+      '--allow-fs-read=/var/app',
+      '--allow-net',
+      '--disable-warning=ExperimentalWarning',
+      file
+    ],
+    'SIGTERM'
+  )
 }
 
 let role = process.env.ROLE ?? ''
@@ -127,13 +156,19 @@ if (process.argv[2] === 'manifest') {
   process.stdout.write(readFileSync('/var/www/manifest.json'))
 } else if (role === 'proxy') {
   process.env.PORT = '2553'
-  await import('@slowreader/proxy/server')
+  startSandboxed(fileURLToPath(import.meta.resolve('@slowreader/proxy/server')))
 } else if (role === 'app' || role === '') {
   let { config } = await import('./lib/config.ts')
   startNginx(role === '', config.webOrigin)
   process.env.LOGUX_HOST = '127.0.0.1'
   process.env.PORT = '2554'
-  await import('./index.ts')
+  // PGlite calls process.binding(), which --permission always denies
+  // https://github.com/electric-sql/pglite/issues/1163
+  if (/^postgres(ql)?:/.test(config.db)) {
+    startSandboxed(join(import.meta.dirname, 'index.ts'))
+  } else {
+    await import('./index.ts')
+  }
 } else {
   process.stderr.write(`Unknown ROLE=${role}, use "app", "proxy", or nothing\n`)
   process.exit(1)

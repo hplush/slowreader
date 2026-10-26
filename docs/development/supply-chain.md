@@ -51,7 +51,8 @@ A supply chain attack is malicious code, which comes to the project not from our
 ## Runtime
 
 1. **Separated proxy domain.** App and CORS proxy run in separated containers on different domains. Content from any website, which proxy loads, can’t access the app’s storage.
-2. **gVisor sandbox.** Pull request previews run unreviewed code, so they get even less: read-only file system, no Linux capabilities, and a gVisor sandbox between them and the server’s kernel on our [cloud](https://github.com/hplush/cloud).
+2. **Node.js permissions.** Server with PostgreSQL and proxy run with Node.js `--permission`. A malicious server dependency can read only server code, can’t write files, start other processes, or load native code.
+3. **gVisor sandbox.** Pull request previews run unreviewed code, so they get even less: read-only file system, no Linux capabilities, and a gVisor sandbox between them and the server’s kernel on our [cloud](https://github.com/hplush/cloud).
 
 ## Web Client
 

@@ -12,7 +12,6 @@ packages:
 storeDir: node_modules/.pnpm-store
 
 allowBuilds:
-  argon2: false
   esbuild: true
   unrs-resolver: false
 

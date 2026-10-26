@@ -7,13 +7,13 @@ import type {
   Proof,
   RegistrationResponse
 } from '@slowreader/api'
-import { verify } from 'argon2'
 import { and, eq } from 'drizzle-orm'
 
 import { db, passkeys } from '../db/index.ts'
 import { type ChallengeKind, consumeChallenge } from './challenges.ts'
 import { config } from './config.ts'
 import { countFailure, tooManyFailures } from './limits.ts'
+import { authKeyMatches } from './password.ts'
 
 export type Passkey = typeof passkeys.$inferSelect
 
@@ -172,7 +172,7 @@ export async function verifyPassword(
 ): Promise<false | { lockedKey: string }> {
   let user = await db.query.users.findFirst({ where: { id: userId } })
   if (!user?.passwordHash || !user.passwordLockedKey) return false
-  if (!(await verify(user.passwordHash, authKey))) return false
+  if (!(await authKeyMatches(user.passwordHash, authKey))) return false
   return { lockedKey: user.passwordLockedKey }
 }
 

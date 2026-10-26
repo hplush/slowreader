@@ -11,7 +11,6 @@ import {
   signOutEndpoint,
   signUpEndpoint
 } from '@slowreader/api'
-import { hash } from 'argon2'
 import { parseCookie } from 'cookie'
 import { eq, sql } from 'drizzle-orm'
 import type { IncomingMessage } from 'node:http'
@@ -32,6 +31,7 @@ import {
   requestIp,
   tooManyFailures
 } from '../lib/limits.ts'
+import { hashAuthKey } from '../lib/password.ts'
 import {
   createSession,
   findSession,
@@ -231,7 +231,7 @@ export default (server: AppServer): void => {
     }
 
     let password = 'password' in params ? params.password : undefined
-    let passwordHash = password ? await hash(password.authKey) : null
+    let passwordHash = password ? await hashAuthKey(password.authKey) : null
     let provider = passkey ? getProvider(passkey.aaguid) : null
     let created = await db.transaction(async tx => {
       let already = await tx.query.users.findFirst({ where: { id: userId } })
@@ -288,7 +288,7 @@ export default (server: AppServer): void => {
     let proof = await checkReauth(req, params.proof, current)
     if (proof instanceof ErrorResponse) return proof
 
-    let passwordHash = await hash(params.authKey)
+    let passwordHash = await hashAuthKey(params.authKey)
     let passkeyId = proof.passkeyId
     let { id, old, token } = await db.transaction(async tx => {
       await tx
