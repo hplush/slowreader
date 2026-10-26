@@ -83,6 +83,7 @@
         }
       ],
       missing: false,
+      poll: { options: [{ title: 'Yes' }, { title: `No ${EMOJI}` }] },
       quotedUrl: 'https://mastodon.social/@other/2',
       url: 'https://mastodon.social/@q/1'
     },

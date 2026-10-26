@@ -22,7 +22,9 @@
 
   let { popup }: { popup: PostPopup } = $props()
 
-  let { feed, post, publishedAt, read, thread } = $derived(popup)
+  let { feed, post, publishedAt, read, thread, userPostUrl } = $derived(popup)
+
+  let url = $derived($userPostUrl($post))
 
   onMount(() => {
     if (popup.read) {
@@ -43,8 +45,8 @@
         store={popup.read}
       />
     {/if}
-    {#if $post.url}
-      <Button href={$post.url} icon={mdiOpenInNew} size="icon" target="_blank">
+    {#if url}
+      <Button href={url} icon={mdiOpenInNew} size="icon" target="_blank">
         {$t.url}
       </Button>
     {/if}
@@ -62,7 +64,7 @@
       {:else}
         <div></div>
       {/if}
-      <SmallLink href={$post.url} target="_blank">
+      <SmallLink href={url} target="_blank">
         {$publishedAt}
       </SmallLink>
     </Stack>
@@ -71,19 +73,21 @@
         <Post
           post={$post}
           repostHref={feed && getPopupHash($router, 'feed', $feed!.url)}
+          userPostUrl={$userPostUrl}
         />
         {#each $thread as part (part.id)}
           <PostThreadPart
             afterFirst={part.afterFirstText}
             post={part}
             publishedAt={part.publishedAtText}
+            userPostUrl={$userPostUrl}
           />
         {/each}
       </Stack>
       <Stack>
-        {#if $post.url}
+        {#if url}
           <Button
-            href={$post.url}
+            href={url}
             icon={mdiOpenInNew}
             size="wide"
             target="_blank"

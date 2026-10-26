@@ -1,6 +1,7 @@
 import { withMeta, type WithoutMeta } from '@logux/client/db'
-import type { SqlStore } from '@nanostores/sql'
+import type { SqlStore, SqlStoreValue } from '@nanostores/sql'
 import { delay } from 'nanodelay'
+import { computed, type ReadableAtom } from 'nanostores'
 
 import { getClient } from './client.ts'
 import { getEnvironment } from './environment.ts'
@@ -340,6 +341,40 @@ export async function returnToAccountSignIn(
       type: 'return'
     })
   }
+}
+
+export function getUserPostUrl(
+  post: { accountId?: null | string; url?: null | string },
+  accounts: SqlStoreValue<AccountValue[]>
+): string | undefined {
+  let url = post.url ?? undefined
+  if (!url || accounts.status !== 'ready') return url
+  let parsed = URL.parse(url)
+  if (!parsed) return url
+  let suitable = accounts.value.filter(i =>
+    loaders[i.service].isPostUrl?.(parsed)
+  )
+  let account = suitable.find(i => i.id === post.accountId) ?? suitable[0]
+  if (!account) return url
+  return (
+    loaders[account.service].account?.getUserPostUrl?.(account.server, url) ??
+    url
+  )
+}
+
+export type UserPostUrl = (post: {
+  accountId?: null | string
+  url?: null | string
+}) => string | undefined
+
+/**
+ * One store for the whole list, since every post would create own store
+ * with parsed accounts.
+ */
+export function getUserPostUrls(): ReadableAtom<UserPostUrl> {
+  return computed(getAccounts(), (accounts): UserPostUrl => {
+    return post => getUserPostUrl(post, accounts)
+  })
 }
 
 let testAccountId = 0

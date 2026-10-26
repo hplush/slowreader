@@ -118,6 +118,13 @@ export interface AccountLoader<Data = unknown> {
     refreshedAt?: number
   ): PostsList
 
+  /**
+   * Post’s URL on user’s server, where user can vote or reply.
+   *
+   * For instance, on Mastodon it will return URL on user's server.
+   */
+  getUserPostUrl?(server: string, url: string): string
+
   isFollowing(
     task: DownloadTask,
     auth: AccountAuth,

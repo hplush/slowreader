@@ -1,5 +1,6 @@
 import { atom } from 'nanostores'
 
+import { getUserPostUrls } from '../account.ts'
 import type { ReaderPost } from '../post.ts'
 import {
   createReader,
@@ -107,7 +108,8 @@ export const feedReader = createReader('feed', (filter, params) => {
     readingPage: $readingPage,
     nextFrom: $nextFrom,
     prevFrom: $prevFrom,
-    readPage
+    readPage,
+    userPostUrl: getUserPostUrls()
   }
 })
 

@@ -5,6 +5,7 @@ import {
   addVirtualFeed,
   deleteAccountPostsBy,
   followByAccount,
+  getUserPostUrls,
   hasAccountPostsBy,
   isAccountService,
   isFollowingByAccount,
@@ -336,7 +337,8 @@ export const feed = definePopup('feed', async url => {
     posts,
     remove,
     rename,
-    title
+    title,
+    userPostUrl: getUserPostUrls()
   }
 })
 

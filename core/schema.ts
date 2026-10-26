@@ -186,6 +186,14 @@ let mediaSizeShape = {
   width: optional(number())
 }
 
+let pollOptionShape = {
+  title: string()
+}
+
+let pollShape = {
+  options: json([json(pollOptionShape)])
+}
+
 let previewShape = {
   description: optional(string()),
   image: optional(string()),
@@ -204,6 +212,7 @@ let quotedShape = {
   media: optional(json([json(mediaShape)])),
   mediaSizes: optional(json([optional(json(mediaSizeShape))])),
   missing: boolean(),
+  poll: optional(json(pollShape)),
   preview: optional(json(previewShape)),
   publishedAt: optional(bigint()),
   quotedUrl: optional(string()),
@@ -216,6 +225,7 @@ let quotedShape = {
 export type PostAuthor = CrdtJsonType<typeof authorShape>
 export type PostMedia = CrdtJsonType<typeof mediaShape>
 export type MediaSize = CrdtJsonType<typeof mediaSizeShape>
+export type PostPoll = CrdtJsonType<typeof pollShape>
 export type PostPreview = CrdtJsonType<typeof previewShape>
 export type QuotedPost = CrdtJsonType<typeof quotedShape>
 
@@ -235,6 +245,7 @@ export const postsTable = defineCrdtTable(
     // Thread’s parts after the first post, which readers show in its card
     merged: boolean({ default: false }),
     originId: string(),
+    poll: optional(json(pollShape)),
     preview: optional(json(previewShape)),
     publishedAt: bigint(),
     quoted: optional(json(quotedShape)),

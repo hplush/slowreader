@@ -6,21 +6,28 @@
     type OriginPost,
     type PostValue,
     sanitizeDOM,
-    postMessages as t
+    postMessages as t,
+    type UserPostUrl
   } from '@slowreader/core'
 
   import FormattedText from '../formatted-text.svelte'
   import Note from '../note.svelte'
   import PostByline from './byline.svelte'
   import PostMedia from './media.svelte'
+  import PostPoll from './poll.svelte'
   import PostPreview from './preview.svelte'
   import PostQuote from './quote.svelte'
   import PostWarning from './warning.svelte'
 
   let {
     post,
-    repostHref
-  }: { post: OriginPost | PostValue; repostHref?: string } = $props()
+    repostHref,
+    userPostUrl
+  }: {
+    post: OriginPost | PostValue
+    repostHref?: string
+    userPostUrl: UserPostUrl
+  } = $props()
 
   let text = $derived(sanitizeDOM(post.full || post.intro || ''))
 </script>
@@ -41,12 +48,21 @@
 
   {#if post.replied && !post.replied.missing}
     <div class="post_replied">
-      <PostQuote caption={$t.replyingTo} full linked quoted={post.replied} />
+      <PostQuote
+        caption={$t.replyingTo}
+        full
+        linked
+        quoted={post.replied}
+        {userPostUrl}
+      />
     </div>
   {/if}
   <PostWarning lang={post.lang} warning={post.warning}>
     {#if post.full || post.intro}
       <FormattedText html={text} lang={post.lang} />
+    {/if}
+    {#if post.poll}
+      <PostPoll lang={post.lang} poll={post.poll} {post} {userPostUrl} />
     {/if}
 
     <PostMedia
@@ -58,7 +74,7 @@
     />
 
     {#if post.quoted}
-      <PostQuote full linked quoted={post.quoted} />
+      <PostQuote full linked quoted={post.quoted} {userPostUrl} />
     {/if}
     {#if post.preview}
       <PostPreview preview={post.preview} />

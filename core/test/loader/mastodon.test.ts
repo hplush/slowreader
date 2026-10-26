@@ -365,7 +365,12 @@ describe('mastodon loader', () => {
               url: 'https://mastodon.social/file'
             }
           ],
-          poll: { id: '1' },
+          poll: {
+            emojis: [
+              { shortcode: 'cat', static_url: 'https://e.social/c.png' }
+            ],
+            options: [{ title: 'Yes :cat:' }, { title: '<b>No</b>' }]
+          },
           sensitive: true
         }),
         status('3', {
@@ -447,8 +452,16 @@ describe('mastodon loader', () => {
           ],
           mediaSizes: [{ height: 10, width: 20 }, null, null],
           originId: '2',
+          poll: {
+            options: [
+              {
+                title:
+                  'Yes <img class="emoji" src="https://e.social/c.png" alt=":cat:" title=":cat:">'
+              },
+              { title: '&lt;b&gt;No&lt;/b&gt;' }
+            ]
+          },
           publishedAt: 1767225600,
-          unsupported: true,
           url: 'https://mastodon.social/@jane/2'
         },
         {

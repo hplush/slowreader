@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { OriginPost, PostValue } from '@slowreader/core'
+  import type { OriginPost, PostValue, UserPostUrl } from '@slowreader/core'
 
   import SmallLink from '../small-link.svelte'
   import Post from './index.svelte'
@@ -7,11 +7,13 @@
   let {
     afterFirst,
     post,
-    publishedAt
+    publishedAt,
+    userPostUrl
   }: {
     afterFirst: string | undefined
     post: OriginPost | PostValue
     publishedAt: string | undefined
+    userPostUrl: UserPostUrl
   } = $props()
 </script>
 
@@ -20,7 +22,7 @@
     <hr class="post-thread-part_separator" />
     {#if afterFirst ?? publishedAt}
       <SmallLink
-        href={post.url ?? undefined}
+        href={userPostUrl(post)}
         target="_blank"
         title={afterFirst ? publishedAt : undefined}
       >
@@ -28,7 +30,7 @@
       </SmallLink>
     {/if}
   </div>
-  <Post {post} />
+  <Post {post} {userPostUrl} />
 </article>
 
 <style lang="postcss">

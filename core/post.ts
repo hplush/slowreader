@@ -22,6 +22,7 @@ import {
   type PostAuthor,
   type PostChanges,
   type PostMedia,
+  type PostPoll,
   type PostPreview,
   type PostValue,
   type QuotedPost
@@ -32,6 +33,7 @@ export type {
   NewPost,
   PostAuthor,
   PostMedia,
+  PostPoll,
   PostPreview,
   PostValue,
   QuotedPost
@@ -51,6 +53,7 @@ export type ParsedPost = {
   mediaSizes?: (MediaSize | null)[]
   merged?: boolean
   originId: string
+  poll?: PostPoll
   preview?: PostPreview
   publishedAt?: number
   quoted?: QuotedPost
@@ -124,6 +127,7 @@ export type ReaderPostWith<Media> = {
   | 'id'
   | 'lang'
   | 'originId'
+  | 'poll'
   | 'preview'
   | 'publishedAt'
   | 'quoted'
@@ -537,6 +541,7 @@ export function testPost(
     mediaSizes: null,
     merged: false,
     originId: `test-${testPostId}`,
+    poll: null,
     preview: null,
     publishedAt: 1000,
     quoted: null,

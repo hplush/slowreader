@@ -33,8 +33,15 @@
 
   let { popup }: { popup: FeedPopup } = $props()
 
-  let { accountError, avatar, categories, feed, followedBy, posts } =
-    $derived(popup)
+  let {
+    accountError,
+    avatar,
+    categories,
+    feed,
+    followedBy,
+    posts,
+    userPostUrl
+  } = $derived(popup)
 
   let subscribed = $derived($feed ?? $followedBy)
 </script>
@@ -142,6 +149,7 @@
             feedUrl={popup.param}
             highlight={false}
             posts={collapseThreads($posts.list).map(toPreviewPost)}
+            userPostUrl={$userPostUrl}
           />
         {/if}
       </Stack>

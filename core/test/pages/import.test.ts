@@ -179,6 +179,7 @@ describe('import page', () => {
         media: null,
         mediaSizes: null,
         merged: false,
+        poll: null,
         preview: null,
         quoted: null,
         read: false,

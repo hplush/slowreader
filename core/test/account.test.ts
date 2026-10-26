@@ -9,6 +9,8 @@ import {
   deleteAccount,
   deleteAccountPostsBy,
   getAccountAuth,
+  getUserPostUrl,
+  getUserPostUrls,
   hasAccountPostsBy,
   isAccountService,
   loadAccount,
@@ -19,7 +21,7 @@ import {
   testFeed,
   testPost
 } from '../index.ts'
-import { cleanClient, startClient } from './utils.ts'
+import { cleanClient, startClient, waitFor } from './utils.ts'
 
 describe('account', () => {
   beforeEach(() => {
@@ -129,5 +131,56 @@ describe('account', () => {
 
     await deleteAccount(accountId)
     equal(await auth.reload(), undefined)
+  })
+
+  test('opens post on user server', () => {
+    let url = 'https://other.social/@jane/1'
+    let redirect =
+      '/authorize_interaction?uri=https%3A%2F%2Fother.social%2F%40jane%2F1'
+    let bluesky = testAccount({
+      server: 'https://bsky.social',
+      service: 'bluesky'
+    })
+    let first = testAccount({ server: 'https://first.social' })
+    let second = testAccount({ server: 'https://second.social' })
+    let all = { status: 'ready' as const, value: [bluesky, first, second] }
+    equal(getUserPostUrl({ url }, { status: 'loading' }), url)
+    equal(getUserPostUrl({ url: null }, all), undefined)
+    equal(getUserPostUrl({ url }, { status: 'ready', value: [bluesky] }), url)
+    equal(getUserPostUrl({ url }, all), `https://first.social${redirect}`)
+    equal(
+      getUserPostUrl({ accountId: second.id, url }, all),
+      `https://second.social${redirect}`
+    )
+    equal(
+      getUserPostUrl(
+        { url },
+        {
+          status: 'ready',
+          value: [testAccount({ server: 'https://other.social' })]
+        }
+      ),
+      url
+    )
+    equal(
+      getUserPostUrl({ url: 'https://blog.example.com/post' }, all),
+      'https://blog.example.com/post'
+    )
+    let skeet = 'https://bsky.app/profile/jane.bsky.social/post/3abc'
+    equal(getUserPostUrl({ url: skeet }, all), skeet)
+    equal(getUserPostUrl({ url: 'not a URL' }, all), 'not a URL')
+  })
+
+  test('has user post URLs store', async () => {
+    await addAccount(testAccount({ server: 'https://first.social' }))
+    let $userPostUrl = getUserPostUrls()
+    let url = 'https://other.social/@jane/1'
+    equal($userPostUrl.get()({ url }), url)
+    await waitFor($userPostUrl, get => get({ url }) !== url)
+    equal(
+      $userPostUrl.get()({ url }),
+      'https://first.social/authorize_interaction' +
+        '?uri=https%3A%2F%2Fother.social%2F%40jane%2F1'
+    )
   })
 })

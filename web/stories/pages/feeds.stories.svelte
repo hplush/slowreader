@@ -214,6 +214,20 @@
     },
     {
       feedId: 'mastodon',
+      full: '<p>Poll from another server</p>',
+      intro: null,
+      poll: {
+        options: [
+          { title: `Cats ${EMOJI}` },
+          { title: 'Dogs with a long name to check how the option wraps' }
+        ]
+      },
+      publishedAt: 5,
+      reading: 'fast',
+      url: 'https://other.social/@jane/5'
+    },
+    {
+      feedId: 'mastodon',
       full: '<p>Spoiler of the movie</p>',
       intro: null,
       publishedAt: 5,
@@ -262,7 +276,7 @@
     },
     {
       feedId: 'mastodon',
-      full: '<p>Quoting deleted post with a poll</p>',
+      full: '<p>Quoting deleted post with unsupported content</p>',
       intro: null,
       publishedAt: 2,
       quoted: { missing: true },

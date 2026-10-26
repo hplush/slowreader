@@ -7,13 +7,15 @@
     type QuotedPost,
     router,
     sanitizeDOM,
-    postMessages as t
+    postMessages as t,
+    type UserPostUrl
   } from '@slowreader/core'
 
   import { getPopupHash } from '../../stores/url-router.ts'
   import FormattedText from '../formatted-text.svelte'
   import PostAuthorLine from './author.svelte'
   import PostMedia from './media.svelte'
+  import PostPoll from './poll.svelte'
   import PostPreview from './preview.svelte'
   import PostWarning from './warning.svelte'
 
@@ -21,12 +23,14 @@
     caption,
     full,
     linked,
-    quoted
+    quoted,
+    userPostUrl
   }: {
     caption?: string
     full?: boolean
     linked?: boolean
     quoted: QuotedPost
+    userPostUrl: UserPostUrl
   } = $props()
 
   let id = $props.id()
@@ -76,6 +80,14 @@
       {/if}
       <PostWarning lang={quoted.lang} warning={quoted.warning}>
         <FormattedText html={text} lang={quoted.lang} simple={!full} />
+        {#if quoted.poll}
+          <PostPoll
+            lang={quoted.lang}
+            poll={quoted.poll}
+            post={quoted}
+            {userPostUrl}
+          />
+        {/if}
         <PostMedia
           media={getMediaOutsideText(
             addMediaSizes(quoted.media, quoted.mediaSizes),

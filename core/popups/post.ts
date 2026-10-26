@@ -6,6 +6,7 @@ import {
   type WritableAtom
 } from 'nanostores'
 
+import { getUserPostUrls } from '../account.ts'
 import { NotFoundError } from '../errors.ts'
 import { type FeedValue, loadFeed } from '../feed.ts'
 import { formatDuration, formatPublishedAt, i18nFormat } from '../format.ts'
@@ -211,7 +212,8 @@ export const post = definePopup('post', async loader => {
     post: $post,
     publishedAt: $publishedAt,
     read,
-    thread: $thread
+    thread: $thread,
+    userPostUrl: getUserPostUrls()
   }
 })
 

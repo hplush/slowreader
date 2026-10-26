@@ -71,6 +71,12 @@ interface MastodonCard {
   url: string
 }
 
+// https://docs.joinmastodon.org/entities/Poll/
+interface MastodonPoll {
+  emojis?: MastodonEmoji[]
+  options: { title: string }[]
+}
+
 // https://docs.joinmastodon.org/entities/Quote/
 interface MastodonQuote {
   quoted_status?: MastodonStatus | null
@@ -91,7 +97,7 @@ interface MastodonStatus {
   in_reply_to_id: null | string
   language?: null | string
   media_attachments: MastodonMedia[]
-  poll: null | object
+  poll: MastodonPoll | null
   quote?: MastodonQuote | MastodonStatus | null
   reblog: MastodonStatus | null
   replies_count?: number
@@ -307,6 +313,14 @@ function parseContent(status: MastodonStatus): Omit<ParsedPost, 'originId'> {
   }
   let preview = parsePreview(status.card)
   if (preview) post.preview = preview
+  let poll = status.poll
+  if (poll) {
+    post.poll = {
+      options: poll.options.map(option => ({
+        title: textToHtml(option.title, poll.emojis)
+      }))
+    }
+  }
   let lang = toLang(status.language)
   if (lang) post.lang = lang
   if (status.spoiler_text) {
@@ -353,7 +367,6 @@ function parseStatus(status: MastodonStatus): ParsedPost {
     post.sortedAt = toTime(status.created_at)
   }
   if (shown.quote) post.quoted = parseQuote(shown.quote)
-  if (shown.poll) post.unsupported = true
   if (shown.replies_count && !shown.in_reply_to_id) post.hasReplies = true
   if (
     !status.reblog &&
@@ -703,6 +716,12 @@ let mastodonAccount: AccountLoader<MastodonSignIn> = {
   async follow(task, auth, url) {
     let id = await findAuthorId(task, auth, url)
     await requestByAccount(task, auth, `/api/v1/accounts/${id}/follow`, 'POST')
+  },
+
+  getUserPostUrl(server, url) {
+    if (URL.parse(url)?.origin === server) return url
+    // Only the user’s server knows its local ID of a remote post
+    return `${server}/authorize_interaction?uri=${encodeURIComponent(url)}`
   },
 
   getTimeline(task, auth) {

@@ -12,7 +12,8 @@
     type PreviewPost,
     type ReaderPost,
     router,
-    feedsMessages as t
+    feedsMessages as t,
+    type UserPostUrl
   } from '@slowreader/core'
 
   import { getPopupHash } from '../../stores/url-router.ts'
@@ -22,6 +23,7 @@
   import Note from '../note.svelte'
   import PostByline from '../post/byline.svelte'
   import PostMedia from '../post/media.svelte'
+  import PostPoll from '../post/poll.svelte'
   import PostPreview from '../post/preview.svelte'
   import PostQuote from '../post/quote.svelte'
   import PostWarning from '../post/warning.svelte'
@@ -30,17 +32,21 @@
     author,
     feedUrl,
     highlight,
-    post
+    post,
+    userPostUrl
   }: {
     author: FeedAuthor | undefined
     feedUrl: string | undefined
     highlight: boolean
     post: PreviewPost | ReaderPost
+    userPostUrl: UserPostUrl
   } = $props()
 
   let [intro, more] = $derived(getPostIntro(post))
   let param = $derived(getPostPopupParam('origin' in post ? post.origin : post))
   let current = $derived(highlight && isOpenedPost($openedPost, post))
+
+  let url = $derived(userPostUrl(post))
 </script>
 
 <li
@@ -80,16 +86,23 @@
     {/if}
     {#if post.replied && !post.replied.missing}
       <div class="feed-post_replied">
-        <PostQuote caption={$postMessages.replyingTo} quoted={post.replied} />
+        <PostQuote
+          caption={$postMessages.replyingTo}
+          quoted={post.replied}
+          {userPostUrl}
+        />
       </div>
     {/if}
     <PostWarning lang={post.lang} warning={post.warning}>
       <FormattedText html={intro} lang={post.lang} simple />
+      {#if post.poll}
+        <PostPoll lang={post.lang} poll={post.poll} {post} {userPostUrl} />
+      {/if}
       <PostMedia
         media={getMediaOutsideText(post.media, intro, post.intro === null)}
       />
       {#if post.quoted}
-        <PostQuote quoted={post.quoted} />
+        <PostQuote quoted={post.quoted} {userPostUrl} />
       {/if}
       {#if post.preview}
         <PostPreview preview={post.preview} />
@@ -112,9 +125,9 @@
         </span>
       {/if}
       <div class="feed-post_fill"></div>
-      {#if post.url}
+      {#if url}
         <Button
-          href={post.url}
+          href={url}
           icon={mdiOpenInNew}
           size="icon"
           target="_blank"

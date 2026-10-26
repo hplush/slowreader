@@ -5,6 +5,7 @@ import { i18n } from '../../i18n.ts'
 export const postMessages = i18n('post', {
   afterFirst: params('{time} after'),
   hideWarning: 'Hide',
+  poll: 'Poll options',
   quoteMissing: 'Quoted post is unavailable',
   quoteOfQuote: 'Quote…',
   read: 'Mark post was read',
@@ -18,5 +19,6 @@ export const postMessages = i18n('post', {
   threadLabel: params('Thread of {size} posts'),
   unread: 'Mark post as unread',
   unsupported: 'Some parts of this post are not supported yet',
-  url: 'Open post link'
+  url: 'Open post link',
+  vote: 'Open post to vote'
 })
