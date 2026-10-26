@@ -49,7 +49,7 @@
 /* Light text on dark background looks bolder, variable fonts can compensate */
 @media (prefers-color-scheme: dark) {
   :root {
-    --regular-weight: 350;
+    --regular-weight: 375;
     --control-weight: 450;
     --semibold-weight: 550;
     --bold-weight: 650;
