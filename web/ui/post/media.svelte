@@ -5,11 +5,16 @@
     showSensitiveMedia,
     postMessages as t
   } from '@slowreader/core'
+  import { SvelteSet } from 'svelte/reactivity'
 
+  import { waitImageDecoded } from '../../lib/image.ts'
+  import BrokenImage from '../broken-image.svelte'
   import Button from '../button.svelte'
 
   let { media }: { media: ReaderMedia[] } = $props()
 
+  let broken = new SvelteSet<string>()
+  let loaded = new SvelteSet<string>()
   let revealed = $state(false)
   let hidden = $derived(
     !revealed && !$showSensitiveMedia && media.some(item => item.sensitive)
@@ -27,13 +32,31 @@
   <div class="post-media" class:is-hidden={hidden}>
     <div class="post-media_list" inert={hidden}>
       {#each media as item, index (`${item.url}${index}`)}
-        {#if item.type.startsWith('image')}
+        {#if item.type.startsWith('image') && broken.has(item.url)}
+          <span
+            style:width={item.size?.width && `${item.size.width}px`}
+            style:aspect-ratio={item.size?.width &&
+              item.size.height &&
+              `${item.size.width} / ${item.size.height}`}
+            class="post-media_item is-broken"
+          >
+            <BrokenImage alt={item.alt} />
+          </span>
+        {:else if item.type.startsWith('image')}
           <img
             class="post-media_item"
+            class:is-loading={!loaded.has(item.url)}
             alt={item.alt ?? ''}
             decoding="async"
             height={item.size?.height}
             loading="lazy"
+            onerror={() => {
+              broken.add(item.url)
+            }}
+            onload={async event => {
+              await waitImageDecoded(event.currentTarget)
+              loaded.add(item.url)
+            }}
             src={item.url}
             title={item.alt}
             width={item.size?.width}
@@ -119,6 +142,23 @@
     .post-media_item {
       max-width: 100%;
       height: auto;
+      overflow: hidden;
+      border-radius: var(--base-radius);
+
+      &.is-loading {
+        background: --tune-background(--image-placeholder);
+
+        &:not([width][height]) {
+          width: 100%;
+          aspect-ratio: 16 / 9;
+        }
+      }
+
+      &.is-broken {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+      }
     }
 
     video.post-media_item,

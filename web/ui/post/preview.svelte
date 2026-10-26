@@ -1,16 +1,35 @@
 <script lang="ts">
   import type { PostPreview } from '@slowreader/core'
 
+  import { waitImageDecoded } from '../../lib/image.ts'
+  import BrokenImage from '../broken-image.svelte'
+
   let { preview }: { preview: PostPreview } = $props()
+
+  let broken = $state<null | string>()
+  let loaded = $state<null | string>()
 </script>
 
 <a class="post-preview" href={preview.url} rel="noopener" target="_blank">
-  {#if preview.image}
+  {#if preview.image && broken === preview.image}
+    <span class="post-preview_image is-broken">
+      <BrokenImage />
+    </span>
+  {:else if preview.image}
     <img
       class="post-preview_image"
+      class:is-loading={loaded !== preview.image}
       alt=""
       decoding="async"
       loading="lazy"
+      onerror={() => {
+        broken = preview.image
+      }}
+      onload={async event => {
+        let src = preview.image
+        await waitImageDecoded(event.currentTarget)
+        loaded = src
+      }}
       referrerpolicy="no-referrer"
       src={preview.image}
     />
@@ -50,6 +69,15 @@
       width: 100%;
       max-height: 15rem;
       object-fit: cover;
+
+      &.is-loading,
+      &.is-broken {
+        aspect-ratio: 1.91;
+      }
+
+      &.is-loading {
+        background: --tune-background(--image-placeholder);
+      }
     }
 
     .post-preview_text {

@@ -2,6 +2,7 @@
   import { mdiRss } from '@mdi/js'
   import { updateFeedData } from '@slowreader/core'
 
+  import { waitImageDecoded } from '../lib/image.ts'
   import Icon from './icon.svelte'
 
   let {
@@ -17,6 +18,7 @@
   } = $props()
 
   let broken = $state<string>()
+  let loaded = $state<string>()
 
   $effect(() => {
     if (!avatar && feedId) void updateFeedData(feedId)
@@ -27,6 +29,7 @@
   <img
     class="feed-avatar"
     class:is-large={size === 'large'}
+    class:is-loading={loaded !== avatar}
     class:is-medium={size === 'medium'}
     class:is-raster={!/^data:image\/svg|\.svg($|[?#])/i.test(avatar)}
     alt=""
@@ -35,6 +38,11 @@
     onerror={() => {
       broken = avatar
       if (feedId) void updateFeedData(feedId)
+    }}
+    onload={async event => {
+      let src = avatar
+      await waitImageDecoded(event.currentTarget)
+      loaded = src
     }}
     referrerpolicy="no-referrer"
     src={avatar}
@@ -76,6 +84,10 @@
 
       &.is-large {
         --icon-size: 3.25rem;
+      }
+
+      &.is-loading {
+        background: --tune-background(--image-placeholder);
       }
 
       &.is-missed {

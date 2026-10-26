@@ -40,6 +40,7 @@
   --flat-button-c: 0;
   --flat-button-hover-c: 0;
   --gutter-c: 0;
+  --image-placeholder-c: 0;
   --colorize-c: 0.03;
 }
 
@@ -47,6 +48,7 @@
   --flat-button-c: 0.015;
   --flat-button-hover-c: 0.005;
   --gutter-c: 0.02;
+  --image-placeholder-c: 0.01;
   --colorize-c: 0;
 }
 
@@ -68,6 +70,7 @@
     --flat-button-hover-l: -0.01;
     --flat-border-color: oklch(0 0 0 / 15%);
     --gutter-l: -0.04;
+    --image-placeholder-l: -0.02;
     --note-l: -0.1;
     --note-c: 0.03;
     --field-l: 0.025;
@@ -147,6 +150,7 @@
     --flat-button-hover-l: 0.02;
     --flat-border-color: oklch(1 0 0 / 15%);
     --gutter-l: 0.04;
+    --image-placeholder-l: 0.02;
     --note-l: 0.2;
     --note-c: 0.03;
     --note-good-background: oklch(0.25 0.03 140);

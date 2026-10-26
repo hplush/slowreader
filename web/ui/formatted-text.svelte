@@ -3,8 +3,12 @@
   /* eslint svelte/no-at-html-tags: "off" */
 
   import { canOpenMention, openPopup, sanitizeDOM } from '@slowreader/core'
+  import { mount, unmount } from 'svelte'
   import type { Attachment } from 'svelte/attachments'
   import { on } from 'svelte/events'
+
+  import { waitImageDecoded } from '../lib/image.ts'
+  import BrokenImage from './broken-image.svelte'
 
   let {
     comfort,
@@ -26,6 +30,39 @@
     let content =
       typeof html === 'object' ? html.cloneNode(true) : sanitizeDOM(html ?? '')
     node.replaceChildren(...content.childNodes)
+    let broken: ReturnType<typeof mount>[] = []
+    function showBroken(image: HTMLImageElement): void {
+      if (image.classList.contains('emoji')) {
+        image.replaceWith(image.alt)
+        return
+      }
+      let box = document.createElement('span')
+      box.className = 'formatted-text_broken'
+      let width = image.getAttribute('width')
+      let height = image.getAttribute('height')
+      if (width && height) {
+        box.style.width = `${width}px`
+        box.style.aspectRatio = `${width} / ${height}`
+      }
+      image.replaceWith(box)
+      broken.push(
+        mount(BrokenImage, { props: { alt: image.alt }, target: box })
+      )
+    }
+    node.querySelectorAll('img').forEach(image => {
+      if (image.complete) {
+        if (image.naturalWidth === 0) showBroken(image)
+        return
+      }
+      image.classList.add('is-loading')
+      on(image, 'load', async () => {
+        await waitImageDecoded(image)
+        image.classList.remove('is-loading')
+      })
+      on(image, 'error', () => {
+        showBroken(image)
+      })
+    })
     node.querySelectorAll('a').forEach(link => {
       let href = link.getAttribute('href')
       if (href?.startsWith('#')) {
@@ -49,6 +86,9 @@
         }
       }
     })
+    return () => {
+      for (let component of broken) void unmount(component)
+    }
   }
 </script>
 
@@ -93,6 +133,16 @@
       margin: 0 auto;
       object-fit: scale-down;
 
+      &.is-loading {
+        background: --tune-background(--image-placeholder);
+        background-clip: content-box;
+
+        &:not(.emoji, [width][height]) {
+          width: 100%;
+          aspect-ratio: 16 / 9;
+        }
+      }
+
       & + & {
         padding-top: 0;
       }
@@ -113,6 +163,14 @@
         margin: 0;
         vertical-align: -0.25em;
       }
+    }
+
+    .formatted-text_broken {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      aspect-ratio: 16 / 9;
+      margin: 0.625em auto;
     }
 
     .formatted-text p {

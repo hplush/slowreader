@@ -274,6 +274,45 @@
   </Scene>
 </Story>
 
+<Story name="Broken Images" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    feeds={[FEED]}
+    oninit={open()}
+    posts={[
+      {
+        author: {
+          avatar: 'https://example.invalid/avatar.png',
+          title: 'Jane Doe'
+        },
+        feedId: 'feed',
+        full:
+          '<p>Images failed to load</p>' +
+          '<img src="https://example.invalid/text.png" alt="">',
+        media: [
+          { type: 'image', url: 'https://example.invalid/image.png' },
+          { type: 'image', url: 'https://example.invalid/unsized.png' }
+        ],
+        mediaSizes: [{ height: 480, width: 1920 }],
+        preview: {
+          image: 'https://example.invalid/preview.png',
+          title: 'Link title',
+          url: 'https://example.com/article'
+        },
+        reading: 'slow',
+        url: 'https://example.com/news/3'
+      }
+    ]}
+  >
+    {#if popup}
+      <LoadedPopup {popup}>
+        {#snippet loaded(loadedPopup)}
+          <PostPopupComponent popup={loadedPopup} />
+        {/snippet}
+      </LoadedPopup>
+    {/if}
+  </Scene>
+</Story>
+
 <Story name="Thread" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     feeds={[MASTODON_FEED]}

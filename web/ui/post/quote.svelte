@@ -67,34 +67,38 @@
     {#if href}
       <a class="post-quote_link" aria-labelledby={id} {href}></a>
     {/if}
-    {#if caption}
-      <div class="post-quote_caption">{caption}</div>
-    {/if}
-    {#if quoted.author}
-      <PostAuthorLine author={quoted.author} />
-    {/if}
-    <PostWarning lang={quoted.lang} warning={quoted.warning}>
-      <FormattedText html={text} lang={quoted.lang} simple={!full} />
-      <PostMedia
-        media={getMediaOutsideText(
-          addMediaSizes(quoted.media, quoted.mediaSizes),
-          text,
-          !full
-        )}
-      />
-      {#if quoted.preview}
-        <PostPreview preview={quoted.preview} />
+    <div class="post-quote_content">
+      {#if caption}
+        <div class="post-quote_caption">{caption}</div>
       {/if}
-      {#if quoted.quotedUrl}
-        {@render nested(quoted.quotedUrl, false)}
+      {#if quoted.author}
+        <PostAuthorLine author={quoted.author} />
       {/if}
-    </PostWarning>
+      <PostWarning lang={quoted.lang} warning={quoted.warning}>
+        <FormattedText html={text} lang={quoted.lang} simple={!full} />
+        <PostMedia
+          media={getMediaOutsideText(
+            addMediaSizes(quoted.media, quoted.mediaSizes),
+            text,
+            !full
+          )}
+        />
+        {#if quoted.preview}
+          <PostPreview preview={quoted.preview} />
+        {/if}
+        {#if quoted.quotedUrl}
+          {@render nested(quoted.quotedUrl, false)}
+        {/if}
+      </PostWarning>
+    </div>
   </blockquote>
 {/if}
 
 <style lang="postcss">
   :global {
     .post-quote {
+      --post-quote-background: var(--current-background);
+
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
@@ -106,11 +110,15 @@
 
       &:has(.post-quote_link:hover),
       &:has(.post-quote_link:focus-visible) {
-        background: --tune-background(--flat-button-hover);
+        --post-quote-background: --tune-background(--flat-button-hover);
+
+        background: var(--post-quote-background);
       }
 
       &:has(.post-quote_link:active) {
-        background: --tune-background(--flat-button-hover);
+        --post-quote-background: --tune-background(--flat-button-hover);
+
+        background: var(--post-quote-background);
         box-shadow: var(--pressed-shadow);
       }
 
@@ -152,6 +160,12 @@
       &.is-alone {
         margin-top: 0.625rem;
       }
+    }
+
+    .post-quote_content {
+      --current-background: var(--post-quote-background);
+
+      display: contents;
     }
 
     .post-quote_caption {

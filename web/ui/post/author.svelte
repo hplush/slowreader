@@ -1,9 +1,14 @@
 <script lang="ts">
   import { type PostAuthor, router } from '@slowreader/core'
 
+  import { waitImageDecoded } from '../../lib/image.ts'
   import { getPopupHash } from '../../stores/url-router.ts'
+  import BrokenImage from '../broken-image.svelte'
 
   let { author }: { author: PostAuthor } = $props()
+
+  let broken = $state<null | string>()
+  let loaded = $state<null | string>()
 </script>
 
 <svelte:element
@@ -11,12 +16,25 @@
   class="post-author"
   href={author.url && getPopupHash($router, 'feed', author.url)}
 >
-  {#if author.avatar}
+  {#if author.avatar && broken === author.avatar}
+    <span class="post-author_avatar">
+      <BrokenImage />
+    </span>
+  {:else if author.avatar}
     <img
       class="post-author_avatar"
+      class:is-loading={loaded !== author.avatar}
       alt=""
       decoding="async"
       loading="lazy"
+      onerror={() => {
+        broken = author.avatar
+      }}
+      onload={async event => {
+        let src = author.avatar
+        await waitImageDecoded(event.currentTarget)
+        loaded = src
+      }}
       referrerpolicy="no-referrer"
       src={author.avatar}
     />
@@ -52,7 +70,12 @@
       flex-shrink: 0;
       width: 1.5rem;
       height: 1.5rem;
-      border-radius: var(--base-radius);
+      overflow: hidden;
+      border-radius: 0.1875rem;
+
+      &.is-loading {
+        background: --tune-background(--image-placeholder);
+      }
     }
 
     .post-author_title {
