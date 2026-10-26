@@ -78,28 +78,31 @@
         <PostAuthorLine author={quoted.author} />
       {/if}
       <PostWarning lang={quoted.lang} warning={quoted.warning}>
-        <FormattedText html={text} lang={quoted.lang} simple={!full} />
-        {#if quoted.poll}
-          <PostPoll
-            lang={quoted.lang}
-            poll={quoted.poll}
-            post={quoted}
-            {userPostUrl}
+        {#snippet children(warningClicked)}
+          <FormattedText html={text} lang={quoted.lang} simple={!full} />
+          {#if quoted.poll}
+            <PostPoll
+              lang={quoted.lang}
+              poll={quoted.poll}
+              post={quoted}
+              {userPostUrl}
+            />
+          {/if}
+          <PostMedia
+            media={getMediaOutsideText(
+              addMediaSizes(quoted.media, quoted.mediaSizes),
+              text,
+              !full
+            )}
+            {warningClicked}
           />
-        {/if}
-        <PostMedia
-          media={getMediaOutsideText(
-            addMediaSizes(quoted.media, quoted.mediaSizes),
-            text,
-            !full
-          )}
-        />
-        {#if quoted.preview}
-          <PostPreview preview={quoted.preview} />
-        {/if}
-        {#if quoted.quotedUrl}
-          {@render nested(quoted.quotedUrl)}
-        {/if}
+          {#if quoted.preview}
+            <PostPreview preview={quoted.preview} />
+          {/if}
+          {#if quoted.quotedUrl}
+            {@render nested(quoted.quotedUrl)}
+          {/if}
+        {/snippet}
       </PostWarning>
     </div>
   </blockquote>

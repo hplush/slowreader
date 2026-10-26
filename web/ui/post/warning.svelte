@@ -12,12 +12,13 @@
     lang,
     warning
   }: {
-    children: Snippet
+    children: Snippet<[boolean]>
     lang: null | string | undefined
     warning: null | string | undefined
   } = $props()
 
   let shown = $state(openWarnings.get())
+  let clicked = $state(false)
 </script>
 
 {#if warning}
@@ -34,6 +35,7 @@
         icon={shown ? mdiEyeOffOutline : mdiEyeOutline}
         onclick={() => {
           shown = !shown
+          clicked = true
         }}
         size="wide"
       >
@@ -43,7 +45,7 @@
   </div>
 {/if}
 {#if !warning || shown}
-  {@render children()}
+  {@render children(clicked)}
 {/if}
 
 <style lang="postcss">

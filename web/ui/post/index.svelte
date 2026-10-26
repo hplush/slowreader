@@ -57,27 +57,30 @@
     />
   {/if}
   <PostWarning lang={post.lang} warning={post.warning}>
-    {#if post.full || post.intro}
-      <FormattedText html={text} lang={post.lang} />
-    {/if}
-    {#if post.poll}
-      <PostPoll lang={post.lang} poll={post.poll} {post} {userPostUrl} />
-    {/if}
+    {#snippet children(warningClicked)}
+      {#if post.full || post.intro}
+        <FormattedText html={text} lang={post.lang} />
+      {/if}
+      {#if post.poll}
+        <PostPoll lang={post.lang} poll={post.poll} {post} {userPostUrl} />
+      {/if}
 
-    <PostMedia
-      media={getMediaOutsideText(
-        addMediaSizes(post.media, post.mediaSizes),
-        text,
-        false
-      )}
-    />
+      <PostMedia
+        media={getMediaOutsideText(
+          addMediaSizes(post.media, post.mediaSizes),
+          text,
+          false
+        )}
+        {warningClicked}
+      />
 
-    {#if post.quoted}
-      <PostQuote full linked quoted={post.quoted} {userPostUrl} />
-    {/if}
-    {#if post.preview}
-      <PostPreview preview={post.preview} />
-    {/if}
+      {#if post.quoted}
+        <PostQuote full linked quoted={post.quoted} {userPostUrl} />
+      {/if}
+      {#if post.preview}
+        <PostPreview preview={post.preview} />
+      {/if}
+    {/snippet}
   </PostWarning>
 
   {#if post.unsupported}

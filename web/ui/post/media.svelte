@@ -11,13 +11,19 @@
   import BrokenImage from '../broken-image.svelte'
   import Button from '../button.svelte'
 
-  let { media }: { media: ReaderMedia[] } = $props()
+  let {
+    media,
+    warningClicked = false
+  }: { media: ReaderMedia[]; warningClicked?: boolean } = $props()
 
   let broken = new SvelteSet<string>()
   let loaded = new SvelteSet<string>()
   let revealed = $state(false)
   let hidden = $derived(
-    !revealed && !$showSensitiveMedia && media.some(item => item.sensitive)
+    !revealed &&
+      !warningClicked &&
+      !$showSensitiveMedia &&
+      media.some(item => item.sensitive)
   )
 </script>
 
