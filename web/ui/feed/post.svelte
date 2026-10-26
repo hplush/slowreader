@@ -86,13 +86,11 @@
       </h2>
     {/if}
     {#if post.replied && !post.replied.missing}
-      <div class="feed-post_replied">
-        <PostQuote
-          caption={$postMessages.replyingTo}
-          quoted={post.replied}
-          {userPostUrl}
-        />
-      </div>
+      <PostQuote
+        caption={$postMessages.replyingTo}
+        quoted={post.replied}
+        {userPostUrl}
+      />
     {/if}
     <PostWarning lang={post.lang} warning={post.warning}>
       <FormattedText html={intro} lang={post.lang} simple />
@@ -110,11 +108,9 @@
       {/if}
     </PostWarning>
     {#if post.unsupported}
-      <div class="feed-post_unsupported">
-        <Note icon={mdiPuzzleOutline} variant="neutral">
-          {$postMessages.unsupported}
-        </Note>
-      </div>
+      <Note icon={mdiPuzzleOutline} variant="neutral">
+        {$postMessages.unsupported}
+      </Note>
     {/if}
     <footer class="feed-post_actions">
       {#if post.threadSize > 1}
@@ -247,10 +243,13 @@
 
     .feed-post_author {
       margin-top: -0.125rem;
-      margin-bottom: 0.75rem;
     }
 
     .feed-post_content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+
       .feed-post_link:active + & {
         translate: 0 var(--min-size);
       }
@@ -258,12 +257,7 @@
 
     .feed-post_title {
       margin-top: -0.325rem;
-      margin-bottom: 0.5rem;
       font: var(--subtitle-font);
-    }
-
-    .feed-post_unsupported {
-      margin-top: 0.625rem;
     }
 
     .feed-post_actions {
@@ -271,11 +265,10 @@
 
       display: flex;
       padding: 0.25rem;
-      margin-inline: calc(-1 * var(--control-padding));
-    }
 
-    .feed-post_replied {
-      margin-bottom: 0.625rem;
+      /* Actions are aligned by own padding, not by the content gap */
+      margin-top: -0.625rem;
+      margin-inline: calc(-1 * var(--control-padding));
     }
 
     .feed-post_thread {

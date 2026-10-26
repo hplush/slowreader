@@ -50,11 +50,10 @@
   }
 </script>
 
-{#snippet nested(url: null | string | undefined, alone: boolean)}
+{#snippet nested(url: null | string | undefined)}
   {@const popup = url ? getPostHref(url) : undefined}
   <a
     class="post-quote_nested"
-    class:is-alone={alone}
     href={popup ?? url}
     target={popup ? undefined : '_blank'}
   >
@@ -65,7 +64,7 @@
 {#if quoted.missing}
   <div class="post-quote is-missing">{$t.quoteMissing}</div>
 {:else if !quoted.full && !quoted.author && !quoted.media}
-  {@render nested(quoted.url, true)}
+  {@render nested(quoted.url)}
 {:else}
   <blockquote {id} class="post-quote" cite={quoted.url}>
     {#if href}
@@ -99,7 +98,7 @@
           <PostPreview preview={quoted.preview} />
         {/if}
         {#if quoted.quotedUrl}
-          {@render nested(quoted.quotedUrl, false)}
+          {@render nested(quoted.quotedUrl)}
         {/if}
       </PostWarning>
     </div>
@@ -116,7 +115,6 @@
       gap: 0.5rem;
       padding: 0.625rem;
       position: relative;
-      margin-top: 0.625rem;
       border: calc(var(--min-size) / 2) solid var(--flat-border-color);
       border-radius: calc(var(--base-radius) + 0.625rem);
 
@@ -167,10 +165,6 @@
       &:hover,
       &:focus-visible {
         text-decoration: underline;
-      }
-
-      &.is-alone {
-        margin-top: 0.625rem;
       }
     }
 

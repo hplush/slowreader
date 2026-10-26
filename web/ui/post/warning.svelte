@@ -56,7 +56,6 @@
       gap: 0.5rem;
       align-items: center;
       padding: 0.25rem;
-      margin-bottom: 0.625rem;
       border: 0.0625rem solid;
       border-color: --tune-background(--note);
       border-radius: calc(var(--base-radius) + 0.3125rem);

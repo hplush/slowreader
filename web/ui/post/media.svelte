@@ -123,7 +123,6 @@
   :global {
     .post-media {
       position: relative;
-      margin-top: 0.625rem;
       overflow: hidden;
       border-radius: var(--base-radius);
     }

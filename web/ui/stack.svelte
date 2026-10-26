@@ -8,6 +8,8 @@
     gap = 'm',
     height = 'auto',
     justify = 'start',
+    padding,
+    reading,
     role,
     row = false,
     width = 'stretch',
@@ -19,6 +21,8 @@
     gap?: 'l' | 'm' | 's' | 'xl' | 'xs' | 'xxl'
     height?: 'auto' | 'stretch'
     justify?: 'center' | 'end' | 'space-between' | 'start'
+    padding?: 'xl'
+    reading?: 'fast' | 'slow'
     role?: 'menu' | 'menuitem'
     row?: boolean
     width?: 'auto' | 'stretch'
@@ -34,6 +38,7 @@
   class:is-align-center={align === 'center'}
   class:is-align-end={align === 'end'}
   class:is-align-start={align === 'start'}
+  class:is-comfort-mode={reading === 'slow'}
   class:is-gap-l={gap === 'l'}
   class:is-gap-m={gap === 'm'}
   class:is-gap-s={gap === 's'}
@@ -45,6 +50,8 @@
   class:is-justify-end={justify === 'end'}
   class:is-justify-space-between={justify === 'space-between'}
   class:is-justify-start={justify === 'start'}
+  class:is-non-comfort-mode={reading === 'fast'}
+  class:is-padding-xl={padding === 'xl'}
   class:is-row={row}
   class:is-width-auto={width === 'auto'}
   class:is-width-stretch={width === 'stretch'}
@@ -114,6 +121,10 @@
       &.is-row {
         flex-direction: row;
         padding: 0 var(--stack-padding);
+      }
+
+      &.is-padding-xl {
+        padding-block: 1.5rem;
       }
 
       &.is-wrap {

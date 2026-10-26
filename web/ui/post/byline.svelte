@@ -1,6 +1,6 @@
 <script lang="ts">
   import { mdiRepeatVariant } from '@mdi/js'
-  import { type PostAuthor, postMessages as t, router } from '@slowreader/core'
+  import { type PostAuthor, router, postMessages as t } from '@slowreader/core'
 
   import { getPopupHash } from '../../stores/url-router.ts'
   import Icon from '../icon.svelte'
@@ -53,7 +53,6 @@
       display: flex;
       flex-direction: column;
       gap: 0.375rem;
-      margin-bottom: 0.75rem;
     }
 
     .post-byline_link {

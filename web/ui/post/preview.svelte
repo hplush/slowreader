@@ -52,7 +52,6 @@
 
       display: flex;
       flex-direction: column;
-      margin-top: 0.625rem;
       overflow: hidden;
       color: var(--text-color);
       text-decoration: none;

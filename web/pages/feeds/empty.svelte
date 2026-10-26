@@ -20,22 +20,22 @@
   <PageIcon path={mdiWhiteBalanceSunny}>
     <Stack align="center" gap="l">
       {reader.category ? $t.fastCategoryEmpty : $t.fastEmpty}
-      <div class="is-comfort-mode">
+      <Stack align="center" reading="slow">
         <Button href={getURL('slow')} icon={mdiFire}>{$t.openSlow}</Button>
-      </div>
+      </Stack>
     </Stack>
   </PageIcon>
 {:else}
   <PageIcon path={mdiFireOff}>
     <Stack align="center" gap="l">
       {$t.slowEmpty}
-      <div class="is-comfort-mode">
+      <Stack align="center" reading="slow">
         <Button
           icon={mdiReload}
           loader={$isRefreshing ? $refreshProgress : undefined}
           onclick={refreshPosts}>{$t.refresh}</Button
         >
-      </div>
+      </Stack>
     </Stack>
   </PageIcon>
 {/if}

@@ -12,6 +12,7 @@
 
   import FormattedText from '../formatted-text.svelte'
   import Note from '../note.svelte'
+  import Stack from '../stack.svelte'
   import PostByline from './byline.svelte'
   import PostMedia from './media.svelte'
   import PostPoll from './poll.svelte'
@@ -32,7 +33,7 @@
   let text = $derived(sanitizeDOM(post.full || post.intro || ''))
 </script>
 
-<div class="post">
+<Stack gap="m">
   <PostByline author={post.author} {repostHref} repostedBy={post.repostedBy} />
   {#if post.title}
     <h1 class="post_title">
@@ -47,15 +48,13 @@
   {/if}
 
   {#if post.replied && !post.replied.missing}
-    <div class="post_replied">
-      <PostQuote
-        caption={$t.replyingTo}
-        full
-        linked
-        quoted={post.replied}
-        {userPostUrl}
-      />
-    </div>
+    <PostQuote
+      caption={$t.replyingTo}
+      full
+      linked
+      quoted={post.replied}
+      {userPostUrl}
+    />
   {/if}
   <PostWarning lang={post.lang} warning={post.warning}>
     {#if post.full || post.intro}
@@ -82,23 +81,13 @@
   </PostWarning>
 
   {#if post.unsupported}
-    <div class="post_unsupported">
-      <Note icon={mdiPuzzleOutline} variant="neutral">{$t.unsupported}</Note>
-    </div>
+    <Note icon={mdiPuzzleOutline} variant="neutral">{$t.unsupported}</Note>
   {/if}
-</div>
+</Stack>
 
 <style>
   :global {
-    .post {
-      display: flex;
-      flex-shrink: 1;
-      flex-direction: column;
-      width: stretch;
-    }
-
     .post_title {
-      margin-bottom: 0.75rem;
       font: var(--post-title-font);
     }
 
@@ -115,14 +104,6 @@
       &:focus-visible {
         border-radius: var(--base-radius);
       }
-    }
-
-    .post_replied {
-      margin-bottom: 0.625rem;
-    }
-
-    .post_unsupported {
-      margin-top: 0.625rem;
     }
   }
 </style>
