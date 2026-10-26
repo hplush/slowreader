@@ -21,10 +21,6 @@
   --mono-family: 'Noto Mono Sans Variable', monospace;
   --handwritten-family: 'Playpen Sans', monospace;
   --title-family: 'Inika', 'Noto Serif Variable', 'Georgia', serif;
-  --regular-weight: 400;
-  --control-weight: 500;
-  --semibold-weight: 600;
-  --bold-weight: 700;
   --text-font: var(--regular-weight) 0.9375rem/1.6 var(--text-family);
   --secondary-font: var(--regular-weight) 0.875rem/1.6 var(--text-family);
   --tertiary-font: var(--regular-weight) 0.75rem/1 var(--text-family);
@@ -39,6 +35,15 @@
     var(--text-family);
   --mono-font: var(--regular-weight) 1rem/1.6 var(--mono-family);
   --handwritten-font: 600 1.125rem/1 var(--handwritten-family);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --regular-weight: 400;
+    --control-weight: 500;
+    --semibold-weight: 600;
+    --bold-weight: 700;
+  }
 }
 
 /* Light text on dark background looks bolder, variable fonts can compensate */
