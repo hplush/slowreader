@@ -60,27 +60,33 @@ jq -e '.status == "verified"' "releases/$RELEASE.json" > /dev/null || fail "$REL
 jq -e --slurpfile site "$WORK/manifest.json" '.manifest == $site[0]' "releases/$RELEASE.json" > /dev/null ||
   fail "manifest differs from $RELEASE"
 
-# Download the address and compare it with the file hash from the manifest
-check() {
-  # Hash in the manifest format
-  HASH="sha256-$(curl -fsS --retry 3 "$SITE$1" | openssl dgst -sha256 -binary | base64)"
-  # Server must send the same content
-  [ "$HASH" = "$2" ] || fail "$1 differs"
-}
+# Every file from the manifest with its hash
+jq -r '.integrity | to_entries[] | "\(.key) \(.value)"' "$WORK/manifest.json" |
+  while read -r URL EXPECTED; do
+    # Check the file by its own address
+    echo "$URL $EXPECTED"
+    # Users open pages like / or /welcome, which server could send different from the file
+    PAGE=$(sed -e 's|^/app\.html$|/welcome|' -e 's|index\.html$||' -e 's|\(.\)/$|\1|' <<< "$URL")
+    # Check the page address too
+    [ "$PAGE" = "$URL" ] || echo "$PAGE $EXPECTED"
+  done > "$WORK/expected.txt"
 
-# Check every file from the manifest
-for URL in $(jq -r '.integrity | keys[]' "$WORK/manifest.json"); do
-  # File hash from the manifest
-  EXPECTED=$(jq -r --arg url "$URL" '.integrity[$url]' "$WORK/manifest.json")
-  # Check the file by its own address
-  check "$URL" "$EXPECTED"
-  # Users open pages like / or /welcome, which server could send different from the file
-  PAGE=$(sed -e 's|^/app\.html$|/welcome|' -e 's|index\.html$||' -e 's|\(.\)/$|\1|' <<< "$URL")
-  # Check the page address too
-  if [ "$PAGE" != "$URL" ]; then
-    check "$PAGE" "$EXPECTED"
-  fi
-done
+# One curl reuses the connection, a new connection per file made hourly CI job slow
+ARGS=()
+NUMBER=0
+while read -r URL EXPECTED; do
+  NUMBER=$((NUMBER + 1))
+  ARGS+=(-o "$WORK/$NUMBER" "$SITE$URL")
+done < "$WORK/expected.txt"
+curl -fsS --retry 3 --parallel "${ARGS[@]}"
+
+# Server must send the same content
+NUMBER=0
+while read -r URL EXPECTED; do
+  NUMBER=$((NUMBER + 1))
+  [ "sha256-$(openssl dgst -sha256 -binary < "$WORK/$NUMBER" | base64)" = "$EXPECTED" ] ||
+    fail "$URL differs"
+done < "$WORK/expected.txt"
 
 # Short line if nothing changed since the previous successful check
 if cmp -s "$WORK/manifest.json" checks/last.json; then
