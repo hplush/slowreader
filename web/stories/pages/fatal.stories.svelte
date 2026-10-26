@@ -2,6 +2,7 @@
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import FatalPage from '../../pages/fatal.svelte'
+  import { clientUpdate } from '../../stores/client-update.ts'
   import Scene from '../scene.svelte'
 
   let { Story } = defineMeta({
@@ -22,6 +23,26 @@
 
 <Story name="Outdated" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
+    oninit={() => {
+      clientUpdate.set('available')
+    }}
+    route={{ params: { reason: 'outdated' }, route: 'fatal' }}
+    user={false}
+  >
+    <FatalPage page={pages.fatal()} />
+  </Scene>
+</Story>
+
+<Story
+  name="Outdated Checking"
+  asChild
+  globals={{ viewport: { value: 'mobile2' } }}
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene
+    oninit={() => {
+      clientUpdate.set('checking')
+    }}
     route={{ params: { reason: 'outdated' }, route: 'fatal' }}
     user={false}
   >

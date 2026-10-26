@@ -175,7 +175,7 @@ export function getTestEnvironment(): Environment {
     translationLoader() {
       return Promise.resolve({})
     },
-    updateClient() {},
+    async updateClient() {},
     warn(e) {
       if (warningTracking) {
         warningTracking.push(e)

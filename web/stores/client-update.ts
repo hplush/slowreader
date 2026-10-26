@@ -57,7 +57,8 @@ export async function registerServiceWorker(): Promise<void> {
   if (controlled) await startClientUpdates()
 }
 
-export function updateClient(): void {
+export async function updateClient(): Promise<void> {
+  if (!registration?.waiting) await checkClientUpdate()
   let waiting = registration?.waiting
   if (waiting) {
     // Every tab reloads on `controllerchange`

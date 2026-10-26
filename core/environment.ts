@@ -271,7 +271,7 @@ export interface Environment {
   /**
    * Reload page or open app store page to get latest version.
    */
-  updateClient(): void
+  updateClient(): Promise<void>
 
   /**
    * Print warning to help in debugging. Should be not visible by regular user.

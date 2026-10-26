@@ -21,6 +21,7 @@
     fatalMessages as t
   } from '@slowreader/core'
 
+  import { clientUpdate } from '../stores/client-update.ts'
   import { getURL } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
   import Output from '../ui/output.svelte'
@@ -105,6 +106,7 @@
       {:else if $reason.type === 'outdated'}
         <Button
           icon={mdiReload}
+          loader={$clientUpdate === 'checking'}
           onclick={getEnvironment().updateClient}
           size="big"
           variant="main"
