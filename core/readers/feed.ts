@@ -28,6 +28,7 @@ export const feedReader = createReader('feed', (filter, params) => {
   let $hasNext = atom(false)
   let $nextFrom = atom<string | undefined>()
   let $prevFrom = atom<string | undefined>()
+  let $page = atom(0)
 
   let openAt = Date.now()
   let request = 0
@@ -44,6 +45,8 @@ export const feedReader = createReader('feed', (filter, params) => {
     let current = ++request
     let keep = keepPrevFrom
     keepPrevFrom = false
+    let movedNext = keep || (!!from && from === $nextFrom.get())
+    let movedPrev = !!from && from === $prevFrom.get()
     let cursor = parseCursor(from) ?? topCursor(openAt)
     let [posts, above] = await Promise.all([
       loadPostsPage(filter, cursor, POSTS_PER_PAGE + 1),
@@ -81,6 +84,15 @@ export const feedReader = createReader('feed', (filter, params) => {
       }
       $authors.set(authors)
     }
+    if (!from) {
+      $page.set(0)
+    } else if (movedNext) {
+      $page.set($page.get() + 1)
+    } else if (movedPrev) {
+      $page.set($page.get() - 1)
+    } else {
+      $page.set(Math.ceil((above?.length ?? 0) / POSTS_PER_PAGE))
+    }
     $list.set(list)
     $loading.set(false)
   }
@@ -109,6 +121,7 @@ export const feedReader = createReader('feed', (filter, params) => {
     loading: $loading,
     readingPage: $readingPage,
     nextFrom: $nextFrom,
+    page: $page,
     prevFrom: $prevFrom,
     readPage,
     userPostUrl: getUserPostUrls()

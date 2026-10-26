@@ -1,13 +1,15 @@
 <script lang="ts">
-  import { mdiCheckboxMultipleMarkedOutline } from '@mdi/js'
+  import { mdiCheckboxMultipleMarkedOutline, mdiFire } from '@mdi/js'
   import { type ListReader, feedsMessages as t } from '@slowreader/core'
 
+  import { getURL } from '../../stores/url-router.ts'
   import Button from '../../ui/button.svelte'
   import Pagination from '../../ui/pagination.svelte'
   import Posts from '../../ui/posts.svelte'
   import Stack from '../../ui/stack.svelte'
 
-  let { reader }: { reader: ListReader } = $props()
+  let { reader, reading }: { reader: ListReader; reading: 'fast' | 'slow' } =
+    $props()
   let { list, pages, readingPage } = $derived(reader)
 </script>
 
@@ -28,5 +30,12 @@
       {/if}
     </Button></Stack
   >
+{/if}
+{#if reading === 'fast' && $pages.page > 0}
+  <Stack padding="xl" reading="slow">
+    <Button anchor="go-useful" href={getURL('slow')} icon={mdiFire} size="wide">
+      {$t.goUseful}
+    </Button>
+  </Stack>
 {/if}
 <Pagination pages={$pages} />

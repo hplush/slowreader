@@ -75,9 +75,13 @@
       {:else if $posts.name === 'empty'}
         <FeedsEmptyPage reader={$posts} />
       {:else if $posts.name === 'feed'}
-        <FeedsFeedPage feedUrl={$feed?.url} reader={$posts} />
+        <FeedsFeedPage
+          feedUrl={$feed?.url}
+          reader={$posts}
+          reading={page.reading}
+        />
       {:else}
-        <FeedsListPage reader={$posts} />
+        <FeedsListPage reader={$posts} reading={page.reading} />
       {/if}
     </Stack>
   </PopupablePage>

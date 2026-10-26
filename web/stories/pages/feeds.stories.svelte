@@ -3,6 +3,7 @@
     changePost,
     type FeedsPage as FeedsPageStore,
     GENERAL_CATEGORY,
+    navigate,
     pages,
     type PostValue
   } from '@slowreader/core'
@@ -298,6 +299,23 @@
     })
   }
 
+  function openNextPage(page: FeedsPageStore): void {
+    let unbind = page.postsLoading.listen(loading => {
+      let reader = page.posts.get()
+      if (!loading && reader?.name === 'feed') {
+        unbind()
+        navigate(current =>
+          current.route === 'fast'
+            ? {
+                ...current,
+                params: { ...current.params, from: reader.nextFrom.get() }
+              }
+            : current
+        )
+      }
+    })
+  }
+
   function multiply<Value>(array: Value[], count: number): Value[] {
     let result: Value[] = []
     for (let i = 0; i < count; i++) {
@@ -503,11 +521,37 @@
 <Story name="Feed Pagination" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     feeds={[{ id: 'feed', reading: 'fast', title: 'The Mozilla Blog' }]}
+    oninit={() => openNextPage(pages.fast())}
     posts={multiply(
       POSTS.map(i => ({ ...i, reading: 'fast' })),
       50
     )}
     route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
+  >
+    <FeedsPage page={pages.fast()} />
+  </Scene>
+</Story>
+
+<Story
+  name="Fast List Pagination"
+  asChild
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene
+    categories={[{ fastReader: 'list', id: 'list', title: 'Photo' }]}
+    feeds={[
+      {
+        categoryId: 'list',
+        id: 'feed',
+        reading: 'fast',
+        title: 'The Mozilla Blog'
+      }
+    ]}
+    posts={multiply(
+      POSTS.map(i => ({ ...i, reading: 'fast' })),
+      50
+    )}
+    route={{ params: { category: 'list', from: '1' }, route: 'fast' }}
   >
     <FeedsPage page={pages.fast()} />
   </Scene>

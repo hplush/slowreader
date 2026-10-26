@@ -2,6 +2,7 @@ import { i18n } from '../../i18n.ts'
 
 export const feedsMessages = i18n('feeds', {
   feedReader: 'Feed',
+  goUseful: 'Enough scrolling, go to Useful',
   listReader: 'Post one-by-one',
   more: 'Open post to see more content',
   nextPage: 'Next',

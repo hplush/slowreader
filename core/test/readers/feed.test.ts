@@ -95,6 +95,7 @@ describe('feed reader', () => {
 
     await moveTo(page, stringifyCursor(topCursor(10)))
     equal(page.loading.get(), false)
+    equal(reader.page.get(), 2)
     equal(reader.list.get().length, 9)
     equal(reader.list.get()[0]!.title, '9')
     equal(reader.hasNext.get(), false)
@@ -154,14 +155,17 @@ describe('feed reader', () => {
     equal(reader.list.get().length, 20)
     equal(reader.list.get()[0]!.title, '55')
     equal(reader.list.get()[0]!.read, false)
+    equal(reader.page.get(), 0)
 
     await moveTo(page, reader.nextFrom.get())
+    equal(reader.page.get(), 1)
     equal(reader.hasNext.get(), true)
     equal(reader.list.get().length, 20)
     equal(reader.list.get()[0]!.title, '35')
 
     // Nothing was read, so the previous page has the same posts as before
     await moveTo(page, reader.prevFrom.get())
+    equal(reader.page.get(), 0)
     equal(reader.list.get().length, 20)
     equal(reader.list.get()[0]!.title, '55')
 
@@ -169,6 +173,7 @@ describe('feed reader', () => {
     await reader.readPage()
     await waitLoading(page.postsLoading)
     equal(reader.list.get()[0]!.title, '35')
+    equal(reader.page.get(), 1)
     equal(reader.prevFrom.get(), undefined)
     deepEqual(router.get().popups, [])
 
@@ -176,12 +181,14 @@ describe('feed reader', () => {
     equal(reader.hasNext.get(), false)
     equal(reader.list.get().length, 15)
     equal(reader.list.get()[0]!.title, '15')
+    equal(reader.page.get(), 2)
 
     // The previous page is still full of unread posts
     notEqual(reader.prevFrom.get(), undefined)
     await moveTo(page, reader.prevFrom.get())
     equal(reader.list.get().length, 20)
     equal(reader.list.get()[0]!.title, '35')
+    equal(reader.page.get(), 1)
   })
 
   test('loads intro without the whole article', async () => {
