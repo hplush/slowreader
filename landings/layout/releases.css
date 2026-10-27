@@ -54,10 +54,56 @@
     }
   }
 
+  .releases_head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1em;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-block-end: 0.5lh;
+  }
+
   .releases_version {
-    margin: 0 0 0.5lh;
+    margin: 0;
     line-height: 1.15;
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Underline with colors of the numbers instead of the link color */
+  .releases_lines {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      .releases_added,
+      .releases_removed {
+        text-decoration-color: currentcolor;
+      }
+    }
+  }
+
+  .releases_added,
+  .releases_removed {
+    text-decoration: underline;
+    text-decoration-color: oklch(from currentcolor l c h / 40%);
+  }
+
+  .releases_added {
+    color: oklch(0.74 0.15 150);
+
+    @media (prefers-color-scheme: light) {
+      color: oklch(0.5 0.12 150);
+    }
+  }
+
+  .releases_removed {
+    color: oklch(0.75 0.14 25);
+
+    @media (prefers-color-scheme: light) {
+      color: oklch(0.5 0.18 25);
+    }
   }
 
   .releases_text {

@@ -192,6 +192,10 @@ node_cves() {
 # Dev Container, so it must not build the SBOM by running dependencies.
 touch "$WORK/deps.md"
 PREVIOUS=$(git -C "$ROOT" describe --tags --abbrev=0)
+# Generated files would hide the size of real changes
+LINES=$(git -C "$ROOT" diff --numstat "$PREVIOUS" HEAD -- . ':!pnpm-lock.yaml' \
+  ':!CHANGELOG.md' ':!unreleased-changes/' \
+  | awk '{ added += $1; removed += $2 } END { printf "+%d −%d", added, removed }')
 if [ "$BRANCH" != "main" ]; then
   highlight "Fix release can’t find fixed CVEs, add them to unreleased-changes/"
 elif ! curl -fsSL -o "$WORK/previous.json" \
@@ -265,7 +269,7 @@ fi
 {
   echo "## $VERSION"
   echo
-  echo "_$(date -u +%Y-%m-%d)_"
+  echo "_$(date -u +%Y-%m-%d) · ${LINES}_"
   for file in "${FEATURES[@]}"; do
     echo
     sed '1s/^# /### /' "$file"

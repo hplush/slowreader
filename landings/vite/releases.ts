@@ -14,6 +14,7 @@ const ORIGIN = 'https://slowreader.app'
 interface Release {
   changes: string
   date: string
+  lines?: { added: number; removed: number }
   version: string
 }
 
@@ -22,11 +23,20 @@ function parseChangelog(markdown: string): Release[] {
     .split(/^## /m)
     .slice(1)
     .map(section => {
-      let match = section.match(/^(\S+)\n\n_(\d{4}-\d{2}-\d{2})_\n(.*)$/s)
+      let match = section.match(
+        /^(\S+)\n\n_(\d{4}-\d{2}-\d{2})(?: · \+(\d+) −(\d+))?_\n(.*)$/s
+      )
       if (!match) {
         throw new Error(`Release has no date: ${section.split('\n')[0]}`)
       }
-      return { changes: match[3]!.trim(), date: match[2]!, version: match[1]! }
+      return {
+        changes: match[5]!.trim(),
+        date: match[2]!,
+        lines: match[3]
+          ? { added: Number(match[3]), removed: Number(match[4]) }
+          : undefined,
+        version: match[1]!
+      }
     })
 }
 
@@ -51,6 +61,7 @@ export const releasePages = [
 
 function renderRelease(
   release: Release,
+  prev: Release | undefined,
   title: string,
   tag: 'h1' | 'h2'
 ): string {
@@ -67,10 +78,20 @@ function renderRelease(
     dateStyle: 'long',
     timeZone: 'UTC'
   })
+  let lines =
+    release.lines && prev
+      ? '<a class="releases_lines" ' +
+        `href="https://github.com/hplush/slowreader/compare/${prev.version}...${release.version}">` +
+        '<span class="releases_added">' +
+        `+${release.lines.added.toLocaleString('en-US')}</span> ` +
+        '<span class="releases_removed">' +
+        `−${release.lines.removed.toLocaleString('en-US')}</span></a>`
+      : ''
   return (
     '<article class="releases_release">' +
     `<time class="releases_date" datetime="${release.date}">${date}</time>` +
-    `<${tag} class="releases_version">${title}</${tag}>${rows.join('')}</article>`
+    `<div class="releases_head"><${tag} class="releases_version">${title}</${tag}>` +
+    `${lines}</div>${rows.join('')}</article>`
   )
 }
 
@@ -78,9 +99,10 @@ function renderList(all: Release[]): string {
   return (
     '<div class="releases"><h1>Releases</h1>' +
     all
-      .map(i =>
+      .map((i, index) =>
         renderRelease(
           i,
+          all[index + 1],
           `<a href="/releases/${i.version}">${i.version}</a>`,
           'h2'
         )
@@ -99,7 +121,7 @@ function renderPage(release: Release, prev: Release | undefined): string {
     : ''
   return (
     '<div class="releases">' +
-    renderRelease(release, `Release ${release.version}`, 'h1') +
+    renderRelease(release, prev, `Release ${release.version}`, 'h1') +
     `<nav class="releases_pages">${previous}` +
     '<a class="releases_page is-end" href="/releases">' +
     '<span class="releases_label">Overview</span>All releases</a></nav></div>'
