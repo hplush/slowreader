@@ -1,5 +1,81 @@
 # Change Log
 
+## 0.20261027.0
+
+_2026-10-27 · 47_
+
+### Account re-sign-in
+
+When the sign in to a social account expires, Accounts page marks this account, and its popup has a button to sign in again. The refresh error opens this popup.
+
+### Hint to Useful in Fast
+
+Promote Useful when you read 2+ Fun pages.
+
+### Website Visit Counter
+
+Home, docs, and release notes pages count visits with own Plausible without cookies. The app still has no analytics.
+
+### Night Fun Lock
+
+New Coach settings page can lock Fun at night to read more slow useful content instead of scrolling before going to bed.
+
+Solve a math task to open each Fun page or to change the lock.
+
+### Mastodon Polls
+
+Posts show poll options and a link to vote on your Mastodon server.
+
+### Post language
+
+Posts get language from Mastodon, Bluesky, RSS, Atom, and JSON Feed, so browser picks the right fonts, hyphenation, and screen reader voice.
+
+### Pagination by Reading
+
+Useful shows page numbers in both list and feed UIs. Fun shows back and next buttons in both UIs.
+
+### RSS 1.0 Support
+
+Slow Reader now can subscribe to RSS 1.0 (RDF) feeds, which are still popular on Japanese and academic websites.
+
+### Install suggestion
+
+Safari deletes feeds and posts after 7 days without visits. We warn about it on Welcome screen and suggest installing the app or created cloud account.
+
+### Settings Sync
+
+Fun posts lifetime, night lock, content warnings and sensitive media settings are now the same on all your devices.
+
+### Security & Privacy
+
+- Server and proxy run with Node.js permissions, so a malicious dependency can’t read other files, write files, or start processes.
+- Releases now have SBOM with all packages, and release notes list CVEs fixed by dependency updates.
+- Client database runs on our own small driver instead of SQLocal: 2 fewer dependencies and no code which could start workers from `data:` URLs.
+
+### Fixes
+
+- Added changelog section and a link with latest changes to About page.
+- Added feed avatars to Add page.
+- Made text a little thinner in dark theme, because light text on dark background looks bolder.
+- Fixed refresh error on cloud sync when feed has the same post twice.
+- Fixed Mastodon and Bluesky accounts with the browser extension.
+- Fixed highlighted post in the recent posts of the feed popup.
+- Fixed useless Anonymous account in feed popup for RSS, Atom, and JSON Feed, and added feed type to Feed URL label.
+- Added a placeholder for avatars and images while they are loading, and an icon for images which failed to load.
+- Fixed Mastodon post links to open the post on your own server, where you can reply, repost or like.
+- Open `@user` links from Bluesky and Mastodon posts in the feed popup instead of a new browser tab.
+- Add more docs to website: Releases and Branding.
+- Fixed losing changes from a newer app version on devices, which were not updated yet.
+- Fixed Update button on outdated client page reloading the same old version.
+- Removed “Open post link” from quotes.
+- Fixed duplicate posts after refresh on another device with cloud sync.
+- Fixed Mastodon and Bluesky avatars to be round like in social networks.
+- Fixed RSS posts with empty `<guid>` being skipped.
+- Added fire animation on touching slow mode button on phones and tablets.
+- Fixed broken images, which were not saved for offline.
+- Fixed empty feed title in the feed popup after unsubscribing.
+- Removed second click on blurred media after showing post with content warning.
+
 ## 0.20261022.3
 
 _2026-10-22 · +35 −32_
