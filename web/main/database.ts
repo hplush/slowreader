@@ -2,12 +2,10 @@
 // in OPFS, the others use the pool of the `opfs-sahpool` VFS.
 
 import { type Database, openDb } from '@nanostores/sql'
-import { sqlocalDriver } from '@nanostores/sql/sqlocal'
-import { fatal, getUnhandledErrors, userId } from '@slowreader/core'
+import { wasmDriver } from '@nanostores/sql/wasm'
+import { fatal, userId } from '@slowreader/core'
 
 import type { FromWorker, ToWorker } from './db-worker.ts'
-
-const DATABASE = 'slowreader.sqlite'
 
 type Vfs = 'opfs' | 'sahpool'
 
@@ -40,50 +38,36 @@ userId.subscribe(user => {
 })
 
 export function createDatabase(): Database {
-  let processor = new Worker(new URL('./db-worker.ts', import.meta.url), {
+  let worker = new Worker(new URL('./db-worker.ts', import.meta.url), {
     name: vfs,
     type: 'module'
   })
-  processor.addEventListener(
-    'message',
-    // Other messages of the worker are SQLocal’s own protocol
-    ({ data }: MessageEvent<FromWorker | { slowreader?: undefined }>) => {
-      if (data.slowreader === 'secondTab') {
-        fatal.set({ type: 'secondTab' })
-      } else if (data.slowreader === 'reload') {
-        location.reload()
-      } else if (data.slowreader === 'noDb') {
-        fatal.set({ error: data.error, type: 'noDb' })
-      }
-    }
-  )
-  current = processor
-  let driver = sqlocalDriver(DATABASE, { processor })
-  // SQLocal falls back to the in-memory database when the browser refused
-  // the storage
-  void driver.persistent().then(persistent => {
-    if (!persistent && !fatal.get()) {
-      fatal.set({ error: getUnhandledErrors(), type: 'noDb' })
+  worker.addEventListener('message', ({ data }: MessageEvent<FromWorker>) => {
+    if (data.type === 'secondTab') {
+      fatal.set({ type: 'secondTab' })
+    } else if (data.type === 'reload') {
+      location.reload()
+    } else if (data.type === 'noDb') {
+      fatal.set({ error: data.error, type: 'noDb' })
     }
   })
-  return openDb(driver)
+  current = worker
+  return openDb(wasmDriver(worker))
 }
 
-function requestDatabase(processor: Worker): Promise<Blob> {
+function requestDatabase(worker: Worker): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    function onDumped({
-      data
-    }: MessageEvent<FromWorker | { slowreader?: undefined }>): void {
-      if (data.slowreader === 'database') {
-        processor.removeEventListener('message', onDumped)
+    function onDumped({ data }: MessageEvent<FromWorker>): void {
+      if (data.type === 'dumped') {
+        worker.removeEventListener('message', onDumped)
         resolve(new Blob([data.database], { type: 'application/x-sqlite3' }))
-      } else if (data.slowreader === 'dumpError') {
-        processor.removeEventListener('message', onDumped)
+      } else if (data.type === 'dumpFailed') {
+        worker.removeEventListener('message', onDumped)
         reject(new Error(data.error))
       }
     }
-    processor.addEventListener('message', onDumped)
-    processor.postMessage({ slowreader: 'dump' } satisfies ToWorker)
+    worker.addEventListener('message', onDumped)
+    worker.postMessage({ type: 'dump' } satisfies ToWorker)
   })
 }
 
@@ -93,7 +77,7 @@ function requestDatabase(processor: Worker): Promise<Blob> {
 export async function dumpDatabase(): Promise<Blob> {
   if (vfs === 'opfs') {
     let root = await navigator.storage.getDirectory()
-    return (await root.getFileHandle(DATABASE)).getFile()
+    return (await root.getFileHandle('slowreader.sqlite')).getFile()
   } else if (current) {
     return requestDatabase(current)
   } else {

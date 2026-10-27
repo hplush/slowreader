@@ -1,5 +1,6 @@
 import { openDb } from '@nanostores/sql'
-import { sqlocalDriver } from '@nanostores/sql/sqlocal'
+import { wasmDriver } from '@nanostores/sql/wasm'
+import { wasmWorker } from '@nanostores/sql/wasm-worker'
 import {
   type BaseRoute,
   getEnvironment,
@@ -12,7 +13,6 @@ import {
 } from '@slowreader/core'
 import { getTestEnvironment } from '@slowreader/core/test'
 import { atom, effect } from 'nanostores'
-import { SQLiteMemoryDriver, SQLocalProcessor } from 'sqlocal'
 
 import { mobileMedia, tabletMedia } from '../stores/media-queries.ts'
 
@@ -70,11 +70,9 @@ setupEnvironment({
   databaseCreator() {
     // SQLite deletes the config after the start
     Object.assign(globalThis, { sqlite3ApiConfig: { warn() {} } })
-    return openDb(
-      sqlocalDriver(':memory:', {
-        processor: new SQLocalProcessor(new SQLiteMemoryDriver())
-      })
-    )
+    let { port1, port2 } = new MessageChannel()
+    void wasmWorker(sqlite3 => new sqlite3.oo1.DB(':memory:'), { port: port2 })
+    return openDb(wasmDriver(port1))
   },
   dumpDatabase() {
     return Promise.resolve(new Blob(['SQLite format 3\0']))

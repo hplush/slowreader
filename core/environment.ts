@@ -137,8 +137,8 @@ export interface Environment {
   ): Promise<PasskeyResult<RegistrationResponse> | undefined>
 
   /**
-   * SQL database engine. Like SQLocal in Web, in-memory SQLite in Node.js,
-   * Expo for mobile, etc. It keeps both Logux log and app’s tables.
+   * SQL database engine. Like SQLite in Web Worker in Web, in-memory SQLite
+   * in Node.js, Expo for mobile, etc. It keeps both Logux log and app’s tables.
    */
   databaseCreator: DatabaseCreator
 

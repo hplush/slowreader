@@ -2,7 +2,6 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { existsSync, readFileSync } from 'node:fs'
 import { extname, join, normalize } from 'node:path'
 import sharp from 'sharp'
-import sqlocal from 'sqlocal/vite'
 import { defineConfig, type PreviewServer, type ViteDevServer } from 'vite'
 
 import { getAppRoutes } from './stores/url-router.ts'
@@ -133,6 +132,10 @@ export default defineConfig(() => ({
     },
     transformer: 'postcss'
   },
+  // Pre-bundling breaks the URL of SQLite’s WebAssembly file
+  optimizeDeps: {
+    exclude: ['@sqlite.org/sqlite-wasm']
+  },
   // SQLite could be saved to OPFS only in cross-origin isolated page.
   // Production headers are in nginx.conf.
   preview: {
@@ -149,8 +152,6 @@ export default defineConfig(() => ({
   },
   plugins: [
     svelte(),
-    // `coi: false` since plugin sets require-corp, which blocks post’s images
-    sqlocal({ coi: false }),
     {
       configurePreviewServer: noDemoCache,
       configureServer(server) {
@@ -256,6 +257,7 @@ export default defineConfig(() => ({
     sbom('.well-known/sbom', workerPackages)
   ],
   worker: {
-    plugins: () => [collectPackages(workerPackages)]
+    plugins: () => [collectPackages(workerPackages)],
+    format: 'es'
   }
 }))

@@ -71,6 +71,8 @@ We keep SQLite as a file in OPFS, but only cross-origin isolated pages can do it
 
 The engine is chosen on the first start and saved as `slowreader:vfs` in `localStorage`, since the engines can not read each other’s files.
 
+SQLite runs in [`main/db-worker.ts`](./main/db-worker.ts) with the [SQLite WASM driver](https://github.com/nanostores/sql#sqlite-wasm) of Nano Stores SQL.
+
 ## Demo Mode
 
 I mode to quickly see the app with some example content. We pre-generate database to start it quickly.
