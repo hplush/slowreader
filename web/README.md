@@ -45,7 +45,7 @@ We use **Svelte** as the UI framework and **Vite** as the builder.
 - [`.storybook/`](./.storybook/): visual tests tool config.
 - [`app.html`](./app.html): builder entry point of the app.
 - [`nginx.conf`](./nginx.conf): web server config for [Docker image](../Dockerfile). Server’s [`entrypoint.ts`](../server/entrypoint.ts) apply changes to it.
-- [`.browserslistrc`](./.browserslistrc): browsers, which we support. See [actual browsers list](https://browsersl.ist/#q=baseline+widely+available+on+2026-10-26+with+downstream%2C+not+chrome+%3C+127%2C+not+edge+%3C+127%2C+not+opera+%3C+113%2C+not+samsung+%3C+28%2C+not+firefox+%3C+138%2C+not+safari+%3C+18%2C+not+ios_saf+%3C+18).
+- [`.browserslistrc`](./.browserslistrc): browsers, which we support. See [actual browsers list](https://browsersl.ist/#q=baseline+widely+available+on+2026-10-27+with+downstream%2C+not+chrome+%3C+127%2C+not+edge+%3C+127%2C+not+opera+%3C+113%2C+not+samsung+%3C+28%2C+not+firefox+%3C+138%2C+not+safari+%3C+18%2C+not+ios_saf+%3C+18).
 - [`.size-limit.json`](./.size-limit.jsonc): budget for JS bundles, whole app page, and [landing](../landings/) size. Don’t be afraid to tune the limit. We put it so tight that it makes you feel a small pain every time you add a significant amount of code.
 - [`global.d.ts`](./global.d.ts): missed web platform types and fixes for Vite imports.
 

@@ -5,14 +5,14 @@
 # dependencies, so a malicious web dependency can’t change the server code.
 
 # cgr.dev/chainguard/wolfi-base:latest
-FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base@sha256:360896efb0753a5701c48f860e17130c205eae5a264797aa3e7ea126ee2923a7 AS tools
+FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base@sha256:31cfe087eb48bde827a6e0f607a12865f6f37d89093b95b324b9d5714e3cedab AS tools
 
 ENV NODE_VERSION=26.12.1 \
   NODE_CHECKSUM_X64=6170b2d474e1c626f43cff3adc118df9fe3b573258a4fc3d850c8dbc6b079bbd \
   NODE_CHECKSUM_ARM64=42aa04922591ee5d4dbc7740d452621acf28508239daa512f5ee8c47ee224fdb \
-  PNPM_VERSION=12.15.0 \
-  PNPM_CHECKSUM_X64=55b5ed0092bd11176c1669598e231ae52e7cedac59de6efd0d415730f37d0598 \
-  PNPM_CHECKSUM_ARM64=d7ce93a2c7d847d3a34bd3f559b60c14f578b1320c17cc352a2c5c5fdf956117
+  PNPM_VERSION=12.16.1 \
+  PNPM_CHECKSUM_X64=565ff81174a14f6f7bd5d84c1b17e51031a80230d370a1fe24be5d16bd02a825 \
+  PNPM_CHECKSUM_ARM64=f5847699e5d528f8f8e9bcfb385e58cb9fba7482af1b1aa7b70737be42277f81
 
 # Docker downloads them and checks the hash, so we need no curl
 ADD --checksum=sha256:${NODE_CHECKSUM_X64} \
@@ -64,7 +64,7 @@ COPY web/tsconfig.json web/
 
 # Node.js for the image’s platform, for the server and the final image
 # cgr.dev/chainguard/wolfi-base:latest
-FROM cgr.dev/chainguard/wolfi-base@sha256:360896efb0753a5701c48f860e17130c205eae5a264797aa3e7ea126ee2923a7 AS target
+FROM cgr.dev/chainguard/wolfi-base@sha256:31cfe087eb48bde827a6e0f607a12865f6f37d89093b95b324b9d5714e3cedab AS target
 ARG TARGETARCH
 # Exact versions to get the same libraries in every build
 RUN apk add --no-cache libatomic=16.2.0-r1 libstdc++=16.2.0-r1
@@ -74,7 +74,7 @@ WORKDIR /app
 
 # Web assets are the same on ARM, and Node.js crashes in ARM emulation
 # cgr.dev/chainguard/wolfi-base:latest
-FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base@sha256:360896efb0753a5701c48f860e17130c205eae5a264797aa3e7ea126ee2923a7 AS native
+FROM --platform=$BUILDPLATFORM cgr.dev/chainguard/wolfi-base@sha256:31cfe087eb48bde827a6e0f607a12865f6f37d89093b95b324b9d5714e3cedab AS native
 ARG BUILDARCH
 RUN apk add --no-cache libatomic=16.2.0-r1 libstdc++=16.2.0-r1
 COPY --from=tools /tools/${BUILDARCH}/ /usr/local/
@@ -137,7 +137,7 @@ COPY --from=server /server.cdx.json /server.cdx.json
 RUN --network=none node web/scripts/merge-sbom.ts /server.cdx.json
 
 # cgr.dev/chainguard/nginx:latest
-FROM cgr.dev/chainguard/nginx@sha256:9aa6c46648f17b2835d009fd4338b38591b2396670a07270ee19b532f83dbbb5 AS production
+FROM cgr.dev/chainguard/nginx@sha256:0b4de0f60ae2295fdc852564d178b5473109baf9fc826fa5eb38a59f930e218e AS production
 
 LABEL org.opencontainers.image.source=https://github.com/hplush/slowreader
 LABEL org.opencontainers.image.description="Slow Reader"

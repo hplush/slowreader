@@ -5,7 +5,7 @@
 
 import { type ChildProcess, spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { globSync, readFileSync, writeFileSync } from 'node:fs'
+import { globSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -137,12 +137,15 @@ function startNginx(selfHosted: boolean, webOrigin: string): void {
   )
 }
 
-function startSandboxed(file: string): void {
+function startSandboxed(file: string, writable?: string): void {
   start(
     process.execPath,
     [
       '--permission',
       '--allow-fs-read=/var/app',
+      ...(writable
+        ? [`--allow-fs-read=${writable}`, `--allow-fs-write=${writable}`]
+        : []),
       '--allow-net',
       '--disable-warning=ExperimentalWarning',
       file
@@ -162,13 +165,13 @@ if (process.argv[2] === 'manifest') {
   startNginx(role === '', config.webOrigin)
   process.env.LOGUX_HOST = '127.0.0.1'
   process.env.PORT = '2554'
-  // PGlite calls process.binding(), which --permission always denies
-  // https://github.com/electric-sql/pglite/issues/1163
-  if (/^postgres(ql)?:/.test(config.db)) {
-    startSandboxed(join(import.meta.dirname, 'index.ts'))
-  } else {
-    await import('./index.ts')
-  }
+  let data = config.db.startsWith('file://')
+    ? config.db.slice('file://'.length)
+    : undefined
+  // PGlite can’t init database in a folder, which didn’t exist on Node.js
+  // start with --permission
+  if (data) mkdirSync(data, { recursive: true })
+  startSandboxed(join(import.meta.dirname, 'index.ts'), data)
 } else {
   process.stderr.write(`Unknown ROLE=${role}, use "app", "proxy", or nothing\n`)
   process.exit(1)
