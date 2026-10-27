@@ -1,5 +1,5 @@
 import { atom } from 'nanostores'
-import { deepEqual, equal, notEqual } from 'node:assert/strict'
+import { deepEqual, equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -8,42 +8,28 @@ import {
   addCategory,
   addFeed,
   addPost,
-  changePost,
   changeRead,
-  deletePost,
   type FeedReader,
-  type FeedsPage,
   getFeedAuthor,
   hasUnreadPosts,
   listReader,
   loadPost,
-  router,
   testAccount,
   testFeed,
   testPost,
   toPreviewPost,
   waitLoading
 } from '../../index.ts'
-import {
-  loadReadPostIds,
-  stringifyCursor,
-  topCursor
-} from '../../readers/common.ts'
+import { loadReadPostIds } from '../../readers/common.ts'
 import {
   cleanClient,
-  startClient,
+  numberPagination,
   ensureReader,
   openPage,
-  openRoute
+  openRoute,
+  nextPagination,
+  startClient
 } from '../utils.ts'
-
-async function moveTo(
-  page: FeedsPage,
-  from: string | undefined
-): Promise<void> {
-  openRoute({ params: { ...router.get().params, from }, route: page.reading })
-  await waitLoading(page.postsLoading)
-}
 
 function titles(reader: FeedReader): string[] {
   return reader.list.get().map(post => post.title!)
@@ -60,135 +46,49 @@ describe('feed reader', () => {
     await cleanClient()
   })
 
-  test('reads posts', async () => {
+  test('loads authors of the category', async () => {
     let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
     let feed1 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
     let feed2 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
-    for (let i = 1; i <= 30; i++) {
+    for (let i = 1; i <= 4; i++) {
       await addPost(
         testPost({
           feedId: i % 2 === 0 ? feed1 : feed2,
           publishedAt: i,
-          reading: 'fast',
-          title: `${i}`
+          reading: 'fast'
         })
       )
     }
 
-    let page = openPage({
-      params: { category: categoryId },
-      route: 'fast'
-    })
-    equal(page.loading.get(), true)
-    equal(page.postsLoading.get(), true)
+    let page = openPage({ params: { category: categoryId }, route: 'fast' })
     await waitLoading(page.loading)
-    equal(page.postsLoading.get(), false)
     let reader = ensureReader(page.posts, 'feed')
-    equal(reader.hasNext.get(), true)
     equal(reader.authors.get().size, 2)
     equal(reader.authors.get().get(feed1)!.title, 'Test 1')
     equal(reader.authors.get().get(feed2)!.url, 'http://example.com/2')
     equal(reader.authors.get().get(feed2)!.feedId, feed2)
-    equal(reader.list.get().length, 20)
-    equal(reader.list.get()[0]!.title, '30')
-    equal(reader.list.get()[19]!.title, '11')
-
-    await moveTo(page, stringifyCursor(topCursor(10)))
-    equal(page.loading.get(), false)
-    equal(reader.page.get(), 2)
-    equal(reader.list.get().length, 9)
-    equal(reader.list.get()[0]!.title, '9')
-    equal(reader.hasNext.get(), false)
-
-    await moveTo(page, undefined)
-    equal(reader.list.get()[0]!.title, '30')
-    equal(reader.list.get().length, 20)
-
-    await reader.readPage()
-    await waitLoading(page.postsLoading)
-    equal(reader.list.get()[0]!.title, '10')
-    equal(reader.list.get().length, 10)
-    equal(reader.hasNext.get(), false)
-
-    // The last page moves to the slow reading: no fast post is left
-    await reader.readPage()
-    await setTimeout(10)
-    equal(router.get().route, 'slow')
-
-    openPage({
-      params: {},
-      route: 'interface'
-    })
-    await setTimeout(10)
-    page = openPage({
-      params: { category: categoryId },
-      route: 'fast'
-    })
-    equal(page.posts.get()?.name, 'empty')
   })
 
-  test('moves between pages', async () => {
+  test('picks pager by reading', async () => {
     let categoryId = await addCategory({ fastReader: 'feed', title: 'A' })
-    let feed1 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
-    let feed2 = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
-    let last = ''
-    for (let i = 1; i <= 55; i++) {
-      last = await addPost(
-        testPost({
-          feedId: i % 2 === 0 ? feed1 : feed2,
-          publishedAt: i,
-          reading: 'fast',
-          title: `${i}`
-        })
-      )
+    let fast = await addFeed(testFeed({ categoryId, fastReader: 'feed' }))
+    let slow = await addFeed(testFeed({ slowReader: 'feed' }))
+    for (let i = 1; i <= 25; i++) {
+      await addPost(testPost({ feedId: fast, publishedAt: i, reading: 'fast' }))
+      await addPost(testPost({ feedId: slow, publishedAt: i, reading: 'slow' }))
     }
 
-    let page = openPage({
-      params: { category: categoryId },
-      popups: [{ param: `id:${last}`, popup: 'post' }],
-      route: 'fast'
-    })
-    await waitLoading(page.loading)
-    let reader = ensureReader(page.posts, 'feed')
-    equal(reader.hasNext.get(), true)
-    equal(reader.prevFrom.get(), undefined)
-    equal(reader.list.get().length, 20)
-    equal(reader.list.get()[0]!.title, '55')
-    equal(reader.list.get()[0]!.read, false)
-    equal(reader.page.get(), 0)
-
-    await moveTo(page, reader.nextFrom.get())
-    equal(reader.page.get(), 1)
-    equal(reader.hasNext.get(), true)
-    equal(reader.list.get().length, 20)
-    equal(reader.list.get()[0]!.title, '35')
-
-    // Nothing was read, so the previous page has the same posts as before
-    await moveTo(page, reader.prevFrom.get())
-    equal(reader.page.get(), 0)
-    equal(reader.list.get().length, 20)
-    equal(reader.list.get()[0]!.title, '55')
-
-    // Read posts are not shown again, so there is no page above anymore
-    await reader.readPage()
+    let page = openPage({ params: { category: categoryId }, route: 'fast' })
     await waitLoading(page.postsLoading)
-    equal(reader.list.get()[0]!.title, '35')
-    equal(reader.page.get(), 1)
-    equal(reader.prevFrom.get(), undefined)
-    deepEqual(router.get().popups, [])
-
-    await moveTo(page, reader.nextFrom.get())
-    equal(reader.hasNext.get(), false)
-    equal(reader.list.get().length, 15)
-    equal(reader.list.get()[0]!.title, '15')
-    equal(reader.page.get(), 2)
-
-    // The previous page is still full of unread posts
-    notEqual(reader.prevFrom.get(), undefined)
-    await moveTo(page, reader.prevFrom.get())
+    let reader = ensureReader(page.posts, 'feed')
     equal(reader.list.get().length, 20)
-    equal(reader.list.get()[0]!.title, '35')
-    equal(reader.page.get(), 1)
+    equal(nextPagination(reader).hasNext.get(), true)
+
+    page = openPage({ params: { feed: slow }, route: 'slow' })
+    await waitLoading(page.postsLoading)
+    reader = ensureReader(page.posts, 'feed')
+    equal(reader.list.get().length, 20)
+    equal(numberPagination(reader).pages.get().count, 2)
   })
 
   test('loads intro without the whole article', async () => {
@@ -276,79 +176,6 @@ describe('feed reader', () => {
       },
       social
     )
-  })
-
-  test('does not skip posts changed by another client', async () => {
-    let feedId = await addFeed(testFeed({ slowReader: 'feed' }))
-    for (let i = 1; i <= 50; i++) {
-      await addPost(
-        testPost({ feedId, publishedAt: i, reading: 'slow', title: `${i}` })
-      )
-    }
-
-    let page = openPage({
-      params: { feed: feedId },
-      route: 'slow'
-    })
-    await waitLoading(page.postsLoading)
-    let reader = ensureReader(page.posts, 'feed')
-    let shown = new Set(titles(reader))
-    equal(shown.size, 20)
-
-    await moveTo(page, reader.nextFrom.get())
-    let second = reader.list.get()
-
-    // Another tab or device reads and deletes posts of the current page
-    await changePost(
-      second.slice(0, 5).map(post => post.id),
-      { read: true }
-    )
-    await deletePost(second.slice(5, 10).map(post => post.id))
-    let removed = new Set(second.slice(0, 10).map(post => post.title!))
-
-    // Walk the rest of the feed from the same cursor
-    await moveTo(page, reader.prevFrom.get())
-    while (true) {
-      for (let title of titles(reader)) shown.add(title)
-      if (!reader.hasNext.get()) break
-      await moveTo(page, reader.nextFrom.get())
-    }
-
-    for (let i = 1; i <= 50; i++) {
-      let title = `${i}`
-      if (removed.has(title)) continue
-      equal(shown.has(title), true, `Post ${title} was skipped`)
-    }
-  })
-
-  test('moves between pages of posts of the same time', async () => {
-    let feedId = await addFeed(testFeed({ slowReader: 'feed' }))
-    for (let i = 1; i <= 50; i++) {
-      await addPost(
-        testPost({ feedId, publishedAt: 1, reading: 'slow', title: `${i}` })
-      )
-    }
-
-    let page = openPage({ params: { feed: feedId }, route: 'slow' })
-    await waitLoading(page.postsLoading)
-    let reader = ensureReader(page.posts, 'feed')
-    let shown = new Set(titles(reader))
-    equal(shown.size, 20)
-
-    await moveTo(page, reader.nextFrom.get())
-    let second = titles(reader)
-    for (let title of second) shown.add(title)
-    equal(shown.size, 40)
-
-    // The previous page shows the same posts as before
-    await moveTo(page, reader.prevFrom.get())
-    deepEqual(titles(reader), [...shown].slice(0, 20))
-
-    await moveTo(page, reader.nextFrom.get())
-    await moveTo(page, reader.nextFrom.get())
-    equal(reader.hasNext.get(), false)
-    for (let title of titles(reader)) shown.add(title)
-    equal(shown.size, 50)
   })
 
   test('reads account posts', async () => {

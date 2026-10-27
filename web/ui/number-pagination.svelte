@@ -11,17 +11,17 @@
 </script>
 
 {#if pages.show}
-  <div class="pagination" class:is-last={!pages.hasNext}>
-    <div class="pagination_pages" class:is-last={!pages.hasNext}>
-      <div class="pagination_gutter"></div>
+  <div class="number-pagination" class:is-last={!pages.hasNext}>
+    <div class="number-pagination_pages" class:is-last={!pages.hasNext}>
+      <div class="number-pagination_gutter"></div>
       <div
-        style:--pagination-width={`${step}%`}
-        style:--pagination-position={`${step * pages.page}%`}
-        class="pagination_slider"
+        style:--number-pagination-width={`${step}%`}
+        style:--number-pagination-position={`${step * pages.page}%`}
+        class="number-pagination_slider"
       ></div>
       {#each pages.pages as page (page)}
         <Clickable
-          class="pagination_page"
+          class="number-pagination_page"
           disabled={page === pages.page}
           href={`?from=${page}`}
           title={`${page + 1}`}
@@ -32,7 +32,7 @@
         </Clickable>
       {/each}
     </div>
-    <div class="pagination_button" aria-hidden={!pages.hasNext}>
+    <div class="number-pagination_button" aria-hidden={!pages.hasNext}>
       <Button
         anchor="next-page"
         disabled={!pages.hasNext}
@@ -48,13 +48,13 @@
 
 <style lang="postcss">
   :global {
-    .pagination {
+    .number-pagination {
       display: flex;
       gap: 0.25rem;
       width: stretch;
     }
 
-    .pagination_pages {
+    .number-pagination_pages {
       position: relative;
       display: grid;
       flex-grow: 1;
@@ -63,7 +63,7 @@
       height: var(--control-height);
     }
 
-    .pagination_gutter {
+    .number-pagination_gutter {
       position: absolute;
       inset: 0;
       z-index: 1;
@@ -72,23 +72,23 @@
       box-shadow: var(--field-shadow);
     }
 
-    .pagination_slider {
+    .number-pagination_slider {
       position: absolute;
       inset-block: 0;
-      inset-inline-start: var(--pagination-position);
+      inset-inline-start: var(--number-pagination-position);
       z-index: 1;
       min-width: var(--base-radius);
-      width: var(--pagination-width);
+      width: var(--number-pagination-width);
       background: --tune-background(--current);
       border-radius: var(--base-radius);
       box-shadow: var(--soft-button-shadow);
 
-      .pagination.is-last & {
+      .number-pagination.is-last & {
         inset-inline: auto 0;
       }
     }
 
-    .pagination_page {
+    .number-pagination_page {
       @mixin clickable;
 
       z-index: 2;
@@ -110,8 +110,8 @@
       }
     }
 
-    .pagination_button {
-      .pagination.is-last & {
+    .number-pagination_button {
+      .number-pagination.is-last & {
         opacity: 0%;
       }
     }

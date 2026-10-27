@@ -33,7 +33,7 @@ export type PostFilter = {
 }
 
 type FeedParams = Routes['fast'] | Routes['slow']
-type FeedStores = {
+export type FeedStores = {
   [K in keyof FeedParams]-?: ReadableAtom<FeedParams[K]>
 }
 
@@ -170,7 +170,7 @@ export type PostCursor = {
 /**
  * The cursor above every post, since no post has an empty `id`.
  *
- * `feedReader` pins the first page to the moment of opening the reader,
+ * `nextPager` pins the first page to the moment of opening the reader,
  * so posts, which came during the reading, will not move the pages.
  */
 export function topCursor(sortedAt = Number.MAX_SAFE_INTEGER): PostCursor {
@@ -266,7 +266,7 @@ export function loadPostsPage(
 /**
  * All posts of the page between its cursor and the cursor of the next page.
  *
- * `listReader` takes the pages on opening, so the read page keeps its posts
+ * `numberPager` takes the pages on opening, so the read page keeps its posts
  * and only shows them in the read style, like the posts read on the open page.
  */
 export function loadPostsRange(
@@ -334,7 +334,7 @@ export function loadPostsRange(
 /**
  * Cursors of unread posts newer than the cursor, from the oldest one.
  *
- * `feedReader` uses it to find the cursor of the previous page. An empty
+ * `nextPager` uses it to find the cursor of the previous page. An empty
  * result means that there is nothing to read above, so the page is the first.
  */
 export function loadPostsAbove(
@@ -371,7 +371,7 @@ export function loadPostsAbove(
 /**
  * The cursor before the first post of every page.
  *
- * `listReader` shows page numbers, so it needs a stable cursor for every page.
+ * `numberPager` shows page numbers and needs a stable cursor for every page.
  * Cursors are taken once on opening the reader: reading a page must not
  * renumber the pages under the user.
  *

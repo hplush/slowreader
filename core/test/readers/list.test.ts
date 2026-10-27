@@ -1,39 +1,23 @@
-import { keepMount } from 'nanostores'
-import { deepEqual, equal } from 'node:assert/strict'
+import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
-import { setTimeout } from 'node:timers/promises'
 
 import {
   addCategory,
   addFeed,
   addPost,
-  changePost,
-  deletePost,
-  type FeedsPage,
-  type ListReader,
-  loadPostsByFeed,
-  router,
-  slowMenu,
   testFeed,
   testPost,
   waitLoading
 } from '../../index.ts'
 import {
   cleanClient,
-  startClient,
+  numberPagination,
   ensureReader,
   openPage,
-  openRoute
+  openRoute,
+  nextPagination,
+  startClient
 } from '../utils.ts'
-
-async function moveTo(page: FeedsPage, from: number): Promise<void> {
-  openRoute({ params: { ...router.get().params, from }, route: page.reading })
-  await waitLoading(page.postsLoading)
-}
-
-function titles(reader: ListReader): string[] {
-  return reader.list.get().map(post => post.title!)
-}
 
 describe('list reader', () => {
   beforeEach(() => {
@@ -46,177 +30,24 @@ describe('list reader', () => {
     await cleanClient()
   })
 
-  test('loads posts', async () => {
-    keepMount(slowMenu)
-    let categoryId = await addCategory({ title: 'A' })
-    let feed1 = await addFeed(
-      testFeed({ categoryId, slowReader: 'list', title: 'Feed 1' })
-    )
-    let feed2 = await addFeed(
-      testFeed({ categoryId, slowReader: 'list', title: 'Feed 2' })
-    )
+  test('picks pager by reading', async () => {
+    let categoryId = await addCategory({ fastReader: 'list', title: 'A' })
+    let fast = await addFeed(testFeed({ categoryId }))
+    let slow = await addFeed(testFeed({ slowReader: 'list' }))
     for (let i = 1; i <= 75; i++) {
       await addPost(
         testPost({
-          feedId: feed1,
+          feedId: fast,
           publishedAt: i,
-          reading: 'slow',
+          reading: 'fast',
           title: `${i}`
         })
       )
-    }
-    for (let i = 1; i <= 3; i++) {
       await addPost(
         testPost({
-          feedId: feed2,
+          feedId: slow,
           publishedAt: i,
           reading: 'slow',
-          title: `b${i}`
-        })
-      )
-    }
-
-    deepEqual(slowMenu.get(), [
-      [
-        { id: categoryId, title: 'A' },
-        [
-          [{ id: feed1, title: 'Feed 1' }, 75],
-          [{ id: feed2, title: 'Feed 2' }, 3]
-        ]
-      ]
-    ])
-    let page = openPage({
-      params: { feed: feed2 },
-      route: 'slow'
-    })
-    equal(page.loading.get(), true)
-    await waitLoading(page.loading)
-    let reader = ensureReader(page.posts, 'list')
-    deepEqual(titles(reader), ['b3', 'b2', 'b1'])
-    deepEqual(reader.pages.get(), {
-      count: 1,
-      hasNext: false,
-      page: 0,
-      pages: [0],
-      show: false,
-      titles: true
-    })
-
-    page = openPage({
-      params: { feed: feed1 },
-      route: 'slow'
-    })
-    equal(page.loading.get(), false)
-    equal(page.postsLoading.get(), true)
-    await waitLoading(page.postsLoading)
-    reader = ensureReader(page.posts, 'list')
-    equal(reader.list.get().length, 50)
-    equal(reader.list.get()[0]!.title, '75')
-    equal(reader.list.get()[49]!.title, '26')
-    deepEqual(reader.pages.get(), {
-      count: 2,
-      hasNext: true,
-      page: 0,
-      pages: [0, 1],
-      show: true,
-      titles: true
-    })
-
-    await changePost(reader.list.get()[0]!.id, { read: true })
-    await changePost(reader.list.get()[5]!.id, { read: true })
-    equal(reader.list.get().length, 50)
-    deepEqual(slowMenu.get(), [
-      [
-        { id: categoryId, title: 'A' },
-        [
-          [{ id: feed1, title: 'Feed 1' }, 73],
-          [{ id: feed2, title: 'Feed 2' }, 3]
-        ]
-      ]
-    ])
-
-    // Page cursors are taken on opening, so reading does not renumber pages
-    await moveTo(page, 1)
-    equal(reader.list.get().length, 25)
-    equal(reader.list.get()[0]!.title, '25')
-    deepEqual(reader.pages.get(), {
-      count: 2,
-      hasNext: false,
-      page: 1,
-      pages: [0, 1],
-      show: true,
-      titles: true
-    })
-    await setTimeout(10)
-
-    openPage({
-      params: { feed: feed2 },
-      route: 'slow'
-    })
-    await setTimeout(10)
-
-    page = openPage({
-      params: { feed: feed1, from: '1' },
-      route: 'slow'
-    })
-    await waitLoading(page.postsLoading)
-    reader = ensureReader(page.posts, 'list')
-    equal(reader.list.get().length, 23)
-
-    await moveTo(page, 0)
-    equal(reader.list.get()[49]!.title, '24')
-
-    await reader.readPage()
-    equal(page.params.from.get(), '1')
-    await waitLoading(page.postsLoading)
-    equal(reader.list.get().length, 23)
-    deepEqual(reader.pages.get(), {
-      count: 2,
-      hasNext: false,
-      page: 1,
-      pages: [0, 1],
-      show: true,
-      titles: true
-    })
-    // The read page keeps its posts with the read style
-    await moveTo(page, 0)
-    equal(reader.list.get().length, 50)
-    equal(
-      reader.list.get().every(post => post.read),
-      true
-    )
-    await moveTo(page, 1)
-    equal(reader.list.get().length, 23)
-
-    await setTimeout(10)
-    deepEqual(slowMenu.get(), [
-      [
-        { id: categoryId, title: 'A' },
-        [
-          [{ id: feed1, title: 'Feed 1' }, 23],
-          [{ id: feed2, title: 'Feed 2' }, 3]
-        ]
-      ]
-    ])
-
-    // The last page gives the reading back to the menu
-    await reader.readPage()
-    await setTimeout(10)
-    equal(page.params.from.get(), undefined)
-    equal(page.params.feed.get(), feed2)
-    equal(page.posts.get()?.name, 'list')
-  })
-
-  test('loads posts of the category', async () => {
-    let categoryId = await addCategory({ fastReader: 'list', title: 'A' })
-    let feed1 = await addFeed(testFeed({ categoryId }))
-    let feed2 = await addFeed(testFeed({ categoryId }))
-    for (let i = 1; i <= 75; i++) {
-      await addPost(
-        testPost({
-          feedId: i % 2 === 0 ? feed1 : feed2,
-          publishedAt: i,
-          reading: 'fast',
           title: `${i}`
         })
       )
@@ -227,101 +58,12 @@ describe('list reader', () => {
     let reader = ensureReader(page.posts, 'list')
     equal(reader.list.get().length, 50)
     equal(reader.list.get()[0]!.title, '75')
-    equal(reader.list.get()[49]!.title, '26')
-    equal(reader.pages.get().count, 2)
+    equal(nextPagination(reader).hasNext.get(), true)
 
-    await moveTo(page, 1)
-    equal(reader.list.get().length, 25)
-    equal(reader.list.get()[0]!.title, '25')
-  })
-
-  test('does not skip posts changed by another client', async () => {
-    let feedId = await addFeed(testFeed({ slowReader: 'list' }))
-    for (let i = 1; i <= 250; i++) {
-      await addPost(
-        testPost({ feedId, publishedAt: i, reading: 'slow', title: `${i}` })
-      )
-    }
-
-    let page = openPage({
-      params: { feed: feedId },
-      route: 'slow'
-    })
-    // Stores are unmounted with a delay, so `currentPage` of the previous
-    // test is still mounted: the page was opened with the empty reader
-    // of the empty database and `page.loading` is `false` since then
+    page = openPage({ params: { feed: slow }, route: 'slow' })
     await waitLoading(page.postsLoading)
-    let reader = ensureReader(page.posts, 'list')
-    equal(reader.pages.get().count, 5)
-    let shown = new Set(titles(reader))
-
-    // Another tab or device reads and deletes posts of the next pages
-    let ids = new Map(
-      (await loadPostsByFeed(feedId)).map(post => [post.title!, post.id])
-    )
-    let read = ['150', '149', '148']
-    let deleted = ['60', '59']
-    await changePost(
-      read.map(title => ids.get(title)!),
-      { read: true }
-    )
-    await deletePost(deleted.map(title => ids.get(title)!))
-    let removed = new Set([...read, ...deleted])
-
-    for (let i = 1; i < reader.pages.get().count; i++) {
-      await moveTo(page, i)
-      for (let title of titles(reader)) shown.add(title)
-    }
-
-    for (let i = 1; i <= 250; i++) {
-      let title = `${i}`
-      if (removed.has(title)) continue
-      equal(shown.has(title), true, `Post ${title} was skipped`)
-    }
-  })
-
-  test('shows posts read on the open page', async () => {
-    let feedId = await addFeed(testFeed({ slowReader: 'list' }))
-    for (let i = 1; i <= 3; i++) {
-      await addPost(
-        testPost({ feedId, publishedAt: i, reading: 'slow', title: `${i}` })
-      )
-    }
-
-    let page = openPage({ params: { feed: feedId }, route: 'slow' })
-    await waitLoading(page.postsLoading)
-    let reader = ensureReader(page.posts, 'list')
-    deepEqual(titles(reader), ['3', '2', '1'])
-
-    await changePost(reader.list.get()[1]!.id, { read: true })
-    await setTimeout(10)
-
-    // The post stays on the page and only changes the style
-    deepEqual(titles(reader), ['3', '2', '1'])
-    deepEqual(
-      reader.list.get().map(post => post.read),
-      [false, true, false]
-    )
-  })
-
-  test('splits posts of the same time between pages', async () => {
-    let feedId = await addFeed(testFeed({ slowReader: 'list' }))
-    for (let i = 1; i <= 250; i++) {
-      await addPost(
-        testPost({ feedId, publishedAt: 1, reading: 'slow', title: `${i}` })
-      )
-    }
-
-    let page = openPage({ params: { feed: feedId }, route: 'slow' })
-    await waitLoading(page.postsLoading)
-    let reader = ensureReader(page.posts, 'list')
-    equal(reader.pages.get().count, 5)
-
-    let shown = new Set(titles(reader))
-    for (let i = 1; i < reader.pages.get().count; i++) {
-      await moveTo(page, i)
-      for (let title of titles(reader)) shown.add(title)
-    }
-    equal(shown.size, 250)
+    reader = ensureReader(page.posts, 'list')
+    equal(reader.list.get().length, 50)
+    equal(numberPagination(reader).pages.get().count, 2)
   })
 })

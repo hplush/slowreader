@@ -6,12 +6,12 @@
   } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  import Pagination from '../../ui/pagination.svelte'
+  import NumberPagination from '../../ui/number-pagination.svelte'
   import Section from '../section.svelte'
 
   let { Story } = defineMeta({
-    component: Pagination,
-    title: 'UI/Pagination'
+    component: NumberPagination,
+    title: 'UI/NumberPagination'
   })
 </script>
 
@@ -25,24 +25,24 @@
 
 <Story name="Base" asChild>
   <Section width={400}>
-    <Pagination pages={pages(8, 0)} />
+    <NumberPagination pages={pages(8, 0)} />
   </Section>
   <Section width={400}>
-    <Pagination pages={pages(8, 7)} />
+    <NumberPagination pages={pages(8, 7)} />
   </Section>
   <Section width={400}>
-    <Pagination pages={pages(12, 5)} />
+    <NumberPagination pages={pages(12, 5)} />
   </Section>
   <Section width={400}>
-    <Pagination pages={pages(2)} />
+    <NumberPagination pages={pages(2)} />
   </Section>
   <Section width={400}>
-    <Pagination pages={pages(15)} />
+    <NumberPagination pages={pages(15)} />
   </Section>
   <Section width={400}>
-    <Pagination pages={pages(50, 25)} />
+    <NumberPagination pages={pages(50, 25)} />
   </Section>
   <Section width={400}>
-    <Pagination pages={pages(1000, 500)} />
+    <NumberPagination pages={pages(1000, 500)} />
   </Section>
 </Story>

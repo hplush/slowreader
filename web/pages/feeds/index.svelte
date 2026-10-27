@@ -1,5 +1,9 @@
 <script lang="ts">
-  import { mdiFormatListChecks, mdiPageLayoutHeaderFooter } from '@mdi/js'
+  import {
+    mdiCheckboxMultipleMarkedOutline,
+    mdiFormatListChecks,
+    mdiPageLayoutHeaderFooter
+  } from '@mdi/js'
   import {
     type FeedsPage,
     hasPersonAvatar,
@@ -9,10 +13,13 @@
   } from '@slowreader/core'
 
   import { getPopupHash } from '../../stores/url-router.ts'
+  import Button from '../../ui/button.svelte'
   import FeedLink from '../../ui/feed-link.svelte'
   import Loader from '../../ui/loader.svelte'
   import NavbarFast from '../../ui/navbar/fast.svelte'
   import NavbarSlow from '../../ui/navbar/slow.svelte'
+  import NextPagination from '../../ui/next-pagination.svelte'
+  import NumberPagination from '../../ui/number-pagination.svelte'
   import PopupablePage from '../../ui/popupable-page.svelte'
   import Radio from '../../ui/radio.svelte'
   import Stack from '../../ui/stack.svelte'
@@ -25,6 +32,21 @@
 
   let { page }: { page: FeedsPage } = $props()
   let { feed, locked, menu, posts, postsLoading } = $derived(page)
+  let reader = $derived(
+    $posts?.name === 'feed' || $posts?.name === 'list' ? $posts : undefined
+  )
+  let list = $derived(reader?.list)
+  let readingPage = $derived(reader?.readingPage)
+  let nextPagination = $derived(
+    reader?.pagination.type === 'next' ? reader.pagination : undefined
+  )
+  let hasNext = $derived(nextPagination?.hasNext)
+  let nextFrom = $derived(nextPagination?.nextFrom)
+  let prevFrom = $derived(nextPagination?.prevFrom)
+  let pageNumber = $derived(nextPagination?.page)
+  let pages = $derived(
+    reader?.pagination.type === 'number' ? reader.pagination.pages : undefined
+  )
 </script>
 
 {#if $menu}
@@ -80,13 +102,37 @@
       {:else if $posts.name === 'empty'}
         <FeedsEmptyPage reader={$posts} />
       {:else if $posts.name === 'feed'}
-        <FeedsFeedPage
-          feedUrl={$feed?.url}
-          reader={$posts}
-          reading={page.reading}
-        />
+        <FeedsFeedPage feedUrl={$feed?.url} reader={$posts} />
       {:else}
-        <FeedsListPage reader={$posts} reading={page.reading} />
+        <FeedsListPage reader={$posts} />
+      {/if}
+      {#if reader && nextPagination}
+        <NextPagination
+          loader={!!$readingPage}
+          next={$hasNext ? $nextFrom : undefined}
+          onread={reader.readPage}
+          page={$pageNumber ?? 0}
+          prev={$prevFrom}
+        />
+      {:else if reader && $pages}
+        {#if $list?.some(post => !post.read)}
+          <Stack align="center">
+            <Button
+              anchor="read-page"
+              icon={mdiCheckboxMultipleMarkedOutline}
+              loader={$readingPage}
+              onclick={reader.readPage}
+              size="pill"
+            >
+              {#if $pages.hasNext}
+                {$t.readPageAndNext}
+              {:else}
+                {$t.readPage}
+              {/if}
+            </Button>
+          </Stack>
+        {/if}
+        <NumberPagination pages={$pages} />
       {/if}
     </Stack>
   </PopupablePage>

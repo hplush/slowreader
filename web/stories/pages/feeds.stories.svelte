@@ -303,14 +303,16 @@
   function openNextPage(page: FeedsPageStore): void {
     let unbind = page.postsLoading.listen(loading => {
       let reader = page.posts.get()
-      if (!loading && reader?.name === 'feed') {
+      if (
+        !loading &&
+        (reader?.name === 'feed' || reader?.name === 'list') &&
+        reader.pagination.type === 'next'
+      ) {
         unbind()
+        let from = reader.pagination.nextFrom.get()
         navigate(current =>
           current.route === 'fast'
-            ? {
-                ...current,
-                params: { ...current.params, from: reader.nextFrom.get() }
-              }
+            ? { ...current, params: { ...current.params, from } }
             : current
         )
       }
@@ -548,13 +550,35 @@
         title: 'The Mozilla Blog'
       }
     ]}
+    oninit={() => openNextPage(pages.fast())}
     posts={multiply(
       POSTS.map(i => ({ ...i, reading: 'fast' })),
       50
     )}
-    route={{ params: { category: 'list', from: '1' }, route: 'fast' }}
+    route={{ params: { category: 'list' }, route: 'fast' }}
   >
     <FeedsPage page={pages.fast()} />
+  </Scene>
+</Story>
+
+<Story
+  name="Slow Feed Pagination"
+  asChild
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene
+    feeds={[
+      {
+        id: 'feed',
+        reading: 'slow',
+        slowReader: 'feed',
+        title: 'The Mozilla Blog'
+      }
+    ]}
+    posts={multiply(POSTS, 50)}
+    route={{ params: { feed: 'feed', from: '1' }, route: 'slow' }}
+  >
+    <FeedsPage page={pages.slow()} />
   </Scene>
 </Story>
 

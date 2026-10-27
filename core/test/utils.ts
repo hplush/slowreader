@@ -14,6 +14,7 @@ import {
   type BasePopup,
   type BaseReader,
   client,
+  type NumberPager,
   createDownloadTask,
   currentPage,
   enableTestTime,
@@ -45,6 +46,7 @@ import {
   type RouteName,
   setLayoutType,
   setupEnvironment,
+  type NextPager,
   slowMenu,
   slowPostsCount,
   subscribeUntil,
@@ -419,6 +421,24 @@ export function ensureReader<Name extends ReaderName>(
     throw new Error(`Reader is ${reader?.name}, but ${name} was expected`)
   }
   return reader as Name extends 'feed' ? FeedReader : ListReader
+}
+
+export function nextPagination(
+  reader: FeedReader | ListReader
+): NextPager['pagination'] {
+  if (reader.pagination.type !== 'next') {
+    throw new Error('Pagination has numbers, but next was expected')
+  }
+  return reader.pagination
+}
+
+export function numberPagination(
+  reader: FeedReader | ListReader
+): NumberPager['pagination'] {
+  if (reader.pagination.type !== 'number') {
+    throw new Error('Pagination has next, but numbers were expected')
+  }
+  return reader.pagination
 }
 
 export async function throws(cb: () => Promise<unknown>): Promise<Error> {

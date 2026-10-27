@@ -1,77 +1,22 @@
-import { atom } from 'nanostores'
+import { computed } from 'nanostores'
 
 import { getUserPostUrls } from '../account.ts'
 import { hasPersonAvatar } from '../loader/index.ts'
-import type { ReaderPost } from '../post.ts'
-import {
-  createReader,
-  loadPostsAbove,
-  loadPostsPage,
-  parseCursor,
-  type FeedAuthor,
-  readAndMove,
-  stringifyCursor,
-  topCursor,
-  trackReadPosts
-} from './common.ts'
-
-const POSTS_PER_PAGE = 20
+import { createReader, type FeedAuthor } from './common.ts'
+import { numberPager, nextPager } from './pagers.ts'
 
 export const feedReader = createReader('feed', (filter, params) => {
   if (!filter.categoryId && !filter.feedId) return
-
-  let exited = false
-  let $loading = atom(true)
-  let $readingPage = atom(false)
-  let $list = atom<ReaderPost[]>([])
-  let $authors = atom<Map<string, FeedAuthor>>(new Map())
-  let $hasNext = atom(false)
-  let $nextFrom = atom<string | undefined>()
-  let $prevFrom = atom<string | undefined>()
-  let $page = atom(0)
-
-  let openAt = Date.now()
-  let request = 0
-
-  /**
-   * `readPage()` reads the whole page, so unread posts above the next page
-   * are the same as above the current one. The cursor of the previous page
-   * is reused instead of a query, which would see the marks only after
-   * the background write.
-   */
-  let keepPrevFrom = false
-
-  async function loadPage(from: string | undefined): Promise<void> {
-    let current = ++request
-    let keep = keepPrevFrom
-    keepPrevFrom = false
-    let movedNext = keep || (!!from && from === $nextFrom.get())
-    let movedPrev = !!from && from === $prevFrom.get()
-    let cursor = parseCursor(from) ?? topCursor(openAt)
-    let [posts, above] = await Promise.all([
-      loadPostsPage(filter, cursor, POSTS_PER_PAGE + 1),
-      from && !keep
-        ? loadPostsAbove(filter, cursor, POSTS_PER_PAGE + 1)
-        : undefined
-    ])
-    if (exited || current !== request) return
-
-    let list = posts.slice(0, POSTS_PER_PAGE)
-    let last = list[list.length - 1]
-    $hasNext.set(posts.length > POSTS_PER_PAGE)
-    $nextFrom.set(last && stringifyCursor(last))
-    if (!keep) {
-      if (!above || above.length === 0) {
-        $prevFrom.set(undefined)
-      } else {
-        let prevFrom = stringifyCursor(
-          above[POSTS_PER_PAGE] ?? topCursor(openAt)
-        )
-        $prevFrom.set(prevFrom === from ? undefined : prevFrom)
-      }
-    }
-    if (filter.categoryId) {
+  let pager = (filter.reading === 'fast' ? nextPager : numberPager)(
+    filter,
+    params,
+    20
+  )
+  return {
+    ...pager,
+    authors: computed(pager.list, list => {
       let authors = new Map<string, FeedAuthor>()
+      if (!filter.categoryId) return authors
       for (let post of list) {
         if (!post.feedId) continue
         authors.set(post.feedId, {
@@ -82,48 +27,8 @@ export const feedReader = createReader('feed', (filter, params) => {
           url: post.authorUrl!
         })
       }
-      $authors.set(authors)
-    }
-    if (!from) {
-      $page.set(0)
-    } else if (movedNext) {
-      $page.set($page.get() + 1)
-    } else if (movedPrev) {
-      $page.set($page.get() - 1)
-    } else {
-      $page.set(Math.ceil((above?.length ?? 0) / POSTS_PER_PAGE))
-    }
-    $list.set(list)
-    $loading.set(false)
-  }
-
-  let unbindFrom = params.from.subscribe(value => {
-    $loading.set(true)
-    void loadPage(value)
-  })
-  let unbindRead = trackReadPosts(filter, $list)
-
-  function readPage(): Promise<void> {
-    let next = $hasNext.get() ? $nextFrom.get() : undefined
-    keepPrevFrom = !!next
-    return readAndMove(filter, params, $list.get(), next, $readingPage)
-  }
-
-  return {
-    authors: $authors,
-    exit() {
-      exited = true
-      unbindFrom()
-      unbindRead()
-    },
-    hasNext: $hasNext,
-    list: $list,
-    loading: $loading,
-    readingPage: $readingPage,
-    nextFrom: $nextFrom,
-    page: $page,
-    prevFrom: $prevFrom,
-    readPage,
+      return authors
+    }),
     userPostUrl: getUserPostUrls()
   }
 })

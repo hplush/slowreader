@@ -30,7 +30,8 @@ import {
   openPage,
   persistentDatabase,
   openRoute,
-  setTestUser
+  setTestUser,
+  nextPagination
 } from '../utils.ts'
 
 describe('feeds page', () => {
@@ -359,7 +360,7 @@ describe('feeds page', () => {
     await waitLoading(reader.loading)
 
     openRoute({
-      params: { category, from: reader.nextFrom.get() },
+      params: { category, from: nextPagination(reader).nextFrom.get() },
       route: 'fast'
     })
     equal(page.locked.get().locked, true)
