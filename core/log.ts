@@ -1,9 +1,6 @@
 // Tables are the source of truth, so the log keeps only what can not be
 // restored from them: unsent actions, tombstones of deleted rows and shadows
 // of the actions, which still own a cell on the server.
-//
-// Cells of tables and columns, which only the newer app knows, are tracked
-// too. The database rebuild after the app update will replay their actions.
 
 import { loguxProcessed, shadow, zeroClean } from '@logux/actions'
 import { type Client, type ClientMeta, replaceWithShadow } from '@logux/client'
