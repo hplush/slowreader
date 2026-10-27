@@ -18,6 +18,7 @@
   import AddPage from '../pages/add.svelte'
   import BusyPage from '../pages/busy.svelte'
   import CloudPage from '../pages/cloud.svelte'
+  import CoachPage from '../pages/coach.svelte'
   import ExportPage from '../pages/export.svelte'
   import FatalPage from '../pages/fatal.svelte'
   import FeedByCategoriesPage from '../pages/feeds-by-categories.svelte'
@@ -92,6 +93,8 @@
     <AccountsPage page={$currentPage} />
   {:else if $currentPage.route === 'cloud'}
     <CloudPage page={$currentPage} />
+  {:else if $currentPage.route === 'coach'}
+    <CoachPage page={$currentPage} />
   {:else if $currentPage.route === 'start'}
     <StartPage page={$currentPage} />
   {:else if $currentPage.route === 'signUp'}

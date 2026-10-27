@@ -3,12 +3,17 @@ import { wasmDriver } from '@nanostores/sql/wasm'
 import { wasmWorker } from '@nanostores/sql/wasm-worker'
 import {
   type BaseRoute,
+  clock,
   getEnvironment,
+  nightLock,
   type NetworkTypeDetector,
   type RequestMethod,
+  type RouteName,
   setLayoutType,
   setRequestMethod,
+  router,
   setupEnvironment,
+  solveNightTask,
   stringifyPopups
 } from '@slowreader/core'
 import { getTestEnvironment } from '@slowreader/core/test'
@@ -30,6 +35,22 @@ export const baseRouter = atom<BaseRoute>({
 })
 
 export const locale = atom('en')
+
+export function lockAtNight(): void {
+  nightLock.set({ enabled: true, from: 23, to: 7 })
+  clock.set(new Date(2026, 0, 1, 23, 30))
+}
+
+/**
+ * Route change resets the task, so the answer waits for the story’s page.
+ */
+export function answerNightTaskWrong(route: RouteName): void {
+  let unbind = router.listen(current => {
+    if (current.route !== route) return
+    unbind()
+    solveNightTask('0')
+  })
+}
 
 export const persistentStore = {}
 

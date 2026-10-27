@@ -173,6 +173,7 @@ describe('export page', () => {
       ],
       settings: {
         fastPostsLifetime: 'month',
+        nightLock: { enabled: false, from: 23, to: 7 },
         openWarnings: false,
         showSensitiveMedia: false,
         theme: 'system',

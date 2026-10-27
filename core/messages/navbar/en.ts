@@ -5,6 +5,7 @@ export const navbarMessages = i18n('navbar', {
   accounts: 'Accounts',
   add: 'Add feed',
   cloud: 'Cloud',
+  coach: 'Coach',
   connectingStatus: 'Connecting…',
   network: 'Network',
   error: 'Error',

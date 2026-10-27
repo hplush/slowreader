@@ -34,6 +34,7 @@ export const FEED_ROUTES = [
 ] as const satisfies RouteName[]
 
 export const SETTINGS_ROUTES = [
+  'coach',
   'interface',
   'network',
   'accounts',

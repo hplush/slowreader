@@ -16,6 +16,7 @@ import {
   deleteFeed,
   deleteFilter,
   deletePost,
+  fastPostsLifetime,
   GENERAL_CATEGORY,
   isDemo,
   loadAccounts,
@@ -28,7 +29,10 @@ import {
   type NewFeed,
   type NewFilter,
   type NewPost,
+  nightLock,
+  openWarnings,
   setRequestMethod,
+  syncedSettingsLoading,
   testAccount,
   testFeed,
   testPost,
@@ -109,8 +113,11 @@ describe('import page', () => {
     await addFeed(FEED)
     await addFilter(FILTER)
     await addPost(POST)
+    await waitLoading(syncedSettingsLoading)
     theme.set('light')
     cacheImages.set('never')
+    nightLock.set({ enabled: true, from: 22, to: 6 })
+    openWarnings.set(true)
 
     let exportPage = openPage({
       params: {},
@@ -127,6 +134,8 @@ describe('import page', () => {
     await deleteCategory(CATEGORY.id)
     theme.set('system')
     cacheImages.set('always')
+    nightLock.set({ enabled: false, from: 23, to: 7 })
+    openWarnings.set(false)
 
     let page = openPage({
       params: {},
@@ -150,6 +159,8 @@ describe('import page', () => {
     equal(page.done.get(), 1)
     equal(theme.get(), 'light')
     equal(cacheImages.get(), 'always')
+    deepEqual(nightLock.get(), { enabled: true, from: 22, to: 6 })
+    equal(openWarnings.get(), true)
     deepEqual(withoutMeta(await loadCategories()), [
       { ...CATEGORY, fastReader: null, slowReader: null }
     ])
@@ -213,11 +224,16 @@ describe('import page', () => {
       settings: { preloadImages: 'always', theme: 'system' },
       subprotocol: SUBPROTOCOL
     }
+    await waitLoading(syncedSettingsLoading)
+    openWarnings.set(true)
     let page = openPage({ params: {}, route: 'import' })
     page.importFile(file('json', JSON.stringify(backup)))
     await waitLoading(busy)
     await setTimeout(100)
     equal(page.fileError.get(), false)
+    // The old backup does not have newer settings
+    equal(openWarnings.get(), true)
+    equal(fastPostsLifetime.get(), 'month')
 
     deepEqual(
       (await loadAccounts()).map(i => [i.id, i.handle]),

@@ -21,7 +21,7 @@ import {
 import { type FilterChecker, loadFilterChecker } from './filter.ts'
 import { createDownloadTask, type DownloadTask } from './lib/download.ts'
 import { createQueue, type QueueCallback } from './lib/queue.ts'
-import { increaseKey } from './lib/stores.ts'
+import { increaseKey, waitLoading } from './lib/stores.ts'
 import { loaders } from './loader/index.ts'
 import {
   DEFAULT_MEDIA_STATISTICS,
@@ -48,7 +48,8 @@ import {
   cacheImages,
   cacheMediaReading,
   cacheVideos,
-  fastPostsLifetime
+  fastPostsLifetime,
+  syncedSettingsLoading
 } from './settings.ts'
 import { linkThreads } from './thread.ts'
 
@@ -476,6 +477,7 @@ export async function refreshPosts(): Promise<void> {
   refreshedAt = Math.round(Date.now() / 1000)
   untouched = []
   untouchedAccounts = []
+  await waitLoading(syncedSettingsLoading)
   let lifetime = fastPostsLifetime.get()
   if (lifetime !== 'forever') {
     await deleteFastPostsBefore(

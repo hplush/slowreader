@@ -3,6 +3,7 @@ import { aboutPage } from './about.ts'
 import { accountsPage } from './accounts.ts'
 import { addPage } from './add.ts'
 import { cloudPage } from './cloud.ts'
+import { coachPage } from './coach.ts'
 import {
   createRedirectPage,
   createSimplePage,
@@ -24,6 +25,7 @@ export type { AboutPage } from './about.ts'
 export type { AccountsPage, AccountsStep } from './accounts.ts'
 export type { AddPage } from './add.ts'
 export type { CloudPage } from './cloud.ts'
+export type { CoachPage } from './coach.ts'
 export * from './common.ts'
 export type { ExportPage } from './export.ts'
 export type { FatalPage } from './fatal.ts'
@@ -42,6 +44,7 @@ export const pages = {
   accounts: accountsPage,
   add: addPage,
   cloud: cloudPage,
+  coach: coachPage,
   network: createSimplePage('network'),
   export: exportPage,
   fast: fastPage,

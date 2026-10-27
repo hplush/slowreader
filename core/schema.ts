@@ -278,17 +278,30 @@ export const postsTable = defineCrdtTable(
   ]
 )
 
+export const settingsTable = defineCrdtTable('settings', {
+  // Creation sets only it, since other devices could create the row too
+  createdAt: optional(bigint()),
+  fastPostsLifetime: optional(oneOf(['forever', 'month', 'week'])),
+  nightLock: optional(
+    json({ enabled: boolean(), from: number(), to: number() })
+  ),
+  openWarnings: optional(boolean()),
+  showSensitiveMedia: optional(boolean())
+})
+
 type AccountsSchema = typeof accountsTable.schema
 type CategoriesSchema = typeof categoriesTable.schema
 type FeedsSchema = typeof feedsTable.schema
 type FiltersSchema = typeof filtersTable.schema
 type PostsSchema = typeof postsTable.schema
+type SettingsSchema = typeof settingsTable.schema
 
 export type AccountValue = CrdtTableRow<AccountsSchema>
 export type CategoryValue = CrdtTableRow<CategoriesSchema>
 export type FeedValue = CrdtTableRow<FeedsSchema>
 export type FilterValue = CrdtTableRow<FiltersSchema>
 export type PostValue = CrdtTableRow<PostsSchema>
+export type SettingsValue = CrdtTableRow<SettingsSchema>
 
 export type NewAccount = NewCrdtRow<AccountsSchema>
 export type NewCategory = NewCrdtRow<CategoriesSchema>
@@ -301,6 +314,7 @@ export type CategoryChanges = Partial<CrdtRowFields<CategoriesSchema>>
 export type FeedChanges = Partial<CrdtRowFields<FeedsSchema>>
 export type FilterChanges = Partial<CrdtRowFields<FiltersSchema>>
 export type PostChanges = Partial<CrdtRowFields<PostsSchema>>
+export type SettingsChanges = Partial<CrdtRowFields<SettingsSchema>>
 
 export interface Tables {
   accounts: CrdtTable<AccountsSchema>
@@ -308,6 +322,7 @@ export interface Tables {
   feeds: CrdtTable<FeedsSchema>
   filters: CrdtTable<FiltersSchema>
   posts: CrdtTable<PostsSchema>
+  settings: CrdtTable<SettingsSchema>
 }
 
 let currentCrdt: CrdtDatabase | undefined
@@ -457,7 +472,8 @@ async function uploadLocalData(logux: CrossTabClient): Promise<void> {
     tables.categories,
     tables.feeds,
     tables.filters,
-    tables.posts
+    tables.posts,
+    tables.settings
   ])
   if (actions.length > 0) {
     await busyDuring(
@@ -576,7 +592,8 @@ function openDatabase(logux: CrossTabClient, db: Database): void {
     categories: crdt.table(categoriesTable),
     feeds: crdt.table(feedsTable),
     filters: crdt.table(filtersTable),
-    posts: crdt.table(postsTable)
+    posts: crdt.table(postsTable),
+    settings: crdt.table(settingsTable)
   }
   // The tracker parses actions by the tables, so it is installed after them
   if (cloud) currentTracker = trackLog(logux, crdt)

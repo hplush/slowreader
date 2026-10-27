@@ -1,22 +1,22 @@
-import { openDb } from '@nanostores/sql'
-import { nodeDriver } from '@nanostores/sql/node'
 import { equal } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
-import type { Environment } from '../../environment.ts'
 import {
   addCategory,
   addFeed,
   addPost,
   busy,
   busyUntilMenuLoader,
+  clock,
   encryptionKey,
+  nightLock,
   GENERAL_CATEGORY,
   isDemo,
   menuLoading,
   router,
   setLayoutType,
+  solveNightTask,
   testFeed,
   testPost,
   userId,
@@ -24,6 +24,7 @@ import {
 } from '../../index.ts'
 import {
   cleanClient,
+  delayedDatabase,
   startClient,
   ensureReader,
   openPage,
@@ -32,37 +33,6 @@ import {
   setTestUser
 } from '../utils.ts'
 
-// The browser re-runs reactive queries after the write, in another
-// message from the worker, unlike the Node driver, which updates
-// the stores inside the write
-function delayedDatabase(): Environment['databaseCreator'] {
-  return () => {
-    let driver = nodeDriver(':memory:')
-    return openDb({
-      ...driver,
-      subscribe(query, params, cb, onError) {
-        let timers = new Set<NodeJS.Timeout>()
-        let unbind = driver.subscribe(
-          query,
-          params,
-          rows => {
-            let timer = globalThis.setTimeout(() => {
-              timers.delete(timer)
-              cb(rows)
-            }, 20)
-            timers.add(timer)
-          },
-          onError
-        )
-        return () => {
-          for (let timer of timers) clearTimeout(timer)
-          unbind()
-        }
-      }
-    })
-  }
-}
-
 describe('feeds page', () => {
   beforeEach(() => {
     startClient({ databaseCreator: persistentDatabase() })
@@ -70,6 +40,7 @@ describe('feeds page', () => {
 
   afterEach(async () => {
     openRoute({ params: {}, route: 'about' })
+    nightLock.set({ enabled: false, from: 23, to: 7 })
     await cleanClient()
   })
 
@@ -360,6 +331,42 @@ describe('feeds page', () => {
     let next = openPage({ params: {}, route: 'slow' })
     equal(next.params.feed.get(), slow)
     equal(router.get().route, 'slow')
+  })
+
+  test('locks fast posts at night', async () => {
+    busyUntilMenuLoader()
+    await waitLoading(busy)
+    let category = await addCategory({ fastReader: 'feed', title: 'A' })
+    let feed = await addFeed(
+      testFeed({ categoryId: category, reading: 'fast' })
+    )
+    for (let i = 0; i < 30; i++) {
+      await addPost(testPost({ feedId: feed, reading: 'fast' }))
+    }
+    await setTimeout(10)
+    nightLock.set({ enabled: true, from: 23, to: 7 })
+
+    let page = openPage({ params: { category }, route: 'fast' })
+    clock.set(new Date(2026, 0, 1, 23, 30))
+    await waitLoading(page.loading)
+    let state = page.locked.get()
+    if (!state.locked) throw new Error('Not locked')
+    equal(page.posts.get(), undefined)
+
+    solveNightTask(String(state.task.number * state.task.multiplier))
+    equal(page.locked.get().locked, false)
+    let reader = ensureReader(page.posts, 'feed')
+    await waitLoading(reader.loading)
+
+    openRoute({
+      params: { category, from: reader.nextFrom.get() },
+      route: 'fast'
+    })
+    equal(page.locked.get().locked, true)
+    equal(page.posts.get(), undefined)
+
+    clock.set(new Date(2026, 0, 1, 12))
+    equal(page.locked.get().locked, false)
   })
 
   test('opens the next fast category after the last post was read', async () => {

@@ -13,6 +13,7 @@ import { loadPostsPage, type PostValue } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
 import {
   fastPostsLifetime,
+  nightLock,
   openWarnings,
   type Settings,
   showSensitiveMedia,
@@ -28,7 +29,8 @@ export interface StateExport {
   feeds: WithoutMeta<FeedValue>[]
   filters: WithoutMeta<FilterValue>[]
   posts: WithoutMeta<PostValue>[]
-  settings: Settings
+  // Older backups do not have newer settings
+  settings: Partial<Settings>
   subprotocol: number
 }
 
@@ -163,6 +165,7 @@ export const exportPage = createPage('export', () => {
 
     let settings = {
       fastPostsLifetime: fastPostsLifetime.get(),
+      nightLock: nightLock.get(),
       openWarnings: openWarnings.get(),
       showSensitiveMedia: showSensitiveMedia.get(),
       theme: theme.get(),

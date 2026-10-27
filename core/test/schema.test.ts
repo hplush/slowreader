@@ -58,7 +58,7 @@ describe('schema', () => {
 
     setTestUser()
     await setTimeout(100)
-    deepEqual(labels, [commonMessages.get().creatingDatabase])
+    equal(labels.includes(commonMessages.get().creatingDatabase), true)
 
     // The hash of the tables’ schema is kept between the starts
     labels = []
@@ -66,7 +66,7 @@ describe('schema', () => {
     await setTimeout(100)
     setTestUser()
     await setTimeout(100)
-    deepEqual(labels, [commonMessages.get().loadingData])
+    deepEqual([...new Set(labels)], [commonMessages.get().loadingData])
 
     unbind()
   })

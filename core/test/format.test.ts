@@ -4,6 +4,7 @@ import { describe, test } from 'node:test'
 
 import {
   formatDuration,
+  formatHour,
   formatPublishedAt,
   formatSize,
   formatTimeShort
@@ -77,5 +78,10 @@ describe('format', () => {
 
     equal(formatTimeShort(format, new Date()), 'time')
     equal(formatTimeShort(format, yesterday), 'date')
+  })
+
+  test('formats hour as short time', () => {
+    let format = createMockFormatter()
+    equal(formatHour(format, 23), 'time')
   })
 })

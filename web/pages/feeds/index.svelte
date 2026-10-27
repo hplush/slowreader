@@ -20,10 +20,11 @@
   import FeedsEmptyPage from './empty.svelte'
   import FeedsFeedPage from './feed.svelte'
   import FeedsListPage from './list.svelte'
+  import FeedsLockedPage from './locked.svelte'
   import FeedsWelcomePage from './welcome.svelte'
 
   let { page }: { page: FeedsPage } = $props()
-  let { feed, menu, posts, postsLoading } = $derived(page)
+  let { feed, locked, menu, posts, postsLoading } = $derived(page)
 </script>
 
 {#if $menu}
@@ -33,6 +34,10 @@
     {:else}
       <NavbarFast />
     {/if}
+  </ThinPage>
+{:else if $locked.locked}
+  <ThinPage title={$navbar.fast}>
+    <FeedsLockedPage {page} />
   </ThinPage>
 {:else if $posts?.name === 'welcome'}
   <ThinPage title={page.reading === 'slow' ? $navbar.slow : $navbar.fast}>

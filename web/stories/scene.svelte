@@ -11,6 +11,7 @@
     cacheVideos,
     cleanDatabase,
     client,
+    clock,
     closedCategories,
     currentPage,
     DEFAULT_MEDIA_STATISTICS,
@@ -26,6 +27,7 @@
     mediaStatistics,
     type NetworkType,
     type NewCategory,
+    nightLock,
     openWarnings,
     pages,
     type ParamlessRouteName,
@@ -39,12 +41,14 @@
     signOut,
     startLocalUser,
     stopRefreshing,
+    syncedSettingsLoading,
     syncStatus,
     testAccount,
     testFeed,
     testPost,
     theme,
     useReducedMotion,
+    waitLoading,
     welcomeSteps
   } from '@slowreader/core'
   import { testCredentials } from '@slowreader/core/test'
@@ -95,6 +99,8 @@
     // Waits for the database too, so the app will not reset `busy`
     // and other stores, which the story sets in `oninit()`
     await cleanDatabase()
+    // Settings from the database would replace ones from `oninit()`
+    if (user) await waitLoading(syncedSettingsLoading)
     // Rows are added by a single action: a story with hundreds of posts
     // will be too slow with an action per row
     if (categories?.length) await addCategory(categories)
@@ -130,6 +136,8 @@
   }
 
   let unbindSyncStatus = syncStatus.listen(() => {})
+  // Keeps the clock mounted, so the page will not reset it to the real time
+  let unbindClock = clock.listen(() => {})
 
   $effect.pre(() => {
     currentPage.get().destroy()
@@ -147,6 +155,7 @@
     installingExtension.set(false)
     requestMethod.set(undefined)
     busy.set(false)
+    clock.set(new Date(2026, 0, 1, 12))
     stopRefreshing()
     refreshStatus.set('start')
     refreshErrors.set([])
@@ -187,6 +196,7 @@
 
   onDestroy(() => {
     unbindSyncStatus()
+    unbindClock()
     busy.set(false)
     baseRouter.set({ hash: '', params: {}, route: 'slow' })
     for (let page of Object.values(pages)) {
@@ -196,6 +206,7 @@
     showSensitiveMedia.set(false)
     openWarnings.set(false)
     fastPostsLifetime.set('month')
+    nightLock.set({ enabled: false, from: 23, to: 7 })
     cacheMediaReading.set('all')
     cacheImages.set('always')
     cacheVideos.set('never')

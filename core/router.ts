@@ -9,6 +9,7 @@ export interface Routes {
   accounts: {}
   add: { url?: string }
   cloud: {}
+  coach: {}
   network: {}
   export: {}
   fast: {

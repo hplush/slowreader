@@ -13,6 +13,7 @@
   import Navbar from '../../ui/navbar/index.svelte'
   import imgExample from '../assets/long_width_example.avif'
   import emojiExample from '../assets/short_width_example.avif'
+  import { answerNightTaskWrong, lockAtNight } from '../environment.ts'
   import Scene from '../scene.svelte'
 
   const POSTS = [
@@ -620,5 +621,38 @@
   >
     <FeedsPage page={pages.slow()} />
     <Navbar />
+  </Scene>
+</Story>
+
+<Story
+  name="Fast Locked"
+  asChild
+  parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
+>
+  <Scene
+    feeds={[{ id: 'feed', reading: 'fast', title: 'The Mozilla Blog' }]}
+    oninit={lockAtNight}
+    posts={POSTS.map(i => ({ ...i, reading: 'fast' }))}
+    route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
+  >
+    <FeedsPage page={pages.fast()} />
+  </Scene>
+</Story>
+
+<Story
+  name="Fast Locked Wrong"
+  asChild
+  parameters={{ layout: 'fullscreen', themes: { themeOverride: 'dark' } }}
+>
+  <Scene
+    feeds={[{ id: 'feed', reading: 'fast', title: 'The Mozilla Blog' }]}
+    oninit={() => {
+      lockAtNight()
+      answerNightTaskWrong('fast')
+    }}
+    posts={POSTS.map(i => ({ ...i, reading: 'fast' }))}
+    route={{ params: { category: GENERAL_CATEGORY }, route: 'fast' }}
+  >
+    <FeedsPage page={pages.fast()} />
   </Scene>
 </Story>

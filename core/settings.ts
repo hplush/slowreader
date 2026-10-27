@@ -1,7 +1,13 @@
 import { persistentAtom, persistentBoolean } from '@nanostores/persistent'
-import { atom, type StoreValue } from 'nanostores'
+import { atom, effect, type StoreValue } from 'nanostores'
 
 import type { FillStatistics } from './benchmark.ts'
+import { busyDuring } from './busy.ts'
+import { onClient } from './client.ts'
+import { waitLoading } from './lib/stores.ts'
+import { createSyncedSetting, syncSettings } from './lib/synced-setting.ts'
+import { commonMessages } from './messages/index.ts'
+import { getTables, openedDatabase, type SettingsValue } from './schema.ts'
 
 export const userId = persistentAtom<string | undefined>('slowreader:userId')
 
@@ -129,17 +135,44 @@ export const useReducedMotion = persistentBoolean('slowreader:reduced-motion')
 
 export const useQuietCursor = persistentBoolean('slowreader:quiet-cursor')
 
-export const showSensitiveMedia = persistentBoolean('slowreader:show-sensitive')
+let syncedSetting = createSyncedSetting<SettingsValue>()
 
-export const openWarnings = persistentBoolean('slowreader:open-warnings')
+export const showSensitiveMedia = syncedSetting('showSensitiveMedia', false)
 
-export const fastPostsLifetime = persistentAtom<'forever' | 'month' | 'week'>(
-  'slowreader:fast-lifetime',
-  'month'
+export const openWarnings = syncedSetting('openWarnings', false)
+
+export const fastPostsLifetime = syncedSetting('fastPostsLifetime', 'month')
+
+export const nightLock = syncedSetting('nightLock', {
+  enabled: false,
+  from: 23,
+  to: 7
+})
+
+export type NightLock = StoreValue<typeof nightLock>
+
+export const syncedSettingsLoading = atom(true)
+
+onClient(() =>
+  effect(openedDatabase, db => {
+    if (!db) return
+    let unbind = syncSettings(
+      getTables().settings,
+      'user',
+      [fastPostsLifetime, nightLock, openWarnings, showSensitiveMedia],
+      syncedSettingsLoading,
+      () => ({ createdAt: Math.round(Date.now() / 1000) })
+    )
+    void busyDuring(commonMessages.get().loadingData, () =>
+      waitLoading(syncedSettingsLoading)
+    )
+    return unbind
+  })
 )
 
 export interface Settings {
   fastPostsLifetime: StoreValue<typeof fastPostsLifetime>
+  nightLock: NightLock
   openWarnings: StoreValue<typeof openWarnings>
   showSensitiveMedia: StoreValue<typeof showSensitiveMedia>
   theme: StoreValue<typeof theme>

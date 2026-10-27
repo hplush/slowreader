@@ -134,6 +134,39 @@ export function startUserBeforeKey(): void {
   userId.set('1000000000000000')
 }
 
+/**
+ * The browser re-runs reactive queries after the write, in another
+ * message from the worker, unlike the Node driver, which updates
+ * the stores inside the write.
+ */
+export function delayedDatabase(): Environment['databaseCreator'] {
+  return () => {
+    let driver = nodeDriver(':memory:')
+    return openDb({
+      ...driver,
+      subscribe(query, params, cb, onError) {
+        let timers = new Set<NodeJS.Timeout>()
+        let unbind = driver.subscribe(
+          query,
+          params,
+          rows => {
+            let timer = globalThis.setTimeout(() => {
+              timers.delete(timer)
+              cb(rows)
+            }, 20)
+            timers.add(timer)
+          },
+          onError
+        )
+        return () => {
+          for (let timer of timers) clearTimeout(timer)
+          unbind()
+        }
+      }
+    })
+  }
+}
+
 let testDirs: string[] = []
 
 /**

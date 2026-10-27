@@ -20,6 +20,7 @@ export const pathRouter = createRouter({
   accounts: '/settings/accounts',
   add: '/feeds/add/:url?',
   cloud: '/settings/cloud',
+  coach: '/settings/coach',
   network: '/settings/network',
   export: '/feeds/export',
   fast: '/fast/:category?',

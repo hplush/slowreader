@@ -13,7 +13,13 @@ import { getLoaderForText } from '../loader/index.ts'
 import { importMessages } from '../messages/index.ts'
 import { addPost } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
-import { theme } from '../settings.ts'
+import {
+  fastPostsLifetime,
+  nightLock,
+  openWarnings,
+  showSensitiveMedia,
+  theme
+} from '../settings.ts'
 import { isDemo } from '../welcome.ts'
 import { createPage } from './common.ts'
 import { isStateExportFile, type StateExport } from './export.ts'
@@ -148,7 +154,18 @@ export const importPage = createPage('import', () => {
     setProgress: (progress: number) => void
   ): Promise<void> {
     if (isDemo.get()) await deleteDemo()
-    theme.set(json.settings.theme)
+    let { settings } = json
+    if (settings.theme) theme.set(settings.theme)
+    if (settings.fastPostsLifetime) {
+      fastPostsLifetime.set(settings.fastPostsLifetime)
+    }
+    if (settings.nightLock) nightLock.set(settings.nightLock)
+    if (settings.openWarnings !== undefined) {
+      openWarnings.set(settings.openWarnings)
+    }
+    if (settings.showSensitiveMedia !== undefined) {
+      showSensitiveMedia.set(settings.showSensitiveMedia)
+    }
 
     let done = startProgress(
       setProgress,

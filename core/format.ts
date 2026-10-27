@@ -65,6 +65,10 @@ export function formatTimeShort(format: Formatter, date: Date): string {
   return format.time(date, { dateStyle: 'medium' })
 }
 
+export function formatHour(format: Formatter, hour: number): string {
+  return format.time(new Date(2000, 0, 1, hour), { timeStyle: 'short' })
+}
+
 function pad(value: number): string {
   return String(value).padStart(2, '0')
 }

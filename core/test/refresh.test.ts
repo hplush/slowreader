@@ -14,6 +14,7 @@ import {
   deleteAccount,
   deleteFeed,
   fastPostsLifetime,
+  syncedSettingsLoading,
   getClient,
   loadAccount,
   loadFeed,
@@ -54,9 +55,10 @@ import {
 setupNodeDom()
 
 describe('refresh', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     mockRequest()
     startClient()
+    await waitLoading(syncedSettingsLoading)
     fastPostsLifetime.set('forever')
   })
 
@@ -846,9 +848,10 @@ describe('refresh', () => {
 const BOB = 'https://bob.social/@bob'
 
 describe('refresh of accounts', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     mockRequest()
     startClient()
+    await waitLoading(syncedSettingsLoading)
     fastPostsLifetime.set('forever')
   })
 

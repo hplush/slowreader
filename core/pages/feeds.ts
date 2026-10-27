@@ -1,4 +1,4 @@
-import { atom, computed, effect } from 'nanostores'
+import { atom, computed, effect, type ReadableAtom } from 'nanostores'
 
 import { type CategoryValue, changeCategory, getCategory } from '../category.ts'
 import { layoutType } from '../environment.ts'
@@ -9,6 +9,7 @@ import {
   openableMenu,
   unreadFastMenu
 } from '../menu.ts'
+import { type NightLockState, nightLockState } from '../night-lock.ts'
 import { deletePost, fastPostsCount, slowPostsCount } from '../post.ts'
 import {
   loadReadPostIds,
@@ -55,6 +56,9 @@ let pages = (['slow', 'fast'] as const).map(reading => {
     let $category = atom<CategoryValue | undefined>()
 
     let lastFilter: PostFilter | undefined
+
+    let $locked: ReadableAtom<NightLockState> =
+      reading === 'fast' ? nightLockState : atom({ locked: false })
 
     async function deleteRead(): Promise<void> {
       if (!lastFilter || !hasDatabase()) return
@@ -119,8 +123,8 @@ let pages = (['slow', 'fast'] as const).map(reading => {
       }
     )
 
-    let unbindMenu = effect($menu, menu => {
-      if (menu) $loading.set(false)
+    let unbindNoReader = effect([$menu, $locked], (menu, locked) => {
+      if (menu || locked.locked) $loading.set(false)
     })
 
     let unbindRedirect = effect(
@@ -182,7 +186,8 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         $noPosts,
         menuLoading,
         $menu,
-        unreadFastMenu
+        unreadFastMenu,
+        $locked
       ],
       (
         feed,
@@ -193,10 +198,11 @@ let pages = (['slow', 'fast'] as const).map(reading => {
         noPosts,
         loadingMenu,
         menu,
-        fast
+        fast,
+        locked
       ) => {
         let readerName: 'none' | ReaderName
-        if (menu) {
+        if (menu || locked.locked) {
           readerName = 'none'
         } else if (welcome && !feedId && !categoryId) {
           // The exact feed of the demo has the posts to read
@@ -284,7 +290,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
       async exit() {
         unbindTarget()
         unbindRow()
-        unbindMenu()
+        unbindNoReader()
         unbindRedirect()
         unbindPosts()
         prevReading?.exit()
@@ -294,6 +300,7 @@ let pages = (['slow', 'fast'] as const).map(reading => {
       },
       feed: $feed,
       loading: $loading,
+      locked: $locked,
       params,
       posts: $posts,
       postsLoading: $postsLoading,
