@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.20261027.1
+
+_2026-10-27 · +4 −3_
+
+### Fixes
+
+- Fixed the release build broken by the changed lines counter in release notes.
+
 ## 0.20261027.0
 
 _2026-10-27 · +6627 −1786_
