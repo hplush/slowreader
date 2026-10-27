@@ -71,6 +71,7 @@
 
   /* Underline with colors of the numbers instead of the link color */
   .releases_lines {
+    font-size: 1rem;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     text-decoration: none;
