@@ -42,3 +42,8 @@ verifyDepsBeforeRun: false
 trustPolicy: no-downgrade
 
 trustPolicyIgnoreAfter: 10080
+
+auditConfig:
+  ignoreGhsas:
+    # deepmerge has no fix, vite-plugin-svelte merges only our own config
+    - GHSA-gcqx-w48m-w2h4
