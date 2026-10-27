@@ -1,22 +1,20 @@
 // Tables are the source of truth, so the log keeps only what can not be
 // restored from them: unsent actions, tombstones of deleted rows and shadows
 // of the actions, which still own a cell on the server.
+//
+// Cells of tables and columns, which only the newer app knows, are tracked
+// too. The database rebuild after the app update will replay their actions.
 
 import { loguxProcessed, shadow, zeroClean } from '@logux/actions'
-import {
-  type ClientMeta,
-  type CrossTabClient,
-  replaceWithShadow
-} from '@logux/client'
+import { type Client, type ClientMeta, replaceWithShadow } from '@logux/client'
 import {
   type CrdtCell,
   type CrdtDatabase,
   createCrdtTasks,
-  parseCrdtAction,
   parseCrdtRows,
   parseCrdtType
 } from '@logux/client/db'
-import type { MetaTime } from '@logux/core'
+import type { Action, MetaTime } from '@logux/core'
 import { RETENTION } from '@slowreader/api'
 import debounce from 'just-debounce-it'
 
@@ -30,6 +28,34 @@ export interface LogTracker {
 
 function toReasons(cells: CrdtCell[]): string[] {
   return cells.map(cell => cell.join('/'))
+}
+
+const TABLE_ACTION_KEYS = new Set(['fields', 'id', 'ids', 'records', 'type'])
+
+/**
+ * Action of any table, even of the one, which only the newer app knows.
+ * Server actions have other keys, like `userId`.
+ */
+function isTableAction(action: Action): boolean {
+  let keys = Object.keys(action)
+  return (
+    /^\w+s\/(created|changed|deleted)$/.test(action.type) &&
+    keys.some(key => key === 'id' || key === 'ids' || key === 'records') &&
+    keys.every(key => TABLE_ACTION_KEYS.has(key))
+  )
+}
+
+/**
+ * Rows from `load()` have meta columns, which Logux ignores like `id`.
+ */
+function cellsOf(fields: object | undefined): string[] {
+  return Object.entries(fields ?? {})
+    .filter(([key, value]) => {
+      return (
+        value !== undefined && key !== 'id' && !key.startsWith('updatedAt_')
+      )
+    })
+    .map(([key]) => key)
 }
 
 /**
@@ -49,10 +75,7 @@ function reportTaskError(error: unknown): void {
  * from the tables. It is used only by the cloud user: the local log
  * is empty, since the local actions are never sent anywhere.
  */
-export function trackLog(
-  logux: CrossTabClient,
-  crdt: CrdtDatabase
-): LogTracker {
+export function trackLog(logux: Client, crdt: CrdtDatabase): LogTracker {
   // Tracking reads the log and writes it back, so the tasks are serialized
   // to not overwrite the reasons, which another task has just removed.
   // They start on `CrdtDatabase#ready`: the migration replay opens its
@@ -70,30 +93,29 @@ export function trackLog(
   }
 
   /**
-   * Every reason, which the row could be kept by.
-   */
-  function reasonsOf(plural: string, id: string): string[] {
-    let reasons = [`${plural}/${id}`]
-    for (let field in crdt.tables[plural]) {
-      reasons.push(`${plural}/${id}/${field}`)
-    }
-    return reasons
-  }
-
-  /**
    * IDs of the actions, which were replaced by the shadow. Their `clean`
    * event must not ask the server to remove them.
    */
   let shadowed = new Set<string>()
 
   /**
-   * Nobody owns cells of the deleted row anymore.
+   * Nobody owns cells of the deleted row anymore. Reasons are taken
+   * from the log, since the schema does not have columns of the newer app.
    */
   async function forgetRows(plural: string, ids: string[]): Promise<void> {
     for (let id of ids) {
-      await logux.log.removeReason(reasonsOf(plural, id), {
-        index: `${plural}/${id}`
+      let row = `${plural}/${id}`
+      let reasons = new Set<string>()
+      await logux.log.each({ index: row }, (action, meta) => {
+        for (let reason of meta.reasons) {
+          if (reason === row || reason.startsWith(`${row}/`)) {
+            reasons.add(reason)
+          }
+        }
       })
+      if (reasons.size > 0) {
+        await logux.log.removeReason([...reasons], { index: row })
+      }
     }
   }
 
@@ -154,7 +176,14 @@ export function trackLog(
    */
   async function shadowAction(id: string): Promise<void> {
     let [action, meta] = await logux.log.byId(id)
-    if (!action || !meta || !parseCrdtType(action.type, crdt)) return
+    let parsed = action && parseCrdtType(action.type, crdt)
+    if (!action || !meta || !parsed) return
+    let columns = crdt.tables[parsed.plural]!
+    let newer = parseCrdtRows(action).some(([, fields]) => {
+      return cellsOf(fields).some(cell => !Object.hasOwn(columns, cell))
+    })
+    // The shadow would lose values of columns, which only the newer app knows
+    if (newer) return
     let reasons = meta.reasons.filter(isCellReason)
     // The action, which lost last write wins for every field, owns nothing,
     // so the `clean` event will ask the server to remove it
@@ -230,20 +259,31 @@ export function trackLog(
 
   let unbinds = [
     logux.on('preadd', (action, meta) => {
-      let parsed = parseCrdtAction(action, crdt)
-      if (!parsed || parsed.rows.length === 0) return
-      let { plural, rows, verb } = parsed
+      if (!isTableAction(action)) return
+      let [plural, verb] = action.type.split('/')
+      let rows = parseCrdtRows(action)
+      if (rows.length === 0) return
+      let indexes = rows.map(row => `${plural}/${row[0]}`)
       if (verb === 'deleted') {
-        meta.indexes = ['tombstone', ...rows.map(row => `${plural}/${row[0]}`)]
+        meta.indexes = ['tombstone', ...indexes]
         meta.reasons.push('tombstone')
       } else {
         for (let [id, fields] of rows) {
-          for (let field of fields) {
-            meta.reasons.push(`${plural}/${id}/${field}`)
+          for (let cell of cellsOf(fields)) {
+            meta.reasons.push(`${plural}/${id}/${cell}`)
           }
           if (verb === 'created') meta.reasons.push(`${plural}/${id}`)
         }
-        meta.indexes = [plural, ...rows.map(row => `${plural}/${row[0]}`)]
+        meta.indexes = [plural!, ...indexes]
+      }
+    }),
+
+    logux.on('add', action => {
+      // The newer app’s table is not applied, so rows are forgotten here
+      if (isTableAction(action) && action.type.endsWith('/deleted')) {
+        let plural = action.type.split('/')[0]!
+        let ids = parseCrdtRows(action).map(row => row[0])
+        if (ids.length > 0) tasks.add(() => forgetRows(plural, ids))
       }
     }),
 
@@ -251,11 +291,7 @@ export function trackLog(
       let parsed = parseCrdtType(action.type, crdt)
       if (!parsed) return
       let { plural, verb } = parsed
-      if (verb === 'deleted') {
-        // The only case without cells to take the rows from
-        let ids = parseCrdtRows(action).map(row => row[0])
-        if (ids.length > 0) tasks.add(() => forgetRows(plural, ids))
-      } else if (touched.length > 0) {
+      if (touched.length > 0) {
         let ids = [...new Set(touched.map(cell => cell[1]))]
         let winners = new Set(toReasons(won))
         let lost = toReasons(touched).filter(cell => !winners.has(cell))
@@ -289,10 +325,7 @@ export function trackLog(
     logux.on('clean', (action, meta) => {
       if (shadow.match(action)) {
         cleaning.add(action.id)
-      } else if (
-        parseCrdtType(action.type, crdt) &&
-        !shadowed.delete(meta.id)
-      ) {
+      } else if (isTableAction(action) && !shadowed.delete(meta.id)) {
         cleaning.add(meta.id)
       } else {
         return

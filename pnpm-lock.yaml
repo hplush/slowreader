@@ -298,8 +298,8 @@ importers:
         specifier: 0.8.1
         version: 0.8.1(@logux/core@0.12.1)
       '@logux/client':
-        specifier: 0.27.1
-        version: 0.27.1(@nanostores/sql@0.8.0)(nanostores@1.5.5)(react@19.3.1)
+        specifier: 0.27.2
+        version: 0.27.2(@nanostores/sql@0.8.0)(nanostores@1.5.5)(react@19.3.1)
       '@logux/core':
         specifier: 0.12.1
         version: 0.12.1
@@ -462,8 +462,8 @@ importers:
         version: 2.0.10
     devDependencies:
       '@logux/client':
-        specifier: 0.27.1
-        version: 0.27.1(@nanostores/sql@0.8.0)(nanostores@1.5.5)(react@19.3.1)
+        specifier: 0.27.2
+        version: 0.27.2(@nanostores/sql@0.8.0)(nanostores@1.5.5)(react@19.3.1)
       better-node-test:
         specifier: 1.0.0
         version: 1.0.0
@@ -491,8 +491,8 @@ importers:
         specifier: 5.3.0
         version: 5.3.0
       '@logux/client':
-        specifier: 0.27.1
-        version: 0.27.1(@nanostores/sql@0.8.0)(nanostores@1.5.5)(react@19.3.1)
+        specifier: 0.27.2
+        version: 0.27.2(@nanostores/sql@0.8.0)(nanostores@1.5.5)(react@19.3.1)
       '@logux/core':
         specifier: 0.12.1
         version: 0.12.1
@@ -1347,8 +1347,8 @@ packages:
     peerDependencies:
       '@logux/core': ^0.12.0
 
-  '@logux/client@0.27.1':
-    resolution: {integrity: sha512-ni18mk0MD1n5ibESRw6ZN7jG+zMYC/UhFYSrv6cltaOuIUnFuB/QGNCKtAIk46+zAci0VDtLeulFk5SmkGC5og==}
+  '@logux/client@0.27.2':
+    resolution: {integrity: sha512-cdVdIiyGv2Cfvvz0ylP8OYSnftHXGCud+NvdtsHjOeJiTYj+kZ0qTQPXT2l0CqDBaEc4CbRJea9D8jL8zAaB9g==}
     engines: {node: ^22.0.0 || ^24.0.0 || >=26.0.0}
     peerDependencies:
       '@nanostores/preact': '>=0.0.0'
@@ -6246,7 +6246,7 @@ snapshots:
     dependencies:
       '@logux/core': 0.12.1
 
-  '@logux/client@0.27.1(@nanostores/sql@0.8.0)(nanostores@1.5.5)(react@19.3.1)':
+  '@logux/client@0.27.2(@nanostores/sql@0.8.0)(nanostores@1.5.5)(react@19.3.1)':
     dependencies:
       '@logux/actions': 0.8.1(@logux/core@0.12.1)
       '@logux/core': 0.12.1

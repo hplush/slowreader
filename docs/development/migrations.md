@@ -6,6 +6,8 @@ We sync state by sending Logux actions. Old actions stay in the cloud and in the
 
 Add it to the table in [`core/schema.ts`](../../core/schema.ts) as `optional()` or with `default`, so old actions without it stay valid. It needs no migration and no `SUBPROTOCOL` bump.
 
+The same works for a new table. The old app tracks cells of unknown tables and columns in the log like known ones, and the database rebuild after the app update replays their actions.
+
 ## Format Change
 
 1. Change the table in [`core/schema.ts`](../../core/schema.ts).
