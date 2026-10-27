@@ -139,7 +139,7 @@
 
         &:not(.emoji, [width][height]) {
           width: 100%;
-          aspect-ratio: 16 / 9;
+          aspect-ratio: auto 16 / 9;
         }
       }
 
