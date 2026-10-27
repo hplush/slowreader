@@ -44,6 +44,9 @@ broken() {
 for TAG in $(gh release list --repo "$REPO" --json tagName --jq '.[].tagName'); do
   # Skip already checked releases
   [ -f "releases/$TAG.json" ] && continue
+  # Release with only notes, like after failed image build, has nothing to deploy and check
+  ASSETS=$(gh release view "$TAG" --repo "$REPO" --json assets --jq '.assets[].name')
+  grep -qx image.txt <<< "$ASSETS" || continue
   # Unknown until we read the release
   DIGEST=unknown
   # Unknown until we verify CI provenance
