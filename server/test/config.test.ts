@@ -1,4 +1,5 @@
 import { deepEqual, equal, throws } from 'node:assert/strict'
+import { join } from 'node:path'
 import { describe, test } from 'node:test'
 
 import { config, getConfig } from '../lib/config.ts'
@@ -21,7 +22,10 @@ describe('server config', () => {
     )
     equal(getConfig({ NODE_ENV: 'test' }).db, 'memory://')
     equal(getConfig({ DATABASE_URL, NODE_ENV: 'test' }).db, DATABASE_URL)
-    equal(getConfig({ NODE_ENV: 'development' }).db, 'file://./db/pgdata')
+    equal(
+      getConfig({ NODE_ENV: 'development' }).db,
+      `file://${join(import.meta.dirname, '../db/pgdata')}`
+    )
     equal(getConfig({ DATABASE_URL, NODE_ENV: 'development' }).db, DATABASE_URL)
   })
 

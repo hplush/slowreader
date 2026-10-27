@@ -1,10 +1,11 @@
 // Config to drizzle-kit CLI
 
 import { defineConfig } from 'drizzle-kit'
+import { join } from 'node:path'
 
 export default defineConfig({
   dbCredentials: {
-    url: './db/pgdata'
+    url: join(import.meta.dirname, 'db/pgdata')
   },
   dialect: 'postgresql',
   driver: 'pglite',

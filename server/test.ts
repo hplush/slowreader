@@ -4,6 +4,7 @@ import { PgTable } from 'drizzle-orm/pg-core'
 import { downloadProvidersIfMissed, loadProviders } from './aaguids/utils.ts'
 import { db, dbDriver } from './db/index.ts'
 import * as tables from './db/schema.ts'
+import { config } from './lib/config.ts'
 import { resetLimits } from './lib/limits.ts'
 import type { ClientData } from './lib/types.ts'
 import authModule from './modules/auth.ts'
@@ -14,6 +15,11 @@ import syncModule from './modules/sync.ts'
 import usersModule from './modules/users.ts'
 
 export { FakeAuthenticator } from './test/authenticator.ts'
+
+// Cleaning would wipe the development database
+if (config.env !== 'test') {
+  throw new Error('Run tests with NODE_ENV=test, for instance, by pnpm bnt')
+}
 
 await downloadProvidersIfMissed()
 await loadProviders()

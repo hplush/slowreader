@@ -1,4 +1,5 @@
 import { DEFAULT_PROXY_CONFIG } from '@slowreader/proxy'
+import { join } from 'node:path'
 
 export type Config = {
   db: string
@@ -16,7 +17,7 @@ function getDefaultDatabase(env: Config['env']): string {
   } else if (env === 'test') {
     return 'memory://'
   } else {
-    return 'file://./db/pgdata'
+    return `file://${join(import.meta.dirname, '../db/pgdata')}`
   }
 }
 
