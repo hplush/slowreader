@@ -193,7 +193,7 @@ node_cves() {
 touch "$WORK/deps.md"
 PREVIOUS=$(git -C "$ROOT" describe --tags --abbrev=0)
 # Generated files would hide the size of real changes
-LINES=$(git -C "$ROOT" diff --numstat "$PREVIOUS" HEAD -- . ':!pnpm-lock.yaml' \
+DIFF=$(git -C "$ROOT" diff --numstat "$PREVIOUS" HEAD -- . ':!pnpm-lock.yaml' \
   ':!CHANGELOG.md' ':!unreleased-changes/' \
   | awk '{ added += $1; removed += $2 } END { printf "+%d −%d", added, removed }')
 if [ "$BRANCH" != "main" ]; then
@@ -269,7 +269,7 @@ fi
 {
   echo "## $VERSION"
   echo
-  echo "_$(date -u +%Y-%m-%d) · ${LINES}_"
+  echo "_$(date -u +%Y-%m-%d) · ${DIFF}_"
   for file in "${FEATURES[@]}"; do
     echo
     sed '1s/^# /### /' "$file"
