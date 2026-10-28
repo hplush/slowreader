@@ -87,6 +87,7 @@ function findNext<Data>(
 /**
  * Tasks run in the order of the list. Retries and next steps
  * keep the place of their task: before the tasks, which did not start.
+ * Only retry after 500 goes to the end.
  */
 export function createQueue<Data>(initial: Data[]): Queue<Data> {
   // The queue repeats failed tasks by itself, no need in repeating requests
@@ -108,7 +109,11 @@ export function createQueue<Data>(initial: Data[]): Queue<Data> {
         onTaskFail(task.data, e)
       } else {
         task.after = runAfter(task.fails, e)
-        tasks.unshift(task)
+        if (HTTPStatusError.is(e, [500])) {
+          tasks.push(task)
+        } else {
+          tasks.unshift(task)
+        }
       }
       /* node:coverage ignore next 3 */
     } else {

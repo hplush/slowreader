@@ -1079,6 +1079,38 @@ describe('refresh of accounts', () => {
     ])
   })
 
+  test('retries internal server error after other feeds', async () => {
+    for (let i = 1; i <= 8; i++) {
+      await addFeed(testFeed({ title: `${i}`, url: `https://${i}.com/` }))
+    }
+    let calls: string[] = []
+    let failed = false
+    spyOn(loaders.rss, 'getPosts', (task, url) => {
+      calls.push(url)
+      return createPostsList(async () => {
+        await setTimeout(10)
+        if (url === 'https://1.com/' && !failed) {
+          failed = true
+          throw new HTTPStatusError(500, url, 'Error', new Headers())
+        }
+        return [[], undefined]
+      })
+    })
+    await refreshPosts()
+    deepEqual(calls, [
+      'https://1.com/',
+      'https://2.com/',
+      'https://3.com/',
+      'https://4.com/',
+      'https://5.com/',
+      'https://6.com/',
+      'https://7.com/',
+      'https://8.com/',
+      'https://1.com/'
+    ])
+    equal(refreshStatus.get(), 'done')
+  })
+
   test('loads only the newest timeline page on the first refresh', async () => {
     let accountId = await addAccount(testAccount())
     let timeline = spyTimeline(
