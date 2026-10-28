@@ -1,6 +1,7 @@
 <script lang="ts">
   import { mdiCheck, mdiContentCopy } from '@mdi/js'
   import { commonMessages as t } from '@slowreader/core'
+  import type { Snippet } from 'svelte'
   import type { HTMLInputAttributes } from 'svelte/elements'
 
   import { createClipboard } from '../lib/clipboard.ts'
@@ -9,11 +10,13 @@
   import Label from './label.svelte'
 
   let {
+    children,
     font = 'mono',
     label,
     value = $bindable(''),
     ...props
   }: {
+    children?: Snippet
     font?: 'mono' | 'normal'
     label: string
   } & HTMLInputAttributes = $props()
@@ -27,17 +30,27 @@
 <div class="output">
   <Label {id}>{label}</Label>
   <div class="output_control">
-    <input
-      {id}
-      class="output_field"
-      class:is-mono={font === 'mono'}
-      onfocus={e => {
-        e.currentTarget.select()
-      }}
-      readonly
-      {value}
-      {...props}
-    />
+    {#if children}
+      <output
+        {id}
+        class="output_field is-formatted"
+        class:is-mono={font === 'mono'}
+      >
+        {@render children()}
+      </output>
+    {:else}
+      <input
+        {id}
+        class="output_field"
+        class:is-mono={font === 'mono'}
+        onfocus={e => {
+          e.currentTarget.select()
+        }}
+        readonly
+        {value}
+        {...props}
+      />
+    {/if}
     <div class="output_button" class:is-copied={$copied}>
       <Button
         icon={$copied ? mdiCheck : mdiContentCopy}
@@ -84,6 +97,14 @@
 
       &.is-mono {
         font: var(--mono-font);
+      }
+
+      &.is-formatted {
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        white-space: nowrap;
+        user-select: all;
       }
     }
 

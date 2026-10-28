@@ -2,6 +2,7 @@
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import Output from '../../ui/output.svelte'
+  import Version from '../../ui/version.svelte'
   import Section from '../section.svelte'
 
   let { Story } = defineMeta({
@@ -32,6 +33,9 @@
     <Output label="Base" value="test" />
     <Output font="normal" label="Normal" value="Feed title" />
     <Output label="Copied" value="test" />
+    <Output label="Formatted" value="0.20261027.1">
+      <Version value="0.20261027.1" />
+    </Output>
   </Section>
 </Story>
 
@@ -45,5 +49,8 @@
     <Output label="Base" value="test" />
     <Output font="normal" label="Normal" value="Feed title" />
     <Output label="Copied" value="test" />
+    <Output label="Formatted" value="0.20261027.1">
+      <Version value="0.20261027.1" />
+    </Output>
   </Section>
 </Story>

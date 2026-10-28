@@ -59,6 +59,15 @@ export const releasePages = [
   )
 ]
 
+function versionHtml(version: string): string {
+  return version.replace(
+    /^(\d+\.)(\d{4})(\d{2})(\d{2})(.*)$/,
+    '<span class="releases_major">$1</span>$2' +
+      '<span class="releases_month">$3</span>$4' +
+      '<span class="releases_patch">$5</span>'
+  )
+}
+
 function renderRelease(
   release: Release,
   prev: Release | undefined,
@@ -103,7 +112,7 @@ function renderList(all: Release[]): string {
         renderRelease(
           i,
           all[index + 1],
-          `<a href="/releases/${i.version}">${i.version}</a>`,
+          `<a href="/releases/${i.version}">${versionHtml(i.version)}</a>`,
           'h2'
         )
       )
@@ -117,11 +126,16 @@ function renderPage(release: Release, prev: Release | undefined): string {
     ? `<a class="releases_page is-previous" href="/releases/${prev.version}">` +
       '<span class="releases_label">' +
       '<span class="releases_arrow">←</span>Previous release</span>' +
-      `${prev.version}</a>`
+      `<span>${versionHtml(prev.version)}</span></a>`
     : ''
   return (
     '<div class="releases">' +
-    renderRelease(release, prev, `Release ${release.version}`, 'h1') +
+    renderRelease(
+      release,
+      prev,
+      `Release ${versionHtml(release.version)}`,
+      'h1'
+    ) +
     `<nav class="releases_pages">${previous}` +
     '<a class="releases_page is-end" href="/releases">' +
     '<span class="releases_label">Overview</span>All releases</a></nav></div>'

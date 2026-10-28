@@ -28,6 +28,7 @@
   import Status from '../ui/status.svelte'
   import ThinPage from '../ui/thin-page.svelte'
   import Title from '../ui/title.svelte'
+  import Version from '../ui/version.svelte'
 
   let { page }: { page: AboutPage } = $props()
 
@@ -43,7 +44,9 @@
       <Title>Slow Reader</Title>
     </Stack>
     <Stack gap="s">
-      <Output label={$t.version} value={page.appVersion} />
+      <Output label={$t.version} value={page.appVersion}>
+        <Version value={page.appVersion} />
+      </Output>
       {#if $clientUpdate === 'latest'}
         <Button
           href={`https://slowreader.app/releases/${page.appVersion}`}

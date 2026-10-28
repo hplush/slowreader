@@ -210,38 +210,38 @@ body {
 
   /* Hue of the accent color, lightness and chroma for readable text */
   a {
-    color: oklch(0.65 0.11 260);
+    color: oklch(0.8 0.09 260);
     text-decoration-color: oklch(from currentcolor l c h / 40%);
     text-underline-offset: 0.2rem;
 
     @media (prefers-color-scheme: light) {
-      color: oklch(0.65 0.11 260);
+      color: oklch(0.48 0.15 260);
     }
 
     &:visited {
-      color: oklch(0.65 0.11 300);
+      color: oklch(0.8 0.09 300);
 
       @media (prefers-color-scheme: light) {
-        color: oklch(0.65 0.11 300);
+        color: oklch(0.48 0.15 300);
       }
     }
 
     &:hover,
     &:focus-visible {
-      color: oklch(0.65 0.11 260);
+      color: oklch(0.8 0.09 260);
       text-decoration-color: currentcolor;
 
       @media (prefers-color-scheme: light) {
-        color: oklch(0.65 0.11 260);
+        color: oklch(0.48 0.15 260);
       }
     }
 
     &:visited:hover,
     &:visited:focus-visible {
-      color: oklch(0.65 0.11 300);
+      color: oklch(0.8 0.09 300);
 
       @media (prefers-color-scheme: light) {
-        color: oklch(0.65 0.11 300);
+        color: oklch(0.48 0.15 300);
       }
     }
 

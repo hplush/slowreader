@@ -69,6 +69,20 @@
     font-variant-numeric: tabular-nums;
   }
 
+  .releases_major,
+  .releases_month,
+  .releases_patch {
+    font-weight: 400;
+  }
+
+  /* Splits the date digits without changing copied text, margin would break the link underline */
+  .releases_major::after,
+  .releases_month::before,
+  .releases_month::after,
+  .releases_patch::before {
+    content: '\200A';
+  }
+
   /* Underline with colors of the numbers instead of the link color */
   .releases_lines {
     font-size: 1rem;
