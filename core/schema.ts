@@ -202,6 +202,15 @@ let previewShape = {
 }
 
 /**
+ * Facts for the post rendering, which need the network or are too expensive
+ * to calculate on every render. `getPostBadges()` turns them into badges.
+ */
+let signalsShape = {
+  threadPosition: optional(number()),
+  threadSize: optional(number())
+}
+
+/**
  * Quotes are only one level deep, so the quote of the quoted post
  * is only a link.
  */
@@ -216,6 +225,7 @@ let quotedShape = {
   preview: optional(json(previewShape)),
   publishedAt: optional(bigint()),
   quotedUrl: optional(string()),
+  signals: optional(json(signalsShape)),
   title: optional(string()),
   updatedAt: optional(bigint()),
   url: optional(string()),
@@ -228,6 +238,7 @@ export type MediaSize = CrdtJsonType<typeof mediaSizeShape>
 export type PostPoll = CrdtJsonType<typeof pollShape>
 export type PostPreview = CrdtJsonType<typeof previewShape>
 export type QuotedPost = CrdtJsonType<typeof quotedShape>
+export type PostSignals = CrdtJsonType<typeof signalsShape>
 
 export const postsTable = defineCrdtTable(
   'posts',
@@ -253,6 +264,7 @@ export const postsTable = defineCrdtTable(
     reading: oneOf(READINGS, { default: 'slow' }),
     replied: optional(json(quotedShape)),
     repostedBy: optional(json(authorShape)),
+    signals: optional(json(signalsShape)),
     sortedAt: bigint(),
     threadId: optional(string()),
     title: optional(string()),

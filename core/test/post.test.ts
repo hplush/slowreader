@@ -17,6 +17,7 @@ import {
   getMediaOutsideText,
   getPostId,
   loadPost,
+  getPostBadges,
   getPostIntro,
   getPost,
   getQuotedIntro,
@@ -41,8 +42,12 @@ import {
 
 setupNodeDom()
 
-function postIntro(post: PostCardText, threadSize = 1): [string, boolean] {
-  let [node, more] = getPostIntro({ ...post, threadSize })
+function postIntro(
+  post: PostCardText,
+  threadSize = 1,
+  threadPosition = 1
+): [string, boolean] {
+  let [node, more] = getPostIntro({ ...post, threadPosition, threadSize })
   return [node.innerHTML, more]
 }
 
@@ -81,6 +86,7 @@ describe('post', () => {
       full: null,
       intro: '<img src="https://example.com/a.jpg">',
       more: 0,
+      threadPosition: 1,
       threadSize: 1,
       url: null
     }
@@ -352,6 +358,22 @@ describe('post', () => {
     )
   })
 
+  test('makes badges from thread size and signals', () => {
+    deepEqual(getPostBadges({ threadPosition: 1, threadSize: 1 }), [])
+    deepEqual(getPostBadges({ threadPosition: 2, threadSize: 3 }), [
+      { position: 2, size: 3, type: 'thread' }
+    ])
+    deepEqual(getPostBadges({ missing: false }), [])
+    deepEqual(getPostBadges({ missing: false, signals: {} }), [])
+    deepEqual(
+      getPostBadges({
+        missing: false,
+        signals: { threadPosition: 5, threadSize: 30 }
+      }),
+      [{ position: 5, size: 30, type: 'thread' }]
+    )
+  })
+
   test('adds single ellipsis to the thread intro', () => {
     let short = {
       full: '<p>Short</p>',
@@ -361,6 +383,7 @@ describe('post', () => {
     } as const
     equal(postIntro(short, 2)[0], '<p>Short</p><p>…</p>')
     equal(postIntro(short)[0], '<p>Short</p>')
+    equal(postIntro(short, 2, 2)[0], '<p>Short</p>')
 
     let [cut, more] = postIntro(
       {
@@ -499,6 +522,7 @@ describe('post', () => {
         },
         originId: '1',
         threadParts: [part],
+        threadPosition: 1,
         threadSize: 2,
         url: 'https://example.com/1'
       }
@@ -511,6 +535,7 @@ describe('post', () => {
       more: 0,
       origin: { id: '1', intro: 'Intro', originId: '1' },
       originId: '1',
+      threadPosition: 1,
       threadSize: 1,
       url: null
     })
@@ -522,6 +547,7 @@ describe('post', () => {
       more: 0,
       origin: { full: 'Full', id: '1', originId: '1' },
       originId: '1',
+      threadPosition: 1,
       threadSize: 1,
       url: null
     })

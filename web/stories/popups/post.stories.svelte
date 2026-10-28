@@ -99,16 +99,18 @@
     url: 'https://mastodon.social/@jane/1'
   } satisfies Partial<PostValue>
 
-  const THREAD = [0, 45, 3 * 3600, 2 * 86400].map((delay, index) => {
+  // Popup opens the first post, which is the repost of the thread’s middle
+  const THREAD = [3, 1, 2, 4].map(number => {
     return {
       feedId: 'mastodon',
-      full: `<p>The post number ${index + 1} of the thread</p>`,
-      merged: index > 0,
-      originId: `thread-${index + 1}`,
-      publishedAt: 1600000000 + delay,
+      full: `<p>The post number ${number} of the thread</p>`,
+      merged: number !== 3,
+      originId: `thread-${number}`,
+      publishedAt: 1600000000 + [0, 45, 3 * 3600, 2 * 86400][number - 1]!,
       reading: 'slow',
       threadId: 'thread-1',
-      url: `https://mastodon.social/@Mastodon/${index + 1}`
+      url: `https://mastodon.social/@Mastodon/${number}`,
+      ...(number === 3 ? { repostedBy: { title: 'Jane Doe' } } : {})
     } satisfies Partial<PostValue>
   })
 

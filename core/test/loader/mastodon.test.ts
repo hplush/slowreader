@@ -467,7 +467,7 @@ describe('mastodon loader', () => {
         {
           author: { title: 'BOB', url: 'https://mastodon.social/@bob' },
           full: '<p>original</p>',
-          originId: '3',
+          originId: 'original',
           publishedAt: 1767225600,
           quoted: {
             author: {
@@ -720,6 +720,32 @@ describe('mastodon loader', () => {
             account: account('bob'),
             replies_count: 2
           })
+        }),
+        status('7', {
+          reblog: status('part', {
+            account: account('bob'),
+            in_reply_to_account_id: 'bob-id',
+            in_reply_to_id: 'previous'
+          })
+        }),
+        status('8', {
+          quote: {
+            quoted_status: status('middle', {
+              account: account('bob'),
+              in_reply_to_account_id: 'bob-id',
+              in_reply_to_id: 'm2'
+            }),
+            state: 'accepted'
+          }
+        }),
+        status('9', {
+          quote: {
+            quoted_status: status('missing', {
+              in_reply_to_account_id: 'jane-id',
+              in_reply_to_id: 'm2'
+            }),
+            state: 'accepted'
+          }
         })
       ]),
       'application/json'
@@ -730,6 +756,29 @@ describe('mastodon loader', () => {
       'application/json'
     )
     expectRequest(`${API}/statuses/deleted`).andRespond(404)
+    expectRequest(`${API}/statuses/middle/context`).andRespond(
+      200,
+      JSON.stringify({
+        ancestors: [
+          status('m1', { account: account('bob') }),
+          status('m2', {
+            account: account('bob'),
+            in_reply_to_account_id: 'bob-id',
+            in_reply_to_id: 'm1'
+          })
+        ],
+        descendants: [
+          status('m4', {
+            account: account('bob'),
+            in_reply_to_account_id: 'bob-id',
+            in_reply_to_id: 'middle'
+          }),
+          status('reply', { in_reply_to_id: 'middle' })
+        ]
+      }),
+      'application/json'
+    )
+    expectRequest(`${API}/statuses/missing/context`).andRespond(404)
     let posts = loaders.mastodon.getPosts(
       createDownloadTask(),
       'https://mastodon.social/@jane'
@@ -751,9 +800,20 @@ describe('mastodon loader', () => {
     })
     deepEqual(list[2]!.replied, { missing: true })
     deepEqual(
-      list.map(i => i.hasReplies),
-      [undefined, undefined, undefined, true]
+      list.map(i => [i.hasReplies, i.repostedPart, i.replied?.missing]),
+      [
+        [undefined, undefined, undefined],
+        [undefined, undefined, false],
+        [undefined, undefined, true],
+        [true, undefined, undefined],
+        [undefined, true, undefined],
+        [undefined, undefined, undefined],
+        [undefined, undefined, undefined]
+      ]
     )
+    deepEqual(list[5]!.quoted?.signals, { threadPosition: 3, threadSize: 4 })
+    equal(list[6]!.quoted?.missing, false)
+    equal(list[6]!.quoted?.signals, undefined)
 
     expectRequest(`${API}/accounts/lookup?acct=jane`).andRespond(
       200,
@@ -778,6 +838,74 @@ describe('mastodon loader', () => {
     )
     await posts.loading
     equal(posts.get().error?.name, 'HTTPStatusError')
+  })
+
+  test('skips position of quoted thread part on errors', async () => {
+    let quote = (id: string): Record<string, unknown> =>
+      status(`q${id}`, {
+        quote: {
+          quoted_status: status(id, {
+            in_reply_to_account_id: 'jane-id',
+            in_reply_to_id: 'previous'
+          }),
+          state: 'accepted'
+        }
+      })
+    expectRequest(`${API}/accounts/lookup?acct=jane`).andRespond(
+      200,
+      JSON.stringify(account('jane')),
+      'application/json'
+    )
+    expectRequest(
+      `${API}/accounts/jane-id/statuses?exclude_replies=true`
+    ).andRespond(
+      200,
+      JSON.stringify([quote('broken'), quote('toOthers')]),
+      'application/json'
+    )
+    expectRequest(`${API}/statuses/broken/context`).andRespond(
+      200,
+      '{}',
+      'application/json'
+    )
+    expectRequest(`${API}/statuses/toOthers/context`).andRespond(
+      200,
+      JSON.stringify({
+        ancestors: [
+          status('previous', {
+            in_reply_to_account_id: 'bob-id',
+            in_reply_to_id: 'bob'
+          })
+        ],
+        descendants: []
+      }),
+      'application/json'
+    )
+    let posts = loaders.mastodon.getPosts(
+      createDownloadTask(),
+      'https://mastodon.social/@jane'
+    )
+    await posts.loading
+    deepEqual(
+      posts.get().list.map(post => post.quoted?.signals),
+      [undefined, undefined]
+    )
+
+    expectRequest(`${API}/accounts/lookup?acct=jane`).andRespond(
+      200,
+      JSON.stringify(account('jane')),
+      'application/json'
+    )
+    expectRequest(
+      `${API}/accounts/jane-id/statuses?exclude_replies=true`
+    ).andRespond(200, JSON.stringify([quote('offline')]), 'application/json')
+    expectRequest(`${API}/statuses/offline/context`).andFail()
+    posts = loaders.mastodon.getPosts(
+      createDownloadTask({ tries: 1 }),
+      'https://mastodon.social/@jane'
+    )
+    await posts.loading
+    equal(posts.get().error?.name, 'NetworkError')
   })
 
   test('finds earlier posts of the thread', async () => {
@@ -1103,7 +1231,7 @@ describe('mastodon account', () => {
       [
         ['1', 'BOB', undefined, undefined, 'en'],
         ['3', 'BOB', undefined, '1', undefined],
-        ['4', 'BOB', 'JANE', undefined, 'de']
+        ['5', 'BOB', 'JANE', undefined, 'de']
       ]
     )
     equal(posts.get().hasNext, true)

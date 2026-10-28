@@ -3,6 +3,7 @@
     addMediaSizes,
     canOpenPostUrl,
     getMediaOutsideText,
+    getPostBadges,
     getQuotedIntro,
     type QuotedPost,
     router,
@@ -14,6 +15,7 @@
   import { getPopupHash } from '../../stores/url-router.ts'
   import FormattedText from '../formatted-text.svelte'
   import PostAuthorLine from './author.svelte'
+  import PostBadges from './badges.svelte'
   import PostMedia from './media.svelte'
   import PostPoll from './poll.svelte'
   import PostPreview from './preview.svelte'
@@ -38,6 +40,8 @@
   let text = $derived(
     full ? sanitizeDOM(quoted.full ?? '') : getQuotedIntro(quoted)
   )
+
+  let badges = $derived(getPostBadges(quoted))
 
   let href = $derived(
     linked && !quoted.missing && quoted.url
@@ -104,6 +108,9 @@
           {/if}
         {/snippet}
       </PostWarning>
+      {#if badges.length > 0}
+        <PostBadges {badges} />
+      {/if}
     </div>
   </blockquote>
 {/if}

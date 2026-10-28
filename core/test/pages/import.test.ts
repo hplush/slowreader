@@ -196,6 +196,7 @@ describe('import page', () => {
         read: false,
         replied: null,
         repostedBy: null,
+        signals: null,
         threadId: null,
         unsupported: null,
         updatedAt: null,

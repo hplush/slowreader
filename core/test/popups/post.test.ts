@@ -417,6 +417,73 @@ describe('post popup', () => {
     equal(descendants.calls.length, 1)
   })
 
+  test('opens reposted middle of the thread from its start', async () => {
+    let mastodon = loaders.mastodon as Required<typeof loaders.mastodon>
+    spyOn(mastodon, 'getThreadDescendants', () => Promise.resolve([]))
+    let feed = await addFeed(
+      testFeed({ categoryId: GENERAL_CATEGORY, loader: 'mastodon' })
+    )
+    let repost = await addPost(
+      testPost({
+        feedId: feed,
+        originId: 'r',
+        publishedAt: 1060,
+        repostedBy: { title: 'Jane' },
+        sortedAt: 9000,
+        threadId: 'p1'
+      })
+    )
+    await addPost([
+      testPost({
+        feedId: feed,
+        merged: true,
+        originId: 'p3',
+        publishedAt: 1120,
+        threadId: 'p1'
+      }),
+      testPost({
+        feedId: feed,
+        merged: true,
+        originId: 'p1',
+        publishedAt: 1000,
+        threadId: 'p1'
+      })
+    ])
+    let popup = openTestPopup('post', `read:${repost}`)
+    await waitLoading(popup.loading)
+    await setTimeout(10)
+    let loaded = checkLoadedPopup(popup)
+    equal(loaded.post.get().originId, 'p1')
+    equal(loaded.publishedAt.get(), formatPublishedAt(i18nFormat.get(), 1000))
+    let format = i18nFormat.get()
+    deepEqual(
+      loaded.thread
+        .get()
+        .map(post => [
+          post.originId,
+          post.repostedBy?.title,
+          post.afterFirstText
+        ]),
+      [
+        [
+          'r',
+          'Jane',
+          postMessages.get().afterFirst({ time: formatDuration(format, 60) })
+        ],
+        [
+          'p3',
+          undefined,
+          postMessages.get().afterFirst({ time: formatDuration(format, 120) })
+        ]
+      ]
+    )
+
+    loaded.read!.set(true)
+    await setTimeout(10)
+    equal((await loadPost(repost))?.read, true)
+    equal((loaded.thread.get()[0] as PostValue).read, true)
+  })
+
   test('opens thread from the feed preview', async () => {
     let popup = openTestPopup(
       'post',

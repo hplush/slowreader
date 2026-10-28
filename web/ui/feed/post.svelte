@@ -4,6 +4,7 @@
     type FeedAuthor,
     getMediaOutsideText,
     getPopupId,
+    getPostBadges,
     getPostIntro,
     getPostPopupParam,
     isOpenedPost,
@@ -21,6 +22,7 @@
   import FeedLink from '../feed-link.svelte'
   import FormattedText from '../formatted-text.svelte'
   import Note from '../note.svelte'
+  import PostBadges from '../post/badges.svelte'
   import PostByline from '../post/byline.svelte'
   import PostMedia from '../post/media.svelte'
   import PostPoll from '../post/poll.svelte'
@@ -47,6 +49,7 @@
   let current = $derived(highlight && isOpenedPost($openedPost, post))
 
   let url = $derived(userPostUrl(post))
+  let badges = $derived(getPostBadges(post))
 </script>
 
 <li
@@ -113,13 +116,10 @@
       </Note>
     {/if}
     <footer class="feed-post_actions">
-      {#if post.threadSize > 1}
-        <span
-          class="feed-post_thread"
-          title={$postMessages.threadLabel({ size: post.threadSize })}
-        >
-          {$postMessages.thread({ size: post.threadSize })}
-        </span>
+      {#if badges.length > 0}
+        <div class="feed-post_badges">
+          <PostBadges {badges} />
+        </div>
       {/if}
       <div class="feed-post_fill"></div>
       {#if url}
@@ -271,16 +271,9 @@
       margin-inline: calc(-1 * var(--control-padding));
     }
 
-    .feed-post_thread {
-      display: flex;
+    .feed-post_badges {
       align-self: center;
-      align-items: center;
-      padding: 0.25rem 0.5rem;
       margin-inline-start: 0.5rem;
-      font: var(--badge-font);
-      color: var(--secondary-text-color);
-      background: --tune-background(--gutter);
-      border-radius: 1rem;
     }
 
     .feed-post_fill {

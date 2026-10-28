@@ -221,6 +221,13 @@ export function loadPostsPage(
           WHERE "thread"."threadId" = "posts"."threadId"
             AND "thread"."feedId" IS "posts"."feedId"
             AND "thread"."accountId" IS "posts"."accountId") AS "threadSize",
+        CASE WHEN "posts"."threadId" <> "posts"."originId"
+          THEN (SELECT COUNT(*) FROM "posts" AS "thread"
+            WHERE "thread"."threadId" = "posts"."threadId"
+              AND "thread"."feedId" IS "posts"."feedId"
+              AND "thread"."accountId" IS "posts"."accountId"
+              AND "thread"."publishedAt" < "posts"."publishedAt") + 1
+          ELSE 1 END AS "threadPosition",
         NULLIF("posts"."intro", '') AS "intro",
         CASE WHEN COALESCE("posts"."intro", '') = ''
           THEN "posts"."full" END AS "full",
@@ -249,6 +256,12 @@ export function loadPostsPage(
         (SELECT COUNT(*) FROM "posts" AS "thread"
           WHERE "thread"."feedId" = "posts"."feedId"
             AND "thread"."threadId" = "posts"."threadId") AS "threadSize",
+        CASE WHEN "threadId" <> "originId"
+          THEN (SELECT COUNT(*) FROM "posts" AS "thread"
+            WHERE "thread"."feedId" = "posts"."feedId"
+              AND "thread"."threadId" = "posts"."threadId"
+              AND "thread"."publishedAt" < "posts"."publishedAt") + 1
+          ELSE 1 END AS "threadPosition",
         NULLIF("intro", '') AS "intro",
         CASE WHEN COALESCE("intro", '') = '' THEN "full" END AS "full",
         COALESCE(NULLIF("intro", '') <> "full", 0) AS "more"
@@ -289,6 +302,13 @@ export function loadPostsRange(
           WHERE "thread"."threadId" = "posts"."threadId"
             AND "thread"."feedId" IS "posts"."feedId"
             AND "thread"."accountId" IS "posts"."accountId") AS "threadSize",
+        CASE WHEN "posts"."threadId" <> "posts"."originId"
+          THEN (SELECT COUNT(*) FROM "posts" AS "thread"
+            WHERE "thread"."threadId" = "posts"."threadId"
+              AND "thread"."feedId" IS "posts"."feedId"
+              AND "thread"."accountId" IS "posts"."accountId"
+              AND "thread"."publishedAt" < "posts"."publishedAt") + 1
+          ELSE 1 END AS "threadPosition",
         NULLIF("posts"."intro", '') AS "intro",
         CASE WHEN COALESCE("posts"."intro", '') = ''
           THEN "posts"."full" END AS "full",
@@ -317,6 +337,12 @@ export function loadPostsRange(
         (SELECT COUNT(*) FROM "posts" AS "thread"
           WHERE "thread"."feedId" = "posts"."feedId"
             AND "thread"."threadId" = "posts"."threadId") AS "threadSize",
+        CASE WHEN "threadId" <> "originId"
+          THEN (SELECT COUNT(*) FROM "posts" AS "thread"
+            WHERE "thread"."feedId" = "posts"."feedId"
+              AND "thread"."threadId" = "posts"."threadId"
+              AND "thread"."publishedAt" < "posts"."publishedAt") + 1
+          ELSE 1 END AS "threadPosition",
         NULLIF("intro", '') AS "intro",
         CASE WHEN COALESCE("intro", '') = '' THEN "full" END AS "full",
         COALESCE(NULLIF("intro", '') <> "full", 0) AS "more"

@@ -19,6 +19,7 @@ import type {
   PostAuthor,
   PostMedia,
   PostPreview,
+  PostSignals,
   QuotedPost
 } from '../post.ts'
 import { createPostsList, type PostsListResult } from '../posts-list.ts'
@@ -355,11 +356,19 @@ function parseQuote(quote: MastodonQuote | MastodonStatus): QuotedPost {
   return toQuoted(quoted)
 }
 
+function isSelfReply(status: MastodonStatus): boolean {
+  return (
+    !!status.in_reply_to_id &&
+    status.in_reply_to_account_id === status.account.id
+  )
+}
+
 function parseStatus(status: MastodonStatus): ParsedPost {
   let shown = status.reblog ?? status
   let post: ParsedPost = {
     ...parseContent(shown),
-    originId: status.id
+    // Post’s ID instead of repost’s ID keeps one copy after the second repost
+    originId: shown.id
   }
   if (status.reblog) {
     post.author = toAuthor(shown.account)
@@ -368,12 +377,9 @@ function parseStatus(status: MastodonStatus): ParsedPost {
   }
   if (shown.quote) post.quoted = parseQuote(shown.quote)
   if (shown.replies_count && !shown.in_reply_to_id) post.hasReplies = true
-  if (
-    !status.reblog &&
-    status.in_reply_to_id &&
-    status.in_reply_to_account_id === status.account.id
-  ) {
-    post.selfReplyTo = status.in_reply_to_id
+  if (status.reblog && isSelfReply(shown)) post.repostedPart = true
+  if (!status.reblog && isSelfReply(status)) {
+    post.selfReplyTo = status.in_reply_to_id!
   }
   return post
 }
@@ -394,6 +400,57 @@ async function loadReplied(
   }
 }
 
+/**
+ * Author’s chain of posts before the given one from the oldest.
+ * Empty if the thread starts with a reply to others.
+ */
+function findPreviousParts(ancestors: MastodonStatus[]): MastodonStatus[] {
+  // Ancestors go from the oldest one, so the author’s chain is in the end
+  let author = ancestors.at(-1)?.account.id
+  let chain: MastodonStatus[] = []
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    if (ancestors[i]!.account.id !== author) break
+    chain.unshift(ancestors[i]!)
+  }
+  if (chain.length === 0 || chain[0]!.in_reply_to_id) return []
+  return chain
+}
+
+async function loadThreadSignals(
+  task: DownloadTask,
+  origin: string,
+  quoted: MastodonStatus
+): Promise<PostSignals | undefined> {
+  try {
+    let response = await task.text(
+      `${origin}/api/v1/statuses/${quoted.id}/context`
+    )
+    let context = response.parseJson()
+    if (
+      !isObject(context) ||
+      !Array.isArray(context.ancestors) ||
+      !Array.isArray(context.descendants)
+    ) {
+      throw new ParseError('Mastodon context has no thread', response.text)
+    }
+    let previous = findPreviousParts(context.ancestors as MastodonStatus[])
+    if (previous.length === 0) return undefined
+    let next = findNextParts(
+      context.descendants as MastodonStatus[],
+      quoted.id,
+      quoted.account.id
+    )
+    return {
+      threadPosition: previous.length + 1,
+      threadSize: previous.length + 1 + next.length
+    }
+  } catch (e) {
+    // Quote is shown without the position
+    if (HTTPStatusError.is(e) || e instanceof ParseError) return undefined
+    throw e
+  }
+}
+
 async function parseStatuses(
   task: DownloadTask,
   origin: string,
@@ -403,7 +460,15 @@ async function parseStatuses(
     statuses.map(async status => {
       let post = parseStatus(status)
       let repliedId = status.reblog?.in_reply_to_id
-      if (repliedId) post.replied = await loadReplied(task, origin, repliedId)
+      if (repliedId && !post.repostedPart) {
+        post.replied = await loadReplied(task, origin, repliedId)
+      }
+      let shown = status.reblog ?? status
+      let quoted = shown.quote && unwrapQuote(shown.quote)
+      if (quoted && isSelfReply(quoted) && post.quoted) {
+        let signals = await loadThreadSignals(task, origin, quoted)
+        if (signals) post.quoted.signals = signals
+      }
       return post
     })
   )
@@ -864,16 +929,9 @@ export const mastodon: Loader = {
     if (!isObject(context) || !Array.isArray(context.ancestors)) {
       throw new ParseError('Mastodon context has no ancestors', response.text)
     }
-    // Ancestors go from the oldest one, so the author’s chain is in the end
-    let ancestors = context.ancestors as MastodonStatus[]
-    let author = ancestors.at(-1)?.account.id
-    let chain: MastodonStatus[] = []
-    for (let i = ancestors.length - 1; i >= 0; i--) {
-      if (ancestors[i]!.account.id !== author) break
-      chain.unshift(ancestors[i]!)
-    }
-    if (chain.length === 0 || chain[0]!.in_reply_to_id) return []
-    return chain.map(parseStatus)
+    return findPreviousParts(context.ancestors as MastodonStatus[]).map(
+      parseStatus
+    )
   },
 
   async getThreadDescendants(task, feedUrl, originId) {

@@ -193,6 +193,21 @@
       reading: 'fast',
       threadId: 'thread'
     },
+    ...[1, 2, 3].map(index => {
+      return {
+        author: AUTHOR,
+        feedId: 'mastodon',
+        full: `<p>The post number ${index} of the reposted thread</p>`,
+        intro: null,
+        merged: index !== 2,
+        originId: `reposted-${index}`,
+        publishedAt: index,
+        reading: 'fast',
+        sortedAt: 6,
+        threadId: 'reposted-1',
+        ...(index === 2 ? { repostedBy: { title: 'Mastodon' } } : {})
+      } satisfies Partial<PostValue>
+    }),
     {
       author: AUTHOR,
       feedId: 'mastodon',
@@ -272,6 +287,7 @@
         media: [{ alt: 'Wide image', type: 'image', url: imgExample }],
         missing: false,
         quotedUrl: 'https://mastodon.social/@other/2',
+        signals: { threadPosition: 5, threadSize: 30 },
         url: 'https://mastodon.social/@jane/1'
       },
       reading: 'fast'

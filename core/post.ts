@@ -25,6 +25,7 @@ import {
   type PostMedia,
   type PostPoll,
   type PostPreview,
+  type PostSignals,
   type PostValue,
   type QuotedPost
 } from './schema.ts'
@@ -36,6 +37,7 @@ export type {
   PostMedia,
   PostPoll,
   PostPreview,
+  PostSignals,
   PostValue,
   QuotedPost
 }
@@ -60,6 +62,11 @@ export type ParsedPost = {
   quoted?: QuotedPost
   replied?: QuotedPost
   repostedBy?: PostAuthor
+  /**
+   * Repost of not the first post of the author’s thread. Not saved
+   * to the database.
+   */
+  repostedPart?: true
   sortedAt?: number
   selfReplyTo?: string
   threadId?: string
@@ -120,6 +127,7 @@ export type ReaderPostWith<Media> = {
   authorTitle?: string
   authorUrl?: string
   media: Media
+  threadPosition: number
   threadSize: number
 } & Pick<
   PostValue,
@@ -153,6 +161,7 @@ export type ReaderPost = ReaderPostWith<ReaderMedia[]>
 export type PreviewPost = {
   media: ReaderMedia[]
   origin: OriginPost
+  threadPosition: number
   threadSize: number
 } & Omit<OriginPost, 'full' | 'intro' | 'media' | 'url'> &
   PostCardText
@@ -397,6 +406,7 @@ export function toPreviewPost(origin: OriginPost): PreviewPost {
     ...text,
     media: addMediaSizes(origin.media, origin.mediaSizes),
     origin,
+    threadPosition: 1,
     threadSize: (origin.threadParts?.length ?? 0) + 1
   }
 }
@@ -440,7 +450,7 @@ export function processOriginPost(
  * again on the render.
  */
 export function getPostIntro(
-  post: Pick<ReaderPost, 'threadSize'> & PostCardText
+  post: Pick<ReaderPost, 'threadPosition' | 'threadSize'> & PostCardText
 ): [Element, boolean] {
   let intro: Element
   let more: boolean
@@ -454,7 +464,7 @@ export function getPostIntro(
     intro = sanitizeDOM('')
     more = false
   }
-  if (post.threadSize > 1 && !endsWithEllipsis(intro)) {
+  if (post.threadPosition < post.threadSize && !endsWithEllipsis(intro)) {
     let ellipsis = intro.ownerDocument.createElement('p')
     ellipsis.append('…')
     intro.append(ellipsis)
@@ -551,6 +561,7 @@ export function testPost(
     reading: 'fast',
     replied: null,
     repostedBy: null,
+    signals: null,
     sortedAt: post.publishedAt ?? 1000,
     threadId: null,
     title: null,
@@ -605,6 +616,21 @@ export function addMediaSizes(
     let size = sizes?.[index]
     return size ? { ...item, size } : item
   })
+}
+
+export type PostBadge = { position: number; size: number; type: 'thread' }
+
+/**
+ * Saved threads are counted by SQL, quoted posts have signals from loaders.
+ */
+export function getPostBadges(
+  post: Pick<ReaderPost, 'threadPosition' | 'threadSize'> | QuotedPost
+): PostBadge[] {
+  let signals = 'missing' in post ? post.signals : post
+  let position = signals?.threadPosition
+  let size = signals?.threadSize
+  if (!position || !size || size < 2) return []
+  return [{ position, size, type: 'thread' }]
 }
 
 export function getQuotedIntro(quoted: QuotedPost): Element {

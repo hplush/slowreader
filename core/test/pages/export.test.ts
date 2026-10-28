@@ -162,6 +162,7 @@ describe('export page', () => {
           reading: 'fast',
           replied: null,
           repostedBy: null,
+          signals: null,
           sortedAt: 1000,
           threadId: null,
           title: null,

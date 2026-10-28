@@ -703,8 +703,8 @@ describe('bluesky loader', () => {
               record: {
                 createdAt: '2026-01-01T00:00:00.000Z',
                 reply: {
-                  parent: { uri: uri('bob', 'self') },
-                  root: { uri: uri('bob', 'self') }
+                  parent: { uri: uri('alice', 'parent') },
+                  root: { uri: uri('alice', 'parent') }
                 },
                 text: 'r'
               },
@@ -739,8 +739,86 @@ describe('bluesky loader', () => {
                 uri: uri('alice', 'deleted')
               }
             }
+          },
+          {
+            ...repost(
+              bobPost('part', {
+                record: {
+                  createdAt: '2026-01-01T00:00:00.000Z',
+                  reply: {
+                    parent: { uri: uri('bob', 'previous') },
+                    root: { uri: uri('bob', 'previous') }
+                  },
+                  text: 'part'
+                }
+              })
+            ),
+            reply: {
+              parent: {
+                $type: 'app.bsky.feed.defs#postView',
+                ...bobPost('previous')
+              }
+            }
+          },
+          {
+            post: post('quote', {
+              embed: {
+                $type: 'app.bsky.embed.record#view',
+                record: {
+                  $type: 'app.bsky.embed.record#viewRecord',
+                  author: profile('bob'),
+                  uri: uri('bob', 'm3'),
+                  value: {
+                    createdAt: '2026-01-01T00:00:00.000Z',
+                    reply: {
+                      parent: { uri: uri('bob', 'm2') },
+                      root: { uri: uri('bob', 'm1') }
+                    },
+                    text: 'm3'
+                  }
+                }
+              }
+            })
           }
         ]
+      }),
+      'application/json'
+    )
+    expectRequest(threadUrl(uri('bob', 'm3'), 1000)).andRespond(
+      200,
+      JSON.stringify({
+        thread: {
+          $type: 'app.bsky.feed.defs#threadViewPost',
+          parent: {
+            $type: 'app.bsky.feed.defs#threadViewPost',
+            parent: {
+              $type: 'app.bsky.feed.defs#threadViewPost',
+              post: bobPost('m1')
+            },
+            post: bobPost('m2')
+          },
+          post: bobPost('m3')
+        }
+      }),
+      'application/json'
+    )
+    expectRequest(threadUrl(uri('bob', 'm3'), 0, 10)).andRespond(
+      200,
+      JSON.stringify({
+        thread: {
+          $type: 'app.bsky.feed.defs#threadViewPost',
+          post: bobPost('m3'),
+          replies: [
+            {
+              $type: 'app.bsky.feed.defs#threadViewPost',
+              post: bobPost('m4')
+            },
+            {
+              $type: 'app.bsky.feed.defs#threadViewPost',
+              post: post('reply')
+            }
+          ]
+        }
       }),
       'application/json'
     )
@@ -765,6 +843,104 @@ describe('bluesky loader', () => {
     })
     equal(list[2]!.originId, uri('bob', 'r2'))
     deepEqual(list[2]!.replied, { missing: true })
+    equal(list[3]!.repostedPart, true)
+    equal(list[3]!.selfReplyTo, undefined)
+    equal(list[3]!.replied, undefined)
+    deepEqual(list[4]!.quoted?.signals, { threadPosition: 3, threadSize: 4 })
+  })
+
+  test('skips position of quoted thread part on errors', async () => {
+    let quote = (id: string): object => ({
+      post: post(`q${id}`, {
+        embed: {
+          $type: 'app.bsky.embed.record#view',
+          record: {
+            $type: 'app.bsky.embed.record#viewRecord',
+            author: profile('bob'),
+            uri: uri('bob', id),
+            value: {
+              createdAt: '2026-01-01T00:00:00.000Z',
+              reply: {
+                parent: { uri: uri('bob', 'previous') },
+                root: { uri: uri('alice', 'root') }
+              },
+              text: id
+            }
+          }
+        }
+      })
+    })
+    let empty = (id: string): string =>
+      JSON.stringify({
+        thread: {
+          $type: 'app.bsky.feed.defs#threadViewPost',
+          post: bobPost(id)
+        }
+      })
+    expectRequest(FEED).andRespond(
+      200,
+      JSON.stringify({ feed: [quote('toOthers'), quote('missing')] }),
+      'application/json'
+    )
+    expectRequest(threadUrl(uri('bob', 'toOthers'), 1000)).andRespond(
+      200,
+      JSON.stringify({
+        thread: {
+          $type: 'app.bsky.feed.defs#threadViewPost',
+          parent: {
+            $type: 'app.bsky.feed.defs#threadViewPost',
+            parent: {
+              $type: 'app.bsky.feed.defs#threadViewPost',
+              post: post('root', { author: profile('alice') })
+            },
+            post: bobPost('previous')
+          },
+          post: bobPost('toOthers')
+        }
+      }),
+      'application/json'
+    )
+    expectRequest(threadUrl(uri('bob', 'toOthers'), 0, 10)).andRespond(
+      200,
+      empty('toOthers'),
+      'application/json'
+    )
+    expectRequest(threadUrl(uri('bob', 'missing'), 1000)).andRespond(400)
+    expectRequest(threadUrl(uri('bob', 'missing'), 0, 10)).andRespond(
+      200,
+      empty('missing'),
+      'application/json'
+    )
+    let posts = loaders.bluesky.getPosts(
+      createDownloadTask({ tries: 1 }),
+      'https://bsky.app/profile/did:plc:jane'
+    )
+    await posts.loading
+    deepEqual(
+      posts.get().list.map(i => [i.quoted?.missing, i.quoted?.signals]),
+      [
+        [false, undefined],
+        [false, undefined]
+      ]
+    )
+
+    expectRequest(FEED).andRespond(
+      200,
+      JSON.stringify({ feed: [quote('offline')] }),
+      'application/json'
+    )
+    expectRequest(threadUrl(uri('bob', 'offline'), 1000)).andFail()
+    expectRequest(threadUrl(uri('bob', 'offline'), 0, 10)).andRespond(
+      200,
+      empty('offline'),
+      'application/json'
+    )
+    posts = loaders.bluesky.getPosts(
+      createDownloadTask({ tries: 1 }),
+      'https://bsky.app/profile/did:plc:jane'
+    )
+    await posts.loading
+    equal(posts.get().error?.name, 'NetworkError')
   })
 
   test('skips replies to others', async () => {
@@ -813,14 +989,15 @@ describe('bluesky loader', () => {
           i.originId.split('/').at(-1),
           i.selfReplyTo?.split('/').at(-1),
           i.repostedBy?.title,
-          i.hasReplies
+          i.hasReplies,
+          i.repostedPart
         ]),
       [
-        ['1', undefined, 'JANE', true],
-        ['2', undefined, 'JANE', undefined],
-        ['single', undefined, 'JANE', undefined],
-        ['j2', 'j1', undefined, undefined],
-        ['j1', undefined, undefined, true]
+        ['1', undefined, 'JANE', true, undefined],
+        ['2', undefined, 'JANE', undefined, true],
+        ['single', undefined, 'JANE', undefined, undefined],
+        ['j2', 'j1', undefined, undefined, undefined],
+        ['j1', undefined, undefined, true, undefined]
       ]
     )
     equal(posts.get().hasNext, true)

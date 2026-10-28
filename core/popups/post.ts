@@ -66,6 +66,16 @@ export function loadPopupPost(param: string): Promise<PostValue | undefined> {
   }
 }
 
+/**
+ * Reposts from old versions have the repost’s date in `publishedAt`,
+ * so the thread start can be after its parts.
+ */
+function startFirst(posts: PostValue[], threadId: string): PostValue[] {
+  return posts.toSorted(
+    (a, b) => Number(b.originId === threadId) - Number(a.originId === threadId)
+  )
+}
+
 export const post = definePopup('post', async loader => {
   let $post: ReadableAtom<OriginPost | PostValue>
   let $feed: ReadableAtom<FeedValue> | undefined
@@ -75,6 +85,7 @@ export const post = definePopup('post', async loader => {
   let stored = await loadPopupPost(loader)
 
   let task = createDownloadTask()
+  // The whole thread from its start, the shown post could be in the middle
   let $parts = atom<(OriginPost | PostValue)[]>([])
   let updating: Promise<(OriginPost | PostValue)[]> | undefined
   let unbindStored = (): void => {}
@@ -96,9 +107,6 @@ export const post = definePopup('post', async loader => {
     updating = loadThreadByUrl(task, postLoader, {
       ...$byUrl.get(),
       url: target
-    }).then(([start, ...parts]) => {
-      $byUrl.set(start!)
-      return parts
     })
     $post = $byUrl
   } else if (loader.startsWith('data:')) {
@@ -112,12 +120,13 @@ export const post = definePopup('post', async loader => {
       throw new NotFoundError()
     }
     $post = atom(preview)
-    $parts.set(preview.threadParts ?? [])
+    $parts.set([preview, ...(preview.threadParts ?? [])])
     let postLoader = preview.url ? findPostLoader(preview.url) : undefined
     if (postLoader) {
       // Preview has no parts of reposted threads
       updating = loadPreviewThread(task, postLoader, preview.url!).then(
-        thread => thread.filter(part => part.url !== preview.url)
+        thread =>
+          thread.map(part => (part.url === preview.url ? preview : part))
       )
     }
   } else {
@@ -146,22 +155,20 @@ export const post = definePopup('post', async loader => {
       ? await loadFeed(postValue.feedId)
       : undefined
     if (feedValue) $feed = atom(feedValue)
-    let { id: shownId, threadId } = postValue
-    if (threadId) {
+    let threadId = postValue.threadId ?? postValue.originId
+    if (postValue.threadId) {
       let sourceId = postValue.feedId ?? postValue.accountId!
       $parts.set(
-        (await loadThreadPosts(sourceId, threadId)).filter(
-          part => part.id !== shownId
-        )
+        startFirst(await loadThreadPosts(sourceId, threadId), threadId)
       )
     }
     // Refresh could save the reposted thread start without its parts
     if (
       feedValue &&
-      (threadId || (postValue.repostedBy && !postValue.replied))
+      (postValue.threadId || (postValue.repostedBy && !postValue.replied))
     ) {
       updating = updateThread(task, feedValue, postValue).then(posts =>
-        posts.filter(part => part.id !== shownId)
+        startFirst(posts, threadId)
       )
     }
   }
@@ -172,15 +179,26 @@ export const post = definePopup('post', async loader => {
     // Offline or closed popup still shows saved parts
     .catch(() => {})
 
-  let $publishedAt = computed([$post, i18nFormat], (value, format) => {
+  function withShown(
+    part: OriginPost | PostValue,
+    shown: OriginPost | PostValue
+  ): OriginPost | PostValue {
+    return part.id === shown.id ? shown : part
+  }
+
+  let $start = computed([$parts, $post], (parts, shown) => {
+    return withShown(parts[0] ?? shown, shown)
+  })
+
+  let $publishedAt = computed([$start, i18nFormat], (value, format) => {
     return value.publishedAt
       ? formatPublishedAt(format, value.publishedAt)
       : undefined
   })
 
   let $thread = computed(
-    [$parts, $post, i18nFormat, postMessages],
-    (parts, first, format, t) => {
+    [$parts, $post, $start, i18nFormat, postMessages],
+    (parts, shown, first, format, t) => {
       function formatAfterFirst(
         part: OriginPost | PostValue
       ): string | undefined {
@@ -191,8 +209,8 @@ export const post = definePopup('post', async loader => {
         if (diff === 0) return t.rightAfter
         return t.afterFirst({ time: formatDuration(format, diff) })
       }
-      return parts.map(part => ({
-        ...part,
+      return parts.slice(1).map(part => ({
+        ...withShown(part, shown),
         afterFirstText: formatAfterFirst(part),
         publishedAtText: part.publishedAt
           ? formatPublishedAt(format, part.publishedAt)
@@ -209,7 +227,7 @@ export const post = definePopup('post', async loader => {
       unbindRead()
     },
     feed: $feed,
-    post: $post,
+    post: $start,
     publishedAt: $publishedAt,
     read,
     thread: $thread,

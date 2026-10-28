@@ -127,7 +127,7 @@ describe('threads', () => {
       (await linkThreads(createDownloadTask(), feed, [start])).map(
         post => post.originId
       ),
-      ['start', 'part']
+      ['part', 'start']
     )
 
     fails = 3
@@ -240,6 +240,106 @@ describe('threads', () => {
       origin('h', { selfReplyTo: 'i' })
     ])
     deepEqual(short(linked), [['h', undefined, undefined, undefined]])
+  })
+
+  test('keeps every repost of the thread as a card', async () => {
+    let feed = await prepareFeed()
+    let bob = { title: 'Bob' }
+    let jane = { title: 'Jane' }
+    await addPost([
+      stored(feed.id, 'p2', {
+        publishedAt: 2,
+        read: true,
+        repostedBy: jane,
+        threadId: 'p1'
+      }),
+      stored(feed.id, 'p3', { merged: true, publishedAt: 3, threadId: 'old' })
+    ])
+    function parts(...numbers: number[]): OriginPost[] {
+      return numbers.map(number =>
+        origin(`p${number}`, { publishedAt: number })
+      )
+    }
+    let ancestors = spyOn(mastodon, 'getThreadAncestors', (task, url, id) =>
+      Promise.resolve(id === 'p7' ? parts(1, 2, 3, 4, 5, 6) : [])
+    )
+    let descendants = spyOn(mastodon, 'getThreadDescendants', (task, url, id) =>
+      Promise.resolve(
+        id === 'p7' ? [{ ...parts(8)[0]!, hasReplies: true as const }] : []
+      )
+    )
+    function repost(number: number, fields: Partial<OriginPost>): OriginPost {
+      return origin(`p${number}`, {
+        author: bob,
+        publishedAt: number,
+        repostedBy: jane,
+        sortedAt: 10 * number,
+        ...fields
+      })
+    }
+    let linked = await linkThreads(createDownloadTask(), feed, [
+      repost(7, { repostedPart: true }),
+      origin('own', { publishedAt: 50 }),
+      repost(4, { repostedPart: true }),
+      repost(1, { hasReplies: true }),
+      repost(9, { repostedPart: true })
+    ])
+    deepEqual(
+      ancestors.calls.map(call => call[2]),
+      ['p7', 'p9']
+    )
+    deepEqual(
+      descendants.calls.map(call => call[2]),
+      ['p7', 'p9']
+    )
+    deepEqual(
+      linked.map(post => [
+        ...short([post])[0]!,
+        post.author?.title,
+        'repostedPart' in post || 'hasReplies' in post
+      ]),
+      [
+        ['own', undefined, undefined, undefined, undefined, false],
+        ['p5', true, 'p1', undefined, 'Bob', false],
+        ['p6', true, 'p1', undefined, 'Bob', false],
+        ['p8', true, 'p1', undefined, 'Bob', false],
+        ['p7', false, 'p1', 70, 'Bob', false],
+        ['p4', false, 'p1', 40, 'Bob', false],
+        ['p1', false, 'p1', 10, 'Bob', false],
+        ['p9', undefined, undefined, 90, 'Bob', false]
+      ]
+    )
+    deepEqual(
+      (await loadPosts()).map(post => [
+        post.originId,
+        post.read,
+        post.merged,
+        post.threadId
+      ]),
+      [
+        ['p3', false, true, 'p1'],
+        ['p2', false, true, 'p1']
+      ]
+    )
+
+    await addPost(
+      linked.map(post => processOriginPost(post, { feedId: feed.id }, 'slow'))
+    )
+    let page = await loadPostsPage(
+      { feedId: feed.id, reading: 'slow' },
+      topCursor(),
+      10
+    )
+    deepEqual(
+      page.map(post => [post.originId, post.threadPosition, post.threadSize]),
+      [
+        ['p9', 1, 0],
+        ['p7', 7, 8],
+        ['own', 1, 0],
+        ['p4', 4, 8],
+        ['p1', 1, 8]
+      ]
+    )
   })
 
   test('collapses threads of the feed preview', () => {

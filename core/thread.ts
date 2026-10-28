@@ -48,25 +48,22 @@ async function reopenPost(
   return true
 }
 
-async function loadThreadDescendants(
+async function loadThreadParts(
   task: DownloadTask,
   feed: Pick<FeedValue, 'loader' | 'url'>,
   originId: string,
+  method: 'getThreadAncestors' | 'getThreadDescendants',
   attempt = 1
 ): Promise<ParsedPost[]> {
   try {
     return (
-      (await loaders[feed.loader].getThreadDescendants?.(
-        task,
-        feed.url,
-        originId
-      )) ?? []
+      (await loaders[feed.loader][method]?.(task, feed.url, originId)) ?? []
     )
   } catch (e) {
     let temporary = NetworkError.is(e) || HTTPStatusError.is(e, /^5\d\d$/)
     if (temporary && attempt < 3) {
       await delay(500 * attempt)
-      return loadThreadDescendants(task, feed, originId, attempt + 1)
+      return loadThreadParts(task, feed, originId, method, attempt + 1)
     } else if (temporary || HTTPStatusError.is(e) || e instanceof ParseError) {
       getEnvironment().warn(e)
       return []
@@ -77,34 +74,84 @@ async function loadThreadDescendants(
 }
 
 /**
- * Feed has only the repost of the thread start, since next parts are posted
- * by another author.
+ * Repost of another part of the thread could be saved by previous refresh.
+ * The thread is read as a whole, so the read card becomes a hidden part
+ * and the new repost shows the thread.
  */
-async function loadRepostedParts(
+async function reopenRepostedPart(
+  feedId: string,
+  originId: string,
+  threadId: string
+): Promise<boolean> {
+  let post = await loadByOriginId(feedId, originId)
+  if (!post) return false
+  let changes: Parameters<typeof changePost>[1] = {}
+  if (post.read) {
+    changes.read = false
+    if (!post.merged) changes.merged = true
+  }
+  if (post.threadId !== threadId) changes.threadId = threadId
+  if (Object.keys(changes).length > 0) await changePost(post.id, changes)
+  return true
+}
+
+/**
+ * Feed has only reposts of the thread’s posts, since other parts are posted
+ * by another author. Every repost stays a card on the place of the repost
+ * with its position in the thread, other parts are loaded to show the whole
+ * thread from the start in the popup.
+ */
+async function linkReposts(
   task: DownloadTask,
-  feed: Pick<FeedValue, 'loader' | 'url'>,
-  posts: OriginPost[]
+  feed: Pick<FeedValue, 'id' | 'loader' | 'url'>,
+  reposts: OriginPost[],
+  known: Set<string>
 ): Promise<OriginPost[]> {
-  let threads = await Promise.all(
-    posts
-      .filter(post => post.repostedBy && post.hasReplies)
-      .map(async start => {
-        let parts = await loadThreadDescendants(task, feed, start.originId)
-        // Mastodon links the first part to the original post, not to repost
-        return parts.map((part, index) => ({
-          ...part,
-          id: part.originId,
-          selfReplyTo: (parts[index - 1] ?? start).originId
-        }))
-      })
-  )
-  let known = new Set<string>()
-  return threads.flat().filter(part => {
-    // Mastodon has different IDs for two reposts of the same post
-    if (known.has(part.originId)) return false
-    known.add(part.originId)
-    return true
-  })
+  let cards = new Set(reposts.map(repost => repost.originId))
+  let threads = new Map<string, string>()
+  let linked: OriginPost[] = []
+  for (let repost of reposts) {
+    let card = { ...repost }
+    delete card.repostedPart
+    delete card.hasReplies
+    let threadId = threads.get(repost.originId)
+    if (!threadId) {
+      let [ancestors, descendants] = await Promise.all([
+        repost.repostedPart
+          ? loadThreadParts(task, feed, repost.originId, 'getThreadAncestors')
+          : [],
+        loadThreadParts(task, feed, repost.originId, 'getThreadDescendants')
+      ])
+      if (repost.repostedPart) {
+        threadId = ancestors[0]?.originId
+      } else if (descendants.length > 0) {
+        threadId = repost.originId
+      }
+      if (threadId) {
+        for (let part of [...ancestors, ...descendants]) {
+          threads.set(part.originId, threadId)
+          if (cards.has(part.originId) || known.has(part.originId)) continue
+          known.add(part.originId)
+          if (await reopenRepostedPart(feed.id, part.originId, threadId)) {
+            continue
+          }
+          let saved: OriginPost = {
+            ...part,
+            // Feed is the author of own posts, not of reposted thread
+            author: card.author,
+            id: part.originId,
+            merged: true,
+            threadId
+          }
+          delete saved.selfReplyTo
+          delete saved.hasReplies
+          linked.push(saved)
+        }
+      }
+    }
+    linked.push(threadId ? { ...card, merged: false, threadId } : card)
+  }
+  return linked
 }
 
 /**
@@ -124,13 +171,15 @@ export async function linkThreads(
   feed: Pick<FeedValue, 'id' | 'loader' | 'url'>,
   found: OriginPost[]
 ): Promise<OriginPost[]> {
-  let parts = await loadRepostedParts(task, feed, found)
-  let partIds = new Set(parts.map(part => part.originId))
-  let posts = [
-    // Thread part can be reposted too
-    ...found.filter(post => !partIds.has(post.originId)),
-    ...parts
-  ]
+  let isRepostedThread = (post: OriginPost): boolean =>
+    !!post.repostedBy && !!(post.hasReplies || post.repostedPart)
+  let posts = found.filter(post => !isRepostedThread(post))
+  let reposts = await linkReposts(
+    task,
+    feed,
+    found.filter(isRepostedThread),
+    new Set(posts.map(post => post.originId))
+  )
   let byOrigin = new Map(posts.map(post => [post.originId, post]))
   let threads = new Map<OriginPost, string | undefined>()
   let restored: OriginPost[] = []
@@ -208,7 +257,7 @@ export async function linkThreads(
     }
   }
 
-  return all.map(post => {
+  let linked = all.map(post => {
     let threadId = getThreadId(post)
     let saved = { ...post }
     delete saved.selfReplyTo
@@ -222,6 +271,7 @@ export async function linkThreads(
     if (!sortedAt) return { ...saved, merged: false, threadId }
     return { ...saved, merged: false, sortedAt, threadId }
   })
+  return [...linked, ...reposts]
 }
 
 /**

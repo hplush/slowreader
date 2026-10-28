@@ -26,6 +26,7 @@ import type {
   PostAuthor,
   PostMedia,
   PostPreview,
+  PostSignals,
   QuotedPost
 } from '../post.ts'
 import { createPostsList, type PostsListResult } from '../posts-list.ts'
@@ -582,6 +583,7 @@ async function parseReplied(
 }
 
 async function parseItem(
+  task: DownloadTask,
   item: BlueskyFeedItem,
   findPds: PdsFinder
 ): Promise<ParsedPost> {
@@ -591,10 +593,23 @@ async function parseItem(
     post.author = toAuthor(item.post.author)
     post.repostedBy = toAuthor(item.reason.by)
     post.sortedAt = toTime(item.reason.indexedAt)
-    delete post.selfReplyTo
-    if (item.reply) {
+    if (post.selfReplyTo) {
+      post.repostedPart = true
+    } else if (item.reply) {
       post.replied = await parseReplied(item.reply.parent, findPds)
     }
+    delete post.selfReplyTo
+  }
+  let quote = getQuoteRecord(item.post.embed)
+  let quotedParent = quote?.value?.reply?.parent.uri
+  if (
+    post.quoted &&
+    quote &&
+    quotedParent &&
+    getDid(quotedParent) === getDid(quote.uri)
+  ) {
+    let signals = await loadThreadSignals(task, quote.uri)
+    if (signals) post.quoted.signals = signals
   }
   return post
 }
@@ -651,11 +666,10 @@ function isReplyToOthers(item: BlueskyFeedItem): boolean {
 /**
  * Thread API returns only 10 levels of replies
  */
-async function loadSelfReplies(
+async function loadSelfReplyPosts(
   task: DownloadTask,
-  findPds: PdsFinder,
   uri: string
-): Promise<ParsedPost[]> {
+): Promise<BlueskyPost[]> {
   let author = getDid(uri)
   let parts: BlueskyPost[] = []
   let current: BlueskyThread | undefined = await loadThread(task, uri, 0, 10)
@@ -673,12 +687,47 @@ async function loadSelfReplies(
       )[0]
     if (current) parts.push(current.post!)
   }
+  return parts
+}
+
+async function loadSelfReplies(
+  task: DownloadTask,
+  findPds: PdsFinder,
+  uri: string
+): Promise<ParsedPost[]> {
+  let parts = await loadSelfReplyPosts(task, uri)
   return Promise.all(
     parts.map(async part => ({
       ...(await parsePost(part, findPds)),
       author: toAuthor(part.author)
     }))
   )
+}
+
+async function loadThreadSignals(
+  task: DownloadTask,
+  uri: string
+): Promise<PostSignals | undefined> {
+  try {
+    let [thread, next] = await Promise.all([
+      loadThread(task, uri, 1000, 0),
+      loadSelfReplyPosts(task, uri)
+    ])
+    let author = getDid(uri)
+    let position = 1
+    let current = thread.parent
+    while (current?.post && current.post.author.did === author) {
+      position += 1
+      current = current.parent
+    }
+    // Thread starts with a reply to others or to deleted post
+    if (current) return undefined
+    return { threadPosition: position, threadSize: position + next.length }
+  } catch (e) {
+    // Quote is shown without the position
+    if (HTTPStatusError.is(e) || e instanceof ParseError) return undefined
+    throw e
+  }
 }
 
 async function loadPage(
@@ -700,7 +749,7 @@ async function loadPage(
     await Promise.all(
       page.feed
         .filter(item => !isReplyToOthers(item))
-        .map(item => parseItem(item, findPds))
+        .map(item => parseItem(task, item, findPds))
     ),
     // Replies to others could make the whole page empty
     next &&
@@ -945,7 +994,7 @@ async function loadTimelinePage(
         .filter(item => !isReplyToOthers(item))
         .map(async item => ({
           author: toAuthor(item.post.author),
-          ...(await parseItem(item, findPds))
+          ...(await parseItem(task, item, findPds))
         }))
     ),
     next &&

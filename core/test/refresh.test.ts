@@ -641,6 +641,7 @@ describe('refresh', () => {
               originId: 'part2',
               publishedAt: 600,
               repostedBy: jane,
+              repostedPart: true,
               sortedAt: 2500,
               title: 'part2'
             },
@@ -688,8 +689,8 @@ describe('refresh', () => {
       'start'
     ])
     deepEqual(await getPostKeys('threadId'), ['start', 'start', null, 'start'])
-    deepEqual(await getPostKeys('merged'), [true, true, false, false])
-    deepEqual(await getPostKeys('sortedAt'), [500, 600, 2000, 3000])
+    deepEqual(await getPostKeys('merged'), [true, false, false, false])
+    deepEqual(await getPostKeys('sortedAt'), [500, 2500, 2000, 3000])
     deepEqual(await getPostKeys('publishedAt'), [500, 600, 200, 400])
     deepEqual((await loadFeed(feedId))!.lastPublishedAt, 3000)
   })
