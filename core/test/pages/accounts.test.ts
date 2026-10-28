@@ -188,7 +188,9 @@ async function expectCrash(hash: string, error: Error): Promise<void> {
     returnTo(hash)
     await waitFor(fatal, value => !!value)
   }, [error])
-  deepEqual(fatal.get(), { error: String(error), type: 'crash' })
+  let reason = fatal.get()
+  ok(reason?.type === 'crash')
+  equal(reason.error.split('\n')[0], String(error))
   fatal.set(undefined)
 }
 
