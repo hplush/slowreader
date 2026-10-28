@@ -1,9 +1,9 @@
 <script lang="ts">
   import { mdiCheck, mdiContentCopy } from '@mdi/js'
   import { commonMessages as t } from '@slowreader/core'
-  import { onDestroy } from 'svelte'
   import type { HTMLInputAttributes } from 'svelte/elements'
 
+  import { createClipboard } from '../lib/clipboard.ts'
   import Announce from './announce.svelte'
   import Button from './button.svelte'
   import Label from './label.svelte'
@@ -21,25 +21,7 @@
   // TODO onclick select all
 
   let id = $props.id()
-  let copied = $state(false)
-  let timer: ReturnType<typeof setTimeout> | undefined
-
-  onDestroy(() => {
-    if (timer) clearTimeout(timer)
-  })
-
-  async function copy(): Promise<void> {
-    try {
-      await navigator.clipboard.writeText(value)
-    } catch {
-      return
-    }
-    copied = true
-    if (timer) clearTimeout(timer)
-    timer = setTimeout(() => {
-      copied = false
-    }, 3000)
-  }
+  let { copied, copy } = createClipboard()
 </script>
 
 <div class="output">
@@ -56,19 +38,19 @@
       {value}
       {...props}
     />
-    <div class="output_button" class:is-copied={copied}>
+    <div class="output_button" class:is-copied={$copied}>
       <Button
-        icon={copied ? mdiCheck : mdiContentCopy}
+        icon={$copied ? mdiCheck : mdiContentCopy}
         joined="end"
-        onclick={copy}
+        onclick={() => copy(value)}
         size="icon"
         variant="secondary"
       >
-        {copied ? $t.copied : $t.copyToClipboard}
+        {$copied ? $t.copied : $t.copyToClipboard}
       </Button>
     </div>
   </div>
-  <Announce text={copied ? $t.copied : ''} />
+  <Announce text={$copied ? $t.copied : ''} />
 </div>
 
 <style lang="postcss">

@@ -1,3 +1,4 @@
+import { VERSION } from '@slowreader/api'
 import { computed } from 'nanostores'
 
 import { resetDatabase } from '../client.ts'
@@ -20,6 +21,7 @@ export const fatalPage = createPage('fatal', () => {
   })
 
   return {
+    appVersion: VERSION,
     exit() {},
     hideMenu: computed($reason, reason => reason.type !== 'notFound'),
     params: { reason: $name },

@@ -58,6 +58,7 @@
 >
   <Scene
     oninit={() => {
+      clientUpdate.set('available')
       fatal.set({
         error: 'Database disk image is malformed',
         type: 'brokenDatabase'
@@ -73,8 +74,13 @@
 <Story name="Crash" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
+      clientUpdate.set('latest')
       fatal.set({
-        error: 'Error: No Slow Reader database',
+        error:
+          'Error: No Slow Reader database\n' +
+          '    at getClient (core/client.ts:48:11)\n' +
+          '    at feedsPage (core/pages/feeds.ts:12:17)\n' +
+          '    at openPage (core/current-page.ts:22:9)',
         type: 'crash'
       })
     }}
@@ -85,7 +91,13 @@
 </Story>
 
 <Story name="No Storage" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene route={{ params: { reason: 'noDb' }, route: 'fatal' }} user={false}>
+  <Scene
+    oninit={() => {
+      clientUpdate.set(undefined)
+    }}
+    route={{ params: { reason: 'noDb' }, route: 'fatal' }}
+    user={false}
+  >
     <FatalPage page={pages.fatal()} />
   </Scene>
 </Story>
@@ -121,6 +133,7 @@
 >
   <Scene
     oninit={() => {
+      clientUpdate.set('checking')
       fatal.set({
         error: 'Database disk image is malformed',
         type: 'brokenDatabase'

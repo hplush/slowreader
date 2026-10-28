@@ -37,7 +37,14 @@ let unhandled: string[] = []
  */
 export function showCrash(error: unknown): void {
   getEnvironment().warn(error)
-  if (!fatal.get()) fatal.set({ error: String(error), type: 'crash' })
+  if (!fatal.get()) fatal.set({ error: withStack(error), type: 'crash' })
+}
+
+function withStack(error: unknown): string {
+  let text = String(error)
+  if (!(error instanceof Error) || !error.stack) return text
+  // Firefox and Safari do not put the message into the stack
+  return error.stack.startsWith(text) ? error.stack : `${text}\n${error.stack}`
 }
 
 /**
@@ -51,6 +58,15 @@ export function getUnhandledErrors(): string | undefined {
 function remember(error: unknown): void {
   unhandled.push(String(error))
   if (unhandled.length > 5) unhandled.shift()
+}
+
+export function getIssueURL(title: string, debug: string): string {
+  let body =
+    '```\n' + debug + '\n```\n\n> What was your step before the error?\n\n'
+  return (
+    'https://github.com/hplush/slowreader/issues/new?' +
+    new URLSearchParams({ body, title }).toString()
+  )
 }
 
 /**

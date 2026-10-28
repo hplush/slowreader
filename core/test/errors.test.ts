@@ -5,6 +5,7 @@ import { afterEach, describe, test } from 'node:test'
 import {
   errorToMessage,
   fatal,
+  getIssueURL,
   getUnhandledErrors,
   HTTPStatusError,
   NotFoundError
@@ -123,4 +124,17 @@ describe('errors', () => {
     listenErrors()
     equal(getUnhandledErrors(), undefined)
   })
+})
+
+test('builds GitHub issue URL with debug info', () => {
+  let url = new URL(getIssueURL('The app crashed', 'Error: test'))
+  equal(
+    url.origin + url.pathname,
+    'https://github.com/hplush/slowreader/issues/new'
+  )
+  equal(url.searchParams.get('title'), 'The app crashed')
+  equal(
+    url.searchParams.get('body'),
+    '```\nError: test\n```\n\n> What was your step before the error?\n\n'
+  )
 })

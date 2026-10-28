@@ -459,7 +459,7 @@ function warningText(warning: unknown): string {
 
 export function expectWarning<Result extends Promise<void> | void>(
   cb: () => Result,
-  warnings: Error[]
+  warnings: unknown[]
 ): Result {
   let tracking: unknown[] = []
   setWarningTracking(tracking)

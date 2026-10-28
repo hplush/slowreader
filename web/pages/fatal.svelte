@@ -11,20 +11,23 @@
     mdiFire,
     mdiReload,
     mdiTabRemove,
-    mdiTimerSandComplete
+    mdiTimerSandComplete,
+    mdiUpdate
   } from '@mdi/js'
   import {
     type FatalPage,
     forgetLocalData,
     getEnvironment,
+    getIssueURL,
     hasCloud,
     fatalMessages as t
   } from '@slowreader/core'
 
-  import { clientUpdate } from '../stores/client-update.ts'
+  import { addDebugInfo } from '../lib/debug.ts'
+  import { checkClientUpdate, clientUpdate } from '../stores/client-update.ts'
   import { getURL } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
-  import Output from '../ui/output.svelte'
+  import DebugInfo from '../ui/debug-info.svelte'
   import PageIcon from '../ui/page-icon.svelte'
   import Stack from '../ui/stack.svelte'
   import ThinPage from '../ui/thin-page.svelte'
@@ -42,7 +45,42 @@
 
   let { page }: { page: FatalPage } = $props()
   let { reason, resetDatabase } = $derived(page)
+  let hasUpdate = $derived($clientUpdate === 'available')
+
+  $effect(() => {
+    let type = $reason.type
+    if (type === 'brokenDatabase' || type === 'crash' || type === 'noDb') {
+      void checkClientUpdate()
+    }
+  })
 </script>
+
+{#snippet updateButton()}
+  <Button
+    icon={mdiUpdate}
+    onclick={getEnvironment().updateClient}
+    size="big"
+    variant="main"
+  >
+    {$t.newVersionButton}
+  </Button>
+{/snippet}
+
+{#snippet reportButton(error: string | undefined)}
+  <Button
+    href={getIssueURL(
+      $t[`${$reason.type}Text`],
+      addDebugInfo(error, page.appVersion)
+    )}
+    icon={mdiBug}
+    loader={$clientUpdate === 'checking'}
+    size="big"
+    target="_blank"
+    variant="secondary"
+  >
+    {$t.reportButton}
+  </Button>
+{/snippet}
 
 <ThinPage align="center" bottom={false} title={$t[`${$reason.type}Title`]}>
   <Stack align="center" gap="xl">
@@ -55,27 +93,46 @@
       {#if $reason.type === 'brokenDatabase'}
         <p>{$t.brokenDatabaseDescription}</p>
         {#if $reason.error}
-          <Output label={$t.error} value={$reason.error} />
+          <DebugInfo
+            error={$reason.error}
+            label={$t.error}
+            version={page.appVersion}
+          />
+        {/if}
+        {#if hasUpdate}
+          {@render updateButton()}
         {/if}
         <Button
           icon={mdiDeleteAlert}
           onclick={forgetLocalData}
           size="big"
-          variant="main"
+          variant={hasUpdate ? 'secondary-dangerous' : 'main'}
         >
           {$t.cleanButton}
         </Button>
+        {#if !hasUpdate}
+          {@render reportButton($reason.error)}
+        {/if}
       {:else if $reason.type === 'crash'}
         <p>{$t.crashDescription}</p>
-        <Output label={$t.error} value={$reason.error} />
-        <Button
-          icon={mdiReload}
-          onclick={getEnvironment().restartApp}
-          size="big"
-          variant="main"
-        >
-          {$t.reloadButton}
-        </Button>
+        <DebugInfo
+          error={$reason.error}
+          label={$t.error}
+          version={page.appVersion}
+        />
+        {#if hasUpdate}
+          {@render updateButton()}
+        {:else}
+          <Button
+            icon={mdiReload}
+            onclick={getEnvironment().restartApp}
+            size="big"
+            variant="main"
+          >
+            {$t.reloadButton}
+          </Button>
+          {@render reportButton($reason.error)}
+        {/if}
         {#if $hasCloud}
           <Button
             icon={mdiDeleteAlert}
@@ -89,12 +146,25 @@
       {:else if $reason.type === 'noDb'}
         <p>{$t.noDbDescription}</p>
         {#if $reason.error}
-          <Output label={$t.error} value={$reason.error} />
+          <DebugInfo
+            error={$reason.error}
+            label={$t.error}
+            version={page.appVersion}
+          />
+        {/if}
+        {#if hasUpdate}
+          {@render updateButton()}
+        {:else}
+          {@render reportButton($reason.error)}
         {/if}
       {:else if $reason.type === 'secondTab'}
         <p>{$t.secondTabDescription}</p>
       {:else if $reason.type === 'rejected'}
-        <Output label={$t.error} value={$reason.error} />
+        <DebugInfo
+          error={$reason.error}
+          label={$t.error}
+          version={page.appVersion}
+        />
         <Button
           icon={mdiCloudDownloadOutline}
           onclick={resetDatabase}

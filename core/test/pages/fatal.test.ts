@@ -4,7 +4,7 @@ import type { TestServer } from '@logux/server'
 import { COMMON_ERRORS } from '@slowreader/api'
 import { buildTestServer, cleanAllTables } from '@slowreader/server/test'
 import { cleanStores, keepMount } from 'nanostores'
-import { deepEqual, equal, notEqual } from 'node:assert/strict'
+import { deepEqual, equal, match, notEqual } from 'node:assert/strict'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
@@ -22,6 +22,7 @@ import {
   pages,
   resetDatabase,
   setupEnvironment,
+  showCrash,
   signUpByPassword,
   userId
 } from '../../index.ts'
@@ -125,11 +126,31 @@ describe('fatal page', () => {
         keepMount(currentPage)
       }, [first])
       equal(currentPage.get().route, 'fatal')
-      deepEqual(fatal.get(), { error: 'Error: No database', type: 'crash' })
+      deepEqual(fatal.get(), { error: first.stack, type: 'crash' })
+      match(first.stack!, /^Error: No database\n {4}at /)
 
       openRoute({ params: {}, route: 'about' })
       equal(currentPage.get().route, 'fatal')
-      deepEqual(fatal.get(), { error: 'Error: No database', type: 'crash' })
+      deepEqual(fatal.get(), { error: first.stack, type: 'crash' })
+    })
+
+    test('adds message to the stack without it', () => {
+      let error = new Error('No database')
+      error.stack = 'about@app.js:1:1'
+      expectWarning(() => {
+        showCrash(error)
+      }, [error])
+      deepEqual(fatal.get(), {
+        error: 'Error: No database\nabout@app.js:1:1',
+        type: 'crash'
+      })
+    })
+
+    test('shows error without stack', () => {
+      expectWarning(() => {
+        showCrash('No database')
+      }, ['No database'])
+      deepEqual(fatal.get(), { error: 'No database', type: 'crash' })
     })
   })
 

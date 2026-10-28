@@ -27,7 +27,9 @@ export const fatalMessages = i18n('fatal', {
   outdatedTitle: 'Outdated',
   rejectedText: 'Cloud communication error',
   rejectedTitle: 'Rejected',
+  newVersionButton: 'Update to new version',
   reloadButton: 'Reload the app',
+  reportButton: 'Report an issue',
   secondTabDescription:
     'Safari and some other browsers can save the data only from a single ' +
     'tab. Close the other tab, and this page will open the app by itself.',
