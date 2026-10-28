@@ -122,11 +122,6 @@ export async function deleteFeed(feedId: string): Promise<void> {
   return getTables().feeds.delete(feedId)
 }
 
-export async function deleteAllFeeds(): Promise<void> {
-  await getTables().posts.deleteWhere()
-  await getTables().feeds.deleteWhere()
-}
-
 export async function changeFeed(
   feedId: string[] | string,
   changes: FeedChanges
@@ -278,6 +273,8 @@ export function testFeed(
   })
 }
 
+export const RELEASES_FEED = 'https://slowreader.app/releases.atom'
+
 export const hasSources = persistentAtom<boolean | undefined>(
   'slowreader:feeds',
   undefined,
@@ -292,7 +289,8 @@ export const hasSources = persistentAtom<boolean | undefined>(
 
 function hasAnySource(db: Database): Promise<boolean> {
   return db.select<{ id: string }>`
-    SELECT "id" FROM "feeds" UNION ALL SELECT "id" FROM "accounts" LIMIT 1
+    SELECT "id" FROM "feeds" WHERE "url" != ${RELEASES_FEED}
+    UNION ALL SELECT "id" FROM "accounts" LIMIT 1
   `.then(rows => rows.length > 0)
 }
 
@@ -313,15 +311,12 @@ onClient(() => {
     return getCrdt().on('applied', (tx, action) => {
       if (
         feedsTable.created.match(action) ||
-        accountsTable.created.match(action)
-      ) {
-        hasSources.set(true)
-      } else if (
+        accountsTable.created.match(action) ||
         feedsTable.deleted.match(action) ||
         accountsTable.deleted.match(action)
       ) {
-        // The deletion is applied asynchronously, so the rest of the feeds
-        // can be counted only inside the applying transaction
+        // Changes are applied asynchronously, so feeds can be counted
+        // only inside the applying transaction
         return hasAnySource(tx).then(found => {
           hasSources.set(found)
         })

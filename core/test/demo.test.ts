@@ -7,11 +7,13 @@ import {
   addPost,
   busy,
   deleteDemoWithBusy,
+  hasSources,
   isDemo,
   keepDemo,
   loadCategories,
   loadFeeds,
   loadPosts,
+  RELEASES_FEED,
   testFeed,
   testPost,
   userId,
@@ -61,5 +63,35 @@ describe('demo', () => {
     deepStrictEqual(await loadFeeds(), [])
     deepStrictEqual(await loadCategories(), [])
     notEqual(userId.get(), undefined)
+  })
+
+  test('keeps releases feed on dropping the demo', async () => {
+    let demoCategory = await addCategory({ title: 'Demo' })
+    let demoFeed = await addFeed(testFeed({ categoryId: demoCategory }))
+    let categoryId = await addCategory({ title: 'Slow Reader' })
+    let feedId = await addFeed(testFeed({ categoryId, url: RELEASES_FEED }))
+    await addPost([
+      testPost({ feedId: demoFeed }),
+      testPost({ feedId, title: 'Release' })
+    ])
+    isDemo.set(true)
+    equal(hasSources.get(), true)
+
+    await deleteDemoWithBusy()
+
+    equal(isDemo.get(), false)
+    deepStrictEqual(
+      (await loadPosts()).map(i => i.title),
+      ['Release']
+    )
+    deepStrictEqual(
+      (await loadFeeds()).map(i => i.id),
+      [feedId]
+    )
+    deepStrictEqual(
+      (await loadCategories()).map(i => i.id),
+      [categoryId]
+    )
+    equal(hasSources.get(), false)
   })
 })

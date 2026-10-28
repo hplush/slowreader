@@ -1,14 +1,22 @@
 import { busyDuring } from './busy.ts'
 import { deleteCategory, loadCategories } from './category.ts'
-import { deleteAllFeeds } from './feed.ts'
+import { loadFeedByUrl, RELEASES_FEED } from './feed.ts'
 import { welcomeMessages } from './messages/index.ts'
-import { freeDatabasePages } from './schema.ts'
+import { freeDatabasePages, getTables } from './schema.ts'
 import { isDemo } from './welcome.ts'
 
 export async function deleteDemo(): Promise<void> {
-  await deleteAllFeeds()
+  let releases = await loadFeedByUrl(RELEASES_FEED)
+  await getTables().posts.deleteWhere`
+    "feedId" IS NULL OR "feedId" NOT IN (
+      SELECT "id" FROM "feeds" WHERE "url" = ${RELEASES_FEED}
+    )
+  `
+  await getTables().feeds.deleteWhere`"url" != ${RELEASES_FEED}`
   for (let category of await loadCategories()) {
-    await deleteCategory(category.id)
+    if (category.id !== releases?.categoryId) {
+      await deleteCategory(category.id)
+    }
   }
   await freeDatabasePages()
   isDemo.set(false)

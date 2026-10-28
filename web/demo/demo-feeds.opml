@@ -36,5 +36,8 @@
       <outline text="Longreads" type="rss" xmlUrl="https://longreads.com/feed/" />
       <outline text="The Marginalian" type="rss" xmlUrl="https://www.themarginalian.org/feed/" />
     </outline>
+    <outline text="Slow Reader">
+      <outline text="Slow Reader releases" type="rss" xmlUrl="https://slowreader.app/releases.atom" />
+    </outline>
   </body>
 </opml>
