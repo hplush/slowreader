@@ -30,6 +30,7 @@
         'Pneumonoultramicroscopicsilicovolcanoconiosis' +
         'Pneumonoultramicroscopicsilicovolcanoconiosis'
     },
+    { categoryId: 'long', title: 'Long category' },
     { categoryId: 'unknown', title: 'Broken category' },
     { title: 'My friend' }
   ]
@@ -42,7 +43,18 @@
 </Story>
 
 <Story name="List" asChild parameters={{ layout: 'fullscreen' }}>
-  <Scene categories={[{ id: 'code', title: 'Code' }]} feeds={FEEDS}>
+  <Scene
+    categories={[
+      { id: 'code', title: 'Code' },
+      {
+        id: 'long',
+        title:
+          'Pneumonoultramicroscopicsilicovolcanoconiosis' +
+          'Pneumonoultramicroscopicsilicovolcanoconiosis'
+      }
+    ]}
+    feeds={FEEDS}
+  >
     <FeedsByCategoriesPage page={pages.feedsByCategories()} />
   </Scene>
 </Story>

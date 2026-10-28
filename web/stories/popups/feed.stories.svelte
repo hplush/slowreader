@@ -130,9 +130,13 @@
 
 <Story name="Added" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
+    categories={[
+      { id: 'long', title: 'Very long category name for every news site' }
+    ]}
     feeds={[
       {
         avatar: ICON,
+        categoryId: 'long',
         url: 'https://example.com/news.atom'
       }
     ]}

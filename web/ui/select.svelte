@@ -50,6 +50,7 @@
     .select {
       flex-shrink: 1;
       width: stretch;
+      min-width: 0;
     }
 
     .select_fake {

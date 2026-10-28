@@ -11,6 +11,8 @@
   :global {
     .title {
       font: var(--app-title-font);
+      flex-shrink: 1;
+      overflow-wrap: anywhere;
 
       &.is-center {
         text-align: center;
