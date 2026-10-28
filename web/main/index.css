@@ -18,6 +18,10 @@
     color-scheme: dark;
   }
 
+  @media (--biggest-font) {
+    font-size: 112.5%;
+  }
+
   @media (--bigger-font) {
     font-size: 110%;
   }
