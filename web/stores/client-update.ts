@@ -57,6 +57,13 @@ export async function registerServiceWorker(): Promise<void> {
   if (controlled) await startClientUpdates()
 }
 
+export async function unregisterServiceWorkers(): Promise<void> {
+  try {
+    let registrations = await navigator.serviceWorker.getRegistrations()
+    await Promise.all(registrations.map(i => i.unregister()))
+  } catch {}
+}
+
 export async function updateClient(): Promise<void> {
   if (!registration?.waiting) await checkClientUpdate()
   let waiting = registration?.waiting

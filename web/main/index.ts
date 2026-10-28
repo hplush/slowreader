@@ -7,12 +7,19 @@ import './index.css'
 import { busyUntilMenuLoader } from '@slowreader/core'
 import { flushSync, mount } from 'svelte'
 
-import { registerServiceWorker } from '../stores/client-update.ts'
+import {
+  registerServiceWorker,
+  unregisterServiceWorkers
+} from '../stores/client-update.ts'
 import Main from './main.svelte'
 
 void busyUntilMenuLoader()
 
-if (import.meta.env.PROD) void registerServiceWorker()
+if (import.meta.env.PROD) {
+  void registerServiceWorker()
+} else {
+  void unregisterServiceWorkers()
+}
 
 let target = document.getElementById('main')
 try {
