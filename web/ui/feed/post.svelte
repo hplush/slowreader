@@ -17,6 +17,7 @@
     type UserPostUrl
   } from '@slowreader/core'
 
+  import { pauseVideosWhenScrolledOut } from '../../lib/media.ts'
   import { getPopupHash } from '../../stores/url-router.ts'
   import Button from '../button.svelte'
   import FeedLink from '../feed-link.svelte'
@@ -56,6 +57,7 @@
   class="feed-post"
   class:is-current={current}
   class:is-read={'read' in post && post.read}
+  {@attach pauseVideosWhenScrolledOut}
 >
   <a
     class="feed-post_link"
