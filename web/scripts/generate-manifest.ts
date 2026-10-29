@@ -108,6 +108,7 @@ sw = replace(
           exclude: [
             '**/*.{map,woff}',
             'docs/branding/**',
+            'landing/dev-*.css',
             'landing/releases-*.css'
           ]
         }

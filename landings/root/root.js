@@ -1,5 +1,30 @@
 import '../layout/layout.js'
 
+import devStyles from './dev.css?url'
+
+if (
+  location.hostname === 'dev.slowreader.app' ||
+  location.hostname.endsWith('.slowreader.hplush.dev') ||
+  new URLSearchParams(location.search).has('dev')
+) {
+  let styles = document.createElement('link')
+  styles.rel = 'stylesheet'
+  styles.href = devStyles
+  styles.addEventListener('load', () => {
+    let note = document.createElement('p')
+    note.className = 'dev'
+    let link = document.createElement('a')
+    link.className = 'dev_link'
+    link.href = 'https://slowreader.app/'
+    link.textContent = 'Go to stable version →'
+    note.append('Development preview', link)
+    let actions = document.querySelector('.section_actions')
+    actions.classList.add('is-dev')
+    actions.append(note)
+  })
+  document.head.append(styles)
+}
+
 let header = document.querySelector('.header')
 let hero = document.querySelector('.section.is-hero')
 
