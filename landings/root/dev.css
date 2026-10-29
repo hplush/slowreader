@@ -29,7 +29,7 @@
 
   @media (width <= 40rem), (aspect-ratio <= 1) {
     position: absolute;
-    inset-block-end: calc(100% + 1rem);
+    inset-block-end: calc(100% + 0.6875rem);
     inset-inline-start: 50%;
     inline-size: max-content;
     margin: 0;
@@ -37,7 +37,7 @@
     translate: -50% 0;
 
     &::before {
-      inset: -0.75rem -1.5rem -5.35rem -1.5rem;
+      inset: -0.75rem -1.5rem -5.6625rem -1.5rem;
     }
   }
 }
