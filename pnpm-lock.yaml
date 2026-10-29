@@ -502,6 +502,9 @@ importers:
       '@fontsource-variable/noto-serif':
         specifier: 5.3.0
         version: 5.3.0
+      '@fontsource-variable/source-serif-4':
+        specifier: 5.3.1
+        version: 5.3.1
       '@fontsource/inika':
         specifier: 5.3.0
         version: 5.3.0
@@ -1143,6 +1146,9 @@ packages:
 
   '@fontsource-variable/noto-serif@5.3.0':
     resolution: {integrity: sha512-GxGAScLRifXH02gDoJGroO/NIX83It7m1TYPPp1bhNPaii6/+GBYKxl/uL5GabFe0PBfiUV92wA4MdMdEDUu6A==}
+
+  '@fontsource-variable/source-serif-4@5.3.1':
+    resolution: {integrity: sha512-4Rtay22SC4lMvw11r/+9kxANB6P3M0X8s1NudBC2v0J1KU2y3DcMoNcT3lBoZ/CqLirzf+StlO6UlJilyrvaUg==}
 
   '@fontsource/inika@5.3.0':
     resolution: {integrity: sha512-tZrlzdmfcmiDpyYLcEembxKl6QvXp2Or081JoOgZye+wuMpV3Z+/mhs3cZ5qTajm2rRXRztH7W5WNIpxHBFyyw==}
@@ -6047,6 +6053,8 @@ snapshots:
   '@fontsource-variable/noto-sans@5.3.0': {}
 
   '@fontsource-variable/noto-serif@5.3.0': {}
+
+  '@fontsource-variable/source-serif-4@5.3.1': {}
 
   '@fontsource/inika@5.3.0': {}
 

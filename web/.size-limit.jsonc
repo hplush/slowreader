@@ -28,7 +28,7 @@
       "!dist/assets/noto-*-{cyrillic,greek,devanagari,vietnamese}-*.woff2",
       "!dist/assets/noto-sans-mono-*.woff2",
       "!dist/assets/playpen-sans-*.woff2",
-      "!dist/assets/{literata,merriweather,bitter,inter,atkinson-hyperlegible-next,lexend,opendyslexic}-*.woff2",
+      "!dist/assets/{literata,merriweather,source-serif-4,bitter,inter,atkinson-hyperlegible-next,lexend,opendyslexic}-*.woff2",
       "!dist/assets/*-{italic,math,latin-ext}-*.woff2"
     ],
     "limit": "735 KB"

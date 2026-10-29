@@ -8,6 +8,8 @@
 @import url('@fontsource-variable/literata/wght-italic.css');
 @import url('@fontsource-variable/merriweather');
 @import url('@fontsource-variable/merriweather/wght-italic.css');
+@import url('@fontsource-variable/source-serif-4');
+@import url('@fontsource-variable/source-serif-4/wght-italic.css');
 @import url('@fontsource-variable/bitter');
 @import url('@fontsource-variable/bitter/wght-italic.css');
 @import url('@fontsource-variable/inter');
@@ -82,6 +84,11 @@
   &.is-post-font-merriweather {
     --post-text-family: 'Merriweather Variable', var(--serif-family);
     --post-title-family: 'Merriweather Variable', var(--serif-family);
+  }
+
+  &.is-post-font-source-serif {
+    --post-text-family: 'Source Serif 4 Variable', var(--serif-family);
+    --post-title-family: 'Source Serif 4 Variable', var(--serif-family);
   }
 
   &.is-post-font-bitter {

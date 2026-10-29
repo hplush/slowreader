@@ -51,6 +51,7 @@
     'noto-sans': 'Noto Sans',
     'noto-serif': 'Noto Serif',
     'opendyslexic': 'OpenDyslexic',
+    'source-serif': 'Source Serif 4',
     'system': $t.postFontSystem
   })
 </script>

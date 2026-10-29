@@ -149,6 +149,7 @@ export const POST_FONTS = [
   'noto-serif',
   'literata',
   'merriweather',
+  'source-serif',
   'bitter',
   'inter',
   'atkinson',
