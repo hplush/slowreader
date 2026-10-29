@@ -12,11 +12,15 @@ import { escapeXml } from '../lib/html.ts'
 import { loadPostsPage, type PostValue } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
 import {
+  customPostFont,
   fastPostsLifetime,
   nightLock,
   openWarnings,
+  postFont,
+  postLineHeight,
   type Settings,
   showSensitiveMedia,
+  textSize,
   theme,
   useQuietCursor,
   useReducedMotion
@@ -164,10 +168,14 @@ export const exportPage = createPage('export', () => {
     file.write(total === 0 ? '],\n' : '\n  ],\n')
 
     let settings = {
+      customPostFont: customPostFont.get(),
       fastPostsLifetime: fastPostsLifetime.get(),
       nightLock: nightLock.get(),
       openWarnings: openWarnings.get(),
+      postFont: postFont.get(),
+      postLineHeight: postLineHeight.get(),
       showSensitiveMedia: showSensitiveMedia.get(),
+      textSize: textSize.get(),
       theme: theme.get(),
       useQuietCursor: useQuietCursor.get(),
       useReducedMotion: useReducedMotion.get()

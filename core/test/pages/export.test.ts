@@ -173,10 +173,14 @@ describe('export page', () => {
         }
       ],
       settings: {
+        customPostFont: '',
         fastPostsLifetime: 'month',
         nightLock: { enabled: false, from: 23, to: 7 },
         openWarnings: false,
+        postFont: 'default',
+        postLineHeight: 'normal',
         showSensitiveMedia: false,
+        textSize: 100,
         theme: 'system',
         useQuietCursor: false,
         useReducedMotion: false

@@ -135,6 +135,48 @@ export const useReducedMotion = persistentBoolean('slowreader:reduced-motion')
 
 export const useQuietCursor = persistentBoolean('slowreader:quiet-cursor')
 
+/**
+ * Percents of the whole text and UI scale.
+ */
+export const textSize = persistentAtom<number>('slowreader:textSize', 100, {
+  decode: Number,
+  encode: String
+})
+
+export const POST_FONTS = [
+  'default',
+  'noto-sans',
+  'noto-serif',
+  'literata',
+  'merriweather',
+  'bitter',
+  'inter',
+  'atkinson',
+  'lexend',
+  'opendyslexic',
+  'system',
+  'custom'
+] as const
+
+export type PostFont = (typeof POST_FONTS)[number]
+
+export const postFont = persistentAtom<PostFont>(
+  'slowreader:postFont',
+  'default'
+)
+
+export type PostLineHeight = 'compact' | 'normal' | 'relaxed'
+
+export const postLineHeight = persistentAtom<PostLineHeight>(
+  'slowreader:postLineHeight',
+  'normal'
+)
+
+export const customPostFont = persistentAtom<string>(
+  'slowreader:customPostFont',
+  ''
+)
+
 let syncedSetting = createSyncedSetting<SettingsValue>()
 
 export const showSensitiveMedia = syncedSetting('showSensitiveMedia', false)
@@ -171,10 +213,14 @@ onClient(() =>
 )
 
 export interface Settings {
+  customPostFont: StoreValue<typeof customPostFont>
   fastPostsLifetime: StoreValue<typeof fastPostsLifetime>
   nightLock: NightLock
   openWarnings: StoreValue<typeof openWarnings>
+  postFont: PostFont
+  postLineHeight: PostLineHeight
   showSensitiveMedia: StoreValue<typeof showSensitiveMedia>
+  textSize: StoreValue<typeof textSize>
   theme: StoreValue<typeof theme>
   useQuietCursor: StoreValue<typeof useQuietCursor>
   useReducedMotion: StoreValue<typeof useReducedMotion>

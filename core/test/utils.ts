@@ -17,6 +17,7 @@ import {
   type NumberPager,
   createDownloadTask,
   currentPage,
+  customPostFont,
   enableTestTime,
   encryptionKey,
   encryptionKeyLost,
@@ -41,6 +42,8 @@ import {
   type Page,
   type Popup,
   type PopupName,
+  postFont,
+  postLineHeight,
   type PostsList,
   type ReaderName,
   type RouteName,
@@ -50,6 +53,7 @@ import {
   slowMenu,
   slowPostsCount,
   subscribeUntil,
+  textSize,
   type TextResponse,
   userId,
   welcomeSteps
@@ -114,6 +118,10 @@ export function setTestUser(enable = true): void {
   welcomeSteps.set(undefined)
   extensionState.set('missing')
   encryptionKeyLost.set(false)
+  textSize.set(100)
+  postFont.set('default')
+  postLineHeight.set('normal')
+  customPostFont.set('')
   if (enable) {
     encryptionKey.set(testKey)
     hasCloud.set(false)

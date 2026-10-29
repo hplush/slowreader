@@ -1,4 +1,10 @@
 <script context="module" lang="ts">
+  import {
+    customPostFont,
+    postFont,
+    postLineHeight,
+    textSize
+  } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
   import InterfacePage from '../../pages/interface.svelte'
@@ -23,12 +29,20 @@
   </Scene>
 </Story>
 
-<Story name="Reduced Motion" asChild parameters={{ layout: 'fullscreen' }}>
+<Story
+  name="Reduced Motion & Own Font"
+  asChild
+  parameters={{ layout: 'fullscreen' }}
+>
   <Scene
     oninit={() => {
       // @ts-expect-error Hack for tests
       systemReducedMotion.set(true)
       hasInAppBrowser.set(false)
+      textSize.set(120)
+      postFont.set('custom')
+      postLineHeight.set('relaxed')
+      customPostFont.set('Comic Sans MS')
     }}
     route="interface"
   >

@@ -4,6 +4,21 @@
 @import url('@fontsource-variable/noto-serif/wght-italic.css');
 @import url('@fontsource-variable/noto-sans-mono');
 @import url('@fontsource/inika');
+@import url('@fontsource-variable/literata');
+@import url('@fontsource-variable/literata/wght-italic.css');
+@import url('@fontsource-variable/merriweather');
+@import url('@fontsource-variable/merriweather/wght-italic.css');
+@import url('@fontsource-variable/bitter');
+@import url('@fontsource-variable/bitter/wght-italic.css');
+@import url('@fontsource-variable/inter');
+@import url('@fontsource-variable/inter/wght-italic.css');
+@import url('@fontsource-variable/atkinson-hyperlegible-next');
+@import url('@fontsource-variable/atkinson-hyperlegible-next/wght-italic.css');
+@import url('@fontsource-variable/lexend');
+@import url('@fontsource/opendyslexic/400.css');
+@import url('@fontsource/opendyslexic/400-italic.css');
+@import url('@fontsource/opendyslexic/700.css');
+@import url('@fontsource/opendyslexic/700-italic.css');
 
 @font-face {
   font-family: 'Playpen Sans';
@@ -16,25 +31,95 @@
 
 :root {
   --text-family: 'Noto Sans Variable', 'Arial', sans-serif;
-  --comfort-family: 'Noto Serif Variable', 'Georgia', serif;
+  --serif-family: 'Noto Serif Variable', 'Georgia', serif;
   --app-title-family: 'Inika', 'Noto Serif Variable', 'Georgia', serif;
   --mono-family: 'Noto Mono Sans Variable', monospace;
   --handwritten-family: 'Playpen Sans', monospace;
   --title-family: 'Inika', 'Noto Serif Variable', 'Georgia', serif;
+  --post-text-family: var(--text-family);
+  --post-title-family: var(--title-family);
+  --post-line-height: 1.6;
   --text-font: var(--regular-weight) 0.9375rem/1.6 var(--text-family);
+  --post-text-font: var(--regular-weight) 0.9375rem / var(--post-line-height)
+    var(--post-text-family);
   --secondary-font: var(--regular-weight) 0.875rem/1.6 var(--text-family);
   --tertiary-font: var(--regular-weight) 0.75rem/1 var(--text-family);
   --badge-font: var(--control-weight) 0.75rem/1 var(--text-family);
   --secondary-title-font: var(--semibold-weight) 0.875rem/1.6 var(--text-family);
   --app-title-font: 400 1.5rem/1.2 var(--app-title-family);
-  --post-title-font: 400 1.5rem/1.2 var(--title-family);
-  --subtitle-font: 400 1.25rem/1.4 var(--title-family);
+  --post-popup-title-font: 400 1.5rem/1.2 var(--post-title-family);
+  --post-card-title-font: 400 1.25rem/1.4 var(--post-title-family);
   --counter-font: 600 1.5rem/1.2 var(--app-title-family);
   --control-font: var(--control-weight) 0.9375rem/1.2 var(--text-family);
   --control-secondary-font: var(--control-weight) 0.875rem/1.2
     var(--text-family);
   --mono-font: var(--regular-weight) 1rem/1.6 var(--mono-family);
   --handwritten-font: 600 1.125rem/1 var(--handwritten-family);
+
+  &.is-post-line-height-compact {
+    --post-line-height: 1.4;
+  }
+
+  &.is-post-line-height-relaxed {
+    --post-line-height: 1.9;
+  }
+
+  &.is-post-font-noto-sans {
+    --post-text-family: var(--text-family);
+    --post-title-family: var(--text-family);
+  }
+
+  &.is-post-font-noto-serif {
+    --post-text-family: var(--serif-family);
+    --post-title-family: var(--serif-family);
+  }
+
+  &.is-post-font-literata {
+    --post-text-family: 'Literata Variable', var(--serif-family);
+    --post-title-family: 'Literata Variable', var(--serif-family);
+  }
+
+  &.is-post-font-merriweather {
+    --post-text-family: 'Merriweather Variable', var(--serif-family);
+    --post-title-family: 'Merriweather Variable', var(--serif-family);
+  }
+
+  &.is-post-font-bitter {
+    --post-text-family: 'Bitter Variable', var(--serif-family);
+    --post-title-family: 'Bitter Variable', var(--serif-family);
+  }
+
+  &.is-post-font-inter {
+    --post-text-family: 'Inter Variable', var(--text-family);
+    --post-title-family: 'Inter Variable', var(--text-family);
+  }
+
+  &.is-post-font-atkinson {
+    --post-text-family:
+      'Atkinson Hyperlegible Next Variable', var(--text-family);
+    --post-title-family:
+      'Atkinson Hyperlegible Next Variable', var(--text-family);
+  }
+
+  &.is-post-font-lexend {
+    --post-text-family: 'Lexend Variable', var(--text-family);
+    --post-title-family: 'Lexend Variable', var(--text-family);
+  }
+
+  &.is-post-font-opendyslexic {
+    --post-text-family: 'OpenDyslexic', var(--text-family);
+    --post-title-family: 'OpenDyslexic', var(--text-family);
+  }
+
+  &.is-post-font-system {
+    --post-text-family: system-ui, sans-serif;
+    --post-title-family: system-ui, sans-serif;
+  }
+
+  &.is-post-font-custom {
+    --post-text-family: var(--custom-post-family), var(--text-family);
+    --post-title-family: var(--custom-post-family), var(--text-family);
+  }
 }
 
 @media (prefers-color-scheme: light) {

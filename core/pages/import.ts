@@ -14,10 +14,14 @@ import { importMessages } from '../messages/index.ts'
 import { addPost } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
 import {
+  customPostFont,
   fastPostsLifetime,
   nightLock,
   openWarnings,
+  postFont,
+  postLineHeight,
   showSensitiveMedia,
+  textSize,
   theme
 } from '../settings.ts'
 import { isDemo } from '../welcome.ts'
@@ -156,6 +160,10 @@ export const importPage = createPage('import', () => {
     if (isDemo.get()) await deleteDemo()
     let { settings } = json
     if (settings.theme) theme.set(settings.theme)
+    if (settings.textSize) textSize.set(settings.textSize)
+    if (settings.postFont) postFont.set(settings.postFont)
+    if (settings.postLineHeight) postLineHeight.set(settings.postLineHeight)
+    if (settings.customPostFont) customPostFont.set(settings.customPostFont)
     if (settings.fastPostsLifetime) {
       fastPostsLifetime.set(settings.fastPostsLifetime)
     }

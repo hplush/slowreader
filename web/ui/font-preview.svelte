@@ -18,13 +18,12 @@
     }
 
     .font-preview_title {
-      font: var(--subtitle-font);
+      font: var(--post-card-title-font);
     }
 
     .font-preview_text {
       margin: 0.25rem 0 0 0;
-      font-family: var(--post-text-family);
-      line-height: var(--post-line-height);
+      font: var(--post-text-font);
     }
   }
 </style>

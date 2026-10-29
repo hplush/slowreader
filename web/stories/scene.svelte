@@ -14,6 +14,7 @@
     clock,
     closedCategories,
     currentPage,
+    customPostFont,
     DEFAULT_MEDIA_STATISTICS,
     DEFAULT_REFRESH_STATISTICS,
     extensionState,
@@ -32,6 +33,8 @@
     pages,
     type ParamlessRouteName,
     passkeyOnly,
+    postFont,
+    postLineHeight,
     type PostValue,
     refreshErrors,
     refreshStatistics,
@@ -46,6 +49,7 @@
     testAccount,
     testFeed,
     testPost,
+    textSize,
     theme,
     useReducedMotion,
     waitLoading,
@@ -203,6 +207,10 @@
       if (page.cache) page.cache = undefined
     }
     useReducedMotion.set(false)
+    textSize.set(100)
+    postFont.set('default')
+    postLineHeight.set('normal')
+    customPostFont.set('')
     showSensitiveMedia.set(false)
     openWarnings.set(false)
     fastPostsLifetime.set('month')

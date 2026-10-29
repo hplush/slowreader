@@ -12,6 +12,7 @@ import {
   addPost,
   busy,
   cacheImages,
+  customPostFont,
   deleteCategory,
   deleteFeed,
   deleteFilter,
@@ -31,11 +32,14 @@ import {
   type NewPost,
   nightLock,
   openWarnings,
+  postFont,
+  postLineHeight,
   setRequestMethod,
   syncedSettingsLoading,
   testAccount,
   testFeed,
   testPost,
+  textSize,
   theme,
   waitLoading
 } from '../../index.ts'
@@ -118,6 +122,10 @@ describe('import page', () => {
     cacheImages.set('never')
     nightLock.set({ enabled: true, from: 22, to: 6 })
     openWarnings.set(true)
+    textSize.set(150)
+    postFont.set('custom')
+    postLineHeight.set('relaxed')
+    customPostFont.set('Comic Sans MS')
 
     let exportPage = openPage({
       params: {},
@@ -136,6 +144,10 @@ describe('import page', () => {
     cacheImages.set('always')
     nightLock.set({ enabled: false, from: 23, to: 7 })
     openWarnings.set(false)
+    textSize.set(100)
+    postFont.set('default')
+    postLineHeight.set('normal')
+    customPostFont.set('')
 
     let page = openPage({
       params: {},
@@ -161,6 +173,10 @@ describe('import page', () => {
     equal(cacheImages.get(), 'always')
     deepEqual(nightLock.get(), { enabled: true, from: 22, to: 6 })
     equal(openWarnings.get(), true)
+    equal(textSize.get(), 150)
+    equal(postFont.get(), 'custom')
+    equal(postLineHeight.get(), 'relaxed')
+    equal(customPostFont.get(), 'Comic Sans MS')
     deepEqual(withoutMeta(await loadCategories()), [
       { ...CATEGORY, fastReader: null, slowReader: null }
     ])

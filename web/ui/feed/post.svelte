@@ -85,7 +85,7 @@
     />
     {#if post.title}
       <h2 class="feed-post_title">
-        <FormattedText html={post.title} lang={post.lang} />
+        <FormattedText html={post.title} lang={post.lang} scroll={false} />
       </h2>
     {/if}
     {#if post.replied && !post.replied.missing}
@@ -249,6 +249,7 @@
       display: flex;
       flex-direction: column;
       gap: 0.625rem;
+      font: var(--post-text-font);
 
       .feed-post_link:active + & {
         translate: 0 var(--min-size);
@@ -257,7 +258,7 @@
 
     .feed-post_title {
       margin-top: -0.325rem;
-      font: var(--subtitle-font);
+      font: var(--post-card-title-font);
     }
 
     .feed-post_actions {

@@ -5,11 +5,16 @@ import {
   busy,
   client,
   closeLastPopup,
+  customPostFont,
   hasCloud,
   onSignOut,
   openedPopups,
+  POST_FONTS,
+  postFont,
+  postLineHeight,
   type Route,
   router,
+  textSize,
   theme,
   themeMode,
   useQuietCursor,
@@ -90,6 +95,31 @@ theme.subscribe(themeValue => {
 
 pageTheme.listen(() => {
   updateTheme()
+})
+
+textSize.subscribe(size => {
+  root.style.setProperty('--text-scale', String(size / 100))
+})
+
+effect([postFont, customPostFont], (font, custom) => {
+  let name = custom.trim()
+  let active = font === 'custom' && !name ? 'default' : font
+  for (let i of POST_FONTS) {
+    root.classList.toggle(`is-post-font-${i}`, i === active)
+  }
+  if (active === 'custom') {
+    root.style.setProperty(
+      '--custom-post-family',
+      `"${name.replace(/["\\]/g, '\\$&')}"`
+    )
+  } else {
+    root.style.removeProperty('--custom-post-family')
+  }
+})
+
+postLineHeight.subscribe(height => {
+  root.classList.toggle('is-post-line-height-compact', height === 'compact')
+  root.classList.toggle('is-post-line-height-relaxed', height === 'relaxed')
 })
 
 useQuietCursor.subscribe(quiet => {

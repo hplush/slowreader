@@ -5,11 +5,15 @@ import {
   cacheImages,
   cacheMediaReading,
   cacheVideos,
+  customPostFont,
   fastPostsLifetime,
   requestMethod,
   theme,
   openWarnings,
+  postFont,
+  postLineHeight,
   showSensitiveMedia,
+  textSize,
   useQuietCursor,
   useReducedMotion
 } from '../index.ts'
@@ -43,6 +47,13 @@ describe('settings', () => {
 
   test('has store for fast posts lifetime', () => {
     equal(fastPostsLifetime.get(), 'month')
+  })
+
+  test('has stores for font settings', () => {
+    equal(textSize.get(), 100)
+    equal(postFont.get(), 'default')
+    equal(postLineHeight.get(), 'normal')
+    equal(customPostFont.get(), '')
   })
 
   test('has store for sensitive media settings', () => {

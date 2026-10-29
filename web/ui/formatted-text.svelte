@@ -11,13 +11,11 @@
   import BrokenImage from './broken-image.svelte'
 
   let {
-    comfort,
     html,
     lang,
     scroll = true,
     simple = false
   }: {
-    comfort?: boolean
     html: Element | string | undefined
     lang?: null | string
     scroll?: boolean
@@ -94,7 +92,6 @@
 
 <div
   class="formatted-text"
-  class:is-comfort={comfort}
   class:is-scroll={scroll}
   class:is-simple={simple}
   {@attach renderHtml}
@@ -109,15 +106,11 @@
       text-wrap: pretty;
 
       &.is-scroll {
-        overflow-x: auto;
+        overflow: auto hidden;
       }
 
       &:not(.is-scroll) {
         overflow-wrap: anywhere;
-      }
-
-      &.is-comfort {
-        font-family: var(--comfort-family);
       }
     }
 

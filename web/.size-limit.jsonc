@@ -28,9 +28,10 @@
       "!dist/assets/noto-*-{cyrillic,greek,devanagari,vietnamese}-*.woff2",
       "!dist/assets/noto-sans-mono-*.woff2",
       "!dist/assets/playpen-sans-*.woff2",
+      "!dist/assets/{literata,merriweather,bitter,inter,atkinson-hyperlegible-next,lexend,opendyslexic}-*.woff2",
       "!dist/assets/*-{italic,math,latin-ext}-*.woff2"
     ],
-    "limit": "730 KB"
+    "limit": "735 KB"
   },
   {
     "name": "Landing page on phone",
@@ -53,7 +54,7 @@
     "name": "Core scripts to execute",
     "path": ["dist/assets/app-*.js", "dist/assets/core-*.js"],
     "brotli": false,
-    "limit": "570 KB"
+    "limit": "580 KB"
   }
 ]
 // Bump limits by 5 KB steps

@@ -129,35 +129,35 @@
 
 <Story name="Light Slow" asChild>
   <Section width={700}>
-    <FormattedText comfort html={headingsWithParagraphs} />
+    <FormattedText html={headingsWithParagraphs} />
   </Section>
   <Section width={700}>
-    <FormattedText comfort html={longHeadings} />
+    <FormattedText html={longHeadings} />
   </Section>
   <Section width={500}>
-    <FormattedText comfort html={images} />
+    <FormattedText html={images} />
   </Section>
   <Section>
-    <FormattedText comfort html={inlineTagsExample} />
+    <FormattedText html={inlineTagsExample} />
   </Section>
   <Section>
-    <FormattedText comfort html={unorderedList} />
-    <FormattedText comfort html={orderedList} />
+    <FormattedText html={unorderedList} />
+    <FormattedText html={orderedList} />
   </Section>
   <Section>
-    <FormattedText comfort html={contentTags} />
+    <FormattedText html={contentTags} />
   </Section>
   <Section>
-    <FormattedText comfort html={mediaTags} />
+    <FormattedText html={mediaTags} />
   </Section>
   <Section>
-    <FormattedText comfort html={code} />
+    <FormattedText html={code} />
   </Section>
   <Section>
-    <FormattedText comfort html={codeInline} />
+    <FormattedText html={codeInline} />
   </Section>
   <Section>
-    <FormattedText comfort html={tableExample} />
+    <FormattedText html={tableExample} />
   </Section>
 </Story>
 
@@ -203,35 +203,35 @@
   parameters={{ themes: { themeOverride: 'dark' } }}
 >
   <Section width={700}>
-    <FormattedText comfort html={headingsWithParagraphs} />
+    <FormattedText html={headingsWithParagraphs} />
   </Section>
   <Section width={700}>
-    <FormattedText comfort html={longHeadings} />
+    <FormattedText html={longHeadings} />
   </Section>
   <Section width={500}>
-    <FormattedText comfort html="{images}comfort" />
+    <FormattedText html="{images}comfort" />
   </Section>
   <Section>
-    <FormattedText comfort html={inlineTagsExample} />
+    <FormattedText html={inlineTagsExample} />
   </Section>
   <Section>
-    <FormattedText comfort html={unorderedList} />
-    <FormattedText comfort html={orderedList} />
+    <FormattedText html={unorderedList} />
+    <FormattedText html={orderedList} />
   </Section>
   <Section>
-    <FormattedText comfort html={contentTags} />
+    <FormattedText html={contentTags} />
   </Section>
   <Section>
-    <FormattedText comfort html={mediaTags} />
+    <FormattedText html={mediaTags} />
   </Section>
   <Section>
-    <FormattedText comfort html={code} />
+    <FormattedText html={code} />
   </Section>
   <Section>
-    <FormattedText comfort html={codeInline} />
+    <FormattedText html={codeInline} />
   </Section>
   <Section>
-    <FormattedText comfort html={tableExample} />
+    <FormattedText html={tableExample} />
   </Section>
 </Story>
 

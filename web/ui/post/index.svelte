@@ -12,7 +12,6 @@
 
   import FormattedText from '../formatted-text.svelte'
   import Note from '../note.svelte'
-  import Stack from '../stack.svelte'
   import PostByline from './byline.svelte'
   import PostMedia from './media.svelte'
   import PostPoll from './poll.svelte'
@@ -33,7 +32,7 @@
   let text = $derived(sanitizeDOM(post.full || post.intro || ''))
 </script>
 
-<Stack gap="m">
+<article class="post">
   <PostByline author={post.author} {repostHref} repostedBy={post.repostedBy} />
   {#if post.title}
     <h1 class="post_title">
@@ -86,12 +85,21 @@
   {#if post.unsupported}
     <Note icon={mdiPuzzleOutline} variant="neutral">{$t.unsupported}</Note>
   {/if}
-</Stack>
+</article>
 
 <style>
   :global {
+    .post {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
+      align-items: flex-start;
+      width: stretch;
+      font: var(--post-text-font);
+    }
+
     .post_title {
-      font: var(--post-title-font);
+      font: var(--post-popup-title-font);
     }
 
     .post_title-url {

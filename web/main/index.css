@@ -6,8 +6,10 @@
 
 :root {
   --theme-color: var(--land-color);
+  --text-scale: 1;
 
   overscroll-behavior: none;
+  font-size: calc(var(--text-scale) * 100%);
   color-scheme: light dark;
 
   &.is-light-theme {
@@ -19,11 +21,11 @@
   }
 
   @media (--biggest-font) {
-    font-size: 112.5%;
+    font-size: calc(var(--text-scale) * 112.5%);
   }
 
   @media (--bigger-font) {
-    font-size: 110%;
+    font-size: calc(var(--text-scale) * 110%);
   }
 }
 
