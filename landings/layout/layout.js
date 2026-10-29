@@ -1,5 +1,16 @@
 let root = document.documentElement
 
+export const isDev =
+  location.hostname === 'dev.slowreader.app' ||
+  location.hostname.endsWith('.slowreader.hplush.dev') ||
+  new URLSearchParams(location.search).has('dev')
+
+if (isDev) {
+  document.querySelector('link[href="/favicon.ico"]')?.remove()
+  document.querySelector('link[type="image/svg+xml"]').href =
+    '/icon-staging.svg'
+}
+
 function checkTop() {
   // Root landing scrolls body on mobile to keep the URL bar
   root.classList.toggle('is-top', scrollY + document.body.scrollTop === 0)

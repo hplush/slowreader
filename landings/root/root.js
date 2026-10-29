@@ -1,12 +1,8 @@
-import '../layout/layout.js'
-
 import devStyles from './dev.css?url'
 
-if (
-  location.hostname === 'dev.slowreader.app' ||
-  location.hostname.endsWith('.slowreader.hplush.dev') ||
-  new URLSearchParams(location.search).has('dev')
-) {
+import { isDev } from '../layout/layout.js'
+
+if (isDev) {
   let styles = document.createElement('link')
   styles.rel = 'stylesheet'
   styles.href = devStyles
