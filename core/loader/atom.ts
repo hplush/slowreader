@@ -3,6 +3,7 @@ import {
   type DownloadTask,
   type TextResponse
 } from '../lib/download.ts'
+import { onlyWebLink } from '../lib/html.ts'
 import { type ParsedPost, type PostMedia, uniqueMedia } from '../post.ts'
 import { createPostsList, type PostsListResult } from '../posts-list.ts'
 import {
@@ -202,6 +203,23 @@ export const atom: Loader = {
     return parsePostSources(xml).find(i => {
       return i.querySelector('id')?.textContent === originId
     })?.outerHTML
+  },
+
+  getSiteUrl(text) {
+    let root = text.parseXml().documentElement
+    // Atom’s link without `rel` is `alternate` too
+    let link = [...root.children].find(i => {
+      return (
+        i.localName === 'link' &&
+        i.namespaceURI === root.namespaceURI &&
+        (i.getAttribute('rel') ?? 'alternate') === 'alternate'
+      )
+    })
+    if (!link) return undefined
+    return onlyWebLink(
+      link.getAttribute('href'),
+      findXmlBase(link, text.url) ?? text.url
+    )
   },
 
   getSuggestedLinksFromText(text) {

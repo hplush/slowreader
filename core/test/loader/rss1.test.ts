@@ -89,6 +89,16 @@ describe('rss1 loader', () => {
     )
   })
 
+  test('finds site URL', () => {
+    equal(
+      loaders.rss1.getSiteUrl!(
+        exampleRdf('<channel><link>https://example.com/</link></channel>')
+      ),
+      'https://example.com/'
+    )
+    equal(loaders.rss1.getSiteUrl!(exampleRdf('')), undefined)
+  })
+
   test('detects titles', async () => {
     deepEqual(
       loaders.rss1.detectFeed(

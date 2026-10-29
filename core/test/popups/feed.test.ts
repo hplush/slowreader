@@ -125,6 +125,7 @@ describe('feed popup', () => {
         true
       )
       equal(checkLoadedPopup(popup).posts.get().hasNext, false)
+      equal(checkLoadedPopup(popup).site.get(), 'http://a.com')
     }, [])
   })
 
@@ -254,6 +255,29 @@ describe('feed popup', () => {
     await checkLoadedPopup(popup).remove()
     equal(checkLoadedPopup(popup).feed.get(), undefined)
     deepEqual(await loadPostsByFeed(feedId), [])
+  })
+
+  test('opens website from the feed', async () => {
+    expectRequest('https://a.com/rss').andRespond(
+      200,
+      '<rss><channel><title>RSS</title>' +
+        '<link>https://b.com/blog/</link></channel></rss>',
+      'application/rss+xml'
+    )
+    let popup = openTestPopup('feed', 'https://a.com/rss')
+    await waitLoading(popup.loading)
+    equal(checkLoadedPopup(popup).site.get(), 'https://b.com/blog/')
+  })
+
+  test('opens website of feed without link', async () => {
+    expectRequest('https://a.com/rss').andRespond(
+      200,
+      '<rss><channel><title>RSS</title></channel></rss>',
+      'application/rss+xml'
+    )
+    let popup = openTestPopup('feed', 'https://a.com/rss')
+    await waitLoading(popup.loading)
+    equal(checkLoadedPopup(popup).site.get(), 'https://a.com')
   })
 
   test('finds avatar of unsubscribed feed', async () => {
@@ -511,6 +535,12 @@ describe('feed popup with accounts', () => {
 
     let popup = await openAuthor()
     equal(popup.followedBy.get()?.id, accountId)
+  })
+
+  test('opens author profile', async () => {
+    spyPosts()
+    let popup = await openAuthor()
+    equal(popup.site.get(), AUTHOR)
   })
 
   test('does not check following for other services', async () => {

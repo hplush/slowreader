@@ -2,6 +2,7 @@
   import {
     mdiAlertCircleOutline,
     mdiChevronDown,
+    mdiOpenInNew,
     mdiPlusCircleOutline,
     mdiTrashCanOutline
   } from '@mdi/js'
@@ -41,6 +42,7 @@
     feed,
     followedBy,
     posts,
+    site,
     userPostUrl
   } = $derived(popup)
 
@@ -72,6 +74,11 @@
         variant="secondary-dangerous"
       >
         {$t.deleteFeed}
+      </Button>
+    {/if}
+    {#if $site}
+      <Button href={$site} icon={mdiOpenInNew} size="icon" target="_blank">
+        {$t.openWebsite}
       </Button>
     {/if}
   {/snippet}

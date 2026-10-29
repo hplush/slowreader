@@ -18,6 +18,7 @@ export const organizeMessages = i18n('organize', {
   feedsTitle: 'Feeds',
   feedUrl: params('Feed URL ({type})'),
   morePosts: 'More posts',
+  openWebsite: 'Open website',
   renameCategory: 'Rename category',
   slow: 'Useful',
   title: 'Feed name',

@@ -3,6 +3,7 @@ import {
   type DownloadTask,
   type TextResponse
 } from '../lib/download.ts'
+import { onlyWebLink } from '../lib/html.ts'
 import { type ParsedPost, type PostMedia, uniqueMedia } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import { findMRSS } from './atom.ts'
@@ -112,6 +113,12 @@ export const rss: Loader = {
         i.querySelector('link')?.textContent === originId
       )
     })?.outerHTML
+  },
+
+  getSiteUrl(text) {
+    let channel = text.parseXml().querySelector('rss > channel')
+    let link = channel && findOwnChild(channel, 'link')
+    return onlyWebLink(link?.textContent, text.url)
   },
 
   getSuggestedLinksFromText(text) {

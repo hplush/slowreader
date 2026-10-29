@@ -169,6 +169,20 @@ export function isAbsoluteUrl(value: string): boolean {
 }
 
 /**
+ * Only web pages, since feed could put `javascript:` to the link.
+ */
+export function onlyWebLink(
+  link: null | string | undefined,
+  base: string
+): string | undefined {
+  let trimmed = link?.trim()
+  if (!trimmed) return undefined
+  let url = URL.parse(trimmed, base)
+  if (!url || !['http:', 'https:'].includes(url.protocol)) return undefined
+  return url.href
+}
+
+/**
  * /a.jpg?w=500,q=80 500w, /a.jpg?w=1200,q=80 1200w
  * /a.jpg 1x,/b.jpg 2x
  * /a.jpg, /b.jpg 2x

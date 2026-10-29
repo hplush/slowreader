@@ -252,6 +252,22 @@ describe('json feed loader', () => {
     )
   })
 
+  test('finds site URL', () => {
+    equal(
+      loaders.jsonFeed.getSiteUrl!(
+        exampleJson({ ...jsonStub, home_page_url: 'https://a.com/' })
+      ),
+      'https://a.com/'
+    )
+    equal(
+      loaders.jsonFeed.getSiteUrl!(
+        exampleJson({ ...jsonStub, home_page_url: undefined })
+      ),
+      undefined
+    )
+    equal(loaders.jsonFeed.getSiteUrl!(exampleJson([])), undefined)
+  })
+
   test('detects titles', async () => {
     deepEqual(
       loaders.jsonFeed.detectFeed(

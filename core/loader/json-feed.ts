@@ -4,6 +4,7 @@ import {
   type DownloadTask,
   type TextResponse
 } from '../lib/download.ts'
+import { onlyWebLink } from '../lib/html.ts'
 import { type ParsedPost, type PostMedia, uniqueMedia } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import {
@@ -194,6 +195,14 @@ export const jsonFeed: Loader = {
   async getPostSource(feed, originId) {
     let json = await createDownloadTask().text(feed.url)
     return parseFeed(json).items.find(i => i.id === originId)
+  },
+
+  getSiteUrl(text) {
+    let feed = text.parseJson()
+    if (!isObject(feed) || typeof feed.home_page_url !== 'string') {
+      return undefined
+    }
+    return onlyWebLink(feed.home_page_url, text.url)
   },
 
   getSuggestedLinksFromText(text) {

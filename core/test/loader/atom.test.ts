@@ -297,6 +297,32 @@ describe('atom loader', () => {
     )
   })
 
+  test('finds site URL', () => {
+    equal(
+      loaders.atom.getSiteUrl!(
+        exampleAtom(
+          '<feed xmlns="http://www.w3.org/2005/Atom" xml:base="https://a.com/">' +
+            '<link rel="self" href="/atom" />' +
+            '<link rel="alternate" href="blog/" />' +
+            '</feed>'
+        )
+      ),
+      'https://a.com/blog/'
+    )
+    equal(
+      loaders.atom.getSiteUrl!(
+        exampleAtom('<feed><link href="https://b.com/" /></feed>')
+      ),
+      'https://b.com/'
+    )
+    equal(
+      loaders.atom.getSiteUrl!(
+        exampleAtom('<feed><link rel="self" href="/atom" /></feed>')
+      ),
+      undefined
+    )
+  })
+
   test('detects titles', async () => {
     deepEqual(
       loaders.atom.detectFeed(

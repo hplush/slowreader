@@ -3,6 +3,7 @@ import {
   type DownloadTask,
   type TextResponse
 } from '../lib/download.ts'
+import { onlyWebLink } from '../lib/html.ts'
 import { type ParsedPost, uniqueMedia } from '../post.ts'
 import { createPostsList } from '../posts-list.ts'
 import { findMRSS } from './atom.ts'
@@ -125,6 +126,11 @@ export const rss1: Loader = {
     let xml = await createDownloadTask().text(feed.url)
     return parsePostSources(xml).find(i => getOriginId(i) === originId)
       ?.outerHTML
+  },
+
+  getSiteUrl(text) {
+    let link = findChild(findChild(findRoot(text), 'channel'), 'link')
+    return onlyWebLink(link?.textContent, text.url)
   },
 
   getSuggestedLinksFromText() {

@@ -216,6 +216,11 @@ export type Loader = {
   getSuggestedLinksFromText(response: TextResponse): string[]
 
   /**
+   * Website of the feed from its document, like `<link>` of RSS.
+   */
+  getSiteUrl?(response: TextResponse): string | undefined
+
+  /**
    * Other feeds with the same posts, but less data, like RSS of social profile.
    */
   getWorseLinksFromText?(response: TextResponse): string[]

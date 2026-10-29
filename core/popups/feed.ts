@@ -29,6 +29,7 @@ import { waitSql } from '../lib/stores.ts'
 import {
   type FeedLoader,
   getLoaderForText,
+  hasPersonAvatar,
   loaders,
   tryLoadFeedData
 } from '../loader/index.ts'
@@ -175,9 +176,17 @@ export const feed = definePopup('feed', async url => {
 
   let $feed = atom<FeedValue | undefined>(existing)
 
-  function getAuthorUrl(): string {
-    return $feed.get()?.url ?? (candidate ? candidate.url : url)
+  let feedUrl = existing?.url ?? (candidate ? candidate.url : url)
+
+  function replaceSiteByFeedLink(): void {
+    if (!response || !candidate) return
+    let link = candidate.loader.getSiteUrl?.(response)
+    if (link) $site.set(link)
   }
+
+  let profile = hasPersonAvatar(service)
+  let $site = atom(profile ? feedUrl : URL.parse(feedUrl)?.origin)
+  if (!profile) void parsing.then(replaceSiteByFeedLink, () => {})
 
   let $avatar = atom<string | undefined>()
   // Lazy to not download icons for popups without UI
@@ -254,14 +263,14 @@ export const feed = definePopup('feed', async url => {
     let account = accounts.find(i => i.id === created?.accountId) ?? followedBy
     if (account) {
       let unfollowed = await onService(() =>
-        unfollowByAccount(accountTask, account, getAuthorUrl())
+        unfollowByAccount(accountTask, account, feedUrl)
       )
       if (!unfollowed) return
     }
     if (created) {
       await deleteFeed(created.id)
     } else if (followedBy) {
-      await deleteAccountPostsBy(followedBy.id, getAuthorUrl())
+      await deleteAccountPostsBy(followedBy.id, feedUrl)
       $followedBy.set(undefined)
     }
   }
@@ -297,10 +306,9 @@ export const feed = definePopup('feed', async url => {
     )
     let next = accounts.find(i => i.id === accountId)
     if (prev === next) return
-    let target = getAuthorUrl()
     let changed = await onService(async () => {
-      if (next) await followByAccount(accountTask, next, target)
-      if (prev) await unfollowByAccount(accountTask, prev, target)
+      if (next) await followByAccount(accountTask, next, feedUrl)
+      if (prev) await unfollowByAccount(accountTask, prev, feedUrl)
     })
     if (!changed) return
     created ??= await createVirtualFeed()
@@ -337,6 +345,7 @@ export const feed = definePopup('feed', async url => {
     posts,
     remove,
     rename,
+    site: $site,
     title,
     userPostUrl: getUserPostUrls()
   }

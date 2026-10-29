@@ -231,6 +231,31 @@ describe('rss loader', () => {
     )
   })
 
+  test('finds site URL', () => {
+    equal(
+      loaders.rss.getSiteUrl!(
+        exampleRss(
+          '<rss><channel>' +
+            '<atom:link xmlns:atom="http://www.w3.org/2005/Atom" href="/rss" />' +
+            '<link> /blog/ </link></channel></rss>'
+        )
+      ),
+      'https://example.com/blog/'
+    )
+    equal(
+      loaders.rss.getSiteUrl!(
+        exampleRss(
+          '<rss><channel><link>javascript:alert(1)</link></channel></rss>'
+        )
+      ),
+      undefined
+    )
+    equal(
+      loaders.rss.getSiteUrl!(exampleRss('<rss><channel></channel></rss>')),
+      undefined
+    )
+  })
+
   test('detects titles', async () => {
     deepEqual(
       loaders.rss.detectFeed(
