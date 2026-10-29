@@ -51,7 +51,7 @@
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
-      padding: 0.25rem 0.625rem 0.625rem;
+      padding: 0.25rem 0.625rem 0.625rem 0.625rem;
       border: calc(var(--min-size) / 2) solid var(--flat-border-color);
       border-radius: var(--base-radius);
     }
