@@ -174,7 +174,7 @@ describe('export page', () => {
       ],
       settings: {
         customPostFont: '',
-        fastPostsLifetime: 'month',
+        fastPostsMaxAge: 604800,
         nightLock: { enabled: false, from: 23, to: 7 },
         openWarnings: false,
         postFont: 'default',

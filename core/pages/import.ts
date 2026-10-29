@@ -15,7 +15,7 @@ import { addPost } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
 import {
   customPostFont,
-  fastPostsLifetime,
+  fastPostsMaxAge,
   nightLock,
   openWarnings,
   postFont,
@@ -164,8 +164,8 @@ export const importPage = createPage('import', () => {
     if (settings.postFont) postFont.set(settings.postFont)
     if (settings.postLineHeight) postLineHeight.set(settings.postLineHeight)
     if (settings.customPostFont) customPostFont.set(settings.customPostFont)
-    if (settings.fastPostsLifetime) {
-      fastPostsLifetime.set(settings.fastPostsLifetime)
+    if (settings.fastPostsMaxAge !== undefined) {
+      fastPostsMaxAge.set(settings.fastPostsMaxAge)
     }
     if (settings.nightLock) nightLock.set(settings.nightLock)
     if (settings.openWarnings !== undefined) {

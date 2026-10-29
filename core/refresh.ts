@@ -48,7 +48,7 @@ import {
   cacheImages,
   cacheMediaReading,
   cacheVideos,
-  fastPostsLifetime,
+  fastPostsMaxAge,
   syncedSettingsLoading
 } from './settings.ts'
 import { linkThreads } from './thread.ts'
@@ -478,12 +478,8 @@ export async function refreshPosts(): Promise<void> {
   untouched = []
   untouchedAccounts = []
   await waitLoading(syncedSettingsLoading)
-  let lifetime = fastPostsLifetime.get()
-  if (lifetime !== 'forever') {
-    await deleteFastPostsBefore(
-      refreshedAt - (lifetime === 'week' ? 7 : 30) * 24 * 60 * 60
-    )
-  }
+  let maxAge = fastPostsMaxAge.get()
+  if (maxAge > 0) await deleteFastPostsBefore(refreshedAt - maxAge)
   let [feeds, accounts] = await Promise.all([
     loadFeedsForRefresh(),
     loadAccounts()

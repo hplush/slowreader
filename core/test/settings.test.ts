@@ -6,7 +6,7 @@ import {
   cacheMediaReading,
   cacheVideos,
   customPostFont,
-  fastPostsLifetime,
+  fastPostsMaxAge,
   requestMethod,
   theme,
   openWarnings,
@@ -46,7 +46,7 @@ describe('settings', () => {
   })
 
   test('has store for fast posts lifetime', () => {
-    equal(fastPostsLifetime.get(), 'month')
+    equal(fastPostsMaxAge.get(), 604800)
   })
 
   test('has stores for font settings', () => {

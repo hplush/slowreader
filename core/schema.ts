@@ -293,7 +293,7 @@ export const postsTable = defineCrdtTable(
 export const settingsTable = defineCrdtTable('settings', {
   // Creation sets only it, since other devices could create the row too
   createdAt: optional(bigint()),
-  fastPostsLifetime: optional(oneOf(['forever', 'month', 'week'])),
+  fastPostsMaxAge: optional(number()),
   nightLock: optional(
     json({ enabled: boolean(), from: number(), to: number() })
   ),

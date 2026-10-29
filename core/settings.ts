@@ -183,7 +183,7 @@ export const showSensitiveMedia = syncedSetting('showSensitiveMedia', false)
 
 export const openWarnings = syncedSetting('openWarnings', false)
 
-export const fastPostsLifetime = syncedSetting('fastPostsLifetime', 'month')
+export const fastPostsMaxAge = syncedSetting('fastPostsMaxAge', 604800)
 
 export const nightLock = syncedSetting('nightLock', {
   enabled: false,
@@ -201,7 +201,7 @@ onClient(() =>
     let unbind = syncSettings(
       getTables().settings,
       'user',
-      [fastPostsLifetime, nightLock, openWarnings, showSensitiveMedia],
+      [fastPostsMaxAge, nightLock, openWarnings, showSensitiveMedia],
       syncedSettingsLoading,
       () => ({ createdAt: Math.round(Date.now() / 1000) })
     )
@@ -214,7 +214,7 @@ onClient(() =>
 
 export interface Settings {
   customPostFont: StoreValue<typeof customPostFont>
-  fastPostsLifetime: StoreValue<typeof fastPostsLifetime>
+  fastPostsMaxAge: StoreValue<typeof fastPostsMaxAge>
   nightLock: NightLock
   openWarnings: StoreValue<typeof openWarnings>
   postFont: PostFont

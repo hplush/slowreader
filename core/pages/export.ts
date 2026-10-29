@@ -13,7 +13,7 @@ import { loadPostsPage, type PostValue } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
 import {
   customPostFont,
-  fastPostsLifetime,
+  fastPostsMaxAge,
   nightLock,
   openWarnings,
   postFont,
@@ -169,7 +169,7 @@ export const exportPage = createPage('export', () => {
 
     let settings = {
       customPostFont: customPostFont.get(),
-      fastPostsLifetime: fastPostsLifetime.get(),
+      fastPostsMaxAge: fastPostsMaxAge.get(),
       nightLock: nightLock.get(),
       openWarnings: openWarnings.get(),
       postFont: postFont.get(),

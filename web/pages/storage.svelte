@@ -7,7 +7,7 @@
     mdiTrashCanOutline
   } from '@mdi/js'
   import {
-    fastPostsLifetime,
+    fastPostsMaxAge,
     formatSize,
     i18nFormat,
     isDemo,
@@ -82,14 +82,14 @@
     <Radio
       label={$t.fastLifetime}
       onchange={value => {
-        fastPostsLifetime.set(value)
+        fastPostsMaxAge.set(Number(value))
       }}
       size="wide"
-      value={$fastPostsLifetime}
+      value={String($fastPostsMaxAge)}
       values={[
-        ['week', $t.fastLifetimeWeek],
-        ['month', $t.fastLifetimeMonth],
-        ['forever', $t.fastLifetimeForever]
+        ['172800', $t.fastLifetimeDays],
+        ['604800', $t.fastLifetimeWeek],
+        ['0', $t.fastLifetimeForever]
       ]}
     />
     <Stack>

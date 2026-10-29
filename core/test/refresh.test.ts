@@ -13,7 +13,7 @@ import {
   DEFAULT_REFRESH_STATISTICS,
   deleteAccount,
   deleteFeed,
-  fastPostsLifetime,
+  fastPostsMaxAge,
   syncedSettingsLoading,
   getClient,
   loadAccount,
@@ -59,11 +59,11 @@ describe('refresh', () => {
     mockRequest()
     startClient()
     await waitLoading(syncedSettingsLoading)
-    fastPostsLifetime.set('forever')
+    fastPostsMaxAge.set(0)
   })
 
   afterEach(async () => {
-    fastPostsLifetime.set('month')
+    fastPostsMaxAge.set(604800)
     refreshStatistics.set({ ...DEFAULT_REFRESH_STATISTICS })
     await cleanClient()
     restoreAll()
@@ -818,31 +818,31 @@ describe('refresh', () => {
     let now = Math.round(Date.now() / 1000)
     let day = 24 * 60 * 60
     await addPost([
-      testPost({ originId: 'fast2', publishedAt: now - 2 * day }),
+      testPost({ originId: 'fast1', publishedAt: now - day }),
+      testPost({ originId: 'fast3', publishedAt: now - 3 * day }),
       testPost({ originId: 'fast10', publishedAt: now - 10 * day }),
-      testPost({ originId: 'fast40', publishedAt: now - 40 * day }),
       testPost({
-        originId: 'slow40',
-        publishedAt: now - 40 * day,
+        originId: 'slow10',
+        publishedAt: now - 10 * day,
         reading: 'slow'
       })
     ])
 
     await refreshPosts()
     deepEqual(await getPostKeys('originId'), [
+      'fast1',
       'fast10',
-      'fast2',
-      'fast40',
-      'slow40'
+      'fast3',
+      'slow10'
     ])
 
-    fastPostsLifetime.set('month')
+    fastPostsMaxAge.set(7 * day)
     await refreshPosts()
-    deepEqual(await getPostKeys('originId'), ['fast10', 'fast2', 'slow40'])
+    deepEqual(await getPostKeys('originId'), ['fast1', 'fast3', 'slow10'])
 
-    fastPostsLifetime.set('week')
+    fastPostsMaxAge.set(2 * day)
     await refreshPosts()
-    deepEqual(await getPostKeys('originId'), ['fast2', 'slow40'])
+    deepEqual(await getPostKeys('originId'), ['fast1', 'slow10'])
   })
 })
 
@@ -853,11 +853,11 @@ describe('refresh of accounts', () => {
     mockRequest()
     startClient()
     await waitLoading(syncedSettingsLoading)
-    fastPostsLifetime.set('forever')
+    fastPostsMaxAge.set(0)
   })
 
   afterEach(async () => {
-    fastPostsLifetime.set('month')
+    fastPostsMaxAge.set(604800)
     await cleanClient()
     restoreAll()
     checkAndRemoveRequestMock()

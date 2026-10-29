@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, test } from 'node:test'
 import { setTimeout } from 'node:timers/promises'
 
 import {
-  fastPostsLifetime,
+  fastPostsMaxAge,
   getTables,
   nightLock,
   openWarnings,
@@ -31,7 +31,7 @@ describe('synced settings', () => {
 
   afterEach(async () => {
     await cleanClient()
-    fastPostsLifetime.set('month')
+    fastPostsMaxAge.set(604800)
     nightLock.set({ enabled: false, from: 23, to: 7 })
     openWarnings.set(false)
     showSensitiveMedia.set(false)
@@ -67,7 +67,7 @@ describe('synced settings', () => {
     })
     await waitFor(openWarnings, value => value)
     deepEqual(nightLock.get(), { enabled: true, from: 22, to: 6 })
-    equal(fastPostsLifetime.get(), 'month')
+    equal(fastPostsMaxAge.get(), 604800)
 
     await getTables().settings.update('user', {
       nightLock: { enabled: false, from: 22, to: 6 }
@@ -81,7 +81,7 @@ describe('synced settings', () => {
     showSensitiveMedia.set(true)
     let row = await waitRow(value => value?.showSensitiveMedia === true)
     equal(row?.openWarnings, null)
-    equal(row?.fastPostsLifetime, null)
+    equal(row?.fastPostsMaxAge, null)
 
     nightLock.set({ enabled: true, from: 23, to: 7 })
     row = await waitRow(value => !!value?.nightLock)

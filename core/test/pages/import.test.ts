@@ -17,7 +17,7 @@ import {
   deleteFeed,
   deleteFilter,
   deletePost,
-  fastPostsLifetime,
+  fastPostsMaxAge,
   GENERAL_CATEGORY,
   isDemo,
   loadAccounts,
@@ -250,7 +250,7 @@ describe('import page', () => {
     equal(page.fileError.get(), false)
     // The old backup does not have newer settings
     equal(openWarnings.get(), true)
-    equal(fastPostsLifetime.get(), 'month')
+    equal(fastPostsMaxAge.get(), 604800)
 
     deepEqual(
       (await loadAccounts()).map(i => [i.id, i.handle]),

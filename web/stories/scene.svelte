@@ -18,7 +18,7 @@
     DEFAULT_MEDIA_STATISTICS,
     DEFAULT_REFRESH_STATISTICS,
     extensionState,
-    fastPostsLifetime,
+    fastPostsMaxAge,
     type FeedValue,
     getTables,
     hasCloud,
@@ -213,7 +213,7 @@
     customPostFont.set('')
     showSensitiveMedia.set(false)
     openWarnings.set(false)
-    fastPostsLifetime.set('month')
+    fastPostsMaxAge.set(604800)
     nightLock.set({ enabled: false, from: 23, to: 7 })
     cacheMediaReading.set('all')
     cacheImages.set('always')
