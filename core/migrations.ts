@@ -6,6 +6,7 @@ import type { ActionMigrations } from '@logux/client'
 import { mapCrdtFields } from '@logux/client/db'
 
 export const migrations: ActionMigrations = {
+  // Added 2026-10-16
   1: action => {
     if (action.type !== 'posts/created' && action.type !== 'posts/changed') {
       return action
@@ -21,6 +22,7 @@ export const migrations: ActionMigrations = {
       return result
     })
   },
+  // Added 2026-10-19
   2: action => {
     if (action.type !== 'posts/created') return action
     return mapCrdtFields(action, fields => {
