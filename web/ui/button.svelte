@@ -246,6 +246,10 @@
           );
         }
       }
+
+      &[aria-disabled='true']:not(.is-loader) {
+        opacity: 60%;
+      }
     }
 
     .button_cap {
