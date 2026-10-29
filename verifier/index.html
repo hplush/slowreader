@@ -134,7 +134,7 @@
         white-space: pre;
       }
       #today .events {
-        padding-left: 11ch;
+        padding-left: 9ch;
       }
       /* Days go one by one like a bar, but are high enough to tap on mobile */
       #history div {
@@ -924,7 +924,7 @@ done</pre>
         button.append(...[...block.children].slice(0, 2))
         button.addEventListener('click', () => openDay(dayName(0), button))
         block.prepend(button)
-        today.replaceChildren(span('Today'.padEnd(11)), block)
+        today.replaceChildren(span('Today'.padEnd(9)), block)
         today.lastChild.style.display = 'inline'
 
         // Row per month for the current month and 5 previous months
@@ -949,7 +949,7 @@ done</pre>
               timeZone: 'UTC',
               year: 'numeric'
             })
-            row.append(span(label.padEnd(11), 'label'))
+            row.append(span(label.padEnd(9), 'label'))
             rows.set(monthName, row)
             history.append(row)
           }
