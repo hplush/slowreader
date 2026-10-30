@@ -144,7 +144,7 @@ Since clients don’t have much logic (we moved logic to the client core), we do
 
 We can use only visual tests to test web clients UI. We are using **[Storybook](https://storybook.js.org/)** and **[Chromatic snapshots](https://www.chromatic.com/builds?appId=65678843aa11589739e8fbee)**.
 
-Since we use a free plan, we run Chromatic on CI only daily (or on pull request with `run-visual` label). Daily builds use [TurboSnap](https://www.chromatic.com/docs/turbosnap/) to snapshot only stories affected by changes.
+Since we use a free plan, we run Chromatic on CI only every 2 days (or on pull request with `run-visual` label).
 
 We deploy the latest Storybook of `main` branch to staging: [dev.slowreader.app/ui/](https://dev.slowreader.app/ui/)
 
