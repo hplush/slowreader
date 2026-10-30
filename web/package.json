@@ -84,7 +84,7 @@
     "@nanostores/sql": "0.8.0",
     "@slowreader/core": "workspace:*",
     "@slowreader/extension": "workspace:*",
-    "@sqlite.org/sqlite-wasm": "3.51.2-build9",
+    "@sqlite.org/sqlite-wasm": "3.54.1-build1",
     "@storybook/addon-a11y": "10.6.5",
     "@storybook/addon-svelte-csf": "5.1.6",
     "@storybook/addon-themes": "10.6.5",
