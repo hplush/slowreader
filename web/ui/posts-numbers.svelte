@@ -4,23 +4,28 @@
   let { fast, slow }: { fast: number; slow: number } = $props()
 </script>
 
-<dl class="posts-numbers">
-  <dt class="posts-numbers_title is-comfort-mode">{$t.slowPosts}</dt>
-  <dd class="posts-numbers_value is-comfort-mode">{slow}</dd>
-  <dt class="posts-numbers_title is-non-comfort-mode">{$t.fastPosts}</dt>
-  <dd class="posts-numbers_value is-non-comfort-mode">{fast}</dd>
+<div class="posts-numbers">
+  <dl class="posts-numbers_list">
+    <dt class="posts-numbers_title is-comfort-mode">{$t.slowPosts}</dt>
+    <dd class="posts-numbers_value is-comfort-mode">{slow}</dd>
+    <dt class="posts-numbers_title is-non-comfort-mode">{$t.fastPosts}</dt>
+    <dd class="posts-numbers_value is-non-comfort-mode">{fast}</dd>
+  </dl>
   <div class="posts-numbers_footer">{$t.postsLoaded}</div>
-</dl>
+</div>
 
 <style>
   :global {
     .posts-numbers {
-      display: grid;
-      grid-template-rows: auto auto auto;
-      grid-template-columns: 1fr 1fr;
-      grid-auto-flow: column;
       min-width: 15rem;
       text-align: center;
+    }
+
+    .posts-numbers_list {
+      display: grid;
+      grid-template-rows: auto auto;
+      grid-template-columns: 1fr 1fr;
+      grid-auto-flow: column;
     }
 
     .posts-numbers_title {
@@ -51,8 +56,6 @@
     }
 
     .posts-numbers_footer {
-      grid-row: 3;
-      grid-column: 1 / 3;
       padding: 0.25rem 0 0 0;
       font: var(--secondary-font);
     }

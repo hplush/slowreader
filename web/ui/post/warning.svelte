@@ -57,6 +57,7 @@
       flex-wrap: wrap;
       gap: 0.5rem;
       align-items: center;
+      width: stretch;
       padding: 0.25rem;
       border: 0.0625rem solid;
       border-color: --tune-background(--note);

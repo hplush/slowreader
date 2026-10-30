@@ -123,6 +123,7 @@
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
+      width: stretch;
       padding: 0.625rem;
       position: relative;
       border: calc(var(--min-size) / 2) solid var(--flat-border-color);
