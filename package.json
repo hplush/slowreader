@@ -36,7 +36,7 @@
   "devDependencies": {
     "@logux/eslint-config": "57.1.0",
     "@logux/oxc-configs": "1.2.0",
-    "@logux/stylelint-config": "1.1.0",
+    "@logux/stylelint-config": "2.0.0",
     "@playwright/mcp": "0.0.83",
     "@stylistic/stylelint-config": "5.0.0",
     "@stylistic/stylelint-plugin": "5.3.1",
