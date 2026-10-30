@@ -298,12 +298,12 @@ function updateSizes(
  * Real sizes are synced, so other devices get the ratio without downloading.
  */
 async function saveSizes(found: [SizeTarget, CachedMedia][]): Promise<void> {
-  let posts = new Map<string, PostValue | undefined>()
+  let ids = [...new Set(found.map(([target]) => target.postId))]
+  let posts = new Map(
+    await Promise.all(ids.map(async id => [id, await loadPost(id)] as const))
+  )
   let changed = new Map<string, MediaPostRow>()
   for (let [target, real] of found) {
-    if (!posts.has(target.postId)) {
-      posts.set(target.postId, await loadPost(target.postId))
-    }
     let post = changed.get(target.postId) ?? posts.get(target.postId)
     if (!post) continue
     if (target.field === 'media') {
@@ -331,16 +331,19 @@ async function saveSizes(found: [SizeTarget, CachedMedia][]): Promise<void> {
       }
     }
   }
-  for (let [id, post] of changed) {
-    let original = posts.get(id)!
-    await changePost(id, {
-      ...(post.mediaSizes !== original.mediaSizes && {
-        mediaSizes: post.mediaSizes
-      }),
-      ...(post.quoted !== original.quoted && { quoted: post.quoted }),
-      ...(post.replied !== original.replied && { replied: post.replied })
+  // Parallel changes are applied by one transaction instead of one per post
+  await Promise.all(
+    [...changed].map(([id, post]) => {
+      let original = posts.get(id)!
+      return changePost(id, {
+        ...(post.mediaSizes !== original.mediaSizes && {
+          mediaSizes: post.mediaSizes
+        }),
+        ...(post.quoted !== original.quoted && { quoted: post.quoted }),
+        ...(post.replied !== original.replied && { replied: post.replied })
+      })
     })
-  }
+  )
 }
 
 let queue = createQueue<string>([])
