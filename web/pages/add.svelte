@@ -49,6 +49,7 @@
       <Input
         anchor="add-url"
         aria-controls="add-results"
+        autofocus
         errorId={$error || $noResults ? 'add-error' : undefined}
         label={$t.urlLabel}
         labelless

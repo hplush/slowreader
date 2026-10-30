@@ -58,6 +58,7 @@
 
   onMount(() => {
     if (input) {
+      if (props.autofocus) input.focus()
       return on(input, 'validate', () => {
         error = runValidators(value)
       })
