@@ -74,10 +74,10 @@ wasmWorker(
   send({ error: String(error), type: 'noDb' })
 })
 
-async function dumpDatabase(): Promise<void> {
+function dumpDatabase(): void {
   try {
     if (!pool) throw new Error('No database in the pool')
-    let { buffer } = await pool.exportFile(`/${DATABASE}`)
+    let { buffer } = pool.exportFile(`/${DATABASE}`)
     send({ database: buffer as ArrayBuffer, type: 'dumped' }, [buffer])
   } catch (error) {
     send({ error: String(error), type: 'dumpFailed' })
@@ -86,5 +86,5 @@ async function dumpDatabase(): Promise<void> {
 
 // The same port also has messages of the database driver
 addEventListener('message', ({ data }: MessageEvent<{ type: string }>) => {
-  if (data.type === 'dump') void dumpDatabase()
+  if (data.type === 'dump') dumpDatabase()
 })
