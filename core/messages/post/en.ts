@@ -12,6 +12,7 @@ export const postMessages = i18n('post', {
   readCheckbox: 'Post was read',
   replyingTo: 'In reply to',
   rightAfter: 'Right after',
+  share: 'Share post',
   repostedBy: params('Reposted by {name}'),
   showSensitive: 'Show sensitive media',
   showWarning: 'Show post',

@@ -28,6 +28,10 @@ window.addEventListener('beforeunload', event => {
   event.stopImmediatePropagation()
 })
 
+if (!('share' in navigator)) {
+  Object.defineProperty(navigator, 'share', { value: async () => {} })
+}
+
 export const baseRouter = atom<BaseRoute>({
   hash: '',
   params: {},
