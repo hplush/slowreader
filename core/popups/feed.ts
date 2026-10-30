@@ -257,21 +257,28 @@ export const feed = definePopup('feed', async url => {
     }
   }
 
+  let $deleting = atom(false)
+
   async function remove(): Promise<void> {
     let created = $feed.get()
     let followedBy = $followedBy.get()
     let account = accounts.find(i => i.id === created?.accountId) ?? followedBy
-    if (account) {
-      let unfollowed = await onService(() =>
-        unfollowByAccount(accountTask, account, feedUrl)
-      )
-      if (!unfollowed) return
-    }
-    if (created) {
-      await deleteFeed(created.id)
-    } else if (followedBy) {
-      await deleteAccountPostsBy(followedBy.id, feedUrl)
-      $followedBy.set(undefined)
+    $deleting.set(true)
+    try {
+      if (account) {
+        let unfollowed = await onService(() =>
+          unfollowByAccount(accountTask, account, feedUrl)
+        )
+        if (!unfollowed) return
+      }
+      if (created) {
+        await deleteFeed(created.id)
+      } else if (followedBy) {
+        await deleteAccountPostsBy(followedBy.id, feedUrl)
+        $followedBy.set(undefined)
+      }
+    } finally {
+      $deleting.set(false)
     }
   }
 
@@ -334,6 +341,7 @@ export const feed = definePopup('feed', async url => {
     categories: getCategoryOptions(categoriesStore),
     change,
     changeAccount,
+    deleting: $deleting,
     destroy() {
       task.destroy()
       accountTask.destroy()

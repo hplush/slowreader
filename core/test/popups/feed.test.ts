@@ -712,6 +712,7 @@ describe('feed popup with accounts', () => {
     equal(popup.accountError.get(), commonMessages.get().error5xx)
 
     await popup.remove()
+    equal(popup.deleting.get(), false)
     equal((await loadFeeds()).length, 1)
   })
 
@@ -739,7 +740,10 @@ describe('feed popup with accounts', () => {
     let unfollows = spyOn(account, 'unfollow', () => Promise.resolve())
     let popup = await openAuthor()
 
-    await popup.remove()
+    let removing = popup.remove()
+    equal(popup.deleting.get(), true)
+    await removing
+    equal(popup.deleting.get(), false)
     equal(unfollows.calls[0]![2], AUTHOR)
     deepEqual(await loadFeeds(), [])
     deepEqual(await loadPosts(), [])

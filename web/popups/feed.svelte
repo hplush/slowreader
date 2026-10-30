@@ -39,6 +39,7 @@
     accountError,
     avatar,
     categories,
+    deleting,
     feed,
     followedBy,
     posts,
@@ -66,6 +67,7 @@
     {:else}
       <Button
         icon={mdiTrashCanOutline}
+        loader={$deleting}
         onclick={() => {
           if (confirm($t.deleteConform)) {
             popup.remove()
