@@ -160,16 +160,18 @@
       {/if}
       <div class="feed-post_fill"></div>
       {#if url && canShare()}
-        <Button
-          icon={mdiShareVariantOutline}
-          onclick={() => {
-            shareUrl(url)
-          }}
-          size="icon"
-          variant="plain"
-        >
-          {$postMessages.share}
-        </Button>
+        <div class="feed-post_action">
+          <Button
+            icon={mdiShareVariantOutline}
+            onclick={() => {
+              shareUrl(url)
+            }}
+            size="icon"
+            variant="plain"
+          >
+            {$postMessages.share}
+          </Button>
+        </div>
       {/if}
       {#if url}
         <Button
@@ -349,6 +351,12 @@
 
     .feed-post_fill {
       flex-grow: 1;
+    }
+
+    .feed-post_action {
+      position: relative;
+      z-index: 2;
+      display: flex;
     }
 
     .feed-post_more {
