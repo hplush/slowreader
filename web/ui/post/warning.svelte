@@ -56,7 +56,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
-      align-items: center;
+      align-items: flex-start;
       width: stretch;
       padding: 0.25rem;
       border: 0.0625rem solid;
@@ -71,6 +71,7 @@
       flex: 1 1 10rem;
       gap: 0.25rem;
       align-items: center;
+      align-self: center;
       padding-inline-start: 0.25rem;
       font: var(--secondary-font);
     }

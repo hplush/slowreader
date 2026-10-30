@@ -343,7 +343,9 @@
         quoted: { missing: true },
         reading: 'slow',
         url: 'https://mastodon.social/@Mastodon/2',
-        warning: `Movie spoilers ${EMOJI}`
+        warning:
+          'Movie spoilers for the whole trilogy, including the ending of ' +
+          `the last part and the post-credits scene ${EMOJI}`
       }
     ]}
   >
