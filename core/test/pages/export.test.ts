@@ -175,7 +175,7 @@ describe('export page', () => {
       settings: {
         customPostFont: '',
         fastPostsMaxAge: 604800,
-        nightLock: { enabled: false, from: 23, to: 7 },
+        nightLock: { enabled: false, from: 23, to: 4 },
         openWarnings: false,
         postFont: 'default',
         postLineHeight: 'normal',
