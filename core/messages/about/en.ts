@@ -1,6 +1,7 @@
 import { i18n } from '../../i18n.ts'
 
 export const aboutMessages = i18n('about', {
+  debugInfo: 'Debug info',
   install: 'Install app to home screen',
   latest: 'Latest. What’s new',
   offline: 'Offline',
