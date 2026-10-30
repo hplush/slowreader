@@ -7,6 +7,7 @@ import shadows from 'postcss-smooth-shadow'
 
 import customMedia from './postcss/custom-media.ts'
 import htmlKeeper from './postcss/html-keeper.ts'
+import notoWorld from './postcss/noto-world.ts'
 import pseudoClasses from './postcss/pseudo-classes.ts'
 import quietCursor from './postcss/quiet-cursor.ts'
 import reducedMotion from './postcss/reduced-motion.ts'
@@ -16,6 +17,7 @@ import tuneColor from './postcss/tune-color.ts'
 export default {
   plugins: [
     htmlKeeper,
+    notoWorld,
     customMedia({
       file: join(import.meta.dirname, 'main', 'sizes.css')
     }),

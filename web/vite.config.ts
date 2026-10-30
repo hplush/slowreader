@@ -118,6 +118,13 @@ export default defineConfig(() => ({
         'sw': join(import.meta.dirname, 'main/sw.ts')
       },
       output: {
+        // Size limit skips world fonts, browser loads them only for their text
+        assetFileNames: asset =>
+          asset.originalFileNames.some(i =>
+            /@fontsource-variable\/noto-sans-(?!mono\/)/.test(i)
+          )
+            ? 'assets/world/[name]-[hash][extname]'
+            : 'assets/[name]-[hash][extname]',
         // Service worker must have the same URL in every version
         entryFileNames: chunk =>
           chunk.name === 'sw' ? 'sw.js' : 'assets/[name]-[hash].js'

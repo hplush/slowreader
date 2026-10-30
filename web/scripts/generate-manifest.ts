@@ -96,7 +96,7 @@ sw = replace(
         [
           'app.html',
           'apple-touch-icon.png',
-          'assets/*',
+          'assets/**/*.*',
           'docs/**/index.html',
           'favicon.ico',
           'icon*.{png,svg}',

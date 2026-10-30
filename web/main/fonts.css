@@ -1,5 +1,45 @@
 @import url('@fontsource-variable/noto-sans');
 @import url('@fontsource-variable/noto-sans/wght-italic.css');
+@import url('@fontsource-variable/noto-sans-adlam');
+@import url('@fontsource-variable/noto-sans-arabic');
+@import url('@fontsource-variable/noto-sans-armenian');
+@import url('@fontsource-variable/noto-sans-balinese');
+@import url('@fontsource-variable/noto-sans-bamum');
+@import url('@fontsource-variable/noto-sans-bassa-vah');
+@import url('@fontsource-variable/noto-sans-bengali');
+@import url('@fontsource-variable/noto-sans-canadian-aboriginal');
+@import url('@fontsource-variable/noto-sans-cham');
+@import url('@fontsource-variable/noto-sans-cherokee');
+@import url('@fontsource-variable/noto-sans-ethiopic');
+@import url('@fontsource-variable/noto-sans-georgian');
+@import url('@fontsource-variable/noto-sans-gujarati');
+@import url('@fontsource-variable/noto-sans-gunjala-gondi');
+@import url('@fontsource-variable/noto-sans-gurmukhi');
+@import url('@fontsource-variable/noto-sans-hanifi-rohingya');
+@import url('@fontsource-variable/noto-sans-hebrew');
+@import url('@fontsource-variable/noto-sans-javanese');
+@import url('@fontsource-variable/noto-sans-kannada');
+@import url('@fontsource-variable/noto-sans-kayah-li');
+@import url('@fontsource-variable/noto-sans-khmer');
+@import url('@fontsource-variable/noto-sans-lao');
+@import url('@fontsource-variable/noto-sans-lisu');
+@import url('@fontsource-variable/noto-sans-malayalam');
+@import url('@fontsource-variable/noto-sans-meetei-mayek');
+@import url('@fontsource-variable/noto-sans-myanmar');
+@import url('@fontsource-variable/noto-sans-nag-mundari');
+@import url('@fontsource-variable/noto-sans-new-tai-lue');
+@import url('@fontsource-variable/noto-sans-ol-chiki');
+@import url('@fontsource-variable/noto-sans-oriya');
+@import url('@fontsource-variable/noto-sans-sinhala');
+@import url('@fontsource-variable/noto-sans-sora-sompeng');
+@import url('@fontsource-variable/noto-sans-sundanese');
+@import url('@fontsource-variable/noto-sans-syriac');
+@import url('@fontsource-variable/noto-sans-tai-tham');
+@import url('@fontsource-variable/noto-sans-tamil');
+@import url('@fontsource-variable/noto-sans-tangsa');
+@import url('@fontsource-variable/noto-sans-telugu');
+@import url('@fontsource-variable/noto-sans-thaana');
+@import url('@fontsource-variable/noto-sans-thai');
 @import url('@fontsource-variable/noto-serif');
 @import url('@fontsource-variable/noto-serif/wght-italic.css');
 @import url('@fontsource-variable/noto-sans-mono');
@@ -32,12 +72,18 @@
 }
 
 :root {
-  --text-family: 'Noto Sans Variable', 'Arial', sans-serif;
-  --serif-family: 'Noto Serif Variable', 'Georgia', serif;
-  --app-title-family: 'Inika', 'Noto Serif Variable', 'Georgia', serif;
-  --mono-family: 'Noto Mono Sans Variable', monospace;
-  --handwritten-family: 'Playpen Sans', monospace;
-  --title-family: 'Inika', 'Noto Serif Variable', 'Georgia', serif;
+  --text-family:
+    'Noto Sans Variable', 'Noto Sans World Variable', 'Arial', sans-serif;
+  --serif-family:
+    'Noto Serif Variable', 'Noto Sans Variable', 'Noto Sans World Variable',
+    'Georgia', serif;
+  --app-title-family: 'Inika', var(--serif-family);
+  --mono-family:
+    'Noto Sans Mono Variable', 'Noto Sans Variable', 'Noto Sans World Variable',
+    monospace;
+  --handwritten-family:
+    'Playpen Sans', 'Noto Sans Variable', 'Noto Sans World Variable', monospace;
+  --title-family: 'Inika', var(--serif-family);
   --post-text-family: var(--text-family);
   --post-title-family: var(--title-family);
   --post-line-height: 1.6;
@@ -119,8 +165,8 @@
   }
 
   &.is-post-font-system {
-    --post-text-family: system-ui, sans-serif;
-    --post-title-family: system-ui, sans-serif;
+    --post-text-family: system-ui, var(--text-family);
+    --post-title-family: system-ui, var(--text-family);
   }
 
   &.is-post-font-custom {
