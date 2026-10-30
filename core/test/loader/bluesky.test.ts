@@ -1245,6 +1245,22 @@ describe('bluesky loader', () => {
       bluesky.isProfileUrl!(new URL('https://example.com/profile/jane.com')),
       false
     )
+    equal(
+      bluesky.getHandleFromUrl!(new URL('https://bsky.app/profile/jane.com/')),
+      '@jane.com'
+    )
+    equal(
+      bluesky.getHandleFromUrl!(
+        new URL('https://bsky.app/profile/jane.com/post/1')
+      ),
+      undefined
+    )
+    equal(
+      bluesky.getHandleFromUrl!(
+        new URL('https://example.com/profile/jane.com')
+      ),
+      undefined
+    )
 
     expectRequest(
       threadUrl('at://jane.bsky.social/app.bsky.feed.post/1', 0)

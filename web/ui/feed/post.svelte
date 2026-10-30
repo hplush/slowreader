@@ -2,11 +2,13 @@
   import { mdiChevronRight, mdiOpenInNew, mdiPuzzleOutline } from '@mdi/js'
   import {
     type FeedAuthor,
+    formatRelativeTime,
     getMediaOutsideText,
     getPopupId,
     getPostBadges,
     getPostIntro,
     getPostPopupParam,
+    i18nFormat,
     isOpenedPost,
     openedPost,
     postMessages,
@@ -53,6 +55,14 @@
   let badges = $derived(getPostBadges(post))
 </script>
 
+{#snippet byline()}
+  <PostByline
+    author={post.author}
+    repostHref={feedUrl && getPopupHash($router, 'feed', feedUrl)}
+    repostedBy={post.repostedBy}
+  />
+{/snippet}
+
 <li
   class="feed-post"
   class:is-current={current}
@@ -67,24 +77,43 @@
     href={getPopupHash($router, 'post', param)}
   ></a>
   <article id={`feed-content-${post.id}`} class="feed-post_content">
-    {#if author}
-      <div class="feed-post_author">
-        <FeedLink
-          avatar={author.avatar}
-          avatarRound={author.round}
-          avatarSize="medium"
-          feedId={author.feedId}
-          href={getPopupHash($router, 'feed', author.url)}
-          title={author.title}
-          variant="secondary"
-        />
-      </div>
+    {#if author || post.publishedAt}
+      <header class="feed-post_header">
+        {#if author}
+          <div class="feed-post_author">
+            <FeedLink
+              avatar={author.avatar}
+              avatarRound={author.round}
+              avatarSize="medium"
+              feedId={author.feedId}
+              href={getPopupHash($router, 'feed', author.url)}
+              title={author.title}
+              url={author.url}
+              variant="secondary"
+            />
+          </div>
+        {:else}
+          <div class="feed-post_byline">
+            {@render byline()}
+          </div>
+        {/if}
+        {#if post.publishedAt}
+          <time
+            class="feed-post_date"
+            datetime={new Date(post.publishedAt * 1000).toISOString()}
+            title={$i18nFormat.time(new Date(post.publishedAt * 1000), {
+              dateStyle: 'medium',
+              timeStyle: 'short'
+            })}
+          >
+            {formatRelativeTime($i18nFormat, post.publishedAt)}
+          </time>
+        {/if}
+      </header>
     {/if}
-    <PostByline
-      author={post.author}
-      repostHref={feedUrl && getPopupHash($router, 'feed', feedUrl)}
-      repostedBy={post.repostedBy}
-    />
+    {#if author || !post.publishedAt}
+      {@render byline()}
+    {/if}
     {#if post.title}
       <h2 class="feed-post_title">
         <FormattedText html={post.title} lang={post.lang} scroll={false} />
@@ -243,8 +272,22 @@
       }
     }
 
-    .feed-post_author {
+    .feed-post_header {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      justify-content: space-between;
       margin-top: -0.125rem;
+    }
+
+    .feed-post_byline {
+      min-width: 0;
+    }
+
+    .feed-post_author {
+      display: flex;
+      flex: 1 1 0;
+      min-width: 0;
     }
 
     .feed-post_content {
@@ -277,6 +320,13 @@
     .feed-post_badges {
       align-self: center;
       margin-inline-start: 0.5rem;
+    }
+
+    .feed-post_date {
+      flex-shrink: 0;
+      margin-inline-start: auto;
+      font: var(--secondary-font);
+      color: var(--secondary-text-color);
     }
 
     .feed-post_fill {

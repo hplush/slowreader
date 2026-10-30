@@ -1087,6 +1087,18 @@ describe('mastodon loader', () => {
       mastodon.isProfileUrl!(new URL('https://other.social/@jane/1')),
       false
     )
+    equal(
+      mastodon.getHandleFromUrl!(new URL('https://mastodon.social/@jane/')),
+      '@jane@mastodon.social'
+    )
+    equal(
+      mastodon.getHandleFromUrl!(new URL('https://mastodon.social/@jane/1')),
+      undefined
+    )
+    equal(
+      mastodon.getHandleFromUrl!(new URL('https://medium.com/@jane')),
+      undefined
+    )
 
     expectRequest('https://other.social/api/v1/statuses/1').andRespond(
       200,

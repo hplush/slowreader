@@ -1338,6 +1338,12 @@ export const bluesky: Loader = {
     return profile ? decodeURIComponent(profile[1]!) : false
   },
 
+  getHandleFromUrl(url) {
+    if (url.hostname !== 'bsky.app') return undefined
+    let actor = url.pathname.match(PROFILE)?.[1]
+    return actor && `@${decodeURIComponent(actor)}`
+  },
+
   isPostUrl(url) {
     return url.hostname === 'bsky.app' && POST.test(url.pathname)
   },

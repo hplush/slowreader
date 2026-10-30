@@ -1,6 +1,7 @@
 import { formatter, type Formatter } from '@nanostores/i18n'
 
 import { $locale } from './i18n.ts'
+import { loaders } from './loader/index.ts'
 
 export const i18nFormat = formatter($locale)
 
@@ -24,6 +25,8 @@ export function formatSize(format: Formatter, bytes: number): string {
 const MINUTE = 60 * 1000
 const HOUR = 60 * MINUTE
 const DAY = 24 * HOUR
+const MONTH = 30 * DAY
+const YEAR = 365 * DAY
 
 export function formatPublishedAt(format: Formatter, time: number): string {
   let date = new Date(time * 1000)
@@ -38,6 +41,20 @@ export function formatPublishedAt(format: Formatter, time: number): string {
     return format.relativeTime(-hours, 'hour')
   }
   return format.time(date, { dateStyle: 'short', timeStyle: 'short' })
+}
+
+export function formatRelativeTime(format: Formatter, time: number): string {
+  let diff = Date.now() - time * 1000
+  if (diff < HOUR) {
+    return format.relativeTime(-Math.round(diff / MINUTE), 'minute')
+  } else if (diff < DAY) {
+    return format.relativeTime(-Math.round(diff / HOUR), 'hour')
+  } else if (diff < MONTH) {
+    return format.relativeTime(-Math.round(diff / DAY), 'day')
+  } else if (diff < YEAR) {
+    return format.relativeTime(-Math.round(diff / MONTH), 'month')
+  }
+  return format.relativeTime(-Math.round(diff / YEAR), 'year')
 }
 
 export function formatDuration(format: Formatter, seconds: number): string {
@@ -63,6 +80,17 @@ export function formatTimeShort(format: Formatter, date: Date): string {
     return format.time(date, { timeStyle: 'short' })
   }
   return format.time(date, { dateStyle: 'medium' })
+}
+
+export function humanizeUrl(url: string): string {
+  let parsed = URL.parse(url)
+  if (parsed) {
+    for (let loader of Object.values(loaders)) {
+      let handle = loader.getHandleFromUrl?.(parsed)
+      if (handle) return handle
+    }
+  }
+  return url.replace(/^https?:\/\/(www\.)?/i, '')
 }
 
 export function formatHour(format: Formatter, hour: number): string {

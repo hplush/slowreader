@@ -539,7 +539,15 @@
 
 <Story name="Feed Pagination" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
-    feeds={[{ id: 'feed', reading: 'fast', title: 'The Mozilla Blog' }]}
+    feeds={[
+      {
+        id: 'feed',
+        reading: 'fast',
+        title:
+          'The Mozilla Blog with very long name, which does not fit into the card',
+        url: 'https://www.example.com/blog/very/long/path/to/the/feed/which/does/not/fit.xml'
+      }
+    ]}
     oninit={() => openNextPage(pages.fast())}
     posts={multiply(
       POSTS.map(i => ({ ...i, reading: 'fast' })),

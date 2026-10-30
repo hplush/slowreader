@@ -999,6 +999,12 @@ export const mastodon: Loader = {
     )
   },
 
+  getHandleFromUrl(url) {
+    let profile = url.pathname.match(PROFILE)
+    if (!profile || !POPULAR.has(url.hostname)) return undefined
+    return `@${decodeURIComponent(profile[1]!)}@${url.hostname}`
+  },
+
   isMineUrl(url) {
     if (!url.pathname.startsWith('/@')) return false
     let profile = url.pathname.match(PROFILE)

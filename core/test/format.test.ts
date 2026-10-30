@@ -6,8 +6,10 @@ import {
   formatDuration,
   formatHour,
   formatPublishedAt,
+  formatRelativeTime,
   formatSize,
-  formatTimeShort
+  formatTimeShort,
+  humanizeUrl
 } from '../format.ts'
 
 describe('format', () => {
@@ -69,6 +71,30 @@ describe('format', () => {
     let result = formatPublishedAt(format, twoDaysAgo)
 
     match(result, /^\d{4}-\d{2}-\d{2}T/)
+  })
+
+  test('humanizes URL without protocol and www or as handle', () => {
+    equal(humanizeUrl('https://www.example.com/feed'), 'example.com/feed')
+    equal(humanizeUrl('http://example.com/'), 'example.com/')
+    equal(humanizeUrl('https://wwwexample.com'), 'wwwexample.com')
+    equal(
+      humanizeUrl('https://bsky.app/profile/publicdomainrev.bsky.social'),
+      '@publicdomainrev.bsky.social'
+    )
+    equal(humanizeUrl('https://bsky.app/'), 'bsky.app/')
+    equal(humanizeUrl('https://mastodon.social/@jane'), '@jane@mastodon.social')
+    equal(humanizeUrl('https://medium.com/@jane'), 'medium.com/@jane')
+  })
+
+  test('formats relative time in the biggest unit', () => {
+    let format = createMockFormatter()
+    let now = Date.now() / 1000
+
+    equal(formatRelativeTime(format, now - 5 * 60), '-5 minute')
+    equal(formatRelativeTime(format, now - 3 * 3600), '-3 hour')
+    equal(formatRelativeTime(format, now - 2 * 86400), '-2 day')
+    equal(formatRelativeTime(format, now - 60 * 86400), '-2 month')
+    equal(formatRelativeTime(format, now - 800 * 86400), '-2 year')
   })
 
   test('formats short time as time for today and as date before', () => {
