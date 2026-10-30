@@ -66,7 +66,10 @@
   </Button>
 {/snippet}
 
-{#snippet reportButton(error: string | undefined)}
+{#snippet reportButton(
+  error: string | undefined,
+  variant: 'main' | 'secondary' = 'secondary'
+)}
   <Button
     href={getIssueURL(
       $t[`${$reason.type}Text`],
@@ -76,7 +79,7 @@
     loader={$clientUpdate === 'checking'}
     size="big"
     target="_blank"
-    variant="secondary"
+    {variant}
   >
     {$t.reportButton}
   </Button>
@@ -123,25 +126,31 @@
         {#if hasUpdate}
           {@render updateButton()}
         {:else}
-          <Button
-            icon={mdiReload}
-            onclick={getEnvironment().restartApp}
-            size="big"
-            variant="main"
-          >
-            {$t.reloadButton}
-          </Button>
-          {@render reportButton($reason.error)}
+          {@render reportButton($reason.error, 'main')}
         {/if}
-        {#if $hasCloud}
-          <Button
-            icon={mdiDeleteAlert}
-            onclick={forgetLocalData}
-            size="pill"
-            variant="secondary-dangerous"
-          >
-            {$t.cleanButton}
-          </Button>
+        {#if !hasUpdate || $hasCloud}
+          <Stack align="center" gap="s" justify="center" row wrap>
+            {#if !hasUpdate}
+              <Button
+                icon={mdiReload}
+                onclick={getEnvironment().restartApp}
+                size="pill"
+                variant="secondary"
+              >
+                {$t.reloadButton}
+              </Button>
+            {/if}
+            {#if $hasCloud}
+              <Button
+                icon={mdiDeleteAlert}
+                onclick={forgetLocalData}
+                size="pill"
+                variant="secondary-dangerous"
+              >
+                {$t.cleanButton}
+              </Button>
+            {/if}
+          </Stack>
         {/if}
       {:else if $reason.type === 'noDb'}
         <p>{$t.noDbDescription}</p>
