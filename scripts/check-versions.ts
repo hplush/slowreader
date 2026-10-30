@@ -50,7 +50,7 @@ if (packageManager !== pnpmFull) {
 
 for (let file of globSync(['./*/package.json', 'package.json'])) {
   let content = read(file)
-  let match = content.match(/"[^"]+": "[\^~][^"]+"/g)
+  let match = content.match(/"(?!node")[^"]+": "[\^~][^"]+"/g)
   for (let version of match || []) {
     let line = content.split('\n').findIndex(i => i.includes(version)) + 1
     error(
