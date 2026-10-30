@@ -14,7 +14,7 @@
   <Stack gap="xl">
     <Title>{$t.title}</Title>
     <WelcomeTodo
-      extension={$tabletMedia ? undefined : extensionStore}
+      extension={$tabletMedia ? undefined : $extensionStore}
       install={$mobileInstall}
       todo={$welcomeTodo}
     />

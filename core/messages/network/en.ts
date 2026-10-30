@@ -23,6 +23,7 @@ export const networkMessages = i18n('network', {
     'faster, and nobody in the middle knows what you read.',
   installExtension: 'Install the extension',
   pageTitle: 'Network',
+  unsupportedBrowser: 'No extension for this browser',
   installedExtension: 'If you installed the extension, reload the page.',
   reloadApp: 'Reload the app',
   proxy: 'Proxy',

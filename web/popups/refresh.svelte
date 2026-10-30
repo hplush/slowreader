@@ -2,7 +2,9 @@
   import { mdiRefresh, mdiStop } from '@mdi/js'
   import {
     errorToMessage,
+    extensionState,
     isRefreshing,
+    layoutType,
     mediaErrors,
     mediaProgress,
     mediaStatistics,
@@ -16,9 +18,11 @@
     refreshMessages as t
   } from '@slowreader/core'
 
+  import { extensionStore } from '../main/extension.ts'
   import { getPopupHash, getURL } from '../stores/url-router.ts'
   import Button from '../ui/button.svelte'
   import ErrorList from '../ui/error-list.svelte'
+  import InstallExtension from '../ui/install-extension.svelte'
   import Label from '../ui/label.svelte'
   import Loader from '../ui/loader.svelte'
   import PageIcon from '../ui/page-icon.svelte'
@@ -91,6 +95,9 @@
       {#if $refreshErrors.length > 0 || $mediaErrors.length > 0}
         <Stack>
           <Title>{$t.errors}</Title>
+          {#if $extensionStore && $refreshErrors.length + $mediaErrors.length > 1 && $extensionState === 'missing' && $layoutType !== 'mobile'}
+            <InstallExtension text={$t.extension} />
+          {/if}
           <ErrorList
             list={[
               ...$refreshErrors.map(item => {

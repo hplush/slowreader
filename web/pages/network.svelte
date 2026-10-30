@@ -6,9 +6,7 @@
     mdiFire,
     mdiGaugeLow,
     mdiLockOpenOutline,
-    mdiPlusCircleOutline,
     mdiPuzzle,
-    mdiRefresh,
     mdiSignal,
     mdiWifi
   } from '@mdi/js'
@@ -25,14 +23,11 @@
     networkMessages as t
   } from '@slowreader/core'
 
-  import {
-    extensionStore,
-    grantExtension,
-    installingExtension
-  } from '../main/extension.ts'
+  import { extensionStore, grantExtension } from '../main/extension.ts'
   import { clientUpdate } from '../stores/client-update.ts'
   import { usedRequestMethod } from '../stores/request-method.ts'
   import Button from '../ui/button.svelte'
+  import InstallExtension from '../ui/install-extension.svelte'
   import Label from '../ui/label.svelte'
   import Note from '../ui/note.svelte'
   import RadioList from '../ui/radio-list.svelte'
@@ -93,37 +88,13 @@
         </Note>
         <!-- Mobile browsers can not install the extension -->
       {:else if $extensionState === 'missing' && $layoutType !== 'mobile'}
-        <Note
-          icon={$installingExtension ? mdiRefresh : mdiPuzzle}
-          variant={$installingExtension ? 'warning' : 'good'}
-        >
-          {$installingExtension ? $t.installedExtension : $t.noExtension}
-          <Stack align="center" gap="s">
-            {#if $installingExtension}
-              <Button
-                icon={mdiRefresh}
-                onclick={() => {
-                  location.reload()
-                }}
-                size="wide"
-                variant="main"
-              >
-                {$t.reloadApp}
-              </Button>
-            {/if}
-            <Button
-              href={extensionStore}
-              icon={mdiPlusCircleOutline}
-              onclick={() => {
-                installingExtension.set(true)
-              }}
-              size={$installingExtension ? 'pill' : 'wide'}
-              target="_blank"
-            >
-              {$t.installExtension}
-            </Button>
-          </Stack>
-        </Note>
+        {#if $extensionStore}
+          <InstallExtension text={$t.noExtension} />
+        {:else}
+          <Note icon={mdiPuzzle} variant="neutral">
+            {$t.unsupportedBrowser}
+          </Note>
+        {/if}
       {/if}
     </Stack>
     {#if $clientUpdate}

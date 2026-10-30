@@ -58,7 +58,7 @@
   import { testCredentials } from '@slowreader/core/test'
   import { onDestroy, type Snippet } from 'svelte'
 
-  import { installingExtension } from '../main/extension.ts'
+  import { extensionStore, installingExtension } from '../main/extension.ts'
   import { systemReducedMotion } from '../stores/media-queries.ts'
   import {
     baseRouter,
@@ -157,6 +157,7 @@
     passkeyOnly.set(false)
     extensionState.set('missing')
     installingExtension.set(false)
+    extensionStore.set('https://chromewebstore.google.com/')
     requestMethod.set(undefined)
     busy.set(false)
     clock.set(new Date(2026, 0, 1, 12))

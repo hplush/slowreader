@@ -12,19 +12,19 @@ import { atom } from 'nanostores'
 /** The reminder is useful just until the page reload. */
 export const installingExtension = atom(false)
 
-function detectStore(): string {
+function detectStore(): string | undefined {
   // TODO: Put real URL to extension
   let agent = navigator.userAgent
   if (agent.includes('Firefox')) {
     return 'https://addons.mozilla.org/ru/firefox/addon/slow-reader-extension/'
   } else if (agent.includes('Safari') && !agent.includes('Chrome')) {
-    return 'https://apps.apple.com/'
+    return undefined
   } else {
     return 'https://chromewebstore.google.com/detail/slow-reader-extension/pmoencikdpnikfiemldekomnibmboobn'
   }
 }
 
-export const extensionStore = detectStore()
+export const extensionStore = atom(detectStore())
 
 let answers = new Map<number, (answer: FetchAnswer) => void>()
 let lastId = 0

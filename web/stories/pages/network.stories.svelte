@@ -7,7 +7,7 @@
   } from '@slowreader/core'
   import { defineMeta } from '@storybook/addon-svelte-csf'
 
-  import { installingExtension } from '../../main/extension.ts'
+  import { extensionStore, installingExtension } from '../../main/extension.ts'
   import NetworkPage from '../../pages/network.svelte'
   import { clientUpdate } from '../../stores/client-update.ts'
   import Scene from '../scene.svelte'
@@ -61,6 +61,17 @@
   <Scene
     oninit={() => {
       extensionState.set('restricted')
+    }}
+    route="network"
+  >
+    <NetworkPage />
+  </Scene>
+</Story>
+
+<Story name="Safari" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      extensionStore.set(undefined)
     }}
     route="network"
   >
