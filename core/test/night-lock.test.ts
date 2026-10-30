@@ -1,4 +1,4 @@
-import { equal, ok } from 'node:assert/strict'
+import { deepEqual, equal, ok } from 'node:assert/strict'
 import { afterEach, describe, mock, test } from 'node:test'
 
 import {
@@ -11,6 +11,7 @@ import {
   nightLockState,
   type NightLockState,
   router,
+  setNightTaskRandom,
   solveNightTask,
   unlockCurrentPage
 } from '../index.ts'
@@ -50,6 +51,19 @@ describe('night lock', () => {
       ok(task.number % 11 !== 0)
       ok(task.multiplier === 2 || task.multiplier === 3)
     }
+  })
+
+  test('allows to fix task random', () => {
+    let unbind = nightLockState.listen(() => {})
+    clock.set(at(23, 30))
+    nightLock.set({ enabled: true, from: 23, to: 7 })
+    setNightTaskRandom(() => 0.5)
+    deepEqual(ensureLocked(nightLockState.get()).task, {
+      multiplier: 3,
+      number: 37
+    })
+    setNightTaskRandom(Math.random)
+    unbind()
   })
 
   test('checks answer', () => {
