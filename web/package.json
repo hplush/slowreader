@@ -85,11 +85,11 @@
     "@slowreader/core": "workspace:*",
     "@slowreader/extension": "workspace:*",
     "@sqlite.org/sqlite-wasm": "3.51.2-build9",
-    "@storybook/addon-a11y": "10.6.4",
-    "@storybook/addon-svelte-csf": "5.1.5",
-    "@storybook/addon-themes": "10.6.4",
-    "@storybook/svelte": "10.6.4",
-    "@storybook/svelte-vite": "10.6.4",
+    "@storybook/addon-a11y": "10.6.5",
+    "@storybook/addon-svelte-csf": "5.1.6",
+    "@storybook/addon-themes": "10.6.5",
+    "@storybook/svelte": "10.6.5",
+    "@storybook/svelte-vite": "10.6.5",
     "@sveltejs/vite-plugin-svelte": "7.3.1",
     "autoprefixer": "10.6.2",
     "keyux": "0.11.6",
@@ -100,9 +100,9 @@
     "postcss-mixins": "12.1.2",
     "postcss-smooth-corners": "0.1.2",
     "postcss-smooth-shadow": "0.3.2",
-    "rollup": "4.65.1",
+    "rollup": "4.66.0",
     "sharp": "0.35.5",
-    "storybook": "10.6.4",
+    "storybook": "10.6.5",
     "svelte": "5.57.3",
     "vite": "8.3.5"
   },
@@ -110,7 +110,7 @@
     "@size-limit/file": "14.3.0",
     "@types/trusted-types": "2.0.7",
     "browserslist": "4.29.5",
-    "chromatic": "18.13.3",
+    "chromatic": "18.13.4",
     "eslint": "10.13.0",
     "postcss-html": "2.0.0",
     "postcss-nesting": "14.0.3",
@@ -119,6 +119,6 @@
     "svelte-check": "4.7.7"
   },
   "engines": {
-    "node": ">=26"
+    "node": "^26.13.0"
   }
 }

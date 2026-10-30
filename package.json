@@ -40,8 +40,8 @@
     "@playwright/mcp": "0.0.83",
     "@stylistic/stylelint-config": "5.0.0",
     "@stylistic/stylelint-plugin": "5.3.1",
-    "@types/chrome": "0.3.6",
-    "@types/node": "26.6.5",
+    "@types/chrome": "0.3.7",
+    "@types/node": "26.6.6",
     "@types/ws": "8.18.2",
     "@typescript/native": "npm:typescript@7.0.2",
     "better-node-test": "1.0.0",
@@ -50,8 +50,8 @@
     "jiti": "2.7.0",
     "multiocular": "0.9.0",
     "nano-staged": "1.0.2",
-    "oxfmt": "0.74.0",
-    "oxlint": "1.89.0",
+    "oxfmt": "0.75.0",
+    "oxlint": "1.90.0",
     "oxlint-tsgolint": "7.0.2005",
     "postcss-html": "2.0.0",
     "remark-cli": "12.0.1",
@@ -73,5 +73,5 @@
     "svgo": "4.1.0",
     "typescript": "6.0.3"
   },
-  "packageManager": "pnpm@12.16.1"
+  "packageManager": "pnpm@12.17.0"
 }
