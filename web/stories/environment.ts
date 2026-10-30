@@ -10,6 +10,7 @@ import {
   type RequestMethod,
   type RouteName,
   setLayoutType,
+  setNightTaskRandom,
   setRequestMethod,
   router,
   setupEnvironment,
@@ -31,6 +32,9 @@ window.addEventListener('beforeunload', event => {
 if (!('share' in navigator)) {
   Object.defineProperty(navigator, 'share', { value: async () => {} })
 }
+
+// Random task breaks screenshot comparison
+setNightTaskRandom(() => 0.5)
 
 export const baseRouter = atom<BaseRoute>({
   hash: '',

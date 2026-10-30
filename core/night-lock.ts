@@ -38,12 +38,14 @@ export const nightLocked = computed(
   (lock, now) => lock.enabled && inTimeRange(now, lock.from, lock.to)
 )
 
+let random = Math.random
+
 export function generateTask(): NightTask {
   let number: number
   do {
-    number = 13 + Math.floor(Math.random() * 49)
+    number = 13 + Math.floor(random() * 49)
   } while (number % 10 === 0 || number % 11 === 0)
-  return { multiplier: 2 + Math.floor(Math.random() * 2), number }
+  return { multiplier: 2 + Math.floor(random() * 2), number }
 }
 
 export function checkAnswer(task: NightTask, answer: string): boolean {
@@ -89,6 +91,11 @@ export const nightLockState = computed(
     }
   }
 )
+
+export function setNightTaskRandom(generator: () => number): void {
+  random = generator
+  resetTask()
+}
 
 export function unlockCurrentPage(): void {
   $solved.set(true)
