@@ -16,7 +16,7 @@ describe('coach page', () => {
   afterEach(async () => {
     unbindClock()
     openRoute({ params: {}, route: 'about' })
-    nightLock.set({ enabled: false, from: 23, to: 7 })
+    nightLock.set({ enabled: false, from: 23, to: 4 })
     await cleanClient()
   })
 
@@ -26,7 +26,7 @@ describe('coach page', () => {
     equal(page.nightLockEnabled.get(), false)
 
     page.nightLockEnabled.set(true)
-    deepEqual(nightLock.get(), { enabled: true, from: 23, to: 7 })
+    deepEqual(nightLock.get(), { enabled: true, from: 23, to: 4 })
     equal(page.locked.get().locked, false)
 
     page.changeNightLockFrom(22)

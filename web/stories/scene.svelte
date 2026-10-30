@@ -215,7 +215,7 @@
     showSensitiveMedia.set(false)
     openWarnings.set(false)
     fastPostsMaxAge.set(604800)
-    nightLock.set({ enabled: false, from: 23, to: 7 })
+    nightLock.set({ enabled: false, from: 23, to: 4 })
     cacheMediaReading.set('all')
     cacheImages.set('always')
     cacheVideos.set('never')

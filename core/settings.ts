@@ -189,7 +189,7 @@ export const fastPostsMaxAge = syncedSetting('fastPostsMaxAge', 604800)
 export const nightLock = syncedSetting('nightLock', {
   enabled: false,
   from: 23,
-  to: 7
+  to: 4
 })
 
 export type NightLock = StoreValue<typeof nightLock>
