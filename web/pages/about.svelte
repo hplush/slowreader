@@ -3,9 +3,7 @@
     mdiAirplane,
     mdiBug,
     mdiCellphoneArrowDown,
-    mdiCheck,
     mdiCheckDecagram,
-    mdiContentCopy,
     mdiEye,
     mdiGift,
     mdiRefresh,
@@ -13,7 +11,6 @@
   } from '@mdi/js'
   import {
     type AboutPage,
-    commonMessages,
     getEnvironment,
     getIssueURL,
     settingsMessages,
@@ -21,11 +18,9 @@
   } from '@slowreader/core'
   import { onMount } from 'svelte'
 
-  import { createClipboard } from '../lib/clipboard.ts'
   import { addDebugInfo } from '../lib/debug.ts'
   import { checkClientUpdate, clientUpdate } from '../stores/client-update.ts'
   import { installApp, mobileInstall } from '../stores/install.ts'
-  import Announce from '../ui/announce.svelte'
   import AppIcon from '../ui/app-icon.svelte'
   import Button from '../ui/button.svelte'
   import Note from '../ui/note.svelte'
@@ -39,7 +34,6 @@
 
   let { page }: { page: AboutPage } = $props()
   let debug = $derived(addDebugInfo(undefined, page.appVersion))
-  let { copied, copy } = createClipboard()
 
   onMount(() => {
     void checkClientUpdate()
@@ -136,27 +130,14 @@
         </Stack>
       {/snippet}
     </Note>
-    <Stack gap="xs" row>
-      <Button
-        href={getIssueURL('', debug)}
-        icon={mdiBug}
-        joined="start"
-        size="wide"
-        target="_blank"
-        variant="secondary"
-      >
-        {$t.reportIssue}
-      </Button>
-      <Button
-        icon={$copied ? mdiCheck : mdiContentCopy}
-        joined="end"
-        onclick={() => copy(debug)}
-        size="wide"
-        variant="secondary"
-      >
-        {$copied ? $commonMessages.copied : $t.debugInfo}
-      </Button>
-    </Stack>
-    <Announce text={$copied ? $commonMessages.copied : ''} />
+    <Button
+      href={getIssueURL('', debug)}
+      icon={mdiBug}
+      size="wide"
+      target="_blank"
+      variant="secondary"
+    >
+      {$t.reportIssue}
+    </Button>
   </Stack>
 </ThinPage>
