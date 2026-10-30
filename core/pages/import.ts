@@ -7,9 +7,13 @@ import { addCategory, loadCategories } from '../category.ts'
 import { deleteDemo } from '../demo.ts'
 import { addCandidate, addFeed, loadFeedByUrl, loadFeedUrls } from '../feed.ts'
 import { importFilters } from '../filter.ts'
-import { createDownloadTask } from '../lib/download.ts'
+import {
+  createDownloadTask,
+  type DownloadTask,
+  type TextResponse
+} from '../lib/download.ts'
 import { parseDocument } from '../lib/html.ts'
-import { getLoaderForText } from '../loader/index.ts'
+import { type FeedLoader, getLoaderForText } from '../loader/index.ts'
 import { importMessages } from '../messages/index.ts'
 import { addPost } from '../post.ts'
 import { GENERAL_CATEGORY } from '../schema.ts'
@@ -35,6 +39,22 @@ async function readFile(file: File): Promise<false | string> {
   } catch {
     return false
   }
+}
+
+async function loadPreferringHttps(
+  task: DownloadTask,
+  url: string
+): Promise<{ candidate: FeedLoader | false; response: TextResponse }> {
+  if (url.startsWith('http://')) {
+    let secure = url.replace(/^http:/, 'https:')
+    try {
+      let response = await task.text(secure)
+      let candidate = await getLoaderForText(response, task, secure)
+      if (candidate) return { candidate, response }
+    } catch {}
+  }
+  let response = await task.text(url)
+  return { candidate: await getLoaderForText(response, task, url), response }
 }
 
 type FeedError = 'exists' | 'noFeeds' | 'unknown' | 'unloadable'
@@ -113,16 +133,16 @@ export const importPage = createPage('import', () => {
         continue
       }
 
-      let response
+      let loaded
       try {
-        response = await task.text(url)
+        loaded = await loadPreferringHttps(task, url)
       } catch {
         addFeedError(url, 'unloadable')
         done()
         continue
       }
 
-      let candidate = await getLoaderForText(response, task, url)
+      let { candidate, response } = loaded
       if (!candidate) {
         addFeedError(url, 'unknown')
       } else if (await feedExists(candidate.url)) {

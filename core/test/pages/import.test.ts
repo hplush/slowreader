@@ -773,4 +773,29 @@ describe('import page', () => {
       [{ loader: 'rss', title: FEED.title }]
     )
   })
+  test('upgrades OPML feeds to HTTPS when it is available', async () => {
+    let opml =
+      '<opml version="2.0"><body>' +
+      '<outline text="A" type="rss" xmlUrl="http://a.com/feed" />' +
+      '<outline text="B" type="rss" xmlUrl="http://b.com/feed" />' +
+      '<outline text="C" type="rss" xmlUrl="http://c.com/feed" />' +
+      '</body></opml>'
+    let page = openPage({
+      params: {},
+      route: 'import'
+    })
+    expectRequest('https://a.com/feed').andRespond(200, '<rss></rss>')
+    expectRequest('https://b.com/feed').andRespond(404)
+    expectRequest('http://b.com/feed').andRespond(200, '<rss></rss>')
+    expectRequest('https://c.com/feed').andRespond(200, '<html></html>')
+    expectRequest('http://c.com/feed').andRespond(200, '<rss></rss>')
+    page.importFile(file('opml', opml))
+    await waitLoading(busy)
+    deepEqual(page.feedErrors.get(), [])
+    deepEqual((await loadFeeds()).map(i => i.url).toSorted(), [
+      'http://b.com/feed',
+      'http://c.com/feed',
+      'https://a.com/feed'
+    ])
+  })
 })
