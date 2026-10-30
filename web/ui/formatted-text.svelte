@@ -116,7 +116,7 @@
 
     .formatted-text figure {
       max-width: 100%;
-      margin-bottom: 1.25em;
+      margin-bottom: 0.75lh;
     }
 
     .formatted-text img {
@@ -167,7 +167,7 @@
     }
 
     .formatted-text p {
-      margin-bottom: 0.75em;
+      margin-bottom: 0.5lh;
 
       &:last-child {
         margin-bottom: 0;
@@ -242,18 +242,18 @@
     }
 
     .formatted-text li {
-      margin-bottom: 0.625em;
+      margin-bottom: 0.4lh;
     }
 
     .formatted-text blockquote {
       padding: 0.375em 0.75em;
-      margin-bottom: 1.25em;
+      margin-bottom: 0.75lh;
       border-inline-start: 0.25em solid var(--border-color);
     }
 
     .formatted-text hr {
       height: 0.125em;
-      margin-block: 1em;
+      margin-block: 0.625lh;
       background: var(--border-color);
       border: none;
     }
@@ -283,7 +283,7 @@
     .formatted-text audio {
       display: block;
       width: 100%;
-      margin: 1em 0;
+      margin: 0.625lh 0;
     }
 
     .formatted-text pre {
