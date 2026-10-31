@@ -21,6 +21,28 @@
     }
   }
 
+  /* SVG ignores `text-decoration` */
+  .releases_feed {
+    display: inline-block;
+    padding-block-end: 0.2rem;
+    margin-inline-start: 0.4em;
+    line-height: 0;
+    vertical-align: calc(-0.2rem - var(--min-size));
+    border-block-end: var(--min-size) solid transparent;
+
+    &:hover,
+    &:focus-visible {
+      border-block-end-color: currentcolor;
+    }
+
+    svg {
+      display: block;
+      inline-size: 0.47em;
+      block-size: 0.47em;
+      fill: currentcolor;
+    }
+  }
+
   h1 + .releases_release {
     margin-block-start: 1.25lh;
   }
