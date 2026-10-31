@@ -41,7 +41,11 @@ let commit = SW_COMMIT
 
 async function fromCache(url: string): Promise<Response> {
   let cache = await caches.open(commit)
-  return (await cache.match(url)) ?? fetch(url)
+  let cached = await cache.match(url)
+  if (!cached) return fetch(url)
+  // Worker takes its location from the response URL, and SQLite’s OPFS
+  // worker needs the query of the request there
+  return new Response(cached.body, cached)
 }
 
 /**
