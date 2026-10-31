@@ -674,9 +674,9 @@ describe('menu', () => {
     deepEqual([...closedCategories.get()], [idA])
   })
 
-  test('has sync status', async () => {
-    let unbind = syncStatus.listen(() => {})
-    let unbindType = syncStatusType.listen(() => {})
+  test('has sync status', async t => {
+    t.after(syncStatus.listen(() => {}))
+    t.after(syncStatusType.listen(() => {}))
     equal(syncStatus.get(), 'disconnected')
     equal(syncStatusType.get(), 'other')
 
@@ -704,8 +704,5 @@ describe('menu', () => {
     await cleanClient()
     equal(syncStatus.get(), 'local')
     equal(syncStatusType.get(), 'other')
-
-    unbindType()
-    unbind()
   })
 })

@@ -344,10 +344,10 @@ export function expectRequest(url: string): RequestMock {
  * Fail test if there is expected request which was not sent during test
  */
 export function checkAndRemoveRequestMock(): void {
+  setRequestMethod(fetch)
   if (requestExpects.length > 0) {
     throw new Error(
       'Test didn’t send requests: ' + requestExpects.map(i => i.url).join(', ')
     )
   }
-  setRequestMethod(fetch)
 }

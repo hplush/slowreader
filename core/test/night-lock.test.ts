@@ -31,6 +31,7 @@ function ensureLocked(
 describe('night lock', () => {
   afterEach(() => {
     mock.timers.reset()
+    setNightTaskRandom(Math.random)
     cleanStores(nightLockState, nightLocked, clock)
     nightLock.set({ enabled: false, from: 23, to: 7 })
     router.set({ params: {}, popups: [], route: 'home' })
@@ -57,7 +58,7 @@ describe('night lock', () => {
   })
 
   test('allows to fix task random', () => {
-    let unbind = nightLockState.listen(() => {})
+    nightLockState.listen(() => {})
     clock.set(at(23, 30))
     nightLock.set({ enabled: true, from: 23, to: 7 })
     setNightTaskRandom(() => 0.5)
@@ -65,8 +66,6 @@ describe('night lock', () => {
       multiplier: 3,
       number: 37
     })
-    setNightTaskRandom(Math.random)
-    unbind()
   })
 
   test('checks answer', () => {
@@ -80,26 +79,24 @@ describe('night lock', () => {
 
   test('ticks clock every minute', () => {
     mock.timers.enable({ apis: ['Date', 'setInterval'], now: at(22, 59) })
-    let unbind = clock.listen(() => {})
+    clock.listen(() => {})
     equal(clock.get().getHours(), 22)
     mock.timers.tick(60_000)
     equal(clock.get().getHours(), 23)
-    unbind()
   })
 
   test('locks only during the period', () => {
-    let unbind = nightLocked.listen(() => {})
+    nightLocked.listen(() => {})
     clock.set(at(23, 30))
     equal(nightLocked.get(), false)
     nightLock.set({ enabled: true, from: 23, to: 7 })
     equal(nightLocked.get(), true)
     clock.set(at(12))
     equal(nightLocked.get(), false)
-    unbind()
   })
 
   test('unlocks only until the route change', () => {
-    let unbind = nightLockState.listen(() => {})
+    nightLockState.listen(() => {})
     clock.set(at(23, 30))
     nightLock.set({ enabled: true, from: 23, to: 7 })
 
@@ -128,6 +125,5 @@ describe('night lock', () => {
     equal(nightLockState.get().locked, false)
     router.set({ params: {}, popups: [], route: 'home' })
     equal(nightLockState.get().locked, true)
-    unbind()
   })
 })

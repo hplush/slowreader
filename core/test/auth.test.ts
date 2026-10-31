@@ -67,7 +67,7 @@ describe('auth', () => {
     await cleanAllTables()
   })
 
-  test('has local demo mode', async () => {
+  test('has local demo mode', async t => {
     equal(typeof client.get(), 'undefined')
 
     let credentials = generateCredentials()
@@ -86,9 +86,11 @@ describe('auth', () => {
     openRoute({ params: {}, route: 'cloud' })
 
     let cleaned = 0
-    let unbindSignOut = onSignOut(() => {
-      cleaned += 1
-    })
+    t.after(
+      onSignOut(() => {
+        cleaned += 1
+      })
+    )
     onSignOut(() => {
       cleaned += 10
     })()
@@ -104,7 +106,7 @@ describe('auth', () => {
       slowFeeds: ['feed']
     }
     storage['slowreader:benchmark'] = JSON.stringify(statistics)
-    let unbindStatistics = benchmarkStatistics.listen(() => {})
+    t.after(benchmarkStatistics.listen(() => {}))
     deepEqual(benchmarkStatistics.get(), statistics)
 
     // Benchmark saved new data during the session
@@ -121,8 +123,6 @@ describe('auth', () => {
     equal(typeof benchmarkStatistics.get(), 'undefined')
     equal(typeof storage['slowreader:benchmark'], 'undefined')
     equal(cleaned, 1)
-    unbindStatistics()
-    unbindSignOut()
   })
 
   test('restores encryption key on start', async () => {

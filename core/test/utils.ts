@@ -473,12 +473,22 @@ export function expectWarning<Result extends Promise<void> | void>(
   setWarningTracking(tracking)
   function check(): void {
     deepEqual(tracking.map(warningText), warnings.map(warningText))
-    setWarningTracking(undefined)
   }
-  let result = cb()
+  let result: Result
+  try {
+    result = cb()
+  } catch (error) {
+    setWarningTracking(undefined)
+    throw error
+  }
   if (result) {
-    return result.then(check) as Result
+    return result
+      .finally(() => {
+        setWarningTracking(undefined)
+      })
+      .then(check) as Result
   } else {
+    setWarningTracking(undefined)
     check()
     return undefined as Result
   }

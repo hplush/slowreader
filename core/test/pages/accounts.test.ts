@@ -243,6 +243,7 @@ describe('accounts page', () => {
   })
 
   afterEach(async () => {
+    restoreAll()
     await cleanClient()
     checkAndRemoveRequestMock()
   })
@@ -911,7 +912,6 @@ describe('accounts page', () => {
       [{ first: 'first' }, { type: 'input', value: 'wrong' }],
       [{ first: 'first' }, { type: 'input', value: 'right' }]
     ])
-    restoreAll()
   })
 
   test('takes Bluesky client from the app domain', () => {

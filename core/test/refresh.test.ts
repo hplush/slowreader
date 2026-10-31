@@ -373,7 +373,7 @@ describe('refresh', () => {
     deepEqual(await getPostKeys('title'), [])
   })
 
-  test('writes every page and changes feed by one action', async () => {
+  test('writes every page and changes feed by one action', async t => {
     let feedId = await addFeed(
       testFeed({
         lastOriginId: 'post1',
@@ -382,9 +382,11 @@ describe('refresh', () => {
       })
     )
     let actions: string[] = []
-    let unbind = getClient().on('add', action => {
-      actions.push(action.type)
-    })
+    t.after(
+      getClient().on('add', action => {
+        actions.push(action.type)
+      })
+    )
 
     let rss1 = createPromise<PostsListResult>()
     spyOn(loaders.rss, 'getPosts', () => {
@@ -411,7 +413,6 @@ describe('refresh', () => {
     deepEqual(await getPostKeys('title'), ['3', '4'])
     deepEqual(actions, ['posts/created', 'posts/created', 'feeds/changed'])
     equal((await loadFeed(feedId))!.lastOriginId, 'post4')
-    unbind()
   })
 
   test('does not add posts twice after a stopped refresh', async () => {

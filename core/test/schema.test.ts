@@ -43,7 +43,7 @@ describe('schema', () => {
     await cleanClient()
   })
 
-  test('tells that the database is created on the first start', async () => {
+  test('tells that the database is created on the first start', async t => {
     await cleanClient()
     setTestUser(false)
     // The test restarts the client and checks that the database was kept
@@ -52,9 +52,11 @@ describe('schema', () => {
       databaseCreator: persistentDatabase()
     })
     let labels: string[] = []
-    let unbind = busy.listen(value => {
-      if (value) labels.push(value.label)
-    })
+    t.after(
+      busy.listen(value => {
+        if (value) labels.push(value.label)
+      })
+    )
 
     setTestUser()
     await setTimeout(100)
@@ -67,8 +69,6 @@ describe('schema', () => {
     setTestUser()
     await setTimeout(100)
     deepEqual([...new Set(labels)], [commonMessages.get().loadingData])
-
-    unbind()
   })
 
   test('converts the old tables by the migrations', async () => {

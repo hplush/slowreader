@@ -301,8 +301,6 @@ describe('download', () => {
     equal(response.contentType, 'application/rss+xml')
     equal(response.status, 200)
     equal(response.parseXml().querySelector('title')?.textContent, 'Τεστ')
-
-    setRequestMethod(fetch)
   })
 
   test('handles encoding mismatch between header and XML', async () => {
@@ -332,8 +330,6 @@ describe('download', () => {
     let response = await task.text('https://example.com/feed.xml')
     equal(response.contentType, 'application/rss+xml')
     equal(response.parseXml().querySelector('title')?.textContent, 'Test')
-
-    setRequestMethod(fetch)
   })
 
   test('handles invalid encoding gracefully', async () => {
@@ -363,8 +359,6 @@ describe('download', () => {
     let response = await task.text('https://example.com/feed.xml')
     equal(response.contentType, 'application/rss+xml')
     equal(response.status, 200)
-
-    setRequestMethod(fetch)
   })
 
   test('detects content type', () => {

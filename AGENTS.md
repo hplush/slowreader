@@ -51,10 +51,11 @@ In all interactions, plans, and commit messages, be extremely concise and sacrif
 ## Testing
 
 - Run specific test by `pnpm bnt path/to/test.test.ts -t 'test name'`.
-- Do not run benchmark by your own. Ask user to run it.
+- Never put cleanup as last lines of a test: failed assertion skips it and breaks next tests or freezes the run. Use `afterEach()` or `t.after()` right after the setup. Helpers must restore state before an assertion.
 - Add story to `web/stories/` for every new UI state.
 - New variant of a `web/ui/` component belongs to that component’s story too if it is exists, not only to the page which asked for it.
 - Try to combine cases in stories to reduce number of stories.
+- Do not run benchmark by your own. Ask user to run it.
 
 ## Browser
 
