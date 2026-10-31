@@ -16,17 +16,19 @@
     next,
     onread,
     page,
-    prev
+    prev,
+    useful
   }: {
     loader: boolean
     next: string | undefined
     onread: () => void
     page: number
     prev: string | undefined
+    useful: boolean
   } = $props()
 </script>
 
-{#if page > 0}
+{#if page > 0 && useful}
   <Stack padding="xl" reading="slow">
     <Button anchor="go-useful" href={getURL('slow')} icon={mdiFire} size="wide">
       {$t.goUseful}

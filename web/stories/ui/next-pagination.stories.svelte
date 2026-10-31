@@ -24,6 +24,7 @@
         {onread}
         page={0}
         prev={undefined}
+        useful
       />
     </Section>
     <Section width={400}>
@@ -33,10 +34,18 @@
         {onread}
         page={1}
         prev="40:a"
+        useful
       />
     </Section>
     <Section width={400}>
-      <NextPagination loader next={undefined} {onread} page={2} prev="20:b" />
+      <NextPagination
+        loader
+        next={undefined}
+        {onread}
+        page={2}
+        prev="20:b"
+        useful={false}
+      />
     </Section>
   </Scene>
 </Story>

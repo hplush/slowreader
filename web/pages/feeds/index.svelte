@@ -8,6 +8,7 @@
     type FeedsPage,
     hasPersonAvatar,
     navbarMessages as navbar,
+    openableMenu,
     router,
     feedsMessages as t
   } from '@slowreader/core'
@@ -113,6 +114,7 @@
           onread={reader.readPage}
           page={$pageNumber ?? 0}
           prev={$prevFrom}
+          useful={$openableMenu.slow}
         />
       {:else if reader && $pages}
         {#if $list?.some(post => !post.read)}
