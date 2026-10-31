@@ -1,3 +1,4 @@
+import { cleanStores } from 'nanostores'
 import { deepEqual, equal, ok } from 'node:assert/strict'
 import { afterEach, describe, mock, test } from 'node:test'
 
@@ -29,6 +30,8 @@ function ensureLocked(
 
 describe('night lock', () => {
   afterEach(() => {
+    mock.timers.reset()
+    cleanStores(nightLockState, nightLocked, clock)
     nightLock.set({ enabled: false, from: 23, to: 7 })
     router.set({ params: {}, popups: [], route: 'home' })
   })
@@ -82,7 +85,6 @@ describe('night lock', () => {
     mock.timers.tick(60_000)
     equal(clock.get().getHours(), 23)
     unbind()
-    mock.timers.reset()
   })
 
   test('locks only during the period', () => {

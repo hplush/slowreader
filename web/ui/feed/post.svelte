@@ -59,6 +59,7 @@
 
   let url = $derived(userPostUrl(post))
   let badges = $derived(getPostBadges(post))
+  let hasByline = $derived(!!(author || post.author || post.repostedBy))
 </script>
 
 {#snippet byline()}
@@ -67,6 +68,22 @@
     repostHref={feedUrl && getPopupHash($router, 'feed', feedUrl)}
     repostedBy={post.repostedBy}
   />
+{/snippet}
+
+{#snippet date()}
+  {#if post.publishedAt}
+    <time
+      class="feed-post_date"
+      class:is-floating={!hasByline}
+      datetime={new Date(post.publishedAt * 1000).toISOString()}
+      title={$i18nFormat.time(new Date(post.publishedAt * 1000), {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      })}
+    >
+      {formatRelativeTime($i18nFormat, post.publishedAt)}
+    </time>
+  {/if}
 {/snippet}
 
 <li
@@ -83,7 +100,16 @@
     href={getPopupHash($router, 'post', param)}
   ></a>
   <article id={`feed-content-${post.id}`} class="feed-post_content">
-    {#if author || post.publishedAt}
+    {#if !hasByline}
+      <div class="feed-post_heading">
+        {@render date()}
+        {#if post.title}
+          <h2 class="feed-post_title">
+            <FormattedText html={post.title} lang={post.lang} scroll={false} />
+          </h2>
+        {/if}
+      </div>
+    {:else if author || post.publishedAt}
       <header class="feed-post_header">
         {#if author}
           <div class="feed-post_author">
@@ -103,24 +129,13 @@
             {@render byline()}
           </div>
         {/if}
-        {#if post.publishedAt}
-          <time
-            class="feed-post_date"
-            datetime={new Date(post.publishedAt * 1000).toISOString()}
-            title={$i18nFormat.time(new Date(post.publishedAt * 1000), {
-              dateStyle: 'medium',
-              timeStyle: 'short'
-            })}
-          >
-            {formatRelativeTime($i18nFormat, post.publishedAt)}
-          </time>
-        {/if}
+        {@render date()}
       </header>
     {/if}
-    {#if author || !post.publishedAt}
+    {#if hasByline && (author || !post.publishedAt)}
       {@render byline()}
     {/if}
-    {#if post.title}
+    {#if hasByline && post.title}
       <h2 class="feed-post_title">
         <FormattedText html={post.title} lang={post.lang} scroll={false} />
       </h2>
@@ -347,6 +362,15 @@
       margin-inline-start: auto;
       font: var(--secondary-font);
       color: var(--secondary-text-color);
+    }
+
+    .feed-post_heading {
+      display: flow-root;
+    }
+
+    .feed-post_date.is-floating {
+      float: inline-end;
+      margin-inline-start: 0.5rem;
     }
 
     .feed-post_fill {
