@@ -8,12 +8,20 @@ const DATABASE = 'slowreader.sqlite'
 
 export type FromWorker =
   | { database: ArrayBuffer; type: 'dumped' }
+  | { error: unknown; type: 'crash' }
   | { error: string; type: 'dumpFailed' }
   | { error: string; type: 'noDb' }
   | { type: 'reload' }
   | { type: 'secondTab' }
 
 export type ToWorker = { type: 'dump' }
+
+function isStorageMissing(error: unknown): boolean {
+  return (
+    error instanceof DOMException ||
+    !globalThis.FileSystemFileHandle?.prototype.createSyncAccessHandle
+  )
+}
 
 function send(message: FromWorker, transfer: Transferable[] = []): void {
   postMessage(message, { transfer })
@@ -71,7 +79,11 @@ wasmWorker(
   // Only OPFS VFS supports multiple tabs
   { channel: self.name === 'opfs' ? 'slowreader:database' : undefined }
 ).catch((error: unknown) => {
-  send({ error: String(error), type: 'noDb' })
+  if (isStorageMissing(error)) {
+    send({ error: String(error), type: 'noDb' })
+  } else {
+    send({ error, type: 'crash' })
+  }
 })
 
 function dumpDatabase(): void {

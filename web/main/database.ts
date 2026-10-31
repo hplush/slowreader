@@ -3,7 +3,7 @@
 
 import { type Database, openDb } from '@nanostores/sql'
 import { wasmDriver } from '@nanostores/sql/wasm'
-import { fatal, userId } from '@slowreader/core'
+import { fatal, showCrash, userId } from '@slowreader/core'
 
 import type { FromWorker, ToWorker } from './db-worker.ts'
 
@@ -49,6 +49,8 @@ export function createDatabase(): Database {
       location.reload()
     } else if (data.type === 'noDb') {
       fatal.set({ error: data.error, type: 'noDb' })
+    } else if (data.type === 'crash') {
+      showCrash(data.error)
     }
   })
   current = worker
