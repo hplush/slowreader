@@ -63,7 +63,7 @@
           href={getPopupHash($router, 'refresh', '1')}
           size="icon"
         >
-          <NavbarProgress value={$refreshTotalProgress} />
+          <NavbarProgress {...$refreshTotalProgress} />
         </NavbarButton>
       {:else if $refreshStatus === 'error'}
         <NavbarButton

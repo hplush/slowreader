@@ -243,7 +243,7 @@ describe('media cache', () => {
     ])
 
     cacheMediaReading.set('none')
-    equal(refreshTotalProgress.get(), 1)
+    deepEqual(refreshTotalProgress.get(), { stage: 'onlyPosts', value: 1 })
     await syncMediaCache()
     deepEqual(await cached(), [])
   })
@@ -376,10 +376,10 @@ describe('media cache', () => {
         }
       })
     })
-    equal(refreshTotalProgress.get(), 0.5)
+    deepEqual(refreshTotalProgress.get(), { stage: 'media', value: 0 })
     await image(200, '1')
     await refreshing
-    equal(refreshTotalProgress.get(), 1)
+    deepEqual(refreshTotalProgress.get(), { stage: 'media', value: 1 })
     deepEqual(await cached(), ['https://img.com/1.jpg'])
   })
 

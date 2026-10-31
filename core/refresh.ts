@@ -99,10 +99,11 @@ export const refreshProgress = computed(refreshStatistics, stats => {
   }
 })
 
-/**
- * Media downloading goes after feeds, so feeds take the first half
- * of the navbar progress.
- */
+export type RefreshTotalProgress = {
+  stage: 'media' | 'onlyPosts' | 'posts'
+  value: number
+}
+
 export const refreshTotalProgress = computed(
   [
     refreshStatistics,
@@ -112,12 +113,15 @@ export const refreshTotalProgress = computed(
     cacheImages,
     cacheVideos
   ],
-  (stats, feeds, media, reading, images, videos) => {
+  (stats, feeds, media, reading, images, videos): RefreshTotalProgress => {
     let checked = stats.totalFeeds === 0 && !stats.initializing ? 1 : feeds
     if (reading === 'none' || (images === 'never' && videos === 'never')) {
-      return checked
+      return { stage: 'onlyPosts', value: checked }
+    } else if (checked < 1) {
+      return { stage: 'posts', value: checked }
+    } else {
+      return { stage: 'media', value: media }
     }
-    return Math.floor((checked + media) * 50) / 100
   }
 )
 

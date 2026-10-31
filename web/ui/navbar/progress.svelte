@@ -1,7 +1,11 @@
 <script lang="ts">
-  import { reportLoader, navbarMessages as t } from '@slowreader/core'
+  import {
+    type RefreshTotalProgress,
+    reportLoader,
+    navbarMessages as t
+  } from '@slowreader/core'
 
-  let { value }: { value: number } = $props()
+  let { stage, value }: RefreshTotalProgress = $props()
 
   const RADIUS = 4.8
   const CIRCUMFERENCE = 2 * Math.PI * RADIUS
@@ -9,6 +13,8 @@
 
 <svg
   class="navbar-progress"
+  class:is-media={stage === 'media'}
+  class:is-posts={stage === 'posts'}
   {@attach () => reportLoader('refresh')}
   aria-label={$t.postRefreshing}
   aria-valuenow={value * 100}
@@ -23,16 +29,18 @@
     r={RADIUS}
     stroke-width="1.3"
   />
-  <circle
-    class="navbar-progress_circle"
-    cx="6"
-    cy="6"
-    fill="none"
-    r={RADIUS}
-    stroke-dasharray={CIRCUMFERENCE}
-    stroke-dashoffset={CIRCUMFERENCE - value * CIRCUMFERENCE}
-    stroke-width="1.3"
-  />
+  {#key stage}
+    <circle
+      class="navbar-progress_circle"
+      cx="6"
+      cy="6"
+      fill="none"
+      r={RADIUS}
+      stroke-dasharray={CIRCUMFERENCE}
+      stroke-dashoffset={CIRCUMFERENCE - value * CIRCUMFERENCE}
+      stroke-width="1.3"
+    />
+  {/key}
 </svg>
 
 <style>
@@ -49,6 +57,14 @@
     .navbar-progress_circle:last-child {
       stroke: var(--loader-bar);
       transition: stroke-dashoffset 100ms;
+    }
+
+    .navbar-progress.is-posts .navbar-progress_circle:last-child {
+      stroke: var(--loader-middle);
+    }
+
+    .navbar-progress.is-media .navbar-progress_circle:first-child {
+      stroke: var(--loader-middle);
     }
   }
 </style>

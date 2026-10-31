@@ -1,9 +1,11 @@
 <script lang="ts" module>
   import {
+    cacheMediaReading,
     type CategoryValue,
     closedCategories,
     DEFAULT_REFRESH_STATISTICS,
     type FeedValue,
+    mediaStatistics,
     type PostValue,
     refreshStatistics,
     refreshStatus,
@@ -146,6 +148,27 @@
   </Scene>
 </Story>
 
+<Story
+  name="Refreshing Only Posts"
+  asChild
+  parameters={{ layout: 'fullscreen' }}
+>
+  <Scene
+    oninit={() => {
+      cacheMediaReading.set('none')
+      refreshStatus.set('refreshing')
+      refreshStatistics.set({
+        ...DEFAULT_REFRESH_STATISTICS,
+        processedFeeds: 2,
+        totalFeeds: 4
+      })
+    }}
+    route="add"
+  >
+    <Navbar />
+  </Scene>
+</Story>
+
 <Story name="Refreshing Error" asChild parameters={{ layout: 'fullscreen' }}>
   <Scene
     oninit={() => {
@@ -154,9 +177,10 @@
         ...DEFAULT_REFRESH_STATISTICS,
         errorFeeds: 1,
         errorRequests: 1,
-        processedFeeds: 3,
+        processedFeeds: 4,
         totalFeeds: 4
       })
+      mediaStatistics.set({ done: 1, failed: 0, total: 3 })
     }}
     route="add"
   >
