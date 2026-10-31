@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiFire, mdiFireOff, mdiReload, mdiWhiteBalanceSunny } from '@mdi/js'
+  import { mdiFire, mdiReload, mdiThumbUp, mdiWhiteBalanceSunny } from '@mdi/js'
   import {
     type EmptyReader,
     isRefreshing,
@@ -26,7 +26,7 @@
     </Stack>
   </PageIcon>
 {:else}
-  <PageIcon path={mdiFireOff}>
+  <PageIcon path={mdiThumbUp}>
     <Stack align="center" gap="l">
       {$t.slowEmpty}
       <Stack align="center" reading="slow">
