@@ -79,3 +79,16 @@
     <AboutPage page={pages.about()} />
   </Scene>
 </Story>
+
+<Story name="Updating" asChild parameters={{ layout: 'fullscreen' }}>
+  <Scene
+    oninit={() => {
+      installation.set('installed')
+      safariBrowser.set(false)
+      clientUpdate.set('updating')
+    }}
+    route="about"
+  >
+    <AboutPage page={pages.about()} />
+  </Scene>
+</Story>

@@ -4,7 +4,7 @@ import type { ToServiceWorker } from '../main/sw.ts'
 
 // `undefined` when no service worker controls the page
 export const clientUpdate = atom<
-  'available' | 'checking' | 'latest' | 'offline' | undefined
+  'available' | 'checking' | 'latest' | 'offline' | 'updating' | undefined
 >()
 
 let registration: ServiceWorkerRegistration | undefined
@@ -68,6 +68,7 @@ export async function updateClient(): Promise<void> {
   if (!registration?.waiting) await checkClientUpdate()
   let waiting = registration?.waiting
   if (waiting) {
+    clientUpdate.set('updating')
     // Every tab reloads on `controllerchange`
     waiting.postMessage('skipWaiting' satisfies ToServiceWorker)
   } else {

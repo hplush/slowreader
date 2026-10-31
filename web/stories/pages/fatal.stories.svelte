@@ -133,7 +133,7 @@
 >
   <Scene
     oninit={() => {
-      clientUpdate.set('checking')
+      clientUpdate.set('updating')
       fatal.set({
         error: 'Database disk image is malformed',
         type: 'brokenDatabase'

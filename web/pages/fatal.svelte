@@ -45,7 +45,9 @@
 
   let { page }: { page: FatalPage } = $props()
   let { reason, resetDatabase } = $derived(page)
-  let hasUpdate = $derived($clientUpdate === 'available')
+  let hasUpdate = $derived(
+    $clientUpdate === 'available' || $clientUpdate === 'updating'
+  )
 
   $effect(() => {
     let type = $reason.type
@@ -58,6 +60,7 @@
 {#snippet updateButton()}
   <Button
     icon={mdiUpdate}
+    loader={$clientUpdate === 'updating'}
     onclick={getEnvironment().updateClient}
     size="big"
     variant="main"
@@ -185,7 +188,7 @@
       {:else if $reason.type === 'outdated'}
         <Button
           icon={mdiReload}
-          loader={$clientUpdate === 'checking'}
+          loader={$clientUpdate === 'checking' || $clientUpdate === 'updating'}
           onclick={getEnvironment().updateClient}
           size="big"
           variant="main"

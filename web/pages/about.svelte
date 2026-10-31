@@ -75,6 +75,7 @@
       {:else if $clientUpdate}
         <Button
           icon={mdiRefresh}
+          loader={$clientUpdate === 'updating'}
           onclick={getEnvironment().updateClient}
           size="wide"
           variant="attention"
