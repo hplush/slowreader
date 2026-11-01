@@ -8,7 +8,8 @@ import {
   setLayoutType,
   setProxyAsRequestMethod,
   setRequestMethod,
-  setupEnvironment
+  setupEnvironment,
+  usedRequestMethod
 } from '@slowreader/core'
 import { effect } from 'nanostores'
 
@@ -29,7 +30,6 @@ import { updateClient } from '../stores/client-update.ts'
 import { safariNeedsInstall } from '../stores/install.ts'
 import { locale } from '../stores/locale.ts'
 import { mobileMedia, tabletMedia } from '../stores/media-queries.ts'
-import { usedRequestMethod } from '../stores/request-method.ts'
 import { restarting } from '../stores/restart.ts'
 import { getURL, openRoute, urlRouter } from '../stores/url-router.ts'
 import { createDatabase, dumpDatabase } from './database.ts'

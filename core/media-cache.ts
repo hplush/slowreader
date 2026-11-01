@@ -19,7 +19,12 @@ import {
   type PostValue,
   type QuotedPost
 } from './schema.ts'
-import { cacheImages, cacheMediaReading, cacheVideos } from './settings.ts'
+import {
+  cacheImages,
+  cacheMediaReading,
+  cacheVideos,
+  usedRequestMethod
+} from './settings.ts'
 
 export const DEFAULT_MEDIA_STATISTICS = {
   done: 0,
@@ -395,7 +400,12 @@ export async function syncMediaCache(): Promise<void> {
         } catch (e) {
           // Missed file will not appear on retry, unlike a rate limit
           if (HTTPStatusError.is(e, /^4\d\d$/) && e.status !== 429) {
-            failMedia({ error: e, type: 'file', url })
+            // User can’t fix proxy size limit, so error will be just a noise
+            if (usedRequestMethod.get() === 'proxy' && e.status === 413) {
+              increaseKey(mediaStatistics, 'failed')
+            } else {
+              failMedia({ error: e, type: 'file', url })
+            }
             return
           }
           throw e

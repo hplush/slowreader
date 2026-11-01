@@ -12,6 +12,7 @@ import {
   deleteFeed,
   clearMediaCache,
   deletePost,
+  extensionState,
   getClient,
   getDatabase,
   getEnvironment,
@@ -307,6 +308,25 @@ describe('media cache', () => {
     equal(other.length, 0)
     equal(error?.type === 'file' && error.url, 'https://img.com/1.jpg')
     equal(HTTPStatusError.is(error?.error, [404]), true)
+  })
+
+  test('hides proxy size limit from errors', async t => {
+    t.after(() => {
+      extensionState.set('missing')
+    })
+    await addPost(
+      testPost({ media: [{ type: 'image', url: 'https://img.com/1.jpg' }] })
+    )
+    expectRequest('https://img.com/1.jpg').andRespond(413)
+    await syncMediaCache()
+    deepEqual(mediaStatistics.get(), { done: 0, failed: 1, total: 1 })
+    deepEqual(mediaErrors.get(), [])
+
+    extensionState.set('granted')
+    await clearMediaCache()
+    expectRequest('https://img.com/1.jpg').andRespond(413)
+    await syncMediaCache()
+    equal(HTTPStatusError.is(mediaErrors.get()[0]?.error, [413]), true)
   })
 
   test('saves real sizes', async () => {

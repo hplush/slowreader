@@ -20,12 +20,12 @@
     type MediaDownload,
     requestMethod,
     settingsMessages,
-    networkMessages as t
+    networkMessages as t,
+    usedRequestMethod
   } from '@slowreader/core'
 
   import { extensionStore, grantExtension } from '../main/extension.ts'
   import { clientUpdate } from '../stores/client-update.ts'
-  import { usedRequestMethod } from '../stores/request-method.ts'
   import Button from '../ui/button.svelte'
   import InstallExtension from '../ui/install-extension.svelte'
   import Label from '../ui/label.svelte'

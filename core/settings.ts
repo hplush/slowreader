@@ -1,5 +1,5 @@
 import { persistentAtom, persistentBoolean } from '@nanostores/persistent'
-import { atom, effect, type StoreValue } from 'nanostores'
+import { atom, computed, effect, type StoreValue } from 'nanostores'
 
 import type { FillStatistics } from './benchmark.ts'
 import { busyDuring } from './busy.ts'
@@ -7,6 +7,7 @@ import { onClient } from './client.ts'
 import { waitLoading } from './lib/stores.ts'
 import { createSyncedSetting, syncSettings } from './lib/synced-setting.ts'
 import { commonMessages } from './messages/index.ts'
+import { extensionState } from './request.ts'
 import { getTables, openedDatabase, type SettingsValue } from './schema.ts'
 
 export const userId = persistentAtom<string | undefined>('slowreader:userId')
@@ -114,6 +115,13 @@ export const cacheMediaReading = persistentAtom<MediaReading>(
  */
 export const requestMethod = persistentAtom<'extension' | 'proxy' | undefined>(
   'slowreader:requestMethod'
+)
+
+export const usedRequestMethod = computed(
+  [requestMethod, extensionState],
+  (method, extension): 'extension' | 'proxy' => {
+    return method !== 'proxy' && extension === 'granted' ? 'extension' : 'proxy'
+  }
 )
 
 /**
