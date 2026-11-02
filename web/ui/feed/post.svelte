@@ -101,7 +101,7 @@
   ></a>
   <article id={`feed-content-${post.id}`} class="feed-post_content">
     {#if !hasByline}
-      <div class="feed-post_heading">
+      <div class="feed-post_heading" class:is-date-only={!post.title}>
         {@render date()}
         {#if post.title}
           <h2 class="feed-post_title">
@@ -366,6 +366,11 @@
 
     .feed-post_heading {
       display: flow-root;
+
+      &.is-date-only {
+        margin-top: -0.5rem;
+        margin-bottom: -0.625rem;
+      }
     }
 
     .feed-post_date.is-floating {
