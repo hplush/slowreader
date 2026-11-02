@@ -97,7 +97,7 @@
     aria-controls={current ? getPopupId('post', param) : null}
     aria-current={current ? 'page' : null}
     aria-labelledby={`feed-content-${post.id}`}
-    href={getPopupHash($router, 'post', param)}
+    href={getPopupHash(highlight ? undefined : $router, 'post', param)}
   ></a>
   <article id={`feed-content-${post.id}`} class="feed-post_content">
     {#if !hasByline}
@@ -201,7 +201,7 @@
       {/if}
       {#if more}
         <Button
-          href={getPopupHash($router, 'post', param)}
+          href={getPopupHash(highlight ? undefined : $router, 'post', param)}
           icon={mdiChevronRight}
           size="icon"
           variant="plain"

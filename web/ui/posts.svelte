@@ -6,8 +6,7 @@
     isOpenedPost,
     openedPost,
     type OriginPost,
-    type ReaderPost,
-    router
+    type ReaderPost
   } from '@slowreader/core'
 
   import { getPopupHash } from '../stores/url-router.ts'
@@ -26,7 +25,7 @@
       let param = getPostPopupParam(post, autoread)
       return {
         controls: getPopupId('post', param),
-        href: getPopupHash($router, 'post', param),
+        href: getPopupHash(undefined, 'post', param),
         id: post.id,
         item: post,
         variant: 'feedId' in post && post.read ? ('read' as const) : undefined
