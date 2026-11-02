@@ -44,7 +44,9 @@
     <Button
       href={getURL({ params: {}, route: 'cloud' })}
       icon={ICONS[$syncStatus]}
-      size="pill"
+      size={$syncStatus === 'sending' || $syncStatus === 'sendingAfterWait'
+        ? 'icon-pill'
+        : 'pill'}
       variant={STYLES[$syncStatusType]}
     >
       {#if $syncStatus === 'wait' || $syncStatus === 'disconnected'}

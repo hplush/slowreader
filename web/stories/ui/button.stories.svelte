@@ -110,6 +110,9 @@
       <Button {icon} {onclick} size="pill" variant="secondary">
         Add if you really want
       </Button>
+      <Button {icon} {onclick} size="icon-pill" variant="secondary">
+        Icon pill
+      </Button>
     </Section>
     <Section width={300}>
       <Button {icon} {onclick}>

@@ -1,5 +1,11 @@
 <script lang="ts" module>
-  export type ButtonSize = 'big' | 'icon' | 'inline' | 'pill' | 'wide'
+  export type ButtonSize =
+    | 'big'
+    | 'icon-pill'
+    | 'icon'
+    | 'inline'
+    | 'pill'
+    | 'wide'
 
   export type ButtonVariant =
     | 'attention'
@@ -67,12 +73,13 @@
     'is-attention': variant === 'attention',
     'is-big': size === 'big',
     'is-icon': size === 'icon',
+    'is-icon-pill': size === 'icon-pill',
     'is-joined-end': joined === 'end',
     'is-joined-middle': joined === 'middle',
     'is-joined-start': joined === 'start',
     'is-loader': !!loader,
     'is-main': variant === 'main',
-    'is-pill': size === 'pill',
+    'is-pill': size === 'pill' || size === 'icon-pill',
     'is-plain': variant === 'plain',
     'is-plain-dangerous': variant === 'plain-dangerous',
     'is-plain-secondary': variant === 'plain-secondary',
@@ -86,7 +93,7 @@
   data-anchor={anchor ?? null}
   disabled={!!loader || !!disabled}
   {onclick}
-  title={size === 'icon' ? title : undefined}
+  title={size === 'icon' || size === 'icon-pill' ? title : undefined}
 >
   <span class="button_loader">
     {#if loader}
@@ -104,9 +111,9 @@
     {/if}
     <span
       class="button_text"
-      class:sr-only={size === 'icon'}
+      class:sr-only={size === 'icon' || size === 'icon-pill'}
       {@attach span => {
-        if (size === 'icon') {
+        if (size === 'icon' || size === 'icon-pill') {
           title = span.textContent.trim() || ''
         }
       }}
@@ -287,6 +294,11 @@
         &:has(svg) {
           padding-inline-start: 0.375rem;
         }
+      }
+
+      .button.is-icon-pill && {
+        width: 1.562rem;
+        padding: 0;
       }
 
       .button.is-loader & {
