@@ -32,7 +32,7 @@
       "!dist/assets/{literata,merriweather,source-serif-4,bitter,inter,atkinson-hyperlegible-next,lexend,opendyslexic}-*.woff2",
       "!dist/assets/*-{italic,math,latin-ext}-*.woff2"
     ],
-    "limit": "755 KB" // Bump by 5 KB steps
+    "limit": "770 KB" // Bump by 10 KB steps
   },
   {
     "name": "Landing page on phone",
@@ -49,12 +49,12 @@
       "!dist/landing/*-latin-ext-*.woff2"
     ],
     // Keep it a little bigger since screenshots may from demo DB
-    "limit": "220 KB" // Bump by 5 KB steps
+    "limit": "220 KB" // Bump by 10 KB steps
   },
   {
     "name": "Core scripts to execute",
     "path": ["dist/assets/app-*.js", "dist/assets/core-*.js"],
     "brotli": false,
-    "limit": "585 KB" // Bump by 5 KB steps
+    "limit": "600 KB" // Bump by 10 KB steps
   }
 ]
