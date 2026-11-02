@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.20261102.1
+
+_2026-11-02 · +35 −13_
+
+### Security & Privacy
+
+- Fixed sign-in being blocked for everyone after other people mistyped their password.
+
 ## 0.20261102.0
 
 _2026-11-02 · +5997 −787_
