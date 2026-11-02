@@ -24,7 +24,12 @@ import {
 } from '../lib/challenges.ts'
 import { config } from '../lib/config.ts'
 import { getDevice } from '../lib/device.ts'
-import { ErrorResponse, jsonApi, tooManyRequests } from '../lib/http.ts'
+import {
+  ErrorResponse,
+  jsonApi,
+  LOCALHOST,
+  tooManyRequests
+} from '../lib/http.ts'
 import {
   anonymousChallenges,
   countFailure,
@@ -93,6 +98,16 @@ export default (server: AppServer): void => {
   server.auth(async ({ client, cookie, token, userId }) => {
     let sessionToken = token || cookie.session
     if (!sessionToken) return false
+    if (!token) {
+      let origin = client.httpHeaders.origin
+      if (
+        origin &&
+        origin !== config.webOrigin &&
+        !(config.env === 'development' && LOCALHOST.test(origin))
+      ) {
+        return false
+      }
+    }
     let session = await db.query.sessions.findFirst({
       columns: { id: true, usedAt: true },
       where: { tokenHash: hashToken(sessionToken), userId }

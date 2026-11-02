@@ -85,6 +85,22 @@ describe('server auth', () => {
     await server.expectWrongCredentials(userA.userId, {
       cookie: { session: userB.session }
     })
+    await server.expectWrongCredentials(userA.userId, {
+      cookie: { session: userA.session },
+      httpHeaders: { origin: 'https://evil.example' }
+    })
+    await server.expectWrongCredentials(userA.userId, {
+      cookie: { session: userA.session },
+      httpHeaders: { origin: 'http://localhost:5173' }
+    })
+    await server.connect(userA.userId, {
+      cookie: { session: userA.session },
+      httpHeaders: { origin: config.webOrigin }
+    })
+    await server.connect(userA.userId, {
+      httpHeaders: { origin: 'https://evil.example' },
+      token: userA.session
+    })
     await server.connect(userA.userId, {
       cookie: { session: userA.session }
     })
