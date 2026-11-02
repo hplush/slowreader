@@ -673,9 +673,10 @@ describe('proxy', () => {
     }
 
     equal(await load('1.1.1.1, 2.2.2.2'), 200)
-    equal(await load('9.9.9.9, 2.2.2.2'), 200)
-    equal(await load('8.8.8.8, 2.2.2.2'), 429)
-    equal(await load('1.1.1.1, 3.3.3.3'), 200)
+    equal(await load('9.9.9.9, 2.2.2.2, 100.96.0.187, 100.96.90.225'), 200)
+    equal(await load('8.8.8.8, 2.2.2.2, 10.0.0.1'), 429)
+    equal(await load('2.2.2.2, 3.3.3.3, 100.96.0.187, 100.96.90.225'), 200)
+    equal(await load('10.0.0.1, 192.168.0.1'), 200)
   })
 
   test('ignores balancer headers without balancer', async () => {

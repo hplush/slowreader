@@ -84,9 +84,15 @@ function buildNginxConfig(selfHosted: boolean, webOrigin: string): string {
 
   if (process.env.BEHIND_BALANCER) {
     rules +=
-      '    set_real_ip_from 0.0.0.0/0;\n' +
-      '    set_real_ip_from ::/0;\n' +
-      '    real_ip_header X-Forwarded-For;\n\n'
+      '    set_real_ip_from 10.0.0.0/8;\n' +
+      '    set_real_ip_from 100.64.0.0/10;\n' +
+      '    set_real_ip_from 127.0.0.0/8;\n' +
+      '    set_real_ip_from 172.16.0.0/12;\n' +
+      '    set_real_ip_from 192.168.0.0/16;\n' +
+      '    set_real_ip_from ::1;\n' +
+      '    set_real_ip_from fc00::/7;\n' +
+      '    real_ip_header X-Forwarded-For;\n' +
+      '    real_ip_recursive on;\n\n'
   }
 
   if (selfHosted) {

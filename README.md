@@ -326,7 +326,7 @@ The build is reproducible: anyone can build the same image from the same commit 
 
 - `ROLE`: chooses the [part](#parts): `app` or `proxy`.
 - `STAGING`: hides the web client from search engines.
-- `BEHIND_BALANCER`: takes the client’s IP from `X-Forwarded-For`.
+- `BEHIND_BALANCER`: takes the client’s IP from the last public address in `X-Forwarded-For`, so the balancer must be in a private network.
 - `DATABASE_URL`: PostgreSQL credentials with support of pglite’s `file://` and `memory://` schemas.
 - `DATABASE_CA`: PEM certificate of the PostgreSQL server to verify its TLS certificate. Without it, `sslmode=require` encrypts the connection but trusts any certificate.
 - `WEB_ORIGIN`: exact origin of the web client like `https://slowreader.app` for CORS and passkeys. Passkeys work only on this domain. You must set it when `NODE_ENV=production`.

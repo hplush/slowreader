@@ -51,7 +51,7 @@ export interface ProxyConfig {
 
 /**
  * Client can send any `X-Forwarded-For`, our balancer appends the real IP
- * to it, so only the last value can be trusted.
+ * to it and then internal hops append own private IPs.
  */
 export function getClientIp(
   req: Pick<IncomingMessage, 'headers'> & {
@@ -61,7 +61,10 @@ export function getClientIp(
 ): string {
   let forwarded = req.headers['x-forwarded-for']
   if (behindBalancer && forwarded) {
-    return String(forwarded).split(',').at(-1)!.trim()
+    let hops = String(forwarded)
+      .split(',')
+      .map(hop => hop.trim())
+    return hops.findLast(hop => !isPrivateIp(hop)) ?? hops[0]!
   } else {
     return req.socket.remoteAddress!
   }
@@ -126,9 +129,12 @@ PRIVATE.addSubnet('fc00::', 7, 'ipv6')
 PRIVATE.addSubnet('fe80::', 10, 'ipv6')
 PRIVATE.addSubnet('ff00::', 8, 'ipv6')
 
-function isPublic(found: LookupAddress): boolean {
-  let address = found.address.replace(/^::ffff:/i, '')
-  return !PRIVATE.check(address, isIP(address) === 4 ? 'ipv4' : 'ipv6')
+function isPrivateIp(ip: string): boolean {
+  let address = ip.replace(/^::ffff:/i, '')
+  let version = isIP(address)
+  return (
+    version !== 0 && PRIVATE.check(address, version === 4 ? 'ipv4' : 'ipv6')
+  )
 }
 
 function resolveLocation(location: string, from: string): string {
@@ -207,7 +213,7 @@ export function createProxy(
     function answer(found: LookupAddress[]): void {
       let allowed = config.allowUnsafeDestinations
         ? found
-        : found.filter(isPublic)
+        : found.filter(ip => !isPrivateIp(ip.address))
       if (allowed.length === 0) {
         done(new Error('IP addresses or local domains are not allowed'), [])
       } else if (options.all) {
