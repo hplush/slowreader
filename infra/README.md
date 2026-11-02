@@ -9,7 +9,7 @@
 - [`database.tf`](./database.tf): PostgreSQL instance, database, and the app’s user.
 - [`containers.tf`](./containers.tf): app and proxy containers, and their domains.
 - [`dns.tf`](./dns.tf): all records of `slowreader.app`.
-  [`grafana.tf`](./grafana.tf): secrets for our Grafana to see the app’s analytics and server usage.
+- [`grafana.tf`](./grafana.tf): secrets for our Grafana to see the app’s analytics and server usage.
 - [`.terraform.lock.hcl`](./.terraform.lock.hcl): providers checksums. Run `node ./scripts/update-infra.ts` to update providers.
 - [`scripts/tofu.sh`](./scripts/tofu.sh): runs OpenTofu with Scaleway keys and the state passphrase after `tofu init`.
 
@@ -26,18 +26,6 @@ We keep Scaleway keys only in the memory of OpenTofu process.
 2. Stop dev servers and tests, since a malicious dependency can read the keys from OpenTofu process.
 3. Run `./infra/scripts/tofu.sh apply` instead of `tofu apply`. It asks the keys and the state passphrase, shows the plan, and waits for `yes`.
 4. Delete the API key after the work.
-
-## Grafana
-
-Our Grafana reads the app’s analytics API and Cockpit metrics. Copy the outputs to the “Dashboards Data Sources” section of the hplush-cloud README:
-
-```sh
-./infra/scripts/tofu.sh output -raw analytics_token; echo
-./infra/scripts/tofu.sh output -raw cockpit_token; echo
-./infra/scripts/tofu.sh output -raw cockpit_metrics_url; echo
-```
-
-To rotate tokens, run `./infra/scripts/tofu.sh apply -replace=scaleway_cockpit_token.grafana` or `-replace=random_password.analytics` and copy the new value. The new API token also redeploys the app.
 
 ## Manual Setup
 
@@ -99,3 +87,53 @@ Enable DNSSEC:
 
 2. Wait until `dig +short DNSKEY slowreader.app @ns0.dom.scw.cloud` returns keys.
 3. Open the domain in register, go to DNSSEC settings and add a DS record: `key_id` as key tag, `algorithm` (`13` for `ecdsap256sha256`), `digest.type` (`2` for `sha_256`), and `digest.digest`.
+
+Connect our Grafana on `dashboard.hplush.dev`, which [hplush/cloud](https://github.com/hplush/cloud) deploys.
+
+1. Put the Cockpit metrics URL to `dashboards_cockpit_url` in `group_vars/all.yml` of `hplush/cloud`:
+
+   ```sh
+   ./infra/scripts/tofu.sh output -raw cockpit_metrics_url; echo
+   ```
+
+2. Copy analytics token:
+
+   1. Show the token:
+
+      ```sh
+      ./infra/scripts/tofu.sh output -raw analytics_token; echo
+      ```
+
+   2. In `hplush/cloud` repository, paste the token to this command, which reads it without saving it to the shell history:
+
+      ```sh
+      read -rs TOKEN
+      ```
+
+   3. Encrypt it and put the output into `group_vars/all.yml` of `hplush/cloud`:
+
+      ```sh
+      printf %s "$TOKEN" | ansible-vault encrypt_string --stdin-name dashboards_analytics_token
+      unset TOKEN
+      ```
+
+3. Copy Cockpit token:
+
+   1. Show the token:
+
+      ```sh
+      ./infra/scripts/tofu.sh output -raw cockpit_token; echo
+      ```
+
+   2. In `hplush/cloud` repository, paste the token to this command, which reads it without saving it to the shell history:
+
+      ```sh
+      read -rs TOKEN
+      ```
+
+   3. Encrypt it and put the output into `group_vars/all.yml` of `hplush/cloud`:
+
+      ```sh
+      printf %s "$TOKEN" | ansible-vault encrypt_string --stdin-name dashboards_cockpit_token
+      unset TOKEN
+      ```
