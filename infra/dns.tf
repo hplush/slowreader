@@ -10,6 +10,29 @@ resource "scaleway_domain_record" "caa" {
   data     = each.value
 }
 
+# Domain sends no mail
+resource "scaleway_domain_record" "spf" {
+  dns_zone = "slowreader.app"
+  name     = ""
+  type     = "TXT"
+  data     = "v=spf1 -all"
+}
+
+resource "scaleway_domain_record" "dmarc" {
+  dns_zone = "slowreader.app"
+  name     = "_dmarc"
+  type     = "TXT"
+  data     = "v=DMARC1; p=reject; adkim=s; aspf=s"
+}
+
+resource "scaleway_domain_record" "null_mx" {
+  dns_zone = "slowreader.app"
+  name     = ""
+  type     = "MX"
+  priority = 0
+  data     = "."
+}
+
 resource "scaleway_domain_record" "app" {
   dns_zone = "slowreader.app"
   name     = ""
