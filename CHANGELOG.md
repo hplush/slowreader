@@ -1,5 +1,79 @@
 # Change Log
 
+## 0.20261102.0
+
+_2026-11-02 · +5997 −787_
+
+### Anonymous Statistics
+
+Server shows users count, DAU/MAU, browsers, passkeys, and events statistics by `GET /analytics` (self-hosters can set `ANALYTICS_TOKEN` to enable it).
+
+Apps with a cloud account send anonymous counters of error pages to fix common problems. You can turn it off on the Cloud page. See the [list of events](https://slowreader.app/docs/experiments).
+
+### Post date and feed URL in feed
+
+Add post date and author's handle/URL to post cards in feed.
+
+### Font settings
+
+Change text size, post font, and line spacing on Interface settings page.
+
+Fonts include Literata, Merriweather, Source Serif 4, Bitter, Inter, Atkinson Hyperlegible, Lexend, OpenDyslexic, system font, or any font installed on your device.
+
+### Open feed’s website
+
+Feed popup has a button to open the author’s profile or the feed’s website.
+
+### Extension suggestion
+
+Refresh popup suggests installing the browser extension when sites fail to load through the proxy. Network page tells Safari users there is no extension for their browser.
+
+### Release Notes Feed
+
+New users get Slow Reader release notes in Slow to learn about new features. Delete the feed if you don’t need it.
+
+### Reposted and quoted thread parts
+
+Repost or quote of a post from the middle of a thread shows its position, like `5/30`. Opening the repost shows the whole thread from the start.
+
+### Share posts
+
+Post popup and post cards in feed have a “Share with” button to send the post link to another app.
+
+### Fonts for more languages
+
+Arabic, Hebrew, Indian, Southeast Asian, African, Native American and other writing systems now use Noto Sans, even with a custom post font. The app downloads a font only when a page has text in its writing system.
+
+### Security & Privacy
+
+- OPML import uses HTTPS for feeds with `http://` links when the site supports it.
+- Another website opened in your browser can no longer connect to Slow Reader server with your login and read or change your feeds.
+
+### Fixes
+
+- About page now prefills debug info in “Report an issue”.
+- Fixed UX of Add Feed page by move focus to URL to save one click.
+- Error pages now offer an update if a new version is out, a reload, or a “Report an issue” button with the error, browser, and app version prefilled.
+- Delete feed button shows a loader while unfollowing on the service.
+- Disabled buttons look faded.
+- Changed Fun post life duration default options. Also settings allows any custom value.
+- Long category names no longer break feed type switch and category list layout.
+- Fixed refresh error “too many SQL variables” on feeds with many new posts.
+- Slightly smaller text on big phones.
+- Fixed monospace font not being applied to code.
+- Night lock now ends at 4:00 by default.
+- Show app crash page instead of “Browser can not save the data” when the database failed because of the app’s bug.
+- Fixed support for Pleroma and Akkoma servers in Mastodon.
+- Fixed closing popup on click on its post or item in the list.
+- Fixed post from the list opening over old popups instead of replacing them.
+- Hide proxy file size limit errors from refresh popup.
+- Speed up post refreshing by processing images in parallel.
+- Navbar refresh progress now shows posts and images downloading in different colors.
+- Feed with server error is retried after all other feeds, giving server time to recover.
+- Show loader on “Update app” button while the new version is starting.
+- Hide “Enough scrolling” button when Useful has no unread posts.
+- Pause video when you scroll it out of the screen.
+
 ## 0.20261027.1
 
 _2026-10-27 · +4 −3_

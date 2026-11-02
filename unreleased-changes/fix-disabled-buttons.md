@@ -1,1 +1,0 @@
-Disabled buttons look faded.
