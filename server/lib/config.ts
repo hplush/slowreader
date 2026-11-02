@@ -2,6 +2,7 @@ import { DEFAULT_PROXY_CONFIG } from '@slowreader/proxy'
 import { join } from 'node:path'
 
 export type Config = {
+  analyticsToken: string | undefined
   db: string
   debug: boolean
   env: 'development' | 'production' | 'test'
@@ -41,7 +42,11 @@ export function getConfig(from: Record<string, string | undefined>): Config {
     proxyOrigin = '^http:\\/\\/(localhost|127\\.0\\.0\\.1|\\[::1\\]):\\d+$'
   }
   let webOrigin = new URL(from.WEB_ORIGIN ?? getDefaultWebOrigin(env)).origin
+  if (from.ANALYTICS_TOKEN !== undefined && from.ANALYTICS_TOKEN.length < 32) {
+    throw new Error('ANALYTICS_TOKEN must have at least 32 symbols')
+  }
   return {
+    analyticsToken: from.ANALYTICS_TOKEN,
     db: from.DATABASE_URL ?? getDefaultDatabase(env),
     debug: !!from.DEBUG,
     env,

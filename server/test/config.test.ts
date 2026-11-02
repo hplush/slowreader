@@ -39,6 +39,13 @@ describe('server config', () => {
     equal(getConfig({ STAGING: '1' }).staging, true)
   })
 
+  test('checks analytics token', () => {
+    equal(getConfig({}).analyticsToken, undefined)
+    throws(() => {
+      getConfig({ ANALYTICS_TOKEN: 'short' })
+    }, /ANALYTICS_TOKEN/)
+  })
+
   test('sets proxy origin', () => {
     let dev = new RegExp(getConfig({ NODE_ENV: 'development' }).proxyOrigin!)
     equal(dev.test('http://localhost:2553'), true)
@@ -64,6 +71,7 @@ describe('server config', () => {
   test('passes keys', () => {
     deepEqual(
       getConfig({
+        ANALYTICS_TOKEN: 'T'.repeat(32),
         DATABASE_URL,
         DEBUG: '1',
         NODE_ENV: 'production',
@@ -72,6 +80,7 @@ describe('server config', () => {
         WEB_ORIGIN: 'https://slowreader.app/'
       }),
       {
+        analyticsToken: 'T'.repeat(32),
         db: DATABASE_URL,
         debug: true,
         env: 'production',

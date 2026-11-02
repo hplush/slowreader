@@ -332,6 +332,7 @@ The build is reproducible: anyone can build the same image from the same commit 
 - `PROXY_ORIGIN`: RegExp to check `Origin` header in CORS proxy. Without `ROLE` it enables built-in proxy. You must set it with `ROLE=proxy`.
 - `PROXY_MAX_MEDIA_SIZE`: max size in MB of images and videos, which the proxy loads for offline reading. 100 by default.
 - `PORT`: HTTP port to listen.
+- `ANALYTICS_TOKEN`: at least 32 symbols to enable [usage statistics](./server/README.md#analytics).
 
 ### Environments
 

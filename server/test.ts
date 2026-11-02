@@ -8,6 +8,7 @@ import { config } from './lib/config.ts'
 import { resetLimits } from './lib/limits.ts'
 import type { ClientData } from './lib/types.ts'
 import authModule from './modules/auth.ts'
+import eventsModule from './modules/events.ts'
 import healthModule from './modules/health.ts'
 import passkeysModule from './modules/passkeys.ts'
 import sessionsModule from './modules/sessions.ts'
@@ -77,5 +78,6 @@ export function buildTestServer(
   passkeysModule(server)
   sessionsModule(server)
   syncModule(server)
+  eventsModule(server, 'T'.repeat(32))
   return destroyable(server)
 }

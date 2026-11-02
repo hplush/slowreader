@@ -38,10 +38,6 @@ export function waitEncryptionKey(): CryptoKey | Promise<CryptoKey> {
  */
 export const encryptionKeyLost = atom(false)
 
-export const syncServer = persistentAtom<string | undefined>(
-  'slowreader:server'
-)
-
 export const hasCloud = persistentBoolean('slowreader:has-cloud')
 
 /**
@@ -142,6 +138,11 @@ export const benchmarkStatistics = persistentAtom<FillStatistics | undefined>(
 export const useReducedMotion = persistentBoolean('slowreader:reduced-motion')
 
 export const useQuietCursor = persistentBoolean('slowreader:quiet-cursor')
+
+/**
+ * Not synced, because broken database errors must respect it too
+ */
+export const noStatistics = persistentBoolean('slowreader:no-statistics')
 
 /**
  * Percents of the whole text and UI scale.

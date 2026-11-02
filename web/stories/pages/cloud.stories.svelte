@@ -4,6 +4,7 @@
     type CloudPage,
     hasCloud,
     isDemo,
+    noStatistics,
     pages,
     type PasskeyItem,
     passkeyOnly,
@@ -205,7 +206,12 @@
   globals={{ viewport: { value: 'mobile2' } }}
   parameters={{ layout: 'fullscreen' }}
 >
-  <Scene route="cloud">
+  <Scene
+    oninit={() => {
+      noStatistics.set(true)
+    }}
+    route="cloud"
+  >
     <CloudPageComponent
       page={withLists(PASSKEYS, [
         ...SESSIONS,

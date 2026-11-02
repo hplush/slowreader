@@ -1,9 +1,13 @@
+import type { AnalyticsStats } from '@slowreader/api'
 import {
   boolean,
   bytea,
+  date,
   index,
   integer,
+  jsonb,
   pgTable,
+  primaryKey,
   serial,
   text,
   timestamp,
@@ -66,4 +70,24 @@ export const challenges = pgTable(
     userId: text('userId')
   },
   table => [uniqueIndex('challengesChallengeIdx').on(table.challenge)]
+)
+
+export const analytics = pgTable('analytics', {
+  browsers: jsonb('browsers').$type<AnalyticsStats['browsers']>().notNull(),
+  dau: integer('dau').notNull(),
+  date: date('date', { mode: 'string' }).primaryKey(),
+  mau: integer('mau').notNull(),
+  passkeys: jsonb('passkeys').$type<AnalyticsStats['passkeys']>().notNull(),
+  systems: jsonb('systems').$type<AnalyticsStats['systems']>().notNull(),
+  users: integer('users').notNull()
+})
+
+export const events = pgTable(
+  'events',
+  {
+    count: integer('count').notNull(),
+    date: date('date', { mode: 'string' }).notNull(),
+    name: text('name').notNull()
+  },
+  table => [primaryKey({ columns: [table.date, table.name] })]
 )

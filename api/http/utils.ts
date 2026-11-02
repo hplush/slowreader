@@ -12,6 +12,7 @@ export function withSession<Request extends object>(
 }
 
 export interface RequesterOptions {
+  credentials?: RequestInit['credentials']
   fetch?: typeof fetch
   host?: string
   response?: (res: Response) => void
@@ -43,7 +44,7 @@ export async function fetchJSON<ResponseJSON = unknown>(
   let request = opts.fetch ?? fetch
   let response = await request(host + url, {
     body: JSON.stringify(body),
-    credentials: 'include',
+    credentials: opts.credentials ?? 'include',
     headers: {
       'Content-Type': 'application/json',
       'X-Subprotocol': String(SUBPROTOCOL)

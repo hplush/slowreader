@@ -1,22 +1,37 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
 
-  let { center = false, children }: { center?: boolean; children: Snippet } =
-    $props()
+  let {
+    action,
+    center = false,
+    children
+  }: { action?: Snippet; center?: boolean; children: Snippet } = $props()
 </script>
 
-<h1 class="title" class:is-center={center}>{@render children()}</h1>
+<div class="title" class:is-center={center}>
+  <h1 class="title_text">{@render children()}</h1>
+  {@render action?.()}
+</div>
 
 <style>
   :global {
     .title {
-      font: var(--app-title-font);
-      flex-shrink: 1;
-      overflow-wrap: anywhere;
+      display: flex;
+      gap: 0.625rem;
+      align-items: center;
+      align-self: stretch;
+      justify-content: space-between;
 
       &.is-center {
+        justify-content: center;
         text-align: center;
       }
+    }
+
+    .title_text {
+      flex-shrink: 1;
+      font: var(--app-title-font);
+      overflow-wrap: anywhere;
     }
   }
 </style>

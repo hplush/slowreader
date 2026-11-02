@@ -9,6 +9,7 @@
 - [`database.tf`](./database.tf): PostgreSQL instance, database, and the app’s user.
 - [`containers.tf`](./containers.tf): app and proxy containers, and their domains.
 - [`dns.tf`](./dns.tf): all records of `slowreader.app`.
+  [`grafana.tf`](./grafana.tf): secrets for our Grafana to see the app’s analytics and server usage.
 - [`.terraform.lock.hcl`](./.terraform.lock.hcl): providers checksums. Run `node ./scripts/update-infra.ts` to update providers.
 - [`scripts/tofu.sh`](./scripts/tofu.sh): runs OpenTofu with Scaleway keys and the state passphrase after `tofu init`.
 
@@ -25,6 +26,18 @@ We keep Scaleway keys only in the memory of OpenTofu process.
 2. Stop dev servers and tests, since a malicious dependency can read the keys from OpenTofu process.
 3. Run `./infra/scripts/tofu.sh apply` instead of `tofu apply`. It asks the keys and the state passphrase, shows the plan, and waits for `yes`.
 4. Delete the API key after the work.
+
+## Grafana
+
+Our Grafana reads the app’s analytics API and Cockpit metrics. Copy the outputs to the “Dashboards Data Sources” section of the hplush-cloud README:
+
+```sh
+./infra/scripts/tofu.sh output -raw analytics_token; echo
+./infra/scripts/tofu.sh output -raw cockpit_token; echo
+./infra/scripts/tofu.sh output -raw cockpit_metrics_url; echo
+```
+
+To rotate tokens, run `./infra/scripts/tofu.sh apply -replace=scaleway_cockpit_token.grafana` or `-replace=random_password.analytics` and copy the new value. The new API token also redeploys the app.
 
 ## Manual Setup
 
@@ -47,6 +60,7 @@ Steps, which OpenTofu can’t do. You need them only once.
       - **IPAM** → `IPAMFullAccess`.
       - **Domains & DNS** → `DomainsDNSFullAccess`.
       - **Object Storage** → `ObjectStorageFullAccess`.
+      - **Cockpit** → `ObservabilityFullAccess`.
    4. Select **Specific projects**, choose `Slow Reader`, and click **Next**.
    5. Skip conditions, click **Confirm rule**, and **Create policy**.
 6. Create `deploy` IAM application for `scripts/release.sh`:

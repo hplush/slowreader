@@ -29,6 +29,7 @@
     type NetworkType,
     type NewCategory,
     nightLock,
+    noStatistics,
     openWarnings,
     pages,
     type ParamlessRouteName,
@@ -208,6 +209,7 @@
       if (page.cache) page.cache = undefined
     }
     useReducedMotion.set(false)
+    noStatistics.set(false)
     textSize.set(100)
     postFont.set('default')
     postLineHeight.set('normal')

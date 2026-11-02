@@ -31,10 +31,10 @@ import {
   downloadingCloudData,
   hasCloud,
   lastReset,
-  syncServer,
   userId,
   waitEncryptionKey
 } from './settings.ts'
+import { syncServer } from './sync-server.ts'
 
 let testTime: TestTime | undefined
 

@@ -33,19 +33,24 @@ resource "scaleway_domain_record" "proxy" {
   data     = "${trimprefix(scaleway_container.proxy.public_endpoint, "https://")}."
 }
 
-# Staging stays on our own cloud
+# Staging and our Grafana stay on our own cloud
+locals {
+  staging_ipv4 = "91.98.155.169"
+  staging_ipv6 = "2a01:4f8:c012:2e6f::1"
+}
+
 resource "scaleway_domain_record" "staging_ipv4" {
   dns_zone = "slowreader.app"
   name     = "dev"
   type     = "A"
-  data     = "91.98.155.169"
+  data     = local.staging_ipv4
 }
 
 resource "scaleway_domain_record" "staging_ipv6" {
   dns_zone = "slowreader.app"
   name     = "dev"
   type     = "AAAA"
-  data     = "2a01:4f8:c012:2e6f::1"
+  data     = local.staging_ipv6
 }
 
 # resource "scaleway_domain_record" "staging_https" {

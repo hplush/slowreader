@@ -193,8 +193,15 @@ body {
 
   /* Monospace fonts have smaller x-height than Catamaran */
   code {
+    padding: 0.15em 0.35em;
     font-family: ui-monospace, monospace;
     font-size: 0.85em;
+    background: oklch(1 0 0 / 10%);
+    border-radius: 0.375rem;
+
+    @media (prefers-color-scheme: light) {
+      background: oklch(0 0 0 / 6%);
+    }
   }
 
   li {

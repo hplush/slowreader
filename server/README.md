@@ -48,6 +48,16 @@ You can see local database content by running:
 pnpm -F server database
 ```
 
+## Analytics
+
+Analytics works only with `ANALYTICS_TOKEN` environment variable.
+
+Clients send anonymous events from [`api/events.ts`](../api/events.ts) by `POST /events`. The server adds them to daily totals in `events` table. Every event must be described in [`docs/experiments.md`](../docs/experiments.md).
+
+Every day the server also saves totals of users, DAU/MAU, browsers, and passkeys to `analytics` table.
+
+`GET /analytics` with `Authorization: Bearer TOKEN` returns everything: current stats in `now`, daily totals in `history`, and daily event totals in `events`.
+
 ## Log Retention
 
 The log on the server is the user’s backup, not the source of truth: the data itself lives in the SQLite database of every client. The server keeps only encrypted `0` actions and does not know their types.

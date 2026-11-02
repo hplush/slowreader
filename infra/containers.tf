@@ -25,8 +25,10 @@ resource "scaleway_container" "app" {
     ROLE            = "app"
     BEHIND_BALANCER = "1"
     WEB_ORIGIN      = "https://slowreader.app"
+    ANALYTICS_IPS = join(",", [local.staging_ipv4, local.staging_ipv6])
   }
   secret_environment_variables = {
+    ANALYTICS_TOKEN = random_password.analytics.result
     DATABASE_URL = format(
       "postgres://%s:%s@%s:%d/%s?sslmode=require",
       scaleway_rdb_user.app.name,
