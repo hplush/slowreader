@@ -54,9 +54,18 @@ deploy() {
   # SKIP_VERIFIER=1 for the first release, which verifier can’t check yet
   if [ -z "${SKIP_VERIFIER:-}" ]; then
     step "Waiting for the verifier"
+    PUBLISHED=$(curl -fsS "https://api.github.com/repos/$REPO/releases/tags/$VERSION" \
+      | jq -r '.published_at // empty' || true)
+    PIPELINE=""
     until curl -fsS -o "$WORK/verified.json" \
       "https://gitlab.com/hplush/slowreader-verifier/-/raw/main/releases/$VERSION.json" \
       2> /dev/null; do
+      # Release workflow triggers the pipeline a few seconds after the release
+      if [ -z "$PIPELINE" ] && [ -n "$PUBLISHED" ]; then
+        PIPELINE=$(curl -fsS "https://gitlab.com/api/v4/projects/hplush%2Fslowreader-verifier/pipelines?source=trigger&created_after=$PUBLISHED&per_page=1" \
+          | jq -r '.[0].web_url // empty' || true)
+        [ -z "$PIPELINE" ] || step "$PIPELINE"
+      fi
       sleep 60
     done
     if [ "$(jq -r .status "$WORK/verified.json")" != "verified" ]; then
