@@ -97,6 +97,14 @@ describe('mastodon loader', () => {
       undefined
     )
     equal(mastodon.isMineUrl(new URL('https://example.com/@jane')), undefined)
+    equal(
+      mastodon.isMineUrl(new URL('https://mastodon.social/users/jane')),
+      'jane'
+    )
+    equal(
+      mastodon.isMineUrl(new URL('https://example.com/users/jane')),
+      undefined
+    )
     equal(mastodon.isMineUrl(new URL('https://example.com/feed')), false)
   })
 
@@ -199,8 +207,50 @@ describe('mastodon loader', () => {
       ),
       { title: 'jane', url: 'https://mastodon.social/@jane' }
     )
+
+    expectRequest(
+      'https://pleroma.example.com/api/v1/accounts/lookup?acct=jane'
+    ).andRespond(
+      200,
+      JSON.stringify(account('jane', { display_name: 'Jane Doe' })),
+      'application/json'
+    )
+    deepEqual(
+      await detect(
+        'https://pleroma.example.com/users/jane',
+        '<!DOCTYPE html><html></html>'
+      ),
+      { title: 'Jane Doe', url: 'https://pleroma.example.com/@jane' }
+    )
+
+    expectRequest(
+      'https://pleroma.example.com/api/v1/accounts/lookup?acct=jane'
+    ).andRespond(
+      200,
+      JSON.stringify(account('jane', { display_name: 'Jane Doe' })),
+      'application/json'
+    )
+    deepEqual(
+      await detect(
+        'https://pleroma.example.com/@jane',
+        '<!DOCTYPE html><html></html>'
+      ),
+      { title: 'Jane Doe', url: 'https://pleroma.example.com/@jane' }
+    )
+
+    expectRequest(
+      'https://example.com/api/v1/accounts/lookup?acct=jane'
+    ).andRespond(404)
+    equal(
+      await detect('https://example.com/users/jane', '<!DOCTYPE html></html>'),
+      false
+    )
+
     await expectNotMine(mastodon, profile('https://mastodon.social/@jane/1'))
     await expectNotMine(mastodon, profile('https://mastodon.social/about'))
+    expectRequest(
+      'https://example.com/api/v1/accounts/lookup?acct=jane'
+    ).andRespond(404)
     await expectNotMine(
       mastodon,
       profile('https://example.com/@jane', '<!DOCTYPE html><html></html>')

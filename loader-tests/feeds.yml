@@ -50,6 +50,10 @@ feeds:
     url: https://infosec.exchange/@briankrebs
     homeUrl: https://infosec.exchange/@briankrebs
 
+  - title: Pleroma
+    url: https://hoots.aldragon.net/@aldragon
+    homeUrl: https://hoots.aldragon.net/users/aldragon
+
   # Bluesky
 
   - title: Bluesky Official

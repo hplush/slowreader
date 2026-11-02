@@ -26,6 +26,7 @@ import { createPostsList, type PostsListResult } from '../posts-list.ts'
 import {
   type AccountAuth,
   type AccountLoader,
+  type DetectedFeed,
   type FeedData,
   findDocumentLinks,
   findMetaProperty,
@@ -108,7 +109,7 @@ interface MastodonStatus {
   url: null | string
 }
 
-const PROFILE = /^\/@([^/]+)\/?$/
+const PROFILE = /^\/(?:@|users\/)([^/]+)\/?$/
 
 const POST = /^\/(@[^/]+)\/(\d+)\/?$/
 
@@ -529,6 +530,17 @@ async function loadAccount(
     `${origin}/api/v1/accounts/lookup?acct=${encodeURIComponent(acct)}`
   )
   return parseAccount(response)
+}
+
+async function lookupProfile(
+  task: DownloadTask,
+  url: string
+): Promise<DetectedFeed> {
+  let account = await loadAccount(task, url)
+  return {
+    title: removeShortcodes(account.display_name) || account.username,
+    url: toProfileUrl(getApi(url).origin, account.acct)
+  }
 }
 
 async function loadPage(
@@ -964,7 +976,11 @@ export const mastodon: Loader = {
   },
 
   async detectFeed(text, task, url) {
-    if (!isProfile(text, url)) return false
+    if (!isProfile(text, url)) {
+      if (!PROFILE.test(new URL(url).pathname)) return false
+      // Pleroma has no ActivityPub link in HTML
+      return lookupProfile(task, url).catch(() => false)
+    }
     let { acct, origin } = getApi(url)
     // Redirect page could have meta of something else
     let title = isProfile(text, text.url) && findMetaProperty(text, 'og:title')
@@ -978,11 +994,7 @@ export const mastodon: Loader = {
     }
     // Remote profiles are rendered by JS, so HTML has no meta tags
     try {
-      let account = await loadAccount(task, url)
-      return {
-        title: removeShortcodes(account.display_name) || account.username,
-        url: toProfileUrl(origin, account.acct)
-      }
+      return await lookupProfile(task, url)
     } catch {
       return { title: acct, url: toProfileUrl(origin, acct) }
     }
@@ -1006,8 +1018,8 @@ export const mastodon: Loader = {
   },
 
   isMineUrl(url) {
-    if (!url.pathname.startsWith('/@')) return false
     let profile = url.pathname.match(PROFILE)
+    if (!profile && !url.pathname.startsWith('/@')) return false
     if (profile && POPULAR.has(url.hostname)) {
       return decodeURIComponent(profile[1]!)
     }
