@@ -26,10 +26,16 @@ if (config.db.startsWith('file://')) {
   await access(path, constants.R_OK | constants.W_OK)
 }
 
+// Managed databases use own self-signed certificate, so its hostname
+// does not matter: only the server with this certificate’s key can connect
+let tls = config.dbCa
+  ? { ssl: { ca: config.dbCa, checkServerIdentity: () => undefined } }
+  : {}
+
 export const dbDriver =
   config.db.startsWith('memory://') || config.db.startsWith('file://')
     ? new PGlite(config.db, { debug: config.debug ? 5 : undefined })
-    : postgres(config.db)
+    : postgres(config.db, tls)
 
 export const db: PgAsyncDatabase<PgQueryResultHKT, typeof relations> =
   dbDriver instanceof PGlite
@@ -43,7 +49,7 @@ export function closeDb(): Promise<void> {
 if (dbDriver instanceof PGlite) {
   await pgliteMigrate(pgliteDrizzle({ client: dbDriver }), MIGRATE_CONFIG)
 } else {
-  let migrator = postgres(config.db, { max: 1 })
+  let migrator = postgres(config.db, { ...tls, max: 1 })
   await postgresMigrate(postgresDrizzle({ client: migrator }), MIGRATE_CONFIG)
   await migrator.end()
 }

@@ -91,7 +91,11 @@ export async function saveAnalytics(server: AppServer): Promise<void> {
     .onConflictDoNothing()
 }
 
-export default (server: AppServer, token = config.analyticsToken): void => {
+export default (
+  server: AppServer,
+  token = config.analyticsToken,
+  ips = config.analyticsIps
+): void => {
   if (!token) return
   let expected = hash(token)
 
@@ -113,6 +117,11 @@ export default (server: AppServer, token = config.analyticsToken): void => {
     let ip = requestIp(req)
     if (failedAnalytics.isOver(ip)) {
       sendText(res, 429, 'Too many requests')
+      return
+    }
+    if (ips.length > 0 && !ips.includes(ip)) {
+      failedAnalytics.add(ip)
+      sendText(res, 403, 'Wrong IP')
       return
     }
     let header = req.headers.authorization ?? ''

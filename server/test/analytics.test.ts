@@ -16,10 +16,14 @@ const TOKEN = 'T'.repeat(32)
 
 function request(
   server: ReturnType<typeof buildTestServer>,
-  authorization?: string
+  authorization?: string,
+  ip?: string
 ): Promise<Response> {
   return server.fetch('/analytics', {
-    headers: authorization ? { Authorization: authorization } : {}
+    headers: {
+      ...(authorization ? { Authorization: authorization } : {}),
+      ...(ip ? { 'X-Forwarded-For': ip } : {})
+    }
   })
 }
 
@@ -55,6 +59,19 @@ describe('server analytics', () => {
       equal((await request(server, `Bearer ${'W'.repeat(32)}`)).status, 401)
     }
     equal((await request(server, `Bearer ${TOKEN}`)).status, 429)
+  })
+
+  test('allows only listed IPs', async () => {
+    await using server = buildTestServer()
+    analyticsModule(server, TOKEN, ['1.1.1.1'])
+    equal((await request(server, `Bearer ${TOKEN}`)).status, 403)
+    equal((await request(server, `Bearer ${TOKEN}`, '2.2.2.2')).status, 403)
+    equal((await request(server, 'Bearer wrong', '1.1.1.1')).status, 401)
+    equal((await request(server, `Bearer ${TOKEN}`, '1.1.1.1')).status, 200)
+    for (let i = 0; i < 9; i++) {
+      equal((await request(server, `Bearer ${TOKEN}`, '2.2.2.2')).status, 403)
+    }
+    equal((await request(server, `Bearer ${TOKEN}`, '2.2.2.2')).status, 429)
   })
 
   test('returns statistics and history', async () => {
