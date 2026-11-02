@@ -161,6 +161,7 @@
   }
 
   const MASTODON_FEED = {
+    avatar: imgExample,
     id: 'mastodon',
     loader: 'mastodon',
     reading: 'slow',

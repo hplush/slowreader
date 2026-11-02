@@ -10,6 +10,10 @@ import { INITIAL_VIEWPORTS, MINIMAL_VIEWPORTS } from 'storybook/viewport'
 
 export default {
   decorators: [
+    story => {
+      document.getElementById('warnings')?.remove()
+      return story()
+    },
     withThemeByClassName({
       defaultTheme: 'light',
       themes: {

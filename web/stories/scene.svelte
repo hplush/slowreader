@@ -114,7 +114,18 @@
         accounts.map(account => testAccount(account))
       )
     }
-    if (feeds?.length) await addFeed(feeds.map(feed => testFeed(feed)))
+    if (feeds?.length) {
+      let values = feeds.map(feed => testFeed(feed))
+      // Missed avatar loads feed data, which is not a part of the story
+      prepareResponses([
+        ...values.map((feed): [string, PreparedResponse] => [
+          feed.url,
+          { status: 404 }
+        ]),
+        ...responses
+      ])
+      await addFeed(values)
+    }
     if (posts?.length) {
       await addPost(
         posts.map((post, index) => {
