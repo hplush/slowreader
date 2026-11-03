@@ -73,6 +73,14 @@ describe('format', () => {
     match(result, /^\d{4}-\d{2}-\d{2}T/)
   })
 
+  test('formats future time', () => {
+    let format = createMockFormatter()
+    let now = Math.floor(Date.now() / 1000)
+    equal(formatPublishedAt(format, now + 30 * 60), '30 minute')
+    equal(formatPublishedAt(format, now + 3 * 3600), '3 hour')
+    match(formatPublishedAt(format, now + 2 * 86400), /^\d{4}-\d{2}-\d{2}T/)
+  })
+
   test('humanizes URL without protocol and www or as handle', () => {
     equal(humanizeUrl('https://www.example.com/feed'), 'example.com/feed')
     equal(humanizeUrl('http://example.com/'), 'example.com/')
@@ -95,6 +103,10 @@ describe('format', () => {
     equal(formatRelativeTime(format, now - 2 * 86400), '-2 day')
     equal(formatRelativeTime(format, now - 60 * 86400), '-2 month')
     equal(formatRelativeTime(format, now - 800 * 86400), '-2 year')
+    equal(formatRelativeTime(format, now + 5 * 60), '5 minute')
+    equal(formatRelativeTime(format, now + 3 * 3600), '3 hour')
+    equal(formatRelativeTime(format, now + 29 * 86400), '29 day')
+    equal(formatRelativeTime(format, now + 60 * 86400), '2 month')
   })
 
   test('formats short time as time for today and as date before', () => {

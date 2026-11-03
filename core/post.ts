@@ -418,7 +418,8 @@ export function getSortedAt(post: {
   publishedAt?: null | number
   sortedAt?: number
 }): number | undefined {
-  return post.sortedAt ?? post.publishedAt ?? undefined
+  let time = post.sortedAt ?? post.publishedAt ?? undefined
+  return time && Math.min(time, Math.round(Date.now() / 1000))
 }
 
 export function getSourceId(source: PostSource): string {
@@ -437,7 +438,7 @@ export function processOriginPost(
     id: getPostId(getSourceId(source), origin),
     publishedAt,
     reading,
-    sortedAt: origin.sortedAt ?? publishedAt
+    sortedAt: getSortedAt({ ...origin, publishedAt })!
   }
 }
 

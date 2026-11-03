@@ -387,8 +387,10 @@ async function processPage(
     )
 
   // The marker is written only after the last page, so a failure in the middle
-  // will return to the same pages on the next refresh.
-  if (more) {
+  // will return to the same pages on the next refresh. Future posts are newer
+  // than the marker on every refresh, so they are found only by origin ID.
+  let first = state.page[0]
+  if (more || (first && !wasAlreadyAdded(marker, first))) {
     state.known ??= new Set(await loadKnown(state.target))
   }
   let found = await writePage(state)

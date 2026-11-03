@@ -9,6 +9,7 @@ import {
   addFeed,
   addFilter,
   addPost,
+  changePost,
   autoRefresh,
   createPostsList,
   DEFAULT_REFRESH_STATISTICS,
@@ -30,6 +31,7 @@ import {
   isRefreshing,
   loaders,
   NetworkError,
+  type ParsedPost,
   type PostsListResult,
   type PostValue,
   refreshErrors,
@@ -419,6 +421,37 @@ describe('refresh', () => {
     deepEqual(await getPostKeys('title'), ['3', '4'])
     deepEqual(actions, ['posts/created', 'posts/created', 'feeds/changed'])
     equal((await loadFeed(feedId))!.lastOriginId, 'post4')
+  })
+
+  test('keeps future posts at the time of refresh', async () => {
+    let now = Math.round(Date.now() / 1000)
+    let feedId = await addFeed(testFeed({ lastPublishedAt: now - 100 }))
+    let list: ParsedPost[] = [
+      { originId: 'dec', publishedAt: now + 30 * 86400 },
+      { originId: 'old', publishedAt: now - 200 }
+    ]
+    spyOn(loaders.rss, 'getPosts', () => {
+      return createPostsList(() => [list, undefined])
+    })
+
+    await refreshPosts()
+    deepEqual(await getPostKeys('originId'), ['dec'])
+    let added = (await loadPosts())[0]!
+    equal(added.publishedAt, now + 30 * 86400)
+    ok(added.sortedAt <= now + 1)
+    ok((await loadFeed(feedId))!.lastPublishedAt! <= now + 1)
+    await changePost(added.id, { read: true })
+
+    let later = Date.now() + 10_000
+    spyOn(Date, 'now', () => later)
+    list = [
+      { originId: 'dec', publishedAt: now + 30 * 86400 },
+      { originId: 'nov', publishedAt: now + 15 * 86400 },
+      { originId: 'old', publishedAt: now - 200 }
+    ]
+    await refreshPosts()
+    deepEqual(await getPostKeys('originId'), ['dec', 'nov'])
+    deepEqual(await getPostKeys('read'), [true, false])
   })
 
   test('does not add posts twice after a stopped refresh', async () => {

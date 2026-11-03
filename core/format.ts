@@ -30,31 +30,29 @@ const YEAR = 365 * DAY
 
 export function formatPublishedAt(format: Formatter, time: number): string {
   let date = new Date(time * 1000)
-  let diff = Date.now() - date.getTime()
-
-  if (diff < DAY) {
-    if (diff < HOUR) {
-      let minutes = Math.round(diff / MINUTE)
-      return format.relativeTime(-minutes, 'minute')
-    }
-    let hours = Math.round(diff / HOUR)
-    return format.relativeTime(-hours, 'hour')
+  let diff = date.getTime() - Date.now()
+  let distance = Math.abs(diff)
+  if (distance < HOUR) {
+    return format.relativeTime(Math.round(diff / MINUTE), 'minute')
+  } else if (distance < DAY) {
+    return format.relativeTime(Math.round(diff / HOUR), 'hour')
   }
   return format.time(date, { dateStyle: 'short', timeStyle: 'short' })
 }
 
 export function formatRelativeTime(format: Formatter, time: number): string {
-  let diff = Date.now() - time * 1000
-  if (diff < HOUR) {
-    return format.relativeTime(-Math.round(diff / MINUTE), 'minute')
-  } else if (diff < DAY) {
-    return format.relativeTime(-Math.round(diff / HOUR), 'hour')
-  } else if (diff < MONTH) {
-    return format.relativeTime(-Math.round(diff / DAY), 'day')
-  } else if (diff < YEAR) {
-    return format.relativeTime(-Math.round(diff / MONTH), 'month')
+  let diff = time * 1000 - Date.now()
+  let distance = Math.abs(diff)
+  if (distance < HOUR) {
+    return format.relativeTime(Math.round(diff / MINUTE), 'minute')
+  } else if (distance < DAY) {
+    return format.relativeTime(Math.round(diff / HOUR), 'hour')
+  } else if (distance < MONTH) {
+    return format.relativeTime(Math.round(diff / DAY), 'day')
+  } else if (distance < YEAR) {
+    return format.relativeTime(Math.round(diff / MONTH), 'month')
   }
-  return format.relativeTime(-Math.round(diff / YEAR), 'year')
+  return format.relativeTime(Math.round(diff / YEAR), 'year')
 }
 
 export function formatDuration(format: Formatter, seconds: number): string {
