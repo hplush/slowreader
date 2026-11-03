@@ -30,8 +30,9 @@
 </Story>
 
 <Story
-  name="Reduced Motion & Own Font"
+  name="Mobile, Reduced Motion & Own Font"
   asChild
+  globals={{ viewport: { value: 'mobile2' } }}
   parameters={{ layout: 'fullscreen' }}
 >
   <Scene
@@ -39,7 +40,7 @@
       // @ts-expect-error Hack for tests
       systemReducedMotion.set(true)
       hasInAppBrowser.set(false)
-      textSize.set(120)
+      textSize.set(150)
       postFont.set('custom')
       postLineHeight.set('relaxed')
       customPostFont.set('Comic Sans MS')

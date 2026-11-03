@@ -27,7 +27,7 @@
   } from '@slowreader/core'
 
   import { hasInAppBrowser, openLinksInBrowser } from '../stores/links.ts'
-  import { systemReducedMotion } from '../stores/media-queries.ts'
+  import { mobileMedia, systemReducedMotion } from '../stores/media-queries.ts'
   import FontPreview from '../ui/font-preview.svelte'
   import FrozenPosition from '../ui/frozen-position.svelte'
   import Input from '../ui/input.svelte'
@@ -68,7 +68,7 @@
           }}
           label={$t.textSize}
           mark={100}
-          max={200}
+          max={$mobileMedia ? 150 : 200}
           min={80}
           oninput={value => {
             textSize.set(value)
