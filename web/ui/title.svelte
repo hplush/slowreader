@@ -17,6 +17,7 @@
   :global {
     .title {
       display: flex;
+      flex-shrink: 1;
       gap: 0.625rem;
       align-items: center;
       align-self: stretch;

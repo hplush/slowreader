@@ -13,6 +13,6 @@
 <Popup id={`${popup.uniqueId}-error`}>
   <Stack align="center" gap="xl">
     <PageIcon extra={mdiFire} path={mdiBookOpenPageVariant} />
-    <Title>{popup.error ?? $t.popupNotFound}</Title>
+    <Title center>{popup.error ?? $t.popupNotFound}</Title>
   </Stack>
 </Popup>

@@ -44,7 +44,7 @@
   <Stack gap="xl">
     <Stack align="center" gap="s">
       <AppIcon />
-      <Title>Slow Reader</Title>
+      <Title center>Slow Reader</Title>
     </Stack>
     <Stack gap="s">
       <Output label={$t.version} value={page.appVersion}>

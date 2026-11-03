@@ -35,7 +35,7 @@
     {#if typeof $done === 'number'}
       <PageIcon path={mdiCheckCircleOutline}>
         <Stack align="center" gap="l">
-          <Title>
+          <Title center>
             {$t.feedsAdded($done)}
           </Title>
           <Button href={getURL('feedsByCategories')} size="wide">
