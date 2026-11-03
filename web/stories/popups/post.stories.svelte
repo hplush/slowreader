@@ -31,8 +31,14 @@
     feedId: 'feed',
     full:
       '<p>Example released a big update with <i>XSS</i> in the title.</p>' +
+      '<h2>What is new</h2>' +
       '<p>The second paragraph to check how the popup renders long text ' +
-      'with a few blocks and how the reading column is limited.</p>',
+      'with a few blocks and how the reading column is limited.</p>' +
+      '<h3>Breaking changes</h3>' +
+      '<p>Headings must be smaller than the post title. Rename ' +
+      '<code>createStore()</code> to <code>atom()</code>, replace ' +
+      '<code>store.subscribe()</code> by <code>store.listen()</code>, and ' +
+      'move <code>onMount()</code> calls into <code>effect()</code>.</p>',
     intro: 'Example released a big update.',
     publishedAt: 1600000000,
     read: true,

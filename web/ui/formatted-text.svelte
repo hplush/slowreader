@@ -175,8 +175,12 @@
     }
 
     .formatted-text :is(h1, h2, h3, h4, h5, h6) {
-      margin: 1.6em 0 0.8em 0;
+      --heading-scale: 1;
+
+      margin: 1.6em 0 0 0;
+      font-size: calc(var(--heading-scale) * 1em);
       font-weight: var(--bold-weight);
+      line-height: calc(var(--post-line-height) / var(--heading-scale));
     }
 
     .formatted-text > :is(h1, h2, h3, h4, h5, h6):first-child {
@@ -184,31 +188,19 @@
     }
 
     .formatted-text h1 {
-      font-size: 1.56em;
-      line-height: 1.2;
+      --heading-scale: 1.25;
     }
 
     .formatted-text h2 {
-      font-size: 1.429em;
-      line-height: 1.2;
+      --heading-scale: 1.175;
     }
 
     .formatted-text h3 {
-      font-size: 1.296em;
-      line-height: 1.2;
+      --heading-scale: 1.1;
     }
 
     .formatted-text h4 {
-      font-size: 1.215em;
-      line-height: 1.2;
-    }
-
-    .formatted-text h5 {
-      font-size: 1.138em;
-    }
-
-    .formatted-text h6 {
-      font-size: 1em;
+      --heading-scale: 1.05;
     }
 
     .formatted-text a {
@@ -297,9 +289,9 @@
     }
 
     .formatted-text code {
-      padding: 0.3em;
+      padding: 0 0.3em;
       font: var(--mono-font);
-      line-height: 1.8;
+      line-height: inherit;
       border-radius: var(--base-radius);
     }
 
@@ -307,11 +299,12 @@
       max-width: 100%;
       padding: 0.1em 0.25em;
       font-size: 90%;
+      line-height: 1.8;
       background: transparent;
     }
 
     .formatted-text p code {
-      padding: 0.2em 0.4em;
+      padding: 0 0.4em;
       font-size: 90%;
       white-space: break-spaces;
       background-color: --tune-background(--current);
