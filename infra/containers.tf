@@ -8,8 +8,8 @@ resource "scaleway_container" "app" {
   image        = "ghcr.io/hplush/slowreader:latest"
   port         = 2553
 
-  cpu_limit          = 560
-  memory_limit_bytes = 1073741824
+  cpu_limit          = 140
+  memory_limit_bytes = 268435456
   # Logux keeps clients and subscriptions in memory
   min_scale = 1
   max_scale = 1
@@ -70,8 +70,8 @@ resource "scaleway_container" "proxy" {
   image        = "ghcr.io/hplush/slowreader:latest"
   port         = 2553
 
-  cpu_limit          = 560
-  memory_limit_bytes = 1073741824
+  cpu_limit          = 280
+  memory_limit_bytes = 536870912
   min_scale          = 0
   max_scale          = 2
 
